@@ -1,0 +1,783 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "**Uncertainty sampling skews toward the majority class.** On a screen that is 98 % negative, the decision boundary is mostly populated by negatives, so the annotation work list will be too. That is not a bug to hide — it is reported as a class-balance table so the annotator can see it and cap or rebalance if they want to.",
+      "label": "spacr.active_learning#10",
+      "source": "**Uncertainty sampling skews toward the majority class.** On a screen that is 98 % negative, the decision boundary is mostly populated by negatives, so the queue will be too. That is not a bug to hide — it is reported as a class-balance table so the annotator can see it and cap or rebalance if they want to.",
+      "source_sha256": "027bd50cf091ac4b413ae98b9fae4d35ad31dd77bf6b2450728cdd89b275a0bd",
+      "translation": "**A amostragem por incerteza tende para a classe majoritária.** Numa triagem que é 98 % negativa, o limite de decisão é povoado principalmente por negativos, então a lista de trabalho de anotação também será. Isso não é um bug a esconder — é relatado como uma tabela de equilíbrio de classes para que o anotador possa vê-lo e limitar ou reequilibrar se quiser."
+    },
+    {
+      "context": "Nothing in this module imports torch at module scope; the ranking maths is numpy only, so the Qt application view can build a work list without waking a multi-second import chain. :func:`predict_probabilities` imports torch lazily and is the only entry point that needs it.",
+      "label": "spacr.active_learning#12",
+      "source": "Nothing in this module imports torch at module scope; the ranking maths is numpy only, so the Qt screen can build a queue without waking a multi-second import chain. :func:`predict_probabilities` imports torch lazily and is the only entry point that needs it.",
+      "source_sha256": "5b4b5bc100e39719a684bdf775af300bd2ae48c62b7e62b6a6f60b45cba2de2d",
+      "translation": "Nada neste módulo importa torch no escopo do módulo; a matemática de classificação é apenas numpy, então a visualização do aplicativo Qt pode criar uma lista de trabalho sem acordar uma cadeia de importação de vários segundos. :func:`predict_probabilities` importa torch de forma preguiçosa e é o único ponto de entrada que precisa dele."
+    },
+    {
+      "context": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Per-row uncertainty scores. Pure numpy — no torch, no database. ``disagreement(prob_sets)`` Spread across an ensemble or a set of MC-dropout passes. ``rank_by_uncertainty(probs, measure=…)`` Row indices, most uncertain first, deterministically tie-broken. ``build_queue(db_path, annotation_column, …)`` The annotation work list itself, read straight out of ``png_list``. ``queue_rows(queue)`` The annotation work list as ``[(png_path, None), …]`` — the shape the Annotate application view already paginates (see :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` The annotation work list's shape, class balance and caveats, as text. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Raw-head-output → probability matrix, both head shapes handled. ``predict_probabilities(model, batches)`` Optional live-model bridge; the only function that touches torch.",
+      "label": "spacr.active_learning#3",
+      "source": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Per-row uncertainty scores. Pure numpy — no torch, no database. ``disagreement(prob_sets)`` Spread across an ensemble or a set of MC-dropout passes. ``rank_by_uncertainty(probs, measure=…)`` Row indices, most uncertain first, deterministically tie-broken. ``build_queue(db_path, annotation_column, …)`` The queue itself, read straight out of ``png_list``. ``queue_rows(queue)`` The queue as ``[(png_path, None), …]`` — the shape the Annotate screen already paginates (see :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` The queue's shape, class balance and caveats, as text. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Raw-head-output → probability matrix, both head shapes handled. ``predict_probabilities(model, batches)`` Optional live-model bridge; the only function that touches torch.",
+      "source_sha256": "c387209c381e118f57e3c942d47eb47659dd270318aa8c2700c37c482201a44c",
+      "translation": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Pontuações de incerteza por linha. Apenas numpy — sem torch, sem banco de dados. ``disagreement(prob_sets)`` Dispersão entre um ensemble ou um conjunto de passagens de MC-dropout. ``rank_by_uncertainty(probs, measure=…)`` Índices de linha, os mais incertos primeiro, com desempate determinístico. ``build_queue(db_path, annotation_column, …)`` A própria lista de trabalho de anotação, lida diretamente de ``png_list``. ``queue_rows(queue)`` A lista de trabalho de anotação como ``[(png_path, None), …]`` — o formato que o modo de exibição do aplicativo Annotate já pagina (veja :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` O formato da lista de trabalho de anotação, o equilíbrio de classes e as ressalvas, como texto. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Saída bruta da cabeça → matriz de probabilidades, tratando os dois formatos de cabeça. ``predict_probabilities(model, batches)`` Ponte opcional para um modelo em execução; a única função que usa torch."
+    },
+    {
+      "context": "``margin`` and ``least_confidence`` are the same ranking on two classes. For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``: a linear transform, so identical order and identical ties. They are not two independent choices on a binary screen — they differ only from three classes up, where ``margin`` looks at the top *two* classes while ``least_confidence`` looks only at the top one and ``entropy`` looks at the whole distribution.",
+      "label": "spacr.active_learning#8",
+      "source": "``margin`` and ``least_confidence`` are the same ranking on two classes. For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``: a linear transform, so identical order and identical ties. They are not two independent choices on a binary screen — they differ only from three classes up, where ``margin`` looks at the top *two* classes while ``least_confidence`` looks only at the top one and ``entropy`` looks at the whole distribution.",
+      "source_sha256": "a16a370a6fe4b63fbb5dfe535750914608eb89ae772f639a6046f97ac0997ecb",
+      "translation": "``margin`` e ``least_confidence`` produzem a mesma classificação com duas classes. Para C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``: uma transformação linear, portanto ordem idêntica e empates idênticos. Não são duas escolhas independentes numa triagem binária — só diferem a partir de três classes, quando ``margin`` olha para as *duas* classes do topo, enquanto ``least_confidence`` olha apenas para a primeira e ``entropy`` olha para a distribuição inteira."
+    },
+    {
+      "context": "substring filter on the structured-data name, matching the Annotate application view's own filter. Every count below it, ``n_rows`` included, is over the extracted image regions that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
+      "label": "spacr.active_learning.annotation_coverage#7",
+      "source": "substring filter on the key, matching the Annotate screen's own filter. Every count below it, ``n_rows`` included, is over the crops that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
+      "source_sha256": "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
+      "translation": "filtro de substring no nome de dados estruturados, correspondendo ao próprio filtro do modo de exibição do aplicativo Annotate. Cada contagem abaixo dele, ``n_rows`` incluído, refere-se às regiões de imagem extraídas que corresponderam — um denominador retirado da tabela inteira colocaria o numerador e o denominador em duas populações diferentes. ``n_rows_unfiltered`` mantém o total, e uma nota diz quantos foram excluídos."
+    },
+    {
+      "context": "``n`` **is the number of rows the matrix actually contains**, and the supports sum to it. A row whose true class the head has no column for is counted as an error rather than dropped: the matrix grows to hold it, and the missing column stays empty because the head can never predict that class. Reporting ``n`` over one population and ``accuracy`` over another is the one thing a model card must not do — a three-class held-out set scored by a binary head used to report a perfect score on a set the model got two of three right, and the ``accuracy == trace / total`` invariant still checked out because the row was missing from both sides of it.",
+      "label": "spacr.active_learning.holdout_report#3",
+      "source": "``n`` **is the number of rows the matrix actually contains**, and the supports sum to it. A row whose true class the head has no column for is counted as an error rather than dropped: the matrix grows to hold it, and the missing column stays empty because the head can never predict that class. Reporting ``n`` over one population and ``accuracy`` over another is the one thing a model card must not do — a three-class held-out set scored by a binary head used to report a perfect score on a set the model got two of three right, and the ``accuracy == trace / total`` invariant still checked out because the row was missing from both sides of it.",
+      "source_sha256": "e1ffa1ba94fd3393737a31660d48193820a31f9221e152cfc4dba43720b7ce50",
+      "translation": "``n`` **é o número de linhas que a matriz realmente contém**, e os suportes somam esse valor. Uma linha cuja classe verdadeira não tem coluna na cabeça é contada como erro em vez de ser descartada: a matriz cresce para acomodá-la, e a coluna ausente permanece vazia porque a cabeça nunca pode prever essa classe. Relatar ``n`` sobre uma população e ``accuracy`` sobre outra é justamente o que um cartão de modelo não deve fazer — um conjunto reservado de três classes avaliado por uma cabeça binária relatava uma pontuação perfeita num conjunto em que o modelo acertou dois de três, e a invariante ``accuracy == trace / total`` continuava batendo porque a linha faltava dos dois lados."
+    },
+    {
+      "context": "The rule, in one line: look back over whole rounds until at least ``label_window`` new labels have accumulated, and compare held-out accuracy at the two ends. If it moved by less than ``min_gain``, stop.",
+      "label": "spacr.active_learning.should_stop#1",
+      "source": "The rule, in one line: look back over whole rounds until at least ``label_window`` new labels have accumulated, and compare held-out accuracy at the two ends. If it moved by less than ``min_gain``, stop.",
+      "source_sha256": "0c84351ec3a74975a1c520fccd4c958ef2fae844721fa4863c0325363ad69796",
+      "translation": "A regra, em uma linha: olhe para trás ao longo de rodadas inteiras até que pelo menos ``label_window`` novos rótulos tenham se acumulado, e compare a acurácia no conjunto reservado nas duas extremidades. Se ela variou menos de ``min_gain``, pare."
+    },
+    {
+      "context": "**Labels, not rounds, are the unit of cost.** A round is whatever size the annotator felt like; \"no improvement for 3 rounds\" says nothing when the rounds were 5, 300 and 8 labels. The thing being spent is human attention, one extracted image region at a time, so the window is measured in extracted image regions.",
+      "label": "spacr.active_learning.should_stop#3",
+      "source": "**Labels, not rounds, are the unit of cost.** A round is whatever size the annotator felt like; \"no improvement for 3 rounds\" says nothing when the rounds were 5, 300 and 8 labels. The thing being spent is human attention, one crop at a time, so the window is measured in crops.",
+      "source_sha256": "0f241643363b72ebf2b805231b438f9bd6aeb93016faeb9fd4af6433f4783d70",
+      "translation": "**Rótulos, não rodadas, são a unidade de custo.** Uma rodada tem o tamanho que o anotador quiser; \"nenhuma melhoria em 3 rodadas\" não diz nada quando as rodadas tiveram 5, 300 e 8 rótulos. O que está sendo gasto é a atenção humana, uma região de imagem extraída de cada vez, então a janela é medida em regiões de imagem extraídas."
+    },
+    {
+      "context": "**It looks *back over* rounds, not *at* the last one.** A single round that happened to land flat is noise; the question is whether the last fifty labels — however they were divided up — bought anything.",
+      "label": "spacr.active_learning.should_stop#4",
+      "source": "**It looks *back over* rounds, not *at* the last one.** A single round that happened to land flat is noise; the question is whether the last fifty labels — however they were divided up — bought anything.",
+      "source_sha256": "3c24c2892e56e7be15cdbc389a7be002d03818d077a4d08ec00d5df5b4a85ad1",
+      "translation": "**Ele olha *para trás ao longo* das rodadas, não *para* a última.** Uma única rodada que por acaso ficou estável é ruído; a questão é se os últimos cinquenta rótulos — independentemente de como foram divididos — trouxeram algum ganho."
+    },
+    {
+      "context": "Every count in that record -- and :attr:`ExportResult.n_missing` with it -- is taken on the matrix **as the policy received it**, which for a dropping policy is bigger than the one written. ``ExportResult.frac_missing`` divides by that same matrix (:attr:`ExportResult.counted_shape`) rather than by the written shape, so it stays a fraction.",
+      "label": "spacr.anndata_export#13",
+      "source": "Every count in that record -- and :attr:`ExportResult.n_missing` with it -- is taken on the matrix **as the policy received it**, which for a dropping policy is bigger than the one written. ``ExportResult.frac_missing`` divides by that same matrix (:attr:`ExportResult.counted_shape`) rather than by the written shape, so it stays a fraction.",
+      "source_sha256": "84c59197f3f20b1ea842953a64a08f6b10cec2b1a093471aa6ba95da1f67a726",
+      "translation": "Cada contagem nesse registro -- e :attr:`ExportResult.n_missing` junto com ela -- é feita sobre a matriz **tal como a política a recebeu**, que, para uma política que descarta dados, é maior do que a matriz escrita. ``ExportResult.frac_missing`` divide pela mesma matriz (:attr:`ExportResult.counted_shape`) em vez de pela forma escrita, de modo que continua sendo uma fração."
+    },
+    {
+      "context": "``NAN_DROP_FEATURES`` drop any feature column containing a NaN. Cheap and safe; on a real database it often removes every ``pathogen_*`` column, which is the honest consequence of asking for a complete matrix. ``NAN_DROP_OBJECTS`` drop any object row containing a NaN. Usually removes almost everything, for the same reason; offered because on a single-object-type export it is often exactly right. ``NAN_ZERO`` / ``NAN_MEAN`` impute. Both write a ``layers['missing']`` boolean mask of the same shape by default, because an imputed matrix that cannot be told from a measured one is a trap, and 1 byte per cell against 4 is a fair price.",
+      "label": "spacr.anndata_export#15",
+      "source": "``NAN_DROP_FEATURES`` drop any feature column containing a NaN. Cheap and safe; on a real database it often removes every ``pathogen_*`` column, which is the honest consequence of asking for a complete matrix. ``NAN_DROP_OBJECTS`` drop any object row containing a NaN. Usually removes almost everything, for the same reason; offered because on a single-object-type export it is often exactly right. ``NAN_ZERO`` / ``NAN_MEAN`` impute. Both write a ``layers['missing']`` boolean mask of the same shape by default, because an imputed matrix that cannot be told from a measured one is a trap, and 1 byte per cell against 4 is a fair price.",
+      "source_sha256": "778584b398b53be3e6e1c19a2bbb82fdb95c799f4d0d5deadfdb3155024adccc",
+      "translation": "``NAN_DROP_FEATURES`` remove qualquer coluna de característica que contenha um NaN. Barato e seguro; num banco de dados real, muitas vezes remove todas as colunas ``pathogen_*``, que é a consequência honesta de pedir uma matriz completa. ``NAN_DROP_OBJECTS`` remove qualquer linha de objeto que contenha um NaN. Normalmente remove quase tudo, pelo mesmo motivo; é oferecido porque, numa exportação de um único tipo de objeto, costuma ser exatamente o certo. ``NAN_ZERO`` / ``NAN_MEAN`` imputam. Ambos gravam por padrão uma máscara booleana ``layers['missing']`` com a mesma forma, porque uma matriz imputada que não pode ser distinguida de uma medida é uma armadilha, e 1 byte por célula contra 4 é um preço justo."
+    },
+    {
+      "context": "They go in ``obs`` and ``uns``. **Never** ``obsp``.",
+      "label": "spacr.anndata_export#18",
+      "source": "They go in ``obs`` and ``uns``. **Never** ``obsp``.",
+      "source_sha256": "b1793d796c5a3dc9db859a104335b7a251503357990ef047ca0388b7e5224fcf",
+      "translation": "Eles vão em ``obs`` e ``uns``. **Nunca** ``obsp``."
+    },
+    {
+      "context": "In the joined, cell-anchored export (the default) the nuclei and pathogens are not observations at all -- the join in :func:`spacr.io._read_and_join_tables` has already averaged them onto their parent cell. There is no row for an ``obsp`` entry to point at.",
+      "label": "spacr.anndata_export#20",
+      "source": "In the joined, cell-anchored export (the default) the nuclei and pathogens are not observations at all -- the join in :func:`spacr.io._read_and_join_tables` has already averaged them onto their parent cell. There is no row for an ``obsp`` entry to point at.",
+      "source_sha256": "52643aaf94344c39eaa4df22c524ab9a7e8c7b0c950c56982541cdd446a56a65",
+      "translation": "Na exportação unida e ancorada em células (o padrão), os núcleos e patógenos nem sequer são observações -- a junção em :func:`spacr.io._read_and_join_tables` já calculou a média deles em sua célula-mãe. Não há linha para a qual uma entrada de ``obsp`` possa apontar."
+    },
+    {
+      "context": "joined export -- ``obs['count_nucleus']`` / ``obs['count_pathogen']`` (how many children were averaged into this row) and ``var['is_aggregated']`` (which columns are such an average). Without the second one it is genuinely easy to report a per-nucleus statistic that is in fact a per-cell mean of nuclei.",
+      "label": "spacr.anndata_export#24",
+      "source": "joined export -- ``obs['count_nucleus']`` / ``obs['count_pathogen']`` (how many children were averaged into this row) and ``var['is_aggregated']`` (which columns are such an average). Without the second one it is genuinely easy to report a per-nucleus statistic that is in fact a per-cell mean of nuclei.",
+      "source_sha256": "65bca0f1e7320a2d5d6db125b51e6541004d56eb20b9c3093d8eacfd44caecf2",
+      "translation": "exportação unida -- ``obs['count_nucleus']`` / ``obs['count_pathogen']`` (quantos objetos filhos entraram na média desta linha) e ``var['is_aggregated']`` (quais colunas são uma média desse tipo). Sem o segundo, é realmente fácil relatar uma estatística por núcleo que na verdade é uma média de núcleos por célula."
+    },
+    {
+      "context": "per-table export of a child -- ``obs['cell_id']``, the schema's own ``parent_column`` from :data:`spacr.schema.OBJECT_TABLE_SCHEMAS`. A plain foreign structured-data name, which is what ``adata.obs.groupby('cell_id')`` already expects.",
+      "label": "spacr.anndata_export#25",
+      "source": "per-table export of a child -- ``obs['cell_id']``, the schema's own ``parent_column`` from :data:`spacr.schema.OBJECT_TABLE_SCHEMAS`. A plain foreign key, which is what ``adata.obs.groupby('cell_id')`` already expects.",
+      "source_sha256": "a5f5ba2d88929cb5be586ec24669ac3488795e121e297814df0c1eeac33b9c4a",
+      "translation": "exportação por tabela de um filho -- ``obs['cell_id']``, o próprio ``parent_column`` do esquema, de :data:`spacr.schema.OBJECT_TABLE_SCHEMAS`. Uma chave estrangeira simples, que é exatamente o que ``adata.obs.groupby('cell_id')`` já espera."
+    },
+    {
+      "context": "This is the contract, and it is deliberately boring: channel ``i`` of the extracted image region is channel ``i`` of the result, narrowed to 8 bit by :func:`narrow_to_uint8`.",
+      "label": "spacr.crops.png_view#1",
+      "source": "This is the contract, and it is deliberately boring: channel ``i`` of the crop is channel ``i`` of the result, narrowed to 8 bit by :func:`narrow_to_uint8`.",
+      "source_sha256": "9763920ad1bb832f1471f832c7a9daaf6cc20fb0dc3afdeecfd940b71f81b0b6",
+      "translation": "Este é o contrato, e ele é deliberadamente sem graça: o canal ``i`` da região de imagem extraída é o canal ``i`` do resultado, reduzido para 8 bits por :func:`narrow_to_uint8`."
+    },
+    {
+      "context": "Before spaCR grew an image-region-format marker the answer was the *reverse* of this (see :func:`legacy_png_view`); that was a bug, not a convention.",
+      "label": "spacr.crops.png_view#5",
+      "source": "Before spaCR grew a crop-format marker the answer was the *reverse* of this (see :func:`legacy_png_view`); that was a bug, not a convention.",
+      "source_sha256": "fcb917c9a5b915d1ec81ab766302a758c2415f4ae486db65b3f29bddac41035e",
+      "translation": "Antes de o spaCR ganhar um marcador de formato de região de imagem, a resposta era o *inverso* disto (veja :func:`legacy_png_view`); isso era um bug, não uma convenção."
+    },
+    {
+      "context": "Convert every image in ``folder`` to Yokogawa-style naming with a MIP.",
+      "label": "spacr.io.convert_to_yokogawa#0",
+      "source": "Convert every image in ``folder`` to Yokogawa-style naming with a MIP.",
+      "source_sha256": "b4b4f561a08e130a243893ec4722d2ecac7ad9e3757863509350dc28e36c0a7f",
+      "translation": "Converta cada imagem em ``folder`` para a nomenclatura no estilo Yokogawa, com uma MIP."
+    },
+    {
+      "context": "A file that cannot be read is skipped so the rest of the folder still converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`, printed as a loud summary at the end, and **stamped into a sibling** ``rename_log.run_status.json``. That sidecar is what lets a later reader (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is missing inputs, instead of quietly analysing a subset.",
+      "label": "spacr.io.convert_to_yokogawa#2",
+      "source": "A file that cannot be read is skipped so the rest of the folder still converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`, printed as a loud summary at the end, and **stamped into a sibling** ``rename_log.run_status.json``. That sidecar is what lets a later reader (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is missing inputs, instead of quietly analysing a subset.",
+      "source_sha256": "a3883b7e6d0fcfc96a090738b0160a7b81fc18850d31b04438c7c4f15f682f91",
+      "translation": "Um arquivo que não pode ser lido é ignorado para que o resto da pasta ainda seja convertido — mas a omissão é registrada em um :class:`spacr.errors.RunLedger`, impressa como um resumo bem visível no final e **gravada em um arquivo vizinho** ``rename_log.run_status.json``. É esse arquivo auxiliar que permite a um leitor posterior (ou a :func:`spacr.errors.run_is_complete`) perceber que faltam entradas na pasta convertida, em vez de analisar silenciosamente um subconjunto."
+    },
+    {
+      "context": "A canvas ``factor``\\ × closer, about ``centre`` (canvas pixels).",
+      "label": "spacr.layers.Canvas.zoomed#0",
+      "source": "A canvas ``factor``\\ × closer, about ``centre`` (canvas pixels).",
+      "source_sha256": "90e6ea2500b4f0822a248b9c5927a9ed6c1b554dfcd16bb9128ff91eb91d113c",
+      "translation": "Uma tela ``factor``\\ × mais próxima, em torno de ``centre`` (pixels da tela)."
+    },
+    {
+      "context": "``spacing`` is handed straight to :func:`skimage.measure.regionprops_table` and (as ``sampling``) to :func:`scipy.ndimage.distance_transform_edt`. ``stamp`` is the key-value mapping of :data:`MEASUREMENT_STAMP_COLUMNS` written onto every row so the units are recorded rather than inferred.",
+      "label": "spacr.measure.resolve_measurement_spacing#1",
+      "source": "``spacing`` is handed straight to :func:`skimage.measure.regionprops_table` and (as ``sampling``) to :func:`scipy.ndimage.distance_transform_edt`. ``stamp`` is the dict of :data:`MEASUREMENT_STAMP_COLUMNS` written onto every row so the units are recorded rather than inferred.",
+      "source_sha256": "f92065b5f62d493d75add19940f80afb6963144b718d2a53c9b08d237091ee0d",
+      "translation": "``spacing`` é entregue diretamente a :func:`skimage.measure.regionprops_table` e (como ``sampling``) a :func:`scipy.ndimage.distance_transform_edt`. ``stamp`` é o mapeamento chave-valor de :data:`MEASUREMENT_STAMP_COLUMNS` escrito em cada linha, para que as unidades sejam registradas em vez de inferidas."
+    },
+    {
+      "context": "measure settings key-value mapping; reads ``voxel_size_z_um``, ``voxel_size_xy_um`` and ``anisotropy``.",
+      "label": "spacr.measure.resolve_measurement_spacing#4",
+      "source": "measure settings dict; reads ``voxel_size_z_um``, ``voxel_size_xy_um`` and ``anisotropy``.",
+      "source_sha256": "8d9a19e0078f2feaa43c91eb1aa136ef05e7513c8bf6bb4f7de8f9de93aa3f9b",
+      "translation": "mapeamento chave-valor das configurações de medição; lê ``voxel_size_z_um``, ``voxel_size_xy_um`` e ``anisotropy``."
+    },
+    {
+      "context": "one of :data:`OBJECT_TYPES`. Each type is offered separately, so a filter can act on one and wave the rest through with ``np.ones(len(context.labels), bool)``. Note that culling only the cells cascades to their nuclei, pathogens and cytoplasm when the run has all of ``cell_mask_dim``, ``nucleus_mask_dim`` and ``pathogen_mask_dim`` set — that is the condition under which ``_measure_crop_core`` calls ``_exclude_objects``, which zeroes the child masks outside the surviving cells. Otherwise apply the same decision to each type, which is what a polygon test on the centroid does naturally.",
+      "label": "spacr.measure_hooks.RegionContext#1",
+      "source": "one of :data:`OBJECT_TYPES`. Each type is offered separately, so a filter can act on one and wave the rest through with ``np.ones(len(context.labels), bool)``. Note that culling only the cells cascades to their nuclei, pathogens and cytoplasm when the run has all of ``cell_mask_dim``, ``nucleus_mask_dim`` and ``pathogen_mask_dim`` set — that is the condition under which ``_measure_crop_core`` calls ``_exclude_objects``, which zeroes the child masks outside the surviving cells. Otherwise apply the same decision to each type, which is what a polygon test on the centroid does naturally.",
+      "source_sha256": "3bfd9d31c19bd7c6b9f7469996458b872246c3fa7a793d6e4ac89cc7125a8db9",
+      "translation": "um de :data:`OBJECT_TYPES`. Cada tipo é oferecido separadamente, então um filtro pode agir sobre um e deixar passar o resto com ``np.ones(len(context.labels), bool)``. Observe que descartar apenas as células se propaga para seus núcleos, patógenos e citoplasma quando a execução tem ``cell_mask_dim``, ``nucleus_mask_dim`` e ``pathogen_mask_dim`` todos definidos — essa é a condição sob a qual ``_measure_crop_core`` chama ``_exclude_objects``, que zera as máscaras filhas fora das células sobreviventes. Caso contrário, aplique a mesma decisão a cada tipo, que é o que um teste de polígono no centroide faz naturalmente."
+    },
+    {
+      "context": "the field's ``.npy`` stem.",
+      "label": "spacr.measure_hooks.RegionContext#2",
+      "source": "the field's ``.npy`` stem.",
+      "source_sha256": "ac6622ffc50ce524fe4c3661675e722f3104bec484be616a940cf6fc3fb9342a",
+      "translation": "o nome-base do arquivo ``.npy`` do campo."
+    },
+    {
+      "context": "There is also a case where the first bullet above is *backwards*. Two screens that share a guide library both have ``plate1..plate4``, and there they are not two plates claiming one identity -- they are two *different* plates whose identity was only ever partly written down. The missing part is the screen.",
+      "label": "spacr.multi_database#9",
+      "source": "There is also a case where the first bullet above is *backwards*. Two screens that share a guide library both have ``plate1..plate4``, and there they are not two plates claiming one identity -- they are two *different* plates whose identity was only ever partly written down. The missing part is the screen.",
+      "source_sha256": "6d6cb1fec24f8d96e9c336e127c547be6f9544d385590f16e96962bfe2bbc18c",
+      "translation": "Há também um caso em que o primeiro item acima funciona *ao contrário*. Duas triagens que compartilham uma biblioteca de RNA-guia têm ambas ``plate1..plate4``, e ali não são duas placas reivindicando uma mesma identidade -- são duas placas *diferentes* cuja identidade só foi registrada parcialmente. A parte que falta é a triagem."
+    },
+    {
+      "context": "which axes to halve. Defaults to the two fastest-varying space axes — halving z as well ruins an anisotropic stack, where 12 image layers at 2 µm become 2 image layers at 16 µm by level 3.",
+      "label": "spacr.ome_zarr.write_ome_zarr#12",
+      "source": "which axes to halve. Defaults to the two fastest-varying space axes — halving z as well ruins an anisotropic stack, where 12 planes at 2 µm become 2 planes at 16 µm by level 3.",
+      "source_sha256": "1619a794b48484a9a29ad57a6b0d22b52649c0f3d322393629bec7e5c504ec94",
+      "translation": "quais eixos reduzir pela metade. O padrão são os dois eixos espaciais de variação mais rápida — reduzir z pela metade também arruína uma pilha anisotrópica, na qual 12 camadas de imagem a 2 µm viram 2 camadas de imagem a 16 µm no nível 3."
+    },
+    {
+      "context": "``\"zlib\"`` (default), ``\"gzip\"``, ``\"bz2\"``, ``\"lzma\"``, ``None`` for stored, or any codec :mod:`numcodecs` provides. The default needs no extra by design.",
+      "label": "spacr.ome_zarr.write_ome_zarr#14",
+      "source": "``\"zlib\"`` (default), ``\"gzip\"``, ``\"bz2\"``, ``\"lzma\"``, ``None`` for stored, or any codec :mod:`numcodecs` provides. The default needs no extra by design.",
+      "source_sha256": "aebedc2c7abe02b3f2b9d8edae8637e45481ba54d5492b76cf4307e3dcb0ee51",
+      "translation": "``\"zlib\"`` (padrão), ``\"gzip\"``, ``\"bz2\"``, ``\"lzma\"``, ``None`` para armazenamento sem compressão, ou qualquer codec que :mod:`numcodecs` forneça. O padrão não precisa de nenhum extra, por design."
+    },
+    {
+      "context": "``\"/\"`` (nested directories, the default, and much kinder to filesystems at 10^5 chunks) or ``\".\"`` (flat).",
+      "label": "spacr.ome_zarr.write_ome_zarr#17",
+      "source": "``\"/\"`` (nested directories, the default, and much kinder to filesystems at 10^5 chunks) or ``\".\"`` (flat).",
+      "source_sha256": "d38b5e483699efa88755db357c1804fda7e154bd6cd59d02a7b050257d65ffad",
+      "translation": "``\"/\"`` (diretórios aninhados, o padrão, e muito mais gentil com os sistemas de arquivos com 10^5 blocos) ou ``\".\"`` (plano)."
+    },
+    {
+      "context": "**The pyramid.** ``levels=1`` writes level 0 alone; more builds each level by halving the two fastest-varying space axes of the one above with a 2x **block mean** (``downsample=\"mean\"``) or by **striding** (``downsample=\"stride\"``). Neither is a Gaussian pyramid — there is no pre-filter beyond the box — and the block mean is the default because striding aliases: a one-pixel-wide bright structure survives or vanishes with the parity of its coordinate, so the same object appears and disappears as a user zooms. **Label and mask arrays must use** ``downsample=\"stride\"``: the mean of labels 3 and 5 is 4, which is a different object, and averaging a boolean mask invents half-membership. Levels shrink by ``ceil(n / 2)``, so nothing is cropped off an odd edge.",
+      "label": "spacr.ome_zarr.write_ome_zarr#2",
+      "source": "**The pyramid.** ``levels=1`` writes level 0 alone; more builds each level by halving the two fastest-varying space axes of the one above with a 2x **block mean** (``downsample=\"mean\"``) or by **striding** (``downsample=\"stride\"``). Neither is a Gaussian pyramid — there is no pre-filter beyond the box — and the block mean is the default because striding aliases: a one-pixel-wide bright structure survives or vanishes with the parity of its coordinate, so the same object appears and disappears as a user zooms. **Label and mask arrays must use** ``downsample=\"stride\"``: the mean of labels 3 and 5 is 4, which is a different object, and averaging a boolean mask invents half-membership. Levels shrink by ``ceil(n / 2)``, so nothing is cropped off an odd edge.",
+      "source_sha256": "6fdc36f6acd4eeccdbd3356ff511643805eb22a32c38a25416bcd0ab9f0e8e2b",
+      "translation": "**A pirâmide.** ``levels=1`` escreve apenas o nível 0; com mais níveis, cada nível é construído reduzindo pela metade os dois eixos espaciais de variação mais rápida do nível acima, com uma **média de bloco** 2x (``downsample=\"mean\"``) ou por **amostragem por passo** (``downsample=\"stride\"``). Nenhuma das duas é uma pirâmide gaussiana — não há pré-filtro além do próprio bloco — e a média de bloco é o padrão porque a amostragem por passo gera aliasing: uma estrutura brilhante com um pixel de largura sobrevive ou desaparece conforme a paridade da sua coordenada, de modo que o mesmo objeto aparece e desaparece à medida que o usuário aplica zoom. **Arrays de rótulos e de máscaras devem usar** ``downsample=\"stride\"``: a média dos rótulos 3 e 5 é 4, que é um objeto diferente, e calcular a média de uma máscara booleana inventa uma pertença pela metade. Os níveis encolhem por ``ceil(n / 2)``, então nada é cortado de uma borda ímpar."
+    },
+    {
+      "context": "OMERO import / export — a spaCR project out of a server, and results back in.",
+      "label": "spacr.omero#0",
+      "source": "OMERO import / export — a spaCR project out of a server, and results back in.",
+      "source_sha256": "5a76b2f81e95d2c1eb2af1bc66bc99c83d9cc6de996071fd691f96e9c30aa418",
+      "translation": "Importação / exportação OMERO — um projeto spaCR tirado de um servidor, e os resultados devolvidos a ele."
+    },
+    {
+      "context": "OMERO's ``WellWrapper.getRow()`` and ``.getColumn()`` are **0-based**. :func:`well_position` adds one and hands the result to :func:`spacr.schema.well_id`, which is spaCR's own definition of a microplate sample position name. Consequences worth writing down because they are the ones that get fumbled:",
+      "label": "spacr.omero#10",
+      "source": "OMERO's ``WellWrapper.getRow()`` and ``.getColumn()`` are **0-based**. :func:`well_position` adds one and hands the result to :func:`spacr.schema.well_id`, which is spaCR's own definition of a well name. Consequences worth writing down because they are the ones that get fumbled:",
+      "source_sha256": "d8886763245890f26fb826a9244c0d293efcb70a192aa836adca20408956fc03",
+      "translation": "``WellWrapper.getRow()`` e ``.getColumn()`` do OMERO são **baseados em 0**. :func:`well_position` soma um e entrega o resultado a :func:`spacr.schema.well_id`, que é a própria definição do spaCR de nome de poço. Consequências que vale a pena anotar, porque são justamente as que costumam dar errado:"
+    },
+    {
+      "context": "row 0 -> ``A``, row 7 -> ``H`` (a 96-position laboratory microplate), row 15 -> ``P`` (384).",
+      "label": "spacr.omero#11",
+      "source": "row 0 -> ``A``, row 7 -> ``H`` (a 96-well plate), row 15 -> ``P`` (384).",
+      "source_sha256": "c36c954d98cc07affbe27f45c7bfdab03ac355137f725ffaf5de938fd8dd1d52",
+      "translation": "linha 0 -> ``A``, linha 7 -> ``H`` (uma placa de 96 poços), linha 15 -> ``P`` (384)."
+    },
+    {
+      "context": "**row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives). This is bijective base 26, and it is not a hypothetical: a 1536-position laboratory microplate has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for the same laboratory microplate, so nothing here caps the column at 24 either.",
+      "label": "spacr.omero#13",
+      "source": "**row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives). This is bijective base 26, and it is not a hypothetical: a 1536-well plate has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for the same plate, so nothing here caps the column at 24 either.",
+      "source_sha256": "b0e0419a416ef2de9dfd007da8985990d0150d17a7aafe76a8fc76f135b95f6e",
+      "translation": "**linha 26 ->** ``AA``, não ``[`` (que é o que ``chr(65 + 26)`` dá) e não um ``IndexError`` (que é o que ``string.ascii_uppercase[26]`` dá). Isto é base 26 bijetiva, e não é hipotético: uma placa de 1536 poços tem 32 linhas, que vão de ``A..Z``, ``AA..AF``. Coluna 47 -> ``48``, para a mesma placa, então nada aqui limita a coluna a 24 também."
+    },
+    {
+      "context": "the column is zero padded to two digits (``A01``, never ``A1``) because spaCR's strict Yokogawa regex is ``[A-Z]\\d{2}``.",
+      "label": "spacr.omero#14",
+      "source": "the column is zero padded to two digits (``A01``, never ``A1``) because spaCR's strict Yokogawa regex is ``[A-Z]\\d{2}``.",
+      "source_sha256": "f3a10d9ee8b44eabd57d58e1d352a139e52c6291ee02cad6a52399d9da5aab92",
+      "translation": "a coluna é preenchida com zeros até dois dígitos (``A01``, nunca ``A1``) porque a regex estrita de Yokogawa do spaCR é ``[A-Z]\\d{2}``."
+    },
+    {
+      "context": ":func:`inspect_container` reports the image count, the microplate sample positions, the dimensions and the image data channel names **without ever calling** ``getPlane`` — a fact the test suite pins by counting calls on the fake gateway. The importers additionally take ``limit`` (stop after N OMERO images) and ``dry_run`` (build the complete plan, list every filename that would be written, touch no pixels).",
+      "label": "spacr.omero#22",
+      "source": ":func:`inspect_container` reports the image count, the wells, the dimensions and the channel names **without ever calling** ``getPlane`` — a fact the test suite pins by counting calls on the fake gateway. The importers additionally take ``limit`` (stop after N OMERO images) and ``dry_run`` (build the complete plan, list every filename that would be written, touch no pixels).",
+      "source_sha256": "c20b6755db9b4ff13b2c24aa758a2b1f838ecaaeda49abfbd269b87e1d66b1be",
+      "translation": ":func:`inspect_container` relata a contagem de imagens, os poços, as dimensões e os nomes dos canais **sem nunca chamar** ``getPlane`` — um fato que o conjunto de testes fixa contando as chamadas no gateway falso. Os importadores também aceitam ``limit`` (parar após N imagens do OMERO) e ``dry_run`` (montar o plano completo, listar todos os nomes de arquivos que seriam escritos, sem tocar em pixels)."
+    },
+    {
+      "context": "**The default is REPLACE, implemented as update-in-place, and it is the safe option rather than a compromise:** an existing MapAnnotation whose namespace is exactly spaCR's has its value overwritten. Nothing is created, nothing is unlinked, nothing is deleted, and no annotation outside spaCR's namespaces is so much as read for its value. :data:`APPEND` is available and explicit for anyone who wants a history of runs on the object.",
+      "label": "spacr.omero#25",
+      "source": "**The default is REPLACE, implemented as update-in-place, and it is the safe option rather than a compromise:** an existing MapAnnotation whose namespace is exactly spaCR's has its value overwritten. Nothing is created, nothing is unlinked, nothing is deleted, and no annotation outside spaCR's namespaces is so much as read for its value. :data:`APPEND` is available and explicit for anyone who wants a history of runs on the object.",
+      "source_sha256": "e26e72778e62ff8f6182c8cf291ce35746ccf5243c06b995174424124a456184",
+      "translation": "**O padrão é REPLACE, implementado como atualização no local, e é a opção segura, não um meio-termo:** uma MapAnnotation existente cujo namespace é exatamente o do spaCR tem seu valor sobrescrito. Nada é criado, nada é desvinculado, nada é excluído, e nenhuma anotação fora dos namespaces do spaCR sequer tem seu valor lido. :data:`APPEND` está disponível, de forma explícita, para quem quiser um histórico de execuções no objeto."
+    },
+    {
+      "context": "**TagAnnotations are never edited.** In OMERO a tag is a *shared* object; renaming the tag linked to this image renames it on every other object in the group that carries it. So :func:`export_tag_annotation` links a tag when the verdict is new, does nothing when the identical verdict is already linked, and reports the previous tag when the verdict has *changed* — it never unlinks and never renames.",
+      "label": "spacr.omero#29",
+      "source": "**TagAnnotations are never edited.** In OMERO a tag is a *shared* object; renaming the tag linked to this image renames it on every other object in the group that carries it. So :func:`export_tag_annotation` links a tag when the verdict is new, does nothing when the identical verdict is already linked, and reports the previous tag when the verdict has *changed* — it never unlinks and never renames.",
+      "source_sha256": "d425f49fc078d2d15e93d561cf8b28a90163593ec37062635cff19e31fc08295",
+      "translation": "**TagAnnotations nunca são editadas.** No OMERO uma tag é um objeto *compartilhado*; renomear a tag vinculada a esta imagem a renomeia em todos os outros objetos do grupo que a carregam. Por isso :func:`export_tag_annotation` vincula uma tag quando o veredito é novo, não faz nada quando o veredito idêntico já está vinculado e relata a tag anterior quando o veredito *mudou* — nunca desvincula e nunca renomeia."
+    },
+    {
+      "context": "A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice`` is the single most likely way this fails in the field, and ``No module named 'Ice'`` mentions neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.",
+      "label": "spacr.omero#36",
+      "source": "A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice`` is the single most likely way this fails in the field, and ``No module named 'Ice'`` mentions neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.",
+      "source_sha256": "f071e54875693395da9503f8b5caffb2d5d489bae370b032ebef957242b60f28",
+      "translation": "Um ``Ice`` ausente conta como um extra do omero ausente. Um ``zeroc-ice`` instalado pela metade é, de longe, a forma mais provável de isto falhar na prática, e ``No module named 'Ice'`` não menciona nem OMERO nem spaCR. :func:`missing_omero_message` diz o que aconteceu."
+    },
+    {
+      "context": "The import is written as ``importlib.import_module(OMERO_GATEWAY_MODULE)`` rather than as a literal ``import omero.gateway`` for that same reason: the one place the name is resolved is a named constant next to the guard that checks what came back, instead of a bare statement in a file of the same name. The cost is that ``tests/test_declared_dependencies_match_imports.py`` — which reads import *statements* out of the AST — cannot see it, exactly as it cannot see ``umap``. That blind spot is pinned from the other side by ``tests/test_omero.py::test_omero_py_is_reached_through_a_string_literal_and_must_not_be_removed``, so the next dependency census that reads \"omero-py: unused\" finds the answer instead of deleting the extra.",
+      "label": "spacr.omero#38",
+      "source": "The import is written as ``importlib.import_module(OMERO_GATEWAY_MODULE)`` rather than as a literal ``import omero.gateway`` for that same reason: the one place the name is resolved is a named constant next to the guard that checks what came back, instead of a bare statement in a file of the same name. The cost is that ``tests/test_declared_dependencies_match_imports.py`` — which reads import *statements* out of the AST — cannot see it, exactly as it cannot see ``umap``. That blind spot is pinned from the other side by ``tests/test_omero.py::test_omero_py_is_reached_through_a_string_literal_and_must_not_be_removed``, so the next dependency census that reads \"omero-py: unused\" finds the answer instead of deleting the extra.",
+      "source_sha256": "254b4f81f3548b25de033cdd2ac85ed7c60d8889df8c6bb3a69ff629b67e6749",
+      "translation": "A importação é escrita como ``importlib.import_module(OMERO_GATEWAY_MODULE)`` e não como um ``import omero.gateway`` literal pelo mesmo motivo: o único lugar onde o nome é resolvido é uma constante nomeada ao lado da verificação que confere o que voltou, em vez de uma instrução solta num arquivo com o mesmo nome. O custo é que ``tests/test_declared_dependencies_match_imports.py`` — que lê as *instruções* de importação a partir da AST — não consegue vê-la, exatamente como não consegue ver ``umap``. Esse ponto cego é fixado pelo outro lado por ``tests/test_omero.py::test_omero_py_is_reached_through_a_string_literal_and_must_not_be_removed``, de modo que o próximo censo de dependências que ler \"omero-py: unused\" encontre a resposta em vez de excluir o extra."
+    },
+    {
+      "context": "That is :func:`spacr.convert.target_name` verbatim — the exact shape ``spacr.utils._get_regex('cellvoyager', 'tif')`` parses — so the output folder is handed straight to Mask/Measure with ``metadata_type='cellvoyager'`` and nothing else. **No new layout is invented here.** The one thing that must survive the trip is the laboratory microplate geometry, because spaCR keys every measurement, every plot and every microplate sample position-level statistic off ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID``; :func:`well_position` is where OMERO's 0-based ``(row, column)`` becomes spaCR's ``('r1', 'c1')`` and the microplate sample position name ``A01``.",
+      "label": "spacr.omero#4",
+      "source": "That is :func:`spacr.convert.target_name` verbatim — the exact shape ``spacr.utils._get_regex('cellvoyager', 'tif')`` parses — so the output folder is handed straight to Mask/Measure with ``metadata_type='cellvoyager'`` and nothing else. **No new layout is invented here.** The one thing that must survive the trip is the plate geometry, because spaCR keys every measurement, every plot and every well-level statistic off ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID``; :func:`well_position` is where OMERO's 0-based ``(row, column)`` becomes spaCR's ``('r1', 'c1')`` and the well name ``A01``.",
+      "source_sha256": "d30857077f80d8d24adbe178f30ebad6aa549c9e313c54d4744f3730293f77ad",
+      "translation": "Isso é :func:`spacr.convert.target_name` literalmente — exatamente o formato que ``spacr.utils._get_regex('cellvoyager', 'tif')`` analisa — então a pasta de saída é entregue diretamente a Mask/Measure com ``metadata_type='cellvoyager'`` e nada mais. **Nenhum layout novo é inventado aqui.** A única coisa que precisa sobreviver à viagem é a geometria da placa, porque o spaCR indexa cada medida, cada gráfico e cada estatística por poço a partir de ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID``; :func:`well_position` é onde o ``(row, column)`` de base 0 do OMERO se torna o ``('r1', 'c1')`` do spaCR e o nome de poço ``A01``."
+    },
+    {
+      "context": "Everything that is easy to get wrong here is *arithmetic and string formatting*, not RPC: the row/column mapping, the filename, the id parsing, the float formatting, the decision to replace rather than append. All of it lives in pure functions over plain data — :func:`well_position`, :func:`plane_filename`, :func:`parse_object_ref`, :func:`format_map_value`, :func:`measurement_pairs`, :func:`plan_annotation` — and the ``BlitzGateway`` calls are confined to a thin layer that only walks containers and moves bytes. That is why this module has a real test suite on a machine with no OMERO server and no ``omero-py`` installed: the fake gateway in ``tests/test_omero.py`` implements about a dozen methods, and everything worth testing is reachable through it.",
+      "label": "spacr.omero#7",
+      "source": "Everything that is easy to get wrong here is *arithmetic and string formatting*, not RPC: the row/column mapping, the filename, the id parsing, the float formatting, the decision to replace rather than append. All of it lives in pure functions over plain data — :func:`well_position`, :func:`plane_filename`, :func:`parse_object_ref`, :func:`format_map_value`, :func:`measurement_pairs`, :func:`plan_annotation` — and the ``BlitzGateway`` calls are confined to a thin layer that only walks containers and moves bytes. That is why this module has a real test suite on a machine with no OMERO server and no ``omero-py`` installed: the fake gateway in ``tests/test_omero.py`` implements about a dozen methods, and everything worth testing is reachable through it.",
+      "source_sha256": "d85d5f3d3ce5a7fb5a2936f99be8748f1e8776c7541ded95437dc8d2c62c922c",
+      "translation": "Tudo o que é fácil de errar aqui é *aritmética e formatação de strings*, não RPC: o mapeamento de linha/coluna, o nome do arquivo, a análise de ids, a formatação de floats, a decisão de substituir em vez de anexar. Tudo isso vive em funções puras sobre dados simples — :func:`well_position`, :func:`plane_filename`, :func:`parse_object_ref`, :func:`format_map_value`, :func:`measurement_pairs`, :func:`plan_annotation` — e as chamadas ``BlitzGateway`` ficam confinadas a uma camada fina que apenas percorre contêineres e move bytes. É por isso que este módulo tem um conjunto de testes real numa máquina sem servidor OMERO e sem ``omero-py`` instalado: o gateway falso em ``tests/test_omero.py`` implementa cerca de uma dúzia de métodos, e tudo o que vale a pena testar é acessível através dele."
+    },
+    {
+      "context": "Higher ``mean`` means stronger evidence the gene is a hit.  Microplate sample positions carrying more of a hit gene have more positive cells than their imaged cell count alone accounts for, which is a positive coefficient on log read fraction.",
+      "label": "spacr.power_model.gather_model_estimate#2",
+      "source": "Higher ``mean`` means stronger evidence the gene is a hit.  Wells carrying more of a hit gene have more positive cells than their imaged cell count alone accounts for, which is a positive coefficient on log read fraction.",
+      "source_sha256": "bf6c606805dd1f087c9081a26de63a78a3afb932e0ad77d686ce74917e64b78d",
+      "translation": "Um ``mean`` maior significa evidência mais forte de que o gene é um hit. Poços que carregam uma proporção maior de um gene hit têm mais células positivas do que apenas a contagem de células fotografadas explicaria, o que corresponde a um coeficiente positivo na fração de leituras em log."
+    },
+    {
+      "context": "Port of ``scan_parameters`` from spaCRPower's ``R/scan_parameters.R``.  Every keyword argument that is not one of the named options above is a simulator parameter; pass a scalar to hold it fixed and a sequence to sweep it.  The grid is the Cartesian product, in the order the sweeps were given (matching R's ``tidyr::expand_grid``), with ``param_index`` numbered from 1 as in the R.",
+      "label": "spacr.power_model.scan_parameters#1",
+      "source": "Port of ``scan_parameters`` from spaCRPower's ``R/scan_parameters.R``.  Every keyword argument that is not one of the named options above is a simulator parameter; pass a scalar to hold it fixed and a sequence to sweep it.  The grid is the Cartesian product, in the order the sweeps were given (matching R's ``tidyr::expand_grid``), with ``param_index`` numbered from 1 as in the R.",
+      "source_sha256": "93cf6b275e07d6f9fc3570a17df161d540cce04ff205a2d3f0468811ee99b389",
+      "translation": "Adaptação de ``scan_parameters`` a partir de ``R/scan_parameters.R`` do spaCRPower. Todo argumento nomeado que não seja uma das opções nomeadas acima é um parâmetro do simulador; passe um escalar para mantê-lo fixo e uma sequência para varrê-lo. A grade é o produto cartesiano, na ordem em que as varreduras foram dadas (correspondendo a ``tidyr::expand_grid`` do R), com ``param_index`` numerado a partir de 1, como no R."
+    },
+    {
+      "context": "called once per completed (point, replicate) with a mapping ``{\"index\", \"total\", \"point_index\", \"n_points\", \"replicate\", \"resumed\", \"row\"}`` — ``index`` and ``total`` count fits, one-based, so ``index / total`` is a progress fraction, and ``row`` is that fit's result record.",
+      "label": "spacr.power_model.scan_parameters#13",
+      "source": "called once per completed (point, replicate) with a mapping ``{\"index\", \"total\", \"point_index\", \"n_points\", \"replicate\", \"resumed\", \"row\"}`` — ``index`` and ``total`` count fits, one-based, so ``index / total`` is a progress fraction, and ``row`` is that fit's result record.",
+      "source_sha256": "2cb8ee32b6b6cc74232e552781d41d0a7394c1839d35057693bc8f99b5e94b6d",
+      "translation": "chamado uma vez para cada (ponto, réplica) concluído, com um mapeamento ``{\"index\", \"total\", \"point_index\", \"n_points\", \"replicate\", \"resumed\", \"row\"}`` — ``index`` e ``total`` contam ajustes, a partir de 1, então ``index / total`` é uma fração de progresso, e ``row`` é o registro de resultado desse ajuste."
+    },
+    {
+      "context": "Returning exactly ``False`` stops the sweep and returns the rows completed so far; anything else (including ``None``) continues.  This exists for one reason: a sweep is minutes long and a GUI has to be able to show where it is and to stop it without killing the independent execution path.  Between points is the only safe granularity — one fit is atomic — so a cancel is honoured after the fit in flight, not during it.  The callback executes on the calling independent execution path, inline; it must not block, and a callback that raises aborts the sweep rather than being swallowed, because a broken progress reporter is a bug in the caller and hiding it would leave the sweep executing with nothing watching it.",
+      "label": "spacr.power_model.scan_parameters#14",
+      "source": "Returning exactly ``False`` stops the sweep and returns the rows completed so far; anything else (including ``None``) continues.  This exists for one reason: a sweep is minutes long and a GUI has to be able to show where it is and to stop it without killing the thread.  Between points is the only safe granularity — one fit is atomic — so a cancel is honoured after the fit in flight, not during it.  The callback runs on the calling thread, inline; it must not block, and a callback that raises aborts the sweep rather than being swallowed, because a broken progress reporter is a bug in the caller and hiding it would leave the sweep running with nothing watching it.",
+      "source_sha256": "561b39c285b274f6e65fbaa5ae973945bb91d34031748f9301bfd8e3d779b9c7",
+      "translation": "Retornar exatamente ``False`` interrompe a varredura e retorna as linhas concluídas até agora; qualquer outra coisa (incluindo ``None``) continua. Isso existe por um único motivo: uma varredura dura minutos e uma GUI precisa ser capaz de mostrar onde ela está e interrompê-la sem matar o caminho de execução independente. Entre pontos é a única granularidade segura — um ajuste é atômico — então um cancelamento é atendido após o ajuste em andamento, não durante ele. O retorno de chamada roda no caminho de execução independente que fez a chamada, inline; ele não deve bloquear, e um retorno de chamada que lança uma exceção aborta a varredura em vez de ser engolido, porque um relator de progresso quebrado é um bug no chamador, e escondê-lo deixaria a varredura rodando sem nada a observá-la."
+    },
+    {
+      "context": "``pandas.DataFrame``, one row per (grid point, replicate), with every parameter column plus the columns in ``_SCAN_RESULT_COLUMNS``.  Rows loaded from a resumed progress file are included.  ``DataFrame.attrs`` carries ``n_planned`` (fits the full grid would have run) and ``cancelled`` (whether ``on_point`` stopped it early), so a short frame can be told from a small grid.",
+      "label": "spacr.power_model.scan_parameters#16",
+      "source": "``pandas.DataFrame``, one row per (grid point, replicate), with every parameter column plus the columns in ``_SCAN_RESULT_COLUMNS``.  Rows loaded from a resumed progress file are included.  ``DataFrame.attrs`` carries ``n_planned`` (fits the full grid would have run) and ``cancelled`` (whether ``on_point`` stopped it early), so a short frame can be told from a small grid.",
+      "source_sha256": "0462a6a37dd2e77c856d872a1265ba0cf09e0ee9aea3035c820cfc0e2d36124f",
+      "translation": "``pandas.DataFrame``, uma linha por (ponto da grade, réplica), com cada coluna de parâmetro mais as colunas em ``_SCAN_RESULT_COLUMNS``. Linhas carregadas de um arquivo de progresso retomado estão incluídas. ``DataFrame.attrs`` carrega ``n_planned`` (os ajustes que a grade completa teria executado) e ``cancelled`` (se ``on_point`` a interrompeu antes do fim), de modo que um quadro curto pode ser distinguido de uma grade pequena."
+    },
+    {
+      "context": "Example -- sweep the number of microplate sample positions, three replicates each, resumable. Every keyword here is forwarded verbatim to the simulator, so the full set is whatever :func:`spacr.power_simulate.simulate_screen` accepts; the ones below are the design knobs a statistical detection sensitivity analysis usually turns",
+      "label": "spacr.power_model.scan_parameters#18",
+      "source": "Example -- sweep the number of wells, three replicates each, resumable. Every keyword here is forwarded verbatim to the simulator, so the full set is whatever :func:`spacr.power_simulate.simulate_screen` accepts; the ones below are the design knobs a power analysis usually turns",
+      "source_sha256": "a97250953da906d4fccb905219db5f9365fbfc42d53a7ddd3127c7f949f3e815",
+      "translation": "Exemplo -- varrer o número de poços, três réplicas cada, com retomada. Cada palavra-chave aqui é repassada literalmente ao simulador, então o conjunto completo é tudo o que :func:`spacr.power_simulate.simulate_screen` aceita; as de baixo são os parâmetros de desenho experimental que uma análise estatística de sensibilidade de detecção costuma ajustar"
+    },
+    {
+      "context": "skip points already present in ``progress_file``.  With ``resume=False`` and a non-empty progress file, this raises rather than appending a second copy of every point.",
+      "label": "spacr.power_model.scan_parameters#5",
+      "source": "skip points already present in ``progress_file``.  With ``resume=False`` and a non-empty progress file, this raises rather than appending a second copy of every point.",
+      "source_sha256": "78f10a59e6582f43d141ea21f0017bbbcbc6e9cb79ab09f26d148628e01c579b",
+      "translation": "pula pontos já presentes em ``progress_file``. Com ``resume=False`` e um arquivo de progresso não vazio, isso lança uma exceção em vez de anexar uma segunda cópia de cada ponto."
+    },
+    {
+      "context": "Simulator half of the spaCR statistical detection sensitivity analysis — a Python port of ``spaCRPower``.",
+      "label": "spacr.power_simulate#0",
+      "source": "Simulator half of the spaCR power analysis — a Python port of ``spaCRPower``.",
+      "source_sha256": "a81af104936dce73587fdf61f149edf0f83f63303bf897356d3fa192c4d81b57",
+      "translation": "Metade simuladora da análise estatística de sensibilidade de detecção do spaCR — uma adaptação em Python do ``spaCRPower``."
+    },
+    {
+      "context": "Ported from `spaCRPower <https://github.com/maomlab/spaCRPower>`_ (``R/simulate_screen.R``), Copyright (c) 2025 Matthew O'Meara (maom@umich.edu, ORCID 0000-0002-3128-5331), released under the MIT licence:",
+      "label": "spacr.power_simulate#1",
+      "source": "Ported from `spaCRPower <https://github.com/maomlab/spaCRPower>`_ (``R/simulate_screen.R``), Copyright (c) 2025 Matthew O'Meara (maom@umich.edu, ORCID 0000-0002-3128-5331), released under the MIT licence:",
+      "source_sha256": "cbbfe27c27ab330dd5a61351a27278fe05ade979995499767090ccb12c157eef",
+      "translation": "Adaptado de `spaCRPower <https://github.com/maomlab/spaCRPower>`_ (``R/simulate_screen.R``), Direitos autorais (c) 2025 Matthew O'Meara (maom@umich.edu, ORCID 0000-0002-3128-5331), distribuído sob a licença MIT:"
+    },
+    {
+      "context": "Every public sampler takes exactly one of ``seed=`` or ``rng=`` and refuses to execute with neither. The global numpy random state is never touched. A statistical detection sensitivity analysis is a number somebody defends in a grant review or a methods section; one that cannot be executed again bit-for-bit is not evidence, so drawing silently from OS entropy is treated as a configuration error rather than a convenience.",
+      "label": "spacr.power_simulate#12",
+      "source": "Every public sampler takes exactly one of ``seed=`` or ``rng=`` and refuses to run with neither. The global numpy random state is never touched. A power analysis is a number somebody defends in a grant review or a methods section; one that cannot be re-run bit-for-bit is not evidence, so drawing silently from OS entropy is treated as a configuration error rather than a convenience.",
+      "source_sha256": "3c344eb0babfa3fdbe4515ca2b68fa8bdca772eb03583967691f62d9f5125e0a",
+      "translation": "Cada amostrador público aceita exatamente um de ``seed=`` ou ``rng=`` e se recusa a executar sem nenhum dos dois. O estado aleatório global do numpy nunca é tocado. Uma análise estatística de sensibilidade de detecção é um número que alguém defende numa avaliação de projeto de financiamento ou numa seção de métodos; uma que não pode ser reexecutada bit a bit não é evidência, então sortear silenciosamente da entropia do sistema operacional é tratado como erro de configuração, e não como conveniência."
+    },
+    {
+      "context": "One further departure is a *choice*, not a bug fix, and is exposed as a parameter: upstream splits a microplate sample position's imaged cells **uniformly** across the genes present (``prob = gene_in_well`` is a 0/1 vector), ignoring how abundant each gene is. :func:`simulate_imaging_plate` defaults to ``imaging_split='abundance'`` and keeps ``'uniform'`` for exact R parity.",
+      "label": "spacr.power_simulate#16",
+      "source": "One further departure is a *choice*, not a bug fix, and is exposed as a parameter: upstream splits a well's imaged cells **uniformly** across the genes present (``prob = gene_in_well`` is a 0/1 vector), ignoring how abundant each gene is. :func:`simulate_imaging_plate` defaults to ``imaging_split='abundance'`` and keeps ``'uniform'`` for exact R parity.",
+      "source_sha256": "a7e3b655b618a1a8e16632eef5a3bd73754c7255bf21fbaaf590c1c34856265b",
+      "translation": "Um desvio adicional é uma *escolha*, não uma correção de bug, e é exposto como parâmetro: o código original divide as células fotografadas de um poço **uniformemente** entre os genes presentes (``prob = gene_in_well`` é um vetor 0/1), ignorando o quanto cada gene é abundante. :func:`simulate_imaging_plate` usa por padrão ``imaging_split='abundance'`` e mantém ``'uniform'`` para paridade exata com o R."
+    },
+    {
+      "context": "The list above is about *fidelity* to the R. These two are about fidelity to a real screen, and both make the answer worse — which is why they are worth having and why they are **off by default**. A simulator whose baseline shifted under a version bump would make every statistical detection sensitivity figure already quoted from it wrong, so turning either on is an explicit act.",
+      "label": "spacr.power_simulate#18",
+      "source": "The list above is about *fidelity* to the R. These two are about fidelity to a real screen, and both make the answer worse — which is why they are worth having and why they are **off by default**. A simulator whose baseline shifted under a version bump would make every power figure already quoted from it wrong, so turning either on is an explicit act.",
+      "source_sha256": "14d66ffa5d8ddf049ebc82b904b7880da2be0da574f6fcb638a4406dd637e6ce",
+      "translation": "A lista acima trata de *fidelidade* ao R. Estes dois tratam de fidelidade a uma triagem real, e ambos pioram a resposta — e é por isso que vale a pena tê-los e por isso ficam **desativados por padrão**. Um simulador cuja linha de base mudasse com uma atualização de versão tornaria errados todos os números de sensibilidade de detecção já citados a partir dele, então ativar qualquer um deles é um ato explícito."
+    },
+    {
+      "context": "**Sequencing error** (:func:`misassign_reads`, ``sequencing_error_rate=``). Both packages treat the read fraction as an exact record of which genotypes were in a microplate sample position. Substitution errors, index hopping, PCR chimeras and mismatch-tolerant demultiplexing all credit reads to the wrong gene. Simulating it says the direct dilution is small — but that it silently disables the unidentified-gene check, turning genes that were correctly reported as untested into confident non-hits. On the reference design that costs ten times more than the dilution does. See :func:`misassign_reads`.",
+      "label": "spacr.power_simulate#19",
+      "source": "**Sequencing error** (:func:`misassign_reads`, ``sequencing_error_rate=``). Both packages treat the read fraction as an exact record of which genotypes were in a well. Substitution errors, index hopping, PCR chimeras and mismatch-tolerant demultiplexing all credit reads to the wrong gene. Simulating it says the direct dilution is small — but that it silently disables the unidentified-gene check, turning genes that were correctly reported as untested into confident non-hits. On the reference design that costs ten times more than the dilution does. See :func:`misassign_reads`.",
+      "source_sha256": "29055e79747c984f34f1fe7ca062a5650aa26be7218fe1a80e82e1942f49a9c0",
+      "translation": "**Erro de sequenciamento** (:func:`misassign_reads`, ``sequencing_error_rate=``). Ambos os pacotes tratam a fração de leituras como um registro exato de quais genótipos estavam num poço. Erros de substituição, index hopping, quimeras de PCR e demultiplexação tolerante a incompatibilidades atribuem leituras ao gene errado. Simular isso mostra que a diluição direta é pequena — mas que desativa silenciosamente a verificação de genes não identificados, transformando genes que foram corretamente relatados como não testados em não-hits confiantes. No desenho de referência, isso custa dez vezes mais do que a diluição. Veja :func:`misassign_reads`."
+    },
+    {
+      "context": "**Well dropout from too few imaged cells** (:func:`drop_low_cell_wells`, ``min_cells_per_well=``). A well where the microscope found three cells enters the fit as one observation next to a well with four hundred. Its positive fraction can only be 0, 1/3, 2/3 or 1, and its standard error is several times the machine-learning classification model's whole signal gap. The Poisson offset stops it dominating the scale of the fit; it does not stop its read-fraction covariate being paired with noise. Dropping such microplate sample positions is what an analyst does by hand, and it costs microplate sample positions — so which way the trade comes out is a thing to simulate rather than assert.",
+      "label": "spacr.power_simulate#20",
+      "source": "**Well dropout from too few imaged cells** (:func:`drop_low_cell_wells`, ``min_cells_per_well=``). A well where the microscope found three cells enters the fit as one observation next to a well with four hundred. Its positive fraction can only be 0, 1/3, 2/3 or 1, and its standard error is several times the classifier's whole signal gap. The Poisson offset stops it dominating the scale of the fit; it does not stop its read-fraction covariate being paired with noise. Dropping such wells is what an analyst does by hand, and it costs wells — so which way the trade comes out is a thing to simulate rather than assert.",
+      "source_sha256": "83250df0eb28502b73f92508c92911473b6c18a6452901bc7e2303f9f37b93a7",
+      "translation": "**Descarte de poços com pouquíssimas células fotografadas** (:func:`drop_low_cell_wells`, ``min_cells_per_well=``). Um poço onde o microscópio encontrou três células entra no ajuste como uma observação ao lado de um poço com quatrocentas. Sua fração de positivos só pode ser 0, 1/3, 2/3 ou 1, e seu erro padrão é várias vezes maior que toda a diferença de sinal do modelo de classificação de aprendizado de máquina. O offset de Poisson impede que ele domine a escala do ajuste; não impede que sua covariável de fração de leituras seja pareada com ruído. Descartar esses poços é o que um analista faz à mão, e isso custa poços — então para que lado a troca pende é algo a simular, não a afirmar."
+    },
+    {
+      "context": "A pooled Toxoplasma CRISPR screening experiment has three noisy layers stacked on top of each other — which genotypes landed in which well, how many of a well's cells the microscope saw and how well the machine-learning classification model called them, and how many reads each genotype got out of the amplicon pool. The question a screener has to answer *before* spending the microscope time is \"with this library, this many microplate sample positions, this many cells per well and a machine-learning classification model at 0.80/0.12, would I actually find a hit?\". That is a statistical detection sensitivity analysis, and it is only answerable by simulation because no layer is analytically tractable once the other two are stacked on it.",
+      "label": "spacr.power_simulate#3",
+      "source": "A pooled Toxoplasma CRISPR screen has three noisy layers stacked on top of each other — which genotypes landed in which well, how many of a well's cells the microscope saw and how well the classifier called them, and how many reads each genotype got out of the amplicon pool. The question a screener has to answer *before* spending the microscope time is \"with this library, this many wells, this many cells per well and a classifier at 0.80/0.12, would I actually find a hit?\". That is a power analysis, and it is only answerable by simulation because no layer is analytically tractable once the other two are stacked on it.",
+      "source_sha256": "2e234c090e1cfd1bf737b8f17a05229ed2aa698fda82d239daf1a275740fd843",
+      "translation": "Uma triagem CRISPR agrupada de Toxoplasma tem três camadas ruidosas empilhadas umas sobre as outras — quais genótipos foram parar em qual poço, quantas células de um poço o microscópio viu e quão bem o classificador as identificou, e quantas leituras cada genótipo obteve do pool de amplicons. A pergunta que quem faz a triagem precisa responder *antes* de gastar tempo de microscópio é \"com esta biblioteca, este número de poços, este número de células por poço e um classificador a 0.80/0.12, eu realmente encontraria um hit?\". Isso é uma análise estatística de sensibilidade de detecção, e só pode ser respondida por simulação, porque nenhuma camada é tratável analiticamente quando as outras duas estão empilhadas sobre ela."
+    },
+    {
+      "context": "This module is the **simulator half**: it produces the tidy ``(well, gene)`` table that the model half (a Poisson regression of per-microplate sample position positive counts on per-gene log10 read fraction) consumes by column name. It deliberately does not fit anything.",
+      "label": "spacr.power_simulate#4",
+      "source": "This module is the **simulator half**: it produces the tidy ``(well, gene)`` table that the model half (a Poisson regression of per-well positive counts on per-gene log10 read fraction) consumes by column name. It deliberately does not fit anything.",
+      "source_sha256": "ec1bc3a9d17b0361a2303b662c8d69e500a8cca5f323d87a898a2c817974db8f",
+      "translation": "Este módulo é a **metade simuladora**: ele produz a tabela organizada ``(well, gene)`` que a metade do modelo (uma regressão de Poisson das contagens de positivos por poço sobre a fração de leituras em log10 por gene) consome pelo nome das colunas. Ele deliberadamente não ajusta nada."
+    },
+    {
+      "context": ":mod:`spacr.selection` holds the logic and knows nothing about Qt. This module is the thin part that makes it *shared*: one object per process that every open view subscribes to, so lassoing a cluster in the UMAP highlights the same cells on the plate heatmap, in the measurement table and in the extracted-image-region grid.",
+      "label": "spacr.qt.linked_selection#1",
+      "source": ":mod:`spacr.selection` holds the logic and knows nothing about Qt. This module is the thin part that makes it *shared*: one object per process that every open view subscribes to, so lassoing a cluster in the UMAP highlights the same cells on the plate heatmap, in the measurement table and in the crop grid.",
+      "source_sha256": "fac4cd1f4c0b382729a6bc22612134c022e5212c9a5261582e732a9452e00f7a",
+      "translation": ":mod:`spacr.selection` contém a lógica e não sabe nada sobre Qt. Este módulo é a camada fina que a torna *compartilhada*: um objeto por processo ao qual cada visão aberta se inscreve, de modo que selecionar com o laço um cluster no UMAP destaca as mesmas células no mapa de calor da placa, na tabela de medições e na grade de regiões de imagem extraídas."
+    },
+    {
+      "context": "The point of routing it is that neither end imports the other. A scatter plot that wants a crop shown, and a confusion matrix that wants a cell's errors shown, both call :func:`open_objects`; the Annotate application view calls :func:`register_object_opener` once. Neither plot has to know Annotate exists, and Annotate does not grow a method per caller.",
+      "label": "spacr.qt.linked_selection#10",
+      "source": "The point of routing it is that neither end imports the other. A scatter plot that wants a crop shown, and a confusion matrix that wants a cell's errors shown, both call :func:`open_objects`; the Annotate screen calls :func:`register_object_opener` once. Neither plot has to know Annotate exists, and Annotate does not grow a method per caller.",
+      "source_sha256": "dd471fc141ee75dae7ff02578d6030bf35dc74d9a4aae8a75bc1867c9e02842f",
+      "translation": "O objetivo de rotear isso é que nenhuma das pontas importa a outra. Um gráfico de dispersão que quer mostrar uma região de imagem extraída e uma matriz de confusão que quer mostrar os erros de uma célula chamam, ambos, :func:`open_objects`; o modo de exibição do aplicativo Annotate chama :func:`register_object_opener` uma vez. Nenhum dos gráficos precisa saber que Annotate existe, e Annotate não ganha um método por chamador."
+    },
+    {
+      "context": "**Views must disconnect in** ``closeEvent``. This object outlives every application view, and holds plain references to whatever connected to it. A lambda would keep a destroyed page alive as a receiver — the exact leak :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so connect bound methods and drop them on close.",
+      "label": "spacr.qt.linked_selection#5",
+      "source": "**Views must disconnect in** ``closeEvent``. This object outlives every screen, and holds plain references to whatever connected to it. A lambda would keep a destroyed page alive as a receiver — the exact leak :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so connect bound methods and drop them on close.",
+      "source_sha256": "8e1c9932e3c06a04fafdf07bd87066dfb59d4af6e890247bb8609e2181285bf7",
+      "translation": "**As visões devem se desconectar em** ``closeEvent``. Este objeto sobrevive a cada visualização de aplicativo e mantém referências simples a tudo o que se conectou a ele. Uma lambda manteria viva uma página destruída como receptora — exatamente o vazamento que :class:`spacr.qt.widgets.home.HomePage` documenta para o registro de execuções — então conecte métodos vinculados e desconecte-os ao fechar."
+    },
+    {
+      "context": ":class:`LinkedView` is that rule written down once. A view joins with three lines rather than re-deriving the echo-suppression and disconnect dance",
+      "label": "spacr.qt.linked_selection#6",
+      "source": ":class:`LinkedView` is that rule written down once. A view joins with three lines rather than re-deriving the echo-suppression and disconnect dance",
+      "source_sha256": "4fe85750ca0cbcaddd076dd4a8080546512b0bbe22acccb9891796fbf9fda1d8",
+      "translation": ":class:`LinkedView` é essa regra escrita uma única vez. Uma visão se integra com três linhas em vez de reconstruir toda a coreografia de supressão de eco e de desconexão"
+    },
+    {
+      "context": "``field_fade``: bool, default ``True``. Whether an input field's container and outline ramp from solid on the left to fully transparent on the right. Fields are **exempt from** ``pane_opacity`` while this is on — see :func:`get_field_fade_enabled` and :mod:`spacr.qt.widgets.field_fade`.",
+      "label": "spacr.qt.preferences#16",
+      "source": "``field_fade``: bool, default ``True``. Whether an input field's container and outline ramp from solid on the left to fully transparent on the right. Fields are **exempt from** ``pane_opacity`` while this is on — see :func:`get_field_fade_enabled` and :mod:`spacr.qt.widgets.field_fade`.",
+      "source_sha256": "e12abd34c6121b75dbf0008353b366a8e648ed9122e4e449d57a3e9986f63a48",
+      "translation": "``field_fade``: bool, padrão ``True``. Se o contêiner e o contorno de um campo de entrada passam gradualmente de sólidos à esquerda para totalmente transparentes à direita. Os campos ficam **isentos de** ``pane_opacity`` enquanto isso estiver ativado — veja :func:`get_field_fade_enabled` e :mod:`spacr.qt.widgets.field_fade`."
+    },
+    {
+      "context": "``clear RAM`` Drops spaCR's own caches: the merged-microscope field of view LRU (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image stacks), the file-format and DB-format caches, the zoomed-animation cache, the icon and preview ``lru_cache``\\ s, the filter-kind cache, every live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and Qt's own ``QPixmapCache``. A process with no live Qt application also runs ``gc.collect()``. The GUI deliberately does not: walking a heap of live Qt wrappers can enter already-retired C++ objects and crash the process. It cannot return memory the allocator has decided to keep, and it says so when the measured RSS does not move.",
+      "label": "spacr.qt.resource_cleanup#9",
+      "source": "``clear RAM`` Drops spaCR's own caches: the merged-field LRU (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image stacks), the file-format and DB-format caches, the zoomed-animation cache, the icon and preview ``lru_cache``\\ s, the filter-kind cache, every live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and Qt's own ``QPixmapCache``. A process with no live Qt application also runs ``gc.collect()``. The GUI deliberately does not: walking a heap of live Qt wrappers can enter already-retired C++ objects and crash the process. It cannot return memory the allocator has decided to keep, and it says so when the measured RSS does not move.",
+      "source_sha256": "1d96aadb1b43005d8b4f43b92107d9750d377ecfe38baaf9c1b958fa2c933000",
+      "translation": "``clear RAM`` Esvazia os caches próprios do spaCR: o LRU de campos de microscópio mesclados (:func:`spacr.crops.clear_field_cache` — de longe o maior, pilhas de imagens inteiras), os caches de formato de arquivo e de formato de banco de dados, o cache de animação ampliada, os ``lru_cache``\\ s de ícones e de pré-visualização, o cache de tipos de filtro, cada LRU de miniaturas ativo de :class:`~spacr.qt.crop_thumbs.CropThumbnails` e o próprio ``QPixmapCache`` do Qt. Um processo sem nenhum aplicativo Qt ativo também executa ``gc.collect()``. A GUI deliberadamente não faz isso: percorrer um heap de wrappers Qt ativos pode acessar objetos C++ já destruídos e travar o processo. Ela não pode devolver memória que o alocador decidiu manter, e avisa isso quando o RSS medido não muda."
+    },
+    {
+      "context": "**No string-formatted values.** Everything the user types is bound as a ``?`` parameter. Identifiers (table + column names) never come from free text — they are matched against the live schema and only then double-quoted.",
+      "label": "spacr.qt.screens.db_browser#10",
+      "source": "**No string-formatted values.** Everything the user types is bound as a ``?`` parameter. Identifiers (table + column names) never come from free text — they are matched against the live schema and only then double-quoted.",
+      "source_sha256": "87e2ba3192a1d548664fb9b0f477589b3058de7f152cc6e21580b19d2e4ec0ed",
+      "translation": "**Nada de valores formatados em strings.** Tudo o que o usuário digita é vinculado como um parâmetro ``?``. Identificadores (nomes de tabela + coluna) nunca vêm de texto livre — eles são comparados com o esquema ativo e só então colocados entre aspas duplas."
+    },
+    {
+      "context": "Editing (opt-in, and guarded five ways)",
+      "label": "spacr.qt.screens.db_browser#12",
+      "source": "Editing (opt-in, and guarded five ways)",
+      "source_sha256": "ff718f495e60b9a7298b92acaa965934963805a1cfa5211c85f87735f8e2ba39",
+      "translation": "Edição (opcional e protegida de cinco maneiras)"
+    },
+    {
+      "context": "Design notes that matter for real spaCR databases:",
+      "label": "spacr.qt.screens.db_browser#3",
+      "source": "Design notes that matter for real spaCR databases:",
+      "source_sha256": "0df37c6c059838c5693c4b5657ff8466e1f8e4f4d2f73fda250df0b3c33f5f47",
+      "translation": "Notas de design que importam para bancos de dados reais do spaCR:"
+    },
+    {
+      "context": "**Background execution.** Each chunk, count, and export runs outside the GUI thread through :func:`spacr.qt.bridge.make_thread`, also used by workflow screens. Each worker opens and closes **a separate** sqlite connection; ``sqlite3`` objects cannot be shared between execution threads. Jobs run **sequentially**. :meth:`DbBrowserScreen._run_job` explains why two ``PipelineWorker``\\ s cannot overlap.",
+      "label": "spacr.qt.screens.db_browser#7",
+      "source": "**Off the GUI thread.** Every chunk, count and export goes through :func:`spacr.qt.bridge.make_thread`, the same helper the pipeline screens use, and each worker opens (and closes) its **own** sqlite connection — ``sqlite3`` objects are not shareable across threads. Jobs queue and run **one at a time**; see :meth:`DbBrowserScreen._run_job` for why two ``PipelineWorker``\\ s must not overlap.",
+      "source_sha256": "d89f7eba372b272d352272bfcf5f0fecf9153c8963eafe83d2e9417c9003e30a",
+      "translation": "**Fora da thread da GUI.** Cada bloco, contagem e exportação passa por :func:`spacr.qt.bridge.make_thread`, o mesmo auxiliar que as telas de fluxo de trabalho usam, e cada trabalhador abre (e fecha) sua **própria** conexão sqlite — objetos ``sqlite3`` não podem ser compartilhados entre threads. Os trabalhos entram numa fila e rodam **um de cada vez**; veja :meth:`DbBrowserScreen._run_job` para saber por que dois ``PipelineWorker``\\ s não podem se sobrepor."
+    },
+    {
+      "context": "The question \"which models do I have, where did they come from, and does this one work on my images\" is currently answered with ``find``, memory and a full laboratory microplate run. This screen answers it in a list, a provenance card and three microscope fields of view.",
+      "label": "spacr.qt.screens.model_zoo#1",
+      "source": "The question \"which models do I have, where did they come from, and does this one work on my images\" is currently answered with ``find``, memory and a full plate run. This screen answers it in a list, a provenance card and three fields.",
+      "source_sha256": "5869bfa1c9625366b090877ebbb2fb797ddb9f62415ec30774a1b8654514ca45",
+      "translation": "A pergunta \"quais modelos eu tenho, de onde vieram, e este funciona nas minhas imagens?\" hoje é respondida com ``find``, memória e uma execução completa de uma placa. Esta exibição do aplicativo responde a ela com uma lista, um cartão de proveniência e três campos."
+    },
+    {
+      "context": "``worker.finished`` **is relayed through a signal into a bound method.** PySide6 delivers a plain closure connected to a worker's signal as a *direct* call on the background execution unit, and the completion handler here fills a QPlainTextEdit and a QTableWidget. Building QTextDocument children off the main GUI execution path is undefined behaviour, so ``finished`` chains through :attr:`ModelZooScreen._job_settled` — a widget-affine bound method — exactly as ``PlateViewScreen`` does.",
+      "label": "spacr.qt.screens.model_zoo#6",
+      "source": "``worker.finished`` **is relayed through a signal into a bound method.** PySide6 delivers a plain closure connected to a worker's signal as a *direct* call on the worker thread, and the completion handler here fills a QPlainTextEdit and a QTableWidget. Building QTextDocument children off the GUI thread is undefined behaviour, so ``finished`` chains through :attr:`ModelZooScreen._job_settled` — a widget-affine bound method — exactly as ``PlateViewScreen`` does.",
+      "source_sha256": "6f26036aabd65b9b815f2283b7a11039ad1af8f74dd1ee3d08b8e9275b74fa70",
+      "translation": "``worker.finished`` **é repassado por um sinal para um método vinculado.** O PySide6 entrega uma closure simples conectada ao sinal de um trabalhador como uma chamada *direta* na unidade de execução em segundo plano, e o manipulador de conclusão aqui preenche um QPlainTextEdit e um QTableWidget. Construir filhos de QTextDocument fora do caminho de execução principal da GUI é comportamento indefinido, então ``finished`` é encadeado por :attr:`ModelZooScreen._job_settled` — um método vinculado com afinidade ao widget — exatamente como ``PlateViewScreen`` faz."
+    },
+    {
+      "context": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screening experiment you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
+      "label": "spacr.qt.screens.power#1",
+      "source": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screen you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
+      "source_sha256": "f891ade99b982bb50a7bb8a10edbb2944a3d73cc114092c4ce96c7ca2fb323de",
+      "translation": "A parte científica está na árvore do código desde que chegou a adaptação do spaCRPower: :mod:`spacr.power_simulate` constrói um experimento de triagem cuja verdade você conhece, e :mod:`spacr.power_model` ajusta a ele o modelo horseshoe-Poisson e pontua quão bem o ajuste recuperou os hits que você plantou. O que nunca existiu é a superfície onde quem faz a triagem faz a pergunta que realmente tem, que não é \"qual é a AUROC de um desenho com well_abundance_factor_mu = 4.6\", mas"
+    },
+    {
+      "context": "**The caveats are next to the number, not in a docstring.** The port departs from spaCRPower in ways that change the answer — most importantly that R's even cell-split *overstates* statistical detection sensitivity — and a statistical detection sensitivity analysis whose caveats are one import away is a statistical detection sensitivity analysis that gets quoted without them. The ones that move the number are rendered beside the sentence; the rest are one click below it.",
+      "label": "spacr.qt.screens.power#5",
+      "source": "**The caveats are next to the number, not in a docstring.** The port departs from spaCRPower in ways that change the answer — most importantly that R's even cell-split *overstates* power — and a power analysis whose caveats are one import away is a power analysis that gets quoted without them. The ones that move the number are rendered beside the sentence; the rest are one click below it.",
+      "source_sha256": "09af53bd1de31bf55965bc91ee8517120da2190454a88b54492cbf4e04f8df69",
+      "translation": "**As ressalvas ficam ao lado do número, não numa docstring.** A adaptação se afasta do spaCRPower de maneiras que mudam a resposta — sobretudo porque a divisão uniforme de células do R *superestima* a sensibilidade de detecção estatística — e uma análise estatística de sensibilidade de detecção cujas ressalvas estão a uma importação de distância é uma análise que acaba sendo citada sem elas. As que alteram o número são exibidas ao lado da frase; as demais ficam a um clique abaixo dela."
+    },
+    {
+      "context": "**Execution model:** a full sweep takes minutes, so it runs outside the GUI thread and the thread must retire. It uses :func:`spacr.qt.bridge.make_thread`, and each ``thread.finished`` slot is a BOUND METHOD. :meth:`PowerScreen._retire_finished_jobs` explains why a closure is incorrect here.",
+      "label": "spacr.qt.screens.power#6",
+      "source": "**Off the GUI thread, and the thread actually retires.** A full sweep is minutes. It goes through :func:`spacr.qt.bridge.make_thread`, and every ``thread.finished`` slot is a BOUND METHOD — see :meth:`PowerScreen._retire_finished_jobs` for what a closure does here and why it is not a style preference.",
+      "source_sha256": "49fd32c88fa90ed701a360e58ac8cba2be0ccc90633b919619c4b5aa736feb39",
+      "translation": "**Fora da thread da GUI, e a thread de fato é encerrada.** Uma varredura completa leva minutos. Ela passa por :func:`spacr.qt.bridge.make_thread`, e todo slot ``thread.finished`` é um BOUND METHOD (método vinculado) — veja :meth:`PowerScreen._retire_finished_jobs` para saber o que uma closure faz aqui e por que isso não é uma preferência de estilo."
+    },
+    {
+      "context": "``threaded=False`` **runs the same code inline**, firing the same signals, so the tested path and the shipped path differ only in where they run.",
+      "label": "spacr.qt.screens.power#8",
+      "source": "``threaded=False`` **runs the same code inline**, firing the same signals, so the tested path and the shipped path differ only in where they run.",
+      "source_sha256": "064752016534ac83aec456c330acc4332b4f2c04e9dd88847eb307611c5be903",
+      "translation": "``threaded=False`` **executa o mesmo código inline**, disparando os mesmos sinais, de modo que o caminho testado e o caminho que é distribuído diferem apenas no local em que são executados."
+    },
+    {
+      "context": "Classify wants PNG single-object extracted image regions + a `measurements.db` with a `png_list` table + an `annotate` column carrying class labels for training/testing.",
+      "label": "spacr.qt.synthetic.generate_classify_demo#0",
+      "source": "Classify wants PNG single-object crops + a `measurements.db` with a `png_list` table + an `annotate` column carrying class labels for training/testing.",
+      "source_sha256": "592e83e6dc63e2f4389f89cdf26a3dd63d86e42a01124a10fe405b9ed692e367",
+      "translation": "O Classify precisa de regiões de imagem extraídas em PNG, de um único objeto cada + um `measurements.db` com uma tabela `png_list` + uma coluna `annotate` com rótulos de classe para treinamento/teste."
+    },
+    {
+      "context": "This is a hand-built stand-in for a measured plate, not a replica of one. Two of the three things that matter match measure_crop; the third does not, and the docstring used to claim all three did.",
+      "label": "spacr.qt.synthetic.generate_classify_demo#1",
+      "source": "This is a hand-built stand-in for a measured plate, not a replica of one. Two of the three things that matter match measure_crop; the third does not, and the docstring used to claim all three did.",
+      "source_sha256": "6156e7e3d66877b03006b8a369215909a1c3632d250b229cf35c5d1d8dc8023d",
+      "translation": "Este é um substituto feito à mão para uma placa medida, não uma réplica de uma. Duas das três coisas que importam correspondem ao measure_crop; a terceira não, e a docstring costumava afirmar que as três correspondiam."
+    },
+    {
+      "context": "The ``png_list`` columns do not match either. :func:`spacr.utils.filepaths_to_database` writes ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id``, with the tokenised values ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. This table carries ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` in plain form, plus the ``annotate`` column — which is the point: ``annotate`` is what ``dataset_mode='annotation'`` selects classes on, and a measure run never writes one. A human does, in the Annotate application view.",
+      "label": "spacr.qt.synthetic.generate_classify_demo#5",
+      "source": "The ``png_list`` columns do not match either. :func:`spacr.utils.filepaths_to_database` writes ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id``, with the tokenised values ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. This table carries ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` in plain form, plus the ``annotate`` column — which is the point: ``annotate`` is what ``dataset_mode='annotation'`` selects classes on, and a measure run never writes one. A human does, in the Annotate screen.",
+      "source_sha256": "594590600761ad52fdf403d0ef07c31d4a00881c04eaea5d93f74ce946dbf1a9",
+      "translation": "As colunas de ``png_list`` também não correspondem. :func:`spacr.utils.filepaths_to_database` grava ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id``, com os valores tokenizados ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. Esta tabela traz ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` em forma simples, além da coluna ``annotate`` — e é justamente isso: ``annotate`` é a coluna com base na qual ``dataset_mode='annotation'`` seleciona as classes, e uma execução do Measure nunca a grava. Quem a grava é um humano, no modo de exibição do aplicativo Annotate."
+    },
+    {
+      "context": "Measure consumes what Mask produces: a ``merged/`` folder of ``.npy`` stacks whose trailing image layers are the label masks.",
+      "label": "spacr.qt.synthetic.generate_measure_demo#0",
+      "source": "Measure consumes what Mask produces: a ``merged/`` folder of ``.npy`` stacks whose trailing planes are the label masks.",
+      "source_sha256": "f218bf8d825cecf0a872b4de535f740b48381f5ea2119d07dc78d9a98eb88420",
+      "translation": "O Measure consome o que o Mask produz: uma pasta ``merged/`` de pilhas ``.npy`` cujas últimas camadas de imagem são as máscaras de rótulo."
+    },
+    {
+      "context": "We pre-build those stacks so a user can jump straight into Measure without a GPU. Before this, the demo wrote a ``masks/`` folder of per-*file* tiffs and an empty ``measurements.db`` — neither of which any workflow reads — and measure's pre-flight rejected the folder outright with \"no merged folder for measure\".",
+      "label": "spacr.qt.synthetic.generate_measure_demo#1",
+      "source": "We pre-build those stacks so a user can jump straight into Measure without a GPU. Before this, the demo wrote a ``masks/`` folder of per-*file* tiffs and an empty ``measurements.db`` — neither of which any pipeline reads — and measure's pre-flight rejected the folder outright with \"no merged folder for measure\".",
+      "source_sha256": "6ff4c663eb221ecb7f2749a34f3ea2f91f82c28f1c97f895e551f1552255e131",
+      "translation": "Pré-construímos essas pilhas para que um usuário possa ir direto para o Measure sem uma GPU. Antes disso, a demo gravava uma pasta ``masks/`` de tiffs por *arquivo* e um ``measurements.db`` vazio — nenhum dos quais qualquer fluxo de trabalho lê — e a pré-verificação do Measure rejeitava a pasta de imediato com \"nenhuma pasta mesclada para medida\"."
+    },
+    {
+      "context": "That much was already known. The proposed remedy copied measurement defaults from the Mask app. That remedy was *incorrect*: it cannot solve the problem, for two reasons that must be fixed together.",
+      "label": "spacr.qt.synthetic.generate_measure_demo#4",
+      "source": "That much was already known. What was *wrong* was the remedy: \"default it for measure the way the Mask app does\" does not fix this, and cannot, for two reasons that have to be fixed together.",
+      "source_sha256": "bda7edd2d15cb544af86cda331dea856d77f19b5accea8883af40998bec3c8a2",
+      "translation": "Isso já se sabia. O que estava *errado* era o remédio: \"definir o padrão para o Measure do jeito que o aplicativo Mask faz\" não resolve isso, e não pode resolver, por dois motivos que precisam ser corrigidos juntos."
+    },
+    {
+      "context": "1. ``set_default_settings_preprocess_generate_masks`` defaults it to the **string** ``'cell'``, and ``measure.py`` tests it with ``\"organelle\" in settings['summarize_organelles_by']`` — a *substring* test when the value is a str. Running this demo with ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary`` (16 rows/field) and still no ``organelle`` table. Only a value containing ``'organelle'`` writes the per-organelle table (``['cell', 'organelle']`` → organelle 64 rows/field, verified). 2. A list cannot be shipped today: ``spacr.settings.expected_types`` declares ``'summarize_organelles_by': str``, so ``spacr.validate.validate_settings`` rejects ``['cell', 'organelle']`` with \"is a list, but str is expected\" — a hard pre-flight **error** on a demo that must load clean. The tooltip and ``spacr.gui_utils`` both describe it as a list, and ``spacr.external_masks`` builds one; only the type table disagrees.",
+      "label": "spacr.qt.synthetic.generate_measure_demo#5",
+      "source": "1. ``set_default_settings_preprocess_generate_masks`` defaults it to the **string** ``'cell'``, and ``measure.py`` tests it with ``\"organelle\" in settings['summarize_organelles_by']`` — a *substring* test when the value is a str. Running this demo with ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary`` (16 rows/field) and still no ``organelle`` table. Only a value containing ``'organelle'`` writes the per-organelle table (``['cell', 'organelle']`` → organelle 64 rows/field, verified). 2. A list cannot be shipped today: ``spacr.settings.expected_types`` declares ``'summarize_organelles_by': str``, so ``spacr.validate.validate_settings`` rejects ``['cell', 'organelle']`` with \"is a list, but str is expected\" — a hard pre-flight **error** on a demo that must load clean. The tooltip and ``spacr.gui_utils`` both describe it as a list, and ``spacr.external_masks`` builds one; only the type table disagrees.",
+      "source_sha256": "3d272df6026b8d692371a7c9da3e8056f2966b78bc25068ffb3bbad8deaae8ea",
+      "translation": "1. ``set_default_settings_preprocess_generate_masks`` define o padrão como a **cadeia de caracteres** ``'cell'``, e ``measure.py`` o testa com ``\"organelle\" in settings['summarize_organelles_by']`` — um teste de *subcadeia* quando o valor é uma str. Executar esta demo com ``summarize_organelles_by='cell'`` produz ``cell_organelle_summary`` (16 linhas/campo) e ainda nenhuma tabela ``organelle``. Apenas um valor que contenha ``'organelle'`` grava a tabela por organela (``['cell', 'organelle']`` → organelle 64 linhas/campo, verificado). 2. Hoje não é possível distribuir uma lista: ``spacr.settings.expected_types`` declara ``'summarize_organelles_by': str``, então ``spacr.validate.validate_settings`` rejeita ``['cell', 'organelle']`` com \"é uma lista, mas str é esperado\" — um **erro** grave de pré-verificação numa demo que precisa carregar sem problemas. A dica de ferramenta e ``spacr.gui_utils`` descrevem-no como uma lista, e ``spacr.external_masks`` constrói uma; só a tabela de tipos discorda."
+    },
+    {
+      "context": "It is spelt ``_rowid_``, and that is load-bearing. Every spaCR object table declares a column called ``rowID`` — the laboratory microplate row, ``'r1'``, ``'r2'`` — and SQLite identifiers are case-insensitive, so a bare ``rowid`` resolves to *that column* rather than to the row id. The version this replaces asked for ``max(rowid)`` and got two things wrong at once on every real measurements database: it scanned the whole table to take the maximum of a text column (measured: 21 ms warm, 41 ms cold, on a 200 000-row table — precisely the ``COUNT(*)`` cost this method exists to avoid), and then ``int('r16')`` raised ``ValueError``, which is not a ``sqlite3.Error`` and so escaped the caller's handler into the Qt event loop. :mod:`spacr.predictions`, :mod:`spacr.foreign` and :mod:`spacr.data_manager` all carry a comment about this shadowing; this method had not got the memo.",
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.estimate_rows#2",
+      "source": "It is spelt ``_rowid_``, and that is load-bearing. Every spaCR object table declares a column called ``rowID`` — the plate row, ``'r1'``, ``'r2'`` — and SQLite identifiers are case-insensitive, so a bare ``rowid`` resolves to *that column* rather than to the row id. The version this replaces asked for ``max(rowid)`` and got two things wrong at once on every real measurements database: it scanned the whole table to take the maximum of a text column (measured: 21 ms warm, 41 ms cold, on a 200 000-row table — precisely the ``COUNT(*)`` cost this method exists to avoid), and then ``int('r16')`` raised ``ValueError``, which is not a ``sqlite3.Error`` and so escaped the caller's handler into the Qt event loop. :mod:`spacr.predictions`, :mod:`spacr.foreign` and :mod:`spacr.data_manager` all carry a comment about this shadowing; this method had not got the memo.",
+      "source_sha256": "6e77579f0cf78c2610ed8622597d2c92dc9209f9265dfc9426eb950d00f249cc",
+      "translation": "Escreve-se ``_rowid_``, e isso é essencial. Toda tabela de objetos do spaCR declara uma coluna chamada ``rowID`` — a linha da placa, ``'r1'``, ``'r2'`` — e os identificadores do SQLite não diferenciam maiúsculas de minúsculas, então um ``rowid`` sozinho é resolvido para *essa coluna* em vez de para o id da linha. A versão que isto substitui pedia ``max(rowid)`` e errava duas coisas de uma vez em todo banco de dados de medições real: varria a tabela inteira para obter o máximo de uma coluna de texto (medido: 21 ms a quente, 41 ms a frio, numa tabela de 200 000 linhas — exatamente o custo de ``COUNT(*)`` que este método existe para evitar), e então ``int('r16')`` lançava ``ValueError``, que não é um ``sqlite3.Error`` e por isso escapava do manipulador do chamador para o loop de eventos do Qt. :mod:`spacr.predictions`, :mod:`spacr.foreign` e :mod:`spacr.data_manager` têm todos um comentário sobre esse sombreamento; este método não tinha recebido o recado."
+    },
+    {
+      "context": "A screening campaign is dozens of plates run over weeks. The positive and negative controls are supposed to be *the same thing every time*: that is what makes hit calling, plate normalisation and Z' mean anything at all. When the controls stop being the same — the cell line drifts, a reagent lot changes, the incubator door is left open on a Friday — everything computed downstream is already wrong, and nothing in the analysis says so, because the analysis normalises to the controls it is given.",
+      "label": "spacr.qt.widgets.control_chart#1",
+      "source": "A screening campaign is dozens of plates run over weeks. The positive and negative controls are supposed to be *the same thing every time*: that is what makes hit calling, plate normalisation and Z' mean anything at all. When the controls stop being the same — the cell line drifts, a reagent lot changes, the incubator door is left open on a Friday — everything computed downstream is already wrong, and nothing in the analysis says so, because the analysis normalises to the controls it is given.",
+      "source_sha256": "324c1808791ff924f9cced4a8e6ba1aa20c4e7919c49047627f8383a9914fe8e",
+      "translation": "Uma campanha de triagem são dezenas de placas executadas ao longo de semanas. Os controles positivos e negativos deveriam ser *a mesma coisa todas as vezes*: é isso que dá algum significado à identificação de hits, à normalização das placas e ao Z'. Quando os controles deixam de ser os mesmos — a linhagem celular deriva, um lote de reagente muda, a porta da incubadora fica aberta numa sexta-feira — tudo o que é calculado a jusante já está errado, e nada na análise diz isso, porque a análise normaliza em relação aos controles que recebe."
+    },
+    {
+      "context": ":data:`ESTIMATOR_MOVING_RANGE` Individuals / moving range (I-MR). One control value per laboratory microplate is the normal case in a screen, so this is what :data:`ESTIMATOR_AUTO` picks when every laboratory microplate contributes a single control microplate sample position. Sigma is ``mean(|x_i - x_{i-1}|) / 1.128``; 1.128 is d2 for a subgroup of two, which is what a moving range of consecutive points is.",
+      "label": "spacr.qt.widgets.control_chart#10",
+      "source": ":data:`ESTIMATOR_MOVING_RANGE` Individuals / moving range (I-MR). One control value per plate is the normal case in a screen, so this is what :data:`ESTIMATOR_AUTO` picks when every plate contributes a single control well. Sigma is ``mean(|x_i - x_{i-1}|) / 1.128``; 1.128 is d2 for a subgroup of two, which is what a moving range of consecutive points is.",
+      "source_sha256": "222dd699cb6cdbef2074e9a4c1f393175e480a6e336e6d5633fecfbec76b0080",
+      "translation": ":data:`ESTIMATOR_MOVING_RANGE` Individuais / amplitude móvel (I-MR). Um valor de controle por placa é o caso normal numa triagem, então é isso que :data:`ESTIMATOR_AUTO` escolhe quando cada placa contribui com um único poço de controle. Sigma é ``mean(|x_i - x_{i-1}|) / 1.128``; 1.128 é o d2 para um subgrupo de dois, que é o que uma amplitude móvel de pontos consecutivos é."
+    },
+    {
+      "context": ":data:`ESTIMATOR_SUBGROUP_S` X-bar / S, for a laboratory microplate with several control microplate sample positions (subgroup ``n > 1``). The plotted point is the laboratory microplate's mean and sigma is ``S-bar / c4(n)``, where :func:`c4` is computed from the gamma function rather than looked up in a table. The table in the back of a textbook stops at n = 25, does not interpolate, and is the sort of thing that gets transcribed with a typo into a module nobody re-derives. ``c4(n) = sqrt(2/(n-1)) · Γ(n/2) / Γ((n-1)/2)`` is three lines, is exact for every n, and can be checked against the published constant — ``c4(5) = 0.9400`` — which is what the test does.",
+      "label": "spacr.qt.widgets.control_chart#11",
+      "source": ":data:`ESTIMATOR_SUBGROUP_S` X-bar / S, for a plate with several control wells (subgroup ``n > 1``). The plotted point is the plate's mean and sigma is ``S-bar / c4(n)``, where :func:`c4` is computed from the gamma function rather than looked up in a table. The table in the back of a textbook stops at n = 25, does not interpolate, and is the sort of thing that gets transcribed with a typo into a module nobody re-derives. ``c4(n) = sqrt(2/(n-1)) · Γ(n/2) / Γ((n-1)/2)`` is three lines, is exact for every n, and can be checked against the published constant — ``c4(5) = 0.9400`` — which is what the test does.",
+      "source_sha256": "b95f99b14bac26b1ed58728ddab3994e0a32056f3d92851c1ea343c91abad12a",
+      "translation": ":data:`ESTIMATOR_SUBGROUP_S` X-bar / S, para uma placa com vários poços de controle (subgrupo ``n > 1``). O ponto plotado é a média da placa e sigma é ``S-bar / c4(n)``, onde :func:`c4` é calculado a partir da função gama em vez de ser consultado numa tabela. A tabela no final de um livro didático para em n = 25, não interpola e é o tipo de coisa que é transcrita com um erro de digitação para um módulo que ninguém volta a derivar. ``c4(n) = sqrt(2/(n-1)) · Γ(n/2) / Γ((n-1)/2)`` tem três linhas, é exata para todo n e pode ser verificada contra a constante publicada — ``c4(5) = 0.9400`` — que é o que o teste faz."
+    },
+    {
+      "context": "The key is a deliberate extension of :func:`spacr.qt.widgets.graph_spec._sort_key`, not a copy of it: that one tries ``float(text)`` and falls back to a plain string compare, which puts ``P10`` before ``P2`` — fine for facet labels, wrong for a run order. Here the string is split into digit and non-digit runs and the digit runs compare as integers.",
+      "label": "spacr.qt.widgets.control_chart#26",
+      "source": "The key is a deliberate extension of :func:`spacr.qt.widgets.graph_spec._sort_key`, not a copy of it: that one tries ``float(text)`` and falls back to a plain string compare, which puts ``P10`` before ``P2`` — fine for facet labels, wrong for a run order. Here the string is split into digit and non-digit runs and the digit runs compare as integers.",
+      "source_sha256": "4dc5cfdf71fbe6faa4bf1edbf76b07c66339400f66152f5e676ab93b6b4df2aa",
+      "translation": "A chave é uma extensão deliberada de :func:`spacr.qt.widgets.graph_spec._sort_key`, não uma cópia dela: aquela tenta ``float(text)`` e recorre a uma comparação simples de strings, o que coloca ``P10`` antes de ``P2`` — aceitável para rótulos de facetas, errado para uma ordem de execução. Aqui a string é dividida em sequências de dígitos e de não dígitos, e as sequências de dígitos são comparadas como inteiros."
+    },
+    {
+      "context": "Sigma comes from the average moving range divided by d2 = 1.128 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.",
+      "label": "spacr.qt.widgets.control_chart#4",
+      "source": "Sigma comes from the average moving range divided by d2 = 1.128 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.",
+      "source_sha256": "412a3b5bb289411c849ee71944c2e6a016f43d2bff3dfd557b1371f9a466180e",
+      "translation": "Sigma vem da amplitude móvel média dividida por d2 = 1.128 (:data:`D2_MOVING_RANGE`), nunca do desvio padrão da série."
+    },
+    {
+      "context": "That asymmetry is the reason short-term (within-subgroup) variation is the only admissible sigma for a control chart, and it is pinned by a test. What the SD route *would* have said is computed anyway and reported — see :func:`sd_reference_limits` and :attr:`ControlChartResult.sd_would_flag` — because the argument is more convincing as two numbers side by side than as a paragraph.",
+      "label": "spacr.qt.widgets.control_chart#8",
+      "source": "That asymmetry is the reason short-term (within-subgroup) variation is the only admissible sigma for a control chart, and it is pinned by a test. What the SD route *would* have said is computed anyway and reported — see :func:`sd_reference_limits` and :attr:`ControlChartResult.sd_would_flag` — because the argument is more convincing as two numbers side by side than as a paragraph.",
+      "source_sha256": "09db4742087e73776fdfdc27ebeeafb27dc399d5f7099a028c40ae0e4adb9808",
+      "translation": "Essa assimetria é o motivo pelo qual a variação de curto prazo (dentro do subgrupo) é o único sigma admissível para um gráfico de controle, e isso é fixado por um teste. O que a rota do SD *teria* dito é calculado mesmo assim e relatado — veja :func:`sd_reference_limits` e :attr:`ControlChartResult.sd_would_flag` — porque o argumento é mais convincente como dois números lado a lado do que como um parágrafo."
+    },
+    {
+      "context": "Three estimators, and which one ran is always named",
+      "label": "spacr.qt.widgets.control_chart#9",
+      "source": "Three estimators, and which one ran is always named",
+      "source_sha256": "4e595bd6993276578afcdc0881c6ff981165b87ae3b6087264ed4507f674bd23",
+      "translation": "Três estimadores, e qual deles foi executado é sempre informado"
+    },
+    {
+      "context": "The parameterisation has an exact symmetry: ``(bottom, top, L, h)`` and ``(top, bottom, L, -h)`` are the *same function*, so the optimiser may return either. Left alone, two runs on the same data can report Hill slopes of opposite sign. Every fit is therefore canonicalised the way pharmacology already writes it (and GraphPad's variable-slope equations do):",
+      "label": "spacr.qt.widgets.dose_response#11",
+      "source": "The parameterisation has an exact symmetry: ``(bottom, top, L, h)`` and ``(top, bottom, L, -h)`` are the *same function*, so the optimiser may return either. Left alone, two runs on the same data can report Hill slopes of opposite sign. Every fit is therefore canonicalised the way pharmacology already writes it (and GraphPad's variable-slope equations do):",
+      "source_sha256": "53fa8806643f743bb487630fda1029eb07c49c27263056cd0f2fc8d1939c2b4e",
+      "translation": "A parametrização tem uma simetria exata: ``(bottom, top, L, h)`` e ``(top, bottom, L, -h)`` são a *mesma função*, então o otimizador pode retornar qualquer uma das duas. Sem nenhum tratamento, duas execuções nos mesmos dados podem relatar inclinações de Hill de sinais opostos. Por isso, cada ajuste é canonizado da forma como a farmacologia já o escreve (e como fazem as equações de inclinação variável do GraphPad):"
+    },
+    {
+      "context": "numpy, pandas and scipy only, like :mod:`spacr.qt.widgets.pca_model` and :mod:`spacr.selection`: usable from a notebook, testable without a display, and with nothing in the fitting path that knows a widget exists. There is not a single ``PySide6`` import in this file, and the two seams that *would* need one — :func:`candidate_concentration_columns` and :func:`candidate_response_columns`, which re-use the Local Data Filter's column machine-learning classification model through :func:`spacr.qt.widgets.graph_spec.column_kinds` rather than inventing a second one — do it inside the function body, so importing this module and fitting a curve pulls in no Qt of its own.",
+      "label": "spacr.qt.widgets.dose_response#29",
+      "source": "numpy, pandas and scipy only, like :mod:`spacr.qt.widgets.pca_model` and :mod:`spacr.selection`: usable from a notebook, testable without a display, and with nothing in the fitting path that knows a widget exists. There is not a single ``PySide6`` import in this file, and the two seams that *would* need one — :func:`candidate_concentration_columns` and :func:`candidate_response_columns`, which re-use the Local Data Filter's column classifier through :func:`spacr.qt.widgets.graph_spec.column_kinds` rather than inventing a second one — do it inside the function body, so importing this module and fitting a curve pulls in no Qt of its own.",
+      "source_sha256": "63eddf093132153e0fba1aeb6cf662a15efdbbaee318634fb9659bb32450726f",
+      "translation": "Apenas numpy, pandas e scipy, como :mod:`spacr.qt.widgets.pca_model` e :mod:`spacr.selection`: utilizável a partir de um notebook, testável sem tela e sem nada no caminho de ajuste que saiba que um widget existe. Não há um único import de ``PySide6`` neste arquivo, e os dois pontos de ligação que *precisariam* de um — :func:`candidate_concentration_columns` e :func:`candidate_response_columns`, que reutilizam o classificador de colunas do Local Data Filter através de :func:`spacr.qt.widgets.graph_spec.column_kinds` em vez de inventar um segundo — fazem isso dentro do corpo da função, então importar este módulo e ajustar uma curva não traz nenhum Qt por conta própria."
+    },
+    {
+      "context": "(``spacr/qt/widgets/__init__.py`` eagerly imports the widget modules, so *reaching* this module through the package still costs a PySide6 import today. That is a property of the package's ``__init__``, not of this file: nothing here would have to change for the fitter to execute in an environment without PySide6.)",
+      "label": "spacr.qt.widgets.dose_response#30",
+      "source": "(``spacr/qt/widgets/__init__.py`` eagerly imports the widget modules, so *reaching* this module through the package still costs a PySide6 import today. That is a property of the package's ``__init__``, not of this file: nothing here would have to change for the fitter to run in an environment without PySide6.)",
+      "source_sha256": "d75a0e8cc73edebe1ac0e9ef04cdec9c952e97a8df594ec627a59bea44428ba4",
+      "translation": "(``spacr/qt/widgets/__init__.py`` importa os módulos de widgets de forma antecipada, então *chegar* a este módulo através do pacote ainda custa hoje uma importação do PySide6. Essa é uma propriedade do ``__init__`` do pacote, não deste arquivo: nada aqui precisaria mudar para o ajustador de curvas rodar num ambiente sem PySide6.)"
+    },
+    {
+      "context": "The model is fitted in ``log10_ec50``, never in ``EC50``:",
+      "label": "spacr.qt.widgets.dose_response#4",
+      "source": "The model is fitted in ``log10_ec50``, never in ``EC50``:",
+      "source_sha256": "37986be17ce57bd43c51d1a4f2a9c00d9a54fa5f9cabc613fb1cc72696cc03d9",
+      "translation": "O modelo é ajustado em ``log10_ec50``, nunca em ``EC50``:"
+    },
+    {
+      "context": "spaCR measurement tables run to 10^5–10^6 object rows and nobody wants a scatter of a million overlapping dots. Three strategies, chosen by what the plot actually needs, and **the chosen one is always named in** :attr:`RenderData.notice` so a subset can never be mistaken for the whole:",
+      "label": "spacr.qt.widgets.graph_spec#13",
+      "source": "spaCR measurement tables run to 10^5–10^6 object rows and nobody wants a scatter of a million overlapping dots. Three strategies, chosen by what the plot actually needs, and **the chosen one is always named in** :attr:`RenderData.notice` so a subset can never be mistaken for the whole:",
+      "source_sha256": "7435c2ac0e6a863c40991bedd5a5024626b41f993d1945ae898da65b7022ac26",
+      "translation": "As tabelas de medição do spaCR chegam a 10^5–10^6 linhas de objetos e ninguém quer um gráfico de dispersão com um milhão de pontos sobrepostos. Três estratégias, escolhidas conforme o que o gráfico realmente precisa, e **a escolhida é sempre informada em** :attr:`RenderData.notice` para que um subconjunto nunca possa ser confundido com o todo:"
+    },
+    {
+      "context": "**pure pandas and numpy, with no Qt**, like :mod:`spacr.selection` — testable without a display, usable from a notebook or from ``spacr-run``;",
+      "label": "spacr.qt.widgets.graph_spec#4",
+      "source": "**pure pandas and numpy, with no Qt**, like :mod:`spacr.selection` — testable without a display, usable from a notebook or from ``spacr-run``;",
+      "source_sha256": "284e2659d036997c0af101db96fb365a5fdd25c796d43a58b0ff4c63f2c19512",
+      "translation": "**apenas pandas e numpy, sem Qt**, como :mod:`spacr.selection` — testável sem tela, utilizável a partir de um notebook ou de ``spacr-run``;"
+    },
+    {
+      "context": "Why this shape is what lets an arbitrary organelle count land. The number of organelles a processing session may declare is not fixed. In a flat vocabulary each new organelle is twenty new settings that every tooltip table and translation catalog has to learn; here it is one COLUMN, and the number of questions does not move. :meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new organelle from the first one's answers rather than from a global default nobody chose.",
+      "label": "spacr.qt.widgets.object_settings_grid#3",
+      "source": "WHY THIS SHAPE IS WHAT LETS AN ARBITRARY ORGANELLE COUNT LAND. The number of organelles a run may declare is not fixed. In a flat vocabulary each new organelle is twenty new settings that every tooltip table and translation catalog has to learn; here it is one COLUMN, and the number of questions does not move. :meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new organelle from the first one's answers rather than from a global default nobody chose.",
+      "source_sha256": "4e3cead75c559fcbe4bfab91bd4203028c945391ffc696e50afbce6b8052dcf9",
+      "translation": "Por que é justamente esta forma que permite acomodar um número arbitrário de organelas. O número de organelas que uma sessão de processamento pode declarar não é fixo. Num vocabulário plano, cada nova organela são vinte novas configurações que cada tabela de dicas de ferramentas e cada catálogo de tradução precisam aprender; aqui ela é uma COLUMN (coluna), e o número de perguntas não muda. :meth:`ObjectSettingsGrid.add_object` é essa operação, e ela começa uma nova organela a partir das respostas da primeira, em vez de um padrão global que ninguém escolheu."
+    },
+    {
+      "context": "Flag outside ``[Q1 - c*IQR, Q3 + c*IQR]``, default ``c = 1.5`` (:data:`DEFAULT_IQR_C`).",
+      "label": "spacr.qt.widgets.outlier_model#12",
+      "source": "Flag outside ``[Q1 - c*IQR, Q3 + c*IQR]``, default ``c = 1.5`` (:data:`DEFAULT_IQR_C`).",
+      "source_sha256": "c7c3ae60140b35ed0f65aca24ff4fde2b8c4d6740e93fdc1314515cc26d8e4cf",
+      "translation": "Sinalizar fora de ``[Q1 - c*IQR, Q3 + c*IQR]``, padrão ``c = 1.5`` (:data:`DEFAULT_IQR_C`)."
+    },
+    {
+      "context": ":meth:`OutlierResult.caveats` says the asymmetry out loud whenever the IQR rule ran untransformed and the flags landed lopsidedly.",
+      "label": "spacr.qt.widgets.outlier_model#15",
+      "source": ":meth:`OutlierResult.caveats` says the asymmetry out loud whenever the IQR rule ran untransformed and the flags landed lopsidedly.",
+      "source_sha256": "62a14fd355d3cc88a9402870489ab3cea86c8d068a3013a7928cf837fa413055",
+      "translation": ":meth:`OutlierResult.caveats` aponta a assimetria explicitamente sempre que a regra IQR foi executada sem transformação e as sinalizações ficaram desequilibradas."
+    },
+    {
+      "context": "The obvious thing to write here is ``|x - mean| / sd > 3``, and it is the one thing this module refuses to do. spaCR object measurements are skewed and heavy-tailed by construction: ``cell_area`` is a positive quantity with a long right tail, ``pathogen_area`` is zero-inflated, an intensity ratio has a denominator that can approach zero. The mean and the SD of such a column are themselves dragged by the very objects they are supposed to find — one debris particle measured at 40× the median area moves the mean, inflates the SD, and so raises the threshold that was meant to catch it. The failure is silent and it gets worse the worse the contamination is: this is the *masking* effect, and it is the reason robust statistics exist.",
+      "label": "spacr.qt.widgets.outlier_model#2",
+      "source": "The obvious thing to write here is ``|x - mean| / sd > 3``, and it is the one thing this module refuses to do. spaCR object measurements are skewed and heavy-tailed by construction: ``cell_area`` is a positive quantity with a long right tail, ``pathogen_area`` is zero-inflated, an intensity ratio has a denominator that can approach zero. The mean and the SD of such a column are themselves dragged by the very objects they are supposed to find — one debris particle measured at 40× the median area moves the mean, inflates the SD, and so raises the threshold that was meant to catch it. The failure is silent and it gets worse the worse the contamination is: this is the *masking* effect, and it is the reason robust statistics exist.",
+      "source_sha256": "36aa5a1d6a08be248f4d6421069deae95bda1a3ace09c3856dc8f4cf71bd8862",
+      "translation": "O óbvio a escrever aqui é ``|x - mean| / sd > 3``, e é justamente a única coisa que este módulo se recusa a fazer. As medições de objetos do spaCR são assimétricas e de cauda pesada por construção: ``cell_area`` é uma quantidade positiva com uma longa cauda à direita, ``pathogen_area`` tem inflação de zeros, uma razão de intensidades tem um denominador que pode se aproximar de zero. A média e o SD de uma coluna assim são eles próprios arrastados pelos mesmos objetos que deveriam encontrar — uma única partícula de detrito medida com 40× a área mediana desloca a média, infla o SD e, assim, eleva o limiar que deveria detectá-la. A falha é silenciosa e piora quanto pior for a contaminação: este é o efeito de *mascaramento*, e é a razão pela qual existe a estatística robusta."
+    },
+    {
+      "context": "**Isolation forest requires** ``contamination`` — the share of the data that is bad — declared *in advance*. That share is precisely the unknown the analysis is trying to estimate. Setting ``contamination=0.01`` guarantees 1% of the objects come back flagged whether the plate is pristine or ruined, which makes the output uninterpretable in exactly the case it matters.",
+      "label": "spacr.qt.widgets.outlier_model#20",
+      "source": "**Isolation forest requires** ``contamination`` — the share of the data that is bad — declared *in advance*. That share is precisely the unknown the analysis is trying to estimate. Setting ``contamination=0.01`` guarantees 1% of the objects come back flagged whether the plate is pristine or ruined, which makes the output uninterpretable in exactly the case it matters.",
+      "source_sha256": "a4154fde2d1f6f604a08808ae526ae951f9423644e4a1e383f115761a2f031eb",
+      "translation": "**A floresta de isolamento exige** ``contamination`` — a fração dos dados que é ruim — declarada *antecipadamente*. Essa fração é exatamente a incógnita que a análise está tentando estimar. Definir ``contamination=0.01`` garante que 1% dos objetos volte sinalizado, esteja a placa impecável ou arruinada, o que torna a saída ininterpretável justamente no caso em que isso importa."
+    },
+    {
+      "context": "**MCD is affine-equivariant.** Rescale ``area`` from px^2 to um^2, or rotate to any linear combination of the features, and the fitted centre and covariance transform with it: every distance, and so every flag, is unchanged. This is the same invariance argument :mod:`spacr.qt.widgets.pca_model` makes for standardising before a PCA, and it is why no scaling option is needed here — the metric *is* the covariance. A tree ensemble splits on raw coordinates and is not equivariant; its answer depends on the units.",
+      "label": "spacr.qt.widgets.outlier_model#21",
+      "source": "**MCD is affine-equivariant.** Rescale ``area`` from px^2 to um^2, or rotate to any linear combination of the features, and the fitted centre and covariance transform with it: every distance, and so every flag, is unchanged. This is the same invariance argument :mod:`spacr.qt.widgets.pca_model` makes for standardising before a PCA, and it is why no scaling option is needed here — the metric *is* the covariance. A tree ensemble splits on raw coordinates and is not equivariant; its answer depends on the units.",
+      "source_sha256": "5aca56336058a686d7fb507e876cb15e37e00ec9e47577324711c9d5a650f63e",
+      "translation": "**MCD é afim-equivariante.** Reescale ``area`` de px^2 para um^2, ou rotacione para qualquer combinação linear das características, e o centro e a covariância ajustados se transformam junto: cada distância, e portanto cada sinalização, fica inalterada. Este é o mesmo argumento de invariância que :mod:`spacr.qt.widgets.pca_model` usa para padronizar antes de uma PCA, e é por isso que nenhuma opção de escala é necessária aqui — a métrica *é* a covariância. Um ensemble de árvores faz divisões nas coordenadas brutas e não é equivariante; sua resposta depende das unidades."
+    },
+    {
+      "context": "The whole-laboratory microplate failure that actually happens is a **bad microplate sample position**: one microplate sample position pipetted wrong, one microplate sample position out of focus, one microplate sample position where the cells were seeded at twice the density. Per-object flags are close to useless for finding it, and the reason is arithmetic rather than opinion.",
+      "label": "spacr.qt.widgets.outlier_model#27",
+      "source": "The whole-plate failure that actually happens is a **bad well**: one well pipetted wrong, one well out of focus, one well where the cells were seeded at twice the density. Per-object flags are close to useless for finding it, and the reason is arithmetic rather than opinion.",
+      "source_sha256": "4bd62ff48d1e9d929ad11e66841f9df08539669668b347eb1aae2ce862788fe5",
+      "translation": "A falha de placa inteira que realmente acontece é um **poço ruim**: um poço pipetado errado, um poço fora de foco, um poço onde as células foram semeadas com o dobro da densidade. Sinalizações por objeto são quase inúteis para encontrá-lo, e o motivo é aritmético, não uma questão de opinião."
+    },
+    {
+      "context": "The well-level test is **different from counting flagged objects**. ``flagged_share`` provides that count and answers another question: it finds a few *catastrophic* objects, such as a segmentation failure or dust measured as a cell, but misses a uniform shift. The well-level robust score finds the uniform shift but misses an isolated catastrophe. Both belong on the well frame because neither replaces the other.",
+      "label": "spacr.qt.widgets.outlier_model#29",
+      "source": "So the well pass is emphatically **not** \"the well contains many flagged objects\". That statistic exists — it is reported as ``flagged_share`` — and it answers a different question: it finds a well containing a few *catastrophic* objects (a segmentation blow-up, a piece of dust measured as a cell) while being blind to a uniform shift. The well-level robust score finds the uniform shift while being blind to the isolated catastrophe. Both are on the well frame because neither subsumes the other.",
+      "source_sha256": "b5a0bcabaab97735799dd6e200df3a475aacb185fcc33716cd143456fc6a96e5",
+      "translation": "Portanto, a passagem por poço enfaticamente **não** é \"o poço contém muitos objetos sinalizados\". Essa estatística existe — é relatada como ``flagged_share`` — e responde a outra pergunta: encontra um poço que contém alguns objetos *catastróficos* (uma segmentação que explodiu, um grão de poeira medido como célula) enquanto é cega a um deslocamento uniforme. A pontuação robusta por poço encontra o deslocamento uniforme enquanto é cega à catástrofe isolada. Ambas estão no quadro de poços porque nenhuma engloba a outra."
+    },
+    {
+      "context": "The well pass reduces each well to a robust summary — the **median** of each feature over the well's objects, plus ``n`` — and then runs *the same* rule (:data:`METHOD_MAD`, :data:`METHOD_IQR` or :data:`METHOD_MAHALANOBIS`) across microplate sample positions. The median rather than the mean for the same reason as everywhere else here: a single blown-up object must not become a bad well.",
+      "label": "spacr.qt.widgets.outlier_model#30",
+      "source": "The well pass reduces each well to a robust summary — the **median** of each feature over the well's objects, plus ``n`` — and then runs *the same* rule (:data:`METHOD_MAD`, :data:`METHOD_IQR` or :data:`METHOD_MAHALANOBIS`) across wells. The median rather than the mean for the same reason as everywhere else here: a single blown-up object must not become a bad well.",
+      "source_sha256": "8bc83543823e128f730554bda908512990a82430ee277de2a04038000ce3483e",
+      "translation": "A passagem por poço reduz cada poço a um resumo robusto — a **mediana** de cada característica sobre os objetos do poço, mais ``n`` — e então executa *a mesma* regra (:data:`METHOD_MAD`, :data:`METHOD_IQR` ou :data:`METHOD_MAHALANOBIS`) entre os poços. A mediana em vez da média pelo mesmo motivo que em todos os outros lugares aqui: um único objeto que explodiu não pode transformar um poço em poço ruim."
+    },
+    {
+      "context": "The alternative considered and not taken is the Rousseeuw–Croux ``Sn`` (``1.1926 * med_i med_j |x_i - x_j|``), which is the statistically better answer: it has a 50% breakdown point, needs no symmetry assumption, and does not collapse on tied data. It is not used because the naive form is O(n^2) — unusable on the 10^5–10^6 object rows spaCR routinely produces — and the O(n log n) algorithm is a page of intricate code to maintain for a path that is only ever reached when the MAD has *already* collapsed. The mean absolute deviation has a 0% breakdown point and that is stated plainly rather than glossed: it is a stopgap that keeps a degenerate column from flagging its whole tail, not a robust estimator. If the fallback fires, the honest reading is that the column is not continuous enough for this test.",
+      "label": "spacr.qt.widgets.outlier_model#9",
+      "source": "The alternative considered and not taken is the Rousseeuw–Croux ``Sn`` (``1.1926 * med_i med_j |x_i - x_j|``), which is the statistically better answer: it has a 50% breakdown point, needs no symmetry assumption, and does not collapse on tied data. It is not used because the naive form is O(n^2) — unusable on the 10^5–10^6 object rows spaCR routinely produces — and the O(n log n) algorithm is a page of intricate code to maintain for a path that is only ever reached when the MAD has *already* collapsed. The mean absolute deviation has a 0% breakdown point and that is stated plainly rather than glossed: it is a stopgap that keeps a degenerate column from flagging its whole tail, not a robust estimator. If the fallback fires, the honest reading is that the column is not continuous enough for this test.",
+      "source_sha256": "721569ff101ce8b35287fe360c287aa5942e78ce2fa3045cddc5a5a673f7dc52",
+      "translation": "A alternativa considerada e não adotada é o ``Sn`` de Rousseeuw–Croux (``1.1926 * med_i med_j |x_i - x_j|``), que é a resposta estatisticamente melhor: tem ponto de ruptura de 50%, não precisa de suposição de simetria e não colapsa com dados empatados. Não é usado porque a forma ingênua é O(n^2) — inutilizável nas 10^5–10^6 linhas de objetos que o spaCR produz rotineiramente — e o algoritmo O(n log n) é uma página de código intrincado para manter por causa de um caminho que só é alcançado quando o MAD *já* colapsou. O desvio absoluto médio tem ponto de ruptura de 0%, e isso é dito claramente em vez de ser disfarçado: é um paliativo que impede uma coluna degenerada de sinalizar toda a sua cauda, não um estimador robusto. Se esse recurso de reserva for acionado, a leitura honesta é que a coluna não é contínua o suficiente para este teste."
+    },
+    {
+      "context": "an ``.npy`` **stack** whose first axis is time — memory-mapped, so a slice touches only that image layer's pages.",
+      "label": "spacr.qt.widgets.timelapse_preview.FrameSequence#4",
+      "source": "an ``.npy`` **stack** whose first axis is time — memory-mapped, so a slice touches only that plane's pages.",
+      "source_sha256": "197f897c6a2c29fcc202737848baeafd9764f3bc019a9e861c7260d0b46fc28e",
+      "translation": "uma **pilha** ``.npy`` cujo primeiro eixo é o tempo — mapeada em memória, de modo que uma fatia toca apenas as páginas daquela camada de imagem."
+    },
+    {
+      "context": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between application views with nothing on application view to say so.",
+      "label": "spacr.schema.add_screen_column#3",
+      "source": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between screens with nothing on screen to say so.",
+      "source_sha256": "2e617f319f22c7717f33e5d37a2b4417ef3f953272c48c45d29b638471a15d87",
+      "translation": "O quadro tem uma, e ``screen`` é ``None``. Seus rótulos são mantidos. Rerrotular um quadro que já sabe de qual experimento veio moveria linhas entre experimentos sem nenhum aviso visível."
+    },
+    {
+      "context": "The frame has one and ``screen`` was given. The caller is looking at the files and has said which screen this is, so it wins — but only because they said so. ``overwrite=False`` (the default) still fills *blank* values only; pass ``overwrite=True`` to restamp every row.",
+      "label": "spacr.schema.add_screen_column#4",
+      "source": "The frame has one and ``screen`` was given. The caller is looking at the files and has said which screen this is, so it wins — but only because they said so. ``overwrite=False`` (the default) still fills *blank* values only; pass ``overwrite=True`` to restamp every row.",
+      "source_sha256": "8334cca36846b5ad24d6d47eee6daf87740b63e0b5763adbbff146c9fe665cdf",
+      "translation": "O quadro tem uma e ``screen`` foi informado. O chamador está olhando os arquivos e disse qual é a triagem, então essa informação prevalece — mas só porque ele disse isso. ``overwrite=False`` (o padrão) ainda preenche apenas valores *em branco*; passe ``overwrite=True`` para remarcar todas as linhas."
+    },
+    {
+      "context": "**A column with no values at all comes back as** ``object``. This is the common one and it is not a data problem: ``pandas.read_sql`` builds the frame from the rows it gets, so a column that is ``NULL`` in every row arrives as a column of ``None`` and pandas types that ``object`` -- even though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest NaN, and whole measurements are legitimately NaN for a whole database: ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform object, and ``mode_intensity`` was NaN for every object in every database written before the SciPy shim in ``measure._extended_regionprops_table``. Such a column is converted to ``float64`` NaN, which is what it always meant. Nothing is lost, so nothing is warned about -- and the caller's own all-NaN filter then drops it and says so.",
+      "label": "spacr.schema.coerce_model_feature_types#1",
+      "source": "**A column with no values at all comes back as** ``object``. This is the common one and it is not a data problem: ``pandas.read_sql`` builds the frame from the rows it gets, so a column that is ``NULL`` in every row arrives as a column of ``None`` and pandas types that ``object`` -- even though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest NaN, and whole measurements are legitimately NaN for a whole database: ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform object, and ``mode_intensity`` was NaN for every object in every database written before the SciPy shim in ``measure._extended_regionprops_table``. Such a column is converted to ``float64`` NaN, which is what it always meant. Nothing is lost, so nothing is warned about -- and the caller's own all-NaN filter then drops it and says so.",
+      "source_sha256": "2ee252513ac9bd0fd628bd8790e6abec91cc6cf12c3c83900b46c54f87db28a2",
+      "translation": "**Uma coluna sem nenhum valor volta como** ``object``. Este é o caso comum e não é um problema de dados: ``pandas.read_sql`` constrói o quadro a partir das linhas que recebe, de modo que uma coluna que é ``NULL`` em todas as linhas chega como uma coluna de ``None`` e o pandas lhe atribui o tipo ``object`` -- embora o SQLite a declare ``REAL``. O spaCR grava ``NULL`` para um NaN legítimo, e medições inteiras são legitimamente NaN num banco de dados inteiro: ``skew_intensity``/``kurtosis_intensity`` são NaN para todo objeto uniforme, e ``mode_intensity`` era NaN para todo objeto em todo banco de dados gravado antes do ajuste de compatibilidade do SciPy em ``measure._extended_regionprops_table``. Essa coluna é convertida em ``float64`` NaN, que é o que ela sempre significou. Nada se perde, então não há aviso -- e o próprio filtro de colunas totalmente NaN do chamador então a descarta e informa isso."
+    },
+    {
+      "context": "the measurements frame. Anything else — a Series included — raises :class:`ModelFeatureSchemaError`, not ``TypeError``.",
+      "label": "spacr.schema.coerce_model_feature_types#4",
+      "source": "the measurements frame. Anything else — a Series included — raises :class:`ModelFeatureSchemaError`, not ``TypeError``.",
+      "source_sha256": "6c1cb8593668b130fae62df3b0dfd6521bb530bd8ede8632bcde8ab2be74ad0a",
+      "translation": "o quadro de medições. Qualquer outra coisa — incluindo uma Series — lança :class:`ModelFeatureSchemaError`, não ``TypeError``."
+    },
+    {
+      "context": "Not the generator's own ``touches`` flag. That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The microplate sample position edge is recovered from the drawn pixels.",
+      "label": "spacr.setting_animations.measure_border_object_removal#3",
+      "source": "Not the generator's own ``touches`` flag. That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The well edge is recovered from the drawn pixels.",
+      "source_sha256": "7d784463cd45892f8bc5034e41f401c556ea7426cd64107b5d61ca111d8e4bac",
+      "translation": "Não o próprio sinalizador ``touches`` do gerador. Esse sinalizador é justamente o que está sendo testado; uma verificação que classifica objetos por ele valida o gerador contra si mesmo, e relatou \"all correct\" nos recursos que foram distribuídos com o bug. A borda do poço é recuperada a partir dos pixels desenhados."
+    },
+    {
+      "context": "A ``~`` path is expanded, once, for every reader -- GitHub issue #108, where a ``src`` beginning with ``~`` was resolved against the working directory and refused with ``FileNotFoundError: ~<DB>``. ``$HOME`` and ``%USERPROFILE%`` too: a settings CSV carried between machines routinely holds one.",
+      "label": "spacr.tabular#13",
+      "source": "A ``~`` path is expanded, once, for every reader -- GitHub issue #108, where a ``src`` beginning with ``~`` was resolved against the working directory and refused with ``FileNotFoundError: ~<DB>``. ``$HOME`` and ``%USERPROFILE%`` too: a settings CSV carried between machines routinely holds one.",
+      "source_sha256": "2b276d0c5c366d8a8d9bcdccd2e8ef753e06e72c51437ec42107f96dc840f9de",
+      "translation": "Um caminho ``~`` é expandido, uma vez, para cada leitor -- issue #108 do GitHub, em que um ``src`` começando com ``~`` era resolvido em relação ao diretório de trabalho e recusado com ``FileNotFoundError: ~<DB>``. ``$HOME`` e ``%USERPROFILE%`` também: um CSV de configurações levado de uma máquina para outra rotineiramente contém um desses."
+    }
+  ],
+  "schema": 1
+}

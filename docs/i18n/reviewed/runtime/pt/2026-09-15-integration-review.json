@@ -1,0 +1,265 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "key": "Advisory only — nothing here changes a setting until you press Use.",
+      "source": "Advisory only — nothing here changes a setting until you press Use.",
+      "source_sha256": "60d63c71a85338a87fec2f0e2c2a39cad379d229117c7c461a7d61c8cde14e04",
+      "table": "ui",
+      "translation": "Apenas indicativo — nada aqui altera uma configuração até que você pressione Usar."
+    },
+    {
+      "key": "Background of an exported figure ('none' leaves the page showing through)",
+      "source": "Background of an exported figure ('none' leaves the page showing through)",
+      "source_sha256": "81be1d0355fbf3296682dd73939525860a4957a6cb261c4a9bd8821227e7ae94",
+      "table": "ui",
+      "translation": "Fundo de uma figura exportada ('none' deixa a página transparecer)"
+    },
+    {
+      "key": "Build the digest first.",
+      "source": "Build the digest first.",
+      "source_sha256": "071bfce0a4e37d56ccd0a3587c48bffd58adacb214b80780e161be988bea161f",
+      "table": "ui",
+      "translation": "Crie o resumo primeiro."
+    },
+    {
+      "key": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source_sha256": "6e87588f0d1532cecbad8dfe8bf788361b7cc6bf7c50eb354c37245946aff269",
+      "table": "ui",
+      "translation": "O Cellpose 4 redimensiona cada imagem por 30/diâmetro antes de segmentar, portanto um diâmetro errado por um fator de dois tira seus objetos do tamanho em que o cpsam trabalha. Isto lê alguns campos dos seus próprios dados e os mede — o Cellpose não é carregado."
+    },
+    {
+      "key": "Choose a regression results folder — the one holding results_gene.csv.",
+      "source": "Choose a regression results folder — the one holding results_gene.csv.",
+      "source_sha256": "a9116f396c14b68e881fbd1f127d614fff52d06e5aa42f8718cdc36ced84afff",
+      "table": "ui",
+      "translation": "Escolha uma pasta de resultados de regressão — a que contém results_gene.csv."
+    },
+    {
+      "key": "Colour of the axis lines, the ticks and the text",
+      "source": "Colour of the axis lines, the ticks and the text",
+      "source_sha256": "3154a8539a5461fe51d2d8fbeb264030ef555282ddeec63cf41531ca7f8809bc",
+      "table": "ui",
+      "translation": "Cor das linhas dos eixos, das marcas de escala e do texto"
+    },
+    {
+      "key": "Column holding point names",
+      "source": "Column holding point names",
+      "source_sha256": "a40e916b1f2ec6d84f3a995d78302fbd93d78c8cd23cad13ca2f41cc04685b8c",
+      "table": "ui",
+      "translation": "Coluna com os nomes dos pontos"
+    },
+    {
+      "key": "End of page — all crops labelled. Press Enter to load the next batch.",
+      "source": "End of page — all crops labelled. Press Enter to load the next batch.",
+      "source_sha256": "b4d6f311f8227ca69ab6b8030eb0c0fa1434728fc7454923f162d60be288ec0d",
+      "table": "ui",
+      "translation": "Fim da página — todos os recortes rotulados. Pressione Enter para carregar o próximo lote."
+    },
+    {
+      "key": "End of page — press Enter to load the next batch.",
+      "source": "End of page — press Enter to load the next batch.",
+      "source_sha256": "735d5becb1c61db5a07ed2d587f9f6c753f8fce2a6062a1070ec67258093b049",
+      "table": "ui",
+      "translation": "Fim da página — pressione Enter para carregar o próximo lote."
+    },
+    {
+      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+      "table": "ui",
+      "translation": "Cada linha no arquivo: as curvas traçadas, as linhas de referência, as linhas dos eixos e as marcas de escala. Os números ao lado das marcas são texto e seguem a cor do texto."
+    },
+    {
+      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+      "table": "ui",
+      "translation": "Todo o texto do arquivo: o título, os rótulos dos eixos, os números ao lado das marcas de escala e a legenda."
+    },
+    {
+      "key": "Figure height (in)",
+      "source": "Figure height (in)",
+      "source_sha256": "e4c10c7b9116b4d5511a19b579fbd88e384f4e442d3080d27458940cd72501ce",
+      "table": "ui",
+      "translation": "Altura da figura (pol.)"
+    },
+    {
+      "key": "Figure width (in)",
+      "source": "Figure width (in)",
+      "source_sha256": "98db45d5b3ffe4e965a952f9104a241fac590beefbafb9b75d385bd220fe20eb",
+      "table": "ui",
+      "translation": "Largura da figura (pol.)"
+    },
+    {
+      "key": "Hide top/right spines",
+      "source": "Hide top/right spines",
+      "source_sha256": "de6084fb71d9fcfb93f085d186b4e71dadcb30034656ecff839b857508e904e8",
+      "table": "ui",
+      "translation": "Ocultar as bordas superior/direita"
+    },
+    {
+      "key": "High end of the colour scale",
+      "source": "High end of the colour scale",
+      "source_sha256": "1298b53ea3e5a28b4afebd8b9aeb717dc53e8f881895217110b1819e5e2a6ded",
+      "table": "ui",
+      "translation": "Extremo superior da escala de cores"
+    },
+    {
+      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
+      "table": "ui",
+      "translation": "Quantos elementos existem: bolhas, cortinas de aurora, fontes de ondulação, estrelas, discos de bokeh, células. Densidade e detalhe compartilham um único orçamento de custo, então pedir o máximo de ambos reduz a densidade em vez de perder quadros."
+    },
+    {
+      "key": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
+      "source": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
+      "source_sha256": "0f5cf9774f5be9f62e5f91817baaa8005779eb4f31b5d6b876f103d51f0da7bd",
+      "table": "ui",
+      "translation": "Com quanto detalhe a animação é desenhada. É esta configuração que decide se ela parece pixelizada: define em quantos pixels a imagem é calculada antes de ser esticada para preencher a página. Custa aproximadamente o quadrado do valor — 200 % é quatro vezes o trabalho —, portanto reduza-a em uma máquina ocupada."
+    },
+    {
+      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
+      "table": "ui",
+      "translation": "O quanto a animação está desfocada, além do detalhe com que foi desenhada. 0 % deixa-a tão nítida quanto a configuração de detalhe permite; 100 % é a suavidade com que as animações vinham antes. Ao contrário do detalhe, esta quase não custa nada — e as duas juntas permitem que o fundo seja suave sem ficar pixelizado."
+    },
+    {
+      "key": "No gene number could be parsed out of this term, so there is no annotation to look up.",
+      "source": "No gene number could be parsed out of this term, so there is no annotation to look up.",
+      "source_sha256": "9aa561c8948ae747f3deacf1b7f6fca5122cde68394efe18651ace144ad10741",
+      "table": "ui",
+      "translation": "Não foi possível extrair nenhum número de gene deste termo, por isso não há anotação para consultar."
+    },
+    {
+      "key": "No object channel is set. Fill in cell_channel, nucleus_channel or pathogen_channel — they are 0-based indices into the sorted channel IDs — and measure again.",
+      "source": "No object channel is set. Fill in cell_channel, nucleus_channel or pathogen_channel — they are 0-based indices into the sorted channel IDs — and measure again.",
+      "source_sha256": "2309e3f74f484df3f93e2fd74a173e272b302c98606edb34180c193ba6c83106",
+      "table": "ui",
+      "translation": "Nenhum canal de objeto está definido. Preencha cell_channel, nucleus_channel ou pathogen_channel — são índices baseados em 0 nos IDs de canal ordenados — e meça novamente."
+    },
+    {
+      "key": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source_sha256": "b753e3f49f93c425540881613863bfc06105ba4320659660a43f010cb1c4ae9a",
+      "table": "ui",
+      "translation": "Nada foi enviado ao painel de resultados, então não há pasta para pesquisar. Use “Carregar resultados…”."
+    },
+    {
+      "key": "Only one run is recorded here, so there is nothing to compare it against yet.",
+      "source": "Only one run is recorded here, so there is nothing to compare it against yet.",
+      "source_sha256": "e358b612807ad26438b9e4895352fc4f3e61e8ed70bed07364fbaa7665fb1a5c",
+      "table": "ui",
+      "translation": "Apenas uma execução está registrada aqui, então ainda não há nada com que compará-la."
+    },
+    {
+      "key": "Plot title",
+      "source": "Plot title",
+      "source_sha256": "f6a53f9aac380bcfa5959194c803f6cc9ed46feeb6069a51f77377c7d5f1a194",
+      "table": "ui",
+      "translation": "Título do gráfico"
+    },
+    {
+      "key": "Reading the run…",
+      "source": "Reading the run…",
+      "source_sha256": "ad507ced0123b1c23ae6fd0ae80845da1ca4e321e8a8e3434407bf17e85f4267",
+      "table": "ui",
+      "translation": "Lendo a execução…"
+    },
+    {
+      "key": "Run summary and performance",
+      "source": "Run summary and performance",
+      "source_sha256": "312c7afc47d755db526b8bfa576e7489de08b4342127489596775d9f8b66cd31",
+      "table": "ui",
+      "translation": "Resumo e desempenho da execução"
+    },
+    {
+      "key": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source_sha256": "7b72a7998b51633858ecc01e775e950e4431e3fed398d723885e9d9b21b9001d",
+      "table": "ui",
+      "translation": "Amostre as leituras de uma amostra e meça cada tabela de referência contra elas, nas duas orientações e nas duas leituras do par."
+    },
+    {
+      "key": "The digest could not be built.",
+      "source": "The digest could not be built.",
+      "source_sha256": "efaec88b5f9fac6cadfbe3ec65b226f8bab4d647976b1736d866e47f0db34280",
+      "table": "ui",
+      "translation": "Não foi possível criar o resumo."
+    },
+    {
+      "key": "The draft could not be produced.",
+      "source": "The draft could not be produced.",
+      "source_sha256": "eb6f80f3bf8799db3ab5e28260133bd945e359fa49a0febd8fa4f64bc2f125f1",
+      "table": "ui",
+      "translation": "Não foi possível gerar o rascunho."
+    },
+    {
+      "key": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source_sha256": "39ab4725bc6dd7ca9d4160cdcb908f858280a21e835dfa0a60bb551754f21ae2",
+      "table": "ui",
+      "translation": "Não foi possível resolver o gene, então não há nada para consultar. O gráfico não é afetado."
+    },
+    {
+      "key": "The page behind the figure. Transparent takes whatever the figure is placed on, which is what a slide usually wants.",
+      "source": "The page behind the figure. Transparent takes whatever the figure is placed on, which is what a slide usually wants.",
+      "source_sha256": "1521526b9bceb69f540d036fdf758841f4407d2a02fda7fed25e25743a3a9ae4",
+      "table": "ui",
+      "translation": "A página atrás da figura. Transparente assume o que estiver sob a figura, que é o que um slide normalmente pede."
+    },
+    {
+      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
+      "table": "ui",
+      "translation": "O percentil mapeado para preto. Aumente-o para eliminar mais do fundo; 0 mantém o pixel mais escuro."
+    },
+    {
+      "key": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source_sha256": "0549c47361f20d04a96ba1830cb2ae082be3246b95b3720a9b391b0b0c30ed6f",
+      "table": "ui",
+      "translation": "O percentil mapeado para branco. Diminua-o para ter mais contraste à custa de cortar os pixels mais brilhantes; 100 não corta nenhum."
+    },
+    {
+      "key": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source_sha256": "30f39b338f5a50c00c3469016332c6de396d98463ccf94f67b4eac198474cfcb",
+      "table": "ui",
+      "translation": "A execução terminou, mas suas configurações não indicam nenhuma pasta de saída -- src, count_data e score_data estão todos vazios -- então não há onde procurar uma tabela de resultados. Use “Carregar resultados…” para indicar uma."
+    },
+    {
+      "key": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source_sha256": "13f3ac5383c22d164b4775777e127bc35f6e80bb46307445eb24bf72041e2827",
+      "table": "ui",
+      "translation": "O que o spaCR sabe sobre o gene aparece aqui — produto, topologia, compartimento, triagens de fitness e expressão por estágio."
+    },
+    {
+      "key": "Y axis title (blank = automatic)",
+      "source": "Y axis title (blank = automatic)",
+      "source_sha256": "cb688aef6e724460dd143df42b9fea708b25329a4a9d0e2d9ef6d14a44dde6ab",
+      "table": "ui",
+      "translation": "Título do eixo Y (em branco = automático)"
+    },
+    {
+      "key": "parses — load a table to see the values",
+      "source": "parses — load a table to see the values",
+      "source_sha256": "b8cd1d8b08fc02674074f302125203f4b8f1c3e9e2c360fb3400ada468a8f92a",
+      "table": "ui",
+      "translation": "é analisada — carregue uma tabela para ver os valores"
+    },
+    {
+      "key": "spaCR did NOT restart: the module and its settings could not be saved, and restarting without them would lose more than the stuck run. Nothing was stopped. The log says why.",
+      "source": "spaCR did NOT restart: the module and its settings could not be saved, and restarting without them would lose more than the stuck run. Nothing was stopped. The log says why.",
+      "source_sha256": "e93a3905c2cc28202255a0ea6363a13a125430689abf72210c32a1e788e88084",
+      "table": "ui",
+      "translation": "O spaCR NÃO reiniciou: o módulo e suas configurações não puderam ser salvos, e reiniciar sem eles perderia mais do que a execução travada. Nada foi interrompido. O log explica o motivo."
+    }
+  ],
+  "schema": 1
+}

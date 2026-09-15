@@ -1,0 +1,720 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Advisory only — nothing here changes a setting until you press Use.",
+      "source": "Advisory only — nothing here changes a setting until you press Use.",
+      "source_sha256": "60d63c71a85338a87fec2f0e2c2a39cad379d229117c7c461a7d61c8cde14e04",
+      "table": "ui",
+      "translation": "仅供参考 — 在您按下“使用”之前，这里不会更改任何设置。"
+    },
+    {
+      "key": "Advisory only — this never stops Measure from running.",
+      "source": "Advisory only — this never stops Measure from running.",
+      "source_sha256": "fd24cb67a6e395d7727a58e0203580ae3cccabaeb50c439fb7fd12ef54d5001c",
+      "table": "ui",
+      "translation": "仅供参考 — 这永远不会阻止 Measure 运行。"
+    },
+    {
+      "key": "Background of an exported figure ('none' leaves the page showing through)",
+      "source": "Background of an exported figure ('none' leaves the page showing through)",
+      "source_sha256": "81be1d0355fbf3296682dd73939525860a4957a6cb261c4a9bd8821227e7ae94",
+      "table": "ui",
+      "translation": "导出图的背景（'none' 时透出下方的页面）"
+    },
+    {
+      "key": "Boolean column marking the non-targeting controls, for the 'control' method",
+      "source": "Boolean column marking the non-targeting controls, for the 'control' method",
+      "source_sha256": "3ad7de77b343ae4e40bc3542773c6845c80972af5d8f09555746556336e1d0bb",
+      "table": "ui",
+      "translation": "标记非靶向对照的布尔列，用于 'control' 方法"
+    },
+    {
+      "key": "Build the digest first.",
+      "source": "Build the digest first.",
+      "source_sha256": "071bfce0a4e37d56ccd0a3587c48bffd58adacb214b80780e161be988bea161f",
+      "table": "ui",
+      "translation": "请先生成摘要。"
+    },
+    {
+      "key": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source_sha256": "6e87588f0d1532cecbad8dfe8bf788361b7cc6bf7c50eb354c37245946aff269",
+      "table": "ui",
+      "translation": "Cellpose 4 在分割前会按 30/直径 缩放每张图像，因此直径偏差两倍就会让对象偏离 cpsam 适用的尺寸。这里会读取您自己数据中的几个视野并进行测量 — 不会加载 Cellpose。"
+    },
+    {
+      "key": "Choose a regression results folder — the one holding results_gene.csv.",
+      "source": "Choose a regression results folder — the one holding results_gene.csv.",
+      "source_sha256": "a9116f396c14b68e881fbd1f127d614fff52d06e5aa42f8718cdc36ced84afff",
+      "table": "ui",
+      "translation": "选择回归结果文件夹 — 即包含 results_gene.csv 的那个。"
+    },
+    {
+      "key": "Cleared.",
+      "source": "Cleared.",
+      "source_sha256": "aa8dbf3c9d7e35b6dae44f99537e7998f6215ca1369ba1814cd9932d9b078f28",
+      "table": "ui",
+      "translation": "已清除。"
+    },
+    {
+      "key": "Clusters",
+      "source": "Clusters",
+      "source_sha256": "92d5e4c5cd37431e5a659de27354604b4b95684a307f2b9602c51d84585a85b0",
+      "table": "ui",
+      "translation": "聚类簇"
+    },
+    {
+      "key": "Colour by a column…",
+      "source": "Colour by a column…",
+      "source_sha256": "f70587ad394019eaeb62e2d63e979f5159e7f14e9a063c008f546e768b894005",
+      "table": "ui",
+      "translation": "按列着色…"
+    },
+    {
+      "key": "Colour of non-significant points",
+      "source": "Colour of non-significant points",
+      "source_sha256": "34fd31cff92074c3dda6d4820552d17a101a5abbf95f0d9996c0f2357d4e1571",
+      "table": "ui",
+      "translation": "不显著点的颜色"
+    },
+    {
+      "key": "Colour of significant points",
+      "source": "Colour of significant points",
+      "source_sha256": "63b02f07db1d3e7b3258f448105ecdf49af8ec838d217d2a2db45e5739362f7c",
+      "table": "ui",
+      "translation": "显著点的颜色"
+    },
+    {
+      "key": "Colour of the axis lines, the ticks and the text",
+      "source": "Colour of the axis lines, the ticks and the text",
+      "source_sha256": "3154a8539a5461fe51d2d8fbeb264030ef555282ddeec63cf41531ca7f8809bc",
+      "table": "ui",
+      "translation": "轴线、刻度和文本的颜色"
+    },
+    {
+      "key": "Column holding point names",
+      "source": "Column holding point names",
+      "source_sha256": "a40e916b1f2ec6d84f3a995d78302fbd93d78c8cd23cad13ca2f41cc04685b8c",
+      "table": "ui",
+      "translation": "包含点名称的列"
+    },
+    {
+      "key": "Column naming each row's gene, for the compartment lookup",
+      "source": "Column naming each row's gene, for the compartment lookup",
+      "source_sha256": "db0ce15eb390e498bfbbc3bf684c5887e0b8cb907bfb26bf489830854633a55f",
+      "table": "ui",
+      "translation": "给出每行基因名称的列，用于查询亚细胞区室"
+    },
+    {
+      "key": "Column plotted on the x axis",
+      "source": "Column plotted on the x axis",
+      "source_sha256": "abbf17d6a6727cf01ae9ea6cb6d21287b675f838c2aeecfd6bced2fbe929eafb",
+      "table": "ui",
+      "translation": "绘制在 x 轴上的列"
+    },
+    {
+      "key": "Column plotted on the y axis",
+      "source": "Column plotted on the y axis",
+      "source_sha256": "948578aab4a397831973d14bbee3748da8c63da66a1a21ed3cae859f3ed32570",
+      "table": "ui",
+      "translation": "绘制在 y 轴上的列"
+    },
+    {
+      "key": "Distance cut",
+      "source": "Distance cut",
+      "source_sha256": "9cbd6a9efc80024bfd885651647f0e6824f48a2985a2e389105bad6e2ec0cefa",
+      "table": "ui",
+      "translation": "距离阈值"
+    },
+    {
+      "key": "Drafting…",
+      "source": "Drafting…",
+      "source_sha256": "bafe3bfa6db69fc878ee68858880fcbb984032c0ffbf7267fa464731dc5d5017",
+      "table": "ui",
+      "translation": "正在起草…"
+    },
+    {
+      "key": "Draw the effect-size lines",
+      "source": "Draw the effect-size lines",
+      "source_sha256": "e4515c9065f4d6a8ce7a03b34c7543dbc152a15286fbb060c341e567f679050d",
+      "table": "ui",
+      "translation": "绘制效应量线"
+    },
+    {
+      "key": "Draw the significance line",
+      "source": "Draw the significance line",
+      "source_sha256": "5622f63f2e57a67d38ca97715652772b5bc31d11a2ae5a41a69b78b0b157660f",
+      "table": "ui",
+      "translation": "绘制显著性线"
+    },
+    {
+      "key": "Effect-size cut used when the method is 'value'; automatic draws no effect-size line at all",
+      "source": "Effect-size cut used when the method is 'value'; automatic draws no effect-size line at all",
+      "source_sha256": "926a1985405927c586349966968dcc5d375a6bf992e06711224b2618a2323485",
+      "table": "ui",
+      "translation": "方法为 'value' 时使用的效应量阈值；选择自动时完全不绘制效应量线"
+    },
+    {
+      "key": "End of page — all crops labelled. Press Enter to load the next batch.",
+      "source": "End of page — all crops labelled. Press Enter to load the next batch.",
+      "source_sha256": "b4d6f311f8227ca69ab6b8030eb0c0fa1434728fc7454923f162d60be288ec0d",
+      "table": "ui",
+      "translation": "页面结束 — 所有裁剪图像均已标注。按 Enter 加载下一批。"
+    },
+    {
+      "key": "End of page — press Enter to load the next batch.",
+      "source": "End of page — press Enter to load the next batch.",
+      "source_sha256": "735d5becb1c61db5a07ed2d587f9f6c753f8fce2a6062a1070ec67258093b049",
+      "table": "ui",
+      "translation": "页面结束 — 按 Enter 加载下一批。"
+    },
+    {
+      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+      "table": "ui",
+      "translation": "文件中的每条线：绘制的曲线、参考线、坐标轴轴脊和刻度线。刻度旁的数字属于文本，跟随文本颜色。"
+    },
+    {
+      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+      "table": "ui",
+      "translation": "文件中的所有文本：标题、坐标轴标签、刻度旁的数字和图例。"
+    },
+    {
+      "key": "Exact resolved settings",
+      "source": "Exact resolved settings",
+      "source_sha256": "2fc0e5a579e1690fafb3bd4c7d1755cb936787a18030fdec5500349552e4a176",
+      "table": "ui",
+      "translation": "解析后的确切设置"
+    },
+    {
+      "key": "Font weight",
+      "source": "Font weight",
+      "source_sha256": "d05ad818d51da4629cbc458c038a34c1bd0094e6f22bbba555f6ca5633c2b1b1",
+      "table": "ui",
+      "translation": "字重"
+    },
+    {
+      "key": "Grid line width",
+      "source": "Grid line width",
+      "source_sha256": "f4aef6a38c150205e505bacf56c3c8b688fe58eb3a388eb6d828437c32e0674e",
+      "table": "ui",
+      "translation": "网格线宽度"
+    },
+    {
+      "key": "Hide top/right spines",
+      "source": "Hide top/right spines",
+      "source_sha256": "de6084fb71d9fcfb93f085d186b4e71dadcb30034656ecff839b857508e904e8",
+      "table": "ui",
+      "translation": "隐藏顶部/右侧轴脊"
+    },
+    {
+      "key": "High end of the colour scale",
+      "source": "High end of the colour scale",
+      "source_sha256": "1298b53ea3e5a28b4afebd8b9aeb717dc53e8f881895217110b1819e5e2a6ded",
+      "table": "ui",
+      "translation": "颜色标尺的上限"
+    },
+    {
+      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
+      "table": "ui",
+      "translation": "元素的数量：色团、极光帘幕、涟漪源、星星、焦外光斑、细胞。密度和细节共用同一成本预算，因此两者都调到最高时会降低密度，而不是丢帧。"
+    },
+    {
+      "key": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
+      "source": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
+      "source_sha256": "0f5cf9774f5be9f62e5f91817baaa8005779eb4f31b5d6b876f103d51f0da7bd",
+      "table": "ui",
+      "translation": "动画绘制的细节程度。它决定画面是否显得有像素感：它设定图像在拉伸填满页面之前以多少像素计算。开销大约是该值的平方 — 200 % 就是四倍的工作量 — 所以在繁忙的机器上请调低它。"
+    },
+    {
+      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
+      "table": "ui",
+      "translation": "动画的失焦程度，叠加在其绘制细节之上。0 % 保持细节设置所允许的清晰度；100 % 是动画以前默认的柔和程度。与细节不同，这项设置几乎没有开销 — 两者结合才能让背景柔和而不出现块状。"
+    },
+    {
+      "key": "How the effect-size cut is derived",
+      "source": "How the effect-size cut is derived",
+      "source_sha256": "4bc0c7bdaa4b5b47e36e7f5617080a119bfe9c1e6dc339f17ad1f20e0136ddf8",
+      "table": "ui",
+      "translation": "效应量阈值的推导方式"
+    },
+    {
+      "key": "Invert x axis",
+      "source": "Invert x axis",
+      "source_sha256": "5873a95affc691a3547c03fb6c3c7a0de77b1eb9eca56d08eb3587937cdecb5c",
+      "table": "ui",
+      "translation": "反转 x 轴"
+    },
+    {
+      "key": "Invert y axis",
+      "source": "Invert y axis",
+      "source_sha256": "3d73d45768978831a8defb5e48c73ac7638df43557fb40aaa1569e8e6399ed09",
+      "table": "ui",
+      "translation": "反转 y 轴"
+    },
+    {
+      "key": "Label every hit",
+      "source": "Label every hit",
+      "source_sha256": "99f06185746fcc9952567d57a516cee864eb79e3a53b7cbcf52ed5a2b1185218",
+      "table": "ui",
+      "translation": "标注每个命中"
+    },
+    {
+      "key": "Line width…",
+      "source": "Line width…",
+      "source_sha256": "dbc721af7eec2ce2db4fad40bb16e3bc582d77a706d205dd89123bbc0bbfe66f",
+      "table": "ui",
+      "translation": "线宽…"
+    },
+    {
+      "key": "Loading the bundled Toxoplasma annotation…",
+      "source": "Loading the bundled Toxoplasma annotation…",
+      "source_sha256": "0386cebfba418e555151984ebc6d6687c51815f2ee6cd529bdc508f145c3f3c4",
+      "table": "ui",
+      "translation": "正在加载内置的 Toxoplasma 注释…"
+    },
+    {
+      "key": "Low end of the colour scale",
+      "source": "Low end of the colour scale",
+      "source_sha256": "4873ecc7e77ab9c51302cbac77e2481dacc57f31378e6f1bdb095690b313b2fb",
+      "table": "ui",
+      "translation": "颜色标尺的下限"
+    },
+    {
+      "key": "Marker size for significant points",
+      "source": "Marker size for significant points",
+      "source_sha256": "8e3f06dfc5687d565f18edb21a4b6ccf49147595328774ac32333be836083657",
+      "table": "ui",
+      "translation": "显著点的标记大小"
+    },
+    {
+      "key": "Modified",
+      "source": "Modified",
+      "source_sha256": "e8ce5dcaf408935ff76747226d2e8bee4319a2f593c1d7a838115e56183d1f37",
+      "table": "ui",
+      "translation": "已修改"
+    },
+    {
+      "key": "Multiplier applied to the rule above (the quantile itself when the method is 'quantile')",
+      "source": "Multiplier applied to the rule above (the quantile itself when the method is 'quantile')",
+      "source_sha256": "384d009a778619d7f11d1f583599f222ad07b5a437f9c6cbe7f48f2eefaeeb34",
+      "table": "ui",
+      "translation": "应用于上述规则的乘数（方法为 'quantile' 时即分位数本身）"
+    },
+    {
+      "key": "Name at least one source, then build the digest.",
+      "source": "Name at least one source, then build the digest.",
+      "source_sha256": "494782c5280e148de4516ccaa770c1071c9b6e0a4b5b2a1380125de7cac6b8c7",
+      "table": "ui",
+      "translation": "请至少指定一个来源，然后生成摘要。"
+    },
+    {
+      "key": "Negative control wells",
+      "source": "Negative control wells",
+      "source_sha256": "420f872d82474589b502fa7eada5cd4a5714d188e2837850a1818e487903958a",
+      "table": "ui",
+      "translation": "阴性对照孔"
+    },
+    {
+      "key": "Neighbours per seed",
+      "source": "Neighbours per seed",
+      "source_sha256": "e44a100da8498ec32867214e7c4b2ae1aa8f0cabc7cfa8de9c9a2dcc7a6135ee",
+      "table": "ui",
+      "translation": "每个种子点的近邻数"
+    },
+    {
+      "key": "No coefficient in this screen carries a TAGM/LOPIT localisation, so there is nothing to colour by.",
+      "source": "No coefficient in this screen carries a TAGM/LOPIT localisation, so there is nothing to colour by.",
+      "source_sha256": "1480fb4dfe545fd04ec1c92b8c10495a2d8d7e95409ffd25c62527b9671b5e04",
+      "table": "ui",
+      "translation": "此筛选中没有任何系数带有 TAGM/LOPIT 定位，因此无法据此着色。"
+    },
+    {
+      "key": "No gene number could be parsed out of this term, so there is no annotation to look up.",
+      "source": "No gene number could be parsed out of this term, so there is no annotation to look up.",
+      "source_sha256": "9aa561c8948ae747f3deacf1b7f6fca5122cde68394efe18651ace144ad10741",
+      "table": "ui",
+      "translation": "无法从该术语中解析出基因编号，因此没有可查询的注释。"
+    },
+    {
+      "key": "No object channel is set. Fill in cell_channel, nucleus_channel or pathogen_channel — they are 0-based indices into the sorted channel IDs — and measure again.",
+      "source": "No object channel is set. Fill in cell_channel, nucleus_channel or pathogen_channel — they are 0-based indices into the sorted channel IDs — and measure again.",
+      "source_sha256": "2309e3f74f484df3f93e2fd74a173e272b302c98606edb34180c193ba6c83106",
+      "table": "ui",
+      "translation": "未设置对象通道。请填写 cell_channel、nucleus_channel 或 pathogen_channel — 它们是指向排序后通道 ID 的从 0 开始的索引 — 然后重新测量。"
+    },
+    {
+      "key": "Nothing on this page to annotate.",
+      "source": "Nothing on this page to annotate.",
+      "source_sha256": "0573add57a5d2020713be36b9113c4544cdd2d1df46624def28ead2361f0cedf",
+      "table": "ui",
+      "translation": "此页面上没有可标注的内容。"
+    },
+    {
+      "key": "Nothing to undo.",
+      "source": "Nothing to undo.",
+      "source_sha256": "bf9913bba7204a22bd3e8d11b3d83d5f1648c11cbd2ba25ab2d81b3be8781e3c",
+      "table": "ui",
+      "translation": "没有可撤销的操作。"
+    },
+    {
+      "key": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source_sha256": "b753e3f49f93c425540881613863bfc06105ba4320659660a43f010cb1c4ae9a",
+      "table": "ui",
+      "translation": "没有向结果面板传入任何内容，因此没有可搜索的文件夹。请使用“加载结果…”。"
+    },
+    {
+      "key": "Only one run is recorded here, so there is nothing to compare it against yet.",
+      "source": "Only one run is recorded here, so there is nothing to compare it against yet.",
+      "source_sha256": "e358b612807ad26438b9e4895352fc4f3e61e8ed70bed07364fbaa7665fb1a5c",
+      "table": "ui",
+      "translation": "这里只记录了一次运行，因此还没有可比较的对象。"
+    },
+    {
+      "key": "Opacity…",
+      "source": "Opacity…",
+      "source_sha256": "daa4fd0b233c791c11da0d9b3da10e8e248c64947feebedfa69d35ca7433c8c9",
+      "table": "ui",
+      "translation": "不透明度…"
+    },
+    {
+      "key": "Open a field in napari first.",
+      "source": "Open a field in napari first.",
+      "source_sha256": "0f99f638cb1933e56bc8c05a163995261836cb6e626be26ef58db65694fd4f08",
+      "table": "ui",
+      "translation": "请先在 napari 中打开一个视野。"
+    },
+    {
+      "key": "Pick a method and press Embed and score. Nothing is computed until then.",
+      "source": "Pick a method and press Embed and score. Nothing is computed until then.",
+      "source_sha256": "a708b7b25759d42c91aa3935d7ad7c4f4e8b214e9f54cdcb91df38f1a0e0720c",
+      "table": "ui",
+      "translation": "请选择一种方法，然后按“嵌入并评分”。在此之前不会进行任何计算。"
+    },
+    {
+      "key": "Plot title",
+      "source": "Plot title",
+      "source_sha256": "f6a53f9aac380bcfa5959194c803f6cc9ed46feeb6069a51f77377c7d5f1a194",
+      "table": "ui",
+      "translation": "图表标题"
+    },
+    {
+      "key": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source_sha256": "a5038f58402ee32decf4d04419420346cbcec24d0494ee02fe1a85ee49b1bb9a",
+      "table": "ui",
+      "translation": "请先将 src 指向一个板文件夹 — 目前还没有可测量的内容。"
+    },
+    {
+      "key": "Points labelled by name (set by clicking a point)",
+      "source": "Points labelled by name (set by clicking a point)",
+      "source_sha256": "d817429b8d3d47a36f79b3b87033bbd20131a78cd2f6f399f0020d7de0acfa23",
+      "table": "ui",
+      "translation": "按名称标注的点（点击某个点即可设置）"
+    },
+    {
+      "key": "Positive control wells",
+      "source": "Positive control wells",
+      "source_sha256": "462e38219a78a7356fe27c275a7c8cb4d6ec340c24d7d7bc48d3b620e978a297",
+      "table": "ui",
+      "translation": "阳性对照孔"
+    },
+    {
+      "key": "Raster export dpi",
+      "source": "Raster export dpi",
+      "source_sha256": "c5cb277e3b5e511de9514424f9e1e21f275c500406467fb99443cdfb95e3ea6d",
+      "table": "ui",
+      "translation": "栅格导出 dpi"
+    },
+    {
+      "key": "Reading the run…",
+      "source": "Reading the run…",
+      "source_sha256": "ad507ced0123b1c23ae6fd0ae80845da1ca4e321e8a8e3434407bf17e85f4267",
+      "table": "ui",
+      "translation": "正在读取运行…"
+    },
+    {
+      "key": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source_sha256": "7b72a7998b51633858ecc01e775e950e4431e3fed398d723885e9d9b21b9001d",
+      "table": "ui",
+      "translation": "从一个样本的读段中抽样，并在两种方向、双端的两条读段上将每个参考表与之比对。"
+    },
+    {
+      "key": "Saved — this is the last page.",
+      "source": "Saved — this is the last page.",
+      "source_sha256": "a1b6aca5ab7db03637a3ab5232685b8cc2ee59a65e74156b79a289d1bf3d2628",
+      "table": "ui",
+      "translation": "已保存 — 这是最后一页。"
+    },
+    {
+      "key": "Score strata",
+      "source": "Score strata",
+      "source_sha256": "f9b65f1695a31da3480df98c6735b2777d17e42c38428636f73b14c97dba546e",
+      "table": "ui",
+      "translation": "得分分层数"
+    },
+    {
+      "key": "Search every setting in this module by name, by label, or by what its description says it does.",
+      "source": "Search every setting in this module by name, by label, or by what its description says it does.",
+      "source_sha256": "641e0923f849be37afe3f09e86c2c2f3db47e313aa7b662d93c32ad856c53858",
+      "table": "ui",
+      "translation": "按名称、标签或描述中所说的功能，搜索此模块中的所有设置。"
+    },
+    {
+      "key": "Segmentation QC",
+      "source": "Segmentation QC",
+      "source_sha256": "d3d7000b72703f52a9a9c0a06246f2d9e55c6e65182cdffa89899258f8362f2e",
+      "table": "ui",
+      "translation": "分割 QC"
+    },
+    {
+      "key": "Select one hit to investigate.",
+      "source": "Select one hit to investigate.",
+      "source_sha256": "8789976bd40e76de89fbe64277aa770ba3726664e635fa6d66509c5f8092de3d",
+      "table": "ui",
+      "translation": "选择一个命中进行研究。"
+    },
+    {
+      "key": "Shape by a column…",
+      "source": "Shape by a column…",
+      "source_sha256": "42eb09cbdc65bcf49d62d9ee47abcf7a7e69475bcd76e42e55b6505e2e21f333",
+      "table": "ui",
+      "translation": "按列设置形状…"
+    },
+    {
+      "key": "Show legend",
+      "source": "Show legend",
+      "source_sha256": "ebf33682ec6626f84af2a8c8f016ee10ffd4f98528e1f77f98adb2417f531d71",
+      "table": "ui",
+      "translation": "显示图例"
+    },
+    {
+      "key": "Show only the settings that no longer hold this module's default value.",
+      "source": "Show only the settings that no longer hold this module's default value.",
+      "source_sha256": "308a8152d708d2358723b7c81cb0262feb0d06e5b477d37d080d9e82deb3fc43",
+      "table": "ui",
+      "translation": "只显示不再是此模块默认值的设置。"
+    },
+    {
+      "key": "Significance level",
+      "source": "Significance level",
+      "source_sha256": "4551b4c8f9dde6969602dd274808e3de229b1bd3b1081d6f38ab075c9a355850",
+      "table": "ui",
+      "translation": "显著性水平"
+    },
+    {
+      "key": "Split the y axis (broken axis)",
+      "source": "Split the y axis (broken axis)",
+      "source_sha256": "0d3b1934ba287f5b67c34f6dcea83ee629a33a670ac6f6e3ff8b1bafcea06cf6",
+      "table": "ui",
+      "translation": "分割 y 轴（断轴）"
+    },
+    {
+      "key": "The digest could not be built.",
+      "source": "The digest could not be built.",
+      "source_sha256": "efaec88b5f9fac6cadfbe3ec65b226f8bab4d647976b1736d866e47f0db34280",
+      "table": "ui",
+      "translation": "无法生成摘要。"
+    },
+    {
+      "key": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source_sha256": "39ab4725bc6dd7ca9d4160cdcb908f858280a21e835dfa0a60bb551754f21ae2",
+      "table": "ui",
+      "translation": "无法识别该基因，因此没有可查询的内容。图表不受影响。"
+    },
+    {
+      "key": "The graph could not be built.",
+      "source": "The graph could not be built.",
+      "source_sha256": "739cd2d34aa125b5db3d861f2e3850bc53a2643d3ad94ab69c01430304050794",
+      "table": "ui",
+      "translation": "无法生成图表。"
+    },
+    {
+      "key": "The hit list could not be built.",
+      "source": "The hit list could not be built.",
+      "source_sha256": "f9ebbf34bc90347a2dff394c762d2c5108d64ccf835fb00d2bfc810dc7110817",
+      "table": "ui",
+      "translation": "无法生成命中列表。"
+    },
+    {
+      "key": "The page behind the figure. Transparent takes whatever the figure is placed on, which is what a slide usually wants.",
+      "source": "The page behind the figure. Transparent takes whatever the figure is placed on, which is what a slide usually wants.",
+      "source_sha256": "1521526b9bceb69f540d036fdf758841f4407d2a02fda7fed25e25743a3a9ae4",
+      "table": "ui",
+      "translation": "图形背后的页面。选择透明时会显示图形所放置位置的底色，这通常正是幻灯片所需要的。"
+    },
+    {
+      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
+      "table": "ui",
+      "translation": "映射为黑色的百分位数。调高可压暗更多背景；0 会保留最暗的像素。"
+    },
+    {
+      "key": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source_sha256": "0549c47361f20d04a96ba1830cb2ae082be3246b95b3720a9b391b0b0c30ed6f",
+      "table": "ui",
+      "translation": "映射为白色的百分位数。调低可提高对比度，但会截断最亮的像素；100 则不截断任何像素。"
+    },
+    {
+      "key": "The results table is empty: it has columns but no rows, so the fit produced no coefficients.",
+      "source": "The results table is empty: it has columns but no rows, so the fit produced no coefficients.",
+      "source_sha256": "37208ee3e331f817cfd0ae6af518e1582a4fe22fd0e7bd952a04f8f856a9f3d7",
+      "table": "ui",
+      "translation": "结果表为空：它有列但没有行，因此拟合没有产生任何系数。"
+    },
+    {
+      "key": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source_sha256": "30f39b338f5a50c00c3469016332c6de396d98463ccf94f67b4eac198474cfcb",
+      "table": "ui",
+      "translation": "运行已完成，但其设置没有指定输出文件夹 -- src、count_data 和 score_data 均为空 -- 因此无处查找结果表。请使用“加载结果…”指定一个。"
+    },
+    {
+      "key": "The run loader came back with nothing, which is a bug in the loader rather than in the run.",
+      "source": "The run loader came back with nothing, which is a bug in the loader rather than in the run.",
+      "source_sha256": "3dbeadf1acde8c90b61e8bce3c542782c3759900511885dc051f8c9c4012ad31",
+      "table": "ui",
+      "translation": "运行加载器没有返回任何内容，这是加载器的错误，而不是运行本身的问题。"
+    },
+    {
+      "key": "There is no hit list to export yet.",
+      "source": "There is no hit list to export yet.",
+      "source_sha256": "700f3a67cdfe122ab8ebd061e82388c8bfc536885de47f66f96db7b1a997d2a1",
+      "table": "ui",
+      "translation": "目前还没有可导出的命中列表。"
+    },
+    {
+      "key": "There is no settings store to save a default into.",
+      "source": "There is no settings store to save a default into.",
+      "source_sha256": "e83f38e6acd6977813d4df0d8cfd2cca5dc5f3f630bbeeae0c7e81231dc1ce5d",
+      "table": "ui",
+      "translation": "没有可用于保存默认值的设置存储。"
+    },
+    {
+      "key": "There is nothing to export yet.",
+      "source": "There is nothing to export yet.",
+      "source_sha256": "882f817d10ee495e6005852f4a87e2ceb13ae9015b18380028cb1959c69b6a67",
+      "table": "ui",
+      "translation": "目前还没有可导出的内容。"
+    },
+    {
+      "key": "Transparent background on export",
+      "source": "Transparent background on export",
+      "source_sha256": "b4a022a5b695d85f00e6cb8c58378079eba95e17bcb2a92bba814319b0203340",
+      "table": "ui",
+      "translation": "导出时使用透明背景"
+    },
+    {
+      "key": "Uncertainty measure",
+      "source": "Uncertainty measure",
+      "source_sha256": "663c8bb8e9a5397d581952bfb779650abbe35b33712b1b2c942ae6ee5b6097e3",
+      "table": "ui",
+      "translation": "不确定性度量"
+    },
+    {
+      "key": "Undone.",
+      "source": "Undone.",
+      "source_sha256": "dc16676623c41e87659bac36a19b91addf09b622f19f304194119211e57757e4",
+      "table": "ui",
+      "translation": "已撤销。"
+    },
+    {
+      "key": "Versions, seeds, and manifest",
+      "source": "Versions, seeds, and manifest",
+      "source_sha256": "915d9d832ebb89e3778cee6e7e590d0bb7de7bd80bb441e4bc473dc9a17a309f",
+      "table": "ui",
+      "translation": "版本、随机种子和清单"
+    },
+    {
+      "key": "Warnings and failure traceback",
+      "source": "Warnings and failure traceback",
+      "source_sha256": "e9545a6f22fa436b6da685d550f2068862e162c33634a0e716819ef2ab7eb92e",
+      "table": "ui",
+      "translation": "警告和失败回溯"
+    },
+    {
+      "key": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source_sha256": "13f3ac5383c22d164b4775777e127bc35f6e80bb46307445eb24bf72041e2827",
+      "table": "ui",
+      "translation": "spaCR 所掌握的该基因信息显示在这里 — 产物、拓扑结构、亚细胞区室、适应性筛选和各发育阶段的表达。"
+    },
+    {
+      "key": "Where the y axis is split (set by ticking the split above)",
+      "source": "Where the y axis is split (set by ticking the split above)",
+      "source_sha256": "b1adfed681bb62c98df4c4ceac468dbacd751a92c51ebca802a5994760e45094",
+      "table": "ui",
+      "translation": "y 轴的分割位置（勾选上方的分割选项后设置）"
+    },
+    {
+      "key": "Write the proposed settings into the form. Nothing is written until this is pressed.",
+      "source": "Write the proposed settings into the form. Nothing is written until this is pressed.",
+      "source_sha256": "601564bcacc4b001263b361551705faa5f6959218811d238b4f758418c1cf854",
+      "table": "ui",
+      "translation": "将建议的设置写入表单。在按下此按钮之前，不会写入任何内容。"
+    },
+    {
+      "key": "X axis scale",
+      "source": "X axis scale",
+      "source_sha256": "9882a1bff597ec4d75be31f62d34c9a3876e60166a7938a36b4702f9f3074cf3",
+      "table": "ui",
+      "translation": "X 轴刻度类型"
+    },
+    {
+      "key": "Y axis limits",
+      "source": "Y axis limits",
+      "source_sha256": "38c492f0db41cb7af1cc7d0c7ca0318fd8fee8de695da6b029e01e1d1f38427c",
+      "table": "ui",
+      "translation": "Y 轴范围"
+    },
+    {
+      "key": "Y axis scale",
+      "source": "Y axis scale",
+      "source_sha256": "ed206ddf033c51bb6b7f6bd047d4122c131171cd1e0cd93e93452db2a0c0f5c2",
+      "table": "ui",
+      "translation": "Y 轴刻度类型"
+    },
+    {
+      "key": "Y axis title (blank = automatic)",
+      "source": "Y axis title (blank = automatic)",
+      "source_sha256": "cb688aef6e724460dd143df42b9fea708b25329a4a9d0e2d9ef6d14a44dde6ab",
+      "table": "ui",
+      "translation": "Y 轴标题（留空 = 自动）"
+    },
+    {
+      "key": "parses — load a table to see the values",
+      "source": "parses — load a table to see the values",
+      "source_sha256": "b8cd1d8b08fc02674074f302125203f4b8f1c3e9e2c360fb3400ada468a8f92a",
+      "table": "ui",
+      "translation": "解析成功 — 加载表格以查看数值"
+    },
+    {
+      "key": "spaCR did NOT restart: the module and its settings could not be saved, and restarting without them would lose more than the stuck run. Nothing was stopped. The log says why.",
+      "source": "spaCR did NOT restart: the module and its settings could not be saved, and restarting without them would lose more than the stuck run. Nothing was stopped. The log says why.",
+      "source_sha256": "e93a3905c2cc28202255a0ea6363a13a125430689abf72210c32a1e788e88084",
+      "table": "ui",
+      "translation": "spaCR 没有重新启动：无法保存模块及其设置，而不带它们重新启动会比卡住的运行损失更多。没有停止任何内容。日志中说明了原因。"
+    },
+    {
+      "key": "−log₁₀ the y column",
+      "source": "−log₁₀ the y column",
+      "source_sha256": "ee48af3f5f608bc8e495de22280f2eebabf16e3c3e7d52f946b7d1fba0493ed0",
+      "table": "ui",
+      "translation": "对 y 列取 −log₁₀"
+    }
+  ],
+  "schema": 1
+}
