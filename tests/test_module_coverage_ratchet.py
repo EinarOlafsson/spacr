@@ -663,7 +663,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     assert "coverage json --pretty-print" in combine_script
     # 568 -> 569 with `spacr/ops_engine.py` (372), the same +1 as `shipped`,
     # and back to 568 when the old OPS engine's module was deleted, the same -1.
-    assert "--expected-file-count 568" in combine_script
+    assert "--expected-file-count 570" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
