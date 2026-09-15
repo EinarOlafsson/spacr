@@ -53,15 +53,15 @@ table derives them from the same source the builders read.
 
 | Language | Reviewed runtime records | Of 5,662 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.08% | 5,544 | 468 | 4.44% | 10,065 |
-| German | 85 | 1.50% | 5,577 | 420 | 3.99% | 10,113 |
+| Swedish | 118 | 2.08% | 5,544 | 469 | 4.45% | 10,064 |
+| German | 85 | 1.50% | 5,577 | 426 | 4.04% | 10,107 |
 | Spanish | 99 | 1.75% | 5,563 | 287 | 2.72% | 10,246 |
-| Simplified Chinese | 267 | 4.72% | 5,395 | 507 | 4.81% | 10,026 |
-| Portuguese | 99 | 1.75% | 5,563 | 446 | 4.23% | 10,087 |
-| Hindi | 128 | 2.26% | 5,534 | 460 | 4.37% | 10,073 |
-| Korean | 246 | 4.34% | 5,416 | 453 | 4.30% | 10,080 |
-| Icelandic | 151 | 2.67% | 5,511 | 1,021 | 9.69% | 9,512 |
-| French | 98 | 1.73% | 5,564 | 465 | 4.41% | 10,068 |
+| Simplified Chinese | 349 | 6.16% | 5,313 | 517 | 4.91% | 10,016 |
+| Portuguese | 99 | 1.75% | 5,563 | 448 | 4.25% | 10,085 |
+| Hindi | 129 | 2.28% | 5,533 | 462 | 4.39% | 10,071 |
+| Korean | 247 | 4.36% | 5,415 | 454 | 4.31% | 10,079 |
+| Icelandic | 152 | 2.68% | 5,510 | 1,027 | 9.75% | 9,506 |
+| French | 99 | 1.75% | 5,563 | 466 | 4.42% | 10,067 |
 
 *Regenerated 2026-09-14, second pass, for instruction 364's `grna`
 retirement. The runtime denominator moves 5,664 -> 5,662 and NOT by a flat
@@ -206,5 +206,5 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 118, de 85, es 99, zh_CN 267, pt 99, hi 128, ko 246, is 151, fr 98 -- 1,291 runtime records across nine locales.
+Reviewed totals today: sv 118, de 85, es 99, zh_CN 349, pt 99, hi 129, ko 247, is 152, fr 99 -- 1,377 runtime records across nine locales.
 
