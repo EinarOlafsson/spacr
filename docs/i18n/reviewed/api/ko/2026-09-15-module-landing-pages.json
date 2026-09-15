@@ -1,0 +1,160 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "**What it is for.** Classify is the fourth step of the workflow, after Mask, Measure and Annotate. It learns the classes a screen is scored on and predicts them for every object. ``classifier_family`` chooses how: ``cv`` trains an image model on object extracted image regions through :func:`spacr.deep_spacr.deep_spacr`, and ``ml`` fits a classical model such as XGBoost, LightGBM or a random forest on measured features through :func:`spacr.ml.generate_ml_scores`.",
+      "label": "spacr.classify#1",
+      "source": "**What it is for.** Classify is the fourth step of the pipeline, after Mask, Measure and Annotate. It learns the classes a screen is scored on and predicts them for every object. ``classifier_family`` chooses how: ``cv`` trains an image model on object crops through :func:`spacr.deep_spacr.deep_spacr`, and ``ml`` fits a classical model such as XGBoost, LightGBM or a random forest on measured features through :func:`spacr.ml.generate_ml_scores`.",
+      "source_sha256": "580dd8c91c0f25d59434190a62f707a78a5be8ab61221788c572139e9341e25e",
+      "translation": "**용도.** Classify 는 Mask, Measure, Annotate 다음에 오는 워크플로의 네 번째 단계입니다. 스크리닝의 점수 기준이 되는 클래스를 학습하고 모든 객체에 대해 이를 예측합니다. ``classifier_family`` 가 방식을 정합니다. ``cv`` 는 :func:`spacr.deep_spacr.deep_spacr` 를 통해 객체 크롭 이미지로 이미지 모델을 학습하고, ``ml`` 은 :func:`spacr.ml.generate_ml_scores` 를 통해 측정된 특징에 XGBoost, LightGBM 또는 랜덤 포레스트 같은 고전적 모델을 적합합니다."
+    },
+    {
+      "context": "**What it needs.** A project that has been through Mask and Measure, so that ``measurements/measurements.db`` and its object extracted image regions exist, and a definition of the classes. ``dataset_mode`` sets that definition for both families: ``metadata`` takes classes from laboratory microplate metadata such as the positive and negative control microplate sample positions, and ``annotation`` takes them from an annotation column of ``png_list``, as written by Annotate. The CV family reads extracted image regions from PNG files or cuts them from the ``merged`` arrays, as ``crop_source`` selects.",
+      "label": "spacr.classify#2",
+      "source": "**What it needs.** A project that has been through Mask and Measure, so that ``measurements/measurements.db`` and its object crops exist, and a definition of the classes. ``dataset_mode`` sets that definition for both families: ``metadata`` takes classes from plate metadata such as the positive and negative control wells, and ``annotation`` takes them from an annotation column of ``png_list``, as written by Annotate. The CV family reads crops from PNG files or cuts them from the ``merged`` arrays, as ``crop_source`` selects.",
+      "source_sha256": "127ccad0853606b1f61b30db3431fb1c812d12d89f503df9d82d9418af58c069",
+      "translation": "**필요한 것.** Mask 와 Measure 를 거쳐 ``measurements/measurements.db`` 와 객체 크롭 이미지가 존재하는 프로젝트, 그리고 클래스의 정의가 필요합니다. ``dataset_mode`` 가 두 계열 모두에 대해 이 정의를 정합니다. ``metadata`` 는 양성 및 음성 대조군 웰 같은 플레이트 메타데이터에서 클래스를 가져오고, ``annotation`` 은 Annotate 가 쓴 ``png_list`` 의 주석 열에서 가져옵니다. CV 계열은 PNG 파일에서 크롭 이미지를 읽거나 ``merged`` 배열에서 잘라내며, 어느 쪽인지는 ``crop_source`` 가 선택합니다."
+    },
+    {
+      "context": "**What it produces.** A CV run writes model checkpoints, ``DL_model_settings.csv``, a dataset tar, a ``top_examples/`` folder with the most confident extracted image regions of each class and an evaluation bundle with the held-out performance and ``leakage.json``, and merges each object's predicted class and probability into ``png_list``. An ML run writes per-object predictions, feature-importance and permutation tables and a plate heatmap to ``results/`` beside the measurements database.",
+      "label": "spacr.classify#3",
+      "source": "**What it produces.** A CV run writes model checkpoints, ``DL_model_settings.csv``, a dataset tar, a ``top_examples/`` folder with the most confident crops of each class and an evaluation bundle with the held-out performance and ``leakage.json``, and merges each object's predicted class and probability into ``png_list``. An ML run writes per-object predictions, feature-importance and permutation tables and a plate heatmap to ``results/`` beside the measurements database.",
+      "source_sha256": "0edc8a01b335c43dfc27f5a7d8b61f0be7a45b8fbb70b2fea04ddb4cc6046082",
+      "translation": "**산출물.** CV 실행은 모델 체크포인트, ``DL_model_settings.csv``, 데이터셋 tar 파일, 각 클래스에서 가장 확신도가 높은 크롭 이미지를 담은 ``top_examples/`` 폴더, 그리고 보류 데이터 성능과 ``leakage.json`` 을 담은 평가 번들을 쓰고, 각 객체의 예측 클래스와 확률을 ``png_list`` 에 병합합니다. ML 실행은 객체별 예측, 특징 중요도 표와 순열 표, 플레이트 히트맵을 측정 데이터베이스 옆의 ``results/`` 에 씁니다."
+    },
+    {
+      "context": "**What to do next.** Check the held-out performance, and the leakage verdict on the QC screen, before trusting the predictions. Then take per-microplate sample position scores into Regression, which pairs them with the guide counts from Map Barcodes to estimate which guides and genes explain the phenotype.",
+      "label": "spacr.classify#4",
+      "source": "**What to do next.** Check the held-out performance, and the leakage verdict on the QC screen, before trusting the predictions. Then take per-well scores into Regression, which pairs them with the guide counts from Map Barcodes to estimate which guides and genes explain the phenotype.",
+      "source_sha256": "43003a36df3b4999f9159e0d3ee5879cd7bf7bbf625131187b20de5d5e76c05d",
+      "translation": "**다음 단계.** 예측을 신뢰하기 전에 보류 데이터 성능과 QC 화면의 누출 판정을 확인하십시오. 그런 다음 웰별 점수를 Regression 으로 가져가십시오. Regression 은 이 점수를 Map Barcodes 의 가이드 수와 짝지어 어떤 가이드와 유전자가 표현형을 설명하는지 추정합니다."
+    },
+    {
+      "context": "**Where it sits in the workflow.** Annotate is the third step of the workflow. It needs the extracted image regions Measure lists in ``png_list``, and the labels it writes into an annotation column of that table are what Classify trains on when ``dataset_mode`` is ``annotation``.",
+      "label": "spacr.qt.screens.annotate#2",
+      "source": "**Where it sits in the workflow.** Annotate is the third step of the pipeline. It needs the crops Measure lists in ``png_list``, and the labels it writes into an annotation column of that table are what Classify trains on when ``dataset_mode`` is ``annotation``.",
+      "source_sha256": "c09ba8afb320118e1dddfc9fcc0511196e79a17932bdf962cec0b383b38e16dd",
+      "translation": "**워크플로에서의 위치.** Annotate 는 파이프라인의 세 번째 단계입니다. Measure 가 ``png_list`` 에 나열한 크롭 이미지가 필요하며, 이 표의 주석 열에 쓰는 레이블은 ``dataset_mode`` 가 ``annotation`` 일 때 Classify 가 학습에 사용하는 데이터입니다."
+    },
+    {
+      "context": "**What it is for.** Planning a laboratory microplate before it is imaged, as the first step of a screen: a layout can still be changed then, and the laboratory microplate map exported here is what the measurements are joined to later.",
+      "label": "spacr.qt.screens.experiment_design#3",
+      "source": "**What it is for.** Planning a plate before it is imaged, as the first step of a screen: a layout can still be changed then, and the plate map exported here is what the measurements are joined to later.",
+      "source_sha256": "eba6eceda23475bb3733d2fd06511a1f018ed88ff1fe00609f10b267c3925bbb",
+      "translation": "**용도.** 플레이트를 이미징하기 전에 스크리닝의 첫 단계로 계획합니다. 이때는 레이아웃을 아직 바꿀 수 있고, 여기서 내보낸 플레이트 맵이 나중에 측정값과 결합되는 기준이 됩니다."
+    },
+    {
+      "context": "**What it needs.** A laboratory microplate identifier, a laboratory microplate format from 6 to 1536 microplate sample positions, and a list of conditions, each with a number of replicates and a role: treatment, positive control, negative control or blank. The layout -- ``random``, ``row``, ``column`` or ``block`` -- places the replicates, the edge setting uses the outer ring of microplate sample positions or leaves it empty, and the seed makes a random layout reproducible.",
+      "label": "spacr.qt.screens.experiment_design#4",
+      "source": "**What it needs.** A plate identifier, a plate format from 6 to 1536 wells, and a list of conditions, each with a number of replicates and a role: treatment, positive control, negative control or blank. The layout -- ``random``, ``row``, ``column`` or ``block`` -- places the replicates, the edge setting uses the outer ring of wells or leaves it empty, and the seed makes a random layout reproducible.",
+      "source_sha256": "341864ac8206f6cbdb45fbcf1b868f2de05113946f3bc0b3e56603a13e859343",
+      "translation": "**필요한 것.** 플레이트 식별자, 6 부터 1536 웰까지의 플레이트 형식, 그리고 조건 목록이 필요하며, 각 조건에는 반복 수와 역할(처리, 양성 대조군, 음성 대조군, 공백)이 있습니다. 레이아웃 ``random``, ``row``, ``column``, ``block`` 은 반복의 배치를 정하고, 가장자리 설정은 바깥쪽 웰 고리를 사용하거나 비워 두며, 시드는 무작위 레이아웃을 재현할 수 있게 합니다."
+    },
+    {
+      "context": "**What it produces.** Export laboratory microplate map writes three files to the chosen folder: ``plate_map.csv``, one row per microplate sample position keyed by ``plateID``, ``rowID`` and ``columnID``; ``plate_map.json``, the design and the findings that were shown, so the layout can be regenerated; and ``plate_map_settings.json``, the ``treatments`` and ``treatment_plate_metadata`` settings for an analysis. A random layout cannot be written as whole rows or columns, so that file then records why instead, and ``plate_map.csv`` is the authoritative record.",
+      "label": "spacr.qt.screens.experiment_design#5",
+      "source": "**What it produces.** Export plate map writes three files to the chosen folder: ``plate_map.csv``, one row per well keyed by ``plateID``, ``rowID`` and ``columnID``; ``plate_map.json``, the design and the findings that were shown, so the layout can be regenerated; and ``plate_map_settings.json``, the ``treatments`` and ``treatment_plate_metadata`` settings for an analysis. A random layout cannot be written as whole rows or columns, so that file then records why instead, and ``plate_map.csv`` is the authoritative record.",
+      "source_sha256": "1f04dd75d44041fb50a1d3548ce2e067880bb2ea84dc04db60747967e5441825",
+      "translation": "**산출물.** 플레이트 맵 내보내기는 선택한 폴더에 파일 세 개를 씁니다. ``plate_map.csv`` 는 ``plateID``, ``rowID``, ``columnID`` 를 키로 하는 웰당 한 행의 표이고, ``plate_map.json`` 은 레이아웃을 다시 생성할 수 있도록 설계와 표시된 검사 결과를 담으며, ``plate_map_settings.json`` 은 분석에 쓸 ``treatments`` 와 ``treatment_plate_metadata`` 설정입니다. 무작위 레이아웃은 행 전체나 열 전체로 쓸 수 없으므로 그 경우 이 파일에는 대신 그 이유가 기록되고, ``plate_map.csv`` 가 기준 기록이 됩니다."
+    },
+    {
+      "context": "**What to do next.** Resolve the findings, then image the plate. When the data comes back, ``plate_map.csv`` joins the measurement tables on ``plateID``, ``rowID`` and ``columnID`` without a translation step, and the settings file fills in the treatment settings of the analysis.",
+      "label": "spacr.qt.screens.experiment_design#6",
+      "source": "**What to do next.** Resolve the findings, then image the plate. When the data comes back, ``plate_map.csv`` joins the measurement tables on ``plateID``, ``rowID`` and ``columnID`` without a translation step, and the settings file fills in the treatment settings of the analysis.",
+      "source_sha256": "9251a11962fd0b1e49fb2e36933168e3ed4cd817f10eb3d9866c9f87af950991",
+      "translation": "**다음 단계.** 검사 결과를 해결한 뒤 플레이트를 이미징하십시오. 데이터가 돌아오면 ``plate_map.csv`` 가 변환 단계 없이 ``plateID``, ``rowID``, ``columnID`` 로 측정 표와 결합되고, 설정 파일은 분석의 처리 설정을 채웁니다."
+    },
+    {
+      "context": "**What it is for.** Selecting a population by its measurements once Measure has run: the cells above an intensity threshold, or one cluster in a two-feature scatter. Data-selection boundaries can sit inside other data-selection boundaries, and each shows its object count and its percentage of both its parent data-selection boundary and the whole table.",
+      "label": "spacr.qt.screens.gate_editor#2",
+      "source": "**What it is for.** Selecting a population by its measurements once Measure has run: the cells above an intensity threshold, or one cluster in a two-feature scatter. Gates can sit inside other gates, and each shows its object count and its percentage of both its parent gate and the whole table.",
+      "source_sha256": "18e88c1de632fb65b473bfc7400fad34a4ec90391d438e4706e8845d7725da7d",
+      "translation": "**용도.** Measure 실행 후 측정값으로 집단을 선택합니다. 예를 들어 강도 임계값을 넘는 세포나 두 특징 산점도의 한 군집입니다. 게이트는 다른 게이트 안에 둘 수 있으며, 각 게이트는 객체 수와 함께 상위 게이트 및 전체 표에 대한 비율을 모두 보여 줍니다."
+    },
+    {
+      "context": "**What it needs.** A measurement table: one table of a ``measurements.db``, where the object tables are offered first, or a CSV or TSV file. Several databases can be loaded as one table; laboratory microplate identifiers that collide between them are reported rather than silently pooled. Database tables are read as a sample set by ``sample_fraction`` and capped by ``max_points``, both in the screen's settings.",
+      "label": "spacr.qt.screens.gate_editor#3",
+      "source": "**What it needs.** A measurement table: one table of a ``measurements.db``, where the object tables are offered first, or a CSV or TSV file. Several databases can be loaded as one table; plate identifiers that collide between them are reported rather than silently pooled. Database tables are read as a sample set by ``sample_fraction`` and capped by ``max_points``, both in the screen's settings.",
+      "source_sha256": "9a4debb0f8d6e87082d1ffa84483d23b3198c65b1b5126919fdb80664480b7a1",
+      "translation": "**필요한 것.** 측정 표 하나가 필요합니다. 객체 표가 먼저 제시되는 ``measurements.db`` 의 표 하나이거나 CSV 또는 TSV 파일입니다. 여러 데이터베이스를 하나의 표로 불러올 수 있으며, 서로 충돌하는 플레이트 식별자는 조용히 합쳐지지 않고 보고됩니다. 데이터베이스 표는 ``sample_fraction`` 으로 정한 표본으로 읽히고 ``max_points`` 로 상한이 정해지며, 둘 다 화면 설정에 있습니다."
+    },
+    {
+      "context": "**What it produces.** Threshold, rectangle, oval, polygon and wand data-selection boundaries on one or two measurements, box, cylinder and prism data-selection boundaries in the 3D view, and combinations of other data-selection boundaries. Publishing a data-selection boundary narrows every linked view to that population. The data-selection filtering strategy saves to and loads from a JSON file (``gates.json`` by default) so that the next laboratory microplate is gated the same way; Export writes each data-selection boundary as a column of the ``filters`` table in the measurements database, and the graph saves as PNG or PDF.",
+      "label": "spacr.qt.screens.gate_editor#4",
+      "source": "**What it produces.** Threshold, rectangle, oval, polygon and wand gates on one or two measurements, box, cylinder and prism gates in the 3D view, and combinations of other gates. Publishing a gate narrows every linked view to that population. The gating strategy saves to and loads from a JSON file (``gates.json`` by default) so that the next plate is gated the same way; Export writes each gate as a column of the ``filters`` table in the measurements database, and the graph saves as PNG or PDF.",
+      "source_sha256": "9a7a051375217ca9fe0ae5acab2dcd6b132a8f9f2b52abee0aa101d0a1485e67",
+      "translation": "**산출물.** 한두 개의 측정값에 대한 임계값, 사각형, 타원, 다각형, 마술봉 게이트, 3D 보기의 상자, 원기둥, 프리즘 게이트, 그리고 다른 게이트의 조합입니다. 게이트를 게시하면 연결된 모든 보기가 그 집단으로 좁혀집니다. 게이팅 전략은 JSON 파일(기본값 ``gates.json``)에 저장되고 그 파일에서 불러와지므로 다음 플레이트도 같은 방식으로 게이팅됩니다. 내보내기는 각 게이트를 측정 데이터베이스의 ``filters`` 표의 열로 쓰고, 그래프는 PNG 또는 PDF 로 저장됩니다."
+    },
+    {
+      "context": "**What to do next.** Look at the gated population in the views that follow the shared filter, such as Image UMAP, Graph Builder and the extracted-image-region grid, and load the saved data-selection filtering strategy on the next plate.",
+      "label": "spacr.qt.screens.gate_editor#5",
+      "source": "**What to do next.** Look at the gated population in the views that follow the shared filter, such as Image UMAP, Graph Builder and the crop grid, and load the saved gating strategy on the next plate.",
+      "source_sha256": "777cec7724e961ebd556bc885987088c4853a206dd3f0bc9d57635416f42ba26",
+      "translation": "**다음 단계.** Image UMAP, Graph Builder, 크롭 이미지 격자처럼 공유 필터를 따르는 보기에서 게이팅된 집단을 살펴보고, 저장한 게이팅 전략을 다음 플레이트에서 불러오십시오."
+    },
+    {
+      "context": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the data-selection boundary tools and the hierarchy with its percentages;",
+      "label": "spacr.qt.screens.gate_editor#7",
+      "source": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the gate tools and the hierarchy with its percentages;",
+      "source_sha256": "1f3de1f7408fc69b5b0d3e50c09aac04245ac1c893084fed33fe47ef75c13e51",
+      "translation": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — 캔버스, 게이트 도구, 그리고 비율이 표시되는 계층 구조;"
+    },
+    {
+      "context": "**What it is for.** Exploring a measurement table without plotting code, usually after Measure or Classify: drag columns onto the chart and it redraws as each one lands.",
+      "label": "spacr.qt.screens.graph_builder#5",
+      "source": "**What it is for.** Exploring a measurement table without plotting code, usually after Measure or Classify: drag columns onto the chart and it redraws as each one lands.",
+      "source_sha256": "3ce9e834a6db422e060250c028dcb842b417026568f68837c116cc4fd4bb3926",
+      "translation": "**용도.** 플롯 코드를 작성하지 않고 측정 표를 탐색합니다. 보통 Measure 나 Classify 이후에 사용하며, 열을 차트에 끌어다 놓을 때마다 차트가 다시 그려집니다."
+    },
+    {
+      "context": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available.",
+      "label": "spacr.qt.screens.graph_builder#6",
+      "source": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available.",
+      "source_sha256": "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
+      "translation": "**필요한 것.** ``measurements.db`` 의 표 하나 또는 CSV 나 TSV 파일 하나를 표 불러오기 버튼으로 선택합니다. 객체 표와 ``png_list`` 가 먼저 제시되며, 데이터베이스의 다른 모든 표도 계속 사용할 수 있습니다."
+    },
+    {
+      "context": "**What it produces.** A chart with six drop zones: x, y, colour, size, facet row and facet column. Only x and y decide the chart type -- one continuous column gives a histogram, one categorical column a bar chart of counts, two continuous columns a scatter plot, one of each a box plot and two categorical columns a heatmap of counts -- and violin and line plots are explicit choices. A brushed rectangle becomes the shared selection, highlighted in the UMAP and on the laboratory microplate map.",
+      "label": "spacr.qt.screens.graph_builder#7",
+      "source": "**What it produces.** A chart with six drop zones: x, y, colour, size, facet row and facet column. Only x and y decide the chart type -- one continuous column gives a histogram, one categorical column a bar chart of counts, two continuous columns a scatter plot, one of each a box plot and two categorical columns a heatmap of counts -- and violin and line plots are explicit choices. A brushed rectangle becomes the shared selection, highlighted in the UMAP and on the plate map.",
+      "source_sha256": "3a6684acc216fc722fce4a8dbaca2669c9e3215b99b2928bfe1bf88902336342",
+      "translation": "**산출물.** x, y, 색, 크기, 패싯 행, 패싯 열의 여섯 개 놓기 영역을 가진 차트입니다. 차트 유형은 x 와 y 만으로 정해집니다. 연속형 열 하나는 히스토그램, 범주형 열 하나는 개수 막대 차트, 연속형 열 두 개는 산점도, 각각 하나씩이면 상자 그림, 범주형 열 두 개는 개수 히트맵이 되며, 바이올린 그림과 선 그래프는 명시적으로 선택합니다. 브러시로 그린 사각형은 공유 선택이 되어 UMAP 과 플레이트 맵에서 강조 표시됩니다."
+    },
+    {
+      "context": "**What to do next.** Press Open selection in Annotate to see the brushed objects as extracted image regions, narrow every view with the Local Data Filter beside the chart, or move to filter data Editor when a population should become a named data-selection boundary that can be saved and re-applied.",
+      "label": "spacr.qt.screens.graph_builder#8",
+      "source": "**What to do next.** Press Open selection in Annotate to see the brushed objects as image crops, narrow every view with the Local Data Filter beside the chart, or move to Gate Editor when a population should become a named gate that can be saved and re-applied.",
+      "source_sha256": "1fb2849ed26e00028887d9edfd4a71b8965f154677187d9305111e2b83c1bf3f",
+      "translation": "**다음 단계.** Annotate 에서 선택 항목을 열어 브러시로 고른 객체를 크롭 이미지로 보거나, 차트 옆의 로컬 데이터 필터로 모든 보기를 좁히거나, 어떤 집단이 저장하고 다시 적용할 수 있는 이름 있는 게이트가 되어야 할 때는 Gate Editor 로 이동하십시오."
+    },
+    {
+      "context": "**What it is for.** Checking a project before its numbers are used. After Mask and Measure, and again after Classify, QC gathers the verdicts those steps already wrote into one place, so the question does not need five application views.",
+      "label": "spacr.qt.screens.qc_dashboard#2",
+      "source": "**What it is for.** Checking a project before its numbers are used. After Mask and Measure, and again after Classify, QC gathers the verdicts those steps already wrote into one place, so the question does not need five screens.",
+      "source_sha256": "ae8693d6d97aeb6ea3475cbf705c72ac48317fa18a2c74c1b63a0c211214f3ee",
+      "translation": "**용도.** 프로젝트의 숫자를 사용하기 전에 프로젝트를 점검합니다. Mask 와 Measure 이후, 그리고 Classify 이후에 다시, QC 는 그 단계들이 이미 쓴 판정을 한곳에 모아 이 질문에 답하려고 화면 다섯 개를 열 필요가 없게 합니다."
+    },
+    {
+      "context": "**What it needs.** A project or laboratory microplate folder, chosen with Browse or dropped onto the screen. Each card reads a file that is already on disk: the segmentation scorecards a Mask run writes (``seg_qc``), the units stamp Measure puts on every row of ``measurements.db``, ``leakage.json`` from the newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and ``agreement.json`` when a laboratory microplate-effect or annotator-agreement report has been saved under the project.",
+      "label": "spacr.qt.screens.qc_dashboard#3",
+      "source": "**What it needs.** A project or plate folder, chosen with Browse or dropped onto the screen. Each card reads a file that is already on disk: the segmentation scorecards a Mask run writes (``seg_qc``), the units stamp Measure puts on every row of ``measurements.db``, ``leakage.json`` from the newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and ``agreement.json`` when a plate-effect or annotator-agreement report has been saved under the project.",
+      "source_sha256": "25ac226a22fea059de88882de265e1dd4042a9c13f4d8799656a22e1d6924816",
+      "translation": "**필요한 것.** 찾아보기로 선택하거나 화면에 끌어다 놓은 프로젝트 또는 플레이트 폴더가 필요합니다. 각 카드는 이미 디스크에 있는 파일을 읽습니다. Mask 실행이 쓰는 분할 점수표(``seg_qc``), Measure 가 ``measurements.db`` 의 모든 행에 찍는 단위 표시, 최신 Classify (CV) 평가 번들의 ``leakage.json``, 그리고 프로젝트 아래에 플레이트 효과 보고서나 주석자 간 일치도 보고서가 저장된 경우의 ``plate_qc.json`` 과 ``agreement.json`` 입니다."
+    },
+    {
+      "context": "**What it produces.** Nothing on disk. Each card carries a verdict -- ``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the details behind it and, for a check that has never run, the step that would produce it; the screen's summary is the worst of them. A card older than its inputs is marked stale rather than downgraded, and ``missing`` means nothing was checked, not that nothing is wrong.",
+      "label": "spacr.qt.screens.qc_dashboard#4",
+      "source": "**What it produces.** Nothing on disk. Each card carries a verdict -- ``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the details behind it and, for a check that has never run, the step that would produce it; the screen's summary is the worst of them. A card older than its inputs is marked stale rather than downgraded, and ``missing`` means nothing was checked, not that nothing is wrong.",
+      "source_sha256": "2f03363eb66f991c262a98adb48d707b7797c6c13168572349816336a24d16fd",
+      "translation": "**산출물.** 디스크에는 아무것도 쓰지 않습니다. 각 카드는 ``ok``, ``missing``, ``warn``, ``fail``, ``error`` 중 하나의 판정과 함께 제목, 그 뒤의 세부 내용, 그리고 한 번도 실행되지 않은 검사라면 그것을 만들어 낼 단계를 보여 줍니다. 화면의 요약은 그중 가장 나쁜 판정입니다. 입력보다 오래된 카드는 등급이 낮아지지 않고 오래됨으로 표시되며, ``missing`` 은 아무것도 문제가 없다는 뜻이 아니라 아무것도 검사하지 않았다는 뜻입니다."
+    },
+    {
+      "context": "**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source and re-run that step; the cards are read again when a file has changed. Layer Viewer shows the images behind a failing check, Control Charts follows the same checks over time and Outliers finds the microplate sample positions or objects unlike the rest; all three open from this application view's masthead.",
+      "label": "spacr.qt.screens.qc_dashboard#5",
+      "source": "**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source and re-run that step; the cards are read again when a file has changed. Layer Viewer shows the images behind a failing check, Control Charts follows the same checks over time and Outliers finds the wells or objects unlike the rest; all three open from this screen's masthead.",
+      "source_sha256": "d71e9b428ed3a221a506ba634c7b076c212e211b239d55478397fa7d796555aa",
+      "translation": "**다음 단계.** ``warn`` 또는 ``fail`` 카드가 가리키는 문제를 원인에서 고치고 그 단계를 다시 실행하십시오. 파일이 바뀌면 카드를 다시 읽습니다. Layer Viewer 는 실패한 검사 뒤의 이미지를 보여 주고, Control Charts 는 같은 검사를 시간에 따라 추적하며, Outliers 는 나머지와 다른 웰이나 객체를 찾습니다. 세 가지 모두 이 화면의 머리글 막대에서 열립니다."
+    }
+  ],
+  "schema": 1
+}

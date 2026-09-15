@@ -38,7 +38,7 @@
     },
     {
       "context": ":func:`register` is **not** called at import — read its docstring for why, and for the one line plus four side-table entries that finish the wiring. The application view itself is complete: build it with :func:`make_graph_builder_screen`, hand it a frame, and everything below works.",
-      "label": "spacr.qt.screens.graph_builder#6",
+      "label": "spacr.qt.screens.graph_builder#10",
       "source": ":func:`register` is **not** called at import — read its docstring for why, and for the one line plus four side-table entries that finish the wiring. The screen itself is complete: build it with :func:`make_graph_builder_screen`, hand it a frame, and everything below works.",
       "source_sha256": "2467d8cccdfa492084755e45f31089289753ecb25a34a02744b2ee0616c135ae",
       "translation": ":func:`register` er **ekki** kallað við innflutning — lestu docstring-ið fyrir ástæðuna, og fyrir eina línu plús fjórar viðbótar töflu færslur sem ljúka tengingunni. Sjálft viðmótið í forritinu er fullkomið: byggðu það með :func:`make_graph_builder_screen`, gefðu því ramma, og allt hér fyrir neðan virkar."

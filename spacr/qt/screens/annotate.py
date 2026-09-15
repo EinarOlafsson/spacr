@@ -6,6 +6,11 @@ right-click assigns value 2, and clicking the assigned value again clears it.
 Annotations are persisted through
 :class:`spacr.qt.annotate_engine.SaveWorker`.
 
+**Where it sits in the workflow.** Annotate is the third step of the
+pipeline. It needs the crops Measure lists in ``png_list``, and the labels it
+writes into an annotation column of that table are what Classify trains on
+when ``dataset_mode`` is ``annotation``.
+
 A keyboard-only rapid-annotation layer sits on top of the same write
 path (see :meth:`AnnotateScreen.handle_key`): ``1``–``9`` assign a class
 and auto-advance to the next unlabelled crop, ``0`` clears, arrows /

@@ -4,6 +4,32 @@ The screen half of :mod:`spacr.qt.widgets.qc_summary`. It shows the
 segmentation, units, leakage, plate-effect and agreement verdicts side by
 side, with the one-line summary they add up to.
 
+**What it is for.** Checking a project before its numbers are used. After
+Mask and Measure, and again after Classify, QC gathers the verdicts those
+steps already wrote into one place, so the question does not need five
+screens.
+
+**What it needs.** A project or plate folder, chosen with Browse or dropped
+onto the screen. Each card reads a file that is already on disk: the
+segmentation scorecards a Mask run writes (``seg_qc``), the units stamp
+Measure puts on every row of ``measurements.db``, ``leakage.json`` from the
+newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and
+``agreement.json`` when a plate-effect or annotator-agreement report has been
+saved under the project.
+
+**What it produces.** Nothing on disk. Each card carries a verdict --
+``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the
+details behind it and, for a check that has never run, the step that would
+produce it; the screen's summary is the worst of them. A card older than its
+inputs is marked stale rather than downgraded, and ``missing`` means nothing
+was checked, not that nothing is wrong.
+
+**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source
+and re-run that step; the cards are read again when a file has changed.
+Layer Viewer shows the images behind a failing check, Control Charts follows
+the same checks over time and Outliers finds the wells or objects unlike the
+rest; all three open from this screen's masthead.
+
 It **reads**; it does not score. The rule is :mod:`spacr.qt.prerun`'s, and
 that module says why: opening a plate's masks costs seconds to minutes, and a
 screen that pays that on every visit is a screen nobody keeps. So the reads go
