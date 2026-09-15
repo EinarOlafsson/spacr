@@ -99,3 +99,27 @@ def test_a_closed_plot_still_retires_its_menus_once(qtbot):
             timeout=2000)
     assert not raised, [f"{kind.__name__}: {value}"
                         for kind, value, _tb in raised]
+
+
+def test_a_plot_without_a_view_box_menu_still_takes_the_menu_it_has(
+        qtbot, monkeypatch):
+    """pyqtgraph builds no ViewBox menu for a plot made with
+    ``enableMenu=False``. The tie-up skips the menu that is not there and
+    still takes the control menu that is."""
+    import pyqtgraph as pg
+
+    from spacr.qt.widgets import fast_plots
+
+    real = pg.PlotWidget
+    monkeypatch.setattr(fast_plots.pg, "PlotWidget",
+                        lambda *args, **kwargs: real(*args, enableMenu=False,
+                                                     **kwargs))
+    host, plot = _embedded_plot()
+    item = plot.plot.plotItem
+    assert item.vb.menu is None
+    control = item.ctrlMenu
+    assert control is not None and shiboken6.isValid(control)
+
+    host.deleteLater()
+    qtbot.waitUntil(lambda: not shiboken6.isValid(host))
+    qtbot.waitUntil(lambda: not shiboken6.isValid(control), timeout=2000)

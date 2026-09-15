@@ -121,3 +121,35 @@ def test_a_bar_freed_by_the_collector_does_not_reach_an_emptied_watcher():
         "the extra cycle did not hold the bar, so this case tests nothing")
     assert report["freed"], "the collector did not free the bar"
     assert not problems, problems
+
+
+def test_a_sweep_that_meets_a_deleted_bar_passes_quietly():
+    """The sweep is queued, and Qt can delete the bar before it runs.
+
+    Holding the bar weakly usually leaves the sweep no bar at all. But a
+    Python name can outlive the C++ bar -- each close mark's click handler
+    keeps one -- and then the sweep is handed a wrapper whose every Qt call
+    raises RuntimeError. That has to end in the sweep, not in the event
+    loop. In process: no collector runs here.
+    """
+    import shiboken6
+    from PySide6.QtWidgets import QTabWidget, QWidget
+
+    from spacr.qt.theme import install_close_marks, mark_tab_bar
+
+    tabs = QTabWidget()
+    tabs.addTab(QWidget(), "one")
+    tabs.setTabsClosable(True)
+    install_close_marks(tabs)
+    bar = tabs.tabBar()
+    watcher = bar._spacr_close_mark_watcher
+    shiboken6.delete(tabs)
+    assert not shiboken6.isValid(bar)
+
+    # The path is real: marking a bar Qt has deleted raises.
+    with pytest.raises(RuntimeError):
+        mark_tab_bar(bar)
+
+    watcher._sweep()
+
+    assert watcher._pending is False

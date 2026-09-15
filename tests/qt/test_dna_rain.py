@@ -754,6 +754,26 @@ def test_widget_takes_no_focus_and_no_mouse(qtbot):
     assert not widget.hasFocus()
 
 
+def test_a_focus_event_that_reaches_the_rain_is_refused(qtbot):
+    """``setFocus`` above proves nothing unless Qt delivers a FocusIn, and
+    it delivers none to an inactive offscreen window, so this one is sent.
+    Programmatic focus is refused too: the event is ignored and the focus
+    handed straight back."""
+    from PySide6.QtGui import QFocusEvent
+    from PySide6.QtWidgets import QApplication
+
+    widget = make_widget(qtbot)
+    handed_back = []
+    widget.clearFocus = lambda: handed_back.append(True)
+    event = QFocusEvent(QEvent.Type.FocusIn, Qt.FocusReason.OtherFocusReason)
+    event.accept()
+
+    QApplication.sendEvent(widget, event)
+
+    assert not event.isAccepted()
+    assert handed_back == [True]
+
+
 def test_widget_is_opaque_and_default_dimmed(qtbot):
     widget = make_widget(qtbot)
     assert widget.testAttribute(Qt.WA_OpaquePaintEvent)
