@@ -353,6 +353,114 @@ def test_renaming_a_module_does_not_launder_its_gaps(tmp_path):
 # -- the gate fails when it cannot measure ----------------------------------
 
 
+def _retire(project, baseline, *extra):
+    """Run --retire-module: no coverage data, no report files."""
+    command = [
+        sys.executable, str(SCRIPT),
+        "--root", str(project),
+        "--baseline", str(baseline),
+        *extra,
+    ]
+    return subprocess.run(
+        command, cwd=project, capture_output=True, text=True, check=False,
+    )
+
+
+def test_a_module_deleted_on_purpose_is_retired_without_a_coverage_run(
+    tmp_path,
+):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _with_old_module(project, _logic()))
+    (project / "demo" / "old.py").unlink()
+
+    result = _retire(
+        project, baseline,
+        "--retire-module", "demo/old.py",
+        "--reason", "old.py deleted by decision", "--commit", "d00d",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "BASELINE: RETIRED: demo/old.py: deleted on purpose" in result.stdout
+    document = ratchet.load_baseline(baseline)  # the tool's own checksum
+    assert set(document["modules"]) == {"demo/__init__.py", "demo/logic.py"}
+    assert [entry["mode"] for entry in document["history"]] == ["reset", "retire"]
+    last = document["history"][-1]
+    assert last["reason"] == "old.py deleted by decision"
+    assert last["commit"] == "d00d"
+    assert last["retired"] == "demo/old.py"
+    assert STAMP.match(last["written_at"])
+
+    gate, report, _text = _gate(project, tmp_path, _logic(), baseline=baseline)
+
+    assert gate.returncode == 0, gate.stdout + gate.stderr
+    assert report["stale_baseline_entries"] == []
+
+
+def test_retiring_a_module_that_still_ships_or_is_unknown_is_refused(tmp_path):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _with_old_module(project, _logic()))
+    before = baseline.read_bytes()
+
+    shipped = _retire(
+        project, baseline,
+        "--retire-module", "demo/old.py",
+        "--reason", "it was not deleted", "--commit", "d00d",
+    )
+    unknown = _retire(
+        project, baseline,
+        "--retire-module", "demo/never.py",
+        "--reason", "no such entry", "--commit", "d00d",
+    )
+
+    assert shipped.returncode == 2
+    assert "demo/old.py still ships" in shipped.stderr
+    assert unknown.returncode == 2
+    assert "demo/never.py is not in the baseline" in unknown.stderr
+    assert baseline.read_bytes() == before
+
+
+def test_retiring_a_module_needs_a_reason(tmp_path):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _with_old_module(project, _logic()))
+    (project / "demo" / "old.py").unlink()
+    before = baseline.read_bytes()
+
+    result = _retire(
+        project, baseline, "--retire-module", "demo/old.py", "--commit", "d00d",
+    )
+
+    assert result.returncode == 2
+    assert "needs a non-empty --reason" in result.stderr
+    assert baseline.read_bytes() == before
+
+
+def test_a_module_deleted_without_retirement_still_fails_the_gate(tmp_path):
+    """The negative control: deleting a file never clears rule (d) by itself."""
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _with_old_module(project, _logic()))
+    (project / "demo" / "old.py").unlink()
+
+    result, report, text = _gate(project, tmp_path, _logic(), baseline=baseline)
+
+    assert result.returncode == 1
+    assert report["stale_baseline_entries"] == ["demo/old.py"]
+    assert "--retire-module <path> --reason" in text
+    assert "demo/old.py" in ratchet.load_baseline(baseline)["modules"]
+
+
+def test_a_gate_run_still_requires_its_coverage_data_and_reports(tmp_path):
+    project = _project(tmp_path / "project")
+
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), "--root", str(project)],
+        cwd=project, capture_output=True, text=True, check=False,
+    )
+
+    assert result.returncode == 2
+    for flag in ("--coverage-json", "--json-out", "--text-out"):
+        assert flag in result.stderr
+
+
 def test_a_missing_coverage_data_file_fails(tmp_path):
     project = _project(tmp_path / "project")
     baseline = _seed(project, tmp_path, _logic())
@@ -589,6 +697,7 @@ def test_no_workflow_ever_writes_the_baseline():
         content = workflow.read_text(encoding="utf-8")
         assert "--update-baseline" not in content, workflow.name
         assert "--reset-baseline" not in content, workflow.name
+        assert "--retire-module" not in content, workflow.name
 
 
 # -- the committed baseline and its siblings --------------------------------

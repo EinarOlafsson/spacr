@@ -55,8 +55,13 @@ a baseline that follows the measurement cannot see a slow slide.
                       CAN loosen; every loosened module is printed.  Use it
                       to seed the file or to admit a new module below 100%
                       after review.
+  --retire-module P   remove exactly one entry, for a module deleted on
+                      purpose.  A deleted file has no coverage to measure,
+                      so this reads no coverage data; it refuses a module
+                      that still ships or is not in the baseline, and it
+                      never touches another entry.
 
-Both refuse to write from an incomplete measurement.  To regenerate from a
+The first two refuse to write from an incomplete measurement.  To regenerate from a
 CI run, download the ``spacr-module-coverage-report-<run>-<attempt>``
 artifact (it holds ``coverage.json``), check out THAT run's commit so the
 inventory and pragma comments match the data, and run::
@@ -822,6 +827,77 @@ def reset_baseline(
     return build_baseline_document(modules, history), notes
 
 
+def retire_module(
+    baseline: Mapping[str, Any],
+    path: str,
+    *,
+    root: Path,
+    commit: str,
+    reason: str,
+    now: str | None = None,
+) -> tuple[dict[str, Any], list[str]]:
+    """Remove one deleted module's entry; nothing else in the baseline moves.
+
+    WHY A THIRD WRITE. Rule (d) fails while a module that no longer ships is
+    still in the baseline, so a deleted file cannot carry its gaps away. The
+    trim ``--update-baseline`` does is correct but refuses without a
+    complete measurement of every shipped module, which only a full CI run
+    produces -- so a deliberate deletion could not land green. A deleted
+    file has no coverage to measure, and removing its entry loosens nothing
+    that still ships; this is that one operation and no other.
+
+    :param baseline: a validated baseline document.
+    :param path: the module's repository-relative path, as the baseline
+        lists it.
+    :param root: repository root whose packaging decides what ships.
+    :param commit: the commit that deleted the module.
+    :param reason: why it was deleted; required.
+    :param now: the write's timestamp, for tests.
+    :returns: the new document and the notes to print.
+    :raises BaselineError: without a reason or commit, for a path not in the
+        baseline, or for a module that still ships.
+    """
+    if not reason.strip():
+        raise BaselineError("a baseline write needs a non-empty --reason")
+    if not commit.strip():
+        raise BaselineError(
+            "a baseline write needs the commit that deleted the module (--commit)"
+        )
+    path = Path(path).as_posix()
+    modules = {key: dict(value) for key, value in baseline["modules"].items()}
+    if path not in modules:
+        raise BaselineError(
+            f"--retire-module refused: {path} is not in the baseline"
+        )
+    if path in discover_shipped_python_files(root.resolve()):
+        raise BaselineError(
+            f"--retire-module refused: {path} still ships; only a module "
+            "deleted from the package can be retired"
+        )
+    written_at = now or _dt.datetime.now(_dt.timezone.utc).replace(
+        microsecond=0).isoformat().replace("+00:00", "Z")
+    removed = modules.pop(path)
+    entry = {
+        "written_at": written_at,
+        "mode": "retire",
+        "commit": commit.strip(),
+        "reason": reason.strip(),
+        "retired": path,
+        "coverage_timestamp": "none: a deleted module has no coverage",
+        "coverage_version": "none",
+    }
+    gaps = ", ".join(
+        f"{removed[field]} {COUNT_LABELS[field]}"
+        for field in COUNT_FIELDS if removed[field]
+    ) or "none"
+    notes = [
+        f"RETIRED: {path}: deleted on purpose; its allowance ({gaps}) is "
+        "gone, and a module that returns under any name must arrive at 100%"
+    ]
+    history = [*baseline["history"], entry]
+    return build_baseline_document(modules, history), notes
+
+
 # -- rendering and CLI -----------------------------------------------------
 
 
@@ -865,7 +941,8 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         lines.append(
             f"ERROR: {path}: in the baseline but no longer shipped; a deleted "
             "or renamed module cannot take its allowance away silently. "
-            "Trim it deliberately with --update-baseline --reason"
+            "Trim it deliberately with --update-baseline --reason, or, for "
+            "a module deleted on purpose, --retire-module <path> --reason"
         )
     for module in report["modules"]:
         for failure in module["failures"]:
@@ -933,8 +1010,8 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--coverage-json", type=Path, required=True,
-        help="coverage.py JSON report to verify",
+        "--coverage-json", type=Path,
+        help="coverage.py JSON report to verify; required except with --retire-module",
     )
     parser.add_argument(
         "--root", type=Path, default=Path.cwd(),
@@ -958,6 +1035,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--reset-baseline", action="store_true",
         help="deliberately rewrite the baseline from the measurement (may loosen)",
     )
+    writes.add_argument(
+        "--retire-module", metavar="PATH",
+        help="remove one entry for a module deleted on purpose; reads no "
+        "coverage data and refuses a module that still ships",
+    )
     parser.add_argument(
         "--reason", default="",
         help="why the baseline is being written; required with either write",
@@ -967,12 +1049,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="commit the coverage data came from (default: git HEAD of --root)",
     )
     parser.add_argument(
-        "--json-out", type=Path, required=True,
-        help="machine-readable ratchet report destination",
+        "--json-out", type=Path,
+        help="machine-readable ratchet report destination; required except "
+        "with --retire-module",
     )
     parser.add_argument(
-        "--text-out", type=Path, required=True,
-        help="human-readable ratchet report destination",
+        "--text-out", type=Path,
+        help="human-readable ratchet report destination; required except "
+        "with --retire-module",
     )
     return parser
 
@@ -1006,6 +1090,32 @@ def _apply_write(
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.retire_module is not None:
+        if args.baseline is None:
+            parser.error("--retire-module needs --baseline")
+        try:
+            document, notes = retire_module(
+                load_baseline(args.baseline), args.retire_module,
+                root=args.root, commit=args.commit or _head_commit(args.root),
+                reason=args.reason,
+            )
+            write_baseline(args.baseline, document)
+        except (OSError, ValueError, SyntaxError) as exc:
+            print(f"coverage ratchet could not retire: {exc}", file=sys.stderr)
+            return 2
+        for note in notes:
+            print(f"BASELINE: {note}")
+        print(f"BASELINE: wrote {args.baseline} ({document['checksum']})")
+        return 0
+    missing = [
+        flag for flag, value in (
+            ("--coverage-json", args.coverage_json),
+            ("--json-out", args.json_out),
+            ("--text-out", args.text_out),
+        ) if value is None
+    ]
+    if missing:
+        parser.error("the following arguments are required: " + ", ".join(missing))
     writing = args.update_baseline or args.reset_baseline
     if writing and args.baseline is None:
         parser.error("--update-baseline and --reset-baseline need --baseline")
