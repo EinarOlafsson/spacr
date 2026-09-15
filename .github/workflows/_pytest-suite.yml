@@ -52,6 +52,14 @@ on:
         required: false
         default: 0
         type: number
+      memory_telemetry_seconds:
+        description: >-
+          Print memory, swap, disk, OOM-kill count and the largest processes
+          into the live log every N seconds while the tests run, and upload
+          the fuller samples. 0 turns it off.
+        required: false
+        default: 0
+        type: number
 
 jobs:
   pytest:
@@ -177,6 +185,20 @@ jobs:
           SPACR_PYTEST_FILE_SHARD_COUNT: ${{ inputs.file_shard_count }}
           PYTHONFAULTHANDLER: "1"
         run: |
+          if [ "${{ inputs.memory_telemetry_seconds }}" -gt 0 ]; then
+            # A LOST RUNNER KEEPS ONLY WHAT IT HAS ALREADY LOGGED. Qt shard 0
+            # lost its runner twice on 2026-09-15 inside its budget, and a
+            # machine that runs out of memory cannot log that it did. The
+            # sampler prints one MEMORY line per interval into this live log
+            # and a fuller block into a file for the artifact, and is
+            # stopped when this script exits, however it exits.
+            mkdir -p "$RUNNER_TEMP/spacr-memory-telemetry"
+            bash tools/ci_memory_telemetry.sh \
+              "${{ inputs.memory_telemetry_seconds }}" \
+              "$RUNNER_TEMP/spacr-memory-telemetry/samples.log" &
+            telemetry_pid=$!
+            trap 'kill "$telemetry_pid" 2>/dev/null || true' EXIT
+          fi
           xdist_args=()
           if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
             xdist_args=(-n "${{ inputs.xdist_workers }}" --dist loadfile)
@@ -228,3 +250,17 @@ jobs:
               tests/qt/test_the_backdrop_survives_a_run.py \
               -m '${{ inputs.marker_expression }}' -v --tb=short
           fi
+
+      - name: Show memory telemetry after a failure
+        if: failure() && inputs.memory_telemetry_seconds > 0
+        run: tail -n 300 "$RUNNER_TEMP/spacr-memory-telemetry/samples.log" || true
+
+      - name: Upload memory telemetry
+        if: always() && inputs.memory_telemetry_seconds > 0
+        uses: actions/upload-artifact@v7
+        with:
+          name: >-
+            spacr-memory-telemetry-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.suite_name }}
+          path: ${{ runner.temp }}/spacr-memory-telemetry/
+          if-no-files-found: warn
+          retention-days: 14
