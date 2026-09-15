@@ -198,7 +198,7 @@ class ThumbnailCache:
     :param max_size: the longest edge, in pixels, of a generated thumbnail.
         Capped at ``MAX_THUMBNAIL_AXIS``.
     :raises ValueError: when ``max_bytes`` is not positive, or ``max_size`` is
-        outside 1..``MAX_THUMBNAIL_AXIS``.
+        outside ``1..MAX_THUMBNAIL_AXIS``.
 
     File publication is atomic across cache instances, so concurrent readers
     see either the old or new complete PNG. Budgeting and deletion are guarded

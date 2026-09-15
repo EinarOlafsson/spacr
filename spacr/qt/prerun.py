@@ -606,7 +606,7 @@ class SegQCBanner(_JobMixin, QFrame):
         WORKER THREAD ONLY. It used to be described here as "one listdir plus
         one stat per card — microseconds", and that was a local-disk
         assumption: ``find_scorecards`` first calls ``qc_roots``, which
-        ``isdir``s the user's root, lists its plate children and ``isdir``s a
+        ``isdir``\\ s the user's root, lists its plate children and ``isdir``\\ s a
         ``qc`` folder inside each, all before the ``os.stat`` below. On a
         sleeping ``autofs`` mount the first of those had not returned after
         twenty seconds. It is still cheap — it is just not free, and nothing

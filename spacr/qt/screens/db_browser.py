@@ -26,7 +26,7 @@ Layout::
 
 Design notes that matter for real spaCR databases:
 
-* **Never ``SELECT *`` the whole table.** Measurement tables run to
+* Never ``SELECT *`` the whole table. Measurement tables run to
   hundreds of thousands of rows and hundreds of feature columns. The
   first chunk (100 rows) is fetched and painted on its own; the rest
   arrives as the user scrolls, through ``canFetchMore`` / ``fetchMore``.

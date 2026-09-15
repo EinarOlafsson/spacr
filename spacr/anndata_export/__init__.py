@@ -100,7 +100,7 @@ They are converted to NaN before the policy runs and counted separately in
 
 Where the cell -> nucleus -> pathogen links go, and why not ``obsp``
 --------------------------------------------------------------------
-They go in ``obs`` and ``uns``. **Never ``obsp``.**
+They go in ``obs`` and ``uns``. **Never** ``obsp``.
 
 ``obsp`` is an ``n_obs x n_obs`` matrix: a relation among *the observations
 of this AnnData*. The parent links are not that, in either export shape:

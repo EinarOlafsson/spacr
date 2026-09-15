@@ -13,7 +13,7 @@ The third is the one that silently half-works: a two-class head on a
 three-class problem trains happily and is wrong about every object of the
 third class.
 
-**A custom model that loads supersedes ``model_type``.** There is no boolean
+**A custom model that loads supersedes** ``model_type``. There is no boolean
 saying which to believe, because a path that holds a working model is a
 complete answer on its own and a flag that disagreed with it would just be a
 second thing to get wrong.

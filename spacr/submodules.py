@@ -3953,8 +3953,8 @@ def _invasion_well_table(parasites, fields, group_column, settings,
                          seed_wells=None):
     """Summarize invasion per well, with the denominator and the QC in the same row.
 
-    Invasion efficiency is a proportion and it is quoted here **with
-    ``n_total``**, because 90% from ten parasites and 90% from four thousand
+    Invasion efficiency is a proportion and it is quoted here **with**
+    ``n_total``, because 90% from ten parasites and 90% from four thousand
     are not the same result and nothing downstream can tell them apart from
     the ratio alone. Four QC columns say when the ratio should not be quoted
     at all:

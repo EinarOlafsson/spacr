@@ -42,7 +42,7 @@ exact header.
 
 The guards that moved here rather than being left behind
 --------------------------------------------------------
-* **A ``~`` path is expanded, once, for every reader** -- GitHub issue #108,
+* A ``~`` path is expanded, once, for every reader -- GitHub issue #108,
   where a ``src`` beginning with ``~`` was resolved against the working
   directory and refused with ``FileNotFoundError: ~<DB>``. ``$HOME`` and
   ``%USERPROFILE%`` too: a settings CSV carried between machines routinely

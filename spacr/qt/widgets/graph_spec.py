@@ -51,8 +51,8 @@ Large data
 
 spaCR measurement tables run to 10^5–10^6 object rows and nobody wants a
 scatter of a million overlapping dots. Three strategies, chosen by what the
-plot actually needs, and **the chosen one is always named in
-:attr:`RenderData.notice`** so a subset can never be mistaken for the whole:
+plot actually needs, and **the chosen one is always named in**
+:attr:`RenderData.notice` so a subset can never be mistaken for the whole:
 
 * **aggregate plots use every row, always.** A histogram, bar, box, violin or
   heatmap is already a reduction — sampling before aggregating would change the

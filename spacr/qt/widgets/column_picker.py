@@ -264,7 +264,7 @@ class SchemaReader:
         estimate and every caller must label it one. ``None`` for a view,
         a WITHOUT ROWID table, or an empty table.
 
-        **It is spelt ``_rowid_``, and that is load-bearing.** Every
+        It is spelt ``_rowid_``, and that is load-bearing. Every
         spaCR object table declares a column called ``rowID`` — the plate
         row, ``'r1'``, ``'r2'`` — and SQLite identifiers are
         case-insensitive, so a bare ``rowid`` resolves to *that column*

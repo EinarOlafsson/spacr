@@ -54,7 +54,7 @@ Design notes:
   :meth:`PowerScreen._retire_finished_jobs` for what a closure does here and
   why it is not a style preference.
 * **No modal dialogs.** Every failure lands in the inline status line.
-* **``threaded=False`` runs the same code inline**, firing the same signals,
+* ``threaded=False`` **runs the same code inline**, firing the same signals,
   so the tested path and the shipped path differ only in where they run.
 """
 from __future__ import annotations

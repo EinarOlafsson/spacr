@@ -581,7 +581,7 @@ def generate_measure_demo(
           ``"organelle" in settings['summarize_organelles_by']`` — a *substring*
           test when the value is a str. Running this demo with
           ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary``
-          (16 rows/field) and still **no ``organelle`` table**. Only a value
+          (16 rows/field) and still no ``organelle`` table. Only a value
           containing ``'organelle'`` writes the per-organelle table
           (``['cell', 'organelle']`` → organelle 64 rows/field, verified).
        2. A list cannot be shipped today: ``spacr.settings.expected_types``
@@ -693,7 +693,7 @@ def generate_classify_demo(
     That is exactly what this writes, and exactly what
     ``spacr.utils._map_wells_png`` parses plate/row/column/field back out of.
 
-    **The ``cell_png`` leaf matches.** measure_crop appends
+    The ``cell_png`` leaf matches. measure_crop appends
     ``f"{crop_mode}_png/"`` to the folder, so a real cell crop does live under
     ``cell_png/`` — which is what
     :func:`spacr.io.generate_training_dataset`'s
@@ -709,7 +709,7 @@ def generate_classify_demo(
     infection status per synthetic crop would be a fiction the pixels do not
     support.
 
-    **The ``png_list`` columns do not match either.**
+    The ``png_list`` columns do not match either.
     :func:`spacr.utils.filepaths_to_database` writes ``png_path, file_name,
     plateID, rowID, columnID, fieldID, prcfo, cell_id``, with the tokenised
     values ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. This table

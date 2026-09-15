@@ -1052,7 +1052,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     re-reading those folders to merge them (which duplicated the pixel data on
     disk), this builds an in-memory dict ``{fov_filename: {channel: mip}}`` and
     concatenates the channels of each FOV into one ``stack/<fov>.npy``. The
-    merge order and MIP maths are identical to the old folder+``_merge_file``
+    merge order and MIP maths are identical to the old folder+\\ ``_merge_file``
     path, so the produced stacks are byte-for-byte the same.
 
     Args:
@@ -7379,7 +7379,7 @@ def convert_to_yokogawa(folder):
     A file that cannot be read is skipped so the rest of the folder
     still converts — but the skip is recorded on a
     :class:`spacr.errors.RunLedger`, printed as a loud summary at the
-    end, and **stamped into a sibling ``rename_log.run_status.json``**.
+    end, and **stamped into a sibling** ``rename_log.run_status.json``.
     That sidecar is what lets a later reader (or
     :func:`spacr.errors.run_is_complete`) tell that the converted
     folder is missing inputs, instead of quietly analysing a subset.

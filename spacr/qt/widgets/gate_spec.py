@@ -355,7 +355,7 @@ class Gate:
 
     def with_threshold(self, column: str, low: Optional[float],
                     high: Optional[float]) -> "Gate":
-        """Return this gate with ``column`` bounded to ``low``..``high``.
+        """Return this gate with ``column`` bounded to ``low..high``.
 
         :raises GateError: when this gate has no bound on ``column``. A gate
             that silently ignored the edit would leave the panel showing a

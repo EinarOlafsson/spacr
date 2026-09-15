@@ -41,7 +41,7 @@ Design notes:
   to a temp file inside the destination and are renamed only after the checksum
   passes (:func:`spacr.model_zoo.fetch`), so Cancel leaves the destination
   exactly as it was — no half-written file at a name that looks like a model.
-* **``worker.finished`` is relayed through a signal into a bound method.**
+* ``worker.finished`` **is relayed through a signal into a bound method.**
   PySide6 delivers a plain closure connected to a worker's signal as a *direct*
   call on the worker thread, and the completion handler here fills a
   QPlainTextEdit and a QTableWidget. Building QTextDocument children off the
@@ -148,7 +148,7 @@ def _model_zoo_qss(palette: dict, opacity=None) -> str:
         position could reach it. Measured 0.31 of the backdrop where a
         panel passes 0.70.
     ``a border drawn around a hole``
-        ``Download`` and ``Test on fields`` are ``QGroupBox``es, and the
+        ``Download`` and ``Test on fields`` are ``QGroupBox``\\ es, and the
         shipped rule for those is ``background: transparent`` — right for
         a group box nested in a card that has a surface already, wrong
         where the group box IS the container. They measured 1.000 and

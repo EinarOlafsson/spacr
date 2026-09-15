@@ -223,9 +223,9 @@ class RegionContext:
     :ivar object_type: one of :data:`OBJECT_TYPES`. Each type is offered
         separately, so a filter can act on one and wave the rest through with
         ``np.ones(len(context.labels), bool)``. Note that culling only the
-        cells cascades to their nuclei, pathogens and cytoplasm *when the run
+        cells cascades to their nuclei, pathogens and cytoplasm when the run
         has all of ``cell_mask_dim``, ``nucleus_mask_dim`` and
-        ``pathogen_mask_dim`` set* — that is the condition under which
+        ``pathogen_mask_dim`` set — that is the condition under which
         ``_measure_crop_core`` calls ``_exclude_objects``, which zeroes the
         child masks outside the surviving cells. Otherwise apply the same
         decision to each type, which is what a polygon test on the centroid

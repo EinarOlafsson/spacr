@@ -436,7 +436,7 @@ def measure_border_object_removal(path) -> Dict[str, int]:
       object registers as changed. The pair used here is the FIRST and LAST
       frames at which the drawn well edge sits at the same column, which is
       the interval where the zoom is complete and only the removal happens.
-    * **Not the generator's own ``touches`` flag.** That flag is the thing
+    * Not the generator's own ``touches`` flag. That flag is the thing
       under test; a check that classifies objects by it validates the
       generator against itself and reported "all correct" on the assets that
       shipped the bug. The well edge is recovered from the drawn pixels.
