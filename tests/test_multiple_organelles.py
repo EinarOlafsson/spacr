@@ -169,6 +169,13 @@ def test_two_organelle_measurement_is_separate_joinable_and_wide(
         raise ImportError("not needed by this contract test")
 
     monkeypatch.setattr(measure, "_load_zernike_moments", no_zernike)
+    # THE AVAILABILITY ANSWER IS CACHED PER PROCESS (`_ZERNIKE_AVAILABLE`),
+    # so stubbing the loader is not enough: any earlier test in the same
+    # xdist worker that measured with Mahotas installed has already cached
+    # True, the probe never calls the stub, and `_calculate_zernike` does.
+    # That is the CI failure ("worker returned its failure sentinel"),
+    # and why it never reproduced when this file ran alone.
+    monkeypatch.setattr(measure, "_ZERNIKE_AVAILABLE", None)
     settings = get_measure_crop_settings({
         "src": str(merged),
         "channels": [0, 1],
@@ -252,6 +259,7 @@ def test_enabled_but_empty_slot_writes_zero_parent_summary(tmp_path,
     monkeypatch.setattr(
         measure, "_load_zernike_moments",
         lambda: (_ for _ in ()).throw(ImportError("disabled")))
+    monkeypatch.setattr(measure, "_ZERNIKE_AVAILABLE", None)  # cached per process
     settings = get_measure_crop_settings({
         "src": str(merged), "channels": [0, 1],
         "cell_mask_dim": 2, "nucleus_mask_dim": 3,
