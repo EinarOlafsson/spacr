@@ -969,3 +969,49 @@ by a push -- does not hold. What is red, and which of it is a defect:
 WORTH SEPARATING: test_all_module_smoke.py fails in CI and passes here --
 39 passed, serial, -p no:randomly. That one is ordering or environment, not
 the module screens, and chasing it inside the file will not find it.
+
+--------------------------------------------------------------------------------
+2026-09-15 - WHAT IS RED ON a5ef1cd7b, AND WHY, READ FROM THE FAILED JOB LOGS
+--------------------------------------------------------------------------------
+
+`tests` run 34920537348 on a5ef1cd7b (still running when read, 03:50 UTC).
+Failed jobs and their causes, from `gh api .../jobs/<id>/logs`, not from the
+summary line:
+
+  docs  (both runs, e082b2b98 and a5ef1cd7b)   API catalog lane: de/es/zh_CN/pt
+        blocks left English or with changed literals (curation_queue, ops_accel,
+        batch, ...). CLEARED by the translation batch 0ccfbe5d7 -- measured on
+        the push candidate: `build_documentation_i18n.py --audit` exit 0
+        (9 languages, 10,533 symbols) and `build_i18n_catalogs.py --audit`
+        exit 0 (ui=3291).
+
+  Coverage shard 10   test_instruction_index x2: the committed index was stale
+        after the 398 deletions and the work session's 409. CLEARED by
+        regenerating the index after the rebase.
+
+  Coverage shard 2    test_conda_forge_recipe: a hardcoded "1.5.0.6" pin
+        against a recipe correctly moved to 1.5.0.7. CLEARED by the work session
+        (the version contract now lives only in the packaging test, which skips
+        while that version is untagged).
+
+  Coverage shard 0    test_dnd_dropzone::test_dropping_a_settings_csv_... --
+  Qt shard 1          test_the_gene_guide_filter...::test_the_selection_...
+        NEITHER IS A TEST FAILURE. Both are xdist workers dying with
+        "Fatal Python error: Segmentation fault" (gw0 both times). The first
+        died inside an import on a background thread and the same test PASSED
+        on gw2 two minutes later; the second died in plain pandas code
+        (spacr/guide_concordance.py:118, the groupby loop in guide_support)
+        with four spacr/qt/path_probe.py _worker threads alive. Pure-Python
+        code segfaulting is memory corruption from earlier in the process.
+        Both files pass alone locally (1 passed; 28 passed). This is 288's
+        crash family and is not cleared.
+
+  Coverage / every shipped module at 100%   175 of 567 shipped modules fail
+        the ratchet, plus 3 `pragma: no cover` comments it rejects (2 in
+        cli_make_masks.py, 1 in embeddings.py). This is 288's standing goal,
+        red BY SCOPE, not by regression, and it will not be green tonight.
+
+CONSEQUENCE, said plainly: the `tests` workflow stays red while the coverage
+ratchet does, whatever else is fixed, so the "green CI" gate for the 1.5.0.8
+bump is still shut. The three `pragma: no cover` lines are the cheap lever
+(retire or justify them); the 175 modules are a project.
