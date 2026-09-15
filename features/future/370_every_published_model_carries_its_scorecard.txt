@@ -767,3 +767,106 @@ four same-field clusters, the v1 zoo row correction, placement and publishing
   produce. This matters beyond v1: scoring DINOCell or SAMCell (404/405)
   against toxoplasma_pv_v1 on a v1-seeded set would be rigged in v1's favour
   by construction, and nothing in the numbers would show it.
+
+--------------------------------------------------------------------------------
+2026-09-15: THE STOCK-SEEDED PV CURATION QUEUE IS BUILT
+--------------------------------------------------------------------------------
+
+The decision above, carried out as far as it goes without a curator. Nothing is
+curated, nothing is scored against new truth, nothing is published.
+
+WHERE (durable; af3 syncs it; the folder did not exist, no existing file written)
+  /mnt/wd4tb/af3/projects/toxoplasma_pv_model/curation/
+      pv_literature_stock_queue_2026-09-15/                          7.2 MB
+    <stem>.tif x 43          the frozen set's images, byte-identical
+    masks/<stem>.tif x 43    the stock seeds; the editor overwrites these
+    queue_provenance.json    model, hash, eval, versions, field list, reason
+    HOLDOUT_README.txt       the never-train rule and the commands below
+    provenance/              seed_stock_queue.py, seed.log, stock_seed_masks/
+                             (untouched copies of the seeds)
+    rescore/                 rescore_stock_truth.py + verbatim gpu_pv.py,
+                             report_pv.py, build_holdout.py
+
+PROVENANCE
+  * THE SAME 43 FIELDS as toxo-pv-literature-test@2026-09-14 (720 old-truth
+    objects, 5 papers). Every image re-hashed against the frozen manifest and
+    against data/toxoplasma_pv_literature/images: identical. THE OLD TRUTH IS
+    NOT IN THE QUEUE, so a curator cannot anchor on it.
+  * SEED: stock Cellpose-SAM, ~/.cellpose/models/cpsam_v2, sha256
+    0f1cc3f7ecdd8a037a57c6c48d9d8921391be4cbce3fa9f13c3e3a2e1253c667. That is
+    cellpose 4.2.1.1's default (CellposeModel's pretrained_model default is
+    "cpsam_v2"), the base v1 was fine-tuned from, and the scorecard's vanilla;
+    not the first cpsam release (e1440429...). Pinned by hash; the only model
+    loaded; no v1-lineage checkpoint was opened.
+  * EVAL: the scorecard's own call -- image via tifffile as float32,
+    normalize=True, flow_threshold 0.4, cellprob_threshold 0.0, every other
+    parameter at cellpose's default (recorded). torch 2.13.0+cu130, RTX 3090,
+    the spacr conda env, 13 s under the shared GPU lock.
+  * CHECK: every seed equals the scorecard's cpsam_v2 prediction for its field
+    (43 of 43, array-equal); 1,212 objects, the scorecard's n_pred.
+  * REASON, as recorded: "stock seed so no model's outlines are built into the
+    truth".
+
+NESTED LAYOUT, NOT SIBLING -- A DEVIATION FROM THE PLAQUE PATTERN, AND WHY
+  spacr-make-masks opens the editor on the nested layout only
+  (<folder>/<stem>.tif + <folder>/masks/<stem>.tif). A sibling folder
+  (images/ + masks/) passes build_queue but the editor is refused by name
+  (cli_make_masks.editor_refusal, and MakeMasksScreen.open_queue again). So a
+  sibling queue could not be curated with the command below.
+  build_queue(order="name", cache_counts=False): nested, 43 items, 43
+  remaining, 0 done, 0 missing masks.
+  THE PLAQUE QUEUE ABOVE HAS THIS PROBLEM: plaque_literature_vanilla_queue/ is
+  sibling, and spacr-make-masks refuses to open its editor (checked; nothing
+  written). Lay it out nested before "CURATE the plaque queue" can be done with
+  that command.
+
+HOW TO CURATE
+  Q=/mnt/wd4tb/af3/projects/toxoplasma_pv_model/curation/pv_literature_stock_queue_2026-09-15
+  ~/anaconda3/envs/spacr/bin/spacr-make-masks --folder $Q --order name --limit 15
+
+  * spacr-make-masks IS spacr/cli_make_masks.py (setup.py:
+    spacr.cli_make_masks:main). `python spacr/cli_make_masks.py` cannot run:
+    its imports are relative (ImportError, checked). Use the entry point.
+    Add --dry-run to see the session first. Over SSH, prefix the display, e.g.
+    env XDG_RUNTIME_DIR=/run/user/1000 QT_QPA_PLATFORM=xcb.
+  * Each save marks the field done in $Q/curate_status.csv; the same command
+    resumes. Three sessions of 15 cover the set.
+  * --order name keeps each paper, and so the four same-field clusters,
+    together, so duplicates are drawn alike. It also reads no scores file and
+    writes no draft-count cache.
+  * DO NOT RECROP: a field must stay the image that was seeded, and the freeze
+    refuses otherwise. Mark a field that cannot be curated `skip`.
+  * THESE ARE HOLD-OUT LABELS. NEVER TRAIN ON THEM, and never export them into
+    data/toxoplasma_pv or any training split.
+  Checked without a display: --dry-run lists 15 of 43; the editor run passes
+  the layout check and stops at "no display" (exit 1); neither wrote a file.
+
+HOW TO RE-SCORE ONCE ALL 43 ARE CURATED (OUT = a new directory, e.g.
+toxoplasma_pv_model/holdout_literature_stock_<date>/; placement is still open)
+  PY=~/anaconda3/envs/spacr/bin/python
+  $PY $Q/rescore/rescore_stock_truth.py freeze --out $OUT
+  flock <shared gpu.lock> $PY /mnt/firecuda2/Claude/repo/spacr/tools/run_memory_guarded.py \
+      --limit-gib 40 -- $PY $Q/rescore/rescore_stock_truth.py gpu --out $OUT
+  $PY $Q/rescore/rescore_stock_truth.py report --out $OUT
+
+  * freeze refuses unless all 43 are done (--allow-skip drops skips and records
+    them) and each image is unchanged. It writes $OUT/pv_literature_holdout.json
+    + pv_literature_holdout/{images,masks}/ in build_holdout.py's shape, version
+    <date>-stock, checked with load_holdout and verify_holdout.
+  * gpu and report ARE gpu_pv.py and report_pv.py, verbatim (sha256 pinned and
+    checked before import), with only their OUT/MAN globals pointed at $OUT:
+    the same three checkpoints re-hashed, the same eval, the same rows and
+    columns.
+  * PROVED ON THE OLD TRUTH: a copy of the queue holding the 2026-09-14 masks,
+    all marked done, run through freeze + gpu + report, reproduced
+    scorecard_toxoplasma_pv_v1_vs_cpsam_v2.csv, _vs_cpsam.csv and
+    scorecard_per_paper.csv BYTE-IDENTICAL (and again from the night's saved
+    predictions, without the GPU). freeze on the uncurated queue refuses.
+
+WHAT THE STOCK SEED DOES NOT FIX
+  Where a curator keeps a stock outline, the truth leans toward stock
+  Cellpose-SAM. That lean runs against v1, the conservative direction for a
+  fine-tuned model's scorecard, but it is still a lean. freeze records its size
+  per field and pooled (stock_seed_vs_truth: F1, Dice on matched objects, masks
+  saved unchanged); read the outline rows beside it. Still open: the curation
+  itself, the four same-field clusters, the v1 zoo row, placement, publishing.
