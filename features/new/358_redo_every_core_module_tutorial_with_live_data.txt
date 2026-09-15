@@ -1289,3 +1289,235 @@ the other eight modules' pins are untouched, and a byte copy of the old file is
 kept beside it as pins.json.bak-2026-09-15. (2) "Publish now": the release hold
 on candidate release-candidate-8738b_pd is lifted by the maintainer; the
 publication steps are recorded in the next section when they land.
+2026-09-15 -- PUBLICATION OF release-candidate-8738b_pd: THE PLAN (WRITTEN BEFORE ACTING)
+--------------------------------------------------------------------------------
+
+AUTHORITY. The maintainer answered "Publish now" through the question tool on
+2026-09-15. That approves three things: lifting the release hold, uploading a
+new versioned media revision to Hugging Face, and deploying the tutorial pages.
+Worktree /mnt/firecuda2/Claude/repo/spacr-358pub, branch wip/358-publish, from
+nightly a5361a4f2. Nothing is pushed.
+
+WHAT "PUBLISH" MEANS IN THIS REPO, READ FROM THE CODE
+  * TWO HOMES FOR MEDIA (authoring/tools/publish_tutorials.py docstring).
+    GitHub Pages serves docs/source/_extra/tutorials: the player, catalogs,
+    posters and 1440p video. The Hugging Face DATASET
+    einarolafsson/spacr-tutorials (public) serves the 50 narration voices,
+    their timing JSON and the 4K masters, under <lesson>/audio/<lang>/<voice>.
+    {m4a,json} and <lesson>/video/<lesson>_silent.mp4. The candidate's
+    media_host/ has exactly that layout.
+  * THE HOLD IS A FLAG PLUS A SEPARATION, NOT A FILE ON ITS OWN.
+    build_release_candidate.py writes release_hold true, uploaded false and
+    published false into every candidate's release-manifest.json.
+    refresh_candidate_player() and checkpoint_release_candidate.py refuse any
+    candidate that is not held. The repo checkpoint
+    (tools/tutorials/release_candidate/checkpoint.json and its manifest) says
+    the same, and test_release_candidate_routes.py pins
+    `published is False and release_hold is True`. The separation: the
+    candidate's index.html points data-audio-root and data-video4k-root at
+    ../media_host (an offline preview; the builder's comment says "Deployment
+    must explicitly replace them with an immutable uploaded media revision
+    after the hold"). Meanwhile the public tree keeps the 09-11 catalogs (71
+    ready, 6 Coming soon, 498 scenes) and resolve/main. test_public_coming_soon.py
+    and verify_tutorial_live.py pin that public state.
+  * NO SCRIPT DEPLOYS A CANDIDATE. publish_tutorials.py is the legacy
+    publisher. It reads authoring/web and authoring/production, and it uploads
+    with `hf upload` to main with no revision. README.md says not to run it
+    against the old authoring catalogs. So its upload command is used here
+    with an explicit new --revision against the candidate's media_host/, and
+    nothing is uploaded to main.
+  * WHY NOT MAIN. The live site reads resolve/main. Measured against main at
+    003f4c8e88: 3,571 of the candidate's LFS media differ in bytes (every
+    lesson's 50 voices and master except 33/34), 404 files are new (74, 75,
+    76, 77), and the 3,600 timing JSON are plain git files. Uploading to main
+    would put new narration under the OLD live catalogs and captions before
+    Pages changes. A new revision cannot disturb the live site.
+
+THE STEPS, IN ORDER
+  1 verify_release_candidate.py on 8738b_pd again, on a quiet machine.
+  2 Preflight: the token is fine-grained with repo.write on einarolafsson
+    (whoami, read only). The dataset has one branch (main) and no tags.
+  3 Create branch `candidate-8738b_pd` from main 003f4c8e88
+    (exist_ok=False, so an existing name is refused rather than reused). Run
+    `hf upload einarolafsson/spacr-tutorials <candidate>/media_host .
+    --repo-type dataset --revision candidate-8738b_pd`.
+  4 Read back EVERY one of the 7,676 media files at the resulting commit:
+    first the tree metadata (size, LFS sha256 or git blob id), then a
+    streamed download of each file's bytes from resolve/<commit>, hashed
+    against release-manifest.json.
+  5 Tag the commit `tutorials-2026-09-15-8738b_pd` (exist_ok=False). The site
+    is pinned to the 40-character COMMIT, not to the tag or branch, because
+    only a commit id cannot be moved.
+  6 Pages tree: copy the candidate's web/ into docs/source/_extra/tutorials,
+    byte-checked against the manifest. index.html changes only in the two
+    media roots (resolve/<commit>), the restored styles.css key, new
+    cache keys for the two changed scripts (lesson_catalog.js and
+    module_navigation.js), and the static counts (76 available / 77 total).
+    The 540 tracked legacy audio files under the docs tree are left alone:
+    their removal waits on the maintainer (325, 2026-09-09).
+  7 Playback against the PUBLISHED media: the same browser checks, with only
+    localhost and the Hugging Face hosts allowed, and the audio hashes
+    compared with the manifest.
+  8 Lift the hold in the repository: move the pins that describe the held
+    public state (NARRATION_HOST, test_public_coming_soon.py,
+    verify_tutorial_live.py constants, the checkpoint's hold flags), then
+    commit on wip/358-publish with explicit paths.
+
+PAGES DEPLOY ONLY FROM MAIN. Read from .github/workflows/docs.yml: a push to
+main runs configure-pages, upload-pages-artifact and deploy-pages. A push to
+nightly builds and stops, so the Pages-ready tree on this branch reaches
+https://einarolafsson.github.io/spacr/tutorials/ only when it is merged to main.
+(The only other route is a deliberately DISPATCHED nightly run; nothing here
+dispatches or pushes.) The 1.5.0.8 merge to main is gated on CI and is not
+done here.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- PUBLISHED: MEDIA REVISION UPLOADED AND READ BACK, PAGES TREE READY,
+HOLD LIFTED IN THE REPOSITORY (branch wip/358-publish, not pushed)
+--------------------------------------------------------------------------------
+
+THE MAINTAINER'S DECISIONS, VERBATIM (all through the question tool, 2026-09-15)
+  0 Publication of release-candidate-8738b_pd: "Publish now".
+  1 Asked "Should I finish those local steps?" (record the hold lift, run the
+    remaining tests, write the dated note in 358, commit on the branch;
+    nothing pushed; the site changes only with the main merge he approves
+    separately). Answer: "Finish the local steps (Recommended)".
+  2 PyPI's pronunciation: narration "pype" (the 08-28 rule) or the 08-26 test
+    that requires "pypie". Answer: "\"pype\" (Recommended)". Keep the narration
+    and update the old test to the 08-28 rule. Nothing is re-rendered.
+
+WHAT WAS PUBLISHED, WHERE
+  Media host  https://huggingface.co/datasets/einarolafsson/spacr-tutorials (public)
+    branch  candidate-8738b_pd, created from main 003f4c8e88 (exist_ok=False)
+    commit  e35b2c12f00260629d9d5353b86dcd4577b9b617, 12:22:58 UTC,
+            "Tutorial media for release candidate release-candidate-8738b_pd"
+    tag     tutorials-2026-09-15-8738b_pd. It resolves to e35b2c12
+            (dataset_info(revision=tag).sha, and x-repo-commit on resolve/).
+    main    unchanged at 003f4c8e88, so the live site's resolve/main is untouched
+            and remains the rollback revision.
+    Pinned media root (narration and 4K):
+      https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e35b2c12f00260629d9d5353b86dcd4577b9b617
+  Pages tree  docs/source/_extra/tutorials on this branch. It reaches
+    https://einarolafsson.github.io/spacr/tutorials/ ONLY WITH THE MERGE TO
+    MAIN. docs.yml runs configure-pages and deploy-pages on a push to main.
+    A push to nightly builds and stops. The one other route is a deliberately
+    dispatched nightly run, which nothing here uses.
+
+VERIFICATION, IN ORDER
+  * verify_release_candidate.py 8738b_pd, quiet machine (load ~1.4): exit 0,
+    90 PASS (14 Coming-soon languages, 76 playback cases), largest video-clock
+    gap 0.199 s, 11:44 -> 11:48 UTC. check_placeholder_mutations.py: both
+    guards OBSERVED RED, baseline passed before and after.
+    checkpoint_release_candidate.py: 203 files, now bound to 8738b_pd
+    (manifest 62aa93f4...).
+  * Upload with `hf upload ... --revision candidate-8738b_pd`, the legacy
+    publisher's own command pointed at the candidate's media_host/ (3,876
+    LFS files processed; hf reported "Removing 101 file(s) from commit that
+    have not changed").
+  * READ-BACK OF EVERY FILE at commit e35b2c12: 7,676 of 7,676 matched by tree
+    metadata (size plus LFS sha256, or git blob id for the JSON sidecars),
+    and 7,676 of 7,676 by streaming each file's BYTES from resolve/<commit>
+    and hashing them against release-manifest.json: 7,299,473,261 bytes in
+    2,109 s, 0 failures. The revision also holds 103 files that are not in
+    the candidate, inherited from main: 71_investigate_hit's 101 old media
+    files, README.md and .gitattributes. The Coming-soon screen requests none.
+  * TOOL BUG, FIXED. The upload run exited 1 at "Tag does not name the
+    verified commit" AFTER the read-back passed and the tag was created.
+    list_repo_refs reports an annotated tag's OBJECT id (8b402f85), not the
+    commit it resolves to. The check now compares
+    dataset_info(revision=tag).sha. The receipt was written by the read-only
+    `resume-receipt` subcommand from that run's logged read-back line; it
+    creates nothing and refuses unless the tag already resolves to the
+    read-back commit and the branch is exactly one commit on main.
+    An earlier attempt to add a second tag-creation path was refused by the
+    permission system ("[Create Public Surface]") and was not retried.
+  * PAGES TREE (publish_release_candidate.py pages): 199 files copied from the
+    candidate and byte-checked against its manifest (76_ops and 77_embeddings
+    are new). index.html differs from the candidate's only in: both media
+    roots pinned to the commit; lesson_catalog.js and module_navigation.js
+    keyed 20260915-8738b_pd, because their bytes changed; app_v2.js,
+    styles.css and voice_catalog.js keeping their keys, because their bytes
+    did not; and the static counts, now 76 available of 77. Left in place:
+    71_investigate_hit's old poster and video, and the 540 tracked legacy
+    audio files (325, pending the maintainer). docs_media_budget.py: published
+    349.9 MiB of 700 (was 129.6), narration served from the pinned commit.
+  * PLAYBACK AGAINST THE PUBLISHED MEDIA:
+    verify_release_candidate.py <candidate> --published docs/source/_extra/tutorials
+    exit 0, 90 PASS. The Pages tree is served locally as Pages would serve it;
+    every one of the 152 media requests went to huggingface.co at the pinned
+    commit, and anything else would have failed the run. The loaded Heart
+    audio hashes equal the manifest, and the largest clock gap is 0.211 s.
+    Report: release_candidate/published-media-browser-checks.json.
+  * HOLD LIFTED (publish_release_candidate.py record, which refuses unless the
+    receipt, the published playback report, the checkpoint and the Pages index
+    all describe the same candidate and tree). checkpoint.json now reads
+    release_hold false, media_uploaded true, pages_tree_ready true, published
+    false (Pages is not deployed), plus media_revision {branch, tag, commit,
+    root}. release-manifest.json is left exactly as built, still flagged held,
+    because the browser evidence hashes it.
+
+PINS OF THE HELD PUBLIC STATE, MOVED WITH IT
+  * NARRATION_HOST (tools/docs_media_budget.py) and AUDIO_ROOT
+    (tools/sample_tutorial_frames.py) now use the pinned commit.
+  * verify_tutorial_live.py expects key 20260915-8738b_pd and 975 scenes.
+    spacr/resources/tutorial_index.json was regenerated (71 modules); it had
+    been stale since 5da4a6a95.
+  * test_public_coming_soon.py pins the receipt's commit, one Coming soon
+    screen and 76 ready lessons. A new routes test pins how the hold is lifted.
+  * Decision 2: test_every_spoken_pypi_is_the_single_word_pypie ->
+    test_every_spoken_pypi_is_the_reviewed_single_syllable_pype.
+    test_spoken_pypi_is_exactly_one_continuous_pypie_token (the same 08-26 pin
+    in test_tutorial_catalog_i18n.py) became
+    test_spoken_pypi_is_the_reviewed_pype_form_in_every_spoken_locale. Both
+    read pronunciation.py (2026-08-28-pype-v11). The English catalog carries
+    no speech_text for these scenes, so English is gated in the sidecars;
+    every translated narration language must carry the reviewed form.
+  * Lesson 01's nightly checks: the 09-11 recording has eight scenes and
+    names nightly only in scene 4, so both tests derive the scene list from
+    English.
+  * NOT A MAINTAINER DECISION, FLAGGED: test_localized_navigation_chrome_*
+    pinned pre-refresh copy. That is the Feature Dictionary titles
+    ("Diccionario de características" ...) and the two English repairs
+    ("appropriate validation controls", "Import third-party images"). The
+    approved candidate carries the 09-09 reviewed rewrites of those lessons:
+    titles keep the literal screen name "Feature Dictionary" and add a
+    translated subtitle, each equal to lessons/reviews/62_feature_dictionary.*;
+    and 16_activation / 31_external_masks have new English equal to their
+    lesson sources. The pins follow the reviewed sources. The retired
+    mistranslation "Turn third-party images" is still banned.
+  * Evidence re-bound to 8738b_pd with the lessons' own tools:
+    checkpoint_models.py, checkpoint_ops.py and checkpoint_embeddings.py
+    rewrote the four 2026-09-12_*_final_checks.json files.
+    MAP IS NOT RE-BOUND. checkpoint_map.py needs checks/map-preservation-checks.json.
+    check_map_preservation.py produces that report, but it proves a MAP-ONLY
+    promotion and refuses a candidate that also changed 07/13. Map's 103
+    media and web records are byte-identical between zveusu2j and 8738b_pd,
+    but no honest preservation proof exists for this pair.
+    tools/tutorials/tests/test_map_candidate.py therefore stays red: its
+    evidence names zveusu2j. That suite is not in CI.
+
+TESTS
+  tests/test_tutorial_catalog_i18n.py + test_tutorial_release_audit.py +
+  test_docs_media_budget.py: 40 passed. tools/tutorials/tests (20 files that
+  read the changed trees): 265 passed, 1 failed (test_map_candidate, above).
+  tests/qt/test_help_menu_tutorial_link.py: 8 passed.
+  build_tutorial_index.py --check: up to date. The earlier refused re-run of
+  the nightly test ("[Out-of-Place Publication]") ran after decision 1 and passes.
+
+STILL OWED
+  * THE PAGES DEPLOY, with the merge to main (the 1.5.0.8 merge, gated on
+    CI). After it deploys, run tools/verify_tutorial_live.py --browser
+    against the live site, and only then set published true.
+  * 07_mask SCENE 10 RE-CAPTURE. The overlay-loop bug that scene 10 and its
+    "STILL fails" prerequisite narrate is fixed in spacr/core.py, so both are
+    now inaccurate. Re-capture, re-narrate, translation -> voices -> master ->
+    rendition -> new candidate -> a NEW media revision (never reuse
+    candidate-8738b_pd or this tag).
+  * NATIVE-SPEAKER REVIEW of the new 07_mask translations (13 languages, 7 rows
+    each), plus listening review (07_mask/en/bm_fable is ~0.9 LU softer).
+  * Map evidence re-binding needs a preservation proof that allows other
+    lessons' reviewed refreshes.
+  * 05_home scene 3 (Embeddings in the Data band) and the Home/Performance
+    question are unchanged from the notes above.
+  * Rollback: resolve/main (003f4c8e88) and the pre-merge docs tree remain
+    intact; reverting the Pages-tree commit restores the old site.
