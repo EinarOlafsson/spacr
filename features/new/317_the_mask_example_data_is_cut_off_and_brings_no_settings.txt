@@ -368,7 +368,32 @@ lists `gen_mask_settings.csv` as a SHIPPED pack name too, so the published
 sets and the run outputs genuinely share a namespace. Reordering the tuple
 would only move the problem to whichever set uses the other spelling.
 
-THE OPTIONS, none of them one line:
+FIXED 2026-09-15, AND IT WAS SMALLER THAN THE THREE OPTIONS BELOW.
+
+The options were written before tracing the caller, and tracing it made all
+three unnecessary. `_put_the_example_images_in_place(self, images, settings)`
+RECEIVES the settings location, prints "Compatible example settings: <path>"
+to the console with it, and then calls
+`apply_settings_that_came_with(images)` -- passing the plate and discarding
+the pack. The download had already separated them properly: the plate unpacks
+to `<dest>/plate1` and the pack to `<dest>/settings`, a sibling no run writes
+into. The information was being handed over and thrown away.
+
+So no download-time manifest, no change to the published archive layout. The
+loader takes an optional `pack_folder`, prefers it, and falls back to the
+plate -- because three of the four callers pass none, and their archives
+really do carry settings inside the plate.
+
+REPORTING THE RIGHT PATH WHILE READING A DIFFERENT ONE is why this survived.
+The console told the user the shipped pack had been applied, so the evidence
+in front of them said it had worked.
+
+Four tests, and both mutations caught: ignoring `pack_folder` (the defect) and
+letting it REPLACE the plate (the over-correction).
+
+THE OPTIONS AS THEY WERE WRITTEN, kept because the reasoning is still right
+for a case where the caller does NOT already know -- none of them was needed
+here:
 
   * REMEMBER WHAT WAS DOWNLOADED. Record the pack's path when the example is
     fetched and read that, rather than searching a folder by name. A shipped

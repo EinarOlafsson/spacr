@@ -65,10 +65,19 @@ class _Screen:
         self._console = _Console()
         self._shipped = shipped
         self.applied_with = None
+        self.pack_folder_given = None
 
-    def apply_settings_that_came_with(self, folder):
-        """Stand in for the real loader, which applies every shipped key."""
+    def apply_settings_that_came_with(self, folder, *, pack_folder=None):
+        """Stand in for the real loader, which applies every shipped key.
+
+        `pack_folder` is recorded rather than ignored. 317 was a caller that
+        held the shipped pack's location, announced it to the console and
+        then searched somewhere else, so a double that swallowed the
+        argument would hide exactly the defect this file's sequence is
+        about.
+        """
         self.applied_with = folder
+        self.pack_folder_given = pack_folder
         self._field.setText(self._shipped)
         return 1
 
@@ -212,3 +221,34 @@ def test_annotate_keeps_a_shipped_path_that_exists(apply_example_settings,
 
     assert screen._field.text() == str(inner)
     assert result["src"] == str(inner)
+
+
+def test_the_caller_hands_over_the_pack_folder_it_was_given(tmp_path):
+    """317: the settings location was announced to the user and discarded.
+
+    `_put_the_example_images_in_place(images, settings)` printed
+    "Compatible example settings: <path>" and then called the loader with
+    `images` alone, so the console named the shipped pack while the form was
+    filled from the plate's own settings folder -- which is where
+    `utils.save_settings` puts a completed RUN, under the same filename the
+    loader prefers.
+
+    Reporting the right path and reading a different one is worse than
+    either mistake alone, and it is why this survived: the evidence in front
+    of the user said it had worked.
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = _Screen(shipped="/somewhere/else")
+    images = tmp_path / "plate1"
+    settings = tmp_path / "settings"
+    images.mkdir()
+    settings.mkdir()
+
+    AppScreen._put_the_example_images_in_place(screen, images, settings)
+
+    assert screen.applied_with == images
+    assert screen.pack_folder_given == settings, (
+        "the caller was handed the shipped pack's folder and did not pass "
+        "it on, so the loader searched the plate -- which after one run "
+        "holds the user's own settings under the same name")

@@ -3623,7 +3623,8 @@ class AppScreen(QWidget):
 
         return {key: rehome(value) for key, value in loaded.items()}
 
-    def apply_settings_that_came_with(self, folder) -> int:
+    def apply_settings_that_came_with(self, folder, *,
+                                      pack_folder=None) -> int:
         """Load the settings a downloaded example shipped, for THIS module.
 
         The point of shipping settings beside data: a user who has to work out
@@ -3642,27 +3643,52 @@ class AppScreen(QWidget):
         from pathlib import Path
 
         folder = Path(folder)
-        for name in self._EXAMPLE_SETTINGS_FILES.get(self.app_key, ()):
-            path = folder / "settings" / name
-            if not path.is_file():
-                continue
-            try:
-                loaded = self._load_settings_csv(str(path))
+        # THE SHIPPED PACK FIRST, THEN THE PLATE'S OWN FOLDER.
+        #
+        # A completed run writes `<src>/settings/<name>.csv` --
+        # `utils.save_settings`, with name='gen_mask_settings' for Mask -- and
+        # that is the same folder and the same filename this search looks in.
+        # `_EXAMPLE_SETTINGS_FILES` even lists the run's spelling FIRST, which
+        # its own comment says out loud: "a mask run saves
+        # `gen_mask_settings.csv`, the older pack shipped
+        # `gen_masks_settings.csv`".
+        #
+        # So on a cached example, once the user has run the module once, their
+        # own output sits under the preferred name and wins forever, because a
+        # cached example is never re-fetched. It cannot happen until you have
+        # used the thing once, which is why it only bites returning users.
+        #
+        # The download already separates them -- the plate unpacks to
+        # `<dest>/plate1` and the pack to `<dest>/settings`, a SIBLING that no
+        # run writes into -- so the fix is to look there first rather than to
+        # guess between two files with the same name.
+        roots = []
+        if pack_folder is not None:
+            roots.append(Path(pack_folder))
+        roots.append(folder)
+        for root in roots:
+            for name in self._EXAMPLE_SETTINGS_FILES.get(self.app_key, ()):
+                path = root / name if root is not folder else (
+                    root / "settings" / name)
+                if not path.is_file():
+                    continue
                 try:
-                    loaded = self.reanchor_example_paths(loaded, folder)
-                except Exception:                            # noqa: BLE001
-                    LOG.debug("could not re-home %s", path, exc_info=True)
-                applied = self.apply_settings_dict(loaded)
-            except Exception as exc:                         # noqa: BLE001
-                LOG.debug("could not apply %s", path, exc_info=True)
+                    loaded = self._load_settings_csv(str(path))
+                    try:
+                        loaded = self.reanchor_example_paths(loaded, folder)
+                    except Exception:                        # noqa: BLE001
+                        LOG.debug("could not re-home %s", path, exc_info=True)
+                    applied = self.apply_settings_dict(loaded)
+                except Exception as exc:                     # noqa: BLE001
+                    LOG.debug("could not apply %s", path, exc_info=True)
+                    self._console.append_notice(
+                        "[example] {name} could not be applied: {detail}\n",
+                        name=name, detail=exc)
+                    return 0
                 self._console.append_notice(
-                    "[example] {name} could not be applied: {detail}\n",
-                    name=name, detail=exc)
-                return 0
-            self._console.append_notice(
-                "[example] {count} settings loaded from {name}\n",
-                count=applied, name=name)
-            return applied
+                    "[example] {count} settings loaded from {name}\n",
+                    count=applied, name=name)
+                return applied
         return 0
 
     def screen_data_destination(self):
@@ -4094,7 +4120,14 @@ class AppScreen(QWidget):
                     path=str(settings),
                 ) + "\n"
             )
-        self.apply_settings_that_came_with(images)
+        # THE `settings` ARGUMENT WAS ANNOUNCED AND THEN DISCARDED. This
+        # method printed "Compatible example settings: <path>" and then
+        # searched `images` instead, so the console named the shipped pack
+        # while the form was filled from whatever sat in the plate's own
+        # settings folder -- which, after one run, is the user's own output.
+        # Reporting the right path and reading a different one is worse than
+        # either mistake alone.
+        self.apply_settings_that_came_with(images, pack_folder=settings)
 
         if control is not None and hasattr(control, "setText"):
             control.setText(str(images))
