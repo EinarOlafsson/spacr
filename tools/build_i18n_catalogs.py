@@ -3340,6 +3340,135 @@ def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
         yield node.args[0]
 
 
+#: CAPTIONS A LOCAL HELPER CARRIES, keyed by (call-site module, helper name).
+#: Paths are relative to ``spacr/qt``. Each value names the module that DEFINES
+#: the helper and the ``(call position, parameter)`` pairs holding a caption;
+#: the parameter name also matches a keyword spelling of the same argument.
+#:
+#: WHY KEYED AND NOT BY NAME like ``_set_status`` above. Measured 2026-09-14:
+#: ``_say`` is defined in twelve modules and ``say``, ``_label``, ``_line``,
+#: ``_spin``, ``_check`` and ``_set_verdict`` in two or three, with the
+#: caption at different positions -- ``prerun._label(text, name)`` holds a
+#: caption at 0 and an objectName at 1; ``formula_editor._say(text, state)``
+#: holds a style key at 1; ``class_editor._say`` shows data verbatim and must
+#: never be catalogued; ``plate_map_picker._say`` takes an int. One module may
+#: also call a helper another defines (``app_screen`` calls the results
+#: panel's ``say``). A name-only rule would put objectNames, style keys and
+#: runtime values into the catalog.
+#:
+#: tests/test_a_helper_does_not_hide_a_caption_from_the_catalog.py checks that
+#: each parameter still stands at its recorded position, so a signature change
+#: fails there instead of silently capturing the wrong argument.
+_HELPER_CAPTION_RULES: dict[
+    tuple[str, str], tuple[str, tuple[tuple[int, str], ...]]
+] = {
+    ("preferences.py", "_percent_row"):
+        ("preferences.py", ((1, "label_text"), (5, "tip"))),
+    ("prerun.py", "_label"): ("prerun.py", ((0, "text"),)),
+    ("prerun.py", "_say"): ("prerun.py", ((0, "text"),)),
+    ("screens/annotate.py", "_set_kbd_hint"):
+        ("screens/annotate.py", ((0, "text"),)),
+    # Writes to the console, which the language pass does not translate.
+    ("screens/app_screen.py", "_say"):
+        ("screens/app_screen.py", ((0, "message"),)),
+    # ``panel.say(...)``: the regression results panel's own method.
+    ("screens/app_screen.py", "say"):
+        ("widgets/regression_results.py", ((0, "text"), (1, "detail"))),
+    ("screens/data_manager.py", "_note"):
+        ("screens/data_manager.py", ((0, "text"),)),
+    ("screens/distributed_jobs.py", "_add_profile_row"):
+        ("screens/distributed_jobs.py", ((1, "source_label"),)),
+    ("screens/hit_list.py", "_set_summary"):
+        ("screens/hit_list.py", ((0, "text"),)),
+    # A QPlainTextEdit, whose contents the language pass does not translate.
+    ("screens/make_masks.py", "say"):
+        ("screens/make_masks.py", ((0, "text"),)),
+    ("screens/map_barcodes.py", "_button"):
+        ("screens/map_barcodes.py", ((0, "caption"), (1, "hint"))),
+    ("screens/methods_export.py", "_set_provenance"):
+        ("screens/methods_export.py", ((0, "text"),)),
+    ("screens/pipeline_graph.py", "_set_verdict"):
+        ("screens/pipeline_graph.py", ((0, "text"),)),
+    ("screens/run_compare.py", "_set_verdict"):
+        ("screens/run_compare.py", ((0, "text"),)),
+    ("screens/run_history.py", "_text_tab"):
+        ("screens/run_history.py", ((0, "accessible_name"),)),
+    # Positions 1 and 2 are a Qt setter name and an i18n property name.
+    ("settings_search.py", "_localize"):
+        ("settings_search.py", ((3, "source"),)),
+    # Position 1 is the settings key.
+    ("widgets/annotation_strategy_panel.py", "_add_row"):
+        ("widgets/annotation_strategy_panel.py", ((2, "title"),)),
+    # A QPlainTextEdit, whose contents the language pass does not translate.
+    ("widgets/annotation_umap_tab.py", "say"):
+        ("widgets/annotation_umap_tab.py", ((0, "text"),)),
+    ("widgets/fast_plots.py", "_gated"):
+        ("widgets/fast_plots.py", ((1, "label"), (3, "reason"))),
+    # The plot's style note, stored and shown later.
+    ("widgets/fast_plots.py", "_say"):
+        ("widgets/fast_plots.py", ((0, "message"),)),
+    # Position 1 is the status style key ("ok", "error", "idle").
+    ("widgets/formula_editor.py", "_say"):
+        ("widgets/formula_editor.py", ((0, "text"),)),
+    # An escaped QTextBrowser paragraph, which the language pass does not
+    # translate.
+    ("widgets/gene_panel.py", "_say"):
+        ("widgets/gene_panel.py", ((0, "text"),)),
+    # A progress stage; the panel appends a row count to it before showing it.
+    ("widgets/measurement_scan_panel.py", "_say"):
+        ("widgets/measurement_scan_panel.py", ((0, "stage"),)),
+    # 1 is the accessible name, 2 the tooltip; 0 is the start value.
+    ("widgets/percentile_pair.py", "_field"):
+        ("widgets/percentile_pair.py", ((1, "name"), (2, "why"))),
+    ("widgets/regression_results.py", "say"):
+        ("widgets/regression_results.py", ((0, "text"), (1, "detail"))),
+    ("widgets/save_figure_dialog.py", "_colour_box"):
+        ("widgets/save_figure_dialog.py", ((1, "tooltip"),)),
+    ("widgets/setup_slides.py", "_say"):
+        ("widgets/setup_slides.py", ((0, "text"),)),
+    ("widgets/sweep_runs.py", "_say"):
+        ("widgets/sweep_runs.py", ((0, "note"),)),
+    # The volcano style panel: every control's caption is its label and its
+    # tooltip. The numeric arguments before it are ranges and steps.
+    ("widgets/volcano_explorer.py", "_check"):
+        ("widgets/volcano_explorer.py", ((0, "caption"),)),
+    ("widgets/volcano_explorer.py", "_combo"):
+        ("widgets/volcano_explorer.py", ((1, "caption"),)),
+    ("widgets/volcano_explorer.py", "_int_spin"):
+        ("widgets/volcano_explorer.py", ((2, "caption"),)),
+    ("widgets/volcano_explorer.py", "_line"):
+        ("widgets/volcano_explorer.py", ((0, "caption"),)),
+    ("widgets/volcano_explorer.py", "_optional"):
+        ("widgets/volcano_explorer.py", ((4, "caption"),)),
+    ("widgets/volcano_explorer.py", "_readonly"):
+        ("widgets/volcano_explorer.py", ((0, "caption"),)),
+    ("widgets/volcano_explorer.py", "_spin"):
+        ("widgets/volcano_explorer.py", ((4, "caption"),)),
+}
+
+
+def _helper_caption_arguments(
+    node: ast.Call, module: str, name: str,
+) -> Iterable[ast.AST]:
+    """Yield the caption arguments of a call to a keyed local helper.
+
+    :param node: the call.
+    :param module: the calling module's path relative to ``spacr/qt``.
+    :param name: the called name, as :func:`_call_name` reports it.
+    :returns: the argument nodes at the rule's caption positions, positional
+        or by keyword. Nothing for a helper without a rule in ``module``.
+    """
+    rule = _HELPER_CAPTION_RULES.get((module, name))
+    if rule is None:
+        return
+    for position, parameter in rule[1]:
+        if position < len(node.args):
+            yield node.args[position]
+        for keyword in node.keywords:
+            if keyword.arg == parameter:
+                yield keyword.value
+
+
 def _looks_translatable(text: str) -> bool:
     source = text.strip()
     if not source or source in _IDENTITY_TEXT:
@@ -3658,6 +3787,12 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             if not isinstance(node, ast.Call):
                 continue
             name = _call_name(node)
+            for argument in _helper_caption_arguments(
+                node, path.relative_to(ROOT / "spacr" / "qt").as_posix(), name,
+            ):
+                for value in _literal_strings(argument, constants):
+                    if _looks_translatable(value):
+                        found.add(value.strip())
             if not (
                 name in _TEXT_METHODS
                 or name in _TEXT_CONSTRUCTORS
