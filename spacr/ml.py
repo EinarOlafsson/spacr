@@ -5144,6 +5144,45 @@ def _name_deeper_key(parts):
     return ''
 
 
+
+def qc_graph_type_and_note(fallback: str = 'jitter_bar'):
+    """The graph type the regression QC figures should start on.
+
+    INSTRUCTION 293: the DEFAULT GRAPH TYPE setting decides what is drawn
+    FIRST, and the instruction says so "for EVERY graph in spaCR, not only
+    Regression". The three QC figures below hardcoded ``'jitter_bar'`` and
+    were named in 293's own WHAT STILL DOES NOT list, alongside the three
+    ``settings.py`` defaults and the Graph Builder's ``infer_kind``.
+
+    THE FALLBACK IS THE OLD LITERAL, deliberately. :func:`graph_types.
+    start_for` answers the CALLER'S OWN starting form when the user has
+    expressed no preference, so a user who has set nothing sees exactly the
+    figure they saw before. A preference nobody expressed must not move an
+    existing view -- which is the rule ``fast_plots`` already follows for
+    ``DEFAULT_MARK``.
+
+    THE TWO VOCABULARIES ARE NOT THE SAME, and this is where they meet.
+    ``graph_types`` stores ``'bar_jitter'``; :class:`spacr.plot.spacrGraph`
+    draws ``'jitter_bar'``. :func:`graph_types.mark_for` is the translation,
+    and skipping it hands matplotlib a name that its own error message lists
+    as unknown. Every type that FITS ``categorical_continuous`` translates to
+    something ``spacrGraph`` draws -- checked, all six.
+
+    The shape is ``categorical_continuous`` because all three figures are one
+    measurement grouped by ``plateID``.
+
+    :param fallback: what to draw when no preference is stored. The default
+        is the literal these figures used before this existed.
+    :returns: ``(graph_type, note)`` in ``spacrGraph``'s vocabulary, with the
+        note explaining any fallback so the caller can say it out loud.
+    """
+    from .graph_types import mark_for, start_for
+
+    chosen, note = start_for('categorical_continuous',
+                             fallback='bar_jitter')
+    return mark_for(chosen, fallback=fallback), note
+
+
 def _assign_prc_parts(df, column=schema.PRC_KEY,
                       columns=schema.WELL_KEY_COLUMNS):
     """Split ``df[column]`` into plate / row / column and assign them onto ``df``.
@@ -7298,12 +7337,16 @@ def _perform_regression(settings):
         data_path = os.path.join(res_folder, 'regression_data.csv')
         merged_df.to_csv(data_path, index=False)
         print(f"Saved regression data to {data_path}")
+
+        qc_graph_type, _qc_note = qc_graph_type_and_note()
+        if _qc_note:
+            print(f"QC figures: {_qc_note}")
         
         cell_settings = {'src':data_path,
                         'graph_name':'cell_count',
                         'data_column':['cell_count'],
                         'grouping_column':'plateID',
-                        'graph_type':'jitter_bar',
+                        'graph_type':qc_graph_type,
                         'theme':'bright',
                         'save':True,
                         'y_lim':[None,None],
@@ -7334,7 +7377,7 @@ def _perform_regression(settings):
                                 'graph_name':'wells_per_gene',
                                 'data_column':['grna_well_count'],
                                 'grouping_column':'plateID',
-                                'graph_type':'jitter_bar',
+                                'graph_type':qc_graph_type,
                                 'theme':'bright',
                                 'save':True,
                                 'y_lim':[None,None],
@@ -7354,7 +7397,7 @@ def _perform_regression(settings):
                                 'graph_name':'gene_per_well',
                                 'data_column':['gene_count'],
                                 'grouping_column':'plateID',
-                                'graph_type':'jitter_bar',
+                                'graph_type':qc_graph_type,
                                 'theme':'bright',
                                 'save':True,
                                 'y_lim':[None,None],

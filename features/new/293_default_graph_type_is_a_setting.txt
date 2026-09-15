@@ -127,3 +127,66 @@ not. The setting must dictate what is drawn from the start.
 
 THE SAME BEHAVIOUR FOR EVERY GRAPH IN SPACR, not only Regression: the setting
 chooses the initial form, and right-click still changes it afterwards.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE ml.py THIRD OF "WHAT STILL DOES NOT" IS DONE
+--------------------------------------------------------------------------------
+
+The note above named four holdouts and said "each is a one-line change once
+its owner points it at `graph_types.start_for`". The first is done:
+
+  * `spacr/ml.py:7306,7337,7357` -- the three regression QC figures, hardcoded
+    `'graph_type':'jitter_bar'`. They now read the setting through
+    `ml.qc_graph_type_and_note()`, and the fallback IS the old literal, so a
+    user who has chosen nothing sees exactly the figure they saw before.
+
+IT WAS NOT ONE LINE, AND THE REASON IS WORTH KEEPING. The two halves of spaCR
+do not spell graph types the same way:
+
+    graph_types stores        bar_jitter     box_jitter
+    spacrGraph draws          jitter_bar     jitter_box
+
+`mark_for` is the translation, and a substitution that skips it hands
+matplotlib a name that `plot.py:3963`'s own error message lists as unknown.
+All six types that FIT `categorical_continuous` were checked to translate to
+something `spacrGraph` draws.
+
+The shape is `categorical_continuous` for all three: one measurement grouped
+by `plateID`.
+
+EIGHT TESTS, three mutations, each caught:
+
+    skipping mark_for        3 failed   (the vocabulary trap above)
+    dropping the fallback    2 failed   (a preference nobody expressed moves
+                                         an existing view)
+    default_for not start_for 2 failed  (the user's choice ignored)
+
+AND ONE OF THOSE TESTS BRIEFLY "FOUND" A DEFECT THAT WAS ITS OWN. It patched
+`graph_types.chosen_for` to return "scatter" and then asserted that the QC
+figures were handed `points`, which `spacrGraph` cannot draw. But the rule
+"a saved choice that does not FIT the data is not a choice for it" lives
+INSIDE `chosen_for`, so patching it out asserted about a state the
+application cannot reach. Patching the PREFERENCE instead exercises the real
+rule, and the real rule is correct: a saved `scatter` is dropped and the
+figures keep their own form.
+
+--------------------------------------------------------------------------------
+THE THREE THAT REMAIN
+--------------------------------------------------------------------------------
+
+  * `spacr/settings.py:1029,5613,5790` -- `setdefault('graph_type',
+    'jitter_box')` for the pipeline figures. NOT TAKEN TONIGHT: the other
+    session has settings.py open for a new key in the same window, and two
+    edits to one file across two sessions is the collision this protocol
+    exists to avoid. It is the same shape as the ml.py fix, with
+    `fallback='jitter_box'` to hold existing behaviour.
+  * `spacr/qt/widgets/graph_spec.py:455` `infer_kind` -- the Graph Builder
+    infers BOX for one categorical against one continuous and never asks.
+    Different in KIND from the other three: `infer_kind` answers "what kind of
+    chart do these columns imply", which is a question about the DATA, while
+    the setting answers "which of the fitting types do I want first". Those
+    can disagree honestly, so this one needs a decision before a patch, not
+    just a call site changed.
+  * `spacr/plot.py` `spacrGraph` -- takes whatever it is handed, which is
+    correct for a drawing primitive. It is on the list as the place the
+    vocabulary lands, not as a caller to change.
