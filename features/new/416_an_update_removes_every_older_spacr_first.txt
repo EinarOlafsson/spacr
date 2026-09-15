@@ -2,8 +2,11 @@
 AN UPDATE REMOVES EVERY OLDER spaCR FIRST, ON EVERY SYSTEM
 ================================================================================
 
-Status:    OPEN, filed 2026-09-15. BLOCKING USERS: upgrading from a 1.5.0.1
-           desktop install is currently impossible.
+Status:    IN PROGRESS -- slice 1 built 2026-09-15 on wip/416-find-delete-install
+           (ec25de92d..fa408fdb6 and the commit adding this section; not
+           landed, not released). STILL BLOCKING USERS: a 1.5.0.1 machine is
+           unblocked only by installers built from this code, and nothing
+           here has run on a real Windows or Mac.
 Requested: 2026-09-15, by the maintainer, in these words (item 3 of three):
            "when updating spacr, the updater must first remove the older
            version of spacr, from all locations, on all operating systems, so
@@ -124,3 +127,207 @@ HOW TO KNOW IT WORKED
     HOME, registry via an abstraction) and require the finder to list it and
     the remover to leave nothing behind but user data.
   * The maintainer's own blocked machine updates.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- SLICE 1 BUILT
+--------------------------------------------------------------------------------
+
+Branch wip/416-find-delete-install, from b03e9740b, not pushed:
+  ec25de92d  the item as filed (byte-identical to nightly's copy)
+  1add6803c  spacr/install_cleanup.py; both installers find, delete, install
+  fa408fdb6  the in-app update finds, shows, deletes, installs
+  (this section is the commit after them)
+
+LAYOUTS PER TAG, read with `git show <tag>:packaging/...`. v1.5.0.1 and
+v1.5.0.4 have identical packaging; later tags change only what is listed.
+
+  v1.5.0.1 / v1.5.0.4
+    Windows online   NSIS InstallDir $LOCALAPPDATA\SpaCR (capital S): venv\,
+                     python\, bootstrap\uv.exe, cache\, launch_spacr.pyw,
+                     spacr.cmd, install.log, spacr.ico, Uninstall.exe.
+                     Start Menu\Programs\spaCR\{spaCR.lnk, Uninstall spaCR.lnk},
+                     Desktop\spaCR.lnk, HKCU ...\CurrentVersion\Uninstall\spaCR,
+                     HKCU\Software\spaCR value InstallRoot.
+    Windows offline  $PROGRAMFILES64\SpaCR (spacr.exe, _internal, Uninstall.exe)
+                     and $SMPROGRAMS\SpaCR.lnk; no registry entry.
+    unix online      ${XDG_DATA_HOME:-~/.local/share}/spacr: venv/, python/,
+                     bootstrap/uv, cache/, install.log, uninstall-spacr.sh
+                     (Linux only). Launcher ~/.local/bin/spacr (Linux) or
+                     /usr/local/bin/spacr (macOS); spacr.desktop (Linux). Run
+                     as root on macOS, the root is
+                     /Library/Application Support/SpaCR.
+    macOS package    /Applications/SpaCR.app; /Library/Application Support/SpaCR
+                     (install-online.sh, uninstall-spacr.sh,
+                     install-for-user.sh); /usr/local/bin/spacr -> the app; the
+                     per-user runtime ~/Library/Application Support/SpaCR (venv,
+                     python, bootstrap, cache, install.log, .installing lock).
+    macOS disk image /Applications/SpaCR.app (PyInstaller).
+    Debian package   build_debian.sh via stdeb: python3-spacr (or spacr),
+                     /usr/lib/python3/dist-packages/spacr, /usr/bin/spacr.
+  v1.5.0.5  every capital-S name becomes spaCR (app, support folder, runtime,
+            offline Windows and macOS). The PowerShell default root becomes
+            $LOCALAPPDATA\spaCR, but NSIS still installs to ...\SpaCR, which is
+            the same folder on Windows. The Linux menu entry is renamed
+            io.github.olafssonlab.spacr.desktop. install-profile.json appears
+            beside the venv on both platforms, installer_messages.sh in the
+            macOS support folder, nsis-bootstrap-status.txt in the root after
+            a failed install. install_from_source.sh makes editable checkouts.
+  v1.5.0.6  no layout change: the unix installer asks y/N to remove the venv,
+            python and cache of the SAME root only (replaced by this slice).
+  v1.5.0.7  no installer layout change.
+  CI (online-installers.yml) only ever built the three online installers. The
+  offline Windows, macOS and Debian builders were never run by a release, but
+  are covered anyway.
+
+FOUND WHILE READING: the NSIS uninstaller at every tag, and on nightly, ran
+DeleteRegKey HKCU "Software\spaCR". Registry names ignore case, so that is the
+key QSettings("spacr", "qt") lives in: uninstalling spaCR on Windows wiped the
+user's settings. Fixed in spacr_online_installer.nsi (delete the InstallRoot
+value, then the key only if empty); the remover does the same.
+
+WHAT THE FINDER AND REMOVER COVER -- spacr/install_cleanup.py, standard
+library only, imports nothing from spaCR, one implementation for both entry
+points.
+  * find_old_installs: every layout above. On Windows, the registry (the
+    Uninstall key's InstallLocation and Software\spaCR InstallRoot) plus the
+    default roots; both capitalisations everywhere, deduplicated by device and
+    inode so a case-insensitive volume lists one folder once; a registered
+    copy whose folder is already gone. A launcher, menu entry or shortcut is
+    claimed only when it names the copy's root, so a `spacr` command or
+    .desktop that starts a conda environment is left alone -- exactly the
+    case on the maintainer's workstation. User environments come from
+    ~/.conda/environments.txt, common conda bases and their envs/,
+    ~/.virtualenvs, ~/.venvs, ~/venvs, pyenv, pipx, the user site and the
+    running environment; editable installs are reported as checkouts. A
+    record carries kind, layout, platform, root, version, launchers,
+    shortcuts, menu_entries, registrations, python, running, needs_admin and
+    notes (for example "its own uninstaller is missing").
+  * remove_install never runs the old uninstaller. It deletes the folder,
+    launchers, shortcuts, menu entries, app bundle and registry entries; a
+    .deb only through dpkg, reported as "needs administrator rights; run: sudo
+    dpkg -r python3-spacr" when sudo is not allowed. It refuses shared folders
+    (home, applications, ~/.local/bin, Program Files, /Applications ...) and
+    keeps ~/.spacr, ~/.cache/spacr, ~/.local/state/spacr, ~/spacr-demos,
+    ~/spacr-tutorials, the Hugging Face cache, ~/.config/spacr,
+    com.spacr.qt.plist and the registry settings key; `keep` spares the new
+    install's own log. A user environment is touched only when ticked, and
+    then only `pip uninstall spacr` runs in it -- never in the running
+    environment. Checkouts are skipped. The running copy is refused ("in use;
+    it is removed after spaCR closes"). It returns removed, failed (with the
+    reason) and skipped.
+  * run_update_sequence: find, then delete, then install; install is not
+    called when any installer-made copy failed.
+  * start_update_helper, for a running spaCR that is itself installer-made:
+    writes plan.json and a copy of the module to a temporary folder, picks an
+    interpreter outside the copy (the current one when it survives, otherwise
+    the copy's uv copied out, running `uv run --python 3.12`), and spawns it
+    detached. The helper waits for the PID, downloads the release installer
+    before deleting anything, deletes every old copy including the one that
+    was running, runs Setup.exe /S /D=<root>, the .run with --install-root
+    <root> --no-launch --skip-system-deps, or opens the .pkg, then relaunches,
+    and writes ~/.spacr/logs/update.log.
+
+READ-ONLY DRY RUN ON THIS WORKSTATION (find only, nothing removed): the
+1.5.0.1 Linux copy at ~/.local/share/spacr with ~/.local/bin/spacr (its .desktop
+now starts a conda environment and was correctly not claimed); the conda
+environments methods (1.1.1) and spacr_new (1.5.0.4) listed as the user's;
+four editable checkouts skipped.
+
+WHAT THE INSTALLERS NOW DO
+  install_spacr_unix.sh (the .run, and the macOS package's install-online.sh):
+  starts its log in the root, fetches uv and a private Python into a temporary
+  folder, writes the module there (render.py embeds it in the standalone
+  script between the @SPACR_CLEANUP_MODULE_BEGIN@ and END markers), runs
+  `install_cleanup.py remove` keeping install.log and the .installing lock
+  (and, from the package's first-launch helper, the package's own app, link
+  and support folder), with --sudo in a terminal; exits 6 with a message if an
+  installer-made copy remains; only then moves uv into bootstrap/ and installs
+  as before.
+  install_spacr_windows.ps1 does the same, keeping install.log, spacr.ico and
+  nsis-bootstrap-status.txt; NSIS ships install_cleanup.py beside it.
+  The downloads come before the delete, so a network failure deletes nothing;
+  a failure after the delete (resolver, validation) leaves no spaCR, which is
+  the cost of the required order.
+
+IN-APP: Check for updates -> Yes -> find (in a worker) -> a dialog listing the
+copies to remove, with a tick box per environment the user made ->
+run_update_sequence (delete, then run_pip_upgrade) in a worker, or
+start_update_helper and close when the running copy is installer-made.
+tests/qt/conftest.py stops every Qt test from reaching the real finder,
+remover or helper.
+
+TESTS
+  tests/test_install_cleanup.py (68): every layout at every tag found and
+  removed down to user data only; a 1.5.0.1 with no Uninstall.exe or
+  uninstall-spacr.sh; the workstation case; refusals; registry settings with
+  and without; a .deb without sudo; keep; the running copy; environments
+  listed, ticked and running; a checkout; the find -> delete -> install order;
+  no install after a failed delete, with the control that a failed user
+  environment does not block; helper plan order, interpreter outside the copy,
+  the no-helper case, the Windows plan; run-plan order, real removal before
+  install, no install after a failed delete, no delete after a failed
+  download, no change when spaCR stays open; the command line in a sandbox;
+  the rendered .run carries the module and parses; the rendered .run, run with
+  a fake curl and uv, shows the old venv is gone when `uv pip install` starts;
+  the static order of the PowerShell and NSIS scripts.
+  tests/qt/test_an_update_removes_older_copies_first.py (9).
+  Existing tests that still pass: the Qt update tests (16),
+  test_online_installers (67), test_the_name_is_spaCR.
+  Negative controls proven by mutation (each mutation broke one guarantee, the
+  named tests failed, the file was restored): install despite a failed delete;
+  claim any launcher; delete anything; uninstall from an unticked environment;
+  wipe the settings key; delete the running copy; ignore keep; the installer
+  skips the step. 8 of 8 caught.
+  RED UNTIL THE CATALOG PASS (caused here): test_docstring_correctness x2,
+  test_api_i18n_extractor x2, test_documentation_i18n x1 (API inventory
+  10,534 -> 10,542), qt/test_i18n_caption_ratchet x2 (3 captions).
+  ALREADY RED AT b03e9740b (not caused here): test_nested_functions_are_
+  documented (preferences.py _budget_follows_level), test_i18n_coverage_audit
+  x2.
+
+OWED
+  Public API symbols (8; they need API catalog entries in nine languages):
+    spacr.install_cleanup, InstallRecord, RemovalReport, RemovalReport.ok,
+    find_old_installs, remove_install, run_update_sequence,
+    start_update_helper.
+  Runtime strings in spacr/qt/app.py: "Remove older spaCR copies"; "These
+    older copies of spaCR will be removed before the new version is
+    installed:"; "Environments you made. Tick one to uninstall spaCR from it;
+    the environment itself is kept."; "Remove and update"; "spaCR will close,
+    remove the older copies, install {version} and start again."; "The update
+    stopped before installing, because an older copy of spaCR could not be
+    removed:".
+  Reason strings the module returns, shown in that dialog and the logs: "needs
+    administrator rights"; "in use; it is removed after spaCR closes"; "source
+    checkout; update it with git pull"; "your environment; not ticked"; "kept:
+    preferences and user data"; "kept: part of the new installation";
+    "refused: a shared folder, not a spaCR installation"; "refused: not
+    recognisably a spaCR installation"; "its own uninstaller is missing"; "no
+    Python outside the installation could be found to finish the update; run
+    the new installer instead".
+  Installer strings, English only, which belong in packaging/i18n: the dry-run
+    line, and "Installation stopped: an older spaCR could not be removed (see
+    above). Close any running spaCR and run the installer again." NSIS
+    SPACR_NSIS_FAILED still says the existing installation was preserved,
+    which is no longer true. The old_install_* keys are now unused.
+
+WHAT REMAINS
+  * Real runs. Nothing here executed PowerShell or NSIS (there is no pwsh on
+    this machine), a real uv (whether `uv python find --managed-python` and
+    UV_PYTHON_CACHE_DIR behave as used with 0.11.32), a real Windows registry,
+    dpkg, or a Mac. HOW TO KNOW IT WORKED still needs a 1.5.0.1 install (and a
+    broken one) updated on each OS, and the maintainer's machine.
+  * The maintainer's blocked machine can be fixed only by a NEW release's
+    installer: 1.5.0.1's own updater cannot be changed.
+  * The installers list user environments but offer no tick box (an NSIS page
+    or a terminal prompt); only the in-app path uninstalls spaCR from them.
+  * In-app helper: the downloaded installer is not checksummed; the macOS
+    .pkg path waits on the Installer window and cannot relaunch reliably; the
+    helper has never run end to end.
+  * macOS: a root-owned /Applications app on a case-sensitive volume needs
+    administrator rights; the package's postinstall, which runs as root, could
+    run the remover for system paths. Package receipts (pkgutil --forget) are
+    not removed.
+  * Not found: an unzipped PyInstaller Windows build anywhere, a unix
+    --install-root with no launcher, machine-wide conda on Windows.
+  * docs/source/installer_guide.rst does not describe the new step.
