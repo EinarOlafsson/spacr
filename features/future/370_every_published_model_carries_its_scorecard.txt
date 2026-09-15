@@ -22,9 +22,10 @@ Status:    THE MEASUREMENT HALF IS BUILT -- `spacr/scorecard.py`, by the
                boundary F1, AUPRC, splits/merges, `HoldoutScore` and the
                writer.
              * API PAGE -- `docs/source/_generated/model_zoo_table.rst` already
-               renders a "Hold-out performance" column with real numbers:
-               `toxoplasma_pv_v1` reads "F1 0.867 against 0.713 for stock
-               cpsam, at IoU 0.5".
+               renders a "Hold-out performance" column with real numbers.
+               (It once read "F1 0.867 against 0.713" for `toxoplasma_pv_v1`,
+               which was ROUND 1's number; corrected 2026-09-15, see the last
+               section.)
              * HUGGING FACE -- the catalogue publishes to
                `einarolafsson/models` via `REMOTE_CATALOGUE_URI`.
 
@@ -938,3 +939,62 @@ HOW TO CURATE
   Still open: the curation itself, then toxoplasma_plaque_v1's scorecard on
   the curated truth, placement and publishing. The scratchpad copy is now
   redundant and goes when the scratchpad does.
+2026-09-15 -- BOTH WRONG RECORDS CORRECTED ("Correct both now")
+--------------------------------------------------------------------------------
+
+The maintainer answered "Correct both now" (question tool). These are the two
+records listed above under "TWO THINGS ALREADY IN THE TREE ARE WRONG". Every
+number below was re-read from its source file, not copied from this item.
+
+1. THE ZOO ROW NOW DESCRIBES THE CHECKPOINT IT SHIPS.
+   `BUNDLED_REMOTE_MODELS["toxoplasma_pv_v1"]` has always had round 2's
+   sha256 (182d8cf6..., re-hashed today from models/cpsam_v2_toxo_r2; round
+   1's models/cpsam_v2_toxo is 070d1dfc...). Its text was round 1's. Sources
+   are under /mnt/wd4tb/af3/projects/toxoplasma_pv_model/code/
+   toxoplasma_segmentation/:
+
+     229 training images, 104 round-1 + 125 newly curated, 11 held-out wells
+                                     round2.log ("TRAIN: 104 NAS + 125
+                                     curated-new = 229")
+     F1 0.864 (r2), 0.867 (r1), AJI 0.809, all on the same 11 wells
+                                     metrics/round2_vs_round1.csv
+     stock cpsam_v2 on those 11: F1 0.713, AJI 0.426
+                                     metrics/round2.log baselines (also
+                                     metrics/vanilla_vs_finetuned.json)
+     falls above IoU 0.8 (F1 0.675 at 0.8, 0.319 at 0.9)
+                                     metrics/round2_heldout_metrics.csv
+     literature tie, F1 0.403 vs 0.400
+                                     scratchpad sc370/scorecard_toxoplasma_pv_
+                                     v1_vs_cpsam_v2.csv (the 2026-09-14 set)
+
+   "2 datasets" follows the rule the round-1 row used: the round-1 pair folder
+   and the new/ originals. The 125 curated fields come from six RH and ME49
+   experiments. A new note says the held-out literature scorecard is pending
+   the stock-seeded re-curation. The same note says that, on the current
+   literature set, v1 ties stock Cellpose-SAM on detection.
+   Regenerated with the generator's own functions: model_zoo_table.rst,
+   model_zoo_sections.rst, and the marked block in README.rst and the nine
+   localized READMEs. The README's IoU example quoted "F1 0.867", so that
+   number changed in all ten READMEs (0,867 in pt). The README contract
+   protects only literals, roles and URLs, so no prose was re-translated. The
+   row is not in either catalog lane: `screens/model_zoo.py` shows
+   `describe()` untranslated, and the constant is not a docstring.
+
+   NOT CORRECTED, because publishing is the maintainer's call: the Hugging
+   Face model card for einarolafsson/toxoplasma-pv-segmentation-cpsam still
+   says "115 image/mask pairs (104 train / 11 test)" and F1 0.867.
+
+2. THE MISNAMED SCORECARD CSV IS RENAMED, AND ITS CONTENTS ARE UNCHANGED.
+     old  toxoplasma_pv_model/holdout_round3/scorecard_toxo_pv_v1.csv
+     new  toxoplasma_pv_model/holdout_round3/
+          scorecard_toxo_pv_round1_on_r2_training_stems.csv
+          (sha256 39825af1..., identical before and after)
+   A NOTE.txt of the same stem sits beside it. It says the CSV scored round 1
+   (score370.py loaded models/cpsam_v2_toxo), and that it is not a hold-out:
+   holdout.json's 366 stems equal the 366 done stems of r2's curate_status.csv,
+   and round 2 trained on 125 of them. Before the rename, nothing in spacr/,
+   docs/, packaging/ or the Hugging Face catalogue (whose models list is
+   empty) named the old file, and nothing under /mnt/wd4tb/af3/projects did
+   either. The 2026-09-11 section above, "VERIFIED END TO END AGAINST THE
+   REAL SCORECARD", read this file: it proves the tooltip plumbing, and says
+   nothing about v1's accuracy.

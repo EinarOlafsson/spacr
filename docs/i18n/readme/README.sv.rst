@@ -492,8 +492,8 @@ spaCR skickar en katalog med utbildade modeller och hämtar dem på begäran. Ö
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -511,7 +511,7 @@ Varje figur ovan mäts på bilder modellen aldrig såg i träning.
 
 **F1** är de två kombinerade, och citeras eftersom var och en av dem är trivialt gamed - rapportera en omisskännlig plakett för nära perfekt precision, eller varje mörk blob för nära-perfect recall. Som du hellre skulle förlora beror på analysen, och räkning är vanligtvis bättre betjänas av over-calling: plaque-modellen accepterades med precision 0.858 med reclosure 0.811 under en tidigare runda på 0,939 och 0,631.
 
-**IoU**, intersection over union, is how much a predicted object and the real one overlap, divided by the area they cover together. It is the ruler the rest are read against, so a score means nothing without its threshold: "F1 0.867 at IoU 0.5" counts a vacuole as found when the two outlines agree over half their combined area.
+**IoU**, intersection over union, is how much a predicted object and the real one overlap, divided by the area they cover together. It is the ruler the rest are read against, so a score means nothing without its threshold: "F1 0.864 at IoU 0.5" counts a vacuole as found when the two outlines agree over half their combined area.
 
 **mAP50** och **mAP50-95** tillhör detektorn. Den första frågar om brunnarna hittades; den andra upprepar det över tio tröskelvärden från 0,5 till 0,95, så den frågar också hur tätt varje låda dras. Klyftan mellan dem är placering, inte detektion.
 

@@ -558,8 +558,8 @@ because a truncated or substituted checkpoint cannot be told from the real one.
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -586,7 +586,7 @@ was accepted at precision 0.858 with recall 0.811 over an earlier round at
 
 **IoU**, intersection over union, is how much a predicted object and the real
 one overlap, divided by the area they cover together. It is the ruler the rest
-are read against, so a score means nothing without its threshold: "F1 0.867 at
+are read against, so a score means nothing without its threshold: "F1 0.864 at
 IoU 0.5" counts a vacuole as found when the two outlines agree over half their
 combined area.
 

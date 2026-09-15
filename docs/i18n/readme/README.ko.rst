@@ -492,8 +492,8 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -511,7 +511,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 **F1**은 두 가지를 결합하고 각각 삼각형으로 재생되어 있기 때문에 인용됩니다 - 거의 완벽한 정확도를위한 하나의 혼동 할 수없는 플레이트를보고, 또는 거의 완전한 추억을위한 모든 어두운 블로브.당신이 잃어 버리는 것은 추측에 따라 달라집니다, 그리고 계산은 일반적으로 더 나은 과도한 호출에 의해 제공됩니다 : 플레크 모델은 0.858의 정확도에서 0.811의 이전 라운드에서 0.939 및 0.631의 추억으로 받아 들여졌습니다.
 
-**IoU**, 연합 위의 교차점은 예측된 개체와 실제 하나가 서로 덮는 영역에 의해 분할되는 양입니다. 그것은 나머지는 반대로 읽을 수있는 통치자입니다, 그래서 점수는 그것의 한계없이 아무것도 의미하지 않습니다 : "F1 0.867에서 IoU 0.5"는 두 출력 라인이 결합 된 영역의 절반 이상에 동의 할 때 발견 된 바구니를 계산합니다.
+**IoU**, 연합 위의 교차점은 예측된 개체와 실제 하나가 서로 덮는 영역에 의해 분할되는 양입니다. 그것은 나머지는 반대로 읽을 수있는 통치자입니다, 그래서 점수는 그것의 한계없이 아무것도 의미하지 않습니다 : "F1 0.864에서 IoU 0.5"는 두 출력 라인이 결합 된 영역의 절반 이상에 동의 할 때 발견 된 바구니를 계산합니다.
 
 **mAP50** 및 **map50-95**은 탐지기에 속합니다. 첫 번째는 풀이 발견되었는지 물어보며, 두 번째는 0.5에서 0.95까지의 10 개의 경계선을 통해 반복하므로 각 상자가 얼마나 밀접하게 끌어 들이는지도 물어보고 있습니다.
 
