@@ -948,3 +948,20 @@ FRESH-COPY RECAPTURE FAILED, AND IT HELD THE SHARED GPU LOCK FOR TWO IDLE HOURS.
   <scratchpad>/358_mask/run_capture_guarded.sh.
   RETRY QUEUED: mask_preview_gpu_fresh2_2026-09-15 on display :358 with that
   watchdog. Same guard, same fresh stage.
+  RETRY #3 SUCCEEDED: mask_preview_gpu_fresh2_2026-09-15 (fresh copy,
+    refresh_2026-09-15_cpu; guard passed). Watchdog wrapper on display
+    :358. Lock 07:14:16, exit 0 at 07:15:16 (60 s on the lock). No X11
+    break, no leftover processes, example folder unchanged. The recorder
+    had waited in line behind two other sessions' GPU jobs (07:14 start).
+    * 1.5.0.7 at dec126440, completed. Source = the real example path;
+      shipped pack thresholds (flow 100, cellprob -1), Live default 30 px.
+    * Counts 105 -> 52 at 510 px -> 105; 36 after 30 -> 60. The independent
+      recount matches. preview_cell.npy and the diameter variant are
+      BYTE-IDENTICAL to 15b: the stale run folder never changed the masks,
+      only the on-screen warning.
+    * FRAMES VIEWED 05, 07, 09, 10, 12: no stale-run warning in any of
+      them. Frame 07 shows Source and "Found cell=105", 09 "Min area 510 /
+      cell=52", 10 "cell=105" and 12 "Diameter 60.0 px / cell=36".
+    * Copied into refresh_2026-09-09/captures/ (23 files, every sha256
+      identical) for composition. The 15b and #1 captures stay as evidence
+      and are NOT staged.
