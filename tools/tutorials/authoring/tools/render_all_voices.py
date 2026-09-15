@@ -353,6 +353,11 @@ def mastering_config(lesson_id: str, language: str, voice: str) -> dict:
         # Measured AAC overshoot was -0.6 dBFS after the normal encodes.
         # Keep the -1 dBFS acceptance gate and attenuate only this track.
         result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("07_mask", "en", "bm_fable"):
+        # 2026-09-15 refresh (105/52/36 narration): decoded AAC true peak was
+        # -0.8 dBFS after all three normal encodes. Same voice, same repair
+        # as Map above; the -1 dBFS gate still decides acceptance.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
     return result
 
 
