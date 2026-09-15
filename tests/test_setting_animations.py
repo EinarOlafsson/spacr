@@ -90,11 +90,19 @@ def test_mapped_keys_are_real_settings_or_explicit_align_controls():
     from spacr.settings import descriptions, expected_types, tooltips
 
     known = set(expected_types) | set(descriptions) | set(tooltips)
-    # `blend` was here until it was declared in `spacr.settings` with a
-    # type and a tooltip; see CUSTOM_ALIGN_CONTROLS in
-    # tests/test_setting_animations_page_is_generated.py.
-    custom_align_controls = {"overlap"}
+    # `blend` left this set when it was declared in `spacr.settings` with a
+    # type and a tooltip, and came back when d0717ea53 removed that
+    # declaration with the old OPS engine's settings; see
+    # CUSTOM_ALIGN_CONTROLS in tests/test_setting_animations_page_is_generated.py.
+    custom_align_controls = {"overlap", "blend"}
     assert set(animations_by_setting()) - known == custom_align_controls
+
+    # An exception is only honest while something reads the key: both are
+    # alignment controls of `spacr.align`, which the Align & Stitch screen
+    # drives.
+    from spacr.align import default_settings
+
+    assert custom_align_controls <= set(default_settings())
 
 
 def test_docs_gallery_has_one_stable_anchor_and_image_per_animation():
