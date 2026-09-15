@@ -1257,3 +1257,20 @@ RE-RUN COMMANDS FOR WHAT FAILED TONIGHT (all later succeeded)
     render_all_voices.mastering_config() (as ae4f80b00), in BOTH copies,
     then re-run without --force.
   * Library checkpoint: --held 71_investigate_hit, not all four HELD ids.
+
+--------------------------------------------------------------------------------
+2026-09-15 (08:20 UTC) -- 07_MASK SCENE 10 NOW NARRATES A BUG THAT IS FIXED
+--------------------------------------------------------------------------------
+
+The batch overlay loop in spacr/core.py (preprocess_generate_masks, plot=True)
+no longer plots merged/'s sidecars: `_overlay_candidates` returns only the
+`.npy` stacks, the same set the test-mode example count already counted, so
+.spacr_plane_layout.json is never handed to plot_image_mask_overlay as an
+image. Test: tests/test_the_overlay_loop_plots_only_image_stacks.py (red
+against the old listing, green after).
+
+OWED FOR THE LESSON: scene 10 and its "STILL fails" prerequisite describe the
+old failure, so they are now inaccurate. Re-capture scene 10's overlay step on
+a build with this fix, change the narration to what the plots show, and run
+the 07_mask translation -> voices -> master -> rendition -> candidate chain
+again for that scene (the resume sequence above covers the commands).
