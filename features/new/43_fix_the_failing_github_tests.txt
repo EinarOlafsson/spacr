@@ -1209,3 +1209,33 @@ Minimum dependencies failed. Read from their logs:
   the crashing run as "short of 7%" because it keyed on reaching 8%, and a crash
   stops a run at 7%: a crash is the event regardless of depth. Report reached
   depth beside every crash count.
+
+  CI ON 3f27b926a (tests run 34961482728, 2026-09-15 11:06 UTC). docs:
+  SUCCESS -- the third consecutive nightly head green on the docs lane. The
+  coverage shards carried six real reds and one crash, divided between the two
+  sessions by the files a fix is likely to touch:
+
+      home session (branch wip/43-reds-3f27)
+        shard 10  test_the_name_is_spaCR::test_no_file_mis_cases_the_name
+        shard 0   test_batch::test_validating_a_queue_pulls_no_torch_or_cellpose
+                  ("assert not ['PySide6']": validating a queue imports Qt)
+        shard 7   test_regression_results_panel::...::
+                  test_it_is_fast_enough_to_recolour_interactively
+                  ("the volcano took 54 ms (matplotlib: 115)") -- the timing
+                  family; the same-process-control and negative-control rule
+                  applies
+      work session (settings lane, beside 403)
+        shard 7   test_a_bar_at_a_mean_hides_the_spread::
+                  test_every_module_default_agrees_with_the_function_default
+                  ("no module sets graph_type any more")
+        shard 2   test_notebook_settings::
+                  test_the_committed_notebooks_match_what_the_tool_generates
+                  (STALE: tools/build_notebook_settings.py)
+        shard 1   test_settings_tooltip_quality::
+                  test_real_default_claims_have_no_unrecorded_drift (667 == 666)
+
+  SEVENTH CRASH SITE, SAME FAMILY: shard 0, "Fatal Python error: Segmentation
+  fault", worker gw0 node down while running
+  tests/qt/test_dnd_dropzone.py::test_dropping_a_settings_csv_imports_it_and_accepts_the_drop.
+  As with the six before it, the site names where the worker died, not what
+  killed it; nothing in that test is attributed.
