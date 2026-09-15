@@ -223,6 +223,7 @@ def test_the_selectors_wear_the_live_toggle_look(qtbot, app_key, build,
     have gone red the day Zoom started reaching this text, which is what
     happened.
     """
+    from spacr.qt.preferences import FONT_SCALE_MIN
     from spacr.qt.theme import FONT_SIZE, active_palette, font_px
     from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
 
@@ -231,7 +232,7 @@ def test_the_selectors_wear_the_live_toggle_look(qtbot, app_key, build,
     qtbot.addWidget(live)
     palette = active_palette()
     body_px = font_px("body")
-    assert body_px >= FONT_SIZE["body"] * 0.75, (
+    assert body_px >= font_px(FONT_SIZE["body"], FONT_SCALE_MIN), (
         "font_px('body') is no longer derived from FONT_SIZE['body']")
     controls = [panel._fov_box, panel._channel_box,
                 panel._seq_btn if app_key == "timelapse" else panel._pick_btn]
