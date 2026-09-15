@@ -46,7 +46,11 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # source value and still pass the current syntax, semantic, script and
     # exact-copy gates, so a record that has drifted fails here rather than
     # being absorbed by a looser count.
-    assert len(reviewed) == 118
+    # 118 -> 134 on 2026-09-15, +16/-0: the live magnifier's captions (407),
+    # written by hand as reviewed records so its first catalog build needed
+    # no model. 'Cellpose' has no record: a name is kept as it is by the
+    # gates, and an identity record is rejected as an exact copy.
+    assert len(reviewed) == 134
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -115,7 +119,11 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # CV) rather than the verb the Run button means, and a rebuild would put
     # the noun back from the translation cache, so the fix is claimed as a
     # record rather than hand-edited into the catalog (items 397, 406).
-    assert len(reviewed) == 99
+    #
+    # 99 -> 116 on 2026-09-15, +17/-0: the magnifier's sixteen captions
+    # (407), plus 'Overlap', which read 'Rupture' (a break) on the same card
+    # and is now 'Chevauchement'.
+    assert len(reviewed) == 116
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

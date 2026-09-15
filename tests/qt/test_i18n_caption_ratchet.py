@@ -288,7 +288,16 @@ EXTERNAL_SOURCE_COUNTS = {
     #   regression-model menu, which `settings_model` DECLARED for exactly
     #   this purpose and which nothing consumed -- so all 21 read English in
     #   all nine locales.
-    "UI": 3291,
+    #
+    # 3,291 -> 3,308 on 2026-09-15, +17/-0, and only UI moved: the live
+    # magnifier in Make Masks (407) -- its tool-row button, card title, the
+    # Classical/Cellpose and Clip/Replace choices ('Skip' is a compact row),
+    # 'Updating…', four status lines and six tooltips. Every one reaches the
+    # catalog through setText/setToolTip/addItem literals in make_masks.py,
+    # and each has a reviewed record in all nine languages except the name
+    # 'Cellpose'. Five status TEMPLATES with values filled in are not
+    # extracted at all; they are item 65's helper problem, not new rows.
+    "UI": 3308,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -318,8 +327,32 @@ EXTERNAL_SOURCE_COUNTS = {
 # leaves and ('UI', 'gRNA') arrives. The UI pair cancels in the count and does
 # not cancel here -- which is the point of pinning identities and not just
 # totals.
+# Moved again on 2026-09-15 with the UI count above, for the live magnifier
+# (407): 17 record identities change, 17 arriving and 0 leaving, all UI:
+#
+#   ('UI', 'Cellpose')        ('UI', 'Classical')      ('UI', 'Clip')
+#   ('UI', 'Replace')         ('UI', 'Magnifier')      ('UI', 'Live magnifier')
+#   ('UI', 'Updating…')
+#   ('UI', 'Magnifier off. The objects it added stay in the mask.')
+#   ('UI', 'Magnifier on: a click adds the objects outlined in the box; ...')
+#   ('UI', 'Magnifier: nothing to add — the box outlines no object, ...')
+#   ('UI', 'Segments the region under the mouse. A click adds the ...')
+#   ('UI', 'How many times larger than the canvas the box draws ...')
+#   ('UI', 'How readily an object is accepted. Raise it to take in ...')
+#   ('UI', 'Show a box under the mouse with the region around it ...')
+#   ('UI', 'Side of the square region the model segments, in image ...')
+#   ('UI', 'What a new object does where the mask already has an ...')
+#   ('UI', 'Which model segments the region in the box. Classical ...')
+#
+# PROVED, NOT ACCEPTED: the digest recomputed with this test's own formula
+# over today's identities MINUS those seventeen is
+# f576cb08f184154f97bb47c8e8fb2af1013f17efdb419a70ad825093710f0dcf, the
+# previous pin byte for byte, and so is the digest over the identities of the
+# committed en.py before the rebuild. Nothing else arrived and nothing left;
+# the fourteen label corrections that rode with these records changed
+# translations of existing rows, which are values, not identities.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "f576cb08f184154f97bb47c8e8fb2af1013f17efdb419a70ad825093710f0dcf"
+    "dacb857799ad804ebaa98889bba0d4a639bbfc00d09c1ab219fe706e3df9c708"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

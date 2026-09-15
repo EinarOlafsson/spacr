@@ -51,17 +51,37 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,662 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
+| Language | Reviewed runtime records | Of 5,679 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.08% | 5,544 | 469 | 4.45% | 10,064 |
-| German | 85 | 1.50% | 5,577 | 426 | 4.04% | 10,107 |
-| Spanish | 99 | 1.75% | 5,563 | 287 | 2.72% | 10,246 |
-| Simplified Chinese | 349 | 6.16% | 5,313 | 517 | 4.91% | 10,016 |
-| Portuguese | 99 | 1.75% | 5,563 | 448 | 4.25% | 10,085 |
-| Hindi | 129 | 2.28% | 5,533 | 462 | 4.39% | 10,071 |
-| Korean | 247 | 4.36% | 5,415 | 454 | 4.31% | 10,079 |
-| Icelandic | 152 | 2.68% | 5,510 | 1,027 | 9.75% | 9,506 |
-| French | 99 | 1.75% | 5,563 | 466 | 4.42% | 10,067 |
+| Swedish | 134 | 2.36% | 5,545 | 469 | 4.45% | 10,064 |
+| German | 101 | 1.78% | 5,578 | 426 | 4.04% | 10,107 |
+| Spanish | 115 | 2.03% | 5,564 | 287 | 2.72% | 10,246 |
+| Simplified Chinese | 368 | 6.48% | 5,311 | 517 | 4.91% | 10,016 |
+| Portuguese | 115 | 2.03% | 5,564 | 448 | 4.25% | 10,085 |
+| Hindi | 148 | 2.61% | 5,531 | 462 | 4.39% | 10,071 |
+| Korean | 265 | 4.67% | 5,414 | 454 | 4.31% | 10,079 |
+| Icelandic | 173 | 3.05% | 5,506 | 1,027 | 9.75% | 9,506 |
+| French | 116 | 2.04% | 5,563 | 466 | 4.42% | 10,067 |
+
+*Regenerated 2026-09-15 for instruction 407's live magnifier in Make Masks.
+The runtime denominator moves 5,662 -> 5,679, +17/-0 and all UI: the tool-row
+button, the card title, the Classical/Cellpose and Clip/Replace choices,
+'Updating…', four status lines and six tooltips. The API denominator does not
+move; no public symbol and no module arrived. EVERY REVIEWED RUNTIME COUNT
+RISES, and by two different amounts for two different reasons. Sixteen of the
+seventeen captions were written by hand as reviewed records in all nine
+locales, so each gains 16; 'Cellpose' has no record, because a name the gates
+keep as it is would be an exact copy. Five locales gain more, because writing
+those records exposed existing labels on the same card that said another word,
+and each correction is a record only where the old row was wrong: fr +1
+(Overlap read 'Rupture'), ko +2 (Overlap 오프화이트, off-white; Bright 밝은 ->
+밝음), hi +3 (Overlap ओवरपॉइंट, a non-word; Bright; Object operations read
+'purpose of operation'), zh_CN +3 (Overlap 超越, surpass; Bright 光明; objects
+物品, goods) and is +5 (Overlap 'Að yfirgefa', to leave; Bright 'ljósi';
+Object operations, object and objects, all read as 'Ástæður', reasons). That
+is 16 x 9 + 14 = 158 records, 1,377 -> 1,535, and no record left any locale.
+The rebuilt catalogs moved those 17 rows and those 14 values and nothing
+else, measured table by table against the committed catalogs.*
 
 *Regenerated 2026-09-14, second pass, for instruction 364's `grna`
 retirement. The runtime denominator moves 5,664 -> 5,662 and NOT by a flat
@@ -206,5 +226,5 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 118, de 85, es 99, zh_CN 349, pt 99, hi 129, ko 247, is 152, fr 99 -- 1,377 runtime records across nine locales.
+Reviewed totals today: sv 134, de 101, es 115, zh_CN 368, pt 115, hi 148, ko 265, is 173, fr 116 -- 1,535 runtime records across nine locales.
 
