@@ -30,6 +30,7 @@ from __future__ import annotations
 import logging
 import math
 import warnings
+import weakref
 from contextlib import contextmanager
 from functools import lru_cache
 from types import MappingProxyType
@@ -5272,14 +5273,19 @@ class _CloseMarkWatcher(QObject):
             setup covers only the tabs open at the time.
         """
         super().__init__(bar)
-        self._bar = bar
+        # WEAK: the bar owns this watcher, so a strong reference is a cycle
+        # only the collector frees; see docs/notes/spacr/qt/theme.md.
+        self._bar = weakref.ref(bar)
         self._tooltip = tooltip
         self._pending = False
 
     def eventFilter(self, obj, event):
         """Schedule a re-mark for the child Qt has just added."""
-        if (obj is self._bar and event.type() == QEvent.ChildAdded
-                and not self._pending):
+        ref = getattr(self, "_bar", None)
+        bar = ref() if ref is not None else None
+        if (bar is not None and obj is bar
+                and event.type() == QEvent.ChildAdded
+                and not getattr(self, "_pending", True)):
             self._pending = True
             QTimer.singleShot(0, self._sweep)
         return False
@@ -5287,8 +5293,12 @@ class _CloseMarkWatcher(QObject):
     def _sweep(self) -> None:
         """Mark whatever arrived, once the bar has finished wiring it up."""
         self._pending = False
+        ref = getattr(self, "_bar", None)
+        bar = ref() if ref is not None else None
+        if bar is None:
+            return
         try:
-            mark_tab_bar(self._bar, self._tooltip)
+            mark_tab_bar(bar, self._tooltip)
         except RuntimeError:
             pass
 

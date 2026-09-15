@@ -36,6 +36,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [apply_close_mark](#apply_close_mark) (1 entry)
 - [size_close_mark](#size_close_mark) (1 entry)
 - [_CloseMarkResizer.eventFilter](#_closemarkresizereventfilter) (1 entry)
+- [_CloseMarkWatcher.__init__](#_closemarkwatcher__init__) (1 entry)
 - [_CloseMarkWatcher._sweep](#_closemarkwatcher_sweep) (1 entry)
 - [mark_tab_bar](#mark_tab_bar) (1 entry)
 
@@ -1346,6 +1347,16 @@ pass
 ```
 
 The button went away under the event. Nothing to size.
+
+## _CloseMarkWatcher.__init__
+
+### lines 5276-5278
+
+```python
+self._bar = weakref.ref(bar)
+```
+
+WEAK, or the bar and its watcher are a reference cycle. `install_close_marks` parents the watcher to the bar and stores it on the bar as `_spacr_close_mark_watcher`, so a strong `_bar` meant only Python's cycle collector could free the pair. The collector clears the watcher's `__dict__` before the bar's C++ object is destroyed; the bar's destructor then removes its children, the filter sees the ChildRemoved events, and `eventFilter` raised `AttributeError: '_CloseMarkWatcher' object has no attribute '_bar'` inside the Qt event loop. Found on 2026-09-15 by the sweep that followed 7bc459287 (the backdrops' `_watched`), reproduced with the real collector on a shown QTabBar. `eventFilter` and `_sweep` read the reference with `getattr` and pass when the bar is gone, because a cycle made anywhere else through the bar reopens the same path. Tested in `tests/qt/test_a_close_mark_watcher_lets_its_bar_die_quietly.py`, which runs the collector in a child interpreter.
 
 ## _CloseMarkWatcher._sweep
 
