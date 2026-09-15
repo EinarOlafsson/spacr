@@ -307,3 +307,19 @@ RISKS FOR THE NEXT FULL BUILD
     than damage.
   * A catalog whose `MODEL` no longer matches `MODEL_SPECS` is not seeded at
     all, as before, so a model change turns carry-forward off entirely.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- WHY REVIEWED RECORDS ARE KEYED BY SOURCE TEXT, SHOWN BY A COLLISION
+--------------------------------------------------------------------------------
+
+Reviewed records bind to the English SOURCE of a block, not to the symbol that
+carries it, so one record covers every block with the same English. The cost
+of that design is usually invisible; its benefit showed tonight. Cataloguing
+the new `spacr.graph_types.mark_to_start_on` added a record for its
+`:param shape:` block, "one of the keys of :data:`DATA_SHAPES`.", and the same
+sentence already documents `chosen_for`, `default_for` and `start_for`. The
+rebuild moved all four in seven languages, and the move was a correction: fr
+had "une des touches" (keyboard keys) where the sentence means dictionary keys,
+now "l'une des clés"; sv "till" became "i". A per-symbol key would have left
+the three old blocks wrong. When a rebuild moves symbols whose English did not
+change, check for a shared-source record before calling it collateral damage.
