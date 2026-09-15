@@ -862,8 +862,17 @@ jobs:
         # surviving workers waiting until the 90-minute *job* timeout, whose
         # cancellation bypasses both continue-on-error guards and makes this
         # otherwise-informational matrix cell cancel the whole workflow.
+        #
+        # --maxfail WAS NOT ENOUGH, measured 2026-09-15: nothing hangs on
+        # macOS arm64, the sweep is simply longer than the job. On every run
+        # from e3155389a to bac9151d0 this step started four minutes in and was
+        # still running when the 90-minute job timeout cancelled it, so
+        # compat-matrix concluded "cancelled" every time with every deciding
+        # step green. A STEP timeout fails the step instead -- which
+        # continue-on-error does honour -- and leaves the job its margin.
         if: runner.os != 'Linux'
         continue-on-error: true
+        timeout-minutes: 70
         shell: bash
         env:
           QT_QPA_PLATFORM: offscreen
