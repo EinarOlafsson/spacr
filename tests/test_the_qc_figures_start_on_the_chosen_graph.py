@@ -20,7 +20,7 @@ from __future__ import annotations
 import pytest
 
 from spacr import graph_types
-from spacr.ml import qc_graph_type_and_note
+from spacr.ml import _qc_graph_type_and_note
 
 
 def _choose(monkeypatch, value):
@@ -52,7 +52,7 @@ def test_a_user_who_chose_nothing_sees_what_they_saw_before(monkeypatch):
     `box_jitter` default, which is a different figure.
     """
     _choose(monkeypatch, "")
-    graph_type, note = qc_graph_type_and_note()
+    graph_type, note = _qc_graph_type_and_note()
     assert graph_type == "jitter_bar", (
         f"with no preference stored the QC figures became {graph_type!r}; "
         f"they were 'jitter_bar' before 293 was wired in and a preference "
@@ -75,7 +75,7 @@ def test_the_chosen_type_reaches_the_figures(monkeypatch, chosen, drawn):
     is ever dropped from the path.
     """
     _choose(monkeypatch, chosen)
-    graph_type, _note = qc_graph_type_and_note()
+    graph_type, _note = _qc_graph_type_and_note()
     assert graph_type == drawn, (
         f"the user chose {chosen!r} and the QC figures drew {graph_type!r}")
 
@@ -111,7 +111,7 @@ def test_a_choice_this_shape_cannot_take_is_not_a_choice_for_it(monkeypatch):
     exercises the real rule, and the real rule is correct.
     """
     _choose(monkeypatch, "scatter")
-    graph_type, note = qc_graph_type_and_note()
+    graph_type, note = _qc_graph_type_and_note()
     assert graph_type == "jitter_bar", (
         f"a saved 'scatter' does not fit categorical_continuous, so the "
         f"figures should keep their own form; got {graph_type!r}")

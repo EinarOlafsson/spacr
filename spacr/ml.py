@@ -5145,7 +5145,7 @@ def _name_deeper_key(parts):
 
 
 
-def qc_graph_type_and_note(fallback: str = 'jitter_bar'):
+def _qc_graph_type_and_note(fallback: str = 'jitter_bar'):
     """The graph type the regression QC figures should start on.
 
     The DEFAULT GRAPH TYPE setting decides what is drawn FIRST, for every
@@ -7334,7 +7334,7 @@ def _perform_regression(settings):
         merged_df.to_csv(data_path, index=False)
         print(f"Saved regression data to {data_path}")
 
-        qc_graph_type, _qc_note = qc_graph_type_and_note()
+        qc_graph_type, _qc_note = _qc_graph_type_and_note()
         if _qc_note:
             print(f"QC figures: {_qc_note}")
         
