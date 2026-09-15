@@ -965,3 +965,16 @@ FRESH-COPY RECAPTURE FAILED, AND IT HELD THE SHARED GPU LOCK FOR TWO IDLE HOURS.
     * Copied into refresh_2026-09-09/captures/ (23 files, every sha256
       identical) for composition. The 15b and #1 captures stay as evidence
       and are NOT staged.
+  COMPOSED AND STAGED. compose_mask_capture.py --preview-capture
+    mask_preview_gpu_fresh2_2026-09-15 --destination
+    mask_preview_and_explicit_overlay_2026-09-15c: accepted, 20 frames, the
+    recount embedded, every preview frame from the fresh capture, and
+    live_preview.py/preview_contract.py pinned to dec126440. The English
+    change (d174cefda) touches exactly five lines, checked by structured
+    comparison and a word diff. stage_lesson.py --capture-module
+    mask_preview_and_explicit_overlay_2026-09-15c: 16 real capture scenes;
+    staged English == source (canonical d988500d...). Scenes 4-8 carry no
+    authored focus rectangles, so the new frames cannot leave a highlight on
+    the wrong control. Backups: production/07_mask/pre-2026-09-15/ (visual,
+    lesson.en, refresh-status, final-artifact-checks, poster, staged English
+    catalog). Translation drafts are queued on the GPU lock.
