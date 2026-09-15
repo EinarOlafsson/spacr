@@ -737,8 +737,10 @@ GPU QUEUE, 04:27 UTC. The 07_mask preview capture has waited on the shared
     re-renders the affected tracks without --force. Do not add --force: it
     also re-synthesizes tracks whose speech did not change.
 
-07_MASK -- EXACT RESUME SEQUENCE (nothing below has run yet, except step 1,
-which is queued on the GPU lock). Reviewed OPS rows are committed at
+07_MASK -- EXACT RESUME SEQUENCE. STATUS (updated 2026-09-15 07:5x UTC): steps
+1-7 are DONE -- see the dated notes further down (capture fresh2, compose
+2026-09-15c, English d174cefda, staged d988500d, drafts read, 13 reviews applied
+889cbb02f). RESUME AT STEP 8 (voices), which is queued on the GPU lock. Reviewed OPS rows are committed at
 tools/tutorials/lessons/reviews/pending_07_mask_ops_rows.json. The pending_
 prefix keeps the file out of every `<lesson>.*.json` glob, so it cannot be
 read as a fourteenth language.
