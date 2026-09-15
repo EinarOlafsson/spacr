@@ -11,6 +11,7 @@
   "downloading_python": "Descargando el entorno privado de Python %s...",
   "downloading_uv": "Descargando la versión fijada del programa de arranque de uv...",
   "dry_create": "SIMULACIÓN: se crearía y validaría %s",
+  "dry_remove_old": "SIMULACIÓN: primero se buscarían y eliminarían todas las instalaciones anteriores de spaCR",
   "dry_download": "SIMULACIÓN: se descargaría %s",
   "dry_launcher": "SIMULACIÓN: se instalaría el iniciador %s",
   "help_dry_run": "Mostrar el plan resuelto sin descargar nada.",
@@ -34,7 +35,7 @@
   "no_sudo": "No se encontró el comando sudo. Se continuará sin las bibliotecas opcionales de Qt para Linux.",
   "nsis_application": "Aplicación de escritorio spaCR",
   "nsis_downloading": "Descargando Python, Qt, PyTorch y spaCR. Esta operación puede tardar varios minutos.",
-  "nsis_failed": "La instalación de spaCR falló con el código de salida %s. Se conservó la instalación existente, si la había.",
+  "nsis_failed": "spaCR no se instaló (código de salida %s). Es posible que ya se haya eliminado un spaCR anterior. Vuelva a ejecutar este instalador; install.log, en la carpeta de instalación, indica qué falló.",
   "nsis_gpu": "Aceleración automática de hardware (recomendada)",
   "nsis_launch": "Iniciar spaCR",
   "nsis_uninstall": "Desinstalar spaCR",
@@ -61,5 +62,6 @@
   "old_install_removed": "Se eliminó la instalación anterior.",
   "old_install_kept": "Se conserva. El entorno se reemplaza de todos modos; las cachés y los ajustes se mantienen.",
   "old_install_noninteractive": "No es una terminal, así que no se preguntó nada. El entorno se reemplaza; las cachés y los ajustes se mantienen.",
-  "old_install_same": "Es la misma versión que trae este instalador."
+  "old_install_same": "Es la misma versión que trae este instalador.",
+  "old_copy_not_removed": "Instalación detenida: no se pudo eliminar un spaCR anterior (ver arriba). Cierre cualquier spaCR en ejecución y vuelva a ejecutar el instalador."
 }

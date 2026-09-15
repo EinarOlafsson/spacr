@@ -11,6 +11,7 @@
   "downloading_python": "Private Python-%s-Laufzeit wird heruntergeladen...",
   "downloading_uv": "Die festgelegte uv-Bootstrap-Version wird heruntergeladen...",
   "dry_create": "TESTLAUF: %s würde erstellt und überprüft",
+  "dry_remove_old": "TESTLAUF: Alle älteren spaCR-Installationen würden zuerst gesucht und entfernt",
   "dry_download": "TESTLAUF: %s würde heruntergeladen",
   "dry_launcher": "TESTLAUF: Starter %s würde installiert",
   "help_dry_run": "Den aufgelösten Plan anzeigen, ohne etwas herunterzuladen.",
@@ -34,7 +35,7 @@
   "no_sudo": "Der Befehl sudo wurde nicht gefunden. Die Installation wird ohne die optionalen Qt-Bibliotheken für Linux fortgesetzt.",
   "nsis_application": "spaCR-Desktopanwendung",
   "nsis_downloading": "Python, Qt, PyTorch und spaCR werden heruntergeladen. Dies kann einige Minuten dauern.",
-  "nsis_failed": "Die Installation von spaCR ist mit dem Exitcode %s fehlgeschlagen. Eine vorhandene Installation wurde beibehalten.",
+  "nsis_failed": "spaCR wurde nicht installiert (Exitcode %s). Eine ältere spaCR-Installation wurde möglicherweise bereits entfernt. Führen Sie dieses Installationsprogramm erneut aus; install.log im Installationsordner zeigt, was fehlgeschlagen ist.",
   "nsis_gpu": "Automatische Hardwarebeschleunigung (empfohlen)",
   "nsis_launch": "spaCR starten",
   "nsis_uninstall": "spaCR deinstallieren",
@@ -61,5 +62,6 @@
   "old_install_removed": "Die vorherige Installation wurde entfernt.",
   "old_install_kept": "Sie bleibt bestehen. Die Umgebung wird ohnehin ersetzt; Caches und Einstellungen bleiben.",
   "old_install_noninteractive": "Kein Terminal, daher wurde nichts gefragt. Die Umgebung wird ersetzt; Caches und Einstellungen bleiben.",
-  "old_install_same": "Das ist dieselbe Version, die dieses Installationsprogramm enthält."
+  "old_install_same": "Das ist dieselbe Version, die dieses Installationsprogramm enthält.",
+  "old_copy_not_removed": "Installation abgebrochen: Eine ältere spaCR-Installation konnte nicht entfernt werden (siehe oben). Schließen Sie jedes laufende spaCR und führen Sie das Installationsprogramm erneut aus."
 }

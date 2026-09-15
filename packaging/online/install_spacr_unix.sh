@@ -276,7 +276,7 @@ printf '  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 
 printf '  %s: %s\n' "$(spacr_say resolver_guards)" "${RESOLVER_GUARDS[*]}"
 
 if [[ "$DRY_RUN" == "1" ]]; then
-    printf 'DRY RUN: would find and remove every older spaCR installation first\n'
+    spacr_say dry_remove_old
     spacr_say dry_download "$UV_INSTALL_URL"
     spacr_say dry_create "$VENV_DIR"
     if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
@@ -419,7 +419,7 @@ if [[ -n "${SPACR_CLEANUP_ROOT:-}" ]]; then
     cleanup_args+=(--root "$SPACR_CLEANUP_ROOT")
 fi
 if ! "$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"; then
-    printf 'Installation stopped: an older spaCR could not be removed (see above). Close any running spaCR and run the installer again.\n' >&2
+    spacr_say old_copy_not_removed >&2
     exit 6
 fi
 
