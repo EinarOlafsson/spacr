@@ -1,0 +1,67 @@
+================================================================================
+A TOOLTIP POPUP TURNS THE SETTINGS COLUMN AND THE AI CHAT BOX BLACK UNTIL THE
+MODULE IS LEFT AND REOPENED
+================================================================================
+
+Status:    OPEN, PRIORITY, filed 2026-09-15. Reproduction and regression test
+           with the home session; the fix is expected in spacr/qt/theme.py,
+           which the work session is editing tonight, so it is coordinated
+           there. See the dated notes below for the measured mechanism.
+Requested: 2026-09-15, by the maintainer, verbatim: "as soon as a tooltip (not
+           for per object settings based tooltips that dont generate a popup)
+           appears in mask, measure and probably the other moduals a black box
+           apears as the background for the settings container (the container
+           to the left) and for the AI chat box. then when i go out of the
+           modual to home or another moduale and back again the black box is
+           gone. please add this to the new features list and make it a
+           priority to fix."
+Owner:     home session (reproduction, test, this file); work session (the
+           theme.py filter the fix is expected to touch).
+
+--------------------------------------------------------------------------------
+THE REPORT, PRECISELY
+--------------------------------------------------------------------------------
+
+  * TRIGGER: a tooltip that opens a POPUP window. The per-object settings
+    tooltips that do not open a popup do not trigger it.
+  * WHERE: Mask and Measure confirmed by the maintainer, probably every module
+    screen.
+  * WHAT: a black rectangle as the background of the settings column (left)
+    and of the AI chat box.
+  * HEALS: leaving the module (Home or another module) and coming back.
+
+--------------------------------------------------------------------------------
+WHAT THIS IS NOT
+--------------------------------------------------------------------------------
+
+It is NOT the first-open case that 7d27cdfd8 tried to fix with a gate on the
+container sweep. That gate was reverted in 3c50c6bab after measuring the path
+it was written for -- real MainWindow, the maintainer's settings (dark, ambient
+on, blobs, 60% panes), both backdrops forced to defer, Mask opened for the
+first time: 0 black of 20,453 samples down the settings column with the gate
+and 0 without. That probe never showed a tooltip, which is why it could not
+see this.
+
+--------------------------------------------------------------------------------
+THE SUSPECT, BEFORE MEASUREMENT
+--------------------------------------------------------------------------------
+
+A tooltip popup is a new top-level window. spacr/qt/theme.py installs an
+application-wide event filter (`_SheetsEveryWindowThatAppears`) that sheets
+every window as it appears. If that re-sheet or re-polish reaches the module
+screen's layout containers, they lose the transparent tag set by
+`AppScreen._clear_page_surfaces`, fall back to the blanket
+`QWidget { background-color: bg }` rule, and paint `bg` -- #000000 on the dark
+theme -- over the backdrop. Leaving and returning re-runs the sweep through
+`refresh_ambient_background`, which is why it heals.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT IS FIXED
+--------------------------------------------------------------------------------
+
+A test on a real MainWindow, for Mask, Measure, Regression and Map Barcodes,
+with the ambient backdrop on and off: open the module, show a popup tooltip
+over a settings row, and assert zero pure-black samples down the settings
+column AND the AI chat panel, while the tooltip is visible and after it
+hides -- without leaving the module. And the test must be seen to FAIL on the
+current code first.
