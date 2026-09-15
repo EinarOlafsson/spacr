@@ -2,7 +2,11 @@
 ONE PERFORMANCE SELECTOR WITH FIVE LEVELS
 ================================================================================
 
-Status:    OPEN, filed 2026-08-27. HIGH PRIORITY performance configuration.
+Status:    OPEN, filed 2026-08-27; AUDITED 2026-09-15 on wip/286-audit.
+           Bullets 1-5 MET. Bullet 6 PARTLY: names and tooltips translated
+           in all nine languages, but no migration message exists to
+           translate (maintainer decision below). Bullet 7 NOT MET:
+           tutorials, Codex's lane. HIGH PRIORITY performance configuration.
 Owner:     spacr/qt/preferences.py, startup resource policy, cache policy,
            ambient quality, setup screen, translations, tutorials and tests.
 Follows:   282 and 284. Supersedes the separate Laptop mode selector.
@@ -73,3 +77,152 @@ HOW TO KNOW IT WORKED
     migration messages in all nine supported languages;
   * installation and Home tutorials show the single five-level control rather
     than the removed Laptop setting.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- AUDITED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+This item read as an unbuilt spec, but most of it was built on 2026-08-28
+(506985d4b "One performance selector with five levels", 98e8beb25, 6461dbaa7)
+with no build notes here. The audit below checks the code against the
+acceptance list above, closes the real gaps on wip/286-audit, and reports the
+rest. Line numbers are on that branch.
+
+  #  Acceptance bullet                         Before    Now
+  -  ----------------------------------------  --------  ---------
+  1  five levels, in order, one control        MET*      MET
+  2  one canonical value; all decisions derive PARTLY    MET
+  3  migration, all pairs, repeated startup    PARTLY    MET
+  4  Laptop least, Workstation most, monotonic PARTLY    MET (policy)
+  5  results equivalent at every level         unproven  MET
+  6  names, tooltips, migration msgs x9 langs  NOT MET   PARTLY
+  7  installation and Home tutorials           --        NOT MET
+  (* the setup caption still said "spaCR mode")
+
+1. FIVE LEVELS, ONE CONTROL -- MET.
+   preferences.py:2076 PERFORMANCE_LEVELS feeds both the Preferences combo
+   "PerformanceLevel" (:5467) and first-run setup (setup_screen.py:131),
+   which read and write through the same get/set_performance_level. There
+   is no LaptopMode or SpacrMode combo. Fixed: setup captioned the selector
+   "spaCR mode", the removed control's name; it now says "Performance", as
+   Preferences does (0b9ce9e03).
+   Tests: test_one_performance_selector.py (dialog items, no second
+   control), test_the_setup_screen_offers_every_performance_level.py,
+   test_the_level_is_explained_in_its_own_numbers.py (same caption).
+
+2. ONE VALUE; EVERYTHING DERIVES FROM IT -- was PARTLY, now MET.
+   Every reader was traced: resource_cleanup._mode (via get_spacr_mode,
+   derived), figure_queue (live_figure_allowance), the memory-budget sweep,
+   timing's hardware report (read-only), and laptop_mode. Hidden overrides
+   found and removed:
+   - launch called laptop_mode.apply() with no argument, which MEASURES
+     cores and memory, so a two-core Workstation lost its backdrop at every
+     start. It now passes the level's answer (app.py:5485); the measurement
+     is logged as a reading only (cbc624113).
+   - set_laptop_mode wrote prefs/laptop_mode and applied the measurement for
+     "automatic" while get_laptop_mode answered from the level. It writes
+     the level now (preferences.py:2603, cbc624113).
+   - leaving Extra Performance (which Laptop maps onto) restored the
+     animation through set_ambient_animation, which switches the backdrop
+     ON: a user who turned it off got it back by going Laptop and up again.
+     The stash records the STORED switch, never get_ambient_enabled(), which
+     reads False under a process-local suppression (:2999, :3051).
+     laptop_mode._suppressed_here keeps its property: a level change lifts
+     only a suppression this process made, never crash recovery's (:2853).
+   - the memory budget (idle timeout, cache ceiling, headroom) was the same
+     at every level unless typed; the per-level values were tooltip text
+     only, and Save froze all three on the first press. An untouched budget
+     now follows the level; a number the user sets is kept (:2649-:2739,
+     f8efd070d).
+   SPACR_LAPTOP_MODE now affects only laptop_mode.describe()/wanted(), which
+   report, and no decision.
+   Tests: test_the_level_is_the_only_laptop_switch.py (launch follows the
+   level; ambient off stays off through Laptop and back; process and crash
+   recovery suppressions), test_the_level_derives_every_budget.py.
+
+3. MIGRATION -- was PARTLY, now MET.
+   Migration ran on read and was idempotent, but never removed the obsolete
+   keys, set_spacr_mode kept writing a second stored copy, and safe mode
+   (reads defaults, writes for real) migrated those defaults over the
+   user's real level. Now prefs/laptop_mode and prefs/spacr_mode are removed
+   only once the level is durable -- status() NoError after sync AND the
+   level reads back (:2818) -- and safe mode stores nothing (cbc624113).
+   Tests: test_the_level_migration_removes_what_it_replaced.py -- every
+   legacy mode (3 real + unset + nonsense) x laptop on/off/automatic/unset
+   against a real INI file; repeated startup as two FRESH PROCESSES with an
+   older build re-writing its keys in between; three not-durable stores keep
+   the keys; safe mode; one stored value, not two.
+
+4. RESOURCE ORDER -- was PARTLY, now MET AS DERIVED POLICY.
+   TESTED ON THE POLICY THE CODE READS, NOT A MEASURED WORKLOAD. Resident
+   memory of the running app depends on what the user opens and was not
+   measured.
+                      live figs  idle min  cache MB  backdrop  auto cleanup
+     Laptop             x0.25        2        256     never    launch+run
+     Extra Performance  x0.5         5        512     never    launch+run
+     Performance        x0.75       10       1024     user's   launch
+     Balanced           x1.0        15       2048     user's   none
+     Workstation        x2.5        60      16384     user's   none
+   Retention columns are monotonic, strictly Laptop < Workstation. Note the
+   cleanup column runs the OTHER way: Laptop and Extra Performance run more
+   cleanup passes than Balanced, because cleanup is how they keep retention
+   small. The continuous background cost a level controls is the animated
+   backdrop, which Laptop never draws.
+   Test: test_the_level_derives_every_budget.py (f8efd070d).
+
+5. RESULTS EQUIVALENT -- was true and unproven, now MET.
+   The one thing a level can make a computation feel: Laptop and Extra
+   Performance's cleanups lower torch and OpenCV threads
+   (resource_cleanup.py:1016, floor 2). No module outside spacr/qt reads the
+   level. A representative measurement -- skimage per-object intensity
+   features, an OpenCV focus measure, a torch convolution -- run at
+   Workstation and at Laptop after each end's real cleanups is identical,
+   while the thread counts did differ (8/8 vs 2/2). CPU only, 6 s.
+   Test: test_the_level_never_changes_a_result.py (272230162).
+
+6. TRANSLATIONS -- was NOT MET for tooltips, now PARTLY.
+   - The five NAMES were already translated in all nine languages
+     (spacr/qt/i18n.py rows).
+   - The five TOOLTIPS and five hardware notes were translated in NO
+     language. The runtime extractor iterated PERFORMANCE_NOTES and
+     HARDWARE_NOTES as dicts and collected their keys ("laptop", ...), and
+     the budget tooltips quoted the hardware notes without tr(). Fixed: the
+     tooltips were first rewritten to claim only what code does (they
+     promised "one worker", "dropped as soon as a run finishes", "nothing is
+     dropped until you ask"; 0b9ce9e03), then the extractor collects the
+     values, and 90 hand-written reviewed records cover all ten strings in
+     sv de es zh_CN pt hi ko is fr, with the catalogs regenerated (the final
+     i18n commit on this branch). The builder's own loader accepts 10/10 in
+     every language; check_reviewed_runtime_evidence.py and
+     build_i18n_catalogs.py --audit are the gates.
+   - MIGRATION MESSAGES DO NOT EXIST. The migration keeps the user's choice,
+     so it is silent by design and logs at DEBUG only. Nothing to
+     translate. MAINTAINER DECISION: is a one-time, user-visible notice
+     wanted when a Laptop mode setting is migrated? If yes, it is new UI and
+     its own work; if no, this bullet's third clause should be struck.
+   Test: test_the_level_prose_is_translated.py.
+
+7. TUTORIALS -- NOT MET. REPORTED ONLY: Codex's lane (items 48, 83, 358),
+   being re-recorded; no tutorial script or media was edited.
+   - The recorded lesson scripts tools/tutorials/lessons/01-05 never mention
+     the selector at all.
+   - The "performance" step exists only in the authoring catalog,
+     tools/tutorials/authoring/tools/build_full_catalog.py:255 (lesson 04,
+     platform installers) and :272 (lesson 05, Home), plus its reviewed
+     localizations. It names the five levels correctly, but calls the
+     control "Performance level" (Preferences captions it "Performance") and
+     says the level changes "worker limits", which no level does.
+   - capture_all_modules.py:599 looks for QLabel "PerformanceLevelNote";
+     the dialog names it "SpacrModeNote" (preferences.py:5477, in both the
+     Claude and Codex trees), so that capture raises "Performance level
+     selector or explanation is not visible".
+
+FOUND ON THE WAY, NOT PART OF THIS ITEM:
+  - Runtime catalog rows on the same Performance tab are confident machine
+    mistranslations: "Editable figures kept" as editable NUMBERS (sv de
+    zh_CN pt ko fr; is "Skýrslur hækkuð"); "Cache ceiling" as sv "Tak för
+    kackerlackor" (cockroaches), hi/ko "hiding the roof", zh_CN "hidden
+    ceiling"; "Keep free" as "stay free" (sv de zh_CN); pt "Drop unused
+    after" as a droplet; zh_CN/hi "Clear RAM" as transparent RAM.
+  - formula._REJECTED has the same dict-keys defect: its refusal messages
+    were never extracted for translation.
