@@ -2,8 +2,12 @@
 CUDA IS PROTECTED AND METAL IS NOT, SO ONE GPU BACKEND SURVIVES TRANSLATION
 ================================================================================
 
-Status:    OPEN, filed 2026-09-14. Not blocking. BLOCKED ON ONE OTHER FIX --
-           see THE ORDER MATTERS below. Measured, not estimated.
+Status:    DONE 2026-09-15, pending the docs audit it lands with. `Metal`,
+           `MPS`, `ROCm`, `DirectML` and `Apple Silicon` are in
+           `_PROTECTED_TERMS`, the blocker this file named (the `\\w`
+           lookaround beside CJK) had already landed, and the fallout in the
+           generated API catalogs was repaired and read block by block.
+           Filed 2026-09-14.
 Requested: not requested. Found when the work session ran
            `--rebuild-readme` and it turned "Metal" into "metall" -- the
            material -- in Swedish.
@@ -72,3 +76,37 @@ HOW TO KNOW IT WORKED
 Empty list, and both audits still exit 0. Adding a protected term does NOT
 move any source hash, so nothing regenerates -- only translations that
 already translated the term need repair.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- DONE, AND THE FALLOUT THIS FILE PREDICTED WAS IN THE WRONG PLACE
+--------------------------------------------------------------------------------
+
+This file said the blast radius after the lookaround fix was "1 reviewed
+record and 3 REVIEWED_README_BLOCKS entries". Those were checked first -- 45
+live candidate translations across 10 reviewed sources contain one of the five
+terms, and every one keeps it verbatim -- and they were never the problem.
+
+THE REAL FALLOUT WAS IN THE GENERATED API CATALOGS, which that count did not
+include. Measured after protecting the terms, per locale, as symbols whose
+translation carries fewer occurrences of a term than the English:
+
+    sv 5 (Metal -7, rendered "metall")   de 1   es 1   zh_CN 3   pt 2
+    hi 5 (Metal -7, MPS -3, Apple Silicon -1)   ko 5 (Metal -7, ROCm -1)
+    is 0   fr 1
+
+Eight symbols in all: `spacr.accelerator` and five of its members,
+`spacr.ops_accel`, `spacr.ops_register`. The docs audit reported them as
+"changed protected code/literals", which is what a protection change looks
+like from the catalog side and why it would have read as a translation fault.
+
+REPAIRED and READ, not trusted: a `--repair-api-blocks` pass regenerated
+those blocks with the terms held, and every changed block was diffed against
+its pre-repair value and read against the English. In each the change is the
+term coming back -- `Metall` to `Metal` in German and Swedish, `metal` to
+`Metal` in Spanish, 金属 to Metal in Chinese, 금속 to Metal in Korean, धातु to
+Metal in Hindi -- with the rest of the sentence as it was. No block was
+rewritten into something new.
+
+THE LESSON, which is item 406's and HANDOFF's in a different form: a count of
+affected REVIEWED records is not the blast radius of a protection change. The
+generated catalogs are the larger population and the one no reviewer ever saw.

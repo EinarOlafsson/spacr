@@ -1,0 +1,13 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "THE STATSMODELS SUMMARY IS PRESERVED. ``ols`` and ``beta`` runs have already written the statsmodels text into this same file by the time this is called; it is rendered again from the model where it can be, and otherwise read back off the file, and either way it is appended UNCHANGED at the end rather than replaced. The whole text is built in memory first, so a failure here leaves the existing file exactly as it was.",
+      "label": "spacr.regression_summary.write_run_summary#2",
+      "source": "THE STATSMODELS SUMMARY IS PRESERVED. ``ols`` and ``beta`` runs have already written the statsmodels text into this same file by the time this is called; it is rendered again from the model where it can be, and otherwise read back off the file, and either way it is appended UNCHANGED at the end rather than replaced. The whole text is built in memory first, so a failure here leaves the existing file exactly as it was.",
+      "source_sha256": "45123eeed5446bcfa8f22df796dda769685c46a855f350e6328b8e7954801c47",
+      "translation": "Le résumé de STATSMODELS est conservé. Les exécutions ``ols`` et ``beta`` ont déjà écrit le texte statsmodels dans ce même fichier au moment où cette fonction est appelée ; il est de nouveau produit à partir du modèle lorsque c'est possible, et sinon relu depuis le fichier, et dans les deux cas il est ajouté SANS MODIFICATION à la fin plutôt que remplacé. Tout le texte est d'abord construit en mémoire, de sorte qu'un échec ici laisse le fichier existant exactement tel qu'il était."
+    }
+  ],
+  "schema": 1
+}
