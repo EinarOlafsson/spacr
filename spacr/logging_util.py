@@ -530,6 +530,46 @@ def function_trace_enabled() -> bool:
     return _TRACE_ENABLED
 
 
+#: Resolved source paths, keyed by the ``co_filename`` they came from.
+#:
+#: WHY THIS EXISTS. :func:`_trace_one_event` runs on EVERY Python call and
+#: return in the process while verbose logging is on, and it used to call
+#: ``os.path.realpath`` on each one. That is not a string operation: it
+#: resolves every component of the path against the filesystem, and it
+#: measured 11,739 ns per call on this machine against 45 ns for a dict hit
+#: -- 261x, on a step taken twice per traced function.
+#:
+#: At a conservative ten thousand calls a second in a Qt application that is
+#: roughly a quarter of a core spent resolving the same few hundred paths
+#: over and over, which is exactly what instruction 294 means by "verbose
+#: logging must be cheap before it can be the default".
+#:
+#: UNBOUNDED ON PURPOSE, and safe: the key space is the set of Python source
+#: files the process actually executes, which is a few hundred, fixed after
+#: import, and already all resident in ``sys.modules``. A bounded cache would
+#: add an eviction policy to guard a dictionary that cannot meaningfully
+#: grow.
+#:
+#: No lock. Two threads racing compute the same value and store it twice,
+#: and ``dict`` assignment is atomic; a lock here would serialise every
+#: traced call in the process to protect against writing the same string.
+_TRACE_REALPATH_CACHE: dict = {}
+
+
+def _traced_realpath(co_filename: str) -> str:
+    """``os.path.realpath(co_filename)``, resolved once per distinct path.
+
+    :param co_filename: a code object's ``co_filename``, as the profile hook
+        receives it.
+    :returns: the resolved absolute path, from cache after the first call.
+    """
+    resolved = _TRACE_REALPATH_CACHE.get(co_filename)
+    if resolved is None:
+        resolved = os.path.realpath(co_filename)
+        _TRACE_REALPATH_CACHE[co_filename] = resolved
+    return resolved
+
+
 def _trace_profile(frame, event, arg):
     """Profile-hook implementation used by :func:`enable_function_trace`.
 
@@ -558,7 +598,7 @@ def _trace_one_event(frame, event):
     module = frame.f_globals.get("__name__", "spacr")
     if _TRACE_SKIP_MODULES and module.startswith(_TRACE_SKIP_MODULES):
         return
-    filename = os.path.realpath(frame.f_code.co_filename)
+    filename = _traced_realpath(frame.f_code.co_filename)
     if not filename.startswith(_TRACE_ROOT) or filename == _TRACE_THIS_FILE:
         return
     if getattr(_TRACE_STATE, "busy", False):

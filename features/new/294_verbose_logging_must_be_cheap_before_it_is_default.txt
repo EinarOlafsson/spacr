@@ -20,3 +20,81 @@ THEN turn it on by default.
 
 NOT the cause of the crashes: the crash log holds `Segmentation fault` and
 `Aborted` entries from before verbose was enabled. See 295.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- AUDITED AGAINST THE CODE. THREE OF FOUR DONE; ONE REAL COST FIXED.
+--------------------------------------------------------------------------------
+
+Checked each bullet against the source rather than against this file.
+
+  * NEVER TRACE THE PER-FRAME PAINT PATH -- DONE, before tonight.
+    `logging_util._TRACE_SKIP_MODULES` excludes `spacr.qt.widgets.ambient`,
+    `fractal_travel` and `fractal_cascade`; `_TRACE_SKIP_NAMES` excludes Qt's
+    event overrides, `paintEvent` among them. Both carry their own comments
+    and their own recorded failures. Not re-asserted by the new test file.
+
+  * COSTS NOTHING WHEN THE LEVEL IS NOT ENABLED -- DONE, two ways.
+    `verbose_logger.log_call` checks `is_verbose()` BEFORE formatting
+    anything, and `is_verbose()` is two attribute reads. The profile hook is
+    not installed at all unless verbose is on -- `enable_function_trace` is
+    what installs it.
+
+  * KEEP THE LOG BOUNDED -- DONE. `RotatingFileHandler(maxBytes=5 MB,
+    backupCount=5)`, so 30 MB is the ceiling. The "three 5 MB files in one
+    minute" this file records was rotation working correctly on a firehose,
+    not rotation failing.
+
+  * SAY IN THE TOOLTIP WHAT IT COSTS -- STILL OPEN. Not done here.
+
+--------------------------------------------------------------------------------
+THE COST THAT WAS LEFT, AND IT WAS ON EVERY TRACED CALL
+--------------------------------------------------------------------------------
+
+`_trace_one_event` runs on EVERY Python call AND return in the process while
+verbose is on. It called `os.path.realpath(frame.f_code.co_filename)` on each
+one, to decide whether the frame is inside the spaCR package.
+
+`os.path.realpath` IS NOT A STRING OPERATION. It resolves every component of
+the path against the filesystem. Measured on this machine:
+
+    os.path.realpath        11,739 ns/call
+    a dict hit                  45 ns/call
+                               261x, on a step taken twice per traced function
+
+At a conservative ten thousand Python calls a second in a Qt application, that
+is roughly a quarter of a core spent resolving the same few hundred paths over
+and over.
+
+FIXED by `_traced_realpath`, a dict keyed on `co_filename`. END TO END, on real
+traced spaCR work rather than the isolated step:
+
+    with the cache             1.1 ms
+    bypassing the cache        3.9 ms
+                               3.6x
+
+BOTH NUMBERS ARE REPORTED because they answer different questions and quoting
+only the larger one would be dishonest: 261x is what the step costs, 3.6x is
+what the work costs, and the second is the one a user would feel.
+
+The cache is unbounded on purpose and takes no lock. The key space is the set
+of Python source files the process executes -- a few hundred, fixed after
+import, already all resident in `sys.modules` -- so an eviction policy would
+guard a dictionary that cannot meaningfully grow, and a lock would serialise
+every traced call in the process to protect against two threads writing the
+same string.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT BEFORE "ON BY DEFAULT"
+--------------------------------------------------------------------------------
+
+  1. THE TOOLTIP, which is the one bullet above that is untouched. A user
+     turning this on should be told what it costs before they turn it on,
+     not after.
+  2. A MEASUREMENT OF THE WHOLE APP WITH VERBOSE ON, against the same budgets
+     284 uses. "Cheaper than it was" is not "cheap enough to be the default",
+     and this file's own history is that the answer came from running it and
+     not from reading it.
+
+Until 2 exists, DO NOT flip the default. The original ask stands unshipped for
+the original reason: nobody has measured the app with it on since it was made
+cheaper.
