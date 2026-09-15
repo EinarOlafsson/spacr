@@ -181,15 +181,27 @@ def test_a_label_parented_onto_a_combo_cannot_be_asked(sheeted, qtbot):
     ITSELF IS DEMONSTRABLY WEARING THE SHEET, and a probe built that way
     reads every combo in the application as unreached.
 
-    THIS IS THE FAILURE IT EXPLAINS. Before this, the real-window test
-    sampled `hosts[::len(hosts) // 200]`, and how many widgets Measure
-    builds decides that stride. When 284 dropped Measure from 4,105
-    widgets to 595 the stride moved, the sample landed on a combo for the
-    first time, and the test reported 'QComboBox' as a widget the theme
-    sweep no longer reached. It reached it. Measured on the real window at
-    both d3d333940 and its parent 7efb9b1a1: the SAME eight widgets fail a
-    direct-child probe, six of them combos, and all six report the
-    sentinel on their own palette.
+    THIS IS THE FAILURE IT EXPLAINS. The real-window test samples
+    `hosts[::len(hosts) // 200]`, and how many widgets Measure builds
+    decides that stride. When 284 dropped Measure from 4,105 widgets to
+    595 the stride moved, a combo entered the sampled subset, and the test
+    reported 'QComboBox' as a widget the theme sweep no longer reached.
+    It reached it.
+
+    WHAT IS ASSERTED HERE IS THE POPULATION, NOT THE SAMPLE. Measured on
+    the real window at both d3d333940 and its parent 7efb9b1a1: the SAME
+    eight widgets fail a direct-child probe, six of them combos, and all
+    six report the sentinel on their own palette. The population did not
+    change; which of it the stride happened to visit did.
+
+    AN EARLIER DRAFT SAID "the sample landed on a combo for the first
+    time". THAT IS HARNESS-DEPENDENT AND OVERSTATED, and an adversarial
+    review caught it: in a standalone harness at 7efb9b1a1 the sample
+    ALREADY contained a combo the direct probe could not read. It is only
+    under the pytest harness that the pre-284 stride misses one. The claim
+    that survives either harness is the one above -- check a failure
+    against the whole population, because a stride is not evidence about
+    behaviour.
 
     KEPT AS AN ASSERTION AND NOT A COMMENT so that the day Qt styles a
     combo's children this goes red and says the workaround can go.

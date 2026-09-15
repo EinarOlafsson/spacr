@@ -1,0 +1,78 @@
+================================================================================
+THE REAL-WINDOW THEME SWEEP IS ONE WIDGET AWAY FROM GOING RED AGAIN
+================================================================================
+
+Status:    OPEN, filed 2026-09-15. NOT A REGRESSION AND NOT URGENT -- it is
+           identical at 7efb9b1a1 and at HEAD. It is filed because the next
+           person to hit it will spend a day on it, as one was just spent.
+Found by:  an adversarial review of the 2026-09-15 combo-probe fix, which
+           quantified a margin the fix itself did not need.
+Owner:     unassigned. `tests/qt/test_every_widget_wears_the_current_theme.py`
+           (`test_the_real_window_wears_one_theme_everywhere`) and
+           `spacr/qt/app.py:4309` `MainWindow.stylesheet_roots`.
+
+--------------------------------------------------------------------------------
+THE MARGIN, WHICH IS ONE
+--------------------------------------------------------------------------------
+
+`test_the_real_window_wears_one_theme_everywhere` samples the window's widgets
+with a stride -- `hosts[::len(hosts) // 200]` -- and asks each sampled widget
+whether the theme reached it.
+
+TWO WIDGETS IN THE WINDOW ARE GENUINELY NOT REACHED, by design:
+
+    QWidget#CentralRow      index 6 in window.findChildren(QWidget)
+    QStackedWidget          index 9
+
+and the sample is currently `hosts[::10]`. INDEX 6 AND INDEX 9 AGAINST A
+STRIDE OF 10. One extra chrome widget anywhere ahead of them in the traversal
+puts the stack into the sample and the test fails with
+
+    ['QStackedWidget', 'QWidget']
+
+which is the SAME SHAPE as the `['QComboBox']` failure that was just debugged
+for a day: a test reporting "the theme did not reach this" when the theme is
+working exactly as designed.
+
+--------------------------------------------------------------------------------
+WHY THOSE TWO ARE UNREACHED ON PURPOSE
+--------------------------------------------------------------------------------
+
+`MainWindow.stylesheet_roots` deliberately excludes the central widget and the
+stack -- it nominates the chrome and the page that is actually showing, and
+the pages that are not showing are MARKED instead and sheeted on their own
+`showEvent`. That is the per-screen sheeting design and it is right.
+
+But the central row and the stack are not marked either, so the test's
+`deferred()` branch does not cover them. They are legitimately outside the
+sweep and legitimately outside the exemption, which is exactly the gap a
+stride can fall into.
+
+--------------------------------------------------------------------------------
+THE TWO WAYS TO FIX IT, AND WHY NEITHER IS A REVIEW FIX
+--------------------------------------------------------------------------------
+
+  * MARK THEM PRODUCT-SIDE with `_spacr_is_a_sheet_target`, so `deferred()`
+    covers them and the sample may contain them harmlessly. This changes
+    product behaviour -- they would then be sheeted on their own show -- and
+    that is a theme decision, not a test decision.
+  * GIVE THE TEST A NAMED, GUARDED EXEMPTION: these two, by objectName and
+    class, with an assertion that there are exactly two and that each is the
+    widget the exemption names. A bare skip-list would rot into a blindfold,
+    which is the failure mode this whole test family exists to prevent.
+
+THE SECOND IS PROBABLY RIGHT and it is still bigger than it looks, because the
+exemption has to fail loudly when the design changes rather than quietly
+covering a third widget that should have been swept.
+
+--------------------------------------------------------------------------------
+WHAT NOT TO DO
+--------------------------------------------------------------------------------
+
+DO NOT WIDEN THE STRIDE OR SAMPLE FEWER WIDGETS. That hides the margin instead
+of removing it and makes the next failure rarer and therefore harder to
+diagnose. The sample size is not the defect; the uncovered pair is.
+
+DO NOT ASSUME A `['QStackedWidget', 'QWidget']` FAILURE IS A REGRESSION. Check
+it against the WHOLE population first -- that is the lesson the combo day
+bought, and this file exists so it is bought once.
