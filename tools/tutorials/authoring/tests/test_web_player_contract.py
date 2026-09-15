@@ -230,11 +230,19 @@ def test_render_captions_passes_the_matching_audio_scene_to_cue_builder():
 def test_player_release_cache_key_and_voice_counts_are_current():
     index = INDEX.read_text(encoding="utf-8")
     assert "English · 24 voices" in index
-    assert "8 languages · 50 voices" in index
+    # The static "8 languages · 50 voices" caption left the page on
+    # 2026-09-11 (5da4a6a95); the language picker is now built from
+    # voice_catalog.js, so the counts are ratcheted there instead.
+    catalog = VOICE_CATALOG.read_text(encoding="utf-8")
+    languages = re.findall(r'^\s{4}id: "([a-z]{2}(?:-[A-Z]{2})?)",$', catalog, re.M)
+    voices = re.findall(r'\{ id: "([a-z]{2}_[a-z]+)", name:', catalog)
+    assert len(languages) == 8 and len(set(languages)) == 8
+    assert len(voices) == len(set(voices)) == 50
     assert 'voice_catalog.js?v=20260811-50-voices' in index
     assert 'lesson_catalog.js?v=20260827-conda-live' in index
     assert 'module_navigation.js?v=20260909-main-submodules' in index
-    assert 'app_v2.js?v=20260909-main-submodules' in index
+    assert 'app_v2.js?v=20260911-narration-captions' in index
+    assert 'app_v2.js?v=20260909-main-submodules' not in index
     assert "20260810-mobile-smooth" not in index
 
 

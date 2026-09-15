@@ -876,6 +876,38 @@ def main() -> int:
                 raise RuntimeError('Live preview is not visible after enabling Live: '
                                    f'checked={screen._preview_switch.isChecked()}, '
                                    f'card={screen._preview_card_attr}')
+            # Since the 2026-09-12 live_preview.py rewrite, opening Live no
+            # longer loads a field: the panel fills its set table from the
+            # first image the user chooses. Choose one the way a user does,
+            # through the genuine "Choose image…" dialog, and record it.
+            settle(3)
+            if getattr(panel, '_image', None) is None:
+                from PySide6.QtWidgets import QFileDialog
+                field = Path.home() / '.cache/spacr/example_data/plate1/plate1_E01_T0001F001L01A02Z01C01.tif'
+                if not field.is_file():
+                    raise RuntimeError(f'The downloaded example has no {field.name}')
+                chosen, attempts = [], []
+
+                def choose_field():
+                    dialogs = [w for w in app.topLevelWidgets()
+                               if isinstance(w, QFileDialog) and w.isVisible()]
+                    if len(dialogs) != 1:
+                        attempts.append(len(dialogs))
+                        if len(attempts) < 100:
+                            QTimer.singleShot(200, choose_field)
+                        return
+                    dialogs[0].selectFile(str(field))
+                    settle(0.5)
+                    capture('04a_choose_image')
+                    chosen.append(field.name)
+                    dialogs[0].accept()
+
+                QTimer.singleShot(300, choose_field)
+                QTest.mouseClick(panel._pick_btn, Qt.LeftButton)
+                if not chosen:
+                    raise RuntimeError('The Choose image dialog did not accept a field')
+                write_json(captures / 'preview_choice.json',
+                           {'route': 'Choose image…', 'field': chosen[0]})
             deadline = time.monotonic() + 90
             while getattr(panel, '_image', None) is None:
                 if time.monotonic() > deadline:
