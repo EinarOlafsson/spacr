@@ -681,7 +681,7 @@
       "section": "Módulos principais",
       "description": "Use o exemplo real baixado, compare área e diâmetro ao vivo, processe dois campos com Plot ativo e recupere uma sobreposição por uma etapa explícita em Python.",
       "objectives": [
-        "Encontrar Mask na Home e os controles internos Live, Time e 3D.",
+        "Encontrar Mask na Home e os controles internos Live, Time, 3D e OPS.",
         "Verificar metadados e canais antes de segmentar.",
         "Distinguir filtro reversível de nova inferência com outro parâmetro.",
         "Examinar resultados reais, manter o aviso de sobreposição parcial e exportar ambos os arrays.",
@@ -690,17 +690,18 @@
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "Use o download real de Mask e mantenha identidades de canais e metadados. O código Live não mudou desde a gravação preservada: arrays conferidos mostram 51→25→51 com área mínima 5642 e 42 após diâmetro 30→60. O novo lote de dois campos é outro exemplo, não comparação direta: Plot=True, test_images=2, batch_size=2, n_jobs=2, diâmetros 30/30/15 e limiares de fluxo 0.4 para os três objetos. O 100 do arquivo desativa o filtro e não é recomendado como padrão. O laço nativo AINDA falha em .spacr_plane_layout.json: falta uma de duas sobreposições apesar de Finished. Não apague o metadado nem habilite pickle. O helper chama spacr.plot.plot_image_mask_overlay somente em .npy regulares; exige quatro canais e máscaras célula/núcleo/patógeno em 4/5/6. Grava PNG opacos em pasta nova sem alterar arrays ou corrigir a GUI. Hashes correspondem ao diário nativo. Rótulos finais: 25/19/8 e 52/50/58; QC do primeiro campo avisa near_empty_field. QC celular precede o ajuste das máscaras. Foram conferidos independentemente 95,424,864 valores RGB dos painéis e 7,952,072 pixels de cobertura combinada, não exatidão biológica. Falhas e testes transparentes preservados, não apresentados como completos. Sem solicitação AI, treinamento, aprovação ou publicação. API: spacr.core.preprocess_generate_masks e spacr.plot.plot_image_mask_overlay. OPS segue não demonstrado e não é ensinado.",
+      "prerequisite": "Use o download real de Mask e mantenha identidades de canais e metadados. A prévia Live foi gravada no 1.5.0.7 com as configurações fornecidas do exemplo em uma cópia nova e só é reutilizada enquanto live_preview.py e preview_contract.py permanecerem idênticos byte a byte a essa gravação: arrays conferidos mostram 105→52→105 com área mínima 510 e 36 após diâmetro 30→60. O novo lote de dois campos é outro exemplo, não comparação direta: Plot=True, test_images=2, batch_size=2, n_jobs=2, diâmetros 30/30/15 e limiares de fluxo 0.4 para os três objetos. O 100 do arquivo desativa o filtro e não é recomendado como padrão. O laço nativo AINDA falha em .spacr_plane_layout.json: falta uma de duas sobreposições apesar de Finished. Não apague o metadado nem habilite pickle. O helper chama spacr.plot.plot_image_mask_overlay somente em .npy regulares; exige quatro canais e máscaras célula/núcleo/patógeno em 4/5/6. Grava PNG opacos em pasta nova sem alterar arrays ou corrigir a GUI. Hashes correspondem ao diário nativo. Rótulos finais: 25/19/8 e 52/50/58; QC do primeiro campo avisa near_empty_field. QC celular precede o ajuste das máscaras. Foram conferidos independentemente 95,424,864 valores RGB dos painéis e 7,952,072 pixels de cobertura combinada, não exatidão biológica. Falhas e testes transparentes preservados, não apresentados como completos. Sem solicitação AI, treinamento, aprovação ou publicação. API: spacr.core.preprocess_generate_masks e spacr.plot.plot_image_mask_overlay. OPS é uma página separada, aberta pela linha de ações de Mask, com sua própria aula; esta aula não o executa.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Abra Mask pela Home. É um módulo principal; Live, Time e as configurações tridimensionais ficam dentro dele. Time tem sua própria aula vinculada sob Mask na seção de submódulos. Esta aula mostra um exemplo bidimensional, comparações ao vivo e uma solução alternativa para gráficos, não uma segmentação validada automaticamente.",
+          "narration": "Abra Mask pela Home. É um módulo principal; sua linha de ações contém os seletores Live, Time, tridimensional e OPS. Time e OPS têm cada um sua própria aula vinculada sob Mask na seção de submódulos. Esta aula mostra um exemplo bidimensional, comparações ao vivo e uma solução alternativa para gráficos, não uma segmentação validada automaticamente.",
           "related_lessons": [
             "05_home",
-            "17_timelapse"
+            "17_timelapse",
+            "76_ops"
           ],
           "hold_after": 0.7,
-          "speech_text": "Abra Mask pela Home. É um módulo principal; Live, Time e as configurações tridimensionais ficam dentro dele. Time tem sua própria aula vinculada sob Mask na seção de submódulos. Esta aula mostra um exemplo bidimensional, comparações ao vivo e uma solução alternativa para gráficos, não uma segmentação validada automaticamente."
+          "speech_text": "Abra Mask pela Home. É um módulo principal; sua linha de ações contém os seletores Live, Time, tridimensional e OPS. Time e OPS têm cada um sua própria aula vinculada sob Mask na seção de submódulos. Esta aula mostra um exemplo bidimensional, comparações ao vivo e uma solução alternativa para gráficos, não uma segmentação validada automaticamente."
         },
         {
           "visual": "native_02_download",
@@ -716,9 +717,9 @@
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Ative Live e escolha um campo. A prévia permite comparar a imagem com as máscaras propostas antes de uma execução maior. A gravação preservada usa um campo diferente dos dois campos do lote posterior. Uma contagem da prévia não é diretamente comparável ao total de um lote.",
+          "narration": "Ative Live e escolha um campo. A prévia permite comparar a imagem com as máscaras propostas antes de uma execução maior. Esta prévia usa um campo diferente dos dois campos do lote posterior. Uma contagem da prévia não é diretamente comparável ao total de um lote.",
           "hold_after": 0.7,
-          "speech_text": "Ative Live e escolha um campo. A prévia permite comparar a imagem com as máscaras propostas antes de uma execução maior. A gravação preservada usa um campo diferente dos dois campos do lote posterior. Uma contagem da prévia não é diretamente comparável ao total de um lote."
+          "speech_text": "Ative Live e escolha um campo. A prévia permite comparar a imagem com as máscaras propostas antes de uma execução maior. Esta prévia usa um campo diferente dos dois campos do lote posterior. Uma contagem da prévia não é diretamente comparável ao total de um lote."
         },
         {
           "visual": "preview_05_live_settings",
@@ -728,21 +729,21 @@
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "O resultado inicial contém cinquenta e um rótulos celulares. Aumentar a área mínima para cinco mil seiscentos e quarenta e dois pixels deixa vinte e cinco visíveis. É um filtro reversível do resultado existente: a máscara bruta não muda e o modelo não é executado novamente. O limiar demonstra o controle, não um corte biológico ótimo.",
+          "narration": "O resultado inicial contém cento e cinco rótulos celulares. Aumentar a área mínima para quinhentos e dez pixels deixa cinquenta e dois visíveis. É um filtro reversível do resultado existente: a máscara bruta não muda e o modelo não é executado novamente. O limiar demonstra o controle, não um corte biológico ótimo.",
           "hold_after": 0.7,
-          "speech_text": "O resultado inicial contém cinquenta e um rótulos celulares. Aumentar a área mínima para cinco mil seiscentos e quarenta e dois pixels deixa vinte e cinco visíveis. É um filtro reversível do resultado existente: a máscara bruta não muda e o modelo não é executado novamente. O limiar demonstra o controle, não um corte biológico ótimo."
+          "speech_text": "O resultado inicial contém cento e cinco rótulos celulares. Aumentar a área mínima para quinhentos e dez pixels deixa cinquenta e dois visíveis. É um filtro reversível do resultado existente: a máscara bruta não muda e o modelo não é executado novamente. O limiar demonstra o controle, não um corte biológico ótimo."
         },
         {
           "visual": "preview_10_filters_restored",
-          "narration": "Restaure o limite de área original e os cinquenta e um rótulos voltam. Antes de adotar um filtro, examine quais objetos desaparecem e por quê. Objetos pequenos podem ser reais ou erros de segmentação; removê-los não resolve essa dúvida. Mantenha resultado bruto e valores do filtro identificáveis separadamente.",
+          "narration": "Restaure o limite de área original e os cento e cinco rótulos voltam. Antes de adotar um filtro, examine quais objetos desaparecem e por quê. Objetos pequenos podem ser reais ou erros de segmentação; removê-los não resolve essa dúvida. Mantenha resultado bruto e valores do filtro identificáveis separadamente.",
           "hold_after": 0.7,
-          "speech_text": "Restaure o limite de área original e os cinquenta e um rótulos voltam. Antes de adotar um filtro, examine quais objetos desaparecem e por quê. Objetos pequenos podem ser reais ou erros de segmentação; removê-los não resolve essa dúvida. Mantenha resultado bruto e valores do filtro identificáveis separadamente."
+          "speech_text": "Restaure o limite de área original e os cento e cinco rótulos voltam. Antes de adotar um filtro, examine quais objetos desaparecem e por quê. Objetos pequenos podem ser reais ou erros de segmentação; removê-los não resolve essa dúvida. Mantenha resultado bruto e valores do filtro identificáveis separadamente."
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "Mudar o diâmetro de trinta para sessenta pixels e executar novamente compara um parâmetro do modelo, não só um filtro visual. Isso produz quarenta e dois rótulos no campo gravado. Compare limites com a imagem, não apenas contagens. Menos rótulos não comprovam um modelo melhor, e essas configurações não são universais.",
+          "narration": "Mudar o diâmetro de trinta para sessenta pixels e executar novamente compara um parâmetro do modelo, não só um filtro visual. Isso produz trinta e seis rótulos no campo gravado. Compare limites com a imagem, não apenas contagens. Menos rótulos não comprovam um modelo melhor, e essas configurações não são universais.",
           "hold_after": 0.7,
-          "speech_text": "Mudar o diâmetro de trinta para sessenta pixels e executar novamente compara um parâmetro do modelo, não só um filtro visual. Isso produz quarenta e dois rótulos no campo gravado. Compare limites com a imagem, não apenas contagens. Menos rótulos não comprovam um modelo melhor, e essas configurações não são universais."
+          "speech_text": "Mudar o diâmetro de trinta para sessenta pixels e executar novamente compara um parâmetro do modelo, não só um filtro visual. Isso produz trinta e seis rótulos no campo gravado. Compare limites com a imagem, não apenas contagens. Menos rótulos não comprovam um modelo melhor, e essas configurações não são universais."
         },
         {
           "visual": "native_20_batch_settings",

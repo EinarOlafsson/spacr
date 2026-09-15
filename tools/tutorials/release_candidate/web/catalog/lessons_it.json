@@ -681,7 +681,7 @@
       "section": "Moduli principali",
       "description": "Usa il vero esempio scaricabile, confronta area e diametro dal vivo, elabora due campi con Plot attivo e recupera una sovrapposizione con un passaggio Python esplicito.",
       "objectives": [
-        "Trovare Mask in Home e i controlli integrati Live, Time e 3D.",
+        "Trovare Mask in Home e i controlli integrati Live, Time, 3D e OPS.",
         "Verificare metadati e canali prima della segmentazione.",
         "Distinguere filtro reversibile e nuova inferenza con un altro parametro.",
         "Esaminare risultati reali, conservare l’avviso e produrre entrambe le sovrapposizioni.",
@@ -690,17 +690,18 @@
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "Usa il vero download Mask e conserva identità dei canali e metadati. Il codice Live è invariato rispetto al filmato conservato: gli array verificano 51→25→51 con area minima 5642 e 42 dopo diametro 30→60. Il nuovo lotto di due campi è un esempio diverso, non un confronto diretto: Plot=True, test_images=2, batch_size=2, n_jobs=2, diametri 30/30/15 e soglie di flusso 0.4 per tutti e tre gli oggetti. Il valore 100 dell’archivio disattiva il filtro e non è consigliato come predefinito. Il ciclo nativo fallisce ANCORA su .spacr_plane_layout.json: manca una sovrapposizione su due nonostante Finished. Non eliminare il metadato né abilitare pickle. Lo script chiama spacr.plot.plot_image_mask_overlay solo su .npy regolari; richiede quattro canali seguiti da cellula/nucleo/patogeno nei piani 4/5/6. Scrive PNG opachi in una nuova cartella senza alterare gli array o riparare la GUI. Gli hash coincidono con il diario nativo. Etichette finali 25/19/8 e 52/50/58; nel primo campo QC segnala near_empty_field. QC cellulare precede l’aggiustamento delle maschere. Verificati indipendentemente 95,424,864 valori RGB e 7,952,072 pixel di copertura combinata, non accuratezza biologica. Fallimenti e prove trasparenti restano conservati, non presentati come completi. Nessuna richiesta AI, formazione di modelli, approvazione o pubblicazione. API: spacr.core.preprocess_generate_masks e spacr.plot.plot_image_mask_overlay. OPS resta non dimostrato e non viene insegnato.",
+      "prerequisite": "Usa il vero download Mask e conserva identità dei canali e metadati. L’anteprima Live è stata registrata su 1.5.0.7 con le impostazioni fornite dell’esempio su una copia nuova ed è riutilizzata solo finché live_preview.py e preview_contract.py restano identici byte per byte a quella registrazione: gli array verificano 105→52→105 con area minima 510 e 36 dopo diametro 30→60. Il nuovo lotto di due campi è un esempio diverso, non un confronto diretto: Plot=True, test_images=2, batch_size=2, n_jobs=2, diametri 30/30/15 e soglie di flusso 0.4 per tutti e tre gli oggetti. Il valore 100 dell’archivio disattiva il filtro e non è consigliato come predefinito. Il ciclo nativo fallisce ANCORA su .spacr_plane_layout.json: manca una sovrapposizione su due nonostante Finished. Non eliminare il metadato né abilitare pickle. Lo script chiama spacr.plot.plot_image_mask_overlay solo su .npy regolari; richiede quattro canali seguiti da cellula/nucleo/patogeno nei piani 4/5/6. Scrive PNG opachi in una nuova cartella senza alterare gli array o riparare la GUI. Gli hash coincidono con il diario nativo. Etichette finali 25/19/8 e 52/50/58; nel primo campo QC segnala near_empty_field. QC cellulare precede l’aggiustamento delle maschere. Verificati indipendentemente 95,424,864 valori RGB e 7,952,072 pixel di copertura combinata, non accuratezza biologica. Fallimenti e prove trasparenti restano conservati, non presentati come completi. Nessuna richiesta AI, formazione di modelli, approvazione o pubblicazione. API: spacr.core.preprocess_generate_masks e spacr.plot.plot_image_mask_overlay. OPS è una pagina separata aperta dalla riga di azioni di Mask e ha una propria lezione; questa lezione non lo esegue.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Apri Mask da Home. È un modulo principale; Live, Time e le impostazioni tridimensionali sono al suo interno. Time ha una lezione collegata sotto Mask nei sottomoduli. Qui mostriamo un esempio bidimensionale, confronti dal vivo e una soluzione alternativa di visualizzazione, non una segmentazione validata automaticamente.",
+          "narration": "Apri Mask da Home. È un modulo principale; la sua riga di azioni contiene gli interruttori Live, Time, tridimensionale e OPS. Time e OPS hanno ciascuno una lezione collegata sotto Mask nei sottomoduli. Qui mostriamo un esempio bidimensionale, confronti dal vivo e una soluzione alternativa di visualizzazione, non una segmentazione validata automaticamente.",
           "related_lessons": [
             "05_home",
-            "17_timelapse"
+            "17_timelapse",
+            "76_ops"
           ],
           "hold_after": 0.7,
-          "speech_text": "Apri Mask da Home. È un modulo principale; Live, Time e le impostazioni tridimensionali sono al suo interno. Time ha una lezione collegata sotto Mask nei sottomoduli. Qui mostriamo un esempio bidimensionale, confronti dal vivo e una soluzione alternativa di visualizzazione, non una segmentazione validata automaticamente."
+          "speech_text": "Apri Mask da Home. È un modulo principale; la sua riga di azioni contiene gli interruttori Live, Time, tridimensionale e OPS. Time e OPS hanno ciascuno una lezione collegata sotto Mask nei sottomoduli. Qui mostriamo un esempio bidimensionale, confronti dal vivo e una soluzione alternativa di visualizzazione, non una segmentazione validata automaticamente."
         },
         {
           "visual": "native_02_download",
@@ -716,9 +717,9 @@
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Attiva Live e scegli un campo. L’anteprima permette di confrontare immagine e maschere proposte prima di un’esecuzione più ampia. Il filmato conservato usa un campo diverso dai due campi del lotto successivo. Un conteggio dell’anteprima non è direttamente confrontabile con il totale di un lotto.",
+          "narration": "Attiva Live e scegli un campo. L’anteprima permette di confrontare immagine e maschere proposte prima di un’esecuzione più ampia. Questa anteprima usa un campo diverso dai due campi del lotto successivo. Un conteggio dell’anteprima non è direttamente confrontabile con il totale di un lotto.",
           "hold_after": 0.7,
-          "speech_text": "Attiva Live e scegli un campo. L’anteprima permette di confrontare immagine e maschere proposte prima di un’esecuzione più ampia. Il filmato conservato usa un campo diverso dai due campi del lotto successivo. Un conteggio dell’anteprima non è direttamente confrontabile con il totale di un lotto."
+          "speech_text": "Attiva Live e scegli un campo. L’anteprima permette di confrontare immagine e maschere proposte prima di un’esecuzione più ampia. Questa anteprima usa un campo diverso dai due campi del lotto successivo. Un conteggio dell’anteprima non è direttamente confrontabile con il totale di un lotto."
         },
         {
           "visual": "preview_05_live_settings",
@@ -728,21 +729,21 @@
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "Il risultato iniziale contiene cinquantuno etichette cellulari. Portando l’area minima a cinquemilaseicentoquarantadue pixel ne restano visibili venticinque. È un filtro reversibile del risultato esistente: la maschera grezza non cambia e il modello non riparte. La soglia serve a dimostrare il controllo, non è un limite biologico ottimale.",
+          "narration": "Il risultato iniziale contiene centocinque etichette cellulari. Portando l’area minima a cinquecentodieci pixel ne restano visibili cinquantadue. È un filtro reversibile del risultato esistente: la maschera grezza non cambia e il modello non riparte. La soglia serve a dimostrare il controllo, non è un limite biologico ottimale.",
           "hold_after": 0.7,
-          "speech_text": "Il risultato iniziale contiene cinquantuno etichette cellulari. Portando l’area minima a cinquemilaseicentoquarantadue pixel ne restano visibili venticinque. È un filtro reversibile del risultato esistente: la maschera grezza non cambia e il modello non riparte. La soglia serve a dimostrare il controllo, non è un limite biologico ottimale."
+          "speech_text": "Il risultato iniziale contiene centocinque etichette cellulari. Portando l’area minima a cinquecentodieci pixel ne restano visibili cinquantadue. È un filtro reversibile del risultato esistente: la maschera grezza non cambia e il modello non riparte. La soglia serve a dimostrare il controllo, non è un limite biologico ottimale."
         },
         {
           "visual": "preview_10_filters_restored",
-          "narration": "Ripristina il limite di area iniziale e ritornano tutte le cinquantuno etichette. Prima di adottare un filtro, esamina quali oggetti spariscono e perché. Piccoli oggetti possono essere reali o errori di segmentazione; eliminarli non risolve il dubbio. Mantieni identificabili separatamente risultato grezzo e valori del filtro.",
+          "narration": "Ripristina il limite di area iniziale e ritornano tutte le centocinque etichette. Prima di adottare un filtro, esamina quali oggetti spariscono e perché. Piccoli oggetti possono essere reali o errori di segmentazione; eliminarli non risolve il dubbio. Mantieni identificabili separatamente risultato grezzo e valori del filtro.",
           "hold_after": 0.7,
-          "speech_text": "Ripristina il limite di area iniziale e ritornano tutte le cinquantuno etichette. Prima di adottare un filtro, esamina quali oggetti spariscono e perché. Piccoli oggetti possono essere reali o errori di segmentazione; eliminarli non risolve il dubbio. Mantieni identificabili separatamente risultato grezzo e valori del filtro."
+          "speech_text": "Ripristina il limite di area iniziale e ritornano tutte le centocinque etichette. Prima di adottare un filtro, esamina quali oggetti spariscono e perché. Piccoli oggetti possono essere reali o errori di segmentazione; eliminarli non risolve il dubbio. Mantieni identificabili separatamente risultato grezzo e valori del filtro."
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "Cambiare il diametro da trenta a sessanta pixel e rieseguire confronta un parametro del modello, non soltanto un filtro visivo. Nel campo registrato produce quarantadue etichette. Confronta i confini con l’immagine, non solo i conteggi. Meno etichette non dimostrano un modello migliore e queste impostazioni non sono universali.",
+          "narration": "Cambiare il diametro da trenta a sessanta pixel e rieseguire confronta un parametro del modello, non soltanto un filtro visivo. Nel campo registrato produce trentasei etichette. Confronta i confini con l’immagine, non solo i conteggi. Meno etichette non dimostrano un modello migliore e queste impostazioni non sono universali.",
           "hold_after": 0.7,
-          "speech_text": "Cambiare il diametro da trenta a sessanta pixel e rieseguire confronta un parametro del modello, non soltanto un filtro visivo. Nel campo registrato produce quarantadue etichette. Confronta i confini con l’immagine, non solo i conteggi. Meno etichette non dimostrano un modello migliore e queste impostazioni non sono universali."
+          "speech_text": "Cambiare il diametro da trenta a sessanta pixel e rieseguire confronta un parametro del modello, non soltanto un filtro visivo. Nel campo registrato produce trentasei etichette. Confronta i confini con l’immagine, non solo i conteggi. Meno etichette non dimostrano un modello migliore e queste impostazioni non sono universali."
         },
         {
           "visual": "native_20_batch_settings",
