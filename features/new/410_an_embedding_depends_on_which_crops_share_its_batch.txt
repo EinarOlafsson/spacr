@@ -1,0 +1,80 @@
+================================================================================
+AN OBJECT'S EMBEDDING DEPENDS ON WHICH OTHER CROPS SHARE ITS BATCH
+================================================================================
+
+Status:    OPEN, filed 2026-09-15. A correctness defect in a public function,
+           found by the item-395 benchmark run. Not fixed here: the fix
+           changes what `EmbeddingSpec(normalize=True)` means, so it needs a
+           decision and a nine-language re-translation of its docstring.
+Requested: not requested. Found while building the 395 retrieval harness.
+Numbered: filed as 409 and renumbered 410 the same night, because the work
+           session's 409 (the theme sweep is one widget from red) was pushed
+           first.
+Owner:     unassigned. `spacr/embeddings.py`.
+
+--------------------------------------------------------------------------------
+THE DEFECT, EXACTLY
+--------------------------------------------------------------------------------
+
+`EmbeddingSpec.normalize` (default True) is documented as "divide each channel
+by its own 99th percentile". `_scaled` does that to whatever plane it is given
+(spacr/embeddings.py:250-254), and `embed_array` gives it
+`array[..., channel]` (lines 282 and 291) -- where `array` is the WHOLE BATCH,
+shape (n, height, width, channels). So the percentile is taken over every crop
+in the batch at once, not over each crop.
+
+The consequence is that the same object is scaled differently depending on
+its neighbours. Measured on one c1 crop from methods_paper plate1, channel-1
+input mean after scaling:
+
+    the crop alone                     0.311
+    batched with other c1 crops        0.076
+    batched with c2 crops              0.094
+
+About a 4x change in input for an unchanged object, and a different change
+for a c1 batch than for a c2 batch -- so a batch that is sorted by condition
+leaks the condition into the scaling. With `normalize=False` the output is
+identical alone or batched.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+An embedding is supposed to be a property of the object. When it is a property
+of the object and its batch-mates, any comparison built on it -- retrieval,
+kNN phenotype scores, clustering, Image UMAP -- can separate conditions for a
+reason that is not biology. The 2026-09-12 run behind item 386 fed batches
+sorted by column, so its resnet18 inputs were partly scaled per column; that
+is one more reason item 395 was rerun from scratch rather than compared
+against those numbers.
+
+--------------------------------------------------------------------------------
+WHAT TO DO -- A DECISION, THEN A SMALL CHANGE
+--------------------------------------------------------------------------------
+
+Three honest options:
+
+  a. PER-CROP percentile. Each crop scaled by its own 99th percentile. Simple
+     and batch-independent, but it throws away absolute intensity: a dim
+     object and a bright one come out alike, which hurts any phenotype that
+     IS brightness.
+  b. A FIXED SCALE PER CHANNEL, carried by the spec and estimated once per
+     plate from a random sample. This is what the 395 harness did (85, 79 and
+     198 for channels 0-2, from 2,048 random crops) and it keeps relative
+     intensity while removing the batch dependence. Needs a way to estimate
+     and store the scale with a run.
+  c. Keep batch scaling but shuffle batches. Reduces the condition leak and
+     does not remove the dependence. Not recommended.
+
+Whichever is chosen, the docstring of `EmbeddingSpec.normalize` changes, and
+that block is pinned in the nine API catalogs, so the change ships with its
+translations in the same push.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A test that embeds one crop alone and the same crop inside two differently
+composed batches, with the default spec, and asserts the scaled input and the
+embedding are identical across all three -- and that fails on the current
+code first.
