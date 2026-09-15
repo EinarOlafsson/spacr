@@ -611,3 +611,33 @@ MEASURED, against a stand-in XDG_STATE_HOME in place of the real home:
   13_REGRESSION STATE: captured, composed (staged), master encoded, matrix
     passed, 1440p staged and browser-checked. NOT in a release candidate
     yet (see below). Narration, translations and the 50 tracks are unchanged.
+
+07_MASK SCENE 10 RE-CHECKED AT HEAD (code reading, not a new run). The batch
+  overlay loop in spacr/core.py (preprocess_generate_masks, plot=True, not
+  timelapse) still does `files = os.listdir(merged_src)` with no `.npy`
+  filter, shuffles, and plots the first examples_to_plot entries. Only the
+  test-mode COUNT filters `.npy`. So .spacr_plane_layout.json can still be
+  handed to plot_image_mask_overlay as an image, which is the failure scene 10
+  narrates. The only commit on spacr/core.py or spacr/plot.py since the 09-11
+  run is d0334c103 (09-13, comment removal). Scene 10 and its "STILL fails"
+  prerequisite stay accurate. The application fix belongs to that file's
+  owner, not to the tutorial lane.
+  mask_preview_evidence.inspect on the 09-09 captures/mask reproduces 51 ->
+  25 (minimum area 5642) -> 51 and 42 after the diameter change. The tool is
+  sound for the re-recording.
+
+RELEASE CANDIDATE WITH THE NEW 13_REGRESSION (built before 07_mask, so a
+  verified candidate exists whatever happens to the GPU queue tonight).
+  release-candidate-tytdds1k: 76 ready, 77 routes, 3,800 tracks, 7,875
+  files, 365,626,408 web bytes (ceiling 734,003,200), Coming soon =
+  71_investigate_hit. Compared with zveusu2j file by file, it differs in
+  exactly four paths: 13_regression's web copy (4c82cc82...), 4K master
+  (27d062fd...), poster, and web/module_navigation.js, whose only changed
+  value is source_commit (455c4d29 -> e668e60a). No other lesson's bytes
+  moved. It stays private and held; nothing was uploaded.
+  Build call (no repo script passes the promotions):
+    cd tools/tutorials && PYTHONPATH=<repo>:<repo>/tools/tutorials $V -c "
+    from pathlib import Path; from build_release_candidate import build
+    from model_promotion import MODELS; s = Path('$ST')
+    build(s, baseline=s / 'baseline-d2d4c189b-hmx3Us/docs/source/_extra/tutorials/catalog',
+          model_promotions=set(MODELS), barcode_promotion=True)"
