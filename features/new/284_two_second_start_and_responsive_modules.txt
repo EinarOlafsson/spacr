@@ -444,3 +444,69 @@ WHAT THIS DOES NOT SETTLE, AND WHY THE ITEM STAYS OPEN
 SO: the item's own budgets pass and its own acceptance text does not. It stays
 open on the stall ceiling alone, which is a smaller and much better-defined
 thing than what it was open on this morning.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- TWO FIXES ON THE STALL, AND A BROKEN INSTRUMENT FOUND ON THE WAY
+--------------------------------------------------------------------------------
+
+The item was left open on the 500 ms stall ceiling alone. These are the first
+two things a PROFILE of a regression-screen open found, as opposed to a guess.
+Neither is close to enough, and both were free.
+
+THE QUADRATIC DUPLICATE CHECK. `settings._advanced_family_members` skipped
+keys it had already filed with `key in found`, where `found` is a LIST. spaCR
+files 37,165 setting keys across 706 object roles, so that list grows to
+~4,900 entries and is scanned once per candidate: roughly TWELVE MILLION
+string comparisons to file one family, three families per import.
+
+  A set now answers the membership question. The list still decides the
+  ORDER, which is the contract -- the Advanced panel lays keys out object then
+  suffix, and swapping the list for a set would reshuffle every panel while
+  passing a timing test.
+
+      family                            before    after
+      Image preprocessing (per object)  52.5 ms   2.9 ms
+      Object filtration                 72.9 ms   2.5 ms
+      Intensity handling                11.4 ms   1.6 ms
+
+  `_regroup_advanced` was ALSO calling it twice per family -- once to learn
+  which keys to empty out of the per-object categories, once to file them
+  under the family headings -- and the second set of calls returned exactly
+  what the first had found. Verified identical for all three families before
+  the calls were merged, rather than argued from reading the code.
+
+THE SETTINGS DEFAULT THAT IMPORTED PANDAS. `_outlier_criteria` reached four
+(key, name) pairs through `spacr.outlier_filter`, which imports pandas at
+module level: 211 ms on the MAIN THREAD while a settings panel was being laid
+out, spent before anything had been run. The pairs now live in
+`spacr/outlier_criteria.py`, which imports nothing but `typing`;
+`outlier_filter` re-exports both names so every existing importer is unchanged.
+
+  IT ALSO DELETED A SECOND COPY OF THE SAME FOUR PAIRS. `_outlier_criteria`
+  carried a hand-written fallback for the case where the import failed,
+  identical to the real `CRITERIA`, and nothing compared them -- so a
+  criterion added to one and not the other would have gone missing from the
+  panel with no test to notice.
+
+MEASURED, interleaved arms, with `sys.path` pinned to the tree under test:
+
+      import spacr.settings        413 ms -> 156 ms   (4 rounds each)
+      open the Regression screen   1.53 s -> 1.33 s   (3 rounds each)
+
+AND THE INSTRUMENT WAS WRONG FIRST, which is the part worth writing down.
+The profiler and the timing harness lived in `/tmp` and were run as
+`python /tmp/.../harness.py`. That puts `/tmp` on `sys.path[0]`, so
+`import spacr` resolved to the INSTALLED package in the main checkout rather
+than to the worktree, and every screen-open number taken that way measured
+code the edits had never touched. It surfaced as a contradiction -- a direct
+import 257 ms faster while the screen open was unchanged to the millisecond --
+and a contradiction that sharp is a broken instrument, not a surprising
+result. The harness now asserts `spacr.__file__` starts with the tree it was
+given. ANY benchmark run from a script outside a worktree has this bug.
+
+WHAT THIS DOES NOT DO: 205 ms is 13% of one module's open. The ceiling needs
+13x on regression. The item stays open, on the same ceiling, for the same
+reason -- what is left is the rest of the screen build, and the profile says
+~1.0 s of the remaining 1.33 s is IMPORTS pulled in on the click path. That is
+the next thing to look at, and it is a question about WHEN those imports
+happen rather than about making them faster.
