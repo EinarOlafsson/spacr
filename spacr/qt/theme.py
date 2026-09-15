@@ -2145,7 +2145,7 @@ FONT_SIZE = {
 
 #: The only floor a zoomed font size keeps, in px, and it is Qt's rather
 #: than a readability choice. ``QFont.setPixelSize`` refuses zero or less
-#: ("Pixel size <= 0"), and a style sheet's ``font-size: 0px`` reaches that
+#: ("Pixel size <= 0"), and a style sheet's zero ``font-size`` reaches that
 #: call, so a scaled size never drops below one pixel. Nothing larger is
 #: imposed: the smallest Zoom is :data:`spacr.qt.preferences.FONT_SCALE_MIN`,
 #: and a second floor here would make every setting below it render alike.
