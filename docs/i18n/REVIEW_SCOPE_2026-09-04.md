@@ -51,17 +51,29 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,729 | Remainder | Reviewed API blocks | Of 10,521 | Remainder |
+| Language | Reviewed runtime records | Of 5,747 | Remainder | Reviewed API blocks | Of 10,521 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 201 | 3.51% | 5,528 | 616 | 5.85% | 9,905 |
-| German | 165 | 2.88% | 5,564 | 574 | 5.46% | 9,947 |
-| Spanish | 174 | 3.04% | 5,555 | 455 | 4.32% | 10,066 |
-| Simplified Chinese | 464 | 8.10% | 5,265 | 722 | 6.86% | 9,799 |
-| Portuguese | 162 | 2.83% | 5,567 | 686 | 6.52% | 9,835 |
-| Hindi | 245 | 4.28% | 5,484 | 614 | 5.84% | 9,907 |
-| Korean | 366 | 6.39% | 5,363 | 691 | 6.57% | 9,830 |
-| Icelandic | 311 | 5.43% | 5,418 | 1,185 | 11.26% | 9,336 |
-| French | 179 | 3.12% | 5,550 | 615 | 5.85% | 9,906 |
+| Swedish | 219 | 3.81% | 5,528 | 616 | 5.85% | 9,905 |
+| German | 183 | 3.18% | 5,564 | 574 | 5.46% | 9,947 |
+| Spanish | 192 | 3.34% | 5,555 | 455 | 4.32% | 10,066 |
+| Simplified Chinese | 482 | 8.39% | 5,265 | 722 | 6.86% | 9,799 |
+| Portuguese | 180 | 3.13% | 5,567 | 686 | 6.52% | 9,835 |
+| Hindi | 263 | 4.58% | 5,484 | 614 | 5.84% | 9,907 |
+| Korean | 384 | 6.68% | 5,363 | 691 | 6.57% | 9,830 |
+| Icelandic | 329 | 5.72% | 5,418 | 1,185 | 11.26% | 9,336 |
+| French | 197 | 3.43% | 5,550 | 615 | 5.85% | 9,906 |
+
+*Regenerated 2026-09-15 for the magnifier's border option and whole-image
+mode (407), rebased onto nightly df1216b3f, on top of the pass below. The
+runtime denominator moves 5,729 -> 5,747, +21/-3 and all UI: 21 new captions
+(the border checkbox and its tooltip, the Segment row with its two choices and
+their tooltip, a reworded card subtitle, Size tooltip and Magnifier-button
+tooltip, and eleven status lines) and the three earlier wordings they replace.
+EVERY RUNTIME COUNT RISES BY 18 AND NO REMAINDER MOVES: each locale gains the
+21 hand-written records of 2026-09-15-magnifier-whole-image.json and loses the
+3 records for the retired wordings, deleted from
+2026-09-15-live-magnifier.json. 2,267 + 9 x 18 = 2,429. The API side does not
+move; no public symbol changed.*
 
 *Regenerated 2026-09-15 for the deletion of the old OPS engine (372), on top of
 the pass below. The API denominator moves 10,541 -> 10,521, +0/-20: the 17
@@ -324,5 +336,5 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 201, de 165, es 174, zh_CN 464, pt 162, hi 245, ko 366, is 311, fr 179 -- 2,267 runtime records across nine locales.
+Reviewed totals today: sv 219, de 183, es 192, zh_CN 482, pt 180, hi 263, ko 384, is 329, fr 197 -- 2,429 runtime records across nine locales.
 
