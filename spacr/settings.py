@@ -309,6 +309,11 @@ def _ensure_bundled_barcode(kind, fetch=None):
     url = _bundled_barcode_url(kind)
     if fetch is None:
         def fetch(target):
+            """Read ``target`` over the network and return its bytes.
+
+            :param target: the raw GitHub URL of one bundled CSV.
+            :returns: the response body, unchecked -- the caller verifies it.
+            """
             from urllib.request import urlopen
 
             with urlopen(target, timeout=30) as response:   # noqa: S310
