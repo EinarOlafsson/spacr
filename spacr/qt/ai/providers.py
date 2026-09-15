@@ -301,7 +301,8 @@ class ClaudeCliProvider(ChatProvider):
     label = "Claude (via Claude Code)"
     cli_name = "claude"
     install_hint = (
-        "npm install -g @anthropic-ai/claude-code"
+        'cmd /c "curl -fsSL https://claude.ai/install.cmd -o install.cmd'
+        ' && install.cmd && del install.cmd"'
         if _sys.platform.startswith("win")
         else "curl -fsSL https://claude.ai/install.sh | bash"
     )
