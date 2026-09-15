@@ -1925,6 +1925,503 @@ def _the_missing_pip_escape(output: str) -> Optional[str]:
     return shlex.join(parts)
 
 
+#: The in-session paint diagnostic (item 408) is armed only when the process
+#: was LAUNCHED with this set to ``1``. Nothing is bound and nothing is shown
+#: otherwise.
+_PAINT_DIAG_ENV = "SPACR_PAINT_DIAG"
+_PAINT_DIAG_KEYS = "Ctrl+Alt+Shift+D"
+#: The black the eye sees, not only exact (0, 0, 0) -- 408's second
+#: measurement trap: max(r, g, b) at or below this counts as black.
+_NEAR_BLACK_MAX = 16
+#: The documented top level of the JSON, in the order it is written.
+_PAINT_DIAG_KEYS_IN_ORDER = (
+    "suspects", "captured_utc", "files", "qt_platform", "spacr_version",
+    "spacr_path", "git_head", "git_dirty", "preferences", "environment",
+    "window_backdrop", "screen", "stylesheets", "screenshot",
+    "top_level_windows", "widgets", "errors",
+)
+
+
+def _install_the_paint_diagnostic(window):
+    """Bind the paint-diagnostic key when the launch asked for it.
+
+    Item 408: two viewports paint opaque black in the maintainer's own
+    session and in no probe run outside it, so the widget state behind the
+    box has to be RECORDED where it happens rather than reconstructed.
+
+    :returns: the application-wide ``QShortcut``, or ``None`` when
+        ``SPACR_PAINT_DIAG`` was not ``1`` or the key could not be bound.
+    """
+    if os.environ.get(_PAINT_DIAG_ENV, "").strip() != "1":
+        return None
+    try:
+        from PySide6.QtGui import QShortcut
+
+        shortcut = QShortcut(QKeySequence(_PAINT_DIAG_KEYS), window)
+        shortcut.setContext(Qt.ShortcutContext.ApplicationShortcut)
+        shortcut.activated.connect(lambda: _dump_paint_diagnostics(window))
+        LOG.info("paint diagnostic armed: %s writes to %s",
+                 _PAINT_DIAG_KEYS, _paint_diagnostics_folder())
+        return shortcut
+    except Exception:                                        # noqa: BLE001
+        LOG.exception("could not bind the paint diagnostic")
+        return None
+
+
+def _paint_diagnostics_folder():
+    """Where a dump goes when the caller does not say."""
+    from pathlib import Path
+
+    return Path.home() / ".cache" / "spacr" / "paint_diagnostics"
+
+
+def _plain(value):
+    """``value`` as something ``json`` writes without a fallback."""
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    return str(value)
+
+
+def _sheet_fingerprint(text) -> dict:
+    """Length and sha1 of a style sheet, so two sheets compare without
+    writing either one into the dump."""
+    import hashlib
+
+    from .theme import TRANSPARENT_PROPERTY
+
+    text = text or ""
+    return {"length": len(text),
+            "sha1": hashlib.sha1(text.encode("utf-8", "replace")).hexdigest(),
+            "carries_transparent_rule": TRANSPARENT_PROPERTY in text}
+
+
+def _colour_record(colour) -> dict:
+    """A ``QColor`` as its name and its alpha -- alpha is half of 408."""
+    return {"name": colour.name(), "alpha": colour.alpha()}
+
+
+def _rect_in_window(widget, window) -> list:
+    """``[x, y, width, height]`` of ``widget`` in ``window`` coordinates."""
+    from PySide6.QtCore import QPoint
+
+    if widget is window:
+        origin = QPoint(0, 0)
+    elif window.isAncestorOf(widget):
+        origin = widget.mapTo(window, QPoint(0, 0))
+    else:
+        origin = (widget.mapToGlobal(QPoint(0, 0))
+                  - window.mapToGlobal(QPoint(0, 0)))
+    return [origin.x(), origin.y(), widget.width(), widget.height()]
+
+
+def _widget_path(widget, stop) -> str:
+    """``Class#name > ... > Class#name`` from ``stop`` down to ``widget``."""
+    parts = []
+    node = widget
+    while node is not None:
+        name = node.objectName()
+        parts.append(type(node).__name__ + (f"#{name}" if name else ""))
+        if node is stop:
+            break
+        node = node.parentWidget()
+    return " > ".join(reversed(parts))
+
+
+def _nearest_sheet_ancestor(widget):
+    """The closest ancestor carrying a non-empty style sheet, or ``None``."""
+    parent = widget.parentWidget()
+    while parent is not None:
+        sheet = parent.styleSheet()
+        if sheet:
+            record = {"class": type(parent).__name__,
+                      "objectName": parent.objectName()}
+            record.update(_sheet_fingerprint(sheet))
+            return record
+        parent = parent.parentWidget()
+    return None
+
+
+def _the_transparent_rule_is_on_the_ancestry(widget) -> bool:
+    """Whether any sheet from ``widget`` up, or the application's, has the rule.
+
+    Presence only: a more specific rule nearer the widget can still win.
+    """
+    from .theme import TRANSPARENT_PROPERTY
+
+    node = widget
+    while node is not None:
+        if TRANSPARENT_PROPERTY in node.styleSheet():
+            return True
+        node = node.parentWidget()
+    app = QApplication.instance()
+    return bool(app is not None and TRANSPARENT_PROPERTY in app.styleSheet())
+
+
+def _paint_state_of(widget, window) -> dict:
+    """Everything that decides whether ``widget`` paints its own background."""
+    from .theme import SURFACE_PROPERTY, TRANSPARENT_PROPERTY
+
+    attribute = Qt.WidgetAttribute
+    palette = widget.palette()
+    active = QPalette.ColorGroup.Active
+    return {
+        "class": type(widget).__name__,
+        "objectName": widget.objectName(),
+        "geometry": _rect_in_window(widget, window),
+        TRANSPARENT_PROPERTY: _plain(widget.property(TRANSPARENT_PROPERTY)),
+        SURFACE_PROPERTY: _plain(widget.property(SURFACE_PROPERTY)),
+        "autoFillBackground": bool(widget.autoFillBackground()),
+        "WA_TranslucentBackground": bool(
+            widget.testAttribute(attribute.WA_TranslucentBackground)),
+        "WA_OpaquePaintEvent": bool(
+            widget.testAttribute(attribute.WA_OpaquePaintEvent)),
+        "WA_NoSystemBackground": bool(
+            widget.testAttribute(attribute.WA_NoSystemBackground)),
+        "styleSheet": _sheet_fingerprint(widget.styleSheet()),
+        "palette": {
+            "Base": _colour_record(
+                palette.color(active, QPalette.ColorRole.Base)),
+            "Window": _colour_record(
+                palette.color(active, QPalette.ColorRole.Window)),
+        },
+        "nearest_sheet_ancestor": _nearest_sheet_ancestor(widget),
+        "transparent_rule_on_ancestry":
+            _the_transparent_rule_is_on_the_ancestry(widget),
+    }
+
+
+def _pixels_of(image):
+    """An ``(h, w, 4)`` RGBA ``numpy`` copy of ``image``, or ``None``."""
+    import numpy as np
+    from PySide6.QtGui import QImage
+
+    image = image.convertToFormat(QImage.Format.Format_RGBA8888)
+    height, width = image.height(), image.width()
+    if not width or not height:
+        return None
+    flat = np.frombuffer(image.constBits(), dtype=np.uint8)
+    rows = flat[:height * image.bytesPerLine()].reshape(
+        height, image.bytesPerLine())
+    return rows[:, :width * 4].reshape(height, width, 4).copy()
+
+
+def _near_black_fraction(pixels, rect, scale) -> Optional[float]:
+    """Share of ``rect`` (window coordinates) that is near-black on screen."""
+    if pixels is None:
+        return None
+    import math
+
+    height, width = pixels.shape[:2]
+    x, y, w, h = rect
+    x0 = max(0, int(math.floor(x * scale[0])))
+    y0 = max(0, int(math.floor(y * scale[1])))
+    x1 = min(width, int(math.ceil((x + w) * scale[0])))
+    y1 = min(height, int(math.ceil((y + h) * scale[1])))
+    if x1 <= x0 or y1 <= y0:
+        return None
+    region = pixels[y0:y1, x0:x1, :3]
+    return round(float((region.max(axis=2) <= _NEAR_BLACK_MAX).mean()), 4)
+
+
+def _paint_suspects(records, rule_in_play) -> list:
+    """The records worth reading first, each with the reasons it is here.
+
+    SCROLL AREAS: a visible one whose viewport is untagged or fills its own
+    background -- the shape of both 408 widgets. They sort first.
+
+    SHEETS, NARROWED BY MEASUREMENT on a HEALTHY themed Mask. Comparing each
+    widget's own or nearest-ancestor sheet digest with the screen's flagged
+    50 and 176 of 184 visible widgets, and "own sheet carries the rule and
+    differs from the screen's" still flagged 30-33: the settings splitter,
+    the form editors and the toggles carry theme-derived sheets of their own,
+    and Qt merges every ancestor's sheet, so a sheet that differs is normal.
+    The one sheet state flagged is the one that stops the rule outright and
+    flagged nothing healthy: a tagged widget with no sheet on its ancestry,
+    nor the application's, carrying the rule -- checked only when the rule
+    is in play at all. Every digest is still in ``widgets``.
+    """
+    from .theme import TRANSPARENT_PROPERTY
+
+    suspects = []
+    for record in records:
+        reasons = []
+        viewport = record.get("viewport")
+        if viewport is not None:
+            if not viewport.get(TRANSPARENT_PROPERTY):
+                reasons.append("viewport untagged")
+            if viewport.get("autoFillBackground"):
+                reasons.append("viewport autoFillBackground")
+        if (rule_in_play and record.get(TRANSPARENT_PROPERTY)
+                and not record.get("transparent_rule_on_ancestry")):
+            reasons.append("tagged, but no sheet on its ancestry carries "
+                           "the transparent rule")
+        if reasons:
+            suspects.append({
+                "class": record["class"],
+                "objectName": record["objectName"],
+                "path": record.get("path"),
+                "geometry": record["geometry"],
+                "reasons": reasons,
+            })
+    suspects.sort(key=lambda s: not s["reasons"][0].startswith("viewport"))
+    return suspects
+
+
+def _git_state(where: str):
+    """``(HEAD, dirty)`` of the checkout at ``where``, ``(None, None)`` if none."""
+    import subprocess
+
+    head = subprocess.run(["git", "-C", where, "rev-parse", "HEAD"],
+                          capture_output=True, text=True, timeout=5)
+    if head.returncode != 0 or not head.stdout.strip():
+        return None, None
+    status = subprocess.run(
+        ["git", "-C", where, "status", "--porcelain", "--untracked-files=no"],
+        capture_output=True, text=True, timeout=15)
+    dirty = bool(status.stdout.strip()) if status.returncode == 0 else None
+    return head.stdout.strip(), dirty
+
+
+def _dump_paint_diagnostics(window, _out_dir=None) -> dict:
+    """Write the paint state of the screen on show, and what is ON screen.
+
+    Two files named by the UTC time: ``<stamp>.png``, the window as the
+    display holds it (``QScreen.grabWindow`` on the window id -- a
+    ``QWidget.grab`` re-renders the tree and can never show a paint fault),
+    and ``<stamp>.json``, whose top-level keys are
+    :data:`_PAINT_DIAG_KEYS_IN_ORDER`. Both paths go to the console and the
+    log.
+
+    :param window: the ``MainWindow``.
+    :param _out_dir: where to write; ``~/.cache/spacr/paint_diagnostics``
+        when ``None``.
+    :returns: the report as written. Never raises: a part that fails is
+        logged, named in ``errors``, and the rest is still written.
+    """
+    report = dict.fromkeys(_PAINT_DIAG_KEYS_IN_ORDER)
+    report["suspects"] = []
+    report["errors"] = []
+    report["files"] = {"json": None, "png": None}
+    try:
+        _collect_paint_diagnostics(window, _out_dir, report)
+    except Exception as exc:                                 # noqa: BLE001
+        LOG.exception("the paint diagnostic stopped early")
+        report["errors"].append(f"stopped early: {exc!r}")
+    return report
+
+
+def _collect_paint_diagnostics(window, out_dir, report) -> None:
+    """Fill ``report`` and write it; see :func:`_dump_paint_diagnostics`."""
+    import json
+    from datetime import datetime, timezone
+    from pathlib import Path
+
+    errors = report["errors"]
+
+    def failed(what):
+        """Log the exception being handled and name it in ``errors``."""
+        LOG.warning("paint diagnostic: could not %s", what, exc_info=True)
+        errors.append(f"{what}: {sys.exc_info()[1]!r}")
+
+    now = datetime.now(timezone.utc)
+    stamp = now.strftime("%Y%m%dT%H%M%S") + f".{now.microsecond // 1000:03d}Z"
+    folder = Path(out_dir) if out_dir is not None \
+        else _paint_diagnostics_folder()
+    json_path = folder / f"{stamp}.json"
+    png_path = folder / f"{stamp}.png"
+    report["captured_utc"] = now.isoformat()
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+    except Exception:                                        # noqa: BLE001
+        failed(f"create {folder}")
+
+    # FIRST, before anything below can change a pixel.
+    pixels, scale = None, (1.0, 1.0)
+    try:
+        app = QApplication.instance()
+        display = window.screen() or app.primaryScreen()
+        pixmap = display.grabWindow(window.winId())
+        image = pixmap.toImage()
+        report["screenshot"] = {
+            "method": "QScreen.grabWindow(window.winId())",
+            "display": display.name(),
+            "size": [image.width(), image.height()],
+            "devicePixelRatio": pixmap.devicePixelRatio(),
+            "window_size": [window.width(), window.height()],
+        }
+        if image.isNull():
+            raise RuntimeError("the grab came back empty")
+        if pixmap.save(str(png_path), "PNG"):
+            report["files"]["png"] = str(png_path)
+        else:
+            errors.append(f"save {png_path}: QPixmap.save returned False")
+        pixels = _pixels_of(image)
+        scale = (image.width() / max(1, window.width()),
+                 image.height() / max(1, window.height()))
+    except Exception:                                        # noqa: BLE001
+        failed("grab the window from the display")
+
+    try:
+        report["qt_platform"] = QApplication.platformName()
+    except Exception:                                        # noqa: BLE001
+        failed("read the Qt platform")
+    try:
+        import spacr
+
+        report["spacr_version"] = getattr(spacr, "__version__", None)
+        where = Path(spacr.__file__).resolve().parent
+        report["spacr_path"] = str(where)
+        report["git_head"], report["git_dirty"] = _git_state(str(where.parent))
+    except Exception:                                        # noqa: BLE001
+        failed("read the spaCR version and checkout")
+
+    from . import preferences
+
+    wanted = {}
+    for name in ("ambient_enabled", "ambient_animation", "ambient_theme",
+                 "ambient_palette", "pane_opacity", "theme",
+                 "tooltips_box_enabled", "tooltips_bottom_enabled",
+                 "object_grid_enabled"):
+        try:
+            wanted[name] = _plain(getattr(preferences, f"get_{name}")())
+        except Exception:                                    # noqa: BLE001
+            failed(f"read the {name} preference")
+    report["preferences"] = wanted
+    report["environment"] = {name: os.environ.get(name)
+                             for name in ("SPACR_NO_BACKDROP", "SPACR_NO_GL")}
+
+    try:
+        backdrop = window.window_backdrop()
+        state = {"present": backdrop is not None}
+        if backdrop is not None:
+            running = getattr(backdrop, "is_running", None)
+            state.update({
+                "class": type(backdrop).__name__,
+                "visible": bool(backdrop.isVisible()),
+                "running": bool(running()) if callable(running) else None,
+                "geometry": _rect_in_window(backdrop, window),
+            })
+        report["window_backdrop"] = state
+    except Exception:                                        # noqa: BLE001
+        failed("read the window backdrop")
+
+    screen = None
+    try:
+        stack = getattr(window, "_stack", None)
+        screen = stack.currentWidget() if stack is not None else None
+        state = {"present": screen is not None}
+        if screen is not None:
+            own = getattr(screen, "_ambient", None)
+            state.update({
+                "class": type(screen).__name__,
+                "objectName": screen.objectName(),
+                "app_key": _plain(getattr(screen, "app_key", None)),
+                "geometry": _rect_in_window(screen, window),
+                "_ambient": None if own is None else {
+                    "class": type(own).__name__,
+                    "visible": bool(own.isVisible()),
+                    "running": bool(own.is_running())
+                    if callable(getattr(own, "is_running", None)) else None,
+                },
+                "_uses_window_backdrop": _plain(
+                    getattr(screen, "_uses_window_backdrop", None)),
+                "page_fill": None,
+            })
+        report["screen"] = state
+        if screen is not None and callable(getattr(screen, "page_fill", None)):
+            fill = screen.page_fill()
+            state["page_fill"] = (None if fill is None
+                                  else _colour_record(QColor(fill)))
+    except Exception:                                        # noqa: BLE001
+        failed("read the current screen")
+
+    try:
+        app = QApplication.instance()
+        report["stylesheets"] = {
+            "window": _sheet_fingerprint(window.styleSheet()),
+            "screen": (_sheet_fingerprint(screen.styleSheet())
+                       if screen is not None else None),
+            "application": _sheet_fingerprint(app.styleSheet()),
+        }
+    except Exception:                                        # noqa: BLE001
+        failed("fingerprint the style sheets")
+
+    try:
+        report["top_level_windows"] = [
+            {"class": type(top).__name__, "objectName": top.objectName(),
+             "windowType": getattr(top.windowType(), "name",
+                                   str(top.windowType())),
+             "geometry": [top.x(), top.y(), top.width(), top.height()]}
+            for top in QApplication.topLevelWidgets() if top.isVisible()]
+    except Exception:                                        # noqa: BLE001
+        failed("list the top-level windows")
+
+    records = []
+    if screen is not None:
+        from PySide6.QtWidgets import QAbstractScrollArea
+
+        for widget in screen.findChildren(QWidget):
+            try:
+                if not widget.isVisible():
+                    continue
+                record = _paint_state_of(widget, window)
+                record["path"] = _widget_path(widget, screen)
+                if isinstance(widget, QAbstractScrollArea):
+                    viewport = widget.viewport()
+                    record["viewport"] = (None if viewport is None
+                                          else _paint_state_of(viewport,
+                                                               window))
+                records.append(record)
+            except Exception:                                # noqa: BLE001
+                failed(f"read the paint state of a {type(widget).__name__}")
+    report["widgets"] = records
+
+    try:
+        sheets = report.get("stylesheets") or {}
+        rule_in_play = any((sheet or {}).get("carries_transparent_rule")
+                           for sheet in sheets.values())
+        suspects = _paint_suspects(records, rule_in_play)
+        for suspect in suspects:
+            suspect["near_black_fraction"] = _near_black_fraction(
+                pixels, suspect["geometry"], scale)
+        report["suspects"] = suspects
+    except Exception:                                        # noqa: BLE001
+        failed("pick the suspects")
+
+    try:
+        json_path.write_text(json.dumps(report, indent=2, default=str),
+                             encoding="utf-8")
+        report["files"]["json"] = str(json_path)
+        # Rewritten so the file names itself; the first write is the one
+        # that proves the folder takes a file at all.
+        json_path.write_text(json.dumps(report, indent=2, default=str),
+                             encoding="utf-8")
+    except Exception:                                        # noqa: BLE001
+        failed(f"write {json_path}")
+
+    _say_where_the_paint_diagnostic_went(window, screen, report["files"])
+
+
+def _say_where_the_paint_diagnostic_went(window, screen, files) -> None:
+    """Put both paths on the console on show and in the log."""
+    line = (f"Paint diagnostic: {files.get('json')}\n"
+            f"On-screen capture: {files.get('png')}\n")
+    LOG.info("paint diagnostic written: json=%s png=%s",
+             files.get("json"), files.get("png"))
+    try:
+        from .widgets.console_panel import ConsolePanel
+
+        console = getattr(screen, "_console", None)
+        if console is None or not console.isVisible():
+            console = next((panel for panel in window.findChildren(ConsolePanel)
+                            if panel.isVisible()), console)
+        if console is not None:
+            console.append_stdout(line)
+    except Exception:                                        # noqa: BLE001
+        LOG.warning("paint diagnostic: could not write to the console",
+                    exc_info=True)
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -2069,6 +2566,9 @@ class MainWindow(QMainWindow):
             shortcuts.install(self)
         except Exception:
             pass
+        #: Item 408's in-session paint diagnostic; ``None`` unless the
+        #: process was launched with ``SPACR_PAINT_DIAG=1``.
+        self._paint_diagnostic_shortcut = _install_the_paint_diagnostic(self)
 
         if initial_app:
             self.open_module(initial_app)

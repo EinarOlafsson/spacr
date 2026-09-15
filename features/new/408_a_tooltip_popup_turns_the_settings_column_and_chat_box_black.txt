@@ -454,3 +454,107 @@ diagnostic (SPACR_PAINT_DIAG=1 at launch, a shortcut that dumps every visible
 widget's paint state and a presented screenshot to ~/.cache/spacr/) is being
 built, so the next time the box appears the state that produces it is
 recorded instead of guessed.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE IN-SESSION PAINT DIAGNOSTIC: HOW TO RECORD THE BLACK BOX
+--------------------------------------------------------------------------------
+
+Built on branch `wip/408-paint-diagnostics` (worktree
+/mnt/firecuda2/Claude/repo/spacr-408diag), not yet merged. It is OFF unless
+the app is launched with the variable below: nothing is bound and nothing is
+shown otherwise.
+
+FOR THE MAINTAINER, exactly:
+
+  1. Launch from a terminal, in the `spacr` conda environment. Until the
+     branch is merged, run the worktree's code:
+
+         conda activate spacr
+         cd /mnt/firecuda2/Claude/repo/spacr-408diag
+         SPACR_PAINT_DIAG=1 PYTHONPATH=$PWD python -m spacr.qt
+
+     After it is merged, the same thing from your usual checkout:
+
+         cd /mnt/firecuda2/Claude/repo/spacr
+         SPACR_PAINT_DIAG=1 python -m spacr.qt
+
+  2. Use spaCR the way you did when the box appeared: test data loaded in
+     Mask, the per-object table on, tooltips hovered, the AI chat used.
+     Optional but useful: press the key once BEFORE the box appears, so
+     there is a healthy dump from the same session to compare against.
+
+  3. THE MOMENT THE BLACK BOX IS ON SCREEN, press Ctrl+Alt+Shift+D. Do not
+     leave the module first, since leaving is what clears it. The key works
+     while a tooltip popup is up. Press it again if the box changes.
+
+  4. The console prints two lines:
+
+         Paint diagnostic: ~/.cache/spacr/paint_diagnostics/<UTC>.json
+         On-screen capture: ~/.cache/spacr/paint_diagnostics/<UTC>.png
+
+     The same paths are written to the log. <UTC> is the press time, e.g.
+     20260915T213012.345Z. Nothing leaves the machine. Tell the session the
+     file names, or just that you pressed it. If no line appears, the desktop
+     may have taken the key combination.
+
+WHAT A DUMP HOLDS. The PNG is the window as the display holds it,
+`QScreen.grabWindow(window.winId())`. It is not `QWidget.grab`, which
+re-renders and cannot show a paint fault. The JSON's top-level keys are
+`_PAINT_DIAG_KEYS_IN_ORDER` in spacr/qt/app.py:
+
+  * suspects, listed first. Visible scroll areas whose viewport is untagged
+    or has autoFillBackground set, then the one sheet state below. Each has
+    its reasons and the share of near-black pixels, max(r,g,b) <= 16, inside
+    its rectangle in the PNG.
+  * Qt platform, spaCR version, import path, git HEAD and whether the
+    working tree is dirty.
+  * Preferences: ambient enabled, animation, theme and palette; pane opacity;
+    theme; the tooltips box and bottom strip; the object grid. The
+    environment variables SPACR_NO_BACKDROP and SPACR_NO_GL.
+  * The window backdrop (present, visible, running, geometry). The current
+    screen's app_key, own `_ambient`, `_uses_window_backdrop` and page_fill.
+  * The length and sha1 of the window, screen and application style sheets.
+  * The visible top-level windows, including any popup.
+  * For every visible widget in the current screen: class, objectName, path,
+    geometry in window coordinates, spacrTransparent, spacrSurface,
+    autoFillBackground, WA_TranslucentBackground, WA_OpaquePaintEvent,
+    WA_NoSystemBackground, its own sheet's length and sha1, the Active
+    palette's Base and Window (name and alpha), the nearest ancestor with a
+    non-empty sheet, and whether any sheet on its ancestry has the
+    transparent rule. Scroll areas carry the same fields for their viewport.
+
+THE SHEET SUSPECTS WERE NARROWED BY MEASUREMENT, on a HEALTHY themed Mask.
+Comparing each widget's own or nearest-ancestor sheet digest with the
+screen's flags 50 and 176 of 184 visible widgets. "Own sheet has the
+transparent rule and differs from the screen's" still flags 30-33. The
+settings splitter, the form editors and the toggles carry theme-derived
+sheets of their own, and Qt merges every ancestor's sheet, so a sheet that
+differs is normal. `suspects` therefore names one sheet state only: a tagged
+widget with no sheet on its ancestry, nor the application's, carrying the
+rule. It flagged nothing in any healthy dump. The raw digests for every
+widget are still in `widgets`.
+
+MEASURED WITH THE DIAGNOSTIC ITSELF, offscreen, themed Mask, 0.16-0.19 s and
+about 250 KiB per dump:
+
+    phase                         viewport suspects
+    healthy, grid off             none
+    grid switched on LIVE         QTableView + both QHeaderViews untagged
+    after Home and back           none
+
+So the per-object table mounted by the live Preferences switch misses the
+transparency sweep until the module is rebuilt. That has the shape of 408's
+"until the module is left and reopened", but it is a candidate, not a proven
+cause: those viewports did not report autoFillBackground, and offscreen shows
+no black there. A console output block created after the sweep (the dump's own
+console line) was also untagged. Neither is changed here.
+
+Pinned by
+tests/qt/test_the_paint_diagnostic_records_the_state_behind_a_black_box.py.
+The tests cover four things:
+  * no key is bound without the variable, and exactly one application-wide
+    key with it;
+  * a real themed MainWindow on Mask writes the documented keys, and lists
+    the chat input and the table with the tags they really carry;
+  * a staged untagged, self-filling chat viewport comes out as a suspect;
+  * a failing part is named in `errors` and the rest is still written.
