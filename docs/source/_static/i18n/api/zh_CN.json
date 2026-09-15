@@ -85,7 +85,7 @@
         "ebee4687683583794e8c9e973edca24371996c35c536bc84d5913aa223bce733"
       ],
       "source_sha256": "d2d5b91211a90c54623e29f48fe9cadc5ebf32a5fb331f4e8f992f758a2c684a",
-      "text": "一个答案是“这应该发生什么,它被称为什么”。\n\nspaCR 成长在 NVIDIA,所以大约四十五个电话网站请求 ``torch.cuda.is_available()`` 大多数意思是 \"有 A GPU“这些都是不同的问题,每个机器都没有。 NVIDIA,并将它们混合,这使得一个完美好的卡片阅读为 \"no GPU\":\n\n* ROCm 答案 ``torch.cuda.is_available()`` **True** 想要 ``device=\"cuda\"``. 然后打印的代码 \"CUDA\" 是指不存在的供应商; 打印 \"no NVIDIA GPU\" 的代码是否认一个是。\n* 苹果的金属回应它 **False**,想要 ``device=\"mps\"``. MPS 是 *金属*,不是苹果硅特性. 在 Intel iMac 上,这写在它上运行一个 AMD Radeon Pro 5300 - 测量 16x 在 conv2d 结论和 2.7x 在训练步骤对同一机器的 CPU. ROCm 没有任何 macOS 构建,所以金属是唯一的路径到一个 AMD 卡在 Mac 上。\n\n因此,这个模块分别回答两个问题,而一个比两个更重要的第三个: *该设备无法做什么?*在MPS上重新指定一个发动机是不够的,因为三件事失败而不是衰退,每件事都被测量而不是假设:\n\n* ``float64`` 向上升 ``TypeError`` - 不是一个缓慢的路径,一个艰难的停车场. 想要双重准确的任何东西都必须留在 CPU 上。\n* ``autocast(device_type=\"mps\")`` 升 ``RuntimeError``. 混合精度必须分开,而不仅仅是重新标记。\n* 有些运营商只是缺席(``aten::linalg_qr.out``在他们中间)。 ``PYTORCH_ENABLE_MPS_FALLBACK=1``将从事故中变成一个安静的 CPU 转换,所以这个模块在选择 MPS 时设置它。\n\n发现和可使用的几乎是单独的. 一个设置筛选宣布一个加速器 spaCR 将永远不会发送到比一个说什么更糟糕,因为用户然后责怪他们的硬件为 CPU 速度. 神经发动机是整个原因,区别在这里存在: 苹果神经引擎, Intel AI Boost 和 Qualcomm Hexagon 都是真实的硅,没有移动的 torch 设备,所以它们被命名为 FOUND 和从未选择。\n\n没有什么在这里升起. 一半安装的ROCm,一个破碎的驱动程序,一个 torch 建造没有一个背景它广告 - 所有解决到 CPU 一个笔记。",
+      "text": "一个答案是“这应该发生什么,它被称为什么”。\n\nspaCR 成长在 NVIDIA,所以大约四十五个电话网站请求 ``torch.cuda.is_available()`` 大多数意思是 \"有 A GPU“这些都是不同的问题,每个机器都没有。 NVIDIA,并将它们混合,这使得一个完美好的卡片阅读为 \"no GPU\":\n\n* ROCm 答案 ``torch.cuda.is_available()`` **True** 想要 ``device=\"cuda\"``. 然后打印的代码 \"CUDA\" 是指不存在的供应商; 打印 \"no NVIDIA GPU\" 的代码是否认一个是。\n* 苹果的 Metal 回应它 **False** 并想要 ``device=\"mps\"``. MPS 是 *Metal*,不是苹果硅功能. 在 Intel iMac 上,这写在它上运行一个 AMD Radeon Pro 5300 - 测量 16x 在 conv2d 结论和 2.7x 在训练步骤对同一机器的 CPU。 ROCm 没有 macOS 构建,所以 Metal 是一个路径到一个 AMD 卡在 Mac 上。\n\n因此,这个模块分别回答两个问题,而一个比两个更重要的第三个: *该设备无法做什么?*在MPS上重新指定一个发动机是不够的,因为三件事失败而不是衰退,每件事都被测量而不是假设:\n\n* ``float64`` 向上升 ``TypeError`` - 不是一个缓慢的路径,一个艰难的停车场. 想要双重准确的任何东西都必须留在 CPU 上。\n* ``autocast(device_type=\"mps\")`` 升 ``RuntimeError``. 混合精度必须分开,而不仅仅是重新标记。\n* 有些运营商只是缺席(``aten::linalg_qr.out``在他们中间)。 ``PYTORCH_ENABLE_MPS_FALLBACK=1``将从事故中变成一个安静的 CPU 转换,所以这个模块在选择 MPS 时设置它。\n\n发现和可使用的几乎是单独的. 一个设置筛选宣布一个加速器 spaCR 将永远不会发送到比一个说什么更糟糕,因为用户然后责怪他们的硬件为 CPU 速度. 神经发动机是整个原因,区别在这里存在: 苹果神经引擎, Intel AI Boost 和 Qualcomm Hexagon 都是真实的硅,没有移动的 torch 设备,所以它们被命名为 FOUND 和从未选择。\n\n没有什么在这里升起. 一半安装的ROCm,一个破碎的驱动程序,一个 torch 建造没有一个背景它广告 - 所有解决到 CPU 一个笔记。",
       "translation_source_blocks_sha256": [
         "6a0727eb0e4a2017b52999065e6cee0c605bfbd7c02c49476897f6f4b870eef5",
         "f9defb69626d2bad2445dd95c5ad4c510eb33f14f872ba5c8acc26184a97e2b6",
@@ -184,7 +184,7 @@
         "ceebdaf460cfe33da36b24422bc85c6b023f4c7baf1f5005b99569f54d3abccb"
       ],
       "source_sha256": "3431462a61d298e6530beeeb4f8020d2456373dffe5089f6ddf1522904543174",
-      "text": "``(task, accelerated, detail)``为这个机器实际上可以做什么。\n\n设置筛选是什么? \"Compatible GPU\"在自己的答案上,没有人问一个问题:用户想要知道缓慢的步骤是否会缓慢。 因此,这报告每个任务,并且它报告每个背景的真相,而不是一个判断所有 - 在金属,分区和机器学习分类模型加速,而 cuML 减少是不存在的,而一个单一的绿色点将是关于第二的谎言。\n\n由加速值多少命令: CPU 上的分区为 1 张 256x256 张图像,在机器上写的图像为 444 秒,在 Radeon 上的图像则为 3.2 秒。",
+      "text": "``(task, accelerated, detail)``为这个机器实际上可以做什么。\n\n设置筛选是什么? \"Compatible GPU\" 自己的答案是一个问题,没有人问:用户想要知道是否缓慢的步骤会缓慢。 因此,这个报告每个任务,并且它报告真相每个背景,而不是一个判决为他们所有 - 在 Metal 分区和机器学习分类模型加速,而 cuML 减少是不存在的,而一个单一的绿色点将是关于第二的谎言。\n\n由加速值多少命令: CPU 上的分区为 1 张 256x256 张图像,在机器上写的图像为 444 秒,在 Radeon 上的图像则为 3.2 秒。",
       "translation_source_blocks_sha256": [
         "bb17469948889fd716609bc9354f42ff9208fe80f8df24f63820cdc5013e721f",
         "16897abc964818bfbbb6a6c8e1f6445ee23d799a76f72c2bbab0905106b84831",
@@ -197,7 +197,7 @@
         "680ac631422960a10b7ec9926dfe92422e6cd9d1994ac8c57570c21123c35bf4"
       ],
       "source_sha256": "c46df9d94f4eac4458246f4ae659eead3d7208e04e4d767bd5a97761efd71a6c",
-      "text": "如何通过 cellpose 作为 ``gpu=``。\n\nCellpose 做自己的设备分辨率,并且已经知道 MPS - ``assign_device(gpu=True)`` 回答 ``mps`` 在金属机上。 它不能做的是猜测,所以它必须是 TOLD 有一个 GPU. 通过 ``torch.cuda.is_available()`` 这里是每个 Mac 到 CPU: cellpose 分支在这个旗帜之前,它看到了 ``device`` 完全。",
+      "text": "如何通过 cellpose 作为 ``gpu=``。\n\nCellpose做自己的设备分辨率,并且已经知道关于 MPS -- ``assign_device(gpu=True)`` 答案 ``mps`` 在 Metal 机器上. 它不能做的是猜测,所以它必须是 TOLD 有一个 GPU. 通过 ``torch.cuda.is_available()`` 这里是每 Mac 到 CPU: cellpose 分支在这个旗帜上,直到它看 ``device`` 总的来说。",
       "translation_source_blocks_sha256": [
         "0b62e0e446eafbccf41cbe6c9cc22e8d176323cb92ba1159b2c966a0a8ed2a9e",
         "680ac631422960a10b7ec9926dfe92422e6cd9d1994ac8c57570c21123c35bf4"
@@ -5824,7 +5824,7 @@
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ],
       "source_sha256": "902c9e19fc4a3466c37fa4f9d6884317639ffaad88f98db2ef9bd9bc131ef7f4",
-      "text": "``spacr.batch`` — 将任意的模块+设置工作插入一个软件工作列表并无期望运行。\n\nThe Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* workflow with *one* settings key-value mapping.\n\n这个模块是另一个轴. 它保留了一个软件工作列表的任意 ``(module, settings)`` 工作在任何顺序: ``Mask → Measure → Classify (CV) → Classify (ML)``,然后相同的四次再次与不同的直径,然后一个第五盘的掩膜。\n\nA queued job **is** a ``spacr-run`` invocation. Nothing here re-implements module dispatch or settings loading: :mod:`spacr.cli` owns the module registry, the settings loader, the ``--set`` coercion and the exit-code contract (0 ok, 1 the module raised, 2 bad arguments or settings), and this module drives it. Likewise a software job list is a **ledger of ledgers**: the software job list's own verdict is a :class:`spacr.errors.RunLedger`, stamped next to the software job list file, and each job's :func:`spacr.errors.read_run_status` stamp is read back so a job that exited 0 having silently skipped 40 fields is reported as *partial* rather than as a success.\n\n什么使工作列表生存一个夜晚,没有人观看:\n\n* **每份工作在添加时都是验证的,而不是在执行时。** 下午3点发现工作9的 ``src`` 是错误的,整个晚上都浪费了. :func:`validate_queue` 报告 *所有* 问题一次,而 :func:`run_queue` 拒绝开始,而其中任何一个都是错误。\n* **状态在每个过渡后持续,原子**在处理软件工作列表时重新启动的机器以 :func:`resume_queue` 重启,而不是重启. 该文件以 temp 名称和 ``os.replace``\\ d 写作,因为由故障折断的工作名单文件比没有工作列码文件更糟。\n* **A 工作,其依赖失败是 SKIPPED,未执行** 测量后失败的掩膜产生一个数据库,看起来像一个真实的结果。 ``skipped``(故意未执行),``failed``和``not_run``(软件工作列表在到达之前停止)是三个不同的事情,并保持同样的方式。\n* **continue-on-error 停止隐藏一个系统的失败.** 如果前三份工作死亡,剩下的九份工作也同样; ``max_consecutive_failures`` 保持软件工作列表并这样说。\n* **工作日志进入自己的文件** - 十二个夜间工作中的一个中间日志是不可读的 - 路径在工作记录上。\n\n汇率:工作运行 **严格一次**. 他们为一个 GPU 竞争,两个 Cellpose 工作共享一个卡是如何一个夜间处理会议转变为夜间 CUDA OOM. 有故意没有 ``max_workers``; 运行两个软件工作列表在两个过程,如果你真的有两个卡。\n\n进口成本:此模块仅进口标准图书馆加上 :mod:`spacr.cli`、 :mod:`spacr.errors` 和 :mod:`spacr.validate`,所有这些都是 torch 免费的。 软件工作列表文件可以在没有 GPU 插入节点上阅读、验证和编程 - 工作流本身仅在执行工作的子过程中进口。\n\n典型使用::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
+      "text": "``spacr.batch`` — 将任意的模块+设置工作插入一个软件工作列表并无期望运行。\n\nPlate Queue (:mod:`spacr.qt.plate_queue`) 让 *多块板* 依次通过 *同一条* 流程，并共用 *同一份* 设置字典。\n\n这个模块是另一个轴. 它保留了一个软件工作列表的任意 ``(module, settings)`` 工作在任何顺序: ``Mask → Measure → Classify (CV) → Classify (ML)``,然后相同的四次再次与不同的直径,然后一个第五盘的掩膜。\n\n排队的任务**就是**一次 ``spacr-run`` 调用。这里不会重新实现模块分派或设置加载：:mod:`spacr.cli` 负责模块注册表、设置加载器、``--set`` 的类型转换以及退出码约定（0 表示正常，1 表示模块抛出异常，2 表示参数或设置错误），本模块只是驱动它。同样，软件任务列表是一个**账本的账本**：任务列表自身的结论记录在 :class:`spacr.errors.RunLedger` 中并写在任务列表文件旁边；随后还会读回每项任务的 :func:`spacr.errors.read_run_status` 标记。因此，即使某项任务以 0 退出，只要它静默跳过了 40 个视野，也会被报告为*部分完成*而不是成功。\n\n什么使工作列表生存一个夜晚,没有人观看:\n\n* **每份工作在添加时都是验证的,而不是在执行时。** 下午3点发现工作9的 ``src`` 是错误的,整个晚上都浪费了. :func:`validate_queue` 报告 *所有* 问题一次,而 :func:`run_queue` 拒绝开始,而其中任何一个都是错误。\n* **状态在每个过渡后持续,原子**在处理软件工作列表时重新启动的机器以 :func:`resume_queue` 重启,而不是重启. 该文件以 temp 名称和 ``os.replace``\\ d 写作,因为由故障折断的工作名单文件比没有工作列码文件更糟。\n* **A 工作,其依赖失败是 SKIPPED,未执行** 测量后失败的掩膜产生一个数据库,看起来像一个真实的结果。 ``skipped``(故意未执行),``failed``和``not_run``(软件工作列表在到达之前停止)是三个不同的事情,并保持同样的方式。\n* **continue-on-error 停止隐藏一个系统的失败.** 如果前三份工作死亡,剩下的九份工作也同样; ``max_consecutive_failures`` 保持软件工作列表并这样说。\n* **工作日志进入自己的文件** - 十二个夜间工作中的一个中间日志是不可读的 - 路径在工作记录上。\n\n汇率:工作运行 **严格一次**. 他们为一个 GPU 竞争,两个 Cellpose 工作共享一个卡是如何一个夜间处理会议转变为夜间 CUDA OOM. 有故意没有 ``max_workers``; 运行两个软件工作列表在两个过程,如果你真的有两个卡。\n\n进口成本:此模块仅进口标准图书馆加上 :mod:`spacr.cli`、 :mod:`spacr.errors` 和 :mod:`spacr.validate`,所有这些都是 torch 免费的。 软件工作列表文件可以在没有 GPU 插入节点上阅读、验证和编程 - 工作流本身仅在执行工作的子过程中进口。\n\n典型使用::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
       "translation_source_blocks_sha256": [
         "b2d244da2d4f05aedb097e99668d52ffe6621ae91e3f21871e7ae285f14e1a77",
         "f6c92e97965af72960951f395a55a5f4c5df778f7c23d3b9a2c2b302a44381c8",
@@ -14531,7 +14531,7 @@
         "d8c9a5422594e668ab65d130ccbdb854c6382ef5051fe23049d7fd1515309a8d"
       ],
       "source_sha256": "9f82b47d4ab7d186b8a82efe9d4dd38deb5e3318b7707c7df875bb9029130564",
-      "text": "将显示器仅转换为 RGB 图像。\n\n图像区域格式解码和显示偏好是独立的操作。  :func:`read_crop_png` 解析信道字节是如何存储的; ``apply_display_order``只改变他们的表现,不改变或推断磁盘格式.\n\n:param image: ``(H, W, 3)`` 序列,已在修正格式。\n:param order: 其中一个是:data:`DISPLAY_ORDERS`。 默认是身份,并返回原始序列不变。\n:returns: 已转序,或 ``image`` 本身为身份。\n:raises CropError: 命令不是RGB的转换。",
+      "text": "将显示器仅转换为 RGB 图像。\n\n图像区域格式解码和显示偏好是独立的操作。  :func:`read_crop_png` 解析信道字节是如何存储的; ``apply_display_order``只改变他们的表现,不改变或推断磁盘格式.\n\n:param image: ``(H, W, 3)`` 序列,已在修正格式。\n:param order: 其中一个是:data:`DISPLAY_ORDERS`。 默认是身份,并返回原始序列不变。\n:returns: 已转序,或 ``image`` 本身为身份。\n:raises CropError: 不是 rgb 排列之一的顺序。",
       "translation_source_blocks_sha256": [
         "8c0d6da34f07416a697c689d28bed3023fb43f808c7dffd62d46251c4f663572",
         "b378f4ebb23714349fa97303037184a7f14e1108efaa8acf75214ab4effa7622",
@@ -19698,7 +19698,7 @@
         "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
       ],
       "source_sha256": "6a66c6ad25c0f2fde0ae68e93a0153e07694cfa708c1ccc1819eb6f3e240a420",
-      "text": "拒绝一个不能产生矩阵的规格。\n\nThe check is made where the spec is built rather than where it is used, because one spec encodes every extracted image region of a run: an unknown image data channel policy or a batch size below one is a typing mistake, and discovering it after the images are loaded wastes the load.\n\n:raises EmbeddingError: 如果 ``channel_policy`` 不是 :data:`CHANNEL_POLICIES` 的一个,或者 ``batch_size`` 低于一个。",
+      "text": "拒绝一个不能产生矩阵的规格。\n\n检查在构建规格时进行，而不是在使用时进行，因为一个规格会编码一次运行中的每一个裁剪图像：未知的通道策略或小于 1 的批量大小属于输入错误，等到图像加载之后才发现，加载就白费了。\n\n:raises EmbeddingError: 如果 ``channel_policy`` 不是 :data:`CHANNEL_POLICIES` 的一个,或者 ``batch_size`` 低于一个。",
       "translation_source_blocks_sha256": [
         "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
         "e65869bbd8b37a09ceef528360e940963fbf80a121570dd3b22e5e39ea30a4cb",
@@ -50040,7 +50040,7 @@
         "c598952f9527ae7d5d203fc4a32bc0559fd236c7e019acfe77701ccda4b7a2ef"
       ],
       "source_sha256": "f51bf983ee806bfa120b5c34a5f75c46c0cb4df68adeb25d3e26cbca3cdabe19",
-      "text": "只有判决,结果就被视为条件。\n\n``if not objects_ready(db):`` is the natural way to write the data-selection boundary, and it must answer the verdict rather than \"an object exists\". :attr:`reason` is still there to say why the answer was no.\n\n:returns: :attr:`ready`.",
+      "text": "只有判决,结果就被视为条件。\n\n``if not objects_ready(db):`` 是写这道判断最自然的方式，它必须回答的是结论，而不是 \"an object exists\"。 :attr:`reason` 仍然会说明答案为什么是否定的。\n\n:returns: :attr:`ready`.",
       "translation_source_blocks_sha256": [
         "dc34292a75e343ceebb0579a4980bc70c694f286aa3c951e08a3452c301f2dca",
         "ba12938e10175c12d125ae404d9c9dc787f4c55264416f8094b2206d01156b0d",
@@ -53036,7 +53036,7 @@
         "86c6c484556189a26f40a97ffb35619b8ec477678cc28a56bbb24a0a51285ea1"
       ],
       "source_sha256": "7e1af23c3cc59070b61568a3f20b15717726b4086be08434b345975e22c0c2aa",
-      "text": "``path`` 与扩展将图形格式偏好写入。\n\nTHE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites the extension itself, which is why every matplotlib save has honoured the preference for months -- but pyqtgraph decides what it writes FROM THE NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a renderer that is handed ``volcano.pdf`` writes a PDF whatever the user chose. The name has to be settled before the export sees it, and settling it twice in two modules is how the two drift apart.\n\n:param path: 一个目的地,有或没有延伸。\n:param fmt: 不知不觉的格式落后于偏好而不是扔掉:一个跑步不应该失去一个数字超过一个型号。\n:returns: 路径为 ``str``。",
+      "text": "``path`` 与扩展将图形格式偏好写入。\n\n非 MATPLOTLIB 渲染器唯一可以询问的地方。 ``save_figure`` 会自行改写扩展名，这就是为什么几个月来每一次 matplotlib 保存都遵循了这项偏好 -- 但 pyqtgraph 是根据文件名来决定写出什么的 ( ``FastPlot.export`` 按 ``.pdf`` / ``.svg`` / 其他情况分支 )，所以拿到 ``volcano.pdf`` 的渲染器无论用户选了什么都会写出 PDF。文件名必须在导出看到它之前就确定下来，而在两个模块里各确定一次，正是两者逐渐不一致的原因。\n\n:param path: 一个目的地,有或没有延伸。\n:param fmt: 不知不觉的格式落后于偏好而不是扔掉:一个跑步不应该失去一个数字超过一个型号。\n:returns: 路径为 ``str``。",
       "translation_source_blocks_sha256": [
         "c45a0fd44812033c17f00e3fdcb07fa6a97e063d444c8b55b12dfc0e27a1323b",
         "3373e8946963e49c0ba1254c2bac4ea5e94f29c0e8bbba043be6369c9fce8c58",
@@ -90823,7 +90823,7 @@
         "9eeb76279dae5a5f51ff47acfef3dcebd6efb53b8c3ba403480366fa0e044a25"
       ],
       "source_sha256": "4fa4477a098840231ac9973eab732a5bd3a8587d6041b5c78eb385c7f4fbd811",
-      "text": "阅读下载的设置包到设置这个 spaCR 可以执行。\n\n在HuggingFace上的演示数据集将图像旁边的每个阶段设置为 CSV. 它们是由一个较老的 spaCR 写的,所以他们所命名的部分不再存在 - 结构化数据名称改名,结构化データ名称与它们配置的功能删除,结构化的数据名,从来没有设置。\n\n使他们盲目是这个模块存在的错误来修复. 以前的加载器阅读每个行的 CSV 直过默认,所以一个结构化数据名称当前的构建从未听说到到到达设置的关键值地图和旅行到工作流,在那里它是被忽略沉默或产生一个错误命名一个设置用户没有输入并无法找到的表格。\n\n因此,这个移民而不是合并,并且报告而不是猜测:\n\n* 一个应用程序仍在应用的密钥;\n* 已改名的密钥在其新名称下应用并计算;\n* 一个不再存在的钥匙在任何地方都被放下并命名;\n* 一个结构化数据名称是这个结构中的设置,但不是这个应用程序的格式,被单独命名,因为“这个版本没有这样的设置”是关于它的虚假句子。\n\n“下载了34个设置,改名2个,下载3个这个版本不再有”是一个用户可以采取行动的句子。\n\n为什么它没有读到任何东西,直到2026-09-14,这是修正项目317需要. 这项模组是写的作为一个安全的后代的读者,结合了盲目,然后不能取代它,因为三件事它没有做的是三件事,发表包需要:\n\n* It looked for the wrong file. It opened ``<app>_settings.csv`` only, and ``einarolafsson/spacr_settings`` has never shipped a file by that name -- it ships ``gen_masks_settings.csv`` and ``crop_measure_settings.csv``. Measured on the real pack at ``~/datasets/settings`` on 2026-09-14: applied 0, renamed 0, dropped 0, malformed 0, on a 58-setting file. A miss rather than an error, so the caller filled the form with plain defaults and said nothing. `tests/test_hf_e2e_integration.py` found the same hole from the other side and worked around it with a local reader and a hard assertion on the names, which is where `PACK_FILES` comes from.\n* 它读到标题序列作为设置. 发送的文件开始 ``Key,Value`` 并作为一个结构化数据名称来,称为 ``Key``,特别是用户作为一个落下设置. 这不是一个设置; 它是一个列标题。\n* 它将列表转换为线条. ``channels,\"[0, 1, 2, 3]\"`` 已成为11个字符的线条,被计算为APPLIED,取代一个真实的列表默认 - 这是比一滴更糟糕,因为报告说它工作。\n\n再次用这些三个关闭,相同的文件,同样的默认: 32 应用, 9 改名, 17 落下,其中 10 是直播设置,此表格不携带. 32 + 9 + 17 = 58,这是读者看到的每行,文件有 59 无白线 - 第五十九是它现在的标题。",
+      "text": "阅读下载的设置包到设置这个 spaCR 可以执行。\n\n在HuggingFace上的演示数据集将图像旁边的每个阶段设置为 CSV. 它们是由一个较老的 spaCR 写的,所以他们所命名的部分不再存在 - 结构化数据名称改名,结构化データ名称与它们配置的功能删除,结构化的数据名,从来没有设置。\n\n使他们盲目是这个模块存在的错误来修复. 以前的加载器阅读每个行的 CSV 直过默认,所以一个结构化数据名称当前的构建从未听说到到到达设置的关键值地图和旅行到工作流,在那里它是被忽略沉默或产生一个错误命名一个设置用户没有输入并无法找到的表格。\n\n因此,这个移民而不是合并,并且报告而不是猜测:\n\n* 一个应用程序仍在应用的密钥;\n* 已改名的密钥在其新名称下应用并计算;\n* 一个不再存在的钥匙在任何地方都被放下并命名;\n* 一个结构化数据名称是这个结构中的设置,但不是这个应用程序的格式,被单独命名,因为“这个版本没有这样的设置”是关于它的虚假句子。\n\n“下载了34个设置,改名2个,下载3个这个版本不再有”是一个用户可以采取行动的句子。\n\n为什么它没有读到任何东西,直到2026-09-14,这是修正项目317需要. 这项模组是写的作为一个安全的后代的读者,结合了盲目,然后不能取代它,因为三件事它没有做的是三件事,发表包需要:\n\n* 它找错了文件。它只打开 ``<app>_settings.csv``，而 ``einarolafsson/spacr_settings`` 从未提供过这个名字的文件 -- 它提供的是 ``gen_masks_settings.csv`` 和 ``crop_measure_settings.csv``。2026-09-14 在 ``~/datasets/settings`` 的真实设置包上测得：应用 0、重命名 0、丢弃 0、格式错误 0，文件共有 58 项设置。这是一次落空而不是一个报错，所以调用方用普通的默认值填满了表单，却什么也没说。 `tests/test_hf_e2e_integration.py` 从另一端发现了同一个漏洞，并用一个本地读取器和对文件名的硬性断言绕了过去， `PACK_FILES` 就是这样来的。\n* 它读到标题序列作为设置. 发送的文件开始 ``Key,Value`` 并作为一个结构化数据名称来,称为 ``Key``,特别是用户作为一个落下设置. 这不是一个设置; 它是一个列标题。\n* 它将列表转换为线条. ``channels,\"[0, 1, 2, 3]\"`` 已成为11个字符的线条,被计算为APPLIED,取代一个真实的列表默认 - 这是比一滴更糟糕,因为报告说它工作。\n\n再次用这些三个关闭,相同的文件,同样的默认: 32 应用, 9 改名, 17 落下,其中 10 是直播设置,此表格不携带. 32 + 9 + 17 = 58,这是读者看到的每行,文件有 59 无白线 - 第五十九是它现在的标题。",
       "translation_source_blocks_sha256": [
         "f26d4231e3cb3be29f573b79b1d90cf4b2c0b7a247dcb8391795e8999986c249",
         "55c271d42354a869089975a32b18c0d9b1a977c5050d97d88b9e8b66d48feee5",
@@ -90871,7 +90871,7 @@
         "c0b13102c2be7604ae82b3972525b20bcd2e53873f3feec503b244e6847e58ff"
       ],
       "source_sha256": "47553bc8be6be7a66e60f1e1b80a31b3bfc69186f6755d7762f4fdd5a517beca",
-      "text": "``({key: value}, malformed row count)`` 从此应用程序的包文件。\n\nMissing file is not an error: a pack legitimately carries settings for some apps and not others, and the caller gets an empty key-value mapping. Use :func:`_pack_path` to tell that case apart from a file that was read.",
+      "text": "``({key: value}, malformed row count)`` 从此应用程序的包文件。\n\n缺少文件不是错误：一个设置包本来就可能只为部分应用携带设置，这时调用方得到一个空字典。用 :func:`_pack_path` 区分这种情况和确实读取了文件的情况。",
       "translation_source_blocks_sha256": [
         "edcb80746178ed8b426ddea8e7d8383d812707fd995f23205347902b0fa19a8f",
         "61519a4a2a1f9ff114e9d86f18fc614e66a2f84a6c3f9aa0c59bf79334f0bf1f"
@@ -121992,7 +121992,7 @@
         "4d92b0f1a87f19052f22a2a3f90b5fc17b819e87008d513c8ab789f9c3a3d3e1"
       ],
       "source_sha256": "8de0603a29ebed2015028c065ffa60f323958b920b62e70207871a72eb82ab27",
-      "text": "提取图像区域设置应该提供多少 organelle 插槽。\n\n相同的规则 掩膜和掩膜直播预览跟随:处理会议宣布 `number_of_organelles`,每个面板显示很多. 没有它,提取图像区域设置提供了一个固定四 - 因此,一个单器官运行有三个掩膜滑板和三个最小区域领域的对象它没有,每一个传播到设置的处理会议阅读。\n\nIt builds them as well as showing them. This used to change only what was SHOWN, over 702 slots' worth of controls that `_build_controls` had already made -- so the answer to \"a run with no organelle\" was 2,117 controls hidden behind a data-selection boundary. The count is now what brings a slot's controls into existence, which is why raising it is the only route that has to work.",
+      "text": "提取图像区域设置应该提供多少 organelle 插槽。\n\n相同的规则 掩膜和掩膜直播预览跟随:处理会议宣布 `number_of_organelles`,每个面板显示很多. 没有它,提取图像区域设置提供了一个固定四 - 因此,一个单器官运行有三个掩膜滑板和三个最小区域领域的对象它没有,每一个传播到设置的处理会议阅读。\n\n它不只是显示这些控件，还会创建它们。以前这里只改变显示的内容，而 `_build_controls` 早已为 702 个槽位创建好了控件 -- 所以 \"没有细胞器的运行\" 得到的答案，是藏在一道数据选择边界后面的 2,117 个控件。现在，正是这个数量让一个槽位的控件真正被创建出来，这也是为什么提高它是唯一必须可行的途径。",
       "translation_source_blocks_sha256": [
         "4cd568add300f7b7ea1b868f666cf2fba4e75f9503b3c4df7992a1be5f1315fe",
         "068caf5ec5f007b6ae3091daabbd0b7cc8f4718f3613cfe97e4cce8223b7ef76",
@@ -129369,7 +129369,7 @@
         "ecb6e0e48b5eba3fd475114a91086f477d97de7359a421100b0d838e3e8eca0e"
       ],
       "source_sha256": "611521ce55cc6d3e8c3b3ca29ed8acb089baade6937362b20f3b727f84e3ca14",
-      "text": "将助理提供商描绘为他们的品牌而不是他们的名字。\n\n    “GPT和双子按钮应该是每个按钮的标志,而不仅仅是按钮”\n\n三个字在三个盒子里是带按钮的列表,一个标志在被阅读之前被认可,这就是卖家有一个原因 - 这是设置筛选上的一个问题,用户已经知道答案,只需要指向它。\n\nDRAWN,不是发送. 每个标志是这里建造的 `QPainterPath`:一个 bitmap 将是一个供应商资产在存储库与其自己的许可证,其自己的分辨率和其自己的两个版本为光和黑暗。\n\n三个助理形状是每个标志的可识别的地质,而不是一个相似的:克劳德的辐射爆发,OpenAI的六倍节点,Gemini的四点节点。 他们确定哪个命令线工具 spaCR 会驱动,这是问题正在问什么。\n\nGitHub是例外,而且是故意的。 GitHub 发布了 Octocat 的路径数据作为链接标志,所以一个是真实的东西,而不是耳朵的圆圈 - 仍然是一个路径,仍然按主题编写,仍然没有添加到轮子。",
+      "text": "将助理提供商描绘为他们的品牌而不是他们的名字。\n\n    “GPT和双子按钮应该是每个按钮的标志,而不仅仅是按钮”\n\n三个字在三个盒子里是带按钮的列表,一个标志在被阅读之前被认可,这就是卖家有一个原因 - 这是设置筛选上的一个问题,用户已经知道答案,只需要指向它。\n\nDRAWN,不是发送. 每个标志是这里建造的 `QPainterPath`:一个 bitmap 将是一个供应商资产在存储库与其自己的许可证,其自己的分辨率和其自己的两个版本为光和黑暗。\n\n三个助理形状是每个标志的可识别的地质,而不是一个相似的:克劳德的辐射爆发,OpenAI的六倍节点,Gemini的四点节点。 他们确定哪个命令线工具 spaCR 会驱动,这是问题正在问什么。\n\nGITHUB 是例外，而且是有意为之。GitHub 公开了 Octocat 的路径数据，供用作链接标记，所以这一个是真正的标志，而不是一个带耳朵的圆 -- 它仍然是路径，仍然按主题重新着色，也仍然没有往安装包里加任何东西。",
       "translation_source_blocks_sha256": [
         "be7e1d10e830413025704ee622f05aa91caf6051d2e5d14eccfd8a0bba8c78cf",
         "e4052fb2c459d065cf30a47488d5f41299250e1d7e9c469f5171d278047b201c",
@@ -140199,7 +140199,7 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
       "source_sha256": "5cfeff198c60384f5ae8fe299de4e7ff42fe48fd419a94bf793fb242f5858d12",
-      "text": "收集并在一个通话中写下 ``src`` 的报告。\n\n:param src: 表 / 处理会议文件夹进行报告。\n:param out: 目的地:在 ``.html`` 或 ``.pdf`` 中结束的路径命名文件;其他任何东西都被视为文件夹,并以 ``src`` 和当前时间命名。\n:param fmt: ``\"html\"``, ``\"pdf\"`` or ``\"both\"``.\n:param kwargs: 转到 :func:`collect_report`。\n:returns: 路径写在HTML,PDF的顺序。\n:raises ValueError: 对于一个未知的 ``fmt``。\n\n示例：\n    .. code-block:: python\n\n        from spacr.report import build_report\n        paths = build_report('/data/plate1', '/tmp/reports', fmt='both')",
+      "text": "收集并在一个通话中写下 ``src`` 的报告。\n\n:param src: 表 / 处理会议文件夹进行报告。\n:param out: 目的地:在 ``.html`` 或 ``.pdf`` 中结束的路径命名文件;其他任何东西都被视为文件夹,并以 ``src`` 和当前时间命名。\n:param fmt: ``\"html\"``, ``\"pdf\"`` or ``\"both\"``.\n:param kwargs: 转到 :func:`collect_report`。\n:returns: 写出的路径，顺序为 html、pdf。\n:raises ValueError: 对于一个未知的 ``fmt``。\n\n示例：\n    .. code-block:: python\n\n        from spacr.report import build_report\n        paths = build_report('/data/plate1', '/tmp/reports', fmt='both')",
       "translation_source_blocks_sha256": [
         "12f5390b44ea5498cb86d1db285663ed0ca3764f7f46dab24c8edcb4ab6336b7",
         "3e2d3bfdf5c1af6ea4bf59e0588ee8d961fc86b763305e8cdacb03db50a82296",

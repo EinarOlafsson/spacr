@@ -1,0 +1,41 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "The check is made where the spec is built rather than where it is used, because one spec encodes every extracted image region of a run: an unknown image data channel policy or a batch size below one is a typing mistake, and discovering it after the images are loaded wastes the load.",
+      "label": "spacr.embeddings.EmbeddingSpec.__post_init__#1",
+      "source": "The check is made where the spec is built rather than where it is used, because one spec encodes every crop of a run: an unknown channel policy or a batch size below one is a typing mistake, and discovering it after the images are loaded wastes the load.",
+      "source_sha256": "f56d85217de1cb26860c431c88271f867d79ee87d697789c85a43b724c2800e3",
+      "translation": "检查在构建规格时进行，而不是在使用时进行，因为一个规格会编码一次运行中的每一个裁剪图像：未知的通道策略或小于 1 的批量大小属于输入错误，等到图像加载之后才发现，加载就白费了。"
+    },
+    {
+      "context": "``if not objects_ready(db):`` is the natural way to write the data-selection boundary, and it must answer the verdict rather than \"an object exists\". :attr:`reason` is still there to say why the answer was no.",
+      "label": "spacr.ops_store.Readiness.__bool__#1",
+      "source": "``if not objects_ready(db):`` is the natural way to write the gate, and it must answer the verdict rather than \"an object exists\". :attr:`reason` is still there to say why the answer was no.",
+      "source_sha256": "cb8a478d0983e28888e6bdb8d51a31a0f34ab10fa2ee7908d19ba0085cf8b09e",
+      "translation": "``if not objects_ready(db):`` 是写这道判断最自然的方式，它必须回答的是结论，而不是 \"an object exists\"。 :attr:`reason` 仍然会说明答案为什么是否定的。"
+    },
+    {
+      "context": "It looked for the wrong file. It opened ``<app>_settings.csv`` only, and ``einarolafsson/spacr_settings`` has never shipped a file by that name -- it ships ``gen_masks_settings.csv`` and ``crop_measure_settings.csv``. Measured on the real pack at ``~/datasets/settings`` on 2026-09-14: applied 0, renamed 0, dropped 0, malformed 0, on a 58-setting file. A miss rather than an error, so the caller filled the form with plain defaults and said nothing. `tests/test_hf_e2e_integration.py` found the same hole from the other side and worked around it with a local reader and a hard assertion on the names, which is where `PACK_FILES` comes from.",
+      "label": "spacr.qt.settings_pack#10",
+      "source": "IT LOOKED FOR THE WRONG FILE. It opened ``<app>_settings.csv`` only, and ``einarolafsson/spacr_settings`` has never shipped a file by that name -- it ships ``gen_masks_settings.csv`` and ``crop_measure_settings.csv``. Measured on the real pack at ``~/datasets/settings`` on 2026-09-14: applied 0, renamed 0, dropped 0, malformed 0, on a 58-setting file. A miss rather than an error, so the caller filled the form with plain defaults and said nothing. `tests/test_hf_e2e_integration.py` found the same hole from the other side and worked around it with a local reader and a hard assertion on the names, which is where `PACK_FILES` comes from.",
+      "source_sha256": "214290cdb5f0843d8999cc74831d2e38700cd312f7b2aab1301f5cf45690cd3e",
+      "translation": "它找错了文件。它只打开 ``<app>_settings.csv``，而 ``einarolafsson/spacr_settings`` 从未提供过这个名字的文件 -- 它提供的是 ``gen_masks_settings.csv`` 和 ``crop_measure_settings.csv``。2026-09-14 在 ``~/datasets/settings`` 的真实设置包上测得：应用 0、重命名 0、丢弃 0、格式错误 0，文件共有 58 项设置。这是一次落空而不是一个报错，所以调用方用普通的默认值填满了表单，却什么也没说。 `tests/test_hf_e2e_integration.py` 从另一端发现了同一个漏洞，并用一个本地读取器和对文件名的硬性断言绕了过去， `PACK_FILES` 就是这样来的。"
+    },
+    {
+      "context": "Missing file is not an error: a pack legitimately carries settings for some apps and not others, and the caller gets an empty key-value mapping. Use :func:`_pack_path` to tell that case apart from a file that was read.",
+      "label": "spacr.qt.settings_pack.read_pack#1",
+      "source": "Missing file is not an error: a pack legitimately carries settings for some apps and not others, and the caller gets an empty dict. Use :func:`_pack_path` to tell that case apart from a file that was read.",
+      "source_sha256": "c0b13102c2be7604ae82b3972525b20bcd2e53873f3feec503b244e6847e58ff",
+      "translation": "缺少文件不是错误：一个设置包本来就可能只为部分应用携带设置，这时调用方得到一个空字典。用 :func:`_pack_path` 区分这种情况和确实读取了文件的情况。"
+    },
+    {
+      "context": "It builds them as well as showing them. This used to change only what was SHOWN, over 702 slots' worth of controls that `_build_controls` had already made -- so the answer to \"a run with no organelle\" was 2,117 controls hidden behind a data-selection boundary. The count is now what brings a slot's controls into existence, which is why raising it is the only route that has to work.",
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_organelle_count#2",
+      "source": "IT BUILDS THEM AS WELL AS SHOWING THEM. This used to change only what was SHOWN, over 702 slots' worth of controls that `_build_controls` had already made -- so the answer to \"a run with no organelle\" was 2,117 controls hidden behind a gate. The count is now what brings a slot's controls into existence, which is why raising it is the only route that has to work.",
+      "source_sha256": "4d92b0f1a87f19052f22a2a3f90b5fc17b819e87008d513c8ab789f9c3a3d3e1",
+      "translation": "它不只是显示这些控件，还会创建它们。以前这里只改变显示的内容，而 `_build_controls` 早已为 702 个槽位创建好了控件 -- 所以 \"没有细胞器的运行\" 得到的答案，是藏在一道数据选择边界后面的 2,117 个控件。现在，正是这个数量让一个槽位的控件真正被创建出来，这也是为什么提高它是唯一必须可行的途径。"
+    }
+  ],
+  "schema": 1
+}

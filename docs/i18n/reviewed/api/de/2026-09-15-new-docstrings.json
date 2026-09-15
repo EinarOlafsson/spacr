@@ -1,0 +1,27 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "It looked for the wrong file. It opened ``<app>_settings.csv`` only, and ``einarolafsson/spacr_settings`` has never shipped a file by that name -- it ships ``gen_masks_settings.csv`` and ``crop_measure_settings.csv``. Measured on the real pack at ``~/datasets/settings`` on 2026-09-14: applied 0, renamed 0, dropped 0, malformed 0, on a 58-setting file. A miss rather than an error, so the caller filled the form with plain defaults and said nothing. `tests/test_hf_e2e_integration.py` found the same hole from the other side and worked around it with a local reader and a hard assertion on the names, which is where `PACK_FILES` comes from.",
+      "label": "spacr.qt.settings_pack#10",
+      "source": "IT LOOKED FOR THE WRONG FILE. It opened ``<app>_settings.csv`` only, and ``einarolafsson/spacr_settings`` has never shipped a file by that name -- it ships ``gen_masks_settings.csv`` and ``crop_measure_settings.csv``. Measured on the real pack at ``~/datasets/settings`` on 2026-09-14: applied 0, renamed 0, dropped 0, malformed 0, on a 58-setting file. A miss rather than an error, so the caller filled the form with plain defaults and said nothing. `tests/test_hf_e2e_integration.py` found the same hole from the other side and worked around it with a local reader and a hard assertion on the names, which is where `PACK_FILES` comes from.",
+      "source_sha256": "214290cdb5f0843d8999cc74831d2e38700cd312f7b2aab1301f5cf45690cd3e",
+      "translation": "Es suchte die falsche Datei. Es öffnete nur ``<app>_settings.csv``, und ``einarolafsson/spacr_settings`` hat nie eine Datei dieses Namens ausgeliefert -- es liefert ``gen_masks_settings.csv`` und ``crop_measure_settings.csv`` aus. Gemessen am echten Paket unter ``~/datasets/settings`` am 2026-09-14: angewendet 0, umbenannt 0, verworfen 0, fehlerhaft 0, bei einer Datei mit 58 Einstellungen. Ein Fehlgriff statt eines Fehlers, also füllte der Aufrufer das Formular mit bloßen Standardwerten und meldete nichts. `tests/test_hf_e2e_integration.py` fand dieselbe Lücke von der anderen Seite und umging sie mit einem lokalen Leser und einer harten Prüfung der Namen, und daher stammt `PACK_FILES`."
+    },
+    {
+      "context": "An unset count shows every slot that exists, which is what this dialog did before the count reached it: better to offer a field too many than to hide one a run is using.",
+      "label": "spacr.qt.widgets.measure_preview.CropSettingsDialog.refresh_organelle_slots#3",
+      "source": "An unset count shows every slot that exists, which is what this dialog did before the count reached it: better to offer a field too many than to hide one a run is using.",
+      "source_sha256": "3f611ed0e4fe621c4bb0ce1dff1a891dd70a166c0c506044c01165dca12f28ed",
+      "translation": "Eine nicht gesetzte Anzahl zeigt jeden vorhandenen Slot an, so wie dieser Dialog es tat, bevor die Anzahl ihn erreichte: Besser ein Feld zu viel anbieten, als eines zu verbergen, das ein Lauf verwendet."
+    },
+    {
+      "context": "It builds them as well as showing them. This used to change only what was SHOWN, over 702 slots' worth of controls that `_build_controls` had already made -- so the answer to \"a run with no organelle\" was 2,117 controls hidden behind a data-selection boundary. The count is now what brings a slot's controls into existence, which is why raising it is the only route that has to work.",
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_organelle_count#2",
+      "source": "IT BUILDS THEM AS WELL AS SHOWING THEM. This used to change only what was SHOWN, over 702 slots' worth of controls that `_build_controls` had already made -- so the answer to \"a run with no organelle\" was 2,117 controls hidden behind a gate. The count is now what brings a slot's controls into existence, which is why raising it is the only route that has to work.",
+      "source_sha256": "4d92b0f1a87f19052f22a2a3f90b5fc17b819e87008d513c8ab789f9c3a3d3e1",
+      "translation": "Es baut sie, statt sie nur anzuzeigen. Früher änderte dies nur, was ANGEZEIGT wurde, über Steuerelemente für 702 Slots, die `_build_controls` bereits erzeugt hatte -- die Antwort auf \"einen Lauf ohne Organelle\" waren also 2,117 Steuerelemente hinter einer Sperre. Jetzt ist es die Anzahl, die die Steuerelemente eines Slots überhaupt erst entstehen lässt, und deshalb ist ihr Erhöhen der einzige Weg, der funktionieren muss."
+    }
+  ],
+  "schema": 1
+}

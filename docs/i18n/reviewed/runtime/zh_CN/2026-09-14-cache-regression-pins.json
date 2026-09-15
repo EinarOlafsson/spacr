@@ -1,0 +1,608 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Everything that decides which rows reach the model — minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. Each one silently shrinks the dataset, so check the diagnostics after changing any of them.",
+      "source": "Everything that decides which rows reach the model — minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. Each one silently shrinks the dataset, so check the diagnostics after changing any of them.",
+      "source_sha256": "bfe048337f20c62020d613fb462d29c5de866f44cee3e10419bcdb399f9d44b6",
+      "table": "categories",
+      "translation": "决定哪条行到达模型 - 每条小细胞,每条引导 RNA的最低观察,阅读分裂切割和外部移除。"
+    },
+    {
+      "key": "How many reads each well is allotted. Too few and guide counts become noise before any biology is involved, which no amount of extra replicates recovers.",
+      "source": "How many reads each well is allotted. Too few and guide counts become noise before any biology is involved, which no amount of extra replicates recovers.",
+      "source_sha256": "7e301ddd860c2b0989ad41d68fa7a0a790ac8c6965aca3cac23cd0e8dc538f90",
+      "table": "categories",
+      "translation": "每本书都有多少读书分配,过少的和引导 RNA计算在任何生物学参与之前变成噪音,没有额外的复制品的数量恢复。"
+    },
+    {
+      "key": "Read only when inference resolves to the nonparametric test. These control the permutation itself: how many, what is held fixed (normally the plate), the random seed, and how many wells a guide must appear in before it is testable.",
+      "source": "Read only when inference resolves to the nonparametric test. These control the permutation itself: how many, what is held fixed (normally the plate), the random seed, and how many wells a guide must appear in before it is testable.",
+      "source_sha256": "b3d1f37cbeef650dd96934025a5f1a9a81b6c3b374e3f6f61ed3801bb697c2a4",
+      "table": "categories",
+      "translation": "这些控制了转换本身:多少,什么是固定(通常的板),随机种子,以及一个引导 RNA必须在测试之前出现多少孔。"
+    },
+    {
+      "key": "The size and redundancy of the screening library: how many genes are targeted, how many guides each one gets, and how many constructs land in a well. Guides per gene is usually the cheapest lever on detection power.",
+      "source": "The size and redundancy of the screening library: how many genes are targeted, how many guides each one gets, and how many constructs land in a well. Guides per gene is usually the cheapest lever on detection power.",
+      "source_sha256": "2ac18e716d9cf47f7c825422a9b22d109e8d19c09e6d2af1dd533fd2fc0c9863",
+      "table": "categories",
+      "translation": "扫描图书馆的尺寸和折叠性:有多少基因被针对,有多少引导 RNA每人得到,以及有多少建造土壤在一个孔里。"
+    },
+    {
+      "key": "Which rows reach the model, and what they are measured against. The plate identifier, the positive and negative control wells, any row filter — and every cutoff that drops data: minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. The controls set the scale the effect sizes are reported on; each cutoff silently shrinks the dataset, so check the diagnostics after changing one.",
+      "source": "Which rows reach the model, and what they are measured against. The plate identifier, the positive and negative control wells, any row filter — and every cutoff that drops data: minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. The controls set the scale the effect sizes are reported on; each cutoff silently shrinks the dataset, so check the diagnostics after changing one.",
+      "source_sha256": "c25ad0a557a0dbe851c9843511359fc2d4977fd46d562948d1b055e052b29f54",
+      "table": "categories",
+      "translation": "哪些行到达模型,以及它们对什么进行测量。 磁盘识别器、正面和负面控制池、任何序列过滤器和每滴数据的切割器:每滴细胞的最低细胞、每引导 RNA的最低观测、阅读分裂切割和外部移除。 控制器设置了影响尺寸所报告的规模; 每个切割都沉默地缩小数据集,所以在更改一个后检查诊断。"
+    },
+    {
+      "key": "guide_fractions_file",
+      "source": "Guide fractions file",
+      "source_sha256": "fc4abaa2a39cdd8d4fb4703688fb550c0a4f5a8450705bd67bd9d5ec31a57265",
+      "table": "setting_labels",
+      "translation": "引导 RNA分裂文件"
+    },
+    {
+      "key": "guide_permutations",
+      "source": "Guide permutations",
+      "source_sha256": "12ae581ea6052fac665e6a1872e9670bd4d9e2a0eb54beadcb23610dd196e061",
+      "table": "setting_labels",
+      "translation": "引导 RNA转换"
+    },
+    {
+      "key": "guide_presence_threshold",
+      "source": "Guide presence threshold",
+      "source_sha256": "e5ba43cb543bf18d2c98d70e80ff8966e15822fc54e14b7d11843bc206442749",
+      "table": "setting_labels",
+      "translation": "引导 RNA出席限制"
+    },
+    {
+      "key": "hit_guide_agreement",
+      "source": "Hit guide agreement",
+      "source_sha256": "3943b0ad6eb188399e791905c99115f19dc0f8b331a2a3ee1fdc5b5ff39af312",
+      "table": "setting_labels",
+      "translation": "希特引导 RNA协议"
+    },
+    {
+      "key": "hit_split_by",
+      "source": "Hit split by",
+      "source_sha256": "36aa3cf6ff7ef960a5b3558010c5ac30a10802afbf532d8e2688a336b04da02b",
+      "table": "setting_labels",
+      "translation": "以分裂为"
+    },
+    {
+      "key": "organelle_intensity_merge",
+      "source": "Organelle 1 — Intensity merge",
+      "source_sha256": "4903080387029ca8a473d35ba96ae6726ed3331c5788bb43fdd57f1ad2579549",
+      "table": "setting_labels",
+      "translation": "Organelle 1 - 密集融合"
+    },
+    {
+      "key": "organelle_rolling_ball_radius",
+      "source": "Organelle 1 — Rolling ball radius",
+      "source_sha256": "20c481573f3ee27f9c8ec4b35d4ecd8a9d74dd796ae837dd98c671e9ab4d1849",
+      "table": "setting_labels",
+      "translation": "Organelle 1 - 滚球射线"
+    },
+    {
+      "key": "pca_whiten",
+      "source": "Pca whiten",
+      "source_sha256": "410a072c668e0db1acf92ddaef2ad1b862d0b684deefc2a48b19af5b63cf7e3f",
+      "table": "setting_labels",
+      "translation": "Pca 白化"
+    },
+    {
+      "key": "surrogate_model",
+      "source": "Surrogate model",
+      "source_sha256": "aa627947b7b4237f2e3d3cdfdcadc8972547dd5b85ab85cc63abe7d519e0d17f",
+      "table": "setting_labels",
+      "translation": "Surrogate 模型"
+    },
+    {
+      "key": "analysis_mode",
+      "source": "'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. This setting is normally derived from inference; set it directly only to override that choice. Default 'regression'. The Regression module starts with inference='nonparametric', so its resolved initial mode is 'guide_permutation'.",
+      "source_sha256": "7d9c3c8e3aa05e8e0ae9e97345f2089879296dc89d8e86aa2390c025c1e5838b",
+      "table": "setting_tooltips",
+      "translation": "'regression' 适合所选择的同时模型. 'guide_permutation' 测试每个引导 RNA作为一个平板调整的边缘联盟,使用被阻止的 Freedman-Lane 转换,然后纠正所需的支持家庭. 这个设置通常是从结论中产生的; 将其直接设置,以超越这个选项. 默认 'regression'. 回归模块以结论='nonparametric' 开始,因此其解决的初始模式是 'guide_permutation'。"
+    },
+    {
+      "key": "cell_area_outlier_mads",
+      "source": "Optionally remove objects whose cell area exceeds this many scaled median absolute deviations from the median. Filtering occurs before guide fractions are computed, so removed objects do not contribute to normalization. MAD-based limits are robust to skewed area distributions. Set to None to disable; a value of 5 is a conservative starting point. Default None.",
+      "source_sha256": "edf8cd121b17f728bf09c4bd43044b7b79eb465ecc6b06a79758aad936872270",
+      "table": "setting_tooltips",
+      "translation": "可选地移除其细胞面积超过这个许多规模的中间绝对偏差从中间。 过滤发生在引导 RNA分数计算之前,因此移除的对象不会有助于正常化。 MAD 基于的限制是坚固的滑动区域分布。 设置为 None 禁用; 5 的值是保守的起点. 默认情况下 None。"
+    },
+    {
+      "key": "cell_picking",
+      "source": "How displayed cells are selected. 'rank' takes the highest scores, with the count determined by the inferred fraction. 'attributed' assigns each cell a guide probability and takes those above the threshold. 'assigned' assigns exactly one guide to every cell in the well, so each guide receives the number of cells implied by its reads. 'multivariate' uses all measurements rather than the score alone and requires the gene-by-measurement sweep effects grid. Default 'rank'.",
+      "source_sha256": "834cc6315b67a13c79e9275874fa0e1a84f75ec0b464d53740b813f8ab270dca",
+      "table": "setting_tooltips",
+      "translation": "如何显示的细胞被选择。 'rank' 得到了最高的分数,其数量由完成分数确定。 'attributed' 指定每个细胞一个引导 RNA的概率,并采取超越边界的。 'assigned' 将一个引导 RNA分配给孔中的每个细胞,因此每个引导 RNA都收到由其阅读所指定的单元素数量。 'multivariate' 使用所有测量,而不是单独的分数,并要求基因测量冲动效应网络。 默认 'rank'。"
+    },
+    {
+      "key": "count_grna_column",
+      "source": "Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
+      "source_sha256": "0ceff8d66b77ab5dab0ba09525354e8c54646de65f75d8f3fdabef08ddccb2fe",
+      "table": "setting_tooltips",
+      "translation": "列名称在包含引导 RNA识别器的 CSV 数字中。 以前的版本需要 'grna' 名称,并使用 'sgRNA' 或 'guide' 等替代品拒绝了文件。 将此值设置为由序列流程产生的列。 默认 'grna'。"
+    },
+    {
+      "key": "guide_fractions_file",
+      "source": "Sequencing-derived table with one fraction per well and guide. Duplicate well-guide rows are refused because they would reweight target evidence ambiguously. Default '' requires selection.",
+      "source_sha256": "d63bddd19afc999a90d3c88b8a72ffa2bd4de39c298dccbd1feda818ffa3a452",
+      "table": "setting_tooltips",
+      "translation": "序列衍生表,每个字符和引导 RNA一分之一,被拒绝复制好导行的行列,因为它们会双重重的目标证据,默认“需要选择。"
+    },
+    {
+      "key": "guide_presence_threshold",
+      "source": "A guide counts as present in a well only when its fraction is above this value. The effect still uses the unthresholded fraction. Default 0.0.",
+      "source_sha256": "66b7b9c6a5394e3c1654abf261a917749e9279bc9eb6489db41eae50760300ef",
+      "table": "setting_tooltips",
+      "translation": "引导 RNA只计算在一个孔里存在时,它的分数超过这个值,效果仍然使用未限制的分数。"
+    },
+    {
+      "key": "half_widths",
+      "source": "Set the score-window half-width in robust scales (1.4826 × median absolute deviation) on either side of the score implied by the coefficient. This value applies to every coefficient. It changes the range described in the montage caption, not the number of cells shown; the displayed count comes from guide-fraction estimates so narrow windows do not leave wells underrepresented. Default 1.0.",
+      "source_sha256": "16bf960ac01f3d2d7aa6b1bbc947b1a9999c488a45aa932dcc90bf9254d9dea8",
+      "table": "setting_tooltips",
+      "translation": "设置分数窗口半宽在坚实的尺寸(1.4826 ×中间绝对偏差)在每个方面的分数被指示的比例。 这个值适用于每个比例. 它改变的范围描述在组装标签,而不是显示的细胞数量; 显示的数字来自引导 RNA分数估计,所以狭窄的窗口不会留下孔。 默认 1.0."
+    },
+    {
+      "key": "hit_guide_agreement",
+      "source": "Agreement among guides supporting the selected hit, copied from the regression result rather than recomputed from candidate cells. Default NaN records unavailable evidence.",
+      "source_sha256": "175fe324d756fd9c43d422ee4e4ddd5374b626320121d5948b96777658537822",
+      "table": "setting_tooltips",
+      "translation": "支持所选的攻击的引导 RNA之间的协议,从退缩结果复制,而不是从候选细胞复制。 默认 NaN 记录不存在的证据。"
+    },
+    {
+      "key": "hit_n_guides",
+      "source": "Number of distinct guides supporting the selected hit in the source regression. It is provenance for interpretation, not a cell-level prediction threshold. Default 0.",
+      "source_sha256": "20b19b36e42739d11fe616849e09bc41e37445d8907c68b8427a1d5636bde4d5",
+      "table": "setting_tooltips",
+      "translation": "不同引导 RNA的数量支持在源回归中选择的打击,它是解释的来源,而不是细胞级预测边界。"
+    },
+    {
+      "key": "hit_pipeline_permutations",
+      "source": "Guide-fraction and well-label null iterations that repeat grouped cross-fitting inside every permutation. Increase it for stronger pipeline-null resolution at substantial runtime cost. Default 100.",
+      "source_sha256": "7ce26aefba4ddf967507baf4bc6f5449375b7c2d34efe31892323f7d7b7a9d07",
+      "table": "setting_tooltips",
+      "translation": "引导 RNA分裂和精心标记的零字符串,重复每个转换内部的集合交叉匹配,以获得更强的流程零分辨率,以相当的运行时间成本。"
+    },
+    {
+      "key": "inference",
+      "source": "How effects are tested; the readable front end for analysis_mode. Default 'nonparametric': each guide is a plate-blocked Freedman-Lane permutation with an empirical P, valid however many guides there are, but no P can be below 1/(guide_permutations + 1). 'parametric' fits every guide at once in the chosen regression_type, so it needs more wells than guides or no coefficient is identifiable. 'auto' counts guides and wells and takes the simultaneous fit only when the design supports it.",
+      "source_sha256": "d5fa9669cfcf0b5f81f6330e69ae049719a58d2ab2b69be4a0ea27a729a24a53",
+      "table": "setting_tooltips",
+      "translation": "如何测试效应; 可读的前端为 analysis_mode。 默认 'nonparametric':每个引导 RNA都是一个平板封锁的Friedman-Lane转换,具有实验性P,有多少引导 RNA存在,但没有P可以低于 1/(guide_permutations + 1)。 'parametric' 匹配每个引导 RNA一次在所选择的 regression_type 中,所以它需要比引导 RNA更多的泡沫,或者没有可识别的比例。 'auto' 计算引导 RNA和孔,并仅在设计支持时同时调整。"
+    },
+    {
+      "key": "level",
+      "source": "Result level. For regression, 'both' writes results_grna.csv and results_gene.csv and corrects each family separately; 'grna' reports guide effects, and 'gene' pools guides by gene. Nonparametric inference also honours this choice. Mixed models disable it because they estimate gene effects with guides nested inside genes. For proportion plots, the same key selects 'object', 'well', or 'plate' aggregation. Default 'both' for regression and 'object' for proportions.",
+      "source_sha256": "0691093a025e53e2463538f9b69e4bf1048bde1402911ba88aa008248d73743a",
+      "table": "setting_tooltips",
+      "translation": "'both' 写 results_grna.csv 和 results_gene.csv 并单独纠正每个家庭; 'grna' 报告引导 RNA效应, 和 'gene' 游泳池是基因引导的. 非参数引导也荣誉这个选择. 混合模型阻止它 因为他们估计基因效应与引导 RNA内在基因. 对于比例插件,相同的关键选择 'object', 'well', 或 'plate' 集合. 默认 'both' 为回归和 'object' 为比例。"
+    },
+    {
+      "key": "map_barcodes",
+      "source": "Extract plate and guide barcodes from paired sequencing reads, map them against reference CSV files and report unmatched reads. Verify the regex, barcode orientation and reference columns before a full run.",
+      "source_sha256": "4c7fe0f456c1fced85e6d55dfdc494e3911d802e1ab8476971046621ebaccfc7",
+      "table": "setting_tooltips",
+      "translation": "提取表和引导 RNA字符串的序列列,地图它们对参考 CSV 文件,并报告不匹配的列。"
+    },
+    {
+      "key": "nucleus_area_outlier_mads",
+      "source": "Scaled median-absolute-deviation threshold for nucleus area before guide annotation. Lower values remove more nucleus-size extremes before guide fractions and normalization are computed. Set to None to disable. Default None.",
+      "source_sha256": "eb64535ebc12f0ec9a1b7bc04c4cb3f81d9f5e4c9da72aabbbaa3a9a5a733db8",
+      "table": "setting_tooltips",
+      "translation": "在引导 RNA标记之前,将中间绝对偏差边界扩展到核区域。 较低的值在引导 RNA分裂和正常化计算之前删除更多的核尺寸极端. 设置为 None 以禁用. 默认值 None。"
+    },
+    {
+      "key": "regression",
+      "source": "Fit grouped regression models that relate image-derived phenotypes to guide or gene abundance. Define controls, exclusions, aggregation and the independent experimental unit before fitting.",
+      "source_sha256": "168c65078f01c1ca4b56599fcb3bf6fe5052391546ce3670e48bb4a44914d478",
+      "table": "setting_tooltips",
+      "translation": "适合组成回归模型,将图像产生的现象类型与引导 RNA或基因丰富相关联,在匹配之前确定控制、排除、集成和独立的实验单位。"
+    },
+    {
+      "key": "rra_alpha",
+      "source": "The top fraction of the ranked guide list robust rank aggregation scores against: 0.25 asks whether a gene's guides cluster in the best quarter of the ranking more than chance allows, ignoring the rest. Smaller is stricter and returns fewer, better-supported genes. Above 0 and at most 1; 25 for '25%' is refused. Default 0.25. Read by regression_type 'rra'.",
+      "source_sha256": "e3c69f4c21ce08907f567b65e31f9dea0bed9aa17a0304e4a6abccf70e4038e7",
+      "table": "setting_tooltips",
+      "translation": "排名引导 RNA列表的顶部分为强大的排名集成分数对: 0.25 问一个基因的引导 RNA分类在排名的最佳季度超过机会允许,忽略其余。 较小是严格的,并返回较少,更好支持的基因. 超过 0 和最多 1; 25 为“25%” 被拒绝。 默认 0.25. 阅读 regression_type 'rra'。"
+    },
+    {
+      "key": "show_all_in_well",
+      "source": "Display every cell in the well and highlight the selected cells, rather than displaying selected cells alone. Highlighting matches the annotation app. When disabled, only cells already attributed to the guide are shown, so every visible cell is selected and the visible fraction is necessarily 1. Disable this setting only when isolated selected cells are required. Default True.",
+      "source_sha256": "c4b69e770b32ac2162a74761dfa74a1d77355b31cf1dadee0452dea4382bdc1f",
+      "table": "setting_tooltips",
+      "translation": "显示波中的每个细胞,并突出所选择的细胞而不是单独显示所选细胞。 突出符合标记应用程序. 关闭时,只显示已归属于引导 RNA的细节,因此每个可见细胞都被选中,可见的分裂必然是 1. 仅在需要隔离的选择细胞时才能关闭此设置. 默认情况 True。"
+    },
+    {
+      "key": "target_guides",
+      "source": "Exact guides supporting the selected gene in the source result. Each remains separate evidence so discordance cannot be averaged away. Default [].",
+      "source_sha256": "242364962573a70e34ebb413ba256a1a239e07a90531c9405c22a3a8b2f66be7",
+      "table": "setting_tooltips",
+      "translation": "正确的引导 RNA支持所选择的基因在来源结果. 每个留下独立的证据,因此不一致不能被中等化。"
+    },
+    {
+      "key": "wide_predictor_columns",
+      "source": "Guide columns in a wide independent-variable table. Leave empty to use all numeric columns other than plate/well metadata; list them explicitly when the table contains additional numeric metadata. Ignored for long input. Default [].",
+      "source_sha256": "b02b01b10549c128c411619a1bfd9a78f064fdfc0519d18bb9fd3270de2f3836",
+      "table": "setting_tooltips",
+      "translation": "引导 RNA列在一个广泛的独立变量表中. 放空使用所有数字列,而不是平板/好数据; 明确列出它们,当表包含额外的数字数据。"
+    },
+    {
+      "key": "A gene's fraction in a well is the sum of its guide fractions, matching the aggregation used by regression. Gene-level sweep results therefore use the same guide aggregation as the fitted gene effect.",
+      "source": "A gene's fraction in a well is the sum of its guide fractions, matching the aggregation used by regression. Gene-level sweep results therefore use the same guide aggregation as the fitted gene effect.",
+      "source_sha256": "c446769ecc92be5f1bfacfdf0c0bbf112f57b5c80b3271ea2435f82b60164cad",
+      "table": "ui",
+      "translation": "一个基因的分裂在一个孔里是其引导 RNA分裂的总和,匹配使用回归的集成结果,因此使用相同的引导 RNA集成与固定基因效应。"
+    },
+    {
+      "key": "A measurements.db, or a CSV of measurements",
+      "source": "A measurements.db, or a CSV of measurements",
+      "source_sha256": "3307cffef38e7424daaf06842fdf5579956ab48527d7c2faa279a5ee3d2047b4",
+      "table": "ui",
+      "translation": "measurements.db 或 CSV 的测量"
+    },
+    {
+      "key": "A sparse Poisson GLM with a horseshoe prior -- spaCRPower's power-analysis model -- with offset(log(cell_count)). The prior shrinks the bulk of the guides hard toward zero while leaving a genuinely large effect close to untouched, which suits a screen where most guides are expected to do nothing.",
+      "source": "A sparse Poisson GLM with a horseshoe prior -- spaCRPower's power-analysis model -- with offset(log(cell_count)). The prior shrinks the bulk of the guides hard toward zero while leaving a genuinely large effect close to untouched, which suits a screen where most guides are expected to do nothing.",
+      "source_sha256": "a356944dc8bf7be9a433acadc822ec01ec0e5182668daa119da794d7c20b4edc",
+      "table": "ui",
+      "translation": "一个可怕的Poisson GLM与前一匹马 - spaCRPower的功率分析模型 - 与offset(log(cell_count))。前一片缩小了引导 RNA的堆重硬向零,同时留下一个真正大的效果接近无触,适合一个筛选,其中大多数引导 RNA预计不会做任何事情。"
+    },
+    {
+      "key": "Candidate probabilities are weakly supervised hit-like morphology, not observed guide identity.",
+      "source": "Candidate probabilities are weakly supervised hit-like morphology, not observed guide identity.",
+      "source_sha256": "763a40fe3d6f0ce282ae718e39d448d81f6a4827a4043e88c4d302e19d6f692d",
+      "table": "ui",
+      "translation": "候选人概率是低监督的攻击类似的形态,没有观察到引导 RNA身份。"
+    },
+    {
+      "key": "Each guide is tested independently, as a marginal association rather than as one coefficient in a design holding every guide at once -- so these are marginal associations, not conditional coefficients. Its read fraction and the well phenotype are first residualised against the block (normally plateID) and any nuisance columns; the P value is then the share of Freedman-Lane permutations -- the phenotype residual reshuffled WITHIN each block -- whose statistic reaches the observed one, so it is empirical and two-sided and can never be smaller than 1/(permutations + 1). A guide becomes testable once it appears in guide_min_wells wells above guide_presence_threshold, and each of those thresholds is corrected as its own family. This avoids the rank requirement of a simultaneous guide model and can be used when guides outnumber wells; interpretation still depends on valid blocking, exchangeability, and adequate guide support.",
+      "source": "Each guide is tested independently, as a marginal association rather than as one coefficient in a design holding every guide at once -- so these are marginal associations, not conditional coefficients. Its read fraction and the well phenotype are first residualised against the block (normally plateID) and any nuisance columns; the P value is then the share of Freedman-Lane permutations -- the phenotype residual reshuffled WITHIN each block -- whose statistic reaches the observed one, so it is empirical and two-sided and can never be smaller than 1/(permutations + 1). A guide becomes testable once it appears in guide_min_wells wells above guide_presence_threshold, and each of those thresholds is corrected as its own family. This avoids the rank requirement of a simultaneous guide model and can be used when guides outnumber wells; interpretation still depends on valid blocking, exchangeability, and adequate guide support.",
+      "source_sha256": "030d55e4d180ad845ec8c226dd9f7a88f9538ebff6e7c27ca1715600b7c46f06",
+      "table": "ui",
+      "translation": "每个引导 RNA都是独立测试的,作为一个边缘结合而不是一个指标在一个设计中持有每一个引导 RNA同时 - 因此这些是边界结合,而不是条件结合. 其阅读部分和良好的现象是首先反对区块(通常平板ID)和任何麻烦列; P 价值是然后 Freedman-Lane 转变的份额 - 现象剩余的每个区块 - 其统计达到观察的,所以它是实验性和双面,并且永远不能小于 1/(转变 + 1 )。 guide_min_wells 水瓶座上方 guide_presence_threshold 这避免了同时引导 RNA模型的排名要求,并且可以用来引导 RNA超数的孔;解释仍然取决于有效的封锁,可交换和适当的引导 RNA支持。"
+    },
+    {
+      "key": "Enter comma-separated guide wells from which positive candidates are selected. The montage supplies its current wells by default. Leave empty to allow all displayed wells.",
+      "source": "Enter comma-separated guide wells from which positive candidates are selected. The montage supplies its current wells by default. Leave empty to allow all displayed wells.",
+      "source_sha256": "5d8cd0439da94b13e514a1c8b22afbce235a5157a424ab5afb89cf2a5aedab14",
+      "table": "ui",
+      "translation": "输入由comma分开的引导 RNA孔,从那里选出积极的候选人。 安装按默认提供其当前孔。 放空,允许所有显示的孔。"
+    },
+    {
+      "key": "Every guide against every measurement, blocked on plate and corrected across the whole grid. Identifier columns are left out. Each row also reports the absolute Spearman rank correlation between the measurement and the classification score, which identifies results that may reflect the score's existing measurement basis.",
+      "source": "Every guide against every measurement, blocked on plate and corrected across the whole grid. Identifier columns are left out. Each row also reports the absolute Spearman rank correlation between the measurement and the classification score, which identifies results that may reflect the score's existing measurement basis.",
+      "source_sha256": "952425aaec43cb38da13725b51634720510b725f2afffbd970281a8a28b5a332",
+      "table": "ui",
+      "translation": "每个引导 RNA对每个测量,在平板上封锁并在整个网络上纠正。 识别列被留下. 每个行也报告测量与分类分数之间的绝对 Spearman 排名相匹配,这识别结果可能反映了分数的现有测量基础。"
+    },
+    {
+      "key": "Everything that decides which rows reach the model — minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. Each one silently shrinks the dataset, so check the diagnostics after changing any of them.",
+      "source": "Everything that decides which rows reach the model — minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. Each one silently shrinks the dataset, so check the diagnostics after changing any of them.",
+      "source_sha256": "bfe048337f20c62020d613fb462d29c5de866f44cee3e10419bcdb399f9d44b6",
+      "table": "ui",
+      "translation": "决定哪条行到达模型 - 每条小细胞,每条引导 RNA的最低观察,阅读分裂切割和外部移除。"
+    },
+    {
+      "key": "FORMULA (guide fit)",
+      "source": "FORMULA (guide fit)",
+      "source_sha256": "92d1e46c27f2e8b8fb32484d8b2055e811bfb320de429ebc46090f85020fe808",
+      "table": "ui",
+      "translation": "格式(引导 RNA合适)"
+    },
+    {
+      "key": "Fewer wells than guides puts a joint guide fit below the information limit. Penalties, priors and groups do not create information. The permutation test is the exception because it tests one guide at a time.",
+      "source": "Fewer wells than guides puts a joint guide fit below the information limit. Penalties, priors and groups do not create information. The permutation test is the exception because it tests one guide at a time.",
+      "source_sha256": "3183082b7c12e9d54136d2e59e88ec1c3f122d911538fe19dface1e8343f449a",
+      "table": "ui",
+      "translation": "较少的孔比引导 RNA将一个共同的引导 RNA匹配到信息界限以下。 罚款、优惠和团体不会产生信息。 因为它同时测试一个导游。"
+    },
+    {
+      "key": "Fixed effects only -- no nesting of guides inside genes.",
+      "source": "Fixed effects only -- no nesting of guides inside genes.",
+      "source_sha256": "e8e86994f00954d9b61b0942bd64da4c307dc44e495acf3691469289e8836f88",
+      "table": "ui",
+      "translation": "固定效应仅 - 基因内部没有引导 RNA的流动。"
+    },
+    {
+      "key": "Fixed effects only — no nesting of guides inside genes.",
+      "source": "Fixed effects only — no nesting of guides inside genes.",
+      "source_sha256": "d5d8da87cd1d3d837360e8d18c97e3f8e955dfbad7d9d571a09f5e0a2044afca",
+      "table": "ui",
+      "translation": "固定效应仅 - 没有引导 RNA在基因内部。"
+    },
+    {
+      "key": "Gene coefficients form one BH family; there is no second family because the guide effects are not tested.",
+      "source": "Gene coefficients form one BH family; there is no second family because the guide effects are not tested.",
+      "source_sha256": "f9442202fc31ce147512506a68afc304a67a91569dd1638c0deee7097f2667c8",
+      "table": "ui",
+      "translation": "基因比例构成一个BH家族;没有第二个家庭,因为引导 RNA效应没有被测试。"
+    },
+    {
+      "key": "Group-penalised least squares treats A GENE'S GUIDES AS ONE BLOCK, retaining or zeroing the whole block. group_lasso_lambda sets the penalty relative to group_lasso.max_lambda; hits use bootstrap selection frequency over lasso_n_boot resamples and lasso_selection_threshold.",
+      "source": "Group-penalised least squares treats A GENE'S GUIDES AS ONE BLOCK, retaining or zeroing the whole block. group_lasso_lambda sets the penalty relative to group_lasso.max_lambda; hits use bootstrap selection frequency over lasso_n_boot resamples and lasso_selection_threshold.",
+      "source_sha256": "a66a8cbc90131f63a02f988c7979ed698d5ba0b5d5ff9a20d69f31ccaabb5adf",
+      "table": "ui",
+      "translation": "群体处罚的最小方位应对一个基因的引导 RNA作为一个区块,保持或排除整个区块。 group_lasso_lambda 设置与 group_lasso.max_lambda 相比的处罚; 击中使用 bootstrap 选择频率超过 lasso_n_boot 例子和 lasso_selection_threshold。"
+    },
+    {
+      "key": "Guide support",
+      "source": "Guide support",
+      "source_sha256": "116113f1c180351fa6c4ade4400166511b8659e5f2e0299e99fa326a1989254d",
+      "table": "ui",
+      "translation": "引导 RNA支持"
+    },
+    {
+      "key": "How many reads each well is allotted. Too few and guide counts become noise before any biology is involved, which no amount of extra replicates recovers.",
+      "source": "How many reads each well is allotted. Too few and guide counts become noise before any biology is involved, which no amount of extra replicates recovers.",
+      "source_sha256": "7e301ddd860c2b0989ad41d68fa7a0a790ac8c6965aca3cac23cd0e8dc538f90",
+      "table": "ui",
+      "translation": "每本书都有多少读书分配,过少的和引导 RNA计算在任何生物学参与之前变成噪音,没有额外的复制品的数量恢复。"
+    },
+    {
+      "key": "Links a selected regression run, gene, phenotype direction, false-discovery rate, and guide support to measured cells. The initial output ranks candidates by their scores. An optional hierarchical mixture model estimates cross-fitted hit-like probabilities without equating sequencing fraction with cell prevalence. Comparisons treat wells as independent units, and stored calls are versioned without replacing manual annotations.",
+      "source": "Links a selected regression run, gene, phenotype direction, false-discovery rate, and guide support to measured cells. The initial output ranks candidates by their scores. An optional hierarchical mixture model estimates cross-fitted hit-like probabilities without equating sequencing fraction with cell prevalence. Comparisons treat wells as independent units, and stored calls are versioned without replacing manual annotations.",
+      "source_sha256": "569f30c20f2a66b54401e5b112340c249539e371dbeada8a7f69b32b544368dd",
+      "table": "ui",
+      "translation": "链接一个选择的逆转运行,基因,现象方向,虚假发现率,和引导 RNA支持测量细胞. 初始输出排列候选人他们的分数. 一个可选的层次混合模型估计交叉的打击类似的概率,而不平衡序列分与细胞流行的。"
+    },
+    {
+      "key": "Loading run manifests and settings…",
+      "source": "Loading run manifests and settings…",
+      "source_sha256": "8f6765598d054647d48f9e018f8e9aab3947b24ec99315288fde7ddb1147ee92",
+      "table": "ui",
+      "translation": "加载运行示威和设置..."
+    },
+    {
+      "key": "Min intensity pct",
+      "source": "Min intensity pct",
+      "source_sha256": "9eec6c2dbdaf12924aee5bd5009f4314e228a333058833572fe6914a79a302bd",
+      "table": "ui",
+      "translation": "微强度 pct"
+    },
+    {
+      "key": "Minimum number of guides the per-gRNA table holds for the gene.",
+      "source": "Minimum number of guides the per-gRNA table holds for the gene.",
+      "source_sha256": "ab07526e5a1185817eee75d70262f9265f67ed5bd252a8a7615986cd20c6e421",
+      "table": "ui",
+      "translation": "基因的最低引导 RNA数为 per-gRNA 表。"
+    },
+    {
+      "key": "No flagged fields",
+      "source": "No flagged fields",
+      "source_sha256": "a1cbe79ae5447f711776e86b16c9830772bf9ba21b569f7080bb1dac4b2a6186",
+      "table": "ui",
+      "translation": "没有旗帜"
+    },
+    {
+      "key": "Objects included in the plot. 'gRNAs' displays only objects annotated with the guides selected on the volcano. 'gRNAs + other datapoints in selected wells' also displays the remaining objects from those wells with a distinct encoding. Comparing objects within the same wells controls for their shared plate, acquisition, staining, and imaging conditions.",
+      "source": "Objects included in the plot. 'gRNAs' displays only objects annotated with the guides selected on the volcano. 'gRNAs + other datapoints in selected wells' also displays the remaining objects from those wells with a distinct encoding. Comparing objects within the same wells controls for their shared plate, acquisition, staining, and imaging conditions.",
+      "source_sha256": "aa89e631c9922a030a916ada977d20e8c54a827d7c739cf7233246ca1e58162e",
+      "table": "ui",
+      "translation": "被列入草案中的物品。 'gRNAs' 只显示与火山上选择的引导 RNA标记的物体。 “gRNAs + 其他数据点在选择的孔里”也显示了这些孔里剩下的对象,具有不同的编码。 同一孔内对象的比较对其共享板、收购、绘画和图像条件进行控制。"
+    },
+    {
+      "key": "One coefficient per gene, from the summed guide fraction.",
+      "source": "One coefficient per gene, from the summed guide fraction.",
+      "source_sha256": "1f9c1821c980f47f00c835556d12a7948546c658183d133577684a2f9915ad36",
+      "table": "ui",
+      "translation": "每基因,从总结的引导 RNA部分。"
+    },
+    {
+      "key": "Paste a DNA sequence here, or click “Load test data”.",
+      "source": "Paste a DNA sequence here, or click “Load test data”.",
+      "source_sha256": "6b43ae4ddf88d12f8ce66e460e7160e67f76ef8b12cbb85018c7d656006b9222",
+      "table": "ui",
+      "translation": "DNA 序列在这里粘贴,或单击“加载测试数据 ” 。"
+    },
+    {
+      "key": "Read only when inference resolves to the nonparametric test. These control the permutation itself: how many, what is held fixed (normally the plate), the random seed, and how many wells a guide must appear in before it is testable.",
+      "source": "Read only when inference resolves to the nonparametric test. These control the permutation itself: how many, what is held fixed (normally the plate), the random seed, and how many wells a guide must appear in before it is testable.",
+      "source_sha256": "b3d1f37cbeef650dd96934025a5f1a9a81b6c3b374e3f6f61ed3801bb697c2a4",
+      "table": "ui",
+      "translation": "这些控制了转换本身:多少,什么是固定(通常的板),随机种子,以及一个引导 RNA必须在测试之前出现多少孔。"
+    },
+    {
+      "key": "Reference used to compute the implied score. The screen median is estimated from all measured objects. The fitted intercept is the model reference and, for a well-level fit, represents a well with zero guide fraction. The selected reference is reported in the caption.",
+      "source": "Reference used to compute the implied score. The screen median is estimated from all measured objects. The fitted intercept is the model reference and, for a well-level fit, represents a well with zero guide fraction. The selected reference is reported in the caption.",
+      "source_sha256": "b344c134534d11c4f5e28c2c9c37011c3d444a200caae3b8151014a26b5bcbc1",
+      "table": "ui",
+      "translation": "参考用于计算所涉及的分数. 筛选中间是从所有测量对象中估计的. 配置的接口是模型参考,并且,对于良好的水平匹配,代表一个与零引导 RNA分数的良好。"
+    },
+    {
+      "key": "Remove every drawn ROI",
+      "source": "Remove every drawn ROI",
+      "source_sha256": "eeb701a71109921e790a4f0a80c5963d19aac037610654bd9c4626790b223879",
+      "table": "ui",
+      "translation": "删除每个拖拉 ROI"
+    },
+    {
+      "key": "Summed-guide mode selects cells associated with the gene-level perturbation. Per-guide mode evaluates whether the individual guides select concordant cells; discordance can indicate a guide-specific or off-target effect.",
+      "source": "Summed-guide mode selects cells associated with the gene-level perturbation. Per-guide mode evaluates whether the individual guides select concordant cells; discordance can indicate a guide-specific or off-target effect.",
+      "source_sha256": "86a314fa5d53ebe5e684f7ab20792a8f19d90ce3a4df1bb589edafedf4f23d70",
+      "table": "ui",
+      "translation": "概述引导 RNA模式选择与基因级干扰相关的细胞. 引导 RNA方式评估个别引导 RNA是否选择合并细胞;不一致性可以指示引导 RNA特定的或非目标效果。"
+    },
+    {
+      "key": "The gene is a FIXED effect; each guide is a RANDOM effect nested inside its gene, treating guides as repeated perturbations with different efficiencies and off-target effects. Guide disagreement widens the gene interval, and a gene supported by one noisy guide shrinks toward zero.",
+      "source": "The gene is a FIXED effect; each guide is a RANDOM effect nested inside its gene, treating guides as repeated perturbations with different efficiencies and off-target effects. Guide disagreement widens the gene interval, and a gene supported by one noisy guide shrinks toward zero.",
+      "source_sha256": "f2b01eee69d1fe0d33016df645dfeb23d15441053d5b7d5c91251d91c53254bd",
+      "table": "ui",
+      "translation": "基因是一种固定的效果;每个引导 RNA都是其基因内部的随机效果,处理引导 RNA作为具有不同效率和非目标效应的重复干扰。"
+    },
+    {
+      "key": "The plot repeated in every panel.",
+      "source": "The plot repeated in every panel.",
+      "source_sha256": "d479e3897e36b85aa9ff212cbdfec2019312967f4b19426293149d9d17a5f3fc",
+      "table": "ui",
+      "translation": "演讲在每个面板上都重复了。"
+    },
+    {
+      "key": "The size and redundancy of the screening library: how many genes are targeted, how many guides each one gets, and how many constructs land in a well. Guides per gene is usually the cheapest lever on detection power.",
+      "source": "The size and redundancy of the screening library: how many genes are targeted, how many guides each one gets, and how many constructs land in a well. Guides per gene is usually the cheapest lever on detection power.",
+      "source_sha256": "2ac18e716d9cf47f7c825422a9b22d109e8d19c09e6d2af1dd533fd2fc0c9863",
+      "table": "ui",
+      "translation": "扫描图书馆的尺寸和折叠性:有多少基因被针对,有多少引导 RNA每人得到,以及有多少建造土壤在一个孔里。"
+    },
+    {
+      "key": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits TWICE — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
+      "source": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits TWICE — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
+      "source_sha256": "57890823b4e07244c7de00402b9e38dc214caabf9f3e35b98e1d14c6da501a12",
+      "table": "ui",
+      "translation": "每个选项卡都吸引了哪个类别的比例? 一个跑步设置为级别='both' TWICE 匹配 - 每位引导 RNA和每位基因 - 并将两者写在一个桌子上. 它们是两个多测试家庭,所以 q 值, Q Q 的通货膨胀数字和意义线在每个家庭中计算,而不是在夫妇中计算。 gene_fraction:gene[225160] 旁边的分裂:grna [225160_1],以及表中的一个层列,说明哪个是哪个。"
+    },
+    {
+      "key": "Which rows reach the model, and what they are measured against. The plate identifier, the positive and negative control wells, any row filter — and every cutoff that drops data: minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. The controls set the scale the effect sizes are reported on; each cutoff silently shrinks the dataset, so check the diagnostics after changing one.",
+      "source": "Which rows reach the model, and what they are measured against. The plate identifier, the positive and negative control wells, any row filter — and every cutoff that drops data: minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. The controls set the scale the effect sizes are reported on; each cutoff silently shrinks the dataset, so check the diagnostics after changing one.",
+      "source_sha256": "c25ad0a557a0dbe851c9843511359fc2d4977fd46d562948d1b055e052b29f54",
+      "table": "ui",
+      "translation": "哪些行到达模型,以及它们对什么进行测量。 磁盘识别器、正面和负面控制池、任何序列过滤器和每滴数据的切割器:每滴细胞的最低细胞、每引导 RNA的最低观测、阅读分裂切割和外部移除。 控制器设置了影响尺寸所报告的规模; 每个切割都沉默地缩小数据集,所以在更改一个后检查诊断。"
+    },
+    {
+      "key": "Which view of the sweep to draw and to save beside the table. The heatmap summarizes surviving effects, calibration checks the null p-value distribution, and the other views examine effect size, hit counts, score correlation, guide prevalence, profiles, similarity, or agreement among a gene's guides.",
+      "source": "Which view of the sweep to draw and to save beside the table. The heatmap summarizes surviving effects, calibration checks the null p-value distribution, and the other views examine effect size, hit counts, score correlation, guide prevalence, profiles, similarity, or agreement among a gene's guides.",
+      "source_sha256": "40de03ae38fd9972483b61a411ede789567e7145734eec247be6a860635a1e88",
+      "table": "ui",
+      "translation": "热地图总结了生存效应,加密检查了零的p值分配,而其他观点检查了效应大小,击数,分数相似性,引导 RNA普及率,个人资料,类似性或基因引导 RNA之间的协议。"
+    },
+    {
+      "key": "Width (in)",
+      "source": "Width (in)",
+      "source_sha256": "a5c4ee45743d1e5607f1327e2bd55b8c5fd4416da96fbb8a0753fb58ece94c5c",
+      "table": "ui",
+      "translation": "广度(in)"
+    },
+    {
+      "key": "Writes a FOLDER: the figure as pdf and png, the rows it was drawn from, and the test that was run on them with its assumptions. A pdf on its own cannot be checked -- six months later the question is what the numbers were and whether the difference was tested, and a figure file answers neither.",
+      "source": "Writes a FOLDER: the figure as pdf and png, the rows it was drawn from, and the test that was run on them with its assumptions. A pdf on its own cannot be checked -- six months later the question is what the numbers were and whether the difference was tested, and a figure file answers neither.",
+      "source_sha256": "22b6e8126453999ea82e038279469f54400956ef65c8168bdb05ef65e01b80fc",
+      "table": "ui",
+      "translation": "写入一个文件夹:图形的 pdf 和 png、绘制它所依据的数据行,以及对这些数据所做的检验及其假设。单独一个 pdf 无法被核查 -- 六个月后要问的是当时的数值是多少、差异是否经过检验,而一个图形文件这两者都答不上来。"
+    },
+    {
+      "key": "cuML installed. Restart spaCR to use it.",
+      "source": "cuML installed. Restart spaCR to use it.",
+      "source_sha256": "0a9f4d7ee14fbeb64bc2a0fe3ee562fa5c4418ec4fd70f2156074031d361acbb",
+      "table": "ui",
+      "translation": "重新启动 spaCR 使用它。"
+    },
+    {
+      "key": "drop guides in more than",
+      "source": "drop guides in more than",
+      "source_sha256": "31637910e170ad6840e94fb2368749bc594e65cdeb4583009db9f26e75913db4",
+      "table": "ui",
+      "translation": "放下引导 RNA在更多"
+    },
+    {
+      "key": "guides fitted",
+      "source": "guides fitted",
+      "source_sha256": "96280aaf1a988561c7a60587580b0cb247accd15cb9b5d15d15b0e022942f1c4",
+      "table": "ui",
+      "translation": "引导 RNA装备"
+    },
+    {
+      "key": "guides summed",
+      "source": "guides summed",
+      "source_sha256": "5cb175c3272883e2c95846665d7eb5cdf41e61177672db702bb064e2f0de9902",
+      "table": "ui",
+      "translation": "引导 RNA总结"
+    },
+    {
+      "key": "horseshoe — parametric: Bayesian shrinkage assuming most guides do nothing and a few do a lot; the interval is a posterior, not a p-value",
+      "source": "horseshoe — parametric: Bayesian shrinkage assuming most guides do nothing and a few do a lot; the interval is a posterior, not a p-value",
+      "source_sha256": "b97ada330231485e4164697027e1ba93e4f4cc44c38fbf5e1f799db879161c38",
+      "table": "ui",
+      "translation": "骑马 - 参数: 巴耶西的缩写假设大多数引导 RNA做什么,有些做很多; 间隔是后,而不是P值"
+    },
+    {
+      "key": "lasso — parametric: normal errors plus an L1 penalty: the truth is sparse and one guide of a correlated group carries the effect; no p value from the fit -- ranked by bootstrap selection frequency",
+      "source": "lasso — parametric: normal errors plus an L1 penalty: the truth is sparse and one guide of a correlated group carries the effect; no p value from the fit -- ranked by bootstrap selection frequency",
+      "source_sha256": "53195a1d0d67e20313520909d37ed215819e60d2b7395f7e283c81aed0a0ce4d",
+      "table": "ui",
+      "translation": "lasso - 参数:正常错误加上 L1 罚款:真相是分散的,一个相关组的引导 RNA携带效果; 没有 p 值从合适 - 按 bootstrap 选择频率排名"
+    },
+    {
+      "key": "logit — parametric: a fraction as a binomial proportion, log-odds linear in the guides, weighted by the cells behind the well",
+      "source": "logit — parametric: a fraction as a binomial proportion, log-odds linear in the guides, weighted by the cells behind the well",
+      "source_sha256": "3e336a09ee8d6df0ee84184f457e2bdea69efef5fbdaa85ffb711a067c7b18b8",
+      "table": "ui",
+      "translation": "logit - 参数:一个分裂作为一个二元比例,Log-odds线性在引导 RNA中,重量由细胞背后的孔"
+    },
+    {
+      "key": "mixed — parametric: guides nested in genes as random effects, those effects normal; guides that disagree widen their gene's interval",
+      "source": "mixed — parametric: guides nested in genes as random effects, those effects normal; guides that disagree widen their gene's interval",
+      "source_sha256": "f9cd6f19eb717a64ca8ca08af6ac3a708efb1e78eda7c0a4fd17ffaa3db4d27f",
+      "table": "ui",
+      "translation": "混合 - 参数:引导 RNA在基因中作为随机效果,这些效果是正常的;引导 RNA不一致扩大他们的基因间隔"
+    },
+    {
+      "key": "protospacer {protospacer} appears in the gRNA reference under {count} gene names ({names}). Reads from this guide cannot be told apart between them, so the effect below belongs to all {count} equally — the regression attributed it to {gene} because that is the name the counting pipeline saw last, which is a bookkeeping fact, not a result.",
+      "source": "protospacer {protospacer} appears in the gRNA reference under {count} gene names ({names}). Reads from this guide cannot be told apart between them, so the effect below belongs to all {count} equally — the regression attributed it to {gene} because that is the name the counting pipeline saw last, which is a bookkeeping fact, not a result.",
+      "source_sha256": "1ca6a7461b825608f79eb5aa643b97a12224c4c23367617612987a35a593da51",
+      "table": "ui",
+      "translation": "protospacer {protospacer} 出现在 gRNA 参考中,在 {count} 基因名称({names} ) 此引导 RNA中的列不能分开说明,因此下面的效果属于所有 {count} 同等 - 回归归将其归因于 {gene} 因为这是计算流程看到的最后一个名字,这是一个记载事实,而不是结果。"
+    },
+    {
+      "key": "quantile — robust/semiparametric: a quantile of the response rather than its mean, which assumes nothing about the shape of the errors; tau=0.9 asks whether the guide moves the TOP of the distribution",
+      "source": "quantile — robust/semiparametric: a quantile of the response rather than its mean, which assumes nothing about the shape of the errors; tau=0.9 asks whether the guide moves the TOP of the distribution",
+      "source_sha256": "2d287f6f2e01451d63154a28206d3765b872a3abb54d7e3f79981469064a4819",
+      "table": "ui",
+      "translation": "量子 - 坚固 / 半参数:答案的量子,而不是它的中间,没有任何关于错误的形状; tau = 0.9 问引导 RNA是否移动分布的 TOP"
+    },
+    {
+      "key": "ridge — parametric: normal errors plus an L2 penalty: the effect is shared across correlated guides rather than assigned to one",
+      "source": "ridge — parametric: normal errors plus an L2 penalty: the effect is shared across correlated guides rather than assigned to one",
+      "source_sha256": "3e7cb5dc2cc6cdf59fab75d1521c99371ac357cbf914fed92ca3d40cdffffcf0",
+      "table": "ui",
+      "translation": "ridge - 参数:正常错误加上 L2 罚款:效应在相关引导 RNA中共享,而不是分配给一个"
+    },
+    {
+      "key": "rra — rank-based: only the ORDER of the wells, so no distribution at all; its p value is a permutation p value over guide ranks",
+      "source": "rra — rank-based: only the ORDER of the wells, so no distribution at all; its p value is a permutation p value over guide ranks",
+      "source_sha256": "6897696cdf1e92ed6fd81a32811dc50847a66d31d632f10b46bdb85b9bd2a3b5",
+      "table": "ui",
+      "translation": "rra - 基于排序:只有排序的排序,因此没有分配;其 p 值是引导 RNA排序中的 p 转值。"
+    },
+    {
+      "key": "selects or drops each gene's guides as a group",
+      "source": "selects or drops each gene's guides as a group",
+      "source_sha256": "76b5de5688c922a4ea53a0ba7329555082b5d94c8caec522fd490db058763d8a",
+      "table": "ui",
+      "translation": "选择或将每个基因的引导 RNA作为一个组"
+    },
+    {
+      "key": "the other {count} control guides are listed with it: they are the null this screen measures every real guide against.",
+      "source": "the other {count} control guides are listed with it: they are the null this screen measures every real guide against.",
+      "source_sha256": "174ac8e8046b72969a59383057cfe4750f72f55ef1046f97fa4f480922c2b62a",
+      "table": "ui",
+      "translation": "其它 {count} 控制引导 RNA与它列出:它们是零这个筛选测量每一个真正的引导 RNA对。"
+    },
+    {
+      "key": "uses a sparse prior when most guides have small effects and a few have large effects",
+      "source": "uses a sparse prior when most guides have small effects and a few have large effects",
+      "source_sha256": "b0abe19dc44086d028eec9151642de99d685fb936845af813d301c3ca22f5f4b",
+      "table": "ui",
+      "translation": "使用先行,当大多数引导 RNA具有小效应,而少数则具有大效应时"
+    },
+    {
+      "key": "…/results.csv  — CSV, TSV, Excel, Parquet or SQLite",
+      "source": "…/results.csv  — CSV, TSV, Excel, Parquet or SQLite",
+      "source_sha256": "f324cea014d14278dd454cc1c7ac6512489f76cb7e24e6676d1289b2a5969360",
+      "table": "ui",
+      "translation": "…/results.csv  — CSV, TSV , Excel , Parquet 或 SQLite"
+    },
+    {
+      "key": "→ Guide permutation test configuration is invalid: guide_permutations={value}. Enter an integer of at least 1 before running the analysis.",
+      "source": "→ Guide permutation test configuration is invalid: guide_permutations={value}. Enter an integer of at least 1 before running the analysis.",
+      "source_sha256": "0f7f3627faf182fe1f0575a0a1adf1701c74046dfd654652919dae467857242f",
+      "table": "ui",
+      "translation": "→ 引导 RNA转换测试配置是无效的: guide_permutations={value}. 在进行分析之前输入至少 1 的整体。"
+    }
+  ],
+  "schema": 1
+}

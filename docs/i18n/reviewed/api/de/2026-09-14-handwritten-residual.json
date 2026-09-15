@@ -1,0 +1,27 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "EVERY FUNCTION TAKES AND RETURNS NUMPY, so no caller learns which backend ran and no caller has to change when one is added. Every one has a test that runs BOTH paths on the same input and asserts they agree -- not \"the GPU version passes its own test\", which is how a fallback quietly becomes a second implementation nobody compares.",
+      "label": "spacr.ops_accel#3",
+      "source": "EVERY FUNCTION TAKES AND RETURNS NUMPY, so no caller learns which backend ran and no caller has to change when one is added. Every one has a test that runs BOTH paths on the same input and asserts they agree -- not \"the GPU version passes its own test\", which is how a fallback quietly becomes a second implementation nobody compares.",
+      "source_sha256": "ca338f4e91273b40cde20d1466147b2d89212d79a932aa13f75fbce434f47e3d",
+      "translation": "JEDE FUNKTION NIMMT UND LIEFERT NUMPY, sodass kein Aufrufer erfährt, welches Backend gelaufen ist, und kein Aufrufer sich ändern muss, wenn eines hinzukommt. Jede hat einen Test, der BEIDE Pfade auf derselben Eingabe ausführt und prüft, dass sie übereinstimmen -- nicht \"die GPU-Version besteht ihren eigenen Test\", was der Weg ist, auf dem ein Fallback still zu einer zweiten Implementierung wird, die niemand vergleicht."
+    },
+    {
+      "context": "Four modules have a preview: Mask, Measure, Timelapse and Motility. Each one costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two attribute names in a null-out block, and a row in a toggle table two hundred lines further down.",
+      "label": "spacr.qt.preview_registry#1",
+      "source": "Four modules have a preview: Mask, Measure, Timelapse and Motility. Each one costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two attribute names in a null-out block, and a row in a toggle table two hundred lines further down.",
+      "source_sha256": "7d854c171cc63dde6d32e4d2f95861ec3dc8f7814a7ff2367cf4fc26905c8cc3",
+      "translation": "Vier Module haben eine Vorschau: Mask, Measure, Timelapse und Motility. Jedes kostet einen dreizehnzeiligen Zweig in ``AppScreen._build_runtime_panel``, zwei Attributnamen in einem Null-Setzblock und eine Zeile in einer Umschalttabelle zweihundert Zeilen weiter unten."
+    },
+    {
+      "context": "NONE RATHER THAN throwing: Qt probes past the end to discover where a layout stops, so an exception here is a crash during ordinary layout.",
+      "label": "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.itemAt#1",
+      "source": "NONE RATHER THAN RAISING: Qt probes past the end to discover where a layout stops, so an exception here is a crash during ordinary layout.",
+      "source_sha256": "34754c6b4d444eea5f861073fe3d4411844e01844a5b5046100d2b691d2b977d",
+      "translation": "NONE STATT EINER AUSNAHME: Qt fragt über das Ende hinaus ab, um zu ermitteln, wo ein Layout endet, daher ist eine Ausnahme hier ein Absturz während eines gewöhnlichen Layouts."
+    }
+  ],
+  "schema": 1
+}

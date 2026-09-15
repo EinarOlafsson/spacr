@@ -383,6 +383,23 @@ _PROTECTED_TERMS = tuple(sorted({
     "Z-prime",
     "NVIDIA", "Python", "Windows", "Linux", "macOS", "OpenGL", "XCB",
     "PATH", "SPEC", "SSH", "Slurm", "HPC", "WHERE",
+    # THE REST OF THE ACCELERATOR BACKENDS. ``CUDA`` was protected alone,
+    # and there is no rule that admits it and excludes the others: they
+    # name the same kind of thing in the same sentences. Swedish was told
+    # about ``metall``, the material, because ``Metal`` was left open.
+    #
+    # ``Metal`` is an ordinary English word, which is the argument against
+    # protecting the single-word screen names above -- so it was measured
+    # rather than assumed. Lowercase ``metal`` appears ZERO times in the
+    # README, the API corpus, the runtime corpus and the package source;
+    # capital ``Metal`` appears 44 times and is Apple's GPU API every
+    # time. Matching is case-sensitive, so the material sense is not
+    # reachable from this repository's prose.
+    #
+    # ``OpenCL`` and ``Vulkan`` are deliberately absent: zero prose
+    # occurrences, so they would be entries that can never fire, in a list
+    # whose length is itself a cost.
+    "Metal", "MPS", "ROCm", "DirectML", "Apple Silicon",
 }, key=len, reverse=True))
 
 _SHORT_QUOTED_LITERAL_RE = re.compile(

@@ -1,0 +1,27 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "The demo dataset on HuggingFace ships a settings CSV per stage beside the images. They were written by an older spaCR, so some of what they name no longer exists -- structured-data names renamed, structured-data names removed with the feature they configured, structured-data names that were never settings at all.",
+      "label": "spacr.qt.settings_pack#1",
+      "source": "The demo dataset on HuggingFace ships a settings CSV per stage beside the images. They were written by an older spaCR, so some of what they name no longer exists -- keys renamed, keys removed with the feature they configured, keys that were never settings at all.",
+      "source_sha256": "bb4d8efb7c54fc6f73e92f54c6bfdd162c4bd4bbfbbf857610c22e26526b1a7e",
+      "translation": "Sýnigagnasafnið á HuggingFace fylgir stillingaskrá á CSV-sniði fyrir hvert þrep við hlið myndanna. Þær voru skrifaðar af eldri útgáfu spaCR, svo sumt af því sem þær nefna er ekki lengur til -- lyklar sem hafa fengið nýtt nafn, lyklar sem voru fjarlægðir ásamt eiginleikanum sem þeir stilltu, og lyklar sem voru aldrei stillingar yfirleitt."
+    },
+    {
+      "context": "a structured-data name that is a setting in this build but not on THIS app's form is named separately, because \"this version has no such setting\" is a false sentence about it.",
+      "label": "spacr.qt.settings_pack#7",
+      "source": "a key that is a setting in this build but not on THIS app's form is named separately, because \"this version has no such setting\" is a false sentence about it.",
+      "source_sha256": "f9cad53fc15c2e866ba61614bdc4ffafd22a7a14a7fbbeb251a2dc4bccd3a784",
+      "translation": "lykill sem er stilling í þessari útgáfu en ekki á eyðublaði ÞESSA forrits er nefndur sérstaklega, því að \"þessi útgáfa hefur enga slíka stillingu\" væri ósönn setning um hann."
+    },
+    {
+      "context": "An unset count shows every slot that exists, which is what this dialog did before the count reached it: better to offer a field too many than to hide one a run is using.",
+      "label": "spacr.qt.widgets.measure_preview.CropSettingsDialog.refresh_organelle_slots#3",
+      "source": "An unset count shows every slot that exists, which is what this dialog did before the count reached it: better to offer a field too many than to hide one a run is using.",
+      "source_sha256": "3f611ed0e4fe621c4bb0ce1dff1a891dd70a166c0c506044c01165dca12f28ed",
+      "translation": "Óstilltur fjöldi sýnir hvert hólf sem er til, eins og þessi gluggi gerði áður en fjöldinn náði til hans: betra er að bjóða einum reit of mikið en að fela reit sem keyrsla notar."
+    }
+  ],
+  "schema": 1
+}

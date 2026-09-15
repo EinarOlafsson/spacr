@@ -1,0 +1,13 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "**Read-only, structurally.** Every connection goes through :mod:`spacr.agreement`. It opens the file with ``file:…?mode=ro`` and ``PRAGMA query_only = ON``, the same approach the Database Browser takes. Adjudicating a disagreement is a job for the Annotate app. This screen only ever looks.",
+      "label": "spacr.qt.screens.agreement#4",
+      "source": "**Read-only, structurally.** Every connection goes through :mod:`spacr.agreement`. It opens the file with ``file:…?mode=ro`` and ``PRAGMA query_only = ON``, the same approach the Database Browser takes. Adjudicating a disagreement is a job for the Annotate app. This screen only ever looks.",
+      "source_sha256": "f81f64847d49424db9a9135de27db051c049c049d1993d118d25960b6499222f",
+      "translation": "**구조적으로 읽기 전용입니다.** 모든 연결은 :mod:`spacr.agreement` 을 거칩니다. 이 모듈은 ``file:…?mode=ro`` 와 ``PRAGMA query_only = ON`` 으로 파일을 열며, 이는 Database Browser 가 취하는 방식과 같습니다. 불일치를 판정하는 일은 Annotate 앱의 몫입니다. 이 화면은 오직 보기만 합니다."
+    }
+  ],
+  "schema": 1
+}
