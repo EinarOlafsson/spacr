@@ -110,11 +110,13 @@ class TestTheCacheDoesNotChangeThePicture:
 class TestTheRedrawIsFast:
     """Measured, not asserted -- the instruction asks for milliseconds."""
 
-    def _time(self, crops, picture):
+    def _time(self, crops, picture, *, recompute=False):
         import time
 
         start = time.perf_counter()
         for one in crops:
+            if recompute:
+                forget_outline_masks()
             draw_crop(one, picture)
         return (time.perf_counter() - start) / len(crops) * 1000.0
 
@@ -132,16 +134,37 @@ class TestTheRedrawIsFast:
 
     def test_changing_a_display_setting_reuses_the_outline(self, crop,
                                                            outlined):
-        """The common case: the user moves transparency, not the threshold."""
+        """The common case: the user moves transparency, not the threshold.
+
+        AGAINST A RECOMPUTE, NOT AGAINST A CLOCK. This asserted ``moved <
+        2.0`` ms per crop, which is a statement about the machine: on
+        2026-09-15 the CI runner took 4.15 and 4.94 ms for a redraw that
+        recomputed nothing, and failed a contract the code keeps. 188 A's
+        claim is that a display setting does not RECOMPUTE the outline, so
+        the redraw is timed against the same redraw with the cache emptied
+        before every crop -- same machine, same process, same settings.
+        Measured here the recompute is about ten times the cached redraw
+        (3.0 against 0.31 ms per crop); a redraw that recomputed would come
+        out near one.
+
+        NOT against a single cold pass, which was tried first and is
+        vacuous: the first draw in a process pays about 140 ms of one-time
+        cost, so a third of it (46 ms) would pass a redraw that recomputed
+        every crop in 3 ms.
+        """
         crops = [crop] * 12
         forget_outline_masks()
         self._time(crops, outlined)                      # warm it
+        changed = {**outlined, "edge_transparency": 40}
 
-        moved = self._time(crops, {**outlined, "edge_transparency": 40})
+        moved = self._time(crops, changed)
+        recomputed = self._time(crops, changed, recompute=True)
 
-        assert moved < 2.0, (
-            f"{moved:.2f} ms per crop -- transparency does not change the "
-            f"mask or the edge, so nothing should be recomputed")
+        assert moved < recomputed / 3.0, (
+            f"{moved:.2f} ms per crop after a transparency change, "
+            f"{recomputed:.2f} ms when the outline is recomputed -- "
+            f"transparency does not change the mask or the edge, so nothing "
+            f"should be recomputed")
 
 
 class TestTheCacheIsBounded:

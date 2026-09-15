@@ -1015,3 +1015,36 @@ CONSEQUENCE, said plainly: the `tests` workflow stays red while the coverage
 ratchet does, whatever else is fixed, so the "green CI" gate for the 1.5.0.8
 bump is still shut. The three `pragma: no cover` lines are the cheap lever
 (retire or justify them); the 175 modules are a project.
+
+--------------------------------------------------------------------------------
+2026-09-15 (later) - THE REST OF THE a5ef1cd7b RUN: ONE TIMING TEST, THREE MORE CRASHES
+--------------------------------------------------------------------------------
+
+The run completed at 04:12 as failure. Beyond the jobs above, Fast and
+Minimum dependencies failed. Read from their logs:
+
+  Fast AND Min-deps   test_the_outline_is_not_recomputed_for_nothing ::
+        test_changing_a_display_setting_reuses_the_outline -- "4.15 ms per
+        crop" and "4.94 ms per crop" against an absolute `moved < 2.0`. The
+        redraw recomputed nothing; the runner is slower than the workstation
+        the number was written on (0.31 ms here). FIXED: the redraw is now
+        timed against the same redraw with the outline cache emptied before
+        every crop (3.0 ms here, about ten times), threshold a third of it.
+        A first attempt against a single cold pass was VACUOUS -- the first
+        draw in a process costs ~140 ms of one-time work -- and a negative
+        control (a draw_crop that always recomputes) caught it; the shipped
+        version fails that control (3.02 against 2.99 ms).
+
+  Min-deps   test_known_bug_contracts :: test_cluster_grid_uses_the_panel_...
+             test_the_last_three_charts_are_pyqtgraph :: test_the_scene_...
+             test_cov_w2_4_metadata_mapper :: test_a_cancelled_dialog_stops_...
+        All three are the crash class again: each test PASSED and then
+        "worker 'gwN' crashed while running" it (the metadata mapper one with
+        "Fatal Python error: Segmentation fault"). Five crash sites tonight,
+        none sharing a Python-level cause. The work session measured and ruled
+        out spacr/qt/path_probe.py in three shapes (its four threads are the
+        designed WORKERS=4 pool, signals are queued to the GUI thread, and
+        destroyed receivers are guarded).
+
+  Fast also printed three "Timeout (0:05:00)!" dumps from the conftest
+  watchdog (tests/conftest.py line 89) without failing a test on them.
