@@ -118,3 +118,94 @@ HOW TO KNOW IT WORKED
     field.
   * Removing every model leaves the classical mode working, rather than a
     feature that silently does nothing.
+
+--------------------------------------------------------------------------------
+2026-09-14 -- A FIRST VERSION EXISTS, ON BRANCH wip/407-live-magnifier
+--------------------------------------------------------------------------------
+
+Commit b9adbacb3, not pushed, not merged. Everything below is what that
+branch does and what was measured on it; none of it is on nightly.
+
+WHAT IT DOES
+
+  * A checkable "Magnifier" button in the tool row (beside Cellpose-SAM
+    detect) and a "Live magnifier" card on the settings panel: Mode, Size
+    (px), Zoom, Sensitivity, Overlap.
+  * While on, a box follows the cursor: the region contrast-stretched on its
+    own and drawn zoom x the canvas's display scale, with the pixel under
+    the cursor kept under the cursor. The last completed result stays drawn
+    where ITS region lies; the frame goes dashed with "Updating..." until
+    the result for the current region arrives.
+  * The wheel changes the magnifier's zoom (at the canvas's Zoom per notch)
+    and not the view. Right-button sweep and Shift/Alt pan still work.
+  * A click pastes the objects the box outlines into the mask through
+    `mask_engine._paste_region_objects`: ids start one past the top id, one
+    click is one undo step and one "magnifier" ledger entry. A click on a
+    region not yet segmented PINS that request on the worker, so moving on
+    cannot supersede it, and its objects go in when it arrives.
+  * Committed objects are ordinary mask edits: they survive the toggle going
+    off and a save. Moving to the next field without saving still discards
+    them, exactly as it discards a brush stroke -- navigation was not changed.
+
+DECISIONS TAKEN FOR THE FIRST VERSION -- THE OPEN QUESTIONS ABOVE STILL STAND
+
+  * Modes on day one: classical and Cellpose. Classical is Otsu when the
+    region is two clear populations and a noise floor (median + 4 robust
+    deviations, after sigma-1 smoothing) otherwise, then a watershed; it is
+    also what runs, with a status-line note, whenever a model cannot load.
+    Cellpose uses the Cellpose-SAM card's model and diameter. Adding
+    DINOCell or SAMCell is one function in `_MAGNIFIER_SEGMENTERS`.
+  * A click commits ALL objects the box outlines. Objects touching an edge of
+    the box that lies inside the image are not offered (the recrop rule: an
+    object cut by the box is not that object); objects at the image border
+    are.
+  * Overlap is a visible choice, default Clip (keep only unlabelled pixels,
+    largest piece). Skip and Replace are the other two.
+  * Sensitivity reads the way the word does: higher accepts more. For
+    Cellpose it is cellprob_threshold with the sign reversed.
+  * Defaults: size 128 (32-512), zoom 2.0 (1-8), sensitivity 0 (-6..6).
+    Nothing persists between sessions, like every other setting on the panel.
+  * Zoom is for the eye only; the model sees the native-resolution crop.
+    Whether upsampling helps a model was NOT measured.
+
+EVIDENCE
+
+  * tests/qt/test_the_live_magnifier_segments_under_the_mouse.py, 21 passed:
+    exact pixels from a stub model that reads its position from coded pixel
+    values, both image corners, id collision and uint8->uint16 widening, clip
+    and skip on the screen and all three rules at the engine, one undo per
+    click, toggle-off/save/next/prev, newest-only and pinned requests, a
+    click that waits for its result, the model never on the GUI thread (26
+    moves against a 1 s model, slowest move well under 0.5 s, 2-3 model calls
+    instead of 26), classical with Cellpose removed from sys.modules, the
+    fallback note, wheel, lens geometry and the drawn frame.
+  * Existing Make Masks suites: 533 passed, 1 failed -- the catalog-row test
+    below. Docstring, API-symbol and module-coverage ratchets unchanged: no
+    new public symbol, no new module.
+  * Classical, synthetic 128 px regions, 5 seeds each: noise and a noise +
+    gradient background 0 objects at sensitivity -2/0/+2; three disks at
+    amplitude 3000/600/300 over noise 150 found 3/3; 36 confluent disks
+    36/36; two touching disks 2/2; dark objects 3/3. At amplitude 150 (SNR 1)
+    sensitivity 0 finds 0-1 and +2 finds 4-6 fragments. ~3 ms per 128 px
+    region, 41 ms for 512 px.
+  * Cellpose (cpsam 4.2.1.1) on CPU only, machine shared with other runs:
+    load 5.4 s, one 128 px region 51-62 s, one 256 px region ~195 s, 3/3
+    objects. On CPU the Cellpose mode is NOT live; it needs a GPU.
+
+WHAT IS OWED BEFORE THIS CAN MERGE
+
+  * Nine translations for the new captions. Until then
+    test_i18n_caption_ratchet (3 tests, UI 3291 -> 3308) and
+    test_every_help_string_on_the_panel_has_an_exact_catalog_row fail.
+  * The 380 responsiveness harness was not run with the toggle on.
+
+SECOND PASS
+
+  * Preview the overlap rule inside the box (outline what a click would
+    actually add, not what the model found).
+  * While a CPU Cellpose call holds the shared model lock, Cellpose-SAM detect
+    waits for it on the GUI thread -- up to one region's inference. Harmless
+    on a GPU, a minute on this CPU.
+  * Commit only the object under the cursor (a modifier-click), a keyboard
+    shortcut for the toggle, and measuring whether models do better on the
+    upsampled crop.
