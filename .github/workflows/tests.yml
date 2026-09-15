@@ -223,6 +223,13 @@ jobs:
       # than any test here needs and leaves the shard time to finish and
       # report, which turns a lost job into one named failure.
       per_test_timeout_seconds: 1200
+      # MEMORY, SAMPLED INTO THE LIVE LOG. Shard 0 lost its runner outright
+      # twice on 2026-09-15 ("The runner has received a shutdown signal" at
+      # [83%] after 71 min and at [96%] after 89 min; item 43), and a lost
+      # runner uploads nothing and cannot log that it ran out of memory. One
+      # MEMORY line every 30 seconds says whether memory was running out
+      # before the next one is lost.
+      memory_telemetry_seconds: 30
 
   gpu:
     name: GPU
