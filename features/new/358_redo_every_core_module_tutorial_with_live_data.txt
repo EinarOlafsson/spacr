@@ -794,3 +794,33 @@ read as a fourteenth language.
       $V verify_staged_lesson.py --stage $ST --lesson 07_mask --web-rendition
  11 Candidate: the build() call recorded above (model_promotions=set(MODELS),
     barcode_promotion=True), then $V verify_release_candidate.py <new candidate>.
+
+BRANCH BASE MOVED UNDER THIS WORK (measured 04:3x UTC). wip/358-lessons was
+  created from nightly at 63f1d502b. At 04:17 UTC nightly was rebased onto
+  fafa785b4 ("the work session's batch"), and origin/nightly is now
+  bac9151d0; local nightly has since moved on to dfafc0c7d. 63f1d502b is no
+  longer an ancestor of either, so `git diff nightly..wip/358-lessons` shows
+  other sessions' rewritten commits (build_i18n_catalogs.py,
+  00_INDEX.txt, ...) that are NOT this branch's work.
+  * This branch's own 10 commits (63f1d502b..wip/358-lessons) change 6
+    files: item 358, tests/conftest.py,
+    tests/test_the_chaining_pin_store_is_sandboxed.py,
+    tools/tutorials/capture_refresh.py, tools/tutorials/compose_mask_capture.py,
+    tools/tutorials/lessons/reviews/pending_07_mask_ops_rows.json. None is on
+    tonight's do-not-touch list. No co-author trailers, not pushed.
+  * REPLAY TESTED: all 10 cherry-pick cleanly onto nightly dfafc0c7d (scratch
+    detached worktree, removed afterwards), with the same 6 files.
+  * DRIFT on what tonight depends on (63f1d502b -> nightly): only
+    spacr/chaining.py (_canonical now folds hyphens via
+    validate.canonical_app_key; PinStore, state_path, pin_store and
+    SPACR_CHAINING_PINS unchanged, so the sandbox fix and its tests still
+    hold) and settings_model.py (289: help stays on the label, no row
+    added/removed/renamed, so the 13_regression frames stay current).
+    live_preview.py, preview_contract.py, core.py, qt/chaining.py, both
+    lesson sources, the reviews and the tutorial tools are unchanged.
+    __version__ is 1.5.0.7 on both sides.
+  * NOT rebased here, deliberately: the queued Mask capture imports from this
+    worktree, and compose_mask_capture.py `git show`s the capture's recorded
+    commit. For the maintainer, AFTER the Mask capture is composed:
+      git tag 358-capture-base-63f1d502b 63f1d502b   # keeps the 13_regression / Mask provenance commits reachable
+      git rebase --onto nightly 63f1d502b wip/358-lessons
