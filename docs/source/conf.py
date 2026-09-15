@@ -267,4 +267,5 @@ def _skip_implementation_data(app, what, name, obj, skip, options):
 
 def setup(app):
     app.add_config_value('spacr_nested_helper_modules', (), 'env')
+    _nested_helper_docs.register_sphinx_directive(app)
     app.connect('autoapi-skip-member', _skip_implementation_data)

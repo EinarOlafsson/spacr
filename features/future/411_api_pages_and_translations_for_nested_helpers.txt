@@ -612,3 +612,53 @@ With this repair the focused real-Sphinx/browser file passes 8 tests in
 This extends the earlier fixture evidence to a real legacy helper style; it is
 not a claim that all production helper documents have been reviewed. No
 catalog, source-module docstring, pin or rollout module was changed.
+
+2026-09-15 — CODEX: CORPUS PREFLIGHT FOUND A VALID SIGNATURE SPHINX REJECTS
+
+An isolated English-only Sphinx fixture now supplies real helper documents
+from the inventory while AutoAPI parses inert module stubs. The production
+rollout remains empty; spacrops is excluded from this preflight because its
+retirement is in flight. This is not a translated or published slice.
+
+The first run was red: QCDashboardScreen.refresh.work has the valid default
+expression `had_one=self._dashboard is not None`. Sphinx's signature parser
+cannot unparse an ast.Compare, so -W fails even though Python accepts it.
+No application source edit or warning suppression is appropriate here.
+
+Rendering adjustment, recorded before implementation: use a helper-specific
+subclass of Sphinx's Python function directive. Pass inert default placeholders
+through its limited parser, then replace ONLY the default-value display nodes
+with the exact source expressions before rendering. Register the result as an
+ordinary py:function for anchors, indexing, fields and the language switch.
+Ordinary AutoAPI functions keep their existing directive. The canonical
+inventory and translation source text do not change, and no expression is
+evaluated. Test the real corpus plus comparisons, comprehensions, lambda
+defaults and ordinary string/None defaults before landing this adjustment.
+
+RESULT: the corpus preflight passes with -W -E. It checks 808 canonical
+anchors in 181 modules in both HTML and objects.inv, exactly once each.
+Arithmetic against the committed inventory: 832 - 24 OPS anchors = 808;
+182 - 1 OPS module = 181. The source modules are unchanged from 92af31809.
+The helper-specific directive retains the actual default expressions in
+the signature, not quoted stand-ins or ellipses. No Sphinx warning is hidden.
+
+Focused verification for this adjustment:
+  * tests/test_nested_helper_docs.py: 23 passed in 19.28 s.
+  * SPACR_NESTED_HELPER_CORPUS=1 tests/test_built_nested_helper_api.py:
+    10 passed in 28.16 s, including the real corpus, actual Chrome language
+    switch and incremental Sphinx builds. The one full-site test is explicitly
+    skipped until a fresh full repository build exists.
+  * tools/build_instruction_index.py --check and git diff --check pass.
+  * No application source, API catalog, reviewed record, symbol pin or
+    production rollout module changed. Production helper translations: zero.
+
+CI evidence is deliberately separate: Docs run 34973248594 on befea7c0b
+finished GREEN. Its localization audits took 27 min 04 s and its complete
+build job took 34 min 51 s. That commit contains the ownership claim, not
+the renderer implementation, so it is baseline evidence only. Run 34976034510
+on 6d040d879 is currently auditing; the final implementation SHA still needs
+its own completed Docs run. No manual deployment has been dispatched.
+
+Phase B is still held by the explicit handoff rule in section 8. The corpus
+preflight is opt-in because it diagnoses not-yet-selected documents; the
+mandatory built-site check always enforces every actually enabled helper.

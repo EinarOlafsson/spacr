@@ -4,9 +4,9 @@ Nested helpers
 --------------
 
 {% for helper in helpers %}
-.. py:function:: {{ helper.relative_signatures[0] }}
+.. spacr-helper-function:: {{ helper.relative_signatures[0] }}
 {% for signature in helper.relative_signatures[1:] %}
-                 {{ signature }}
+                          {{ signature }}
 {% endfor %}
    :module: {{ helper.module }}
 {% if helper.is_async %}

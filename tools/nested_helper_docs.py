@@ -224,6 +224,54 @@ source document used by translation hashes remains the original docstring.
     return "\n".join(lines)
 
 
+def _signature_for_sphinx(signature: str) -> tuple[str, tuple[str, ...]]:
+    """Protect arbitrary source default expressions from Sphinx's limited parser.
+
+    Sphinx cannot unparse every valid Python expression (e.g. comparisons).
+    Its parser receives inert strings; the directive restores the original
+    expressions in the resulting display nodes. This never evaluates defaults.
+    """
+    name, separator, arguments = signature.partition("(")
+    if not separator:
+        raise ValueError(f"Missing helper argument list: {signature}")
+    function = ast.parse(f"def _helper({arguments}: pass").body[0]
+    defaults: list[str] = []
+    for group in (function.args.defaults, function.args.kw_defaults):
+        for index, expression in enumerate(group):
+            if expression is not None:
+                defaults.append(ast.unparse(expression))
+                group[index] = ast.Constant(value=f"spacr-helper-default-{len(defaults)}")
+    safe = f"{name}({ast.unparse(function.args)})"
+    if function.returns is not None:
+        safe += f" -> {ast.unparse(function.returns)}"
+    return safe, tuple(defaults)
+
+
+def register_sphinx_directive(app) -> None:
+    """Register a helper-only Python function renderer; leave AutoAPI unchanged."""
+    from docutils import nodes
+    from sphinx.domains.python import PyFunction
+
+    class HelperFunction(PyFunction):
+        def run(self):
+            # Keep the Python domain's canonical function type and anchor rules.
+            self.name = "py:function"
+            return super().run()
+
+        def handle_signature(self, signature, signode):
+            safe, originals = _signature_for_sphinx(signature)
+            result = super().handle_signature(safe, signode)
+            displayed = [node for node in signode.findall(nodes.inline)
+                         if "default_value" in node.get("classes", ())]
+            if len(displayed) != len(originals):
+                raise RuntimeError(f"Sphinx lost helper defaults: {signature}")
+            for node, original in zip(displayed, originals):
+                node[:] = [nodes.Text(original)]
+            return result
+
+    app.add_directive("spacr-helper-function", HelperFunction)
+
+
 def helper_page_policy(what: str, name: str, obj, skip: bool, options) -> bool | None:
     """Expose selected helper-only module pages without their hidden top-level API.
 

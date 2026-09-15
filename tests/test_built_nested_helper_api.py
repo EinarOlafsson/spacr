@@ -33,7 +33,9 @@ def outer(flag):
         def choose(value, fallback=None):
             """Return the fallback when no value is supplied."""
             return fallback if value is None else value
-    def _hidden(value):
+    def _hidden(value, marker=None, /, sample='a,b', *, match=value is not None,
+                scores={name: n for n, name in enumerate(('x', 'y'))},
+                callback=lambda left, right: left + right, **options):
         """Return the unchanged value.
 
         :param value: The value to return.
@@ -143,7 +145,7 @@ def built_site(fixture_source):
     return _build_site(fixture_source, MODULES, "enabled")
 
 
-def _build_site(fixture_source, enabled, label):
+def _build_site(fixture_source, enabled, label, *, inventory_root=None):
     pytest.importorskip("sphinx")
     pytest.importorskip("autoapi")
     source = fixture_source / f"docs-{label}"
@@ -166,7 +168,7 @@ def _build_site(fixture_source, enabled, label):
         "import nested_helper_docs as _nested_helper_docs\n"
         f"_nested_helper_docs.ENABLED_MODULES = frozenset({sorted(enabled)!r})\n"
         "spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))\n"
-        f"_SOURCE_ROOT = Path({str(fixture_source)!r})\n"
+        f"_SOURCE_ROOT = Path({str(inventory_root or fixture_source)!r})\n"
         "project = 'Feature 411 fixture'\nextensions = ['sphinx.ext.napoleon', 'autoapi.extension', 'sphinx_design']\n"
         f"autoapi_dirs = [{str(fixture_source / 'spacr')!r}]\n"
         f"autoapi_ignore = {list(builder.AUTOAPI_IGNORE)!r}\n"
@@ -282,6 +284,68 @@ def test_real_google_style_helpers_render_both_parameter_contracts(tmp_path):
     assert "filename" in text
     assert "opened and validated" in text
     assert "Only existence is checked" in text
+
+
+def test_source_default_expressions_survive_the_sphinx_signature_parser(built_site):
+    pytest.importorskip("bs4")
+    from bs4 import BeautifulSoup
+
+    page = BeautifulSoup((built_site / "api/spacr/example/index.html").read_text(), "html.parser")
+    signature = page.find(id="spacr.example.outer._hidden")
+    assert signature is not None
+    defaults = [node.get_text() for node in signature.select(".default_value")]
+    assert defaults == [
+        "None", "'a,b'", "value is not None",
+        "{name: n for n, name in enumerate(('x', 'y'))}",
+        "lambda left, right: left + right",
+    ]
+    assert "/" in signature.get_text() and "**options" in signature.get_text()
+    assert "spacr-helper-default" not in str(signature)
+
+
+@pytest.mark.skipif(os.environ.get("SPACR_NESTED_HELPER_CORPUS") != "1",
+                    reason="Opt-in preflight of not-yet-selected real helper documents")
+def test_real_helper_corpus_builds_in_an_isolated_english_fixture(tmp_path):
+    """Check future helper rendering without activating or translating a slice.
+
+    AutoAPI parses inert module stubs; the shared inventory supplies the actual
+    source docstrings and signatures. The switch is changed only in the child
+    Sphinx process. OPS is excluded because its retirement belongs to another
+    session, not because its helpers are exempt from the inventory.
+    """
+    definitions = helpers.inventory(ROOT, ignore_patterns=builder.AUTOAPI_IGNORE)
+    modules = {definition.module for definition in definitions
+               if not definition.ignored_by and definition.module != "spacr.spacrops"}
+    entries = helpers.entries(definitions, modules=modules)
+    assert entries and modules
+    original_switch = helpers.ENABLED_MODULES
+    root = tmp_path / "corpus"
+    package = root / "spacr"
+    package.mkdir(parents=True)
+    for name in ("api", "core", "measure", "deep_spacr", "sequencing", "ml", "artifacts", "settings"):
+        (package / f"{name}.py").write_text(f'"""{name} fixture."""\n', encoding="utf-8")
+    paths = {definition.path for entry in entries for definition in entry.definitions}
+    for relative in sorted(paths):
+        path = root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('"""Source-only corpus fixture."""\n', encoding="utf-8")
+    for directory in [package, *(path for path in package.rglob("*") if path.is_dir())]:
+        init = directory / "__init__.py"
+        if not init.exists():
+            init.write_text('"""Source-only package fixture."""\n', encoding="utf-8")
+
+    output = _build_site(root, modules, "corpus", inventory_root=ROOT)
+    payload = (output / "objects.inv").read_bytes().split(b"\n", 4)[4]
+    inventory_keys = {line.split()[0] for line in zlib.decompress(payload).decode().splitlines()
+                      if line.split()[1] == "py:function"}
+    assert inventory_keys == {entry.qualified_key for entry in entries}
+    pages = {module: (output / "api" / Path(*module.split(".")) / "index.html").read_text()
+             for module in modules}
+    for entry in entries:
+        assert pages[entry.module].count(f'id="{entry.qualified_key}"') == 1, entry.qualified_key
+    assert helpers.ENABLED_MODULES == original_switch
+    print(f"Isolated English preflight: {len(entries)} anchors in {len(modules)} modules; "
+          "no production rollout or translation claim.")
 
 
 def test_language_switch_targets_the_built_helper_not_its_parent(

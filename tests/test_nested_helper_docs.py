@@ -85,6 +85,35 @@ class Public:
     assert all(item.lineno <= item.end_lineno for item in definitions)
 
 
+@pytest.mark.parametrize("signature, originals", [
+    ("outer.child(value, /, *, required)", ()),
+    ("outer.child(value=None, /, *, required, flag=False)", ("None", "False")),
+    ("Outer.method.child(value: str = 'a,b') -> str", ("'a,b'",)),
+    ("outer.child(value=must_never_be_called())", ("must_never_be_called()",)),
+    ("outer.child(value=first is not None, *, other=left if flag else right)",
+     ("first is not None", "left if flag else right")),
+    ("outer.child(value=lambda left, right: left + right, *, table={x: x for x in source})",
+     ("lambda left, right: left + right", "{x: x for x in source}")),
+])
+def test_signature_rendering_protects_defaults_without_evaluating_them(signature, originals):
+    safe, measured = helpers._signature_for_sphinx(signature)
+    assert measured == originals
+    assert safe.partition("(")[0] == signature.partition("(")[0]
+    function = ast.parse("def child(" + safe.partition("(")[2] + ": pass").body[0]
+    defaults = [*function.args.defaults,
+                *(item for item in function.args.kw_defaults if item is not None)]
+    assert [ast.literal_eval(value) for value in defaults] == [
+        f"spacr-helper-default-{index}" for index in range(1, len(originals) + 1)
+    ]
+    if " -> str" in signature:
+        assert ast.unparse(function.returns) == "str"
+
+
+def test_signature_without_an_argument_list_fails_closed():
+    with pytest.raises(ValueError, match="Missing helper argument list"):
+        helpers._signature_for_sphinx("outer.child")
+
+
 def test_ignores_are_reported_not_silently_removed(tmp_path):
     source = 'def outer():\n    def inner():\n        """Inner documentation."""\n'
     _source(tmp_path, source)
