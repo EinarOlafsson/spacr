@@ -3644,3 +3644,122 @@ per-module 100% check and kept `tests` red by scope. Answer: "Ratchet, not
 CI can pass today; 100% per module stays the GOAL of this item. The 1.5.0.8
 bump and merge to main follow once docs, compat-matrix and the rest of tests
 are green.
+
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE RATCHET GATE IS BUILT: NO MODULE LOSES COVERAGE, NO NEW MODULE
+              ARRIVES BELOW 100%
+--------------------------------------------------------------------------------
+
+Branch `wip/288-ratchet-gate`, off nightly a5361a4f2. Not pushed.
+
+WHAT CI NOW CHECKS. Job `coverage-combine` is renamed from "Coverage / every
+shipped module at 100%" to "Coverage / no module loses coverage". Its id is
+unchanged, so `release-gate` still needs it. Nothing else keys on the display
+name: no other workflow, and the `spacr-main` ruleset has only deletion and
+non-fast-forward rules, no required status checks. The job runs
+`tools/verify_module_coverage.py --baseline tools/coverage_baseline.json` on
+the merged shard data. Per shipped module it measures four ABSOLUTE counts --
+uncovered statements, uncovered branches, `pragma: no cover` comments,
+coverage-excluded lines -- and FAILS when:
+
+  (a) any count rises above that module's baseline count;
+  (b) a module at 100% in the baseline is no longer at 100%;
+  (c) a shipped module that is not in the baseline is below 100%;
+  (d) a baseline module is no longer shipped. CHANGED from the first brief
+      ("report only"): a deleted or renamed file must not carry its
+      allowance away silently. `--update-baseline` trims the entry
+      deliberately, and the renamed module is new, so it must be at 100%;
+  (e) it cannot measure: a missing or unreadable coverage JSON, no branch
+      data, a shipped module without a valid row ("Modules checked: N of M"
+      must be M of M), a missing baseline file, or a baseline whose checksum
+      the tool did not write. Before combining, the combine step also fails
+      if any of the 12 shards left no `.coverage.shard-NN.batch-*` data.
+
+It PASSES with an IMPROVED notice when counts fall. The report still prints
+how many modules are not at 100%, and lists each one with its lines, its
+allowance and the date that allowance was written. 100% stays the goal.
+
+COUNTS, NOT LINE NUMBERS, so moving code cannot trip the gate. The accepted
+cost: covering one line while uncovering another in the same module passes.
+
+THE BASELINE IS AN OUTPUT. `tools/coverage_baseline.json` stores a SHA-256
+checksum of its body, and the gate refuses (exit 2) any file whose checksum
+does not match, which catches a hand edit. Only two explicit writes exist.
+Both need `--reason`, both append a dated history entry (UTC time, commit,
+mode, reason, coverage timestamp), and both refuse an incomplete
+measurement. No workflow runs either, and a test asserts that:
+
+  --update-baseline  tightens only: lowers counts that fell, adds new modules
+                     at 100%, trims modules no longer shipped. It never raises
+                     a count and never admits a module below 100% (it prints
+                     KEPT / NOT ADMITTED instead).
+  --reset-baseline   deliberate regeneration, which may loosen; it prints
+                     every LOOSENED module. It is the only way to admit a new
+                     module below 100% or to replace a hand-edited file.
+
+HOW THE FIRST BASELINE WAS BUILT. It comes from the most recent complete CI
+coverage report, run 34942026220 on b740c741d. Its artifact
+`spacr-module-coverage-report-34942026220-1` was downloaded (the exact
+coverage.json, not the log) and measured against `git archive b740c741d
+setup.py spacr`, so the inventory and pragma comments are that commit's:
+`--reset-baseline --commit b740c741dbf1... --expected-file-count 567`.
+
+    567 modules: 392 at 100%, 175 with gaps
+    2622 uncovered statements, 1273 uncovered branches,
+    46 pragma comments in 35 modules, 0 excluded lines
+
+A separate parse of that job log's ERROR lines gives the same 175 / 2622 /
+1273 / 46.
+
+HOW TO REGENERATE. Download the `spacr-module-coverage-report-<run>-<attempt>`
+artifact of a complete run and check out THAT run's commit, because the
+inventory and pragmas are read from the tree. Then run
+
+    python tools/verify_module_coverage.py --coverage-json coverage.json \
+      --root . --baseline tools/coverage_baseline.json \
+      --update-baseline --reason "..." \
+      --json-out report.json --text-out report.txt
+
+and commit the rewritten file. Use `--reset-baseline` instead only after a
+loosening has been reviewed; pass `--commit <sha>` when --root is not a git
+checkout.
+
+WHAT THE NEXT CI RUN WILL SAY, measured rather than hoped:
+
+  1. `spacr/_segmentation_backends.py` (the 568th module) is not in the
+     baseline, because b740's run predates it, so rule (c) applies and it
+     must be at 100%. Locally its own test file covers 67% (62 of 191
+     statements missed; dinocell and samcell are not importable here). Expect
+     (c) to fail unless the full suite covers it. Fix it by covering the
+     module, or with a reviewed `--reset-baseline` from that run's artifact.
+     Run against b740's data, today's tree fails for exactly this reason:
+     "checked 567 of 568".
+  2. 70 shipped files changed between b740c741d and a5361a4f2 (+3876/-135).
+     Any new uncovered line in them fails (a). That is the gate working, and
+     it means the first run is not guaranteed green.
+  3. COUNTS MOVED WITHOUT A SOURCE CHANGE. Between the a5ef1cd7b and b740c741d
+     runs, spacr/qt/dnd_handlers.py went 44/14 -> 43/13 and
+     spacr/qt/path_probe.py 2/2 -> 2/1 (uncovered statements/branches), and
+     neither file changed. The only changed tests that name them are the
+     docstring and i18n ratchets, so timing is the likely cause, though that
+     is not proven. The baseline holds b740's lower values, so a run that
+     lands on a5ef's values fails (a) by one. Make those tests deterministic
+     rather than loosening the baseline.
+  4. The job still ends red while any coverage shard's tests fail. Its last
+     step requires every shard to pass, independent of the ratchet.
+
+TESTS. `tests/test_coverage_ratchet_rules.py`, 29 cases on synthetic coverage
+data, one or more per rule. Negative cases: losing one statement, one branch,
+one excluded line or adding a pragma fails; a count rising fails even when
+another falls; a 100% module dropping fails; a new module with one uncovered
+line fails; a vanished module fails until trimmed; a rename does not launder
+its gaps; a missing coverage file, a missing baseline, a module missing from
+the data and a missing shard all fail; a hand-edited baseline is refused by
+the gate and by --update-baseline. Positive cases: improving passes with a
+notice and leaves the file byte-identical; a new module at 100% passes; moved
+lines pass; tightening never loosens and is dated; a reset names every
+loosening. A test also checks that the shard count agrees across the matrix,
+--shard-count and the check. `tests/test_module_coverage_ratchet.py` is
+updated for the v2 report. Together with test_ci_suite_classification and
+the other workflow tests, 95 passed.

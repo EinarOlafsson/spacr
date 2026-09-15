@@ -1,4 +1,10 @@
-"""The 100% gate follows the package and cannot be weakened by omission."""
+"""The coverage gate follows the package and cannot be weakened by omission.
+
+Since 2026-09-15 (item 288) CI gates on a per-module ratchet baseline rather
+than 100% per module; the ratchet's rules are tested in
+``tests/test_coverage_ratchet_rules.py``.  Without ``--baseline`` the tool
+still demands 100% of every module, which is what the CLI tests here use.
+"""
 
 from __future__ import annotations
 
@@ -345,12 +351,17 @@ def test_cli_passes_only_at_exact_statement_and_branch_coverage(tmp_path):
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert report["schema"] == "spacr.module-coverage-ratchet/v1"
+    assert report["schema"] == "spacr.module-coverage-ratchet/v2"
     assert report["status"] == "pass"
     assert report["summary"] == {
         "failed_modules": 0,
         "global_issue_count": 0,
-        "passed_modules": 2,
+        "improved_modules": 0,
+        "modules_at_100_percent": 2,
+        "modules_below_100_percent": 0,
+        "modules_checked": 2,
+        "shipped_modules": 2,
+        "stale_baseline_entries": 0,
     }
     assert text.startswith("spaCR shipped-module coverage ratchet: PASS\n")
     assert result.stdout == text
@@ -375,8 +386,9 @@ def test_new_shipped_module_is_not_hidden_by_an_old_coverage_file(tmp_path):
         module for module in report["modules"]
         if module["path"] == "demo/new_feature.py"
     )
-    assert new_module["issues"] == ["missing coverage row"]
-    assert "demo/new_feature.py: missing coverage row" in text
+    assert new_module["failures"] == ["missing coverage row"]
+    assert "ERROR: demo/new_feature.py: missing coverage row" in text
+    assert "Modules checked: 2 of 3" in text
 
 
 def test_uncovered_line_and_branch_have_actionable_diagnostics(tmp_path):
@@ -403,12 +415,14 @@ def test_uncovered_line_and_branch_have_actionable_diagnostics(tmp_path):
         module for module in report["modules"]
         if module["path"] == "demo/logic.py"
     )
-    assert logic["issues"] == [
+    assert logic["gaps"] == [
         "uncovered statements: 4",
         "uncovered branches: 2->4",
     ]
-    assert "demo/logic.py: uncovered statements: 4" in text
-    assert "demo/logic.py: uncovered branches: 2->4" in text
+    assert logic["failures"][0].startswith("new module is not at 100%")
+    assert "GAP: demo/logic.py: 1 uncovered statements, 1 uncovered branches" in text
+    assert "    uncovered statements: 4\n" in text
+    assert "    uncovered branches: 2->4\n" in text
 
 
 def test_excluded_line_and_real_no_cover_comment_both_fail(tmp_path):
@@ -438,12 +452,14 @@ def test_excluded_line_and_real_no_cover_comment_both_fail(tmp_path):
         module for module in report["modules"]
         if module["path"] == "demo/logic.py"
     )
-    assert logic_report["issues"] == [
+    assert logic_report["gaps"] == [
         "coverage-excluded lines: 5",
         "pragma: no cover comments: 5",
     ]
-    assert "demo/logic.py: coverage-excluded lines: 5" in text
-    assert "demo/logic.py: pragma: no cover comments: 5" in text
+    assert logic_report["counts"]["excluded_lines"] == 1
+    assert logic_report["counts"]["pragma_no_cover"] == 1
+    assert "    coverage-excluded lines: 5\n" in text
+    assert "    pragma: no cover comments: 5\n" in text
 
 
 def test_branchless_coverage_input_is_rejected_even_when_counts_are_full(tmp_path):
@@ -586,6 +602,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     assert "coverage combine --keep" in combine_script
     assert "coverage json --pretty-print" in combine_script
     assert "--expected-file-count 568" in combine_script
+    assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
     assert "coverage-combine" in jobs["release-gate"]["needs"]
