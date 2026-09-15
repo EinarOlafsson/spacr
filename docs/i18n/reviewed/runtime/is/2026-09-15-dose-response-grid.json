@@ -1,0 +1,111 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "CI high",
+      "source": "CI high",
+      "source_sha256": "3a59831da86314f07b334edb493eb3244f1a3a34807c08bdf19304f79e809c03",
+      "table": "ui",
+      "translation": "Efri mörk öryggisbils"
+    },
+    {
+      "key": "CI low",
+      "source": "CI low",
+      "source_sha256": "bfc5aa552d8b2645b55dce2c7d6b597525d15f379ecaf387cd4dc00d2c8bc663",
+      "table": "ui",
+      "translation": "Neðri mörk öryggisbils"
+    },
+    {
+      "key": "Doses",
+      "source": "Doses",
+      "source_sha256": "f28c7bc7885886ed42e67838c0d33468028109f85c73640d847da34a4ecc8acc",
+      "table": "ui",
+      "translation": "Skammtar"
+    },
+    {
+      "key": "Fit curve",
+      "source": "Fit curve",
+      "source_sha256": "add7ff693fb93f304460fd3510f879147fc8fe8a905f67efd69ec24b25e97140",
+      "table": "ui",
+      "translation": "Aðlaga feril"
+    },
+    {
+      "key": "Group",
+      "source": "Group",
+      "source_sha256": "34ca0e76608842ff3e7d924a455a396a82f471052c15e3f2ed7f090ac702e5c1",
+      "table": "ui",
+      "translation": "Hópur"
+    },
+    {
+      "key": "Lack-of-fit p",
+      "source": "Lack-of-fit p",
+      "source_sha256": "843ff9847db61da273fe513985cbac8d506ca2fd5159e31111c0da3d6cf71304",
+      "table": "ui",
+      "translation": "p fyrir skort á aðlögun"
+    },
+    {
+      "key": "No column of this table has at least four distinct positive values, so none of them can be a dilution series. A dose–response needs the concentration itself, not a log dose and not a plate coordinate.",
+      "source": "No column of this table has at least four distinct positive values, so none of them can be a dilution series. A dose–response needs the concentration itself, not a log dose and not a plate coordinate.",
+      "source_sha256": "01e2c20c7f573ccaa12f9fb7e8d1a01e6b7a9bb2be12faf8fb27cfc9a4eb7121",
+      "table": "ui",
+      "translation": "Enginn dálkur þessarar töflu hefur að minnsta kosti fjögur ólík jákvæð gildi, svo enginn þeirra getur verið þynningarröð. Skammtasvörun þarf styrkinn sjálfan, ekki lógaritma skammts og ekki hnit á plötu."
+    },
+    {
+      "key": "all rows",
+      "source": "all rows",
+      "source_sha256": "a028ba99d77dd489889ba557398dc4914bba66d242cd14cc2363e2cbd3e8f941",
+      "table": "ui",
+      "translation": "allar raðir"
+    },
+    {
+      "key": "could not read {name}: {reason}",
+      "source": "could not read {name}: {reason}",
+      "source_sha256": "e77deb961010954148d0c3968fcf68a78277ec29290ad12816d231c8936fa23c",
+      "table": "ui",
+      "translation": "gat ekki lesið {name}: {reason}"
+    },
+    {
+      "key": "fitted",
+      "source": "fitted",
+      "source_sha256": "c0164c09bb2aa50cb8b85f142eaaf9f55b60d71fea45bade18e8e1e5f73f2181",
+      "table": "ui",
+      "translation": "aðlagað"
+    },
+    {
+      "key": "loading {name}…",
+      "source": "loading {name}…",
+      "source_sha256": "2149b0bdef4f8dc9ee57730bf3f9cb0c50353cb34200f0df8d9d812bcc0dcf05",
+      "table": "ui",
+      "translation": "hleð inn {name}…"
+    },
+    {
+      "key": "refused",
+      "source": "refused",
+      "source_sha256": "83c874d33e8bff73caaa762c79cd1ed101d727c7f20fe4972c67e67978292f23",
+      "table": "ui",
+      "translation": "hafnað"
+    },
+    {
+      "key": "unbounded",
+      "source": "unbounded",
+      "source_sha256": "75cf685d0646711495457ed2e00f45d10a3a77c5df7acb653fd098c6d5ab0e0e",
+      "table": "ui",
+      "translation": "ótakmarkað"
+    },
+    {
+      "key": "{name} · {rows} rows × {columns} columns",
+      "source": "{name} · {rows} rows × {columns} columns",
+      "source_sha256": "fa36126955d5cd60eba626fdca5bbb427cade002b71d5ede9694839db57c8d82",
+      "table": "ui",
+      "translation": "{name} · {rows} raðir × {columns} dálkar"
+    },
+    {
+      "key": "{rows} rows × {columns} columns",
+      "source": "{rows} rows × {columns} columns",
+      "source_sha256": "2db446587aacee207da6721aea00e10fc61cc02fc12d7d046e0b4bde4b7d49e4",
+      "table": "ui",
+      "translation": "{rows} raðir × {columns} dálkar"
+    }
+  ],
+  "schema": 1
+}
