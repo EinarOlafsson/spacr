@@ -2,7 +2,8 @@
 API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO CODEX
 ================================================================================
 
-Status:    ASSIGNED TO CODEX, 2026-09-15, by the maintainer. Not started.
+Status:    IN PROGRESS, CODEX, 2026-09-15. Phase A inventory implemented;
+           rendering/extractor integration and verification are next.
            Still NOT BLOCKING the 1.5.0.8 release: the release is not held for
            it, and it must not turn a release gate red while it is built.
            Filed as FUTURE the same day ("don't work on it now"), then handed
@@ -464,3 +465,61 @@ on it; line numbers drift.
   date | module(s) | helpers | blocks | records (x9) | audit time | commit | docs job
 
   (none yet)
+
+================================================================================
+2026-09-15 — CODEX STEP 0: EXECUTABLE INVENTORY, NOT AN ESTIMATED PIN
+================================================================================
+
+tools/nested_helper_docs.py is the shared source-only inventory. Its report is
+features/data/411_nested_helpers_2026-09-15.json, measured on source revision
+5b83c81688e8f3c15183aeaad486da49d3128d15. It includes the path, qualified key,
+parent, signature, exact docstring, source lines and ignore reasons for EVERY
+nested definition, plus a deterministic inventory SHA-256. Reproduce with:
+
+  python tools/nested_helper_docs.py --output /tmp/411-inventory.json
+
+  all definitions / modules                  863 / 186
+  ignored definitions                         21
+  eligible definitions / modules             842 / 182
+  documented eligible definitions             842
+  private eligible definitions                453
+  definition blocks (actual extractor)       1,517
+  distinct block strings                    1,453
+  canonical anchors                           832
+  canonical rendered-document blocks        1,510
+
+The 863/842/182/453 counts reproduce the brief. The published source/extractor
+here REPRODUCES the home's 1,517, not the later 1,684/930 measurement. The
+brief's ed8ff92d8 measurement commit is not present in this clone, so those
+figures cannot be compared against its source yet. They are not being silently
+relabelled as correct or used to move pins. The committed report records the
+actual input and results; later slices must remeasure their own source.
+
+DUPLICATE RULE, chosen before rendering: one qualified key and anchor for all
+conditional/repeated definitions of that lexical name. Retain every definition
+and signature, and concatenate different docstrings in source order; identical
+prose is included once. Real cases: hits._rank.key (2), hyperparam's
+umap_search.embed_fn (2), io._check_masks.needs_processing (2), and
+utils.build_loss.loss_fn (8). Thus 842 - (1 + 1 + 1 + 7) = 832 anchors.
+Seven identical utils docstrings explain 1,517 - 7 = 1,510 rendered blocks.
+Neither branch's different contract is discarded to avoid a duplicate warning.
+
+RENDERING DESIGN REFINEMENT: render a module-level nested-helper section keyed
+by the full lexical parent, rather than only inserting helpers in a visible
+function's template. Some parents are private and therefore have no rendered
+entry; a function-template-only design would leave their helpers invisible.
+The inventory also retains the two helpers in spacr._v1_v2_bridge: that module
+is not in autoapi_ignore, so omitting them would narrow the requested scope.
+Its helper-only page must not expose its formerly hidden top-level API.
+
+Focused contracts cover control-flow nesting, local classes, async signatures,
+private names, the tutorial/tutorials ignore boundary, duplicate definitions,
+missing/invalid source and an empty versus enabled slice. Three deliberate
+source-guard mutants must turn their positive/negative contracts red; a second,
+independent depth visitor cross-checks the real-source parent-walk count.
+The first full run passed 15 tests in 22.07 s under the 100 GiB RAM guard.
+
+This is Phase A only: ENABLED_MODULES is empty, no API catalog or existing pin
+has been changed, and NO helper slice has landed. Phase B still waits for the
+dated PHASE B MAY START handoff required in section 8. The ownership claim was
+pushed separately as befea7c0b; future progress is recorded here.
