@@ -741,3 +741,19 @@ FILES (scratchpad/sc370/)
   plaque_literature_vanilla_queue/, plaque_seed_comparison.csv
   build_holdout.py, neardup.py, gpu_pv.py, report_pv.py, holdout_dedup.py,
   diag_r3.py, plaque_prep.py                            how every number was made
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE MAINTAINER'S DECISION ON THE HELD-OUT PV TRUTH
+--------------------------------------------------------------------------------
+
+Asked with the question tool, with the bias explained: detection scores on the
+43-field literature set are fair (v1 and stock Cellpose-SAM tie, F1 0.403 vs
+0.400), but outline-quality scores lean toward v1 because curators kept
+round-3 (v1-lineage) outlines untouched where they kept an object. Answer:
+"Re-draft with stock, re-curate" -- re-seed the 43 fields with stock
+Cellpose-SAM (no v1 lineage) and curate them again, so neither model's outlines
+are built into the truth. The v1 scorecard is not published until that truth
+exists. A stock-seeded queue is being built (see the next section when it
+lands). The other decisions listed above -- the plaque queue curation, the
+four same-field clusters, the v1 zoo row correction, placement and publishing
+-- are still open.
