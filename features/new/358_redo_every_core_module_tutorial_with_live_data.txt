@@ -824,3 +824,49 @@ BRANCH BASE MOVED UNDER THIS WORK (measured 04:3x UTC). wip/358-lessons was
     commit. For the maintainer, AFTER the Mask capture is composed:
       git tag 358-capture-base-63f1d502b 63f1d502b   # keeps the 13_regression / Mask provenance commits reachable
       git rebase --onto nightly 63f1d502b wip/358-lessons
+
+07_MASK PREVIEW CAPTURE #1 IS SUPERSEDED: A STALE SETTINGS FILE SHADOWED THE PACK.
+  mask_preview_gpu_2026-09-15 ran on the GPU (lock 04:34:43, exit 0 at
+  04:35:53, 1.5.0.7 at afc60c409, completed_capture true). The "Choose
+  image…" fallback worked on its first real run (plate1 E01 F001), and
+  05_live_settings shows today's dialog (Min/Max area px², Minimum area to
+  split, Minimum watershed distance, Perimeter fraction, absolute Intensity
+  threshold; no retired rows; no Normalize plots). Its arrays recount
+  exactly: 35 -> 17 at min area 6714 -> 35, and 35 after diameter 60 -> 120.
+  Frames 04 and 07, however, show Source = the literal "<src>".
+  CAUSE, measured (not inferred):
+    * refresh_2026-09-09/example_data/plate1/settings holds two files the
+      shipped pack does not: gen_mask_settings.csv/.json (09-01 14:30,
+      205 keys, src=<src>, cell/nucleus/pathogen diameter 60/30/20,
+      cell_FT 1.0, cell_CP_prob 0). This is a RUN-SAVED file:
+      core.py:344 save_settings(settings, name='gen_mask_settings').
+    * The shipped pack (gen_masks_settings.csv + crop_measure_settings.csv)
+      is byte-identical in this stage and in the fresh 09-14 download. It
+      has 59 keys, src=/home/carruthers/datasets/plate1 (replaced on load),
+      no cell_diameter, cell_FT 100, cell_CP_prob -1.
+    * settings_pack.PACK_FILES["mask"] = ("gen_mask_settings.csv",
+      "gen_masks_settings.csv"): the run-saved name is tried FIRST, so a
+      prior run's own settings outrank the pack on the cached route.
+    * The fresh-download CPU captures (mask_preview_cpu2/3) recorded Source
+      = the real example path. Their Mask pin was then a pytest path, so
+      that value came from the app. The earlier 09-09/09-11 real-path
+      Source readings came from a stage or pin store that differed; either
+      way, tonight's "<src>" is stage contamination on the cached route.
+  So capture #1's counts reflect somebody's 09-01 run settings (flow
+  threshold 1.0, diameter 60), not what Load test data gives a new user. Do
+  not compose it. Evidence kept. The diameter-rerun comparison was measured
+  anyway (foreground IoU 0.977, 32/35 objects best-match IoU >= 0.9, 2 <
+  0.5, 1 unmatched; smallest object 100 -> 20 px): at the same count the
+  objects can differ.
+  ACTION: the two stale files were moved to
+  production/07_mask/pre-2026-09-15/stale_example_settings/, which makes
+  the stage's settings folder identical to the fresh download (checked with
+  diff -r). A clean recapture, mask_preview_gpu_2026-09-15b, is queued on
+  the GPU lock.
+  APP GAP, for the owner of settings_pack.py / AppScreen._EXAMPLE_SETTINGS_FILES
+  (app_screen.py is another agent's tonight; not patched here): a user who
+  runs Mask on the example folder and later presses Load test data on the
+  cached example gets their OWN saved run settings back instead of the pack,
+  including a literal "<src>" if that run was saved with the placeholder.
+  Loading could prefer the shipped name for the example pack, or ignore a
+  src that is still a <placeholder>.
