@@ -1090,3 +1090,16 @@ picked up cold:
       verify_staged_audio (09-xx report language order), 14 browser checks,
       render_visual_master, check_completed_matrix, stage_one rendition,
       verify_staged_lesson --web-rendition, build() + verify_release_candidate.
+  VOICE RENDER STOPPED AT TRACK 22/50 (07:50:27, exit 1): "Decoded true peak
+    -0.8 dBFS exceeds -1.0 dBFS: .../07_mask/audio/en/bm_fable.m4a". This is
+    the renderer's release gate. It masters with a three-step cascade
+    (loudnorm TP -3; then TP -5 + alimiter 0.7; then TP -5 + alimiter 0.5)
+    and keeps the first result that decodes at <= -1.0 dBFS. On the NEW
+    English narration, bm_fable still decoded at -0.8 after the strongest
+    step. (Its 09-11 render of the old narration passed.)
+    STATE LEFT BEHIND, measured: the gate runs before os.replace, so
+    bm_fable still holds its intact 09-11 m4a/json (fingerprint acf89009,
+    old narration, media hash unchanged). 21 tracks carry the new narration
+    (en af_* x8, am_* x9, bf_* x4, bm_daniel); 29 are still old. That mix
+    must NOT reach verify_staged_audio, the browser checks or the matrix.
+    A plain re-run retries bm_fable (fingerprint mismatch) and skips the 21.
