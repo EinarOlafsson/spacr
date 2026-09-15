@@ -2246,7 +2246,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # against 410's parent, 75dfdcae8: +0 / -0 symbols and exactly ONE
     # existing line changed, that one. The field defaults to None, so the
     # required sum below stays at 8,815.
-    assert sum(len(item.parameters) for item in callables) == 17_296
+    # 17,296 -> 17,297 on 2026-09-15, +1, and not from 410: item 333 gave the
+    # EXISTING `spacr.qt.widgets.live_preview.LivePreviewPanel` a `module`
+    # parameter (default ""), so the preview can resolve the model the way the
+    # module's own run does. It landed on nightly after 410's pin was taken.
+    # Optional, so the required sum below does not move.
+    assert sum(len(item.parameters) for item in callables) == 17_297
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2259,6 +2264,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Unmoved on 2026-09-15 by 410's `EmbeddingSpec.channel_scale`, which has
     # a default -- measured, not assumed: 8,815 at 75dfdcae8 and after 410.
     assert sum(len(item.required_parameters) for item in callables) == 8_815
+    # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
+    # subtraction on the full inventory: without that one parameter the digest
+    # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
+    # `EmbeddingSpec.channel_scale` it is 3714f4a1..., the pin before 410.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2302,7 +2311,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # that failed to match would have read as "something unexplained moved"
     # when what had actually moved was my reconstruction. Subtract using the
     # recorded baseline LINE, not a field-by-field rebuild of it.
-) == "5b30fe1f26ac23704ab42d444ba8b2fa8b5ace5b0794119e7c8f06c5db24672e"
+) == "3476522c44762226f9858d18ae6157d55f8238cbead28046fa7d7c8d2aa3a445"
     # Moved 2026-09-14, and PROVED rather than assumed, the way this file
     # asks: the same digest recomputed over the tree at 49c1189f7 returns
     # 487529aa5a65... byte for byte, which is the value this line carried
