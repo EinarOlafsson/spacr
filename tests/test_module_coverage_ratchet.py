@@ -356,7 +356,14 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # had replaced it on every route. Measured by diffing the shipped set
     # against the switch commit: base - now is exactly that file, now - base is
     # empty, and adding it back gives the 569-member set unchanged.
-    assert len(shipped) == 568
+    # 568 -> 570 on 2026-09-15, +2/-0: spacr/_outlier_criteria.py and
+    # spacr/_stream_selection.py, the pandas-free data modules split out of
+    # `outlier_filter` and `stream_dataset` so a settings default reads four
+    # criteria and two selection tables without importing pandas (284).
+    # Private and still shipped, like `_segmentation_backends`. Measured by
+    # diffing the shipped set against origin/nightly df1216b3f: now - base is
+    # exactly those two files and base - now is empty.
+    assert len(shipped) == 570
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the

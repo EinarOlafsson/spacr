@@ -2031,7 +2031,19 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # LINES against the switch commit: the old OPS engine was deleted, taking the 16
     # callables of the old engine's module and the three stitcher defaults in
     # `spacr.settings` that nothing called. No line was added or changed.
-    assert len(callables) == len(by_symbol) == 8_684
+    # 2026-09-15: 8,684 -> 8,685, +1 / -0 by set difference against
+    # origin/nightly df1216b3f: `spacr.barcode_search.SearchThresholds`, the frozen
+    # dataclass a barcode search judges by -- public because
+    # `search_barcodes(thresholds=...)` takes one. Six other callables from
+    # the same batch were made private BEFORE this was measured, because
+    # nothing outside the package calls them: graph_spec's `_kind_and_note`
+    # and `GraphSpec._kind_note`, settings' three barcode-reference helpers,
+    # and the live search's `_watch_the_form`. `stream_dataset.coordinate_column`
+    # and `.settings_for_method` stay public here as wrappers over the private
+    # `_stream_selection`, so neither left this inventory. Per bucket, only
+    # `dataclass_constructor`, `autoapi` and the one-variant count move, each
+    # by one.
+    assert len(callables) == len(by_symbol) == 8_685
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2093,7 +2105,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         "constructor": 393,
-        "dataclass_constructor": 473,
+        # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
+        # dataclass, so it lands here and in no other category.
+        "dataclass_constructor": 474,
         "namedtuple_constructor": 8,
         "exception_constructor": 145,
         "inherited_or_default_constructor": 56,
@@ -2128,7 +2142,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # reach the user through autoapi and no other route.
         # 8,698 -> 8,679 on 2026-09-15, the same -19: every deleted callable
         # was rendered by autoapi and by nothing else.
-        "autoapi": 8_679,
+        # 8,679 -> 8,680 on 2026-09-15, +1: `SearchThresholds` is rendered
+        # by autoapi and by nothing else.
+        "autoapi": 8_680,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2169,7 +2185,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # callables has exactly one prose variant.
     # 8,710 -> 8,691 on 2026-09-15, the same -19: each deleted callable had
     # exactly one prose variant.
-    assert sum(item.variant_count for item in callables) == 8_691
+    # 8,691 -> 8,692 on 2026-09-15, +1: `SearchThresholds` has one
+    # signature, so variants keep tracking callables one for one.
+    assert sum(item.variant_count for item in callables) == 8_692
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2177,7 +2195,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 8,689 -> 8,690 on 2026-09-15 with `mark_to_start_on`.
         # 8,690 -> 8,696 on 2026-09-15 with 372's six, one variant each.
         # 8,696 -> 8,677 on 2026-09-15: the 19 deleted callables, one variant each.
-        1: 8_677,   # +45, +1, +6, -19; the seven two-variant callables are unmoved
+        1: 8_678,   # +45, +1, +6, -19, +1 (SearchThresholds); the seven two-variant callables are unmoved
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2321,7 +2339,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # anchors and tile_shape (+1), call_reads gains normalise and gpu (+2).
     # 17,331 -> 17,174 on 2026-09-15, -157, all of it on the 19 deleted
     # lines: the old OPS engine's callables and the three stitcher defaults.
-    assert sum(len(item.parameters) for item in callables) == 17_174
+    # 17,174 -> 17,181 on 2026-09-15, +7, and FIVE come from the new callable:
+    # `SearchThresholds`' five fields. The other two are the EXISTING
+    # `search_barcodes` and `iter_barcode_search` each gaining a keyword
+    # `thresholds=None`. Every one of the seven carries a default, so the
+    # required sum below does not move. Established by diffing every symbol's
+    # parameter tuple against origin/nightly df1216b3f: those three symbols
+    # differ and no other does.
+    assert sum(len(item.parameters) for item in callables) == 17_181
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2398,7 +2423,17 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # that failed to match would have read as "something unexplained moved"
     # when what had actually moved was my reconstruction. Subtract using the
     # recorded baseline LINE, not a field-by-field rebuild of it.
-) == "a80114b9f1a0c0d88060bbd03516994e5c260f20a5abfb66532d0e67148ea145"
+) == "2494eb6397787e27286a24b990c98962e712032940a2972e30c27a506dd8f1ef"
+    # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
+    # subtraction on the full inventory on top of origin/nightly df1216b3f.
+    # Dropping the one new symbol alone is NOT enough, because two existing
+    # lines also changed: `search_barcodes` and `iter_barcode_search`, whose
+    # `parameters` and `accepted_documented_parameters` gained `thresholds`
+    # (their `required_parameters` did not). Dropping the symbol AND restoring
+    # those two lines to the base tree's form returns a80114b9..., the
+    # previous pin, byte for byte. So the move is one new dataclass and one
+    # optional keyword on two existing functions, and nothing else among
+    # 8,685 symbols changed.
     # Moved 2026-09-15 when the old OPS engine was deleted, and PROVED by
     # subtraction: the switch commit's inventory returns b6445699..., the previous
     # pin, and with its 19 deleted lines dropped it returns a80114b9...,
@@ -2853,7 +2888,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # test_api_i18n_extractor, +7/-0 by set difference against 3f27b926a.
     # 10,541 -> 10,521 on 2026-09-15: the twenty symbols the old OPS engine's
     # deletion removed, named in test_api_i18n_extractor, +0/-20.
-    assert len(docs) == 10_521
+    # 2026-09-15: 10,521 -> 10,523, +2 / -0 by set difference:
+    # `spacr.barcode_search.SearchThresholds` and its `__post_init__`, the
+    # validator that refuses thresholds unable to decide anything. The
+    # extractor's own pins moved by the same two in the same commit, and so
+    # did test_api_i18n_frontend and test_documentation_i18n.
+    assert len(docs) == 10_523
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -2884,7 +2924,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 8,692 -> 8,698 on 2026-09-15, the same +6 as the callable total: all
     # six 372 arrivals are rendered and documented.
     # 8,698 -> 8,679 on 2026-09-15, the same -19 as the callable total.
-    assert len(rendered_documented_callables) == 8_679
+    # 8,679 -> 8,680 on 2026-09-15, the same +1 as the exposure counter:
+    # `SearchThresholds` is both rendered and documented.
+    assert len(rendered_documented_callables) == 8_680
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

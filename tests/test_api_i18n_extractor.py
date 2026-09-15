@@ -27,8 +27,12 @@ builder = importlib.import_module("build_documentation_i18n")
 # (BarcodeTable.__post_init__, BarcodeEntry.__post_init__, and BarcodeSet's
 # __post_init__, __iter__ and __len__) returns 1a6e99e4..., the previous pin,
 # byte for byte. The 16 constant attributes did not move at all.
+# Moved 2026-09-15 for `spacr.barcode_search.SearchThresholds.__post_init__`
+# and proved by subtraction on top of origin/nightly df1216b3f: the digest recomputed
+# without that one dunder returns 8b07b969..., the previous pin, byte for
+# byte. The 16 constant attributes did not move.
 _NEW_VISIBLE_DIGEST = (
-    "8b07b969f09ee4eb335ec0e250d3904e505faf7710b523a15dc9ce157ce21e26"
+    "4e86990016ff3da1965fac60fddaa0b69bfba73b3e880283194093b3fc70dbbf"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -193,7 +197,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # EXISTED and were undocumented; documenting them is what admits them
     # to the rendered surface. Set-differenced against origin/nightly:
     # +2 / -0, and those are the two.
-    assert len(dunders) == 210
+    # 2026-09-15: 210 -> 211, ONE entry,
+    # `spacr.barcode_search.SearchThresholds.__post_init__` -- the validator
+    # that refuses a min_enrichment of 1.0, which would report every table
+    # PRESENT. A `__post_init__` that raises is a contract and belongs on the
+    # page, so this is an admission. Set-differenced against
+    # origin/nightly df1216b3f: +1 / -0.
+    assert len(dunders) == 211
     assert len(assignments) == 16
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
@@ -1095,7 +1105,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # the old engine's module and the three stitcher defaults in `spacr.settings`
     # (`set_default_stitch`, `set_default_multichannel`,
     # `set_default_general`) that nothing called.
-    expected = 10_521
+    # 10,521 -> 10,523 on 2026-09-15, +2 / -0 by set difference against
+    # origin/nightly df1216b3f: `spacr.barcode_search.SearchThresholds` and its
+    # `__post_init__`. THE NINE CATALOGS HAVE NOT BEEN REGENERATED FOR THESE
+    # TWO. That is a recorded debt for the pre-release catalog rebuild, which
+    # the home session owns; test_documentation_i18n names the two missing
+    # symbols until it runs.
+    expected = 10_523
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1132,7 +1148,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # symbol; the aliases are still zero, so the two stay equal.
     # 10,534 -> 10,541 with `expected` above, for 372's seven.
     # 10,541 -> 10,521 with `expected` above, for the same twenty.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_521
+    # 10,521 -> 10,523 with `expected` above, for the same two.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_523
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1182,6 +1199,10 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
         # other bucket reports its old count, so the `10_696 - len(docs)`
         # pin below does not move.
         "spacr._segmentation_backends",
+        # 2026-09-15: the pandas-free data modules behind outlier_filter and
+        # stream_dataset. Private, re-exported, and never rendered.
+        "spacr._outlier_criteria",
+        "spacr._stream_selection",
     }
     assert builder.AUTOAPI_NON_RENDERED_SYMBOLS == {
         "spacr.qt.run_without_setup",
@@ -1419,7 +1440,25 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # 10,760 -> 10,740 and post-filter 10,541 -> 10,521, and the twenty keys
     # that left the pre-filter set are exactly the twenty that left the
     # surface, so the boundary stays 219.
-    assert 10_740 - len(docs) == 219
+    # 10,740 -> 10,746 on 2026-09-15, BOTH halves re-measured in one run on
+    # top of origin/nightly df1216b3f with `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,740 -> 10,746
+    #     post-filter  10,521 -> 10,523
+    #     boundary        219 -> 223
+    #
+    # THE BOUNDARY MOVED, and by the two pandas-free data modules made
+    # private and added to AUTOAPI_NON_RENDERED_MODULES --
+    #
+    #     spacr._stream_selection (module, coordinate_column,
+    #                              settings_for_method: 3 entries)
+    #     spacr._outlier_criteria (module: 1 entry)
+    #
+    # -- four entries. The surface side gained the two `SearchThresholds`
+    # entries. So 4 crossed to the filtered side and 2 were rendered: +6
+    # pre-filter, +2 post-filter, the case where the halves move by
+    # different amounts and only measuring both can tell.
+    assert 10_746 - len(docs) == 223
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

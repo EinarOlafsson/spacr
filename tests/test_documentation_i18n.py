@@ -166,7 +166,11 @@ TOOLS = ROOT / "tools"
 # the old engine's module and `spacr.settings.set_default_stitch`,
 # `set_default_multichannel` and `set_default_general`, the old
 # stitcher's defaults, which nothing called.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_521
+# 10,521 -> 10,523 on 2026-09-15: `spacr.barcode_search.SearchThresholds` and
+# its `__post_init__`. The count is the live surface, measured; the catalogs
+# are NOT regenerated for the two, so the inventory half of the test below
+# names them as missing until the pre-release catalog rebuild runs.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_523
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

@@ -82,7 +82,14 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # the old engine's module and `spacr.settings.set_default_stitch`,
 # `set_default_multichannel` and `set_default_general`, the old
 # stitcher's defaults, which nothing called.
-REAL_SYMBOL_COUNT = 10_521
+# 10,521 -> 10,523 on 2026-09-15, +2 / -0 by set difference against
+# origin/nightly df1216b3f: spacr.barcode_search.SearchThresholds and its __post_init__.
+# Moved in all four files in one commit. THE ENGLISH CATALOG DOES NOT CARRY
+# THESE TWO -- it is not regenerated for them -- so the catalog gate below
+# reports exactly those two as "in the source but NOT in the catalog" until
+# the pre-release catalog rebuild runs. That message is the recorded debt,
+# and it is the accurate one: the source is right and the catalog is stale.
+REAL_SYMBOL_COUNT = 10_523
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
