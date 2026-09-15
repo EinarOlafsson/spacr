@@ -2642,13 +2642,17 @@ def get_idle_minutes() -> float:
 
     :returns: minutes; 0 means "as soon as nothing is using it".
     """
-    from .memory_budget import (DEFAULT_IDLE_MINUTES, MAX_IDLE_MINUTES,
-                                MIN_IDLE_MINUTES)
-    raw = _settings().value(_KEY_IDLE_MINUTES, DEFAULT_IDLE_MINUTES)
+    from .memory_budget import MAX_IDLE_MINUTES, MIN_IDLE_MINUTES
+    # 286: an untouched budget follows the performance level, so the sweep
+    # enforces what the level promises; a number the user set is kept.
+    fallback = float(_level_budget()[0])
+    raw = _settings().value(_KEY_IDLE_MINUTES, None)
+    if raw is None or raw == "":
+        return max(MIN_IDLE_MINUTES, min(MAX_IDLE_MINUTES, fallback))
     try:
         value = float(raw)
     except (TypeError, ValueError):
-        return DEFAULT_IDLE_MINUTES
+        return fallback
     return max(MIN_IDLE_MINUTES, min(MAX_IDLE_MINUTES, value))
 
 
@@ -2661,13 +2665,16 @@ def set_idle_minutes(minutes: float) -> None:
 
 def get_cache_ceiling_mb() -> int:
     """How much cache spaCR may hold at once, in megabytes."""
-    from .memory_budget import (DEFAULT_CACHE_CEILING_MB,
-                                MAX_CACHE_CEILING_MB, MIN_CACHE_CEILING_MB)
-    raw = _settings().value(_KEY_CACHE_CEILING, DEFAULT_CACHE_CEILING_MB)
+    from .memory_budget import MAX_CACHE_CEILING_MB, MIN_CACHE_CEILING_MB
+    # Follows the level while untouched; see `get_idle_minutes`.
+    fallback = int(_level_budget()[1])
+    raw = _settings().value(_KEY_CACHE_CEILING, None)
+    if raw is None or raw == "":
+        return max(MIN_CACHE_CEILING_MB, min(MAX_CACHE_CEILING_MB, fallback))
     try:
         value = int(float(raw))
     except (TypeError, ValueError):
-        return DEFAULT_CACHE_CEILING_MB
+        return fallback
     return max(MIN_CACHE_CEILING_MB, min(MAX_CACHE_CEILING_MB, value))
 
 
@@ -2685,13 +2692,16 @@ def get_headroom_mb() -> int:
     kept; this says when keeping it stops being acceptable, and without it
     neither of the others has anything to answer to.
     """
-    from .memory_budget import (DEFAULT_HEADROOM_MB, MAX_HEADROOM_MB,
-                                MIN_HEADROOM_MB)
-    raw = _settings().value(_KEY_HEADROOM, DEFAULT_HEADROOM_MB)
+    from .memory_budget import MAX_HEADROOM_MB, MIN_HEADROOM_MB
+    # Follows the level while untouched; see `get_idle_minutes`.
+    fallback = int(_level_budget()[2])
+    raw = _settings().value(_KEY_HEADROOM, None)
+    if raw is None or raw == "":
+        return max(MIN_HEADROOM_MB, min(MAX_HEADROOM_MB, fallback))
     try:
         value = int(float(raw))
     except (TypeError, ValueError):
-        return DEFAULT_HEADROOM_MB
+        return fallback
     return max(MIN_HEADROOM_MB, min(MAX_HEADROOM_MB, value))
 
 
@@ -2699,6 +2709,42 @@ def set_headroom_mb(megabytes: int) -> None:
     """Persist the headroom floor."""
     settings = _settings()
     settings.setValue(_KEY_HEADROOM, int(megabytes))
+    settings.sync()
+
+
+def _level_budget():
+    # (idle minutes, cache MB, headroom MB) for the current performance
+    # level. Falls back to the shipped defaults when the level cannot be
+    # read, because a background sweep with no user in front of it reads
+    # these and must not raise.
+    from .memory_budget import (DEFAULT_CACHE_CEILING_MB,
+                                DEFAULT_HEADROOM_MB, DEFAULT_IDLE_MINUTES,
+                                recommended_for)
+    try:
+        return recommended_for(get_performance_level())
+    except Exception:                                        # noqa: BLE001
+        return (DEFAULT_IDLE_MINUTES, DEFAULT_CACHE_CEILING_MB,
+                DEFAULT_HEADROOM_MB)
+
+
+def _save_budget_for_level(level, idle_minutes, cache_mb, headroom_mb):
+    # What Preferences' Save writes (286). A number equal to the chosen
+    # level's own is stored as "follow the level" -- the key removed -- so a
+    # later level change still moves it; any other number is the user's and
+    # is kept at every level. Writing all three unconditionally, as Save did,
+    # froze the budget at whatever level was showing on the first Save.
+    from .memory_budget import recommended_for
+
+    own = recommended_for(level)
+    settings = _settings()
+    for key, value, level_value in (
+            (_KEY_IDLE_MINUTES, float(idle_minutes), float(own[0])),
+            (_KEY_CACHE_CEILING, int(cache_mb), int(own[1])),
+            (_KEY_HEADROOM, int(headroom_mb), int(own[2]))):
+        if value == level_value:
+            settings.remove(key)
+        else:
+            settings.setValue(key, value)
     settings.sync()
 
 
@@ -5505,6 +5551,22 @@ class PreferencesDialog:
             "Suggested:\n{levels}").format(levels=_suggestions(1)))
         performance.addRow(tr("Cache ceiling"), cache_spin)
 
+        # 286: a budget number still at the previous level's value moves with
+        # the level; a number the user typed stays where they put it.
+        _budget_level = [mode_combo.currentData()]
+
+        def _budget_follows_level(*_args):
+            new, old = mode_combo.currentData(), _budget_level[0]
+            _budget_level[0] = new
+            if new == old or new not in RECOMMENDED or old not in RECOMMENDED:
+                return
+            for spin, index in ((idle_spin, 0), (cache_spin, 1),
+                                (headroom_spin, 2)):
+                if spin.value() == RECOMMENDED[old][index]:
+                    spin.setValue(RECOMMENDED[new][index])
+
+        mode_combo.currentIndexChanged.connect(_budget_follows_level)
+
         font_weight = QComboBox()
         font_weight.setObjectName("InterfaceFontWeight")
         for _key, _label in (("regular", "Regular"), ("light", "Light")):
@@ -6105,9 +6167,9 @@ class PreferencesDialog:
                            "works:") + "\n\n" + "\n".join(complaints))
             set_interface_font_weight(font_weight.currentData())
             set_performance_level(mode_combo.currentData())
-            set_headroom_mb(headroom_spin.value())
-            set_idle_minutes(idle_spin.value())
-            set_cache_ceiling_mb(cache_spin.value())
+            _save_budget_for_level(mode_combo.currentData(),
+                                   idle_spin.value(), cache_spin.value(),
+                                   headroom_spin.value())
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()
