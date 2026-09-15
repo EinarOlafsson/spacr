@@ -277,7 +277,8 @@ _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
-    "CSV", "Cellpose-SAM", "FlowView", "JSON", "MIP", "ML", "NaN", "PDF",
+    "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
+    "NaN", "PDF", "SAMCell",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",

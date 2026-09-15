@@ -121,13 +121,6 @@
       "translation": "Affiche sous la souris un cadre où la région environnante est agrandie et où les objets qu'un modèle y trouve sont délimités. Un clic les ajoute au masque comme nouveaux objets — avec Image entière, seulement l'objet cliqué —, une étape d'annulation par clic. Tant qu'elle est activée, la molette de la souris change le zoom du cadre plutôt que celui de la vue."
     },
     {
-      "key": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
-      "source": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
-      "source_sha256": "eeb419a0b5364ac04176caacff804eb2eff0fe302e21212d7ebb7efca5c68369",
-      "table": "ui",
-      "translation": "Côté du cadre carré, en pixels de l'image. Avec Région sous la souris, c'est aussi la région que le modèle segmente : choisissez-le plus large que le plus grand objet à ajouter."
-    },
-    {
       "key": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
       "source": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
       "source_sha256": "1a3b29a22afd721b9ed4ec028eeb151a0c21281c1e85aecde24a31f4b427c332",

@@ -121,13 +121,6 @@
       "translation": "माउस के नीचे एक बॉक्स दिखाएँ, जिसमें आसपास का क्षेत्र बड़ा दिखे और मॉडल को उसमें मिले ऑब्जेक्ट रेखांकित हों। एक क्लिक उन्हें नए ऑब्जेक्ट के रूप में मास्क में जोड़ता है — पूरी छवि में केवल क्लिक किया गया ऑब्जेक्ट — हर क्लिक पर एक पूर्ववत चरण। इसके चालू रहने पर माउस व्हील दृश्य के बजाय बॉक्स का ज़ूम बदलता है।"
     },
     {
-      "key": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
-      "source": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
-      "source_sha256": "eeb419a0b5364ac04176caacff804eb2eff0fe302e21212d7ebb7efca5c68369",
-      "table": "ui",
-      "translation": "वर्गाकार बॉक्स की भुजा, छवि पिक्सेल में। माउस के नीचे का क्षेत्र में यही वह क्षेत्र भी है जिसे मॉडल सेगमेंट करता है, इसलिए इसे जोड़े जाने वाले सबसे बड़े ऑब्जेक्ट से चौड़ा रखें।"
-    },
-    {
       "key": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
       "source": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
       "source_sha256": "1a3b29a22afd721b9ed4ec028eeb151a0c21281c1e85aecde24a31f4b427c332",

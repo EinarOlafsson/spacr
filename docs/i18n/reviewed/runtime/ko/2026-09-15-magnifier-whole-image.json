@@ -121,13 +121,6 @@
       "translation": "마우스 아래에 주변 영역을 확대하고 모델이 그 안에서 찾은 객체의 윤곽을 표시하는 상자를 보여 줍니다. 클릭하면 그 객체들이 새 객체로 마스크에 추가되며(전체 이미지에서는 클릭한 객체만), 클릭마다 실행 취소 한 단계가 됩니다. 켜져 있는 동안 마우스 휠은 보기 대신 상자의 확대 배율을 바꿉니다."
     },
     {
-      "key": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
-      "source": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
-      "source_sha256": "eeb419a0b5364ac04176caacff804eb2eff0fe302e21212d7ebb7efca5c68369",
-      "table": "ui",
-      "translation": "정사각형 상자의 한 변 길이로, 이미지 픽셀 단위입니다. 마우스 아래 영역에서는 모델이 분할하는 영역이기도 하므로, 추가하려는 가장 큰 객체보다 넓게 설정하십시오."
-    },
-    {
       "key": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
       "source": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
       "source_sha256": "1a3b29a22afd721b9ed4ec028eeb151a0c21281c1e85aecde24a31f4b427c332",

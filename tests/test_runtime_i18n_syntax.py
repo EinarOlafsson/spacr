@@ -118,7 +118,19 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 2026-09-15-update-removes-old-installs.json. Its branch never moved
     # this pin. The live count minus that file's fifteen sources is 269, and
     # none of the fifteen is in any other file.
-    assert len(reviewed) == 284
+    #
+    # 284 -> 293 on 2026-09-15, +12/-3, for the magnifier's second round
+    # (417): the Otsu threshold correction, the Model zoo… button, the note
+    # that the Cellpose-SAM settings drive the magnifier, the DINOCell and
+    # SAMCell install lines, "{name} (not downloaded)", and five reworded
+    # tooltips (Size, Mode, Sensitivity, Model, Otsu detect), in
+    # 2026-09-15-magnifier-round-two-settings.json. Retired: the old Mode,
+    # Sensitivity and Size wordings from the two earlier magnifier files.
+    # "DINOCell" and "SAMCell" themselves are builder _IDENTITY_TEXT, not
+    # records. 284 + 12 - 3 = 293 is the live count, the live count minus
+    # the new file's twelve sources is 281 (284 - 3), and none of the twelve
+    # is in any other file.
+    assert len(reviewed) == 293
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -240,7 +252,13 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 244 -> 259 on 2026-09-15, +15/-0: 416's update dialog and removal
     # reasons, 2026-09-15-update-removes-old-installs.json, the same fifteen
     # as the Swedish note above. The live count minus them is 244.
-    assert len(reviewed) == 259
+    #
+    # 259 -> 268 on 2026-09-15, +12/-3: the magnifier's second round (417),
+    # the same twelve new records and three retired wordings as the Swedish
+    # note above. 259 + 12 - 3 = 268 is the live count, the live count minus
+    # the new file's twelve sources is 256 (259 - 3), and none of the twelve
+    # is in any other file.
+    assert len(reviewed) == 268
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

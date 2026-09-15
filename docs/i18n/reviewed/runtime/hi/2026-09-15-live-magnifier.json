@@ -23,13 +23,6 @@
       "translation": "बॉक्स अपने क्षेत्र को कैनवास से कितने गुना बड़ा बनाता है। आवर्धक चालू रहने पर माउस व्हील इसे बदलता है। यह केवल वही बदलता है जो आप देखते हैं: मॉडल हमेशा क्षेत्र को छवि के अपने रिज़ॉल्यूशन पर सेगमेंट करता है।"
     },
     {
-      "key": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
-      "source": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
-      "source_sha256": "b7e9d723bde23a65da1855459ff252d52ab64ad5f991717378adb759707565b6",
-      "table": "ui",
-      "translation": "किसी ऑब्जेक्ट को कितनी आसानी से स्वीकार किया जाता है। धुंधले या कम निश्चित ऑब्जेक्ट शामिल करने के लिए इसे बढ़ाएँ, केवल स्पष्ट ऑब्जेक्ट रखने के लिए घटाएँ; 0 हर मॉडल का अपना डिफ़ॉल्ट है। Cellpose के लिए यह उलटे चिह्न वाली सेल प्रायिकता सीमा है, इसलिए 1.5 की संवेदनशीलता -1.5 की सीमा के बराबर है।"
-    },
-    {
       "key": "Live magnifier",
       "source": "Live magnifier",
       "source_sha256": "886ee4e35e283ff0705084c59eb144aab13bc0b5f9f2b6efff3b05a11c268ba8",
@@ -84,13 +77,6 @@
       "source_sha256": "0217cb326bbd11f699df8e270e0b72e5618e0dd2050c9b54debfc96412fd88f3",
       "table": "ui",
       "translation": "जहाँ मास्क में पहले से कोई ऑब्जेक्ट है, वहाँ नया ऑब्जेक्ट क्या करता है। काटें केवल उसके बिना लेबल वाले पिक्सेल रखता है, इसलिए किसी मौजूदा ऑब्जेक्ट का कोई पिक्सेल नहीं जाता। छोड़ें किसी मौजूदा ऑब्जेक्ट को छूने वाले हर ऑब्जेक्ट को छोड़ देता है। बदलें नए ऑब्जेक्ट को उसके ढके हर पिक्सेल को लेने देता है।"
-    },
-    {
-      "key": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
-      "source": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
-      "source_sha256": "010df707916a267a57b3d01639d05180c78f7c613a13b0ab1c40986ece0101ce",
-      "table": "ui",
-      "translation": "बॉक्स के क्षेत्र को कौन-सा मॉडल सेगमेंट करता है। पारंपरिक विधि क्षेत्र पर Otsu स्तर पर थ्रेशोल्ड लगाती है और छूते ऑब्जेक्ट को वॉटरशेड से अलग करती है; इसे कुछ भी इंस्टॉल करने की ज़रूरत नहीं, यह ऑब्जेक्ट संचालन के अंतर्गत चमकीला स्विच और Min area बॉक्स का पालन करती है, और जब भी कोई मॉडल लोड न हो सके तब चलती है। Cellpose, Cellpose-SAM सेटिंग्स में तय मॉडल और व्यास का उपयोग करता है और GPU के बिना धीमा है।"
     }
   ],
   "schema": 1

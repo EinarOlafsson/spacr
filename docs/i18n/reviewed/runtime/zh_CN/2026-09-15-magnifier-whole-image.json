@@ -121,13 +121,6 @@
       "translation": "在鼠标下方显示一个框，放大周围区域并勾勒出模型在其中找到的对象。单击会把它们作为新对象添加到掩膜 — 选择 整幅图像 时只添加单击的对象 — 每次单击对应一步撤销。开启时，鼠标滚轮调整的是框的缩放，而不是视图的缩放。"
     },
     {
-      "key": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
-      "source": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
-      "source_sha256": "eeb419a0b5364ac04176caacff804eb2eff0fe302e21212d7ebb7efca5c68369",
-      "table": "ui",
-      "translation": "正方形框的边长，以图像像素计。选择 鼠标下方的区域 时，它也是模型分割的区域，因此请把它设得比想添加的最大对象更宽。"
-    },
-    {
       "key": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
       "source": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
       "source_sha256": "1a3b29a22afd721b9ed4ec028eeb151a0c21281c1e85aecde24a31f4b427c332",
