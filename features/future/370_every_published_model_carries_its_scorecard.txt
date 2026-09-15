@@ -998,3 +998,35 @@ number below was re-read from its source file, not copied from this item.
    either. The 2026-09-11 section above, "VERIFIED END TO END AGAINST THE
    REAL SCORECARD", read this file: it proves the tooltip plumbing, and says
    nothing about v1's accuracy.
+2026-09-15 -- THE HUGGING FACE CARD NOW SAYS ROUND 2 ("Update it now")
+--------------------------------------------------------------------------------
+
+The maintainer answered "Update it now". This closes the "NOT CORRECTED" line
+above. It changed the card only.
+
+  repo      einarolafsson/toxoplasma-pv-segmentation-cpsam (public)
+  before    0218566cddd69a0c444d9d5ec3b2a3a1992aed60
+  after     616938396a4e9c3350a2d443702572edfe69c111  (README.md only)
+
+Checked before editing: the hosted cpsam_v2_toxo_r2 LFS sha256 is
+182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0, which is the
+zoo row's hash. The hosted weights are round 2, so the card was the stale
+record. After the upload the head commit's parent is the old sha. Both
+revisions list the same ten files, and only README.md's blob differs. The
+weights' LFS sha256 is unchanged, and the hosted README is byte-identical to
+the uploaded file.
+
+What changed on the card, all worded as the zoo row is:
+  Performance  lead line "F1 0.864 against 0.713 for stock cpsam on 11
+               held-out in-house wells, at IoU 0.5; literature hold-out
+               pending". The headline table's round-1 column
+               (F1 0.867, mAP 0.595, AJI 0.808) became round 2's
+               (0.864, 0.575, 0.809; round2_vs_round1.csv, hosted in the same
+               repo). "NAS set / fields" became "in-house wells".
+  Literature   new paragraph: the scorecard is pending a stock-seeded
+               re-curation, and on the current set it ties stock Cellpose-SAM
+               on detection (F1 0.403 against 0.400).
+  Training     "115 image/mask pairs (104 train / 11 test)" became round 2's
+               229 images from 2 datasets, 104 round-1 and 125 newly curated.
+Unchanged: YAML metadata (it has no model-index), license, title, usage, the
+per-IoU table, the round-1-vs-round-2 table's numbers, and Limitations.
