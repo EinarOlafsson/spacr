@@ -55,7 +55,7 @@ def test_an_empty_reference_is_filled_from_the_package():
     """The common case: nothing set, three tables present, no network."""
     settings = {}
 
-    filled = S.fill_missing_barcode_references(settings)
+    filled = S._fill_missing_barcode_references(settings)
 
     assert sorted(filled) == ["column_csv", "grna_csv", "row_csv"]
     for key in filled:
@@ -70,7 +70,7 @@ def test_a_reference_the_user_chose_is_never_overwritten():
     """
     settings = {"grna_csv": "/somewhere/my_own_guides.csv"}
 
-    filled = S.fill_missing_barcode_references(settings)
+    filled = S._fill_missing_barcode_references(settings)
 
     assert settings["grna_csv"] == "/somewhere/my_own_guides.csv"
     assert "grna_csv" not in filled
@@ -86,7 +86,7 @@ def test_a_blank_reference_counts_as_empty(blank):
     """
     settings = {"row_csv": blank}
 
-    filled = S.fill_missing_barcode_references(settings)
+    filled = S._fill_missing_barcode_references(settings)
 
     assert "row_csv" in filled
     assert os.path.exists(settings["row_csv"])
@@ -96,7 +96,7 @@ def test_the_url_is_pinned_to_the_installed_release_tag():
     """A branch URL would return today's file, which is not this release's."""
     from spacr import __version__
 
-    url = S.bundled_barcode_url("grna")
+    url = S._bundled_barcode_url("grna")
 
     assert url.endswith("/spacr/resources/data/barcodes_grna.csv")
     assert f"/v{__version__}/" in url
@@ -106,10 +106,10 @@ def test_the_url_is_pinned_to_the_installed_release_tag():
 def test_an_unknown_reference_is_refused_by_both_entry_points():
     """Neither the URL nor the fetch invents a table name."""
     with pytest.raises(ValueError, match="Unknown barcode reference"):
-        S.bundled_barcode_url("protein")
+        S._bundled_barcode_url("protein")
 
     with pytest.raises(ValueError, match="Unknown barcode reference"):
-        S.ensure_bundled_barcode("protein")
+        S._ensure_bundled_barcode("protein")
 
 
 def test_a_missing_table_is_fetched_and_written(tmp_path, monkeypatch):
@@ -125,13 +125,13 @@ def test_a_missing_table_is_fetched_and_written(tmp_path, monkeypatch):
         return payload
 
     try:
-        got = S.ensure_bundled_barcode("row", fetch=fetch)
+        got = S._ensure_bundled_barcode("row", fetch=fetch)
         assert got == real
         assert open(got, "rb").read() == payload
-        assert len(asked) == 1 and asked[0] == S.bundled_barcode_url("row")
+        assert len(asked) == 1 and asked[0] == S._bundled_barcode_url("row")
         # And the second call is served locally, so a screen that fills the
         # references twice does not fetch twice.
-        S.ensure_bundled_barcode("row", fetch=fetch)
+        S._ensure_bundled_barcode("row", fetch=fetch)
         assert len(asked) == 1
     finally:
         os.replace(moved, real) if moved.exists() else None
@@ -153,7 +153,7 @@ def test_a_fetched_table_that_is_not_the_right_one_is_not_written(tmp_path):
 
     try:
         with pytest.raises(ValueError, match="not the one this release ships"):
-            S.ensure_bundled_barcode(
+            S._ensure_bundled_barcode(
                 "column", fetch=lambda url: b"name,sequence\nfake,ACGT\n")
         assert not os.path.exists(real)
         assert not os.path.exists(f"{real}.partial")
@@ -177,7 +177,7 @@ def test_a_reference_that_cannot_be_produced_leaves_the_others_filled(tmp_path):
         def fetch(url):
             raise OSError("no route to host")
 
-        filled = S.fill_missing_barcode_references(settings, fetch=fetch)
+        filled = S._fill_missing_barcode_references(settings, fetch=fetch)
 
         assert sorted(filled) == ["column_csv", "row_csv"]
         assert not settings.get("grna_csv")

@@ -238,7 +238,7 @@ BUNDLED_BARCODE_SETTING = {
 }
 
 
-def bundled_barcode_url(kind, version=None):
+def _bundled_barcode_url(kind, version=None):
     """Return the GitHub raw URL for a bundled barcode reference.
 
     :param kind: ``'column'``, ``'grna'`` or ``'row'``.
@@ -286,7 +286,7 @@ def _verified_barcode_bytes(kind, payload):
     return payload
 
 
-def ensure_bundled_barcode(kind, fetch=None):
+def _ensure_bundled_barcode(kind, fetch=None):
     """Return the path to a bundled barcode reference, fetching it if missing.
 
     :param kind: ``'column'``, ``'grna'`` or ``'row'``.
@@ -306,7 +306,7 @@ def ensure_bundled_barcode(kind, fetch=None):
     path = bundled_barcode_path(kind)
     if os.path.exists(path):
         return path
-    url = bundled_barcode_url(kind)
+    url = _bundled_barcode_url(kind)
     if fetch is None:
         def fetch(target):
             from urllib.request import urlopen
@@ -324,11 +324,11 @@ def ensure_bundled_barcode(kind, fetch=None):
     return path
 
 
-def fill_missing_barcode_references(settings, fetch=None):
+def _fill_missing_barcode_references(settings, fetch=None):
     """Point every EMPTY barcode reference setting at the bundled table.
 
     :param settings: the settings mapping to fill in place.
-    :param fetch: passed through to :func:`ensure_bundled_barcode`.
+    :param fetch: passed through to :func:`_ensure_bundled_barcode`.
     :returns: the names of the settings that were filled, in order.
 
     A REFERENCE THE USER SET IS NEVER OVERWRITTEN, which is the whole
@@ -347,7 +347,7 @@ def fill_missing_barcode_references(settings, fetch=None):
         if str(settings.get(key) or "").strip():
             continue
         try:
-            settings[key] = ensure_bundled_barcode(kind, fetch=fetch)
+            settings[key] = _ensure_bundled_barcode(kind, fetch=fetch)
         except (OSError, ValueError):
             LOG.info("no bundled %s barcode reference to fill in", kind,
                      exc_info=True)
@@ -3717,7 +3717,7 @@ def _coordinate_columns_for(object_array):
     is what it did on the first attempt.
     """
     try:
-        from .stream_selection import coordinate_column
+        from ._stream_selection import coordinate_column
 
         return [coordinate_column(object_array)]
     except Exception:                                            # noqa: BLE001
@@ -3743,7 +3743,7 @@ def _outlier_criteria():
 
     :returns: the (key, human name) pairs a run can filter outliers on.
 
-    READ FROM `outlier_criteria` AND NOT FROM `outlier_filter`. They are the
+    READ FROM `_outlier_criteria` AND NOT FROM `outlier_filter`. They are the
     same four pairs either way; the difference is that `outlier_filter` needs
     pandas, and this function is called while a settings panel is being laid
     out. Importing pandas to read four pairs of strings cost 211 ms on the
@@ -3754,7 +3754,7 @@ def _outlier_criteria():
     that nothing compared with the first -- so a criterion added in one place
     and not the other would have been silently dropped from the panel.
     """
-    from .outlier_criteria import CRITERIA
+    from ._outlier_criteria import CRITERIA
 
     return CRITERIA
 
@@ -5393,7 +5393,7 @@ def get_setting_dependencies():
                 f"The value is kept and saved."),
         )
 
-    from .stream_selection import METHOD_SETTINGS as _METHOD_SETTINGS
+    from ._stream_selection import METHOD_SETTINGS as _METHOD_SETTINGS
 
     def _streaming(settings) -> bool:
         """Whether the run reads images from a stream rather than from disk."""

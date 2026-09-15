@@ -51,7 +51,7 @@ def test_with_no_preference_the_inference_still_decides(choose):
     choose("")
     spec, kinds = _grouped()
     assert spec.resolved_kind(kinds) == gs.BOX
-    assert spec.kind_note(kinds) == ""
+    assert spec._kind_note(kinds) == ""
 
 
 def test_the_chosen_type_wins_when_the_builder_can_draw_it(choose):
@@ -60,7 +60,7 @@ def test_the_chosen_type_wins_when_the_builder_can_draw_it(choose):
     spec, kinds = _grouped()
     assert spec.resolved_kind(kinds) == gs.VIOLIN, (
         "the user chose violin for grouped data and got something else")
-    assert spec.kind_note(kinds) == "", (
+    assert spec._kind_note(kinds) == "", (
         "the choice was honoured, so there is nothing to explain")
 
 
@@ -75,7 +75,7 @@ def test_a_choice_this_builder_cannot_draw_falls_back_and_says_so(choose):
     choose("box_jitter")
     spec, kinds = _grouped()
     assert spec.resolved_kind(kinds) == gs.BOX
-    note = spec.kind_note(kinds)
+    note = spec._kind_note(kinds)
     assert note, "the preference was dropped without a word"
     assert "not a chart this builder draws" in note
     assert note in spec.describe(kinds), (
@@ -92,7 +92,7 @@ def test_a_choice_that_does_not_fit_the_shape_is_not_a_choice_for_it(choose):
     choose("scatter")
     spec, kinds = _grouped()
     assert spec.resolved_kind(kinds) == gs.BOX
-    assert spec.kind_note(kinds) == ""
+    assert spec._kind_note(kinds) == ""
 
 
 def test_an_explicit_pin_still_beats_the_setting(choose):
@@ -107,7 +107,7 @@ def test_an_explicit_pin_still_beats_the_setting(choose):
     # GraphSpec is frozen: a pin is constructed, never assigned.
     spec = gs.GraphSpec(x="gene", y="area", kind=gs.BAR)
     assert spec.resolved_kind(kinds) == gs.BAR
-    assert spec.kind_note(kinds) == ""
+    assert spec._kind_note(kinds) == ""
     assert "(pinned)" in spec.describe(kinds)
 
 
@@ -122,4 +122,4 @@ def test_the_shapes_without_a_preference_are_left_alone(choose):
     spec = gs.GraphSpec(x="gene", y="plate")
     kinds = {"gene": gs.CATEGORICAL, "plate": gs.CATEGORICAL}
     assert spec.resolved_kind(kinds) == gs.HEATMAP
-    assert spec.kind_note(kinds) == ""
+    assert spec._kind_note(kinds) == ""

@@ -94,7 +94,6 @@ __all__ = [
     "MISSING_LEVEL", "MAX_FACET_LEVELS", "MAX_PANELS",
     "DEFAULT_POINT_BUDGET",
     "GraphSpec", "column_kinds", "plottable_columns", "infer_kind",
-    "kind_and_note",
     "value_axes", "brush_mask", "FULL", "BINNED", "SAMPLED",
     "FacetPanel", "FacetGrid", "facet_grid",
     "Scales", "scales_for",
@@ -398,13 +397,13 @@ class GraphSpec:
         user saying "this chart, now" and still wins outright. With no pin,
         the Default Graph Type preference chooses among the forms that fit,
         and the inference answers when there is no preference or the chosen
-        form cannot be drawn here -- see :func:`kind_and_note`.
+        form cannot be drawn here -- see :func:`_kind_and_note`.
         """
         if self.kind:
             return self.kind
-        return kind_and_note(self, kinds)[0]
+        return _kind_and_note(self, kinds)[0]
 
-    def kind_note(self, kinds: Mapping[str, str]) -> str:
+    def _kind_note(self, kinds: Mapping[str, str]) -> str:
         """Why the drawn kind is not the chosen one, or ``""``.
 
         Empty for a pin: the user asked for that chart directly and nothing
@@ -412,7 +411,7 @@ class GraphSpec:
         """
         if self.kind:
             return ""
-        return kind_and_note(self, kinds)[1]
+        return _kind_and_note(self, kinds)[1]
 
     def to_dict(self) -> Dict[str, Any]:
         """A plain JSON-able dict. Every field, always — a stable schema beats
@@ -469,7 +468,7 @@ class GraphSpec:
             return "nothing dropped yet"
         kind = self.resolved_kind(kinds)
         pinned = " (pinned)" if self.kind else ""
-        note = self.kind_note(kinds)
+        note = self._kind_note(kinds)
         said = f"{kind}{pinned} · " + " · ".join(parts)
         # THE FALLBACK IS SAID OUT LOUD, in the one line that becomes the
         # chart's caption and the window title. A preference that is quietly
@@ -489,7 +488,7 @@ _SHAPE_FOR_KIND = {
 }
 
 
-def kind_and_note(spec: "GraphSpec", kinds: Mapping[str, str]):
+def _kind_and_note(spec: "GraphSpec", kinds: Mapping[str, str]):
     """The kind to draw and, when it is not the one chosen, why not.
 
     THE SETTING WINS UNLESS THE DATA CANNOT BE DRAWN THAT WAY. The Default

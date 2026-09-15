@@ -104,13 +104,19 @@ def test_an_unreadable_coordinate_column_yields_no_coordinate_setting(monkeypatc
     ``coordinate_columns`` is declared a list, and None is what means "use the
     merged masks". Returning a half-derived value here would make the run fail
     its own settings validation instead of falling back to the default source.
+
+    PATCHED WHERE SETTINGS READS IT. The lookup lives in `_stream_selection`,
+    which `spacr.settings` imports from so that deriving a setting does not
+    import pandas; `stream_dataset.coordinate_column` is the public wrapper
+    around the same function. Patching the wrapper would leave the reader
+    untouched and this assertion describing nothing.
     """
-    import spacr.stream_dataset as stream_dataset
+    import spacr._stream_selection as stream_selection
 
     def _explode(_object_array):
         raise KeyError('no such object array')
 
-    monkeypatch.setattr(stream_dataset, 'coordinate_column', _explode)
+    monkeypatch.setattr(stream_selection, 'coordinate_column', _explode)
     assert settings_mod._coordinate_columns_for('cell') is None
 
 
@@ -131,20 +137,34 @@ def test_classes_are_left_alone_when_the_class_folder_cannot_fold(monkeypatch):
     assert settings_mod._fold_the_classes(original) is original
 
 
-def test_outlier_criteria_fall_back_to_the_built_in_four(monkeypatch):
-    """The outlier panel keeps its criteria when the filter module is absent.
+def test_outlier_criteria_are_the_built_in_four_and_cannot_fail_to_import():
+    """The outlier panel's criteria come from a module that cannot be absent.
 
-    The panel and the filtering logic share one list so they cannot disagree;
-    if the shared list cannot be imported the panel still has to offer the
-    four criteria spaCR has always filtered on rather than an empty control.
+    This used to delete `outlier_filter.CRITERIA` and expect a hand-written
+    fallback copy of the four. The settings reader no longer goes through
+    `outlier_filter` -- that module imports pandas, which a settings panel
+    must not pay for -- so deleting that attribute tested nothing, and the
+    fallback was a second copy of the list that nothing compared with the
+    first. What makes a fallback unnecessary is asserted instead: the one
+    definition lives in a module whose only import is `typing`.
     """
-    import spacr.outlier_filter as outlier_filter
+    import ast
+    import pathlib
 
-    monkeypatch.delattr(outlier_filter, 'CRITERIA')
+    import spacr._outlier_criteria as criteria_module
+
     criteria = settings_mod._outlier_criteria()
-    keys = [key for key, _label in criteria]
-    assert keys == ['cell_area', 'nucleus_area',
-                    'cell_intensity', 'nucleus_intensity']
+    assert [key for key, _label in criteria] == [
+        'cell_area', 'nucleus_area', 'cell_intensity', 'nucleus_intensity']
+    assert criteria is criteria_module.CRITERIA
+
+    tree = ast.parse(pathlib.Path(criteria_module.__file__).read_text())
+    imported = {alias.name.split('.')[0]
+                for node in ast.walk(tree)
+                if isinstance(node, (ast.Import, ast.ImportFrom))
+                for alias in (node.names if isinstance(node, ast.Import)
+                              else [ast.alias(node.module or '')])}
+    assert imported <= {'__future__', 'typing'}, imported
 
 
 # ---------------------------------------------------------------------------

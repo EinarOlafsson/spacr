@@ -7,7 +7,7 @@ them through `stream_dataset` charged a 203 ms pandas import to read two
 dictionaries -- on the main thread, which the user sees as the interface
 stopping before anything has been run.
 
-The same move as :mod:`spacr.outlier_criteria`, for the same reason. A
+The same move as :mod:`spacr._outlier_criteria`, for the same reason. A
 settings default is a question about names and values; answering it should
 not load machinery.
 """

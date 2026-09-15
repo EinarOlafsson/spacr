@@ -590,3 +590,12 @@ under 500 ms of main-thread time. The method that found it -- run the
 preloader first, then profile a SECOND screen by internal time -- is the one
 to keep using, because it separates widget cost from import cost and the
 import cost was hiding everything else.
+
+NAMES CHANGED AFTER THE NOTES ABOVE WERE WRITTEN. The two pandas-free data
+modules are now PRIVATE -- `spacr._outlier_criteria` and
+`spacr._stream_selection` -- and listed in AUTOAPI_NON_RENDERED_MODULES. They
+are data nothing outside the package imports, and a public module docstring is
+a contract translated into nine languages. `outlier_filter` and
+`stream_dataset` still re-export every name, and
+`stream_dataset.coordinate_column` / `.settings_for_method` remain public
+wrappers over the private module, so no caller moved.

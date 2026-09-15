@@ -491,7 +491,7 @@ class TestTheStreamingSettingsAreInertUntilStreamingIsChosen:
                                                               monkeypatch):
         """A list in the settings module would drift from the streamer's.
 
-        PATCHED ON `stream_selection`, WHICH IS NOW THE ONE DEFINITION.
+        PATCHED ON `_stream_selection`, WHICH IS NOW THE ONE DEFINITION.
         `stream_dataset` re-exports it -- it needs pandas, and the settings
         module must not import pandas to read a dictionary while a panel is
         being laid out. The asserts below pin that the re-export is the SAME
@@ -500,7 +500,7 @@ class TestTheStreamingSettingsAreInertUntilStreamingIsChosen:
         """
         import spacr.settings as settings_module
         import spacr.stream_dataset as stream
-        import spacr.stream_selection as selection
+        import spacr._stream_selection as selection
 
         assert stream.METHOD_SETTINGS is selection.METHOD_SETTINGS
 

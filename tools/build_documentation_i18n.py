@@ -145,6 +145,13 @@ AUTOAPI_NON_RENDERED_MODULES = frozenset({
     # became a module docstring, which the extractor would otherwise pin in
     # nine catalogs for a page AutoAPI never builds.
     "spacr._segmentation_backends",
+    # 2026-09-15: the two pandas-free data modules split out of
+    # `outlier_filter` and `stream_dataset`, so a settings default can read
+    # four criteria and two selection tables without importing pandas. Data
+    # nothing outside the package imports, re-exported by the public modules
+    # that always owned the names.
+    "spacr._outlier_criteria",
+    "spacr._stream_selection",
 })
 AUTOAPI_NON_RENDERED_SYMBOLS = frozenset({
     "spacr.qt.run_without_setup",

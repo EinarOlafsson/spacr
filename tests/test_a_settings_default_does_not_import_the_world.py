@@ -97,8 +97,8 @@ def test_the_criteria_have_exactly_one_definition():
     tuple, and nothing compared them -- so a criterion added to one and not
     the other would have gone missing from the panel with no test to notice.
     """
-    from spacr import outlier_criteria, outlier_filter, settings
+    from spacr import _outlier_criteria, outlier_filter, settings
 
-    assert outlier_filter.CRITERIA is outlier_criteria.CRITERIA
-    assert settings._outlier_criteria() is outlier_criteria.CRITERIA
-    assert "cell_area" in dict(outlier_criteria.CRITERIA)
+    assert outlier_filter.CRITERIA is _outlier_criteria.CRITERIA
+    assert settings._outlier_criteria() is _outlier_criteria.CRITERIA
+    assert "cell_area" in dict(_outlier_criteria.CRITERIA)

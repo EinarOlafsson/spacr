@@ -18,14 +18,47 @@ import pandas as pd
 
 LOG = logging.getLogger("spacr.stream_dataset")
 
-#: Supported selection methods represented as ``(value, display label)``.
-# Re-exported so every existing importer of these names keeps working. They
-# live in `stream_selection` because `spacr.settings` needs them and must not
-# pay for pandas to get them.
-from .stream_selection import (COORDINATE_COLUMNS, METHOD_SETTINGS,  # noqa: E402,F401
-                               SELECTION_COLUMNS, SELECTION_FILE,
-                               STREAM_METHODS, coordinate_column,
-                               settings_for_method)
+# THE SELECTION TABLES LIVE IN `_stream_selection`, which imports nothing
+# but typing: `spacr.settings` reads them while a settings panel is being
+# laid out, and must not pay for pandas to read two dictionaries. They are
+# re-exported here, and the two lookups below stay this module's public API
+# and delegate, so there is one implementation and nothing moved for a caller.
+from . import _stream_selection  # noqa: E402
+from ._stream_selection import (COORDINATE_COLUMNS, METHOD_SETTINGS,  # noqa: E402,F401
+                                SELECTION_COLUMNS, SELECTION_FILE,
+                                STREAM_METHODS)
+
+
+def coordinate_column(object_array: str) -> str:
+    """Return the identifier column for an object-array type.
+
+    Parameters
+    ----------
+    object_array : str
+        Object type such as ``"cell"`` or ``"nucleus"``.
+
+    Returns
+    -------
+    str
+        Canonical identifier column.
+
+    Raises
+    ------
+    KeyError
+        If the object type is unsupported.
+    """
+    return _stream_selection.coordinate_column(object_array)
+
+
+def settings_for_method(method: str) -> Tuple[str, ...]:
+    """Return settings used by a dataset-selection method.
+
+    Raises
+    ------
+    KeyError
+        If ``method`` is unsupported.
+    """
+    return _stream_selection.settings_for_method(method)
 
 
 def _split_labels(count: int, test_split: float, seed: int) -> np.ndarray:
