@@ -159,3 +159,151 @@ Checked against origin's catalog after both sessions' work landed: 87 of the
 figure-folder caption ("Writes a FOLDER: ..."), where origin carries the
 original sentence with `PDF` lowercased and the pin carries a full rewrite of
 the sentence; the pin wins, by agreement.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- FIXED IN THE BUILDER. A COMMITTED ROW NOW OUTRANKS THE CACHE.
+--------------------------------------------------------------------------------
+
+Branch wip/406-committed-rows. `tools/build_i18n_catalogs.py`,
+`_seed_cache_from_catalog`, and
+`tests/test_a_committed_row_outranks_the_translation_cache.py`.
+
+THE MECHANISM WAS ALREADY THERE. IT LOST TO THE CACHE BY ONE WORD.
+
+How the builder decides "source unchanged" today, measured rather than
+assumed: every generated catalog carries `SOURCE_HASHES`, keyed
+`(TABLE, key)` -> sha256 of the English it was built from, and
+`_seed_cache_from_catalog` compares that entry with the current English per
+row (`hash_is_current`). It also requires the catalog's `MODEL` to match
+`MODEL_SPECS`, the value to pass `_translation_candidate_valid`, and the
+source to be outside `skip_sources` -- the repair force set plus the
+authoritative tables. Rows that pass are offered to selection as cache
+entries. No other path carries committed rows forward: the "compact" tier in
+`_translate_batches` is `spacr.qt.i18n.CATALOGS`, the hand-written `_ROWS`
+inside `i18n.py`, not the external catalog.
+
+The seed wrote with `cache.setdefault(...)`. The cache already held the
+repair pass's output for exactly those sources, so `setdefault` did nothing
+and the cached value was selected. That is the whole reason the zh_CN
+rebuild did not carry the hand fixes forward.
+
+THE RULE, NOW IMPLEMENTED
+
+  * PLAIN BUILD. A committed row with a current per-row source hash that
+    passes the gates REPLACES the cached value for its source. Only new or
+    changed sources reach the cache or the model.
+  * REPAIR MODES unchanged. `--repair-invalid-only` and
+    `--repair-untranslated` put their targets in `force_sources`; forced
+    sources are not seeded and not read from the cache, so they are
+    re-decoded, which is the deliberate way to re-translate a current row.
+  * REVIEWED RECORDS still beat the committed row, the cache and the model,
+    in both modes; selection checks them first.
+  * A committed row that FAILS the gates is not carried forward (an English
+    fallback left in the file is not a hand fix), so a valid cached value
+    can still fill it.
+
+Selection order after the change: identity text > `REVIEWED_UI_TRANSLATIONS`
+> reviewed runtime record > no-prose identity > compact `_ROWS` >
+hash-current committed row > cache > model. Among committed rows that share
+one English source the first table in seed order still wins, as before,
+because translations are keyed by source.
+
+TESTS, WITHOUT A MODEL
+
+Twelve tests drive `_translate_batches` with a temporary model root (an
+empty model folder), a temporary cache file, a temporary reviewed-record
+directory read by the REAL loader, and a stub `transformers`. None of them
+touches the real cache.
+
+    before the change   3 failed, 9 passed
+    after the change   12 passed
+
+The three red ones are the regression itself: (a) for de and for the real
+zh_CN row ('Pca whiten': committed Pca 白化, cached 白色白色), and the same
+rule tested directly on the seed. The other nine were green before and stay
+green, BY DESIGN: they pin what the change must not break -- (b) a changed
+source takes the cache value or the stub's output, (c) a repair re-decodes
+its target past both the committed row and the cache and checkpoints the
+result, (d) a reviewed record wins plain and forced in both languages, a
+committed row that fails the gates does not outrank the cache, and a
+precondition that every fixture value passes the gates, so only precedence
+can decide which value comes out.
+
+MEASURED ON THE REAL THING
+
+    CUDA_VISIBLE_DEVICES= python tools/run_memory_guarded.py --limit-gib 45 -- \
+        python tools/build_i18n_catalogs.py --languages zh_CN \
+        --model-root <scratch>/opus
+
+`--model-root` pointed at a scratch root holding a COPY of the zh_CN cache
+(58,858 entries, sha256 80fb4104...) and an EMPTY m2m100 folder, so a row
+that needed the model would have failed at load instead of downloading, and
+the shared cache could not be written. The 2026-09-14 pin file was moved out
+of the worktree for both runs.
+
+    before the change   86 rows moved: SETTING_LABELS 9, SETTING_TOOLTIPS 19,
+                        CATEGORY_HELP 5, UI 53. Every one is a pinned source,
+                        and nothing outside the pins moved. Canaries back:
+                        pca_whiten 白色白色, guide_permutations 导游转换,
+                        guide_presence_threshold 主持人 出席限制,
+                        surrogate_model 超越模型.
+    after the change    0 rows moved. zh_CN.py rebuilt byte-identical to HEAD.
+
+Both builds exited 0 without touching the model, so neither found an
+untranslated source. The cache copy's sha256 was unchanged after both. The
+pin file holds 86 records (81 distinct sources), not the 88 counted above:
+the two `Resume` rows were dropped when they conflicted with the resume fix.
+
+    python tools/build_i18n_catalogs.py --audit     exit 0, nine languages,
+                                                    on the committed catalogs
+
+SHOULD A REPAIR PASS STILL WRITE TO THE CACHE? YES, UNCHANGED.
+
+  1. The harm was never the write, it was the precedence. A cached value can
+     no longer displace a hash-current committed row, so a repair's output
+     only matters where there is no current committed row: a new or changed
+     source, or a checkout whose catalog lacks the row.
+  2. Not writing it would not remove it from the world. The output is gate-
+     passing model output for that source; the next decode of the same
+     English with the same model produces the same candidates. Option (a)
+     above makes the same observation.
+  3. It costs a repair nothing: a repair re-run forces its targets past the
+     cache anyway. That also means the cache does NOT let an interrupted
+     REPAIR resume, so resumability is not an argument for keeping it; it
+     does help an interrupted plain build over new rows.
+  4. A mode-dependent cache contract ("repairs don't checkpoint") is one
+     more rule for the next person to forget, for no gain after point 1.
+
+DOES THE CACHE STILL NEED CLEANING? NOT FOR THE ROWS THAT SHIP.
+
+Measured read-only against the shared file: 297 hash-current zh_CN rows (280
+sources) have a cached value different from the committed one. After this
+change none of them can reach a plain build. The seed also writes the
+committed value over the cached one, and that reaches the file at the next
+checkpoint of any build that decodes something, so those entries clean
+themselves as builds run. What is left exposed:
+
+  * cached values keyed by English that is no longer in any catalog. They
+    resurface only if that exact English returns without a committed row;
+  * any checkout WITHOUT this commit (every lane until it is merged) still
+    prefers the cache. KEEP THE 86 PINS until it has reached every tree that
+    builds; they cost nothing and are the only protection there.
+
+RISKS FOR THE NEXT FULL BUILD
+
+  * A plain build no longer repairs a wrong-but-gate-passing committed row
+    from the cache. It carries it forward. Re-translation of a current row
+    is now ONLY a repair mode or a reviewed record, which is the point, but
+    anyone used to "rebuild and it gets better" should know.
+  * A hand fix must change EVERY row that shares its English source. The
+    first table in seed order wins and `write_language` makes the rest
+    agree. Measured today: zero zh_CN sources with disagreeing committed
+    values.
+  * A decoding build writes committed runtime values over bare cache keys.
+    That includes an API-lane build of the same language (its own keys are
+    namespaced and unaffected) and a checkout on an older branch, which
+    writes ITS committed values. Under this rule a cached value for a
+    source never outranks a current committed row, so this is noise rather
+    than damage.
+  * A catalog whose `MODEL` no longer matches `MODEL_SPECS` is not seeded at
+    all, as before, so a model change turns carry-forward off entirely.

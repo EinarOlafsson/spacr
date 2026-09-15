@@ -4960,14 +4960,34 @@ def _seed_cache_from_catalog(
     cache: dict[str, str],
     skip_sources: Iterable[str] = (),
 ) -> None:
-    """Reuse current catalog prose except authoritative reviewed captions.
+    """Carry committed catalog rows forward, OVER the model cache.
 
     Short, context-sensitive captions and exact technical identities are
     resolved by deterministic review tables.  Never seed their historical
     catalog values into the model cache: an earlier semantically valid but
     contextually wrong translation must not survive a reviewed correction.
+
+    A COMMITTED ROW OUTRANKS THE CACHE (item 406).  A row is carried forward
+    when the committed catalog's own ``SOURCE_HASHES`` entry for that table
+    and key still matches the English source, the catalog was produced by the
+    current model, the value passes the release gates, and the source is not
+    in ``skip_sources`` -- which is where a repair mode's force set and the
+    authoritative tables arrive.  Such a row REPLACES whatever the cache holds
+    for its source.  This function used ``cache.setdefault``, so any cached
+    value won: a ``--repair-invalid-only`` pass wrote 87 fluent-but-wrong
+    zh_CN rows into the cache (``'Pca whiten' -> 白色白色``), they were
+    reverted and fixed by hand in ``zh_CN.py``, and the next PLAIN build put
+    every one back.  The cache lives outside the repository, so the hand edit
+    changed nothing the builder read.  Now a plain build sends only new or
+    changed sources to the cache or the model, and re-translating a current
+    row is what the explicit repair modes are for.
+
+    Among committed rows that share one English source, the first table in
+    the order below wins, as before: translations are keyed by source, so
+    ``write_language`` writes one value to every row with that English.
     """
     skipped = frozenset(map(str, skip_sources))
+    committed: dict[str, str] = {}
     try:
         from spacr.qt.i18n_catalogs import en as english
         target = __import__(
@@ -5001,7 +5021,7 @@ def _seed_cache_from_catalog(
                 and hash_is_current(name, key, source)
                 and _translation_candidate_valid(source, value, language)
             ):
-                cache.setdefault(
+                committed.setdefault(
                     str(source), _contextualize(value, language, source)
                 )
     for name in ("CATEGORY_HELP", "UI"):
@@ -5013,7 +5033,7 @@ def _seed_cache_from_catalog(
                 and hash_is_current(name, source, source)
                 and _translation_candidate_valid(source, value, language)
             ):
-                cache.setdefault(
+                committed.setdefault(
                     str(source), _contextualize(value, language, source)
                 )
     canonical_modules = getattr(english, "MODULE_SUMMARIES", {})
@@ -5027,9 +5047,15 @@ def _seed_cache_from_catalog(
             and hash_is_current("MODULE_SUMMARIES", key, source)
             and _translation_candidate_valid(source, value, language)
         ):
-            cache.setdefault(
+            committed.setdefault(
                 str(source), _contextualize(value, language, source)
             )
+    # Replace, never ``setdefault``: see the docstring.  The caller snapshots
+    # its cache baseline BEFORE seeding, so these replacements count as
+    # updates and reach the shared cache file at the next checkpoint -- which
+    # only a build that reaches the model performs.  A plain build that
+    # decodes nothing leaves the cache file untouched.
+    cache.update(committed)
 
 
 def _invalid_catalog_sources(
