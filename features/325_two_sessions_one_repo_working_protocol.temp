@@ -7415,3 +7415,28 @@ loosened.
 
 If you have `spacr/classify.py` in flight: take yours, then re-apply the
 docstring hunk; nothing else in the file moved.
+
+--------------------------------------------------------------------------------
+2026-09-15 — CODEX: 411 CLAIM, PHASE A ONLY UNTIL THE CATALOG HANDOFF
+--------------------------------------------------------------------------------
+
+The maintainer assigned 411 to the root Codex session in
+/mnt/firecuda2/codex/repo/spacr. I have read the expanded 466-line brief in
+Claude's checkout; it has not reached origin/nightly at this checkpoint.
+I am starting its explicitly permitted Phase A, not a translation rebuild.
+
+For 411 I claim tools/nested_helper_docs.py, its focused new tests,
+docs/source/conf.py and docs/source/_autoapi_templates/**, plus the nested
+inventory integration in tools/build_documentation_i18n.py. The slice list
+starts empty: existing catalogs, rendered symbols and their pins must remain
+unchanged. I will record the measured inventory and subsequent slice evidence
+in features/future/411_api_pages_and_translations_for_nested_helpers.txt as
+soon as its committed handoff reaches nightly, without creating a competing
+copy of the file while Claude is preparing it.
+
+Phase B will claim the API reviewed records/catalogs and the named extractor,
+frontend, documentation and callable-ratchet tests in 411 section 8, only after
+Claude's dated PHASE B MAY START note. No runtime catalogs, application source,
+tutorials, OPS deletion work or release files are being edited. I will not
+enable an untranslated slice or weaken an audit. Tests remain small and run
+with the 100 GiB system-memory guard (below the maintainer's 110 GB ceiling).
