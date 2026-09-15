@@ -521,6 +521,18 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
 | ~~**59**~~ | ~~conda-forge accounts~~ — **NOT NEEDED, checked 2026-09-14.** `conda-forge/spacr-feedstock` has existed since 2026-08-27 with `einarolafsson` as maintainer, and its autotick bot `[bot-automerge]`d v1.5.0.6 and v1.5.0.7 by itself. spaCR is published. | — |
 | **93** | Whether a stack whose intensities exceed the 16-bit ceiling should be **refused** rather than silently rescaled. See §4. | a decision |
 
+**RAISED OVERNIGHT 2026-09-15.** Each of these is an item that is finished
+except for one question, so an answer converts directly into a closed item.
+None is blocking anything else.
+
+| # | Question | Cost to answer |
+|---|---|---|
+| **288** | **Is 100% per-module coverage still the goal?** 175 of 567 shipped modules fail the ratchet, so the `tests` workflow is red by SCOPE and not by regression — and the 1.5.0.8 bump you authorised is gated on green CI. If the answer is "yes, eventually", the gate should stop being CI-green; if it is "no", the ratchet should say what it really wants. | a decision |
+| **324** | Four captions on the first setup slide render English in all nine languages: **"Visualization", "Machine learning", "Live backdrop", "UMAP / t-SNE / cluster"**. The paragraph and the doctor hint ARE translated. "GPU"/"CPU" are identity on purpose. Translate the four, or accept them as technical terms? | a decision |
+| **293** | `graph_spec.infer_kind` asks "what kind of chart do these columns imply", which is a question about the DATA; the Default Graph Type setting asks "which fitting type do I want first". **Should the Graph Builder's inference defer to the setting, or keep answering about the data?** They can disagree honestly. The other three holdouts are mechanical and being done. | a decision |
+| **289** | One widget in all 45 screens still shows its help on the field: the `control_chart` **"Control is"** list. It has no `settingKey`, and `_is_a_settings_field` says carrying one is "the definitive mark". Give that list a key, or leave it as the one exception? Widening the predicate would put all 45 screens at risk for one row. | a decision |
+| **368** | **844 nested helper functions are documented in the source and invisible on the API page.** Phase 4 planned for "the parent's page to carry them"; nothing was ever built and it was never recorded as dropped. Build it, or record it as dropped? | a decision |
+
 ---
 
 ## 2. State of the tree
