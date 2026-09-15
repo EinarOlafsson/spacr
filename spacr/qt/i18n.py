@@ -3317,8 +3317,10 @@ _TERM_ROWS: Dict[str, tuple[str, ...]] = {
     # "Controls & Filters" and "Controls & Minimum Counts". No drawn caption
     # uses "Controls" for widgets, yet zh_CN/ko/is carried the widget sense
     # (控件, 컨트롤, Stýringar), so a Chinese reader saw "widgets" over the
-    # assay-window plot. They now match the singular "Control" row below.
-    "Controls": _row("Kontroller", "Kontrollen", "Controles", "对照", "Controles", "नियंत्रण", "대조군", "Viðmið", "Contrôles"),
+    # assay-window plot. They now match the singular "Control" row below,
+    # except Icelandic: the maintainer chose "Viðmiðunarsýni" (control
+    # samples) for this plural on 2026-09-15, asked with the question tool.
+    "Controls": _row("Kontroller", "Kontrollen", "Controles", "对照", "Controles", "नियंत्रण", "대조군", "Viðmiðunarsýni", "Contrôles"),
     "Plate": _row("Platta", "Platte", "Placa", "孔板", "Placa", "प्लेट", "플레이트", "Plata", "Plaque"),
     "Plates": _row("Plattor", "Platten", "Placas", "板", "Placas", "प्लेट", "플레이트", "Plötur", "Plaques"),
     "Batch": _row("Batch", "Batch", "Lote", "批次", "Lote", "बैच", "배치", "Lota", "Lot"),

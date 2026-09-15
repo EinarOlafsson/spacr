@@ -1281,3 +1281,17 @@ WHAT REMAINS TRUE and belongs in any claim spaCR makes: the nine non-English
 catalogs are machine-drafted and technically reviewed. Six of nine locales
 have never had a fluent reader. The README's qualified wording is what makes
 the claim honest, and 384 is the measured size of the gap.
+
+--------------------------------------------------------------------------------
+2026-09-15 — HINDI SHIPS UNREVIEWED, BY DECISION
+--------------------------------------------------------------------------------
+
+Hindi (hi): kept and shipped, NOT native-reviewed -- the maintainer's
+decision 2026-09-15, 'Keep, marked unreviewed (Recommended)'; to be
+reviewed when a native reader is found.
+
+Asked with the question tool after about 200 Hindi UI translations were
+written that day (201 records across the sixteen
+docs/i18n/reviewed/runtime/hi/2026-09-15-*.json files). None was read by a
+Hindi speaker. Hindi stays visible in the language menu; the record of its
+review status is REVIEW_SCOPE_2026-09-04.md, "Who reviewed what".

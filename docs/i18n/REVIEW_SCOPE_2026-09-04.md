@@ -298,6 +298,14 @@ maintainer. `docs/i18n/reviewed/runtime/*/2026-09-04-load-family.json` carries
 is a maintainer's acceptance and **not** a native-speaker review, and that he
 did not read fr, hi, ko or zh_CN.
 
+**Hindi (hi): kept and shipped, NOT native-reviewed** -- the maintainer's
+decision 2026-09-15, "Keep, marked unreviewed (Recommended)"; to be
+reviewed when a native reader is found. Asked with the question tool after
+about 200 Hindi UI translations were written that day (201 records in the
+sixteen `docs/i18n/reviewed/runtime/hi/2026-09-15-*.json` files), none of
+them read by a Hindi speaker. Hindi's row in the table above counts
+source-bound evidence, not native review; the language is not hidden.
+
 **The honest public claim remains the one 316 proposed:** "nine languages,
 machine-drafted and technically reviewed" is defensible. "Translated into nine
 languages" is not, and should not be written in the README, the paper or the
