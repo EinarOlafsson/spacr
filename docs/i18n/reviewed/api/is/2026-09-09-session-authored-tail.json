@@ -626,13 +626,6 @@
       "translation": "Lifandi forskoðunin byggir líkan sitt úr gildi fellilistans. Að hafa staðbundna eftirlitspunkta úr safninu hér heldur þeirri forskoðun í takt við valið keyrslulíkan; annars myndi hún teikna hefðbundið cpsam í kyrrþey meðan notandinn stillti þvermál og þröskulda fyrir annan eftirlitspunkt."
     },
     {
-      "label": "spacr.spacrops.stitch_cycle_wells#1",
-      "source_sha256": "8f73b339608b45b5e9eeb813a4262071627ec8ad62489fee89931237242271a6",
-      "source": "Groups images by well from filename metadata, optionally moves or symlinks them into per-well folders, then runs :class:`spacrStitcher` on each well to produce pairwise CSVs, and -- when asked -- single- or multi-channel mosaics.",
-      "context": "Groups images by well from filename metadata, optionally moves or symlinks them into per-well folders, then runs :class:`spacrStitcher` on each well to produce pairwise CSVs, and -- when asked -- single- or multi-image data channel stitched image grids.",
-      "translation": "Flokkar myndir eftir brunnum út frá lýsigögnum í skráarnafni, færir þær eða tengir þær valfrjálst í möppur eftir brunnum, keyrir síðan :class:`spacrStitcher` á hvern brunn til að framleiða CSV fyrir pör, og -- sé þess óskað -- mósaík með einni eða mörgum rásum."
-    },
-    {
       "label": "spacr.sra.RunFile#1",
       "source_sha256": "76ef0a59f5fca3c0c6ba59349221a1be4d704ac8536e3dc1bfd5a7552a6317cc",
       "source": "archive run accession shared by its mate files.",

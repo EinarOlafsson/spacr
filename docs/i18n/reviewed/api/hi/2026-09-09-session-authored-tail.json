@@ -367,20 +367,6 @@
       "translation": "प्रति-निष्पादन Beta प्रसरणों को इस तरह सीमित करता है कि माँगा गया माध्य/प्रसरण संभव हो।"
     },
     {
-      "label": "spacr.spacrops.get_preprocess_ops_settings#0",
-      "source_sha256": "087879fb324f350b5bd43f3333b538ef351ed24e41c2433a59c9b5e9587f1937",
-      "source": "Fill in defaults for the ops preprocessing / stitching / alignment pipeline.",
-      "context": "Fill in defaults for the ops preprocessing / stitching / alignment workflow.",
-      "translation": "ops पूर्वप्रसंस्करण / सिलाई / संरेखण कार्यप्रवाह के लिए डिफ़ॉल्ट मान भरता है।"
-    },
-    {
-      "label": "spacr.spacrops.spacrStitcher.mosaic_all_channels_from_csv#1",
-      "source_sha256": "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
-      "source": "Pass ``out_tif=None`` with an ``out_csv`` to run in manifest-only mode (compute transforms and canvas geometry, write manifest, skip rendering).",
-      "context": "Pass ``out_tif=None`` with an ``out_csv`` to run in manifest-only mode (compute transforms and canvas geometry, write manifest, skip rendering).",
-      "translation": "केवल-मैनिफ़ेस्ट मोड में चलाने के लिए ``out_tif=None`` को किसी ``out_csv`` के साथ दें (रूपांतरण और कैनवास ज्यामिति की गणना करें, मैनिफ़ेस्ट लिखें, प्रतिपादन छोड़ दें)।"
-    },
-    {
       "label": "spacr.submodules.CellposeLazyDataset#9",
       "source_sha256": "053de6085dc34b53ac430de2330ab65949f4b084978f0fd04ce81336e97880b0",
       "source": "Mismatched lengths raise here rather than at the first bad index, so a wrongly paired dataset fails at construction instead of part-way through an epoch.",
@@ -407,13 +393,6 @@
       "source": "substring or list of substrings to LIKE-match against ``png_path``.",
       "context": "substring or list of substrings to LIKE-match against ``png_path``.",
       "translation": "``png_path`` से LIKE-मिलान के लिए उपस्ट्रिंग या उपस्ट्रिंगों की सूची।"
-    },
-    {
-      "label": "spacr.spacrops.spacrStitcher.mosaic_all_channels_from_csv#3",
-      "source_sha256": "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
-      "source": "mosaic TIFF output path (``None`` for manifest-only).",
-      "context": "stitched image grid TIFF output path (``None`` for manifest-only).",
-      "translation": "मोज़ेक TIFF आउटपुट पथ (केवल-मैनिफ़ेस्ट के लिए ``None``)।"
     }
   ]
 }

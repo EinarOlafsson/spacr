@@ -157,7 +157,7 @@ def test_a_pair_is_ordered_by_geometry_and_not_by_site_index(layout):
 def test_the_candidate_count_is_four_per_tile_not_a_window(layout):
     """The point of the model, stated as a number.
 
-    `spacr.spacrops` offered `max_site_gap` = 64 in both directions, so
+    The old OPS stitcher offered `max_site_gap` = 64 in both directions, so
     128 candidates per tile of which at most four could touch -- 993
     scored pairs and 994 QC overlays for one well. This offers four.
     """

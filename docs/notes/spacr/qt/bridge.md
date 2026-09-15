@@ -358,12 +358,10 @@ deep_spacr, not train_test_model. The Classify screen builds its panel from deep
 ### lines 1669-1671
 
 ```python
-from spacr.spacrops import ops_preprocess
+from spacr.ops_engine import run_ops
 ```
 
-Imported HERE and not at module scope: `spacrops` reaches
-
-OpenCV and SciPy, and this function is called while a screen is being built.
+Imported HERE and not at module scope: this function is called while a screen is being built.
 
 ### lines 1686-1695
 

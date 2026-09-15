@@ -52,9 +52,6 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [set_graph_importance_defaults](#set_graph_importance_defaults) (1 entry)
 - [set_analyze_invasion_defaults](#set_analyze_invasion_defaults) (2 entries)
 - [get_plot_data_from_csv_default_settings](#get_plot_data_from_csv_default_settings) (1 entry)
-- [set_default_stitch](#set_default_stitch) (4 entries)
-- [set_default_multichannel](#set_default_multichannel) (5 entries)
-- [set_default_general](#set_default_general) (3 entries)
 - [get_automated_motility_assay_default_settings](#get_automated_motility_assay_default_settings) (9 entries)
 - [_set_organelle_defaults](#_set_organelle_defaults) (11 entries)
 
@@ -1088,7 +1085,7 @@ LAST IN THE FILE, after every name this module defines, because registering call
 from . import ops_settings as _ops_settings  # noqa: E402,F401
 ```
 
-OPS registers here for the same reason illumination does: the tables above must exist first. Its factory is LAZY, so this costs an import of `typing` and nothing else -- `spacrops` reaches OpenCV and SciPy and is not wanted on the path a module screen opens through.
+OPS registers here for the same reason illumination does: the tables above must exist first.
 
 ## _merge_declarations
 
@@ -2947,108 +2944,6 @@ A BOX WITH JITTER, NOT A BAR WITH JITTER. Instruction 139 B, asked for on 2026-0
 It is a statistical correction rather than a preference, which is why the DEFAULT moves rather than the option merely existing. A bar drawn at a mean with points behind it shows ONE number and hides the shape: two groups with the same mean and completely different spreads draw the same bar. A box shows the median, the quartiles and the whiskers, so the reader sees the distribution the points already imply -- and the jitter stays, because the box summarises and the points are the evidence.
 
 `jitter_box` already existed as an option; only the default was wrong.
-
-## set_default_stitch
-
-### line 7859, trailing  _(unsure)_
-
-```python
-settings.setdefault('feature_cache_dir', None)
-```
-
-set per well by caller
-
-### line 7871  _(unsure)_
-
-```python
-settings.setdefault('n_workers', max(1, (os.cpu_count() or 8) // 2))
-```
-
-run_folder settings
-
-### line 7874, trailing  _(unsure)_
-
-```python
-settings.setdefault('mosaic_min_score', None)
-```
-
-None => auto elbow
-
-### line 7875  _(unsure)_
-
-```python
-settings.setdefault('mosaic_out', None)
-```
-
-per-well outputs are set by caller:
-
-## set_default_multichannel
-
-### line 7887, trailing  _(unsure)_
-
-```python
-settings.setdefault('channel_indices', None)
-```
-
-infer from first tile if None
-
-### line 7888, trailing
-
-```python
-settings.setdefault('blend', 'max')
-```
-
-{'max','overwrite'}
-
-### line 7890, trailing  _(unsure)_
-
-```python
-settings.setdefault('tmp_dir', None)
-```
-
-set per well by caller
-
-### line 7891, trailing  _(unsure)_
-
-```python
-settings.setdefault('out_tif', None)
-```
-
-set per well by caller
-
-### line 7892, trailing  _(unsure)_
-
-```python
-settings.setdefault('out_png', None)
-```
-
-set per well by caller
-
-## set_default_general
-
-### line 7908, trailing
-
-```python
-settings.setdefault('collision', 'rename')
-```
-
-{'rename','skip','overwrite'}
-
-### line 7909, trailing
-
-```python
-settings.setdefault('on_missing', 'error')
-```
-
-{'error','skip'}
-
-### line 7915, trailing  _(unsure)_
-
-```python
-settings.setdefault('channel_index', 0)
-```
-
-nuclei channel in each tile
 
 ## get_automated_motility_assay_default_settings
 

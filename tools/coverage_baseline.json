@@ -1,6 +1,6 @@
 {
   "about": "Written only by tools/verify_module_coverage.py. Do not edit: the checksum covers every other key and the gate refuses a file it did not write. Tighten with --update-baseline --reason; regenerate deliberately with --reset-baseline --reason (see the tool's docstring).",
-  "checksum": "sha256:bb1c6c04f0ea381b5e9209867140147b420a35e402f06ab06fbc7065ad382d1a",
+  "checksum": "sha256:5b7f45909363037c51e967909c5b6958a4166ad4df442654e82f8d4e821c0229",
   "history": [
     {
       "commit": "b740c741dbf1a1154d60aa08722897bb304d03eb",
@@ -9,6 +9,15 @@
       "mode": "reset",
       "reason": "Seed for item 288's ratchet gate (maintainer decision 2026-09-15): CI run 34942026220 on b740c741d, the most recent complete coverage report, measured against that commit's tree",
       "written_at": "2026-09-15T11:54:08Z"
+    },
+    {
+      "commit": "372: the old OPS engine is deleted (this commit)",
+      "coverage_timestamp": "none: a deleted module has no coverage",
+      "coverage_version": "none",
+      "mode": "retire",
+      "reason": "spacr/spacrops.py deleted by the maintainer's decision 'Delete it now' (item 372, 2026-09-15)",
+      "retired": "spacr/spacrops.py",
+      "written_at": "2026-09-15T18:50:25Z"
     }
   ],
   "modules": {
@@ -3771,13 +3780,6 @@
       "uncovered_branches": 0,
       "uncovered_statements": 0
     },
-    "spacr/spacrops.py": {
-      "excluded_lines": 0,
-      "pragma_no_cover": 0,
-      "since": "2026-09-15T11:54:08Z",
-      "uncovered_branches": 2,
-      "uncovered_statements": 1
-    },
     "spacr/sra.py": {
       "excluded_lines": 0,
       "pragma_no_cover": 0,
@@ -3985,11 +3987,11 @@
   "schema": "spacr.module-coverage-baseline/v1",
   "totals": {
     "excluded_lines": 0,
-    "modules": 567,
+    "modules": 566,
     "modules_at_100_percent": 392,
-    "modules_with_gaps": 175,
+    "modules_with_gaps": 174,
     "pragma_no_cover": 46,
-    "uncovered_branches": 1273,
-    "uncovered_statements": 2622
+    "uncovered_branches": 1271,
+    "uncovered_statements": 2621
   }
 }

@@ -908,7 +908,6 @@ def test_api_doc_catalog_is_symbol_keyed_and_source_hashed():
             if record["text"] == manifest["symbols"][key]["text"]:
                 assert key in API_EXACT_TEXT_ALLOWLIST
         for key in (
-            "spacr.spacrops.align_image_to_stitch",
             "spacr.utils.dense_mask_channel_positions",
         ):
             assert translated["symbols"][key]["text"] != manifest["symbols"][key]["text"]

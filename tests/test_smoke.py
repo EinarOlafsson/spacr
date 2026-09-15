@@ -35,7 +35,7 @@ ALL_MODULES = sorted(
 EXPECTED_LAZY = {
     "core", "io", "utils", "settings", "plot", "measure", "sequencing",
     "timelapse", "deep_spacr", "submodules", "ml",
-    "toxo", "spacr_cellpose", "spacrops", "sp_stats", "sim", "object",
+    "toxo", "spacr_cellpose", "sp_stats", "sim", "object",
     "logger", "version",
 }
 

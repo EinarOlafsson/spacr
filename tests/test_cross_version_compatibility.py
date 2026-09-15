@@ -32,42 +32,6 @@ def test_scorecard_nul_errors_have_one_cross_version_diagnosis(
     assert error == "scorecard.csv is not CSV (NUL byte)"
 
 
-def test_equal_distance_keypoints_have_a_stable_cap_and_descriptor_order(
-    tmp_path, monkeypatch
-):
-    """A NumPy sort implementation must not decide which descriptor survives."""
-    from spacr.spacrops import spacrStitcher
-
-    stitcher = spacrStitcher(
-        outdir=str(tmp_path / "out"),
-        max_keypoints=3,
-        downsample=1.0,
-        feature_cache_mode="ram",
-        save_qc=False,
-        save_stitched_default=False,
-    )
-    points = np.array(
-        [[0.0, 0.0], [10.0, 10.0], [20.0, 20.0], [30.0, 30.0], [40.0, 40.0]],
-        dtype=np.float32,
-    )
-    descriptors = np.arange(5 * 32, dtype=np.uint8).reshape(5, 32)
-    monkeypatch.setattr(
-        stitcher,
-        "_read_plane",
-        lambda _path, ch: np.zeros((8, 8), dtype=np.uint16),
-    )
-    monkeypatch.setattr(
-        stitcher,
-        "_detect_and_describe",
-        lambda _image: (points, descriptors),
-    )
-
-    features = stitcher._compute_features_one("unused.tif", channel_index=0)
-
-    assert np.array_equal(features["pts"], points[[4, 0, 3]])
-    assert np.array_equal(features["desc"], descriptors[[4, 0, 3]])
-
-
 @pytest.mark.parametrize(
     "error_type",
     [ValueError, RuntimeError, FloatingPointError, OverflowError, IndexError],

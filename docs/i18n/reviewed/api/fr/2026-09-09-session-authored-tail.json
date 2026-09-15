@@ -80,13 +80,6 @@
       "translation": "La méthode employée ici suit brieflow (Cheeseman lab ; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), dont le code source a été lu pour les trois points ci-dessus au lieu d'être reconstitué à partir des noms de ses étapes."
     },
     {
-      "label": "spacr.ops_settings#1",
-      "source_sha256": "f08fed5de009684f81a168b07db774b9a9e1149c9aea6cfa91981ca206e02b29",
-      "source": "WHY THIS FILE EXISTS. `spacr/spacrops.py` carries sixty-three settings and, until this, not one of them had a declared type, a category or a tooltip. A settings audit found what that costs: a module absent from the shared tables is never checked, and that is how a checkbox came to ship the string ``'False'`` -- truthy, silently, for the life of the release.",
-      "context": "Why this file exists. `spacr/spacrops.py` carries sixty-three settings and, until this, not one of them had a declared type, a category or a tooltip. A settings audit found what that costs: a module absent from the shared tables is never checked, and that is how a checkbox came to ship the string ``'False'`` -- truthy, silently, for the life of the release.",
-      "translation": "Pourquoi ce fichier existe. `spacr/spacrops.py` transporte soixante-trois réglages et, jusqu'ici, pas un seul n'avait de type déclaré, de catégorie ni d'infobulle. Un audit des réglages a montré ce que cela coûte : un module qui manque dans les tables partagées n'est jamais vérifié, et c'est ainsi qu'une case à cocher en est venue à livrer la chaîne ``'False'`` -- vraie au sens booléen, en silence, pour toute la durée de la version."
-    },
-    {
       "label": "spacr.qt.live_zoom#6",
       "source_sha256": "91a0ce25b3fe4f4ced20e7460e007c33c24ff8916b35d4251fc7251e816023f8",
       "source": "WHAT IS LIVE INSTEAD. An explicit ``QWidget.setFont`` *does* beat the application sheet's ``font-size`` -- it is the same escape hatch that lets a per-widget sheet win -- and it costs one font assignment and one relayout rather than a global unpolish/repolish. So a notch snapshots each visible widget's font once, then re-scales every widget from that snapshot by the ratio the wheel has travelled. The role hierarchy survives because each widget is scaled from its own baseline: a 22 px title and a 13 px caption stay in proportion without this module knowing which is which.",

@@ -314,15 +314,14 @@ def test_real_helper_corpus_builds_in_an_isolated_english_fixture(tmp_path):
 
     AutoAPI parses inert module stubs; the shared inventory supplies the actual
     source docstrings and signatures. The switch is changed only in the child
-    Sphinx process. OPS is excluded because its retirement belongs to another
-    session, not because its helpers are exempt from the inventory.
+    Sphinx process.
     """
     pytest.importorskip("bs4")
     from bs4 import BeautifulSoup
 
     definitions = helpers.inventory(ROOT, ignore_patterns=builder.AUTOAPI_IGNORE)
     modules = {definition.module for definition in definitions
-               if not definition.ignored_by and definition.module != "spacr.spacrops"}
+               if not definition.ignored_by}
     entries = helpers.entries(definitions, modules=modules)
     assert entries and modules
     original_switch = helpers.ENABLED_MODULES

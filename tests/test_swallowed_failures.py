@@ -3,7 +3,7 @@
 Each test here forces one guarded statement in product code to fail and then
 asserts what the user is left with. They were written as ``xfail(strict=True)``
 against the unfixed code; the sites have since been repaired and the markers
-are gone, so this file is now the regression guard for eight repairs rather
+are gone, so this file is now the regression guard for seven repairs rather
 than a list of complaints.
 
 The bar for inclusion is the same in every case — the swallow either loses
@@ -26,8 +26,6 @@ What each test pins, now that the sites are fixed:
 * ``run_journal.journal_totals`` and ``recent_runs`` log the run folder they
   skipped;
 * ``model_compare.load_fields`` logs the field it could not read;
-* ``spacrops`` refuses a mosaic-manifest row it cannot parse rather than
-  writing a mosaic with a hole in it and returning the path;
 * ``ml._bootstrap_wald_p_values`` says how many resamples the p-values rest
   on whenever it is not all of them.
 
@@ -35,7 +33,6 @@ CPU-only, offline, deterministic.
 """
 from __future__ import annotations
 
-import csv
 import importlib
 import json
 import logging
@@ -222,55 +219,6 @@ def test_load_fields_says_which_field_it_could_not_read(tmp_path, caplog):
     assert len(images) == 2
     assert any("field_001" in record.getMessage() for record in caplog.records), (
         "load_fields quietly compared 2 fields where 3 were asked for")
-
-
-# ---------------------------------------------------------------------------
-# spacr/spacrops.py:1442 — a mosaic-manifest row whose transform will not
-# parse is dropped from the composite. The tile is missing from the stitched
-# output, the file is written anyway, and the run returns the path as if the
-# mosaic were whole.
-# ---------------------------------------------------------------------------
-
-_MANIFEST_COLUMNS = ["path", "H", "W", "M00", "M01", "M02",
-                     "M10", "M11", "M12", "canvas_x", "canvas_y"]
-
-
-def _manifest_row(path, x, y, m00="1"):
-    return {"path": str(path), "H": "32", "W": "32",
-            "M00": m00, "M01": "0", "M02": str(x),
-            "M10": "0", "M11": "1", "M12": str(y),
-            "canvas_x": str(x), "canvas_y": str(y)}
-
-
-def test_mosaic_builder_refuses_a_manifest_row_it_cannot_parse(tmp_path):
-    """A tile dropped from a stitched mosaic is data the user never sees again."""
-    pytest.importorskip("cv2")
-    tifffile = pytest.importorskip("tifffile")
-    from spacr.spacrops import spacrStitcher
-
-    tiles = tmp_path / "tiles"
-    tiles.mkdir()
-    rng = np.random.default_rng(1)
-    for index in (0, 1):
-        tifffile.imwrite(
-            tiles / f"tile_{index}.tif",
-            rng.integers(0, 4000, (32, 32)).astype(np.uint16))
-
-    manifest = tmp_path / "manifest.csv"
-    with open(manifest, "w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=_MANIFEST_COLUMNS)
-        writer.writeheader()
-        writer.writerow(_manifest_row(tiles / "tile_0.tif", 0, 0))
-        # A transform column that did not survive whatever wrote the manifest.
-        writer.writerow(_manifest_row(tiles / "tile_1.tif", 32, 0, m00=""))
-
-    stitcher = spacrStitcher(outdir=str(tmp_path / "out"), save_qc=False,
-                             feature_cache_mode="ram")
-
-    with pytest.raises(RuntimeError, match="tile_1"):
-        stitcher.build_multichannel_mosaic_from_manifest(
-            str(manifest), str(tmp_path / "mosaic.tif"),
-            tmp_dir=str(tmp_path / "tmp"))
 
 
 # ---------------------------------------------------------------------------

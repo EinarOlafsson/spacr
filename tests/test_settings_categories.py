@@ -350,25 +350,19 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "bystander_measurements",
     "bystander_reach_in_diameters",
     # ---- optical pooled screening, folded onto Align & Stitch ----------
-    # All 57 arrive together from `spacr.ops_settings.OPS_CATEGORIES` and
-    # are declared as one block rather than reasoned about one at a time:
-    # they are a whole module's settings, not a regrouping of existing
-    # ones, and every one of them is new to the map.
+    # They arrived together from `spacr.ops_settings.OPS_CATEGORIES`
+    # and were declared as one block rather than reasoned about one at a
+    # time: they were a whole module's settings, not a regrouping of
+    # existing ones. When the old OPS engine was deleted (372) the
+    # 53 only it read left the map with it; these 5 and
+    # `ops_gpu` below are what `spacr.ops_engine.run_ops` reads.
     #
-    # `src`, `plate`, `dry_run`, `score_threshold` and `verbose` are NOT
-    # here, and that is the point of the list. OPS shares those five with
-    # the rest of spaCR and they keep their existing homes; listing a
+    # `plate` is NOT here, and that is the point of the list. OPS shares it
+    # with the rest of spaCR and it keeps its existing home; listing a
     # setting under two headings is not a display preference, because Tk
     # renders each copy and Qt drops all but the first.
-    "all_scores", "allow_rotation", "allow_scale", "arr_axes", "blend",
-    "blur_sigma", "canny", "cellpose_diameter", "cellpose_model",
-    "channel_index", "channel_indices", "collision", "detector",
-    "dilate_ksize", "do_multichannel", "do_nuc_stitch", "do_organize",
-    "downsample", "dst_root", "exts", "feature_cache_dir",
-    "feature_cache_mode", "genotype_source", "line_thickness",
-    "max_keypoints", "max_ram_features", "max_site_gap", "meta_regex",
-    "mip", "mosaic", "mosaic_csv_out", "mosaic_min_score", "mosaic_out",
-    "n_workers", "n_workers_features", "nfeatures", "on_missing",
+    "cellpose_diameter", "cellpose_model", "dst_root", "genotype_source",
+    "n_workers",
     # `ops_gpu` arrived after the other 57, on 2026-09-09: OPS shipped with
     # no hardware control at all, and both its GPU-capable steps -- the tile
     # registration's FFTs and the Cellpose outlines -- were deciding for
@@ -386,12 +380,6 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # fitting. One key meant both, with different defaults and no way to
     # set one without setting the other.
     "stain_baseline_wells", "analysis_excluded_wells",
-    "opencv_threads", "out_png", "out_tif", "outline_alpha",
-    "outline_source", "pair_batch_size", "phenotype_source",
-    "preview_downsample", "ransac_thresh_px", "recursive",
-    "relative_scale", "save_qc", "save_stitched_default",
-    "squeeze_singleton", "stitch", "stream_csv", "t_index", "tmp_dir",
-    "well_group", "write_mosaic", "z_index",
 
     # ---- the plaque assay's models and its physical ruler --------------
     # `plaque_model` selects the segmenter, so it sits with `custom_model`

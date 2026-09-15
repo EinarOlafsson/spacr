@@ -94,7 +94,7 @@ Module-by-module execution map
      - Pipeline worker
      - CPU
    * - Align & Stitch
-     - ``align``, ``spacrops``
+     - ``align``, the OPS stitcher (deleted in 372)
      - Dedicated job thread; incremental mosaic writes
      - CPU/OpenCV; GPU registration is a candidate
    * - Format Converter

@@ -48679,18 +48679,16 @@
         "a050b3e22b99c9d502eac4ba6cc0fe9628016229dd42715d816a3c83881dbbd0",
         "5a1e405a5b54cb57f0492a88f8881840f4a6dc9a6c91aceb01ef1ed0fe8bfe2a",
         "6991244c058a3e5c5926ab9700fab1ca966b3f3b0930e6de7ba5d11cf10c60e2",
-        "ffb7a8a7be45a83ef05794e4bc961ed18695c29d51fd6152fc959cc7bbe9faf1",
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ],
-      "source_sha256": "872d3ac6200edb91421cacad3edaa8a28a499d96fc25b134d8ef11b9a4e35223",
-      "text": "Þar sem hvert mikroskópur myndarfelli í rúnum bólum er, í loka formi.\n\nÞrír fyrri protótips reyndu að endurbyggja netinu frá tengslum sem skrá sig - serpentín með stöðugt tengsl, þá fer delimited með misnotandi tengsl og síðan kolumnar eins og hámarkt tengsl. Allir þrír færðu netinu úr sjálfum hliðum sem voru saknar, og allar þrír missti á sama upphæð: 27 af 333 mikroscope myndum felur.\n\nMikróplata staður er ROUND. Hver stólinn hefur eins mörg mikroskópur sviði af sýn eins og passa inn í hjólinu á það x, þannig að stólunum eru mismunandi hæðir og indekslinn afsetur til næsta stólum er að hæð stólunnar - það er ástæðan fyrir því að mættur horisontals offsetur voru +11, +4, -11, -9, -4, -13 og -5 en einn tölur.::\n\n    columns   21, snaked down (even columns top to bottom)\n    circle    radius 10.25 grid units, centre at column 10, row -10\n    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,\n              19, 19, 17, 17, 15, 13, 9, 5                SUM = 333\n\nÞað er staðreynd um uppgötvun, ekki góður hliðar. sjö mættu offset gegn fjórum frjáls tölur myndi aðeins vera hliðs; móðurinn var þá beðið til að forðast fjórar nágrannar á sjö stöðum sem hann hafði aldrei séð - 20, 60, 140, 200, 260, 300 - og notkun staðfest 24 af 24, á topp/mean 23.6 til 53.1 gegn stjórnun par á 9.0 til 15.6.\n\nÞað mistök sem kostar fyrri af sjö fyrri myndavélina, var skráð vegna þess að það er sömu mismunandi flokki sem upplifað breytingar í PART 6-A 372: ránir voru indeksluð frá eigin toppur á hverjum tólum. Í runda velur byrjar hver kolumn á mismunandi stefnu, þannig að \"rún 3 af kolumni c\" og \"Rún 3 í kolumn c + 1\" eru ekki síðar á síðar. nágranninn er á sama fullkomna síða, sem er ástæðan fyrir því að :meth:`WellLayout.position` endurheimtir fullkomnu síða og :meth:`WellLayout.neighbours` lítur upp á þeim.\n\nHvaða þetta skiptir. `max_site_gap` og vinstri par leita í `spacr.spacrops`: 128 kandidate pars per mikroscope myndræði, þar sem fjórar gætu verið raunverulegur, gefur 993 skoðunar pars og 994 QC yfirlöndum fyrir einn mikroskóp sýnilega stöðu. Þessi aðal bjóða upp á fjórir kandidate per microscop image field og hver af 24 prófað er raunveruleg tengsl, þannig að um 640 raunveruleika eyðingar eru tekin í stað þess að 993 mest hugmyndar.\n\nDæmigerð notkun::\n\n    from spacr.ops_layout import round_well_layout\n\n    layout = round_well_layout(333)\n    for a, b, axis in layout.pairs():\n        shift = register(tile(a), tile(b))    # phase correlation, per 372",
+      "source_sha256": "5564a6c320f6c07195539e38ef032eb2c1cda4dec04db6d3158a6f5d5a5565bc",
+      "text": "Þar sem hvert mikroskópur myndarfelli í rúnum bólum er, í loka formi.\n\nÞrír fyrri protótips reyndu að endurbyggja netinu frá tengslum sem skrá sig - serpentín með stöðugt tengsl, þá fer delimited með misnotandi tengsl og síðan kolumnar eins og hámarkt tengsl. Allir þrír færðu netinu úr sjálfum hliðum sem voru saknar, og allar þrír missti á sama upphæð: 27 af 333 mikroscope myndum felur.\n\nMikróplata staður er ROUND. Hver stólinn hefur eins mörg mikroskópur sviði af sýn eins og passa inn í hjólinu á það x, þannig að stólunum eru mismunandi hæðir og indekslinn afsetur til næsta stólum er að hæð stólunnar - það er ástæðan fyrir því að mættur horisontals offsetur voru +11, +4, -11, -9, -4, -13 og -5 en einn tölur.::\n\n    columns   21, snaked down (even columns top to bottom)\n    circle    radius 10.25 grid units, centre at column 10, row -10\n    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,\n              19, 19, 17, 17, 15, 13, 9, 5                SUM = 333\n\nÞað er staðreynd um uppgötvun, ekki góður hliðar. sjö mættu offset gegn fjórum frjáls tölur myndi aðeins vera hliðs; móðurinn var þá beðið til að forðast fjórar nágrannar á sjö stöðum sem hann hafði aldrei séð - 20, 60, 140, 200, 260, 300 - og notkun staðfest 24 af 24, á topp/mean 23.6 til 53.1 gegn stjórnun par á 9.0 til 15.6.\n\nÞað mistök sem kostar fyrri af sjö fyrri myndavélina, var skráð vegna þess að það er sömu mismunandi flokki sem upplifað breytingar í PART 6-A 372: ránir voru indeksluð frá eigin toppur á hverjum tólum. Í runda velur byrjar hver kolumn á mismunandi stefnu, þannig að \"rún 3 af kolumni c\" og \"Rún 3 í kolumn c + 1\" eru ekki síðar á síðar. nágranninn er á sama fullkomna síða, sem er ástæðan fyrir því að :meth:`WellLayout.position` endurheimtir fullkomnu síða og :meth:`WellLayout.neighbours` lítur upp á þeim.\n\nDæmigerð notkun::\n\n    from spacr.ops_layout import round_well_layout\n\n    layout = round_well_layout(333)\n    for a, b, axis in layout.pairs():\n        shift = register(tile(a), tile(b))    # phase correlation, per 372",
       "translation_source_blocks_sha256": [
         "23761d685c8c4fc6ac08d44109dfee08811c1ea51dcbc25404a3c92944f67f01",
         "df48544ee48423094d5bf77420c51c75925f5cf33cb446d6631c0656a777bee7",
         "51d26f89d8aca36b53c3cb5c9695d401be1301616ad2a6683c8aa6dd820187e7",
         "24efc80878680c4e40e1baff489b84f6bc214f3e65e5c772d68a73e08d9a1d7b",
         "a55f6c5a6af314eca7c64b84f4f3f587a1292f53782f9dbc222b9b1228a8f492",
-        "5f583a77e71e03c0f8791e006f440033838d2f2841939312a185e17d60e957e1",
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ]
     },
@@ -49959,31 +49957,27 @@
     "spacr.ops_settings": {
       "source_blocks_sha256": [
         "6f942c001d9e7df5854ea8e89d26dd54f2462c2022ecbbc6a44f262019d2f590",
-        "f08fed5de009684f81a168b07db774b9a9e1149c9aea6cfa91981ca206e02b29",
         "8b2539260ffda44ce6af06d0f58d80f56c7d81d5e1089e59bf6154072e492f3c",
         "837c713d33b38dd7c66699cc17c5cc7207660ab3b8c4ba5e50ea478b1ed6c001"
       ],
-      "source_sha256": "9431d3c365ea41269420101980827d46a6de48b0b31315d57d2af34516f0f209",
-      "text": "Typur, flokkur og hjálp fyrir hvert optic-pooled skreynslu sett.\n\nHvers vegna þetta skál er til. `spacr/spacrops.py` hefur sjöutíu þremur settingar og, þar til þess, enginn þeirra hafði útskýrt tegund, flokki eða tóltíp. A settings auditing fann hvað það kostar: ein modul sem ekki er frá deildum tólum er aldrei athugað, og það er hvernig skáldóm kom til að sækja strákin ``'False'`` - sannarlega, hljóðlega, fyrir lífið af útgáfu.\n\nA setting með engin tegund er ekki hægt að staðfesta; setting sem engin tóltýp er merkt boði sem notandinn þarf að gleyma; settingu í engin flokki birtist ekki alls í panelenum.\n\nTölutífur segja hvað setting gerir til niðurstaða, ekki hvað það er nafn. \"The number of features\" segir lesandinn ekkert sem þeir gætu ekki lesið úr tákninu. \"Mæri eiginleika finna meira yfirliti og kostar tíma og minningu; undir um 2000 skammt sviði hættir að passa\" segir þeim hvernig á að flytja það og hvers vegna.",
+      "source_sha256": "3ed4812ffc932c4acb65187f040befa791f786c655d66524547b47eea22b314d",
+      "text": "Typur, flokkur og hjálp fyrir hvert optic-pooled skreynslu sett.\n\nA setting með engin tegund er ekki hægt að staðfesta; setting sem engin tóltýp er merkt boði sem notandinn þarf að gleyma; settingu í engin flokki birtist ekki alls í panelenum.\n\nTölutífur segja hvað setting gerir til niðurstaða, ekki hvað það er nafn. \"The number of features\" segir lesandinn ekkert sem þeir gætu ekki lesið úr tákninu. \"Mæri eiginleika finna meira yfirliti og kostar tíma og minningu; undir um 2000 skammt sviði hættir að passa\" segir þeim hvernig á að flytja það og hvers vegna.",
       "translation_source_blocks_sha256": [
         "6f942c001d9e7df5854ea8e89d26dd54f2462c2022ecbbc6a44f262019d2f590",
-        "ff22698ded55d53bf33b02508baad7cd669893b9ce274bb592dc42d706f34db1",
         "8b2539260ffda44ce6af06d0f58d80f56c7d81d5e1089e59bf6154072e492f3c",
         "7719c489a06acc83908c54545efc0bf9788ae70c35dea93eda08b0da6760873b"
       ]
     },
     "spacr.ops_settings.ops_defaults": {
       "source_blocks_sha256": [
-        "f8bb6f7605daf4799b7dda57e230ae59f8e239a252265463a87792d31eda85a5",
-        "06f212f6de8ef6e29ff7f581988263bd3121d2f3e75b4c48bf53debc1c644315",
+        "b5889f09bc4d9e395fca1c68b572cc709449af2ce7a043f86c2f7a5782b7cff6",
         "9aacf2a79223a4b14e773e7837fc4dfe9a8e049ef801012370c920319fcebf4c",
         "4e34a9e513d13ec9e0830ed1dfd81963ec56c1fa68e95c7db47898bef1f0e19b"
       ],
-      "source_sha256": "0b2cda661c5e01d9733bfda2531403238686debff759f93d4e80074100174b44",
-      "text": ", meo `spacrops` innflutt einungis ūegar ūeir eru vildir.\n\nÞað er slæmt verk, og það er málin. `spacr.settings` veitir þetta samskipti þannig að skráing gerist á upphafi, og `spacrops` náð OpenCV og SciPy - þriðja af sekúndum, á leiðinni sem viðbótaranleg sýning opnar í gegnum. Að skrá FUNCTION í stað þess að hringja það hallar þessar kostnaður þar til einhver í raun biðja um OPS óþekkt.\n\n:param settings: Sættir samtalara, fyllt með skammturnar.\n:returns: Fullkomnir settingar key-value mapping.",
+      "source_sha256": "a37ed0a83fe7e6a56ffcbb93df901a88a0a73b78c32b8a57c4943a2706372dfc",
+      "text": "Stillingarnar sem OPS-vélin les, með sjálfgefnu gildin útfyllt.\n\n:param settings: Sættir samtalara, fyllt með skammturnar.\n:returns: Fullkomnir settingar key-value mapping.",
       "translation_source_blocks_sha256": [
-        "f8bb6f7605daf4799b7dda57e230ae59f8e239a252265463a87792d31eda85a5",
-        "021cac9ce638353ca61cbea68b918659abdf2c600671578b9d861eefd82fd1ca",
+        "b5889f09bc4d9e395fca1c68b572cc709449af2ce7a043f86c2f7a5782b7cff6",
         "9aacf2a79223a4b14e773e7837fc4dfe9a8e049ef801012370c920319fcebf4c",
         "fa8b232f8257abaa07fc033bc7571087d86d44e978f05a098c5134f68fbd7b6b"
       ]
@@ -150112,20 +150106,6 @@
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
       ]
     },
-    "spacr.settings.set_default_general": {
-      "source_blocks_sha256": [
-        "0ce4b2ddfc42cf1742112efb127f4268b1e6b93d21b70c616c4a247e37f4e1d3",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "ac703f0b218468b95cfc3173ff418c22bf802b38fe990cec4d9f64d6d852aeb4",
-      "text": "Til baka skammt settun fyrir almenn organised / stitch / multichannel runn.\n\n:param settings: Opcional key-value mapping til að fylla í stað; nýja key-veru mappingu er skapað ef None.\n:returns: aðsetningar key-value mapping með fyrirvalum viðeigandi (eðla kopi innfangsins).",
-      "translation_source_blocks_sha256": [
-        "0ce4b2ddfc42cf1742112efb127f4268b1e6b93d21b70c616c4a247e37f4e1d3",
-        "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
-        "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
-      ]
-    },
     "spacr.settings.set_default_generate_barecode_mapping": {
       "source_blocks_sha256": [
         "e9e59d6d2b58caaa654728a0c87b8826b80f59276ac6fcd783b63e54b18f0bad",
@@ -150138,20 +150118,6 @@
         "d4f9b4e2499aa27a6f295638782dd87fa73e65d0c9bdef317afb609e7e7653bd",
         "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
-      ]
-    },
-    "spacr.settings.set_default_multichannel": {
-      "source_blocks_sha256": [
-        "0d9692755005cd50fcb9030f518c8dfd9ea2c08738bca7425bd63a35cff0a1b5",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "8b0224fcfcb4e0710077a87b9be6683ec44d8341d8dc0c2374d674d368b8be4e",
-      "text": "Til baka skammt settun til að byggja multichannel per-microplate próf staðsetningu stykkt myndbandar.\n\n:param settings: Opcional key-value mapping til að fylla í stað; nýja key-veru mappingu er skapað ef None.\n:returns: aðsetningar key-value mapping með fyrirvalum viðeigandi (eðla kopi innfangsins).",
-      "translation_source_blocks_sha256": [
-        "751bfa6c0b20214877b8288913c8ecbe5edba0623f878fc06073f6e76b49a65a",
-        "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
-        "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
       ]
     },
     "spacr.settings.set_default_plot_data_from_db": {
@@ -150208,22 +150174,6 @@
         "9cc625a363581014c69757b93655ca0f05e2bc39631c528837cc2d108b9a519e",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
-      ]
-    },
-    "spacr.settings.set_default_stitch": {
-      "source_blocks_sha256": [
-        "077e99c045a1a2a103649337793e02373c12cba9046b0d8854132586204eb098",
-        "67260834fe02700157b7ced8689a0e41ca6d86362248ae3fd945aa23ecc27624",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "20d8a3afe48882a0cb33777c428f2f69eb6c0c9f33d283ba9b64435a5fc1c47b",
-      "text": "Til baka skammt settun fyrir mikroskópmyndalega vinnufluðið.\n\nÁhuggur gildi uppgötvun, RANSAC, outline overlay, gildi cache og per-microplate próf staðsetningu stitched mynd gríður útgangsmarkerfi.\n\n:param settings: Opcional key-value mapping til að fylla í stað; nýja key-veru mappingu er skapað ef None.\n:returns: aðsetningar key-value mapping með fyrirvalum viðeigandi (eðla kopi innfangsins).",
-      "translation_source_blocks_sha256": [
-        "7faa6cbeccabfc40aa906c6cfac593066cd727c02612f7797a222d56fe5aa60f",
-        "6e33125c42ad09ca6b4630626447d8d38030e75fe51b072eb14b7c961ed43b23",
-        "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
-        "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
       ]
     },
     "spacr.settings.set_default_train_test_model": {
@@ -151852,564 +151802,6 @@
         "a2160dd4abc2796fe952b82ba6fcc341a341da319532611140a85c074d6058d8",
         "95c22f0ad427c8044f938c8a6ea4cd9dc78ca952d9bceb76b68f3ed696577744",
         "774cca3ab3fd7f530bf209b43a4106264595bba4afb5a717fd1ac8b31ebaca7a"
-      ]
-    },
-    "spacr.spacrops": {
-      "source_blocks_sha256": [
-        "542204000618e2b2c24ca5f577b0b2903f28dc56d43b8dcd8a5c487d82e38c66"
-      ],
-      "source_sha256": "542204000618e2b2c24ca5f577b0b2903f28dc56d43b8dcd8a5c487d82e38c66",
-      "text": "Aðferðir-bæddur samskipti, stíkling, og útgáfur af útgáfu-mynd-region.",
-      "translation_source_blocks_sha256": [
-        "ab2c6a7329fae8927e2525b0c71d6b6cfd0f98212a7fcd754cc208688cccb961"
-      ]
-    },
-    "spacr.spacrops.FOVAlignAndCropper": {
-      "source_blocks_sha256": [
-        "b576b26f46e62ee0a4b2bc8f92e6716dadf7a7dbce3a076c2218e6d72252722a",
-        "5c8ad1a151ba791bc462f077fe64c0580ca69cdbb92ea1cb60adf5e35c0e7313",
-        "0ab8c3d071ff240d6c0efb1e28365ba047f6d293bbbc976134a1444e00c972c5",
-        "07a2e08a7efa3e10f54e91528fab5a04277ef6f6a837201d267aa1a85a5d4dcb",
-        "2e75f2fa10296c08cfe1718383e29f5aa36a5dfef906bad1726b3ec6796e150e",
-        "2cf10a176d9224082d025d57c1fde04f63f15556add4627cf7ea911df2e5a7e6",
-        "807a7668e3b280727c6e0f93837cc85e1bbf691d8773242a2ed45dd3ef288c7b",
-        "243ff9f7a1d8a1c06d33fdfc056adacacf6909310a9cd3cb07cbc211e337f78e",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "e30a86eb550ef388db6ff693e127af89d953bc570087ca7de75177ef3182f663",
-        "8c96e327d114ea7afc7fe7a2db23e2ba5dfe9e0c94022a614536d4a5c65c40ea",
-        "10a3e1e43277bb0d9428775631a255896d86005df1a65bfec8c973b30affc2c7",
-        "0bb7d5aa8472f84cb08d3320809a8f06e495fdce7ec4bf480c5e01361319805b",
-        "9fcdd798da2d6a76bb6219ab93a42369af5e954110fa22c6ec3c2e76a25e997b",
-        "69dac81b05e99c7b442f25a2c94178610d22dccabafb0de0fded589178de7993",
-        "094a3627396b79f8197e394e8b707e9a1af6380f1af7a31d6d6d02c145aca3ed",
-        "caa7f595de623037e2d4a864766eff2012eb8624e55b60414876bb1c45b31e76",
-        "bf5f038b7cb1ab8747bd8fe14f87b0d70bcc673a339aa36c0bc03b9c5c938af5"
-      ],
-      "source_sha256": "a97af1e95ac4be7cdb68153bf396302464fba6a7c3b7986130fe02e3229b38a3",
-      "text": "Hættu einstaklinga FOVs (mikroscópur skugga) við stykkt myndband og útgáfa FOV-ramma stacks.\n\nFyrir hvert FOV (mikroscópur sviði sýn) lagur ``.npy`` með form ``(C_fov + C_mosaic, H_fov, W_fov)`` (native FOV (microscope sviði) kanallum stack með stykkt mynd gríður kanallir varpað í FOV (mikroscopur svið sýn ) ramma) og CSV röð með breytingu, skólan og stykku mynd grík bbox.\n\nÞjálfun/þjálfun aðstoðara sendar til :class:`StitchedMultiAligner`.\n\n:param detector: Keypoint detector (``'ORB'`` eða ``'SIFT'``). Þýskalandi ``'ORB'``.\n:param nfeatures: Hugsanlegur fjárhagsáætlun fyrir uppgötvuna.\n:param max_keypoints: Hjarta hlipa á haldið keypoints eftir uppgötvun.\n:param downsample: Sameinuðu niðurstaða fyrir aðgerða/score pass.\n:param ransac_thresh_px: RANSAC reprojection bragð (pixlar, niðursamlað pláss).\n:param allow_scale: Leyfir skala í áætlaðri tengslum.\n:param allow_rotation: Leyfir að snúast í áætlaði.\n:param outdir: Skrifað útgáfur: Þýskalandi ``'./fov_out'``.\n:param opencv_threads: OpenCV innri sjálfstætt framkvæmd stefnu cap.\n:param arr_axes: TIFF axis þýðingu (``'AUTO'`` eða rita yfir ``TCZYX``).\n:param mip: Max-projekt Z þegar til staðar.\n:param z_index: Z slice til að velja ef ``mip`` er fallegt.\n:param t_index: T slice til að velja ef T er til staðar.\n:param squeeze_singleton: Lágmarkað 1 axis eftir skíruð.\n:param folder_image_scale: skammt FOV-til-titið mynd gríði pixel-skala tegund sem notuð er af :meth:`run`.\nUpphafi FOV (mikroskópur sviði sýn) aljendur. Sjá klásamálið fyrir ástæður.",
-      "translation_source_blocks_sha256": [
-        "bbcc395c208d1ef6071f516baa77720a6481d20f3feb705aaa137444f3a6327d",
-        "5fea54d2fe03a136d74baf65adaa9f942649ed0a6f5d6086ff0049f15b9d28b0",
-        "0ab8c3d071ff240d6c0efb1e28365ba047f6d293bbbc976134a1444e00c972c5",
-        "07a2e08a7efa3e10f54e91528fab5a04277ef6f6a837201d267aa1a85a5d4dcb",
-        "2e75f2fa10296c08cfe1718383e29f5aa36a5dfef906bad1726b3ec6796e150e",
-        "2cf10a176d9224082d025d57c1fde04f63f15556add4627cf7ea911df2e5a7e6",
-        "807a7668e3b280727c6e0f93837cc85e1bbf691d8773242a2ed45dd3ef288c7b",
-        "243ff9f7a1d8a1c06d33fdfc056adacacf6909310a9cd3cb07cbc211e337f78e",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "e30a86eb550ef388db6ff693e127af89d953bc570087ca7de75177ef3182f663",
-        "588ce107a91ad09f41b2dee79217519e18f587012dfb99fe9f713782a3aa103b",
-        "10a3e1e43277bb0d9428775631a255896d86005df1a65bfec8c973b30affc2c7",
-        "0bb7d5aa8472f84cb08d3320809a8f06e495fdce7ec4bf480c5e01361319805b",
-        "9fcdd798da2d6a76bb6219ab93a42369af5e954110fa22c6ec3c2e76a25e997b",
-        "69dac81b05e99c7b442f25a2c94178610d22dccabafb0de0fded589178de7993",
-        "094a3627396b79f8197e394e8b707e9a1af6380f1af7a31d6d6d02c145aca3ed",
-        "7b578edb4031d4d110c5d2095807118f85d00ad3b448dcf4439b5b155ace5524",
-        "339a2e6e1c71f34e412aa94ec72c9de6d6bed4a05e7c66a0b8da95d53364122e"
-      ]
-    },
-    "spacr.spacrops.FOVAlignAndCropper.run": {
-      "source_blocks_sha256": [
-        "543e4a7114e52505cd49b16a62fe21cbfdacecd2858fe485626e608158bbbadd",
-        "732fa1ca8b379780605ef0edc12ee68b4ffe0f3ea94b206e63aa8ccf173605c3",
-        "a74f190b656dfdf121c01502d4eb64fb3798d9221a9c4cc16f328a09ef2e1288",
-        "2f908b431ad4b722bc3e1b0716741443d6d43a3aeb38a1aa556956231f85f205",
-        "507feb990ce32715b040a571bdffb914ec55df491ad1dd6c28dc7356a7256fee",
-        "ee86cedb91cdc9f6eb81b5ff8197c3994ee0e59f611da23eb0448f99aa3c1cba",
-        "165d606a93d0a55ec8aa488d8454c752cec7257fa8ade8ac3d6d209d92cdaa40",
-        "b05e42a57f56a102aef34bceeed1dc79478e10ee44afd6900d95e4073f6fb701",
-        "e010571dedf337c9048e2b530dd9d57dac6f87230e77a27a40986d9b349e84ab",
-        "4a668076c812d2fc53ce65b9783ba2405368e16be200bab84c1a944dc9ef8734",
-        "5b70ad667bab94abf455600ebe4cca2a83d68e4dd175197c970e319b6d3e360e",
-        "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
-      ],
-      "source_sha256": "03f31f8ed996ce235e97f33ee76ef1d3b3a9b5015b5c37b6dde2c846659a0d80",
-      "text": "Hættu hverri FOV (mikroscópur skugga) í ``folder`` til ``stitched_path`` og útgáfa FOV-ramma stacks.\n\nNotar kjarnkanalinn til að tengjast og skrifa einn ``.npy`` á FOV (mikroskópur sviði) sem inniheldur FOV (microscope svið svið) kanálir og stjótna myndbandkanálir varpað í FOV (mikroskópi sviði sviðs) kerfi.\n\n:param stitched_path: leið til reference stitched mynd gríðarinnar.\n:param folder: skýrsluna FOV (mikroskópur sviði) TIFFs til að tengjast.\n:param stitched_nuclei_idx: Númer kannaindeksinn í stykkuð mynd gríði. æðstaða ``0``.\n:param fov_nuclei_idx: Kjarna kannaindeks í hverjum FOV (mikroskópur vegi). Skammsögn ``0``.\n:param exts: samþykktar FOV (mikroscópur sviði sýn) útbreytingar.\n:param recursive: Að snúa til subfolders.\n:param csv_path: Útflutning manifesto CSV leið; standa til ``<outdir>/fov_align_manifest.csv``.\n:param npy_dir: útgangsfólkið fyrir per-FOV (mikroscópur sjónarhæð) ``.npy`` stacks; standa að ``<outdir>/npy``.\n:param folder_image_scale: FOV-til-titið mynd gríður pixel-skala tegund; falir aftur til ``self.folder_image_scale``.\n:returns: leið til manifestinu CSV.",
-      "translation_source_blocks_sha256": [
-        "68c1e979c762099a84f1570f2e7594f4c0ca981ed621e220feef249597e9bc7f",
-        "abe9d196beb0ffca92b5a9fcb20fb4fb1254f2e6e77ae2a20dbef051d70d435f",
-        "0a8cdf0c78ec963e41d136a84e8c47efdb35e808aeb08fe134701bdd98e74c2f",
-        "f21c5ba9d83e96bd905982818f950f416cb2c1b7218bc3fdd3cc8d47ca23420e",
-        "241d0fe87852dd0a11ddd1d01d8419534c2f620acc586b56a5a70457cf844386",
-        "2258b1979ba4c53709336595a482eb356a0ff83b19ae803659411452ffc64b4f",
-        "3cab289636faeda21164d2104e2d62843bdcd6052dca4db9545fcfd24b3b777e",
-        "b05e42a57f56a102aef34bceeed1dc79478e10ee44afd6900d95e4073f6fb701",
-        "e010571dedf337c9048e2b530dd9d57dac6f87230e77a27a40986d9b349e84ab",
-        "bfe814a2dd7a1038dbe407725c1677e4bfc359ca340596f6fdc554916abe5892",
-        "3fe9cd836f63ec0e1505c0366fb725f36ea81a2cf3ba3cd2d788c1de8b0d2ae6",
-        "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
-      ]
-    },
-    "spacr.spacrops.StitchedMultiAligner": {
-      "source_blocks_sha256": [
-        "798e36bf3b81569b026ce08f4e19a7e14288debe49ddc692b9601e166e9bf3c0",
-        "0e09b2e8c4e08ae55fd306a264455b35730d5ac101c4847121890df0d6792eff",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "00dbbe5b2dd4fd97c7758d44b9643c419d945b36e7691fdeb34c0287750fdc4e",
-        "925cd79da71fb72e9aa2335b264f0eda6b90015a10c8f585a29f815fa932a36b",
-        "c51334f0eeac4b651aa66298fa028f6ca35567bf76260b5930385937591c5d32",
-        "5f4c6035ee2501da083d6230979f789c11665bbeb11e849b7704b64d82bf2df6",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "58b707f5a2560b4c5a6bdfa30b2cd5bab1902dc146a15cf7ef82d77f692a646f",
-        "7c43011364044594fe4b1bea9060e9ac300b661ea483a8648b0d427cd9a18a28",
-        "c339920e153f3fc89ddb1454146c6317048f730ef7293b52e1aa21d2cf2b100e",
-        "4fa1e78840efd45869af805629939cf075f65b2fd6233756601f99ec4ab5f9bd"
-      ],
-      "source_sha256": "85f7b1992a03a2c05902fdd2efca7597d82183cee88864b7685b8527f699ea3f",
-      "text": "Hættu skilvirk fjölda stykkt myndbandar (multi-kanal, skilvirkur axes) við algeng reference með því að nota kjarna / Hoechst kanall. Sjálfur kanall-koncatened aligned stack og CSV manifest sem lýsir mappingu frá innfangskanalum til útgangskanal og estimated transforms / scores.\n\nÚtgangsmyndahús: CYX (myndadata kanálir stack í orða inntök eru veitt).\n\nFæribreytur\n-----------\ndetector : {\"ORB\",\"SIFT\"} Eiginleikaskynjari fyrir samsvörun lykilpunkta. nfeatures : int Fjöldamörk eiginleika fyrir skynjarann. max_keypoints : Optional[int] Hörð mörk á fjölda lykilpunkta sem eru geymdir eftir greiningu, samkvæmt röðun skynjarans. downsample : float in (0,1] Minnkunarhlutfall fyrir eiginleikagreiningu og stigagjöf. ransac_thresh_px : float Endurvörpunarþröskuldur í pixlum fyrir affine-mat í minnkuðu rúmi. allow_scale : bool Ef False eru snúningur og hliðrun leyfð en ekki kvörðun; ef allow_rotation=False er aðeins hliðrun leyfð. allow_rotation : bool Ef False er aðeins hliðrun leyfð. outdir : str Úttaksmappa fyrir myndir og csv. opencv_threads : int Hámarksfjöldi OpenCV-þráða til að forðast ofnýtingu.\n\n# Axis / Z / tími meðferð (for TIFF lesning)\n\narr_axes : \"AUTO\" eða rita yfir {T,C,Z,Y,X}\n\nmip : bool Ef True og Z eru til, max-project Z. z_index : int Ef mip=False, velja Z slice. t_index : int Veldu T index ef T er til. squeeze_singleton : bool Squeeze 1-length axes eftir slicing.\n\nNotaðir\n-------\n- Samskipti er gert við fyrstu mynd í `paths` (referendum).\n- Fyrir hverri mynd, getur þú veitt upp á myndum kjarna gögnum tákna í gegnum `nuclei_channel_indices`. ef None, standa upp á 0 fyrir alla.\nSættu uppgötvuninn og þolandi fyrir kross-akkuminn samskipti.\n\nSamma samning sem :class:`spacrStitcher`: samning gerist á ``downsample`` skammt og ``ransac_thresh_px`` er í fullri stærð pixlar.",
-      "translation_source_blocks_sha256": [
-        "0c89b3adc8d9b2e5a3d7e4f138c0756a2be06d7ee4ce11b0989fd1f9ac4df0fd",
-        "f0ac29e6d8c0d72eea1eb19438ecde5cb9cdcae58edf2ab39dbf711d35920e47",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "3b7b7579652ae4c42f9a84e6ede706f4ea78065585ccfeed32e3e3d22b51ac1d",
-        "925cd79da71fb72e9aa2335b264f0eda6b90015a10c8f585a29f815fa932a36b",
-        "c51334f0eeac4b651aa66298fa028f6ca35567bf76260b5930385937591c5d32",
-        "5f4c6035ee2501da083d6230979f789c11665bbeb11e849b7704b64d82bf2df6",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "58b707f5a2560b4c5a6bdfa30b2cd5bab1902dc146a15cf7ef82d77f692a646f",
-        "99458ff256129d866331ddfcf690a8106cbf19b7f6b34e507500cfd33f75a22d",
-        "c339920e153f3fc89ddb1454146c6317048f730ef7293b52e1aa21d2cf2b100e",
-        "4fa1e78840efd45869af805629939cf075f65b2fd6233756601f99ec4ab5f9bd"
-      ]
-    },
-    "spacr.spacrops.StitchedMultiAligner.align": {
-      "source_blocks_sha256": [
-        "59f1f5041fbf750f4d9a934690bd2ae67358f212e528956d8ab25a43640f3d39",
-        "5b1c368a58d9b1ff0ed5cb24f6a8b504f4b936024e129c70128da82cb48eee8a",
-        "93ece25a31c6b29b2cd4990e533f2db4f0285f2b1fd378f1604d40d977ac665b",
-        "ded122c908a418a6ac39586308f304d9ddd273914fee5ae638af042f4c07f6bf",
-        "1cc7298ae33829f9069964a84e8257ae77f560676a4aa630e07333365dc8ca72",
-        "cecafa2f71b60d328065655c96a6f43a16523000d941b2d5b1b14deca688975c",
-        "38c050f7aa618d8e294b3533bc16c11d9154ab6fb2b3252a0dbbbcce3f51d584",
-        "b9c9ac86e9483e2b26985b79313a4b00d090886e44fe996c514f8bab7d7dcfe5"
-      ],
-      "source_sha256": "e52db034e9eb74110ed64437bfe5e54881045599829f588c5e1272a893445205",
-      "text": "Sameinuðu hvert stykkt stykkur myndband í ``paths`` við fyrstu og sparaðu CYX stack.\n\nAlignment notar uppsettanum kjarna image gögn á mynd; niðurstaða stack samsetur allar innsýn mynd gögn kanall í ákveðnum orðum.\n\n:param paths: TIFFs stítið til að tengjast; ``paths[0]`` er leiðbeiningurinn.\n:param nuclei_channel_indices: per-image núcleu mynd gögn kanna tákn; aðsetur til zeros.\n:param out_tif: Útflutning samræmi stack leið; staðsetningar til ``<outdir>/aligned_allc.tif``.\n:param out_png_preview: Opcional fyrirmynd PNG leið.\n:param csv_path: manifest CSV leið; standa að ``<outdir>/aligned_manifest.csv``.\n:returns: Sjálfsögn ``(out_tif, out_png_preview, csv_path)``",
-      "translation_source_blocks_sha256": [
-        "421e134e0139952a3c7a6c3d9c463e08a706dd3b0677c7064f6839f07a9defcb",
-        "c47734da15a70d1eaeb7bd32f7261a4c30ae892c0e868963c49e2837faa6c3f4",
-        "93ece25a31c6b29b2cd4990e533f2db4f0285f2b1fd378f1604d40d977ac665b",
-        "ecb3ff9aea04ecb204d1ba49c1ac96c90d0473ab4325cfcea66cb431e5525e0c",
-        "1cc7298ae33829f9069964a84e8257ae77f560676a4aa630e07333365dc8ca72",
-        "cecafa2f71b60d328065655c96a6f43a16523000d941b2d5b1b14deca688975c",
-        "38c050f7aa618d8e294b3533bc16c11d9154ab6fb2b3252a0dbbbcce3f51d584",
-        "b9c9ac86e9483e2b26985b79313a4b00d090886e44fe996c514f8bab7d7dcfe5"
-      ]
-    },
-    "spacr.spacrops.align_image_to_stitch": {
-      "source_blocks_sha256": [
-        "b43b920f287572dac2868cf4379f15674c4e3c90edd4b674f24d8db5d60c10ab",
-        "71ed8cbf2eb3daae5f2c0e1a9985ddf04439ad5b7405246e0746cf10d39ef6ef",
-        "8830820486586b47fb7d87f492e5a3ca7d99fbef8a37252bbbe2d97109399a5f",
-        "726a002ea5203bff5b406e3895d306841c32d5a45aa02c29f320def1dc3a15b5",
-        "5cf5adcf3e92f78b76ce11e63607754835de02232634b6a451455471c1f6e5bb",
-        "c9790b53a04496d53fd3fb32a9ddbf06336d0b71dbbb2c27f9f548e82b9d20db",
-        "cef73dab9156bce65271dfcae7f89f6318bb285308b1fb17d314917a035d7076",
-        "e9dd476454f9362f8383a673c616e921cbb2c118dfbad1629cb8e54503793cfa",
-        "7ae796410e7b4cfe1763aecaeda918dc436aed1c4124c5b85762b13babea8563",
-        "d1c407a8380ff798a6a6806f0d1b96bdc856cc92c3368cc3265ad9f5daff6d71",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "a87788c47690557e524da199c7f353c22ee40a7b34ec977877269489fce182ee",
-        "c7b494147a7d8d62284708776e43176ebe41aaf9388d211f4c1227d730b4c13a",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "adfee6c1cca6b6811e3b3169b222c2245db5d902871c464805ece1fcc2ce9a40"
-      ],
-      "source_sha256": "0bcda96dbca175d39bb2c56d2ad700bc2051b6df593725b14c38f1a553060f8b",
-      "text": "Sameinuðu hærri FOVs (mikroscópur vegi) á hverri mikroskrópur sýnstæði til þess að mikroskópur sérstæðir sýnileg gríði.\n\nFyrir hvert burt með stykkt myndband á ``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif``, hópur myndir frá ``align_src`` á burt og rúnir :class:`FOVAlignAndCropper` til að framleiða per-well útgreiddu myndbandar og ``.npy`` útgreitt myndband.\n\n:param stitch_dst_root: Rjóttmál sem inniheldur per-microplate próf staðsetningu stykkt myndbandar.\n:param align_src: Fólkið af augljósum myndum til að tengjast.\n:param meta_regex: regex að draga úr vel / staðsetningu meta gögnum frá filename.\n:param well_group: nefndur fangelsi hópur sem hallar mikrópplata staðsetningu.\n:param channel_index: Nútúrkanal index. Þýskalandi ``0``.\n:param relative_scale: FOV-til-titið mynd gríði pixel-skala tegund. Skammsögn ``2.0``.\n:param downsample: Hugsanlegur aðstæður fyrir niðurstaða. staðsetningu ``0.5``.\n:param nfeatures: Hugbúnaður fyrir uppgötvuna.\n:param ransac_thresh_px: RANSAC uppreikningsgrændir í pixlar.\n:param allow_scale: Leyfir skala í áætlaðri tengslum.\n:param allow_rotation: Leyfir að snúast í áætlaði.\n:param qc_outlines: samþykkt fyrir samskipti við símann og ekki notað. ``*__qc_outlines.png`` yfirlýsingar eru skrifað af :class:`spacrStitcher`, hvaða gögn-sælingu takmarka þá á eigin ``save_qc``; :class:`FOVAlignAndCropper` hefur engin slík áherslu og tekur engin yfirliti, Svo það er ekkert hér fyrir þetta að snúa á. nota ``save_qc`` á skrefinu í staðinn.\n:param recursive_align_src: Að snúa aftur þegar skanna ``align_src``.\n:param exts: samþykkt myndarþróun.\n:returns: Sjálfsögn ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``",
-      "translation_source_blocks_sha256": [
-        "51e29334d1cbc052640592af7a3dcec68f50e571ad0abe2d062c713052d6ec64",
-        "d8751427fa0713291bc7e4e8bbc2aef7f9e5ba052f8b90aa5c4d2f25d85ef5f0",
-        "fb695a89f2a7e75a173ec1b73efd05d732d2364b5573a7951c971d7aa8e3d6a9",
-        "726a002ea5203bff5b406e3895d306841c32d5a45aa02c29f320def1dc3a15b5",
-        "5cf5adcf3e92f78b76ce11e63607754835de02232634b6a451455471c1f6e5bb",
-        "926e6ca699a69385fe3099113f2237c77f28f3816a309aeb814cca44e6a83acc",
-        "cef73dab9156bce65271dfcae7f89f6318bb285308b1fb17d314917a035d7076",
-        "bf5ae2c4fe95dc377e674d5130924b1b19d2e6f8bcc2030f2ede7c66b4224711",
-        "7ae796410e7b4cfe1763aecaeda918dc436aed1c4124c5b85762b13babea8563",
-        "d1c407a8380ff798a6a6806f0d1b96bdc856cc92c3368cc3265ad9f5daff6d71",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "acbf989060bf0dcde4da4164352c39f2a5f74cc9dd6abf720e2d52e941aec821",
-        "c7b494147a7d8d62284708776e43176ebe41aaf9388d211f4c1227d730b4c13a",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "adfee6c1cca6b6811e3b3169b222c2245db5d902871c464805ece1fcc2ce9a40"
-      ]
-    },
-    "spacr.spacrops.get_preprocess_ops_settings": {
-      "source_blocks_sha256": [
-        "087879fb324f350b5bd43f3333b538ef351ed24e41c2433a59c9b5e9587f1937",
-        "0ce25f08a202250d680dd93b3426db5226c8e66a1a12ed0aa38f03e4a90ee658",
-        "be81cf5c069ff8bbb4c2819464713de0da4a132fe433aa856973507e9e517cc1"
-      ],
-      "source_sha256": "14829a2ada53682630337e73eeef88bc8c9f0274210aa320981fb8192c772194",
-      "text": "Fyllja upp í skilyrðum fyrir ops fyrirframframleiðslu / stitching / samræmi vinnuflokk.\n\n:param settings: notandi stuðlað settingar key-value mapping, uppfærdur í stað með áætlun.\n:returns: Hugbúnaður key-value mapping með öllum staðsetjum sem eru staðsett.",
-      "translation_source_blocks_sha256": [
-        "f614374351bfba677bc80c0b7f28436fc729363ea89aab3f4c9b2502ef516735",
-        "7af160587e57e916c6193dcc9f1cd9ea046c84f5bfaec35d3370aef0d24c68cd",
-        "0e1afc18d657e4aa8b184be1ae9cfe3ed96b97f6aeabf186fc51207e948da952"
-      ]
-    },
-    "spacr.spacrops.ops_preprocess": {
-      "source_blocks_sha256": [
-        "658363f928fd37c5b6945e772a7ee1fb40a1305ebcf3e4fe0e2ad4f2dc7b4941",
-        "bbade32699c9d517e34e4902d5c422cabd3ba444b94ee9330b71e279d5375c2a",
-        "385044fb256db0268fa99faa6d5cb5b4046205ecdf4566b205ba4cf4b1200856",
-        "68bd0cc36626d156a3b370df23f4146100a111ffa5d219b4478c851e367cb1b8"
-      ],
-      "source_sha256": "cff970872f4a3dc6eb32abd083aec4c0a8eff4977eaf8bc6b4db070b8fb92525",
-      "text": "Gerðu fullri ops fyrirframleiðslu vinnuflokk: per-genotype stitching + fenotype alignment.\n\nIterates yfir einn eða fleiri genotype fólkur, hringir :func:`stitch_cycle_wells` á hverjum, þá tengir fenotype myndum við niðurstaða stykkt myndband með :func:`align_image_to_stitch`.\n\n:param settings: key-value mapping af fyrirframleiðandi settingar; sjá :func:`get_preprocess_ops_settings` fyrir stuðlað byggð gögn nafni.\n:returns: key-value mapping með ``stitch`` (per-genotype summar), ``align`` (par-genetype align result) og ``npy_out_root``, ``<phenotype_source>/output`` mappinn sem er skapað hér en aldrei skrifað til — ``.npy`` útgreiddu myndar svæðum land í hverri mikrópraðstæða mappinu ``crops_20x`` nálægt stykkt mynd gríði.",
-      "translation_source_blocks_sha256": [
-        "b188404c3e1d8f2631501bd237c84e3004e01f1e7e1d1505b1141f51c04b3175",
-        "f9fa1f656c2d7402dec7f5c2f07c72941a579a09a006ac8c19b1ab97c85bc072",
-        "a241201c853df05f3e5e5699a48d58287e5ed9012bc6a5ef82efd63b45a9ad4c",
-        "1824d234ebca71d6629d9df54d822ce62acbde3d4c83e7554b192608e3d40b5c"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher": {
-      "source_blocks_sha256": [
-        "eb651b31ef0c1b2680b6ec6def3843cdab04f4a56ed7a6cbcb26341c12665e48",
-        "7354bd1b3ba1608f191f2cc05657459dc2a390c21b252c708d78fa14cacf3be9",
-        "72be77fbd490dfa861ba9739272be320edafd2628b856414e1f7a48e2be841d5",
-        "54555b19eca1e44879d93e87cabd48215bf9bcf997eda8f891bac1d4e6ee235c",
-        "491abdb5d4259488483825d61e221c8391ae2456a40d42478b835a139b10d23d",
-        "e80adadbf0eb8de9cd5e9190bd818d98e2414cbddf9e31aa9ef129ccb0d51a03",
-        "cf148f056e36aacc5e640af9a41e8867ffc16fdac145d4985a9bbf5f14005b4d",
-        "757306a191aa2a6b930956f8f2a62360fcc2b1fdec6978b63235cf466b5348a3",
-        "2aa3a8d7f44b46ffd1f15aa8e2d1ac45dd631a2cf698f70cddfc2992b68df23b",
-        "5d09a817f9cf78d874938472fda724f9e2bf268aa62693fa59c1d86ced0bc870",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "3eff904fd2c575c55255b15b59a61a9322269579a37ee2bd37766c24d918c93a",
-        "f3908dbf64ce9e976a69fc146462f9af1929e83a2b85b50efbfec7be7648b727",
-        "c819aca9920ec3bed49fc6cdacca57dbd773e760027056d19ef204e26b3f89b1",
-        "bd15deb8e73b449664b1b7bea0eaa420b670c44731d3fa4f823e6d64141b95bf",
-        "ed5c9972d47895f909653a60ff27ed4e1947ee797ead4711718a02127b3daf22",
-        "8201ff488c3056cec28986aa8a2f6d3959e12ed75802501b3baa32572d7316ce",
-        "fbc4dad412c4b76483961fcad55aeff49d126479f9703676b9d58dfd65e0e14f",
-        "3b72228aff5d5eba3d32edd828eab826531fec28c5b848c19713567d070a034e",
-        "8cba799bef6986f7e3bdd32681973e4ff2dc88aaefb90a34b84ee29430df441b",
-        "e9c4aaf0f6db36409c53f154b9e64c01de7dd9b9046a264934df6d9fbc3f99d3",
-        "963527843c47709ed0d172711855ee2b468d42cd18afd4fbb242bdce58aba68b",
-        "41b7d93d61f11c07bf6dcd2894fdd70ad0678236a40409edd7b1cca828801373",
-        "758f1e6837bca535de5561275835b21b90f673a628c2f41d5c304a4a16c6e58c",
-        "464b02cda5ca89013fc791c425fa3e3c08bf18be283f341bc1b585ed001e36c9",
-        "d677ad5f0f097e61d7dd1d5f77f7d0b743c2a9db99b952c69b26e4b9c5e88624",
-        "262ca4cf57cd944c52e6b08ae2daa4d1fabb1fe52830af9952a18ee6e12a5169",
-        "ae327faa2fce7a261e06a889bc51c9ec92afed24a1f6882c0920b9569865cda5",
-        "4997c8db539a8f25eaffbeb3543e950b434b490a26e64c3e7bb232f667e2c59f",
-        "61511e80428de51ff0efc18c7b5a6d39a5c167501a69f62da92ec8ea28d1b309",
-        "2ecd491eb1e125d9385407db11c79b39297520201f9f640639daae2e35c6544b",
-        "65bfe29d8772d85700c46e978be873f695e4e1499d5a9de39d97d72dbb4a0570",
-        "19fd486131037328ec626391795f3685cc8f4abbce6592ddbafdb94ade86562b",
-        "75340f53747bce12b71dffd980806f31f87aaf0ac9c91284295c342e3b06aab4",
-        "faa14a150cb0777f800cbed0fb60654ae2a231553d809176f4b66fdc8816af36",
-        "0707d8991142279d81dc04d32261294613ec4fb79609181eb0a24151d18116f2",
-        "160a6eefbbc853af05278822d1379156b2be2371450a1f435fb33d2c90ec5b38",
-        "551d0ea76a012ca4aca8cefe34e6dc6702e93c52df6e2e948bdba0780a66a6d7",
-        "8c3e1026f5c8435ca72ba4fb28be175f60d4cfdc30b206101e0ce97711a7896f",
-        "105d0b72aeb0774a715289c302c5accc4059d08a9e57006300f81612a9c66526",
-        "7298d22c9768b94e67ca1a88d7939754eb6e178d0e2516faa08a7be4f83e9527",
-        "6a7777b75458adf9a824414623537e137d8442f314dc6dc5e711e5e9329aa748",
-        "6a34c1d1b4c851473f83caeac3fefb18fd135b2888842f39e151dae796e1630c",
-        "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6",
-        "ee0269f2647e48daa28c791316f0a664ff884bcaf414847c195b77f00fe57bf7",
-        "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
-      ],
-      "source_sha256": "174d288834aec7e44b341b91dce5629d3c7457a7122f7d52f374c866dc80db89",
-      "text": "Pairwise stitcher með niðursamlað stigun og fullkomlega stitched mynd gríðarhæð uppsetningu.\n\nHugminn og samkeppnin styrkja fyrir mjög stórum gögn:\n  - feature_cache_mode: \"disk\" (þekkt) skrifar DS eiginleika á skír með LRU RAM cap\n  - pair_batch_size: takmarkan fjölda samkeppnandi par framtíðar\n  - stream_csv: Skrifa strax stefnumót (low RAM)\n  - opencv_threads: takmarka OpenCV innri framkvæmdastjórnin til að koma í veg fyrir ofbeldi\n\n:param detector: Keypoint detector, ``'ORB'`` eða ``'SIFT'``; allir aðrar reikningar hækka ``ValueError`` og ``'SIFT'`` þarf opencv-contrib byggingu.\n:param nfeatures: Keypoint budgett sendur til uppgötvuna. staðreynd ``6000``.\n:param max_keypoints: cap á lykillum geymt á mynd; ``None`` geymir allt.\n:param downsample: Skalið tegund af niðursamlað eiginleika/scoring pass.\n:param ransac_thresh_px: RANSAC uppreikningsgrændir í pixlar.\n:param allow_scale: Leyfir skala í áætlað breytingu.\n:param allow_rotation: Leyfir rotation þegar ``allow_scale`` er ``False``.\n:param outline_source: Hvernig á að finna útgáfur QC: ``'otsu'`` (þekkt), ``'cellpose'`` eða ``'none'``.\n:param cellpose_model: Cellpose mönnunnafn eða athygli staður; lesa aðeins þegar ``outline_source`` er ``'cellpose'``.\n:param cellpose_diameter: Áætlað umræða á Cellpose; ``None`` leyfa Cellpose að velja.\n:param canny: ``(low, high)`` Canny gríðarinnar sem snúa fyrirframhaldsmaskinn í útlíf.\n:param blur_sigma: Gaussian sigma var notað áður en Otsu þangað; ``0`` takmarka blur.\n:param dilate_ksize: elliptískur kjarna stærð notað til að breyta fyrstu maska; ``0`` hættir breyta.\n:param line_thickness: úrræði þyngd; gildi yfir ``1`` breyta hliðarmyndina.\n:param outline_alpha: opacity af útgáfurna sem eru tekin á QC yfirlifunum.\n:param outdir: útgangsfólkið, sem er skapað á byggingu og notuð fyrir QC myndum, stitched-pair útgangar og skammt aðgerðir cache; pairwise CSVs eru skrifað þar sem samtalandinn ``csv_path`` punktur í staðinn.\n:param save_qc: Skrifaðu per-pair QC útliti PNGs. Þýskalandi ``True``.\n:param save_stitched_default: skammt fyrir að skrifa TIFF stítta pars; Hugsanlegur hugsanir yfirheyrir það.\n:param all_scores: reiknar einnig hægari mælingar í fullri upplausn (full-res brún ZNCC og forgrunns fylgni / IoU / Dice / XOR).\n:param score_threshold: skammt minnstaða sem er nauðsynlegt til að skrifa stykkt mynd; ``None`` þýðir engin skammtaða takmörk.\n:param verbose: Skrifað framtíð skilaboð.\n:param feature_cache_mode: ``'disk'`` eða ``'ram'``; allar aðrar gildi hækka ``ValueError``.\n:param feature_cache_dir: þar sem skáldsnúmerið er lagður. Þýskalir til ``<outdir>/feat_cache``.\n:param max_ram_features: LRU stærð, í myndum, af RAM-húsinu í framan disksþætti.\n:param n_workers_features: Hægt er að tákna þreytinginn; standa til hálfa CPU tákn.\n:param pair_batch_size: Párir geymd á þreytingunni per uppsett, með hliðið ``1024``.\n:param stream_csv: samþykkt og lagður en aldrei lesið; parly ránir eru alltaf skrifað eins og þeir eru skráð.\n:param opencv_threads: Hægt er að flytja á ``cv2.setNumThreads``.\n:param arr_axes: axi hliðarinnar TIFFs; verður að innihalda ``Y`` og ``X`` nema það er ``'AUTO'``.\n:param mip: Max-intensity-project yfir Z í stað þess að taka einn slice.\n:param z_index: Z slika notuð þegar ``mip`` er ``False``.\n:param t_index: Tímarætlun er notað þegar T-hús er til staðar.\n:param squeeze_singleton: Drop singleton axes eftir axis valk.\n\nTransform stjórnun\n------------------\n  allow_scale: ef True → notar RANSAC tengsl (rotation+scale+translation) ef False → virkar einkefni skala (sjá allow_rotation) allow_rotation: Ef True → rotation+translation ef False → þýðingu aðeins\n\nMynd af mosaíum\n---------------\n  Notar topology-avare pruning + maximum spanning tré á parly scores til að byggja samræmi grít. Export stitched mynd grít mynd og mosaic.csv manifest.\n\nAxis & Z meðferð\n-----------------\n\n::\n\n  arr_axes : str in {\"AUTO\"} or a string over {T,C,Z,Y,X} (e.g. \"CZYX\", \"CYX\", \"ZYX\").\n             Determines how to interpret multi-dimensional TIFFs.\n  mip      : bool. If True and Z exists, perform max-intensity projection over Z.\n  z_index  : int  (if mip=False) choose Z slice index.\n  t_index  : int  choose time index if T exists.\n. Stilltu eiginleikaskynjarann og samsvörunarviðmiðanirnar.\n\n``downsample`` er skala sem hvert leikur fer á; breytingar sem það framleiðir eru útskýrt í fullri stærð, svo að draga það kostar nákvæmni í stað þess að breyta útgangargeometrin. ``ransac_thresh_px`` er í FULL-SIZE pixels.",
-      "translation_source_blocks_sha256": [
-        "6b4b0c4fcee68abd687b76ceef22482c74d86c70b425df15d0731b48e84d6301",
-        "7354bd1b3ba1608f191f2cc05657459dc2a390c21b252c708d78fa14cacf3be9",
-        "72be77fbd490dfa861ba9739272be320edafd2628b856414e1f7a48e2be841d5",
-        "54555b19eca1e44879d93e87cabd48215bf9bcf997eda8f891bac1d4e6ee235c",
-        "491abdb5d4259488483825d61e221c8391ae2456a40d42478b835a139b10d23d",
-        "1fa5e7301f86b439d4f636392bc24b7736219b5c67944949fab30416aa8eb781",
-        "cf148f056e36aacc5e640af9a41e8867ffc16fdac145d4985a9bbf5f14005b4d",
-        "757306a191aa2a6b930956f8f2a62360fcc2b1fdec6978b63235cf466b5348a3",
-        "2aa3a8d7f44b46ffd1f15aa8e2d1ac45dd631a2cf698f70cddfc2992b68df23b",
-        "5d09a817f9cf78d874938472fda724f9e2bf268aa62693fa59c1d86ced0bc870",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "3eff904fd2c575c55255b15b59a61a9322269579a37ee2bd37766c24d918c93a",
-        "f3908dbf64ce9e976a69fc146462f9af1929e83a2b85b50efbfec7be7648b727",
-        "c819aca9920ec3bed49fc6cdacca57dbd773e760027056d19ef204e26b3f89b1",
-        "bd15deb8e73b449664b1b7bea0eaa420b670c44731d3fa4f823e6d64141b95bf",
-        "ed5c9972d47895f909653a60ff27ed4e1947ee797ead4711718a02127b3daf22",
-        "8201ff488c3056cec28986aa8a2f6d3959e12ed75802501b3baa32572d7316ce",
-        "fbc4dad412c4b76483961fcad55aeff49d126479f9703676b9d58dfd65e0e14f",
-        "3b72228aff5d5eba3d32edd828eab826531fec28c5b848c19713567d070a034e",
-        "8cba799bef6986f7e3bdd32681973e4ff2dc88aaefb90a34b84ee29430df441b",
-        "e9c4aaf0f6db36409c53f154b9e64c01de7dd9b9046a264934df6d9fbc3f99d3",
-        "963527843c47709ed0d172711855ee2b468d42cd18afd4fbb242bdce58aba68b",
-        "41b7d93d61f11c07bf6dcd2894fdd70ad0678236a40409edd7b1cca828801373",
-        "758f1e6837bca535de5561275835b21b90f673a628c2f41d5c304a4a16c6e58c",
-        "464b02cda5ca89013fc791c425fa3e3c08bf18be283f341bc1b585ed001e36c9",
-        "d677ad5f0f097e61d7dd1d5f77f7d0b743c2a9db99b952c69b26e4b9c5e88624",
-        "262ca4cf57cd944c52e6b08ae2daa4d1fabb1fe52830af9952a18ee6e12a5169",
-        "ae327faa2fce7a261e06a889bc51c9ec92afed24a1f6882c0920b9569865cda5",
-        "4997c8db539a8f25eaffbeb3543e950b434b490a26e64c3e7bb232f667e2c59f",
-        "61511e80428de51ff0efc18c7b5a6d39a5c167501a69f62da92ec8ea28d1b309",
-        "2ecd491eb1e125d9385407db11c79b39297520201f9f640639daae2e35c6544b",
-        "65bfe29d8772d85700c46e978be873f695e4e1499d5a9de39d97d72dbb4a0570",
-        "19fd486131037328ec626391795f3685cc8f4abbce6592ddbafdb94ade86562b",
-        "75340f53747bce12b71dffd980806f31f87aaf0ac9c91284295c342e3b06aab4",
-        "faa14a150cb0777f800cbed0fb60654ae2a231553d809176f4b66fdc8816af36",
-        "0707d8991142279d81dc04d32261294613ec4fb79609181eb0a24151d18116f2",
-        "160a6eefbbc853af05278822d1379156b2be2371450a1f435fb33d2c90ec5b38",
-        "551d0ea76a012ca4aca8cefe34e6dc6702e93c52df6e2e948bdba0780a66a6d7",
-        "8c3e1026f5c8435ca72ba4fb28be175f60d4cfdc30b206101e0ce97711a7896f",
-        "105d0b72aeb0774a715289c302c5accc4059d08a9e57006300f81612a9c66526",
-        "7298d22c9768b94e67ca1a88d7939754eb6e178d0e2516faa08a7be4f83e9527",
-        "55d50e4f2f478cfbd02e7630d84474322bd87c20b720222eb91a7e921abe7d3b",
-        "571e7eba420d8659bb6f4f4ffc388d9b38c9af567a08e74e3bd4d789245a09c3",
-        "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6",
-        "ee0269f2647e48daa28c791316f0a664ff884bcaf414847c195b77f00fe57bf7",
-        "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.build_multichannel_mosaic_from_manifest": {
-      "source_blocks_sha256": [
-        "6eaa51c0d3b7f6059ab9a8e5882a4d0041615677f16733e3d1f086733558c031",
-        "8410fd2cde8963cf34bd66b720b4631e7ed6cc01ba2ce557d1c6c4a7c2ebdb3b",
-        "4efca5537d14d609ae49a2875d332aafa15d42112f3105c84ee8aa15d4bd3c62",
-        "1aa79d87a273b6dd7314619a9d8dabe69034899307d8d7215d8130b741fbe5b1",
-        "2a977ac7b09d399cb964788e8531d70ef144f16884a42bfd500a739619cc6ab6",
-        "c7338195a301f111ae9322b593e22262aeaaac6e0a094f93c80cb16825ce96b5",
-        "b9f0a6cfe36c8dfcea82be568708a42b59a081118bfbd53ed4f77e48c687d33c",
-        "5ed85010fa6eb06ca795c2a868d6a2378614a9c4b7d3aaad45b68bdd0fa77477",
-        "72876b66772efd2167bc32be4f063c1329db0c25480495645ee6904baf9e7340",
-        "e1c2fac9103157036a4dd8f4f0745d85feac924253882a2a318519f2f82690e8",
-        "152b777701bbb510b7fbecf4e093681fd047667035f8bbb013a2fcb12e94f9d0",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "c59a02cd4935798766fe05129cc323c38e0b778eb03d52092ed67fe25d0e893e",
-        "427e05f1a0b114094f0bb301a9f912a9e34d6e1abaa3f2c072268593f6be3e15",
-        "cdb58a1a7d30fad5d7be5820e999c146cae9705418432a378a5acf59d2b4a42b",
-        "1d1a1b1ef3c105fb46b40cecdb123120a638920cb37534b0bdd8f1fcbc6e70a0"
-      ],
-      "source_sha256": "247553b1ee13543b3498c0acef33be44032369aab838351b0e9f904d7b1a2ca7",
-      "text": "Byggðu CYX BigTIFF stykkt myndband frá 'mosaic.csv' manifestum sem er skrifað með spacrStitcher.render_mosaic_from_csv(...).\n\nÁætlaðir CSV stólur (eð tileðræði):\n  - H, W, M00, M01, M02, M10, M11, M12, canvas_x, canvas_y og best_pair_score\n\n:param manifest_csv: Stítið mynd gríði birtist til að lesa; mismunandi nauðsynleg stólur eða röð sem stærð / tengsl mun ekki parse kasta ``RuntimeError``.\n:param out_tif: Hugbúnaður leið fyrir CYX stykkt myndband TIFF.\n:param out_png: valfrjáls fyrirmynd PNG af myndum gögn kanna 0; engin fyrirmynd er skrifað þegar ``None``.\n:param channel_indices: kanall til að sameina; ``None`` notar hvert kanall af fyrstu notandi tile.\n:param blend: ``'max'`` eða ``'overwrite'``; allar aðrar gildi hækka ``ValueError``.\n:param tmp_dir: vinnufél fyrir memmap á skálinu. virkilega að ``mosaic_tmp`` undir ``self.feature_cache_dir`` ef setur, annars nálægt ``out_tif``.\n:param preview_downsample: Með því sem forrit PNG er snúinn; reikningar ``1`` eða minna halda fullri stærð.\n:returns: ``out_tif`` leið sem var skrifað.\n\nNotaðir\n-------\n* Notar 2x3 affininn í manifestinu (þ.a. inniheldur alþjóðleg afsetur).\n* Ef `channel_indices` er None, fer út fjölda kanna frá fyrstu gildi tile.\n* `blend=\"max\"` tekur per-pixel max yfir yfirlapping mikroscope myndbönd; `blend=\"overwrite\"` skrifar nýjustu mikroskópmyndbönd yfir fyrri þar sem fylgjur>0.\n* Ef `tmp_dir` er veitt (eða hægt er að finna frá self.feature_cache_dir), nota útgangs vinnufélinn mímapinn til að draga úr RAM.",
-      "translation_source_blocks_sha256": [
-        "9cc0a90e56df66d80b3c801492a0e791041a09f031b2a77062827e4db676cdd5",
-        "8410fd2cde8963cf34bd66b720b4631e7ed6cc01ba2ce557d1c6c4a7c2ebdb3b",
-        "4efca5537d14d609ae49a2875d332aafa15d42112f3105c84ee8aa15d4bd3c62",
-        "b995f604aac6482116c2e441b5c5c0a97efca4de1be09dd24facbd1d75ad7fe9",
-        "2441c2bb0292f7450cfb41291248b679e823161350536016a9a8625e9219428a",
-        "591b3b5862166de4beae57beefc65a9c35c429bac8851889e3165369d692f121",
-        "b9f0a6cfe36c8dfcea82be568708a42b59a081118bfbd53ed4f77e48c687d33c",
-        "5ed85010fa6eb06ca795c2a868d6a2378614a9c4b7d3aaad45b68bdd0fa77477",
-        "72876b66772efd2167bc32be4f063c1329db0c25480495645ee6904baf9e7340",
-        "e1c2fac9103157036a4dd8f4f0745d85feac924253882a2a318519f2f82690e8",
-        "152b777701bbb510b7fbecf4e093681fd047667035f8bbb013a2fcb12e94f9d0",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "c59a02cd4935798766fe05129cc323c38e0b778eb03d52092ed67fe25d0e893e",
-        "427e05f1a0b114094f0bb301a9f912a9e34d6e1abaa3f2c072268593f6be3e15",
-        "b6b0f9c1803ba1cd66fbc5e4a5ddf0bbace8520fd9c5d194c5c58eb3c4b730c6",
-        "1d1a1b1ef3c105fb46b40cecdb123120a638920cb37534b0bdd8f1fcbc6e70a0"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.mosaic_all_channels_from_csv": {
-      "source_blocks_sha256": [
-        "1f42d9c45c7f834056020a637b1ff3eed83ace75f59a53ad2fc124ad055fbd52",
-        "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
-        "88983bf23176842902ce1aade1c5ee1ea2cfca560f44ba89f89eace37aca4107",
-        "f91f29f50f7711fc3dc5d53956dfff3452a07eb60c20cc244cec893a3cd0efee",
-        "41401e7ead1fce4958e46e9591efc3dd9dfb27f649ea94e791cabfc54960b81e",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "4f59d5ef657320e399f6a06d9c4695ee519b6840803db32293d0e34fa1d9a12a",
-        "e3968366b2dcf54efbed8fee6ef77b303e5449785b6c9204ce22cef171a3858c"
-      ],
-      "source_sha256": "78adc956ab1e07247878cd3c2fcc832e8d5e010a0d58cf6cc1dcb382dfaded4b",
-      "text": "Sameinuðu fjölkanál CYX stykkt myndband með því að nýta tvö breytingar á gegnum kanna.\n\n``out_tif=None`` með ``out_csv`` til að keyra í manifest-aðeins ham (reikna umbreytingar og striga rúmfræði, skrifa manifest, sleppa framsetningu).\n\n:param csv_path: Hugbúið er í staðnum CSV.\n:param out_tif: Stítið myndband TIFF útgangsvæði (``None`` fyrir manifest-eina).\n:param min_score: minnsta svæði í parum geymt fyrir stykkt myndband (auto-geymt þegar ``None``).\n:param channel_count: Þessar mörg kanálir eru sjálfvirkt uppgötvaðir þegar ``None``.\n:param channel_index_order: útskýrt kannaindekstur til að beita útleiðingu.\n:param angle_tol_deg: umburðarlyndi til að flokka brúnir í R / L / U / D gáma.\n:param step_tol_frac: Frakklandi þolandi um áætlað gríðarstopp.\n:param rot_tol_deg: Max er leyft rotation þegar rotation er hættulegt.\n:param scale_tol: Max er leyft skala fjarlægð þegar skala er takmarkaður.\n:param cap_one_per_dir: Hættu að minnsta kosti einn hliðið á leiðinni á tile.\n:param out_csv: Option per-tile manifest CSV leið.\n:returns: slóð að myndritinu TIFF (eða ``None`` í manifest-aðeins ham).",
-      "translation_source_blocks_sha256": [
-        "c7f2ebf344c6c23ac30a86120ab8c96a3a19c059a67da333a0e4b95d5d4cd82b",
-        "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "90ca02df5ca6824da7e6edc514abc48046679935acadf5386f4c3085d2e66d70",
-        "1de54315d3ee808f8d1673a9c0e384e39826db2f48f2bef7cd77f4d6c52cc6c4",
-        "f91f29f50f7711fc3dc5d53956dfff3452a07eb60c20cc244cec893a3cd0efee",
-        "41401e7ead1fce4958e46e9591efc3dd9dfb27f649ea94e791cabfc54960b81e",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "4f59d5ef657320e399f6a06d9c4695ee519b6840803db32293d0e34fa1d9a12a",
-        "6bd6f66b06f1da0b39b9d2dc59e47e98163d7e8b41cacf4aaa294a4fa05876c5"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.prepare_features": {
-      "source_blocks_sha256": [
-        "0a2bf501027aec8a4c2e378a8eb6fa86d3db67e6be975b4594246bc8292de5f3",
-        "cd9bdcaf97b883deb65882469ef1c9593b9a195fd39f9732d56c695c4ed62a78",
-        "02615c95660dba3bd7dab9bfa5db03f14416612760aa26844257b9b643ee9c01",
-        "a72ef973047d36890fcf63e2b369a877895f3ca540c9ebf9454f65d053307a8f",
-        "5bbd5bc42e76282f4a641f0ca5e93151c9366a3c3d7527ed45ae3d9800a64a16",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "1a3b597c3afc77c890d1a6f0952fb1ef9a2234af56beeaff73ca104cc97c9463",
-      "text": "Áættu að reikna skreytingar og lýsningar fyrir ``paths`` og leyfa þeim.\n\nÍ ``disk`` leiðinni er hvert niðurstöður flúið í áskraðþátt með aðeins LRU-sæðu undirsetti sem geymist í RAM; í ``ram`` leiðinu eru niðurstöðir geymir aðeins í minningu.\n\n:param paths: Myndarfiler til að sýna.\n:param channel_index: Kánan fyrir að lesa frá mörgum kanna TIFFs.\n:param num_workers: bakgrunni vinnandi tákn; staðsetningar til ``self.n_workers_features``.\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "0a2bf501027aec8a4c2e378a8eb6fa86d3db67e6be975b4594246bc8292de5f3",
-        "cd9bdcaf97b883deb65882469ef1c9593b9a195fd39f9732d56c695c4ed62a78",
-        "02615c95660dba3bd7dab9bfa5db03f14416612760aa26844257b9b643ee9c01",
-        "a72ef973047d36890fcf63e2b369a877895f3ca540c9ebf9454f65d053307a8f",
-        "20abc241eb66c9bd2f662d1899689940dc99a470b43a03a8fcacb5270a1be79a",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.render_mosaic_from_csv": {
-      "source_blocks_sha256": [
-        "fde71e1166a00bdd7a2e22acbda81447ba2e497899ec5ea7b4764704cc79cd55",
-        "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
-        "876ec5bf0028b64c752319271cebce6b206d78838970cdc8fdf9b4bd2357a072",
-        "b78d64d4c21e5fab3148d460d40ab6d6a3bd2d7c3a3d3b39345bcbbb650349c6",
-        "88983bf23176842902ce1aade1c5ee1ea2cfca560f44ba89f89eace37aca4107",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "d9053e6096512b8d035d687ef16ddd34ed0b44d2bce1e41216d39a56f740268e",
-        "4bf59fa16d56ba883de96a18212d4ffc19a3a38d2eba6393b41465b7aad3db45"
-      ],
-      "source_sha256": "db6fa5e26ac74a7ec4d829f9acd1a497f164252f74507e347eb8fcbf24834201",
-      "text": "Sameinuðu smá mynd gríðarinnar (og manifest) frá parly-metrics CSV.\n\n``out_tif=None`` ásamt ``out_csv`` til að keyra í manifest-aðeins ham (umbreytingar eru reiknaðar og skrifaðar en engin mynd er gerð).\n\n:param csv_path: Hugbúið er í staðnum CSV.\n:param out_tif: Stítið myndband TIFF útgangsvæði (``None`` fyrir manifest-eina).\n:param out_png: Optional preview PNG útgangur leið.\n:param channel_index: Kanal sem notuð er fyrir rendering. Þýskalandi ``0``.\n:param min_score: minnsta svæði í parum geymt fyrir stykkt myndband (auto-geymt þegar ``None``).\n:param angle_tol_deg: umburðarlyndi til að flokka brúnir í R / L / U / D gáma.\n:param step_tol_frac: Frakklandi þolandi um áætlað gríðarstopp.\n:param rot_tol_deg: Max er leyft rotation þegar rotation er hættulegt.\n:param scale_tol: Max er leyft skala fjarlægð þegar skala er takmarkaður.\n:param cap_one_per_dir: Hættu að minnsta kosti einn hliðið á leiðinni á tile.\n:param out_csv: Opcional leið til per-tile manifest CSV.\n:returns: Sjálfsögn ``(out_tif, out_png)``",
-      "translation_source_blocks_sha256": [
-        "331a55658a9589944bcbe455fa4d55a02dff2edb2b84f5199d771ab9cc96aac9",
-        "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "90ca02df5ca6824da7e6edc514abc48046679935acadf5386f4c3085d2e66d70",
-        "876ec5bf0028b64c752319271cebce6b206d78838970cdc8fdf9b4bd2357a072",
-        "b78d64d4c21e5fab3148d460d40ab6d6a3bd2d7c3a3d3b39345bcbbb650349c6",
-        "1de54315d3ee808f8d1673a9c0e384e39826db2f48f2bef7cd77f4d6c52cc6c4",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "d9053e6096512b8d035d687ef16ddd34ed0b44d2bce1e41216d39a56f740268e",
-        "4bf59fa16d56ba883de96a18212d4ffc19a3a38d2eba6393b41465b7aad3db45"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.run_folder": {
-      "source_blocks_sha256": [
-        "50ad0a1cb7dbbf6b87799a7bd51b6cf6566e0a99d4894d49a254d3281bfd5638",
-        "51d9e5f7d20d7d6e34cf0e87166c1a76516ded41899f239269077a54763f1c06",
-        "b67998529733a49ffa7f510b74e4843a03cf901bd88a77134a8c6067bf8060ab",
-        "cf73934177dd8956a194b0a6e31c9dc5e598622b2c2aba1d81cacc7a1f7b7243",
-        "78fb17386a5c73152cced41e68ed7e5fdc7e94c38b195c05bcd6e9f996f0cc52",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "29b83a724759e2d8e2364c2c849b5f3743ecfe19f43a42cadb7e0bd22a445b77",
-        "1cc305fd1a59d1f6da418ba98a562c6ecc1bed68484ab8e9afa906bbf37d7ce7",
-        "5d91272fc3a6cd04c1523e827172b94283c62c063ffae33f57391134e750174c",
-        "4c47095cd345024ebfa93b29b7c3da9e3f1553a65ea15e7b4663d5a7a01d2280",
-        "4f4737f6000fc7bdf0e1ce4de0da2354a9a1eba4a73ac46c71d80edc59532642",
-        "c19362a8369c06f6443090f2f0937a3e5f6a535d213aa4c11aa96f46a8adad64",
-        "f1a8b6c26d0deb9272b697d948362c856f607b0231659200ae5cedfdaa872975",
-        "944cd8a745fc9c05ae096fc410516cf88a89baa57e785f4c7cad9a27525da8b9",
-        "9566d4d5f5d67d2ff92858e495ddb5bc7d0fa71949f15aeb9de93303a907b7b9",
-        "f023b72f1bae967e5d84b2186c26722b111397cfc131062f1b1c36f755e065db",
-        "b359c0e88dc980c79c0efe1f75a51191f25ad0ff4c58ff58ca47dcfe649a64ac",
-        "9a3da0287619ba655373eec4fa4768e9df70369966daacab24afdb85604277b9",
-        "cf99ad4ba037d3bca6210aa39f36819c5e4b1029f4ded88a099d81137670cbcd",
-        "86a72d466a012da897aec32fa0f714e2b2d8aa256c825ada6b73d1a469632b5d",
-        "48068c7c5d42c819507bce6ac90e912a9fb40cc31f8468566c182f2fcb873ed1",
-        "914a5a86ee96ae60461cdc40b0c74b3cd7a8fccfbc6d39136163bf0ba67db618",
-        "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
-      ],
-      "source_sha256": "cfc121333b39358d6311adab55cbcc6d92e1b5e42d441010696eecb8aedbfe15",
-      "text": "Skoraðu hvert þátttakandi par í ``folder`` og byggðu valframt fullkomið myndbandið.\n\nÞegar fjölda þátttakenda pars er meira en ``qc_pairs_threshold``, QC yfirlöndur eru skipt í fyrstu ferli og endurleitt aðeins fyrir pars sem skoðanir þeirra hreinsa sjálfstæða gríði í þriðju ferli.\n\n:param folder: Leikstjóri til að skanna.\n:param csv_path: Hluti CSV fyrir pairwise metrics.\n:param channel_index: Kanal sem notuð er til að mæla eiginleika. æðstaða ``0``.\n:param exts: samþykkt myndarþróun.\n:param recursive: Hugsaðu aftur til subfolders. Þýskalandi ``False``.\n:param same_well_only: Að takast við sömu parsed vel. Þýskalandi ``True``.\n:param max_site_gap: Höfsta staðsetningsþekkingu milli ráðgjafa nágrannar. Þýskalandi ``3``.\n:param n_workers: Workers þreytingar sem notað er með skólanum. Þannig er ``8``.\n:param stitch: geyma stykkt TIFFs fyrir parir yfir skólanum.\n:param score_threshold: Að minnsta stigin er nauðsynlegur til að bregðast myndinni.\n:param meta_regex: skráarheiti regex fyrir skönnun.\n:param mosaic: byggja einhvern kanna staðsett mynd gríði einu sinni par scoring niðurstöður.\n:param mosaic_out: : framleiðsla TIFF slóð fyrir saumað myndnet (ein mynd gagnarás háttur).\n:param mosaic_min_score: minnsta eyðimörkur sem notað er þegar pruning stitched mynd gríður eyðingar.\n:param mosaic_csv_out: útgangur CSV leið fyrir stykkt myndband manifest.\n:param mosaic_all_channels: byggja upp CYX stykkt myndband á öllum kanallum.\n:param mosaic_channel_count: Þessar mörg kanálir er að skila fyrir fjölkanalinu myndbandið.\n:param mosaic_channel_index_order: útskýrð kanna fyrir fjölkanal hreinsa myndbandina.\n:param qc_pairs_threshold: Pair talar yfir sem QC plotting er gefið.\n:param qc_only_above_threshold_when_many: Hægt er að setja upp QC niðurstaða sem er með skólanum.\n:returns: leið til pairwise-metrík CSV.",
-      "translation_source_blocks_sha256": [
-        "ec34ce3c0c2907ad52cf332ccf367c095b730ad8b302cff28e4c1f592aa46a1c",
-        "51d9e5f7d20d7d6e34cf0e87166c1a76516ded41899f239269077a54763f1c06",
-        "b67998529733a49ffa7f510b74e4843a03cf901bd88a77134a8c6067bf8060ab",
-        "cf73934177dd8956a194b0a6e31c9dc5e598622b2c2aba1d81cacc7a1f7b7243",
-        "78fb17386a5c73152cced41e68ed7e5fdc7e94c38b195c05bcd6e9f996f0cc52",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "29b83a724759e2d8e2364c2c849b5f3743ecfe19f43a42cadb7e0bd22a445b77",
-        "1cc305fd1a59d1f6da418ba98a562c6ecc1bed68484ab8e9afa906bbf37d7ce7",
-        "5d91272fc3a6cd04c1523e827172b94283c62c063ffae33f57391134e750174c",
-        "3bdb81c98fe61416e2ddb7943d697dbdc4c4329a495092cb1be7d547e433b136",
-        "4f4737f6000fc7bdf0e1ce4de0da2354a9a1eba4a73ac46c71d80edc59532642",
-        "c19362a8369c06f6443090f2f0937a3e5f6a535d213aa4c11aa96f46a8adad64",
-        "f1a8b6c26d0deb9272b697d948362c856f607b0231659200ae5cedfdaa872975",
-        "44f3739314aea17c8b16b57d8502047cc29200aaf89bce856afb246ebfc5768d",
-        "6965fbf9fb189cccb9223da7c67a979520ecaa5f0cb44f0727374f3bce577cd9",
-        "4ae04e79046e2ad3b78c5d7a78de4db1ee728f98a994431fa1e9f6eeaedd91a5",
-        "740febcc641829f70516bc1c859fcce6df69e1d06ce0b0b1428a2a40771dfbde",
-        "f21be2ad17686db5ddb937896c4a7969ee1a947d063419caaf3006544d69394f",
-        "f686a55fecf53c6389c029a8645a0829f64b1a1ae4e23010435e1de69ce6f052",
-        "ebc6786604033556971653b878aa8541217c9ab57e5fd4810e23ead9d6ef2f96",
-        "48068c7c5d42c819507bce6ac90e912a9fb40cc31f8468566c182f2fcb873ed1",
-        "914a5a86ee96ae60461cdc40b0c74b3cd7a8fccfbc6d39136163bf0ba67db618",
-        "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.set_meta_regex": {
-      "source_blocks_sha256": [
-        "e59c5152eae510229811f50a7c9dab32ba9eccfb2ef705788e0e6369755afee4",
-        "feadf4ac30dae81b4edf9481459d712595bbfc6afb0afc6f095c1cbe3cc2c6f5"
-      ],
-      "source_sha256": "27bc59283852176ccc6d026c3f3d2cf737a27bba3f3657a05a768a66b1223710",
-      "text": "Hættu filaname regex sem er notað til að skipta mynd metadata.\n\n:param pattern: strengur eða þýdd regluleg segð með hópum fyrir brunn, myndsvæði, rás og stækkun.",
-      "translation_source_blocks_sha256": [
-        "e59c5152eae510229811f50a7c9dab32ba9eccfb2ef705788e0e6369755afee4",
-        "feadf4ac30dae81b4edf9481459d712595bbfc6afb0afc6f095c1cbe3cc2c6f5"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.stitch_pair": {
-      "source_blocks_sha256": [
-        "2d423139139b7b5fdad90cb8970d5d649ada45ec3ba54441d886ba2bbff65101",
-        "a9fec53041c394a39fcf16be609c27de825c83aa5465aad6edd0cc8f5bbcf203",
-        "6ebca2c0154dfcb2df09e2ac992144976dbab0277eddebd98618da59441e642f",
-        "6ec47f331ba4c0cc3b42c7b3ffa0abff96db7c91942eb35e589a69a6f71f2714",
-        "726929e8b5c7a1b9d359097851f3f49fd74fccf34471002d20dbe76d2c453587",
-        "8c09ce7a9ccb1e3082c178bb633c61007393512b2b237d91a6690af4230d0083",
-        "2cbc306772f3173a7239a62ab9d2b1f486407055e21ca396537666285d11edf5",
-        "64055dd4d640a14752c2cb3b953440b8e568f20c7cb0f7dd6b79088bdefd3106",
-        "8b59049b4cf4fb511a8a88d5a389796cc2b3c26be744ed651c509e1f2d4f3db7"
-      ],
-      "source_sha256": "d3060fffaa56b4da067689a91ff614c836070a3e3b0303f08451f5d7d4a72a87",
-      "text": "Skammtu B- til A afhuggjum, skora yfirlappinn og skrifaðu opcionlega stykkt par.\n\n:param pathA: Sýning á myndum leið.\n:param pathB: Myndin er að tengjast ``pathA``.\n:param channel_index: Kanal sem notuð er til að mæta við eiginleika. ð fyrirmynd ``0``.\n:param score_threshold: mínimum edge-ZNCC stigin sem þarf til að bjarga stítið TIFF; falla aftur á ``self.score_threshold``.\n:param save_stitched: yfirrita fyrir hvort að skrifa skreytingu mynd; falla aftur á ``self.save_stitched_default``.\n:param force_no_qc: hættu QC á myndum óháð settingar.\n:param qc_only_if_score_ge: QC er yfirlætinn aðeins þegar skólanum í parinu ná þessa skamms.\n:returns: key-value mapping par metrics og útleiðslu leiðir, eða ``None`` þegar matching/RANSAC missa.",
-      "translation_source_blocks_sha256": [
-        "2d423139139b7b5fdad90cb8970d5d649ada45ec3ba54441d886ba2bbff65101",
-        "a9fec53041c394a39fcf16be609c27de825c83aa5465aad6edd0cc8f5bbcf203",
-        "6ebca2c0154dfcb2df09e2ac992144976dbab0277eddebd98618da59441e642f",
-        "6ec47f331ba4c0cc3b42c7b3ffa0abff96db7c91942eb35e589a69a6f71f2714",
-        "726929e8b5c7a1b9d359097851f3f49fd74fccf34471002d20dbe76d2c453587",
-        "8c09ce7a9ccb1e3082c178bb633c61007393512b2b237d91a6690af4230d0083",
-        "2cbc306772f3173a7239a62ab9d2b1f486407055e21ca396537666285d11edf5",
-        "64055dd4d640a14752c2cb3b953440b8e568f20c7cb0f7dd6b79088bdefd3106",
-        "c96881e298a83f3df446849d93fb919bce385829d85b9e2a5bf2b644f130fc01"
-      ]
-    },
-    "spacr.spacrops.stitch_cycle_wells": {
-      "source_blocks_sha256": [
-        "56d1f86563622756cd7e895f79ad1c85a98a66bd7821e4ffe0887b55bb832d23",
-        "8f73b339608b45b5e9eeb813a4262071627ec8ad62489fee89931237242271a6",
-        "43e2055f27b37bb3caa915733fa5684575c1b93adb7ae82e1a64fe15a181260e",
-        "52899c439e3418283cd3cbd1931f7a2b9195734a27b4b5b0eb43a50d8d950327",
-        "a461890ecbdfa56af39153e64f160445b45ac7e286e31241c10123b6ea2bcac5"
-      ],
-      "source_sha256": "384a6b243901630139ba6a3c7fbbec27a5dd5db1dd71caebf58c6f072ce0584d",
-      "text": "Hættu mikróplata af TIFFs í per-mikroplata prófstaðlögum og smella á hverri mikrópstaðli.\n\nFlokkar myndir eftir brunnum út frá lýsigögnum í skráarnafni, færir þær eða tengir þær valfrjálst í möppur eftir brunnum, keyrir síðan :class:`spacrStitcher` á hvern brunn til að framleiða CSV fyrir pör, og -- sé þess óskað -- mósaík með einni eða mörgum rásum.\n\nMyndbandin er opt-in. Setur ``write_mosaic`` (eða synonym ``mosaic``) til að byggja einn. Það er off í staðsetningu vegna þess að safnað stykkt mynd gríðar uppir þegar of fáir mikroskóp myndarfelli eru yfirlappur til að setja einhver, og plötu sem ekki er hægt að stykka ætti ekki að verða plöta sem ekki hægt að skipuleggja.\n\n:param settings: key-value mapping fyrir fyrirframleiðslu settingar; sjá :func:`get_preprocess_ops_settings` fyrir stuðlað byggð gögn nafn.\n:returns: key-value mapping með byggð gögn nafni ``organized`` (move/symlink summary) og ``wells`` (per-microplate próf staðsetningu útleiðslu leiðir).",
-      "translation_source_blocks_sha256": [
-        "e9cd9ab6a7e5a803c9e5647f2139ae04d4f962a2f63437d2f384d12d0ab1cf91",
-        "1f25af89ed183bdbc8dd262ae7cbbe457750474fbbd500e46700cf180498bc7e",
-        "23581abc7e159bfa927f2327c3f34ddbd11591e5400e00ee0c360a6052c42c0b",
-        "2fb7dd35975183db0f2521dff4e686926bf51534c83675e0904fb1a7ed6b8d4a",
-        "77979a302d60b30163651be882c442cd157020d2730fa063dde15da88601a41b"
       ]
     },
     "spacr.sra": {

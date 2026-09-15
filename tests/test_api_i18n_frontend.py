@@ -77,7 +77,12 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # spacr.ops_cycles.AlignedField and align_field, spacr.ops_sbs.attribute_reads
 # and assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. Their
 # blocks carry reviewed records in all nine locales.
-REAL_SYMBOL_COUNT = 10_541
+# 10,541 -> 10,521 on 2026-09-15, +0 / -20 by set difference against
+# the switch commit when the old OPS engine was deleted: the 17 symbols of
+# the old engine's module and `spacr.settings.set_default_stitch`,
+# `set_default_multichannel` and `set_default_general`, the old
+# stitcher's defaults, which nothing called.
+REAL_SYMBOL_COUNT = 10_521
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

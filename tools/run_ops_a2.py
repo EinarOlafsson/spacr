@@ -59,10 +59,9 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-#: The filename pattern spaCR already ships for this acquisition. Kept as
-#: the default rather than re-derived: `get_preprocess_ops_settings` uses
-#: the same one, and two patterns for one layout is how a rename goes
-#: unnoticed on one path and not the other.
+#: The filename pattern the first OPS stitcher read this acquisition with,
+#: kept as the default so a run here indexes the same tiles that 372's
+#: PARTS 6 to 11 measured.
 DEFAULT_META_REGEX = (
     r'(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2})'
     r'.*?Site[-_](?P<site>\d+)(?:_[0-9]+)?\.(?:tif|tiff)$'

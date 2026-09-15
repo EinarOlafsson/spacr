@@ -51,17 +51,32 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,845 | Remainder | Reviewed API blocks | Of 10,541 | Remainder |
+| Language | Reviewed runtime records | Of 5,729 | Remainder | Reviewed API blocks | Of 10,521 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 201 | 3.44% | 5,644 | 616 | 5.84% | 9,925 |
-| German | 164 | 2.81% | 5,681 | 574 | 5.45% | 9,967 |
-| Spanish | 173 | 2.96% | 5,672 | 455 | 4.32% | 10,086 |
-| Simplified Chinese | 487 | 8.33% | 5,358 | 725 | 6.88% | 9,816 |
-| Portuguese | 164 | 2.81% | 5,681 | 686 | 6.51% | 9,855 |
-| Hindi | 246 | 4.21% | 5,599 | 619 | 5.87% | 9,922 |
-| Korean | 383 | 6.55% | 5,462 | 692 | 6.56% | 9,849 |
-| Icelandic | 334 | 5.71% | 5,511 | 1,187 | 11.26% | 9,354 |
-| French | 179 | 3.06% | 5,666 | 615 | 5.83% | 9,926 |
+| Swedish | 201 | 3.51% | 5,528 | 616 | 5.85% | 9,905 |
+| German | 165 | 2.88% | 5,564 | 574 | 5.46% | 9,947 |
+| Spanish | 174 | 3.04% | 5,555 | 455 | 4.32% | 10,066 |
+| Simplified Chinese | 464 | 8.10% | 5,265 | 722 | 6.86% | 9,799 |
+| Portuguese | 162 | 2.83% | 5,567 | 686 | 6.52% | 9,835 |
+| Hindi | 245 | 4.28% | 5,484 | 614 | 5.84% | 9,907 |
+| Korean | 366 | 6.39% | 5,363 | 691 | 6.57% | 9,830 |
+| Icelandic | 311 | 5.43% | 5,418 | 1,185 | 11.26% | 9,336 |
+| French | 179 | 3.12% | 5,550 | 615 | 5.85% | 9,906 |
+
+*Regenerated 2026-09-15 for the deletion of the old OPS engine (372), on top of
+the pass below. The API denominator moves 10,541 -> 10,521, +0/-20: the 17
+symbols of the old engine's module and the three stitcher defaults in
+`spacr.settings` (`set_default_stitch`, `set_default_multichannel`,
+`set_default_general`) that nothing called. The runtime denominator moves
+5,845 -> 5,729, -116/+0: the labels, tooltips and six category explanations
+of the settings only the old engine read. Reviewed runtime records lose the
+73 the evidence checker reported stale (sv 1, pt 3, hi 2, ko 18, is 24,
+zh_CN 24, fr 1) and gain one per locale for `recursive`, whose English now
+comes from `spacr.external_masks` and whose cached translations were wrong in
+several locales. Reviewed API blocks lose the records of the old engine's
+deleted symbols and the French one for the `spacr.ops_settings` paragraph
+that described it, and every locale gains one for the new `ops_defaults`
+summary.*
 
 *Regenerated 2026-09-15 for instruction 372's OPS engine, on local nightly
 f5d651454 and on top of the pass below. The API denominator moves 10,534 ->
@@ -309,5 +324,5 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 201, de 164, es 173, zh_CN 487, pt 164, hi 246, ko 383, is 334, fr 179 -- 2,331 runtime records across nine locales.
+Reviewed totals today: sv 201, de 165, es 174, zh_CN 464, pt 162, hi 245, ko 366, is 311, fr 179 -- 2,267 runtime records across nine locales.
 

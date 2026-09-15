@@ -337,7 +337,12 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # Measured by diffing the shipped set against nightly 3f27b926a: now -
     # base is exactly that file, base - now is empty, and removing it gives
     # the 568-member set back unchanged.
-    assert len(shipped) == 569
+    # 569 -> 568 on 2026-09-15, +0/-1: the old OPS engine's module file,
+    # deleted by the maintainer's decision once `spacr.ops_engine`
+    # had replaced it on every route. Measured by diffing the shipped set
+    # against the switch commit: base - now is exactly that file, now - base is
+    # empty, and adding it back gives the 569-member set unchanged.
+    assert len(shipped) == 568
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -609,8 +614,9 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     )
     assert "coverage combine --keep" in combine_script
     assert "coverage json --pretty-print" in combine_script
-    # 568 -> 569 with `spacr/ops_engine.py` (372), the same +1 as `shipped`.
-    assert "--expected-file-count 569" in combine_script
+    # 568 -> 569 with `spacr/ops_engine.py` (372), the same +1 as `shipped`,
+    # and back to 568 when the old OPS engine's module was deleted, the same -1.
+    assert "--expected-file-count 568" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

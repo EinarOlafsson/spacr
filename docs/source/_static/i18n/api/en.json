@@ -30014,11 +30014,10 @@
         "a050b3e22b99c9d502eac4ba6cc0fe9628016229dd42715d816a3c83881dbbd0",
         "5a1e405a5b54cb57f0492a88f8881840f4a6dc9a6c91aceb01ef1ed0fe8bfe2a",
         "6991244c058a3e5c5926ab9700fab1ca966b3f3b0930e6de7ba5d11cf10c60e2",
-        "ffb7a8a7be45a83ef05794e4bc961ed18695c29d51fd6152fc959cc7bbe9faf1",
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ],
-      "source_sha256": "872d3ac6200edb91421cacad3edaa8a28a499d96fc25b134d8ef11b9a4e35223",
-      "text": "Where every tile of a round well is, in closed form.\n\nTHE ADJACENCY WAS THE OPEN PROBLEM AND THIS IS THE ANSWER. Three earlier\nprototypes tried to RECONSTRUCT the grid from the links that register -- a serpentine with a constant stride, then runs delimited by a\nfailed link, then columns as maximal runs of vertical links. All three\ninferred the grid from the very edges that were missing, and all three\nfailed on the same acquisition: 27 of 333 tiles placed.\n\nThe well is ROUND. Each column holds as many fields as fit inside the\ncircle at that x, so the columns have DIFFERENT HEIGHTS and the index\noffset to the next column is that column's height -- which is why the\nmeasured horizontal offsets were +11, +4, -11, -9, -4, -13 and -5 rather\nthan one number. Fitting the circle takes four parameters and answers\nevery tile at once::\n\n    columns   21, snaked down (even columns top to bottom)\n    circle    radius 10.25 grid units, centre at column 10, row -10\n    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,\n              19, 19, 17, 17, 15, 13, 9, 5                SUM = 333\n\nIT IS A FACT ABOUT THE ACQUISITION, NOT A GOOD FIT. Seven measured\noffsets against four free parameters would only be a fit; the model was\nthen asked to predict the four neighbours of six sites it had never seen\n-- 20, 60, 140, 200, 260, 300 -- and registration confirmed 24 of 24, at\npeak/mean 23.6 to 53.1 against control pairs at 9.0 to 15.6. The controls\ncame back at shift (0,0), which is the no-overlap signature behaving as\nit should.\n\nTHE MISTAKE THAT COST THE FIRST MODEL FOUR OF SEVEN, recorded because it\nis the same class of error as the wrapped shifts in 372's PART 6-A: rows\nwere indexed from each column's own top. In a round well every column\nstarts at a different row, so \"row 3 of column c\" and \"row 3 of column\nc+1\" are not side by side. THE NEIGHBOUR IS AT THE SAME ABSOLUTE GRID\nROW, which is why :meth:`WellLayout.position` returns absolute rows and\n:meth:`WellLayout.neighbours` looks them up directly.\n\nWHAT THIS REPLACES. `max_site_gap` and the windowed pair search in\n`spacr.spacrops`: 128 candidate pairs per tile, of which four could be\nreal, giving 993 scored pairs and 994 QC overlays for one well. This\nmodule offers four candidates per tile and every one of the 24 tested is\na real adjacency, so about 640 real edges are scored instead of 993\nmostly-imaginary ones.\n\nTypical use::\n\n    from spacr.ops_layout import round_well_layout\n\n    layout = round_well_layout(333)\n    for a, b, axis in layout.pairs():\n        shift = register(tile(a), tile(b))    # phase correlation, per 372"
+      "source_sha256": "5564a6c320f6c07195539e38ef032eb2c1cda4dec04db6d3158a6f5d5a5565bc",
+      "text": "Where every tile of a round well is, in closed form.\n\nTHE ADJACENCY WAS THE OPEN PROBLEM AND THIS IS THE ANSWER. Three earlier\nprototypes tried to RECONSTRUCT the grid from the links that register -- a serpentine with a constant stride, then runs delimited by a\nfailed link, then columns as maximal runs of vertical links. All three\ninferred the grid from the very edges that were missing, and all three\nfailed on the same acquisition: 27 of 333 tiles placed.\n\nThe well is ROUND. Each column holds as many fields as fit inside the\ncircle at that x, so the columns have DIFFERENT HEIGHTS and the index\noffset to the next column is that column's height -- which is why the\nmeasured horizontal offsets were +11, +4, -11, -9, -4, -13 and -5 rather\nthan one number. Fitting the circle takes four parameters and answers\nevery tile at once::\n\n    columns   21, snaked down (even columns top to bottom)\n    circle    radius 10.25 grid units, centre at column 10, row -10\n    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,\n              19, 19, 17, 17, 15, 13, 9, 5                SUM = 333\n\nIT IS A FACT ABOUT THE ACQUISITION, NOT A GOOD FIT. Seven measured\noffsets against four free parameters would only be a fit; the model was\nthen asked to predict the four neighbours of six sites it had never seen\n-- 20, 60, 140, 200, 260, 300 -- and registration confirmed 24 of 24, at\npeak/mean 23.6 to 53.1 against control pairs at 9.0 to 15.6. The controls\ncame back at shift (0,0), which is the no-overlap signature behaving as\nit should.\n\nTHE MISTAKE THAT COST THE FIRST MODEL FOUR OF SEVEN, recorded because it\nis the same class of error as the wrapped shifts in 372's PART 6-A: rows\nwere indexed from each column's own top. In a round well every column\nstarts at a different row, so \"row 3 of column c\" and \"row 3 of column\nc+1\" are not side by side. THE NEIGHBOUR IS AT THE SAME ABSOLUTE GRID\nROW, which is why :meth:`WellLayout.position` returns absolute rows and\n:meth:`WellLayout.neighbours` looks them up directly.\n\nTypical use::\n\n    from spacr.ops_layout import round_well_layout\n\n    layout = round_well_layout(333)\n    for a, b, axis in layout.pairs():\n        shift = register(tile(a), tile(b))    # phase correlation, per 372"
     },
     "spacr.ops_layout.WellLayout": {
       "source_blocks_sha256": [
@@ -30776,22 +30775,20 @@
     "spacr.ops_settings": {
       "source_blocks_sha256": [
         "6f942c001d9e7df5854ea8e89d26dd54f2462c2022ecbbc6a44f262019d2f590",
-        "f08fed5de009684f81a168b07db774b9a9e1149c9aea6cfa91981ca206e02b29",
         "8b2539260ffda44ce6af06d0f58d80f56c7d81d5e1089e59bf6154072e492f3c",
         "837c713d33b38dd7c66699cc17c5cc7207660ab3b8c4ba5e50ea478b1ed6c001"
       ],
-      "source_sha256": "9431d3c365ea41269420101980827d46a6de48b0b31315d57d2af34516f0f209",
-      "text": "Types, categories and help for every optical-pooled-screening setting.\n\nWHY THIS FILE EXISTS. `spacr/spacrops.py` carries sixty-three settings and,\nuntil this, not one of them had a declared type, a category or a tooltip.\nA settings audit found what that costs: a module absent from the shared tables\nis never checked, and that is how a checkbox came to ship the string\n``'False'`` -- truthy, silently, for the life of the release.\n\nSo the registration happens ON THE WAY IN rather than being retrofitted. A\nsetting with no type cannot be validated; a setting with no tooltip is a\nlabelled box a user has to guess at; a setting in no category does not appear\nin the panel at all.\n\nTOOLTIPS SAY WHAT THE SETTING DOES TO THE RESULT, not what it is named. \"The\nnumber of features\" tells a reader nothing they could not read off the label.\n\"More features find more overlap and cost time and memory; below about 2000\na sparse field stops matching\" tells them which way to move it and why."
+      "source_sha256": "3ed4812ffc932c4acb65187f040befa791f786c655d66524547b47eea22b314d",
+      "text": "Types, categories and help for every optical-pooled-screening setting.\n\nSo the registration happens ON THE WAY IN rather than being retrofitted. A\nsetting with no type cannot be validated; a setting with no tooltip is a\nlabelled box a user has to guess at; a setting in no category does not appear\nin the panel at all.\n\nTOOLTIPS SAY WHAT THE SETTING DOES TO THE RESULT, not what it is named. \"The\nnumber of features\" tells a reader nothing they could not read off the label.\n\"More features find more overlap and cost time and memory; below about 2000\na sparse field stops matching\" tells them which way to move it and why."
     },
     "spacr.ops_settings.ops_defaults": {
       "source_blocks_sha256": [
-        "f8bb6f7605daf4799b7dda57e230ae59f8e239a252265463a87792d31eda85a5",
-        "06f212f6de8ef6e29ff7f581988263bd3121d2f3e75b4c48bf53debc1c644315",
+        "b5889f09bc4d9e395fca1c68b572cc709449af2ce7a043f86c2f7a5782b7cff6",
         "9aacf2a79223a4b14e773e7837fc4dfe9a8e049ef801012370c920319fcebf4c",
         "4e34a9e513d13ec9e0830ed1dfd81963ec56c1fa68e95c7db47898bef1f0e19b"
       ],
-      "source_sha256": "0b2cda661c5e01d9733bfda2531403238686debff759f93d4e80074100174b44",
-      "text": "The OPS settings, with `spacrops` imported only when they are wanted.\n\nA LAZY FACTORY, AND THAT IS THE POINT. `spacr.settings` imports this\nmodule so the registration happens at startup, and `spacrops` reaches\nOpenCV and SciPy -- a third of a second, on the path that a module screen\nopens through. Registering the FUNCTION rather than calling it keeps that\ncost until someone actually asks for an OPS default.\n\n:param settings: caller's settings, filled in with the defaults.\n:returns: the completed settings dict."
+      "source_sha256": "a37ed0a83fe7e6a56ffcbb93df901a88a0a73b78c32b8a57c4943a2706372dfc",
+      "text": "The settings the OPS engine reads, with their defaults filled in.\n\n:param settings: caller's settings, filled in with the defaults.\n:returns: the completed settings dict."
     },
     "spacr.ops_settings.register": {
       "source_blocks_sha256": [
@@ -94739,15 +94736,6 @@
       "source_sha256": "1d25243f2f08fc514dec4a2ca60f0e32ee9062fa6059d0c964e8e88c206f5d4c",
       "text": "Populate defaults for the merged Classify module.\n\nThe union of Classify (CV) and Classify (ML), plus ``classifier_family``\nto say which of the two a run uses. Built by CALLING both factories\nrather than by copying their keys: a list here would go stale the first\ntime either module gained a setting, and the symptom would be a control\nmissing from the merged screen only.\n\nCV is applied second and wins on the six keys the two share, because the\nmerged module's default family is CV.\n\n:param settings: dict to fill in place.\n:returns: the settings dict with defaults applied."
     },
-    "spacr.settings.set_default_general": {
-      "source_blocks_sha256": [
-        "0ce4b2ddfc42cf1742112efb127f4268b1e6b93d21b70c616c4a247e37f4e1d3",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "ac703f0b218468b95cfc3173ff418c22bf802b38fe990cec4d9f64d6d852aeb4",
-      "text": "Return default settings for the general organize/stitch/multichannel run.\n\n:param settings: optional dict to fill in place; a new dict is created if None.\n:returns: the settings dict with defaults applied (a shallow copy of the input)."
-    },
     "spacr.settings.set_default_generate_barecode_mapping": {
       "source_blocks_sha256": [
         "e9e59d6d2b58caaa654728a0c87b8826b80f59276ac6fcd783b63e54b18f0bad",
@@ -94756,15 +94744,6 @@
       ],
       "source_sha256": "7d90668439627b4a936bc705d4817dd672960e7ccde41be8d1fdf088e5f678a2",
       "text": "Return default settings for the barcode-mapping pipeline.\n\n:param settings: optional dict to fill in place; a new dict is created if None.\n:returns: the settings dict with defaults applied."
-    },
-    "spacr.settings.set_default_multichannel": {
-      "source_blocks_sha256": [
-        "0d9692755005cd50fcb9030f518c8dfd9ea2c08738bca7425bd63a35cff0a1b5",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "8b0224fcfcb4e0710077a87b9be6683ec44d8341d8dc0c2374d674d368b8be4e",
-      "text": "Return default settings for building multichannel per-well mosaics.\n\n:param settings: optional dict to fill in place; a new dict is created if None.\n:returns: the settings dict with defaults applied (a shallow copy of the input)."
     },
     "spacr.settings.set_default_plot_data_from_db": {
       "source_blocks_sha256": [
@@ -94801,16 +94780,6 @@
       ],
       "source_sha256": "cf56d3a425b795ac8888d81068d61f3a45cf67d6e80d1c206399079d9145728e",
       "text": "Populate default settings for the image-preprocessing step.\n\n:param settings: dict to fill in place.\n:returns: the settings dict with defaults applied."
-    },
-    "spacr.settings.set_default_stitch": {
-      "source_blocks_sha256": [
-        "077e99c045a1a2a103649337793e02373c12cba9046b0d8854132586204eb098",
-        "67260834fe02700157b7ced8689a0e41ca6d86362248ae3fd945aa23ecc27624",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "20d8a3afe48882a0cb33777c428f2f69eb6c0c9f33d283ba9b64435a5fc1c47b",
-      "text": "Return default settings for the tile-stitching pipeline.\n\nCovers feature detection, RANSAC, outline overlay, feature cache and\nper-well mosaic output parameters.\n\n:param settings: optional dict to fill in place; a new dict is created if None.\n:returns: the settings dict with defaults applied (a shallow copy of the input)."
     },
     "spacr.settings.set_default_train_test_model": {
       "source_blocks_sha256": [
@@ -95813,319 +95782,6 @@
       ],
       "source_sha256": "fe19923da1875cb52bd75db4e0331fdb31fce0c9c11f3cba32fad34e9f39a92e",
       "text": "Normalize the return value of ``CellposeModel.eval`` into per-image flow lists.\n\nAccepts both the batched format (4 stacked arrays) and the per-image list\nformat so downstream code can iterate uniformly.\n\n:param output: Raw ``(masks, flows, ...)`` tuple returned by Cellpose.\n:returns: Tuple ``(masks, flows0, flows1, flows2, flows3)`` with per-image entries.\n:raises ValueError: When the flows structure does not match a known layout."
-    },
-    "spacr.spacrops": {
-      "source_blocks_sha256": [
-        "542204000618e2b2c24ca5f577b0b2903f28dc56d43b8dcd8a5c487d82e38c66"
-      ],
-      "source_sha256": "542204000618e2b2c24ca5f577b0b2903f28dc56d43b8dcd8a5c487d82e38c66",
-      "text": "Feature-based alignment, stitching, and crop-generation utilities."
-    },
-    "spacr.spacrops.FOVAlignAndCropper": {
-      "source_blocks_sha256": [
-        "b576b26f46e62ee0a4b2bc8f92e6716dadf7a7dbce3a076c2218e6d72252722a",
-        "5c8ad1a151ba791bc462f077fe64c0580ca69cdbb92ea1cb60adf5e35c0e7313",
-        "0ab8c3d071ff240d6c0efb1e28365ba047f6d293bbbc976134a1444e00c972c5",
-        "07a2e08a7efa3e10f54e91528fab5a04277ef6f6a837201d267aa1a85a5d4dcb",
-        "2e75f2fa10296c08cfe1718383e29f5aa36a5dfef906bad1726b3ec6796e150e",
-        "2cf10a176d9224082d025d57c1fde04f63f15556add4627cf7ea911df2e5a7e6",
-        "807a7668e3b280727c6e0f93837cc85e1bbf691d8773242a2ed45dd3ef288c7b",
-        "243ff9f7a1d8a1c06d33fdfc056adacacf6909310a9cd3cb07cbc211e337f78e",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "e30a86eb550ef388db6ff693e127af89d953bc570087ca7de75177ef3182f663",
-        "8c96e327d114ea7afc7fe7a2db23e2ba5dfe9e0c94022a614536d4a5c65c40ea",
-        "10a3e1e43277bb0d9428775631a255896d86005df1a65bfec8c973b30affc2c7",
-        "0bb7d5aa8472f84cb08d3320809a8f06e495fdce7ec4bf480c5e01361319805b",
-        "9fcdd798da2d6a76bb6219ab93a42369af5e954110fa22c6ec3c2e76a25e997b",
-        "69dac81b05e99c7b442f25a2c94178610d22dccabafb0de0fded589178de7993",
-        "094a3627396b79f8197e394e8b707e9a1af6380f1af7a31d6d6d02c145aca3ed",
-        "caa7f595de623037e2d4a864766eff2012eb8624e55b60414876bb1c45b31e76",
-        "bf5f038b7cb1ab8747bd8fe14f87b0d70bcc673a339aa36c0bc03b9c5c938af5"
-      ],
-      "source_sha256": "a97af1e95ac4be7cdb68153bf396302464fba6a7c3b7986130fe02e3229b38a3",
-      "text": "Align individual FOVs to a stitched mosaic and export FOV-frame stacks.\n\nFor each FOV, saves a ``.npy`` with shape ``(C_fov + C_mosaic, H_fov, W_fov)``\n(native FOV channels stacked with the mosaic channels warped into the\nFOV frame) and a CSV row with the transform, score and mosaic bbox.\n\nDelegates feature/matching helpers to :class:`StitchedMultiAligner`.\n\n:param detector: keypoint detector (``'ORB'`` or ``'SIFT'``). Default ``'ORB'``.\n:param nfeatures: feature budget for the detector.\n:param max_keypoints: hard cap on kept keypoints after detection.\n:param downsample: downsample factor for the feature/score pass.\n:param ransac_thresh_px: RANSAC reprojection threshold (pixels, downsampled space).\n:param allow_scale: allow scale in the estimated affine.\n:param allow_rotation: allow rotation in the estimated affine.\n:param outdir: output directory. Default ``'./fov_out'``.\n:param opencv_threads: OpenCV internal thread cap.\n:param arr_axes: TIFF axis interpretation (``'AUTO'`` or string over ``TCZYX``).\n:param mip: max-project Z when present.\n:param z_index: Z slice to select if ``mip`` is false.\n:param t_index: T slice to select if T is present.\n:param squeeze_singleton: squeeze length-1 axes after slicing.\n:param folder_image_scale: default FOV-to-mosaic pixel-scale factor used by :meth:`run`.\nInitialize the FOV aligner. See class docstring for arguments."
-    },
-    "spacr.spacrops.FOVAlignAndCropper.run": {
-      "source_blocks_sha256": [
-        "543e4a7114e52505cd49b16a62fe21cbfdacecd2858fe485626e608158bbbadd",
-        "732fa1ca8b379780605ef0edc12ee68b4ffe0f3ea94b206e63aa8ccf173605c3",
-        "a74f190b656dfdf121c01502d4eb64fb3798d9221a9c4cc16f328a09ef2e1288",
-        "2f908b431ad4b722bc3e1b0716741443d6d43a3aeb38a1aa556956231f85f205",
-        "507feb990ce32715b040a571bdffb914ec55df491ad1dd6c28dc7356a7256fee",
-        "ee86cedb91cdc9f6eb81b5ff8197c3994ee0e59f611da23eb0448f99aa3c1cba",
-        "165d606a93d0a55ec8aa488d8454c752cec7257fa8ade8ac3d6d209d92cdaa40",
-        "b05e42a57f56a102aef34bceeed1dc79478e10ee44afd6900d95e4073f6fb701",
-        "e010571dedf337c9048e2b530dd9d57dac6f87230e77a27a40986d9b349e84ab",
-        "4a668076c812d2fc53ce65b9783ba2405368e16be200bab84c1a944dc9ef8734",
-        "5b70ad667bab94abf455600ebe4cca2a83d68e4dd175197c970e319b6d3e360e",
-        "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
-      ],
-      "source_sha256": "03f31f8ed996ce235e97f33ee76ef1d3b3a9b5015b5c37b6dde2c846659a0d80",
-      "text": "Align every FOV in ``folder`` to ``stitched_path`` and export FOV-frame stacks.\n\nUses the nuclei channel for alignment and writes one ``.npy`` per FOV\ncontaining the FOV channels plus mosaic channels warped into the\nFOV frame.\n\n:param stitched_path: path to the reference stitched mosaic.\n:param folder: directory of FOV TIFFs to align.\n:param stitched_nuclei_idx: nuclei channel index in the mosaic. Default ``0``.\n:param fov_nuclei_idx: nuclei channel index in each FOV. Default ``0``.\n:param exts: accepted FOV extensions.\n:param recursive: recurse into subfolders.\n:param csv_path: output manifest CSV path; defaults to ``<outdir>/fov_align_manifest.csv``.\n:param npy_dir: output folder for the per-FOV ``.npy`` stacks; defaults to ``<outdir>/npy``.\n:param folder_image_scale: FOV-to-mosaic pixel-scale factor; falls back to ``self.folder_image_scale``.\n:returns: path to the manifest CSV."
-    },
-    "spacr.spacrops.StitchedMultiAligner": {
-      "source_blocks_sha256": [
-        "798e36bf3b81569b026ce08f4e19a7e14288debe49ddc692b9601e166e9bf3c0",
-        "0e09b2e8c4e08ae55fd306a264455b35730d5ac101c4847121890df0d6792eff",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "00dbbe5b2dd4fd97c7758d44b9643c419d945b36e7691fdeb34c0287750fdc4e",
-        "925cd79da71fb72e9aa2335b264f0eda6b90015a10c8f585a29f815fa932a36b",
-        "c51334f0eeac4b651aa66298fa028f6ca35567bf76260b5930385937591c5d32",
-        "5f4c6035ee2501da083d6230979f789c11665bbeb11e849b7704b64d82bf2df6",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "58b707f5a2560b4c5a6bdfa30b2cd5bab1902dc146a15cf7ef82d77f692a646f",
-        "7c43011364044594fe4b1bea9060e9ac300b661ea483a8648b0d427cd9a18a28",
-        "c339920e153f3fc89ddb1454146c6317048f730ef7293b52e1aa21d2cf2b100e",
-        "4fa1e78840efd45869af805629939cf075f65b2fd6233756601f99ec4ab5f9bd"
-      ],
-      "source_sha256": "85f7b1992a03a2c05902fdd2efca7597d82183cee88864b7685b8527f699ea3f",
-      "text": "Align an arbitrary number of stitched mosaics (multi-channel, arbitrary axes) to a common reference\nusing the nuclei/ Hoechst channel. Saves a channel-concatenated aligned stack and a CSV manifest\ndescribing the mapping from input channels to output channels and the estimated transforms/scores.\n\nOutput image axes: CYX (channels stacked in the order inputs are provided).\n\nParameters\n----------\ndetector : {\"ORB\",\"SIFT\"}\n    Feature detector for keypoint matching.\nnfeatures : int\n    Feature budget for detector.\nmax_keypoints : Optional[int]\n    Hard cap on kept keypoints after detection (by detector’s internal ranking).\ndownsample : float in (0,1]\n    Downsample factor for feature/score pass.\nransac_thresh_px : float\n    Reprojection threshold (pixels) for affine estimation (downsampled space).\nallow_scale : bool\n    If False, constrain to rotation+translation (or translation only if allow_rotation=False).\nallow_rotation : bool\n    If False, constrain to translation only.\noutdir : str\n    Output directory for images/csv.\nopencv_threads : int\n    Limit OpenCV internal threading (avoid oversubscription).\n\n# Axis/Z/time handling (for TIFF reading)\n\narr_axes : \"AUTO\" or a string over {T,C,Z,Y,X}\n\nmip : bool\n    If True and Z exists, max-project Z.\nz_index : int\n    If mip=False, choose Z slice.\nt_index : int\n    Choose T index if T exists.\nsqueeze_singleton : bool\n    Squeeze 1-length axes after slicing.\n\nNotes\n-----\n- Alignment is done to the first image in `paths` (reference).\n- For each image, you can provide a per-image nuclei channel index via `nuclei_channel_indices`.\n  If None, defaults to 0 for all.\nConfigure the detector and tolerances for cross-acquisition alignment.\n\nSame contract as :class:`spacrStitcher`: matching happens at\n``downsample`` scale and ``ransac_thresh_px`` is in full-size pixels."
-    },
-    "spacr.spacrops.StitchedMultiAligner.align": {
-      "source_blocks_sha256": [
-        "59f1f5041fbf750f4d9a934690bd2ae67358f212e528956d8ab25a43640f3d39",
-        "5b1c368a58d9b1ff0ed5cb24f6a8b504f4b936024e129c70128da82cb48eee8a",
-        "93ece25a31c6b29b2cd4990e533f2db4f0285f2b1fd378f1604d40d977ac665b",
-        "ded122c908a418a6ac39586308f304d9ddd273914fee5ae638af042f4c07f6bf",
-        "1cc7298ae33829f9069964a84e8257ae77f560676a4aa630e07333365dc8ca72",
-        "cecafa2f71b60d328065655c96a6f43a16523000d941b2d5b1b14deca688975c",
-        "38c050f7aa618d8e294b3533bc16c11d9154ab6fb2b3252a0dbbbcce3f51d584",
-        "b9c9ac86e9483e2b26985b79313a4b00d090886e44fe996c514f8bab7d7dcfe5"
-      ],
-      "source_sha256": "e52db034e9eb74110ed64437bfe5e54881045599829f588c5e1272a893445205",
-      "text": "Align every stitched mosaic in ``paths`` to the first and save a CYX stack.\n\nAlignment uses the specified nuclei channel per image; the resulting\nstack concatenates all input channels in the order given.\n\n:param paths: stitched TIFFs to align; ``paths[0]`` is the reference.\n:param nuclei_channel_indices: per-image nuclei channel indices; defaults to zeros.\n:param out_tif: output aligned stack path; defaults to ``<outdir>/aligned_allc.tif``.\n:param out_png_preview: optional preview PNG path.\n:param csv_path: manifest CSV path; defaults to ``<outdir>/aligned_manifest.csv``.\n:returns: tuple ``(out_tif, out_png_preview, csv_path)``."
-    },
-    "spacr.spacrops.align_image_to_stitch": {
-      "source_blocks_sha256": [
-        "b43b920f287572dac2868cf4379f15674c4e3c90edd4b674f24d8db5d60c10ab",
-        "71ed8cbf2eb3daae5f2c0e1a9985ddf04439ad5b7405246e0746cf10d39ef6ef",
-        "8830820486586b47fb7d87f492e5a3ca7d99fbef8a37252bbbe2d97109399a5f",
-        "726a002ea5203bff5b406e3895d306841c32d5a45aa02c29f320def1dc3a15b5",
-        "5cf5adcf3e92f78b76ce11e63607754835de02232634b6a451455471c1f6e5bb",
-        "c9790b53a04496d53fd3fb32a9ddbf06336d0b71dbbb2c27f9f548e82b9d20db",
-        "cef73dab9156bce65271dfcae7f89f6318bb285308b1fb17d314917a035d7076",
-        "e9dd476454f9362f8383a673c616e921cbb2c118dfbad1629cb8e54503793cfa",
-        "7ae796410e7b4cfe1763aecaeda918dc436aed1c4124c5b85762b13babea8563",
-        "d1c407a8380ff798a6a6806f0d1b96bdc856cc92c3368cc3265ad9f5daff6d71",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "a87788c47690557e524da199c7f353c22ee40a7b34ec977877269489fce182ee",
-        "c7b494147a7d8d62284708776e43176ebe41aaf9388d211f4c1227d730b4c13a",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "adfee6c1cca6b6811e3b3169b222c2245db5d902871c464805ece1fcc2ce9a40"
-      ],
-      "source_sha256": "0bcda96dbca175d39bb2c56d2ad700bc2051b6df593725b14c38f1a553060f8b",
-      "text": "Align each well's higher-mag FOVs to that well's stitched mosaic.\n\nFor every well with a mosaic at\n``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif``, groups images\nfrom ``align_src`` by well and runs :class:`FOVAlignAndCropper` to\nproduce per-well crop manifests and ``.npy`` crops.\n\n:param stitch_dst_root: root folder containing per-well stitched mosaics.\n:param align_src: folder of higher-magnification images to align.\n:param meta_regex: regex extracting well/site metadata from filenames.\n:param well_group: named capture group holding the well identifier.\n:param channel_index: nuclei channel index. Default ``0``.\n:param relative_scale: FOV-to-mosaic pixel-scale factor. Default ``2.0``.\n:param downsample: feature-pass downsample factor. Default ``0.5``.\n:param nfeatures: keypoint budget for the detector.\n:param ransac_thresh_px: RANSAC reprojection threshold in pixels.\n:param allow_scale: allow scale in the estimated affine.\n:param allow_rotation: allow rotation in the estimated affine.\n:param qc_outlines: accepted for call compatibility and NOT used.\n    The ``*__qc_outlines.png`` overlays are written by\n    :class:`spacrStitcher`, which gates them on its own ``save_qc``;\n    :class:`FOVAlignAndCropper` has no such argument and draws no\n    overlays, so there is nothing here for this to switch on. Use\n    ``save_qc`` on the stitching step instead.\n:param recursive_align_src: recurse when scanning ``align_src``.\n:param exts: accepted image extensions.\n:returns: mapping ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``."
-    },
-    "spacr.spacrops.get_preprocess_ops_settings": {
-      "source_blocks_sha256": [
-        "087879fb324f350b5bd43f3333b538ef351ed24e41c2433a59c9b5e9587f1937",
-        "0ce25f08a202250d680dd93b3426db5226c8e66a1a12ed0aa38f03e4a90ee658",
-        "be81cf5c069ff8bbb4c2819464713de0da4a132fe433aa856973507e9e517cc1"
-      ],
-      "source_sha256": "14829a2ada53682630337e73eeef88bc8c9f0274210aa320981fb8192c772194",
-      "text": "Fill in defaults for the ops preprocessing / stitching / alignment pipeline.\n\n:param settings: user-supplied settings dict, updated in place with defaults.\n:returns: the settings dict with all defaults populated."
-    },
-    "spacr.spacrops.ops_preprocess": {
-      "source_blocks_sha256": [
-        "658363f928fd37c5b6945e772a7ee1fb40a1305ebcf3e4fe0e2ad4f2dc7b4941",
-        "bbade32699c9d517e34e4902d5c422cabd3ba444b94ee9330b71e279d5375c2a",
-        "385044fb256db0268fa99faa6d5cb5b4046205ecdf4566b205ba4cf4b1200856",
-        "68bd0cc36626d156a3b370df23f4146100a111ffa5d219b4478c851e367cb1b8"
-      ],
-      "source_sha256": "cff970872f4a3dc6eb32abd083aec4c0a8eff4977eaf8bc6b4db070b8fb92525",
-      "text": "Run the full ops preprocessing pipeline: per-genotype stitching + phenotype alignment.\n\nIterates over one or more genotype folders, calls\n:func:`stitch_cycle_wells` on each, then aligns the phenotype images\nto the resulting mosaics via :func:`align_image_to_stitch`.\n\n:param settings: dict of preprocessing settings; see\n    :func:`get_preprocess_ops_settings` for supported keys.\n:returns: dict with ``stitch`` (per-genotype summaries), ``align``\n    (per-genotype align results) and ``npy_out_root``, the\n    ``<phenotype_source>/output`` folder that is created here but never\n    written to — the ``.npy`` crops land in each well's ``crops_20x``\n    folder beside its mosaic."
-    },
-    "spacr.spacrops.spacrStitcher": {
-      "source_blocks_sha256": [
-        "eb651b31ef0c1b2680b6ec6def3843cdab04f4a56ed7a6cbcb26341c12665e48",
-        "7354bd1b3ba1608f191f2cc05657459dc2a390c21b252c708d78fa14cacf3be9",
-        "72be77fbd490dfa861ba9739272be320edafd2628b856414e1f7a48e2be841d5",
-        "54555b19eca1e44879d93e87cabd48215bf9bcf997eda8f891bac1d4e6ee235c",
-        "491abdb5d4259488483825d61e221c8391ae2456a40d42478b835a139b10d23d",
-        "e80adadbf0eb8de9cd5e9190bd818d98e2414cbddf9e31aa9ef129ccb0d51a03",
-        "cf148f056e36aacc5e640af9a41e8867ffc16fdac145d4985a9bbf5f14005b4d",
-        "757306a191aa2a6b930956f8f2a62360fcc2b1fdec6978b63235cf466b5348a3",
-        "2aa3a8d7f44b46ffd1f15aa8e2d1ac45dd631a2cf698f70cddfc2992b68df23b",
-        "5d09a817f9cf78d874938472fda724f9e2bf268aa62693fa59c1d86ced0bc870",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "3eff904fd2c575c55255b15b59a61a9322269579a37ee2bd37766c24d918c93a",
-        "f3908dbf64ce9e976a69fc146462f9af1929e83a2b85b50efbfec7be7648b727",
-        "c819aca9920ec3bed49fc6cdacca57dbd773e760027056d19ef204e26b3f89b1",
-        "bd15deb8e73b449664b1b7bea0eaa420b670c44731d3fa4f823e6d64141b95bf",
-        "ed5c9972d47895f909653a60ff27ed4e1947ee797ead4711718a02127b3daf22",
-        "8201ff488c3056cec28986aa8a2f6d3959e12ed75802501b3baa32572d7316ce",
-        "fbc4dad412c4b76483961fcad55aeff49d126479f9703676b9d58dfd65e0e14f",
-        "3b72228aff5d5eba3d32edd828eab826531fec28c5b848c19713567d070a034e",
-        "8cba799bef6986f7e3bdd32681973e4ff2dc88aaefb90a34b84ee29430df441b",
-        "e9c4aaf0f6db36409c53f154b9e64c01de7dd9b9046a264934df6d9fbc3f99d3",
-        "963527843c47709ed0d172711855ee2b468d42cd18afd4fbb242bdce58aba68b",
-        "41b7d93d61f11c07bf6dcd2894fdd70ad0678236a40409edd7b1cca828801373",
-        "758f1e6837bca535de5561275835b21b90f673a628c2f41d5c304a4a16c6e58c",
-        "464b02cda5ca89013fc791c425fa3e3c08bf18be283f341bc1b585ed001e36c9",
-        "d677ad5f0f097e61d7dd1d5f77f7d0b743c2a9db99b952c69b26e4b9c5e88624",
-        "262ca4cf57cd944c52e6b08ae2daa4d1fabb1fe52830af9952a18ee6e12a5169",
-        "ae327faa2fce7a261e06a889bc51c9ec92afed24a1f6882c0920b9569865cda5",
-        "4997c8db539a8f25eaffbeb3543e950b434b490a26e64c3e7bb232f667e2c59f",
-        "61511e80428de51ff0efc18c7b5a6d39a5c167501a69f62da92ec8ea28d1b309",
-        "2ecd491eb1e125d9385407db11c79b39297520201f9f640639daae2e35c6544b",
-        "65bfe29d8772d85700c46e978be873f695e4e1499d5a9de39d97d72dbb4a0570",
-        "19fd486131037328ec626391795f3685cc8f4abbce6592ddbafdb94ade86562b",
-        "75340f53747bce12b71dffd980806f31f87aaf0ac9c91284295c342e3b06aab4",
-        "faa14a150cb0777f800cbed0fb60654ae2a231553d809176f4b66fdc8816af36",
-        "0707d8991142279d81dc04d32261294613ec4fb79609181eb0a24151d18116f2",
-        "160a6eefbbc853af05278822d1379156b2be2371450a1f435fb33d2c90ec5b38",
-        "551d0ea76a012ca4aca8cefe34e6dc6702e93c52df6e2e948bdba0780a66a6d7",
-        "8c3e1026f5c8435ca72ba4fb28be175f60d4cfdc30b206101e0ce97711a7896f",
-        "105d0b72aeb0774a715289c302c5accc4059d08a9e57006300f81612a9c66526",
-        "7298d22c9768b94e67ca1a88d7939754eb6e178d0e2516faa08a7be4f83e9527",
-        "6a7777b75458adf9a824414623537e137d8442f314dc6dc5e711e5e9329aa748",
-        "6a34c1d1b4c851473f83caeac3fefb18fd135b2888842f39e151dae796e1630c",
-        "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6",
-        "ee0269f2647e48daa28c791316f0a664ff884bcaf414847c195b77f00fe57bf7",
-        "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
-      ],
-      "source_sha256": "174d288834aec7e44b341b91dce5629d3c7457a7122f7d52f374c866dc80db89",
-      "text": "Pairwise stitcher with downsampled scoring and whole-well mosaic assembly.\n\nMemory and concurrency controls for very large datasets:\n  - feature_cache_mode: \"disk\" (default) writes DS features to disk with an LRU RAM cap\n  - pair_batch_size:    limit number of concurrent pair futures\n  - stream_csv:         write pairwise rows immediately (low RAM)\n  - opencv_threads:     limit OpenCV internal threading to avoid oversubscription\n\n:param detector: keypoint detector, ``'ORB'`` or ``'SIFT'``; any other value\n    raises ``ValueError`` and ``'SIFT'`` needs an opencv-contrib build.\n:param nfeatures: keypoint budget handed to the detector. Default ``6000``.\n:param max_keypoints: cap on keypoints kept per image; ``None`` keeps all.\n:param downsample: scale factor of the downsampled feature/scoring pass.\n:param ransac_thresh_px: RANSAC reprojection threshold in pixels.\n:param allow_scale: allow scale in the estimated transform.\n:param allow_rotation: allow rotation when ``allow_scale`` is ``False``.\n:param outline_source: how QC outlines are found: ``'otsu'`` (default),\n    ``'cellpose'`` or ``'none'``.\n:param cellpose_model: Cellpose model name or checkpoint path; read only\n    when ``outline_source`` is ``'cellpose'``.\n:param cellpose_diameter: expected object diameter passed to Cellpose;\n    ``None`` lets Cellpose choose.\n:param canny: ``(low, high)`` Canny thresholds turning the foreground mask\n    into outlines.\n:param blur_sigma: Gaussian sigma applied before Otsu thresholding; ``0``\n    disables the blur.\n:param dilate_ksize: elliptical kernel size used to dilate the foreground\n    mask; ``0`` disables the dilation.\n:param line_thickness: outline thickness; values above ``1`` dilate the\n    edge image.\n:param outline_alpha: opacity of the outlines drawn on the QC overlay.\n:param outdir: output folder, created on construction and used for QC\n    images, stitched-pair outputs and the default feature cache; pairwise\n    CSVs are written where the caller's ``csv_path`` points instead.\n:param save_qc: write per-pair QC outline PNGs. Default ``True``.\n:param save_stitched_default: default for writing a pair's stitched TIFF;\n    per-call arguments override it.\n:param all_scores: also compute the slower full-resolution metrics\n    (full-res edge ZNCC and foreground correlation/IoU/Dice/XOR).\n:param score_threshold: default minimum score required to write a stitched\n    image; ``None`` means no default threshold.\n:param verbose: print progress messages.\n:param feature_cache_mode: ``'disk'`` or ``'ram'``; any other value raises\n    ``ValueError``.\n:param feature_cache_dir: where disk-mode features are stored. Defaults to\n    ``<outdir>/feat_cache``.\n:param max_ram_features: LRU size, in images, of the RAM cache in front of\n    the disk feature store.\n:param n_workers_features: feature-extraction thread count; defaults to\n    half the CPU count.\n:param pair_batch_size: pairs submitted to the thread pool per batch, with\n    a floor of ``1024``.\n:param stream_csv: accepted and stored but never read; pairwise rows are\n    always written as they are scored.\n:param opencv_threads: value passed to ``cv2.setNumThreads``.\n:param arr_axes: axis order of input TIFFs; must contain ``Y`` and ``X``\n    unless it is ``'AUTO'``.\n:param mip: max-intensity-project over Z instead of taking one slice.\n:param z_index: Z slice used when ``mip`` is ``False``.\n:param t_index: time index used when a T axis is present.\n:param squeeze_singleton: drop singleton axes after axis selection.\n\nTransform control\n-----------------\n  allow_scale:    if True  → use RANSAC affine (rotation+scale+translation)\n                  if False → enforce unit scale (see allow_rotation)\n  allow_rotation: if True  → rotation+translation\n                  if False → translation-only\n\nMosaic\n------\n  Uses topology-aware pruning + maximum spanning tree on pairwise scores\n  to build a cohesive grid. Exports mosaic image and a mosaic.csv manifest.\n\nAxis & Z handling\n-----------------\n\n::\n\n  arr_axes : str in {\"AUTO\"} or a string over {T,C,Z,Y,X} (e.g. \"CZYX\", \"CYX\", \"ZYX\").\n             Determines how to interpret multi-dimensional TIFFs.\n  mip      : bool. If True and Z exists, perform max-intensity projection over Z.\n  z_index  : int  (if mip=False) choose Z slice index.\n  t_index  : int  choose time index if T exists.\nConfigure the feature detector and the match tolerances.\n\n``downsample`` is the scale every match runs at; the transforms it\nproduces are expressed at full size, so lowering it costs accuracy rather\nthan changing the output geometry. ``ransac_thresh_px`` is in FULL-SIZE\npixels."
-    },
-    "spacr.spacrops.spacrStitcher.build_multichannel_mosaic_from_manifest": {
-      "source_blocks_sha256": [
-        "6eaa51c0d3b7f6059ab9a8e5882a4d0041615677f16733e3d1f086733558c031",
-        "8410fd2cde8963cf34bd66b720b4631e7ed6cc01ba2ce557d1c6c4a7c2ebdb3b",
-        "4efca5537d14d609ae49a2875d332aafa15d42112f3105c84ee8aa15d4bd3c62",
-        "1aa79d87a273b6dd7314619a9d8dabe69034899307d8d7215d8130b741fbe5b1",
-        "2a977ac7b09d399cb964788e8531d70ef144f16884a42bfd500a739619cc6ab6",
-        "c7338195a301f111ae9322b593e22262aeaaac6e0a094f93c80cb16825ce96b5",
-        "b9f0a6cfe36c8dfcea82be568708a42b59a081118bfbd53ed4f77e48c687d33c",
-        "5ed85010fa6eb06ca795c2a868d6a2378614a9c4b7d3aaad45b68bdd0fa77477",
-        "72876b66772efd2167bc32be4f063c1329db0c25480495645ee6904baf9e7340",
-        "e1c2fac9103157036a4dd8f4f0745d85feac924253882a2a318519f2f82690e8",
-        "152b777701bbb510b7fbecf4e093681fd047667035f8bbb013a2fcb12e94f9d0",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "c59a02cd4935798766fe05129cc323c38e0b778eb03d52092ed67fe25d0e893e",
-        "427e05f1a0b114094f0bb301a9f912a9e34d6e1abaa3f2c072268593f6be3e15",
-        "cdb58a1a7d30fad5d7be5820e999c146cae9705418432a378a5acf59d2b4a42b",
-        "1d1a1b1ef3c105fb46b40cecdb123120a638920cb37534b0bdd8f1fcbc6e70a0"
-      ],
-      "source_sha256": "247553b1ee13543b3498c0acef33be44032369aab838351b0e9f904d7b1a2ca7",
-      "text": "Build a CYX BigTIFF mosaic from a 'mosaic.csv' manifest written by\nspacrStitcher.render_mosaic_from_csv(...).\n\nExpected CSV columns (per tile row):\n  - path, H, W,\n    M00, M01, M02,\n    M10, M11, M12,\n    canvas_x, canvas_y, best_pair_score\n\n:param manifest_csv: mosaic manifest to read; a missing required column\n    or a row whose size/affine will not parse raises ``RuntimeError``.\n:param out_tif: destination path for the CYX mosaic TIFF.\n:param out_png: optional preview PNG of channel 0; no preview is\n    written when ``None``.\n:param channel_indices: channels to composite; ``None`` uses every\n    channel of the first usable tile.\n:param blend: ``'max'`` or ``'overwrite'``; any other value raises\n    ``ValueError``.\n:param tmp_dir: workspace for the on-disk memmap. Defaults to\n    ``mosaic_tmp`` under ``self.feature_cache_dir`` if set, otherwise\n    next to ``out_tif``.\n:param preview_downsample: factor by which the preview PNG is shrunk;\n    values of ``1`` or less keep full size.\n:returns: the ``out_tif`` path that was written.\n\nNotes\n-----\n* Uses the 2x3 affine in the manifest (already includes global offset).\n* If `channel_indices` is None, infers the channel count from the first valid tile.\n* `blend=\"max\"` takes per-pixel max across overlapping tiles;\n  `blend=\"overwrite\"` writes the latest tile over earlier ones where coverage>0.\n* If `tmp_dir` is provided (or available from self.feature_cache_dir), the output\n  workspace uses a disk memmap to reduce RAM."
-    },
-    "spacr.spacrops.spacrStitcher.mosaic_all_channels_from_csv": {
-      "source_blocks_sha256": [
-        "1f42d9c45c7f834056020a637b1ff3eed83ace75f59a53ad2fc124ad055fbd52",
-        "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
-        "88983bf23176842902ce1aade1c5ee1ea2cfca560f44ba89f89eace37aca4107",
-        "f91f29f50f7711fc3dc5d53956dfff3452a07eb60c20cc244cec893a3cd0efee",
-        "41401e7ead1fce4958e46e9591efc3dd9dfb27f649ea94e791cabfc54960b81e",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "4f59d5ef657320e399f6a06d9c4695ee519b6840803db32293d0e34fa1d9a12a",
-        "e3968366b2dcf54efbed8fee6ef77b303e5449785b6c9204ce22cef171a3858c"
-      ],
-      "source_sha256": "78adc956ab1e07247878cd3c2fcc832e8d5e010a0d58cf6cc1dcb382dfaded4b",
-      "text": "Assemble a multi-channel CYX mosaic by reusing pairwise transforms across channels.\n\nPass ``out_tif=None`` with an ``out_csv`` to run in manifest-only\nmode (compute transforms and canvas geometry, write manifest, skip\nrendering).\n\n:param csv_path: input pairwise metrics CSV.\n:param out_tif: mosaic TIFF output path (``None`` for manifest-only).\n:param min_score: minimum pair score kept for the mosaic (auto-detected when ``None``).\n:param channel_count: force this many channels; auto-detected when ``None``.\n:param channel_index_order: explicit channel index ordering for the output.\n:param angle_tol_deg: tolerance for classifying edges into R/L/U/D bins.\n:param step_tol_frac: fractional tolerance around the estimated grid step.\n:param rot_tol_deg: max allowed rotation when rotation is disabled.\n:param scale_tol: max allowed scale deviation when scaling is disabled.\n:param cap_one_per_dir: keep at most one edge per direction per tile.\n:param out_csv: optional per-tile manifest CSV path.\n:returns: path to the mosaic TIFF (or ``None`` in manifest-only mode)."
-    },
-    "spacr.spacrops.spacrStitcher.prepare_features": {
-      "source_blocks_sha256": [
-        "0a2bf501027aec8a4c2e378a8eb6fa86d3db67e6be975b4594246bc8292de5f3",
-        "cd9bdcaf97b883deb65882469ef1c9593b9a195fd39f9732d56c695c4ed62a78",
-        "02615c95660dba3bd7dab9bfa5db03f14416612760aa26844257b9b643ee9c01",
-        "a72ef973047d36890fcf63e2b369a877895f3ca540c9ebf9454f65d053307a8f",
-        "5bbd5bc42e76282f4a641f0ca5e93151c9366a3c3d7527ed45ae3d9800a64a16",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "1a3b597c3afc77c890d1a6f0952fb1ef9a2234af56beeaff73ca104cc97c9463",
-      "text": "Precompute keypoints and descriptors for ``paths`` and cache them.\n\nIn ``disk`` mode every result is flushed to the on-disk feature store\nwith only an LRU-sized subset kept in RAM; in ``ram`` mode results\nare held in memory only.\n\n:param paths: image files to feature.\n:param channel_index: channel to read from multi-channel TIFFs.\n:param num_workers: worker thread count; defaults to ``self.n_workers_features``.\n:returns: None."
-    },
-    "spacr.spacrops.spacrStitcher.render_mosaic_from_csv": {
-      "source_blocks_sha256": [
-        "fde71e1166a00bdd7a2e22acbda81447ba2e497899ec5ea7b4764704cc79cd55",
-        "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
-        "876ec5bf0028b64c752319271cebce6b206d78838970cdc8fdf9b4bd2357a072",
-        "b78d64d4c21e5fab3148d460d40ab6d6a3bd2d7c3a3d3b39345bcbbb650349c6",
-        "88983bf23176842902ce1aade1c5ee1ea2cfca560f44ba89f89eace37aca4107",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "d9053e6096512b8d035d687ef16ddd34ed0b44d2bce1e41216d39a56f740268e",
-        "4bf59fa16d56ba883de96a18212d4ffc19a3a38d2eba6393b41465b7aad3db45"
-      ],
-      "source_sha256": "db6fa5e26ac74a7ec4d829f9acd1a497f164252f74507e347eb8fcbf24834201",
-      "text": "Assemble a mosaic image (and manifest) from a pairwise-metrics CSV.\n\nPass ``out_tif=None`` together with an ``out_csv`` to run in\nmanifest-only mode (transforms are computed and written but no\nimage is rendered).\n\n:param csv_path: input pairwise metrics CSV.\n:param out_tif: mosaic TIFF output path (``None`` for manifest-only).\n:param out_png: optional preview PNG output path.\n:param channel_index: channel used for rendering. Default ``0``.\n:param min_score: minimum pair score kept for the mosaic (auto-detected when ``None``).\n:param angle_tol_deg: tolerance for classifying edges into R/L/U/D bins.\n:param step_tol_frac: fractional tolerance around the estimated grid step.\n:param rot_tol_deg: max allowed rotation when rotation is disabled.\n:param scale_tol: max allowed scale deviation when scaling is disabled.\n:param cap_one_per_dir: keep at most one edge per direction per tile.\n:param out_csv: optional path to the per-tile manifest CSV.\n:returns: tuple ``(out_tif, out_png)``."
-    },
-    "spacr.spacrops.spacrStitcher.run_folder": {
-      "source_blocks_sha256": [
-        "50ad0a1cb7dbbf6b87799a7bd51b6cf6566e0a99d4894d49a254d3281bfd5638",
-        "51d9e5f7d20d7d6e34cf0e87166c1a76516ded41899f239269077a54763f1c06",
-        "b67998529733a49ffa7f510b74e4843a03cf901bd88a77134a8c6067bf8060ab",
-        "cf73934177dd8956a194b0a6e31c9dc5e598622b2c2aba1d81cacc7a1f7b7243",
-        "78fb17386a5c73152cced41e68ed7e5fdc7e94c38b195c05bcd6e9f996f0cc52",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "29b83a724759e2d8e2364c2c849b5f3743ecfe19f43a42cadb7e0bd22a445b77",
-        "1cc305fd1a59d1f6da418ba98a562c6ecc1bed68484ab8e9afa906bbf37d7ce7",
-        "5d91272fc3a6cd04c1523e827172b94283c62c063ffae33f57391134e750174c",
-        "4c47095cd345024ebfa93b29b7c3da9e3f1553a65ea15e7b4663d5a7a01d2280",
-        "4f4737f6000fc7bdf0e1ce4de0da2354a9a1eba4a73ac46c71d80edc59532642",
-        "c19362a8369c06f6443090f2f0937a3e5f6a535d213aa4c11aa96f46a8adad64",
-        "f1a8b6c26d0deb9272b697d948362c856f607b0231659200ae5cedfdaa872975",
-        "944cd8a745fc9c05ae096fc410516cf88a89baa57e785f4c7cad9a27525da8b9",
-        "9566d4d5f5d67d2ff92858e495ddb5bc7d0fa71949f15aeb9de93303a907b7b9",
-        "f023b72f1bae967e5d84b2186c26722b111397cfc131062f1b1c36f755e065db",
-        "b359c0e88dc980c79c0efe1f75a51191f25ad0ff4c58ff58ca47dcfe649a64ac",
-        "9a3da0287619ba655373eec4fa4768e9df70369966daacab24afdb85604277b9",
-        "cf99ad4ba037d3bca6210aa39f36819c5e4b1029f4ded88a099d81137670cbcd",
-        "86a72d466a012da897aec32fa0f714e2b2d8aa256c825ada6b73d1a469632b5d",
-        "48068c7c5d42c819507bce6ac90e912a9fb40cc31f8468566c182f2fcb873ed1",
-        "914a5a86ee96ae60461cdc40b0c74b3cd7a8fccfbc6d39136163bf0ba67db618",
-        "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
-      ],
-      "source_sha256": "cfc121333b39358d6311adab55cbcc6d92e1b5e42d441010696eecb8aedbfe15",
-      "text": "Score every candidate pair in ``folder`` and optionally build a whole-well mosaic.\n\nWhen the number of candidate pairs exceeds ``qc_pairs_threshold``, QC\noverlays are skipped in the first pass and reissued only for pairs\nwhose score clears the auto-threshold in the second pass.\n\n:param folder: directory of tiles to scan.\n:param csv_path: destination CSV for pairwise metrics.\n:param channel_index: channel used for feature scoring. Default ``0``.\n:param exts: accepted image extensions.\n:param recursive: recurse into subfolders. Default ``False``.\n:param same_well_only: restrict pairings to the same parsed well. Default ``True``.\n:param max_site_gap: maximum site-index gap between candidate neighbours. Default ``3``.\n:param n_workers: worker threads for the scoring pass. Default ``8``.\n:param stitch: save stitched TIFFs for pairs above the score threshold.\n:param score_threshold: minimum score required to save the stitched image.\n:param meta_regex: override the filename regex before scanning.\n:param mosaic: build a single-channel mosaic once pair scoring finishes.\n:param mosaic_out: output TIFF path for the mosaic (single-channel mode).\n:param mosaic_min_score: minimum edge score used when pruning mosaic edges.\n:param mosaic_csv_out: output CSV path for the mosaic manifest.\n:param mosaic_all_channels: build a CYX mosaic across all channels.\n:param mosaic_channel_count: force this many channels for the multi-channel mosaic.\n:param mosaic_channel_index_order: explicit channel order for the multi-channel mosaic.\n:param qc_pairs_threshold: pair count above which QC plotting is gated.\n:param qc_only_above_threshold_when_many: enable the second-pass, score-gated QC output.\n:returns: path to the pairwise-metrics CSV."
-    },
-    "spacr.spacrops.spacrStitcher.set_meta_regex": {
-      "source_blocks_sha256": [
-        "e59c5152eae510229811f50a7c9dab32ba9eccfb2ef705788e0e6369755afee4",
-        "feadf4ac30dae81b4edf9481459d712595bbfc6afb0afc6f095c1cbe3cc2c6f5"
-      ],
-      "source_sha256": "27bc59283852176ccc6d026c3f3d2cf737a27bba3f3657a05a768a66b1223710",
-      "text": "Replace the filename regex used to parse image metadata.\n\n:param pattern: string or compiled regex with well, site, channel, and\n    magnification groups."
-    },
-    "spacr.spacrops.spacrStitcher.stitch_pair": {
-      "source_blocks_sha256": [
-        "2d423139139b7b5fdad90cb8970d5d649ada45ec3ba54441d886ba2bbff65101",
-        "a9fec53041c394a39fcf16be609c27de825c83aa5465aad6edd0cc8f5bbcf203",
-        "6ebca2c0154dfcb2df09e2ac992144976dbab0277eddebd98618da59441e642f",
-        "6ec47f331ba4c0cc3b42c7b3ffa0abff96db7c91942eb35e589a69a6f71f2714",
-        "726929e8b5c7a1b9d359097851f3f49fd74fccf34471002d20dbe76d2c453587",
-        "8c09ce7a9ccb1e3082c178bb633c61007393512b2b237d91a6690af4230d0083",
-        "2cbc306772f3173a7239a62ab9d2b1f486407055e21ca396537666285d11edf5",
-        "64055dd4d640a14752c2cb3b953440b8e568f20c7cb0f7dd6b79088bdefd3106",
-        "8b59049b4cf4fb511a8a88d5a389796cc2b3c26be744ed651c509e1f2d4f3db7"
-      ],
-      "source_sha256": "d3060fffaa56b4da067689a91ff614c836070a3e3b0303f08451f5d7d4a72a87",
-      "text": "Estimate the B-to-A affine, score the overlap, and optionally write the stitched pair.\n\n:param pathA: reference image path.\n:param pathB: image to align to ``pathA``.\n:param channel_index: channel used for feature matching. Default ``0``.\n:param score_threshold: minimum edge-ZNCC score required to save the stitched TIFF; falls back to ``self.score_threshold``.\n:param save_stitched: override for whether to write the stitched image; falls back to ``self.save_stitched_default``.\n:param force_no_qc: suppress QC overlay images regardless of settings.\n:param qc_only_if_score_ge: emit QC overlays only when the pair score meets this cutoff.\n:returns: dict of pair metrics and output paths, or ``None`` when matching/RANSAC fails."
-    },
-    "spacr.spacrops.stitch_cycle_wells": {
-      "source_blocks_sha256": [
-        "56d1f86563622756cd7e895f79ad1c85a98a66bd7821e4ffe0887b55bb832d23",
-        "8f73b339608b45b5e9eeb813a4262071627ec8ad62489fee89931237242271a6",
-        "43e2055f27b37bb3caa915733fa5684575c1b93adb7ae82e1a64fe15a181260e",
-        "52899c439e3418283cd3cbd1931f7a2b9195734a27b4b5b0eb43a50d8d950327",
-        "a461890ecbdfa56af39153e64f160445b45ac7e286e31241c10123b6ea2bcac5"
-      ],
-      "source_sha256": "384a6b243901630139ba6a3c7fbbec27a5dd5db1dd71caebf58c6f072ce0584d",
-      "text": "Organize a plate of TIFFs into per-well folders and stitch each well.\n\nGroups images by well from filename metadata, optionally moves or\nsymlinks them into per-well folders, then runs :class:`spacrStitcher`\non each well to produce pairwise CSVs, and -- when asked -- single- or\nmulti-channel mosaics.\n\nTHE MOSAIC IS OPT-IN. Set ``write_mosaic`` (or its synonym ``mosaic``)\nto build one. It is off by default because assembling a mosaic raises\nwhen too few tiles overlapped to place any, and a plate that cannot be\nstitched should not become a plate that cannot be organised.\n\n:param settings: dict of preprocess settings; see\n    :func:`get_preprocess_ops_settings` for supported keys.\n:returns: dict with keys ``organized`` (move/symlink summary) and\n    ``wells`` (per-well output paths)."
     },
     "spacr.sra": {
       "source_blocks_sha256": [

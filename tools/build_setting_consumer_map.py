@@ -128,6 +128,11 @@ ABSENT_FROM_EXPECTED_TYPES = {
         "surrogate_test_size", "sweep_points", "sweep_span",
         "target_gene", "target_grnas_per_well", "target_guides",
         "target_statistic", "z_handling",
+        # 2026-09-15 (372): `recursive` was typed from the first import by
+        # the old OPS engine's settings. With those deleted, the module
+        # that reads it, `spacr.external_masks`, types it as bool when it
+        # registers -- late, like the rest of this group.
+        "recursive",
     ),
     # HALF-DECLARED: in ``spacr.settings.tooltips`` from the first import and
     # in ``expected_types`` never, so a user gets prose to read and

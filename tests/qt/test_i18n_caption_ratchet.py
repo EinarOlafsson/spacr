@@ -296,15 +296,24 @@ COMPACT_CAPTION_SHA256 = (
 # Nothing left the table. The reverse check: removing these 156 identities
 # from the current set gives f576cb08... back exactly.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 1055,
-    "SETTING_TOOLTIPS": 1050,
+    # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
+    # DIFFERENCE of the identities against the tree before the deletion,
+    # and nothing else moved. 52 SETTING_LABELS and 52 SETTING_TOOLTIPS for
+    # the settings only the old engine read, and the six OPS category
+    # explanations it alone used, which count once under CATEGORY_HELP and
+    # once under UI. Nightly 17172faa8's identities minus those 116 digest
+    # to the fingerprint below.
+    # `recursive` keeps its row: its English now comes from
+    # spacr.external_masks, which reads it, so its identity is unchanged.
+    "SETTING_LABELS": 1003,
+    "SETTING_TOOLTIPS": 998,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
     # tooltip says nothing about the settings under it, which costs the
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
-    "CATEGORY_HELP": 200,
+    "CATEGORY_HELP": 194,
     # 2,988 -> 3,291 on 2026-09-14, and reviewed record by record against
     # 49c1189f7, where every count in this dict still reproduces exactly.
     # +304 / -1, NOT a flat +303: the four other tables did not move at all,
@@ -348,7 +357,9 @@ EXTERNAL_SOURCE_COUNTS = {
     # values too (the keys stay, so no existing row leaves). Each of the ten
     # has a reviewed record in all nine languages, and a plain rebuild changed
     # no other row in any catalog.
-    "UI": 3472,
+    # 3,472 -> 3,466 when the old OPS engine was deleted (372): its six category
+    # explanations, which also count under CATEGORY_HELP.
+    "UI": 3466,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -419,8 +430,12 @@ EXTERNAL_SOURCE_COUNTS = {
 # tooltips (PERFORMANCE_NOTES) and the five hardware notes (HARDWARE_NOTES).
 # PROVED BY SUBTRACTION with this test's own formula: today's identities
 # minus those ten give ba2a0af05393208f..., the previous pin byte for byte.
+# Moved again on 2026-09-15 when the old OPS engine was deleted (372): 116
+# identities leave and none arrive, the same set the counts above name.
+# PROVED BY SUBTRACTION the same way: nightly's identities (119746de...)
+# minus those 116 give this pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "119746de960bd997cf863f1a4a36a13bb803691a129eb5eaecd1fbd41e2fc773"
+    "3bc7769a7d287175045d24611bbd962d16623d68f52ae9101aa59602d57669e3"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

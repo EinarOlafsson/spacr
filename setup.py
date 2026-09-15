@@ -494,8 +494,7 @@ dependencies = [
     'numexpr>=2.8.4,<3.0',
     # Both bounds are weaker than they look. The real API floor is 4.0.0 —
     # spacr/plot.py:110 and :457 unpack `cv2.findContours` as a 2-tuple, which
-    # is the OpenCV 4 signature, and `cv2.SIFT_create` (4.4) is hasattr-guarded
-    # at spacr/spacrops.py:204. 4.9.0.80 is a *wheel* floor (first tag cut
+    # is the OpenCV 4 signature. 4.9.0.80 is a *wheel* floor (first tag cut
     # after cp312 support), not an API one. `<5.0` used to be dead text —
     # opencv-python-headless 4.12+ declares `numpy>=2`, so the old `numpy<2.0`
     # capped the resolve at 4.11.0.86 by itself. With numpy widened, 4.12+ is

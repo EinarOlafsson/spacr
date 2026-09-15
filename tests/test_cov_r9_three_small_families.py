@@ -1,4 +1,4 @@
-"""Three families of guard, each appearing in more than one module.
+"""Two families of guard, each appearing in more than one module.
 
 Grouped rather than filed per module, because the interesting thing
 about each is the same in every copy -- and a family pinned once is a
@@ -7,70 +7,12 @@ family that cannot drift apart quietly.
 from __future__ import annotations
 
 import inspect
-import re
 
 import numpy as np
 import pytest
 
 # ---------------------------------------------------------------------------
-# 1. `if s != 0:` -- lifting a downsampled transform back to full resolution
-# ---------------------------------------------------------------------------
-
-class TestTheDownsampleFactor:
-
-    def test_all_three_copies_lift_the_same_way(self):
-        """THE PIN for the three unconditional translation lifts.
-
-        ``s`` is the downsample factor a stage chose for itself, and a
-        transform estimated at that scale has its TRANSLATION in
-        downsampled pixels -- the rotation and scale parts are
-        dimensionless and need no lifting. Dividing only rows 0 and 1 of
-        column 2 is what that means, and getting it wrong shifts every
-        stitched tile by a factor.
-
-        A factor of zero either receives the explicit 1.0 floor or makes the
-        earlier feature detector reject its 1x1 image, so no lift sees zero.
-        """
-        from spacr import spacrops as S
-
-        source = inspect.getsource(S)
-        lifts = re.findall(
-            r"M_full\[0, 2\] /= (?:float\()?s\)?\s*\n"
-            r"\s*M_full\[1, 2\] /= (?:float\()?s\)?", source)
-
-        assert len(lifts) == 3, (
-            f"expected three copies of the downsample lift; found "
-            f"{len(lifts)}. A copy that stopped matching has either been "
-            f"removed or has drifted from the other two")
-        assert "if s != 0:" not in source
-
-    def test_only_the_translation_is_lifted(self):
-        """The arithmetic itself, which is what the three copies must
-        agree on: the linear part is dimensionless."""
-        M_ds = np.array([[0.5, 0.0, 10.0],
-                         [0.0, 0.5, 20.0]], dtype=np.float32)
-        s = 0.25
-
-        M_full = M_ds.copy()
-        if s != 0:
-            M_full[0, 2] /= s
-            M_full[1, 2] /= s
-
-        assert M_full[0, 2] == pytest.approx(40.0)
-        assert M_full[1, 2] == pytest.approx(80.0)
-        assert M_full[:2, :2].tolist() == M_ds[:2, :2].tolist(), (
-            "the linear part was scaled too, which would change the "
-            "rotation and zoom of every stitched tile")
-
-    def test_a_zero_factor_is_what_the_guard_is_for(self):
-        """Named so the guard is not mistaken for something else: without
-        it the lift is a division by zero, not a wrong number."""
-        with np.errstate(divide="ignore", invalid="ignore"):
-            assert np.isinf(np.float32(10.0) / np.float32(0.0))
-
-
-# ---------------------------------------------------------------------------
-# 2. every numeric role channel is in the dense map built from those roles
+# 1. every numeric role channel is in the dense map built from those roles
 # ---------------------------------------------------------------------------
 
 class TestTheDenseChannelMap:
@@ -155,7 +97,7 @@ class TestTheDenseChannelMap:
 
 
 # ---------------------------------------------------------------------------
-# 3. `if name not in <list>:` -- order-preserving de-duplication
+# 2. `if name not in <list>:` -- order-preserving de-duplication
 # ---------------------------------------------------------------------------
 
 class TestOrderPreservingDeduplication:

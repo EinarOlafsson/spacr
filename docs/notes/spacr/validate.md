@@ -48,7 +48,7 @@ One entry point over both classifier families. It calls deep_spacr or generate_m
 ### lines 118-119  _(unsure)_
 
 ```python
-"ops": "spacr.spacrops.ops_preprocess",
+"ops": "spacr.ops_engine.run_ops",
 ```
 
 OPS folds onto Align & Stitch: it is stitching too, over a plate acquired in sequencing cycles.

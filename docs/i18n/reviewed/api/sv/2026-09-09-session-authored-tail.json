@@ -143,13 +143,6 @@
       "translation": "Resten BEHÅLLS, kastas inte: :meth:`settings` returnerar den oförändrad vid sidan av tabellens egna nycklar, så att den här widgeten kan redigera ett hörn av en inställningsfil utan att hålla hela filen som gisslan."
     },
     {
-      "label": "spacr.spacrops.spacrStitcher#45",
-      "source_sha256": "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc",
-      "source": "``downsample`` is the scale every match runs at; the transforms it produces are expressed at full size, so lowering it costs accuracy rather than changing the output geometry. ``ransac_thresh_px`` is in FULL-SIZE pixels.",
-      "context": "``downsample`` is the scale every match runs at; the transforms it produces are expressed at full size, so lowering it costs accuracy rather than changing the output geometry. ``ransac_thresh_px`` is in FULL-SIZE pixels.",
-      "translation": "``downsample`` är den skala varje matchning körs i; de transformer den ger uttrycks i full storlek, så att sänka den kostar noggrannhet snarare än att ändra utdatageometrin. ``ransac_thresh_px`` anges i pixlar i FULL STORLEK."
-    },
-    {
       "label": "spacr.train_compare.TrainingRun#9",
       "source_sha256": "3186785b00cdb3d155852b0c2121e5cd1f4675c042c1ebe996497b83e63844f5",
       "source": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",

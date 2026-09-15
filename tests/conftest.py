@@ -1878,7 +1878,7 @@ def check_cellpose_eval_call(x, channel_axis=MISSING_CHANNEL_AXIS, *,
         explicitly. True for the call sites that do (``spacr.object``,
         ``spacr.pipeline_v2``, ``spacr.spacr_cellpose``) so the value stays
         under contract; False where spaCR deliberately leaves Cellpose to
-        auto-detect (``spacr.spacrops``, ``spacr.submodules``).
+        auto-detect (``spacr.submodules``).
     :returns: list of converted images, in call order — the mock can size its
         canned masks from these rather than re-deriving the shape.
     :raises AssertionError: when ``channel_axis`` was required and omitted.

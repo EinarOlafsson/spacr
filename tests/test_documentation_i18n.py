@@ -161,7 +161,12 @@ TOOLS = ROOT / "tools"
 # spacr.ops_cycles.AlignedField and align_field, spacr.ops_sbs.attribute_reads
 # and assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. Their
 # blocks carry reviewed records in all nine locales.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_541
+# 10,541 -> 10,521 on 2026-09-15, +0 / -20 by set difference against
+# the switch commit when the old OPS engine was deleted: the 17 symbols of
+# the old engine's module and `spacr.settings.set_default_stitch`,
+# `set_default_multichannel` and `set_default_general`, the old
+# stitcher's defaults, which nothing called.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_521
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
@@ -1535,15 +1540,6 @@ def test_canonical_indented_literal_shapes_are_never_translation_blocks():
     for key, fragment in forbidden.items():
         blocks, _layout = translatable_blocks(docs[key])
         assert not any(fragment in block for block in blocks), (key, fragment)
-
-    stitcher_blocks, _layout = translatable_blocks(
-        docs["spacr.spacrops.spacrStitcher"]
-    )
-    assert any(
-        "if True  → use RANSAC affine" in block
-        and "if False → translation-only" in block
-        for block in stitcher_blocks
-    )
 
 
 def test_code_definition_shape_inside_explicit_literal_block_stays_exact():

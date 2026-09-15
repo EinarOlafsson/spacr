@@ -249,10 +249,10 @@ def test_mutable_default_fix_behaviour_settings_dict():
 
 
 # ---------------------------------------------------------------------------
-# refactor(__init__): sim / object / spacrops exposed via lazy loader
+# refactor(__init__): sim / object exposed via lazy loader
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("name", ["sim", "object", "spacrops"])
+@pytest.mark.parametrize("name", ["sim", "object"])
 def test_newly_exposed_submodules_reachable_via_getattr(name):
     import spacr
     assert name in spacr._SUBMODULES, f"{name} not in _SUBMODULES"

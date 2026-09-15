@@ -1,16 +1,9 @@
 """
-Deep behavioral tests for the two biggest still-cold pipeline modules:
-
-  * spacr.timelapse   — tracking primitives that are pure enough to test
-                        without live microscopy timelapses
-  * spacr.spacrops    — screen-QC pipelines; test the _DiskFeatureStore
-                        class-level LRU + disk cache
+Deep behavioral tests for spacr.timelapse: tracking primitives that are
+pure enough to test without live microscopy timelapses.
 """
 from __future__ import annotations
 
-import os
-import tempfile
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -237,80 +230,3 @@ def test_reorient_merged_array_channel_first_layout():
     arr = np.zeros((16, 16, 7), dtype=np.float32)
     out = _reorient_merged_array(arr, n_channels=4, max_extra_masks=3)
     assert out is not None
-
-
-# ===========================================================================
-# spacrops._DiskFeatureStore — disk-backed LRU cache
-# ===========================================================================
-
-def test_disk_feature_store_roundtrip(tmp_path):
-    from spacr.spacrops import _DiskFeatureStore
-    store = _DiskFeatureStore(str(tmp_path), max_ram_items=4)
-    feat = {
-        "ds8":  np.array([[1, 2], [3, 4]], dtype=np.uint8),
-        "pts":  np.array([[0.5, 1.5], [2.5, 3.5]], dtype=np.float32),
-        "desc": np.zeros((2, 32), dtype=np.uint8),
-        "Hds": 32, "Wds": 32, "H": 128, "W": 128,
-    }
-    key = "/fake/some_image.tif"
-    assert store.get(key) is None    # cold miss
-    store.put(key, feat)
-    got = store.get(key)             # warm hit
-    assert got is not None
-    assert np.array_equal(got["ds8"], feat["ds8"])
-    assert np.array_equal(got["pts"], feat["pts"])
-    assert got["Hds"] == 32 and got["W"] == 128
-
-
-def test_disk_feature_store_key_hashing_is_stable(tmp_path):
-    from spacr.spacrops import _DiskFeatureStore
-    store = _DiskFeatureStore(str(tmp_path))
-    # Two calls to _key_for_path with the same input give the same hash.
-    a = store._key_for_path("/some/img.tif")
-    b = store._key_for_path("/some/img.tif")
-    assert a == b
-    # Different inputs → different hashes.
-    c = store._key_for_path("/other/img.tif")
-    assert a != c
-
-
-def test_disk_feature_store_lru_evicts_beyond_limit(tmp_path):
-    from spacr.spacrops import _DiskFeatureStore
-    store = _DiskFeatureStore(str(tmp_path), max_ram_items=2)
-
-    def _tiny_feat(i):
-        return {
-            "ds8": np.array([[i]], dtype=np.uint8),
-            "pts": np.zeros((0, 2), dtype=np.float32),
-            "desc": np.zeros((0, 32), dtype=np.uint8),
-            "Hds": 1, "Wds": 1, "H": 1, "W": 1,
-        }
-
-    for i in range(4):
-        store.put(f"/f/{i}.tif", _tiny_feat(i))
-
-    # LRU cap = 2 → only the two most-recent entries are in RAM.
-    assert len(store._ram) == 2
-
-
-def test_disk_feature_store_get_falls_back_to_disk_after_lru_eviction(tmp_path):
-    """After eviction from RAM, get() still finds the entry via the NPZ
-    on disk and rehydrates it."""
-    from spacr.spacrops import _DiskFeatureStore
-    store = _DiskFeatureStore(str(tmp_path), max_ram_items=1)
-
-    def _tiny_feat(i):
-        return {
-            "ds8": np.array([[i]], dtype=np.uint8),
-            "pts": np.zeros((0, 2), dtype=np.float32),
-            "desc": np.zeros((0, 32), dtype=np.uint8),
-            "Hds": 1, "Wds": 1, "H": 1, "W": 1,
-        }
-
-    store.put("/a.tif", _tiny_feat(1))
-    store.put("/b.tif", _tiny_feat(2))   # evicts /a.tif from RAM
-    assert "/a.tif" not in store._ram
-
-    got = store.get("/a.tif")             # disk fallback
-    assert got is not None
-    assert int(got["ds8"][0, 0]) == 1

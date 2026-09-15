@@ -87,9 +87,9 @@ PAGE_FOLDS: Tuple[str, ...] = ("ops",)
 #:
 #: ALPHA, HONESTLY. The stitching is measured correct against a plate with
 #: known geometry and the decode chain is validated against planted
-#: barcodes, but neither has met a real acquisition, one class in
-#: `spacrops` has never been run at all, and the phenotype alignment's
-#: geometry is unverified. A user opening this should know it is new.
+#: barcodes, but neither has met a real acquisition, and the phenotype
+#: alignment's geometry is unverified. A user opening this should know it
+#: is new.
 FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
     "ops": (
         "OPS",

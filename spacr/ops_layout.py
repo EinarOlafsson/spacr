@@ -34,13 +34,6 @@ c+1" are not side by side. THE NEIGHBOUR IS AT THE SAME ABSOLUTE GRID
 ROW, which is why :meth:`WellLayout.position` returns absolute rows and
 :meth:`WellLayout.neighbours` looks them up directly.
 
-WHAT THIS REPLACES. `max_site_gap` and the windowed pair search in
-`spacr.spacrops`: 128 candidate pairs per tile, of which four could be
-real, giving 993 scored pairs and 994 QC overlays for one well. This
-module offers four candidates per tile and every one of the 24 tested is
-a real adjacency, so about 640 real edges are scored instead of 993
-mostly-imaginary ones.
-
 Typical use::
 
     from spacr.ops_layout import round_well_layout

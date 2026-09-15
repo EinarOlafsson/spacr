@@ -102,8 +102,8 @@ class _StubCellposeModel:
         # require_channel_axis=False: the outline path passes a single
         # 2-D plane (annotate_engine.py:338), where Cellpose's own
         # auto-detect is correct and spaCR deliberately omits the
-        # axis -- the same choice spacr.spacrops and spacr.submodules
-        # make. The value is still checked when one IS passed, which
+        # axis -- the same choice spacr.submodules makes. The value is
+        # still checked when one IS passed, which
         # is what catches the channel_axis=3 that broke every real run.
         check_cellpose_eval_call([image], channel_axis,
                                  require_channel_axis=False)

@@ -1090,7 +1090,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # the reworded ones of the OPS symbols they joined, carry hand-written
     # reviewed records in every locale
     # (docs/i18n/reviewed/api/<lang>/2026-09-15-ops-switch.json).
-    expected = 10_541
+    # 10,541 -> 10,521 on 2026-09-15, +0/-20 by set difference against
+    # the switch commit: the old OPS engine was deleted, taking the 17 symbols of
+    # the old engine's module and the three stitcher defaults in `spacr.settings`
+    # (`set_default_stitch`, `set_default_multichannel`,
+    # `set_default_general`) that nothing called.
+    expected = 10_521
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1126,7 +1131,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,533 -> 10,534 on 2026-09-15 with `expected` above, for the same one
     # symbol; the aliases are still zero, so the two stay equal.
     # 10,534 -> 10,541 with `expected` above, for 372's seven.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_541
+    # 10,541 -> 10,521 with `expected` above, for the same twenty.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_521
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1408,7 +1414,12 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # The pre-filter key sets differ by exactly the seven post-filter
     # arrivals, so every one is rendered and no bucket moved; the
     # left-hand constant is the measured pre-filter total again.
-    assert 10_760 - len(docs) == 219
+    # RE-MEASURED 2026-09-15 when the old OPS engine was deleted, both halves
+    # in one run with `_is_rendered_autoapi_entry` neutralised: pre-filter
+    # 10,760 -> 10,740 and post-filter 10,541 -> 10,521, and the twenty keys
+    # that left the pre-filter set are exactly the twenty that left the
+    # surface, so the boundary stays 219.
+    assert 10_740 - len(docs) == 219
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

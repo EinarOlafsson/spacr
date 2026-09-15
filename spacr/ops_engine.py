@@ -32,8 +32,7 @@ __all__ = ["run_ops"]
 #: where ``<channels>`` is one channel (``CY3``) or a stack's planes joined by
 #: hyphens (``DAPI-CY3-A594-CY5-CY7``). The channel token is what tells a
 #: five-plane cycle-1 stack from a cycle's four single-channel files, so the
-#: pattern has to capture it -- the stitch-only pattern in
-#: :mod:`spacr.spacrops` does not.
+#: pattern has to capture it.
 _TILE_PATTERN = re.compile(
     r"(?P<mag>\d+X)_c(?P<cycle>\d+)_(?P<well>[A-Z]\d{1,2})_"
     r"(?P<channel>[A-Za-z0-9-]+?)_Site[-_](?P<site>\d+)\.tiff?$",

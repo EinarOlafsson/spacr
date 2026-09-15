@@ -48680,18 +48680,16 @@
         "a050b3e22b99c9d502eac4ba6cc0fe9628016229dd42715d816a3c83881dbbd0",
         "5a1e405a5b54cb57f0492a88f8881840f4a6dc9a6c91aceb01ef1ed0fe8bfe2a",
         "6991244c058a3e5c5926ab9700fab1ca966b3f3b0930e6de7ba5d11cf10c60e2",
-        "ffb7a8a7be45a83ef05794e4bc961ed18695c29d51fd6152fc959cc7bbe9faf1",
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ],
-      "source_sha256": "872d3ac6200edb91421cacad3edaa8a28a499d96fc25b134d8ef11b9a4e35223",
-      "text": "圆孔的每个显微镜图像场为闭合形式。\n\n接近是开放的问题,这就是答案. 以前的三个原型试图从记录的链接重新构建网络 - 一个持久的线条,然后由失败的线路分开,然后列为垂直链接的最大线路。\n\n每个列都保留了相同的微镜视野,如在这个 x 圆圈内相匹配,所以列有不同的高度,下一个列的指数是列的高度 - 这就是为什么测量的垂直视野是 +11, +4, -11, -9, -4, -13 和 -5 而不是一个数字。::\n\n    columns   21, snaked down (even columns top to bottom)\n    circle    radius 10.25 grid units, centre at column 10, row -10\n    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,\n              19, 19, 17, 17, 15, 13, 9, 5                SUM = 333\n\n它是关于收购的事实,不是一个好匹配. 对四个免费参数的七个测量外套只会是一个合适的; 模型被要求预测它从未见过的六个站点的四个邻居 - 20, 60, 140, 200, 260, 300 - 并且注册确认了24个,在峰值/中间 23.6 到 53.1 对控制对 9.0 到 15.6 时。\n\n第一个模型费用的错误是四个七个,因为它是同一类型的错误,如372的PART 6-A:行从每个列的自己的顶部被索引。 每个列都以不同的序列开始,所以“c”和“c+1”的“c3”不是侧面。 邻居处于相同的绝对网序列,这就是为什么 :meth:`WellLayout.position` 返回绝对线,而 :meth:`WellLayout.neighbours` 直接显示它们。\n\n这取代了什么? `max_site_gap` 和窗口搜索的对在 `spacr.spacrops`: 128 个候选对每个显微镜图像字段,其中四个可能是真实的,给了 993 个得分对和 994 QC 一个显微板样本位置。\n\n典型使用::\n\n    from spacr.ops_layout import round_well_layout\n\n    layout = round_well_layout(333)\n    for a, b, axis in layout.pairs():\n        shift = register(tile(a), tile(b))    # phase correlation, per 372",
+      "source_sha256": "5564a6c320f6c07195539e38ef032eb2c1cda4dec04db6d3158a6f5d5a5565bc",
+      "text": "圆孔的每个显微镜图像场为闭合形式。\n\n接近是开放的问题,这就是答案. 以前的三个原型试图从记录的链接重新构建网络 - 一个持久的线条,然后由失败的线路分开,然后列为垂直链接的最大线路。\n\n每个列都保留了相同的微镜视野,如在这个 x 圆圈内相匹配,所以列有不同的高度,下一个列的指数是列的高度 - 这就是为什么测量的垂直视野是 +11, +4, -11, -9, -4, -13 和 -5 而不是一个数字。::\n\n    columns   21, snaked down (even columns top to bottom)\n    circle    radius 10.25 grid units, centre at column 10, row -10\n    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,\n              19, 19, 17, 17, 15, 13, 9, 5                SUM = 333\n\n它是关于收购的事实,不是一个好匹配. 对四个免费参数的七个测量外套只会是一个合适的; 模型被要求预测它从未见过的六个站点的四个邻居 - 20, 60, 140, 200, 260, 300 - 并且注册确认了24个,在峰值/中间 23.6 到 53.1 对控制对 9.0 到 15.6 时。\n\n第一个模型费用的错误是四个七个,因为它是同一类型的错误,如372的PART 6-A:行从每个列的自己的顶部被索引。 每个列都以不同的序列开始,所以“c”和“c+1”的“c3”不是侧面。 邻居处于相同的绝对网序列,这就是为什么 :meth:`WellLayout.position` 返回绝对线,而 :meth:`WellLayout.neighbours` 直接显示它们。\n\n典型使用::\n\n    from spacr.ops_layout import round_well_layout\n\n    layout = round_well_layout(333)\n    for a, b, axis in layout.pairs():\n        shift = register(tile(a), tile(b))    # phase correlation, per 372",
       "translation_source_blocks_sha256": [
         "23761d685c8c4fc6ac08d44109dfee08811c1ea51dcbc25404a3c92944f67f01",
         "df48544ee48423094d5bf77420c51c75925f5cf33cb446d6631c0656a777bee7",
         "51d26f89d8aca36b53c3cb5c9695d401be1301616ad2a6683c8aa6dd820187e7",
         "24efc80878680c4e40e1baff489b84f6bc214f3e65e5c772d68a73e08d9a1d7b",
         "a55f6c5a6af314eca7c64b84f4f3f587a1292f53782f9dbc222b9b1228a8f492",
-        "5f583a77e71e03c0f8791e006f440033838d2f2841939312a185e17d60e957e1",
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ]
     },
@@ -49960,31 +49958,27 @@
     "spacr.ops_settings": {
       "source_blocks_sha256": [
         "6f942c001d9e7df5854ea8e89d26dd54f2462c2022ecbbc6a44f262019d2f590",
-        "f08fed5de009684f81a168b07db774b9a9e1149c9aea6cfa91981ca206e02b29",
         "8b2539260ffda44ce6af06d0f58d80f56c7d81d5e1089e59bf6154072e492f3c",
         "837c713d33b38dd7c66699cc17c5cc7207660ab3b8c4ba5e50ea478b1ed6c001"
       ],
-      "source_sha256": "9431d3c365ea41269420101980827d46a6de48b0b31315d57d2af34516f0f209",
-      "text": "各式各样的类型、类别和帮助,可用于每个光学扫描设置。\n\n为什么这个档案存在. `spacr/spacrops.py` 带有六十三个设定,到目前为止,其中没有一个有宣告的类型,类别或工具提示. 一个设定检查发现它花费多少:从共享表中缺席的模组从未被检查,这就是如何一个检查箱来发送``'False'`` - 真实,沉默,为发行的寿命。\n\n因此,登记发生在路上,而不是被重新设置. 没有类型的设置不能被验证; 没有工具提示的设置是一个标记的框,用户必须猜测; 在任何类别的设置都不会出现在面板上。\n\n工具提示说明设置对结果做什么,而不是它被命名为什么。 \"The number of features\"告诉读者他们无法从标签中阅读的任何东西. “更多功能会发现更多的过渡和花费时间和记忆;在2000以下,一个分散的字段停止匹配”告诉他们如何移动它和为什么。",
+      "source_sha256": "3ed4812ffc932c4acb65187f040befa791f786c655d66524547b47eea22b314d",
+      "text": "各式各样的类型、类别和帮助,可用于每个光学扫描设置。\n\n因此,登记发生在路上,而不是被重新设置. 没有类型的设置不能被验证; 没有工具提示的设置是一个标记的框,用户必须猜测; 在任何类别的设置都不会出现在面板上。\n\n工具提示说明设置对结果做什么,而不是它被命名为什么。 \"The number of features\"告诉读者他们无法从标签中阅读的任何东西. “更多功能会发现更多的过渡和花费时间和记忆;在2000以下,一个分散的字段停止匹配”告诉他们如何移动它和为什么。",
       "translation_source_blocks_sha256": [
         "6f942c001d9e7df5854ea8e89d26dd54f2462c2022ecbbc6a44f262019d2f590",
-        "ff22698ded55d53bf33b02508baad7cd669893b9ce274bb592dc42d706f34db1",
         "8b2539260ffda44ce6af06d0f58d80f56c7d81d5e1089e59bf6154072e492f3c",
         "7719c489a06acc83908c54545efc0bf9788ae70c35dea93eda08b0da6760873b"
       ]
     },
     "spacr.ops_settings.ops_defaults": {
       "source_blocks_sha256": [
-        "f8bb6f7605daf4799b7dda57e230ae59f8e239a252265463a87792d31eda85a5",
-        "06f212f6de8ef6e29ff7f581988263bd3121d2f3e75b4c48bf53debc1c644315",
+        "b5889f09bc4d9e395fca1c68b572cc709449af2ce7a043f86c2f7a5782b7cff6",
         "9aacf2a79223a4b14e773e7837fc4dfe9a8e049ef801012370c920319fcebf4c",
         "4e34a9e513d13ec9e0830ed1dfd81963ec56c1fa68e95c7db47898bef1f0e19b"
       ],
-      "source_sha256": "0b2cda661c5e01d9733bfda2531403238686debff759f93d4e80074100174b44",
-      "text": "使用 `spacrops` 的 OPS 设置仅在需要时进口。\n\n一个荒凉的工厂,这就是问题。 `spacr.settings` 引入此模块,以便在初创时进行注册,而 `spacrops` 达到 OpenCV 和 SciPy - 一秒的三分之一,在模块应用程序视图打开的路径上。 注册函数而不是呼叫它,直到有人实际上要求一个OPS默认。\n\n:param settings: 呼叫者的设置,填写了默认设置。\n:returns: 完成的设置关键值地图。",
+      "source_sha256": "a37ed0a83fe7e6a56ffcbb93df901a88a0a73b78c32b8a57c4943a2706372dfc",
+      "text": "OPS 引擎读取的设置，并已填入默认值。\n\n:param settings: 呼叫者的设置,填写了默认设置。\n:returns: 完成的设置关键值地图。",
       "translation_source_blocks_sha256": [
-        "f8bb6f7605daf4799b7dda57e230ae59f8e239a252265463a87792d31eda85a5",
-        "021cac9ce638353ca61cbea68b918659abdf2c600671578b9d861eefd82fd1ca",
+        "b5889f09bc4d9e395fca1c68b572cc709449af2ce7a043f86c2f7a5782b7cff6",
         "9aacf2a79223a4b14e773e7837fc4dfe9a8e049ef801012370c920319fcebf4c",
         "fa8b232f8257abaa07fc033bc7571087d86d44e978f05a098c5134f68fbd7b6b"
       ]
@@ -150113,20 +150107,6 @@
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
       ]
     },
-    "spacr.settings.set_default_general": {
-      "source_blocks_sha256": [
-        "0ce4b2ddfc42cf1742112efb127f4268b1e6b93d21b70c616c4a247e37f4e1d3",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "ac703f0b218468b95cfc3173ff418c22bf802b38fe990cec4d9f64d6d852aeb4",
-      "text": "返回默认设置为一般组织/插曲/多频道运行。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
-      "translation_source_blocks_sha256": [
-        "0ce4b2ddfc42cf1742112efb127f4268b1e6b93d21b70c616c4a247e37f4e1d3",
-        "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
-        "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
-      ]
-    },
     "spacr.settings.set_default_generate_barecode_mapping": {
       "source_blocks_sha256": [
         "e9e59d6d2b58caaa654728a0c87b8826b80f59276ac6fcd783b63e54b18f0bad",
@@ -150139,20 +150119,6 @@
         "d4f9b4e2499aa27a6f295638782dd87fa73e65d0c9bdef317afb609e7e7653bd",
         "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
-      ]
-    },
-    "spacr.settings.set_default_multichannel": {
-      "source_blocks_sha256": [
-        "0d9692755005cd50fcb9030f518c8dfd9ea2c08738bca7425bd63a35cff0a1b5",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "8b0224fcfcb4e0710077a87b9be6683ec44d8341d8dc0c2374d674d368b8be4e",
-      "text": "返回默认设置为构建多频道每微型样品位置粘贴图像网。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
-      "translation_source_blocks_sha256": [
-        "751bfa6c0b20214877b8288913c8ecbe5edba0623f878fc06073f6e76b49a65a",
-        "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
-        "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
       ]
     },
     "spacr.settings.set_default_plot_data_from_db": {
@@ -150209,22 +150175,6 @@
         "9cc625a363581014c69757b93655ca0f05e2bc39631c528837cc2d108b9a519e",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
-      ]
-    },
-    "spacr.settings.set_default_stitch": {
-      "source_blocks_sha256": [
-        "077e99c045a1a2a103649337793e02373c12cba9046b0d8854132586204eb098",
-        "67260834fe02700157b7ced8689a0e41ca6d86362248ae3fd945aa23ecc27624",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "20d8a3afe48882a0cb33777c428f2f69eb6c0c9f33d283ba9b64435a5fc1c47b",
-      "text": "返回默认设置为微镜图像字段工作流。\n\n涵盖功能检测、RANSAC、排序过度、功能存储和每微型样品位置的图像网输出参数。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
-      "translation_source_blocks_sha256": [
-        "7faa6cbeccabfc40aa906c6cfac593066cd727c02612f7797a222d56fe5aa60f",
-        "6e33125c42ad09ca6b4630626447d8d38030e75fe51b072eb14b7c961ed43b23",
-        "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
-        "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
       ]
     },
     "spacr.settings.set_default_train_test_model": {
@@ -151853,564 +151803,6 @@
         "a2160dd4abc2796fe952b82ba6fcc341a341da319532611140a85c074d6058d8",
         "95c22f0ad427c8044f938c8a6ea4cd9dc78ca952d9bceb76b68f3ed696577744",
         "774cca3ab3fd7f530bf209b43a4106264595bba4afb5a717fd1ac8b31ebaca7a"
-      ]
-    },
-    "spacr.spacrops": {
-      "source_blocks_sha256": [
-        "542204000618e2b2c24ca5f577b0b2903f28dc56d43b8dcd8a5c487d82e38c66"
-      ],
-      "source_sha256": "542204000618e2b2c24ca5f577b0b2903f28dc56d43b8dcd8a5c487d82e38c66",
-      "text": "基于功能的调整、粘贴和提取图像区域生成工具。",
-      "translation_source_blocks_sha256": [
-        "ab2c6a7329fae8927e2525b0c71d6b6cfd0f98212a7fcd754cc208688cccb961"
-      ]
-    },
-    "spacr.spacrops.FOVAlignAndCropper": {
-      "source_blocks_sha256": [
-        "b576b26f46e62ee0a4b2bc8f92e6716dadf7a7dbce3a076c2218e6d72252722a",
-        "5c8ad1a151ba791bc462f077fe64c0580ca69cdbb92ea1cb60adf5e35c0e7313",
-        "0ab8c3d071ff240d6c0efb1e28365ba047f6d293bbbc976134a1444e00c972c5",
-        "07a2e08a7efa3e10f54e91528fab5a04277ef6f6a837201d267aa1a85a5d4dcb",
-        "2e75f2fa10296c08cfe1718383e29f5aa36a5dfef906bad1726b3ec6796e150e",
-        "2cf10a176d9224082d025d57c1fde04f63f15556add4627cf7ea911df2e5a7e6",
-        "807a7668e3b280727c6e0f93837cc85e1bbf691d8773242a2ed45dd3ef288c7b",
-        "243ff9f7a1d8a1c06d33fdfc056adacacf6909310a9cd3cb07cbc211e337f78e",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "e30a86eb550ef388db6ff693e127af89d953bc570087ca7de75177ef3182f663",
-        "8c96e327d114ea7afc7fe7a2db23e2ba5dfe9e0c94022a614536d4a5c65c40ea",
-        "10a3e1e43277bb0d9428775631a255896d86005df1a65bfec8c973b30affc2c7",
-        "0bb7d5aa8472f84cb08d3320809a8f06e495fdce7ec4bf480c5e01361319805b",
-        "9fcdd798da2d6a76bb6219ab93a42369af5e954110fa22c6ec3c2e76a25e997b",
-        "69dac81b05e99c7b442f25a2c94178610d22dccabafb0de0fded589178de7993",
-        "094a3627396b79f8197e394e8b707e9a1af6380f1af7a31d6d6d02c145aca3ed",
-        "caa7f595de623037e2d4a864766eff2012eb8624e55b60414876bb1c45b31e76",
-        "bf5f038b7cb1ab8747bd8fe14f87b0d70bcc673a339aa36c0bc03b9c5c938af5"
-      ],
-      "source_sha256": "a97af1e95ac4be7cdb68153bf396302464fba6a7c3b7986130fe02e3229b38a3",
-      "text": "将 FOVs 个体(微镜视野)调整到粘贴的图像网,并出口 FOV 框架。\n\n对每一个 FOV（视野），保存一个 ``.npy``，其形状为 ``(C_fov + C_mosaic, H_fov, W_fov)``（该 FOV 的原生通道，与被变换到该 FOV 坐标系中的拼接图通道堆叠在一起），以及一行包含变换、评分与拼接图边界框的 CSV。\n\n将属性/匹配助理分配到 :class:`StitchedMultiAligner`。\n\n:param detector: 关键点探测器(``'ORB'``或``'SIFT'``)。默认 ``'ORB'``。\n:param nfeatures: 为检测器提供预算。\n:param max_keypoints: 硬封在检测后保留关键点。\n:param downsample: 下例因子为属性/分数过渡。\n:param ransac_thresh_px: RANSAC 重复边界(像素、下载空间)。\n:param allow_scale: 允许在估计的平面上进行尺寸。\n:param allow_rotation: 允许旋转在估计的平面。\n:param outdir: 输出目录. 默认 ``'./fov_out'``。\n:param opencv_threads: OpenCV 内部独立执行路径。\n:param arr_axes: TIFF 轴解释(``'AUTO'`` 或 ``TCZYX`` 字符串)。\n:param mip: max-project Z 当存在时。\n:param z_index: Z 插图,选择如果 ``mip`` 是虚假的。\n:param t_index: 点击 T 选择 T 是否存在。\n:param squeeze_singleton: 折叠后切割长度1轴。\n:param folder_image_scale: 默认 FOV- 到 粘贴图像网 像素规模因子 使用 :meth:`run`。\n启动 FOV (显微镜视野) 调整器. 查看论点的课堂文本。",
-      "translation_source_blocks_sha256": [
-        "bbcc395c208d1ef6071f516baa77720a6481d20f3feb705aaa137444f3a6327d",
-        "5fea54d2fe03a136d74baf65adaa9f942649ed0a6f5d6086ff0049f15b9d28b0",
-        "0ab8c3d071ff240d6c0efb1e28365ba047f6d293bbbc976134a1444e00c972c5",
-        "07a2e08a7efa3e10f54e91528fab5a04277ef6f6a837201d267aa1a85a5d4dcb",
-        "2e75f2fa10296c08cfe1718383e29f5aa36a5dfef906bad1726b3ec6796e150e",
-        "2cf10a176d9224082d025d57c1fde04f63f15556add4627cf7ea911df2e5a7e6",
-        "807a7668e3b280727c6e0f93837cc85e1bbf691d8773242a2ed45dd3ef288c7b",
-        "243ff9f7a1d8a1c06d33fdfc056adacacf6909310a9cd3cb07cbc211e337f78e",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "e30a86eb550ef388db6ff693e127af89d953bc570087ca7de75177ef3182f663",
-        "588ce107a91ad09f41b2dee79217519e18f587012dfb99fe9f713782a3aa103b",
-        "10a3e1e43277bb0d9428775631a255896d86005df1a65bfec8c973b30affc2c7",
-        "0bb7d5aa8472f84cb08d3320809a8f06e495fdce7ec4bf480c5e01361319805b",
-        "9fcdd798da2d6a76bb6219ab93a42369af5e954110fa22c6ec3c2e76a25e997b",
-        "69dac81b05e99c7b442f25a2c94178610d22dccabafb0de0fded589178de7993",
-        "094a3627396b79f8197e394e8b707e9a1af6380f1af7a31d6d6d02c145aca3ed",
-        "7b578edb4031d4d110c5d2095807118f85d00ad3b448dcf4439b5b155ace5524",
-        "339a2e6e1c71f34e412aa94ec72c9de6d6bed4a05e7c66a0b8da95d53364122e"
-      ]
-    },
-    "spacr.spacrops.FOVAlignAndCropper.run": {
-      "source_blocks_sha256": [
-        "543e4a7114e52505cd49b16a62fe21cbfdacecd2858fe485626e608158bbbadd",
-        "732fa1ca8b379780605ef0edc12ee68b4ffe0f3ea94b206e63aa8ccf173605c3",
-        "a74f190b656dfdf121c01502d4eb64fb3798d9221a9c4cc16f328a09ef2e1288",
-        "2f908b431ad4b722bc3e1b0716741443d6d43a3aeb38a1aa556956231f85f205",
-        "507feb990ce32715b040a571bdffb914ec55df491ad1dd6c28dc7356a7256fee",
-        "ee86cedb91cdc9f6eb81b5ff8197c3994ee0e59f611da23eb0448f99aa3c1cba",
-        "165d606a93d0a55ec8aa488d8454c752cec7257fa8ade8ac3d6d209d92cdaa40",
-        "b05e42a57f56a102aef34bceeed1dc79478e10ee44afd6900d95e4073f6fb701",
-        "e010571dedf337c9048e2b530dd9d57dac6f87230e77a27a40986d9b349e84ab",
-        "4a668076c812d2fc53ce65b9783ba2405368e16be200bab84c1a944dc9ef8734",
-        "5b70ad667bab94abf455600ebe4cca2a83d68e4dd175197c970e319b6d3e360e",
-        "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
-      ],
-      "source_sha256": "03f31f8ed996ce235e97f33ee76ef1d3b3a9b5015b5c37b6dde2c846659a0d80",
-      "text": "将每个 FOV (显微镜视野) 在 ``folder`` 与 ``stitched_path`` 调整并输出 FOV 框架。\n\n使用细胞核通道进行对齐，并为每个 FOV（显微镜视野）写出一个 ``.npy``；其中包含该 FOV（显微镜视野）的各通道，以及变换到该 FOV（显微镜视野）坐标框架的马赛克通道。\n\n:param stitched_path: 路径到参考粘贴粘贴图像网。\n:param folder: 将 FOV (微镜视野) TIFFs 列为调整。\n:param stitched_nuclei_idx: 的核通道指数在缝合的图像网格中。  默认值为 ``0``。\n:param fov_nuclei_idx: 每个 FOV（显微镜视野）中的细胞核通道索引。默认值为 ``0``。\n:param exts: 已接受 FOV (显微镜视野) 扩展。\n:param recursive: 返回下载者。\n:param csv_path: 输出表示 CSV 路径;默认为 ``<outdir>/fov_align_manifest.csv``。\n:param npy_dir: 输出文件夹为 per-FOV(显微镜视野) ``.npy`` 字符串;默认为 ``<outdir>/npy``。\n:param folder_image_scale: FOV - 粘贴图像网络像素尺寸因素; 返回 ``self.folder_image_scale``。\n:returns: 路径到“CSV”的显而易见。",
-      "translation_source_blocks_sha256": [
-        "68c1e979c762099a84f1570f2e7594f4c0ca981ed621e220feef249597e9bc7f",
-        "abe9d196beb0ffca92b5a9fcb20fb4fb1254f2e6e77ae2a20dbef051d70d435f",
-        "0a8cdf0c78ec963e41d136a84e8c47efdb35e808aeb08fe134701bdd98e74c2f",
-        "f21c5ba9d83e96bd905982818f950f416cb2c1b7218bc3fdd3cc8d47ca23420e",
-        "241d0fe87852dd0a11ddd1d01d8419534c2f620acc586b56a5a70457cf844386",
-        "2258b1979ba4c53709336595a482eb356a0ff83b19ae803659411452ffc64b4f",
-        "3cab289636faeda21164d2104e2d62843bdcd6052dca4db9545fcfd24b3b777e",
-        "b05e42a57f56a102aef34bceeed1dc79478e10ee44afd6900d95e4073f6fb701",
-        "e010571dedf337c9048e2b530dd9d57dac6f87230e77a27a40986d9b349e84ab",
-        "bfe814a2dd7a1038dbe407725c1677e4bfc359ca340596f6fdc554916abe5892",
-        "3fe9cd836f63ec0e1505c0366fb725f36ea81a2cf3ba3cd2d788c1de8b0d2ae6",
-        "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
-      ]
-    },
-    "spacr.spacrops.StitchedMultiAligner": {
-      "source_blocks_sha256": [
-        "798e36bf3b81569b026ce08f4e19a7e14288debe49ddc692b9601e166e9bf3c0",
-        "0e09b2e8c4e08ae55fd306a264455b35730d5ac101c4847121890df0d6792eff",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "00dbbe5b2dd4fd97c7758d44b9643c419d945b36e7691fdeb34c0287750fdc4e",
-        "925cd79da71fb72e9aa2335b264f0eda6b90015a10c8f585a29f815fa932a36b",
-        "c51334f0eeac4b651aa66298fa028f6ca35567bf76260b5930385937591c5d32",
-        "5f4c6035ee2501da083d6230979f789c11665bbeb11e849b7704b64d82bf2df6",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "58b707f5a2560b4c5a6bdfa30b2cd5bab1902dc146a15cf7ef82d77f692a646f",
-        "7c43011364044594fe4b1bea9060e9ac300b661ea483a8648b0d427cd9a18a28",
-        "c339920e153f3fc89ddb1454146c6317048f730ef7293b52e1aa21d2cf2b100e",
-        "4fa1e78840efd45869af805629939cf075f65b2fd6233756601f99ec4ab5f9bd"
-      ],
-      "source_sha256": "85f7b1992a03a2c05902fdd2efca7597d82183cee88864b7685b8527f699ea3f",
-      "text": "使用核/霍赫斯特通道将任意数量的缝合图像网格(多通道,任意轴)对齐到一个共同参考。  保存一个通道连接对齐堆栈和一个 CSV 清单,描述从输入通道到输出通道的映射以及估计的变换/得分。\n\n输出图像轴:CYX(提供按照输入顺序堆叠的图像数据通道 ) 。\n\n参数\n----------\ndetector : {\"ORB\",\"SIFT\"} Keypoint 探测器 nfeatures : int 探测器功能预算。 max_keypoints : 可选的硬封在检测后保留的关键点上,使用检测器的排名。 downsample : float in (0,1) 函数检测和分数的因素。 ransac_thresh_px : float 像素重复限制,以便在下载空间中进行精确估计。 allow_scale : bool 如果 False 允许旋转和翻译,但没有扩展; 如果 allow_rotation = False,则允许翻译。 allow_rotation : bool 如果 False,只允许翻译。 outdir : str 图像和 csv 输出目录。 opencv_threads : int OpenCV 线条限制用于防止过度订阅。\n\n# 轴 / Z / 时间处理(为 TIFF 阅读)\n\narr_axes : \"AUTO\" 或超过 {T,C,Z,Y,X} 的行列\n\nmip : bool 如果 True 和 Z 存在, max-project Z. z_index : int 如果 mip=False,选择 Z 滑板。 t_index : int 选择 T 指数,如果 T 存在. squeeze_singleton : bool 滑滑板后切割 1 长轴。\n\n笔记\n-----\n- 与第一个图像相匹配,在 `paths`(参考)中。\n- 图像,您可以通过`nuclei_channel_indices`提供每个图像核的图像数据通道索引。  None,默认值为0。\n设置探测器和对跨采购调整的宽容。\n\n与 :class:`spacrStitcher` 相同的合同:匹配发生在 ``downsample`` 规模,而 ``ransac_thresh_px`` 是全尺寸的像素。",
-      "translation_source_blocks_sha256": [
-        "0c89b3adc8d9b2e5a3d7e4f138c0756a2be06d7ee4ce11b0989fd1f9ac4df0fd",
-        "f0ac29e6d8c0d72eea1eb19438ecde5cb9cdcae58edf2ab39dbf711d35920e47",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "3b7b7579652ae4c42f9a84e6ede706f4ea78065585ccfeed32e3e3d22b51ac1d",
-        "925cd79da71fb72e9aa2335b264f0eda6b90015a10c8f585a29f815fa932a36b",
-        "c51334f0eeac4b651aa66298fa028f6ca35567bf76260b5930385937591c5d32",
-        "5f4c6035ee2501da083d6230979f789c11665bbeb11e849b7704b64d82bf2df6",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "58b707f5a2560b4c5a6bdfa30b2cd5bab1902dc146a15cf7ef82d77f692a646f",
-        "99458ff256129d866331ddfcf690a8106cbf19b7f6b34e507500cfd33f75a22d",
-        "c339920e153f3fc89ddb1454146c6317048f730ef7293b52e1aa21d2cf2b100e",
-        "4fa1e78840efd45869af805629939cf075f65b2fd6233756601f99ec4ab5f9bd"
-      ]
-    },
-    "spacr.spacrops.StitchedMultiAligner.align": {
-      "source_blocks_sha256": [
-        "59f1f5041fbf750f4d9a934690bd2ae67358f212e528956d8ab25a43640f3d39",
-        "5b1c368a58d9b1ff0ed5cb24f6a8b504f4b936024e129c70128da82cb48eee8a",
-        "93ece25a31c6b29b2cd4990e533f2db4f0285f2b1fd378f1604d40d977ac665b",
-        "ded122c908a418a6ac39586308f304d9ddd273914fee5ae638af042f4c07f6bf",
-        "1cc7298ae33829f9069964a84e8257ae77f560676a4aa630e07333365dc8ca72",
-        "cecafa2f71b60d328065655c96a6f43a16523000d941b2d5b1b14deca688975c",
-        "38c050f7aa618d8e294b3533bc16c11d9154ab6fb2b3252a0dbbbcce3f51d584",
-        "b9c9ac86e9483e2b26985b79313a4b00d090886e44fe996c514f8bab7d7dcfe5"
-      ],
-      "source_sha256": "e52db034e9eb74110ed64437bfe5e54881045599829f588c5e1272a893445205",
-      "text": "在 ``paths`` 中的每个粘贴的粘贴图像网络与第一个相匹配,并保存一个 CYX 插槽。\n\n使用每个图像指定的核图像数据通道; 结果堆栈按照给定的顺序连接所有输入图像数据通道。\n\n:param paths: 按 TIFFs 来调整; ``paths[0]`` 是参考。\n:param nuclei_channel_indices: 图像核图像数据通道指数；  默认值为零。\n:param out_tif: 输出均匀的滑板路径;默认为 ``<outdir>/aligned_allc.tif``。\n:param out_png_preview: 可选预览 PNG 路径。\n:param csv_path: manifest CSV 路径;默认为 ``<outdir>/aligned_manifest.csv``。\n:returns: ``(out_tif, out_png_preview, csv_path)`` 字符串",
-      "translation_source_blocks_sha256": [
-        "421e134e0139952a3c7a6c3d9c463e08a706dd3b0677c7064f6839f07a9defcb",
-        "c47734da15a70d1eaeb7bd32f7261a4c30ae892c0e868963c49e2837faa6c3f4",
-        "93ece25a31c6b29b2cd4990e533f2db4f0285f2b1fd378f1604d40d977ac665b",
-        "ecb3ff9aea04ecb204d1ba49c1ac96c90d0473ab4325cfcea66cb431e5525e0c",
-        "1cc7298ae33829f9069964a84e8257ae77f560676a4aa630e07333365dc8ca72",
-        "cecafa2f71b60d328065655c96a6f43a16523000d941b2d5b1b14deca688975c",
-        "38c050f7aa618d8e294b3533bc16c11d9154ab6fb2b3252a0dbbbcce3f51d584",
-        "b9c9ac86e9483e2b26985b79313a4b00d090886e44fe996c514f8bab7d7dcfe5"
-      ]
-    },
-    "spacr.spacrops.align_image_to_stitch": {
-      "source_blocks_sha256": [
-        "b43b920f287572dac2868cf4379f15674c4e3c90edd4b674f24d8db5d60c10ab",
-        "71ed8cbf2eb3daae5f2c0e1a9985ddf04439ad5b7405246e0746cf10d39ef6ef",
-        "8830820486586b47fb7d87f492e5a3ca7d99fbef8a37252bbbe2d97109399a5f",
-        "726a002ea5203bff5b406e3895d306841c32d5a45aa02c29f320def1dc3a15b5",
-        "5cf5adcf3e92f78b76ce11e63607754835de02232634b6a451455471c1f6e5bb",
-        "c9790b53a04496d53fd3fb32a9ddbf06336d0b71dbbb2c27f9f548e82b9d20db",
-        "cef73dab9156bce65271dfcae7f89f6318bb285308b1fb17d314917a035d7076",
-        "e9dd476454f9362f8383a673c616e921cbb2c118dfbad1629cb8e54503793cfa",
-        "7ae796410e7b4cfe1763aecaeda918dc436aed1c4124c5b85762b13babea8563",
-        "d1c407a8380ff798a6a6806f0d1b96bdc856cc92c3368cc3265ad9f5daff6d71",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "a87788c47690557e524da199c7f353c22ee40a7b34ec977877269489fce182ee",
-        "c7b494147a7d8d62284708776e43176ebe41aaf9388d211f4c1227d730b4c13a",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "adfee6c1cca6b6811e3b3169b222c2245db5d902871c464805ece1fcc2ce9a40"
-      ],
-      "source_sha256": "0bcda96dbca175d39bb2c56d2ad700bc2051b6df593725b14c38f1a553060f8b",
-      "text": "将每个微板样本位置的较高值 FOVs(微镜视野)调整到微板模型位置的粘贴粘贴图像网。\n\n在 ``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif`` 的每个图像网格中,将图像从 ``align_src`` 组成,并运行 :class:`FOVAlignAndCropper` 以产生精心提取的图像区域示范和 ``.npy`` 提取图像区。\n\n:param stitch_dst_root: 根文件夹包含每微型样品位置粘贴的粘贴图像网。\n:param align_src: 文件夹上级图像以匹配。\n:param meta_regex: regex 从文件名中提取好/网站数据。\n:param well_group: 命名捕捉组持有微板样品位置识别器。\n:param channel_index: 核频道指数 默认 ``0``。\n:param relative_scale: FOV - 粘贴图像网络像素规模因素. 默认 ``2.0``。\n:param downsample: 函数通过下载样品因子. 默认 ``0.5``。\n:param nfeatures: 关键点预算为探测器。\n:param ransac_thresh_px: RANSAC reprojection threshold 在像素中。\n:param allow_scale: 允许在估计的平面上进行尺寸。\n:param allow_rotation: 允许旋转在估计的平面。\n:param qc_outlines: 可接受通话兼容性,不使用。 ``*__qc_outlines.png`` 表面是由 :class:`spacrStitcher` 写的,数据选择将其限制在自己的 ``save_qc`` 上; :class:`FOVAlignAndCropper` 没有这样的论点,并且没有提取过度,所以这里没有什么可以改变。 使用 ``save_qc`` 代替冲动步骤。\n:param recursive_align_src: 在扫描 ``align_src`` 时重复。\n:param exts: 接受的图像扩展。\n:returns: 地图 ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``。",
-      "translation_source_blocks_sha256": [
-        "51e29334d1cbc052640592af7a3dcec68f50e571ad0abe2d062c713052d6ec64",
-        "d8751427fa0713291bc7e4e8bbc2aef7f9e5ba052f8b90aa5c4d2f25d85ef5f0",
-        "fb695a89f2a7e75a173ec1b73efd05d732d2364b5573a7951c971d7aa8e3d6a9",
-        "726a002ea5203bff5b406e3895d306841c32d5a45aa02c29f320def1dc3a15b5",
-        "5cf5adcf3e92f78b76ce11e63607754835de02232634b6a451455471c1f6e5bb",
-        "926e6ca699a69385fe3099113f2237c77f28f3816a309aeb814cca44e6a83acc",
-        "cef73dab9156bce65271dfcae7f89f6318bb285308b1fb17d314917a035d7076",
-        "bf5ae2c4fe95dc377e674d5130924b1b19d2e6f8bcc2030f2ede7c66b4224711",
-        "7ae796410e7b4cfe1763aecaeda918dc436aed1c4124c5b85762b13babea8563",
-        "d1c407a8380ff798a6a6806f0d1b96bdc856cc92c3368cc3265ad9f5daff6d71",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "acbf989060bf0dcde4da4164352c39f2a5f74cc9dd6abf720e2d52e941aec821",
-        "c7b494147a7d8d62284708776e43176ebe41aaf9388d211f4c1227d730b4c13a",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "adfee6c1cca6b6811e3b3169b222c2245db5d902871c464805ece1fcc2ce9a40"
-      ]
-    },
-    "spacr.spacrops.get_preprocess_ops_settings": {
-      "source_blocks_sha256": [
-        "087879fb324f350b5bd43f3333b538ef351ed24e41c2433a59c9b5e9587f1937",
-        "0ce25f08a202250d680dd93b3426db5226c8e66a1a12ed0aa38f03e4a90ee658",
-        "be81cf5c069ff8bbb4c2819464713de0da4a132fe433aa856973507e9e517cc1"
-      ],
-      "source_sha256": "14829a2ada53682630337e73eeef88bc8c9f0274210aa320981fb8192c772194",
-      "text": "填写默认的选项预处理 / 粘贴 / 调整工作流。\n\n:param settings: 用户提供的设置 关键值地图,现有更新与默认设置。\n:returns: 设置的关键值地图与所有默认人口。",
-      "translation_source_blocks_sha256": [
-        "f614374351bfba677bc80c0b7f28436fc729363ea89aab3f4c9b2502ef516735",
-        "7af160587e57e916c6193dcc9f1cd9ea046c84f5bfaec35d3370aef0d24c68cd",
-        "0e1afc18d657e4aa8b184be1ae9cfe3ed96b97f6aeabf186fc51207e948da952"
-      ]
-    },
-    "spacr.spacrops.ops_preprocess": {
-      "source_blocks_sha256": [
-        "658363f928fd37c5b6945e772a7ee1fb40a1305ebcf3e4fe0e2ad4f2dc7b4941",
-        "bbade32699c9d517e34e4902d5c422cabd3ba444b94ee9330b71e279d5375c2a",
-        "385044fb256db0268fa99faa6d5cb5b4046205ecdf4566b205ba4cf4b1200856",
-        "68bd0cc36626d156a3b370df23f4146100a111ffa5d219b4478c851e367cb1b8"
-      ],
-      "source_sha256": "cff970872f4a3dc6eb32abd083aec4c0a8eff4977eaf8bc6b4db070b8fb92525",
-      "text": "执行完整的 ops 预处理工作流: per-genotype stitching + fenotype alignment。\n\n它在一个或多个基因组文件夹上播放,每个文件夹都称为 :func:`stitch_cycle_wells`,然后通过 :func:`align_image_to_stitch` 将基因型图像与结果的粘贴图像网相匹配。\n\n:param settings: 提前处理设置的关键值地图; 请参见 :func:`get_preprocess_ops_settings` 支持的结构化数据名称。\n:returns: 关键值地图为 ``stitch``(每个基因组总结), ``align``(每基因型相匹配结果)和 ``npy_out_root``,在这里创建的 ``<phenotype_source>/output`` 文件夹,但从未写到 — ``.npy`` 提取的图像区域在每个微板样本位置的``crops_20x`` 文档旁边的粘贴图像网。",
-      "translation_source_blocks_sha256": [
-        "b188404c3e1d8f2631501bd237c84e3004e01f1e7e1d1505b1141f51c04b3175",
-        "f9fa1f656c2d7402dec7f5c2f07c72941a579a09a006ac8c19b1ab97c85bc072",
-        "a241201c853df05f3e5e5699a48d58287e5ed9012bc6a5ef82efd63b45a9ad4c",
-        "1824d234ebca71d6629d9df54d822ce62acbde3d4c83e7554b192608e3d40b5c"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher": {
-      "source_blocks_sha256": [
-        "eb651b31ef0c1b2680b6ec6def3843cdab04f4a56ed7a6cbcb26341c12665e48",
-        "7354bd1b3ba1608f191f2cc05657459dc2a390c21b252c708d78fa14cacf3be9",
-        "72be77fbd490dfa861ba9739272be320edafd2628b856414e1f7a48e2be841d5",
-        "54555b19eca1e44879d93e87cabd48215bf9bcf997eda8f891bac1d4e6ee235c",
-        "491abdb5d4259488483825d61e221c8391ae2456a40d42478b835a139b10d23d",
-        "e80adadbf0eb8de9cd5e9190bd818d98e2414cbddf9e31aa9ef129ccb0d51a03",
-        "cf148f056e36aacc5e640af9a41e8867ffc16fdac145d4985a9bbf5f14005b4d",
-        "757306a191aa2a6b930956f8f2a62360fcc2b1fdec6978b63235cf466b5348a3",
-        "2aa3a8d7f44b46ffd1f15aa8e2d1ac45dd631a2cf698f70cddfc2992b68df23b",
-        "5d09a817f9cf78d874938472fda724f9e2bf268aa62693fa59c1d86ced0bc870",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "3eff904fd2c575c55255b15b59a61a9322269579a37ee2bd37766c24d918c93a",
-        "f3908dbf64ce9e976a69fc146462f9af1929e83a2b85b50efbfec7be7648b727",
-        "c819aca9920ec3bed49fc6cdacca57dbd773e760027056d19ef204e26b3f89b1",
-        "bd15deb8e73b449664b1b7bea0eaa420b670c44731d3fa4f823e6d64141b95bf",
-        "ed5c9972d47895f909653a60ff27ed4e1947ee797ead4711718a02127b3daf22",
-        "8201ff488c3056cec28986aa8a2f6d3959e12ed75802501b3baa32572d7316ce",
-        "fbc4dad412c4b76483961fcad55aeff49d126479f9703676b9d58dfd65e0e14f",
-        "3b72228aff5d5eba3d32edd828eab826531fec28c5b848c19713567d070a034e",
-        "8cba799bef6986f7e3bdd32681973e4ff2dc88aaefb90a34b84ee29430df441b",
-        "e9c4aaf0f6db36409c53f154b9e64c01de7dd9b9046a264934df6d9fbc3f99d3",
-        "963527843c47709ed0d172711855ee2b468d42cd18afd4fbb242bdce58aba68b",
-        "41b7d93d61f11c07bf6dcd2894fdd70ad0678236a40409edd7b1cca828801373",
-        "758f1e6837bca535de5561275835b21b90f673a628c2f41d5c304a4a16c6e58c",
-        "464b02cda5ca89013fc791c425fa3e3c08bf18be283f341bc1b585ed001e36c9",
-        "d677ad5f0f097e61d7dd1d5f77f7d0b743c2a9db99b952c69b26e4b9c5e88624",
-        "262ca4cf57cd944c52e6b08ae2daa4d1fabb1fe52830af9952a18ee6e12a5169",
-        "ae327faa2fce7a261e06a889bc51c9ec92afed24a1f6882c0920b9569865cda5",
-        "4997c8db539a8f25eaffbeb3543e950b434b490a26e64c3e7bb232f667e2c59f",
-        "61511e80428de51ff0efc18c7b5a6d39a5c167501a69f62da92ec8ea28d1b309",
-        "2ecd491eb1e125d9385407db11c79b39297520201f9f640639daae2e35c6544b",
-        "65bfe29d8772d85700c46e978be873f695e4e1499d5a9de39d97d72dbb4a0570",
-        "19fd486131037328ec626391795f3685cc8f4abbce6592ddbafdb94ade86562b",
-        "75340f53747bce12b71dffd980806f31f87aaf0ac9c91284295c342e3b06aab4",
-        "faa14a150cb0777f800cbed0fb60654ae2a231553d809176f4b66fdc8816af36",
-        "0707d8991142279d81dc04d32261294613ec4fb79609181eb0a24151d18116f2",
-        "160a6eefbbc853af05278822d1379156b2be2371450a1f435fb33d2c90ec5b38",
-        "551d0ea76a012ca4aca8cefe34e6dc6702e93c52df6e2e948bdba0780a66a6d7",
-        "8c3e1026f5c8435ca72ba4fb28be175f60d4cfdc30b206101e0ce97711a7896f",
-        "105d0b72aeb0774a715289c302c5accc4059d08a9e57006300f81612a9c66526",
-        "7298d22c9768b94e67ca1a88d7939754eb6e178d0e2516faa08a7be4f83e9527",
-        "6a7777b75458adf9a824414623537e137d8442f314dc6dc5e711e5e9329aa748",
-        "6a34c1d1b4c851473f83caeac3fefb18fd135b2888842f39e151dae796e1630c",
-        "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6",
-        "ee0269f2647e48daa28c791316f0a664ff884bcaf414847c195b77f00fe57bf7",
-        "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
-      ],
-      "source_sha256": "174d288834aec7e44b341b91dce5629d3c7457a7122f7d52f374c866dc80db89",
-      "text": "双式粘贴器与下调的分数和全好粘贴的图像网组合。\n\n记忆和竞争对手对非常大的数据集进行控制:\n  - feature_cache_mode: \"disk\" (默认) 用 LRU RAM 封面将 DS 功能写入磁盘\n  - pair_batch_size:竞争对手未来对手的限制数量\n  - stream_csv:立即编写双顺序(低 RAM)\n  - opencv_threads:限制OpenCV内部执行竞争,以避免过度订阅\n\n:param detector: 关键点探测器, ``'ORB'`` 或 ``'SIFT'``;任何其他值增加 ``ValueError`` 和 ``'SIFT'`` 需要一个 opencv-contrib 构建。\n:param nfeatures: 关键点预算交给探测器. 默认 ``6000``。\n:param max_keypoints: 按图像保留的关键点; ``None`` 保留所有。\n:param downsample: 尺寸因子下列函数/排序通道。\n:param ransac_thresh_px: RANSAC reprojection threshold 在像素中。\n:param allow_scale: 允许在估计转型中的规模。\n:param allow_rotation: 允许旋转,当 ``allow_scale`` 是 ``False``。\n:param outline_source: 如何找到 QC 输出: ``'otsu'`` (默认), ``'cellpose'`` 或 ``'none'``。\n:param cellpose_model: Cellpose 模型名称或检查点路径;只在 ``outline_source`` ``'cellpose'`` 时阅读。\n:param cellpose_diameter: 预计对象直径转移到 Cellpose; ``None`` 允许 Cellpose 选择。\n:param canny: ``(low, high)`` Canny 限制将前面面掩膜转化为外线。\n:param blur_sigma: 在 Otsu 边界之前,加西亚的 Sigma 被应用; ``0`` 阻止了泡沫。\n:param dilate_ksize: 用于扩展前面面掩膜的弹性核心大小; ``0`` 阻止扩展。\n:param line_thickness: 输出厚度; ``1`` 以上的值扩展边缘图像。\n:param outline_alpha: 在 QC 表面提取的列表的可见性。\n:param outdir: 输出文件夹,在建设中创建并用于 QC 图像,粘贴双输出和默认功能缓存; 双式 CSVs 写在呼叫器的 ``csv_path`` 点的地方。\n:param save_qc: 字符为 QC 输出 PNGs. 默认 ``True``。\n:param save_stitched_default: 假设写一对夫妇的 TIFF 字符; 这个论点超越了它。\n:param all_scores: 还计算了较慢的全分辨率测量(全边 ZNCC 和前方相互关系/IoU/Dice/XOR)。\n:param score_threshold: 默认最小得分需要写一个粘贴图像; ``None`` 意味着没有默认限制。\n:param verbose: 打印进展消息。\n:param feature_cache_mode: ``'disk'`` 或 ``'ram'``;任何其他值增加 ``ValueError``。\n:param feature_cache_dir: 在哪里存储磁盘模式功能. 缺点为 ``<outdir>/feat_cache``。\n:param max_ram_features: LRU 尺寸,在图像中,在磁盘功能商店前的 RAM 存储器。\n:param n_workers_features: 属性提取条数;默认数为 CPU 数的一半。\n:param pair_batch_size: 配对交付到线池每包,有``1024``的地板。\n:param stream_csv: 被接受和存储,但从未阅读;双重序列总是按得分写的。\n:param opencv_threads: 值转换为 ``cv2.setNumThreads``。\n:param arr_axes: 输入的轴顺序 TIFFs;必须包含 ``Y`` 和 ``X`` 除非它是 ``'AUTO'``。\n:param mip: 超过 Z 的 max-intensity 计划,而不是采取 1 个滑板。\n:param z_index: 使用 Z 幻灯片,当 ``mip`` 是 ``False``。\n:param t_index: 使用时间指数,当T轴存在时。\n:param squeeze_singleton: 放下单片轴后轴选择。\n\n转型控制\n-----------------\n  allow_scale:如果 True → 使用 RANSAC 相同(旋转 + 规模 + 翻译) 如果 False → 执行单位规模(参见 allow_rotation) allow_rotation: 如果 True → 旋转+ 翻译 如果 False → 翻訳- 仅限于\n\n图像 摩萨克\n-----------\n  使用拓扑感知修剪 + 最大跨度树对成对得分来构建一个有凝聚力的网格。  导出缝合图像网格图像和 mosaic.csv 清单。\n\n轴与Z处理\n-----------------\n\n::\n\n  arr_axes : str in {\"AUTO\"} or a string over {T,C,Z,Y,X} (e.g. \"CZYX\", \"CYX\", \"ZYX\").\n             Determines how to interpret multi-dimensional TIFFs.\n  mip      : bool. If True and Z exists, perform max-intensity projection over Z.\n  z_index  : int  (if mip=False) choose Z slice index.\n  t_index  : int  choose time index if T exists.\n设置功能检测器和对比容量。\n\n``downsample`` 是每场比赛进行的规模; 它所产生的转型以全尺寸表达,因此降低它的成本是准确的,而不是改变产量地质。 ``ransac_thresh_px`` 是全尺寸的像素。",
-      "translation_source_blocks_sha256": [
-        "6b4b0c4fcee68abd687b76ceef22482c74d86c70b425df15d0731b48e84d6301",
-        "7354bd1b3ba1608f191f2cc05657459dc2a390c21b252c708d78fa14cacf3be9",
-        "72be77fbd490dfa861ba9739272be320edafd2628b856414e1f7a48e2be841d5",
-        "54555b19eca1e44879d93e87cabd48215bf9bcf997eda8f891bac1d4e6ee235c",
-        "491abdb5d4259488483825d61e221c8391ae2456a40d42478b835a139b10d23d",
-        "1fa5e7301f86b439d4f636392bc24b7736219b5c67944949fab30416aa8eb781",
-        "cf148f056e36aacc5e640af9a41e8867ffc16fdac145d4985a9bbf5f14005b4d",
-        "757306a191aa2a6b930956f8f2a62360fcc2b1fdec6978b63235cf466b5348a3",
-        "2aa3a8d7f44b46ffd1f15aa8e2d1ac45dd631a2cf698f70cddfc2992b68df23b",
-        "5d09a817f9cf78d874938472fda724f9e2bf268aa62693fa59c1d86ced0bc870",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "3eff904fd2c575c55255b15b59a61a9322269579a37ee2bd37766c24d918c93a",
-        "f3908dbf64ce9e976a69fc146462f9af1929e83a2b85b50efbfec7be7648b727",
-        "c819aca9920ec3bed49fc6cdacca57dbd773e760027056d19ef204e26b3f89b1",
-        "bd15deb8e73b449664b1b7bea0eaa420b670c44731d3fa4f823e6d64141b95bf",
-        "ed5c9972d47895f909653a60ff27ed4e1947ee797ead4711718a02127b3daf22",
-        "8201ff488c3056cec28986aa8a2f6d3959e12ed75802501b3baa32572d7316ce",
-        "fbc4dad412c4b76483961fcad55aeff49d126479f9703676b9d58dfd65e0e14f",
-        "3b72228aff5d5eba3d32edd828eab826531fec28c5b848c19713567d070a034e",
-        "8cba799bef6986f7e3bdd32681973e4ff2dc88aaefb90a34b84ee29430df441b",
-        "e9c4aaf0f6db36409c53f154b9e64c01de7dd9b9046a264934df6d9fbc3f99d3",
-        "963527843c47709ed0d172711855ee2b468d42cd18afd4fbb242bdce58aba68b",
-        "41b7d93d61f11c07bf6dcd2894fdd70ad0678236a40409edd7b1cca828801373",
-        "758f1e6837bca535de5561275835b21b90f673a628c2f41d5c304a4a16c6e58c",
-        "464b02cda5ca89013fc791c425fa3e3c08bf18be283f341bc1b585ed001e36c9",
-        "d677ad5f0f097e61d7dd1d5f77f7d0b743c2a9db99b952c69b26e4b9c5e88624",
-        "262ca4cf57cd944c52e6b08ae2daa4d1fabb1fe52830af9952a18ee6e12a5169",
-        "ae327faa2fce7a261e06a889bc51c9ec92afed24a1f6882c0920b9569865cda5",
-        "4997c8db539a8f25eaffbeb3543e950b434b490a26e64c3e7bb232f667e2c59f",
-        "61511e80428de51ff0efc18c7b5a6d39a5c167501a69f62da92ec8ea28d1b309",
-        "2ecd491eb1e125d9385407db11c79b39297520201f9f640639daae2e35c6544b",
-        "65bfe29d8772d85700c46e978be873f695e4e1499d5a9de39d97d72dbb4a0570",
-        "19fd486131037328ec626391795f3685cc8f4abbce6592ddbafdb94ade86562b",
-        "75340f53747bce12b71dffd980806f31f87aaf0ac9c91284295c342e3b06aab4",
-        "faa14a150cb0777f800cbed0fb60654ae2a231553d809176f4b66fdc8816af36",
-        "0707d8991142279d81dc04d32261294613ec4fb79609181eb0a24151d18116f2",
-        "160a6eefbbc853af05278822d1379156b2be2371450a1f435fb33d2c90ec5b38",
-        "551d0ea76a012ca4aca8cefe34e6dc6702e93c52df6e2e948bdba0780a66a6d7",
-        "8c3e1026f5c8435ca72ba4fb28be175f60d4cfdc30b206101e0ce97711a7896f",
-        "105d0b72aeb0774a715289c302c5accc4059d08a9e57006300f81612a9c66526",
-        "7298d22c9768b94e67ca1a88d7939754eb6e178d0e2516faa08a7be4f83e9527",
-        "55d50e4f2f478cfbd02e7630d84474322bd87c20b720222eb91a7e921abe7d3b",
-        "571e7eba420d8659bb6f4f4ffc388d9b38c9af567a08e74e3bd4d789245a09c3",
-        "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6",
-        "ee0269f2647e48daa28c791316f0a664ff884bcaf414847c195b77f00fe57bf7",
-        "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.build_multichannel_mosaic_from_manifest": {
-      "source_blocks_sha256": [
-        "6eaa51c0d3b7f6059ab9a8e5882a4d0041615677f16733e3d1f086733558c031",
-        "8410fd2cde8963cf34bd66b720b4631e7ed6cc01ba2ce557d1c6c4a7c2ebdb3b",
-        "4efca5537d14d609ae49a2875d332aafa15d42112f3105c84ee8aa15d4bd3c62",
-        "1aa79d87a273b6dd7314619a9d8dabe69034899307d8d7215d8130b741fbe5b1",
-        "2a977ac7b09d399cb964788e8531d70ef144f16884a42bfd500a739619cc6ab6",
-        "c7338195a301f111ae9322b593e22262aeaaac6e0a094f93c80cb16825ce96b5",
-        "b9f0a6cfe36c8dfcea82be568708a42b59a081118bfbd53ed4f77e48c687d33c",
-        "5ed85010fa6eb06ca795c2a868d6a2378614a9c4b7d3aaad45b68bdd0fa77477",
-        "72876b66772efd2167bc32be4f063c1329db0c25480495645ee6904baf9e7340",
-        "e1c2fac9103157036a4dd8f4f0745d85feac924253882a2a318519f2f82690e8",
-        "152b777701bbb510b7fbecf4e093681fd047667035f8bbb013a2fcb12e94f9d0",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "c59a02cd4935798766fe05129cc323c38e0b778eb03d52092ed67fe25d0e893e",
-        "427e05f1a0b114094f0bb301a9f912a9e34d6e1abaa3f2c072268593f6be3e15",
-        "cdb58a1a7d30fad5d7be5820e999c146cae9705418432a378a5acf59d2b4a42b",
-        "1d1a1b1ef3c105fb46b40cecdb123120a638920cb37534b0bdd8f1fcbc6e70a0"
-      ],
-      "source_sha256": "247553b1ee13543b3498c0acef33be44032369aab838351b0e9f904d7b1a2ca7",
-      "text": "创建一个 CYX BigTIFF 粘贴图像网从 'mosaic.csv' 标志上写的 spacrStitcher.render_mosaic_from_csv(...).\n\n预期的 CSV 列(按字符串):\n  - 路,H,W,M00,M01,M02,M10,M11,M12,canvas_x,canvas_y, best_pair_score\n\n:param manifest_csv: 粘贴图像网显而易见阅读;缺少所需列或一行,其大小/附属将不会分裂,投``RuntimeError``。\n:param out_tif: 目的地路径为 CYX 粘贴图像网 TIFF。\n:param out_png: 图像数据通道 0 的可选预览 PNG；当值为 ``None`` 时不写预览。\n:param channel_indices: 编辑频道; ``None`` 使用第一个可用的字符串的每个频道。\n:param blend: ``'max'`` 或 ``'overwrite'``;任何其他值增加 ``ValueError``。\n:param tmp_dir: 工作空间在磁盘上的记忆图. 默认情况为 ``mosaic_tmp`` 在 ``self.feature_cache_dir`` 下,如果设置,否则与 ``out_tif`` 旁边。\n:param preview_downsample: 因子为预览 PNG 缩小;值为 ``1`` 或更少,保持完整尺寸。\n:returns: 已写的 ``out_tif`` 路径。\n\n笔记\n-----\n* 在示范中使用 2x3 字符串(已经包括全球折扣)。\n* 如果 `channel_indices` 是 None,则从第一个有效的字符串中输入频道计算。\n* `blend=\"max\"` 接收超越微镜图像字段的每像素最大; `blend=\"overwrite\"` 写下最新的微镜图片字段超过以前的字段,其中覆盖>0。\n* 如果 `tmp_dir` 提供(或从 self.feature_cache_dir 中可用),则输出工作空间使用磁盘记忆图来减少 RAM。",
-      "translation_source_blocks_sha256": [
-        "9cc0a90e56df66d80b3c801492a0e791041a09f031b2a77062827e4db676cdd5",
-        "8410fd2cde8963cf34bd66b720b4631e7ed6cc01ba2ce557d1c6c4a7c2ebdb3b",
-        "4efca5537d14d609ae49a2875d332aafa15d42112f3105c84ee8aa15d4bd3c62",
-        "b995f604aac6482116c2e441b5c5c0a97efca4de1be09dd24facbd1d75ad7fe9",
-        "2441c2bb0292f7450cfb41291248b679e823161350536016a9a8625e9219428a",
-        "591b3b5862166de4beae57beefc65a9c35c429bac8851889e3165369d692f121",
-        "b9f0a6cfe36c8dfcea82be568708a42b59a081118bfbd53ed4f77e48c687d33c",
-        "5ed85010fa6eb06ca795c2a868d6a2378614a9c4b7d3aaad45b68bdd0fa77477",
-        "72876b66772efd2167bc32be4f063c1329db0c25480495645ee6904baf9e7340",
-        "e1c2fac9103157036a4dd8f4f0745d85feac924253882a2a318519f2f82690e8",
-        "152b777701bbb510b7fbecf4e093681fd047667035f8bbb013a2fcb12e94f9d0",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "c59a02cd4935798766fe05129cc323c38e0b778eb03d52092ed67fe25d0e893e",
-        "427e05f1a0b114094f0bb301a9f912a9e34d6e1abaa3f2c072268593f6be3e15",
-        "b6b0f9c1803ba1cd66fbc5e4a5ddf0bbace8520fd9c5d194c5c58eb3c4b730c6",
-        "1d1a1b1ef3c105fb46b40cecdb123120a638920cb37534b0bdd8f1fcbc6e70a0"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.mosaic_all_channels_from_csv": {
-      "source_blocks_sha256": [
-        "1f42d9c45c7f834056020a637b1ff3eed83ace75f59a53ad2fc124ad055fbd52",
-        "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
-        "88983bf23176842902ce1aade1c5ee1ea2cfca560f44ba89f89eace37aca4107",
-        "f91f29f50f7711fc3dc5d53956dfff3452a07eb60c20cc244cec893a3cd0efee",
-        "41401e7ead1fce4958e46e9591efc3dd9dfb27f649ea94e791cabfc54960b81e",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "4f59d5ef657320e399f6a06d9c4695ee519b6840803db32293d0e34fa1d9a12a",
-        "e3968366b2dcf54efbed8fee6ef77b303e5449785b6c9204ce22cef171a3858c"
-      ],
-      "source_sha256": "78adc956ab1e07247878cd3c2fcc832e8d5e010a0d58cf6cc1dcb382dfaded4b",
-      "text": "通过在通道之间重复使用对变换来组装多通道 CYX 缝合图像网格。\n\n通过 ``out_tif=None`` 与 ``out_csv`` 在显现模式下运行(计算转换和转换地质,写显现,滑动演示)。\n\n:param csv_path: 输入双重尺寸 CSV。\n:param out_tif: 粘贴图像网 TIFF 输出路径(``None`` 仅为显而易见)。\n:param min_score: 最小双重分数保留为粘贴图像网(当 ``None`` 时自动检测)。\n:param channel_count: 强制此许多频道;当 ``None`` 时自动检测。\n:param channel_index_order: 明确的频道指数为输出订单。\n:param angle_tol_deg: 容忍分为R/L/U/D的边缘。\n:param step_tol_frac: 周围估计的网络步骤的分裂宽容。\n:param rot_tol_deg: max 允许旋转,当旋转被阻止时。\n:param scale_tol: max 允许的尺寸偏差,当尺寸被阻止时。\n:param cap_one_per_dir: 保持最多一个边缘,每条线的方向。\n:param out_csv: 可选的每条路径表现为 CSV 路径。\n:returns: 路径到粘贴图像网 TIFF(或 ``None``在 manifest-only模式)。",
-      "translation_source_blocks_sha256": [
-        "c7f2ebf344c6c23ac30a86120ab8c96a3a19c059a67da333a0e4b95d5d4cd82b",
-        "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "90ca02df5ca6824da7e6edc514abc48046679935acadf5386f4c3085d2e66d70",
-        "1de54315d3ee808f8d1673a9c0e384e39826db2f48f2bef7cd77f4d6c52cc6c4",
-        "f91f29f50f7711fc3dc5d53956dfff3452a07eb60c20cc244cec893a3cd0efee",
-        "41401e7ead1fce4958e46e9591efc3dd9dfb27f649ea94e791cabfc54960b81e",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "4f59d5ef657320e399f6a06d9c4695ee519b6840803db32293d0e34fa1d9a12a",
-        "6bd6f66b06f1da0b39b9d2dc59e47e98163d7e8b41cacf4aaa294a4fa05876c5"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.prepare_features": {
-      "source_blocks_sha256": [
-        "0a2bf501027aec8a4c2e378a8eb6fa86d3db67e6be975b4594246bc8292de5f3",
-        "cd9bdcaf97b883deb65882469ef1c9593b9a195fd39f9732d56c695c4ed62a78",
-        "02615c95660dba3bd7dab9bfa5db03f14416612760aa26844257b9b643ee9c01",
-        "a72ef973047d36890fcf63e2b369a877895f3ca540c9ebf9454f65d053307a8f",
-        "5bbd5bc42e76282f4a641f0ca5e93151c9366a3c3d7527ed45ae3d9800a64a16",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "1a3b597c3afc77c890d1a6f0952fb1ef9a2234af56beeaff73ca104cc97c9463",
-      "text": "预算 ``paths`` 的键和描述,并隐藏它们。\n\n在 ``disk`` 模式下,每个结果都将流到磁盘上的功能商店,只有一个 LRU 尺寸的子组存储在 RAM 中;在 ``ram`` 状态下,结果仅存储于内存中。\n\n:param paths: 图像文件要插入。\n:param channel_index: 频道可以从多频道 TIFFs 阅读。\n:param num_workers: 背景工作者计算;默认为 ``self.n_workers_features``。\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "0a2bf501027aec8a4c2e378a8eb6fa86d3db67e6be975b4594246bc8292de5f3",
-        "cd9bdcaf97b883deb65882469ef1c9593b9a195fd39f9732d56c695c4ed62a78",
-        "02615c95660dba3bd7dab9bfa5db03f14416612760aa26844257b9b643ee9c01",
-        "a72ef973047d36890fcf63e2b369a877895f3ca540c9ebf9454f65d053307a8f",
-        "20abc241eb66c9bd2f662d1899689940dc99a470b43a03a8fcacb5270a1be79a",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.render_mosaic_from_csv": {
-      "source_blocks_sha256": [
-        "fde71e1166a00bdd7a2e22acbda81447ba2e497899ec5ea7b4764704cc79cd55",
-        "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
-        "876ec5bf0028b64c752319271cebce6b206d78838970cdc8fdf9b4bd2357a072",
-        "b78d64d4c21e5fab3148d460d40ab6d6a3bd2d7c3a3d3b39345bcbbb650349c6",
-        "88983bf23176842902ce1aade1c5ee1ea2cfca560f44ba89f89eace37aca4107",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "d9053e6096512b8d035d687ef16ddd34ed0b44d2bce1e41216d39a56f740268e",
-        "4bf59fa16d56ba883de96a18212d4ffc19a3a38d2eba6393b41465b7aad3db45"
-      ],
-      "source_sha256": "db6fa5e26ac74a7ec4d829f9acd1a497f164252f74507e347eb8fcbf24834201",
-      "text": "收集一个粘贴的图像网图像(和显现)从一对式测量 CSV。\n\n通过 ``out_tif=None`` 和 ``out_csv`` 在显现模式下运行(转换计算和写作,但没有图像进行传输)。\n\n:param csv_path: 输入双重尺寸 CSV。\n:param out_tif: 粘贴图像网 TIFF 输出路径(``None`` 仅为显而易见)。\n:param out_png: 可选预览 PNG 输出路径。\n:param channel_index: 使用播放的频道. 默认 ``0``。\n:param min_score: 最小双重分数保留为粘贴图像网(当 ``None`` 时自动检测)。\n:param angle_tol_deg: 容忍分为R/L/U/D的边缘。\n:param step_tol_frac: 周围估计的网络步骤的分裂宽容。\n:param rot_tol_deg: max 允许旋转,当旋转被阻止时。\n:param scale_tol: max 允许的尺寸偏差,当尺寸被阻止时。\n:param cap_one_per_dir: 保持最多一个边缘,每条线的方向。\n:param out_csv: 可选的路径到每表明 CSV。\n:returns: ``(out_tif, out_png)`` 字符串",
-      "translation_source_blocks_sha256": [
-        "331a55658a9589944bcbe455fa4d55a02dff2edb2b84f5199d771ab9cc96aac9",
-        "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "90ca02df5ca6824da7e6edc514abc48046679935acadf5386f4c3085d2e66d70",
-        "876ec5bf0028b64c752319271cebce6b206d78838970cdc8fdf9b4bd2357a072",
-        "b78d64d4c21e5fab3148d460d40ab6d6a3bd2d7c3a3d3b39345bcbbb650349c6",
-        "1de54315d3ee808f8d1673a9c0e384e39826db2f48f2bef7cd77f4d6c52cc6c4",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "d9053e6096512b8d035d687ef16ddd34ed0b44d2bce1e41216d39a56f740268e",
-        "4bf59fa16d56ba883de96a18212d4ffc19a3a38d2eba6393b41465b7aad3db45"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.run_folder": {
-      "source_blocks_sha256": [
-        "50ad0a1cb7dbbf6b87799a7bd51b6cf6566e0a99d4894d49a254d3281bfd5638",
-        "51d9e5f7d20d7d6e34cf0e87166c1a76516ded41899f239269077a54763f1c06",
-        "b67998529733a49ffa7f510b74e4843a03cf901bd88a77134a8c6067bf8060ab",
-        "cf73934177dd8956a194b0a6e31c9dc5e598622b2c2aba1d81cacc7a1f7b7243",
-        "78fb17386a5c73152cced41e68ed7e5fdc7e94c38b195c05bcd6e9f996f0cc52",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "29b83a724759e2d8e2364c2c849b5f3743ecfe19f43a42cadb7e0bd22a445b77",
-        "1cc305fd1a59d1f6da418ba98a562c6ecc1bed68484ab8e9afa906bbf37d7ce7",
-        "5d91272fc3a6cd04c1523e827172b94283c62c063ffae33f57391134e750174c",
-        "4c47095cd345024ebfa93b29b7c3da9e3f1553a65ea15e7b4663d5a7a01d2280",
-        "4f4737f6000fc7bdf0e1ce4de0da2354a9a1eba4a73ac46c71d80edc59532642",
-        "c19362a8369c06f6443090f2f0937a3e5f6a535d213aa4c11aa96f46a8adad64",
-        "f1a8b6c26d0deb9272b697d948362c856f607b0231659200ae5cedfdaa872975",
-        "944cd8a745fc9c05ae096fc410516cf88a89baa57e785f4c7cad9a27525da8b9",
-        "9566d4d5f5d67d2ff92858e495ddb5bc7d0fa71949f15aeb9de93303a907b7b9",
-        "f023b72f1bae967e5d84b2186c26722b111397cfc131062f1b1c36f755e065db",
-        "b359c0e88dc980c79c0efe1f75a51191f25ad0ff4c58ff58ca47dcfe649a64ac",
-        "9a3da0287619ba655373eec4fa4768e9df70369966daacab24afdb85604277b9",
-        "cf99ad4ba037d3bca6210aa39f36819c5e4b1029f4ded88a099d81137670cbcd",
-        "86a72d466a012da897aec32fa0f714e2b2d8aa256c825ada6b73d1a469632b5d",
-        "48068c7c5d42c819507bce6ac90e912a9fb40cc31f8468566c182f2fcb873ed1",
-        "914a5a86ee96ae60461cdc40b0c74b3cd7a8fccfbc6d39136163bf0ba67db618",
-        "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
-      ],
-      "source_sha256": "cfc121333b39358d6311adab55cbcc6d92e1b5e42d441010696eecb8aedbfe15",
-      "text": "按 ``folder`` 评分每个候选人对,并可选地创建一个完整的图像网。\n\n当候选人数量超过 ``qc_pairs_threshold``, QC 在第一行中排行,并仅重新排行为其分数在第二行中清除自动限制的对手。\n\n:param folder: 扫描的字符串目录。\n:param csv_path: 目的地 CSV 用于双式测量。\n:param channel_index: 使用的频道为函数评分. 默认 ``0``。\n:param exts: 接受的图像扩展。\n:param recursive: 重定向到字符串:默认 ``False``。\n:param same_well_only: 限制配对到相同的配对好. 默认 ``True``。\n:param max_site_gap: 候选人邻居之间的最大位置指数差距 默认 ``3``。\n:param n_workers: 工作进程行由得分通道使用,默认为 ``8``。\n:param stitch: 保存点数为 TIFFs 对比超过分数边界的对比。\n:param score_threshold: 最小得分是为了保存图像。\n:param meta_regex: 在扫描之前,将Filename regex上传。\n:param mosaic: 结束后构建一个单通道拼接图像网格。\n:param mosaic_out: 输出 TIFF 路径为粘贴图像网(单图像数据渠道模式)。\n:param mosaic_min_score: 使用的最小边缘分数在打印粘贴图像网端时。\n:param mosaic_csv_out: 输出 CSV 路径为粘贴图像网显现。\n:param mosaic_all_channels: 在所有渠道上建立一个 CYX 粘贴图像网络。\n:param mosaic_channel_count: 为多通道拼接图像网格强制使用这么多的通道。\n:param mosaic_channel_index_order: 通道顺序为多通道拼接图像网格。\n:param qc_pairs_threshold: 双数在哪个 QC 折叠被关闭。\n:param qc_only_above_threshold_when_many: 允许第二通,得分为 QC 输出。\n:returns: 路径到 pairwise-metrics CSV。",
-      "translation_source_blocks_sha256": [
-        "ec34ce3c0c2907ad52cf332ccf367c095b730ad8b302cff28e4c1f592aa46a1c",
-        "51d9e5f7d20d7d6e34cf0e87166c1a76516ded41899f239269077a54763f1c06",
-        "b67998529733a49ffa7f510b74e4843a03cf901bd88a77134a8c6067bf8060ab",
-        "cf73934177dd8956a194b0a6e31c9dc5e598622b2c2aba1d81cacc7a1f7b7243",
-        "78fb17386a5c73152cced41e68ed7e5fdc7e94c38b195c05bcd6e9f996f0cc52",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "29b83a724759e2d8e2364c2c849b5f3743ecfe19f43a42cadb7e0bd22a445b77",
-        "1cc305fd1a59d1f6da418ba98a562c6ecc1bed68484ab8e9afa906bbf37d7ce7",
-        "5d91272fc3a6cd04c1523e827172b94283c62c063ffae33f57391134e750174c",
-        "3bdb81c98fe61416e2ddb7943d697dbdc4c4329a495092cb1be7d547e433b136",
-        "4f4737f6000fc7bdf0e1ce4de0da2354a9a1eba4a73ac46c71d80edc59532642",
-        "c19362a8369c06f6443090f2f0937a3e5f6a535d213aa4c11aa96f46a8adad64",
-        "f1a8b6c26d0deb9272b697d948362c856f607b0231659200ae5cedfdaa872975",
-        "44f3739314aea17c8b16b57d8502047cc29200aaf89bce856afb246ebfc5768d",
-        "6965fbf9fb189cccb9223da7c67a979520ecaa5f0cb44f0727374f3bce577cd9",
-        "4ae04e79046e2ad3b78c5d7a78de4db1ee728f98a994431fa1e9f6eeaedd91a5",
-        "740febcc641829f70516bc1c859fcce6df69e1d06ce0b0b1428a2a40771dfbde",
-        "f21be2ad17686db5ddb937896c4a7969ee1a947d063419caaf3006544d69394f",
-        "f686a55fecf53c6389c029a8645a0829f64b1a1ae4e23010435e1de69ce6f052",
-        "ebc6786604033556971653b878aa8541217c9ab57e5fd4810e23ead9d6ef2f96",
-        "48068c7c5d42c819507bce6ac90e912a9fb40cc31f8468566c182f2fcb873ed1",
-        "914a5a86ee96ae60461cdc40b0c74b3cd7a8fccfbc6d39136163bf0ba67db618",
-        "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.set_meta_regex": {
-      "source_blocks_sha256": [
-        "e59c5152eae510229811f50a7c9dab32ba9eccfb2ef705788e0e6369755afee4",
-        "feadf4ac30dae81b4edf9481459d712595bbfc6afb0afc6f095c1cbe3cc2c6f5"
-      ],
-      "source_sha256": "27bc59283852176ccc6d026c3f3d2cf737a27bba3f3657a05a768a66b1223710",
-      "text": "取代用来分割图像的字体名称 regex。\n\n:param pattern: 序列或编制的雷格斯与博,网站,频道和扩展组。",
-      "translation_source_blocks_sha256": [
-        "e59c5152eae510229811f50a7c9dab32ba9eccfb2ef705788e0e6369755afee4",
-        "feadf4ac30dae81b4edf9481459d712595bbfc6afb0afc6f095c1cbe3cc2c6f5"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.stitch_pair": {
-      "source_blocks_sha256": [
-        "2d423139139b7b5fdad90cb8970d5d649ada45ec3ba54441d886ba2bbff65101",
-        "a9fec53041c394a39fcf16be609c27de825c83aa5465aad6edd0cc8f5bbcf203",
-        "6ebca2c0154dfcb2df09e2ac992144976dbab0277eddebd98618da59441e642f",
-        "6ec47f331ba4c0cc3b42c7b3ffa0abff96db7c91942eb35e589a69a6f71f2714",
-        "726929e8b5c7a1b9d359097851f3f49fd74fccf34471002d20dbe76d2c453587",
-        "8c09ce7a9ccb1e3082c178bb633c61007393512b2b237d91a6690af4230d0083",
-        "2cbc306772f3173a7239a62ab9d2b1f486407055e21ca396537666285d11edf5",
-        "64055dd4d640a14752c2cb3b953440b8e568f20c7cb0f7dd6b79088bdefd3106",
-        "8b59049b4cf4fb511a8a88d5a389796cc2b3c26be744ed651c509e1f2d4f3db7"
-      ],
-      "source_sha256": "d3060fffaa56b4da067689a91ff614c836070a3e3b0303f08451f5d7d4a72a87",
-      "text": "估计 B 到 A 仿射,评分重叠,并可选地写入缝合对。\n\n:param pathA: 参考图像路径。\n:param pathB: 图像将与 ``pathA`` 相匹配。\n:param channel_index: 使用的频道与功能相匹配. 默认 ``0``。\n:param score_threshold: 最低限度的边缘-ZNCC 得分需要保存的 TIFF 落后回归 ``self.score_threshold``.\n:param save_stitched: 超级,以确定是否要写下粘贴图像;返回 ``self.save_stitched_default``。\n:param force_no_qc: 删除 QC 超级图像,无论设置如何。\n:param qc_only_if_score_ge: 发射 QC 只会在对点数满足此分数时超过。\n:returns: 关键值地图配对测量和输出路径,或 ``None`` 当匹配/RANSAC 失败时。",
-      "translation_source_blocks_sha256": [
-        "2d423139139b7b5fdad90cb8970d5d649ada45ec3ba54441d886ba2bbff65101",
-        "a9fec53041c394a39fcf16be609c27de825c83aa5465aad6edd0cc8f5bbcf203",
-        "6ebca2c0154dfcb2df09e2ac992144976dbab0277eddebd98618da59441e642f",
-        "6ec47f331ba4c0cc3b42c7b3ffa0abff96db7c91942eb35e589a69a6f71f2714",
-        "726929e8b5c7a1b9d359097851f3f49fd74fccf34471002d20dbe76d2c453587",
-        "8c09ce7a9ccb1e3082c178bb633c61007393512b2b237d91a6690af4230d0083",
-        "2cbc306772f3173a7239a62ab9d2b1f486407055e21ca396537666285d11edf5",
-        "64055dd4d640a14752c2cb3b953440b8e568f20c7cb0f7dd6b79088bdefd3106",
-        "c96881e298a83f3df446849d93fb919bce385829d85b9e2a5bf2b644f130fc01"
-      ]
-    },
-    "spacr.spacrops.stitch_cycle_wells": {
-      "source_blocks_sha256": [
-        "56d1f86563622756cd7e895f79ad1c85a98a66bd7821e4ffe0887b55bb832d23",
-        "8f73b339608b45b5e9eeb813a4262071627ec8ad62489fee89931237242271a6",
-        "43e2055f27b37bb3caa915733fa5684575c1b93adb7ae82e1a64fe15a181260e",
-        "52899c439e3418283cd3cbd1931f7a2b9195734a27b4b5b0eb43a50d8d950327",
-        "a461890ecbdfa56af39153e64f160445b45ac7e286e31241c10123b6ea2bcac5"
-      ],
-      "source_sha256": "384a6b243901630139ba6a3c7fbbec27a5dd5db1dd71caebf58c6f072ce0584d",
-      "text": "安排一个实验室微板 TIFFs 在每微板样本位置文件夹中,并插入每个微板模型位置。\n\n根据文件名元数据按孔分组图像,可选择将它们移动或符号链接到每孔文件夹中,然后在每个孔上运行 :class:`spacrStitcher` 以生成成对的 CSVs,并在询问时生成单个或多个图像数据通道拼接的图像网格。\n\n插图图像网是 opt-in。 设置 ``write_mosaic`` (或其同义词 ``mosaic``) 以构建一个。 它默认情况下关闭,因为收集一个粘贴图像网会出现,当太少的显微镜图像字段被粘贴到任何位置时,而无法粘贴的微孔板不应该成为无法组织的板。\n\n:param settings: 提前处理设置的关键值地图; 请参见 :func:`get_preprocess_ops_settings` 支持的结构化数据名称。\n:returns: 基值地图与结构化数据名称 ``organized`` (移动/symlink 总结) 和 ``wells`` (每微型样品位置输出路径)。",
-      "translation_source_blocks_sha256": [
-        "e9cd9ab6a7e5a803c9e5647f2139ae04d4f962a2f63437d2f384d12d0ab1cf91",
-        "1f25af89ed183bdbc8dd262ae7cbbe457750474fbbd500e46700cf180498bc7e",
-        "23581abc7e159bfa927f2327c3f34ddbd11591e5400e00ee0c360a6052c42c0b",
-        "2fb7dd35975183db0f2521dff4e686926bf51534c83675e0904fb1a7ed6b8d4a",
-        "77979a302d60b30163651be882c442cd157020d2730fa063dde15da88601a41b"
       ]
     },
     "spacr.sra": {

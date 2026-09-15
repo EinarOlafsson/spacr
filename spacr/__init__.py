@@ -112,7 +112,6 @@ _DOCUMENTED_SUBMODULES: tuple[str, ...] = (
     "predictions",
     "toxo",
     "spacr_cellpose",
-    "spacrops",
     "sp_stats",
     "sim",
     "object",

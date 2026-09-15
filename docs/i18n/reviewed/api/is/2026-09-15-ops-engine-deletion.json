@@ -1,0 +1,13 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "The settings the OPS engine reads, with their defaults filled in.",
+      "label": "spacr.ops_settings.ops_defaults#0",
+      "source": "The settings the OPS engine reads, with their defaults filled in.",
+      "source_sha256": "b5889f09bc4d9e395fca1c68b572cc709449af2ce7a043f86c2f7a5782b7cff6",
+      "translation": "Stillingarnar sem OPS-vélin les, með sjálfgefnu gildin útfyllt."
+    }
+  ],
+  "schema": 1
+}

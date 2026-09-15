@@ -2027,7 +2027,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # changed signatures (WellLayout, round_well_layout,
     # phenotype_site_map, call_reads). The same move took c3f562c4f's
     # 8,696 to 8,702 before the rebase.
-    assert len(callables) == len(by_symbol) == 8_703
+    # 8,703 -> 8,684 on 2026-09-15, +0 / -19 by differencing the inventory
+    # LINES against the switch commit: the old OPS engine was deleted, taking the 16
+    # callables of the old engine's module and the three stitcher defaults in
+    # `spacr.settings` that nothing called. No line was added or changed.
+    assert len(callables) == len(by_symbol) == 8_684
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2079,9 +2083,16 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # the same single arrival as the total above. Subtracted, 3,777.
         # 3,778 -> 3,783 on 2026-09-15 (372), +5: five of its six arrivals
         # are module-level functions; AlignedField is the sixth, below.
-        "function": 3_783,
-        "method": 3_842,
-        "constructor": 396,
+        # -7 on 2026-09-15 with the old OPS engine: ops_preprocess,
+        # stitch_cycle_wells, get_preprocess_ops_settings,
+        # align_image_to_stitch and the three spacr.settings defaults.
+        "function": 3_776,
+        # -9 on 2026-09-15: the seven spacrStitcher methods,
+        # StitchedMultiAligner.align and FOVAlignAndCropper.run.
+        "method": 3_833,
+        # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
+        # FOVAlignAndCropper.
+        "constructor": 393,
         "dataclass_constructor": 473,
         "namedtuple_constructor": 8,
         "exception_constructor": 145,
@@ -2115,7 +2126,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # rendered by autoapi and by nothing else. Subtracted, 8,691.
         # 8,692 -> 8,698 on 2026-09-15, the same +6: 372's six callables
         # reach the user through autoapi and no other route.
-        "autoapi": 8_698,
+        # 8,698 -> 8,679 on 2026-09-15, the same -19: every deleted callable
+        # was rendered by autoapi and by nothing else.
+        "autoapi": 8_679,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2154,14 +2167,17 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Subtracted, 8,703.
     # 8,704 -> 8,710 on 2026-09-15, the same +6: each of 372's six
     # callables has exactly one prose variant.
-    assert sum(item.variant_count for item in callables) == 8_710
+    # 8,710 -> 8,691 on 2026-09-15, the same -19: each deleted callable had
+    # exactly one prose variant.
+    assert sum(item.variant_count for item in callables) == 8_691
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
     assert Counter(item.variant_count for item in callables) == {
         # 8,689 -> 8,690 on 2026-09-15 with `mark_to_start_on`.
         # 8,690 -> 8,696 on 2026-09-15 with 372's six, one variant each.
-        1: 8_696,   # +45, +1, +6; the seven two-variant callables are unmoved
+        # 8,696 -> 8,677 on 2026-09-15: the 19 deleted callables, one variant each.
+        1: 8_677,   # +45, +1, +6, -19; the seven two-variant callables are unmoved
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2196,12 +2212,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # are `constructor` rather than `dataclass_constructor`, and both
     # `__init__` carry prose. Every other Map Barcodes callable is a
     # function, a method or a dataclass.
+    # 396 -> 393 on 2026-09-15, and BOTH sums move together again: the old OPS
+    # engine's deletion took 3 constructors whose `__init__` carried prose
+    # (FOVAlignAndCropper, StitchedMultiAligner, spacrStitcher), each with one variant, and no docstring was lost elsewhere.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 396
+    ) == 393
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 396
+    ) == 393
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -2300,7 +2319,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # for half_tile (0), round_well_layout gains half_tile (+1),
     # phenotype_site_map trades sbs_sites and row_offsets for sbs_centres,
     # anchors and tile_shape (+1), call_reads gains normalise and gpu (+2).
-    assert sum(len(item.parameters) for item in callables) == 17_331
+    # 17,331 -> 17,174 on 2026-09-15, -157, all of it on the 19 deleted
+    # lines: the old OPS engine's callables and the three stitcher defaults.
+    assert sum(len(item.parameters) for item in callables) == 17_174
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2319,7 +2340,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,817 -> 8,833 on 2026-09-15, +16: +15 from 372's arrivals and +1
     # from phenotype_site_map, whose required sbs_sites became the
     # required pair sbs_centres and anchors.
-    assert sum(len(item.required_parameters) for item in callables) == 8_833
+    # 8,833 -> 8,812 on 2026-09-15, -21, likewise all on the deleted lines.
+    assert sum(len(item.required_parameters) for item in callables) == 8_812
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2376,7 +2398,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # that failed to match would have read as "something unexplained moved"
     # when what had actually moved was my reconstruction. Subtract using the
     # recorded baseline LINE, not a field-by-field rebuild of it.
-) == "b644569971593e239771edc9d5226a774fd530066b0eed5dc6e29e085a905788"
+) == "a80114b9f1a0c0d88060bbd03516994e5c260f20a5abfb66532d0e67148ea145"
+    # Moved 2026-09-15 when the old OPS engine was deleted, and PROVED by
+    # subtraction: the switch commit's inventory returns b6445699..., the previous
+    # pin, and with its 19 deleted lines dropped it returns a80114b9...,
+    # this tree's digest, byte for byte. Nothing else changed.
     # Moved 2026-09-15 for 372 PART 14-M and PROVED by subtraction on
     # nightly 3f27b926a: nightly's own inventory returns f59e27a9..., the
     # previous pin, and this tree's with the six arrivals dropped and the
@@ -2825,7 +2851,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # moved by the same one, which is what this cross-check is for.
     # 10,534 -> 10,541 on 2026-09-15: the seven 372 arrivals named in
     # test_api_i18n_extractor, +7/-0 by set difference against 3f27b926a.
-    assert len(docs) == 10_541
+    # 10,541 -> 10,521 on 2026-09-15: the twenty symbols the old OPS engine's
+    # deletion removed, named in test_api_i18n_extractor, +0/-20.
+    assert len(docs) == 10_521
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -2855,7 +2883,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # `mark_to_start_on` is both rendered and documented.
     # 8,692 -> 8,698 on 2026-09-15, the same +6 as the callable total: all
     # six 372 arrivals are rendered and documented.
-    assert len(rendered_documented_callables) == 8_698
+    # 8,698 -> 8,679 on 2026-09-15, the same -19 as the callable total.
+    assert len(rendered_documented_callables) == 8_679
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

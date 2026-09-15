@@ -460,7 +460,6 @@ _PROGRESS_RE = re.compile(r"\bProgress:\s*(\d+)\s*/\s*(\d+)")
 WORKER_SETTING_KEYS = (
     "n_jobs",
     "n_workers",
-    "n_workers_features",
     "ultrack_n_workers",
     "infection_xgb_n_jobs",
 )
@@ -1513,8 +1512,6 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
             return _ret(log_call(align_folder))
         if app_key == "ops":
             # 372 PART 14-M: the sequencing engine, validated on the plate.
-            # `spacr.spacrops.ops_preprocess` is no longer reachable from
-            # the button.
             from spacr.ops_engine import run_ops
             return _ret(log_call(run_ops))
         if app_key == "convert":

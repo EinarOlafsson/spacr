@@ -31,27 +31,6 @@
       "translation": "Timelapse 模块是在时间序列上运行的掩模生成：先执行与 Mask 模块相同的预处理和 Cellpose 分割，再逐帧关联 ``timelapse_objects`` 指定的对象，并逐图像数据通道导出影片。因此，它接收完整的 ``set_default_settings_preprocess_generate_masks`` 键值映射，并强制开启 ``timelapse``——该标志定义了模块*本身*，而不是供用户配置的选项。"
     },
     {
-      "label": "spacr.spacrops.FOVAlignAndCropper.run#1",
-      "source_sha256": "732fa1ca8b379780605ef0edc12ee68b4ffe0f3ea94b206e63aa8ccf173605c3",
-      "source": "Uses the nuclei channel for alignment and writes one ``.npy`` per FOV containing the FOV channels plus mosaic channels warped into the FOV frame.",
-      "context": "Uses the nuclei channel for alignment and writes one ``.npy`` per FOV (microscope field of view) containing the FOV (microscope field of view) channels plus stitched image grid channels warped into the FOV (microscope field of view) frame.",
-      "translation": "使用细胞核通道进行对齐，并为每个 FOV（显微镜视野）写出一个 ``.npy``；其中包含该 FOV（显微镜视野）的各通道，以及变换到该 FOV（显微镜视野）坐标框架的马赛克通道。"
-    },
-    {
-      "label": "spacr.spacrops.FOVAlignAndCropper.run#5",
-      "source_sha256": "ee86cedb91cdc9f6eb81b5ff8197c3994ee0e59f611da23eb0448f99aa3c1cba",
-      "source": "nuclei channel index in each FOV. Default ``0``.",
-      "context": "nuclei channel index in each FOV (microscope field of view). Default ``0``.",
-      "translation": "每个 FOV（显微镜视野）中的细胞核通道索引。默认值为 ``0``。"
-    },
-    {
-      "label": "spacr.spacrops.spacrStitcher.build_multichannel_mosaic_from_manifest#5",
-      "source_sha256": "c7338195a301f111ae9322b593e22262aeaaac6e0a094f93c80cb16825ce96b5",
-      "source": "optional preview PNG of channel 0; no preview is written when ``None``.",
-      "context": "optional preview PNG of image data channel 0; no preview is written when ``None``.",
-      "translation": "图像数据通道 0 的可选预览 PNG；当值为 ``None`` 时不写预览。"
-    },
-    {
       "label": "spacr.submodules.analyze_invasion#4",
       "source_sha256": "48cd7e0f755a71eedd238c9718c91f39b93091e5b52d644514c954065603b181",
       "source": "Read that asymmetry carefully, because the whole design follows from it. \"Inside\" is defined by an absence, and absence is the unreliable direction. Poor antibody penetration, a focal plane off the parasite's equator, photobleaching, a low-expressing parasite — every one of them removes outside signal from a parasite that is genuinely outside, and every one of them therefore *inflates* invasion efficiency. Nothing plausible pushes the error the other way. The threshold on the outside channel is the single number the assay rests on, so it is derived from the data, reported per field in ``fields``, cross-checked against a control-derived cut when one exists, and bracketed by a sensitivity pair that says how much of the answer is the threshold.",

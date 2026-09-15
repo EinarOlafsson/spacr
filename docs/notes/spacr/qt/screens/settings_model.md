@@ -946,10 +946,10 @@ Curate the same way, from its own row into Make Masks. Its page is the brush rat
 ### lines 4129-4134
 
 ```python
-"ops": "spacrops",
+"ops": "ops_engine",
 ```
 
-OPS folds onto Align & Stitch and was never given a row, so the fold reference on the API homepage listed it as bare text and its settings' help pointed at the generated index. Its entry point is `spacr.spacrops.ops_preprocess` -- the same module `bridge` imports to run it -- and `spacrops` is a public module with a page of its own, so there was a page the whole time and nothing addressing it.
+OPS folds onto Align & Stitch and was never given a row, so the fold reference on the API homepage listed it as bare text and its settings' help pointed at the generated index. Its entry point is `spacr.ops_engine.run_ops` -- the same module `bridge` imports to run it -- and `ops_engine` is a public module with a page of its own, so there was a page the whole time and nothing addressing it.
 
 ### lines 4462-4464
 

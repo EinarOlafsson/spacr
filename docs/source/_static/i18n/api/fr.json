@@ -48679,18 +48679,16 @@
         "a050b3e22b99c9d502eac4ba6cc0fe9628016229dd42715d816a3c83881dbbd0",
         "5a1e405a5b54cb57f0492a88f8881840f4a6dc9a6c91aceb01ef1ed0fe8bfe2a",
         "6991244c058a3e5c5926ab9700fab1ca966b3f3b0930e6de7ba5d11cf10c60e2",
-        "ffb7a8a7be45a83ef05794e4bc961ed18695c29d51fd6152fc959cc7bbe9faf1",
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ],
-      "source_sha256": "872d3ac6200edb91421cacad3edaa8a28a499d96fc25b134d8ef11b9a4e35223",
-      "text": "Où se trouve chaque champ d'image au microscope d'un puits rond, sous forme fermée.\n\nTrois prototypes précédents ont essayé de reconnaître la grille à partir des liens qui s'inscrivaient -- une serpentine avec un pas constant, puis s'exécute délimitée par un lien échoué, puis des colonnes comme des passages maximaux de liens verticaux. Les trois ont déduit la grille des bords qui manquaient, et les trois ont échoué sur la même acquisition : 27 des 333 champs d'images au microscope placés.\n\nLa position de l'échantillon de microplaques est RONDE. Chaque colonne contient autant de champs de vue du microscope que ceux qui s'inscrivent dans le cercle à ce x, de sorte que les colonnes ont des hauteurs différentes et l'index décalé à la colonne suivante est la hauteur de cette colonne -- c'est pourquoi les décalages horizontaux mesurés étaient +11, +4, -11, -9, -4, -13 et -5 plutôt qu'un seul nombre.::\n\n    columns   21, snaked down (even columns top to bottom)\n    circle    radius 10.25 grid units, centre at column 10, row -10\n    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,\n              19, 19, 17, 17, 15, 13, 9, 5                SUM = 333\n\nSept décalages mesurés par rapport à quatre paramètres libres ne seraient qu'un ajustement; le modèle a ensuite été demandé de prédire les quatre voisins de six sites qu'il n'avait jamais vus -- 20, 60, 140, 200, 260, 300 -- et l'enregistrement confirmé 24 de 24, au sommet/moyenne 23,6 à 53,1 contre des paires de contrôles de 9,0 à 15.6 Les contrôles sont revenus au poste (0,0), ce qui est la signature sans overlaps qui se comporte comme il se doit.\n\nL'erreur qui a coûté le premier modèle quatre de sept, enregistrée parce qu'il s'agit de la même classe d'erreur que les décalages enveloppés dans la PARTIE 6-A de 372 : les lignes ont été indexées à partir du haut de chaque colonne. Dans un puits rond, chaque colonne commence à une ligne différente, de sorte que « la ligne 3 de la colonne c » et « la colonne 3 de c+1 » ne sont pas côte à côte. le voisin est à la même ligne de grille absolue, c'est pourquoi :meth:`WellLayout.position` retourne les lignes absolues et :meth:`WellLayout.neighbours` les regarde directement.\n\nCe que cela remplace. `max_site_gap` et la recherche de paires fenêtre dans `spacr.spacrops`: 128 paires de candidats par champ d'image du microscope, dont quatre pourraient être réels, donnant 993 paires de points et 994 QC superpositions pour une position d'échantillon de microplaques. Ce module offre quatre candidats par champs d'images du microscope et chacun des 24 testés est une adjacence réelle, donc environ 640 bords réels sont marqués au lieu de 993 principalement imaginaires.\n\nUtilisation typique::\n\n    from spacr.ops_layout import round_well_layout\n\n    layout = round_well_layout(333)\n    for a, b, axis in layout.pairs():\n        shift = register(tile(a), tile(b))    # phase correlation, per 372",
+      "source_sha256": "5564a6c320f6c07195539e38ef032eb2c1cda4dec04db6d3158a6f5d5a5565bc",
+      "text": "Où se trouve chaque champ d'image au microscope d'un puits rond, sous forme fermée.\n\nTrois prototypes précédents ont essayé de reconnaître la grille à partir des liens qui s'inscrivaient -- une serpentine avec un pas constant, puis s'exécute délimitée par un lien échoué, puis des colonnes comme des passages maximaux de liens verticaux. Les trois ont déduit la grille des bords qui manquaient, et les trois ont échoué sur la même acquisition : 27 des 333 champs d'images au microscope placés.\n\nLa position de l'échantillon de microplaques est RONDE. Chaque colonne contient autant de champs de vue du microscope que ceux qui s'inscrivent dans le cercle à ce x, de sorte que les colonnes ont des hauteurs différentes et l'index décalé à la colonne suivante est la hauteur de cette colonne -- c'est pourquoi les décalages horizontaux mesurés étaient +11, +4, -11, -9, -4, -13 et -5 plutôt qu'un seul nombre.::\n\n    columns   21, snaked down (even columns top to bottom)\n    circle    radius 10.25 grid units, centre at column 10, row -10\n    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,\n              19, 19, 17, 17, 15, 13, 9, 5                SUM = 333\n\nSept décalages mesurés par rapport à quatre paramètres libres ne seraient qu'un ajustement; le modèle a ensuite été demandé de prédire les quatre voisins de six sites qu'il n'avait jamais vus -- 20, 60, 140, 200, 260, 300 -- et l'enregistrement confirmé 24 de 24, au sommet/moyenne 23,6 à 53,1 contre des paires de contrôles de 9,0 à 15.6 Les contrôles sont revenus au poste (0,0), ce qui est la signature sans overlaps qui se comporte comme il se doit.\n\nL'erreur qui a coûté le premier modèle quatre de sept, enregistrée parce qu'il s'agit de la même classe d'erreur que les décalages enveloppés dans la PARTIE 6-A de 372 : les lignes ont été indexées à partir du haut de chaque colonne. Dans un puits rond, chaque colonne commence à une ligne différente, de sorte que « la ligne 3 de la colonne c » et « la colonne 3 de c+1 » ne sont pas côte à côte. le voisin est à la même ligne de grille absolue, c'est pourquoi :meth:`WellLayout.position` retourne les lignes absolues et :meth:`WellLayout.neighbours` les regarde directement.\n\nUtilisation typique::\n\n    from spacr.ops_layout import round_well_layout\n\n    layout = round_well_layout(333)\n    for a, b, axis in layout.pairs():\n        shift = register(tile(a), tile(b))    # phase correlation, per 372",
       "translation_source_blocks_sha256": [
         "23761d685c8c4fc6ac08d44109dfee08811c1ea51dcbc25404a3c92944f67f01",
         "df48544ee48423094d5bf77420c51c75925f5cf33cb446d6631c0656a777bee7",
         "51d26f89d8aca36b53c3cb5c9695d401be1301616ad2a6683c8aa6dd820187e7",
         "24efc80878680c4e40e1baff489b84f6bc214f3e65e5c772d68a73e08d9a1d7b",
         "a55f6c5a6af314eca7c64b84f4f3f587a1292f53782f9dbc222b9b1228a8f492",
-        "5f583a77e71e03c0f8791e006f440033838d2f2841939312a185e17d60e957e1",
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ]
     },
@@ -49959,31 +49957,27 @@
     "spacr.ops_settings": {
       "source_blocks_sha256": [
         "6f942c001d9e7df5854ea8e89d26dd54f2462c2022ecbbc6a44f262019d2f590",
-        "f08fed5de009684f81a168b07db774b9a9e1149c9aea6cfa91981ca206e02b29",
         "8b2539260ffda44ce6af06d0f58d80f56c7d81d5e1089e59bf6154072e492f3c",
         "837c713d33b38dd7c66699cc17c5cc7207660ab3b8c4ba5e50ea478b1ed6c001"
       ],
-      "source_sha256": "9431d3c365ea41269420101980827d46a6de48b0b31315d57d2af34516f0f209",
-      "text": "Types, catégories et aide pour chaque réglage d'écran à bobine optique.\n\nPourquoi ce fichier existe. `spacr/spacrops.py` transporte soixante-trois réglages et, jusqu'ici, pas un seul n'avait de type déclaré, de catégorie ni d'infobulle. Un audit des réglages a montré ce que cela coûte : un module qui manque dans les tables partagées n'est jamais vérifié, et c'est ainsi qu'une case à cocher en est venue à livrer la chaîne ``'False'`` -- vraie au sens booléen, en silence, pour toute la durée de la version.\n\nUn réglage sans type ne peut pas être validé; un réglage sans infobulle est une boîte étiquetée que l'utilisateur doit deviner; un paramètre dans aucune catégorie n'apparaît pas du tout dans le panneau.\n\nLes bouts d'outils disent ce que le réglage fait au résultat, pas ce qu'il est nommé. \"The number of features\" ne dit rien au lecteur qu'ils ne pouvaient pas lire sur l'étiquette. « D'autres fonctionnalités trouvent plus de chevauchement et coûtent du temps et de la mémoire; en dessous d'environ 2000 un champ clairsemé cesse de correspondre » leur dit comment le déplacer et pourquoi.",
+      "source_sha256": "3ed4812ffc932c4acb65187f040befa791f786c655d66524547b47eea22b314d",
+      "text": "Types, catégories et aide pour chaque réglage d'écran à bobine optique.\n\nUn réglage sans type ne peut pas être validé; un réglage sans infobulle est une boîte étiquetée que l'utilisateur doit deviner; un paramètre dans aucune catégorie n'apparaît pas du tout dans le panneau.\n\nLes bouts d'outils disent ce que le réglage fait au résultat, pas ce qu'il est nommé. \"The number of features\" ne dit rien au lecteur qu'ils ne pouvaient pas lire sur l'étiquette. « D'autres fonctionnalités trouvent plus de chevauchement et coûtent du temps et de la mémoire; en dessous d'environ 2000 un champ clairsemé cesse de correspondre » leur dit comment le déplacer et pourquoi.",
       "translation_source_blocks_sha256": [
         "6f942c001d9e7df5854ea8e89d26dd54f2462c2022ecbbc6a44f262019d2f590",
-        "ff22698ded55d53bf33b02508baad7cd669893b9ce274bb592dc42d706f34db1",
         "8b2539260ffda44ce6af06d0f58d80f56c7d81d5e1089e59bf6154072e492f3c",
         "7719c489a06acc83908c54545efc0bf9788ae70c35dea93eda08b0da6760873b"
       ]
     },
     "spacr.ops_settings.ops_defaults": {
       "source_blocks_sha256": [
-        "f8bb6f7605daf4799b7dda57e230ae59f8e239a252265463a87792d31eda85a5",
-        "06f212f6de8ef6e29ff7f581988263bd3121d2f3e75b4c48bf53debc1c644315",
+        "b5889f09bc4d9e395fca1c68b572cc709449af2ce7a043f86c2f7a5782b7cff6",
         "9aacf2a79223a4b14e773e7837fc4dfe9a8e049ef801012370c920319fcebf4c",
         "4e34a9e513d13ec9e0830ed1dfd81963ec56c1fa68e95c7db47898bef1f0e19b"
       ],
-      "source_sha256": "0b2cda661c5e01d9733bfda2531403238686debff759f93d4e80074100174b44",
-      "text": "Les paramètres OPS, avec `spacrops` importé seulement quand ils sont recherchés.\n\nUne usine paresseuse, et c'est le point. `spacr.settings` importe ce module de sorte que l'enregistrement se produit au démarrage, et `spacrops` atteint OpenCV et SciPy -- un tiers d'une seconde, sur le chemin par lequel une vue d'application de module s'ouvre. Enregistrer la FUNCTION plutôt que de l'appeler garde ce coût jusqu'à ce que quelqu'un demande réellement un OPS par défaut.\n\n:param settings: paramètres de l'appelant, remplis avec les valeurs par défaut.\n:returns: la cartographie des valeurs clés des paramètres complétés.",
+      "source_sha256": "a37ed0a83fe7e6a56ffcbb93df901a88a0a73b78c32b8a57c4943a2706372dfc",
+      "text": "Les réglages que lit le moteur OPS, avec leurs valeurs par défaut renseignées.\n\n:param settings: paramètres de l'appelant, remplis avec les valeurs par défaut.\n:returns: la cartographie des valeurs clés des paramètres complétés.",
       "translation_source_blocks_sha256": [
-        "f8bb6f7605daf4799b7dda57e230ae59f8e239a252265463a87792d31eda85a5",
-        "021cac9ce638353ca61cbea68b918659abdf2c600671578b9d861eefd82fd1ca",
+        "b5889f09bc4d9e395fca1c68b572cc709449af2ce7a043f86c2f7a5782b7cff6",
         "9aacf2a79223a4b14e773e7837fc4dfe9a8e049ef801012370c920319fcebf4c",
         "fa8b232f8257abaa07fc033bc7571087d86d44e978f05a098c5134f68fbd7b6b"
       ]
@@ -150112,20 +150106,6 @@
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
       ]
     },
-    "spacr.settings.set_default_general": {
-      "source_blocks_sha256": [
-        "0ce4b2ddfc42cf1742112efb127f4268b1e6b93d21b70c616c4a247e37f4e1d3",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "ac703f0b218468b95cfc3173ff418c22bf802b38fe990cec4d9f64d6d852aeb4",
-      "text": "Retourne les paramètres par défaut pour l'exécution générale d'organisation/station/multicanal.\n\n:param settings: mapping optionnel de valeur clé à remplir en place; une nouvelle mappage de valeur-clé est créée si None.\n:returns: le paramétrage de la valeur clé avec les valeurs par défaut appliquées (une copie peu profonde de l'entrée).",
-      "translation_source_blocks_sha256": [
-        "0ce4b2ddfc42cf1742112efb127f4268b1e6b93d21b70c616c4a247e37f4e1d3",
-        "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
-        "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
-      ]
-    },
     "spacr.settings.set_default_generate_barecode_mapping": {
       "source_blocks_sha256": [
         "e9e59d6d2b58caaa654728a0c87b8826b80f59276ac6fcd783b63e54b18f0bad",
@@ -150138,20 +150118,6 @@
         "d4f9b4e2499aa27a6f295638782dd87fa73e65d0c9bdef317afb609e7e7653bd",
         "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
-      ]
-    },
-    "spacr.settings.set_default_multichannel": {
-      "source_blocks_sha256": [
-        "0d9692755005cd50fcb9030f518c8dfd9ea2c08738bca7425bd63a35cff0a1b5",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "8b0224fcfcb4e0710077a87b9be6683ec44d8341d8dc0c2374d674d368b8be4e",
-      "text": "Retourner les paramètres par défaut pour construire des grilles d'image cousues multicanaux par microplaque.\n\n:param settings: mapping optionnel de valeur clé à remplir en place; une nouvelle mappage de valeur-clé est créée si None.\n:returns: le paramétrage de la valeur clé avec les valeurs par défaut appliquées (une copie peu profonde de l'entrée).",
-      "translation_source_blocks_sha256": [
-        "751bfa6c0b20214877b8288913c8ecbe5edba0623f878fc06073f6e76b49a65a",
-        "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
-        "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
       ]
     },
     "spacr.settings.set_default_plot_data_from_db": {
@@ -150208,22 +150174,6 @@
         "9cc625a363581014c69757b93655ca0f05e2bc39631c528837cc2d108b9a519e",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
-      ]
-    },
-    "spacr.settings.set_default_stitch": {
-      "source_blocks_sha256": [
-        "077e99c045a1a2a103649337793e02373c12cba9046b0d8854132586204eb098",
-        "67260834fe02700157b7ced8689a0e41ca6d86362248ae3fd945aa23ecc27624",
-        "1061ae35ddaed2fa800e909597a9f73bf26d4ae4a7b163bd4787e93c26e315e2",
-        "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
-      ],
-      "source_sha256": "20d8a3afe48882a0cb33777c428f2f69eb6c0c9f33d283ba9b64435a5fc1c47b",
-      "text": "Retourne les paramètres par défaut pour le flux de travail du pointage des champs d'images au microscope.\n\nDétection des caractéristiques de couvertures, RANSAC, superposition des contours, cache et position d'échantillon par microplaque paramètres de sortie de grille d'images cousues.\n\n:param settings: mapping optionnel de valeur clé à remplir en place; une nouvelle mappage de valeur-clé est créée si None.\n:returns: le paramétrage de la valeur clé avec les valeurs par défaut appliquées (une copie peu profonde de l'entrée).",
-      "translation_source_blocks_sha256": [
-        "7faa6cbeccabfc40aa906c6cfac593066cd727c02612f7797a222d56fe5aa60f",
-        "6e33125c42ad09ca6b4630626447d8d38030e75fe51b072eb14b7c961ed43b23",
-        "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
-        "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
       ]
     },
     "spacr.settings.set_default_train_test_model": {
@@ -151852,564 +151802,6 @@
         "a2160dd4abc2796fe952b82ba6fcc341a341da319532611140a85c074d6058d8",
         "95c22f0ad427c8044f938c8a6ea4cd9dc78ca952d9bceb76b68f3ed696577744",
         "774cca3ab3fd7f530bf209b43a4106264595bba4afb5a717fd1ac8b31ebaca7a"
-      ]
-    },
-    "spacr.spacrops": {
-      "source_blocks_sha256": [
-        "542204000618e2b2c24ca5f577b0b2903f28dc56d43b8dcd8a5c487d82e38c66"
-      ],
-      "source_sha256": "542204000618e2b2c24ca5f577b0b2903f28dc56d43b8dcd8a5c487d82e38c66",
-      "text": "Alignement, couture et services de génération d'images-régions extraits basés sur les caractéristiques.",
-      "translation_source_blocks_sha256": [
-        "ab2c6a7329fae8927e2525b0c71d6b6cfd0f98212a7fcd754cc208688cccb961"
-      ]
-    },
-    "spacr.spacrops.FOVAlignAndCropper": {
-      "source_blocks_sha256": [
-        "b576b26f46e62ee0a4b2bc8f92e6716dadf7a7dbce3a076c2218e6d72252722a",
-        "5c8ad1a151ba791bc462f077fe64c0580ca69cdbb92ea1cb60adf5e35c0e7313",
-        "0ab8c3d071ff240d6c0efb1e28365ba047f6d293bbbc976134a1444e00c972c5",
-        "07a2e08a7efa3e10f54e91528fab5a04277ef6f6a837201d267aa1a85a5d4dcb",
-        "2e75f2fa10296c08cfe1718383e29f5aa36a5dfef906bad1726b3ec6796e150e",
-        "2cf10a176d9224082d025d57c1fde04f63f15556add4627cf7ea911df2e5a7e6",
-        "807a7668e3b280727c6e0f93837cc85e1bbf691d8773242a2ed45dd3ef288c7b",
-        "243ff9f7a1d8a1c06d33fdfc056adacacf6909310a9cd3cb07cbc211e337f78e",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "e30a86eb550ef388db6ff693e127af89d953bc570087ca7de75177ef3182f663",
-        "8c96e327d114ea7afc7fe7a2db23e2ba5dfe9e0c94022a614536d4a5c65c40ea",
-        "10a3e1e43277bb0d9428775631a255896d86005df1a65bfec8c973b30affc2c7",
-        "0bb7d5aa8472f84cb08d3320809a8f06e495fdce7ec4bf480c5e01361319805b",
-        "9fcdd798da2d6a76bb6219ab93a42369af5e954110fa22c6ec3c2e76a25e997b",
-        "69dac81b05e99c7b442f25a2c94178610d22dccabafb0de0fded589178de7993",
-        "094a3627396b79f8197e394e8b707e9a1af6380f1af7a31d6d6d02c145aca3ed",
-        "caa7f595de623037e2d4a864766eff2012eb8624e55b60414876bb1c45b31e76",
-        "bf5f038b7cb1ab8747bd8fe14f87b0d70bcc673a339aa36c0bc03b9c5c938af5"
-      ],
-      "source_sha256": "a97af1e95ac4be7cdb68153bf396302464fba6a7c3b7986130fe02e3229b38a3",
-      "text": "Alignez le FOVs individuel (champs de vision du microscope) sur une grille d'images cousues et exportez les piles de l'image FOV.\n\nPour chaque FOV (champ de vision du microscope), enregistre un ``.npy`` avec la forme ``(C_fov + C_mosaic, H_fov, W_fov)`` (domaine de vision natif FOV) des canaux empilés avec la grille d'images cousues transformées dans le cadre FOV (zone de vue du microscope) et une ligne CSV avec le bbox de la grille de l'image transformée, notée et cousue.\n\nFonctionnalité des délégués/aide à l'appariement vers :class:`StitchedMultiAligner`.\n\n:param detector: Détecteur de point de touche (``'ORB'`` ou ``'SIFT'``). Par défaut ``'ORB'``.\n:param nfeatures: budget de fonction pour le détecteur.\n:param max_keypoints: Bonnet dur sur les points de clé gardés après détection.\n:param downsample: downsample factor pour la fonction/score pass.\n:param ransac_thresh_px: Seuil de reprojection RANSAC (pixels, espace sous-échantillonné).\n:param allow_scale: permettre l'échelle dans l'affine estimée.\n:param allow_rotation: permettre la rotation dans l'affine estimée.\n:param outdir: répertoire de sortie. Par défaut ``'./fov_out'``.\n:param opencv_threads: Cap de chemin d'exécution indépendant interne OpenCV.\n:param arr_axes: TIFF interprétation de l'axe (``'AUTO'`` ou chaîne sur ``TCZYX``).\n:param mip: max-projet Z quand présent.\n:param z_index: Z trancher pour sélectionner si ``mip`` est faux.\n:param t_index: Couper en T pour sélectionner si T est présent.\n:param squeeze_singleton: Presser les axes de longueur 1 après le tranchage.\n:param folder_image_scale: par défaut, FOV, facteur d'échelle de pixel utilisé par :meth:`run`.\nInitialiser l'alignement FOV (champ de vision du microscope). Voir docstring de classe pour les arguments.",
-      "translation_source_blocks_sha256": [
-        "bbcc395c208d1ef6071f516baa77720a6481d20f3feb705aaa137444f3a6327d",
-        "5fea54d2fe03a136d74baf65adaa9f942649ed0a6f5d6086ff0049f15b9d28b0",
-        "0ab8c3d071ff240d6c0efb1e28365ba047f6d293bbbc976134a1444e00c972c5",
-        "07a2e08a7efa3e10f54e91528fab5a04277ef6f6a837201d267aa1a85a5d4dcb",
-        "2e75f2fa10296c08cfe1718383e29f5aa36a5dfef906bad1726b3ec6796e150e",
-        "2cf10a176d9224082d025d57c1fde04f63f15556add4627cf7ea911df2e5a7e6",
-        "807a7668e3b280727c6e0f93837cc85e1bbf691d8773242a2ed45dd3ef288c7b",
-        "243ff9f7a1d8a1c06d33fdfc056adacacf6909310a9cd3cb07cbc211e337f78e",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "e30a86eb550ef388db6ff693e127af89d953bc570087ca7de75177ef3182f663",
-        "588ce107a91ad09f41b2dee79217519e18f587012dfb99fe9f713782a3aa103b",
-        "10a3e1e43277bb0d9428775631a255896d86005df1a65bfec8c973b30affc2c7",
-        "0bb7d5aa8472f84cb08d3320809a8f06e495fdce7ec4bf480c5e01361319805b",
-        "9fcdd798da2d6a76bb6219ab93a42369af5e954110fa22c6ec3c2e76a25e997b",
-        "69dac81b05e99c7b442f25a2c94178610d22dccabafb0de0fded589178de7993",
-        "094a3627396b79f8197e394e8b707e9a1af6380f1af7a31d6d6d02c145aca3ed",
-        "7b578edb4031d4d110c5d2095807118f85d00ad3b448dcf4439b5b155ace5524",
-        "339a2e6e1c71f34e412aa94ec72c9de6d6bed4a05e7c66a0b8da95d53364122e"
-      ]
-    },
-    "spacr.spacrops.FOVAlignAndCropper.run": {
-      "source_blocks_sha256": [
-        "543e4a7114e52505cd49b16a62fe21cbfdacecd2858fe485626e608158bbbadd",
-        "732fa1ca8b379780605ef0edc12ee68b4ffe0f3ea94b206e63aa8ccf173605c3",
-        "a74f190b656dfdf121c01502d4eb64fb3798d9221a9c4cc16f328a09ef2e1288",
-        "2f908b431ad4b722bc3e1b0716741443d6d43a3aeb38a1aa556956231f85f205",
-        "507feb990ce32715b040a571bdffb914ec55df491ad1dd6c28dc7356a7256fee",
-        "ee86cedb91cdc9f6eb81b5ff8197c3994ee0e59f611da23eb0448f99aa3c1cba",
-        "165d606a93d0a55ec8aa488d8454c752cec7257fa8ade8ac3d6d209d92cdaa40",
-        "b05e42a57f56a102aef34bceeed1dc79478e10ee44afd6900d95e4073f6fb701",
-        "e010571dedf337c9048e2b530dd9d57dac6f87230e77a27a40986d9b349e84ab",
-        "4a668076c812d2fc53ce65b9783ba2405368e16be200bab84c1a944dc9ef8734",
-        "5b70ad667bab94abf455600ebe4cca2a83d68e4dd175197c970e319b6d3e360e",
-        "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
-      ],
-      "source_sha256": "03f31f8ed996ce235e97f33ee76ef1d3b3a9b5015b5c37b6dde2c846659a0d80",
-      "text": "Alignez chaque FOV (champ de vision du microscope) dans ``folder`` vers ``stitched_path`` et exportez les piles d'images FOV.\n\nUtilise le canal des noyaux pour l'alignement et écrit un ``.npy`` par FOV (champ de vision du microscope) contenant les canaux FOV (domaine de vue du microscope), plus les canaux de grille d'images cousues, convertis dans le cadre FOV (zone de vue au microscope).\n\n:param stitched_path: chemin vers la grille d'images cousues de référence.\n:param folder: répertoire de FOV (champ de vision du microscope) TIFFs pour aligner.\n:param stitched_nuclei_idx: index des canaux de noyaux dans la grille d'images cousues. Par défaut ``0``.\n:param fov_nuclei_idx: index des canaux de noyaux dans chaque FOV (champ de vision du microscope). Par défaut ``0``.\n:param exts: a accepté les extensions FOV (champ de vision du microscope).\n:param recursive: Récursez en sous-dossiers.\n:param csv_path: manifeste de sortie CSV chemin; par défaut ``<outdir>/fov_align_manifest.csv``.\n:param npy_dir: dossier de sortie pour les piles par-FOV (champ de vision du microscope) ``.npy``; par défaut ``<outdir>/npy``.\n:param folder_image_scale: FOV de la grille d'images à l'échelle du pixel; retombe à ``self.folder_image_scale``.\n:returns: chemin vers le manifeste CSV.",
-      "translation_source_blocks_sha256": [
-        "68c1e979c762099a84f1570f2e7594f4c0ca981ed621e220feef249597e9bc7f",
-        "abe9d196beb0ffca92b5a9fcb20fb4fb1254f2e6e77ae2a20dbef051d70d435f",
-        "0a8cdf0c78ec963e41d136a84e8c47efdb35e808aeb08fe134701bdd98e74c2f",
-        "f21c5ba9d83e96bd905982818f950f416cb2c1b7218bc3fdd3cc8d47ca23420e",
-        "241d0fe87852dd0a11ddd1d01d8419534c2f620acc586b56a5a70457cf844386",
-        "2258b1979ba4c53709336595a482eb356a0ff83b19ae803659411452ffc64b4f",
-        "3cab289636faeda21164d2104e2d62843bdcd6052dca4db9545fcfd24b3b777e",
-        "b05e42a57f56a102aef34bceeed1dc79478e10ee44afd6900d95e4073f6fb701",
-        "e010571dedf337c9048e2b530dd9d57dac6f87230e77a27a40986d9b349e84ab",
-        "bfe814a2dd7a1038dbe407725c1677e4bfc359ca340596f6fdc554916abe5892",
-        "3fe9cd836f63ec0e1505c0366fb725f36ea81a2cf3ba3cd2d788c1de8b0d2ae6",
-        "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
-      ]
-    },
-    "spacr.spacrops.StitchedMultiAligner": {
-      "source_blocks_sha256": [
-        "798e36bf3b81569b026ce08f4e19a7e14288debe49ddc692b9601e166e9bf3c0",
-        "0e09b2e8c4e08ae55fd306a264455b35730d5ac101c4847121890df0d6792eff",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "00dbbe5b2dd4fd97c7758d44b9643c419d945b36e7691fdeb34c0287750fdc4e",
-        "925cd79da71fb72e9aa2335b264f0eda6b90015a10c8f585a29f815fa932a36b",
-        "c51334f0eeac4b651aa66298fa028f6ca35567bf76260b5930385937591c5d32",
-        "5f4c6035ee2501da083d6230979f789c11665bbeb11e849b7704b64d82bf2df6",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "58b707f5a2560b4c5a6bdfa30b2cd5bab1902dc146a15cf7ef82d77f692a646f",
-        "7c43011364044594fe4b1bea9060e9ac300b661ea483a8648b0d427cd9a18a28",
-        "c339920e153f3fc89ddb1454146c6317048f730ef7293b52e1aa21d2cf2b100e",
-        "4fa1e78840efd45869af805629939cf075f65b2fd6233756601f99ec4ab5f9bd"
-      ],
-      "source_sha256": "85f7b1992a03a2c05902fdd2efca7597d82183cee88864b7685b8527f699ea3f",
-      "text": "Alignez un nombre arbitraire de grilles d'images cousues (axes multicanaux, axes arbitraires) à une référence commune en utilisant le canal noyau/ Hoechst. Enregistre une pile alignée concaténée et un manifeste CSV décrivant la cartographie des canaux d'entrée aux canaux de sortie et les transformations/scores estimés.\n\nAxes d'image de sortie : CYX (les canaux de données d'images empilés dans la commande sont fournis).\n\nParamètres\n----------\ndetector : {\"ORB\",\"SIFT\"} Détecteur de points de frappe. nfeatures : int Détecteur fonction budget. max_keypoints : Facultatif[int] Bouchon dur sur les points de touche gardés après détection, en utilisant le classement des détecteurs. downsample : float dans (0,1] Facteur de détection et de notation des caractéristiques. ransac_thresh_px : float Seuil de reprojection de Pixel pour l'estimation de l'affine dans l'espace sous-échantillonné. allow_scale : bool Si False, permettre la rotation et la traduction mais pas de mise à l'échelle; si allow_rotation=False, permettre la traduction seulement. allow_rotation : bool Si False, permettre la traduction seulement. outdir : str Directory pour l'image et la sortie csv. opencv_threads : int Limite de fil OpenCV utilisée pour éviter la surabonnement.\n\n# Gestion de l'axe/Z/temps (pour la lecture TIFF)\n\narr_axes : \"AUTO\" ou une chaîne sur {T,C,Z,Y,X}\n\nmip : bool Si True et Z existent, projet max Z. z_index : int Si mip=False, choisissez Z tranche. t_index : int Choisissez l'index T si T existe. squeeze_singleton : bool Pressez les axes d'une longueur après slice.\n\nRemarques\n---------\n- L'alignement est effectué sur la première image dans `paths` (référence).\n- Pour chaque image, vous pouvez fournir un index de canaux de données d'images par noyau d'image via `nuclei_channel_indices`. Si None, par défaut 0 pour tous.\nConfigurer le détecteur et les tolérances pour l'alignement des acquisitions croisées.\n\nMême contrat que :class:`spacrStitcher` : la correspondance se fait à l'échelle ``downsample`` et ``ransac_thresh_px`` est en pixels pleine grandeur.",
-      "translation_source_blocks_sha256": [
-        "0c89b3adc8d9b2e5a3d7e4f138c0756a2be06d7ee4ce11b0989fd1f9ac4df0fd",
-        "f0ac29e6d8c0d72eea1eb19438ecde5cb9cdcae58edf2ab39dbf711d35920e47",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "3b7b7579652ae4c42f9a84e6ede706f4ea78065585ccfeed32e3e3d22b51ac1d",
-        "925cd79da71fb72e9aa2335b264f0eda6b90015a10c8f585a29f815fa932a36b",
-        "c51334f0eeac4b651aa66298fa028f6ca35567bf76260b5930385937591c5d32",
-        "5f4c6035ee2501da083d6230979f789c11665bbeb11e849b7704b64d82bf2df6",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "58b707f5a2560b4c5a6bdfa30b2cd5bab1902dc146a15cf7ef82d77f692a646f",
-        "99458ff256129d866331ddfcf690a8106cbf19b7f6b34e507500cfd33f75a22d",
-        "c339920e153f3fc89ddb1454146c6317048f730ef7293b52e1aa21d2cf2b100e",
-        "4fa1e78840efd45869af805629939cf075f65b2fd6233756601f99ec4ab5f9bd"
-      ]
-    },
-    "spacr.spacrops.StitchedMultiAligner.align": {
-      "source_blocks_sha256": [
-        "59f1f5041fbf750f4d9a934690bd2ae67358f212e528956d8ab25a43640f3d39",
-        "5b1c368a58d9b1ff0ed5cb24f6a8b504f4b936024e129c70128da82cb48eee8a",
-        "93ece25a31c6b29b2cd4990e533f2db4f0285f2b1fd378f1604d40d977ac665b",
-        "ded122c908a418a6ac39586308f304d9ddd273914fee5ae638af042f4c07f6bf",
-        "1cc7298ae33829f9069964a84e8257ae77f560676a4aa630e07333365dc8ca72",
-        "cecafa2f71b60d328065655c96a6f43a16523000d941b2d5b1b14deca688975c",
-        "38c050f7aa618d8e294b3533bc16c11d9154ab6fb2b3252a0dbbbcce3f51d584",
-        "b9c9ac86e9483e2b26985b79313a4b00d090886e44fe996c514f8bab7d7dcfe5"
-      ],
-      "source_sha256": "e52db034e9eb74110ed64437bfe5e54881045599829f588c5e1272a893445205",
-      "text": "Alignez chaque grille d'images cousues dans ``paths`` à la première et enregistrez une pile CYX.\n\nL'alignement utilise le canal de données d'image des noyaux spécifiés par image; la pile résultante concatère tous les canaux de données de l'image d'entrée dans l'ordre donné.\n\n:param paths: cousu TIFFs pour aligner; ``paths[0]`` est la référence.\n:param nuclei_channel_indices: index des canaux de données d'images par noyau d'image; par défaut, zéros.\n:param out_tif: chemin de la pile alignée de sortie; par défaut ``<outdir>/aligned_allc.tif``.\n:param out_png_preview: prévisualisation optionnelle du chemin PNG.\n:param csv_path: manifeste CSV chemin; par défaut ``<outdir>/aligned_manifest.csv``.\n:returns: bulbe ``(out_tif, out_png_preview, csv_path)``.",
-      "translation_source_blocks_sha256": [
-        "421e134e0139952a3c7a6c3d9c463e08a706dd3b0677c7064f6839f07a9defcb",
-        "c47734da15a70d1eaeb7bd32f7261a4c30ae892c0e868963c49e2837faa6c3f4",
-        "93ece25a31c6b29b2cd4990e533f2db4f0285f2b1fd378f1604d40d977ac665b",
-        "ecb3ff9aea04ecb204d1ba49c1ac96c90d0473ab4325cfcea66cb431e5525e0c",
-        "1cc7298ae33829f9069964a84e8257ae77f560676a4aa630e07333365dc8ca72",
-        "cecafa2f71b60d328065655c96a6f43a16523000d941b2d5b1b14deca688975c",
-        "38c050f7aa618d8e294b3533bc16c11d9154ab6fb2b3252a0dbbbcce3f51d584",
-        "b9c9ac86e9483e2b26985b79313a4b00d090886e44fe996c514f8bab7d7dcfe5"
-      ]
-    },
-    "spacr.spacrops.align_image_to_stitch": {
-      "source_blocks_sha256": [
-        "b43b920f287572dac2868cf4379f15674c4e3c90edd4b674f24d8db5d60c10ab",
-        "71ed8cbf2eb3daae5f2c0e1a9985ddf04439ad5b7405246e0746cf10d39ef6ef",
-        "8830820486586b47fb7d87f492e5a3ca7d99fbef8a37252bbbe2d97109399a5f",
-        "726a002ea5203bff5b406e3895d306841c32d5a45aa02c29f320def1dc3a15b5",
-        "5cf5adcf3e92f78b76ce11e63607754835de02232634b6a451455471c1f6e5bb",
-        "c9790b53a04496d53fd3fb32a9ddbf06336d0b71dbbb2c27f9f548e82b9d20db",
-        "cef73dab9156bce65271dfcae7f89f6318bb285308b1fb17d314917a035d7076",
-        "e9dd476454f9362f8383a673c616e921cbb2c118dfbad1629cb8e54503793cfa",
-        "7ae796410e7b4cfe1763aecaeda918dc436aed1c4124c5b85762b13babea8563",
-        "d1c407a8380ff798a6a6806f0d1b96bdc856cc92c3368cc3265ad9f5daff6d71",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "a87788c47690557e524da199c7f353c22ee40a7b34ec977877269489fce182ee",
-        "c7b494147a7d8d62284708776e43176ebe41aaf9388d211f4c1227d730b4c13a",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "adfee6c1cca6b6811e3b3169b222c2245db5d902871c464805ece1fcc2ce9a40"
-      ],
-      "source_sha256": "0bcda96dbca175d39bb2c56d2ad700bc2051b6df593725b14c38f1a553060f8b",
-      "text": "Alignez chaque position de l'échantillon de microplaques FOVs (champs de vision du microscope) sur la grille d'image cousue de cette position de microplates.\n\nPour chaque puits avec une grille d'images cousues à ``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif``, groupe les images de ``align_src`` par puits et exécute :class:`FOVAlignAndCropper` pour produire des manifestes de région d'image par puits extrait et ``.npy`` des régions d' image extraites.\n\n:param stitch_dst_root: dossier racine contenant des grilles d'image cousues cousue par microplaque.\n:param align_src: dossier des images d'amplification supérieure à aligner.\n:param meta_regex: regex extraire des métadonnées de puits/site à partir de noms de fichiers.\n:param well_group: Nommé groupe de capture tenant l'identificateur de position de l'échantillon microplaqué.\n:param channel_index: index des canaux de noyaux. Par défaut ``0``.\n:param relative_scale: Facteur d'échelle de pixel de la grille d'images FOV à pointillé. Par défaut ``2.0``.\n:param downsample: fonction-pass downsample factor. Par défaut ``0.5``.\n:param nfeatures: budget du point clé pour le détecteur.\n:param ransac_thresh_px: Seuil de reprojection RANSAC en pixels.\n:param allow_scale: permettre l'échelle dans l'affine estimée.\n:param allow_rotation: permettre la rotation dans l'affine estimée.\n:param qc_outlines: Les superpositions ``*__qc_outlines.png`` sont écrites par :class:`spacrStitcher`, ce qui limite la sélection des données sur son propre ``save_qc``; :class:`FOVAlignAndCropper` n'a pas de tel argument et ne dessine pas de superposition, donc il n'y a rien ici pour que cela s'allume. Utilisez ``save_qc`` à la place sur l'étape de couture.\n:param recursive_align_src: Récurser lors de la numérisation ``align_src``.\n:param exts: extensions d'image acceptées.\n:returns: la cartographie ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``.",
-      "translation_source_blocks_sha256": [
-        "51e29334d1cbc052640592af7a3dcec68f50e571ad0abe2d062c713052d6ec64",
-        "d8751427fa0713291bc7e4e8bbc2aef7f9e5ba052f8b90aa5c4d2f25d85ef5f0",
-        "fb695a89f2a7e75a173ec1b73efd05d732d2364b5573a7951c971d7aa8e3d6a9",
-        "726a002ea5203bff5b406e3895d306841c32d5a45aa02c29f320def1dc3a15b5",
-        "5cf5adcf3e92f78b76ce11e63607754835de02232634b6a451455471c1f6e5bb",
-        "926e6ca699a69385fe3099113f2237c77f28f3816a309aeb814cca44e6a83acc",
-        "cef73dab9156bce65271dfcae7f89f6318bb285308b1fb17d314917a035d7076",
-        "bf5ae2c4fe95dc377e674d5130924b1b19d2e6f8bcc2030f2ede7c66b4224711",
-        "7ae796410e7b4cfe1763aecaeda918dc436aed1c4124c5b85762b13babea8563",
-        "d1c407a8380ff798a6a6806f0d1b96bdc856cc92c3368cc3265ad9f5daff6d71",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "a4832a6c69e372db25204b192fb6ef9cd5c94e985f8555fb694680ae892b82ea",
-        "ddc1d94c988452728b27264bd8ccb5492b5307d98e6b792cd7720079fac9227f",
-        "acbf989060bf0dcde4da4164352c39f2a5f74cc9dd6abf720e2d52e941aec821",
-        "c7b494147a7d8d62284708776e43176ebe41aaf9388d211f4c1227d730b4c13a",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "adfee6c1cca6b6811e3b3169b222c2245db5d902871c464805ece1fcc2ce9a40"
-      ]
-    },
-    "spacr.spacrops.get_preprocess_ops_settings": {
-      "source_blocks_sha256": [
-        "087879fb324f350b5bd43f3333b538ef351ed24e41c2433a59c9b5e9587f1937",
-        "0ce25f08a202250d680dd93b3426db5226c8e66a1a12ed0aa38f03e4a90ee658",
-        "be81cf5c069ff8bbb4c2819464713de0da4a132fe433aa856973507e9e517cc1"
-      ],
-      "source_sha256": "14829a2ada53682630337e73eeef88bc8c9f0274210aa320981fb8192c772194",
-      "text": "Remplir par défaut le workflow de prétraitement / couture / alignement d'ops.\n\n:param settings: paramétrages fournis par l'utilisateur mappage de valeur de clé, mis à jour en place avec des valeurs par défaut.\n:returns: la valeur de la clé de configuration avec toutes les valeurs par défaut peuplées.",
-      "translation_source_blocks_sha256": [
-        "f614374351bfba677bc80c0b7f28436fc729363ea89aab3f4c9b2502ef516735",
-        "7af160587e57e916c6193dcc9f1cd9ea046c84f5bfaec35d3370aef0d24c68cd",
-        "0e1afc18d657e4aa8b184be1ae9cfe3ed96b97f6aeabf186fc51207e948da952"
-      ]
-    },
-    "spacr.spacrops.ops_preprocess": {
-      "source_blocks_sha256": [
-        "658363f928fd37c5b6945e772a7ee1fb40a1305ebcf3e4fe0e2ad4f2dc7b4941",
-        "bbade32699c9d517e34e4902d5c422cabd3ba444b94ee9330b71e279d5375c2a",
-        "385044fb256db0268fa99faa6d5cb5b4046205ecdf4566b205ba4cf4b1200856",
-        "68bd0cc36626d156a3b370df23f4146100a111ffa5d219b4478c851e367cb1b8"
-      ],
-      "source_sha256": "cff970872f4a3dc6eb32abd083aec4c0a8eff4977eaf8bc6b4db070b8fb92525",
-      "text": "Exécuter le flux de travail complet du prétraitement des opérations : couture par génotype + alignement phénotype.\n\nItérer sur un ou plusieurs dossiers génotypes, appeler :func:`stitch_cycle_wells` sur chacun d'eux, puis aligner les images phénotypes sur les grilles d'images cousues résultantes via :func:`align_image_to_stitch`.\n\n:param settings: mapping clé-valeur des paramètres de prétraitement; voir :func:`get_preprocess_ops_settings` pour les noms de données structurées supportés.\n:returns: mappage de valeurs clés avec ``stitch`` (synthétiques par génotype), ``align`` (résultats d'alignement par génotype) et ``npy_out_root``, le dossier ``<phenotype_source>/output`` qui est créé ici mais jamais écrit à — les régions d'image extraites ``.npy`` atterrissent dans le dossier ``crops_20x`` de chaque position d'échantillon de microplaques à côté de sa grille d'images cousues.",
-      "translation_source_blocks_sha256": [
-        "b188404c3e1d8f2631501bd237c84e3004e01f1e7e1d1505b1141f51c04b3175",
-        "f9fa1f656c2d7402dec7f5c2f07c72941a579a09a006ac8c19b1ab97c85bc072",
-        "a241201c853df05f3e5e5699a48d58287e5ed9012bc6a5ef82efd63b45a9ad4c",
-        "1824d234ebca71d6629d9df54d822ce62acbde3d4c83e7554b192608e3d40b5c"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher": {
-      "source_blocks_sha256": [
-        "eb651b31ef0c1b2680b6ec6def3843cdab04f4a56ed7a6cbcb26341c12665e48",
-        "7354bd1b3ba1608f191f2cc05657459dc2a390c21b252c708d78fa14cacf3be9",
-        "72be77fbd490dfa861ba9739272be320edafd2628b856414e1f7a48e2be841d5",
-        "54555b19eca1e44879d93e87cabd48215bf9bcf997eda8f891bac1d4e6ee235c",
-        "491abdb5d4259488483825d61e221c8391ae2456a40d42478b835a139b10d23d",
-        "e80adadbf0eb8de9cd5e9190bd818d98e2414cbddf9e31aa9ef129ccb0d51a03",
-        "cf148f056e36aacc5e640af9a41e8867ffc16fdac145d4985a9bbf5f14005b4d",
-        "757306a191aa2a6b930956f8f2a62360fcc2b1fdec6978b63235cf466b5348a3",
-        "2aa3a8d7f44b46ffd1f15aa8e2d1ac45dd631a2cf698f70cddfc2992b68df23b",
-        "5d09a817f9cf78d874938472fda724f9e2bf268aa62693fa59c1d86ced0bc870",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "3eff904fd2c575c55255b15b59a61a9322269579a37ee2bd37766c24d918c93a",
-        "f3908dbf64ce9e976a69fc146462f9af1929e83a2b85b50efbfec7be7648b727",
-        "c819aca9920ec3bed49fc6cdacca57dbd773e760027056d19ef204e26b3f89b1",
-        "bd15deb8e73b449664b1b7bea0eaa420b670c44731d3fa4f823e6d64141b95bf",
-        "ed5c9972d47895f909653a60ff27ed4e1947ee797ead4711718a02127b3daf22",
-        "8201ff488c3056cec28986aa8a2f6d3959e12ed75802501b3baa32572d7316ce",
-        "fbc4dad412c4b76483961fcad55aeff49d126479f9703676b9d58dfd65e0e14f",
-        "3b72228aff5d5eba3d32edd828eab826531fec28c5b848c19713567d070a034e",
-        "8cba799bef6986f7e3bdd32681973e4ff2dc88aaefb90a34b84ee29430df441b",
-        "e9c4aaf0f6db36409c53f154b9e64c01de7dd9b9046a264934df6d9fbc3f99d3",
-        "963527843c47709ed0d172711855ee2b468d42cd18afd4fbb242bdce58aba68b",
-        "41b7d93d61f11c07bf6dcd2894fdd70ad0678236a40409edd7b1cca828801373",
-        "758f1e6837bca535de5561275835b21b90f673a628c2f41d5c304a4a16c6e58c",
-        "464b02cda5ca89013fc791c425fa3e3c08bf18be283f341bc1b585ed001e36c9",
-        "d677ad5f0f097e61d7dd1d5f77f7d0b743c2a9db99b952c69b26e4b9c5e88624",
-        "262ca4cf57cd944c52e6b08ae2daa4d1fabb1fe52830af9952a18ee6e12a5169",
-        "ae327faa2fce7a261e06a889bc51c9ec92afed24a1f6882c0920b9569865cda5",
-        "4997c8db539a8f25eaffbeb3543e950b434b490a26e64c3e7bb232f667e2c59f",
-        "61511e80428de51ff0efc18c7b5a6d39a5c167501a69f62da92ec8ea28d1b309",
-        "2ecd491eb1e125d9385407db11c79b39297520201f9f640639daae2e35c6544b",
-        "65bfe29d8772d85700c46e978be873f695e4e1499d5a9de39d97d72dbb4a0570",
-        "19fd486131037328ec626391795f3685cc8f4abbce6592ddbafdb94ade86562b",
-        "75340f53747bce12b71dffd980806f31f87aaf0ac9c91284295c342e3b06aab4",
-        "faa14a150cb0777f800cbed0fb60654ae2a231553d809176f4b66fdc8816af36",
-        "0707d8991142279d81dc04d32261294613ec4fb79609181eb0a24151d18116f2",
-        "160a6eefbbc853af05278822d1379156b2be2371450a1f435fb33d2c90ec5b38",
-        "551d0ea76a012ca4aca8cefe34e6dc6702e93c52df6e2e948bdba0780a66a6d7",
-        "8c3e1026f5c8435ca72ba4fb28be175f60d4cfdc30b206101e0ce97711a7896f",
-        "105d0b72aeb0774a715289c302c5accc4059d08a9e57006300f81612a9c66526",
-        "7298d22c9768b94e67ca1a88d7939754eb6e178d0e2516faa08a7be4f83e9527",
-        "6a7777b75458adf9a824414623537e137d8442f314dc6dc5e711e5e9329aa748",
-        "6a34c1d1b4c851473f83caeac3fefb18fd135b2888842f39e151dae796e1630c",
-        "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6",
-        "ee0269f2647e48daa28c791316f0a664ff884bcaf414847c195b77f00fe57bf7",
-        "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
-      ],
-      "source_sha256": "174d288834aec7e44b341b91dce5629d3c7457a7122f7d52f374c866dc80db89",
-      "text": "Couvercle à mailles paires avec pointage sous-échantillonné et ensemble de grilles d'images cousues en entier.\n\nContrôles de mémoire et de concordance pour les très gros ensembles de données :\n  - feature_cache_mode: \"disk\" (par défaut) écrit des fonctionnalités DS sur le disque avec une capsule RAM LRU\n  - pair_batch_size: nombre limite de contrats à terme de paires simultanées\n  - stream_csv : écrire immédiatement des lignes dans le sens des paires (faible RAM)\n  - opencv_threads: limitez la cohérence d'exécution interne OpenCV pour éviter la surabonnement\n\n:param detector: Détecteur de point clé, ``'ORB'`` ou ``'SIFT'``; toute autre valeur soulève ``ValueError`` et ``'SIFT'`` a besoin d'une construction opencv-contrib.\n:param nfeatures: par défaut ``6000``.\n:param max_keypoints: cap sur les points de touche gardés par image; ``None`` conserve tout.\n:param downsample: facteur d'échelle de la caractéristique/passe d'échantillonnage descendant.\n:param ransac_thresh_px: Seuil de reprojection RANSAC en pixels.\n:param allow_scale: permettre l'échelle dans la transformation estimée.\n:param allow_rotation: permettre la rotation lorsque ``allow_scale`` est ``False``.\n:param outline_source: comment les contours QC sont trouvés : ``'otsu'`` (par défaut), ``'cellpose'`` ou ``'none'``.\n:param cellpose_model: Cellpose nom du modèle ou chemin de contrôle; lire seulement lorsque ``outline_source`` est ``'cellpose'``.\n:param cellpose_diameter: le diamètre prévu de l'objet passe à Cellpose; ``None`` laisse Cellpose choisir.\n:param canny: ``(low, high)`` Seuils de canny transformant le masque avant plan en contours.\n:param blur_sigma: Sigma gaussien appliqué avant le seuil d'Otsu; ``0`` désactive le flou.\n:param dilate_ksize: taille du noyau elliptique utilisé pour dilater le masque avant plan; ``0`` désactive la dilation.\n:param line_thickness: épaisseur du contour; les valeurs au-dessus de ``1`` dilatent l'image du bord.\n:param outline_alpha: opacité des contours tracés sur la superposition QC.\n:param outdir: le dossier de sortie, créé lors de la construction et utilisé pour les images QC, les sorties cousues-pair et le cache de fonction par défaut; la paire CSVs est écrite là où les points ``csv_path`` de l'appelant sont à la place.\n:param save_qc: écrire par paire QC contour PNGs. Par défaut ``True``.\n:param save_stitched_default: par défaut pour l'écriture d'une paire de points TIFF; les arguments par appel le remplacent.\n:param all_scores: Calculez également les mesures à résolution complète plus lentes (bord plein res ZNCC et corrélation avant-plan/IoU/Dice/XOR).\n:param score_threshold: score minimum par défaut requis pour écrire une image cousue; ``None`` signifie aucun seuil par défaut.\n:param verbose: imprimer les messages de progression.\n:param feature_cache_mode: ``'disk'`` ou ``'ram'``; toute autre valeur soulève ``ValueError``.\n:param feature_cache_dir: où les fonctionnalités en mode disque sont stockées. Par défaut ``<outdir>/feat_cache``.\n:param max_ram_features: Taille LRU, en images, du cache RAM devant la boutique de fonctionnalités de disque.\n:param n_workers_features: fonction-extraction du nombre de fils; par défaut, la moitié du nombre CPU.\n:param pair_batch_size: paires soumises à la piscine de fil par lot, avec un plancher de ``1024``.\n:param stream_csv: accepté et stocké, mais jamais lu; les lignes appariées sont toujours écrites comme elles sont notées.\n:param opencv_threads: valeur passée à ``cv2.setNumThreads``.\n:param arr_axes: ordre d'axe de l'entrée TIFFs; doit contenir ``Y`` et ``X`` à moins qu'il ne soit ``'AUTO'``.\n:param mip: max-intensité-projet sur Z au lieu de prendre une tranche.\n:param z_index: La tranche de Z utilisée lorsque ``mip`` est ``False``.\n:param t_index: indice de temps utilisé lorsqu'un axe T est présent.\n:param squeeze_singleton: chuter les axes monoton après la sélection de l'axe.\n\nContrôle de la transformation\n-----------------------------\n  allow_scale: si True → utilise RANSAC affine (rotation+échelle+traduction) si False → échelle d'unité d'exécution (voir allow_rotation) allow_rotation: si True → rotation+traduction si False → seule traduction\n\nMosaïque d'image\n----------------\n  Utilise la taille topologique-aware + arbre de calibrage maximum sur des scores appariés pour construire une grille cohésive. Exporte image cousu grille et un manifeste mosaic.csv.\n\nManipulation Axis & Z\n---------------------\n\n::\n\n  arr_axes : str in {\"AUTO\"} or a string over {T,C,Z,Y,X} (e.g. \"CZYX\", \"CYX\", \"ZYX\").\n             Determines how to interpret multi-dimensional TIFFs.\n  mip      : bool. If True and Z exists, perform max-intensity projection over Z.\n  z_index  : int  (if mip=False) choose Z slice index.\n  t_index  : int  choose time index if T exists.\nConfigurez le détecteur de caractéristiques et les tolérances correspondantes.\n\n``downsample`` est l'échelle à laquelle toutes les correspondances sont exécutées; les transformations qu'elle produit sont exprimées à pleine dimension, donc en diminuant elle coûte la précision plutôt que de modifier la géométrie de sortie. ``ransac_thresh_px`` est en pixels TAILLE FULL.",
-      "translation_source_blocks_sha256": [
-        "6b4b0c4fcee68abd687b76ceef22482c74d86c70b425df15d0731b48e84d6301",
-        "7354bd1b3ba1608f191f2cc05657459dc2a390c21b252c708d78fa14cacf3be9",
-        "72be77fbd490dfa861ba9739272be320edafd2628b856414e1f7a48e2be841d5",
-        "54555b19eca1e44879d93e87cabd48215bf9bcf997eda8f891bac1d4e6ee235c",
-        "491abdb5d4259488483825d61e221c8391ae2456a40d42478b835a139b10d23d",
-        "1fa5e7301f86b439d4f636392bc24b7736219b5c67944949fab30416aa8eb781",
-        "cf148f056e36aacc5e640af9a41e8867ffc16fdac145d4985a9bbf5f14005b4d",
-        "757306a191aa2a6b930956f8f2a62360fcc2b1fdec6978b63235cf466b5348a3",
-        "2aa3a8d7f44b46ffd1f15aa8e2d1ac45dd631a2cf698f70cddfc2992b68df23b",
-        "5d09a817f9cf78d874938472fda724f9e2bf268aa62693fa59c1d86ced0bc870",
-        "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
-        "3eff904fd2c575c55255b15b59a61a9322269579a37ee2bd37766c24d918c93a",
-        "f3908dbf64ce9e976a69fc146462f9af1929e83a2b85b50efbfec7be7648b727",
-        "c819aca9920ec3bed49fc6cdacca57dbd773e760027056d19ef204e26b3f89b1",
-        "bd15deb8e73b449664b1b7bea0eaa420b670c44731d3fa4f823e6d64141b95bf",
-        "ed5c9972d47895f909653a60ff27ed4e1947ee797ead4711718a02127b3daf22",
-        "8201ff488c3056cec28986aa8a2f6d3959e12ed75802501b3baa32572d7316ce",
-        "fbc4dad412c4b76483961fcad55aeff49d126479f9703676b9d58dfd65e0e14f",
-        "3b72228aff5d5eba3d32edd828eab826531fec28c5b848c19713567d070a034e",
-        "8cba799bef6986f7e3bdd32681973e4ff2dc88aaefb90a34b84ee29430df441b",
-        "e9c4aaf0f6db36409c53f154b9e64c01de7dd9b9046a264934df6d9fbc3f99d3",
-        "963527843c47709ed0d172711855ee2b468d42cd18afd4fbb242bdce58aba68b",
-        "41b7d93d61f11c07bf6dcd2894fdd70ad0678236a40409edd7b1cca828801373",
-        "758f1e6837bca535de5561275835b21b90f673a628c2f41d5c304a4a16c6e58c",
-        "464b02cda5ca89013fc791c425fa3e3c08bf18be283f341bc1b585ed001e36c9",
-        "d677ad5f0f097e61d7dd1d5f77f7d0b743c2a9db99b952c69b26e4b9c5e88624",
-        "262ca4cf57cd944c52e6b08ae2daa4d1fabb1fe52830af9952a18ee6e12a5169",
-        "ae327faa2fce7a261e06a889bc51c9ec92afed24a1f6882c0920b9569865cda5",
-        "4997c8db539a8f25eaffbeb3543e950b434b490a26e64c3e7bb232f667e2c59f",
-        "61511e80428de51ff0efc18c7b5a6d39a5c167501a69f62da92ec8ea28d1b309",
-        "2ecd491eb1e125d9385407db11c79b39297520201f9f640639daae2e35c6544b",
-        "65bfe29d8772d85700c46e978be873f695e4e1499d5a9de39d97d72dbb4a0570",
-        "19fd486131037328ec626391795f3685cc8f4abbce6592ddbafdb94ade86562b",
-        "75340f53747bce12b71dffd980806f31f87aaf0ac9c91284295c342e3b06aab4",
-        "faa14a150cb0777f800cbed0fb60654ae2a231553d809176f4b66fdc8816af36",
-        "0707d8991142279d81dc04d32261294613ec4fb79609181eb0a24151d18116f2",
-        "160a6eefbbc853af05278822d1379156b2be2371450a1f435fb33d2c90ec5b38",
-        "551d0ea76a012ca4aca8cefe34e6dc6702e93c52df6e2e948bdba0780a66a6d7",
-        "8c3e1026f5c8435ca72ba4fb28be175f60d4cfdc30b206101e0ce97711a7896f",
-        "105d0b72aeb0774a715289c302c5accc4059d08a9e57006300f81612a9c66526",
-        "7298d22c9768b94e67ca1a88d7939754eb6e178d0e2516faa08a7be4f83e9527",
-        "55d50e4f2f478cfbd02e7630d84474322bd87c20b720222eb91a7e921abe7d3b",
-        "571e7eba420d8659bb6f4f4ffc388d9b38c9af567a08e74e3bd4d789245a09c3",
-        "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6",
-        "ee0269f2647e48daa28c791316f0a664ff884bcaf414847c195b77f00fe57bf7",
-        "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.build_multichannel_mosaic_from_manifest": {
-      "source_blocks_sha256": [
-        "6eaa51c0d3b7f6059ab9a8e5882a4d0041615677f16733e3d1f086733558c031",
-        "8410fd2cde8963cf34bd66b720b4631e7ed6cc01ba2ce557d1c6c4a7c2ebdb3b",
-        "4efca5537d14d609ae49a2875d332aafa15d42112f3105c84ee8aa15d4bd3c62",
-        "1aa79d87a273b6dd7314619a9d8dabe69034899307d8d7215d8130b741fbe5b1",
-        "2a977ac7b09d399cb964788e8531d70ef144f16884a42bfd500a739619cc6ab6",
-        "c7338195a301f111ae9322b593e22262aeaaac6e0a094f93c80cb16825ce96b5",
-        "b9f0a6cfe36c8dfcea82be568708a42b59a081118bfbd53ed4f77e48c687d33c",
-        "5ed85010fa6eb06ca795c2a868d6a2378614a9c4b7d3aaad45b68bdd0fa77477",
-        "72876b66772efd2167bc32be4f063c1329db0c25480495645ee6904baf9e7340",
-        "e1c2fac9103157036a4dd8f4f0745d85feac924253882a2a318519f2f82690e8",
-        "152b777701bbb510b7fbecf4e093681fd047667035f8bbb013a2fcb12e94f9d0",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "c59a02cd4935798766fe05129cc323c38e0b778eb03d52092ed67fe25d0e893e",
-        "427e05f1a0b114094f0bb301a9f912a9e34d6e1abaa3f2c072268593f6be3e15",
-        "cdb58a1a7d30fad5d7be5820e999c146cae9705418432a378a5acf59d2b4a42b",
-        "1d1a1b1ef3c105fb46b40cecdb123120a638920cb37534b0bdd8f1fcbc6e70a0"
-      ],
-      "source_sha256": "247553b1ee13543b3498c0acef33be44032369aab838351b0e9f904d7b1a2ca7",
-      "text": "Construisez une grille d'images cousues CYX BigTIFF à partir d'un manifeste 'mosaic.csv' écrit par spacrStitcher.render_mosaic_from_csv(...).\n\nColonnes attendues CSV (par rangée de tuiles) :\n  - chemin, H, W, M00, M01, M02, M10, M11, M12, canvas_x, canvas_y,best_pair_score\n\n:param manifest_csv: grille d'images cousues manifeste à lire; une colonne requise manquante ou une ligne dont la taille/affine n'analyse pas les lancers ``RuntimeError``.\n:param out_tif: chemin de destination pour la grille d'images cousues CYX TIFF.\n:param out_png: aperçu optionnel PNG du canal de données d'image 0; aucun aperçu n'est écrit lorsque ``None``.\n:param channel_indices: les canaux vers composite; ``None`` utilise chaque canal de la première tuile utilisable.\n:param blend: ``'max'`` ou ``'overwrite'``; toute autre valeur soulève ``ValueError``.\n:param tmp_dir: espace de travail pour la memmap on-disk. Défaut ``mosaic_tmp`` sous ``self.feature_cache_dir`` si défini, sinon à côté de ``out_tif``.\n:param preview_downsample: facteur par lequel l'aperçu PNG est réduit; les valeurs de ``1`` ou moins conservent la pleine taille.\n:returns: le chemin ``out_tif`` qui a été écrit.\n\nRemarques\n---------\n* Utilise l'affine 2x3 dans le manifeste (comprend déjà l'offset global).\n* Si `channel_indices` est None, indique le nombre de canaux à partir de la première tuile valide.\n* `blend=\"max\"` prend le maximum par pixel à travers les champs d'images du microscope qui se chevauchent; `blend=\"overwrite\"` écrit le dernier champ d'image du microscope sur les champs précédents où la couverture >0.\n* Si `tmp_dir` est fourni (ou disponible à partir de self.feature_cache_dir), l'espace de travail de sortie utilise une memmap disque pour réduire la RAM.",
-      "translation_source_blocks_sha256": [
-        "9cc0a90e56df66d80b3c801492a0e791041a09f031b2a77062827e4db676cdd5",
-        "8410fd2cde8963cf34bd66b720b4631e7ed6cc01ba2ce557d1c6c4a7c2ebdb3b",
-        "4efca5537d14d609ae49a2875d332aafa15d42112f3105c84ee8aa15d4bd3c62",
-        "b995f604aac6482116c2e441b5c5c0a97efca4de1be09dd24facbd1d75ad7fe9",
-        "2441c2bb0292f7450cfb41291248b679e823161350536016a9a8625e9219428a",
-        "591b3b5862166de4beae57beefc65a9c35c429bac8851889e3165369d692f121",
-        "b9f0a6cfe36c8dfcea82be568708a42b59a081118bfbd53ed4f77e48c687d33c",
-        "5ed85010fa6eb06ca795c2a868d6a2378614a9c4b7d3aaad45b68bdd0fa77477",
-        "72876b66772efd2167bc32be4f063c1329db0c25480495645ee6904baf9e7340",
-        "e1c2fac9103157036a4dd8f4f0745d85feac924253882a2a318519f2f82690e8",
-        "152b777701bbb510b7fbecf4e093681fd047667035f8bbb013a2fcb12e94f9d0",
-        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "c59a02cd4935798766fe05129cc323c38e0b778eb03d52092ed67fe25d0e893e",
-        "427e05f1a0b114094f0bb301a9f912a9e34d6e1abaa3f2c072268593f6be3e15",
-        "b6b0f9c1803ba1cd66fbc5e4a5ddf0bbace8520fd9c5d194c5c58eb3c4b730c6",
-        "1d1a1b1ef3c105fb46b40cecdb123120a638920cb37534b0bdd8f1fcbc6e70a0"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.mosaic_all_channels_from_csv": {
-      "source_blocks_sha256": [
-        "1f42d9c45c7f834056020a637b1ff3eed83ace75f59a53ad2fc124ad055fbd52",
-        "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
-        "88983bf23176842902ce1aade1c5ee1ea2cfca560f44ba89f89eace37aca4107",
-        "f91f29f50f7711fc3dc5d53956dfff3452a07eb60c20cc244cec893a3cd0efee",
-        "41401e7ead1fce4958e46e9591efc3dd9dfb27f649ea94e791cabfc54960b81e",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "4f59d5ef657320e399f6a06d9c4695ee519b6840803db32293d0e34fa1d9a12a",
-        "e3968366b2dcf54efbed8fee6ef77b303e5449785b6c9204ce22cef171a3858c"
-      ],
-      "source_sha256": "78adc956ab1e07247878cd3c2fcc832e8d5e010a0d58cf6cc1dcb382dfaded4b",
-      "text": "Assemblez une grille d'images cousues CYX multicanaux en réutilisant les transformations par paires entre les canaux.\n\nPasser ``out_tif=None`` avec un ``out_csv`` à exécuter en mode manifeste seulement (computer les transformations et la géométrie de toile, écrire manifeste, sauter rendu).\n\n:param csv_path: les paramètres de la paire d'entrées CSV.\n:param out_tif: grille d'images cousues TIFF chemin de sortie (``None`` pour manifeste seulement).\n:param min_score: score minimal de paire conservé pour la grille d'image cousue (auto-détecté quand ``None``).\n:param channel_count: Forcer ce nombre de canaux ; automatiquement détecté lorsque ``None``.\n:param channel_index_order: commande explicite de l'index des canaux pour la sortie.\n:param angle_tol_deg: tolérance pour le classement des bords dans des bacs R/L/U/D.\n:param step_tol_frac: Tolérance fractionnelle autour de l'étape estimée de la grille.\n:param rot_tol_deg: rotation maximale autorisée lorsque la rotation est désactivée.\n:param scale_tol: écart d'échelle maximal autorisé lorsque l'échelle est désactivée.\n:param cap_one_per_dir: conserver au plus un bord par direction par tuile.\n:param out_csv: optionnelle manifeste par-tile CSV chemin.\n:returns: chemin vers la grille d'images cousues TIFF (ou ``None`` en mode manifeste seulement).",
-      "translation_source_blocks_sha256": [
-        "c7f2ebf344c6c23ac30a86120ab8c96a3a19c059a67da333a0e4b95d5d4cd82b",
-        "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "90ca02df5ca6824da7e6edc514abc48046679935acadf5386f4c3085d2e66d70",
-        "1de54315d3ee808f8d1673a9c0e384e39826db2f48f2bef7cd77f4d6c52cc6c4",
-        "f91f29f50f7711fc3dc5d53956dfff3452a07eb60c20cc244cec893a3cd0efee",
-        "41401e7ead1fce4958e46e9591efc3dd9dfb27f649ea94e791cabfc54960b81e",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "4f59d5ef657320e399f6a06d9c4695ee519b6840803db32293d0e34fa1d9a12a",
-        "6bd6f66b06f1da0b39b9d2dc59e47e98163d7e8b41cacf4aaa294a4fa05876c5"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.prepare_features": {
-      "source_blocks_sha256": [
-        "0a2bf501027aec8a4c2e378a8eb6fa86d3db67e6be975b4594246bc8292de5f3",
-        "cd9bdcaf97b883deb65882469ef1c9593b9a195fd39f9732d56c695c4ed62a78",
-        "02615c95660dba3bd7dab9bfa5db03f14416612760aa26844257b9b643ee9c01",
-        "a72ef973047d36890fcf63e2b369a877895f3ca540c9ebf9454f65d053307a8f",
-        "5bbd5bc42e76282f4a641f0ca5e93151c9366a3c3d7527ed45ae3d9800a64a16",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "1a3b597c3afc77c890d1a6f0952fb1ef9a2234af56beeaff73ca104cc97c9463",
-      "text": "Précalculez les points de touche et les descripteurs pour ``paths`` et cachez-les.\n\nEn mode ``disk``, chaque résultat est retransmis à la boutique de fonctionnalités on-disk avec seulement un sous-ensemble LRU conservé en RAM; en mode ``ram``, les résultats sont conservés en mémoire seulement.\n\n:param paths: fichiers image à mettre en œuvre.\n:param channel_index: canal à lire depuis plusieurs canaux TIFFs.\n:param num_workers: nombre de processus workers de fond; par défaut ``self.n_workers_features``.\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "0a2bf501027aec8a4c2e378a8eb6fa86d3db67e6be975b4594246bc8292de5f3",
-        "cd9bdcaf97b883deb65882469ef1c9593b9a195fd39f9732d56c695c4ed62a78",
-        "02615c95660dba3bd7dab9bfa5db03f14416612760aa26844257b9b643ee9c01",
-        "a72ef973047d36890fcf63e2b369a877895f3ca540c9ebf9454f65d053307a8f",
-        "20abc241eb66c9bd2f662d1899689940dc99a470b43a03a8fcacb5270a1be79a",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.render_mosaic_from_csv": {
-      "source_blocks_sha256": [
-        "fde71e1166a00bdd7a2e22acbda81447ba2e497899ec5ea7b4764704cc79cd55",
-        "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
-        "876ec5bf0028b64c752319271cebce6b206d78838970cdc8fdf9b4bd2357a072",
-        "b78d64d4c21e5fab3148d460d40ab6d6a3bd2d7c3a3d3b39345bcbbb650349c6",
-        "88983bf23176842902ce1aade1c5ee1ea2cfca560f44ba89f89eace37aca4107",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "d9053e6096512b8d035d687ef16ddd34ed0b44d2bce1e41216d39a56f740268e",
-        "4bf59fa16d56ba883de96a18212d4ffc19a3a38d2eba6393b41465b7aad3db45"
-      ],
-      "source_sha256": "db6fa5e26ac74a7ec4d829f9acd1a497f164252f74507e347eb8fcbf24834201",
-      "text": "Assemblez une image cousue (et manifestez) de la grille d'images à partir d'une métrique par paires CSV.\n\nPasser ``out_tif=None`` avec un ``out_csv`` à exécuter en mode manifeste seulement (les transformations sont calculées et écrites mais aucune image n'est rendue).\n\n:param csv_path: les paramètres de la paire d'entrées CSV.\n:param out_tif: grille d'images cousues TIFF chemin de sortie (``None`` pour manifeste seulement).\n:param out_png: prévisualisation optionnelle du chemin de sortie PNG.\n:param channel_index: canal utilisé pour le rendu. Par défaut ``0``.\n:param min_score: score minimal de paire conservé pour la grille d'image cousue (auto-détecté quand ``None``).\n:param angle_tol_deg: tolérance pour le classement des bords dans des bacs R/L/U/D.\n:param step_tol_frac: Tolérance fractionnelle autour de l'étape estimée de la grille.\n:param rot_tol_deg: rotation maximale autorisée lorsque la rotation est désactivée.\n:param scale_tol: écart d'échelle maximal autorisé lorsque l'échelle est désactivée.\n:param cap_one_per_dir: conserver au plus un bord par direction par tuile.\n:param out_csv: chemin optionnel vers le manifeste per-tile CSV.\n:returns: bulbe ``(out_tif, out_png)``.",
-      "translation_source_blocks_sha256": [
-        "331a55658a9589944bcbe455fa4d55a02dff2edb2b84f5199d771ab9cc96aac9",
-        "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
-        "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "90ca02df5ca6824da7e6edc514abc48046679935acadf5386f4c3085d2e66d70",
-        "876ec5bf0028b64c752319271cebce6b206d78838970cdc8fdf9b4bd2357a072",
-        "b78d64d4c21e5fab3148d460d40ab6d6a3bd2d7c3a3d3b39345bcbbb650349c6",
-        "1de54315d3ee808f8d1673a9c0e384e39826db2f48f2bef7cd77f4d6c52cc6c4",
-        "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
-        "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
-        "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
-        "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
-        "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
-        "d9053e6096512b8d035d687ef16ddd34ed0b44d2bce1e41216d39a56f740268e",
-        "4bf59fa16d56ba883de96a18212d4ffc19a3a38d2eba6393b41465b7aad3db45"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.run_folder": {
-      "source_blocks_sha256": [
-        "50ad0a1cb7dbbf6b87799a7bd51b6cf6566e0a99d4894d49a254d3281bfd5638",
-        "51d9e5f7d20d7d6e34cf0e87166c1a76516ded41899f239269077a54763f1c06",
-        "b67998529733a49ffa7f510b74e4843a03cf901bd88a77134a8c6067bf8060ab",
-        "cf73934177dd8956a194b0a6e31c9dc5e598622b2c2aba1d81cacc7a1f7b7243",
-        "78fb17386a5c73152cced41e68ed7e5fdc7e94c38b195c05bcd6e9f996f0cc52",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "29b83a724759e2d8e2364c2c849b5f3743ecfe19f43a42cadb7e0bd22a445b77",
-        "1cc305fd1a59d1f6da418ba98a562c6ecc1bed68484ab8e9afa906bbf37d7ce7",
-        "5d91272fc3a6cd04c1523e827172b94283c62c063ffae33f57391134e750174c",
-        "4c47095cd345024ebfa93b29b7c3da9e3f1553a65ea15e7b4663d5a7a01d2280",
-        "4f4737f6000fc7bdf0e1ce4de0da2354a9a1eba4a73ac46c71d80edc59532642",
-        "c19362a8369c06f6443090f2f0937a3e5f6a535d213aa4c11aa96f46a8adad64",
-        "f1a8b6c26d0deb9272b697d948362c856f607b0231659200ae5cedfdaa872975",
-        "944cd8a745fc9c05ae096fc410516cf88a89baa57e785f4c7cad9a27525da8b9",
-        "9566d4d5f5d67d2ff92858e495ddb5bc7d0fa71949f15aeb9de93303a907b7b9",
-        "f023b72f1bae967e5d84b2186c26722b111397cfc131062f1b1c36f755e065db",
-        "b359c0e88dc980c79c0efe1f75a51191f25ad0ff4c58ff58ca47dcfe649a64ac",
-        "9a3da0287619ba655373eec4fa4768e9df70369966daacab24afdb85604277b9",
-        "cf99ad4ba037d3bca6210aa39f36819c5e4b1029f4ded88a099d81137670cbcd",
-        "86a72d466a012da897aec32fa0f714e2b2d8aa256c825ada6b73d1a469632b5d",
-        "48068c7c5d42c819507bce6ac90e912a9fb40cc31f8468566c182f2fcb873ed1",
-        "914a5a86ee96ae60461cdc40b0c74b3cd7a8fccfbc6d39136163bf0ba67db618",
-        "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
-      ],
-      "source_sha256": "cfc121333b39358d6311adab55cbcc6d92e1b5e42d441010696eecb8aedbfe15",
-      "text": "Noter chaque paire de candidats dans ``folder`` et construire en option une grille d'images cousues.\n\nLorsque le nombre de paires de candidats dépasse ``qc_pairs_threshold``, les superpositions QC sont ignorées dans le premier passage et réémises seulement pour les paires dont le score efface le seuil automatique dans le deuxième passage.\n\n:param folder: répertoire de tuiles à scanner.\n:param csv_path: destination CSV pour les mesures par paire.\n:param channel_index: canal utilisé pour la notation des fonctionnalités. Par défaut ``0``.\n:param exts: extensions d'image acceptées.\n:param recursive: Récurser en sous-dossiers. Par défaut ``False``.\n:param same_well_only: restreigne les appariements au même puits analysé. Par défaut ``True``.\n:param max_site_gap: écart maximum site-index entre les voisins candidats. Par défaut ``3``.\n:param n_workers: Les fils de travail utilisés par la passe de notation. La valeur par défaut est ``8``.\n:param stitch: enregistrer les points TIFFs pour les paires au-dessus du seuil de score.\n:param score_threshold: score minimum requis pour enregistrer l'image cousue.\n:param meta_regex: remplacer le nom de fichier regex avant la numérisation.\n:param mosaic: construire une grille d'images cousues à un seul canal une fois que la paire marque les finitions.\n:param mosaic_out: sortie TIFF chemin pour la grille d'images cousues (mode canal de données à image unique).\n:param mosaic_min_score: score minimal de bord utilisé lors de la taille des bords de grille d'images cousues.\n:param mosaic_csv_out: sortie CSV chemin pour le manifeste de la grille d'images cousues.\n:param mosaic_all_channels: construire une grille d'images cousues CYX sur tous les canaux.\n:param mosaic_channel_count: forcer ces nombreux canaux pour la grille d'images cousues multi-canaux.\n:param mosaic_channel_index_order: commande de canal explicite pour la grille d'images cousues multicanaux.\n:param qc_pairs_threshold: nombre de paires au-dessus desquelles QC la représentation est fermée.\n:param qc_only_above_threshold_when_many: active la sortie de deuxième passage, notée QC.\n:returns: chemin vers les paramètres de la paire CSV.",
-      "translation_source_blocks_sha256": [
-        "ec34ce3c0c2907ad52cf332ccf367c095b730ad8b302cff28e4c1f592aa46a1c",
-        "51d9e5f7d20d7d6e34cf0e87166c1a76516ded41899f239269077a54763f1c06",
-        "b67998529733a49ffa7f510b74e4843a03cf901bd88a77134a8c6067bf8060ab",
-        "cf73934177dd8956a194b0a6e31c9dc5e598622b2c2aba1d81cacc7a1f7b7243",
-        "78fb17386a5c73152cced41e68ed7e5fdc7e94c38b195c05bcd6e9f996f0cc52",
-        "2a5a00e1e50917945c3df2088eda40835b95d15932cc886d3d289b7339105e06",
-        "29b83a724759e2d8e2364c2c849b5f3743ecfe19f43a42cadb7e0bd22a445b77",
-        "1cc305fd1a59d1f6da418ba98a562c6ecc1bed68484ab8e9afa906bbf37d7ce7",
-        "5d91272fc3a6cd04c1523e827172b94283c62c063ffae33f57391134e750174c",
-        "3bdb81c98fe61416e2ddb7943d697dbdc4c4329a495092cb1be7d547e433b136",
-        "4f4737f6000fc7bdf0e1ce4de0da2354a9a1eba4a73ac46c71d80edc59532642",
-        "c19362a8369c06f6443090f2f0937a3e5f6a535d213aa4c11aa96f46a8adad64",
-        "f1a8b6c26d0deb9272b697d948362c856f607b0231659200ae5cedfdaa872975",
-        "44f3739314aea17c8b16b57d8502047cc29200aaf89bce856afb246ebfc5768d",
-        "6965fbf9fb189cccb9223da7c67a979520ecaa5f0cb44f0727374f3bce577cd9",
-        "4ae04e79046e2ad3b78c5d7a78de4db1ee728f98a994431fa1e9f6eeaedd91a5",
-        "740febcc641829f70516bc1c859fcce6df69e1d06ce0b0b1428a2a40771dfbde",
-        "f21be2ad17686db5ddb937896c4a7969ee1a947d063419caaf3006544d69394f",
-        "f686a55fecf53c6389c029a8645a0829f64b1a1ae4e23010435e1de69ce6f052",
-        "ebc6786604033556971653b878aa8541217c9ab57e5fd4810e23ead9d6ef2f96",
-        "48068c7c5d42c819507bce6ac90e912a9fb40cc31f8468566c182f2fcb873ed1",
-        "914a5a86ee96ae60461cdc40b0c74b3cd7a8fccfbc6d39136163bf0ba67db618",
-        "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.set_meta_regex": {
-      "source_blocks_sha256": [
-        "e59c5152eae510229811f50a7c9dab32ba9eccfb2ef705788e0e6369755afee4",
-        "feadf4ac30dae81b4edf9481459d712595bbfc6afb0afc6f095c1cbe3cc2c6f5"
-      ],
-      "source_sha256": "27bc59283852176ccc6d026c3f3d2cf737a27bba3f3657a05a768a66b1223710",
-      "text": "Remplacer le nom de fichier regex utilisé pour analyser les métadonnées d'image.\n\n:param pattern: chaîne de caractères ou groupe de regex compilé avec des groupes de puits, de site, de canal et de grossissement.",
-      "translation_source_blocks_sha256": [
-        "e59c5152eae510229811f50a7c9dab32ba9eccfb2ef705788e0e6369755afee4",
-        "feadf4ac30dae81b4edf9481459d712595bbfc6afb0afc6f095c1cbe3cc2c6f5"
-      ]
-    },
-    "spacr.spacrops.spacrStitcher.stitch_pair": {
-      "source_blocks_sha256": [
-        "2d423139139b7b5fdad90cb8970d5d649ada45ec3ba54441d886ba2bbff65101",
-        "a9fec53041c394a39fcf16be609c27de825c83aa5465aad6edd0cc8f5bbcf203",
-        "6ebca2c0154dfcb2df09e2ac992144976dbab0277eddebd98618da59441e642f",
-        "6ec47f331ba4c0cc3b42c7b3ffa0abff96db7c91942eb35e589a69a6f71f2714",
-        "726929e8b5c7a1b9d359097851f3f49fd74fccf34471002d20dbe76d2c453587",
-        "8c09ce7a9ccb1e3082c178bb633c61007393512b2b237d91a6690af4230d0083",
-        "2cbc306772f3173a7239a62ab9d2b1f486407055e21ca396537666285d11edf5",
-        "64055dd4d640a14752c2cb3b953440b8e568f20c7cb0f7dd6b79088bdefd3106",
-        "8b59049b4cf4fb511a8a88d5a389796cc2b3c26be744ed651c509e1f2d4f3db7"
-      ],
-      "source_sha256": "d3060fffaa56b4da067689a91ff614c836070a3e3b0303f08451f5d7d4a72a87",
-      "text": "Estimez l'affine B-à-A, notez le chevauchement et écrivez la paire cousu en option.\n\n:param pathA: chemin d'image de référence.\n:param pathB: image pour s'aligner sur ``pathA``.\n:param channel_index: canal utilisé pour la correspondance des fonctionnalités. Par défaut ``0``.\n:param score_threshold: score minimal de bord-ZNCC requis pour enregistrer le pointage TIFF; retombe à ``self.score_threshold``.\n:param save_stitched: redondant pour l'écriture de l'image cousu; tombe à ``self.save_stitched_default``.\n:param force_no_qc: supprimer les images QC superposées, quel que soit le paramètre.\n:param qc_only_if_score_ge: Emission QC superpose seulement lorsque le score de la paire répond à cette limite.\n:returns: mappage clé-valeur des métriques de paires et des chemins de sortie, ou ``None`` lorsque matching/RANSAC échoue.",
-      "translation_source_blocks_sha256": [
-        "2d423139139b7b5fdad90cb8970d5d649ada45ec3ba54441d886ba2bbff65101",
-        "a9fec53041c394a39fcf16be609c27de825c83aa5465aad6edd0cc8f5bbcf203",
-        "6ebca2c0154dfcb2df09e2ac992144976dbab0277eddebd98618da59441e642f",
-        "6ec47f331ba4c0cc3b42c7b3ffa0abff96db7c91942eb35e589a69a6f71f2714",
-        "726929e8b5c7a1b9d359097851f3f49fd74fccf34471002d20dbe76d2c453587",
-        "8c09ce7a9ccb1e3082c178bb633c61007393512b2b237d91a6690af4230d0083",
-        "2cbc306772f3173a7239a62ab9d2b1f486407055e21ca396537666285d11edf5",
-        "64055dd4d640a14752c2cb3b953440b8e568f20c7cb0f7dd6b79088bdefd3106",
-        "c96881e298a83f3df446849d93fb919bce385829d85b9e2a5bf2b644f130fc01"
-      ]
-    },
-    "spacr.spacrops.stitch_cycle_wells": {
-      "source_blocks_sha256": [
-        "56d1f86563622756cd7e895f79ad1c85a98a66bd7821e4ffe0887b55bb832d23",
-        "8f73b339608b45b5e9eeb813a4262071627ec8ad62489fee89931237242271a6",
-        "43e2055f27b37bb3caa915733fa5684575c1b93adb7ae82e1a64fe15a181260e",
-        "52899c439e3418283cd3cbd1931f7a2b9195734a27b4b5b0eb43a50d8d950327",
-        "a461890ecbdfa56af39153e64f160445b45ac7e286e31241c10123b6ea2bcac5"
-      ],
-      "source_sha256": "384a6b243901630139ba6a3c7fbbec27a5dd5db1dd71caebf58c6f072ce0584d",
-      "text": "Organisez une microplaque de laboratoire de TIFFs dans des dossiers de position d'échantillon par microplaques et pointez chaque position de l'échantillon.\n\nGroupe les images par bien à partir de métadonnées de nom de fichier, en option les déplace ou les relie dans des dossiers par puits, puis exécute :class:`spacrStitcher` sur chaque puits pour produire pairwise CSVs, et -- lorsqu'on le demande -- des grilles d'images cousues de canal de données monoimage ou multiimage.\n\nLa grille d'images cousues est opt-in. Set ``write_mosaic`` (ou son synonyme ``mosaic``) pour en construire une. Elle est désactivée par défaut parce que l'assemblage d'une grille de l'image cousue soulève lorsque trop peu de champs d'image du microscope se chevauchent pour en placer une, et une plaque qui ne peut pas être cousu ne devrait pas devenir une plaque qu'on ne peut organiser.\n\n:param settings: mapping clé-valeur des paramètres de préprocessus; voir :func:`get_preprocess_ops_settings` pour les noms de données structurées supportés.\n:returns: mappage de valeurs clés avec des noms de données structurés ``organized`` (résumé du mouvement/symlien) et ``wells`` (chemins de sortie de la position de l'échantillon par microplaque).",
-      "translation_source_blocks_sha256": [
-        "e9cd9ab6a7e5a803c9e5647f2139ae04d4f962a2f63437d2f384d12d0ab1cf91",
-        "1f25af89ed183bdbc8dd262ae7cbbe457750474fbbd500e46700cf180498bc7e",
-        "23581abc7e159bfa927f2327c3f34ddbd11591e5400e00ee0c360a6052c42c0b",
-        "2fb7dd35975183db0f2521dff4e686926bf51534c83675e0904fb1a7ed6b8d4a",
-        "77979a302d60b30163651be882c442cd157020d2730fa063dde15da88601a41b"
       ]
     },
     "spacr.sra": {

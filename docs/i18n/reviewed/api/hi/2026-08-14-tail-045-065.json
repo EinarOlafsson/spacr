@@ -81,20 +81,6 @@
       "translation": "``FieldQC`` एक सूक्ष्मदर्शी दृश्य-क्षेत्र का verdict: counts, flags, उनके पीछे के numbers और severity। ``score_field(mask, object_type, **thresholds)`` laboratory microplate context के बिना एक label image score करता है। ``score_masks(source, object_type, ...)`` ``.npy`` masks के folder, 3-D stack या 2-D masks की list को score करके laboratory microplate से संबंधित flags जोड़ता है। ``summarize_qc(field_qcs)`` laboratory microplate-level summary देता है: verdict, हर severity के counts और fail हुए दृश्य-क्षेत्रों के names। ``format_scorecard(field_qcs)`` printable card देता है। ``write_scorecard(field_qcs, dst, object_type)`` हर दृश्य-क्षेत्र की एक row वाला ``<dst>/qc/segmentation_qc_<object_type>.csv`` लिखता है। ``run_segmentation_qc(...)`` वही है जिसे :mod:`spacr.object` बुलाता है: score करता, लिखता, print करता और ``seg_qc`` का पालन। ``thresholds_from_settings(settings)`` settings की key-value mapping से ``seg_qc_*`` controls निकालता है।"
     },
     {
-      "context": "accepted for call compatibility and NOT used. The ``*__qc_outlines.png`` overlays are written by :class:`spacrStitcher`, which data-selection boundaries them on its own ``save_qc``; :class:`FOVAlignAndCropper` has no such argument and draws no overlays, so there is nothing here for this to switch on. Use ``save_qc`` on the stitching step instead.",
-      "label": "spacr.spacrops.align_image_to_stitch#13",
-      "source": "accepted for call compatibility and NOT used. The ``*__qc_outlines.png`` overlays are written by :class:`spacrStitcher`, which gates them on its own ``save_qc``; :class:`FOVAlignAndCropper` has no such argument and draws no overlays, so there is nothing here for this to switch on. Use ``save_qc`` on the stitching step instead.",
-      "source_sha256": "a87788c47690557e524da199c7f353c22ee40a7b34ec977877269489fce182ee",
-      "translation": "call compatibility के लिए स्वीकार किया जाता है और उपयोग नहीं होता। ``*__qc_outlines.png`` overlays :class:`spacrStitcher` लिखता है, जो अपने ``save_qc`` से उन्हें नियंत्रित करता है; :class:`FOVAlignAndCropper` में ऐसा argument नहीं है और वह overlays नहीं बनाता, इसलिए यहाँ चालू करने के लिए कुछ नहीं। इसके बजाय stitching step पर ``save_qc`` उपयोग करें।"
-    },
-    {
-      "context": "Pass ``out_tif=None`` together with an ``out_csv`` to run in manifest-only mode (transforms are computed and written but no image is rendered).",
-      "label": "spacr.spacrops.spacrStitcher.render_mosaic_from_csv#1",
-      "source": "Pass ``out_tif=None`` together with an ``out_csv`` to run in manifest-only mode (transforms are computed and written but no image is rendered).",
-      "source_sha256": "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
-      "translation": "केवल manifest mode में चलाने के लिए ``out_tif=None`` के साथ ``out_csv`` दें; transforms निकाले और लिखे जाते हैं, लेकिन image render नहीं होती।"
-    },
-    {
       "context": "``max_parasites_per_vacuole`` — largest named power-of-two bucket.",
       "label": "spacr.submodules.analyze_replication#11",
       "source": "``max_parasites_per_vacuole`` — largest named power-of-two bucket.",

@@ -417,7 +417,7 @@ jobs:
           python tools/verify_module_coverage.py \
             --coverage-json "$SPACR_COVERAGE_REPORT/coverage.json" \
             --root . \
-            --expected-file-count 569 \
+            --expected-file-count 568 \
             --baseline tools/coverage_baseline.json \
             --json-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.json" \
             --text-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.txt"

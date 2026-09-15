@@ -99,13 +99,6 @@
       "source": "``o<label>`` when the object's type is not stated, or ``<type><label>`` when it is. The type lives *inside* this field rather than beside it so that two :class:`ObjectID` values compare equal exactly when they name the same object — a separate ``objectType`` field would let ``('o7', 'nucleus')`` and ``('nucleus7', None)`` describe one object and compare unequal.",
       "context": "``o<label>`` when the object's type is not stated, or ``<type><label>`` when it is. The type lives *inside* this microscope field of view rather than beside it so that two :class:`ObjectID` values compare equal exactly when they name the same object — a separate ``objectType`` microscope field of view would let ``('o7', 'nucleus')`` and ``('nucleus7', None)`` describe one object and compare unequal.",
       "translation": "``o<label>`` quando o tipo do objeto não é indicado, ou ``<type><label>`` quando é. O tipo vive *dentro* deste campo, e não ao lado dele, para que dois valores :class:`ObjectID` sejam iguais exatamente quando nomeiam o mesmo objeto — um campo ``objectType`` separado permitiria que ``('o7', 'nucleus')`` e ``('nucleus7', None)`` descrevessem um só objeto e fossem comparados como diferentes."
-    },
-    {
-      "label": "spacr.spacrops.stitch_cycle_wells#2",
-      "source_sha256": "43e2055f27b37bb3caa915733fa5684575c1b93adb7ae82e1a64fe15a181260e",
-      "source": "THE MOSAIC IS OPT-IN. Set ``write_mosaic`` (or its synonym ``mosaic``) to build one. It is off by default because assembling a mosaic raises when too few tiles overlapped to place any, and a plate that cannot be stitched should not become a plate that cannot be organised.",
-      "context": "The stitched image grid is opt-in. Set ``write_mosaic`` (or its synonym ``mosaic``) to build one. It is off by default because assembling a stitched image grid raises when too few microscope image fields overlapped to place any, and a plate that cannot be stitched should not become a plate that cannot be organised.",
-      "translation": "A grelha de imagens cosida é opcional. Defina ``write_mosaic`` (ou o seu sinónimo ``mosaic``) para construir uma. Está desativada por predefinição porque montar uma grelha de imagens cosida lança um erro quando poucos campos de imagem do microscópio se sobrepõem para colocar algum, e uma placa que não pode ser cosida não deve tornar-se uma placa que não pode ser organizada."
     }
   ]
 }
