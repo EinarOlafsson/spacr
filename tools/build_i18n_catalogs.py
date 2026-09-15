@@ -3536,6 +3536,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.screens.app_screen import DIMENSION_TOGGLES
     from spacr.qt.screens.batch import ON_ERROR_LABELS
     from spacr.qt.screens.hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
+    from spacr.qt.screens.mask import OPS_TOGGLE_TOOLTIP
     from spacr.qt.screens.parameter_sweep import (
         SWEEP_TOGGLE_TEXT,
         SWEEP_TOGGLE_TOOLTIP,
@@ -3634,6 +3635,10 @@ def _indirect_runtime_ui_sources() -> set[str]:
         str(TOGGLE_TOOLTIP),
         str(SWEEP_TOGGLE_TEXT),
         str(SWEEP_TOGGLE_TOOLTIP),
+        # Mask Generation's OPS switch, passed to AiToggleLabel as a name
+        # imported from `mask`, exactly like the two toggles above; its
+        # caption "OPS" is a compact `_ROWS` row, so only the tooltip is here.
+        str(OPS_TOGGLE_TOOLTIP),
         str(ALL_CHANNELS),
         str(MAX_SETS_TOOLTIP),
         str(PREVIEW_RUN_TEXT),

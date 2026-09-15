@@ -70,24 +70,27 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
 OPS_TOOLTIPS: Dict[str, str] = {
     "cellpose_diameter":
         "(float or None) - Expected nucleus diameter in pixels for the "
-        "segmentation used to align acquisitions. Empty lets Cellpose "
-        "estimate it, which is usually right and occasionally very wrong on a "
-        "sparse field; setting it removes that variance. Default None.",
+        "segmentation of each stitched well. When set, each window is "
+        "rescaled so that this diameter becomes the 30 pixels the model "
+        "expects; empty segments the windows at their own scale. "
+        "Default None.",
     "cellpose_model":
-        "(str) - Which Cellpose model segments the nuclei that the phenotype- "
-        "to-genotype alignment matches on. Changing it changes which objects "
-        "are found, and so which points the alignment is solved from. Default "
-        "'cpsam'.",
+        "(str) - Which Cellpose model segments the nuclei of each stitched "
+        "well. 'cpsam' runs the default model of the installed Cellpose; any "
+        "other name is loaded as that model. Changing it changes which "
+        "objects are found, and so which nuclei the reads are attributed "
+        "to. Default 'cpsam'.",
     "dst_root":
-        "(str or None) - Where the organised wells, mosaics and reports are "
-        "written. Empty writes beside the source, which mixes outputs with "
-        "inputs and makes a second run ambiguous about what it is reading. "
-        "Default None.",
+        "(str or None) - Where measurements.db and each well's "
+        "ops_report.json are written. Empty writes them into the source "
+        "folder, which mixes outputs with inputs. Default None.",
     "genotype_source":
-        "(str or None) - The folder holding the low-magnification acquisition "
-        "that carries the barcodes. This is the one that gets stitched into "
-        "per-well mosaics; the phenotype images are placed onto its output. "
-        "Default None.",
+        "(str or None) - The folder holding the low-magnification "
+        "sequencing acquisition that carries the barcodes. Its subfolders "
+        "are searched too, for tiles named like "
+        "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif: magnification, cycle, "
+        "well, channels and site. Every well found is stitched, segmented "
+        "and decoded. Default None.",
     "n_workers":
         "(int) - How many parallel workers to use. More is faster until the "
         "disk becomes the limit; each worker holds its own tiles, so this "
@@ -104,10 +107,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
 
 #: The blurb the module shows above its settings.
 OPS_DESCRIPTION = (
-    "Stitch a low-magnification genotype acquisition into per-well mosaics "
-    "and place the high-magnification phenotype images onto them. This is the "
-    "preprocessing half of optical pooled screening; barcode decoding is a "
-    "separate step and does not read FASTQ."
+    "Take each well of an optical pooled screen's sequencing acquisition "
+    "from tiles to tables: stitch its nuclear tiles, segment and number its "
+    "nuclei across the whole well, then decode each field's reads and assign "
+    "a barcode to every nucleus whose reads agree. The tables are written to "
+    "measurements.db. Reads are decoded from the images, not from FASTQ, and "
+    "the phenotype images are not placed by this step."
 )
 
 

@@ -85,17 +85,15 @@ PAGE_FOLDS: Tuple[str, ...] = ("ops",)
 #: Name, sentence and maturity for a fold with no registry row to carry
 #: them. Moved here with the fold itself, from `align.FOLD_FALLBACK`.
 #:
-#: ALPHA, HONESTLY. The stitching is measured correct against a plate with
-#: known geometry and the decode chain is validated against planted
-#: barcodes, but neither has met a real acquisition, and the phenotype
-#: alignment's geometry is unverified. A user opening this should know it
-#: is new.
+#: ALPHA, HONESTLY. The engine has run end to end on two wells of one real
+#: plate, A1 and A2, and matched the hand-driven run on A1; nothing wider
+#: than that, and it does not place the phenotype images at all. A user
+#: opening this should know it is new.
 FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
     "ops": (
         "OPS",
-        "Stitch a low-magnification genotype acquisition into per-well "
-        "mosaics and place the high-magnification phenotype images onto "
-        "them, for optical pooled screening.",
+        "For optical pooled screening: stitch each well of the sequencing "
+        "acquisition, segment its nuclei and decode their barcodes.",
         "alpha"),
 }
 
@@ -381,10 +379,10 @@ OPS_TOGGLE_TEXT = "OPS"
 #: it, together with the maturity -- the button is the only place a user
 #: meets this module, and it is alpha.
 OPS_TOGGLE_TOOLTIP = (
-    "Show or hide the optical pooled screening page: stitch a "
-    "low-magnification genotype acquisition into per-well mosaics and "
-    "place the high-magnification phenotype images onto them. Alpha -- "
-    "no real acquisition has been through it yet."
+    "Show or hide the optical pooled screening page: stitch each well of "
+    "the sequencing acquisition, segment its nuclei and decode their "
+    "barcodes. Alpha: two wells of one real plate have been run through "
+    "it so far."
 )
 
 

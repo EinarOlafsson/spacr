@@ -2139,21 +2139,20 @@ def categories_for_app(
 
 CATEGORY_TOOLTIPS: Dict[str, str] = {
     "OPS INPUT":
-        "Where the two acquisitions are read from and how they are laid "
-        "out on disk: the genotype folder, the phenotype folder, which "
-        "file extensions count, and what to do when a name collides or a "
-        "file is missing. Set these first; every other OPS group assumes "
-        "they are right.",
+        "Where the sequencing tiles are read from and where the results are "
+        "written: the folder searched, subfolders included, for tiles named "
+        "by magnification, cycle, well, channels and site, and the folder "
+        "that receives measurements.db and a report for each well. Set "
+        "these first; every other OPS group assumes they are right.",
     "OPS ALIGNMENT":
-        "Placing the high-magnification phenotype images onto the "
-        "low-magnification genotype mosaic. The nucleus segmentation and "
-        "the outline it produces are what the two acquisitions are matched "
-        "on, so the model and diameter here decide whether they meet.",
+        "How the nuclei of each stitched well are segmented. Each read is "
+        "attributed to the nucleus it falls on or just beside, so the "
+        "Cellpose model and the diameter here decide which objects can "
+        "receive a barcode.",
     "OPS PERFORMANCE":
-        "How much of the machine the run may use: worker counts for the "
-        "stitch and the feature pass, an OpenCV thread cap, a memory "
-        "ceiling for cached features, and where the cache and temporary "
-        "files live. Nothing here changes the result, only what it costs.",
+        "How much of the machine the run may use: whether the graphics card "
+        "is used, and how many fields are decoded at once. Nothing here "
+        "changes the result, only what it costs.",
 
     "PATHS":
         "Where the module reads its images or tables from, plus any lookup "
