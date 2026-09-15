@@ -1,0 +1,594 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Annotation is the bottleneck in every screen. An extracted image region the model already calls with 0.999 teaches the model nothing when a human labels it; the extracted image regions worth a person's afternoon are the ones sitting on the decision boundary. This module turns an already-scored ``measurements.db`` into a work list ordered so the informative extracted image regions come first.",
+      "label": "spacr.active_learning#1",
+      "source": "Annotation is the bottleneck in every screen. A crop the model already calls with 0.999 teaches the model nothing when a human labels it; the crops worth a person's afternoon are the ones sitting on the decision boundary. This module turns an already-scored ``measurements.db`` into a work queue ordered so the informative crops come first.",
+      "source_sha256": "23d9d076fcca9e68e412fefa6769b6efe7b744e499956211c57feaad1eaefa86",
+      "translation": "标注是每个筛选实验的瓶颈。模型已经以 0.999 的置信度判定的提取图像区域,由人工标注后并不能让模型学到任何东西;值得一个人花一下午的,是那些位于决策边界上的提取图像区域。本模块将已完成评分的 ``measurements.db`` 转换为一个工作队列,并按顺序排列,使信息量大的提取图像区域排在最前面。"
+    },
+    {
+      "context": "``margin`` and ``least_confidence`` are the same ranking on two classes. For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``: a linear transform, so identical order and identical ties. They are not two independent choices on a binary screen — they differ only from three classes up, where ``margin`` looks at the top *two* classes while ``least_confidence`` looks only at the top one and ``entropy`` looks at the whole distribution.",
+      "label": "spacr.active_learning#8",
+      "source": "``margin`` and ``least_confidence`` are the same ranking on two classes. For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``: a linear transform, so identical order and identical ties. They are not two independent choices on a binary screen — they differ only from three classes up, where ``margin`` looks at the top *two* classes while ``least_confidence`` looks only at the top one and ``entropy`` looks at the whole distribution.",
+      "source_sha256": "a16a370a6fe4b63fbb5dfe535750914608eb89ae772f639a6046f97ac0997ecb",
+      "translation": "``margin`` 和 ``least_confidence`` 在两个类别上给出相同的排序。对于 C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)`` :这是一个线性变换,因此顺序完全相同,并列情况也完全相同。在二分类筛选中,它们并不是两个独立的选择——只有在三个及以上类别时才会不同: ``margin`` 关注排名最高的 *两个* 类别,而 ``least_confidence`` 只关注最高的那一个, ``entropy`` 则关注整个分布。"
+    },
+    {
+      "context": "substring filter on the structured-data name, matching the Annotate application view's own filter. Every count below it, ``n_rows`` included, is over the extracted image regions that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
+      "label": "spacr.active_learning.annotation_coverage#7",
+      "source": "substring filter on the key, matching the Annotate screen's own filter. Every count below it, ``n_rows`` included, is over the crops that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
+      "source_sha256": "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
+      "translation": "对结构化数据名称进行子字符串过滤,与 Annotate 应用程序视图自身的过滤器一致。其下的每个计数(包括 ``n_rows``)都只针对匹配的提取图像区域——如果分母取自整张表,分子和分母就会落在两个不同的总体上。 ``n_rows_unfiltered`` 保留总数,并有一条说明指出排除了多少条。"
+    },
+    {
+      "context": "``n`` **is the number of rows the matrix actually contains**, and the supports sum to it. A row whose true class the head has no column for is counted as an error rather than dropped: the matrix grows to hold it, and the missing column stays empty because the head can never predict that class. Reporting ``n`` over one population and ``accuracy`` over another is the one thing a model card must not do — a three-class held-out set scored by a binary head used to report a perfect score on a set the model got two of three right, and the ``accuracy == trace / total`` invariant still checked out because the row was missing from both sides of it.",
+      "label": "spacr.active_learning.holdout_report#3",
+      "source": "``n`` **is the number of rows the matrix actually contains**, and the supports sum to it. A row whose true class the head has no column for is counted as an error rather than dropped: the matrix grows to hold it, and the missing column stays empty because the head can never predict that class. Reporting ``n`` over one population and ``accuracy`` over another is the one thing a model card must not do — a three-class held-out set scored by a binary head used to report a perfect score on a set the model got two of three right, and the ``accuracy == trace / total`` invariant still checked out because the row was missing from both sides of it.",
+      "source_sha256": "e1ffa1ba94fd3393737a31660d48193820a31f9221e152cfc4dba43720b7ce50",
+      "translation": "``n`` **是矩阵实际包含的行数**,各类别的支持数之和等于它。如果某行的真实类别在该分类头中没有对应的列,它会被计为错误而不是被丢弃:矩阵会扩展以容纳它,而缺失的那一列保持为空,因为该分类头永远无法预测这个类别。在一个总体上报告 ``n`` 、在另一个总体上报告 ``accuracy`` ,正是模型卡绝不能做的事——过去,一个由二分类头评分的三类别留出集,在模型只答对三分之二的集合上报告了满分,而 ``accuracy == trace / total`` 这一不变量依然成立,因为这一行在等式两边都缺失了。"
+    },
+    {
+      "context": "The rule, in one line: look back over whole rounds until at least ``label_window`` new labels have accumulated, and compare held-out accuracy at the two ends. If it moved by less than ``min_gain``, stop.",
+      "label": "spacr.active_learning.should_stop#1",
+      "source": "The rule, in one line: look back over whole rounds until at least ``label_window`` new labels have accumulated, and compare held-out accuracy at the two ends. If it moved by less than ``min_gain``, stop.",
+      "source_sha256": "0c84351ec3a74975a1c520fccd4c958ef2fae844721fa4863c0325363ad69796",
+      "translation": "规则一句话概括:回看完整的若干轮,直到至少积累了 ``label_window`` 个新标签,然后比较两端在留出集上的准确率。如果变化小于 ``min_gain`` ,就停止。"
+    },
+    {
+      "context": "They go in ``obs`` and ``uns``. **Never** ``obsp``.",
+      "label": "spacr.anndata_export#18",
+      "source": "They go in ``obs`` and ``uns``. **Never** ``obsp``.",
+      "source_sha256": "b1793d796c5a3dc9db859a104335b7a251503357990ef047ca0388b7e5224fcf",
+      "translation": "它们放在 ``obs`` 和 ``uns`` 中。 **绝不** 放在 ``obsp`` 中。"
+    },
+    {
+      "context": "In the joined, cell-anchored export (the default) the nuclei and pathogens are not observations at all -- the join in :func:`spacr.io._read_and_join_tables` has already averaged them onto their parent cell. There is no row for an ``obsp`` entry to point at.",
+      "label": "spacr.anndata_export#20",
+      "source": "In the joined, cell-anchored export (the default) the nuclei and pathogens are not observations at all -- the join in :func:`spacr.io._read_and_join_tables` has already averaged them onto their parent cell. There is no row for an ``obsp`` entry to point at.",
+      "source_sha256": "52643aaf94344c39eaa4df22c524ab9a7e8c7b0c950c56982541cdd446a56a65",
+      "translation": "在合并后、以细胞为锚点的导出中(默认方式),细胞核和病原体根本不是观测值——在 :func:`spacr.io._read_and_join_tables` 中的合并已经把它们平均到各自的母细胞上。因此没有任何行可供 ``obsp`` 条目指向。"
+    },
+    {
+      "context": "What is recorded instead is exact and survives everything ``obsp`` does not (subsetting, concatenation, an ``h5ad`` round trip through a tool that knows nothing about spaCR):",
+      "label": "spacr.anndata_export#23",
+      "source": "What is recorded instead is exact and survives everything ``obsp`` does not (subsetting, concatenation, an ``h5ad`` round trip through a tool that knows nothing about spaCR):",
+      "source_sha256": "34d6b69135cc584b0a936ce8ede8bc44fe9e46dcee8c2bb787a4763f5a4c9cef",
+      "translation": "取而代之记录下来的信息是精确的,并且能在 ``obsp`` 无法幸存的所有操作中保留下来(取子集、拼接、经由一个对 spaCR 一无所知的工具进行 ``h5ad`` 往返读写):"
+    },
+    {
+      "context": "What happens to NaN",
+      "label": "spacr.anndata_export#5",
+      "source": "What happens to NaN",
+      "source_sha256": "2518b9324c5901c5fc985b1c324728747f1d4c823a67e65ffcd4c6821a285283",
+      "translation": "NaN 会怎样处理"
+    },
+    {
+      "context": "This is the contract, and it is deliberately boring: channel ``i`` of the extracted image region is channel ``i`` of the result, narrowed to 8 bit by :func:`narrow_to_uint8`.",
+      "label": "spacr.crops.png_view#1",
+      "source": "This is the contract, and it is deliberately boring: channel ``i`` of the crop is channel ``i`` of the result, narrowed to 8 bit by :func:`narrow_to_uint8`.",
+      "source_sha256": "9763920ad1bb832f1471f832c7a9daaf6cc20fb0dc3afdeecfd940b71f81b0b6",
+      "translation": "这就是约定,而且它刻意保持简单:提取图像区域的通道 ``i`` 就是结果的通道 ``i`` ,并由 :func:`narrow_to_uint8` 缩减为 8 位。"
+    },
+    {
+      "context": "when ``max_bytes`` is not positive, or ``max_size`` is outside ``1..MAX_THUMBNAIL_AXIS``.",
+      "label": "spacr.flowview.thumbs.ThumbnailCache#4",
+      "source": "when ``max_bytes`` is not positive, or ``max_size`` is outside ``1..MAX_THUMBNAIL_AXIS``.",
+      "source_sha256": "2af740700993e28eea74ad8c9c6fd6d2d0fa1a4075cfa22a0434a44c1a799e78",
+      "translation": "当 ``max_bytes`` 不是正数,或 ``max_size`` 超出 ``1..MAX_THUMBNAIL_AXIS`` 范围时。"
+    },
+    {
+      "context": "ND2, CZI, LIF and plain TIFF/PNG/JPEG inputs are detected by extension, max-projected over Z, and written out as ``plate<N>_<well>_T####F###L01C##.tif``. A ``rename_log.csv`` records the original-to-new mapping.",
+      "label": "spacr.io.convert_to_yokogawa#1",
+      "source": "ND2, CZI, LIF and plain TIFF/PNG/JPEG inputs are detected by extension, max-projected over Z, and written out as ``plate<N>_<well>_T####F###L01C##.tif``. A ``rename_log.csv`` records the original-to-new mapping.",
+      "source_sha256": "4dcbef8b52f02ce8e8149c58c1a7f4a92559b628340dbb4a75a14afdb052a36e",
+      "translation": "ND2、CZI、LIF 以及普通 TIFF/PNG/JPEG 输入按扩展名识别,沿 Z 轴做最大强度投影,并写出为 ``plate<N>_<well>_T####F###L01C##.tif`` 。一个 ``rename_log.csv`` 文件记录原始文件名到新文件名的映射。"
+    },
+    {
+      "context": "A file that cannot be read is skipped so the rest of the folder still converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`, printed as a loud summary at the end, and **stamped into a sibling** ``rename_log.run_status.json``. That sidecar is what lets a later reader (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is missing inputs, instead of quietly analysing a subset.",
+      "label": "spacr.io.convert_to_yokogawa#2",
+      "source": "A file that cannot be read is skipped so the rest of the folder still converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`, printed as a loud summary at the end, and **stamped into a sibling** ``rename_log.run_status.json``. That sidecar is what lets a later reader (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is missing inputs, instead of quietly analysing a subset.",
+      "source_sha256": "a3883b7e6d0fcfc96a090738b0160a7b81fc18850d31b04438c7c4f15f682f91",
+      "translation": "无法读取的文件会被跳过,以便文件夹的其余部分仍能转换——但跳过会记录在 :class:`spacr.errors.RunLedger` 中,在结束时打印为醒目的摘要,并 **写入同目录下的** ``rename_log.run_status.json`` 。正是这个附属文件让之后的读者(或 :func:`spacr.errors.run_is_complete` )能够知道转换后的文件夹缺少输入,而不是悄无声息地只分析其中一部分。"
+    },
+    {
+      "context": "A canvas ``factor``\\ × closer, about ``centre`` (canvas pixels).",
+      "label": "spacr.layers.Canvas.zoomed#0",
+      "source": "A canvas ``factor``\\ × closer, about ``centre`` (canvas pixels).",
+      "source_sha256": "90e6ea2500b4f0822a248b9c5927a9ed6c1b554dfcd16bb9128ff91eb91d113c",
+      "translation": "一个放大 ``factor``\\ × 倍、以 ``centre`` 为中心的画布(画布像素)。"
+    },
+    {
+      "context": "``factor > 1`` zooms in. The default centre is the middle of the view, which is what a keyboard zoom means; a wheel zoom passes the cursor.",
+      "label": "spacr.layers.Canvas.zoomed#1",
+      "source": "``factor > 1`` zooms in. The default centre is the middle of the view, which is what a keyboard zoom means; a wheel zoom passes the cursor.",
+      "source_sha256": "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339",
+      "translation": "``factor > 1`` 表示放大。默认中心是视图的中点,这正是键盘缩放的含义;滚轮缩放则会传入光标位置。"
+    },
+    {
+      "context": "2-D returns ``(None, px stamp)`` unconditionally. Even when a voxel size is configured it is not applied, so a 2-D run is numerically identical to every spaCR run before this function existed.",
+      "label": "spacr.measure.resolve_measurement_spacing#2",
+      "source": "2-D returns ``(None, px stamp)`` unconditionally. Even when a voxel size is configured it is not applied, so a 2-D run is numerically identical to every spaCR run before this function existed.",
+      "source_sha256": "41dc15b564ccd857a79801089435b3ceb72fa9d7fe6df11540c107844575cbce",
+      "translation": "2-D 情况下无条件返回 ``(None, px stamp)`` 。即使配置了体素大小也不会应用,因此 2-D 运行在数值上与此函数出现之前的每一次 spaCR 运行完全相同。"
+    },
+    {
+      "context": "one of :data:`OBJECT_TYPES`. Each type is offered separately, so a filter can act on one and wave the rest through with ``np.ones(len(context.labels), bool)``. Note that culling only the cells cascades to their nuclei, pathogens and cytoplasm when the run has all of ``cell_mask_dim``, ``nucleus_mask_dim`` and ``pathogen_mask_dim`` set — that is the condition under which ``_measure_crop_core`` calls ``_exclude_objects``, which zeroes the child masks outside the surviving cells. Otherwise apply the same decision to each type, which is what a polygon test on the centroid does naturally.",
+      "label": "spacr.measure_hooks.RegionContext#1",
+      "source": "one of :data:`OBJECT_TYPES`. Each type is offered separately, so a filter can act on one and wave the rest through with ``np.ones(len(context.labels), bool)``. Note that culling only the cells cascades to their nuclei, pathogens and cytoplasm when the run has all of ``cell_mask_dim``, ``nucleus_mask_dim`` and ``pathogen_mask_dim`` set — that is the condition under which ``_measure_crop_core`` calls ``_exclude_objects``, which zeroes the child masks outside the surviving cells. Otherwise apply the same decision to each type, which is what a polygon test on the centroid does naturally.",
+      "source_sha256": "3bfd9d31c19bd7c6b9f7469996458b872246c3fa7a793d6e4ac89cc7125a8db9",
+      "translation": "为 :data:`OBJECT_TYPES` 之一。每种类型单独提供,因此过滤器可以只作用于其中一种,而用 ``np.ones(len(context.labels), bool)`` 让其余类型全部通过。注意:只有在运行同时设置了 ``cell_mask_dim`` 、 ``nucleus_mask_dim`` 和 ``pathogen_mask_dim`` 时,仅剔除细胞才会级联到它们的细胞核、病原体和细胞质——这正是 ``_measure_crop_core`` 调用 ``_exclude_objects`` 的条件,该函数会把存活细胞之外的子掩码置零。否则,请对每种类型应用同样的决策,而对质心做多边形测试自然就是这样做的。"
+    },
+    {
+      "context": "Covariance estimator for the likelihood fits (``'HC0'..'HC3'``); ``None`` for classical standard errors.",
+      "label": "spacr.ml.regression_model#26",
+      "source": "Covariance estimator for the likelihood fits (``'HC0'..'HC3'``); ``None`` for classical standard errors.",
+      "source_sha256": "3cef5a21a94f9198bc1c76e7ee8cd252ab0319b9354eacaa4614f116be8e9958",
+      "translation": "用于似然拟合的协方差估计量( ``'HC0'..'HC3'`` ); ``None`` 表示经典标准误。"
+    },
+    {
+      "context": "**A custom model that loads supersedes** ``model_type``. There is no boolean saying which to believe, because a path that holds a working model is a complete answer on its own and a flag that disagreed with it would just be a second thing to get wrong.",
+      "label": "spacr.model_check#4",
+      "source": "**A custom model that loads supersedes** ``model_type``. There is no boolean saying which to believe, because a path that holds a working model is a complete answer on its own and a flag that disagreed with it would just be a second thing to get wrong.",
+      "source_sha256": "d6979fab3b30e102c9baacf1fb0f7e36d7be87ae81f4c7fa11d2f15735bc8e70",
+      "translation": "**能够成功加载的自定义模型优先于** ``model_type`` 。没有一个布尔值来指定该相信哪一个,因为一个包含可用模型的路径本身就是完整的答案,而与之矛盾的标志只会成为又一个可能出错的地方。"
+    },
+    {
+      "context": "There is also a case where the first bullet above is *backwards*. Two screens that share a guide library both have ``plate1..plate4``, and there they are not two plates claiming one identity -- they are two *different* plates whose identity was only ever partly written down. The missing part is the screen.",
+      "label": "spacr.multi_database#9",
+      "source": "There is also a case where the first bullet above is *backwards*. Two screens that share a guide library both have ``plate1..plate4``, and there they are not two plates claiming one identity -- they are two *different* plates whose identity was only ever partly written down. The missing part is the screen.",
+      "source_sha256": "6d6cb1fec24f8d96e9c336e127c547be6f9544d385590f16e96962bfe2bbc18c",
+      "translation": "还有一种情况,上面第一个要点恰好 *相反* 。共享同一个向导 RNA 文库的两个筛选实验都有 ``plate1..plate4`` ,而此时它们并不是两块板声称同一个身份——它们是两块 *不同* 的板,只是其身份从来只被记录了一部分。缺失的那部分就是筛选实验。"
+    },
+    {
+      "context": "**The pyramid.** ``levels=1`` writes level 0 alone; more builds each level by halving the two fastest-varying space axes of the one above with a 2x **block mean** (``downsample=\"mean\"``) or by **striding** (``downsample=\"stride\"``). Neither is a Gaussian pyramid — there is no pre-filter beyond the box — and the block mean is the default because striding aliases: a one-pixel-wide bright structure survives or vanishes with the parity of its coordinate, so the same object appears and disappears as a user zooms. **Label and mask arrays must use** ``downsample=\"stride\"``: the mean of labels 3 and 5 is 4, which is a different object, and averaging a boolean mask invents half-membership. Levels shrink by ``ceil(n / 2)``, so nothing is cropped off an odd edge.",
+      "label": "spacr.ome_zarr.write_ome_zarr#2",
+      "source": "**The pyramid.** ``levels=1`` writes level 0 alone; more builds each level by halving the two fastest-varying space axes of the one above with a 2x **block mean** (``downsample=\"mean\"``) or by **striding** (``downsample=\"stride\"``). Neither is a Gaussian pyramid — there is no pre-filter beyond the box — and the block mean is the default because striding aliases: a one-pixel-wide bright structure survives or vanishes with the parity of its coordinate, so the same object appears and disappears as a user zooms. **Label and mask arrays must use** ``downsample=\"stride\"``: the mean of labels 3 and 5 is 4, which is a different object, and averaging a boolean mask invents half-membership. Levels shrink by ``ceil(n / 2)``, so nothing is cropped off an odd edge.",
+      "source_sha256": "6fdc36f6acd4eeccdbd3356ff511643805eb22a32c38a25416bcd0ab9f0e8e2b",
+      "translation": "**金字塔。** ``levels=1`` 只写出第 0 层;层数更多时,每一层都通过把上一层中变化最快的两个空间轴减半来构建,方式是 2x **块均值** ( ``downsample=\"mean\"`` )或 **步进抽样** ( ``downsample=\"stride\"`` )。两者都不是高斯金字塔——除了块本身之外没有预滤波——之所以默认使用块均值,是因为步进抽样会产生混叠:一个一像素宽的亮结构能否保留取决于其坐标的奇偶性,因此同一个对象会在用户缩放时时隐时现。 **标签和掩码数组必须使用** ``downsample=\"stride\"`` :标签 3 和 5 的均值是 4,那是另一个对象,而对布尔掩码取平均会凭空造出“半个成员”。各层按 ``ceil(n / 2)`` 缩小,因此奇数边缘不会被裁掉任何内容。"
+    },
+    {
+      "context": "**row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives). This is bijective base 26, and it is not a hypothetical: a 1536-position laboratory microplate has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for the same laboratory microplate, so nothing here caps the column at 24 either.",
+      "label": "spacr.omero#13",
+      "source": "**row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives). This is bijective base 26, and it is not a hypothetical: a 1536-well plate has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for the same plate, so nothing here caps the column at 24 either.",
+      "source_sha256": "b0e0419a416ef2de9dfd007da8985990d0150d17a7aafe76a8fc76f135b95f6e",
+      "translation": "**第 26 行 ->** ``AA`` ,而不是 ``[`` (那是 ``chr(65 + 26)`` 给出的结果),也不是 ``IndexError`` (那是 ``string.ascii_uppercase[26]`` 给出的结果)。这是双射 26 进制,而且并非假设:1536 孔板有 32 行,行号依次为 ``A..Z`` 、 ``AA..AF`` 。对于同一块板,第 47 列 -> ``48`` ,因此这里也不会把列数限制在 24。"
+    },
+    {
+      "context": "the column is zero padded to two digits (``A01``, never ``A1``) because spaCR's strict Yokogawa regex is ``[A-Z]\\d{2}``.",
+      "label": "spacr.omero#14",
+      "source": "the column is zero padded to two digits (``A01``, never ``A1``) because spaCR's strict Yokogawa regex is ``[A-Z]\\d{2}``.",
+      "source_sha256": "f3a10d9ee8b44eabd57d58e1d352a139e52c6291ee02cad6a52399d9da5aab92",
+      "translation": "列号用零填充为两位数( ``A01`` ,绝不是 ``A1`` ),因为 spaCR 严格的 Yokogawa 正则表达式是 ``[A-Z]\\d{2}`` 。"
+    },
+    {
+      "context": ":func:`inspect_container` reports the image count, the microplate sample positions, the dimensions and the image data channel names **without ever calling** ``getPlane`` — a fact the test suite pins by counting calls on the fake gateway. The importers additionally take ``limit`` (stop after N OMERO images) and ``dry_run`` (build the complete plan, list every filename that would be written, touch no pixels).",
+      "label": "spacr.omero#22",
+      "source": ":func:`inspect_container` reports the image count, the wells, the dimensions and the channel names **without ever calling** ``getPlane`` — a fact the test suite pins by counting calls on the fake gateway. The importers additionally take ``limit`` (stop after N OMERO images) and ``dry_run`` (build the complete plan, list every filename that would be written, touch no pixels).",
+      "source_sha256": "c20b6755db9b4ff13b2c24aa758a2b1f838ecaaeda49abfbd269b87e1d66b1be",
+      "translation": ":func:`inspect_container` 报告图像数量、孔位、尺寸和通道名称, **从不调用** ``getPlane`` ——测试套件通过统计假网关上的调用次数把这一点固定下来。导入器还接受 ``limit`` (处理 N 张 OMERO 图像后停止)和 ``dry_run`` (构建完整计划,列出将要写入的每个文件名,不读取任何像素)。"
+    },
+    {
+      "context": "**The default is REPLACE, implemented as update-in-place, and it is the safe option rather than a compromise:** an existing MapAnnotation whose namespace is exactly spaCR's has its value overwritten. Nothing is created, nothing is unlinked, nothing is deleted, and no annotation outside spaCR's namespaces is so much as read for its value. :data:`APPEND` is available and explicit for anyone who wants a history of runs on the object.",
+      "label": "spacr.omero#25",
+      "source": "**The default is REPLACE, implemented as update-in-place, and it is the safe option rather than a compromise:** an existing MapAnnotation whose namespace is exactly spaCR's has its value overwritten. Nothing is created, nothing is unlinked, nothing is deleted, and no annotation outside spaCR's namespaces is so much as read for its value. :data:`APPEND` is available and explicit for anyone who wants a history of runs on the object.",
+      "source_sha256": "e26e72778e62ff8f6182c8cf291ce35746ccf5243c06b995174424124a456184",
+      "translation": "**默认值是 REPLACE,以原地更新的方式实现,它是安全的选择而不是折中方案:** 命名空间恰好属于 spaCR 的现有 MapAnnotation 会被覆盖其值。不会创建任何东西,不会解除任何链接,不会删除任何东西,而且 spaCR 命名空间之外的注释连其值都不会被读取。对于希望在对象上保留运行历史的人, :data:`APPEND` 可以显式选用。"
+    },
+    {
+      "context": ":func:`connection_settings` reads arguments first and the environment second: ``OMERO_HOST``, ``OMERO_PORT``, ``OMERO_USER``, ``OMERO_PASSWORD`` (or ``OMERO_PASS``), ``OMERO_SESSION_KEY``, ``OMERO_GROUP``, ``OMERO_SECURE``. :class:`OmeroConnection` is frozen and redacts both secrets from ``repr()``, ``str()`` and :meth:`OmeroConnection.redacted`, and no log record in this module carries one.",
+      "label": "spacr.omero#31",
+      "source": ":func:`connection_settings` reads arguments first and the environment second: ``OMERO_HOST``, ``OMERO_PORT``, ``OMERO_USER``, ``OMERO_PASSWORD`` (or ``OMERO_PASS``), ``OMERO_SESSION_KEY``, ``OMERO_GROUP``, ``OMERO_SECURE``. :class:`OmeroConnection` is frozen and redacts both secrets from ``repr()``, ``str()`` and :meth:`OmeroConnection.redacted`, and no log record in this module carries one.",
+      "source_sha256": "f96b5bd3bf0b63b39cdd236d27a85ca1254caeee7e117d29c3eaacdfd6cefc86",
+      "translation": ":func:`connection_settings` 先读取参数,再读取环境变量: ``OMERO_HOST`` 、 ``OMERO_PORT`` 、 ``OMERO_USER`` 、 ``OMERO_PASSWORD`` (或 ``OMERO_PASS`` )、 ``OMERO_SESSION_KEY`` 、 ``OMERO_GROUP`` 、 ``OMERO_SECURE`` 。 :class:`OmeroConnection` 是不可变的,并在 ``repr()`` 、 ``str()`` 和 :meth:`OmeroConnection.redacted` 中隐去这两项机密,本模块中也没有任何日志记录包含它们。"
+    },
+    {
+      "context": "``omero-py`` is an extra: ``pip install \"spacr[omero]\"``. It is deliberately **not** part of ``spacr[all]``, because it depends on ``zeroc-ice``, a compiled C++ Ice runtime whose wheels lag Python releases and which otherwise needs a C++ toolchain (see the comment beside the extra in ``setup.py``).",
+      "label": "spacr.omero#33",
+      "source": "``omero-py`` is an extra: ``pip install \"spacr[omero]\"``. It is deliberately **not** part of ``spacr[all]``, because it depends on ``zeroc-ice``, a compiled C++ Ice runtime whose wheels lag Python releases and which otherwise needs a C++ toolchain (see the comment beside the extra in ``setup.py``).",
+      "source_sha256": "2a6e8c308e21bcfc4736ea306b6cedd7efa8e791b688cbd5b70a5c356a73bd37",
+      "translation": "``omero-py`` 是一个可选附加依赖: ``pip install \"spacr[omero]\"`` 。它刻意 **不** 包含在 ``spacr[all]`` 中,因为它依赖 ``zeroc-ice`` ,这是一个编译型 C++ Ice 运行时,其 wheel 包总是落后于 Python 的发布,否则就需要 C++ 工具链(参见 ``setup.py`` 中该附加依赖旁边的注释)。"
+    },
+    {
+      "context": "So ``import spacr.omero`` must work without it, and it does: the import is function-local, behind :func:`require_omero`, and a missing install produces one actionable sentence naming ``pip install \"spacr[omero]\"`` rather than a ``ModuleNotFoundError`` six frames deep inside Ice's own import machinery. This follows :data:`spacr.qt._QT_MISSING_MESSAGE` and :func:`spacr.anndata_export.require_anndata`.",
+      "label": "spacr.omero#34",
+      "source": "So ``import spacr.omero`` must work without it, and it does: the import is function-local, behind :func:`require_omero`, and a missing install produces one actionable sentence naming ``pip install \"spacr[omero]\"`` rather than a ``ModuleNotFoundError`` six frames deep inside Ice's own import machinery. This follows :data:`spacr.qt._QT_MISSING_MESSAGE` and :func:`spacr.anndata_export.require_anndata`.",
+      "source_sha256": "8f4dc44697406ca2a9b45e507ab973f2cf76ef0067a02ec907242b5410189563",
+      "translation": "因此 ``import spacr.omero`` 必须在没有它的情况下也能工作,事实也确实如此:导入是在函数内部进行的,位于 :func:`require_omero` 之后,缺少安装时会给出一句可操作的提示,指明 ``pip install \"spacr[omero]\"`` ,而不是在 Ice 自身导入机制内部六层深处抛出 ``ModuleNotFoundError`` 。这与 :data:`spacr.qt._QT_MISSING_MESSAGE` 和 :func:`spacr.anndata_export.require_anndata` 的做法一致。"
+    },
+    {
+      "context": "A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice`` is the single most likely way this fails in the field, and ``No module named 'Ice'`` mentions neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.",
+      "label": "spacr.omero#36",
+      "source": "A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice`` is the single most likely way this fails in the field, and ``No module named 'Ice'`` mentions neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.",
+      "source_sha256": "f071e54875693395da9503f8b5caffb2d5d489bae370b032ebef957242b60f28",
+      "translation": "缺少 ``Ice`` 视同缺少 omero 附加依赖。半途安装失败的 ``zeroc-ice`` 是实际使用中最可能出错的情形,而 ``No module named 'Ice'`` 既没有提到 OMERO 也没有提到 spaCR。 :func:`missing_omero_message` 会说明发生了什么。"
+    },
+    {
+      "context": "Higher ``mean`` means stronger evidence the gene is a hit.  Microplate sample positions carrying more of a hit gene have more positive cells than their imaged cell count alone accounts for, which is a positive coefficient on log read fraction.",
+      "label": "spacr.power_model.gather_model_estimate#2",
+      "source": "Higher ``mean`` means stronger evidence the gene is a hit.  Wells carrying more of a hit gene have more positive cells than their imaged cell count alone accounts for, which is a positive coefficient on log read fraction.",
+      "source_sha256": "bf6c606805dd1f087c9081a26de63a78a3afb932e0ad77d686ce74917e64b78d",
+      "translation": "``mean`` 越高,说明该基因是命中基因的证据越强。携带更多命中基因的孔中,阳性细胞数比仅凭其成像细胞数所能解释的更多,这体现为对数读数比例上的正系数。"
+    },
+    {
+      "context": "called once per completed (point, replicate) with a mapping ``{\"index\", \"total\", \"point_index\", \"n_points\", \"replicate\", \"resumed\", \"row\"}`` — ``index`` and ``total`` count fits, one-based, so ``index / total`` is a progress fraction, and ``row`` is that fit's result record.",
+      "label": "spacr.power_model.scan_parameters#13",
+      "source": "called once per completed (point, replicate) with a mapping ``{\"index\", \"total\", \"point_index\", \"n_points\", \"replicate\", \"resumed\", \"row\"}`` — ``index`` and ``total`` count fits, one-based, so ``index / total`` is a progress fraction, and ``row`` is that fit's result record.",
+      "source_sha256": "2cb8ee32b6b6cc74232e552781d41d0a7394c1839d35057693bc8f99b5e94b6d",
+      "translation": "每完成一个(点,重复)调用一次,传入映射 ``{\"index\", \"total\", \"point_index\", \"n_points\", \"replicate\", \"resumed\", \"row\"}`` —— ``index`` 和 ``total`` 统计拟合次数,从 1 开始,因此 ``index / total`` 就是进度比例, ``row`` 则是该次拟合的结果记录。"
+    },
+    {
+      "context": "``pandas.DataFrame``, one row per (grid point, replicate), with every parameter column plus the columns in ``_SCAN_RESULT_COLUMNS``.  Rows loaded from a resumed progress file are included.  ``DataFrame.attrs`` carries ``n_planned`` (fits the full grid would have run) and ``cancelled`` (whether ``on_point`` stopped it early), so a short frame can be told from a small grid.",
+      "label": "spacr.power_model.scan_parameters#16",
+      "source": "``pandas.DataFrame``, one row per (grid point, replicate), with every parameter column plus the columns in ``_SCAN_RESULT_COLUMNS``.  Rows loaded from a resumed progress file are included.  ``DataFrame.attrs`` carries ``n_planned`` (fits the full grid would have run) and ``cancelled`` (whether ``on_point`` stopped it early), so a short frame can be told from a small grid.",
+      "source_sha256": "0462a6a37dd2e77c856d872a1265ba0cf09e0ee9aea3035c820cfc0e2d36124f",
+      "translation": "``pandas.DataFrame`` ,每个(网格点,重复)一行,包含每个参数列以及 ``_SCAN_RESULT_COLUMNS`` 中的列。从续跑的进度文件中加载的行也包含在内。 ``DataFrame.attrs`` 带有 ``n_planned`` (完整网格本应运行的拟合次数)和 ``cancelled`` ( ``on_point`` 是否提前停止了扫描),因此可以区分“提前结束的短表”和“本来就小的网格”。"
+    },
+    {
+      "context": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV is a silent data-corruption bug, so we stop instead), or the progress file is non-empty and ``resume=False``.",
+      "label": "spacr.power_model.scan_parameters#17",
+      "source": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV is a silent data-corruption bug, so we stop instead), or the progress file is non-empty and ``resume=False``.",
+      "source_sha256": "905314d1666406bc4eccd01d48df000d27f63082ce3bd5c93ecd27c841b6ff4d",
+      "translation": "如果未给出任何参数、 ``on_error`` 无法识别、 ``n_replicates < 1`` 、进度文件已存在但列布局不同(把错位的行追加到 TSV 是一种悄无声息的数据损坏缺陷,所以我们选择停止),或者进度文件非空且 ``resume=False`` 。"
+    },
+    {
+      "context": "skip points already present in ``progress_file``.  With ``resume=False`` and a non-empty progress file, this raises rather than appending a second copy of every point.",
+      "label": "spacr.power_model.scan_parameters#5",
+      "source": "skip points already present in ``progress_file``.  With ``resume=False`` and a non-empty progress file, this raises rather than appending a second copy of every point.",
+      "source_sha256": "78f10a59e6582f43d141ea21f0017bbbcbc6e9cb79ab09f26d148628e01c579b",
+      "translation": "跳过 ``progress_file`` 中已有的点。当 ``resume=False`` 且进度文件非空时,会抛出异常,而不是把每个点再追加一份。"
+    },
+    {
+      "context": "inference backend, see :func:`resolve_backend`.",
+      "label": "spacr.power_model.scan_parameters#7",
+      "source": "inference backend, see :func:`resolve_backend`.",
+      "source_sha256": "1ae0d96415ea64150a9dc0e7adc1444ae0a313bdb8c5d78836d6ea799af42706",
+      "translation": "推断后端,参见 :func:`resolve_backend` 。"
+    },
+    {
+      "context": "master seed.  Each point's seed is derived from ``(seed, param_index, replicate)``, so a point's data does not depend on how many points ran before it.",
+      "label": "spacr.power_model.scan_parameters#8",
+      "source": "master seed.  Each point's seed is derived from ``(seed, param_index, replicate)``, so a point's data does not depend on how many points ran before it.",
+      "source_sha256": "d552565775f30b95cdb306cd413e506302b0f341b0610d12904f6e242c862b83",
+      "translation": "主随机种子。每个点的种子由 ``(seed, param_index, replicate)`` 派生,因此一个点的数据不取决于在它之前运行了多少个点。"
+    },
+    {
+      "context": "independent simulated screens per grid point. One screen at one setting is a single draw from a noisy process; the sweep is much easier to read with three or five.",
+      "label": "spacr.power_model.scan_parameters#9",
+      "source": "independent simulated screens per grid point. One screen at one setting is a single draw from a noisy process; the sweep is much easier to read with three or five.",
+      "source_sha256": "634c639f2870b1019a17c0fffb2b4d942994bb6b0c4982529adb490d493baf2d",
+      "translation": "每个网格点上独立模拟的筛选实验数量。在一个设置下的单次筛选只是来自噪声过程的一次抽样;用三次或五次时,扫描结果要容易解读得多。"
+    },
+    {
+      "context": "``spacr.sim`` for the older, unrelated in-house screen simulator.",
+      "label": "spacr.power_simulate#22",
+      "source": "``spacr.sim`` for the older, unrelated in-house screen simulator.",
+      "source_sha256": "e0c32835f984dd55e366a92c21dde808ce957b05af91ee44b4f822ddfed39d10",
+      "translation": "``spacr.sim`` :较早的、与本模块无关的内部筛选模拟器。"
+    },
+    {
+      "context": "``field_fade``: bool, default ``True``. Whether an input field's container and outline ramp from solid on the left to fully transparent on the right. Fields are **exempt from** ``pane_opacity`` while this is on — see :func:`get_field_fade_enabled` and :mod:`spacr.qt.widgets.field_fade`.",
+      "label": "spacr.qt.preferences#16",
+      "source": "``field_fade``: bool, default ``True``. Whether an input field's container and outline ramp from solid on the left to fully transparent on the right. Fields are **exempt from** ``pane_opacity`` while this is on — see :func:`get_field_fade_enabled` and :mod:`spacr.qt.widgets.field_fade`.",
+      "source_sha256": "e12abd34c6121b75dbf0008353b366a8e648ed9122e4e449d57a3e9986f63a48",
+      "translation": "``field_fade`` :bool,默认 ``True`` 。输入字段的容器和轮廓是否从左侧的实色渐变到右侧的完全透明。启用时,字段 **不受** ``pane_opacity`` 影响——参见 :func:`get_field_fade_enabled` 和 :mod:`spacr.qt.widgets.field_fade` 。"
+    },
+    {
+      "context": "Four buttons in Preferences — **clear RAM**, **clear VRAM**, **clear CPU**, **check disk space** — and the two performance modes that press them for you. This module is what they call.",
+      "label": "spacr.qt.resource_cleanup#1",
+      "source": "Four buttons in Preferences — **clear RAM**, **clear VRAM**, **clear CPU**, **check disk space** — and the two performance modes that press them for you. This module is what they call.",
+      "source_sha256": "f2c0680e6f3215e3c933f31f9789a721ca25e288b489afca22fc98d9d3b258c1",
+      "translation": "Preferences 中有四个按钮—— **清除 RAM** 、 **清除 VRAM** 、 **清除 CPU** 、 **检查磁盘空间** ——以及替你按下这些按钮的两种性能模式。本模块就是它们所调用的内容。"
+    },
+    {
+      "context": "**Nothing here needs root**, and nothing here touches the operating system's own memory. No ``drop_caches``, no ``sysctl``, no ``swapoff``. The page cache belongs to the kernel and dropping it would slow down the whole machine, spaCR included — it is not a free win, it is a transfer from everybody to nobody.",
+      "label": "spacr.qt.resource_cleanup#6",
+      "source": "**Nothing here needs root**, and nothing here touches the operating system's own memory. No ``drop_caches``, no ``sysctl``, no ``swapoff``. The page cache belongs to the kernel and dropping it would slow down the whole machine, spaCR included — it is not a free win, it is a transfer from everybody to nobody.",
+      "source_sha256": "5505758155df4770ac8d4e7ab27fc4e8d2a2b78741a33fa61920d71dc07dffec",
+      "translation": "**这里的任何操作都不需要 root 权限**,也不会触碰操作系统自身的内存。没有 ``drop_caches`` ,没有 ``sysctl`` ,也没有 ``swapoff`` 。页面缓存属于内核,清空它会拖慢整台机器,包括 spaCR 在内——这不是白得的好处,而是把所有人的资源转给了没有人。"
+    },
+    {
+      "context": "``clear RAM`` Drops spaCR's own caches: the merged-microscope field of view LRU (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image stacks), the file-format and DB-format caches, the zoomed-animation cache, the icon and preview ``lru_cache``\\ s, the filter-kind cache, every live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and Qt's own ``QPixmapCache``. A process with no live Qt application also runs ``gc.collect()``. The GUI deliberately does not: walking a heap of live Qt wrappers can enter already-retired C++ objects and crash the process. It cannot return memory the allocator has decided to keep, and it says so when the measured RSS does not move.",
+      "label": "spacr.qt.resource_cleanup#9",
+      "source": "``clear RAM`` Drops spaCR's own caches: the merged-field LRU (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image stacks), the file-format and DB-format caches, the zoomed-animation cache, the icon and preview ``lru_cache``\\ s, the filter-kind cache, every live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and Qt's own ``QPixmapCache``. A process with no live Qt application also runs ``gc.collect()``. The GUI deliberately does not: walking a heap of live Qt wrappers can enter already-retired C++ objects and crash the process. It cannot return memory the allocator has decided to keep, and it says so when the measured RSS does not move.",
+      "source_sha256": "1d96aadb1b43005d8b4f43b92107d9750d377ecfe38baaf9c1b958fa2c933000",
+      "translation": "``clear RAM`` 清空 spaCR 自身的缓存:合并显微镜视野的 LRU 缓存( :func:`spacr.crops.clear_field_cache` ——迄今为止最大的一个,存放整个图像堆栈)、文件格式和 DB 格式缓存、缩放动画缓存、图标和预览的 ``lru_cache``\\ s、过滤器类型缓存、每个活动的 :class:`~spacr.qt.crop_thumbs.CropThumbnails` 缩略图 LRU,以及 Qt 自身的 ``QPixmapCache`` 。没有运行中 Qt 应用程序的进程还会执行 ``gc.collect()`` 。 GUI 刻意不这样做:遍历由活动 Qt 包装对象组成的堆,可能会访问已经销毁的 C++ 对象并导致进程崩溃。它无法归还分配器决定保留的内存,并会在测得的 RSS 没有变化时如实说明。"
+    },
+    {
+      "context": "**No modal dialogs on any error path.** Problems land in an inline status label; a headless run can never block on a message box. The single exception is the edit-mode confirmation, which is injectable (:attr:`DbBrowserScreen.confirm_edit_mode`).",
+      "label": "spacr.qt.screens.db_browser#11",
+      "source": "**No modal dialogs on any error path.** Problems land in an inline status label; a headless run can never block on a message box. The single exception is the edit-mode confirmation, which is injectable (:attr:`DbBrowserScreen.confirm_edit_mode`).",
+      "source_sha256": "171f63f02db1b535203f82debe337e3f39a7c406c073c7328fe2d3fe2e8ff0cd",
+      "translation": "**任何错误路径上都不会弹出模态对话框。** 问题会显示在内嵌的状态标签中;无界面运行永远不会因为消息框而阻塞。唯一的例外是编辑模式确认,它可以被注入替换( :attr:`DbBrowserScreen.confirm_edit_mode` )。"
+    },
+    {
+      "context": "Never ``SELECT *`` the whole table. Measurement tables run to hundreds of thousands of rows and hundreds of feature columns. The first chunk (100 rows) is fetched and painted on its own; the rest arrives as the user scrolls, through ``canFetchMore`` / ``fetchMore``.",
+      "label": "spacr.qt.screens.db_browser#4",
+      "source": "Never ``SELECT *`` the whole table. Measurement tables run to hundreds of thousands of rows and hundreds of feature columns. The first chunk (100 rows) is fetched and painted on its own; the rest arrives as the user scrolls, through ``canFetchMore`` / ``fetchMore``.",
+      "source_sha256": "6639b08923bf7f9203f890233d763c4f697819164b0ed06220395777dbb1149b",
+      "translation": "绝不要对整张表执行 ``SELECT *`` 。测量表可达数十万行、数百个特征列。第一块数据(100 行)会单独获取并绘制;其余部分随着用户滚动,通过 ``canFetchMore`` / ``fetchMore`` 陆续到达。"
+    },
+    {
+      "context": "**The count never blocks the first paint.** ``SELECT COUNT(*)`` is a full scan. The first chunk is painted against ``max(rowid)``, which is O(1), and that number is *always* rendered as \"≈… (estimate)\". The exact ``COUNT(*)`` follows on its own job and replaces it.",
+      "label": "spacr.qt.screens.db_browser#6",
+      "source": "**The count never blocks the first paint.** ``SELECT COUNT(*)`` is a full scan. The first chunk is painted against ``max(rowid)``, which is O(1), and that number is *always* rendered as \"≈… (estimate)\". The exact ``COUNT(*)`` follows on its own job and replaces it.",
+      "source_sha256": "49991622fcca4a5c65644076a0c33b73a055283334bb1d149d461d890a071c9d",
+      "translation": "**计数永远不会阻塞首次绘制。** ``SELECT COUNT(*)`` 需要全表扫描。第一块数据按照 ``max(rowid)`` 绘制,它是 O(1) 的,而这个数字 *始终* 显示为“≈…(估计)”。精确的 ``COUNT(*)`` 随后在独立的任务中运行并替换它。"
+    },
+    {
+      "context": "``worker.finished`` **is relayed through a signal into a bound method.** PySide6 delivers a plain closure connected to a worker's signal as a *direct* call on the background execution unit, and the completion handler here fills a QPlainTextEdit and a QTableWidget. Building QTextDocument children off the main GUI execution path is undefined behaviour, so ``finished`` chains through :attr:`ModelZooScreen._job_settled` — a widget-affine bound method — exactly as ``PlateViewScreen`` does.",
+      "label": "spacr.qt.screens.model_zoo#6",
+      "source": "``worker.finished`` **is relayed through a signal into a bound method.** PySide6 delivers a plain closure connected to a worker's signal as a *direct* call on the worker thread, and the completion handler here fills a QPlainTextEdit and a QTableWidget. Building QTextDocument children off the GUI thread is undefined behaviour, so ``finished`` chains through :attr:`ModelZooScreen._job_settled` — a widget-affine bound method — exactly as ``PlateViewScreen`` does.",
+      "source_sha256": "6f26036aabd65b9b815f2283b7a11039ad1af8f74dd1ee3d08b8e9275b74fa70",
+      "translation": "``worker.finished`` **通过信号转发到一个绑定方法。** PySide6 会把连接到工作者信号上的普通闭包作为工作线程上的 *直接* 调用来执行,而这里的完成处理函数会填充一个 QPlainTextEdit 和一个 QTableWidget。在 GUI 线程之外创建 QTextDocument 子对象属于未定义行为,因此 ``finished`` 通过 :attr:`ModelZooScreen._job_settled` ——一个具有控件线程亲和性的绑定方法——进行转接,与 ``PlateViewScreen`` 的做法完全一致。"
+    },
+    {
+      "context": "**Execution model:** a full sweep takes minutes, so it runs outside the GUI thread and the thread must retire. It uses :func:`spacr.qt.bridge.make_thread`, and each ``thread.finished`` slot is a BOUND METHOD. :meth:`PowerScreen._retire_finished_jobs` explains why a closure is incorrect here.",
+      "label": "spacr.qt.screens.power#6",
+      "source": "**Off the GUI thread, and the thread actually retires.** A full sweep is minutes. It goes through :func:`spacr.qt.bridge.make_thread`, and every ``thread.finished`` slot is a BOUND METHOD — see :meth:`PowerScreen._retire_finished_jobs` for what a closure does here and why it is not a style preference.",
+      "source_sha256": "49fd32c88fa90ed701a360e58ac8cba2be0ccc90633b919619c4b5aa736feb39",
+      "translation": "**在 GUI 线程之外运行,而且线程确实会退出。** 一次完整扫描需要几分钟。它通过 :func:`spacr.qt.bridge.make_thread` 运行,并且每个 ``thread.finished`` 槽都是 BOUND METHOD(绑定方法)——关于闭包在这里会造成什么后果、以及为什么这不是风格偏好,请参见 :meth:`PowerScreen._retire_finished_jobs` 。"
+    },
+    {
+      "context": "``threaded=False`` **runs the same code inline**, firing the same signals, so the tested path and the shipped path differ only in where they run.",
+      "label": "spacr.qt.screens.power#8",
+      "source": "``threaded=False`` **runs the same code inline**, firing the same signals, so the tested path and the shipped path differ only in where they run.",
+      "source_sha256": "064752016534ac83aec456c330acc4332b4f2c04e9dd88847eb307611c5be903",
+      "translation": "``threaded=False`` **以内联方式运行相同的代码**,发出相同的信号,因此经过测试的代码路径与实际发布的代码路径只在运行位置上有所不同。"
+    },
+    {
+      "context": "The ``cell_png`` leaf matches. measure_crop appends ``f\"{crop_mode}_png/\"`` to the folder, so a real cell extracted image region does live under ``cell_png/`` — which is what :func:`spacr.io.generate_training_dataset`'s ``png_path.str.contains(png_type)`` filter (``png_type='cell_png'``) needs to see. Extracted image regions written flat as ``data/crop_000.png``, the layout this replaced, were all filtered away and the processing session died on \"got 0 classes\".",
+      "label": "spacr.qt.synthetic.generate_classify_demo#3",
+      "source": "The ``cell_png`` leaf matches. measure_crop appends ``f\"{crop_mode}_png/\"`` to the folder, so a real cell crop does live under ``cell_png/`` — which is what :func:`spacr.io.generate_training_dataset`'s ``png_path.str.contains(png_type)`` filter (``png_type='cell_png'``) needs to see. Crops written flat as ``data/crop_000.png``, the layout this replaced, were all filtered away and the run died on \"got 0 classes\".",
+      "source_sha256": "8981e052180ca4813d8a91f8eb5c0c3a98035e43df48f46dde7e57f25f81df88",
+      "translation": "``cell_png`` 这一级目录名是匹配的。 measure_crop 会向文件夹追加 ``f\"{crop_mode}_png/\"`` ,因此真实的细胞提取图像区域确实位于 ``cell_png/`` 之下——这正是 :func:`spacr.io.generate_training_dataset` 中的 ``png_path.str.contains(png_type)`` 过滤器( ``png_type='cell_png'`` )需要看到的。按被替换掉的旧布局平铺写成 ``data/crop_000.png`` 的提取图像区域全部被过滤掉,运行最终以 \"got 0 classes\" 失败。"
+    },
+    {
+      "context": "1. ``set_default_settings_preprocess_generate_masks`` defaults it to the **string** ``'cell'``, and ``measure.py`` tests it with ``\"organelle\" in settings['summarize_organelles_by']`` — a *substring* test when the value is a str. Running this demo with ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary`` (16 rows/field) and still no ``organelle`` table. Only a value containing ``'organelle'`` writes the per-organelle table (``['cell', 'organelle']`` → organelle 64 rows/field, verified). 2. A list cannot be shipped today: ``spacr.settings.expected_types`` declares ``'summarize_organelles_by': str``, so ``spacr.validate.validate_settings`` rejects ``['cell', 'organelle']`` with \"is a list, but str is expected\" — a hard pre-flight **error** on a demo that must load clean. The tooltip and ``spacr.gui_utils`` both describe it as a list, and ``spacr.external_masks`` builds one; only the type table disagrees.",
+      "label": "spacr.qt.synthetic.generate_measure_demo#5",
+      "source": "1. ``set_default_settings_preprocess_generate_masks`` defaults it to the **string** ``'cell'``, and ``measure.py`` tests it with ``\"organelle\" in settings['summarize_organelles_by']`` — a *substring* test when the value is a str. Running this demo with ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary`` (16 rows/field) and still no ``organelle`` table. Only a value containing ``'organelle'`` writes the per-organelle table (``['cell', 'organelle']`` → organelle 64 rows/field, verified). 2. A list cannot be shipped today: ``spacr.settings.expected_types`` declares ``'summarize_organelles_by': str``, so ``spacr.validate.validate_settings`` rejects ``['cell', 'organelle']`` with \"is a list, but str is expected\" — a hard pre-flight **error** on a demo that must load clean. The tooltip and ``spacr.gui_utils`` both describe it as a list, and ``spacr.external_masks`` builds one; only the type table disagrees.",
+      "source_sha256": "3d272df6026b8d692371a7c9da3e8056f2966b78bc25068ffb3bbad8deaae8ea",
+      "translation": "1. ``set_default_settings_preprocess_generate_masks`` 将其默认值设为 **字符串** ``'cell'`` ,而 ``measure.py`` 用 ``\"organelle\" in settings['summarize_organelles_by']`` 来检测它——当值是 str 时,这是一个 *子字符串* 检测。用 ``summarize_organelles_by='cell'`` 运行此演示会得到 ``cell_organelle_summary`` (16 行/视野),但仍然没有 ``organelle`` 表。只有包含 ``'organelle'`` 的值才会写出按细胞器划分的表( ``['cell', 'organelle']`` → organelle 64 行/视野,已验证)。 2. 目前无法以列表形式交付: ``spacr.settings.expected_types`` 声明了 ``'summarize_organelles_by': str`` ,因此 ``spacr.validate.validate_settings`` 会以“是列表,但期望的是 str”拒绝 ``['cell', 'organelle']`` ——对于一个必须干净加载的演示来说,这是一个硬性的预检 **错误** 。工具提示和 ``spacr.gui_utils`` 都把它描述为列表, ``spacr.external_masks`` 也会构建一个列表;只有类型表与之不一致。"
+    },
+    {
+      "context": "Return an O(1) *estimate* of the row count, or ``None``.",
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.estimate_rows#0",
+      "source": "Return an O(1) *estimate* of the row count, or ``None``.",
+      "source_sha256": "cb9e00c8b78e68926a8e310247b13ef95934aa4c00f5ab9d2bd5244cdf77ede7",
+      "translation": "返回行数的 O(1) *估计值*,或 ``None`` 。"
+    },
+    {
+      "context": ":data:`ESTIMATOR_ROBUST` / :data:`ESTIMATOR_MAD` Explicit, never implicit, and named in the result. spaCR measurements are skewed and one catastrophically bad plate inside the baseline drags the classical centre and MR-bar out far enough to swallow everything after it. The robust variant takes the **median** as the centre and either the median moving range (:data:`ESTIMATOR_ROBUST`) or the MAD (:data:`ESTIMATOR_MAD`) as the spread.",
+      "label": "spacr.qt.widgets.control_chart#13",
+      "source": ":data:`ESTIMATOR_ROBUST` / :data:`ESTIMATOR_MAD` Explicit, never implicit, and named in the result. spaCR measurements are skewed and one catastrophically bad plate inside the baseline drags the classical centre and MR-bar out far enough to swallow everything after it. The robust variant takes the **median** as the centre and either the median moving range (:data:`ESTIMATOR_ROBUST`) or the MAD (:data:`ESTIMATOR_MAD`) as the spread.",
+      "source_sha256": "8d0b770de7f33dc4bba2d22581fc189a72edada9a7f39cc44aa9d28f6fa167ad",
+      "translation": ":data:`ESTIMATOR_ROBUST` / :data:`ESTIMATOR_MAD` 显式指定,绝不隐式启用,并在结果中注明。 spaCR 的测量值是偏态的,基线中一块严重异常的板就会把经典中心线和 MR-bar 拉得足够远,以至于吞没其后的所有点。稳健变体以 **中位数** 作为中心,并以中位数移动极差( :data:`ESTIMATOR_ROBUST` )或 MAD( :data:`ESTIMATOR_MAD` )作为离散度。"
+    },
+    {
+      "context": "The Nelson / Western Electric set, all eight, each a named constant with what it physically detects and its approximate false-alarm rate: :data:`RULE_BEYOND_3_SIGMA`, :data:`RULE_NINE_ONE_SIDE`, :data:`RULE_SIX_TRENDING`, :data:`RULE_FOURTEEN_ALTERNATING`, :data:`RULE_TWO_OF_THREE_BEYOND_2`, :data:`RULE_FOUR_OF_FIVE_BEYOND_1`, :data:`RULE_FIFTEEN_WITHIN_1`, :data:`RULE_EIGHT_BEYOND_1`.",
+      "label": "spacr.qt.widgets.control_chart#21",
+      "source": "The Nelson / Western Electric set, all eight, each a named constant with what it physically detects and its approximate false-alarm rate: :data:`RULE_BEYOND_3_SIGMA`, :data:`RULE_NINE_ONE_SIDE`, :data:`RULE_SIX_TRENDING`, :data:`RULE_FOURTEEN_ALTERNATING`, :data:`RULE_TWO_OF_THREE_BEYOND_2`, :data:`RULE_FOUR_OF_FIVE_BEYOND_1`, :data:`RULE_FIFTEEN_WITHIN_1`, :data:`RULE_EIGHT_BEYOND_1`.",
+      "source_sha256": "42a25ba0a7f74ef5d13d21d8cf704830f0653b27e9fd27d6cf674870bb8bf82b",
+      "translation": "Nelson / Western Electric 规则集,共八条,每条都是一个具名常量,附带它在物理上检测的内容及其大致误报率: :data:`RULE_BEYOND_3_SIGMA` 、 :data:`RULE_NINE_ONE_SIDE` 、 :data:`RULE_SIX_TRENDING` 、 :data:`RULE_FOURTEEN_ALTERNATING` 、 :data:`RULE_TWO_OF_THREE_BEYOND_2` 、 :data:`RULE_FOUR_OF_FIVE_BEYOND_1` 、 :data:`RULE_FIFTEEN_WITHIN_1` 、 :data:`RULE_EIGHT_BEYOND_1` 。"
+    },
+    {
+      "context": "The rule set is selectable, and it has to be, because **running all eight is not eight times the sensitivity**. Each rule has its own in-control false-alarm rate; :data:`RULE_ALARM_RATE` carries them, :meth:`ControlChartResult.caveats` does the arithmetic for the set that actually ran, and over a 200-plate campaign the answer is a number of expected false alarms rather than a reassurance. :data:`RULES_DEFAULT` is the Western Electric four (1, 2, 5, 6), which is the set the classical ARL figure was worked out for; :data:`RULES_ALL` is all eight, and :data:`RULES_LIMITS_ONLY` is rule 1 alone for a user who wants limits and nothing else.",
+      "label": "spacr.qt.widgets.control_chart#23",
+      "source": "The rule set is selectable, and it has to be, because **running all eight is not eight times the sensitivity**. Each rule has its own in-control false-alarm rate; :data:`RULE_ALARM_RATE` carries them, :meth:`ControlChartResult.caveats` does the arithmetic for the set that actually ran, and over a 200-plate campaign the answer is a number of expected false alarms rather than a reassurance. :data:`RULES_DEFAULT` is the Western Electric four (1, 2, 5, 6), which is the set the classical ARL figure was worked out for; :data:`RULES_ALL` is all eight, and :data:`RULES_LIMITS_ONLY` is rule 1 alone for a user who wants limits and nothing else.",
+      "source_sha256": "93737d1ffa18a79facd45a3bbef7308e5bf72aa31efa6e0ba0765ba6f63e70a4",
+      "translation": "规则集是可选的,而且必须可选,因为 **同时运行全部八条规则并不等于八倍的灵敏度**。每条规则都有各自在受控状态下的误报率; :data:`RULE_ALARM_RATE` 记录了这些误报率, :meth:`ControlChartResult.caveats` 会针对实际运行的规则集进行计算,而在一个 200 块板的批次中,得到的答案是预期误报的次数,而不是一句安慰。 :data:`RULES_DEFAULT` 是 Western Electric 的四条规则(1、2、5、6),经典的 ARL 数值正是针对这一规则集推导的; :data:`RULES_ALL` 是全部八条,而 :data:`RULES_LIMITS_ONLY` 只有规则 1,适用于只想要控制限、别无他求的用户。"
+    },
+    {
+      "context": "Sigma comes from the average moving range divided by d2 = 1.128 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.",
+      "label": "spacr.qt.widgets.control_chart#4",
+      "source": "Sigma comes from the average moving range divided by d2 = 1.128 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.",
+      "source_sha256": "412a3b5bb289411c849ee71944c2e6a016f43d2bff3dfd557b1371f9a466180e",
+      "translation": "Sigma 来自平均移动极差除以 d2 = 1.128( :data:`D2_MOVING_RANGE` ),而绝不是来自序列的标准差。"
+    },
+    {
+      "context": "The direction is *inferred* from the data (Spearman rho of response against log dose) and never assumed, so an activation series is not fitted upside down. :data:`DIRECTION_INHIBITION` / :data:`DIRECTION_ACTIVATION` pin it when the user knows better than the correlation does.",
+      "label": "spacr.qt.widgets.dose_response#14",
+      "source": "The direction is *inferred* from the data (Spearman rho of response against log dose) and never assumed, so an activation series is not fitted upside down. :data:`DIRECTION_INHIBITION` / :data:`DIRECTION_ACTIVATION` pin it when the user knows better than the correlation does.",
+      "source_sha256": "7674c02600262fbfcd9a1ce4c3e51b652a96922960dcbd811e10e82a12adc93e",
+      "translation": "方向是根据数据 *推断* 出来的(响应与对数剂量之间的 Spearman rho),从不预先假设,因此激活型序列不会被上下颠倒地拟合。当用户比相关性更清楚时,可以用 :data:`DIRECTION_INHIBITION` / :data:`DIRECTION_ACTIVATION` 固定方向。"
+    },
+    {
+      "context": ":data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit`` returns, with a t quantile on ``n - 4`` degrees of freedom. Not a normal quantile: eight concentrations with no replicates leaves 4 df, where ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width of the published interval, which is not cosmetic.",
+      "label": "spacr.qt.widgets.dose_response#17",
+      "source": ":data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit`` returns, with a t quantile on ``n - 4`` degrees of freedom. Not a normal quantile: eight concentrations with no replicates leaves 4 df, where ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width of the published interval, which is not cosmetic.",
+      "source_sha256": "6cba671cba49540e3b6be17c3ba4065905081725bce9803e687e82fd05647742",
+      "translation": ":data:`CI_WALD` ——渐近区间,基于 ``curve_fit`` 返回的协方差矩阵,并使用自由度为 ``n - 4`` 的 t 分位数。不是正态分位数:八个浓度且无重复时剩下 4 个 df,此时 ``t = 2.776`` ,而 ``z = 1.960`` 。这会让公布的区间宽度相差 42%,绝非无关紧要。"
+    },
+    {
+      "context": "The profile is the default for one reason that outweighs its cost: **the Wald interval is finite by construction.** It is ``L ± t·SE``, so it returns a tidy, symmetric, entirely fictional interval for a curve whose midpoint the data does not locate at all — which is exactly the case this module exists to catch. The profile interval can *fail to close*: the residual sum of squares stays under the threshold all the way out to a concentration ten thousand times the highest dose tested, and that failure is the diagnostic. It is reported as an open bound, not smoothed into a number.",
+      "label": "spacr.qt.widgets.dose_response#19",
+      "source": "The profile is the default for one reason that outweighs its cost: **the Wald interval is finite by construction.** It is ``L ± t·SE``, so it returns a tidy, symmetric, entirely fictional interval for a curve whose midpoint the data does not locate at all — which is exactly the case this module exists to catch. The profile interval can *fail to close*: the residual sum of squares stays under the threshold all the way out to a concentration ten thousand times the highest dose tested, and that failure is the diagnostic. It is reported as an open bound, not smoothed into a number.",
+      "source_sha256": "b12bc0004afe90e99a7abfc68303f554edb51688cdb120db00c70b7a9a4db97a",
+      "translation": "默认使用剖面似然区间,原因只有一个,但足以抵消其代价: **Wald 区间在构造上必然是有限的。** 它就是 ``L ± t·SE`` ,所以即使数据完全无法确定曲线的中点,它也会给出一个整齐、对称、却完全虚构的区间——而这恰恰是本模块要捕捉的情况。剖面区间则可能 *无法闭合* :残差平方和一直低于阈值,直到浓度达到最高测试剂量的一万倍,而这种失败本身就是诊断信息。它会被报告为开放边界,而不会被平滑成一个数字。"
+    },
+    {
+      "context": "``bottom``, ``top`` and the Hill slope get Wald intervals only. Profiling each of them would quadruple the work to improve numbers nobody quotes; the EC50 is the number that leaves the building.",
+      "label": "spacr.qt.widgets.dose_response#21",
+      "source": "``bottom``, ``top`` and the Hill slope get Wald intervals only. Profiling each of them would quadruple the work to improve numbers nobody quotes; the EC50 is the number that leaves the building.",
+      "source_sha256": "5deba58db8a4119c53a49f3654789d9e1ccfd2a4d5165c20d514ca67665f0d89",
+      "translation": "``bottom`` 、 ``top`` 和 Hill 斜率只给出 Wald 区间。为它们逐一计算剖面区间会让工作量翻四倍,只为改进没有人引用的数字;真正对外公布的数字是 EC50。"
+    },
+    {
+      "context": "1. **The curve is incomplete** — one plateau was never reached, or the midpoint sits outside the tested range. Then the EC50 is an extrapolation. :attr:`DoseResponseResult.ec50` is ``None`` in that case and the number lives in :attr:`DoseResponseResult.ec50_unconstrained`, under a name that cannot be mistaken for a result; :attr:`DoseResponseResult.ec50_bounded` is ``False`` and :meth:`DoseResponseResult.bound_statement` gives the one-sided fact the experiment does support (\"EC50 > 30 µM, the highest concentration tested\"). Three independent detectors have to agree it is fine before a number is released: the fitted midpoint inside the tested dose range, the observed responses bracketing the fitted half-maximum, and neither fitted plateau more than :data:`PLATEAU_SLACK` of the observed response span outside the observed responses. 2. **The data is not monotone.** A bell shape — the classic being cytotoxicity killing the signal at the top dose — is not a 4PL, and a 4PL fitted to it returns a confident EC50 for a curve of the wrong shape. Detected from the concentration-ordered per-dose medians and **refused**, with the concentrations where it turns named in the message. See :func:`monotonicity`. 3. **There is not enough experiment.** Four parameters need at least four distinct concentrations (:data:`MIN_DOSES`) and, to say anything about uncertainty, more observations than parameters (:data:`MIN_OBSERVATIONS`). A constant response has no curve in it. A **zero concentration is not an error** — a vehicle control is normal and belongs in the file — so it is excluded from the fit deliberately, counted, and reported as a reference response, never fed to ``log10``. A *negative* concentration has no such reading and is refused.",
+      "label": "spacr.qt.widgets.dose_response#23",
+      "source": "1. **The curve is incomplete** — one plateau was never reached, or the midpoint sits outside the tested range. Then the EC50 is an extrapolation. :attr:`DoseResponseResult.ec50` is ``None`` in that case and the number lives in :attr:`DoseResponseResult.ec50_unconstrained`, under a name that cannot be mistaken for a result; :attr:`DoseResponseResult.ec50_bounded` is ``False`` and :meth:`DoseResponseResult.bound_statement` gives the one-sided fact the experiment does support (\"EC50 > 30 µM, the highest concentration tested\"). Three independent detectors have to agree it is fine before a number is released: the fitted midpoint inside the tested dose range, the observed responses bracketing the fitted half-maximum, and neither fitted plateau more than :data:`PLATEAU_SLACK` of the observed response span outside the observed responses. 2. **The data is not monotone.** A bell shape — the classic being cytotoxicity killing the signal at the top dose — is not a 4PL, and a 4PL fitted to it returns a confident EC50 for a curve of the wrong shape. Detected from the concentration-ordered per-dose medians and **refused**, with the concentrations where it turns named in the message. See :func:`monotonicity`. 3. **There is not enough experiment.** Four parameters need at least four distinct concentrations (:data:`MIN_DOSES`) and, to say anything about uncertainty, more observations than parameters (:data:`MIN_OBSERVATIONS`). A constant response has no curve in it. A **zero concentration is not an error** — a vehicle control is normal and belongs in the file — so it is excluded from the fit deliberately, counted, and reported as a reference response, never fed to ``log10``. A *negative* concentration has no such reading and is refused.",
+      "source_sha256": "9977e7386f8e60d836f40a766cbf461e23a21abfa723f42151f4c638890e54c5",
+      "translation": "1. **曲线不完整** ——某个平台从未达到,或者中点落在测试范围之外。此时 EC50 是外推值。在这种情况下 :attr:`DoseResponseResult.ec50` 为 ``None`` ,该数字保存在 :attr:`DoseResponseResult.ec50_unconstrained` 中,这个名称不会被误认为是结果; :attr:`DoseResponseResult.ec50_bounded` 为 ``False`` ,而 :meth:`DoseResponseResult.bound_statement` 给出实验确实能够支持的单侧结论(“EC50 > 30 µM,即测试的最高浓度”)。在发布一个数字之前,必须有三个独立的检测器一致认为没有问题:拟合的中点位于测试剂量范围内;观测到的响应覆盖拟合的半最大值两侧;并且两个拟合平台都没有超出观测响应范围的 :data:`PLATEAU_SLACK` 以上。 2. **数据不是单调的。** 钟形曲线——典型情况是最高剂量下的细胞毒性抑制了信号——不是 4PL,而对它拟合 4PL 会为一条形状错误的曲线返回一个看似可信的 EC50。这种情况通过按浓度排序的各剂量中位数检测出来并 **拒绝** ,消息中会指出曲线转折处的浓度。参见 :func:`monotonicity` 。 3. **实验量不足。** 四个参数至少需要四个不同的浓度( :data:`MIN_DOSES` ),而要对不确定性作出任何判断,观测数还必须多于参数数( :data:`MIN_OBSERVATIONS` )。恒定的响应中不包含曲线。 **零浓度不是错误** ——溶剂对照很正常,本就应该在文件中——因此它会被有意排除在拟合之外,计入统计,并作为参考响应报告,绝不会传给 ``log10`` 。 *负* 浓度则没有这样的解释,会被拒绝。"
+    },
+    {
+      "context": "**The likelihood surface is close to symmetric in log10(EC50) and badly skewed in EC50.** That is what makes a quadratic (Wald) approximation defensible on ``log10_ec50`` and indefensible on ``EC50``.",
+      "label": "spacr.qt.widgets.dose_response#7",
+      "source": "**The likelihood surface is close to symmetric in log10(EC50) and badly skewed in EC50.** That is what makes a quadratic (Wald) approximation defensible on ``log10_ec50`` and indefensible on ``EC50``.",
+      "source_sha256": "82cf59c59c46a2922ee25a52036f4e512487d149f77f09ddd622a92ec7f20ca4",
+      "translation": "**似然曲面在 log10(EC50) 上接近对称,而在 EC50 上严重偏斜。** 正因如此,二次(Wald)近似在 ``log10_ec50`` 上站得住脚,而在 ``EC50`` 上则站不住脚。"
+    },
+    {
+      "context": "**A linear-space interval routinely reaches below zero**, and a negative concentration is not a thing. An EC50 of ``1.0 ± 1.4 µM`` is not a wide interval, it is a broken one.",
+      "label": "spacr.qt.widgets.dose_response#8",
+      "source": "**A linear-space interval routinely reaches below zero**, and a negative concentration is not a thing. An EC50 of ``1.0 ± 1.4 µM`` is not a wide interval, it is a broken one.",
+      "source_sha256": "4172be3bd7951ba293251c9f20ae1c6c7814043ab4fcaa30704b1d0e7f95f3ca",
+      "translation": "**线性空间中的区间经常会延伸到零以下**,而负浓度根本不存在。 EC50 为 ``1.0 ± 1.4 µM`` 并不是一个宽区间,而是一个错误的区间。"
+    },
+    {
+      "context": "Return this data-selection boundary with ``column`` bounded to ``low..high``.",
+      "label": "spacr.qt.widgets.gate_spec.Gate.with_threshold#0",
+      "source": "Return this gate with ``column`` bounded to ``low..high``.",
+      "source_sha256": "c43c4a801242b6da262bdb041b618bc0b731e94efcfa6d73600c741a490d3a31",
+      "translation": "返回将 ``column`` 限定在 ``low..high`` 范围内的此数据选择边界。"
+    },
+    {
+      "context": "The Graph Builder's *spec*: what is on which channel, and nothing else.",
+      "label": "spacr.qt.widgets.graph_spec#0",
+      "source": "The Graph Builder's *spec*: what is on which channel, and nothing else.",
+      "source_sha256": "50ed7aca1a9b2e3a38f5115ed0995fe74cf41a53b9fabc2868034d97acd99287",
+      "translation": "Graph Builder 的 *规格*:哪个数据放在哪个视觉通道上,仅此而已。"
+    },
+    {
+      "context": "**scatter/line up to** :data:`DEFAULT_POINT_BUDGET` **rows: every row is a mark.**",
+      "label": "spacr.qt.widgets.graph_spec#15",
+      "source": "**scatter/line up to** :data:`DEFAULT_POINT_BUDGET` **rows: every row is a mark.**",
+      "source_sha256": "4fea586acf814b51d5cf13847f98022d727f8c62eaa93baf46d84f181a21d387",
+      "translation": "**散点图/折线图在不超过** :data:`DEFAULT_POINT_BUDGET` **行时:每一行都是一个标记。**"
+    },
+    {
+      "context": "**pure pandas and numpy, with no Qt**, like :mod:`spacr.selection` — testable without a display, usable from a notebook or from ``spacr-run``;",
+      "label": "spacr.qt.widgets.graph_spec#4",
+      "source": "**pure pandas and numpy, with no Qt**, like :mod:`spacr.selection` — testable without a display, usable from a notebook or from ``spacr-run``;",
+      "source_sha256": "284e2659d036997c0af101db96fb365a5fdd25c796d43a58b0ff4c63f2c19512",
+      "translation": "**纯 pandas 和 numpy,不依赖 Qt**,与 :mod:`spacr.selection` 一样——无需显示器即可测试,可以在 notebook 中或通过 ``spacr-run`` 使用;"
+    },
+    {
+      "context": "Why this shape is what lets an arbitrary organelle count land. The number of organelles a processing session may declare is not fixed. In a flat vocabulary each new organelle is twenty new settings that every tooltip table and translation catalog has to learn; here it is one COLUMN, and the number of questions does not move. :meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new organelle from the first one's answers rather than from a global default nobody chose.",
+      "label": "spacr.qt.widgets.object_settings_grid#3",
+      "source": "WHY THIS SHAPE IS WHAT LETS AN ARBITRARY ORGANELLE COUNT LAND. The number of organelles a run may declare is not fixed. In a flat vocabulary each new organelle is twenty new settings that every tooltip table and translation catalog has to learn; here it is one COLUMN, and the number of questions does not move. :meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new organelle from the first one's answers rather than from a global default nobody chose.",
+      "source_sha256": "4e3cead75c559fcbe4bfab91bd4203028c945391ffc696e50afbce6b8052dcf9",
+      "translation": "为什么正是这种结构才能容纳任意数量的细胞器。一次处理会话可以声明的细胞器数量并不固定。在扁平的词汇表中,每新增一种细胞器就意味着二十个新设置,每一个工具提示表和翻译目录都必须学会它们;而在这里,它只是一个 COLUMN(列),问题的数量保持不变。 :meth:`ObjectSettingsGrid.add_object` 就是这一操作,它以第一种细胞器的答案为起点来创建新的细胞器,而不是从一个没人选择过的全局默认值开始。"
+    },
+    {
+      "context": "**The asymmetry problem is real and is not fixed by choosing a bigger c.** Tukey's fence is symmetric in the quartiles, and a right-skewed distribution therefore has far more mass beyond the upper fence than beyond the lower one *by construction*, whatever the data. For a lognormal with sigma = 1 the standard fence flags about 8% of the sample on the right and essentially nothing on the left — and it does so for a perfectly clean sample. Read uncorrected, \"8% of my cells are outliers\" is a statement about the shape of the distribution, not about the cells.",
+      "label": "spacr.qt.widgets.outlier_model#13",
+      "source": "**The asymmetry problem is real and is not fixed by choosing a bigger c.** Tukey's fence is symmetric in the quartiles, and a right-skewed distribution therefore has far more mass beyond the upper fence than beyond the lower one *by construction*, whatever the data. For a lognormal with sigma = 1 the standard fence flags about 8% of the sample on the right and essentially nothing on the left — and it does so for a perfectly clean sample. Read uncorrected, \"8% of my cells are outliers\" is a statement about the shape of the distribution, not about the cells.",
+      "source_sha256": "80b298eeeef9485a7c9acfd91f9ee460d847c511449250c690aa89fc82552d4c",
+      "translation": "**不对称问题确实存在,而且不能靠选择更大的 c 来解决。** Tukey 栅栏在四分位数上是对称的,因此无论数据如何,右偏分布在上栅栏之外的质量 *在构造上* 就远多于下栅栏之外。对于 sigma = 1 的对数正态分布,标准栅栏会把右侧约 8% 的样本标记出来,而左侧几乎一个都没有——即使样本完全干净也是如此。如果不加校正地解读,“我的细胞中有 8% 是离群值”只是在描述分布的形状,而不是在描述细胞。"
+    },
+    {
+      "context": "The obvious thing to write here is ``|x - mean| / sd > 3``, and it is the one thing this module refuses to do. spaCR object measurements are skewed and heavy-tailed by construction: ``cell_area`` is a positive quantity with a long right tail, ``pathogen_area`` is zero-inflated, an intensity ratio has a denominator that can approach zero. The mean and the SD of such a column are themselves dragged by the very objects they are supposed to find — one debris particle measured at 40× the median area moves the mean, inflates the SD, and so raises the threshold that was meant to catch it. The failure is silent and it gets worse the worse the contamination is: this is the *masking* effect, and it is the reason robust statistics exist.",
+      "label": "spacr.qt.widgets.outlier_model#2",
+      "source": "The obvious thing to write here is ``|x - mean| / sd > 3``, and it is the one thing this module refuses to do. spaCR object measurements are skewed and heavy-tailed by construction: ``cell_area`` is a positive quantity with a long right tail, ``pathogen_area`` is zero-inflated, an intensity ratio has a denominator that can approach zero. The mean and the SD of such a column are themselves dragged by the very objects they are supposed to find — one debris particle measured at 40× the median area moves the mean, inflates the SD, and so raises the threshold that was meant to catch it. The failure is silent and it gets worse the worse the contamination is: this is the *masking* effect, and it is the reason robust statistics exist.",
+      "source_sha256": "36aa5a1d6a08be248f4d6421069deae95bda1a3ace09c3856dc8f4cf71bd8862",
+      "translation": "这里最显而易见的写法是 ``|x - mean| / sd > 3`` ,而这恰恰是本模块拒绝做的事。 spaCR 的对象测量值天然就是偏态且重尾的: ``cell_area`` 是带有长右尾的正值量, ``pathogen_area`` 是零膨胀的,强度比值的分母可能趋近于零。这类列的均值和 SD 本身就会被它们本应找出的那些对象拖偏——一个面积为中位数 40× 的碎片颗粒会移动均值、放大 SD,从而抬高原本用来捕捉它的阈值。这种失败是无声的,而且污染越严重就越糟:这就是 *掩蔽* 效应,也正是稳健统计存在的原因。"
+    },
+    {
+      "context": "**Isolation forest requires** ``contamination`` — the share of the data that is bad — declared *in advance*. That share is precisely the unknown the analysis is trying to estimate. Setting ``contamination=0.01`` guarantees 1% of the objects come back flagged whether the plate is pristine or ruined, which makes the output uninterpretable in exactly the case it matters.",
+      "label": "spacr.qt.widgets.outlier_model#20",
+      "source": "**Isolation forest requires** ``contamination`` — the share of the data that is bad — declared *in advance*. That share is precisely the unknown the analysis is trying to estimate. Setting ``contamination=0.01`` guarantees 1% of the objects come back flagged whether the plate is pristine or ruined, which makes the output uninterpretable in exactly the case it matters.",
+      "source_sha256": "a4154fde2d1f6f604a08808ae526ae951f9423644e4a1e383f115761a2f031eb",
+      "translation": "**孤立森林要求** ``contamination`` ——即坏数据所占的比例——必须 *预先* 声明。而这个比例恰恰是分析试图估计的未知量。设置 ``contamination=0.01`` 可以保证无论板是完好无损还是彻底报废,都会有 1% 的对象被标记,这使得输出恰恰在最关键的情况下无法解读。"
+    },
+    {
+      "context": "**MCD is affine-equivariant.** Rescale ``area`` from px^2 to um^2, or rotate to any linear combination of the features, and the fitted centre and covariance transform with it: every distance, and so every flag, is unchanged. This is the same invariance argument :mod:`spacr.qt.widgets.pca_model` makes for standardising before a PCA, and it is why no scaling option is needed here — the metric *is* the covariance. A tree ensemble splits on raw coordinates and is not equivariant; its answer depends on the units.",
+      "label": "spacr.qt.widgets.outlier_model#21",
+      "source": "**MCD is affine-equivariant.** Rescale ``area`` from px^2 to um^2, or rotate to any linear combination of the features, and the fitted centre and covariance transform with it: every distance, and so every flag, is unchanged. This is the same invariance argument :mod:`spacr.qt.widgets.pca_model` makes for standardising before a PCA, and it is why no scaling option is needed here — the metric *is* the covariance. A tree ensemble splits on raw coordinates and is not equivariant; its answer depends on the units.",
+      "source_sha256": "5aca56336058a686d7fb507e876cb15e37e00ec9e47577324711c9d5a650f63e",
+      "translation": "**MCD 具有仿射等变性。** 把 ``area`` 从 px^2 换算成 um^2,或者旋转为特征的任意线性组合,拟合出的中心和协方差都会随之变换:每一个距离、因而每一个标记都保持不变。这与 :mod:`spacr.qt.widgets.pca_model` 为在 PCA 之前进行标准化所给出的不变性论证相同,也正是这里不需要任何缩放选项的原因——度量 *就是* 协方差。树集成模型在原始坐标上进行划分,不具备等变性;它的结果取决于单位。"
+    },
+    {
+      "context": "**MCD is the multivariate generalisation of the median and the MAD.** The MCD centre is a multivariate median (the mean of the h-subset of minimum covariance determinant) and the MCD scatter is its spread. So all three methods offered here are the same idea at one, one, and p dimensions, and a user who understands the MAD already understands this.",
+      "label": "spacr.qt.widgets.outlier_model#22",
+      "source": "**MCD is the multivariate generalisation of the median and the MAD.** The MCD centre is a multivariate median (the mean of the h-subset of minimum covariance determinant) and the MCD scatter is its spread. So all three methods offered here are the same idea at one, one, and p dimensions, and a user who understands the MAD already understands this.",
+      "source_sha256": "891a5252b8524135e6f78864b7875b1678687aa651ee75c2227bd877e078d70c",
+      "translation": "**MCD 是中位数和 MAD 在多变量情形下的推广。** MCD 中心是一个多变量中位数(协方差行列式最小的 h 子集的均值),而 MCD 散布矩阵就是它的离散程度。因此,这里提供的三种方法是同一个思想分别在一维、一维和 p 维上的体现,理解 MAD 的用户也就已经理解了这一方法。"
+    },
+    {
+      "context": "Take 60 objects per well, a feature whose within-well spread is sigma, and a well whose whole population is shifted by 0.9 sigma. The **object** rule at k = 3.5 asks each object to exceed 3.5 sigma; a 0.9 sigma shift moves that requirement to 2.6 sigma, which about one object in 200 clears — so the bad well contributes a fraction of one extra flagged object and disappears into the ordinary tail. The **well** rule compares well *medians*, whose sampling spread is only ``1.2533 * sigma / sqrt(60) = 0.16 sigma``; the same shift is then 5.6 robust SDs and the well is unmistakable. The two tests have wildly different power against the same defect, which is why both are run and both are reported.",
+      "label": "spacr.qt.widgets.outlier_model#28",
+      "source": "Take 60 objects per well, a feature whose within-well spread is sigma, and a well whose whole population is shifted by 0.9 sigma. The **object** rule at k = 3.5 asks each object to exceed 3.5 sigma; a 0.9 sigma shift moves that requirement to 2.6 sigma, which about one object in 200 clears — so the bad well contributes a fraction of one extra flagged object and disappears into the ordinary tail. The **well** rule compares well *medians*, whose sampling spread is only ``1.2533 * sigma / sqrt(60) = 0.16 sigma``; the same shift is then 5.6 robust SDs and the well is unmistakable. The two tests have wildly different power against the same defect, which is why both are run and both are reported.",
+      "source_sha256": "2dbed1ae1e14ecb7e9a29ae2238a98c8b9c4976c69283bf7e817216ec02ae5b3",
+      "translation": "设每个孔有 60 个对象,某个特征在孔内的离散度为 sigma,而有一个孔的整个群体偏移了 0.9 sigma。 k = 3.5 时的 **对象** 规则要求每个对象超过 3.5 sigma;0.9 sigma 的偏移会把这一要求降到 2.6 sigma,大约每 200 个对象中只有一个能超过——因此这个异常孔只会多贡献不到一个被标记的对象,并淹没在普通的尾部中。 **孔** 规则比较的是各孔的 *中位数* ,其抽样离散度仅为 ``1.2533 * sigma / sqrt(60) = 0.16 sigma`` ;同样的偏移此时相当于 5.6 个稳健 SD,这个孔一目了然。两种检验针对同一缺陷的检验效能差异巨大,这就是两者都会运行、也都会报告的原因。"
+    },
+    {
+      "context": "The well-level test is **different from counting flagged objects**. ``flagged_share`` provides that count and answers another question: it finds a few *catastrophic* objects, such as a segmentation failure or dust measured as a cell, but misses a uniform shift. The well-level robust score finds the uniform shift but misses an isolated catastrophe. Both belong on the well frame because neither replaces the other.",
+      "label": "spacr.qt.widgets.outlier_model#29",
+      "source": "So the well pass is emphatically **not** \"the well contains many flagged objects\". That statistic exists — it is reported as ``flagged_share`` — and it answers a different question: it finds a well containing a few *catastrophic* objects (a segmentation blow-up, a piece of dust measured as a cell) while being blind to a uniform shift. The well-level robust score finds the uniform shift while being blind to the isolated catastrophe. Both are on the well frame because neither subsumes the other.",
+      "source_sha256": "b5a0bcabaab97735799dd6e200df3a475aacb185fcc33716cd143456fc6a96e5",
+      "translation": "因此,按孔进行的这一轮检查明确 **不是** “该孔包含很多被标记的对象”。那个统计量确实存在——以 ``flagged_share`` 报告——但它回答的是另一个问题:它能找出包含少数 *灾难性* 对象的孔(分割严重失败、一粒被当作细胞测量的灰尘),却看不到整体性的均匀偏移。孔级稳健分数能发现均匀偏移,却看不到孤立的灾难。两者都放在孔级数据表中,因为谁也不能涵盖对方。"
+    },
+    {
+      "context": "**MAD == 0 is handled, not divided by.** When more than half the objects share one value — a zero-inflated ``pathogen_area``, an integer count, a saturated intensity — the MAD is exactly zero. Naively, every value that differs at all then scores infinity and *the entire tail is flagged*, which is the opposite of robust. So :func:`robust_scale` falls back to the **mean absolute deviation from the median**, scaled by :data:`MEAN_AD_TO_SIGMA` = ``sqrt(pi/2)`` = 1.2533 (for a Gaussian ``E|X - mu| = sigma * sqrt(2/pi)``), and says so in :attr:`OutlierResult.notes` and in :meth:`OutlierResult.caveats`.",
+      "label": "spacr.qt.widgets.outlier_model#8",
+      "source": "**MAD == 0 is handled, not divided by.** When more than half the objects share one value — a zero-inflated ``pathogen_area``, an integer count, a saturated intensity — the MAD is exactly zero. Naively, every value that differs at all then scores infinity and *the entire tail is flagged*, which is the opposite of robust. So :func:`robust_scale` falls back to the **mean absolute deviation from the median**, scaled by :data:`MEAN_AD_TO_SIGMA` = ``sqrt(pi/2)`` = 1.2533 (for a Gaussian ``E|X - mu| = sigma * sqrt(2/pi)``), and says so in :attr:`OutlierResult.notes` and in :meth:`OutlierResult.caveats`.",
+      "source_sha256": "5584dee58b5389d709ce6cbdb1f120bcc5fb669f10c1743b8a0d787ad91e64af",
+      "translation": "**MAD == 0 会被专门处理,而不会被用作除数。** 当超过一半的对象共享同一个值时——例如零膨胀的 ``pathogen_area`` 、整数计数或饱和强度—— MAD 恰好为零。若天真地处理,任何稍有不同的值都会得到无穷大的分数, *整个尾部都会被标记* ,这与稳健恰恰相反。因此 :func:`robust_scale` 会退回到 **相对于中位数的平均绝对偏差** ,并用 :data:`MEAN_AD_TO_SIGMA` = ``sqrt(pi/2)`` = 1.2533 进行缩放(对于高斯分布, ``E|X - mu| = sigma * sqrt(2/pi)`` ),同时在 :attr:`OutlierResult.notes` 和 :meth:`OutlierResult.caveats` 中予以说明。"
+    },
+    {
+      "context": "The alternative considered and not taken is the Rousseeuw–Croux ``Sn`` (``1.1926 * med_i med_j |x_i - x_j|``), which is the statistically better answer: it has a 50% breakdown point, needs no symmetry assumption, and does not collapse on tied data. It is not used because the naive form is O(n^2) — unusable on the 10^5–10^6 object rows spaCR routinely produces — and the O(n log n) algorithm is a page of intricate code to maintain for a path that is only ever reached when the MAD has *already* collapsed. The mean absolute deviation has a 0% breakdown point and that is stated plainly rather than glossed: it is a stopgap that keeps a degenerate column from flagging its whole tail, not a robust estimator. If the fallback fires, the honest reading is that the column is not continuous enough for this test.",
+      "label": "spacr.qt.widgets.outlier_model#9",
+      "source": "The alternative considered and not taken is the Rousseeuw–Croux ``Sn`` (``1.1926 * med_i med_j |x_i - x_j|``), which is the statistically better answer: it has a 50% breakdown point, needs no symmetry assumption, and does not collapse on tied data. It is not used because the naive form is O(n^2) — unusable on the 10^5–10^6 object rows spaCR routinely produces — and the O(n log n) algorithm is a page of intricate code to maintain for a path that is only ever reached when the MAD has *already* collapsed. The mean absolute deviation has a 0% breakdown point and that is stated plainly rather than glossed: it is a stopgap that keeps a degenerate column from flagging its whole tail, not a robust estimator. If the fallback fires, the honest reading is that the column is not continuous enough for this test.",
+      "source_sha256": "721569ff101ce8b35287fe360c287aa5942e78ce2fa3045cddc5a5a673f7dc52",
+      "translation": "曾考虑但未采用的替代方案是 Rousseeuw–Croux 的 ``Sn`` ( ``1.1926 * med_i med_j |x_i - x_j|`` ),从统计角度看它是更好的答案:它的崩溃点为 50%,不需要对称性假设,并且在数据存在大量相同值时也不会失效。之所以不用它,是因为朴素实现是 O(n^2) ——在 spaCR 经常产生的 10^5–10^6 行对象数据上根本无法使用——而 O(n log n) 算法则是一整页复杂的代码,却只为维护一条仅在 MAD *已经* 失效时才会走到的路径。平均绝对偏差的崩溃点是 0%,这一点会被直接说明而不是含糊带过:它只是一个权宜之计,用来防止退化的列把整个尾部都标记出来,而不是一个稳健估计量。如果触发了这一回退,诚实的解读是:该列不够连续,不适合做这项检验。"
+    },
+    {
+      "context": "an ``.npy`` **stack** whose first axis is time — memory-mapped, so a slice touches only that image layer's pages.",
+      "label": "spacr.qt.widgets.timelapse_preview.FrameSequence#4",
+      "source": "an ``.npy`` **stack** whose first axis is time — memory-mapped, so a slice touches only that plane's pages.",
+      "source_sha256": "197f897c6a2c29fcc202737848baeafd9764f3bc019a9e861c7260d0b46fc28e",
+      "translation": "一个 ``.npy`` **堆栈**,其第一个轴是时间——采用内存映射,因此一个切片只会访问该图像层所在的页面。"
+    },
+    {
+      "context": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between application views with nothing on application view to say so.",
+      "label": "spacr.schema.add_screen_column#3",
+      "source": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between screens with nothing on screen to say so.",
+      "source_sha256": "2e617f319f22c7717f33e5d37a2b4417ef3f953272c48c45d29b638471a15d87",
+      "translation": "该数据框中已有这一列,并且 ``screen`` 为 ``None`` 。其标签保持不变。如果对一个已经知道自己来自哪个实验的数据框重新打标签,就会把行移到另一个实验中去,却没有任何地方提示这一点。"
+    },
+    {
+      "context": "The frame has one and ``screen`` was given. The caller is looking at the files and has said which screen this is, so it wins — but only because they said so. ``overwrite=False`` (the default) still fills *blank* values only; pass ``overwrite=True`` to restamp every row.",
+      "label": "spacr.schema.add_screen_column#4",
+      "source": "The frame has one and ``screen`` was given. The caller is looking at the files and has said which screen this is, so it wins — but only because they said so. ``overwrite=False`` (the default) still fills *blank* values only; pass ``overwrite=True`` to restamp every row.",
+      "source_sha256": "8334cca36846b5ad24d6d47eee6daf87740b63e0b5763adbbff146c9fe665cdf",
+      "translation": "该数据框中已有这一列,并且提供了 ``screen`` 。调用方正在查看这些文件,并指明了这是哪个筛选实验,因此以它为准——但仅仅因为它这样指明了。 ``overwrite=False`` (默认)仍然只填充 *空白* 值;传入 ``overwrite=True`` 可重新标记每一行。"
+    },
+    {
+      "context": "Not the generator's own ``touches`` flag. That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The microplate sample position edge is recovered from the drawn pixels.",
+      "label": "spacr.setting_animations.measure_border_object_removal#3",
+      "source": "Not the generator's own ``touches`` flag. That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The well edge is recovered from the drawn pixels.",
+      "source_sha256": "7d784463cd45892f8bc5034e41f401c556ea7426cd64107b5d61ca111d8e4bac",
+      "translation": "不是生成器自身的 ``touches`` 标志。这个标志正是被测试的对象;用它来给对象分类的检查,等于拿生成器去验证它自己,结果在带着这个缺陷发布的素材上报告了 \"all correct\"。孔的边缘是根据绘制出的像素恢复出来的。"
+    },
+    {
+      "context": "Activation maps say **where** a model looked. This says **what it responded to**, in units a biologist already interprets — area, intensity, texture — by fitting a gradient-boosted model to reproduce the CV model's predictions from the object features spaCR already measured, and then asking that model what it used.",
+      "label": "spacr.surrogate#1",
+      "source": "Activation maps say **where** a model looked. This says **what it responded to**, in units a biologist already interprets — area, intensity, texture — by fitting a gradient-boosted model to reproduce the CV model's predictions from the object features spaCR already measured, and then asking that model what it used.",
+      "source_sha256": "1caed638d74745a3ab452f85a87dabff8c7fd9a122387ef569b2c6a7420c0058",
+      "translation": "激活图告诉你模型 **看向了哪里** 。本模块则告诉你 **它对什么作出了响应** ,并且使用生物学家已经熟悉的量——面积、强度、纹理——来表达:它拟合一个梯度提升模型,用 spaCR 已经测得的对象特征来重现 CV 模型的预测,然后询问这个模型用到了哪些特征。"
+    },
+    {
+      "context": "**Fidelity is reported first, and it is not a formality.** A surrogate that cannot reproduce the CV model's decisions has explained nothing, and its feature ranking is a ranking of how the features predict each other. That number is the one people skip, so :class:`SurrogateResult` puts it before the importances and :meth:`SurrogateResult.summary` refuses to lead with anything else.",
+      "label": "spacr.surrogate#3",
+      "source": "**Fidelity is reported first, and it is not a formality.** A surrogate that cannot reproduce the CV model's decisions has explained nothing, and its feature ranking is a ranking of how the features predict each other. That number is the one people skip, so :class:`SurrogateResult` puts it before the importances and :meth:`SurrogateResult.summary` refuses to lead with anything else.",
+      "source_sha256": "2a39d6621585c437e0be27a26b6f8a628dad83bda6e74c95d35dd09884395ee0",
+      "translation": "**首先报告保真度,而且这并非走过场。** 一个无法重现 CV 模型决策的代理模型什么也没有解释,它给出的特征排名只是在反映各特征之间如何相互预测。这个数字恰恰是人们最容易跳过的,所以 :class:`SurrogateResult` 把它放在重要性之前,而 :meth:`SurrogateResult.summary` 也拒绝以其他任何内容开头。"
+    },
+    {
+      "context": "**The join goes through** ``png_list``. A CV model is indexed by the extracted image region it scored; the features are indexed by the object. ``png_list`` is the only table that holds both, so it is the bridge — and joining on ``png_path`` alone is not enough, because a path is not stable across machines.",
+      "label": "spacr.surrogate#9",
+      "source": "**The join goes through** ``png_list``. A CV model keys on the crop it scored; the features key on the object. ``png_list`` is the only table that holds both, so it is the bridge — and joining on ``png_path`` alone is not enough, because a path is not stable across machines.",
+      "source_sha256": "c35b708ae1d90fa0869cc335a8ebf7cc6b1fab25cc31209bdb854dbaff31c400",
+      "translation": "**连接操作通过** ``png_list`` 进行。 CV 模型以它评分的提取图像区域为键;特征则以对象为键。 ``png_list`` 是唯一同时包含两者的表,所以它就是桥梁——而仅按 ``png_path`` 连接是不够的,因为路径在不同机器之间并不稳定。"
+    },
+    {
+      "context": "Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.",
+      "label": "spacr.utils.correct_metadata_column_names#0",
+      "source": "Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.",
+      "source_sha256": "4e314297af1da8ebfedd58f49a362f5f04a65a2a10733b2d7f62cacb34323847",
+      "translation": "已重命名的旧版元数据列。 **定义于** :mod:`spacr.schema` 。"
+    }
+  ],
+  "schema": 1
+}

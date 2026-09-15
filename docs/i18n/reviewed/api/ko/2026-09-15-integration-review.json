@@ -1,0 +1,734 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Annotation is the bottleneck in every screen. An extracted image region the model already calls with 0.999 teaches the model nothing when a human labels it; the extracted image regions worth a person's afternoon are the ones sitting on the decision boundary. This module turns an already-scored ``measurements.db`` into a work list ordered so the informative extracted image regions come first.",
+      "label": "spacr.active_learning#1",
+      "source": "Annotation is the bottleneck in every screen. A crop the model already calls with 0.999 teaches the model nothing when a human labels it; the crops worth a person's afternoon are the ones sitting on the decision boundary. This module turns an already-scored ``measurements.db`` into a work queue ordered so the informative crops come first.",
+      "source_sha256": "23d9d076fcca9e68e412fefa6769b6efe7b744e499956211c57feaad1eaefa86",
+      "translation": "주석 작업은 모든 스크리닝의 병목입니다. 모델이 이미 0.999로 판정한 추출된 이미지 영역은 사람이 라벨을 달아도 모델에 아무것도 가르쳐 주지 않습니다. 사람의 오후 시간을 쓸 가치가 있는 추출된 이미지 영역은 결정 경계에 놓인 것들입니다. 이 모듈은 이미 점수가 매겨진 ``measurements.db`` 를 정보량이 많은 추출된 이미지 영역이 먼저 오도록 정렬된 작업 목록으로 바꿉니다."
+    },
+    {
+      "context": "Nothing in this module imports torch at module scope; the ranking maths is numpy only, so the Qt application view can build a work list without waking a multi-second import chain. :func:`predict_probabilities` imports torch lazily and is the only entry point that needs it.",
+      "label": "spacr.active_learning#12",
+      "source": "Nothing in this module imports torch at module scope; the ranking maths is numpy only, so the Qt screen can build a queue without waking a multi-second import chain. :func:`predict_probabilities` imports torch lazily and is the only entry point that needs it.",
+      "source_sha256": "5b4b5bc100e39719a684bdf775af300bd2ae48c62b7e62b6a6f60b45cba2de2d",
+      "translation": "이 모듈의 어떤 코드도 모듈 범위에서 torch 를 임포트하지 않습니다. 순위 계산은 numpy 만 사용하므로 Qt 애플리케이션 뷰는 몇 초씩 걸리는 임포트 체인을 깨우지 않고도 작업 목록을 만들 수 있습니다. :func:`predict_probabilities` 는 torch 를 지연 임포트하며, 이를 필요로 하는 유일한 진입점입니다."
+    },
+    {
+      "context": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Per-row uncertainty scores. Pure numpy — no torch, no database. ``disagreement(prob_sets)`` Spread across an ensemble or a set of MC-dropout passes. ``rank_by_uncertainty(probs, measure=…)`` Row indices, most uncertain first, deterministically tie-broken. ``build_queue(db_path, annotation_column, …)`` The annotation work list itself, read straight out of ``png_list``. ``queue_rows(queue)`` The annotation work list as ``[(png_path, None), …]`` — the shape the Annotate application view already paginates (see :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` The annotation work list's shape, class balance and caveats, as text. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Raw-head-output → probability matrix, both head shapes handled. ``predict_probabilities(model, batches)`` Optional live-model bridge; the only function that touches torch.",
+      "label": "spacr.active_learning#3",
+      "source": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` Per-row uncertainty scores. Pure numpy — no torch, no database. ``disagreement(prob_sets)`` Spread across an ensemble or a set of MC-dropout passes. ``rank_by_uncertainty(probs, measure=…)`` Row indices, most uncertain first, deterministically tie-broken. ``build_queue(db_path, annotation_column, …)`` The queue itself, read straight out of ``png_list``. ``queue_rows(queue)`` The queue as ``[(png_path, None), …]`` — the shape the Annotate screen already paginates (see :func:`spacr.qt.annotate_engine.fetch_page`). ``format_queue_summary(queue)`` The queue's shape, class balance and caveats, as text. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` Raw-head-output → probability matrix, both head shapes handled. ``predict_probabilities(model, batches)`` Optional live-model bridge; the only function that touches torch.",
+      "source_sha256": "c387209c381e118f57e3c942d47eb47659dd270318aa8c2700c37c482201a44c",
+      "translation": "``least_confidence(probs)`` / ``margin(probs)`` / ``entropy(probs)`` 행별 불확실성 점수. 순수 numpy — torch 도, 데이터베이스도 없습니다. ``disagreement(prob_sets)`` 앙상블 또는 MC-dropout 패스 집합 전반의 분산. ``rank_by_uncertainty(probs, measure=…)`` 가장 불확실한 것부터 나열한 행 인덱스이며, 동점은 결정적으로 처리됩니다. ``build_queue(db_path, annotation_column, …)`` ``png_list`` 에서 바로 읽어 온 주석 작업 목록 자체. ``queue_rows(queue)`` ``[(png_path, None), …]`` 형태의 주석 작업 목록 — Annotate 애플리케이션 뷰가 이미 페이지 단위로 표시하는 형태입니다( :func:`spacr.qt.annotate_engine.fetch_page` 참조). ``format_queue_summary(queue)`` 주석 작업 목록의 형태, 클래스 균형, 주의 사항을 텍스트로. ``probabilities_from_logits(logits)`` / ``as_probabilities(scores)`` 원시 헤드 출력 → 확률 행렬, 두 가지 헤드 형태를 모두 처리. ``predict_probabilities(model, batches)`` 선택적 실시간 모델 브리지; torch 를 사용하는 유일한 함수."
+    },
+    {
+      "context": "**Already-annotated extracted image regions never enter the annotation work list.** ``NULL`` in the annotation column is the abstention marker — the extracted image region has not been looked at. ``0`` is a real class, and an annotation work list that re-serves it wastes exactly the resource this module exists to save. The two are distinguished by ``IS NULL``, never by falsiness. (Same convention as :mod:`spacr.agreement`.)",
+      "label": "spacr.active_learning#6",
+      "source": "**Already-annotated crops never enter the queue.** ``NULL`` in the annotation column is the abstention marker — the crop has not been looked at. ``0`` is a real class, and a queue that re-serves it wastes exactly the resource this module exists to save. The two are distinguished by ``IS NULL``, never by falsiness. (Same convention as :mod:`spacr.agreement`.)",
+      "source_sha256": "5db56bdb7da6ed9c3bfa3c303eda67629ee430d4eb0bfff685e991fe649bd1db",
+      "translation": "**이미 주석이 달린 추출된 이미지 영역은 주석 작업 목록에 절대 들어가지 않습니다.** 주석 열의 ``NULL`` 은 판정 보류 표시로, 해당 추출된 이미지 영역을 아직 아무도 보지 않았다는 뜻입니다. ``0`` 은 실제 클래스이며, 이를 다시 내놓는 작업 목록은 이 모듈이 아끼려고 존재하는 바로 그 자원을 낭비합니다. 둘은 ``IS NULL`` 로 구별하며, 거짓 값 여부로는 절대 구별하지 않습니다. ( :mod:`spacr.agreement` 와 같은 규칙입니다.)"
+    },
+    {
+      "context": "``margin`` and ``least_confidence`` are the same ranking on two classes. For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``: a linear transform, so identical order and identical ties. They are not two independent choices on a binary screen — they differ only from three classes up, where ``margin`` looks at the top *two* classes while ``least_confidence`` looks only at the top one and ``entropy`` looks at the whole distribution.",
+      "label": "spacr.active_learning#8",
+      "source": "``margin`` and ``least_confidence`` are the same ranking on two classes. For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``: a linear transform, so identical order and identical ties. They are not two independent choices on a binary screen — they differ only from three classes up, where ``margin`` looks at the top *two* classes while ``least_confidence`` looks only at the top one and ``entropy`` looks at the whole distribution.",
+      "source_sha256": "a16a370a6fe4b63fbb5dfe535750914608eb89ae772f639a6046f97ac0997ecb",
+      "translation": "``margin`` 과 ``least_confidence`` 는 두 클래스에서 동일한 순위를 냅니다. C = 2 일 때 ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)`` : 선형 변환이므로 순서도 동일하고 동점도 동일합니다. 이진 스크리닝에서 이 둘은 서로 독립적인 두 선택지가 아닙니다 — 클래스가 세 개 이상일 때만 달라지며, 이때 ``margin`` 은 상위 *두* 클래스를 보고, ``least_confidence`` 는 최상위 하나만 보며, ``entropy`` 는 전체 분포를 봅니다."
+    },
+    {
+      "context": "path to ``measurements.db``.",
+      "label": "spacr.active_learning.annotation_coverage#3",
+      "source": "path to ``measurements.db``.",
+      "source_sha256": "31fc51bbc194cb0f50772227bf045c5244d3ad3a7f3a5ae76591c8a1d36508b8",
+      "translation": "``measurements.db`` 의 경로."
+    },
+    {
+      "context": "substring filter on the structured-data name, matching the Annotate application view's own filter. Every count below it, ``n_rows`` included, is over the extracted image regions that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
+      "label": "spacr.active_learning.annotation_coverage#7",
+      "source": "substring filter on the key, matching the Annotate screen's own filter. Every count below it, ``n_rows`` included, is over the crops that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
+      "source_sha256": "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
+      "translation": "구조화된 데이터 이름에 대한 부분 문자열 필터로, Annotate 애플리케이션 뷰 자체의 필터와 일치합니다. 그 아래의 모든 개수( ``n_rows`` 포함)는 일치한 추출된 이미지 영역만을 대상으로 합니다 — 전체 테이블에서 가져온 분모는 분자와 분모를 서로 다른 두 모집단에 두게 됩니다. ``n_rows_unfiltered`` 는 전체 개수를 유지하며, 메모에 몇 개가 제외되었는지 표시됩니다."
+    },
+    {
+      "context": "one row per ``(plateID, rowID, columnID, class)`` that has at least one annotation, with ``n`` and ``share`` — plus the whole breakdown in ``attrs['spacr_annotation_coverage']``: ``by_class``, ``by_plate``, ``by_well``, ``by_class_plate``, ``by_class_well``, ``by_round``, ``by_source``, ``concentration`` (per class) and ``notes``.",
+      "label": "spacr.active_learning.annotation_coverage#8",
+      "source": "one row per ``(plateID, rowID, columnID, class)`` that has at least one annotation, with ``n`` and ``share`` — plus the whole breakdown in ``attrs['spacr_annotation_coverage']``: ``by_class``, ``by_plate``, ``by_well``, ``by_class_plate``, ``by_class_well``, ``by_round``, ``by_source``, ``concentration`` (per class) and ``notes``.",
+      "source_sha256": "79fa7eefa8f2744051df859079f98c9890a78cca0bbd2d2aab952472c00ff34a",
+      "translation": "주석이 하나 이상 있는 ``(plateID, rowID, columnID, class)`` 마다 한 행이며, ``n`` 과 ``share`` 를 포함합니다 — 그리고 전체 세부 분석이 ``attrs['spacr_annotation_coverage']`` 에 있습니다: ``by_class``, ``by_plate``, ``by_well``, ``by_class_plate``, ``by_class_well``, ``by_round``, ``by_source``, ``concentration`` (클래스별) 및 ``notes``."
+    },
+    {
+      "context": "``n`` **is the number of rows the matrix actually contains**, and the supports sum to it. A row whose true class the head has no column for is counted as an error rather than dropped: the matrix grows to hold it, and the missing column stays empty because the head can never predict that class. Reporting ``n`` over one population and ``accuracy`` over another is the one thing a model card must not do — a three-class held-out set scored by a binary head used to report a perfect score on a set the model got two of three right, and the ``accuracy == trace / total`` invariant still checked out because the row was missing from both sides of it.",
+      "label": "spacr.active_learning.holdout_report#3",
+      "source": "``n`` **is the number of rows the matrix actually contains**, and the supports sum to it. A row whose true class the head has no column for is counted as an error rather than dropped: the matrix grows to hold it, and the missing column stays empty because the head can never predict that class. Reporting ``n`` over one population and ``accuracy`` over another is the one thing a model card must not do — a three-class held-out set scored by a binary head used to report a perfect score on a set the model got two of three right, and the ``accuracy == trace / total`` invariant still checked out because the row was missing from both sides of it.",
+      "source_sha256": "e1ffa1ba94fd3393737a31660d48193820a31f9221e152cfc4dba43720b7ce50",
+      "translation": "``n`` **은 행렬에 실제로 들어 있는 행의 수** 이며, 지지도의 합이 이 값과 같습니다. 참 클래스에 해당하는 열이 헤드에 없는 행은 버려지는 대신 오류로 계산됩니다: 행렬은 그 행을 담기 위해 커지고, 헤드가 그 클래스를 절대 예측할 수 없으므로 빠진 열은 비어 있게 됩니다. ``n`` 은 한 모집단에 대해, ``accuracy`` 는 다른 모집단에 대해 보고하는 것은 모델 카드가 절대 해서는 안 되는 일입니다 — 이전에는 이진 헤드가 점수를 매긴 3-클래스 홀드아웃 세트가, 모델이 세 개 중 두 개만 맞힌 세트에서 만점을 보고했고, ``accuracy == trace / total`` 불변식은 그 행이 양쪽 모두에서 빠져 있었기 때문에 여전히 성립했습니다."
+    },
+    {
+      "context": "The rule, in one line: look back over whole rounds until at least ``label_window`` new labels have accumulated, and compare held-out accuracy at the two ends. If it moved by less than ``min_gain``, stop.",
+      "label": "spacr.active_learning.should_stop#1",
+      "source": "The rule, in one line: look back over whole rounds until at least ``label_window`` new labels have accumulated, and compare held-out accuracy at the two ends. If it moved by less than ``min_gain``, stop.",
+      "source_sha256": "0c84351ec3a74975a1c520fccd4c958ef2fae844721fa4863c0325363ad69796",
+      "translation": "규칙을 한 줄로: 새 라벨이 최소 ``label_window`` 개 쌓일 때까지 전체 라운드를 거슬러 살펴보고, 양 끝에서 홀드아웃 정확도를 비교합니다. 변화가 ``min_gain`` 보다 작으면 멈춥니다."
+    },
+    {
+      "context": "**It looks *back over* rounds, not *at* the last one.** A single round that happened to land flat is noise; the question is whether the last fifty labels — however they were divided up — bought anything.",
+      "label": "spacr.active_learning.should_stop#4",
+      "source": "**It looks *back over* rounds, not *at* the last one.** A single round that happened to land flat is noise; the question is whether the last fifty labels — however they were divided up — bought anything.",
+      "source_sha256": "3c24c2892e56e7be15cdbc389a7be002d03818d077a4d08ec00d5df5b4a85ad1",
+      "translation": "**라운드를 *거슬러* 살펴보며, 마지막 라운드 *하나* 만 보지 않습니다.** 우연히 변화 없이 끝난 라운드 하나는 잡음일 뿐입니다. 질문은 마지막 50개의 라벨이 — 어떻게 나뉘었든 — 무언가를 얻어 냈느냐입니다."
+    },
+    {
+      "context": "spaCR already produces the exact shape AnnData was designed for: N objects x M features, plus per-object metadata and an embedding. Writing that out as ``.h5ad`` puts scanpy, scvi-tools and squidpy within reach of a spaCR user for the cost of one function call, instead of a bespoke join script per lab.",
+      "label": "spacr.anndata_export#1",
+      "source": "spaCR already produces the exact shape AnnData was designed for: N objects x M features, plus per-object metadata and an embedding. Writing that out as ``.h5ad`` puts scanpy, scvi-tools and squidpy within reach of a spaCR user for the cost of one function call, instead of a bespoke join script per lab.",
+      "source_sha256": "cd26d74898e73b5ae6fc5767d887ad478656ed541da51a8c2da2aced41943bf7",
+      "translation": "spaCR 은 이미 AnnData 가 설계된 바로 그 형태를 만들어 냅니다: N 개 객체 x M 개 특징, 그리고 객체별 메타데이터와 임베딩. 이를 ``.h5ad`` 로 기록하면 연구실마다 맞춤형 조인 스크립트를 짜는 대신 함수 한 번 호출하는 비용으로 spaCR 사용자가 scanpy, scvi-tools, squidpy 를 쓸 수 있게 됩니다."
+    },
+    {
+      "context": "a printed warning naming those columns and the scanpy calls that will fail on them.",
+      "label": "spacr.anndata_export#12",
+      "source": "a printed warning naming those columns and the scanpy calls that will fail on them.",
+      "source_sha256": "472d953f9130097efdc081ff0b67482f62f053e02a31c8b5c1e76b4c59074199",
+      "translation": "해당 열들과 그 열에서 실패할 scanpy 호출의 이름을 알려 주는 출력 경고."
+    },
+    {
+      "context": "``NAN_DROP_FEATURES`` drop any feature column containing a NaN. Cheap and safe; on a real database it often removes every ``pathogen_*`` column, which is the honest consequence of asking for a complete matrix. ``NAN_DROP_OBJECTS`` drop any object row containing a NaN. Usually removes almost everything, for the same reason; offered because on a single-object-type export it is often exactly right. ``NAN_ZERO`` / ``NAN_MEAN`` impute. Both write a ``layers['missing']`` boolean mask of the same shape by default, because an imputed matrix that cannot be told from a measured one is a trap, and 1 byte per cell against 4 is a fair price.",
+      "label": "spacr.anndata_export#15",
+      "source": "``NAN_DROP_FEATURES`` drop any feature column containing a NaN. Cheap and safe; on a real database it often removes every ``pathogen_*`` column, which is the honest consequence of asking for a complete matrix. ``NAN_DROP_OBJECTS`` drop any object row containing a NaN. Usually removes almost everything, for the same reason; offered because on a single-object-type export it is often exactly right. ``NAN_ZERO`` / ``NAN_MEAN`` impute. Both write a ``layers['missing']`` boolean mask of the same shape by default, because an imputed matrix that cannot be told from a measured one is a trap, and 1 byte per cell against 4 is a fair price.",
+      "source_sha256": "778584b398b53be3e6e1c19a2bbb82fdb95c799f4d0d5deadfdb3155024adccc",
+      "translation": "``NAN_DROP_FEATURES`` NaN 을 포함하는 특징 열을 모두 제거합니다. 저렴하고 안전하지만, 실제 데이터베이스에서는 흔히 ``pathogen_*`` 열이 전부 제거되는데, 이는 완전한 행렬을 요구한 데 따른 정직한 결과입니다. ``NAN_DROP_OBJECTS`` NaN 을 포함하는 객체 행을 모두 제거합니다. 같은 이유로 대개 거의 모든 것이 제거되지만, 단일 객체 유형 내보내기에서는 정확히 맞는 경우가 많아 제공됩니다. ``NAN_ZERO`` / ``NAN_MEAN`` 값을 대치합니다. 둘 다 기본적으로 같은 형태의 불리언 마스크 ``layers['missing']`` 를 기록합니다. 측정값과 구별할 수 없는 대치된 행렬은 함정이며, 셀당 4바이트에 대해 1바이트는 합당한 비용이기 때문입니다."
+    },
+    {
+      "context": "**Infinities are treated as missing under every policy.** spaCR produces +/-inf from ratio features (a denominator of zero), and an inf survives ``dropna`` while destroying any scaling, PCA or distance computed from it. They are converted to NaN before the policy runs and counted separately in ``uns['spacr']['nan']['n_infinite']`` so the substitution is never silent.",
+      "label": "spacr.anndata_export#16",
+      "source": "**Infinities are treated as missing under every policy.** spaCR produces +/-inf from ratio features (a denominator of zero), and an inf survives ``dropna`` while destroying any scaling, PCA or distance computed from it. They are converted to NaN before the policy runs and counted separately in ``uns['spacr']['nan']['n_infinite']`` so the substitution is never silent.",
+      "source_sha256": "1e9e91b4974d7c7e942f8908a3e2c0a381efba9504c37fb3dc03460945e99be2",
+      "translation": "**무한대 값은 모든 정책에서 결측으로 취급됩니다.** spaCR 은 비율 특징(분모가 0인 경우)에서 +/-inf 를 만들어 내며, inf 는 ``dropna`` 를 통과해 살아남는 동시에 그로부터 계산되는 모든 스케일링, PCA, 거리를 망가뜨립니다. 따라서 정책이 실행되기 전에 NaN 으로 변환되고 ``uns['spacr']['nan']['n_infinite']`` 에 따로 집계되므로, 이 치환은 결코 조용히 일어나지 않습니다."
+    },
+    {
+      "context": "Nothing here invents an identity, a filter or a feature/metadata boundary. All four already exist in spaCR and are reused verbatim:",
+      "label": "spacr.anndata_export#2",
+      "source": "Nothing here invents an identity, a filter or a feature/metadata boundary. All four already exist in spaCR and are reused verbatim:",
+      "source_sha256": "3e22d16bd6aae6dbac0c9bb826f9b69147127c92754d960db9c999f8301dd3f9",
+      "translation": "여기서는 식별자, 필터, 특징/메타데이터 경계 중 어느 것도 새로 만들어 내지 않습니다. 네 가지 모두 spaCR 에 이미 존재하며 그대로 재사용됩니다:"
+    },
+    {
+      "context": "In the joined, cell-anchored export (the default) the nuclei and pathogens are not observations at all -- the join in :func:`spacr.io._read_and_join_tables` has already averaged them onto their parent cell. There is no row for an ``obsp`` entry to point at.",
+      "label": "spacr.anndata_export#20",
+      "source": "In the joined, cell-anchored export (the default) the nuclei and pathogens are not observations at all -- the join in :func:`spacr.io._read_and_join_tables` has already averaged them onto their parent cell. There is no row for an ``obsp`` entry to point at.",
+      "source_sha256": "52643aaf94344c39eaa4df22c524ab9a7e8c7b0c950c56982541cdd446a56a65",
+      "translation": "조인된, 세포 기준 내보내기(기본값)에서는 핵과 병원체가 아예 관측값이 아닙니다 -- :func:`spacr.io._read_and_join_tables` 의 조인이 이미 이들을 부모 세포 단위로 평균했기 때문입니다. ``obsp`` 항목이 가리킬 행이 존재하지 않습니다."
+    },
+    {
+      "context": "An ``obsp`` link would only be well defined for one AnnData whose ``obs`` is the disjoint union of cells, nuclei and pathogens -- and that matrix is useless downstream, because ``X`` would be block-structured by construction (a nucleus row has no ``cell_area``) and every tool would see it as ~60% missing data.",
+      "label": "spacr.anndata_export#22",
+      "source": "An ``obsp`` link would only be well defined for one AnnData whose ``obs`` is the disjoint union of cells, nuclei and pathogens -- and that matrix is useless downstream, because ``X`` would be block-structured by construction (a nucleus row has no ``cell_area``) and every tool would see it as ~60% missing data.",
+      "source_sha256": "7d472c9b965786ae70729ba12696591d7c0e3b845fee4a36c8293abf99ebb837",
+      "translation": "``obsp`` 링크는 ``obs`` 가 세포, 핵, 병원체의 서로소 합집합인 단일 AnnData 에서만 제대로 정의될 것입니다 -- 그리고 그런 행렬은 이후 분석에서 쓸모가 없습니다. ``X`` 가 구조적으로 블록 형태가 되어(핵 행에는 ``cell_area`` 가 없음) 모든 도구가 이를 ~60% 결측 데이터로 보게 되기 때문입니다."
+    },
+    {
+      "context": "What is recorded instead is exact and survives everything ``obsp`` does not (subsetting, concatenation, an ``h5ad`` round trip through a tool that knows nothing about spaCR):",
+      "label": "spacr.anndata_export#23",
+      "source": "What is recorded instead is exact and survives everything ``obsp`` does not (subsetting, concatenation, an ``h5ad`` round trip through a tool that knows nothing about spaCR):",
+      "source_sha256": "34d6b69135cc584b0a936ce8ede8bc44fe9e46dcee8c2bb787a4763f5a4c9cef",
+      "translation": "대신 기록되는 정보는 정확하며, ``obsp`` 가 살아남지 못하는 모든 작업(부분 집합 추출, 연결, spaCR 에 대해 전혀 모르는 도구를 거친 ``h5ad`` 왕복)에서도 유지됩니다:"
+    },
+    {
+      "context": "``uns['spacr']`` carries the spaCR version, the settings hash (:func:`spacr.artifacts.settings_hash`), the processing-session id, the absolute source database path, the tables read, the filter that was applied and the counts before and after it. The written file is also registered with :mod:`spacr.artifacts` under kind :data:`ANNDATA_KIND`, with the project's ``measurements-db`` artifact as its input -- so ``spacr.artifacts.is_stale`` reports the export as stale the moment Measure is executed again, which is the whole reason the registry exists.",
+      "label": "spacr.anndata_export#31",
+      "source": "``uns['spacr']`` carries the spaCR version, the settings hash (:func:`spacr.artifacts.settings_hash`), the run id, the absolute source database path, the tables read, the filter that was applied and the counts before and after it. The written file is also registered with :mod:`spacr.artifacts` under kind :data:`ANNDATA_KIND`, with the project's ``measurements-db`` artifact as its input -- so ``spacr.artifacts.is_stale`` reports the export as stale the moment Measure is re-run, which is the whole reason the registry exists.",
+      "source_sha256": "10383499712d3c7987cb6f5c700d839392f698022652d98d00fccb7f04f52136",
+      "translation": "``uns['spacr']`` 에는 spaCR 버전, 설정 해시( :func:`spacr.artifacts.settings_hash` ), 처리 세션 ID, 원본 데이터베이스의 절대 경로, 읽은 테이블, 적용된 필터, 그리고 필터 적용 전후의 개수가 담깁니다. 기록된 파일은 :mod:`spacr.artifacts` 에도 :data:`ANNDATA_KIND` 종류로 등록되며, 프로젝트의 ``measurements-db`` 아티팩트를 입력으로 가집니다 -- 그래서 Measure 를 다시 실행하는 순간 ``spacr.artifacts.is_stale`` 가 이 내보내기를 오래된 것으로 보고하며, 이것이 바로 레지스트리가 존재하는 이유입니다."
+    },
+    {
+      "context": "Before spaCR grew an image-region-format marker the answer was the *reverse* of this (see :func:`legacy_png_view`); that was a bug, not a convention.",
+      "label": "spacr.crops.png_view#5",
+      "source": "Before spaCR grew a crop-format marker the answer was the *reverse* of this (see :func:`legacy_png_view`); that was a bug, not a convention.",
+      "source_sha256": "fcb917c9a5b915d1ec81ab766302a758c2415f4ae486db65b3f29bddac41035e",
+      "translation": "spaCR 에 추출된 이미지 영역 형식 표시가 생기기 전에는 답이 이것의 *반대* 였습니다( :func:`legacy_png_view` 참조). 그것은 규칙이 아니라 버그였습니다."
+    },
+    {
+      "context": "A file that cannot be read is skipped so the rest of the folder still converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`, printed as a loud summary at the end, and **stamped into a sibling** ``rename_log.run_status.json``. That sidecar is what lets a later reader (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is missing inputs, instead of quietly analysing a subset.",
+      "label": "spacr.io.convert_to_yokogawa#2",
+      "source": "A file that cannot be read is skipped so the rest of the folder still converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`, printed as a loud summary at the end, and **stamped into a sibling** ``rename_log.run_status.json``. That sidecar is what lets a later reader (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is missing inputs, instead of quietly analysing a subset.",
+      "source_sha256": "a3883b7e6d0fcfc96a090738b0160a7b81fc18850d31b04438c7c4f15f682f91",
+      "translation": "읽을 수 없는 파일은 건너뛰어 폴더의 나머지는 계속 변환됩니다 — 하지만 건너뛴 사실은 :class:`spacr.errors.RunLedger` 에 기록되고, 마지막에 눈에 띄는 요약으로 출력되며, **옆에 있는 파일** ``rename_log.run_status.json`` 에 기록됩니다. 바로 이 부속 파일 덕분에 나중에 읽는 사람(또는 :func:`spacr.errors.run_is_complete` )이 변환된 폴더에 입력이 빠져 있다는 것을 알 수 있으며, 조용히 일부만 분석하는 일을 막을 수 있습니다."
+    },
+    {
+      "context": "one of :data:`OBJECT_TYPES`. Each type is offered separately, so a filter can act on one and wave the rest through with ``np.ones(len(context.labels), bool)``. Note that culling only the cells cascades to their nuclei, pathogens and cytoplasm when the run has all of ``cell_mask_dim``, ``nucleus_mask_dim`` and ``pathogen_mask_dim`` set — that is the condition under which ``_measure_crop_core`` calls ``_exclude_objects``, which zeroes the child masks outside the surviving cells. Otherwise apply the same decision to each type, which is what a polygon test on the centroid does naturally.",
+      "label": "spacr.measure_hooks.RegionContext#1",
+      "source": "one of :data:`OBJECT_TYPES`. Each type is offered separately, so a filter can act on one and wave the rest through with ``np.ones(len(context.labels), bool)``. Note that culling only the cells cascades to their nuclei, pathogens and cytoplasm when the run has all of ``cell_mask_dim``, ``nucleus_mask_dim`` and ``pathogen_mask_dim`` set — that is the condition under which ``_measure_crop_core`` calls ``_exclude_objects``, which zeroes the child masks outside the surviving cells. Otherwise apply the same decision to each type, which is what a polygon test on the centroid does naturally.",
+      "source_sha256": "3bfd9d31c19bd7c6b9f7469996458b872246c3fa7a793d6e4ac89cc7125a8db9",
+      "translation": ":data:`OBJECT_TYPES` 중 하나. 각 유형은 따로 제공되므로 필터는 하나에만 작용하고 나머지는 ``np.ones(len(context.labels), bool)`` 로 그대로 통과시킬 수 있습니다. 실행에 ``cell_mask_dim``, ``nucleus_mask_dim``, ``pathogen_mask_dim`` 이 모두 설정된 경우에만 세포만 걸러내도 그 효과가 핵, 병원체, 세포질로 이어진다는 점에 유의하십시오 — 이것이 ``_measure_crop_core`` 가 ``_exclude_objects`` 를 호출하는 조건이며, 이 함수는 살아남은 세포 밖의 자식 마스크를 0으로 만듭니다. 그렇지 않으면 각 유형에 같은 결정을 적용하십시오. 중심점에 대한 다각형 테스트가 자연스럽게 하는 일이 바로 그것입니다."
+    },
+    {
+      "context": "voxel spacing in the mask's index order, or None in 2-D.",
+      "label": "spacr.measure_hooks.RegionContext#5",
+      "source": "voxel spacing in the mask's index order, or None in 2-D.",
+      "source_sha256": "99b08c7f1e01f371f36a6ee100b1fbb7985f6b07b3af9cd5de5fb75282cc6004",
+      "translation": "마스크의 인덱스 순서로 된 복셀 간격, 2-D 에서는 None."
+    },
+    {
+      "context": "``(len(labels), mask.ndim)`` float array of centroids in **array index order** — ``(row, col)`` in 2-D, ``(z, y, x)`` in 3-D — in pixels/voxels, unscaled by ``spacing``. Computed on first access and cached, so a filter that rasterises its polygon and reads ``mask`` directly never pays for it.",
+      "label": "spacr.measure_hooks.RegionContext#7",
+      "source": "``(len(labels), mask.ndim)`` float array of centroids in **array index order** — ``(row, col)`` in 2-D, ``(z, y, x)`` in 3-D — in pixels/voxels, unscaled by ``spacing``. Computed on first access and cached, so a filter that rasterises its polygon and reads ``mask`` directly never pays for it.",
+      "source_sha256": "f166b0dc6bd33a48b828578d7ffcf8d5943cdb47243ca4d70cb3bffdc93cdc81",
+      "translation": "**배열 인덱스 순서** 로 된 중심점의 ``(len(labels), mask.ndim)`` float 배열 — 2-D 에서는 ``(row, col)``, 3-D 에서는 ``(z, y, x)`` — 이며, 단위는 픽셀/복셀이고 ``spacing`` 으로 스케일되지 않습니다. 처음 접근할 때 계산되어 캐시되므로, 다각형을 래스터화하고 ``mask`` 를 직접 읽는 필터는 이 비용을 전혀 치르지 않습니다."
+    },
+    {
+      "context": "Covariance estimator for the likelihood fits (``'HC0'..'HC3'``); ``None`` for classical standard errors.",
+      "label": "spacr.ml.regression_model#26",
+      "source": "Covariance estimator for the likelihood fits (``'HC0'..'HC3'``); ``None`` for classical standard errors.",
+      "source_sha256": "3cef5a21a94f9198bc1c76e7ee8cd252ab0319b9354eacaa4614f116be8e9958",
+      "translation": "우도 적합에 사용할 공분산 추정량( ``'HC0'..'HC3'`` ); 고전적 표준오차를 쓰려면 ``None``."
+    },
+    {
+      "context": "There is also a case where the first bullet above is *backwards*. Two screens that share a guide library both have ``plate1..plate4``, and there they are not two plates claiming one identity -- they are two *different* plates whose identity was only ever partly written down. The missing part is the screen.",
+      "label": "spacr.multi_database#9",
+      "source": "There is also a case where the first bullet above is *backwards*. Two screens that share a guide library both have ``plate1..plate4``, and there they are not two plates claiming one identity -- they are two *different* plates whose identity was only ever partly written down. The missing part is the screen.",
+      "source_sha256": "6d6cb1fec24f8d96e9c336e127c547be6f9544d385590f16e96962bfe2bbc18c",
+      "translation": "위의 첫 번째 항목이 *거꾸로* 적용되는 경우도 있습니다. 가이드 RNA 라이브러리를 공유하는 두 스크리닝은 둘 다 ``plate1..plate4`` 를 가지며, 이 경우 그것들은 하나의 정체성을 주장하는 두 플레이트가 아니라 -- 정체성이 일부만 기록되었던 서로 *다른* 두 플레이트입니다. 빠진 부분은 스크리닝입니다."
+    },
+    {
+      "context": "write chunks that are entirely ``fill_value``. ``False`` (the default) omits them, which is how a sparse mask stops costing what a dense one does.",
+      "label": "spacr.ome_zarr.write_ome_zarr#19",
+      "source": "write chunks that are entirely ``fill_value``. ``False`` (the default) omits them, which is how a sparse mask stops costing what a dense one does.",
+      "source_sha256": "c0f4043b09092330ac67a89b0c3900ec5955d1fe635467d4904a28e91f566823",
+      "translation": "전부 ``fill_value`` 인 청크도 기록할지 여부. ``False`` (기본값)이면 이런 청크를 생략하며, 이 덕분에 희소한 마스크가 조밀한 마스크만큼의 비용을 들이지 않게 됩니다."
+    },
+    {
+      "context": "**The chunks.** Default is 1 along t and c (a viewer draws one channel of one timepoint), :data:`DEFAULT_TILE` on y and x, and :data:`DEFAULT_Z_CHUNK` on any other space axis — about 2 MiB per chunk for uint16. Pass ``chunks=`` to override.",
+      "label": "spacr.ome_zarr.write_ome_zarr#4",
+      "source": "**The chunks.** Default is 1 along t and c (a viewer draws one channel of one timepoint), :data:`DEFAULT_TILE` on y and x, and :data:`DEFAULT_Z_CHUNK` on any other space axis — about 2 MiB per chunk for uint16. Pass ``chunks=`` to override.",
+      "source_sha256": "ae69ae397e8a845c86dabde07f649d702d55bc10136303fb012533f9afd4dad7",
+      "translation": "**청크.** 기본값은 t 와 c 방향으로 1 이고(뷰어는 한 시점의 한 채널을 그림), y 와 x 에는 :data:`DEFAULT_TILE`, 그 밖의 공간 축에는 :data:`DEFAULT_Z_CHUNK` 입니다 — uint16 기준으로 청크당 약 2 MiB. 덮어쓰려면 ``chunks=`` 를 전달하십시오."
+    },
+    {
+      "context": "OMERO's ``WellWrapper.getRow()`` and ``.getColumn()`` are **0-based**. :func:`well_position` adds one and hands the result to :func:`spacr.schema.well_id`, which is spaCR's own definition of a microplate sample position name. Consequences worth writing down because they are the ones that get fumbled:",
+      "label": "spacr.omero#10",
+      "source": "OMERO's ``WellWrapper.getRow()`` and ``.getColumn()`` are **0-based**. :func:`well_position` adds one and hands the result to :func:`spacr.schema.well_id`, which is spaCR's own definition of a well name. Consequences worth writing down because they are the ones that get fumbled:",
+      "source_sha256": "d8886763245890f26fb826a9244c0d293efcb70a192aa836adca20408956fc03",
+      "translation": "OMERO 의 ``WellWrapper.getRow()`` 와 ``.getColumn()`` 은 **0 기반** 입니다. :func:`well_position` 은 1 을 더한 뒤 결과를 :func:`spacr.schema.well_id` 에 넘기며, 이것이 spaCR 자체의 웰 이름 정의입니다. 흔히 실수하는 부분이라 적어 둘 가치가 있는 결과는 다음과 같습니다:"
+    },
+    {
+      "context": "**row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives). This is bijective base 26, and it is not a hypothetical: a 1536-position laboratory microplate has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for the same laboratory microplate, so nothing here caps the column at 24 either.",
+      "label": "spacr.omero#13",
+      "source": "**row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives). This is bijective base 26, and it is not a hypothetical: a 1536-well plate has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for the same plate, so nothing here caps the column at 24 either.",
+      "source_sha256": "b0e0419a416ef2de9dfd007da8985990d0150d17a7aafe76a8fc76f135b95f6e",
+      "translation": "**행 26 ->** ``AA`` 이며, ``[`` (``chr(65 + 26)`` 이 내놓는 값)도 아니고 ``IndexError`` (``string.ascii_uppercase[26]`` 이 내놓는 결과)도 아닙니다. 이것은 전단사 26진법이며, 가정의 이야기가 아닙니다: 1536-웰 플레이트는 32 개의 행을 가지며 ``A..Z``, ``AA..AF`` 로 이어집니다. 같은 플레이트에서 열 47 -> ``48`` 이므로, 여기서는 열도 24 로 제한하지 않습니다."
+    },
+    {
+      "context": ":func:`inspect_container` reports the image count, the microplate sample positions, the dimensions and the image data channel names **without ever calling** ``getPlane`` — a fact the test suite pins by counting calls on the fake gateway. The importers additionally take ``limit`` (stop after N OMERO images) and ``dry_run`` (build the complete plan, list every filename that would be written, touch no pixels).",
+      "label": "spacr.omero#22",
+      "source": ":func:`inspect_container` reports the image count, the wells, the dimensions and the channel names **without ever calling** ``getPlane`` — a fact the test suite pins by counting calls on the fake gateway. The importers additionally take ``limit`` (stop after N OMERO images) and ``dry_run`` (build the complete plan, list every filename that would be written, touch no pixels).",
+      "source_sha256": "c20b6755db9b4ff13b2c24aa758a2b1f838ecaaeda49abfbd269b87e1d66b1be",
+      "translation": ":func:`inspect_container` 는 이미지 수, 웰, 차원, 채널 이름을 ``getPlane`` 을 **한 번도 호출하지 않고** 보고합니다 — 테스트 스위트가 가짜 게이트웨이의 호출 횟수를 세어 이 사실을 고정해 둡니다. 가져오기 함수들은 추가로 ``limit`` (OMERO 이미지 N 개 후 중지)과 ``dry_run`` (전체 계획을 만들고, 기록될 모든 파일 이름을 나열하되, 픽셀은 건드리지 않음)을 받습니다."
+    },
+    {
+      "context": "**The default is REPLACE, implemented as update-in-place, and it is the safe option rather than a compromise:** an existing MapAnnotation whose namespace is exactly spaCR's has its value overwritten. Nothing is created, nothing is unlinked, nothing is deleted, and no annotation outside spaCR's namespaces is so much as read for its value. :data:`APPEND` is available and explicit for anyone who wants a history of runs on the object.",
+      "label": "spacr.omero#25",
+      "source": "**The default is REPLACE, implemented as update-in-place, and it is the safe option rather than a compromise:** an existing MapAnnotation whose namespace is exactly spaCR's has its value overwritten. Nothing is created, nothing is unlinked, nothing is deleted, and no annotation outside spaCR's namespaces is so much as read for its value. :data:`APPEND` is available and explicit for anyone who wants a history of runs on the object.",
+      "source_sha256": "e26e72778e62ff8f6182c8cf291ce35746ccf5243c06b995174424124a456184",
+      "translation": "**기본값은 REPLACE 이며, 제자리 업데이트로 구현되고, 타협이 아니라 안전한 선택지입니다:** 네임스페이스가 정확히 spaCR 의 것인 기존 MapAnnotation 은 값이 덮어쓰기 됩니다. 아무것도 생성되지 않고, 아무것도 연결 해제되지 않으며, 아무것도 삭제되지 않고, spaCR 네임스페이스 밖의 주석은 값조차 읽히지 않습니다. 객체에 대한 실행 기록을 원하는 사람을 위해 :data:`APPEND` 를 명시적으로 사용할 수 있습니다."
+    },
+    {
+      "context": "**This module never deletes anything.** There is no call to ``deleteObjects`` in it, under any mode, for any object. If a previous ``APPEND`` run left three copies, ``REPLACE`` updates the oldest and *reports* the rest in :attr:`AnnotationResult.duplicates` — removing them is a decision for a human with the OMERO.web UI, not for an importer.",
+      "label": "spacr.omero#27",
+      "source": "**This module never deletes anything.** There is no call to ``deleteObjects`` in it, under any mode, for any object. If a previous ``APPEND`` run left three copies, ``REPLACE`` updates the oldest and *reports* the rest in :attr:`AnnotationResult.duplicates` — removing them is a decision for a human with the OMERO.web UI, not for an importer.",
+      "source_sha256": "0d42aacf2af9036b27a3e471c15ca4b9f0ea026b2024e99752c7183d9a5d9321",
+      "translation": "**이 모듈은 절대 아무것도 삭제하지 않습니다.** 어떤 모드에서도, 어떤 객체에 대해서도 ``deleteObjects`` 호출이 없습니다. 이전 ``APPEND`` 실행이 사본 세 개를 남겼다면, ``REPLACE`` 는 가장 오래된 것을 업데이트하고 나머지는 :attr:`AnnotationResult.duplicates` 에 *보고* 합니다 — 그것들을 제거하는 것은 가져오기 함수가 아니라 OMERO.web UI 를 쓰는 사람이 내릴 결정입니다."
+    },
+    {
+      "context": "**TagAnnotations are never edited.** In OMERO a tag is a *shared* object; renaming the tag linked to this image renames it on every other object in the group that carries it. So :func:`export_tag_annotation` links a tag when the verdict is new, does nothing when the identical verdict is already linked, and reports the previous tag when the verdict has *changed* — it never unlinks and never renames.",
+      "label": "spacr.omero#29",
+      "source": "**TagAnnotations are never edited.** In OMERO a tag is a *shared* object; renaming the tag linked to this image renames it on every other object in the group that carries it. So :func:`export_tag_annotation` links a tag when the verdict is new, does nothing when the identical verdict is already linked, and reports the previous tag when the verdict has *changed* — it never unlinks and never renames.",
+      "source_sha256": "d425f49fc078d2d15e93d561cf8b28a90163593ec37062635cff19e31fc08295",
+      "translation": "**TagAnnotation 은 절대 편집되지 않습니다.** OMERO 에서 태그는 *공유* 객체이므로, 이 이미지에 연결된 태그의 이름을 바꾸면 그 태그를 가진 그룹 내 다른 모든 객체에서도 이름이 바뀝니다. 그래서 :func:`export_tag_annotation` 은 판정이 새로우면 태그를 연결하고, 같은 판정이 이미 연결되어 있으면 아무것도 하지 않으며, 판정이 *바뀌었으면* 이전 태그를 보고합니다 — 연결 해제도, 이름 변경도 절대 하지 않습니다."
+    },
+    {
+      "context": "**Import.** :func:`import_dataset` and :func:`import_plate` take an OMERO Dataset or Plate id and write a spaCR source folder:",
+      "label": "spacr.omero#3",
+      "source": "**Import.** :func:`import_dataset` and :func:`import_plate` take an OMERO Dataset or Plate id and write a spaCR source folder:",
+      "source_sha256": "2e5b88752ab972229f324f614026edeae52a99bc9cccfd5edbf036b789524639",
+      "translation": "**가져오기.** :func:`import_dataset` 과 :func:`import_plate` 은 OMERO Dataset 또는 Plate id 를 받아 spaCR 소스 폴더를 작성합니다:"
+    },
+    {
+      "context": "``omero-py`` is an extra: ``pip install \"spacr[omero]\"``. It is deliberately **not** part of ``spacr[all]``, because it depends on ``zeroc-ice``, a compiled C++ Ice runtime whose wheels lag Python releases and which otherwise needs a C++ toolchain (see the comment beside the extra in ``setup.py``).",
+      "label": "spacr.omero#33",
+      "source": "``omero-py`` is an extra: ``pip install \"spacr[omero]\"``. It is deliberately **not** part of ``spacr[all]``, because it depends on ``zeroc-ice``, a compiled C++ Ice runtime whose wheels lag Python releases and which otherwise needs a C++ toolchain (see the comment beside the extra in ``setup.py``).",
+      "source_sha256": "2a6e8c308e21bcfc4736ea306b6cedd7efa8e791b688cbd5b70a5c356a73bd37",
+      "translation": "``omero-py`` 는 선택적 추가 구성 요소입니다: ``pip install \"spacr[omero]\"``. 이는 의도적으로 ``spacr[all]`` 에 **포함되지 않습니다**. ``zeroc-ice`` 에 의존하기 때문인데, 이것은 컴파일된 C++ Ice 런타임으로 wheel 이 Python 릴리스보다 늦게 나오며, 그렇지 않으면 C++ 툴체인이 필요합니다( ``setup.py`` 에서 이 extra 옆의 주석 참조)."
+    },
+    {
+      "context": "A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice`` is the single most likely way this fails in the field, and ``No module named 'Ice'`` mentions neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.",
+      "label": "spacr.omero#36",
+      "source": "A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice`` is the single most likely way this fails in the field, and ``No module named 'Ice'`` mentions neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.",
+      "source_sha256": "f071e54875693395da9503f8b5caffb2d5d489bae370b032ebef957242b60f28",
+      "translation": "``Ice`` 가 없으면 omero 추가 구성 요소가 없는 것으로 간주합니다. 반쯤 설치된 ``zeroc-ice`` 는 실제 사용 환경에서 이것이 실패하는 가장 흔한 원인이며, ``No module named 'Ice'`` 는 OMERO 도 spaCR 도 언급하지 않습니다. :func:`missing_omero_message` 가 무슨 일이 일어났는지 알려 줍니다."
+    },
+    {
+      "context": "That is :func:`spacr.convert.target_name` verbatim — the exact shape ``spacr.utils._get_regex('cellvoyager', 'tif')`` parses — so the output folder is handed straight to Mask/Measure with ``metadata_type='cellvoyager'`` and nothing else. **No new layout is invented here.** The one thing that must survive the trip is the laboratory microplate geometry, because spaCR keys every measurement, every plot and every microplate sample position-level statistic off ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID``; :func:`well_position` is where OMERO's 0-based ``(row, column)`` becomes spaCR's ``('r1', 'c1')`` and the microplate sample position name ``A01``.",
+      "label": "spacr.omero#4",
+      "source": "That is :func:`spacr.convert.target_name` verbatim — the exact shape ``spacr.utils._get_regex('cellvoyager', 'tif')`` parses — so the output folder is handed straight to Mask/Measure with ``metadata_type='cellvoyager'`` and nothing else. **No new layout is invented here.** The one thing that must survive the trip is the plate geometry, because spaCR keys every measurement, every plot and every well-level statistic off ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID``; :func:`well_position` is where OMERO's 0-based ``(row, column)`` becomes spaCR's ``('r1', 'c1')`` and the well name ``A01``.",
+      "source_sha256": "d30857077f80d8d24adbe178f30ebad6aa549c9e313c54d4744f3730293f77ad",
+      "translation": "이것은 :func:`spacr.convert.target_name` 그대로입니다 — ``spacr.utils._get_regex('cellvoyager', 'tif')`` 가 파싱하는 바로 그 형식이므로 — 출력 폴더는 ``metadata_type='cellvoyager'`` 만 지정해 Mask/Measure 로 곧바로 넘겨집니다. **여기서 새 레이아웃을 만들어 내지 않습니다.** 이동 과정에서 반드시 보존되어야 하는 한 가지는 플레이트 형상입니다. spaCR 은 모든 측정, 모든 플롯, 모든 웰 수준 통계의 키를 ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` 에서 가져오기 때문입니다; :func:`well_position` 은 OMERO 의 0 기반 ``(row, column)`` 이 spaCR 의 ``('r1', 'c1')`` 과 웰 이름 ``A01`` 로 바뀌는 곳입니다."
+    },
+    {
+      "context": "**Export.** :func:`export_map_annotation`, :func:`export_file_annotation` and :func:`export_tag_annotation` push spaCR's own output back onto the OMERO objects it came from: a name/value MapAnnotation per image or per microplate sample position (what OMERO.web actually renders), a FileAnnotation for the results CSV or the figure PDF, and a TagAnnotation for a categorical verdict.",
+      "label": "spacr.omero#5",
+      "source": "**Export.** :func:`export_map_annotation`, :func:`export_file_annotation` and :func:`export_tag_annotation` push spaCR's own output back onto the OMERO objects it came from: a key/value MapAnnotation per image or per well (what OMERO.web actually renders), a FileAnnotation for the results CSV or the figure PDF, and a TagAnnotation for a categorical verdict.",
+      "source_sha256": "2e21ad4f8df5cdb6a805fb198b9d144f40e6ad68e9ce567cc8c60d0a99f2d9f6",
+      "translation": "**내보내기.** :func:`export_map_annotation`, :func:`export_file_annotation`, :func:`export_tag_annotation` 은 spaCR 자체의 출력을 그것이 비롯된 OMERO 객체로 되돌려 보냅니다: 이미지별 또는 웰별 키/값 MapAnnotation(OMERO.web 이 실제로 렌더링하는 것), 결과 CSV 나 그림 PDF 를 위한 FileAnnotation, 범주형 판정을 위한 TagAnnotation 입니다."
+    },
+    {
+      "context": "Everything that is easy to get wrong here is *arithmetic and string formatting*, not RPC: the row/column mapping, the filename, the id parsing, the float formatting, the decision to replace rather than append. All of it lives in pure functions over plain data — :func:`well_position`, :func:`plane_filename`, :func:`parse_object_ref`, :func:`format_map_value`, :func:`measurement_pairs`, :func:`plan_annotation` — and the ``BlitzGateway`` calls are confined to a thin layer that only walks containers and moves bytes. That is why this module has a real test suite on a machine with no OMERO server and no ``omero-py`` installed: the fake gateway in ``tests/test_omero.py`` implements about a dozen methods, and everything worth testing is reachable through it.",
+      "label": "spacr.omero#7",
+      "source": "Everything that is easy to get wrong here is *arithmetic and string formatting*, not RPC: the row/column mapping, the filename, the id parsing, the float formatting, the decision to replace rather than append. All of it lives in pure functions over plain data — :func:`well_position`, :func:`plane_filename`, :func:`parse_object_ref`, :func:`format_map_value`, :func:`measurement_pairs`, :func:`plan_annotation` — and the ``BlitzGateway`` calls are confined to a thin layer that only walks containers and moves bytes. That is why this module has a real test suite on a machine with no OMERO server and no ``omero-py`` installed: the fake gateway in ``tests/test_omero.py`` implements about a dozen methods, and everything worth testing is reachable through it.",
+      "source_sha256": "d85d5f3d3ce5a7fb5a2936f99be8748f1e8776c7541ded95437dc8d2c62c922c",
+      "translation": "여기서 틀리기 쉬운 것은 모두 RPC 가 아니라 *산술과 문자열 서식* 입니다: 행/열 매핑, 파일 이름, id 파싱, float 서식, 추가 대신 교체하기로 하는 결정. 이 모든 것은 단순한 데이터를 다루는 순수 함수 — :func:`well_position`, :func:`plane_filename`, :func:`parse_object_ref`, :func:`format_map_value`, :func:`measurement_pairs`, :func:`plan_annotation` — 안에 있고, ``BlitzGateway`` 호출은 컨테이너를 순회하고 바이트를 옮기기만 하는 얇은 계층에 갇혀 있습니다. 그래서 이 모듈은 OMERO 서버도 없고 ``omero-py`` 도 설치되지 않은 컴퓨터에서 실제 테스트 스위트를 갖습니다: ``tests/test_omero.py`` 의 가짜 게이트웨이는 십여 개의 메서드를 구현하며, 테스트할 가치가 있는 모든 것은 그것을 통해 도달할 수 있습니다."
+    },
+    {
+      "context": "Higher ``mean`` means stronger evidence the gene is a hit.  Microplate sample positions carrying more of a hit gene have more positive cells than their imaged cell count alone accounts for, which is a positive coefficient on log read fraction.",
+      "label": "spacr.power_model.gather_model_estimate#2",
+      "source": "Higher ``mean`` means stronger evidence the gene is a hit.  Wells carrying more of a hit gene have more positive cells than their imaged cell count alone accounts for, which is a positive coefficient on log read fraction.",
+      "source_sha256": "bf6c606805dd1f087c9081a26de63a78a3afb932e0ad77d686ce74917e64b78d",
+      "translation": "``mean`` 이 높을수록 그 유전자가 히트라는 증거가 강합니다. 히트 유전자의 비중이 큰 웰은 이미지화된 세포 수만으로 설명되는 것보다 양성 세포가 더 많으며, 이는 로그 리드 비율에 대한 양의 계수로 나타납니다."
+    },
+    {
+      "context": "extra keyword arguments for :func:`fit_model`.",
+      "label": "spacr.power_model.scan_parameters#12",
+      "source": "extra keyword arguments for :func:`fit_model`.",
+      "source_sha256": "b2ec7fb54eb1710b0f7c962646fc9b1954482e34089e237f34573b9f2d02262b",
+      "translation": ":func:`fit_model` 에 전달할 추가 키워드 인수."
+    },
+    {
+      "context": "called once per completed (point, replicate) with a mapping ``{\"index\", \"total\", \"point_index\", \"n_points\", \"replicate\", \"resumed\", \"row\"}`` — ``index`` and ``total`` count fits, one-based, so ``index / total`` is a progress fraction, and ``row`` is that fit's result record.",
+      "label": "spacr.power_model.scan_parameters#13",
+      "source": "called once per completed (point, replicate) with a mapping ``{\"index\", \"total\", \"point_index\", \"n_points\", \"replicate\", \"resumed\", \"row\"}`` — ``index`` and ``total`` count fits, one-based, so ``index / total`` is a progress fraction, and ``row`` is that fit's result record.",
+      "source_sha256": "2cb8ee32b6b6cc74232e552781d41d0a7394c1839d35057693bc8f99b5e94b6d",
+      "translation": "완료된 (점, 반복) 하나마다 한 번씩, 매핑 ``{\"index\", \"total\", \"point_index\", \"n_points\", \"replicate\", \"resumed\", \"row\"}`` 와 함께 호출됩니다 — ``index`` 와 ``total`` 은 1 부터 세는 적합 횟수이므로 ``index / total`` 은 진행 비율이고, ``row`` 는 그 적합의 결과 레코드입니다."
+    },
+    {
+      "context": "Returning exactly ``False`` stops the sweep and returns the rows completed so far; anything else (including ``None``) continues.  This exists for one reason: a sweep is minutes long and a GUI has to be able to show where it is and to stop it without killing the independent execution path.  Between points is the only safe granularity — one fit is atomic — so a cancel is honoured after the fit in flight, not during it.  The callback executes on the calling independent execution path, inline; it must not block, and a callback that raises aborts the sweep rather than being swallowed, because a broken progress reporter is a bug in the caller and hiding it would leave the sweep executing with nothing watching it.",
+      "label": "spacr.power_model.scan_parameters#14",
+      "source": "Returning exactly ``False`` stops the sweep and returns the rows completed so far; anything else (including ``None``) continues.  This exists for one reason: a sweep is minutes long and a GUI has to be able to show where it is and to stop it without killing the thread.  Between points is the only safe granularity — one fit is atomic — so a cancel is honoured after the fit in flight, not during it.  The callback runs on the calling thread, inline; it must not block, and a callback that raises aborts the sweep rather than being swallowed, because a broken progress reporter is a bug in the caller and hiding it would leave the sweep running with nothing watching it.",
+      "source_sha256": "561b39c285b274f6e65fbaa5ae973945bb91d34031748f9301bfd8e3d779b9c7",
+      "translation": "정확히 ``False`` 를 반환하면 스윕이 멈추고 지금까지 완료된 행이 반환됩니다; 그 밖의 값(``None`` 포함)은 계속 진행합니다. 이것이 존재하는 이유는 하나입니다: 스윕은 몇 분씩 걸리고, GUI 는 진행 위치를 보여 주면서 독립 실행 경로를 죽이지 않고 멈출 수 있어야 합니다. 점과 점 사이가 유일하게 안전한 단위입니다 — 적합 하나는 원자적이므로 — 취소는 진행 중인 적합이 끝난 뒤에 반영되며, 그 도중에는 반영되지 않습니다. 콜백은 호출하는 독립 실행 경로에서 인라인으로 실행됩니다; 블로킹하면 안 되며, 예외를 발생시키는 콜백은 삼켜지는 대신 스윕을 중단시킵니다. 고장 난 진행 보고기는 호출자의 버그이고, 이를 숨기면 아무도 지켜보지 않는 채로 스윕이 계속 돌아가기 때문입니다."
+    },
+    {
+      "context": "simulator parameters, scalar or sequence.",
+      "label": "spacr.power_model.scan_parameters#15",
+      "source": "simulator parameters, scalar or sequence.",
+      "source_sha256": "4d22f8f858eb0c65783bc789fb158f74161f4ed0076a654a5dce43ca336d6ee9",
+      "translation": "시뮬레이터 매개변수, 스칼라 또는 시퀀스."
+    },
+    {
+      "context": "``pandas.DataFrame``, one row per (grid point, replicate), with every parameter column plus the columns in ``_SCAN_RESULT_COLUMNS``.  Rows loaded from a resumed progress file are included.  ``DataFrame.attrs`` carries ``n_planned`` (fits the full grid would have run) and ``cancelled`` (whether ``on_point`` stopped it early), so a short frame can be told from a small grid.",
+      "label": "spacr.power_model.scan_parameters#16",
+      "source": "``pandas.DataFrame``, one row per (grid point, replicate), with every parameter column plus the columns in ``_SCAN_RESULT_COLUMNS``.  Rows loaded from a resumed progress file are included.  ``DataFrame.attrs`` carries ``n_planned`` (fits the full grid would have run) and ``cancelled`` (whether ``on_point`` stopped it early), so a short frame can be told from a small grid.",
+      "source_sha256": "0462a6a37dd2e77c856d872a1265ba0cf09e0ee9aea3035c820cfc0e2d36124f",
+      "translation": "``pandas.DataFrame`` 으로, (그리드 점, 반복) 하나당 한 행이며 모든 매개변수 열과 ``_SCAN_RESULT_COLUMNS`` 의 열을 포함합니다. 재개된 진행 파일에서 불러온 행도 포함됩니다. ``DataFrame.attrs`` 에는 ``n_planned`` (전체 그리드라면 실행했을 적합 수)와 ``cancelled`` (``on_point`` 가 일찍 멈췄는지 여부)가 들어 있으므로, 짧은 프레임과 작은 그리드를 구별할 수 있습니다."
+    },
+    {
+      "context": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV is a silent data-corruption bug, so we stop instead), or the progress file is non-empty and ``resume=False``.",
+      "label": "spacr.power_model.scan_parameters#17",
+      "source": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV is a silent data-corruption bug, so we stop instead), or the progress file is non-empty and ``resume=False``.",
+      "source_sha256": "905314d1666406bc4eccd01d48df000d27f63082ce3bd5c93ecd27c841b6ff4d",
+      "translation": "매개변수가 하나도 주어지지 않았거나, ``on_error`` 를 인식할 수 없거나, ``n_replicates < 1`` 이거나, 진행 파일이 다른 열 구성으로 이미 존재하거나(TSV 에 어긋난 행을 추가하는 것은 조용한 데이터 손상 버그이므로 대신 멈춥니다), 진행 파일이 비어 있지 않은데 ``resume=False`` 인 경우."
+    },
+    {
+      "context": "skip points already present in ``progress_file``.  With ``resume=False`` and a non-empty progress file, this raises rather than appending a second copy of every point.",
+      "label": "spacr.power_model.scan_parameters#5",
+      "source": "skip points already present in ``progress_file``.  With ``resume=False`` and a non-empty progress file, this raises rather than appending a second copy of every point.",
+      "source_sha256": "78f10a59e6582f43d141ea21f0017bbbcbc6e9cb79ab09f26d148628e01c579b",
+      "translation": "``progress_file`` 에 이미 있는 점은 건너뜁니다. ``resume=False`` 이고 진행 파일이 비어 있지 않으면, 모든 점의 사본을 한 번 더 추가하는 대신 예외를 발생시킵니다."
+    },
+    {
+      "context": "inference backend, see :func:`resolve_backend`.",
+      "label": "spacr.power_model.scan_parameters#7",
+      "source": "inference backend, see :func:`resolve_backend`.",
+      "source_sha256": "1ae0d96415ea64150a9dc0e7adc1444ae0a313bdb8c5d78836d6ea799af42706",
+      "translation": "추론 백엔드, :func:`resolve_backend` 참조."
+    },
+    {
+      "context": "master seed.  Each point's seed is derived from ``(seed, param_index, replicate)``, so a point's data does not depend on how many points ran before it.",
+      "label": "spacr.power_model.scan_parameters#8",
+      "source": "master seed.  Each point's seed is derived from ``(seed, param_index, replicate)``, so a point's data does not depend on how many points ran before it.",
+      "source_sha256": "d552565775f30b95cdb306cd413e506302b0f341b0610d12904f6e242c862b83",
+      "translation": "마스터 시드. 각 점의 시드는 ``(seed, param_index, replicate)`` 에서 파생되므로, 한 점의 데이터는 그 앞에서 몇 개의 점이 실행되었는지에 좌우되지 않습니다."
+    },
+    {
+      "context": "independent simulated screens per grid point. One screen at one setting is a single draw from a noisy process; the sweep is much easier to read with three or five.",
+      "label": "spacr.power_model.scan_parameters#9",
+      "source": "independent simulated screens per grid point. One screen at one setting is a single draw from a noisy process; the sweep is much easier to read with three or five.",
+      "source_sha256": "634c639f2870b1019a17c0fffb2b4d942994bb6b0c4982529adb490d493baf2d",
+      "translation": "그리드 점마다 독립적으로 시뮬레이션하는 스크리닝 수. 한 설정에서의 스크리닝 한 번은 잡음이 많은 과정에서 뽑은 표본 하나일 뿐이며, 스윕은 세 번이나 다섯 번일 때 훨씬 읽기 쉽습니다."
+    },
+    {
+      "context": "The list above is about *fidelity* to the R. These two are about fidelity to a real screen, and both make the answer worse — which is why they are worth having and why they are **off by default**. A simulator whose baseline shifted under a version bump would make every statistical detection sensitivity figure already quoted from it wrong, so turning either on is an explicit act.",
+      "label": "spacr.power_simulate#18",
+      "source": "The list above is about *fidelity* to the R. These two are about fidelity to a real screen, and both make the answer worse — which is why they are worth having and why they are **off by default**. A simulator whose baseline shifted under a version bump would make every power figure already quoted from it wrong, so turning either on is an explicit act.",
+      "source_sha256": "14d66ffa5d8ddf049ebc82b904b7880da2be0da574f6fcb638a4406dd637e6ce",
+      "translation": "위 목록은 R 에 대한 *충실도* 에 관한 것입니다. 이 두 가지는 실제 스크리닝에 대한 충실도에 관한 것이며, 둘 다 답을 더 나쁘게 만듭니다 — 그래서 가질 가치가 있고, 그래서 **기본적으로 꺼져 있습니다**. 버전이 올라가면서 기준선이 바뀌는 시뮬레이터는 이미 그것에서 인용된 모든 검출 민감도 수치를 틀리게 만들 것이므로, 둘 중 하나라도 켜는 것은 명시적인 행위여야 합니다."
+    },
+    {
+      "context": "A pooled Toxoplasma CRISPR screening experiment has three noisy layers stacked on top of each other — which genotypes landed in which well, how many of a well's cells the microscope saw and how well the machine-learning classification model called them, and how many reads each genotype got out of the amplicon pool. The question a screener has to answer *before* spending the microscope time is \"with this library, this many microplate sample positions, this many cells per well and a machine-learning classification model at 0.80/0.12, would I actually find a hit?\". That is a statistical detection sensitivity analysis, and it is only answerable by simulation because no layer is analytically tractable once the other two are stacked on it.",
+      "label": "spacr.power_simulate#3",
+      "source": "A pooled Toxoplasma CRISPR screen has three noisy layers stacked on top of each other — which genotypes landed in which well, how many of a well's cells the microscope saw and how well the classifier called them, and how many reads each genotype got out of the amplicon pool. The question a screener has to answer *before* spending the microscope time is \"with this library, this many wells, this many cells per well and a classifier at 0.80/0.12, would I actually find a hit?\". That is a power analysis, and it is only answerable by simulation because no layer is analytically tractable once the other two are stacked on it.",
+      "source_sha256": "2e234c090e1cfd1bf737b8f17a05229ed2aa698fda82d239daf1a275740fd843",
+      "translation": "풀링된 Toxoplasma CRISPR 스크리닝에는 잡음이 있는 세 층이 겹쳐 있습니다 — 어떤 유전형이 어느 웰에 들어갔는지, 현미경이 한 웰의 세포를 몇 개나 보았고 분류기가 그것들을 얼마나 잘 판정했는지, 그리고 각 유전형이 앰플리콘 풀에서 몇 개의 리드를 얻었는지. 스크리닝하는 사람이 현미경 시간을 쓰기 *전에* 답해야 하는 질문은 \"이 라이브러리, 이만큼의 웰, 웰당 이만큼의 세포, 0.80/0.12 수준의 분류기로 내가 실제로 히트를 찾을 수 있을까?\"입니다. 이것이 통계적 검출 민감도 분석이며, 다른 두 층이 얹히면 어떤 층도 해석적으로 다룰 수 없기 때문에 시뮬레이션으로만 답할 수 있습니다."
+    },
+    {
+      "context": "Process-wide linked selection and filter, so the views stop being islands.",
+      "label": "spacr.qt.linked_selection#0",
+      "source": "Process-wide linked selection and filter, so the views stop being islands.",
+      "source_sha256": "5b18065e3a78eaca63db9b914ff65f2b32f473e69aeb7f128b22567aedbd7840",
+      "translation": "프로세스 전체에서 연결된 선택과 필터로, 뷰들이 더 이상 섬처럼 고립되지 않게 합니다."
+    },
+    {
+      "context": ":mod:`spacr.selection` holds the logic and knows nothing about Qt. This module is the thin part that makes it *shared*: one object per process that every open view subscribes to, so lassoing a cluster in the UMAP highlights the same cells on the plate heatmap, in the measurement table and in the extracted-image-region grid.",
+      "label": "spacr.qt.linked_selection#1",
+      "source": ":mod:`spacr.selection` holds the logic and knows nothing about Qt. This module is the thin part that makes it *shared*: one object per process that every open view subscribes to, so lassoing a cluster in the UMAP highlights the same cells on the plate heatmap, in the measurement table and in the crop grid.",
+      "source_sha256": "fac4cd1f4c0b382729a6bc22612134c022e5212c9a5261582e732a9452e00f7a",
+      "translation": ":mod:`spacr.selection` 은 로직을 담고 있으며 Qt 에 대해서는 전혀 모릅니다. 이 모듈은 그것을 *공유* 되게 만드는 얇은 부분입니다: 열려 있는 모든 뷰가 구독하는 프로세스당 하나의 객체로, UMAP 에서 클러스터를 올가미로 선택하면 플레이트 히트맵, 측정 테이블, 추출된 이미지 영역 그리드에서 같은 세포가 강조 표시됩니다."
+    },
+    {
+      "context": "Why a singleton rather than passing a model around",
+      "label": "spacr.qt.linked_selection#2",
+      "source": "Why a singleton rather than passing a model around",
+      "source_sha256": "ceedd98821c53af8fdc11a8c63fe205ba02ed47d9570c9c69070449cadb7022d",
+      "translation": "모델을 여기저기 넘기는 대신 싱글턴을 쓰는 이유"
+    },
+    {
+      "context": "The views are constructed independently by ``AppScreen`` as the user opens tabs; none of them owns another, and there is no common parent below the main window to hang a shared model off. A process-wide accessor is the same shape :func:`spacr.qt.bridge.registry` already uses for run state, for the same reason, and it means a view added later joins the conversation by importing one function.",
+      "label": "spacr.qt.linked_selection#3",
+      "source": "The views are constructed independently by ``AppScreen`` as the user opens tabs; none of them owns another, and there is no common parent below the main window to hang a shared model off. A process-wide accessor is the same shape :func:`spacr.qt.bridge.registry` already uses for run state, for the same reason, and it means a view added later joins the conversation by importing one function.",
+      "source_sha256": "1da9b21b53ecc85ec8dae24aea1643012c47f74383e451a989ee019e18cc8a62",
+      "translation": "뷰는 사용자가 탭을 열 때 ``AppScreen`` 이 각각 독립적으로 생성합니다; 어느 뷰도 다른 뷰를 소유하지 않으며, 메인 창 아래에 공유 모델을 걸어 둘 공통 부모도 없습니다. 프로세스 전역 접근자는 :func:`spacr.qt.bridge.registry` 가 같은 이유로 실행 상태에 이미 사용하는 것과 같은 형태이며, 나중에 추가되는 뷰도 함수 하나를 임포트하는 것만으로 대화에 참여할 수 있다는 뜻입니다."
+    },
+    {
+      "context": "``field_fade``: bool, default ``True``. Whether an input field's container and outline ramp from solid on the left to fully transparent on the right. Fields are **exempt from** ``pane_opacity`` while this is on — see :func:`get_field_fade_enabled` and :mod:`spacr.qt.widgets.field_fade`.",
+      "label": "spacr.qt.preferences#16",
+      "source": "``field_fade``: bool, default ``True``. Whether an input field's container and outline ramp from solid on the left to fully transparent on the right. Fields are **exempt from** ``pane_opacity`` while this is on — see :func:`get_field_fade_enabled` and :mod:`spacr.qt.widgets.field_fade`.",
+      "source_sha256": "e12abd34c6121b75dbf0008353b366a8e648ed9122e4e449d57a3e9986f63a48",
+      "translation": "``field_fade`` : bool, 기본값 ``True``. 입력 필드의 컨테이너와 윤곽선이 왼쪽의 불투명에서 오른쪽의 완전 투명으로 점차 바뀌는지 여부. 이 옵션이 켜져 있는 동안 필드는 ``pane_opacity`` **의 적용을 받지 않습니다** — :func:`get_field_fade_enabled` 및 :mod:`spacr.qt.widgets.field_fade` 참조."
+    },
+    {
+      "context": "``clear RAM`` Drops spaCR's own caches: the merged-microscope field of view LRU (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image stacks), the file-format and DB-format caches, the zoomed-animation cache, the icon and preview ``lru_cache``\\ s, the filter-kind cache, every live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and Qt's own ``QPixmapCache``. A process with no live Qt application also runs ``gc.collect()``. The GUI deliberately does not: walking a heap of live Qt wrappers can enter already-retired C++ objects and crash the process. It cannot return memory the allocator has decided to keep, and it says so when the measured RSS does not move.",
+      "label": "spacr.qt.resource_cleanup#9",
+      "source": "``clear RAM`` Drops spaCR's own caches: the merged-field LRU (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image stacks), the file-format and DB-format caches, the zoomed-animation cache, the icon and preview ``lru_cache``\\ s, the filter-kind cache, every live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and Qt's own ``QPixmapCache``. A process with no live Qt application also runs ``gc.collect()``. The GUI deliberately does not: walking a heap of live Qt wrappers can enter already-retired C++ objects and crash the process. It cannot return memory the allocator has decided to keep, and it says so when the measured RSS does not move.",
+      "source_sha256": "1d96aadb1b43005d8b4f43b92107d9750d377ecfe38baaf9c1b958fa2c933000",
+      "translation": "``clear RAM`` spaCR 자체의 캐시를 비웁니다: 병합된 현미경 필드 LRU( :func:`spacr.crops.clear_field_cache` — 단연 가장 큰 것으로, 이미지 스택 전체), 파일 형식 및 DB 형식 캐시, 확대 애니메이션 캐시, 아이콘과 미리보기 ``lru_cache``\\ s, 필터 종류 캐시, 활성 상태인 모든 :class:`~spacr.qt.crop_thumbs.CropThumbnails` 썸네일 LRU, 그리고 Qt 자체의 ``QPixmapCache``. 실행 중인 Qt 애플리케이션이 없는 프로세스는 ``gc.collect()`` 도 실행합니다. GUI 는 의도적으로 그렇게 하지 않습니다: 살아 있는 Qt 래퍼들의 힙을 순회하다가 이미 소멸된 C++ 객체에 접근해 프로세스가 충돌할 수 있기 때문입니다. 할당자가 유지하기로 한 메모리는 반환할 수 없으며, 측정된 RSS 가 변하지 않으면 그렇다고 알려 줍니다."
+    },
+    {
+      "context": "Never ``SELECT *`` the whole table. Measurement tables run to hundreds of thousands of rows and hundreds of feature columns. The first chunk (100 rows) is fetched and painted on its own; the rest arrives as the user scrolls, through ``canFetchMore`` / ``fetchMore``.",
+      "label": "spacr.qt.screens.db_browser#4",
+      "source": "Never ``SELECT *`` the whole table. Measurement tables run to hundreds of thousands of rows and hundreds of feature columns. The first chunk (100 rows) is fetched and painted on its own; the rest arrives as the user scrolls, through ``canFetchMore`` / ``fetchMore``.",
+      "source_sha256": "6639b08923bf7f9203f890233d763c4f697819164b0ed06220395777dbb1149b",
+      "translation": "전체 테이블에 ``SELECT *`` 를 절대 쓰지 마십시오. 측정 테이블은 수십만 행과 수백 개의 특징 열에 이릅니다. 첫 번째 청크(100 행)는 따로 가져와 그리며, 나머지는 사용자가 스크롤할 때 ``canFetchMore`` / ``fetchMore`` 를 통해 들어옵니다."
+    },
+    {
+      "context": "**The count never blocks the first paint.** ``SELECT COUNT(*)`` is a full scan. The first chunk is painted against ``max(rowid)``, which is O(1), and that number is *always* rendered as \"≈… (estimate)\". The exact ``COUNT(*)`` follows on its own job and replaces it.",
+      "label": "spacr.qt.screens.db_browser#6",
+      "source": "**The count never blocks the first paint.** ``SELECT COUNT(*)`` is a full scan. The first chunk is painted against ``max(rowid)``, which is O(1), and that number is *always* rendered as \"≈… (estimate)\". The exact ``COUNT(*)`` follows on its own job and replaces it.",
+      "source_sha256": "49991622fcca4a5c65644076a0c33b73a055283334bb1d149d461d890a071c9d",
+      "translation": "**개수 계산은 첫 화면 그리기를 절대 막지 않습니다.** ``SELECT COUNT(*)`` 는 전체 스캔입니다. 첫 번째 청크는 O(1) 인 ``max(rowid)`` 를 기준으로 그려지며, 그 숫자는 *항상* \"≈… (추정)\"으로 표시됩니다. 정확한 ``COUNT(*)`` 는 별도의 작업으로 뒤따라 실행되어 그 값을 대체합니다."
+    },
+    {
+      "context": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screening experiment you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
+      "label": "spacr.qt.screens.power#1",
+      "source": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screen you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
+      "source_sha256": "f891ade99b982bb50a7bb8a10edbb2944a3d73cc114092c4ce96c7ca2fb323de",
+      "translation": "spaCRPower 이식이 들어온 이후로 과학적인 부분은 코드 트리에 이미 있었습니다: :mod:`spacr.power_simulate` 은 정답을 알고 있는 스크리닝 실험을 만들고, :mod:`spacr.power_model` 은 여기에 horseshoe-Poisson 모델을 적합해 심어 둔 히트를 적합이 얼마나 잘 되찾았는지 점수를 매깁니다. 지금까지 없었던 것은 스크리닝하는 사람이 실제로 품고 있는 질문을 던질 수 있는 도구인데, 그 질문은 \"well_abundance_factor_mu = 4.6 인 설계의 AUROC 는 얼마인가\"가 아니라"
+    },
+    {
+      "context": "**The screen computes no statistics of its own.** Every number on it comes out of :func:`spacr.power_model.scan_parameters`; the only arithmetic here is counting how many replicates cleared the user's threshold. The translation from \"genes, plates, fold-change\" to simulator keyword arguments lives in one function, :func:`spacr.qt.widgets.power_design.simulator_kwargs`, so a run started here and the same run typed at a Python prompt are the same call. The test suite asserts that byte for byte on a fixed seed.",
+      "label": "spacr.qt.screens.power#4",
+      "source": "**The screen computes no statistics of its own.** Every number on it comes out of :func:`spacr.power_model.scan_parameters`; the only arithmetic here is counting how many replicates cleared the user's threshold. The translation from \"genes, plates, fold-change\" to simulator keyword arguments lives in one function, :func:`spacr.qt.widgets.power_design.simulator_kwargs`, so a run started here and the same run typed at a Python prompt are the same call. The test suite asserts that byte for byte on a fixed seed.",
+      "source_sha256": "ac096c7f87af03a9e1e8f7b1914723766382231fb5784914d0516daff1f970b8",
+      "translation": "**이 애플리케이션 뷰는 자체적으로 어떤 통계도 계산하지 않습니다.** 여기에 표시되는 모든 숫자는 :func:`spacr.power_model.scan_parameters` 에서 나오며, 여기서 하는 유일한 산술은 사용자의 임계값을 넘은 반복이 몇 개인지 세는 것입니다. \"유전자, 플레이트, 배수 변화\"를 시뮬레이터 키워드 인수로 바꾸는 일은 :func:`spacr.qt.widgets.power_design.simulator_kwargs` 라는 함수 하나에만 있으므로, 여기서 시작한 실행과 Python 프롬프트에서 입력한 같은 실행은 동일한 호출입니다. 테스트 스위트는 고정된 시드에서 이것이 바이트 단위로 같음을 확인합니다."
+    },
+    {
+      "context": "``threaded=False`` **runs the same code inline**, firing the same signals, so the tested path and the shipped path differ only in where they run.",
+      "label": "spacr.qt.screens.power#8",
+      "source": "``threaded=False`` **runs the same code inline**, firing the same signals, so the tested path and the shipped path differ only in where they run.",
+      "source_sha256": "064752016534ac83aec456c330acc4332b4f2c04e9dd88847eb307611c5be903",
+      "translation": "``threaded=False`` **는 같은 코드를 인라인으로 실행하며** 같은 신호를 내보내므로, 테스트된 경로와 실제 배포되는 경로는 실행되는 위치만 다릅니다."
+    },
+    {
+      "context": "This is a hand-built stand-in for a measured plate, not a replica of one. Two of the three things that matter match measure_crop; the third does not, and the docstring used to claim all three did.",
+      "label": "spacr.qt.synthetic.generate_classify_demo#1",
+      "source": "This is a hand-built stand-in for a measured plate, not a replica of one. Two of the three things that matter match measure_crop; the third does not, and the docstring used to claim all three did.",
+      "source_sha256": "6156e7e3d66877b03006b8a369215909a1c3632d250b229cf35c5d1d8dc8023d",
+      "translation": "이것은 측정된 플레이트를 대신하도록 손으로 만든 대용품이지, 그 복제본이 아닙니다. 중요한 세 가지 중 두 가지는 measure_crop 과 일치하지만 세 번째는 그렇지 않으며, 예전 docstring 은 세 가지 모두 일치한다고 주장했습니다."
+    },
+    {
+      "context": "The ``cell_png`` leaf matches. measure_crop appends ``f\"{crop_mode}_png/\"`` to the folder, so a real cell extracted image region does live under ``cell_png/`` — which is what :func:`spacr.io.generate_training_dataset`'s ``png_path.str.contains(png_type)`` filter (``png_type='cell_png'``) needs to see. Extracted image regions written flat as ``data/crop_000.png``, the layout this replaced, were all filtered away and the processing session died on \"got 0 classes\".",
+      "label": "spacr.qt.synthetic.generate_classify_demo#3",
+      "source": "The ``cell_png`` leaf matches. measure_crop appends ``f\"{crop_mode}_png/\"`` to the folder, so a real cell crop does live under ``cell_png/`` — which is what :func:`spacr.io.generate_training_dataset`'s ``png_path.str.contains(png_type)`` filter (``png_type='cell_png'``) needs to see. Crops written flat as ``data/crop_000.png``, the layout this replaced, were all filtered away and the run died on \"got 0 classes\".",
+      "source_sha256": "8981e052180ca4813d8a91f8eb5c0c3a98035e43df48f46dde7e57f25f81df88",
+      "translation": "``cell_png`` 마지막 경로 요소가 일치합니다. measure_crop 은 폴더에 ``f\"{crop_mode}_png/\"`` 를 덧붙이므로, 실제 세포의 추출된 이미지 영역은 정말로 ``cell_png/`` 아래에 놓입니다 — 그리고 이것이 :func:`spacr.io.generate_training_dataset` 의 ``png_path.str.contains(png_type)`` 필터( ``png_type='cell_png'`` )가 봐야 하는 것입니다. 이것이 대체한 이전 구조처럼 ``data/crop_000.png`` 로 평평하게 기록된 추출된 이미지 영역은 모두 걸러져 버렸고, 처리 세션은 \"got 0 classes\" 로 실패했습니다."
+    },
+    {
+      "context": "We pre-build those stacks so a user can jump straight into Measure without a GPU. Before this, the demo wrote a ``masks/`` folder of per-*file* tiffs and an empty ``measurements.db`` — neither of which any workflow reads — and measure's pre-flight rejected the folder outright with \"no merged folder for measure\".",
+      "label": "spacr.qt.synthetic.generate_measure_demo#1",
+      "source": "We pre-build those stacks so a user can jump straight into Measure without a GPU. Before this, the demo wrote a ``masks/`` folder of per-*file* tiffs and an empty ``measurements.db`` — neither of which any pipeline reads — and measure's pre-flight rejected the folder outright with \"no merged folder for measure\".",
+      "source_sha256": "6ff4c663eb221ecb7f2749a34f3ea2f91f82c28f1c97f895e551f1552255e131",
+      "translation": "사용자가 GPU 없이 바로 Measure 로 들어갈 수 있도록 이 스택들을 미리 만들어 둡니다. 이전에는 데모가 *파일* 별 tiff 로 된 ``masks/`` 폴더와 빈 ``measurements.db`` 를 기록했는데 — 둘 다 어떤 작업 흐름도 읽지 않는 것이었습니다 — Measure 의 사전 점검은 \"측정용 병합 폴더 없음\" 이라며 이 폴더를 곧바로 거부했습니다."
+    },
+    {
+      "context": "1. ``set_default_settings_preprocess_generate_masks`` defaults it to the **string** ``'cell'``, and ``measure.py`` tests it with ``\"organelle\" in settings['summarize_organelles_by']`` — a *substring* test when the value is a str. Running this demo with ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary`` (16 rows/field) and still no ``organelle`` table. Only a value containing ``'organelle'`` writes the per-organelle table (``['cell', 'organelle']`` → organelle 64 rows/field, verified). 2. A list cannot be shipped today: ``spacr.settings.expected_types`` declares ``'summarize_organelles_by': str``, so ``spacr.validate.validate_settings`` rejects ``['cell', 'organelle']`` with \"is a list, but str is expected\" — a hard pre-flight **error** on a demo that must load clean. The tooltip and ``spacr.gui_utils`` both describe it as a list, and ``spacr.external_masks`` builds one; only the type table disagrees.",
+      "label": "spacr.qt.synthetic.generate_measure_demo#5",
+      "source": "1. ``set_default_settings_preprocess_generate_masks`` defaults it to the **string** ``'cell'``, and ``measure.py`` tests it with ``\"organelle\" in settings['summarize_organelles_by']`` — a *substring* test when the value is a str. Running this demo with ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary`` (16 rows/field) and still no ``organelle`` table. Only a value containing ``'organelle'`` writes the per-organelle table (``['cell', 'organelle']`` → organelle 64 rows/field, verified). 2. A list cannot be shipped today: ``spacr.settings.expected_types`` declares ``'summarize_organelles_by': str``, so ``spacr.validate.validate_settings`` rejects ``['cell', 'organelle']`` with \"is a list, but str is expected\" — a hard pre-flight **error** on a demo that must load clean. The tooltip and ``spacr.gui_utils`` both describe it as a list, and ``spacr.external_masks`` builds one; only the type table disagrees.",
+      "source_sha256": "3d272df6026b8d692371a7c9da3e8056f2966b78bc25068ffb3bbad8deaae8ea",
+      "translation": "1. ``set_default_settings_preprocess_generate_masks`` 는 기본값을 **문자열** ``'cell'`` 로 두고, ``measure.py`` 는 ``\"organelle\" in settings['summarize_organelles_by']`` 로 이를 검사합니다 — 값이 str 일 때 이것은 *부분 문자열* 검사입니다. 이 데모를 ``summarize_organelles_by='cell'`` 로 실행하면 ``cell_organelle_summary`` (필드당 16 행)가 나오지만 ``organelle`` 테이블은 여전히 없습니다. ``'organelle'`` 을 포함하는 값만 소기관별 테이블을 기록합니다( ``['cell', 'organelle']`` → organelle 필드당 64 행, 확인됨). 2. 지금은 목록을 배포할 수 없습니다: ``spacr.settings.expected_types`` 가 ``'summarize_organelles_by': str`` 로 선언하므로 ``spacr.validate.validate_settings`` 는 ``['cell', 'organelle']`` 를 \"목록이지만 str 이 필요합니다\"라며 거부합니다 — 깔끔하게 로드되어야 하는 데모에서 사전 점검 단계의 치명적인 **오류** 입니다. 툴팁과 ``spacr.gui_utils`` 는 둘 다 이를 목록으로 설명하고, ``spacr.external_masks`` 도 목록을 만듭니다; 오직 타입 테이블만 다릅니다."
+    },
+    {
+      "context": "Return an O(1) *estimate* of the row count, or ``None``.",
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.estimate_rows#0",
+      "source": "Return an O(1) *estimate* of the row count, or ``None``.",
+      "source_sha256": "cb9e00c8b78e68926a8e310247b13ef95934aa4c00f5ab9d2bd5244cdf77ede7",
+      "translation": "행 개수의 O(1) *추정값* 또는 ``None`` 을 반환합니다."
+    },
+    {
+      "context": "It is spelt ``_rowid_``, and that is load-bearing. Every spaCR object table declares a column called ``rowID`` — the laboratory microplate row, ``'r1'``, ``'r2'`` — and SQLite identifiers are case-insensitive, so a bare ``rowid`` resolves to *that column* rather than to the row id. The version this replaces asked for ``max(rowid)`` and got two things wrong at once on every real measurements database: it scanned the whole table to take the maximum of a text column (measured: 21 ms warm, 41 ms cold, on a 200 000-row table — precisely the ``COUNT(*)`` cost this method exists to avoid), and then ``int('r16')`` raised ``ValueError``, which is not a ``sqlite3.Error`` and so escaped the caller's handler into the Qt event loop. :mod:`spacr.predictions`, :mod:`spacr.foreign` and :mod:`spacr.data_manager` all carry a comment about this shadowing; this method had not got the memo.",
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.estimate_rows#2",
+      "source": "It is spelt ``_rowid_``, and that is load-bearing. Every spaCR object table declares a column called ``rowID`` — the plate row, ``'r1'``, ``'r2'`` — and SQLite identifiers are case-insensitive, so a bare ``rowid`` resolves to *that column* rather than to the row id. The version this replaces asked for ``max(rowid)`` and got two things wrong at once on every real measurements database: it scanned the whole table to take the maximum of a text column (measured: 21 ms warm, 41 ms cold, on a 200 000-row table — precisely the ``COUNT(*)`` cost this method exists to avoid), and then ``int('r16')`` raised ``ValueError``, which is not a ``sqlite3.Error`` and so escaped the caller's handler into the Qt event loop. :mod:`spacr.predictions`, :mod:`spacr.foreign` and :mod:`spacr.data_manager` all carry a comment about this shadowing; this method had not got the memo.",
+      "source_sha256": "6e77579f0cf78c2610ed8622597d2c92dc9209f9265dfc9426eb950d00f249cc",
+      "translation": "철자는 ``_rowid_`` 이며, 이 점이 결정적입니다. 모든 spaCR 객체 테이블은 ``rowID`` 라는 열 — 플레이트의 행, ``'r1'``, ``'r2'`` — 을 선언하는데, SQLite 식별자는 대소문자를 구별하지 않으므로 그냥 ``rowid`` 라고 쓰면 행 ID 가 아니라 *그 열* 로 해석됩니다. 이것이 대체한 이전 버전은 ``max(rowid)`` 를 요청했고, 모든 실제 측정 데이터베이스에서 한 번에 두 가지를 틀렸습니다: 텍스트 열의 최댓값을 구하려고 테이블 전체를 스캔했고(측정값: 200 000 행 테이블에서 웜 21 ms, 콜드 41 ms — 이 메서드가 피하려고 존재하는 바로 그 ``COUNT(*)`` 비용), 그다음 ``int('r16')`` 이 ``ValueError`` 를 발생시켰는데, 이는 ``sqlite3.Error`` 가 아니어서 호출자의 핸들러를 빠져나가 Qt 이벤트 루프까지 올라갔습니다. :mod:`spacr.predictions`, :mod:`spacr.foreign`, :mod:`spacr.data_manager` 에는 모두 이 가려짐 문제에 대한 주석이 있습니다; 이 메서드만 그 공지를 받지 못했던 것입니다."
+    },
+    {
+      "context": "The two robust constants are *not* interchangeable and the module refuses to pretend they are. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the factor that makes the MAD of a normal sample an unbiased estimate of its SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826 overestimates sigma by exactly ``sqrt(2)`` — 41% wider limits, which is the difference between catching a drift and not. Both constants are computed from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma function.",
+      "label": "spacr.qt.widgets.control_chart#14",
+      "source": "The two robust constants are *not* interchangeable and the module refuses to pretend they are. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the factor that makes the MAD of a normal sample an unbiased estimate of its SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826 overestimates sigma by exactly ``sqrt(2)`` — 41% wider limits, which is the difference between catching a drift and not. Both constants are computed from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma function.",
+      "source_sha256": "9c546371733d2953f5b99441e0aa2c92b740b94fe899ac9f8a404c22bc4eab30",
+      "translation": "두 개의 강건 상수는 서로 바꿔 쓸 수 *없으며*, 이 모듈은 바꿔 쓸 수 있는 척하지 않습니다. 1.4826 (:data:`MAD_SCALE`)은 ``1/Φ⁻¹(0.75)`` 로, 정규 표본의 MAD 를 그 SD 의 불편 추정량으로 만드는 인자입니다. 이동 범위는 두 관측값의 *차이* 의 절댓값인 ``|x_i - x_{i-1}|`` 이므로 그 척도는 ``sqrt(2)·sigma`` 이고 중앙값은 ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`)입니다. 이동 범위의 중앙값에 1.4826 을 곱하면 sigma 를 정확히 ``sqrt(2)`` 배 과대추정합니다 — 한계가 41% 넓어지며, 이는 드리프트를 잡느냐 놓치느냐의 차이입니다. 여기서 두 상수를 모두 ``Φ⁻¹(0.75)`` 에서 계산하는 것은 c4 를 감마 함수에서 계산하는 것과 같은 이유입니다."
+    },
+    {
+      "context": "The baseline is the first :data:`DEFAULT_BASELINE` laboratory microplates in run order by default (twenty, the textbook Phase I minimum for an individuals chart), or an explicit list of laboratory microplate ids (:attr:`ControlChartSpec.baseline_plates`), or everything before a cut-off in the order column (:attr:`ControlChartSpec.baseline_before`). Whichever it was, the laboratory microplates that formed it are in :attr:`ControlChartResult.baseline_plates` and named in :meth:`ControlChartResult.report`.",
+      "label": "spacr.qt.widgets.control_chart#17",
+      "source": "The baseline is the first :data:`DEFAULT_BASELINE` plates in run order by default (twenty, the textbook Phase I minimum for an individuals chart), or an explicit list of plate ids (:attr:`ControlChartSpec.baseline_plates`), or everything before a cut-off in the order column (:attr:`ControlChartSpec.baseline_before`). Whichever it was, the plates that formed it are in :attr:`ControlChartResult.baseline_plates` and named in :meth:`ControlChartResult.report`.",
+      "source_sha256": "dab0cd34b23f5934a1e8a51e011affae7310a54e582f5fec6c15f30464614263",
+      "translation": "기준선은 기본적으로 실행 순서상 처음 :data:`DEFAULT_BASELINE` 개의 플레이트이거나(스무 개, 개별값 관리도에 대한 교과서적 1단계 최소치), 명시적인 플레이트 ID 목록(:attr:`ControlChartSpec.baseline_plates`)이거나, 순서 열에서 기준점 이전의 모든 것(:attr:`ControlChartSpec.baseline_before`)입니다. 어느 경우든 기준선을 구성한 플레이트는 :attr:`ControlChartResult.baseline_plates` 에 있고 :meth:`ControlChartResult.report` 에 이름이 표시됩니다."
+    },
+    {
+      "context": "The key is a deliberate extension of :func:`spacr.qt.widgets.graph_spec._sort_key`, not a copy of it: that one tries ``float(text)`` and falls back to a plain string compare, which puts ``P10`` before ``P2`` — fine for facet labels, wrong for a run order. Here the string is split into digit and non-digit runs and the digit runs compare as integers.",
+      "label": "spacr.qt.widgets.control_chart#26",
+      "source": "The key is a deliberate extension of :func:`spacr.qt.widgets.graph_spec._sort_key`, not a copy of it: that one tries ``float(text)`` and falls back to a plain string compare, which puts ``P10`` before ``P2`` — fine for facet labels, wrong for a run order. Here the string is split into digit and non-digit runs and the digit runs compare as integers.",
+      "source_sha256": "4dc5cfdf71fbe6faa4bf1edbf76b07c66339400f66152f5e676ab93b6b4df2aa",
+      "translation": "이 키는 :func:`spacr.qt.widgets.graph_spec._sort_key` 를 의도적으로 확장한 것이지 복사본이 아닙니다: 그 함수는 ``float(text)`` 를 시도한 뒤 일반 문자열 비교로 넘어가는데, 그러면 ``P10`` 이 ``P2`` 앞에 옵니다 — 패싯 라벨에는 괜찮지만 실행 순서에는 틀립니다. 여기서는 문자열을 숫자 구간과 비숫자 구간으로 나누고, 숫자 구간은 정수로 비교합니다."
+    },
+    {
+      "context": "Sigma comes from the average moving range divided by d2 = 1.128 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.",
+      "label": "spacr.qt.widgets.control_chart#4",
+      "source": "Sigma comes from the average moving range divided by d2 = 1.128 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.",
+      "source_sha256": "412a3b5bb289411c849ee71944c2e6a016f43d2bff3dfd557b1371f9a466180e",
+      "translation": "Sigma 는 평균 이동 범위를 d2 = 1.128 (:data:`D2_MOVING_RANGE`)로 나눈 값에서 나오며, 계열의 표준편차에서는 절대 나오지 않습니다."
+    },
+    {
+      "context": "Dose–response — a four-parameter logistic that will refuse to name an EC50.",
+      "label": "spacr.qt.widgets.dose_response#0",
+      "source": "Dose–response — a four-parameter logistic that will refuse to name an EC50.",
+      "source_sha256": "8be88f9527a5006490b709cfc33945c45a83de73a2404471fc2a5d723e566290",
+      "translation": "용량-반응 — EC50 을 내놓기를 거부할 줄 아는 4-매개변수 로지스틱 모델."
+    },
+    {
+      "context": ":data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit`` returns, with a t quantile on ``n - 4`` degrees of freedom. Not a normal quantile: eight concentrations with no replicates leaves 4 df, where ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width of the published interval, which is not cosmetic.",
+      "label": "spacr.qt.widgets.dose_response#17",
+      "source": ":data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit`` returns, with a t quantile on ``n - 4`` degrees of freedom. Not a normal quantile: eight concentrations with no replicates leaves 4 df, where ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width of the published interval, which is not cosmetic.",
+      "source_sha256": "6cba671cba49540e3b6be17c3ba4065905081725bce9803e687e82fd05647742",
+      "translation": ":data:`CI_WALD` — 점근적 방식으로, ``curve_fit`` 이 반환하는 공분산 행렬에서 자유도 ``n - 4`` 의 t 분위수를 사용합니다. 정규 분위수가 아닙니다: 반복 없이 8 개 농도를 쓰면 자유도는 4 df 가 남으며, 이때 ``t = 2.776`` 대 ``z = 1.960`` 입니다. 이는 공개되는 구간의 폭에서 42% 차이이며, 결코 사소한 차이가 아닙니다."
+    },
+    {
+      "context": "``bottom``, ``top`` and the Hill slope get Wald intervals only. Profiling each of them would quadruple the work to improve numbers nobody quotes; the EC50 is the number that leaves the building.",
+      "label": "spacr.qt.widgets.dose_response#21",
+      "source": "``bottom``, ``top`` and the Hill slope get Wald intervals only. Profiling each of them would quadruple the work to improve numbers nobody quotes; the EC50 is the number that leaves the building.",
+      "source_sha256": "5deba58db8a4119c53a49f3654789d9e1ccfd2a4d5165c20d514ca67665f0d89",
+      "translation": "``bottom``, ``top`` 과 Hill 기울기에는 Wald 구간만 제공됩니다. 이들 각각에 대해 프로파일 구간을 구하면 아무도 인용하지 않는 숫자를 개선하느라 작업량이 네 배가 됩니다; 실제로 밖으로 나가는 숫자는 EC50 입니다."
+    },
+    {
+      "context": "1. **The curve is incomplete** — one plateau was never reached, or the midpoint sits outside the tested range. Then the EC50 is an extrapolation. :attr:`DoseResponseResult.ec50` is ``None`` in that case and the number lives in :attr:`DoseResponseResult.ec50_unconstrained`, under a name that cannot be mistaken for a result; :attr:`DoseResponseResult.ec50_bounded` is ``False`` and :meth:`DoseResponseResult.bound_statement` gives the one-sided fact the experiment does support (\"EC50 > 30 µM, the highest concentration tested\"). Three independent detectors have to agree it is fine before a number is released: the fitted midpoint inside the tested dose range, the observed responses bracketing the fitted half-maximum, and neither fitted plateau more than :data:`PLATEAU_SLACK` of the observed response span outside the observed responses. 2. **The data is not monotone.** A bell shape — the classic being cytotoxicity killing the signal at the top dose — is not a 4PL, and a 4PL fitted to it returns a confident EC50 for a curve of the wrong shape. Detected from the concentration-ordered per-dose medians and **refused**, with the concentrations where it turns named in the message. See :func:`monotonicity`. 3. **There is not enough experiment.** Four parameters need at least four distinct concentrations (:data:`MIN_DOSES`) and, to say anything about uncertainty, more observations than parameters (:data:`MIN_OBSERVATIONS`). A constant response has no curve in it. A **zero concentration is not an error** — a vehicle control is normal and belongs in the file — so it is excluded from the fit deliberately, counted, and reported as a reference response, never fed to ``log10``. A *negative* concentration has no such reading and is refused.",
+      "label": "spacr.qt.widgets.dose_response#23",
+      "source": "1. **The curve is incomplete** — one plateau was never reached, or the midpoint sits outside the tested range. Then the EC50 is an extrapolation. :attr:`DoseResponseResult.ec50` is ``None`` in that case and the number lives in :attr:`DoseResponseResult.ec50_unconstrained`, under a name that cannot be mistaken for a result; :attr:`DoseResponseResult.ec50_bounded` is ``False`` and :meth:`DoseResponseResult.bound_statement` gives the one-sided fact the experiment does support (\"EC50 > 30 µM, the highest concentration tested\"). Three independent detectors have to agree it is fine before a number is released: the fitted midpoint inside the tested dose range, the observed responses bracketing the fitted half-maximum, and neither fitted plateau more than :data:`PLATEAU_SLACK` of the observed response span outside the observed responses. 2. **The data is not monotone.** A bell shape — the classic being cytotoxicity killing the signal at the top dose — is not a 4PL, and a 4PL fitted to it returns a confident EC50 for a curve of the wrong shape. Detected from the concentration-ordered per-dose medians and **refused**, with the concentrations where it turns named in the message. See :func:`monotonicity`. 3. **There is not enough experiment.** Four parameters need at least four distinct concentrations (:data:`MIN_DOSES`) and, to say anything about uncertainty, more observations than parameters (:data:`MIN_OBSERVATIONS`). A constant response has no curve in it. A **zero concentration is not an error** — a vehicle control is normal and belongs in the file — so it is excluded from the fit deliberately, counted, and reported as a reference response, never fed to ``log10``. A *negative* concentration has no such reading and is refused.",
+      "source_sha256": "9977e7386f8e60d836f40a766cbf461e23a21abfa723f42151f4c638890e54c5",
+      "translation": "1. **곡선이 불완전합니다** — 한쪽 평탄역에 끝내 도달하지 못했거나, 중간점이 시험 범위 밖에 있습니다. 그러면 EC50 은 외삽값입니다. 이 경우 :attr:`DoseResponseResult.ec50` 은 ``None`` 이고 그 숫자는 결과로 오인될 수 없는 이름인 :attr:`DoseResponseResult.ec50_unconstrained` 에 담깁니다; :attr:`DoseResponseResult.ec50_bounded` 는 ``False`` 이며 :meth:`DoseResponseResult.bound_statement` 는 실험이 실제로 뒷받침하는 한쪽 방향의 사실(\"EC50 > 30 µM, 시험한 최고 농도\")을 제시합니다. 숫자를 내놓기 전에 서로 독립적인 세 가지 검출기가 모두 문제없다고 동의해야 합니다: 적합된 중간점이 시험 용량 범위 안에 있을 것, 관측된 반응이 적합된 반최대값을 양쪽에서 감쌀 것, 그리고 적합된 두 평탄역 모두 관측 반응 범위 밖으로 관측 반응 폭의 :data:`PLATEAU_SLACK` 이상 벗어나지 않을 것. 2. **데이터가 단조롭지 않습니다.** 종 모양 — 최고 용량에서 세포독성이 신호를 죽이는 것이 전형적인 예 — 은 4PL 이 아니며, 여기에 4PL 을 적합하면 모양이 틀린 곡선에 대해 확신에 찬 EC50 이 반환됩니다. 농도 순으로 정렬한 용량별 중앙값으로 이를 검출해 **거부** 하며, 곡선이 꺾이는 농도를 메시지에 명시합니다. :func:`monotonicity` 를 참조하십시오. 3. **실험이 충분하지 않습니다.** 매개변수 네 개에는 서로 다른 농도가 최소 네 개( :data:`MIN_DOSES` ) 필요하고, 불확실성에 대해 무엇이든 말하려면 매개변수보다 많은 관측값( :data:`MIN_OBSERVATIONS` )이 필요합니다. 일정한 반응에는 곡선이 없습니다. **농도 0 은 오류가 아닙니다** — 용매 대조군은 정상이며 파일에 들어가는 것이 맞습니다 — 그래서 적합에서는 의도적으로 제외되고, 개수로 집계되며, 참조 반응으로 보고될 뿐 ``log10`` 에는 절대 전달되지 않습니다. *음의* 농도는 그런 해석이 없으므로 거부됩니다."
+    },
+    {
+      "context": "(``spacr/qt/widgets/__init__.py`` eagerly imports the widget modules, so *reaching* this module through the package still costs a PySide6 import today. That is a property of the package's ``__init__``, not of this file: nothing here would have to change for the fitter to execute in an environment without PySide6.)",
+      "label": "spacr.qt.widgets.dose_response#30",
+      "source": "(``spacr/qt/widgets/__init__.py`` eagerly imports the widget modules, so *reaching* this module through the package still costs a PySide6 import today. That is a property of the package's ``__init__``, not of this file: nothing here would have to change for the fitter to run in an environment without PySide6.)",
+      "source_sha256": "d75a0e8cc73edebe1ac0e9ef04cdec9c952e97a8df594ec627a59bea44428ba4",
+      "translation": "(``spacr/qt/widgets/__init__.py`` 가 위젯 모듈을 즉시 임포트하므로, 지금은 패키지를 통해 이 모듈에 *접근하기만* 해도 PySide6 임포트 비용이 듭니다. 그것은 이 파일이 아니라 패키지 ``__init__`` 의 특성입니다: 적합 도구가 PySide6 가 없는 환경에서 실행되기 위해 여기서 바꿔야 할 것은 아무것도 없습니다.)"
+    },
+    {
+      "context": "**The likelihood surface is close to symmetric in log10(EC50) and badly skewed in EC50.** That is what makes a quadratic (Wald) approximation defensible on ``log10_ec50`` and indefensible on ``EC50``.",
+      "label": "spacr.qt.widgets.dose_response#7",
+      "source": "**The likelihood surface is close to symmetric in log10(EC50) and badly skewed in EC50.** That is what makes a quadratic (Wald) approximation defensible on ``log10_ec50`` and indefensible on ``EC50``.",
+      "source_sha256": "82cf59c59c46a2922ee25a52036f4e512487d149f77f09ddd622a92ec7f20ca4",
+      "translation": "**우도 곡면은 log10(EC50) 에서는 거의 대칭이고 EC50 에서는 심하게 치우쳐 있습니다.** 그래서 이차(Wald) 근사는 ``log10_ec50`` 에서는 타당하지만 ``EC50`` 에서는 타당하지 않습니다."
+    },
+    {
+      "context": "**A linear-space interval routinely reaches below zero**, and a negative concentration is not a thing. An EC50 of ``1.0 ± 1.4 µM`` is not a wide interval, it is a broken one.",
+      "label": "spacr.qt.widgets.dose_response#8",
+      "source": "**A linear-space interval routinely reaches below zero**, and a negative concentration is not a thing. An EC50 of ``1.0 ± 1.4 µM`` is not a wide interval, it is a broken one.",
+      "source_sha256": "4172be3bd7951ba293251c9f20ae1c6c7814043ab4fcaa30704b1d0e7f95f3ca",
+      "translation": "**선형 공간의 구간은 흔히 0 아래까지 내려가며**, 음의 농도라는 것은 존재하지 않습니다. ``1.0 ± 1.4 µM`` 인 EC50 은 넓은 구간이 아니라 망가진 구간입니다."
+    },
+    {
+      "context": "**scatter/line up to** :data:`DEFAULT_POINT_BUDGET` **rows: every row is a mark.**",
+      "label": "spacr.qt.widgets.graph_spec#15",
+      "source": "**scatter/line up to** :data:`DEFAULT_POINT_BUDGET` **rows: every row is a mark.**",
+      "source_sha256": "4fea586acf814b51d5cf13847f98022d727f8c62eaa93baf46d84f181a21d387",
+      "translation": "**산점도/선 그래프는** :data:`DEFAULT_POINT_BUDGET` **행까지: 모든 행이 하나의 마크입니다.**"
+    },
+    {
+      "context": "**serialisable** — :meth:`GraphSpec.to_dict` round-trips through JSON, so a chart is something a settings file, a report or a macro can carry;",
+      "label": "spacr.qt.widgets.graph_spec#5",
+      "source": "**serialisable** — :meth:`GraphSpec.to_dict` round-trips through JSON, so a chart is something a settings file, a report or a macro can carry;",
+      "source_sha256": "48e20ce0c7a72254bd87bc8ba0c110594206ca28e021caba37db2d474898ec5b",
+      "translation": "**직렬화 가능** — :meth:`GraphSpec.to_dict` 은 JSON 으로 왕복 변환되므로, 차트는 설정 파일, 보고서, 매크로가 담아 옮길 수 있는 대상이 됩니다;"
+    },
+    {
+      "context": "Why this shape is what lets an arbitrary organelle count land. The number of organelles a processing session may declare is not fixed. In a flat vocabulary each new organelle is twenty new settings that every tooltip table and translation catalog has to learn; here it is one COLUMN, and the number of questions does not move. :meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new organelle from the first one's answers rather than from a global default nobody chose.",
+      "label": "spacr.qt.widgets.object_settings_grid#3",
+      "source": "WHY THIS SHAPE IS WHAT LETS AN ARBITRARY ORGANELLE COUNT LAND. The number of organelles a run may declare is not fixed. In a flat vocabulary each new organelle is twenty new settings that every tooltip table and translation catalog has to learn; here it is one COLUMN, and the number of questions does not move. :meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new organelle from the first one's answers rather than from a global default nobody chose.",
+      "source_sha256": "4e3cead75c559fcbe4bfab91bd4203028c945391ffc696e50afbce6b8052dcf9",
+      "translation": "왜 바로 이 형태가 소기관 수를 임의로 늘릴 수 있게 해 주는가. 한 처리 세션이 선언할 수 있는 소기관의 수는 정해져 있지 않습니다. 평면적인 어휘 체계에서는 새 소기관 하나가 곧 새 설정 스무 개이며, 모든 툴팁 테이블과 번역 카탈로그가 이를 새로 익혀야 합니다; 여기서는 그것이 COLUMN(열) 하나일 뿐이고, 질문의 수는 바뀌지 않습니다. :meth:`ObjectSettingsGrid.add_object` 가 바로 그 작업이며, 아무도 고르지 않은 전역 기본값이 아니라 첫 번째 소기관의 답변에서 새 소기관을 시작합니다."
+    },
+    {
+      "context": "**The asymmetry problem is real and is not fixed by choosing a bigger c.** Tukey's fence is symmetric in the quartiles, and a right-skewed distribution therefore has far more mass beyond the upper fence than beyond the lower one *by construction*, whatever the data. For a lognormal with sigma = 1 the standard fence flags about 8% of the sample on the right and essentially nothing on the left — and it does so for a perfectly clean sample. Read uncorrected, \"8% of my cells are outliers\" is a statement about the shape of the distribution, not about the cells.",
+      "label": "spacr.qt.widgets.outlier_model#13",
+      "source": "**The asymmetry problem is real and is not fixed by choosing a bigger c.** Tukey's fence is symmetric in the quartiles, and a right-skewed distribution therefore has far more mass beyond the upper fence than beyond the lower one *by construction*, whatever the data. For a lognormal with sigma = 1 the standard fence flags about 8% of the sample on the right and essentially nothing on the left — and it does so for a perfectly clean sample. Read uncorrected, \"8% of my cells are outliers\" is a statement about the shape of the distribution, not about the cells.",
+      "source_sha256": "80b298eeeef9485a7c9acfd91f9ee460d847c511449250c690aa89fc82552d4c",
+      "translation": "**비대칭 문제는 실제로 존재하며, c 를 크게 잡는다고 해결되지 않습니다.** Tukey 울타리는 사분위수에 대해 대칭이므로, 오른쪽으로 치우친 분포는 데이터가 어떻든 *구조적으로* 아래 울타리 밖보다 위 울타리 밖에 훨씬 더 많은 질량을 갖습니다. sigma = 1 인 로그정규분포에서 표준 울타리는 오른쪽에서 표본의 약 8% 를 표시하고 왼쪽에서는 사실상 아무것도 표시하지 않습니다 — 완벽하게 깨끗한 표본인데도 그렇습니다. 보정 없이 읽으면 \"내 세포의 8% 가 이상치다\"는 세포에 대한 진술이 아니라 분포 모양에 대한 진술입니다."
+    },
+    {
+      "context": "The obvious thing to write here is ``|x - mean| / sd > 3``, and it is the one thing this module refuses to do. spaCR object measurements are skewed and heavy-tailed by construction: ``cell_area`` is a positive quantity with a long right tail, ``pathogen_area`` is zero-inflated, an intensity ratio has a denominator that can approach zero. The mean and the SD of such a column are themselves dragged by the very objects they are supposed to find — one debris particle measured at 40× the median area moves the mean, inflates the SD, and so raises the threshold that was meant to catch it. The failure is silent and it gets worse the worse the contamination is: this is the *masking* effect, and it is the reason robust statistics exist.",
+      "label": "spacr.qt.widgets.outlier_model#2",
+      "source": "The obvious thing to write here is ``|x - mean| / sd > 3``, and it is the one thing this module refuses to do. spaCR object measurements are skewed and heavy-tailed by construction: ``cell_area`` is a positive quantity with a long right tail, ``pathogen_area`` is zero-inflated, an intensity ratio has a denominator that can approach zero. The mean and the SD of such a column are themselves dragged by the very objects they are supposed to find — one debris particle measured at 40× the median area moves the mean, inflates the SD, and so raises the threshold that was meant to catch it. The failure is silent and it gets worse the worse the contamination is: this is the *masking* effect, and it is the reason robust statistics exist.",
+      "source_sha256": "36aa5a1d6a08be248f4d6421069deae95bda1a3ace09c3856dc8f4cf71bd8862",
+      "translation": "여기서 가장 먼저 떠오르는 방식은 ``|x - mean| / sd > 3`` 이지만, 이 모듈이 거부하는 단 한 가지가 바로 그것입니다. spaCR 의 객체 측정값은 원래부터 치우쳐 있고 꼬리가 두껍습니다: ``cell_area`` 는 오른쪽 꼬리가 긴 양수 값이고, ``pathogen_area`` 는 0 이 과도하게 많으며, 강도 비율은 분모가 0 에 가까워질 수 있습니다. 이런 열의 평균과 SD 는 그것들이 찾아내야 할 바로 그 객체들에 의해 끌려갑니다 — 중앙값 면적의 40× 로 측정된 파편 입자 하나가 평균을 움직이고 SD 를 부풀려, 결국 그것을 잡아내야 할 임계값을 높여 버립니다. 이 실패는 조용히 일어나며 오염이 심할수록 더 나빠집니다: 이것이 *마스킹* 효과이며, 강건 통계가 존재하는 이유입니다."
+    },
+    {
+      "context": "**Isolation forest requires** ``contamination`` — the share of the data that is bad — declared *in advance*. That share is precisely the unknown the analysis is trying to estimate. Setting ``contamination=0.01`` guarantees 1% of the objects come back flagged whether the plate is pristine or ruined, which makes the output uninterpretable in exactly the case it matters.",
+      "label": "spacr.qt.widgets.outlier_model#20",
+      "source": "**Isolation forest requires** ``contamination`` — the share of the data that is bad — declared *in advance*. That share is precisely the unknown the analysis is trying to estimate. Setting ``contamination=0.01`` guarantees 1% of the objects come back flagged whether the plate is pristine or ruined, which makes the output uninterpretable in exactly the case it matters.",
+      "source_sha256": "a4154fde2d1f6f604a08808ae526ae951f9423644e4a1e383f115761a2f031eb",
+      "translation": "**Isolation Forest 는** ``contamination`` — 데이터 중 불량한 부분의 비율 — 을 *미리* 선언하도록 요구합니다. 그 비율이야말로 분석이 추정하려는 미지수입니다. ``contamination=0.01`` 로 설정하면 플레이트가 깨끗하든 망가졌든 객체의 1% 가 표시되어 돌아오는 것이 보장되며, 그래서 결과는 바로 그것이 중요한 경우에 해석할 수 없게 됩니다."
+    },
+    {
+      "context": "**MCD is the multivariate generalisation of the median and the MAD.** The MCD centre is a multivariate median (the mean of the h-subset of minimum covariance determinant) and the MCD scatter is its spread. So all three methods offered here are the same idea at one, one, and p dimensions, and a user who understands the MAD already understands this.",
+      "label": "spacr.qt.widgets.outlier_model#22",
+      "source": "**MCD is the multivariate generalisation of the median and the MAD.** The MCD centre is a multivariate median (the mean of the h-subset of minimum covariance determinant) and the MCD scatter is its spread. So all three methods offered here are the same idea at one, one, and p dimensions, and a user who understands the MAD already understands this.",
+      "source_sha256": "891a5252b8524135e6f78864b7875b1678687aa651ee75c2227bd877e078d70c",
+      "translation": "**MCD 는 중앙값과 MAD 의 다변량 일반화입니다.** MCD 중심은 다변량 중앙값(공분산 행렬식이 최소인 h-부분집합의 평균)이고, MCD 산포는 그 퍼짐입니다. 따라서 여기서 제공하는 세 가지 방법은 각각 1차원, 1차원, p 차원에서의 같은 아이디어이며, MAD 를 이해하는 사용자라면 이미 이것도 이해하는 셈입니다."
+    },
+    {
+      "context": "**The cost, stated.** MCD needs ``n > p`` to have a covariance at all, and it is unstable until roughly ``n >= 2p`` (:data:`MCD_MIN_OBJECTS_PER_FEATURE` * p): the estimate is fitted on a *subset* of about ``n/2`` rows, so ``n = 2p`` already means the subset is only barely larger than the dimension. Its breakdown point is set by ``support_fraction``: the sklearn default of ``(n + p + 1) / 2n`` gives the maximum ~50%, and raising it trades robustness for efficiency. Too few objects for the number of features is **refused with a message that names the way out**: run a PCA first (:func:`spacr.qt.widgets.pca_model.pca`) and flag on the first few components, which are fewer, uncorrelated, and carry the same information.",
+      "label": "spacr.qt.widgets.outlier_model#24",
+      "source": "**The cost, stated.** MCD needs ``n > p`` to have a covariance at all, and it is unstable until roughly ``n >= 2p`` (:data:`MCD_MIN_OBJECTS_PER_FEATURE` * p): the estimate is fitted on a *subset* of about ``n/2`` rows, so ``n = 2p`` already means the subset is only barely larger than the dimension. Its breakdown point is set by ``support_fraction``: the sklearn default of ``(n + p + 1) / 2n`` gives the maximum ~50%, and raising it trades robustness for efficiency. Too few objects for the number of features is **refused with a message that names the way out**: run a PCA first (:func:`spacr.qt.widgets.pca_model.pca`) and flag on the first few components, which are fewer, uncorrelated, and carry the same information.",
+      "source_sha256": "c11d340cd09f8272bfc6f4b7716e2d6c98ee0bdb82d9ae0257ef46a143a964de",
+      "translation": "**비용, 분명히 밝혀 둡니다.** MCD 가 공분산을 가지려면 애초에 ``n > p`` 여야 하며, 대략 ``n >= 2p`` (:data:`MCD_MIN_OBJECTS_PER_FEATURE` * p)가 될 때까지 불안정합니다: 추정은 약 ``n/2`` 행으로 된 *부분집합* 에 적합되므로, ``n = 2p`` 라면 이미 그 부분집합이 차원보다 겨우 조금 클 뿐입니다. 붕괴점은 ``support_fraction`` 으로 정해집니다: sklearn 기본값 ``(n + p + 1) / 2n`` 은 최대치인 ~50% 를 주며, 이를 높이면 강건성을 내주고 효율을 얻습니다. 특징 수에 비해 객체가 너무 적으면 **해결 방법을 알려 주는 메시지와 함께 거부됩니다**: 먼저 PCA (:func:`spacr.qt.widgets.pca_model.pca`)를 실행한 뒤, 개수가 적고 서로 상관이 없으면서 같은 정보를 담은 처음 몇 개의 성분에서 표시하십시오."
+    },
+    {
+      "context": "The whole-laboratory microplate failure that actually happens is a **bad microplate sample position**: one microplate sample position pipetted wrong, one microplate sample position out of focus, one microplate sample position where the cells were seeded at twice the density. Per-object flags are close to useless for finding it, and the reason is arithmetic rather than opinion.",
+      "label": "spacr.qt.widgets.outlier_model#27",
+      "source": "The whole-plate failure that actually happens is a **bad well**: one well pipetted wrong, one well out of focus, one well where the cells were seeded at twice the density. Per-object flags are close to useless for finding it, and the reason is arithmetic rather than opinion.",
+      "source_sha256": "4bd62ff48d1e9d929ad11e66841f9df08539669668b347eb1aae2ce862788fe5",
+      "translation": "실제로 일어나는 플레이트 전체 수준의 실패는 **불량 웰** 입니다: 피펫팅이 잘못된 웰 하나, 초점이 맞지 않은 웰 하나, 세포가 두 배 밀도로 파종된 웰 하나. 객체별 표시는 이를 찾는 데 거의 쓸모가 없으며, 그 이유는 의견이 아니라 산술입니다."
+    },
+    {
+      "context": "**A well is not scored on three objects.** Below :data:`DEFAULT_MIN_WELL_OBJECTS` objects the median is too noisy for a comparison across microplate sample positions to mean anything, so the well appears in the well frame with ``well_scored = False`` and a reason saying how many objects it had. It is **never silently dropped and never quietly scored** — a low-n well excluded without a word is how an empty well becomes an unremarkable row.",
+      "label": "spacr.qt.widgets.outlier_model#31",
+      "source": "**A well is not scored on three objects.** Below :data:`DEFAULT_MIN_WELL_OBJECTS` objects the median is too noisy for a comparison across wells to mean anything, so the well appears in the well frame with ``well_scored = False`` and a reason saying how many objects it had. It is **never silently dropped and never quietly scored** — a low-n well excluded without a word is how an empty well becomes an unremarkable row.",
+      "source_sha256": "08e808a7841a64434241e0bef85e50ed825eabb276c1ba66b9be60682c85c94c",
+      "translation": "**객체 세 개로는 웰에 점수를 매기지 않습니다.** :data:`DEFAULT_MIN_WELL_OBJECTS` 개 미만의 객체에서는 중앙값의 잡음이 너무 커서 웰 간 비교가 의미를 가질 수 없으므로, 그 웰은 ``well_scored = False`` 로 웰 프레임에 나타나며 객체가 몇 개였는지 알려 주는 이유가 함께 표시됩니다. 이런 웰은 **절대 조용히 빠지지도, 조용히 점수가 매겨지지도 않습니다** — 아무 말 없이 제외된 n 이 작은 웰이야말로 빈 웰이 눈에 띄지 않는 한 행으로 묻히는 방식이기 때문입니다."
+    },
+    {
+      "context": "**MAD == 0 is handled, not divided by.** When more than half the objects share one value — a zero-inflated ``pathogen_area``, an integer count, a saturated intensity — the MAD is exactly zero. Naively, every value that differs at all then scores infinity and *the entire tail is flagged*, which is the opposite of robust. So :func:`robust_scale` falls back to the **mean absolute deviation from the median**, scaled by :data:`MEAN_AD_TO_SIGMA` = ``sqrt(pi/2)`` = 1.2533 (for a Gaussian ``E|X - mu| = sigma * sqrt(2/pi)``), and says so in :attr:`OutlierResult.notes` and in :meth:`OutlierResult.caveats`.",
+      "label": "spacr.qt.widgets.outlier_model#8",
+      "source": "**MAD == 0 is handled, not divided by.** When more than half the objects share one value — a zero-inflated ``pathogen_area``, an integer count, a saturated intensity — the MAD is exactly zero. Naively, every value that differs at all then scores infinity and *the entire tail is flagged*, which is the opposite of robust. So :func:`robust_scale` falls back to the **mean absolute deviation from the median**, scaled by :data:`MEAN_AD_TO_SIGMA` = ``sqrt(pi/2)`` = 1.2533 (for a Gaussian ``E|X - mu| = sigma * sqrt(2/pi)``), and says so in :attr:`OutlierResult.notes` and in :meth:`OutlierResult.caveats`.",
+      "source_sha256": "5584dee58b5389d709ce6cbdb1f120bcc5fb669f10c1743b8a0d787ad91e64af",
+      "translation": "**MAD == 0 은 나누는 값으로 쓰지 않고 따로 처리합니다.** 객체의 절반 이상이 같은 값을 가질 때 — 0 이 과도하게 많은 ``pathogen_area``, 정수 개수, 포화된 강도 — MAD 는 정확히 0 입니다. 순진하게 처리하면 조금이라도 다른 모든 값이 무한대 점수를 받아 *꼬리 전체가 표시* 되는데, 이는 강건함과 정반대입니다. 그래서 :func:`robust_scale` 은 **중앙값으로부터의 평균 절대 편차** 로 대체하고 :data:`MEAN_AD_TO_SIGMA` = ``sqrt(pi/2)`` = 1.2533 으로 척도를 맞추며(가우시안에서는 ``E|X - mu| = sigma * sqrt(2/pi)``), 이 사실을 :attr:`OutlierResult.notes` 와 :meth:`OutlierResult.caveats` 에 밝힙니다."
+    },
+    {
+      "context": "The alternative considered and not taken is the Rousseeuw–Croux ``Sn`` (``1.1926 * med_i med_j |x_i - x_j|``), which is the statistically better answer: it has a 50% breakdown point, needs no symmetry assumption, and does not collapse on tied data. It is not used because the naive form is O(n^2) — unusable on the 10^5–10^6 object rows spaCR routinely produces — and the O(n log n) algorithm is a page of intricate code to maintain for a path that is only ever reached when the MAD has *already* collapsed. The mean absolute deviation has a 0% breakdown point and that is stated plainly rather than glossed: it is a stopgap that keeps a degenerate column from flagging its whole tail, not a robust estimator. If the fallback fires, the honest reading is that the column is not continuous enough for this test.",
+      "label": "spacr.qt.widgets.outlier_model#9",
+      "source": "The alternative considered and not taken is the Rousseeuw–Croux ``Sn`` (``1.1926 * med_i med_j |x_i - x_j|``), which is the statistically better answer: it has a 50% breakdown point, needs no symmetry assumption, and does not collapse on tied data. It is not used because the naive form is O(n^2) — unusable on the 10^5–10^6 object rows spaCR routinely produces — and the O(n log n) algorithm is a page of intricate code to maintain for a path that is only ever reached when the MAD has *already* collapsed. The mean absolute deviation has a 0% breakdown point and that is stated plainly rather than glossed: it is a stopgap that keeps a degenerate column from flagging its whole tail, not a robust estimator. If the fallback fires, the honest reading is that the column is not continuous enough for this test.",
+      "source_sha256": "721569ff101ce8b35287fe360c287aa5942e78ce2fa3045cddc5a5a673f7dc52",
+      "translation": "고려했지만 채택하지 않은 대안은 Rousseeuw–Croux ``Sn`` (``1.1926 * med_i med_j |x_i - x_j|``) 으로, 통계적으로는 더 나은 답입니다: 붕괴점이 50% 이고, 대칭 가정이 필요 없으며, 동률이 많은 데이터에서도 무너지지 않습니다. 그래도 쓰지 않는 이유는 단순한 형태가 O(n^2) 이어서 spaCR 이 일상적으로 만들어 내는 10^5–10^6 개의 객체 행에서는 사용할 수 없고, O(n log n) 알고리즘은 MAD 가 *이미* 무너졌을 때만 도달하는 경로를 위해 유지해야 하는 한 페이지 분량의 복잡한 코드이기 때문입니다. 평균 절대 편차는 붕괴점이 0% 이며, 이 사실은 얼버무리지 않고 분명히 밝힙니다: 그것은 강건 추정량이 아니라, 퇴화된 열이 꼬리 전체를 표시하지 못하게 막는 임시방편입니다. 이 대체 경로가 작동했다면, 정직한 해석은 그 열이 이 검정을 적용할 만큼 연속적이지 않다는 것입니다."
+    },
+    {
+      "context": "an ``.npy`` **stack** whose first axis is time — memory-mapped, so a slice touches only that image layer's pages.",
+      "label": "spacr.qt.widgets.timelapse_preview.FrameSequence#4",
+      "source": "an ``.npy`` **stack** whose first axis is time — memory-mapped, so a slice touches only that plane's pages.",
+      "source_sha256": "197f897c6a2c29fcc202737848baeafd9764f3bc019a9e861c7260d0b46fc28e",
+      "translation": "첫 번째 축이 시간인 ``.npy`` **스택** — 메모리 매핑되므로 슬라이스 하나는 해당 이미지 레이어의 페이지만 건드립니다."
+    },
+    {
+      "context": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between application views with nothing on application view to say so.",
+      "label": "spacr.schema.add_screen_column#3",
+      "source": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between screens with nothing on screen to say so.",
+      "source_sha256": "2e617f319f22c7717f33e5d37a2b4417ef3f953272c48c45d29b638471a15d87",
+      "translation": "프레임에 이미 그 열이 있고 ``screen`` 은 ``None`` 입니다. 라벨은 유지됩니다. 어떤 실험에서 왔는지 이미 알고 있는 프레임의 라벨을 다시 붙이면, 아무런 표시도 없이 행이 다른 실험으로 옮겨지게 됩니다."
+    },
+    {
+      "context": "The frame has one and ``screen`` was given. The caller is looking at the files and has said which screen this is, so it wins — but only because they said so. ``overwrite=False`` (the default) still fills *blank* values only; pass ``overwrite=True`` to restamp every row.",
+      "label": "spacr.schema.add_screen_column#4",
+      "source": "The frame has one and ``screen`` was given. The caller is looking at the files and has said which screen this is, so it wins — but only because they said so. ``overwrite=False`` (the default) still fills *blank* values only; pass ``overwrite=True`` to restamp every row.",
+      "source_sha256": "8334cca36846b5ad24d6d47eee6daf87740b63e0b5763adbbff146c9fe665cdf",
+      "translation": "프레임에 이미 그 열이 있고 ``screen`` 이 주어졌습니다. 호출자는 파일을 보고 이것이 어떤 스크리닝인지 밝혔으므로 그 값이 우선합니다 — 다만 호출자가 그렇게 밝혔기 때문일 뿐입니다. ``overwrite=False`` (기본값)는 여전히 *빈* 값만 채웁니다; 모든 행에 다시 표시하려면 ``overwrite=True`` 를 전달하십시오."
+    },
+    {
+      "context": "**Numeric text is coerced, loudly.** Values inserted as text make pandas use ``object`` for the whole column even when every one of them is a valid number; ``'12.0'`` is recoverable and is recovered, with a :class:`UserWarning` naming the columns, because a measurement stored as text is a database that wants looking at. ``'n/a'`` is not recoverable and is never quietly turned into NaN and fitted on: it raises :class:`ModelFeatureSchemaError` naming *every* offending column at once.",
+      "label": "spacr.schema.coerce_model_feature_types#2",
+      "source": "**Numeric text is coerced, loudly.** Values inserted as text make pandas use ``object`` for the whole column even when every one of them is a valid number; ``'12.0'`` is recoverable and is recovered, with a :class:`UserWarning` naming the columns, because a measurement stored as text is a database that wants looking at. ``'n/a'`` is not recoverable and is never quietly turned into NaN and fitted on: it raises :class:`ModelFeatureSchemaError` naming *every* offending column at once.",
+      "source_sha256": "5fe53e521107eef487232e28cf637f908950e1f37e479973482dd42799709df2",
+      "translation": "**숫자 텍스트는 변환하되, 경고와 함께 변환합니다.** 텍스트로 삽입된 값은 모두 유효한 숫자여도 pandas 가 열 전체에 ``object`` 를 쓰게 만듭니다; ``'12.0'`` 은 복구할 수 있으므로 복구하며, 열 이름을 알려 주는 :class:`UserWarning` 을 함께 냅니다. 텍스트로 저장된 측정값은 한번 살펴봐야 할 데이터베이스이기 때문입니다. ``'n/a'`` 는 복구할 수 없으며, 절대 조용히 NaN 으로 바뀌어 적합에 쓰이지 않습니다: 문제가 되는 열을 *모두* 한꺼번에 알려 주는 :class:`ModelFeatureSchemaError` 를 발생시킵니다."
+    },
+    {
+      "context": "widen what counts as a feature to unrecognised columns — but an unrecognised column is then *skipped* rather than repaired, so this only ever converts fewer columns. It reaches ``DERIVED_MODEL_FEATURES`` as well: with it set, a text or all-NULL ``recruitment`` stays ``object`` and is then silently dropped by :func:`model_feature_columns` instead of being read as numbers.",
+      "label": "spacr.schema.coerce_model_feature_types#7",
+      "source": "widen what counts as a feature to unrecognised columns — but an unrecognised column is then *skipped* rather than repaired, so this only ever converts fewer columns. It reaches ``DERIVED_MODEL_FEATURES`` as well: with it set, a text or all-NULL ``recruitment`` stays ``object`` and is then silently dropped by :func:`model_feature_columns` instead of being read as numbers.",
+      "source_sha256": "a5e83868f0d3a264bffa3fc1203c33bfde620d677a6b6b0c9e5a93c3943e40b4",
+      "translation": "특징으로 간주하는 범위를 인식되지 않은 열까지 넓힙니다 — 하지만 인식되지 않은 열은 복구되는 대신 *건너뛰어지므로*, 이 옵션은 오히려 더 적은 열만 변환하게 됩니다. ``DERIVED_MODEL_FEATURES`` 에도 영향을 줍니다: 이 옵션을 켜면 텍스트이거나 전부 NULL 인 ``recruitment`` 는 ``object`` 로 남고, 숫자로 읽히는 대신 :func:`model_feature_columns` 에서 조용히 제외됩니다."
+    },
+    {
+      "context": "Not the generator's own ``touches`` flag. That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The microplate sample position edge is recovered from the drawn pixels.",
+      "label": "spacr.setting_animations.measure_border_object_removal#3",
+      "source": "Not the generator's own ``touches`` flag. That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The well edge is recovered from the drawn pixels.",
+      "source_sha256": "7d784463cd45892f8bc5034e41f401c556ea7426cd64107b5d61ca111d8e4bac",
+      "translation": "생성기 자체의 ``touches`` 플래그가 아닙니다. 그 플래그가 바로 테스트 대상입니다; 그 플래그로 객체를 분류하는 검사는 생성기를 자기 자신에 비추어 검증하는 셈이며, 실제로 버그가 포함된 채 배포된 자산에서 \"all correct\" 라고 보고했습니다. 웰 가장자리는 그려진 픽셀에서 복원합니다."
+    },
+    {
+      "context": "Activation maps say **where** a model looked. This says **what it responded to**, in units a biologist already interprets — area, intensity, texture — by fitting a gradient-boosted model to reproduce the CV model's predictions from the object features spaCR already measured, and then asking that model what it used.",
+      "label": "spacr.surrogate#1",
+      "source": "Activation maps say **where** a model looked. This says **what it responded to**, in units a biologist already interprets — area, intensity, texture — by fitting a gradient-boosted model to reproduce the CV model's predictions from the object features spaCR already measured, and then asking that model what it used.",
+      "source_sha256": "1caed638d74745a3ab452f85a87dabff8c7fd9a122387ef569b2c6a7420c0058",
+      "translation": "활성화 맵은 모델이 **어디를** 보았는지 알려 줍니다. 이 모듈은 모델이 **무엇에 반응했는지** 를 생물학자가 이미 해석하는 단위 — 면적, 강도, 텍스처 — 로 알려 줍니다: spaCR 이 이미 측정한 객체 특징으로 CV 모델의 예측을 재현하도록 그래디언트 부스팅 모델을 적합한 다음, 그 모델에 무엇을 사용했는지 묻는 방식입니다."
+    },
+    {
+      "context": "**Fidelity is reported first, and it is not a formality.** A surrogate that cannot reproduce the CV model's decisions has explained nothing, and its feature ranking is a ranking of how the features predict each other. That number is the one people skip, so :class:`SurrogateResult` puts it before the importances and :meth:`SurrogateResult.summary` refuses to lead with anything else.",
+      "label": "spacr.surrogate#3",
+      "source": "**Fidelity is reported first, and it is not a formality.** A surrogate that cannot reproduce the CV model's decisions has explained nothing, and its feature ranking is a ranking of how the features predict each other. That number is the one people skip, so :class:`SurrogateResult` puts it before the importances and :meth:`SurrogateResult.summary` refuses to lead with anything else.",
+      "source_sha256": "2a39d6621585c437e0be27a26b6f8a628dad83bda6e74c95d35dd09884395ee0",
+      "translation": "**충실도를 가장 먼저 보고하며, 이는 형식적인 절차가 아닙니다.** CV 모델의 결정을 재현하지 못하는 대리 모델은 아무것도 설명하지 못한 것이고, 그 특징 순위는 특징들이 서로를 얼마나 잘 예측하는지에 대한 순위일 뿐입니다. 사람들이 건너뛰는 숫자가 바로 이것이므로, :class:`SurrogateResult` 는 이를 중요도보다 앞에 두고 :meth:`SurrogateResult.summary` 는 다른 어떤 것으로도 시작하지 않습니다."
+    },
+    {
+      "context": "An audit across ``spacr/`` found 248 tabular reads and writes -- ``pd.read_csv``, ``pd.read_sql*``, ``.to_csv``, ``.to_sql`` -- and **thirteen** call sites that normalised a column name at all. There was no funnel; there were 248 doors, and which spelling of a structured-data name a frame ended up with depended on which door it came through.",
+      "label": "spacr.tabular#2",
+      "source": "An audit across ``spacr/`` found 248 tabular reads and writes -- ``pd.read_csv``, ``pd.read_sql*``, ``.to_csv``, ``.to_sql`` -- and **thirteen** call sites that normalised a column name at all. There was no funnel; there were 248 doors, and which spelling of a key a frame ended up with depended on which door it came through.",
+      "source_sha256": "8ba1ec3129ad3fb03834dd12b9253d3fad60a6d2572db8852cd90ebebfe4d7ff",
+      "translation": "``spacr/`` 전체를 감사한 결과 테이블 형식의 읽기와 쓰기 248 곳 -- ``pd.read_csv``, ``pd.read_sql*``, ``.to_csv``, ``.to_sql`` -- 을 찾았는데, 그중 열 이름을 조금이라도 정규화한 호출 지점은 **열세** 곳뿐이었습니다. 깔때기는 없었습니다; 문이 248 개 있었고, 프레임이 어떤 철자의 키를 갖게 되는지는 어느 문을 통해 들어왔느냐에 달려 있었습니다."
+    },
+    {
+      "context": "Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.",
+      "label": "spacr.utils.correct_metadata_column_names#0",
+      "source": "Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.",
+      "source_sha256": "4e314297af1da8ebfedd58f49a362f5f04a65a2a10733b2d7f62cacb34323847",
+      "translation": "이름이 바뀐 레거시 메타데이터 열. **정의 위치:** :mod:`spacr.schema`."
+    }
+  ],
+  "schema": 1
+}

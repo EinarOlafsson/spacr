@@ -1,0 +1,363 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "Advisory only — nothing here changes a setting until you press Use.",
+      "source": "Advisory only — nothing here changes a setting until you press Use.",
+      "source_sha256": "60d63c71a85338a87fec2f0e2c2a39cad379d229117c7c461a7d61c8cde14e04",
+      "table": "ui",
+      "translation": "Nur beratend — hier wird keine Einstellung geändert, bis Sie Verwenden drücken."
+    },
+    {
+      "key": "Advisory only — this never stops Measure from running.",
+      "source": "Advisory only — this never stops Measure from running.",
+      "source_sha256": "fd24cb67a6e395d7727a58e0203580ae3cccabaeb50c439fb7fd12ef54d5001c",
+      "table": "ui",
+      "translation": "Nur beratend — dies hindert Measure nie daran, ausgeführt zu werden."
+    },
+    {
+      "key": "Background of an exported figure ('none' leaves the page showing through)",
+      "source": "Background of an exported figure ('none' leaves the page showing through)",
+      "source_sha256": "81be1d0355fbf3296682dd73939525860a4957a6cb261c4a9bd8821227e7ae94",
+      "table": "ui",
+      "translation": "Hintergrund einer exportierten Abbildung ('none' lässt die Seite durchscheinen)"
+    },
+    {
+      "key": "Background on screen ('none' shows the page through)",
+      "source": "Background on screen ('none' shows the page through)",
+      "source_sha256": "b013b043858f7f5aca7094a3107c45dfa7a8c83707af1c0c66590298adce56ae",
+      "table": "ui",
+      "translation": "Hintergrund auf dem Bildschirm ('none' lässt die Seite durchscheinen)"
+    },
+    {
+      "key": "Build the digest first.",
+      "source": "Build the digest first.",
+      "source_sha256": "071bfce0a4e37d56ccd0a3587c48bffd58adacb214b80780e161be988bea161f",
+      "table": "ui",
+      "translation": "Erstellen Sie zuerst die Zusammenfassung."
+    },
+    {
+      "key": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source_sha256": "6e87588f0d1532cecbad8dfe8bf788361b7cc6bf7c50eb354c37245946aff269",
+      "table": "ui",
+      "translation": "Cellpose 4 skaliert jedes Bild vor der Segmentierung mit 30/Durchmesser, daher verschiebt ein um den Faktor zwei falscher Durchmesser Ihre Objekte aus der Größe, bei der cpsam arbeitet. Dies liest einige Felder Ihrer eigenen Daten und misst sie — Cellpose wird nicht geladen."
+    },
+    {
+      "key": "Choose a regression results folder — the one holding results_gene.csv.",
+      "source": "Choose a regression results folder — the one holding results_gene.csv.",
+      "source_sha256": "a9116f396c14b68e881fbd1f127d614fff52d06e5aa42f8718cdc36ced84afff",
+      "table": "ui",
+      "translation": "Wählen Sie einen Ordner mit Regressionsergebnissen — den, der results_gene.csv enthält."
+    },
+    {
+      "key": "Choose a spaCR project folder to list the runs it recorded.",
+      "source": "Choose a spaCR project folder to list the runs it recorded.",
+      "source_sha256": "75bbf970f0a87bb30599d4dc6e6f7b6f51f6b982b83f2b00d659070bf4eb1504",
+      "table": "ui",
+      "translation": "Wählen Sie einen spaCR-Projektordner, um die darin aufgezeichneten Läufe aufzulisten."
+    },
+    {
+      "key": "Cleared.",
+      "source": "Cleared.",
+      "source_sha256": "aa8dbf3c9d7e35b6dae44f99537e7998f6215ca1369ba1814cd9932d9b078f28",
+      "table": "ui",
+      "translation": "Gelöscht."
+    },
+    {
+      "key": "Colour by a column…",
+      "source": "Colour by a column…",
+      "source_sha256": "f70587ad394019eaeb62e2d63e979f5159e7f14e9a063c008f546e768b894005",
+      "table": "ui",
+      "translation": "Nach einer Spalte einfärben…"
+    },
+    {
+      "key": "Colour of the axis lines, the ticks and the text",
+      "source": "Colour of the axis lines, the ticks and the text",
+      "source_sha256": "3154a8539a5461fe51d2d8fbeb264030ef555282ddeec63cf41531ca7f8809bc",
+      "table": "ui",
+      "translation": "Farbe der Achsenlinien, der Teilstriche und des Textes"
+    },
+    {
+      "key": "Column holding point names",
+      "source": "Column holding point names",
+      "source_sha256": "a40e916b1f2ec6d84f3a995d78302fbd93d78c8cd23cad13ca2f41cc04685b8c",
+      "table": "ui",
+      "translation": "Spalte mit den Punktnamen"
+    },
+    {
+      "key": "Column naming each row's gene, for the compartment lookup",
+      "source": "Column naming each row's gene, for the compartment lookup",
+      "source_sha256": "db0ce15eb390e498bfbbc3bf684c5887e0b8cb907bfb26bf489830854633a55f",
+      "table": "ui",
+      "translation": "Spalte mit dem Gen jeder Zeile, für die Kompartiment-Zuordnung"
+    },
+    {
+      "key": "Column plotted on the x axis",
+      "source": "Column plotted on the x axis",
+      "source_sha256": "abbf17d6a6727cf01ae9ea6cb6d21287b675f838c2aeecfd6bced2fbe929eafb",
+      "table": "ui",
+      "translation": "Auf der x-Achse dargestellte Spalte"
+    },
+    {
+      "key": "Column plotted on the y axis",
+      "source": "Column plotted on the y axis",
+      "source_sha256": "948578aab4a397831973d14bbee3748da8c63da66a1a21ed3cae859f3ed32570",
+      "table": "ui",
+      "translation": "Auf der y-Achse dargestellte Spalte"
+    },
+    {
+      "key": "Distance cut",
+      "source": "Distance cut",
+      "source_sha256": "9cbd6a9efc80024bfd885651647f0e6824f48a2985a2e389105bad6e2ec0cefa",
+      "table": "ui",
+      "translation": "Distanzschwelle"
+    },
+    {
+      "key": "Drafting…",
+      "source": "Drafting…",
+      "source_sha256": "bafe3bfa6db69fc878ee68858880fcbb984032c0ffbf7267fa464731dc5d5017",
+      "table": "ui",
+      "translation": "Entwurf wird erstellt…"
+    },
+    {
+      "key": "Draw the effect-size lines",
+      "source": "Draw the effect-size lines",
+      "source_sha256": "e4515c9065f4d6a8ce7a03b34c7543dbc152a15286fbb060c341e567f679050d",
+      "table": "ui",
+      "translation": "Effektstärke-Linien zeichnen"
+    },
+    {
+      "key": "Effect-size cut used when the method is 'value'; automatic draws no effect-size line at all",
+      "source": "Effect-size cut used when the method is 'value'; automatic draws no effect-size line at all",
+      "source_sha256": "926a1985405927c586349966968dcc5d375a6bf992e06711224b2618a2323485",
+      "table": "ui",
+      "translation": "Effektstärke-Schwelle, die verwendet wird, wenn die Methode 'value' ist; bei automatisch wird überhaupt keine Effektstärke-Linie gezeichnet"
+    },
+    {
+      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+      "table": "ui",
+      "translation": "Jede Linie in der Datei: die gezeichneten Kurven, die Referenzlinien, die Achsenlinien und die Teilstriche. Die Zahlen neben den Teilstrichen sind Text und folgen der Textfarbe."
+    },
+    {
+      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+      "table": "ui",
+      "translation": "Jeder Text in der Datei: der Titel, die Achsenbeschriftungen, die Zahlen neben den Teilstrichen und die Legende."
+    },
+    {
+      "key": "Hide top/right spines",
+      "source": "Hide top/right spines",
+      "source_sha256": "de6084fb71d9fcfb93f085d186b4e71dadcb30034656ecff839b857508e904e8",
+      "table": "ui",
+      "translation": "Obere/rechte Achsenlinien ausblenden"
+    },
+    {
+      "key": "How fast the animation moves, against the speed each one was designed at. It applies to every kind of motion in the chosen animation at once, and changing it never makes what is already on screen jump.",
+      "source": "How fast the animation moves, against the speed each one was designed at. It applies to every kind of motion in the chosen animation at once, and changing it never makes what is already on screen jump.",
+      "source_sha256": "3b0e0fb078df0e0ec979171334e971324f5e70d89edb26b6ad05c9ff4df24397",
+      "table": "ui",
+      "translation": "Wie schnell sich die Animation bewegt, gemessen an der Geschwindigkeit, für die jede Animation entworfen wurde. Sie gilt für alle Bewegungsarten der gewählten Animation zugleich, und eine Änderung lässt das, was bereits auf dem Bildschirm ist, nie springen."
+    },
+    {
+      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
+      "table": "ui",
+      "translation": "Wie viele Elemente es gibt: Blobs, Polarlichtvorhänge, Wellenquellen, Sterne, Bokeh-Scheiben, Zellen. Dichte und Detail teilen sich ein Kostenbudget, daher wird bei maximalen Werten für beide die Dichte reduziert, statt Bilder auszulassen."
+    },
+    {
+      "key": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
+      "source": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
+      "source_sha256": "0f5cf9774f5be9f62e5f91817baaa8005779eb4f31b5d6b876f103d51f0da7bd",
+      "table": "ui",
+      "translation": "Mit wie viel Detail die Animation gezeichnet wird. Dieser Wert entscheidet, ob sie verpixelt aussieht: Er legt fest, in wie vielen Pixeln das Bild berechnet wird, bevor es auf die Seitengröße gestreckt wird. Kostet etwa das Quadrat des Werts — 200 % sind viermal so viel Arbeit —, also verringern Sie ihn auf einem ausgelasteten Rechner."
+    },
+    {
+      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
+      "table": "ui",
+      "translation": "Wie unscharf die Animation ist, zusätzlich zu dem Detailgrad, mit dem sie gezeichnet wurde. 0 % lässt sie so scharf, wie die Detaileinstellung erlaubt; 100 % ist die Weichheit, mit der die Animationen früher ausgeliefert wurden. Anders als das Detail kostet dieser Wert fast nichts — und beide zusammen lassen den Hintergrund weich wirken, ohne dass er blockig wird."
+    },
+    {
+      "key": "Invert x axis",
+      "source": "Invert x axis",
+      "source_sha256": "5873a95affc691a3547c03fb6c3c7a0de77b1eb9eca56d08eb3587937cdecb5c",
+      "table": "ui",
+      "translation": "x-Achse umkehren"
+    },
+    {
+      "key": "Name at least one source, then build the digest.",
+      "source": "Name at least one source, then build the digest.",
+      "source_sha256": "494782c5280e148de4516ccaa770c1071c9b6e0a4b5b2a1380125de7cac6b8c7",
+      "table": "ui",
+      "translation": "Geben Sie mindestens eine Quelle an und erstellen Sie dann die Zusammenfassung."
+    },
+    {
+      "key": "Negative control wells",
+      "source": "Negative control wells",
+      "source_sha256": "420f872d82474589b502fa7eada5cd4a5714d188e2837850a1818e487903958a",
+      "table": "ui",
+      "translation": "Negativkontroll-Wells"
+    },
+    {
+      "key": "Neighbours per seed",
+      "source": "Neighbours per seed",
+      "source_sha256": "e44a100da8498ec32867214e7c4b2ae1aa8f0cabc7cfa8de9c9a2dcc7a6135ee",
+      "table": "ui",
+      "translation": "Nachbarn je Startpunkt"
+    },
+    {
+      "key": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source_sha256": "b753e3f49f93c425540881613863bfc06105ba4320659660a43f010cb1c4ae9a",
+      "table": "ui",
+      "translation": "Nichts wurde an das Ergebnisfenster übergeben, daher gibt es keinen Ordner zum Durchsuchen. Verwenden Sie „Ergebnisse laden…“."
+    },
+    {
+      "key": "Nothing was moved.",
+      "source": "Nothing was moved.",
+      "source_sha256": "8734c27f9462011724583bb761d5353f62491a7cd80df88ad82fe7d5cebbd202",
+      "table": "ui",
+      "translation": "Nichts wurde verschoben."
+    },
+    {
+      "key": "Plot title",
+      "source": "Plot title",
+      "source_sha256": "f6a53f9aac380bcfa5959194c803f6cc9ed46feeb6069a51f77377c7d5f1a194",
+      "table": "ui",
+      "translation": "Diagrammtitel"
+    },
+    {
+      "key": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source_sha256": "a5038f58402ee32decf4d04419420346cbcec24d0494ee02fe1a85ee49b1bb9a",
+      "table": "ui",
+      "translation": "Setzen Sie src zuerst auf einen Plattenordner — es gibt noch nichts zu messen."
+    },
+    {
+      "key": "Positive control wells",
+      "source": "Positive control wells",
+      "source_sha256": "462e38219a78a7356fe27c275a7c8cb4d6ec340c24d7d7bc48d3b620e978a297",
+      "table": "ui",
+      "translation": "Positivkontroll-Wells"
+    },
+    {
+      "key": "Run summary and performance",
+      "source": "Run summary and performance",
+      "source_sha256": "312c7afc47d755db526b8bfa576e7489de08b4342127489596775d9f8b66cd31",
+      "table": "ui",
+      "translation": "Laufzusammenfassung und Leistung"
+    },
+    {
+      "key": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source_sha256": "7b72a7998b51633858ecc01e775e950e4431e3fed398d723885e9d9b21b9001d",
+      "table": "ui",
+      "translation": "Ziehen Sie eine Stichprobe der Reads einer Probe und messen Sie jede Referenztabelle daran, in beiden Orientierungen und für beide Mates."
+    },
+    {
+      "key": "Shape by a column…",
+      "source": "Shape by a column…",
+      "source_sha256": "42eb09cbdc65bcf49d62d9ee47abcf7a7e69475bcd76e42e55b6505e2e21f333",
+      "table": "ui",
+      "translation": "Form nach einer Spalte…"
+    },
+    {
+      "key": "Stop the search. What it has measured so far stays on screen, and nothing is proposed from a search that was interrupted.",
+      "source": "Stop the search. What it has measured so far stays on screen, and nothing is proposed from a search that was interrupted.",
+      "source_sha256": "77957637a0af1b966e395959d06af86266bd9aa7275f2fa8a26bcae743bc0267",
+      "table": "ui",
+      "translation": "Die Suche beenden. Was sie bisher gemessen hat, bleibt auf dem Bildschirm, und aus einer abgebrochenen Suche wird nichts vorgeschlagen."
+    },
+    {
+      "key": "The digest could not be built.",
+      "source": "The digest could not be built.",
+      "source_sha256": "efaec88b5f9fac6cadfbe3ec65b226f8bab4d647976b1736d866e47f0db34280",
+      "table": "ui",
+      "translation": "Die Zusammenfassung konnte nicht erstellt werden."
+    },
+    {
+      "key": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source_sha256": "39ab4725bc6dd7ca9d4160cdcb908f858280a21e835dfa0a60bb551754f21ae2",
+      "table": "ui",
+      "translation": "Das Gen konnte nicht aufgelöst werden, daher gibt es nichts nachzuschlagen. Das Diagramm ist davon nicht betroffen."
+    },
+    {
+      "key": "The page behind the figure. Transparent takes whatever the figure is placed on, which is what a slide usually wants.",
+      "source": "The page behind the figure. Transparent takes whatever the figure is placed on, which is what a slide usually wants.",
+      "source_sha256": "1521526b9bceb69f540d036fdf758841f4407d2a02fda7fed25e25743a3a9ae4",
+      "table": "ui",
+      "translation": "Die Seite hinter der Abbildung. Durchsichtig übernimmt, worauf die Abbildung gelegt wird — meist genau das, was eine Folie braucht."
+    },
+    {
+      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
+      "table": "ui",
+      "translation": "Das Perzentil, das auf Schwarz abgebildet wird. Erhöhen Sie es, um mehr Hintergrund zu unterdrücken; bei 0 bleibt das dunkelste Pixel erhalten."
+    },
+    {
+      "key": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source_sha256": "0549c47361f20d04a96ba1830cb2ae082be3246b95b3720a9b391b0b0c30ed6f",
+      "table": "ui",
+      "translation": "Das Perzentil, das auf Weiß abgebildet wird. Senken Sie es für mehr Kontrast, auf Kosten abgeschnittener hellster Pixel; bei 100 wird nichts abgeschnitten."
+    },
+    {
+      "key": "The results table is empty: it has columns but no rows, so the fit produced no coefficients.",
+      "source": "The results table is empty: it has columns but no rows, so the fit produced no coefficients.",
+      "source_sha256": "37208ee3e331f817cfd0ae6af518e1582a4fe22fd0e7bd952a04f8f856a9f3d7",
+      "table": "ui",
+      "translation": "Die Ergebnistabelle ist leer: Sie hat Spalten, aber keine Zeilen, daher hat die Anpassung keine Koeffizienten ergeben."
+    },
+    {
+      "key": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source_sha256": "30f39b338f5a50c00c3469016332c6de396d98463ccf94f67b4eac198474cfcb",
+      "table": "ui",
+      "translation": "Der Lauf ist beendet, aber seine Einstellungen nennen keinen Ausgabeordner -- src, count_data und score_data sind alle leer --, daher gibt es keinen Ort, an dem nach einer Ergebnistabelle gesucht werden kann. Verwenden Sie „Ergebnisse laden…“, um eine anzugeben."
+    },
+    {
+      "key": "Undone.",
+      "source": "Undone.",
+      "source_sha256": "dc16676623c41e87659bac36a19b91addf09b622f19f304194119211e57757e4",
+      "table": "ui",
+      "translation": "Rückgängig gemacht."
+    },
+    {
+      "key": "Versions, seeds, and manifest",
+      "source": "Versions, seeds, and manifest",
+      "source_sha256": "915d9d832ebb89e3778cee6e7e590d0bb7de7bd80bb441e4bc473dc9a17a309f",
+      "table": "ui",
+      "translation": "Versionen, Seeds und Manifest"
+    },
+    {
+      "key": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source_sha256": "13f3ac5383c22d164b4775777e127bc35f6e80bb46307445eb24bf72041e2827",
+      "table": "ui",
+      "translation": "Was spaCR über das Gen weiß, erscheint hier — Produkt, Topologie, Kompartiment, Fitness-Screenings und stadienspezifische Expression."
+    },
+    {
+      "key": "Where the y axis is split (set by ticking the split above)",
+      "source": "Where the y axis is split (set by ticking the split above)",
+      "source_sha256": "b1adfed681bb62c98df4c4ceac468dbacd751a92c51ebca802a5994760e45094",
+      "table": "ui",
+      "translation": "Wo die y-Achse geteilt wird (wird durch Ankreuzen der Teilung oben festgelegt)"
+    },
+    {
+      "key": "parses — load a table to see the values",
+      "source": "parses — load a table to see the values",
+      "source_sha256": "b8cd1d8b08fc02674074f302125203f4b8f1c3e9e2c360fb3400ada468a8f92a",
+      "table": "ui",
+      "translation": "lässt sich parsen — eine Tabelle laden, um die Werte zu sehen"
+    }
+  ],
+  "schema": 1
+}

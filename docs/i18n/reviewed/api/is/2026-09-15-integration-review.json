@@ -1,0 +1,335 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "``margin`` and ``least_confidence`` are the same ranking on two classes. For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``: a linear transform, so identical order and identical ties. They are not two independent choices on a binary screen — they differ only from three classes up, where ``margin`` looks at the top *two* classes while ``least_confidence`` looks only at the top one and ``entropy`` looks at the whole distribution.",
+      "label": "spacr.active_learning#8",
+      "source": "``margin`` and ``least_confidence`` are the same ranking on two classes. For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``: a linear transform, so identical order and identical ties. They are not two independent choices on a binary screen — they differ only from three classes up, where ``margin`` looks at the top *two* classes while ``least_confidence`` looks only at the top one and ``entropy`` looks at the whole distribution.",
+      "source_sha256": "a16a370a6fe4b63fbb5dfe535750914608eb89ae772f639a6046f97ac0997ecb",
+      "translation": "``margin`` og ``least_confidence`` gefa sömu röðun þegar flokkarnir eru tveir. Fyrir C = 2 gildir ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``: línuleg vörpun, svo röðin er eins og jöfn gildi eru þau sömu. Þetta eru ekki tveir óháðir kostir í tvíkosta skimun — þeir greinast aðeins að þegar flokkarnir eru þrír eða fleiri, þar sem ``margin`` skoðar *tvo* efstu flokkana en ``least_confidence`` skoðar aðeins þann efsta og ``entropy`` skoðar alla dreifinguna."
+    },
+    {
+      "context": "substring filter on the structured-data name, matching the Annotate application view's own filter. Every count below it, ``n_rows`` included, is over the extracted image regions that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
+      "label": "spacr.active_learning.annotation_coverage#7",
+      "source": "substring filter on the key, matching the Annotate screen's own filter. Every count below it, ``n_rows`` included, is over the crops that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
+      "source_sha256": "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
+      "translation": "hlutstrengjasía á nafn skipulegu gagnanna, sem samsvarar eigin síu Annotate-forritssýnarinnar. Sérhver talning þar fyrir neðan, ``n_rows`` meðtalin, nær yfir þau útdregnu myndsvæði sem pössuðu — nefnari tekinn úr allri töflunni myndi setja teljarann og nefnarann á tvö ólík þýði. ``n_rows_unfiltered`` heldur heildinni, og athugasemd segir hve mörg voru útilokuð."
+    },
+    {
+      "context": "``n`` **is the number of rows the matrix actually contains**, and the supports sum to it. A row whose true class the head has no column for is counted as an error rather than dropped: the matrix grows to hold it, and the missing column stays empty because the head can never predict that class. Reporting ``n`` over one population and ``accuracy`` over another is the one thing a model card must not do — a three-class held-out set scored by a binary head used to report a perfect score on a set the model got two of three right, and the ``accuracy == trace / total`` invariant still checked out because the row was missing from both sides of it.",
+      "label": "spacr.active_learning.holdout_report#3",
+      "source": "``n`` **is the number of rows the matrix actually contains**, and the supports sum to it. A row whose true class the head has no column for is counted as an error rather than dropped: the matrix grows to hold it, and the missing column stays empty because the head can never predict that class. Reporting ``n`` over one population and ``accuracy`` over another is the one thing a model card must not do — a three-class held-out set scored by a binary head used to report a perfect score on a set the model got two of three right, and the ``accuracy == trace / total`` invariant still checked out because the row was missing from both sides of it.",
+      "source_sha256": "e1ffa1ba94fd3393737a31660d48193820a31f9221e152cfc4dba43720b7ce50",
+      "translation": "``n`` **er fjöldi þeirra raða sem fylkið inniheldur í raun**, og stuðningstölurnar leggjast saman í hann. Röð hvers sanni flokkur á engan dálk í úttakslaginu er talin sem villa í stað þess að henni sé sleppt: fylkið stækkar til að rúma hana, og dálkurinn sem vantar helst tómur því úttakslagið getur aldrei spáð fyrir um þann flokk. Að gefa upp ``n`` fyrir eitt þýði og ``accuracy`` fyrir annað er einmitt það sem líkanakort má ekki gera — áður gaf þriggja flokka prófunarsafn, metið af tvíkosta úttakslagi, fullkomna einkunn fyrir safn þar sem líkanið hafði tvö af þremur rétt, og fastinn ``accuracy == trace / total`` stóðst samt, því röðina vantaði báðum megin jöfnunnar."
+    },
+    {
+      "context": "The rule, in one line: look back over whole rounds until at least ``label_window`` new labels have accumulated, and compare held-out accuracy at the two ends. If it moved by less than ``min_gain``, stop.",
+      "label": "spacr.active_learning.should_stop#1",
+      "source": "The rule, in one line: look back over whole rounds until at least ``label_window`` new labels have accumulated, and compare held-out accuracy at the two ends. If it moved by less than ``min_gain``, stop.",
+      "source_sha256": "0c84351ec3a74975a1c520fccd4c958ef2fae844721fa4863c0325363ad69796",
+      "translation": "Reglan í einni línu: horfðu aftur yfir heilar lotur þar til að minnsta kosti ``label_window`` ný merki hafa safnast, og berðu saman nákvæmni á prófunarsafninu sem haldið var til hliðar við báða enda. Ef hún breyttist um minna en ``min_gain``, stöðvaðu."
+    },
+    {
+      "context": "``obs_names`` :func:`spacr.selection.object_keys` over :data:`spacr.selection.OBJECT_KEY_COLUMNS` -- the schema's own row identifier (``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``object_label``), joined on :data:`spacr.schema.KEY_SEPARATOR`. A structured-data name from a UMAP lasso names the same object in an exported ``.h5ad``. ``X`` / ``obs`` split :func:`spacr.schema.is_provenance_column`, which is the boundary :mod:`spacr.feature_dict` and every model path already use, plus :mod:`spacr.agreement`'s knowledge of which columns a *model* wrote and which a *human* did. ``var`` :func:`spacr.feature_dict.parse_column`, resolved against the row's own ``measurement_units`` so a 3-D processing session's ``cell_area`` is documented as the volume it is rather than the area it is named after. Filtering :class:`spacr.selection.DataFilter` and :class:`spacr.selection.Selection` -- the same objects the GUI's linked views publish, so \"export what I am looking at\" is one call and not a second filter language.",
+      "label": "spacr.anndata_export#3",
+      "source": "``obs_names`` :func:`spacr.selection.object_keys` over :data:`spacr.selection.OBJECT_KEY_COLUMNS` -- the schema's own row key (``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``object_label``), joined on :data:`spacr.schema.KEY_SEPARATOR`. A key from a UMAP lasso names the same object in an exported ``.h5ad``. ``X`` / ``obs`` split :func:`spacr.schema.is_provenance_column`, which is the boundary :mod:`spacr.feature_dict` and every model path already use, plus :mod:`spacr.agreement`'s knowledge of which columns a *model* wrote and which a *human* did. ``var`` :func:`spacr.feature_dict.parse_column`, resolved against the row's own ``measurement_units`` so a 3-D run's ``cell_area`` is documented as the volume it is rather than the area it is named after. Filtering :class:`spacr.selection.DataFilter` and :class:`spacr.selection.Selection` -- the same objects the GUI's linked views publish, so \"export what I am looking at\" is one call and not a second filter language.",
+      "source_sha256": "814f41a180c4f615a1738639b931739372144407705764544f2d45ca1f190bb4",
+      "translation": "``obs_names`` :func:`spacr.selection.object_keys` yfir :data:`spacr.selection.OBJECT_KEY_COLUMNS` -- eigin raðlykill skemans (``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``object_label``), skeyttur saman með :data:`spacr.schema.KEY_SEPARATOR`. Lykill úr UMAP-snöru vísar á sama hlut í útfluttri ``.h5ad``. ``X`` / ``obs`` skipting :func:`spacr.schema.is_provenance_column`, sem eru sömu mörk og :mod:`spacr.feature_dict` og allar líkanaleiðir nota þegar, auk vitneskju :mod:`spacr.agreement` um hvaða dálka *líkan* skrifaði og hvaða dálka *manneskja* skrifaði. ``var`` :func:`spacr.feature_dict.parse_column`, túlkað út frá eigin ``measurement_units`` raðarinnar svo að ``cell_area`` í þrívíðri keyrslu sé skráð sem það rúmmál sem það er, en ekki það flatarmál sem nafnið vísar til. Síun :class:`spacr.selection.DataFilter` og :class:`spacr.selection.Selection` -- sömu hlutir og tengdar sýnir GUI-viðmótsins birta, svo að \"flytja út það sem ég er að skoða\" er eitt kall en ekki annað síumál."
+    },
+    {
+      "context": "Typical use",
+      "label": "spacr.anndata_export#4",
+      "source": "Typical use",
+      "source_sha256": "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8",
+      "translation": "Dæmigerð notkun"
+    },
+    {
+      "context": "This is the contract, and it is deliberately boring: channel ``i`` of the extracted image region is channel ``i`` of the result, narrowed to 8 bit by :func:`narrow_to_uint8`.",
+      "label": "spacr.crops.png_view#1",
+      "source": "This is the contract, and it is deliberately boring: channel ``i`` of the crop is channel ``i`` of the result, narrowed to 8 bit by :func:`narrow_to_uint8`.",
+      "source_sha256": "9763920ad1bb832f1471f832c7a9daaf6cc20fb0dc3afdeecfd940b71f81b0b6",
+      "translation": "Þetta er samningurinn, og hann er vísvitandi óspennandi: rás ``i`` í útdregna myndsvæðinu er rás ``i`` í niðurstöðunni, þrengd niður í 8 bita með :func:`narrow_to_uint8`."
+    },
+    {
+      "context": "A file that cannot be read is skipped so the rest of the folder still converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`, printed as a loud summary at the end, and **stamped into a sibling** ``rename_log.run_status.json``. That sidecar is what lets a later reader (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is missing inputs, instead of quietly analysing a subset.",
+      "label": "spacr.io.convert_to_yokogawa#2",
+      "source": "A file that cannot be read is skipped so the rest of the folder still converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`, printed as a loud summary at the end, and **stamped into a sibling** ``rename_log.run_status.json``. That sidecar is what lets a later reader (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is missing inputs, instead of quietly analysing a subset.",
+      "source_sha256": "a3883b7e6d0fcfc96a090738b0160a7b81fc18850d31b04438c7c4f15f682f91",
+      "translation": "Skrá sem ekki er hægt að lesa er sleppt svo að restin af möppunni umbreytist samt — en því að henni var sleppt er haldið til haga í :class:`spacr.errors.RunLedger`, það prentað sem áberandi samantekt í lokin og **skráð í hliðarskrá** ``rename_log.run_status.json``. Það er þessi hliðarskrá sem gerir síðari lesanda (eða :func:`spacr.errors.run_is_complete`) kleift að sjá að inntak vantar í umbreyttu möppuna, í stað þess að greina hljóðlega aðeins hluta gagnanna."
+    },
+    {
+      "context": "A canvas ``factor``\\ × closer, about ``centre`` (canvas pixels).",
+      "label": "spacr.layers.Canvas.zoomed#0",
+      "source": "A canvas ``factor``\\ × closer, about ``centre`` (canvas pixels).",
+      "source_sha256": "90e6ea2500b4f0822a248b9c5927a9ed6c1b554dfcd16bb9128ff91eb91d113c",
+      "translation": "Strigi ``factor``\\ × nær, í kringum ``centre`` (dílar strigans)."
+    },
+    {
+      "context": "2-D returns ``(None, px stamp)`` unconditionally. Even when a voxel size is configured it is not applied, so a 2-D run is numerically identical to every spaCR run before this function existed.",
+      "label": "spacr.measure.resolve_measurement_spacing#2",
+      "source": "2-D returns ``(None, px stamp)`` unconditionally. Even when a voxel size is configured it is not applied, so a 2-D run is numerically identical to every spaCR run before this function existed.",
+      "source_sha256": "41dc15b564ccd857a79801089435b3ceb72fa9d7fe6df11540c107844575cbce",
+      "translation": "2-D skilar ``(None, px stamp)`` skilyrðislaust. Jafnvel þótt vóxlastærð sé stillt er henni ekki beitt, svo að 2-D keyrsla er tölulega eins og hver einasta spaCR-keyrsla áður en þetta fall varð til."
+    },
+    {
+      "context": "one of :data:`OBJECT_TYPES`. Each type is offered separately, so a filter can act on one and wave the rest through with ``np.ones(len(context.labels), bool)``. Note that culling only the cells cascades to their nuclei, pathogens and cytoplasm when the run has all of ``cell_mask_dim``, ``nucleus_mask_dim`` and ``pathogen_mask_dim`` set — that is the condition under which ``_measure_crop_core`` calls ``_exclude_objects``, which zeroes the child masks outside the surviving cells. Otherwise apply the same decision to each type, which is what a polygon test on the centroid does naturally.",
+      "label": "spacr.measure_hooks.RegionContext#1",
+      "source": "one of :data:`OBJECT_TYPES`. Each type is offered separately, so a filter can act on one and wave the rest through with ``np.ones(len(context.labels), bool)``. Note that culling only the cells cascades to their nuclei, pathogens and cytoplasm when the run has all of ``cell_mask_dim``, ``nucleus_mask_dim`` and ``pathogen_mask_dim`` set — that is the condition under which ``_measure_crop_core`` calls ``_exclude_objects``, which zeroes the child masks outside the surviving cells. Otherwise apply the same decision to each type, which is what a polygon test on the centroid does naturally.",
+      "source_sha256": "3bfd9d31c19bd7c6b9f7469996458b872246c3fa7a793d6e4ac89cc7125a8db9",
+      "translation": "eitt af :data:`OBJECT_TYPES`. Hver tegund er boðin fram sérstaklega, svo að sía getur unnið á einni og hleypt hinum í gegn með ``np.ones(len(context.labels), bool)``. Athugaðu að ef aðeins frumurnar eru grisjaðar hefur það áhrif á kjarna þeirra, sýkla og umfrymi þegar keyrslan hefur ``cell_mask_dim``, ``nucleus_mask_dim`` og ``pathogen_mask_dim`` öll stillt — það er skilyrðið fyrir því að ``_measure_crop_core`` kalli á ``_exclude_objects``, sem núllstillir undirmöskin utan frumnanna sem lifa af. Að öðrum kosti skaltu beita sömu ákvörðun á hverja tegund, sem er einmitt það sem marghyrningspróf á massamiðjunni gerir af sjálfu sér."
+    },
+    {
+      "context": "Covariance estimator for the likelihood fits (``'HC0'..'HC3'``); ``None`` for classical standard errors.",
+      "label": "spacr.ml.regression_model#26",
+      "source": "Covariance estimator for the likelihood fits (``'HC0'..'HC3'``); ``None`` for classical standard errors.",
+      "source_sha256": "3cef5a21a94f9198bc1c76e7ee8cd252ab0319b9354eacaa4614f116be8e9958",
+      "translation": "Samdreifnimat fyrir sennileikamátanir (``'HC0'..'HC3'``); ``None`` fyrir klassískar staðalvillur."
+    },
+    {
+      "context": "**A custom model that loads supersedes** ``model_type``. There is no boolean saying which to believe, because a path that holds a working model is a complete answer on its own and a flag that disagreed with it would just be a second thing to get wrong.",
+      "label": "spacr.model_check#4",
+      "source": "**A custom model that loads supersedes** ``model_type``. There is no boolean saying which to believe, because a path that holds a working model is a complete answer on its own and a flag that disagreed with it would just be a second thing to get wrong.",
+      "source_sha256": "d6979fab3b30e102c9baacf1fb0f7e36d7be87ae81f4c7fa11d2f15735bc8e70",
+      "translation": "**Sérsniðið líkan sem hleðst inn gengur framar** ``model_type``. Það er engin boolesk breyta sem segir hverju eigi að trúa, því slóð sem geymir virkt líkan er fullnægjandi svar ein og sér, og flagg sem stangaðist á við hana væri bara annað atriði sem gæti farið úrskeiðis."
+    },
+    {
+      "context": "There is also a case where the first bullet above is *backwards*. Two screens that share a guide library both have ``plate1..plate4``, and there they are not two plates claiming one identity -- they are two *different* plates whose identity was only ever partly written down. The missing part is the screen.",
+      "label": "spacr.multi_database#9",
+      "source": "There is also a case where the first bullet above is *backwards*. Two screens that share a guide library both have ``plate1..plate4``, and there they are not two plates claiming one identity -- they are two *different* plates whose identity was only ever partly written down. The missing part is the screen.",
+      "source_sha256": "6d6cb1fec24f8d96e9c336e127c547be6f9544d385590f16e96962bfe2bbc18c",
+      "translation": "Einnig er til tilvik þar sem fyrsti punkturinn hér að ofan snýst *við*. Tvær skimanir sem deila leiðsögu-RNA-safni hafa báðar ``plate1..plate4``, og þar eru þetta ekki tvær plötur sem gera tilkall til sama auðkennis -- þetta eru tvær *ólíkar* plötur hvers auðkenni var aðeins nokkurn tíma skráð að hluta. Það sem vantar er skimunin."
+    },
+    {
+      "context": "**The pyramid.** ``levels=1`` writes level 0 alone; more builds each level by halving the two fastest-varying space axes of the one above with a 2x **block mean** (``downsample=\"mean\"``) or by **striding** (``downsample=\"stride\"``). Neither is a Gaussian pyramid — there is no pre-filter beyond the box — and the block mean is the default because striding aliases: a one-pixel-wide bright structure survives or vanishes with the parity of its coordinate, so the same object appears and disappears as a user zooms. **Label and mask arrays must use** ``downsample=\"stride\"``: the mean of labels 3 and 5 is 4, which is a different object, and averaging a boolean mask invents half-membership. Levels shrink by ``ceil(n / 2)``, so nothing is cropped off an odd edge.",
+      "label": "spacr.ome_zarr.write_ome_zarr#2",
+      "source": "**The pyramid.** ``levels=1`` writes level 0 alone; more builds each level by halving the two fastest-varying space axes of the one above with a 2x **block mean** (``downsample=\"mean\"``) or by **striding** (``downsample=\"stride\"``). Neither is a Gaussian pyramid — there is no pre-filter beyond the box — and the block mean is the default because striding aliases: a one-pixel-wide bright structure survives or vanishes with the parity of its coordinate, so the same object appears and disappears as a user zooms. **Label and mask arrays must use** ``downsample=\"stride\"``: the mean of labels 3 and 5 is 4, which is a different object, and averaging a boolean mask invents half-membership. Levels shrink by ``ceil(n / 2)``, so nothing is cropped off an odd edge.",
+      "source_sha256": "6fdc36f6acd4eeccdbd3356ff511643805eb22a32c38a25416bcd0ab9f0e8e2b",
+      "translation": "**Pýramídinn.** ``levels=1`` skrifar aðeins stig 0; fleiri stig eru byggð þannig að hvert stig helmingar þá tvo rúmása stigsins fyrir ofan sem breytast hraðast, annaðhvort með 2x **blokkameðaltali** (``downsample=\"mean\"``) eða með **skrefúrtaki** (``downsample=\"stride\"``). Hvorugt er Gauss-pýramídi — engin forsía er umfram blokkina sjálfa — og blokkameðaltal er sjálfgefið því skrefúrtak veldur speglun: björt bygging sem er einn díll á breidd lifir af eða hverfur eftir því hvort hnit hennar er slétt eða oddatala, svo sami hlutur birtist og hverfur þegar notandi þysjar. **Merkja- og maskafylki verða að nota** ``downsample=\"stride\"``: meðaltal merkjanna 3 og 5 er 4, sem er annar hlutur, og að taka meðaltal af booleskum maska býr til hálfa aðild. Stigin minnka um ``ceil(n / 2)``, svo ekkert er skorið af oddatölubrún."
+    },
+    {
+      "context": "**row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives). This is bijective base 26, and it is not a hypothetical: a 1536-position laboratory microplate has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for the same laboratory microplate, so nothing here caps the column at 24 either.",
+      "label": "spacr.omero#13",
+      "source": "**row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives). This is bijective base 26, and it is not a hypothetical: a 1536-well plate has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for the same plate, so nothing here caps the column at 24 either.",
+      "source_sha256": "b0e0419a416ef2de9dfd007da8985990d0150d17a7aafe76a8fc76f135b95f6e",
+      "translation": "**röð 26 ->** ``AA``, ekki ``[`` (sem er það sem ``chr(65 + 26)`` gefur) og ekki ``IndexError`` (sem er það sem ``string.ascii_uppercase[26]`` gefur). Þetta er gagntækur grunnur 26, og þetta er ekki ímyndað dæmi: 1536 brunna plata hefur 32 raðir sem ná yfir ``A..Z``, ``AA..AF``. Dálkur 47 -> ``48``, fyrir sömu plötu, svo ekkert hér takmarkar heldur dálkinn við 24."
+    },
+    {
+      "context": ":func:`inspect_container` reports the image count, the microplate sample positions, the dimensions and the image data channel names **without ever calling** ``getPlane`` — a fact the test suite pins by counting calls on the fake gateway. The importers additionally take ``limit`` (stop after N OMERO images) and ``dry_run`` (build the complete plan, list every filename that would be written, touch no pixels).",
+      "label": "spacr.omero#22",
+      "source": ":func:`inspect_container` reports the image count, the wells, the dimensions and the channel names **without ever calling** ``getPlane`` — a fact the test suite pins by counting calls on the fake gateway. The importers additionally take ``limit`` (stop after N OMERO images) and ``dry_run`` (build the complete plan, list every filename that would be written, touch no pixels).",
+      "source_sha256": "c20b6755db9b4ff13b2c24aa758a2b1f838ecaaeda49abfbd269b87e1d66b1be",
+      "translation": ":func:`inspect_container` gefur upp fjölda mynda, brunnana, víddirnar og nöfn rásanna **án þess nokkurn tíma að kalla á** ``getPlane`` — staðreynd sem prófunarsafnið festir með því að telja köll á falsgáttina. Innflutningsföllin taka auk þess ``limit`` (hætta eftir N OMERO-myndir) og ``dry_run`` (búa til alla áætlunina, telja upp hvert skráarnafn sem yrði skrifað, snerta enga díla)."
+    },
+    {
+      "context": "A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice`` is the single most likely way this fails in the field, and ``No module named 'Ice'`` mentions neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.",
+      "label": "spacr.omero#36",
+      "source": "A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice`` is the single most likely way this fails in the field, and ``No module named 'Ice'`` mentions neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.",
+      "source_sha256": "f071e54875693395da9503f8b5caffb2d5d489bae370b032ebef957242b60f28",
+      "translation": "Ef ``Ice`` vantar telst omero-viðbótin vanta. Hálfuppsett ``zeroc-ice`` er langlíklegasta ástæðan fyrir því að þetta bregst í raunverulegri notkun, og ``No module named 'Ice'`` nefnir hvorki OMERO né spaCR. :func:`missing_omero_message` segir hvað gerðist."
+    },
+    {
+      "context": "This module is called ``spacr/omero.py`` and does not shadow the third-party ``omero`` package. Absolute imports have been the default since Python 3, so a module inside the ``spacr`` package that asks for ``omero`` gets the top-level distribution, not its own sibling. That is verified rather than assumed — see ``tests/test_omero.py::test_spacr_omero_does_not_shadow_the_third_party_package``, which puts a decoy ``omero`` package on ``sys.path`` and checks which one arrives — because a self-import here would be silent and would look like a broken OMERO install.",
+      "label": "spacr.omero#37",
+      "source": "This module is called ``spacr/omero.py`` and does not shadow the third-party ``omero`` package. Absolute imports have been the default since Python 3, so a module inside the ``spacr`` package that asks for ``omero`` gets the top-level distribution, not its own sibling. That is verified rather than assumed — see ``tests/test_omero.py::test_spacr_omero_does_not_shadow_the_third_party_package``, which puts a decoy ``omero`` package on ``sys.path`` and checks which one arrives — because a self-import here would be silent and would look like a broken OMERO install.",
+      "source_sha256": "3b319aecd38a241d7f842c4c9d3de97ce91447c7dc82c5875670719dd42d433f",
+      "translation": "Þessi eining heitir ``spacr/omero.py`` og skyggir ekki á ``omero``-pakka þriðja aðila. Algildir innflutningar hafa verið sjálfgefnir síðan í Python 3, svo eining inni í ``spacr``-pakkanum sem biður um ``omero`` fær dreifinguna á efsta stigi, ekki sína eigin systureiningu. Þetta er sannreynt en ekki gefið sér — sjá ``tests/test_omero.py::test_spacr_omero_does_not_shadow_the_third_party_package``, sem setur tálbeitu-``omero``-pakka á ``sys.path`` og athugar hvor þeirra er hlaðinn — því sjálfsinnflutningur hér færi fram hljóðlaust og liti út eins og biluð OMERO-uppsetning."
+    },
+    {
+      "context": "Higher ``mean`` means stronger evidence the gene is a hit.  Microplate sample positions carrying more of a hit gene have more positive cells than their imaged cell count alone accounts for, which is a positive coefficient on log read fraction.",
+      "label": "spacr.power_model.gather_model_estimate#2",
+      "source": "Higher ``mean`` means stronger evidence the gene is a hit.  Wells carrying more of a hit gene have more positive cells than their imaged cell count alone accounts for, which is a positive coefficient on log read fraction.",
+      "source_sha256": "bf6c606805dd1f087c9081a26de63a78a3afb932e0ad77d686ce74917e64b78d",
+      "translation": "Hærra ``mean`` merkir sterkari vísbendingu um að genið sé hit. Brunnar sem bera meira af hit-geni hafa fleiri jákvæðar frumur en fjöldi myndaðra frumna einn og sér skýrir, sem birtist sem jákvæður stuðull á log-hlutfall lesa."
+    },
+    {
+      "context": "Returning exactly ``False`` stops the sweep and returns the rows completed so far; anything else (including ``None``) continues.  This exists for one reason: a sweep is minutes long and a GUI has to be able to show where it is and to stop it without killing the independent execution path.  Between points is the only safe granularity — one fit is atomic — so a cancel is honoured after the fit in flight, not during it.  The callback executes on the calling independent execution path, inline; it must not block, and a callback that raises aborts the sweep rather than being swallowed, because a broken progress reporter is a bug in the caller and hiding it would leave the sweep executing with nothing watching it.",
+      "label": "spacr.power_model.scan_parameters#14",
+      "source": "Returning exactly ``False`` stops the sweep and returns the rows completed so far; anything else (including ``None``) continues.  This exists for one reason: a sweep is minutes long and a GUI has to be able to show where it is and to stop it without killing the thread.  Between points is the only safe granularity — one fit is atomic — so a cancel is honoured after the fit in flight, not during it.  The callback runs on the calling thread, inline; it must not block, and a callback that raises aborts the sweep rather than being swallowed, because a broken progress reporter is a bug in the caller and hiding it would leave the sweep running with nothing watching it.",
+      "source_sha256": "561b39c285b274f6e65fbaa5ae973945bb91d34031748f9301bfd8e3d779b9c7",
+      "translation": "Að skila nákvæmlega ``False`` stöðvar yfirferðina og skilar þeim röðum sem þegar er lokið; allt annað (þar með talið ``None``) heldur áfram. Þetta er til af einni ástæðu: yfirferð tekur mínútur og GUI þarf að geta sýnt hvar hún er stödd og stöðvað hana án þess að drepa sjálfstæða keyrsluleið. Á milli punkta er eina örugga kornastærðin — ein mátun er ódeilanleg — svo hætt er við eftir mátunina sem er í gangi, ekki á meðan hún stendur yfir. Svarfallið keyrir í línu á kallandi sjálfstæðri keyrsluleið; það má ekki stífla, og svarfall sem kastar villu stöðvar yfirferðina í stað þess að villan sé gleypt, því bilaður framvindutilkynnir er villa hjá kallandanum og að fela hana myndi láta yfirferðina ganga áfram án þess að nokkur fylgist með."
+    },
+    {
+      "context": "``spacr.sim`` for the older, unrelated in-house screen simulator.",
+      "label": "spacr.power_simulate#22",
+      "source": "``spacr.sim`` for the older, unrelated in-house screen simulator.",
+      "source_sha256": "e0c32835f984dd55e366a92c21dde808ce957b05af91ee44b4f822ddfed39d10",
+      "translation": "``spacr.sim`` fyrir eldri, ótengda skimunarherminn sem var smíðaður innanhúss."
+    },
+    {
+      "context": "**Views must disconnect in** ``closeEvent``. This object outlives every application view, and holds plain references to whatever connected to it. A lambda would keep a destroyed page alive as a receiver — the exact leak :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so connect bound methods and drop them on close.",
+      "label": "spacr.qt.linked_selection#5",
+      "source": "**Views must disconnect in** ``closeEvent``. This object outlives every screen, and holds plain references to whatever connected to it. A lambda would keep a destroyed page alive as a receiver — the exact leak :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so connect bound methods and drop them on close.",
+      "source_sha256": "8e1c9932e3c06a04fafdf07bd87066dfb59d4af6e890247bb8609e2181285bf7",
+      "translation": "**Sýnir verða að aftengjast í** ``closeEvent``. Þessi hlutur lifir lengur en allar forritssýnir og heldur venjulegum tilvísunum í allt sem tengdist honum. lambda myndi halda eyðilagðri síðu lifandi sem viðtakanda — nákvæmlega lekinn sem :class:`spacr.qt.widgets.home.HomePage` lýsir fyrir keyrsluskrána — svo tengdu bundnar aðferðir og aftengdu þær við lokun."
+    },
+    {
+      "context": ":class:`LinkedView` is that rule written down once. A view joins with three lines rather than re-deriving the echo-suppression and disconnect dance",
+      "label": "spacr.qt.linked_selection#6",
+      "source": ":class:`LinkedView` is that rule written down once. A view joins with three lines rather than re-deriving the echo-suppression and disconnect dance",
+      "source_sha256": "4fe85750ca0cbcaddd076dd4a8080546512b0bbe22acccb9891796fbf9fda1d8",
+      "translation": ":class:`LinkedView` er sú regla skrifuð niður í eitt skipti. Sýn tengist með þremur línum í stað þess að endurleiða bergmálsbælinguna og aftengingardansinn"
+    },
+    {
+      "context": "``field_fade``: bool, default ``True``. Whether an input field's container and outline ramp from solid on the left to fully transparent on the right. Fields are **exempt from** ``pane_opacity`` while this is on — see :func:`get_field_fade_enabled` and :mod:`spacr.qt.widgets.field_fade`.",
+      "label": "spacr.qt.preferences#16",
+      "source": "``field_fade``: bool, default ``True``. Whether an input field's container and outline ramp from solid on the left to fully transparent on the right. Fields are **exempt from** ``pane_opacity`` while this is on — see :func:`get_field_fade_enabled` and :mod:`spacr.qt.widgets.field_fade`.",
+      "source_sha256": "e12abd34c6121b75dbf0008353b366a8e648ed9122e4e449d57a3e9986f63a48",
+      "translation": "``field_fade``: bool, sjálfgefið ``True``. Hvort ílát og útlína innsláttarsvæðis dofna úr heilum lit vinstra megin í fullkomlega gegnsætt hægra megin. Svæði eru **undanþegin** ``pane_opacity`` á meðan þetta er virkt — sjá :func:`get_field_fade_enabled` og :mod:`spacr.qt.widgets.field_fade`."
+    },
+    {
+      "context": "``clear RAM`` Drops spaCR's own caches: the merged-microscope field of view LRU (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image stacks), the file-format and DB-format caches, the zoomed-animation cache, the icon and preview ``lru_cache``\\ s, the filter-kind cache, every live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and Qt's own ``QPixmapCache``. A process with no live Qt application also runs ``gc.collect()``. The GUI deliberately does not: walking a heap of live Qt wrappers can enter already-retired C++ objects and crash the process. It cannot return memory the allocator has decided to keep, and it says so when the measured RSS does not move.",
+      "label": "spacr.qt.resource_cleanup#9",
+      "source": "``clear RAM`` Drops spaCR's own caches: the merged-field LRU (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image stacks), the file-format and DB-format caches, the zoomed-animation cache, the icon and preview ``lru_cache``\\ s, the filter-kind cache, every live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and Qt's own ``QPixmapCache``. A process with no live Qt application also runs ``gc.collect()``. The GUI deliberately does not: walking a heap of live Qt wrappers can enter already-retired C++ objects and crash the process. It cannot return memory the allocator has decided to keep, and it says so when the measured RSS does not move.",
+      "source_sha256": "1d96aadb1b43005d8b4f43b92107d9750d377ecfe38baaf9c1b958fa2c933000",
+      "translation": "``clear RAM`` Tæmir skyndiminni spaCR sjálfs: LRU-skyndiminni sameinaðra smásjársviða (:func:`spacr.crops.clear_field_cache` — langstærst, heilir myndastaflar), skyndiminni skráarsniða og DB-sniða, skyndiminni þysjaðra hreyfimynda, ``lru_cache``\\ s fyrir tákn og forskoðun, skyndiminni síutegunda, hvert virkt smámynda-LRU í :class:`~spacr.qt.crop_thumbs.CropThumbnails`, og eigið ``QPixmapCache`` Qt. Ferli án virks Qt-forrits keyrir einnig ``gc.collect()``. GUI gerir það vísvitandi ekki: að fara í gegnum hrúgu af virkum Qt-umbúðum getur farið inn í C++-hluti sem þegar hafa verið eyðilagðir og látið ferlið hrynja. Það getur ekki skilað minni sem úthlutarinn hefur ákveðið að halda, og segir frá því þegar mælt RSS breytist ekki."
+    },
+    {
+      "context": "Never ``SELECT *`` the whole table. Measurement tables run to hundreds of thousands of rows and hundreds of feature columns. The first chunk (100 rows) is fetched and painted on its own; the rest arrives as the user scrolls, through ``canFetchMore`` / ``fetchMore``.",
+      "label": "spacr.qt.screens.db_browser#4",
+      "source": "Never ``SELECT *`` the whole table. Measurement tables run to hundreds of thousands of rows and hundreds of feature columns. The first chunk (100 rows) is fetched and painted on its own; the rest arrives as the user scrolls, through ``canFetchMore`` / ``fetchMore``.",
+      "source_sha256": "6639b08923bf7f9203f890233d763c4f697819164b0ed06220395777dbb1149b",
+      "translation": "Aldrei ``SELECT *`` á alla töfluna. Mælingatöflur ná hundruðum þúsunda raða og hundruðum eiginleikadálka. Fyrsti hlutinn (100 raðir) er sóttur og teiknaður sér; restin berst eftir því sem notandinn skrunar, í gegnum ``canFetchMore`` / ``fetchMore``."
+    },
+    {
+      "context": "Design notes:",
+      "label": "spacr.qt.screens.model_zoo#3",
+      "source": "Design notes:",
+      "source_sha256": "1ecd6071c7a598fe8fe7efe0f3a4c2869822595ce3f8a3b7e7b8bea000242b39",
+      "translation": "Hönnunarathugasemdir:"
+    },
+    {
+      "context": "``worker.finished`` **is relayed through a signal into a bound method.** PySide6 delivers a plain closure connected to a worker's signal as a *direct* call on the background execution unit, and the completion handler here fills a QPlainTextEdit and a QTableWidget. Building QTextDocument children off the main GUI execution path is undefined behaviour, so ``finished`` chains through :attr:`ModelZooScreen._job_settled` — a widget-affine bound method — exactly as ``PlateViewScreen`` does.",
+      "label": "spacr.qt.screens.model_zoo#6",
+      "source": "``worker.finished`` **is relayed through a signal into a bound method.** PySide6 delivers a plain closure connected to a worker's signal as a *direct* call on the worker thread, and the completion handler here fills a QPlainTextEdit and a QTableWidget. Building QTextDocument children off the GUI thread is undefined behaviour, so ``finished`` chains through :attr:`ModelZooScreen._job_settled` — a widget-affine bound method — exactly as ``PlateViewScreen`` does.",
+      "source_sha256": "6f26036aabd65b9b815f2283b7a11039ad1af8f74dd1ee3d08b8e9275b74fa70",
+      "translation": "``worker.finished`` **er miðlað í gegnum merki til bundinnar aðferðar.** PySide6 afhendir einfalda lokun sem tengd er við merki verkþráðar sem *beint* kall á verkþræðinum, og lokahöndlarinn hér fyllir QPlainTextEdit og QTableWidget. Að búa til undirhluti QTextDocument utan GUI-þráðarins er óskilgreind hegðun, svo ``finished`` fer áfram í gegnum :attr:`ModelZooScreen._job_settled` — bundna aðferð sem tengd er græjunni — nákvæmlega eins og ``PlateViewScreen`` gerir."
+    },
+    {
+      "context": "Design notes:",
+      "label": "spacr.qt.screens.power#3",
+      "source": "Design notes:",
+      "source_sha256": "1ecd6071c7a598fe8fe7efe0f3a4c2869822595ce3f8a3b7e7b8bea000242b39",
+      "translation": "Hönnunarathugasemdir:"
+    },
+    {
+      "context": "``threaded=False`` **runs the same code inline**, firing the same signals, so the tested path and the shipped path differ only in where they run.",
+      "label": "spacr.qt.screens.power#8",
+      "source": "``threaded=False`` **runs the same code inline**, firing the same signals, so the tested path and the shipped path differ only in where they run.",
+      "source_sha256": "064752016534ac83aec456c330acc4332b4f2c04e9dd88847eb307611c5be903",
+      "translation": "``threaded=False`` **keyrir sama kóða í línu**, sendir sömu merki, svo prófaða leiðin og útgefna leiðin eru aðeins ólíkar að því leyti hvar þær keyra."
+    },
+    {
+      "context": "The ``png_list`` columns do not match either. :func:`spacr.utils.filepaths_to_database` writes ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id``, with the tokenised values ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. This table carries ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` in plain form, plus the ``annotate`` column — which is the point: ``annotate`` is what ``dataset_mode='annotation'`` selects classes on, and a measure run never writes one. A human does, in the Annotate application view.",
+      "label": "spacr.qt.synthetic.generate_classify_demo#5",
+      "source": "The ``png_list`` columns do not match either. :func:`spacr.utils.filepaths_to_database` writes ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id``, with the tokenised values ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. This table carries ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` in plain form, plus the ``annotate`` column — which is the point: ``annotate`` is what ``dataset_mode='annotation'`` selects classes on, and a measure run never writes one. A human does, in the Annotate screen.",
+      "source_sha256": "594590600761ad52fdf403d0ef07c31d4a00881c04eaea5d93f74ce946dbf1a9",
+      "translation": "Dálkar ``png_list`` passa heldur ekki. :func:`spacr.utils.filepaths_to_database` skrifar ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id``, með tókuðu gildunum ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. Þessi tafla geymir ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` á einföldu formi, auk dálksins ``annotate`` — og það er einmitt málið: ``annotate`` er það sem ``dataset_mode='annotation'`` velur flokka eftir, og Measure-keyrsla skrifar hann aldrei. Það gerir manneskja, í Annotate-forritssýninni."
+    },
+    {
+      "context": "Return an O(1) *estimate* of the row count, or ``None``.",
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.estimate_rows#0",
+      "source": "Return an O(1) *estimate* of the row count, or ``None``.",
+      "source_sha256": "cb9e00c8b78e68926a8e310247b13ef95934aa4c00f5ab9d2bd5244cdf77ede7",
+      "translation": "Skilar O(1) *mati* á fjölda raða, eða ``None``."
+    },
+    {
+      "context": "It is spelt ``_rowid_``, and that is load-bearing. Every spaCR object table declares a column called ``rowID`` — the laboratory microplate row, ``'r1'``, ``'r2'`` — and SQLite identifiers are case-insensitive, so a bare ``rowid`` resolves to *that column* rather than to the row id. The version this replaces asked for ``max(rowid)`` and got two things wrong at once on every real measurements database: it scanned the whole table to take the maximum of a text column (measured: 21 ms warm, 41 ms cold, on a 200 000-row table — precisely the ``COUNT(*)`` cost this method exists to avoid), and then ``int('r16')`` raised ``ValueError``, which is not a ``sqlite3.Error`` and so escaped the caller's handler into the Qt event loop. :mod:`spacr.predictions`, :mod:`spacr.foreign` and :mod:`spacr.data_manager` all carry a comment about this shadowing; this method had not got the memo.",
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.estimate_rows#2",
+      "source": "It is spelt ``_rowid_``, and that is load-bearing. Every spaCR object table declares a column called ``rowID`` — the plate row, ``'r1'``, ``'r2'`` — and SQLite identifiers are case-insensitive, so a bare ``rowid`` resolves to *that column* rather than to the row id. The version this replaces asked for ``max(rowid)`` and got two things wrong at once on every real measurements database: it scanned the whole table to take the maximum of a text column (measured: 21 ms warm, 41 ms cold, on a 200 000-row table — precisely the ``COUNT(*)`` cost this method exists to avoid), and then ``int('r16')`` raised ``ValueError``, which is not a ``sqlite3.Error`` and so escaped the caller's handler into the Qt event loop. :mod:`spacr.predictions`, :mod:`spacr.foreign` and :mod:`spacr.data_manager` all carry a comment about this shadowing; this method had not got the memo.",
+      "source_sha256": "6e77579f0cf78c2610ed8622597d2c92dc9209f9265dfc9426eb950d00f249cc",
+      "translation": "Það er stafað ``_rowid_``, og á því veltur allt. Hver hlutatafla spaCR skilgreinir dálk sem heitir ``rowID`` — röð plötunnar, ``'r1'``, ``'r2'`` — og SQLite-auðkenni gera ekki greinarmun á há- og lágstöfum, svo stakt ``rowid`` vísar á *þann dálk* en ekki á raðauðkennið. Útgáfan sem þetta leysir af hólmi bað um ``max(rowid)`` og gerði tvennt rangt í einu í hverjum raunverulegum mæligagnagrunni: hún skannaði alla töfluna til að finna hámark textadálks (mælt: 21 ms heitt, 41 ms kalt, á töflu með 200 000 röðum — nákvæmlega sá ``COUNT(*)``-kostnaður sem þessi aðferð er til að forðast), og síðan kastaði ``int('r16')`` ``ValueError``, sem er ekki ``sqlite3.Error`` og slapp því framhjá villumeðhöndlara kallandans inn í atburðalykkju Qt. :mod:`spacr.predictions`, :mod:`spacr.foreign` og :mod:`spacr.data_manager` hafa öll athugasemd um þessa skyggingu; þessi aðferð hafði ekki fengið skilaboðin."
+    },
+    {
+      "context": "Ordering",
+      "label": "spacr.qt.widgets.control_chart#24",
+      "source": "Ordering",
+      "source_sha256": "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+      "translation": "Röðun"
+    },
+    {
+      "context": "Sigma comes from the average moving range divided by d2 = 1.128 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.",
+      "label": "spacr.qt.widgets.control_chart#4",
+      "source": "Sigma comes from the average moving range divided by d2 = 1.128 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.",
+      "source_sha256": "412a3b5bb289411c849ee71944c2e6a016f43d2bff3dfd557b1371f9a466180e",
+      "translation": "Sigma fæst úr meðaltali hlaupandi spannar deilt með d2 = 1.128 (:data:`D2_MOVING_RANGE`), aldrei úr staðalfráviki raðarinnar."
+    },
+    {
+      "context": ":data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit`` returns, with a t quantile on ``n - 4`` degrees of freedom. Not a normal quantile: eight concentrations with no replicates leaves 4 df, where ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width of the published interval, which is not cosmetic.",
+      "label": "spacr.qt.widgets.dose_response#17",
+      "source": ":data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit`` returns, with a t quantile on ``n - 4`` degrees of freedom. Not a normal quantile: eight concentrations with no replicates leaves 4 df, where ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width of the published interval, which is not cosmetic.",
+      "source_sha256": "6cba671cba49540e3b6be17c3ba4065905081725bce9803e687e82fd05647742",
+      "translation": ":data:`CI_WALD` — nálgunarbil, reiknað út frá samdreifnifylkinu sem ``curve_fit`` skilar, með t-hlutfallsmarki á ``n - 4`` frígráðum. Ekki hlutfallsmark normaldreifingar: átta styrkleikar án endurtekninga skilja eftir 4 df, þar sem ``t = 2.776`` á móti ``z = 1.960``. Það munar 42% á breidd birta bilsins, og það er ekki bara útlitsatriði."
+    },
+    {
+      "context": "1. **The curve is incomplete** — one plateau was never reached, or the midpoint sits outside the tested range. Then the EC50 is an extrapolation. :attr:`DoseResponseResult.ec50` is ``None`` in that case and the number lives in :attr:`DoseResponseResult.ec50_unconstrained`, under a name that cannot be mistaken for a result; :attr:`DoseResponseResult.ec50_bounded` is ``False`` and :meth:`DoseResponseResult.bound_statement` gives the one-sided fact the experiment does support (\"EC50 > 30 µM, the highest concentration tested\"). Three independent detectors have to agree it is fine before a number is released: the fitted midpoint inside the tested dose range, the observed responses bracketing the fitted half-maximum, and neither fitted plateau more than :data:`PLATEAU_SLACK` of the observed response span outside the observed responses. 2. **The data is not monotone.** A bell shape — the classic being cytotoxicity killing the signal at the top dose — is not a 4PL, and a 4PL fitted to it returns a confident EC50 for a curve of the wrong shape. Detected from the concentration-ordered per-dose medians and **refused**, with the concentrations where it turns named in the message. See :func:`monotonicity`. 3. **There is not enough experiment.** Four parameters need at least four distinct concentrations (:data:`MIN_DOSES`) and, to say anything about uncertainty, more observations than parameters (:data:`MIN_OBSERVATIONS`). A constant response has no curve in it. A **zero concentration is not an error** — a vehicle control is normal and belongs in the file — so it is excluded from the fit deliberately, counted, and reported as a reference response, never fed to ``log10``. A *negative* concentration has no such reading and is refused.",
+      "label": "spacr.qt.widgets.dose_response#23",
+      "source": "1. **The curve is incomplete** — one plateau was never reached, or the midpoint sits outside the tested range. Then the EC50 is an extrapolation. :attr:`DoseResponseResult.ec50` is ``None`` in that case and the number lives in :attr:`DoseResponseResult.ec50_unconstrained`, under a name that cannot be mistaken for a result; :attr:`DoseResponseResult.ec50_bounded` is ``False`` and :meth:`DoseResponseResult.bound_statement` gives the one-sided fact the experiment does support (\"EC50 > 30 µM, the highest concentration tested\"). Three independent detectors have to agree it is fine before a number is released: the fitted midpoint inside the tested dose range, the observed responses bracketing the fitted half-maximum, and neither fitted plateau more than :data:`PLATEAU_SLACK` of the observed response span outside the observed responses. 2. **The data is not monotone.** A bell shape — the classic being cytotoxicity killing the signal at the top dose — is not a 4PL, and a 4PL fitted to it returns a confident EC50 for a curve of the wrong shape. Detected from the concentration-ordered per-dose medians and **refused**, with the concentrations where it turns named in the message. See :func:`monotonicity`. 3. **There is not enough experiment.** Four parameters need at least four distinct concentrations (:data:`MIN_DOSES`) and, to say anything about uncertainty, more observations than parameters (:data:`MIN_OBSERVATIONS`). A constant response has no curve in it. A **zero concentration is not an error** — a vehicle control is normal and belongs in the file — so it is excluded from the fit deliberately, counted, and reported as a reference response, never fed to ``log10``. A *negative* concentration has no such reading and is refused.",
+      "source_sha256": "9977e7386f8e60d836f40a766cbf461e23a21abfa723f42151f4c638890e54c5",
+      "translation": "1. **Ferillinn er ófullgerður** — öðru hvoru flatlendinu var aldrei náð, eða miðpunkturinn liggur utan prófaða bilsins. Þá er EC50 útreikningur út fyrir gögnin. :attr:`DoseResponseResult.ec50` er ``None`` í því tilfelli og talan er geymd í :attr:`DoseResponseResult.ec50_unconstrained`, undir nafni sem ekki er hægt að rugla saman við niðurstöðu; :attr:`DoseResponseResult.ec50_bounded` er ``False`` og :meth:`DoseResponseResult.bound_statement` gefur þá einhliða staðreynd sem tilraunin styður í raun (\"EC50 > 30 µM, hæsti styrkur sem prófaður var\"). Þrír óháðir nemar þurfa að vera sammála um að allt sé í lagi áður en tala er gefin út: mátaði miðpunkturinn innan prófaða skammtabilsins, mældu svörin beggja vegna mátaða hálfhámarksins, og hvorugt mátaða flatlendið meira en :data:`PLATEAU_SLACK` af spönn mældu svaranna utan við mældu svörin. 2. **Gögnin eru ekki einhalla.** Bjöllulögun — klassíska dæmið er frumueituráhrif sem drepa merkið við hæsta skammtinn — er ekki 4PL, og 4PL sem mátað er að henni skilar öruggu EC50 fyrir feril af rangri lögun. Þetta er greint út frá miðgildum hvers skammts í röð eftir styrk og því **hafnað**, og styrkirnir þar sem ferillinn snýst eru nefndir í skilaboðunum. Sjá :func:`monotonicity`. 3. **Tilraunin er ekki nógu umfangsmikil.** Fjórir stikar þurfa að minnsta kosti fjóra ólíka styrki (:data:`MIN_DOSES`) og, til að segja eitthvað um óvissu, fleiri mælingar en stika (:data:`MIN_OBSERVATIONS`). Fast svar felur engan feril í sér. **Styrkur núll er ekki villa** — leysisviðmið er eðlilegt og á heima í skránni — svo það er vísvitandi útilokað frá mátuninni, talið og tilkynnt sem viðmiðunarsvar, en aldrei sent í ``log10``. *Neikvæður* styrkur hefur enga slíka túlkun og er hafnað."
+    },
+    {
+      "context": "Return this data-selection boundary with ``column`` bounded to ``low..high``.",
+      "label": "spacr.qt.widgets.gate_spec.Gate.with_threshold#0",
+      "source": "Return this gate with ``column`` bounded to ``low..high``.",
+      "source_sha256": "c43c4a801242b6da262bdb041b618bc0b731e94efcfa6d73600c741a490d3a31",
+      "translation": "Skilar þessum gagnavalsmörkum með ``column`` takmarkaðan við ``low..high``."
+    },
+    {
+      "context": "spaCR measurement tables run to 10^5–10^6 object rows and nobody wants a scatter of a million overlapping dots. Three strategies, chosen by what the plot actually needs, and **the chosen one is always named in** :attr:`RenderData.notice` so a subset can never be mistaken for the whole:",
+      "label": "spacr.qt.widgets.graph_spec#13",
+      "source": "spaCR measurement tables run to 10^5–10^6 object rows and nobody wants a scatter of a million overlapping dots. Three strategies, chosen by what the plot actually needs, and **the chosen one is always named in** :attr:`RenderData.notice` so a subset can never be mistaken for the whole:",
+      "source_sha256": "7435c2ac0e6a863c40991bedd5a5024626b41f993d1945ae898da65b7022ac26",
+      "translation": "Mælingatöflur spaCR ná 10^5–10^6 hlutaröðum og enginn vill punktarit með milljón punktum sem skarast. Þrjár aðferðir, valdar eftir því hvað ritið þarf í raun, og **sú sem er valin er alltaf nefnd í** :attr:`RenderData.notice` svo að hlutmengi verði aldrei tekið fyrir heildina:"
+    },
+    {
+      "context": "Why this shape is what lets an arbitrary organelle count land. The number of organelles a processing session may declare is not fixed. In a flat vocabulary each new organelle is twenty new settings that every tooltip table and translation catalog has to learn; here it is one COLUMN, and the number of questions does not move. :meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new organelle from the first one's answers rather than from a global default nobody chose.",
+      "label": "spacr.qt.widgets.object_settings_grid#3",
+      "source": "WHY THIS SHAPE IS WHAT LETS AN ARBITRARY ORGANELLE COUNT LAND. The number of organelles a run may declare is not fixed. In a flat vocabulary each new organelle is twenty new settings that every tooltip table and translation catalog has to learn; here it is one COLUMN, and the number of questions does not move. :meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new organelle from the first one's answers rather than from a global default nobody chose.",
+      "source_sha256": "4e3cead75c559fcbe4bfab91bd4203028c945391ffc696e50afbce6b8052dcf9",
+      "translation": "Hvers vegna það er einmitt þessi lögun sem leyfir hvaða fjölda frumulíffæra sem er. Fjöldi frumulíffæra sem vinnslulota má skilgreina er ekki fastur. Í flötum orðaforða er hvert nýtt frumulíffæri tuttugu nýjar stillingar sem hver ábendingatafla og hver þýðingaskrá þarf að læra; hér er það einn COLUMN (dálkur), og fjöldi spurninga breytist ekki. :meth:`ObjectSettingsGrid.add_object` er sú aðgerð, og hún byrjar nýtt frumulíffæri út frá svörum þess fyrsta en ekki út frá almennu sjálfgefnu gildi sem enginn valdi."
+    },
+    {
+      "context": "**Isolation forest requires** ``contamination`` — the share of the data that is bad — declared *in advance*. That share is precisely the unknown the analysis is trying to estimate. Setting ``contamination=0.01`` guarantees 1% of the objects come back flagged whether the plate is pristine or ruined, which makes the output uninterpretable in exactly the case it matters.",
+      "label": "spacr.qt.widgets.outlier_model#20",
+      "source": "**Isolation forest requires** ``contamination`` — the share of the data that is bad — declared *in advance*. That share is precisely the unknown the analysis is trying to estimate. Setting ``contamination=0.01`` guarantees 1% of the objects come back flagged whether the plate is pristine or ruined, which makes the output uninterpretable in exactly the case it matters.",
+      "source_sha256": "a4154fde2d1f6f604a08808ae526ae951f9423644e4a1e383f115761a2f031eb",
+      "translation": "**Isolation Forest krefst þess að** ``contamination`` — hlutfall gagnanna sem er slæmt — sé tilgreint *fyrirfram*. Einmitt það hlutfall er óþekkta stærðin sem greiningin er að reyna að meta. Að stilla ``contamination=0.01`` tryggir að 1% hlutanna komi merkt til baka hvort sem platan er gallalaus eða ónýt, sem gerir úttakið ótúlkanlegt einmitt í því tilfelli sem máli skiptir."
+    },
+    {
+      "context": "an ``.npy`` **stack** whose first axis is time — memory-mapped, so a slice touches only that image layer's pages.",
+      "label": "spacr.qt.widgets.timelapse_preview.FrameSequence#4",
+      "source": "an ``.npy`` **stack** whose first axis is time — memory-mapped, so a slice touches only that plane's pages.",
+      "source_sha256": "197f897c6a2c29fcc202737848baeafd9764f3bc019a9e861c7260d0b46fc28e",
+      "translation": "``.npy``-**stafli** þar sem fyrsti ásinn er tími — minnisvarpaður, svo sneið snertir aðeins síður þess myndlags."
+    },
+    {
+      "context": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between application views with nothing on application view to say so.",
+      "label": "spacr.schema.add_screen_column#3",
+      "source": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between screens with nothing on screen to say so.",
+      "source_sha256": "2e617f319f22c7717f33e5d37a2b4417ef3f953272c48c45d29b638471a15d87",
+      "translation": "Ramminn hefur hann, og ``screen`` er ``None``. Merkjum hans er haldið. Að endurmerkja ramma sem veit þegar úr hvaða tilraun hann kom myndi færa raðir milli tilrauna án þess að neitt gæfi það til kynna."
+    },
+    {
+      "context": "**A column with no values at all comes back as** ``object``. This is the common one and it is not a data problem: ``pandas.read_sql`` builds the frame from the rows it gets, so a column that is ``NULL`` in every row arrives as a column of ``None`` and pandas types that ``object`` -- even though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest NaN, and whole measurements are legitimately NaN for a whole database: ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform object, and ``mode_intensity`` was NaN for every object in every database written before the SciPy shim in ``measure._extended_regionprops_table``. Such a column is converted to ``float64`` NaN, which is what it always meant. Nothing is lost, so nothing is warned about -- and the caller's own all-NaN filter then drops it and says so.",
+      "label": "spacr.schema.coerce_model_feature_types#1",
+      "source": "**A column with no values at all comes back as** ``object``. This is the common one and it is not a data problem: ``pandas.read_sql`` builds the frame from the rows it gets, so a column that is ``NULL`` in every row arrives as a column of ``None`` and pandas types that ``object`` -- even though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest NaN, and whole measurements are legitimately NaN for a whole database: ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform object, and ``mode_intensity`` was NaN for every object in every database written before the SciPy shim in ``measure._extended_regionprops_table``. Such a column is converted to ``float64`` NaN, which is what it always meant. Nothing is lost, so nothing is warned about -- and the caller's own all-NaN filter then drops it and says so.",
+      "source_sha256": "2ee252513ac9bd0fd628bd8790e6abec91cc6cf12c3c83900b46c54f87db28a2",
+      "translation": "**Dálkur sem hefur alls engin gildi kemur til baka sem** ``object``. Þetta er algengasta tilvikið og það er ekki gagnavandamál: ``pandas.read_sql`` byggir rammann úr þeim röðum sem það fær, svo dálkur sem er ``NULL`` í hverri röð berst sem dálkur af ``None`` og pandas gefur honum tegundina ``object`` -- jafnvel þótt SQLite skilgreini hann sem ``REAL``. spaCR skrifar ``NULL`` fyrir raunverulegt NaN, og heilar mælingar eru réttilega NaN í heilum gagnagrunni: ``skew_intensity``/``kurtosis_intensity`` eru NaN fyrir hvern einsleitan hlut, og ``mode_intensity`` var NaN fyrir hvern hlut í hverjum gagnagrunni sem skrifaður var áður en SciPy-millilagið kom í ``measure._extended_regionprops_table``. Slíkum dálki er breytt í ``float64`` NaN, sem er það sem hann merkti alltaf. Ekkert glatast, svo ekki er varað við neinu -- og sía kallandans sjálfs fyrir dálka sem eru eingöngu NaN fjarlægir hann síðan og segir frá því."
+    },
+    {
+      "context": "A ``~`` path is expanded, once, for every reader -- GitHub issue #108, where a ``src`` beginning with ``~`` was resolved against the working directory and refused with ``FileNotFoundError: ~<DB>``. ``$HOME`` and ``%USERPROFILE%`` too: a settings CSV carried between machines routinely holds one.",
+      "label": "spacr.tabular#13",
+      "source": "A ``~`` path is expanded, once, for every reader -- GitHub issue #108, where a ``src`` beginning with ``~`` was resolved against the working directory and refused with ``FileNotFoundError: ~<DB>``. ``$HOME`` and ``%USERPROFILE%`` too: a settings CSV carried between machines routinely holds one.",
+      "source_sha256": "2b276d0c5c366d8a8d9bcdccd2e8ef753e06e72c51437ec42107f96dc840f9de",
+      "translation": "``~``-slóð er víkkuð út, einu sinni, fyrir hvern lesara -- GitHub-mál #108, þar sem ``src`` sem byrjaði á ``~`` var túlkað miðað við vinnumöppuna og hafnað með ``FileNotFoundError: ~<DB>``. ``$HOME`` og ``%USERPROFILE%`` líka: stillingaskrá á CSV-sniði sem flutt er milli véla inniheldur iðulega eina slíka."
+    },
+    {
+      "context": "Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.",
+      "label": "spacr.utils.correct_metadata_column_names#0",
+      "source": "Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.",
+      "source_sha256": "4e314297af1da8ebfedd58f49a362f5f04a65a2a10733b2d7f62cacb34323847",
+      "translation": "Endurnefndir eldri lýsigagnadálkar. **Skilgreint í** :mod:`spacr.schema`."
+    }
+  ],
+  "schema": 1
+}

@@ -1,0 +1,601 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Advisory only — nothing here changes a setting until you press Use.",
+      "source": "Advisory only — nothing here changes a setting until you press Use.",
+      "source_sha256": "60d63c71a85338a87fec2f0e2c2a39cad379d229117c7c461a7d61c8cde14e04",
+      "table": "ui",
+      "translation": "केवल सलाह — जब तक आप उपयोग करें नहीं दबाते, तब तक यहाँ कुछ भी किसी सेटिंग को नहीं बदलता।"
+    },
+    {
+      "key": "Annotation size",
+      "source": "Annotation size",
+      "source_sha256": "9f7b3cc83b52be85df5036bff2dd6fd85280a8130135301eddb10f4403c84913",
+      "table": "ui",
+      "translation": "एनोटेशन का आकार"
+    },
+    {
+      "key": "Background of an exported figure ('none' leaves the page showing through)",
+      "source": "Background of an exported figure ('none' leaves the page showing through)",
+      "source_sha256": "81be1d0355fbf3296682dd73939525860a4957a6cb261c4a9bd8821227e7ae94",
+      "table": "ui",
+      "translation": "निर्यात किए गए चित्र की पृष्ठभूमि ('none' से पीछे का पृष्ठ दिखाई देता है)"
+    },
+    {
+      "key": "Background on screen ('none' shows the page through)",
+      "source": "Background on screen ('none' shows the page through)",
+      "source_sha256": "b013b043858f7f5aca7094a3107c45dfa7a8c83707af1c0c66590298adce56ae",
+      "table": "ui",
+      "translation": "स्क्रीन पर पृष्ठभूमि ('none' से पीछे का पृष्ठ दिखाई देता है)"
+    },
+    {
+      "key": "Boolean column marking the non-targeting controls, for the 'control' method",
+      "source": "Boolean column marking the non-targeting controls, for the 'control' method",
+      "source_sha256": "3ad7de77b343ae4e40bc3542773c6845c80972af5d8f09555746556336e1d0bb",
+      "table": "ui",
+      "translation": "'control' विधि के लिए नॉन-टार्गेटिंग नियंत्रणों को चिह्नित करने वाला बूलियन स्तंभ"
+    },
+    {
+      "key": "Build the digest first.",
+      "source": "Build the digest first.",
+      "source_sha256": "071bfce0a4e37d56ccd0a3587c48bffd58adacb214b80780e161be988bea161f",
+      "table": "ui",
+      "translation": "पहले सारांश बनाएं।"
+    },
+    {
+      "key": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source_sha256": "6e87588f0d1532cecbad8dfe8bf788361b7cc6bf7c50eb354c37245946aff269",
+      "table": "ui",
+      "translation": "Cellpose 4 विभाजन से पहले हर छवि को 30/व्यास के अनुपात में पुनः स्केल करता है, इसलिए दो गुना गलत व्यास आपके ऑब्जेक्ट्स को उस आकार से बाहर कर देता है जिस पर cpsam काम करता है। यह आपके अपने डेटा के कुछ फ़ील्ड पढ़कर उन्हें मापता है — Cellpose लोड नहीं होता।"
+    },
+    {
+      "key": "Choose a regression results folder — the one holding results_gene.csv.",
+      "source": "Choose a regression results folder — the one holding results_gene.csv.",
+      "source_sha256": "a9116f396c14b68e881fbd1f127d614fff52d06e5aa42f8718cdc36ced84afff",
+      "table": "ui",
+      "translation": "रिग्रेशन परिणाम फ़ोल्डर चुनें — वह जिसमें results_gene.csv है।"
+    },
+    {
+      "key": "Choose a regression results folder.",
+      "source": "Choose a regression results folder.",
+      "source_sha256": "f69e1888a09284ace40d65ba70ac2db7e9caf05eeebca89f0572c8fedb73e941",
+      "table": "ui",
+      "translation": "रिग्रेशन परिणाम फ़ोल्डर चुनें।"
+    },
+    {
+      "key": "Choose a spaCR project folder to draw what it has produced.",
+      "source": "Choose a spaCR project folder to draw what it has produced.",
+      "source_sha256": "17a5eac575367da1bc26adfe59f06aa395f44ba511ee8914bbf2f244f8489dbf",
+      "table": "ui",
+      "translation": "एक spaCR प्रोजेक्ट फ़ोल्डर चुनें ताकि उसने जो कुछ बनाया है उसे दिखाया जा सके।"
+    },
+    {
+      "key": "Choose a spaCR project folder to list the runs it recorded.",
+      "source": "Choose a spaCR project folder to list the runs it recorded.",
+      "source_sha256": "75bbf970f0a87bb30599d4dc6e6f7b6f51f6b982b83f2b00d659070bf4eb1504",
+      "table": "ui",
+      "translation": "एक spaCR प्रोजेक्ट फ़ोल्डर चुनें ताकि उसमें दर्ज रन की सूची दिखाई जा सके।"
+    },
+    {
+      "key": "Colour of the axis lines, the ticks and the text",
+      "source": "Colour of the axis lines, the ticks and the text",
+      "source_sha256": "3154a8539a5461fe51d2d8fbeb264030ef555282ddeec63cf41531ca7f8809bc",
+      "table": "ui",
+      "translation": "अक्ष रेखाओं, टिक चिह्नों और पाठ का रंग"
+    },
+    {
+      "key": "Column holding point names",
+      "source": "Column holding point names",
+      "source_sha256": "a40e916b1f2ec6d84f3a995d78302fbd93d78c8cd23cad13ca2f41cc04685b8c",
+      "table": "ui",
+      "translation": "बिंदुओं के नाम वाला स्तंभ"
+    },
+    {
+      "key": "Column naming each row's gene, for the compartment lookup",
+      "source": "Column naming each row's gene, for the compartment lookup",
+      "source_sha256": "db0ce15eb390e498bfbbc3bf684c5887e0b8cb907bfb26bf489830854633a55f",
+      "table": "ui",
+      "translation": "प्रत्येक पंक्ति के जीन का नाम देने वाला स्तंभ, कम्पार्टमेंट खोजने के लिए"
+    },
+    {
+      "key": "Column plotted on the x axis",
+      "source": "Column plotted on the x axis",
+      "source_sha256": "abbf17d6a6727cf01ae9ea6cb6d21287b675f838c2aeecfd6bced2fbe929eafb",
+      "table": "ui",
+      "translation": "x अक्ष पर प्लॉट किया गया स्तंभ"
+    },
+    {
+      "key": "Column plotted on the y axis",
+      "source": "Column plotted on the y axis",
+      "source_sha256": "948578aab4a397831973d14bbee3748da8c63da66a1a21ed3cae859f3ed32570",
+      "table": "ui",
+      "translation": "y अक्ष पर प्लॉट किया गया स्तंभ"
+    },
+    {
+      "key": "Distance cut",
+      "source": "Distance cut",
+      "source_sha256": "9cbd6a9efc80024bfd885651647f0e6824f48a2985a2e389105bad6e2ec0cefa",
+      "table": "ui",
+      "translation": "दूरी सीमा"
+    },
+    {
+      "key": "Drafting…",
+      "source": "Drafting…",
+      "source_sha256": "bafe3bfa6db69fc878ee68858880fcbb984032c0ffbf7267fa464731dc5d5017",
+      "table": "ui",
+      "translation": "मसौदा तैयार हो रहा है…"
+    },
+    {
+      "key": "Draw the significance line",
+      "source": "Draw the significance line",
+      "source_sha256": "5622f63f2e57a67d38ca97715652772b5bc31d11a2ae5a41a69b78b0b157660f",
+      "table": "ui",
+      "translation": "सांख्यिकीय महत्व रेखा बनाएं"
+    },
+    {
+      "key": "Draw the zero line",
+      "source": "Draw the zero line",
+      "source_sha256": "6b6496b087119a7e57097b27626eeb5fd762ff7052520335256b4741698ce5ad",
+      "table": "ui",
+      "translation": "शून्य रेखा बनाएं"
+    },
+    {
+      "key": "Effect-size cut used when the method is 'value'; automatic draws no effect-size line at all",
+      "source": "Effect-size cut used when the method is 'value'; automatic draws no effect-size line at all",
+      "source_sha256": "926a1985405927c586349966968dcc5d375a6bf992e06711224b2618a2323485",
+      "table": "ui",
+      "translation": "जब विधि 'value' हो तब उपयोग होने वाली प्रभाव-आकार सीमा; स्वचालित विकल्प कोई प्रभाव-आकार रेखा नहीं खींचता"
+    },
+    {
+      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+      "table": "ui",
+      "translation": "फ़ाइल की हर रेखा: प्लॉट किए गए वक्र, संदर्भ रेखाएँ, अक्ष रेखाएँ और टिक चिह्न। टिक के पास की संख्याएँ पाठ हैं और पाठ के रंग का पालन करती हैं।"
+    },
+    {
+      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+      "table": "ui",
+      "translation": "फ़ाइल का हर पाठ: शीर्षक, अक्ष लेबल, टिक के पास की संख्याएँ और लेजेंड।"
+    },
+    {
+      "key": "Figure height (in)",
+      "source": "Figure height (in)",
+      "source_sha256": "e4c10c7b9116b4d5511a19b579fbd88e384f4e442d3080d27458940cd72501ce",
+      "table": "ui",
+      "translation": "चित्र की ऊंचाई (इंच)"
+    },
+    {
+      "key": "Figure width (in)",
+      "source": "Figure width (in)",
+      "source_sha256": "98db45d5b3ffe4e965a952f9104a241fac590beefbafb9b75d385bd220fe20eb",
+      "table": "ui",
+      "translation": "चित्र की चौड़ाई (इंच)"
+    },
+    {
+      "key": "Font weight",
+      "source": "Font weight",
+      "source_sha256": "d05ad818d51da4629cbc458c038a34c1bd0094e6f22bbba555f6ca5633c2b1b1",
+      "table": "ui",
+      "translation": "फ़ॉन्ट की मोटाई"
+    },
+    {
+      "key": "Hide top/right spines",
+      "source": "Hide top/right spines",
+      "source_sha256": "de6084fb71d9fcfb93f085d186b4e71dadcb30034656ecff839b857508e904e8",
+      "table": "ui",
+      "translation": "ऊपरी/दाईं अक्ष रेखाएँ छिपाएं"
+    },
+    {
+      "key": "How fast the animation moves, against the speed each one was designed at. It applies to every kind of motion in the chosen animation at once, and changing it never makes what is already on screen jump.",
+      "source": "How fast the animation moves, against the speed each one was designed at. It applies to every kind of motion in the chosen animation at once, and changing it never makes what is already on screen jump.",
+      "source_sha256": "3b0e0fb078df0e0ec979171334e971324f5e70d89edb26b6ad05c9ff4df24397",
+      "table": "ui",
+      "translation": "एनीमेशन कितनी तेज़ी से चलता है, उस गति की तुलना में जिसके लिए हर एनीमेशन बनाया गया था। यह चुने गए एनीमेशन की हर तरह की गति पर एक साथ लागू होता है, और इसे बदलने से स्क्रीन पर पहले से मौजूद चीज़ें कभी उछलती नहीं।"
+    },
+    {
+      "key": "How large the moving elements are: blob width, curtain height, the spacing between ripples, star size, cell diameter. Scaled against each animation's own range, so one setting means the same thing in all of them.",
+      "source": "How large the moving elements are: blob width, curtain height, the spacing between ripples, star size, cell diameter. Scaled against each animation's own range, so one setting means the same thing in all of them.",
+      "source_sha256": "331a2b9d5ffe68f003627876e5f729a755b28000021727b5f5709ef66521b481",
+      "table": "ui",
+      "translation": "चलने वाले तत्व कितने बड़े हैं: ब्लॉब की चौड़ाई, पर्दे की ऊंचाई, लहरों के बीच की दूरी, तारे का आकार, कोशिका का व्यास। हर एनीमेशन की अपनी सीमा के अनुसार स्केल किया जाता है, इसलिए एक ही सेटिंग का अर्थ सभी में एक जैसा होता है।"
+    },
+    {
+      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
+      "table": "ui",
+      "translation": "कितनी चीज़ें हैं: ब्लॉब, aurora पर्दे, लहर स्रोत, तारे, bokeh डिस्क, कोशिकाएँ। घनत्व और विवरण एक ही लागत बजट साझा करते हैं, इसलिए दोनों का अधिकतम मांगने पर फ्रेम छोड़ने के बजाय घनत्व कम किया जाता है।"
+    },
+    {
+      "key": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
+      "source": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
+      "source_sha256": "0f5cf9774f5be9f62e5f91817baaa8005779eb4f31b5d6b876f103d51f0da7bd",
+      "table": "ui",
+      "translation": "एनीमेशन कितने विवरण के साथ बनाया जाता है। यही तय करता है कि वह पिक्सेलयुक्त दिखे या नहीं: यह निर्धारित करता है कि पृष्ठ भरने के लिए खींचे जाने से पहले चित्र कितने पिक्सेल में बनाया जाता है। इसकी लागत लगभग इस मान के वर्ग के बराबर होती है — 200 % यानी चार गुना काम — इसलिए व्यस्त मशीन पर इसे कम करें।"
+    },
+    {
+      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
+      "table": "ui",
+      "translation": "एनीमेशन कितना धुंधला है, उस विवरण के ऊपर जिसके साथ वह बनाया गया था। 0 % उसे उतना ही तेज़ रखता है जितना विवरण सेटिंग अनुमति देती है; 100 % वह कोमलता है जिसके साथ एनीमेशन पहले आते थे। विवरण के विपरीत, इसकी लागत लगभग शून्य है — और दोनों मिलकर पृष्ठभूमि को बिना खुरदुरे पिक्सेल के कोमल बनाते हैं।"
+    },
+    {
+      "key": "How the effect-size cut is derived",
+      "source": "How the effect-size cut is derived",
+      "source_sha256": "4bc0c7bdaa4b5b47e36e7f5617080a119bfe9c1e6dc339f17ad1f20e0136ddf8",
+      "table": "ui",
+      "translation": "प्रभाव-आकार सीमा कैसे निकाली जाती है"
+    },
+    {
+      "key": "Input, output, and model hashes",
+      "source": "Input, output, and model hashes",
+      "source_sha256": "dddd80e200004a4bf171964c442f23e20ffac54d3a4125d97cef8bb32220762c",
+      "table": "ui",
+      "translation": "इनपुट, आउटपुट और मॉडल हैश"
+    },
+    {
+      "key": "Invert x axis",
+      "source": "Invert x axis",
+      "source_sha256": "5873a95affc691a3547c03fb6c3c7a0de77b1eb9eca56d08eb3587937cdecb5c",
+      "table": "ui",
+      "translation": "x अक्ष उलटें"
+    },
+    {
+      "key": "Invert y axis",
+      "source": "Invert y axis",
+      "source_sha256": "3d73d45768978831a8defb5e48c73ac7638df43557fb40aaa1569e8e6399ed09",
+      "table": "ui",
+      "translation": "y अक्ष उलटें"
+    },
+    {
+      "key": "Loading the bundled Toxoplasma annotation…",
+      "source": "Loading the bundled Toxoplasma annotation…",
+      "source_sha256": "0386cebfba418e555151984ebc6d6687c51815f2ee6cd529bdc508f145c3f3c4",
+      "table": "ui",
+      "translation": "साथ में दिया गया Toxoplasma एनोटेशन लोड हो रहा है…"
+    },
+    {
+      "key": "Loading was cancelled; the run already on screen is unchanged.",
+      "source": "Loading was cancelled; the run already on screen is unchanged.",
+      "source_sha256": "c0343cbd4a08c584d320d03d53754cc253ce89d93e40375e054c9589b1124207",
+      "table": "ui",
+      "translation": "लोड करना रद्द कर दिया गया; स्क्रीन पर पहले से दिख रहा रन अपरिवर्तित है।"
+    },
+    {
+      "key": "Multiplier applied to the rule above (the quantile itself when the method is 'quantile')",
+      "source": "Multiplier applied to the rule above (the quantile itself when the method is 'quantile')",
+      "source_sha256": "384d009a778619d7f11d1f583599f222ad07b5a437f9c6cbe7f48f2eefaeeb34",
+      "table": "ui",
+      "translation": "ऊपर दिए नियम पर लागू गुणक (जब विधि 'quantile' हो तो स्वयं क्वांटाइल)"
+    },
+    {
+      "key": "Name at least one source, then build the digest.",
+      "source": "Name at least one source, then build the digest.",
+      "source_sha256": "494782c5280e148de4516ccaa770c1071c9b6e0a4b5b2a1380125de7cac6b8c7",
+      "table": "ui",
+      "translation": "कम से कम एक स्रोत बताएं, फिर सारांश बनाएं।"
+    },
+    {
+      "key": "Negative control wells",
+      "source": "Negative control wells",
+      "source_sha256": "420f872d82474589b502fa7eada5cd4a5714d188e2837850a1818e487903958a",
+      "table": "ui",
+      "translation": "नेगेटिव कंट्रोल वेल"
+    },
+    {
+      "key": "Neighbours per seed",
+      "source": "Neighbours per seed",
+      "source_sha256": "e44a100da8498ec32867214e7c4b2ae1aa8f0cabc7cfa8de9c9a2dcc7a6135ee",
+      "table": "ui",
+      "translation": "प्रति सीड पड़ोसी"
+    },
+    {
+      "key": "No gene number could be parsed out of this term, so there is no annotation to look up.",
+      "source": "No gene number could be parsed out of this term, so there is no annotation to look up.",
+      "source_sha256": "9aa561c8948ae747f3deacf1b7f6fca5122cde68394efe18651ace144ad10741",
+      "table": "ui",
+      "translation": "इस शब्द से कोई जीन संख्या नहीं निकाली जा सकी, इसलिए देखने के लिए कोई एनोटेशन नहीं है।"
+    },
+    {
+      "key": "Nothing on this page to annotate.",
+      "source": "Nothing on this page to annotate.",
+      "source_sha256": "0573add57a5d2020713be36b9113c4544cdd2d1df46624def28ead2361f0cedf",
+      "table": "ui",
+      "translation": "इस पृष्ठ पर एनोटेट करने के लिए कुछ नहीं है।"
+    },
+    {
+      "key": "Nothing to annotate — open a source first.",
+      "source": "Nothing to annotate — open a source first.",
+      "source_sha256": "d78e9ec8f26891ac21c03a84e00576b219e0a83cf880dba4080282b8ffdb0d7d",
+      "table": "ui",
+      "translation": "एनोटेट करने के लिए कुछ नहीं — पहले एक स्रोत खोलें।"
+    },
+    {
+      "key": "Nothing to undo.",
+      "source": "Nothing to undo.",
+      "source_sha256": "bf9913bba7204a22bd3e8d11b3d83d5f1648c11cbd2ba25ab2d81b3be8781e3c",
+      "table": "ui",
+      "translation": "पूर्ववत करने के लिए कुछ नहीं है।"
+    },
+    {
+      "key": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source_sha256": "b753e3f49f93c425540881613863bfc06105ba4320659660a43f010cb1c4ae9a",
+      "table": "ui",
+      "translation": "परिणाम पैनल को कुछ भी नहीं दिया गया, इसलिए खोजने के लिए कोई फ़ोल्डर नहीं है। “परिणाम लोड करें…” का उपयोग करें।"
+    },
+    {
+      "key": "Opacity…",
+      "source": "Opacity…",
+      "source_sha256": "daa4fd0b233c791c11da0d9b3da10e8e248c64947feebedfa69d35ca7433c8c9",
+      "table": "ui",
+      "translation": "अपारदर्शिता…"
+    },
+    {
+      "key": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source_sha256": "a5038f58402ee32decf4d04419420346cbcec24d0494ee02fe1a85ee49b1bb9a",
+      "table": "ui",
+      "translation": "पहले src को किसी प्लेट फ़ोल्डर पर सेट करें — अभी मापने के लिए कुछ नहीं है।"
+    },
+    {
+      "key": "Positive control wells",
+      "source": "Positive control wells",
+      "source_sha256": "462e38219a78a7356fe27c275a7c8cb4d6ec340c24d7d7bc48d3b620e978a297",
+      "table": "ui",
+      "translation": "पॉज़िटिव कंट्रोल वेल"
+    },
+    {
+      "key": "Raster export dpi",
+      "source": "Raster export dpi",
+      "source_sha256": "c5cb277e3b5e511de9514424f9e1e21f275c500406467fb99443cdfb95e3ea6d",
+      "table": "ui",
+      "translation": "रैस्टर निर्यात dpi"
+    },
+    {
+      "key": "Reading the run…",
+      "source": "Reading the run…",
+      "source_sha256": "ad507ced0123b1c23ae6fd0ae80845da1ca4e321e8a8e3434407bf17e85f4267",
+      "table": "ui",
+      "translation": "रन पढ़ा जा रहा है…"
+    },
+    {
+      "key": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source_sha256": "7b72a7998b51633858ecc01e775e950e4431e3fed398d723885e9d9b21b9001d",
+      "table": "ui",
+      "translation": "एक नमूने के रीड्स का सैंपल लें और हर संदर्भ तालिका को उनसे मापें, दोनों दिशाओं में और जोड़ी के दोनों रीड्स में।"
+    },
+    {
+      "key": "Saved — this is the last page.",
+      "source": "Saved — this is the last page.",
+      "source_sha256": "a1b6aca5ab7db03637a3ab5232685b8cc2ee59a65e74156b79a289d1bf3d2628",
+      "table": "ui",
+      "translation": "सहेजा गया — यह अंतिम पृष्ठ है।"
+    },
+    {
+      "key": "Score strata",
+      "source": "Score strata",
+      "source_sha256": "f9b65f1695a31da3480df98c6735b2777d17e42c38428636f73b14c97dba546e",
+      "table": "ui",
+      "translation": "स्कोर स्तर"
+    },
+    {
+      "key": "Shape by a column…",
+      "source": "Shape by a column…",
+      "source_sha256": "42eb09cbdc65bcf49d62d9ee47abcf7a7e69475bcd76e42e55b6505e2e21f333",
+      "table": "ui",
+      "translation": "स्तंभ के अनुसार आकार…"
+    },
+    {
+      "key": "Show legend",
+      "source": "Show legend",
+      "source_sha256": "ebf33682ec6626f84af2a8c8f016ee10ffd4f98528e1f77f98adb2417f531d71",
+      "table": "ui",
+      "translation": "लेजेंड दिखाएं"
+    },
+    {
+      "key": "Significance level",
+      "source": "Significance level",
+      "source_sha256": "4551b4c8f9dde6969602dd274808e3de229b1bd3b1081d6f38ab075c9a355850",
+      "table": "ui",
+      "translation": "सांख्यिकीय महत्व स्तर"
+    },
+    {
+      "key": "Split the y axis (broken axis)",
+      "source": "Split the y axis (broken axis)",
+      "source_sha256": "0d3b1934ba287f5b67c34f6dcea83ee629a33a670ac6f6e3ff8b1bafcea06cf6",
+      "table": "ui",
+      "translation": "y अक्ष को विभाजित करें (टूटा हुआ अक्ष)"
+    },
+    {
+      "key": "Stop the search. What it has measured so far stays on screen, and nothing is proposed from a search that was interrupted.",
+      "source": "Stop the search. What it has measured so far stays on screen, and nothing is proposed from a search that was interrupted.",
+      "source_sha256": "77957637a0af1b966e395959d06af86266bd9aa7275f2fa8a26bcae743bc0267",
+      "table": "ui",
+      "translation": "खोज रोकें। अब तक जो मापा गया है वह स्क्रीन पर बना रहता है, और बीच में रोकी गई खोज से कुछ भी प्रस्तावित नहीं किया जाता।"
+    },
+    {
+      "key": "The digest could not be built.",
+      "source": "The digest could not be built.",
+      "source_sha256": "efaec88b5f9fac6cadfbe3ec65b226f8bab4d647976b1736d866e47f0db34280",
+      "table": "ui",
+      "translation": "सारांश नहीं बनाया जा सका।"
+    },
+    {
+      "key": "The draft could not be produced.",
+      "source": "The draft could not be produced.",
+      "source_sha256": "eb6f80f3bf8799db3ab5e28260133bd945e359fa49a0febd8fa4f64bc2f125f1",
+      "table": "ui",
+      "translation": "मसौदा तैयार नहीं किया जा सका।"
+    },
+    {
+      "key": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source_sha256": "39ab4725bc6dd7ca9d4160cdcb908f858280a21e835dfa0a60bb551754f21ae2",
+      "table": "ui",
+      "translation": "जीन की पहचान नहीं हो सकी, इसलिए देखने के लिए कुछ नहीं है। प्लॉट पर कोई असर नहीं पड़ा है।"
+    },
+    {
+      "key": "The page behind the figure. Transparent takes whatever the figure is placed on, which is what a slide usually wants.",
+      "source": "The page behind the figure. Transparent takes whatever the figure is placed on, which is what a slide usually wants.",
+      "source_sha256": "1521526b9bceb69f540d036fdf758841f4407d2a02fda7fed25e25743a3a9ae4",
+      "table": "ui",
+      "translation": "चित्र के पीछे का पृष्ठ। पारदर्शी विकल्प चित्र जिस पर रखा जाता है वही दिखाता है, जो आम तौर पर स्लाइड के लिए चाहिए।"
+    },
+    {
+      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
+      "table": "ui",
+      "translation": "वह प्रतिशतक जिसे काले पर मैप किया जाता है। अधिक पृष्ठभूमि दबाने के लिए इसे बढ़ाएँ; 0 सबसे धुंधले पिक्सेल को भी बनाए रखता है।"
+    },
+    {
+      "key": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source_sha256": "0549c47361f20d04a96ba1830cb2ae082be3246b95b3720a9b391b0b0c30ed6f",
+      "table": "ui",
+      "translation": "वह प्रतिशतक जिसे सफ़ेद पर मैप किया जाता है। सबसे चमकीले पिक्सेल कटने की कीमत पर अधिक कंट्रास्ट के लिए इसे घटाएँ; 100 पर कोई पिक्सेल नहीं कटता।"
+    },
+    {
+      "key": "The results table is empty: it has columns but no rows, so the fit produced no coefficients.",
+      "source": "The results table is empty: it has columns but no rows, so the fit produced no coefficients.",
+      "source_sha256": "37208ee3e331f817cfd0ae6af518e1582a4fe22fd0e7bd952a04f8f856a9f3d7",
+      "table": "ui",
+      "translation": "परिणाम तालिका खाली है: इसमें स्तंभ हैं पर कोई पंक्ति नहीं, इसलिए फ़िट से कोई गुणांक नहीं मिला।"
+    },
+    {
+      "key": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source_sha256": "30f39b338f5a50c00c3469016332c6de396d98463ccf94f67b4eac198474cfcb",
+      "table": "ui",
+      "translation": "रन पूरा हो गया, लेकिन उसकी सेटिंग्स में कोई आउटपुट फ़ोल्डर नहीं दिया गया है -- src, count_data और score_data सभी खाली हैं -- इसलिए परिणाम तालिका खोजने की कोई जगह नहीं है। किसी तालिका की ओर इंगित करने के लिए “परिणाम लोड करें…” का उपयोग करें।"
+    },
+    {
+      "key": "The run loader came back with nothing, which is a bug in the loader rather than in the run.",
+      "source": "The run loader came back with nothing, which is a bug in the loader rather than in the run.",
+      "source_sha256": "3dbeadf1acde8c90b61e8bce3c542782c3759900511885dc051f8c9c4012ad31",
+      "table": "ui",
+      "translation": "रन लोडर ने कुछ भी नहीं लौटाया, जो रन की नहीं बल्कि लोडर की त्रुटि है।"
+    },
+    {
+      "key": "The run this was showing has been deleted. Pick another in the Runs tab.",
+      "source": "The run this was showing has been deleted. Pick another in the Runs tab.",
+      "source_sha256": "61c16509ff299f2dc611d468ac6d8c554e7b50ffc48ca77d4f249418d9f8dadb",
+      "table": "ui",
+      "translation": "यहाँ दिखाया जा रहा रन हटा दिया गया है। रन टैब में कोई दूसरा रन चुनें।"
+    },
+    {
+      "key": "There is no settings store to save a default into.",
+      "source": "There is no settings store to save a default into.",
+      "source_sha256": "e83f38e6acd6977813d4df0d8cfd2cca5dc5f3f630bbeeae0c7e81231dc1ce5d",
+      "table": "ui",
+      "translation": "डिफ़ॉल्ट सहेजने के लिए कोई सेटिंग्स संग्रह नहीं है।"
+    },
+    {
+      "key": "Uncertainty measure",
+      "source": "Uncertainty measure",
+      "source_sha256": "663c8bb8e9a5397d581952bfb779650abbe35b33712b1b2c942ae6ee5b6097e3",
+      "table": "ui",
+      "translation": "अनिश्चितता माप"
+    },
+    {
+      "key": "Undone.",
+      "source": "Undone.",
+      "source_sha256": "dc16676623c41e87659bac36a19b91addf09b622f19f304194119211e57757e4",
+      "table": "ui",
+      "translation": "पूर्ववत किया गया।"
+    },
+    {
+      "key": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source_sha256": "13f3ac5383c22d164b4775777e127bc35f6e80bb46307445eb24bf72041e2827",
+      "table": "ui",
+      "translation": "spaCR इस जीन के बारे में जो जानता है, वह यहाँ दिखता है — उत्पाद, टोपोलॉजी, कम्पार्टमेंट, फ़िटनेस स्क्रीनिंग और अवस्था-विशिष्ट अभिव्यक्ति।"
+    },
+    {
+      "key": "Where the y axis is split (set by ticking the split above)",
+      "source": "Where the y axis is split (set by ticking the split above)",
+      "source_sha256": "b1adfed681bb62c98df4c4ceac468dbacd751a92c51ebca802a5994760e45094",
+      "table": "ui",
+      "translation": "जहाँ y अक्ष विभाजित होता है (ऊपर विभाजन पर टिक लगाकर सेट करें)"
+    },
+    {
+      "key": "X axis limits",
+      "source": "X axis limits",
+      "source_sha256": "85a333ba30f645c67221dda3133d5a0338c745700bd20002014e5151cedfb812",
+      "table": "ui",
+      "translation": "X अक्ष सीमाएँ"
+    },
+    {
+      "key": "X axis scale",
+      "source": "X axis scale",
+      "source_sha256": "9882a1bff597ec4d75be31f62d34c9a3876e60166a7938a36b4702f9f3074cf3",
+      "table": "ui",
+      "translation": "X अक्ष स्केल"
+    },
+    {
+      "key": "X axis title",
+      "source": "X axis title",
+      "source_sha256": "1606ee671334c00ea1d2b25849f5a92ee1e756c32e28a31f6703b1d2b9798cc2",
+      "table": "ui",
+      "translation": "X अक्ष शीर्षक"
+    },
+    {
+      "key": "Y axis limits",
+      "source": "Y axis limits",
+      "source_sha256": "38c492f0db41cb7af1cc7d0c7ca0318fd8fee8de695da6b029e01e1d1f38427c",
+      "table": "ui",
+      "translation": "Y अक्ष सीमाएँ"
+    },
+    {
+      "key": "Y axis scale",
+      "source": "Y axis scale",
+      "source_sha256": "ed206ddf033c51bb6b7f6bd047d4122c131171cd1e0cd93e93452db2a0c0f5c2",
+      "table": "ui",
+      "translation": "Y अक्ष स्केल"
+    },
+    {
+      "key": "Y axis title (blank = automatic)",
+      "source": "Y axis title (blank = automatic)",
+      "source_sha256": "cb688aef6e724460dd143df42b9fea708b25329a4a9d0e2d9ef6d14a44dde6ab",
+      "table": "ui",
+      "translation": "Y अक्ष शीर्षक (खाली = स्वचालित)"
+    },
+    {
+      "key": "parses — load a table to see the values",
+      "source": "parses — load a table to see the values",
+      "source_sha256": "b8cd1d8b08fc02674074f302125203f4b8f1c3e9e2c360fb3400ada468a8f92a",
+      "table": "ui",
+      "translation": "पार्स हो गया — मान देखने के लिए एक तालिका लोड करें"
+    },
+    {
+      "key": "planning the merge",
+      "source": "planning the merge",
+      "source_sha256": "86e05f5bd801e55fbb83663e0cb96f316154b7a4889e47fd819efec5df6da663",
+      "table": "ui",
+      "translation": "मर्ज की योजना बनाई जा रही है"
+    },
+    {
+      "key": "spaCR did NOT restart: the module and its settings could not be saved, and restarting without them would lose more than the stuck run. Nothing was stopped. The log says why.",
+      "source": "spaCR did NOT restart: the module and its settings could not be saved, and restarting without them would lose more than the stuck run. Nothing was stopped. The log says why.",
+      "source_sha256": "e93a3905c2cc28202255a0ea6363a13a125430689abf72210c32a1e788e88084",
+      "table": "ui",
+      "translation": "spaCR पुनः आरंभ नहीं हुआ: मॉड्यूल और उसकी सेटिंग्स सहेजी नहीं जा सकीं, और उनके बिना पुनः आरंभ करने से अटके हुए रन से भी ज़्यादा नुकसान होता। कुछ भी रोका नहीं गया। लॉग में कारण बताया गया है।"
+    },
+    {
+      "key": "−log₁₀ the y column",
+      "source": "−log₁₀ the y column",
+      "source_sha256": "ee48af3f5f608bc8e495de22280f2eebabf16e3c3e7d52f946b7d1fba0493ed0",
+      "table": "ui",
+      "translation": "y स्तंभ का −log₁₀"
+    }
+  ],
+  "schema": 1
+}
