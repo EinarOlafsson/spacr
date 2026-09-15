@@ -641,3 +641,20 @@ RELEASE CANDIDATE WITH THE NEW 13_REGRESSION (built before 07_mask, so a
     from model_promotion import MODELS; s = Path('$ST')
     build(s, baseline=s / 'baseline-d2d4c189b-hmx3Us/docs/source/_extra/tutorials/catalog',
           model_promotions=set(MODELS), barcode_promotion=True)"
+  VERIFIED: verify_release_candidate.py release-candidate-tytdds1k exit 0
+    (04:10:52 -> 04:15:13 UTC, load ~11 on 32 cores). 90 PASS: 14 Coming-soon
+    language screens and 76 candidate playback cases, 13_regression
+    included. 01_pypi_github PASSED its clock check this time; it failed
+    twice on 09-11 under load 25-31, which fits the earlier reading that the
+    failure was machine load, not a media defect.
+
+07_MASK TRANSLATIONS ARE STALE EVEN BEFORE THE NEW COUNTS. Read
+  lessons/reviews/07_mask.es.json against the current English: scene 1 still
+  says "Live, Time and three-dimensional settings" and names only Time's
+  linked tutorial (no OPS), objective 1 lists "Live, Time and 3D", and the
+  prerequisite ends "OPS remains unproven and is not taught here". Its
+  review pins english_sha256 7f8ea6e1...; the current English canonical hash
+  is ec839288.... So all 13 reviews need at least scene 1, objective 1 and
+  the prerequisite updated. Scenes 6-8 and the prerequisite's "Live
+  implementation unchanged / 51->25->51 / 42" wording must follow the new
+  measurement.
