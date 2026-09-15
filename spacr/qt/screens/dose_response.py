@@ -121,6 +121,10 @@ _CONCENTRATION_HINTS = ("conc", "dose", "µm", "um", "nm", "mm", "molar")
 #: so the Plates row adds nothing a translator has not already seen.
 _NO_COLUMN = "(none)"
 
+#: The picker entries whose caption follows the language. Every other entry
+#: is a column name or a control level, which is data and never translated.
+_SENTINELS = (NO_GROUP, _NO_COLUMN)
+
 #: Substrings that make a control-column level the first guess for each
 #: control. A convenience, like `_CONCENTRATION_HINTS`: nothing is normalised
 #: until a plate and a control column have both been chosen.
@@ -317,6 +321,7 @@ _STATUS_LABELS = {
 #: symbols rather than words and are left out on purpose; `tr` passes them
 #: through unchanged.
 _DOSE_RESPONSE_UI_SOURCES = frozenset({
+    NO_GROUP,
     "Group", "Status", "Doses", "CI low", "CI high", "Lack-of-fit p",
     "fitted", "unbounded", "refused",
 })
@@ -399,6 +404,7 @@ class DoseResponseScreen(QWidget):
         self._table_picker.setObjectName("DoseResponseTablePicker")
         self._table_picker.setToolTip("Which table of the database to fit")
         self._table_picker.setVisible(False)
+        self._table_picker.setProperty("i18nSkipItems", True)
         self._table_picker.currentTextChanged.connect(self._on_table_picked)
         head.addWidget(self._table_picker)
 
@@ -488,7 +494,9 @@ class DoseResponseScreen(QWidget):
         plates.addWidget(QLabel("Controls", self))
         self.control_picker = QComboBox(self)
         self.control_picker.setObjectName("DoseResponseControl")
-        self.control_picker.currentTextChanged.connect(self._on_control_picked)
+        self.control_picker.currentIndexChanged.connect(
+            lambda _index: self._on_control_picked(
+                (self.control_picker.currentData() or self.control_picker.currentText())))
         plates.addWidget(self.control_picker)
         plates.addWidget(QLabel("Positive control wells", self))
         self.positive_picker = QComboBox(self)
@@ -608,7 +616,7 @@ class DoseResponseScreen(QWidget):
         self._refill(self.plate_picker,
                      [_NO_COLUMN] + [str(name) for name in frame.columns])
         self._refill(self.control_picker, [_NO_COLUMN] + groups)
-        self._on_control_picked(self.control_picker.currentText())
+        self._on_control_picked((self.control_picker.currentData() or self.control_picker.currentText()))
         self._refill(self.host_picker, [_NO_COLUMN] + list(responses))
         self._refill(self.second_dose_picker, [_NO_COLUMN] + list(doses))
         self._plate_reports = ()
@@ -641,18 +649,30 @@ class DoseResponseScreen(QWidget):
         than that — the screen refuses to guess hard enough to fit anything
         without being asked, because a curve through the wrong pair of columns
         is worse than an empty axis.
+
+        Every entry carries its value as item data, and handlers read
+        ``currentData()``. The language pass rewrites a dropdown's item text by
+        exact catalog match, so a column called ``gene`` or an untouched
+        "(none)" read back as text reached the fit translated -- "gène" and
+        "(Aucune)" on a French screen, neither of which the table has. Only
+        the sentinels in ``_SENTINELS`` are offered to that pass; a column name
+        is recorded as an empty source, which it leaves alone. An entry
+        added without data is read by its caption, as before.
         """
         options = list(values)
-        previous = picker.currentText()
+        previous = picker.currentData() or picker.currentText()
         picker.blockSignals(True)
         picker.clear()
-        picker.addItems(options)
+        for value in options:
+            picker.addItem(tr(value) if value in _SENTINELS else value, value)
+        picker._spacr_i18n_item_sources = [
+            value if value in _SENTINELS else "" for value in options]
         if previous and previous in options:
-            picker.setCurrentText(previous)
+            picker.setCurrentIndex(options.index(previous))
         elif prefer:
-            for name in options:
+            for index, name in enumerate(options):
                 if any(hint in str(name).lower() for hint in prefer):
-                    picker.setCurrentText(name)
+                    picker.setCurrentIndex(index)
                     break
         picker.blockSignals(False)
 
@@ -676,12 +696,12 @@ class DoseResponseScreen(QWidget):
         :raises DoseResponseError: when the columns are chosen but a control
             level is not, with the engine's sentence saying which.
         """
-        plate = self.plate_picker.currentText()
-        control = self.control_picker.currentText()
+        plate = (self.plate_picker.currentData() or self.plate_picker.currentText())
+        control = (self.control_picker.currentData() or self.control_picker.currentText())
         if plate in ("", _NO_COLUMN) or control in ("", _NO_COLUMN):
             return None
-        positive = self.positive_picker.currentText()
-        negative = self.negative_picker.currentText()
+        positive = (self.positive_picker.currentData() or self.positive_picker.currentText())
+        negative = (self.negative_picker.currentData() or self.negative_picker.currentText())
         return PlateSpec(plate=plate, control=control,
                          positive=(positive,) if positive else (),
                          negative=(negative,) if negative else ())
@@ -704,72 +724,88 @@ class DoseResponseScreen(QWidget):
             zprime = row["zprime"]
             shown = "—" if zprime is None or not np.isfinite(zprime) \
                 else f"{zprime:.2f}"
-            verdict = "usable" if report.usable else "refused"
-            line = f"{row['plate']}: {verdict}, Z′ {shown}"
+            if report.usable:
+                line = tr("{plate}: usable, Z′ {zprime}",
+                          plate=row["plate"], zprime=shown)
+            else:
+                line = tr("{plate}: refused, Z′ {zprime}",
+                          plate=row["plate"], zprime=shown)
             if not report.usable and row["note"]:
                 line += f" — {row['note']}"
             lines.append(line)
         if lines and self._pooled:
             lines.append("")
         for group, pooled in self._pooled.items():
-            name = group or "all rows"
+            name = group or tr("all rows")
             if isinstance(pooled, str):
-                lines.append(f"{name}: not pooled — {pooled}")
+                lines.append(tr("{name}: not pooled — {reason}",
+                                name=name, reason=pooled))
                 continue
             row = pooled.summary_row()
             if row["status"] != STATUS_FITTED:
-                lines.append(f"{name}: not pooled — {row['note']}")
+                lines.append(tr("{name}: not pooled — {reason}",
+                                name=name, reason=row["note"]))
                 continue
             i_squared = row["i_squared"]
             spread = "—" if not np.isfinite(i_squared) else f"{i_squared:.0%}"
             unit = f" {row['unit']}" if row["unit"] else ""
-            line = (f"{name}: pooled EC50 {_format(row['ec50'])}{unit} "
-                    f"({_format(row['ec50_low'])}–{_format(row['ec50_high'])}) "
-                    f"across {row['n_used']} of {row['n_plates']} plates, "
-                    f"I² {spread}")
+            line = tr("{name}: pooled EC50 {ec50}{unit} ({low}–{high}) across "
+                      "{used} of {plates} plates, I² {spread}",
+                      name=name, ec50=_format(row["ec50"]), unit=unit,
+                      low=_format(row["ec50_low"]),
+                      high=_format(row["ec50_high"]),
+                      used=row["n_used"], plates=row["n_plates"],
+                      spread=spread)
             if not pooled.reproducible:
-                line += ", plates disagree"
+                line = tr("{line}, plates disagree", line=line)
             if row["note"]:
                 line += f" — {row['note']}"
             lines.append(line)
         if lines and self._selectivity:
             lines.append("")
         for group, index in self._selectivity.items():
-            name = group or "all rows"
+            name = group or tr("all rows")
             row = index.summary_row()
             if row["status"] == STATUS_REFUSED:
-                lines.append(f"{name}: no selectivity index — {row['note']}")
+                lines.append(tr("{name}: no selectivity index — {reason}",
+                                name=name, reason=row["note"]))
                 continue
-            line = (f"{name}: selectivity index "
-                    f"{_format(row['selectivity_index'])} "
-                    f"({_format(row['si_low'])}–{_format(row['si_high'])}), "
-                    f"host EC50 {_format(row['host_ec50'])} over response "
-                    f"EC50 {_format(row['pathogen_ec50'])}")
+            line = tr("{name}: selectivity index {index} ({low}–{high}), "
+                      "host EC50 {host} over response EC50 {response}",
+                      name=name, index=_format(row["selectivity_index"]),
+                      low=_format(row["si_low"]), high=_format(row["si_high"]),
+                      host=_format(row["host_ec50"]),
+                      response=_format(row["pathogen_ec50"]))
             if row["note"]:
                 line += f" — {row['note']}"
             lines.append(line)
         for group, surface in self._synergy.items():
             if lines and lines[-1] != "":
                 lines.append("")
-            name = group or "all rows"
+            name = group or tr("all rows")
             if isinstance(surface, str):
-                lines.append(f"{name}: no synergy surface — {surface}")
+                lines.append(tr("{name}: no synergy surface — {reason}",
+                                name=name, reason=surface))
                 continue
             summary = surface.summary()
             model = "Bliss" if surface.model == SYNERGY_BLISS else "Loewe"
             note = f" — {summary['note']}" if summary.get("note") else ""
             if not summary["n_cells"]:
-                lines.append(f"{name}: no combination well could be scored "
-                             f"against {model}{note}")
+                lines.append(tr("{name}: no combination well could be scored "
+                                "against {model}", name=name, model=model)
+                             + note)
                 continue
-            lines.append(
-                f"{name}: {model} excess over {summary['n_cells']} "
-                f"combination wells, max {summary['max_excess']:+.2f} at "
-                f"{_format(summary['max_at_dose_a'])} + "
-                f"{_format(summary['max_at_dose_b'])}, min "
-                f"{summary['min_excess']:+.2f}; "
-                f"{summary['synergistic_cells']} synergistic, "
-                f"{summary['antagonistic_cells']} antagonistic{note}")
+            lines.append(tr(
+                "{name}: {model} excess over {cells} combination wells, max "
+                "{max} at {dose_a} + {dose_b}, min {min}; {synergistic} "
+                "synergistic, {antagonistic} antagonistic",
+                name=name, model=model, cells=summary["n_cells"],
+                max=f"{summary['max_excess']:+.2f}",
+                dose_a=_format(summary["max_at_dose_a"]),
+                dose_b=_format(summary["max_at_dose_b"]),
+                min=f"{summary['min_excess']:+.2f}",
+                synergistic=summary["synergistic_cells"],
+                antagonistic=summary["antagonistic_cells"]) + note)
             lines.extend(_excess_grid(surface))
         if not lines:
             return text
@@ -847,10 +883,10 @@ class DoseResponseScreen(QWidget):
 
     def spec(self) -> DoseResponseSpec:
         """The spec the controls currently describe."""
-        group = self.group_picker.currentText()
+        group = (self.group_picker.currentData() or self.group_picker.currentText())
         return DoseResponseSpec(
-            concentration=self.concentration_picker.currentText(),
-            response=self.response_picker.currentText(),
+            concentration=(self.concentration_picker.currentData() or self.concentration_picker.currentText()),
+            response=(self.response_picker.currentData() or self.response_picker.currentText()),
             group=None if group in ("", NO_GROUP) else group,
             ci_method=self.ci_picker.currentData() or CI_PROFILE,
             unit=self.unit_edit.text().strip(),
@@ -863,13 +899,13 @@ class DoseResponseScreen(QWidget):
         try:
             spec = self.spec()
             plate_spec = self._plate_spec()
-            plate_column = self.plate_picker.currentText()
+            plate_column = (self.plate_picker.currentData() or self.plate_picker.currentText())
             plate_column = (None if plate_column in ("", _NO_COLUMN)
                             else plate_column)
-            host_column = self.host_picker.currentText()
+            host_column = (self.host_picker.currentData() or self.host_picker.currentText())
             host_column = (None if host_column in ("", _NO_COLUMN)
                            else host_column)
-            second_dose = self.second_dose_picker.currentText()
+            second_dose = (self.second_dose_picker.currentData() or self.second_dose_picker.currentText())
             second_dose = (None if second_dose in ("", _NO_COLUMN)
                            else second_dose)
             synergy_model = self.synergy_picker.currentData() or SYNERGY_BLISS
@@ -924,6 +960,7 @@ class DoseResponseScreen(QWidget):
                 self.table.setItem(row, column, item)
         self.table.resizeColumnsToContents()
         if len(rows):
+            self.table.clearSelection()
             self.table.selectRow(0)
         else:
             self.report.setPlainText(self._with_plates(result.report()))
@@ -952,7 +989,8 @@ class DoseResponseScreen(QWidget):
             self.report.setPlainText(self._with_plates(fit.result.report()))
         else:
             self.report.setPlainText(self._with_plates(
-                f"{fit.group or 'all rows'}: REFUSED\n\n{fit.error}"))
+                tr("{name}: REFUSED", name=fit.group or tr("all rows"))
+                + f"\n\n{fit.error}"))
         self._draw(index)
 
     def _draw(self, selected: Optional[int]) -> None:
@@ -980,9 +1018,10 @@ class DoseResponseScreen(QWidget):
         axes.tick_params(colors=palette["fg_muted"], labelsize=8, length=3)
 
         if self._set is None or not self._set.results():
-            axes.set_xlabel("concentration", color=palette["fg_muted"],
+            axes.set_xlabel(tr("concentration"), color=palette["fg_muted"],
                             fontsize=9)
-            axes.set_ylabel("response", color=palette["fg_muted"], fontsize=9)
+            axes.set_ylabel(tr("response"), color=palette["fg_muted"],
+                            fontsize=9)
             self.canvas.draw_idle()
             return
 
@@ -996,7 +1035,7 @@ class DoseResponseScreen(QWidget):
             focused = (selected is None or index == selected)
             axes.plot(result.dose, result.response, "o", color=colour,
                       markersize=4, alpha=0.9 if focused else 0.25,
-                      label=(fit.group or "all rows"))
+                      label=(fit.group or tr("all rows")))
             x, y = result.curve()
             axes.plot(x, y, "-", color=colour, linewidth=1.8 if focused else 0.9,
                       alpha=1.0 if focused else 0.3)
@@ -1011,9 +1050,9 @@ class DoseResponseScreen(QWidget):
                 axes.set_xlim(limits)
 
         unit = f" ({spec.unit})" if spec.unit else ""
-        axes.set_xlabel(f"{spec.concentration or 'concentration'}{unit}",
+        axes.set_xlabel(f"{spec.concentration or tr('concentration')}{unit}",
                         color=palette["fg_muted"], fontsize=9)
-        axes.set_ylabel(spec.response or "response",
+        axes.set_ylabel(spec.response or tr("response"),
                         color=palette["fg_muted"], fontsize=9)
         if len(self._set.results()) > 1:
             legend = axes.legend(fontsize=7, frameon=False, loc="best")

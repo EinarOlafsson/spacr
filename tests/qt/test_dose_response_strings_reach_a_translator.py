@@ -100,3 +100,140 @@ def test_every_wrapped_string_is_a_source_the_generator_collects():
     text = (ROOT / "tools" / "build_i18n_catalogs.py").read_text(encoding="utf-8")
     assert "ui_sources.update(_DOSE_RESPONSE_UI_SOURCES)" in text
     assert {"Group", "Status", "refused"} <= _DOSE_RESPONSE_UI_SOURCES
+
+
+# -- the report pane, the plot and the whole-table item ----------------------
+#
+# Found by the home session's catalog pass: these reached the screen as
+# f-strings and a plain constant, so every language showed them in English.
+
+REPORT_TEMPLATES = (
+    "{plate}: usable, Z′ {zprime}",
+    "{plate}: refused, Z′ {zprime}",
+    "{name}: not pooled — {reason}",
+    "{name}: pooled EC50 {ec50}{unit} ({low}–{high}) across {used} of "
+    "{plates} plates, I² {spread}",
+    "{line}, plates disagree",
+    "{name}: no selectivity index — {reason}",
+    "{name}: selectivity index {index} ({low}–{high}), host EC50 {host} "
+    "over response EC50 {response}",
+    "{name}: no synergy surface — {reason}",
+    "{name}: no combination well could be scored against {model}",
+    "{name}: {model} excess over {cells} combination wells, max {max} at "
+    "{dose_a} + {dose_b}, min {min}; {synergistic} synergistic, "
+    "{antagonistic} antagonistic",
+    "{name}: REFUSED",
+)
+
+
+def _lines(widget):
+    return widget.report.toPlainText().splitlines()
+
+
+def test_the_plate_and_pooled_lines_go_through_tr(qtbot, marked):
+    import numpy as np
+    from tests.qt.test_dose_response_normalises_to_each_plate import _plate
+
+    rng = np.random.default_rng(20260915)
+    table = pd.concat([_plate("P1", 1000.0, 100.0, rng),
+                       _plate("P2", 2000.0, 200.0, rng),
+                       _plate("P3", 1500.0, 150.0, rng, with_negative=False)],
+                      ignore_index=True)
+    widget = DoseResponseScreen(threaded=False)
+    qtbot.addWidget(widget)
+    widget.set_frame(table, label="three plates")
+    widget.concentration_picker.setCurrentText("conc_uM")
+    widget.response_picker.setCurrentText("signal")
+    widget.group_picker.setCurrentText("gene")
+    widget.plate_picker.setCurrentText("plate")
+    widget.control_picker.setCurrentText("role")
+
+    widget.fit()
+
+    lines = _lines(widget)
+    assert any(line.startswith("⟦P1: usable, Z′ ") for line in lines), lines
+    assert any(line.startswith("⟦P3: refused, Z′ ") for line in lines), lines
+    assert any(line.startswith("⟦geneA: pooled EC50 ") for line in lines), lines
+
+
+def test_the_selectivity_lines_go_through_tr(qtbot, marked):
+    import numpy as np
+    from tests.qt.test_dose_response_selectivity_index import (
+        DOSES, REPLICATES, _kill,
+    )
+
+    rng = np.random.default_rng(20260915)
+    dose = np.repeat(DOSES, REPLICATES)
+    table = pd.concat([pd.DataFrame({
+        "gene": gene, "conc_uM": dose,
+        "parasite_killed": _kill(1.0, rng, dose),
+        "host_killed": _kill(host_ec50, rng, dose)})
+        for gene, host_ec50 in (("geneA", 10.0), ("geneB", None))],
+        ignore_index=True)
+    widget = DoseResponseScreen(threaded=False)
+    qtbot.addWidget(widget)
+    widget.set_frame(table, label="two compounds")
+    widget.concentration_picker.setCurrentText("conc_uM")
+    widget.response_picker.setCurrentText("parasite_killed")
+    widget.group_picker.setCurrentText("gene")
+    widget.host_picker.setCurrentText("host_killed")
+
+    widget.fit()
+
+    lines = _lines(widget)
+    assert any(line.startswith("⟦geneA: selectivity index ")
+               for line in lines), lines
+    assert any(line.startswith("⟦geneB: no selectivity index — ")
+               for line in lines), lines
+
+
+def test_the_synergy_line_goes_through_tr(qtbot, marked):
+    from tests.qt.test_dose_response_scores_a_checkerboard import (
+        _board, _screen,
+    )
+
+    widget = _screen(qtbot, _board())
+    widget.second_dose_picker.setCurrentText("cmpd_b_uM")
+
+    widget.fit()
+
+    assert any(line.startswith("⟦⟦all rows⟧: Bliss excess over ")
+               for line in _lines(widget)), _lines(widget)
+
+
+def test_a_refusal_the_plot_and_the_whole_table_item_go_through_tr(
+        qtbot, frame, marked):
+    widget = DoseResponseScreen(threaded=False)
+    qtbot.addWidget(widget)
+    widget.set_frame(frame, label="synthetic")
+
+    axes = widget._figure.axes[0]
+    assert axes.get_xlabel() == "⟦concentration⟧"
+    assert axes.get_ylabel() == "⟦response⟧"
+    assert widget.group_picker.itemText(0) == f"⟦{screen_module.NO_GROUP}⟧"
+    assert widget.group_picker.itemData(0) == screen_module.NO_GROUP
+
+    widget.concentration_picker.setCurrentText("conc_uM")
+    widget.response_picker.setCurrentText("signal")
+    widget.group_picker.setCurrentText("gene")
+    widget.fit()
+    widget.show_group(2)
+    assert widget.report.toPlainText().startswith("⟦geneC: REFUSED⟧")
+
+    widget.group_picker.setCurrentIndex(0)
+    widget.fit()
+    labels = [line.get_label() for line in widget._figure.axes[0].get_lines()]
+    assert "⟦all rows⟧" in labels, labels
+
+
+def test_the_report_and_plot_templates_are_sources_the_generator_collects():
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        import build_i18n_catalogs as generator
+    finally:
+        sys.path.remove(str(ROOT / "tools"))
+
+    literal = set(generator.extract_static_ui_sources())
+    for source in (*REPORT_TEMPLATES, "concentration", "response"):
+        assert source in literal, source
+    assert screen_module.NO_GROUP in _DOSE_RESPONSE_UI_SOURCES
