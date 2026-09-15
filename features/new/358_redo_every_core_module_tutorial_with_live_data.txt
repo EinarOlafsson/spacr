@@ -1154,3 +1154,14 @@ picked up cold:
       checks, matching sources".
     Steps 5-6 (1440p rendition, web-rendition playback) running; then the
     release candidate.
+  POST-VOICE CHAIN STEPS 5-6 PASSED (chain exit 0 at 08:06:33):
+    5 stage_one: 1440p rendition accepted, 6,139,064 bytes, 10,101 frames,
+      every presentation time matching, full decode passed (92.6 s);
+      master c9135f6f..., rendition bd486083.... The 09-11 copy
+      is in production/07_mask/pre-2026-09-15/web-renditions/.
+    6 verify_staged_lesson.py --web-rendition: passed, 16 scenes; clocks audio
+      105.465 / video 105.306 / expected 105.464 s (0.157 s apart, limit 0.5).
+  07_MASK STATE: captured (fresh copy), composed, English staged, 13
+    reviews applied, 50 voices, audio decoded, 14 browser checks, master,
+    matrix, 1440p rendition and web playback all PASSED. Release candidate
+    build + verify_release_candidate running.
