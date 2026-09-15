@@ -85,3 +85,128 @@ HOW TO KNOW IT WORKED
   * DINOCell (and SAMCell) are selectable detectors where installed, with a
     clear message where not; YOLO is either added or recorded here with why not.
   * New labels and tooltips are translated in all nine languages.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- PARTS 1-4, 7-10 BUILT
+--------------------------------------------------------------------------------
+
+Branch wip/417-settings-models, cut from nightly 884eacaab, not pushed. Parts
+5 and 6 (click-and-drag, what is saved) are another agent's, in their own
+module; nothing here touches _MaskCanvas's mouse press/move/release handlers.
+
+WHAT EACH PART DOES NOW
+
+  1. BOX SIZE. The Size box's range is (32, 512) only while no field is open.
+     When a field opens, the canvas calls _LiveMagnifier.forget() with the new
+     field in place, which emits size_range_changed; the range becomes (32,
+     the field's LONGER side) -- the box is square -- and a size past it is
+     clamped, in the box and in the magnifier. A field smaller than 32 px
+     lowers the floor with it, so the range is never empty.
+  2. COLLAPSIBLE CATEGORIES. All seven categories (Brush, Magic wand, Display,
+     Auto-filter objects, Object operations, Cellpose-SAM, Live magnifier) are
+     the core applications' own spacr.qt.widgets.section.Section: SectionCard,
+     the chevron SectionHeader with the uppercase translated title, a click
+     that folds the body. They START OPEN, unlike a core module's -- this is the
+     editor's tool column, used between strokes -- and what the user folds is
+     remembered through preferences.set_section_layout("make_masks/settings")
+     and restored next visit; unfolding is remembered too.
+  3. CELLPOSE MODELS. The Cellpose-SAM Model box lists the installed Cellpose
+     (cpsam first) and every Cellpose entry in the model zoo, read without
+     waiting on the network. A zoo model on this machine is listed by its zoo
+     key and carries its path; one not downloaded is greyed out, with no path
+     -- a combo box is not where a gigabyte download should start. The zoo's
+     YOLO well detector is not listed. "Model zoo…" beside the box opens the
+     same picker as the live preview's, restricted to kinds=("cellpose",),
+     rebuilds the zoo rows (so a model just downloaded becomes selectable) and
+     selects the pick.
+  4. THRESHOLDS. The flow threshold and cell-probability threshold are the
+     Cellpose-SAM category's existing boxes (defaults FLOW_THRESHOLD 0.4 and
+     CELLPROB_THRESHOLD 0.0; ranges 0-10 and -12..12, which hold Cellpose's
+     own GUI ranges), and they are now what the magnifier's Cellpose call gets.
+  7. OTSU. "Otsu threshold correction" (0.10-5.00, default 1.00) in the
+     Cellpose-SAM category: a threshold correction factor in CellProfiler's
+     sense -- Otsu's level is multiplied by it. Otsu detect applies it through
+     mask_engine._otsu_instances (dark objects are measured on the inverted
+     image, so above 1 is stricter on either side; exactly 1 is otsu_instances
+     itself). The magnifier's Classical mode applies it to its Otsu cut
+     (_classical_region_labels(correction=)). A region that is not two clear
+     populations is cut at its noise floor, which is not Otsu's level, and the
+     correction does not apply there; the tooltip says so.
+  8. SHIFT + SCROLL. With the magnifier on, Shift + wheel over the canvas steps
+     the size by the canvas's Zoom per notch (at least 1 px), clamped to the
+     range, and the Size box follows. It never zooms the view or the box. A
+     sideways notch counts, for platforms that send Shift + wheel
+     horizontally. Plain wheel, and any wheel with the magnifier off, is as
+     item 407 left it. Built in wheelEvent.
+  9. ONE SOURCE OF TRUTH. The magnifier reads the Cellpose-SAM category's
+     model, flow threshold, cell probability, diameter and normalization, and
+     the Otsu correction, through _magnifier_context; _MagnifierRequest carries
+     them; the Cellpose segmenter passes them to cellpose_detect exactly as
+     Cellpose-SAM detect does. The old FLOW_THRESHOLD constant and
+     "-sensitivity" are gone from that call. The magnifier's Sensitivity is now
+     the Classical mode's only, and is greyed out in any other mode. Changing
+     any of these discards whole-image objects and re-segments. A sentence in
+     the category says which magnifier mode reads which setting, and ledger
+     entries record the thresholds, model, diameter and correction.
+ 10. OTHER MODELS. DINOCell and SAMCell are Mode choices wherever their
+     packages are installed; where not, the Live magnifier category shows a
+     line per missing model naming its extra (pip install "spacr[dinocell]" /
+     "spacr[samcell]"). Both run through spacr._segmentation_backends
+     ._load_backend -- the loader segmentation_backend uses -- built once per
+     process, and their eval answers cellpose_detect's call, so DINOCell gets
+     the category's cell probability and SAMCell uses its own thresholds. One
+     that is installed but cannot build falls back to Classical, and the
+     status line carries the backend's own message naming the extra.
+
+YOLO: NOT ADDED, AND WHY
+
+  * There are no weights to run. The zoo's only YOLO,
+    yolo_welldetect_v3.pt, is a box DETECTOR of plate wells: no masks, not
+    cells. Ultralytics' stock -seg checkpoints are trained on COCO classes
+    (person, car, ...) and do not segment cells or vacuoles, so a live YOLO
+    mode today would be a choice that finds nothing useful.
+  * The dependency is feasible as an optional extra -- ultralytics is already
+    spacr[plaque], imported function-locally by spacr/plaque.py, and absent
+    from the dev environment -- but it is AGPL-3.0 against spaCR's BSD-3, a
+    reason not to lean on it further for a mode with no model.
+  * When a cell instance-segmentation YOLO checkpoint exists in the zoo, it is
+    one segmenter in _MAGNIFIER_SEGMENTERS plus a find_spec("ultralytics")
+    offer, the same shape as DINOCell and SAMCell.
+
+EVIDENCE
+
+  * tests/qt/test_the_magnifier_round_two_settings.py, 25 tests, each part's
+    red on the commit before it (the two stand-in signature checks excepted,
+    which are meant to pass either way). The spy test sets flow 0.85, cell
+    probability -2.5, diameter 37, normalize off and a zoo checkpoint in the
+    category and asserts the region call, the whole-image call and
+    Cellpose-SAM detect each receive exactly those values and that model.
+    Shift + wheel grows the box to the 64 px image and stops, shrinks it to 32
+    and stops. The DINOCell/SAMCell tests register a real _PlaneBackend
+    subclass in _BACKEND_CLASSES and go through the real _load_backend, eval,
+    parse and cellpose_detect.
+  * The 24 Make Masks files (the 23 named for make_masks, magnifier or
+    mask_engine, plus the new one), serial, offscreen, CI's pytest 8: 605
+    passed, 1 skipped (the opt-in real-Cellpose test), 1 failed --
+    test_every_help_string_on_the_panel_has_an_exact_catalog_row, which waits
+    on the catalogs (below). Before this branch: 581 passed, 1 skipped.
+  * Twelve reviewed runtime records in nine languages, hand-written, in
+    2026-09-15-magnifier-round-two-settings.json; three reworded captions'
+    old records retired (27). check_reviewed_runtime_evidence: 3117 checked,
+    clean. Swedish and French pins moved by subtraction.
+  * Not run: a real Cellpose or DINOCell call through the screen on the GPU
+    (tests use stand-ins checked against the real signatures), and the 380
+    responsiveness harness.
+
+WHAT IS LEFT
+
+  * THE CATALOGS. spacr/qt/i18n_catalogs was not regenerated here, by
+    instruction. Until the home session does, test_i18n_caption_ratchet's two
+    source-hash tests (UI 3527 -> 3536) and the panel's exact-catalog-row test
+    fail. "DINOCell" and "SAMCell" are now builder _IDENTITY_TEXT, so the
+    regeneration keeps them as names.
+  * CATALOG ROWS FOUND WRONG while matching UI names, not fixed here: is
+    "Model zoo…" = Góðursjöllun..., is "Cell probability" = Hugsanlegur
+    sjúkdómur (possible disease), hi "Otsu detect" = "detect Osama", zh_CN
+    "Otsu detect" = Oscar detection, and "Min area:" as "my area" in is, hi, ko
+    and zh_CN. The new tooltips keep those names in English there.
