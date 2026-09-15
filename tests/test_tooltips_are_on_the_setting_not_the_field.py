@@ -249,3 +249,70 @@ def test_a_field_with_no_label_keeps_its_tooltip(qtbot):
 
     retarget_field_tooltips(host)
     assert lone.toolTip() == "The only help this control has."
+
+
+def test_a_greyed_note_does_not_hand_the_help_back_to_the_field(qtbot):
+    """THE PASS RAN AND SOMETHING PUT IT BACK, ON TWO WHOLE SCREENS.
+
+    `retarget_field_tooltips` moved the help at screen-open and then
+    `_refresh_setting_dependencies` -- two event-loop turns later, via
+    `_apply_greyed_note`/`_clear_greyed_note` -- restored every moved
+    tooltip onto the editor it had just been taken off.
+
+    MEASURED on a real MainWindow before the fix, counting rows the user
+    can reach and skipping isHidden():
+
+        regression        30 on the field, 28 of them with a proper name
+        classify_merged   28 on the field, 27 of them with a proper name
+        mask / measure     0 with a name -- those screens were already clean
+
+    which is why this looked fixed: the two screens anyone checked were.
+
+    THE MECHANISM, and it is a reasonable-looking line. The retarget ends
+    with `field.setToolTip("")` and marks the field
+    `apiTooltipDisplayRole = "metadata"`, but LEAVES `apiTooltipHtml` on it
+    as the source the label's copy was made from. `_clear_greyed_note` read
+    that property and called `setToolTip` with it -- restoring help that was
+    deliberately moved.
+
+    Both note functions now ask :func:`_help_lives_on_the_label` first.
+    """
+    from spacr.qt.screens.power import PowerScreen
+    from spacr.qt.screens.settings_model import (
+        _apply_greyed_note, _clear_greyed_note, _sibling_label_for,
+        retarget_field_tooltips)
+
+    screen = PowerScreen()
+    qtbot.addWidget(screen)
+    screen.resize(900, 700)
+
+    field = next(c for c in screen.findChildren(QWidget)
+                 if isinstance(c, EDITORS) and _sibling_label_for(c))
+    label = _sibling_label_for(field)
+    label.setToolTip("")
+    field.setToolTip("Help that belongs on the label.")
+    field.setProperty("apiTooltipDescriptionSource", field.toolTip())
+    field.setProperty("apiTooltipDescription", field.toolTip())
+    field.setProperty("apiTooltipHtml", "")
+    assert retarget_field_tooltips(screen) >= 1
+    assert field.toolTip() == "", "the retarget did not move it"
+    moved_help = label.toolTip()
+    assert moved_help, "the label did not receive it"
+
+    # Now the dependency refresh greys it out and un-greys it, which is what
+    # runs two turns after every screen open.
+    field._spacr_setting_label = label
+    _apply_greyed_note(field, "Not used by the 'x' classifier.")
+    assert field.toolTip() == "", (
+        "greying the row put the help back on the field; the user hovers "
+        "the name, which is what instruction 289 asks for")
+    assert "Not used by" in label.toolTip(), (
+        "the reason a control is disabled must still reach the user, and "
+        "the name is where it now belongs")
+
+    _clear_greyed_note(field)
+    assert field.toolTip() == "", (
+        "un-greying the row put the help back on the field -- this is the "
+        "exact line that undid the pass on regression and classify_merged")
+    assert label.toolTip() == moved_help, (
+        "un-greying must restore the label's help exactly as it was")

@@ -42,3 +42,114 @@ VERIFY the way the user meets it: drive a real MainWindow, count reachable
 rows (skip isHidden()), and assert help-on-the-field is zero. Counting
 `_widgets` is misleading -- touching it materialises lazy widgets that were
 never placed, which is what made an earlier count read 1,551.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- RE-MEASURED. THE PASS WAS WORKING AND SOMETHING PUT IT BACK.
+--------------------------------------------------------------------------------
+
+The note above says "STILL OPEN: 93 reachable rows whose form row has NO label
+item at all". THAT IS FIXED and the file did not say so. Re-measured the way
+this file asks -- a real MainWindow, rows the user can reach, isHidden()
+skipped:
+
+    mask       help on the FIELD 3      help on the NAME 103
+    measure                      1                        53
+    umap                         0                        59
+
+and mask's remaining three are a "Load test data…" BUTTON and two Toggles that
+carry their own caption -- widgets with no separate name to hover, so help on
+them IS help on the name. The 93 unpaired rows are 9, and all 9 are
+SectionCards, Toggles and a QPushButton.
+
+BUT TWO SCREENS WERE STILL WRONG, and nobody had measured them:
+
+    regression        30 on the field, 28 of them WITH a proper name label
+    classify_merged   28 on the field, 27 of them WITH a proper name label
+
+That is a different defect from the one this file describes, and it is why
+289 kept being reported as done: the two screens anyone checked were clean.
+
+--------------------------------------------------------------------------------
+WHAT WAS ACTUALLY WRONG
+--------------------------------------------------------------------------------
+
+The pass runs at screen-open and works. TWO EVENT-LOOP TURNS LATER SOMETHING
+PUTS THE HELP BACK. Timed it:
+
+    processEvents after nav      rows   on field   labelled+on field
+              0                    83          2                   0
+              1                    83          2                   0
+              2                    83         30                  28
+
+The row count never moves -- 83 throughout -- so these are not lazy rows
+arriving late. The rows were always there and their tooltips were re-assigned.
+
+Caught the caller by wrapping `QWidget.setToolTip` and keeping the stack:
+
+    28x  settings_model._clear_greyed_note
+           <- _apply_greyed_note <- _refresh_setting_dependencies
+           <- _refresh_contextual_widgets / _refresh_after_bulk_apply
+
+THE LINE. `retarget_field_tooltips` ends with `field.setToolTip("")` and marks
+the field `apiTooltipDisplayRole = "metadata"`, but it LEAVES `apiTooltipHtml`
+on the field -- that property is the SOURCE the label's copy was made from,
+not a tooltip the field should show. `_clear_greyed_note` read it and called
+`setToolTip` with it:
+
+    restored = control.property("apiTooltipHtml")
+    if restored:
+        control.setToolTip(restored)          # <- undoes the pass
+
+and `_apply_greyed_note` did the same when greying a row.
+
+FIXED by `_help_lives_on_the_label`, which both note functions now ask first.
+
+    regression        30 -> 2 on the field, 28 -> 0 labelled-and-on-the-field
+    classify_merged   28 -> 1,              27 -> 0
+    mask / measure / umap unchanged
+
+AND THE FEATURE THEY EXIST FOR IS INTACT, which was the thing to check rather
+than assume -- a greyed setting must still say why:
+
+    regression        28 disabled rows, 28 explain themselves ON THE NAME, 0 on the field
+    classify_merged   27 disabled rows, 27 on the name, 0 on the field
+
+165 existing tooltip and greyed-state tests pass. The new test is mutation-
+verified against both halves of the fix.
+
+--------------------------------------------------------------------------------
+ALL 45 SCREENS MEASURED, AND ONE WIDGET IS LEFT
+--------------------------------------------------------------------------------
+
+The lesson of this item is that it read as done for a month because the
+screens anyone measured were the clean ones. So all forty-five registry
+modules were driven through one MainWindow and counted, not six.
+
+    screens measured                                      45
+    screens with a LABELLED row whose help is on the field  1
+
+    the one:  control_chart, a QListWidget named "Control is"
+
+Every other screen is 0. The remaining field-help elsewhere is on widgets
+with no separate name to hover -- "Load test data…" buttons, self-captioned
+Toggles, a gate-editor control -- where hovering the widget IS hovering its
+name, which is what the maintainer asked for.
+
+WHY THAT ONE IS NOT FORCED. It has `settingKey=None`. `_is_a_settings_field`
+says outright that "carrying a `settingKey` is the definitive mark of 'this
+widget is a setting's field', whatever it was built from", and that predicate
+guards the pass on all forty-five screens. Widening it to catch one bespoke
+list -- by adding QListWidget to the editor types, or by dropping the
+settingKey gate -- puts every screen at risk to fix one row, and the last
+time this item was "fixed" broadly it silently regressed two screens.
+
+THE FIX, when someone takes it, is at the control_chart screen and not in the
+predicate: give that list a `settingKey` like every other setting, or have the
+screen move the help itself the way `gate_search_panel`, `umap_explorer`,
+`graph_builder` and `model_zoo_picker` already do -- each calls
+`retarget_field_tooltips(self)` at the end of its own __init__.
+
+So 289 is one widget from done, and the widget is named.
+
+The probe is `scratchpad/hover_all.py`: one process, one MainWindow, all
+forty-five keys, about four minutes. Run it before claiming this closed.

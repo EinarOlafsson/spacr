@@ -5623,6 +5623,31 @@ def _family_note(family: str) -> str:
             f"kept and still saved.")
 
 
+def _help_lives_on_the_label(control) -> bool:
+    """True when :func:`retarget_field_tooltips` moved this field's help away.
+
+    THE ONE FACT BOTH NOTE FUNCTIONS HAVE TO RESPECT. That pass ends with
+
+        field.setToolTip("")
+        field.setProperty("apiTooltipDisplayRole", "metadata")
+
+    and leaves `apiTooltipHtml` on the field as the SOURCE the label's copy
+    was made from -- not as a tooltip the field should be showing. A caller
+    that reads `apiTooltipHtml` and calls `setToolTip` with it puts the help
+    back on the editor and undoes instruction 289 for that row.
+
+    Measured on regression and classify_merged before this existed: the
+    retarget moved 28 and 27 rows at screen-open, and two event-loop turns
+    later `_refresh_setting_dependencies` had put every one of them back --
+    so the maintainer, who has asked for this "i dont know how many times",
+    still met the help on the field on both screens.
+
+    :param control: the editor widget the note is about.
+    :returns: True when its help belongs to its name label now.
+    """
+    return str(control.property("apiTooltipDisplayRole") or "") == "metadata"
+
+
 def _apply_greyed_note(control, note: str) -> None:
     """Append a disabled-state note without replacing the setting help.
 
@@ -5632,7 +5657,8 @@ def _apply_greyed_note(control, note: str) -> None:
     _clear_greyed_note(control)
     base = control.property("apiTooltipHtml") or control.toolTip()
     control.setProperty(_BASIS_NOTE_PROPERTY, True)
-    control.setToolTip(f"{base}<br><i>{note}</i>" if base else note)
+    if not _help_lives_on_the_label(control):
+        control.setToolTip(f"{base}<br><i>{note}</i>" if base else note)
     control.setProperty(_PENDING_NOTE_PROPERTY, note)
     label = getattr(control, "_spacr_setting_label", None)
     if label is not None:
@@ -5671,7 +5697,7 @@ def _clear_greyed_note(control) -> None:
         return
     control.setProperty(_BASIS_NOTE_PROPERTY, False)
     restored = control.property("apiTooltipHtml")
-    if restored:
+    if restored and not _help_lives_on_the_label(control):
         control.setToolTip(restored)
     pending = str(control.property(_PENDING_NOTE_PROPERTY) or "")
     control.setProperty(_PENDING_NOTE_PROPERTY, None)
