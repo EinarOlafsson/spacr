@@ -499,6 +499,114 @@ def test_reviewed_api_blocks_are_exact_bound_accepted_only_evidence(
         builder.reviewed_api_block_translations(docs, "pt")
 
 
+def _reviewed_pt_block(tmp_path, monkeypatch, builder, label, source, target):
+    """Point the builder at one accepted Portuguese reviewed API record."""
+    import hashlib
+
+    reviewed = tmp_path / "reviewed"
+    (reviewed / "pt").mkdir(parents=True)
+    (reviewed / "pt" / "tail.json").write_text(json.dumps({
+        "schema": 1,
+        "language": "pt",
+        "records": [{
+            "label": label,
+            "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+            "source": source,
+            "context": builder._api_translation_source(source),
+            "translation": target,
+        }],
+    }), encoding="utf-8")
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+
+
+def test_plain_api_build_publishes_accepted_review_instead_of_decoding_it(
+    tmp_path, monkeypatch,
+):
+    """The plain build published English over an accepted reviewed record.
+
+    On 2026-09-15, 410's ``spacr.embeddings.embed_array#1`` shipped the
+    English context expansion in es, zh_CN, pt, ko and is. Each locale had
+    an accepted reviewed record for that block. ``_translate_api_documents``
+    never read reviewed evidence, the model's decode of that block failed,
+    and the fallback is the model input. The fake model here fails the same
+    way: it echoes its input, so decoding the reviewed block would publish
+    English again.
+    """
+    import build_documentation_i18n as builder
+
+    key = "spacr.example"
+    reviewed_block = "Return the processing session status."
+    target = "Retorna o estado da sessão de processamento."
+    other_block = "Keep the saved image."
+    other_target = "Mantém a imagem salva."
+    _reviewed_pt_block(
+        tmp_path, monkeypatch, builder, f"{key}#0", reviewed_block, target,
+    )
+    other_context = builder._api_translation_source(other_block)
+    captured = []
+
+    def echoing_translate(blocks, language, model_root, args, **kwargs):
+        blocks = list(blocks)
+        captured.append(blocks)
+        return {
+            block: other_target if block == other_context else block
+            for block in blocks
+        }
+
+    monkeypatch.setattr(builder, "_translate_blocks", echoing_translate)
+    translated = builder._translate_api_documents(
+        {key: f"{reviewed_block}\n\n{other_block}"}, "pt", tmp_path, object(),
+    )
+    assert captured == [[other_context]]
+    assert translated == {key: f"{target}\n\n{other_target}"}
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("a fully reviewed document must not load a model")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    assert builder._translate_api_documents(
+        {key: reviewed_block}, "pt", tmp_path, object(),
+    ) == {key: target}
+
+
+def test_plain_api_build_restores_accepted_review_over_reused_model_text(
+    tmp_path, monkeypatch,
+):
+    """Reuse keeps a stored entry whole, which must not outrank review.
+
+    A record written for a block whose English did not change leaves the
+    entry's hashes current, so ``reusable_api_translations`` hands back the
+    stored model text. The overlay replaces exactly the reviewed block and
+    returns every other entry unchanged.
+    """
+    import inspect
+
+    import build_documentation_i18n as builder
+
+    key = "spacr.example"
+    reviewed_block = "Return the processing session status."
+    target = "Retorna o estado da sessão de processamento."
+    other_target = "Mantém a imagem salva."
+    _reviewed_pt_block(
+        tmp_path, monkeypatch, builder, f"{key}#0", reviewed_block, target,
+    )
+    docs = {
+        key: f"{reviewed_block}\n\nKeep the saved image.",
+        "spacr.other": "Keep the other image.",
+    }
+    stored = {
+        key: f"Retorna o status da sessão.\n\n{other_target}",
+        "spacr.other": "Mantém a outra imagem.",
+    }
+    assert builder._reviewed_api_overlay(docs, stored, "pt") == {
+        key: f"{target}\n\n{other_target}",
+        "spacr.other": "Mantém a outra imagem.",
+    }
+    # The plain build is the caller that skipped review; hold it to the
+    # overlay rather than only the helper.
+    assert "_reviewed_api_overlay(" in inspect.getsource(builder.main)
+
+
 def test_reviewed_api_validation_waives_only_copied_prose_heuristics():
     import build_documentation_i18n as builder
 

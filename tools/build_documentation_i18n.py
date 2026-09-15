@@ -5583,13 +5583,30 @@ def _translate_api_documents(
     metadata.  Every model/cache lookup must use the exact contextual block
     whose hash is later written; otherwise an old translation of the raw
     canonical sentence could be relabelled as current after context changes.
+
+    ACCEPTED REVIEWED EVIDENCE IS PUBLISHED, NOT DECODED. Until 2026-09-15
+    this path never read ``docs/i18n/reviewed/api``: only
+    ``repair_api_translations`` and the audit did. So a plain build of a
+    changed symbol sent every block to the model, including blocks with an
+    accepted reviewed record, and published whatever came back. For 410's
+    ``spacr.embeddings.embed_array#1`` the decode failed in es, zh_CN, pt,
+    ko and is. The fallback is the model input, so those five catalogs
+    shipped the ENGLISH context expansion over a reviewed translation that
+    ``reviewed_api_block_translations`` accepted. The same build also
+    replaced zh_CN ``EmbeddingSpec.__post_init__#1``, whose older reviewed
+    record had been published verbatim until then. A reviewed record is
+    already bound to this block's source and context hashes and has passed
+    the reviewed gates, so it is the provenance ``write_language`` records.
     """
+    reviewed = reviewed_api_block_translations(documents, language)
     block_map: dict[str, tuple[list[str], list[tuple[str, object]]]] = {}
     translation_inputs: dict[str, str] = {}
     for key, value in documents.items():
         blocks, layout = translatable_blocks(value)
         block_map[key] = (blocks, layout)
         for block in blocks:
+            if block in reviewed:
+                continue
             contextual = _api_translation_source(block)
             if not _syntax_preserved(block, contextual):
                 raise ValueError(
@@ -5611,17 +5628,51 @@ def _translate_api_documents(
                 if current_context == contextual
             )
         ),
-    )
+    ) if translation_inputs else {}
     translations = {
         block: translated_context.get(contextual, block)
         for block, contextual in translation_inputs.items()
     }
+    translations.update(reviewed)
     return {
         key: rebuild_document(
             layout, [translations[block] for block in blocks],
         )
         for key, (blocks, layout) in block_map.items()
     }
+
+
+def _reviewed_api_overlay(
+    docs: Mapping[str, str], translations: Mapping[str, str], language: str,
+) -> dict[str, str]:
+    """Return reused API entries with every accepted reviewed block restored.
+
+    ``reusable_api_translations`` reuses a whole stored entry while its
+    source hashes are unchanged. That is also the usual moment to write a
+    reviewed record: one block the model got wrong in one locale, fixed
+    without touching the English. Reuse alone would keep the stored model
+    text over that record until someone ran ``--repair-api-blocks``, which
+    is the other half of the defect ``_translate_api_documents`` describes.
+    Only an entry with a block that differs is rebuilt. Every other entry is
+    returned byte for byte. On 2026-09-15 the block split and rebuild
+    reproduced all 94,797 stored catalog texts exactly.
+    """
+    reviewed = reviewed_api_block_translations(docs, language)
+    overlaid = dict(translations)
+    if not reviewed:
+        return overlaid
+    for key, text in translations.items():
+        source_blocks, _source_layout = translatable_blocks(docs[key])
+        target_blocks, target_layout = translatable_blocks(text)
+        if len(source_blocks) != len(target_blocks):
+            continue
+        restored = [
+            reviewed.get(source_block, target_block)
+            for source_block, target_block in zip(source_blocks, target_blocks)
+        ]
+        if restored != target_blocks:
+            overlaid[key] = rebuild_document(target_layout, restored)
+    return overlaid
 
 
 def write_language(
@@ -6625,8 +6676,8 @@ def main() -> int:
     for language in args.languages:
         pending = {}
         if not args.rebuild_readme:
-            reusable = {} if args.force else reusable_api_translations(
-                docs, language,
+            reusable = {} if args.force else _reviewed_api_overlay(
+                docs, reusable_api_translations(docs, language), language,
             )
             pending = {
                 key: source for key, source in docs.items()
