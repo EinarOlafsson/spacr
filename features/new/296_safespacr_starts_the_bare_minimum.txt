@@ -1,5 +1,13 @@
 296 — `safespacr` starts the bare minimum
 
+Status:    AUDITED 2026-09-15, NOT CLOSED. The item's own verification now
+           runs for real and passes (a written preference kills `spacr`,
+           `safespacr` gets in, re-saves it, exits, and `spacr` starts).
+           Safe mode no longer imports vispy, starts the pre-warm thread,
+           or reads the real store for the tour and installer consent. Two
+           gaps remain, both in spacr/qt/preferences.py, each pinned by a
+           strict xfail. See the last section.
+
 Asked 2026-08-28, while spaCR was crashing on launch: "there should be a start
 spacr in safe mode triggered by safespacr that turns everything it can off and
 just starts the bare minimum, so settings can be changed and resaved e.g."
@@ -23,3 +31,132 @@ It reads settings, lets the user change and RE-SAVE them, and exits.
 
 Verify by making a normal start impossible -- write a preference that crashes
 it -- and asserting `safespacr` still opens and can rewrite that value.
+
+
+2026-09-15 -- AUDITED
+
+WHAT `safespacr` ACTUALLY STARTS. setup.py:798 -> spacr/qt/safespacr.py
+main() -> preferences.enable_safe_mode(), so every preference read answers
+with its default (preferences.py:652-655) and four are forced off
+(preferences.py:626-629: backdrop, setting animations, verbose log, preload
+"on_demand") -> SPACR_TIMING popped, SPACR_NO_GL set (safespacr.py:30-31)
+-> "--no-setup" added (:40) -> spacr.qt.run() -> app.launch(). That is the
+whole ordinary application with switches thrown: MainWindow, the theme
+stylesheet, the bundled fonts (app.py:5496, :5500), laptop mode, live zoom.
+
+MEASURED. One offscreen launch each, sandboxed store, auto-exit after 6 s;
+sys.modules filtered for opengl, vispy, fractal, ambient, backdrop, anim,
+torch, cupy, cuml, numba, cellpose, tensorflow and the pre-warm list.
+
+  safespacr BEFORE  18 vispy modules (vispy, vispy.ext, vispy.ext.fontconfig,
+                    vispy.util and 12 below it incl. fonts._freetype,
+                    vispy.version), spacr.qt.widgets.ambient,
+                    spacr.qt.fractal_defaults, and from the spacr-prewarm
+                    thread spacr.settings, spacr.qt.screens.settings_model,
+                    spacr.qt.imagery.
+                    Threads started: spacr-prewarm. Widgets: _TourOverlay.
+                    Reads that reached the real store: installer/
+                    consent_applied, onboarding/first_run_tour_seen.
+  safespacr AFTER   spacr.qt.widgets.ambient, spacr.qt.fractal_defaults.
+                    No thread started, no tour, no real-store read.
+  both              No PySide6.QtOpenGL*, no OpenGL, no torch, cupy, numba
+                    or cellpose. No AmbientWidget, fractal or GL widget, no
+                    active widget timer, no running animation.
+  spacr (ordinary)  Unchanged: the BEFORE list plus an AmbientWidget and its
+                    spacr-ambient-shade thread.
+
+fractal_defaults is constants only (it imports typing.Final) and comes in
+with preferences.py itself.
+
+VERDICTS
+
+* No animated backdrop, no fractal, no OpenGL of any kind -- PARTLY.
+  Nothing is built: no AmbientWidget, fractal or GL widget, and SPACR_NO_GL
+  refuses a canvas (fractal_travel.py:384). vispy is no longer imported
+  (__init__.py:381-383). LEFT: the backdrop MODULE is still imported, by
+  apply_ambient_preferences (preferences.py:2016), before it asks whether
+  the backdrop is on.
+* No preloading, no background import thread -- MET (was PARTLY). The
+  preloader is forced to on_demand (preferences.py:629, app.py:2550); the
+  settings pre-warm thread is no longer started (app.py:5573).
+* No verbose tracing (294) -- MET. Verbose log forced off
+  (preferences.py:628), every other logging preference read as its default,
+  SPACR_TIMING popped (safespacr.py:30). Environment-only switches
+  (SPACR_WATCH_GUI_STALLS, SPACR_PAINT_DIAG, SPACR_BENCHMARK_JSON) are not
+  saved preferences and were left alone.
+* No GPU probe, no CUDA import -- MET. Held by
+  test_safe_mode_opens_without_importing_a_gpu_runtime; measured again.
+* Plain widgets, default font, no theme animation -- PARTLY. Setting
+  animations and the backdrop are off, and theme and font scale read as
+  defaults, but the full theme stylesheet and the bundled fonts still load
+  (app.py:5496, :5500): the default LOOK, not unstyled widgets. Not changed
+  here; theme.py was out of bounds.
+* Must not load the same preferences path as a normal start -- MET (was
+  PARTLY). The shadow covers spacr.qt.preferences (preferences.py:652-655),
+  but first_run.py:60 and install_consent.py:151 read the real store
+  directly. The consent timer, which is the only thing that starts either,
+  is no longer started in safe mode (app.py:2606). Nothing reaches the real
+  store now while safe mode starts.
+* Reads settings, lets the user change and RE-SAVE them, exits -- PARTLY.
+  Change, Save and exit work, proven end to end below. LEFT: the
+  Preferences dialog shows the defaults, not the stored values, and Save
+  writes every control (PreferencesDialog._save, preferences.py:5915). A
+  safe-mode Save therefore resets every preference the user did not touch.
+  Measured: a stored font_scale of 1.25 came back as 1.
+* Verification -- MET, below.
+
+THE CRASH TEST. tests/qt/test_safespacr_gets_in_when_a_preference_breaks_it.py,
+one module fixture, three fresh processes against one sandbox store (store,
+crash markers and installer profile in a temp dir, laptop mode off):
+
+  test_the_written_animation_kills_the_ordinary_start
+  test_safespacr_opens_anyway_and_saves_the_repair
+  test_the_ordinary_start_works_again_after_the_repair
+  test_safespacr_builds_no_backdrop_loads_no_gl_and_starts_no_thread
+  test_safespacr_reads_nothing_from_the_real_store_while_it_starts
+  test_safespacr_does_not_import_the_backdrop_module             strict xfail
+  test_a_safe_mode_save_keeps_the_preferences_it_did_not_change  strict xfail
+
+and test_the_launcher_disarms_gl_and_timing_before_qt now also asserts
+SPACR_NO_BACKDROP.
+
+The preference is the real Animation key, prefs/ambient_theme=cells. No
+stored value makes an ordinary start fail offscreen: all 115 preference keys
+were written as a string, a list, -99999, 1e308 and broken JSON in turn, and
+`spacr` exited 0 every time. The real crash (295) is a native abort in the
+GL/driver path and needs a display. So the test's own launcher aborts the
+process (os.abort, no Python exception) when the backdrop for that stored
+animation is built; spaCR carries no hook for it.
+
+  spacr          exit -6 (SIGABRT) at the injected point.
+  safespacr      opens; the Animation dropdown shows the default, not
+                 "cells"; set to Blobs, Save, window closed; exit 0; the
+                 store holds blobs.
+  spacr again    exit 0, with an AmbientWidget built, so crash recovery did
+                 not skip the path that died.
+
+With the fix stashed, the same file gives 3 failed, 8 passed, 2 xfailed
+(vispy imported, SPACR_NO_BACKDROP unset, the two real-store reads). With it:
+11 passed, 2 xfailed. Neighbours still pass: test_cov_r5_qt_init,
+test_spacr_recovers_from_a_crash_loop, test_install_consent (15),
+test_cov_qt_app -k "prewarm or launch" (7),
+test_a_comment_leaves_but_the_code_does_not (41).
+
+FIXED IN THIS CHANGE
+  safespacr.py:32     SPACR_NO_BACKDROP, the switch crash recovery uses
+  __init__.py:381-383 vispy quieting skipped in safe mode
+  app.py:2606         consent timer, and so the tour, not started
+  app.py:5573         pre-warm thread not started
+Reasons are in docs/notes/spacr/qt/{safespacr,__init__,app}.md. No
+user-visible string was added.
+
+STILL OPEN, both in spacr/qt/preferences.py (not edited here; another audit
+owns that file):
+  1. apply_ambient_preferences imports spacr.qt.widgets.ambient before
+     get_ambient_enabled(). Asking first, and returning when the backdrop is
+     off and no ambient widget exists, keeps the module out.
+  2. A safe-mode Save resets untouched preferences. Either the dialog shows
+     the stored values (every getter already returns rather than raises on
+     garbage, measured above) while the START keeps reading defaults, or
+     Save writes only the controls that changed.
+Each has a strict xfail above that turns red once it is fixed.

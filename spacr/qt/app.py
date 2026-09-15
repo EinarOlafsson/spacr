@@ -2589,6 +2589,7 @@ class MainWindow(QMainWindow):
 
             from .first_run import maybe_show_tour
             from .install_consent import maybe_show_installer_consent
+            from .preferences import in_safe_mode
             self._tour_timer = QTimer(self)
             self._tour_timer.setSingleShot(True)
             self._tour_timer.timeout.connect(
@@ -2602,7 +2603,8 @@ class MainWindow(QMainWindow):
                 self._tour_timer.start(500)
 
             self._consent_timer.timeout.connect(_finish_installer_onboarding)
-            self._consent_timer.start(250)
+            if not in_safe_mode():
+                self._consent_timer.start(250)
         except Exception:
             pass
 
@@ -5574,8 +5576,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
                 importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
-    threading.Thread(target=_prewarm, name="spacr-prewarm",
-                     daemon=True).start()
+    from .preferences import in_safe_mode
+
+    if not in_safe_mode():
+        threading.Thread(target=_prewarm, name="spacr-prewarm",
+                         daemon=True).start()
 
     def _drain_ai():
         """Stop every job runner before Qt starts destroying widgets.

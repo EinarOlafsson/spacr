@@ -12,7 +12,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_quiet_library_warnings](#_quiet_library_warnings) (1 entry)
 - [_missing_qt_extra](#_missing_qt_extra) (2 entries)
 - [_prefer_a_context_the_shaders_can_run_on](#_prefer_a_context_the_shaders_can_run_on) (3 entries)
-- [run](#run) (3 entries)
+- [run](#run) (4 entries)
 - [Module level](#module-level) (9 entries)
 
 ## _quiet_vispy_logging
@@ -118,6 +118,14 @@ _quiet_gtk_accessibility()
 ```
 
 Before anything imports Qt, GTK or torch: the AT-SPI variable is only read while GTK loads, the Qt handler has to be in place before the first widget lays out text, and the warning filter has to be in place before the pipeline preloader reaches cellpose.
+
+### lines 381-383
+
+```python
+_preferences = sys.modules.get(f"{__name__}.preferences")
+```
+
+NOT IN SAFE MODE (296). Quieting vispy means importing vispy -- 18 modules, with the freetype and fontconfig libraries it loads -- and vispy is the OpenGL library safe mode exists never to load; nothing in a safe start draws with it. `safespacr` enables safe mode before it calls `run`, so the preferences module is already imported by then. Looking it up in `sys.modules` instead of importing it keeps an ordinary start from importing preferences any earlier than it did: a start that never imported that module cannot be in safe mode.
 
 ### lines 445-447
 

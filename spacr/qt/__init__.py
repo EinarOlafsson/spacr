@@ -378,7 +378,9 @@ def run(argv: list[str] | None = None) -> int:
 
     _quiet_gtk_accessibility()
     _install_quiet_qt_logging()
-    _quiet_vispy_logging()
+    _preferences = sys.modules.get(f"{__name__}.preferences")
+    if _preferences is None or not _preferences.in_safe_mode():
+        _quiet_vispy_logging()
     _quiet_library_warnings()
 
     if len(argv) == 1 and argv[0] in _VERSION_FLAGS:

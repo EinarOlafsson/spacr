@@ -29,6 +29,7 @@ def main(argv: list[str] | None = None) -> int:
 
     os.environ.pop("SPACR_TIMING", None)
     os.environ["SPACR_NO_GL"] = "1"
+    os.environ["SPACR_NO_BACKDROP"] = "1"
 
     print("spaCR safe mode: preferences are being READ as defaults; the "
           "backdrop, setting animations, verbose logging and preloading "

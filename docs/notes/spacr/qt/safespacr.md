@@ -31,6 +31,14 @@ os.environ["SPACR_NO_GL"] = "1"
 
 A GL context is created before any Python of ours runs on the crashing path, so refusing it has to happen in the environment too.
 
+### line 32
+
+```python
+os.environ["SPACR_NO_BACKDROP"] = "1"
+```
+
+The switch `spacr.qt.crash_recovery` already uses, for this process only and never saved. Safe mode's forced "ambient off" already gave the same answer, but only after `get_ambient_enabled` had read the stored animation to see whether it was None, and that read imports `spacr.qt.widgets.ambient` -- so safe mode still imported the backdrop module it never builds (measured 2026-09-15, 296). The environment variable is checked before anything else in that getter, so the module is never reached.
+
 ### lines 47-51
 
 ```python

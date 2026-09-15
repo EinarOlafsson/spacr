@@ -22,7 +22,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_declared_folds._as_string](#_declared_folds_as_string) (1 entry)
 - [make_home_page](#make_home_page) (1 entry)
 - [_icon_for_app](#_icon_for_app) (1 entry)
-- [MainWindow.__init__](#mainwindow__init__) (22 entries)
+- [MainWindow.__init__](#mainwindow__init__) (23 entries)
 - [MainWindow.__init__._finish_installer_onboarding](#mainwindow__init___finish_installer_onboarding) (1 entry)
 - [MainWindow._install_loading_screen](#mainwindow_install_loading_screen) (1 entry)
 - [MainWindow._on_preload_step](#mainwindow_on_preload_step) (2 entries)
@@ -61,7 +61,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [MainWindow._on_train_requested](#mainwindow_on_train_requested) (2 entries)
 - [_use_open_sans](#_use_open_sans) (2 entries)
 - [_install_crash_dump](#_install_crash_dump) (1 entry)
-- [launch](#launch) (33 entries)
+- [launch](#launch) (34 entries)
 - [launch._prewarm](#launch_prewarm) (2 entries)
 - [launch._drain_ai](#launch_drain_ai) (3 entries)
 
@@ -890,6 +890,14 @@ self._tour_timer = QTimer(self)
 ```
 
 Installer privacy choices precede the product tour. The native installers collect them when they have an interactive surface; an unattended package gets the same all-off page here instead. Parent the delayed callback to the window. A static singleShot outlives a window closed during its first 800 ms, then invokes the tour with a deleted C++ object on the next event-loop spin.
+
+### lines 2606-2607
+
+```python
+self._consent_timer.start(250)
+```
+
+Neither the installer consent nor the tour in safe mode (296). They were the only two reads that reached the real preference store while safe mode started -- every other read goes through safe mode's shadow (measured 2026-09-15: `installer/consent_applied` and `onboarding/first_run_tour_seen`) -- and both open something in front of the window the user came to repair: the tour's overlay, and a modal consent page that goes on to apply installer choices and can start an account sign-in. The timers are still created, so nothing that looks for them finds them missing; the consent timer is only never started, and the tour only ever starts from it. Nothing is recorded as applied or seen, so the next ordinary start still offers both.
 
 ## MainWindow.__init__._finish_installer_onboarding
 
@@ -2190,6 +2198,14 @@ try:
 ```
 
 A RETURN FROM `exec` IS A CLEAN SHUTDOWN, whatever the exit code: the event loop ran and ended, which a crash never does. Clearing the count here rather than on code == 0 means a run the user quit from an error dialog still counts as "it started fine".
+
+### lines 5573-5575
+
+```python
+threading.Thread(target=_prewarm, name="spacr-prewarm",
+```
+
+No pre-warm thread in safe mode (296: "no preloading, no background import thread"). It imports spacr.settings, settings_model and imagery off the GUI thread while the window is being built, which is concurrent start-up work that a safe start leaves out. The cost is the one the thread was added to save: the first Preferences open in a safe session pays for those imports on the GUI thread.
 
 ## launch._prewarm
 
