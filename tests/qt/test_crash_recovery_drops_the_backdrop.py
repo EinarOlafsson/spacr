@@ -22,6 +22,54 @@ pytest.importorskip("PySide6")
 from spacr.qt import crash_recovery as cr
 
 
+#: The two environment variables `take_the_backdrop_out_of_this_launch`
+#: sets, and which decide whether the ambient backdrop runs AT ALL.
+_BACKDROP_ENV = ("SPACR_NO_GL", "SPACR_NO_BACKDROP")
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _the_backdrop_env_does_not_outlive_this_module():
+    """Put SPACR_NO_GL and SPACR_NO_BACKDROP back, whatever the test did.
+
+    THIS MODULE TURNS THE BACKDROP OFF FOR THE WHOLE PROCESS and used to
+    leave it off. `take_the_backdrop_out_of_this_launch` writes straight to
+    `os.environ`, so `monkeypatch` never learns about it and cannot undo it,
+    and `get_ambient_enabled()` reads the env var ahead of the stored
+    preference. Measured: after this file ran, `SPACR_NO_BACKDROP` was still
+    "1" and `get_ambient_enabled()` was False for every test that followed.
+
+    WHAT IT COST. `test_one_backdrop_for_the_window.py` skips all five of its
+    tests on `if window.window_backdrop() is None`, so running this file
+    first silently disabled the one-backdrop rule -- the test file passed
+    while asserting nothing. Bisected out of a 60-file sweep on 2026-09-15:
+    the file alone is 5 passed / 0 skipped, and with this module ahead of it,
+    0 passed / 5 skipped.
+
+    AND THE CLEANUP LINE IS PART OF IT, which is worth reading twice.
+    `test_dropping_the_backdrop_is_this_process_only` ends with
+    `monkeypatch.delenv("SPACR_NO_BACKDROP", raising=False)` to clear it --
+    but by then the variable EXISTS, so monkeypatch records its value and
+    RESTORES IT at teardown. The call that looks like cleanup puts it back.
+    `SPACR_NO_GL` does not leak, because the `delenv` at the top of that test
+    ran while it was still absent; only the one deleted mid-test comes back.
+
+    MODULE-SCOPED, AND THE FIRST VERSION OF THIS FIXTURE WAS NOT, WHICH DID
+    NOT WORK. Function-scoped, it snapshots at each test's start -- and
+    `test_two_crashes_drop_the_backdrop_and_one_does_not` has already set the
+    variable by the time the later test runs, so the snapshot is of the
+    polluted value and "restoring" it restores the pollution. The scope has
+    to be wider than the pollution: snapshot once before any test in this
+    file, put it back once after all of them.
+    """
+    was = {name: os.environ.get(name) for name in _BACKDROP_ENV}
+    yield
+    for name, value in was.items():
+        if value is None:
+            os.environ.pop(name, None)
+        else:
+            os.environ[name] = value
+
+
 @pytest.fixture()
 def markers(tmp_path, monkeypatch):
     """Point the module's marker folder at a private directory."""
