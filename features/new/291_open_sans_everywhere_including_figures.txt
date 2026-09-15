@@ -1,9 +1,9 @@
 291 — Open Sans everywhere, including figures
 
-Status:    PARTLY, verified 2026-09-15 against the code: the interface and every
-           FigureStyle/figure_style path draw in the bundled Open Sans; left: a
-           figure built outside the house style (e.g. illumination.py:1893)
-           still resolves to DejaVu Sans. See the dated sections below.
+Status:    DONE 2026-09-15, built on the maintainer's decision "Global in the app
+           only": the app and every pipeline run make the bundled Open Sans
+           matplotlib's default, so a plain Figure() draws in it too; importing
+           spaCR as a library changes no rcParam. See "BUILT" at the end.
 
 Asked 2026-08-28. The font ships in the repository:
 
@@ -131,3 +131,120 @@ the process-wide rcParam this item asks for, which the repository's own rule in
 test_one_visual_system_not_twelve.py currently forbids (a decision for the
 maintainer), or a house-style context at each Figure() site, with the ratchet
 taught to count Figure().
+
+--------------------------------------------------------------------------------
+2026-09-15 -- BUILT: GLOBAL IN THE APP ONLY
+--------------------------------------------------------------------------------
+
+THE DECISION, asked with the question tool on 2026-09-15.
+Question: "What should happen?"
+Answer, verbatim: "Global in the app only (Recommended)"
+The option read: "The spaCR GUI and spaCR's pipeline runs set Open Sans as
+matplotlib's default; plain `import spacr` in a notebook leaves the user's
+matplotlib alone. The test is narrowed to protect exactly that."
+
+Branch wip/291-open-sans-app, off nightly 4a5916286; code commit 414bcd2e3.
+
+HOW. spacr/figure_font.py:171 _open_sans_is_the_default() registers the
+bundled faces (use_open_sans_for_figures, unchanged) and holds
+
+    font.family     = ["Open Sans", "DejaVu Sans"]
+    font.sans-serif = ["Open Sans", <matplotlib's own list>]
+
+for the length of the run. DejaVu Sans ships inside matplotlib, so it always
+resolves -- no "findfont: not found" line per drawn string -- and matplotlib's
+per-glyph fallback draws a character Open Sans lacks from it instead of as a
+box. If the faces cannot be registered nothing is changed and the run draws in
+the stock default. While the run lasts it sets SPACR_FIGURES_IN_OPEN_SANS=1
+(:134), and :205 _open_sans_if_a_run_started_this() lets a worker process
+follow it.
+
+HELD, NOT WRITTEN BARE. It is an rc_context for the whole run -- in these
+processes the run is the process -- because spacr.cli.main and
+batch.inprocess_runner are also called in-process (tests/test_cli.py does it
+dozens of times), and a bare rcParams.update there would restyle every later
+figure of the caller. All three helpers are private: no API-catalog entry, no
+new public symbol, no public docstring touched.
+
+ENTRY POINTS COVERED
+  spacr.qt.run, qt/__init__.py:418 -- spacr, spacr-qt, spacr-nightly,
+      spacr-server (run_without_setup), spaceout, spacr-make-masks
+      (open_editor -> run), python -m spacr, python -m spacr.qt, and the
+      restart path. NOT in safe mode (:413): safespacr registers no font with
+      matplotlib, item 296's bare minimum. app.py is untouched.
+  spacr-tutorial, qt/tutorial/__main__.py:54 -- it builds MainWindow itself.
+  spacr-run, cli.py:1653 cmd_run -- after the --dry-run return, so --help,
+      --list and --dry-run still import no matplotlib. A batch-queue job IS
+      this: subprocess_runner starts `python -m spacr.cli`, inprocess_runner
+      calls cli.main.
+  spacr-repro, cli_repro.py:139.
+  worker processes that draw: sweep_child.py:85 and the sweep's spawn-pool
+      worker parameter_sweep.py:876 follow the marker. fork workers inherit
+      the run's rcParams.
+
+Cost: entering it after spacr.qt.app is imported took 0.156-0.161 s in three
+fresh interpreters (importing matplotlib and registering eight files), paid
+once by `spacr` before the window opens.
+
+TESTS
+  tests/test_one_visual_system_not_twelve.py -- NARROWED. New
+  test_importing_spacr_leaves_every_rcparam_alone (:296): a child interpreter
+  snapshots every rcParam, imports spacr and 18 modules (utils, plot, io,
+  measure, ml, illumination, figure_font, figure_style, figures.style,
+  style_base, volcano_style, cli, batch, cli_repro, parameter_sweep, qt,
+  qt.app, qt.tutorial.__main__), checks it imported this checkout, and
+  requires every rcParam and the marker unchanged. The module docstring states
+  the narrowed rule. The line scan stays as the rule for drawing code; the
+  default needed no exemption from it.
+
+  tests/test_open_sans_is_the_default_in_the_app_and_runs_only.py -- new, 14
+  tests, each in a child interpreter on a font manager with every Open Sans
+  removed, each asserting on the FILE findfont resolves for a plain
+  Figure()'s suptitle, never on the rcParam string:
+    (a) test_the_gui_startup_path_makes_open_sans_the_default -- offscreen,
+        only `launch` stood in for: run, run_without_setup, spaceout, the
+        tutorial main, python -m spacr. test_every_gui_console_script_is_asked
+        reads setup.py, so a new GUI script cannot be left out.
+        test_safe_mode_starts_without_registering_a_font.
+    (b) test_a_pipeline_run_makes_open_sans_the_default -- spacr-run, a
+        batch-queue job, spacr-repro.
+        test_a_queued_job_in_its_own_process_is_a_spacr_run.
+    (c) inside every (a) and (b) case, which also require that the run sets
+        the marker while it lasts and gives matplotlib back when it ends.
+    workers: test_a_worker_a_run_started_follows_it (sweep_child, pool
+        worker); test_a_worker_a_notebook_started_leaves_matplotlib_alone.
+
+NEGATIVE CONTROLS, run on 414bcd2e3, each restored with git checkout:
+  A  _open_sans_is_the_default applies nothing: 10 failed, 4 passed -- the
+     four that do not depend on it (setup.py guard, safe mode, the job
+     spelling, the notebook worker).
+  B  spacr.qt.run no longer holds it: the 4 run-routed GUI cases failed; the
+     tutorial, which holds it itself, passed.
+  C  cmd_run no longer holds it: spacr-run and the batch job failed;
+     spacr-repro passed.
+  D  matplotlib.rcParams["font.family"] set on import of spacr.figure_font:
+     the narrowed library test failed.
+
+Run, serial: the 14 new tests and tests/test_one_visual_system_not_twelve.py
+(10) passed. 693 existing tests over the touched entry points (test_cli,
+cli_repro x2, sweep_child x2, test_a_figure_drawn_without_open_sans_still_
+gets_it, the two docstring gates, qt tutorial_cli, platform_choice,
+launch_without_pyside6, entrypoint_version, safespacr, real_startup_readiness,
+the_interface_uses_open_sans): 692 passed, 1 failed --
+test_snapshot_exposes_the_release_budgets_and_peak_resources asserted a CUDA
+peak of exactly 0.0 after an earlier test in the batch touched the GPU; its
+file run alone with CUDA hidden passed 19/19. Not this change.
+
+NOT DONE, AND WHY NONE OF IT HOLDS THE ITEM OPEN
+  * A notebook keeps matplotlib's default for its own figures -- decided.
+  * io.py:3816 read_plot_model_stats calls sns.set(style="whitegrid") inside
+    plt.rc_context(). seaborn names Arial first, so its six training-curve
+    plots draw in DejaVu Sans where Arial is missing. Scoped, so the default
+    returns after them: a per-figure choice, not the default.
+  * A Pool worker under the `spawn` start method (the macOS and Windows
+    default, or an explicit start method on Linux) begins on matplotlib's
+    stock default unless its code follows the marker, and only the sweep's
+    do. fork workers, Linux's default, inherit the run. Whether any other
+    spawn worker draws a figure was not surveyed.
+  * figure_font.py:20-21 BODY_WEIGHT and TITLE_WEIGHT are still read nowhere;
+    figures keep matplotlib's normal weight.
