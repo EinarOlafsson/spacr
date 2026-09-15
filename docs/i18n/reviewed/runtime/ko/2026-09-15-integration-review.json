@@ -2,6 +2,13 @@
   "language": "ko",
   "records": [
     {
+      "key": "Annotation size",
+      "source": "Annotation size",
+      "source_sha256": "9f7b3cc83b52be85df5036bff2dd6fd85280a8130135301eddb10f4403c84913",
+      "table": "ui",
+      "translation": "어노테이션 크기"
+    },
+    {
       "key": "Background of an exported figure ('none' leaves the page showing through)",
       "source": "Background of an exported figure ('none' leaves the page showing through)",
       "source_sha256": "81be1d0355fbf3296682dd73939525860a4957a6cb261c4a9bd8821227e7ae94",

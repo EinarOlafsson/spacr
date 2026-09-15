@@ -37,6 +37,13 @@
       "translation": "规则一句话概括:回看完整的若干轮,直到至少积累了 ``label_window`` 个新标签,然后比较两端在留出集上的准确率。如果变化小于 ``min_gain`` ,就停止。"
     },
     {
+      "context": "**It distinguishes \"flat\" from \"unmeasurable\".** Held-out accuracy on 80 objects has a standard error near 0.05; a 0.3 % change is inside the noise, and :attr:`StoppingVerdict.confident` says so instead of dressing it up. Flat *is* still the recommendation — if more labels are not moving a number you can measure, they are not buying anything you can demonstrate — but the reason says the held-out set is too small to prove convergence, which is a different piece of work.",
+      "label": "spacr.active_learning.should_stop#6",
+      "source": "**It distinguishes \"flat\" from \"unmeasurable\".** Held-out accuracy on 80 objects has a standard error near 0.05; a 0.3 % change is inside the noise, and :attr:`StoppingVerdict.confident` says so instead of dressing it up. Flat *is* still the recommendation — if more labels are not moving a number you can measure, they are not buying anything you can demonstrate — but the reason says the held-out set is too small to prove convergence, which is a different piece of work.",
+      "source_sha256": "8790826ccb511081efde99d13f56b345fbdad0f3d6dc2add347faafc2742b993",
+      "translation": "**它能区分 \"flat\"（平稳）与 \"unmeasurable\"（无法测量）。** 在 80 个对象上的留出集准确率,其标准误约为 0.05;0.3% 的变化处于噪声范围内, :attr:`StoppingVerdict.confident` 会如实说明,而不是加以粉饰。“平稳” *仍然* 是建议——如果更多的标签没有让一个可测量的数字发生变化,它们就没有带来任何可以证明的收益——但给出的理由会说明留出集太小,无法证明已收敛,而那是另一项工作。"
+    },
+    {
       "context": "They go in ``obs`` and ``uns``. **Never** ``obsp``.",
       "label": "spacr.anndata_export#18",
       "source": "They go in ``obs`` and ``uns``. **Never** ``obsp``.",
@@ -63,6 +70,13 @@
       "source": "What happens to NaN",
       "source_sha256": "2518b9324c5901c5fc985b1c324728747f1d4c823a67e65ffcd4c6821a285283",
       "translation": "NaN 会怎样处理"
+    },
+    {
+      "context": "``{object}_min_size`` / ``{object}_max_size`` Object area in pixels. ``0`` and ``None`` both mean \"no bound\", which is what the Measure panel writes for an unset field -- treating 0 as a real minimum would drop nothing and look like it had worked. ``wells`` / ``exclude_wells`` Microplate sample position ids to keep or drop, as ``rowID+columnID`` pairs or as plain microplate sample position names. ``max_objects`` A cap, applied LAST and deterministically (by the sort the selection already has), so a capped set is reproducible.",
+      "label": "spacr.annotation_dataset.filter_selection#3",
+      "source": "``{object}_min_size`` / ``{object}_max_size`` Object area in pixels. ``0`` and ``None`` both mean \"no bound\", which is what the Measure panel writes for an unset field -- treating 0 as a real minimum would drop nothing and look like it had worked. ``wells`` / ``exclude_wells`` Well ids to keep or drop, as ``rowID+columnID`` pairs or as plain well names. ``max_objects`` A cap, applied LAST and deterministically (by the sort the selection already has), so a capped set is reproducible.",
+      "source_sha256": "bcc87dc504ce0b8ed49eff25112d1d092505c94616c6ea371cb387d19971e586",
+      "translation": "``{object}_min_size`` / ``{object}_max_size`` 以像素为单位的对象面积。 ``0`` 和 ``None`` 都表示 \"no bound\"（无界限）,这正是 Measure 面板为未设置的字段写入的值——把 0 当作真正的最小值不会过滤掉任何东西,却看起来像是生效了。 ``wells`` / ``exclude_wells`` 要保留或排除的微孔板孔位 ID,可以是 ``rowID+columnID`` 对,也可以是普通的孔位名称。 ``max_objects`` 一个上限,在最后 (LAST) 以确定性方式应用(按照选择结果已有的排序),因此截断后的集合是可复现的。"
     },
     {
       "context": "This is the contract, and it is deliberately boring: channel ``i`` of the extracted image region is channel ``i`` of the result, narrowed to 8 bit by :func:`narrow_to_uint8`.",
@@ -205,11 +219,25 @@
       "translation": "缺少 ``Ice`` 视同缺少 omero 附加依赖。半途安装失败的 ``zeroc-ice`` 是实际使用中最可能出错的情形,而 ``No module named 'Ice'`` 既没有提到 OMERO 也没有提到 spaCR。 :func:`missing_omero_message` 会说明发生了什么。"
     },
     {
+      "context": "This module is called ``spacr/omero.py`` and does not shadow the third-party ``omero`` package. Absolute imports have been the default since Python 3, so a module inside the ``spacr`` package that asks for ``omero`` gets the top-level distribution, not its own sibling. That is verified rather than assumed — see ``tests/test_omero.py::test_spacr_omero_does_not_shadow_the_third_party_package``, which puts a decoy ``omero`` package on ``sys.path`` and checks which one arrives — because a self-import here would be silent and would look like a broken OMERO install.",
+      "label": "spacr.omero#37",
+      "source": "This module is called ``spacr/omero.py`` and does not shadow the third-party ``omero`` package. Absolute imports have been the default since Python 3, so a module inside the ``spacr`` package that asks for ``omero`` gets the top-level distribution, not its own sibling. That is verified rather than assumed — see ``tests/test_omero.py::test_spacr_omero_does_not_shadow_the_third_party_package``, which puts a decoy ``omero`` package on ``sys.path`` and checks which one arrives — because a self-import here would be silent and would look like a broken OMERO install.",
+      "source_sha256": "3b319aecd38a241d7f842c4c9d3de97ce91447c7dc82c5875670719dd42d433f",
+      "translation": "该模块名为 ``spacr/omero.py`` ,它不会遮蔽第三方 ``omero`` 包。自 Python 3 起绝对导入就是默认行为,因此 ``spacr`` 包内部请求 ``omero`` 的模块得到的是顶层发行包,而不是它自己的同级模块。这一点经过验证而非假设——参见 ``tests/test_omero.py::test_spacr_omero_does_not_shadow_the_third_party_package`` ,它把一个诱饵 ``omero`` 包放到 ``sys.path`` 上并检查实际加载的是哪一个——因为这里一旦发生自我导入,将不会有任何提示,看起来就像 OMERO 安装损坏。"
+    },
+    {
       "context": "Higher ``mean`` means stronger evidence the gene is a hit.  Microplate sample positions carrying more of a hit gene have more positive cells than their imaged cell count alone accounts for, which is a positive coefficient on log read fraction.",
       "label": "spacr.power_model.gather_model_estimate#2",
       "source": "Higher ``mean`` means stronger evidence the gene is a hit.  Wells carrying more of a hit gene have more positive cells than their imaged cell count alone accounts for, which is a positive coefficient on log read fraction.",
       "source_sha256": "bf6c606805dd1f087c9081a26de63a78a3afb932e0ad77d686ce74917e64b78d",
       "translation": "``mean`` 越高,说明该基因是命中基因的证据越强。携带更多命中基因的孔中,阳性细胞数比仅凭其成像细胞数所能解释的更多,这体现为对数读数比例上的正系数。"
+    },
+    {
+      "context": "Port of ``scan_parameters`` from spaCRPower's ``R/scan_parameters.R``.  Every keyword argument that is not one of the named options above is a simulator parameter; pass a scalar to hold it fixed and a sequence to sweep it.  The grid is the Cartesian product, in the order the sweeps were given (matching R's ``tidyr::expand_grid``), with ``param_index`` numbered from 1 as in the R.",
+      "label": "spacr.power_model.scan_parameters#1",
+      "source": "Port of ``scan_parameters`` from spaCRPower's ``R/scan_parameters.R``.  Every keyword argument that is not one of the named options above is a simulator parameter; pass a scalar to hold it fixed and a sequence to sweep it.  The grid is the Cartesian product, in the order the sweeps were given (matching R's ``tidyr::expand_grid``), with ``param_index`` numbered from 1 as in the R.",
+      "source_sha256": "93cf6b275e07d6f9fc3570a17df161d540cce04ff205a2d3f0468811ee99b389",
+      "translation": "本函数是 ``scan_parameters`` 的移植版本，源自 spaCRPower 的 ``R/scan_parameters.R``。凡不属于上文具名选项的关键字参数都是模拟器参数：传入标量表示将其固定，传入序列表示对其进行扫描。网格是笛卡尔积，按各扫描参数给出的顺序展开（与 R 的 ``tidyr::expand_grid`` 一致），``param_index`` 与 R 中一样从 1 开始编号。"
     },
     {
       "context": "called once per completed (point, replicate) with a mapping ``{\"index\", \"total\", \"point_index\", \"n_points\", \"replicate\", \"resumed\", \"row\"}`` — ``index`` and ``total`` count fits, one-based, so ``index / total`` is a progress fraction, and ``row`` is that fit's result record.",
@@ -261,11 +289,25 @@
       "translation": "每个网格点上独立模拟的筛选实验数量。在一个设置下的单次筛选只是来自噪声过程的一次抽样;用三次或五次时,扫描结果要容易解读得多。"
     },
     {
+      "context": "1. ``imaging_n_cells_per_well`` **did not exist.** ``R/fit_model.R`` reads ``well_data$imaging_n_cells_per_well[1]`` as the Poisson offset, but ``simulate_imaging_plate`` emits only ``..._mu``, ``..._var`` and ``..._gene_per_well``; R's ``$`` partial matching is ambiguous across those three and yields ``NULL``, so the offset column vanishes and the simulate → fit path does not run as committed. :func:`simulate_imaging_plate` emits the column for real, as the realised per-well cell total. 2. **Reads per well were divided by the gene count, not the well count.** ``round(n_reads_total / nrow(well_data))`` groups by well, so ``nrow`` is the library size; with 452 genes and ``n_reads_total = 128318`` that is 284 reads per well against a real screening experiment near 3e4. The parameter was also documented as \"total reads\" in one vignette and \"geometric mean of well reads\" in another. :func:`simulate_sequencing_plate` takes an unambiguous ``n_reads_per_well`` and derives ``n_reads_total``. 3. **The hypergeometric draw size could exceed the urn.** Upstream guards ``rmvhyper`` with ``k = min(n_cells_in_well * pcr_factor, n_reads_per_well)``, but the urn is ``round(cells * pcr)`` computed **element-wise**, whose sum is not ``round(sum(cells) * pcr)``. The guard here is computed from the actual colour vector. 4. **The COM-Poisson branch is unusable.** ``COMPoissonReg::rcmp`` is called but not declared in the R package's ``DESCRIPTION``, and has no maintained Python equivalent inside spaCR's dependency set. :func:`sample_count_mean_variance` replaces the ``nu`` dispersion knob with a mean/variance pair dispatched to negative-binomial / Poisson / binomial, which spans the same over-, equi- and under-dispersed range in closed form with no new dependency. Third and higher moments differ from COM-Poisson; nothing upstream used them.",
+      "label": "spacr.power_simulate#15",
+      "source": "1. ``imaging_n_cells_per_well`` **did not exist.** ``R/fit_model.R`` reads ``well_data$imaging_n_cells_per_well[1]`` as the Poisson offset, but ``simulate_imaging_plate`` emits only ``..._mu``, ``..._var`` and ``..._gene_per_well``; R's ``$`` partial matching is ambiguous across those three and yields ``NULL``, so the offset column vanishes and the simulate → fit path does not run as committed. :func:`simulate_imaging_plate` emits the column for real, as the realised per-well cell total. 2. **Reads per well were divided by the gene count, not the well count.** ``round(n_reads_total / nrow(well_data))`` groups by well, so ``nrow`` is the library size; with 452 genes and ``n_reads_total = 128318`` that is 284 reads per well against a real screen near 3e4. The parameter was also documented as \"total reads\" in one vignette and \"geometric mean of well reads\" in another. :func:`simulate_sequencing_plate` takes an unambiguous ``n_reads_per_well`` and derives ``n_reads_total``. 3. **The hypergeometric draw size could exceed the urn.** Upstream guards ``rmvhyper`` with ``k = min(n_cells_in_well * pcr_factor, n_reads_per_well)``, but the urn is ``round(cells * pcr)`` computed **element-wise**, whose sum is not ``round(sum(cells) * pcr)``. The guard here is computed from the actual colour vector. 4. **The COM-Poisson branch is unusable.** ``COMPoissonReg::rcmp`` is called but not declared in the R package's ``DESCRIPTION``, and has no maintained Python equivalent inside spaCR's dependency set. :func:`sample_count_mean_variance` replaces the ``nu`` dispersion knob with a mean/variance pair dispatched to negative-binomial / Poisson / binomial, which spans the same over-, equi- and under-dispersed range in closed form with no new dependency. Third and higher moments differ from COM-Poisson; nothing upstream used them.",
+      "source_sha256": "191d852eb27290aaa7560f87502af9062209c4533170964af4f6fea552b6c7e4",
+      "translation": "1. ``imaging_n_cells_per_well`` **并不存在。** ``R/fit_model.R`` 将 ``well_data$imaging_n_cells_per_well[1]`` 读作 Poisson 偏移量,但 ``simulate_imaging_plate`` 只输出 ``..._mu`` 、 ``..._var`` 和 ``..._gene_per_well`` ;R 中 ``$`` 的部分匹配在这三者之间存在歧义并返回 ``NULL`` ,于是偏移量列消失,按已提交的代码,模拟 → 拟合的流程无法运行。 :func:`simulate_imaging_plate` 会真正输出这一列,即每孔实际实现的细胞总数。 2. **每孔读数被除以了基因数,而不是孔数。** ``round(n_reads_total / nrow(well_data))`` 按孔分组,因此 ``nrow`` 其实是文库大小;在 452 个基因、 ``n_reads_total = 128318`` 的情况下,每孔只有 284 条读数,而真实筛选实验中约为 3e4。该参数在一篇示例文档中被记为 \"total reads\"（总读数）,在另一篇中又被记为“孔读数的几何平均值”。 :func:`simulate_sequencing_plate` 接受含义明确的 ``n_reads_per_well`` ,并由此推导 ``n_reads_total`` 。 3. **超几何抽样的样本量可能超过罐子中的总数。** 上游代码为 ``rmvhyper`` 设置了保护条件 ``k = min(n_cells_in_well * pcr_factor, n_reads_per_well)`` ,但罐子是 **逐元素** 计算的 ``round(cells * pcr)`` ,其总和并不等于 ``round(sum(cells) * pcr)`` 。这里的保护条件是根据实际的颜色向量计算的。 4. **COM-Poisson 分支无法使用。** ``COMPoissonReg::rcmp`` 被调用了,但没有在 R 包的 ``DESCRIPTION`` 中声明,而且在 spaCR 的依赖集合中也没有维护中的 Python 等价实现。 :func:`sample_count_mean_variance` 用一个均值/方差对取代了 ``nu`` 离散度调节参数,并分派到负二项 / Poisson / 二项分布,从而以闭式形式覆盖同样的过度离散、等离散和欠离散范围,且不引入新的依赖。三阶及更高阶矩与 COM-Poisson 不同;上游没有任何地方用到它们。"
+    },
+    {
       "context": "``spacr.sim`` for the older, unrelated in-house screen simulator.",
       "label": "spacr.power_simulate#22",
       "source": "``spacr.sim`` for the older, unrelated in-house screen simulator.",
       "source_sha256": "e0c32835f984dd55e366a92c21dde808ce957b05af91ee44b4f822ddfed39d10",
       "translation": "``spacr.sim`` :较早的、与本模块无关的内部筛选模拟器。"
+    },
+    {
+      "context": "**Views must disconnect in** ``closeEvent``. This object outlives every application view, and holds plain references to whatever connected to it. A lambda would keep a destroyed page alive as a receiver — the exact leak :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so connect bound methods and drop them on close.",
+      "label": "spacr.qt.linked_selection#5",
+      "source": "**Views must disconnect in** ``closeEvent``. This object outlives every screen, and holds plain references to whatever connected to it. A lambda would keep a destroyed page alive as a receiver — the exact leak :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so connect bound methods and drop them on close.",
+      "source_sha256": "8e1c9932e3c06a04fafdf07bd87066dfb59d4af6e890247bb8609e2181285bf7",
+      "translation": "**视图必须在如下方法中断开连接：** ``closeEvent``。 此对象比每个应用程序视图存活得都久,并对连接到它的任何对象持有普通引用。 lambda 会让已销毁的页面作为接收者继续存活——这正是 :class:`spacr.qt.widgets.home.HomePage` 针对运行注册表所记录的那种泄漏——因此应连接绑定方法,并在关闭时断开它们。"
     },
     {
       "context": "``field_fade``: bool, default ``True``. Whether an input field's container and outline ramp from solid on the left to fully transparent on the right. Fields are **exempt from** ``pane_opacity`` while this is on — see :func:`get_field_fade_enabled` and :mod:`spacr.qt.widgets.field_fade`.",
@@ -345,6 +387,13 @@
       "translation": "``cell_png`` 这一级目录名是匹配的。 measure_crop 会向文件夹追加 ``f\"{crop_mode}_png/\"`` ,因此真实的细胞提取图像区域确实位于 ``cell_png/`` 之下——这正是 :func:`spacr.io.generate_training_dataset` 中的 ``png_path.str.contains(png_type)`` 过滤器( ``png_type='cell_png'`` )需要看到的。按被替换掉的旧布局平铺写成 ``data/crop_000.png`` 的提取图像区域全部被过滤掉,运行最终以 \"got 0 classes\" 失败。"
     },
     {
+      "context": "The ``png_list`` columns do not match either. :func:`spacr.utils.filepaths_to_database` writes ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id``, with the tokenised values ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. This table carries ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` in plain form, plus the ``annotate`` column — which is the point: ``annotate`` is what ``dataset_mode='annotation'`` selects classes on, and a measure run never writes one. A human does, in the Annotate application view.",
+      "label": "spacr.qt.synthetic.generate_classify_demo#5",
+      "source": "The ``png_list`` columns do not match either. :func:`spacr.utils.filepaths_to_database` writes ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id``, with the tokenised values ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. This table carries ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` in plain form, plus the ``annotate`` column — which is the point: ``annotate`` is what ``dataset_mode='annotation'`` selects classes on, and a measure run never writes one. A human does, in the Annotate screen.",
+      "source_sha256": "594590600761ad52fdf403d0ef07c31d4a00881c04eaea5d93f74ce946dbf1a9",
+      "translation": "``png_list`` 的列也不匹配。 :func:`spacr.utils.filepaths_to_database` 写入的是 ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id`` ,并带有分词后的值 ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'`` 。这张表以原始形式包含 ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` ,外加 ``annotate`` 列——关键就在这里: ``annotate`` 正是 ``dataset_mode='annotation'`` 选择类别的依据,而测量运行从不写入这一列。它由人在 Annotate 应用程序视图中填写。"
+    },
+    {
       "context": "1. ``set_default_settings_preprocess_generate_masks`` defaults it to the **string** ``'cell'``, and ``measure.py`` tests it with ``\"organelle\" in settings['summarize_organelles_by']`` — a *substring* test when the value is a str. Running this demo with ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary`` (16 rows/field) and still no ``organelle`` table. Only a value containing ``'organelle'`` writes the per-organelle table (``['cell', 'organelle']`` → organelle 64 rows/field, verified). 2. A list cannot be shipped today: ``spacr.settings.expected_types`` declares ``'summarize_organelles_by': str``, so ``spacr.validate.validate_settings`` rejects ``['cell', 'organelle']`` with \"is a list, but str is expected\" — a hard pre-flight **error** on a demo that must load clean. The tooltip and ``spacr.gui_utils`` both describe it as a list, and ``spacr.external_masks`` builds one; only the type table disagrees.",
       "label": "spacr.qt.synthetic.generate_measure_demo#5",
       "source": "1. ``set_default_settings_preprocess_generate_masks`` defaults it to the **string** ``'cell'``, and ``measure.py`` tests it with ``\"organelle\" in settings['summarize_organelles_by']`` — a *substring* test when the value is a str. Running this demo with ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary`` (16 rows/field) and still no ``organelle`` table. Only a value containing ``'organelle'`` writes the per-organelle table (``['cell', 'organelle']`` → organelle 64 rows/field, verified). 2. A list cannot be shipped today: ``spacr.settings.expected_types`` declares ``'summarize_organelles_by': str``, so ``spacr.validate.validate_settings`` rejects ``['cell', 'organelle']`` with \"is a list, but str is expected\" — a hard pre-flight **error** on a demo that must load clean. The tooltip and ``spacr.gui_utils`` both describe it as a list, and ``spacr.external_masks`` builds one; only the type table disagrees.",
@@ -385,6 +434,13 @@
       "source": "Sigma comes from the average moving range divided by d2 = 1.128 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.",
       "source_sha256": "412a3b5bb289411c849ee71944c2e6a016f43d2bff3dfd557b1371f9a466180e",
       "translation": "Sigma 来自平均移动极差除以 d2 = 1.128( :data:`D2_MOVING_RANGE` ),而绝不是来自序列的标准差。"
+    },
+    {
+      "context": "the SD of those thirty values is 4.40, so ``mean ± 3 SD`` is ``[4.0, 30.5]`` and every single point is comfortably inside. The chart says \"in control\" while the campaign slides from 10 to 24.5.",
+      "label": "spacr.qt.widgets.control_chart#6",
+      "source": "the SD of those thirty values is 4.40, so ``mean ± 3 SD`` is ``[4.0, 30.5]`` and every single point is comfortably inside. The chart says \"in control\" while the campaign slides from 10 to 24.5.",
+      "source_sha256": "84a463f05e62a92bd3adc07444ac30faa1c6d9abc4e8effad9aa411518c2d607",
+      "translation": "这三十个值的 SD 为 4.40,因此 ``mean ± 3 SD`` 为 ``[4.0, 30.5]`` ,每一个点都稳稳落在范围内。在整个批次从 10 漂移到 24.5 的过程中,控制图却显示 \"in control\"（受控）。"
     },
     {
       "context": "The direction is *inferred* from the data (Spearman rho of response against log dose) and never assumed, so an activation series is not fitted upside down. :data:`DIRECTION_INHIBITION` / :data:`DIRECTION_ACTIVATION` pin it when the user knows better than the correlation does.",
@@ -450,11 +506,25 @@
       "translation": "Graph Builder 的 *规格*:哪个数据放在哪个视觉通道上,仅此而已。"
     },
     {
+      "context": "spaCR measurement tables run to 10^5–10^6 object rows and nobody wants a scatter of a million overlapping dots. Three strategies, chosen by what the plot actually needs, and **the chosen one is always named in** :attr:`RenderData.notice` so a subset can never be mistaken for the whole:",
+      "label": "spacr.qt.widgets.graph_spec#13",
+      "source": "spaCR measurement tables run to 10^5–10^6 object rows and nobody wants a scatter of a million overlapping dots. Three strategies, chosen by what the plot actually needs, and **the chosen one is always named in** :attr:`RenderData.notice` so a subset can never be mistaken for the whole:",
+      "source_sha256": "7435c2ac0e6a863c40991bedd5a5024626b41f993d1945ae898da65b7022ac26",
+      "translation": "spaCR 的测量表可达 10^5–10^6 行对象数据,没有人想看一张画着一百万个重叠点的散点图。有三种策略,根据图表实际需要来选择,并且 **所选策略总会被注明在** :attr:`RenderData.notice` 中,这样子集就永远不会被误认为是整体:"
+    },
+    {
       "context": "**scatter/line up to** :data:`DEFAULT_POINT_BUDGET` **rows: every row is a mark.**",
       "label": "spacr.qt.widgets.graph_spec#15",
       "source": "**scatter/line up to** :data:`DEFAULT_POINT_BUDGET` **rows: every row is a mark.**",
       "source_sha256": "4fea586acf814b51d5cf13847f98022d727f8c62eaa93baf46d84f181a21d387",
       "translation": "**散点图/折线图在不超过** :data:`DEFAULT_POINT_BUDGET` **行时:每一行都是一个标记。**"
+    },
+    {
+      "context": "**scatter above the budget where binning cannot answer the question** — a categorical colour or a size channel needs per-point marks — falls back to a **seeded uniform sample**, with the count, the fraction and the word \"sampled\" in the notice.",
+      "label": "spacr.qt.widgets.graph_spec#17",
+      "source": "**scatter above the budget where binning cannot answer the question** — a categorical colour or a size channel needs per-point marks — falls back to a **seeded uniform sample**, with the count, the fraction and the word \"sampled\" in the notice.",
+      "source_sha256": "a568349918643bcb7d84745d4cc28429ff31707e3e6e78d2064a11ae96cc39bf",
+      "translation": "**超出预算且分箱无法回答问题时的散点图** ——例如分类颜色或大小通道需要逐点标记——会退回到 **带随机种子的均匀抽样** ,并在提示中注明数量、比例以及 \"sampled\"（已抽样）一词。"
     },
     {
       "context": "**pure pandas and numpy, with no Qt**, like :mod:`spacr.selection` — testable without a display, usable from a notebook or from ``spacr-run``;",
@@ -562,6 +632,13 @@
       "translation": "该数据框中已有这一列,并且提供了 ``screen`` 。调用方正在查看这些文件,并指明了这是哪个筛选实验,因此以它为准——但仅仅因为它这样指明了。 ``overwrite=False`` (默认)仍然只填充 *空白* 值;传入 ``overwrite=True`` 可重新标记每一行。"
     },
     {
+      "context": "**A column with no values at all comes back as** ``object``. This is the common one and it is not a data problem: ``pandas.read_sql`` builds the frame from the rows it gets, so a column that is ``NULL`` in every row arrives as a column of ``None`` and pandas types that ``object`` -- even though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest NaN, and whole measurements are legitimately NaN for a whole database: ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform object, and ``mode_intensity`` was NaN for every object in every database written before the SciPy shim in ``measure._extended_regionprops_table``. Such a column is converted to ``float64`` NaN, which is what it always meant. Nothing is lost, so nothing is warned about -- and the caller's own all-NaN filter then drops it and says so.",
+      "label": "spacr.schema.coerce_model_feature_types#1",
+      "source": "**A column with no values at all comes back as** ``object``. This is the common one and it is not a data problem: ``pandas.read_sql`` builds the frame from the rows it gets, so a column that is ``NULL`` in every row arrives as a column of ``None`` and pandas types that ``object`` -- even though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest NaN, and whole measurements are legitimately NaN for a whole database: ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform object, and ``mode_intensity`` was NaN for every object in every database written before the SciPy shim in ``measure._extended_regionprops_table``. Such a column is converted to ``float64`` NaN, which is what it always meant. Nothing is lost, so nothing is warned about -- and the caller's own all-NaN filter then drops it and says so.",
+      "source_sha256": "2ee252513ac9bd0fd628bd8790e6abec91cc6cf12c3c83900b46c54f87db28a2",
+      "translation": "**完全没有值的列返回时的类型是** ``object``。 这是常见情况,并不是数据问题: ``pandas.read_sql`` 根据取到的行构建数据框,因此每一行都是 ``NULL`` 的列会成为由 ``None`` 组成的列, pandas 就把它的类型定为 ``object`` ——即使 SQLite 声明它为 ``REAL`` 。 spaCR 用 ``NULL`` 写入真实的 NaN,而某些测量值在整个数据库中本来就全都是 NaN: ``skew_intensity``/``kurtosis_intensity`` 对每个均匀对象都是 NaN,而 ``mode_intensity`` 在 ``measure._extended_regionprops_table`` 引入 SciPy 兼容垫片之前写入的每个数据库中,对每个对象都是 NaN。这样的列会被转换为 ``float64`` NaN,这也正是它一直以来的含义。没有任何信息丢失,因此不会发出警告——调用方自己的全 NaN 过滤器随后会删除这一列并给出说明。"
+    },
+    {
       "context": "Not the generator's own ``touches`` flag. That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The microplate sample position edge is recovered from the drawn pixels.",
       "label": "spacr.setting_animations.measure_border_object_removal#3",
       "source": "Not the generator's own ``touches`` flag. That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The well edge is recovered from the drawn pixels.",
@@ -588,6 +665,13 @@
       "source": "**The join goes through** ``png_list``. A CV model keys on the crop it scored; the features key on the object. ``png_list`` is the only table that holds both, so it is the bridge — and joining on ``png_path`` alone is not enough, because a path is not stable across machines.",
       "source_sha256": "c35b708ae1d90fa0869cc335a8ebf7cc6b1fab25cc31209bdb854dbaff31c400",
       "translation": "**连接操作通过** ``png_list`` 进行。 CV 模型以它评分的提取图像区域为键;特征则以对象为键。 ``png_list`` 是唯一同时包含两者的表,所以它就是桥梁——而仅按 ``png_path`` 连接是不够的,因为路径在不同机器之间并不稳定。"
+    },
+    {
+      "context": "A ``~`` path is expanded, once, for every reader -- GitHub issue #108, where a ``src`` beginning with ``~`` was resolved against the working directory and refused with ``FileNotFoundError: ~<DB>``. ``$HOME`` and ``%USERPROFILE%`` too: a settings CSV carried between machines routinely holds one.",
+      "label": "spacr.tabular#13",
+      "source": "A ``~`` path is expanded, once, for every reader -- GitHub issue #108, where a ``src`` beginning with ``~`` was resolved against the working directory and refused with ``FileNotFoundError: ~<DB>``. ``$HOME`` and ``%USERPROFILE%`` too: a settings CSV carried between machines routinely holds one.",
+      "source_sha256": "2b276d0c5c366d8a8d9bcdccd2e8ef753e06e72c51437ec42107f96dc840f9de",
+      "translation": "``~`` 路径会为每个读取器展开一次——见 GitHub 议题 #108,当时一个 ``src`` 以 ``~`` 开头,它被当作相对于工作目录的路径解析,并以 ``FileNotFoundError: ~<DB>`` 被拒绝。 ``$HOME`` 和 ``%USERPROFILE%`` 同样会展开:在不同机器之间传递的设置 CSV 中经常包含这类路径。"
     },
     {
       "context": "Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.",

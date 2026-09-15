@@ -296,6 +296,13 @@
       "translation": "प्रति सीड पड़ोसी"
     },
     {
+      "key": "No coefficient in this screen carries a TAGM/LOPIT localisation, so there is nothing to colour by.",
+      "source": "No coefficient in this screen carries a TAGM/LOPIT localisation, so there is nothing to colour by.",
+      "source_sha256": "1480fb4dfe545fd04ec1c92b8c10495a2d8d7e95409ffd25c62527b9671b5e04",
+      "table": "ui",
+      "translation": "इस स्क्रीनिंग के किसी भी गुणांक में TAGM/LOPIT स्थानीयकरण नहीं है, इसलिए रंग देने का कोई आधार नहीं है।"
+    },
+    {
       "key": "No gene number could be parsed out of this term, so there is no annotation to look up.",
       "source": "No gene number could be parsed out of this term, so there is no annotation to look up.",
       "source_sha256": "9aa561c8948ae747f3deacf1b7f6fca5122cde68394efe18651ace144ad10741",
