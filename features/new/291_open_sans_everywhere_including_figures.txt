@@ -1,5 +1,10 @@
 291 — Open Sans everywhere, including figures
 
+Status:    PARTLY, verified 2026-09-15 against the code: the interface and every
+           FigureStyle/figure_style path draw in the bundled Open Sans; left: a
+           figure built outside the house style (e.g. illumination.py:1893)
+           still resolves to DejaVu Sans. See the dated sections below.
+
 Asked 2026-08-28. The font ships in the repository:
 
     spacr/resources/font/open_sans/
@@ -75,3 +80,54 @@ ships, and that registering is not applying -- both still hold. What the note
 does not say, and what cost the time here, is that the rcParam half had been
 done for `figure_style`/`figures.style` and not for the `FigureStyle`
 dataclasses, so the item read as entirely done to a grep for "Open Sans".
+
+--------------------------------------------------------------------------------
+2026-09-15 -- STATUS VERIFIED
+--------------------------------------------------------------------------------
+
+Checked against both bullets, on the tree at 90df1a332.
+
+  CRITERION                          VERDICT  EVIDENCE
+  the font ships                     met      spacr/resources/font/open_sans/
+                                              static/, eight faces
+  the tool's text: Light for body,   met      qt/app.py:5261 _use_open_sans
+    Regular for titles                        sets the application font,
+                                              called at :5495; qt/preferences
+                                              .py:2538 default weight "light";
+                                              qt/theme.py:4152 titles at 400
+  bundled faces registered with the  met      figure_font.py:64
+    font manager                              use_open_sans_for_figures
+  FIGURES TOO: DejaVu Sans is not    PARTLY   met wherever the house style is
+    the matplotlib default, even on           open: figure_style.py:262-268,
+    a machine without Open Sans               figures/style.py:265,
+                                              style_base.py:197 font_rc and
+                                              :263 apply_page, proven on a bare
+                                              font manager by tests/test_a_
+                                              figure_drawn_without_open_sans_
+                                              still_gets_it.py. Not met outside
+                                              it -- see below
+
+WHAT IS LEFT, measured today. Nothing sets the rcParam process-wide:
+figure_font.py:67-68 "deliberately does not alter process-wide rcParams",
+tests/test_one_visual_system_not_twelve.py:15 forbids it outside
+figure_style.apply(), and a grep finds no caller in spacr/ of that or of its
+wrapper qt/preferences.py:945 apply_figure_style. With spacr.plot imported,
+rcParams["font.family"] is ['sans-serif'] and a plain figure's title resolves
+to DejaVuSans.ttf. A bare matplotlib Figure(), as built at illumination.py:1893
+for the QC figure written to disk, resolves its suptitle to DejaVuSans.ttf even
+after the bundled faces are registered. response_distribution.py:275 and
+qt/screens/dose_response.py:260 build theirs the same way, and a grep finds
+about a dozen more Figure() sites in files with no house-style reference; a
+caller's context may cover some of them. The UNSTYLED_CEILING ratchet counts
+only plt.subplots and plt.figure, so it cannot see a Figure() call.
+figure_font.py:20-21 BODY_WEIGHT and TITLE_WEIGHT are defined and read nowhere.
+
+Run today, serial: the 8 tests in test_a_figure_drawn_without_open_sans_still_
+gets_it.py and 2 from tests/qt/test_the_interface_uses_open_sans.py -- 10
+passed.
+
+LEFT: Open Sans for every spaCR figure, not only the house-style ones. Either
+the process-wide rcParam this item asks for, which the repository's own rule in
+test_one_visual_system_not_twelve.py currently forbids (a decision for the
+maintainer), or a house-style context at each Figure() site, with the ratchet
+taught to count Figure().

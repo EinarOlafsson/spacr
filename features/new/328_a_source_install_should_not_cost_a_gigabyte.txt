@@ -1,6 +1,11 @@
 328 — A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
 ==================================================
 
+Status:    PARTLY, verified 2026-09-15 against the code: README.rst:238 has
+           both light forms, measured, with their limits, and the launch test
+           passes; left: the nine translated READMEs carry that section as a
+           machine draft, not reviewed prose. See the dated sections below.
+
 ASKED FOR (2026-08-31)
 ----------------------
 "the repository is quite large (around 1 GB) which people dont need to
@@ -206,3 +211,43 @@ NOT DONE, DELIBERATELY
     the GitHub API reports `main` as the default and install_from_source.sh
     defaults to `main`. Out of this item's scope; flagged for whoever owns
     that paragraph.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- STATUS VERIFIED
+--------------------------------------------------------------------------------
+
+Checked against DONE MEANS, on the tree at 90df1a332.
+
+  CRITERION                          VERDICT  EVIDENCE
+  a second clone form beside the     met      README.rst:238-260: --depth 1
+    first, with the saving measured           "595 MB downloaded, 31 s"; the
+                                              installer "86 MB on disk, 5 s";
+                                              the full clone "5.8 GB"
+  the limits, a sentence each        met      README.rst:245-246
+  which form to pick                 met      README.rst:241 "Contributors
+                                              need the history; to only run
+                                              spaCR, take one of these"
+  the nine translated READMEs carry  PARTLY   all nine carry the new commands
+    it, new prose not machine-                and numbers, e.g. docs/i18n/
+    drafted                                   readme/README.de.rst:212-231.
+                                              The prose around them IS a
+                                              machine draft: de has "(Licht)"
+                                              for "(light)" at :212 and
+                                              "Kasse" for "checkout" at :231.
+                                              The block is not in
+                                              REVIEWED_README_BLOCKS
+                                              (tools/build_documentation_
+                                              i18n.py:2960), nor listed in 316
+  tested by installing and           met      test_the_light_checkout_launches_
+    launching                                 spacr_and_not_merely_imports_it,
+                                              run today: 1 passed, 7.4 s
+
+Also run today: the 7 non-slow tests in
+tests/test_the_light_install_numbers_are_honest.py whose names mention the
+README -- 7 passed.
+
+LEFT: a reviewed translation of the light-install prose in the nine READMEs,
+or that block put on 316's list for one.
+
+Found, outside scope: README.rst:224 still says the default branch is
+``nightly``, while packaging/install_from_source.sh:42 defaults to ``main``.

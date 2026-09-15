@@ -1,5 +1,10 @@
 304 — Release 1.5.0.5, archived on Zenodo
 
+Status:    DONE, verified 2026-09-15 against the code and Zenodo's API: v1.5.0.7
+           is archived, and CITATION.cff and README.rst cite its version and
+           concept DOIs. 1.5.0.5 itself never was. See the dated sections
+           below.
+
 Asked 2026-08-28: "i also need 1.5.0.5 to be a release for zenodo".
 
 WHAT IS ALREADY IN PLACE
@@ -132,3 +137,36 @@ there is nothing here for a session or for the maintainer.
 See 59 for the same story on conda-forge, checked the same day, with the same
 result and one real red test found along the way.
 
+--------------------------------------------------------------------------------
+2026-09-15 -- STATUS VERIFIED
+--------------------------------------------------------------------------------
+
+Checked against THE ORDER, steps 1-5, on the tree at 90df1a332, and against
+Zenodo's API, queried today.
+
+  STEP                               VERDICT  EVIDENCE
+  1 the Zenodo toggle is on          met      zenodo.org/api/records?q=spacr:
+                                              v1.5.0.7, published 2026-09-12
+  2-4 green CI, bump, merge to main  met      CITATION.cff:32-33 carry 1.5.0.7
+                                              and 2026-09-12, and Zenodo holds
+                                              that release; whether its SHA
+                                              was green is not re-checked here
+  5 both DOIs, each in its place     met      CITATION.cff:34 doi = version
+                                              DOI 10.5281/zenodo.22726094;
+                                              :39-41 concept DOI
+                                              10.5281/zenodo.21343316;
+                                              README.rst:33-34 badge -> the
+                                              concept DOI. The API returns the
+                                              same pair.
+  licence metadata agrees            met      .zenodo.json bsd-3-clause,
+                                              CITATION.cff:45 BSD-3-Clause,
+                                              LICENSE, and the record itself
+
+Run today: tests/test_packaging_metadata.py::test_the_citation_version_doi_is_
+the_one_for_the_version_it_claims -- 1 passed.
+
+DONE, not BLOCKED. Nothing here waits on the maintainer: the toggle is on and
+the DOIs are minted and cited. 1.5.0.5 itself was never archived and cannot
+be; the release path the title names is established and has archived a newer
+version. The PolyForm licence lines near the top of this file are stale since
+the relicence to BSD 3-Clause (1d199a0b8, 2026-08-31).

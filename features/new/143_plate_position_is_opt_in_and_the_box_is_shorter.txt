@@ -2,7 +2,10 @@
 PLATE POSITION IS OPT IN, AND THE MODEL BOX IS SHORTER
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    PARTLY, verified 2026-09-15 against the code: all five HOW TO KNOW
+           checks hold (settings.py:2541 default off, ml.py:1118 refusal, box
+           854 chars); left: section A's release note. See the dated sections
+           below.
 Requested: 2026-08-18 --
 
   "is rowID + columnID always run? this should be an opt in"
@@ -143,3 +146,44 @@ B. THE BOX FOR ols/both IS 913 CHARACTERS, from 2,438. Target was "under
    numbers", so it was shortened by half its words with every figure kept.
    A user who reads it once before starting an hour-long fit has had the
    whole value of it.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- STATUS VERIFIED
+--------------------------------------------------------------------------------
+
+Checked against HOW TO KNOW IT WORKED and section A's release-note ask, on the
+tree at 90df1a332 -- not against the note above.
+
+  CRITERION                          VERDICT  EVIDENCE
+  a setting decides; its default is  met      spacr/settings.py:2541 sets
+    stated and justified by a                 model_plate_position False;
+    measurement                               settings.py:4105 says "Default
+                                              False" and cites p = 6.7e-23
+  off + random refused with reason   met      spacr/ml.py:1118-1128 raises
+                                              ValueError naming the 3 states
+  box formula = fitted formula, in   met      ml.py:1130-1135; test_the_box_
+    all three states                          matches_what_ml_would_build
+  box under ~900 characters, and     met      ols/both measured today: 854.
+    numbers keep their figures                mixed is 1651, over on purpose
+                                              for its measured cost figures
+  removed history readable, and the  met      test_every_box_says_where_the_
+    box says where                            history_went; test_the_retired_
+                                              design_is_explained_where_the_
+                                              box_points
+  A: "DEFAULT OFF IS A CHANGE OF     NOT MET  no changelog in the repository;
+    ANSWER, so it is a release                the GitHub release bodies of
+    note"                                     v1.5.0.5, v1.5.0.6 and v1.5.0.7
+                                              (--generate-notes) never mention
+                                              plate position
+
+Run today, serial: 7 selected tests across test_plate_position_is_a_setting.py,
+test_the_model_box_is_short_enough_to_finish.py and
+test_the_formula_shown_is_the_formula_fitted.py -- 7 passed.
+
+LEFT: the release note. One plain paragraph saying plate position went from
+always fitted to off by default, and that coefficients move on a screen that
+has a position effect.
+
+Found, outside scope: `prepare_formula`'s own keyword default is still True
+(ml.py:1053), so a direct API caller who skips the settings factory keeps
+plate position in the model.

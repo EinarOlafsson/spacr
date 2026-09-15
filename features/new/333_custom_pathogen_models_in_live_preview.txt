@@ -1,6 +1,10 @@
 333 — CUSTOM PATHOGEN MODELS MUST BE AVAILABLE IN LIVE PREVIEW
 ===============================================================
 
+Status:    DONE, verified 2026-09-15 against the code: the preview seeds from
+           the run's own key order, names the model that ran, and states a
+           fallback for a checkpoint not on disk. See the dated sections below.
+
 ASKED FOR (2026-09-01)
 ----------------------
 "custom pathogen models should be available in live preview via the same
@@ -280,3 +284,38 @@ LEFT, deliberately:
   `model_zoo.fetch` on EVERY run, and fetch always downloads into a new
   versioned file. The preview's `fetch=False` finds an existing copy; the run
   never looks for one.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- STATUS VERIFIED
+--------------------------------------------------------------------------------
+
+Checked against WHAT TO DO 1-3 and HOW TO KNOW IT WORKED, on the tree at
+90df1a332. Both passes are on nightly (902374884, 554dcf371).
+
+  CRITERION                          VERDICT  EVIDENCE
+  1 the preview reads the setting    met      widgets/live_preview.py:1177
+    the run reads; selecting a zoo            _model_keys_for, :1268
+    model changes the preview                 _model_the_run_would_use, :2802
+                                              _seed_the_model, :2896 reseed on
+                                              an object switch; plaque goes
+                                              through the run's own resolver
+                                              at :1256
+  2 the zoo button, Cellpose only    met      live_preview.py:4158 "Model
+                                              zoo…" button; :2707
+                                              choose_model(kinds=("cellpose",))
+  3 the preview names its model,     met      live_preview.py:3625
+    visibly                                   _model_provenance, on the status
+                                              line
+  a model not on disk previews with  met      live_preview.py:1305
+    a stated fallback, and nothing            _checkpoint_is_missing, :3595
+    is downloaded                             _model_for_this_pass;
+                                              submodules.py:1267-1275
+                                              (fetch=False) raises
+                                              ModelZooMissing and never fetches
+
+Run today, serial: 6 of the 36 tests in tests/qt/test_the_preview_uses_the_
+model_the_run_will_use.py, covering each criterion and two plaque cases -- 6
+passed.
+
+Found, outside scope: the plaque RUN's zoo-key branch still calls
+model_zoo.fetch every time, with no local-copy check (submodules.py:1277).

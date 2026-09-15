@@ -1,5 +1,10 @@
 303 — The fractal settings need real controls, and real ranges
 
+Status:    DONE, verified 2026-09-15 against the code: (a) declined by the
+           maintainer, (b) a drag moves the camera centre and it persists,
+           (c) Up/Down/wheel set the zoom rate, (d) fields uncapped and
+           supersampling on the panel. See the dated sections below.
+
 Reported 2026-08-28, from using the Mandelbrot theme.
 
   a) MANDELBROT HAS NO CPU PATH. It draws on the GPU and nothing on CPU.
@@ -104,3 +109,47 @@ put the detail behind an "Advanced" heading, which was the same panel with
 one more row on it and still let a hand-set combination contradict the
 control above. The derived numbers are settings the renderer reads; they
 are not offered beside the control that sets them.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- STATUS VERIFIED
+--------------------------------------------------------------------------------
+
+Checked against asks (a)-(d), on the tree at 90df1a332.
+
+  ASK                                VERDICT  EVIDENCE
+  (a) a CPU path for Mandelbrot      not      declined by the maintainer
+                                     wanted   2026-08-28, quoted above;
+                                              qt/fractal_defaults.py:44
+                                              GPU_ONLY_PATTERNS sends a machine
+                                              without GL to the fallback
+  (b) steering moves the centre the  met      the camera's drag() at
+    zoom converges into, and it               widgets/fractal_mandelbrot.py:787
+    persists between frames                   keeps its centre, which
+                                              fractal_travel.py:1955 hands to
+                                              u_center_offset (:1908) each
+                                              frame
+  (c) Up and Down bound              met      qt/app.py:4301 keyPressEvent and
+                                              :4319 wheelEvent call
+                                              nudge_zoom_rate; Ctrl+R at
+                                              qt/shortcuts.py:88
+  (d) scale not capped at 2          met      qt/preferences.py:5536 opens the
+                                              field to +-1e12, :5547 for whole
+                                              numbers; :429
+                                              explain_a_fractal_number
+  (d) supersampling exposed          met      preferences.py:5572-5579
+  (d) more renderer settings on the  met      all twelve are settings with
+    panel                                     limits (preferences.py:327-366),
+                                              reached through Quality, Speed,
+                                              Scale, Steering, Path, Depth and
+                                              Supersampling
+
+ONE CLAIM ABOVE IS STALE. "(b) the pointer moves the CENTRE" was true on
+2026-08-28. Hover no longer steers: the maintainer later asked "when mouse
+gravity is on for mandelbrot it should only be drag and drop... not pointer
+position" (tests/qt/test_the_backdrop_keys_and_groups.py:231), and the shader
+says so at fractal_mandelbrot.py:155. The drag is what moves the centre now,
+and it meets (b). precision-digits, initial-scale, tile-rows and fps are
+settings with no control of their own.
+
+Run today, serial: 5 tests from test_the_fractal_fields_are_not_capped.py and 3
+from test_the_backdrop_keys_and_groups.py -- 8 passed.
