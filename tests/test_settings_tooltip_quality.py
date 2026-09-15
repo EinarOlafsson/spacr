@@ -697,7 +697,25 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # through `.get` fallbacks with nothing declaring them. Each carries
     # a parseable "Default X." so each joins this census. The VALUES are
     # the fallbacks they replace (False / 100 / 10), so no run changes.
-    assert comparisons == 666
+    # 666 -> 667 on 2026-09-15, +1/-0, and the one is `segmentation_backend`
+    # in Mask -- the setting that chooses Cellpose, DINOCell or SAMCell
+    # (items 404 and 405). Its tooltip ends "Default 'cellpose'.", which
+    # parses, so it joins this census.
+    #
+    # +1 AND NOT +2, which is worth saying because the `bystander_*` note
+    # above warns that a new measure setting moves this census by TWO. The
+    # difference is how many apps resolve the factory: `get_measure_crop_
+    # settings` is resolved by both `measure` and `external_masks`, while
+    # this one is declared where only `mask` reaches it. The census counts
+    # APP/SETTING PAIRS, so the multiplier is the app count, not the
+    # setting count.
+    #
+    # DIFFED, NOT INFERRED, in a worktree at d9eef11d3 (the commit that
+    # pinned 666): the arriving set is exactly {mask|segmentation_backend}
+    # and the leaving set is EMPTY. That second half is the one that
+    # matters -- a claim that quietly stopped being compared, replaced by a
+    # new one arriving, moves this number by zero.
+    assert comparisons == 667
     # 44 since 2026-09-02. Instruction 364 unified organelle's duplicated
     # size/area settings, and the surviving tooltip now NAMES its per-app
     # defaults ("Default 10 in Mask; Measure and External Masks start at 0")

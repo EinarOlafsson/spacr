@@ -82,15 +82,45 @@ def test_the_reason_is_written_where_the_default_is():
     assert "points are the evidence" in doc
 
 
-def test_every_module_default_agrees_with_the_function_default():
-    """Three modules set this key; three answers is three different figures."""
-    import re
-    from pathlib import Path
+#: The settings functions that hand `create_grouped_plot` its graph type.
+GRAPH_TYPE_DEFAULTERS = (
+    "set_default_plot_data_from_db",
+    "set_graph_importance_defaults",
+    "get_plot_data_from_csv_default_settings",
+)
 
-    settings = Path(inspect.getfile(
-        __import__("spacr.settings", fromlist=["settings"])))
-    defaults = re.findall(r"setdefault\(\s*'graph_type'\s*,\s*'([a-z_]+)'",
-                          settings.read_text())
-    assert defaults, "no module sets graph_type any more"
-    assert set(defaults) == {"jitter_box"}, (
-        f"modules disagree about the default graph type: {sorted(set(defaults))}")
+
+def test_every_module_default_agrees_with_the_function_default():
+    """Three modules set this key; three answers is three different figures.
+
+    THIS ASKS THE FUNCTIONS RATHER THAN READING THE FILE. It used to grep
+    settings.py for `setdefault('graph_type', '...')` and collect the string
+    literals, which stopped working the moment those three sites started
+    COMPUTING the value instead of spelling it -- the defaults were still
+    identical and still correct, and the test said "no module sets graph_type
+    any more".
+
+    A source grep can only see defaults that are written down. It cannot see
+    a computed one at all, and it cannot see a written-down one that is
+    right in the file and wrong by the time the settings dict is built. What
+    matters to the user is the value in the dict, so that is what is read.
+    """
+    from spacr import plot, settings as settings_module
+
+    function_default = inspect.signature(
+        plot.create_grouped_plot).parameters["graph_type"].default
+
+    resolved = {}
+    for name in GRAPH_TYPE_DEFAULTERS:
+        defaulter = getattr(settings_module, name)
+        # An empty dict is a user who chose nothing, which is the only case
+        # where a default is consulted at all.
+        filled = defaulter({})
+        assert "graph_type" in filled, (
+            f"{name} no longer supplies graph_type, so a user who chooses "
+            f"nothing reaches create_grouped_plot with no graph type")
+        resolved[name] = filled["graph_type"]
+
+    assert set(resolved.values()) == {function_default}, (
+        f"modules disagree with create_grouped_plot's own default "
+        f"{function_default!r}: {resolved}")
