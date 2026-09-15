@@ -7603,3 +7603,44 @@ No trigger, concurrency, timeout, matrix, worker count or deploy condition
 changes. The coverage shard step's command line is unchanged; its tool
 tools/run_coverage_batches.py and the gate tools/verify_module_coverage.py
 change with it. No edit to tools/coverage_baseline.json.
+
+--------------------------------------------------------------------------------
+2026-09-15 — WORK SESSION: AFTER THE VS CODE CRASH; WHAT LANDS WITH THIS PUSH
+--------------------------------------------------------------------------------
+
+Written here as well as sent, because the crash re-addressed every session:
+messages to home's old bridge address are one-way now and cannot be answered.
+
+REBASED over home's 38 commits to f5d651454 with no conflicts. Origin had not
+moved again when this was written.
+
+403 IS BUILT IN FULL. C, "Live search, Apply by click": once a search has been
+asked for, changing src, a reference table, barcode_set or target_sequence
+re-runs it after a 600 ms pause, and only Apply writes the form. Details, the
+three decisions the maintainer's sentence did not make, and a mutation table
+are in 403's last section.
+
+SHARED WIDGET, READ THIS IF YOU LISTEN TO FILE LISTS:
+`FilePathListWidget.contents_changed` is new and fires on ANY change, including
+`set_value`. `value_changed` is unchanged and is still only the user's edit --
+the one that marks a screen dirty -- and a test pins that a load does not emit
+it. Purely additive.
+
+PUBLIC SURFACE +2, CATALOG DEBT OF EXACTLY TWO SYMBOLS. My earlier commits had
+moved six pinned counts that are green on origin. Package-only helpers went
+private first (graph_spec `_kind_and_note`/`_kind_note`, settings' three
+barcode-reference helpers, `_watch_the_form`, and the data modules
+`spacr._outlier_criteria` / `spacr._stream_selection`, added to
+AUTOAPI_NON_RENDERED_MODULES). What remains is
+`spacr.barcode_search.SearchThresholds` and its `__post_init__`. Every pin was
+re-measured against origin and moved with its entries named, the two digests
+proved by subtraction. `test_documentation_i18n` and the frontend catalog gate
+stay RED until the pre-release catalog rebuild, and each names exactly those
+two symbols as missing from the catalog -- nothing else.
+
+284 (still open): the per-screen stall after the first open is widget
+construction, not imports. Opening Mask ran ast.parse 73 times; cached, Mask
+opens ~30% faster. Next is the stall benchmark on a QUIET machine.
+
+field_fade (b): still not reproduced serially; the next step is CI's xdist
+split, after this push so it cannot contaminate the verification run.
