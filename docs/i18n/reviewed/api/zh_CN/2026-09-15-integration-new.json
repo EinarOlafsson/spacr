@@ -1,0 +1,13 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Never ``SELECT *`` the whole table. Measurement tables run to hundreds of thousands of rows and hundreds of feature columns. The first chunk (100 rows) is fetched and painted on its own; the rest arrives as the user scrolls, through ``canFetchMore`` / ``fetchMore``.",
+      "label": "spacr.qt.screens.db_browser#4",
+      "source": "Never ``SELECT *`` the whole table. Measurement tables run to hundreds of thousands of rows and hundreds of feature columns. The first chunk (100 rows) is fetched and painted on its own; the rest arrives as the user scrolls, through ``canFetchMore`` / ``fetchMore``.",
+      "source_sha256": "6639b08923bf7f9203f890233d763c4f697819164b0ed06220395777dbb1149b",
+      "translation": "绝不对整个表执行 ``SELECT *``。测量表可达数十万行、数百个特征列。第一批数据 (100 行) 会单独获取并绘制；其余数据在用户滚动时通过 ``canFetchMore`` / ``fetchMore`` 陆续加载。"
+    }
+  ],
+  "schema": 1
+}
