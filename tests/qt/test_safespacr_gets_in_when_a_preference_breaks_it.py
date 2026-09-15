@@ -567,9 +567,8 @@ def test_safespacr_builds_no_backdrop_loads_no_gl_and_starts_no_thread(
     No animated backdrop and no fractal widget built, and no fractal module
     imported; nothing of vispy, spaCR's OpenGL library, imported at all; and
     no background thread -- 296 names "no preloading, no background import
-    thread", and the settings pre-warm is one. The backdrop MODULE is held
-    by the strict xfail below, because what still imports it is outside
-    this change.
+    thread", and the settings pre-warm is one. The backdrop MODULE has a
+    test of its own below.
     """
     startup = a_start_that_a_preference_broke["safe"]["report"]["startup"]
 
@@ -609,15 +608,16 @@ def test_safespacr_reads_nothing_from_the_real_store_while_it_starts(
 
 @pytest.mark.slow
 @pytest.mark.timeout(900)
-@pytest.mark.xfail(strict=True, reason=(
-    "296 gap, not fixed: launch -> apply_preferences_to_app -> "
-    "apply_ambient_preferences imports spacr.qt.widgets.ambient before it "
-    "asks get_ambient_enabled(), so safe mode imports the backdrop module "
-    "it never builds. The fix belongs in spacr/qt/preferences.py, outside "
-    "this change."))
 def test_safespacr_does_not_import_the_backdrop_module(
         a_start_that_a_preference_broke):
-    """Nothing is built from it, but 296 says no animated backdrop at all."""
+    """Nothing is built from it, but 296 says no animated backdrop at all.
+
+    The last importer was `apply_preferences_to_app` ->
+    `apply_ambient_preferences`, which imported the module to look for
+    widgets to hide before asking whether the backdrop was on. A widget of
+    a class whose module was never imported cannot exist, so there is
+    nothing to hide then.
+    """
     startup = a_start_that_a_preference_broke["safe"]["report"]["startup"]
 
     assert "spacr.qt.widgets.ambient" not in startup["modules"]

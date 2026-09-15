@@ -31,7 +31,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_ambient_ranges](#_ambient_ranges) (1 entry)
 - [_migrate_ambient_motion](#_migrate_ambient_motion) (1 entry)
 - [_ambient_multiplier](#_ambient_multiplier) (1 entry)
-- [apply_ambient_preferences](#apply_ambient_preferences) (5 entries)
+- [apply_ambient_preferences](#apply_ambient_preferences) (6 entries)
 - [get_fractal_settings._number](#get_fractal_settings_number) (1 entry)
 - [set_fractal_settings](#set_fractal_settings) (4 entries)
 - [laptop_mode_note](#laptop_mode_note) (1 entry)
@@ -552,6 +552,14 @@ widget.set_blur(blur)
 ```
 
 After the theme: a theme change rebuilds the engine, and all of these ride on it.
+
+### lines 2016-2018
+
+```python
+if (sys.modules.get(f"{__package__}.widgets.ambient") is None
+```
+
+A WIDGET OF A CLASS WHOSE MODULE WAS NEVER IMPORTED CANNOT EXIST, so when the backdrop is off and `spacr.qt.widgets.ambient` is not in `sys.modules` there is nothing here to hide, and importing the module to find that out was the cost. It was the last thing that imported the backdrop module into `safespacr`, which never builds one (296; measured 2026-09-15: `launch` -> `apply_preferences_to_app` -> here). Asked in this order, `get_ambient_enabled` answers from `SPACR_NO_BACKDROP` before it reads the stored animation, which would import the module itself. When the backdrop is on, or a widget may exist, the walk below runs exactly as before.
 
 ## get_fractal_settings._number
 

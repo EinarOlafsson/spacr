@@ -2011,6 +2011,11 @@ def apply_ambient_preferences(app=None) -> None:
     module that could not be imported, is a cosmetic problem — not a
     reason to fail a preferences save.
     """
+    import sys
+
+    if (sys.modules.get(f"{__package__}.widgets.ambient") is None
+            and not get_ambient_enabled()):
+        return
     try:
         from PySide6.QtWidgets import QApplication
         from .widgets.ambient import AmbientWidget
