@@ -1041,3 +1041,14 @@ FRESH-COPY RECAPTURE FAILED, AND IT HELD THE SHARED GPU LOCK FOR TWO IDLE HOURS.
     prerequisite, objectives, speech_text present, production copy
     identical). The two pending bundles are deleted now that they are
     applied. Next: 50 voices on the GPU lock (no --force).
+  VOICES RUNNING. The existing 50 m4a + 50 caption files (106 MB) were
+    copied to production/07_mask/pre-2026-09-15/ first. render_all_voices.py
+    --lessons 7 --device cuda took the GPU lock at 07:43:35; the first tracks
+    re-rendered at ~16 s each (en/af_heart 336.7 s of narration). Voice
+    matrix: en 24, es 3, fr 1, hi 4, it 2, pt-BR 3, ja 5, zh-CN 8 = 50.
+    Scene 1's image (the poster source) is unchanged, capture sha
+    46330261..., so poster.jpg stays valid. verify_staged_audio writes
+    audio-checks.<'+'.join(languages)>.json and check_completed_matrix
+    reconciles EVERY such file, so re-run it with the 09-11 order (en es fr
+    hi it pt-BR ja zh-CN): a different order leaves a stale report behind
+    that fails reconcile_audio.
