@@ -1149,8 +1149,7 @@ class FilePathListWidget(QWidget):
             self._single_line.setReadOnly(True)
             self._single_line.setPlaceholderText(self._empty_hint())
             self._single_line.setToolTip(
-                "The file this setting names. Use Choose file… to replace "
-                "it, or drop one here.")
+                "Drop one file here, or use Choose file…")
 
         row = QHBoxLayout()
         row.setSpacing(4)
