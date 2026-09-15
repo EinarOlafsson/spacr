@@ -33,7 +33,8 @@ pytest.importorskip("PySide6")
 pytestmark = pytest.mark.qt
 
 from PySide6.QtGui import QPalette                            # noqa: E402
-from PySide6.QtWidgets import QApplication, QLabel, QWidget   # noqa: E402
+from PySide6.QtWidgets import (QApplication, QComboBox, QLabel,  # noqa: E402
+                               QWidget)
 
 #: Two foregrounds no spaCR palette contains, so a label wearing one was
 #: reached by the sheet that carries it and not by a coincidence.
@@ -43,19 +44,46 @@ FIRST_HEX = "#0b1621"
 SECOND_HEX = "#c86432"
 
 
-def _labels(root):
-    """A label under every widget in ``root``, so each can be asked.
+def _probe(host):
+    """A label whose colour reports the cascade AS IT ARRIVES AT ``host``.
 
     A label is the probe because `color` is what a stylesheet rule can set
-    and a palette can report. Parenting one under each widget asks that
+    and a palette can report, and parenting one under a widget asks that
     widget's branch of the cascade rather than the window's.
+
+    ONE HOST CANNOT BE ASKED DIRECTLY, and it is not a spaCR widget. Qt
+    excludes a `QComboBox`'s OWN children from the stylesheet cascade --
+    they are the combo's internals as far as `QStyleSheetStyle` is
+    concerned, its line edit and its popup container -- so a `QLabel`
+    parented straight onto a combo resolves to `#000000` however the combo
+    was styled. Measured on Qt 6.11.1 with no spaCR in the picture: a bare
+    `QComboBox` on a window carrying `QComboBox { color: rgb(200,100,50) }`
+    reports that colour on its own palette while a fresh label parented
+    onto it reports black. The test named
+    `..._a_label_parented_onto_a_combo_cannot_be_asked` reproduces exactly
+    that, so this branch can never quietly become a way of not looking.
+
+    A label ONE STEP FURTHER DOWN is styled normally, so that is where the
+    combo's probe goes, and it still reports a miss when the sheet really
+    did not arrive -- which
+    `test_the_nested_probe_still_sees_an_unreached_combo` pins.
+
+    :param host: the widget whose branch of the cascade is the question.
+    :returns: a fresh, unstyled label to read the resolved colour off.
     """
+    if isinstance(host, QComboBox):
+        return QLabel(QWidget(host))
+    return QLabel(host)
+
+
+def _labels(root):
+    """A label under every widget in ``root``, so each can be asked."""
     out = []
     for widget in [root] + root.findChildren(QWidget):
         try:
             if widget.isWindow() and widget is not root:
                 continue        # its own window; the dialog guard owns it
-            label = QLabel(widget)
+            label = _probe(widget)
             out.append((widget, label))
         except RuntimeError:
             continue
@@ -142,6 +170,87 @@ def test_the_guard_can_see_a_widget_that_was_missed(sheeted, qtbot):
         "would pass for a change that forgot 405 of them")
 
 
+def test_a_label_parented_onto_a_combo_cannot_be_asked(sheeted, qtbot):
+    """WHY :func:`_probe` GOES ONE STEP DEEPER UNDER A COMBO, stated in Qt.
+
+    NO spaCR IN THIS TEST AT ALL -- a bare `QComboBox` on a bare window
+    with a stylesheet set by hand. `QStyleSheetStyle` treats a combo's own
+    children as the combo's internals, its line edit and its popup
+    container, and leaves them out of the cascade. So a fresh `QLabel`
+    parented straight onto a combo reports `#000000` WHILE THE COMBO
+    ITSELF IS DEMONSTRABLY WEARING THE SHEET, and a probe built that way
+    reads every combo in the application as unreached.
+
+    THIS IS THE FAILURE IT EXPLAINS. Before this, the real-window test
+    sampled `hosts[::len(hosts) // 200]`, and how many widgets Measure
+    builds decides that stride. When 284 dropped Measure from 4,105
+    widgets to 595 the stride moved, the sample landed on a combo for the
+    first time, and the test reported 'QComboBox' as a widget the theme
+    sweep no longer reached. It reached it. Measured on the real window at
+    both d3d333940 and its parent 7efb9b1a1: the SAME eight widgets fail a
+    direct-child probe, six of them combos, and all six report the
+    sentinel on their own palette.
+
+    KEPT AS AN ASSERTION AND NOT A COMMENT so that the day Qt styles a
+    combo's children this goes red and says the workaround can go.
+
+    TAKES `sheeted` ONLY FOR ITS HOUSEKEEPING -- the fixture empties the
+    application stylesheet around the test -- and never calls it, because
+    what is being stated here is Qt's rule and not spaCR's delivery of it.
+    """
+    app = QApplication.instance()
+    window = QWidget()
+    qtbot.addWidget(window)
+    combo = QComboBox(window)
+    combo.addItems(["one", "two"])
+    window.show()
+
+    window.setStyleSheet(SECOND + " QComboBox { color: rgb(200, 100, 50); }")
+    app.processEvents()
+    combo.ensurePolished()
+
+    assert combo.palette().color(QPalette.ButtonText).name() == SECOND_HEX, (
+        "the combo is not wearing the sheet, so this test is not about "
+        "what it says it is about")
+    assert _resolved(QLabel(combo)) != SECOND_HEX, (
+        "Qt now styles a combo's own children: _probe's QComboBox branch "
+        "is dead weight and should be deleted")
+    assert _resolved(_probe(combo)) == SECOND_HEX, (
+        "the nested probe cannot read a combo that IS wearing the sheet, "
+        "so it is the wrong workaround")
+
+
+def test_the_nested_probe_still_sees_an_unreached_combo(sheeted, qtbot):
+    """PROOF THE WORKAROUND IS NOT A BLINDFOLD.
+
+    Going one step deeper under a combo would be worthless -- worse than
+    worthless, because it would look like coverage -- if the deeper label
+    resolved to the sentinel whatever happened. So: two combos, one in a
+    branch the sheet reached and one in a branch it did not, asked the
+    same way.
+
+    `sheeted` is taken for its housekeeping and not called: one branch is
+    sheeted by hand, which is the mistake being imitated.
+    """
+    window = QWidget()
+    qtbot.addWidget(window)
+    reached = QWidget(window)
+    missed = QWidget(window)
+    in_the_sheet = QComboBox(reached)
+    in_the_sheet.addItems(["one"])
+    out_of_it = QComboBox(missed)
+    out_of_it.addItems(["one"])
+    window.show()
+
+    # The narrow implementation's mistake again, with combos in it.
+    reached.setStyleSheet(SECOND)
+
+    assert _resolved(_probe(in_the_sheet)) == SECOND_HEX
+    assert _resolved(_probe(out_of_it)) != SECOND_HEX, (
+        "the nested probe answers the sentinel for a combo the sheet never "
+        "reached, so it would pass for a change that forgot every combo")
+
+
 def test_a_second_change_reaches_everything_again(sheeted, qtbot):
     """Once is not the contract; every time is."""
     app = QApplication.instance()
@@ -178,8 +287,20 @@ def test_the_real_window_wears_one_theme_everywhere(sheeted, qtbot):
     means "overridden" as often as it means "never reached", and the test
     cannot tell those apart. A NEW label with no stylesheet of its own
     resolves purely from the cascade at the widget it is parented under,
-    which is the question. Sampled rather than exhaustive because eight
-    thousand probes would cost seconds and change the tree it measures.
+    which is the question. :func:`_probe` builds it, and under a
+    `QComboBox` it builds it one step deeper, because Qt leaves a combo's
+    own children out of the cascade and a direct-child label would read
+    every combo in the window as unreached --
+    `test_a_label_parented_onto_a_combo_cannot_be_asked` states that in
+    bare Qt.
+
+    SAMPLED rather than exhaustive because eight thousand probes would
+    cost seconds and change the tree it measures -- AND THE STRIDE IS NOT
+    A CONSTANT. It is `len(hosts) // 200`, so any change to how many
+    widgets a module builds re-draws the sample: 284 took Measure from
+    4,105 widgets to 595 and this test began sampling widgets it had never
+    asked before. A failure here is therefore worth checking against the
+    whole population before it is read as a regression.
     """
     from spacr.qt import register_self_registering_modules
     from spacr.qt.app import MainWindow
@@ -215,7 +336,7 @@ def test_the_real_window_wears_one_theme_everywhere(sheeted, qtbot):
     # answer it either way.
     sample = [host for host in hosts[::step]
               if "color" not in (host.styleSheet() or "").lower()]
-    probes = [(host, QLabel(host)) for host in sample]
+    probes = [(host, _probe(host)) for host in sample]
     stale = [(host, label) for host, label in probes
              if _resolved(label) != SECOND_HEX]
 
@@ -286,7 +407,7 @@ def test_the_guard_catches_the_mistake_the_per_screen_change_would_make(
 
     step = max(1, len(outside) // 60)
     missed = [type(host).__name__ for host in outside[::step]
-              if _resolved(QLabel(host)) != SECOND_HEX]
+              if _resolved(_probe(host)) != SECOND_HEX]
     assert missed, (
         "the guard cannot tell a reached widget from a chrome widget the "
         "narrow implementation forgot, so it would pass for a change that "
