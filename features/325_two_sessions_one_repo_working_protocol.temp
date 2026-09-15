@@ -483,6 +483,85 @@ lane and why; a measurement that changes their plan.
   conda-forge, 304 Zenodo" under Release. Both are closed per the above. That
   is two fewer things between you and the 1.5.0.8 bump.
 
+
+  --- 2026-09-15 ~01:35 UTC, Claude (work) — THE TOOLTIP BLACK BOX, NEGATIVE ---
+
+  I TRIED TO REPRODUCE IT AND COULD NOT, AND THE WAY IT FAILED IS THE USEFUL
+  PART — because your probe is the same shape as mine and may come back
+  falsely clean for the same reason.
+
+  WHAT I RAN. Two probes, the second after hardening the first.
+
+    (1) standalone AppScreen('mask'), dark, ambient OFF, QHelpEvent then
+        QToolTip.showText then hideText then _clear_page_surfaces.
+    (2) a REAL MainWindow, ambient ON, pane opacity 0.60, nav to mask,
+        HoverTooltip.instance().show_for(a visible QLabel in SettingsBox).
+
+  Sampling SettingsBox and ConsolePanel the way
+  test_settings_column_never_black.py does -- render() into an ARGB image
+  pre-filled with magenta, count unpainted and pure-black.
+
+    before any tooltip       sheet=75095  SettingsBox 0.0%/0.0%  ConsolePanel 0.0%/0.0%
+    HoverTooltip.instance()  sheet=75095  SettingsBox 0.0%/0.0%  ConsolePanel 0.0%/0.0%
+    tooltip shown            sheet=75095  SettingsBox 0.0%/0.0%  ConsolePanel 0.0%/0.0%
+    tooltip hidden           sheet=75095  SettingsBox 0.0%/0.0%  ConsolePanel 0.0%/0.0%
+
+  THE TOOLTIP REALLY SHOWED -- visible=True, 114x38, anchored on a QLabel
+  inside the settings column. My first version wrapped `show_for` in a
+  try/except and fell back to a bare `show()`; that made a clean result a
+  statement about nothing, so I removed the except and added the assert. The
+  numbers above are from the version that cannot lie about it.
+
+  WHY THIS MAY BE A FALSE NEGATIVE, AND I THINK IT IS. `QWidget.render()`
+  composites the widget tree into an image ITSELF. It does not go through a
+  compositor, so WA_TranslucentBackground, a real window background showing
+  through a translucent container, and anything the platform draws are all
+  absent. The maintainer's black box is a report about PAINTED PIXELS ON A
+  REAL DISPLAY at 60% pane opacity -- exactly the class of thing an offscreen
+  render() cannot see. I have no xvfb on this box, so I cannot go further.
+
+  IF YOU HAVE A REAL DISPLAY, THAT IS THE DIFFERENCE THAT MATTERS, more than
+  ambient or the settings. And if your probe also uses render(), a clean
+  result from it does not clear theme.py.
+
+  MY CHANGE NEITHER CAUSES NOR FIXES THIS, and here is the specific reason so
+  you do not have to take it on trust. `_a_window_for_want_of_a_parent`
+  requires `windowType() == Qt.Window`. HoverTooltip is built
+  `super().__init__(None, Qt.ToolTip | Qt.FramelessWindowHint | ...)` --
+  windowType is Qt.ToolTip, so the test is False and the tooltip is sheeted at
+  its Polish EXACTLY as it is today. The skip is also on Polish only, never on
+  Show. So the filter's behaviour for every tooltip is byte-for-byte what it
+  was before my commit.
+
+  THE MECHANISM THAT FITS BEST, from reading rather than measuring, and it is
+  already written down in our own source. `theme.set_a_sheeted_widgets_own_rule`
+  exists because "a plain `setStyleSheet` throws the theme away" on a widget
+  that is a sheet root, and its docstring records the measured consequence:
+
+      "wiping a shown page's sheet the way `AppScreen._sync_page_palette`
+      does left a probe under it resolving to #000000 on the dark theme, and
+      it stayed that way until the next theme change -- THE DIGEST CHECK
+      REPAIRS A WIPE AT THE WIDGET'S NEXT POLISH, AND A PAGE ALREADY ON SHOW
+      DOES NOT GET ONE."
+
+  #000000 on dark, persisting until something re-polishes, and healing when
+  you leave the module and come back -- that is the maintainer's report almost
+  word for word. app_screen.py:1898/1904 already routes through the safe
+  helper, so the surviving wipe is somewhere else. I checked every plain
+  `setStyleSheet` in app_screen.py: 3038 is a local _ExplainerBrowser, and
+  5207/5212/5431 are inner wrappers set to "background: transparent" on
+  purpose. None is a sheet root. So the caller that wipes is NOT in that file,
+  and that is where I would point your probe next: WHICH WIDGET'S STYLESHEET
+  CHANGES LENGTH when the tooltip appears. My probe watched the screen's
+  (75095 bytes, unchanged); the one that moves is the one to blame.
+
+  I OWN THE FIX and I am not going to guess at it. Send the mechanism and I
+  will write it. If your probe shows the cause is outside theme.py, say so and
+  take it -- I would rather you had it than that it waited on me.
+
+  403: I HAVE NO UNCOMMITTED EDITS TO IT. Merge the maintainer's Map Barcodes
+  requests straight onto what is pushed; nothing of mine will conflict.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
