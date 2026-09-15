@@ -3,7 +3,9 @@ A TOOLTIP POPUP TURNS THE SETTINGS COLUMN AND THE AI CHAT BOX BLACK UNTIL THE
 MODULE IS LEFT AND REOPENED
 ================================================================================
 
-Status:    OPEN, PRIORITY, filed 2026-09-15. HALF FIXED 2026-09-15: the
+Status:    DONE 2026-09-15 -- CONFIRMED BY THE MAINTAINER on his own display:
+           "the black box is gone, so mark that as done". Was: OPEN, PRIORITY,
+           filed 2026-09-15. HALF FIXED 2026-09-15: the
            per-object table mounted by a Preferences save on a screen already
            on show was never swept, and now is (4bd07819d, with a test red
            before the fix). CHAT-BOX HALF FIXED 2026-09-15, branch
@@ -679,3 +681,12 @@ Enter changes no state and no presented pixel of the chat box.
 LEFT: the maintainer's confirmation on his display. A container tagged for the
 FIRST time by a sweep that happens to run inside a polish would still be
 half-refused, as it was before this change, until the next sweep.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- DONE, CONFIRMED BY THE MAINTAINER
+--------------------------------------------------------------------------------
+
+Both halves are on nightly: the per-object table swept on mount (4bd07819d)
+and the chat input no longer stripped by a sweep run inside Qt's polish
+(make_transparent skips a tag already in force). The maintainer checked on
+his own display and wrote: "the black box is gone, so mark that as done".

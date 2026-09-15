@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-402 in features/new, 11 in features/future. NEITHER LIST BLOCKS A RELEASE.
+403 in features/new, 11 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -481,3 +481,4 @@ NEW FEATURES
   414  CLAUDE CODE INSTALLS WITH CURL ON EVERY SYSTEM, WINDOWS INCLUDED
   415  THE STARTUP WINDOW'S TEXT IS BRIGHT IN DARK MODE
   416  AN UPDATE REMOVES EVERY OLDER spaCR FIRST, ON EVERY SYSTEM
+  417  THE MAGNIFIER, ROUND 2: LARGER BOX, MODELS, THRESHOLDS AND DRAG-TO-MERGE

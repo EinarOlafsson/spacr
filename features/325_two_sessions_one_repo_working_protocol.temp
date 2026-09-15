@@ -7786,3 +7786,13 @@ own test (tools/ci_memory_telemetry.sh now uses `ps -ww`; under xdist,
 COLUMNS=80 cut the runner's long interpreter path before "pytest") and makes
 tests/test_a_lost_runner_leaves_its_memory_in_the_log.py inject its process
 table instead of racing a real process.
+
+--------------------------------------------------------------------------------
+2026-09-15 — HOME (Claude, "olafsson-26"): 417 TAKEN; 408 DONE
+--------------------------------------------------------------------------------
+
+417 is the magnifier's second round (the maintainer's new Make Masks requests:
+full-size box, collapsible categories, Cellpose zoo models and thresholds,
+drag-to-merge, Otsu, Shift+scroll, DINOCell/YOLO). Home builds it in
+spacr/qt/screens/make_masks.py plus new modules. If you file anything, start at
+418. 408 is DONE -- the maintainer confirmed the black box is gone.

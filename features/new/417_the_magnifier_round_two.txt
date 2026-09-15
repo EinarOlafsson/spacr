@@ -1,0 +1,87 @@
+================================================================================
+THE MAGNIFIER, ROUND 2: LARGER BOX, MODELS, THRESHOLDS AND DRAG-TO-MERGE
+================================================================================
+
+Status:    OPEN, filed 2026-09-15. Building (Claude home session).
+Requested: 2026-09-15, by the maintainer, after trying item 407's magnifier,
+           in these words:
+
+           "the zoom box works prety well! however id like to change afew
+           things:
+
+           512 is the max for the box size , this number should be able to be
+           as hight as the image is high/wide.
+
+           there are now allot of settings. lets make the settings categories
+           colapseable like int he core applications.
+
+           if the user chooses cellpose they should be able to choose all the
+           cellpose models in the model zoo. the user should also be able to
+           choose which flow and cell probability thresholds are used.
+
+           the user should also be able to click and pull to continuously
+           generate and apply new objects, merging the objects that the curser
+           is drawn over. and there should be an option for the user to choose
+           if objects inthe zoom area are saved, or if only the objects
+           touching the mouse are saved, this way the user can turn of non
+           centered objects and drag over an object for it to select and merge
+           all object frames into one object over the center of the ROI. the
+           user should also have controlls over the otsu algorithm (threshold
+           correction ).
+
+           also holding shift and scrolling should increase or decrease the
+           size setting
+
+           there is alredy a cellpose -SAM settings category. these settings
+           should also apply to the magnifier detection when cellpose is on.
+           and add otsu settings here as well. if you can add other computer
+           vision models like a live YOLO or DINOCell, and remember to add the
+           model zoo button for cellpose"
+Owner:     Claude home session. Builds on item 407 (the live magnifier in Make
+           Masks), which stays as built.
+
+--------------------------------------------------------------------------------
+THE PARTS, AS ASKED
+--------------------------------------------------------------------------------
+
+  1. BOX SIZE: the maximum is no longer 512 (spacr/qt/screens/make_masks.py
+     _MAGNIFIER_SIZE_RANGE = (32, 512)); it can go as high as the open image
+     is high or wide.
+  2. COLLAPSIBLE SETTINGS CATEGORIES in Make Masks, the way the core
+     applications fold theirs.
+  3. CELLPOSE MODELS: with Cellpose chosen, every Cellpose model in the model
+     zoo can be picked, and there is a Model zoo button for Cellpose.
+  4. THRESHOLDS: the flow threshold and the cell-probability threshold the
+     detection uses can be chosen.
+  5. CLICK-AND-DRAG: pressing and pulling keeps generating and applying new
+     objects, merging the objects the cursor passes over.
+  6. WHAT IS SAVED: an option between saving every object in the zoom area and
+     saving only the objects touching the mouse -- so non-centred objects can
+     be turned off, and dragging over an object selects and merges all of its
+     frames into one object over the centre of the ROI.
+  7. OTSU: controls over the Otsu threshold (threshold correction).
+  8. SHIFT + SCROLL increases or decreases the box size.
+  9. THE EXISTING CELLPOSE-SAM SETTINGS CATEGORY applies to magnifier detection
+     when Cellpose is on, and gains the Otsu settings.
+ 10. OTHER MODELS "if you can": a live YOLO, or DINOCell (spaCR already has
+     DINOCell and SAMCell behind `segmentation_backend`, items 404/405).
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * The box can be set to the image's full height/width, by field and by
+    Shift+scroll, and stops there.
+  * Every Make Masks settings category folds and unfolds, and remembers it, as
+    the core applications' do.
+  * With Cellpose on, the model list is the model zoo's Cellpose models, the
+    Model zoo button opens the zoo, and the flow / cell-probability / Otsu
+    values set in the Cellpose-SAM category are the ones the magnifier's
+    detection actually uses (a test checks the values reach the call).
+  * A press-and-drag across cells produces merged objects along the path, as one
+    undo step; with "only objects touching the mouse", objects away from the
+    cursor are not saved, and dragging over one object merges its pieces into a
+    single object centred on the ROI.
+  * DINOCell (and SAMCell) are selectable detectors where installed, with a
+    clear message where not; YOLO is either added or recorded here with why not.
+  * New labels and tooltips are translated in all nine languages.
