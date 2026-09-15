@@ -53,15 +53,21 @@ table derives them from the same source the builders read.
 
 | Language | Reviewed runtime records | Of 5,679 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 134 | 2.36% | 5,545 | 473 | 4.49% | 10,060 |
-| German | 101 | 1.78% | 5,578 | 430 | 4.08% | 10,103 |
-| Spanish | 115 | 2.03% | 5,564 | 291 | 2.76% | 10,242 |
-| Simplified Chinese | 368 | 6.48% | 5,311 | 521 | 4.95% | 10,012 |
-| Portuguese | 115 | 2.03% | 5,564 | 452 | 4.29% | 10,081 |
-| Hindi | 148 | 2.61% | 5,531 | 466 | 4.42% | 10,067 |
-| Korean | 265 | 4.67% | 5,414 | 458 | 4.35% | 10,075 |
-| Icelandic | 173 | 3.05% | 5,506 | 1,031 | 9.79% | 9,502 |
-| French | 116 | 2.04% | 5,563 | 470 | 4.46% | 10,063 |
+| Swedish | 134 | 2.36% | 5,545 | 495 | 4.70% | 10,038 |
+| German | 101 | 1.78% | 5,578 | 452 | 4.29% | 10,081 |
+| Spanish | 115 | 2.03% | 5,564 | 313 | 2.97% | 10,220 |
+| Simplified Chinese | 368 | 6.48% | 5,311 | 543 | 5.16% | 9,990 |
+| Portuguese | 115 | 2.03% | 5,564 | 474 | 4.50% | 10,059 |
+| Hindi | 148 | 2.61% | 5,531 | 488 | 4.63% | 10,045 |
+| Korean | 265 | 4.67% | 5,414 | 480 | 4.56% | 10,053 |
+| Icelandic | 173 | 3.05% | 5,506 | 1,053 | 10.00% | 9,480 |
+| French | 116 | 2.04% | 5,563 | 492 | 4.67% | 10,041 |
+
+*Regenerated 2026-09-15 for instruction 366's module landing pages, on top of
+407's pass below. Neither denominator moves: six existing docstrings grew
+paragraphs and no symbol arrived. Every reviewed API count rises by exactly
+22, the landing pages' new blocks, each carried by a hand-written record in
+all nine locales (198). No runtime count moves.*
 
 *Regenerated 2026-09-15 for instruction 407's live magnifier in Make Masks.
 The runtime denominator moves 5,662 -> 5,679, +17/-0 and all UI: the tool-row

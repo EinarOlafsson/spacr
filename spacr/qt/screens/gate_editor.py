@@ -16,7 +16,7 @@ where the object tables are offered first, or a CSV or TSV file. Several
 databases can be loaded as one table; plate identifiers that collide between
 them are reported rather than silently pooled. Database tables are read as a
 sample set by ``sample_fraction`` and capped by ``max_points``, both in the
-screen's settings.
+Gate Editor settings.
 
 **What it produces.** Threshold, rectangle, oval, polygon and wand gates on
 one or two measurements, box, cylinder and prism gates in the 3D view, and
