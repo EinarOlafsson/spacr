@@ -99,6 +99,9 @@ def test_empty_rollout_does_not_scan_or_touch_any_catalog(monkeypatch):
     paths = sorted((ROOT / "docs/source/_static/i18n/api").glob("*.json"))
     assert len(paths) == 10
     before = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+    previously_enabled = {entry.qualified_key for entry in helpers.active_entries(
+        ROOT, ignore_patterns=builder.AUTOAPI_IGNORE,
+    )}
     monkeypatch.setattr(helpers, "ENABLED_MODULES", frozenset())
 
     def forbidden(*args, **kwargs):
@@ -108,7 +111,7 @@ def test_empty_rollout_does_not_scan_or_touch_any_catalog(monkeypatch):
     measured = builder.public_docstrings()
     assert measured
     manifest = json.loads((ROOT / "docs/source/_static/i18n/api/en.json").read_text())
-    assert set(measured) == set(manifest["symbols"])
+    assert set(measured) == set(manifest["symbols"]) - previously_enabled
     assert before == {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
 
 
@@ -162,6 +165,7 @@ def _build_site(fixture_source, enabled, label):
         f"import sys\nfrom pathlib import Path\nsys.path.insert(0, {str(ROOT / 'tools')!r})\n"
         "import nested_helper_docs as _nested_helper_docs\n"
         f"_nested_helper_docs.ENABLED_MODULES = frozenset({sorted(enabled)!r})\n"
+        "spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))\n"
         f"_SOURCE_ROOT = Path({str(fixture_source)!r})\n"
         "project = 'Feature 411 fixture'\nextensions = ['autoapi.extension', 'sphinx_design']\n"
         f"autoapi_dirs = [{str(fixture_source / 'spacr')!r}]\n"
@@ -194,6 +198,31 @@ def test_empty_rollout_builds_without_helpers_and_keeps_private_api_hidden(fixtu
     assert 'id="spacr.example.outer.choose"' not in page
     assert 'id="spacr.example._private_parent"' not in page
     assert not (output / "api/spacr/_v1_v2_bridge/index.html").exists()
+
+
+def test_changing_only_the_rollout_invalidates_sphinx_incremental_state(fixture_source):
+    output = _build_site(fixture_source, (), "incremental")
+    source = fixture_source / "docs-incremental"
+    config = source / "conf.py"
+    before_sources = {path: path.read_bytes() for path in (fixture_source / "spacr").glob("*.py")}
+    text = config.read_text()
+    old = "_nested_helper_docs.ENABLED_MODULES = frozenset([])"
+    assert text.count(old) == 1
+    config.write_text(text.replace(old,
+        f"_nested_helper_docs.ENABLED_MODULES = frozenset({sorted(MODULES)!r})"),
+        encoding="utf-8")
+    # No -E: the registered config value, not a clean build or source change,
+    # must invalidate AutoAPI's cached empty selection.
+    result = subprocess.run(
+        [sys.executable, "-m", "sphinx", "-W", "-b", "html", str(source), str(output)],
+        capture_output=True, text=True, timeout=120,
+    )
+    assert result.returncode == 0, result.stdout[-8000:] + result.stderr[-8000:]
+    assert before_sources == {path: path.read_bytes() for path in before_sources}
+    page = (output / "api/spacr/example/index.html").read_text()
+    assert 'id="spacr.example.outer.choose"' in page
+    hidden = (output / "api/spacr/_v1_v2_bridge/index.html").read_text()
+    assert 'id="spacr._v1_v2_bridge.public_top._leaf"' in hidden
 
 
 def test_actual_sphinx_html_and_objects_inventory_have_exactly_the_helper_keys(

@@ -3,7 +3,7 @@ API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO COD
 ================================================================================
 
 Status:    IN PROGRESS, CODEX, 2026-09-15. Phase A inventory, rendering and
-           extractor support implemented; CI wiring/verification in progress.
+           extractor support and CI wiring implemented; exact-SHA CI pending.
            Still NOT BLOCKING the 1.5.0.8 release: the release is not held for
            it, and it must not turn a release gate red while it is built.
            Filed as FUTURE the same day ("don't work on it now"), then handed
@@ -571,3 +571,23 @@ or either full i18n audit is claimed by the focused fixture checks above.
 Phase B still requires Claude's dated PHASE B MAY START note. In particular,
 the 24 spacrops.py helpers remain in the historical source inventory but will
 not be selected for a slice while their source module is being retired.
+
+2026-09-15 — CODEX CI WIRING CHECKPOINT
+
+The rendering/extractor foundation is pushed as 650cf808b. docs.yml now calls
+tests/test_built_nested_helper_api.py in its existing SPACR_DOCS_BUILT step;
+no deployment trigger, audit, timeout or other workflow behavior changed.
+
+The rollout tuple is also a registered Sphinx environment setting, derived
+from the same ENABLED_MODULES list. A focused incremental build, without -E
+and without changing any application source file, now proves that switching
+from empty to enabled creates the helper anchors. The expanded focused file
+passes 7 tests in 9.81 s; the full-site check is deferred to the fresh CI
+build. Production checks still use the workflow's existing clean generated
+API tree and -W -E build; an incremental fixture is not a full-site audit.
+
+The existing frontend's three static/canonical-shape contracts also passed
+(1.73 s). No existing pin or catalog was changed. The earlier inventory Docs
+run 34974080427 was CANCELLED while queued, with no jobs, so it is not being
+reported as a passing or failing validation. The final exact-SHA run remains
+to be checked, and Phase B still awaits the agreed explicit handoff.

@@ -136,6 +136,8 @@ autoapi_python_class_content = 'both'   # class docstring + __init__ docstring
 # runs, which clears it first, so nothing stale survives.
 autoapi_keep_files           = True
 autoapi_member_order         = 'groupwise'   # attrs → methods, alphabetical inside
+# A changed rollout must invalidate AutoAPI's otherwise unchanged source cache.
+spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))
 
 
 def autoapi_prepare_jinja_env(env):
@@ -264,4 +266,5 @@ def _skip_implementation_data(app, what, name, obj, skip, options):
 
 
 def setup(app):
+    app.add_config_value('spacr_nested_helper_modules', (), 'env')
     app.connect('autoapi-skip-member', _skip_implementation_data)
