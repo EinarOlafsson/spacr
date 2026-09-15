@@ -1,0 +1,76 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "How much of the machine the run may use: whether the graphics card is used, and how many fields are decoded at once. Nothing here changes the result, only what it costs.",
+      "source": "How much of the machine the run may use: whether the graphics card is used, and how many fields are decoded at once. Nothing here changes the result, only what it costs.",
+      "source_sha256": "da30da17341dbdd7d63669c79da93047981e80383ffbb58a6f4b0556a7975b59",
+      "table": "categories",
+      "translation": "Wie viel des Rechners der Lauf nutzen darf: ob die Grafikkarte verwendet wird und wie viele Sichtfelder gleichzeitig dekodiert werden. Nichts hier ändert das Ergebnis, nur was es kostet."
+    },
+    {
+      "key": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
+      "source_sha256": "638b26601f8977415641e7170e201bb234862ac20f9623c508361f2a539f8a66",
+      "table": "categories",
+      "translation": "Wie die Zellkerne jedes zusammengesetzten Wells segmentiert werden. Jeder Read wird dem Zellkern zugeordnet, auf dem oder direkt neben dem er liegt, daher entscheiden das Cellpose-Modell und der Durchmesser hier, welche Objekte einen Barcode erhalten können."
+    },
+    {
+      "key": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source_sha256": "2d632298c8e3c97043fb1f161a194b3c5e6fa6dc68fd7f90f91fb1ef7499749a",
+      "table": "categories",
+      "translation": "Woher die Sequenzierungskacheln gelesen und wohin die Ergebnisse geschrieben werden: der Ordner, der einschließlich Unterordnern nach Kacheln durchsucht wird, die nach Vergrößerung, Zyklus, Well, Kanälen und Position benannt sind, und der Ordner, der measurements.db und einen Bericht für jedes Well erhält. Legen Sie diese zuerst fest; jede andere OPS-Gruppe setzt voraus, dass sie stimmen."
+    },
+    {
+      "key": "ops",
+      "source": "For optical pooled screening: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes.",
+      "source_sha256": "539fa683cc14ffa515e0cdf74cc668b627e3ded690ce1e7c93e8d005ee2c757e",
+      "table": "module_summaries",
+      "translation": "Für optisches gepooltes Screening: jedes Well der Sequenzierungsaufnahme zusammensetzen, seine Zellkerne segmentieren und deren Barcodes dekodieren."
+    },
+    {
+      "key": "cellpose_diameter",
+      "source": "Expected nucleus diameter in pixels for the segmentation of each stitched well. When set, each window is rescaled so that this diameter becomes the 30 pixels the model expects; empty segments the windows at their own scale. Default None.",
+      "source_sha256": "18db47855e751c9dff07ad0a0c8fc6ba6873d4f769aff1a7e5ace7eb59ea4a20",
+      "table": "setting_tooltips",
+      "translation": "Erwarteter Zellkerndurchmesser in Pixeln für die Segmentierung jedes zusammengesetzten Wells. Ist er gesetzt, wird jedes Fenster so skaliert, dass dieser Durchmesser zu den 30 Pixeln wird, die das Modell erwartet; leer segmentiert die Fenster in ihrem eigenen Maßstab. Default None."
+    },
+    {
+      "key": "cellpose_model",
+      "source": "Which Cellpose model segments the nuclei of each stitched well. 'cpsam' runs the default model of the installed Cellpose; any other name is loaded as that model. Changing it changes which objects are found, and so which nuclei the reads are attributed to. Default 'cpsam'.",
+      "source_sha256": "aa1de4d0f91ca9d2a2ffad99904a3899ede42431c0c0c04c0dbdeeecd2e9ca05",
+      "table": "setting_tooltips",
+      "translation": "Welches Cellpose-Modell die Zellkerne jedes zusammengesetzten Wells segmentiert. 'cpsam' führt das Standardmodell des installierten Cellpose aus; jeder andere Name wird als dieses Modell geladen. Eine Änderung ändert, welche Objekte gefunden werden, und damit, welchen Zellkernen die Reads zugeordnet werden. Default 'cpsam'."
+    },
+    {
+      "key": "dst_root",
+      "source": "Where measurements.db and each well's ops_report.json are written. Empty writes them into the source folder, which mixes outputs with inputs. Default None.",
+      "source_sha256": "e4913fe26d1010f144f2e782da26872cec51112da91aaa1deec05094c9660fff",
+      "table": "setting_tooltips",
+      "translation": "Wohin measurements.db und die ops_report.json jedes Wells geschrieben werden. Leer schreibt sie in den Quellordner, was Ausgaben mit Eingaben vermischt. Default None."
+    },
+    {
+      "key": "genotype_source",
+      "source": "The folder holding the low-magnification sequencing acquisition that carries the barcodes. Its subfolders are searched too, for tiles named like 10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif: magnification, cycle, well, channels and site. Every well found is stitched, segmented and decoded. Default None.",
+      "source_sha256": "9b15079d7bd2a45b52a9cba5a0f258c49bdf3493038594d07548e32807514af7",
+      "table": "setting_tooltips",
+      "translation": "Der Ordner mit der Sequenzierungsaufnahme bei geringer Vergrößerung, die die Barcodes trägt. Auch seine Unterordner werden durchsucht, nach Kacheln mit Namen wie 10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif: Vergrößerung, Zyklus, Well, Kanäle und Position. Jedes gefundene Well wird zusammengesetzt, segmentiert und dekodiert. Default None."
+    },
+    {
+      "key": "ops",
+      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ, and the phenotype images are not placed by this step.",
+      "source_sha256": "1f8582207006c8dbfbf832cdefe10bba563a95fe573a99274da4657f763dc9f6",
+      "table": "setting_tooltips",
+      "translation": "Führt jedes Well der Sequenzierungsaufnahme eines optischen gepoolten Screenings von den Bildkacheln bis zu den Tabellen: setzt die Kernkacheln zusammen, segmentiert und nummeriert die Zellkerne über das ganze Well, dekodiert dann die Reads jedes Sichtfelds und weist jedem Zellkern, dessen Reads übereinstimmen, einen Barcode zu. Die Tabellen werden in measurements.db geschrieben. Die Reads werden aus den Bildern dekodiert, nicht aus FASTQ, und die Phänotypbilder werden in diesem Schritt nicht platziert."
+    },
+    {
+      "key": "Show or hide the optical pooled screening page: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes. Alpha: two wells of one real plate have been run through it so far.",
+      "source": "Show or hide the optical pooled screening page: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes. Alpha: two wells of one real plate have been run through it so far.",
+      "source_sha256": "1a2118fe4e8da8f51342c919ed53008ad5a8275878551096f80d1268ff94fedb",
+      "table": "ui",
+      "translation": "Seite für optisches gepooltes Screening ein- oder ausblenden: jedes Well der Sequenzierungsaufnahme zusammensetzen, seine Zellkerne segmentieren und deren Barcodes dekodieren. Alpha: Bisher wurden zwei Wells einer echten Platte damit verarbeitet."
+    }
+  ],
+  "schema": 1
+}

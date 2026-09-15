@@ -1,41 +1,13 @@
 {
-  "schema": 1,
   "language": "is",
   "records": [
     {
-      "table": "setting_tooltips",
-      "key": "cellpose_diameter",
-      "source_sha256": "20ae110bc8e54cfab7d8af96b10d56fbb77930d5dd8114e03b828fb61753af14",
-      "source": "Expected nucleus diameter in pixels for the segmentation used to align acquisitions. Empty lets Cellpose estimate it, which is usually right and occasionally very wrong on a sparse field; setting it removes that variance. Default None.",
-      "translation": "Væntanlegt þvermál kjarna í dílum fyrir hlutunina sem notuð er til að stilla upptökur saman. Autt lætur Cellpose meta það, sem er oftast rétt en stundum mjög rangt á strjálu sviði; að setja gildi fjarlægir þann breytileika. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cellpose_model",
-      "source_sha256": "f83a901bc2bd270722f02ee37a6e8c023e84657ef7593c7e12bf6bb0459c1108",
-      "source": "Which Cellpose model segments the nuclei that the phenotype- to-genotype alignment matches on. Changing it changes which objects are found, and so which points the alignment is solved from. Default 'cpsam'.",
-      "translation": "Hvaða Cellpose líkan hlutar kjarnana sem samstilling svipgerðar og arfgerðar parar saman. Ef því er breytt breytast þeir hlutir sem finnast, og þar með punktarnir sem samstillingin er leyst út frá. Sjálfgefið 'cpsam'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "dst_root",
-      "source_sha256": "3fd4968d210bc94321bc0421091348e422f58fa362792ca7dd5aa95db5dc7f59",
-      "source": "Where the organised wells, mosaics and reports are written. Empty writes beside the source, which mixes outputs with inputs and makes a second run ambiguous about what it is reading. Default None.",
-      "translation": "Hvar skipulögðu brunnarnir, mósaíkin og skýrslurnar eru skrifuð. Autt skrifar við hlið upprunans, sem blandar úttaki saman við inntak og gerir aðra keyrslu óljósa um hvað hún er að lesa. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "genotype_source",
-      "source_sha256": "ba05502e478674a32d779fd04ae69318c28a63c2e0781832b3d4af978be53d9b",
-      "source": "The folder holding the low-magnification acquisition that carries the barcodes. This is the one that gets stitched into per-well mosaics; the phenotype images are placed onto its output. Default None.",
-      "translation": "Mappan sem geymir lágstækkunarupptökuna sem ber strikamerkin. Það er hún sem er sett saman í mósaík fyrir hvern brunn; svipgerðarmyndirnar eru lagðar ofan á úttak hennar. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "regression_panel_manifest",
-      "source_sha256": "a56fd9034478bbde3fbb64babff621b7916c98e4a6146d4e3573293fcb014bb3",
       "source": "Publication panels built after the regression CSVs are written. None skips them. Supply a mapping, or a path to JSON/YAML, declaring each panel's result source, phenotype, gene/gRNA level and plot kind; the packages land under publication_panels/. Structured rather than a one-line field, so it is set from a script or a saved settings file rather than in the GUI. Default None.",
+      "source_sha256": "a56fd9034478bbde3fbb64babff621b7916c98e4a6146d4e3573293fcb014bb3",
+      "table": "setting_tooltips",
       "translation": "Birtingarspjöld sem eru byggð eftir að aðhvarfs CSV skrárnar eru skrifaðar. None sleppir þeim. Gefðu upp vörpun, eða slóð á JSON/YAML skrá, sem lýsir fyrir hvert spjald uppruna niðurstaðna, svipgerð, gena/gRNA þrepi og myndgerð; pakkarnir lenda undir publication_panels/. Þetta er formgerður reitur en ekki einnar línu reitur, svo hann er settur úr skriftu eða vistaðri stillingaskrá en ekki í GUI viðmótinu. Sjálfgefið None."
     }
-  ]
+  ],
+  "schema": 1
 }

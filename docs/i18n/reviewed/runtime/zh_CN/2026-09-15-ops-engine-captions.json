@@ -1,0 +1,76 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "How much of the machine the run may use: whether the graphics card is used, and how many fields are decoded at once. Nothing here changes the result, only what it costs.",
+      "source": "How much of the machine the run may use: whether the graphics card is used, and how many fields are decoded at once. Nothing here changes the result, only what it costs.",
+      "source_sha256": "da30da17341dbdd7d63669c79da93047981e80383ffbb58a6f4b0556a7975b59",
+      "table": "categories",
+      "translation": "此次运行可以使用多少机器资源：是否使用显卡，以及同时解码多少个视野。这里的设置不会改变结果，只会改变所需的代价。"
+    },
+    {
+      "key": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
+      "source_sha256": "638b26601f8977415641e7170e201bb234862ac20f9623c508361f2a539f8a66",
+      "table": "categories",
+      "translation": "每个拼接后的孔中细胞核如何分割。每条读段都归属于它所落在的或紧邻的细胞核，因此这里的 Cellpose 模型和直径决定哪些对象可以获得条形码。"
+    },
+    {
+      "key": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source_sha256": "2d632298c8e3c97043fb1f161a194b3c5e6fa6dc68fd7f90f91fb1ef7499749a",
+      "table": "categories",
+      "translation": "测序图块从哪里读取、结果写到哪里：在其中（包括子文件夹）搜索按放大倍数、循环、孔、通道和位点命名的图块的文件夹，以及接收 measurements.db 和每个孔一份报告的文件夹。请先设置这些；其他所有 OPS 组都假定它们是正确的。"
+    },
+    {
+      "key": "ops",
+      "source": "For optical pooled screening: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes.",
+      "source_sha256": "539fa683cc14ffa515e0cdf74cc668b627e3ded690ce1e7c93e8d005ee2c757e",
+      "table": "module_summaries",
+      "translation": "用于光学混池筛选：拼接测序采集中的每个孔，分割其细胞核并解码它们的条形码。"
+    },
+    {
+      "key": "cellpose_diameter",
+      "source": "Expected nucleus diameter in pixels for the segmentation of each stitched well. When set, each window is rescaled so that this diameter becomes the 30 pixels the model expects; empty segments the windows at their own scale. Default None.",
+      "source_sha256": "18db47855e751c9dff07ad0a0c8fc6ba6873d4f769aff1a7e5ace7eb59ea4a20",
+      "table": "setting_tooltips",
+      "translation": "每个拼接后的孔进行分割时预期的细胞核直径（像素）。设置后，每个窗口都会重新缩放，使该直径变为模型期望的 30 像素；留空则按窗口自身的比例分割。默认 None。"
+    },
+    {
+      "key": "cellpose_model",
+      "source": "Which Cellpose model segments the nuclei of each stitched well. 'cpsam' runs the default model of the installed Cellpose; any other name is loaded as that model. Changing it changes which objects are found, and so which nuclei the reads are attributed to. Default 'cpsam'.",
+      "source_sha256": "aa1de4d0f91ca9d2a2ffad99904a3899ede42431c0c0c04c0dbdeeecd2e9ca05",
+      "table": "setting_tooltips",
+      "translation": "由哪个 Cellpose 模型分割每个拼接后的孔中的细胞核。'cpsam' 运行已安装 Cellpose 的默认模型；其他任何名称都会作为该模型加载。更改它会改变检测到的对象，也就改变了读段归属的细胞核。默认 'cpsam'。"
+    },
+    {
+      "key": "dst_root",
+      "source": "Where measurements.db and each well's ops_report.json are written. Empty writes them into the source folder, which mixes outputs with inputs. Default None.",
+      "source_sha256": "e4913fe26d1010f144f2e782da26872cec51112da91aaa1deec05094c9660fff",
+      "table": "setting_tooltips",
+      "translation": "measurements.db 和每个孔的 ops_report.json 写入的位置。留空则写入源文件夹，这会把输出和输入混在一起。默认 None。"
+    },
+    {
+      "key": "genotype_source",
+      "source": "The folder holding the low-magnification sequencing acquisition that carries the barcodes. Its subfolders are searched too, for tiles named like 10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif: magnification, cycle, well, channels and site. Every well found is stitched, segmented and decoded. Default None.",
+      "source_sha256": "9b15079d7bd2a45b52a9cba5a0f258c49bdf3493038594d07548e32807514af7",
+      "table": "setting_tooltips",
+      "translation": "存放携带条形码的低倍率测序采集数据的文件夹。其子文件夹也会被搜索，查找命名形如 10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif 的图块：放大倍数、循环、孔、通道和位点。找到的每个孔都会被拼接、分割和解码。默认 None。"
+    },
+    {
+      "key": "ops",
+      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ, and the phenotype images are not placed by this step.",
+      "source_sha256": "1f8582207006c8dbfbf832cdefe10bba563a95fe573a99274da4657f763dc9f6",
+      "table": "setting_tooltips",
+      "translation": "将光学混池筛选的测序采集中的每个孔从图块处理成数据表：拼接其细胞核图块，在整个孔范围内分割并编号细胞核，然后解码每个视野的读段，并为读段一致的每个细胞核分配一个条形码。数据表写入 measurements.db 。读段从图像中解码，而不是从 FASTQ 读取；表型图像不在此步骤中放置。"
+    },
+    {
+      "key": "Show or hide the optical pooled screening page: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes. Alpha: two wells of one real plate have been run through it so far.",
+      "source": "Show or hide the optical pooled screening page: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes. Alpha: two wells of one real plate have been run through it so far.",
+      "source_sha256": "1a2118fe4e8da8f51342c919ed53008ad5a8275878551096f80d1268ff94fedb",
+      "table": "ui",
+      "translation": "显示或隐藏光学混池筛选页面：拼接测序采集中的每个孔，分割其细胞核并解码它们的条形码。Alpha 阶段：目前已有一块真实孔板中的两个孔经过它处理。"
+    }
+  ],
+  "schema": 1
+}
