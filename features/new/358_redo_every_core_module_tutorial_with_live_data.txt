@@ -1167,3 +1167,20 @@ picked up cold:
     reviews applied, 50 voices, audio decoded, 14 browser checks, master,
     matrix, 1440p rendition and web playback all PASSED. Release candidate
     build + verify_release_candidate running.
+
+RELEASE CANDIDATE WITH BOTH REFRESHED LESSONS: release-candidate-8738b_pd.
+  Built 08:07:57 with the recorded build() call (model_promotions=set(MODELS),
+  barcode_promotion=True). Its internal library check passed first. 76 ready,
+  77 routes, 3,800 tracks, 7,875 files, 365,792,357 web bytes (ceiling
+  734,003,200), Coming soon = 71_investigate_hit, release_hold true,
+  published false. It supersedes tytdds1k, which had only 13_regression.
+  DIFF AGAINST zveusu2j (the 09-13 candidate), measured path by path and then
+  by parsing every catalog: 121 paths differ, all accounted for.
+    07_mask        102: 50 m4a + 50 timing json + 1440p web copy + 4K master.
+                   The poster is unchanged; scene 1's image did not change.
+    13_regression    3: web copy, 4K master, poster (as in tytdds1k)
+    14 catalogs + lesson_catalog.js: ONLY the 07_mask entry differs in each;
+                   lesson order and every other top-level key unchanged
+    module_navigation.js: only source_commit
+  No other lesson's bytes or catalog text moved. verify_release_candidate.py
+  is running on it.
