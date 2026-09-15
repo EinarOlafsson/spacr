@@ -3633,3 +3633,14 @@ TRIAGED, THE TWELVE UNATTRIBUTED FILES, EACH RUN HERE RATHER THAN GUESSED AT:
   than ratcheted, on that test's own reasoning: a skip must never be
   reachable from a bug in spaCR.
 
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE MAINTAINER'S DECISION: THE RELEASE GATE IS A RATCHET, NOT 100%
+--------------------------------------------------------------------------------
+
+Asked with the question tool, after 175 of 567 shipped modules failed the
+per-module 100% check and kept `tests` red by scope. Answer: "Ratchet, not
+100%" -- gate on no module losing coverage and no new uncovered module, which
+CI can pass today; 100% per module stays the GOAL of this item. The 1.5.0.8
+bump and merge to main follow once docs, compat-matrix and the rest of tests
+are green.

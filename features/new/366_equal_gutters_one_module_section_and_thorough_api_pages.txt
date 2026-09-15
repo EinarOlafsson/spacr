@@ -478,3 +478,11 @@ VERIFIED BEFORE COMMITTING, on the settled catalogs:
 STILL OPEN under 366: the Embeddings landing page (blocked on a crop loader),
 the English Make Masks paragraph in seven translated READMEs, and the literal
 "remove this text" reading, which is the maintainer's call.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE MAINTAINER'S DECISION ON THE MAKE MASKS README PARAGRAPH
+--------------------------------------------------------------------------------
+
+Asked with the question tool: remove the Make Masks paragraph from the README
+now that its API page carries all of it? Answer: "Keep it". Make Masks keeps
+its own README section; nothing further is owed on the README half of 366.
