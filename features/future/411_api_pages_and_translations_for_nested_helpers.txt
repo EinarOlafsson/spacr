@@ -2,8 +2,8 @@
 API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO CODEX
 ================================================================================
 
-Status:    IN PROGRESS, CODEX, 2026-09-15. Phase A inventory implemented;
-           rendering/extractor integration and verification are next.
+Status:    IN PROGRESS, CODEX, 2026-09-15. Phase A inventory, rendering and
+           extractor support implemented; CI wiring/verification in progress.
            Still NOT BLOCKING the 1.5.0.8 release: the release is not held for
            it, and it must not turn a release gate red while it is built.
            Filed as FUTURE the same day ("don't work on it now"), then handed
@@ -523,3 +523,51 @@ This is Phase A only: ENABLED_MODULES is empty, no API catalog or existing pin
 has been changed, and NO helper slice has landed. Phase B still waits for the
 dated PHASE B MAY START handoff required in section 8. The ownership claim was
 pushed separately as befea7c0b; future progress is recorded here.
+
+================================================================================
+2026-09-15 — CODEX PHASE A: THE RENDERED ANCHORS AND EXTRACTOR AGREE
+================================================================================
+
+Step 0 is committed and pushed as 04ca3dd33. The next checkpoint connects its
+single ENABLED_MODULES switch to both the real Sphinx Jinja hook and
+public_docstrings(). The switch remains EMPTY, so nothing is newly published
+and none of the API catalogs or count pins has moved.
+
+The new module-level helper section also handles helpers under private
+parents. An otherwise hidden module gets a helper-only page: its original
+module prose and top-level functions remain hidden, without private-members.
+Repeated definitions get one canonical anchor and retain all distinct
+signatures and prose. This avoids both duplicate-object warnings and losing a
+conditional implementation's contract.
+
+VERIFICATION:
+  * tests/test_nested_helper_docs.py: 15 passed in 21.26 s (three source
+    guard mutants included; match syntax is conditional for Python 3.9).
+  * tests/test_built_nested_helper_api.py: 6 passed in 8.39 s; the seventh
+    check requires SPACR_DOCS_BUILT and was explicitly skipped here.
+    Two real Sphinx -W -E builds test empty and enabled rollout lists.
+    Five canonical helper anchors are matched against HTML and objects.inv,
+    including a private module, a private parent, methods and overloads.
+    A real Chrome run on the built page puts the French helper translation
+    in the helper's body, not the parent's. Deliberately changing the shipped
+    browser source to look up the parent makes that same contract fail.
+    The locale payload is a source-hashed fixture, not a claim that a
+    production helper slice has been translated or native-reviewed.
+  * Existing tests/test_api_i18n_extractor.py: 8 passed in 43.34 s.
+  * Executed the pre-integration extractor from 04ca3dd33 and the new one
+    against the SAME current spacr source: before = after = 10,534 symbols,
+    additions = removals = 0, and every source document is exactly equal.
+    The complete source-dictionary SHA-256 is
+    7896027909b1aa64e1b1d038751af2b4681650a71c04bf67a67c0bac27ec4c5f.
+  * All ten catalog files are hash-checked before/after the empty-switch
+    contract. Git also reports no catalog, reviewed-record or spacr/ edit.
+
+NEXT: wire the full-built-site anchor check into docs.yml's existing
+SPACR_DOCS_BUILT test step, then inspect the exact-SHA Docs run. That shared
+workflow edit is announced in 325 before editing it; triggers, deployment
+conditions and audit rules will not change. No full repository Sphinx build
+or either full i18n audit is claimed by the focused fixture checks above.
+
+Phase B still requires Claude's dated PHASE B MAY START note. In particular,
+the 24 spacrops.py helpers remain in the historical source inventory but will
+not be selected for a slice while their source module is being retired.

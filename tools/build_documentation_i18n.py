@@ -26,6 +26,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Callable, Iterable, Mapping
 
+import nested_helper_docs
+
 from build_i18n_catalogs import (
     MODEL_ROOT_CANDIDATES,
     MODEL_ROOT_ENV,
@@ -4130,6 +4132,10 @@ def public_docstrings() -> dict[str, str]:
                         path, module, child_key,
                     ):
                         _merge_source_doc(docs, child_key, child_doc)
+    for helper in nested_helper_docs.active_entries(ROOT, ignore_patterns=AUTOAPI_IGNORE):
+        if helper.qualified_key in docs:
+            raise ValueError(f"Nested-helper key collides with existing API: {helper.qualified_key}")
+        docs[helper.qualified_key] = helper.docstring
     for alias, canonical in API_DOC_ALIASES.items():
         if alias in docs:
             raise ValueError(

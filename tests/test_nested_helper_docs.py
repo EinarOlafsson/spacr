@@ -26,7 +26,7 @@ def _source(tmp_path, text, relative="example.py"):
 
 
 def test_every_lexical_scope_is_walked_without_importing_source(tmp_path):
-    _source(tmp_path, '''
+    source = '''
 raise RuntimeError("Never import application code to build its inventory")
 def _private_top_level():
     """This parent is not a nested helper."""
@@ -59,7 +59,10 @@ class Public:
         """A top-level class method is not a nested helper."""
         def leaf():
             """Explain the method's helper."""
-''')
+'''
+    if not hasattr(ast, "Match"):
+        source = source.replace("    match 1:\n        case 1:", "    if True:\n        if True:")
+    _source(tmp_path, source)
     definitions = helpers.inventory(tmp_path, ignore_patterns=())
     by_key = {item.qualified_key: item for item in definitions}
     assert set(by_key) == {
@@ -192,7 +195,10 @@ def test_inventory_does_not_follow_a_source_link_outside_package(tmp_path):
     outside.write_text("def valid():\n    pass\n", encoding="utf-8")
     directory = tmp_path / "spacr"
     directory.mkdir()
-    (directory / "link.py").symlink_to(outside)
+    try:
+        (directory / "link.py").symlink_to(outside)
+    except OSError as error:
+        pytest.skip(f"This platform does not permit source symlinks: {error}")
     with pytest.raises(ValueError, match="escapes the package"):
         helpers.inventory(tmp_path, ignore_patterns=())
 

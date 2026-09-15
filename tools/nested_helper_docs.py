@@ -71,6 +71,17 @@ are included once. No definition wins merely because it was visited first.
             definition.signature for definition in self.definitions
         ))
 
+    @property
+    def relative_signatures(self) -> tuple[str, ...]:
+        """Qualify signatures within the module, including all lexical parents."""
+        parent = self.parent_id.removeprefix(self.module + ".")
+        return tuple(f"{parent}.{signature}" for signature in self.signatures)
+
+    @property
+    def is_async(self) -> bool:
+        """Whether every alternative is an async definition."""
+        return all(definition.is_async for definition in self.definitions)
+
 
 def _module_name(path: Path, root: Path) -> str:
     parts = list(path.relative_to(root).with_suffix("").parts)
@@ -178,6 +189,42 @@ An enabled module containing an undocumented nested definition fails closed.
             definitions=tuple(variants),
         ))
     return tuple(result)
+
+
+def active_entries(root: Path, *, ignore_patterns: Iterable[str]) -> tuple[HelperEntry, ...]:
+    """Resolve the single rollout list; an empty list performs no source scan."""
+    if not ENABLED_MODULES:
+        return ()
+    return entries(inventory(root, ignore_patterns=ignore_patterns), modules=ENABLED_MODULES)
+
+
+def prepare_jinja(env, *, root: Path, ignore_patterns: Iterable[str]) -> None:
+    """Give AutoAPI the same enabled entries used by the translation extractor."""
+    by_module: dict[str, list[HelperEntry]] = defaultdict(list)
+    for entry in active_entries(root, ignore_patterns=ignore_patterns):
+        by_module[entry.module].append(entry)
+    env.globals["spacr_nested_helpers"] = dict(by_module)
+    env.globals["spacr_helper_only_modules"] = set()
+
+
+def helper_page_policy(what: str, name: str, obj, skip: bool, options) -> bool | None:
+    """Expose selected helper-only module pages without their hidden top-level API.
+
+The module's own template suppresses its original body when this marks it as
+helper-only. Descendants of such an originally hidden module are also skipped;
+the helper entries are emitted independently from the canonical inventory.
+"""
+    if not ENABLED_MODULES:
+        return None
+    hidden_modules = obj.jinja_env.globals.setdefault("spacr_helper_only_modules", set())
+    if what in {"module", "package"} and name in ENABLED_MODULES:
+        if skip:
+            obj.obj["spacr_helpers_only"] = True
+            hidden_modules.add(name)
+        return False
+    if any(name.startswith(module + ".") for module in hidden_modules):
+        return True
+    return None
 
 
 def report(

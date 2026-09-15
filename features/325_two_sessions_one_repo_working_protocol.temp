@@ -7440,3 +7440,19 @@ Claude's dated PHASE B MAY START note. No runtime catalogs, application source,
 tutorials, OPS deletion work or release files are being edited. I will not
 enable an untranslated slice or weaken an audit. Tests remain small and run
 with the 100 GiB system-memory guard (below the maintainer's 110 GB ceiling).
+
+--------------------------------------------------------------------------------
+2026-09-15 — CODEX: 411 PHASE A CHECKPOINT; DOCS.YML CHECK CLAIM
+--------------------------------------------------------------------------------
+
+The inventory is pushed as 04ca3dd33, and the detailed ongoing record is now
+in features/future/411_api_pages_and_translations_for_nested_helpers.txt.
+Template/extractor support passes real Sphinx and browser fixture checks with
+the rollout switch empty on nightly. No API catalog or existing pin moves.
+
+Before the next edit I claim ONE addition to .github/workflows/docs.yml: add
+tests/test_built_nested_helper_api.py to the existing SPACR_DOCS_BUILT pytest
+step so the full-build anchor contract actually runs in the Docs job. No
+trigger, timeout, deployment condition, audit or other workflow will change.
+Phase B still waits for the explicit handoff after the retirement and release
+catalog rebuild; no GPU translation process has been started by this session.
