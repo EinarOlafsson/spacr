@@ -1048,3 +1048,16 @@ Minimum dependencies failed. Read from their logs:
 
   Fast also printed three "Timeout (0:05:00)!" dumps from the conftest
   watchdog (tests/conftest.py line 89) without failing a test on them.
+
+  A FAMILY, NOT TWO ONE-OFFS (both sessions, 2026-09-15). Three reds tonight
+  were assertions that measured the machine or compared against nothing:
+  the outline redraw's absolute 2.0 ms, and the work session's two magic-wand
+  tests with absolute millisecond thresholds. All three were fixed the same
+  way -- time against a CONTROL in the same process (a forced recompute, the
+  same call without the cache) so the runner's speed cancels out. And three
+  times one of us caught a replacement that was itself vacuous by MUTATING it
+  (a negative control that must fail) rather than by reading it: the first
+  outline fix compared against a single cold pass that carries ~140 ms of
+  one-time cost and would have passed a redraw that recomputed everything.
+  Rule for this suite: no absolute wall-clock threshold in a test that runs
+  on shared CI, and no timing assertion without a negative control run once.
