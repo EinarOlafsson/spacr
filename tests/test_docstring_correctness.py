@@ -2019,7 +2019,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # reached a pin. PROVED BY SUBTRACTION: the inventory with that one symbol
     # dropped returns 8,696 and every category, exposure and variant bucket
     # below at its previous value.
-    assert len(callables) == len(by_symbol) == 8_697
+    # 2026-09-15, 372 PART 14-M, measured against nightly 3f27b926a by
+    # differencing the inventory LINES, not by subtracting counts: +6 / -0
+    # arrivals (spacr.ops_cycles.AlignedField and align_field,
+    # spacr.ops_engine.run_ops, spacr.ops_phenotype.phenotype_centres,
+    # spacr.ops_sbs.attribute_reads and assign_reads_to_objects) and four
+    # changed signatures (WellLayout, round_well_layout,
+    # phenotype_site_map, call_reads). The same move took c3f562c4f's
+    # 8,696 to 8,702 before the rebase.
+    assert len(callables) == len(by_symbol) == 8_703
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2056,6 +2064,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # removed, and the two unmoved buckets (exception_constructor,
     # inherited_or_default_constructor) are the ones a recategorisation
     # would have disturbed.
+    # 2026-09-15 (372 PART 14-M): function 3,778 -> 3,783 and
+    # dataclass_constructor 472 -> 473, the same +6 as the total; no other
+    # bucket moved, so nothing changed category.
     assert Counter(item.category for item in callables) == {
         # 2026-09-14, +45 total measured per category against 49c1189f7:
         # function +32, method +5, dataclass_constructor +5,
@@ -2066,10 +2077,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 3,777 -> 3,778 on 2026-09-15, +1: `mark_to_start_on` is a
         # module-level function, so it lands here and in no other category --
         # the same single arrival as the total above. Subtracted, 3,777.
-        "function": 3_778,
+        # 3,778 -> 3,783 on 2026-09-15 (372), +5: five of its six arrivals
+        # are module-level functions; AlignedField is the sixth, below.
+        "function": 3_783,
         "method": 3_842,
         "constructor": 396,
-        "dataclass_constructor": 472,
+        "dataclass_constructor": 473,
         "namedtuple_constructor": 8,
         "exception_constructor": 145,
         "inherited_or_default_constructor": 56,
@@ -2091,6 +2104,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # rendered by autoapi and by nothing else, so `cli_only` and
     # `compatibility` are unmoved. Those two are the buckets that would catch
     # a symbol reaching the user by some other route.
+    # `autoapi` 8,692 -> 8,698 on 2026-09-15, the same +6: 372's callables
+    # reach the user by no other route.
     assert Counter(item.exposure for item in callables) == {
         # 8,646 -> 8,691, the same +45: every new callable is rendered by
         # autoapi and by nothing else, so `cli_only` and `compatibility` are
@@ -2098,7 +2113,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # reaching the user by some other route.
         # 8,691 -> 8,692 on 2026-09-15, the same +1: `mark_to_start_on` is
         # rendered by autoapi and by nothing else. Subtracted, 8,691.
-        "autoapi": 8_692,
+        # 8,692 -> 8,698 on 2026-09-15, the same +6: 372's six callables
+        # reach the user through autoapi and no other route.
+        "autoapi": 8_698,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2135,12 +2152,16 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Diverging is the interesting case and the reason it is counted apart.
     # 8,703 -> 8,704 on 2026-09-15, the same +1: one signature, one variant.
     # Subtracted, 8,703.
-    assert sum(item.variant_count for item in callables) == 8_704
+    # 8,704 -> 8,710 on 2026-09-15, the same +6: each of 372's six
+    # callables has exactly one prose variant.
+    assert sum(item.variant_count for item in callables) == 8_710
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
+    # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
     assert Counter(item.variant_count for item in callables) == {
         # 8,689 -> 8,690 on 2026-09-15 with `mark_to_start_on`.
-        1: 8_690,   # +45, +1; the seven two-variant callables are unmoved
+        # 8,690 -> 8,696 on 2026-09-15 with 372's six, one variant each.
+        1: 8_696,   # +45, +1, +6; the seven two-variant callables are unmoved
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2274,7 +2295,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # pack before the plate's own `settings/` folder. PROVED BY SUBTRACTION on
     # the inventory: without the symbol the sum is 17,298, and without the
     # symbol AND `pack_folder` it is 17,297, the previous pin.
-    assert sum(len(item.parameters) for item in callables) == 17_300
+    # 17,300 -> 17,331 on 2026-09-15, +31: +27 from 372's six arrivals and
+    # +4 from its four changed signatures -- WellLayout swaps row_offsets
+    # for half_tile (0), round_well_layout gains half_tile (+1),
+    # phenotype_site_map trades sbs_sites and row_offsets for sbs_centres,
+    # anchors and tile_shape (+1), call_reads gains normalise and gpu (+2).
+    assert sum(len(item.parameters) for item in callables) == 17_331
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2290,7 +2316,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # parameters are required. 317's `pack_folder` defaults to None, so it
     # moves the parameter sum above and not this one -- subtracting the symbol
     # alone returns 8,815.
-    assert sum(len(item.required_parameters) for item in callables) == 8_817
+    # 8,817 -> 8,833 on 2026-09-15, +16: +15 from 372's arrivals and +1
+    # from phenotype_site_map, whose required sbs_sites became the
+    # required pair sbs_centres and anchors.
+    assert sum(len(item.required_parameters) for item in callables) == 8_833
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2347,7 +2376,16 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # that failed to match would have read as "something unexplained moved"
     # when what had actually moved was my reconstruction. Subtract using the
     # recorded baseline LINE, not a field-by-field rebuild of it.
-) == "f59e27a96e2b7af7507d35434068ee417506c396611f303543fe1dbded87242e"
+) == "b644569971593e239771edc9d5226a774fd530066b0eed5dc6e29e085a905788"
+    # Moved 2026-09-15 for 372 PART 14-M and PROVED by subtraction on
+    # nightly 3f27b926a: nightly's own inventory returns f59e27a9..., the
+    # previous pin, and this tree's with the six arrivals dropped and the
+    # four changed lines restored to nightly's form returns f59e27a9...
+    # too. Line-differencing the two inventories gives +6 / -0 and exactly
+    # four changed lines -- spacr.ops_layout.WellLayout and
+    # round_well_layout, spacr.ops_phenotype.phenotype_site_map and
+    # spacr.ops_sbs.call_reads -- which the parameter sums above account
+    # for. Before the rebase the same move took 3476522c... to 9f3d5e2d....
     # Moved 2026-09-14, and PROVED rather than assumed, the way this file
     # asks: the same digest recomputed over the tree at 49c1189f7 returns
     # 487529aa5a65... byte for byte, which is the value this line carried
@@ -2785,7 +2823,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # `spacr.graph_types.mark_to_start_on`. Dropping that key returns 10,533.
     # All four files moved in the same commit, and the extractor's own pin
     # moved by the same one, which is what this cross-check is for.
-    assert len(docs) == 10_534
+    # 10,534 -> 10,541 on 2026-09-15: the seven 372 arrivals named in
+    # test_api_i18n_extractor, +7/-0 by set difference against 3f27b926a.
+    assert len(docs) == 10_541
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -2813,7 +2853,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 8,646 -> 8,691, the same +45 as the exposure counter above.
     # 8,691 -> 8,692 on 2026-09-15, the same +1 as the exposure counter:
     # `mark_to_start_on` is both rendered and documented.
-    assert len(rendered_documented_callables) == 8_692
+    # 8,692 -> 8,698 on 2026-09-15, the same +6 as the callable total: all
+    # six 372 arrivals are rendered and documented.
+    assert len(rendered_documented_callables) == 8_698
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2873,7 +2915,9 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 2026-09-14: 38 -> 43, +5 / -0, all five spacr.curation_queue -- its
     # five dataclasses arriving with 396, which is a module landing rather
     # than a docstring format change.
-    assert len(required_ivars) == 43
+    # 43 -> 44 on 2026-09-15: spacr.ops_cycles.AlignedField, the one
+    # dataclass constructor 372 added, its fields documented as :ivar:.
+    assert len(required_ivars) == 44
     # 156 -> 165 on 2026-09-10: nine fields across Alignment and
     # StitchedWell, the two dataclasses the count above admitted.
     # 165 -> 171, +6: the six fields of `BarcodeSearchPlan` named above.
@@ -2886,7 +2930,9 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # removed, and NO FIELD SET CHANGED on any symbol present in both --
     # which is what distinguishes a module arriving from a docstring format
     # change, the two events this pair of ratchets exists to tell apart.
-    assert sum(map(len, required_ivars.values())) == 192
+    # 192 -> 198 on 2026-09-15, +6: AlignedField's fields without a default
+    # (stack, kept, refused, missing, channel_shifts, cycle_shifts).
+    assert sum(map(len, required_ivars.values())) == 198
     # 30 -> 32 and 145 -> 154: Alignment and StitchedWell again, with
     # their nine fields between them.
     # 32 -> 33 and 154 -> 160: `BarcodeSearchPlan` and its six fields. The
@@ -2900,9 +2946,11 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # ordinary callable growing `:ivar:` fields.
     # 34 -> 39, the five spacr.curation_queue dataclasses whose generated
     # constructor docstring is reduced to :ivar: fields.
-    assert len(generated) == 39
+    # 39 -> 40 on 2026-09-15: AlignedField, wholly in the GENERATED half.
+    assert len(generated) == 40
     # 161 -> 181, the 20 fields of the five curation_queue dataclasses.
-    assert sum(map(len, generated.values())) == 181
+    # 181 -> 187 on 2026-09-15, +6: the same six AlignedField fields.
+    assert sum(map(len, generated.values())) == 187
     # `dataclass_constructor` 31 -> 32: `BarcodeSearchPlan`. The namedtuple
     # bucket is unchanged, which is the part worth asserting -- a namedtuple
     # arriving here would be a different event.
@@ -2912,7 +2960,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # 33 -> 38: the five spacr.curation_queue dataclasses. The namedtuple
         # bucket is unchanged, which is the part worth asserting -- a
         # namedtuple arriving here would be a different event.
-        "dataclass_constructor": 38,
+        # 38 -> 39 on 2026-09-15: spacr.ops_cycles.AlignedField.
+        "dataclass_constructor": 39,
         "namedtuple_constructor": 1,
     }
     assert Counter(
@@ -2925,7 +2974,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # 155 -> 156: `BarcodeEntry`'s one required field, `name`.
         # 156 -> 176 on 2026-09-14: the 20 required fields across the five
         # spacr.curation_queue dataclasses. The namedtuple bucket is unchanged.
-        "dataclass_constructor": 176,
+        # +6 on 2026-09-15: AlignedField's six fields without a default.
+        "dataclass_constructor": 182,
         "namedtuple_constructor": 5,
     }
     assert len(ordinary) == 4
@@ -2948,7 +2998,9 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 34 -> 39 on 2026-09-14, tracking `generated` above: every one of the
     # five new curation_queue constructors documents every required field,
     # which is what the zero on the next line asserts.
-    assert sum(not names for names in remaining.values()) == 39
+    # 39 -> 40 on 2026-09-15, tracking `generated`: AlignedField documents
+    # every required field, which the zeros below still assert.
+    assert sum(not names for names in remaining.values()) == 40
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(

@@ -2064,13 +2064,15 @@ cellpose_diameter
 
 Expected nucleus diameter in pixels for the segmentation used to align acquisitions. Empty lets Cellpose estimate it, which is usually right and occasionally very wrong on a sparse field; setting it removes that variance. Default None.
 
+| :py:func:`~spacr.ops_engine.run_ops`
+|     ``_objects`` **-- reads it**
 | :py:func:`~spacr.spacrops.ops_preprocess`
 |     :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     :py:func:`~spacr.spacrops.stitch_cycle_wells` **-- reads it**
 |         :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
+Read by ``_objects``, :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
 
 .. _setting-flow-cellpose_model:
 
@@ -2079,13 +2081,16 @@ cellpose_model
 
 Which Cellpose model segments the nuclei that the phenotype- to-genotype alignment matches on. Changing it changes which objects are found, and so which points the alignment is solved from. Default 'cpsam'.
 
+| :py:func:`~spacr.ops_engine.run_ops`
+|     ``_objects``
+|         ``_cellpose_model`` **-- reads it**
 | :py:func:`~spacr.spacrops.ops_preprocess`
 |     :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     :py:func:`~spacr.spacrops.stitch_cycle_wells` **-- reads it**
 |         :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
+Read by ``_cellpose_model``, :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
 
 .. _setting-flow-cellpose_nucleus_channel:
 
@@ -4452,13 +4457,14 @@ dst_root
 
 Where the organised wells, mosaics and reports are written. Empty writes beside the source, which mixes outputs with inputs and makes a second run ambiguous about what it is reading. Default None.
 
+| :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.spacrops.ops_preprocess` **-- reads it**
 |     :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     :py:func:`~spacr.spacrops.stitch_cycle_wells` **-- reads it**
 |         :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.ops_preprocess`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
+Read by :py:func:`~spacr.ops_engine.run_ops`, :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.ops_preprocess`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
 
 .. _setting-flow-early_exaggeration:
 
@@ -5349,13 +5355,14 @@ genotype_source
 
 The folder holding the low-magnification acquisition that carries the barcodes. This is the one that gets stitched into per-well mosaics; the phenotype images are placed onto its output. Default None.
 
+| :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.spacrops.ops_preprocess` **-- reads it**
 |     :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     :py:func:`~spacr.spacrops.stitch_cycle_wells`
 |         :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.ops_preprocess`.
+Read by :py:func:`~spacr.ops_engine.run_ops`, :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.ops_preprocess`.
 
 .. _setting-flow-gpu:
 
@@ -9277,6 +9284,8 @@ n_workers
 
 How many parallel workers to use. More is faster until the disk becomes the limit; each worker holds its own tiles, so this multiplies memory. Default is the machine's core count.
 
+| :py:func:`~spacr.ops_engine.run_ops`
+|     ``_decode`` **-- reads it**
 | :py:func:`~spacr.qt.bridge.make_thread`
 |     :py:func:`~spacr.qt.bridge.apply_worker_budget` **-- reads it**
 | :py:func:`~spacr.spacrops.ops_preprocess`
@@ -9285,7 +9294,7 @@ How many parallel workers to use. More is faster until the disk becomes the limi
 |         :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.qt.bridge.apply_worker_budget`, :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
+Read by ``_decode``, :py:func:`~spacr.qt.bridge.apply_worker_budget`, :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
 
 .. _setting-flow-n_workers_features:
 
@@ -10773,13 +10782,14 @@ ops_gpu
 
 Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.
 
+| :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.spacrops.ops_preprocess`
 |     :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     :py:func:`~spacr.spacrops.stitch_cycle_wells` **-- reads it**
 |         :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
+Read by :py:func:`~spacr.ops_engine.run_ops`, :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
 
 .. _setting-flow-optimizer_type:
 
@@ -13259,13 +13269,14 @@ plate
 
 (str) - Legacy setting that is not read by the regression path. Use plateID instead; perform_regression passes plateID to process_scores and process_reads, which apply it to count and score rows lacking a plate identifier. Default None.
 
+| :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.spacrops.ops_preprocess`
 |     :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     :py:func:`~spacr.spacrops.stitch_cycle_wells` **-- reads it**
 |         :py:func:`~spacr.spacrops.get_preprocess_ops_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
+Read by :py:func:`~spacr.ops_engine.run_ops`, :py:func:`~spacr.spacrops.get_preprocess_ops_settings`, :py:func:`~spacr.spacrops.stitch_cycle_wells`.
 
 .. _setting-flow-plateID:
 

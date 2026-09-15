@@ -48530,6 +48530,30 @@
         "91d2295728c16dc85ed8eaee7a42e650d3131fc40138a0dfdce30a5d3fd6f1a2"
       ]
     },
+    "spacr.ops_cycles.AlignedField": {
+      "source_blocks_sha256": [
+        "bd3c464ba7c1e383af82723d56a979c52fe6ec952d9d321493ada19d256ea9ae",
+        "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+        "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+        "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+        "41385b03734c138b45064627ad0272ae0ee312ed8a8de82cc8fcb74a0e5d6762",
+        "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+        "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+        "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af"
+      ],
+      "source_sha256": "a3fe18eb94ffe1e12222b9313782c4081173b24b49bb439d6e5c008e1852c3bd",
+      "text": "Ett fälts sekvenseringscykler, med varje kanal flyttad till en gemensam ram.\n\n:ivar stack: ``(cycles, channels, Y, X)`` float32, en post per cykel i :attr:`kept` och i den ordningen.\n:ivar kept: de cykelnummer som stapeln innehåller, i stigande ordning. Referenscykeln finns alltid bland dem.\n:ivar refused: cykler vars registrering mot referensen inte godtogs. De utelämnas ur stapeln, eftersom baser som läses på opålitliga koordinater avkodas till fel streckkod snarare än till ingen.\n:ivar missing: cykler som erbjöds helt utan plan -- till exempel en fil som inte gick att läsa.\n:ivar channel_shifts: ``cycle -> one (dy, dx) per channel``, förskjutningen som flyttade varje kanal till den första kanalen i dess cykel.\n:ivar cycle_shifts: ``cycle -> (dy, dx)``, förskjutningen som flyttade varje behållen cykel till referensen; referensens egen är ``(0, 0)``.\n:ivar refused_channels: ``(cycle, channel)``-par vars registrering inom cykeln avvisades och som därför inte flyttades.",
+      "translation_source_blocks_sha256": [
+        "5880cc2ccd0e7782bc4dca21e5cd536b6af428bb3f5926d0da822ee9dd67a303",
+        "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+        "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+        "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+        "a265455bf6fd8b8b9cb6a8aa5ed9f82e1375629a0f6553c3678e03f1a3fe1467",
+        "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+        "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+        "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af"
+      ]
+    },
     "spacr.ops_cycles.accepted_cycles": {
       "source_blocks_sha256": [
         "9a4c8a315b1d538d0c7cdd69d46f645000a4878bcd444ff29627972bd09fe703",
@@ -48544,6 +48568,30 @@
         "6b12fc84c5912cbd94c651980d85c0fe65d96f8f13d143068bc78ff89511f293"
       ]
     },
+    "spacr.ops_cycles.align_field": {
+      "source_blocks_sha256": [
+        "13e01cfdc5d576571ce120dcf9e2ac341bcfaeff666f621e730ea2187dd3c2b0",
+        "39d05e48ed3f3462dc95f9cba322d1446c63f078d0a5c6a4f6a733f72b8a9197",
+        "f211b53d9666d844c68e1b911ddc96e3c0ef7b2c13967fbc066e39b3e30e0f02",
+        "f27c769d803e0a2d9ad01e5607b2e4f6c0228b4befecd2e861ebe32b72ee3a79",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+        "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+        "95e5b8500674d5534f485b2db469e50c1dc2a53ab38e0ef50cc0e90dd9a274ea"
+      ],
+      "source_sha256": "6f5e2e53431b5e2b3a0d302a6cf066bd7441220af0e351308c10321c05e5858f",
+      "text": "Registrerar ett fälts kanaler inom varje cykel och därefter dess cykler.\n\nVarje baskanal flyttas först till sin cykels första kanal, på den klippta cellbakgrund som kanalerna delar -- på den uppmätta plattan låg de upp till 14 px isär, vilket ingen registrering mellan cykler kan se -- och varje cykel flyttas sedan till referensen med :func:`sbs_mean_target`. En cykel som erbjuds som ``None`` eller med ett saknat plan rapporteras i :attr:`AlignedField.missing` och en vars registrering avvisas i :attr:`AlignedField.refused`; resten justeras ändå, så en förlorad cykel kostar inte fältet.\n\n:param planes: ``cycle -> the base channels of that cycle``, där varje plan är en 2-D-bild av samma form.\n:param reference: cykeln som allt flyttas till. None tar den lägsta cykel som har plan.\n:param tolerance: hur långt från referensen en cykel får hamna och ändå godtas, i pixlar.\n:param gpu: låt faskorrelationerna köras på grafikkortet.\n:returns: det justerade fältet.\n:raises ValueError: när ingen cykel har plan, eller när referenscykeln saknar dem.",
+      "translation_source_blocks_sha256": [
+        "f2bd6713f4006234347a17cf9b1bcde501a8e0a25e178f709762a748e8d3f7fc",
+        "e60728203af2b09c945b009cf647dfaaf5815deb409513d518f6c1831a62e392",
+        "a126caee704d1722de1c59c2ac3567a64ed719efd068914d75175e1228fb3f78",
+        "4491f878a1389efbe2115c814ab157ee46226a8cfa73a5457070452cd079f91e",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+        "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+        "977ab50df32fda2e8e9966e79db80108f25d3545ccd2381497750282a3ffc178"
+      ]
+    },
     "spacr.ops_cycles.register_cycles": {
       "source_blocks_sha256": [
         "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
@@ -48555,7 +48603,7 @@
         "90f42c33b07de85de39c0e99b97db3f6e522da3d813a10d34a6a4cbf6e0c42dd"
       ],
       "source_sha256": "18a1ccd2997c07dbdfd6224dbea3ff82d1dabb356c8de8f140bba51c889c9275",
-      "text": "Placera varje cykel i ett fält mot det fältets referens.\n\nVarje cykel mot referensen direkt, aldrig mot sin föregångare. Kedja c1 ->c2 ->c3 sparar en registrering och gör att varje senare cykel beror på varje tidigare: en enda dålig länk förskjuter resten och restvärdet säger inte vilken länk som misslyckades. Att registrera var och en oberoende är vad som låter en cykel tappas utan att kosta de andra – DEL 9 regel att en cykel som inte kommer att registrera får inte kosta mikroplattans provposition.\n\n:param reference: Referenscykelns mål, från :func:`sbs_mean_target`.\n:param cycles: Cykelnummer till den cykelns mål.\n:param tolerance: Hur långt en cykel kan landa från referensen och fortfarande accepteras, i pixlar.\n:param kwargs: övergick till :func:`spacr.ops_register.phase_correlate`.\n:returns: cykelnummer till dess :class:`Registration`, inklusive de som vägrats – en uppringare som rapporterar `n_cycles` behöver veta att en cykel har prövats och avslagits, inte bara att den är frånvarande.",
+      "text": "Placera varje cykel i ett fält mot det fältets referens.\n\nVarje cykel mot referensen direkt, aldrig mot sin föregångare. Kedja c1 ->c2 ->c3 sparar en registrering och gör att varje senare cykel beror på varje tidigare: en enda dålig länk förskjuter resten och restvärdet säger inte vilken länk som misslyckades. Att registrera var och en oberoende är vad som låter en cykel tappas utan att kosta de andra – DEL 9 regel att en cykel som inte kommer att registrera får inte kosta mikroplattans provposition.\n\n:param reference: Referenscykelns mål, från :func:`sbs_mean_target`.\n:param cycles: Cykelnummer till den cykelns mål.\n:param tolerance: hur långt från referensen en cykel får hamna och ändå godtas, i pixlar.\n:param kwargs: övergick till :func:`spacr.ops_register.phase_correlate`.\n:returns: cykelnummer till dess :class:`Registration`, inklusive de som vägrats – en uppringare som rapporterar `n_cycles` behöver veta att en cykel har prövats och avslagits, inte bara att den är frånvarande.",
       "translation_source_blocks_sha256": [
         "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
         "8b8b9128b0d28f037b6fb3ea9be9d2d40be17f96207b205abc6e38135d34b057",
@@ -48588,6 +48636,42 @@
         "fe20db7a756230d7f9654f3ea9accd518edd81b53df9f96e378da3b4eb859367"
       ]
     },
+    "spacr.ops_engine": {
+      "source_blocks_sha256": [
+        "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
+        "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
+        "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73"
+      ],
+      "source_sha256": "addb1b55394a44a3dd693a8768539a205c86e4464bffb7637959171d38dc3c4d",
+      "text": "Kör sekvenseringsupptagningen i en optisk poolad screen från bildrutor till tabeller.\n\nEtt anrop tar varje brunn från dess bildrutefiler till tre tabeller i ``measurements.db``: ``ops_geometry``, var varje kärnruta ligger i brunnens ram; ``ops_objects``, en rad per kärna, segmenterad på den sammansatta kärnkartan och numrerad en gång för brunnen; och ``ops_barcodes``, en rad per kärna vars tillskrivna läsningar är överens.\n\nEn fil som inte går att läsa kostar en cykel av det fält den hör till och listas i rapporten; den kostar inte brunnen. Fenotypupptagningen placeras inte av detta steg.",
+      "translation_source_blocks_sha256": [
+        "2c2458a62b571f8e72b70b8e635f8908f800ba1bc12bd66c9029a0483955d613",
+        "ca95d16ca07572e19ebe29c1a79463631431eea44d7765f09de50753f28d29db",
+        "e7b2d3445a7bdbb35cc8f223849a27555668a54900f5b526ae81aa3d0daf5d77"
+      ]
+    },
+    "spacr.ops_engine.run_ops": {
+      "source_blocks_sha256": [
+        "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
+        "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
+        "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
+        "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
+        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+        "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c"
+      ],
+      "source_sha256": "b7cf061017eaa6ad6f1dfc5851a7493ca7e1a8ea82a27293ced136739703d7db",
+      "text": "Sammanfogar, segmenterar och avkodar brunnarna i en sekvenseringsupptagning.\n\n:param settings: OPS-inställningarna. Här läses: ``genotype_source``, mappen med sekvenseringsrutor, som genomsöks rekursivt; ``dst_root``, dit ``measurements.db`` och rapporterna per brunn skrivs, källmappen när den är tom; ``plate``, källmappens namn när den är tom; ``ops_gpu``; ``n_workers``, hur många fält som avkodas samtidigt; ``cellpose_model`` och ``cellpose_diameter``.\n:param wells: vilka brunnar som ska köras; varje brunn som hittas när None.\n:param phases: valfria av ``\"stitch\"``, ``\"objects\"`` och ``\"decode\"``, körda i den ordningen. En fas som utelämnas läser det den behöver från databasen, så en brunn kan sammanfogas en gång och avkodas igen.\n:param library: guidestreckkoderna, som en sekvens eller sökvägen till en CSV med en kolumn ``prefix``, ``barcode`` eller ``sequence``. När de anges mappas varje streckkod också till sin närmaste guide.\n:returns: ``{\"db\": path, \"wells\": {well: {phase: report}}}``.\n:raises ValueError: när källan inte innehåller några rutor som detta kan namnge, när en okänd fas eller brunn efterfrågas, eller när en fas saknar sin indata.",
+      "translation_source_blocks_sha256": [
+        "55e436af9ddcabbeca29109f95002d1f971cdbb763fdebdec97d4d65a934f5fe",
+        "9b9693dc3a424fc9561a55eeb6b5a3b655b5a32405e846a949aa260b92f8259f",
+        "6db1cb9e60478e98d15850455427024f6709b7bf66a1e6f0fae6b412185d4949",
+        "0b480320509f0847b25781cc61ee5b019505802f9ef812bc588bf34648024faf",
+        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+        "45581efb90904ef0ca2df0483b6d41f5b74785186657bde7b3af92131d744975"
+      ]
+    },
     "spacr.ops_layout": {
       "source_blocks_sha256": [
         "2a2ae3e9c8647ec5167329b0a954f529068d907d0ad9ca37d95e51a6b580dd63",
@@ -48617,19 +48701,19 @@
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
         "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
-        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
-        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
+        "8f325a816c5bbaf3978bc1b0e1f2384012d77d38ea943976debc17de5c593ee7",
+        "06ca32f7fa55d96acacd275df9f0d6e990beb502f91bbcbbe942f5df4ab41384"
       ],
-      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
-      "text": "En rund brunns mikroskop bildfält, adresserad efter platsindex och rutnät position.\n\n:ivar columns: Hur många kolumner av mikroskop fält av visa förvärv raster har.\n:ivar radius: mikroplattans provpositionsradie, i rutnätsenheter (ett mikroskopfälts pitch = 1).\n:ivar centre: ``(column, row)`` i cirkelns mittpunkt. Raden är negativ för den uppmätta brunnen eftersom plats 0 ligger på toppen och raderna ökar nedåt.\n:ivar snake: om förvärvsormarna – udda kolumner samlade längst ner till toppen. Micro-Managers HCS-insticksprogram gör det, vilket är anledningen till att referensimplementationen har en `remap_snake` alls.\n:ivar row_offsets: hur långt varje kolumns rader sitter från var cirkeln placerar dem, ett heltal per kolumn, vänster till höger. Tom betyder att cirkeln tas på sitt ord, vilket är vad varje layout gjorde innan fenotypen väl visade att det inte kunde vara. Kolumner förbi slutet av tuplen är oförändrade, så ``()`` är hela det gamla beteendet snarare än ett specialfall av det. ett tuple eftersom denna klass är hazed -- se :func:`_index`.\n\nFörskjutningen flyttar en kolumn, den ändrar inte storlek en. Båda ändarna av span skifta tillsammans, så :attr:`heights` och :attr:`site_count` är samma oavsett förskjutningar är, och site N är samma mikroskopfält av vy före och efter en korrigering -- på en annan rad. Det är exakt defekt 372-del 14-G mätt på fenotyp förvärv: över 188 anpassade mikroskop fält av seende COLUMN index var rätt varje gång, till en standardavvikelse av tusende, och raden var fel med ett exakt heltal per kolumn. Höger höjder, fel ursprung.",
+      "source_sha256": "252f3c40a3c0f8616cd8cf6c21a97caa3252f712bfae3e8e7b05eda45c917c1c",
+      "text": "En rund brunns mikroskop bildfält, adresserad efter platsindex och rutnät position.\n\n:ivar columns: Hur många kolumner av mikroskop fält av visa förvärv raster har.\n:ivar radius: mikroplattans provpositionsradie, i rutnätsenheter (ett mikroskopfälts pitch = 1).\n:ivar centre: ``(column, row)`` i cirkelns mittpunkt. Raden är negativ för den uppmätta brunnen eftersom plats 0 ligger på toppen och raderna ökar nedåt.\n:ivar snake: om förvärvsormarna – udda kolumner samlade längst ner till toppen. Micro-Managers HCS-insticksprogram gör det, vilket är anledningen till att referensimplementationen har en `remap_snake` alls.\n:ivar half_tile: en halv rutsida, i rutnätsenheter. En plats behålls när hela dess ruta ligger inuti cirkeln: på ``(dx, dy)`` från centrum, när ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Noll behåller varje plats vars centrum ligger inuti, vilket är regeln som varje layout följde innan detta fält fanns.\n\nRutan måste rymmas, inte bara dess centrum. Centrumregeln håller sekvenseringsbrunnen med 333 fält men kan inte ge de kolumnhöjder som fenotypbrunnen med 1,281 fält mättes till, för någon radie. Med fotavtryckstermen blir båda som uppmätt, och varje kolumn centreras på samma rad.",
       "translation_source_blocks_sha256": [
         "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
         "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
         "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
         "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
-        "6ab4eb4e3f981c2078f1eae27c7c104a4a9c68d1de9927062c509b7bfc8105df",
-        "870af8968e920b1eb1ab3e6a392e1b38155e8b69f61ef89c7aaa8c4c96ae2631"
+        "c089679479ffdf207de8067f3e4f29a5df60e941982d8f8fb90e01f5409d77d0",
+        "a9dece7f979e964c16a96ab4b32c4e678cfaaa4d53847c4dce047244d8cc9b58"
       ]
     },
     "spacr.ops_layout.WellLayout.heights": {
@@ -48748,34 +48832,38 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
+        "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4"
       ],
-      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
-      "text": "``(first row, last row)`` i en kolumn eller None om den är tom.\n\n:param column: Kolumnindex.\n:returns: Det sammanlagda absoluta radintervallet inom cirkeln, förskjutet genom denna kolumns post i :attr:`row_offsets`.",
+      "source_sha256": "1c9c10d3538b324c4f83220737486ee98761f76f1a800008384a01392f58cee6",
+      "text": "``(first row, last row)`` i en kolumn eller None om den är tom.\n\n:param column: Kolumnindex.\n:returns: det inkluderande absoluta radintervallet för de platser vars hela ruta ligger inuti cirkeln -- se :attr:`half_tile`.",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
+        "aa4afa4c382f77ea7a31a9173e9d67f1097d8c3a0d8d98cda9429bf2f9f3ddf1"
       ]
     },
     "spacr.ops_layout.round_well_layout": {
       "source_blocks_sha256": [
         "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
-        "7619125def20ced78e2946ad77985f1728799f754e04ace16d29f9b80fa43451",
+        "86268289cc8151bcdee1cedd1f609ed53d034ff8323229112d2a1cfb1a521f55",
         "2c3cc617cc24727b4210a8dd67fa23af8d3dfb12ad2ee7a5a3560b39bdea1959",
         "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "c63e219d31a59ab085b7434370040f30d072e66e0a9e87fdca14135374b066ac",
         "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
-        "5f9697ed74dc5cc31a1fc7867b8e9e434ff5ebef0a620a2beba10665fbb9c422"
+        "c2fc36d4de364217c55b41aa0312bda2c72f6671f1df7fcbed55d6c8e88713b0",
+        "2f7270145a6377b6ae43cc385f4e785ba75db522e11a7e546a7397c17f3eede2"
       ],
-      "source_sha256": "424f2519dc4cfbe48ad17d1d33a2c49ea72c9bdb6d5d248bfac935d15e845394",
-      "text": "Den layout vars cirkel håller exakt ``site_count`` fält.\n\nDen uppmätta brunnen returneras oförändrad för 333, så den bekräftade modellen är aldrig åter härledd. För varje annan räkning söks radien -- en brunn avbildad vid en annan förstoring eller en annan laboratoriemikroplatta format är samma cirkel med ett annat antal mikroskop fält av vy i den.\n\n:param site_count: Hur många mikroskop bildfält förvärvet innehar.\n:param columns: Kolumnen räknas, när den är känd. Härleds från cirkeln annars.\n:returns: layouten.\n:raises ValueError: När ingen cirkel håller exakt så många mikroskopfält, vilket är det ärliga svaret -- en räkning som ingen rund brunn producerar betyder att förvärvet inte är ett, och gissningar om det närmaste skulle placera varje mikroskop bildfält något fel.",
+      "source_sha256": "5305e117b3024b18d8338920bf837bd4e2da0bdac000f8770f6a9b74d65a8f66",
+      "text": "Den layout vars cirkel håller exakt ``site_count`` fält.\n\nDen uppmätta brunnen returneras oförändrad när sökningen landar på dess 333 platser, så den bekräftade modellen härleds aldrig på nytt. För alla andra antal söks radien -- en brunn som avbildats med en annan förstoring eller i ett annat plattformat är samma cirkel med ett annat antal fält i.\n\n:param site_count: Hur många mikroskop bildfält förvärvet innehar.\n:param columns: Kolumnen räknas, när den är känd. Härleds från cirkeln annars.\n:param half_tile: en halv rutsida i rutavstånd -- rutans storlek delad med två gånger det registrerade avståndet. Ett fält behålls när hela dess ruta ligger inuti cirkeln; noll behåller det när dess centrum gör det. Standardvärdet är fenotypupptagningens uppmätta 0.5857. Sekvenseringsupptagningen mättes till 0.5840, och varje värde strikt mellan 0.5 och 2.0 ger båda brunnarna -- 333 och 1,281 fält -- de kolumnhöjder de mättes till.\n:returns: layouten.\n:raises ValueError: när ingen cirkel rymmer exakt så många fält, vilket är det ärliga svaret -- ett antal som ingen rund brunn ger betyder att upptagningen inte är en sådan, och att gissa det närmaste skulle placera varje ruta en aning fel. Även när ``half_tile`` är negativt eller inte är ett tal.\n\nFör en given halv ruta bestämmer antalet fälten. Antalet fält inuti cirkeln växer bara med radien, så varje radie som rymmer exakt ``site_count`` rymmer samma fält. Radien som layouten bär är en av dem, inte ett mätvärde.",
       "translation_source_blocks_sha256": [
         "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
-        "c91147024efddab4317ffbb9fcddc27b708f286153a97bc3d2153da09113d782",
+        "299d2ff5db36070256696fbaabdea0d8ae076c4a2d77122fd92dcfcc8efd1a69",
         "422badeb089edccd9e0d3666b00db879896f12f16774d37d87dc5bca4af4c8e3",
         "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "a50cff12e7524dd13b525486a4f16cd108fda88e0d9a67bff2797a538a43cb0e",
         "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
-        "022fedb5794bf48bc372d1c87b78f0d6fc2382f19c3e0b5344b52134234fc219"
+        "88b274bcd4cbb2030e03f9a93dfd0415158a37f24c7481dd30cb80b713ec4368",
+        "bca2e567effccfa5841031b3ac22fdfcfcbfb9d8890dc31fa1a55bd4c1e1ed00"
       ]
     },
     "spacr.ops_merge": {
@@ -48873,11 +48961,11 @@
         "990cbd9d468810e23d12c3c6422a96b1e92596d8698621faf418036c8b591785",
         "97b8148e32b87cf7ab822aa5792267912cd4e0e4cb9ef01a3fe9b1d14e57d483",
         "bcd8c39db6c093f852d0428af03bd07c6af89f7ae366071127c7a1ff280d4889",
-        "01272912db0ec87950b0a80779bd9ba157f02b306c23a540d72bcc352015eaa5",
+        "9ba2321f17439d3fd4a3b06d53ac4f49127ce9a492def8e4f8a737101af7d7c9",
         "c02755472affea9845da91da2662a1c37746a02b0533ee43750418c5f0dfc107"
       ],
-      "source_sha256": "a3672d1d070cafff1ab522615ed99b112085c5305e9559ae6cf0099fc3605b14",
-      "text": "En objektlista för en mikroplatta provposition, sys över fönster sömmar och numreras en gång.\n\nSEGMENT, SEW, NUMMER -- de tre stegen mellan en komposit och ett objektbord. Kompositsteget ger ett sytt bildrutnät som är byggt ett fönster i taget och aldrig materialiserat hela; detta är vad segmentering och numrering gör på toppen av det:\n\n* Segment en gång, på kompositen, fönster för fönster.\n* Sy etiketterna över fönstersömmar. Ett objekt som sträcker sig över en gräns är ett objekt, matchat på dess välframe centroid.\n* Nummer i mikroplattan provposition ram, inte per fönster. Per fönster numrering skulle ge två fönster ett objekt #1 styck.\n\nProblemet med sömmen är redan halvlöst av komponerat steg, och säger hur man undviker att återuppfinna det. :func:`spacr.ops_compose.windows_over` mikroskop bildfält med en ÖVERSIKT, och dess kontrakt är att överlappningen överstiger det största objektet. Så en kärna nära en söm delas inte mellan två fönster -- det ses HELE av minst ett av dem, och vanligtvis två gånger. Jobbet här är därför dediplicering, inte rekonstruktion: hitta observationer som är samma kärna och behålla den som såg allt.\n\n    Att återskapa ett objekt från två partiella masker innebär att bestämma hur man ska bilda pixlar över en söm, vilket är fuddigt och förlustigt. Att välja mellan två kompletta masker är varken eller.\n\nVilket lämnar ett fel som inte får vara tyst: ett objekt större än överlappningen, som varje fönster klipper. :func:`sew` vägrar dem snarare än att avge ett fragment, eftersom ett fragment ser exakt ut som en liten kärna och skulle räknas som ett för resten av bearbetningssessionen.\n\nId:erna är ett struktur-datanamn för att gå samman, så de tilldelas deterministiskt - rasterordning på mikroplattprovets position-ram centroid - och inte genom iterationsordning över en nyckelvärdeskartläggning eller av vilket fönster som helst som råkade segmenteras först. Kontraktet är: \"Detta id, och centroiden bredvid det, är det strukturerade datanamnet för varje senare fas.\" Två körningar över samma data måste producera samma nummer eller ingenting nedströms kan jämföras.",
+      "source_sha256": "f693ec2a28a9c9ad50cd0653132a34c919ca0ab90f60878bd1c6648e5aff52f1",
+      "text": "En objektlista för en mikroplatta provposition, sys över fönster sömmar och numreras en gång.\n\nSEGMENT, SEW, NUMMER -- de tre stegen mellan en komposit och ett objektbord. Kompositsteget ger ett sytt bildrutnät som är byggt ett fönster i taget och aldrig materialiserat hela; detta är vad segmentering och numrering gör på toppen av det:\n\n* Segment en gång, på kompositen, fönster för fönster.\n* Sy etiketterna över fönstersömmar. Ett objekt som sträcker sig över en gräns är ett objekt, matchat på dess välframe centroid.\n* Nummer i mikroplattan provposition ram, inte per fönster. Per fönster numrering skulle ge två fönster ett objekt #1 styck.\n\nProblemet med sömmen är redan halvlöst av komponerat steg, och säger hur man undviker att återuppfinna det. :func:`spacr.ops_compose.windows_over` mikroskop bildfält med en ÖVERSIKT, och dess kontrakt är att överlappningen överstiger det största objektet. Så en kärna nära en söm delas inte mellan två fönster -- det ses HELE av minst ett av dem, och vanligtvis två gånger. Jobbet här är därför dediplicering, inte rekonstruktion: hitta observationer som är samma kärna och behålla den som såg allt.\n\n    Att återskapa ett objekt från två partiella masker innebär att bestämma hur man ska bilda pixlar över en söm, vilket är fuddigt och förlustigt. Att välja mellan två kompletta masker är varken eller.\n\nWHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT (vilket lämnar ett fel som inte får vara tyst): ett objekt som är större än överlappet, som varje fönster klipper. :func:`number` vägrar sådana i stället för att avge ett fragment, eftersom ett fragment ser ut precis som en liten kärna och skulle räknas som en under resten av körningen.\n\nId:erna är ett struktur-datanamn för att gå samman, så de tilldelas deterministiskt - rasterordning på mikroplattprovets position-ram centroid - och inte genom iterationsordning över en nyckelvärdeskartläggning eller av vilket fönster som helst som råkade segmenteras först. Kontraktet är: \"Detta id, och centroiden bredvid det, är det strukturerade datanamnet för varje senare fas.\" Två körningar över samma data måste producera samma nummer eller ingenting nedströms kan jämföras.",
       "translation_source_blocks_sha256": [
         "8c6d8513f13f9bdee29471aa28191262bead1149b24a1bdd2dd9bd006801d1c8",
         "876023c819960f5827726f2d0a528b5f6695cd8d3cdbbd1e88dbd22dff0fd76e",
@@ -48886,7 +48974,7 @@
         "855db13bbcf05e330503ed4ac4e1e170756ff56ba9bac3624767c9e5658fbdef",
         "33ccab566faea35efbfc090caa07b8b5f4b383f52dc588eb1af0269939f158ea",
         "70a26b1a8de4fe228b8bf046da160ff9aa3f7f15b1d4d7ba8f7c420403994e82",
-        "1b5012547632a797799e95c8197cc7dd2a97f1023ae8cc29146fc77bf09cf5b1",
+        "f13b8f1b62c2143da8621843e67a1c8430ddf0d735014117869e26ee78d48dc5",
         "6d6f19c0b5cdcca7dd1892c1089587143faa4afdc9d5216b05b1fd0379f3e81e"
       ]
     },
@@ -48968,18 +49056,18 @@
         "9a93bc57583625008118ded5bf4743b7890b3e250252024c69d6ee1a26c61af0",
         "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
         "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
-        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
-        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+        "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+        "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac"
       ],
-      "source_sha256": "f8d639df7ef3ce1cd268c560d6e74d298f93194582c5b9bb6de2b4b778e2d4d3",
-      "text": "En id per objekt, tilldelad i mikroplattan provposition ram, deterministiskt.\n\nRaster order på mikroplattan provposition-ram centroid -- uppifrån till botten, sedan vänster till höger -- snarare än orderfönstren var segmenterade i. Id är en gå nyckel, så två kör över samma data måste producera samma nummer; beställning med vad som helst schemaläggaren kan variera skulle bryta det tyst och bara i resultaten.\n\nIds börjar på 1. Zero är bakgrund i varje etikett bild detta kom från, och ett objekt numrerade 0 skulle vara osynlig för alla nedströms mask jämförelse.\n\n:param groups: från :func:`sew`.\n:param strict: vägra en grupp utan fullständig observation. Stäng av den bara för att inspektera en dålig körning – objekten den sedan sänder ut är fragment med trunkerade områden.\n:raises ObjectsError: när en grupp endast har klippta observationer, vilket innebär att objektet är större än fönstret överlappar.",
+      "source_sha256": "f8b899f9ca99f84de1119d8dead1529613db8fb6c64369433efaca7ec06a8c45",
+      "text": "En id per objekt, tilldelad i mikroplattan provposition ram, deterministiskt.\n\nRaster order på mikroplattan provposition-ram centroid -- uppifrån till botten, sedan vänster till höger -- snarare än orderfönstren var segmenterade i. Id är en gå nyckel, så två kör över samma data måste producera samma nummer; beställning med vad som helst schemaläggaren kan variera skulle bryta det tyst och bara i resultaten.\n\nIds börjar på 1. Zero är bakgrund i varje etikett bild detta kom från, och ett objekt numrerade 0 skulle vara osynlig för alla nedströms mask jämförelse.\n\n:param groups: från :func:`sew`.\n:param strict: vägra en grupp utan fullständig observation. Avstängt släpps en sådan grupp i stället för att numreras -- inget med en trunkerad area avges -- och hur många som släpptes loggas som en varning.\n:raises ObjectsError: när en grupp bara innehåller klippta observationer: antingen är objektet större än fönstrens överlapp, eller så är det ett fragment som inte matchade något fönsters hela vy av sin kärna. Meddelandet anger objektets utsträckning och åtgärden för varje fall.",
       "translation_source_blocks_sha256": [
         "e59d92411ab038dc0eae96f9b50e22d4e209ba7f09ad325f1685cd475ca1f438",
         "71dd785a95bf433424f8db8a069882a844b988679155e844d35c762c5bc4f10a",
         "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
         "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
-        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
-        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+        "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+        "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac"
       ]
     },
     "spacr.ops_objects.objects_frame": {
@@ -49039,17 +49127,19 @@
         "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
         "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
         "f08633cd3542cbeb32d6a15ddabb0e48d2cb1d93159db10c8da9596e2a06bc61",
-        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+        "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
         "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ],
-      "source_sha256": "0a6524af4792480274feb233863a420748edcbde67f7babf4bcaabc98af6a067",
-      "text": "Gruppobservationer som är samma kärna.\n\nVarje grupp är ett fysiskt objekt. En kärna i ett fönster överlappar grupperas från två (eller fyra, i ett hörn) observationer; en i fönstrets inre bildar en grupp av en.\n\nDe klippta är poängen. En observation vars mask sprang in i en inre söm såg inte hela kärnan, så dess area och centroid är båda fel. Den hålls bara tillräckligt länge för att matchas med en fullständig observation av samma kärna och tappas sedan till förmån för den. En klippt observation som inte matchar något komplett innebär att inget fönster såg den kärnan hel, vilket :func:`number` vägrar.\n\nMatcha en klippt observation använder bara centroiden: Dess område är per definition trunkerat., Så att kräva områden att komma överens skulle förhindra exakt matchen som räddar den.\n\n:param observations: Varje fönsters syn på varje objekt i en brunn, redan i väl fram koordinater. Ordning spelar ingen roll; grupperingen är geometrisk, inte vid ankomst.\n:returns: grupper, var och en en tuple av observationer, i ingen särskild ordning -- :func:`number` ställer den ordning som betyder något.",
+      "source_sha256": "1498680e3055c65d22df115ce4253dc0f27c45681455cacb2ed566ecfb4040bf",
+      "text": "Gruppobservationer som är samma kärna.\n\nVarje grupp är ett fysiskt objekt. En kärna i ett fönster överlappar grupperas från två (eller fyra, i ett hörn) observationer; en i fönstrets inre bildar en grupp av en.\n\nDe klippta är poängen. En observation vars mask sprang in i en inre söm såg inte hela kärnan, så dess area och centroid är båda fel. Den hålls bara tillräckligt länge för att matchas med en fullständig observation av samma kärna och tappas sedan till förmån för den. En klippt observation som inte matchar något komplett innebär att inget fönster såg den kärnan hel, vilket :func:`number` vägrar.\n\nTvå etiketter från samma fönster är aldrig ett och samma objekt, eftersom en etikettbild inte ger en kärna två etiketter. Två fullständiga observationer från olika fönster är en kärna när deras tyngdpunkter stämmer inom ``tolerance`` på varje axel och antingen deras areor stämmer till ``area_ratio`` eller deras tyngdpunkter ligger inom den mindres ekvivalenta radie -- radien hos en skiva med dess area. Par vars areor stämmer slås ihop först, därefter resten närmast först, och en sammanslagning som skulle ge en grupp två etiketter från ett fönster vägras.\n\nEn klippt observation matchas genom inneslutning, inte genom ett fast avstånd: klippet flyttar dess tyngdpunkt inåt med upp till kärnans radie, så en fast tolerans missar just de djupa klippen. Den ansluter till en fullständig observation från ett annat fönster när dess tyngdpunkt ligger inuti den observationens ekvivalenta skiva, eller när dess omskrivande rektangel ligger inuti den observationens rektangel med två pixlars marginal. Den ansluter bara till den närmaste sådana observationen, så ett klipp kan aldrig göra två kärnor till ett objekt. Klippta observationer som inte matchar något fullständigt grupperas med varandra där deras rektanglar överlappar.\n\n:param observations: Varje fönsters syn på varje objekt i en brunn, redan i väl fram koordinater. Ordning spelar ingen roll; grupperingen är geometrisk, inte vid ankomst.\n:returns: grupper, var och en en tuple av observationer, i ingen särskild ordning -- :func:`number` ställer den ordning som betyder något.",
       "translation_source_blocks_sha256": [
         "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
         "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
         "86686443e9b66c526106ba99577de6700be0169153c6a27d3a1089230a993d13",
-        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+        "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
         "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ]
@@ -49182,30 +49272,50 @@
         "e31eaad6b7680496d8ef9d345e058a6ca960a30f515faba7507ca15ec34bf494"
       ]
     },
+    "spacr.ops_phenotype.phenotype_centres": {
+      "source_blocks_sha256": [
+        "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+        "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+        "a72f71fa491262526c02f83f4a7ec3603ecff94045440e61c8c1c9c5811c5b57",
+        "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+        "62734fbdc05ad91105b8666536bf5de38fa2efd63b6c2a9c5a89883340d8da45",
+        "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+        "869851e6ed102bb8bc4f3c240b3f674eca045bb487f031f3c41457e759e709a1"
+      ],
+      "source_sha256": "f9a9783fcea49feff3db7a7f2d2f01d785243cd383ca48d08a7c477da528db39",
+      "text": "Var varje fenotypfälts centrum ligger, utifrån några uppmätta.\n\n:param layout: fenotypupptagningens :class:`spacr.ops_layout.WellLayout`, eller hur många fält den innehåller.\n:param anchors: ``{site: (y, x)}``, brunnsramens centrum för minst tre justerade fält vars rutnätspositioner inte alla ligger på en linje. Sex spridda över brunnen är vad metoden validerades med.\n:returns: ``{site: (y, x)}`` för varje fält i layouten, ankarna inräknade -- deras anpassade centrum, inte de uppmätta.\n:raises ValueError: när ankarna inte kan fixera ett raster: färre än tre, på en linje i rutnätet, eller ett centrum som inte är två ändliga tal. Även för ett fältantal som ingen rund brunn rymmer.\n:raises IndexError: när ett ankare anger en plats som layouten inte innehåller.\n\nSex tal placerar hela brunnen. Layouten ger varje fälts rutnätsposition, och upptagningens raster avbildar en rutnätsposition till brunnsramen genom ett origo, ett kolumnsteg och ett radsteg, vart och ett ett ``(dy, dx)``-par som bär bordets få pixlar av snedhet. Anpassat med minsta kvadrat på sex fält i en verklig brunn förutsade det de övriga 472 fältens uppmätta centrum med en median på 1.2 px och som sämst 4.0 px, och en andra brunns 451 med som sämst 4.4 px.",
+      "translation_source_blocks_sha256": [
+        "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+        "e6a41dea9a8ecb57c5e1ecd8211653925ccdf502c6d946a59e02da0f4c34a8e2",
+        "273cb93488f7b56efe4a8096dce214631a520229cb417a2cf4ef25cf48961dde",
+        "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+        "a9dabc0904410038305714a523fb4ed04969ccb9458b317a2ca4e14a50a84637",
+        "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+        "16d847ad9c859a7090d8625dd48af344056592c3dec839d8ec0bb0cad2639fb9"
+      ]
+    },
     "spacr.ops_phenotype.phenotype_site_map": {
       "source_blocks_sha256": [
-        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
-        "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
-        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
-        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
-        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
-        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
-        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
-        "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
+        "d8987e7ccf9126ae97b1035274f1858ed5d91a9c926e1041d075a74f46bda5c2",
+        "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+        "5ee088d6438ce7110691e740d8d39daf49266a6bfecbabe2da381af4c445991b",
+        "9482032d0529e408eedc31b529b11c047715bf35366e88b102aabc2b5761a35f",
+        "7b4ad6c687274f962bda174e28f7bedfb4e7466743ab89786faba23d1ae362f7",
+        "343e414cceff1565e0cee8d9a8ec18e898ad8efe76cf98bf334aff2939a9be51",
+        "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+        "d67e620df54a44769db2cde7feabc8935859b8753a09913120bda2d3e3ce9b27"
       ],
-      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
-      "text": "Vilken sekvensering kakel täcker varje fenotyp kakel.\n\n:param phenotype_sites: Hur många mikroskop fält av visa fenotyp förvärv innehar.\n:param sbs_sites: Hur många i följd förvärv innehar.\n:param row_offsets: där varje fenotyp kolumn verkligen börjar, ett heltal per kolumn, som :func:`spacr.ops_layout._solve_row_offsets` mäter det från fälten som ligger i linje. Tom tar cirkeln på sitt ord, vilket är vad denna funktion gjorde innan det fanns något bättre att erbjuda det.\n:returns: ``{phenotype site -> sequencing site}`` och utelämnar alla fenotypplattor vars sekvenseringsposition är utanför den cirkeln.\n:raises ValueError: när antingen räkningen inte är en runda, som :func:`spacr.ops_layout.round_well_layout` bestämmer, eller när förskjutningarna inte är ett per fenotypkolonn.\n\nOch cirkeln är inte alltid förvärv, vilket är vad ``row_offsets`` är till för. `round_well_layout` SÖKNINGAR för en radie som håller exakt mikroskopet synfält räknas och mer än en radie gör; för 41-kolumn fenotypen väl den som den finner ger rätt kolumn och en rad fel med upp till två. 372: s DEL 14-G mätte att över 188 anpassade mikroskopfält av sikt -- kolumnindex exakt till en standardavvikelse på 0,001, rad index ut med ett heltal konstant ner varje kolumn -- och det vägrade 133 av 321 mikroskop fält av syn, eftersom en rad är 633 px och ett fönster som missar genom att hålla inget av mikroskop bildfältets nuclei.\n\nEtt bord med fel längd nekas snarare än vadderade. Pudding är rätt inne i :class:`spacr.ops_layout.WellLayout`, där den tomma standardvärdet måste behålla betydelsen \"no offsets\"; här lämnar anroparen över ett mått på en viss brunn, och ett bord som inte passar det skulle korrigera några kolumner och tyst lämna resten – vilket är det tillstånd som detta argument existerar för att sluta.\n\nDet är en layoutfråga, inte en bild en, och svara på det med bild var hur de tre första försöken på A4 tillbringade en eftermiddag: fenotyp plats N matchades mot sekvensering webbplats N, som är en annan del av brunnen, och varje par kom tillbaka på 2-9 % inliers. layouten säger det i sluten form. Den uppmätta förvärvet passar 41 kolumner vid radie 20.15 mot sekvensbrunnen är 21 vid 10.25 -- samma runda väl vid dubbelt mikroskop bildfält densitet, och 41 = 2 * 21 - 1 -- så en fenotypen rutnät position halverar om centrum.",
+      "source_sha256": "8a16a9cb23bc944479e647aedd8addbff0aae9333367004799bb5c013e6845b2",
+      "text": "Vilken sekvenseringsruta som täcker varje fenotypfält.\n\n:param phenotype_sites: fenotypupptagningens :class:`spacr.ops_layout.WellLayout`, eller hur många fält den innehåller.\n:param sbs_centres: ``{sequencing site: (y, x)}``, centrum för varje sammanfogad sekvenseringsruta i brunnsramen -- dess placering plus en halv ruta.\n:param anchors: ``{phenotype site: (y, x)}``, uppmätta centrum i brunnsramen för minst tre justerade fenotypfält, så som :func:`phenotype_centres` tar dem.\n:param tile_shape: ``(height, width)`` för en sekvenseringsruta, i brunnsramens pixlar.\n:returns: ``{phenotype site: sequencing site}``. Varje fält går till den ruta vars centrum ligger närmast dess förutsagda centrum, bland de rutor som innehåller det; ett fält vars förutsagda centrum inte ligger i någon ruta utelämnas.\n:raises ValueError: när ``tile_shape`` inte är två positiva storlekar, eller när :func:`phenotype_centres` avvisar ankarna eller antalet.\n\nEn position, inte ett index. Vilken ruta ett fält ligger på beror på var rutgränserna faktiskt går, och att halvera ett fenotyprutnätsindex kring brunnens centrum kan inte se dem: vid dubbla rutätheten ligger hälften av fenotypfälten på eller nära en sekvenseringsrutgräns. På den verkliga plattan fann halveringen rätt ruta för 0.45 till 0.61 av de justerade fälten; att förutsäga varje centrum från sex ankare och ta den närmaste sammanfogade rutan fann den för 472 av 472 och 451 av 451.",
       "translation_source_blocks_sha256": [
-        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
-        "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
-        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
-        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
-        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
-        "954fef2fe85ad5eef97ca8e47fe4dc97df42e970741e7238f358a6ab9d75f30f",
-        "9aa63c8b8ecf3986373d52abb4f39f5c6db1b6b62f37a3402b7c3bd1323856fd",
-        "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
+        "80ec1cab6a66991a9eb17d7474024a9473337cd949d79892854e9f9006255307",
+        "e6a41dea9a8ecb57c5e1ecd8211653925ccdf502c6d946a59e02da0f4c34a8e2",
+        "28c8456a34880adb5db0f266b10ef5e2c5e304287360f0a64d1169308e11afe9",
+        "740724ee655cb7beb8740846fc8de420a6a782da10c6f2134561fc8bbd54a19a",
+        "cf0f98bd2af0e74339813196ee2c41b73121ae6a6c1406addef2ab8726508214",
+        "83df7e316973dbce6ef1d33ab9893ea41501e72719fb47b74d5da1ba536d1271",
+        "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+        "f466cfdea2ececffdadea72165f7388c7ce181e5dc194b3cdd953b4c024fa702"
       ]
     },
     "spacr.ops_phenotype.refine_similarity": {
@@ -49527,16 +49637,16 @@
     "spacr.ops_sample.barcode_rows": {
       "source_blocks_sha256": [
         "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
-        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
         "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
         "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
         "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
       ],
-      "source_sha256": "f38075fc6c052a70d7e7a96cea0d846a58c5b84ff01346949306ae77e89eb25e",
-      "text": "``ops_barcodes`` rader: en per föremål, monterad över cykler.\n\nDelegerar själva uppmaningen till :func:`spacr.ops_sbs.call_reads`, som redan kompenserar cross-talk och rapporterar kvalitet som minimum över cykler – \"en streckkod är bara lika pålitlig som dess värsta bas\". Upprepar att här skulle vara en andra dekoder att hålla i steg.\n\n:param objects: de numrerade objekten, i samma ordning som ``values``\" första axeln.\n:param values: ``(objects, cycles, channels)`` intensiteter, aldrig medelvärde över cykler -- se :func:`decode_input`, som vägrar en enda cykel av samma anledning.\n:param library: varje streckkod korrigeras till närmaste biblioteksmedlem genom :func:`spacr.ops_sbs.correct_to_library` och raden innehåller vad den kartlagts till.",
+      "source_sha256": "1f03e894fc659bc95c172df09d40cef12871b021f6108c7decc23248dd630cd2",
+      "text": "``ops_barcodes`` rader: en per föremål, monterad över cykler.\n\nDelegerar själva anropet till :func:`spacr.ops_sbs.call_reads`, som redan normaliserar varje cykels kanaler och rapporterar kvaliteten som MINIMUM (minimum) över cyklerna -- \"en streckkod är bara så pålitlig som sin sämsta bas\". Att upprepa det här vore ytterligare en avkodare att hålla i takt.\n\n:param objects: de numrerade objekten, i samma ordning som ``values``\" första axeln.\n:param values: ``(objects, cycles, channels)`` intensiteter, aldrig medelvärde över cykler -- se :func:`decode_input`, som vägrar en enda cykel av samma anledning.\n:param library: varje streckkod korrigeras till närmaste biblioteksmedlem genom :func:`spacr.ops_sbs.correct_to_library` och raden innehåller vad den kartlagts till.",
       "translation_source_blocks_sha256": [
         "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
-        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
         "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
         "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
         "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
@@ -49604,26 +49714,26 @@
       "source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "956f92b5597a52553784849833a71d0e85e8b2bd6de6f579a740e064ec93ffb3",
-        "e71dcd146df56085f757d93ca65b8afa1e4e4a15ee474c507540e5be192d9185",
+        "96f751fe3936bc37122069588f7980e88b041b2cf6fb2905765d0397cbed37c3",
         "936e1541cf5e140e01fda0b4c0b8778f6d30f0ceaffa23a1509ad46d00c732b5",
         "fd38f7be57907f9df402614da4e5b18a9304972c3a9b1f0cd52f43911b2cd5fa",
         "434f6e53eb83226c3543ddfe36fdf41fd103a2c2132aad901f698c267664919b",
         "a6a1e26501768ea6716a58affe0c26ee3e2b1b2eba8858c1b26a0eae357f831b",
-        "150885e42ea6d17e4a2ced6e8d6e12dc6848dd0c1d49124a4f0f5c6e376c3478",
+        "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
         "6bc4dae7bc9a17e2859daa6335055cce0b71b47cc63e617c31ccac679f4b1450",
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ],
-      "source_sha256": "b787ea512a3007ba8cfe4e185e8523ad698d5e1039ef1b6bee47b1d01acce429",
-      "text": "Avkoda in-situ sekvensera streckkoder från en bild stack.\n\nVad det här är till för, och vad det inte är\n============================================\nOptisk poolad screening läser guiden streckkod ut från bilderna. Varje sekvensering cykel fläckar fyra bilddatakanaler, en per bas, och en plats bas i den cykeln är vilken bild datakanal som är ljusast -- efter färgerna har varit oblandade. Läs en bas per cykel på samma plats och cyklerna stavar streckkoden.\n\n:mod:`spacr.sequencing` är INTE den bakre halvan av detta och får inte pekas på det. Den modulen avkodar FASTQ avläser från en NGS körning; det finns ingen FASTK här och ingen sekvenser, bara pixlar.\n\nVarför varje steg är det steg det är\n====================================\nTre av dessa medför nästan alla korrekta risker, och alla tre är tillräckligt intuitiva för att implementera dem från en beskrivning av arbetsflödet snarare än från en fungerande producerar något som utför och är fel:\n\n* **A read är inte en ljus fläck.** Det är en plats vars bas FÖRÄNDRINGAR mellan cykler. Så platsen uppskattningen är standardavvikelsen över cykler, medelvärde över kanaler -- en fläck ljus i varje cykel är en bit smuts eller en autofluorescerande blob och bidrar ingen varians.\n\n* **Den ljusaste kanalen är inte basen.** De fyra färgämnena blöder in i varandra, så den råa argmax är partisk mot vilket färgämne som helst är ljusaste totalt. Korstalken måste beräknas från data och ångras först.\n\n* **En tvetydig läsning är värre än en saknad one.** Felkorrigering mot guidebiblioteket korrigeras bara någonsin till en Unique närmast träff. En läsning som är lika nära två streckkoder kastas, eftersom en felaktigt tilldelad guide tyst korrumperar en screening resultat medan en tappade en kostar bara statistisk detektion känslighet.\n\nMetoden här följer brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), vars källkod lästes för de tre punkterna ovan i stället för att rekonstrueras ur stegens namn.",
+      "source_sha256": "81b0dbda4a59d32e548eeff8ff59cb8a080a6d002aa678a2e292f254c876fa89",
+      "text": "Avkoda in-situ sekvensera streckkoder från en bild stack.\n\nVad det här är till för, och vad det inte är\n============================================\nOptisk poolad screening läser guidens streckkod OUT OF THE IMAGES (ur själva bilderna). Varje sekvenseringscykel färgar fyra kanaler, en per bas, och en fläcks bas i den cykeln är den kanal som är ljusast -- sedan kanalerna har förts till en gemensam skala. Läs en bas per cykel på samma fläck, så stavar cyklerna streckkoden.\n\n:mod:`spacr.sequencing` är INTE den bakre halvan av detta och får inte pekas på det. Den modulen avkodar FASTQ avläser från en NGS körning; det finns ingen FASTK här och ingen sekvenser, bara pixlar.\n\nVarför varje steg är det steg det är\n====================================\nTre av dessa medför nästan alla korrekta risker, och alla tre är tillräckligt intuitiva för att implementera dem från en beskrivning av arbetsflödet snarare än från en fungerande producerar något som utför och är fel:\n\n* **A read är inte en ljus fläck.** Det är en plats vars bas FÖRÄNDRINGAR mellan cykler. Så platsen uppskattningen är standardavvikelsen över cykler, medelvärde över kanaler -- en fläck ljus i varje cykel är en bit smuts eller en autofluorescerande blob och bidrar ingen varians.\n\n* **Den ljusaste råa kanalen är inte basen.** Varje kanal har sin egen förstärkning och bakgrund, och på en verklig platta driver båda från cykel till cykel, så den råa argmax dras mot den kanal som är ljusast totalt. Varje cykels kanaler divideras först med sin median över läsningarna. Avblandning av färgämnenas genomblödning finns ovanpå det; på den första verkliga plattan sänkte den bibliotekets träffar.\n\n* **En tvetydig läsning är värre än en saknad one.** Felkorrigering mot guidebiblioteket korrigeras bara någonsin till en Unique närmast träff. En läsning som är lika nära två streckkoder kastas, eftersom en felaktigt tilldelad guide tyst korrumperar en screening resultat medan en tappade en kostar bara statistisk detektion känslighet.\n\nMetoden här följer brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), vars källkod lästes för de tre punkterna ovan i stället för att rekonstrueras ur stegens namn.",
       "translation_source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "f294fd44130918cf8d72230028e2ab194fe79b8344a361c7b6adeb940a314443",
-        "d65647c48328e9746724269e0fef3d90162f613f8979eac35fdc8d219a7a09cd",
+        "870f68bdd326e1f73d0a9123567dab2f7627d9ae3515065f4d45e73eb72ec48b",
         "936e1541cf5e140e01fda0b4c0b8778f6d30f0ceaffa23a1509ad46d00c732b5",
         "231e088fd943098127a8be4d63ea4fe6b05b1dbd659f015a25eedc748d64a7b4",
         "3794660b06b2beed88406c737ebd013952f709c579a659639b7f0fbc1132e70f",
         "1ae3cbf8554c7420a94c9859d244adc699a7ae1dffe47172677631f0ce4ebbd4",
-        "150885e42ea6d17e4a2ced6e8d6e12dc6848dd0c1d49124a4f0f5c6e376c3478",
+        "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
         "8e49e4ae55cdaf1e9320b09b01d3225d7974dc18a89872e1645af047d5d86593",
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ]
@@ -49643,7 +49753,7 @@
         "c1e21e9f6bf783ae0091c78edfbe172bb2a43be7295f0c84a65fa07bc96e0c8e"
       ],
       "source_sha256": "b58306e2f797db5c884d2c0e1ad292afbf05512cbb1440f45a92c1340bb42257",
-      "text": "Ge varje segmenterad cell streckkoden dess avläsningar enas om.\n\nEn cell innehåller flera fläckar och de kommer inte alla avkoda identiskt: en ofokuserad plats, en plats som delas med en granne, och en äkta andra perturbation alla ser samma på detta stadium. Så en cell tilldelas endast när dess läsning ÄR ENIGT -- ``min_fraction`` av minst ``min_reads`` måste ha samma streckkod -- och i övrigt lämnas otilldelad.\n\nStandarderna vägrar mer än de accepterar, avsiktligt. En läst är inte bevis: det kan inte kontrolleras mot något, och en enda fel- kallad bas skulle tyst lämna en cell fel perturbation. En cell utan streckkod kostar statistisk detektion känslighet; en cell med WRONG streckkod flyttar en riktig fenotyp till en annan guides genomsnitt och är inte återvinning nedströms, eftersom ingenting senare kan berätta det hände.\n\nLäser landning på etikett 0 -- bakgrund, mellan celler -- kastas i stället för att fästas vid närmaste cell. En läsa att segmentering inte placera inuti något är en läsning vars ägare är okänd.\n\n:param peaks: ``(N, 2)`` ``(y, x)`` läslägen.\n:param barcodes: en som kallas streckkod per avläsning.\n:param labels: segmentering, som ett heltal etikett bild där 0 är bakgrund.\n:param quality: Valfri perläsningskvalitet från :func:`call_reads`; när den ges är den i genomsnitt över de avläsningar som överenskommits.\n:param min_reads: hur många läser en cell behöver innan den kan tilldelas.\n:param min_fraction: Vilken del av dem måste vara överens.\n:returns: ``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` för varje cell som mötte baren.",
+      "text": "Ge varje segmenterad cell streckkoden dess avläsningar enas om.\n\nEn cell innehåller flera fläckar och de kommer inte alla avkoda identiskt: en ofokuserad plats, en plats som delas med en granne, och en äkta andra perturbation alla ser samma på detta stadium. Så en cell tilldelas endast när dess läsning ÄR ENIGT -- ``min_fraction`` av minst ``min_reads`` måste ha samma streckkod -- och i övrigt lämnas otilldelad.\n\nStandarderna vägrar mer än de accepterar, avsiktligt. En läst är inte bevis: det kan inte kontrolleras mot något, och en enda fel- kallad bas skulle tyst lämna en cell fel perturbation. En cell utan streckkod kostar statistisk detektion känslighet; en cell med WRONG streckkod flyttar en riktig fenotyp till en annan guides genomsnitt och är inte återvinning nedströms, eftersom ingenting senare kan berätta det hände.\n\nLäser landning på etikett 0 -- bakgrund, mellan celler -- kastas i stället för att fästas vid närmaste cell. En läsa att segmentering inte placera inuti något är en läsning vars ägare är okänd.\n\n:param peaks: ``(N, 2)`` ``(y, x)`` läslägen.\n:param barcodes: en avläst streckkod per läsning.\n:param labels: segmentering, som ett heltal etikett bild där 0 är bakgrund.\n:param quality: Valfri perläsningskvalitet från :func:`call_reads`; när den ges är den i genomsnitt över de avläsningar som överenskommits.\n:param min_reads: hur många läser en cell behöver innan den kan tilldelas.\n:param min_fraction: hur stor andel av dem som måste vara överens.\n:returns: ``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` för varje cell som mötte baren.",
       "translation_source_blocks_sha256": [
         "a5dd08ef7f5ff33d06fa9eb8f9e82f134bfd568d3d5a568cb29c6620a684d636",
         "e45dc9df5e131b5adf3636154e0e0c1b0a1fd92f86e53b0238e1569353a680e7",
@@ -49658,25 +49768,79 @@
         "c1e21e9f6bf783ae0091c78edfbe172bb2a43be7295f0c84a65fa07bc96e0c8e"
       ]
     },
+    "spacr.ops_sbs.assign_reads_to_objects": {
+      "source_blocks_sha256": [
+        "56bd36897564e1ddb76e61dccdb0383bbb0f00a6a8b43788faf4396aa8743653",
+        "3c6bfdd6dcb24565647dc9aa1ea26a3fee06fddeae59f21f2a58c53a3758852d",
+        "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+        "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+        "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+        "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+        "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+        "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6"
+      ],
+      "source_sha256": "b58c2275ea4c8c6e406dfcbef123264042a863f42bc20ff1bdbd180eb58ee82e",
+      "text": "Ger varje plattobjekt den streckkod som dess tillskrivna läsningar är överens om.\n\nSamma regel som :func:`assign_reads_to_cells` -- minst ``min_reads`` läsningar, varav ``min_fraction`` bär samma streckkod, och ingen delad förstaplats -- men nycklad på det objekt-id som varje läsning tillskrevs i stället för på den etikett en läsning hamnar på. Det är det som låter läsningar från flera fält rösta en gång för det objekt de hör till.\n\n:param owners: ett objekt-id per läsning; 0 eller ett negativt id betyder att läsningen saknar ägare och ignoreras.\n:param barcodes: en avläst streckkod per läsning.\n:param quality: valfri kvalitet per läsning från :func:`call_reads`.\n:param min_reads: hur många läsningar ett objekt behöver innan det kan tilldelas.\n:param min_fraction: hur stor andel av dem som måste vara överens.\n:returns: ``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` för varje objekt som nådde gränsen.",
+      "translation_source_blocks_sha256": [
+        "8ff2d5810b12799636d1b0ff1242f6cbbdf297ef85824c86d108206f53e8efad",
+        "2bc81227dbcb3fc85b8c5fcf3bd389eb002944af848f837021ec55c033385718",
+        "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+        "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+        "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+        "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+        "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+        "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6"
+      ]
+    },
+    "spacr.ops_sbs.attribute_reads": {
+      "source_blocks_sha256": [
+        "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+        "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+        "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+        "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+        "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+        "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+        "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+        "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3"
+      ],
+      "source_sha256": "e5185e36b7c16379c9e1b7959d7fae87394a4a1282a9f392eecabce3c5d53c9a",
+      "text": "Ger varje detekterad läsning till det objekt vars gräns ligger närmast.\n\nLäsningar detekteras först över hela fältet och tillskrivs här, så ett fotavtryck som är för snävt syns som läsningar utan ägare i stället för att förbli osynligt. Gränsen är varje objekts ekvivalenta skiva, cirkeln med objektets area kring dess tyngdpunkt, och en läsning vars två närmaste gränser ligger inom ``tie`` från varandra ges till ingen av dem och flaggas.\n\n:param peaks: ``(N, 2)`` läspositioner ``(y, x)``.\n:param centroids: ``(M, 2)`` objektens tyngdpunkter ``(y, x)``, i samma koordinatram som ``peaks``.\n:param areas: ``(M,)`` objektens areor i pixlar.\n:param footprint: hur långt utanför ett objekts gräns en läsning får ligga och ändå vara dess läsning, i pixlar. På den första verkliga plattan låg 98 % av fläckarna inom 10 px från en kärna och 67 % inom 3 px.\n:param tie: hur nära varandra de två närmaste gränserna får ligga innan en läsning avvisas som tvetydig, i pixlar.\n:returns: ``(owner, ambiguous)`` -- indexet i ``centroids`` för varje läsnings ägare, eller -1, och om varje läsning avvisades som tvetydig.",
+      "translation_source_blocks_sha256": [
+        "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+        "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+        "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+        "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+        "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+        "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+        "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+        "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3"
+      ]
+    },
     "spacr.ops_sbs.call_reads": {
       "source_blocks_sha256": [
         "b9b2331000bd5746ba7c42019e9760edf6e291bb13e094a1ca717947dfc85878",
         "cfbc151611fa1c09c7e19f215648e05443a13eb5b4fc23b9ea767413d9f52694",
+        "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
-        "0878c5abd532135939088f9683f8444d107b512ba65891712e9471dc79f6549d",
+        "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
         "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+        "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ],
-      "source_sha256": "8d1fc4def3e3bc51ee32f13381c6278562e0f24cc44ad054b1eee14e056f11f4",
-      "text": "Vänd per cykel intensiteter till en streckkod sträng och en kvalitet per läsning.\n\nKvaliteten är marginalen mellan den vinnande kanalen och tvåan, dividerad med summan, per cykel -- 0 när två baser är lika sannolika och 1 när samtalet är otvetydigt. Rapporterat per avläst som minimum över cykler, eftersom en streckkod bara är lika pålitlig som dess värsta bas.\n\n:param values: ``(N, cycles, channels)`` från :func:`extract_bases`\n:param bases: bokstaven för varje kanal, i kanalordning.\n:param compensate: Gör slut på korsordet först, bara för att testa vad kompensationen är värd.\n:param method: övergick till :func:`compensate_crosstalk`.\n:returns: ``(barcodes, quality)`` – en sträng och en float per avläsning.",
+      "source_sha256": "da28c745cb762feed4444140c2d50590f3fed6a06ee280f6c7fb0f72653a5cb2",
+      "text": "Vänd per cykel intensiteter till en streckkod sträng och en kvalitet per läsning.\n\nKvaliteten är marginalen mellan den vinnande kanalen och tvåan, dividerad med summan, per cykel -- 0 när två baser är lika sannolika och 1 när samtalet är otvetydigt. Rapporterat per avläst som minimum över cykler, eftersom en streckkod bara är lika pålitlig som dess värsta bas.\n\nEn cykel som inte mättes anges som ``N``. Där en läsnings värden för en cykel är NaN -- cykelns fil gick inte att läsa, eller dess registrering avvisades -- blir den bokstaven ``N`` och kvaliteten beräknas över de cykler som mättes, så en förlorad cykel kostar en bas i varje läsning och inte hela läsningen.\n\n:param values: ``(N, cycles, channels)`` från :func:`extract_bases`\n:param bases: bokstaven för varje kanal, i kanalordning.\n:param compensate: upphäv överhörning med :func:`compensate_crosstalk` efter normaliseringen. Avstängt som standard: på den första verkliga plattan sänkte det bibliotekets träffar.\n:param method: övergick till :func:`compensate_crosstalk`.\n:param normalise: dividera först varje cykels kanaler med deras median över läsningarna, vilket tar bort drift i förstärkning och bakgrund per kanal mellan cykler. Hoppas över när det finns för få läsningar för en median.\n:param gpu: låt kompensationens multiplikation köras på grafikkortet. False håller hela anropet på CPU.\n:returns: ``(barcodes, quality)`` – en sträng och en float per avläsning.",
       "translation_source_blocks_sha256": [
         "b9b2331000bd5746ba7c42019e9760edf6e291bb13e094a1ca717947dfc85878",
         "cfbc151611fa1c09c7e19f215648e05443a13eb5b4fc23b9ea767413d9f52694",
+        "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
-        "0878c5abd532135939088f9683f8444d107b512ba65891712e9471dc79f6549d",
+        "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
         "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+        "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ]
     },
@@ -49711,17 +49875,19 @@
         "281147dde43d23884ef0a3c4a323bd90452f67cc0dbd60b77b57ec87644fcd98",
         "37c30f3020fedda6ff4ab0a7b226c264221ada227798ed43284cc746b231f5fb",
         "46391d1f9e20ab60e15493d35247221531d35da497cdb43376b147497ccb4aab",
+        "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
         "8019f7e7c6bed3fa6fed8551858bfb76671e388b0604bdbc08f44d5f8175a776",
         "8c52466956738d58c36a3b36e9bbbc0f49b16a68ceaeae9cd173c997aa5321ed",
         "8e8a6b535756a84d8abad896b7acd5ccc70e7e83c8d598a7cea308cea9f6a21a",
         "8e48d501f97b7b7d13ba4a8cd71ed79dbc65ae75bf0011b81c9c9d08d0b8efa5"
       ],
-      "source_sha256": "840be7753f707bdc4fc22054c24c4d1761ce296b96e3ce4f9c7bfd94167fd795",
-      "text": "Snap varje läsa till biblioteket, men ENDAST på en unik närmast matcha.\n\nAmbiguity kastas, inte gissas. En läsning lika nära två bibliotek streckkoder returnerar ``None``. Det är avsiktligt och det är hela poängen med steget: en felplacerad guide flyttar en cells fenotyp på fel perturbation och tyst korrumperar varje statistik nedströms, medan en tappade läsa bara kostar statistisk detektion känslighet som fler celler kan köpa tillbaka.\n\nEn exakt matchning kortslutning, så en ren körning betalar ingenting för detta.\n\n:param barcodes: de som kallas läsningar.\n:param library: den guide streckkoder skärmen faktiskt innehåller.\n:param max_distance: den största hammingsträcka som kan korrigeras.\n:returns: en post per läs – bibliotekets streckkod, eller None.",
+      "source_sha256": "a390a8c28d503c7a51a94dc35230df66c9f7eed48ff9258c5e35332e4106e37c",
+      "text": "Snap varje läsa till biblioteket, men ENDAST på en unik närmast matcha.\n\nAmbiguity kastas, inte gissas. En läsning lika nära två bibliotek streckkoder returnerar ``None``. Det är avsiktligt och det är hela poängen med steget: en felplacerad guide flyttar en cells fenotyp på fel perturbation och tyst korrumperar varje statistik nedströms, medan en tappade läsa bara kostar statistisk detektion känslighet som fler celler kan köpa tillbaka.\n\nEn exakt matchning kortslutning, så en ren körning betalar ingenting för detta.\n\nEtt ``N`` är en bas som inte mättes, inte en felmatchning. Det matchar vilken bokstav som helst och räknas inte mot ``max_distance``; unikhetsregeln gäller ändå, så en läsning vars förlorade bas är det enda som skiljer två guider åt matchas mot ingen av dem.\n\n:param barcodes: de som kallas läsningar.\n:param library: den guide streckkoder skärmen faktiskt innehåller.\n:param max_distance: den största hammingsträcka som kan korrigeras.\n:returns: en post per läs – bibliotekets streckkod, eller None.",
       "translation_source_blocks_sha256": [
         "281147dde43d23884ef0a3c4a323bd90452f67cc0dbd60b77b57ec87644fcd98",
         "673d78cb49f8b10d274649ee6fa306c555a7952229dfb9f605a1781b09a4ac6c",
         "46391d1f9e20ab60e15493d35247221531d35da497cdb43376b147497ccb4aab",
+        "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
         "8019f7e7c6bed3fa6fed8551858bfb76671e388b0604bdbc08f44d5f8175a776",
         "8c52466956738d58c36a3b36e9bbbc0f49b16a68ceaeae9cd173c997aa5321ed",
         "8e8a6b535756a84d8abad896b7acd5ccc70e7e83c8d598a7cea308cea9f6a21a",
@@ -50150,10 +50316,10 @@
         "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
         "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
         "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
-        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+        "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec"
       ],
-      "source_sha256": "cfb9890ef957af700a97e55a8a682a4efce6ced932903bd5996fc078e26241af",
-      "text": "Skriv en OPS-tabell till sqlite och dess parkettcache om den har en.\n\nBåda i ett samtal, eftersom 372 ber att raden räknas som lika och två samtal kunde inte göra det -- en uppringare som skrev databasen och sedan kraschade skulle lämna en sidvagn som beskriver en annan körning, och ingenting skulle märka förrän en läsare tyst föredrog det.\n\n:param db_path: Mätdatabasen.\n:param table: en av :data:`OPS_TABLES`.\n:param frame: a DataFrame.\n:returns: Rader skrivna.\n:raises StoreError: på en okänd tabell, eller när sidvagnen det bara skrev inte har samma antal rader som databasen.",
+      "source_sha256": "a36dc0ff4c585e72a685a508892d6deee4cc042a5c9b641ec968f89b6fd9739c",
+      "text": "Skriv en OPS-tabell till sqlite och dess parkettcache om den har en.\n\nBåda i ett samtal, eftersom 372 ber att raden räknas som lika och två samtal kunde inte göra det -- en uppringare som skrev databasen och sedan kraschade skulle lämna en sidvagn som beskriver en annan körning, och ingenting skulle märka förrän en läsare tyst föredrog det.\n\n:param db_path: Mätdatabasen.\n:param table: en av :data:`OPS_TABLES`.\n:param frame: a DataFrame.\n:returns: Rader skrivna.\n:raises StoreError: för en okänd tabell; när sidofilen den just skrev inte har samma antal rader som databasen; eller när ``ops_objects`` eller ``ops_barcodes`` skulle få två rader för ett objekt, inom dataramen eller mellan dataramen och tabellen den läggs till i. En rad per objekt är en UNIQUE-begränsning i schemat, och inget skrivs när den skulle brytas.",
       "translation_source_blocks_sha256": [
         "cb1f48e23580df19e7c878ae38dcf4956f768f0583a4a0083c9796d0dad5db82",
         "a4b25f82ddbd6a3498f35f4c728d91a7d5c5900e26e5da733646ee6ad77821fd",
@@ -50161,7 +50327,7 @@
         "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
         "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
         "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
-        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+        "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec"
       ]
     },
     "spacr.organelle_types": {

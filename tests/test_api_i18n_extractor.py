@@ -1081,7 +1081,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # The nine catalogs were rebuilt with a reviewed record for it in every
     # language BEFORE this number was touched, and the API audit passes at
     # `languages=9 symbols=10534`.
-    expected = 10_534
+    # 10,534 -> 10,541 on 2026-09-15 (372 PART 14-M), +7/-0 by set
+    # difference against nightly 3f27b926a: spacr.ops_engine (a new module)
+    # and spacr.ops_engine.run_ops, spacr.ops_cycles.AlignedField and
+    # align_field, spacr.ops_sbs.attribute_reads and
+    # assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. The
+    # same seven took 10,533 to 10,540 before the rebase. Their blocks, and
+    # the reworded ones of the OPS symbols they joined, carry hand-written
+    # reviewed records in every locale
+    # (docs/i18n/reviewed/api/<lang>/2026-09-15-ops-switch.json).
+    expected = 10_541
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1116,7 +1125,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # file's own message asks for.
     # 10,533 -> 10,534 on 2026-09-15 with `expected` above, for the same one
     # symbol; the aliases are still zero, so the two stay equal.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_534
+    # 10,534 -> 10,541 with `expected` above, for 372's seven.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_541
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1388,7 +1398,17 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # It still pins `len(docs)` to exactly one value, 10,534, so nothing is
     # loosened: the left-hand constant is the measured pre-filter total again
     # and the difference is the measured boundary again.
-    assert 10_753 - len(docs) == 219
+    # RE-MEASURED 2026-09-15 for 372's seven arrivals on nightly 3f27b926a,
+    # both halves in one run with `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,753 -> 10,760
+    #     post-filter  10,534 -> 10,541
+    #     boundary        219 -> 219
+    #
+    # The pre-filter key sets differ by exactly the seven post-filter
+    # arrivals, so every one is rendered and no bucket moved; the
+    # left-hand constant is the measured pre-filter total again.
+    assert 10_760 - len(docs) == 219
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

@@ -13,8 +13,7 @@ import numpy as np
 import pytest
 
 from spacr.ops_phenotype import (Alignment, MATCH_RADIUS_PX, align_phenotype_to_sbs,
-                                 phenotype_site_map, refine_similarity,
-                                 seed_by_scaled_pairs,
+                                 refine_similarity, seed_by_scaled_pairs,
                                  similarity_from_correspondences)
 
 
@@ -246,33 +245,3 @@ class TestAligningAField:
     def test_too_few_points_is_refused_rather_than_fitted(self):
         assert align_phenotype_to_sbs(_field(2), _field(2)) is None
 
-
-# ---------------------------------------------------------------------------
-# The site correspondence, which is a layout question
-# ---------------------------------------------------------------------------
-
-class TestWhichSequencingTileCoversWhich:
-
-    def test_the_measured_acquisition_maps(self):
-        """1281 phenotype fields and 333 sequencing fields, both round.
-
-        41 columns at radius 20.15 against 21 at radius 10.25: the same
-        well at twice the tile density, and 41 = 2 * 21 - 1.
-        """
-        mapping = phenotype_site_map(1281, 333)
-        assert len(mapping) > 1200
-        assert set(mapping.values()) <= set(range(333))
-
-    def test_the_centre_maps_to_the_centre(self):
-        from spacr.ops_layout import round_well_layout
-
-        phenotype = round_well_layout(1281)
-        sbs = round_well_layout(333)
-        mapping = phenotype_site_map(1281, 333)
-        middle = phenotype.site(*phenotype.centre)
-        assert middle is not None
-        assert mapping[middle] == sbs.site(*sbs.centre)
-
-    def test_a_count_that_is_not_a_round_well_says_so(self):
-        with pytest.raises(ValueError):
-            phenotype_site_map(1000, 333)

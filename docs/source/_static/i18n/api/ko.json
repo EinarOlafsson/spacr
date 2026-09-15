@@ -48530,6 +48530,30 @@
         "91d2295728c16dc85ed8eaee7a42e650d3131fc40138a0dfdce30a5d3fd6f1a2"
       ]
     },
+    "spacr.ops_cycles.AlignedField": {
+      "source_blocks_sha256": [
+        "bd3c464ba7c1e383af82723d56a979c52fe6ec952d9d321493ada19d256ea9ae",
+        "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+        "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+        "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+        "41385b03734c138b45064627ad0272ae0ee312ed8a8de82cc8fcb74a0e5d6762",
+        "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+        "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+        "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af"
+      ],
+      "source_sha256": "a3fe18eb94ffe1e12222b9313782c4081173b24b49bb439d6e5c008e1852c3bd",
+      "text": "한 필드의 시퀀싱 사이클로, 모든 채널을 하나의 좌표계로 옮긴 것입니다.\n\n:ivar stack: ``(cycles, channels, Y, X)`` float32, :attr:`kept` 의 사이클마다 하나씩 그 순서대로 담깁니다.\n:ivar kept: 스택에 담긴 사이클 번호, 오름차순. 기준 사이클은 항상 포함됩니다.\n:ivar refused: 기준에 대한 정합이 받아들여지지 않은 사이클. 신뢰할 수 없는 좌표에서 읽은 염기는 바코드가 없는 것이 아니라 잘못된 바코드로 디코딩되므로 스택에서 제외됩니다.\n:ivar missing: 평면이 전혀 없이 제공된 사이클 -- 예를 들어 읽을 수 없었던 파일.\n:ivar channel_shifts: ``cycle -> one (dy, dx) per channel``, 각 채널을 그 사이클의 첫 채널로 옮긴 이동량.\n:ivar cycle_shifts: ``cycle -> (dy, dx)``, 유지된 각 사이클을 기준으로 옮긴 이동량; 기준 자신의 값은 ``(0, 0)`` 입니다.\n:ivar refused_channels: 사이클 내부 정합이 거부되어 옮기지 않은 ``(cycle, channel)`` 쌍.",
+      "translation_source_blocks_sha256": [
+        "5880cc2ccd0e7782bc4dca21e5cd536b6af428bb3f5926d0da822ee9dd67a303",
+        "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+        "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+        "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+        "a265455bf6fd8b8b9cb6a8aa5ed9f82e1375629a0f6553c3678e03f1a3fe1467",
+        "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+        "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+        "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af"
+      ]
+    },
     "spacr.ops_cycles.accepted_cycles": {
       "source_blocks_sha256": [
         "9a4c8a315b1d538d0c7cdd69d46f645000a4878bcd444ff29627972bd09fe703",
@@ -48544,6 +48568,30 @@
         "6b12fc84c5912cbd94c651980d85c0fe65d96f8f13d143068bc78ff89511f293"
       ]
     },
+    "spacr.ops_cycles.align_field": {
+      "source_blocks_sha256": [
+        "13e01cfdc5d576571ce120dcf9e2ac341bcfaeff666f621e730ea2187dd3c2b0",
+        "39d05e48ed3f3462dc95f9cba322d1446c63f078d0a5c6a4f6a733f72b8a9197",
+        "f211b53d9666d844c68e1b911ddc96e3c0ef7b2c13967fbc066e39b3e30e0f02",
+        "f27c769d803e0a2d9ad01e5607b2e4f6c0228b4befecd2e861ebe32b72ee3a79",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+        "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+        "95e5b8500674d5534f485b2db469e50c1dc2a53ab38e0ef50cc0e90dd9a274ea"
+      ],
+      "source_sha256": "6f5e2e53431b5e2b3a0d302a6cf066bd7441220af0e351308c10321c05e5858f",
+      "text": "한 필드의 채널을 각 사이클 안에서 정합한 다음 사이클들을 정합합니다.\n\n각 염기 채널은 먼저 채널들이 공유하는 잘라낸 세포 배경을 기준으로 그 사이클의 첫 채널에 맞춰 옮겨집니다 -- 측정한 플레이트에서는 최대 14 px 떨어져 있었고, 사이클 간 정합으로는 이를 볼 수 없습니다 -- 그런 다음 각 사이클을 :func:`sbs_mean_target` 로 기준에 맞춰 옮깁니다. ``None`` 으로 또는 평면이 빠진 채 제공된 사이클은 :attr:`AlignedField.missing` 에, 정합이 거부된 사이클은 :attr:`AlignedField.refused` 에 기록되며, 나머지는 그대로 정렬되므로 사이클 하나를 잃어도 필드 전체를 잃지 않습니다.\n\n:param planes: ``cycle -> the base channels of that cycle``, 모든 평면은 같은 모양의 2-D 이미지.\n:param reference: 모든 것을 옮겨 맞출 사이클. None 이면 평면이 있는 가장 낮은 사이클을 씁니다.\n:param tolerance: 사이클이 기준에서 얼마나 떨어져도 받아들일지, 픽셀 단위.\n:param gpu: 위상 상관을 그래픽 카드에서 실행하게 합니다.\n:returns: 정렬된 필드.\n:raises ValueError: 평면이 있는 사이클이 없거나 기준 사이클에 평면이 없을 때.",
+      "translation_source_blocks_sha256": [
+        "f2bd6713f4006234347a17cf9b1bcde501a8e0a25e178f709762a748e8d3f7fc",
+        "e60728203af2b09c945b009cf647dfaaf5815deb409513d518f6c1831a62e392",
+        "a126caee704d1722de1c59c2ac3567a64ed719efd068914d75175e1228fb3f78",
+        "4491f878a1389efbe2115c814ab157ee46226a8cfa73a5457070452cd079f91e",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+        "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+        "977ab50df32fda2e8e9966e79db80108f25d3545ccd2381497750282a3ffc178"
+      ]
+    },
     "spacr.ops_cycles.register_cycles": {
       "source_blocks_sha256": [
         "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
@@ -48555,7 +48603,7 @@
         "90f42c33b07de85de39c0e99b97db3f6e522da3d813a10d34a6a4cbf6e0c42dd"
       ],
       "source_sha256": "18a1ccd2997c07dbdfd6224dbea3ff82d1dabb356c8de8f140bba51c889c9275",
-      "text": "한 필드의 각 사이클을 그 필드 참조에 대하여 배치합니다.\n\n각 사이클은 참조에 직접 반대, 결코 그것의 이전에 반대. 체인 c1->c2->c3는 하나의 등록을 저장하고 각 후속 사이클을 이전에 각각에 의존하게 만듭니다 : 하나의 나쁜 링크는 나머지를 옮기고 나머지는 어떤 링이 실패했다고 말하지 않습니다. 각각 독립적으로 등록하는 것은 하나의 사이클이 다른 비용을 지불하지 않고 떨어지는 것을 허용하는 것입니다 - PART 9의 규칙은 등록하지 않는 사이클에 마이크로 플레이트 샘플 위치를 지불 할 필요가 없습니다.\n\n:param reference: 참조 사이클의 목표는 :func:`sbs_mean_target`에서 나온다.\n:param cycles: 그 사이클의 목표에 대한 사이클 번호.\n:param tolerance: 얼마나 멀리 사이클이 참조에서 내려갈 수 있고 여전히 픽셀로 받아 들여질 수 있는지.\n:param kwargs: 그것은 :func:`spacr.ops_register.phase_correlate`로 옮겨졌습니다.\n:returns: 그것의 :class:`Registration`에 사이클 번호를 포함하여 거부 - 호출 보고서 `n_cycles`는 사이클이 시험되고 거부되었다는 것을 알아야한다, 그것이 부재되지 않다는 것뿐만 아니라.",
+      "text": "한 필드의 각 사이클을 그 필드 참조에 대하여 배치합니다.\n\n각 사이클은 참조에 직접 반대, 결코 그것의 이전에 반대. 체인 c1->c2->c3는 하나의 등록을 저장하고 각 후속 사이클을 이전에 각각에 의존하게 만듭니다 : 하나의 나쁜 링크는 나머지를 옮기고 나머지는 어떤 링이 실패했다고 말하지 않습니다. 각각 독립적으로 등록하는 것은 하나의 사이클이 다른 비용을 지불하지 않고 떨어지는 것을 허용하는 것입니다 - PART 9의 규칙은 등록하지 않는 사이클에 마이크로 플레이트 샘플 위치를 지불 할 필요가 없습니다.\n\n:param reference: 참조 사이클의 목표는 :func:`sbs_mean_target`에서 나온다.\n:param cycles: 그 사이클의 목표에 대한 사이클 번호.\n:param tolerance: 사이클이 기준에서 얼마나 떨어져도 받아들일지, 픽셀 단위.\n:param kwargs: 그것은 :func:`spacr.ops_register.phase_correlate`로 옮겨졌습니다.\n:returns: 그것의 :class:`Registration`에 사이클 번호를 포함하여 거부 - 호출 보고서 `n_cycles`는 사이클이 시험되고 거부되었다는 것을 알아야한다, 그것이 부재되지 않다는 것뿐만 아니라.",
       "translation_source_blocks_sha256": [
         "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
         "8b8b9128b0d28f037b6fb3ea9be9d2d40be17f96207b205abc6e38135d34b057",
@@ -48588,6 +48636,42 @@
         "fe20db7a756230d7f9654f3ea9accd518edd81b53df9f96e378da3b4eb859367"
       ]
     },
+    "spacr.ops_engine": {
+      "source_blocks_sha256": [
+        "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
+        "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
+        "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73"
+      ],
+      "source_sha256": "addb1b55394a44a3dd693a8768539a205c86e4464bffb7637959171d38dc3c4d",
+      "text": "광학 풀드 스크린의 시퀀싱 획득을 타일부터 표까지 실행합니다.\n\n한 번의 호출로 각 웰을 타일 파일에서 ``measurements.db`` 의 세 표로 옮깁니다: ``ops_geometry`` 는 각 핵 타일이 웰 좌표계에서 어디에 있는지, ``ops_objects`` 는 합성된 핵 지도에서 분할하고 웰 전체에 한 번 번호를 매긴 핵마다 한 행, ``ops_barcodes`` 는 할당된 리드가 합의한 핵마다 한 행입니다.\n\n읽을 수 없는 파일은 그것이 속한 필드의 사이클 하나만 잃게 하고 보고서에 기록되며, 웰 전체를 잃게 하지는 않습니다. 이 단계는 표현형 획득을 배치하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "2c2458a62b571f8e72b70b8e635f8908f800ba1bc12bd66c9029a0483955d613",
+        "ca95d16ca07572e19ebe29c1a79463631431eea44d7765f09de50753f28d29db",
+        "e7b2d3445a7bdbb35cc8f223849a27555668a54900f5b526ae81aa3d0daf5d77"
+      ]
+    },
+    "spacr.ops_engine.run_ops": {
+      "source_blocks_sha256": [
+        "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
+        "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
+        "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
+        "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
+        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+        "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c"
+      ],
+      "source_sha256": "b7cf061017eaa6ad6f1dfc5851a7493ca7e1a8ea82a27293ced136739703d7db",
+      "text": "하나의 시퀀싱 획득에 속한 웰들을 스티칭하고 분할하고 디코딩합니다.\n\n:param settings: OPS 설정. 여기서 읽는 항목: ``genotype_source`` 는 시퀀싱 타일 폴더로 재귀적으로 검색합니다; ``dst_root`` 는 ``measurements.db`` 와 웰별 보고서가 저장되는 곳으로, 비어 있으면 원본 폴더입니다; ``plate`` 는 비어 있으면 원본 폴더 이름입니다; ``ops_gpu``; ``n_workers`` 는 동시에 디코딩할 필드 수입니다; ``cellpose_model`` 과 ``cellpose_diameter``.\n:param wells: 실행할 웰; None 이면 찾은 모든 웰.\n:param phases: ``\"stitch\"``, ``\"objects\"``, ``\"decode\"`` 중 원하는 것, 이 순서로 실행됩니다. 빠진 단계는 필요한 내용을 데이터베이스에서 읽으므로, 한 웰을 한 번 스티칭하고 다시 디코딩할 수 있습니다.\n:param library: 가이드 바코드로, 시퀀스 또는 ``prefix``, ``barcode``, ``sequence`` 열이 있는 CSV 경로입니다. 주어지면 각 바코드를 가장 가까운 가이드에도 매핑합니다.\n:returns: ``{\"db\": path, \"wells\": {well: {phase: report}}}``.\n:raises ValueError: 원본에 여기서 이름을 붙일 수 있는 타일이 없거나, 알 수 없는 단계나 웰을 요청했거나, 한 단계의 입력이 없을 때.",
+      "translation_source_blocks_sha256": [
+        "55e436af9ddcabbeca29109f95002d1f971cdbb763fdebdec97d4d65a934f5fe",
+        "9b9693dc3a424fc9561a55eeb6b5a3b655b5a32405e846a949aa260b92f8259f",
+        "6db1cb9e60478e98d15850455427024f6709b7bf66a1e6f0fae6b412185d4949",
+        "0b480320509f0847b25781cc61ee5b019505802f9ef812bc588bf34648024faf",
+        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+        "45581efb90904ef0ca2df0483b6d41f5b74785186657bde7b3af92131d744975"
+      ]
+    },
     "spacr.ops_layout": {
       "source_blocks_sha256": [
         "2a2ae3e9c8647ec5167329b0a954f529068d907d0ad9ca37d95e51a6b580dd63",
@@ -48617,19 +48701,19 @@
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
         "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
-        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
-        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
+        "8f325a816c5bbaf3978bc1b0e1f2384012d77d38ea943976debc17de5c593ee7",
+        "06ca32f7fa55d96acacd275df9f0d6e990beb502f91bbcbbe942f5df4ab41384"
       ],
-      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
-      "text": "둥근 골의 마이크로스코프 이미지 필드, 사이트 인덱스 및 네트워크 위치에 의해 다루어집니다.\n\n:ivar columns: 얼마나 많은 열의 마이크로스코프 필드의 시야 인수 래스터가있다.\n:ivar radius: 마이크로 플레이트 샘플 위치의 라디오, 네트워크 단위 (마이크로스코프 이미지 필드 피치 = 1).\n:ivar centre: ``(column, row)`` 서클의 중심에서 라인은 잘 측정 된 것에 대해 부정적이기 때문에 사이트 0은 TOP에 있으며 라인이 아래로 증가합니다.\n:ivar snake: 마이크로 매니저의 HCS 플러그인은, 그래서 참조 구현은 전혀 `remap_snake`를 수행합니다.\n:ivar row_offsets: 얼마나 멀리 각 열의 순서가 그들을 둥지에 넣어, 하나 전체 각 열, 왼쪽으로 오른쪽으로. 빈은 각 레이아웃이 그것이 될 수 없다는 것을 보여 주기 전에 그것의 단어로 둥지를 가져 오는 것을 의미합니다. 둥지가 끝을 넘는 둥지는 흔들리지 않습니다, 그래서 ``()``는 오래된 행동의 전체가 아닌 그것의 특별한 경우입니다.이 클래스가 해시되어 있기 때문에 둥근 - 참조 :func:`_index`.\n\n:attr:`heights`과 :attr:`site_count`은 오프세트가 무엇이든 동일하며 사이트 N은 수정 전과 후에 동일한 미크로스코프 시각 필드입니다 - 다른 순서입니다.이것은 정확히 오류 372의 PART 14-G는 현상 인수에 측정됩니다 : 188 이상의 조정 된 미크로는 시각의 필드에서 COLUMN 지수는 각 시간, 표준 변동에 천, 그리고 순서는 정확한 전체 숫자에 의해 잘못되었습니다.",
+      "source_sha256": "252f3c40a3c0f8616cd8cf6c21a97caa3252f712bfae3e8e7b05eda45c917c1c",
+      "text": "둥근 골의 마이크로스코프 이미지 필드, 사이트 인덱스 및 네트워크 위치에 의해 다루어집니다.\n\n:ivar columns: 얼마나 많은 열의 마이크로스코프 필드의 시야 인수 래스터가있다.\n:ivar radius: 마이크로 플레이트 샘플 위치의 라디오, 네트워크 단위 (마이크로스코프 이미지 필드 피치 = 1).\n:ivar centre: ``(column, row)`` 서클의 중심에서 라인은 잘 측정 된 것에 대해 부정적이기 때문에 사이트 0은 TOP에 있으며 라인이 아래로 증가합니다.\n:ivar snake: 마이크로 매니저의 HCS 플러그인은, 그래서 참조 구현은 전혀 `remap_snake`를 수행합니다.\n:ivar half_tile: 타일 한 변의 절반으로, 격자 단위입니다. 사이트는 타일 전체가 원 안에 있을 때 유지됩니다: 중심에서 ``(dx, dy)`` 떨어진 곳에서 ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2`` 일 때입니다. 0이면 중심이 원 안에 있는 모든 사이트를 유지하며, 이 필드가 생기기 전 모든 레이아웃이 따르던 규칙입니다.\n\n중심이 아니라 타일 전체가 들어가야 합니다. 중심 규칙은 333 개 필드의 시퀀싱 웰은 맞추지만, 어떤 반지름으로도 1,281 개 필드의 표현형 웰에서 측정한 열 높이를 만들 수 없습니다. 풋프린트 항을 넣으면 둘 다 측정대로 나오고, 모든 열이 같은 행을 중심으로 합니다.",
       "translation_source_blocks_sha256": [
         "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
         "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
         "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
         "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
-        "6ab4eb4e3f981c2078f1eae27c7c104a4a9c68d1de9927062c509b7bfc8105df",
-        "870af8968e920b1eb1ab3e6a392e1b38155e8b69f61ef89c7aaa8c4c96ae2631"
+        "c089679479ffdf207de8067f3e4f29a5df60e941982d8f8fb90e01f5409d77d0",
+        "a9dece7f979e964c16a96ab4b32c4e678cfaaa4d53847c4dce047244d8cc9b58"
       ]
     },
     "spacr.ops_layout.WellLayout.heights": {
@@ -48748,34 +48832,38 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
+        "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4"
       ],
-      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
-      "text": "``(first row, last row)`` 하나의 열, 또는 None 빈 경우.\n\n:param column: 콜럼 인덱스 입니다.\n:returns: 서클 내부의 포괄적 절대 순서 범위, 이 열의 입력에 의해 :attr:`row_offsets`로 옮겨집니다.",
+      "source_sha256": "1c9c10d3538b324c4f83220737486ee98761f76f1a800008384a01392f58cee6",
+      "text": "``(first row, last row)`` 하나의 열, 또는 None 빈 경우.\n\n:param column: 콜럼 인덱스 입니다.\n:returns: 타일 전체가 원 안에 있는 사이트들의 양 끝을 포함한 절대 행 범위 -- :attr:`half_tile` 참조.",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
+        "aa4afa4c382f77ea7a31a9173e9d67f1097d8c3a0d8d98cda9429bf2f9f3ddf1"
       ]
     },
     "spacr.ops_layout.round_well_layout": {
       "source_blocks_sha256": [
         "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
-        "7619125def20ced78e2946ad77985f1728799f754e04ace16d29f9b80fa43451",
+        "86268289cc8151bcdee1cedd1f609ed53d034ff8323229112d2a1cfb1a521f55",
         "2c3cc617cc24727b4210a8dd67fa23af8d3dfb12ad2ee7a5a3560b39bdea1959",
         "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "c63e219d31a59ab085b7434370040f30d072e66e0a9e87fdca14135374b066ac",
         "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
-        "5f9697ed74dc5cc31a1fc7867b8e9e434ff5ebef0a620a2beba10665fbb9c422"
+        "c2fc36d4de364217c55b41aa0312bda2c72f6671f1df7fcbed55d6c8e88713b0",
+        "2f7270145a6377b6ae43cc385f4e785ba75db522e11a7e546a7397c17f3eede2"
       ],
-      "source_sha256": "424f2519dc4cfbe48ad17d1d33a2c49ea72c9bdb6d5d248bfac935d15e845394",
-      "text": "서클이 정확히 ``site_count`` 필드를 유지하는 레이아웃.\n\n측정된 빛은 333에 변함없이 반환되므로 확인된 모델은 결코 다시 추출되지 않습니다.다른 계산을 위해 라디오가 검색됩니다 - 다른 확대 또는 다른 실험실 마이크로 플레이트 형식에서 잘 묘사 된 것은 다른 수의 마이크라 필드가있는 동일한 서클입니다.\n\n:param site_count: 얼마나 많은 마이크로스코프 이미지 필드 인수가 있습니다.\n:param columns: 그것이 알려져있을 때 열을 계산합니다.그것은 다른 방식으로 서클에서 유래합니다.\n:returns: 그리고 레이아웃\n:raises ValueError: 어떤 서클이 정확히 많은 마이크로스코프 필드를 보지 못할 때, 그것은 정직한 대답입니다 - 어떤 라운드도 잘 생성하지 않는 계산은 인수가 하나가 아니며, 가장 가까운 것을 추측하면 각 마이크로는 이미지 필드를 약간 잘못 넣을 것입니다.",
+      "source_sha256": "5305e117b3024b18d8338920bf837bd4e2da0bdac000f8770f6a9b74d65a8f66",
+      "text": "서클이 정확히 ``site_count`` 필드를 유지하는 레이아웃.\n\n탐색이 측정된 웰의 333 개 사이트에 이르면 그 웰을 그대로 반환하므로, 확인된 모델을 다시 유도하지 않습니다. 다른 개수에 대해서는 반지름을 탐색합니다 -- 다른 배율이나 다른 플레이트 형식으로 촬영한 웰도 같은 원이며, 그 안의 필드 수만 다릅니다.\n\n:param site_count: 얼마나 많은 마이크로스코프 이미지 필드 인수가 있습니다.\n:param columns: 그것이 알려져있을 때 열을 계산합니다.그것은 다른 방식으로 서클에서 유래합니다.\n:param half_tile: 타일 한 변의 절반을 타일 간격 단위로 나타낸 값 -- 타일 크기를 정합된 간격의 두 배로 나눈 것입니다. 필드는 타일 전체가 원 안에 있을 때 유지되며, 0이면 중심이 원 안에 있을 때 유지됩니다. 기본값은 표현형 획득에서 측정한 0.5857 입니다. 시퀀싱 획득은 0.5840 으로 측정되었고, 0.5 와 2.0 사이의 모든 값은 두 웰 -- 333 개와 1,281 개 필드 -- 에 측정된 열 높이를 줍니다.\n:returns: 그리고 레이아웃\n:raises ValueError: 정확히 그 개수의 필드를 담는 원이 없을 때이며, 이것이 정직한 답입니다 -- 어떤 둥근 웰도 만들지 않는 개수는 그 획득이 둥근 웰이 아니라는 뜻이고, 가장 가까운 것을 추측하면 모든 타일이 조금씩 잘못 놓입니다. ``half_tile`` 이 음수이거나 숫자가 아닐 때도 발생합니다.\n\n반쪽 타일 값이 정해지면 개수가 필드를 정합니다. 원 안의 필드 수는 반지름에 따라 늘어나기만 하므로, 정확히 ``site_count`` 개를 담는 모든 반지름은 같은 필드를 담습니다. 레이아웃이 가진 반지름은 그중 하나일 뿐 측정값이 아닙니다.",
       "translation_source_blocks_sha256": [
         "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
-        "c91147024efddab4317ffbb9fcddc27b708f286153a97bc3d2153da09113d782",
+        "299d2ff5db36070256696fbaabdea0d8ae076c4a2d77122fd92dcfcc8efd1a69",
         "422badeb089edccd9e0d3666b00db879896f12f16774d37d87dc5bca4af4c8e3",
         "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "a50cff12e7524dd13b525486a4f16cd108fda88e0d9a67bff2797a538a43cb0e",
         "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
-        "022fedb5794bf48bc372d1c87b78f0d6fc2382f19c3e0b5344b52134234fc219"
+        "88b274bcd4cbb2030e03f9a93dfd0415158a37f24c7481dd30cb80b713ec4368",
+        "bca2e567effccfa5841031b3ac22fdfcfcbfb9d8890dc31fa1a55bd4c1e1ed00"
       ]
     },
     "spacr.ops_merge": {
@@ -48873,11 +48961,11 @@
         "990cbd9d468810e23d12c3c6422a96b1e92596d8698621faf418036c8b591785",
         "97b8148e32b87cf7ab822aa5792267912cd4e0e4cb9ef01a3fe9b1d14e57d483",
         "bcd8c39db6c093f852d0428af03bd07c6af89f7ae366071127c7a1ff280d4889",
-        "01272912db0ec87950b0a80779bd9ba157f02b306c23a540d72bcc352015eaa5",
+        "9ba2321f17439d3fd4a3b06d53ac4f49127ce9a492def8e4f8a737101af7d7c9",
         "c02755472affea9845da91da2662a1c37746a02b0533ee43750418c5f0dfc107"
       ],
-      "source_sha256": "a3672d1d070cafff1ab522615ed99b112085c5305e9559ae6cf0099fc3605b14",
-      "text": "마이크로 플레이트 샘플 위치를위한 하나의 개체 목록, 창 좌석을 통해 셀하고 한 번 숫자.\n\nSECMENT, SEW, NUMBER - 화합물과 개체 테이블 사이의 세 단계. 화합 단계는 한 번에 창을 구축하고 결코 물질화 된 전체를 제공하는 좁은 이미지 네트워크를 제공합니다.\n\n* 세그먼트 한 번, 컴포지트에, 창에서 창으로.\n* 창을 통해 라벨을 묶으십시오. 한계를 뻗는 개체는 그것의 잘 프레임 센트로이드에 맞는 하나의 개체입니다.\n* 마이크로 플레이트 샘플 위치 프레임의 숫자, 창이 아닌. 창마다 숫자는 두 개의 창에서 개체 #1 숫자를 제공합니다.\n\n:func:`spacr.ops_compose.windows_over` 마이크로스코프 이미지 필드는 OVERLAP와 함께, 그리고 그것의 계약은 overlap이 가장 큰 개체를 초과한다는 것입니다. 그래서 바람 근처의 핵은 두 개의 창 사이에 분열되지 않습니다 - 그것은 적어도 하나에 의해 볼 수 있습니다, 그리고 일반적으로 두 번.\n\n    이 차이점은 전체 디자인입니다.두 부분 마스크에서 개체를 재구성하는 것은 두 개의 완전한 마스크 사이를 선택하는 것은 결심하지 않습니다.이 마스크를 통해 픽셀을 결합하는 방법을 결정하는 것을 의미합니다.\n\n그것은 침묵하지 말아야 할 한 가지 실패를 남기고있다 : 각 창의 클립보다 더 큰 개체. :func:`sew`은 부분을 발행하는 대신 그것을 거부합니다, 왜냐하면 부분은 작은 핵과 정확히 보이고 처리 세션의 나머지 부분에 대해 하나로 계산 될 것입니다.\n\nIDs는 조합 구조 데이터 이름, 그래서 그들은 결정적으로 할당됩니다 - 마이크로 플레이트 샘플 위치 프레임 센트로이드에 라스터 순서 - 그리고 키 가치 지도 또는 어떤 창이 처음으로 분류되었는지에 대한 이테라션 순서에 의해 아닙니다. 계약은 다음과 같습니다 : \"이 ID, 그리고 그것 옆에있는 센티로이드는 각 후속 단계에 대한 조합 구성 데이터 이름입니다.\" 같은 데이터에 대한 두 라운드는 동일한 숫자를 생성하거나 아무것도 비교할 수 없습니다.",
+      "source_sha256": "f693ec2a28a9c9ad50cd0653132a34c919ca0ab90f60878bd1c6648e5aff52f1",
+      "text": "마이크로 플레이트 샘플 위치를위한 하나의 개체 목록, 창 좌석을 통해 셀하고 한 번 숫자.\n\nSECMENT, SEW, NUMBER - 화합물과 개체 테이블 사이의 세 단계. 화합 단계는 한 번에 창을 구축하고 결코 물질화 된 전체를 제공하는 좁은 이미지 네트워크를 제공합니다.\n\n* 세그먼트 한 번, 컴포지트에, 창에서 창으로.\n* 창을 통해 라벨을 묶으십시오. 한계를 뻗는 개체는 그것의 잘 프레임 센트로이드에 맞는 하나의 개체입니다.\n* 마이크로 플레이트 샘플 위치 프레임의 숫자, 창이 아닌. 창마다 숫자는 두 개의 창에서 개체 #1 숫자를 제공합니다.\n\n:func:`spacr.ops_compose.windows_over` 마이크로스코프 이미지 필드는 OVERLAP와 함께, 그리고 그것의 계약은 overlap이 가장 큰 개체를 초과한다는 것입니다. 그래서 바람 근처의 핵은 두 개의 창 사이에 분열되지 않습니다 - 그것은 적어도 하나에 의해 볼 수 있습니다, 그리고 일반적으로 두 번.\n\n    이 차이점은 전체 디자인입니다.두 부분 마스크에서 개체를 재구성하는 것은 두 개의 완전한 마스크 사이를 선택하는 것은 결심하지 않습니다.이 마스크를 통해 픽셀을 결합하는 방법을 결정하는 것을 의미합니다.\n\nWHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT (그래서 조용히 넘어가서는 안 되는 실패가 하나 남습니다): 겹침보다 커서 모든 윈도우가 잘라내는 객체. :func:`number` 는 이런 객체를 조각으로 내보내는 대신 거부하는데, 조각은 작은 핵과 똑같아 보여서 실행이 끝날 때까지 핵 하나로 계산되기 때문입니다.\n\nIDs는 조합 구조 데이터 이름, 그래서 그들은 결정적으로 할당됩니다 - 마이크로 플레이트 샘플 위치 프레임 센트로이드에 라스터 순서 - 그리고 키 가치 지도 또는 어떤 창이 처음으로 분류되었는지에 대한 이테라션 순서에 의해 아닙니다. 계약은 다음과 같습니다 : \"이 ID, 그리고 그것 옆에있는 센티로이드는 각 후속 단계에 대한 조합 구성 데이터 이름입니다.\" 같은 데이터에 대한 두 라운드는 동일한 숫자를 생성하거나 아무것도 비교할 수 없습니다.",
       "translation_source_blocks_sha256": [
         "8c6d8513f13f9bdee29471aa28191262bead1149b24a1bdd2dd9bd006801d1c8",
         "876023c819960f5827726f2d0a528b5f6695cd8d3cdbbd1e88dbd22dff0fd76e",
@@ -48886,7 +48974,7 @@
         "855db13bbcf05e330503ed4ac4e1e170756ff56ba9bac3624767c9e5658fbdef",
         "33ccab566faea35efbfc090caa07b8b5f4b383f52dc588eb1af0269939f158ea",
         "70a26b1a8de4fe228b8bf046da160ff9aa3f7f15b1d4d7ba8f7c420403994e82",
-        "1b5012547632a797799e95c8197cc7dd2a97f1023ae8cc29146fc77bf09cf5b1",
+        "f13b8f1b62c2143da8621843e67a1c8430ddf0d735014117869e26ee78d48dc5",
         "6d6f19c0b5cdcca7dd1892c1089587143faa4afdc9d5216b05b1fd0379f3e81e"
       ]
     },
@@ -48968,18 +49056,18 @@
         "9a93bc57583625008118ded5bf4743b7890b3e250252024c69d6ee1a26c61af0",
         "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
         "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
-        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
-        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+        "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+        "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac"
       ],
-      "source_sha256": "f8d639df7ef3ce1cd268c560d6e74d298f93194582c5b9bb6de2b4b778e2d4d3",
-      "text": "1 개의 개체 ID, 마이크로 플레이트 샘플 위치 프레임에 부여, 결정적으로.\n\n마이크로 플레이트 샘플 위치 프레임 센트로이드 - 위에서 아래로, 그 다음 왼쪽에서 오른쪽으로 - 대신 주문 창이 분류되었습니다. ID는 합류 키, 그래서 같은 데이터를 통해 두 개의 라운드는 동일한 숫자를 생성해야합니다.\n\n0은 각 라벨 이미지의 배경이며, 0 번호가있는 개체는 어떠한 마스크 비교도 보이지 않을 것입니다.\n\n:param groups: :func:`sew`에 해당되는 글 1건\n:param strict: 완전한 관찰이 없는 그룹을 거부하십시오.그것을 끄는 것은 잘못된 실행을 검사하기 위해서만 - 그것이 발행하는 물체는 흔들린 영역을 가진 조각입니다.\n:raises ObjectsError: 그룹이 단지 스크립트 관찰을 보유하고있을 때, 즉 개체가 창의 덮개보다 크다는 것을 의미합니다.",
+      "source_sha256": "f8b899f9ca99f84de1119d8dead1529613db8fb6c64369433efaca7ec06a8c45",
+      "text": "1 개의 개체 ID, 마이크로 플레이트 샘플 위치 프레임에 부여, 결정적으로.\n\n마이크로 플레이트 샘플 위치 프레임 센트로이드 - 위에서 아래로, 그 다음 왼쪽에서 오른쪽으로 - 대신 주문 창이 분류되었습니다. ID는 합류 키, 그래서 같은 데이터를 통해 두 개의 라운드는 동일한 숫자를 생성해야합니다.\n\n0은 각 라벨 이미지의 배경이며, 0 번호가있는 개체는 어떠한 마스크 비교도 보이지 않을 것입니다.\n\n:param groups: :func:`sew`에 해당되는 글 1건\n:param strict: 완전한 관측이 없는 그룹을 거부합니다. 끄면 그런 그룹은 번호를 매기지 않고 버리며 -- 잘린 면적을 가진 것은 아무것도 내보내지 않습니다 -- 버린 개수를 경고로 기록합니다.\n:raises ObjectsError: 그룹에 잘린 관측만 있을 때: 객체가 윈도우 겹침보다 크거나, 어떤 윈도우의 온전한 핵 관측과도 맞지 않은 조각입니다. 메시지는 객체의 범위와 각 경우의 해결 방법을 알려 줍니다.",
       "translation_source_blocks_sha256": [
         "e59d92411ab038dc0eae96f9b50e22d4e209ba7f09ad325f1685cd475ca1f438",
         "71dd785a95bf433424f8db8a069882a844b988679155e844d35c762c5bc4f10a",
         "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
         "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
-        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
-        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+        "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+        "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac"
       ]
     },
     "spacr.ops_objects.objects_frame": {
@@ -49039,17 +49127,19 @@
         "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
         "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
         "f08633cd3542cbeb32d6a15ddabb0e48d2cb1d93159db10c8da9596e2a06bc61",
-        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+        "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
         "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ],
-      "source_sha256": "0a6524af4792480274feb233863a420748edcbde67f7babf4bcaabc98af6a067",
-      "text": "그룹 관찰은 동일한 핵심입니다.\n\n각 그룹은 하나의 물리적 개체입니다. 창의 덮개에있는 핵은 두 개 (또는 각도에있는 4 개) 관찰으로 구성됩니다; 창의 내부에있는 하나는 하나의 그룹을 형성합니다.\n\n마스크가 인테리어에 들어갔던 관찰은 전체 핵을 보지 못했으므로 그 영역과 센트로이드는 모두 잘못되었습니다. 그것은 동일한 핵의 완전한 관찰과 일치하기에 충분히 오랫동안 유지되었으며 그 후에 그것을 찬성합니다. 완전하지 않은 것에 일치하는 스크립트 관측은 :func:`number` 거부하는 핵 전체를 본 창이 없다는 것을 의미합니다.\n\n클립 된 관찰을 일치하는 것은 센트로이드만 사용합니다 : 그것의 영역은 정의에 따라 흔들리고 있으므로 동의하는 영역을 요구하면 그것을 구하는 경기를 정확히 방지 할 것입니다.\n\n:param observations: 각 창의 각 개체의 시각은 하나의 덩어리에서, 이미 훌륭한 프레임 좌표에 있습니다. 순서는 중요하지 않습니다; 그룹화는 지질학에 의해, 도착에 의해 아닙니다.\n:returns: 그룹, 각각 관찰의 두 배, 어떤 특정 순서 - :func:`number`는 중요한 순서를 강요하지 않습니다.",
+      "source_sha256": "1498680e3055c65d22df115ce4253dc0f27c45681455cacb2ed566ecfb4040bf",
+      "text": "그룹 관찰은 동일한 핵심입니다.\n\n각 그룹은 하나의 물리적 개체입니다. 창의 덮개에있는 핵은 두 개 (또는 각도에있는 4 개) 관찰으로 구성됩니다; 창의 내부에있는 하나는 하나의 그룹을 형성합니다.\n\n마스크가 인테리어에 들어갔던 관찰은 전체 핵을 보지 못했으므로 그 영역과 센트로이드는 모두 잘못되었습니다. 그것은 동일한 핵의 완전한 관찰과 일치하기에 충분히 오랫동안 유지되었으며 그 후에 그것을 찬성합니다. 완전하지 않은 것에 일치하는 스크립트 관측은 :func:`number` 거부하는 핵 전체를 본 창이 없다는 것을 의미합니다.\n\n한 윈도우의 두 라벨은 결코 한 객체가 아닙니다. 라벨 이미지는 한 핵에 두 라벨을 주지 않기 때문입니다. 서로 다른 윈도우의 완전한 관측 두 개는 무게중심이 각 축에서 ``tolerance`` 이내로 일치하고, 면적이 ``area_ratio`` 까지 일치하거나 무게중심이 작은 쪽의 등가 반지름 -- 그 면적을 가진 원판의 반지름 -- 이내에 있을 때 같은 핵입니다. 면적이 일치하는 쌍을 먼저 합치고 나머지는 가까운 순서로 합치며, 한 그룹에 한 윈도우의 두 라벨을 주게 되는 합치기는 거부됩니다.\n\n잘린 관측은 고정 거리가 아니라 포함 관계로 짝지어집니다: 잘림은 무게중심을 핵 반지름만큼까지 안쪽으로 옮기므로, 고정 허용오차는 깊이 잘린 경우를 정확히 놓칩니다. 잘린 관측은 무게중심이 다른 윈도우의 완전한 관측의 등가 원판 안에 있거나, 경계 상자가 그 관측의 상자 안에 두 픽셀 여유로 들어갈 때 그 관측에 합류합니다. 그런 관측 중 가장 가까운 하나에만 합류하므로, 잘린 조각 하나가 두 핵을 한 객체로 만들 수는 없습니다. 어떤 완전한 관측과도 맞지 않는 잘린 관측들은 상자가 겹치는 곳끼리 묶입니다.\n\n:param observations: 각 창의 각 개체의 시각은 하나의 덩어리에서, 이미 훌륭한 프레임 좌표에 있습니다. 순서는 중요하지 않습니다; 그룹화는 지질학에 의해, 도착에 의해 아닙니다.\n:returns: 그룹, 각각 관찰의 두 배, 어떤 특정 순서 - :func:`number`는 중요한 순서를 강요하지 않습니다.",
       "translation_source_blocks_sha256": [
         "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
         "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
         "86686443e9b66c526106ba99577de6700be0169153c6a27d3a1089230a993d13",
-        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+        "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
         "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ]
@@ -49182,30 +49272,50 @@
         "e31eaad6b7680496d8ef9d345e058a6ca960a30f515faba7507ca15ec34bf494"
       ]
     },
+    "spacr.ops_phenotype.phenotype_centres": {
+      "source_blocks_sha256": [
+        "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+        "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+        "a72f71fa491262526c02f83f4a7ec3603ecff94045440e61c8c1c9c5811c5b57",
+        "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+        "62734fbdc05ad91105b8666536bf5de38fa2efd63b6c2a9c5a89883340d8da45",
+        "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+        "869851e6ed102bb8bc4f3c240b3f674eca045bb487f031f3c41457e759e709a1"
+      ],
+      "source_sha256": "f9a9783fcea49feff3db7a7f2d2f01d785243cd383ca48d08a7c477da528db39",
+      "text": "측정된 몇 개의 중심으로부터 모든 표현형 필드의 중심 위치를 구합니다.\n\n:param layout: 표현형 획득의 :class:`spacr.ops_layout.WellLayout`, 또는 그 필드 수.\n:param anchors: ``{site: (y, x)}``, 격자 위치가 모두 한 직선 위에 있지 않은 정렬된 필드 최소 세 개의 웰 좌표계 중심. 이 방법은 웰 전체에 퍼진 여섯 개로 검증되었습니다.\n:returns: ``{site: (y, x)}``, 앵커를 포함한 레이아웃의 모든 필드 -- 측정값이 아니라 맞춘 중심입니다.\n:raises ValueError: 앵커로 래스터를 정할 수 없을 때: 세 개 미만이거나, 격자의 한 직선 위에 있거나, 유한한 두 숫자가 아닌 중심이 있을 때. 어떤 둥근 웰도 담지 않는 필드 수일 때도 발생합니다.\n:raises IndexError: 앵커가 레이아웃에 없는 사이트를 가리킬 때.\n\n여섯 개의 숫자가 웰 전체를 배치합니다. 레이아웃은 모든 필드의 격자 위치를 주고, 획득 래스터는 원점, 열 간격, 행 간격으로 격자 위치를 웰 좌표계로 옮기며, 각각은 스테이지의 몇 픽셀 기울어짐을 담은 ``(dy, dx)`` 쌍입니다. 실제 웰의 여섯 필드에 최소제곱으로 맞추자 나머지 472 개 필드의 측정 중심을 중앙값 1.2 px, 최악 4.0 px 로 예측했고, 두 번째 웰의 451 개는 최악 4.4 px 로 예측했습니다.",
+      "translation_source_blocks_sha256": [
+        "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+        "e6a41dea9a8ecb57c5e1ecd8211653925ccdf502c6d946a59e02da0f4c34a8e2",
+        "273cb93488f7b56efe4a8096dce214631a520229cb417a2cf4ef25cf48961dde",
+        "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+        "a9dabc0904410038305714a523fb4ed04969ccb9458b317a2ca4e14a50a84637",
+        "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+        "16d847ad9c859a7090d8625dd48af344056592c3dec839d8ec0bb0cad2639fb9"
+      ]
+    },
     "spacr.ops_phenotype.phenotype_site_map": {
       "source_blocks_sha256": [
-        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
-        "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
-        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
-        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
-        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
-        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
-        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
-        "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
+        "d8987e7ccf9126ae97b1035274f1858ed5d91a9c926e1041d075a74f46bda5c2",
+        "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+        "5ee088d6438ce7110691e740d8d39daf49266a6bfecbabe2da381af4c445991b",
+        "9482032d0529e408eedc31b529b11c047715bf35366e88b102aabc2b5761a35f",
+        "7b4ad6c687274f962bda174e28f7bedfb4e7466743ab89786faba23d1ae362f7",
+        "343e414cceff1565e0cee8d9a8ec18e898ad8efe76cf98bf334aff2939a9be51",
+        "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+        "d67e620df54a44769db2cde7feabc8935859b8753a09913120bda2d3e3ce9b27"
       ],
-      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
-      "text": "각 종류의 종류를 다루고 있는 종류는 종류가 다릅니다.\n\n:param phenotype_sites: 얼마나 많은 미크로스코프 시각 필드 페노 타입이 소유하고 있는지.\n:param sbs_sites: 얼마나 많은 수수료를 소유하고 있는지.\n:param row_offsets: 각 페노 타입 열이 실제로 시작되는 곳에서, :func:`spacr.ops_layout._solve_row_offsets`로 각 열에 하나의 전체를 측정합니다. 빈은 그것의 단어에 서클을 가져옵니다, 이것은이 기능이 그것을 제공하기 전에 무엇이 더 좋았는지.\n:returns: ``{phenotype site -> sequencing site}``, 그 서클 밖에 있는 순서 위치를 가진 모든 현상형 벽돌을 무시한다.\n:raises ValueError: 숫자 중 하나가 둥근 덩어리가 아닌 경우, :func:`spacr.ops_layout.round_well_layout`가 결정되거나, 오프세트가 현상형 열 당 하나가 아닌 경우.\n\n그리고 서클은 항상 획득이 아닙니다, 그것은 ``row_offsets``에 대한. `round_well_layout` 시야는 정확히 마이크로스코프 필드의 시야 계산을 유지하고 1 개 이상의 라디오를 수행; 그것이 발견하는 41 열 현상은 오른쪽 열과 두 가지로 잘못된 순서를 제공합니다. 372의 PART 14-G 측정은 188 이상의 조정 된 미생물 필드 시야 - 0.001의 표준 변동에 정확한 열 인덱스, 각 열 아래에 일정한 전체 숫자에 의해 표시되는 순서 - 그것은 거부 133의 321 미생물을 시야 필드, 왜냐하면 하나의 순서는 633 px이고 창은 그것에 의해 손실되지 않습니다.\n\n잘못된 길이의 테이블은 패드 대신 거부됩니다. 패딩은 :class:`spacr.ops_layout.WellLayout`의 내부에 똑바로, 여기에 빈 기본이 의미를 유지해야합니다 \"no offsets\"; 여기에서 호출자는 특정 선의 측정을 전달하고, 그것에 맞지 않는 테이브는 일부 열을 수정하고 조용히 나머지를 떠날 것입니다 - 그것은이 논쟁이 끝날 상태입니다.\n\n그것은 레이아웃 질문이 아니라 이미지 하나이며, 이미지에 의해 대답하는 것은 A4에서 첫 번째 세 번의 시도가 오후를 보내는 방법이었다 : 현상 사이트 N는 배의 다른 부분 인 N의 순서 위치와 일치했고, 각 쌍은 2 ~ 9 %의 인리어로 돌아 왔습니다. 디자인은 그것을 닫힌 형태로 말합니다. 측정 된 인수는 21에서 10.25에 순서 배의 41 열과 일치합니다. - 동일한 라운드는 마이크로스코프 이미지 필드 밀도의 두 배로 잘, 41 = 2 * 21 - 1 - 그래서 현상 네트워크 위치는 중앙 주위의 절반입니다.",
+      "source_sha256": "8a16a9cb23bc944479e647aedd8addbff0aae9333367004799bb5c013e6845b2",
+      "text": "각 표현형 필드를 덮는 시퀀싱 타일.\n\n:param phenotype_sites: 표현형 획득의 :class:`spacr.ops_layout.WellLayout`, 또는 그 필드 수.\n:param sbs_centres: ``{sequencing site: (y, x)}``, 웰 좌표계에서 스티칭된 각 시퀀싱 타일의 중심 -- 배치 위치에 타일 절반을 더한 값.\n:param anchors: ``{phenotype site: (y, x)}``, 정렬된 표현형 필드 최소 세 개의 측정된 웰 좌표계 중심으로, :func:`phenotype_centres` 가 받는 형식입니다.\n:param tile_shape: 시퀀싱 타일의 ``(height, width)``, 웰 좌표계 픽셀 단위.\n:returns: ``{phenotype site: sequencing site}``. 각 필드는 자신을 포함하는 타일 중 중심이 예측 중심에 가장 가까운 타일에 배정되며, 예측 중심이 어떤 타일에도 들어가지 않는 필드는 생략됩니다.\n:raises ValueError: ``tile_shape`` 가 양수 크기 두 개가 아니거나 :func:`phenotype_centres` 가 앵커나 개수를 거부할 때.\n\n인덱스가 아니라 위치입니다. 필드가 어느 타일에 놓이는지는 타일 경계가 실제로 어디에 있는지에 달려 있는데, 웰 중심을 기준으로 표현형 격자 인덱스를 절반으로 나누는 방법은 그 경계를 볼 수 없습니다: 타일 밀도가 두 배이면 표현형 필드의 절반이 시퀀싱 타일 경계 위나 근처에 놓입니다. 실제 플레이트에서 절반 나누기는 정렬된 필드의 0.45 에서 0.61 에 대해서만 정확한 타일을 찾았고, 여섯 앵커로 각 중심을 예측해 가장 가까운 스티칭 타일을 고르자 472 개 중 472 개, 451 개 중 451 개를 찾았습니다.",
       "translation_source_blocks_sha256": [
-        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
-        "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
-        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
-        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
-        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
-        "954fef2fe85ad5eef97ca8e47fe4dc97df42e970741e7238f358a6ab9d75f30f",
-        "9aa63c8b8ecf3986373d52abb4f39f5c6db1b6b62f37a3402b7c3bd1323856fd",
-        "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
+        "80ec1cab6a66991a9eb17d7474024a9473337cd949d79892854e9f9006255307",
+        "e6a41dea9a8ecb57c5e1ecd8211653925ccdf502c6d946a59e02da0f4c34a8e2",
+        "28c8456a34880adb5db0f266b10ef5e2c5e304287360f0a64d1169308e11afe9",
+        "740724ee655cb7beb8740846fc8de420a6a782da10c6f2134561fc8bbd54a19a",
+        "cf0f98bd2af0e74339813196ee2c41b73121ae6a6c1406addef2ab8726508214",
+        "83df7e316973dbce6ef1d33ab9893ea41501e72719fb47b74d5da1ba536d1271",
+        "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+        "f466cfdea2ececffdadea72165f7388c7ce181e5dc194b3cdd953b4c024fa702"
       ]
     },
     "spacr.ops_phenotype.refine_similarity": {
@@ -49527,16 +49637,16 @@
     "spacr.ops_sample.barcode_rows": {
       "source_blocks_sha256": [
         "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
-        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
         "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
         "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
         "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
       ],
-      "source_sha256": "f38075fc6c052a70d7e7a96cea0d846a58c5b84ff01346949306ae77e89eb25e",
-      "text": "``ops_barcodes`` 라인: 한 개의 개체, 사이클을 통해 수집.\n\n전화 자체를 :func:`spacr.ops_sbs.call_reads`로 전달, 이미 크로스 대화와 사이클에 대한 MINIMUM으로 보고 품질을 보상 - \"바코드는 최악의 기초만큼 신뢰할 수 있습니다.\"\n\n:param objects: 숫자화된 개체는 ``values``'의 첫 번째 좌석과 동일한 순서에 있습니다.\n:param values: ``(objects, cycles, channels)`` 강도, 사이클에 의해 절대 평균 - 참조 :func:`decode_input`, 같은 이유로 단일 사이클을 거부합니다.\n:param library: 주어진 경우, 각 바코드는 :func:`spacr.ops_sbs.correct_to_library`을 통해 가장 가까운 도서관 회원으로 수정되며, 행은 그것이 맵화 된 것을 가져옵니다.",
+      "source_sha256": "1f03e894fc659bc95c172df09d40cef12871b021f6108c7decc23248dd630cd2",
+      "text": "``ops_barcodes`` 라인: 한 개의 개체, 사이클을 통해 수집.\n\n실제 판독은 :func:`spacr.ops_sbs.call_reads` 에 맡기며, 이 함수는 이미 각 사이클의 채널을 정규화하고 품질을 사이클 전체의 MINIMUM (최솟값) 으로 보고합니다 -- \"바코드는 가장 약한 염기만큼만 믿을 수 있다\". 여기서 이를 반복하면 보조를 맞춰야 할 디코더가 하나 더 생깁니다.\n\n:param objects: 숫자화된 개체는 ``values``'의 첫 번째 좌석과 동일한 순서에 있습니다.\n:param values: ``(objects, cycles, channels)`` 강도, 사이클에 의해 절대 평균 - 참조 :func:`decode_input`, 같은 이유로 단일 사이클을 거부합니다.\n:param library: 주어진 경우, 각 바코드는 :func:`spacr.ops_sbs.correct_to_library`을 통해 가장 가까운 도서관 회원으로 수정되며, 행은 그것이 맵화 된 것을 가져옵니다.",
       "translation_source_blocks_sha256": [
         "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
-        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
         "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
         "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
         "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
@@ -49604,26 +49714,26 @@
       "source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "956f92b5597a52553784849833a71d0e85e8b2bd6de6f579a740e064ec93ffb3",
-        "e71dcd146df56085f757d93ca65b8afa1e4e4a15ee474c507540e5be192d9185",
+        "96f751fe3936bc37122069588f7980e88b041b2cf6fb2905765d0397cbed37c3",
         "936e1541cf5e140e01fda0b4c0b8778f6d30f0ceaffa23a1509ad46d00c732b5",
         "fd38f7be57907f9df402614da4e5b18a9304972c3a9b1f0cd52f43911b2cd5fa",
         "434f6e53eb83226c3543ddfe36fdf41fd103a2c2132aad901f698c267664919b",
         "a6a1e26501768ea6716a58affe0c26ee3e2b1b2eba8858c1b26a0eae357f831b",
-        "150885e42ea6d17e4a2ced6e8d6e12dc6848dd0c1d49124a4f0f5c6e376c3478",
+        "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
         "6bc4dae7bc9a17e2859daa6335055cce0b71b47cc63e617c31ccac679f4b1450",
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ],
-      "source_sha256": "b787ea512a3007ba8cfe4e185e8523ad698d5e1039ef1b6bee47b1d01acce429",
-      "text": "디코드 in-situ는 이미지 스택에서 바코드를 순서화합니다.\n\n이것이 무엇을 위한 것인가, 그리고 무엇이 아닌 것인가\n====================================================\n각 순서 사이클은 4 개의 이미지 데이터 채널, 1 개의 기초, 그리고 그 사이클에있는 포트의 기반은 어떤 이미지 데이터채널이 가장 밝은 - 후에 벽돌이 혼합되지 않은.\n\n:mod:`spacr.sequencing`은 이것의 뒤쪽 절반이 아니며 그것에 표시되어서는 안됩니다.이 모듈은 NGS 실행에서 FASTQ를 읽습니다; 여기에는 FastQ가 없으며 순서가 없습니다, 단지 픽셀입니다.\n\n왜 모든 단계가 그 단계인가\n===============================\n이들 중 세 가지가 거의 모든 정확성 위험을 감수하고 있으며, 세 가지 모두는 작업 흐름의 설명에서 실행하는 대신 작업 한 사람이 실행하고 잘못되는 무언가를 생성하기에 충분히 대항적입니다.\n\n* **읽음은 밝은 포인트가 아닙니다.** 그것은 기초 사이 사이의 변화를 가진 포인트입니다.그래서 위치 추정은 사이클 간의 표준 변동이며, 채널을 통해 평균 - 각 사이클의 포인트 밝은 것은 먼지 또는 자기 흐름이없는 블로브이며 변동에 기여하지 않습니다.\n\n* **가장 밝은 채널은 기초가 아닙니다.** 네 개의 다리가 서로 피를 흘렸으므로 원료 argmax가 가장 밝은 다리가 전체로 향한다.\n\n* **불확실한 읽기는 실종된 읽기보다 더 나쁘다.** 가이드 라이브러리에 대한 오류 수정은 항상 가장 가까운 일치에만 수정됩니다. 두 개의 바코드와 동일하게 가까운 읽기는 잘못 지정된 가이드가 조용히 스크린의 결과를 파괴하는 반면, 잃어버린 읽기는 통계 감지 민감성에만 비용을 지불합니다.\n\n여기서 쓰는 방법은 brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology) 를 따르며, 위의 세 가지 요점은 그 단계 이름에서 재구성한 것이 아니라 소스를 직접 읽어 확인한 것이다.",
+      "source_sha256": "81b0dbda4a59d32e548eeff8ff59cb8a080a6d002aa678a2e292f254c876fa89",
+      "text": "디코드 in-situ는 이미지 스택에서 바코드를 순서화합니다.\n\n이것이 무엇을 위한 것인가, 그리고 무엇이 아닌 것인가\n====================================================\n광학 풀드 스크리닝은 가이드 바코드를 OUT OF THE IMAGES (이미지 자체에서) 읽습니다. 각 시퀀싱 사이클은 염기마다 하나씩 네 채널을 염색하며, 그 사이클에서 한 스팟의 염기는 가장 밝은 채널입니다 -- 채널들을 공통 척도로 맞춘 뒤의 이야기입니다. 같은 스팟에서 사이클마다 염기 하나씩 읽으면 사이클들이 바코드를 이룹니다.\n\n:mod:`spacr.sequencing`은 이것의 뒤쪽 절반이 아니며 그것에 표시되어서는 안됩니다.이 모듈은 NGS 실행에서 FASTQ를 읽습니다; 여기에는 FastQ가 없으며 순서가 없습니다, 단지 픽셀입니다.\n\n왜 모든 단계가 그 단계인가\n===============================\n이들 중 세 가지가 거의 모든 정확성 위험을 감수하고 있으며, 세 가지 모두는 작업 흐름의 설명에서 실행하는 대신 작업 한 사람이 실행하고 잘못되는 무언가를 생성하기에 충분히 대항적입니다.\n\n* **읽음은 밝은 포인트가 아닙니다.** 그것은 기초 사이 사이의 변화를 가진 포인트입니다.그래서 위치 추정은 사이클 간의 표준 변동이며, 채널을 통해 평균 - 각 사이클의 포인트 밝은 것은 먼지 또는 자기 흐름이없는 블로브이며 변동에 기여하지 않습니다.\n\n* **가장 밝은 원시 채널이 염기는 아닙니다.** 채널마다 이득과 배경이 따로 있고 실제 플레이트에서는 둘 다 사이클마다 달라지므로, 원시 argmax 는 전체적으로 가장 밝은 채널 쪽으로 치우칩니다. 각 사이클의 채널은 먼저 리드 전체에 대한 중앙값으로 나눕니다. 그 위에 염료 번짐을 분리하는 보정도 쓸 수 있으며, 첫 실제 플레이트에서는 라이브러리 일치율을 낮췄습니다.\n\n* **불확실한 읽기는 실종된 읽기보다 더 나쁘다.** 가이드 라이브러리에 대한 오류 수정은 항상 가장 가까운 일치에만 수정됩니다. 두 개의 바코드와 동일하게 가까운 읽기는 잘못 지정된 가이드가 조용히 스크린의 결과를 파괴하는 반면, 잃어버린 읽기는 통계 감지 민감성에만 비용을 지불합니다.\n\n여기서 쓰는 방법은 brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology) 를 따르며, 위의 세 가지 요점은 그 단계 이름에서 재구성한 것이 아니라 소스를 직접 읽어 확인한 것이다.",
       "translation_source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "f294fd44130918cf8d72230028e2ab194fe79b8344a361c7b6adeb940a314443",
-        "d65647c48328e9746724269e0fef3d90162f613f8979eac35fdc8d219a7a09cd",
+        "870f68bdd326e1f73d0a9123567dab2f7627d9ae3515065f4d45e73eb72ec48b",
         "936e1541cf5e140e01fda0b4c0b8778f6d30f0ceaffa23a1509ad46d00c732b5",
         "231e088fd943098127a8be4d63ea4fe6b05b1dbd659f015a25eedc748d64a7b4",
         "3794660b06b2beed88406c737ebd013952f709c579a659639b7f0fbc1132e70f",
         "1ae3cbf8554c7420a94c9859d244adc699a7ae1dffe47172677631f0ce4ebbd4",
-        "150885e42ea6d17e4a2ced6e8d6e12dc6848dd0c1d49124a4f0f5c6e376c3478",
+        "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
         "8e49e4ae55cdaf1e9320b09b01d3225d7974dc18a89872e1645af047d5d86593",
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ]
@@ -49643,7 +49753,7 @@
         "c1e21e9f6bf783ae0091c78edfbe172bb2a43be7295f0c84a65fa07bc96e0c8e"
       ],
       "source_sha256": "b58306e2f797db5c884d2c0e1ad292afbf05512cbb1440f45a92c1340bb42257",
-      "text": "각 세그먼트 셀에 그것의 읽기가 동의하는 바코드를 제공합니다.\n\n세포에는 여러 점이 포함되어 있으며, 그들은 모두 동일하게 분해되지 않을 것입니다 : 초점을 벗어나는 점, 이웃과 공유하는 점, 그리고 진정한 두 번째 혼란이 모두이 단계에서 동일합니다. 그래서 세포는 AGREE - ``min_fraction``를 읽을 때만 할당됩니다 - 적어도 ``min_reads``는 동일한 바코드를 가지고 있어야합니다 - 그렇지 않으면 할당되지 않습니다.\n\n기본 사항은 의도적으로 받아들이는 것보다 더 많이 거부합니다. 한 번 읽는 것은 증거가 아닙니다 : 그것은 아무것도에 대해 검사 할 수 없으며, 단 하나의 잘못된 기초는 조용히 셀에 잘못 된 방해를 전달 할 것입니다. 바코드가없는 세포는 통계 감지 민감성을 비용; WRONG 바코드를 가진 세포가 다른 가이드의 평균에 실제 현상을 옮기고 나중에 일어났다는 것을 말할 수 없기 때문에 복구 할 수 없습니다.\n\n0 표지판에 착륙하는 읽기 - 배경, 세포 사이 - 가장 가까운 세포에 붙어있는 대신 삭제됩니다.\n\n:param peaks: ``(N, 2)`` ``(y, x)`` 위치를 읽으십시오.\n:param barcodes: 하나는 읽기 당 바코드라고합니다.\n:param labels: 세그먼트는 0이 배경에 있는 전체 레이블 이미지로 나타납니다.\n:param quality: 선택적 인 읽기 품질 :func:`call_reads`; 주어진 경우 그것은 합의 된 읽기보다 평균됩니다.\n:param min_reads: 그것이 할당되기 전에 얼마나 많은 세포의 필요를 읽을 수 있습니다.\n:param min_fraction: 그들 중 어떤 부분이 동의해야 하는가.\n:returns: ``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` 바에 맞는 각 셀에 대 한.",
+      "text": "각 세그먼트 셀에 그것의 읽기가 동의하는 바코드를 제공합니다.\n\n세포에는 여러 점이 포함되어 있으며, 그들은 모두 동일하게 분해되지 않을 것입니다 : 초점을 벗어나는 점, 이웃과 공유하는 점, 그리고 진정한 두 번째 혼란이 모두이 단계에서 동일합니다. 그래서 세포는 AGREE - ``min_fraction``를 읽을 때만 할당됩니다 - 적어도 ``min_reads``는 동일한 바코드를 가지고 있어야합니다 - 그렇지 않으면 할당되지 않습니다.\n\n기본 사항은 의도적으로 받아들이는 것보다 더 많이 거부합니다. 한 번 읽는 것은 증거가 아닙니다 : 그것은 아무것도에 대해 검사 할 수 없으며, 단 하나의 잘못된 기초는 조용히 셀에 잘못 된 방해를 전달 할 것입니다. 바코드가없는 세포는 통계 감지 민감성을 비용; WRONG 바코드를 가진 세포가 다른 가이드의 평균에 실제 현상을 옮기고 나중에 일어났다는 것을 말할 수 없기 때문에 복구 할 수 없습니다.\n\n0 표지판에 착륙하는 읽기 - 배경, 세포 사이 - 가장 가까운 세포에 붙어있는 대신 삭제됩니다.\n\n:param peaks: ``(N, 2)`` ``(y, x)`` 위치를 읽으십시오.\n:param barcodes: 리드마다 판독된 바코드 하나.\n:param labels: 세그먼트는 0이 배경에 있는 전체 레이블 이미지로 나타납니다.\n:param quality: 선택적 인 읽기 품질 :func:`call_reads`; 주어진 경우 그것은 합의 된 읽기보다 평균됩니다.\n:param min_reads: 그것이 할당되기 전에 얼마나 많은 세포의 필요를 읽을 수 있습니다.\n:param min_fraction: 그중 일치해야 하는 비율.\n:returns: ``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` 바에 맞는 각 셀에 대 한.",
       "translation_source_blocks_sha256": [
         "a5dd08ef7f5ff33d06fa9eb8f9e82f134bfd568d3d5a568cb29c6620a684d636",
         "e45dc9df5e131b5adf3636154e0e0c1b0a1fd92f86e53b0238e1569353a680e7",
@@ -49658,25 +49768,79 @@
         "c1e21e9f6bf783ae0091c78edfbe172bb2a43be7295f0c84a65fa07bc96e0c8e"
       ]
     },
+    "spacr.ops_sbs.assign_reads_to_objects": {
+      "source_blocks_sha256": [
+        "56bd36897564e1ddb76e61dccdb0383bbb0f00a6a8b43788faf4396aa8743653",
+        "3c6bfdd6dcb24565647dc9aa1ea26a3fee06fddeae59f21f2a58c53a3758852d",
+        "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+        "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+        "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+        "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+        "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+        "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6"
+      ],
+      "source_sha256": "b58c2275ea4c8c6e406dfcbef123264042a863f42bc20ff1bdbd180eb58ee82e",
+      "text": "각 플레이트 객체에 할당된 리드들이 합의한 바코드를 부여합니다.\n\n:func:`assign_reads_to_cells` 와 같은 규칙 -- 최소 ``min_reads`` 개의 리드, 그중 ``min_fraction`` 이 같은 바코드를 가지며 1위 동률이 없어야 함 -- 이지만, 리드가 떨어진 라벨이 아니라 각 리드가 할당된 객체 id 를 기준으로 합니다. 그래서 여러 필드에서 모은 리드가 자신이 속한 객체에 한 번만 투표할 수 있습니다.\n\n:param owners: 리드마다 객체 id 하나; 0 또는 음수 id 는 리드에 소유자가 없어 무시된다는 뜻입니다.\n:param barcodes: 리드마다 판독된 바코드 하나.\n:param quality: :func:`call_reads` 에서 온 선택적 리드별 품질.\n:param min_reads: 객체에 할당하기 전에 필요한 리드 수.\n:param min_fraction: 그중 일치해야 하는 비율.\n:returns: ``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}``, 기준을 충족한 모든 객체에 대해.",
+      "translation_source_blocks_sha256": [
+        "8ff2d5810b12799636d1b0ff1242f6cbbdf297ef85824c86d108206f53e8efad",
+        "2bc81227dbcb3fc85b8c5fcf3bd389eb002944af848f837021ec55c033385718",
+        "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+        "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+        "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+        "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+        "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+        "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6"
+      ]
+    },
+    "spacr.ops_sbs.attribute_reads": {
+      "source_blocks_sha256": [
+        "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+        "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+        "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+        "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+        "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+        "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+        "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+        "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3"
+      ],
+      "source_sha256": "e5185e36b7c16379c9e1b7959d7fae87394a4a1282a9f392eecabce3c5d53c9a",
+      "text": "검출된 각 리드를 경계가 가장 가까운 객체에 할당합니다.\n\n리드는 먼저 필드 전체에서 검출된 뒤 여기서 할당되므로, 너무 좁은 풋프린트는 보이지 않게 숨는 대신 소유자 없는 리드로 드러납니다. 경계는 각 객체의 등가 원판, 즉 무게중심을 중심으로 그 면적을 가진 원이며, 가장 가까운 두 경계가 서로 ``tie`` 이내인 리드는 어느 쪽에도 주지 않고 표시합니다.\n\n:param peaks: ``(N, 2)`` 리드 위치 ``(y, x)``.\n:param centroids: ``(M, 2)`` 객체 무게중심 ``(y, x)``, ``peaks`` 와 같은 좌표계입니다.\n:param areas: ``(M,)`` 픽셀 단위 객체 면적.\n:param footprint: 리드가 객체 경계 밖으로 얼마나 떨어져 있어도 그 객체의 리드로 볼지, 픽셀 단위입니다. 첫 실제 플레이트에서 스팟의 98 % 가 핵에서 10 px 이내, 67 % 가 3 px 이내에 있었습니다.\n:param tie: 가장 가까운 두 경계가 얼마나 가까워야 리드를 모호하다고 거부하는지, 픽셀 단위입니다.\n:returns: ``(owner, ambiguous)`` -- 각 리드 소유자의 ``centroids`` 인덱스 또는 -1, 그리고 각 리드가 모호하다고 거부되었는지 여부.",
+      "translation_source_blocks_sha256": [
+        "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+        "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+        "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+        "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+        "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+        "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+        "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+        "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3"
+      ]
+    },
     "spacr.ops_sbs.call_reads": {
       "source_blocks_sha256": [
         "b9b2331000bd5746ba7c42019e9760edf6e291bb13e094a1ca717947dfc85878",
         "cfbc151611fa1c09c7e19f215648e05443a13eb5b4fc23b9ea767413d9f52694",
+        "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
-        "0878c5abd532135939088f9683f8444d107b512ba65891712e9471dc79f6549d",
+        "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
         "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+        "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ],
-      "source_sha256": "8d1fc4def3e3bc51ee32f13381c6278562e0f24cc44ad054b1eee14e056f11f4",
-      "text": "각 사이클의 강도를 barcode 라인과 읽기 당 품질로 변환합니다.\n\n품질은 우승 채널과 runner-up 사이의 경계, 그들의 합으로 분할, 사이클 - 0 두 기지가 동등하게 가능하고 1 전화가 무관심 할 때.\n\n:param values: ``(N, cycles, channels)``에서 :func:`extract_bases`로 이동합니다.\n:param bases: 각 채널에 대한 편지, 채널 순서로.\n:param compensate: 우선 크로스 대화. 오프만 테스트에 대한 보상이 가치가 무엇인지.\n:param method: 그것은 :func:`compensate_crosstalk`로 옮겨졌습니다.\n:returns: ``(barcodes, quality)`` - 읽기 당 하나의 링과 하나의 플로트.",
+      "source_sha256": "da28c745cb762feed4444140c2d50590f3fed6a06ee280f6c7fb0f72653a5cb2",
+      "text": "각 사이클의 강도를 barcode 라인과 읽기 당 품질로 변환합니다.\n\n품질은 우승 채널과 runner-up 사이의 경계, 그들의 합으로 분할, 사이클 - 0 두 기지가 동등하게 가능하고 1 전화가 무관심 할 때.\n\n측정되지 않은 사이클은 ``N`` 으로 호출됩니다. 한 리드의 어느 사이클 값이 NaN 인 경우 -- 그 사이클의 파일을 읽을 수 없었거나 정합이 거부된 경우 -- 그 문자는 ``N`` 이 되고 품질은 측정된 사이클에서만 계산되므로, 사이클 하나를 잃어도 각 리드에서 염기 하나만 잃고 리드 전체를 잃지는 않습니다.\n\n:param values: ``(N, cycles, channels)``에서 :func:`extract_bases`로 이동합니다.\n:param bases: 각 채널에 대한 편지, 채널 순서로.\n:param compensate: 정규화 뒤 :func:`compensate_crosstalk` 로 크로스토크를 되돌립니다. 기본값은 꺼짐입니다: 첫 실제 플레이트에서 라이브러리 일치율을 낮췄습니다.\n:param method: 그것은 :func:`compensate_crosstalk`로 옮겨졌습니다.\n:param normalise: 먼저 각 사이클의 채널을 리드 전체에 대한 중앙값으로 나누어, 사이클 사이의 채널별 이득과 배경 변화를 없앱니다. 중앙값을 구하기에 리드가 너무 적으면 건너뜁니다.\n:param gpu: 보정의 행렬 곱을 그래픽 카드에서 실행하게 합니다. False 이면 호출 전체가 CPU 에 머뭅니다.\n:returns: ``(barcodes, quality)`` - 읽기 당 하나의 링과 하나의 플로트.",
       "translation_source_blocks_sha256": [
         "b9b2331000bd5746ba7c42019e9760edf6e291bb13e094a1ca717947dfc85878",
         "cfbc151611fa1c09c7e19f215648e05443a13eb5b4fc23b9ea767413d9f52694",
+        "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
-        "0878c5abd532135939088f9683f8444d107b512ba65891712e9471dc79f6549d",
+        "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
         "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+        "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ]
     },
@@ -49711,17 +49875,19 @@
         "281147dde43d23884ef0a3c4a323bd90452f67cc0dbd60b77b57ec87644fcd98",
         "37c30f3020fedda6ff4ab0a7b226c264221ada227798ed43284cc746b231f5fb",
         "46391d1f9e20ab60e15493d35247221531d35da497cdb43376b147497ccb4aab",
+        "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
         "8019f7e7c6bed3fa6fed8551858bfb76671e388b0604bdbc08f44d5f8175a776",
         "8c52466956738d58c36a3b36e9bbbc0f49b16a68ceaeae9cd173c997aa5321ed",
         "8e8a6b535756a84d8abad896b7acd5ccc70e7e83c8d598a7cea308cea9f6a21a",
         "8e48d501f97b7b7d13ba4a8cd71ed79dbc65ae75bf0011b81c9c9d08d0b8efa5"
       ],
-      "source_sha256": "840be7753f707bdc4fc22054c24c4d1761ce296b96e3ce4f9c7bfd94167fd795",
-      "text": "각각의 읽기를 도서관으로 옮기지만, 독특한 가장 가까운 경기에서만.\n\n두 개의 도서관 바코드에 똑같이 가까운 읽기는 ``None``로 돌아갑니다.이것은 의도적이며 그것은 단계의 전체 포인트입니다 : 잘못 지정된 가이드는 잘못된 방해로 세포의 현상을 옮기고 조용히 모든 통계를 파괴하고, 떨어진 읽기는 더 많은 세포가 다시 구입할 수있는 통계 감지 민감성에만 비용을 지불합니다.\n\n정확한 경기 짧은 회로, 그래서 깨끗한 실행은 그것에 대해 아무것도 지불하지 않습니다.\n\n:param barcodes: 소위가 읽는다.\n:param library: 가이드 바코드는 실제로 화면이 포함되어 있습니다.\n:param max_distance: 가장 큰 Hamming 거리가 수정될 수 있습니다.\n:returns: 읽기 당 하나의 입력 - 도서관 바 코드, 또는 None.",
+      "source_sha256": "a390a8c28d503c7a51a94dc35230df66c9f7eed48ff9258c5e35332e4106e37c",
+      "text": "각각의 읽기를 도서관으로 옮기지만, 독특한 가장 가까운 경기에서만.\n\n두 개의 도서관 바코드에 똑같이 가까운 읽기는 ``None``로 돌아갑니다.이것은 의도적이며 그것은 단계의 전체 포인트입니다 : 잘못 지정된 가이드는 잘못된 방해로 세포의 현상을 옮기고 조용히 모든 통계를 파괴하고, 떨어진 읽기는 더 많은 세포가 다시 구입할 수있는 통계 감지 민감성에만 비용을 지불합니다.\n\n정확한 경기 짧은 회로, 그래서 깨끗한 실행은 그것에 대해 아무것도 지불하지 않습니다.\n\n``N`` 은 측정되지 않은 염기이지 불일치가 아닙니다. 어떤 문자와도 일치하며 ``max_distance`` 에 포함되지 않습니다. 유일성 규칙은 그대로 적용되므로, 잃어버린 염기만이 두 가이드를 구분하는 리드는 어느 쪽에도 매핑되지 않습니다.\n\n:param barcodes: 소위가 읽는다.\n:param library: 가이드 바코드는 실제로 화면이 포함되어 있습니다.\n:param max_distance: 가장 큰 Hamming 거리가 수정될 수 있습니다.\n:returns: 읽기 당 하나의 입력 - 도서관 바 코드, 또는 None.",
       "translation_source_blocks_sha256": [
         "281147dde43d23884ef0a3c4a323bd90452f67cc0dbd60b77b57ec87644fcd98",
         "673d78cb49f8b10d274649ee6fa306c555a7952229dfb9f605a1781b09a4ac6c",
         "46391d1f9e20ab60e15493d35247221531d35da497cdb43376b147497ccb4aab",
+        "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
         "8019f7e7c6bed3fa6fed8551858bfb76671e388b0604bdbc08f44d5f8175a776",
         "8c52466956738d58c36a3b36e9bbbc0f49b16a68ceaeae9cd173c997aa5321ed",
         "8e8a6b535756a84d8abad896b7acd5ccc70e7e83c8d598a7cea308cea9f6a21a",
@@ -50150,10 +50316,10 @@
         "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
         "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
         "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
-        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+        "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec"
       ],
-      "source_sha256": "cfb9890ef957af700a97e55a8a682a4efce6ced932903bd5996fc078e26241af",
-      "text": "sqlite에 하나의 OPS 테이블을 입력하고, 그것이 하나를 가지고 있다면 그것의 파켓 캐시.\n\n둘 다 하나의 통화에서, 왜냐하면 372 라인 계산이 동일하다고 주장하고 두 통화가 그렇게 할 수 없기 때문에 - 데이터베이스를 작성 한 후 붕괴 한 통화자는 다른 실행을 설명하는 측면 화면을 떠날 것이고, 독자가 조용히 그것을 선호 할 때까지 아무것도 눈에 띄지 않을 것입니다.\n\n:param db_path: 측정 데이터베이스\n:param table: :data:`OPS_TABLES`에 해당되는 글 1건\n:param frame: a DataFrame.\n:returns: 라인은 글을 쓴다.\n:raises StoreError: 알려지지 않은 테이블에, 또는 그것이 단지 쓴 측면에는 데이터베이스와 동일한 수의 줄이 없습니다.",
+      "source_sha256": "a36dc0ff4c585e72a685a508892d6deee4cc042a5c9b641ec968f89b6fd9739c",
+      "text": "sqlite에 하나의 OPS 테이블을 입력하고, 그것이 하나를 가지고 있다면 그것의 파켓 캐시.\n\n둘 다 하나의 통화에서, 왜냐하면 372 라인 계산이 동일하다고 주장하고 두 통화가 그렇게 할 수 없기 때문에 - 데이터베이스를 작성 한 후 붕괴 한 통화자는 다른 실행을 설명하는 측면 화면을 떠날 것이고, 독자가 조용히 그것을 선호 할 때까지 아무것도 눈에 띄지 않을 것입니다.\n\n:param db_path: 측정 데이터베이스\n:param table: :data:`OPS_TABLES`에 해당되는 글 1건\n:param frame: a DataFrame.\n:returns: 라인은 글을 쓴다.\n:raises StoreError: 알 수 없는 표일 때, 방금 쓴 사이드카 파일의 행 수가 데이터베이스와 다를 때, 또는 ``ops_objects`` 나 ``ops_barcodes`` 가 한 객체에 두 행을 갖게 될 때입니다. 이는 데이터 프레임 안에서든, 데이터 프레임과 그것을 덧붙일 표 사이에서든 마찬가지입니다. 객체당 한 행은 스키마의 UNIQUE 제약이며, 그 제약이 깨질 경우 아무것도 쓰지 않습니다.",
       "translation_source_blocks_sha256": [
         "cb1f48e23580df19e7c878ae38dcf4956f768f0583a4a0083c9796d0dad5db82",
         "a4b25f82ddbd6a3498f35f4c728d91a7d5c5900e26e5da733646ee6ad77821fd",
@@ -50161,7 +50327,7 @@
         "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
         "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
         "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
-        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+        "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec"
       ]
     },
     "spacr.organelle_types": {

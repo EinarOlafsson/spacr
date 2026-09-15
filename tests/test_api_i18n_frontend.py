@@ -71,7 +71,13 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # spacr.graph_types.mark_to_start_on, and nothing else. The live surface
 # with that one key dropped is 10,533, the previous value. Moved in all four
 # files in one commit, per the note above.
-REAL_SYMBOL_COUNT = 10_534
+# 10,534 -> 10,541 on 2026-09-15 (372 PART 14-M): +7 / -0 by set difference
+# against nightly 3f27b926a (the same seven moved c3f562c4f's 10,533 to
+# 10,540 before the rebase) -- spacr.ops_engine and spacr.ops_engine.run_ops,
+# spacr.ops_cycles.AlignedField and align_field, spacr.ops_sbs.attribute_reads
+# and assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. Their
+# blocks carry reviewed records in all nine locales.
+REAL_SYMBOL_COUNT = 10_541
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

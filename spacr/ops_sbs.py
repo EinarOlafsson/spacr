@@ -4,8 +4,9 @@ WHAT THIS IS FOR, AND WHAT IT IS NOT
 ====================================
 Optical pooled screening reads the guide barcode OUT OF THE IMAGES. Each
 sequencing cycle stains four channels, one per base, and a spot's base in that
-cycle is whichever channel is brightest -- after the dyes have been unmixed.
-Read one base per cycle at the same spot and the cycles spell the barcode.
+cycle is whichever channel is brightest -- once the channels have been put on
+a common scale. Read one base per cycle at the same spot and the cycles spell
+the barcode.
 
 :mod:`spacr.sequencing` is NOT the back half of this and must not be pointed
 at it. That module decodes FASTQ reads from an NGS run; there is no FASTQ here
@@ -23,9 +24,12 @@ wrong:
   averaged over channels -- a spot bright in every cycle is a piece of dirt or
   an autofluorescent blob and contributes no variance.
 
-* **The brightest channel is not the base.** The four dyes bleed into one
-  another, so the raw argmax is biased toward whichever dye is brightest
-  overall. The cross-talk has to be estimated from the data and undone first.
+* **The brightest raw channel is not the base.** Every channel has its own
+  gain and background, and on a real plate both drift from cycle to cycle,
+  so the raw argmax is biased toward whichever channel is brightest overall.
+  Each cycle's channels are divided by their median over the reads first.
+  Unmixing the dyes' bleed-through is available on top of that; on the first
+  real plate it lowered the library match.
 
 * **An ambiguous read is worse than a missing one.** Error correction against
   the guide library only ever corrects to a UNIQUE closest match. A read that
@@ -205,9 +209,52 @@ def compensate_crosstalk(values: np.ndarray, *,
         data.shape).astype(np.float32)
 
 
+#: Below this many reads a median across them is not a floor, so the
+#: per-cycle normalisation is skipped and the raw brightest channel stands.
+#:
+#: The median of one channel in one cycle is that channel's floor only while
+#: fewer than half the reads carry that base. A field of the real plate holds
+#: about ten thousand reads from a 20,445-guide library, so no base comes near
+#: half. A handful of cells does: a synthetic field of 7 nuclei, three reads
+#: each, had base A in cycle 1 for 5 of the 7, the median of A was A's own
+#: on-level, and dividing by it swapped A and T in a third of the reads. Reads
+#: come several to a cell, so 200 reads is some 60 cells, where a base holding
+#: half of one cycle is a binomial tail of about one in a million.
+_MIN_READS_TO_NORMALISE = 200
+
+
+def _median_normalised(data: np.ndarray) -> np.ndarray:
+    """Divide each cycle's channels by their median over the reads.
+
+    :param data: ``(N, cycles, channels)`` float32, NaN where a cycle was not
+        measured.
+    :returns: the normalised copy; returned unchanged when there are too few
+        reads for a median to mean anything.
+
+    372 PART 14-L measured this against the percentile compensation on the
+    first real plate (well A1, 105 fields): 0.773 library-exact against
+    0.581, and 0.779 against 0.593 over all 333 fields. The median across
+    reads of one channel in one cycle is dominated by reads whose base is
+    something else, so it estimates that channel's floor, and dividing by it
+    removes the cycle-to-cycle gain drift that made the raw calls lean
+    toward C.
+    """
+    if data.shape[0] < _MIN_READS_TO_NORMALISE:
+        return data
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        median = np.nanmedian(data, axis=0, keepdims=True)
+    median = np.where(np.isfinite(median) & (median > 0), median, 1.0)
+    return (data / median).astype(np.float32)
+
+
 def call_reads(values: np.ndarray, *, bases: Sequence[str] = BASES,
-               compensate: bool = True,
-               method: str = "percentile") -> Tuple[List[str], np.ndarray]:
+               compensate: bool = False,
+               method: str = "percentile",
+               normalise: bool = True,
+               gpu: bool = True) -> Tuple[List[str], np.ndarray]:
     """Turn per-cycle intensities into a barcode string and a quality per read.
 
     Quality is the margin between the winning channel and the runner-up,
@@ -215,30 +262,113 @@ def call_reads(values: np.ndarray, *, bases: Sequence[str] = BASES,
     1 when the call is unambiguous. Reported per read as the MINIMUM over
     cycles, because a barcode is only as trustworthy as its worst base.
 
+    A cycle that was not measured is called ``N``. Where a read's values for
+    one cycle are NaN -- the cycle's file could not be read, or its
+    registration was refused -- that letter is ``N`` and the quality is taken
+    over the cycles that were measured, so one lost cycle costs one base of
+    each read and not the read.
+
     :param values: ``(N, cycles, channels)`` from :func:`extract_bases`.
     :param bases: the letter for each channel, in channel order.
-    :param compensate: undo cross-talk first. Off only for testing what the
-        compensation is worth.
+    :param compensate: undo cross-talk with :func:`compensate_crosstalk`
+        after normalising. Off by default: on the first real plate it
+        lowered the library match.
     :param method: passed to :func:`compensate_crosstalk`.
+    :param normalise: divide each cycle's channels by their median over the
+        reads first, which removes the per-channel gain and background drift
+        between cycles. Skipped when there are too few reads for a median.
+    :param gpu: let the compensation's multiply run on the card. False keeps
+        the whole call on the CPU.
     :returns: ``(barcodes, quality)`` -- one string and one float per read.
     """
     data = np.asarray(values, dtype=np.float32)
-    if compensate:
-        data = compensate_crosstalk(data, method=method)
     if data.size == 0:
         return [], np.zeros((0,), np.float32)
+    if normalise:
+        data = _median_normalised(data)
+    measured = np.isfinite(data).all(axis=-1)
+    n_reads, n_cycles, n_channels = data.shape
+    if compensate:
+        flat = data.reshape(-1, n_channels)
+        rows = measured.reshape(-1)
+        corrected = np.full_like(flat, np.nan)
+        if rows.any():
+            corrected[rows] = compensate_crosstalk(
+                flat[rows][:, None, :], method=method,
+                gpu=gpu).reshape(-1, n_channels)
+        data = corrected.reshape(data.shape)
 
-    ordered = np.sort(data, axis=-1)
+    filled = np.where(np.isfinite(data), data, 0.0).astype(np.float32)
+    ordered = np.sort(filled, axis=-1)
     best, second = ordered[..., -1], ordered[..., -2]
     total = best + second
     with np.errstate(divide="ignore", invalid="ignore"):
         per_cycle = np.where(total > 0, (best - second) / total, 0.0)
-    quality = per_cycle.min(axis=1).astype(np.float32)
+    per_cycle = np.where(measured, per_cycle, np.inf)
+    quality = per_cycle.min(axis=1)
+    quality = np.where(np.isfinite(quality), quality, 0.0).astype(np.float32)
 
-    winners = data.argmax(axis=-1)
-    letters = np.asarray(list(bases))
-    barcodes = ["".join(letters[row]) for row in winners]
+    winners = np.where(measured, filled.argmax(axis=-1), n_channels)
+    letters = np.asarray([ord(str(letter)) for letter in bases] + [ord("N")],
+                         dtype=np.uint8)
+    codes = np.ascontiguousarray(letters[winners])
+    barcodes = [code.decode("ascii")
+                for code in codes.view(f"S{n_cycles}").reshape(n_reads)]
     return barcodes, quality
+
+
+def _library_index(library: Sequence[str]):
+    """Index a guide library for exact, one-mismatch and one-N lookups.
+
+    :param library: the guide barcodes.
+    :returns: ``(known, masked, arrays)`` -- the set of barcodes, a map from
+        ``(position, barcode with that position removed)`` to the barcodes
+        sharing it, and ``length -> (barcodes, uint8 array)`` for the rare
+        read that needs a full comparison.
+
+    ONE PASS OVER THE LIBRARY, NOT ONE PER READ. Two barcodes of one length
+    differ at most at position ``i`` exactly when they agree once ``i`` is
+    removed, so every candidate at distance one is found by eleven lookups
+    rather than by comparing the read with 20,445 guides in Python -- which
+    cost seconds per few hundred reads and a whole well's barcodes would
+    have taken hours.
+    """
+    known = set(library)
+    masked: Dict[Tuple[int, str], List[str]] = {}
+    grouped: Dict[int, List[str]] = {}
+    for entry in known:
+        grouped.setdefault(len(entry), []).append(entry)
+        for position in range(len(entry)):
+            key = (position, entry[:position] + entry[position + 1:])
+            masked.setdefault(key, []).append(entry)
+    arrays = {}
+    for length, entries in grouped.items():
+        entries = sorted(entries)
+        arrays[length] = (entries, np.frombuffer(
+            "".join(entries).encode("ascii"), dtype=np.uint8).reshape(
+                len(entries), length))
+    return known, masked, arrays
+
+
+def _closest_by_comparison(read: str, arrays, max_distance: int
+                           ) -> Optional[str]:
+    """The unique closest barcode by full comparison, N counting as unknown.
+
+    :param read: the called read.
+    :param arrays: from :func:`_library_index`.
+    :param max_distance: the largest distance corrected.
+    :returns: the barcode, or None when none is close enough or two tie.
+    """
+    found = arrays.get(len(read))
+    if found is None:
+        return None
+    entries, table = found
+    letters = np.frombuffer(read.encode("ascii"), dtype=np.uint8)
+    distance = ((table != letters) & (letters != ord("N"))).sum(axis=1)
+    best = int(distance.min())
+    if best > max_distance or int((distance == best).sum()) > 1:
+        return None
+    return entries[int(np.argmin(distance))]
 
 
 def correct_to_library(barcodes: Sequence[str], library: Sequence[str], *,
@@ -253,32 +383,48 @@ def correct_to_library(barcodes: Sequence[str], library: Sequence[str], *,
 
     An exact match short-circuits, so a clean run pays nothing for this.
 
+    An ``N`` is a base that was not measured, not a mismatch. It matches any
+    letter and is not counted against ``max_distance``; the uniqueness rule
+    still applies, so a read whose lost base is the only thing separating two
+    guides maps to neither.
+
     :param barcodes: the called reads.
     :param library: the guide barcodes the screen actually contains.
     :param max_distance: the largest Hamming distance that may be corrected.
     :returns: one entry per read -- the library barcode, or None.
     """
-    known = set(library)
-    by_length: Dict[int, List[str]] = {}
-    for entry in library:
-        by_length.setdefault(len(entry), []).append(entry)
-
+    known, masked, arrays = _library_index(library)
     out: List[Optional[str]] = []
     for read in barcodes:
         if read in known:
             out.append(read)
             continue
-        best: Optional[str] = None
-        best_distance = max_distance + 1
-        tied = False
-        for candidate in by_length.get(len(read), ()):
-            distance = sum(a != b for a, b in zip(read, candidate))
-            if distance < best_distance:
-                best, best_distance, tied = candidate, distance, False
-            elif distance == best_distance:
-                tied = True
-        out.append(None if (best is None or tied or best_distance > max_distance)
-                   else best)
+        unknown = [i for i, letter in enumerate(read) if letter == "N"]
+        if not unknown and max_distance >= 1:
+            candidates = set()
+            for position in range(len(read)):
+                candidates.update(masked.get(
+                    (position, read[:position] + read[position + 1:]), ()))
+            if len(candidates) == 1:
+                out.append(candidates.pop())
+                continue
+            if candidates or max_distance == 1:
+                out.append(None)
+                continue
+        elif len(unknown) == 1:
+            position = unknown[0]
+            candidates = set(masked.get(
+                (position, read[:position] + read[position + 1:]), ()))
+            if len(candidates) == 1:
+                out.append(candidates.pop())
+                continue
+            if candidates or max_distance == 0:
+                out.append(None)
+                continue
+        elif not unknown:
+            out.append(None)
+            continue
+        out.append(_closest_by_comparison(read, arrays, max_distance))
     return out
 
 
@@ -330,8 +476,25 @@ def assign_reads_to_cells(peaks: np.ndarray, barcodes: Sequence[str],
             continue
         per_cell.setdefault(cell, []).append(index)
 
+    return _vote(per_cell, barcodes, quality, min_reads=min_reads,
+                 min_fraction=min_fraction)
+
+
+def _vote(per_owner: Dict[int, List[int]], barcodes: Sequence[str],
+          quality: Optional[np.ndarray], *, min_reads: int,
+          min_fraction: float) -> Dict[int, dict]:
+    """The agreement rule shared by cells and plate objects.
+
+    :param per_owner: ``owner -> indices of its reads``.
+    :param barcodes: one called barcode per read.
+    :param quality: optional per-read quality.
+    :param min_reads: how many reads an owner needs.
+    :param min_fraction: what share of them must agree.
+    :returns: ``{owner: {"barcode", "reads", "agreeing", "fraction",
+        "quality"}}`` for every owner that met the bar.
+    """
     out: Dict[int, dict] = {}
-    for cell, indices in per_cell.items():
+    for owner, indices in per_owner.items():
         if len(indices) < min_reads:
             continue
         counts: Dict[str, int] = {}
@@ -349,7 +512,7 @@ def assign_reads_to_cells(peaks: np.ndarray, barcodes: Sequence[str],
             agreed = [float(quality[i]) for i in indices
                       if barcodes[i] == best]
             mean_quality = float(np.mean(agreed)) if agreed else None
-        out[cell] = {
+        out[owner] = {
             "barcode": best,
             "reads": len(indices),
             "agreeing": agreeing,
@@ -357,3 +520,98 @@ def assign_reads_to_cells(peaks: np.ndarray, barcodes: Sequence[str],
             "quality": mean_quality,
         }
     return out
+
+
+def attribute_reads(peaks: np.ndarray, centroids: np.ndarray,
+                    areas: np.ndarray, *, footprint: float = 10.0,
+                    tie: float = 1.0) -> Tuple[np.ndarray, np.ndarray]:
+    """Give each detected read to the object whose boundary is nearest.
+
+    Reads are detected over the whole field first and attributed here, so a
+    footprint that is too tight shows up as reads with no owner rather than
+    staying invisible. The boundary is each object's equivalent disc, the
+    circle of its area about its centroid, and a read whose two nearest
+    boundaries lie within ``tie`` of each other is given to neither and
+    flagged.
+
+    :param peaks: ``(N, 2)`` read positions ``(y, x)``.
+    :param centroids: ``(M, 2)`` object centroids ``(y, x)``, in the same
+        frame as ``peaks``.
+    :param areas: ``(M,)`` object areas in pixels.
+    :param footprint: how far beyond an object's boundary a read may lie and
+        still be its read, in pixels. On the first real plate 98 % of spots
+        lay within 10 px of a nucleus and 67 % within 3 px.
+    :param tie: how close the two nearest boundaries may be before a read is
+        refused as ambiguous, in pixels.
+    :returns: ``(owner, ambiguous)`` -- the index into ``centroids`` of each
+        read's owner, or -1, and whether each read was refused as ambiguous.
+    """
+    # SPOTS FIRST, OWNERS SECOND (372 PART 9 hole 2, measured in PART 14-L):
+    # code that only looks inside a footprint can never discover that the
+    # reads are elsewhere, and on the first real plate they were -- 25 % of
+    # spots inside the nucleus, 67 % within 3 px, 98 % within 10 px -- while
+    # sampling at the nuclear centroid decoded at chance. A read between two
+    # objects is refused rather than split, and counted, so a footprint that
+    # is too loose shows up as ambiguity instead of as wrong barcodes.
+    from scipy.spatial import cKDTree
+
+    points = np.asarray(peaks, dtype=float).reshape(-1, 2)
+    centres = np.asarray(centroids, dtype=float).reshape(-1, 2)
+    radius = np.sqrt(np.maximum(np.asarray(areas, dtype=float).reshape(-1),
+                                0.0) / np.pi)
+    owner = np.full(points.shape[0], -1, dtype=np.int64)
+    ambiguous = np.zeros(points.shape[0], dtype=bool)
+    if points.shape[0] == 0 or centres.shape[0] == 0:
+        return owner, ambiguous
+
+    tree = cKDTree(centres)
+    reach = float(radius.max()) + float(footprint)
+    for index, found in enumerate(tree.query_ball_point(points, r=reach)):
+        if not found:
+            continue
+        found = np.asarray(found, dtype=np.int64)
+        gap = np.hypot(centres[found, 0] - points[index, 0],
+                       centres[found, 1] - points[index, 1]) - radius[found]
+        order = np.argsort(gap, kind="stable")
+        if gap[order[0]] > footprint:
+            continue
+        if order.size > 1 and gap[order[1]] - gap[order[0]] < tie:
+            ambiguous[index] = True
+            continue
+        owner[index] = int(found[order[0]])
+    return owner, ambiguous
+
+
+def assign_reads_to_objects(owners: np.ndarray, barcodes: Sequence[str], *,
+                            quality: Optional[np.ndarray] = None,
+                            min_reads: int = 2,
+                            min_fraction: float = 0.6) -> Dict[int, dict]:
+    """Give each plate object the barcode its attributed reads agree on.
+
+    The same rule as :func:`assign_reads_to_cells` -- at least ``min_reads``
+    reads, ``min_fraction`` of them carrying one barcode, and no tie for first
+    -- keyed by the object id each read was attributed to rather than by the
+    label a read lands on. That is what lets reads collected from several
+    fields vote once for the object they belong to.
+
+    :param owners: one object id per read; 0 or a negative id means the read
+        has no owner and is ignored.
+    :param barcodes: one called barcode per read.
+    :param quality: optional per-read quality from :func:`call_reads`.
+    :param min_reads: how many reads an object needs before it may be
+        assigned.
+    :param min_fraction: what share of them must agree.
+    :returns: ``{object_id: {"barcode", "reads", "agreeing", "fraction",
+        "quality"}}`` for every object that met the bar.
+    """
+    ids = np.asarray(owners).reshape(-1)
+    if ids.shape[0] != len(barcodes):
+        raise ValueError(
+            f"{ids.shape[0]} owners for {len(barcodes)} barcodes; every read "
+            "needs exactly one owner entry, or the votes land on the wrong "
+            "objects")
+    per_owner: Dict[int, List[int]] = {}
+    for index in np.flatnonzero(ids > 0):
+        per_owner.setdefault(int(ids[index]), []).append(int(index))
+    return _vote(per_owner, barcodes, quality, min_reads=min_reads,
+                 min_fraction=min_fraction)

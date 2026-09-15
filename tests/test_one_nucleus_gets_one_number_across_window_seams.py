@@ -17,7 +17,7 @@ import pytest
 
 from spacr.ops_compose import Window, windows_over
 from spacr.ops_objects import (
-    DEFAULT_CENTROID_TOLERANCE, ObjectsError, PlateObject, WindowObject,
+    DEFAULT_CENTROID_TOLERANCE, ObjectsError, WindowObject,
     number, objects_frame, objects_in_window, segment_windows, sew,
 )
 
@@ -164,10 +164,10 @@ def test_an_object_larger_than_the_overlap_is_refused_not_fragmented():
 
 
 def test_the_refusal_can_be_turned_off_to_inspect_a_bad_run():
-    """Non-strict emits what it found, having been asked to."""
+    """Non-strict drops what no window saw whole instead of numbering a fragment."""
     objects, _, _ = _run([(100, 200)], size=128, overlap=16, radius=40,
                          strict=False)
-    assert objects == () or all(isinstance(o, PlateObject) for o in objects)
+    assert objects == ()
 
 
 def test_a_clipped_observation_never_wins_over_a_complete_one():

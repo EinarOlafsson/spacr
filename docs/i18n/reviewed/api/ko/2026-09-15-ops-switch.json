@@ -1,0 +1,552 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "One microscope field of view's sequencing cycles, every channel moved into one frame.",
+      "label": "spacr.ops_cycles.AlignedField#0",
+      "source": "One field's sequencing cycles, every channel moved into one frame.",
+      "source_sha256": "bd3c464ba7c1e383af82723d56a979c52fe6ec952d9d321493ada19d256ea9ae",
+      "translation": "한 필드의 시퀀싱 사이클로, 모든 채널을 하나의 좌표계로 옮긴 것입니다."
+    },
+    {
+      "context": "``(cycles, channels, Y, X)`` float32, one entry per cycle in :attr:`kept` and in that order.",
+      "label": "spacr.ops_cycles.AlignedField#1",
+      "source": "``(cycles, channels, Y, X)`` float32, one entry per cycle in :attr:`kept` and in that order.",
+      "source_sha256": "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+      "translation": "``(cycles, channels, Y, X)`` float32, :attr:`kept` 의 사이클마다 하나씩 그 순서대로 담깁니다."
+    },
+    {
+      "context": "the cycle numbers the stack holds, ascending. The reference cycle is always among them.",
+      "label": "spacr.ops_cycles.AlignedField#2",
+      "source": "the cycle numbers the stack holds, ascending. The reference cycle is always among them.",
+      "source_sha256": "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+      "translation": "스택에 담긴 사이클 번호, 오름차순. 기준 사이클은 항상 포함됩니다."
+    },
+    {
+      "context": "cycles whose registration against the reference was not accepted. They are left out of the stack, because base calls read at untrusted coordinates decode to a wrong barcode rather than to none.",
+      "label": "spacr.ops_cycles.AlignedField#3",
+      "source": "cycles whose registration against the reference was not accepted. They are left out of the stack, because base calls read at untrusted coordinates decode to a wrong barcode rather than to none.",
+      "source_sha256": "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+      "translation": "기준에 대한 정합이 받아들여지지 않은 사이클. 신뢰할 수 없는 좌표에서 읽은 염기는 바코드가 없는 것이 아니라 잘못된 바코드로 디코딩되므로 스택에서 제외됩니다."
+    },
+    {
+      "context": "cycles offered with no image layers at all -- a file that could not be read, for instance.",
+      "label": "spacr.ops_cycles.AlignedField#4",
+      "source": "cycles offered with no planes at all -- a file that could not be read, for instance.",
+      "source_sha256": "41385b03734c138b45064627ad0272ae0ee312ed8a8de82cc8fcb74a0e5d6762",
+      "translation": "평면이 전혀 없이 제공된 사이클 -- 예를 들어 읽을 수 없었던 파일."
+    },
+    {
+      "context": "``cycle -> one (dy, dx) per channel``, the shift that moved each channel onto the first channel of its cycle.",
+      "label": "spacr.ops_cycles.AlignedField#5",
+      "source": "``cycle -> one (dy, dx) per channel``, the shift that moved each channel onto the first channel of its cycle.",
+      "source_sha256": "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+      "translation": "``cycle -> one (dy, dx) per channel``, 각 채널을 그 사이클의 첫 채널로 옮긴 이동량."
+    },
+    {
+      "context": "``cycle -> (dy, dx)``, the shift that moved each kept cycle onto the reference; the reference's own is ``(0, 0)``.",
+      "label": "spacr.ops_cycles.AlignedField#6",
+      "source": "``cycle -> (dy, dx)``, the shift that moved each kept cycle onto the reference; the reference's own is ``(0, 0)``.",
+      "source_sha256": "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+      "translation": "``cycle -> (dy, dx)``, 유지된 각 사이클을 기준으로 옮긴 이동량; 기준 자신의 값은 ``(0, 0)`` 입니다."
+    },
+    {
+      "context": "``(cycle, channel)`` pairs whose within-cycle registration was refused and which were therefore not moved.",
+      "label": "spacr.ops_cycles.AlignedField#7",
+      "source": "``(cycle, channel)`` pairs whose within-cycle registration was refused and which were therefore not moved.",
+      "source_sha256": "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af",
+      "translation": "사이클 내부 정합이 거부되어 옮기지 않은 ``(cycle, channel)`` 쌍."
+    },
+    {
+      "context": "Register one microscope field of view's channels within each cycle, then its cycles.",
+      "label": "spacr.ops_cycles.align_field#0",
+      "source": "Register one field's channels within each cycle, then its cycles.",
+      "source_sha256": "13e01cfdc5d576571ce120dcf9e2ac341bcfaeff666f621e730ea2187dd3c2b0",
+      "translation": "한 필드의 채널을 각 사이클 안에서 정합한 다음 사이클들을 정합합니다."
+    },
+    {
+      "context": "Each base image data channel is first moved onto its cycle's first image data channel, on the clipped cell background the image data channels share -- on the measured laboratory microplate they sat up to 14 px apart, which no cycle-to-cycle registration can see -- and each cycle is then moved onto the reference with :func:`sbs_mean_target`. A cycle offered as ``None`` or with a missing image layer is reported in :attr:`AlignedField.missing` and one whose registration is refused in :attr:`AlignedField.refused`; the rest are still aligned, so one lost cycle does not cost the microscope field of view.",
+      "label": "spacr.ops_cycles.align_field#1",
+      "source": "Each base channel is first moved onto its cycle's first channel, on the clipped cell background the channels share -- on the measured plate they sat up to 14 px apart, which no cycle-to-cycle registration can see -- and each cycle is then moved onto the reference with :func:`sbs_mean_target`. A cycle offered as ``None`` or with a missing plane is reported in :attr:`AlignedField.missing` and one whose registration is refused in :attr:`AlignedField.refused`; the rest are still aligned, so one lost cycle does not cost the field.",
+      "source_sha256": "39d05e48ed3f3462dc95f9cba322d1446c63f078d0a5c6a4f6a733f72b8a9197",
+      "translation": "각 염기 채널은 먼저 채널들이 공유하는 잘라낸 세포 배경을 기준으로 그 사이클의 첫 채널에 맞춰 옮겨집니다 -- 측정한 플레이트에서는 최대 14 px 떨어져 있었고, 사이클 간 정합으로는 이를 볼 수 없습니다 -- 그런 다음 각 사이클을 :func:`sbs_mean_target` 로 기준에 맞춰 옮깁니다. ``None`` 으로 또는 평면이 빠진 채 제공된 사이클은 :attr:`AlignedField.missing` 에, 정합이 거부된 사이클은 :attr:`AlignedField.refused` 에 기록되며, 나머지는 그대로 정렬되므로 사이클 하나를 잃어도 필드 전체를 잃지 않습니다."
+    },
+    {
+      "context": "``cycle -> the base channels of that cycle``, every image layer one 2-D image of the same shape.",
+      "label": "spacr.ops_cycles.align_field#2",
+      "source": "``cycle -> the base channels of that cycle``, every plane one 2-D image of the same shape.",
+      "source_sha256": "f211b53d9666d844c68e1b911ddc96e3c0ef7b2c13967fbc066e39b3e30e0f02",
+      "translation": "``cycle -> the base channels of that cycle``, 모든 평면은 같은 모양의 2-D 이미지."
+    },
+    {
+      "context": "the cycle everything is moved onto. None takes the lowest cycle that has image layers.",
+      "label": "spacr.ops_cycles.align_field#3",
+      "source": "the cycle everything is moved onto. None takes the lowest cycle that has planes.",
+      "source_sha256": "f27c769d803e0a2d9ad01e5607b2e4f6c0228b4befecd2e861ebe32b72ee3a79",
+      "translation": "모든 것을 옮겨 맞출 사이클. None 이면 평면이 있는 가장 낮은 사이클을 씁니다."
+    },
+    {
+      "context": "how far a cycle may land from the reference and still be accepted, in pixels.",
+      "label": "spacr.ops_cycles.align_field#4",
+      "source": "how far a cycle may land from the reference and still be accepted, in pixels.",
+      "source_sha256": "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+      "translation": "사이클이 기준에서 얼마나 떨어져도 받아들일지, 픽셀 단위."
+    },
+    {
+      "context": "let the phase correlations run on the card.",
+      "label": "spacr.ops_cycles.align_field#5",
+      "source": "let the phase correlations run on the card.",
+      "source_sha256": "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+      "translation": "위상 상관을 그래픽 카드에서 실행하게 합니다."
+    },
+    {
+      "context": "the aligned field.",
+      "label": "spacr.ops_cycles.align_field#6",
+      "source": "the aligned field.",
+      "source_sha256": "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+      "translation": "정렬된 필드."
+    },
+    {
+      "context": "when no cycle has image layers, or when the reference cycle has none.",
+      "label": "spacr.ops_cycles.align_field#7",
+      "source": "when no cycle has planes, or when the reference cycle has none.",
+      "source_sha256": "95e5b8500674d5534f485b2db469e50c1dc2a53ab38e0ef50cc0e90dd9a274ea",
+      "translation": "평면이 있는 사이클이 없거나 기준 사이클에 평면이 없을 때."
+    },
+    {
+      "context": "Run an optical pooled screening experiment's sequencing acquisition from microscope image fields to tables.",
+      "label": "spacr.ops_engine#0",
+      "source": "Run an optical pooled screen's sequencing acquisition from tiles to tables.",
+      "source_sha256": "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
+      "translation": "광학 풀드 스크린의 시퀀싱 획득을 타일부터 표까지 실행합니다."
+    },
+    {
+      "context": "One call takes each microplate sample position from its microscope image field files to three tables in ``measurements.db``: ``ops_geometry``, where each nuclear microscope image field sits in the microplate sample position frame; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the microplate sample position; and ``ops_barcodes``, one row per nucleus whose attributed reads agree.",
+      "label": "spacr.ops_engine#1",
+      "source": "One call takes each well from its tile files to three tables in ``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the well frame; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the well; and ``ops_barcodes``, one row per nucleus whose attributed reads agree.",
+      "source_sha256": "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
+      "translation": "한 번의 호출로 각 웰을 타일 파일에서 ``measurements.db`` 의 세 표로 옮깁니다: ``ops_geometry`` 는 각 핵 타일이 웰 좌표계에서 어디에 있는지, ``ops_objects`` 는 합성된 핵 지도에서 분할하고 웰 전체에 한 번 번호를 매긴 핵마다 한 행, ``ops_barcodes`` 는 할당된 리드가 합의한 핵마다 한 행입니다."
+    },
+    {
+      "context": "A file that cannot be read costs one cycle of the microscope field of view it belongs to and is listed in the report; it does not cost the microplate sample position. The phenotype acquisition is not placed by this step.",
+      "label": "spacr.ops_engine#2",
+      "source": "A file that cannot be read costs one cycle of the field it belongs to and is listed in the report; it does not cost the well. The phenotype acquisition is not placed by this step.",
+      "source_sha256": "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73",
+      "translation": "읽을 수 없는 파일은 그것이 속한 필드의 사이클 하나만 잃게 하고 보고서에 기록되며, 웰 전체를 잃게 하지는 않습니다. 이 단계는 표현형 획득을 배치하지 않습니다."
+    },
+    {
+      "context": "Stitch, segment and decode the microplate sample positions of one sequencing acquisition.",
+      "label": "spacr.ops_engine.run_ops#0",
+      "source": "Stitch, segment and decode the wells of one sequencing acquisition.",
+      "source_sha256": "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
+      "translation": "하나의 시퀀싱 획득에 속한 웰들을 스티칭하고 분할하고 디코딩합니다."
+    },
+    {
+      "context": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing microscope image fields, searched recursively; ``dst_root``, where ``measurements.db`` and the per-microplate sample position reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many microscope fields of view decode at once; ``cellpose_model`` and ``cellpose_diameter``.",
+      "label": "spacr.ops_engine.run_ops#1",
+      "source": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing tiles, searched recursively; ``dst_root``, where ``measurements.db`` and the per-well reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields decode at once; ``cellpose_model`` and ``cellpose_diameter``.",
+      "source_sha256": "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
+      "translation": "OPS 설정. 여기서 읽는 항목: ``genotype_source`` 는 시퀀싱 타일 폴더로 재귀적으로 검색합니다; ``dst_root`` 는 ``measurements.db`` 와 웰별 보고서가 저장되는 곳으로, 비어 있으면 원본 폴더입니다; ``plate`` 는 비어 있으면 원본 폴더 이름입니다; ``ops_gpu``; ``n_workers`` 는 동시에 디코딩할 필드 수입니다; ``cellpose_model`` 과 ``cellpose_diameter``."
+    },
+    {
+      "context": "which microplate sample positions to run; every microplate sample position found when None.",
+      "label": "spacr.ops_engine.run_ops#2",
+      "source": "which wells to run; every well found when None.",
+      "source_sha256": "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
+      "translation": "실행할 웰; None 이면 찾은 모든 웰."
+    },
+    {
+      "context": "any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a microplate sample position can be stitched once and decoded again.",
+      "label": "spacr.ops_engine.run_ops#3",
+      "source": "any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a well can be stitched once and decoded again.",
+      "source_sha256": "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
+      "translation": "``\"stitch\"``, ``\"objects\"``, ``\"decode\"`` 중 원하는 것, 이 순서로 실행됩니다. 빠진 단계는 필요한 내용을 데이터베이스에서 읽으므로, 한 웰을 한 번 스티칭하고 다시 디코딩할 수 있습니다."
+    },
+    {
+      "context": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide.",
+      "label": "spacr.ops_engine.run_ops#4",
+      "source": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide.",
+      "source_sha256": "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+      "translation": "가이드 바코드로, 시퀀스 또는 ``prefix``, ``barcode``, ``sequence`` 열이 있는 CSV 경로입니다. 주어지면 각 바코드를 가장 가까운 가이드에도 매핑합니다."
+    },
+    {
+      "context": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "label": "spacr.ops_engine.run_ops#5",
+      "source": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "source_sha256": "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+      "translation": "``{\"db\": path, \"wells\": {well: {phase: report}}}``."
+    },
+    {
+      "context": "when the source holds no microscope image fields this can name, an unknown phase or well is asked for, or a phase's input is missing.",
+      "label": "spacr.ops_engine.run_ops#6",
+      "source": "when the source holds no tiles this can name, an unknown phase or well is asked for, or a phase's input is missing.",
+      "source_sha256": "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c",
+      "translation": "원본에 여기서 이름을 붙일 수 있는 타일이 없거나, 알 수 없는 단계나 웰을 요청했거나, 한 단계의 입력이 없을 때."
+    },
+    {
+      "context": "half a microscope image field's side, in grid units. A site is kept when its whole microscope image field lies inside the circle: at ``(dx, dy)`` from the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero keeps every site whose centre is inside, which is the rule every layout followed before this microscope field of view existed.",
+      "label": "spacr.ops_layout.WellLayout#5",
+      "source": "half a tile's side, in grid units. A site is kept when its whole tile lies inside the circle: at ``(dx, dy)`` from the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero keeps every site whose centre is inside, which is the rule every layout followed before this field existed.",
+      "source_sha256": "8f325a816c5bbaf3978bc1b0e1f2384012d77d38ea943976debc17de5c593ee7",
+      "translation": "타일 한 변의 절반으로, 격자 단위입니다. 사이트는 타일 전체가 원 안에 있을 때 유지됩니다: 중심에서 ``(dx, dy)`` 떨어진 곳에서 ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2`` 일 때입니다. 0이면 중심이 원 안에 있는 모든 사이트를 유지하며, 이 필드가 생기기 전 모든 레이아웃이 따르던 규칙입니다."
+    },
+    {
+      "context": "The microscope image field has to fit, not its centre. The centre rule holds the 333-microscope field of view sequencing well and cannot produce the column heights the 1,281-microscope field of view phenotype well was measured at, for any radius. With the footprint term both come out as measured, and every column is centred on the same row.",
+      "label": "spacr.ops_layout.WellLayout#6",
+      "source": "The tile has to fit, not its centre. The centre rule holds the 333-field sequencing well and cannot produce the column heights the 1,281-field phenotype well was measured at, for any radius. With the footprint term both come out as measured, and every column is centred on the same row.",
+      "source_sha256": "06ca32f7fa55d96acacd275df9f0d6e990beb502f91bbcbbe942f5df4ab41384",
+      "translation": "중심이 아니라 타일 전체가 들어가야 합니다. 중심 규칙은 333 개 필드의 시퀀싱 웰은 맞추지만, 어떤 반지름으로도 1,281 개 필드의 표현형 웰에서 측정한 열 높이를 만들 수 없습니다. 풋프린트 항을 넣으면 둘 다 측정대로 나오고, 모든 열이 같은 행을 중심으로 합니다."
+    },
+    {
+      "context": "the inclusive absolute row range of the sites whose whole microscope image field lies inside the circle -- see :attr:`half_tile`.",
+      "label": "spacr.ops_layout.WellLayout.span#2",
+      "source": "the inclusive absolute row range of the sites whose whole tile lies inside the circle -- see :attr:`half_tile`.",
+      "source_sha256": "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4",
+      "translation": "타일 전체가 원 안에 있는 사이트들의 양 끝을 포함한 절대 행 범위 -- :attr:`half_tile` 참조."
+    },
+    {
+      "context": "The measured well is returned unchanged whenever the search lands on its 333 sites, so the confirmed model is never re-derived. For any other count the radius is searched -- a well imaged at a different magnification or a different laboratory microplate format is the same circle with a different number of microscope fields of view in it.",
+      "label": "spacr.ops_layout.round_well_layout#1",
+      "source": "The measured well is returned unchanged whenever the search lands on its 333 sites, so the confirmed model is never re-derived. For any other count the radius is searched -- a well imaged at a different magnification or a different plate format is the same circle with a different number of fields in it.",
+      "source_sha256": "86268289cc8151bcdee1cedd1f609ed53d034ff8323229112d2a1cfb1a521f55",
+      "translation": "탐색이 측정된 웰의 333 개 사이트에 이르면 그 웰을 그대로 반환하므로, 확인된 모델을 다시 유도하지 않습니다. 다른 개수에 대해서는 반지름을 탐색합니다 -- 다른 배율이나 다른 플레이트 형식으로 촬영한 웰도 같은 원이며, 그 안의 필드 수만 다릅니다."
+    },
+    {
+      "context": "half a microscope image field's side in microscope image field pitches -- the microscope image field size over twice the registered pitch. A microscope field of view is kept when its whole microscope image field lies inside the circle; zero keeps it when its centre does. The default is the phenotype acquisition's measured 0.5857. The sequencing acquisition measured 0.5840, and every value strictly between 0.5 and 2.0 gives both microplate sample positions -- 333 and 1,281 microscope fields of view -- the column heights they were measured at.",
+      "label": "spacr.ops_layout.round_well_layout#4",
+      "source": "half a tile's side in tile pitches -- the tile size over twice the registered pitch. A field is kept when its whole tile lies inside the circle; zero keeps it when its centre does. The default is the phenotype acquisition's measured 0.5857. The sequencing acquisition measured 0.5840, and every value strictly between 0.5 and 2.0 gives both wells -- 333 and 1,281 fields -- the column heights they were measured at.",
+      "source_sha256": "c63e219d31a59ab085b7434370040f30d072e66e0a9e87fdca14135374b066ac",
+      "translation": "타일 한 변의 절반을 타일 간격 단위로 나타낸 값 -- 타일 크기를 정합된 간격의 두 배로 나눈 것입니다. 필드는 타일 전체가 원 안에 있을 때 유지되며, 0이면 중심이 원 안에 있을 때 유지됩니다. 기본값은 표현형 획득에서 측정한 0.5857 입니다. 시퀀싱 획득은 0.5840 으로 측정되었고, 0.5 와 2.0 사이의 모든 값은 두 웰 -- 333 개와 1,281 개 필드 -- 에 측정된 열 높이를 줍니다."
+    },
+    {
+      "context": "when no circle holds exactly that many microscope fields of view, which is the honest answer -- a count that no round well produces means the acquisition is not one, and guessing the nearest would place every microscope image field slightly wrong. Also when ``half_tile`` is negative or not a number.",
+      "label": "spacr.ops_layout.round_well_layout#6",
+      "source": "when no circle holds exactly that many fields, which is the honest answer -- a count that no round well produces means the acquisition is not one, and guessing the nearest would place every tile slightly wrong. Also when ``half_tile`` is negative or not a number.",
+      "source_sha256": "c2fc36d4de364217c55b41aa0312bda2c72f6671f1df7fcbed55d6c8e88713b0",
+      "translation": "정확히 그 개수의 필드를 담는 원이 없을 때이며, 이것이 정직한 답입니다 -- 어떤 둥근 웰도 만들지 않는 개수는 그 획득이 둥근 웰이 아니라는 뜻이고, 가장 가까운 것을 추측하면 모든 타일이 조금씩 잘못 놓입니다. ``half_tile`` 이 음수이거나 숫자가 아닐 때도 발생합니다."
+    },
+    {
+      "context": "For one half microscope image field, the count fixes the fields. The number of fields inside the circle only grows with the radius, so every radius that holds exactly ``site_count`` holds the same ones. The radius the layout carries is one of those, not a measurement.",
+      "label": "spacr.ops_layout.round_well_layout#7",
+      "source": "For one half tile, the count fixes the fields. The number of fields inside the circle only grows with the radius, so every radius that holds exactly ``site_count`` holds the same ones. The radius the layout carries is one of those, not a measurement.",
+      "source_sha256": "2f7270145a6377b6ae43cc385f4e785ba75db522e11a7e546a7397c17f3eede2",
+      "translation": "반쪽 타일 값이 정해지면 개수가 필드를 정합니다. 원 안의 필드 수는 반지름에 따라 늘어나기만 하므로, 정확히 ``site_count`` 개를 담는 모든 반지름은 같은 필드를 담습니다. 레이아웃이 가진 반지름은 그중 하나일 뿐 측정값이 아닙니다."
+    },
+    {
+      "context": "Which leaves one failure that must not be silent: an object larger than the overlap, which every window clips. :func:`number` refuses those rather than emitting a fragment, because a fragment looks exactly like a small nucleus and would be counted as one for the rest of the processing session.",
+      "label": "spacr.ops_objects#7",
+      "source": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT: an object larger than the overlap, which every window clips. :func:`number` refuses those rather than emitting a fragment, because a fragment looks exactly like a small nucleus and would be counted as one for the rest of the run.",
+      "source_sha256": "9ba2321f17439d3fd4a3b06d53ac4f49127ce9a492def8e4f8a737101af7d7c9",
+      "translation": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT (그래서 조용히 넘어가서는 안 되는 실패가 하나 남습니다): 겹침보다 커서 모든 윈도우가 잘라내는 객체. :func:`number` 는 이런 객체를 조각으로 내보내는 대신 거부하는데, 조각은 작은 핵과 똑같아 보여서 실행이 끝날 때까지 핵 하나로 계산되기 때문입니다."
+    },
+    {
+      "context": "refuse a group with no complete observation. Turned off, such a group is dropped rather than numbered -- nothing with a truncated area is emitted -- and how many were dropped is logged as a warning.",
+      "label": "spacr.ops_objects.number#4",
+      "source": "refuse a group with no complete observation. Turned off, such a group is dropped rather than numbered -- nothing with a truncated area is emitted -- and how many were dropped is logged as a warning.",
+      "source_sha256": "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+      "translation": "완전한 관측이 없는 그룹을 거부합니다. 끄면 그런 그룹은 번호를 매기지 않고 버리며 -- 잘린 면적을 가진 것은 아무것도 내보내지 않습니다 -- 버린 개수를 경고로 기록합니다."
+    },
+    {
+      "context": "when a group holds only clipped observations: either the object is larger than the window overlap, or it is a fragment that matched no window's whole view of its nucleus. The message gives the object's extent and the remedy for each case.",
+      "label": "spacr.ops_objects.number#5",
+      "source": "when a group holds only clipped observations: either the object is larger than the window overlap, or it is a fragment that matched no window's whole view of its nucleus. The message gives the object's extent and the remedy for each case.",
+      "source_sha256": "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac",
+      "translation": "그룹에 잘린 관측만 있을 때: 객체가 윈도우 겹침보다 크거나, 어떤 윈도우의 온전한 핵 관측과도 맞지 않은 조각입니다. 메시지는 객체의 범위와 각 경우의 해결 방법을 알려 줍니다."
+    },
+    {
+      "context": "Two labels of one window are never one object, because a label image does not give one nucleus two labels. Two complete observations from different windows are one nucleus when their centroids agree within ``tolerance`` on each axis and either their areas agree to ``area_ratio`` or their centroids lie within the smaller one's equivalent radius -- the radius of a disc of its area. Pairs whose areas agree are joined first, then the rest closest first, and a join that would give a group two labels of one window is refused.",
+      "label": "spacr.ops_objects.sew#3",
+      "source": "Two labels of one window are never one object, because a label image does not give one nucleus two labels. Two complete observations from different windows are one nucleus when their centroids agree within ``tolerance`` on each axis and either their areas agree to ``area_ratio`` or their centroids lie within the smaller one's equivalent radius -- the radius of a disc of its area. Pairs whose areas agree are joined first, then the rest closest first, and a join that would give a group two labels of one window is refused.",
+      "source_sha256": "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+      "translation": "한 윈도우의 두 라벨은 결코 한 객체가 아닙니다. 라벨 이미지는 한 핵에 두 라벨을 주지 않기 때문입니다. 서로 다른 윈도우의 완전한 관측 두 개는 무게중심이 각 축에서 ``tolerance`` 이내로 일치하고, 면적이 ``area_ratio`` 까지 일치하거나 무게중심이 작은 쪽의 등가 반지름 -- 그 면적을 가진 원판의 반지름 -- 이내에 있을 때 같은 핵입니다. 면적이 일치하는 쌍을 먼저 합치고 나머지는 가까운 순서로 합치며, 한 그룹에 한 윈도우의 두 라벨을 주게 되는 합치기는 거부됩니다."
+    },
+    {
+      "context": "A clipped observation is matched by containment, not by a fixed distance: the cut moves its centroid inward by up to the nucleus's radius, so a fixed tolerance misses exactly the deep clips. It joins a complete observation from another window when its centroid lies inside that observation's equivalent disc, or its bounding box lies inside that observation's box give or take two pixels. It joins only the closest such observation, so one clip can never make two nuclei one object. Clipped observations that match nothing complete are grouped with each other where their boxes overlap.",
+      "label": "spacr.ops_objects.sew#4",
+      "source": "A clipped observation is matched by containment, not by a fixed distance: the cut moves its centroid inward by up to the nucleus's radius, so a fixed tolerance misses exactly the deep clips. It joins a complete observation from another window when its centroid lies inside that observation's equivalent disc, or its bounding box lies inside that observation's box give or take two pixels. It joins only the closest such observation, so one clip can never make two nuclei one object. Clipped observations that match nothing complete are grouped with each other where their boxes overlap.",
+      "source_sha256": "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
+      "translation": "잘린 관측은 고정 거리가 아니라 포함 관계로 짝지어집니다: 잘림은 무게중심을 핵 반지름만큼까지 안쪽으로 옮기므로, 고정 허용오차는 깊이 잘린 경우를 정확히 놓칩니다. 잘린 관측은 무게중심이 다른 윈도우의 완전한 관측의 등가 원판 안에 있거나, 경계 상자가 그 관측의 상자 안에 두 픽셀 여유로 들어갈 때 그 관측에 합류합니다. 그런 관측 중 가장 가까운 하나에만 합류하므로, 잘린 조각 하나가 두 핵을 한 객체로 만들 수는 없습니다. 어떤 완전한 관측과도 맞지 않는 잘린 관측들은 상자가 겹치는 곳끼리 묶입니다."
+    },
+    {
+      "context": "Where every phenotype field's centre lies, from a few measured ones.",
+      "label": "spacr.ops_phenotype.phenotype_centres#0",
+      "source": "Where every phenotype field's centre lies, from a few measured ones.",
+      "source_sha256": "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+      "translation": "측정된 몇 개의 중심으로부터 모든 표현형 필드의 중심 위치를 구합니다."
+    },
+    {
+      "context": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many microscope fields of view it holds.",
+      "label": "spacr.ops_phenotype.phenotype_centres#1",
+      "source": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.",
+      "source_sha256": "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+      "translation": "표현형 획득의 :class:`spacr.ops_layout.WellLayout`, 또는 그 필드 수."
+    },
+    {
+      "context": "``{site: (y, x)}``, the microplate sample position-frame centres of at least three aligned microscope fields of view whose grid positions are not all on one line. Six spread over the microplate sample position is what the method was validated with.",
+      "label": "spacr.ops_phenotype.phenotype_centres#2",
+      "source": "``{site: (y, x)}``, the well-frame centres of at least three aligned fields whose grid positions are not all on one line. Six spread over the well is what the method was validated with.",
+      "source_sha256": "a72f71fa491262526c02f83f4a7ec3603ecff94045440e61c8c1c9c5811c5b57",
+      "translation": "``{site: (y, x)}``, 격자 위치가 모두 한 직선 위에 있지 않은 정렬된 필드 최소 세 개의 웰 좌표계 중심. 이 방법은 웰 전체에 퍼진 여섯 개로 검증되었습니다."
+    },
+    {
+      "context": "``{site: (y, x)}`` for every field of the layout, anchors included -- their fitted centres, not the measured ones.",
+      "label": "spacr.ops_phenotype.phenotype_centres#3",
+      "source": "``{site: (y, x)}`` for every field of the layout, anchors included -- their fitted centres, not the measured ones.",
+      "source_sha256": "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+      "translation": "``{site: (y, x)}``, 앵커를 포함한 레이아웃의 모든 필드 -- 측정값이 아니라 맞춘 중심입니다."
+    },
+    {
+      "context": "when the anchors cannot fix a raster: fewer than three, on one line of the grid, or a centre that is not two finite numbers. Also for a microscope field of view count no round well holds.",
+      "label": "spacr.ops_phenotype.phenotype_centres#4",
+      "source": "when the anchors cannot fix a raster: fewer than three, on one line of the grid, or a centre that is not two finite numbers. Also for a field count no round well holds.",
+      "source_sha256": "62734fbdc05ad91105b8666536bf5de38fa2efd63b6c2a9c5a89883340d8da45",
+      "translation": "앵커로 래스터를 정할 수 없을 때: 세 개 미만이거나, 격자의 한 직선 위에 있거나, 유한한 두 숫자가 아닌 중심이 있을 때. 어떤 둥근 웰도 담지 않는 필드 수일 때도 발생합니다."
+    },
+    {
+      "context": "when an anchor names a site the layout does not hold.",
+      "label": "spacr.ops_phenotype.phenotype_centres#5",
+      "source": "when an anchor names a site the layout does not hold.",
+      "source_sha256": "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+      "translation": "앵커가 레이아웃에 없는 사이트를 가리킬 때."
+    },
+    {
+      "context": "Six numbers place the whole well. The layout gives every microscope field of view's grid position, and the acquisition raster maps a grid position into the well frame by an origin, a column step and a row step, each a ``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by least squares on six microscope fields of view of a real well, that predicted the other 472 microscope fields of view' measured centres to a median 1.2 px and a worst 4.0 px, and a second well's 451 to a worst 4.4 px.",
+      "label": "spacr.ops_phenotype.phenotype_centres#6",
+      "source": "Six numbers place the whole well. The layout gives every field's grid position, and the acquisition raster maps a grid position into the well frame by an origin, a column step and a row step, each a ``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by least squares on six fields of a real well, that predicted the other 472 fields' measured centres to a median 1.2 px and a worst 4.0 px, and a second well's 451 to a worst 4.4 px.",
+      "source_sha256": "869851e6ed102bb8bc4f3c240b3f674eca045bb487f031f3c41457e759e709a1",
+      "translation": "여섯 개의 숫자가 웰 전체를 배치합니다. 레이아웃은 모든 필드의 격자 위치를 주고, 획득 래스터는 원점, 열 간격, 행 간격으로 격자 위치를 웰 좌표계로 옮기며, 각각은 스테이지의 몇 픽셀 기울어짐을 담은 ``(dy, dx)`` 쌍입니다. 실제 웰의 여섯 필드에 최소제곱으로 맞추자 나머지 472 개 필드의 측정 중심을 중앙값 1.2 px, 최악 4.0 px 로 예측했고, 두 번째 웰의 451 개는 최악 4.4 px 로 예측했습니다."
+    },
+    {
+      "context": "Which sequencing tile covers each phenotype microscope field of view.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#0",
+      "source": "Which sequencing tile covers each phenotype field.",
+      "source_sha256": "d8987e7ccf9126ae97b1035274f1858ed5d91a9c926e1041d075a74f46bda5c2",
+      "translation": "각 표현형 필드를 덮는 시퀀싱 타일."
+    },
+    {
+      "context": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many microscope fields of view it holds.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#1",
+      "source": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.",
+      "source_sha256": "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+      "translation": "표현형 획득의 :class:`spacr.ops_layout.WellLayout`, 또는 그 필드 수."
+    },
+    {
+      "context": "``{sequencing site: (y, x)}``, the centre of each stitched sequencing microscope image field in the microplate sample position frame -- its placement plus half a microscope image field.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#2",
+      "source": "``{sequencing site: (y, x)}``, the centre of each stitched sequencing tile in the well frame -- its placement plus half a tile.",
+      "source_sha256": "5ee088d6438ce7110691e740d8d39daf49266a6bfecbabe2da381af4c445991b",
+      "translation": "``{sequencing site: (y, x)}``, 웰 좌표계에서 스티칭된 각 시퀀싱 타일의 중심 -- 배치 위치에 타일 절반을 더한 값."
+    },
+    {
+      "context": "``{phenotype site: (y, x)}``, measured well-frame centres of at least three aligned phenotype microscope fields of view, as :func:`phenotype_centres` takes them.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#3",
+      "source": "``{phenotype site: (y, x)}``, measured well-frame centres of at least three aligned phenotype fields, as :func:`phenotype_centres` takes them.",
+      "source_sha256": "9482032d0529e408eedc31b529b11c047715bf35366e88b102aabc2b5761a35f",
+      "translation": "``{phenotype site: (y, x)}``, 정렬된 표현형 필드 최소 세 개의 측정된 웰 좌표계 중심으로, :func:`phenotype_centres` 가 받는 형식입니다."
+    },
+    {
+      "context": "``(height, width)`` of a sequencing microscope image field, in well-frame pixels.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#4",
+      "source": "``(height, width)`` of a sequencing tile, in well-frame pixels.",
+      "source_sha256": "7b4ad6c687274f962bda174e28f7bedfb4e7466743ab89786faba23d1ae362f7",
+      "translation": "시퀀싱 타일의 ``(height, width)``, 웰 좌표계 픽셀 단위."
+    },
+    {
+      "context": "``{phenotype site: sequencing site}``. Each microscope field of view goes to the tile whose centre is nearest its predicted centre, among the tiles that contain it; a microscope field of view whose predicted centre lies inside no tile is omitted.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#5",
+      "source": "``{phenotype site: sequencing site}``. Each field goes to the tile whose centre is nearest its predicted centre, among the tiles that contain it; a field whose predicted centre lies inside no tile is omitted.",
+      "source_sha256": "343e414cceff1565e0cee8d9a8ec18e898ad8efe76cf98bf334aff2939a9be51",
+      "translation": "``{phenotype site: sequencing site}``. 각 필드는 자신을 포함하는 타일 중 중심이 예측 중심에 가장 가까운 타일에 배정되며, 예측 중심이 어떤 타일에도 들어가지 않는 필드는 생략됩니다."
+    },
+    {
+      "context": "when ``tile_shape`` is not two positive sizes, or when :func:`phenotype_centres` refuses the anchors or the count.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#6",
+      "source": "when ``tile_shape`` is not two positive sizes, or when :func:`phenotype_centres` refuses the anchors or the count.",
+      "source_sha256": "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+      "translation": "``tile_shape`` 가 양수 크기 두 개가 아니거나 :func:`phenotype_centres` 가 앵커나 개수를 거부할 때."
+    },
+    {
+      "context": "A position, not an index. The microscope image field a microscope field of view lies on depends on where the microscope image field boundaries actually fall, and halving a phenotype grid index about the microplate sample position centre cannot see them: at twice the microscope image field density half the phenotype microscope fields of view lie on or near a sequencing microscope image field boundary. On the real laboratory microplate halving found the exact microscope image field for 0.45 to 0.61 of the aligned microscope fields of view; predicting each centre from six anchors and taking the nearest stitched microscope image field found it for 472 of 472 and 451 of 451.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#7",
+      "source": "A position, not an index. The tile a field lies on depends on where the tile boundaries actually fall, and halving a phenotype grid index about the well centre cannot see them: at twice the tile density half the phenotype fields lie on or near a sequencing tile boundary. On the real plate halving found the exact tile for 0.45 to 0.61 of the aligned fields; predicting each centre from six anchors and taking the nearest stitched tile found it for 472 of 472 and 451 of 451.",
+      "source_sha256": "d67e620df54a44769db2cde7feabc8935859b8753a09913120bda2d3e3ce9b27",
+      "translation": "인덱스가 아니라 위치입니다. 필드가 어느 타일에 놓이는지는 타일 경계가 실제로 어디에 있는지에 달려 있는데, 웰 중심을 기준으로 표현형 격자 인덱스를 절반으로 나누는 방법은 그 경계를 볼 수 없습니다: 타일 밀도가 두 배이면 표현형 필드의 절반이 시퀀싱 타일 경계 위나 근처에 놓입니다. 실제 플레이트에서 절반 나누기는 정렬된 필드의 0.45 에서 0.61 에 대해서만 정확한 타일을 찾았고, 여섯 앵커로 각 중심을 예측해 가장 가까운 스티칭 타일을 고르자 472 개 중 472 개, 451 개 중 451 개를 찾았습니다."
+    },
+    {
+      "context": "Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which already normalises each cycle's channels and reports quality as the MINIMUM over cycles -- \"a barcode is only as trustworthy as its worst base\". Repeating that here would be a second decoder to keep in step.",
+      "label": "spacr.ops_sample.barcode_rows#1",
+      "source": "Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which already normalises each cycle's channels and reports quality as the MINIMUM over cycles -- \"a barcode is only as trustworthy as its worst base\". Repeating that here would be a second decoder to keep in step.",
+      "source_sha256": "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
+      "translation": "실제 판독은 :func:`spacr.ops_sbs.call_reads` 에 맡기며, 이 함수는 이미 각 사이클의 채널을 정규화하고 품질을 사이클 전체의 MINIMUM (최솟값) 으로 보고합니다 -- \"바코드는 가장 약한 염기만큼만 믿을 수 있다\". 여기서 이를 반복하면 보조를 맞춰야 할 디코더가 하나 더 생깁니다."
+    },
+    {
+      "context": "Optical pooled screening reads the guide barcode out of the images. Each sequencing cycle stains four image data channels, one per base, and a spot's base in that cycle is whichever image data channel is brightest -- once the image data channels have been put on a common scale. Read one base per cycle at the same spot and the cycles spell the barcode.",
+      "label": "spacr.ops_sbs#2",
+      "source": "Optical pooled screening reads the guide barcode OUT OF THE IMAGES. Each sequencing cycle stains four channels, one per base, and a spot's base in that cycle is whichever channel is brightest -- once the channels have been put on a common scale. Read one base per cycle at the same spot and the cycles spell the barcode.",
+      "source_sha256": "96f751fe3936bc37122069588f7980e88b041b2cf6fb2905765d0397cbed37c3",
+      "translation": "광학 풀드 스크리닝은 가이드 바코드를 OUT OF THE IMAGES (이미지 자체에서) 읽습니다. 각 시퀀싱 사이클은 염기마다 하나씩 네 채널을 염색하며, 그 사이클에서 한 스팟의 염기는 가장 밝은 채널입니다 -- 채널들을 공통 척도로 맞춘 뒤의 이야기입니다. 같은 스팟에서 사이클마다 염기 하나씩 읽으면 사이클들이 바코드를 이룹니다."
+    },
+    {
+      "context": "**The brightest raw channel is not the base.** Every channel has its own gain and background, and on a real plate both drift from cycle to cycle, so the raw argmax is biased toward whichever channel is brightest overall. Each cycle's channels are divided by their median over the reads first. Unmixing the dyes' bleed-through is available on top of that; on the first real plate it lowered the library match.",
+      "label": "spacr.ops_sbs#7",
+      "source": "**The brightest raw channel is not the base.** Every channel has its own gain and background, and on a real plate both drift from cycle to cycle, so the raw argmax is biased toward whichever channel is brightest overall. Each cycle's channels are divided by their median over the reads first. Unmixing the dyes' bleed-through is available on top of that; on the first real plate it lowered the library match.",
+      "source_sha256": "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
+      "translation": "**가장 밝은 원시 채널이 염기는 아닙니다.** 채널마다 이득과 배경이 따로 있고 실제 플레이트에서는 둘 다 사이클마다 달라지므로, 원시 argmax 는 전체적으로 가장 밝은 채널 쪽으로 치우칩니다. 각 사이클의 채널은 먼저 리드 전체에 대한 중앙값으로 나눕니다. 그 위에 염료 번짐을 분리하는 보정도 쓸 수 있으며, 첫 실제 플레이트에서는 라이브러리 일치율을 낮췄습니다."
+    },
+    {
+      "context": "Give each laboratory microplate object the barcode its attributed reads agree on.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#0",
+      "source": "Give each plate object the barcode its attributed reads agree on.",
+      "source_sha256": "56bd36897564e1ddb76e61dccdb0383bbb0f00a6a8b43788faf4396aa8743653",
+      "translation": "각 플레이트 객체에 할당된 리드들이 합의한 바코드를 부여합니다."
+    },
+    {
+      "context": "The same rule as :func:`assign_reads_to_cells` -- at least ``min_reads`` reads, ``min_fraction`` of them carrying one barcode, and no tie for first -- keyed by the object id each read was attributed to rather than by the label a read lands on. That is what lets reads collected from several microscope fields of view vote once for the object they belong to.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#1",
+      "source": "The same rule as :func:`assign_reads_to_cells` -- at least ``min_reads`` reads, ``min_fraction`` of them carrying one barcode, and no tie for first -- keyed by the object id each read was attributed to rather than by the label a read lands on. That is what lets reads collected from several fields vote once for the object they belong to.",
+      "source_sha256": "3c6bfdd6dcb24565647dc9aa1ea26a3fee06fddeae59f21f2a58c53a3758852d",
+      "translation": ":func:`assign_reads_to_cells` 와 같은 규칙 -- 최소 ``min_reads`` 개의 리드, 그중 ``min_fraction`` 이 같은 바코드를 가지며 1위 동률이 없어야 함 -- 이지만, 리드가 떨어진 라벨이 아니라 각 리드가 할당된 객체 id 를 기준으로 합니다. 그래서 여러 필드에서 모은 리드가 자신이 속한 객체에 한 번만 투표할 수 있습니다."
+    },
+    {
+      "context": "one object id per read; 0 or a negative id means the read has no owner and is ignored.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#2",
+      "source": "one object id per read; 0 or a negative id means the read has no owner and is ignored.",
+      "source_sha256": "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+      "translation": "리드마다 객체 id 하나; 0 또는 음수 id 는 리드에 소유자가 없어 무시된다는 뜻입니다."
+    },
+    {
+      "context": "one called barcode per read.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#3",
+      "source": "one called barcode per read.",
+      "source_sha256": "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+      "translation": "리드마다 판독된 바코드 하나."
+    },
+    {
+      "context": "optional per-read quality from :func:`call_reads`.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#4",
+      "source": "optional per-read quality from :func:`call_reads`.",
+      "source_sha256": "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+      "translation": ":func:`call_reads` 에서 온 선택적 리드별 품질."
+    },
+    {
+      "context": "how many reads an object needs before it may be assigned.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#5",
+      "source": "how many reads an object needs before it may be assigned.",
+      "source_sha256": "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+      "translation": "객체에 할당하기 전에 필요한 리드 수."
+    },
+    {
+      "context": "what share of them must agree.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#6",
+      "source": "what share of them must agree.",
+      "source_sha256": "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+      "translation": "그중 일치해야 하는 비율."
+    },
+    {
+      "context": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every object that met the bar.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#7",
+      "source": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every object that met the bar.",
+      "source_sha256": "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6",
+      "translation": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}``, 기준을 충족한 모든 객체에 대해."
+    },
+    {
+      "context": "Give each detected read to the object whose boundary is nearest.",
+      "label": "spacr.ops_sbs.attribute_reads#0",
+      "source": "Give each detected read to the object whose boundary is nearest.",
+      "source_sha256": "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+      "translation": "검출된 각 리드를 경계가 가장 가까운 객체에 할당합니다."
+    },
+    {
+      "context": "Reads are detected over the whole field first and attributed here, so a footprint that is too tight shows up as reads with no owner rather than staying invisible. The boundary is each object's equivalent disc, the circle of its area about its centroid, and a read whose two nearest boundaries lie within ``tie`` of each other is given to neither and flagged.",
+      "label": "spacr.ops_sbs.attribute_reads#1",
+      "source": "Reads are detected over the whole field first and attributed here, so a footprint that is too tight shows up as reads with no owner rather than staying invisible. The boundary is each object's equivalent disc, the circle of its area about its centroid, and a read whose two nearest boundaries lie within ``tie`` of each other is given to neither and flagged.",
+      "source_sha256": "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+      "translation": "리드는 먼저 필드 전체에서 검출된 뒤 여기서 할당되므로, 너무 좁은 풋프린트는 보이지 않게 숨는 대신 소유자 없는 리드로 드러납니다. 경계는 각 객체의 등가 원판, 즉 무게중심을 중심으로 그 면적을 가진 원이며, 가장 가까운 두 경계가 서로 ``tie`` 이내인 리드는 어느 쪽에도 주지 않고 표시합니다."
+    },
+    {
+      "context": "``(N, 2)`` read positions ``(y, x)``.",
+      "label": "spacr.ops_sbs.attribute_reads#2",
+      "source": "``(N, 2)`` read positions ``(y, x)``.",
+      "source_sha256": "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+      "translation": "``(N, 2)`` 리드 위치 ``(y, x)``."
+    },
+    {
+      "context": "``(M, 2)`` object centroids ``(y, x)``, in the same frame as ``peaks``.",
+      "label": "spacr.ops_sbs.attribute_reads#3",
+      "source": "``(M, 2)`` object centroids ``(y, x)``, in the same frame as ``peaks``.",
+      "source_sha256": "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+      "translation": "``(M, 2)`` 객체 무게중심 ``(y, x)``, ``peaks`` 와 같은 좌표계입니다."
+    },
+    {
+      "context": "``(M,)`` object areas in pixels.",
+      "label": "spacr.ops_sbs.attribute_reads#4",
+      "source": "``(M,)`` object areas in pixels.",
+      "source_sha256": "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+      "translation": "``(M,)`` 픽셀 단위 객체 면적."
+    },
+    {
+      "context": "how far beyond an object's boundary a read may lie and still be its read, in pixels. On the first real plate 98 % of spots lay within 10 px of a nucleus and 67 % within 3 px.",
+      "label": "spacr.ops_sbs.attribute_reads#5",
+      "source": "how far beyond an object's boundary a read may lie and still be its read, in pixels. On the first real plate 98 % of spots lay within 10 px of a nucleus and 67 % within 3 px.",
+      "source_sha256": "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+      "translation": "리드가 객체 경계 밖으로 얼마나 떨어져 있어도 그 객체의 리드로 볼지, 픽셀 단위입니다. 첫 실제 플레이트에서 스팟의 98 % 가 핵에서 10 px 이내, 67 % 가 3 px 이내에 있었습니다."
+    },
+    {
+      "context": "how close the two nearest boundaries may be before a read is refused as ambiguous, in pixels.",
+      "label": "spacr.ops_sbs.attribute_reads#6",
+      "source": "how close the two nearest boundaries may be before a read is refused as ambiguous, in pixels.",
+      "source_sha256": "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+      "translation": "가장 가까운 두 경계가 얼마나 가까워야 리드를 모호하다고 거부하는지, 픽셀 단위입니다."
+    },
+    {
+      "context": "``(owner, ambiguous)`` -- the index into ``centroids`` of each read's owner, or -1, and whether each read was refused as ambiguous.",
+      "label": "spacr.ops_sbs.attribute_reads#7",
+      "source": "``(owner, ambiguous)`` -- the index into ``centroids`` of each read's owner, or -1, and whether each read was refused as ambiguous.",
+      "source_sha256": "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3",
+      "translation": "``(owner, ambiguous)`` -- 각 리드 소유자의 ``centroids`` 인덱스 또는 -1, 그리고 각 리드가 모호하다고 거부되었는지 여부."
+    },
+    {
+      "context": "A cycle that was not measured is called ``N``. Where a read's values for one cycle are NaN -- the cycle's file could not be read, or its registration was refused -- that letter is ``N`` and the quality is taken over the cycles that were measured, so one lost cycle costs one base of each read and not the read.",
+      "label": "spacr.ops_sbs.call_reads#2",
+      "source": "A cycle that was not measured is called ``N``. Where a read's values for one cycle are NaN -- the cycle's file could not be read, or its registration was refused -- that letter is ``N`` and the quality is taken over the cycles that were measured, so one lost cycle costs one base of each read and not the read.",
+      "source_sha256": "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
+      "translation": "측정되지 않은 사이클은 ``N`` 으로 호출됩니다. 한 리드의 어느 사이클 값이 NaN 인 경우 -- 그 사이클의 파일을 읽을 수 없었거나 정합이 거부된 경우 -- 그 문자는 ``N`` 이 되고 품질은 측정된 사이클에서만 계산되므로, 사이클 하나를 잃어도 각 리드에서 염기 하나만 잃고 리드 전체를 잃지는 않습니다."
+    },
+    {
+      "context": "undo cross-talk with :func:`compensate_crosstalk` after normalising. Off by default: on the first real plate it lowered the library match.",
+      "label": "spacr.ops_sbs.call_reads#5",
+      "source": "undo cross-talk with :func:`compensate_crosstalk` after normalising. Off by default: on the first real plate it lowered the library match.",
+      "source_sha256": "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
+      "translation": "정규화 뒤 :func:`compensate_crosstalk` 로 크로스토크를 되돌립니다. 기본값은 꺼짐입니다: 첫 실제 플레이트에서 라이브러리 일치율을 낮췄습니다."
+    },
+    {
+      "context": "divide each cycle's channels by their median over the reads first, which removes the per-channel gain and background drift between cycles. Skipped when there are too few reads for a median.",
+      "label": "spacr.ops_sbs.call_reads#7",
+      "source": "divide each cycle's channels by their median over the reads first, which removes the per-channel gain and background drift between cycles. Skipped when there are too few reads for a median.",
+      "source_sha256": "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+      "translation": "먼저 각 사이클의 채널을 리드 전체에 대한 중앙값으로 나누어, 사이클 사이의 채널별 이득과 배경 변화를 없앱니다. 중앙값을 구하기에 리드가 너무 적으면 건너뜁니다."
+    },
+    {
+      "context": "let the compensation's multiply run on the card. False keeps the whole call on the CPU.",
+      "label": "spacr.ops_sbs.call_reads#8",
+      "source": "let the compensation's multiply run on the card. False keeps the whole call on the CPU.",
+      "source_sha256": "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
+      "translation": "보정의 행렬 곱을 그래픽 카드에서 실행하게 합니다. False 이면 호출 전체가 CPU 에 머뭅니다."
+    },
+    {
+      "context": "An ``N`` is a base that was not measured, not a mismatch. It matches any letter and is not counted against ``max_distance``; the uniqueness rule still applies, so a read whose lost base is the only thing separating two guides maps to neither.",
+      "label": "spacr.ops_sbs.correct_to_library#3",
+      "source": "An ``N`` is a base that was not measured, not a mismatch. It matches any letter and is not counted against ``max_distance``; the uniqueness rule still applies, so a read whose lost base is the only thing separating two guides maps to neither.",
+      "source_sha256": "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
+      "translation": "``N`` 은 측정되지 않은 염기이지 불일치가 아닙니다. 어떤 문자와도 일치하며 ``max_distance`` 에 포함되지 않습니다. 유일성 규칙은 그대로 적용되므로, 잃어버린 염기만이 두 가이드를 구분하는 리드는 어느 쪽에도 매핑되지 않습니다."
+    },
+    {
+      "context": "on an unknown table; when the sidecar it just wrote does not have the same number of rows as the database; or when ``ops_objects`` or ``ops_barcodes`` would hold two rows for one object, inside the frame or between the frame and the table it is appended to. One row per object is a UNIQUE constraint in the schema, and nothing is written when it would be broken.",
+      "label": "spacr.ops_store.write_table#6",
+      "source": "on an unknown table; when the sidecar it just wrote does not have the same number of rows as the database; or when ``ops_objects`` or ``ops_barcodes`` would hold two rows for one object, inside the frame or between the frame and the table it is appended to. One row per object is a UNIQUE constraint in the schema, and nothing is written when it would be broken.",
+      "source_sha256": "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec",
+      "translation": "알 수 없는 표일 때, 방금 쓴 사이드카 파일의 행 수가 데이터베이스와 다를 때, 또는 ``ops_objects`` 나 ``ops_barcodes`` 가 한 객체에 두 행을 갖게 될 때입니다. 이는 데이터 프레임 안에서든, 데이터 프레임과 그것을 덧붙일 표 사이에서든 마찬가지입니다. 객체당 한 행은 스키마의 UNIQUE 제약이며, 그 제약이 깨질 경우 아무것도 쓰지 않습니다."
+    }
+  ],
+  "schema": 1
+}

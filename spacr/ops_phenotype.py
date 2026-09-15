@@ -49,15 +49,19 @@ count of things attempted is not a measure of anything succeeding.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
-from typing import Dict, List, Optional, Sequence, Tuple
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
+
+if TYPE_CHECKING:  # pragma: no cover - annotations only
+    from .ops_layout import WellLayout
 
 __all__ = [
     "Alignment",
     "align_phenotype_to_sbs",
     "nuclear_points",
+    "phenotype_centres",
     "phenotype_site_map",
     "refine_similarity",
     "seed_by_scaled_pairs",
@@ -545,69 +549,157 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
     return best
 
 
-def phenotype_site_map(phenotype_sites: int, sbs_sites: int,
-                       row_offsets: Sequence[int] = ()) -> Dict[int, int]:
-    """Which sequencing tile covers each phenotype tile.
+def _phenotype_layout(layout: Union["WellLayout", int]) -> "WellLayout":
+    """The phenotype acquisition's layout, from a layout or a field count.
 
-    :param phenotype_sites: how many fields the phenotype acquisition holds.
-    :param sbs_sites: how many the sequencing acquisition holds.
-    :param row_offsets: where each phenotype column really starts, one
-        integer per column, as :func:`spacr.ops_layout._solve_row_offsets`
-        measures it from the fields that aligned. Empty takes the circle at
-        its word, which is what this function did before there was anything
-        better to offer it.
-    :returns: ``{phenotype site -> sequencing site}``, omitting any
-        phenotype tile whose sequencing position is outside that circle.
-    :raises ValueError: when either count is not a round well, which
-        :func:`spacr.ops_layout.round_well_layout` decides, or when the
-        offsets are not one per phenotype column.
-
-    AND THE CIRCLE IS NOT ALWAYS THE ACQUISITION, which is what
-    ``row_offsets`` is for. `round_well_layout` SEARCHES for a radius that
-    holds exactly the field count and more than one radius does; for the
-    41-column phenotype well the one it finds gives the right column and a
-    row wrong by up to two. 372's PART 14-G measured that over 188 aligned
-    fields -- column index exact to a standard deviation of 0.001, row
-    index out by a whole number constant down each column -- and it refused
-    133 of 321 fields, because one row is 633 px and a window that misses
-    by that holds none of the tile's nuclei.
-
-    A WRONG-LENGTH TABLE IS REFUSED rather than padded. Padding is right
-    inside :class:`spacr.ops_layout.WellLayout`, where the empty default
-    has to keep meaning "no offsets"; here the caller is handing over a
-    measurement of a particular well, and a table that does not fit it
-    would correct some columns and silently leave the rest -- which is the
-    state this argument exists to end.
-
-    IT IS A LAYOUT QUESTION, NOT AN IMAGE ONE, and answering it by image
-    was how the first three attempts at A4 spent an afternoon: phenotype
-    site N was matched against sequencing site N, which is a different part
-    of the well, and every pair came back at 2-9 % inliers. The layout says
-    it in closed form. The measured acquisition fits 41 columns at radius
-    20.15 against the sequencing well's 21 at 10.25 -- the same round well
-    at twice the tile density, and 41 = 2 * 21 - 1 -- so a phenotype grid
-    position halves about the centre.
+    :param layout: a :class:`spacr.ops_layout.WellLayout`, or how many
+        fields the acquisition holds.
+    :returns: the layout. A count goes through
+        :func:`spacr.ops_layout.round_well_layout` at its default half tile,
+        which raises ValueError for a count no round well holds.
     """
-    from .ops_layout import round_well_layout
+    from .ops_layout import WellLayout, round_well_layout
 
-    phenotype = round_well_layout(int(phenotype_sites))
-    sbs = round_well_layout(int(sbs_sites))
-    if row_offsets:
-        if len(row_offsets) != phenotype.columns:
-            raise ValueError(
-                f"{len(row_offsets)} row offsets for a phenotype well of "
-                f"{phenotype.columns} columns; it wants one per column")
-        phenotype = replace(phenotype,
-                            row_offsets=tuple(int(v) for v in row_offsets))
-    ratio = (phenotype.columns - 1) / max(1, (sbs.columns - 1))
-    p_col, p_row = phenotype.centre
-    s_col, s_row = sbs.centre
+    if isinstance(layout, WellLayout):
+        return layout
+    return round_well_layout(int(layout))
+
+
+def _fit_raster(layout: "WellLayout",
+                anchors: Mapping[int, Tuple[float, float]]):
+    """The acquisition raster, fitted to measured field centres.
+
+    :param layout: the phenotype acquisition's layout.
+    :param anchors: ``{site: (y, x)}``, measured well-frame centres.
+    :returns: ``(origin, column step, row step, residuals)`` -- three
+        ``(dy, dx)`` arrays, for grid ``(0, 0)``, one column right and one
+        row down -- and ``{site: pixels}``, how far each anchor's measured
+        centre sits from the fitted raster.
+    :raises ValueError: fewer than three anchors, a centre that is not two
+        finite numbers, or anchors whose grid positions lie on one line.
+    :raises IndexError: an anchor the layout does not hold.
+
+    372 PART 14-L 2c: least squares on the rule layout's grid positions,
+    six numbers from six anchor fields. Three anchors fit exactly and leave
+    every residual at zero, so the residuals only say something from four
+    anchors up -- which is what makes them the check on a misaligned one.
+    """
+    if len(anchors) < 3:
+        raise ValueError(
+            f"{len(anchors)} anchor field(s) cannot fix a raster: an origin "
+            "and two steps take at least three fields whose grid positions "
+            "are not on one line")
+    sites = [int(site) for site in anchors]
+    grid = np.array([layout.position(site) for site in sites], dtype=float)
+    try:
+        measured = np.array([anchors[site] for site in anchors], dtype=float)
+    except (TypeError, ValueError):
+        measured = np.full((len(sites), 2), np.nan)
+    if measured.shape != (len(sites), 2) or not np.all(np.isfinite(measured)):
+        raise ValueError("every anchor centre must be a finite (y, x) pair")
+    design = np.column_stack([np.ones(len(sites)), grid])
+    if np.linalg.matrix_rank(design) < 3:
+        raise ValueError(
+            "the anchor fields lie on one line of the grid, which fixes the "
+            "step along that line and nothing across it; take anchors from "
+            "several rows and several columns")
+    solution, *_ = np.linalg.lstsq(design, measured, rcond=None)
+    residuals = np.hypot(*(design @ solution - measured).T)
+    return (solution[0], solution[1], solution[2],
+            {site: float(value) for site, value in zip(sites, residuals)})
+
+
+def phenotype_centres(layout: Union["WellLayout", int],
+                      anchors: Mapping[int, Tuple[float, float]]
+                      ) -> Dict[int, Tuple[float, float]]:
+    """Where every phenotype field's centre lies, from a few measured ones.
+
+    :param layout: the phenotype acquisition's
+        :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.
+    :param anchors: ``{site: (y, x)}``, the well-frame centres of at least
+        three aligned fields whose grid positions are not all on one line.
+        Six spread over the well is what the method was validated with.
+    :returns: ``{site: (y, x)}`` for every field of the layout, anchors
+        included -- their fitted centres, not the measured ones.
+    :raises ValueError: when the anchors cannot fix a raster: fewer than
+        three, on one line of the grid, or a centre that is not two finite
+        numbers. Also for a field count no round well holds.
+    :raises IndexError: when an anchor names a site the layout does not
+        hold.
+
+    Six numbers place the whole well. The layout gives every field's grid
+    position, and the acquisition raster maps a grid position into the
+    well frame by an origin, a column step and a row step, each a
+    ``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by
+    least squares on six fields of a real well, that predicted the other
+    472 fields' measured centres to a median 1.2 px and a worst 4.0 px, and
+    a second well's 451 to a worst 4.4 px.
+    """
+    layout = _phenotype_layout(layout)
+    origin, col_step, row_step, _residuals = _fit_raster(layout, anchors)
+    grid = np.asarray(layout.positions(), dtype=float)
+    centres = (origin + np.outer(grid[:, 0], col_step)
+               + np.outer(grid[:, 1], row_step))
+    return {site: (float(y), float(x)) for site, (y, x) in enumerate(centres)}
+
+
+def phenotype_site_map(phenotype_sites: Union["WellLayout", int],
+                       sbs_centres: Mapping[int, Tuple[float, float]],
+                       anchors: Mapping[int, Tuple[float, float]], *,
+                       tile_shape: Tuple[float, float] = (1480, 1480)
+                       ) -> Dict[int, int]:
+    """Which sequencing tile covers each phenotype field.
+
+    :param phenotype_sites: the phenotype acquisition's
+        :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.
+    :param sbs_centres: ``{sequencing site: (y, x)}``, the centre of each
+        stitched sequencing tile in the well frame -- its placement plus
+        half a tile.
+    :param anchors: ``{phenotype site: (y, x)}``, measured well-frame
+        centres of at least three aligned phenotype fields, as
+        :func:`phenotype_centres` takes them.
+    :param tile_shape: ``(height, width)`` of a sequencing tile, in
+        well-frame pixels.
+    :returns: ``{phenotype site: sequencing site}``. Each field goes to the
+        tile whose centre is nearest its predicted centre, among the tiles
+        that contain it; a field whose predicted centre lies inside no tile
+        is omitted.
+    :raises ValueError: when ``tile_shape`` is not two positive sizes, or
+        when :func:`phenotype_centres` refuses the anchors or the count.
+
+    A position, not an index. The tile a field lies on depends on where the
+    tile boundaries actually fall, and halving a phenotype grid index about
+    the well centre cannot see them: at twice the tile density half the
+    phenotype fields lie on or near a sequencing tile boundary. On the real
+    plate halving found the exact tile for 0.45 to 0.61 of the aligned
+    fields; predicting each centre from six anchors and taking the nearest
+    stitched tile found it for 472 of 472 and 451 of 451.
+    """
+    try:
+        height, width = (float(size) for size in tile_shape)
+    except (TypeError, ValueError):
+        height = width = float("nan")
+    if not (height > 0 and width > 0):
+        raise ValueError(
+            f"tile_shape {tile_shape!r} is not a (height, width) of two "
+            "positive sizes")
+    predicted = phenotype_centres(phenotype_sites, anchors)
+    if not sbs_centres:
+        return {}
+    tiles = [int(site) for site in sbs_centres]
+    tile_centres = np.array([sbs_centres[site] for site in sbs_centres],
+                            dtype=float).reshape(-1, 2)
+    fields = list(predicted)
+    points = np.array([predicted[site] for site in fields], dtype=float)
     mapping: Dict[int, int] = {}
-    for site in range(phenotype.site_count):
-        column, row = phenotype.position(site)
-        target_column = int(round(s_col + (column - p_col) / ratio))
-        target_row = int(round(s_row + (row - p_row) / ratio))
-        found = sbs.site(target_column, target_row)
-        if found is not None:
-            mapping[site] = found
+    chunk = 512
+    for start in range(0, len(fields), chunk):
+        away = points[start:start + chunk, None, :] - tile_centres[None, :, :]
+        inside = ((np.abs(away[..., 0]) <= height / 2)
+                  & (np.abs(away[..., 1]) <= width / 2))
+        distance = np.where(inside, np.hypot(away[..., 0], away[..., 1]),
+                            np.inf)
+        for offset, nearest in enumerate(distance.argmin(axis=1)):
+            if inside[offset, nearest]:
+                mapping[fields[start + offset]] = tiles[nearest]
     return mapping

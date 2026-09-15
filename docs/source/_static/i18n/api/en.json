@@ -29922,6 +29922,20 @@
       "source_sha256": "8afd13aa2ad6f2f40d67d1353f44032f9ad172b15c491e5aef6a08495e13f604",
       "text": "Registering one field across the sequencing cycles that imaged it.\n\nTHE CYCLE AXIS IS NOT THE TILE AXIS, and the difference decides everything\nin this module. :mod:`spacr.ops_register` places two DIFFERENT fields that\noverlap by a fraction of a tile; here the same field is imaged eleven times\nand the stage returns to it, so the displacement is a handful of pixels\nrather than a pitch.\n\nAND IT CANNOT USE HOECHST. Measured on the reference acquisition: cycle 1\nholds one five-channel ``DAPI-CY3-A594-CY5-CY7`` stack per site, and\ncycles 2 to 11 hold four separate base-channel files with NO DAPI at all.\nSo the channel every tile-axis registration runs on does not exist on this\naxis after the first cycle, and averaging Hoechst across cycles is not\navailable here either.\n\nWHAT REPLACES IT IS THE REFERENCE IMPLEMENTATION'S OWN ANSWER.\n``ops/firesnake.py:_align_SBS`` offers ``method='SBS_mean'`` for exactly\nthis case: the maximum across the base channels, normalised by a high\npercentile and clipped, which turns four sparse spot channels into one\ndense target. Measured on well A1 at two sites, cycles 2 to 11 against\ncycle 1:\n\n    site 100   peak/mean 169 to 236   shift (-6..-27,  0..10)\n    site 200   peak/mean 218 to 281   shift (-4..-25, 11..21)\n\n    20 of 20 cycles registered.\n\nIT IS NOT A FALLBACK, IT IS THE BETTER CHANNEL. The tile axis on DAPI peaks\nat 23 to 85; this peaks at 169 to 281. Spots are punctate and abundant and\nnuclei are smooth and few, so losing the Hoechst costs nothing here.\n\nAND THE OFFSET BELONGS TO THE SITE, NOT THE CYCLE. Site 100 sits at x = 0\nto 10 across the eleven cycles and site 200 at x = 11 to 21. One rigid\ntransform per cycle for a whole well would carry that difference into every\nfield, so each site is registered against its own reference -- which is\nalso what the reference implementation does, one field's cycle stack at a\ntime."
     },
+    "spacr.ops_cycles.AlignedField": {
+      "source_blocks_sha256": [
+        "bd3c464ba7c1e383af82723d56a979c52fe6ec952d9d321493ada19d256ea9ae",
+        "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+        "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+        "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+        "41385b03734c138b45064627ad0272ae0ee312ed8a8de82cc8fcb74a0e5d6762",
+        "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+        "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+        "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af"
+      ],
+      "source_sha256": "a3fe18eb94ffe1e12222b9313782c4081173b24b49bb439d6e5c008e1852c3bd",
+      "text": "One field's sequencing cycles, every channel moved into one frame.\n\n:ivar stack: ``(cycles, channels, Y, X)`` float32, one entry per cycle\n    in :attr:`kept` and in that order.\n:ivar kept: the cycle numbers the stack holds, ascending. The reference\n    cycle is always among them.\n:ivar refused: cycles whose registration against the reference was not\n    accepted. They are left out of the stack, because base calls read at\n    untrusted coordinates decode to a wrong barcode rather than to none.\n:ivar missing: cycles offered with no planes at all -- a file that could\n    not be read, for instance.\n:ivar channel_shifts: ``cycle -> one (dy, dx) per channel``, the shift\n    that moved each channel onto the first channel of its cycle.\n:ivar cycle_shifts: ``cycle -> (dy, dx)``, the shift that moved each kept\n    cycle onto the reference; the reference's own is ``(0, 0)``.\n:ivar refused_channels: ``(cycle, channel)`` pairs whose within-cycle\n    registration was refused and which were therefore not moved."
+    },
     "spacr.ops_cycles.accepted_cycles": {
       "source_blocks_sha256": [
         "9a4c8a315b1d538d0c7cdd69d46f645000a4878bcd444ff29627972bd09fe703",
@@ -29930,6 +29944,20 @@
       ],
       "source_sha256": "c746b2ae67d3f7d761156846367fda16674ec98aeba18911ad5901521a838b18",
       "text": "The cycles whose registration was believed, in order.\n\n:param registrations: the result of :func:`register_cycles`.\n:returns: the accepted cycle numbers, ascending."
+    },
+    "spacr.ops_cycles.align_field": {
+      "source_blocks_sha256": [
+        "13e01cfdc5d576571ce120dcf9e2ac341bcfaeff666f621e730ea2187dd3c2b0",
+        "39d05e48ed3f3462dc95f9cba322d1446c63f078d0a5c6a4f6a733f72b8a9197",
+        "f211b53d9666d844c68e1b911ddc96e3c0ef7b2c13967fbc066e39b3e30e0f02",
+        "f27c769d803e0a2d9ad01e5607b2e4f6c0228b4befecd2e861ebe32b72ee3a79",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+        "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+        "95e5b8500674d5534f485b2db469e50c1dc2a53ab38e0ef50cc0e90dd9a274ea"
+      ],
+      "source_sha256": "6f5e2e53431b5e2b3a0d302a6cf066bd7441220af0e351308c10321c05e5858f",
+      "text": "Register one field's channels within each cycle, then its cycles.\n\nEach base channel is first moved onto its cycle's first channel, on the\nclipped cell background the channels share -- on the measured plate they\nsat up to 14 px apart, which no cycle-to-cycle registration can see --\nand each cycle is then moved onto the reference with\n:func:`sbs_mean_target`. A cycle offered as ``None`` or with a missing\nplane is reported in :attr:`AlignedField.missing` and one whose\nregistration is refused in :attr:`AlignedField.refused`; the rest are\nstill aligned, so one lost cycle does not cost the field.\n\n:param planes: ``cycle -> the base channels of that cycle``, every plane\n    one 2-D image of the same shape.\n:param reference: the cycle everything is moved onto. None takes the\n    lowest cycle that has planes.\n:param tolerance: how far a cycle may land from the reference and still\n    be accepted, in pixels.\n:param gpu: let the phase correlations run on the card.\n:returns: the aligned field.\n:raises ValueError: when no cycle has planes, or when the reference\n    cycle has none."
     },
     "spacr.ops_cycles.register_cycles": {
       "source_blocks_sha256": [
@@ -29957,6 +29985,28 @@
       "source_sha256": "8312ed0bb12210fd85cb6b71e36fab14393c63794d68824d8d91056a75f273de",
       "text": "Turn one cycle's base channels into a single registration target.\n\nTHE MAXIMUM, NOT THE MEAN, over channels. A read is bright in exactly\none channel per cycle -- that is what a base call is -- so averaging\nthe four divides every spot by four and leaves the background where it\nwas. The maximum keeps each spot at its own brightness whichever\nchannel carried it.\n\n:param planes: the base channels for one cycle of one field.\n:param percentile: the percentile the result is divided by.\n:param cutoff: the value the result is clipped at afterwards, so a\n    saturated spot cannot dominate the correlation on its own.\n:returns: a float32 image, the same shape as one plane.\n:raises ValueError: when no planes are given, or they disagree in shape."
     },
+    "spacr.ops_engine": {
+      "source_blocks_sha256": [
+        "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
+        "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
+        "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73"
+      ],
+      "source_sha256": "addb1b55394a44a3dd693a8768539a205c86e4464bffb7637959171d38dc3c4d",
+      "text": "Run an optical pooled screen's sequencing acquisition from tiles to tables.\n\nOne call takes each well from its tile files to three tables in\n``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the\nwell frame; ``ops_objects``, one row per nucleus, segmented on the composed\nnuclear map and numbered once for the well; and ``ops_barcodes``, one row per\nnucleus whose attributed reads agree.\n\nA file that cannot be read costs one cycle of the field it belongs to and is\nlisted in the report; it does not cost the well. The phenotype acquisition\nis not placed by this step."
+    },
+    "spacr.ops_engine.run_ops": {
+      "source_blocks_sha256": [
+        "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
+        "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
+        "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
+        "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
+        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+        "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c"
+      ],
+      "source_sha256": "b7cf061017eaa6ad6f1dfc5851a7493ca7e1a8ea82a27293ced136739703d7db",
+      "text": "Stitch, segment and decode the wells of one sequencing acquisition.\n\n:param settings: the OPS settings. Read here: ``genotype_source``, the\n    folder of sequencing tiles, searched recursively; ``dst_root``, where\n    ``measurements.db`` and the per-well reports go, the source folder\n    when empty; ``plate``, the source folder's name when empty;\n    ``ops_gpu``; ``n_workers``, how many fields decode at once;\n    ``cellpose_model`` and ``cellpose_diameter``.\n:param wells: which wells to run; every well found when None.\n:param phases: any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run\n    in that order. A phase left out reads what it needs from the\n    database, so a well can be stitched once and decoded again.\n:param library: the guide barcodes, as a sequence or the path of a CSV\n    with a ``prefix``, ``barcode`` or ``sequence`` column. When given,\n    each barcode is also mapped to its closest guide.\n:returns: ``{\"db\": path, \"wells\": {well: {phase: report}}}``.\n:raises ValueError: when the source holds no tiles this can name, an\n    unknown phase or well is asked for, or a phase's input is missing."
+    },
     "spacr.ops_layout": {
       "source_blocks_sha256": [
         "2a2ae3e9c8647ec5167329b0a954f529068d907d0ad9ca37d95e51a6b580dd63",
@@ -29977,11 +30027,11 @@
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
         "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
-        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
-        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
+        "8f325a816c5bbaf3978bc1b0e1f2384012d77d38ea943976debc17de5c593ee7",
+        "06ca32f7fa55d96acacd275df9f0d6e990beb502f91bbcbbe942f5df4ab41384"
       ],
-      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
-      "text": "A round well's tiles, addressed by site index and by grid position.\n\n:ivar columns: how many columns of fields the acquisition raster has.\n:ivar radius: the well's radius, in grid units (one tile pitch = 1).\n:ivar centre: ``(column, row)`` of the circle's centre. The row is\n    negative for the measured well because site 0 is at the TOP and\n    rows increase downwards.\n:ivar snake: whether the acquisition snakes -- odd columns collected\n    bottom to top. Micro-Manager's HCS plugin does, which is why the\n    reference implementation carries a `remap_snake` at all.\n:ivar row_offsets: how far each column's rows sit from where the circle\n    puts them, one integer per column, left to right. Empty means the\n    circle is taken at its word, which is what every layout did before\n    the phenotype well showed it could not be. Columns past the end of\n    the tuple are unshifted, so ``()`` is the whole of the old\n    behaviour rather than a special case of it. A TUPLE because this\n    class is hashed -- see :func:`_index`.\n\nTHE OFFSET MOVES A COLUMN, IT DOES NOT RESIZE ONE. Both ends of the\nspan shift together, so :attr:`heights` and :attr:`site_count` are the\nsame whatever the offsets are, and site N is the same field before and\nafter a correction -- at a different row. That is exactly the defect\n372's PART 14-G measured on the phenotype acquisition: over 188 aligned\nfields the COLUMN index was right every time, to a standard deviation\nof one thousandth, and the row was wrong by an exact whole number per\ncolumn. Right heights, wrong origins."
+      "source_sha256": "252f3c40a3c0f8616cd8cf6c21a97caa3252f712bfae3e8e7b05eda45c917c1c",
+      "text": "A round well's tiles, addressed by site index and by grid position.\n\n:ivar columns: how many columns of fields the acquisition raster has.\n:ivar radius: the well's radius, in grid units (one tile pitch = 1).\n:ivar centre: ``(column, row)`` of the circle's centre. The row is\n    negative for the measured well because site 0 is at the TOP and\n    rows increase downwards.\n:ivar snake: whether the acquisition snakes -- odd columns collected\n    bottom to top. Micro-Manager's HCS plugin does, which is why the\n    reference implementation carries a `remap_snake` at all.\n:ivar half_tile: half a tile's side, in grid units. A site is kept\n    when its whole tile lies inside the circle: at ``(dx, dy)`` from\n    the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2\n    <= radius**2``. Zero keeps every site whose centre is inside, which\n    is the rule every layout followed before this field existed.\n\nThe tile has to fit, not its centre. The centre rule holds the\n333-field sequencing well and cannot produce the column heights the\n1,281-field phenotype well was measured at, for any radius. With the\nfootprint term both come out as measured, and every column is centred\non the same row."
     },
     "spacr.ops_layout.WellLayout.heights": {
       "source_blocks_sha256": [
@@ -30059,22 +30109,24 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
+        "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4"
       ],
-      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
-      "text": "``(first row, last row)`` of one column, or None if it is empty.\n\n:param column: the column index.\n:returns: the inclusive absolute row range inside the circle,\n    shifted by this column's entry in :attr:`row_offsets`."
+      "source_sha256": "1c9c10d3538b324c4f83220737486ee98761f76f1a800008384a01392f58cee6",
+      "text": "``(first row, last row)`` of one column, or None if it is empty.\n\n:param column: the column index.\n:returns: the inclusive absolute row range of the sites whose whole\n    tile lies inside the circle -- see :attr:`half_tile`."
     },
     "spacr.ops_layout.round_well_layout": {
       "source_blocks_sha256": [
         "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
-        "7619125def20ced78e2946ad77985f1728799f754e04ace16d29f9b80fa43451",
+        "86268289cc8151bcdee1cedd1f609ed53d034ff8323229112d2a1cfb1a521f55",
         "2c3cc617cc24727b4210a8dd67fa23af8d3dfb12ad2ee7a5a3560b39bdea1959",
         "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "c63e219d31a59ab085b7434370040f30d072e66e0a9e87fdca14135374b066ac",
         "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
-        "5f9697ed74dc5cc31a1fc7867b8e9e434ff5ebef0a620a2beba10665fbb9c422"
+        "c2fc36d4de364217c55b41aa0312bda2c72f6671f1df7fcbed55d6c8e88713b0",
+        "2f7270145a6377b6ae43cc385f4e785ba75db522e11a7e546a7397c17f3eede2"
       ],
-      "source_sha256": "424f2519dc4cfbe48ad17d1d33a2c49ea72c9bdb6d5d248bfac935d15e845394",
-      "text": "The layout whose circle holds exactly ``site_count`` fields.\n\nThe measured well is returned unchanged for 333, so the confirmed\nmodel is never re-derived. For any other count the radius is searched\n-- a well imaged at a different magnification or a different plate\nformat is the same circle with a different number of fields in it.\n\n:param site_count: how many tiles the acquisition holds.\n:param columns: the column count, when it is known. Derived from the\n    circle otherwise.\n:returns: the layout.\n:raises ValueError: when no circle holds exactly that many fields,\n    which is the honest answer -- a count that no round well produces\n    means the acquisition is not one, and guessing the nearest would\n    place every tile slightly wrong."
+      "source_sha256": "5305e117b3024b18d8338920bf837bd4e2da0bdac000f8770f6a9b74d65a8f66",
+      "text": "The layout whose circle holds exactly ``site_count`` fields.\n\nThe measured well is returned unchanged whenever the search lands on\nits 333 sites, so the confirmed model is never re-derived. For any\nother count the radius is searched -- a well imaged at a different\nmagnification or a different plate format is the same circle with a\ndifferent number of fields in it.\n\n:param site_count: how many tiles the acquisition holds.\n:param columns: the column count, when it is known. Derived from the\n    circle otherwise.\n:param half_tile: half a tile's side in tile pitches -- the tile size\n    over twice the registered pitch. A field is kept when its whole\n    tile lies inside the circle; zero keeps it when its centre does.\n    The default is the phenotype acquisition's measured 0.5857. The\n    sequencing acquisition measured 0.5840, and every value strictly\n    between 0.5 and 2.0 gives both wells -- 333 and 1,281 fields -- the\n    column heights they were measured at.\n:returns: the layout.\n:raises ValueError: when no circle holds exactly that many fields,\n    which is the honest answer -- a count that no round well produces\n    means the acquisition is not one, and guessing the nearest would\n    place every tile slightly wrong. Also when ``half_tile`` is\n    negative or not a number.\n\nFor one half tile, the count fixes the fields. The number of fields\ninside the circle only grows with the radius, so every radius that\nholds exactly ``site_count`` holds the same ones. The radius the layout\ncarries is one of those, not a measurement."
     },
     "spacr.ops_merge": {
       "source_blocks_sha256": [
@@ -30136,11 +30188,11 @@
         "990cbd9d468810e23d12c3c6422a96b1e92596d8698621faf418036c8b591785",
         "97b8148e32b87cf7ab822aa5792267912cd4e0e4cb9ef01a3fe9b1d14e57d483",
         "bcd8c39db6c093f852d0428af03bd07c6af89f7ae366071127c7a1ff280d4889",
-        "01272912db0ec87950b0a80779bd9ba157f02b306c23a540d72bcc352015eaa5",
+        "9ba2321f17439d3fd4a3b06d53ac4f49127ce9a492def8e4f8a737101af7d7c9",
         "c02755472affea9845da91da2662a1c37746a02b0533ee43750418c5f0dfc107"
       ],
-      "source_sha256": "a3672d1d070cafff1ab522615ed99b112085c5305e9559ae6cf0099fc3605b14",
-      "text": "One object list for a well, sewn across window seams and numbered once.\n\nSEGMENT, SEW, NUMBER -- the three steps between a composite and an object\ntable. The compose step gives a mosaic that is built a\nwindow at a time and never materialised whole; this is what segmentation and\nnumbering do on top of it:\n\n* SEGMENT ONCE, on the composite, window by window.\n* SEW THE LABELS ACROSS WINDOW SEAMS. An object straddling a boundary is\n  one object, matched on its well-frame centroid.\n* NUMBER IN THE WELL FRAME, NOT PER WINDOW. Per-window numbering would\n  give two windows an object #1 apiece.\n\nTHE SEAM PROBLEM IS ALREADY HALF-SOLVED BY THE COMPOSE STEP, and saying how\navoids\nreinventing it. :func:`spacr.ops_compose.windows_over` tiles with an OVERLAP,\nand its contract is that the overlap exceeds the largest object. So a nucleus\nnear a seam is not split between two windows -- it is seen WHOLE by at least\none of them, and usually twice. The job here is therefore deduplication, not\nreconstruction: find the observations that are the same nucleus and keep the\none that saw all of it.\n\n    THAT DISTINCTION IS THE WHOLE DESIGN. Reconstructing an object from two\n    partial masks means deciding how to union pixels across a seam, which is\n    fiddly and lossy. Choosing between two complete masks is neither.\n\nWHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT: an object larger than the\noverlap, which every window clips. :func:`sew` refuses those rather than\nemitting a fragment, because a fragment looks exactly like a small nucleus\nand would be counted as one for the rest of the run.\n\nTHE IDS ARE A JOIN KEY, so they are assigned deterministically -- raster\norder on the well-frame centroid -- and not by iteration order over a dict or\nby whichever window happened to be segmented first. The contract is: \"This\nid, and the\ncentroid beside it, is the join key for every later phase.\" Two runs over the\nsame data must produce the same numbers or nothing downstream can be\ncompared."
+      "source_sha256": "f693ec2a28a9c9ad50cd0653132a34c919ca0ab90f60878bd1c6648e5aff52f1",
+      "text": "One object list for a well, sewn across window seams and numbered once.\n\nSEGMENT, SEW, NUMBER -- the three steps between a composite and an object\ntable. The compose step gives a mosaic that is built a\nwindow at a time and never materialised whole; this is what segmentation and\nnumbering do on top of it:\n\n* SEGMENT ONCE, on the composite, window by window.\n* SEW THE LABELS ACROSS WINDOW SEAMS. An object straddling a boundary is\n  one object, matched on its well-frame centroid.\n* NUMBER IN THE WELL FRAME, NOT PER WINDOW. Per-window numbering would\n  give two windows an object #1 apiece.\n\nTHE SEAM PROBLEM IS ALREADY HALF-SOLVED BY THE COMPOSE STEP, and saying how\navoids\nreinventing it. :func:`spacr.ops_compose.windows_over` tiles with an OVERLAP,\nand its contract is that the overlap exceeds the largest object. So a nucleus\nnear a seam is not split between two windows -- it is seen WHOLE by at least\none of them, and usually twice. The job here is therefore deduplication, not\nreconstruction: find the observations that are the same nucleus and keep the\none that saw all of it.\n\n    THAT DISTINCTION IS THE WHOLE DESIGN. Reconstructing an object from two\n    partial masks means deciding how to union pixels across a seam, which is\n    fiddly and lossy. Choosing between two complete masks is neither.\n\nWHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT: an object larger than the\noverlap, which every window clips. :func:`number` refuses those rather than\nemitting a fragment, because a fragment looks exactly like a small nucleus\nand would be counted as one for the rest of the run.\n\nTHE IDS ARE A JOIN KEY, so they are assigned deterministically -- raster\norder on the well-frame centroid -- and not by iteration order over a dict or\nby whichever window happened to be segmented first. The contract is: \"This\nid, and the\ncentroid beside it, is the join key for every later phase.\" Two runs over the\nsame data must produce the same numbers or nothing downstream can be\ncompared."
     },
     "spacr.ops_objects.ObjectsError": {
       "source_blocks_sha256": [
@@ -30192,11 +30244,11 @@
         "9a93bc57583625008118ded5bf4743b7890b3e250252024c69d6ee1a26c61af0",
         "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
         "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
-        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
-        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+        "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+        "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac"
       ],
-      "source_sha256": "f8d639df7ef3ce1cd268c560d6e74d298f93194582c5b9bb6de2b4b778e2d4d3",
-      "text": "One id per object, assigned in the well frame, deterministically.\n\nRASTER ORDER ON THE WELL-FRAME CENTROID -- top to bottom, then left to\nright -- rather than the order windows were segmented in. The id is a\njoin key, so two runs over the same data have to produce the same\nnumbers; ordering by anything the scheduler can vary would break that\nquietly and only in the results.\n\nIds start at 1. Zero is background in every label image this came from,\nand an object numbered 0 would be invisible to any downstream mask\ncomparison.\n\n:param groups: from :func:`sew`.\n:param strict: refuse a group with no complete observation. Turn it off\n    only to inspect a bad run -- the objects it then emits are fragments\n    with truncated areas.\n:raises ObjectsError: when a group holds only clipped observations, which\n    means the object is larger than the window overlap."
+      "source_sha256": "f8b899f9ca99f84de1119d8dead1529613db8fb6c64369433efaca7ec06a8c45",
+      "text": "One id per object, assigned in the well frame, deterministically.\n\nRASTER ORDER ON THE WELL-FRAME CENTROID -- top to bottom, then left to\nright -- rather than the order windows were segmented in. The id is a\njoin key, so two runs over the same data have to produce the same\nnumbers; ordering by anything the scheduler can vary would break that\nquietly and only in the results.\n\nIds start at 1. Zero is background in every label image this came from,\nand an object numbered 0 would be invisible to any downstream mask\ncomparison.\n\n:param groups: from :func:`sew`.\n:param strict: refuse a group with no complete observation. Turned off,\n    such a group is dropped rather than numbered -- nothing with a\n    truncated area is emitted -- and how many were dropped is logged as\n    a warning.\n:raises ObjectsError: when a group holds only clipped observations:\n    either the object is larger than the window overlap, or it is a\n    fragment that matched no window's whole view of its nucleus. The\n    message gives the object's extent and the remedy for each case."
     },
     "spacr.ops_objects.objects_frame": {
       "source_blocks_sha256": [
@@ -30235,12 +30287,13 @@
         "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
         "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
         "f08633cd3542cbeb32d6a15ddabb0e48d2cb1d93159db10c8da9596e2a06bc61",
-        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+        "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
         "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ],
-      "source_sha256": "0a6524af4792480274feb233863a420748edcbde67f7babf4bcaabc98af6a067",
-      "text": "Group observations that are the same nucleus.\n\nEvery group is one physical object. A nucleus in a window overlap is\ngrouped from two (or four, at a corner) observations; one in a window's\ninterior forms a group of one.\n\nTHE CLIPPED ONES ARE THE POINT. An observation whose mask ran into an\ninterior seam did not see the whole nucleus, so its area and centroid are\nboth wrong. It is kept only long enough to be matched to a complete\nobservation of the same nucleus and is then dropped in favour of it. A\nclipped observation matching nothing complete means no window saw that\nnucleus whole, which :func:`number` refuses.\n\nMatching a clipped observation uses the centroid only: its area is\ntruncated by definition, so requiring areas to agree would prevent\nexactly the match that rescues it.\n\n:param observations: every window's view of every object in one well,\n    already in well-frame coordinates. Order does not matter; the\n    grouping is by geometry, not by arrival.\n:returns: groups, each a tuple of observations, in no particular order --\n    :func:`number` imposes the order that matters."
+      "source_sha256": "1498680e3055c65d22df115ce4253dc0f27c45681455cacb2ed566ecfb4040bf",
+      "text": "Group observations that are the same nucleus.\n\nEvery group is one physical object. A nucleus in a window overlap is\ngrouped from two (or four, at a corner) observations; one in a window's\ninterior forms a group of one.\n\nTHE CLIPPED ONES ARE THE POINT. An observation whose mask ran into an\ninterior seam did not see the whole nucleus, so its area and centroid are\nboth wrong. It is kept only long enough to be matched to a complete\nobservation of the same nucleus and is then dropped in favour of it. A\nclipped observation matching nothing complete means no window saw that\nnucleus whole, which :func:`number` refuses.\n\nTwo labels of one window are never one object, because a label image does\nnot give one nucleus two labels. Two complete observations from different\nwindows are one nucleus when their centroids agree within ``tolerance``\non each axis and either their areas agree to ``area_ratio`` or their\ncentroids lie within the smaller one's equivalent radius -- the radius of\na disc of its area. Pairs whose areas agree are joined first, then the\nrest closest first, and a join that would give a group two labels of one\nwindow is refused.\n\nA clipped observation is matched by containment, not by a fixed distance:\nthe cut moves its centroid inward by up to the nucleus's radius, so a\nfixed tolerance misses exactly the deep clips. It joins a complete\nobservation from another window when its centroid lies inside that\nobservation's equivalent disc, or its bounding box lies inside that\nobservation's box give or take two pixels. It joins only the closest such\nobservation, so one clip can never make two nuclei one object. Clipped\nobservations that match nothing complete are grouped with each other\nwhere their boxes overlap.\n\n:param observations: every window's view of every object in one well,\n    already in well-frame coordinates. Order does not matter; the\n    grouping is by geometry, not by arrival.\n:returns: groups, each a tuple of observations, in no particular order --\n    :func:`number` imposes the order that matters."
     },
     "spacr.ops_phenotype": {
       "source_blocks_sha256": [
@@ -30318,20 +30371,32 @@
       "source_sha256": "b15958bb4c33110c402916aebc23c5c070f51a117982beefeda92a8569ea8447",
       "text": "Nuclear centres from a nuclear stain, without segmenting anything.\n\n:param image: one 2-D plane of a nuclear channel.\n:param sigma: Gaussian smoothing before peak finding; a nucleus is a\n    blob, and smoothing at its own scale is what stops one nucleus\n    answering as three.\n:param min_distance: the closest two accepted peaks may be, in pixels.\n:param top: keep at most this many, brightest first. The triangle\n    matcher is quadratic in the point count and a field's brightest few\n    hundred nuclei are as informative as all of them.\n:param percentile: the intensity floor, as a percentile of the smoothed\n    image. Relative rather than absolute, because the two acquisitions\n    this module compares were taken at different exposures.\n:returns: ``(N, 2)`` row/column centres.\n\nA4 DOES NOT NEED MASKS. It needs points that mean the same thing in two\nframes, and a smoothed local maximum on a nuclear stain is that at a\nfraction of a segmentation's cost. Phase B segments, once, on the\ncomposite; this is not that step and must not become it."
     },
+    "spacr.ops_phenotype.phenotype_centres": {
+      "source_blocks_sha256": [
+        "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+        "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+        "a72f71fa491262526c02f83f4a7ec3603ecff94045440e61c8c1c9c5811c5b57",
+        "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+        "62734fbdc05ad91105b8666536bf5de38fa2efd63b6c2a9c5a89883340d8da45",
+        "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+        "869851e6ed102bb8bc4f3c240b3f674eca045bb487f031f3c41457e759e709a1"
+      ],
+      "source_sha256": "f9a9783fcea49feff3db7a7f2d2f01d785243cd383ca48d08a7c477da528db39",
+      "text": "Where every phenotype field's centre lies, from a few measured ones.\n\n:param layout: the phenotype acquisition's\n    :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.\n:param anchors: ``{site: (y, x)}``, the well-frame centres of at least\n    three aligned fields whose grid positions are not all on one line.\n    Six spread over the well is what the method was validated with.\n:returns: ``{site: (y, x)}`` for every field of the layout, anchors\n    included -- their fitted centres, not the measured ones.\n:raises ValueError: when the anchors cannot fix a raster: fewer than\n    three, on one line of the grid, or a centre that is not two finite\n    numbers. Also for a field count no round well holds.\n:raises IndexError: when an anchor names a site the layout does not\n    hold.\n\nSix numbers place the whole well. The layout gives every field's grid\nposition, and the acquisition raster maps a grid position into the\nwell frame by an origin, a column step and a row step, each a\n``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by\nleast squares on six fields of a real well, that predicted the other\n472 fields' measured centres to a median 1.2 px and a worst 4.0 px, and\na second well's 451 to a worst 4.4 px."
+    },
     "spacr.ops_phenotype.phenotype_site_map": {
       "source_blocks_sha256": [
-        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
-        "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
-        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
-        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
-        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
-        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
-        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
-        "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
+        "d8987e7ccf9126ae97b1035274f1858ed5d91a9c926e1041d075a74f46bda5c2",
+        "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+        "5ee088d6438ce7110691e740d8d39daf49266a6bfecbabe2da381af4c445991b",
+        "9482032d0529e408eedc31b529b11c047715bf35366e88b102aabc2b5761a35f",
+        "7b4ad6c687274f962bda174e28f7bedfb4e7466743ab89786faba23d1ae362f7",
+        "343e414cceff1565e0cee8d9a8ec18e898ad8efe76cf98bf334aff2939a9be51",
+        "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+        "d67e620df54a44769db2cde7feabc8935859b8753a09913120bda2d3e3ce9b27"
       ],
-      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
-      "text": "Which sequencing tile covers each phenotype tile.\n\n:param phenotype_sites: how many fields the phenotype acquisition holds.\n:param sbs_sites: how many the sequencing acquisition holds.\n:param row_offsets: where each phenotype column really starts, one\n    integer per column, as :func:`spacr.ops_layout._solve_row_offsets`\n    measures it from the fields that aligned. Empty takes the circle at\n    its word, which is what this function did before there was anything\n    better to offer it.\n:returns: ``{phenotype site -> sequencing site}``, omitting any\n    phenotype tile whose sequencing position is outside that circle.\n:raises ValueError: when either count is not a round well, which\n    :func:`spacr.ops_layout.round_well_layout` decides, or when the\n    offsets are not one per phenotype column.\n\nAND THE CIRCLE IS NOT ALWAYS THE ACQUISITION, which is what\n``row_offsets`` is for. `round_well_layout` SEARCHES for a radius that\nholds exactly the field count and more than one radius does; for the\n41-column phenotype well the one it finds gives the right column and a\nrow wrong by up to two. 372's PART 14-G measured that over 188 aligned\nfields -- column index exact to a standard deviation of 0.001, row\nindex out by a whole number constant down each column -- and it refused\n133 of 321 fields, because one row is 633 px and a window that misses\nby that holds none of the tile's nuclei.\n\nA WRONG-LENGTH TABLE IS REFUSED rather than padded. Padding is right\ninside :class:`spacr.ops_layout.WellLayout`, where the empty default\nhas to keep meaning \"no offsets\"; here the caller is handing over a\nmeasurement of a particular well, and a table that does not fit it\nwould correct some columns and silently leave the rest -- which is the\nstate this argument exists to end.\n\nIT IS A LAYOUT QUESTION, NOT AN IMAGE ONE, and answering it by image\nwas how the first three attempts at A4 spent an afternoon: phenotype\nsite N was matched against sequencing site N, which is a different part\nof the well, and every pair came back at 2-9 % inliers. The layout says\nit in closed form. The measured acquisition fits 41 columns at radius\n20.15 against the sequencing well's 21 at 10.25 -- the same round well\nat twice the tile density, and 41 = 2 * 21 - 1 -- so a phenotype grid\nposition halves about the centre."
+      "source_sha256": "8a16a9cb23bc944479e647aedd8addbff0aae9333367004799bb5c013e6845b2",
+      "text": "Which sequencing tile covers each phenotype field.\n\n:param phenotype_sites: the phenotype acquisition's\n    :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.\n:param sbs_centres: ``{sequencing site: (y, x)}``, the centre of each\n    stitched sequencing tile in the well frame -- its placement plus\n    half a tile.\n:param anchors: ``{phenotype site: (y, x)}``, measured well-frame\n    centres of at least three aligned phenotype fields, as\n    :func:`phenotype_centres` takes them.\n:param tile_shape: ``(height, width)`` of a sequencing tile, in\n    well-frame pixels.\n:returns: ``{phenotype site: sequencing site}``. Each field goes to the\n    tile whose centre is nearest its predicted centre, among the tiles\n    that contain it; a field whose predicted centre lies inside no tile\n    is omitted.\n:raises ValueError: when ``tile_shape`` is not two positive sizes, or\n    when :func:`phenotype_centres` refuses the anchors or the count.\n\nA position, not an index. The tile a field lies on depends on where the\ntile boundaries actually fall, and halving a phenotype grid index about\nthe well centre cannot see them: at twice the tile density half the\nphenotype fields lie on or near a sequencing tile boundary. On the real\nplate halving found the exact tile for 0.45 to 0.61 of the aligned\nfields; predicting each centre from six anchors and taking the nearest\nstitched tile found it for 472 of 472 and 451 of 451."
     },
     "spacr.ops_phenotype.refine_similarity": {
       "source_blocks_sha256": [
@@ -30522,13 +30587,13 @@
     "spacr.ops_sample.barcode_rows": {
       "source_blocks_sha256": [
         "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
-        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
         "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
         "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
         "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
       ],
-      "source_sha256": "f38075fc6c052a70d7e7a96cea0d846a58c5b84ff01346949306ae77e89eb25e",
-      "text": "``ops_barcodes`` rows: one per object, assembled across cycles.\n\nDelegates the call itself to :func:`spacr.ops_sbs.call_reads`, which\nalready compensates cross-talk and reports quality as the MINIMUM over\ncycles -- \"a barcode is only as trustworthy as its worst base\". Repeating\nthat here would be a second decoder to keep in step.\n\n:param objects: the numbered objects, in the same order as ``values``'\n    first axis.\n:param values: ``(objects, cycles, channels)`` intensities, NEVER\n    averaged over cycles -- see :func:`decode_input`, which refuses a\n    single cycle for the same reason.\n:param library: when given, each barcode is corrected to the nearest\n    library member through :func:`spacr.ops_sbs.correct_to_library`, and\n    the row carries what it mapped to."
+      "source_sha256": "1f03e894fc659bc95c172df09d40cef12871b021f6108c7decc23248dd630cd2",
+      "text": "``ops_barcodes`` rows: one per object, assembled across cycles.\n\nDelegates the call itself to :func:`spacr.ops_sbs.call_reads`, which\nalready normalises each cycle's channels and reports quality as the\nMINIMUM over cycles -- \"a barcode is only as trustworthy as its worst\nbase\". Repeating that here would be a second decoder to keep in step.\n\n:param objects: the numbered objects, in the same order as ``values``'\n    first axis.\n:param values: ``(objects, cycles, channels)`` intensities, NEVER\n    averaged over cycles -- see :func:`decode_input`, which refuses a\n    single cycle for the same reason.\n:param library: when given, each barcode is corrected to the nearest\n    library member through :func:`spacr.ops_sbs.correct_to_library`, and\n    the row carries what it mapped to."
     },
     "spacr.ops_sample.decode_input": {
       "source_blocks_sha256": [
@@ -30569,17 +30634,17 @@
       "source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "956f92b5597a52553784849833a71d0e85e8b2bd6de6f579a740e064ec93ffb3",
-        "e71dcd146df56085f757d93ca65b8afa1e4e4a15ee474c507540e5be192d9185",
+        "96f751fe3936bc37122069588f7980e88b041b2cf6fb2905765d0397cbed37c3",
         "936e1541cf5e140e01fda0b4c0b8778f6d30f0ceaffa23a1509ad46d00c732b5",
         "fd38f7be57907f9df402614da4e5b18a9304972c3a9b1f0cd52f43911b2cd5fa",
         "434f6e53eb83226c3543ddfe36fdf41fd103a2c2132aad901f698c267664919b",
         "a6a1e26501768ea6716a58affe0c26ee3e2b1b2eba8858c1b26a0eae357f831b",
-        "150885e42ea6d17e4a2ced6e8d6e12dc6848dd0c1d49124a4f0f5c6e376c3478",
+        "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
         "6bc4dae7bc9a17e2859daa6335055cce0b71b47cc63e617c31ccac679f4b1450",
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ],
-      "source_sha256": "b787ea512a3007ba8cfe4e185e8523ad698d5e1039ef1b6bee47b1d01acce429",
-      "text": "Decode in-situ sequencing barcodes out of an image stack.\n\nWHAT THIS IS FOR, AND WHAT IT IS NOT\n====================================\nOptical pooled screening reads the guide barcode OUT OF THE IMAGES. Each\nsequencing cycle stains four channels, one per base, and a spot's base in that\ncycle is whichever channel is brightest -- after the dyes have been unmixed.\nRead one base per cycle at the same spot and the cycles spell the barcode.\n\n:mod:`spacr.sequencing` is NOT the back half of this and must not be pointed\nat it. That module decodes FASTQ reads from an NGS run; there is no FASTQ here\nand no sequencer, only pixels.\n\nWHY EACH STEP IS THE STEP IT IS\n===============================\nThree of these carry nearly all of the correctness risk, and all three are\ncounter-intuitive enough that implementing them from a description of the\npipeline rather than from a working one produces something that runs and is\nwrong:\n\n* **A read is not a bright spot.** It is a spot whose base CHANGES between\n  cycles. So the location estimate is the standard deviation ACROSS CYCLES,\n  averaged over channels -- a spot bright in every cycle is a piece of dirt or\n  an autofluorescent blob and contributes no variance.\n\n* **The brightest channel is not the base.** The four dyes bleed into one\n  another, so the raw argmax is biased toward whichever dye is brightest\n  overall. The cross-talk has to be estimated from the data and undone first.\n\n* **An ambiguous read is worse than a missing one.** Error correction against\n  the guide library only ever corrects to a UNIQUE closest match. A read that\n  is equally close to two barcodes is discarded, because a wrongly assigned\n  guide silently corrupts a screen's results while a dropped one only costs\n  statistical power.\n\nThe method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/\nbrieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose\nsource was read for the three points above rather than reconstructed from its\nstage names."
+      "source_sha256": "81b0dbda4a59d32e548eeff8ff59cb8a080a6d002aa678a2e292f254c876fa89",
+      "text": "Decode in-situ sequencing barcodes out of an image stack.\n\nWHAT THIS IS FOR, AND WHAT IT IS NOT\n====================================\nOptical pooled screening reads the guide barcode OUT OF THE IMAGES. Each\nsequencing cycle stains four channels, one per base, and a spot's base in that\ncycle is whichever channel is brightest -- once the channels have been put on\na common scale. Read one base per cycle at the same spot and the cycles spell\nthe barcode.\n\n:mod:`spacr.sequencing` is NOT the back half of this and must not be pointed\nat it. That module decodes FASTQ reads from an NGS run; there is no FASTQ here\nand no sequencer, only pixels.\n\nWHY EACH STEP IS THE STEP IT IS\n===============================\nThree of these carry nearly all of the correctness risk, and all three are\ncounter-intuitive enough that implementing them from a description of the\npipeline rather than from a working one produces something that runs and is\nwrong:\n\n* **A read is not a bright spot.** It is a spot whose base CHANGES between\n  cycles. So the location estimate is the standard deviation ACROSS CYCLES,\n  averaged over channels -- a spot bright in every cycle is a piece of dirt or\n  an autofluorescent blob and contributes no variance.\n\n* **The brightest raw channel is not the base.** Every channel has its own\n  gain and background, and on a real plate both drift from cycle to cycle,\n  so the raw argmax is biased toward whichever channel is brightest overall.\n  Each cycle's channels are divided by their median over the reads first.\n  Unmixing the dyes' bleed-through is available on top of that; on the first\n  real plate it lowered the library match.\n\n* **An ambiguous read is worse than a missing one.** Error correction against\n  the guide library only ever corrects to a UNIQUE closest match. A read that\n  is equally close to two barcodes is discarded, because a wrongly assigned\n  guide silently corrupts a screen's results while a dropped one only costs\n  statistical power.\n\nThe method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/\nbrieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose\nsource was read for the three points above rather than reconstructed from its\nstage names."
     },
     "spacr.ops_sbs.assign_reads_to_cells": {
       "source_blocks_sha256": [
@@ -30598,18 +30663,49 @@
       "source_sha256": "b58306e2f797db5c884d2c0e1ad292afbf05512cbb1440f45a92c1340bb42257",
       "text": "Give each segmented cell the barcode its reads agree on.\n\nA cell contains several spots and they will not all decode identically:\nan out-of-focus spot, a spot shared with a neighbour, and a genuine second\nperturbation all look the same at this stage. So a cell is assigned only\nwhen its reads AGREE -- ``min_fraction`` of at least ``min_reads`` must\ncarry the same barcode -- and is otherwise left unassigned.\n\nTHE DEFAULTS REFUSE MORE THAN THEY ACCEPT, deliberately. One read is not\nevidence: it cannot be checked against anything, and a single mis-called\nbase would silently hand a cell the wrong perturbation. A cell with no\nbarcode costs statistical power; a cell with the WRONG barcode moves a\nreal phenotype onto another guide's average and is not recoverable\ndownstream, because nothing later can tell it happened.\n\nReads landing on label 0 -- background, between cells -- are discarded\nrather than attached to the nearest cell. A read that segmentation did not\nplace inside anything is a read whose owner is unknown.\n\n:param peaks: ``(N, 2)`` ``(y, x)`` read positions.\n:param barcodes: one called barcode per read.\n:param labels: the segmentation, as an integer label image where 0 is\n    background.\n:param quality: optional per-read quality from :func:`call_reads`; when\n    given it is averaged over the reads that agreed.\n:param min_reads: how many reads a cell needs before it may be assigned.\n:param min_fraction: what share of them must agree.\n:returns: ``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\",\n    \"quality\"}}`` for every cell that met the bar."
     },
+    "spacr.ops_sbs.assign_reads_to_objects": {
+      "source_blocks_sha256": [
+        "56bd36897564e1ddb76e61dccdb0383bbb0f00a6a8b43788faf4396aa8743653",
+        "3c6bfdd6dcb24565647dc9aa1ea26a3fee06fddeae59f21f2a58c53a3758852d",
+        "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+        "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+        "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+        "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+        "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+        "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6"
+      ],
+      "source_sha256": "b58c2275ea4c8c6e406dfcbef123264042a863f42bc20ff1bdbd180eb58ee82e",
+      "text": "Give each plate object the barcode its attributed reads agree on.\n\nThe same rule as :func:`assign_reads_to_cells` -- at least ``min_reads``\nreads, ``min_fraction`` of them carrying one barcode, and no tie for first\n-- keyed by the object id each read was attributed to rather than by the\nlabel a read lands on. That is what lets reads collected from several\nfields vote once for the object they belong to.\n\n:param owners: one object id per read; 0 or a negative id means the read\n    has no owner and is ignored.\n:param barcodes: one called barcode per read.\n:param quality: optional per-read quality from :func:`call_reads`.\n:param min_reads: how many reads an object needs before it may be\n    assigned.\n:param min_fraction: what share of them must agree.\n:returns: ``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\",\n    \"quality\"}}`` for every object that met the bar."
+    },
+    "spacr.ops_sbs.attribute_reads": {
+      "source_blocks_sha256": [
+        "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+        "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+        "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+        "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+        "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+        "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+        "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+        "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3"
+      ],
+      "source_sha256": "e5185e36b7c16379c9e1b7959d7fae87394a4a1282a9f392eecabce3c5d53c9a",
+      "text": "Give each detected read to the object whose boundary is nearest.\n\nReads are detected over the whole field first and attributed here, so a\nfootprint that is too tight shows up as reads with no owner rather than\nstaying invisible. The boundary is each object's equivalent disc, the\ncircle of its area about its centroid, and a read whose two nearest\nboundaries lie within ``tie`` of each other is given to neither and\nflagged.\n\n:param peaks: ``(N, 2)`` read positions ``(y, x)``.\n:param centroids: ``(M, 2)`` object centroids ``(y, x)``, in the same\n    frame as ``peaks``.\n:param areas: ``(M,)`` object areas in pixels.\n:param footprint: how far beyond an object's boundary a read may lie and\n    still be its read, in pixels. On the first real plate 98 % of spots\n    lay within 10 px of a nucleus and 67 % within 3 px.\n:param tie: how close the two nearest boundaries may be before a read is\n    refused as ambiguous, in pixels.\n:returns: ``(owner, ambiguous)`` -- the index into ``centroids`` of each\n    read's owner, or -1, and whether each read was refused as ambiguous."
+    },
     "spacr.ops_sbs.call_reads": {
       "source_blocks_sha256": [
         "b9b2331000bd5746ba7c42019e9760edf6e291bb13e094a1ca717947dfc85878",
         "cfbc151611fa1c09c7e19f215648e05443a13eb5b4fc23b9ea767413d9f52694",
+        "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
-        "0878c5abd532135939088f9683f8444d107b512ba65891712e9471dc79f6549d",
+        "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
         "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+        "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ],
-      "source_sha256": "8d1fc4def3e3bc51ee32f13381c6278562e0f24cc44ad054b1eee14e056f11f4",
-      "text": "Turn per-cycle intensities into a barcode string and a quality per read.\n\nQuality is the margin between the winning channel and the runner-up,\ndivided by their sum, per cycle -- 0 when two bases are equally likely and\n1 when the call is unambiguous. Reported per read as the MINIMUM over\ncycles, because a barcode is only as trustworthy as its worst base.\n\n:param values: ``(N, cycles, channels)`` from :func:`extract_bases`.\n:param bases: the letter for each channel, in channel order.\n:param compensate: undo cross-talk first. Off only for testing what the\n    compensation is worth.\n:param method: passed to :func:`compensate_crosstalk`.\n:returns: ``(barcodes, quality)`` -- one string and one float per read."
+      "source_sha256": "da28c745cb762feed4444140c2d50590f3fed6a06ee280f6c7fb0f72653a5cb2",
+      "text": "Turn per-cycle intensities into a barcode string and a quality per read.\n\nQuality is the margin between the winning channel and the runner-up,\ndivided by their sum, per cycle -- 0 when two bases are equally likely and\n1 when the call is unambiguous. Reported per read as the MINIMUM over\ncycles, because a barcode is only as trustworthy as its worst base.\n\nA cycle that was not measured is called ``N``. Where a read's values for\none cycle are NaN -- the cycle's file could not be read, or its\nregistration was refused -- that letter is ``N`` and the quality is taken\nover the cycles that were measured, so one lost cycle costs one base of\neach read and not the read.\n\n:param values: ``(N, cycles, channels)`` from :func:`extract_bases`.\n:param bases: the letter for each channel, in channel order.\n:param compensate: undo cross-talk with :func:`compensate_crosstalk`\n    after normalising. Off by default: on the first real plate it\n    lowered the library match.\n:param method: passed to :func:`compensate_crosstalk`.\n:param normalise: divide each cycle's channels by their median over the\n    reads first, which removes the per-channel gain and background drift\n    between cycles. Skipped when there are too few reads for a median.\n:param gpu: let the compensation's multiply run on the card. False keeps\n    the whole call on the CPU.\n:returns: ``(barcodes, quality)`` -- one string and one float per read."
     },
     "spacr.ops_sbs.compensate_crosstalk": {
       "source_blocks_sha256": [
@@ -30631,13 +30727,14 @@
         "281147dde43d23884ef0a3c4a323bd90452f67cc0dbd60b77b57ec87644fcd98",
         "37c30f3020fedda6ff4ab0a7b226c264221ada227798ed43284cc746b231f5fb",
         "46391d1f9e20ab60e15493d35247221531d35da497cdb43376b147497ccb4aab",
+        "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
         "8019f7e7c6bed3fa6fed8551858bfb76671e388b0604bdbc08f44d5f8175a776",
         "8c52466956738d58c36a3b36e9bbbc0f49b16a68ceaeae9cd173c997aa5321ed",
         "8e8a6b535756a84d8abad896b7acd5ccc70e7e83c8d598a7cea308cea9f6a21a",
         "8e48d501f97b7b7d13ba4a8cd71ed79dbc65ae75bf0011b81c9c9d08d0b8efa5"
       ],
-      "source_sha256": "840be7753f707bdc4fc22054c24c4d1761ce296b96e3ce4f9c7bfd94167fd795",
-      "text": "Snap each read to the library, but ONLY on a unique closest match.\n\nAMBIGUITY IS DISCARDED, NOT GUESSED. A read equally close to two library\nbarcodes returns ``None``. That is deliberate and it is the whole point of\nthe step: a misassigned guide moves a cell's phenotype onto the wrong\nperturbation and silently corrupts every statistic downstream, while a\ndropped read only costs statistical power that more cells can buy back.\n\nAn exact match short-circuits, so a clean run pays nothing for this.\n\n:param barcodes: the called reads.\n:param library: the guide barcodes the screen actually contains.\n:param max_distance: the largest Hamming distance that may be corrected.\n:returns: one entry per read -- the library barcode, or None."
+      "source_sha256": "a390a8c28d503c7a51a94dc35230df66c9f7eed48ff9258c5e35332e4106e37c",
+      "text": "Snap each read to the library, but ONLY on a unique closest match.\n\nAMBIGUITY IS DISCARDED, NOT GUESSED. A read equally close to two library\nbarcodes returns ``None``. That is deliberate and it is the whole point of\nthe step: a misassigned guide moves a cell's phenotype onto the wrong\nperturbation and silently corrupts every statistic downstream, while a\ndropped read only costs statistical power that more cells can buy back.\n\nAn exact match short-circuits, so a clean run pays nothing for this.\n\nAn ``N`` is a base that was not measured, not a mismatch. It matches any\nletter and is not counted against ``max_distance``; the uniqueness rule\nstill applies, so a read whose lost base is the only thing separating two\nguides maps to neither.\n\n:param barcodes: the called reads.\n:param library: the guide barcodes the screen actually contains.\n:param max_distance: the largest Hamming distance that may be corrected.\n:returns: one entry per read -- the library barcode, or None."
     },
     "spacr.ops_sbs.estimate_read_locations": {
       "source_blocks_sha256": [
@@ -30906,10 +31003,10 @@
         "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
         "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
         "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
-        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+        "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec"
       ],
-      "source_sha256": "cfb9890ef957af700a97e55a8a682a4efce6ced932903bd5996fc078e26241af",
-      "text": "Write one OPS table to sqlite, and its parquet cache if it has one.\n\nBOTH IN ONE CALL, because 372 asks for the row counts to be asserted\nequal and two calls could not do that -- a caller who wrote the database\nand then crashed would leave a sidecar describing a different run, and\nnothing would notice until a reader silently preferred it.\n\n:param db_path: the measurements database.\n:param table: one of :data:`OPS_TABLES`.\n:param frame: a DataFrame.\n:returns: rows written.\n:raises StoreError: on an unknown table, or when the sidecar it just\n    wrote does not have the same number of rows as the database."
+      "source_sha256": "a36dc0ff4c585e72a685a508892d6deee4cc042a5c9b641ec968f89b6fd9739c",
+      "text": "Write one OPS table to sqlite, and its parquet cache if it has one.\n\nBOTH IN ONE CALL, because 372 asks for the row counts to be asserted\nequal and two calls could not do that -- a caller who wrote the database\nand then crashed would leave a sidecar describing a different run, and\nnothing would notice until a reader silently preferred it.\n\n:param db_path: the measurements database.\n:param table: one of :data:`OPS_TABLES`.\n:param frame: a DataFrame.\n:returns: rows written.\n:raises StoreError: on an unknown table; when the sidecar it just\n    wrote does not have the same number of rows as the database; or when\n    ``ops_objects`` or ``ops_barcodes`` would hold two rows for one\n    object, inside the frame or between the frame and the table it is\n    appended to. One row per object is a UNIQUE constraint in the schema,\n    and nothing is written when it would be broken."
     },
     "spacr.organelle_types": {
       "source_blocks_sha256": [

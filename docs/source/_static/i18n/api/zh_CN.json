@@ -48531,6 +48531,30 @@
         "91d2295728c16dc85ed8eaee7a42e650d3131fc40138a0dfdce30a5d3fd6f1a2"
       ]
     },
+    "spacr.ops_cycles.AlignedField": {
+      "source_blocks_sha256": [
+        "bd3c464ba7c1e383af82723d56a979c52fe6ec952d9d321493ada19d256ea9ae",
+        "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+        "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+        "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+        "41385b03734c138b45064627ad0272ae0ee312ed8a8de82cc8fcb74a0e5d6762",
+        "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+        "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+        "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af"
+      ],
+      "source_sha256": "a3fe18eb94ffe1e12222b9313782c4081173b24b49bb439d6e5c008e1852c3bd",
+      "text": "一个视野的测序循环，每个通道都移到同一坐标系中。\n\n:ivar stack: ``(cycles, channels, Y, X)`` float32，:attr:`kept` 中每个循环一项，并按该顺序排列。\n:ivar kept: 堆栈所含的循环编号，按升序排列。参考循环总在其中。\n:ivar refused: 相对参考的配准未被接受的循环。它们不进入堆栈，因为在不可信坐标上读出的碱基会解码成错误的条形码，而不是没有条形码。\n:ivar missing: 提供时完全没有平面的循环 -- 例如一个无法读取的文件。\n:ivar channel_shifts: ``cycle -> one (dy, dx) per channel``，把每个通道移到其循环第一个通道上的位移。\n:ivar cycle_shifts: ``cycle -> (dy, dx)``，把每个保留的循环移到参考上的位移；参考自身的为 ``(0, 0)``。\n:ivar refused_channels: 循环内配准被拒绝、因而没有移动的 ``(cycle, channel)`` 对。",
+      "translation_source_blocks_sha256": [
+        "5880cc2ccd0e7782bc4dca21e5cd536b6af428bb3f5926d0da822ee9dd67a303",
+        "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+        "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+        "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+        "a265455bf6fd8b8b9cb6a8aa5ed9f82e1375629a0f6553c3678e03f1a3fe1467",
+        "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+        "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+        "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af"
+      ]
+    },
     "spacr.ops_cycles.accepted_cycles": {
       "source_blocks_sha256": [
         "9a4c8a315b1d538d0c7cdd69d46f645000a4878bcd444ff29627972bd09fe703",
@@ -48545,6 +48569,30 @@
         "6b12fc84c5912cbd94c651980d85c0fe65d96f8f13d143068bc78ff89511f293"
       ]
     },
+    "spacr.ops_cycles.align_field": {
+      "source_blocks_sha256": [
+        "13e01cfdc5d576571ce120dcf9e2ac341bcfaeff666f621e730ea2187dd3c2b0",
+        "39d05e48ed3f3462dc95f9cba322d1446c63f078d0a5c6a4f6a733f72b8a9197",
+        "f211b53d9666d844c68e1b911ddc96e3c0ef7b2c13967fbc066e39b3e30e0f02",
+        "f27c769d803e0a2d9ad01e5607b2e4f6c0228b4befecd2e861ebe32b72ee3a79",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+        "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+        "95e5b8500674d5534f485b2db469e50c1dc2a53ab38e0ef50cc0e90dd9a274ea"
+      ],
+      "source_sha256": "6f5e2e53431b5e2b3a0d302a6cf066bd7441220af0e351308c10321c05e5858f",
+      "text": "先在每个循环内配准一个视野的各通道，再配准其各循环。\n\n每个碱基通道先依据各通道共有的截断细胞背景移到其循环的第一个通道上 -- 在实测板上它们相距可达 14 px，而循环之间的配准看不到这一点 -- 然后用 :func:`sbs_mean_target` 把每个循环移到参考上。以 ``None`` 或缺少平面的方式提供的循环记录在 :attr:`AlignedField.missing` 中，配准被拒绝的循环记录在 :attr:`AlignedField.refused` 中；其余循环照样对齐，因此丢失一个循环不会让整个视野作废。\n\n:param planes: ``cycle -> the base channels of that cycle``，每个平面都是同一形状的 2-D 图像。\n:param reference: 所有内容都移向的循环。None 则取有平面的最低循环。\n:param tolerance: 一个循环落在离参考多远之内仍被接受，以像素计。\n:param gpu: 让相位相关在显卡上运行。\n:returns: 对齐后的视野。\n:raises ValueError: 当没有任何循环有平面，或参考循环没有平面时。",
+      "translation_source_blocks_sha256": [
+        "f2bd6713f4006234347a17cf9b1bcde501a8e0a25e178f709762a748e8d3f7fc",
+        "e60728203af2b09c945b009cf647dfaaf5815deb409513d518f6c1831a62e392",
+        "a126caee704d1722de1c59c2ac3567a64ed719efd068914d75175e1228fb3f78",
+        "4491f878a1389efbe2115c814ab157ee46226a8cfa73a5457070452cd079f91e",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+        "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+        "977ab50df32fda2e8e9966e79db80108f25d3545ccd2381497750282a3ffc178"
+      ]
+    },
     "spacr.ops_cycles.register_cycles": {
       "source_blocks_sha256": [
         "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
@@ -48556,7 +48604,7 @@
         "90f42c33b07de85de39c0e99b97db3f6e522da3d813a10d34a6a4cbf6e0c42dd"
       ],
       "source_sha256": "18a1ccd2997c07dbdfd6224dbea3ff82d1dabb356c8de8f140bba51c889c9275",
-      "text": "将一个字段的每个循环与该字段参考相反。\n\n连锁c1->c2->c3节省了一个注册,使每个后续周期都依赖于每个前一个:一个单一的坏链接移动了其余的,剩余的不会说哪个链接失败了。\n\n:param reference: 参考周期的目标,从 :func:`sbs_mean_target`。\n:param cycles: 循环数到这个循环的目标。\n:param tolerance: 一个循环可以从参考中降落到多远,并且仍然被接受,在像素中。\n:param kwargs: 转到 :func:`spacr.ops_register.phase_correlate`。\n:returns: 周期号为它的 :class:`Registration`,包括被拒绝的 - 一个呼叫者报告 `n_cycles` 需要知道一个周期被测试和拒绝,而不仅仅是它是缺席的。",
+      "text": "将一个字段的每个循环与该字段参考相反。\n\n连锁c1->c2->c3节省了一个注册,使每个后续周期都依赖于每个前一个:一个单一的坏链接移动了其余的,剩余的不会说哪个链接失败了。\n\n:param reference: 参考周期的目标,从 :func:`sbs_mean_target`。\n:param cycles: 循环数到这个循环的目标。\n:param tolerance: 一个循环落在离参考多远之内仍被接受，以像素计。\n:param kwargs: 转到 :func:`spacr.ops_register.phase_correlate`。\n:returns: 周期号为它的 :class:`Registration`,包括被拒绝的 - 一个呼叫者报告 `n_cycles` 需要知道一个周期被测试和拒绝,而不仅仅是它是缺席的。",
       "translation_source_blocks_sha256": [
         "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
         "8b8b9128b0d28f037b6fb3ea9be9d2d40be17f96207b205abc6e38135d34b057",
@@ -48589,6 +48637,42 @@
         "fe20db7a756230d7f9654f3ea9accd518edd81b53df9f96e378da3b4eb859367"
       ]
     },
+    "spacr.ops_engine": {
+      "source_blocks_sha256": [
+        "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
+        "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
+        "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73"
+      ],
+      "source_sha256": "addb1b55394a44a3dd693a8768539a205c86e4464bffb7637959171d38dc3c4d",
+      "text": "从图块到表格运行光学混池筛选的测序采集。\n\n一次调用把每个孔从其图块文件带到 ``measurements.db`` 中的三张表：``ops_geometry``，记录每个核图块在孔坐标系中的位置；``ops_objects``，每个细胞核一行，在拼合的核图上分割并为整个孔统一编号；以及 ``ops_barcodes``，每个归属读段一致的细胞核一行。\n\n无法读取的文件只让它所属视野损失一个循环，并列在报告中；它不会让整个孔作废。此步骤不放置表型采集。",
+      "translation_source_blocks_sha256": [
+        "2c2458a62b571f8e72b70b8e635f8908f800ba1bc12bd66c9029a0483955d613",
+        "ca95d16ca07572e19ebe29c1a79463631431eea44d7765f09de50753f28d29db",
+        "e7b2d3445a7bdbb35cc8f223849a27555668a54900f5b526ae81aa3d0daf5d77"
+      ]
+    },
+    "spacr.ops_engine.run_ops": {
+      "source_blocks_sha256": [
+        "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
+        "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
+        "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
+        "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
+        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+        "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c"
+      ],
+      "source_sha256": "b7cf061017eaa6ad6f1dfc5851a7493ca7e1a8ea82a27293ced136739703d7db",
+      "text": "对一次测序采集的各孔进行拼接、分割和解码。\n\n:param settings: OPS 设置。这里读取：``genotype_source``，测序图块所在的文件夹，会递归搜索；``dst_root``，``measurements.db`` 和各孔报告的输出位置，为空时使用源文件夹；``plate``，为空时使用源文件夹的名称；``ops_gpu``；``n_workers``，同时解码多少个视野；``cellpose_model`` 和 ``cellpose_diameter``。\n:param wells: 要运行哪些孔；为 None 时运行找到的每个孔。\n:param phases: ``\"stitch\"``、``\"objects\"`` 和 ``\"decode\"`` 中的任意几项，按该顺序运行。省略的阶段会从数据库读取所需内容，因此一个孔可以只拼接一次、再次解码。\n:param library: 向导条形码，可以是序列，也可以是含 ``prefix``、``barcode`` 或 ``sequence`` 列的 CSV 路径。提供时，每个条形码还会映射到最接近的向导。\n:returns: ``{\"db\": path, \"wells\": {well: {phase: report}}}``.\n:raises ValueError: 当源中没有此处能识别的图块、请求了未知的阶段或孔，或某个阶段缺少输入时。",
+      "translation_source_blocks_sha256": [
+        "55e436af9ddcabbeca29109f95002d1f971cdbb763fdebdec97d4d65a934f5fe",
+        "9b9693dc3a424fc9561a55eeb6b5a3b655b5a32405e846a949aa260b92f8259f",
+        "6db1cb9e60478e98d15850455427024f6709b7bf66a1e6f0fae6b412185d4949",
+        "0b480320509f0847b25781cc61ee5b019505802f9ef812bc588bf34648024faf",
+        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+        "45581efb90904ef0ca2df0483b6d41f5b74785186657bde7b3af92131d744975"
+      ]
+    },
     "spacr.ops_layout": {
       "source_blocks_sha256": [
         "2a2ae3e9c8647ec5167329b0a954f529068d907d0ad9ca37d95e51a6b580dd63",
@@ -48618,19 +48702,19 @@
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
         "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
-        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
-        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
+        "8f325a816c5bbaf3978bc1b0e1f2384012d77d38ea943976debc17de5c593ee7",
+        "06ca32f7fa55d96acacd275df9f0d6e990beb502f91bbcbbe942f5df4ab41384"
       ],
-      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
-      "text": "圆孔的显微镜图像字段,由网站指数和网络位置处理。\n\n:ivar columns: 采购拉斯特有多少个显微镜字段的列。\n:ivar radius: 微板样本位置的射线,在网络单位(一个微镜图像字段 = 1)。\n:ivar centre: ``(column, row)`` 循环的中心. 行对测量良好的负面,因为位置 0 位于顶部,行向下增加。\n:ivar snake: 是否收购蛇 - 奇怪的列收集到底部到顶部. 微管理员的HCS插件,这就是为什么参考实施携带一个 `remap_snake` 总的来说。\n:ivar row_offsets: 每个列的行列从一个圆圈放置它们的地方坐得多远,每个列的一个整体,左向右。, 这是每个布局在现象显示之前所做的一切,它可能不存在。, 因此,``()``是旧行为的整体,而不是它的特殊案例。 因为这个班级被哈希。 -- 看:func:`_index`。\n\n排序移动一个列,它不再排序一个. 范围的两端交换在一起,所以 :attr:`heights` 和 :attr:`site_count` 是相同的,无论排序是什么,而位置 N 是一个微观视野之前和之后的纠正 - 在不同的序列. 这是正确的错误 372 的PART 14-G 测量在现象收购: 超过 188 调整微镜视野, COLUMN 指数是正确的每次,到一个标准偏差一千,并且序列是错误的正确的整个数字每列。",
+      "source_sha256": "252f3c40a3c0f8616cd8cf6c21a97caa3252f712bfae3e8e7b05eda45c917c1c",
+      "text": "圆孔的显微镜图像字段,由网站指数和网络位置处理。\n\n:ivar columns: 采购拉斯特有多少个显微镜字段的列。\n:ivar radius: 微板样本位置的射线,在网络单位(一个微镜图像字段 = 1)。\n:ivar centre: ``(column, row)`` 循环的中心. 行对测量良好的负面,因为位置 0 位于顶部,行向下增加。\n:ivar snake: 是否收购蛇 - 奇怪的列收集到底部到顶部. 微管理员的HCS插件,这就是为什么参考实施携带一个 `remap_snake` 总的来说。\n:ivar half_tile: 图块边长的一半，以网格单位计。当一个位点的整个图块都位于圆内时才保留它：距中心 ``(dx, dy)`` 处，当 ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2`` 时。取零则保留中心在圆内的每个位点，这是在该字段出现之前所有布局都遵循的规则。\n\n必须容纳的是整个图块，而不只是它的中心。中心规则能得到 333 个视野的测序孔，却无论取什么半径都得不到 1,281 个视野的表型孔实测的列高。加入足迹项后，两者都与实测一致，而且每一列都以同一行为中心。",
       "translation_source_blocks_sha256": [
         "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
         "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
         "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
         "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
-        "6ab4eb4e3f981c2078f1eae27c7c104a4a9c68d1de9927062c509b7bfc8105df",
-        "870af8968e920b1eb1ab3e6a392e1b38155e8b69f61ef89c7aaa8c4c96ae2631"
+        "c089679479ffdf207de8067f3e4f29a5df60e941982d8f8fb90e01f5409d77d0",
+        "a9dece7f979e964c16a96ab4b32c4e678cfaaa4d53847c4dce047244d8cc9b58"
       ]
     },
     "spacr.ops_layout.WellLayout.heights": {
@@ -48749,34 +48833,38 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
+        "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4"
       ],
-      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
-      "text": "一个列的 ``(first row, last row)`` 或 None 如果它是空的。\n\n:param column: 列指数。\n:returns: 循环内包含的绝对行范围,由此列的输入转换为 :attr:`row_offsets`。",
+      "source_sha256": "1c9c10d3538b324c4f83220737486ee98761f76f1a800008384a01392f58cee6",
+      "text": "一个列的 ``(first row, last row)`` 或 None 如果它是空的。\n\n:param column: 列指数。\n:returns: 整个图块位于圆内的位点所占的绝对行范围（含两端） -- 参见 :attr:`half_tile`。",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
+        "aa4afa4c382f77ea7a31a9173e9d67f1097d8c3a0d8d98cda9429bf2f9f3ddf1"
       ]
     },
     "spacr.ops_layout.round_well_layout": {
       "source_blocks_sha256": [
         "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
-        "7619125def20ced78e2946ad77985f1728799f754e04ace16d29f9b80fa43451",
+        "86268289cc8151bcdee1cedd1f609ed53d034ff8323229112d2a1cfb1a521f55",
         "2c3cc617cc24727b4210a8dd67fa23af8d3dfb12ad2ee7a5a3560b39bdea1959",
         "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "c63e219d31a59ab085b7434370040f30d072e66e0a9e87fdca14135374b066ac",
         "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
-        "5f9697ed74dc5cc31a1fc7867b8e9e434ff5ebef0a620a2beba10665fbb9c422"
+        "c2fc36d4de364217c55b41aa0312bda2c72f6671f1df7fcbed55d6c8e88713b0",
+        "2f7270145a6377b6ae43cc385f4e785ba75db522e11a7e546a7397c17f3eede2"
       ],
-      "source_sha256": "424f2519dc4cfbe48ad17d1d33a2c49ea72c9bdb6d5d248bfac935d15e845394",
-      "text": "它的配置,其循环保留正确的 ``site_count`` 字段。\n\n测量良好的返回不变为333,所以确认的模型永远不会再衍生. 对于任何其他计算,射线正在寻找 - 一个在不同的扩展或不同的实验室微板格式上描绘的良好是相同的圆圈与不同的数量的显微镜的视野在它。\n\n:param site_count: 收购所持有多少微镜图像字段。\n:param columns: 列数,当它是已知的. 由循环不同。\n:returns: 是Layout。\n:raises ValueError: 当没有循环保持正确的许多显微镜的视野时, 什么是诚实的答案 -- 一个没有轮子生产的数量,就意味著收购并不是一种。, 猜测最接近的将把每个显微镜图像字段稍微错误。",
+      "source_sha256": "5305e117b3024b18d8338920bf837bd4e2da0bdac000f8770f6a9b74d65a8f66",
+      "text": "它的配置,其循环保留正确的 ``site_count`` 字段。\n\n只要搜索落在实测孔的 333 个位点上，就原样返回实测孔，因此已确认的模型不会被重新推导。对于其他任何数量，都会搜索半径 -- 以不同放大倍数或不同板格式成像的孔，是同一个圆，只是其中视野数不同。\n\n:param site_count: 收购所持有多少微镜图像字段。\n:param columns: 列数,当它是已知的. 由循环不同。\n:param half_tile: 图块边长的一半，以图块间距计 -- 即图块尺寸除以两倍的配准间距。当一个视野的整个图块都在圆内时保留它；取零时，只要其中心在圆内就保留。默认值是表型采集实测的 0.5857。测序采集实测为 0.5840，而严格介于 0.5 和 2.0 之间的每个值，都能让两个孔 -- 333 和 1,281 个视野 -- 得到实测的列高。\n:returns: 是Layout。\n:raises ValueError: 当没有任何圆恰好容纳这么多视野时，这是诚实的回答 -- 没有圆形孔能产生的数量说明该采集不是圆形孔，而猜测最接近的数量会让每个图块都放错一点。当 ``half_tile`` 为负数或不是数字时也会引发。\n\n对给定的半个图块而言，数量决定了视野。圆内的视野数只随半径增长，因此每个恰好容纳 ``site_count`` 个视野的半径容纳的都是同一批视野。布局所带的半径只是其中之一，并非测量值。",
       "translation_source_blocks_sha256": [
         "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
-        "c91147024efddab4317ffbb9fcddc27b708f286153a97bc3d2153da09113d782",
+        "299d2ff5db36070256696fbaabdea0d8ae076c4a2d77122fd92dcfcc8efd1a69",
         "422badeb089edccd9e0d3666b00db879896f12f16774d37d87dc5bca4af4c8e3",
         "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "a50cff12e7524dd13b525486a4f16cd108fda88e0d9a67bff2797a538a43cb0e",
         "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
-        "022fedb5794bf48bc372d1c87b78f0d6fc2382f19c3e0b5344b52134234fc219"
+        "88b274bcd4cbb2030e03f9a93dfd0415158a37f24c7481dd30cb80b713ec4368",
+        "bca2e567effccfa5841031b3ac22fdfcfcbfb9d8890dc31fa1a55bd4c1e1ed00"
       ]
     },
     "spacr.ops_merge": {
@@ -48874,11 +48962,11 @@
         "990cbd9d468810e23d12c3c6422a96b1e92596d8698621faf418036c8b591785",
         "97b8148e32b87cf7ab822aa5792267912cd4e0e4cb9ef01a3fe9b1d14e57d483",
         "bcd8c39db6c093f852d0428af03bd07c6af89f7ae366071127c7a1ff280d4889",
-        "01272912db0ec87950b0a80779bd9ba157f02b306c23a540d72bcc352015eaa5",
+        "9ba2321f17439d3fd4a3b06d53ac4f49127ce9a492def8e4f8a737101af7d7c9",
         "c02755472affea9845da91da2662a1c37746a02b0533ee43750418c5f0dfc107"
       ],
-      "source_sha256": "a3672d1d070cafff1ab522615ed99b112085c5305e9559ae6cf0099fc3605b14",
-      "text": "一个对象列表为一个微板样本位置,在窗口的序列上排序,并一次编数。\n\nSEGMENT, SEW, NUMBER - 一组和一个对象表之间的三个步骤. 组合步骤给了一个紧张的图像网络,一个窗口在一个时候建造,从来没有物质化整个; 这是什么分区和数字化在它的顶部:\n\n* 分类一次,在组合上,窗口按窗口。\n* 把标签放在窗口的边缘上,一个围绕边界的对象是一个对象,在其良好的框架中匹配。\n* 微板样本位置框中的数字,而不是每个窗口的数字,将为两个窗口提供一个对象 #1 周围。\n\n:func:`spacr.ops_compose.windows_over`微镜图像字段与一个OVERLAP,其合同是,超层超越最大的对象. 因此,一个核心靠近一个标志不分为两个窗口 - 它被看到 WHOLE 至少其中一个,通常是两次. 工作在这里是因此 deduplication,而不是重建:找到观察是相同的核心,并保持一个谁看到所有它。\n\n    这个区别是整个设计. 从两个部分掩膜重建一个对象意味着决定如何将像素连接到一个掩膜,这是可靠和无损的。\n\n它留下了一个不应该沉默的失败:一个比上层更大的对象,每个窗口都会剪辑。 :func:`sew` 拒绝那些而不是发出一片碎片,因为一个碎片看起来像一个小核,并将被计算为处理部分的剩余。\n\nIDs 是一个合并结构数据名称,所以它们被分配的决定性 - 拉斯特命令在微板样本位置框中心 - 而不是由 iteration 命令上一个关键值地图或任何窗口发生第一次分区。",
+      "source_sha256": "f693ec2a28a9c9ad50cd0653132a34c919ca0ab90f60878bd1c6648e5aff52f1",
+      "text": "一个对象列表为一个微板样本位置,在窗口的序列上排序,并一次编数。\n\nSEGMENT, SEW, NUMBER - 一组和一个对象表之间的三个步骤. 组合步骤给了一个紧张的图像网络,一个窗口在一个时候建造,从来没有物质化整个; 这是什么分区和数字化在它的顶部:\n\n* 分类一次,在组合上,窗口按窗口。\n* 把标签放在窗口的边缘上,一个围绕边界的对象是一个对象,在其良好的框架中匹配。\n* 微板样本位置框中的数字,而不是每个窗口的数字,将为两个窗口提供一个对象 #1 周围。\n\n:func:`spacr.ops_compose.windows_over`微镜图像字段与一个OVERLAP,其合同是,超层超越最大的对象. 因此,一个核心靠近一个标志不分为两个窗口 - 它被看到 WHOLE 至少其中一个,通常是两次. 工作在这里是因此 deduplication,而不是重建:找到观察是相同的核心,并保持一个谁看到所有它。\n\n    这个区别是整个设计. 从两个部分掩膜重建一个对象意味着决定如何将像素连接到一个掩膜,这是可靠和无损的。\n\nWHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT（因此剩下一种绝不能悄无声息的失败）：比重叠区还大的对象，每个窗口都会把它裁掉。:func:`number` 会拒绝这类对象，而不是输出碎片，因为碎片看起来和小细胞核一模一样，并会在整个运行的其余部分被当作一个细胞核计数。\n\nIDs 是一个合并结构数据名称,所以它们被分配的决定性 - 拉斯特命令在微板样本位置框中心 - 而不是由 iteration 命令上一个关键值地图或任何窗口发生第一次分区。",
       "translation_source_blocks_sha256": [
         "8c6d8513f13f9bdee29471aa28191262bead1149b24a1bdd2dd9bd006801d1c8",
         "876023c819960f5827726f2d0a528b5f6695cd8d3cdbbd1e88dbd22dff0fd76e",
@@ -48887,7 +48975,7 @@
         "855db13bbcf05e330503ed4ac4e1e170756ff56ba9bac3624767c9e5658fbdef",
         "33ccab566faea35efbfc090caa07b8b5f4b383f52dc588eb1af0269939f158ea",
         "70a26b1a8de4fe228b8bf046da160ff9aa3f7f15b1d4d7ba8f7c420403994e82",
-        "1b5012547632a797799e95c8197cc7dd2a97f1023ae8cc29146fc77bf09cf5b1",
+        "f13b8f1b62c2143da8621843e67a1c8430ddf0d735014117869e26ee78d48dc5",
         "6d6f19c0b5cdcca7dd1892c1089587143faa4afdc9d5216b05b1fd0379f3e81e"
       ]
     },
@@ -48969,18 +49057,18 @@
         "9a93bc57583625008118ded5bf4743b7890b3e250252024c69d6ee1a26c61af0",
         "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
         "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
-        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
-        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+        "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+        "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac"
       ],
-      "source_sha256": "f8d639df7ef3ce1cd268c560d6e74d298f93194582c5b9bb6de2b4b778e2d4d3",
-      "text": "1个对象的ID,在微板样本位置框中分配,定义。\n\n拉斯特命令在微板样本位置框中 - 向上向下,然后向左向右 - 而不是命令窗口被分区到。\n\n零是每个标签图像的背景,这来自,一个数字为0的对象将是不可见的任何下流掩膜比较。\n\n:param groups: 从 :func:`sew`。\n:param strict: 拒绝一个没有完整的观察的团体,只关闭它来检查一个不好的运行 - 它然后发出的对象是碎片,有裂缝的区域。\n:raises ObjectsError: 当一个群体只保留粘贴的观察时,这意味着对象大于窗口覆盖。",
+      "source_sha256": "f8b899f9ca99f84de1119d8dead1529613db8fb6c64369433efaca7ec06a8c45",
+      "text": "1个对象的ID,在微板样本位置框中分配,定义。\n\n拉斯特命令在微板样本位置框中 - 向上向下,然后向左向右 - 而不是命令窗口被分区到。\n\n零是每个标签图像的背景,这来自,一个数字为0的对象将是不可见的任何下流掩膜比较。\n\n:param groups: 从 :func:`sew`。\n:param strict: 拒绝没有完整观测的组。关闭后，这样的组会被丢弃而不编号 -- 不会输出任何面积被截断的对象 -- 并以警告记录丢弃了多少个。\n:raises ObjectsError: 当一个组只包含被裁剪的观测时：要么对象比窗口重叠区还大，要么它是一个碎片，与任何窗口对其细胞核的完整视图都不匹配。消息会给出对象的范围以及每种情况的解决办法。",
       "translation_source_blocks_sha256": [
         "e59d92411ab038dc0eae96f9b50e22d4e209ba7f09ad325f1685cd475ca1f438",
         "71dd785a95bf433424f8db8a069882a844b988679155e844d35c762c5bc4f10a",
         "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
         "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
-        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
-        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+        "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+        "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac"
       ]
     },
     "spacr.ops_objects.objects_frame": {
@@ -49040,17 +49128,19 @@
         "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
         "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
         "f08633cd3542cbeb32d6a15ddabb0e48d2cb1d93159db10c8da9596e2a06bc61",
-        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+        "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
         "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ],
-      "source_sha256": "0a6524af4792480274feb233863a420748edcbde67f7babf4bcaabc98af6a067",
-      "text": "集体观察是相同的核心。\n\n每个集体都是一个物理对象,一个窗口的核心由两个(或四个,在一个角落)的观察组成;一个在窗口内部形成一个集体。\n\n就是这一点。 的观测,其掩模运行到一个内部的缝隙没有看到整个核心,所以其面积和重心都错了。 观测只保留足够长的时间,以便与对同一原子核的完整观测相匹配,然后放弃。 观测匹配不完整意味着没有窗口看到整个核心,这是:func:`number`拒绝的。\n\n匹配一张被剪断的观察只使用中心:它的区域是根据定义折叠的,因此要求区域同意会阻止正确的匹配,拯救它。\n\n:param observations: 每个窗口的每一个对象的视图在一个洞,已经在良好的框架坐标。 顺序并不重要; 组合是由地质学,而不是到达。\n:returns: 各式各样的观察,在任何特定的顺序 - :func:`number` 都会执行所需的顺序。",
+      "source_sha256": "1498680e3055c65d22df115ce4253dc0f27c45681455cacb2ed566ecfb4040bf",
+      "text": "集体观察是相同的核心。\n\n每个集体都是一个物理对象,一个窗口的核心由两个(或四个,在一个角落)的观察组成;一个在窗口内部形成一个集体。\n\n就是这一点。 的观测,其掩模运行到一个内部的缝隙没有看到整个核心,所以其面积和重心都错了。 观测只保留足够长的时间,以便与对同一原子核的完整观测相匹配,然后放弃。 观测匹配不完整意味着没有窗口看到整个核心,这是:func:`number`拒绝的。\n\n同一窗口的两个标签绝不会是同一个对象，因为标签图不会给一个细胞核两个标签。来自不同窗口的两个完整观测，当它们的质心在每个轴上相差不超过 ``tolerance``，并且面积之比达到 ``area_ratio`` 或者质心位于较小者的等效半径之内时，就是同一个细胞核 -- 等效半径即与其面积相同的圆盘的半径。面积一致的对先合并，其余的按距离由近到远合并，而会让一个组含有同一窗口两个标签的合并会被拒绝。\n\n被裁剪的观测按包含关系匹配，而不是按固定距离：裁剪会把它的质心向内移动至多一个细胞核半径，因此固定容差恰恰会漏掉深度裁剪。当它的质心位于另一个窗口中某个完整观测的等效圆盘内，或者它的外接框在正负两个像素的误差内位于该观测的框内时，它就并入该完整观测。它只并入最近的这样一个观测，因此一个裁剪片段永远不会把两个细胞核合成一个对象。与任何完整观测都不匹配的裁剪观测，会在它们的框相互重叠处彼此归为一组。\n\n:param observations: 每个窗口的每一个对象的视图在一个洞,已经在良好的框架坐标。 顺序并不重要; 组合是由地质学,而不是到达。\n:returns: 各式各样的观察,在任何特定的顺序 - :func:`number` 都会执行所需的顺序。",
       "translation_source_blocks_sha256": [
         "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
         "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
         "86686443e9b66c526106ba99577de6700be0169153c6a27d3a1089230a993d13",
-        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+        "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
         "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ]
@@ -49183,30 +49273,50 @@
         "e31eaad6b7680496d8ef9d345e058a6ca960a30f515faba7507ca15ec34bf494"
       ]
     },
+    "spacr.ops_phenotype.phenotype_centres": {
+      "source_blocks_sha256": [
+        "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+        "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+        "a72f71fa491262526c02f83f4a7ec3603ecff94045440e61c8c1c9c5811c5b57",
+        "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+        "62734fbdc05ad91105b8666536bf5de38fa2efd63b6c2a9c5a89883340d8da45",
+        "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+        "869851e6ed102bb8bc4f3c240b3f674eca045bb487f031f3c41457e759e709a1"
+      ],
+      "source_sha256": "f9a9783fcea49feff3db7a7f2d2f01d785243cd383ca48d08a7c477da528db39",
+      "text": "根据少数实测中心，求出每个表型视野的中心位置。\n\n:param layout: 表型采集的 :class:`spacr.ops_layout.WellLayout`，或它包含的视野数。\n:param anchors: ``{site: (y, x)}``，至少三个已对齐视野在孔坐标系中的中心，这些视野的网格位置不能全在一条直线上。该方法是用分布在全孔的六个视野验证的。\n:returns: ``{site: (y, x)}``，布局中每个视野一项，包括锚点 -- 给出的是拟合中心，而不是实测中心。\n:raises ValueError: 当锚点无法确定栅格时：少于三个、位于网格的同一直线上，或某个中心不是两个有限数。视野数不是任何圆形孔能容纳的数量时也会引发。\n:raises IndexError: 当某个锚点指定了布局中不存在的位点时。\n\n六个数就能定位整个孔。布局给出每个视野的网格位置，采集栅格通过一个原点、一个列步长和一个行步长把网格位置映射到孔坐标系中，每一项都是一个 ``(dy, dx)`` 对，承载着载物台几个像素的倾斜。在一个真实孔的六个视野上用最小二乘拟合后，它预测其余 472 个视野实测中心的中位误差为 1.2 px、最大 4.0 px，预测第二个孔的 451 个视野最大误差为 4.4 px。",
+      "translation_source_blocks_sha256": [
+        "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+        "e6a41dea9a8ecb57c5e1ecd8211653925ccdf502c6d946a59e02da0f4c34a8e2",
+        "273cb93488f7b56efe4a8096dce214631a520229cb417a2cf4ef25cf48961dde",
+        "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+        "a9dabc0904410038305714a523fb4ed04969ccb9458b317a2ca4e14a50a84637",
+        "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+        "16d847ad9c859a7090d8625dd48af344056592c3dec839d8ec0bb0cad2639fb9"
+      ]
+    },
     "spacr.ops_phenotype.phenotype_site_map": {
       "source_blocks_sha256": [
-        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
-        "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
-        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
-        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
-        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
-        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
-        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
-        "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
+        "d8987e7ccf9126ae97b1035274f1858ed5d91a9c926e1041d075a74f46bda5c2",
+        "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+        "5ee088d6438ce7110691e740d8d39daf49266a6bfecbabe2da381af4c445991b",
+        "9482032d0529e408eedc31b529b11c047715bf35366e88b102aabc2b5761a35f",
+        "7b4ad6c687274f962bda174e28f7bedfb4e7466743ab89786faba23d1ae362f7",
+        "343e414cceff1565e0cee8d9a8ec18e898ad8efe76cf98bf334aff2939a9be51",
+        "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+        "d67e620df54a44769db2cde7feabc8935859b8753a09913120bda2d3e3ce9b27"
       ],
-      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
-      "text": "哪个序列板覆盖每个现象板。\n\n:param phenotype_sites: 显微镜采购的视野有多少个字段。\n:param sbs_sites: 收购的序列持有多少。\n:param row_offsets: 每个现象列实际上开始,每个列都有一个整体,因为 :func:`spacr.ops_layout._solve_row_offsets` 测量它从结合的领域。\n:returns: ``{phenotype site -> sequencing site}``,忽略任何在该循环之外的序列位置的现象类板。\n:raises ValueError: 当任何计算都不是一个圆的,而 :func:`spacr.ops_layout.round_well_layout` 决定,或者当分数不为每个现象列一个时。\n\n而循环并不总是收购,这就是``row_offsets``为什么。 `round_well_layout` 对密码视野计算的直径进行搜索,并且超过一个直径; 对于41列的现象,它发现的人会给出正确的列和错误的序列,高达两倍。 372的PART 14-G测量了超过188个相匹配的显微镜视野 - 列指数准确到标准偏差为0.001。 序列以每个列下方连续的整个数字进行索引 - 它拒绝了321个显微镜视野中的133个, 因为一个行是 633 像素,而一个错过的窗口不包含微镜图像字段的核心。\n\n一个错误的长度表被拒绝,而不是被插入。 插入是正确的内部 :class:`spacr.ops_layout.WellLayout`,在那里空虚的默认必须保持意义 \"no offsets\"; 这里的呼叫者正在通过一个测量一个特定的好,而一个不适合它的表将纠正一些列,静静地离开其余 - 这是这个论点的状态存在到结束。\n\n这是一个布局问题,不是一个图像一个,并根据图像回答它是如何在A4的前三次尝试花了一个下午:现象站N与序列站N相匹配,这是一个不同的部分的孔,每对回到了2 - 9%的入口。 布局说它在封闭的形式。 测量的收获适合41列在广径20:15对序列孔21在10:25 - 相同的圆,在微观图像字段密度的两倍, 41 = 2 * 21 - 1 - 因此一个现象网位置半周围的中心。",
+      "source_sha256": "8a16a9cb23bc944479e647aedd8addbff0aae9333367004799bb5c013e6845b2",
+      "text": "每个表型视野落在哪个测序图块上。\n\n:param phenotype_sites: 表型采集的 :class:`spacr.ops_layout.WellLayout`，或它包含的视野数。\n:param sbs_centres: ``{sequencing site: (y, x)}``，每个拼接后的测序图块在孔坐标系中的中心 -- 即其放置位置加上半个图块。\n:param anchors: ``{phenotype site: (y, x)}``，至少三个已对齐表型视野在孔坐标系中的实测中心，格式与 :func:`phenotype_centres` 所接受的相同。\n:param tile_shape: 测序图块的 ``(height, width)``，以孔坐标系像素计。\n:returns: ``{phenotype site: sequencing site}``。在包含该视野的图块中，每个视野归入中心离其预测中心最近的图块；预测中心不落在任何图块内的视野会被省略。\n:raises ValueError: 当 ``tile_shape`` 不是两个正尺寸，或 :func:`phenotype_centres` 拒绝了锚点或数量时。\n\n要的是位置，而不是索引。一个视野落在哪个图块上，取决于图块边界实际在哪里，而把表型网格索引围绕孔中心减半是看不到这些边界的：图块密度加倍时，一半的表型视野位于测序图块边界上或其附近。在真实板上，减半法只为 0.45 到 0.61 的已对齐视野找到了正确图块；而用六个锚点预测每个中心并取最近的拼接图块，则分别为 472 个中的 472 个和 451 个中的 451 个找到了正确图块。",
       "translation_source_blocks_sha256": [
-        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
-        "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
-        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
-        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
-        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
-        "954fef2fe85ad5eef97ca8e47fe4dc97df42e970741e7238f358a6ab9d75f30f",
-        "9aa63c8b8ecf3986373d52abb4f39f5c6db1b6b62f37a3402b7c3bd1323856fd",
-        "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
+        "80ec1cab6a66991a9eb17d7474024a9473337cd949d79892854e9f9006255307",
+        "e6a41dea9a8ecb57c5e1ecd8211653925ccdf502c6d946a59e02da0f4c34a8e2",
+        "28c8456a34880adb5db0f266b10ef5e2c5e304287360f0a64d1169308e11afe9",
+        "740724ee655cb7beb8740846fc8de420a6a782da10c6f2134561fc8bbd54a19a",
+        "cf0f98bd2af0e74339813196ee2c41b73121ae6a6c1406addef2ab8726508214",
+        "83df7e316973dbce6ef1d33ab9893ea41501e72719fb47b74d5da1ba536d1271",
+        "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+        "f466cfdea2ececffdadea72165f7388c7ce181e5dc194b3cdd953b4c024fa702"
       ]
     },
     "spacr.ops_phenotype.refine_similarity": {
@@ -49528,16 +49638,16 @@
     "spacr.ops_sample.barcode_rows": {
       "source_blocks_sha256": [
         "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
-        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
         "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
         "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
         "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
       ],
-      "source_sha256": "f38075fc6c052a70d7e7a96cea0d846a58c5b84ff01346949306ae77e89eb25e",
-      "text": "``ops_barcodes`` 行:每对象一行,由周期组成。\n\n代表呼叫本身到 :func:`spacr.ops_sbs.call_reads`,这已经弥补了交谈和报告质量为周期的最小 - “条码仅像其最糟糕的基础一样可靠”。 重复说,这里将是一个第二个解码器保持步骤。\n\n:param objects: 数字化对象,以 ``values`` 的第一轴相同的顺序。\n:param values: ``(objects, cycles, channels)`` 强度,从未平均过周期 - 见 :func:`decode_input`,因为相同原因拒绝单个周期。\n:param library: 当提供时,每条条码都会通过 :func:`spacr.ops_sbs.correct_to_library` 向最接近的图书馆会员进行纠正,并且行将其地图所带到什么。",
+      "source_sha256": "1f03e894fc659bc95c172df09d40cef12871b021f6108c7decc23248dd630cd2",
+      "text": "``ops_barcodes`` 行:每对象一行,由周期组成。\n\n将实际的识别交给 :func:`spacr.ops_sbs.call_reads`，它已经对每个循环的通道做归一化，并把质量报告为各循环上的 MINIMUM（最小值） -- \"条形码的可信程度只取决于它最差的碱基\"。在这里重复一遍，就等于多了一个需要保持同步的解码器。\n\n:param objects: 数字化对象,以 ``values`` 的第一轴相同的顺序。\n:param values: ``(objects, cycles, channels)`` 强度,从未平均过周期 - 见 :func:`decode_input`,因为相同原因拒绝单个周期。\n:param library: 当提供时,每条条码都会通过 :func:`spacr.ops_sbs.correct_to_library` 向最接近的图书馆会员进行纠正,并且行将其地图所带到什么。",
       "translation_source_blocks_sha256": [
         "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
-        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
         "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
         "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
         "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
@@ -49605,26 +49715,26 @@
       "source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "956f92b5597a52553784849833a71d0e85e8b2bd6de6f579a740e064ec93ffb3",
-        "e71dcd146df56085f757d93ca65b8afa1e4e4a15ee474c507540e5be192d9185",
+        "96f751fe3936bc37122069588f7980e88b041b2cf6fb2905765d0397cbed37c3",
         "936e1541cf5e140e01fda0b4c0b8778f6d30f0ceaffa23a1509ad46d00c732b5",
         "fd38f7be57907f9df402614da4e5b18a9304972c3a9b1f0cd52f43911b2cd5fa",
         "434f6e53eb83226c3543ddfe36fdf41fd103a2c2132aad901f698c267664919b",
         "a6a1e26501768ea6716a58affe0c26ee3e2b1b2eba8858c1b26a0eae357f831b",
-        "150885e42ea6d17e4a2ced6e8d6e12dc6848dd0c1d49124a4f0f5c6e376c3478",
+        "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
         "6bc4dae7bc9a17e2859daa6335055cce0b71b47cc63e617c31ccac679f4b1450",
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ],
-      "source_sha256": "b787ea512a3007ba8cfe4e185e8523ad698d5e1039ef1b6bee47b1d01acce429",
-      "text": "测序条形码从图像堆栈中解码。\n\n这为什么,而不是为什么。\n====================================\n光学聚合筛选从图像中读取引导条形码。 染色 每个测序周期染色四个图像数据通道,每个碱基一个,在该周期中,斑点的碱基是颜料分离后最亮的图像信息通道。 地读取每个循环的一个碱基,循环拼写条形码。\n\n:mod:`spacr.sequencing` 不是这一点的后半,并且不应该被指向它. 该模块从 NGS 运行中解码 FASTQ; 这里没有FASTQ 和没有序列,仅仅是像素。\n\n为什么每个步骤都是它的步骤\n===============================\n其中三个几乎承担了所有正确的风险,三者都是对直觉的足够,以便从工作流的描述而不是工作流中实施它们,产生了一些执行和错误的东西:\n\n* **阅读不是一个亮点.** 它是一个基因在周期之间变化的点,所以位置估计是周期之间的标准偏差,平均在频道上 - 每个周期中的一个点亮点是干燥或自我流动的泡沫,并且没有变化。\n\n* **最明亮的频道不是基地.** 四个天花在彼此中流血,所以原始的 argmax 是向哪个天气是最光明的总体。\n\n* **一个双重的阅读比一个失踪的更糟。**对引导 RNA图书馆的错误纠正只会永远纠正到一个最接近的对比。 一个与两个条码相同的阅读被排除,因为一个错误地分配的引导 RNA沉默地破坏筛选的结果,而一个失落的只会花费统计检测敏感性。\n\n这里的方法是布里弗洛(Cheeseman实验室; github.com/cheeseman-实验室/布利弗洛,MIT,版权2025马萨诸塞技术研究所),其来源被阅读为上述三个点而不是从其舞台名称重建。",
+      "source_sha256": "81b0dbda4a59d32e548eeff8ff59cb8a080a6d002aa678a2e292f254c876fa89",
+      "text": "测序条形码从图像堆栈中解码。\n\n这为什么,而不是为什么。\n====================================\n光学混池筛选直接从图像中读取向导条形码，即 OUT OF THE IMAGES。每个测序循环染色四个通道，每个碱基一个；在该循环中，一个斑点的碱基就是最亮的通道 -- 前提是各通道已被放到同一尺度上。在同一斑点上每个循环读一个碱基，这些循环便拼出条形码。\n\n:mod:`spacr.sequencing` 不是这一点的后半,并且不应该被指向它. 该模块从 NGS 运行中解码 FASTQ; 这里没有FASTQ 和没有序列,仅仅是像素。\n\n为什么每个步骤都是它的步骤\n===============================\n其中三个几乎承担了所有正确的风险,三者都是对直觉的足够,以便从工作流的描述而不是工作流中实施它们,产生了一些执行和错误的东西:\n\n* **阅读不是一个亮点.** 它是一个基因在周期之间变化的点,所以位置估计是周期之间的标准偏差,平均在频道上 - 每个周期中的一个点亮点是干燥或自我流动的泡沫,并且没有变化。\n\n* **最亮的原始通道并不是碱基。** 每个通道都有自己的增益和背景，在真实板上两者都会随循环漂移，因此原始 argmax 会偏向整体最亮的通道。每个循环的各通道先除以其在所有读段上的中位数。在此基础上还可以对染料串色进行解混；在第一块真实板上，它降低了文库匹配率。\n\n* **一个双重的阅读比一个失踪的更糟。**对引导 RNA图书馆的错误纠正只会永远纠正到一个最接近的对比。 一个与两个条码相同的阅读被排除,因为一个错误地分配的引导 RNA沉默地破坏筛选的结果,而一个失落的只会花费统计检测敏感性。\n\n这里的方法是布里弗洛(Cheeseman实验室; github.com/cheeseman-实验室/布利弗洛,MIT,版权2025马萨诸塞技术研究所),其来源被阅读为上述三个点而不是从其舞台名称重建。",
       "translation_source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "f294fd44130918cf8d72230028e2ab194fe79b8344a361c7b6adeb940a314443",
-        "d65647c48328e9746724269e0fef3d90162f613f8979eac35fdc8d219a7a09cd",
+        "870f68bdd326e1f73d0a9123567dab2f7627d9ae3515065f4d45e73eb72ec48b",
         "936e1541cf5e140e01fda0b4c0b8778f6d30f0ceaffa23a1509ad46d00c732b5",
         "231e088fd943098127a8be4d63ea4fe6b05b1dbd659f015a25eedc748d64a7b4",
         "3794660b06b2beed88406c737ebd013952f709c579a659639b7f0fbc1132e70f",
         "1ae3cbf8554c7420a94c9859d244adc699a7ae1dffe47172677631f0ce4ebbd4",
-        "150885e42ea6d17e4a2ced6e8d6e12dc6848dd0c1d49124a4f0f5c6e376c3478",
+        "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
         "8e49e4ae55cdaf1e9320b09b01d3225d7974dc18a89872e1645af047d5d86593",
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ]
@@ -49644,7 +49754,7 @@
         "c1e21e9f6bf783ae0091c78edfbe172bb2a43be7295f0c84a65fa07bc96e0c8e"
       ],
       "source_sha256": "b58306e2f797db5c884d2c0e1ad292afbf05512cbb1440f45a92c1340bb42257",
-      "text": "给每个分区细胞其阅读同意的条码。\n\n一个细胞包含多个点,并且它们不会全部相同地编码:一个焦点点,一个与邻居共享的点,以及一个真正的第二次干扰,所有在这个阶段都看起来相同。 因此,一个细胞只会被分配,当它读到 AGREE - ``min_fraction`` 至少 ``min_reads`` 必须携带相同的条码 - 否则留下不分配。\n\n假设拒绝超过他们接受,故意. 一个阅读不是证据:它不能对任何东西进行检查,而一个被误称的基地会沉默地交给一个细胞错误的干扰. 没有条码的细胞成本统计检测敏感性; WRONG条码的一个细胞将一个真实的现象转移到另一个引导 RNA的平均水平,并且无法恢复下流,因为没有什么后来可以说发生了。\n\n标签0上的登陆列表 - 背景,细胞之间 - 被排除,而不是附上最接近的细胞。\n\n:param peaks: ``(N, 2)`` ``(y, x)`` 阅读位置。\n:param barcodes: 一个称为字符号每阅读。\n:param labels: 分区,作为一个完整的标签图像,在那里0是背景。\n:param quality: 可选的每读品质从 :func:`call_reads`;当给予时,它是平均超过达成协议的读品。\n:param min_reads: 一个细胞需要多少读到,在它可以被分配之前。\n:param min_fraction: 他们应该同意哪一部分。\n:returns: ``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` 每个相遇的细胞。",
+      "text": "给每个分区细胞其阅读同意的条码。\n\n一个细胞包含多个点,并且它们不会全部相同地编码:一个焦点点,一个与邻居共享的点,以及一个真正的第二次干扰,所有在这个阶段都看起来相同。 因此,一个细胞只会被分配,当它读到 AGREE - ``min_fraction`` 至少 ``min_reads`` 必须携带相同的条码 - 否则留下不分配。\n\n假设拒绝超过他们接受,故意. 一个阅读不是证据:它不能对任何东西进行检查,而一个被误称的基地会沉默地交给一个细胞错误的干扰. 没有条码的细胞成本统计检测敏感性; WRONG条码的一个细胞将一个真实的现象转移到另一个引导 RNA的平均水平,并且无法恢复下流,因为没有什么后来可以说发生了。\n\n标签0上的登陆列表 - 背景,细胞之间 - 被排除,而不是附上最接近的细胞。\n\n:param peaks: ``(N, 2)`` ``(y, x)`` 阅读位置。\n:param barcodes: 每个读段一个识别出的条形码。\n:param labels: 分区,作为一个完整的标签图像,在那里0是背景。\n:param quality: 可选的每读品质从 :func:`call_reads`;当给予时,它是平均超过达成协议的读品。\n:param min_reads: 一个细胞需要多少读到,在它可以被分配之前。\n:param min_fraction: 其中需要一致的比例。\n:returns: ``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` 每个相遇的细胞。",
       "translation_source_blocks_sha256": [
         "a5dd08ef7f5ff33d06fa9eb8f9e82f134bfd568d3d5a568cb29c6620a684d636",
         "e45dc9df5e131b5adf3636154e0e0c1b0a1fd92f86e53b0238e1569353a680e7",
@@ -49659,25 +49769,79 @@
         "c1e21e9f6bf783ae0091c78edfbe172bb2a43be7295f0c84a65fa07bc96e0c8e"
       ]
     },
+    "spacr.ops_sbs.assign_reads_to_objects": {
+      "source_blocks_sha256": [
+        "56bd36897564e1ddb76e61dccdb0383bbb0f00a6a8b43788faf4396aa8743653",
+        "3c6bfdd6dcb24565647dc9aa1ea26a3fee06fddeae59f21f2a58c53a3758852d",
+        "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+        "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+        "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+        "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+        "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+        "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6"
+      ],
+      "source_sha256": "b58c2275ea4c8c6e406dfcbef123264042a863f42bc20ff1bdbd180eb58ee82e",
+      "text": "为每个板级对象赋予其归属读段一致认同的条形码。\n\n规则与 :func:`assign_reads_to_cells` 相同 -- 至少 ``min_reads`` 个读段，其中 ``min_fraction`` 携带同一条形码，且第一名没有并列 -- 只是按每个读段归属的对象 ID 分组，而不是按读段落在哪个标签上。正因如此，从多个视野收集的读段才能为它们所属的对象只投一次票。\n\n:param owners: 每个读段一个对象 ID；0 或负数 ID 表示该读段没有归属并被忽略。\n:param barcodes: 每个读段一个识别出的条形码。\n:param quality: 来自 :func:`call_reads` 的可选的每读段质量。\n:param min_reads: 一个对象至少需要多少个读段才能被赋值。\n:param min_fraction: 其中需要一致的比例。\n:returns: ``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}``，对每个达到标准的对象给出。",
+      "translation_source_blocks_sha256": [
+        "8ff2d5810b12799636d1b0ff1242f6cbbdf297ef85824c86d108206f53e8efad",
+        "2bc81227dbcb3fc85b8c5fcf3bd389eb002944af848f837021ec55c033385718",
+        "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+        "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+        "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+        "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+        "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+        "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6"
+      ]
+    },
+    "spacr.ops_sbs.attribute_reads": {
+      "source_blocks_sha256": [
+        "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+        "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+        "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+        "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+        "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+        "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+        "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+        "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3"
+      ],
+      "source_sha256": "e5185e36b7c16379c9e1b7959d7fae87394a4a1282a9f392eecabce3c5d53c9a",
+      "text": "将每个检测到的读段分配给边界最近的对象。\n\n读段先在整个视野中检测出来，再在这里归属，因此过紧的足迹会表现为没有归属的读段，而不是悄无声息。边界是每个对象的等效圆盘，即以其质心为中心、面积与其相同的圆；如果一个读段最近的两条边界彼此相差不到 ``tie``，它不归属任何对象并被标记。\n\n:param peaks: ``(N, 2)`` 读段位置 ``(y, x)``。\n:param centroids: ``(M, 2)`` 对象质心 ``(y, x)``，与 ``peaks`` 位于同一坐标系。\n:param areas: ``(M,)`` 以像素计的对象面积。\n:param footprint: 读段可以位于对象边界之外多远仍算作该对象的读段，以像素计。在第一块真实板上，98 % 的斑点位于细胞核 10 px 以内，67 % 位于 3 px 以内。\n:param tie: 最近的两条边界之间相距多近时，读段会被判为有歧义而拒绝，以像素计。\n:returns: ``(owner, ambiguous)`` -- 每个读段归属对象在 ``centroids`` 中的索引（无归属时为 -1），以及每个读段是否因歧义而被拒绝。",
+      "translation_source_blocks_sha256": [
+        "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+        "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+        "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+        "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+        "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+        "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+        "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+        "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3"
+      ]
+    },
     "spacr.ops_sbs.call_reads": {
       "source_blocks_sha256": [
         "b9b2331000bd5746ba7c42019e9760edf6e291bb13e094a1ca717947dfc85878",
         "cfbc151611fa1c09c7e19f215648e05443a13eb5b4fc23b9ea767413d9f52694",
+        "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
-        "0878c5abd532135939088f9683f8444d107b512ba65891712e9471dc79f6549d",
+        "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
         "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+        "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ],
-      "source_sha256": "8d1fc4def3e3bc51ee32f13381c6278562e0f24cc44ad054b1eee14e056f11f4",
-      "text": "将每周的强度转换为字符串和每阅读的质量。\n\n质量是获胜频道和跑步者之间的边界,分为他们的总额,每周期 - 0 当两个基础是平等的可能性和1当呼叫是无可争议的。\n\n:param values: ``(N, cycles, channels)`` 从 :func:`extract_bases`。\n:param bases: 每个频道的字母,在频道顺序。\n:param compensate: 首先是十字路口。 只需检查是否值得补偿。\n:param method: 转到 :func:`compensate_crosstalk`。\n:returns: ``(barcodes, quality)`` - 每读一条线和一条航线。",
+      "source_sha256": "da28c745cb762feed4444140c2d50590f3fed6a06ee280f6c7fb0f72653a5cb2",
+      "text": "将每周的强度转换为字符串和每阅读的质量。\n\n质量是获胜频道和跑步者之间的边界,分为他们的总额,每周期 - 0 当两个基础是平等的可能性和1当呼叫是无可争议的。\n\n未测量的循环记为 ``N``。当某个读段在一个循环中的值为 NaN 时 -- 即该循环的文件无法读取，或其配准被拒绝 -- 该位置的字母为 ``N``，质量只在已测量的循环上计算；因此丢失一个循环只让每个读段损失一个碱基，而不会损失整个读段。\n\n:param values: ``(N, cycles, channels)`` 从 :func:`extract_bases`。\n:param bases: 每个频道的字母,在频道顺序。\n:param compensate: 在归一化之后用 :func:`compensate_crosstalk` 消除串扰。默认关闭：在第一块真实板上它降低了文库匹配率。\n:param method: 转到 :func:`compensate_crosstalk`。\n:param normalise: 先将每个循环的各通道除以其在读段上的中位数，从而消除各通道在循环之间的增益和背景漂移。读段太少、无法求中位数时跳过。\n:param gpu: 让补偿中的矩阵乘法在显卡上运行。False 则让整个调用留在 CPU 上。\n:returns: ``(barcodes, quality)`` - 每读一条线和一条航线。",
       "translation_source_blocks_sha256": [
         "b9b2331000bd5746ba7c42019e9760edf6e291bb13e094a1ca717947dfc85878",
         "cfbc151611fa1c09c7e19f215648e05443a13eb5b4fc23b9ea767413d9f52694",
+        "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
-        "0878c5abd532135939088f9683f8444d107b512ba65891712e9471dc79f6549d",
+        "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
         "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+        "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ]
     },
@@ -49712,17 +49876,19 @@
         "281147dde43d23884ef0a3c4a323bd90452f67cc0dbd60b77b57ec87644fcd98",
         "37c30f3020fedda6ff4ab0a7b226c264221ada227798ed43284cc746b231f5fb",
         "46391d1f9e20ab60e15493d35247221531d35da497cdb43376b147497ccb4aab",
+        "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
         "8019f7e7c6bed3fa6fed8551858bfb76671e388b0604bdbc08f44d5f8175a776",
         "8c52466956738d58c36a3b36e9bbbc0f49b16a68ceaeae9cd173c997aa5321ed",
         "8e8a6b535756a84d8abad896b7acd5ccc70e7e83c8d598a7cea308cea9f6a21a",
         "8e48d501f97b7b7d13ba4a8cd71ed79dbc65ae75bf0011b81c9c9d08d0b8efa5"
       ],
-      "source_sha256": "840be7753f707bdc4fc22054c24c4d1761ce296b96e3ce4f9c7bfd94167fd795",
-      "text": "每个人都读到图书馆,但只有在一个独特的最接近的比赛。\n\n双重性被忽略,不被猜测。 阅读相当接近两个图书馆条码返回``None``。 这是故意的,这是整个步骤:一个错误的引导 RNA将细胞的现象转移到错误干扰,沉默地破坏了每一个统计下流,而一个落下的阅读只会花费更多的细胞可以收回的统计检测敏感性。\n\n一个准确的匹配短圈,所以一个干净的跑步不付出任何代价。\n\n:param barcodes: 被称为读书。\n:param library: 引导 RNA包含筛选的条形码。\n:param max_distance: 可以修正的最大哈姆林距离。\n:returns: 每读一张输入 - 图书馆条码,或 None。",
+      "source_sha256": "a390a8c28d503c7a51a94dc35230df66c9f7eed48ff9258c5e35332e4106e37c",
+      "text": "每个人都读到图书馆,但只有在一个独特的最接近的比赛。\n\n双重性被忽略,不被猜测。 阅读相当接近两个图书馆条码返回``None``。 这是故意的,这是整个步骤:一个错误的引导 RNA将细胞的现象转移到错误干扰,沉默地破坏了每一个统计下流,而一个落下的阅读只会花费更多的细胞可以收回的统计检测敏感性。\n\n一个准确的匹配短圈,所以一个干净的跑步不付出任何代价。\n\n``N`` 表示一个未被测量的碱基，而不是错配。它与任意字母匹配，也不计入 ``max_distance``；唯一性规则仍然适用，因此如果一个读段丢失的碱基恰好是区分两个向导的唯一位置，它不会映射到其中任何一个。\n\n:param barcodes: 被称为读书。\n:param library: 引导 RNA包含筛选的条形码。\n:param max_distance: 可以修正的最大哈姆林距离。\n:returns: 每读一张输入 - 图书馆条码,或 None。",
       "translation_source_blocks_sha256": [
         "281147dde43d23884ef0a3c4a323bd90452f67cc0dbd60b77b57ec87644fcd98",
         "673d78cb49f8b10d274649ee6fa306c555a7952229dfb9f605a1781b09a4ac6c",
         "46391d1f9e20ab60e15493d35247221531d35da497cdb43376b147497ccb4aab",
+        "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
         "8019f7e7c6bed3fa6fed8551858bfb76671e388b0604bdbc08f44d5f8175a776",
         "8c52466956738d58c36a3b36e9bbbc0f49b16a68ceaeae9cd173c997aa5321ed",
         "8e8a6b535756a84d8abad896b7acd5ccc70e7e83c8d598a7cea308cea9f6a21a",
@@ -50151,10 +50317,10 @@
         "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
         "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
         "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
-        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+        "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec"
       ],
-      "source_sha256": "cfb9890ef957af700a97e55a8a682a4efce6ced932903bd5996fc078e26241af",
-      "text": "写一个 OPS 表到 sqlite,如果它有一个,将其包装存储。\n\n在一个通话中,因为372请求序列计算被认为是平等的,而两个通话不能这样做 - 写数据库的通话者然后崩溃将留下一个页面图描述一个不同的运行,没有什么会注意到,直到一个读者沉默地偏好它。\n\n:param db_path: 测量数据库。\n:param table: 其中一个是:data:`OPS_TABLES`。\n:param frame: a DataFrame.\n:returns: 字符串写。\n:raises StoreError: 在一个未知的表上,或者当它刚刚写的页面板没有与数据库相同的行数。",
+      "source_sha256": "a36dc0ff4c585e72a685a508892d6deee4cc042a5c9b641ec968f89b6fd9739c",
+      "text": "写一个 OPS 表到 sqlite,如果它有一个,将其包装存储。\n\n在一个通话中,因为372请求序列计算被认为是平等的,而两个通话不能这样做 - 写数据库的通话者然后崩溃将留下一个页面图描述一个不同的运行,没有什么会注意到,直到一个读者沉默地偏好它。\n\n:param db_path: 测量数据库。\n:param table: 其中一个是:data:`OPS_TABLES`。\n:param frame: a DataFrame.\n:returns: 字符串写。\n:raises StoreError: 遇到未知表时；刚写入的附属文件与数据库的行数不一致时；或者 ``ops_objects`` 或 ``ops_barcodes`` 会为同一个对象保存两行时，无论是在数据框内部，还是在数据框与其追加到的表之间。每个对象一行是模式中的 UNIQUE 约束，一旦会违反该约束，就不会写入任何内容。",
       "translation_source_blocks_sha256": [
         "cb1f48e23580df19e7c878ae38dcf4956f768f0583a4a0083c9796d0dad5db82",
         "a4b25f82ddbd6a3498f35f4c728d91a7d5c5900e26e5da733646ee6ad77821fd",
@@ -50162,7 +50328,7 @@
         "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
         "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
         "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
-        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+        "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec"
       ]
     },
     "spacr.organelle_types": {

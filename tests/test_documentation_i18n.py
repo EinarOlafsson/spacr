@@ -155,7 +155,13 @@ TOOLS = ROOT / "tools"
 # nine languages. NOT A COMPLETE CENSUS: the inventory walks `def`s, so a
 # public name bound by assignment (`canonical_app_key = _normalize_app`) enters
 # the API without moving this number.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_534
+# 10,534 -> 10,541 on 2026-09-15 (372 PART 14-M): +7 / -0 by set difference
+# against nightly 3f27b926a (the same seven moved c3f562c4f's 10,533 to
+# 10,540 before the rebase) -- spacr.ops_engine and spacr.ops_engine.run_ops,
+# spacr.ops_cycles.AlignedField and align_field, spacr.ops_sbs.attribute_reads
+# and assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. Their
+# blocks carry reviewed records in all nine locales.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_541
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

@@ -48530,6 +48530,30 @@
         "91d2295728c16dc85ed8eaee7a42e650d3131fc40138a0dfdce30a5d3fd6f1a2"
       ]
     },
+    "spacr.ops_cycles.AlignedField": {
+      "source_blocks_sha256": [
+        "bd3c464ba7c1e383af82723d56a979c52fe6ec952d9d321493ada19d256ea9ae",
+        "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+        "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+        "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+        "41385b03734c138b45064627ad0272ae0ee312ed8a8de82cc8fcb74a0e5d6762",
+        "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+        "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+        "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af"
+      ],
+      "source_sha256": "a3fe18eb94ffe1e12222b9313782c4081173b24b49bb439d6e5c008e1852c3bd",
+      "text": "Os ciclos de sequenciamento de um campo, com cada canal movido para um mesmo referencial.\n\n:ivar stack: ``(cycles, channels, Y, X)`` float32, uma entrada por ciclo em :attr:`kept` e nessa ordem.\n:ivar kept: os números de ciclo que a pilha contém, em ordem crescente. O ciclo de referência está sempre entre eles.\n:ivar refused: ciclos cujo registro em relação à referência não foi aceito. Ficam fora da pilha, porque bases lidas em coordenadas não confiáveis decodificam para um código de barras errado em vez de para nenhum.\n:ivar missing: ciclos oferecidos sem nenhum plano -- por exemplo, um arquivo que não pôde ser lido.\n:ivar channel_shifts: ``cycle -> one (dy, dx) per channel``, o deslocamento que moveu cada canal para o primeiro canal do seu ciclo.\n:ivar cycle_shifts: ``cycle -> (dy, dx)``, o deslocamento que moveu cada ciclo mantido para a referência; o da própria referência é ``(0, 0)``.\n:ivar refused_channels: pares ``(cycle, channel)`` cujo registro dentro do ciclo foi recusado e que, por isso, não foram movidos.",
+      "translation_source_blocks_sha256": [
+        "5880cc2ccd0e7782bc4dca21e5cd536b6af428bb3f5926d0da822ee9dd67a303",
+        "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+        "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+        "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+        "a265455bf6fd8b8b9cb6a8aa5ed9f82e1375629a0f6553c3678e03f1a3fe1467",
+        "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+        "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+        "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af"
+      ]
+    },
     "spacr.ops_cycles.accepted_cycles": {
       "source_blocks_sha256": [
         "9a4c8a315b1d538d0c7cdd69d46f645000a4878bcd444ff29627972bd09fe703",
@@ -48544,6 +48568,30 @@
         "6b12fc84c5912cbd94c651980d85c0fe65d96f8f13d143068bc78ff89511f293"
       ]
     },
+    "spacr.ops_cycles.align_field": {
+      "source_blocks_sha256": [
+        "13e01cfdc5d576571ce120dcf9e2ac341bcfaeff666f621e730ea2187dd3c2b0",
+        "39d05e48ed3f3462dc95f9cba322d1446c63f078d0a5c6a4f6a733f72b8a9197",
+        "f211b53d9666d844c68e1b911ddc96e3c0ef7b2c13967fbc066e39b3e30e0f02",
+        "f27c769d803e0a2d9ad01e5607b2e4f6c0228b4befecd2e861ebe32b72ee3a79",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+        "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+        "95e5b8500674d5534f485b2db469e50c1dc2a53ab38e0ef50cc0e90dd9a274ea"
+      ],
+      "source_sha256": "6f5e2e53431b5e2b3a0d302a6cf066bd7441220af0e351308c10321c05e5858f",
+      "text": "Registra os canais de um campo dentro de cada ciclo e, depois, os seus ciclos.\n\nCada canal de base é primeiro movido para o primeiro canal do seu ciclo, com base no fundo celular recortado que os canais compartilham -- na placa medida eles ficavam até 14 px afastados, o que nenhum registro entre ciclos consegue ver --, e depois cada ciclo é movido para a referência com :func:`sbs_mean_target`. Um ciclo oferecido como ``None`` ou com um plano ausente é relatado em :attr:`AlignedField.missing`, e um cujo registro é recusado em :attr:`AlignedField.refused`; os demais são alinhados mesmo assim, de modo que um ciclo perdido não custa o campo.\n\n:param planes: ``cycle -> the base channels of that cycle``, cada plano uma imagem 2-D do mesmo formato.\n:param reference: o ciclo para o qual tudo é movido. None usa o ciclo mais baixo que tenha planos.\n:param tolerance: a que distância da referência um ciclo pode ficar e ainda ser aceito, em pixels.\n:param gpu: deixa as correlações de fase rodarem na placa de vídeo.\n:returns: o campo alinhado.\n:raises ValueError: quando nenhum ciclo tem planos, ou quando o ciclo de referência não tem nenhum.",
+      "translation_source_blocks_sha256": [
+        "f2bd6713f4006234347a17cf9b1bcde501a8e0a25e178f709762a748e8d3f7fc",
+        "e60728203af2b09c945b009cf647dfaaf5815deb409513d518f6c1831a62e392",
+        "a126caee704d1722de1c59c2ac3567a64ed719efd068914d75175e1228fb3f78",
+        "4491f878a1389efbe2115c814ab157ee46226a8cfa73a5457070452cd079f91e",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+        "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+        "977ab50df32fda2e8e9966e79db80108f25d3545ccd2381497750282a3ffc178"
+      ]
+    },
     "spacr.ops_cycles.register_cycles": {
       "source_blocks_sha256": [
         "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
@@ -48555,7 +48603,7 @@
         "90f42c33b07de85de39c0e99b97db3f6e522da3d813a10d34a6a4cbf6e0c42dd"
       ],
       "source_sha256": "18a1ccd2997c07dbdfd6224dbea3ff82d1dabb356c8de8f140bba51c889c9275",
-      "text": "Coloque cada ciclo de um campo contra a referência desse campo.\n\nCada ciclo contra a referência diretamente, nunca contra o seu antecessor. A encadeamento c1->c2->c3 salva um registro e faz com que cada ciclo posterior dependa de cada ciclo anterior: um único link ruim desloca o resto e o residual não diz qual link falhou. Registrar cada um de forma independente é o que permite que um ciclo seja descartado sem custar os outros - a regra da PARTE 9 de que um círculo que não será registrado não deve custar a microplaca de posição.\n\n:param reference: o alvo do ciclo de referência, a partir de :func:`sbs_mean_target`.\n:param cycles: número do ciclo para o alvo desse ciclo.\n:param tolerance: O quão longe um ciclo pode pousar da referência e ainda ser aceito, em pixels.\n:param kwargs: passou para :func:`spacr.ops_register.phase_correlate`.\n:returns: número do ciclo para o seu :class:`Registration`, incluindo os recusados - um chamador relatando  `n_cycles` precisa saber que um ciclo foi tentado e recusado, não apenas que ele está ausente.",
+      "text": "Coloque cada ciclo de um campo contra a referência desse campo.\n\nCada ciclo contra a referência diretamente, nunca contra o seu antecessor. A encadeamento c1->c2->c3 salva um registro e faz com que cada ciclo posterior dependa de cada ciclo anterior: um único link ruim desloca o resto e o residual não diz qual link falhou. Registrar cada um de forma independente é o que permite que um ciclo seja descartado sem custar os outros - a regra da PARTE 9 de que um círculo que não será registrado não deve custar a microplaca de posição.\n\n:param reference: o alvo do ciclo de referência, a partir de :func:`sbs_mean_target`.\n:param cycles: número do ciclo para o alvo desse ciclo.\n:param tolerance: a que distância da referência um ciclo pode ficar e ainda ser aceito, em pixels.\n:param kwargs: passou para :func:`spacr.ops_register.phase_correlate`.\n:returns: número do ciclo para o seu :class:`Registration`, incluindo os recusados - um chamador relatando  `n_cycles` precisa saber que um ciclo foi tentado e recusado, não apenas que ele está ausente.",
       "translation_source_blocks_sha256": [
         "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
         "8b8b9128b0d28f037b6fb3ea9be9d2d40be17f96207b205abc6e38135d34b057",
@@ -48588,6 +48636,42 @@
         "fe20db7a756230d7f9654f3ea9accd518edd81b53df9f96e378da3b4eb859367"
       ]
     },
+    "spacr.ops_engine": {
+      "source_blocks_sha256": [
+        "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
+        "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
+        "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73"
+      ],
+      "source_sha256": "addb1b55394a44a3dd693a8768539a205c86e4464bffb7637959171d38dc3c4d",
+      "text": "Executa a aquisição de sequenciamento de uma triagem óptica em pool, dos ladrilhos às tabelas.\n\nUma chamada leva cada poço dos seus arquivos de ladrilhos a três tabelas em ``measurements.db``: ``ops_geometry``, onde cada ladrilho nuclear fica no referencial do poço; ``ops_objects``, uma linha por núcleo, segmentado no mapa nuclear composto e numerado uma única vez para o poço; e ``ops_barcodes``, uma linha por núcleo cujas leituras atribuídas concordam.\n\nUm arquivo que não pode ser lido custa um ciclo do campo a que pertence e é listado no relatório; não custa o poço. A aquisição de fenótipo não é posicionada por esta etapa.",
+      "translation_source_blocks_sha256": [
+        "2c2458a62b571f8e72b70b8e635f8908f800ba1bc12bd66c9029a0483955d613",
+        "ca95d16ca07572e19ebe29c1a79463631431eea44d7765f09de50753f28d29db",
+        "e7b2d3445a7bdbb35cc8f223849a27555668a54900f5b526ae81aa3d0daf5d77"
+      ]
+    },
+    "spacr.ops_engine.run_ops": {
+      "source_blocks_sha256": [
+        "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
+        "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
+        "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
+        "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
+        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+        "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c"
+      ],
+      "source_sha256": "b7cf061017eaa6ad6f1dfc5851a7493ca7e1a8ea82a27293ced136739703d7db",
+      "text": "Une, segmenta e decodifica os poços de uma aquisição de sequenciamento.\n\n:param settings: as configurações de OPS. Lidas aqui: ``genotype_source``, a pasta de ladrilhos de sequenciamento, pesquisada recursivamente; ``dst_root``, para onde vão ``measurements.db`` e os relatórios por poço, a pasta de origem quando vazio; ``plate``, o nome da pasta de origem quando vazio; ``ops_gpu``; ``n_workers``, quantos campos são decodificados ao mesmo tempo; ``cellpose_model`` e ``cellpose_diameter``.\n:param wells: quais poços executar; todos os poços encontrados quando None.\n:param phases: quaisquer de ``\"stitch\"``, ``\"objects\"`` e ``\"decode\"``, executadas nessa ordem. Uma fase omitida lê o que precisa do banco de dados, de modo que um poço pode ser unido uma vez e decodificado de novo.\n:param library: os códigos de barras das guias, como sequência ou como caminho de um CSV com uma coluna ``prefix``, ``barcode`` ou ``sequence``. Quando fornecidos, cada código de barras também é mapeado para a guia mais próxima.\n:returns: ``{\"db\": path, \"wells\": {well: {phase: report}}}``.\n:raises ValueError: quando a origem não contém ladrilhos que isto consiga nomear, é pedida uma fase ou um poço desconhecido, ou falta a entrada de uma fase.",
+      "translation_source_blocks_sha256": [
+        "55e436af9ddcabbeca29109f95002d1f971cdbb763fdebdec97d4d65a934f5fe",
+        "9b9693dc3a424fc9561a55eeb6b5a3b655b5a32405e846a949aa260b92f8259f",
+        "6db1cb9e60478e98d15850455427024f6709b7bf66a1e6f0fae6b412185d4949",
+        "0b480320509f0847b25781cc61ee5b019505802f9ef812bc588bf34648024faf",
+        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+        "45581efb90904ef0ca2df0483b6d41f5b74785186657bde7b3af92131d744975"
+      ]
+    },
     "spacr.ops_layout": {
       "source_blocks_sha256": [
         "2a2ae3e9c8647ec5167329b0a954f529068d907d0ad9ca37d95e51a6b580dd63",
@@ -48617,19 +48701,19 @@
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
         "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
-        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
-        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
+        "8f325a816c5bbaf3978bc1b0e1f2384012d77d38ea943976debc17de5c593ee7",
+        "06ca32f7fa55d96acacd275df9f0d6e990beb502f91bbcbbe942f5df4ab41384"
       ],
-      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
-      "text": "Campos de imagem de microscópio de um poço redondo, endereçados pelo índice do local e pela posição da grade.\n\n:ivar columns: quantas colunas de campos de visão microscópio o raster aquisição tem.\n:ivar radius: o raio da posição da amostra de microplacas, em unidades de grade (um campo de imagem de microscópio pitch  1).\n:ivar centre: ``(column, row)`` do centro do círculo. A linha é negativa para o poço medido porque o local 0 está no TOP e as linhas aumentam para baixo.\n:ivar snake: se as cobras de aquisição - colunas ímpares coletadas de baixo para cima. O plugin HCS do Micro-Manager faz, e é por isso que a implementação de referência carrega um `remap_snake` em tudo.\n:ivar row_offsets: O quão longe as linhas de cada coluna estão de onde o círculo as coloca, um inteiro por coluna, da esquerda para a direita. Vazio significa que o círculo é tomado em sua palavra, que é o que cada layout fez antes que o fenótipo bem mostrou que não poderia ser. Colunas após o final da tupla são deslocadas, então ``()`` é o todo do comportamento antigo, em vez de um caso especial dele. uma tupla porque esta classe é hashed -- veja :func:`_index`.\n\nO deslocamento move uma coluna, não redimensiona uma. Ambas as extremidades do deslocamento de extensão juntas, então :attr:`heights` e  :attr:`site_count` são as mesmas quaisquer que sejam as compensações, e o local N é o mesmo campo de visão do microscópio antes e depois de uma correção - em uma linha diferente. Esse é exatamente o defeito 372's PARTE 14-G medido na aquisição do fenótipo: mais de 188 campos de visão alinhados do tempo COLUM foi errado.",
+      "source_sha256": "252f3c40a3c0f8616cd8cf6c21a97caa3252f712bfae3e8e7b05eda45c917c1c",
+      "text": "Campos de imagem de microscópio de um poço redondo, endereçados pelo índice do local e pela posição da grade.\n\n:ivar columns: quantas colunas de campos de visão microscópio o raster aquisição tem.\n:ivar radius: o raio da posição da amostra de microplacas, em unidades de grade (um campo de imagem de microscópio pitch  1).\n:ivar centre: ``(column, row)`` do centro do círculo. A linha é negativa para o poço medido porque o local 0 está no TOP e as linhas aumentam para baixo.\n:ivar snake: se as cobras de aquisição - colunas ímpares coletadas de baixo para cima. O plugin HCS do Micro-Manager faz, e é por isso que a implementação de referência carrega um `remap_snake` em tudo.\n:ivar half_tile: metade do lado de um ladrilho, em unidades da grade. Um sítio é mantido quando o seu ladrilho inteiro está dentro do círculo: a ``(dx, dy)`` do centro, quando ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero mantém todo sítio cujo centro está dentro, que é a regra que todo layout seguia antes de este campo existir.\n\nO ladrilho precisa caber, não apenas o seu centro. A regra do centro reproduz o poço de sequenciamento de 333 campos e não consegue produzir, com nenhum raio, as alturas de coluna com que o poço de fenótipo de 1,281 campos foi medido. Com o termo de pegada, ambos saem como medidos, e cada coluna fica centrada na mesma linha.",
       "translation_source_blocks_sha256": [
         "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
         "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
         "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
         "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
-        "6ab4eb4e3f981c2078f1eae27c7c104a4a9c68d1de9927062c509b7bfc8105df",
-        "870af8968e920b1eb1ab3e6a392e1b38155e8b69f61ef89c7aaa8c4c96ae2631"
+        "c089679479ffdf207de8067f3e4f29a5df60e941982d8f8fb90e01f5409d77d0",
+        "a9dece7f979e964c16a96ab4b32c4e678cfaaa4d53847c4dce047244d8cc9b58"
       ]
     },
     "spacr.ops_layout.WellLayout.heights": {
@@ -48748,34 +48832,38 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
+        "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4"
       ],
-      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
-      "text": "``(first row, last row)`` de uma coluna, ou  None se estiver vazia.\n\n:param column: O índice da coluna.\n:returns: o intervalo de linhas absolutas inclusivas dentro do círculo, deslocado pela entrada desta coluna em :attr:`row_offsets`.",
+      "source_sha256": "1c9c10d3538b324c4f83220737486ee98761f76f1a800008384a01392f58cee6",
+      "text": "``(first row, last row)`` de uma coluna, ou  None se estiver vazia.\n\n:param column: O índice da coluna.\n:returns: o intervalo absoluto e inclusivo de linhas dos sítios cujo ladrilho inteiro está dentro do círculo -- veja :attr:`half_tile`.",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
+        "aa4afa4c382f77ea7a31a9173e9d67f1097d8c3a0d8d98cda9429bf2f9f3ddf1"
       ]
     },
     "spacr.ops_layout.round_well_layout": {
       "source_blocks_sha256": [
         "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
-        "7619125def20ced78e2946ad77985f1728799f754e04ace16d29f9b80fa43451",
+        "86268289cc8151bcdee1cedd1f609ed53d034ff8323229112d2a1cfb1a521f55",
         "2c3cc617cc24727b4210a8dd67fa23af8d3dfb12ad2ee7a5a3560b39bdea1959",
         "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "c63e219d31a59ab085b7434370040f30d072e66e0a9e87fdca14135374b066ac",
         "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
-        "5f9697ed74dc5cc31a1fc7867b8e9e434ff5ebef0a620a2beba10665fbb9c422"
+        "c2fc36d4de364217c55b41aa0312bda2c72f6671f1df7fcbed55d6c8e88713b0",
+        "2f7270145a6377b6ae43cc385f4e785ba75db522e11a7e546a7397c17f3eede2"
       ],
-      "source_sha256": "424f2519dc4cfbe48ad17d1d33a2c49ea72c9bdb6d5d248bfac935d15e845394",
-      "text": "O layout cujo círculo contém exatamente campos ``site_count``.\n\nO poço medido é retornado inalterado para 333, de modo que o modelo confirmado nunca é re-derivado. Para qualquer outra contagem, o raio é pesquisado - um bem fotografado em uma ampliação diferente ou um formato de microplaca de laboratório diferente é o mesmo círculo com um número diferente de campos de visão de microscópio.\n\n:param site_count: quantos campos de imagem de microscópio a aquisição detém.\n:param columns: a contagem de colunas, quando é conhecida. Derivado do círculo de outra forma.\n:returns: O layout.\n:raises ValueError: quando nenhum círculo mantém exatamente que muitos campos de visão microscópio, que é a resposta honesta - uma contagem que nenhum poço redondo produz significa que a aquisição não é um, e adivinhando o mais próximo iria colocar cada campo de imagem microscópio ligeiramente errado.",
+      "source_sha256": "5305e117b3024b18d8338920bf837bd4e2da0bdac000f8770f6a9b74d65a8f66",
+      "text": "O layout cujo círculo contém exatamente campos ``site_count``.\n\nO poço medido é devolvido sem alterações sempre que a busca cai nos seus 333 sítios, de modo que o modelo confirmado nunca é derivado de novo. Para qualquer outra contagem o raio é buscado -- um poço adquirido com outra ampliação ou em outro formato de placa é o mesmo círculo com outro número de campos dentro.\n\n:param site_count: quantos campos de imagem de microscópio a aquisição detém.\n:param columns: a contagem de colunas, quando é conhecida. Derivado do círculo de outra forma.\n:param half_tile: metade do lado de um ladrilho, em passos de ladrilho -- o tamanho do ladrilho dividido pelo dobro do passo registrado. Um campo é mantido quando o seu ladrilho inteiro está dentro do círculo; zero o mantém quando o seu centro está. O padrão é o 0.5857 medido na aquisição de fenótipo. A aquisição de sequenciamento mediu 0.5840, e todo valor estritamente entre 0.5 e 2.0 dá aos dois poços -- 333 e 1,281 campos -- as alturas de coluna com que foram medidos.\n:returns: O layout.\n:raises ValueError: quando nenhum círculo contém exatamente essa quantidade de campos, que é a resposta honesta -- uma contagem que nenhum poço redondo produz significa que a aquisição não é um, e adivinhar a mais próxima colocaria cada ladrilho um pouco errado. Também quando ``half_tile`` é negativo ou não é um número.\n\nPara um mesmo meio ladrilho, a contagem fixa os campos. O número de campos dentro do círculo só cresce com o raio, de modo que todo raio que contém exatamente ``site_count`` contém os mesmos. O raio que o layout carrega é um deles, não uma medição.",
       "translation_source_blocks_sha256": [
         "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
-        "c91147024efddab4317ffbb9fcddc27b708f286153a97bc3d2153da09113d782",
+        "299d2ff5db36070256696fbaabdea0d8ae076c4a2d77122fd92dcfcc8efd1a69",
         "422badeb089edccd9e0d3666b00db879896f12f16774d37d87dc5bca4af4c8e3",
         "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "a50cff12e7524dd13b525486a4f16cd108fda88e0d9a67bff2797a538a43cb0e",
         "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
-        "022fedb5794bf48bc372d1c87b78f0d6fc2382f19c3e0b5344b52134234fc219"
+        "88b274bcd4cbb2030e03f9a93dfd0415158a37f24c7481dd30cb80b713ec4368",
+        "bca2e567effccfa5841031b3ac22fdfcfcbfb9d8890dc31fa1a55bd4c1e1ed00"
       ]
     },
     "spacr.ops_merge": {
@@ -48873,11 +48961,11 @@
         "990cbd9d468810e23d12c3c6422a96b1e92596d8698621faf418036c8b591785",
         "97b8148e32b87cf7ab822aa5792267912cd4e0e4cb9ef01a3fe9b1d14e57d483",
         "bcd8c39db6c093f852d0428af03bd07c6af89f7ae366071127c7a1ff280d4889",
-        "01272912db0ec87950b0a80779bd9ba157f02b306c23a540d72bcc352015eaa5",
+        "9ba2321f17439d3fd4a3b06d53ac4f49127ce9a492def8e4f8a737101af7d7c9",
         "c02755472affea9845da91da2662a1c37746a02b0533ee43750418c5f0dfc107"
       ],
-      "source_sha256": "a3672d1d070cafff1ab522615ed99b112085c5305e9559ae6cf0099fc3605b14",
-      "text": "Uma lista de objetos para uma posição de amostra de microplacas, costurada em costuras de janela e numerada uma vez.\n\nSEGMENTO, SEW, NMERO - os três passos entre um composto e uma tabela de objetos. A etapa de composição dá uma grade de imagem costurada que é construída uma janela de cada vez e nunca se materializou inteira; isso é o que a segmentação e numeração fazem em cima dela:\n\n* Segmente uma vez, no compósito, janela por janela.\n* Costure as etiquetas através das costuras da janela. Um objeto que percorre um limite é um objeto, combinado em seu centróide de bem-quadro.\n* Número no quadro de posição da amostra da microplaca, não por janela. A numeração por janela daria a duas janelas um objeto #1 cada.\n\nO problema da costura já está meio resolvido pela etapa de composição, e dizendo como evita reinventá-la. Campos de imagem de microscópio :func:`spacr.ops_compose.windows_over` com um OVERLAP, e seu contrato é que a sobreposição excede o objeto maior. Assim, um núcleo perto de uma costura não é dividido entre duas janelas - é visto por completo por pelo menos uma delas, e geralmente duas vezes. O trabalho aqui é, portanto, deduplicação, não reconstrução: encontrar as observações que são o mesmo núcleo e manter aquele que viu tudo isso.\n\n    Essa distinção é todo o design. Reconstruir um objeto a partir de duas máscaras parciais significa decidir como unir pixels através de uma costura, que é fiddly e lossy. Escolher entre duas máscaras completas não é nenhum dos dois.\n\nO que deixa uma falha que não deve ser silenciosa: um objeto maior do que a sobreposição, que cada janela corta. :func:`sew` recusa aqueles em vez de emitir um fragmento, porque um fragmento se parece exatamente com um pequeno núcleo e seria contado como um para o resto da sessão de processamento.\n\nOs ids são um nome de dados estruturados de junção, então eles são atribuídos deterministicamente - ordem raster no centróide de position-frame de amostra de microplacas - e não por ordem de iteração em um mapeamento de valor-chave ou por qualquer janela que tenha sido segmentada primeiro. O contrato é: \"Este id, e o centroide ao lado dele, é o nome de dado estruturado de junção para cada fase posterior.\"",
+      "source_sha256": "f693ec2a28a9c9ad50cd0653132a34c919ca0ab90f60878bd1c6648e5aff52f1",
+      "text": "Uma lista de objetos para uma posição de amostra de microplacas, costurada em costuras de janela e numerada uma vez.\n\nSEGMENTO, SEW, NMERO - os três passos entre um composto e uma tabela de objetos. A etapa de composição dá uma grade de imagem costurada que é construída uma janela de cada vez e nunca se materializou inteira; isso é o que a segmentação e numeração fazem em cima dela:\n\n* Segmente uma vez, no compósito, janela por janela.\n* Costure as etiquetas através das costuras da janela. Um objeto que percorre um limite é um objeto, combinado em seu centróide de bem-quadro.\n* Número no quadro de posição da amostra da microplaca, não por janela. A numeração por janela daria a duas janelas um objeto #1 cada.\n\nO problema da costura já está meio resolvido pela etapa de composição, e dizendo como evita reinventá-la. Campos de imagem de microscópio :func:`spacr.ops_compose.windows_over` com um OVERLAP, e seu contrato é que a sobreposição excede o objeto maior. Assim, um núcleo perto de uma costura não é dividido entre duas janelas - é visto por completo por pelo menos uma delas, e geralmente duas vezes. O trabalho aqui é, portanto, deduplicação, não reconstrução: encontrar as observações que são o mesmo núcleo e manter aquele que viu tudo isso.\n\n    Essa distinção é todo o design. Reconstruir um objeto a partir de duas máscaras parciais significa decidir como unir pixels através de uma costura, que é fiddly e lossy. Escolher entre duas máscaras completas não é nenhum dos dois.\n\nWHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT (o que deixa uma falha que não pode passar em silêncio): um objeto maior que a sobreposição, que todas as janelas cortam. :func:`number` recusa esses objetos em vez de emitir um fragmento, porque um fragmento parece exatamente um núcleo pequeno e seria contado como um durante o resto da execução.\n\nOs ids são um nome de dados estruturados de junção, então eles são atribuídos deterministicamente - ordem raster no centróide de position-frame de amostra de microplacas - e não por ordem de iteração em um mapeamento de valor-chave ou por qualquer janela que tenha sido segmentada primeiro. O contrato é: \"Este id, e o centroide ao lado dele, é o nome de dado estruturado de junção para cada fase posterior.\"",
       "translation_source_blocks_sha256": [
         "8c6d8513f13f9bdee29471aa28191262bead1149b24a1bdd2dd9bd006801d1c8",
         "876023c819960f5827726f2d0a528b5f6695cd8d3cdbbd1e88dbd22dff0fd76e",
@@ -48886,7 +48974,7 @@
         "855db13bbcf05e330503ed4ac4e1e170756ff56ba9bac3624767c9e5658fbdef",
         "33ccab566faea35efbfc090caa07b8b5f4b383f52dc588eb1af0269939f158ea",
         "70a26b1a8de4fe228b8bf046da160ff9aa3f7f15b1d4d7ba8f7c420403994e82",
-        "1b5012547632a797799e95c8197cc7dd2a97f1023ae8cc29146fc77bf09cf5b1",
+        "f13b8f1b62c2143da8621843e67a1c8430ddf0d735014117869e26ee78d48dc5",
         "6d6f19c0b5cdcca7dd1892c1089587143faa4afdc9d5216b05b1fd0379f3e81e"
       ]
     },
@@ -48968,18 +49056,18 @@
         "9a93bc57583625008118ded5bf4743b7890b3e250252024c69d6ee1a26c61af0",
         "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
         "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
-        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
-        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+        "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+        "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac"
       ],
-      "source_sha256": "f8d639df7ef3ce1cd268c560d6e74d298f93194582c5b9bb6de2b4b778e2d4d3",
-      "text": "Um id por objeto, atribuído no quadro de posição da amostra de microplacas, deterministicamente.\n\nOrdem Raster no microplate position-frame centróide - de cima para baixo, em seguida, da esquerda para a direita - em vez de as janelas de ordem foram segmentadas. O id é uma chave de junção, então duas execuções sobre os mesmos dados têm que produzir os mesmos números; ordenar por qualquer coisa que o agendador possa variar iria quebrar isso silenciosamente e apenas nos resultados.\n\nOs IDs começam em 1. Zero é o fundo em cada imagem de etiqueta de onde isso veio, e um objeto numerado 0 seria invisível para qualquer comparação de máscara a jusante.\n\n:param groups: da :func:`sew`.\n:param strict: Recusar um grupo sem observação completa. Desligue-o apenas para inspecionar uma execução ruim - os objetos que ele emite são fragmentos com áreas truncadas.\n:raises ObjectsError: quando um grupo contém apenas observações cortadas, o que significa que o objeto é maior do que a sobreposição da janela.",
+      "source_sha256": "f8b899f9ca99f84de1119d8dead1529613db8fb6c64369433efaca7ec06a8c45",
+      "text": "Um id por objeto, atribuído no quadro de posição da amostra de microplacas, deterministicamente.\n\nOrdem Raster no microplate position-frame centróide - de cima para baixo, em seguida, da esquerda para a direita - em vez de as janelas de ordem foram segmentadas. O id é uma chave de junção, então duas execuções sobre os mesmos dados têm que produzir os mesmos números; ordenar por qualquer coisa que o agendador possa variar iria quebrar isso silenciosamente e apenas nos resultados.\n\nOs IDs começam em 1. Zero é o fundo em cada imagem de etiqueta de onde isso veio, e um objeto numerado 0 seria invisível para qualquer comparação de máscara a jusante.\n\n:param groups: da :func:`sew`.\n:param strict: recusa um grupo sem nenhuma observação completa. Desligado, esse grupo é descartado em vez de numerado -- nada com área truncada é emitido -- e quantos foram descartados é registrado como aviso.\n:raises ObjectsError: quando um grupo contém apenas observações cortadas: ou o objeto é maior que a sobreposição das janelas, ou é um fragmento que não correspondeu à visão completa do seu núcleo em nenhuma janela. A mensagem dá a extensão do objeto e a solução para cada caso.",
       "translation_source_blocks_sha256": [
         "e59d92411ab038dc0eae96f9b50e22d4e209ba7f09ad325f1685cd475ca1f438",
         "71dd785a95bf433424f8db8a069882a844b988679155e844d35c762c5bc4f10a",
         "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
         "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
-        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
-        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+        "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+        "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac"
       ]
     },
     "spacr.ops_objects.objects_frame": {
@@ -49039,17 +49127,19 @@
         "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
         "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
         "f08633cd3542cbeb32d6a15ddabb0e48d2cb1d93159db10c8da9596e2a06bc61",
-        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+        "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
         "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ],
-      "source_sha256": "0a6524af4792480274feb233863a420748edcbde67f7babf4bcaabc98af6a067",
-      "text": "Observações de grupo que são o mesmo núcleo.\n\nCada grupo é um objeto físico. Um núcleo em uma sobreposição de janela é agrupado a partir de duas (ou quatro, em um canto) observações; uma no interior de uma janela forma um grupo de um.\n\nOs cortados são o ponto. Uma observação cuja máscara correu para uma costura interior não viu todo o núcleo, então sua área e centróide estão ambos errados. Ele é mantido apenas o tempo suficiente para ser combinado com uma observação completa do mesmo núcleo e é então descartado em favor dele. Uma observações cortadas combinando nada completo significa que nenhuma janela viu esse núcleo inteiro, que :func:`number` recusa.\n\nCorresponder a uma observação cortada usa apenas o centróide: sua área é truncada por definição, portanto, exigir que as áreas concordem impediria exatamente a correspondência que a resgata.\n\n:param observations: a visão de cada janela de cada objeto em um poço, já em coordenadas de bem-quadro. A ordem não importa; o agrupamento é por geometria, não por chegada.\n:returns: grupos, cada um uma tupla de observações, em nenhuma ordem particular -- :func:`number` impõe a ordem que importa.",
+      "source_sha256": "1498680e3055c65d22df115ce4253dc0f27c45681455cacb2ed566ecfb4040bf",
+      "text": "Observações de grupo que são o mesmo núcleo.\n\nCada grupo é um objeto físico. Um núcleo em uma sobreposição de janela é agrupado a partir de duas (ou quatro, em um canto) observações; uma no interior de uma janela forma um grupo de um.\n\nOs cortados são o ponto. Uma observação cuja máscara correu para uma costura interior não viu todo o núcleo, então sua área e centróide estão ambos errados. Ele é mantido apenas o tempo suficiente para ser combinado com uma observação completa do mesmo núcleo e é então descartado em favor dele. Uma observações cortadas combinando nada completo significa que nenhuma janela viu esse núcleo inteiro, que :func:`number` recusa.\n\nDois rótulos de uma mesma janela nunca são um só objeto, porque uma imagem de rótulos não dá dois rótulos a um núcleo. Duas observações completas de janelas diferentes são um núcleo quando os seus centroides coincidem dentro de ``tolerance`` em cada eixo e, ou as suas áreas coincidem até ``area_ratio``, ou os seus centroides ficam dentro do raio equivalente da menor -- o raio de um disco da sua área. Os pares cujas áreas coincidem são unidos primeiro, depois os demais a começar pelos mais próximos, e uma união que daria a um grupo dois rótulos de uma mesma janela é recusada.\n\nUma observação cortada é associada por contenção, não por uma distância fixa: o corte move o seu centroide para dentro até o raio do núcleo, de modo que uma tolerância fixa erra justamente os cortes profundos. Ela se junta a uma observação completa de outra janela quando o seu centroide fica dentro do disco equivalente dessa observação, ou quando a sua caixa delimitadora fica dentro da caixa dessa observação com margem de dois pixels. Ela se junta apenas à mais próxima dessas observações, de modo que um corte nunca pode transformar dois núcleos em um objeto. Observações cortadas que não correspondem a nada completo são agrupadas entre si onde as suas caixas se sobrepõem.\n\n:param observations: a visão de cada janela de cada objeto em um poço, já em coordenadas de bem-quadro. A ordem não importa; o agrupamento é por geometria, não por chegada.\n:returns: grupos, cada um uma tupla de observações, em nenhuma ordem particular -- :func:`number` impõe a ordem que importa.",
       "translation_source_blocks_sha256": [
         "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
         "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
         "86686443e9b66c526106ba99577de6700be0169153c6a27d3a1089230a993d13",
-        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+        "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
         "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ]
@@ -49182,30 +49272,50 @@
         "e31eaad6b7680496d8ef9d345e058a6ca960a30f515faba7507ca15ec34bf494"
       ]
     },
+    "spacr.ops_phenotype.phenotype_centres": {
+      "source_blocks_sha256": [
+        "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+        "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+        "a72f71fa491262526c02f83f4a7ec3603ecff94045440e61c8c1c9c5811c5b57",
+        "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+        "62734fbdc05ad91105b8666536bf5de38fa2efd63b6c2a9c5a89883340d8da45",
+        "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+        "869851e6ed102bb8bc4f3c240b3f674eca045bb487f031f3c41457e759e709a1"
+      ],
+      "source_sha256": "f9a9783fcea49feff3db7a7f2d2f01d785243cd383ca48d08a7c477da528db39",
+      "text": "Onde fica o centro de cada campo de fenótipo, a partir de alguns medidos.\n\n:param layout: o :class:`spacr.ops_layout.WellLayout` da aquisição de fenótipo, ou quantos campos ela contém.\n:param anchors: ``{site: (y, x)}``, os centros no referencial do poço de pelo menos três campos alinhados cujas posições na grade não estão todas em uma linha. O método foi validado com seis espalhados pelo poço.\n:returns: ``{site: (y, x)}`` para cada campo do layout, incluindo as âncoras -- os seus centros ajustados, não os medidos.\n:raises ValueError: quando as âncoras não conseguem fixar uma retícula: menos de três, em uma linha da grade, ou um centro que não é formado por dois números finitos. Também para uma contagem de campos que nenhum poço redondo contém.\n:raises IndexError: quando uma âncora indica um sítio que o layout não contém.\n\nSeis números posicionam o poço inteiro. O layout dá a posição na grade de cada campo, e a retícula de aquisição leva uma posição da grade ao referencial do poço por meio de uma origem, um passo de coluna e um passo de linha, cada um um par ``(dy, dx)`` que carrega os poucos pixels de inclinação da platina. Ajustado por mínimos quadrados em seis campos de um poço real, isso previu os centros medidos dos outros 472 campos com mediana de 1.2 px e pior caso de 4.0 px, e os 451 de um segundo poço com pior caso de 4.4 px.",
+      "translation_source_blocks_sha256": [
+        "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+        "e6a41dea9a8ecb57c5e1ecd8211653925ccdf502c6d946a59e02da0f4c34a8e2",
+        "273cb93488f7b56efe4a8096dce214631a520229cb417a2cf4ef25cf48961dde",
+        "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+        "a9dabc0904410038305714a523fb4ed04969ccb9458b317a2ca4e14a50a84637",
+        "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+        "16d847ad9c859a7090d8625dd48af344056592c3dec839d8ec0bb0cad2639fb9"
+      ]
+    },
     "spacr.ops_phenotype.phenotype_site_map": {
       "source_blocks_sha256": [
-        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
-        "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
-        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
-        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
-        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
-        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
-        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
-        "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
+        "d8987e7ccf9126ae97b1035274f1858ed5d91a9c926e1041d075a74f46bda5c2",
+        "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+        "5ee088d6438ce7110691e740d8d39daf49266a6bfecbabe2da381af4c445991b",
+        "9482032d0529e408eedc31b529b11c047715bf35366e88b102aabc2b5761a35f",
+        "7b4ad6c687274f962bda174e28f7bedfb4e7466743ab89786faba23d1ae362f7",
+        "343e414cceff1565e0cee8d9a8ec18e898ad8efe76cf98bf334aff2939a9be51",
+        "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+        "d67e620df54a44769db2cde7feabc8935859b8753a09913120bda2d3e3ce9b27"
       ],
-      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
-      "text": "Qual tesela de sequenciamento cobre cada tesela do fenótipo.\n\n:param phenotype_sites: quantos campos de visão microscópicos o fenótipo aquisição detém.\n:param sbs_sites: quantos a aquisição de seqenciamento detém.\n:param row_offsets: onde cada coluna do fenótipo realmente começa, um inteiro por coluna, como :func:`spacr.ops_layout._solve_row_offsets` mede-lo a partir dos campos que se alinharam. Vazio leva o círculo em sua palavra, que é o que esta função fez antes que houvesse algo melhor para oferecê-lo.\n:returns: ``{phenotype site -> sequencing site}``, omitindo qualquer tesela fenótipo cuja posição de sequenciamento está fora desse círculo.\n:raises ValueError: quando qualquer contagem não é um poço redondo, que :func:`spacr.ops_layout.round_well_layout` decide, ou quando os deslocamentos não são um por coluna de fenótipo.\n\nE o círculo nem sempre é a aquisição, que é o que ``row_offsets`` é para. `round_well_layout` PESQUISAS para um raio que contém exatamente o campo de microscópio da contagem de visão e mais de um raio faz; para o fenótipo de 41 colunas, o que ele encontra dá a coluna direita e uma linha errada por até dois. 372's PARTE 14-G medido que mais de 188 campos de microscópio alinhados de um índice de visão - índice de coluna exata para um desvio padrão.\n\nUma tabela de comprimento errado é recusada em vez de acolchoada. O preenchimento está bem dentro de :class:`spacr.ops_layout.WellLayout`, onde o padrão vazio tem que manter o significado  \"no offsets\"; aqui o chamador está entregando uma medição de um poço particular, e uma tabela que não se encaixa corrigiria algumas colunas e silenciosamente deixaria o resto - que é o estado que esse argumento existe para terminar.\n\nÉ uma questão de layout, não uma imagem, e responder por imagem foi como as três primeiras tentativas de A4 passaram uma tarde: o local do fenótipo N foi combinado com o local de sequenciamento N, que é uma parte diferente do poço, e cada par voltou a 2-9 % inliers. O layout diz isso de forma fechada. A aquisição medida se encaixa 41 colunas no raio 20.15 contra 21 do poço de sequenciamento em 10.25 - o mesmo poço redondo com o dobro da densidade do campo de imagem do microscópio, e 41  2 * 21 - 1 - então uma posição da grade do fenótipo metades em torno do centro.",
+      "source_sha256": "8a16a9cb23bc944479e647aedd8addbff0aae9333367004799bb5c013e6845b2",
+      "text": "Qual ladrilho de sequenciamento cobre cada campo de fenótipo.\n\n:param phenotype_sites: o :class:`spacr.ops_layout.WellLayout` da aquisição de fenótipo, ou quantos campos ela contém.\n:param sbs_centres: ``{sequencing site: (y, x)}``, o centro de cada ladrilho de sequenciamento unido no referencial do poço -- a sua posição mais meio ladrilho.\n:param anchors: ``{phenotype site: (y, x)}``, centros medidos no referencial do poço de pelo menos três campos de fenótipo alinhados, do modo como :func:`phenotype_centres` os recebe.\n:param tile_shape: ``(height, width)`` de um ladrilho de sequenciamento, em pixels do referencial do poço.\n:returns: ``{phenotype site: sequencing site}``. Cada campo vai para o ladrilho cujo centro está mais próximo do seu centro previsto, entre os ladrilhos que o contêm; um campo cujo centro previsto não fica dentro de nenhum ladrilho é omitido.\n:raises ValueError: quando ``tile_shape`` não são dois tamanhos positivos, ou quando :func:`phenotype_centres` recusa as âncoras ou a contagem.\n\nUma posição, não um índice. O ladrilho em que um campo cai depende de onde as fronteiras dos ladrilhos realmente ficam, e dividir ao meio um índice da grade de fenótipo em torno do centro do poço não consegue vê-las: com o dobro da densidade de ladrilhos, metade dos campos de fenótipo fica sobre uma fronteira de ladrilho de sequenciamento ou perto dela. Na placa real, a divisão ao meio encontrou o ladrilho exato para 0.45 a 0.61 dos campos alinhados; prever cada centro a partir de seis âncoras e tomar o ladrilho unido mais próximo encontrou-o para 472 de 472 e 451 de 451.",
       "translation_source_blocks_sha256": [
-        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
-        "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
-        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
-        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
-        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
-        "954fef2fe85ad5eef97ca8e47fe4dc97df42e970741e7238f358a6ab9d75f30f",
-        "9aa63c8b8ecf3986373d52abb4f39f5c6db1b6b62f37a3402b7c3bd1323856fd",
-        "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
+        "80ec1cab6a66991a9eb17d7474024a9473337cd949d79892854e9f9006255307",
+        "e6a41dea9a8ecb57c5e1ecd8211653925ccdf502c6d946a59e02da0f4c34a8e2",
+        "28c8456a34880adb5db0f266b10ef5e2c5e304287360f0a64d1169308e11afe9",
+        "740724ee655cb7beb8740846fc8de420a6a782da10c6f2134561fc8bbd54a19a",
+        "cf0f98bd2af0e74339813196ee2c41b73121ae6a6c1406addef2ab8726508214",
+        "83df7e316973dbce6ef1d33ab9893ea41501e72719fb47b74d5da1ba536d1271",
+        "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+        "f466cfdea2ececffdadea72165f7388c7ce181e5dc194b3cdd953b4c024fa702"
       ]
     },
     "spacr.ops_phenotype.refine_similarity": {
@@ -49527,16 +49637,16 @@
     "spacr.ops_sample.barcode_rows": {
       "source_blocks_sha256": [
         "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
-        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
         "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
         "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
         "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
       ],
-      "source_sha256": "f38075fc6c052a70d7e7a96cea0d846a58c5b84ff01346949306ae77e89eb25e",
-      "text": "Linhas ``ops_barcodes``: uma por objeto, montada entre ciclos.\n\nDelega a chamada em si para :func:`spacr.ops_sbs.call_reads`, que já compensa cross-talk e relata a qualidade como o MINIMUM ao longo de ciclos - \"um código de barras é tão confiável quanto sua pior base\". Repetindo que aqui seria um segundo decodificador para manter em passo.\n\n:param objects: os objetos numerados, na mesma ordem que o primeiro eixo ``values``.\n:param values: ``(objects, cycles, channels)`` intensidades, NUNCA em média ao longo de ciclos - ver  :func:`decode_input`, que recusa um único ciclo pela mesma razão.\n:param library: quando dado, cada código de barras é corrigido para o membro da biblioteca mais próximo através de :func:`spacr.ops_sbs.correct_to_library`, e a linha carrega o que mapeou.",
+      "source_sha256": "1f03e894fc659bc95c172df09d40cef12871b021f6108c7decc23248dd630cd2",
+      "text": "Linhas ``ops_barcodes``: uma por objeto, montada entre ciclos.\n\nDelega a chamada em si a :func:`spacr.ops_sbs.call_reads`, que já normaliza os canais de cada ciclo e relata a qualidade como o MINIMUM (mínimo) sobre os ciclos -- \"um código de barras só é tão confiável quanto a sua pior base\". Repetir isso aqui seria um segundo decodificador a manter em sincronia.\n\n:param objects: os objetos numerados, na mesma ordem que o primeiro eixo ``values``.\n:param values: ``(objects, cycles, channels)`` intensidades, NUNCA em média ao longo de ciclos - ver  :func:`decode_input`, que recusa um único ciclo pela mesma razão.\n:param library: quando dado, cada código de barras é corrigido para o membro da biblioteca mais próximo através de :func:`spacr.ops_sbs.correct_to_library`, e a linha carrega o que mapeou.",
       "translation_source_blocks_sha256": [
         "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
-        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
         "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
         "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
         "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
@@ -49604,26 +49714,26 @@
       "source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "956f92b5597a52553784849833a71d0e85e8b2bd6de6f579a740e064ec93ffb3",
-        "e71dcd146df56085f757d93ca65b8afa1e4e4a15ee474c507540e5be192d9185",
+        "96f751fe3936bc37122069588f7980e88b041b2cf6fb2905765d0397cbed37c3",
         "936e1541cf5e140e01fda0b4c0b8778f6d30f0ceaffa23a1509ad46d00c732b5",
         "fd38f7be57907f9df402614da4e5b18a9304972c3a9b1f0cd52f43911b2cd5fa",
         "434f6e53eb83226c3543ddfe36fdf41fd103a2c2132aad901f698c267664919b",
         "a6a1e26501768ea6716a58affe0c26ee3e2b1b2eba8858c1b26a0eae357f831b",
-        "150885e42ea6d17e4a2ced6e8d6e12dc6848dd0c1d49124a4f0f5c6e376c3478",
+        "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
         "6bc4dae7bc9a17e2859daa6335055cce0b71b47cc63e617c31ccac679f4b1450",
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ],
-      "source_sha256": "b787ea512a3007ba8cfe4e185e8523ad698d5e1039ef1b6bee47b1d01acce429",
-      "text": "Descodifica códigos de barras de sequenciação in situ a partir de uma pilha de imagens.\n\nPara que serve isso e o que não é\n====================================\nA triagem agrupada óptica lê o código de barras do guia das imagens. Cada ciclo de sequenciamento mancha quatro canais de dados de imagem, um por base e a base de um ponto nesse ciclo é o canal de dados da imagem mais brilhante - depois que os corantes não foram misturados. Leia uma base por ciclo no mesmo local e os ciclos soletram o código.\n\n:mod:`spacr.sequencing` NO é a metade de trás disso e não deve ser apontado para ele. Esse módulo decodifica leituras FASTQ de uma execução NGS; não há FASTq aqui e nenhum sequenciador, apenas pixels.\n\nPor que cada passo é o passo que é\n==================================\nTrês deles carregam quase todo o risco de correção, e todos os três são contra-intuitivos o suficiente para implementá-los a partir de uma descrição do fluxo de trabalho em vez de um trabalho produz algo que executa e está errado:\n\n* **Uma leitura não é um ponto brilhante.** É um ponto cuja base MUDA entre ciclos. Portanto, a estimativa de localização é o desvio padrão entre os ciclos, com média sobre os canais - um ponto luminoso em cada ciclo é um pedaço de sujeira ou uma bolha autofluorescente e não contribui com variância.\n\n* **O canal mais brilhante não é a base.** Os quatro corantes sangram um no outro, de modo que o argmax bruto é tendencioso para qualquer corante que seja mais brilhante no geral. A conversa cruzada deve ser estimada a partir dos dados e desfeita primeiro.\n\n* **Uma leitura ambígua é pior do que uma leitura ausente.** A correção de erro contra a biblioteca de guias só corrige para uma correspondência NICA mais próxima. Uma leitura que está igualmente próxima de dois códigos de barras é descartada, porque um guia atribuído incorretamente corrompe silenciosamente os resultados de uma triagem enquanto um descartado custa apenas sensibilidade de detecção estatística.\n\nO método aqui segue breve (Laboratório Cheeseman; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Instituto de Tecnologia de Massachusetts), cuja fonte foi lida para os três pontos acima, em vez de reconstruída a partir de seus nomes de palco.",
+      "source_sha256": "81b0dbda4a59d32e548eeff8ff59cb8a080a6d002aa678a2e292f254c876fa89",
+      "text": "Descodifica códigos de barras de sequenciação in situ a partir de uma pilha de imagens.\n\nPara que serve isso e o que não é\n====================================\nA triagem óptica em pool lê o código de barras da guia OUT OF THE IMAGES (diretamente das imagens). Cada ciclo de sequenciamento marca quatro canais, um por base, e a base de um ponto nesse ciclo é o canal mais brilhante -- depois de os canais terem sido colocados em uma escala comum. Leia uma base por ciclo no mesmo ponto e os ciclos soletram o código de barras.\n\n:mod:`spacr.sequencing` NO é a metade de trás disso e não deve ser apontado para ele. Esse módulo decodifica leituras FASTQ de uma execução NGS; não há FASTq aqui e nenhum sequenciador, apenas pixels.\n\nPor que cada passo é o passo que é\n==================================\nTrês deles carregam quase todo o risco de correção, e todos os três são contra-intuitivos o suficiente para implementá-los a partir de uma descrição do fluxo de trabalho em vez de um trabalho produz algo que executa e está errado:\n\n* **Uma leitura não é um ponto brilhante.** É um ponto cuja base MUDA entre ciclos. Portanto, a estimativa de localização é o desvio padrão entre os ciclos, com média sobre os canais - um ponto luminoso em cada ciclo é um pedaço de sujeira ou uma bolha autofluorescente e não contribui com variância.\n\n* **O canal bruto mais brilhante não é a base.** Cada canal tem o seu próprio ganho e fundo, e em uma placa real ambos derivam de ciclo para ciclo, de modo que o argmax bruto tende para o canal mais brilhante no conjunto. Os canais de cada ciclo são primeiro divididos pela sua mediana sobre as leituras. A separação do vazamento entre corantes está disponível além disso; na primeira placa real, reduziu a correspondência com a biblioteca.\n\n* **Uma leitura ambígua é pior do que uma leitura ausente.** A correção de erro contra a biblioteca de guias só corrige para uma correspondência NICA mais próxima. Uma leitura que está igualmente próxima de dois códigos de barras é descartada, porque um guia atribuído incorretamente corrompe silenciosamente os resultados de uma triagem enquanto um descartado custa apenas sensibilidade de detecção estatística.\n\nO método aqui segue breve (Laboratório Cheeseman; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Instituto de Tecnologia de Massachusetts), cuja fonte foi lida para os três pontos acima, em vez de reconstruída a partir de seus nomes de palco.",
       "translation_source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "f294fd44130918cf8d72230028e2ab194fe79b8344a361c7b6adeb940a314443",
-        "d65647c48328e9746724269e0fef3d90162f613f8979eac35fdc8d219a7a09cd",
+        "870f68bdd326e1f73d0a9123567dab2f7627d9ae3515065f4d45e73eb72ec48b",
         "936e1541cf5e140e01fda0b4c0b8778f6d30f0ceaffa23a1509ad46d00c732b5",
         "231e088fd943098127a8be4d63ea4fe6b05b1dbd659f015a25eedc748d64a7b4",
         "3794660b06b2beed88406c737ebd013952f709c579a659639b7f0fbc1132e70f",
         "1ae3cbf8554c7420a94c9859d244adc699a7ae1dffe47172677631f0ce4ebbd4",
-        "150885e42ea6d17e4a2ced6e8d6e12dc6848dd0c1d49124a4f0f5c6e376c3478",
+        "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
         "8e49e4ae55cdaf1e9320b09b01d3225d7974dc18a89872e1645af047d5d86593",
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ]
@@ -49643,7 +49753,7 @@
         "c1e21e9f6bf783ae0091c78edfbe172bb2a43be7295f0c84a65fa07bc96e0c8e"
       ],
       "source_sha256": "b58306e2f797db5c884d2c0e1ad292afbf05512cbb1440f45a92c1340bb42257",
-      "text": "Dê a cada célula segmentada o código de barras com o qual suas leituras concordam.\n\nUma célula contém vários pontos e nem todos decodificarão de forma idêntica: um ponto fora de foco, um ponto compartilhado com um vizinho e uma segunda perturbação genuína são todos iguais nesta fase. Portanto, uma célula é atribuída apenas quando suas leituras CONCORDAM - ``min_fraction`` de pelo menos  ``min_reads`` deve carregar o mesmo código de barras - e é deixada sem atribuição.\n\nOs padrões recusam mais do que aceitam, deliberadamente. Uma leitura não é evidência: não pode ser verificada contra nada, e uma única base mal chamada silenciosamente entregaria a uma célula a perturbação errada. Uma célula sem código de barras custa sensibilidade de detecção estatística; uma célula com o código de barra ERRADO move um fenótipo real para a média de outro guia e não é recuperável a jusante, porque nada mais tarde pode dizer que aconteceu.\n\nLeituras de aterrissagem no rótulo 0 -- plano de fundo, entre células -- são descartadas em vez de anexadas à célula mais próxima. Uma leitura que a segmentação não colocou dentro de nada é uma leitura cujo proprietário é desconhecido.\n\n:param peaks: ``(N, 2)``  ``(y, x)`` posições de leitura.\n:param barcodes: um chamado código de barras por leitura.\n:param labels: a segmentação, como uma imagem de rótulo inteiro onde 0 é plano de fundo.\n:param quality: qualidade por leitura opcional de :func:`call_reads`; quando dado é calculado em média sobre as leituras que concordaram.\n:param min_reads: Quantas leituras uma célula precisa antes que ela possa ser atribuída.\n:param min_fraction: que parte deles deve concordar.\n:returns: ``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` para cada célula que encontrou a barra.",
+      "text": "Dê a cada célula segmentada o código de barras com o qual suas leituras concordam.\n\nUma célula contém vários pontos e nem todos decodificarão de forma idêntica: um ponto fora de foco, um ponto compartilhado com um vizinho e uma segunda perturbação genuína são todos iguais nesta fase. Portanto, uma célula é atribuída apenas quando suas leituras CONCORDAM - ``min_fraction`` de pelo menos  ``min_reads`` deve carregar o mesmo código de barras - e é deixada sem atribuição.\n\nOs padrões recusam mais do que aceitam, deliberadamente. Uma leitura não é evidência: não pode ser verificada contra nada, e uma única base mal chamada silenciosamente entregaria a uma célula a perturbação errada. Uma célula sem código de barras custa sensibilidade de detecção estatística; uma célula com o código de barra ERRADO move um fenótipo real para a média de outro guia e não é recuperável a jusante, porque nada mais tarde pode dizer que aconteceu.\n\nLeituras de aterrissagem no rótulo 0 -- plano de fundo, entre células -- são descartadas em vez de anexadas à célula mais próxima. Uma leitura que a segmentação não colocou dentro de nada é uma leitura cujo proprietário é desconhecido.\n\n:param peaks: ``(N, 2)``  ``(y, x)`` posições de leitura.\n:param barcodes: um código de barras lido por leitura.\n:param labels: a segmentação, como uma imagem de rótulo inteiro onde 0 é plano de fundo.\n:param quality: qualidade por leitura opcional de :func:`call_reads`; quando dado é calculado em média sobre as leituras que concordaram.\n:param min_reads: Quantas leituras uma célula precisa antes que ela possa ser atribuída.\n:param min_fraction: que fração delas precisa concordar.\n:returns: ``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` para cada célula que encontrou a barra.",
       "translation_source_blocks_sha256": [
         "a5dd08ef7f5ff33d06fa9eb8f9e82f134bfd568d3d5a568cb29c6620a684d636",
         "e45dc9df5e131b5adf3636154e0e0c1b0a1fd92f86e53b0238e1569353a680e7",
@@ -49658,25 +49768,79 @@
         "c1e21e9f6bf783ae0091c78edfbe172bb2a43be7295f0c84a65fa07bc96e0c8e"
       ]
     },
+    "spacr.ops_sbs.assign_reads_to_objects": {
+      "source_blocks_sha256": [
+        "56bd36897564e1ddb76e61dccdb0383bbb0f00a6a8b43788faf4396aa8743653",
+        "3c6bfdd6dcb24565647dc9aa1ea26a3fee06fddeae59f21f2a58c53a3758852d",
+        "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+        "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+        "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+        "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+        "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+        "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6"
+      ],
+      "source_sha256": "b58c2275ea4c8c6e406dfcbef123264042a863f42bc20ff1bdbd180eb58ee82e",
+      "text": "Dá a cada objeto da placa o código de barras com que as suas leituras atribuídas concordam.\n\nA mesma regra que :func:`assign_reads_to_cells` -- pelo menos ``min_reads`` leituras, ``min_fraction`` delas com o mesmo código de barras e sem empate no primeiro lugar --, mas indexada pelo id do objeto ao qual cada leitura foi atribuída, e não pelo rótulo em que a leitura cai. É isso que permite que leituras reunidas de vários campos votem uma única vez pelo objeto a que pertencem.\n\n:param owners: um id de objeto por leitura; 0 ou um id negativo significa que a leitura não tem dono e é ignorada.\n:param barcodes: um código de barras lido por leitura.\n:param quality: qualidade opcional por leitura, de :func:`call_reads`.\n:param min_reads: quantas leituras um objeto precisa antes de poder ser atribuído.\n:param min_fraction: que fração delas precisa concordar.\n:returns: ``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` para cada objeto que atingiu o limiar.",
+      "translation_source_blocks_sha256": [
+        "8ff2d5810b12799636d1b0ff1242f6cbbdf297ef85824c86d108206f53e8efad",
+        "2bc81227dbcb3fc85b8c5fcf3bd389eb002944af848f837021ec55c033385718",
+        "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+        "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+        "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+        "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+        "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+        "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6"
+      ]
+    },
+    "spacr.ops_sbs.attribute_reads": {
+      "source_blocks_sha256": [
+        "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+        "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+        "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+        "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+        "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+        "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+        "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+        "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3"
+      ],
+      "source_sha256": "e5185e36b7c16379c9e1b7959d7fae87394a4a1282a9f392eecabce3c5d53c9a",
+      "text": "Atribui cada leitura detectada ao objeto cujo contorno está mais próximo.\n\nAs leituras são detectadas primeiro em todo o campo e atribuídas aqui, de modo que uma pegada estreita demais aparece como leituras sem dono em vez de ficar invisível. O contorno é o disco equivalente de cada objeto, o círculo com a sua área em torno do seu centroide, e uma leitura cujos dois contornos mais próximos ficam a menos de ``tie`` um do outro não é dada a nenhum e é sinalizada.\n\n:param peaks: ``(N, 2)`` posições das leituras ``(y, x)``.\n:param centroids: ``(M, 2)`` centroides dos objetos ``(y, x)``, no mesmo referencial que ``peaks``.\n:param areas: ``(M,)`` áreas dos objetos em pixels.\n:param footprint: a que distância além do contorno de um objeto uma leitura pode estar e ainda ser dele, em pixels. Na primeira placa real, 98 % dos pontos estavam a menos de 10 px de um núcleo e 67 % a menos de 3 px.\n:param tie: quão próximos os dois contornos mais próximos podem estar antes de uma leitura ser recusada como ambígua, em pixels.\n:returns: ``(owner, ambiguous)`` -- o índice em ``centroids`` do dono de cada leitura, ou -1, e se cada leitura foi recusada como ambígua.",
+      "translation_source_blocks_sha256": [
+        "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+        "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+        "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+        "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+        "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+        "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+        "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+        "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3"
+      ]
+    },
     "spacr.ops_sbs.call_reads": {
       "source_blocks_sha256": [
         "b9b2331000bd5746ba7c42019e9760edf6e291bb13e094a1ca717947dfc85878",
         "cfbc151611fa1c09c7e19f215648e05443a13eb5b4fc23b9ea767413d9f52694",
+        "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
-        "0878c5abd532135939088f9683f8444d107b512ba65891712e9471dc79f6549d",
+        "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
         "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+        "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ],
-      "source_sha256": "8d1fc4def3e3bc51ee32f13381c6278562e0f24cc44ad054b1eee14e056f11f4",
-      "text": "Transforme intensidades por ciclo em uma cadeia de código de barras e uma qualidade por leitura.\n\nQualidade é a margem entre o canal vencedor e o vice-campeão, dividido por sua soma, por ciclo -- 0 quando duas bases são igualmente prováveis e 1 quando a chamada é inequívoca. Relatado por leitura como o MNIMO ao longo dos ciclos, porque um código de barras é tão confiável quanto sua pior base.\n\n:param values: ``(N, cycles, channels)`` a partir de  :func:`extract_bases`.\n:param bases: a letra para cada canal, em ordem de canal.\n:param compensate: Desfazer cross-talk primeiro. Desativado apenas para testar o que a compensação vale a pena.\n:param method: passou para :func:`compensate_crosstalk`.\n:returns: ``(barcodes, quality)`` -- uma cadeia de caracteres e um float por leitura.",
+      "source_sha256": "da28c745cb762feed4444140c2d50590f3fed6a06ee280f6c7fb0f72653a5cb2",
+      "text": "Transforme intensidades por ciclo em uma cadeia de código de barras e uma qualidade por leitura.\n\nQualidade é a margem entre o canal vencedor e o vice-campeão, dividido por sua soma, por ciclo -- 0 quando duas bases são igualmente prováveis e 1 quando a chamada é inequívoca. Relatado por leitura como o MNIMO ao longo dos ciclos, porque um código de barras é tão confiável quanto sua pior base.\n\nUm ciclo que não foi medido é chamado de ``N``. Quando os valores de uma leitura num ciclo são NaN -- o arquivo do ciclo não pôde ser lido ou o seu registro foi recusado --, essa letra é ``N`` e a qualidade é calculada sobre os ciclos que foram medidos, de modo que um ciclo perdido custa uma base de cada leitura e não a leitura inteira.\n\n:param values: ``(N, cycles, channels)`` a partir de  :func:`extract_bases`.\n:param bases: a letra para cada canal, em ordem de canal.\n:param compensate: desfaz a interferência entre canais com :func:`compensate_crosstalk` depois da normalização. Desligado por padrão: na primeira placa real reduziu a correspondência com a biblioteca.\n:param method: passou para :func:`compensate_crosstalk`.\n:param normalise: divide primeiro os canais de cada ciclo pela sua mediana sobre as leituras, o que remove a deriva de ganho e fundo de cada canal entre ciclos. É ignorado quando há leituras de menos para uma mediana.\n:param gpu: deixa a multiplicação da compensação rodar na placa de vídeo. False mantém toda a chamada na CPU.\n:returns: ``(barcodes, quality)`` -- uma cadeia de caracteres e um float por leitura.",
       "translation_source_blocks_sha256": [
         "b9b2331000bd5746ba7c42019e9760edf6e291bb13e094a1ca717947dfc85878",
         "cfbc151611fa1c09c7e19f215648e05443a13eb5b4fc23b9ea767413d9f52694",
+        "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
-        "0878c5abd532135939088f9683f8444d107b512ba65891712e9471dc79f6549d",
+        "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
         "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+        "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ]
     },
@@ -49711,17 +49875,19 @@
         "281147dde43d23884ef0a3c4a323bd90452f67cc0dbd60b77b57ec87644fcd98",
         "37c30f3020fedda6ff4ab0a7b226c264221ada227798ed43284cc746b231f5fb",
         "46391d1f9e20ab60e15493d35247221531d35da497cdb43376b147497ccb4aab",
+        "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
         "8019f7e7c6bed3fa6fed8551858bfb76671e388b0604bdbc08f44d5f8175a776",
         "8c52466956738d58c36a3b36e9bbbc0f49b16a68ceaeae9cd173c997aa5321ed",
         "8e8a6b535756a84d8abad896b7acd5ccc70e7e83c8d598a7cea308cea9f6a21a",
         "8e48d501f97b7b7d13ba4a8cd71ed79dbc65ae75bf0011b81c9c9d08d0b8efa5"
       ],
-      "source_sha256": "840be7753f707bdc4fc22054c24c4d1761ce296b96e3ce4f9c7bfd94167fd795",
-      "text": "Tire cada leitura para a biblioteca, mas APENAS em uma correspondência mais próxima.\n\nA ambiguidade é descartada, não adivinhada. Uma leitura igualmente próxima a dois códigos de barras da biblioteca retorna ``None``. Isso é deliberado e é o ponto principal da etapa: um guia mal atribuído move o fenótipo de uma célula para a perturbação errada e corrompe silenciosamente todas as estatísticas a jusante, enquanto uma leitura suspensa custa apenas a sensibilidade de detecção estatística que mais células podem comprar de volta.\n\nUma correspondência exata de curto-circuitos, então uma corrida limpa não paga nada por isso.\n\n:param barcodes: As chamadas leituras.\n:param library: o código de barras guia que a triagem realmente contém.\n:param max_distance: A maior distância de Hamming que pode ser corrigida.\n:returns: uma entrada por leitura - o código de barras da biblioteca, ou None.",
+      "source_sha256": "a390a8c28d503c7a51a94dc35230df66c9f7eed48ff9258c5e35332e4106e37c",
+      "text": "Tire cada leitura para a biblioteca, mas APENAS em uma correspondência mais próxima.\n\nA ambiguidade é descartada, não adivinhada. Uma leitura igualmente próxima a dois códigos de barras da biblioteca retorna ``None``. Isso é deliberado e é o ponto principal da etapa: um guia mal atribuído move o fenótipo de uma célula para a perturbação errada e corrompe silenciosamente todas as estatísticas a jusante, enquanto uma leitura suspensa custa apenas a sensibilidade de detecção estatística que mais células podem comprar de volta.\n\nUma correspondência exata de curto-circuitos, então uma corrida limpa não paga nada por isso.\n\nUm ``N`` é uma base que não foi medida, não um pareamento incorreto. Corresponde a qualquer letra e não conta para ``max_distance``; a regra de unicidade continua valendo, por isso uma leitura cuja base perdida é a única coisa que separa duas guias não é mapeada para nenhuma.\n\n:param barcodes: As chamadas leituras.\n:param library: o código de barras guia que a triagem realmente contém.\n:param max_distance: A maior distância de Hamming que pode ser corrigida.\n:returns: uma entrada por leitura - o código de barras da biblioteca, ou None.",
       "translation_source_blocks_sha256": [
         "281147dde43d23884ef0a3c4a323bd90452f67cc0dbd60b77b57ec87644fcd98",
         "673d78cb49f8b10d274649ee6fa306c555a7952229dfb9f605a1781b09a4ac6c",
         "46391d1f9e20ab60e15493d35247221531d35da497cdb43376b147497ccb4aab",
+        "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
         "8019f7e7c6bed3fa6fed8551858bfb76671e388b0604bdbc08f44d5f8175a776",
         "8c52466956738d58c36a3b36e9bbbc0f49b16a68ceaeae9cd173c997aa5321ed",
         "8e8a6b535756a84d8abad896b7acd5ccc70e7e83c8d598a7cea308cea9f6a21a",
@@ -50150,10 +50316,10 @@
         "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
         "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
         "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
-        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+        "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec"
       ],
-      "source_sha256": "cfb9890ef957af700a97e55a8a682a4efce6ced932903bd5996fc078e26241af",
-      "text": "Escreva uma tabela OPS para sqlite e seu cache de parquet, se tiver um.\n\nAmbos em uma chamada, porque 372 pede que as contagens de linha para ser afirmado igual e duas chamadas não poderia fazer isso - um chamador que escreveu o banco de dados e, em seguida, caiu deixaria um sidecar descrevendo uma execução diferente, e nada iria notar até que um leitor silenciosamente preferiu.\n\n:param db_path: banco de dados de medições.\n:param table: um de :data:`OPS_TABLES`.\n:param frame: a DataFrame.\n:returns: linhas escritas.\n:raises StoreError: em uma tabela desconhecida, ou quando o sidecar que acabou de escrever não tem o mesmo número de linhas que o banco de dados.",
+      "source_sha256": "a36dc0ff4c585e72a685a508892d6deee4cc042a5c9b641ec968f89b6fd9739c",
+      "text": "Escreva uma tabela OPS para sqlite e seu cache de parquet, se tiver um.\n\nAmbos em uma chamada, porque 372 pede que as contagens de linha para ser afirmado igual e duas chamadas não poderia fazer isso - um chamador que escreveu o banco de dados e, em seguida, caiu deixaria um sidecar descrevendo uma execução diferente, e nada iria notar até que um leitor silenciosamente preferiu.\n\n:param db_path: banco de dados de medições.\n:param table: um de :data:`OPS_TABLES`.\n:param frame: a DataFrame.\n:returns: linhas escritas.\n:raises StoreError: diante de uma tabela desconhecida; quando o arquivo auxiliar recém-gravado não tem o mesmo número de linhas que o banco de dados; ou quando ``ops_objects`` ou ``ops_barcodes`` teriam duas linhas para um objeto, dentro do quadro de dados ou entre o quadro de dados e a tabela à qual ele é acrescentado. Uma linha por objeto é uma restrição UNIQUE no esquema, e nada é gravado quando ela seria violada.",
       "translation_source_blocks_sha256": [
         "cb1f48e23580df19e7c878ae38dcf4956f768f0583a4a0083c9796d0dad5db82",
         "a4b25f82ddbd6a3498f35f4c728d91a7d5c5900e26e5da733646ee6ad77821fd",
@@ -50161,7 +50327,7 @@
         "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
         "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
         "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
-        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+        "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec"
       ]
     },
     "spacr.organelle_types": {

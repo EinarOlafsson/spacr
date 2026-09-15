@@ -1,0 +1,552 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "One microscope field of view's sequencing cycles, every channel moved into one frame.",
+      "label": "spacr.ops_cycles.AlignedField#0",
+      "source": "One field's sequencing cycles, every channel moved into one frame.",
+      "source_sha256": "bd3c464ba7c1e383af82723d56a979c52fe6ec952d9d321493ada19d256ea9ae",
+      "translation": "Les cycles de séquençage d'un champ, chaque canal ramené dans un même repère."
+    },
+    {
+      "context": "``(cycles, channels, Y, X)`` float32, one entry per cycle in :attr:`kept` and in that order.",
+      "label": "spacr.ops_cycles.AlignedField#1",
+      "source": "``(cycles, channels, Y, X)`` float32, one entry per cycle in :attr:`kept` and in that order.",
+      "source_sha256": "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+      "translation": "``(cycles, channels, Y, X)`` float32, une entrée par cycle de :attr:`kept` et dans cet ordre."
+    },
+    {
+      "context": "the cycle numbers the stack holds, ascending. The reference cycle is always among them.",
+      "label": "spacr.ops_cycles.AlignedField#2",
+      "source": "the cycle numbers the stack holds, ascending. The reference cycle is always among them.",
+      "source_sha256": "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+      "translation": "les numéros de cycle que contient la pile, par ordre croissant. Le cycle de référence en fait toujours partie."
+    },
+    {
+      "context": "cycles whose registration against the reference was not accepted. They are left out of the stack, because base calls read at untrusted coordinates decode to a wrong barcode rather than to none.",
+      "label": "spacr.ops_cycles.AlignedField#3",
+      "source": "cycles whose registration against the reference was not accepted. They are left out of the stack, because base calls read at untrusted coordinates decode to a wrong barcode rather than to none.",
+      "source_sha256": "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+      "translation": "cycles dont le recalage sur la référence n'a pas été accepté. Ils sont exclus de la pile, car des bases lues à des coordonnées non fiables se décodent en un code-barres faux plutôt qu'en aucun."
+    },
+    {
+      "context": "cycles offered with no image layers at all -- a file that could not be read, for instance.",
+      "label": "spacr.ops_cycles.AlignedField#4",
+      "source": "cycles offered with no planes at all -- a file that could not be read, for instance.",
+      "source_sha256": "41385b03734c138b45064627ad0272ae0ee312ed8a8de82cc8fcb74a0e5d6762",
+      "translation": "cycles proposés sans aucun plan -- un fichier illisible, par exemple."
+    },
+    {
+      "context": "``cycle -> one (dy, dx) per channel``, the shift that moved each channel onto the first channel of its cycle.",
+      "label": "spacr.ops_cycles.AlignedField#5",
+      "source": "``cycle -> one (dy, dx) per channel``, the shift that moved each channel onto the first channel of its cycle.",
+      "source_sha256": "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+      "translation": "``cycle -> one (dy, dx) per channel``, le décalage qui a ramené chaque canal sur le premier canal de son cycle."
+    },
+    {
+      "context": "``cycle -> (dy, dx)``, the shift that moved each kept cycle onto the reference; the reference's own is ``(0, 0)``.",
+      "label": "spacr.ops_cycles.AlignedField#6",
+      "source": "``cycle -> (dy, dx)``, the shift that moved each kept cycle onto the reference; the reference's own is ``(0, 0)``.",
+      "source_sha256": "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+      "translation": "``cycle -> (dy, dx)``, le décalage qui a ramené chaque cycle conservé sur la référence ; celui de la référence elle-même vaut ``(0, 0)``."
+    },
+    {
+      "context": "``(cycle, channel)`` pairs whose within-cycle registration was refused and which were therefore not moved.",
+      "label": "spacr.ops_cycles.AlignedField#7",
+      "source": "``(cycle, channel)`` pairs whose within-cycle registration was refused and which were therefore not moved.",
+      "source_sha256": "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af",
+      "translation": "paires ``(cycle, channel)`` dont le recalage au sein du cycle a été refusé et qui n'ont donc pas été déplacées."
+    },
+    {
+      "context": "Register one microscope field of view's channels within each cycle, then its cycles.",
+      "label": "spacr.ops_cycles.align_field#0",
+      "source": "Register one field's channels within each cycle, then its cycles.",
+      "source_sha256": "13e01cfdc5d576571ce120dcf9e2ac341bcfaeff666f621e730ea2187dd3c2b0",
+      "translation": "Recale les canaux d'un champ au sein de chaque cycle, puis ses cycles."
+    },
+    {
+      "context": "Each base image data channel is first moved onto its cycle's first image data channel, on the clipped cell background the image data channels share -- on the measured laboratory microplate they sat up to 14 px apart, which no cycle-to-cycle registration can see -- and each cycle is then moved onto the reference with :func:`sbs_mean_target`. A cycle offered as ``None`` or with a missing image layer is reported in :attr:`AlignedField.missing` and one whose registration is refused in :attr:`AlignedField.refused`; the rest are still aligned, so one lost cycle does not cost the microscope field of view.",
+      "label": "spacr.ops_cycles.align_field#1",
+      "source": "Each base channel is first moved onto its cycle's first channel, on the clipped cell background the channels share -- on the measured plate they sat up to 14 px apart, which no cycle-to-cycle registration can see -- and each cycle is then moved onto the reference with :func:`sbs_mean_target`. A cycle offered as ``None`` or with a missing plane is reported in :attr:`AlignedField.missing` and one whose registration is refused in :attr:`AlignedField.refused`; the rest are still aligned, so one lost cycle does not cost the field.",
+      "source_sha256": "39d05e48ed3f3462dc95f9cba322d1446c63f078d0a5c6a4f6a733f72b8a9197",
+      "translation": "Chaque canal de base est d'abord ramené sur le premier canal de son cycle, d'après le fond cellulaire écrêté que partagent les canaux -- sur la plaque mesurée, ils étaient jusqu'à 14 px les uns des autres, ce qu'aucun recalage entre cycles ne peut voir --, puis chaque cycle est ramené sur la référence avec :func:`sbs_mean_target`. Un cycle proposé comme ``None`` ou avec un plan manquant est signalé dans :attr:`AlignedField.missing`, et un cycle dont le recalage est refusé dans :attr:`AlignedField.refused` ; les autres sont tout de même alignés, si bien qu'un cycle perdu ne coûte pas le champ."
+    },
+    {
+      "context": "``cycle -> the base channels of that cycle``, every image layer one 2-D image of the same shape.",
+      "label": "spacr.ops_cycles.align_field#2",
+      "source": "``cycle -> the base channels of that cycle``, every plane one 2-D image of the same shape.",
+      "source_sha256": "f211b53d9666d844c68e1b911ddc96e3c0ef7b2c13967fbc066e39b3e30e0f02",
+      "translation": "``cycle -> the base channels of that cycle``, chaque plan étant une image 2-D de même forme."
+    },
+    {
+      "context": "the cycle everything is moved onto. None takes the lowest cycle that has image layers.",
+      "label": "spacr.ops_cycles.align_field#3",
+      "source": "the cycle everything is moved onto. None takes the lowest cycle that has planes.",
+      "source_sha256": "f27c769d803e0a2d9ad01e5607b2e4f6c0228b4befecd2e861ebe32b72ee3a79",
+      "translation": "le cycle sur lequel tout est ramené. None prend le plus petit cycle qui a des plans."
+    },
+    {
+      "context": "how far a cycle may land from the reference and still be accepted, in pixels.",
+      "label": "spacr.ops_cycles.align_field#4",
+      "source": "how far a cycle may land from the reference and still be accepted, in pixels.",
+      "source_sha256": "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+      "translation": "jusqu'à quelle distance de la référence un cycle peut atterrir tout en étant accepté, en pixels."
+    },
+    {
+      "context": "let the phase correlations run on the card.",
+      "label": "spacr.ops_cycles.align_field#5",
+      "source": "let the phase correlations run on the card.",
+      "source_sha256": "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+      "translation": "fait exécuter les corrélations de phase sur la carte graphique."
+    },
+    {
+      "context": "the aligned field.",
+      "label": "spacr.ops_cycles.align_field#6",
+      "source": "the aligned field.",
+      "source_sha256": "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+      "translation": "le champ aligné."
+    },
+    {
+      "context": "when no cycle has image layers, or when the reference cycle has none.",
+      "label": "spacr.ops_cycles.align_field#7",
+      "source": "when no cycle has planes, or when the reference cycle has none.",
+      "source_sha256": "95e5b8500674d5534f485b2db469e50c1dc2a53ab38e0ef50cc0e90dd9a274ea",
+      "translation": "lorsqu'aucun cycle n'a de plans, ou lorsque le cycle de référence n'en a pas."
+    },
+    {
+      "context": "Run an optical pooled screening experiment's sequencing acquisition from microscope image fields to tables.",
+      "label": "spacr.ops_engine#0",
+      "source": "Run an optical pooled screen's sequencing acquisition from tiles to tables.",
+      "source_sha256": "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
+      "translation": "Exécute l'acquisition de séquençage d'un criblage optique regroupé, des tuiles aux tables."
+    },
+    {
+      "context": "One call takes each microplate sample position from its microscope image field files to three tables in ``measurements.db``: ``ops_geometry``, where each nuclear microscope image field sits in the microplate sample position frame; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the microplate sample position; and ``ops_barcodes``, one row per nucleus whose attributed reads agree.",
+      "label": "spacr.ops_engine#1",
+      "source": "One call takes each well from its tile files to three tables in ``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the well frame; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the well; and ``ops_barcodes``, one row per nucleus whose attributed reads agree.",
+      "source_sha256": "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
+      "translation": "Un appel mène chaque puits de ses fichiers de tuiles à trois tables de ``measurements.db`` : ``ops_geometry``, où chaque tuile nucléaire se situe dans le repère du puits ; ``ops_objects``, une ligne par noyau, segmenté sur la carte nucléaire composée et numéroté une fois pour le puits ; et ``ops_barcodes``, une ligne par noyau dont les lectures attribuées concordent."
+    },
+    {
+      "context": "A file that cannot be read costs one cycle of the microscope field of view it belongs to and is listed in the report; it does not cost the microplate sample position. The phenotype acquisition is not placed by this step.",
+      "label": "spacr.ops_engine#2",
+      "source": "A file that cannot be read costs one cycle of the field it belongs to and is listed in the report; it does not cost the well. The phenotype acquisition is not placed by this step.",
+      "source_sha256": "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73",
+      "translation": "Un fichier illisible coûte un cycle du champ auquel il appartient et figure dans le rapport ; il ne coûte pas le puits. Cette étape ne place pas l'acquisition de phénotype."
+    },
+    {
+      "context": "Stitch, segment and decode the microplate sample positions of one sequencing acquisition.",
+      "label": "spacr.ops_engine.run_ops#0",
+      "source": "Stitch, segment and decode the wells of one sequencing acquisition.",
+      "source_sha256": "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
+      "translation": "Assemble, segmente et décode les puits d'une acquisition de séquençage."
+    },
+    {
+      "context": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing microscope image fields, searched recursively; ``dst_root``, where ``measurements.db`` and the per-microplate sample position reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many microscope fields of view decode at once; ``cellpose_model`` and ``cellpose_diameter``.",
+      "label": "spacr.ops_engine.run_ops#1",
+      "source": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing tiles, searched recursively; ``dst_root``, where ``measurements.db`` and the per-well reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields decode at once; ``cellpose_model`` and ``cellpose_diameter``.",
+      "source_sha256": "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
+      "translation": "les réglages OPS. Lus ici : ``genotype_source``, le dossier des tuiles de séquençage, parcouru récursivement ; ``dst_root``, où vont ``measurements.db`` et les rapports par puits, le dossier source s'il est vide ; ``plate``, le nom du dossier source s'il est vide ; ``ops_gpu`` ; ``n_workers``, le nombre de champs décodés à la fois ; ``cellpose_model`` et ``cellpose_diameter``."
+    },
+    {
+      "context": "which microplate sample positions to run; every microplate sample position found when None.",
+      "label": "spacr.ops_engine.run_ops#2",
+      "source": "which wells to run; every well found when None.",
+      "source_sha256": "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
+      "translation": "les puits à exécuter ; tous les puits trouvés lorsque None."
+    },
+    {
+      "context": "any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a microplate sample position can be stitched once and decoded again.",
+      "label": "spacr.ops_engine.run_ops#3",
+      "source": "any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a well can be stitched once and decoded again.",
+      "source_sha256": "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
+      "translation": "n'importe lesquelles de ``\"stitch\"``, ``\"objects\"`` et ``\"decode\"``, exécutées dans cet ordre. Une phase omise lit ce dont elle a besoin dans la base de données, de sorte qu'un puits peut être assemblé une fois puis décodé à nouveau."
+    },
+    {
+      "context": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide.",
+      "label": "spacr.ops_engine.run_ops#4",
+      "source": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide.",
+      "source_sha256": "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+      "translation": "les codes-barres des guides, sous forme de séquence ou de chemin vers un CSV ayant une colonne ``prefix``, ``barcode`` ou ``sequence``. Lorsqu'ils sont fournis, chaque code-barres est aussi associé à son guide le plus proche."
+    },
+    {
+      "context": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "label": "spacr.ops_engine.run_ops#5",
+      "source": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "source_sha256": "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+      "translation": "``{\"db\": path, \"wells\": {well: {phase: report}}}``."
+    },
+    {
+      "context": "when the source holds no microscope image fields this can name, an unknown phase or well is asked for, or a phase's input is missing.",
+      "label": "spacr.ops_engine.run_ops#6",
+      "source": "when the source holds no tiles this can name, an unknown phase or well is asked for, or a phase's input is missing.",
+      "source_sha256": "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c",
+      "translation": "lorsque la source ne contient aucune tuile que cela sait nommer, qu'une phase ou un puits inconnu est demandé, ou que l'entrée d'une phase manque."
+    },
+    {
+      "context": "half a microscope image field's side, in grid units. A site is kept when its whole microscope image field lies inside the circle: at ``(dx, dy)`` from the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero keeps every site whose centre is inside, which is the rule every layout followed before this microscope field of view existed.",
+      "label": "spacr.ops_layout.WellLayout#5",
+      "source": "half a tile's side, in grid units. A site is kept when its whole tile lies inside the circle: at ``(dx, dy)`` from the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero keeps every site whose centre is inside, which is the rule every layout followed before this field existed.",
+      "source_sha256": "8f325a816c5bbaf3978bc1b0e1f2384012d77d38ea943976debc17de5c593ee7",
+      "translation": "la moitié du côté d'une tuile, en unités de grille. Un site est conservé lorsque sa tuile entière se trouve dans le cercle : à ``(dx, dy)`` du centre, lorsque ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zéro conserve tout site dont le centre est à l'intérieur, ce qui est la règle que suivait toute disposition avant l'existence de ce champ."
+    },
+    {
+      "context": "The microscope image field has to fit, not its centre. The centre rule holds the 333-microscope field of view sequencing well and cannot produce the column heights the 1,281-microscope field of view phenotype well was measured at, for any radius. With the footprint term both come out as measured, and every column is centred on the same row.",
+      "label": "spacr.ops_layout.WellLayout#6",
+      "source": "The tile has to fit, not its centre. The centre rule holds the 333-field sequencing well and cannot produce the column heights the 1,281-field phenotype well was measured at, for any radius. With the footprint term both come out as measured, and every column is centred on the same row.",
+      "source_sha256": "06ca32f7fa55d96acacd275df9f0d6e990beb502f91bbcbbe942f5df4ab41384",
+      "translation": "C'est la tuile qui doit tenir, pas son centre. La règle du centre retrouve le puits de séquençage de 333 champs mais ne peut produire, pour aucun rayon, les hauteurs de colonne mesurées sur le puits de phénotype de 1,281 champs. Avec le terme d'empreinte, les deux sortent tels que mesurés, et chaque colonne est centrée sur la même ligne."
+    },
+    {
+      "context": "the inclusive absolute row range of the sites whose whole microscope image field lies inside the circle -- see :attr:`half_tile`.",
+      "label": "spacr.ops_layout.WellLayout.span#2",
+      "source": "the inclusive absolute row range of the sites whose whole tile lies inside the circle -- see :attr:`half_tile`.",
+      "source_sha256": "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4",
+      "translation": "la plage absolue et inclusive de lignes des sites dont la tuile entière est dans le cercle -- voir :attr:`half_tile`."
+    },
+    {
+      "context": "The measured well is returned unchanged whenever the search lands on its 333 sites, so the confirmed model is never re-derived. For any other count the radius is searched -- a well imaged at a different magnification or a different laboratory microplate format is the same circle with a different number of microscope fields of view in it.",
+      "label": "spacr.ops_layout.round_well_layout#1",
+      "source": "The measured well is returned unchanged whenever the search lands on its 333 sites, so the confirmed model is never re-derived. For any other count the radius is searched -- a well imaged at a different magnification or a different plate format is the same circle with a different number of fields in it.",
+      "source_sha256": "86268289cc8151bcdee1cedd1f609ed53d034ff8323229112d2a1cfb1a521f55",
+      "translation": "Le puits mesuré est renvoyé tel quel chaque fois que la recherche aboutit à ses 333 sites, si bien que le modèle confirmé n'est jamais redérivé. Pour tout autre nombre, le rayon est recherché -- un puits imagé à un autre grossissement ou dans un autre format de plaque est le même cercle avec un autre nombre de champs à l'intérieur."
+    },
+    {
+      "context": "half a microscope image field's side in microscope image field pitches -- the microscope image field size over twice the registered pitch. A microscope field of view is kept when its whole microscope image field lies inside the circle; zero keeps it when its centre does. The default is the phenotype acquisition's measured 0.5857. The sequencing acquisition measured 0.5840, and every value strictly between 0.5 and 2.0 gives both microplate sample positions -- 333 and 1,281 microscope fields of view -- the column heights they were measured at.",
+      "label": "spacr.ops_layout.round_well_layout#4",
+      "source": "half a tile's side in tile pitches -- the tile size over twice the registered pitch. A field is kept when its whole tile lies inside the circle; zero keeps it when its centre does. The default is the phenotype acquisition's measured 0.5857. The sequencing acquisition measured 0.5840, and every value strictly between 0.5 and 2.0 gives both wells -- 333 and 1,281 fields -- the column heights they were measured at.",
+      "source_sha256": "c63e219d31a59ab085b7434370040f30d072e66e0a9e87fdca14135374b066ac",
+      "translation": "la moitié du côté d'une tuile, en pas de tuile -- la taille de la tuile divisée par deux fois le pas recalé. Un champ est conservé lorsque sa tuile entière est dans le cercle ; zéro le conserve lorsque son centre y est. La valeur par défaut est le 0.5857 mesuré sur l'acquisition de phénotype. L'acquisition de séquençage a mesuré 0.5840, et toute valeur strictement comprise entre 0.5 et 2.0 donne aux deux puits -- 333 et 1,281 champs -- les hauteurs de colonne avec lesquelles ils ont été mesurés."
+    },
+    {
+      "context": "when no circle holds exactly that many microscope fields of view, which is the honest answer -- a count that no round well produces means the acquisition is not one, and guessing the nearest would place every microscope image field slightly wrong. Also when ``half_tile`` is negative or not a number.",
+      "label": "spacr.ops_layout.round_well_layout#6",
+      "source": "when no circle holds exactly that many fields, which is the honest answer -- a count that no round well produces means the acquisition is not one, and guessing the nearest would place every tile slightly wrong. Also when ``half_tile`` is negative or not a number.",
+      "source_sha256": "c2fc36d4de364217c55b41aa0312bda2c72f6671f1df7fcbed55d6c8e88713b0",
+      "translation": "lorsqu'aucun cercle ne contient exactement ce nombre de champs, ce qui est la réponse honnête -- un nombre qu'aucun puits rond ne produit signifie que l'acquisition n'en est pas un, et deviner le plus proche placerait chaque tuile légèrement de travers. Aussi lorsque ``half_tile`` est négatif ou n'est pas un nombre."
+    },
+    {
+      "context": "For one half microscope image field, the count fixes the fields. The number of fields inside the circle only grows with the radius, so every radius that holds exactly ``site_count`` holds the same ones. The radius the layout carries is one of those, not a measurement.",
+      "label": "spacr.ops_layout.round_well_layout#7",
+      "source": "For one half tile, the count fixes the fields. The number of fields inside the circle only grows with the radius, so every radius that holds exactly ``site_count`` holds the same ones. The radius the layout carries is one of those, not a measurement.",
+      "source_sha256": "2f7270145a6377b6ae43cc385f4e785ba75db522e11a7e546a7397c17f3eede2",
+      "translation": "Pour une même demi-tuile, le nombre fixe les champs. Le nombre de champs dans le cercle ne fait que croître avec le rayon, si bien que tout rayon qui en contient exactement ``site_count`` contient les mêmes. Le rayon que porte la disposition est l'un d'eux, pas une mesure."
+    },
+    {
+      "context": "Which leaves one failure that must not be silent: an object larger than the overlap, which every window clips. :func:`number` refuses those rather than emitting a fragment, because a fragment looks exactly like a small nucleus and would be counted as one for the rest of the processing session.",
+      "label": "spacr.ops_objects#7",
+      "source": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT: an object larger than the overlap, which every window clips. :func:`number` refuses those rather than emitting a fragment, because a fragment looks exactly like a small nucleus and would be counted as one for the rest of the run.",
+      "source_sha256": "9ba2321f17439d3fd4a3b06d53ac4f49127ce9a492def8e4f8a737101af7d7c9",
+      "translation": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT (reste donc une défaillance qui ne doit pas passer sous silence) : un objet plus grand que le recouvrement, que chaque fenêtre coupe. :func:`number` refuse ces objets plutôt que d'émettre un fragment, car un fragment ressemble exactement à un petit noyau et serait compté comme tel pendant tout le reste de l'exécution."
+    },
+    {
+      "context": "refuse a group with no complete observation. Turned off, such a group is dropped rather than numbered -- nothing with a truncated area is emitted -- and how many were dropped is logged as a warning.",
+      "label": "spacr.ops_objects.number#4",
+      "source": "refuse a group with no complete observation. Turned off, such a group is dropped rather than numbered -- nothing with a truncated area is emitted -- and how many were dropped is logged as a warning.",
+      "source_sha256": "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+      "translation": "refuse un groupe sans observation complète. Désactivé, un tel groupe est abandonné au lieu d'être numéroté -- rien dont l'aire est tronquée n'est émis -- et le nombre de groupes abandonnés est journalisé sous forme d'avertissement."
+    },
+    {
+      "context": "when a group holds only clipped observations: either the object is larger than the window overlap, or it is a fragment that matched no window's whole view of its nucleus. The message gives the object's extent and the remedy for each case.",
+      "label": "spacr.ops_objects.number#5",
+      "source": "when a group holds only clipped observations: either the object is larger than the window overlap, or it is a fragment that matched no window's whole view of its nucleus. The message gives the object's extent and the remedy for each case.",
+      "source_sha256": "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac",
+      "translation": "lorsqu'un groupe ne contient que des observations coupées : soit l'objet est plus grand que le recouvrement des fenêtres, soit c'est un fragment qui ne correspond à la vue complète de son noyau dans aucune fenêtre. Le message donne l'étendue de l'objet et le remède pour chaque cas."
+    },
+    {
+      "context": "Two labels of one window are never one object, because a label image does not give one nucleus two labels. Two complete observations from different windows are one nucleus when their centroids agree within ``tolerance`` on each axis and either their areas agree to ``area_ratio`` or their centroids lie within the smaller one's equivalent radius -- the radius of a disc of its area. Pairs whose areas agree are joined first, then the rest closest first, and a join that would give a group two labels of one window is refused.",
+      "label": "spacr.ops_objects.sew#3",
+      "source": "Two labels of one window are never one object, because a label image does not give one nucleus two labels. Two complete observations from different windows are one nucleus when their centroids agree within ``tolerance`` on each axis and either their areas agree to ``area_ratio`` or their centroids lie within the smaller one's equivalent radius -- the radius of a disc of its area. Pairs whose areas agree are joined first, then the rest closest first, and a join that would give a group two labels of one window is refused.",
+      "source_sha256": "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+      "translation": "Deux étiquettes d'une même fenêtre ne sont jamais un seul objet, car une image d'étiquettes ne donne pas deux étiquettes à un noyau. Deux observations complètes de fenêtres différentes sont un même noyau lorsque leurs centroïdes concordent à ``tolerance`` près sur chaque axe et que soit leurs aires concordent à ``area_ratio`` près, soit leurs centroïdes se trouvent dans le rayon équivalent de la plus petite -- le rayon d'un disque de son aire. Les paires dont les aires concordent sont réunies d'abord, puis les autres, les plus proches en premier, et une réunion qui donnerait à un groupe deux étiquettes d'une même fenêtre est refusée."
+    },
+    {
+      "context": "A clipped observation is matched by containment, not by a fixed distance: the cut moves its centroid inward by up to the nucleus's radius, so a fixed tolerance misses exactly the deep clips. It joins a complete observation from another window when its centroid lies inside that observation's equivalent disc, or its bounding box lies inside that observation's box give or take two pixels. It joins only the closest such observation, so one clip can never make two nuclei one object. Clipped observations that match nothing complete are grouped with each other where their boxes overlap.",
+      "label": "spacr.ops_objects.sew#4",
+      "source": "A clipped observation is matched by containment, not by a fixed distance: the cut moves its centroid inward by up to the nucleus's radius, so a fixed tolerance misses exactly the deep clips. It joins a complete observation from another window when its centroid lies inside that observation's equivalent disc, or its bounding box lies inside that observation's box give or take two pixels. It joins only the closest such observation, so one clip can never make two nuclei one object. Clipped observations that match nothing complete are grouped with each other where their boxes overlap.",
+      "source_sha256": "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
+      "translation": "Une observation coupée est appariée par inclusion, pas par une distance fixe : la coupe déplace son centroïde vers l'intérieur jusqu'au rayon du noyau, si bien qu'une tolérance fixe manque justement les coupes profondes. Elle rejoint une observation complète d'une autre fenêtre lorsque son centroïde se trouve dans le disque équivalent de cette observation, ou lorsque sa boîte englobante se trouve dans la boîte de cette observation à deux pixels près. Elle ne rejoint que la plus proche de ces observations, si bien qu'une coupe ne peut jamais faire de deux noyaux un seul objet. Les observations coupées qui ne correspondent à rien de complet sont regroupées entre elles là où leurs boîtes se recouvrent."
+    },
+    {
+      "context": "Where every phenotype field's centre lies, from a few measured ones.",
+      "label": "spacr.ops_phenotype.phenotype_centres#0",
+      "source": "Where every phenotype field's centre lies, from a few measured ones.",
+      "source_sha256": "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+      "translation": "Où se trouve le centre de chaque champ de phénotype, à partir de quelques centres mesurés."
+    },
+    {
+      "context": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many microscope fields of view it holds.",
+      "label": "spacr.ops_phenotype.phenotype_centres#1",
+      "source": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.",
+      "source_sha256": "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+      "translation": "le :class:`spacr.ops_layout.WellLayout` de l'acquisition de phénotype, ou le nombre de champs qu'elle contient."
+    },
+    {
+      "context": "``{site: (y, x)}``, the microplate sample position-frame centres of at least three aligned microscope fields of view whose grid positions are not all on one line. Six spread over the microplate sample position is what the method was validated with.",
+      "label": "spacr.ops_phenotype.phenotype_centres#2",
+      "source": "``{site: (y, x)}``, the well-frame centres of at least three aligned fields whose grid positions are not all on one line. Six spread over the well is what the method was validated with.",
+      "source_sha256": "a72f71fa491262526c02f83f4a7ec3603ecff94045440e61c8c1c9c5811c5b57",
+      "translation": "``{site: (y, x)}``, les centres dans le repère du puits d'au moins trois champs alignés dont les positions dans la grille ne sont pas toutes sur une même droite. La méthode a été validée avec six champs répartis sur le puits."
+    },
+    {
+      "context": "``{site: (y, x)}`` for every field of the layout, anchors included -- their fitted centres, not the measured ones.",
+      "label": "spacr.ops_phenotype.phenotype_centres#3",
+      "source": "``{site: (y, x)}`` for every field of the layout, anchors included -- their fitted centres, not the measured ones.",
+      "source_sha256": "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+      "translation": "``{site: (y, x)}`` pour chaque champ de la disposition, ancres comprises -- leurs centres ajustés, pas les centres mesurés."
+    },
+    {
+      "context": "when the anchors cannot fix a raster: fewer than three, on one line of the grid, or a centre that is not two finite numbers. Also for a microscope field of view count no round well holds.",
+      "label": "spacr.ops_phenotype.phenotype_centres#4",
+      "source": "when the anchors cannot fix a raster: fewer than three, on one line of the grid, or a centre that is not two finite numbers. Also for a field count no round well holds.",
+      "source_sha256": "62734fbdc05ad91105b8666536bf5de38fa2efd63b6c2a9c5a89883340d8da45",
+      "translation": "lorsque les ancres ne peuvent pas fixer une trame : moins de trois, sur une même droite de la grille, ou un centre qui n'est pas deux nombres finis. Aussi pour un nombre de champs qu'aucun puits rond ne contient."
+    },
+    {
+      "context": "when an anchor names a site the layout does not hold.",
+      "label": "spacr.ops_phenotype.phenotype_centres#5",
+      "source": "when an anchor names a site the layout does not hold.",
+      "source_sha256": "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+      "translation": "lorsqu'une ancre désigne un site que la disposition ne contient pas."
+    },
+    {
+      "context": "Six numbers place the whole well. The layout gives every microscope field of view's grid position, and the acquisition raster maps a grid position into the well frame by an origin, a column step and a row step, each a ``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by least squares on six microscope fields of view of a real well, that predicted the other 472 microscope fields of view' measured centres to a median 1.2 px and a worst 4.0 px, and a second well's 451 to a worst 4.4 px.",
+      "label": "spacr.ops_phenotype.phenotype_centres#6",
+      "source": "Six numbers place the whole well. The layout gives every field's grid position, and the acquisition raster maps a grid position into the well frame by an origin, a column step and a row step, each a ``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by least squares on six fields of a real well, that predicted the other 472 fields' measured centres to a median 1.2 px and a worst 4.0 px, and a second well's 451 to a worst 4.4 px.",
+      "source_sha256": "869851e6ed102bb8bc4f3c240b3f674eca045bb487f031f3c41457e759e709a1",
+      "translation": "Six nombres placent tout le puits. La disposition donne la position de chaque champ dans la grille, et la trame d'acquisition envoie une position de grille dans le repère du puits par une origine, un pas de colonne et un pas de ligne, chacun une paire ``(dy, dx)`` qui porte les quelques pixels d'inclinaison de la platine. Ajusté par moindres carrés sur six champs d'un vrai puits, cela a prédit les centres mesurés des 472 autres champs avec une médiane de 1.2 px et au pire 4.0 px, et les 451 d'un second puits avec au pire 4.4 px."
+    },
+    {
+      "context": "Which sequencing tile covers each phenotype microscope field of view.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#0",
+      "source": "Which sequencing tile covers each phenotype field.",
+      "source_sha256": "d8987e7ccf9126ae97b1035274f1858ed5d91a9c926e1041d075a74f46bda5c2",
+      "translation": "Quelle tuile de séquençage couvre chaque champ de phénotype."
+    },
+    {
+      "context": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many microscope fields of view it holds.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#1",
+      "source": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.",
+      "source_sha256": "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+      "translation": "le :class:`spacr.ops_layout.WellLayout` de l'acquisition de phénotype, ou le nombre de champs qu'elle contient."
+    },
+    {
+      "context": "``{sequencing site: (y, x)}``, the centre of each stitched sequencing microscope image field in the microplate sample position frame -- its placement plus half a microscope image field.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#2",
+      "source": "``{sequencing site: (y, x)}``, the centre of each stitched sequencing tile in the well frame -- its placement plus half a tile.",
+      "source_sha256": "5ee088d6438ce7110691e740d8d39daf49266a6bfecbabe2da381af4c445991b",
+      "translation": "``{sequencing site: (y, x)}``, le centre de chaque tuile de séquençage assemblée dans le repère du puits -- sa position plus une demi-tuile."
+    },
+    {
+      "context": "``{phenotype site: (y, x)}``, measured well-frame centres of at least three aligned phenotype microscope fields of view, as :func:`phenotype_centres` takes them.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#3",
+      "source": "``{phenotype site: (y, x)}``, measured well-frame centres of at least three aligned phenotype fields, as :func:`phenotype_centres` takes them.",
+      "source_sha256": "9482032d0529e408eedc31b529b11c047715bf35366e88b102aabc2b5761a35f",
+      "translation": "``{phenotype site: (y, x)}``, centres mesurés dans le repère du puits d'au moins trois champs de phénotype alignés, tels que :func:`phenotype_centres` les reçoit."
+    },
+    {
+      "context": "``(height, width)`` of a sequencing microscope image field, in well-frame pixels.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#4",
+      "source": "``(height, width)`` of a sequencing tile, in well-frame pixels.",
+      "source_sha256": "7b4ad6c687274f962bda174e28f7bedfb4e7466743ab89786faba23d1ae362f7",
+      "translation": "``(height, width)`` d'une tuile de séquençage, en pixels du repère du puits."
+    },
+    {
+      "context": "``{phenotype site: sequencing site}``. Each microscope field of view goes to the tile whose centre is nearest its predicted centre, among the tiles that contain it; a microscope field of view whose predicted centre lies inside no tile is omitted.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#5",
+      "source": "``{phenotype site: sequencing site}``. Each field goes to the tile whose centre is nearest its predicted centre, among the tiles that contain it; a field whose predicted centre lies inside no tile is omitted.",
+      "source_sha256": "343e414cceff1565e0cee8d9a8ec18e898ad8efe76cf98bf334aff2939a9be51",
+      "translation": "``{phenotype site: sequencing site}``. Chaque champ va à la tuile dont le centre est le plus proche de son centre prédit, parmi les tuiles qui le contiennent ; un champ dont le centre prédit n'est dans aucune tuile est omis."
+    },
+    {
+      "context": "when ``tile_shape`` is not two positive sizes, or when :func:`phenotype_centres` refuses the anchors or the count.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#6",
+      "source": "when ``tile_shape`` is not two positive sizes, or when :func:`phenotype_centres` refuses the anchors or the count.",
+      "source_sha256": "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+      "translation": "lorsque ``tile_shape`` n'est pas deux tailles positives, ou lorsque :func:`phenotype_centres` refuse les ancres ou le nombre."
+    },
+    {
+      "context": "A position, not an index. The microscope image field a microscope field of view lies on depends on where the microscope image field boundaries actually fall, and halving a phenotype grid index about the microplate sample position centre cannot see them: at twice the microscope image field density half the phenotype microscope fields of view lie on or near a sequencing microscope image field boundary. On the real laboratory microplate halving found the exact microscope image field for 0.45 to 0.61 of the aligned microscope fields of view; predicting each centre from six anchors and taking the nearest stitched microscope image field found it for 472 of 472 and 451 of 451.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#7",
+      "source": "A position, not an index. The tile a field lies on depends on where the tile boundaries actually fall, and halving a phenotype grid index about the well centre cannot see them: at twice the tile density half the phenotype fields lie on or near a sequencing tile boundary. On the real plate halving found the exact tile for 0.45 to 0.61 of the aligned fields; predicting each centre from six anchors and taking the nearest stitched tile found it for 472 of 472 and 451 of 451.",
+      "source_sha256": "d67e620df54a44769db2cde7feabc8935859b8753a09913120bda2d3e3ce9b27",
+      "translation": "Une position, pas un indice. La tuile sur laquelle tombe un champ dépend de l'endroit où passent réellement les limites des tuiles, et diviser par deux un indice de grille de phénotype autour du centre du puits ne peut pas les voir : à densité de tuiles double, la moitié des champs de phénotype se trouvent sur une limite de tuile de séquençage ou près d'elle. Sur la vraie plaque, la division par deux a trouvé la bonne tuile pour 0.45 à 0.61 des champs alignés ; prédire chaque centre à partir de six ancres et prendre la tuile assemblée la plus proche l'a trouvée pour 472 sur 472 et 451 sur 451."
+    },
+    {
+      "context": "Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which already normalises each cycle's channels and reports quality as the MINIMUM over cycles -- \"a barcode is only as trustworthy as its worst base\". Repeating that here would be a second decoder to keep in step.",
+      "label": "spacr.ops_sample.barcode_rows#1",
+      "source": "Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which already normalises each cycle's channels and reports quality as the MINIMUM over cycles -- \"a barcode is only as trustworthy as its worst base\". Repeating that here would be a second decoder to keep in step.",
+      "source_sha256": "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
+      "translation": "Délègue l'appel lui-même à :func:`spacr.ops_sbs.call_reads`, qui normalise déjà les canaux de chaque cycle et rapporte la qualité comme le MINIMUM (minimum) sur les cycles -- \"un code-barres n'est fiable que dans la mesure de sa pire base\". Le répéter ici ferait un second décodeur à maintenir en phase."
+    },
+    {
+      "context": "Optical pooled screening reads the guide barcode out of the images. Each sequencing cycle stains four image data channels, one per base, and a spot's base in that cycle is whichever image data channel is brightest -- once the image data channels have been put on a common scale. Read one base per cycle at the same spot and the cycles spell the barcode.",
+      "label": "spacr.ops_sbs#2",
+      "source": "Optical pooled screening reads the guide barcode OUT OF THE IMAGES. Each sequencing cycle stains four channels, one per base, and a spot's base in that cycle is whichever channel is brightest -- once the channels have been put on a common scale. Read one base per cycle at the same spot and the cycles spell the barcode.",
+      "source_sha256": "96f751fe3936bc37122069588f7980e88b041b2cf6fb2905765d0397cbed37c3",
+      "translation": "Le criblage optique regroupé lit le code-barres du guide OUT OF THE IMAGES (directement dans les images). Chaque cycle de séquençage marque quatre canaux, un par base, et la base d'un spot dans ce cycle est le canal le plus lumineux -- une fois les canaux ramenés à une échelle commune. Lisez une base par cycle au même spot et les cycles épellent le code-barres."
+    },
+    {
+      "context": "**The brightest raw channel is not the base.** Every channel has its own gain and background, and on a real plate both drift from cycle to cycle, so the raw argmax is biased toward whichever channel is brightest overall. Each cycle's channels are divided by their median over the reads first. Unmixing the dyes' bleed-through is available on top of that; on the first real plate it lowered the library match.",
+      "label": "spacr.ops_sbs#7",
+      "source": "**The brightest raw channel is not the base.** Every channel has its own gain and background, and on a real plate both drift from cycle to cycle, so the raw argmax is biased toward whichever channel is brightest overall. Each cycle's channels are divided by their median over the reads first. Unmixing the dyes' bleed-through is available on top of that; on the first real plate it lowered the library match.",
+      "source_sha256": "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
+      "translation": "**Le canal brut le plus lumineux n'est pas la base.** Chaque canal a son propre gain et son propre fond, et sur une vraie plaque les deux dérivent d'un cycle à l'autre, si bien que l'argmax brut penche vers le canal le plus lumineux dans l'ensemble. Les canaux de chaque cycle sont d'abord divisés par leur médiane sur les lectures. Le démixage des fuites entre colorants est disponible en plus ; sur la première vraie plaque, il a fait baisser la concordance avec la bibliothèque."
+    },
+    {
+      "context": "Give each laboratory microplate object the barcode its attributed reads agree on.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#0",
+      "source": "Give each plate object the barcode its attributed reads agree on.",
+      "source_sha256": "56bd36897564e1ddb76e61dccdb0383bbb0f00a6a8b43788faf4396aa8743653",
+      "translation": "Donne à chaque objet de la plaque le code-barres sur lequel ses lectures attribuées s'accordent."
+    },
+    {
+      "context": "The same rule as :func:`assign_reads_to_cells` -- at least ``min_reads`` reads, ``min_fraction`` of them carrying one barcode, and no tie for first -- keyed by the object id each read was attributed to rather than by the label a read lands on. That is what lets reads collected from several microscope fields of view vote once for the object they belong to.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#1",
+      "source": "The same rule as :func:`assign_reads_to_cells` -- at least ``min_reads`` reads, ``min_fraction`` of them carrying one barcode, and no tie for first -- keyed by the object id each read was attributed to rather than by the label a read lands on. That is what lets reads collected from several fields vote once for the object they belong to.",
+      "source_sha256": "3c6bfdd6dcb24565647dc9aa1ea26a3fee06fddeae59f21f2a58c53a3758852d",
+      "translation": "La même règle que :func:`assign_reads_to_cells` -- au moins ``min_reads`` lectures, dont ``min_fraction`` portent le même code-barres, et aucune égalité pour la première place --, mais indexée par l'identifiant de l'objet auquel chaque lecture a été attribuée plutôt que par l'étiquette sur laquelle tombe la lecture. C'est ce qui permet aux lectures recueillies dans plusieurs champs de voter une seule fois pour l'objet auquel elles appartiennent."
+    },
+    {
+      "context": "one object id per read; 0 or a negative id means the read has no owner and is ignored.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#2",
+      "source": "one object id per read; 0 or a negative id means the read has no owner and is ignored.",
+      "source_sha256": "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+      "translation": "un identifiant d'objet par lecture ; 0 ou un identifiant négatif signifie que la lecture n'a pas de propriétaire et est ignorée."
+    },
+    {
+      "context": "one called barcode per read.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#3",
+      "source": "one called barcode per read.",
+      "source_sha256": "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+      "translation": "un code-barres lu par lecture."
+    },
+    {
+      "context": "optional per-read quality from :func:`call_reads`.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#4",
+      "source": "optional per-read quality from :func:`call_reads`.",
+      "source_sha256": "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+      "translation": "qualité facultative par lecture, issue de :func:`call_reads`."
+    },
+    {
+      "context": "how many reads an object needs before it may be assigned.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#5",
+      "source": "how many reads an object needs before it may be assigned.",
+      "source_sha256": "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+      "translation": "combien de lectures un objet doit avoir avant de pouvoir être attribué."
+    },
+    {
+      "context": "what share of them must agree.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#6",
+      "source": "what share of them must agree.",
+      "source_sha256": "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+      "translation": "quelle part d'entre elles doit concorder."
+    },
+    {
+      "context": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every object that met the bar.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#7",
+      "source": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every object that met the bar.",
+      "source_sha256": "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6",
+      "translation": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` pour chaque objet qui a atteint le seuil."
+    },
+    {
+      "context": "Give each detected read to the object whose boundary is nearest.",
+      "label": "spacr.ops_sbs.attribute_reads#0",
+      "source": "Give each detected read to the object whose boundary is nearest.",
+      "source_sha256": "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+      "translation": "Attribue chaque lecture détectée à l'objet dont le contour est le plus proche."
+    },
+    {
+      "context": "Reads are detected over the whole field first and attributed here, so a footprint that is too tight shows up as reads with no owner rather than staying invisible. The boundary is each object's equivalent disc, the circle of its area about its centroid, and a read whose two nearest boundaries lie within ``tie`` of each other is given to neither and flagged.",
+      "label": "spacr.ops_sbs.attribute_reads#1",
+      "source": "Reads are detected over the whole field first and attributed here, so a footprint that is too tight shows up as reads with no owner rather than staying invisible. The boundary is each object's equivalent disc, the circle of its area about its centroid, and a read whose two nearest boundaries lie within ``tie`` of each other is given to neither and flagged.",
+      "source_sha256": "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+      "translation": "Les lectures sont d'abord détectées sur tout le champ puis attribuées ici, de sorte qu'une empreinte trop étroite apparaît sous forme de lectures sans propriétaire au lieu de rester invisible. Le contour est le disque équivalent de chaque objet, le cercle de son aire autour de son centroïde, et une lecture dont les deux contours les plus proches sont à moins de ``tie`` l'un de l'autre n'est attribuée à aucun et est signalée."
+    },
+    {
+      "context": "``(N, 2)`` read positions ``(y, x)``.",
+      "label": "spacr.ops_sbs.attribute_reads#2",
+      "source": "``(N, 2)`` read positions ``(y, x)``.",
+      "source_sha256": "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+      "translation": "``(N, 2)`` positions des lectures ``(y, x)``."
+    },
+    {
+      "context": "``(M, 2)`` object centroids ``(y, x)``, in the same frame as ``peaks``.",
+      "label": "spacr.ops_sbs.attribute_reads#3",
+      "source": "``(M, 2)`` object centroids ``(y, x)``, in the same frame as ``peaks``.",
+      "source_sha256": "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+      "translation": "``(M, 2)`` centroïdes des objets ``(y, x)``, dans le même repère que ``peaks``."
+    },
+    {
+      "context": "``(M,)`` object areas in pixels.",
+      "label": "spacr.ops_sbs.attribute_reads#4",
+      "source": "``(M,)`` object areas in pixels.",
+      "source_sha256": "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+      "translation": "``(M,)`` aires des objets en pixels."
+    },
+    {
+      "context": "how far beyond an object's boundary a read may lie and still be its read, in pixels. On the first real plate 98 % of spots lay within 10 px of a nucleus and 67 % within 3 px.",
+      "label": "spacr.ops_sbs.attribute_reads#5",
+      "source": "how far beyond an object's boundary a read may lie and still be its read, in pixels. On the first real plate 98 % of spots lay within 10 px of a nucleus and 67 % within 3 px.",
+      "source_sha256": "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+      "translation": "jusqu'où au-delà du contour d'un objet une lecture peut se trouver tout en restant la sienne, en pixels. Sur la première vraie plaque, 98 % des spots étaient à moins de 10 px d'un noyau et 67 % à moins de 3 px."
+    },
+    {
+      "context": "how close the two nearest boundaries may be before a read is refused as ambiguous, in pixels.",
+      "label": "spacr.ops_sbs.attribute_reads#6",
+      "source": "how close the two nearest boundaries may be before a read is refused as ambiguous, in pixels.",
+      "source_sha256": "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+      "translation": "à quel point les deux contours les plus proches peuvent être rapprochés avant qu'une lecture soit refusée comme ambiguë, en pixels."
+    },
+    {
+      "context": "``(owner, ambiguous)`` -- the index into ``centroids`` of each read's owner, or -1, and whether each read was refused as ambiguous.",
+      "label": "spacr.ops_sbs.attribute_reads#7",
+      "source": "``(owner, ambiguous)`` -- the index into ``centroids`` of each read's owner, or -1, and whether each read was refused as ambiguous.",
+      "source_sha256": "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3",
+      "translation": "``(owner, ambiguous)`` -- l'indice dans ``centroids`` du propriétaire de chaque lecture, ou -1, et si chaque lecture a été refusée comme ambiguë."
+    },
+    {
+      "context": "A cycle that was not measured is called ``N``. Where a read's values for one cycle are NaN -- the cycle's file could not be read, or its registration was refused -- that letter is ``N`` and the quality is taken over the cycles that were measured, so one lost cycle costs one base of each read and not the read.",
+      "label": "spacr.ops_sbs.call_reads#2",
+      "source": "A cycle that was not measured is called ``N``. Where a read's values for one cycle are NaN -- the cycle's file could not be read, or its registration was refused -- that letter is ``N`` and the quality is taken over the cycles that were measured, so one lost cycle costs one base of each read and not the read.",
+      "source_sha256": "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
+      "translation": "Un cycle qui n'a pas été mesuré est appelé ``N``. Lorsque les valeurs d'une lecture pour un cycle sont NaN -- le fichier du cycle n'a pas pu être lu, ou son recalage a été refusé --, cette lettre vaut ``N`` et la qualité est calculée sur les cycles mesurés ; un cycle perdu coûte donc une base à chaque lecture, et non la lecture entière."
+    },
+    {
+      "context": "undo cross-talk with :func:`compensate_crosstalk` after normalising. Off by default: on the first real plate it lowered the library match.",
+      "label": "spacr.ops_sbs.call_reads#5",
+      "source": "undo cross-talk with :func:`compensate_crosstalk` after normalising. Off by default: on the first real plate it lowered the library match.",
+      "source_sha256": "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
+      "translation": "annule la diaphonie avec :func:`compensate_crosstalk` après la normalisation. Désactivé par défaut : sur la première vraie plaque, il a fait baisser la concordance avec la bibliothèque."
+    },
+    {
+      "context": "divide each cycle's channels by their median over the reads first, which removes the per-channel gain and background drift between cycles. Skipped when there are too few reads for a median.",
+      "label": "spacr.ops_sbs.call_reads#7",
+      "source": "divide each cycle's channels by their median over the reads first, which removes the per-channel gain and background drift between cycles. Skipped when there are too few reads for a median.",
+      "source_sha256": "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+      "translation": "divise d'abord les canaux de chaque cycle par leur médiane sur les lectures, ce qui supprime la dérive de gain et de fond de chaque canal d'un cycle à l'autre. Ignoré lorsqu'il y a trop peu de lectures pour une médiane."
+    },
+    {
+      "context": "let the compensation's multiply run on the card. False keeps the whole call on the CPU.",
+      "label": "spacr.ops_sbs.call_reads#8",
+      "source": "let the compensation's multiply run on the card. False keeps the whole call on the CPU.",
+      "source_sha256": "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
+      "translation": "fait exécuter la multiplication de la compensation sur la carte graphique. False garde tout l'appel sur le CPU."
+    },
+    {
+      "context": "An ``N`` is a base that was not measured, not a mismatch. It matches any letter and is not counted against ``max_distance``; the uniqueness rule still applies, so a read whose lost base is the only thing separating two guides maps to neither.",
+      "label": "spacr.ops_sbs.correct_to_library#3",
+      "source": "An ``N`` is a base that was not measured, not a mismatch. It matches any letter and is not counted against ``max_distance``; the uniqueness rule still applies, so a read whose lost base is the only thing separating two guides maps to neither.",
+      "source_sha256": "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
+      "translation": "Un ``N`` est une base qui n'a pas été mesurée, pas un mésappariement. Il correspond à n'importe quelle lettre et n'est pas compté dans ``max_distance`` ; la règle d'unicité s'applique toujours, de sorte qu'une lecture dont la base perdue est la seule chose qui sépare deux guides n'est associée à aucun des deux."
+    },
+    {
+      "context": "on an unknown table; when the sidecar it just wrote does not have the same number of rows as the database; or when ``ops_objects`` or ``ops_barcodes`` would hold two rows for one object, inside the frame or between the frame and the table it is appended to. One row per object is a UNIQUE constraint in the schema, and nothing is written when it would be broken.",
+      "label": "spacr.ops_store.write_table#6",
+      "source": "on an unknown table; when the sidecar it just wrote does not have the same number of rows as the database; or when ``ops_objects`` or ``ops_barcodes`` would hold two rows for one object, inside the frame or between the frame and the table it is appended to. One row per object is a UNIQUE constraint in the schema, and nothing is written when it would be broken.",
+      "source_sha256": "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec",
+      "translation": "pour une table inconnue ; lorsque le fichier annexe qu'il vient d'écrire n'a pas le même nombre de lignes que la base de données ; ou lorsque ``ops_objects`` ou ``ops_barcodes`` contiendraient deux lignes pour un même objet, dans le tableau de données ou entre ce tableau et la table à laquelle il est ajouté. Une ligne par objet est une contrainte UNIQUE du schéma, et rien n'est écrit lorsqu'elle serait violée."
+    }
+  ],
+  "schema": 1
+}

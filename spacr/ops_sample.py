@@ -224,9 +224,9 @@ def barcode_rows(objects: Sequence, values: np.ndarray, *,
     """``ops_barcodes`` rows: one per object, assembled across cycles.
 
     Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which
-    already compensates cross-talk and reports quality as the MINIMUM over
-    cycles -- "a barcode is only as trustworthy as its worst base". Repeating
-    that here would be a second decoder to keep in step.
+    already normalises each cycle's channels and reports quality as the
+    MINIMUM over cycles -- "a barcode is only as trustworthy as its worst
+    base". Repeating that here would be a second decoder to keep in step.
 
     :param objects: the numbered objects, in the same order as ``values``'
         first axis.

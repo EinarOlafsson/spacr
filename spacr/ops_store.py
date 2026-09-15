@@ -96,8 +96,12 @@ def write_table(db_path: str, table: str, frame, *,
     :param table: one of :data:`OPS_TABLES`.
     :param frame: a DataFrame.
     :returns: rows written.
-    :raises StoreError: on an unknown table, or when the sidecar it just
-        wrote does not have the same number of rows as the database.
+    :raises StoreError: on an unknown table; when the sidecar it just
+        wrote does not have the same number of rows as the database; or when
+        ``ops_objects`` or ``ops_barcodes`` would hold two rows for one
+        object, inside the frame or between the frame and the table it is
+        appended to. One row per object is a UNIQUE constraint in the schema,
+        and nothing is written when it would be broken.
     """
     db_path = _resolved(db_path)
     if table not in OPS_TABLES:
@@ -109,8 +113,22 @@ def write_table(db_path: str, table: str, frame, *,
     rows = int(len(frame))
     from .tabular import write_database
 
-    write_database(frame, db_path, table, if_exists=if_exists,
-                   canonicalise=False, index=False)
+    key = _object_key(table, frame.columns)
+    appending = if_exists == "append" and row_count(db_path, table) is not None
+    if key:
+        _refuse_repeated_keys(table, frame, key)
+        if appending:
+            _constrain(db_path, table, key, created=False)
+    try:
+        write_database(frame, db_path, table, if_exists=if_exists,
+                       canonicalise=False, index=False)
+    except sqlite3.IntegrityError as failure:
+        if not key:
+            raise
+        raise StoreError(_collision_message(
+            db_path, table, frame, key, failure)) from failure
+    if key:
+        _constrain(db_path, table, key, created=not appending)
     stored = row_count(db_path, table)
     if stored is None:
         raise StoreError(
@@ -138,6 +156,167 @@ def write_table(db_path: str, table: str, frame, *,
             f"database has {stored}. The cache has been removed so reads "
             f"fall back to the authority rather than to the disagreement.")
     return stored
+
+
+_ONE_ROW_PER_OBJECT = ("ops_objects", "ops_barcodes")
+
+
+def _object_key(table: str, columns) -> Tuple[str, ...]:
+    """The columns that name one object in ``table``, or ``()`` for none.
+
+    372 PART 14-L, V11c: the storage contract says ``UNIQUE(plate, well,
+    object_id)``, and the table on disk had plain columns and no index, so
+    appending a well twice doubled it without an error. ``ops_objects`` and
+    ``ops_barcodes`` hold one row per object; ``ops_reads`` holds many and
+    ``ops_geometry`` none. The key is ``object_id`` together with whichever
+    of ``plate`` and ``well`` the frame carries, because ids are numbered per
+    well and two wells legitimately share them.
+
+    :param table: the OPS table being written.
+    :param columns: the frame's columns.
+    :returns: the key columns, or ``()`` when the table has no one-row-per-
+        object contract or the frame has no ``object_id`` to hold it to.
+    """
+    names = [str(column) for column in columns]
+    if table not in _ONE_ROW_PER_OBJECT or "object_id" not in names:
+        return ()
+    return tuple(name for name in ("plate", "well") if name in names) + (
+        "object_id",)
+
+
+def _quoted(name: str) -> str:
+    """A SQLite identifier in double quotes, embedded quotes doubled.
+
+    :param name: a table, index or column name.
+    :returns: the quoted identifier.
+    """
+    return '"' + str(name).replace('"', '""') + '"'
+
+
+def _named(key: Sequence[str], rows: Iterable[Sequence[Any]]) -> str:
+    """Key values as ``plate='p1', well='A1', object_id=2``, joined by ``; ``.
+
+    :param key: the key columns.
+    :param rows: one tuple of values per key.
+    :returns: the readable list.
+    """
+    return "; ".join(
+        ", ".join(f"{column}={value!r}" for column, value in zip(key, row))
+        for row in rows)
+
+
+def _refuse_repeated_keys(table: str, frame, key: Sequence[str]) -> None:
+    """Refuse a frame that repeats a key, before anything is written.
+
+    Checked in the frame first so a replace never drops a good table for a
+    bad one: the write that would have replaced it does not start.
+
+    :param table: the OPS table being written.
+    :param frame: the DataFrame to be written.
+    :param key: the key columns.
+    :raises StoreError: naming how many rows share a key, and up to five of
+        the keys.
+    """
+    columns = list(key)
+    repeated = frame.duplicated(subset=columns, keep=False)
+    if not bool(repeated.any()):
+        return
+    keys = frame.loc[repeated, columns].drop_duplicates()
+    raise StoreError(
+        f"{table} would hold {int(repeated.sum())} rows for {len(keys)} "
+        f"object(s) on ({', '.join(columns)}), e.g. "
+        f"{_named(columns, keys.head(5).itertuples(index=False, name=None))}. "
+        f"One row per object is a constraint of the storage contract, and "
+        f"every later join on object_id would count these objects more than "
+        f"once. Nothing was written.")
+
+
+def _constrain(db_path: str, table: str, key: Sequence[str], *,
+               created: bool) -> None:
+    """Put the one-row-per-object key into the schema as a UNIQUE index.
+
+    A pandas ``replace`` drops the table and its indexes with it, so this
+    runs after every write; ``IF NOT EXISTS`` makes it free when the index
+    is there. Before an append it runs on the existing table, so the append
+    itself fails inside its transaction and rolls back whole.
+
+    :param db_path: the resolved database path.
+    :param table: the OPS table.
+    :param key: the key columns.
+    :param created: whether this call's write created the table. A table
+        created with keys SQLite considers equal (``1`` and ``1.0``, which a
+        DataFrame keeps apart) is removed, so no table with duplicate ids is
+        left for :func:`objects_ready` to pass; an existing table is the
+        caller's data and is only reported.
+    :raises StoreError: when the table already holds duplicate keys.
+    """
+    columns = ", ".join(_quoted(column) for column in key)
+    index = _quoted(f"{table}_unique_{'_'.join(key)}")
+    with sqlite3.connect(str(db_path), timeout=30) as conn:
+        present = {row[1] for row in conn.execute(
+            f"PRAGMA table_info({_quoted(table)})")}
+        if not set(key) <= present:
+            return
+        try:
+            conn.execute(f"CREATE UNIQUE INDEX IF NOT EXISTS {index} ON "
+                         f"{_quoted(table)} ({columns})")
+            return
+        except sqlite3.IntegrityError:
+            duplicates = conn.execute(
+                f"SELECT {columns} FROM {_quoted(table)} GROUP BY {columns} "
+                f"HAVING COUNT(*) > 1 LIMIT 5").fetchall()
+            if created:
+                conn.execute(f"DROP TABLE {_quoted(table)}")
+                conn.commit()
+    if created:
+        _remove_stale(_sidecar_path(db_path, table))
+        raise StoreError(
+            f"{table} was written with more than one row for "
+            f"{_named(key, duplicates)} -- keys the frame kept apart but "
+            f"SQLite treats as equal. The table was removed rather than left "
+            f"with duplicate ids for a later phase to join on.")
+    raise StoreError(
+        f"{table} in {db_path} already holds more than one row for "
+        f"{_named(key, duplicates)}; it was written without the uniqueness "
+        f"constraint. Rewrite it (if_exists='replace') before appending to "
+        f"it.")
+
+
+def _collision_message(db_path: str, table: str, frame, key: Sequence[str],
+                       failure: Exception) -> str:
+    """Name the keys an append shared with the table it was refused by.
+
+    :param db_path: the resolved database path.
+    :param table: the OPS table.
+    :param frame: the frame whose append was refused.
+    :param key: the key columns.
+    :param failure: SQLite's own error, quoted when no shared key is found.
+    :returns: the sentence for the :class:`StoreError`.
+    """
+    columns = list(key)
+    incoming = ", ".join(_quoted(column) for column in columns)
+    matched = " AND ".join(
+        f"existing.{_quoted(column)} = incoming.{_quoted(column)}"
+        for column in columns)
+    with sqlite3.connect(str(db_path), timeout=30) as conn:
+        conn.execute(f"CREATE TEMP TABLE incoming_keys ({incoming})")
+        conn.executemany(
+            f"INSERT INTO incoming_keys VALUES "
+            f"({', '.join('?' for _ in columns)})",
+            frame[columns].itertuples(index=False, name=None))
+        joined = (f"FROM {_quoted(table)} AS existing JOIN incoming_keys AS "
+                  f"incoming ON {matched}")
+        shared = conn.execute(f"SELECT COUNT(*) {joined}").fetchone()[0]
+        examples = conn.execute(
+            f"SELECT {', '.join('incoming.' + _quoted(c) for c in columns)} "
+            f"{joined} LIMIT 5").fetchall()
+    if not shared:
+        return (f"appending to {table} broke its uniqueness constraint "
+                f"({failure}); nothing was appended.")
+    return (f"{table} already holds {shared} of the {len(frame)} object(s) "
+            f"being appended, e.g. {_named(columns, examples)}. One object "
+            f"would have two rows, so the append was rolled back and the "
+            f"table is as it was. Write each well once, or replace it.")
 
 
 def _remove_stale(path: str) -> None:

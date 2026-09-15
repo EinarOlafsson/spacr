@@ -51,17 +51,27 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,845 | Remainder | Reviewed API blocks | Of 10,534 | Remainder |
+| Language | Reviewed runtime records | Of 5,845 | Remainder | Reviewed API blocks | Of 10,541 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 201 | 3.44% | 5,644 | 539 | 5.12% | 9,995 |
-| German | 164 | 2.81% | 5,681 | 497 | 4.72% | 10,037 |
-| Spanish | 173 | 2.96% | 5,672 | 378 | 3.59% | 10,156 |
-| Simplified Chinese | 487 | 8.33% | 5,358 | 648 | 6.15% | 9,886 |
-| Portuguese | 164 | 2.81% | 5,681 | 609 | 5.78% | 9,925 |
-| Hindi | 246 | 4.21% | 5,599 | 542 | 5.15% | 9,992 |
-| Korean | 383 | 6.55% | 5,462 | 615 | 5.84% | 9,919 |
-| Icelandic | 334 | 5.71% | 5,511 | 1,110 | 10.54% | 9,424 |
-| French | 179 | 3.06% | 5,666 | 538 | 5.11% | 9,996 |
+| Swedish | 201 | 3.44% | 5,644 | 616 | 5.84% | 9,925 |
+| German | 164 | 2.81% | 5,681 | 574 | 5.45% | 9,967 |
+| Spanish | 173 | 2.96% | 5,672 | 455 | 4.32% | 10,086 |
+| Simplified Chinese | 487 | 8.33% | 5,358 | 725 | 6.88% | 9,816 |
+| Portuguese | 164 | 2.81% | 5,681 | 686 | 6.51% | 9,855 |
+| Hindi | 246 | 4.21% | 5,599 | 619 | 5.87% | 9,922 |
+| Korean | 383 | 6.55% | 5,462 | 692 | 6.56% | 9,849 |
+| Icelandic | 334 | 5.71% | 5,511 | 1,187 | 11.26% | 9,354 |
+| French | 179 | 3.06% | 5,666 | 615 | 5.83% | 9,926 |
+
+*Regenerated 2026-09-15 for instruction 372's OPS engine, on local nightly
+f5d651454 and on top of the pass below. The API denominator moves 10,534 ->
+10,541, +7/-0: spacr.ops_engine and run_ops, ops_cycles.AlignedField and
+align_field, ops_sbs.attribute_reads and assign_reads_to_objects,
+ops_phenotype.phenotype_centres. Every reviewed API count rises by exactly 77:
+78 hand-written records per locale (702), two of which share one English
+source. The runtime denominator and every runtime count are unchanged. The
+totals sentence below is re-derived too: nightly's still read 2,241, the count
+before 286's ten records per locale, while its rows already read 2,331.*
 
 *Regenerated 2026-09-15, fourth pass, on nightly b03e9740b, for 286's
 performance levels. The runtime denominator moved 5,835 -> 5,845: ten `ui`
@@ -299,5 +309,5 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 191, de 154, es 163, zh_CN 477, pt 154, hi 236, ko 373, is 324, fr 169 -- 2,241 runtime records across nine locales.
+Reviewed totals today: sv 201, de 164, es 173, zh_CN 487, pt 164, hi 246, ko 383, is 334, fr 179 -- 2,331 runtime records across nine locales.
 

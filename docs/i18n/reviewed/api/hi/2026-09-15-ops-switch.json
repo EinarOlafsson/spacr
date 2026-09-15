@@ -1,0 +1,552 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "One microscope field of view's sequencing cycles, every channel moved into one frame.",
+      "label": "spacr.ops_cycles.AlignedField#0",
+      "source": "One field's sequencing cycles, every channel moved into one frame.",
+      "source_sha256": "bd3c464ba7c1e383af82723d56a979c52fe6ec952d9d321493ada19d256ea9ae",
+      "translation": "एक फ़ील्ड के सीक्वेंसिंग चक्र, हर चैनल को एक ही फ़्रेम में खिसकाकर।"
+    },
+    {
+      "context": "``(cycles, channels, Y, X)`` float32, one entry per cycle in :attr:`kept` and in that order.",
+      "label": "spacr.ops_cycles.AlignedField#1",
+      "source": "``(cycles, channels, Y, X)`` float32, one entry per cycle in :attr:`kept` and in that order.",
+      "source_sha256": "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+      "translation": "``(cycles, channels, Y, X)`` float32, :attr:`kept` में हर चक्र के लिए एक प्रविष्टि, उसी क्रम में।"
+    },
+    {
+      "context": "the cycle numbers the stack holds, ascending. The reference cycle is always among them.",
+      "label": "spacr.ops_cycles.AlignedField#2",
+      "source": "the cycle numbers the stack holds, ascending. The reference cycle is always among them.",
+      "source_sha256": "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+      "translation": "स्टैक में मौजूद चक्र संख्याएँ, आरोही क्रम में। संदर्भ चक्र हमेशा इनमें होता है।"
+    },
+    {
+      "context": "cycles whose registration against the reference was not accepted. They are left out of the stack, because base calls read at untrusted coordinates decode to a wrong barcode rather than to none.",
+      "label": "spacr.ops_cycles.AlignedField#3",
+      "source": "cycles whose registration against the reference was not accepted. They are left out of the stack, because base calls read at untrusted coordinates decode to a wrong barcode rather than to none.",
+      "source_sha256": "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+      "translation": "वे चक्र जिनका संदर्भ के विरुद्ध पंजीकरण स्वीकार नहीं हुआ। उन्हें स्टैक से बाहर रखा जाता है, क्योंकि अविश्वसनीय निर्देशांकों पर पढ़े गए बेस किसी भी बारकोड के न होने के बजाय गलत बारकोड में डिकोड होते हैं।"
+    },
+    {
+      "context": "cycles offered with no image layers at all -- a file that could not be read, for instance.",
+      "label": "spacr.ops_cycles.AlignedField#4",
+      "source": "cycles offered with no planes at all -- a file that could not be read, for instance.",
+      "source_sha256": "41385b03734c138b45064627ad0272ae0ee312ed8a8de82cc8fcb74a0e5d6762",
+      "translation": "वे चक्र जो बिना किसी प्लेन के दिए गए -- उदाहरण के लिए, ऐसी फ़ाइल जो पढ़ी नहीं जा सकी।"
+    },
+    {
+      "context": "``cycle -> one (dy, dx) per channel``, the shift that moved each channel onto the first channel of its cycle.",
+      "label": "spacr.ops_cycles.AlignedField#5",
+      "source": "``cycle -> one (dy, dx) per channel``, the shift that moved each channel onto the first channel of its cycle.",
+      "source_sha256": "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+      "translation": "``cycle -> one (dy, dx) per channel``, वह खिसकाव जिसने हर चैनल को उसके चक्र के पहले चैनल पर पहुँचाया।"
+    },
+    {
+      "context": "``cycle -> (dy, dx)``, the shift that moved each kept cycle onto the reference; the reference's own is ``(0, 0)``.",
+      "label": "spacr.ops_cycles.AlignedField#6",
+      "source": "``cycle -> (dy, dx)``, the shift that moved each kept cycle onto the reference; the reference's own is ``(0, 0)``.",
+      "source_sha256": "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+      "translation": "``cycle -> (dy, dx)``, वह खिसकाव जिसने हर रखे गए चक्र को संदर्भ पर पहुँचाया; संदर्भ का अपना ``(0, 0)`` है।"
+    },
+    {
+      "context": "``(cycle, channel)`` pairs whose within-cycle registration was refused and which were therefore not moved.",
+      "label": "spacr.ops_cycles.AlignedField#7",
+      "source": "``(cycle, channel)`` pairs whose within-cycle registration was refused and which were therefore not moved.",
+      "source_sha256": "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af",
+      "translation": "``(cycle, channel)`` जोड़े जिनका चक्र के भीतर पंजीकरण अस्वीकार हुआ और इसलिए जिन्हें खिसकाया नहीं गया।"
+    },
+    {
+      "context": "Register one microscope field of view's channels within each cycle, then its cycles.",
+      "label": "spacr.ops_cycles.align_field#0",
+      "source": "Register one field's channels within each cycle, then its cycles.",
+      "source_sha256": "13e01cfdc5d576571ce120dcf9e2ac341bcfaeff666f621e730ea2187dd3c2b0",
+      "translation": "एक फ़ील्ड के चैनलों को हर चक्र के भीतर, फिर उसके चक्रों को पंजीकृत करता है।"
+    },
+    {
+      "context": "Each base image data channel is first moved onto its cycle's first image data channel, on the clipped cell background the image data channels share -- on the measured laboratory microplate they sat up to 14 px apart, which no cycle-to-cycle registration can see -- and each cycle is then moved onto the reference with :func:`sbs_mean_target`. A cycle offered as ``None`` or with a missing image layer is reported in :attr:`AlignedField.missing` and one whose registration is refused in :attr:`AlignedField.refused`; the rest are still aligned, so one lost cycle does not cost the microscope field of view.",
+      "label": "spacr.ops_cycles.align_field#1",
+      "source": "Each base channel is first moved onto its cycle's first channel, on the clipped cell background the channels share -- on the measured plate they sat up to 14 px apart, which no cycle-to-cycle registration can see -- and each cycle is then moved onto the reference with :func:`sbs_mean_target`. A cycle offered as ``None`` or with a missing plane is reported in :attr:`AlignedField.missing` and one whose registration is refused in :attr:`AlignedField.refused`; the rest are still aligned, so one lost cycle does not cost the field.",
+      "source_sha256": "39d05e48ed3f3462dc95f9cba322d1446c63f078d0a5c6a4f6a733f72b8a9197",
+      "translation": "हर बेस चैनल को पहले उसके चक्र के पहले चैनल पर खिसकाया जाता है, उस कटी हुई कोशिका पृष्ठभूमि के आधार पर जो चैनल साझा करते हैं -- मापी गई प्लेट पर वे 14 px तक अलग थे, जिसे चक्रों के बीच का कोई पंजीकरण नहीं देख सकता -- और फिर हर चक्र को :func:`sbs_mean_target` से संदर्भ पर खिसकाया जाता है। ``None`` के रूप में या किसी गायब प्लेन के साथ दिया गया चक्र :attr:`AlignedField.missing` में और जिसका पंजीकरण अस्वीकार हुआ वह :attr:`AlignedField.refused` में दर्ज होता है; बाकी फिर भी संरेखित होते हैं, इसलिए एक खोया चक्र पूरे फ़ील्ड को नहीं खोता।"
+    },
+    {
+      "context": "``cycle -> the base channels of that cycle``, every image layer one 2-D image of the same shape.",
+      "label": "spacr.ops_cycles.align_field#2",
+      "source": "``cycle -> the base channels of that cycle``, every plane one 2-D image of the same shape.",
+      "source_sha256": "f211b53d9666d844c68e1b911ddc96e3c0ef7b2c13967fbc066e39b3e30e0f02",
+      "translation": "``cycle -> the base channels of that cycle``, हर प्लेन एक ही आकार की 2-D छवि।"
+    },
+    {
+      "context": "the cycle everything is moved onto. None takes the lowest cycle that has image layers.",
+      "label": "spacr.ops_cycles.align_field#3",
+      "source": "the cycle everything is moved onto. None takes the lowest cycle that has planes.",
+      "source_sha256": "f27c769d803e0a2d9ad01e5607b2e4f6c0228b4befecd2e861ebe32b72ee3a79",
+      "translation": "वह चक्र जिस पर सब कुछ खिसकाया जाता है। None उस सबसे निचले चक्र को लेता है जिसके प्लेन हों।"
+    },
+    {
+      "context": "how far a cycle may land from the reference and still be accepted, in pixels.",
+      "label": "spacr.ops_cycles.align_field#4",
+      "source": "how far a cycle may land from the reference and still be accepted, in pixels.",
+      "source_sha256": "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+      "translation": "कोई चक्र संदर्भ से कितनी दूर पहुँच सकता है और फिर भी स्वीकार हो, पिक्सेल में।"
+    },
+    {
+      "context": "let the phase correlations run on the card.",
+      "label": "spacr.ops_cycles.align_field#5",
+      "source": "let the phase correlations run on the card.",
+      "source_sha256": "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+      "translation": "फ़ेज़ सहसंबंधों को ग्राफ़िक्स कार्ड पर चलने देता है।"
+    },
+    {
+      "context": "the aligned field.",
+      "label": "spacr.ops_cycles.align_field#6",
+      "source": "the aligned field.",
+      "source_sha256": "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+      "translation": "संरेखित फ़ील्ड।"
+    },
+    {
+      "context": "when no cycle has image layers, or when the reference cycle has none.",
+      "label": "spacr.ops_cycles.align_field#7",
+      "source": "when no cycle has planes, or when the reference cycle has none.",
+      "source_sha256": "95e5b8500674d5534f485b2db469e50c1dc2a53ab38e0ef50cc0e90dd9a274ea",
+      "translation": "जब किसी चक्र के प्लेन न हों, या संदर्भ चक्र के कोई प्लेन न हों।"
+    },
+    {
+      "context": "Run an optical pooled screening experiment's sequencing acquisition from microscope image fields to tables.",
+      "label": "spacr.ops_engine#0",
+      "source": "Run an optical pooled screen's sequencing acquisition from tiles to tables.",
+      "source_sha256": "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
+      "translation": "किसी ऑप्टिकल पूल्ड स्क्रीनिंग प्रयोग के सीक्वेंसिंग अधिग्रहण को टाइलों से तालिकाओं तक चलाता है।"
+    },
+    {
+      "context": "One call takes each microplate sample position from its microscope image field files to three tables in ``measurements.db``: ``ops_geometry``, where each nuclear microscope image field sits in the microplate sample position frame; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the microplate sample position; and ``ops_barcodes``, one row per nucleus whose attributed reads agree.",
+      "label": "spacr.ops_engine#1",
+      "source": "One call takes each well from its tile files to three tables in ``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the well frame; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the well; and ``ops_barcodes``, one row per nucleus whose attributed reads agree.",
+      "source_sha256": "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
+      "translation": "एक कॉल हर वेल को उसकी टाइल फ़ाइलों से ``measurements.db`` की तीन तालिकाओं तक ले जाती है: ``ops_geometry``, जिसमें हर न्यूक्लियर टाइल वेल फ़्रेम में कहाँ है; ``ops_objects``, हर नाभिक की एक पंक्ति, जोड़े गए न्यूक्लियर मानचित्र पर विभाजित और वेल के लिए एक बार क्रमांकित; और ``ops_barcodes``, हर उस नाभिक की एक पंक्ति जिसके सौंपे गए रीड्स सहमत हैं।"
+    },
+    {
+      "context": "A file that cannot be read costs one cycle of the microscope field of view it belongs to and is listed in the report; it does not cost the microplate sample position. The phenotype acquisition is not placed by this step.",
+      "label": "spacr.ops_engine#2",
+      "source": "A file that cannot be read costs one cycle of the field it belongs to and is listed in the report; it does not cost the well. The phenotype acquisition is not placed by this step.",
+      "source_sha256": "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73",
+      "translation": "जो फ़ाइल पढ़ी नहीं जा सकती वह अपने फ़ील्ड का एक चक्र खोती है और रिपोर्ट में सूचीबद्ध होती है; वह पूरे वेल को नहीं खोती। फ़ीनोटाइप अधिग्रहण इस चरण से नहीं रखा जाता।"
+    },
+    {
+      "context": "Stitch, segment and decode the microplate sample positions of one sequencing acquisition.",
+      "label": "spacr.ops_engine.run_ops#0",
+      "source": "Stitch, segment and decode the wells of one sequencing acquisition.",
+      "source_sha256": "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
+      "translation": "एक सीक्वेंसिंग अधिग्रहण के वेल्स को जोड़ता, विभाजित करता और डिकोड करता है।"
+    },
+    {
+      "context": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing microscope image fields, searched recursively; ``dst_root``, where ``measurements.db`` and the per-microplate sample position reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many microscope fields of view decode at once; ``cellpose_model`` and ``cellpose_diameter``.",
+      "label": "spacr.ops_engine.run_ops#1",
+      "source": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing tiles, searched recursively; ``dst_root``, where ``measurements.db`` and the per-well reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields decode at once; ``cellpose_model`` and ``cellpose_diameter``.",
+      "source_sha256": "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
+      "translation": "OPS सेटिंग्स। यहाँ पढ़ी जाती हैं: ``genotype_source``, सीक्वेंसिंग टाइलों का फ़ोल्डर, जिसे पुनरावर्ती रूप से खोजा जाता है; ``dst_root``, जहाँ ``measurements.db`` और हर वेल की रिपोर्टें जाती हैं, खाली होने पर स्रोत फ़ोल्डर; ``plate``, खाली होने पर स्रोत फ़ोल्डर का नाम; ``ops_gpu``; ``n_workers``, एक साथ कितने फ़ील्ड डिकोड हों; ``cellpose_model`` और ``cellpose_diameter``।"
+    },
+    {
+      "context": "which microplate sample positions to run; every microplate sample position found when None.",
+      "label": "spacr.ops_engine.run_ops#2",
+      "source": "which wells to run; every well found when None.",
+      "source_sha256": "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
+      "translation": "कौन से वेल चलाने हैं; None होने पर मिला हर वेल।"
+    },
+    {
+      "context": "any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a microplate sample position can be stitched once and decoded again.",
+      "label": "spacr.ops_engine.run_ops#3",
+      "source": "any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a well can be stitched once and decoded again.",
+      "source_sha256": "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
+      "translation": "``\"stitch\"``, ``\"objects\"`` और ``\"decode\"`` में से कोई भी, उसी क्रम में चलाए गए। छोड़ा गया चरण अपनी ज़रूरत की चीज़ डेटाबेस से पढ़ता है, इसलिए एक वेल एक बार जोड़ा और फिर से डिकोड किया जा सकता है।"
+    },
+    {
+      "context": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide.",
+      "label": "spacr.ops_engine.run_ops#4",
+      "source": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide.",
+      "source_sha256": "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+      "translation": "गाइड बारकोड, एक अनुक्रम के रूप में या ``prefix``, ``barcode`` या ``sequence`` कॉलम वाली CSV के पथ के रूप में। दिए जाने पर हर बारकोड को उसके निकटतम गाइड से भी जोड़ा जाता है।"
+    },
+    {
+      "context": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "label": "spacr.ops_engine.run_ops#5",
+      "source": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "source_sha256": "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+      "translation": "``{\"db\": path, \"wells\": {well: {phase: report}}}``."
+    },
+    {
+      "context": "when the source holds no microscope image fields this can name, an unknown phase or well is asked for, or a phase's input is missing.",
+      "label": "spacr.ops_engine.run_ops#6",
+      "source": "when the source holds no tiles this can name, an unknown phase or well is asked for, or a phase's input is missing.",
+      "source_sha256": "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c",
+      "translation": "जब स्रोत में ऐसी कोई टाइल न हो जिसे यह पहचान सके, कोई अज्ञात चरण या वेल माँगा जाए, या किसी चरण का इनपुट गायब हो।"
+    },
+    {
+      "context": "half a microscope image field's side, in grid units. A site is kept when its whole microscope image field lies inside the circle: at ``(dx, dy)`` from the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero keeps every site whose centre is inside, which is the rule every layout followed before this microscope field of view existed.",
+      "label": "spacr.ops_layout.WellLayout#5",
+      "source": "half a tile's side, in grid units. A site is kept when its whole tile lies inside the circle: at ``(dx, dy)`` from the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero keeps every site whose centre is inside, which is the rule every layout followed before this field existed.",
+      "source_sha256": "8f325a816c5bbaf3978bc1b0e1f2384012d77d38ea943976debc17de5c593ee7",
+      "translation": "टाइल की आधी भुजा, ग्रिड इकाइयों में। कोई साइट तब रखी जाती है जब उसकी पूरी टाइल वृत्त के भीतर हो: केंद्र से ``(dx, dy)`` पर, जब ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2`` हो। शून्य हर उस साइट को रखता है जिसका केंद्र भीतर है, जो इस फ़ील्ड के आने से पहले हर लेआउट का नियम था।"
+    },
+    {
+      "context": "The microscope image field has to fit, not its centre. The centre rule holds the 333-microscope field of view sequencing well and cannot produce the column heights the 1,281-microscope field of view phenotype well was measured at, for any radius. With the footprint term both come out as measured, and every column is centred on the same row.",
+      "label": "spacr.ops_layout.WellLayout#6",
+      "source": "The tile has to fit, not its centre. The centre rule holds the 333-field sequencing well and cannot produce the column heights the 1,281-field phenotype well was measured at, for any radius. With the footprint term both come out as measured, and every column is centred on the same row.",
+      "source_sha256": "06ca32f7fa55d96acacd275df9f0d6e990beb502f91bbcbbe942f5df4ab41384",
+      "translation": "पूरी टाइल को समाना होता है, सिर्फ़ उसके केंद्र को नहीं। केंद्र का नियम 333 फ़ील्ड वाले सीक्वेंसिंग वेल को तो पकड़ता है, पर किसी भी त्रिज्या पर 1,281 फ़ील्ड वाले फ़ीनोटाइप वेल की मापी गई कॉलम ऊँचाइयाँ नहीं दे सकता। फ़ुटप्रिंट पद जोड़ने पर दोनों माप के अनुसार निकलते हैं, और हर कॉलम एक ही पंक्ति पर केंद्रित होता है।"
+    },
+    {
+      "context": "the inclusive absolute row range of the sites whose whole microscope image field lies inside the circle -- see :attr:`half_tile`.",
+      "label": "spacr.ops_layout.WellLayout.span#2",
+      "source": "the inclusive absolute row range of the sites whose whole tile lies inside the circle -- see :attr:`half_tile`.",
+      "source_sha256": "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4",
+      "translation": "उन साइटों की समावेशी निरपेक्ष पंक्ति-सीमा जिनकी पूरी टाइल वृत्त के भीतर है -- देखें :attr:`half_tile`।"
+    },
+    {
+      "context": "The measured well is returned unchanged whenever the search lands on its 333 sites, so the confirmed model is never re-derived. For any other count the radius is searched -- a well imaged at a different magnification or a different laboratory microplate format is the same circle with a different number of microscope fields of view in it.",
+      "label": "spacr.ops_layout.round_well_layout#1",
+      "source": "The measured well is returned unchanged whenever the search lands on its 333 sites, so the confirmed model is never re-derived. For any other count the radius is searched -- a well imaged at a different magnification or a different plate format is the same circle with a different number of fields in it.",
+      "source_sha256": "86268289cc8151bcdee1cedd1f609ed53d034ff8323229112d2a1cfb1a521f55",
+      "translation": "जब भी खोज उसकी 333 साइटों पर पहुँचती है, मापा गया वेल बिना बदले लौटाया जाता है, इसलिए पुष्ट मॉडल को कभी फिर से व्युत्पन्न नहीं किया जाता। किसी भी अन्य संख्या के लिए त्रिज्या खोजी जाती है -- दूसरे आवर्धन या दूसरे प्लेट प्रारूप में लिया गया वेल वही वृत्त है जिसमें फ़ील्ड की संख्या अलग है।"
+    },
+    {
+      "context": "half a microscope image field's side in microscope image field pitches -- the microscope image field size over twice the registered pitch. A microscope field of view is kept when its whole microscope image field lies inside the circle; zero keeps it when its centre does. The default is the phenotype acquisition's measured 0.5857. The sequencing acquisition measured 0.5840, and every value strictly between 0.5 and 2.0 gives both microplate sample positions -- 333 and 1,281 microscope fields of view -- the column heights they were measured at.",
+      "label": "spacr.ops_layout.round_well_layout#4",
+      "source": "half a tile's side in tile pitches -- the tile size over twice the registered pitch. A field is kept when its whole tile lies inside the circle; zero keeps it when its centre does. The default is the phenotype acquisition's measured 0.5857. The sequencing acquisition measured 0.5840, and every value strictly between 0.5 and 2.0 gives both wells -- 333 and 1,281 fields -- the column heights they were measured at.",
+      "source_sha256": "c63e219d31a59ab085b7434370040f30d072e66e0a9e87fdca14135374b066ac",
+      "translation": "टाइल की आधी भुजा, टाइल अंतरालों में -- टाइल का आकार भाग पंजीकृत अंतराल का दुगुना। कोई फ़ील्ड तब रखा जाता है जब उसकी पूरी टाइल वृत्त के भीतर हो; शून्य पर वह तब रखा जाता है जब उसका केंद्र भीतर हो। डिफ़ॉल्ट फ़ीनोटाइप अधिग्रहण का मापा गया 0.5857 है। सीक्वेंसिंग अधिग्रहण 0.5840 मापा गया, और 0.5 और 2.0 के ठीक बीच का हर मान दोनों वेल्स को -- 333 और 1,281 फ़ील्ड -- वही कॉलम ऊँचाइयाँ देता है जिन पर वे मापे गए थे।"
+    },
+    {
+      "context": "when no circle holds exactly that many microscope fields of view, which is the honest answer -- a count that no round well produces means the acquisition is not one, and guessing the nearest would place every microscope image field slightly wrong. Also when ``half_tile`` is negative or not a number.",
+      "label": "spacr.ops_layout.round_well_layout#6",
+      "source": "when no circle holds exactly that many fields, which is the honest answer -- a count that no round well produces means the acquisition is not one, and guessing the nearest would place every tile slightly wrong. Also when ``half_tile`` is negative or not a number.",
+      "source_sha256": "c2fc36d4de364217c55b41aa0312bda2c72f6671f1df7fcbed55d6c8e88713b0",
+      "translation": "जब कोई भी वृत्त ठीक उतने फ़ील्ड न रखता हो, और यही ईमानदार उत्तर है -- ऐसी संख्या जो कोई गोल वेल नहीं देता, बताती है कि अधिग्रहण गोल वेल नहीं है, और सबसे नज़दीकी का अनुमान हर टाइल को थोड़ा गलत रखेगा। तब भी जब ``half_tile`` ऋणात्मक हो या संख्या न हो।"
+    },
+    {
+      "context": "For one half microscope image field, the count fixes the fields. The number of fields inside the circle only grows with the radius, so every radius that holds exactly ``site_count`` holds the same ones. The radius the layout carries is one of those, not a measurement.",
+      "label": "spacr.ops_layout.round_well_layout#7",
+      "source": "For one half tile, the count fixes the fields. The number of fields inside the circle only grows with the radius, so every radius that holds exactly ``site_count`` holds the same ones. The radius the layout carries is one of those, not a measurement.",
+      "source_sha256": "2f7270145a6377b6ae43cc385f4e785ba75db522e11a7e546a7397c17f3eede2",
+      "translation": "किसी एक आधी टाइल के लिए संख्या ही फ़ील्ड तय करती है। वृत्त के भीतर फ़ील्ड की संख्या त्रिज्या के साथ केवल बढ़ती है, इसलिए ठीक ``site_count`` रखने वाली हर त्रिज्या वही फ़ील्ड रखती है। लेआउट जो त्रिज्या रखता है वह इन्हीं में से एक है, कोई माप नहीं।"
+    },
+    {
+      "context": "Which leaves one failure that must not be silent: an object larger than the overlap, which every window clips. :func:`number` refuses those rather than emitting a fragment, because a fragment looks exactly like a small nucleus and would be counted as one for the rest of the processing session.",
+      "label": "spacr.ops_objects#7",
+      "source": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT: an object larger than the overlap, which every window clips. :func:`number` refuses those rather than emitting a fragment, because a fragment looks exactly like a small nucleus and would be counted as one for the rest of the run.",
+      "source_sha256": "9ba2321f17439d3fd4a3b06d53ac4f49127ce9a492def8e4f8a737101af7d7c9",
+      "translation": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT (यानी एक विफलता बचती है जो चुप नहीं रहनी चाहिए): ओवरलैप से बड़ा ऑब्जेक्ट, जिसे हर विंडो काट देती है। :func:`number` ऐसे ऑब्जेक्ट को टुकड़ा देने के बजाय अस्वीकार करता है, क्योंकि टुकड़ा बिल्कुल छोटे नाभिक जैसा दिखता है और बाकी रन में एक नाभिक के रूप में गिना जाता।"
+    },
+    {
+      "context": "refuse a group with no complete observation. Turned off, such a group is dropped rather than numbered -- nothing with a truncated area is emitted -- and how many were dropped is logged as a warning.",
+      "label": "spacr.ops_objects.number#4",
+      "source": "refuse a group with no complete observation. Turned off, such a group is dropped rather than numbered -- nothing with a truncated area is emitted -- and how many were dropped is logged as a warning.",
+      "source_sha256": "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+      "translation": "पूरे अवलोकन के बिना समूह को अस्वीकार करें। बंद होने पर ऐसा समूह क्रमांकित करने के बजाय छोड़ दिया जाता है -- कटे हुए क्षेत्रफल वाला कुछ भी नहीं दिया जाता -- और कितने छोड़े गए यह चेतावनी के रूप में लॉग होता है।"
+    },
+    {
+      "context": "when a group holds only clipped observations: either the object is larger than the window overlap, or it is a fragment that matched no window's whole view of its nucleus. The message gives the object's extent and the remedy for each case.",
+      "label": "spacr.ops_objects.number#5",
+      "source": "when a group holds only clipped observations: either the object is larger than the window overlap, or it is a fragment that matched no window's whole view of its nucleus. The message gives the object's extent and the remedy for each case.",
+      "source_sha256": "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac",
+      "translation": "जब किसी समूह में केवल कटे हुए अवलोकन हों: या तो ऑब्जेक्ट विंडो ओवरलैप से बड़ा है, या वह ऐसा टुकड़ा है जो किसी भी विंडो के उसके नाभिक के पूरे दृश्य से मेल नहीं खाया। संदेश ऑब्जेक्ट का विस्तार और हर स्थिति का उपाय बताता है।"
+    },
+    {
+      "context": "Two labels of one window are never one object, because a label image does not give one nucleus two labels. Two complete observations from different windows are one nucleus when their centroids agree within ``tolerance`` on each axis and either their areas agree to ``area_ratio`` or their centroids lie within the smaller one's equivalent radius -- the radius of a disc of its area. Pairs whose areas agree are joined first, then the rest closest first, and a join that would give a group two labels of one window is refused.",
+      "label": "spacr.ops_objects.sew#3",
+      "source": "Two labels of one window are never one object, because a label image does not give one nucleus two labels. Two complete observations from different windows are one nucleus when their centroids agree within ``tolerance`` on each axis and either their areas agree to ``area_ratio`` or their centroids lie within the smaller one's equivalent radius -- the radius of a disc of its area. Pairs whose areas agree are joined first, then the rest closest first, and a join that would give a group two labels of one window is refused.",
+      "source_sha256": "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+      "translation": "एक ही विंडो के दो लेबल कभी एक ऑब्जेक्ट नहीं होते, क्योंकि लेबल छवि एक नाभिक को दो लेबल नहीं देती। अलग-अलग विंडो के दो पूरे अवलोकन एक नाभिक होते हैं जब उनके केंद्रक हर अक्ष पर ``tolerance`` के भीतर मिलते हों और या तो उनके क्षेत्रफल ``area_ratio`` तक मिलते हों या उनके केंद्रक छोटे वाले की समतुल्य त्रिज्या के भीतर हों -- उसके क्षेत्रफल वाली डिस्क की त्रिज्या। जिन जोड़ों के क्षेत्रफल मिलते हैं उन्हें पहले जोड़ा जाता है, फिर बाकी को सबसे निकट से शुरू करके, और जो जोड़ किसी समूह को एक विंडो के दो लेबल दे, उसे अस्वीकार किया जाता है।"
+    },
+    {
+      "context": "A clipped observation is matched by containment, not by a fixed distance: the cut moves its centroid inward by up to the nucleus's radius, so a fixed tolerance misses exactly the deep clips. It joins a complete observation from another window when its centroid lies inside that observation's equivalent disc, or its bounding box lies inside that observation's box give or take two pixels. It joins only the closest such observation, so one clip can never make two nuclei one object. Clipped observations that match nothing complete are grouped with each other where their boxes overlap.",
+      "label": "spacr.ops_objects.sew#4",
+      "source": "A clipped observation is matched by containment, not by a fixed distance: the cut moves its centroid inward by up to the nucleus's radius, so a fixed tolerance misses exactly the deep clips. It joins a complete observation from another window when its centroid lies inside that observation's equivalent disc, or its bounding box lies inside that observation's box give or take two pixels. It joins only the closest such observation, so one clip can never make two nuclei one object. Clipped observations that match nothing complete are grouped with each other where their boxes overlap.",
+      "source_sha256": "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
+      "translation": "कटा हुआ अवलोकन निश्चित दूरी से नहीं, समावेशन से मिलाया जाता है: कटाव उसके केंद्रक को नाभिक की त्रिज्या तक भीतर खिसका देता है, इसलिए निश्चित सहनशीलता ठीक गहरे कटावों को चूक जाती है। वह किसी दूसरी विंडो के पूरे अवलोकन से तब जुड़ता है जब उसका केंद्रक उस अवलोकन की समतुल्य डिस्क के भीतर हो, या उसका बाउंडिंग बॉक्स दो पिक्सेल के अंतर तक उस अवलोकन के बॉक्स के भीतर हो। वह केवल ऐसे सबसे निकट अवलोकन से जुड़ता है, इसलिए एक कटाव कभी दो नाभिकों को एक ऑब्जेक्ट नहीं बना सकता। जो कटे हुए अवलोकन किसी पूरे अवलोकन से नहीं मिलते, उन्हें वहाँ आपस में समूहित किया जाता है जहाँ उनके बॉक्स एक-दूसरे पर पड़ते हैं।"
+    },
+    {
+      "context": "Where every phenotype field's centre lies, from a few measured ones.",
+      "label": "spacr.ops_phenotype.phenotype_centres#0",
+      "source": "Where every phenotype field's centre lies, from a few measured ones.",
+      "source_sha256": "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+      "translation": "कुछ मापे गए केंद्रों से, हर फ़ीनोटाइप फ़ील्ड का केंद्र कहाँ है।"
+    },
+    {
+      "context": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many microscope fields of view it holds.",
+      "label": "spacr.ops_phenotype.phenotype_centres#1",
+      "source": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.",
+      "source_sha256": "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+      "translation": "फ़ीनोटाइप अधिग्रहण का :class:`spacr.ops_layout.WellLayout`, या उसमें कितने फ़ील्ड हैं।"
+    },
+    {
+      "context": "``{site: (y, x)}``, the microplate sample position-frame centres of at least three aligned microscope fields of view whose grid positions are not all on one line. Six spread over the microplate sample position is what the method was validated with.",
+      "label": "spacr.ops_phenotype.phenotype_centres#2",
+      "source": "``{site: (y, x)}``, the well-frame centres of at least three aligned fields whose grid positions are not all on one line. Six spread over the well is what the method was validated with.",
+      "source_sha256": "a72f71fa491262526c02f83f4a7ec3603ecff94045440e61c8c1c9c5811c5b57",
+      "translation": "``{site: (y, x)}``, कम से कम तीन संरेखित फ़ील्ड के वेल-फ़्रेम केंद्र, जिनकी ग्रिड स्थितियाँ सभी एक रेखा पर न हों। विधि को वेल में फैले छह फ़ील्ड से सत्यापित किया गया था।"
+    },
+    {
+      "context": "``{site: (y, x)}`` for every field of the layout, anchors included -- their fitted centres, not the measured ones.",
+      "label": "spacr.ops_phenotype.phenotype_centres#3",
+      "source": "``{site: (y, x)}`` for every field of the layout, anchors included -- their fitted centres, not the measured ones.",
+      "source_sha256": "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+      "translation": "``{site: (y, x)}`` लेआउट के हर फ़ील्ड के लिए, एंकर सहित -- उनके फ़िट किए गए केंद्र, मापे गए नहीं।"
+    },
+    {
+      "context": "when the anchors cannot fix a raster: fewer than three, on one line of the grid, or a centre that is not two finite numbers. Also for a microscope field of view count no round well holds.",
+      "label": "spacr.ops_phenotype.phenotype_centres#4",
+      "source": "when the anchors cannot fix a raster: fewer than three, on one line of the grid, or a centre that is not two finite numbers. Also for a field count no round well holds.",
+      "source_sha256": "62734fbdc05ad91105b8666536bf5de38fa2efd63b6c2a9c5a89883340d8da45",
+      "translation": "जब एंकर कोई रास्टर तय न कर सकें: तीन से कम, ग्रिड की एक रेखा पर, या ऐसा केंद्र जो दो परिमित संख्याएँ न हो। ऐसी फ़ील्ड संख्या के लिए भी जिसे कोई गोल वेल नहीं रखता।"
+    },
+    {
+      "context": "when an anchor names a site the layout does not hold.",
+      "label": "spacr.ops_phenotype.phenotype_centres#5",
+      "source": "when an anchor names a site the layout does not hold.",
+      "source_sha256": "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+      "translation": "जब कोई एंकर ऐसी साइट बताए जो लेआउट में नहीं है।"
+    },
+    {
+      "context": "Six numbers place the whole well. The layout gives every microscope field of view's grid position, and the acquisition raster maps a grid position into the well frame by an origin, a column step and a row step, each a ``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by least squares on six microscope fields of view of a real well, that predicted the other 472 microscope fields of view' measured centres to a median 1.2 px and a worst 4.0 px, and a second well's 451 to a worst 4.4 px.",
+      "label": "spacr.ops_phenotype.phenotype_centres#6",
+      "source": "Six numbers place the whole well. The layout gives every field's grid position, and the acquisition raster maps a grid position into the well frame by an origin, a column step and a row step, each a ``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by least squares on six fields of a real well, that predicted the other 472 fields' measured centres to a median 1.2 px and a worst 4.0 px, and a second well's 451 to a worst 4.4 px.",
+      "source_sha256": "869851e6ed102bb8bc4f3c240b3f674eca045bb487f031f3c41457e759e709a1",
+      "translation": "छह संख्याएँ पूरे वेल को स्थित करती हैं। लेआउट हर फ़ील्ड की ग्रिड स्थिति देता है, और अधिग्रहण रास्टर एक मूल बिंदु, एक कॉलम कदम और एक पंक्ति कदम से ग्रिड स्थिति को वेल फ़्रेम में ले जाता है, हर एक ``(dy, dx)`` जोड़ा जो स्टेज के कुछ पिक्सेल के तिरछेपन को वहन करता है। एक असली वेल के छह फ़ील्ड पर न्यूनतम वर्गों से फ़िट करने पर इसने बाकी 472 फ़ील्ड के मापे गए केंद्रों का अनुमान 1.2 px की माध्यिका और अधिकतम 4.0 px त्रुटि से लगाया, और दूसरे वेल के 451 का अधिकतम 4.4 px से।"
+    },
+    {
+      "context": "Which sequencing tile covers each phenotype microscope field of view.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#0",
+      "source": "Which sequencing tile covers each phenotype field.",
+      "source_sha256": "d8987e7ccf9126ae97b1035274f1858ed5d91a9c926e1041d075a74f46bda5c2",
+      "translation": "कौन सी सीक्वेंसिंग टाइल हर फ़ीनोटाइप फ़ील्ड को ढकती है।"
+    },
+    {
+      "context": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many microscope fields of view it holds.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#1",
+      "source": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.",
+      "source_sha256": "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+      "translation": "फ़ीनोटाइप अधिग्रहण का :class:`spacr.ops_layout.WellLayout`, या उसमें कितने फ़ील्ड हैं।"
+    },
+    {
+      "context": "``{sequencing site: (y, x)}``, the centre of each stitched sequencing microscope image field in the microplate sample position frame -- its placement plus half a microscope image field.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#2",
+      "source": "``{sequencing site: (y, x)}``, the centre of each stitched sequencing tile in the well frame -- its placement plus half a tile.",
+      "source_sha256": "5ee088d6438ce7110691e740d8d39daf49266a6bfecbabe2da381af4c445991b",
+      "translation": "``{sequencing site: (y, x)}``, वेल फ़्रेम में हर जोड़ी गई सीक्वेंसिंग टाइल का केंद्र -- उसकी स्थिति और आधी टाइल।"
+    },
+    {
+      "context": "``{phenotype site: (y, x)}``, measured well-frame centres of at least three aligned phenotype microscope fields of view, as :func:`phenotype_centres` takes them.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#3",
+      "source": "``{phenotype site: (y, x)}``, measured well-frame centres of at least three aligned phenotype fields, as :func:`phenotype_centres` takes them.",
+      "source_sha256": "9482032d0529e408eedc31b529b11c047715bf35366e88b102aabc2b5761a35f",
+      "translation": "``{phenotype site: (y, x)}``, कम से कम तीन संरेखित फ़ीनोटाइप फ़ील्ड के मापे गए वेल-फ़्रेम केंद्र, जैसे :func:`phenotype_centres` उन्हें लेता है।"
+    },
+    {
+      "context": "``(height, width)`` of a sequencing microscope image field, in well-frame pixels.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#4",
+      "source": "``(height, width)`` of a sequencing tile, in well-frame pixels.",
+      "source_sha256": "7b4ad6c687274f962bda174e28f7bedfb4e7466743ab89786faba23d1ae362f7",
+      "translation": "सीक्वेंसिंग टाइल का ``(height, width)``, वेल-फ़्रेम पिक्सेल में।"
+    },
+    {
+      "context": "``{phenotype site: sequencing site}``. Each microscope field of view goes to the tile whose centre is nearest its predicted centre, among the tiles that contain it; a microscope field of view whose predicted centre lies inside no tile is omitted.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#5",
+      "source": "``{phenotype site: sequencing site}``. Each field goes to the tile whose centre is nearest its predicted centre, among the tiles that contain it; a field whose predicted centre lies inside no tile is omitted.",
+      "source_sha256": "343e414cceff1565e0cee8d9a8ec18e898ad8efe76cf98bf334aff2939a9be51",
+      "translation": "``{phenotype site: sequencing site}``। हर फ़ील्ड उसे समाहित करने वाली टाइलों में से उस टाइल को जाता है जिसका केंद्र उसके अनुमानित केंद्र के सबसे निकट है; जिस फ़ील्ड का अनुमानित केंद्र किसी टाइल में न पड़े, उसे छोड़ दिया जाता है।"
+    },
+    {
+      "context": "when ``tile_shape`` is not two positive sizes, or when :func:`phenotype_centres` refuses the anchors or the count.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#6",
+      "source": "when ``tile_shape`` is not two positive sizes, or when :func:`phenotype_centres` refuses the anchors or the count.",
+      "source_sha256": "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+      "translation": "जब ``tile_shape`` दो धनात्मक आकार न हो, या जब :func:`phenotype_centres` एंकर या संख्या को अस्वीकार करे।"
+    },
+    {
+      "context": "A position, not an index. The microscope image field a microscope field of view lies on depends on where the microscope image field boundaries actually fall, and halving a phenotype grid index about the microplate sample position centre cannot see them: at twice the microscope image field density half the phenotype microscope fields of view lie on or near a sequencing microscope image field boundary. On the real laboratory microplate halving found the exact microscope image field for 0.45 to 0.61 of the aligned microscope fields of view; predicting each centre from six anchors and taking the nearest stitched microscope image field found it for 472 of 472 and 451 of 451.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#7",
+      "source": "A position, not an index. The tile a field lies on depends on where the tile boundaries actually fall, and halving a phenotype grid index about the well centre cannot see them: at twice the tile density half the phenotype fields lie on or near a sequencing tile boundary. On the real plate halving found the exact tile for 0.45 to 0.61 of the aligned fields; predicting each centre from six anchors and taking the nearest stitched tile found it for 472 of 472 and 451 of 451.",
+      "source_sha256": "d67e620df54a44769db2cde7feabc8935859b8753a09913120bda2d3e3ce9b27",
+      "translation": "स्थिति, सूचकांक नहीं। कोई फ़ील्ड किस टाइल पर है, यह इस पर निर्भर है कि टाइल सीमाएँ वास्तव में कहाँ पड़ती हैं, और वेल केंद्र के गिर्द फ़ीनोटाइप ग्रिड सूचकांक को आधा करना उन्हें नहीं देख सकता: टाइल घनत्व दुगुना होने पर आधे फ़ीनोटाइप फ़ील्ड किसी सीक्वेंसिंग टाइल सीमा पर या उसके पास होते हैं। असली प्लेट पर आधा करने से 0.45 से 0.61 संरेखित फ़ील्ड के लिए सही टाइल मिली; छह एंकर से हर केंद्र का अनुमान लगाकर निकटतम जोड़ी गई टाइल लेने से यह 472 में से 472 और 451 में से 451 के लिए मिली।"
+    },
+    {
+      "context": "Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which already normalises each cycle's channels and reports quality as the MINIMUM over cycles -- \"a barcode is only as trustworthy as its worst base\". Repeating that here would be a second decoder to keep in step.",
+      "label": "spacr.ops_sample.barcode_rows#1",
+      "source": "Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which already normalises each cycle's channels and reports quality as the MINIMUM over cycles -- \"a barcode is only as trustworthy as its worst base\". Repeating that here would be a second decoder to keep in step.",
+      "source_sha256": "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
+      "translation": "वास्तविक कॉल :func:`spacr.ops_sbs.call_reads` को सौंपता है, जो पहले से हर चक्र के चैनलों का सामान्यीकरण करता है और गुणवत्ता को चक्रों पर MINIMUM (न्यूनतम) के रूप में बताता है -- \"बारकोड उतना ही भरोसेमंद है जितना उसका सबसे कमज़ोर बेस\"। इसे यहाँ दोहराना एक दूसरा डिकोडर होगा जिसे साथ-साथ बनाए रखना पड़े।"
+    },
+    {
+      "context": "Optical pooled screening reads the guide barcode out of the images. Each sequencing cycle stains four image data channels, one per base, and a spot's base in that cycle is whichever image data channel is brightest -- once the image data channels have been put on a common scale. Read one base per cycle at the same spot and the cycles spell the barcode.",
+      "label": "spacr.ops_sbs#2",
+      "source": "Optical pooled screening reads the guide barcode OUT OF THE IMAGES. Each sequencing cycle stains four channels, one per base, and a spot's base in that cycle is whichever channel is brightest -- once the channels have been put on a common scale. Read one base per cycle at the same spot and the cycles spell the barcode.",
+      "source_sha256": "96f751fe3936bc37122069588f7980e88b041b2cf6fb2905765d0397cbed37c3",
+      "translation": "ऑप्टिकल पूल्ड स्क्रीनिंग गाइड बारकोड को OUT OF THE IMAGES (सीधे छवियों से) पढ़ती है। हर सीक्वेंसिंग चक्र चार चैनलों को रंगता है, हर बेस के लिए एक, और उस चक्र में किसी स्पॉट का बेस वह चैनल है जो सबसे चमकीला हो -- जब चैनलों को एक साझा पैमाने पर ला दिया गया हो। एक ही स्पॉट पर हर चक्र में एक बेस पढ़ें, और चक्र मिलकर बारकोड बना देते हैं।"
+    },
+    {
+      "context": "**The brightest raw channel is not the base.** Every channel has its own gain and background, and on a real plate both drift from cycle to cycle, so the raw argmax is biased toward whichever channel is brightest overall. Each cycle's channels are divided by their median over the reads first. Unmixing the dyes' bleed-through is available on top of that; on the first real plate it lowered the library match.",
+      "label": "spacr.ops_sbs#7",
+      "source": "**The brightest raw channel is not the base.** Every channel has its own gain and background, and on a real plate both drift from cycle to cycle, so the raw argmax is biased toward whichever channel is brightest overall. Each cycle's channels are divided by their median over the reads first. Unmixing the dyes' bleed-through is available on top of that; on the first real plate it lowered the library match.",
+      "source_sha256": "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
+      "translation": "**सबसे चमकीला कच्चा चैनल बेस नहीं है।** हर चैनल का अपना गेन और पृष्ठभूमि होती है, और असली प्लेट पर दोनों चक्र-दर-चक्र बदलते हैं, इसलिए कच्चा argmax उस चैनल की ओर झुका रहता है जो कुल मिलाकर सबसे चमकीला है। हर चक्र के चैनलों को पहले रीड्स पर उनकी माध्यिका से भाग दिया जाता है। इसके ऊपर डाई के रिसाव को अलग करना भी उपलब्ध है; पहली असली प्लेट पर इसने लाइब्रेरी मिलान घटा दिया।"
+    },
+    {
+      "context": "Give each laboratory microplate object the barcode its attributed reads agree on.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#0",
+      "source": "Give each plate object the barcode its attributed reads agree on.",
+      "source_sha256": "56bd36897564e1ddb76e61dccdb0383bbb0f00a6a8b43788faf4396aa8743653",
+      "translation": "हर प्लेट ऑब्जेक्ट को वह बारकोड देता है जिस पर उसके सौंपे गए रीड्स सहमत हों।"
+    },
+    {
+      "context": "The same rule as :func:`assign_reads_to_cells` -- at least ``min_reads`` reads, ``min_fraction`` of them carrying one barcode, and no tie for first -- keyed by the object id each read was attributed to rather than by the label a read lands on. That is what lets reads collected from several microscope fields of view vote once for the object they belong to.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#1",
+      "source": "The same rule as :func:`assign_reads_to_cells` -- at least ``min_reads`` reads, ``min_fraction`` of them carrying one barcode, and no tie for first -- keyed by the object id each read was attributed to rather than by the label a read lands on. That is what lets reads collected from several fields vote once for the object they belong to.",
+      "source_sha256": "3c6bfdd6dcb24565647dc9aa1ea26a3fee06fddeae59f21f2a58c53a3758852d",
+      "translation": ":func:`assign_reads_to_cells` वाला ही नियम -- कम से कम ``min_reads`` रीड्स, जिनमें से ``min_fraction`` एक ही बारकोड लिए हों, और पहले स्थान पर बराबरी न हो -- पर उस ऑब्जेक्ट id के आधार पर जिसे हर रीड सौंपा गया, न कि उस लेबल के आधार पर जिस पर रीड पड़ता है। इसी से कई फ़ील्ड से इकट्ठे रीड्स उस ऑब्जेक्ट के लिए एक बार वोट दे पाते हैं जिसके वे हैं।"
+    },
+    {
+      "context": "one object id per read; 0 or a negative id means the read has no owner and is ignored.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#2",
+      "source": "one object id per read; 0 or a negative id means the read has no owner and is ignored.",
+      "source_sha256": "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+      "translation": "हर रीड के लिए एक ऑब्जेक्ट id; 0 या ऋणात्मक id का अर्थ है कि रीड का कोई मालिक नहीं और उसे अनदेखा किया जाता है।"
+    },
+    {
+      "context": "one called barcode per read.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#3",
+      "source": "one called barcode per read.",
+      "source_sha256": "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+      "translation": "हर रीड के लिए एक पढ़ा गया बारकोड।"
+    },
+    {
+      "context": "optional per-read quality from :func:`call_reads`.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#4",
+      "source": "optional per-read quality from :func:`call_reads`.",
+      "source_sha256": "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+      "translation": ":func:`call_reads` से हर रीड की वैकल्पिक गुणवत्ता।"
+    },
+    {
+      "context": "how many reads an object needs before it may be assigned.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#5",
+      "source": "how many reads an object needs before it may be assigned.",
+      "source_sha256": "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+      "translation": "किसी ऑब्जेक्ट को सौंपे जाने से पहले कितने रीड्स चाहिए।"
+    },
+    {
+      "context": "what share of them must agree.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#6",
+      "source": "what share of them must agree.",
+      "source_sha256": "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+      "translation": "उनमें से कितना हिस्सा सहमत होना चाहिए।"
+    },
+    {
+      "context": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every object that met the bar.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#7",
+      "source": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every object that met the bar.",
+      "source_sha256": "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6",
+      "translation": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` हर उस ऑब्जेक्ट के लिए जो सीमा पार कर गया।"
+    },
+    {
+      "context": "Give each detected read to the object whose boundary is nearest.",
+      "label": "spacr.ops_sbs.attribute_reads#0",
+      "source": "Give each detected read to the object whose boundary is nearest.",
+      "source_sha256": "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+      "translation": "हर पहचाने गए रीड को उस ऑब्जेक्ट को देता है जिसकी सीमा सबसे निकट है।"
+    },
+    {
+      "context": "Reads are detected over the whole field first and attributed here, so a footprint that is too tight shows up as reads with no owner rather than staying invisible. The boundary is each object's equivalent disc, the circle of its area about its centroid, and a read whose two nearest boundaries lie within ``tie`` of each other is given to neither and flagged.",
+      "label": "spacr.ops_sbs.attribute_reads#1",
+      "source": "Reads are detected over the whole field first and attributed here, so a footprint that is too tight shows up as reads with no owner rather than staying invisible. The boundary is each object's equivalent disc, the circle of its area about its centroid, and a read whose two nearest boundaries lie within ``tie`` of each other is given to neither and flagged.",
+      "source_sha256": "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+      "translation": "रीड्स पहले पूरे फ़ील्ड पर पहचाने जाते हैं और फिर यहाँ सौंपे जाते हैं, ताकि बहुत तंग फ़ुटप्रिंट अदृश्य रहने के बजाय बिना मालिक वाले रीड्स के रूप में दिखे। सीमा हर ऑब्जेक्ट की समतुल्य डिस्क है, यानी उसके केंद्रक के चारों ओर उसके क्षेत्रफल वाला वृत्त, और जिस रीड की दो निकटतम सीमाएँ एक-दूसरे से ``tie`` के भीतर हों, उसे किसी को नहीं दिया जाता और चिह्नित किया जाता है।"
+    },
+    {
+      "context": "``(N, 2)`` read positions ``(y, x)``.",
+      "label": "spacr.ops_sbs.attribute_reads#2",
+      "source": "``(N, 2)`` read positions ``(y, x)``.",
+      "source_sha256": "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+      "translation": "``(N, 2)`` रीड स्थितियाँ ``(y, x)``।"
+    },
+    {
+      "context": "``(M, 2)`` object centroids ``(y, x)``, in the same frame as ``peaks``.",
+      "label": "spacr.ops_sbs.attribute_reads#3",
+      "source": "``(M, 2)`` object centroids ``(y, x)``, in the same frame as ``peaks``.",
+      "source_sha256": "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+      "translation": "``(M, 2)`` ऑब्जेक्ट केंद्रक ``(y, x)``, ``peaks`` वाले ही फ़्रेम में।"
+    },
+    {
+      "context": "``(M,)`` object areas in pixels.",
+      "label": "spacr.ops_sbs.attribute_reads#4",
+      "source": "``(M,)`` object areas in pixels.",
+      "source_sha256": "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+      "translation": "``(M,)`` पिक्सेल में ऑब्जेक्ट क्षेत्रफल।"
+    },
+    {
+      "context": "how far beyond an object's boundary a read may lie and still be its read, in pixels. On the first real plate 98 % of spots lay within 10 px of a nucleus and 67 % within 3 px.",
+      "label": "spacr.ops_sbs.attribute_reads#5",
+      "source": "how far beyond an object's boundary a read may lie and still be its read, in pixels. On the first real plate 98 % of spots lay within 10 px of a nucleus and 67 % within 3 px.",
+      "source_sha256": "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+      "translation": "कोई रीड किसी ऑब्जेक्ट की सीमा से कितनी दूर तक हो सकता है और फिर भी उसी का रीड माना जाए, पिक्सेल में। पहली असली प्लेट पर 98 % स्पॉट किसी नाभिक से 10 px के भीतर और 67 % 3 px के भीतर थे।"
+    },
+    {
+      "context": "how close the two nearest boundaries may be before a read is refused as ambiguous, in pixels.",
+      "label": "spacr.ops_sbs.attribute_reads#6",
+      "source": "how close the two nearest boundaries may be before a read is refused as ambiguous, in pixels.",
+      "source_sha256": "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+      "translation": "दो निकटतम सीमाएँ कितनी पास हो सकती हैं इससे पहले कि रीड को अस्पष्ट मानकर अस्वीकार किया जाए, पिक्सेल में।"
+    },
+    {
+      "context": "``(owner, ambiguous)`` -- the index into ``centroids`` of each read's owner, or -1, and whether each read was refused as ambiguous.",
+      "label": "spacr.ops_sbs.attribute_reads#7",
+      "source": "``(owner, ambiguous)`` -- the index into ``centroids`` of each read's owner, or -1, and whether each read was refused as ambiguous.",
+      "source_sha256": "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3",
+      "translation": "``(owner, ambiguous)`` -- हर रीड के मालिक का ``centroids`` में सूचकांक, या -1, और क्या हर रीड अस्पष्ट मानकर अस्वीकार हुआ।"
+    },
+    {
+      "context": "A cycle that was not measured is called ``N``. Where a read's values for one cycle are NaN -- the cycle's file could not be read, or its registration was refused -- that letter is ``N`` and the quality is taken over the cycles that were measured, so one lost cycle costs one base of each read and not the read.",
+      "label": "spacr.ops_sbs.call_reads#2",
+      "source": "A cycle that was not measured is called ``N``. Where a read's values for one cycle are NaN -- the cycle's file could not be read, or its registration was refused -- that letter is ``N`` and the quality is taken over the cycles that were measured, so one lost cycle costs one base of each read and not the read.",
+      "source_sha256": "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
+      "translation": "जो चक्र मापा नहीं गया उसे ``N`` कहा जाता है। जहाँ किसी रीड के एक चक्र के मान NaN हों -- उस चक्र की फ़ाइल पढ़ी नहीं जा सकी, या उसका पंजीकरण अस्वीकार हुआ -- वहाँ वह अक्षर ``N`` होता है और गुणवत्ता केवल मापे गए चक्रों पर निकाली जाती है, इसलिए एक खोया हुआ चक्र हर रीड का एक बेस खोता है, पूरा रीड नहीं।"
+    },
+    {
+      "context": "undo cross-talk with :func:`compensate_crosstalk` after normalising. Off by default: on the first real plate it lowered the library match.",
+      "label": "spacr.ops_sbs.call_reads#5",
+      "source": "undo cross-talk with :func:`compensate_crosstalk` after normalising. Off by default: on the first real plate it lowered the library match.",
+      "source_sha256": "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
+      "translation": "सामान्यीकरण के बाद :func:`compensate_crosstalk` से क्रॉस-टॉक हटाता है। डिफ़ॉल्ट रूप से बंद: पहली असली प्लेट पर इसने लाइब्रेरी मिलान घटा दिया।"
+    },
+    {
+      "context": "divide each cycle's channels by their median over the reads first, which removes the per-channel gain and background drift between cycles. Skipped when there are too few reads for a median.",
+      "label": "spacr.ops_sbs.call_reads#7",
+      "source": "divide each cycle's channels by their median over the reads first, which removes the per-channel gain and background drift between cycles. Skipped when there are too few reads for a median.",
+      "source_sha256": "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+      "translation": "पहले हर चक्र के चैनलों को रीड्स पर उनकी माध्यिका से भाग देता है, जिससे चक्रों के बीच हर चैनल के गेन और पृष्ठभूमि का बहाव हट जाता है। माध्यिका के लिए बहुत कम रीड्स होने पर छोड़ दिया जाता है।"
+    },
+    {
+      "context": "let the compensation's multiply run on the card. False keeps the whole call on the CPU.",
+      "label": "spacr.ops_sbs.call_reads#8",
+      "source": "let the compensation's multiply run on the card. False keeps the whole call on the CPU.",
+      "source_sha256": "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
+      "translation": "कंपेन्सेशन के गुणन को ग्राफ़िक्स कार्ड पर चलने देता है। False पूरे कॉल को CPU पर रखता है।"
+    },
+    {
+      "context": "An ``N`` is a base that was not measured, not a mismatch. It matches any letter and is not counted against ``max_distance``; the uniqueness rule still applies, so a read whose lost base is the only thing separating two guides maps to neither.",
+      "label": "spacr.ops_sbs.correct_to_library#3",
+      "source": "An ``N`` is a base that was not measured, not a mismatch. It matches any letter and is not counted against ``max_distance``; the uniqueness rule still applies, so a read whose lost base is the only thing separating two guides maps to neither.",
+      "source_sha256": "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
+      "translation": "``N`` एक ऐसा बेस है जिसे मापा नहीं गया, कोई बेमेल नहीं। यह किसी भी अक्षर से मेल खाता है और ``max_distance`` में गिना नहीं जाता; अद्वितीयता का नियम फिर भी लागू होता है, इसलिए जिस रीड का खोया हुआ बेस ही दो गाइडों को अलग करने वाली एकमात्र चीज़ हो, वह किसी से भी नहीं जुड़ता।"
+    },
+    {
+      "context": "on an unknown table; when the sidecar it just wrote does not have the same number of rows as the database; or when ``ops_objects`` or ``ops_barcodes`` would hold two rows for one object, inside the frame or between the frame and the table it is appended to. One row per object is a UNIQUE constraint in the schema, and nothing is written when it would be broken.",
+      "label": "spacr.ops_store.write_table#6",
+      "source": "on an unknown table; when the sidecar it just wrote does not have the same number of rows as the database; or when ``ops_objects`` or ``ops_barcodes`` would hold two rows for one object, inside the frame or between the frame and the table it is appended to. One row per object is a UNIQUE constraint in the schema, and nothing is written when it would be broken.",
+      "source_sha256": "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec",
+      "translation": "किसी अज्ञात तालिका पर; जब अभी लिखी गई साइडकार फ़ाइल में डेटाबेस जितनी पंक्तियाँ न हों; या जब ``ops_objects`` या ``ops_barcodes`` में एक ऑब्जेक्ट की दो पंक्तियाँ हो जाएँ, डेटा फ़्रेम के भीतर या डेटा फ़्रेम और उस तालिका के बीच जिसमें उसे जोड़ा जा रहा है। हर ऑब्जेक्ट की एक पंक्ति स्कीमा में UNIQUE बाधा है, और उसके टूटने की स्थिति में कुछ भी नहीं लिखा जाता।"
+    }
+  ],
+  "schema": 1
+}
