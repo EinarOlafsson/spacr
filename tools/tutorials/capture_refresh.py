@@ -200,6 +200,12 @@ def main() -> int:
         'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
         'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
             ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility', 'classifier_evaluation') else args.module)),
+        # XDG_CONFIG_HOME moves QSettings only. Chaining pins (a module's
+        # remembered `src`) live in XDG STATE storage, and without this a
+        # "fresh" Mask recording opened on whatever path a test last pinned
+        # in the real ~/.local/state/spacr/chaining/pins.json. One private
+        # state directory per recording, so no capture inherits another's.
+        'XDG_STATE_HOME': str(stage / 'state' / (args.capture_name or args.module)),
         'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
         'SPACR_LOG_DIR': str(stage / 'logs'),
         'MPLCONFIGDIR': str(stage / 'mpl'),
@@ -207,6 +213,10 @@ def main() -> int:
         'MKL_NUM_THREADS': '2', 'NUMEXPR_NUM_THREADS': '2',
     }.items():
         os.environ[key] = value
+    # An inherited explicit pin file would outrank XDG_STATE_HOME.
+    os.environ.pop('SPACR_CHAINING_PINS', None)
+    if (Path(os.environ['XDG_STATE_HOME']) / 'spacr' / 'chaining' / 'pins.json').exists():
+        raise RuntimeError('Use a new capture name: this recording already has remembered paths')
     if args.module == 'distributed_jobs':
         remote_state = stage / 'distributed_state' / (args.capture_name or args.module)
         remote_state.mkdir(parents=True, exist_ok=True)
