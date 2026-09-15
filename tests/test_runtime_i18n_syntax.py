@@ -109,7 +109,13 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     #   translated as the verb -- in eight of the nine languages, and
     #   nothing claimed the row, so the rebuild was free to. It is claimed
     #   now.
-    assert len(reviewed) == 98
+    #
+    # 98 -> 99 on 2026-09-15, +1. ADDED: the `resume` setting label,
+    # 'Reprendre'. Five locales rendered "Resume" as the CV noun (resume ->
+    # CV) rather than the verb the Run button means, and a rebuild would put
+    # the noun back from the translation cache, so the fix is claimed as a
+    # record rather than hand-edited into the catalog (items 397, 406).
+    assert len(reviewed) == 99
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
