@@ -1,0 +1,464 @@
+{
+  "lesson": "07_mask",
+  "status": "PENDING -- partial editorial rows, not a complete review",
+  "written_against_english_sha256": "d988500d3e72fecd (staged lessons/07_mask.json after d174cefda)",
+  "replaces_rows_in": "lessons/reviews/07_mask.<lang>.json (pinned 7f8ea6e1), applied TOGETHER with pending_07_mask_ops_rows.json",
+  "rows": [
+    "scenes[3] (preview no longer \"preserved\")",
+    "scenes[5]",
+    "scenes[6]",
+    "scenes[7]",
+    "prerequisite live-preview sentence(s) (exact old -> new)"
+  ],
+  "measurement": "mask_preview_gpu_fresh2_2026-09-15: 105 -> 52 at 510 px -> 105; 36 after diameter 30 -> 60",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "translations": {
+    "es": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "La grabación conservada usa otro campo distinto de los dos campos del lote posterior.",
+            "Esta vista previa usa un campo distinto de los dos campos del lote posterior."
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "El resultado inicial tiene cincuenta y una etiquetas celulares. Al elevar el área mínima a cinco mil seiscientos cuarenta y dos píxeles quedan veinticinco visibles.",
+            "El resultado inicial tiene ciento cinco etiquetas celulares. Al elevar el área mínima a quinientos diez píxeles quedan cincuenta y dos visibles."
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "regresan las cincuenta y una etiquetas.",
+            "regresan las ciento cinco etiquetas."
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "En el campo grabado produce cuarenta y dos etiquetas.",
+            "En el campo grabado produce treinta y seis etiquetas."
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "La implementación de Live no cambió desde la grabación conservada: los arrays verifican 51→25→51 con área mínima 5642 y 42 tras diámetro 30→60.",
+          "La vista previa Live se grabó en 1.5.0.7 con los ajustes del ejemplo en una copia nueva y solo se reutiliza mientras live_preview.py y preview_contract.py sigan idénticos byte a byte a esa grabación: los arrays verifican 105→52→105 con área mínima 510 y 36 tras diámetro 30→60."
+        ]
+      ]
+    },
+    "fr": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "La séquence conservée utilise un champ différent des deux champs du lot présenté ensuite.",
+            "Cet aperçu utilise un champ différent des deux champs du lot présenté ensuite."
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "Le résultat initial contient cinquante et un labels cellulaires. Porter l’aire minimale à cinq mille six cent quarante-deux pixels laisse vingt-cinq labels visibles.",
+            "Le résultat initial contient cent cinq labels cellulaires. Porter l’aire minimale à cinq cent dix pixels laisse cinquante-deux labels visibles."
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "les cinquante et un labels reviennent.",
+            "les cent cinq labels reviennent."
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "Le champ enregistré produit alors quarante-deux labels.",
+            "Le champ enregistré produit alors trente-six labels."
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "Le code Live est inchangé depuis la séquence conservée : tableaux vérifiés 51→25→51 avec aire minimale 5642, puis 42 après diamètre 30→60.",
+          "L’aperçu Live a été enregistré sur 1.5.0.7 avec les réglages fournis de l’exemple sur une copie neuve, et n’est réutilisé que tant que live_preview.py et preview_contract.py restent identiques octet par octet à cet enregistrement : tableaux vérifiés 105→52→105 avec aire minimale 510, puis 36 après diamètre 30→60."
+        ]
+      ]
+    },
+    "it": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "Il filmato conservato usa un campo diverso dai due campi del lotto successivo.",
+            "Questa anteprima usa un campo diverso dai due campi del lotto successivo."
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "Il risultato iniziale contiene cinquantuno etichette cellulari. Portando l’area minima a cinquemilaseicentoquarantadue pixel ne restano visibili venticinque.",
+            "Il risultato iniziale contiene centocinque etichette cellulari. Portando l’area minima a cinquecentodieci pixel ne restano visibili cinquantadue."
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "ritornano tutte le cinquantuno etichette.",
+            "ritornano tutte le centocinque etichette."
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "Nel campo registrato produce quarantadue etichette.",
+            "Nel campo registrato produce trentasei etichette."
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "Il codice Live è invariato rispetto al filmato conservato: gli array verificano 51→25→51 con area minima 5642 e 42 dopo diametro 30→60.",
+          "L’anteprima Live è stata registrata su 1.5.0.7 con le impostazioni fornite dell’esempio su una copia nuova ed è riutilizzata solo finché live_preview.py e preview_contract.py restano identici byte per byte a quella registrazione: gli array verificano 105→52→105 con area minima 510 e 36 dopo diametro 30→60."
+        ]
+      ]
+    },
+    "pt-BR": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "A gravação preservada usa um campo diferente dos dois campos do lote posterior.",
+            "Esta prévia usa um campo diferente dos dois campos do lote posterior."
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "O resultado inicial contém cinquenta e um rótulos celulares. Aumentar a área mínima para cinco mil seiscentos e quarenta e dois pixels deixa vinte e cinco visíveis.",
+            "O resultado inicial contém cento e cinco rótulos celulares. Aumentar a área mínima para quinhentos e dez pixels deixa cinquenta e dois visíveis."
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "os cinquenta e um rótulos voltam.",
+            "os cento e cinco rótulos voltam."
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "Isso produz quarenta e dois rótulos no campo gravado.",
+            "Isso produz trinta e seis rótulos no campo gravado."
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "O código Live não mudou desde a gravação preservada: arrays conferidos mostram 51→25→51 com área mínima 5642 e 42 após diâmetro 30→60.",
+          "A prévia Live foi gravada no 1.5.0.7 com as configurações fornecidas do exemplo em uma cópia nova e só é reutilizada enquanto live_preview.py e preview_contract.py permanecerem idênticos byte a byte a essa gravação: arrays conferidos mostram 105→52→105 com área mínima 510 e 36 após diâmetro 30→60."
+        ]
+      ]
+    },
+    "hi": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "सुरक्षित पुराने प्रीव्यू का फ़ील्ड, बाद के बैच के दो फ़ील्ड से अलग है।",
+            "इस प्रीव्यू का फ़ील्ड, बाद के बैच के दो फ़ील्ड से अलग है।"
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "प्रारंभिक परिणाम में इक्यावन कोशिका लेबल हैं। न्यूनतम क्षेत्रफल पाँच हज़ार छह सौ बयालीस पिक्सेल करने पर पच्चीस दिखाई देते हैं।",
+            "प्रारंभिक परिणाम में एक सौ पाँच कोशिका लेबल हैं। न्यूनतम क्षेत्रफल पाँच सौ दस पिक्सेल करने पर बावन दिखाई देते हैं।"
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "सभी इक्यावन लेबल लौट आते हैं।",
+            "सभी एक सौ पाँच लेबल लौट आते हैं।"
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "रिकॉर्ड किए फ़ील्ड में इससे बयालीस लेबल मिलते हैं।",
+            "रिकॉर्ड किए फ़ील्ड में इससे छत्तीस लेबल मिलते हैं।"
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "पुराने प्रीव्यू की live_preview.py और preview_contract.py वर्तमान स्रोत से बाइट-दर-बाइट समान हैं।",
+          "Live प्रीव्यू 1.5.0.7 पर उदाहरण की दी गई सेटिंग से नई प्रति पर रिकॉर्ड किया गया है, और इसका पुनः उपयोग तभी होता है जब live_preview.py और preview_contract.py उस रिकॉर्डिंग से बाइट-दर-बाइट समान रहें।"
+        ],
+        [
+          "न्यूनतम क्षेत्रफल 5642 पर 51→25→51 और व्यास 30→60 के बाद 42",
+          "न्यूनतम क्षेत्रफल 510 पर 105→52→105 और व्यास 30→60 के बाद 36"
+        ]
+      ]
+    },
+    "ja": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "保存済みのプレビュー映像は、後で示すバッチの二視野とは別の視野です。",
+            "このプレビューは、後で示すバッチの二視野とは別の視野です。"
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "初期結果には五十一個の細胞ラベルがあります。最小面積を五千六百四十二画素にすると、表示されるラベルは二十五個になります。",
+            "初期結果には百五個の細胞ラベルがあります。最小面積を五百十画素にすると、表示されるラベルは五十二個になります。"
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "元の面積制限に戻すと、五十一個すべてが再表示されます。",
+            "元の面積制限に戻すと、百五個すべてが再表示されます。"
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "この視野では四十二個のラベルになりました。",
+            "この視野では三十六個のラベルになりました。"
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "保存済み映像のlive_preview.pyとpreview_contract.pyは現在のソースとバイト単位で同一です。保存配列から最小面積5642で51→25→51、直径30→60後に42を独立確認しました。",
+          "Liveプレビューは1.5.0.7で、例に付属する設定を新しいコピーに適用して録画し、live_preview.pyとpreview_contract.pyがその録画時とバイト単位で同一の間だけ再利用します。保存配列から最小面積510で105→52→105、直径30→60後に36を独立確認しました。"
+        ]
+      ]
+    },
+    "zh-CN": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "保留的预览录像使用的视野，与后面批处理的两个视野不同。",
+            "本次预览使用的视野，与后面批处理的两个视野不同。"
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "初始结果包含五十一个细胞标签。把最小面积提高到五千六百四十二像素后，只显示二十五个标签。",
+            "初始结果包含一百零五个细胞标签。把最小面积提高到五百一十像素后，只显示五十二个标签。"
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "恢复原来的面积限制，五十一个标签全部回来。",
+            "恢复原来的面积限制，一百零五个标签全部回来。"
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "录像中的视野得到四十二个标签。",
+            "录像中的视野得到三十六个标签。"
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "复用录像前确认live_preview.py和preview_contract.py与录制时逐字节一致；保存数组独立复现最小面积5642时51→25→51，以及直径30→60后42个标签。",
+          "Live预览于1.5.0.7在新副本上使用示例自带设置录制，仅在live_preview.py和preview_contract.py与该录制逐字节一致时复用；保存数组独立复现最小面积510时105→52→105，以及直径30→60后36个标签。"
+        ]
+      ]
+    },
+    "da": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "Den bevarede optagelse bruger et andet felt end batchens to felter senere.",
+            "Denne preview bruger et andet felt end batchens to felter senere."
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "Udgangspunktet har 51 cellelabels. Hæves minimumsarealet til 5642 pixel, er 25 labels synlige.",
+            "Udgangspunktet har 105 cellelabels. Hæves minimumsarealet til 510 pixel, er 52 labels synlige."
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "alle 51 labels kommer tilbage.",
+            "alle 105 labels kommer tilbage."
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "Det giver 42 labels i det optagne felt.",
+            "Det giver 36 labels i det optagne felt."
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "Den bevarede preview-kode i live_preview.py og preview_contract.py er byteidentisk med den optagne version. Gemte masker reproducerer uafhængigt 51→25→51 ved minimumsareal 5642 og 42 efter diameter 30→60.",
+          "Live-preview er optaget på 1.5.0.7 med eksemplets medfølgende indstillinger på en ny kopi og genbruges kun, så længe live_preview.py og preview_contract.py er byteidentiske med den optagelse. Gemte masker reproducerer uafhængigt 105→52→105 ved minimumsareal 510 og 36 efter diameter 30→60."
+        ]
+      ]
+    },
+    "de": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "Die erhaltene Aufnahme verwendet ein anderes Feld als die beiden späteren Batch-Felder.",
+            "Diese Vorschau verwendet ein anderes Feld als die beiden späteren Batch-Felder."
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "Das Ausgangsergebnis enthält 51 Zelllabels. Eine Mindestfläche von 5642 Pixeln lässt 25 sichtbar.",
+            "Das Ausgangsergebnis enthält 105 Zelllabels. Eine Mindestfläche von 510 Pixeln lässt 52 sichtbar."
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "Alle 51 Labels kehren zurück.",
+            "Alle 105 Labels kehren zurück."
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "Im aufgezeichneten Feld entstehen 42 Labels.",
+            "Im aufgezeichneten Feld entstehen 36 Labels."
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "live_preview.py und preview_contract.py sind bytegleich zum erhaltenen Preview-Mitschnitt. Gespeicherte Masken reproduzieren unabhängig 51→25→51 bei Mindestfläche 5642 und 42 nach Durchmesser 30→60.",
+          "Die Live-Vorschau wurde auf 1.5.0.7 mit den mitgelieferten Beispieleinstellungen auf einer frischen Kopie aufgenommen und wird nur wiederverwendet, solange live_preview.py und preview_contract.py bytegleich zu dieser Aufnahme bleiben. Gespeicherte Masken reproduzieren unabhängig 105→52→105 bei Mindestfläche 510 und 36 nach Durchmesser 30→60."
+        ]
+      ]
+    },
+    "is": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "Varðveitta upptakan notar annað myndsvið en þau tvö sem sjást síðar í lotunni.",
+            "Þessi forskoðun notar annað myndsvið en þau tvö sem sjást síðar í lotunni."
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "Grunnniðurstaðan hefur 51 frumumerkingu. Hækkun lágmarksflatarmáls í 5642 mynddíla skilur eftir 25 sýnilegar merkingar.",
+            "Grunnniðurstaðan hefur 105 frumumerkingar. Hækkun lágmarksflatarmáls í 510 mynddíla skilur eftir 52 sýnilegar merkingar."
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "allar 51 merkingarnar koma aftur.",
+            "allar 105 merkingarnar koma aftur."
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "Það gefur 42 merkingar á skráða myndsviðinu.",
+            "Það gefur 36 merkingar á skráða myndsviðinu."
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "live_preview.py og preview_contract.py eru bæti fyrir bæti eins og í varðveittu forskoðunarupptökunni. Vistuð grímufylki endurskapa sjálfstætt 51→25→51 við lágmarksflatarmál 5642 og 42 eftir þvermál 30→60.",
+          "Live-forskoðunin var tekin upp á 1.5.0.7 með meðfylgjandi stillingum dæmisins á nýju eintaki og er aðeins endurnýtt meðan live_preview.py og preview_contract.py eru bæti fyrir bæti eins og í þeirri upptöku. Vistuð grímufylki endurskapa sjálfstætt 105→52→105 við lágmarksflatarmál 510 og 36 eftir þvermál 30→60."
+        ]
+      ]
+    },
+    "ko": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "보존된 녹화의 시야는 뒤에서 보여 줄 배치의 두 시야와 다릅니다.",
+            "이 미리보기의 시야는 뒤에서 보여 줄 배치의 두 시야와 다릅니다."
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "초기 결과에는 세포 레이블 51개가 있습니다. 최소 면적을 5642픽셀로 높이면 25개가 보입니다.",
+            "초기 결과에는 세포 레이블 105개가 있습니다. 최소 면적을 510픽셀로 높이면 52개가 보입니다."
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "원래 면적 제한으로 복원하면 51개가 모두 돌아옵니다.",
+            "원래 면적 제한으로 복원하면 105개가 모두 돌아옵니다."
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "녹화된 시야에서는 42개 레이블이 나옵니다.",
+            "녹화된 시야에서는 36개 레이블이 나옵니다."
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "보존된 녹화의 live_preview.py와 preview_contract.py는 현재 소스와 바이트 단위로 같습니다. 저장된 마스크로 최소 면적 5642에서 51→25→51, 지름 30→60 이후 42개를 독립 확인했습니다.",
+          "Live 미리보기는 1.5.0.7에서 예제에 포함된 설정으로 새 사본에 녹화했으며, live_preview.py와 preview_contract.py가 그 녹화와 바이트 단위로 같을 때만 재사용합니다. 저장된 마스크로 최소 면적 510에서 105→52→105, 지름 30→60 이후 36개를 독립 확인했습니다."
+        ]
+      ]
+    },
+    "nb": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "Det bevarte opptaket bruker et annet felt enn batchens to felt senere.",
+            "Denne forhåndsvisningen bruker et annet felt enn batchens to felt senere."
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "Utgangspunktet inneholder 51 celleetiketter. Å øke minstearealet til 5642 piksler gir 25 synlige etiketter.",
+            "Utgangspunktet inneholder 105 celleetiketter. Å øke minstearealet til 510 piksler gir 52 synlige etiketter."
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "så kommer alle 51 etikettene tilbake.",
+            "så kommer alle 105 etikettene tilbake."
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "Det gir 42 etiketter i det registrerte feltet.",
+            "Det gir 36 etiketter i det registrerte feltet."
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "live_preview.py og preview_contract.py er byteidentiske med den bevarte opptaksversjonen. Lagrede masker gjenskaper uavhengig 51→25→51 ved minsteareal 5642 og 42 etter diameter 30→60.",
+          "Live-forhåndsvisningen er tatt opp på 1.5.0.7 med eksemplets medfølgende innstillinger på en ny kopi og gjenbrukes bare så lenge live_preview.py og preview_contract.py er byteidentiske med det opptaket. Lagrede masker gjenskaper uavhengig 105→52→105 ved minsteareal 510 og 36 etter diameter 30→60."
+        ]
+      ]
+    },
+    "sv": {
+      "row_replace": {
+        "scenes[3]": [
+          [
+            "Den bevarade inspelningen använder ett annat bildfält än batchens två senare.",
+            "Den här förhandsvisningen använder ett annat bildfält än batchens två senare."
+          ]
+        ],
+        "scenes[5]": [
+          [
+            "Utgångsresultatet har 51 celletiketter. Minsta area 5642 pixlar lämnar 25 synliga.",
+            "Utgångsresultatet har 105 celletiketter. Minsta area 510 pixlar lämnar 52 synliga."
+          ]
+        ],
+        "scenes[6]": [
+          [
+            "så återkommer alla 51 etiketter.",
+            "så återkommer alla 105 etiketter."
+          ]
+        ],
+        "scenes[7]": [
+          [
+            "Det ger 42 etiketter i det inspelade bildfältet.",
+            "Det ger 36 etiketter i det inspelade bildfältet."
+          ]
+        ]
+      },
+      "prerequisite_replace": [
+        [
+          "live_preview.py och preview_contract.py är byteidentiska med den bevarade inspelningens version. Sparade masker återger oberoende 51→25→51 vid minsta area 5642 och 42 efter diameter 30→60.",
+          "Live-förhandsvisningen spelades in på 1.5.0.7 med exemplets medföljande inställningar på en ny kopia och återanvänds bara så länge live_preview.py och preview_contract.py är byteidentiska med den inspelningen. Sparade masker återger oberoende 105→52→105 vid minsta area 510 och 36 efter diameter 30→60."
+        ]
+      ]
+    }
+  }
+}
