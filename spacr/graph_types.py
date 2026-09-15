@@ -17,9 +17,23 @@ graph doing the ordinary thing rather than by remembering to.
 from __future__ import annotations
 
 import logging
+from contextvars import ContextVar
 from typing import Dict, List, Tuple
 
 LOG = logging.getLogger("spacr.graph_types")
+
+# WHETHER `chosen_for` MAY ASK THE QT PREFERENCE STORE. Reading it imports
+# PySide6.QtCore. `spacr.validate._known_setting_keys` calls every settings
+# default with `{}` only to learn which KEYS exist, and since 293 three of
+# those defaults ask this module for a graph type. That sweep has no use for
+# the user's choice. It runs when a batch queue is validated, which must not
+# import Qt (tests/test_batch.py). So the sweep turns this off, and
+# `chosen_for` answers "nothing was chosen", which every default already
+# falls back to. A ContextVar rather than a module flag, so another thread
+# asking at the same moment still reads the real preference. Everything else,
+# including a headless pipeline run, reads it exactly as before.
+_READ_THE_PREFERENCE_STORE = ContextVar(
+    "spacr_graph_types_read_the_preference_store", default=True)
 
 #: Available graph types represented as ``(value, display description)``.
 GRAPH_TYPES: Tuple[Tuple[str, str], ...] = (
@@ -260,6 +274,9 @@ def chosen_for(shape: str) -> str:
     and no QSettings, and a figure still has to be drawn.
     """
     shape = str(shape)
+    # Checked BEFORE the import, because the import is the cost being avoided.
+    if not _READ_THE_PREFERENCE_STORE.get():
+        return ""
     try:
         from .qt.preferences import get_default_graph_type
 

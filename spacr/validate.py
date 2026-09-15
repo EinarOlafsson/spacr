@@ -255,23 +255,33 @@ def _known_setting_keys() -> frozenset:
     import contextlib
     import io as _io
 
+    from . import graph_types as _graph_types
+
     buf = _io.StringIO()
-    with contextlib.redirect_stdout(buf):
-        for name, fn in list(vars(_settings).items()):
-            if not callable(fn):
-                continue
-            if not (name.startswith("set_") or name.startswith("get_")
-                    or name.startswith("default_") or name.startswith("deep_")):
-                continue
-            try:
-                produced = fn({})
-            except Exception:
-                try:
-                    produced = fn()
-                except Exception:
+    # The sweep wants KEYS, not the user's graph-type choice, and asking for
+    # the choice imports Qt, which validating a batch queue must not do. See
+    # `graph_types._READ_THE_PREFERENCE_STORE`.
+    reading = _graph_types._READ_THE_PREFERENCE_STORE.set(False)
+    try:
+        with contextlib.redirect_stdout(buf):
+            for name, fn in list(vars(_settings).items()):
+                if not callable(fn):
                     continue
-            if isinstance(produced, dict):
-                keys.update(k for k in produced if isinstance(k, str))
+                if not (name.startswith("set_") or name.startswith("get_")
+                        or name.startswith("default_")
+                        or name.startswith("deep_")):
+                    continue
+                try:
+                    produced = fn({})
+                except Exception:
+                    try:
+                        produced = fn()
+                    except Exception:
+                        continue
+                if isinstance(produced, dict):
+                    keys.update(k for k in produced if isinstance(k, str))
+    finally:
+        _graph_types._READ_THE_PREFERENCE_STORE.reset(reading)
 
     _KNOWN_KEYS_CACHE = frozenset(keys)
     return _KNOWN_KEYS_CACHE
