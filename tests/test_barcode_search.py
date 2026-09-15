@@ -1264,3 +1264,186 @@ def test_a_barcode_beyond_the_usual_three_keeps_its_chosen_table(planted, tmp_pa
     # The extra barcode reaches further into the read than the guide does, so
     # the window the proposal cuts has to grow to include it.
     assert proposal.settings["window_length"] >= 110
+
+
+def test_a_protein_reference_is_refused_rather_than_reverse_complemented():
+    """A table that is not DNA cannot be flipped, so asking is an error.
+
+    `reverse_complement` maps only ACGTN and returns every other letter
+    unchanged. A peptide reference put through it comes back as its own
+    letters reversed -- a sequence that exists nowhere -- and the search then
+    reports the reference ABSENT. That is a conclusion about the reads drawn
+    from a broken request, which is the worst shape a wrong answer can take.
+    """
+    peptide = bs.BarcodeTable(
+        name="tags", role="grna",
+        sequences={"MKWVTFISLL": "tag_a", "HHHHHH": "his6"})
+
+    with pytest.raises(ValueError) as caught:
+        peptide.oriented(bs.REVERSE_COMPLEMENT)
+
+    message = str(caught.value)
+    assert "tags" in message
+    # The letters it could not complement are named, so the person reading
+    # the error knows which column of their file is the problem.
+    assert "ILMSVWF" in message or any(
+        letter in message for letter in "ILMSVWF")
+    # And it says what to do instead rather than only what went wrong.
+    assert bs.AS_GIVEN in message
+
+
+def test_the_same_table_in_the_orientation_it_is_stored_is_still_returned():
+    """The refusal is about FLIPPING, not about non-DNA references at all.
+
+    A protein reference searched as given is a legitimate request: the reads
+    would have to be translated for it to match, but that is the caller's
+    business and not this method's. Refusing here too would turn one narrow
+    correctness guard into a ban on a whole class of table.
+    """
+    peptide = bs.BarcodeTable(name="tags", sequences={"MKWVTFISLL": "tag_a"})
+
+    assert peptide.oriented(bs.AS_GIVEN) is peptide
+
+
+def test_an_ordinary_dna_table_still_flips():
+    """The guard admits the tables it was never meant to stop."""
+    dna = bs.BarcodeTable(name="rows", sequences={"ACGTN": "r1"})
+
+    flipped = dna.oriented(bs.REVERSE_COMPLEMENT)
+
+    assert flipped.sequences == {"NACGT": "r1"}
+
+
+def test_one_bad_row_is_enough_to_refuse_the_whole_table():
+    """A mostly-DNA table with one protein row is still not a DNA table.
+
+    This is the case a per-sequence check would let through: 999 rows flip
+    correctly, one comes back unchanged, and the table looks fine. The search
+    then finds 999 references and silently misses the thousandth.
+    """
+    mixed = bs.BarcodeTable(
+        name="mixed", sequences={"ACGT": "ok", "ACGZ": "typo"})
+
+    with pytest.raises(ValueError, match="Z"):
+        mixed.oriented(bs.REVERSE_COMPLEMENT)
+
+
+def _planted(tmp_path, barcode, reads=4000, carrying=None):
+    """Write one FASTQ where a known share of reads carry a known barcode.
+
+    :param tmp_path: where to write the file.
+    :param barcode: the sequence planted into the carrying reads.
+    :param reads: how many reads to write in total.
+    :param carrying: how many of them carry the barcode; half by default.
+    :returns: the path written.
+    """
+    carrying = reads // 2 if carrying is None else carrying
+    filler = "TTTTTTTTTT"
+    path = tmp_path / "planted.fastq"
+    with open(path, "w", encoding="utf-8") as handle:
+        for index in range(reads):
+            body = (filler + barcode) if index < carrying else (filler + filler)
+            handle.write(f"@r{index}\n{body}\n+\n{'I' * len(body)}\n")
+    return path
+
+
+def test_raising_the_usable_rate_turns_a_present_table_undecided(tmp_path):
+    """A threshold that is a setting has to be able to change the answer.
+
+    The planted file carries the barcode in 20% of its reads. At the default
+    `min_usable_rate` of 0.10 that is comfortably enough to map from, and the
+    verdict is PRESENT. A lab whose assay needs 40% says so, and the SAME
+    reads become undecided -- not absent, because the barcode is plainly
+    there; undecided, because there is not enough of it for what they are
+    doing. That distinction is the reason this is a threshold and not a flag.
+    """
+    table = bs.BarcodeTable(name="rows", role="row",
+                            sequences={"ACGTACGTAC": "r1"})
+    path = _planted(tmp_path, "ACGTACGTAC", reads=4000, carrying=800)
+
+    lenient = bs.search_barcodes(path, [table], max_reads=4000)
+    strict = bs.search_barcodes(
+        path, [table], max_reads=4000,
+        thresholds=bs.SearchThresholds(min_usable_rate=0.40))
+
+    def verdict(report):
+        return max(report.findings, key=lambda f: f.hits).verdict
+
+    assert verdict(lenient) == bs.PRESENT
+    assert verdict(strict) == bs.INDETERMINATE
+
+
+def test_the_reason_names_the_question_the_raised_threshold_asked(tmp_path):
+    """An undecided verdict says WHICH check it was that could not be met.
+
+    Four different questions can return INDETERMINATE. A report that only
+    says "undecided" sends the reader back to the raw counts to work out
+    which; the sentence has to carry the observed rate that fell short.
+    """
+    table = bs.BarcodeTable(name="rows", role="row",
+                            sequences={"ACGTACGTAC": "r1"})
+    path = _planted(tmp_path, "ACGTACGTAC", reads=4000, carrying=800)
+
+    report = bs.search_barcodes(
+        path, [table], max_reads=4000,
+        thresholds=bs.SearchThresholds(min_usable_rate=0.40))
+    finding = max(report.findings, key=lambda f: f.hits)
+
+    assert "20.00%" in finding.reason
+    assert "map from" in finding.reason
+
+
+def test_lowering_the_read_floor_lets_a_small_sample_reach_a_verdict(tmp_path):
+    """The sample-size floor is a threshold too, and it is the first asked.
+
+    100 reads is below the default floor of 500, so every table comes back
+    undecided however clean the data is. A caller who knows their run is
+    small says so and gets an answer from it.
+    """
+    table = bs.BarcodeTable(name="rows", role="row",
+                            sequences={"ACGTACGTAC": "r1"})
+    path = _planted(tmp_path, "ACGTACGTAC", reads=100, carrying=50)
+
+    default = bs.search_barcodes(path, [table], max_reads=100)
+    lowered = bs.search_barcodes(
+        path, [table], max_reads=100,
+        thresholds=bs.SearchThresholds(min_reads_for_verdict=50))
+
+    assert all(f.verdict == bs.INDETERMINATE for f in default.findings)
+    assert any("too few" in f.reason for f in default.findings)
+    assert max(lowered.findings, key=lambda f: f.hits).verdict == bs.PRESENT
+
+
+def test_the_defaults_are_exactly_the_constants_that_were_there_before():
+    """Making a number settable must not change what it was.
+
+    This is the whole safety claim of the change: every existing settings
+    file, every saved run and every screen that passes nothing keeps the
+    behaviour it had. If one of these drifts, a run that was PRESENT
+    yesterday is ABSENT today for no reason the user can see.
+    """
+    defaults = bs.DEFAULT_THRESHOLDS
+
+    assert defaults.min_reads_for_verdict == bs.MIN_READS_FOR_VERDICT == 500
+    assert defaults.min_enrichment == bs.MIN_ENRICHMENT == 3.0
+    assert defaults.min_usable_rate == bs.MIN_USABLE_RATE == 0.10
+    assert defaults.max_offset_span == bs.MAX_OFFSET_SPAN == 6
+    assert defaults.offset_window_coverage == bs.OFFSET_WINDOW_COVERAGE == 0.80
+
+
+def test_a_threshold_that_could_never_decide_anything_is_refused():
+    """Each threshold is checked where it is set, not where it misbehaves.
+
+    An enrichment of 1.0 makes the coincidence rate itself clear the bar, so
+    every table in the run is reported PRESENT and the report looks like a
+    spectacular result. That failure is invisible downstream, which is why it
+    has to be caught at the point the number is given.
+    """
+    with pytest.raises(ValueError, match="min_enrichment"):
+        bs.SearchThresholds(min_enrichment=1.0)
+
+    with pytest.raises(ValueError, match="share of reads"):
+        bs.SearchThresholds(min_usable_rate=0.0)
+
+    with pytest.raises(ValueError, match="at least one"):
+        bs.SearchThresholds(max_offset_span=0)

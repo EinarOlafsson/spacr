@@ -154,3 +154,89 @@ file is a rewrite, not a generalisation.
 NOTE FOR WHOEVER TAKES IT: `grna` (the setting, not `grna_csv`) is being
 retired under item 364 as a setting no pipeline reads. Do not confuse the two.
 `grna_csv` is the live one.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- TWO OF THE FOUR BUILT, AND ONE CORRECTION TO THIS FILE
+--------------------------------------------------------------------------------
+
+FIRST, THIS FILE WAS WRONG ABOUT THE FIRST TWO REQUIREMENTS. The section above
+titled "WHAT IS STILL FIXED, MEASURED 2026-09-14" opens with "THE PIPELINE
+STILL NAMES EXACTLY THREE REFERENCES". It does not, and it did not on the day
+that was written. `spacr/settings.py:321` already holds `BarcodeSet`, the
+`barcode_set` settings key already exists, `spacr/sequencing.py` already
+iterates the set at four sites, and
+`tests/test_a_barcode_set_is_any_number_of_barcodes.py` already proves five
+barcodes each get their own columns and that one barcode is a whole set. 160
+barcode tests pass against it.
+
+The three `*_csv` settings the section points at are still declared -- but as
+the COMPATIBILITY PATH for saved settings files, which is what the acceptance
+criterion below asks for ("the existing three-reference screens still run
+unchanged from their current settings files"). Reading three declarations as
+"the pipeline names exactly three references" was a measurement of the
+settings file rather than of the pipeline.
+
+Requirements 1 and 2 are therefore DONE, and were done before this item was
+filed. Recorded rather than quietly struck out, because an item that claims
+unbuilt work that is already built sends the next session to build it twice.
+
+THIRD REQUIREMENT, "THE ALPHABET IS DECLARED OR THE INPUT IS REFUSED" -- BUILT.
+
+  `NUCLEOTIDE_ALPHABET` is now declared beside `_COMPLEMENT`, and
+  `BarcodeTable.oriented()` refuses to reverse-complement a table containing
+  anything else, naming the offending characters and saying to search it with
+  `AS_GIVEN` instead.
+
+  THE REFUSAL IS IN `oriented()` AND NOT IN `reverse_complement()`, which is
+  the whole design decision and is easy to get backwards. `reverse_complement`
+  is permissive ON PURPOSE -- its docstring says so -- because it runs on
+  READS, where an uncertain base should still be reversed rather than have the
+  read refused. `oriented()` runs on REFERENCE TABLES, where a non-nucleotide
+  sequence flips to its own letters reversed, matches nothing, and is reported
+  ABSENT. That last step is why silence is worse than an error here: the run
+  does not fail, it produces a confident wrong conclusion about the data.
+
+  ONE BAD ROW REFUSES THE WHOLE TABLE. A per-sequence check would flip 999
+  rows correctly and pass the thousandth through unchanged, and the search
+  would then miss exactly one reference with nothing in the report to say so.
+
+FOURTH REQUIREMENT, "THE THRESHOLDS ARE SETTINGS" -- HALF BUILT.
+
+  `SearchThresholds` is a frozen dataclass carrying all five verdict
+  thresholds, defaulting to the constants that were there before, threaded
+  through `_decide`, `_build_finding`, `_SearchState`, `iter_barcode_search`
+  and `search_barcodes`. Each field's comment says WHICH QUESTION it judges,
+  as the requirement asks: sample size, distinguishable from coincidence,
+  enough to map from, and one position rather than scattered.
+
+  It validates on construction. A `min_enrichment` of 1.0 makes the
+  coincidence rate itself clear the bar and reports EVERY table PRESENT --
+  a failure that is invisible downstream and looks like a spectacular result,
+  which is why it is caught where the number is set rather than where it
+  misbehaves.
+
+  THE TWO READ-BUDGET CONSTANTS WERE ALREADY SETTABLE. `DEFAULT_SAMPLE_READS`
+  and `DEFAULT_CHUNK_READS` have been function parameters with defaults all
+  along; only the five VERDICT thresholds were read from module globals.
+
+  WHAT IS LEFT: wiring the five to the settings surface, so the screen offers
+  them rather than only the library accepting them. That is deliberately not
+  done in the same change -- `test_settings_tooltip_quality::test_real_default
+  _claims_have_no_unrecorded_drift` is RED right now at 667 vs 666, and adding
+  five settings while that counter is already wrong makes my delta
+  indistinguishable from the existing one. The reds come first.
+
+HOW EACH CLAIM ABOVE WAS CHECKED: every new test was run against a REVERTED
+fix. The alphabet guard, deleted, reddens two of the four tests written for it
+-- the other two assert the guard does NOT over-reach and correctly pass
+either way. The threshold threading, made to ignore what it is handed,
+reddens three of five. A test that cannot tell the two versions apart is not
+evidence about the fix.
+
+AND ONE RATCHET MOVED WITHOUT BEING REGENERATED. The four new public symbols
+take `DOCUMENTATION_API_SYMBOL_COUNT_RATCHET` from 10,536 to 10,538. It was
+ALREADY red at 10,536 against a pinned 10,534 before this change, and
+`test_documentation_api_catalog_inventory_and_hashes_are_current`'s own
+docstring says the API catalogs may be stale during ordinary work and are
+rebuilt once, immediately before the version is cut. So it was left stale
+deliberately, and is recorded here so the release rebuild knows why it moved.
