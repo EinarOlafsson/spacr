@@ -5145,7 +5145,7 @@ def _name_deeper_key(parts):
 
 
 
-def _qc_graph_type_and_note(fallback: str = 'jitter_bar'):
+def _qc_graph_type(fallback: str = 'jitter_bar') -> str:
     """The graph type the regression QC figures should start on.
 
     The DEFAULT GRAPH TYPE setting decides what is drawn FIRST, for every
@@ -5169,14 +5169,24 @@ def _qc_graph_type_and_note(fallback: str = 'jitter_bar'):
     The shape is ``categorical_continuous`` because all three figures are one
     measurement grouped by ``plateID``.
 
+    NO NOTE, BECAUSE NO COUNTS. :func:`graph_types.start_for` explains a
+    swapped graph only when it is handed the per-group sizes, and these
+    figures are drawn from a CSV path, not from sizes the caller holds. A note
+    computed without counts is always empty, so the print that used to follow
+    this call could never run. Passing counts is not the small fix it looks
+    like: the fallback here is a MARK spelling, and on the too-thin path
+    `start_for` re-checks it with `fits`, which a mark spelling fails -- see
+    :func:`graph_types.mark_to_start_on`, which records exactly that. The swap
+    concerns bar, box, violin and line drawn over 8 or fewer observations in a
+    group, and these figures group whole plates of wells.
+
     :param fallback: what to draw when no preference is stored. The default
         is the literal these figures used before this existed.
-    :returns: ``(graph_type, note)`` in ``spacrGraph``'s vocabulary, with the
-        note explaining any fallback so the caller can say it out loud.
+    :returns: the graph type in ``spacrGraph``'s vocabulary.
     """
     from .graph_types import mark_to_start_on
 
-    return mark_to_start_on('categorical_continuous', fallback)
+    return mark_to_start_on('categorical_continuous', fallback)[0]
 
 
 def _assign_prc_parts(df, column=schema.PRC_KEY,
@@ -7334,9 +7344,7 @@ def _perform_regression(settings):
         merged_df.to_csv(data_path, index=False)
         print(f"Saved regression data to {data_path}")
 
-        qc_graph_type, _qc_note = _qc_graph_type_and_note()
-        if _qc_note:
-            print(f"QC figures: {_qc_note}")
+        qc_graph_type = _qc_graph_type()
         
         cell_settings = {'src':data_path,
                         'graph_name':'cell_count',
