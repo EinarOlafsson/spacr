@@ -398,6 +398,11 @@ def pytest_configure(config):
         config.pluginmanager.register(_OneNodePerDirectory(),
                                       _ONE_NODE_PER_DIRECTORY)
 
+    # Before collection: a module that builds a screen at import time must
+    # not pin into the real `~/.local/state`. Each test then gets its own
+    # file from `_isolated_chaining_pin_store`.
+    os.environ[_PIN_STATE_ENV] = str(_PIN_SANDBOX / "session" / "pins.json")
+
     global _QSETTINGS_ACTIVE
     if _qsettings_module() is None:
         return
@@ -627,6 +632,43 @@ def _isolated_dot_spacr_store(monkeypatch):
         monkeypatch.setattr(
             plate_queue, "_queue_path",
             lambda: _DOT_SPACR_SANDBOX / "queue.json", raising=False)
+    yield
+
+
+#: Where chaining pins go during a test. See `_isolated_chaining_pin_store`.
+_PIN_SANDBOX = Path(tempfile.mkdtemp(prefix="spacr-chaining-pins-")).resolve()
+_atexit.register(_shutil.rmtree, str(_PIN_SANDBOX), True)
+
+#: `spacr.chaining.PIN_STATE_ENV`, spelled out so `pytest_configure` can set
+#: it without importing spacr before collection.
+_PIN_STATE_ENV = "SPACR_CHAINING_PINS"
+
+
+@pytest.fixture(autouse=True)
+def _isolated_chaining_pin_store(request, monkeypatch):
+    """Give every test its own chaining pin file, never the real one.
+
+    THE SAME BUG AS `~/.spacr`, IN A STORE NOBODY WAS LOOKING AT. A
+    module's remembered `src` lives in XDG *state* storage
+    (`~/.local/state/spacr/chaining/pins.json`), not under XDG_CONFIG_HOME,
+    so neither the QSettings sandbox nor `tests/qt`'s XDG_CONFIG_HOME move
+    reached it. Measured 2026-09-15 on the maintainer's machine: the real
+    file pinned Mask's `src` to
+    `/tmp/pytest-of-olafsson/pytest-2295/test_head_loaddata0/plate1` and
+    Timelapse's to another pytest directory. The app then opened Mask on a
+    deleted test folder, and a tutorial recording isolated with
+    XDG_CONFIG_HOME showed that path in its Source field before any data
+    had been loaded.
+
+    Per test, not per session, because a pin is exactly the kind of state
+    that makes one test's outcome depend on which test ran before it.
+    `pin_store()` re-reads `state_path()` on every call, so a screen built
+    inside the test picks this file up without any cache reset.
+    """
+    digest = _hashlib.sha1(
+        request.node.nodeid.encode("utf-8", "replace")).hexdigest()[:16]
+    monkeypatch.setenv(_PIN_STATE_ENV,
+                       str(_PIN_SANDBOX / "per-test" / digest / "pins.json"))
     yield
 
 
