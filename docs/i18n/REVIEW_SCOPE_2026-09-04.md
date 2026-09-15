@@ -53,19 +53,18 @@ table derives them from the same source the builders read.
 
 | Language | Reviewed runtime records | Of 5,835 | Remainder | Reviewed API blocks | Of 10,534 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 191 | 3.27% | 5,644 | 517 | 4.91% | 10,017 |
-| German | 154 | 2.64% | 5,681 | 475 | 4.51% | 10,059 |
-| Spanish | 163 | 2.79% | 5,672 | 356 | 3.38% | 10,178 |
-| Simplified Chinese | 477 | 8.17% | 5,358 | 626 | 5.94% | 9,908 |
-| Portuguese | 154 | 2.64% | 5,681 | 587 | 5.57% | 9,947 |
-| Hindi | 236 | 4.04% | 5,599 | 520 | 4.94% | 10,014 |
-| Korean | 373 | 6.39% | 5,462 | 593 | 5.63% | 9,941 |
-| Icelandic | 324 | 5.55% | 5,511 | 1,088 | 10.33% | 9,446 |
-| French | 169 | 2.90% | 5,666 | 516 | 4.90% | 10,018 |
-
+| Swedish | 191 | 3.27% | 5,644 | 539 | 5.12% | 9,995 |
+| German | 154 | 2.64% | 5,681 | 497 | 4.72% | 10,037 |
+| Spanish | 163 | 2.79% | 5,672 | 378 | 3.59% | 10,156 |
+| Simplified Chinese | 477 | 8.17% | 5,358 | 648 | 6.15% | 9,886 |
+| Portuguese | 154 | 2.64% | 5,681 | 609 | 5.78% | 9,925 |
+| Hindi | 236 | 4.04% | 5,599 | 542 | 5.15% | 9,992 |
+| Korean | 373 | 6.39% | 5,462 | 615 | 5.84% | 9,919 |
+| Icelandic | 324 | 5.55% | 5,511 | 1,110 | 10.54% | 9,424 |
+| French | 169 | 2.90% | 5,666 | 538 | 5.11% | 9,996 |
 
 *Regenerated 2026-09-15 for the 08:15 integration batch (wip/integ-0815) on
-nightly ddc0af2f3. The runtime denominator moves 5,679 -> 5,835, +156/-0: 154
+nightly dad943037, on top of 366's pass below. The runtime denominator moves 5,679 -> 5,835, +156/-0: 154
 UI captions that 394's keyed extractor rules found behind local helpers
 (always on screen, never in a catalog), plus the `segmentation_backend` label
 and tooltip (404/405). The API denominator does not move; the new backend
@@ -78,8 +77,9 @@ the three UI rows the model left English (sv 55, de 51, es 46, zh_CN 107,
 pt 37, hi 86, ko 106, is 149, fr 51). That is 1,535 + 18 + 688 = 2,241, and no
 record left any locale.
 
-The API counts rise by the same read (sv 36, de 37, es 57, zh_CN 96, pt 127,
-hi 46, ko 126, is 52, fr 38), plus `spacr.report#13` in zh_CN, ko and is.
+The API counts rise over 366's by the same read (sv 36, de 37, es 57, zh_CN 96,
+pt 127, hi 46, ko 126, is 52, fr 38), plus `spacr.report#13` in zh_CN, ko and
+is.
 "Segmentation QC" is also a UI caption, and the API block now carries the
 runtime reviewers' translation. Icelandic adds 49 sources, not 53, for two
 reasons. Two of its corrections are the same "Design notes:" block in two
