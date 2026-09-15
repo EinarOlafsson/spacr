@@ -3,12 +3,14 @@ MEASURE AN ENCODER THAT WAS TRAINED ON CELLS, BECAUSE THE ONE THAT LOST WAS
 TRAINED ON PHOTOGRAPHS
 ================================================================================
 
-Status:    OPEN AND UNBLOCKED, 2026-09-14. Ordinary work, no longer waiting
+Status:    MEASURED 2026-09-15 -- see "RESULTS (run 2026-09-14 21:35 ->
+           2026-09-15 03:05)" below; what was not measured, and why, is under
+           "NOT MEASURED". Was: OPEN AND UNBLOCKED, 2026-09-14. Ordinary work, no longer waiting
            on anybody. Filed 2026-09-12; corrected 2026-09-13 when the
            retrieval harness that produced the baseline turned out not to be
            in this repository; unblocked 2026-09-14 by the maintainer's answer
            below.
-Owner:     unassigned. `spacr/embeddings.py` holds `EmbeddingSpec` and
+Owner:     Claude home session (measured 2026-09-15). `spacr/embeddings.py` holds `EmbeddingSpec` and
            `_timm_encoder`; the harness has to be rebuilt under `tools/`.
 
            THE BLOCKING QUESTION WAS ASKED AND ANSWERED. Asked: which plate

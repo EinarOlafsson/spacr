@@ -2,14 +2,18 @@
 DINOCELL AS A SEGMENTATION BACKEND
 ================================================================================
 
-Status:    FUTURE, filed 2026-09-14. APPROVED FOR BUILD by the maintainer the
+Status:    BUILT 2026-09-15 in 14b459a18 -- DINOCell behind the
+           `segmentation_backend` setting (spacr/_segmentation_backends.py,
+           100% statements and branches under its own tests). Its published
+           release pins versions that conflict with spaCR's, so it needs an
+           environment of its own. Filed FUTURE 2026-09-14; APPROVED FOR BUILD by the maintainer the
            same day, verbatim -- "build DINOCell and here is SAMcell
            https://github.com/saahilsanganeriya/SAMCell implement both both
            are available on pypi". Not blocking a release; it is now real work
            rather than a note.
 Requested: 2026-09-14, verbatim -- "we should add to future features to add
            support for DINOCell  https://github.com/kadenstillwagon/DINOCell"
-Owner:     unassigned. `spacr/model_zoo.py` holds `ModelEntry` and its `kind`
+Owner:     Claude home session (built in the 63/394 integration). `spacr/model_zoo.py` holds `ModelEntry` and its `kind`
            field; `spacr/object.py` is where a mask is produced.
 
 --------------------------------------------------------------------------------

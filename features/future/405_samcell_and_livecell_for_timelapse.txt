@@ -2,12 +2,16 @@
 SAMCELL, TRAINED ON LIVECELL, FOR TIMELAPSE
 ================================================================================
 
-Status:    FUTURE, filed 2026-09-14. APPROVED FOR BUILD by the maintainer the
+Status:    BUILT 2026-09-15 in 14b459a18 -- SAMCell behind the same
+           `segmentation_backend` setting as 404 (one backend mechanism, as
+           this file required); install with pip install "spacr[samcell]".
+           Its setting tooltip is over the 600-character cap and is being
+           shortened with its nine translations. Filed FUTURE 2026-09-14; APPROVED FOR BUILD by the maintainer the
            same day: "implement both, both are available on pypi".
 Requested: 2026-09-14, verbatim -- "we shuld also support SAMCell-LIVECell
            especislly for timelapse", and then the source, verbatim --
            "this is the samcell i mean https://github.com/saahilsanganeriya/SAMCell"
-Owner:     unassigned. Shares a seam with 404 (DINOCell): both answer "what
+Owner:     Claude home session (built in the 63/394 integration). Shares a seam with 404 (DINOCell): both answer "what
            segments a cell spaCR was not trained on", and they must extend ONE
            backend mechanism rather than growing two a month apart.
 
