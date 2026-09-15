@@ -3510,7 +3510,24 @@ class MainWindow(QMainWindow):
 
     def _apply_demo_to_screen(self, widget, layout) -> None:
         """Push the demo layout into a target screen, in whatever way
-        that screen supports (settings CSV, source folder, or DB path)."""
+        that screen supports (settings CSV, source folder, or DB path).
+
+        A BARCODE REFERENCE THE DEMO LEFT EMPTY IS FILLED FROM THE PACKAGE.
+        Asked for on 2026-09-15: "loading test data in map barecodes should
+        loade these tables if if they are not already loaded". The three CSVs
+        ship inside the wheel, so this normally costs nothing; when package
+        data has been stripped they are fetched from the release tag on
+        GitHub and checked against a pinned hash.
+
+        THE SETTINGS SAY WHETHER THIS APPLIES, rather than the app key. A
+        map_barcodes settings file DECLARES `grna_csv`, `row_csv` and
+        `column_csv`; a mask one does not, so it cannot accidentally gain
+        three path settings that mean nothing to it. That also means the
+        tutorial runner, which calls this method too, gets the same
+        behaviour without being told about it.
+        """
+        from spacr.settings import (BUNDLED_BARCODE_SETTING,
+                                    fill_missing_barcode_references)
         from spacr.utils import load_settings
 
         if hasattr(widget, "apply_settings_dict") and layout.settings_csv:
@@ -3519,6 +3536,9 @@ class MainWindow(QMainWindow):
                 setting_key="Key", setting_value="Value",
             )
             if isinstance(loaded, dict):
+                if any(key in loaded
+                       for key in BUNDLED_BARCODE_SETTING.values()):
+                    fill_missing_barcode_references(loaded)
                 widget.apply_settings_dict(loaded)
                 return
         if hasattr(widget, "_open_source"):

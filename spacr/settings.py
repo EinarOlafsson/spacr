@@ -211,6 +211,151 @@ def bundled_barcode_path(kind):
     )
 
 
+#: sha256 of each bundled barcode CSV, checked before a downloaded copy is
+#: trusted.
+#:
+#: THIS PIN CANNOT GO STALE SILENTLY. `test_the_pinned_barcode_hashes_are_the
+#: _bundled_files` recomputes every value from the file that ships beside it,
+#: so editing a CSV without editing this table is a red test rather than a
+#: download that is rejected on a user's machine months later. That failure
+#: mode is not hypothetical here: `tools/build_instruction_index.py` carried a
+#: hand-written table nothing re-checked, and items stayed blocked in it for
+#: weeks after the thing they waited for had happened.
+BUNDLED_BARCODE_SHA256 = {
+    "column":
+        "1736196d02c3b32a85a6934fd251dc977d6db6324665ad04dca3193f4ba41063",
+    "grna":
+        "0b304fcab3034c3008367406574a6addb91c2adb93dd961a39448c9aea036936",
+    "row":
+        "3117fdaf4c551ed9afb8ee4e2e49bd774cab885b125362a58e2d16e99c52a97e",
+}
+
+#: The settings key each bundled reference fills, when that key is empty.
+BUNDLED_BARCODE_SETTING = {
+    "column": "column_csv",
+    "grna": "grna_csv",
+    "row": "row_csv",
+}
+
+
+def bundled_barcode_url(kind, version=None):
+    """Return the GitHub raw URL for a bundled barcode reference.
+
+    :param kind: ``'column'``, ``'grna'`` or ``'row'``.
+    :param version: the release to fetch from; the installed one by default.
+    :returns: the raw URL of that CSV at that release's tag.
+    :raises ValueError: when ``kind`` is not a bundled reference type.
+
+    PINNED TO A TAG AND NEVER TO A BRANCH. A URL on `nightly` returns whatever
+    the file happens to be today, which would not match
+    :data:`BUNDLED_BARCODE_SHA256` and would be rejected -- correctly, but
+    with an integrity complaint rather than the truth, which is that the
+    address was wrong.
+    """
+    if str(kind).lower() not in _BUNDLED_BARCODE_FILES:
+        choices = ", ".join(_BUNDLED_BARCODE_FILES)
+        raise ValueError(
+            f"Unknown barcode reference {kind!r}; choose {choices}.")
+    filename = _BUNDLED_BARCODE_FILES[str(kind).lower()]
+    if version is None:
+        from . import __version__ as version
+    return (
+        "https://raw.githubusercontent.com/EinarOlafsson/spacr/"
+        f"v{version}/spacr/resources/data/{filename}")
+
+
+def _verified_barcode_bytes(kind, payload):
+    """Return ``payload`` if it is the bundled reference, or raise.
+
+    :param kind: which bundled reference was asked for.
+    :param payload: the bytes that came back.
+    :returns: the same bytes, once they are known to be the right ones.
+    :raises ValueError: when the bytes are not what this release ships.
+    """
+    import hashlib
+
+    expected = BUNDLED_BARCODE_SHA256[str(kind).lower()]
+    got = hashlib.sha256(payload).hexdigest()
+    if got != expected:
+        raise ValueError(
+            f"The downloaded {kind} barcode reference is not the one this "
+            f"release ships: expected sha256 {expected}, got {got}. It was "
+            f"not written. A barcode table that is not the expected one maps "
+            f"reads to the wrong wells, which produces a finished result "
+            f"rather than an error.")
+    return payload
+
+
+def ensure_bundled_barcode(kind, fetch=None):
+    """Return the path to a bundled barcode reference, fetching it if missing.
+
+    :param kind: ``'column'``, ``'grna'`` or ``'row'``.
+    :param fetch: a callable taking a URL and returning bytes, for tests and
+        for callers that route their own network access. ``None`` uses
+        ``urllib``.
+    :returns: the absolute path to the CSV.
+    :raises ValueError: when ``kind`` is unknown, or the fetched bytes do not
+        match the hash this release pins.
+    :raises OSError: when the file is absent and cannot be fetched.
+
+    THE NETWORK IS THE LAST RESORT, NOT THE FIRST. These CSVs ship inside the
+    wheel, so the common path touches no network at all; the fetch exists for
+    an install whose package data was stripped. Checking the local copy first
+    also means a machine with no route out still works.
+    """
+    path = bundled_barcode_path(kind)
+    if os.path.exists(path):
+        return path
+    url = bundled_barcode_url(kind)
+    if fetch is None:
+        def fetch(target):
+            from urllib.request import urlopen
+
+            with urlopen(target, timeout=30) as response:   # noqa: S310
+                return response.read()
+    payload = _verified_barcode_bytes(kind, fetch(url))
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    # Written whole and then moved, so an interrupted fetch cannot leave a
+    # half-written CSV that parses as a short barcode table.
+    staging = f"{path}.partial"
+    with open(staging, "wb") as handle:
+        handle.write(payload)
+    os.replace(staging, path)
+    return path
+
+
+def fill_missing_barcode_references(settings, fetch=None):
+    """Point every EMPTY barcode reference setting at the bundled table.
+
+    :param settings: the settings mapping to fill in place.
+    :param fetch: passed through to :func:`ensure_bundled_barcode`.
+    :returns: the names of the settings that were filled, in order.
+
+    A REFERENCE THE USER SET IS NEVER OVERWRITTEN, which is the whole
+    contract. Loading test data is something a user does part-way through
+    setting a run up, and silently replacing the guide table they just chose
+    with the bundled one would be a mapping run against the wrong references
+    that completes and reports numbers.
+
+    A reference that cannot be produced is LEFT EMPTY rather than raising.
+    The other two are still worth filling, and an empty field is a state the
+    screen already knows how to show; a raised exception out of "load test
+    data" is not.
+    """
+    filled = []
+    for kind, key in BUNDLED_BARCODE_SETTING.items():
+        if str(settings.get(key) or "").strip():
+            continue
+        try:
+            settings[key] = ensure_bundled_barcode(kind, fetch=fetch)
+        except (OSError, ValueError):
+            LOG.info("no bundled %s barcode reference to fill in", kind,
+                     exc_info=True)
+            continue
+        filled.append(key)
+    return filled
+
+
 @dataclass(frozen=True)
 class BarcodeEntry:
     """One barcode type that a run decodes.

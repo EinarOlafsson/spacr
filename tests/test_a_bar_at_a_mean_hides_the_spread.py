@@ -90,7 +90,31 @@ GRAPH_TYPE_DEFAULTERS = (
 )
 
 
-def test_every_module_default_agrees_with_the_function_default():
+def _resolved_graph_types(monkeypatch, preference):
+    """What the three settings functions put in `graph_type`.
+
+    :param monkeypatch: the pytest fixture, used to state the preference.
+    :param preference: the graph-types mark the user has chosen, or ``""``
+        for a user who has chosen nothing.
+    :returns: a mapping from settings-function name to the resolved value.
+
+    THE PREFERENCE IS STATED RATHER THAN INHERITED. Since item 293 these
+    defaults consult the saved preference store, so calling them plainly
+    would assert on whatever THIS MACHINE has saved -- green on a fresh
+    runner and red for a developer who once picked bars. Replacing
+    `chosen_for` also keeps `spacr.qt.preferences`, and PySide6 behind it,
+    out of a process that is not testing Qt.
+    """
+    from spacr import graph_types, settings as settings_module
+
+    monkeypatch.setattr(graph_types, "chosen_for", lambda shape: preference)
+    return {
+        name: getattr(settings_module, name)({})["graph_type"]
+        for name in GRAPH_TYPE_DEFAULTERS
+    }
+
+
+def test_a_user_who_chose_nothing_gets_the_function_default(monkeypatch):
     """Three modules set this key; three answers is three different figures.
 
     THIS ASKS THE FUNCTIONS RATHER THAN READING THE FILE. It used to grep
@@ -105,22 +129,32 @@ def test_every_module_default_agrees_with_the_function_default():
     right in the file and wrong by the time the settings dict is built. What
     matters to the user is the value in the dict, so that is what is read.
     """
-    from spacr import plot, settings as settings_module
+    from spacr import plot
 
     function_default = inspect.signature(
         plot.create_grouped_plot).parameters["graph_type"].default
 
-    resolved = {}
-    for name in GRAPH_TYPE_DEFAULTERS:
-        defaulter = getattr(settings_module, name)
-        # An empty dict is a user who chose nothing, which is the only case
-        # where a default is consulted at all.
-        filled = defaulter({})
-        assert "graph_type" in filled, (
-            f"{name} no longer supplies graph_type, so a user who chooses "
-            f"nothing reaches create_grouped_plot with no graph type")
-        resolved[name] = filled["graph_type"]
+    resolved = _resolved_graph_types(monkeypatch, "")
 
     assert set(resolved.values()) == {function_default}, (
         f"modules disagree with create_grouped_plot's own default "
         f"{function_default!r}: {resolved}")
+
+
+def test_a_user_who_chose_bars_gets_bars_from_all_three(monkeypatch):
+    """The three agree with EACH OTHER once a preference exists, too.
+
+    This is the half that proves the test above is measuring anything. If
+    `chosen_for` were not actually reached -- a patch on the wrong name, a
+    value read at import time and cached -- the test above would still pass,
+    because it asserts on exactly the value the code would produce with the
+    preference ignored. A clean result is only evidence when the probe
+    reached the thing being measured.
+
+    It also pins item 293's behaviour at the settings layer: a saved choice
+    reaches the defaults, translated out of the graph-types vocabulary
+    (`bar_jitter`) into the one `create_grouped_plot` speaks (`jitter_bar`).
+    """
+    resolved = _resolved_graph_types(monkeypatch, "bar_jitter")
+
+    assert set(resolved.values()) == {"jitter_bar"}, resolved
