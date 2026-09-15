@@ -937,6 +937,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'seg_qc_size_ratio',
     'seg_qc_split_ratio',
     'seg_qc_tiny_fraction',
+    'segmentation_backend',
     'sep',
     'sequencing_error',
     'settings',

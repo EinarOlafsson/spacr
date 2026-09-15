@@ -1070,6 +1070,24 @@ setup(
         # user's own environment, and pinning scanpy would drag in a second
         # copy of the leiden/igraph stack for a file spaCR only writes.
         'anndata': ['anndata>=0.10,<0.13'],
+        # `pip install spacr[dinocell]` / `spacr[samcell]` -- the optional
+        # segmentation backends behind `segmentation_backend` (items 404 and
+        # 405). Both are imported only inside spacr/_segmentation_backends.py,
+        # whose ImportError names these extras.
+        #
+        # KNOWN LIMITATION, read from the published metadata on 2026-09-14:
+        # dinocell 0.74 pins all 84 of its requirements to exact versions (a
+        # frozen environment rather than real bounds), among them
+        # huggingface_hub==1.7.1 against the core `huggingface-hub<1.0` cap
+        # above and numpy==2.4.3, which has no wheel before Python 3.11. So
+        # as published this extra cannot resolve alongside spaCR's core, and
+        # DINOCell needs its own environment until upstream loosens the pins.
+        # samcell 1.2.0 declares ordinary lower bounds and resolves normally.
+        #
+        # Neither is in `all`; tests/test_packaging_metadata.py pins what
+        # `all` aggregates.
+        'dinocell': ['dinocell>=0.74,<1.0'],
+        'samcell': ['samcell>=1.2,<2.0'],
         # `pip install spacr[napari]` — `spacr.napari_bridge`, which hands a
         # field's image and mask to napari, lets the user correct the mask
         # there, and writes the corrected labels back the way spaCR writes

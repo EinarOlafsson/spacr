@@ -1032,6 +1032,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
+            # 404/405: which model segments every object channel above.
+            "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
@@ -1136,6 +1138,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
+            # 404/405: which model segments every object channel above.
+            "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",
         )),

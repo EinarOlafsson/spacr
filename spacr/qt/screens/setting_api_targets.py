@@ -716,6 +716,7 @@ SETTING_API_TARGETS = {
     'seg_qc_size_ratio': ('spacr.seg_qc', 'thresholds_from_settings', True),
     'seg_qc_split_ratio': ('spacr.seg_qc', 'thresholds_from_settings', True),
     'seg_qc_tiny_fraction': ('spacr.seg_qc', 'thresholds_from_settings', True),
+    'segmentation_backend': ('spacr.object', 'generate_cellpose_masks_sam', True),
     'shap': ('spacr.ml', 'interpret_vision_model', True),
     'shap_sample': ('spacr.ml', 'interpret_vision_model', True),
     'shuffle': ('spacr.deep_spacr', 'generate_activation_map', True),

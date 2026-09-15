@@ -695,11 +695,19 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     model_name = object_settings['model_name']
     if object_type == 'pathogen' and settings.get('pathogen_model') is not None:
         model_name = settings['pathogen_model']
-    pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
-    model = cp_models.CellposeModel(
-        pretrained_model=pretrained,
-        **accelerator.cellpose_kwargs(),
-    )
+    # Items 404/405: DINOCell and SAMCell answer the same model.eval call and
+    # return Cellpose's (masks, flows, styles), so this is the only dispatch.
+    from ._segmentation_backends import _backend_name, _load_backend
+    segmentation_backend = _backend_name(
+        settings.get('segmentation_backend', 'cellpose'))
+    if segmentation_backend == 'cellpose':
+        pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
+        model = cp_models.CellposeModel(
+            pretrained_model=pretrained,
+            **accelerator.cellpose_kwargs(),
+        )
+    else:
+        model = _load_backend(segmentation_backend, z_plan=z_plan, t_plan=t_plan)
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
     
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
