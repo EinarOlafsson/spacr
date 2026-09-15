@@ -63,6 +63,22 @@ table derives them from the same source the builders read.
 | Icelandic | 324 | 5.55% | 5,511 | 1,110 | 10.54% | 9,424 |
 | French | 169 | 2.90% | 5,666 | 538 | 5.11% | 9,996 |
 
+*Regenerated 2026-09-15, third pass, when local nightly (91ac88b51) was
+rebased onto the work session's batch (5fce82971). Neither parent's rows hold
+alone. The runtime denominator and every runtime count are local nightly's
+(5,835 and 2,241 in all), because the side branch moved no caption and no
+reviewed runtime record; the API denominator is the side branch's 10,534,
+because local nightly moved no public symbol. EVERY REVIEWED API COUNT IS
+LOCAL NIGHTLY'S PLUS EIGHT, the eight blocks of `mark_to_start_on`'s record:
+sv 531 -> 539, de 489 -> 497, es 370 -> 378, zh_CN 640 -> 648, pt 601 -> 609,
+hi 534 -> 542, ko 607 -> 615, is 1,102 -> 1,110, fr 530 -> 538. Proved by
+subtraction from both parents with the test's own derivation: dropping that
+one key from `public_docstrings()` returns local nightly's committed row in
+every locale, and the side branch's committed row plus local nightly's own
+rise over b740c741d (sv +58, de +59, es +79, zh_CN +119, pt +149, hi +68,
+ko +149, is +71, fr +60) gives the same number, so the two batches' records
+share no English source.*
+
 *Regenerated 2026-09-15 for the 08:15 integration batch (wip/integ-0815) on
 nightly dad943037, on top of 366's pass below. The runtime denominator moves 5,679 -> 5,835, +156/-0: 154
 UI captions that 394's keyed extractor rules found behind local helpers

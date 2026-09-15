@@ -13239,11 +13239,18 @@ plaque_model
 
 (str) - Cellpose checkpoint used to segment plaques: 'bundled' keeps the historical packaged model, a model-zoo key downloads its checksum-verified replacement on first use, and a filesystem path selects a custom checkpoint. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'bundled'.
 
+| ``_seed_the_model``
+|     ``_model_the_run_would_use``
+|         ``_plaque_model_the_run_would_use``
+|             ``_requested_plaque_model`` **-- reads it**
+|             ``_resolve_plaque_model``
+|                 ``_requested_plaque_model`` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
-|     ``_resolve_plaque_model`` **-- reads it**
+|     ``_resolve_plaque_model``
+|         ``_requested_plaque_model`` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_resolve_plaque_model``.
+Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_requested_plaque_model``.
 
 .. _setting-flow-plate:
 

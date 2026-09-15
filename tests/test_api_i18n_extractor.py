@@ -1359,7 +1359,36 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # again. Just as strict as before: it still pins `len(docs)` to exactly one
     # value, now 10,534. With the new symbol subtracted the old form holds:
     # 10,696 - 10,533 = 163, the previous pin.
-    assert 10_752 - len(docs) == 218
+    # RE-MEASURED 2026-09-15 on the rebase of local nightly onto the work
+    # session's batch (5fce82971), because each parent moved a different half
+    # and neither pin describes the join. The side branch's
+    # `10_752 - len(docs) == 218` was measured without
+    # `spacr._segmentation_backends`; local nightly's 404/405 note above
+    # measured that key against a surface without `mark_to_start_on`, and
+    # left the stale `10_696` form in place because the difference still
+    # held. Both halves in one run with `_is_rendered_autoapi_entry`
+    # neutralised:
+    #
+    #     pre-filter   10,753
+    #     post-filter  10,534
+    #     boundary        219
+    #
+    # 116 + 59 + 16 + 16 + 5 + 1 + 4 + 1 + 1 = 219: the buckets the
+    # 2026-09-11 list prints, plus the one key `spacr._segmentation_backends`,
+    # nothing unbucketed and no post-filter key absent from the pre-filter
+    # run. PROVED BY SUBTRACTION FROM BOTH PARENTS, on the same run:
+    #
+    #     minus `spacr._segmentation_backends`   10,752 - 10,534 = 218
+    #         the side branch's pin, byte for byte
+    #     minus `mark_to_start_on`               10,752 - 10,533 = 219
+    #         local nightly's measurement (pre 10,752, post 10,533)
+    #     minus both                             10,751 - 10,533 = 218
+    #         b740c741d, the fork point
+    #
+    # It still pins `len(docs)` to exactly one value, 10,534, so nothing is
+    # loosened: the left-hand constant is the measured pre-filter total again
+    # and the difference is the measured boundary again.
+    assert 10_753 - len(docs) == 219
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
