@@ -147,7 +147,15 @@ TOOLS = ROOT / "tools"
 # now been moved twice and BOTH TIMES some siblings were missed and found
 # a day later by a sweep. Grep the literal before believing one edit was
 # enough.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_533
+# 10,533 -> 10,534 on 2026-09-15, +1: `spacr.graph_types.mark_to_start_on`,
+# the helper that reads the Default Graph Type setting and answers in the
+# drawing code's vocabulary (graph_types spells `bar_jitter`, spacrGraph draws
+# `jitter_bar`). Its sibling QC helper became private in the same batch
+# because only one module calls it. Catalogued with reviewed records in all
+# nine languages. NOT A COMPLETE CENSUS: the inventory walks `def`s, so a
+# public name bound by assignment (`canonical_app_key = _normalize_app`) enters
+# the API without moving this number.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_534
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

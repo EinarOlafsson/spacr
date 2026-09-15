@@ -28418,7 +28418,7 @@
         "ae7e6c2c8fe27579b0c49a55bd09dada72b89dbdde57e493e2f5af33cf177db1"
       ],
       "source_sha256": "268e8cecba5b39a3eed59681f0c9841a606910b03a37d6119fe026b786d516ac",
-      "text": "Diagramtypen som användaren bad att få se första för ``shape`` eller ``\"\"``.\n\n:param shape: En av nycklarna till :data:`DATA_SHAPES`.\n:returns: den sparade graftypen, eller en tom sträng när användaren inte har uttryckt någon preferens för denna form -- eller uttryckt en sådan form kan inte ta.\n\nTom betyder \"NOTHING WAS CHOSEN\", vilket inte är samma svar som tabellens standard: en komponent med en startform av sin egen behåller den när ingenting valdes, och preferensen överskrider den när något var. :func:`default_for` är uppringaren som vrider \"nothing\" till tabellens eget svar.\n\nEtt sparat val som inte passar datan är inte ett val för det. Någon som föredrar barer har inte bett om en bar av ett kontinuerligt x mot ett kontinuerligt y -- det är en annan graf av olika data, och :data:`WHY_NOT` säger så.\n\nEn saknad preferensbutik är inte ett fel. En huvudlös rendering har ingen Qt och inga QSettings, och en siffra måste fortfarande ritas.",
+      "text": "Diagramtypen som användaren bad att få se första för ``shape`` eller ``\"\"``.\n\n:param shape: en av nycklarna i :data:`DATA_SHAPES`.\n:returns: den sparade graftypen, eller en tom sträng när användaren inte har uttryckt någon preferens för denna form -- eller uttryckt en sådan form kan inte ta.\n\nTom betyder \"NOTHING WAS CHOSEN\", vilket inte är samma svar som tabellens standard: en komponent med en startform av sin egen behåller den när ingenting valdes, och preferensen överskrider den när något var. :func:`default_for` är uppringaren som vrider \"nothing\" till tabellens eget svar.\n\nEtt sparat val som inte passar datan är inte ett val för det. Någon som föredrar barer har inte bett om en bar av ett kontinuerligt x mot ett kontinuerligt y -- det är en annan graf av olika data, och :data:`WHY_NOT` säger så.\n\nEn saknad preferensbutik är inte ett fel. En huvudlös rendering har ingen Qt och inga QSettings, och en siffra måste fortfarande ritas.",
       "translation_source_blocks_sha256": [
         "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
@@ -28437,7 +28437,7 @@
         "184cbb8cfd97e315e1d24ee77329fa4c12fb4a95689b6015160fd821f1c8b14c"
       ],
       "source_sha256": "44fbc69e8cb773adb82af02cc51612c0efe11f6914e82e2dffab410182dd8b9a",
-      "text": "Graftypen ritad FÖRSTA för ``shape``.\n\n:param shape: En av nycklarna till :data:`DATA_SHAPES`.\n:returns: en graftyp från :data:`GRAPH_TYPES`.\n:raises KeyError: om ``shape`` inte stöds.\n\nAnvändarens val kommer först. Preferensen bestämmer vilken kompatibel graf som ritas först, och högerklicka kan fortfarande ändra den efteråt. Varje graf i spaCR når sin startform genom denna funktion eller genom :func:`start_for`, så preferensen gäller konsekvent över screeningar.",
+      "text": "Graftypen ritad FÖRSTA för ``shape``.\n\n:param shape: en av nycklarna i :data:`DATA_SHAPES`.\n:returns: en graftyp från :data:`GRAPH_TYPES`.\n:raises KeyError: om ``shape`` inte stöds.\n\nAnvändarens val kommer först. Preferensen bestämmer vilken kompatibel graf som ritas först, och högerklicka kan fortfarande ändra den efteråt. Varje graf i spaCR når sin startform genom denna funktion eller genom :func:`start_for`, så preferensen gäller konsekvent över screeningar.",
       "translation_source_blocks_sha256": [
         "84658b6ad17b22f8485589a508d19743d4daf13b3498499d2fa806b19709bdb5",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
@@ -28474,6 +28474,30 @@
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
         "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
+      ]
+    },
+    "spacr.graph_types.mark_to_start_on": {
+      "source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "01182f6788acb1611cb0fbf3a12620d567cb8cad0a0c3aeaeb07f148bf045b9c",
+        "1691f19b0d85626ae6836d06ad0de2be4da37b4816181c7e15e0f555981bc1b9",
+        "b2f75332fcee47e5907c3104661771b61e9ffd9be82f669d5738f54a2dad6d05",
+        "cd7e2a2a4f3b4780ce33165b9a42944fe1daf43a3d5c8a0aba5ab5af9f42a931"
+      ],
+      "source_sha256": "295357736811d52b77bf9db473416e825bc9c636d33bbdf13ec48fd30c76398c",
+      "text": "Vad som ritas först, i det ordförråd som ritkoden talar.\n\n:param shape: en av nycklarna i :data:`DATA_SHAPES`.\n:param fallback_mark: vad anroparen ritade innan inställningen fanns, i markeringsordförråd -- ``'jitter_box'``, ``'jitter_bar'`` och så vidare.\n:returns: ``(mark, note)``: markeringen som ska ritas och meningen som förklarar en eventuell reservlösning; tom när valet följdes.\n\nTvå ordförråd möts här, och de är inte desamma. Den här modulen lagrar ``bar_jitter`` och ``box_jitter``; :class:`spacr.plot.spacrGraph` och livepanelerna ritar ``jitter_bar`` och ``jitter_box``. En anropare som läser inställningen och glömmer :func:`mark_for` ger matplotlib ett namn som det egna felmeddelandet i ``plot.py`` listar som okänt -- precis det misstag den här funktionen finns till för att ingen ska göra två gånger. Varje anropsställe som läser inställningen och sedan ritar bör gå via den här funktionen.\n\nReservlösningen är anroparens egen form, inte tabellens standard, och den anges i markeringsordförråd eftersom det är vad en anropare redan har skrivit ner. En preferens som ingen har uttryckt får inte flytta en befintlig vy, så en anropare som skickar det den tidigare hårdkodade får tillbaka exakt det tills någon väljer något annat.\n\nReservlösningen skickas oöversatt till :func:`start_for`, med avsikt. Det ser ut som om den först behöver översättas tillbaka till graftypsordförrådet, och den första versionen av funktionen gjorde det med en omvänd uppslagning i :data:`MARKS`. Ett mutationstest kunde inte skilja de två versionerna åt, och en läsning av `start_for` visar varför: utan sparad preferens svarar den med reservlösningen som den gavs, utan att validera den, eftersom \"en widget vet vad den kan rita\". Den omvända uppslagningen var död kod.\n\nDen skulle sluta vara död den dag en anropare skickar ``counts``. `start_for` använder reservlösningen en andra gång på vägen för data som är för glesa för en fördelning, där `fits(shape, fallback)` avgör mellan anroparens form och tabellens standard -- och en stavning i markeringsordförråd klarar inte `fits`. Ingen anropare här har räkningar: detta är standardvärden för inställningar, byggda innan några data läses. Om någon någonsin har det behöver funktionen översättningen tillbaka och ett test som når den vägen.",
+      "translation_source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "067fc01b03795c5427a82f12016044e1b50afdbe91d8ca701607b457f444a8e9",
+        "714f227f7e1a8589ae62d247b44e5f57dc7ab816ec42c1cfa1e869a259437d69",
+        "afa5183ee1f33eca86f7dbd935e516eb3f00bfdca6644d9f10a32b3cf4d8eb21",
+        "b7bb9185dd175493e490bc069a963a239a35f6ba7a9543ba2f17de971af075d9"
       ]
     },
     "spacr.graph_types.offer": {
@@ -28526,7 +28550,7 @@
         "0e1cc82393976b04a02aaf20d1bf57c3c94540f5c1b6ae15893992fd1ce11a66"
       ],
       "source_sha256": "d13ff9364522e3b9c3ccd11fbae2c821aa9d02ff88f1f64b69ef1a5bce12ae87",
-      "text": "Vad man ska rita först, och varför det inte var vad man bad om.\n\n:param shape: En av nycklarna till :data:`DATA_SHAPES`.\n:param counts: observationer per grupp, när de är kända.\n:param fallback: anroparens eget startformulär, för när användaren inte har uttryckt någon preferens. Det besvaras som givet – en widget vet vad den kan rita – och en tom betyder :data:`DEFAULTS`.\n:returns: ``(graph_type, note)``. Anteckningen är tom när grafen ritas är den som man bad om.\n:raises KeyError: om ``shape`` inte stöds och ingen användbar reserv gavs.\n\nFallbacken sägs högt. En preferens är ett filtuttalande -- \"draw violins\" -- och en filtutsaga möter data som den inte kan beskriva så småningom. Att rita poäng istället och säga ingenting skulle lämna en användare som bad om violiner som tittade på en jitter utan förklaring, så meningen kommer tillbaka med svaret och anroparen sätter det på handlingen.\n\nTabellens egen standard överskrids aldrig på det här sättet. Endast ett sparat val granskas på nytt mot datan: :data:`DEFAULTS` väljer redan typer som behåller observationerna, och en rad på en punkt per x -- den beställda standard -- skulle annars talas ut ur sig själv varje gång.",
+      "text": "Vad man ska rita först, och varför det inte var vad man bad om.\n\n:param shape: en av nycklarna i :data:`DATA_SHAPES`.\n:param counts: observationer per grupp, när de är kända.\n:param fallback: anroparens eget startformulär, för när användaren inte har uttryckt någon preferens. Det besvaras som givet – en widget vet vad den kan rita – och en tom betyder :data:`DEFAULTS`.\n:returns: ``(graph_type, note)``. Anteckningen är tom när grafen ritas är den som man bad om.\n:raises KeyError: om ``shape`` inte stöds och ingen användbar reserv gavs.\n\nFallbacken sägs högt. En preferens är ett filtuttalande -- \"draw violins\" -- och en filtutsaga möter data som den inte kan beskriva så småningom. Att rita poäng istället och säga ingenting skulle lämna en användare som bad om violiner som tittade på en jitter utan förklaring, så meningen kommer tillbaka med svaret och anroparen sätter det på handlingen.\n\nTabellens egen standard överskrids aldrig på det här sättet. Endast ett sparat val granskas på nytt mot datan: :data:`DEFAULTS` väljer redan typer som behåller observationerna, och en rad på en punkt per x -- den beställda standard -- skulle annars talas ut ur sig själv varje gång.",
       "translation_source_blocks_sha256": [
         "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",

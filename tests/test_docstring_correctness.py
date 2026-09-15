@@ -2011,7 +2011,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # modules), 5 spacr.graph_types and 2 spacr.style_base (293 and 291),
     # 2 under spacr.qt. A +45 that was really +46/-1 reads identically from
     # the total, which is what this measurement style exists to catch.
-    assert len(callables) == len(by_symbol) == 8_696
+    # 2026-09-15: 8,696 -> 8,697, +1 / -0: `spacr.graph_types.mark_to_start_on`
+    # (293), a module-level function, so `function` and `autoapi` move by the
+    # same one below and no other bucket does. Its sibling in `spacr.ml` was
+    # public for four commits of the same batch and went private
+    # (`_qc_graph_type_and_note`) before this was measured, so it never
+    # reached a pin. PROVED BY SUBTRACTION: the inventory with that one symbol
+    # dropped returns 8,696 and every category, exposure and variant bucket
+    # below at its previous value.
+    assert len(callables) == len(by_symbol) == 8_697
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2055,7 +2063,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # unmoved. The per-category split is the point -- a +45 arriving as
         # +45 functions would be a different event from this one, and the
         # total alone cannot tell them apart.
-        "function": 3_777,
+        # 3,777 -> 3,778 on 2026-09-15, +1: `mark_to_start_on` is a
+        # module-level function, so it lands here and in no other category --
+        # the same single arrival as the total above. Subtracted, 3,777.
+        "function": 3_778,
         "method": 3_842,
         "constructor": 396,
         "dataclass_constructor": 472,
@@ -2085,7 +2096,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # autoapi and by nothing else, so `cli_only` and `compatibility` are
         # unmoved. Those two are the buckets that would catch a symbol
         # reaching the user by some other route.
-        "autoapi": 8_691,
+        # 8,691 -> 8,692 on 2026-09-15, the same +1: `mark_to_start_on` is
+        # rendered by autoapi and by nothing else. Subtracted, 8,691.
+        "autoapi": 8_692,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2120,11 +2133,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,658 -> 8,703, the same +45: each new callable has exactly one
     # variant, so this tracks the inventory rather than diverging from it.
     # Diverging is the interesting case and the reason it is counted apart.
-    assert sum(item.variant_count for item in callables) == 8_703
+    # 8,703 -> 8,704 on 2026-09-15, the same +1: one signature, one variant.
+    # Subtracted, 8,703.
+    assert sum(item.variant_count for item in callables) == 8_704
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_689,   # +45; the seven two-variant callables are unmoved
+        # 8,689 -> 8,690 on 2026-09-15 with `mark_to_start_on`.
+        1: 8_690,   # +45, +1; the seven two-variant callables are unmoved
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2251,7 +2267,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # parameter (default ""), so the preview can resolve the model the way the
     # module's own run does. It landed on nightly after 410's pin was taken.
     # Optional, so the required sum below does not move.
-    assert sum(len(item.parameters) for item in callables) == 17_297
+    # 17,297 -> 17,300 on 2026-09-15, +3, AND ONLY TWO COME FROM THE NEW
+    # CALLABLE: `mark_to_start_on(shape, fallback_mark)` (293). The third is
+    # 317 giving the EXISTING `AppScreen.apply_settings_that_came_with` a
+    # keyword-only `pack_folder=None`, so a cached example reads the shipped
+    # pack before the plate's own `settings/` folder. PROVED BY SUBTRACTION on
+    # the inventory: without the symbol the sum is 17,298, and without the
+    # symbol AND `pack_folder` it is 17,297, the previous pin.
+    assert sum(len(item.parameters) for item in callables) == 17_300
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2263,11 +2286,24 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # would be a required one, and a different event.
     # Unmoved on 2026-09-15 by 410's `EmbeddingSpec.channel_scale`, which has
     # a default -- measured, not assumed: 8,815 at 75dfdcae8 and after 410.
-    assert sum(len(item.required_parameters) for item in callables) == 8_815
+    # 8,815 -> 8,817 on 2026-09-15, +2: both of `mark_to_start_on`'s
+    # parameters are required. 317's `pack_folder` defaults to None, so it
+    # moves the parameter sum above and not this one -- subtracting the symbol
+    # alone returns 8,815.
+    assert sum(len(item.required_parameters) for item in callables) == 8_817
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
     # `EmbeddingSpec.channel_scale` it is 3714f4a1..., the pin before 410.
+    # Moved again 2026-09-15 for 293 and 317, proved by subtraction on the
+    # full inventory. Dropping `spacr.graph_types.mark_to_start_on` alone gives
+    # 7728c1ef..., which is NOT the pin: one existing line also changed,
+    # `AppScreen.apply_settings_that_came_with`, whose `parameters` and
+    # `accepted_documented_parameters` gained `pack_folder` (its
+    # `required_parameters` did not). Taking `pack_folder` back out of that
+    # line as well returns 3476522c..., the previous pin, byte for byte. So the
+    # move is one new function and one optional keyword on an existing method,
+    # and nothing else among 8,696 symbols changed.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2311,7 +2347,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # that failed to match would have read as "something unexplained moved"
     # when what had actually moved was my reconstruction. Subtract using the
     # recorded baseline LINE, not a field-by-field rebuild of it.
-) == "3476522c44762226f9858d18ae6157d55f8238cbead28046fa7d7c8d2aa3a445"
+) == "f59e27a96e2b7af7507d35434068ee417506c396611f303543fe1dbded87242e"
     # Moved 2026-09-14, and PROVED rather than assumed, the way this file
     # asks: the same digest recomputed over the tree at 49c1189f7 returns
     # 487529aa5a65... byte for byte, which is the value this line carried
@@ -2745,7 +2781,11 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # test_documentation_i18n. Moving one and not the rest is how a full
     # sweep found three of them a day late; grep for the literal before
     # believing a single edit was enough.
-    assert len(docs) == 10_533
+    # 2026-09-15: 10,533 -> 10,534, +1 / -0 by set difference:
+    # `spacr.graph_types.mark_to_start_on`. Dropping that key returns 10,533.
+    # All four files moved in the same commit, and the extractor's own pin
+    # moved by the same one, which is what this cross-check is for.
+    assert len(docs) == 10_534
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -2771,7 +2811,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # of diverging from it. A divergence here would mean a new callable that
     # the API pages do not render.
     # 8,646 -> 8,691, the same +45 as the exposure counter above.
-    assert len(rendered_documented_callables) == 8_691
+    # 8,691 -> 8,692 on 2026-09-15, the same +1 as the exposure counter:
+    # `mark_to_start_on` is both rendered and documented.
+    assert len(rendered_documented_callables) == 8_692
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

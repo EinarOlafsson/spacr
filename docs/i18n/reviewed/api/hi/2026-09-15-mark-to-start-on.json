@@ -1,0 +1,62 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "What to draw FIRST, in the vocabulary the DRAWING code speaks.",
+      "label": "spacr.graph_types.mark_to_start_on#0",
+      "source": "What to draw FIRST, in the vocabulary the DRAWING code speaks.",
+      "source_sha256": "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+      "translation": "पहले क्या बनाना है, उस शब्दावली में जो ड्रॉइंग कोड बोलता है।"
+    },
+    {
+      "context": "one of the keys of :data:`DATA_SHAPES`.",
+      "label": "spacr.graph_types.mark_to_start_on#1",
+      "source": "one of the keys of :data:`DATA_SHAPES`.",
+      "source_sha256": "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+      "translation": ":data:`DATA_SHAPES` की कुंजियों में से एक।"
+    },
+    {
+      "context": "what the caller drew BEFORE the setting existed, in mark vocabulary -- ``'jitter_box'``, ``'jitter_bar'`` and so on.",
+      "label": "spacr.graph_types.mark_to_start_on#2",
+      "source": "what the caller drew BEFORE the setting existed, in mark vocabulary -- ``'jitter_box'``, ``'jitter_bar'`` and so on.",
+      "source_sha256": "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+      "translation": "सेटिंग के आने से पहले कॉलर क्या बनाता था, मार्क शब्दावली में -- ``'jitter_box'``, ``'jitter_bar'`` आदि।"
+    },
+    {
+      "context": "``(mark, note)``, the mark to draw and the sentence explaining any fallback, empty when the choice was honoured.",
+      "label": "spacr.graph_types.mark_to_start_on#3",
+      "source": "``(mark, note)``, the mark to draw and the sentence explaining any fallback, empty when the choice was honoured.",
+      "source_sha256": "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+      "translation": "``(mark, note)``: बनाया जाने वाला मार्क और किसी भी फ़ॉलबैक को समझाने वाला वाक्य; जब चुनाव माना गया हो तब खाली।"
+    },
+    {
+      "context": "Two vocabularies meet here and they are not the same. This module stores ``bar_jitter`` and ``box_jitter``; :class:`spacr.plot.spacrGraph` and the live panels draw ``jitter_bar`` and ``jitter_box``. A caller that reads the setting and forgets :func:`mark_for` hands matplotlib a name that ``plot.py``'s own error message lists as unknown -- which is the mistake this function exists to stop anyone making twice. Every call site that reads the setting and then draws should come through here.",
+      "label": "spacr.graph_types.mark_to_start_on#4",
+      "source": "TWO VOCABULARIES MEET HERE AND THEY ARE NOT THE SAME. This module stores ``bar_jitter`` and ``box_jitter``; :class:`spacr.plot.spacrGraph` and the live panels draw ``jitter_bar`` and ``jitter_box``. A caller that reads the setting and forgets :func:`mark_for` hands matplotlib a name that ``plot.py``'s own error message lists as unknown -- which is the mistake this function exists to stop anyone making twice. Every call site that reads the setting and then draws should come through here.",
+      "source_sha256": "01182f6788acb1611cb0fbf3a12620d567cb8cad0a0c3aeaeb07f148bf045b9c",
+      "translation": "यहाँ दो शब्दावलियाँ मिलती हैं, और वे एक जैसी नहीं हैं। यह मॉड्यूल ``bar_jitter`` और ``box_jitter`` सहेजता है; :class:`spacr.plot.spacrGraph` और लाइव पैनल ``jitter_bar`` और ``jitter_box`` बनाते हैं। जो कॉलर सेटिंग पढ़ता है और :func:`mark_for` भूल जाता है, वह matplotlib को ऐसा नाम देता है जिसे ``plot.py`` का अपना त्रुटि संदेश अज्ञात बताता है -- यही गलती कोई दोबारा न करे, इसीलिए यह फ़ंक्शन है। सेटिंग पढ़कर फिर ड्रॉ करने वाला हर कॉल स्थान इसी से होकर जाना चाहिए।"
+    },
+    {
+      "context": "The fallback is the caller's own form, not the table's default, and it is taken in MARK vocabulary because that is what a caller already has written down. A preference nobody expressed must not move an existing view, so a caller passing what it used to hardcode gets exactly that back until someone chooses otherwise.",
+      "label": "spacr.graph_types.mark_to_start_on#5",
+      "source": "THE FALLBACK IS THE CALLER'S OWN FORM, NOT THE TABLE'S DEFAULT, and it is taken in MARK vocabulary because that is what a caller already has written down. A preference nobody expressed must not move an existing view, so a caller passing what it used to hardcode gets exactly that back until someone chooses otherwise.",
+      "source_sha256": "1691f19b0d85626ae6836d06ad0de2be4da37b4816181c7e15e0f555981bc1b9",
+      "translation": "फ़ॉलबैक कॉलर का अपना रूप है, तालिका का डिफ़ॉल्ट नहीं, और यह मार्क शब्दावली में दिया जाता है क्योंकि कॉलर के पास पहले से यही लिखा होता है। जो प्राथमिकता किसी ने व्यक्त नहीं की, वह किसी मौजूदा दृश्य को नहीं बदलनी चाहिए, इसलिए जो कॉलर वही पास करता है जो वह पहले हार्डकोड करता था, उसे ठीक वही वापस मिलता है जब तक कोई और चुनाव न करे।"
+    },
+    {
+      "context": "The fallback is handed to :func:`start_for` UNTRANSLATED, on purpose. It looks like it needs mapping back to graph-type vocabulary first, and the first version of this function did that with a reverse lookup over :data:`MARKS`. A mutation test could not tell the two versions apart, and reading `start_for` says why: with no preference stored it answers the fallback as given, without validating it, because \"a widget knows what it can draw\". The reverse lookup was dead code.",
+      "label": "spacr.graph_types.mark_to_start_on#6",
+      "source": "THE FALLBACK IS HANDED TO :func:`start_for` UNTRANSLATED, on purpose. It looks like it needs mapping back to graph-type vocabulary first, and the first version of this function did that with a reverse lookup over :data:`MARKS`. A mutation test could not tell the two versions apart, and reading `start_for` says why: with no preference stored it answers the fallback AS GIVEN, without validating it, because \"a widget knows what it can draw\". The reverse lookup was dead code.",
+      "source_sha256": "b2f75332fcee47e5907c3104661771b61e9ffd9be82f669d5738f54a2dad6d05",
+      "translation": "फ़ॉलबैक जानबूझकर बिना अनुवाद के :func:`start_for` को दिया जाता है। लगता है कि पहले इसे ग्राफ़-प्रकार शब्दावली में वापस बदलना चाहिए, और इस फ़ंक्शन के पहले संस्करण ने :data:`MARKS` पर उलटी खोज से यही किया था। एक म्यूटेशन परीक्षण दोनों संस्करणों में अंतर नहीं कर सका, और `start_for` पढ़ने से कारण समझ आता है: कोई प्राथमिकता सहेजी न होने पर यह फ़ॉलबैक को जैसा दिया गया वैसा ही लौटाता है, बिना जाँचे, क्योंकि \"विजेट जानता है कि वह क्या बना सकता है\"। वह उलटी खोज बेकार कोड थी।"
+    },
+    {
+      "context": "It would stop being dead the day a caller passes ``counts``. `start_for` uses the fallback a second time on the too-thin-for-a-distribution path, where `fits(shape, fallback)` decides between the caller's form and the table default -- and a MARK spelling fails `fits`. No caller here has counts: these are settings defaults, built before any data is read. If one ever does, this function needs the mapping back and a test that reaches that path.",
+      "label": "spacr.graph_types.mark_to_start_on#7",
+      "source": "IT WOULD STOP BEING DEAD the day a caller passes ``counts``. `start_for` uses the fallback a second time on the too-thin-for-a-distribution path, where `fits(shape, fallback)` decides between the caller's form and the table default -- and a MARK spelling fails `fits`. No caller here has counts: these are settings defaults, built before any data is read. If one ever does, this function needs the mapping back and a test that reaches that path.",
+      "source_sha256": "cd7e2a2a4f3b4780ce33165b9a42944fe1daf43a3d5c8a0aba5ab5af9f42a931",
+      "translation": "जिस दिन कोई कॉलर ``counts`` पास करेगा, यह बेकार कोड नहीं रहेगा। `start_for` उस पथ पर फ़ॉलबैक का दूसरी बार उपयोग करता है जहाँ डेटा वितरण के लिए बहुत कम है, जहाँ `fits(shape, fallback)` कॉलर के रूप और तालिका के डिफ़ॉल्ट के बीच फ़ैसला करता है -- और मार्क शब्दावली की वर्तनी `fits` में सफल नहीं होती। यहाँ किसी कॉलर के पास गणनाएँ नहीं हैं: ये सेटिंग डिफ़ॉल्ट हैं, जो कोई डेटा पढ़ने से पहले बनाए जाते हैं। अगर कभी किसी के पास हों, तो इस फ़ंक्शन को वापसी मैपिंग और उस पथ तक पहुँचने वाले परीक्षण की ज़रूरत होगी।"
+    }
+  ],
+  "schema": 1
+}

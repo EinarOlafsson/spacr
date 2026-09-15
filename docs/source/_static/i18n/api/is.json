@@ -28418,7 +28418,7 @@
         "ae7e6c2c8fe27579b0c49a55bd09dada72b89dbdde57e493e2f5af33cf177db1"
       ],
       "source_sha256": "268e8cecba5b39a3eed59681f0c9841a606910b03a37d6119fe026b786d516ac",
-      "text": "Í greininni skal notandi spyrja að sjá FIRST fyrir ``shape`` eða ``\"\"``.\n\n:param shape: Það er einn af lykillunum á :data:`DATA_SHAPES`.\n:returns: geymt grafi tegund, eða leyti stringa þegar notandi hefur útskýrt engin forrit fyrir þessa form - eða útskýrð einn þessi form getur ekki tekið.\n\nLeiður þýðir \"NOTHING WAS CHOSEN\", sem er ekki sama svarið eins og standa á tablanum: widget með upphafi form af sjálfum sig halda það þegar ekkert var valið, og forritin yfirborðar það þegar eitthvað var. :func:`default_for` er kallaðurinn sem snúa \"nothing\" í svarið eigin á tabla.\n\nEinhver sem forðast rán hefur ekki beðið um rán á stöðugt x gegn stöðugt y - það er öðruvísi graf af mismunandi gögnum, og :data:`WHY_NOT` segir það.\n\nÞað er ekki mistök á að missa áætlanir.A hlaupless render hefur engin Qt og engin QSettings, og tölur verður enn að draga.",
+      "text": "Í greininni skal notandi spyrja að sjá FIRST fyrir ``shape`` eða ``\"\"``.\n\n:param shape: einn af lyklum :data:`DATA_SHAPES`.\n:returns: geymt grafi tegund, eða leyti stringa þegar notandi hefur útskýrt engin forrit fyrir þessa form - eða útskýrð einn þessi form getur ekki tekið.\n\nLeiður þýðir \"NOTHING WAS CHOSEN\", sem er ekki sama svarið eins og standa á tablanum: widget með upphafi form af sjálfum sig halda það þegar ekkert var valið, og forritin yfirborðar það þegar eitthvað var. :func:`default_for` er kallaðurinn sem snúa \"nothing\" í svarið eigin á tabla.\n\nEinhver sem forðast rán hefur ekki beðið um rán á stöðugt x gegn stöðugt y - það er öðruvísi graf af mismunandi gögnum, og :data:`WHY_NOT` segir það.\n\nÞað er ekki mistök á að missa áætlanir.A hlaupless render hefur engin Qt og engin QSettings, og tölur verður enn að draga.",
       "translation_source_blocks_sha256": [
         "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
@@ -28437,7 +28437,7 @@
         "184cbb8cfd97e315e1d24ee77329fa4c12fb4a95689b6015160fd821f1c8b14c"
       ],
       "source_sha256": "44fbc69e8cb773adb82af02cc51612c0efe11f6914e82e2dffab410182dd8b9a",
-      "text": "Gráfi tegund skráð fyrst fyrir ``shape``.\n\n:param shape: Það er einn af lykillunum á :data:`DATA_SHAPES`.\n:returns: Sýni graf frá :data:`GRAPH_TYPES`.\n:raises KeyError: ef ``shape`` er ekki stuðlaður.\n\nValinn notanda kemur fyrst. forritin ákveður hvaða samskipt graf er skreytt fyrst, og hægra klicka getur enn breytt það síðar. Hver graf í spaCR ná að upphafi formum sínum í gegnum þetta hlutverk eða í gegnum :func:`start_for`, þannig að forriturinn er að velja stöðugt á skrinum.",
+      "text": "Gráfi tegund skráð fyrst fyrir ``shape``.\n\n:param shape: einn af lyklum :data:`DATA_SHAPES`.\n:returns: Sýni graf frá :data:`GRAPH_TYPES`.\n:raises KeyError: ef ``shape`` er ekki stuðlaður.\n\nValinn notanda kemur fyrst. forritin ákveður hvaða samskipt graf er skreytt fyrst, og hægra klicka getur enn breytt það síðar. Hver graf í spaCR ná að upphafi formum sínum í gegnum þetta hlutverk eða í gegnum :func:`start_for`, þannig að forriturinn er að velja stöðugt á skrinum.",
       "translation_source_blocks_sha256": [
         "84658b6ad17b22f8485589a508d19743d4daf13b3498499d2fa806b19709bdb5",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
@@ -28474,6 +28474,30 @@
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
         "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
+      ]
+    },
+    "spacr.graph_types.mark_to_start_on": {
+      "source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "01182f6788acb1611cb0fbf3a12620d567cb8cad0a0c3aeaeb07f148bf045b9c",
+        "1691f19b0d85626ae6836d06ad0de2be4da37b4816181c7e15e0f555981bc1b9",
+        "b2f75332fcee47e5907c3104661771b61e9ffd9be82f669d5738f54a2dad6d05",
+        "cd7e2a2a4f3b4780ce33165b9a42944fe1daf43a3d5c8a0aba5ab5af9f42a931"
+      ],
+      "source_sha256": "295357736811d52b77bf9db473416e825bc9c636d33bbdf13ec48fd30c76398c",
+      "text": "Hvað á að teikna fyrst, á orðaforðanum sem teiknikóðinn talar.\n\n:param shape: einn af lyklum :data:`DATA_SHAPES`.\n:param fallback_mark: það sem kallandinn teiknaði áður en stillingin var til, á merkjaorðaforða -- ``'jitter_box'``, ``'jitter_bar'`` og svo framvegis.\n:returns: ``(mark, note)``: merkið sem á að teikna og setningin sem skýrir hvaða varaleið sem er; tóm þegar valinu var fylgt.\n\nHér mætast tveir orðaforðar, og þeir eru ekki þeir sömu. Þessi eining geymir ``bar_jitter`` og ``box_jitter``; :class:`spacr.plot.spacrGraph` og lifandi spjöldin teikna ``jitter_bar`` og ``jitter_box``. Kallandi sem les stillinguna og gleymir :func:`mark_for` réttir matplotlib nafn sem villuboð ``plot.py`` sjálfs telja óþekkt -- einmitt mistökin sem þetta fall er til að enginn geri tvisvar. Hver kallstaður sem les stillinguna og teiknar síðan ætti að fara hér í gegn.\n\nVaraleiðin er eigið form kallandans, ekki sjálfgefið gildi töflunnar, og hún er gefin á merkjaorðaforða vegna þess að það er það sem kallandi hefur þegar skrifað niður. Val sem enginn hefur látið í ljós má ekki breyta núverandi sýn, svo kallandi sem sendir það sem hann harðkóðaði áður fær nákvæmlega það til baka þar til einhver velur annað.\n\nVaraleiðin er send óþýdd til :func:`start_for`, viljandi. Það virðist sem fyrst þurfi að varpa henni aftur í orðaforða grafgerða, og fyrsta útgáfa þessa falls gerði það með öfugri uppflettingu í :data:`MARKS`. Stökkbreytingapróf gat ekki greint útgáfurnar tvær í sundur, og lestur `start_for` sýnir hvers vegna: án vistaðs vals skilar það varaleiðinni eins og hún var gefin, án þess að sannreyna hana, vegna þess að \"græja veit hvað hún getur teiknað\". Öfuga uppflettingin var dauður kóði.\n\nHún hætti að vera dauð daginn sem kallandi sendir ``counts``. `start_for` notar varaleiðina í annað sinn á leiðinni fyrir gögn sem eru of strjál fyrir dreifingu, þar sem `fits(shape, fallback)` velur milli forms kallandans og sjálfgefins gildis töflunnar -- og stafsetning á merkjaorðaforða stenst ekki `fits`. Enginn kallandi hér hefur talningar: þetta eru sjálfgefin gildi stillinga, smíðuð áður en nokkur gögn eru lesin. Ef einhver fær þær einhvern tíma þarf þetta fall öfugu vörpunina og próf sem nær þeirri leið.",
+      "translation_source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "067fc01b03795c5427a82f12016044e1b50afdbe91d8ca701607b457f444a8e9",
+        "714f227f7e1a8589ae62d247b44e5f57dc7ab816ec42c1cfa1e869a259437d69",
+        "afa5183ee1f33eca86f7dbd935e516eb3f00bfdca6644d9f10a32b3cf4d8eb21",
+        "b7bb9185dd175493e490bc069a963a239a35f6ba7a9543ba2f17de971af075d9"
       ]
     },
     "spacr.graph_types.offer": {
@@ -28526,7 +28550,7 @@
         "0e1cc82393976b04a02aaf20d1bf57c3c94540f5c1b6ae15893992fd1ce11a66"
       ],
       "source_sha256": "d13ff9364522e3b9c3ccd11fbae2c821aa9d02ff88f1f64b69ef1a5bce12ae87",
-      "text": "Hvað á að draga fyrst, og hvers vegna það er ekki það sem var bað um.\n\n:param shape: Það er einn af lykillunum á :data:`DATA_SHAPES`.\n:param counts: Stundum á hópur, þegar þau eru þekktar.\n:param fallback: OWN útgangsform, fyrir þegar notandi hefur útskýrt engin forrit. Það er svarað eins og gefið - widget veit hvað það er hægt að draga - og tomt einn þýðir :data:`DEFAULTS`.\n:returns: ``(graph_type, note)``. notan er leyti þegar gráfið er að draga er það sem var spurð um.\n:raises KeyError: ef ``shape`` er ekki stuðlaður og engin notað fallback hefur verið gefið.\n\nFólkið er sagt hárlega. A forrit er skjölsögn - \"draw violins\" - og skjölssögn uppfyllir gögnum sem það er ekki hægt að lýsa á lokum. Að ritna punkturnar í stað og segja ekkert myndi láta notandinn sem spurði um violíns að horfa á jitter með engum útskýringu, þannig að orðinn kemur aftur með svarið og kallaðurinn leggur það á spjallinu.\n\nÞað er aðeins sparað val endurskoðað gegn gögnum: :data:`DEFAULTS` hefur þegar upplifað tegundir sem halda athygli, og línu af eitt punkt á x - bestu þekkingu - væri annars talað út úr sjálfum sér á hverjum degi.",
+      "text": "Hvað á að draga fyrst, og hvers vegna það er ekki það sem var bað um.\n\n:param shape: einn af lyklum :data:`DATA_SHAPES`.\n:param counts: Stundum á hópur, þegar þau eru þekktar.\n:param fallback: OWN útgangsform, fyrir þegar notandi hefur útskýrt engin forrit. Það er svarað eins og gefið - widget veit hvað það er hægt að draga - og tomt einn þýðir :data:`DEFAULTS`.\n:returns: ``(graph_type, note)``. notan er leyti þegar gráfið er að draga er það sem var spurð um.\n:raises KeyError: ef ``shape`` er ekki stuðlaður og engin notað fallback hefur verið gefið.\n\nFólkið er sagt hárlega. A forrit er skjölsögn - \"draw violins\" - og skjölssögn uppfyllir gögnum sem það er ekki hægt að lýsa á lokum. Að ritna punkturnar í stað og segja ekkert myndi láta notandinn sem spurði um violíns að horfa á jitter með engum útskýringu, þannig að orðinn kemur aftur með svarið og kallaðurinn leggur það á spjallinu.\n\nÞað er aðeins sparað val endurskoðað gegn gögnum: :data:`DEFAULTS` hefur þegar upplifað tegundir sem halda athygli, og línu af eitt punkt á x - bestu þekkingu - væri annars talað út úr sjálfum sér á hverjum degi.",
       "translation_source_blocks_sha256": [
         "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",

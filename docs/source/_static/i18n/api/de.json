@@ -28476,6 +28476,30 @@
         "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
       ]
     },
+    "spacr.graph_types.mark_to_start_on": {
+      "source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "01182f6788acb1611cb0fbf3a12620d567cb8cad0a0c3aeaeb07f148bf045b9c",
+        "1691f19b0d85626ae6836d06ad0de2be4da37b4816181c7e15e0f555981bc1b9",
+        "b2f75332fcee47e5907c3104661771b61e9ffd9be82f669d5738f54a2dad6d05",
+        "cd7e2a2a4f3b4780ce33165b9a42944fe1daf43a3d5c8a0aba5ab5af9f42a931"
+      ],
+      "source_sha256": "295357736811d52b77bf9db473416e825bc9c636d33bbdf13ec48fd30c76398c",
+      "text": "Was zuerst gezeichnet wird, im Vokabular, das der Zeichencode spricht.\n\n:param shape: einer der Schlüssel von :data:`DATA_SHAPES`.\n:param fallback_mark: was der Aufrufer gezeichnet hat, bevor es die Einstellung gab, im Markierungsvokabular -- ``'jitter_box'``, ``'jitter_bar'`` und so weiter.\n:returns: ``(mark, note)``: die zu zeichnende Markierung und der Satz, der einen etwaigen Rückfall erklärt; leer, wenn die Wahl übernommen wurde.\n\nHier treffen zwei Vokabulare aufeinander, und sie sind nicht dieselben. Dieses Modul speichert ``bar_jitter`` und ``box_jitter``; :class:`spacr.plot.spacrGraph` und die Live-Panels zeichnen ``jitter_bar`` und ``jitter_box``. Ein Aufrufer, der die Einstellung liest und :func:`mark_for` vergisst, übergibt matplotlib einen Namen, den die eigene Fehlermeldung von ``plot.py`` als unbekannt aufführt -- genau der Fehler, den diese Funktion niemanden ein zweites Mal machen lassen soll. Jede Aufrufstelle, die die Einstellung liest und dann zeichnet, sollte hier durchgehen.\n\nDer Rückfall ist die eigene Form des Aufrufers, nicht der Standard der Tabelle, und er wird im Markierungsvokabular angegeben, weil ein Aufrufer genau das bereits notiert hat. Eine Vorliebe, die niemand geäußert hat, darf keine bestehende Ansicht verändern; ein Aufrufer, der übergibt, was er früher fest codiert hatte, bekommt also genau das zurück, bis jemand etwas anderes wählt.\n\nDer Rückfall wird absichtlich unübersetzt an :func:`start_for` übergeben. Es sieht so aus, als müsste er zuerst zurück ins Graphtyp-Vokabular abgebildet werden, und die erste Version dieser Funktion tat das mit einer umgekehrten Suche über :data:`MARKS`. Ein Mutationstest konnte die beiden Versionen nicht unterscheiden, und ein Blick in `start_for` zeigt, warum: Ohne gespeicherte Vorliebe gibt sie den Rückfall so zurück, wie er übergeben wurde, ohne ihn zu prüfen, weil \"ein Widget weiß, was es zeichnen kann\". Die umgekehrte Suche war toter Code.\n\nSie wäre nicht mehr tot, sobald ein Aufrufer ``counts`` übergibt. `start_for` verwendet den Rückfall ein zweites Mal auf dem Pfad für Daten, die für eine Verteilung zu dünn sind, wo `fits(shape, fallback)` zwischen der Form des Aufrufers und dem Tabellenstandard entscheidet -- und eine Schreibweise im Markierungsvokabular besteht `fits` nicht. Kein Aufrufer hier hat Zähldaten: Das sind Standardwerte der Einstellungen, erstellt, bevor Daten gelesen werden. Falls je einer welche hat, braucht diese Funktion die Rückabbildung und einen Test, der diesen Pfad erreicht.",
+      "translation_source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "067fc01b03795c5427a82f12016044e1b50afdbe91d8ca701607b457f444a8e9",
+        "714f227f7e1a8589ae62d247b44e5f57dc7ab816ec42c1cfa1e869a259437d69",
+        "afa5183ee1f33eca86f7dbd935e516eb3f00bfdca6644d9f10a32b3cf4d8eb21",
+        "b7bb9185dd175493e490bc069a963a239a35f6ba7a9543ba2f17de971af075d9"
+      ]
+    },
     "spacr.graph_types.offer": {
       "source_blocks_sha256": [
         "6686775ff757a6c70ef2cf66330a31daf33c9292e8aa56a8e6f706f5ffb1e540",

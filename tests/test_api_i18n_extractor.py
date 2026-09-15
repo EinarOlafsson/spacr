@@ -1074,7 +1074,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,478 -> 10,531 (+53, two new modules) and then -> 10,533 (+2, two
     # dunders documented). Both by set difference; see the accounting in
     # test_docstring_correctness and above.
-    expected = 10_533
+    # 10,533 -> 10,534 on 2026-09-15, +1/-0 by set difference:
+    # `spacr.graph_types.mark_to_start_on` (293), the one public function its
+    # batch adds; the `spacr.ml` sibling went private before the catalogs were
+    # built. The surface with that key dropped is 10,533, the previous value.
+    # The nine catalogs were rebuilt with a reviewed record for it in every
+    # language BEFORE this number was touched, and the API audit passes at
+    # `languages=9 symbols=10534`.
+    expected = 10_534
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1107,7 +1114,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstring as well. The nine catalogs were regenerated against this
     # inventory before the number was touched, which is the order this
     # file's own message asks for.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_533
+    # 10,533 -> 10,534 on 2026-09-15 with `expected` above, for the same one
+    # symbol; the aliases are still zero, so the two stay equal.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_534
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1317,7 +1326,26 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # +2 / -0, and those are the two.
     # The autoapi total is unchanged at 10,696, so the excluded boundary
     # shrinks by exactly the 2 newly documented.
-    assert 10_696 - len(docs) == 163
+    # RE-MEASURED 2026-09-15 for `mark_to_start_on`, AND THE LEFT-HAND CONSTANT
+    # HAD COME APART AGAIN. Both 2026-09-14 entries above say the autoapi total
+    # stayed at 10,696. It did not: those +53 and +2 are RENDERED symbols, so
+    # they grew the pre-filter inventory exactly as much as the documented one,
+    # and the boundary never moved. That is the accumulator failure the
+    # 2026-09-11 note above names, repeated. Both halves in one run with
+    # `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,752   (10,751 = 10,696 + 55 without the new symbol)
+    #     post-filter  10,534   (10,533 without it)
+    #     boundary        218   (218 without it)
+    #
+    # and every bucket the 2026-09-11 list prints still reports its count,
+    # 116 + 59 + 16 + 16 + 5 + 4 + 1 + 1 = 218, with nothing unbucketed and no
+    # post-filter key absent from the pre-filter run. So the constant is the
+    # measured pre-filter total again and the difference is the boundary
+    # again. Just as strict as before: it still pins `len(docs)` to exactly one
+    # value, now 10,534. With the new symbol subtracted the old form holds:
+    # 10,696 - 10,533 = 163, the previous pin.
+    assert 10_752 - len(docs) == 218
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

@@ -28419,7 +28419,7 @@
         "ae7e6c2c8fe27579b0c49a55bd09dada72b89dbdde57e493e2f5af33cf177db1"
       ],
       "source_sha256": "268e8cecba5b39a3eed59681f0c9841a606910b03a37d6119fe026b786d516ac",
-      "text": "图表输入用户请求看到第一个为 ``shape``,或 ``\"\"``。\n\n:param shape: 其中一个是:data:`DATA_SHAPES`的关键。\n:returns: 保存的图形类型,或者当用户没有表达对此格式的偏好时,一个空的条纹 - 或者表达了一个格式不能采取。\n\n空的意思是 \"NOTHING WAS CHOSEN\",这不是桌子的默认答案:一个具有自己的起始形式的 widget 保留它,当没有什么被选择时,而偏好在某种情况下超过它。 :func:`default_for` 是将 \"nothing\" 转换为表中的答案。\n\n一个不符合数据的保存选项不是一个选择,谁喜欢条纹没有要求一个连续 x 对一个连续 y 的条纹 - 这是不同数据的图表,而 :data:`WHY_NOT` 这样说。\n\n缺失的偏好仓库不是一个错误. 没有标题的序列没有 Qt 和没有 QSettings,并且仍然需要引导一个数字。",
+      "text": "图表输入用户请求看到第一个为 ``shape``,或 ``\"\"``。\n\n:param shape: :data:`DATA_SHAPES` 的键之一。\n:returns: 保存的图形类型,或者当用户没有表达对此格式的偏好时,一个空的条纹 - 或者表达了一个格式不能采取。\n\n空的意思是 \"NOTHING WAS CHOSEN\",这不是桌子的默认答案:一个具有自己的起始形式的 widget 保留它,当没有什么被选择时,而偏好在某种情况下超过它。 :func:`default_for` 是将 \"nothing\" 转换为表中的答案。\n\n一个不符合数据的保存选项不是一个选择,谁喜欢条纹没有要求一个连续 x 对一个连续 y 的条纹 - 这是不同数据的图表,而 :data:`WHY_NOT` 这样说。\n\n缺失的偏好仓库不是一个错误. 没有标题的序列没有 Qt 和没有 QSettings,并且仍然需要引导一个数字。",
       "translation_source_blocks_sha256": [
         "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
@@ -28438,7 +28438,7 @@
         "184cbb8cfd97e315e1d24ee77329fa4c12fb4a95689b6015160fd821f1c8b14c"
       ],
       "source_sha256": "44fbc69e8cb773adb82af02cc51612c0efe11f6914e82e2dffab410182dd8b9a",
-      "text": "图表类型为 ``shape`` 提前绘制。\n\n:param shape: 其中一个是:data:`DATA_SHAPES`的关键。\n:returns: 图表类型为 :data:`GRAPH_TYPES`。\n:raises KeyError: 如果 ``shape`` 不支持。\n\n用户的选择首先到来. 偏好决定哪个兼容的图表首先被绘制,右键仍然可以随后改变它. 每个图表在 spaCR 通过此功能或通过 :func:`start_for` 达到其起始形式,因此偏好在筛选上连续应用。",
+      "text": "图表类型为 ``shape`` 提前绘制。\n\n:param shape: :data:`DATA_SHAPES` 的键之一。\n:returns: 图表类型为 :data:`GRAPH_TYPES`。\n:raises KeyError: 如果 ``shape`` 不支持。\n\n用户的选择首先到来. 偏好决定哪个兼容的图表首先被绘制,右键仍然可以随后改变它. 每个图表在 spaCR 通过此功能或通过 :func:`start_for` 达到其起始形式,因此偏好在筛选上连续应用。",
       "translation_source_blocks_sha256": [
         "84658b6ad17b22f8485589a508d19743d4daf13b3498499d2fa806b19709bdb5",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
@@ -28475,6 +28475,30 @@
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
         "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
+      ]
+    },
+    "spacr.graph_types.mark_to_start_on": {
+      "source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "01182f6788acb1611cb0fbf3a12620d567cb8cad0a0c3aeaeb07f148bf045b9c",
+        "1691f19b0d85626ae6836d06ad0de2be4da37b4816181c7e15e0f555981bc1b9",
+        "b2f75332fcee47e5907c3104661771b61e9ffd9be82f669d5738f54a2dad6d05",
+        "cd7e2a2a4f3b4780ce33165b9a42944fe1daf43a3d5c8a0aba5ab5af9f42a931"
+      ],
+      "source_sha256": "295357736811d52b77bf9db473416e825bc9c636d33bbdf13ec48fd30c76398c",
+      "text": "先绘制什么，用绘图代码所用的词汇来表达。\n\n:param shape: :data:`DATA_SHAPES` 的键之一。\n:param fallback_mark: 在该设置出现之前调用方绘制的内容，用标记词汇表示 -- ``'jitter_box'``、``'jitter_bar'`` 等。\n:returns: ``(mark, note)``：要绘制的标记，以及解释任何回退的句子；若采用了所选项则为空。\n\n两套词汇在这里相遇，而且它们并不相同。本模块存储 ``bar_jitter`` 和 ``box_jitter``；:class:`spacr.plot.spacrGraph` 和实时面板绘制的是 ``jitter_bar`` 和 ``jitter_box``。读取该设置却忘了调用 :func:`mark_for` 的调用方，会把一个 ``plot.py`` 自身错误信息列为未知的名称交给 matplotlib -- 这个函数正是为了让任何人都不再犯第二次这个错误。每个读取该设置然后绘图的调用点都应经过这里。\n\n回退值是调用方自己的形式，而不是表中的默认值，并且以标记词汇给出，因为调用方手上已经写着的就是它。没有人表达过的偏好不能改变现有的视图，所以调用方传入它过去硬编码的值，就会原样得到这个值，直到有人另作选择。\n\n回退值有意不经转换就交给 :func:`start_for`。看起来它似乎需要先映射回图表类型词汇，而这个函数的第一个版本确实用对 :data:`MARKS` 的反向查找做了这件事。变异测试无法区分这两个版本，读一下 `start_for` 就知道原因：在没有存储任何偏好时，它按原样返回回退值，不做校验，因为 \"部件知道自己能画什么\"。那个反向查找是死代码。\n\n一旦有调用方传入 ``counts``，它就不再是死代码。`start_for` 在数据太少、无法形成分布的路径上会第二次使用回退值，此时由 `fits(shape, fallback)` 在调用方的形式和表中默认值之间做决定 -- 而标记词汇的拼写无法通过 `fits`。这里没有调用方持有计数数据：这些都是设置的默认值，在读取任何数据之前就已构建。如果将来有调用方持有计数数据，这个函数就需要反向映射，并需要一个能走到该路径的测试。",
+      "translation_source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "067fc01b03795c5427a82f12016044e1b50afdbe91d8ca701607b457f444a8e9",
+        "714f227f7e1a8589ae62d247b44e5f57dc7ab816ec42c1cfa1e869a259437d69",
+        "afa5183ee1f33eca86f7dbd935e516eb3f00bfdca6644d9f10a32b3cf4d8eb21",
+        "b7bb9185dd175493e490bc069a963a239a35f6ba7a9543ba2f17de971af075d9"
       ]
     },
     "spacr.graph_types.offer": {
@@ -28527,7 +28551,7 @@
         "0e1cc82393976b04a02aaf20d1bf57c3c94540f5c1b6ae15893992fd1ce11a66"
       ],
       "source_sha256": "d13ff9364522e3b9c3ccd11fbae2c821aa9d02ff88f1f64b69ef1a5bce12ae87",
-      "text": "首先要做什么,为什么这不是我所要求的。\n\n:param shape: 其中一个是:data:`DATA_SHAPES`的关键。\n:param counts: 每个观察,当他们被认识时。\n:param fallback: 通话者的 OWN 开始表格,因为当用户没有表达任何偏好时,它被回答为所提供的 - 一个 widget 知道它可以绘制什么 - 而一个空白的一个意味着 :data:`DEFAULTS`。\n:returns: ``(graph_type, note)``. 笔记是空的,每当图表被绘制时,它是被要求的。\n:raises KeyError: 如果 ``shape`` 未支持,并且没有可用的回报。\n\n一个偏好是一个表格声明 - \"draw violins\" - 一个表格的声明相遇的数据,它不能最终描述。 绘制点而不是说什么会留下一个用户谁要求的紫色看着一个没有解释,所以句子回来了答案,召唤者把它放在字幕上。\n\n只有一个保存的选择对数据进行重新审查: :data:`DEFAULTS` 已经保持观察的类型,并且每 x 的一个点线 - 订购的默认错误 - 否则每次都会自行发言。",
+      "text": "首先要做什么,为什么这不是我所要求的。\n\n:param shape: :data:`DATA_SHAPES` 的键之一。\n:param counts: 每个观察,当他们被认识时。\n:param fallback: 通话者的 OWN 开始表格,因为当用户没有表达任何偏好时,它被回答为所提供的 - 一个 widget 知道它可以绘制什么 - 而一个空白的一个意味着 :data:`DEFAULTS`。\n:returns: ``(graph_type, note)``. 笔记是空的,每当图表被绘制时,它是被要求的。\n:raises KeyError: 如果 ``shape`` 未支持,并且没有可用的回报。\n\n一个偏好是一个表格声明 - \"draw violins\" - 一个表格的声明相遇的数据,它不能最终描述。 绘制点而不是说什么会留下一个用户谁要求的紫色看着一个没有解释,所以句子回来了答案,召唤者把它放在字幕上。\n\n只有一个保存的选择对数据进行重新审查: :data:`DEFAULTS` 已经保持观察的类型,并且每 x 的一个点线 - 订购的默认错误 - 否则每次都会自行发言。",
       "translation_source_blocks_sha256": [
         "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",

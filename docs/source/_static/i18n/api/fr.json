@@ -28418,7 +28418,7 @@
         "ae7e6c2c8fe27579b0c49a55bd09dada72b89dbdde57e493e2f5af33cf177db1"
       ],
       "source_sha256": "268e8cecba5b39a3eed59681f0c9841a606910b03a37d6119fe026b786d516ac",
-      "text": "Le type de graphique que l'utilisateur a demandé à voir FIRST pour ``shape``, ou ``\"\"``.\n\n:param shape: une des touches de :data:`DATA_SHAPES`.\n:returns: le type de graphique enregistré, ou une chaîne vide lorsque l'utilisateur n'a exprimé aucune préférence pour cette forme -- ou exprimé une telle forme ne peut pas prendre.\n\nEmpty signifie \"NOTHING WAS CHOSEN\", ce qui n'est pas la même réponse que la table par défaut : un widget avec une forme de départ propre le garde quand rien n'a été choisi, et la préférence le remplace quand quelque chose était. :func:`default_for` est l'appelant qui transforme \"nothing\" en la propre réponse de la table.\n\nUn choix sauvegardé qui ne correspond pas aux données n'est pas un choix pour elle. Quelqu'un qui préfère les barres n'a pas demandé une barre d'un x continu contre un y continu -- c'est un graphique différent de différentes données, et :data:`WHY_NOT` le dit.\n\nUn magasin de préférences manquant n'est pas une erreur. Un rendu sans interface graphique n'a pas Qt et aucun QSettings, et un chiffre doit encore être dessiné.",
+      "text": "Le type de graphique que l'utilisateur a demandé à voir FIRST pour ``shape``, ou ``\"\"``.\n\n:param shape: l'une des clés de :data:`DATA_SHAPES`.\n:returns: le type de graphique enregistré, ou une chaîne vide lorsque l'utilisateur n'a exprimé aucune préférence pour cette forme -- ou exprimé une telle forme ne peut pas prendre.\n\nEmpty signifie \"NOTHING WAS CHOSEN\", ce qui n'est pas la même réponse que la table par défaut : un widget avec une forme de départ propre le garde quand rien n'a été choisi, et la préférence le remplace quand quelque chose était. :func:`default_for` est l'appelant qui transforme \"nothing\" en la propre réponse de la table.\n\nUn choix sauvegardé qui ne correspond pas aux données n'est pas un choix pour elle. Quelqu'un qui préfère les barres n'a pas demandé une barre d'un x continu contre un y continu -- c'est un graphique différent de différentes données, et :data:`WHY_NOT` le dit.\n\nUn magasin de préférences manquant n'est pas une erreur. Un rendu sans interface graphique n'a pas Qt et aucun QSettings, et un chiffre doit encore être dessiné.",
       "translation_source_blocks_sha256": [
         "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
@@ -28437,7 +28437,7 @@
         "184cbb8cfd97e315e1d24ee77329fa4c12fb4a95689b6015160fd821f1c8b14c"
       ],
       "source_sha256": "44fbc69e8cb773adb82af02cc51612c0efe11f6914e82e2dffab410182dd8b9a",
-      "text": "Le type de graphique dessiné FIRST pour ``shape``.\n\n:param shape: une des touches de :data:`DATA_SHAPES`.\n:returns: un type de graphique de :data:`GRAPH_TYPES`.\n:raises KeyError: si ``shape`` n'est pas pris en charge.\n\nLe choix de l'utilisateur vient en premier. La préférence décide quel graphique compatible est dessiné en premier, et le clic droit peut encore le modifier après. Chaque graphique dans spaCR atteint sa forme de départ par cette fonction ou par :func:`start_for`, de sorte que la préférence s'applique uniformément sur les criblages.",
+      "text": "Le type de graphique dessiné FIRST pour ``shape``.\n\n:param shape: l'une des clés de :data:`DATA_SHAPES`.\n:returns: un type de graphique de :data:`GRAPH_TYPES`.\n:raises KeyError: si ``shape`` n'est pas pris en charge.\n\nLe choix de l'utilisateur vient en premier. La préférence décide quel graphique compatible est dessiné en premier, et le clic droit peut encore le modifier après. Chaque graphique dans spaCR atteint sa forme de départ par cette fonction ou par :func:`start_for`, de sorte que la préférence s'applique uniformément sur les criblages.",
       "translation_source_blocks_sha256": [
         "84658b6ad17b22f8485589a508d19743d4daf13b3498499d2fa806b19709bdb5",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
@@ -28474,6 +28474,30 @@
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
         "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
+      ]
+    },
+    "spacr.graph_types.mark_to_start_on": {
+      "source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "01182f6788acb1611cb0fbf3a12620d567cb8cad0a0c3aeaeb07f148bf045b9c",
+        "1691f19b0d85626ae6836d06ad0de2be4da37b4816181c7e15e0f555981bc1b9",
+        "b2f75332fcee47e5907c3104661771b61e9ffd9be82f669d5738f54a2dad6d05",
+        "cd7e2a2a4f3b4780ce33165b9a42944fe1daf43a3d5c8a0aba5ab5af9f42a931"
+      ],
+      "source_sha256": "295357736811d52b77bf9db473416e825bc9c636d33bbdf13ec48fd30c76398c",
+      "text": "Ce qu'il faut dessiner en premier, dans le vocabulaire que parle le code de dessin.\n\n:param shape: l'une des clés de :data:`DATA_SHAPES`.\n:param fallback_mark: ce que l'appelant dessinait avant que le réglage n'existe, dans le vocabulaire des marques -- ``'jitter_box'``, ``'jitter_bar'``, etc.\n:returns: ``(mark, note)`` : la marque à dessiner et la phrase qui explique un éventuel repli, vide quand le choix a été respecté.\n\nDeux vocabulaires se rencontrent ici, et ce ne sont pas les mêmes. Ce module enregistre ``bar_jitter`` et ``box_jitter`` ; :class:`spacr.plot.spacrGraph` et les panneaux en direct dessinent ``jitter_bar`` et ``jitter_box``. Un appelant qui lit le réglage et oublie :func:`mark_for` transmet à matplotlib un nom que le message d'erreur de ``plot.py`` lui-même liste comme inconnu -- l'erreur même que cette fonction existe pour que personne ne la commette deux fois. Tout point d'appel qui lit le réglage puis dessine doit passer par ici.\n\nLe repli est la forme propre de l'appelant, pas la valeur par défaut de la table, et il est donné dans le vocabulaire des marques parce que c'est ce que l'appelant a déjà écrit. Une préférence que personne n'a exprimée ne doit pas modifier une vue existante ; un appelant qui transmet ce qu'il codait en dur récupère donc exactement cela jusqu'à ce que quelqu'un choisisse autre chose.\n\nLe repli est transmis à :func:`start_for` sans traduction, délibérément. On dirait qu'il faudrait d'abord le reconvertir dans le vocabulaire des types de graphique, et la première version de cette fonction le faisait avec une recherche inverse dans :data:`MARKS`. Un test de mutation n'a pas pu distinguer les deux versions, et la lecture de `start_for` explique pourquoi : sans préférence enregistrée, elle renvoie le repli tel qu'il a été donné, sans le valider, car \"un widget sait ce qu'il peut dessiner\". La recherche inverse était du code mort.\n\nElle cesserait d'être du code mort le jour où un appelant transmettrait ``counts``. `start_for` utilise le repli une seconde fois sur le chemin des données trop clairsemées pour une distribution, où `fits(shape, fallback)` choisit entre la forme de l'appelant et la valeur par défaut de la table -- et une orthographe du vocabulaire des marques ne passe pas `fits`. Aucun appelant ici n'a de comptages : ce sont des valeurs par défaut de réglages, construites avant toute lecture de données. Si l'un d'eux en a un jour, cette fonction aura besoin de la conversion inverse et d'un test qui atteigne ce chemin.",
+      "translation_source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "067fc01b03795c5427a82f12016044e1b50afdbe91d8ca701607b457f444a8e9",
+        "714f227f7e1a8589ae62d247b44e5f57dc7ab816ec42c1cfa1e869a259437d69",
+        "afa5183ee1f33eca86f7dbd935e516eb3f00bfdca6644d9f10a32b3cf4d8eb21",
+        "b7bb9185dd175493e490bc069a963a239a35f6ba7a9543ba2f17de971af075d9"
       ]
     },
     "spacr.graph_types.offer": {
@@ -28526,7 +28550,7 @@
         "0e1cc82393976b04a02aaf20d1bf57c3c94540f5c1b6ae15893992fd1ce11a66"
       ],
       "source_sha256": "d13ff9364522e3b9c3ccd11fbae2c821aa9d02ff88f1f64b69ef1a5bce12ae87",
-      "text": "Ce qu'il faut dessiner PREMIER, et pourquoi ce n'est pas ce qui a été demandé.\n\n:param shape: une des touches de :data:`DATA_SHAPES`.\n:param counts: les observations par groupe, lorsqu'elles sont connues.\n:param fallback: le formulaire de démarrage OWN de l'appelant, pour quand l'utilisateur n'a pas exprimé de préférence. Il est répondu comme donné -- un widget sait ce qu'il peut dessiner -- et un vide signifie :data:`DEFAULTS`.\n:returns: ``(graph_type, note)``. La note est vide chaque fois que le graphique à dessiner est celui qui a été demandé.\n:raises KeyError: si ``shape`` n'est pas pris en charge et aucun retour utilisable n'a été donné.\n\nUne préférence est une déclaration générale -- \"draw violins\" -- et une déclaration globale rencontre des données qu'elle ne peut pas décrire par la suite. Dessiner les points à la place et dire rien laisserait un utilisateur qui a demandé des violons regarder un jitter sans explication, donc la phrase revient avec la réponse et l'appelant le met sur l'intrigue.\n\nSeul un choix sauvegardé est réexaminé par rapport aux données : :data:`DEFAULTS` choisit déjà des types qui gardent les observations, et une ligne d'un point par x -- la valeur par défaut ordonnée -- serait autrement parlée de lui-même à chaque fois.",
+      "text": "Ce qu'il faut dessiner PREMIER, et pourquoi ce n'est pas ce qui a été demandé.\n\n:param shape: l'une des clés de :data:`DATA_SHAPES`.\n:param counts: les observations par groupe, lorsqu'elles sont connues.\n:param fallback: le formulaire de démarrage OWN de l'appelant, pour quand l'utilisateur n'a pas exprimé de préférence. Il est répondu comme donné -- un widget sait ce qu'il peut dessiner -- et un vide signifie :data:`DEFAULTS`.\n:returns: ``(graph_type, note)``. La note est vide chaque fois que le graphique à dessiner est celui qui a été demandé.\n:raises KeyError: si ``shape`` n'est pas pris en charge et aucun retour utilisable n'a été donné.\n\nUne préférence est une déclaration générale -- \"draw violins\" -- et une déclaration globale rencontre des données qu'elle ne peut pas décrire par la suite. Dessiner les points à la place et dire rien laisserait un utilisateur qui a demandé des violons regarder un jitter sans explication, donc la phrase revient avec la réponse et l'appelant le met sur l'intrigue.\n\nSeul un choix sauvegardé est réexaminé par rapport aux données : :data:`DEFAULTS` choisit déjà des types qui gardent les observations, et une ligne d'un point par x -- la valeur par défaut ordonnée -- serait autrement parlée de lui-même à chaque fois.",
       "translation_source_blocks_sha256": [
         "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",

@@ -1,0 +1,62 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "What to draw FIRST, in the vocabulary the DRAWING code speaks.",
+      "label": "spacr.graph_types.mark_to_start_on#0",
+      "source": "What to draw FIRST, in the vocabulary the DRAWING code speaks.",
+      "source_sha256": "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+      "translation": "O que desenhar primeiro, no vocabulário que o código de desenho fala."
+    },
+    {
+      "context": "one of the keys of :data:`DATA_SHAPES`.",
+      "label": "spacr.graph_types.mark_to_start_on#1",
+      "source": "one of the keys of :data:`DATA_SHAPES`.",
+      "source_sha256": "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+      "translation": "uma das chaves de :data:`DATA_SHAPES`."
+    },
+    {
+      "context": "what the caller drew BEFORE the setting existed, in mark vocabulary -- ``'jitter_box'``, ``'jitter_bar'`` and so on.",
+      "label": "spacr.graph_types.mark_to_start_on#2",
+      "source": "what the caller drew BEFORE the setting existed, in mark vocabulary -- ``'jitter_box'``, ``'jitter_bar'`` and so on.",
+      "source_sha256": "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+      "translation": "o que o chamador desenhava antes de a definição existir, em vocabulário de marcas -- ``'jitter_box'``, ``'jitter_bar'`` e assim por diante."
+    },
+    {
+      "context": "``(mark, note)``, the mark to draw and the sentence explaining any fallback, empty when the choice was honoured.",
+      "label": "spacr.graph_types.mark_to_start_on#3",
+      "source": "``(mark, note)``, the mark to draw and the sentence explaining any fallback, empty when the choice was honoured.",
+      "source_sha256": "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+      "translation": "``(mark, note)``: a marca a desenhar e a frase que explica qualquer alternativa aplicada; vazia quando a escolha foi respeitada."
+    },
+    {
+      "context": "Two vocabularies meet here and they are not the same. This module stores ``bar_jitter`` and ``box_jitter``; :class:`spacr.plot.spacrGraph` and the live panels draw ``jitter_bar`` and ``jitter_box``. A caller that reads the setting and forgets :func:`mark_for` hands matplotlib a name that ``plot.py``'s own error message lists as unknown -- which is the mistake this function exists to stop anyone making twice. Every call site that reads the setting and then draws should come through here.",
+      "label": "spacr.graph_types.mark_to_start_on#4",
+      "source": "TWO VOCABULARIES MEET HERE AND THEY ARE NOT THE SAME. This module stores ``bar_jitter`` and ``box_jitter``; :class:`spacr.plot.spacrGraph` and the live panels draw ``jitter_bar`` and ``jitter_box``. A caller that reads the setting and forgets :func:`mark_for` hands matplotlib a name that ``plot.py``'s own error message lists as unknown -- which is the mistake this function exists to stop anyone making twice. Every call site that reads the setting and then draws should come through here.",
+      "source_sha256": "01182f6788acb1611cb0fbf3a12620d567cb8cad0a0c3aeaeb07f148bf045b9c",
+      "translation": "Aqui encontram-se dois vocabulários, e não são o mesmo. Este módulo guarda ``bar_jitter`` e ``box_jitter``; :class:`spacr.plot.spacrGraph` e os painéis em tempo real desenham ``jitter_bar`` e ``jitter_box``. Um chamador que lê a definição e se esquece de :func:`mark_for` entrega ao matplotlib um nome que a própria mensagem de erro de ``plot.py`` indica como desconhecido -- precisamente o erro que esta função existe para que ninguém cometa duas vezes. Todos os pontos de chamada que leem a definição e depois desenham devem passar por aqui."
+    },
+    {
+      "context": "The fallback is the caller's own form, not the table's default, and it is taken in MARK vocabulary because that is what a caller already has written down. A preference nobody expressed must not move an existing view, so a caller passing what it used to hardcode gets exactly that back until someone chooses otherwise.",
+      "label": "spacr.graph_types.mark_to_start_on#5",
+      "source": "THE FALLBACK IS THE CALLER'S OWN FORM, NOT THE TABLE'S DEFAULT, and it is taken in MARK vocabulary because that is what a caller already has written down. A preference nobody expressed must not move an existing view, so a caller passing what it used to hardcode gets exactly that back until someone chooses otherwise.",
+      "source_sha256": "1691f19b0d85626ae6836d06ad0de2be4da37b4816181c7e15e0f555981bc1b9",
+      "translation": "A alternativa é a forma do próprio chamador, não a predefinição da tabela, e é dada em vocabulário de marcas porque é isso que o chamador já tem escrito. Uma preferência que ninguém exprimiu não deve alterar uma vista existente, por isso um chamador que passa o que antes tinha fixo no código recebe exatamente isso até alguém escolher outra coisa."
+    },
+    {
+      "context": "The fallback is handed to :func:`start_for` UNTRANSLATED, on purpose. It looks like it needs mapping back to graph-type vocabulary first, and the first version of this function did that with a reverse lookup over :data:`MARKS`. A mutation test could not tell the two versions apart, and reading `start_for` says why: with no preference stored it answers the fallback as given, without validating it, because \"a widget knows what it can draw\". The reverse lookup was dead code.",
+      "label": "spacr.graph_types.mark_to_start_on#6",
+      "source": "THE FALLBACK IS HANDED TO :func:`start_for` UNTRANSLATED, on purpose. It looks like it needs mapping back to graph-type vocabulary first, and the first version of this function did that with a reverse lookup over :data:`MARKS`. A mutation test could not tell the two versions apart, and reading `start_for` says why: with no preference stored it answers the fallback AS GIVEN, without validating it, because \"a widget knows what it can draw\". The reverse lookup was dead code.",
+      "source_sha256": "b2f75332fcee47e5907c3104661771b61e9ffd9be82f669d5738f54a2dad6d05",
+      "translation": "A alternativa é passada a :func:`start_for` sem tradução, de propósito. Parece precisar de ser convertida primeiro para o vocabulário de tipos de gráfico, e a primeira versão desta função fazia isso com uma pesquisa inversa sobre :data:`MARKS`. Um teste de mutação não conseguiu distinguir as duas versões, e ler `start_for` mostra porquê: sem nenhuma preferência guardada, devolve a alternativa tal como foi dada, sem a validar, porque \"um widget sabe o que consegue desenhar\". A pesquisa inversa era código morto."
+    },
+    {
+      "context": "It would stop being dead the day a caller passes ``counts``. `start_for` uses the fallback a second time on the too-thin-for-a-distribution path, where `fits(shape, fallback)` decides between the caller's form and the table default -- and a MARK spelling fails `fits`. No caller here has counts: these are settings defaults, built before any data is read. If one ever does, this function needs the mapping back and a test that reaches that path.",
+      "label": "spacr.graph_types.mark_to_start_on#7",
+      "source": "IT WOULD STOP BEING DEAD the day a caller passes ``counts``. `start_for` uses the fallback a second time on the too-thin-for-a-distribution path, where `fits(shape, fallback)` decides between the caller's form and the table default -- and a MARK spelling fails `fits`. No caller here has counts: these are settings defaults, built before any data is read. If one ever does, this function needs the mapping back and a test that reaches that path.",
+      "source_sha256": "cd7e2a2a4f3b4780ce33165b9a42944fe1daf43a3d5c8a0aba5ab5af9f42a931",
+      "translation": "Deixaria de ser código morto no dia em que um chamador passar ``counts``. `start_for` usa a alternativa uma segunda vez no caminho dos dados demasiado escassos para uma distribuição, onde `fits(shape, fallback)` decide entre a forma do chamador e a predefinição da tabela -- e uma grafia em vocabulário de marcas não passa em `fits`. Aqui nenhum chamador tem contagens: são predefinições das definições, construídas antes de se lerem quaisquer dados. Se algum vier a tê-las, esta função precisará da conversão inversa e de um teste que percorra esse caminho."
+    }
+  ],
+  "schema": 1
+}

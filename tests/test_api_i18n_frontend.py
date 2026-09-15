@@ -67,7 +67,11 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # now been moved twice and BOTH TIMES some siblings were missed and found
 # a day later by a sweep. Grep the literal before believing one edit was
 # enough.
-REAL_SYMBOL_COUNT = 10_533
+# 10,533 -> 10,534 on 2026-09-15: +1 / -0 by set difference --
+# spacr.graph_types.mark_to_start_on, and nothing else. The live surface
+# with that one key dropped is 10,533, the previous value. Moved in all four
+# files in one commit, per the note above.
+REAL_SYMBOL_COUNT = 10_534
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

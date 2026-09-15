@@ -51,17 +51,30 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,679 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
+| Language | Reviewed runtime records | Of 5,679 | Remainder | Reviewed API blocks | Of 10,534 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 134 | 2.36% | 5,545 | 473 | 4.49% | 10,060 |
-| German | 101 | 1.78% | 5,578 | 430 | 4.08% | 10,103 |
-| Spanish | 115 | 2.03% | 5,564 | 291 | 2.76% | 10,242 |
-| Simplified Chinese | 368 | 6.48% | 5,311 | 521 | 4.95% | 10,012 |
-| Portuguese | 115 | 2.03% | 5,564 | 452 | 4.29% | 10,081 |
-| Hindi | 148 | 2.61% | 5,531 | 466 | 4.42% | 10,067 |
-| Korean | 265 | 4.67% | 5,414 | 458 | 4.35% | 10,075 |
-| Icelandic | 173 | 3.05% | 5,506 | 1,031 | 9.79% | 9,502 |
-| French | 116 | 2.04% | 5,563 | 470 | 4.46% | 10,063 |
+| Swedish | 134 | 2.36% | 5,545 | 481 | 4.57% | 10,053 |
+| German | 101 | 1.78% | 5,578 | 438 | 4.16% | 10,096 |
+| Spanish | 115 | 2.03% | 5,564 | 299 | 2.84% | 10,235 |
+| Simplified Chinese | 368 | 6.48% | 5,311 | 529 | 5.02% | 10,005 |
+| Portuguese | 115 | 2.03% | 5,564 | 460 | 4.37% | 10,074 |
+| Hindi | 148 | 2.61% | 5,531 | 474 | 4.50% | 10,060 |
+| Korean | 265 | 4.67% | 5,414 | 466 | 4.42% | 10,068 |
+| Icelandic | 173 | 3.05% | 5,506 | 1,039 | 9.86% | 9,495 |
+| French | 116 | 2.04% | 5,563 | 478 | 4.54% | 10,056 |
+
+*Regenerated 2026-09-15, second pass, for `spacr.graph_types.mark_to_start_on`
+(293). The API denominator moves 10,533 -> 10,534, +1/-0 by set difference:
+that one function arrives and nothing leaves. Its sibling in `spacr.ml` went
+private (`_qc_graph_type_and_note`) before the catalogs were built, so it never
+entered the surface. The runtime denominator does not move and no reviewed
+runtime record changed, so the runtime columns and the 1,535 total are what
+they were. EVERY REVIEWED API COUNT RISES BY EIGHT, the eight blocks of the new
+symbol's reviewed record in each locale: sv 473 -> 481, de 430 -> 438, es 291
+-> 299, zh_CN 521 -> 529, pt 452 -> 460, hi 466 -> 474, ko 458 -> 466, is
+1,031 -> 1,039, fr 470 -> 478. Proved by subtraction: the same derivation with
+that one key dropped from `public_docstrings()` returns 10,533 and the previous
+row for every locale, number for number.*
 
 *Regenerated 2026-09-15 for instruction 407's live magnifier in Make Masks.
 The runtime denominator moves 5,662 -> 5,679, +17/-0 and all UI: the tool-row

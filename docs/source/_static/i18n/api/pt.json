@@ -28476,6 +28476,30 @@
         "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
       ]
     },
+    "spacr.graph_types.mark_to_start_on": {
+      "source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "01182f6788acb1611cb0fbf3a12620d567cb8cad0a0c3aeaeb07f148bf045b9c",
+        "1691f19b0d85626ae6836d06ad0de2be4da37b4816181c7e15e0f555981bc1b9",
+        "b2f75332fcee47e5907c3104661771b61e9ffd9be82f669d5738f54a2dad6d05",
+        "cd7e2a2a4f3b4780ce33165b9a42944fe1daf43a3d5c8a0aba5ab5af9f42a931"
+      ],
+      "source_sha256": "295357736811d52b77bf9db473416e825bc9c636d33bbdf13ec48fd30c76398c",
+      "text": "O que desenhar primeiro, no vocabulário que o código de desenho fala.\n\n:param shape: uma das chaves de :data:`DATA_SHAPES`.\n:param fallback_mark: o que o chamador desenhava antes de a definição existir, em vocabulário de marcas -- ``'jitter_box'``, ``'jitter_bar'`` e assim por diante.\n:returns: ``(mark, note)``: a marca a desenhar e a frase que explica qualquer alternativa aplicada; vazia quando a escolha foi respeitada.\n\nAqui encontram-se dois vocabulários, e não são o mesmo. Este módulo guarda ``bar_jitter`` e ``box_jitter``; :class:`spacr.plot.spacrGraph` e os painéis em tempo real desenham ``jitter_bar`` e ``jitter_box``. Um chamador que lê a definição e se esquece de :func:`mark_for` entrega ao matplotlib um nome que a própria mensagem de erro de ``plot.py`` indica como desconhecido -- precisamente o erro que esta função existe para que ninguém cometa duas vezes. Todos os pontos de chamada que leem a definição e depois desenham devem passar por aqui.\n\nA alternativa é a forma do próprio chamador, não a predefinição da tabela, e é dada em vocabulário de marcas porque é isso que o chamador já tem escrito. Uma preferência que ninguém exprimiu não deve alterar uma vista existente, por isso um chamador que passa o que antes tinha fixo no código recebe exatamente isso até alguém escolher outra coisa.\n\nA alternativa é passada a :func:`start_for` sem tradução, de propósito. Parece precisar de ser convertida primeiro para o vocabulário de tipos de gráfico, e a primeira versão desta função fazia isso com uma pesquisa inversa sobre :data:`MARKS`. Um teste de mutação não conseguiu distinguir as duas versões, e ler `start_for` mostra porquê: sem nenhuma preferência guardada, devolve a alternativa tal como foi dada, sem a validar, porque \"um widget sabe o que consegue desenhar\". A pesquisa inversa era código morto.\n\nDeixaria de ser código morto no dia em que um chamador passar ``counts``. `start_for` usa a alternativa uma segunda vez no caminho dos dados demasiado escassos para uma distribuição, onde `fits(shape, fallback)` decide entre a forma do chamador e a predefinição da tabela -- e uma grafia em vocabulário de marcas não passa em `fits`. Aqui nenhum chamador tem contagens: são predefinições das definições, construídas antes de se lerem quaisquer dados. Se algum vier a tê-las, esta função precisará da conversão inversa e de um teste que percorra esse caminho.",
+      "translation_source_blocks_sha256": [
+        "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+        "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+        "067fc01b03795c5427a82f12016044e1b50afdbe91d8ca701607b457f444a8e9",
+        "714f227f7e1a8589ae62d247b44e5f57dc7ab816ec42c1cfa1e869a259437d69",
+        "afa5183ee1f33eca86f7dbd935e516eb3f00bfdca6644d9f10a32b3cf4d8eb21",
+        "b7bb9185dd175493e490bc069a963a239a35f6ba7a9543ba2f17de971af075d9"
+      ]
+    },
     "spacr.graph_types.offer": {
       "source_blocks_sha256": [
         "6686775ff757a6c70ef2cf66330a31daf33c9292e8aa56a8e6f706f5ffb1e540",

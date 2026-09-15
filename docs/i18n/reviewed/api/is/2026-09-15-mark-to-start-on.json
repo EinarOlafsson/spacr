@@ -1,0 +1,62 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "What to draw FIRST, in the vocabulary the DRAWING code speaks.",
+      "label": "spacr.graph_types.mark_to_start_on#0",
+      "source": "What to draw FIRST, in the vocabulary the DRAWING code speaks.",
+      "source_sha256": "38c06e0d5a3ceb24c1c28c5d0f302e36db05f18f90b6aa5768bae854d286d057",
+      "translation": "Hvað á að teikna fyrst, á orðaforðanum sem teiknikóðinn talar."
+    },
+    {
+      "context": "one of the keys of :data:`DATA_SHAPES`.",
+      "label": "spacr.graph_types.mark_to_start_on#1",
+      "source": "one of the keys of :data:`DATA_SHAPES`.",
+      "source_sha256": "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+      "translation": "einn af lyklum :data:`DATA_SHAPES`."
+    },
+    {
+      "context": "what the caller drew BEFORE the setting existed, in mark vocabulary -- ``'jitter_box'``, ``'jitter_bar'`` and so on.",
+      "label": "spacr.graph_types.mark_to_start_on#2",
+      "source": "what the caller drew BEFORE the setting existed, in mark vocabulary -- ``'jitter_box'``, ``'jitter_bar'`` and so on.",
+      "source_sha256": "1be3d9fd8fef880272bb0c61377d065afe5d6349f2babde5d2a1fef61b118c3d",
+      "translation": "það sem kallandinn teiknaði áður en stillingin var til, á merkjaorðaforða -- ``'jitter_box'``, ``'jitter_bar'`` og svo framvegis."
+    },
+    {
+      "context": "``(mark, note)``, the mark to draw and the sentence explaining any fallback, empty when the choice was honoured.",
+      "label": "spacr.graph_types.mark_to_start_on#3",
+      "source": "``(mark, note)``, the mark to draw and the sentence explaining any fallback, empty when the choice was honoured.",
+      "source_sha256": "42747524b5f9933934b415ee2804a7518995cd27f64768d0eefd26c5fe10b780",
+      "translation": "``(mark, note)``: merkið sem á að teikna og setningin sem skýrir hvaða varaleið sem er; tóm þegar valinu var fylgt."
+    },
+    {
+      "context": "Two vocabularies meet here and they are not the same. This module stores ``bar_jitter`` and ``box_jitter``; :class:`spacr.plot.spacrGraph` and the live panels draw ``jitter_bar`` and ``jitter_box``. A caller that reads the setting and forgets :func:`mark_for` hands matplotlib a name that ``plot.py``'s own error message lists as unknown -- which is the mistake this function exists to stop anyone making twice. Every call site that reads the setting and then draws should come through here.",
+      "label": "spacr.graph_types.mark_to_start_on#4",
+      "source": "TWO VOCABULARIES MEET HERE AND THEY ARE NOT THE SAME. This module stores ``bar_jitter`` and ``box_jitter``; :class:`spacr.plot.spacrGraph` and the live panels draw ``jitter_bar`` and ``jitter_box``. A caller that reads the setting and forgets :func:`mark_for` hands matplotlib a name that ``plot.py``'s own error message lists as unknown -- which is the mistake this function exists to stop anyone making twice. Every call site that reads the setting and then draws should come through here.",
+      "source_sha256": "01182f6788acb1611cb0fbf3a12620d567cb8cad0a0c3aeaeb07f148bf045b9c",
+      "translation": "Hér mætast tveir orðaforðar, og þeir eru ekki þeir sömu. Þessi eining geymir ``bar_jitter`` og ``box_jitter``; :class:`spacr.plot.spacrGraph` og lifandi spjöldin teikna ``jitter_bar`` og ``jitter_box``. Kallandi sem les stillinguna og gleymir :func:`mark_for` réttir matplotlib nafn sem villuboð ``plot.py`` sjálfs telja óþekkt -- einmitt mistökin sem þetta fall er til að enginn geri tvisvar. Hver kallstaður sem les stillinguna og teiknar síðan ætti að fara hér í gegn."
+    },
+    {
+      "context": "The fallback is the caller's own form, not the table's default, and it is taken in MARK vocabulary because that is what a caller already has written down. A preference nobody expressed must not move an existing view, so a caller passing what it used to hardcode gets exactly that back until someone chooses otherwise.",
+      "label": "spacr.graph_types.mark_to_start_on#5",
+      "source": "THE FALLBACK IS THE CALLER'S OWN FORM, NOT THE TABLE'S DEFAULT, and it is taken in MARK vocabulary because that is what a caller already has written down. A preference nobody expressed must not move an existing view, so a caller passing what it used to hardcode gets exactly that back until someone chooses otherwise.",
+      "source_sha256": "1691f19b0d85626ae6836d06ad0de2be4da37b4816181c7e15e0f555981bc1b9",
+      "translation": "Varaleiðin er eigið form kallandans, ekki sjálfgefið gildi töflunnar, og hún er gefin á merkjaorðaforða vegna þess að það er það sem kallandi hefur þegar skrifað niður. Val sem enginn hefur látið í ljós má ekki breyta núverandi sýn, svo kallandi sem sendir það sem hann harðkóðaði áður fær nákvæmlega það til baka þar til einhver velur annað."
+    },
+    {
+      "context": "The fallback is handed to :func:`start_for` UNTRANSLATED, on purpose. It looks like it needs mapping back to graph-type vocabulary first, and the first version of this function did that with a reverse lookup over :data:`MARKS`. A mutation test could not tell the two versions apart, and reading `start_for` says why: with no preference stored it answers the fallback as given, without validating it, because \"a widget knows what it can draw\". The reverse lookup was dead code.",
+      "label": "spacr.graph_types.mark_to_start_on#6",
+      "source": "THE FALLBACK IS HANDED TO :func:`start_for` UNTRANSLATED, on purpose. It looks like it needs mapping back to graph-type vocabulary first, and the first version of this function did that with a reverse lookup over :data:`MARKS`. A mutation test could not tell the two versions apart, and reading `start_for` says why: with no preference stored it answers the fallback AS GIVEN, without validating it, because \"a widget knows what it can draw\". The reverse lookup was dead code.",
+      "source_sha256": "b2f75332fcee47e5907c3104661771b61e9ffd9be82f669d5738f54a2dad6d05",
+      "translation": "Varaleiðin er send óþýdd til :func:`start_for`, viljandi. Það virðist sem fyrst þurfi að varpa henni aftur í orðaforða grafgerða, og fyrsta útgáfa þessa falls gerði það með öfugri uppflettingu í :data:`MARKS`. Stökkbreytingapróf gat ekki greint útgáfurnar tvær í sundur, og lestur `start_for` sýnir hvers vegna: án vistaðs vals skilar það varaleiðinni eins og hún var gefin, án þess að sannreyna hana, vegna þess að \"græja veit hvað hún getur teiknað\". Öfuga uppflettingin var dauður kóði."
+    },
+    {
+      "context": "It would stop being dead the day a caller passes ``counts``. `start_for` uses the fallback a second time on the too-thin-for-a-distribution path, where `fits(shape, fallback)` decides between the caller's form and the table default -- and a MARK spelling fails `fits`. No caller here has counts: these are settings defaults, built before any data is read. If one ever does, this function needs the mapping back and a test that reaches that path.",
+      "label": "spacr.graph_types.mark_to_start_on#7",
+      "source": "IT WOULD STOP BEING DEAD the day a caller passes ``counts``. `start_for` uses the fallback a second time on the too-thin-for-a-distribution path, where `fits(shape, fallback)` decides between the caller's form and the table default -- and a MARK spelling fails `fits`. No caller here has counts: these are settings defaults, built before any data is read. If one ever does, this function needs the mapping back and a test that reaches that path.",
+      "source_sha256": "cd7e2a2a4f3b4780ce33165b9a42944fe1daf43a3d5c8a0aba5ab5af9f42a931",
+      "translation": "Hún hætti að vera dauð daginn sem kallandi sendir ``counts``. `start_for` notar varaleiðina í annað sinn á leiðinni fyrir gögn sem eru of strjál fyrir dreifingu, þar sem `fits(shape, fallback)` velur milli forms kallandans og sjálfgefins gildis töflunnar -- og stafsetning á merkjaorðaforða stenst ekki `fits`. Enginn kallandi hér hefur talningar: þetta eru sjálfgefin gildi stillinga, smíðuð áður en nokkur gögn eru lesin. Ef einhver fær þær einhvern tíma þarf þetta fall öfugu vörpunina og próf sem nær þeirri leið."
+    }
+  ],
+  "schema": 1
+}
