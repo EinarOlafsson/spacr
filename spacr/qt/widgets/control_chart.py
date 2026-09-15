@@ -18,8 +18,8 @@ free for a report or a QC gate to call.
 The decision the whole module turns on
 --------------------------------------
 
-**Sigma comes from the average moving range divided by d2 = 1.128
-(:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.**
+Sigma comes from the average moving range divided by d2 = 1.128
+(:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.
 
 This is not a stylistic preference and it is not a small effect. The standard
 deviation of the plate-to-plate series is inflated by *exactly the drift the

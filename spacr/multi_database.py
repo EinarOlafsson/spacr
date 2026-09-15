@@ -29,7 +29,7 @@ ambiguity rather than resolving it silently, and never lose provenance.
 TWO SCREENS, AND A COLLISION THAT IS NOT ONE
 --------------------------------------------
 There is also a case where the first bullet above is *backwards*. Two
-screens that share a guide library both have ``plate1``..``plate4``, and there
+screens that share a guide library both have ``plate1..plate4``, and there
 they are not two plates claiming one identity -- they are two *different*
 plates whose identity was only ever partly written down. The missing part is
 the screen.

@@ -1039,7 +1039,7 @@ def _estimator(model: str, seed: int) -> Tuple[Any, str]:
     :param model: ``'auto'``, ``'xgboost'`` or ``'hist_gradient_boosting'``.
     :param seed: the run's seed.
     :returns: ``(estimator, name)``.
-    :raises AnnotationStrategyError: ``'xgboost'` was demanded and is absent.
+    :raises AnnotationStrategyError: ``'xgboost'`` was demanded and is absent.
     """
     kind = str(model or "auto").strip().lower()
     if kind in ("auto", "xgboost") and xgboost_available():

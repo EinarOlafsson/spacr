@@ -61,10 +61,10 @@ Consequences worth writing down because they are the ones that get fumbled:
 
 * row 0 -> ``A``, row 7 -> ``H`` (a 96-well plate), row 15 -> ``P`` (384).
 * row 25 -> ``Z``.
-* **row 26 -> ``AA``**, not ``[`` (which is what ``chr(65 + 26)`` gives) and
+* **row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and
   not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives).
   This is bijective base 26, and it is not a hypothetical: a 1536-well plate
-  has 32 rows and runs ``A``..``Z``, ``AA``..``AF``. Column 47 -> ``48``, for
+  has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for
   the same plate, so nothing here caps the column at 24 either.
 * the column is zero padded to two digits (``A01``, never ``A1``) because
   spaCR's strict Yokogawa regex is ``[A-Z]\\d{2}``.
@@ -99,7 +99,7 @@ either.
 Not downloading a 100 GB plate to answer "what is in it"
 --------------------------------------------------------
 :func:`inspect_container` reports the image count, the wells, the dimensions
-and the channel names **without ever calling ``getPlane``** — a fact the test
+and the channel names **without ever calling** ``getPlane`` — a fact the test
 suite pins by counting calls on the fake gateway. The importers additionally
 take ``limit`` (stop after N OMERO images) and ``dry_run`` (build the complete
 plan, list every filename that would be written, touch no pixels).
@@ -161,12 +161,12 @@ This follows :data:`spacr.qt._QT_MISSING_MESSAGE` and
 
 Two details of that guard are worth knowing:
 
-* **A missing ``Ice`` counts as a missing omero extra.** A half-built
+* A missing ``Ice`` counts as a missing omero extra. A half-built
   ``zeroc-ice`` is the single most likely way this fails in the field, and
   ``No module named 'Ice'`` mentions neither OMERO nor spaCR.
   :func:`missing_omero_message` says what happened.
-* **This module is called ``spacr/omero.py`` and does not shadow the
-  third-party ``omero`` package.** Absolute imports have been the default
+* This module is called ``spacr/omero.py`` and does not shadow the
+  third-party ``omero`` package. Absolute imports have been the default
   since Python 3, so a module inside the ``spacr`` package that asks for
   ``omero`` gets the top-level distribution, not its own sibling. That is
   verified rather than assumed — see

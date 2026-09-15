@@ -18,7 +18,7 @@ function.
 The subscription rule
 ---------------------
 
-**Views must disconnect in ``closeEvent``.** This object outlives every screen,
+**Views must disconnect in** ``closeEvent``. This object outlives every screen,
 and holds plain references to whatever connected to it. A lambda would keep a
 destroyed page alive as a receiver — the exact leak
 :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so

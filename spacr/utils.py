@@ -9713,7 +9713,7 @@ def fill_holes_in_mask(mask):
     return filled_mask
 
 def correct_metadata_column_names(df):
-    """Renamed legacy metadata columns. **Defined in :mod:`spacr.schema`.**
+    """Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.
 
     Re-exported here because every existing caller imports it from `utils`,
     and moved there because importing this module costs torch, torchvision

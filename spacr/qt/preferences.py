@@ -83,7 +83,7 @@ Values:
   preference is a request, legibility is not negotiable.
 * ``field_fade``: bool, default ``True``. Whether an input field's
   container and outline ramp from solid on the left to fully transparent
-  on the right. Fields are **exempt from ``pane_opacity``** while this is
+  on the right. Fields are **exempt from** ``pane_opacity`` while this is
   on — see :func:`get_field_fade_enabled` and
   :mod:`spacr.qt.widgets.field_fade`.
 * ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control

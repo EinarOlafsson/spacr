@@ -465,7 +465,7 @@ def _add_line_collection(plot, artist, look) -> int:
     """Translate ``vlines`` / ``hlines``.
 
     ONE ITEM, NOT ONE PER SEGMENT. A Cook's-distance stem plot on a real
-    screen is one segment per well; adding four hundred ``PlotDataItem``s
+    screen is one segment per well; adding four hundred ``PlotDataItem``\\ s
     makes an export that takes minutes and a PDF nobody can open.
     ``connect='pairs'`` draws them as a single disconnected curve.
     """

@@ -3265,7 +3265,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         5-fold cross-validation for all four (mean squared error for the
         penalised least-squares three, balanced accuracy for ``hinge``).
     :param cov_type: Covariance estimator for the likelihood fits
-        (``'HC0'``..``'HC3'``); ``None`` for classical standard errors.
+        (``'HC0'..'HC3'``); ``None`` for classical standard errors.
     :param weights: Per-observation weights - the well's cell count. Used as
         ``var_weights`` by ``logit``/``probit``/``quasi_binomial`` and as the
         WLS weights by ``wls``.
@@ -9506,7 +9506,7 @@ def _figure_folder(src, save):
     """Where a drawn figure goes: the run folder, or a temporary one.
 
     `save` GATES THE RUN FOLDER, NOT THE PICTURE. Before these charts moved
-    to pyqtgraph they were `plt.show()`n and never written, so a `save=False`
+    to pyqtgraph they were `plt.show()`\\ n and never written, so a `save=False`
     run still SAW them -- and writing them into the user's results folder
     now would be a behaviour change nobody asked for. A temporary directory
     is what an ephemeral figure has always been; the gallery gets its tile

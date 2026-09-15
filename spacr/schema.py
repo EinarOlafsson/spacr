@@ -2147,7 +2147,7 @@ def coerce_model_feature_types(
 ):
     """Repair the two representations of a numeric measurement pandas fumbles.
 
-    **A column with no values at all comes back as ``object``.** This is the
+    **A column with no values at all comes back as** ``object``. This is the
     common one and it is not a data problem: ``pandas.read_sql`` builds the
     frame from the rows it gets, so a column that is ``NULL`` in every row
     arrives as a column of ``None`` and pandas types that ``object`` -- even
@@ -2435,10 +2435,10 @@ def add_screen_column(df, screen: Any = None, *, overwrite: bool = False):
     * **The frame has no screen column.** It gains one, holding ``screen`` or
       :data:`DEFAULT_SCREEN`. That is a single-screen project, which is every
       project written before and it must keep working.
-    * **The frame has one, and ``screen`` is ``None``.** Its labels are kept.
+    * The frame has one, and ``screen`` is ``None``. Its labels are kept.
       Relabelling a frame that already knows which experiment it came from
       would move rows between screens with nothing on screen to say so.
-    * **The frame has one and ``screen`` was given.** The caller is looking at
+    * The frame has one and ``screen`` was given. The caller is looking at
       the files and has said which screen this is, so it wins — but only
       because they said so. ``overwrite=False`` (the default) still fills
       *blank* values only; pass ``overwrite=True`` to restamp every row.

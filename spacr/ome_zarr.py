@@ -2136,8 +2136,8 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
     pre-filter beyond the box — and the block mean is the default because
     striding aliases: a one-pixel-wide bright structure survives or vanishes
     with the parity of its coordinate, so the same object appears and
-    disappears as a user zooms. **Label and mask arrays must use
-    ``downsample="stride"``**: the mean of labels 3 and 5 is 4, which is a
+    disappears as a user zooms. **Label and mask arrays must use**
+    ``downsample="stride"``: the mean of labels 3 and 5 is 4, which is a
     different object, and averaging a boolean mask invents half-membership.
     Levels shrink by ``ceil(n / 2)``, so nothing is cropped off an odd edge.
 

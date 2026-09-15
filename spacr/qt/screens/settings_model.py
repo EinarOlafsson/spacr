@@ -3822,7 +3822,7 @@ def _humanize(key: str) -> str:
 
 
 def _strip_type_prefix(text: str) -> str:
-    """Drop a leading ``(int) - `` / ``(bool) `` style prefix — the type is
+    """Drop a leading ``(int) -`` / ``(bool)`` style prefix — the type is
     rendered separately + authoritatively from expected_types."""
     import re
     return re.sub(r"^\s*\([^)]*\)\s*[-–:]?\s*", "", text or "").strip()

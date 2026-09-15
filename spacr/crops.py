@@ -1239,8 +1239,8 @@ def extract_crops(merged_path: str, specs: Iterable[CropSpec],
 def png_view(crop: np.ndarray) -> np.ndarray:
     """Return what a consumer sees after the crop has made the PNG round trip.
 
-    This is the contract, and it is deliberately boring: **channel ``i`` of
-    the crop is channel ``i`` of the result**, narrowed to 8 bit by
+    This is the contract, and it is deliberately boring: channel ``i`` of
+    the crop is channel ``i`` of the result, narrowed to 8 bit by
     :func:`narrow_to_uint8`.
 
     That holds because a crop is cut in COLOUR order -- ``CropSpec.channels``

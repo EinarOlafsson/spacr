@@ -158,7 +158,7 @@ class FrameSequence:
     * a **directory** of per-frame image files — one file opened per access;
     * a **multi-page TIFF** — one page decoded per access
       (``tifffile.imread(path, key=i)``);
-    * an **``.npy`` stack** whose first axis is time — memory-mapped, so a
+    * an ``.npy`` **stack** whose first axis is time — memory-mapped, so a
       slice touches only that plane's pages.
 
     :param kind: ``"files"``, ``"tiff"`` or ``"npy"``.

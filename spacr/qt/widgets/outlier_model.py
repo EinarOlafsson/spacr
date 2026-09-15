@@ -106,7 +106,7 @@ detectors" and they are not interchangeable:
   That number is knowable in advance and is printed in
   :meth:`OutlierResult.caveats`. An isolation forest's score has no such null
   distribution and therefore no calibrated cut point at all.
-* **Isolation forest requires ``contamination``** — the share of the data that
+* **Isolation forest requires** ``contamination`` — the share of the data that
   is bad — declared *in advance*. That share is precisely the unknown the
   analysis is trying to estimate. Setting ``contamination=0.01`` guarantees
   1% of the objects come back flagged whether the plate is pristine or ruined,

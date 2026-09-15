@@ -112,7 +112,7 @@ def filter_selection(selection: pd.DataFrame,
         is what the Measure panel writes for an unset field -- treating 0 as a
         real minimum would drop nothing and look like it had worked.
     ``wells`` / ``exclude_wells``
-        Well ids to keep or drop, as ``rowID``+``columnID`` pairs or as plain
+        Well ids to keep or drop, as ``rowID+columnID`` pairs or as plain
         well names.
     ``max_objects``
         A cap, applied LAST and deterministically (by the sort the selection

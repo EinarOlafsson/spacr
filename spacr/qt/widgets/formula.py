@@ -569,7 +569,7 @@ class _Parser:
         return None
 
     def _where(self, token: _Token) -> str:
-        """`` at position N`` for an error message, counting from ONE.
+        """``at position N`` for an error message, counting from ONE.
 
         Users count from one; the token's own index counts from zero, and a
         message that says position 0 for the first character reads as a bug in

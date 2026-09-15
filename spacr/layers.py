@@ -932,7 +932,7 @@ class Canvas:
 
     def zoomed(self, factor: float,
                centre: Optional[Tuple[float, float]] = None) -> "Canvas":
-        """A canvas ``factor``× closer, about ``centre`` (canvas pixels).
+        """A canvas ``factor``\\ × closer, about ``centre`` (canvas pixels).
 
         ``factor > 1`` zooms in. The default centre is the middle of the view,
         which is what a keyboard zoom means; a wheel zoom passes the cursor.

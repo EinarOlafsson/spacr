@@ -15,8 +15,8 @@ changes.
 WHY THIS SHAPE IS WHAT LETS AN ARBITRARY ORGANELLE COUNT LAND. The number of
 organelles a run may declare is not fixed. In a flat vocabulary each new organelle is twenty new
 settings that every tooltip table and translation catalog has to learn; here
-it is one COLUMN, and the number of questions does not move. :meth:`
-ObjectSettingsGrid.add_object` is that operation, and it starts a new
+it is one COLUMN, and the number of questions does not move.
+:meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new
 organelle from the first one's answers rather than from a global default
 nobody chose.
 

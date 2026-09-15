@@ -40,7 +40,7 @@ What each button can honestly do
     Drops spaCR's own caches: the merged-field LRU
     (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image
     stacks), the file-format and DB-format caches, the zoomed-animation
-    cache, the icon and preview ``lru_cache``s, the filter-kind cache, every
+    cache, the icon and preview ``lru_cache``\\ s, the filter-kind cache, every
     live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and
     Qt's own ``QPixmapCache``. A process with no live Qt application also
     runs ``gc.collect()``. The GUI deliberately does not: walking a heap of

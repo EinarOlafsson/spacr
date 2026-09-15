@@ -1335,7 +1335,7 @@ def gather_model_estimate(fit: PowerFit) -> pd.DataFrame:
     variables.  The ``variable`` column reproduces that R naming so the
     two implementations' outputs can be joined and compared directly.
 
-    **Higher ``mean`` means stronger evidence the gene is a hit.**  Wells
+    Higher ``mean`` means stronger evidence the gene is a hit.  Wells
     carrying more of a hit gene have more positive cells than their
     imaged cell count alone accounts for, which is a positive coefficient
     on log read fraction.
@@ -1819,7 +1819,7 @@ def scan_parameters(
         fits, one-based, so ``index / total`` is a progress fraction, and
         ``row`` is that fit's result record.
 
-        **Returning exactly ``False`` stops the sweep** and returns the
+        Returning exactly ``False`` stops the sweep and returns the
         rows completed so far; anything else (including ``None``)
         continues.  This exists for one reason: a sweep is minutes long
         and a GUI has to be able to show where it is and to stop it

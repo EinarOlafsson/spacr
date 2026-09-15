@@ -33,7 +33,7 @@ Where they disagree, the disagreement is the finding: a feature ranked high
 by gain and low by permutation is usually one the model could have used and
 did not.
 
-**The join goes through ``png_list``.** A CV model keys on the crop it
+**The join goes through** ``png_list``. A CV model keys on the crop it
 scored; the features key on the object. ``png_list`` is the only table that
 holds both, so it is the bridge — and joining on ``png_path`` alone is not
 enough, because a path is not stable across machines.

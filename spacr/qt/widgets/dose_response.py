@@ -62,7 +62,7 @@ Two confidence intervals, and why the default is the slow one
 Both are offered on ``log10_ec50`` and both back-transform:
 
 * :data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit``
-  returns, with a **t quantile on ``n - 4`` degrees of freedom**. Not a
+  returns, with a t quantile on ``n - 4`` degrees of freedom. Not a
   normal quantile: eight concentrations with no replicates leaves 4 df, where
   ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width
   of the published interval, which is not cosmetic.

@@ -385,7 +385,7 @@ def resolve_measurement_spacing(settings, ndim, n_z=1):
     ``stamp`` is the dict of :data:`MEASUREMENT_STAMP_COLUMNS` written onto
     every row so the units are recorded rather than inferred.
 
-    **2-D returns ``(None, px stamp)`` unconditionally.** Even when a voxel size
+    2-D returns ``(None, px stamp)`` unconditionally. Even when a voxel size
     is configured it is not applied, so a 2-D run is numerically identical to
     every spaCR run before this function existed.
 
@@ -946,8 +946,8 @@ def _spatial_measurements(mask, spacing=None, radius=50, expand=1):
     :param spacing: voxel spacing from :func:`resolve_measurement_spacing`;
         ``None`` in 2-D, which leaves centroids in pixels and the 2-D path
         numerically unchanged.
-    :param radius: neighbourhood radius for ``neighbors_within_<r>``, **in the
-        units of the row's ``measurement_units`` stamp** -- pixels in a 2-D run,
+    :param radius: neighbourhood radius for ``neighbors_within_<r>``, in the
+        units of the row's ``measurement_units`` stamp -- pixels in a 2-D run,
         micrometres in a 3-D run with a voxel size, xy-pixels when only an
         anisotropy was given. The KDTree is built on spacing-scaled centroids,
         so the radius has to be quoted in the same units.
@@ -2120,8 +2120,8 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
 
         .. note::
 
-           **The ``M1_correlation_<t>`` / ``M2_correlation_<t>`` columns were
-           removed on 2026-09-02 and are no longer written.** They were never
+           The ``M1_correlation_<t>`` / ``M2_correlation_<t>`` columns were
+           removed on 2026-09-02 and are no longer written. They were never
            Manders' coefficients: both channels were cut at their *own
            within-object percentile* ``t`` and then shared a single overlap
            mask, so M1 was capped at the object's own top-``(100-t)``

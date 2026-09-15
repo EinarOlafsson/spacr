@@ -65,7 +65,7 @@ that a line-by-line translation would faithfully reproduce. They are listed
 here, and each is repeated at the function that departs from upstream. See also
 ``proposals/SIM_PORT_PLAN.md`` §3 in this repository, which catalogues them.
 
-1. **``imaging_n_cells_per_well`` did not exist.** ``R/fit_model.R`` reads
+1. ``imaging_n_cells_per_well`` **did not exist.** ``R/fit_model.R`` reads
    ``well_data$imaging_n_cells_per_well[1]`` as the Poisson offset, but
    ``simulate_imaging_plate`` emits only ``..._mu``, ``..._var`` and
    ``..._gene_per_well``; R's ``$`` partial matching is ambiguous across those

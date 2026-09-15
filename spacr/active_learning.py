@@ -53,8 +53,8 @@ silent failures that produce a confident-looking queue full of nonsense,
 so :func:`probabilities_from_logits` branches on the shape and the tests
 pin both directions.
 
-**``margin`` and ``least_confidence`` are the same ranking on two
-classes.** For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``:
+``margin`` and ``least_confidence`` are the same ranking on two
+classes. For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``:
 a linear transform, so identical order and identical ties. They are not
 two independent choices on a binary screen — they differ only from three
 classes up, where ``margin`` looks at the top *two* classes while
@@ -1336,8 +1336,8 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
     :param table: crop table (default ``png_list``).
     :param key: row key (default ``png_path``).
     :param image_type: substring filter on the key, matching the Annotate
-        screen's own filter. **Every count below it, ``n_rows`` included, is
-        over the crops that matched** — a denominator taken from the whole
+        screen's own filter. Every count below it, ``n_rows`` included, is
+        over the crops that matched — a denominator taken from the whole
         table would put the numerator and the denominator on two different
         populations. ``n_rows_unfiltered`` keeps the total, and a note says
         how many were excluded.
@@ -2114,9 +2114,9 @@ def should_stop(curve: pd.DataFrame, *, label_window: int = 50,
                 min_rounds: int = 2) -> StoppingVerdict:
     """Has the last ``label_window`` labels moved held-out accuracy at all?
 
-    The rule, in one line: **look back over whole rounds until at least
+    The rule, in one line: look back over whole rounds until at least
     ``label_window`` new labels have accumulated, and compare held-out
-    accuracy at the two ends. If it moved by less than ``min_gain``, stop.**
+    accuracy at the two ends. If it moved by less than ``min_gain``, stop.
 
     Why this rule and not another:
 
@@ -2273,7 +2273,7 @@ def holdout_report(y_true: Any, probs: Any,
     ``accuracy = trace / total``, ``per_class[c] = M[c, c] / M[c, :].sum()``
     — so a reader can recompute the card rather than trust it.
 
-    **``n`` is the number of rows the matrix actually contains**, and the
+    ``n`` **is the number of rows the matrix actually contains**, and the
     supports sum to it. A row whose true class the head has no column for is
     counted as an error rather than dropped: the matrix grows to hold
     it, and the missing column stays empty because the head can never predict
