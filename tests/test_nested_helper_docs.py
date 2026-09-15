@@ -157,6 +157,29 @@ def outer():
     assert len(report["duplicates"]["spacr.example.outer.value"]) == 2
 
 
+def test_rendering_processors_leave_the_translation_source_unchanged(tmp_path):
+    _source(tmp_path, 'def outer():\n    def inner():\n        """Canonical source."""\n')
+    entry, = helpers.entries(helpers.inventory(tmp_path, ignore_patterns=()))
+    original = entry.docstring
+    calls = []
+
+    def process(*arguments):
+        calls.append(arguments[:-1])
+        arguments[-1][:] = ["Processed rendering only.", ""]
+
+    app = types.SimpleNamespace(
+        events=types.SimpleNamespace(events={"autodoc-process-docstring": object()}),
+        emit=process,
+    )
+    assert helpers.rendered_docstring(entry, app) == "Processed rendering only.\n"
+    assert calls == [("autodoc-process-docstring", "function",
+                      "spacr.example.outer.inner", None, None)]
+    assert entry.docstring == original == "Canonical source."
+    app.events.events = {}
+    assert helpers.rendered_docstring(entry, app) == original + "\n"
+    assert len(calls) == 1
+
+
 def test_slice_switch_has_positive_and_empty_counterparts(tmp_path):
     source = 'def outer():\n    def inner():\n        """Inner documentation."""\n'
     _source(tmp_path, source)

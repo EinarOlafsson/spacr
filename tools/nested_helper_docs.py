@@ -205,6 +205,23 @@ def prepare_jinja(env, *, root: Path, ignore_patterns: Iterable[str]) -> None:
         by_module[entry.module].append(entry)
     env.globals["spacr_nested_helpers"] = dict(by_module)
     env.globals["spacr_helper_only_modules"] = set()
+    env.filters["spacr_helper_docstring"] = rendered_docstring
+
+
+def rendered_docstring(entry: HelperEntry, app) -> str:
+    """Apply the same Sphinx docstring processors as ordinary AutoAPI functions.
+
+Napoleon's Google/NumPy conversion runs through this event, not through RST
+parsing alone. Only a fresh list of rendering lines is changed; the canonical
+source document used by translation hashes remains the original docstring.
+"""
+    lines = entry.docstring.splitlines()
+    if lines:
+        lines.append("")
+        if "autodoc-process-docstring" in app.events.events:
+            app.emit("autodoc-process-docstring", "function", entry.qualified_key,
+                     None, None, lines)
+    return "\n".join(lines)
 
 
 def helper_page_policy(what: str, name: str, obj, skip: bool, options) -> bool | None:

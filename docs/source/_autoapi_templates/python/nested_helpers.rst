@@ -13,7 +13,7 @@ Nested helpers
    :async:
 {% endif %}
 
-   {{ helper.docstring|indent(3) }}
+   {{ helper|spacr_helper_docstring(obj.app)|indent(3) }}
 
    {% for definition in helper.definitions %}
    ``{{ definition.path }}:{{ definition.lineno }}``

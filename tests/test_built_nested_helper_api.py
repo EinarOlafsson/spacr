@@ -167,13 +167,14 @@ def _build_site(fixture_source, enabled, label):
         f"_nested_helper_docs.ENABLED_MODULES = frozenset({sorted(enabled)!r})\n"
         "spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))\n"
         f"_SOURCE_ROOT = Path({str(fixture_source)!r})\n"
-        "project = 'Feature 411 fixture'\nextensions = ['autoapi.extension', 'sphinx_design']\n"
+        "project = 'Feature 411 fixture'\nextensions = ['sphinx.ext.napoleon', 'autoapi.extension', 'sphinx_design']\n"
         f"autoapi_dirs = [{str(fixture_source / 'spacr')!r}]\n"
         f"autoapi_ignore = {list(builder.AUTOAPI_IGNORE)!r}\n"
         "autoapi_root = 'api'\nautoapi_template_dir = 'templates'\n"
         "autoapi_options = ['members', 'show-inheritance', 'show-module-summary']\n"
         "autoapi_python_class_content = 'both'\nautoapi_keep_files = True\n"
         "autoapi_member_order = 'groupwise'\nhtml_theme = 'furo'\n"
+        "napoleon_use_rtype = False\n"
         "exclude_patterns = ['templates/**']\n" + hooks + "\n",
         encoding="utf-8",
     )
@@ -251,6 +252,36 @@ def test_actual_sphinx_html_and_objects_inventory_have_exactly_the_helper_keys(
     assert 'id="spacr.example._private_parent"' not in page
     assert "Return the first value." in page
     assert "Return the fallback when no value is supplied." in page
+
+
+def test_real_google_style_helpers_render_both_parameter_contracts(tmp_path):
+    pytest.importorskip("bs4")
+    from bs4 import BeautifulSoup
+
+    root = tmp_path / "source"
+    package = root / "spacr"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text('"""spaCR fixture."""\n', encoding="utf-8")
+    for name in ("api", "core", "measure", "deep_spacr", "sequencing", "ml", "artifacts", "settings"):
+        (package / f"{name}.py").write_text(f'"""{name} fixture."""\n', encoding="utf-8")
+    tree = ast.parse((ROOT / "spacr/io.py").read_text(encoding="utf-8"))
+    parent = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                  and node.name == "_check_masks")
+    module = ast.Module(body=[
+        ast.Expr(value=ast.Constant(value="Real Google-style source fixture.")), parent,
+    ], type_ignores=[])
+    (package / "io.py").write_text(ast.unparse(module), encoding="utf-8")
+    output = _build_site(root, {"spacr.io"}, "google")
+    page = BeautifulSoup((output / "api/spacr/io/index.html").read_text(), "html.parser")
+    signature = page.find(id="spacr.io._check_masks.needs_processing")
+    assert signature is not None
+    body = signature.parent.find("dd", recursive=False)
+    parameters = body.select("dl.field-list")
+    assert parameters, "Google Args must render as a real parameter field list"
+    text = " ".join(body.get_text(" ", strip=True).split())
+    assert "filename" in text
+    assert "opened and validated" in text
+    assert "Only existence is checked" in text
 
 
 def test_language_switch_targets_the_built_helper_not_its_parent(

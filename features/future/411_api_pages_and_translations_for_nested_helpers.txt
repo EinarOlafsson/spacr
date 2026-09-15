@@ -591,3 +591,24 @@ The existing frontend's three static/canonical-shape contracts also passed
 run 34974080427 was CANCELLED while queued, with no jobs, so it is not being
 reported as a passing or failing validation. The final exact-SHA run remains
 to be checked, and Phase B still awaits the agreed explicit handoff.
+
+2026-09-15 — CODEX: REAL GOOGLE-STYLE HELPERS EXPOSED A RENDERING GAP
+
+The inventory contains 13 eligible definitions with section-style docstrings.
+Using the actual _check_masks source from spacr/io.py in a scratch Sphinx
+project showed that needs_processing's Args sections rendered as plain text,
+not parameter fields. The regression test was observed failing with an empty
+field-list selection before the fix. No io.py edit was needed.
+
+Ordinary AutoAPI functions emit autodoc-process-docstring before rendering;
+the new helper path had bypassed that event. The helper template now uses a
+filter which emits the same event, allowing the configured Napoleon processors
+to format Google/NumPy-style source docs. The source docstring remains immutable
+for extraction and translation hashes. Both conditional needs_processing
+definitions still render their distinct filename/resume contracts.
+
+With this repair the focused real-Sphinx/browser file passes 8 tests in
+10.36 s; its full-repository-build check remains explicitly deferred to CI.
+This extends the earlier fixture evidence to a real legacy helper style; it is
+not a claim that all production helper documents have been reviewed. No
+catalog, source-module docstring, pin or rollout module was changed.
