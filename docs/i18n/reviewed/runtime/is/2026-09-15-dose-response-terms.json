@@ -34,7 +34,7 @@
       "source": "Concentration",
       "source_sha256": "c2cfec66629abd71488212efd5fbb8c6d88459318d65929dffc0e9d02ad26623",
       "table": "ui",
-      "translation": "Styrkur"
+      "translation": "Þéttni"
     },
     {
       "key": "Cosmetic only — it never enters the arithmetic",
@@ -48,7 +48,7 @@
       "source": "Fit non-monotone data",
       "source_sha256": "c967f08351ad5a401396d06f26df8eb43163a07c9e5e1fbc25ec596824b27ec7",
       "table": "ui",
-      "translation": "Aðlaga feril að gögnum sem eru ekki einhalla"
+      "translation": "Aðlaga feril að óeinhalla gögnum"
     },
     {
       "key": "Fits a four-parameter logistic model for each gene or compound using selected concentration and response columns. EC50 is estimated on a log10 scale, and profile-likelihood intervals are used by default. When the midpoint lies outside the tested dose range, the result is reported as a bound instead of an unsupported point estimate. Non-monotonic series are identified with their turning concentrations. Results include R² with an interpretive warning and a lack-of-fit test against pure error.",

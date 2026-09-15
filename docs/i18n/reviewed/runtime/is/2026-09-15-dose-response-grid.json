@@ -41,7 +41,7 @@
       "source": "Lack-of-fit p",
       "source_sha256": "843ff9847db61da273fe513985cbac8d506ca2fd5159e31111c0da3d6cf71304",
       "table": "ui",
-      "translation": "p fyrir skort á aðlögun"
+      "translation": "p-gildi fyrir mátunarskort"
     },
     {
       "key": "No column of this table has at least four distinct positive values, so none of them can be a dilution series. A dose–response needs the concentration itself, not a log dose and not a plate coordinate.",
