@@ -273,3 +273,43 @@ A MISTAKE CAUGHT BY THE TESTS, recorded because it is an easy one:
 `PlateReport.usable` is a PROPERTY. Calling it raised inside the table's
 selection slot, the report pane stayed at "fitting…", and only the tests that
 selected a row could see it.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- STEP 2 OF 4: ONE EC50 PER GROUP, POOLED ACROSS REPLICATE PLATES
+--------------------------------------------------------------------------------
+
+WHAT IT DOES. With a plate column chosen, every group's EC50 is also pooled
+across the plates it was fitted on, with `pool_frame` -- log10 scale, plate as
+a random effect. The report pane gives one line per group after the plate
+verdicts: the pooled EC50 and its interval, how many plates were used of how
+many, I-squared, "plates disagree" when the engine says the replicates are not
+reproducible, and the engine's note naming any plate that could not be fitted.
+
+TWO DECISIONS, recorded so they can be reversed deliberately:
+
+  1. POOLING NEEDS ONLY THE PLATE COLUMN, not the controls. Each plate is
+     fitted on its own scale, so an EC50 is comparable across plates even when
+     their raw signals are not. With controls chosen as well, the pool runs on
+     the normalised table, and a refused plate is named rather than pooled.
+  2. A GROUP SEEN ON ONE PLATE IS NOT POOLED. `pool_frame` fits every row of a
+     plate as one curve, so the screen splits by group first; a group on a
+     single plate would yield a "pooled" number over one replicate, claiming a
+     reproducibility nobody measured.
+
+STILL NO NEW STRING FOR A TRANSLATOR: the pooled lines are built from the
+engine's numbers and notes. The public API surface is unchanged at 10,536.
+
+HOW IT WAS CHECKED. `tests/qt/test_dose_response_pools_replicate_plates.py`
+reuses the step-1 plates, so both features are measured on the same data.
+Five tests; with steps 1 and 2 and the 48 existing screen tests, 58 pass.
+
+      nothing is ever pooled                     3 red
+      the report leaves the pooled lines out     2 red
+      a group on one plate is pooled anyway      1 red
+
+STEPS 3 AND 4 NEED NEW CAPTIONS, which steps 1 and 2 did not. Selectivity needs
+a second response picker for the host readout, and synergy a second dose
+picker; the English catalog has neither "Host", "Toxicity", "Viability",
+"Selectivity" nor a second-agent label. New runtime captions are the catalog
+lane's, so those two steps wait on that lane rather than landing a red caption
+test on nightly.

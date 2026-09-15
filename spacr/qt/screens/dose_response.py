@@ -66,7 +66,7 @@ from ..widgets.graph_spec import CATEGORICAL, column_kinds
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
 from ..widgets.dose_response import (PERCENT_COLUMN, PlateSpec,
-                                     normalise_to_controls)
+                                     normalise_to_controls, pool_frame)
 
 LOG = logging.getLogger("spacr.qt.screens.dose_response")
 
@@ -123,15 +123,21 @@ _POSITIVE_HINTS = ("pos", "kill", "max")
 _NEGATIVE_HINTS = ("neg", "vehicle", "dmso", "mock")
 
 
-def _fit_with_plates(frame, spec, plate_spec):
-    """Fit ``frame``, first normalising it to each plate's controls if asked.
+def _fit_with_plates(frame, spec, plate_spec, plate_column=None):
+    """Fit ``frame``, normalising and pooling across plates as asked.
 
     :param frame: the loaded table.
     :param spec: the fit the pickers describe.
     :param plate_spec: which plate and control columns to normalise by, or
         ``None`` to fit the raw response exactly as before.
-    :returns: ``(result set, plate reports)``; the reports are empty when
-        nothing was normalised.
+    :param plate_column: the replicate column to pool each group across, or
+        ``None`` for no pooling. It does not need controls: every plate is
+        fitted on its own scale, so an EC50 is comparable across plates even
+        when their raw signals are not.
+    :returns: ``(result set, plate reports, pooled fits)``. The reports are
+        empty when nothing was normalised; the pooled fits map each group to
+        its :class:`~spacr.qt.widgets.dose_response.PooledFit`, or to the
+        engine's sentence when pooling was refused.
 
     RAW RESPONSES ARE NOT COMPARABLE ACROSS PLATES, which is the engine's
     argument for normalising and the screen's for offering it: two plates read
@@ -140,11 +146,48 @@ def _fit_with_plates(frame, spec, plate_spec):
     and negative reads 0, and a plate without a usable pair is left out of the
     fit and says why instead of being scaled by someone else's controls.
     """
-    if plate_spec is None:
-        return fit_frame(frame, spec), ()
-    normalised, reports = normalise_to_controls(
-        frame, plate_spec, response=spec.response)
-    return fit_frame(normalised, replace(spec, response=PERCENT_COLUMN)), reports
+    reports = ()
+    fitted_frame, fitted_spec = frame, spec
+    if plate_spec is not None:
+        fitted_frame, reports = normalise_to_controls(
+            frame, plate_spec, response=spec.response)
+        fitted_spec = replace(spec, response=PERCENT_COLUMN)
+    result = fit_frame(fitted_frame, fitted_spec)
+    pooled = (_pool_each_group(fitted_frame, fitted_spec, plate_column)
+              if plate_column else {})
+    return result, reports, pooled
+
+
+def _pool_each_group(frame, spec, plate):
+    """One pooled EC50 per group, with plate as a random effect.
+
+    :param frame: the table the grid was fitted on -- normalised, when it was.
+    :param spec: the grid's spec; each group is pooled as one curve.
+    :param plate: the replicate column.
+    :returns: group -> pooled fit, or group -> the refusal sentence.
+
+    `pool_frame` fits every row of a plate as ONE curve, so a table holding
+    several compounds is split by group first; pooling the whole plate would
+    average a dozen compounds into one meaningless EC50. A group seen on a
+    single plate is not pooled at all: one plate is one fit, already in the
+    grid, and a "pooled" number over one replicate would claim a
+    reproducibility nobody measured.
+    """
+    if spec.group is None:
+        levels = [("", frame)]
+    else:
+        levels = [(str(level), rows) for level, rows in
+                  frame.groupby(frame[spec.group].astype(str), sort=False)]
+    one_curve = replace(spec, group=None)
+    pooled = {}
+    for level, rows in levels:
+        if rows[plate].astype(str).nunique() < 2:
+            continue
+        try:
+            pooled[level] = pool_frame(rows, one_curve, plate=plate)
+        except DoseResponseError as refusal:
+            pooled[level] = str(refusal)
+    return pooled
 
 
 #: How a status reads in the grid. The engine's words, spelled for a human.
@@ -195,6 +238,9 @@ class DoseResponseScreen(QWidget):
         #: What each plate's controls said on the last normalised fit, in the
         #: order the plates appear. Empty when the fit read the raw response.
         self._plate_reports = ()
+        #: Group -> pooled fit (or the refusal sentence) from the last fit
+        #: that had a plate column. Empty when nothing was pooled.
+        self._pooled = {}
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
 
@@ -388,6 +434,7 @@ class DoseResponseScreen(QWidget):
         self._refill(self.control_picker, [_NO_COLUMN] + groups)
         self._on_control_picked(self.control_picker.currentText())
         self._plate_reports = ()
+        self._pooled = {}
         self.fit_button.setEnabled(bool(doses and responses))
         self.table.setRowCount(0)
         self.report.setPlainText("")
@@ -456,17 +503,17 @@ class DoseResponseScreen(QWidget):
                          negative=(negative,) if negative else ())
 
     def _with_plates(self, text: str) -> str:
-        """Prefix ``text`` with one line per plate of the last normalised fit.
+        """Prefix ``text`` with the plate verdicts and the pooled EC50s.
 
-        The plate lines lead because they decide whether the curve below them
-        means anything: a refused plate is not in the fit, and a reader should
-        meet that before the EC50.
+        Both lead because they decide what the curve below them means: a
+        refused plate is not in the fit, and a pooled EC50 is the number a
+        reader should quote when there are replicates -- they should meet both
+        before a single plate's curve.
 
         :param text: the report the pane would otherwise show.
-        :returns: the report, with the plate verdicts first when there are any.
+        :returns: the report, with plate and pooled lines first when there are
+            any.
         """
-        if not self._plate_reports:
-            return text
         lines = []
         for report in self._plate_reports:
             row = report.summary_row()
@@ -478,6 +525,31 @@ class DoseResponseScreen(QWidget):
             if not report.usable and row["note"]:
                 line += f" — {row['note']}"
             lines.append(line)
+        if lines and self._pooled:
+            lines.append("")
+        for group, pooled in self._pooled.items():
+            name = group or "all rows"
+            if isinstance(pooled, str):
+                lines.append(f"{name}: not pooled — {pooled}")
+                continue
+            row = pooled.summary_row()
+            if row["status"] != STATUS_FITTED:
+                lines.append(f"{name}: not pooled — {row['note']}")
+                continue
+            i_squared = row["i_squared"]
+            spread = "—" if not np.isfinite(i_squared) else f"{i_squared:.0%}"
+            unit = f" {row['unit']}" if row["unit"] else ""
+            line = (f"{name}: pooled EC50 {_format(row['ec50'])}{unit} "
+                    f"({_format(row['ec50_low'])}–{_format(row['ec50_high'])}) "
+                    f"across {row['n_used']} of {row['n_plates']} plates, "
+                    f"I² {spread}")
+            if not pooled.reproducible:
+                line += ", plates disagree"
+            if row["note"]:
+                line += f" — {row['note']}"
+            lines.append(line)
+        if not lines:
+            return text
         return "\n".join(lines) + "\n\n" + text
 
     def choose_table(self) -> None:
@@ -566,6 +638,9 @@ class DoseResponseScreen(QWidget):
         try:
             spec = self.spec()
             plate_spec = self._plate_spec()
+            plate_column = self.plate_picker.currentText()
+            plate_column = (None if plate_column in ("", _NO_COLUMN)
+                            else plate_column)
         except DoseResponseError as exc:
             self.report.setPlainText(str(exc))
             return
@@ -573,16 +648,21 @@ class DoseResponseScreen(QWidget):
         self._jobs.cancel()
         self.report.setPlainText("fitting…")
         self._jobs.submit(
-            lambda: _fit_with_plates(frame, spec, plate_spec), self._on_fitted)
+            lambda: _fit_with_plates(frame, spec, plate_spec, plate_column),
+            self._on_fitted)
 
     def _on_fitted(self, result) -> None:
         """Fill the grid from the engine's table. GUI thread only.
 
-        :param result: the fit, or ``(fit, plate reports)`` as the fitting
-            job hands it back.
+        :param result: the fit, or ``(fit, plate reports, pooled fits)`` as
+            the fitting job hands it back.
         """
-        result, reports = result if isinstance(result, tuple) else (result, ())
+        reports, pooled = (), {}
+        if isinstance(result, tuple):
+            result, reports, *rest = result
+            pooled = rest[0] if rest else {}
         self._plate_reports = tuple(reports)
+        self._pooled = dict(pooled)
         self._set = result
         rows = result.table()
         self.table.setRowCount(len(rows))
