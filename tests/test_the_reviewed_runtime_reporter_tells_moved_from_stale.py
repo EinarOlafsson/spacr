@@ -165,3 +165,20 @@ def test_every_language_on_disk_is_checked_by_default(sources):
                      if p.is_dir())
     assert languages == on_disk
     assert len(languages) >= 9, languages
+
+
+def test_the_reporter_gives_the_loader_guard_back(monkeypatch, sources):
+    """Holding the guard past the run made later review evidence invisible.
+
+    While a language sits in `_REVIEWED_RUNTIME_LOADING`, the builder answers
+    without reading reviewed records. The reporter used to leave every
+    language in it, so anything run after it in the same process -- another
+    test, an in-process build -- ignored review evidence without an error.
+    """
+    before = set(runtime._REVIEWED_RUNTIME_LOADING)
+    monkeypatch.setattr(runtime, "canonical_sources",
+                        lambda: _drop_keys(sources, "_chann_dim"))
+
+    reporter.main([])
+
+    assert set(runtime._REVIEWED_RUNTIME_LOADING) == before
