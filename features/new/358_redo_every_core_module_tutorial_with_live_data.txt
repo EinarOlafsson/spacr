@@ -516,3 +516,98 @@ NEEDS THE MAINTAINER: lifting the publication hold (the candidate still uses
 local media_host roots), uploading a new versioned media revision to
 Hugging Face, deploying Pages from main, and the Home/Performance question
 above.
+
+--------------------------------------------------------------------------------
+2026-09-15, CLAUDE -- CAPTURE HYGIENE FIXED; 13_REGRESSION RE-RECORDED
+--------------------------------------------------------------------------------
+
+Worked in the worktree /mnt/firecuda2/Claude/repo/spacr-358, branch
+wip/358-lessons (from nightly 63f1d502b). Stage: refresh_2026-09-09 with NEW
+capture names only; every overwritten staged file has a copy under
+production/<lesson>/pre-2026-09-15/.
+
+CAPTURE HYGIENE -- ROOT CAUSE. Mask's remembered `src` is a CHAINING PIN,
+kept by spacr.chaining.PinStore in XDG *state* storage:
+~/.local/state/spacr/chaining/pins.json. It is not under XDG_CONFIG_HOME,
+~/.local/share or ~/.spacr, which is why the earlier search missed it. The
+real file pinned Mask to /tmp/pytest-of-olafsson/pytest-2295/
+test_head_loaddata0/plate1 and Timelapse to another pytest folder. Nothing
+in tests/conftest.py sandboxed that store, and capture_refresh.py isolated
+XDG_CONFIG_HOME only, so a "fresh" capture opened on whatever a test last
+pinned. The Qt chaining strip writes a pin whenever a bound path differs
+from the one it offered (spacr/qt/chaining.py _capture_edits).
+
+FIX, at both ends:
+  * tests/conftest.py: SPACR_CHAINING_PINS points at a sandbox from
+    pytest_configure (before collection), and an autouse fixture gives each
+    test its own pin file.
+  * tools/tutorials/capture_refresh.py: XDG_STATE_HOME =
+    <stage>/state/<capture-name>; an inherited SPACR_CHAINING_PINS is
+    removed; a capture name that already has pins is refused.
+  * tests/test_the_chaining_pin_store_is_sandboxed.py: 4 regression tests.
+
+MEASURED, against a stand-in XDG_STATE_HOME in place of the real home:
+  BEFORE (HEAD conftest): 3 of 3 pin tests fail; the stand-in store
+    received {"mask": {"src": "/tmp/pytest-of-olafsson/pytest-2325/
+    test_a_pin_written_in_a_test_l0/plate1"}}, the same shape as the leak.
+  AFTER: 4 passed; the stand-in store has 0 files. test_chaining.py,
+    test_cov_w2_4_remote_execution.py and the new file: 133 passed.
+  CAPTURE: regression_2026-09-15 opened with no src, and its one pin
+    landed in <stage>/state/regression_2026-09-15, not in ~/.local/state.
+  The reused 09-11 native Mask captures (mask_fresh_v1, the overlay command
+  and viewer captures, captures/mask) name no pytest path.
+  NOT CHANGED: the maintainer's real ~/.local/state/spacr/chaining/pins.json
+    still holds the two pytest pins. Deleting those two entries is safe;
+    the file is his, so it was left alone. Test runs from trees without this
+    fix will keep writing it until the branch lands.
+
+13_REGRESSION -- visuals refreshed, narration retained.
+  capture_refresh.py --module regression --download --run --ai-controls
+    --settings-tour --capture-name regression_2026-09-15: exit 0,
+    1.5.0.7 at 63f1d502b, batch accepted (worker ok, 5 figures).
+  Frames viewed (01_module, 21_batch_running): CONTROLS & FILTERS read
+    Positive control ID, Negative control ID, Min cells per well and Min
+    observations per hit; the footer reads 1.5.0.7.
+  stage_lesson.py --capture-module regression_2026-09-15: 21 scenes, all 21
+    images changed, 0 focus rectangles changed, English catalog
+    byte-identical.
+  render_visual_master.py: 30,206,284 bytes, 389.33 s, 11,680 frames (the
+    old master had the same duration and frame count).
+  check_completed_matrix.py: passed, 50 tracks, 14 browser checks.
+  poster.jpg regenerated from scene 1 at 1280x720 (93 KB), matching the
+    convention of the 07/08/13 posters.
+  The 14 browser playback reports predate the new master. The matrix pins
+    audio hash and clocks, not video bytes; verify_release_candidate's
+    playback pass is what exercises the new bytes.
+
+  LIBRARY CHECKPOINT: THE HELD LIST MUST SUBTRACT THE PROMOTIONS. A re-run
+    with all four coming_soon.HELD ids (the list the 09-12 file records)
+    fails in 1 s with "Unselected lesson was modified:
+    lessons_en.json/12_map_barcodes". The list is NOT stale.
+    build_release_candidate.build() verifies with HELD minus the promoted
+    lessons (12_map_barcodes via barcode_promotion; 21_model_compare and
+    22_model_zoo via model_promotion.MODELS). That leaves 71_investigate_hit
+    only. No repo script passes those promotions, so the candidate build is
+    the inline call below. The failed run wrote nothing; the 09-12 checkpoint
+    is intact, with a copy at
+    library-checkpoint-2026-09-11.pre-2026-09-15.json. A re-run with
+    --held 71_investigate_hit PASSED: 76/77 lessons, 3,800 tracks, 1,064
+    browser cases, including the new 13_regression master. Output kept
+    outside the stage, at <scratchpad>/358_reg/library-checkpoint-2026-09-15.scratch.json.
+  13_regression's rendition therefore took the route complete_map_media.py
+    and complete_model_media.py already use: check() -> stage_one(...,
+    'reconciliation': proof) -> verify_staged_lesson.py --web-rendition.
+    stage_one re-checks the master hash against the proof, so a stale proof
+    cannot pass.
+  RENDITION RESULT. The 09-11 1440p copy and its receipt were moved to
+    production/13_regression/pre-2026-09-15/web-renditions/ first, because
+    stage_one refuses to replace an existing rendition that differs.
+    stage_one: accepted, 9,251,825 bytes (was 32.5 MB 4K master ->
+    1440p), 11,680 frames, every presentation time matching, full decode
+    passed, 140 s. verify_staged_lesson.py --web-rendition: passed, 21
+    scenes, 9 chapter/transcript links, clocks audio 84.128 / video 84.057 /
+    expected 84.126 s (0.069 s apart, limit 0.5). Its desktop screenshot
+    shows the new 1.5.0.7 frame in the player.
+  13_REGRESSION STATE: captured, composed (staged), master encoded, matrix
+    passed, 1440p staged and browser-checked. NOT in a release candidate
+    yet (see below). Narration, translations and the 50 tracks are unchanged.
