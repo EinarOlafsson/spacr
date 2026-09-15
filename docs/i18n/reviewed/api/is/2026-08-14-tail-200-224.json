@@ -104,6 +104,8 @@
     {
       "context": "**The join goes through ``png_list``.** A CV model is indexed by the extracted image region it scored; the features are indexed by the object. ``png_list`` is the only table that holds both, so it is the bridge — and joining on ``png_path`` alone is not enough, because a path is not stable across machines.",
       "label": "spacr.surrogate#9",
+      "retired": "2026-09-15",
+      "retired_reason": "markup-only change from item 63; re-bound in 2026-09-15-rebound-63.json",
       "source": "**The join goes through ``png_list``.** A CV model keys on the crop it scored; the features key on the object. ``png_list`` is the only table that holds both, so it is the bridge — and joining on ``png_path`` alone is not enough, because a path is not stable across machines.",
       "source_sha256": "ee8387fd08827210034fd9a21ec21393479df49bb36babad51cd9f717a7f4cf0",
       "translation": "**Samanlagningin fer í gegnum ``png_list``.** CV-líkan er skráð með því svæði myndarinnar sem það fékk stig fyrir; eiginleikarnir eru skráðir með hlutnum. ``png_list`` er eini tafla sem heldur bæði, svo hún er brúin — og að sameina aðeins á ``png_path`` er ekki nóg, því slóðin er ekki stöðug milli véla."
