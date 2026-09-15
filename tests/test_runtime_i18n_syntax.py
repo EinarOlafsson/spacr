@@ -112,7 +112,13 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # hand so the button's first catalog build needed no model. The live
     # count minus that file's six sources is 263, and none of the six is in
     # any other file.
-    assert len(reviewed) == 269
+    #
+    # 269 -> 284 on 2026-09-15, +15/-0: the update dialog's strings and the
+    # user-visible removal reasons (416),
+    # 2026-09-15-update-removes-old-installs.json. Its branch never moved
+    # this pin. The live count minus that file's fifteen sources is 269, and
+    # none of the fifteen is in any other file.
+    assert len(reviewed) == 284
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -230,7 +236,11 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # and its five status strings (412), 412-make-masks-demo.json. The live
     # count minus that file's six sources is 238, and none of the six is in
     # any other file.
-    assert len(reviewed) == 244
+    #
+    # 244 -> 259 on 2026-09-15, +15/-0: 416's update dialog and removal
+    # reasons, 2026-09-15-update-removes-old-installs.json, the same fifteen
+    # as the Swedish note above. The live count minus them is 244.
+    assert len(reviewed) == 259
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

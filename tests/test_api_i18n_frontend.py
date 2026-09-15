@@ -89,7 +89,17 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # reports exactly those two as "in the source but NOT in the catalog" until
 # the pre-release catalog rebuild runs. That message is the recorded debt,
 # and it is the accurate one: the source is right and the catalog is stale.
-REAL_SYMBOL_COUNT = 10_523
+# 10,523 -> 10,539 on 2026-09-15, +16 / -0 by set difference against
+# nightly dca970671:
+# spacr.qt.make_masks_demo and its seven public functions (412), and
+# spacr.install_cleanup with InstallRecord, RemovalReport,
+# RemovalReport.ok, find_old_installs, remove_install,
+# run_update_sequence and start_update_helper (416). 413 rewrote two
+# existing docstrings and added none. The live surface with those sixteen
+# keys dropped is 10,523, the previous value. Their blocks carry reviewed
+# records in all nine locales
+# (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
+REAL_SYMBOL_COUNT = 10_539
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

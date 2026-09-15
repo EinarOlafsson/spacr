@@ -5315,15 +5315,17 @@
         "1a3526736baf779b050c6a16424c4d5d26bf45649341a86f505c44b2b00f3c73",
         "954def042d93e64d1dcdfcc88891b0c8cad3c3c674342822668c6e40bf5080da",
         "b4c69577eb3f978cfc1698910680b5d7a0680f891b93597a61d9788cc1dd936e",
-        "c346d1ffc41fe87b72e3aa0789461006d2c1d1672ba9e019b74ffd807b9affb1"
+        "53f37c12c55fe49dec2437e6f1e080af6f2e9a588386b97beed6f76c1e5fbf0d",
+        "1e3ba3e13cf8e2f1c0cf30f9f40267c0ef4d38e8211e4f9f884d86f0f36c4545"
       ],
-      "source_sha256": "43cacb6d9ad1052c3dc70624aed8f940805522dedfd85f6ded97aa3dee166dbb",
-      "text": "Retourne la même table avec ses séquences dans une orientation choisie.\n\n:param orientation: soit l'étiquette pour l'orientation stockée, soit celle pour le verso complétée.\n:returns: une table dont les séquences sont lues dans l'orientation demandée.\n:raises ValueError: lorsque l'étiquette d'orientation n'est pas l'une des deux.",
+      "source_sha256": "d216e81fb4accd4582b66962b16847554f35e2a9a7e262301558db058be4c6ed",
+      "text": "Retourne la même table avec ses séquences dans une orientation choisie.\n\n:param orientation: soit l'étiquette pour l'orientation stockée, soit celle pour le verso complétée.\n:returns: une table dont les séquences sont lues dans l'orientation demandée.\n:raises ValueError: lorsque l’étiquette d’orientation n’est aucune des deux, ou lorsque la table ne contient pas de DNA et ne peut donc pas du tout être complémentée.\n\nUNE TABLE NON NUCLÉOTIDIQUE EST REFUSÉE PLUTÔT QUE MUTILÉE. Les étiquettes peptidiques et les codes-barres d’acides aminés traversent `reverse_complement` sans changement -- il ne convertit que les quatre bases et N --, de sorte qu’une table retournée serait faite des mêmes lettres inversées, recherchées et jamais trouvées. Dire non est la réponse honnête ; rechercher en silence une séquence qui ne peut pas correspondre signale « cette référence est absente des lectures », ce qui est une conclusion sur les données et non sur la demande.",
       "translation_source_blocks_sha256": [
         "1a3526736baf779b050c6a16424c4d5d26bf45649341a86f505c44b2b00f3c73",
         "954def042d93e64d1dcdfcc88891b0c8cad3c3c674342822668c6e40bf5080da",
         "b4c69577eb3f978cfc1698910680b5d7a0680f891b93597a61d9788cc1dd936e",
-        "c346d1ffc41fe87b72e3aa0789461006d2c1d1672ba9e019b74ffd807b9affb1"
+        "53f37c12c55fe49dec2437e6f1e080af6f2e9a588386b97beed6f76c1e5fbf0d",
+        "dd3da16dd1466b06fbfde6da128bdfebb2baf29769711d3c092b82ef8207946d"
       ]
     },
     "spacr.barcode_search.BarcodeTable.size": {
@@ -5456,6 +5458,34 @@
         "42a466168f6d44ecd92e476ad028c3939b7fe7ea41bc517024fc42b702b8622e"
       ]
     },
+    "spacr.barcode_search.SearchThresholds": {
+      "source_blocks_sha256": [
+        "c37afe97c98e140c0d99484ebaf720920c5d8e7dbedba3f7b641b9f940a9dadf",
+        "04a580c281f193258580d1bed1e86b4299fa827a10cf992b41162183fab61e80",
+        "a3ff9da17ef70f78d92abef3e825c039431035e4452739a05a59e6e4b8d6fffb"
+      ],
+      "source_sha256": "6273d5985332e6b14b976d45ec51738ae3f5db49ded265eb2b528af1d1625436",
+      "text": "Les nombres d’après lesquels une recherche de codes-barres juge, et ce que chacun juge.\n\nC’ÉTAIENT DES CONSTANTES DU MODULE. Elles ont été choisies d’après les données d’un seul criblage, et c’est exactement le genre de nombre qui est juste jusqu’à ce que quelqu’un réalise un autre essai -- une lecture plus courte, une référence plus petite, une banque où 10 % de lectures portant le code-barres est un bon jour et non un échec. Les valeurs ici sont ces mêmes nombres, de sorte qu’un appelant qui ne passe rien obtient le comportement qui existait déjà ; ce qui change, c’est que quelqu’un dont les données contredisent ces nombres peut désormais les indiquer explicitement.\n\nChaque champ juge une question DIFFÉRENTE, et elles sont posées dans cet ordre : l’échantillon est-il assez grand pour dire quelque chose, le taux de résultats positifs se distingue-t-il du hasard, est-il assez grand pour en tirer une cartographie, et les résultats positifs se situent-ils au même endroit de la lecture. Un verdict INDETERMINATE indique à quelle question il n’a pas été possible de répondre.",
+      "translation_source_blocks_sha256": [
+        "c37afe97c98e140c0d99484ebaf720920c5d8e7dbedba3f7b641b9f940a9dadf",
+        "18e1ebe0bfb170b674ad0eca05f0b114179bbbb7cab7095552866020ffc5afe7",
+        "a3ff9da17ef70f78d92abef3e825c039431035e4452739a05a59e6e4b8d6fffb"
+      ]
+    },
+    "spacr.barcode_search.SearchThresholds.__post_init__": {
+      "source_blocks_sha256": [
+        "0a8c492b342b72b0feb0e870cf20e3ed3db53acacc5a0b124c0568597f83d963",
+        "116841653e0fed48cd108791bdd144d3b4581d732e55d35599d8108da8151b7e",
+        "755feb49c0b4cbcf75c611c3289ba8412254cc77edb372b5676157b0653debc4"
+      ],
+      "source_sha256": "f0863b4bd4305fea1ce9f3725b7af7a2fe815885bc0a964d78d94967df407df2",
+      "text": "Refuse les seuils qui ne peuvent rien décider.\n\nUn seuil hors plage n’échoue pas bruyamment là où il est défini ; il produit un rapport dans lequel chaque table est PRESENT, ou chaque table est ABSENT, et l’exécution semble avoir fonctionné. Vérifier ici fait que la plainte désigne le réglage plutôt que les données.\n\n:raises ValueError: lorsqu’un seuil ne peut pas produire un vrai verdict.",
+      "translation_source_blocks_sha256": [
+        "0a8c492b342b72b0feb0e870cf20e3ed3db53acacc5a0b124c0568597f83d963",
+        "6f236965028291e93e2dc899b81638bc2ff97e81f35c88574fb5c0e63e1bd5e4",
+        "755feb49c0b4cbcf75c611c3289ba8412254cc77edb372b5676157b0653debc4"
+      ]
+    },
     "spacr.barcode_search.annotate_read": {
       "source_blocks_sha256": [
         "7fbf2aa128c0dbdd5ded2c3d65ed826367fe0327468ac90d9aa846678cd90b73",
@@ -5545,11 +5575,12 @@
         "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
         "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
         "cecebaa56b401a51c17f09e6c6bcce96100b40648d4c4a7ffd013c033942ca3e",
+        "65e3d8d5828e85f4233f0a895b02ae30aec1a206bba2b57fa8b853b1ea2e9751",
         "2994989e6097115b97d8265cbd22460e2d7aeb93f77816ffcfef02978cfe1966",
         "4963cc530705a2d39174f005fc23797dac4614423674d72fb9442335f9a30c83"
       ],
-      "source_sha256": "68acf2e2c140fff9340ae6b8b5eed814c79eecc306ff8b04640ef61f487133d0",
-      "text": "Recherche de codes-barres un morceau à la fois, rapporter après chaque morceau.\n\nL'interface montre cette exécution, de sorte que la recherche renvoie un rapport complet après chaque morceau plutôt que seulement à la fin. Chaque rapport a la même forme que le dernier et les comptes à l'intérieur ne grandissent que jamais, ainsi les taux s'ajustent plutôt que de sauter et un verdict qui a été indécis devient décidé au fur et à mesure que la preuve arrive.\n\n:param fastq_files: un fichier de séquençage, une séquence d'entre eux, ou une cartographie à partir de l'étiquette chacun devrait porter à son chemin.\n:param tables: les tableaux de référence à rechercher, de n'importe quel nombre.\n:param max_reads: combien de lectures à prendre de chaque fichier au plus.\n:param chunk_reads: combien de lectures chaque étape prend de chaque fichier.\n:param anchor: une séquence fixe optionnelle, telle que celle sur laquelle le mappage ancre sa fenêtre, a été fouillée le long des tables afin que les décalages puissent être exprimés par rapport à elle.\n:yields: un rapport après chaque morceau, et un rapport quand il n'y a rien à lire.\n:raises ValueError: lorsqu'aucun dossier n'a été fourni ou que les budgets ne sont pas positifs.",
+      "source_sha256": "715103abc4e6439a09c17aa7d0fb1d96cfc725f081329c8dd6e7f1a47649a7a8",
+      "text": "Recherche de codes-barres un morceau à la fois, rapporter après chaque morceau.\n\nL'interface montre cette exécution, de sorte que la recherche renvoie un rapport complet après chaque morceau plutôt que seulement à la fin. Chaque rapport a la même forme que le dernier et les comptes à l'intérieur ne grandissent que jamais, ainsi les taux s'ajustent plutôt que de sauter et un verdict qui a été indécis devient décidé au fur et à mesure que la preuve arrive.\n\n:param fastq_files: un fichier de séquençage, une séquence d'entre eux, ou une cartographie à partir de l'étiquette chacun devrait porter à son chemin.\n:param tables: les tableaux de référence à rechercher, de n'importe quel nombre.\n:param max_reads: combien de lectures à prendre de chaque fichier au plus.\n:param chunk_reads: combien de lectures chaque étape prend de chaque fichier.\n:param anchor: une séquence fixe optionnelle, telle que celle sur laquelle le mappage ancre sa fenêtre, a été fouillée le long des tables afin que les décalages puissent être exprimés par rapport à elle.\n:param thresholds: un :class:`SearchThresholds` indiquant ce qui compte comme présent, absent et indécis, ou None pour les valeurs par défaut. Chaque verdict de chaque rapport produit est jugé selon ces seuils.\n:yields: un rapport après chaque morceau, et un rapport quand il n'y a rien à lire.\n:raises ValueError: lorsqu'aucun dossier n'a été fourni ou que les budgets ne sont pas positifs.",
       "translation_source_blocks_sha256": [
         "be53908e5330585c04b30c657b9d162caf175f6cbafff17b5d1b6efb732331f8",
         "97af24626ca296f27ccba6abba1a178b081f40aac19f891a2cd9d4741db3559c",
@@ -5558,6 +5589,7 @@
         "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
         "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
         "cecebaa56b401a51c17f09e6c6bcce96100b40648d4c4a7ffd013c033942ca3e",
+        "65e3d8d5828e85f4233f0a895b02ae30aec1a206bba2b57fa8b853b1ea2e9751",
         "2994989e6097115b97d8265cbd22460e2d7aeb93f77816ffcfef02978cfe1966",
         "4963cc530705a2d39174f005fc23797dac4614423674d72fb9442335f9a30c83"
       ]
@@ -5689,10 +5721,11 @@
         "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
         "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
         "121e67a40b01bcaa2bdf2a2135f2c96f8e837b0c18e7957bd3570eba68a3002d",
+        "8a9e4b3324b32fb251ada822277089828dd13b8c45a0cb6d80550ff7f78e1a8a",
         "222117e6ec7e5d7e8d9f8ecfd66fa43a53b17fcf23d352f0761151a032d4441c"
       ],
-      "source_sha256": "a82ad07ed67bb693688c64a32439664b6a6c2f3f2cde59576b6b126192d93ba5",
-      "text": "Recherchez un échantillon limité de lectures et retournez le rapport terminé.\n\nC'est l'ensemble de :func:`iter_barcode_search` exécuter à sa fin, pour les appelants qui veulent une réponse plutôt qu'un affichage en cours d'exécution.\n\n:param fastq_files: un fichier de séquençage, une séquence d'entre eux, ou une cartographie à partir de l'étiquette chacun devrait porter à son chemin.\n:param tables: les tableaux de référence à rechercher, de n'importe quel nombre.\n:param max_reads: combien de lectures à prendre de chaque fichier au plus.\n:param chunk_reads: combien de lectures chaque étape prend de chaque fichier.\n:param anchor: une séquence fixe optionnelle cherchée à côté des tables.\n:returns: le rapport de la dernière partie.",
+      "source_sha256": "0ecd27a243ac6b613e0ace381e431e0271d1d78e565c748a1a86dc3a30cad423",
+      "text": "Recherchez un échantillon limité de lectures et retournez le rapport terminé.\n\nC'est l'ensemble de :func:`iter_barcode_search` exécuter à sa fin, pour les appelants qui veulent une réponse plutôt qu'un affichage en cours d'exécution.\n\n:param fastq_files: un fichier de séquençage, une séquence d'entre eux, ou une cartographie à partir de l'étiquette chacun devrait porter à son chemin.\n:param tables: les tableaux de référence à rechercher, de n'importe quel nombre.\n:param max_reads: combien de lectures à prendre de chaque fichier au plus.\n:param chunk_reads: combien de lectures chaque étape prend de chaque fichier.\n:param anchor: une séquence fixe optionnelle cherchée à côté des tables.\n:param thresholds: un :class:`SearchThresholds`, ou None pour les valeurs par défaut.\n:returns: le rapport de la dernière partie.",
       "translation_source_blocks_sha256": [
         "9591fa9e0aac1a794bbd5997fbcaed681d3bf7b33c0f0730bbde45178d24467f",
         "4e60cf5411a5704d7b1f619e6434c14ec7f457d406c2b93a120dd31b45159367",
@@ -5701,6 +5734,7 @@
         "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
         "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
         "121e67a40b01bcaa2bdf2a2135f2c96f8e837b0c18e7957bd3570eba68a3002d",
+        "8a9e4b3324b32fb251ada822277089828dd13b8c45a0cb6d80550ff7f78e1a8a",
         "222117e6ec7e5d7e8d9f8ecfd66fa43a53b17fcf23d352f0761151a032d4441c"
       ]
     },
@@ -33166,6 +33200,186 @@
         "327e9988e62d63086f1bf285d1d345f6715a09dc93775fd43135efed0ba7a3f0",
         "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
         "65c1d875834933dcd14841b526d28362886760f94d3fc32463c6231a57b77331"
+      ]
+    },
+    "spacr.install_cleanup": {
+      "source_blocks_sha256": [
+        "fc72c12d5368fe8c1e458068f4cea0c92fb3305cd2a2c0b164e76e66a35f3f00",
+        "e8addc4ae0ad599dcbfc5d127f10148da39e82b6c48f7fe15cf2ecb4a44ab4fb",
+        "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
+        "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
+        "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
+        "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893"
+      ],
+      "source_sha256": "a06170a8b2b0cbf279a309e7ee92d54e91928347cba7d25d730bcd7fc0563770",
+      "text": "Trouve toutes les anciennes copies de spaCR sur cet ordinateur et supprime celles qu’un programme d’installation a créées.\n\nUne mise à jour ou une installation exécute trois étapes, dans cet ordre, qu’elle parte de **Rechercher des mises à jour** dans l’application ou d’un programme d’installation natif :\n\n1. trouver les anciens fichiers de spaCR -- :func:`find_old_installs` 2. supprimer les anciens fichiers de spaCR -- :func:`remove_install` 3. installer le nouveau spaCR -- :func:`run_update_sequence` n’exécute l’installation qu’une fois que l’étape 2 a supprimé toutes les copies créées par un programme d’installation.\n\nLa suppression n’exécute jamais le programme de désinstallation propre à une ancienne version, de sorte qu’une copie dont ``Uninstall.exe`` ou ``uninstall-spacr.sh`` est absent ou endommagé est supprimée quand même. Les préférences et les données utilisateur sont conservées : ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, le cache de Hugging Face et les réglages ``spacr``/``qt`` (``~/.config/spacr``, le fichier de préférences sous macOS et la clé de registre ``Software\\spacr`` sous Windows).\n\nUn environnement pip ou conda créé par l’utilisateur est listé mais jamais supprimé ; le paquet spaCR n’en est désinstallé que si l’appelant indique qu’il a été coché. Une copie de travail modifiable des sources est signalée et laissée intacte.\n\nLe module n’utilise que la bibliothèque standard et n’importe rien de spaCR, si bien qu’un programme d’installation peut l’exécuter avec le Python qu’il a lui-même installé avant qu’un quelconque spaCR existe, et qu’un processus auxiliaire peut en exécuter une copie après la fermeture du spaCR en cours d’exécution::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo]\n    python -I install_cleanup.py run-plan PLAN.json",
+      "translation_source_blocks_sha256": [
+        "fc72c12d5368fe8c1e458068f4cea0c92fb3305cd2a2c0b164e76e66a35f3f00",
+        "e8addc4ae0ad599dcbfc5d127f10148da39e82b6c48f7fe15cf2ecb4a44ab4fb",
+        "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
+        "d1c3cc6a4c7b476afc63c9609f53b6a82612c1c6da142522cedadeb817aef8c7",
+        "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
+        "bb0bd04717a44d9841640212c772bd7a6f41c19bc71bbed8863510f45c4e6bcb"
+      ]
+    },
+    "spacr.install_cleanup.InstallRecord": {
+      "source_blocks_sha256": [
+        "e87d2c823cfaf5c94e0b7b077da7fa06c09d4ea4f3b48a73d20f6e33f9dba2c0",
+        "c8ad72cba483d0fddeefe2e833378fffccb39ee88ea11fb00de6bdec0d5c636a",
+        "8694467c5332fb1e6d334b10cde5bbe631101a9026319fea7f58fbfcea482298",
+        "ff7fedafdb1fa06c2ca7c8dfe44bf29ad8a1db243d844d4b0ee4f5051809d587",
+        "6700302286e48dfd002857ca32e6a67aaaae1aa680316517c5014d6f9873c132",
+        "8b43e11217244f91f76daa03f564d30a653d6a0b3e008048ee08294c4d364dcd",
+        "e4324236e5289d041ffdaca0ae6263c1b6d509c7dd8d5f160edb8575b5e636a5",
+        "4cbfff613b639176b769021b6a696d9e6a515553b635cdf402eeaf0326ccfa0b",
+        "1700c4a05eba8920d61e03e08f3b0e5eb22d916af899d174029684cd4c575498",
+        "b3e8a2fc7ed7c9abc7be931cab0d871b0caefecfe24633f13d1de1437ccb0207",
+        "4aa235c3ba72a8ea5be0a81f457dd570a98847895bc309af6512a67bd5d726d8",
+        "50cc081899ad0dab19fd4f7d7b2146e79b4b6eab36ea4bb7bf4ff7cf0e622ed1",
+        "59f7b1eb731064d0bd8ec3bc9b837ae5aad907dd6e2b0e834aec5710c5bec9b7",
+        "1f7a382f328e5f453fdd3272e40ab3e393c0bfa7ed7bcdf3d42212f645703af9"
+      ],
+      "source_sha256": "66663b834cd1cb97c2ec3417a8f7045d7ed825552cf943776078910bf1479b68",
+      "text": "Une installation de spaCR trouvée sur cet ordinateur.\n\n:param kind: ``\"installer\"`` pour une copie créée par un programme d’installation de spaCR, ``\"environment\"`` pour un environnement pip ou conda créé par l’utilisateur, ou ``\"checkout\"`` pour une copie de travail modifiable des sources.\n:param layout: la disposition dont il s’agit, par exemple ``\"windows-online\"``, ``\"linux-online\"``, ``\"macos-app\"`` ou ``\"conda\"``.\n:param platform: ``\"windows\"``, ``\"macos\"`` or ``\"linux\"``.\n:param root: le répertoire où se trouve l’installation.\n:param version: la version de spaCR, quand elle peut être lue.\n:param launchers: lanceurs de commande qui démarrent cette copie.\n:param shortcuts: fichiers de raccourci du bureau et du menu Démarrer.\n:param menu_entries: entrées du menu des applications : fichiers ``.desktop`` et dossiers du menu Démarrer.\n:param registrations: enregistrements de désinstallation : clés ``registry:``, paquets ``deb:`` et paquets d’application.\n:param python: l’interpréteur de l’environnement, utilisé pour désinstaller spaCR.\n:param running: si le processus courant s’exécute depuis cette copie.\n:param needs_admin: si la suppression nécessite des droits d’administrateur.\n:param notes: d’autres informations utiles à afficher, comme un programme de désinstallation manquant.",
+      "translation_source_blocks_sha256": [
+        "e87d2c823cfaf5c94e0b7b077da7fa06c09d4ea4f3b48a73d20f6e33f9dba2c0",
+        "c8ad72cba483d0fddeefe2e833378fffccb39ee88ea11fb00de6bdec0d5c636a",
+        "8694467c5332fb1e6d334b10cde5bbe631101a9026319fea7f58fbfcea482298",
+        "ff7fedafdb1fa06c2ca7c8dfe44bf29ad8a1db243d844d4b0ee4f5051809d587",
+        "6700302286e48dfd002857ca32e6a67aaaae1aa680316517c5014d6f9873c132",
+        "8b43e11217244f91f76daa03f564d30a653d6a0b3e008048ee08294c4d364dcd",
+        "e4324236e5289d041ffdaca0ae6263c1b6d509c7dd8d5f160edb8575b5e636a5",
+        "4cbfff613b639176b769021b6a696d9e6a515553b635cdf402eeaf0326ccfa0b",
+        "1700c4a05eba8920d61e03e08f3b0e5eb22d916af899d174029684cd4c575498",
+        "b3e8a2fc7ed7c9abc7be931cab0d871b0caefecfe24633f13d1de1437ccb0207",
+        "4aa235c3ba72a8ea5be0a81f457dd570a98847895bc309af6512a67bd5d726d8",
+        "50cc081899ad0dab19fd4f7d7b2146e79b4b6eab36ea4bb7bf4ff7cf0e622ed1",
+        "59f7b1eb731064d0bd8ec3bc9b837ae5aad907dd6e2b0e834aec5710c5bec9b7",
+        "1f7a382f328e5f453fdd3272e40ab3e393c0bfa7ed7bcdf3d42212f645703af9"
+      ]
+    },
+    "spacr.install_cleanup.RemovalReport": {
+      "source_blocks_sha256": [
+        "56ea728d94591c183c79e938cf6d416c90e67bd23a3f936c11a6d041af87b34b",
+        "3ea100fe9cba603e225c8a84796affd61338570f7897131ff0b54d9440631a82",
+        "7239ebaceeae6dc2afcc53ac2670f2a1a28670fed2ed29d9f5b86c8f097333b6",
+        "123ddd66bf2f57aca04aad612e23b5c93e67f140c331c854bc052b80d2d5942f",
+        "deaaa6eaa045d52b8fab749eda5844c785242eb47e995c3bb94c7838a71a19fd"
+      ],
+      "source_sha256": "7c55a4505d01505b0e4229df6377281cc392236202850d021e1d73c6c4947711",
+      "text": "Ce que :func:`remove_install` a fait d’une installation.\n\n:param record: l’installation dont traite ce rapport.\n:param removed: chaque chemin, entrée de registre et paquet qui a été supprimé.\n:param failed: ``(item, reason)`` pour tout ce qui n’a pas pu être supprimé.\n:param skipped: ``(item, reason)`` pour tout ce qui a été laissé en place volontairement.",
+      "translation_source_blocks_sha256": [
+        "56ea728d94591c183c79e938cf6d416c90e67bd23a3f936c11a6d041af87b34b",
+        "3ea100fe9cba603e225c8a84796affd61338570f7897131ff0b54d9440631a82",
+        "7239ebaceeae6dc2afcc53ac2670f2a1a28670fed2ed29d9f5b86c8f097333b6",
+        "123ddd66bf2f57aca04aad612e23b5c93e67f140c331c854bc052b80d2d5942f",
+        "deaaa6eaa045d52b8fab749eda5844c785242eb47e995c3bb94c7838a71a19fd"
+      ]
+    },
+    "spacr.install_cleanup.RemovalReport.ok": {
+      "source_blocks_sha256": [
+        "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50"
+      ],
+      "source_sha256": "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50",
+      "text": "Indique si rien n’a échoué.",
+      "translation_source_blocks_sha256": [
+        "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50"
+      ]
+    },
+    "spacr.install_cleanup.find_old_installs": {
+      "source_blocks_sha256": [
+        "cfe96f2e3cd9807b937778c7536e6f80f2e56dbe13033812f3c9bf3ddf55e13c",
+        "832ffd69766a0a4fa88579dddd6c0b6f0ef10919f7fe3f97490f47b30a0fa4c8",
+        "a58b9ca29358e4e9dbfbfcd8e2d7e2e276fe3d1d2e9a5478cd0a77f33a222ec0",
+        "e77e003f82e54621b2c59eb4cbc6524bfe54745a2965ba85106d1a53079d3d19"
+      ],
+      "source_sha256": "26bc69a4b6253716e1616258c1ff4f93a625268d9671cdb9805328129ba67d08",
+      "text": "Trouve toutes les installations de spaCR sur cet ordinateur.\n\nLes copies créées par un programme d’installation viennent en premier, puis les environnements créés par l’utilisateur, puis les copies de travail modifiables des sources. Chaque disposition utilisée par un programme d’installation publié est recherchée : les programmes d’installation en ligne et hors ligne pour Windows, les programmes d’installation en ligne pour Linux et macOS, le paquet d’application pour macOS et le paquet Debian.\n\n:param system: l’ordinateur à examiner ; ``None`` désigne cet ordinateur-ci. Les tests passent un substitut construit sur un répertoire temporaire.\n:returns: un :class:`InstallRecord` par installation.",
+      "translation_source_blocks_sha256": [
+        "cfe96f2e3cd9807b937778c7536e6f80f2e56dbe13033812f3c9bf3ddf55e13c",
+        "832ffd69766a0a4fa88579dddd6c0b6f0ef10919f7fe3f97490f47b30a0fa4c8",
+        "a58b9ca29358e4e9dbfbfcd8e2d7e2e276fe3d1d2e9a5478cd0a77f33a222ec0",
+        "e77e003f82e54621b2c59eb4cbc6524bfe54745a2965ba85106d1a53079d3d19"
+      ]
+    },
+    "spacr.install_cleanup.remove_install": {
+      "source_blocks_sha256": [
+        "2b532f8660f6c200865a7c60727acd65daea951cffa01360369b54fb784c3f0e",
+        "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
+        "a9653bfcfb994d827a61358cc2130db1d98ee6c09fcae986d61be3fdfbeb3ad6",
+        "697f2bf859f1f4c749e6749d315aba0ea5a26283f1769192f44a9457d2c3bc9f",
+        "c349a54c16603802a98f5ec3c8aa72b3de6cad94ef39d46d34afa9e990e0bf0d",
+        "168f9714cc4b89c880d2335fb7457443bd0d8527f9b18d71931970c6491f81c1",
+        "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
+        "e82d84566e43d71d630068922b9a66e43ba249b1ad02cbbd8b72285d992e566b"
+      ],
+      "source_sha256": "d4da4db5af39b94a94a5a2410e669db524277b73ac7fa6235344f1187c84b313",
+      "text": "Supprime une installation sans exécuter son propre programme de désinstallation.\n\nUne copie créée par un programme d’installation est supprimée entièrement : son dossier, ses lanceurs, ses raccourcis, ses entrées de menu et ses enregistrements de désinstallation. Un paquet Debian est supprimé via le gestionnaire de paquets et signalé comme nécessitant des droits d’administrateur quand c’est ce qui bloque la suppression. Dans un environnement créé par l’utilisateur, seul le paquet spaCR est désinstallé, et seulement si ``ticked`` est vrai ; l’environnement lui-même reste en place. Une copie de travail des sources est ignorée.\n\nLa copie en cours d’exécution n’est pas supprimée ici, car sous Windows une installation ne peut pas se supprimer elle-même pendant qu’elle s’exécute : :func:`start_update_helper` la supprime après la fermeture de spaCR.\n\n:param record: une installation issue de :func:`find_old_installs`.\n:param ticked: si l’utilisateur a coché cet environnement pour suppression.\n:param keep: chemins à laisser en place, comme le journal de l’installation sur le point de démarrer.\n:param system: l’ordinateur ; ``None`` désigne cet ordinateur-ci.\n:returns: ce qui a été supprimé, ce qui n’a pas pu l’être, et pourquoi.",
+      "translation_source_blocks_sha256": [
+        "2b532f8660f6c200865a7c60727acd65daea951cffa01360369b54fb784c3f0e",
+        "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
+        "a9653bfcfb994d827a61358cc2130db1d98ee6c09fcae986d61be3fdfbeb3ad6",
+        "697f2bf859f1f4c749e6749d315aba0ea5a26283f1769192f44a9457d2c3bc9f",
+        "c349a54c16603802a98f5ec3c8aa72b3de6cad94ef39d46d34afa9e990e0bf0d",
+        "168f9714cc4b89c880d2335fb7457443bd0d8527f9b18d71931970c6491f81c1",
+        "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
+        "e82d84566e43d71d630068922b9a66e43ba249b1ad02cbbd8b72285d992e566b"
+      ]
+    },
+    "spacr.install_cleanup.run_update_sequence": {
+      "source_blocks_sha256": [
+        "4d0869a5ed02684f69757141b04f06f69b43061a7ed72b31cf0d0a7c65d11bbd",
+        "793fb1f29ed7db9dfbf28b0c9a28ab993f6a1c19861465cd9b23a1c0635def4d",
+        "0399abee387a0b34067465e61b57264f45c3eaee3839b6faf68fb3cc5a1b27d5",
+        "b0566f5d0d609b8299ff20772571bafcfcb425a2fbbb32caa0c377589b0692f7",
+        "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
+        "d5e608ba832c0b233797610809e7f802a7fa20b5bbc272e1e6ee8d3bc7c59052",
+        "c0aa60c75346ebc929f5eaf95621c4f800e5bd93e9d52104c6f32417da94e73a",
+        "1d330f7f920386d7f129766cf963a57e2c04add66ce309757b639e23f55442c1",
+        "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
+        "652f01ac13e02a060269da73392a95b87502e69e2b46d8d55e3a8550ae0fd335"
+      ],
+      "source_sha256": "961c2110519e62eb3d3574bbe79e1f5bd6568e3a9e37f89a75bbf12105169f02",
+      "text": "Trouver, puis supprimer, puis installer -- et ne jamais installer par-dessus une ancienne copie.\n\nChaque copie créée par un programme d’installation est supprimée, le paquet spaCR est désinstallé de chaque environnement coché, et c’est seulement ensuite que ``install`` est appelé. Si une copie créée par un programme d’installation n’a pas pu être supprimée, ``install`` n’est pas appelé du tout, et les rapports indiquent ce qui l’en a empêché.\n\n:param install: appelable sans argument qui installe la nouvelle version.\n:param records: installations déjà trouvées ; :func:`find_old_installs` est appelé si la valeur est ``None``.\n:param ticked: racines des environnements cochés par l’utilisateur.\n:param keep: chemins que la suppression doit laisser en place.\n:param find: remplace :func:`find_old_installs`.\n:param remove: remplace :func:`remove_install`.\n:param system: l’ordinateur ; ``None`` désigne cet ordinateur-ci.\n:returns: ``(reports, install_result)`` ; ``install_result`` vaut ``None`` quand l’installation n’a pas été exécutée.",
+      "translation_source_blocks_sha256": [
+        "4d0869a5ed02684f69757141b04f06f69b43061a7ed72b31cf0d0a7c65d11bbd",
+        "793fb1f29ed7db9dfbf28b0c9a28ab993f6a1c19861465cd9b23a1c0635def4d",
+        "0399abee387a0b34067465e61b57264f45c3eaee3839b6faf68fb3cc5a1b27d5",
+        "b0566f5d0d609b8299ff20772571bafcfcb425a2fbbb32caa0c377589b0692f7",
+        "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
+        "d5e608ba832c0b233797610809e7f802a7fa20b5bbc272e1e6ee8d3bc7c59052",
+        "c0aa60c75346ebc929f5eaf95621c4f800e5bd93e9d52104c6f32417da94e73a",
+        "1d330f7f920386d7f129766cf963a57e2c04add66ce309757b639e23f55442c1",
+        "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
+        "652f01ac13e02a060269da73392a95b87502e69e2b46d8d55e3a8550ae0fd335"
+      ]
+    },
+    "spacr.install_cleanup.start_update_helper": {
+      "source_blocks_sha256": [
+        "53a4372d5ee733dcea5beb653cc2903c614acadd319e859a11ad2dcabec09aeb",
+        "4db8f45182e856b247dcc77a715e53910750bbda9d4389daecdaf8cdc0fecea6",
+        "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
+        "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
+        "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
+        "cc3b6cb25b19441b1007a8196c241f842cf130721109778b50093f3dd9fe8b72",
+        "2a7fd576ab7b59557ffbe2364c244953f75480298685169c67c069f0f4e6658f",
+        "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
+        "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
+        "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a"
+      ],
+      "source_sha256": "3157e28e88bdc8cbc0125c7b0cadec61ba7b120372060045fc4f4f3f57264271",
+      "text": "Confie la suppression et l’installation à un processus qui survit à spaCR.\n\nUtilisé quand le spaCR en cours d’exécution est lui-même une copie créée par un programme d’installation, qui sous Windows ne peut pas se supprimer elle-même pendant qu’elle s’exécute. Le processus auxiliaire attend la fin de ce processus, télécharge le nouveau programme d’installation, supprime toutes les anciennes copies, y compris celle qui était en cours d’exécution, lance le programme d’installation et démarre la nouvelle version. Si une copie créée par un programme d’installation ne peut pas être supprimée, rien n’est installé et la raison est écrite dans le journal de mise à jour.\n\n:param records: installations issues de :func:`find_old_installs`.\n:param version: la version à installer.\n:param ticked: racines des environnements cochés par l’utilisateur.\n:param pid: le processus à attendre ; ce processus-ci si la valeur est ``None``.\n:param workdir: le dossier du processus auxiliaire ; un nouveau dossier temporaire si la valeur est ``None``.\n:param system: l’ordinateur ; ``None`` désigne cet ordinateur-ci.\n:param spawn: remplace le lanceur du processus détaché.\n:returns: le plan tel qu’il a été écrit dans ``plan.json``. ``plan[\"command\"]`` est la commande du processus auxiliaire, ou ``None``, auquel cas ``plan[\"error\"]`` indique pourquoi rien n’a été démarré.",
+      "translation_source_blocks_sha256": [
+        "53a4372d5ee733dcea5beb653cc2903c614acadd319e859a11ad2dcabec09aeb",
+        "75241705d164afdde641d643f08af75ae9a1020b7547b8499a23e2e6edda6ecb",
+        "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
+        "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
+        "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
+        "cc3b6cb25b19441b1007a8196c241f842cf130721109778b50093f3dd9fe8b72",
+        "2a7fd576ab7b59557ffbe2364c244953f75480298685169c67c069f0f4e6658f",
+        "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
+        "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
+        "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a"
       ]
     },
     "spacr.install_profile": {
@@ -68218,6 +68432,134 @@
         "aa2c9ec1b5258dc39f1d127b03420ec3c4425dd942ad29cef658a9ac0208ee05"
       ]
     },
+    "spacr.qt.make_masks_demo": {
+      "source_blocks_sha256": [
+        "e7cfbdcfefe2f9d1f5198a328e55ca3dc2442576b3045434de61513e539ec952",
+        "8c89ddde44409766fcf87b2dd7b794cc41565c81e2d3ecf8a7148f19b85e614e",
+        "d3dcf8b961108af4adbfa57b8b31b84633a02c91cde9d0ec0a1ccc9f557880ea",
+        "b8e5f30be572dbd508ddad7f28ce384b99ffe2029772725fff3b2d73a1ad696c",
+        "bad8b7f34dc28c5cd20b70502379739a27d696da09ee5d21c6f4ea3a3611b9ff",
+        "c042f9157b9a59411a88615686fb8fff2ed5c63f8180d921af4acd648473451f"
+      ],
+      "source_sha256": "0d28c62fd6cd20006e95b30776d0dff82298a080acf3ad31cb24ed4fc8d49875",
+      "text": "Les données de test de Make Masks : dix champs de vacuoles de Toxoplasma, à portée d’un bouton.\n\nÉlément 412 du registre des tâches. Le mainteneur a demandé dix images du jeu d’entraînement PV de Toxoplasma sur Hugging Face comme « un petit jeu de données de test pour make masks », et « un bouton pour charger ce jeu de données qui déclenche automatiquement l’ouverture de la première image avec make masks ».\n\nCE QUI EST PUBLIÉ. :data:`MAKE_MASKS_EXAMPLE_REPO` contient au premier niveau dix acquisitions propres au laboratoire -- aucune figure tirée d’un article, aucun champ réservé à l’évaluation --, leurs masques d’étiquettes vérifiés à la main sous ``ground_truth_masks/``, un ``manifest.csv`` portant la ligne de chaque image issue du manifeste interne, et une archive de l’ensemble. Les images s’ouvrent NON SEGMENTÉES : Make Masks lit les brouillons dans ``masks/``, jamais dans ``ground_truth_masks/``, si bien que l’éditeur démarre sur des champs bruts et que la vérité terrain se trouve à côté.\n\nLE MÊME SCHÉMA QUE POUR TOUS LES AUTRES JEUX D’EXEMPLES. Un ``.tar`` non compressé par dépôt, transféré en flux vers un fichier ``.part`` dans un thread de travail derrière la boîte de dialogue de progression partagée, décompressé à travers le filtre de données de tar (:class:`spacr.qt.hf_download._TarExampleWorker` fait tout cela), et mis en cache : :func:`is_present` est consulté d’abord, donc un second clic ouvre le dossier sans nouvelle requête.\n\nSON PROPRE DOSSIER, PAS LA PLAQUE PARTAGÉE. Les jeux de Mesure et d’Annotation sont décompressés dans ``example_plate_folder()`` parce qu’ils composent ensemble une plaque. Ces dix champs ne font pas partie de cette plaque, et la démo de Masques décide qu’elle est présente en y trouvant ``*.tif``, donc les y décompresser ferait croire à cette démo qu’elle a déjà été téléchargée.\n\nPOURQUOI C’EST UN MODULE ET NON UNE MÉTHODE. L’écran reçoit un seul appel dans sa ligne de navigation. Tout le reste se trouve ici, si bien que ``make_masks.py`` -- que plusieurs éléments modifient en même temps -- ne porte qu’un crochet de deux lignes.",
+      "translation_source_blocks_sha256": [
+        "e7cfbdcfefe2f9d1f5198a328e55ca3dc2442576b3045434de61513e539ec952",
+        "8c89ddde44409766fcf87b2dd7b794cc41565c81e2d3ecf8a7148f19b85e614e",
+        "4e33ace937591a5714de88c3b180273ca0da8fd63ce8cd924d6b67ddba7277ce",
+        "4e3279839b47b99fef4b11afc2e5c5336581bfcf12e9c2a6a697d895ff06213b",
+        "615db7a12c9a4adf833d6cf929f55f51c6d9c556420f23ed2e04e1521e7a728a",
+        "cc4f86793d2ed750220a3c2d1d3a78d09c4d7d0353e4714ec52ef08f5132c9e5"
+      ]
+    },
+    "spacr.qt.make_masks_demo.download_make_masks_example": {
+      "source_blocks_sha256": [
+        "0a0045efc5c17dc8f87a2d8120ca9f46d8f599d15576b8b6fba07e73371dd864",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "ef4186f319302483f570bfd7adba2bbfe69e5af8c02f7775e0492fdc1959a49f"
+      ],
+      "source_sha256": "c54899de0d8f01cf2ec6461e3c4581f498a9deb6af75426b05633310927f656b",
+      "text": "Télécharge les données de test de Make Masks derrière la boîte de dialogue de progression partagée.\n\n:param parent: le widget auquel appartient la boîte de dialogue de progression.\n:param dest: le dossier dans lequel l’archive est décompressée.\n:param on_done: appelé dans le thread de la GUI sous la forme ``on_done(result, error)``. ``result`` vaut ``None`` en cas d’échec ou d’annulation, et ``error`` indique alors pourquoi.",
+      "translation_source_blocks_sha256": [
+        "0a0045efc5c17dc8f87a2d8120ca9f46d8f599d15576b8b6fba07e73371dd864",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "d2cf08053ae32343723972abeedcd6046c9e747696615276a75bf35755fccc77"
+      ]
+    },
+    "spacr.qt.make_masks_demo.install_test_data_button": {
+      "source_blocks_sha256": [
+        "5c4633fd2231420a3f761f32ed90a72201cfb613d26bf6a8993937f311844568",
+        "838d37a7cd4beef3bf32e13346b4523e85e202d4659af5c93a408ab56842f9eb",
+        "be9d195ef15c320561f4d93dc45da4a7db23144626a723714cef8edd7c507855"
+      ],
+      "source_sha256": "2302edca8318c33f74e2c67e72d371aa4366226da0d46d68ecb1e7b53cd439ae",
+      "text": "Construit le bouton \"Load test data…\" (Charger les données de test...) de Make Masks, relié à ``screen``.\n\n:param screen: l’écran de Make Masks dans lequel les données s’ouvrent. Le bouton y est conservé sous ``_btn_test_data``, afin qu’un chargement puisse le désactiver pendant le téléchargement.\n:returns: le bouton, que l’appelant place lui-même.",
+      "translation_source_blocks_sha256": [
+        "5c4633fd2231420a3f761f32ed90a72201cfb613d26bf6a8993937f311844568",
+        "838d37a7cd4beef3bf32e13346b4523e85e202d4659af5c93a408ab56842f9eb",
+        "be9d195ef15c320561f4d93dc45da4a7db23144626a723714cef8edd7c507855"
+      ]
+    },
+    "spacr.qt.make_masks_demo.is_present": {
+      "source_blocks_sha256": [
+        "2cda27968d84c6a671e20f87dd1304874bade3c5434bcf8bc3e6a2a33d44d645",
+        "a75922bbc1bea253a623aabaeeb9ce23fd9f08447c213c382ca1befbf52cb159",
+        "56cf37b10b842a08cac9d900a127e252f38bad5b7cf5b64c03ad6b7cd132ab05"
+      ],
+      "source_sha256": "93bf234e9b7dcd17ef36461df20a6d3d528742084eb0132381c3a85ecd946f96",
+      "text": "Indique si une copie complète des données de test est décompressée dans ``folder``.\n\n:param folder: où le jeu de données est attendu.\n:returns: ``True`` seulement si le manifeste existe et que chaque image et chaque masque qu’il liste est un fichier. Un jeu à moitié décompressé est considéré comme absent, et c’est cette réponse qui le fait télécharger à nouveau.",
+      "translation_source_blocks_sha256": [
+        "2cda27968d84c6a671e20f87dd1304874bade3c5434bcf8bc3e6a2a33d44d645",
+        "a75922bbc1bea253a623aabaeeb9ce23fd9f08447c213c382ca1befbf52cb159",
+        "56cf37b10b842a08cac9d900a127e252f38bad5b7cf5b64c03ad6b7cd132ab05"
+      ]
+    },
+    "spacr.qt.make_masks_demo.listed_files": {
+      "source_blocks_sha256": [
+        "9eb145b856650b218ffd74cad6f85233ac32e8b2845b25a672155ac60b6a47a5",
+        "01c48271aad649718107c1cbfe52467d06c19ec71cb0d64c8082cf08bd194f82",
+        "7503e22ae286417c5260c5759bd2c28d081e473220f0ac080d4c28ae41797e2e"
+      ],
+      "source_sha256": "aa58ae288ec122ef438a904f1c4439530a04101dd42c53adcc7ad4427d8c5068",
+      "text": "Tous les fichiers qu’une copie complète contient d’après le ``manifest.csv`` du jeu de données.\n\n:param folder: où le jeu de données a été décompressé.\n:returns: chemins relatifs à ``folder``, chaque image suivie de son masque de vérité terrain, dans l’ordre du manifeste. Vide s’il n’y a pas de manifeste lisible, ou si une ligne ne nomme aucune image, afin qu’un dossier incomplet ou non reconnu ne soit jamais pris pour le jeu de données.",
+      "translation_source_blocks_sha256": [
+        "9eb145b856650b218ffd74cad6f85233ac32e8b2845b25a672155ac60b6a47a5",
+        "01c48271aad649718107c1cbfe52467d06c19ec71cb0d64c8082cf08bd194f82",
+        "7503e22ae286417c5260c5759bd2c28d081e473220f0ac080d4c28ae41797e2e"
+      ]
+    },
+    "spacr.qt.make_masks_demo.load_the_test_data": {
+      "source_blocks_sha256": [
+        "795c58a3c9c1432fbba16cc42c6bfc9f16c0b28f7cc95dc41350e6363bf4a6cc",
+        "21bf5327b9d802542c7e50b58e99db26ac44a21053f146d52be3f1c4e119cbac",
+        "3d4948199cc53882d09ff15775f59e3a01749691a7d9fc5341d966dc5b436cf0",
+        "fa49516933362f26b00bfb3ae34641673e73e255880e38b69ac3f79aaf44f4c3",
+        "97b69744857a10f86b2971dfff49f3acf0272efebe4b56694edf5edb1ad09f5d",
+        "2fecfaa864b9b43ed75b55c6f71a3a75fa809cb5b0ea3660f2acbd67fb367e0b"
+      ],
+      "source_sha256": "e7046c05e9fb32747bcc92ef239169b2b543fd9965d5ab79ccf63c94a2ba11fc",
+      "text": "Ouvre les données de test dans Make Masks, en les téléchargeant d’abord si nécessaire.\n\nUne copie en cache s’ouvre immédiatement. Sinon, le bouton est désactivé, la ligne d’état indique qu’un téléchargement est en cours, et le téléchargement s’exécute dans un thread de travail derrière une boîte de dialogue de progression. Une fois terminé, le dossier s’ouvre sur sa première image par nom. Un échec est signalé avec la raison fournie par le téléchargeur, dans la ligne d’état et, lorsqu’il y a un écran pour l’afficher, dans un avertissement.\n\n:param screen: l’écran de Make Masks dans lequel ouvrir les données.\n:param ask: remplace :func:`download_make_masks_example`, pour les tests. Elle est appelée sous la forme ``ask(screen, folder, on_done)``.\n:param folder: remplace :func:`make_masks_example_folder`, pour les tests.\n:returns: si cet appel a ouvert les données. ``False`` tant qu’un téléchargement est encore en cours, et après un échec.",
+      "translation_source_blocks_sha256": [
+        "795c58a3c9c1432fbba16cc42c6bfc9f16c0b28f7cc95dc41350e6363bf4a6cc",
+        "71715e3f5f4cc63555f4213518068716cf9322c9400947eaef857ab70f95239d",
+        "3d4948199cc53882d09ff15775f59e3a01749691a7d9fc5341d966dc5b436cf0",
+        "fa49516933362f26b00bfb3ae34641673e73e255880e38b69ac3f79aaf44f4c3",
+        "97b69744857a10f86b2971dfff49f3acf0272efebe4b56694edf5edb1ad09f5d",
+        "a0ee89a4efc7e57417aacc21f331182a406b947daffdb5e59c52da5a85ad6f7a"
+      ]
+    },
+    "spacr.qt.make_masks_demo.make_masks_example_folder": {
+      "source_blocks_sha256": [
+        "346e0b8cd42b8163c7f23f5afec4d23d754c8469c276266ffda313872be1e9b9",
+        "c2439cc0c2174e93b294c8d691a9556a9e450126ade3a1a5aa3ee73c823058f5",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
+      ],
+      "source_sha256": "f9c23ac1c283ba55862b47474dec9ec80251f8ddb14c6a73c03c76bce4db17f8",
+      "text": "Où les données de test sont décompressées et mises en cache.\n\n``~/.cache/spacr/example_data/make_masks_toxo_pv``, à côté de la plaque d’exemple partagée plutôt qu’à l’intérieur. La docstring du module explique pourquoi.\n\n:returns: le dossier. Il n’est pas créé ici.",
+      "translation_source_blocks_sha256": [
+        "346e0b8cd42b8163c7f23f5afec4d23d754c8469c276266ffda313872be1e9b9",
+        "c2439cc0c2174e93b294c8d691a9556a9e450126ade3a1a5aa3ee73c823058f5",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
+      ]
+    },
+    "spacr.qt.make_masks_demo.open_the_test_data": {
+      "source_blocks_sha256": [
+        "46761a29f2b42fa54ca47ab7a91003ee2e06dc6519acf8dc5832729161161f85",
+        "9c29319932ee88cad454f5650da97662cb52e6a90474a6c20ff94d74d5170483",
+        "c5fc5523b800d543030b985173109557acc280866912d519a9389a187a5528f6",
+        "72e558c582d848966985298afef65f51e26d94d5d295c82960d5f4a44476810f"
+      ],
+      "source_sha256": "0d9667133e549c547f7e70b2d1cf95329f4d602c67c3d24517b48d2b0c7628f4",
+      "text": "Ouvre une copie décompressée des données de test sur sa première image par nom.\n\n:param screen: l’écran de Make Masks.\n:param folder: où les données ont été décompressées.\n:returns: si l’écran les affiche maintenant. Une copie incomplète est signalée plutôt qu’ouverte, car la moitié des champs passerait pour le jeu complet.",
+      "translation_source_blocks_sha256": [
+        "46761a29f2b42fa54ca47ab7a91003ee2e06dc6519acf8dc5832729161161f85",
+        "9c29319932ee88cad454f5650da97662cb52e6a90474a6c20ff94d74d5170483",
+        "c5fc5523b800d543030b985173109557acc280866912d519a9389a187a5528f6",
+        "72e558c582d848966985298afef65f51e26d94d5d295c82960d5f4a44476810f"
+      ]
+    },
     "spacr.qt.mask_engine": {
       "source_blocks_sha256": [
         "943dc1ae2c943f0c040665d64be6a02662f8cecdac0a173438fe6ad67ef8b964",
@@ -69915,7 +70257,7 @@
         "5cc0279aece897e1cc3c9d2441a8760656b5a35c8da09522ab236b23413869e8",
         "94d770f7a15f32d64f58aa875eea8f3e8516892b17dd17cb5595ded8f0a7761b",
         "972c967b25aaba864ac964da7c48d2ce2b80c657c46f7b41bfee526fd6ecce83",
-        "0c45394801c69bc4fb0b001f47667371f447a899a9b3e64ab66efd1e4168cf61",
+        "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
         "b9ddb6122e53d8c6d14d53ee4deac91f11798de108e7d055b96ff2fed712eada",
         "640788923bf965fdf66b1a4bb0d857e8ee4063b5266303a1167f0f8f5028babe",
@@ -69934,8 +70276,8 @@
         "8af42943d1d1af2aba07a4cfc2782231682f5301394f99a0967fcfed571f4c35",
         "fb04228cdb186b5d2a893ae59213e5a81e4b9832ca2bcd52336771c187e56217"
       ],
-      "source_sha256": "f42802c284d0307e523c65bfabc2d87b6e61d2af5a9868d50209dec3eff2d46e",
-      "text": "Préférences orientées vers l'utilisateur — langage, thème, échelle de police et accessibilité.\n\nLes paramètres persistants soutenus par :class:`PySide6.QtCore.QSettings`, donc ils survivent aux redémarrages de l'application. De nouveaux boutons peuvent s'emboîter aux côtés de ceux existants sans changer les consommateurs grâce au petit tapé API (``get_theme()`` / ``set_theme(...)`` etc.).\n\nMise en ligne:\n\n* :func:`apply_preferences_to_app` — appeler une fois au démarrage et de nouveau chaque fois qu'un réglage change; réapplique la feuille de style avec l'échelle de police actuelle du thème +.\n* :class:`PreferencesDialog` — la boîte de dialogue Paramètres modaux ouverte par Ctrl+P (voir :mod:`spacr.qt.shortcuts`).\n\nPublique API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_font_scale, set_font_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValeurs :\n\n* ``theme``: ``\"dark\"``= ``\"light\"``= ``\"cell\"``= ``\"glass\"``= ``\"system\"`` (par défaut ``\"system\"``). ``\"system\"`` suit le schéma de couleur du système d'exploitation. ``\"cell\"`` utilise des images de fluorescence et ``\"glass\"`` utilise des matériaux à couche neutre sur un champ de lumière intégré. Les accédeurs d'espace hérités restent pour les anciens réglages, mais l'espace n'est pas un thème sélectionnable.\n* ``space_seed``: int; conservé pour les antécédents déterministes de l'espace.\n* ``font_scale``: flotteur, 1,0 = 100 % (par défaut). Clampé à [0,75, 2,0].\n* ``figure_save_mode``: ``\"print\"``- ``\"screen\"``-``\"transparent\"`` (par défaut ``\"print\"``). Contrôle les couleurs de la page et de l'élément de la figure utilisées pour les figures sauvegardées. ``SPACR_FIGURE_SAVE_MODE`` reste une priorité locale-processus; voir :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"``= ``\"deuteranopia\"``= ``\"protanopia\"``= ``\"tritanopia\"`` (par défaut ``\"off\"``). Swaps matplotlib palettes arc-en-ciel / rouge-vert pour perceptually-uniform + color-aveugle-safe alternatives (viridis pour continu, Okabe-Ito pour catégorique).\n* ``performance_logging``: ``\"off\"``=``\"summary\"``=``\"detailed\"`` (par défaut ``\"summary\"``). Enregistrer l'utilisation des ressources process-tree indépendamment de la recherche d'appels verbeux; voir :func:`get_performance_logging` et :mod:`spacr.resource_log`.\n* ``db_browser_editable``: bool, valeur initiale ``False``. Permet à Database Browser d'ouvrir une connexion lecture-écriture. Détails: :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"locked\"``=\" ``\"hidden\"`` (par défaut ``\"locked\"``). Que le dock de l'application de gauche révèle sur hover, est épinglé ouvert comme une colonne permanente, ou n'y est pas du tout.\n* ``pane_opacity``: int pourcentage, valeur initiale ``60``. Contrôle la solidité des surfaces partagées ou la résistance du matériau dans le verre. Au moment de la peinture :func:`spacr.qt.theme.pane_alpha_floor` fixe une limite inférieure: la préférence est une demande, tandis que la lisibilité est obligatoire.\n* ``field_fade`` : bool, par défaut ``True``. Indique si le conteneur et le contour d'un champ de saisie passent progressivement d'opaques à gauche à entièrement transparents à droite. Les champs sont **exemptés de** ``pane_opacity`` tant que cette option est active — voir :func:`get_field_fade_enabled` et :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` / ``show_beta``: bool, les deux par défaut ``True``. Contrôlez si les modules et les paramètres à cette maturité sont affichés.\n* ``ambient_enabled``: bool, valeur initiale ``True``. Contrôle si les écrans du module peignent l'arrière-plan animé. Désactiver est un choix de première classe; détails: :func:`get_ambient_enabled`. Le contrôle orienté vers l'utilisateur est l'entrée ``None`` dans la liste d'animation plutôt qu'un autre commutateur: une ligne, une signification. Choisir une animation l'autorise à nouveau.\n* ``spacr_mode``: ``\"extra_performance\"`` . ``\"performance\"`` , ``\"balanced\"`` (par défaut ``\"balanced\"``). Comment le spaCR tente de rester hors de la voie de la machine — quand il libère ses propres caches, et si il surcharge les paramètres visuels. L'équilibre ne fait rien. Voir :func:`set_spacr_mode` et :mod:`spacr.qt.resource_cleanup`, qui possède ce qu'un nettoyage est autorisé à toucher (spaCR propre mémoire, et rien d'autre — aucun autre processus, jamais).\n* ``ambient_theme`` / ``ambient_palette``: quelle animation, et dans quelles couleurs. ``ambient_theme`` contient également :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — lisez-le avec :func:`get_ambient_animation`, qui peut répondre ``\"none\"`` ou :func:`get_ambient_theme`, dont la réponse est toujours quelque chose de peinture. Validée contre :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` et :func:`spacr.qt.widgets.ambient.palettes_for` respectivement; les palettes sont *par thème*, alors voyez :func:`get_ambient_palette` pour savoir comment les deux touches restent compatibles les unes avec les autres.\n* ``ambient_speed``/ ``ambient_size`` / ``ambient_resolution`` /``ambient_density``: flotteurs, tous par défaut ``1.0``, tous *multipliers* sur ce que l'animation choisie fait déjà — à quelle vitesse elle se déplace, à quelle taille ses éléments sont, à combien de détails elle est dessinée et combien d'éléments il y a. 1.0 est l' animation expédiée dans chaque thème, exactement, donc un utilisateur qui ne les touche jamais ne voit aucun changement. Clampé sur lecture et sur écriture aux gammes que les moteurs déclarent (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` et amis).\n* ``ambient_blur``: flotteur, par défaut ``0.0`` — combien l'image finie est adoucie, en unités de huit pixels d'criblage. Le détail d'image est contrôlé séparément par ``ambient_resolution``. Les valeurs stockées sous l'échelle de flou héritée sont traduites une fois en lecture par :func:`_migrate_ambient_motion`.\n* ``ambient_drift_direction``: ``\"up\"`` . ``\"down\"`` , ``\"random\"`` (par défaut ``\"up\"``). De quelle façon l'animation Starfield voyage. Une préférence plutôt que trois entrées dans le menu d'animation; voir :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` pour pourquoi.\n* ``spinner_delay``: flotter secondes, par défaut ``2.0``. Combien de temps le travail d'arrière-plan doit-il durer avant que le spinner d'activité n'apparaisse du tout — voir :func:`get_spinner_delay`.\n* ``setting_animations``: bool, par défaut ``False``. Indique si les tooltips jouent automatiquement leurs animations. Lorsque désactivé, hover reste texte seulement jusqu'à ce que l'utilisateur active **Animation** dans le pied de page de cet tooltip; voir :func:`get_setting_animations_enabled`.\n* ``language`` : l'un des codes de langue groupés de :mod:`spacr.qt.i18n`; par défaut, il retourne en anglais en toute sécurité lorsqu'une valeur persistante n'est pas valide.",
+      "source_sha256": "0bd68fc66f834746bb7e80615c1be0241b3bd2a8fd92d8fd43f98f341c6e0f17",
+      "text": "Préférences orientées vers l'utilisateur — langage, thème, échelle de police et accessibilité.\n\nLes paramètres persistants soutenus par :class:`PySide6.QtCore.QSettings`, donc ils survivent aux redémarrages de l'application. De nouveaux boutons peuvent s'emboîter aux côtés de ceux existants sans changer les consommateurs grâce au petit tapé API (``get_theme()`` / ``set_theme(...)`` etc.).\n\nMise en ligne:\n\n* :func:`apply_preferences_to_app` — appeler une fois au démarrage et de nouveau chaque fois qu'un réglage change; réapplique la feuille de style avec l'échelle de police actuelle du thème +.\n* :class:`PreferencesDialog` — la boîte de dialogue Paramètres modaux ouverte par Ctrl+P (voir :mod:`spacr.qt.shortcuts`).\n\nPublique API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_font_scale, set_font_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValeurs :\n\n* ``theme``: ``\"dark\"``= ``\"light\"``= ``\"cell\"``= ``\"glass\"``= ``\"system\"`` (par défaut ``\"system\"``). ``\"system\"`` suit le schéma de couleur du système d'exploitation. ``\"cell\"`` utilise des images de fluorescence et ``\"glass\"`` utilise des matériaux à couche neutre sur un champ de lumière intégré. Les accédeurs d'espace hérités restent pour les anciens réglages, mais l'espace n'est pas un thème sélectionnable.\n* ``space_seed``: int; conservé pour les antécédents déterministes de l'espace.\n* ``font_scale``: float, 1.0 = 100 % (valeur par défaut). Borné à [0.10, 2.0].\n* ``figure_save_mode``: ``\"print\"``- ``\"screen\"``-``\"transparent\"`` (par défaut ``\"print\"``). Contrôle les couleurs de la page et de l'élément de la figure utilisées pour les figures sauvegardées. ``SPACR_FIGURE_SAVE_MODE`` reste une priorité locale-processus; voir :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"``= ``\"deuteranopia\"``= ``\"protanopia\"``= ``\"tritanopia\"`` (par défaut ``\"off\"``). Swaps matplotlib palettes arc-en-ciel / rouge-vert pour perceptually-uniform + color-aveugle-safe alternatives (viridis pour continu, Okabe-Ito pour catégorique).\n* ``performance_logging``: ``\"off\"``=``\"summary\"``=``\"detailed\"`` (par défaut ``\"summary\"``). Enregistrer l'utilisation des ressources process-tree indépendamment de la recherche d'appels verbeux; voir :func:`get_performance_logging` et :mod:`spacr.resource_log`.\n* ``db_browser_editable``: bool, valeur initiale ``False``. Permet à Database Browser d'ouvrir une connexion lecture-écriture. Détails: :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"locked\"``=\" ``\"hidden\"`` (par défaut ``\"locked\"``). Que le dock de l'application de gauche révèle sur hover, est épinglé ouvert comme une colonne permanente, ou n'y est pas du tout.\n* ``pane_opacity``: int pourcentage, valeur initiale ``60``. Contrôle la solidité des surfaces partagées ou la résistance du matériau dans le verre. Au moment de la peinture :func:`spacr.qt.theme.pane_alpha_floor` fixe une limite inférieure: la préférence est une demande, tandis que la lisibilité est obligatoire.\n* ``field_fade`` : bool, par défaut ``True``. Indique si le conteneur et le contour d'un champ de saisie passent progressivement d'opaques à gauche à entièrement transparents à droite. Les champs sont **exemptés de** ``pane_opacity`` tant que cette option est active — voir :func:`get_field_fade_enabled` et :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` / ``show_beta``: bool, les deux par défaut ``True``. Contrôlez si les modules et les paramètres à cette maturité sont affichés.\n* ``ambient_enabled``: bool, valeur initiale ``True``. Contrôle si les écrans du module peignent l'arrière-plan animé. Désactiver est un choix de première classe; détails: :func:`get_ambient_enabled`. Le contrôle orienté vers l'utilisateur est l'entrée ``None`` dans la liste d'animation plutôt qu'un autre commutateur: une ligne, une signification. Choisir une animation l'autorise à nouveau.\n* ``spacr_mode``: ``\"extra_performance\"`` . ``\"performance\"`` , ``\"balanced\"`` (par défaut ``\"balanced\"``). Comment le spaCR tente de rester hors de la voie de la machine — quand il libère ses propres caches, et si il surcharge les paramètres visuels. L'équilibre ne fait rien. Voir :func:`set_spacr_mode` et :mod:`spacr.qt.resource_cleanup`, qui possède ce qu'un nettoyage est autorisé à toucher (spaCR propre mémoire, et rien d'autre — aucun autre processus, jamais).\n* ``ambient_theme`` / ``ambient_palette``: quelle animation, et dans quelles couleurs. ``ambient_theme`` contient également :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — lisez-le avec :func:`get_ambient_animation`, qui peut répondre ``\"none\"`` ou :func:`get_ambient_theme`, dont la réponse est toujours quelque chose de peinture. Validée contre :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` et :func:`spacr.qt.widgets.ambient.palettes_for` respectivement; les palettes sont *par thème*, alors voyez :func:`get_ambient_palette` pour savoir comment les deux touches restent compatibles les unes avec les autres.\n* ``ambient_speed``/ ``ambient_size`` / ``ambient_resolution`` /``ambient_density``: flotteurs, tous par défaut ``1.0``, tous *multipliers* sur ce que l'animation choisie fait déjà — à quelle vitesse elle se déplace, à quelle taille ses éléments sont, à combien de détails elle est dessinée et combien d'éléments il y a. 1.0 est l' animation expédiée dans chaque thème, exactement, donc un utilisateur qui ne les touche jamais ne voit aucun changement. Clampé sur lecture et sur écriture aux gammes que les moteurs déclarent (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` et amis).\n* ``ambient_blur``: flotteur, par défaut ``0.0`` — combien l'image finie est adoucie, en unités de huit pixels d'criblage. Le détail d'image est contrôlé séparément par ``ambient_resolution``. Les valeurs stockées sous l'échelle de flou héritée sont traduites une fois en lecture par :func:`_migrate_ambient_motion`.\n* ``ambient_drift_direction``: ``\"up\"`` . ``\"down\"`` , ``\"random\"`` (par défaut ``\"up\"``). De quelle façon l'animation Starfield voyage. Une préférence plutôt que trois entrées dans le menu d'animation; voir :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` pour pourquoi.\n* ``spinner_delay``: flotter secondes, par défaut ``2.0``. Combien de temps le travail d'arrière-plan doit-il durer avant que le spinner d'activité n'apparaisse du tout — voir :func:`get_spinner_delay`.\n* ``setting_animations``: bool, par défaut ``False``. Indique si les tooltips jouent automatiquement leurs animations. Lorsque désactivé, hover reste texte seulement jusqu'à ce que l'utilisateur active **Animation** dans le pied de page de cet tooltip; voir :func:`get_setting_animations_enabled`.\n* ``language`` : l'un des codes de langue groupés de :mod:`spacr.qt.i18n`; par défaut, il retourne en anglais en toute sécurité lorsqu'une valeur persistante n'est pas valide.",
       "translation_source_blocks_sha256": [
         "5b0b335614a237516d384603427cf70317d840b19cdfb21798991377604d621b",
         "66c34eee0d9f2711879c10d2717b8a26f00f8b45d872c760469b9e2ff26b96c6",
@@ -69946,7 +70288,7 @@
         "5cc0279aece897e1cc3c9d2441a8760656b5a35c8da09522ab236b23413869e8",
         "94d770f7a15f32d64f58aa875eea8f3e8516892b17dd17cb5595ded8f0a7761b",
         "972c967b25aaba864ac964da7c48d2ce2b80c657c46f7b41bfee526fd6ecce83",
-        "0c45394801c69bc4fb0b001f47667371f447a899a9b3e64ab66efd1e4168cf61",
+        "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
         "b9ddb6122e53d8c6d14d53ee4deac91f11798de108e7d055b96ff2fed712eada",
         "640788923bf965fdf66b1a4bb0d857e8ee4063b5266303a1167f0f8f5028babe",
@@ -83503,6 +83845,7 @@
         "4d3ae79b26b34677edbb14d0e99f795ff584668f52c703a011ae5faf2a80adde",
         "a3983531f2b9dcd52d3a594abd78b4e59f32eba72b3d8fbfc9356a4559255133",
         "9da11592a01ea792202879023645503d6892e9f444020946bbd506b34ef0ddf5",
+        "76bb2fe9e4bbcd267b0807aa35f714fb163113624d88d26d671c3aa08cac71a1",
         "99b12cc816f1e9c808c7dcdf4f1cf6a040538f94c847a8ce4757ff3d35f116a9",
         "63879165cc3f5954fad739999b097d521503f9a0463c9d65add035f7e5dce341",
         "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
@@ -83519,12 +83862,13 @@
         "8b25805b62503021d3cd0e356d77fed3f84e9cf8e3c38a0027c7dedd01257bb5",
         "afbdb1aec56ec8739acd1a6bd56ddcd0a071b8826657b277fbecbd0e6fd9de4c"
       ],
-      "source_sha256": "18edad6505a2e7d98f483a0ab114a1e1f65b291a03a05f87d51cf1b0cdb89484",
-      "text": "La recherche en direct : lit, mesure les paramètres, rien encore écrit.\n\nAppuyez sur le bouton de recherche et le panneau échantillonne les lectures d'un échantillon dans le dossier les noms des formulaires, mesure chaque table de référence contre eux dans les deux orientations et dans les 2 compagnons, et raffine ce qu'il montre après chaque partie de lecture. Il se termine par proposer les paramètres que ces mesures impliquent et attendent, parce que les appliquer est la décision de l'utilisateur.\n\nLe tableau des résultats présente le taux observé et le taux attendu par coïncidence dans les colonnes adjacentes, avec le rapport entre elles à côté des deux, parce qu'un taux ne peut pas être dit à lui seul d'un accident et que ce panneau existe pour empêcher quelqu'un d'agir sur un. La fenêtre de texte montre les lectures avec leurs correspondances colorées par type de code-barres, car un code-Barre atterrissant dans les mêmes colonnes à la ligne après la ligne est la preuve qui règle un argument un pourcentage ne peut. La proposition montre la valeur que le formulaire tient à côté de la valeur suggérée par la recherche, donc ce que Apply est sur le point de faire est lisible avant qu'il le fasse.\n\nChaque fichier est lu à l'intérieur d'un travail soumis, un morceau à la fois, de sorte que l'interface reste en vie et une recherche peut être abandonnée à tout moment. Annuler ne propose rien : une mesure interrompue est un rapport honnête et partiel et une recommandation malhonnête.\n\n:param screen: la vue de l'application Map Barcodes dont le formulaire de paramètres est lu pour la recherche et écrit par Apply. Peut être None, ce qui laisse le panneau utilisable comme un affichage avec rien à lire et rien à écrire.\n:param parent: widget parent; propriété seulement.\n:param threaded: exécuter la recherche sur les unités d'exécution de fond. False exécute chaque étape en ligne, dans le même ordre et à travers les mêmes gestionnaires, de sorte qu'un test peut conduire toute une recherche synchrone.\n:param max_reads: combien de lectures à échantillonner de chaque fichier. Le moteur propre par défaut quand omis.\n:param chunk_reads: combien de lectures chaque étape de la recherche prend de chaque fichier. Le moteur propre par défaut quand omis.\n:param read_sample: combien lit la fenêtre de texte affiche.\n:ivar search_button: commence une recherche.\n:ivar cancel_button: abandonne la recherche en vol.\n:ivar apply_button: écrit les paramètres proposés dans le formulaire; désactivé jusqu'à ce qu'une recherche terminée ait proposé quelque chose de différent de ce que le formulaire détient déjà.\n:ivar status: une ligne indiquant ce que la recherche fait ou a trouvé.\n:ivar findings: le tableau des mesures, une rangée par tableau de référence par partenaire et par orientation.\n:ivar proposal_label: ce qui Apply changerait, et ce que la recherche a appris qu'aucun réglage ne peut tenir.\n:ivar reads: la fenêtre texte montrant les lectures échantillonnées avec des correspondances colorées.\nConstruisez le panneau et armez-le contre une vue d'application de paramètres.",
+      "source_sha256": "2938eb9d4d71bb79f8d71c04754c8f81af253639ea3f2bf8eb0d803ee8baa705",
+      "text": "La recherche en direct : lit, mesure les paramètres, rien encore écrit.\n\nAppuyez sur le bouton de recherche et le panneau échantillonne les lectures d'un échantillon dans le dossier les noms des formulaires, mesure chaque table de référence contre eux dans les deux orientations et dans les 2 compagnons, et raffine ce qu'il montre après chaque partie de lecture. Il se termine par proposer les paramètres que ces mesures impliquent et attendent, parce que les appliquer est la décision de l'utilisateur.\n\nLe tableau des résultats présente le taux observé et le taux attendu par coïncidence dans les colonnes adjacentes, avec le rapport entre elles à côté des deux, parce qu'un taux ne peut pas être dit à lui seul d'un accident et que ce panneau existe pour empêcher quelqu'un d'agir sur un. La fenêtre de texte montre les lectures avec leurs correspondances colorées par type de code-barres, car un code-Barre atterrissant dans les mêmes colonnes à la ligne après la ligne est la preuve qui règle un argument un pourcentage ne peut. La proposition montre la valeur que le formulaire tient à côté de la valeur suggérée par la recherche, donc ce que Apply est sur le point de faire est lisible avant qu'il le fasse.\n\nIl suit le formulaire. Une fois qu’une recherche a été demandée, modifier n’importe quel réglage que la recherche lit -- le dossier de séquençage, une table de référence, le jeu de codes-barres ou l’ancre -- la relance dès que le formulaire est resté immobile un instant, comme l’aperçu en direct de Masques suit ses réglages. Les réglages que la recherche ne lit pas n’en lancent jamais. Appliquer est l’exception à tout ce qui est en direct dans ce panneau : le formulaire ne change que lorsqu’on appuie sur le bouton, de sorte qu’une valeur saisie par quelqu’un n’est jamais remplacée par une mesure arrivée pendant la saisie.\n\nChaque fichier est lu à l'intérieur d'un travail soumis, un morceau à la fois, de sorte que l'interface reste en vie et une recherche peut être abandonnée à tout moment. Annuler ne propose rien : une mesure interrompue est un rapport honnête et partiel et une recommandation malhonnête.\n\n:param screen: la vue de l'application Map Barcodes dont le formulaire de paramètres est lu pour la recherche et écrit par Apply. Peut être None, ce qui laisse le panneau utilisable comme un affichage avec rien à lire et rien à écrire.\n:param parent: widget parent; propriété seulement.\n:param threaded: exécuter la recherche sur les unités d'exécution de fond. False exécute chaque étape en ligne, dans le même ordre et à travers les mêmes gestionnaires, de sorte qu'un test peut conduire toute une recherche synchrone.\n:param max_reads: combien de lectures à échantillonner de chaque fichier. Le moteur propre par défaut quand omis.\n:param chunk_reads: combien de lectures chaque étape de la recherche prend de chaque fichier. Le moteur propre par défaut quand omis.\n:param read_sample: combien lit la fenêtre de texte affiche.\n:ivar search_button: commence une recherche.\n:ivar cancel_button: abandonne la recherche en vol.\n:ivar apply_button: écrit les paramètres proposés dans le formulaire; désactivé jusqu'à ce qu'une recherche terminée ait proposé quelque chose de différent de ce que le formulaire détient déjà.\n:ivar status: une ligne indiquant ce que la recherche fait ou a trouvé.\n:ivar findings: le tableau des mesures, une rangée par tableau de référence par partenaire et par orientation.\n:ivar proposal_label: ce qui Apply changerait, et ce que la recherche a appris qu'aucun réglage ne peut tenir.\n:ivar reads: la fenêtre texte montrant les lectures échantillonnées avec des correspondances colorées.\nConstruisez le panneau et armez-le contre une vue d'application de paramètres.",
       "translation_source_blocks_sha256": [
         "4d3ae79b26b34677edbb14d0e99f795ff584668f52c703a011ae5faf2a80adde",
         "a3983531f2b9dcd52d3a594abd78b4e59f32eba72b3d8fbfc9356a4559255133",
         "34a552a1413be2c88a7e18430315a0498cf07e59c3ad6299a874299e17b9fb41",
+        "76bb2fe9e4bbcd267b0807aa35f714fb163113624d88d26d671c3aa08cac71a1",
         "99b12cc816f1e9c808c7dcdf4f1cf6a040538f94c847a8ce4757ff3d35f116a9",
         "9a6deb2275efcb320f0e01c66fe701e1ee7464c5c0e6402cef5990ade1c8aaba",
         "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
@@ -93197,17 +93541,17 @@
         "ad7196c03f30f348a146c8f478351898d26055aa2e009ed75600e270f5c3c588",
         "33443d77a60d6cb361361bc63c42a236bda09404a10755714a62f877025af977",
         "a57df3d39d019010d6ba2ca4c52204a89e55b02c834bee830cba99d776970d8a",
-        "70b94149cf0145827135e8cf03bb43bc2184d43b015c0f522ea305f1b27ecf0e"
+        "23b6fbe53b6e1de3d14cf1572ae8b2fbf1fc85850f9d87e5331a1772d87f7126"
       ],
-      "source_sha256": "8cd32a983546675c883e36c62c72f15ece404ab10caa63f9b037cd57bbd67f69",
-      "text": "Retourne une taille de police en px avec la préférence Zoom de l'utilisateur appliquée.\n\nLa feuille de style de l'application :data:`FONT_SIZE` elle-même (voir :func:`stylesheet`), donc tout ce qu'elle a de style suit déjà Zoom. Ce qui fait *pas* est un widget qui définit sa propre feuille — un par-widget ``setStyleSheet`` bat la feuille d'application quoi que le sélecteur dise — ou celui qui peint du texte avec un ``QPainter``. Ces surfaces codées en dur un numéro de pixel et ainsi sont restées 13 px à 150 %: les bandes d'onglets, la maison de côté, l'infobulle hover, les toggles Live/AI.\n\nFaites passer chaque nombre ici au lieu d'écrire un texte littéral.\n\n:param role_or_px: une touche :data:`FONT_SIZE` (``\"body\"``, ``\"small\"``...) ou une taille de pixel de base brute.\n:param scale: remplacer la préférence — utilisée par :func:`stylesheet`, qui génère une feuille pour une échelle qui ne peut pas encore être celle enregistrée. ``None`` lit la préférence.\n:returns: au moins 6 px, donc une petite échelle ne peut pas effondrer le texte.",
+      "source_sha256": "53a2572c165b32ef9eb99614e870ebb9d923e323ffa8a516d2b9590b3b2bf99c",
+      "text": "Retourne une taille de police en px avec la préférence Zoom de l'utilisateur appliquée.\n\nLa feuille de style de l'application :data:`FONT_SIZE` elle-même (voir :func:`stylesheet`), donc tout ce qu'elle a de style suit déjà Zoom. Ce qui fait *pas* est un widget qui définit sa propre feuille — un par-widget ``setStyleSheet`` bat la feuille d'application quoi que le sélecteur dise — ou celui qui peint du texte avec un ``QPainter``. Ces surfaces codées en dur un numéro de pixel et ainsi sont restées 13 px à 150 %: les bandes d'onglets, la maison de côté, l'infobulle hover, les toggles Live/AI.\n\nFaites passer chaque nombre ici au lieu d'écrire un texte littéral.\n\n:param role_or_px: une touche :data:`FONT_SIZE` (``\"body\"``, ``\"small\"``...) ou une taille de pixel de base brute.\n:param scale: remplacer la préférence — utilisée par :func:`stylesheet`, qui génère une feuille pour une échelle qui ne peut pas encore être celle enregistrée. ``None`` lit la préférence.\n:returns: au moins 1 px, car Qt refuse une taille de pixel nulle ou négative ; aucun plancher plus élevé n’est imposé.",
       "translation_source_blocks_sha256": [
         "23e9c1faa3c98b6962d348fa5067b9832494d128cab02c3c5ccd8f8f9edef465",
         "c3488976009e85e0652d3675936143e6627ec1639da2fe0c8c96156ddda7c380",
         "ad7196c03f30f348a146c8f478351898d26055aa2e009ed75600e270f5c3c588",
         "33443d77a60d6cb361361bc63c42a236bda09404a10755714a62f877025af977",
         "a57df3d39d019010d6ba2ca4c52204a89e55b02c834bee830cba99d776970d8a",
-        "70b94149cf0145827135e8cf03bb43bc2184d43b015c0f522ea305f1b27ecf0e"
+        "23b6fbe53b6e1de3d14cf1572ae8b2fbf1fc85850f9d87e5331a1772d87f7126"
       ]
     },
     "spacr.qt.theme.glass_material": {
@@ -119000,12 +119344,14 @@
     },
     "spacr.qt.widgets.graph_spec.GraphSpec.resolved_kind": {
       "source_blocks_sha256": [
-        "ca5d1b788094dceb02f856b64480ccd5beb12ed04ff378ff42cbd126f2c0336d"
+        "20da71f8ba82bae80518ce6cc4d05a9ba6d1e6369cd2f747d8e09f9cc95b863a",
+        "a99b098682ea2062035c2d71444303d0626bd5e14c0ee5121d4398d291c6c44c"
       ],
-      "source_sha256": "ca5d1b788094dceb02f856b64480ccd5beb12ed04ff378ff42cbd126f2c0336d",
-      "text": "Le genre qui sera effectivement tiré — l'épingle, ou l'inférence.",
+      "source_sha256": "8890ed7e79b1e87ecb0a10eacaa61b6cb72d4fbc0075f1f8840fe0c07d4b1b49",
+      "text": "Le type qui sera réellement dessiné.\n\nL’ÉPINGLE, PUIS LE RÉGLAGE, PUIS L’INFÉRENCE. Une épingle explicite, c’est l’utilisateur qui dit « ce graphique, maintenant », et elle l’emporte toujours d’office. Sans épingle, la préférence Default Graph Type choisit parmi les formes qui conviennent, et l’inférence répond lorsqu’il n’y a pas de préférence ou que la forme choisie ne peut pas être dessinée ici -- voir :func:`_kind_and_note`.",
       "translation_source_blocks_sha256": [
-        "ca5d1b788094dceb02f856b64480ccd5beb12ed04ff378ff42cbd126f2c0336d"
+        "20da71f8ba82bae80518ce6cc4d05a9ba6d1e6369cd2f747d8e09f9cc95b863a",
+        "d6972bb1e4bc986990860155df199baabf6e8ac6fcce1db8a998e7dcbfdbf191"
       ]
     },
     "spacr.qt.widgets.graph_spec.GraphSpec.to_dict": {

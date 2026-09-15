@@ -363,7 +363,14 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # Private and still shipped, like `_segmentation_backends`. Measured by
     # diffing the shipped set against origin/nightly df1216b3f: now - base is
     # exactly those two files and base - now is empty.
-    assert len(shipped) == 570
+    # 570 -> 572 on 2026-09-15, +2/-0: spacr/qt/make_masks_demo.py (412,
+    # Make Masks' test data) and spacr/install_cleanup.py (416, the finder
+    # and remover for older installs), both at 100% under their own tests.
+    # Measured by diffing the shipped set against origin/nightly dca970671:
+    # now - base is exactly those two files and base - now is empty. The
+    # workflow's --expected-file-count below still says 570; .github is
+    # outside this branch, so that line and its pin move in their own commit.
+    assert len(shipped) == 572
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the

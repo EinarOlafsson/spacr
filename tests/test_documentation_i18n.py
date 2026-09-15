@@ -170,7 +170,17 @@ TOOLS = ROOT / "tools"
 # its `__post_init__`. The count is the live surface, measured; the catalogs
 # are NOT regenerated for the two, so the inventory half of the test below
 # names them as missing until the pre-release catalog rebuild runs.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_523
+# 10,523 -> 10,539 on 2026-09-15, +16 / -0 by set difference against
+# nightly dca970671:
+# spacr.qt.make_masks_demo and its seven public functions (412), and
+# spacr.install_cleanup with InstallRecord, RemovalReport,
+# RemovalReport.ok, find_old_installs, remove_install,
+# run_update_sequence and start_update_helper (416). 413 rewrote two
+# existing docstrings and added none. The live surface with those sixteen
+# keys dropped is 10,523, the previous value. Their blocks carry reviewed
+# records in all nine locales
+# (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_539
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

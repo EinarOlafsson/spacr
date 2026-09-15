@@ -1111,7 +1111,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # TWO. That is a recorded debt for the pre-release catalog rebuild, which
     # the home session owns; test_documentation_i18n names the two missing
     # symbols until it runs.
-    expected = 10_523
+    # 10,523 -> 10,539 on 2026-09-15, +16/-0 by set difference against
+    # nightly dca970671: spacr.qt.make_masks_demo and its seven public
+    # functions (412), spacr.install_cleanup with InstallRecord,
+    # RemovalReport, RemovalReport.ok, find_old_installs, remove_install,
+    # run_update_sequence and start_update_helper (416). The surface with
+    # those sixteen keys dropped is 10,523, the previous value. The nine
+    # catalogs were repaired with reviewed records for every one of their
+    # blocks BEFORE this number was touched
+    # (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
+    expected = 10_539
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1149,7 +1158,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,534 -> 10,541 with `expected` above, for 372's seven.
     # 10,541 -> 10,521 with `expected` above, for the same twenty.
     # 10,521 -> 10,523 with `expected` above, for the same two.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_523
+    # 10,523 -> 10,539 with `expected` above, for 412's and 416's sixteen.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_539
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1458,7 +1468,13 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # entries. So 4 crossed to the filtered side and 2 were rendered: +6
     # pre-filter, +2 post-filter, the case where the halves move by
     # different amounts and only measuring both can tell.
-    assert 10_746 - len(docs) == 223
+    # RE-MEASURED 2026-09-15 for 412's and 416's sixteen arrivals, both
+    # halves in one run with `_is_rendered_autoapi_entry` neutralised:
+    # pre-filter 10,746 -> 10,762 and post-filter 10,523 -> 10,539. The
+    # pre-filter key set gained exactly the sixteen post-filter arrivals
+    # (dropping them returns 10,746 and 10,523), so every one is rendered
+    # and the boundary stays 223.
+    assert 10_762 - len(docs) == 223
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
