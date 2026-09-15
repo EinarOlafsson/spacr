@@ -2,7 +2,8 @@
 CLAUDE CODE INSTALLS WITH CURL ON EVERY SYSTEM, WINDOWS INCLUDED
 ================================================================================
 
-Status:    OPEN, filed 2026-09-15.
+Status:    BUILT 2026-09-15 (b3f7bd6c9), NOT YET TRIED ON A REAL WINDOWS MACHINE.
+           Filed OPEN 2026-09-15.
 Requested: 2026-09-15, by the maintainer, in these words (item 1 of three):
            "the claud on all systems if possible code installation on windows
            (just allways use curl)"
@@ -61,3 +62,30 @@ HOW TO KNOW IT WORKED
   * A test pins that no Claude Code install hint on any platform starts with
     `npm`, and that the Windows hint names its shell.
   * The runtime catalogs carry the new text in all nine languages.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- BUILT
+--------------------------------------------------------------------------------
+
+spacr/qt/ai/providers.py `ClaudeCliProvider.install_hint` now shows Anthropic's
+documented native installer, with curl, on every system -- checked against
+https://code.claude.com/docs/en/setup on 2026-09-15 (docs.anthropic.com
+redirects there):
+
+    macOS / Linux   curl -fsSL https://claude.ai/install.sh | bash
+    Windows         cmd /c "curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd"
+
+The Windows hint wraps the documented CMD command in `cmd /c "..."` so it also
+works when pasted into PowerShell, where `curl` can resolve to an alias and
+PowerShell 5.1 rejects `&&`. `install.cmd` ends with `exit /b`, so the trailing
+`del` still runs.
+
+  * No translation was needed: the hint is in no runtime catalog table, so every
+    language already shows the command verbatim.
+  * No tutorial or docs page shows the command.
+  * tests/qt/test_claude_code_install_hint.py: no Claude Code hint on any
+    platform starts with `npm`, and the Windows hint is shell-safe. On the old
+    code its three Windows checks fail.
+  * OWED: a paste-and-run on a clean Windows machine without Node.js, in both
+    CMD and PowerShell, then `claude --version` in a new terminal.
+  * Unchanged, as filed: the Codex and Gemini hints are still npm-first.
