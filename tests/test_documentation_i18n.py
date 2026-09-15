@@ -1526,8 +1526,11 @@ def test_canonical_indented_api_explanations_are_translation_blocks():
             "``channel_arrays`` is exactly the array",
         "spacr.model_compare":
             "one model's settings, plus what of it survives.",
+        # Re-pointed 2026-09-15: item 63 (63d5cd86e) removed the bold around
+        # this sentence. reST cannot nest ``False`` inside **...**, so the
+        # old markup rendered its own asterisks.
         "spacr.power_model.scan_parameters":
-            "**Returning exactly ``False`` stops the sweep**",
+            "Returning exactly ``False`` stops the sweep",
     }
     for key, fragment in expected_fragments.items():
         blocks, _layout = translatable_blocks(docs[key])
