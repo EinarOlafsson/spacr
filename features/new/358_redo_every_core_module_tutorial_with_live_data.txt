@@ -682,3 +682,15 @@ RELEASE CANDIDATE WITH THE NEW 13_REGRESSION (built before 07_mask, so a
   whose English did not change. For each changed row, read the draft
   against the new English and write the reviewed text. Then diff every row
   of each new review against its old file: only the changed rows may differ.
+  EVIDENCE FOR THE REVIEW RULE, before any new draft exists:
+    $ST/catalog-drafts already holds a 07_mask machine draft from an
+    earlier run. It translates the OLD English, and it renames the UI.
+    Spanish objective 1 "Encuentra Mask en el hogar y sus controles en vivo,
+    tiempo y 3D" and scene 1 "La máscara abierta desde casa ... El tiempo
+    tiene su propio tutorial enlazado bajo Máscara" make Home "hogar"/"casa",
+    Live "en vivo", Time "tiempo" and Mask "máscara". None of those names
+    exists in the interface. The reviewed rows say "Home", "Live", "Time"
+    and "Mask". A stale draft can therefore look plausible, and even a
+    current draft must not be applied without reading each row.
+    Snapshot of the 13 reviews before editing:
+    <scratchpad>/358_mask/reviews_before/ (sha256 prefixes recorded there).
