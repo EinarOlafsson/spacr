@@ -8022,3 +8022,53 @@ empty while the new-feature list takes priority. Its Phase A Docs run
 34987365233 passed. On 5ffa25cd2, the source-only inventory has 813 canonical
 eligible helper entries in 184 modules and no eligible undocumented helper;
 the old Preferences finding has therefore already been resolved in source.
+
+--------------------------------------------------------------------------------
+2026-09-15 — WORK SESSION §5 HANDOFF: WHAT IS ON NIGHTLY, AND WHAT IS STILL OWED
+--------------------------------------------------------------------------------
+
+The maintainer is out of tokens and this session stops here.
+
+PUSHED, 884eacaab..978092685, five commits, by the maintainer:
+  d50b28298  Lint: settings_advisor's pandas annotations resolve again, for
+             type checking only. FIXES A RED CI JOB -- ruff F821, undefined
+             name pd, at settings_advisor.py:193 and :211, left by 284 moving
+             the pandas import into the two readers. pandas is imported under
+             TYPE_CHECKING, so a settings default still does not import it.
+  697601be2  325 note: the 28-commit set is on nightly, the gate count is
+             yours and done, and the lint red was mine.
+  f7c9beb16  Dose-Response: the pickers keep their values in every language, a
+             refit shows itself, and the report reaches a translator.
+  a7f122419  325 note: your two Dose-Response findings and the two bugs under
+             them. It lists the 14 new UI sources verbatim.
+  978092685  418 filed: Mask filters objects by min and max intensity; the
+             five split/merge settings go. FILED ONLY, not started.
+
+NO CATALOG FILE IS TOUCHED BY ANY OF THEM: nothing under
+spacr/qt/i18n_catalogs/ or docs/source/_static/i18n/api/. Codex's 411 Phase B
+has nothing of mine to wait for or collide with.
+
+STATE, measured on 884eacaab before the push:
+  * 373 passed, 2 failed -- the caption ratchet's two tests, on my 14 new UI
+    sources and nothing else.
+  * build_documentation_i18n.py --audit exits 0 (10,539 symbols).
+  * build_i18n_catalogs.py --audit exits 1 on exactly those 14 sources in all
+    nine languages, and exits 0 on clean 884eacaab. So the docs job's runtime
+    lane is RED on the 14 until your runtime pass runs. That is the only red
+    my push adds.
+  * Every fix is mutation-checked. New tests:
+    tests/qt/test_dose_response_pickers_survive_a_language_change.py (fails 6
+    of 8 on the old code, in fr and de) and
+    tests/qt/test_dose_response_a_refit_shows_the_new_fit.py.
+
+STILL OWED, NOT DONE, FOR WHOEVER PICKS THIS UP:
+  * The 14 sources need reviewed records and a catalog rebuild (yours).
+  * The placeholder "...then Fit." in spacr/qt/screens/dose_response.py still
+    names the old button. Changing that English orphans the reviewed record
+    for it and makes reviewed_runtime_translations() raise, so it belongs in
+    the same commit as the rebinding.
+  * 284's next step, untouched: compare what the prewarm thread in
+    spacr/qt/app.py (~5573) imports against what opening Regression imports.
+  * 418 is filed and not started.
+  * My Qt suite run, on the pre-407 tree, reached 99% with no failures and was
+    not finished when this session stopped.
