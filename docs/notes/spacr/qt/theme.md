@@ -1274,7 +1274,7 @@ Scaled with the font, like every other Python-set size: a 150 % font makes the n
 ### lines 4308-4309  _(unsure)_
 
 ```python
-F = {k: max(6, int(round(v * font_scale)))
+F = {k: max(_QT_MIN_FONT_PX, int(round(v * font_scale)))
 ```
 
 Scaled font sizes so the "Font scale" preference actually resizes the whole app, not just the base body text.

@@ -70,13 +70,19 @@ _NOTCH = 120.0
 #: that a user who has stopped does not think the gesture is unfinished.
 _SETTLE_MS = 220
 
-#: The smallest text this may produce, in px. Matches
-#: :func:`spacr.qt.theme.font_px`, so the live pass cannot render text the
-#: settled stylesheet would refuse to.
-_MIN_PX = 6
+#: The smallest text this may produce, in px: one, because
+#: ``QFont.setPixelSize`` refuses zero. It is Qt's floor and the same one
+#: :func:`spacr.qt.theme.font_px` keeps, so the live pass and the settled
+#: stylesheet agree at the bottom of the range. The Zoom floor itself is
+#: :data:`spacr.qt.preferences.FONT_SCALE_MIN`; a readability floor here
+#: would stop the wheel's text shrinking before the scale does.
+_MIN_PX = 1
 
-#: The point-size floor for the few widgets whose font is not set in pixels.
-_MIN_PT = 4.5
+#: The point-size floor for the few widgets whose font is not set in pixels:
+#: one pixel at Qt's 96 DPI logical resolution. ``setPointSizeF`` refuses
+#: zero, and a positive size under this resolves to a 0 px font that draws
+#: nothing.
+_MIN_PT = 72.0 / 96.0
 
 _FILTER_ATTRIBUTE = "_spacr_live_zoom_filter"
 
