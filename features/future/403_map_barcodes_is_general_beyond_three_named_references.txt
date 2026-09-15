@@ -4,12 +4,85 @@ MAP BARCODES IS GENERAL BEYOND THREE NAMED REFERENCES
 
 Status:    FUTURE, filed 2026-09-14. Not blocking. Asked for directly:
            "is there an item to make map barcodes more generalizable?"
-           There was not -- this is it.
+           There was not -- this is it. WIDENED 2026-09-15 at the maintainer's
+           request to carry his Map Barcodes overhaul from 2026-09-12, whose
+           unbuilt remainder was never filed anywhere, and two new asks. See
+           THE MAINTAINER'S REQUESTS, VERBATIM directly below.
 Requested: 2026-09-14, by the maintainer.
 Owner:     unassigned. `spacr/barcode_search.py` is the search,
            `spacr/sequencing.py:1078 generate_barecode_mapping` is the
            mapping, and `spacr/settings.py:3445-3448` is where the shape is
            fixed.
+
+--------------------------------------------------------------------------------
+THE MAINTAINER'S REQUESTS, VERBATIM -- merged 2026-09-15
+--------------------------------------------------------------------------------
+
+He asked for this overhaul in more detail from the home session than from the
+work session, and on 2026-09-15 said: "i asked you yesterday for an overhaul of
+the map barecodes modual that you seem to have forgotten and not added to the
+instructions/ featurese lists ... merge what i told you into the item the work
+session made". Recovered from the home session's transcript, in order:
+
+  2026-09-12 20:29  "What does this mean Map Barcodes needs matching
+                    reference/orientation data"
+
+  2026-09-12 20:43  "What, you don't need that, can't you deduce the
+                    information you need from the column, row, and, gRNA
+                    barcodes you already have plus the sequencing files that
+                    are downloadable in map barcodes?"
+
+  2026-09-12 20:51  "So that settles it, map barcodes can now get a tutorial,
+                    and if you have any ideas for making map barcodes better,
+                    for instance implementing a search function that searches
+                    for barcodes and setts settings automatically, and the
+                    ability to find more than 3, I.e. an arbitrary number of
+                    barcodes, or anything else please implement that. The
+                    automatic settings mode, should be like live mode if make,
+                    the user should also see the matching barcodes in a text
+                    window with 1 read per row and the different barcodes
+                    matches visualized by coloring different barcodes
+                    different colors."
+
+  2026-09-15        "the barcode references in map barcodes should be one line
+                    or row each now they are large fields for some reason. also
+                    loading test data in map barecodes should loade these
+                    tables if if they are not already loaded, they should be
+                    available to downloade from the package github. add all
+                    this to the map barecodes generalization item."
+
+WHAT OF THAT IS BUILT, AND WHERE. Item 399 (DONE 2026-09-13, c753b7de7)
+built the SEARCH half of the 20:51 request: a search that finds the barcodes
+and sets the settings itself, any number of barcodes in the search, a read
+window with one read per row, and each barcode's matches in its own colour.
+The 20:43 question was also answered there: the search decides each table's
+orientation from the reads (as given or reverse-complemented), and row
+identity is present at 98.28% without reverse-complementing the references,
+so no separate orientation data is needed. The tutorial was re-recorded
+(3c40b477c) and is staged, not published.
+
+WHAT IS STILL OWED FROM THOSE REQUESTS, beyond the pipeline half below:
+
+  A. ONE ROW PER BARCODE REFERENCE. The references are the three path
+     settings `column_csv`, `grna_csv` and `row_csv`
+     (`spacr/qt/screens/map_barcodes.py:1138-1140`), rendered as large
+     multi-line path fields. Each reference should be ONE line -- its name,
+     its path, a browse button -- and with N references (the pipeline half
+     below) the list is N such rows, not N tall boxes.
+
+  B. LOADING TEST DATA LOADS THE REFERENCE TABLES when they are not already
+     set. The tables ship inside the package as
+     `spacr/resources/data/barcodes_column.csv`, `barcodes_grna.csv` and
+     `barcodes_row.csv` (`spacr.settings.bundled_barcode_path`), and the
+     synthetic demo writes its own three (`spacr/qt/synthetic.py`,
+     `generate_map_barcodes_demo`). Loading test data should fill every EMPTY
+     reference, never overwrite one the user set, and when the local copy is
+     missing fetch it from the package's GitHub -- the raw file at the tag of
+     the installed version -- verified against a pinned sha256.
+
+  C. THE AUTOMATIC SETTINGS MODE "LIKE LIVE MODE IN MAKE MASKS". 399 records
+     the search setting the settings; check whether that is the live,
+     continuously-updating mode he described before building anything here.
 
 --------------------------------------------------------------------------------
 WHAT IS ALREADY GENERAL, SO THAT NOBODY REBUILDS IT
