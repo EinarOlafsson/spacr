@@ -1124,3 +1124,13 @@ picked up cold:
     Pre-edit copy: <scratchpad>/358_mask/render_all_voices.pre-bm_fable.py.
     RENDER RELAUNCHED on the GPU lock (no --force): the 21 finished tracks
     should skip, and bm_fable plus the 28 others render.
+  REPAIR RESULT. The retry skipped the 21 finished tracks and rendered
+    en/bm_fable first (363.6 s of narration), which passed the gate. Measured
+    independently with ffmpeg ebur128 (peak=true):
+      en/bm_fable   true peak -1.2 dBFS, integrated -17.8 LUFS
+                    (4 mastering filters, last ...,volume=-2dB; new narration)
+      en/bm_daniel  true peak -2.0 dBFS, integrated -16.9 LUFS (no repair)
+    So the repair clears the -1 dBFS gate by 0.2 dB, and that one voice is
+    ~0.9 LU quieter than its neighbour. The trade is the same one Map's
+    bm_fable made. For a listening review: that is why 07_mask/en/bm_fable
+    sounds slightly softer.
