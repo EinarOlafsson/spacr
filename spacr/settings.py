@@ -3739,16 +3739,24 @@ def _fold_the_classes(settings):
 
 
 def _outlier_criteria():
-    """Return criteria shared by outlier settings and filtering logic."""
-    try:
-        from .outlier_filter import CRITERIA
+    """Return criteria shared by outlier settings and filtering logic.
 
-        return CRITERIA
-    except Exception:                                            # noqa: BLE001
-        return (("cell_area", "cell area"),
-                ("nucleus_area", "nucleus area"),
-                ("cell_intensity", "cell channel intensity"),
-                ("nucleus_intensity", "nucleus channel intensity"))
+    :returns: the (key, human name) pairs a run can filter outliers on.
+
+    READ FROM `outlier_criteria` AND NOT FROM `outlier_filter`. They are the
+    same four pairs either way; the difference is that `outlier_filter` needs
+    pandas, and this function is called while a settings panel is being laid
+    out. Importing pandas to read four pairs of strings cost 211 ms on the
+    main thread, which the user sees as the interface stopping.
+
+    There is no fallback tuple here any more. There used to be, for the case
+    where the import failed, and it was a second copy of the same four pairs
+    that nothing compared with the first -- so a criterion added in one place
+    and not the other would have been silently dropped from the panel.
+    """
+    from .outlier_criteria import CRITERIA
+
+    return CRITERIA
 
 
 tooltips = {

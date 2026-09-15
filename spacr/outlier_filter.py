@@ -17,22 +17,10 @@ import pandas as pd
 LOG = logging.getLogger("spacr.outlier_filter")
 
 #: Supported filter criteria represented as ``(setting, display label)``.
-CRITERIA: Tuple[Tuple[str, str], ...] = (
-    ("cell_area", "cell area"),
-    ("nucleus_area", "nucleus area"),
-    ("cell_intensity", "cell channel intensity"),
-    ("nucleus_intensity", "nucleus channel intensity"),
-)
-
-#: Column names each criterion may appear under, most canonical first.
-COLUMNS: Dict[str, Tuple[str, ...]] = {
-    "cell_area": ("cell_area", "cell_area_px", "area_cell"),
-    "nucleus_area": ("nucleus_area", "nucleus_area_px", "area_nucleus"),
-    "cell_intensity": ("cell_channel_1_mean_intensity",
-                       "cell_mean_intensity", "cell_intensity"),
-    "nucleus_intensity": ("nucleus_channel_1_mean_intensity",
-                          "nucleus_mean_intensity", "nucleus_intensity"),
-}
+# Re-exported so every existing importer of `outlier_filter.CRITERIA` and
+# `.COLUMNS` keeps working. They live in `outlier_criteria` because
+# `spacr.settings` needs them and must not pay for pandas to get them.
+from .outlier_criteria import COLUMNS, CRITERIA           # noqa: E402,F401
 
 #: Default number of scaled MADs separating an outlier from the median.
 DEFAULT_MADS = 5.0
