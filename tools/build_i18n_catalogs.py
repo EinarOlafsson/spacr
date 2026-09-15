@@ -2742,6 +2742,17 @@ MANUAL_UI: dict[str, dict[str, str]] = {
         "fr": "Analyse spatiale des phénotypes des criblages CRISPR.",
     },
     "Regex": {code: "Regex" for code in MODEL_SPECS},
+    # FRENCH "CONCENTRATION" IS THE ENGLISH WORD, AND THAT IS THE TRANSLATION.
+    # The Dose-Response column label is spelt identically in French -- la
+    # concentration of a compound -- so the exact-English gate refused the
+    # right answer and the generated catalog shipped the plural
+    # "Concentrations" for a single column. The same reviewed identity
+    # decision as `fr: "Source"` and `fr: "Figure"` in
+    # tools/i18n_reviewed_ui.py, but written HERE because this table is
+    # per-locale: a row there must fill all nine locales and is read before
+    # reviewed records, so it would override the zh_CN, hi, ko and is records
+    # already written for this label.
+    "Concentration": {"fr": "Concentration"},
     "Ft": {
         "sv": "Flödeströskel (FT)", "de": "Flussschwellenwert (FT)",
         "es": "Umbral de flujo (FT)", "zh_CN": "流场阈值（FT）",
