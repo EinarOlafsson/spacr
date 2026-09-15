@@ -1103,3 +1103,24 @@ picked up cold:
     (en af_* x8, am_* x9, bf_* x4, bm_daniel); 29 are still old. That mix
     must NOT reach verify_staged_audio, the browser checks or the matrix.
     A plain re-run retries bm_fable (fingerprint mismatch) and skips the 21.
+  PEAK REPAIR APPLIED -- the renderer's own narrow mechanism, used for this
+    same voice once before. render_all_voices.mastering_config() already
+    pins "measured, narrowly scoped" repairs by (lesson, language, voice):
+    18_motility/en/bf_isabella (-0.5 dBFS) and 12_map_barcodes/en/bm_fable
+    (-0.6 dBFS, 455c4d298) each append the strongest filter plus
+    volume=-2dB. Added ("07_mask", "en", "bm_fable") with the same chain and
+    the measured -0.8 dBFS in its comment. The -1 dBFS gate still decides.
+    Applied identically to BOTH copies (workspace tools/render_all_voices.py
+    and tools/tutorials/authoring/tools/render_all_voices.py; they were
+    identical before at 40a3ae41 and are identical after at 0696cd40, because
+    snapshot_sources.py copies the workspace over authoring/).
+    SCOPE MEASURED by loading mastering_config from the before and after
+    sources: only 07_mask/en/bm_fable changes (3 -> 4 filters); 07_mask
+    bm_daniel, bm_george, es/ef_dora, Map's and Motility's repaired tracks,
+    13_regression/en/bm_fable and 05_home/en/af_heart are identical. The
+    chain lives in that one track's fingerprint, and
+    assert_frozen_sources_current hashes pronunciation and cadence sources,
+    not the renderer, so no other track in any lesson goes stale.
+    Pre-edit copy: <scratchpad>/358_mask/render_all_voices.pre-bm_fable.py.
+    RENDER RELAUNCHED on the GPU lock (no --force): the 21 finished tracks
+    should skip, and bm_fable plus the 28 others render.
