@@ -1157,6 +1157,15 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
         # so the two are told separately and this frozenset is the
         # hand-maintained mirror of what the site actually drops.
         "spacr.qt._layout_policy",
+        # ADDED 2026-09-15 with items 404/405: the DINOCell/SAMCell seam,
+        # whose header comment became a module docstring. Measured with
+        # `_is_rendered_autoapi_entry` neutralised, both halves in one run,
+        # against 8f4171fd9: pre-filter 10,751 -> 10,752, post-filter
+        # 10,533 unchanged, boundary 218 -> 219 -- and the one new filtered
+        # entry is the key `spacr._segmentation_backends` itself. Every
+        # other bucket reports its old count, so the `10_696 - len(docs)`
+        # pin below does not move.
+        "spacr._segmentation_backends",
     }
     assert builder.AUTOAPI_NON_RENDERED_SYMBOLS == {
         "spacr.qt.run_without_setup",
@@ -1177,6 +1186,11 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     )
     assert "spacr.qt.__main__" not in docs
     assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
+    assert not any(
+        key == "spacr._segmentation_backends"
+        or key.startswith("spacr._segmentation_backends.")
+        for key in docs
+    )
     assert "spacr.qt.run_without_setup" not in docs
 
     # RE-MEASURED 2026-09-08, the same way: 10,450 -> 10,455 pre-filter
