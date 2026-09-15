@@ -999,3 +999,32 @@ FRESH-COPY RECAPTURE FAILED, AND IT HELD THE SHARED GPU LOCK FOR TWO IDLE HOURS.
     are preserved but not presented as complete". Neither refers to the
     retired "preserved recording".
     Still to do before applying: compare with the GPU drafts once they land.
+
+07_MASK TRANSLATION REVIEW: 13 LANGUAGES, EVERY CHANGED ROW READ.
+  translate_refresh.py --lessons 07_mask --device cuda (GPU lock 07:39:02,
+  exit 0 at 07:41:04; 7-14 s per language). The manifest is tied to the
+  staged English d988500d. Spoken drafts carry every field; caption drafts
+  (da de is ko nb sv) carry scene narration only, so for those, objective 1
+  and the prerequisite rest on the reviewed text alone. For each language,
+  every changed row (objectives[0], scenes 1/4/6/7/8, and the prerequisite's
+  OPS and preview sentences) was read against the English, the English the
+  review was pinned to, the existing reviewed row, and the fresh draft.
+  VERDICT: the prepared reviewed rows stand in all 13; no draft row was
+  adopted. The drafts are not usable as translations:
+    * THE HEADLINE COUNT: 105 was wrong in at least one scene in 11 of 13
+      languages -- fr 150/150, it 105/100, pt-BR 125/125, ja 1500/1500,
+      zh-CN 15/15, de 125/125, da 125/150, sv 115/105, is 125/105, ko
+      150/150, nb 115/500. Only hi was right both times; es said "cien y
+      cinco" (ungrammatical). 52, 510 and 36 were mostly right.
+    * FACTUAL: is "30 to 70" pixels; ja "半径" (radius) for diameter; zh-CN
+      dropped the whole "52 visible labels" sentence; es dropped the
+      prerequisite's OPS sentence.
+    * UI NAMES TRANSLATED in every language: Mask -> máscara / masque /
+      Maske / マスク / 口罩 (a face mask) / 마스크; Home -> casa / chez nous /
+      zu Hause / 家庭 / घर / hjemmet; Live -> en vivo / ライブ; Time ->
+      tiempo / Zeit / Tid.
+    * SCRIPT LEAK: ja contains the Hindi word "अंतर्गत".
+    * RUN -> race: carrera, course, corsa, corrida, दौरा, 경주, løb, løp.
+  This is the HANDOFF rule measured: a model that confidently narrates
+  "1500 cell labels" passes every automated gate here. Only reading each
+  row against the measurement catches it.
