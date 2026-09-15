@@ -1,0 +1,50 @@
+================================================================================
+API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS
+================================================================================
+
+Status:    FUTURE, filed 2026-09-15. Not started. NOT BLOCKING, by the
+           maintainer's instruction: do not work on it now.
+Requested: 2026-09-15, by the maintainer. First, asked with the question tool
+           whether the nested helpers documented in the source but absent from
+           the API pages (item 368's unbuilt phase) should get pages: "Build
+           API pages for them". Then, shown the measured size, in these words:
+           "Add this as a non blocking future feature and don't work on it
+           now".
+Owner:     split agreed between the two sessions when it is picked up:
+           rendering (autoapi templates, the inventory and the ratchets that
+           decide what counts as rendered) by the work session; the nine
+           translation catalogs by the home session.
+
+--------------------------------------------------------------------------------
+THE MEASURED SIZE (work session, 2026-09-15, ast over spacr/, docstrings split
+the way the API extractor splits them: paragraphs plus :param:/:returns:/
+:raises: lines)
+--------------------------------------------------------------------------------
+
+    nested functions                  901   (the earlier "844" was stale)
+    documented                        901
+    blocks they would add           1,682
+    x 9 languages                  15,138 translation records
+    today's API surface            10,534 symbols
+
+Rendering them grows the translated API surface by roughly 16%, and 15,138
+records is about four times the 5,538 reviewed records published in the whole
+2026-09-15 batch.
+
+--------------------------------------------------------------------------------
+HOW IT MUST BE DONE WHEN IT IS PICKED UP
+--------------------------------------------------------------------------------
+
+  * IN SLICES, BY MODULE. Each slice is rendered, then its blocks are
+    translated and reviewed, before the next slice. A bad slice is reverted
+    alone.
+  * NO REPAIR RUN AS THE TRANSLATION. The 2026-09-15 GPU pass was 78% wrong on
+    API blocks (615 of 788; inserted parliamentary transcripts, "beef" for a
+    digest, inverted negations). Machine draft, then read every block against
+    its English, then author reviewed records -- the only order that ends with
+    something true.
+  * THE DOCS AUDIT FAILS CLOSED ON BLOCKS LEFT IN ENGLISH. Rendering a slice
+    before its translations exist turns docs red unless the slice carries an
+    explicit, dated exemption that the audit prints on every run.
+  * Every pin that counts rendered symbols moves with each slice, proved by
+    subtraction (the AutoAPI pre-filter constant among them).
