@@ -984,3 +984,26 @@ def _the_live_backdrop_controls_do_not_leak():
         yield
     finally:
         fractal_travel._LIVE_CONTROLS[:] = before
+
+
+@pytest.fixture(autouse=True)
+def _no_qt_test_touches_a_real_spacr_installation(monkeypatch):
+    """Keep every Qt test away from this computer's real spaCR installations.
+
+    The in-app update finds older copies and removes them. A test that reached
+    it unpatched would scan the workstation and could delete a real desktop
+    install, so here the finder sees nothing and the remover and the update
+    helper refuse. A test of that flow patches in its own fakes.
+    """
+    try:
+        import spacr.install_cleanup as cleanup
+    except Exception:                                        # noqa: BLE001
+        return
+
+    def _refuse(*args, **kwargs):
+        raise AssertionError(
+            "a Qt test reached the real spaCR remover; patch in a fake")
+
+    monkeypatch.setattr(cleanup, "find_old_installs", lambda **kwargs: [])
+    monkeypatch.setattr(cleanup, "remove_install", _refuse)
+    monkeypatch.setattr(cleanup, "start_update_helper", _refuse)

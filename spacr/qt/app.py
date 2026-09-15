@@ -3822,15 +3822,20 @@ class MainWindow(QMainWindow):
                 self, "Update available", msg) != QMessageBox.Yes:
             return
         try:
-            from spacr.updater import run_pip_upgrade
+            from spacr.updater import run_pip_upgrade  # noqa: F401
+            from spacr.install_cleanup import find_old_installs
         except Exception as exc:
             LOG.exception("Could not import the spaCR upgrade helper")
             QMessageBox.warning(
                 self, "Updates", f"Upgrade unavailable: {exc}")
             return
+        # find old spaCR files --> delete old spaCR files --> install new
+        # spaCR. Step 1 runs off the GUI thread; what it found is shown before
+        # anything is deleted, in _on_old_installs_found.
+        self._update_version = info.latest_release
         self.statusBar().showMessage(tr("Upgrading spaCR…"), 4000)
         self._start_update_worker(
-            "upgrade", run_pip_upgrade, self._on_upgrade_done)
+            "find", find_old_installs, self._on_old_installs_found)
 
     def _on_upgrade_done(self, result) -> None:
         """Report a completed package upgrade on the GUI thread.
@@ -3862,6 +3867,116 @@ class MainWindow(QMainWindow):
         QMessageBox.warning(
             self, "Updates",
             f"pip returned exit code {return_code}.\n\n{detail}")
+
+    def _on_old_installs_found(self, records) -> None:
+        """Show what step 1 found, then run steps 2 and 3 in that order.
+
+        Installer-made copies are removed; environments the user made are
+        offered with tick boxes. When the running spaCR is itself an
+        installer-made copy it cannot delete itself, so a helper process
+        finishes the update after this window closes.
+
+        :param records: installations from
+            :func:`spacr.install_cleanup.find_old_installs`.
+        """
+        if self._closing:
+            LOG.debug("Discarding the old-install list during shutdown")
+            return
+        from spacr import install_cleanup, updater
+
+        records = list(records or ())
+        ticked = ()
+        if any(r.kind == "installer" or (r.kind == "environment" and not r.running)
+               for r in records):
+            ticked = self._confirm_old_installs(records)
+            if ticked is None:
+                return
+        version = getattr(self, "_update_version", None) or ""
+        if any(r.kind == "installer" and r.running for r in records):
+            plan = install_cleanup.start_update_helper(
+                records, version, ticked=ticked)
+            if not plan.get("command"):
+                QMessageBox.warning(
+                    self, "Updates",
+                    f"Upgrade unavailable: {plan.get('error')}")
+                return
+            QMessageBox.information(
+                self, "Updates",
+                f"spaCR will close, remove the older copies, install "
+                f"{version} and start again.")
+            self.close()
+            return
+        self._start_update_worker(
+            "upgrade",
+            lambda: install_cleanup.run_update_sequence(
+                updater.run_pip_upgrade, records=records, ticked=ticked),
+            self._on_update_sequence_done)
+
+    def _confirm_old_installs(self, records):
+        """List the copies an update removes, with a tick box per environment.
+
+        :param records: installations from
+            :func:`spacr.install_cleanup.find_old_installs`.
+        :returns: the roots of the ticked environments, or ``None`` when the
+            user cancelled.
+        """
+        from PySide6.QtWidgets import (
+            QCheckBox, QDialog, QDialogButtonBox, QLabel, QVBoxLayout,
+        )
+
+        dialog = QDialog(self)
+        dialog.setObjectName("OldInstallsDialog")
+        dialog.setWindowTitle("Remove older spaCR copies")
+        layout = QVBoxLayout(dialog)
+        copies = [r for r in records if r.kind == "installer"]
+        yours = [r for r in records if r.kind == "environment" and not r.running]
+        if copies:
+            layout.addWidget(QLabel(
+                "These older copies of spaCR will be removed before the new "
+                "version is installed:"))
+            for record in copies:
+                layout.addWidget(QLabel(
+                    f"{record.root}  ({record.version or '?'})"))
+        boxes = []
+        if yours:
+            layout.addWidget(QLabel(
+                "Environments you made. Tick one to uninstall spaCR from it; "
+                "the environment itself is kept."))
+            for record in yours:
+                box = QCheckBox(f"{record.root}  ({record.version or '?'})")
+                layout.addWidget(box)
+                boxes.append((record, box))
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText("Remove and update")
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        if dialog.exec() != QDialog.Accepted:
+            return None
+        return tuple(record.root for record, box in boxes if box.isChecked())
+
+    def _on_update_sequence_done(self, outcome) -> None:
+        """Report steps 2 and 3 of an in-app update on the GUI thread.
+
+        :param outcome: ``(reports, install_result)`` from
+            :func:`spacr.install_cleanup.run_update_sequence`;
+            ``install_result`` is ``None`` when nothing was installed.
+        """
+        if self._closing:
+            LOG.debug("Discarding an update result during shutdown")
+            return
+        reports, result = outcome
+        if result is None:
+            failed = [f"{item}: {why}" for report in reports
+                      for item, why in report.failed]
+            QMessageBox.warning(
+                self, "Updates",
+                "The update stopped before installing, because an older "
+                "copy of spaCR could not be removed:\n\n"
+                + "\n".join(failed[:8]))
+            return
+        self._on_upgrade_done(result)
 
     def _on_update_worker_failed(self, operation: str, details: str) -> None:
         """Report an updater exception instead of losing it in a QThread."""
