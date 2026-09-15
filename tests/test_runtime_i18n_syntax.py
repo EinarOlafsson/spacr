@@ -63,7 +63,14 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # PROVED BY SUBTRACTION with the loader itself: the live count minus the
     # sources in those two files is 134, they share no source with each other,
     # and neither shares one with any other file.
-    assert len(reviewed) == 191
+    #
+    # 191 -> 201 on 2026-09-15, +10/-0, for item 286: the five performance
+    # level tooltips and the five hardware notes, hand-written in
+    # 2026-09-15-performance-levels.json. None had ever reached a translator:
+    # the runtime extractor iterated the two dicts and collected their keys.
+    # All ten sources are new wording, so the file shares no source with any
+    # other, and the live count minus its ten is 191.
+    assert len(reviewed) == 201
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -144,7 +151,11 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     #       2026-09-15-integration-review.json
     # The live count minus the sources in those two files is 116, and they
     # share a source with no other file or with each other.
-    assert len(reviewed) == 169
+    #
+    # 169 -> 179 on 2026-09-15, +10/-0, for item 286: the same ten
+    # performance-level strings as the Swedish note above, in
+    # 2026-09-15-performance-levels.json. The live count minus its ten is 169.
+    assert len(reviewed) == 179
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
