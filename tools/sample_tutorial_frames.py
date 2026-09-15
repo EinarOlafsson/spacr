@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TUTORIALS = ROOT / "docs" / "source" / "_extra" / "tutorials"
-AUDIO_ROOT = "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/main"
+AUDIO_ROOT = "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e35b2c12f00260629d9d5353b86dcd4577b9b617"
 
 
 def _sha256(path: Path) -> str:
