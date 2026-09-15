@@ -67,7 +67,10 @@ from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
 from ..widgets.dose_response import (PERCENT_COLUMN, PlateSpec,
                                      normalise_to_controls, pool_frame,
-                                     selectivity_index)
+                                     selectivity_index, SYNERGY_BLISS,
+                                     SYNERGY_LOEWE, bliss_surface,
+                                     checkerboard_from_frame,
+                                     fit_dose_response, loewe_surface)
 
 LOG = logging.getLogger("spacr.qt.screens.dose_response")
 
@@ -125,7 +128,8 @@ _NEGATIVE_HINTS = ("neg", "vehicle", "dmso", "mock")
 
 
 def _fit_with_plates(frame, spec, plate_spec, plate_column=None,
-                     host_column=None):
+                     host_column=None, second_dose=None,
+                     synergy_model=SYNERGY_BLISS):
     """Fit ``frame``, normalising and pooling across plates as asked.
 
     :param frame: the loaded table.
@@ -139,12 +143,20 @@ def _fit_with_plates(frame, spec, plate_spec, plate_column=None,
     :param host_column: a second readout from the same wells -- host-cell
         count, viability -- or ``None``. Each group is fitted on it too, and
         its host EC50 divided by the response EC50 is the selectivity index.
-    :returns: ``(result set, plate reports, pooled fits, selectivity)``. The
+    :param second_dose: a second compound's dose column, for a checkerboard,
+        or ``None``. With one, the curves, pooling and host readout use only
+        the wells where it is zero, and each group's combination wells are
+        scored against ``synergy_model``.
+    :param synergy_model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.
+    :returns: ``(result set, plate reports, pooled fits, selectivity,
+        synergy)``. The
         reports are empty when nothing was normalised; the pooled fits map
         each group to its :class:`~spacr.qt.widgets.dose_response.PooledFit`,
         or to the engine's sentence when pooling was refused; selectivity
         maps each group to its
-        :class:`~spacr.qt.widgets.dose_response.SelectivityIndex`.
+        :class:`~spacr.qt.widgets.dose_response.SelectivityIndex`; synergy
+        maps each group to its interaction surface, or to the engine's
+        sentence when the table is not a checkerboard it can score.
 
     RAW RESPONSES ARE NOT COMPARABLE ACROSS PLATES, which is the engine's
     argument for normalising and the screen's for offering it: two plates read
@@ -159,8 +171,12 @@ def _fit_with_plates(frame, spec, plate_spec, plate_column=None,
         fitted_frame, reports = normalise_to_controls(
             frame, plate_spec, response=spec.response)
         fitted_spec = replace(spec, response=PERCENT_COLUMN)
-    result = fit_frame(fitted_frame, fitted_spec)
-    pooled = (_pool_each_group(fitted_frame, fitted_spec, plate_column)
+    # THE CURVES ARE THE FIRST COMPOUND ALONE when a second one is named.
+    # Combination wells are not a dose series of either agent, and fitting them
+    # into one would describe neither; the synergy surface is where they count.
+    single = _alone(fitted_frame, second_dose)
+    result = fit_frame(single, fitted_spec)
+    pooled = (_pool_each_group(single, fitted_spec, plate_column)
               if plate_column else {})
     selectivity = {}
     if host_column:
@@ -168,12 +184,89 @@ def _fit_with_plates(frame, spec, plate_spec, plate_column=None,
         # normalisation scales the RESPONSE by that response's own controls;
         # a host readout has different controls, or none, and an EC50 does not
         # need them -- it is a concentration, not a percentage.
-        host = fit_frame(frame, replace(spec, response=host_column))
+        host = fit_frame(_alone(frame, second_dose),
+                         replace(spec, response=host_column))
         for fit in result:
             host_fit = host.get(fit.group)
             selectivity[fit.group] = selectivity_index(
                 fit.result, None if host_fit is None else host_fit.result)
-    return result, reports, pooled, selectivity
+    synergy = (_score_each_group(fitted_frame, fitted_spec, second_dose,
+                                 synergy_model)
+               if second_dose else {})
+    return result, reports, pooled, selectivity, synergy
+
+
+def _alone(frame, column):
+    """The rows where ``column`` is zero, or every row when there is none.
+
+    :param frame: the table.
+    :param column: a second compound's dose column, or ``None``.
+    :returns: the single-agent rows of the first compound, vehicles included.
+    """
+    if not column:
+        return frame
+    return frame[pd.to_numeric(frame[column], errors="coerce") == 0]
+
+
+def _score_each_group(frame, spec, second_dose, model):
+    """One interaction surface per group of a two-compound checkerboard.
+
+    :param frame: the table -- normalised, when it was.
+    :param spec: the grid's spec; its concentration is the first compound.
+    :param second_dose: the second compound's dose column.
+    :param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.
+    :returns: group -> surface, or group -> the refusal sentence.
+
+    BOTH MODELS PREDICT THE COMBINATION FROM THE SINGLE AGENTS, so each
+    compound's alone-axis is fitted first from the board's own wells, and a
+    board missing either axis is refused with the engine's reason rather than
+    scored against itself.
+    """
+    if spec.group is None:
+        levels = [("", frame)]
+    else:
+        levels = [(str(level), rows) for level, rows in
+                  frame.groupby(frame[spec.group].astype(str), sort=False)]
+    one_curve = replace(spec, group=None)
+    surface_for = loewe_surface if model == SYNERGY_LOEWE else bliss_surface
+    scored = {}
+    for level, rows in levels:
+        try:
+            board = checkerboard_from_frame(
+                rows, dose_a=spec.concentration, dose_b=second_dose,
+                response=spec.response)
+            fit_a = fit_dose_response(*board.a_alone, one_curve,
+                                      group=f"{spec.concentration} alone")
+            fit_b = fit_dose_response(*board.b_alone, one_curve,
+                                      group=f"{second_dose} alone")
+            scored[level] = surface_for(board.dose_a, board.dose_b,
+                                        board.response, fit_a=fit_a,
+                                        fit_b=fit_b)
+        except DoseResponseError as refusal:
+            scored[level] = str(refusal)
+    return scored
+
+
+def _excess_grid(surface):
+    """The surface itself, as rows of text: first compound down, second across.
+
+    :param surface: an interaction surface.
+    :returns: one header line and one line per dose of the first compound.
+
+    THE SURFACE IS THE RESULT AND A SINGLE INDEX IS NOT, which is the engine's
+    own argument: synergy that lives at one corner of the board and
+    antagonism at another average to nothing in one number.
+    """
+    width = 8
+    head = " " * width + "".join(f"{_format(dose):>{width}}"
+                                 for dose in surface.dose_b)
+    rows = [head]
+    for i, dose in enumerate(surface.dose_a):
+        cells = "".join(
+            f"{value:>+{width}.2f}" if np.isfinite(value) else f"{'—':>{width}}"
+            for value in surface.excess[i])
+        rows.append(f"{_format(dose):>{width}}{cells}")
+    return rows
 
 
 def _pool_each_group(frame, spec, plate):
@@ -262,6 +355,9 @@ class DoseResponseScreen(QWidget):
         #: Group -> selectivity index from the last fit that had a host
         #: readout. Empty when none was chosen.
         self._selectivity = {}
+        #: Group -> interaction surface (or the refusal sentence) from the
+        #: last fit that named a second compound. Empty when none was.
+        self._synergy = {}
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
 
@@ -407,6 +503,29 @@ class DoseResponseScreen(QWidget):
         hosts.addStretch(1)
         outer.addLayout(hosts)
 
+        # THE SECOND COMPOUND. Naming its dose column turns the table into a
+        # checkerboard: the curves use the first compound alone, and the
+        # combination wells are scored against Bliss or Loewe.
+        combos = QHBoxLayout()
+        combos.setContentsMargins(0, 0, 0, 0)
+        combos.setSpacing(SPACING["sm"])
+        combos.addWidget(QLabel("Second compound", self))
+        self.second_dose_picker = QComboBox(self)
+        self.second_dose_picker.setObjectName("DoseResponseSecondDose")
+        self.second_dose_picker.setToolTip(
+            "A second dose column, for a two-compound checkerboard. The "
+            "curves then use only the wells without it, and each group's "
+            "combination wells are scored against the chosen model.")
+        combos.addWidget(self.second_dose_picker)
+        combos.addWidget(QLabel("Model", self))
+        self.synergy_picker = QComboBox(self)
+        self.synergy_picker.setObjectName("DoseResponseSynergyModel")
+        self.synergy_picker.addItem("Bliss independence", SYNERGY_BLISS)
+        self.synergy_picker.addItem("Loewe additivity", SYNERGY_LOEWE)
+        combos.addWidget(self.synergy_picker)
+        combos.addStretch(1)
+        outer.addLayout(combos)
+
         body = QSplitter(Qt.Horizontal, self)
         body.setChildrenCollapsible(False)
 
@@ -474,9 +593,11 @@ class DoseResponseScreen(QWidget):
         self._refill(self.control_picker, [_NO_COLUMN] + groups)
         self._on_control_picked(self.control_picker.currentText())
         self._refill(self.host_picker, [_NO_COLUMN] + list(responses))
+        self._refill(self.second_dose_picker, [_NO_COLUMN] + list(doses))
         self._plate_reports = ()
         self._pooled = {}
         self._selectivity = {}
+        self._synergy = {}
         self.fit_button.setEnabled(bool(doses and responses))
         self.table.setRowCount(0)
         self.report.setPlainText("")
@@ -606,6 +727,29 @@ class DoseResponseScreen(QWidget):
             if row["note"]:
                 line += f" — {row['note']}"
             lines.append(line)
+        for group, surface in self._synergy.items():
+            if lines and lines[-1] != "":
+                lines.append("")
+            name = group or "all rows"
+            if isinstance(surface, str):
+                lines.append(f"{name}: no synergy surface — {surface}")
+                continue
+            summary = surface.summary()
+            model = "Bliss" if surface.model == SYNERGY_BLISS else "Loewe"
+            note = f" — {summary['note']}" if summary.get("note") else ""
+            if not summary["n_cells"]:
+                lines.append(f"{name}: no combination well could be scored "
+                             f"against {model}{note}")
+                continue
+            lines.append(
+                f"{name}: {model} excess over {summary['n_cells']} "
+                f"combination wells, max {summary['max_excess']:+.2f} at "
+                f"{_format(summary['max_at_dose_a'])} + "
+                f"{_format(summary['max_at_dose_b'])}, min "
+                f"{summary['min_excess']:+.2f}; "
+                f"{summary['synergistic_cells']} synergistic, "
+                f"{summary['antagonistic_cells']} antagonistic{note}")
+            lines.extend(_excess_grid(surface))
         if not lines:
             return text
         return "\n".join(lines) + "\n\n" + text
@@ -702,6 +846,10 @@ class DoseResponseScreen(QWidget):
             host_column = self.host_picker.currentText()
             host_column = (None if host_column in ("", _NO_COLUMN)
                            else host_column)
+            second_dose = self.second_dose_picker.currentText()
+            second_dose = (None if second_dose in ("", _NO_COLUMN)
+                           else second_dose)
+            synergy_model = self.synergy_picker.currentData() or SYNERGY_BLISS
         except DoseResponseError as exc:
             self.report.setPlainText(str(exc))
             return
@@ -710,23 +858,26 @@ class DoseResponseScreen(QWidget):
         self.report.setPlainText("fitting…")
         self._jobs.submit(
             lambda: _fit_with_plates(frame, spec, plate_spec, plate_column,
-                                     host_column),
+                                     host_column, second_dose,
+                                     synergy_model),
             self._on_fitted)
 
     def _on_fitted(self, result) -> None:
         """Fill the grid from the engine's table. GUI thread only.
 
         :param result: the fit, or ``(fit, plate reports, pooled fits,
-            selectivity)`` as the fitting job hands it back.
+            selectivity, synergy)`` as the fitting job hands it back.
         """
-        reports, pooled, selectivity = (), {}, {}
+        reports, pooled, selectivity, synergy = (), {}, {}, {}
         if isinstance(result, tuple):
             result, reports, *rest = result
             pooled = rest[0] if rest else {}
             selectivity = rest[1] if len(rest) > 1 else {}
+            synergy = rest[2] if len(rest) > 2 else {}
         self._plate_reports = tuple(reports)
         self._pooled = dict(pooled)
         self._selectivity = dict(selectivity)
+        self._synergy = dict(synergy)
         self._set = result
         rows = result.table()
         self.table.setRowCount(len(rows))

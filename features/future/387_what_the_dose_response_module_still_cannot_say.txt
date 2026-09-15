@@ -358,3 +358,47 @@ tests, 61 pass. Every record-reading i18n test passes except the coverage pair.
 THREE PROPERTY TRAPS IN FOUR ENGINE CLASSES so far -- `PlateReport.usable`,
 `PooledFit.reproducible`, `GroupFit.status` -- each read without parentheses.
 Worth checking decorators before calling anything on the next one.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- STEP 4 OF 4: A TWO-COMPOUND CHECKERBOARD, SCORED. THE SCREEN HALF IS BUILT.
+--------------------------------------------------------------------------------
+
+WHAT IT DOES. A Second compound picker names another dose column, and a Model
+picker chooses Bliss independence or Loewe additivity. With a second compound
+named, the curves, pooling and host readout use only the wells where it is
+zero -- combination wells are not a dose series of either agent -- and each
+group's board is read with `checkerboard_from_frame`, both single-agent axes
+fitted from the board's own wells, and scored with `bliss_surface` or
+`loewe_surface`. The report gives the largest and smallest excess, where the
+largest sits, how many wells were synergistic and antagonistic, and then the
+surface itself as a small grid, because synergy at one corner and antagonism
+at another average to nothing in a single number. A board missing either
+single-agent axis is refused with the engine's reason.
+
+FOUR MORE STAGED CAPTIONS: "Second compound", its tooltip, "Bliss
+independence", "Loewe additivity" -- nine reviewed records in
+2026-09-15-dose-response-combination.json; Swedish and French move by exactly
+four (203 -> 207, 181 -> 185). "Model" already existed and is reused.
+
+HOW IT WAS CHECKED, on the engine's own calibration boards.
+`tests/qt/test_dose_response_scores_a_checkerboard.py`, six tests: a board built
+to Bliss's definition scores within 0.05 of zero; a board with 15% of the
+headroom added scores above 0.1 and mostly synergistic; a board without one
+compound alone is refused naming it; Loewe can be chosen; the curve counts only
+the first compound's alone wells.
+
+      the checkerboard is never scored      4 red
+      the synergy lines left out            3 red
+      the Loewe choice ignored              1 red
+      the curve fitted on every well        1 red
+
+A TEST BUG CAUGHT BY THE SCREEN, recorded because it is the model's own point:
+the first synergy board added the boost to EVERY cell, single-agent axes
+included. The screen fits those axes from the board, so the boosted single
+agents predicted the boosted combination and the excess measured 0.006 --
+correctly. Synergy is the combination exceeding what the singles predict, so
+the boost belongs in combination wells only.
+
+STATUS: ALL FIVE ENGINE FEATURES ARE NOW REACHABLE FROM THE SCREEN. What is
+left on this item is outside the numbered list and was always recorded as such:
+the five-parameter logistic and hormesis detection, both engine work.
