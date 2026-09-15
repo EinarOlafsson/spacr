@@ -719,3 +719,11 @@ RELEASE CANDIDATE WITH THE NEW 13_REGRESSION (built before 07_mask, so a
     spaCR (スペーカー / 斯佩克尔 / स्पेकर). The 07_mask bundle's speech
     likewise passes "OPS" through unchanged, so both lessons voice it the
     same way.
+
+GPU QUEUE, 04:27 UTC. The 07_mask preview capture has waited on the shared
+  GPU lock since 03:54. The holder is another session's
+  build_documentation_i18n.py --repair-api-blocks (9 languages). Its last
+  catalog writes were fr.json/en.json at 04:18, but it is NOT hung: from
+  04:24:31 to 04:26:53 it used +141.7 CPU-s (one full core), read +14.5 MB
+  and wrote 0 B, with the GPU at 0 %. That fits a CPU-only audit pass. It was
+  left alone. Samples: <scratchpad>/358_mask/holder_liveness.txt.
