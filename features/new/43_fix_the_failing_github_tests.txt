@@ -1329,3 +1329,170 @@ Minimum dependencies failed. Read from their logs:
   wip/288-ci-crash-tolerant makes the collection recover a crashed worker's
   files and makes the gate name an incomplete measurement as such -- still a
   failure, never a silent pass.
+
+--------------------------------------------------------------------------------
+2026-09-15 (evening) - THE GC-CYCLE LEAD, TESTED: ONE DETERMINISTIC CRASH FOUND
+AND FIXED; THE CI SITES STILL UNREPRODUCED
+--------------------------------------------------------------------------------
+
+Branch wip/43-gc-cycles on aad90d8f0 (the backdrop weakref fix). Local stack:
+anaconda base, Python 3.12.4, pytest 8.4.2, PySide6 6.10.0, pyqtgraph 0.13.7
+-- CI runs Python 3.12.14 with PySide6 6.11.2. Every run: offscreen, -p
+no:randomly, -X faulthandler, SPACR_TEST_MEMORY_GB=100, under
+run_memory_guarded --limit-gib 105. Probes are a throwaway pytest plugin in the
+session scratchpad (gcforce.py); nothing of it is committed.
+
+THE LEAD'S HYPOTHESIS: Qt object graphs freed by Python's cycle collector,
+rather than by Qt parent ownership, segfault the workers, at a site that looks
+unrelated because the collector runs at an arbitrary allocation.
+
+VERDICT: CONFIRMED FOR ONE CRASH, NOT SHOWN FOR THE RECORDED CI SITES.
+
+1. EACH RECORDED SITE, CLASSIFIED FIRST (fatal error vs the memory guard)
+
+  site (CI log)                                   what the log holds
+  test_dnd_dropzone (shard 0, twice)              Fatal: Segmentation fault;
+                                                  main thread in _settle ->
+                                                  processEvents, a second thread
+                                                  importing torchvision -> sympy
+  test_the_make_masks_segmentation_workbench      Fatal: Segmentation fault;
+    (shard 9)                                     pytestqt _process_events at
+                                                  SETUP, path_probe x4 alive
+  test_cov_r5_preferences (Qt shard 1)            NO fatal error and NO guard
+                                                  message: only "node down",
+                                                  beside the DnaRain `_watched`
+                                                  AttributeError aad90d8f0 fixed.
+                                                  Not a proven segfault.
+  test_a_committed_row_outranks_... (min-deps)    Fatal: Aborted, current frame
+                                                  tools/build_i18n_catalogs.py
+                                                  5647, torch.set_num_interop_
+                                                  threads(1) on torch 2.1.0+cpu.
+                                                  No Qt, no collector on the
+                                                  stack. Not this family.
+  test_cov_object_preprocess_segment (min-deps)   Fatal: Segmentation fault in
+                                                  tests/conftest.py
+                                                  _remember_the_live_widget_count
+                                                  -> app.allWidgets()
+  serial tests/qt, _restore_font_scale            not in the logs; recorded above
+
+  Coverage shards run in batches of 32 files with 2 workers and --dist loadfile,
+  so a worker's history is its BATCH: gw0 ran test_cov_settings_model.py then
+  test_dnd_dropzone.py (both dropzone crashes, same test both times), and
+  test_pivot.py then the workbench file.
+
+2. THE SCAN (spacr/qt, AST, then a real instance of each)
+
+  121 raw hits; after reading, 22 owner-holding classes (and a plain-child
+  control) probed on a real instance (owner shown, collector off, names dropped, collector run, each in
+  its own child). CYCLE CONFIRMED (the owner survives its last name and only
+  gc.collect() frees it) for 16 beyond aad90d8f0's three:
+  app._DragsTheWindowByTheMenuBar, theme._CloseMarkWatcher, glass._ResizeByEdge,
+  glass._DragByBackground, glass._Backdrop, dnd_handlers._DropScanner,
+  dnd._DropzoneFilter, module_hints._ModuleHints, the four _StackWatcher
+  (preview_registry, settings_search, recipes, map_barcodes),
+  walkthrough._WalkthroughHandler, walkthrough._MenuTrigger,
+  shutdown.GracefulQuitWatcher, sortable_table._SortState, plus the known
+  _TourOverlay, ShortcutOverlay, EdgeDrawer. NO CYCLE: app._FractalFollowsItsScreen,
+  ambient._FractalTracksItsHost. command_palette.CommandPalette: its window is
+  never freed at all, even by the collector -- something else holds it (a leak,
+  not a cycle; not pursued).
+
+  RISK, read from each handler: only _CloseMarkWatcher raised when collected
+  (AttributeError '_bar' from eventFilter, the backdrops' shape). The glass,
+  dialogs and _DropScanner filters already use getattr; _DragsTheWindowByTheMenuBar
+  touches `_window` only on MouseButtonPress; the watchers without a filter have
+  no teardown path into Python. Collecting each of them on a WORKER thread and
+  then restyling crashed none (46 child runs, all exit 0).
+  FIXED: _CloseMarkWatcher, commit 4b79c1c6c (weakref + getattr guard; child-
+  interpreter test fails before, passes after).
+
+3. FORCED COLLECTION AT THE CI SITES (each worker's batch replayed in order)
+
+  mode                                  dropzone pair   workbench pair
+  none (baseline)                       pass 2/2        pass 1/1
+  gc.collect() at every setup+teardown  pass 1/1        pass 1/1
+  gc.set_threshold(1,1,1)               crash 2/6 *     pass 1/1
+  gc.collect() on a WORKER thread       crash 3/4 **    pass 1/1
+    after every test
+  busy allocating background thread,    pass 2/2 (settings-model file)
+    automatic GC on
+
+  * both at qt_theme_applied -> qapp.setStyleSheet, test 113; NOT deterministic.
+  ** at pytestqt _process_events in the next test's setup -- the exact frame of
+     the CI workbench crash -- right after test_changing_the_classifier_family_
+     re_greys_the_panel (SettingsWidgets built and dropped; 30 Toggle with live
+     QPropertyAnimation among the garbage). Still 3/3 after both fixes below: a
+     separate mechanism, and an artificial one (an explicit collect on a
+     worker), recorded, not fixed.
+  Preferences worker's 30-file sequence, collected at every boundary: 1,668 passed, no crash.
+  Serial tests/qt to 1,950 tests (past the 7% point), 4 runs automatic GC vs 4
+  runs "GC off, collected on the main thread at teardown": NO CRASH IN EITHER ARM
+  (0/4, 0/4). The 1-in-3 serial crash did not reproduce on aad90d8f0, so the A/B
+  says nothing. Every one of the 8 failed the same test,
+  test_ambient_wiring::test_a_palette_event_mid_build_cannot_install_a_second_
+  backdrop, which passes alone on aad90d8f0 (54 passed): order-dependent, not
+  attributed here.
+  Min-deps sites: no py3.9 environment on this machine; not probed.
+
+4. THE CRASH THAT DID REPRODUCE, AND ITS CAUSE
+
+  tests/qt/test_cov_r5_cell_montage_view.py followed by tests/qt/test_one_close_mark.py
+  segfaults at test_one_close_mark.py:780, the first qapp.setStyleSheet in
+  test_the_mark_re_measures_when_zoom_changes_under_it. On clean aad90d8f0 in
+  3 of 3 runs; either file alone passes. gdb: SIGSEGV in libQt6Widgets under
+  PySide's setStyleSheet, no collector frames.
+
+  automatic GC on                       crash, 12 of 12 (3 on clean aad90d8f0)
+  automatic GC off for the session      pass 2/2
+  gc.collect() at every test boundary   pass 1/1
+  GC on only for tests 47-50            crash (the 41,135-object backlog freed
+                                        at 47's setup)
+  same, but DEBUG_SAVEALL (kept, not    pass: freeing it is necessary
+    freed)
+  every pyqtgraph ViewBox/ViewBoxMenu   pass 2/2
+    kept alive
+  only their menus retired at teardown  pass 2/2 (the ViewBox itself still
+                                        freed by the collector)
+
+  The collector callbacks, written to a raw file descriptor because pytest's
+  capture swallows stderr on a crash, show no collection during the crashing
+  call. The damage is done earlier: a lifetime tracker showed the montage's
+  Compare tab (GroupedPlot, a FastPlot) building two ViewBoxMenu in test 16,
+  and the collector freeing both in test 35, inside a gen1 collection triggered
+  from ast.parse. Twelve tests later the app-wide restyle crashes.
+
+  WHY THEY WERE LEFT TO THE COLLECTOR: pyqtgraph makes PlotItem.ctrlMenu and
+  ViewBox.menu parentless top-level windows. FastPlot.closeEvent retires them
+  through widget_cleanup, but an EMBEDDED plot never receives closeEvent -- it
+  is destroyed with its parent, or detached and deleteLater'd by
+  MeasurementComparePanel._draw.
+
+  FIXED: FastPlot connects its `destroyed` to each menu's own deleteLater (a Qt
+  receiver connection: no Python slot, nothing captures the plot, and Qt drops
+  it when closeEvent already retired the menu). Commit cf29973ab. The pair now
+  passes 5 of 5 with automatic GC on. New test
+  tests/qt/test_an_embedded_plot_takes_its_menus_with_it.py: 2 of its 4 fail
+  before (menus still alive 2 s after the plot is gone), all pass after.
+  Regression: 17 plot/cleanup/compare/montage files 227 passed; the six
+  close-mark files 102 passed; every tests/qt file naming FastPlot or its
+  subclasses (37 files) 733 passed.
+
+5. WHAT FOLLOWS
+
+  * The lead's MECHANISM is real in this suite: a Qt graph freed by the cycle
+    collector at an arbitrary allocation corrupted state that an unrelated
+    restyle hit twelve tests later, with no collector on the crashing stack.
+    That is the shape of every CI site.
+  * It is NOT shown to be what killed the recorded CI workers. None of the six
+    CI sites crashed locally under forced collection except as described
+    above, and the one deterministic local crash was not one of them. Do not
+    close the family on this.
+  * Two open leads, measured and unfixed: (a) worker-thread collection of the
+    settings-model widget graph (3/3 with an explicit worker collect, frame
+    identical to the CI workbench crash); the test process has automatic GC on
+    every thread, while the app switches it to the GUI thread (gc_policy), and
+    the CI dropzone stacks both show a second thread allocating heavily at the
+    moment of death. (b) CommandPalette's window that is never freed.
+  * Harness option NOT taken: gc_policy in the test process (automatic GC off,
+    GUI-thread collection at boundaries). It passed everything it was run on,
+    but the serial A/B had no baseline crash to remove, so it is unproven.
