@@ -54,16 +54,17 @@ EXCLUDED_FILES = (
 
 #: Faults outside the excluded files that no markup-only edit can repair,
 #: with the reason. A docstring is only ever changed here in its markup.
-LEFT_AS_IS = {
-    # `` skip `` shows a padded status value; reST cannot put whitespace at
-    # the edge of a literal, and removing it removes the example.
-    ("spacr/curation_queue.py", "_normalise_state"),
-}
+#:
+#: Empty since 2026-09-15. It held curation_queue's `_normalise_state`,
+#: whose padded status value was written as a literal with whitespace at its
+#: edges, which reST cannot render. Quoting the value inside the literal
+#: keeps the padding visible and renders.
+LEFT_AS_IS: set = set()
 
 #: Measured 2026-09-14 after the sweep: 1 fault in the excluded files
-#: (measure_preview.py) and the 1 named in LEFT_AS_IS. It may fall; it may
-#: not rise.
-REMAINING_FAULTS = 2
+#: (measure_preview.py) and 1 then named in LEFT_AS_IS. 2 -> 1 on 2026-09-15
+#: when that one was repaired. It may fall; it may not rise.
+REMAINING_FAULTS = 1
 
 
 @dataclass(frozen=True)

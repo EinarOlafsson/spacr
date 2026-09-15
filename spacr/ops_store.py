@@ -194,7 +194,7 @@ def _quoted(name: str) -> str:
 
 
 def _named(key: Sequence[str], rows: Iterable[Sequence[Any]]) -> str:
-    """Key values as ``plate='p1', well='A1', object_id=2``, joined by ``; ``.
+    """Key values as ``plate='p1', well='A1', object_id=2``, joined by ``"; "``.
 
     :param key: the key columns.
     :param rows: one tuple of values per key.

@@ -648,7 +648,7 @@ def _normalise_state(state: Optional[str]) -> str:
     """:param state: a state string, or ``None``.
 
     :returns: the state stripped and lower-cased, so a status file edited by
-        hand as ``Done`` or `` skip `` is still read as reviewed.
+        hand as ``Done`` or ``" skip "`` is still read as reviewed.
     """
     return (state or "").strip().lower()
 
