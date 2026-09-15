@@ -125,7 +125,10 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
          [(value, caption) for caption, value in prefs.theme_choices()]),
         ("colour_blind", "Colour-blind mode", prefs.get_color_blind_mode,
          prefs.set_color_blind_mode, choices_of(prefs.VALID_CB_MODES)),
-        ("spacr_mode", "spaCR mode", prefs.get_performance_level,
+        # Captioned as Preferences captions the same selector (286: "the same
+        # names ... appear in first-run setup"). The key stays `spacr_mode`
+        # because the slide and dialog groupings are keyed by it.
+        ("spacr_mode", "Performance", prefs.get_performance_level,
          prefs.set_performance_level,
          [(level, prefs.PERFORMANCE_LABELS.get(
              level, str(level).replace("_", " ")))

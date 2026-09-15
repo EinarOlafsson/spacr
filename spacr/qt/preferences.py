@@ -2087,31 +2087,40 @@ PERFORMANCE_LABELS = {
 
 #: The hardware each level is for, and what it trades. Shown as the level's
 #: tooltip, so the choice can be made without guessing.
+#
+#: 286: EVERY CLAIM HERE IS ONE THE CODE KEEPS. The minutes and megabytes
+#: are `memory_budget.RECOMMENDED` for the level, which an untouched budget
+#: follows, and a test holds each note to them. The old wording promised
+#: "one worker", "dropped as soon as a run finishes" and "nothing is dropped
+#: until you ask", none of which any code did.
 PERFORMANCE_NOTES = {
     "laptop": (
         "For a machine with 8 GB of memory or less, or one running on "
-        "battery. spaCR keeps the least: caches are dropped as soon as a "
-        "run finishes, no animated backdrop is drawn, and background work "
-        "is kept to one worker. Everything is recomputed when you go back "
-        "to it, so revisiting a figure is slower."),
+        "battery. spaCR keeps the least: no animated backdrop, the fewest "
+        "editable figures, and by default cached data is dropped after 2 "
+        "minutes unused or above 256 MB. Caches are also cleared at launch "
+        "and before every run, so going back to a figure is slower."),
     "extra_performance": (
-        "For a shared machine you do not want spaCR to crowd. It drops its "
-        "own caches, returns unused GPU blocks and retires idle threads at "
-        "launch AND before every run, and every visual setting goes to its "
-        "minimum."),
+        "For a shared machine you do not want spaCR to crowd. spaCR clears "
+        "its caches, unused GPU memory and idle threads at launch and before "
+        "every run, turns every visual setting to its minimum, and by "
+        "default drops cached data after 5 minutes unused or above 512 MB."),
     "performance": (
-        "For a machine with other work on it. spaCR frees its caches and "
-        "unused GPU blocks once, at launch, and then leaves the machine "
-        "alone."),
+        "For a machine with other work on it. spaCR clears its caches and "
+        "unused GPU memory once, at launch, leaves your visual settings "
+        "alone, and by default drops cached data after 10 minutes unused or "
+        "above 1024 MB."),
     "balanced": (
-        "For an ordinary desktop with 16 GB or more. spaCR keeps a working "
-        "set of recent figures and images so going back to one is instant, "
-        "and cleans up when memory runs short."),
+        "For an ordinary desktop with 16 GB or more. Nothing is cleared at "
+        "launch or before a run, recent figures and images stay ready so "
+        "going back is instant, and by default cached data is dropped after "
+        "15 minutes unused or above 2048 MB."),
     "workstation": (
         "For a machine with 64 GB or more that is yours alone. spaCR keeps "
-        "the most: caches, live figures and loaded models stay in memory "
-        "for reuse, and nothing is dropped until you ask. Uses the most "
-        "memory of any level, by design."),
+        "the most: the most editable figures, and by default cached data "
+        "for 60 minutes unused and up to 16384 MB. Nothing is cleared at "
+        "launch or before a run. Uses the most memory of any level, by "
+        "design."),
 }
 
 #: The level a machine gets when nothing has been chosen.
@@ -5503,7 +5512,8 @@ class PreferencesDialog:
                 shown = (f"{value:g} min" if index == 0
                          else f"{value} MB")
                 parts.append(
-                    f"{tr(PERFORMANCE_LABELS[level])} ({HARDWARE_NOTES[level]}): "
+                    f"{tr(PERFORMANCE_LABELS[level])} "
+                    f"({tr(HARDWARE_NOTES[level])}): "
                     f"{shown}")
             return "\n".join(parts)
 
