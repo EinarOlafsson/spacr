@@ -153,3 +153,36 @@ So 289 is one widget from done, and the widget is named.
 
 The probe is `scratchpad/hover_all.py`: one process, one MainWindow, all
 forty-five keys, about four minutes. Run it before claiming this closed.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- DONE. FORTY-FIVE SCREENS, ZERO ROWS WITH HELP ON THE FIELD.
+--------------------------------------------------------------------------------
+
+The maintainer answered the one open question -- "Give it a setting key" --
+and that was the last row.
+
+`ControlChartLevels`, the "Control is" list, now carries
+`settingKey='control_levels'` and `settingsAppKey='control_chart'`. It is a
+QListWidget, so it is not an editor type, and it had no key, so
+`_is_a_settings_field` skipped it. Marking the one widget was the answer
+rather than widening the predicate: that function says outright that carrying
+a key is "the definitive mark of 'this widget is a setting's field', whatever
+it was built from", and changing the rule for forty-five screens to reach one
+row is how the last broad "fix" of this item silently regressed two of them.
+
+`control_levels` is screen-local and has no entry in `spacr.settings`.
+Checked rather than assumed: `format_tooltip` with an unknown key returns the
+humanised name, the body text, and a link to the API INDEX -- not a broken
+deep link into a page that does not exist.
+
+RE-MEASURED ACROSS THE WHOLE REGISTRY, the way this item now demands:
+
+    screens measured                                       45
+    screens with a LABELLED row whose help is on the field   0
+
+The remaining field-help anywhere is on widgets with no separate name to
+hover -- "Load test data…" buttons, self-captioned Toggles -- where hovering
+the widget IS hovering its name, which is what was asked for.
+
+289 IS DONE.
+

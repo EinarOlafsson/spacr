@@ -676,3 +676,39 @@ WHAT IN THIS FILE WAS STALE, INVERTED OR UNVERIFIABLE:
     maintainer's "this goes for subfunctions as well" that is about READING
     them. It has never been built and has never been recorded as dropped;
     recorded here rather than left inside a DONE.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE NESTED HELPERS ARE NOW ITEM 411, AND DELIBERATELY NOT STARTED
+--------------------------------------------------------------------------------
+
+Phase 4's unbuilt half -- the nested helpers documented in the source and
+invisible on the API page -- was put to the maintainer twice today.
+
+He first answered "Build API pages for them", including translating them.
+Then he was given the MEASUREMENT and changed his answer to "Add this as a
+non blocking future feature and don't work on it now". It is
+`features/future/411_api_pages_and_translations_for_nested_helpers.txt`.
+
+THE MEASUREMENT IS WHY THE ANSWER CHANGED, and it is worth repeating here
+because this file's own figure was wrong:
+
+    nested functions                901   (this file said 844; that was stale)
+    every one of them documented    901
+    BLOCKS they would add         1,682
+    x 9 languages                15,138 records
+    today's whole API surface    10,534 symbols
+
+So rendering them grows the translated API by about 16%, and 15,138 records
+is roughly FOUR TIMES the entire translation batch published on 2026-09-15.
+"844 helpers" sounds like a rendering change; 15,138 reviewed records is a
+project, and the docs audit fails closed on English blocks, so a half-done
+pass reddens the release.
+
+411 carries the agreed method: slices by module, rendering and catalogs in
+different hands, machine draft then read-every-block, and a dated exemption
+printed while a slice is untranslated.
+
+368 STAYS OPEN ON NOTHING ELSE. Phases 1-4's docstrings are done and held by
+tests; this was the last unbuilt piece and it is now somebody's future
+decision rather than an undeclared gap inside a DONE.
+

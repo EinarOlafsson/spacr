@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QListWidget,
     QListWidgetItem,
     QPushButton,
@@ -1114,8 +1115,40 @@ class FilePathListWidget(QWidget):
         outer.addWidget(self._hint)
         self._follow_path_probes()
 
+        # ONE ROW FOR A SETTING THAT NAMES ONE FILE.
+        #
+        # Reported 2026-09-15: "the barcode references in map barcodes should
+        # be one line or row each now they are large fields for some reason."
+        # Measured on the live screen: `grna_csv`, `row_csv` and `column_csv`
+        # each came to a sizeHint height of 240 against 30-33 for every other
+        # field on that form -- eight rows of furniture for one path.
+        #
+        # `single=True` already existed and was not enough: it shrank the list
+        # from 96 to 48 and left the list, the hint and the button on three
+        # separate rows. A setting that holds exactly one path has no order to
+        # show, no selection to make and nothing to scroll.
+        #
+        # THE LIST STAYS AND STAYS THE VALUE. `paths()` reads it, every
+        # mutation goes through it, and the drop target and the path probes
+        # are wired to it. Hiding it and mirroring its one row into a
+        # read-only field changes what the user sees and nothing about what
+        # the widget IS -- which is why this is a presentation change and not
+        # a rewrite of the value logic.
+        self._single_line = None
+        if self._single:
+            self._list.hide()
+            self._hint.hide()
+            self._single_line = QLineEdit(self)
+            self._single_line.setReadOnly(True)
+            self._single_line.setPlaceholderText(self._empty_hint())
+            self._single_line.setToolTip(
+                "The file this setting names. Use Choose file… to replace "
+                "it, or drop one here.")
+
         row = QHBoxLayout()
         row.setSpacing(4)
+        if self._single_line is not None:
+            row.addWidget(self._single_line, 1)
         self._add_files_button = QPushButton(
             "Choose file…" if self._single else "Add files…", self)
         self._add_files_button.setToolTip(
@@ -1376,7 +1409,17 @@ class FilePathListWidget(QWidget):
         _probe.probes.answered.connect(redraw)
 
     def _refresh_hint(self) -> None:
-        """Show or hide the empty hint as the list changes."""
+        """Show or hide the empty hint as the list changes.
+
+        Also mirrors the single-file field, because this is the one call
+        every mutation already makes -- set_value, a pick, a drop, a removal
+        and a path probe answering all reach here. Mirroring anywhere else
+        would be a second place to forget.
+        """
+        if self._single_line is not None:
+            chosen = self.paths()
+            self._single_line.setText(chosen[0] if chosen else "")
+            self._single_line.setCursorPosition(0)
         count = self._list.count()
         missing = sum(
             1 for row in range(count)

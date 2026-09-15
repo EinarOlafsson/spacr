@@ -437,6 +437,27 @@ class ControlChartScreen(QWidget):
         self._levels.setSelectionMode(QAbstractItemView.MultiSelection)
         self._levels.setMaximumHeight(96)
         self._levels.setToolTip("Which level(s) are the control being charted")
+        # THE ONE ROW IN FORTY-FIVE SCREENS THAT KEPT ITS HELP ON THE FIELD.
+        #
+        # `retarget_field_tooltips` moves a setting's help onto the name the
+        # user hovers, and `_is_a_settings_field` decides what counts: an
+        # editor type, or anything carrying a `settingKey`. A QListWidget is
+        # neither, so this row was skipped -- measured across all forty-five
+        # registry screens, it was the last one left.
+        #
+        # THE KEY IS WHAT MARKS IT, NOT A WIDER PREDICATE. Adding QListWidget
+        # to the editor types, or dropping the key requirement, would change
+        # the rule for every screen to fix one row. `_is_a_settings_field`
+        # says outright that carrying a key is "the definitive mark of 'this
+        # widget is a setting's field', whatever it was built from" -- so the
+        # honest fix is to mark this one.
+        #
+        # `control_levels` is not a pipeline setting and has no entry in
+        # `spacr.settings`; it is screen-local. `format_tooltip` handles that:
+        # an unknown key yields the humanised name, the body, and a link to
+        # the API index rather than a broken deep link.
+        self._levels.setProperty("settingKey", "control_levels")
+        self._levels.setProperty("settingsAppKey", "control_chart")
         self._levels.itemSelectionChanged.connect(self._on_control_changed)
         form.addRow("Control is", self._levels)
 
