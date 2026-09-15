@@ -6,15 +6,16 @@ Status:    PARTLY DONE, corrected 2026-09-13. "NOT STARTED" was wrong:
            the file carries "DONE 2026-08-28." with the lazy-import result
            asserted through `sys.modules` rather than timed.
 
-           STILL OPEN, and named in the file: `what_to_drop` and
-           `headroom_is_short` are written and tested but the existing caches
-           do not consult them yet -- `resource_cleanup.py`'s sweep and the
-           figure live-cache. The file calls that mechanical, "the decisions
-           the item was about are made and recorded here".
+           THAT "STILL OPEN" IS ITSELF STALE, corrected 2026-09-15 -- see
+           the note at the foot. The caches DO consult them now:
+           `resource_cleanup.sweep_memory_budget` applies both policies and
+           `install_budget_sweep` is wired from seven call sites including
+           the figure live-cache. 43 tests pass across the three budget
+           files.
 
-           Also still owed, from the original ask: the maintainer wanted an
-           opinion on the design as well as the work. Originally filed
-           2026-08-27.
+           STILL OWED, and it is the only thing: the maintainer wanted an
+           OPINION on the design as well as the work, and no note in this
+           file gives one. Originally filed 2026-08-27.
 Owner:     spacr/qt/app.py (the preloader), and whatever cache layer this
            grows.
 Requested: 2026-08-27.
@@ -123,3 +124,37 @@ STILL TO WIRE: `what_to_drop` and `headroom_is_short` are the policy and
 they are tested, but the existing caches do not consult them yet. That is
 `spacr/qt/resource_cleanup.py`'s sweep and the figure live-cache, and it is
 mechanical -- the decisions the item was about are made and recorded here.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE CACHES DO CONSULT THE BUDGET. ONLY THE OPINION IS OWED.
+--------------------------------------------------------------------------------
+
+The status line said `what_to_drop` and `headroom_is_short` "are written and
+tested but the existing caches do not consult them yet". Checked against the
+code rather than the header, which is this ledger's standing lesson:
+
+  * `resource_cleanup.sweep_memory_budget` (:619) calls
+    `memory_budget.what_to_drop` (:665) and re-measures
+    `headroom_is_short` between pressure evictions, as its own docstring
+    describes. It excludes in-use entries before either policy runs, counts
+    their bytes against ONE process-wide ceiling rather than applying the
+    ceiling per cache, and handles the CUDA allocator alongside.
+  * `install_budget_sweep` is called from SEVEN sites --
+    `crops.py:916`, `annotate_engine.py:56`, `crop_thumbs.py:133`,
+    `timelapse_preview.py:130`, `timelapse_movie.py:83`,
+    `figure_queue.py:566`, and `resource_cleanup.py:1676` itself. The figure
+    live-cache, named in the stale line as not consulting the budget, is
+    among them.
+  * 43 tests pass: `tests/qt/test_live_cache_budget_wiring.py`,
+    `test_the_memory_budget_drops_what_nothing_is_using.py`,
+    `test_cov_r4_memory_budget.py`. They include a real thumbnail cache
+    sharing one pool, a headroom re-check after each eviction, and a
+    selected figure surviving an idle sweep.
+
+SO THE MECHANICAL HALF IS DONE. What remains is the half that was never
+mechanical: the maintainer asked for an opinion on the design, and this file
+has recorded decisions without ever answering that. THAT IS NOT A TASK A
+SESSION SHOULD QUIETLY CLOSE -- an opinion nobody asked for is worth nothing,
+and one written to empty a checklist is worth less. It stays open and stays
+named.
+
