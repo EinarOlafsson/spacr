@@ -72,27 +72,6 @@
       "translation": "替换"
     },
     {
-      "key": "Segments the region under the mouse. A click adds the objects the box outlines to the mask.",
-      "source": "Segments the region under the mouse. A click adds the objects the box outlines to the mask.",
-      "source_sha256": "114638e88e0c750723557e1c7163ab729d4994f72734884410a3c7d81ed44b7d",
-      "table": "ui",
-      "translation": "分割鼠标下方的区域。单击会将框中勾勒出的对象添加到掩膜。"
-    },
-    {
-      "key": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined, live. A click adds the outlined objects to the mask as new objects, one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
-      "source": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined, live. A click adds the outlined objects to the mask as new objects, one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
-      "source_sha256": "5a3ffd2ed19534b0fdea1911fff4bb67a63378f790b1d574dc82a706192ab77e",
-      "table": "ui",
-      "translation": "在鼠标下方显示一个框，实时放大周围区域并勾勒出模型在其中找到的对象。单击会把勾勒出的对象作为新对象添加到掩膜，每次单击对应一步撤销。开启时，鼠标滚轮调整的是框的缩放，而不是视图的缩放。"
-    },
-    {
-      "key": "Side of the square region the model segments, in image pixels. Objects cut by the edge of the box are not offered, so make it wider than the largest object you want to add.",
-      "source": "Side of the square region the model segments, in image pixels. Objects cut by the edge of the box are not offered, so make it wider than the largest object you want to add.",
-      "source_sha256": "1e82df23c587a6d4626d9f64ea229c45cabbe7e2732e932edaf7465994e5687a",
-      "table": "ui",
-      "translation": "模型分割的正方形区域的边长，以图像像素计。被框边缘截断的对象不会提供，因此请把它设得比想添加的最大对象更宽。"
-    },
-    {
       "key": "Updating…",
       "source": "Updating…",
       "source_sha256": "dfe40efe921fe88e332575a3516f4e8cd6bbb71437cf260b2bb9b947c65d1484",

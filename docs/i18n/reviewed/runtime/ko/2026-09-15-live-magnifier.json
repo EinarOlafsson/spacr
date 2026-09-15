@@ -72,27 +72,6 @@
       "translation": "바꾸기"
     },
     {
-      "key": "Segments the region under the mouse. A click adds the objects the box outlines to the mask.",
-      "source": "Segments the region under the mouse. A click adds the objects the box outlines to the mask.",
-      "source_sha256": "114638e88e0c750723557e1c7163ab729d4994f72734884410a3c7d81ed44b7d",
-      "table": "ui",
-      "translation": "마우스 아래 영역을 분할합니다. 클릭하면 상자에 윤곽이 표시된 객체가 마스크에 추가됩니다."
-    },
-    {
-      "key": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined, live. A click adds the outlined objects to the mask as new objects, one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
-      "source": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined, live. A click adds the outlined objects to the mask as new objects, one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
-      "source_sha256": "5a3ffd2ed19534b0fdea1911fff4bb67a63378f790b1d574dc82a706192ab77e",
-      "table": "ui",
-      "translation": "마우스 아래에 주변 영역을 확대하고 모델이 그 안에서 찾은 객체의 윤곽을 실시간으로 표시하는 상자를 보여 줍니다. 클릭하면 윤곽이 표시된 객체가 새 객체로 마스크에 추가되며, 클릭마다 실행 취소 한 단계가 됩니다. 켜져 있는 동안 마우스 휠은 보기 대신 상자의 확대 배율을 바꿉니다."
-    },
-    {
-      "key": "Side of the square region the model segments, in image pixels. Objects cut by the edge of the box are not offered, so make it wider than the largest object you want to add.",
-      "source": "Side of the square region the model segments, in image pixels. Objects cut by the edge of the box are not offered, so make it wider than the largest object you want to add.",
-      "source_sha256": "1e82df23c587a6d4626d9f64ea229c45cabbe7e2732e932edaf7465994e5687a",
-      "table": "ui",
-      "translation": "모델이 분할하는 정사각형 영역의 한 변 길이로, 이미지 픽셀 단위입니다. 상자 가장자리에 잘린 객체는 제시되지 않으므로, 추가하려는 가장 큰 객체보다 넓게 설정하십시오."
-    },
-    {
       "key": "Updating…",
       "source": "Updating…",
       "source_sha256": "dfe40efe921fe88e332575a3516f4e8cd6bbb71437cf260b2bb9b947c65d1484",
