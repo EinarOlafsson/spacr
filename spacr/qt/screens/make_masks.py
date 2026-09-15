@@ -676,6 +676,17 @@ class _MaskCanvas(QLabel):
         if self.mask is None:
             return super().wheelEvent(event)
         notches = event.angleDelta().y()
+        if (self.magnifier is not None and self.magnifier.enabled
+                and event.modifiers() & Qt.ShiftModifier):
+            # Shift + wheel is the magnifier's SIZE, and never the view's zoom.
+            # Some platforms turn a Shift + wheel into a sideways scroll, so a
+            # horizontal notch counts as the same notch.
+            notches = notches or event.angleDelta().x()
+            if notches:
+                self.magnifier.wheel_size(notches > 0)
+                self.update()
+            event.accept()
+            return
         if not notches:
             return super().wheelEvent(event)
         if self.magnifier is not None and self.magnifier.enabled:
@@ -1358,6 +1369,9 @@ def cellpose_detect(image: np.ndarray, model, *,
 #: larger than the canvas draws that region the box draws it; a sensitivity
 #: of 0 is each model's own default cut.
 _MAGNIFIER_SIZE = 128
+#: The size's range BEFORE A FIELD IS OPEN. Once one is, the top of the range
+#: is that field's own longer side (item 417: "this number should be able to
+#: be as high as the image is high/wide") -- see :func:`_magnifier_size_range`.
 _MAGNIFIER_SIZE_RANGE = (32, 512)
 _MAGNIFIER_ZOOM = 2.0
 _MAGNIFIER_ZOOM_RANGE = (1.0, 8.0)
@@ -1374,6 +1388,23 @@ _MAGNIFIER_SCOPES = ("region", "image")
 #: thread and the screen's own detect button, which share the loaded models.
 #: Re-entrant, because the detect button loads a model inside the same hold.
 _CELLPOSE_LOCK = threading.RLock()
+
+
+def _magnifier_size_range(shape=None) -> tuple:
+    """``(smallest, largest)`` box side, in image pixels, for a field shaped so.
+
+    The box is square, so its largest useful side is the field's LONGER side:
+    a box that size, centred anywhere, reaches across the field the long way.
+    A field narrower than the usual smallest box lowers the floor with it,
+    so the range is never empty.
+
+    :param shape: the open field's shape, ``(height, width, ...)``, or None
+        when no field is open -- which gives :data:`_MAGNIFIER_SIZE_RANGE`.
+    """
+    if shape is None or len(shape) < 2:
+        return _MAGNIFIER_SIZE_RANGE
+    largest = max(1, int(shape[0]), int(shape[1]))
+    return (min(_MAGNIFIER_SIZE_RANGE[0], largest), largest)
 
 
 class _MagnifierRequest(NamedTuple):
@@ -1733,6 +1764,10 @@ class _LiveMagnifier(QObject):
     commit_ready = Signal(object)
     #: The wheel moved the zoom; carries the new value.
     zoom_changed = Signal(float)
+    #: Shift + the wheel moved the size; carries the new value.
+    size_changed = Signal(int)
+    #: A field opened and the size's range is now ``(smallest, largest)``.
+    size_range_changed = Signal(int, int)
     #: A sentence for the status line.
     status = Signal(str)
     #: The mask object under the mouse should go; carries image ``(x, y)``.
@@ -1839,12 +1874,40 @@ class _LiveMagnifier(QObject):
         self.refresh()
         self.canvas.update()
 
+    def size_range(self) -> tuple:
+        """``(smallest, largest)`` side for the field on screen; see
+        :func:`_magnifier_size_range`."""
+        image = self.canvas.image
+        return _magnifier_size_range(None if image is None else image.shape)
+
     def set_size(self, size: int) -> None:
         """Set the region's side in image pixels, within its range."""
-        low, high = _MAGNIFIER_SIZE_RANGE
+        low, high = self.size_range()
         self.size = max(low, min(high, int(size)))
         self.refresh()
         self.canvas.update()
+
+    def wheel_size(self, up: bool) -> int:
+        """Step the size one Shift + wheel notch; return the new size.
+
+        A notch moves the side by the canvas's own zoom per notch, and by at
+        least one pixel, so a box of 32 px and one of 4,000 px both take
+        about as many notches to double. The size stops at its range.
+        """
+        speed = max(1.001, float(getattr(self.canvas, "zoom_speed", 1.15)))
+        step = max(1, int(round(self.size * (speed - 1.0))))
+        self.set_size(self.size + step if up else self.size - step)
+        self.size_changed.emit(self.size)
+        return self.size
+
+    def _sync_size_range(self) -> None:
+        """Say the size's range for the field now, and keep the size inside it."""
+        low, high = self.size_range()
+        self.size_range_changed.emit(int(low), int(high))
+        clamped = max(low, min(high, int(self.size)))
+        if clamped != self.size:
+            self.size = clamped
+            self.size_changed.emit(self.size)
 
     def set_zoom(self, zoom: float) -> None:
         """Set the magnification, within its range. The model is not asked."""
@@ -1860,7 +1923,11 @@ class _LiveMagnifier(QObject):
         self.canvas.update()
 
     def forget(self) -> None:
-        """Drop everything tied to the field on screen; another is loading."""
+        """Drop everything tied to the field on screen; another is loading.
+
+        The canvas calls this with the new field already in place, which is
+        what lets the size's range follow the field that has just opened.
+        """
         self._field += 1
         self._shown = None
         self._shown_image = None
@@ -1870,6 +1937,7 @@ class _LiveMagnifier(QObject):
         self._image_result = None
         self._image_view = None
         self._image_halted = None
+        self._sync_size_range()
 
     def close(self) -> bool:
         """Stop both workers, waiting briefly for a model call in flight."""
@@ -4599,14 +4667,18 @@ class MakeMasksScreen(QWidget):
         form.addRow(QLabel("Segment"), self._mag_scope)
 
         self._mag_size = QSpinBox()
-        self._mag_size.setRange(*_MAGNIFIER_SIZE_RANGE)
+        self._mag_size.setRange(*magnifier.size_range())
         self._mag_size.setSingleStep(16)
         self._mag_size.setValue(_MAGNIFIER_SIZE)
         self._mag_size.setToolTip(
-            "Side of the square box, in image pixels. Under Region under the "
-            "mouse it is also the region the model segments, so make it wider "
-            "than the largest object you want to add.")
+            "Side of the square box, in image pixels, up to the open image's "
+            "own height or width. Under Region under the mouse it is also the "
+            "region the model segments, so make it wider than the largest "
+            "object you want to add. Shift + mouse wheel changes it while the "
+            "magnifier is on.")
         self._mag_size.valueChanged.connect(magnifier.set_size)
+        magnifier.size_changed.connect(self._mag_size.setValue)
+        magnifier.size_range_changed.connect(self._mag_size.setRange)
         form.addRow("Size (px)", self._mag_size)
 
         self._mag_exclude_border = QCheckBox(
