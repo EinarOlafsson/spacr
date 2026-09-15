@@ -492,8 +492,8 @@ spaCR skipar listan af þjálfað mönnunum og snúa þeim á eftirspurn. Opna *
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -511,7 +511,7 @@ Hvert dæmi yfir er metið á myndum sem myndavél hefur aldrei séð í æfingu
 
 **F1** er tvö sameiginlegt, og er kvótað vegna þess að hver einn er trivially gamed - tala um einn ómeðlilegt plakk fyrir næstum fullkomna nákvæmni, eða hvert myrkur blob fyrir næstu fullkomnu endurskoðun. Það sem þú myndi helst missa af því að mæla, og fjölda er yfirleitt betra með yfirskoðun: plakkamálið var samþykkt á nákvóm 0.858 með endurskoða 0.811 yfir fyrri runda á 0.939 og 0.631.
 
-**IoU**, kross yfir samfélag, er hversu mikið áætlað objekt og raunverulegur einn overlap, skipt af sviði sem þeir dekka saman. Það er stjórnandi aðrir eru lesin gegn, þannig að skólan þýðir ekkert án þangað: "F1 0.867 á IoU 0.5" talar vacuole eins og fannst þegar tvö útlínin sammála meira en helmingum samfélagi þeirra.
+**IoU**, kross yfir samfélag, er hversu mikið áætlað objekt og raunverulegur einn overlap, skipt af sviði sem þeir dekka saman. Það er stjórnandi aðrir eru lesin gegn, þannig að skólan þýðir ekkert án þangað: "F1 0.864 á IoU 0.5" talar vacuole eins og fannst þegar tvö útlínin sammála meira en helmingum samfélagi þeirra.
 
 **mAP50** og **map50-95** eru með uppgötvuna. fyrri spyr hvort bólkurnar voru fundið; annar endurtekur það yfir tíu þremur frá 0.5 til 0.95, þannig að það spyr einnig hversu þreyttur hver boksi er þreytur.
 

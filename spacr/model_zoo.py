@@ -315,20 +315,33 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
         "display_name": "Toxoplasma PV v1",
         "architecture": "Cellpose-SAM (cpsam_v2)",
-        "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset",
-        "versus_stock": "F1 0.867 against 0.713 for stock cpsam, at IoU 0.5",
+        # ROUND 2, CORRECTED 2026-09-15 (item 370). Until then this row
+        # quoted ROUND 1 -- 115 images, 104 train / 11 test, F1 0.867 --
+        # while the sha256 above has always been round 2's checkpoint. Every
+        # figure below is from round 2's own run: round2.log for the split and
+        # the stock baseline, round2_vs_round1.csv for the scores.
+        "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 229 images "
+                   "from 2 datasets, 104 round-1 and 125 newly curated",
+        "versus_stock": "F1 0.864 against 0.713 for stock cpsam on 11 "
+                        "held-out in-house wells, at IoU 0.5; literature "
+                        "hold-out pending",
         "trained_on": (
             "Toxoplasma tachyzoite parasitophorous vacuoles stained with goat "
             "anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the "
-            "PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base "
-            "cpsam_v2"
+            "PV lumen. Round 2: 229 training images (round 1's 104 plus 125 "
+            "newly curated RH and ME49 fields), 100 epochs, base cpsam_v2"
         ),
         "trained_by": "einarolafsson",
         "notes": (
-            "F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 "
+            "F1 0.864 at IoU 0.5 against 0.713 for stock cpsam on the 11 "
+            "wells round 1 also held out (round 1 scored 0.867); AJI 0.809 "
             "against 0.426",
             "accuracy falls sharply above IoU 0.8 -- suited to counting and "
             "area rather than precise morphometry",
+            "the held-out literature scorecard is pending a stock-seeded "
+            "re-curation; on the current literature set, whose truth leans "
+            "toward this model's lineage, it ties stock Cellpose-SAM on "
+            "detection (F1 0.403 against 0.400)",
         ),
     },
     {

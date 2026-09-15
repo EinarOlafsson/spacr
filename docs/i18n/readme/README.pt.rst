@@ -492,8 +492,8 @@ spaCR envia um catálogo de modelos treinados e os busca sob demanda. Abra  **Mo
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -511,7 +511,7 @@ Cada figura acima é medida em imagens que o modelo nunca viu no treinamento.
 
 **F1** é os dois combinados, e é citado porque cada um é trivialmente disputado -- reporte uma placa inconfundível para precisão quase perfeita, ou cada bolha escura para recall quase perfeito. O que você preferiria perder depende do ensaio, e a contagem é geralmente melhor servida por over-calling: o modelo de placa foi aceito com precisão 0,858 com recall 0,811 ao longo de uma rodada anterior em 0,939 e 0,631.
 
-**IoU**, interseção sobre união, é o quanto um objeto previsto e o real se sobrepõem, dividido pela área que cobrem juntos. É a régua contra a qual o resto é lido, então uma pontuação não significa nada sem seu limite: "F1 0,867 em IoU 0,5" conta um vácuo como encontrado quando os dois contornos concordam com mais da metade de sua área combinada.
+**IoU**, interseção sobre união, é o quanto um objeto previsto e o real se sobrepõem, dividido pela área que cobrem juntos. É a régua contra a qual o resto é lido, então uma pontuação não significa nada sem seu limite: "F1 0,864 em IoU 0,5" conta um vácuo como encontrado quando os dois contornos concordam com mais da metade de sua área combinada.
 
 **mAP50** e **mAP50-95** pertencem ao detector. O primeiro pergunta se os poços foram encontrados; o segundo repete através de dez limiares de 0,5 a 0,95, por isso também pergunta com que força cada caixa é desenhada. A lacuna entre eles é a colocação, não a detecção.
 
