@@ -282,10 +282,10 @@ def test_qt_suite_has_room_for_its_measured_runtime():
     # further seven measurement files and 115 tests that run one at a time
     # with the four xdist workers gone. Two hours covered the parallel half
     # on both shards. It did not cover that serial tail.
+    #
+    # The split is three shards since 2026-09-15 and its shape is asserted in
+    # test_the_qt_suite_is_three_shards_and_exactly_one_runs_the_serial_tail.
     assert "timeout_minutes: 180" in qt_block
-    assert "shard: [0, 1]" in qt_block
-    assert "file_shard_count: 2" in qt_block
-    assert "run_serial_tail: ${{ matrix.shard == 0 }}" in qt_block
 
     # A BIGGER BUDGET ON ITS OWN ONLY BUYS A HANG MORE ROOM TO HIDE IN. A job
     # killed by `timeout_minutes` prints no summary at all, so the extra
@@ -301,20 +301,60 @@ def test_qt_suite_has_room_for_its_measured_runtime():
     assert 0 < int(ceiling.group(1)) < int(budget.group(1)) * 60
 
 
+#: Qt shards in tests.yml. Two became three on 2026-09-15: on dispatched run
+#: 35012948690 Qt shard 0 of 2 climbed to used=14,939 MiB of the runner's
+#: 15,989 with 2,035 MiB swapped, and twice that day shard 0 lost its runner.
+QT_SHARD_COUNT = 3
+
+
+def _qt_job():
+    import yaml
+
+    return yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["qt"]
+
+
+def test_the_qt_suite_is_three_shards_and_exactly_one_runs_the_serial_tail():
+    """The matrix, the file split and the name agree, and the serial tail runs
+    once. Two shards with the tail would run it twice; none would drop it."""
+    job = _qt_job()
+    given = job["with"]
+    shards = job["strategy"]["matrix"]["shard"]
+
+    assert given["file_shard_count"] == QT_SHARD_COUNT
+    assert shards == list(range(QT_SHARD_COUNT))
+    assert given["file_shard_index"] == "${{ matrix.shard }}"
+    assert given["suite_name"] == (
+        "Qt shard ${{ matrix.shard }} of " + str(QT_SHARD_COUNT)
+    )
+
+    tail = re.fullmatch(
+        r"\$\{\{ matrix\.shard == (\d+) \}\}", str(given["run_serial_tail"]))
+    assert tail, given["run_serial_tail"]
+    assert [shard for shard in shards if shard == int(tail.group(1))] == [
+        int(tail.group(1))
+    ]
+
+
 def test_file_shards_are_stable_disjoint_and_cover_every_test_module():
     files = sorted((ROOT / "tests").rglob("test_*.py"))
-    first = {path for path in files if _ci_file_shard(path, 2) == 0}
-    second = {path for path in files if _ci_file_shard(path, 2) == 1}
+    qt_files = {path for path in files if "qt" in _automatic_ci_markers(path)}
+    assert qt_files
 
-    assert first
-    assert second
-    assert not first & second
-    assert first | second == set(files)
-    assert all(
-        _ci_file_shard(path, 2)
-        == _ci_file_shard(path.relative_to(ROOT), 2)
-        for path in files
-    )
+    for count in sorted({2, QT_SHARD_COUNT, int(_qt_job()["with"]["file_shard_count"])}):
+        shards = [
+            {path for path in files if _ci_file_shard(path, count) == index}
+            for index in range(count)
+        ]
+        # Every file in exactly one shard: none twice, none dropped.
+        assert sum(len(shard) for shard in shards) == len(files)
+        assert set().union(*shards) == set(files)
+        # And every shard carries Qt files, so none of the matrix is idle.
+        assert all(shard & qt_files for shard in shards)
+        assert all(
+            _ci_file_shard(path, count)
+            == _ci_file_shard(path.relative_to(ROOT), count)
+            for path in files
+        )
 
 
 def test_reusable_suite_resets_sharding_for_the_serial_qt_tail():
