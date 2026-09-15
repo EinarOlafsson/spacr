@@ -492,8 +492,8 @@ spaCR liefert einen Katalog von ausgebildeten Modellen und holt sie auf Anfrage 
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -511,7 +511,7 @@ Jede Abbildung oben wird auf Bildern gemessen, die das Modell im Training nie ge
 
 **F1** ist die Kombination der beiden, und wird zitiert, weil jeder einzelne trivial gespielt wird -- berichten Sie eine unverwechselbare Plaque für nahezu perfekte Präzision, oder jeder dunkle Blob für nahezu perfekten Rückruf. Was Sie lieber verlieren würden, hängt vom Assay ab, und Zählen wird in der Regel besser durch Überrufen bedient: Das Plaque-Modell wurde mit Präzision 0.858 mit Rückruf 0.811 in einer früheren Runde bei 0.939 und 0.631 akzeptiert.
 
-**IoU**, Schnittpunkt über der Vereinigung, ist, wie viel ein vorhergesagtes Objekt und das reale überlappen, geteilt durch den Bereich, den sie zusammen decken. Es ist der Herrscher, gegen den der Rest gelesen wird, also bedeutet eine Partitur nichts ohne seine Schwelle: "F1 0.867 bei IoU 0,5" zählt eine Vakuole, wie gefunden, wenn die beiden Umrisse über die Hälfte ihrer kombinierten Fläche vereinbaren.
+**IoU**, Schnittpunkt über der Vereinigung, ist, wie viel ein vorhergesagtes Objekt und das reale überlappen, geteilt durch den Bereich, den sie zusammen decken. Es ist der Herrscher, gegen den der Rest gelesen wird, also bedeutet eine Partitur nichts ohne seine Schwelle: "F1 0.864 bei IoU 0,5" zählt eine Vakuole, wie gefunden, wenn die beiden Umrisse über die Hälfte ihrer kombinierten Fläche vereinbaren.
 
 **mAP50** und **mAPI50-95** gehören zum Detektor. Der erste fragt, ob die Wells gefunden wurden; der zweite wiederholt sie über zehn Schwellen von 0,5 bis 0,95, so dass er auch fragt, wie eng jede Box gezeichnet wird.
 
