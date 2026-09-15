@@ -2,11 +2,12 @@
 AN UPDATE REMOVES EVERY OLDER spaCR FIRST, ON EVERY SYSTEM
 ================================================================================
 
-Status:    IN PROGRESS -- slice 1 built 2026-09-15 on wip/416-find-delete-install
-           (ec25de92d..fa408fdb6 and the commit adding this section; not
-           landed, not released). STILL BLOCKING USERS: a 1.5.0.1 machine is
-           unblocked only by installers built from this code, and nothing
-           here has run on a real Windows or Mac.
+Status:    SLICE 1 ON NIGHTLY (20199e598), 2026-09-15 -- NOT RELEASED. STILL
+           BLOCKING USERS: a 1.5.0.1 machine is unblocked only by an installer
+           built from this code (the next release), and nothing here has run
+           on a real Windows or Mac. Remaining: real runs on each OS, tick
+           boxes inside the installers, a live end-to-end run of the
+           post-exit helper, macOS removals that need admin rights.
 Requested: 2026-09-15, by the maintainer, in these words (item 3 of three):
            "when updating spacr, the updater must first remove the older
            version of spacr, from all locations, on all operating systems, so

@@ -2,11 +2,12 @@
 THE FONT ZOOM FLOOR IS 10%, NOT 75%
 ================================================================================
 
-Status:    BUILT ON wip/413-font-floor, 2026-09-15, NOT MERGED. The floor is
-           10% on every path and renders as 10%; the app survives it and
-           wheels back. Open: the two docstrings that state the old range
-           (catalog pass), the console's own 6 pt floor, and eleven
-           self-styled labels that keep their build size on any Zoom change.
+Status:    BUILT, ON NIGHTLY, 2026-09-15. The floor is 10% on every path and
+           renders as 10%; the app survives it and wheels back. The two
+           docstrings that stated the old range were corrected with their nine
+           languages in 20199e598. Open: the console's own 6 pt floor, and
+           eleven self-styled labels that keep their build size on any Zoom
+           change.
 Requested: 2026-09-15, by the maintainer, in these words:
            "i would like to change the font zoom floor from 75% to 10%"
 Owner:     Claude home session.
