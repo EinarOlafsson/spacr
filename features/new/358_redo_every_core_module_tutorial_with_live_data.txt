@@ -1274,3 +1274,18 @@ old failure, so they are now inaccurate. Re-capture scene 10's overlay step on
 a build with this fix, change the narration to what the plots show, and run
 the 07_mask translation -> voices -> master -> rendition -> candidate chain
 again for that scene (the resume sequence above covers the commands).
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE MAINTAINER'S REAL PIN FILE IS CLEANED, AND THE HOLD IS LIFTED
+--------------------------------------------------------------------------------
+
+Asked with the question tool. (1) "Remove the two entries": the maintainer's
+real ~/.local/state/spacr/chaining/pins.json had Mask's and Timelapse's `src`
+pinned to deleted pytest folders
+(/tmp/pytest-of-olafsson/pytest-2295/test_head_loaddata0/plate1 and
+.../pytest-3431/test_load_demo_generates_data_4/scratch/timelapse), left there
+by tests before the conftest sandbox. Only those two `src` keys were removed;
+the other eight modules' pins are untouched, and a byte copy of the old file is
+kept beside it as pins.json.bak-2026-09-15. (2) "Publish now": the release hold
+on candidate release-candidate-8738b_pd is lifted by the maintainer; the
+publication steps are recorded in the next section when they land.
