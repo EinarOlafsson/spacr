@@ -7890,3 +7890,74 @@ VERIFICATION
   failed, both catalog debt.
   Qt suite: running on 0df0d99ee (the same set before the 407 rebase), 60% and
   0 failures at 16:04. The result follows in my next note.
+
+--------------------------------------------------------------------------------
+2026-09-15 — WORK SESSION: YOUR TWO DOSE-RESPONSE FINDINGS, AND TWO BUGS UNDER THEM
+--------------------------------------------------------------------------------
+
+1. WRAPPED FOR YOUR NEXT RUNTIME PASS -- 14 UI sources, +14/-0 against nightly
+   52ecb1e2e (and the same 14 against 08a2c1719), measured with
+   canonical_sources() (UI 3,527 -> 3,541):
+     "(one curve for the whole table)"   now in _DOSE_RESPONSE_UI_SOURCES
+     "concentration", "response"          the plot's axis labels and fallbacks
+     "{plate}: usable, Z′ {zprime}"       "{plate}: refused, Z′ {zprime}"
+     "{name}: not pooled — {reason}"      "{line}, plates disagree"
+     "{name}: pooled EC50 {ec50}{unit} ({low}–{high}) across {used} of {plates} plates, I² {spread}"
+     "{name}: no selectivity index — {reason}"
+     "{name}: selectivity index {index} ({low}–{high}), host EC50 {host} over response EC50 {response}"
+     "{name}: no synergy surface — {reason}"
+     "{name}: no combination well could be scored against {model}"
+     "{name}: {model} excess over {cells} combination wells, max {max} at {dose_a} + {dose_b}, min {min}; {synergistic} synergistic, {antagonistic} antagonistic"
+     "{name}: REFUSED"
+   English output is byte-identical: every existing report test passes
+   unchanged. The legend's only word is "all rows", already catalogued; group
+   names are data. Engine notes after " — " stay as the engine wrote them.
+   The caption ratchet is red on exactly these 14 until your pass. I did not
+   move its pins.
+
+2. "…then Fit." IS NOT CHANGED YET, AND WHY. Changing that English orphans
+   your reviewed record for it, and reviewed_runtime_translations() then
+   RAISES "stale reviewed runtime source" -- test_runtime_i18n_syntax sv and
+   fr went red when I tried. It is one line in spacr/qt/screens/
+   dose_response.py (setPlaceholderText "... then Fit." -> "... then Fit
+   curve."). Please make it in your next runtime pass with the record rebound,
+   or say so here and I push the English alone.
+
+3. A REAL BUG, MINE: THE PICKERS BROKE IN EVERY LANGUAGE BUT ENGLISH.
+   retranslate_widget_tree rewrites a non-editable combo's item text by catalog
+   match, and every picker read currentText(). On a French screen an untouched
+   Plates row read "(Aucune)" and the fit refused ("needs BOTH controls
+   named"); a group column called `gene` became "gène". Fixed: values in item
+   data, handlers read currentData(), only the two sentinels offered to the
+   pass, i18nSkipItems on the table picker.
+   tests/qt/test_dose_response_pickers_survive_a_language_change.py fails 6 of
+   8 on the old code, in fr and de.
+
+4. A REAL BUG, OLDER THAN MY SET: A SECOND FIT SHOWED THE FIRST. _on_fitted
+   selects row 0; with row 0 already selected no selection signal fired, so the
+   result set was new while the report read "fitting…" and the plot drew the
+   old curves. Reproduced on 160380b8c. Fixed by clearing the selection first;
+   tests/qt/test_dose_response_a_refit_shows_the_new_fit.py.
+
+   Mutation-checked: removing the selection clear, offering column names to the
+   pass, reading the plate picker by caption, or taking a report line or the
+   legend label out of tr each fails its test.
+
+FOR YOU, NOT CHANGED -- spacr/qt/i18n.py is not mine
+  (a) The pass never brings a caption BACK to English. It rewrites an item only
+      when tr(source) differs from the source or the source is in _ROWS, and
+      "(none)" is not in _ROWS (567 rows): after fr then en it still reads
+      "(Aucune)". On my screen the value is right; the caption is stale until
+      the table reloads.
+  (b) The same currentText() trap exists wherever a combo is filled from data
+      and read back as text without i18nSkipItems. A STATIC GREP, not a
+      measurement, names candidates: timelapse_preview, plate_view,
+      hyperparam, control_chart, measure_preview, model_explanation,
+      gate_editor, annotate, image_scatter. Each needs a language test like
+      mine before anyone calls it a bug.
+
+VERIFICATION, rebased on 52ecb1e2e: the 10 dose-response Qt test files,
+test_runtime_i18n_syntax, the caption ratchet, test_docstring_correctness,
+test_api_i18n_extractor, test_api_i18n_frontend and test_documentation_i18n:
+373 passed, 2 failed -- the ratchet's two tests, on the 14 sources above. Your
+API pass has landed, so the API frontend and documentation gates are green.
