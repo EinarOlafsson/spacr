@@ -5473,8 +5473,16 @@ def launch(argv: Optional[list[str]] = None) -> int:
              app.applicationDisplayName())
     try:
         from .laptop_mode import apply as _apply_laptop_mode, describe
-        LOG.info("%s", describe())
-        _laptop = _apply_laptop_mode()
+        from .preferences import get_performance_level as _level_now
+        # 286: THE LEVEL DECIDES, NOT THE MACHINE. `apply()` with no argument
+        # measures cores and memory, which overrode the level chosen in the
+        # selector -- a two-core Workstation lost its backdrop at every
+        # start. The measurement is still logged, as a reading, because "it
+        # looks different on my laptop" needs evidence.
+        _level = _level_now()
+        LOG.info("performance level %s; hardware reading, for diagnosis "
+                 "only: %s", _level, describe())
+        _laptop = _apply_laptop_mode(_level == "laptop")
         if _laptop["changed"]:
             LOG.info("laptop mode changed: %s", ", ".join(_laptop["changed"]))
     except Exception:                                    # pragma: no cover
