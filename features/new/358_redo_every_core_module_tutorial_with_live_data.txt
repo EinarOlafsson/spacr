@@ -1052,3 +1052,41 @@ FRESH-COPY RECAPTURE FAILED, AND IT HELD THE SHARED GPU LOCK FOR TWO IDLE HOURS.
     reconciles EVERY such file, so re-run it with the 09-11 order (en es fr
     hi it pt-BR ja zh-CN): a different order leaves a stale report behind
     that fails reconcile_audio.
+
+05_HOME -- OWED, NOT STARTED (the brief made it conditional on everything
+else being done; 07_mask was still rendering). Measured facts, so it can be
+picked up cold:
+  * LIVE HOME BANDS (spacr.qt.app.home_bands(APPS) at this branch):
+      Core   6: Mask, Measure, Annotate, Classify, Map Barcodes, Regression
+      Data   7: Import [foreign], Embeddings [embeddings], Run Compare,
+                Experiment Design, Power / Design, Dose-Response, QC
+      Tools  5: Make Masks, Align & Stitch, Image UMAP, Gate Editor, Graph Builder
+      Assays 4: Plaque Assay, Recruitment, Invasion Assay, Replication Assay
+    Only Data changed: Embeddings joined it in 7f0f74ac7 ("386's tile was in
+    the registry and in none of the tables that draw it"). Core, Tools and
+    Assays still match scenes 2, 4 and 5 key for key.
+  * SCENE 3 today: visual "02_data  (6)", from captures/home at 04b23431f
+    on 1.5.0.4, before the tile existed; focus_modules = [foreign,
+    run_compare, experiment_design, power, dose_response, qc_dashboard];
+    related = [36_import, 35_converter, 31_external_masks]; narration "Data
+    brings together Import, Run Compare, Experiment Design, Power and
+    Design, Dose Response, and quality control. ..."
+  * CHANGES OWED in lessons/05_home.json scene 3:
+      narration  "Data brings together Import, Embeddings, Run Compare, ..."
+      focus_modules  insert "embeddings" second (band order)
+      related_lessons  add "77_embeddings"
+      visual  take the key from the NEW capture's frames.json; it encodes
+              the tile count and will very likely become "02_data  (7)"
+  * SEQUENCE (as 07_mask; Home needs no GPU to capture):
+      capture_refresh.py --module home --stage $ST --capture-name home_2026-09-xx --platform xcb
+        (fixed xvfb display, never -a; view 02_data for 7 tiles and the 1.5.0.7 footer)
+      edit scene 3 as above -> stage_lesson.py lessons/05_home.json --capture-module home_2026-09-xx
+      [GPU] translate_refresh.py --lessons 05_home --device cuda
+      review: only scene 3 narration changed (plus the pin). Insert the
+        localized "Embeddings" into each reviewed row by hand; the 07_mask
+        drafts translated every UI name, so do not take a draft row
+      apply_translation_review.py x13 -> row diff: exactly scenes[2]
+      [GPU] SPACR_TUTORIAL_WORKSPACE=$ST render_all_voices.py --lessons 5 --device cuda
+      verify_staged_audio (09-xx report language order), 14 browser checks,
+      render_visual_master, check_completed_matrix, stage_one rendition,
+      verify_staged_lesson --web-rendition, build() + verify_release_candidate.
