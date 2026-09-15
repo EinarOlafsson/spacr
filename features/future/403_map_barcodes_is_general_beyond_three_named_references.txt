@@ -240,3 +240,89 @@ ALREADY red at 10,536 against a pinned 10,534 before this change, and
 docstring says the API catalogs may be stale during ordinary work and are
 rebuilt once, immediately before the version is cut. So it was left stale
 deliberately, and is recorded here so the release rebuild knows why it moved.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- REQUIREMENT B BUILT, AND REQUIREMENT C CHECKED RATHER THAN BUILT
+--------------------------------------------------------------------------------
+
+B, "LOADING TEST DATA LOADS THE REFERENCE TABLES" -- BUILT (b3fc54fb3).
+
+  `spacr.settings.fill_missing_barcode_references` fills only EMPTY reference
+  settings and returns the ones it filled. A table the user already chose is
+  never replaced: that failure does not announce itself, it completes and
+  reports numbers mapped against the wrong guides.
+
+  `ensure_bundled_barcode` checks the local copy FIRST, so the ordinary path
+  touches no network -- the three CSVs ship inside the wheel. The GitHub
+  fetch exists for an install whose package data was stripped. It is pinned
+  to the release TAG rather than a branch (a branch URL returns whatever the
+  file is today, which would fail the hash check and report an integrity
+  problem when the real problem was the address), verified against a pinned
+  sha256 BEFORE anything is written, and staged-then-moved so an interrupted
+  fetch cannot leave a half-written CSV that parses as a short barcode table.
+
+  THE HASH PIN CANNOT GO STALE SILENTLY, which is the part worth keeping. A
+  test recomputes every hash from the file that ships beside it, so editing a
+  CSV without editing the pin is a red test here rather than a rejected
+  download on a user's machine months later, blaming the network. That is the
+  exact failure shape of the hand-written BLOCKED dict in
+  `tools/build_instruction_index.py`, and one of those is enough.
+
+  It is wired into `_apply_demo_to_screen` by asking whether the loaded
+  settings DECLARE the reference keys, not by app key. A Mask settings file
+  therefore cannot gain three path settings that mean nothing to it, and the
+  tutorial runner -- which calls the same method -- gets the behaviour
+  without being told about it.
+
+C, "THE AUTOMATIC SETTINGS MODE LIKE LIVE MODE IN MAKE MASKS" -- CHECKED, AND
+IT IS NOT THAT MODE. NOT BUILT, because the answer needs one word from the
+maintainer first and the two readings differ in a way that matters.
+
+  WHAT LIVE PREVIEW ACTUALLY DOES, read from `spacr/qt/widgets/live_preview.py`:
+  a toggle turns it on, and every control on the panel re-renders it --
+  `toggled.connect(self._refresh_canvases)`, `valueChanged.connect(...)`,
+  `currentIndexChanged.connect(...)`. It updates continuously and it WRITES
+  NOTHING. It is a view.
+
+  WHAT THE SEARCH DOES, read from `spacr/qt/screens/map_barcodes.py:1618`:
+  `search_button.clicked` starts it. It is then PROGRESSIVE while running --
+  `iter_barcode_search` yields a full report after every chunk, so the rates
+  settle rather than jump -- and when it finishes it enables an Apply button.
+  So it is live in one narrow sense, during a run, and not live in the sense
+  the maintainer's sentence points at, which is re-running by itself.
+
+  THE COST IS NOT THE OBSTACLE, and this was worth measuring rather than
+  assuming, because assuming it was expensive was wrong. A full search over
+  the default 20,000-read sample takes 0.27 s on an uncompressed synthetic
+  file, and 0.07 s on a 32 MB gzipped file holding 2,000,000 reads -- the
+  sample is bounded, so the reader stops at 20,000 and never decompresses the
+  rest. The first chunk lands in 0.03 s. That is comfortably inside
+  live-preview territory; a Cellpose preview segmentation takes longer.
+
+  SO THE ONLY REAL QUESTION IS WHAT "AUTOMATIC" IS ALLOWED TO TOUCH, and 399
+  already answered half of it deliberately. `apply_proposal`'s docstring says
+  so in its own words: "Nothing calls this on its own. A search that finishes
+  enables the button and stops there, because a panel that quietly replaced
+  values somebody typed would be a worse failure than the one it exists to
+  prevent."
+
+  THE TWO READINGS OF THE REQUEST:
+
+    1. THE SEARCH BECOMES LIVE. It re-runs by itself when its inputs change
+       -- the sequencing folder, the reference tables, the anchor -- and the
+       settings it derives are shown continuously as a PROPOSAL. Apply stays
+       a deliberate click. This is exactly Live preview's shape: continuously
+       shown, never written. Cheap, and it contradicts nothing.
+
+    2. THE APPLY BECOMES LIVE. Derived settings are written into the form as
+       the search revises them. This is the thing 399 refused on purpose, and
+       the refusal is right: a verdict can move from INDETERMINATE to PRESENT
+       to ABSENT as the sample grows, so a live apply would rewrite the
+       user's form two or three times during one run, including over values
+       they typed themselves.
+
+  RECOMMENDATION: build reading 1, and only after he confirms it is what he
+  meant. The sentence "the automatic settings mode should be like live mode
+  in make" fits both readings, and the difference between them is whether the
+  user's typed settings can be overwritten without a click. That is not a
+  question to settle by inference. Filed as a question in HANDOFF section 1.
