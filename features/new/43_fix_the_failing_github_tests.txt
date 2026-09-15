@@ -1329,3 +1329,48 @@ Minimum dependencies failed. Read from their logs:
   wip/288-ci-crash-tolerant makes the collection recover a crashed worker's
   files and makes the gate name an incomplete measurement as such -- still a
   failure, never a silent pass.
+
+  THE DISPATCHED RUN, COMPLETE (tests 34989909231 finished; recorded 2026-09-15
+  evening). "Release gate / zero unexpected failures" is only a roll-up -- it
+  failed because qt, minimum-dependencies, fast and coverage-combine did. The
+  one job that runs the non-Qt suite serially, "Fast / Full suite control",
+  crashed NOWHERE and failed on exactly five tests, every one already known:
+
+      test_no_tooltip_is_an_archive (segmentation_backend 677 chars)
+          -> fixed on wip/runtime-text-414-tooltip (538400a17), lands with the
+             runtime catalog regeneration
+      test_the_checkout_size_in_the_readme_matches_the_tree (941 vs 1186 MB)
+          -> fixed on wip/43-readme-size (6c8ccf74c), lands after 372
+      test_real_default_claims_have_no_unrecorded_drift (667 == 666)
+      test_the_committed_notebooks_match_what_the_tool_generates (STALE)
+      test_every_module_default_agrees_with_the_function_default (graph_type)
+          -> the work session's, fixed on its unpushed branch
+
+  So, crashes and coverage aside, the suite at 2a84d1d60 is five known reds from
+  green. What stands between here and the gate is the crash family (and what it
+  does to coverage), the Qt-shard reds being fixed today, and the coverage gaps.
+
+  THREE MORE FINDINGS FROM THE WORK SESSION'S FULL NON-QT RUN (all red on
+  f5d651454 too, so not from its commits):
+    * spacr.accelerator caches its device in `_CACHED`; tests that patch
+      torch.cuda.is_available to False never reset it, so on a machine WITH a
+      GPU an earlier cuda:0 survives (test_cov_object_preprocess_segment,
+      test_cov_object_organelle_sam x3, analysis_submodules cellpose,
+      test_cov_w3_7_cli_remote 'cuda:0' == 'cpu'). CI has no GPU and never
+      sees it. Being fixed with a per-test reset (wip/43-accelerator-cache).
+    * THE CONFTEST MEMORY GUARD LOOKS LIKE A CRASH: a worker whose RSS passes
+      SPACR_TEST_MEMORY_GB (default 6) calls os._exit(3), and pytest-xdist logs
+      that as "node down: Not properly terminated" -- the same words as a
+      segfault, but with no "Fatal Python error" line. Every crash site must be
+      classified by whether a fatal error and faulthandler stack was printed;
+      an exit without one is the guard, and points at a test needing >6 GB, not
+      at the crash family.
+    * the README checkout size (above).
+
+  A LEAD ON THE CRASH FAMILY, being tested (wip/43-gc-cycles): aad90d8f0 found
+  widgets holding a STRONG reference to their own window (ambient, dna_rain,
+  first_run, shortcuts, drawer). Only Python's cyclic GC can free such a pair,
+  and it empties the widget before Qt destroys it; with that fix reverted three
+  of its tests segfaulted pytest itself. Whether GC-freed Qt cycles explain the
+  unattributed worker segfaults is the hypothesis -- not a finding until a
+  forced-GC run reproduces a recorded site and the fix removes it.
