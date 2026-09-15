@@ -7796,3 +7796,97 @@ full-size box, collapsible categories, Cellpose zoo models and thresholds,
 drag-to-merge, Otsu, Shift+scroll, DINOCell/YOLO). Home builds it in
 spacr/qt/screens/make_masks.py plus new modules. If you file anything, start at
 418. 408 is DONE -- the maintainer confirmed the black box is gone.
+
+--------------------------------------------------------------------------------
+2026-09-15 — WORK SESSION: MY SET IS ON NIGHTLY, 160380b8c..5a9c4563a (28 COMMITS)
+--------------------------------------------------------------------------------
+
+ON NIGHTLY, NOT ON A SIDE BRANCH, BY EINAR'S DECISION. The side branch we
+agreed on could not be created: GitHub refuses to CREATE any branch off
+nightly for a token without the `workflow` scope (nightly carries workflow
+changes that main does not), even when the pushed commits touch no workflow
+file. Einar then asked for everything on nightly and pushed the set himself,
+a fast-forward of 160380b8c. Before that it was rebased over 372 and 407 and
+every pin re-derived by subtraction on 160380b8c. 28 commits, all authored by
+Einar, none touching .github.
+
+WHAT LANDED
+  * 403 in full: a non-DNA reference is refused, the verdict thresholds are
+    settable (SearchThresholds), loading test data fills the barcode
+    references it lacks, and the search follows the form while only Apply
+    writes back.
+  * 387's screen half, all four steps: per-plate normalisation with Z',
+    pooled EC50 across replicate plates, selectivity index, and Bliss/Loewe
+    checkerboard scoring.
+  * 284: settings import 409 -> 156 ms; no settings default imports pandas;
+    Mask open ~30% faster (Python source parsed once, not 73 times).
+  * 289 done; 293's Graph Builder asks the setting; the regression QC
+    figures' dead note dropped, not revived.
+  * CI: three settings-lane reds and two CI-only Qt reds.
+
+PINS ON 160380b8c (my additions dropped = the previous pin, byte for byte)
+  public surface       10,521 -> 10,523   SearchThresholds, its __post_init__
+  AutoAPI boundary        219 -> 223      pre-filter 10,740 -> 10,746; the 4 are
+                                          spacr._stream_selection (3) and
+                                          spacr._outlier_criteria (1), private
+  callables             8,684 -> 8,685    SearchThresholds
+  parameters           17,174 -> 17,181   its 5 fields + thresholds=None on
+                                          search_barcodes, iter_barcode_search
+  signature digest      a80114b9 -> 2494eb63, proved
+  visible dunders          210 -> 211, digest 8b07b969 -> 4e869900, proved
+  shipped modules          568 -> 570     _outlier_criteria.py, _stream_selection.py
+  reviewed runtime sv      219 -> 225     +6: my two dose-response files
+  reviewed runtime fr      197 -> 203     +6: the same six, no source shared
+  external UI captions   3,484 -> 3,505   +21/-0, key digest proved (below)
+
+TWO THINGS WERE YOURS; YOUR dca970671 SAYS ONE IS DONE AND ONE IS MOVING
+
+1. THE COVERAGE GATE'S FILE COUNT: DONE by you in 01ed9df20 (tests.yml
+   568 -> 570 and its mirror in test_module_coverage_ratchet.py).
+
+2. THE CATALOG PASS
+   API missing (2):   spacr.barcode_search.SearchThresholds, its __post_init__
+   API stale (5):     BarcodeTable.oriented, iter_barcode_search, search_barcodes
+                      (spacr.barcode_search), map_barcodes.BarcodeSearchPanel,
+                      graph_spec.GraphSpec.resolved_kind -- measured with the
+                      catalog test's own contract past its inventory half:
+                      these 5 on the set, none on 160380b8c.
+   Runtime UI captions, 21 new, all from 387's Dose-Response screen:
+     with nine reviewed records each (6):
+                      "Host response" + tooltip   (2026-09-15-dose-response-host-readout.json)
+                      "Second compound" + tooltip, "Bliss independence",
+                      "Loewe additivity"          (2026-09-15-dose-response-combination.json)
+     WITHOUT reviewed records yet (15):
+                      Group, Doses, CI low, CI high, Lack-of-fit p, fitted,
+                      unbounded, refused, all rows, Fit curve,
+                      "could not read {name}: {reason}", "loading {name}…",
+                      "{name} · {rows} rows × {columns} columns",
+                      "{rows} rows × {columns} columns", and the notice
+                      "No column of this table has at least four distinct
+                      positive values, so none of them can be a dilution series. …"
+   The i18n_catalogs were NOT regenerated, as the catalog lane asked.
+
+RED ON 5a9c4563a FROM THIS SET, AND ONLY THESE (each green on 160380b8c)
+  test_documentation_i18n      ::api_catalog_inventory_and_hashes_are_current
+  test_api_i18n_frontend       ::every_complete_real_catalog_renders_through_the_browser_selector
+  qt/test_i18n_caption_ratchet ::every_generated_catalog_candidate_has_a_source_hash
+  qt/test_i18n_caption_ratchet ::external_caption_layer_is_complete_exclusive_and_pinned
+                                 (count and digest pass; the en.UI_SOURCES equality is the red)
+
+A LINT RED THAT WAS MINE, FIXED IN THE COMMIT BEFORE THIS NOTE
+  Run 35017606344 (tests, on 5a9c4563a) failed Lint / types / complexity before
+  it was cancelled: ruff F821, undefined name `pd`, at spacr/settings_advisor.py
+  :193 and :211. 284 moved `import pandas` into the two readers and left the
+  string annotations of _well_key and _plate_of behind. pandas is now imported
+  under `if TYPE_CHECKING:`, so a settings default still does not import it.
+  No public symbol, docstring or user-visible string changes, so neither of
+  your catalog passes and none of the pins move. As you asked, I do not
+  regenerate either catalog lane or move those pins.
+
+VERIFICATION
+  Targeted, on 41fb48f92 (every test file the set changes, the runtime pins,
+  the caption ratchet): 633 passed, 2 skipped, 4 failed -- the four above and
+  no other. 5a9c4563a adds only the caption pin move: that file 9 passed, 2
+  failed, both catalog debt.
+  Qt suite: running on 0df0d99ee (the same set before the 407 rebase), 60% and
+  0 failures at 16:04. The result follows in my next note.
