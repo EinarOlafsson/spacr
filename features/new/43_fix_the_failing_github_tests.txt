@@ -1085,3 +1085,35 @@ Minimum dependencies failed. Read from their logs:
 
   The 3.15 wheels-only cell fails as designed (pandas has no cp315 wheel yet)
   under continue-on-error; it is informational and does not decide the run.
+
+--------------------------------------------------------------------------------
+2026-09-15 (06:50 UTC) - THE bac9151d0 tests RUN, READ JOB BY JOB
+--------------------------------------------------------------------------------
+
+  docs  SUCCESS.  tests  FAILURE, and the failures sort into four kinds:
+
+  REAL, AND BISECTED
+    tests/qt/test_field_fade.py -- 12 of 30 (Qt shard 0, coverage shard 8).
+      `git bisect run` a5ef1cd7b (good) .. fafa785b4 (bad): first bad commit
+      fee40b72a "A parentless widget is not a window, and half the sheetings
+      say so". Fields paint their plain opaque fill (alpha 255 where the fade
+      wants <= 10). The work session's; reported to it with the bisect.
+    test_user_facing_docstrings / test_documented_assignment_prose -- item
+      and instruction numbers in docstrings and `#:` comments: four lines
+      from the work session's batch (chaining.py:424, settings_model.py:5626,
+      validate.py:214, logging_util.py:533), reported; one of mine
+      (app.py, the paint diagnostic's docstring naming the item and the
+      maintainer), fixed in dcafb5f72.
+
+  CI-ONLY (each file passes whole, locally, on nightly)
+    test_cov_wf_qt_widgets_sweep_runs x2, test_the_cell_table_bar_carries_
+    the_chosen_error[sem-SEM], test_cov_w2_2_availability_panel,
+    test_regression_results_panel (the volcano recolour timing, "59 ms
+    (matplotlib: 115)", and a bad-path test on Min-deps).
+
+  WORKER CRASHES (crash class, see above)
+    test_cov_r5_preferences (Qt shard 1), test_dnd_dropzone (shard 0, again),
+    test_cov_w2_4_metadata_mapper (Min-deps, again).
+
+  BY SCOPE
+    Coverage / every shipped module at 100%: 175 modules, unchanged.
