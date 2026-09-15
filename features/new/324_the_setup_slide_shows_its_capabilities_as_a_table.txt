@@ -108,3 +108,87 @@ DONE MEANS
   detected-but-not-usable.
 * The new strings go into the pending translation list in instruction
   316. They are user-facing prose and must not be machine-drafted.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- BUILT. ALL THREE PARTS, AND THE TEST THIS FILE ASKS FOR BY NAME.
+--------------------------------------------------------------------------------
+
+This file reads as an unbuilt specification. It is built. Checked against its
+own checklist rather than against its header:
+
+  1. THE PARAGRAPH -- `setup_slides.GPU_REQUIREMENT`, lines 205-208, the exact
+     wording this file asks for including "orders of magnitude".
+  2. THE DEVICE LINE -- rendered at 1618 with `GPU_YES_INK` when
+     `Accelerator.usable` and `GPU_NO_INK` when not, and `GPU_DOCTOR_HINT`
+     still follows a detected-but-unusable card. 319's distinction survived
+     the redesign, which this file says it must.
+  3. THE TABLE -- `GPU_TABLE_ROWS` and `_what_this_machine_can_do`, three
+     columns, column 2 coloured green for GPU and red for CPU, DERIVED from
+     `accelerator.capabilities()` and not typed. `spacr/doctor.py:1241` reads
+     the same function, so the two surfaces cannot disagree.
+
+AND THE TEST THIS FILE DEMANDS EXISTS, by name and by content:
+`tests/qt/test_the_setup_slide_draws_a_capability_table.py::
+test_cuda_and_metal_differ_where_the_backends_differ` fakes both backends and
+asserts the reductions row differs while the Cellpose row agrees -- "that
+difference is the entire reason the table exists, so it is the thing to pin".
+33 tests pass across that file, the first-slide file and the resolver table.
+
+--------------------------------------------------------------------------------
+THE TRANSLATION BULLET: FOUR CAPTIONS, NOT TWELVE. I MEASURED THE WRONG TABLE.
+--------------------------------------------------------------------------------
+
+AN EARLIER VERSION OF THIS SECTION SAID ALL TWELVE STRINGS WERE ABSENT IN ALL
+NINE LANGUAGES AND THAT THE FIRST SCREEN WAS ENGLISH. THAT WAS WRONG, and the
+way it was wrong is worth more than the result.
+
+I looked the strings up in each locale catalog's `UI` table and reported what I
+did not find there. THE RUNTIME DOES NOT READ THAT TABLE FIRST. `i18n.tr`
+tries `_exact_translation`, which is served by the compact `_ROWS` in
+`spacr/qt/i18n.py` -- and the extractor SUBTRACTS those from the catalogs on
+purpose, because the compact catalog already owns them. So every string that
+is translated in `_ROWS` looks absent to a catalog lookup, which is precisely
+the set I reported.
+
+MEASURED AGAIN THROUGH `tr(text, language=...)`, with the self-registering
+modules loaded, which is what the slide actually calls:
+
+    GPU_REQUIREMENT (the paragraph)   translated in every language
+    GPU_DOCTOR_HINT                   translated
+    "Segmentation"                    translated
+    "Classification"                  translated
+    "Torch models"                    translated
+    "detected, not used by spaCR"     translated
+    "GPU", "CPU"                      identity, and CORRECTLY so --
+                                      `_looks_translatable` excludes all-caps
+                                      tokens of eight characters or fewer
+
+SO THE SLIDE IS NOT ENGLISH. The prose a new user reads -- the paragraph and
+the doctor hint -- is human-reviewed in all nine languages.
+
+WHAT IS GENUINELY STILL ENGLISH, re-measured across all nine locales through
+`tr()` and not through a catalog:
+
+    caption                    de es fr hi is ko pt sv zh_CN
+    "Visualization"            en en en en en en en en en
+    "Machine learning"         en en en en en en en en en
+    "Live backdrop"            en en en en en en en en en
+    "UMAP / t-SNE / cluster"   en en en en en en en en en
+
+Four of the table's captions, in every language. "Visualization" and "Machine
+learning" are ordinary prose with obvious translations -- Visualisierung,
+Maschinelles Lernen -- so identity is not the right answer for them the way it
+is for "GPU". "UMAP / t-SNE / cluster" is arguably three proper nouns and a
+word; "Live backdrop" is not.
+
+They reach `_say` through the loop variable in `GPU_TABLE_ROWS`, which no
+extractor rule can follow -- the constant has to be registered. That is the
+other session's lane and they are on it.
+
+SO THE BULLET IS FOUR CAPTIONS FROM DONE, not the whole slide, and 324 stays
+open on those four rather than on a false alarm.
+
+THE LESSON, which is the reason this correction is longer than the finding: a
+lookup that answers "absent" is only evidence if you are reading the table the
+code reads. I checked nine catalogs carefully and thoroughly and none of them
+was the one `tr()` consults first.

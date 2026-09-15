@@ -138,3 +138,83 @@ def test_the_launcher_disarms_gl_and_timing_before_qt(monkeypatch):
     # read as "no", so safe mode greeted a long-standing user with the
     # setup wizard in front of the settings they came to repair.
     assert "--no-setup" in seen["argv"]
+
+
+#: The imports safe mode exists to avoid. Named one by one so a failure says
+#: WHICH arrived rather than "something heavy got in".
+#:
+#: `torch` and `cuml` are the GPU probe; `cellpose` pulls torch; `cupy` is
+#: CUDA directly. Instruction 296 lists "no GPU probe, no CUDA import" among
+#: the things safe mode turns off, and 295 is why: the crash log points at the
+#: GL/driver path, so a safe mode that imports a CUDA runtime to ask what the
+#: card is has taken the risk it was built to avoid.
+SAFE_MODE_MUST_NOT_IMPORT = ("torch", "cupy", "cuml", "cellpose",
+                             "tensorflow")
+
+
+@pytest.mark.slow
+def test_safe_mode_opens_without_importing_a_gpu_runtime():
+    """296's "no GPU probe, no CUDA import", asserted instead of intended.
+
+    IN A FRESH EXEC, and that is the whole point. By the time this file
+    runs, pytest has imported most of spaCR, so `sys.modules` in THIS
+    process says nothing about what a launch costs -- the same reason
+    `tests/test_perf_guard.py` measures in a subprocess and says so in its
+    own docstring.
+
+    Drives the real safe-mode preamble: `enable_safe_mode()`, the launcher's
+    environment, the app registration pass and a MainWindow shown offscreen.
+    That is everything `safespacr` does short of entering the event loop.
+
+    Measured 2026-09-15: none of the five arrive. This test exists because
+    that was TRUE AND UNGUARDED -- the guarantee is in 296's list, nothing
+    held it, and the cheapest way for it to break is somebody adding a
+    capability probe to the startup path for a good reason.
+    """
+    import json
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    import spacr
+
+    repo_root = Path(spacr.__file__).resolve().parents[1]
+    sentinel = "SAFE-MODE-JSON "
+    code = f'''
+import json, os, sys
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+sys.path.insert(0, {str(repo_root)!r})
+from spacr.qt.preferences import enable_safe_mode
+enable_safe_mode()
+os.environ.pop("SPACR_TIMING", None)
+os.environ["SPACR_NO_GL"] = "1"
+from PySide6.QtWidgets import QApplication
+app = QApplication.instance() or QApplication(["safespacr"])
+import spacr.qt as q
+q.register_self_registering_modules()
+from spacr.qt.app import MainWindow
+window = MainWindow()
+window.resize(1200, 800)
+window.show()
+for _ in range(40):
+    app.processEvents()
+names = {SAFE_MODE_MUST_NOT_IMPORT!r}
+print({sentinel!r} + json.dumps(
+    [name for name in names if name in sys.modules]))
+'''
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True,
+                         text=True, timeout=600)
+    assert out.returncode == 0, (
+        f"the safe-mode subprocess failed:\n{out.stderr[-3000:]}")
+    line = next((ln for ln in out.stdout.splitlines()
+                 if ln.startswith(sentinel)), None)
+    assert line is not None, (
+        f"no result line; stdout tail:\n{out.stdout[-2000:]}")
+    arrived = json.loads(line[len(sentinel):])
+
+    assert arrived == [], (
+        f"safe mode imported {arrived} — instruction 296 says it turns the "
+        f"GPU probe and the CUDA import OFF, and 295 is why: the crash it "
+        f"exists to escape is in that path. A safe mode that loads a GPU "
+        f"runtime to ask what the card is has taken the risk it was built "
+        f"to avoid.")
