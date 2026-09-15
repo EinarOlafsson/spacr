@@ -51,17 +51,43 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,679 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
+| Language | Reviewed runtime records | Of 5,835 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 134 | 2.36% | 5,545 | 495 | 4.70% | 10,038 |
-| German | 101 | 1.78% | 5,578 | 452 | 4.29% | 10,081 |
-| Spanish | 115 | 2.03% | 5,564 | 313 | 2.97% | 10,220 |
-| Simplified Chinese | 368 | 6.48% | 5,311 | 543 | 5.16% | 9,990 |
-| Portuguese | 115 | 2.03% | 5,564 | 474 | 4.50% | 10,059 |
-| Hindi | 148 | 2.61% | 5,531 | 488 | 4.63% | 10,045 |
-| Korean | 265 | 4.67% | 5,414 | 480 | 4.56% | 10,053 |
-| Icelandic | 173 | 3.05% | 5,506 | 1,053 | 10.00% | 9,480 |
-| French | 116 | 2.04% | 5,563 | 492 | 4.67% | 10,041 |
+| Swedish | 191 | 3.27% | 5,644 | 505 | 4.79% | 10,028 |
+| German | 154 | 2.64% | 5,681 | 458 | 4.35% | 10,075 |
+| Spanish | 161 | 2.76% | 5,674 | 344 | 3.27% | 10,189 |
+| Simplified Chinese | 473 | 8.11% | 5,362 | 607 | 5.76% | 9,926 |
+| Portuguese | 154 | 2.64% | 5,681 | 565 | 5.36% | 9,968 |
+| Hindi | 235 | 4.03% | 5,600 | 499 | 4.74% | 10,034 |
+| Korean | 372 | 6.38% | 5,463 | 563 | 5.35% | 9,970 |
+| Icelandic | 324 | 5.55% | 5,511 | 1,078 | 10.23% | 9,455 |
+| French | 169 | 2.90% | 5,666 | 505 | 4.79% | 10,028 |
+
+*Regenerated 2026-09-15 for the 08:15 integration batch (wip/integ-0815) on
+nightly 554dcf371. The runtime denominator moves 5,679 -> 5,835, +156/-0: 154
+UI captions that 394's keyed extractor rules found behind local helpers
+(always on screen, never in a catalog), plus the `segmentation_backend` label
+and tooltip (404/405). The API denominator does not move; the new backend
+module is not rendered. EVERY RUNTIME COUNT RISES, and each rise is proved by
+subtraction: nightly's count, plus 2 for `segmentation_backend`, plus 1 in sv,
+zh_CN and ko for the UI row the model left English, plus the records authored
+from a read of every row the batch's GPU pass changed (sv 54, de 51, es 44,
+zh_CN 102, pt 37, hi 85, ko 104, is 149, fr 51). That is 1,535 + 18 + 3 + 677
+= 2,233, and no record left any locale. The API counts rise by the authored
+corrections (sv 32, de 27, es 53, zh_CN 84, pt 111, hi 33, ko 104, is 47,
+fr 35), plus the batch's surviving hand-written or restored blocks (de 1,
+zh_CN 1, pt 2), plus one block in zh_CN, ko and is: `spacr.report#13`, the
+two words "Segmentation QC". That English is also a UI caption the runtime
+reviewers corrected in exactly those three locales (zh_CN and ko had read
+"classification QC"). The API audit then refused the stale API block as a
+contextual false friend, so the API side now carries the same reviewed
+translation. Icelandic's corrections add 46 sources, not 47, because two of
+them are the same "Design notes:" block in two symbols: one English source
+with one translation, and this table counts sources. The
+re-binding of item 63's markup fixes retired and re-bound the same number of
+records in every locale, so it moves nothing here. Coverage is not review:
+these are corrections to text that was wrong, and the Icelandic and Hindi
+ones still want a native reader.*
 
 *Regenerated 2026-09-15 for instruction 366's module landing pages, on top of
 407's pass below. Neither denominator moves: six existing docstrings grew
@@ -232,5 +258,5 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 134, de 101, es 115, zh_CN 368, pt 115, hi 148, ko 265, is 173, fr 116 -- 1,535 runtime records across nine locales.
+Reviewed totals today: sv 191, de 154, es 161, zh_CN 473, pt 154, hi 235, ko 372, is 324, fr 169 -- 2,233 runtime records across nine locales.
 

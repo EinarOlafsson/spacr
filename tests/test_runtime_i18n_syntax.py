@@ -50,7 +50,19 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # written by hand as reviewed records so its first catalog build needed
     # no model. 'Cellpose' has no record: a name is kept as it is by the
     # gates, and an identity record is rejected as an exact copy.
-    assert len(reviewed) == 134
+    #
+    # 134 -> 191 on 2026-09-15, +57/-0, for the 08:15 integration batch
+    # (wip/integ-0815) on nightly 554dcf371:
+    #    2  the `segmentation_backend` label and tooltip (404/405),
+    #       2026-09-15-segmentation-backend.json
+    #    1  the Cellpose 4 diameter-check UI row the model left English,
+    #       2026-09-15-integration-new.json
+    #   54  corrections from reading every row the batch's GPU pass changed,
+    #       2026-09-15-integration-review.json
+    # PROVED BY SUBTRACTION with the loader itself: the live count minus the
+    # sources in those three files is 134, the three share no source with each
+    # other, and none shares one with any other file.
+    assert len(reviewed) == 191
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -123,7 +135,15 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 99 -> 116 on 2026-09-15, +17/-0: the magnifier's sixteen captions
     # (407), plus 'Overlap', which read 'Rupture' (a break) on the same card
     # and is now 'Chevauchement'.
-    assert len(reviewed) == 116
+    #
+    # 116 -> 169 on 2026-09-15, +53/-0, for the 08:15 integration batch:
+    #    2  the `segmentation_backend` label and tooltip (404/405),
+    #       2026-09-15-segmentation-backend.json
+    #   51  corrections from reading every row the batch's GPU pass changed,
+    #       2026-09-15-integration-review.json
+    # The live count minus the sources in those two files is 116, and they
+    # share a source with no other file or with each other.
+    assert len(reviewed) == 169
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

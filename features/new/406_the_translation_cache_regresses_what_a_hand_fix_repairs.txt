@@ -443,3 +443,57 @@ WHAT IT DOES NOT FIX
     `과장하는 것에 대하여`, "about exaggerating", for "override"; pt
     "levanta terras" for "raises lands as"). They are restored as they
     were, not reviewed as prose.
+
+THE OTHER 2026-09-15 API-LANE FIX DOES NOT EXPLAIN THESE ELEVEN
+
+b8666d24d (410, now in nightly and under this branch since its rebase onto
+554dcf371) found that a plain `build_documentation_i18n.py` with no flags
+never read
+docs/i18n/reviewed/api. For a changed symbol it sent every block to the
+model and, when a decode failed, published the English. That is a real
+fault in the same neighbourhood, so it was checked against these eleven,
+and it is not what dropped them:
+
+  * THE BATCH DID NOT RUN THE PLAIN BUILD. Its log's summary line
+    ("API blocks reused=... review_recovered=...") is printed only by
+    `repair_api_translations`, once per locale, and all nine are there.
+    That path already read reviewed records (review_recovered 8 to 66 per
+    locale in the same log).
+  * THERE WAS NO RECORD TO PUBLISH. None of the eleven (locale, label)
+    pairs had a reviewed record in its own locale at 8f4171fd9, at
+    6c6938be0, or on nightly. The same English blocks do have records in
+    OTHER locales (de, es, hi, is, and ko for a different block), which is
+    evidence about those locales only.
+
+The plain path WITH b8666d24d, replayed from the same pre-batch state (model
+stubbed, the 42 changed symbols all pending):
+
+    reviewed records as they stood at 6c6938be0     0/11 published
+    the same plus 2026-09-15-integration-restored  11/11 published
+
+SO THE PLAIN PATH STILL HAS THE HISTORY GAP. It has no historical reuse at
+all: a changed symbol goes whole to `_translate_api_documents`, where only a
+reviewed record or the cache can carry an untouched paragraph. The
+committed-manifest fallback above is in `repair_api_translations` only.
+Recorded, not fixed here. Until it is, rebuild changed docstrings with
+`--repair-api-blocks`, and keep the eleven records.
+
+WHAT A READ OF EVERY ROW DID TO THE ELEVEN, THE SAME DAY
+
+Two reviewers then read every block and row this batch changed and wrote a
+correction for each one they judged bad. Those corrections are authored as
+reviewed records in `2026-09-15-integration-review.json`, and the same loaders
+the build uses validated each one. Where a corrected translation replaced one
+of the restorations above, the restoration was removed:
+
+    superseded by a reviewer's correction   pt 6, ko 2
+    kept, because the correction failed     pt spacr.active_learning.should_stop#6
+    `_syntax_preserved`                     pt spacr.power_model.scan_parameters#2
+                                            zh_CN spacr.power_model.scan_parameters#1
+
+In the two pt cases the correction translated a quoted English phrase
+("flat" and "unmeasurable"; "this fit crashed") that the gates keep
+verbatim. In the zh_CN case it kept every inline code literal but put them
+in a different order, which the literal check also refuses. The restoration still ships, and it is
+still the 8f4171fd9 model output named as weak above. It needs a correction
+that keeps the quoted literal as written.
