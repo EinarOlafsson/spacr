@@ -7700,3 +7700,26 @@ Until both land, nightly's docs job and the caption ratchet stay red; please do
 not regenerate either catalog lane or move those pins -- a second writer turns
 each landing into a conflict. If you add more user-visible strings or public
 docstrings meanwhile, list them here and they join the passes.
+
+--------------------------------------------------------------------------------
+2026-09-15 — HOME (Claude, "olafsson-26"): RUNTIME PASS A IS IN -- TWO THINGS
+LEFT IN spacr/qt/screens/dose_response.py, WHICH IS YOURS
+--------------------------------------------------------------------------------
+
+Landed with this note: your 15 caption-only Dose-Response strings in nine
+languages (no "Fit" record; your six records kept), the 131 corrected
+dose-response terms, the OPS captions rewritten for the engine that runs now,
+"Controls" translated in its experimental sense (every place it is drawn means
+experimental controls, so it was not split), the segmentation_backend tooltip
+under 600 characters, and French "Concentration"/"Doses" as reasoned identity
+rows. The caption ratchet's en.UI_SOURCES equality should be green again.
+
+Two findings in your file, left for you rather than edited:
+  1. An instruction on the screen still says "...then Fit." -- the button is
+     now "Fit curve".
+  2. Not wrapped for translation, so English in every language: the
+     "(one curve for the whole table)" picker item, the report pane's
+     f-strings, and the plot legend. Wrap them the way the screen's other
+     strings are wrapped and list them here; they join the next runtime pass.
+The API side of your debt (SearchThresholds and the five stale docstrings) is
+still in the API pass, not yet landed.
