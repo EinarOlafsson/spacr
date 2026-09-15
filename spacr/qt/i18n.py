@@ -109,6 +109,20 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "ingen upptäckt", "keine erkannt", "ninguno detectado", "未检测到", "nenhum detectado", "कोई नहीं मिला", "감지되지 않음", "ekkert greindist", "aucun détecté"),
     "detected, not used by spaCR": _row(
         "upptäckt, används inte av spaCR", "erkannt, wird von spaCR nicht verwendet", "detectado, no utilizado por spaCR", "已检测到，spaCR 未使用", "detectado, não utilizado pelo spaCR", "पाया गया, spaCR द्वारा उपयोग नहीं किया गया", "감지됨, spaCR에서 사용하지 않음", "greind, ekki notuð af spaCR", "détecté, non utilisé par spaCR"),
+    # The GPU slide's table captions. They reach `tr` through the loop over
+    # `setup_slides.GPU_TABLE_ROWS`, where no extractor rule can follow them,
+    # so four of them were English in every language (and "Torch models" came
+    # out of the composite as "Torch Modelle").
+    "Torch models": _row(
+        "Torch-modeller", "Torch-Modelle", "Modelos de Torch", "Torch 模型", "Modelos Torch", "Torch मॉडल", "Torch 모델", "Torch-líkön", "Modèles Torch"),
+    "Live backdrop": _row(
+        "Levande bakgrund", "Live-Hintergrund", "Fondo animado", "动态背景", "Fundo animado", "लाइव पृष्ठभूमि", "라이브 배경", "Lifandi bakgrunnur", "Arrière-plan animé"),
+    "UMAP / t-SNE / cluster": _row(
+        "UMAP / t-SNE / klustring", "UMAP / t-SNE / Clustering", "UMAP / t-SNE / agrupamiento", "UMAP / t-SNE / 聚类", "UMAP / t-SNE / agrupamento", "UMAP / t-SNE / क्लस्टरिंग", "UMAP / t-SNE / 클러스터링", "UMAP / t-SNE / klösun", "UMAP / t-SNE / partitionnement"),
+    "Visualization": _row(
+        "Visualisering", "Visualisierung", "Visualización", "可视化", "Visualização", "विज़ुअलाइज़ेशन", "시각화", "Myndræn framsetning", "Visualisation"),
+    "Machine learning": _row(
+        "Maskininlärning", "Maschinelles Lernen", "Aprendizaje automático", "机器学习", "Aprendizagem automática", "मशीन लर्निंग", "머신러닝", "Vélnám", "Apprentissage automatique"),
     "Home": _row(
         "Hem", "Startseite", "Inicio", "主页", "Início",
         "मुखपृष्ठ", "홈", "Heim", "Accueil"),
