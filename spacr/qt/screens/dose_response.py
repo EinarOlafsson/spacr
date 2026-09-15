@@ -37,6 +37,8 @@ inline so a test drives the same path the shipped screen does.
 """
 from __future__ import annotations
 
+from dataclasses import replace
+
 import logging
 import os
 from typing import List, Optional
@@ -63,6 +65,8 @@ from ..widgets.graph_builder import (_canvas_class, _page_surface_axes,
 from ..widgets.graph_spec import CATEGORICAL, column_kinds
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
+from ..widgets.dose_response import (PERCENT_COLUMN, PlateSpec,
+                                     normalise_to_controls)
 
 LOG = logging.getLogger("spacr.qt.screens.dose_response")
 
@@ -107,6 +111,41 @@ from ..app_catalog import declared_app, register_declared
 #: convenience for the common column names, not a classifier — nothing is
 #: fitted until the user presses Fit.
 _CONCENTRATION_HINTS = ("conc", "dose", "µm", "um", "nm", "mm", "molar")
+
+#: What the plate and control pickers call "not chosen". An existing caption,
+#: so the Plates row adds nothing a translator has not already seen.
+_NO_COLUMN = "(none)"
+
+#: Substrings that make a control-column level the first guess for each
+#: control. A convenience, like `_CONCENTRATION_HINTS`: nothing is normalised
+#: until a plate and a control column have both been chosen.
+_POSITIVE_HINTS = ("pos", "kill", "max")
+_NEGATIVE_HINTS = ("neg", "vehicle", "dmso", "mock")
+
+
+def _fit_with_plates(frame, spec, plate_spec):
+    """Fit ``frame``, first normalising it to each plate's controls if asked.
+
+    :param frame: the loaded table.
+    :param spec: the fit the pickers describe.
+    :param plate_spec: which plate and control columns to normalise by, or
+        ``None`` to fit the raw response exactly as before.
+    :returns: ``(result set, plate reports)``; the reports are empty when
+        nothing was normalised.
+
+    RAW RESPONSES ARE NOT COMPARABLE ACROSS PLATES, which is the engine's
+    argument for normalising and the screen's for offering it: two plates read
+    on different days differ in absolute signal by more than most compounds
+    move it. Each plate is scaled by its own controls, so positive reads 100
+    and negative reads 0, and a plate without a usable pair is left out of the
+    fit and says why instead of being scaled by someone else's controls.
+    """
+    if plate_spec is None:
+        return fit_frame(frame, spec), ()
+    normalised, reports = normalise_to_controls(
+        frame, plate_spec, response=spec.response)
+    return fit_frame(normalised, replace(spec, response=PERCENT_COLUMN)), reports
+
 
 #: How a status reads in the grid. The engine's words, spelled for a human.
 _STATUS_LABELS = {
@@ -153,6 +192,9 @@ class DoseResponseScreen(QWidget):
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
         self._set: Optional[DoseResponseSet] = None
+        #: What each plate's controls said on the last normalised fit, in the
+        #: order the plates appear. Empty when the fit read the raw response.
+        self._plate_reports = ()
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
 
@@ -252,6 +294,33 @@ class DoseResponseScreen(QWidget):
         controls.addStretch(1)
         outer.addLayout(controls)
 
+        # THE PLATES ROW. Every caption on it already exists elsewhere in the
+        # application, so it adds no string a translator has not seen. Both
+        # column pickers start at "(none)", which keeps the default fit
+        # exactly the raw-response fit it always was.
+        plates = QHBoxLayout()
+        plates.setContentsMargins(0, 0, 0, 0)
+        plates.setSpacing(SPACING["sm"])
+        plates.addWidget(QLabel("Plate", self))
+        self.plate_picker = QComboBox(self)
+        self.plate_picker.setObjectName("DoseResponsePlate")
+        plates.addWidget(self.plate_picker)
+        plates.addWidget(QLabel("Controls", self))
+        self.control_picker = QComboBox(self)
+        self.control_picker.setObjectName("DoseResponseControl")
+        self.control_picker.currentTextChanged.connect(self._on_control_picked)
+        plates.addWidget(self.control_picker)
+        plates.addWidget(QLabel("Positive control wells", self))
+        self.positive_picker = QComboBox(self)
+        self.positive_picker.setObjectName("DoseResponsePositive")
+        plates.addWidget(self.positive_picker)
+        plates.addWidget(QLabel("Negative control wells", self))
+        self.negative_picker = QComboBox(self)
+        self.negative_picker.setObjectName("DoseResponseNegative")
+        plates.addWidget(self.negative_picker)
+        plates.addStretch(1)
+        outer.addLayout(plates)
+
         body = QSplitter(Qt.Horizontal, self)
         body.setChildrenCollapsible(False)
 
@@ -314,6 +383,11 @@ class DoseResponseScreen(QWidget):
                      prefer=_CONCENTRATION_HINTS)
         self._refill(self.response_picker, responses)
         self._refill(self.group_picker, [NO_GROUP] + groups)
+        self._refill(self.plate_picker,
+                     [_NO_COLUMN] + [str(name) for name in frame.columns])
+        self._refill(self.control_picker, [_NO_COLUMN] + groups)
+        self._on_control_picked(self.control_picker.currentText())
+        self._plate_reports = ()
         self.fit_button.setEnabled(bool(doses and responses))
         self.table.setRowCount(0)
         self.report.setPlainText("")
@@ -350,6 +424,61 @@ class DoseResponseScreen(QWidget):
                     picker.setCurrentText(name)
                     break
         picker.blockSignals(False)
+
+    def _on_control_picked(self, name: str) -> None:
+        """Offer the chosen control column's levels as the two controls.
+
+        :param name: the control column, or "(none)".
+        """
+        levels = []
+        frame = self._frame
+        if frame is not None and name not in ("", _NO_COLUMN) \
+                and name in frame.columns:
+            levels = sorted({str(value) for value in frame[name].dropna()})
+        self._refill(self.positive_picker, levels, prefer=_POSITIVE_HINTS)
+        self._refill(self.negative_picker, levels, prefer=_NEGATIVE_HINTS)
+
+    def _plate_spec(self) -> Optional[PlateSpec]:
+        """The plate normalisation the pickers describe, or ``None``.
+
+        :returns: ``None`` while either column picker reads "(none)".
+        :raises DoseResponseError: when the columns are chosen but a control
+            level is not, with the engine's sentence saying which.
+        """
+        plate = self.plate_picker.currentText()
+        control = self.control_picker.currentText()
+        if plate in ("", _NO_COLUMN) or control in ("", _NO_COLUMN):
+            return None
+        positive = self.positive_picker.currentText()
+        negative = self.negative_picker.currentText()
+        return PlateSpec(plate=plate, control=control,
+                         positive=(positive,) if positive else (),
+                         negative=(negative,) if negative else ())
+
+    def _with_plates(self, text: str) -> str:
+        """Prefix ``text`` with one line per plate of the last normalised fit.
+
+        The plate lines lead because they decide whether the curve below them
+        means anything: a refused plate is not in the fit, and a reader should
+        meet that before the EC50.
+
+        :param text: the report the pane would otherwise show.
+        :returns: the report, with the plate verdicts first when there are any.
+        """
+        if not self._plate_reports:
+            return text
+        lines = []
+        for report in self._plate_reports:
+            row = report.summary_row()
+            zprime = row["zprime"]
+            shown = "—" if zprime is None or not np.isfinite(zprime) \
+                else f"{zprime:.2f}"
+            verdict = "usable" if report.usable else "refused"
+            line = f"{row['plate']}: {verdict}, Z′ {shown}"
+            if not report.usable and row["note"]:
+                line += f" — {row['note']}"
+            lines.append(line)
+        return "\n".join(lines) + "\n\n" + text
 
     def choose_table(self) -> None:
         """Ask for a file and load it."""
@@ -436,16 +565,24 @@ class DoseResponseScreen(QWidget):
             return
         try:
             spec = self.spec()
+            plate_spec = self._plate_spec()
         except DoseResponseError as exc:
             self.report.setPlainText(str(exc))
             return
         frame = self._frame
         self._jobs.cancel()
         self.report.setPlainText("fitting…")
-        self._jobs.submit(lambda: fit_frame(frame, spec), self._on_fitted)
+        self._jobs.submit(
+            lambda: _fit_with_plates(frame, spec, plate_spec), self._on_fitted)
 
-    def _on_fitted(self, result: DoseResponseSet) -> None:
-        """Fill the grid from the engine's table. GUI thread only."""
+    def _on_fitted(self, result) -> None:
+        """Fill the grid from the engine's table. GUI thread only.
+
+        :param result: the fit, or ``(fit, plate reports)`` as the fitting
+            job hands it back.
+        """
+        result, reports = result if isinstance(result, tuple) else (result, ())
+        self._plate_reports = tuple(reports)
         self._set = result
         rows = result.table()
         self.table.setRowCount(len(rows))
@@ -471,7 +608,7 @@ class DoseResponseScreen(QWidget):
         if len(rows):
             self.table.selectRow(0)
         else:
-            self.report.setPlainText(result.report())
+            self.report.setPlainText(self._with_plates(result.report()))
             self._draw(None)
 
     def _on_row_selected(self) -> None:
@@ -494,10 +631,10 @@ class DoseResponseScreen(QWidget):
             return
         fit = self._set.fits[index]
         if fit.result is not None:
-            self.report.setPlainText(fit.result.report())
+            self.report.setPlainText(self._with_plates(fit.result.report()))
         else:
-            self.report.setPlainText(
-                f"{fit.group or 'all rows'}: REFUSED\n\n{fit.error}")
+            self.report.setPlainText(self._with_plates(
+                f"{fit.group or 'all rows'}: REFUSED\n\n{fit.error}"))
         self._draw(index)
 
     def _draw(self, selected: Optional[int]) -> None:

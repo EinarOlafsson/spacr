@@ -224,3 +224,52 @@ WHAT IS ACTUALLY OWED, and it is much smaller than this file suggests:
   * A check of what the SCREEN surfaces. Every item above is verified present
     in the ENGINE's public API; this note does not claim the Qt screen exposes
     all of it, and that is the next thing to measure.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE SCREEN HALF, STEP 1 OF 4: EACH PLATE AGAINST ITS OWN CONTROLS
+--------------------------------------------------------------------------------
+
+MEASURED FIRST, BY NAME. Of the engine's 26 public names the Dose-Response
+screen used six: `fit_frame`, the spec/set/result classes and the two column
+pickers. Everything the five numbered tasks built -- `selectivity_index`,
+`checkerboard_from_frame` with `bliss_surface` / `loewe_surface`,
+`normalise_to_controls` / `plate_reports`, `pool_frame` -- was unreachable from
+the screen. That is the "whatever the screen does not yet surface" this file's
+status line names, so the screen half is four steps:
+
+  1. plate normalisation and each plate's Z'        -- THIS STEP, BUILT
+  2. pooled EC50 across replicate plates            -- next
+  3. selectivity index (host over pathogen)
+  4. checkerboard synergy, Bliss and Loewe
+
+WHAT STEP 1 DOES. A Plates row: a plate column, a control column, and the
+control column's levels as the positive and negative controls, pre-picked by
+name ("pos", "neg", "vehicle", "dmso"). While either column picker reads
+"(none)" the fit is exactly the raw-response fit it always was. With both
+chosen, Fit normalises every plate to its own controls with
+`normalise_to_controls` and fits `percent_inhibition`. The report pane leads
+with one line per plate -- usable or refused, its Z', and the engine's reason
+for a refusal -- because a refused plate is not in the curve and a reader
+should meet that before the EC50.
+
+NO NEW STRING FOR A TRANSLATOR. Every caption on the row -- "Plate",
+"Controls", "Positive control wells", "Negative control wells", "(none)" --
+already exists in the English catalog, checked against `en.UI_SOURCES` before
+the row was written. The generated-catalog caption test therefore does not
+move, and nine languages owe nothing for this step. The new methods are
+private, so the public API surface does not move either (10,536 before and
+after).
+
+HOW IT WAS CHECKED. `tests/qt/test_dose_response_normalises_to_each_plate.py`
+builds three plates of one compound at three absolute scales, one of them with
+no vehicle wells. Five tests; all 48 existing dose-response screen tests still
+pass. Each mutation reddens tests that can only fail for that reason:
+
+      the pickers never become a plate spec    3 red
+      the report never carries the verdicts    2 red
+      the control column offers no levels      4 red
+
+A MISTAKE CAUGHT BY THE TESTS, recorded because it is an easy one:
+`PlateReport.usable` is a PROPERTY. Calling it raised inside the table's
+selection slot, the report pane stayed at "fitting…", and only the tests that
+selected a row could see it.
