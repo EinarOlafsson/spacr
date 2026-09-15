@@ -372,7 +372,22 @@ EXTERNAL_SOURCE_COUNTS = {
     # those two tooltips, which the whole-image mode made untrue. 'Cancel' is
     # a compact row and is not counted here. MEASURED, not added:
     # canonical_sources() on the rebased tree returns 3,484 = 3,466 + 21 - 3.
-    "UI": 3484,
+    #
+    # 3,484 -> 3,505 on 2026-09-15, +21/-0, and only UI moved: 387's
+    # Dose-Response screen, rebased onto nightly 160380b8c. Eight of the grid's
+    # headers and status words (Group, Doses, CI low, CI high, Lack-of-fit p,
+    # fitted, unbounded, refused; Status was already a row) -- registered through
+    # _DOSE_RESPONSE_UI_SOURCES because they reach their widgets through a
+    # tuple and a dict), "all rows", "Fit curve", the Host response and
+    # Second compound pickers with their tooltips, "Bliss independence" and
+    # "Loewe additivity", and five status lines, four of them TEMPLATES
+    # ({name}, {reason}, {rows}, {columns}). Six carry reviewed records in all
+    # nine languages (2026-09-15-dose-response-host-readout.json and
+    # -combination.json); the other fifteen and the catalogs themselves wait
+    # for the pre-release catalog pass, so the English-catalog equality below
+    # stays red until it runs. MEASURED, not added: canonical_sources() on the
+    # rebased tree returns 3,505, and 3,484 on nightly 160380b8c.
+    "UI": 3505,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -455,8 +470,13 @@ EXTERNAL_SOURCE_COUNTS = {
 # 21 arrivals plus the 3 retired wordings give
 # 3bc7769a7d287175045d24611bbd962d16623d68f52ae9101aa59602d57669e3, the base's
 # pin byte for byte.
+# Moved again on 2026-09-15 with the UI count above, for 387's Dose-Response
+# screen, rebased onto nightly 160380b8c: 21 identities arrive and none leave,
+# all UI, named in the note over EXTERNAL_SOURCE_COUNTS. PROVED BY
+# SUBTRACTION with this test's own formula: today's identities minus those
+# 21 give 520f3df5..., the previous pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "520f3df55c474bd389fd55228c322edcade652d3318069e78539593c39458da3"
+    "b334316a64fc5ca9f34d6f5b73836b704834d19f88734a962e2ede181d32bd54"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
