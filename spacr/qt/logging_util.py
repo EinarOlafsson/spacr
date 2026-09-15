@@ -87,6 +87,27 @@ class QtLogHandler(QObject, logging.Handler):
         QObject.__init__(self)
         logging.Handler.__init__(self, level=level)
         self._record_relay = _RecordRelay(self)
+        # The relay exists to deliver records into GUI-thread slots, so it has
+        # to LIVE on the GUI thread whichever thread happens to build it.
+        # `get_signal_handler` builds the singleton lazily, and one of its
+        # callers is `verbose_logger._NotAlreadyShownByTheRootSink.filter`,
+        # which runs on whatever thread logged. When a worker's record was the
+        # first to ask, the relay was born on that worker: an AutoConnection
+        # to a receiver-less slot then queues to a thread with no event loop,
+        # and every later record -- the GUI thread's included -- was dropped
+        # without an error. Measured in CI run 34961482728 (gw1): the sink
+        # built on "Dummy-1", and one Qt warning rendered zero console lines.
+        # Pushing from the constructing thread is the direction Qt allows;
+        # the relay is a child, so it moves with the handler.
+        try:
+            from PySide6.QtCore import QCoreApplication
+
+            application = QCoreApplication.instance()
+            if (application is not None
+                    and self.thread() is not application.thread()):
+                self.moveToThread(application.thread())
+        except Exception:                                  # noqa: BLE001
+            pass
         self.record_ready = self._record_relay.record_ready
         self.setFormatter(logging.Formatter(
             "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
