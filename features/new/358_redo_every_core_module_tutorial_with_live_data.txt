@@ -899,3 +899,27 @@ BRANCH BASE MOVED UNDER THIS WORK (measured 04:3x UTC). wip/358-lessons was
   image" is exactly the right claim. No narration may rank either setting.
   Old narration numbers (51 -> 25 -> 51 at 5,642; 42 after 30 -> 60) are
   retired. The diameter step itself (30 -> 60) is unchanged.
+  FRAME CHECK OF 15b: frames 07 / 09 / 12 show Source = the real example path
+    and "Found cell=105" / "cell=52" (Min area 510) / "cell=36" (Diameter
+    60.0 px). Frame 05 shows today's dialog with Diameter 30.00 px, Flow
+    threshold 100.00 and Cell probability -1.00. Composed as
+    mask_preview_and_explicit_overlay_2026-09-15b (accepted, 20 frames,
+    recount embedded).
+  BUT 15b IS NOT STAGED. Frames 05, 07, 09 and 12 carry the orange warning
+    "The settings-csv this run produced is out of date: the settings on
+    this screen differ from the ones that produced it." refresh_2026-09-09's
+    cached plate1 still holds artifacts.db, measurements/, merged/, qc/ and
+    test/ from the 09-01/09-09 runs, and the screen's pack settings differ
+    from that old run's. A new user's fresh download has no prior run, so
+    the warning would teach a state they never see. It would also
+    contradict scene 2 ("the recording uses a fresh private copy, so a
+    previous run cannot supply stale results"). Capture #1 showed no warning
+    only because it had loaded that same old run's settings.
+  FIX: refresh_2026-09-15_cpu/example_data/plate1 is still a clean fresh
+    download (208 TIFFs, identical names; settings/ holds only
+    gen_masks_settings.csv + crop_measure_settings.csv; no run outputs;
+    1.6 GB vs 2.5 GB). A guarded GPU recapture there is queued:
+    mask_preview_gpu_fresh_2026-09-15. The guard refuses to run if any run
+    output or extra settings file is present. Expect the counts to reproduce
+    105/52/105/36. The capture directory will be copied into
+    refresh_2026-09-09/captures with hashes intact for composition.
