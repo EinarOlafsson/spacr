@@ -2,17 +2,9 @@
 ELEVEN STALE LEDGER FILES SIT OUTSIDE THE INDEX
 ================================================================================
 
-Status:    OPEN, filed 2026-09-13. Not blocking. Measured, not estimated.
-           NOT FIXED HERE deliberately -- deleting ledger files is the
-           maintainer's call, and two of the eleven are not duplicates.
-           THE FOURTH "WHAT TO DO" BULLET IS CLOSED, 2026-09-14. The index
-           header now names the two globs it is generated from and lists,
-           BY NAME and re-globbed on every run, the top-level files it is
-           not: `SCANNED` at build_instruction_index.py:55, read by
-           `_files_for_number` (195), `_duplicate_numbers` (225) and
-           `render` (242); `_unscanned_top_level` at 203, printed at 265
-           and 289. Nothing was deleted or moved -- the three bullets that
-           carry a decision are still the maintainer's, untouched.
+Status:    DONE 2026-09-15 by the maintainer's decision: the nine stale
+           top-level twins are deleted. The two top-level files with no
+           counterpart stay.
 Requested: not requested. Found while sweeping for stale `instructions/`
            paths after the folder rename.
 Owner:     unassigned. `features/*.txt` at the top level;
@@ -290,3 +282,19 @@ WHAT WAS STALE IN THIS FILE, checked rather than assumed:
 STILL NOT DECIDED, AND STILL NOT THIS SESSION'S TO DECIDE: the nine, and the
 two singletons. Nothing here deletes, moves or renames a ledger file. The
 index now admits they exist, which is all the fourth bullet asked for.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- DECIDED AND DONE
+--------------------------------------------------------------------------------
+
+Asked through the question tool: "Nine top-level files in features/ are stale
+copies of files in features/new/ (a diff showed nothing unique is lost). What
+should happen to them?" The maintainer chose "Delete the nine".
+
+Deleted: 01, 02, 03, 04, 05, 06, 07, 08 and 31 at the top level of features/,
+each verified to still have its counterpart in features/new/ before removal.
+The 2026-09-13 diff this file records is the evidence nothing unique went:
+seven differed by their Status line only, 31 was a strict subset, and the two
+larger remainders (07, 05) were superseded text. `segmentation_qc_field_browser
+.txt` and `update_tutorials_README.txt` stay. The shadow test's KNOWN_SHADOWED
+is now empty, so a new stale twin fails it.

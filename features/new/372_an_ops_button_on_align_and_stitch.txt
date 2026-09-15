@@ -4179,3 +4179,16 @@ are all cases NO mutation described, and three of them are about what the
 function CANNOT SAY rather than what it computes. A mutation suite tests the
 answers a function gives; it cannot test the questions its return type makes
 unaskable.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE MAINTAINER'S DECISION: VALIDATE, THEN SWITCH
+--------------------------------------------------------------------------------
+
+Asked through the question tool: the new OPS pipeline modules are built and
+measured on real wells A1/A2 while the button still runs the old engine. The
+maintainer chose "Validate, then switch": finish Phase B and C on a full well
+with Cellpose nuclei and the channel-alignment fix, then wire the button to
+the new engine and retire the old one. Nothing is retired before that
+validation, which is what this file already required ("nothing is deleted
+until Phases A and B land"). The measurements from 2026-09-15 (PART 14-L,
+appended separately) are the first half of that validation.

@@ -44,17 +44,7 @@ NOT_LEDGER = {"00_INDEX.txt", "TEMPLATE.txt"}
 #: The nine shadowed files as measured 2026-09-13, every one staler than its
 #: counterpart in `features/new/`. Pinned, not approved: the decision to
 #: delete or move them is recorded in item 398 as the maintainer's.
-KNOWN_SHADOWED = {
-    "01_pip_upgrade_is_broken_for_installed_builds.txt",
-    "02_multi_fov_loader_for_the_timelapse_movie.txt",
-    "03_five_order_dependent_qt_failures.txt",
-    "04_font_scale_default_disagrees_with_the_tests.txt",
-    "05_version_bump_and_github_actions.txt",
-    "06_module_overlap_and_merge_candidates.txt",
-    "07_known_bugs_not_fixed.txt",
-    "08_flowview_pipeline_visualisation.txt",
-    "31_gate_editor_redesign.txt",
-}
+KNOWN_SHADOWED = frozenset()  # 2026-09-15: the nine were deleted by the maintainer's decision (item 398)
 
 
 def _top_level():
@@ -63,7 +53,10 @@ def _top_level():
 
 def test_there_are_top_level_ledger_files_to_check():
     """Guards the guard: an empty folder satisfies every assertion below."""
-    assert len(_top_level()) >= 10, sorted(_top_level())
+    # 2026-09-15: the floor was 10 while nine stale twins sat at the top
+    # level; the maintainer had them deleted (item 398), leaving the two
+    # files with no counterpart. The guard still refuses an empty folder.
+    assert len(_top_level()) >= 2, sorted(_top_level())
 
 
 def test_no_new_top_level_ledger_file_appears():

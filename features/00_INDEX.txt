@@ -18,15 +18,6 @@ resolved; item 398 holds what becomes of the ledger ones. Where the number
 a name here opens with also has a row below, 398 measured this top-level
 copy as the staler of the two -- and it is the one a reader reaches first.
 
-  01_pip_upgrade_is_broken_for_installed_builds.txt
-  02_multi_fov_loader_for_the_timelapse_movie.txt
-  03_five_order_dependent_qt_failures.txt
-  04_font_scale_default_disagrees_with_the_tests.txt
-  05_version_bump_and_github_actions.txt
-  06_module_overlap_and_merge_candidates.txt
-  07_known_bugs_not_fixed.txt
-  08_flowview_pipeline_visualisation.txt
-  31_gate_editor_redesign.txt
   segmentation_qc_field_browser.txt
   TEMPLATE.txt
   update_tutorials_README.txt
@@ -50,7 +41,10 @@ FUTURE FEATURES
 --------------------------------------------------------------------------------
 
    59  PUBLISH spaCR ON CONDA-FORGE
-       [DONE -- published on conda-forge since 2026-08-27, and its autotick bot keeps it current]
+       [DONE -- published since 2026-08-27. conda-forge/spacr-feedstock is
+        live, einarolafsson is its maintainer, and its autotick bot merged
+        v1.5.0.6 and v1.5.0.7 on its own. Verified 2026-09-14; it was never
+        blocked on accounts, and nobody had asked.]
        59_publish_spacr_on_conda_forge.txt
 
   288  ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
@@ -75,7 +69,7 @@ FUTURE FEATURES
   404  DINOCELL AS A SEGMENTATION BACKEND
        404_dinocell_as_a_segmentation_backend.txt
 
-  405  SAMCELL, TRAINED ON LIVECELL, FOR TIMELAPSE
+  405  SAMCELL AND LIVECELL, FOR TIMELAPSE
        405_samcell_and_livecell_for_timelapse.txt
 
   407  A LIVE MAGNIFIER IN MAKE MASKS THAT SEGMENTS WHAT IS UNDER THE MOUSE
@@ -387,7 +381,7 @@ NEW FEATURES
   301  The Mandelbrot deep-zoom theme in spaceout
   302  A committed value brings its settings back
   303  The fractal settings need real controls, and real ranges
-  304  Release 1.5.0.5, archived on Zenodo
+  304  Release 1.5.0.5, archived on Zenodo  [CLOSED 2026-09-14 -- Zenodo is live and automatic; v1.5.0.7 archived 2026-09-12, DOI 10.5281/zenodo.22726094]
   305  THE INSTALLED PACKAGE LOADS QUICKLY AND RUNS WITHIN MEASURED RESOURCE BUDGETS
   306  THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
   307  SEGMENTATION QC -> FIELD BROWSER + QUARANTINE
@@ -480,4 +474,4 @@ NEW FEATURES
   402  Status:    FIXED 2026-09-14. `tests/conftest.py` carries an autouse fixture
   406  THE TRANSLATION CACHE OUTLIVES A HAND FIX, AND A PLAIN BUILD PUTS THE BAD ROW
   408  A TOOLTIP POPUP TURNS THE SETTINGS COLUMN AND THE AI CHAT BOX BLACK UNTIL THE
-  409  THE REAL-WINDOW THEME SWEEP IS ONE WIDGET AWAY FROM GOING RED AGAIN
+  410  AN OBJECT'S EMBEDDING DEPENDS ON WHICH OTHER CROPS SHARE ITS BATCH
