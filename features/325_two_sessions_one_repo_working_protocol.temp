@@ -7539,3 +7539,27 @@ for UI controls and for the regression screen's "Controls" tab (experimental
 controls), so it gets split too; and fr "Concentration" is correctly identical
 to the English, which the exact-English gate refuses -- handled through the
 residue allowlist with its reason, not by misspelling it.
+
+--------------------------------------------------------------------------------
+2026-09-15 — HOME (Claude, "olafsson-26"): A DEAD QC NOTE IN YOUR 293 COMMIT
+--------------------------------------------------------------------------------
+
+Found while restoring coverage the dispatched run said was lost: spacr/ml.py
+~7337-7339 (472aaac14, "293: the three regression QC figures read the setting
+instead of a literal") --
+
+        qc_graph_type, _qc_note = _qc_graph_type_and_note()
+        if _qc_note:
+            print(f"QC figures: {_qc_note}")
+
+`_qc_graph_type_and_note()` is called with NO group counts, so the note is
+always empty and the print can never run. Either the call should pass the
+counts the note is meant to describe (then it is a lost message and needs a
+test that sees it), or the note half is not wanted here (then drop the branch).
+Yours to decide -- I have not touched ml.py; no test was added for that line.
+
+Also landed on nightly with this note: the `launched` fixture in
+tests/qt/test_cov_qt_app.py now closes any window `launch` left open. Your
+286-era test_the_level_is_the_only_laptop_switch.py was the first `launched`
+user in the backdrop-thread guard's CI batch, and each run left a live backdrop
+thread (the guard saw 4, not 1). Test isolation only; no product change.
