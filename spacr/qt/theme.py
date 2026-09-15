@@ -2135,6 +2135,16 @@ FONT_SIZE = {
     "hero":    42,
 }
 
+#: The only floor a zoomed font size keeps, in px, and it is Qt's rather
+#: than a readability choice. ``QFont.setPixelSize`` refuses zero or less
+#: ("Pixel size <= 0"), and a style sheet's ``font-size: 0px`` reaches that
+#: call, so a scaled size never drops below one pixel. Nothing larger is
+#: imposed: the smallest Zoom is :data:`spacr.qt.preferences.FONT_SCALE_MIN`,
+#: and a second floor here would make every setting below it render alike.
+#: Applied in :func:`font_px`, the stylesheet's ``F`` table, the late widget
+#: QSS in :func:`ensure_widget_qss_applied` and :func:`close_mark_font_px`.
+_QT_MIN_FONT_PX = 1
+
 def font_px(role_or_px, scale: Optional[float] = None) -> int:
     """Return a font size in px with the user's Zoom preference applied.
 
@@ -2167,7 +2177,7 @@ def font_px(role_or_px, scale: Optional[float] = None) -> int:
             scale = get_font_scale()
         except Exception:
             scale = 1.0
-    return max(6, int(round(float(base) * float(scale))))
+    return max(_QT_MIN_FONT_PX, int(round(float(base) * float(scale))))
 
 
 TYPOGRAPHY = {
@@ -3538,7 +3548,7 @@ def ensure_widget_qss_applied(*names: str, root=None) -> bool:
     palette = _widget_qss_palette(theme, font_scale, opacity)
     fragment = registered_widget_qss(palette, opacity, names=wanted)
     if fragment:
-        body_px = max(6, int(round(FONT_SIZE["body"] * font_scale)))
+        body_px = font_px("body", font_scale)
         fragment += close_mark_rules(theme, body_px)
     suffix = (
         f"\n{_LOCAL_WIDGET_QSS_START}\n{fragment}"
@@ -3772,7 +3782,7 @@ QToolButton#SectionHeader[maturity="{stage}"]:checked {{
         for stage, hue in STAGE_HOVER.items())
     TILE_MIN_H = max(1, int(round(TILE_H * font_scale)))
     TILE_MIN_W_PX = max(1, int(round(TILE_W * font_scale)))
-    F = {k: max(6, int(round(v * font_scale)))
+    F = {k: max(_QT_MIN_FONT_PX, int(round(v * font_scale)))
          for k, v in FONT_SIZE.items()}
     GLASS_LAYER = (
         _glass_material_layer(base, surface_opacity)
@@ -5085,7 +5095,7 @@ def close_mark_font_px(body_px: Optional[int] = None) -> int:
     :param body_px: Resolved body-text size. ``None`` uses :func:`font_px`.
     """
     base = font_px("body") if body_px is None else int(body_px)
-    return max(12, int(round(base * CLOSE_MARK_SCALE)))
+    return max(_QT_MIN_FONT_PX, int(round(base * CLOSE_MARK_SCALE)))
 
 
 def close_mark_rules(theme: str = "dark",

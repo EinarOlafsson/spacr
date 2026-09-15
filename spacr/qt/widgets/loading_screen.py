@@ -239,7 +239,7 @@ class LoadingScreen(QWidget):
             side = scaled_px(140)
             gap = scaled_px(28)
             font = QFont(self.font())
-            font.setPixelSize(max(11, scaled_px(15)))
+            font.setPixelSize(scaled_px(15))
             painter.setFont(font)
             metrics = painter.fontMetrics()
 

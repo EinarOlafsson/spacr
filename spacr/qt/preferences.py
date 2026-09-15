@@ -514,7 +514,7 @@ _KEY_SPACE_VARIANT = "prefs/space_variant"
 _KEY_SPACE_SEED    = "prefs/space_seed"
 _KEY_CELL_VARIANT  = "prefs/cell_variant"
 
-FONT_SCALE_MIN = 0.75
+FONT_SCALE_MIN = 0.10
 FONT_SCALE_MAX = 2.00
 #: Presented as "Zoom" rather than "Font scale", because it scales the whole
 #: interface — spacing, tiles, dots and icons move with the type, so calling it
