@@ -1,0 +1,118 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "dose_response",
+      "source": "Fit four-parameter logistic curves and estimate EC50 with profile-likelihood intervals",
+      "source_sha256": "392d2a783141453819ed97fa9faf48bde087204660ceb2f0dfb4abdc51100bde",
+      "table": "module_summaries",
+      "translation": "चार-प्राचल लॉजिस्टिक वक्र फिट करें और प्रोफ़ाइल-संभाविता अंतरालों के साथ EC50 का आकलन करें"
+    },
+    {
+      "key": "A bell-shaped series is refused by default: it is not a 4PL, and the usual cause is cytotoxicity at the top dose. Ticking this fits it anyway and keeps the warning on the result.",
+      "source": "A bell-shaped series is refused by default: it is not a 4PL, and the usual cause is cytotoxicity at the top dose. Ticking this fits it anyway and keeps the warning on the result.",
+      "source_sha256": "fcb5ee955f8be89fc1ef3488740857a40925effb20647389dccc7b57e78101e4",
+      "table": "ui",
+      "translation": "घंटी के आकार की श्रृंखला डिफ़ॉल्ट रूप से अस्वीकार की जाती है: यह 4PL नहीं है, और आम कारण सबसे ऊँची खुराक पर कोशिका-विषाक्तता होता है। इसे चुनने पर वक्र फिर भी फिट किया जाता है और परिणाम पर चेतावनी बनी रहती है।"
+    },
+    {
+      "key": "A gene or compound column, or nothing",
+      "source": "A gene or compound column, or nothing",
+      "source_sha256": "4d5e2c306dca8b629e2981046b296a64f943bd08b902f891c97110adb66a114e",
+      "table": "ui",
+      "translation": "जीन या यौगिक का स्तंभ, या कुछ नहीं"
+    },
+    {
+      "key": "Concentration",
+      "source": "Concentration",
+      "source_sha256": "c2cfec66629abd71488212efd5fbb8c6d88459318d65929dffc0e9d02ad26623",
+      "table": "ui",
+      "translation": "सांद्रता"
+    },
+    {
+      "key": "Cosmetic only — it never enters the arithmetic",
+      "source": "Cosmetic only — it never enters the arithmetic",
+      "source_sha256": "151ab31bfd4a1457a1f2233b765ab8760628544ff99ce073f3abc1bd16d6e1d1",
+      "table": "ui",
+      "translation": "केवल दिखावटी — यह कभी गणना में शामिल नहीं होती"
+    },
+    {
+      "key": "Fit non-monotone data",
+      "source": "Fit non-monotone data",
+      "source_sha256": "c967f08351ad5a401396d06f26df8eb43163a07c9e5e1fbc25ec596824b27ec7",
+      "table": "ui",
+      "translation": "गैर-एकदिष्ट डेटा फिट करें"
+    },
+    {
+      "key": "Fits a four-parameter logistic model for each gene or compound using selected concentration and response columns. EC50 is estimated on a log10 scale, and profile-likelihood intervals are used by default. When the midpoint lies outside the tested dose range, the result is reported as a bound instead of an unsupported point estimate. Non-monotonic series are identified with their turning concentrations. Results include R² with an interpretive warning and a lack-of-fit test against pure error.",
+      "source": "Fits a four-parameter logistic model for each gene or compound using selected concentration and response columns. EC50 is estimated on a log10 scale, and profile-likelihood intervals are used by default. When the midpoint lies outside the tested dose range, the result is reported as a bound instead of an unsupported point estimate. Non-monotonic series are identified with their turning concentrations. Results include R² with an interpretive warning and a lack-of-fit test against pure error.",
+      "source_sha256": "c1c1f4eb439c980eb809767977a795ed1ea672a3d291ce755a42eba86bc279a6",
+      "table": "ui",
+      "translation": "चुने गए सांद्रता और अनुक्रिया स्तंभों से प्रत्येक जीन या यौगिक के लिए चार-प्राचल लॉजिस्टिक मॉडल फिट करता है। EC50 का आकलन log10 पैमाने पर होता है, और डिफ़ॉल्ट रूप से प्रोफ़ाइल-संभाविता अंतराल उपयोग किए जाते हैं। जब मध्यबिंदु परीक्षित खुराक-सीमा से बाहर हो, तो परिणाम असमर्थित बिंदु-आकलन के बजाय एक सीमा के रूप में बताया जाता है। गैर-एकदिष्ट श्रृंखलाओं को उन सांद्रताओं के साथ पहचाना जाता है जहाँ वे दिशा बदलती हैं। परिणामों में व्याख्या-संबंधी चेतावनी के साथ R² और शुद्ध त्रुटि के विरुद्ध फिट-अभाव परीक्षण शामिल हैं।"
+    },
+    {
+      "key": "One curve per",
+      "source": "One curve per",
+      "source_sha256": "98096aea79897f774214254f8358c0bfc74a3202896c8b3e9d815fd76fc2cbf5",
+      "table": "ui",
+      "translation": "प्रति समूह एक वक्र"
+    },
+    {
+      "key": "Open a dose–response table",
+      "source": "Open a dose–response table",
+      "source_sha256": "5267f4ef25d140c32895e5c4e7e1be1713f48ee34273f640d60c94c42f2d36db",
+      "table": "ui",
+      "translation": "खुराक–अनुक्रिया तालिका खोलें"
+    },
+    {
+      "key": "Pick a concentration column and a response column, then Fit.",
+      "source": "Pick a concentration column and a response column, then Fit.",
+      "source_sha256": "2f6fa18952f1ff15a84f90dfac248d973895fc55dbaccf1c6ff6bc2b552f453d",
+      "table": "ui",
+      "translation": "एक सांद्रता स्तंभ और एक अनुक्रिया स्तंभ चुनें, फिर फिट करें।"
+    },
+    {
+      "key": "Profile likelihood (can decline to close)",
+      "source": "Profile likelihood (can decline to close)",
+      "source_sha256": "1275278ac5f967df352482437178496290e8a519b31c5a7db7bc906e959cb473",
+      "table": "ui",
+      "translation": "प्रोफ़ाइल संभाविता (अंतराल खुला रह सकता है)"
+    },
+    {
+      "key": "Response",
+      "source": "Response",
+      "source_sha256": "9061383b8e228ef3ac36ddc06d128d0fc5c93edf924cefb5a65392f6104798bd",
+      "table": "ui",
+      "translation": "अनुक्रिया"
+    },
+    {
+      "key": "The Wald interval is finite even when the data does not determine the EC50. The profile interval can report an open side, which is why it is the default.",
+      "source": "The Wald interval is finite even when the data does not determine the EC50. The profile interval can report an open side, which is why it is the default.",
+      "source_sha256": "9d0e898e53e602739874765f423e28eab333b562f16c35c2ca0c559e31cbda85",
+      "table": "ui",
+      "translation": "Wald अंतराल तब भी परिमित रहता है जब डेटा EC50 निर्धारित नहीं करता। प्रोफ़ाइल अंतराल एक ओर से खुला बता सकता है, इसीलिए यही डिफ़ॉल्ट है।"
+    },
+    {
+      "key": "The dose column. A concentration of 0 is read as a vehicle control: it is excluded from the fit and reported as a reference, never fed to log10.",
+      "source": "The dose column. A concentration of 0 is read as a vehicle control: it is excluded from the fit and reported as a reference, never fed to log10.",
+      "source_sha256": "61de1de9ccc3eda8c57732db4c6558ccab9ddca415ca968985f97d5dbc1bafc8",
+      "table": "ui",
+      "translation": "खुराक स्तंभ। 0 की सांद्रता को वाहक नियंत्रण माना जाता है: इसे फिट से बाहर रखा जाता है, संदर्भ के रूप में बताया जाता है, और कभी log10 को नहीं दिया जाता।"
+    },
+    {
+      "key": "Wald (symmetric, always finite)",
+      "source": "Wald (symmetric, always finite)",
+      "source_sha256": "acd8ba75a16a7a97f0e3a06a5c29ebfc94f53cd037a52875ec43086827ad1687",
+      "table": "ui",
+      "translation": "Wald (सममित, सदा परिमित)"
+    },
+    {
+      "key": "Which table of the database to fit",
+      "source": "Which table of the database to fit",
+      "source_sha256": "c03cf29fe9270ccb4bff28c8f241c39883b42bce54f4eb4a25ace13160ab2775",
+      "table": "ui",
+      "translation": "डेटाबेस की वह तालिका जिस पर वक्र फिट करना है"
+    }
+  ],
+  "schema": 1
+}

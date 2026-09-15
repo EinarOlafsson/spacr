@@ -1,0 +1,83 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "dose_response",
+      "source": "Fit four-parameter logistic curves and estimate EC50 with profile-likelihood intervals",
+      "source_sha256": "392d2a783141453819ed97fa9faf48bde087204660ceb2f0dfb4abdc51100bde",
+      "table": "module_summaries",
+      "translation": "Anpassa logistiska kurvor med fyra parametrar och skatta EC50 med profil-likelihood-intervall"
+    },
+    {
+      "key": "A bell-shaped series is refused by default: it is not a 4PL, and the usual cause is cytotoxicity at the top dose. Ticking this fits it anyway and keeps the warning on the result.",
+      "source": "A bell-shaped series is refused by default: it is not a 4PL, and the usual cause is cytotoxicity at the top dose. Ticking this fits it anyway and keeps the warning on the result.",
+      "source_sha256": "fcb5ee955f8be89fc1ef3488740857a40925effb20647389dccc7b57e78101e4",
+      "table": "ui",
+      "translation": "En klockformad serie avvisas som standard: den är inte en 4PL, och den vanliga orsaken är cytotoxicitet vid den högsta dosen. Om du markerar detta anpassas kurvan ändå och varningen behålls i resultatet."
+    },
+    {
+      "key": "A gene or compound column, or nothing",
+      "source": "A gene or compound column, or nothing",
+      "source_sha256": "4d5e2c306dca8b629e2981046b296a64f943bd08b902f891c97110adb66a114e",
+      "table": "ui",
+      "translation": "En gen- eller substanskolumn, eller ingen"
+    },
+    {
+      "key": "A measurements.db, or a CSV of dose and response",
+      "source": "A measurements.db, or a CSV of dose and response",
+      "source_sha256": "cf06cb3d09268099dbc8163c77bd9b016d1d1b3fc082e956ee51700b8cabafce",
+      "table": "ui",
+      "translation": "En measurements.db, eller en CSV med dos och respons"
+    },
+    {
+      "key": "Cosmetic only — it never enters the arithmetic",
+      "source": "Cosmetic only — it never enters the arithmetic",
+      "source_sha256": "151ab31bfd4a1457a1f2233b765ab8760628544ff99ce073f3abc1bd16d6e1d1",
+      "table": "ui",
+      "translation": "Endast kosmetiskt — den används aldrig i beräkningen"
+    },
+    {
+      "key": "Fits a four-parameter logistic model for each gene or compound using selected concentration and response columns. EC50 is estimated on a log10 scale, and profile-likelihood intervals are used by default. When the midpoint lies outside the tested dose range, the result is reported as a bound instead of an unsupported point estimate. Non-monotonic series are identified with their turning concentrations. Results include R² with an interpretive warning and a lack-of-fit test against pure error.",
+      "source": "Fits a four-parameter logistic model for each gene or compound using selected concentration and response columns. EC50 is estimated on a log10 scale, and profile-likelihood intervals are used by default. When the midpoint lies outside the tested dose range, the result is reported as a bound instead of an unsupported point estimate. Non-monotonic series are identified with their turning concentrations. Results include R² with an interpretive warning and a lack-of-fit test against pure error.",
+      "source_sha256": "c1c1f4eb439c980eb809767977a795ed1ea672a3d291ce755a42eba86bc279a6",
+      "table": "ui",
+      "translation": "Anpassar en logistisk modell med fyra parametrar för varje gen eller substans utifrån valda koncentrations- och responskolumner. EC50 skattas på log10-skala, och profil-likelihood-intervall används som standard. När mittpunkten ligger utanför det testade dosintervallet rapporteras resultatet som en gräns i stället för en punktskattning som data inte stöder. Icke-monotona serier identifieras med de koncentrationer där de vänder. Resultaten innehåller R² med en tolkningsvarning och ett test av bristande anpassning mot rent fel."
+    },
+    {
+      "key": "Pick a concentration column and a response column, then Fit.",
+      "source": "Pick a concentration column and a response column, then Fit.",
+      "source_sha256": "2f6fa18952f1ff15a84f90dfac248d973895fc55dbaccf1c6ff6bc2b552f453d",
+      "table": "ui",
+      "translation": "Välj en koncentrationskolumn och en responskolumn och anpassa sedan."
+    },
+    {
+      "key": "Profile likelihood (can decline to close)",
+      "source": "Profile likelihood (can decline to close)",
+      "source_sha256": "1275278ac5f967df352482437178496290e8a519b31c5a7db7bc906e959cb473",
+      "table": "ui",
+      "translation": "Profil-likelihood (kan förbli öppet)"
+    },
+    {
+      "key": "Response",
+      "source": "Response",
+      "source_sha256": "9061383b8e228ef3ac36ddc06d128d0fc5c93edf924cefb5a65392f6104798bd",
+      "table": "ui",
+      "translation": "Respons"
+    },
+    {
+      "key": "The dose column. A concentration of 0 is read as a vehicle control: it is excluded from the fit and reported as a reference, never fed to log10.",
+      "source": "The dose column. A concentration of 0 is read as a vehicle control: it is excluded from the fit and reported as a reference, never fed to log10.",
+      "source_sha256": "61de1de9ccc3eda8c57732db4c6558ccab9ddca415ca968985f97d5dbc1bafc8",
+      "table": "ui",
+      "translation": "Doskolumnen. En koncentration på 0 tolkas som vehikelkontroll: den utesluts från anpassningen och rapporteras som referens, och skickas aldrig till log10."
+    },
+    {
+      "key": "Which table of the database to fit",
+      "source": "Which table of the database to fit",
+      "source_sha256": "c03cf29fe9270ccb4bff28c8f241c39883b42bce54f4eb4a25ace13160ab2775",
+      "table": "ui",
+      "translation": "Vilken tabell i databasen kurvan ska anpassas till"
+    }
+  ],
+  "schema": 1
+}
