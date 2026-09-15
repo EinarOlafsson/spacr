@@ -66,6 +66,21 @@ def _role(name: str, fallback: str) -> str:
 splash_role = _role
 
 
+def _dark_role(name: str, fallback: str) -> str:
+    """A role from the dark palette, or ``fallback`` if it cannot be read.
+
+    For module constants. A constant is evaluated once, at import, so a
+    read through :func:`_role` would keep whichever theme was in force at
+    that moment; the dark palette is the same answer in every process.
+    """
+    try:
+        from ..theme import palette_for
+        value = palette_for("dark").get(name)
+        return str(value) if value else fallback
+    except Exception:
+        return fallback
+
+
 def _rgba(spec: str, fallback: "QColor") -> "QColor":
     """``rgba(r, g, b, a)`` or ``#rrggbb`` as a :class:`QColor`."""
     text = str(spec).strip()
@@ -130,7 +145,7 @@ def _ink(alpha: int) -> "QColor":
 #: has nothing to flash.
 #:
 #: The name changed with the colour. `INSTALLER_GREEN` described neither.
-SPLASH_BACKGROUND = splash_role("splash_bg", "#000000")
+SPLASH_BACKGROUND = _dark_role("splash_bg", "#000000")
 
 #: Deprecated alias. It was never green after this change and was not
 #: accurately named before it; kept only so an existing importer does not

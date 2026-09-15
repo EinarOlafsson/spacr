@@ -8,6 +8,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 ## Contents
 
 - [_role](#_role) (2 entries)
+- [SPLASH_BACKGROUND](#splash_background) (1 entry)
 - [LoadingScreen.__init__](#loadingscreen__init__) (1 entry)
 - [LoadingScreen._load_logo](#loadingscreen_load_logo) (1 entry)
 - [LoadingScreen.paintEvent](#loadingscreenpaintevent) (4 entries)
@@ -31,6 +32,18 @@ value = active_palette().get(name)
 THE SPLASH WEARS THE THEME THE WINDOW OPENS IN. This used to read `palette_for()`, which takes a theme and defaults to dark, so the startup window was black whatever spaCR was set to. `MainWindow.__init__` also fills its first frame with `splash_bg` (through `splash_role`), under the application's own window text, so a light spaCR -- including the default "Follow system" on a light Windows -- showed #0d0e10 text on #000000 there, 1.09:1. `active_palette()` resolves through `resolve_effective_theme()`, the call `apply_preferences_to_app` made moments earlier in `launch`, so the startup window and the main window read the theme from the same place and cannot disagree. The OS scheme is not read here directly: an explicit theme ignores it, and "Follow system" reads it the one way the main window does, through the application palette. The fallback still holds: `active_palette` falls back to dark, and if that raises too, the `except` below gives the literal back.
 
 Reproduced offscreen before the change for OS light/dark x spaCR light/dark/system; the OS scheme changed nothing on the loading screen, which never read it. `tests/qt/test_the_startup_window_reads_in_every_scheme.py` holds all of it, measured from the pens and from the rendered pixels.
+
+## SPLASH_BACKGROUND
+
+### line 148 -- CI dispatch 35012948690, 2026-09-15
+
+```python
+SPLASH_BACKGROUND = _dark_role("splash_bg", "#000000")
+```
+
+A MODULE CONSTANT CANNOT FOLLOW THE THEME, so it does not try to. Item 415 (f5d651454) moved `_role` from `palette_for()` to `active_palette()`, and the constant was still defined through `splash_role`. It stopped being a colour and became a snapshot of whichever theme resolved when the process first imported this module: "Follow system" is the default, it resolves through the application palette, and on a Qt worker whose first import ran under Fusion's light palette the constant read `#fafafa` (`test_the_constant_is_renamed_and_the_old_name_still_works`, Qt shard 0). The same snapshot in the app would go stale at the first theme change.
+
+Everything that paints reads `splash_role` at paint time, including `MainWindow`'s first-frame fill, so the constant keeps the meaning it had before 415: the dark palette's `splash_bg`, which is also what the splash falls back to when no theme can be read (`active_palette` falls back to dark). `_dark_role` keeps `_role`'s rule that a lookup never raises. `test_the_constant_does_not_depend_on_the_theme_in_force_at_import` executes the module afresh under a light theme; it fails on the previous definition.
 
 ## LoadingScreen.__init__
 
