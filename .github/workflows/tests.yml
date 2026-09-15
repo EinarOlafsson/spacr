@@ -353,7 +353,12 @@ jobs:
           retention-days: 3
 
   coverage-combine:
-    name: Coverage / every shipped module at 100%
+    # Item 288, maintainer decision 2026-09-15: the release gate is a
+    # per-module coverage RATCHET against tools/coverage_baseline.json -- no
+    # shipped module loses coverage and no new module arrives below 100%.
+    # 100% per module remains the goal, and the report lists every module
+    # that is not there yet. CI never rewrites the baseline.
+    name: Coverage / no module loses coverage
     if: always()
     needs: coverage-shards
     runs-on: ubuntu-24.04
@@ -385,13 +390,27 @@ jobs:
           SPACR_COVERAGE_COMBINED: ${{ runner.temp }}/spacr-coverage-combined
           SPACR_COVERAGE_INPUT: ${{ runner.temp }}/spacr-coverage-input
           SPACR_COVERAGE_REPORT: ${{ runner.temp }}/spacr-coverage-report
+          # Must equal the coverage-shards matrix length and --shard-count;
+          # tests/test_module_coverage_ratchet.py asserts all three agree.
+          SPACR_COVERAGE_SHARD_COUNT: "12"
         run: |
           mkdir -p -- "$SPACR_COVERAGE_COMBINED" "$SPACR_COVERAGE_REPORT"
+          # A shard with no data would lower coverage without naming why, so
+          # a missing shard is a red job here rather than a ratchet surprise.
+          missing=0
+          for ((shard = 0; shard < SPACR_COVERAGE_SHARD_COUNT; shard++)); do
+            printf -v name '.coverage.shard-%02d.batch-' "$shard"
+            if ! compgen -G "$SPACR_COVERAGE_INPUT/$name*" > /dev/null; then
+              echo "::error::coverage shard $shard produced no coverage data"
+              missing=1
+            fi
+          done
+          test "$missing" -eq 0
           python -m coverage combine --keep "$SPACR_COVERAGE_INPUT"
           python -m coverage json --pretty-print \
             -o "$SPACR_COVERAGE_REPORT/coverage.json"
 
-      - name: Enforce the per-module 100% ratchet
+      - name: Gate on the per-module coverage ratchet baseline
         env:
           SPACR_COVERAGE_REPORT: ${{ runner.temp }}/spacr-coverage-report
         run: |
@@ -399,6 +418,7 @@ jobs:
             --coverage-json "$SPACR_COVERAGE_REPORT/coverage.json" \
             --root . \
             --expected-file-count 568 \
+            --baseline tools/coverage_baseline.json \
             --json-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.json" \
             --text-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.txt"
 
