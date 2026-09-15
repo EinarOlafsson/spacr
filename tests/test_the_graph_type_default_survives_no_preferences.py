@@ -104,6 +104,41 @@ def test_learning_the_setting_keys_asks_no_preference(monkeypatch):
         "after the sweep an ordinary caller no longer reads the preference")
 
 
+def test_a_key_sweep_that_raises_part_way_gives_the_preference_back(monkeypatch):
+    """The switch is restored when the sweep dies, not only when it finishes.
+
+    The sweep calls every settings default, so it can be interrupted part-way
+    by something its per-function ``except Exception`` does not catch. A switch
+    left off would stop every later figure in that process reading the user's
+    graph-type choice (293) -- silently, in the one process that already
+    raised, where no test would look. Hence ``reset`` with the ``set`` token in
+    a ``finally``, which this pins.
+    """
+    from spacr import graph_types, settings, validate
+    from spacr.qt import preferences
+
+    class _Interrupted(BaseException):
+        """Not an Exception, so the sweep's per-function guard lets it out."""
+
+    def set_default_that_is_interrupted(_settings=None):
+        raise _Interrupted()
+
+    asked = []
+    monkeypatch.setattr(preferences, "get_default_graph_type",
+                        lambda shape: asked.append(shape) or "violin")
+    monkeypatch.setattr(validate, "_KNOWN_KEYS_CACHE", None)
+    monkeypatch.setattr(settings, "set_default_that_is_interrupted",
+                        set_default_that_is_interrupted, raising=False)
+
+    with pytest.raises(_Interrupted):
+        validate._known_setting_keys()
+
+    assert graph_types._READ_THE_PREFERENCE_STORE.get() is True, (
+        "the sweep raised and left the preference store switched off")
+    assert graph_types.chosen_for("categorical_continuous") == "violin"
+    assert asked == ["categorical_continuous"]
+
+
 def test_an_unknown_shape_is_a_key_error():
     """The comment on line 194 says so explicitly, so it is pinned."""
     from spacr.graph_types import default_for
