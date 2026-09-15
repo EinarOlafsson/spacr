@@ -500,3 +500,54 @@ refuses. Rather than keep the weak 8f4171fd9 text, each block was translated
 again: the quoted phrase is kept as written with a gloss after it, and the
 code literals are in source order. All three pass the loader's own
 predicates, so none of the eleven now ships its 8f4171fd9 model output.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE REPAIR RE-CONTEXTUALIZES A REVIEWED TARGET, THEN SHIPS THE
+            REWRITE OR SHIPS ENGLISH
+--------------------------------------------------------------------------------
+
+Found while rebasing local nightly (91ac88b51) onto the work session's batch
+(5fce82971), branch prep/nightly-onto-s4; the other rebase agent hit the pt
+case first. RECORDED, NOT FIXED: `tools/build_documentation_i18n.py` is not
+patched on that branch.
+
+WHAT HAPPENS. In `repair_api_translations` a block joins `pending_indexes`
+when its reused candidate fails the gates after `_contextualize`. The reviewed
+override then writes the record into `selected`, but the index stays pending,
+and the closing loop runs `_contextualize` over the REVIEWED target and
+validates what that returns:
+
+  * the rewrite still passes -> the rewrite ships instead of the record, and
+    nothing counts it (unresolved stays 0);
+  * the rewrite fails -> the English source ships, and unresolved += 1.
+
+MEASURED on both routes of the same rebase, every generation entry point
+patched to raise:
+
+  From the per-symbol union (8d2b8fd6d), empty model root: one block, pt
+  `spacr.qt.widgets.outlier_model#27`. The record reads "um poço fora de
+  foco"; `_contextualize(record, "pt", source)` turns poço into "bem",
+  `_semantic_false_friends` returns `scientific-well-as-adverb`, and the block
+  shipped in English (pt unresolved=1). The record on its own passes both
+  reviewed gates. Block #27's English is unchanged on both sides; local
+  nightly's item-63 markup fix touched #20 of that docstring only.
+
+  From the side branch's catalogs plus --sources-only: SEVEN reviewed blocks
+  shipped as a rewrite that neither parent committed, with unresolved=0 in
+  every locale -- `spacr.schema.add_screen_column#3` in sv, de and es; es
+  `spacr.qt.synthetic.generate_measure_demo#5`; zh_CN `spacr.multi_database#9`;
+  pt `spacr.qt.widgets.column_picker.SchemaReader.estimate_rows#2`; ko
+  `spacr.qt.screens.model_zoo#6`. The audit passes these. Only a word-for-word
+  check of every reviewed record against the published block finds them.
+
+WHAT WAS DONE INSTEAD. The union route was published, and its one damaged
+entry was restored from the committed entry exactly (pt
+`spacr.qt.widgets.outlier_model`, from 91ac88b51). Every catalog then equals
+the union byte for byte, and 5,538/5,538 non-retired reviewed records ship
+verbatim.
+
+WHERE THE FIX BELONGS: a reviewed target should leave `pending_indexes` once it
+is applied, or be validated without `_contextualize`, the exemption
+`_api_contextual_repair_required` already gives an exact reviewed value.
+Until then, after any `--repair-api-blocks`, check every reviewed record word
+for word, not only the unresolved count.
