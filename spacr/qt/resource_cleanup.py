@@ -1544,6 +1544,9 @@ _LAUNCH_DONE = False
 _SEEN_RUNS: set = set()
 _BUDGET_TIMER = None
 _BUDGET_SWEEP_PENDING = False
+#: One handle per connection `install_run_hook` made, so each can be taken
+#: back exactly; see `_uninstall_process_hooks`.
+_RUN_HOOK_CONNECTIONS: list = []
 
 
 def _on_registry_changed() -> None:
@@ -1656,10 +1659,11 @@ def install_run_hook() -> bool:
         return True
     try:
         from .bridge import registry
-        registry().changed.connect(_on_registry_changed)
+        connection = registry().changed.connect(_on_registry_changed)
     except Exception:
         LOG.debug("could not install the pre-run cleanup hook", exc_info=True)
         return False
+    _RUN_HOOK_CONNECTIONS.append(connection)
     _INSTALLED = True
     return True
 
@@ -1695,17 +1699,30 @@ def _uninstall_process_hooks() -> None:
     # EVERY CONNECTION, WHATEVER `_INSTALLED` SAYS. A caller that resets the
     # flag and installs again (tests monkeypatch `_INSTALLED = False` to
     # exercise `install_run_hook`) connects a second copy, and the flag is
-    # restored afterwards while the connection is not. Disconnect until
-    # PySide6 reports nothing left; it WARNS before it raises on that last
-    # attempt, which here is the expected end of the loop, not news.
+    # restored afterwards while the connection is not.
+    #
+    # BY HANDLE FIRST. PySide6 6.11's `disconnect(slot)` removes ONE
+    # connection of a slot connected several times and then answers False
+    # while the others are still connected, so asking by slot alone left
+    # every copy after the first firing in later tests. Each handle
+    # `install_run_hook` kept names exactly one connection. The loop by slot
+    # stays for a connection made without a handle; PySide6 WARNS before it
+    # raises on that last attempt, which here is the expected end of the
+    # loop, not news.
     try:
         import warnings
+
+        from PySide6.QtCore import QObject
 
         from .bridge import registry
 
         changed = registry().changed
+        connections = list(_RUN_HOOK_CONNECTIONS)
+        _RUN_HOOK_CONNECTIONS.clear()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
+            for connection in connections:
+                QObject.disconnect(connection)
             for _attempt in range(64):
                 try:
                     if not changed.disconnect(_on_registry_changed):
