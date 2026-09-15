@@ -64,6 +64,8 @@ _ASSET_SUFFIX = {
     "macos": "macOS-Universal-Online.pkg",
 }
 _WAIT_SECONDS = 600.0
+# Python 3.12 renamed shutil.rmtree's error hook from onerror to onexc.
+_RMTREE_TAKES_ONEXC = sys.version_info >= (3, 12)
 
 
 @dataclass(frozen=True)
@@ -212,20 +214,26 @@ class _WindowsRegistry:
 class _SystemPackages:
     """The Debian package manager, queried and asked to remove a package."""
 
-    def __init__(self, runner):
+    def __init__(self, runner, which=None, geteuid=None):
         """Keep the command runner.
 
         :param runner: callable taking an argv and returning
             ``(exit_code, output)``.
+        :param which: finds a command on ``PATH``; :func:`shutil.which` when
+            ``None``.
+        :param geteuid: returns the effective user id; :func:`os.geteuid`
+            when ``None``, and no check where the platform has none.
         """
         self._runner = runner
+        self._which = which or shutil.which
+        self._geteuid = geteuid or getattr(os, "geteuid", None)
 
     def version(self, name: str) -> Optional[str]:
         """Return the installed version of package ``name``, or ``None``.
 
         :param name: Debian package name.
         """
-        if not shutil.which("dpkg-query"):
+        if not self._which("dpkg-query"):
             return None
         code, output = self._runner(
             ["dpkg-query", "-W", "-f=${Version}", name])
@@ -240,7 +248,7 @@ class _SystemPackages:
         :returns: ``(removed, reason)``.
         """
         argv = ["dpkg", "-r", name]
-        if hasattr(os, "geteuid") and os.geteuid() != 0:
+        if self._geteuid is not None and self._geteuid() != 0:
             if not sudo:
                 return False, _needs_admin(f"sudo dpkg -r {name}")
             argv = ["sudo"] + argv
@@ -279,7 +287,7 @@ class _Machine:
     def __init__(self, platform: Optional[str] = None, environ=None,
                  fs_root: str = "/", registry=None, packages=None,
                  runner=None, running_prefix=None, executable=None,
-                 sudo: bool = False):
+                 sudo: bool = False, which=None):
         """Describe a computer.
 
         :param platform: ``"windows"``, ``"macos"`` or ``"linux"``; the
@@ -295,6 +303,8 @@ class _Machine:
             current one when ``None`` on a real computer.
         :param executable: interpreter of the running process.
         :param sudo: whether removal may ask for ``sudo`` interactively.
+        :param which: finds a command on ``PATH``; :func:`shutil.which` when
+            ``None``. Consulted only on a real computer.
         """
         if platform is None:
             platform = ("windows" if os.name == "nt" else
@@ -304,11 +314,12 @@ class _Machine:
         self.environ = dict(os.environ if environ is None else environ)
         self.fs_root = os.path.abspath(fs_root or "/")
         self.runner = runner or _run
+        self.which = which or shutil.which
         if registry is None and self.real and platform == "windows":
             registry = _WindowsRegistry()
         self.registry = registry
         if packages is None and self.real and platform == "linux":
-            packages = _SystemPackages(self.runner)
+            packages = _SystemPackages(self.runner, self.which)
         self.packages = packages
         if running_prefix is None and self.real:
             running_prefix = sys.prefix
@@ -419,7 +430,7 @@ def _mentions(path: str, needles: Iterable[str]) -> bool:
     :param path: a file or symbolic link.
     :param needles: strings to look for, compared without case.
     """
-    wanted = [str(n).lower() for n in needles if n]
+    wanted = [w for w in (str(n).lower().rstrip("/\\") for n in needles if n) if w]
     if not wanted:
         return False
     texts = []
@@ -435,8 +446,27 @@ def _mentions(path: str, needles: Iterable[str]) -> bool:
         return False
     for text in texts:
         low = text.lower().replace("\\\\", "\\")
-        if any(needle in low for needle in wanted):
+        if any(_names_whole_path(low, needle) for needle in wanted):
             return True
+    return False
+
+
+def _names_whole_path(text: str, path: str) -> bool:
+    """Whether ``text`` names ``path`` itself, not a longer name it begins.
+
+    ``spacr`` begins ``spacr-dev``, so a launcher for a folder beside an old
+    copy must not count as the old copy's. A name ends at a path separator,
+    a quote, a control character, or the end of the text.
+
+    :param text: the text to search, lower case.
+    :param path: the path to look for, lower case.
+    """
+    start = text.find(path)
+    while start >= 0:
+        end = start + len(path)
+        if end == len(text) or text[end] in "/\\\"'" or text[end] < " ":
+            return True
+        start = text.find(path, start + 1)
     return False
 
 
@@ -825,6 +855,7 @@ def _find_unix_online(machine: _Machine,
         candidates += [machine.path(f"/Library/Application Support/{name}")
                        for name in _NAMES]
     # A launcher names its root, which finds a copy put somewhere unusual.
+    named_by_launchers = []
     for launcher in launchers_seen:
         if os.path.isfile(launcher) and not os.path.islink(launcher):
             try:
@@ -835,13 +866,18 @@ def _find_unix_online(machine: _Machine,
             marker = "/venv/bin/python"
             if marker in text:
                 start = text.rfind('"', 0, text.index(marker)) + 1
-                candidates.append(text[start:text.index(marker)])
+                named_by_launchers.append(text[start:text.index(marker)])
     markers = (os.path.join("venv", "bin", "python"), os.path.join("bootstrap", "uv"),
                "uninstall-spacr.sh")
+    # Any project can have a venv. A folder known only because a launcher
+    # names it must also hold what only the installer writes, or a launcher
+    # a user made for a project's own venv would make the project an old copy.
+    installer_only = markers[1:]
     taken = {_identity(r.root) for r in claimed if _exists(r.root)}
-    roots = [root for root in _dedupe(candidates)
+    roots = [root for root in _dedupe(candidates + named_by_launchers)
              if os.path.isdir(root) and _identity(root) not in taken
-             and any(_exists(os.path.join(root, m)) for m in markers)]
+             and any(_exists(os.path.join(root, m))
+                     for m in (markers if root in candidates else installer_only))]
     apps_dir = os.path.join(data, "applications")
     records = []
     for root in roots:
@@ -968,7 +1004,7 @@ def _find_environments(machine: _Machine,
             _norm(prefix) == _norm(machine.running_prefix)
         python = None
         if layout == "user-site":
-            python = shutil.which(os.path.basename(prefix)) if machine.real else None
+            python = machine.which(os.path.basename(prefix)) if machine.real else None
         else:
             python = _env_python(prefix)
         for dist in dists:
@@ -1099,8 +1135,14 @@ def _delete(path: str, keep: Sequence[str], report: RemovalReport,
                     func(failed_path)
                 except OSError as exc:
                     errors.append((failed_path, exc))
+                except TypeError:
+                    # os.open and os.close cannot be called again with a path
+                    # alone; keep the error rmtree reported (onexc passes the
+                    # exception, the older onerror an exc_info tuple).
+                    errors.append((failed_path, exc_info if isinstance(
+                        exc_info, BaseException) else exc_info[1]))
 
-            if sys.version_info >= (3, 12):
+            if _RMTREE_TAKES_ONEXC:
                 shutil.rmtree(path, onexc=_writable_then_retry)
             else:
                 shutil.rmtree(path, onerror=_writable_then_retry)
@@ -1262,7 +1304,7 @@ def _uninstall_from_environment(record: InstallRecord, machine: _Machine,
         return
     has_pip = any(os.path.isdir(os.path.join(site, "pip"))
                   for site in _site_packages(record.root))
-    uv = shutil.which("uv") if machine.real else None
+    uv = machine.which("uv") if machine.real else None
     if has_pip or not uv:
         argv = [python, "-m", "pip", "uninstall", "-y", *names]
     else:
@@ -1419,7 +1461,7 @@ def _helper_command(records: Sequence[InstallRecord], workdir: str,
                     uv = candidate
                     break
     if uv is None and machine.real:
-        found = shutil.which("uv")
+        found = machine.which("uv")
         if found and not any(_inside(found, root) for root in doomed):
             uv = found
     if uv is None:
@@ -1435,26 +1477,29 @@ def _helper_command(records: Sequence[InstallRecord], workdir: str,
     return argv, environment, None
 
 
-def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None) -> int:
+def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None,
+                    *, os_name: Optional[str] = None, popen=None) -> int:
     """Start a process that keeps running after spaCR exits.
 
     :param argv: the command.
     :param env: its environment; inherited when ``None``.
     :param cwd: its working folder, which must not be inside an installation.
+    :param os_name: :data:`os.name` of the computer; this one when ``None``.
+    :param popen: replaces :class:`subprocess.Popen`.
     :returns: the new process id.
     """
     options: Dict[str, object] = {
         "stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL,
         "stderr": subprocess.DEVNULL, "close_fds": True, "cwd": cwd, "env": env,
     }
-    if os.name == "nt":
+    if (os_name or os.name) == "nt":
         options["creationflags"] = (
             getattr(subprocess, "DETACHED_PROCESS", 0x8)
             | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0x200)
             | getattr(subprocess, "CREATE_NO_WINDOW", 0x8000000))
     else:
         options["start_new_session"] = True
-    return subprocess.Popen([str(a) for a in argv], **options).pid
+    return (popen or subprocess.Popen)([str(a) for a in argv], **options).pid
 
 
 def start_update_helper(records: Sequence[InstallRecord], version: str, *,
@@ -1518,15 +1563,25 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     return plan
 
 
-def _wait_for_exit(pid: int, timeout: float = _WAIT_SECONDS) -> bool:
+def _wait_for_exit(pid: int, timeout: float = _WAIT_SECONDS, *,
+                   os_name: Optional[str] = None, kill=None, sleep=None,
+                   clock=None) -> bool:
     """Wait for a process to end.
 
     :param pid: the process id.
     :param timeout: seconds to wait.
+    :param os_name: :data:`os.name` of the computer; this one when ``None``.
+    :param kill: replaces :func:`os.kill`, used with signal 0 to ask whether
+        the process still exists.
+    :param sleep: replaces :func:`time.sleep`.
+    :param clock: replaces :func:`time.monotonic`.
     :returns: whether it ended in time.
     """
-    deadline = time.monotonic() + timeout
-    if os.name == "nt":
+    clock = clock or time.monotonic
+    kill = kill or os.kill
+    sleep = sleep or time.sleep
+    deadline = clock() + timeout
+    if (os_name or os.name) == "nt":
         import ctypes
         kernel32 = ctypes.windll.kernel32                    # type: ignore[attr-defined]
         handle = kernel32.OpenProcess(0x00100000, False, int(pid))
@@ -1536,14 +1591,14 @@ def _wait_for_exit(pid: int, timeout: float = _WAIT_SECONDS) -> bool:
             return kernel32.WaitForSingleObject(handle, int(timeout * 1000)) == 0
         finally:
             kernel32.CloseHandle(handle)
-    while time.monotonic() < deadline:
+    while clock() < deadline:
         try:
-            os.kill(int(pid), 0)
+            kill(int(pid), 0)
         except ProcessLookupError:
             return True
         except PermissionError:
             pass
-        time.sleep(0.5)
+        sleep(0.5)
     return False
 
 
