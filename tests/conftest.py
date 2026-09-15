@@ -2463,6 +2463,24 @@ def _the_app_registry_is_left_as_it_was_found():
         restore_app_registry_to(app_mod, snapshot)
 
 
+def _is_the_real_tracer(module) -> bool:
+    """Is this ``spacr.flowview.trace`` itself, or a stand-in a test installed?
+
+    Tests put stand-ins at that ``sys.modules`` key on purpose: a bare
+    ``types.ModuleType("spacr.flowview.trace")`` with one attribute, or an
+    object carrying only ``is_enabled``. Neither has a collector to protect,
+    neither can be reloaded, and asking one for ``get_collector()`` raises.
+    A real import has a ``__spec__``; ``ModuleType(...)`` built by hand does
+    not, which is what separates the two without naming any test.
+    """
+    import types
+    return (isinstance(module, types.ModuleType)
+            and getattr(module, "__spec__", None) is not None
+            and all(callable(getattr(module, name, None))
+                    for name in ("get_collector", "enable", "disable",
+                                 "is_enabled")))
+
+
 @pytest.fixture(autouse=True)
 def _the_flowview_collector_is_put_back():
     """Hand the next test the collector this one was given.
@@ -2494,10 +2512,24 @@ def _the_flowview_collector_is_put_back():
     )
 
     before = flowview_trace_module()
+    if not _is_the_real_tracer(before):
+        before = None
     snapshot = flowview_trace_snapshot(before) if before is not None else None
     yield
+    if before is not None:
+        # RESTORE THE MODULE THAT WAS SNAPSHOTTED, not whatever sys.modules
+        # holds now. A test that swaps a stand-in in through monkeypatch still
+        # has it installed at this line whenever monkeypatch was first set up
+        # by an earlier autouse fixture -- teardown runs in reverse, so that
+        # monkeypatch undoes AFTER this one. Asking the stand-in for
+        # get_collector() raised AttributeError in four tests on CI
+        # (test_cov_r8_ml_flowview_gate x3, test_cov_r7_deep_spacr). The real
+        # module is the one with state worth protecting, and it is still the
+        # object snapshotted above.
+        restore_flowview_trace_to(before, snapshot)
+        return
     after = flowview_trace_module()
-    if after is None:
+    if not _is_the_real_tracer(after):
         return
     if snapshot is None:
         # THIS test imported the tracer. There is no before to go back to, so
