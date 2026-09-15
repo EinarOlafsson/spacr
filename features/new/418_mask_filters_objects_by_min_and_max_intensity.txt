@@ -1,0 +1,119 @@
+================================================================================
+MASK FILTERS OBJECTS BY MIN AND MAX INTENSITY; THE SPLIT AND MERGE SETTINGS GO
+================================================================================
+
+Status:    OPEN, filed 2026-09-15. Not started.
+Requested: 2026-09-15, by the maintainer, in these words:
+
+           "for the mask modual for the filtering options, remove minimum area
+           to split, minimum watershed distance and intensity threshold and
+           intensity merge, intensity split.
+
+           and add Min intensity and max intensity settings for filtering
+           objects, these should work exactly like the min and max area
+           settings which exist for each object and can be used to filter live
+           in live preview.
+
+           add this as a new feature to the new features list."
+
+           Asked with the question tool the same day:
+             * Which intensity judges an object? "Mean, own channel": the
+               object's mean pixel intensity in its own channel -- a cell in
+               cell_channel, a nucleus in nucleus_channel, a pathogen in
+               pathogen_channel.
+             * What happens to the five removed settings? "Delete settings and
+               code": the settings, their Live Preview rows AND the
+               watershed-split and intensity-merge code paths they drive. An
+               old settings file that still carries the keys is read without
+               error and the keys are ignored.
+Owner:     unassigned. Mask settings and pipeline: spacr/settings.py,
+           spacr/object.py, spacr/utils.py. Live Preview:
+           spacr/qt/widgets/live_preview.py.
+
+WHAT IS THERE TODAY (read from the code on nightly 884eacaab)
+-------------------------------------------------------------
+
+Per object (cell, nucleus, pathogen, organelle) the Mask module carries:
+
+  {obj}_min_area, {obj}_max_area          KEEP. The model for the new pair.
+  {obj}_remove_border_objects             keep
+  {obj}_perimeter_fraction                keep (perimeter merge; not asked)
+  {obj}_minimum_area_to_split             REMOVE (default 100)
+  {obj}_min_watershed_distance            REMOVE (default 10)
+  {obj}_intensity_threshold               REMOVE (default None)
+  {obj}_intensity_merge                   REMOVE (default False)
+  {obj}_intensity_split                   REMOVE (default False)
+
+  * Defaults: spacr/settings.py ~1099-1124 (and organelle_min_area ~1663);
+    types ~3568-3592; categories "Cell" / "Nucleus" / "Pathogen" ~4723-4727,
+    each listing all five.
+  * Pipeline: spacr/object.py merge_split_filter_masks (~110-205) reads every
+    key above and calls spacr.utils._process_single_fov_in_memory (~805),
+    which runs merge_split_objects (~877): _split_by_watershed (~648), the
+    boundary-intensity merge (~585-646), then
+    _filter_objects(label_img, intensity_img, min_area, max_area,
+    remove_border) (~726). _filter_objects already receives the intensity
+    image and ignores it -- its docstring records that the old
+    intensity-percentile band was removed in 391.
+  * Live Preview: COMPARTMENT_FIELDS (live_preview.py ~228-238) holds the rows
+    "Min area (px²)", "Max area (px²)", "Minimum area to split", "Minimum
+    watershed distance", "Perimeter fraction", "Intensity threshold",
+    "Intensity merge", "Intensity split", "Remove border objects". The live
+    filter (~893-921) reads {obj}_min_area / {obj}_max_area (with
+    {obj}_min_size / {obj}_max_size as a fallback) and calls _filter_objects.
+    ~3175-3198 records that the two upper-bound filters disagree on what
+    switches a bound off (max_area > 0 vs max_size is not None).
+
+WHAT TO BUILD
+-------------
+
+1. {obj}_min_intensity and {obj}_max_intensity for cell, nucleus, pathogen and
+   organelle, beside {obj}_min_area / {obj}_max_area in every table the area
+   pair is in: defaults, types, categories, labels, tooltips.
+   * The measure is the object's MEAN intensity in its own channel.
+   * Exactly like the area pair: min removes objects below it, max removes
+     objects above it, and 0 means off for both. Take the switch-off rule from
+     _filter_objects, not from the max_size fallback.
+   * Applied where min/max area are applied: in _filter_objects, which already
+     receives the intensity image, so the pipeline and Live Preview share one
+     implementation and cannot disagree.
+2. Live Preview rows "Min intensity" and "Max intensity" next to "Min area
+   (px²)" / "Max area (px²)", filtering live exactly as the area rows do.
+3. Delete the five settings for every object: defaults, types, categories,
+   labels, tooltips, the Live Preview rows, and the code they drive
+   (_split_by_watershed, the intensity merge, and their parameters and
+   branches in merge_split_objects / _process_single_fov_in_memory /
+   merge_split_filter_masks). Keep the perimeter merge.
+4. An old settings file with the removed keys still loads and runs, the keys
+   ignored.
+
+WHAT MOVES WITH IT
+------------------
+
+* Tests that pin the removed settings or their code, from a grep:
+  tests/test_organelle_types.py, test_cov_utils_mask_filtering.py,
+  test_cov_object_merge_split.py, test_cov_utils_labels_mergesplit.py,
+  test_coverage_fill_utils2.py, test_cov_r4_utils.py, test_cov_r5_utils.py,
+  test_settings_categories.py, test_settings_tooltip_quality.py,
+  test_the_two_settings_tables_agree.py, test_a_guard_no_input_could_reach_is_gone.py,
+  test_animations_are_not_each_other.py, test_cov_timelapse_motility_panel.py,
+  test_the_reviewed_runtime_reporter_tells_moved_from_stale.py, and in
+  tests/qt: test_live_preview.py, test_live_preview_coverage.py,
+  test_setting_animation_zoom.py,
+  test_the_preview_propagates_only_keys_the_run_reads.py,
+  test_all_settings_tooltip_contract.py, test_i18n_caption_ratchet.py.
+  Each removal is a deletion of what it pins, not a loosened assertion.
+* Translations: the removed labels and tooltips leave the setting-label and
+  tooltip catalogs, and "Min intensity" / "Max intensity" with their tooltips
+  arrive. Removing English orphans reviewed records, and
+  reviewed_runtime_translations() raises on a stale source, so the English
+  change and its catalog pass land together (the catalog lane's call).
+* Coverage: the deleted functions leave their modules' coverage baselines.
+
+DONE WHEN
+---------
+
+* The five settings exist nowhere in spacr/ and no test pins them.
+* Min/Max intensity filter identically in a Mask run and in Live Preview:
+  one test runs both on the same image and settings and gets the same labels.
+* A settings file carrying the removed keys loads and runs.
