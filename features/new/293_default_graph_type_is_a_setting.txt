@@ -180,13 +180,16 @@ THE THREE THAT REMAIN
     'jitter_box')`, and `setdefault` still means setdefault: a caller who
     passes an explicit `graph_type` keeps it, because the preference decides
     the DEFAULT and not the answer.
-  * `spacr/qt/widgets/graph_spec.py:455` `infer_kind` -- the Graph Builder
-    infers BOX for one categorical against one continuous and never asks.
-    Different in KIND from the other three: `infer_kind` answers "what kind of
-    chart do these columns imply", which is a question about the DATA, while
-    the setting answers "which of the fitting types do I want first". Those
-    can disagree honestly, so this one needs a decision before a patch, not
-    just a call site changed.
+  * `spacr/qt/widgets/graph_spec.py` `infer_kind` -- DONE 2026-09-15, after
+    the maintainer answered the question this bullet asked for: "The setting
+    wins, unless the data can't be drawn that way. Fall back to what the data
+    supports only when the chosen type is impossible (e.g. a box plot of 2
+    points), and say so in the figure note."
+
+    `infer_kind` STILL ANSWERS ONLY ABOUT THE DATA, which is the distinction
+    this bullet was right to insist on. The preference is layered on top in
+    `kind_and_note`, and `resolved_kind` is now pin, then setting, then
+    inference.
   * `spacr/plot.py` `spacrGraph` -- takes whatever it is handed, which is
     correct for a drawing primitive. It is on the list as the place the
     vocabulary lands, not as a caller to change.
@@ -219,4 +222,41 @@ function so whoever adds counts knows they are also adding the mapping back.
 
 A mutation that cannot tell two versions apart is not a weak test; it is an
 answer about the code. Deleting the loop was the honest response to it.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE GRAPH BUILDER ASKS, AND SAYS SO WHEN IT CANNOT COMPLY
+--------------------------------------------------------------------------------
+
+THREE OF FOUR HOLDOUTS ARE NOW DONE -- ml.py's QC figures, settings.py's
+pipeline defaults, and the Graph Builder. The fourth, `plot.py`'s spacrGraph,
+was never a caller to change: it takes what it is handed, which is correct for
+a drawing primitive.
+
+THE SECOND WAY A CHOICE CAN BE REFUSED, which this item had not noticed.
+`chosen_for` already drops a saved type that does not FIT the data shape -- a
+scatter of grouped data is a different graph of different data. But the Graph
+Builder has a NARROWER vocabulary than the preference:
+
+    categorical_continuous fits   box_jitter, bar_jitter, bar, jitter, box, violin
+    the Graph Builder draws       bar, box, violin
+
+So `box_jitter`, `bar_jitter` and `jitter` are legitimate answers for the data
+and are not charts this module renders. A user who asked for the five numbers
+AND the observations gets the box -- and is TOLD so, in `describe()`, the one
+line that becomes the chart's caption and the window title.
+
+That is the difference between a considered fallback and a silently ignored
+setting, and it is the same rule `start_for` already follows for thin data.
+
+THE PIN STILL BEATS THE SETTING. A pin is the user asking for this chart now;
+the preference is a standing answer. If the setting could override a pin,
+right-click-to-change would stop working the moment somebody set a default.
+
+AND THE SHAPES WITHOUT A CHOICE ARE LEFT ALONE. A bar of counts (one
+categorical) and a contingency heatmap (two categorical) are not a choice
+between pictures of the same data -- there is no second form to prefer -- so
+the preference never reaches them.
+
+Six tests, three mutations, each caught: ignoring the setting, dropping the
+can-this-builder-draw-it check, and swallowing the note.
 

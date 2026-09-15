@@ -94,6 +94,7 @@ __all__ = [
     "MISSING_LEVEL", "MAX_FACET_LEVELS", "MAX_PANELS",
     "DEFAULT_POINT_BUDGET",
     "GraphSpec", "column_kinds", "plottable_columns", "infer_kind",
+    "kind_and_note",
     "value_axes", "brush_mask", "FULL", "BINNED", "SAMPLED",
     "FacetPanel", "FacetGrid", "facet_grid",
     "Scales", "scales_for",
@@ -391,8 +392,27 @@ class GraphSpec:
         return kinds
 
     def resolved_kind(self, kinds: Mapping[str, str]) -> str:
-        """The kind that will actually be drawn — the pin, or the inference."""
-        return self.kind or infer_kind(self, kinds)
+        """The kind that will actually be drawn.
+
+        THE PIN, THEN THE SETTING, THEN THE INFERENCE. An explicit pin is the
+        user saying "this chart, now" and still wins outright. With no pin,
+        the Default Graph Type preference chooses among the forms that fit,
+        and the inference answers when there is no preference or the chosen
+        form cannot be drawn here -- see :func:`kind_and_note`.
+        """
+        if self.kind:
+            return self.kind
+        return kind_and_note(self, kinds)[0]
+
+    def kind_note(self, kinds: Mapping[str, str]) -> str:
+        """Why the drawn kind is not the chosen one, or ``""``.
+
+        Empty for a pin: the user asked for that chart directly and nothing
+        was overridden.
+        """
+        if self.kind:
+            return ""
+        return kind_and_note(self, kinds)[1]
 
     def to_dict(self) -> Dict[str, Any]:
         """A plain JSON-able dict. Every field, always — a stable schema beats
@@ -449,7 +469,77 @@ class GraphSpec:
             return "nothing dropped yet"
         kind = self.resolved_kind(kinds)
         pinned = " (pinned)" if self.kind else ""
-        return f"{kind}{pinned} · " + " · ".join(parts)
+        note = self.kind_note(kinds)
+        said = f"{kind}{pinned} · " + " · ".join(parts)
+        # THE FALLBACK IS SAID OUT LOUD, in the one line that becomes the
+        # chart's caption and the window title. A preference that is quietly
+        # ignored leaves the user looking at a chart they did not choose with
+        # no way to find out why.
+        return f"{said} — {note}" if note else said
+
+
+#: Which :data:`spacr.graph_types.DATA_SHAPES` name each inferred kind is an
+#: answer for. Only these three shapes have a Default Graph Type preference;
+#: a bar of counts and a contingency heatmap are not choices between forms of
+#: the same picture, so the setting has nothing to say about them.
+_SHAPE_FOR_KIND = {
+    BOX: "categorical_continuous",
+    SCATTER: "continuous_continuous",
+    HISTOGRAM: "continuous_only",
+}
+
+
+def kind_and_note(spec: "GraphSpec", kinds: Mapping[str, str]):
+    """The kind to draw and, when it is not the one chosen, why not.
+
+    THE SETTING WINS UNLESS THE DATA CANNOT BE DRAWN THAT WAY. The Default
+    Graph Type preference decides which of the forms that FIT a data shape is
+    drawn first; the inference decides what the shape IS. Those are different
+    questions -- "what kind of chart do these columns imply" against "which
+    fitting type do I want" -- and this is where the second one is asked,
+    leaving :func:`infer_kind` to go on answering only the first.
+
+    TWO WAYS A CHOICE IS REFUSED, and both say so out loud:
+
+    * IT DOES NOT FIT THE SHAPE. `graph_types.chosen_for` drops it before
+      this function sees it -- a scatter of grouped data is a different
+      graph of different data, not a preference about this one.
+    * THIS BUILDER CANNOT DRAW IT. The preference vocabulary is wider than
+      the Graph Builder's: `box_jitter`, `bar_jitter` and `jitter` all fit
+      `categorical_continuous` and none of them is a kind this module
+      renders. A user who asked for the five numbers AND the observations
+      gets the box, and is told that is what happened.
+
+    :param spec: the chart being built.
+    :param kinds: column name to ``CONTINUOUS``/``CATEGORICAL``.
+    :returns: ``(kind, note)``. The note is empty whenever the kind drawn is
+        the one that was asked for, which includes the ordinary case of no
+        preference at all.
+    """
+    inferred = infer_kind(spec, kinds)
+    shape = _SHAPE_FOR_KIND.get(inferred)
+    if shape is None:
+        return inferred, ""
+    try:
+        from ...graph_types import GRAPH_NAMES, chosen_for
+    except Exception:                                        # noqa: BLE001
+        return inferred, ""
+    chosen = chosen_for(shape)
+    if not chosen or chosen == inferred:
+        return inferred, ""
+    if chosen in _DRAWABLE_KINDS:
+        return chosen, ""
+    asked = GRAPH_NAMES.get(chosen, chosen) if GRAPH_NAMES else chosen
+    return inferred, (
+        f"{asked} is not a chart this builder draws, so {inferred} is shown "
+        f"instead")
+
+
+#: Every kind this module can actually render, so a preference naming
+#: something else is refused rather than passed on to a renderer that would
+#: fail or quietly draw something else.
+_DRAWABLE_KINDS = frozenset({SCATTER, LINE, HISTOGRAM, BAR, BOX, VIOLIN,
+                             HEATMAP})
 
 
 def infer_kind(spec: GraphSpec, kinds: Mapping[str, str]) -> str:
