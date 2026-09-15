@@ -138,6 +138,10 @@ AUTOAPI_NON_RENDERED_MODULES = frozenset({
     # drift between extractor and site that is exactly what the audit is
     # for. `spacr._v1_v2_bridge` above is the same case.
     "spacr.qt._layout_policy",
+    # 2026-09-15, items 404/405: the DINOCell/SAMCell backend seam. Its header
+    # became a module docstring, which the extractor would otherwise pin in
+    # nine catalogs for a page AutoAPI never builds.
+    "spacr._segmentation_backends",
 })
 AUTOAPI_NON_RENDERED_SYMBOLS = frozenset({
     "spacr.qt.run_without_setup",

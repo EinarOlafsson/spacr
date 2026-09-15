@@ -687,6 +687,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # organelle setting that belongs to no slot and it leads the heading
     # whose size it decides.
     "number_of_organelles",
+    # ---- 2026-09-15, items 404/405 ------------------------------------
+    # A NEW SETTING, not a regrouping: `segmentation_backend` picks what
+    # `generate_cellpose_masks_sam` builds -- 'cellpose' (default),
+    # 'dinocell' or 'samcell'. It sits in General beside the per-object
+    # channel and mask-dimension keys it applies to, rather than under
+    # Cell/Nucleus/Pathogen, because one value serves all three objects.
+    "segmentation_backend",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
