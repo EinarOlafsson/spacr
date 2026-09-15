@@ -73,3 +73,25 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
               if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
     assert videos == {x['id'] for x in ready}
     assert not videos & set(REMAINING_HOLDS)
+
+
+def test_the_hold_is_lifted_only_beside_a_read_back_media_revision():
+    """The manifest stays as built (held); publication is recorded next to it.
+
+    Browser evidence hashes release-manifest.json, so flipping its flags would
+    orphan that evidence. The lift lives in checkpoint.json and the receipt,
+    and it may only name a commit whose every media byte was read back.
+    """
+    checkpoint = json.loads((ROOT / 'checkpoint.json').read_text())
+    receipt = json.loads((ROOT / 'publication-receipt.json').read_text())
+    published = json.loads((ROOT / 'published-media-browser-checks.json').read_text())
+    manifest_sha = digest(ROOT / 'release-manifest.json')
+    assert checkpoint['release_hold'] is False and checkpoint['media_uploaded'] is True
+    assert checkpoint['media_revision']['commit'] == receipt['commit']
+    assert receipt['manifest_sha256'] == manifest_sha == published['manifest_sha256']
+    assert receipt['branch'] != 'main' and receipt['tag']
+    readback = receipt['readback']
+    assert readback['passed'] is True and not readback['download_failures'] and not readback['metadata_failures']
+    assert readback['downloaded_sha256_matched'] == readback['files_expected'] == receipt['media_files']
+    assert published['passed'] is True and published['media_root'] == receipt['media_root']
+    assert len(published['ready_playback_cases']) == 76

@@ -57,7 +57,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
         (tutorial_root / "voice_catalog.js").read_text(encoding="utf-8")
     )
     assert len(catalog["lessons"]) == 77
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 498
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 975
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
@@ -317,8 +317,36 @@ def test_navigation_places_existing_lessons_once_under_current_home_and_hosts():
             assert navigation["routes"][lesson["id"]]["host_app_key"] == expected_hosts[key]
 
 
-def test_every_spoken_pypi_is_the_single_word_pypie():
-    """Keep every narration language on the user's exact brand reading."""
+def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
+    """Speak PyPI as the reviewed "pype" form in every narration language.
+
+    THE RULE is the renderer's own pronunciation module,
+    ``PRONUNCIATION_VERSION = "2026-08-28-pype-v11"``: English ``PyPI`` is
+    "the single syllable 'pype', with the vowel and final consonant of 'pipe'.
+    It is never PyPy, pypie, a sequence of letters, or two paused syllables",
+    and each narration language has a reviewed form in ``PYPI_SPEECH``.
+
+    This test used to be ``test_every_spoken_pypi_is_the_single_word_pypie``.
+    It pinned "pypie" from 2026-08-26, two days BEFORE that rule, and went red
+    when the refreshed catalogs of candidate 8738b_pd were published into this
+    tree. Asked through the question tool on 2026-09-15, the maintainer
+    answered '"pype" (Recommended)': keep the narration and update this test to
+    the 08-28 rule. Nothing is re-rendered.
+
+    Only catalogs that carry ``speech_text`` for these scenes are read. The
+    English catalog no longer does for lesson 01; English speech lives in the
+    hosted timing sidecars, where the renderer's gate applies the same rule.
+    Every translated narration language must still carry it.
+    """
+    rule = _load("tutorial_pronunciation",
+                 "tools/tutorials/authoring/tools/pronunciation.py")
+    assert rule.PRONUNCIATION_VERSION == "2026-08-28-pype-v11"
+    assert rule.PYPI_SPEECH["en"] == "[pype](/pˈIp/)"
+    for retired in ("pypie", "PyPie", "PyPI", "P Y P I", "P-Y-P-I", "pie pi"):
+        assert rule._REJECTED_PYPI_ALIAS.search(retired), retired
+    for approved in rule.PYPI_SPEECH.values():
+        assert not rule._REJECTED_PYPI_ALIAS.search(approved), approved
+
     catalog_dir = (
         ROOT / "docs" / "source" / "_extra" / "tutorials" / "catalog"
     )
@@ -336,37 +364,28 @@ def test_every_spoken_pypi_is_the_single_word_pypie():
     }
     assert pypi_scenes, "the installation lesson no longer names PyPI"
 
-    exact_pypie = re.compile(r"(?<!\w)pypie(?!\w)")
-    any_case_pypie = re.compile(r"(?<!\w)pypie(?!\w)", re.IGNORECASE)
-    separator_char = r"[\s,./_—–-]"
-    separator = rf"{separator_char}+"
-    banned_alias = re.compile(
-        rf"(?<!\w)(?:(?i:pypi|pype)|"
-        rf"(?i:(?:pie|pai|paj|pæ|paï){separator}p"
-        rf"(?:{separator_char}*[ieí])?|"
-        rf"p{separator}y{separator}p{separator}[ie]))(?!\w)",
-        flags=re.IGNORECASE,
-    )
-    for rejected in (
-            "PyPie", "pype", "P Y P E", "P-Y-P-I", "P, Y, P, I",
-            "pypie and pype", "pypie and PyPie"):
-        assert (len(exact_pypie.findall(rejected)) != 1
-                or len(any_case_pypie.findall(rejected)) != 1
-                or banned_alias.search(rejected))
-    failures = []
+    failures, spoken = [], []
     for path in sorted(catalog_dir.glob("lessons_*.json")):
+        language = path.stem.split("_", 1)[1]
         catalog = json.loads(path.read_text(encoding="utf-8"))
         lesson = next(
             item for item in catalog["lessons"]
             if item["id"] == "01_pypi_github"
         )
+        speeches = {index: lesson["scenes"][index].get("speech_text")
+                    for index in pypi_scenes}
+        if language == "en" and all(s is None for s in speeches.values()):
+            continue
+        spoken.append(language)
+        form = rule.PYPI_SPEECH[language]
         for index, expected_count in pypi_scenes.items():
-            speech = lesson["scenes"][index].get("speech_text", "")
-            if (len(exact_pypie.findall(speech)) != expected_count
-                    or len(any_case_pypie.findall(speech)) != expected_count
-                    or banned_alias.search(speech)):
+            speech = speeches[index] or ""
+            if (speech.count(form) != expected_count
+                    or rule._REJECTED_PYPI_ALIAS.search(speech)
+                    or "pypie" in speech.casefold()):
                 failures.append(f"{path.name}:scene-{index + 1}")
-    assert not failures, f"PyPI speech is not continuous 'pypie': {failures}"
+    assert set(spoken) >= {"es", "fr", "hi", "it", "ja", "pt-BR", "zh-CN"}, spoken
+    assert not failures, f"PyPI speech is not the reviewed 'pype' form: {failures}"
 
     published = _tutorial_catalog()
     for lesson in published["lessons"]:
@@ -398,6 +417,18 @@ def test_localized_installation_lessons_keep_release_terms_semantically_exact():
         "Télégraphie d'un modèle",
         "Meter as paradas",
     )
+    # Every scene whose ENGLISH names the branch must keep the label in each
+    # translation. Derived rather than pinned: the 2026-09-11 re-recording made
+    # lesson 01 eight scenes, and English now names nightly only in scene 4
+    # (the old closing "nightly only when..." sentence of scene 7 is gone).
+    english_lesson = next(
+        item for item in json.loads(
+            (catalog_dir / "lessons_en.json").read_text(encoding="utf-8"))["lessons"]
+        if item["id"] == "01_pypi_github"
+    )
+    nightly_scenes = [index for index, scene in enumerate(english_lesson["scenes"])
+                      if "nightly" in scene["narration"]]
+    assert nightly_scenes, "the installation lesson no longer names the nightly branch"
     failures = []
     for path in sorted(catalog_dir.glob("lessons_*.json")):
         if path.name == "lessons_en.json":
@@ -410,7 +441,7 @@ def test_localized_installation_lessons_keep_release_terms_semantically_exact():
         scene_2 = lesson["scenes"][1]["narration"]
         if "GitHub" in scene_2 or "conda-forge" in scene_2.casefold():
             failures.append(f"{path.name}: lesson 01 scene 2 is stale")
-        for scene_index in (3, 6):
+        for scene_index in nightly_scenes:
             if "nightly" not in lesson["scenes"][scene_index]["narration"]:
                 failures.append(
                     f"{path.name}: lesson 01 scene {scene_index + 1} must "
