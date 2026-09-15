@@ -11,14 +11,20 @@ CATALOG_DIR = ROOT / "docs" / "source" / "_extra" / "tutorials" / "catalog"
 FULL_LOCALES = ("en", "es", "fr", "hi", "it", "ja", "pt-BR", "zh-CN")
 CAPTION_LOCALES = ("da", "de", "is", "ko", "nb", "sv")
 
+# The refreshed lesson's reviewed titles (tools/tutorials/lessons/reviews/
+# 62_feature_dictionary.<locale>.json, 2026-09-09). The screen name stays the
+# literal "Feature Dictionary" the recording shows, followed by a translated
+# subtitle, and the older "Diccionario de características"-style titles are
+# retired. They reached this tree when candidate 8738b_pd was published on
+# 2026-09-15.
 FEATURE_DICTIONARY_TITLES = {
-    "es": "Diccionario de características",
-    "fr": "Dictionnaire des caractéristiques",
-    "hi": "विशेषता शब्दकोश",
-    "it": "Dizionario delle caratteristiche",
-    "ja": "特徴量辞書",
-    "pt-BR": "Dicionário de características",
-    "zh-CN": "特征词典",
+    "es": "Feature Dictionary: consultar significados, unidades y funciones de cálculo",
+    "fr": "Feature Dictionary : consulter les définitions, les unités et les fonctions de calcul",
+    "hi": "Feature Dictionary: अर्थ, इकाइयाँ और गणना करने वाले फ़ंक्शन समझें",
+    "it": "Feature Dictionary: consultare significati, unità e funzioni di calcolo",
+    "ja": "Feature Dictionary：意味・単位・計算関数を調べる",
+    "pt-BR": "Feature Dictionary: consultar significados, unidades e funções de cálculo",
+    "zh-CN": "Feature Dictionary：查询含义、单位和计算函数",
 }
 
 
@@ -72,30 +78,50 @@ def test_all_authored_catalogs_match_the_75_lesson_inventory_and_routes():
         assert [len(lesson["scenes"]) for lesson in lessons] == scene_counts, locale
 
 
-def test_spoken_pypi_is_exactly_one_continuous_pypie_token():
-    """Keep the release-site pronunciation stable in every spoken locale."""
+def test_spoken_pypi_is_the_reviewed_pype_form_in_every_spoken_locale():
+    """Every scene that shows PyPI speaks the reviewed "pype" form, never "pypie".
+
+    The rule is ``PRONUNCIATION_VERSION = "2026-08-28-pype-v11"`` in the
+    renderer's pronunciation module: PyPI is the single syllable "pype" in
+    English and ``PYPI_SPEECH[locale]`` elsewhere, "never PyPy, pypie, a
+    sequence of letters, or two paused syllables". This test was
+    ``test_spoken_pypi_is_exactly_one_continuous_pypie_token`` and pinned the
+    pre-rule "pypie" from 2026-08-26. The maintainer's decision of 2026-09-15
+    (question tool) was '"pype" (Recommended)': keep the published narration
+    and move the tests to the 08-28 rule, re-rendering nothing.
+
+    The English catalog carries no ``speech_text`` for these scenes (English
+    speech is in the hosted timing sidecars, gated by the same rule), so it is
+    checked only if it ever carries some. Translated locales must carry it.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "tutorial_pronunciation",
+        ROOT / "tools" / "tutorials" / "authoring" / "tools" / "pronunciation.py")
+    rule = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rule)
+    assert rule.PRONUNCIATION_VERSION == "2026-08-28-pype-v11"
     display_token = re.compile(r"(?<!\w)PyPI(?!\w)")
-    token = re.compile(r"(?<!\w)pypie(?!\w)")
-    pypi_family = re.compile(r"(?i)(?<!\w)pypi\w*(?!\w)")
-    split_spelling = re.compile(r"(?i)\bp\W+y\W+p\W+i\b")
 
     for locale in FULL_LOCALES:
         lessons = _catalog("lessons", locale)["lessons"]
-        display = "\n".join(
-            scene.get("narration", "")
-            for lesson in lessons
-            for scene in lesson["scenes"]
-        )
-        speech = "\n".join(
-            scene.get("speech_text", "")
-            for lesson in lessons
-            for scene in lesson["scenes"]
-        )
-        expected = len(display_token.findall(display))
-        assert expected > 0, locale
-        assert token.findall(speech) == ["pypie"] * expected, locale
-        assert pypi_family.findall(speech) == ["pypie"] * expected, locale
-        assert not split_spelling.search(speech), locale
+        named = [
+            scene for lesson in lessons for scene in lesson["scenes"]
+            if display_token.search(scene.get("narration", ""))
+        ]
+        assert named, locale
+        if locale == "en" and all("speech_text" not in scene for scene in named):
+            continue
+        form = rule.PYPI_SPEECH[locale]
+        for scene in named:
+            speech = scene.get("speech_text")
+            assert speech is not None, (locale, scene["narration"][:60])
+            assert speech.count(form) == len(display_token.findall(scene["narration"])), locale
+            assert not rule._REJECTED_PYPI_ALIAS.search(speech), locale
+        speech_all = "\n".join(
+            scene.get("speech_text", "") for lesson in lessons for scene in lesson["scenes"])
+        assert "pypie" not in speech_all.casefold(), locale
 
 
 def test_caption_only_installation_lessons_keep_reviewed_display_copy():
@@ -115,6 +141,18 @@ def test_caption_only_installation_lessons_keep_reviewed_display_copy():
         "04_platform_installers",
         "05_home",
     }
+    # Scenes whose ENGLISH names the nightly branch; derived, not pinned. The
+    # 2026-09-11 re-recording made lesson 01 eight scenes and dropped the old
+    # closing "nightly only when..." sentence, so only scene 4 names it now.
+    english_release = next(
+        lesson for lesson in _catalog("lessons", "en")["lessons"]
+        if lesson["id"] == "01_pypi_github"
+    )
+    nightly_scenes = [
+        index for index, scene in enumerate(english_release["scenes"])
+        if "nightly" in scene["narration"]
+    ]
+    assert nightly_scenes
     for locale in CAPTION_LOCALES:
         catalog = _catalog("captions", locale)
         lessons = {
@@ -135,8 +173,8 @@ def test_caption_only_installation_lessons_keep_reviewed_display_copy():
         assert "pypie" not in display, locale
         assert "GitHub" not in release["scenes"][1]["narration"], locale
         assert "conda-forge" not in release["scenes"][1]["narration"].casefold(), locale
-        assert "nightly" in release["scenes"][3]["narration"], locale
-        assert "nightly" in release["scenes"][6]["narration"], locale
+        for index in nightly_scenes:
+            assert "nightly" in release["scenes"][index]["narration"], locale
 
         serialized = json.dumps(lessons, ensure_ascii=False).casefold()
         assert not [
@@ -173,6 +211,12 @@ def test_localized_navigation_chrome_and_reviewed_copy_do_not_regress():
         assert not [phrase for phrase in global_bans if phrase in complete], locale
 
     english = json.dumps(_catalog("lessons", "en"), ensure_ascii=False)
-    assert "appropriate validation controls" in english
-    assert "Import third-party images" in english
+    # The repaired phrases this pinned ("appropriate validation controls" in
+    # 16_activation's objectives, "Import third-party images" in
+    # 31_external_masks' description) were replaced when those lessons were
+    # re-recorded on 2026-09-09 (tools/tutorials/lessons/16_activation.json,
+    # 31_external_masks.json). The published candidate carries the refreshed
+    # wording, so the pins follow it; the retired mistranslation stays banned.
+    assert "Distinguish input preprocessing, display contrast and attribution methods." in english
+    assert "Reuse real microscopy images and existing cell labels" in english
     assert "Turn third-party images" not in english

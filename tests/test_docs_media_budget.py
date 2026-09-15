@@ -249,7 +249,7 @@ def test_narration_is_the_stable_mobile_clock():
     #
     # This tests website SOURCE, not proof that Pages has deployed it.
     # The Coming soon player is now integrated here too; existing playable
-    # catalogs/media remain distinct from the unpublished refreshed candidate.
+    # Since 2026-09-15 this tree IS the published candidate 8738b_pd (item 358).
     #
     #     docs/source/_extra/tutorials/        20260911-narration-captions
     #     tools/tutorials/release_candidate/   20260911-narration-captions
