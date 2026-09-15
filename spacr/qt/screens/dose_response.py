@@ -65,6 +65,7 @@ from ..widgets.graph_builder import (_canvas_class, _page_surface_axes,
 from ..widgets.graph_spec import CATEGORICAL, column_kinds
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
+from ..i18n import set_translatable_text, tr
 from ..widgets.dose_response import (PERCENT_COLUMN, PlateSpec,
                                      normalise_to_controls, pool_frame,
                                      selectivity_index, SYNERGY_BLISS,
@@ -308,6 +309,18 @@ _STATUS_LABELS = {
     STATUS_REFUSED: "refused",
 }
 
+#: Captions this screen shows through a variable, so the runtime catalog
+#: generator cannot find them at a literal call site and imports this set
+#: instead -- the same arrangement as `_GENE_TILE_UI_SOURCES`. Without it the
+#: results-grid headers and the status words were in no catalog at all, and
+#: every language showed them in English. "n", "EC50", "Hill" and "R²" are
+#: symbols rather than words and are left out on purpose; `tr` passes them
+#: through unchanged.
+_DOSE_RESPONSE_UI_SOURCES = frozenset({
+    "Group", "Status", "Doses", "CI low", "CI high", "Lack-of-fit p",
+    "fitted", "unbounded", "refused",
+})
+
 
 
 def _format(value) -> str:
@@ -449,7 +462,11 @@ class DoseResponseScreen(QWidget):
             "this fits it anyway and keeps the warning on the result.")
         controls.addWidget(self.force_check)
 
-        self.fit_button = QPushButton("Fit", self)
+        # "FIT CURVE", NOT "FIT". The bare word is also zoom-to-fit in the
+        # ortho view, comparison grid and layer viewer, and a reviewed
+        # translation is keyed by its English source, so one string could
+        # never be translated right for both meanings.
+        self.fit_button = QPushButton("Fit curve", self)
         self.fit_button.setObjectName("PrimaryButton")
         self.fit_button.clicked.connect(self.fit)
         self.fit_button.setEnabled(False)
@@ -542,7 +559,7 @@ class DoseResponseScreen(QWidget):
         install_sorting(self.table)
         self.table.setObjectName("DoseResponseTable")
         self.table.setHorizontalHeaderLabels(
-            [header for _key, header in TABLE_COLUMNS])
+            [tr(header) for _key, header in TABLE_COLUMNS])
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -603,13 +620,17 @@ class DoseResponseScreen(QWidget):
         self.report.setPlainText("")
         self._draw(None)
         if not doses:
-            self.report.setPlainText(
+            self.report.setPlainText(tr(
                 "No column of this table has at least four distinct positive "
                 "values, so none of them can be a dilution series. A "
                 "dose–response needs the concentration itself, not a log "
-                "dose and not a plate coordinate.")
-        self._source.setText(
-            label or f"{len(frame):,} rows × {len(frame.columns)} columns")
+                "dose and not a plate coordinate."))
+        if label:
+            self._source.setText(label)
+        else:
+            set_translatable_text(
+                self._source, "{rows} rows × {columns} columns",
+                rows=f"{len(frame):,}", columns=len(frame.columns))
 
     @staticmethod
     def _refill(picker: QComboBox, values, prefer=()) -> None:
@@ -778,8 +799,9 @@ class DoseResponseScreen(QWidget):
                 names = table_names(path)
             except Exception as exc:
                 LOG.info("could not list tables in %s", path, exc_info=True)
-                self._source.setText(
-                    f"could not read {os.path.basename(path)}: {exc}")
+                set_translatable_text(
+                    self._source, "could not read {name}: {reason}",
+                    name=os.path.basename(path), reason=exc)
                 return
         self._table_picker.blockSignals(True)
         self._table_picker.clear()
@@ -790,9 +812,9 @@ class DoseResponseScreen(QWidget):
         self._table_picker.blockSignals(False)
         chosen = table or (self._table_picker.currentText() or None)
         self._jobs.cancel()
-        self._source.setText(
-            f"loading {os.path.basename(path)}"
-            + (f" · {chosen}" if chosen else "") + "…")
+        set_translatable_text(
+            self._source, "loading {name}…",
+            name=os.path.basename(path) + (f" · {chosen}" if chosen else ""))
         self._jobs.submit(
             lambda p=path, t=chosen: (t, read_table(p, t)),
             self._on_frame_loaded)
@@ -802,10 +824,11 @@ class DoseResponseScreen(QWidget):
         chosen, frame = payload
         path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
-        self.set_frame(
-            frame,
-            label=f"{os.path.basename(path)}{suffix} · {len(frame):,} rows "
-                  f"× {len(frame.columns)} columns")
+        self.set_frame(frame)
+        set_translatable_text(
+            self._source, "{name} · {rows} rows × {columns} columns",
+            name=f"{os.path.basename(path)}{suffix}",
+            rows=f"{len(frame):,}", columns=len(frame.columns))
 
     def _on_table_picked(self, name: str) -> None:
         """Reload the current database at a newly chosen table.
@@ -887,9 +910,9 @@ class DoseResponseScreen(QWidget):
             for column, (key, _header) in enumerate(TABLE_COLUMNS):
                 value = record[key]
                 if key == "status":
-                    value = _STATUS_LABELS.get(status, status)
+                    value = tr(_STATUS_LABELS.get(status, status))
                 if key == "group" and not str(value):
-                    value = "all rows"
+                    value = tr("all rows")
                 text = _format(value)
                 if key == "note" and len(text) > NOTE_WIDTH:
                     text = text[:NOTE_WIDTH].rstrip() + "…"

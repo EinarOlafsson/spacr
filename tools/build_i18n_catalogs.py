@@ -3882,6 +3882,7 @@ def canonical_sources() -> dict[str, object]:
     from spacr.qt.widgets.settings_advisor_dialog import (
         _SETTINGS_ADVISOR_UI_SOURCES,
     )
+    from spacr.qt.screens.dose_response import _DOSE_RESPONSE_UI_SOURCES
 
     # Several self-contained modules contribute defaults, tooltips, and a
     # module description only when their registered defaults module is first
@@ -4007,6 +4008,9 @@ def canonical_sources() -> dict[str, object]:
     # every catalog and English in all nine languages.
     ui_sources.update(_REGRESSION_MENU_UI_SOURCES)
     ui_sources.update(_SETTINGS_ADVISOR_UI_SOURCES)
+    # The Dose-Response grid's headers and status words reach their widgets
+    # through a tuple and a dict, so the literal extractor never sees them.
+    ui_sources.update(_DOSE_RESPONSE_UI_SOURCES)
     ui_sources.update(str(value) for value in APP_INTROS.values())
     ui_sources.update(str(value) for value in APP_TITLES.values())
     ui_sources.update(str(value) for value in _SECTION_NOTE_LIBRARY.values())
