@@ -1150,3 +1150,57 @@ def test_the_runner_writes_the_records_the_gate_reads():
     assert fnmatch.fnmatch(runner.integrity_record_name(11), ratchet.INTEGRITY_GLOB)
     # `coverage combine` reads every `.coverage.*` file in the input directory.
     assert not runner.integrity_record_name(0).startswith(".coverage")
+
+
+# -- 372's --retire-module and 288's --shard-integrity coexist ---------------
+
+
+def test_retiring_needs_no_integrity_records_and_a_gate_still_demands_them(
+    tmp_path,
+):
+    """A retire run reads no coverage data, so it must not ask for shard
+    integrity; a gate run given --shard-integrity must still fail a missing
+    shard record as an INCOMPLETE MEASUREMENT, retired module or not."""
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _with_old_module(project, _logic()))
+    (project / "demo" / "old.py").unlink()
+    empty = tmp_path / "no-integrity-records"
+    empty.mkdir()
+
+    retired = _retire(
+        project, baseline,
+        "--retire-module", "demo/old.py",
+        "--reason", "old.py deleted by decision", "--commit", "d00d",
+        # Pointed at a directory with no records: a retire must ignore it.
+        "--shard-integrity", str(empty), "--shard-count", "2",
+    )
+
+    assert retired.returncode == 0, retired.stdout + retired.stderr
+    assert "BASELINE: RETIRED: demo/old.py" in retired.stdout
+    assert "INCOMPLETE" not in retired.stdout + retired.stderr
+    assert "demo/old.py" not in ratchet.load_baseline(baseline)["modules"]
+
+    shards = tmp_path / "shards"
+    arguments = _shard_record(shards, 0, shard_count=2)  # shard 1 left nothing
+
+    missing, report, text = _gate(
+        project, tmp_path, _logic(), *arguments, baseline=baseline,
+    )
+
+    assert missing.returncode == 3, missing.stdout + missing.stderr
+    assert report["status"] == "incomplete"
+    assert report["stale_baseline_entries"] == []  # the retirement held
+    assert (
+        "INCOMPLETE MEASUREMENT: coverage shard 1 left no integrity record"
+    ) in text
+    assert "ERROR:" not in text
+
+    # Control: the same run with shard 1's record present passes, so the
+    # exit 3 above came from the missing record and not from the retirement.
+    _shard_record(shards, 1, shard_count=2)
+    complete, report, _text = _gate(
+        project, tmp_path, _logic(), *arguments, baseline=baseline,
+    )
+
+    assert complete.returncode == 0, complete.stdout + complete.stderr
+    assert report["measurement_integrity"]["status"] == "complete"
