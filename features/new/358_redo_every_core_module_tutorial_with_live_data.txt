@@ -694,3 +694,28 @@ RELEASE CANDIDATE WITH THE NEW 13_REGRESSION (built before 07_mask, so a
     current draft must not be applied without reading each row.
     Snapshot of the 13 reviews before editing:
     <scratchpad>/358_mask/reviews_before/ (sha256 prefixes recorded there).
+  OPS ROWS WRITTEN AND VALIDATED FOR ALL 13 LANGUAGES (not yet applied). The
+    reviewed text for objective 1, scene 1 and the prerequisite's final OPS
+    sentence is in <scratchpad>/358_mask/ops_rows.json. Each is a minimal edit
+    of that language's existing reviewed row, with Home, Mask, Live, Time and
+    OPS kept literal. Where a possessive would inflect a screen name (Danish
+    "Masks"), the sentence says "in Mask" instead. Korean keeps the review's
+    attached particles ("Mask의"); the spacing workaround applies only to the
+    i18n builders' protected-literal regex, which tutorial reviews do not
+    pass through.
+    Dry validation against the 13 real review files: every old prerequisite
+    sentence occurs exactly once and is the final one; every new row carries
+    all five UI literals; scene 1's closing sentence is unchanged in the
+    alphabetic languages; es fr it pt-BR hi ja zh-CN pass spoken_form +
+    assert_pronunciation_safe. Problems: none.
+    Applying waits for the new counts: build refuses unless the staged
+    English equals the source lesson, and scenes 6-8 plus the preview
+    sentence of the prerequisite still have to be added to the same reviews.
+    Helper: <scratchpad>/358_mask/review_tool.py (show / build / diff); it
+    refuses a draft unless the staged English is the current source and the
+    draft manifest ties the draft to it.
+    PRONUNCIATION CHECKED AGAINST THE PUBLISHED OPS LESSON: staged 76_ops
+    speech_text keeps "OPS" literal in ja, zh-CN and hi and respells only
+    spaCR (スペーカー / 斯佩克尔 / स्पेकर). The 07_mask bundle's speech
+    likewise passes "OPS" through unchanged, so both lessons voice it the
+    same way.
