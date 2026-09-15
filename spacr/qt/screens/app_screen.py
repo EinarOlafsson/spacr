@@ -1466,26 +1466,10 @@ class AppScreen(QWidget):
         if uses_ambient_background(self.app_key):
             self._install_ambient()
 
-        # ONLY GO TRANSPARENT WHEN SOMETHING IS ACTUALLY BEHIND.
-        # `_clear_page_surfaces` exists so an animated backdrop reaches the
-        # eye through the layout containers. With no backdrop installed
-        # there is nothing behind them, and a transparent container shows
-        # the bare window instead -- which under a dark theme is the black
-        # slab reported on 2026-09-14 behind the settings column and the
-        # chat panel.
-        #
-        # IT IS A TIMING WINDOW, NOT A SETTING. `_install_ambient` defers
-        # itself by 120 ms whenever the heavy lock is held, and opening a
-        # module for the first time is exactly when it is held -- the
-        # module is importing. So the FIRST open of a screen cleared the
-        # surfaces with no backdrop yet built, and a later visit found the
-        # backdrop installed and looked right. That is why it read as
-        # intermittent and why it cleared on the second visit.
-        #
-        # Nothing is lost by waiting: `_install_ambient` calls
-        # `_clear_page_surfaces` itself once the backdrop exists, and so
-        # does the shared-window-backdrop branch.
-        if self._ambient is None and self._something_paints_behind():
+        # THE SWEEP IS UNCONDITIONAL (item 381). With no backdrop behind the
+        # containers, `page_fill` gives the page its own colour, so a
+        # transparent container shows the page and never the window's `bg`.
+        if self._ambient is None:
             self._clear_page_surfaces()
         self._sync_page_palette()
         try:
@@ -1517,30 +1501,6 @@ class AppScreen(QWidget):
         except Exception:                                    # noqa: BLE001
             return True
         return _the_heavy_import_lock_is_free()
-
-    def _something_paints_behind(self) -> bool:
-        """Is there a backdrop for a transparent container to reveal?
-
-        Either this screen's own ambient widget, or the window-level
-        backdrop a shared install puts behind every screen. With neither,
-        making the containers transparent shows the bare window rather than
-        anything designed, so the containers should keep their surface.
-
-        :returns: True when a transparent container would reveal a backdrop.
-        """
-        if self._ambient is not None:
-            return True
-        try:
-            window = self.window()
-        except Exception:                                    # noqa: BLE001
-            return False
-        shared = getattr(window, "window_backdrop", None)
-        if not callable(shared):
-            return False
-        try:
-            return shared() is not None
-        except Exception:                                    # noqa: BLE001
-            return False
 
     def _install_ambient(self) -> None:
         """Build the ambient backdrop for this screen, if it is wanted.
