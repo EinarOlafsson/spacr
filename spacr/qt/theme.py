@@ -2976,6 +2976,126 @@ _WINDOW_OWN_SHEET = "_spacr_window_own_stylesheet"
 #: not collected.
 _WINDOW_SHEET_FILTER = None
 
+#: The two event types that mean "this widget is about to need its style",
+#: as a set of the enum members rather than a tuple rebuilt per event. The
+#: filter is on the QApplication, so this membership test is the FIRST
+#: thing every event in the process pays for: 1,055,402 of them in one
+#: registry sweep, measured. As `(QEvent.Polish, QEvent.Show)` -- two
+#: global lookups, two attribute lookups and a tuple build, every time --
+#: that line alone cost 475 ms of the sweep.
+_SHEETING_MOMENTS = frozenset({QEvent.Polish, QEvent.Show})
+
+
+def _a_window_for_want_of_a_parent(widget) -> bool:
+    """True when ``widget`` is mid-construction, not a window that appears.
+
+    QT CALLS A PARENTLESS WIDGET A WINDOW. `QWidget::isWindow` is
+    `window_flags & Qt::Window`, and Qt forces that flag on when the parent
+    is null -- so a `QSpinBox()` built on its own line, one statement
+    before `layout.addWidget(it)`, is a window for as long as it takes to
+    reach the next statement. Qt polishes it in that window, the
+    application-wide filter sees the `Polish`, and the widget is handed all
+    ~49 KB of the composed sheet for a window it is about to stop being.
+
+    THE NUMBER, from one offscreen registry sweep of 45 modules:
+
+        the whole filter                                10,518 ms
+        widgets that were windows only for want of a parent   3,817 ms
+
+    AND OVER HALF OF THAT IS ONE SCREEN, SHEETED THREE TIMES. A module
+    screen is built parentless and only then added to the stack, so it
+    collects `Polish` events all through its own construction:
+
+        AppScreen, 1st sheeting (still empty)     11 x    7 ms =    77 ms
+        AppScreen, 2nd sheeting (now populated)   11 x  255 ms = 2,805 ms
+        AppScreen, 3rd sheeting (shown, in stack) 10 x  291 ms = 2,911 ms
+
+    The third is the one that matters and the only one this leaves. The
+    sheet is byte-for-byte the same all three times; what makes the repeat
+    cost 255 ms rather than 7 ms is that the screen has grown ~1,500
+    widgets in between and Qt repolishes every one of them.
+
+    WHY SKIPPING IT IS SAFE, and it is the design's own answer rather than
+    a new one. `MainWindow._a_page_joined_the_stack` says it outright --
+    "the pages that are not showing are marked instead, and sheeted on
+    their own `showEvent` before they are painted". A page is marked with
+    :func:`mark_as_a_sheet_target` BEFORE it joins the stack, so the
+    `Show` that raises it goes down the sheet-target branch of the filter
+    and the page is sheeted there. A widget that is parented instead is a
+    descendant of a window that already carries the sheet, and QSS reaches
+    descendants -- that is how every one of these widgets was styled when
+    the sheet lived on the QApplication. A widget that is neither shown nor
+    parented is not rendered by anything and does not need a stylesheet.
+
+    WHAT THIS DELIBERATELY DOES NOT CATCH is every window that is really
+    about to appear:
+
+      * a menu, a tooltip, a popup -- `windowType()` is `Qt.Popup` or
+        `Qt.ToolTip`, not `Qt.Window`, so the test is False and they are
+        sheeted at `Polish` exactly as before. MENUS AND TOOLTIPS STAY
+        COVERED; they were the part 380 could not test and they are
+        untouched here.
+      * a `QDialog` -- `windowType()` is `Qt.Dialog`. Same.
+      * a real top-level window being shown -- by the time Qt polishes it
+        the native window exists, so `WA_WState_Created` is set. Measured:
+        `MainWindow`'s `Polish` arrives with it already True.
+      * anything already visible.
+
+    IT ALSO CHANGES WHAT THE APP PAINTS, and that is not a side effect to
+    leave unwritten. A duplicate copy of the sheet on an intermediate
+    widget does not only cost time: Qt resolves QSS from the NEAREST
+    stylesheet first, so a generic rule in a copy one layout deep beats a
+    more specific rule on the screen root. Those copies carry the GLOBAL
+    sheet ONLY -- the blocks :func:`register_widget_qss` appends live on
+    the screen root alone -- so every widget one of those blocks names was
+    painted the plain `fg` instead. Measured on the real window with mask,
+    measure and regression open, light theme, one process each way: 31
+    widgets change colour when the copies go, every one of them from `fg`
+    to the colour its own block asks for -- `QLabel#ChainingStale`
+    #0d0e10 -> #8f4e00 (`warning`), `#ChainingSource` -> #4b5460
+    (`fg_muted`), `#ChainingFix`, `#ChainingPinned` and
+    `#SettingsSearchCount` -> #68707e (`fg_dim`) -- and 42 widgets move,
+    seven of them visible, because a label sized by its own block is a
+    different height: the settings scroll area gains the 3 px its search
+    bar gives back. NO TEST HOLDS ANY OF THOSE COLOURS, which is why
+    nothing went red either way.
+
+    AND A WIDGET RENDERED WITHOUT EVER BEING SHOWN IS NO LONGER SHEETED.
+    `QWidget.grab()` polishes and never shows, so the skip holds and the
+    widget carries nothing. EVERY `.grab()` IN spaCR WAS CHECKED against
+    the four clauses below rather than the one that came to mind:
+
+      `figures.scene.build_scene`  the only parentless, unshown grab --
+          a `GraphicsLayoutWidget` grabbed to force the paint that lets
+          the second `activate()` measure an axis. Safe twice over: its
+          pixels are byte-identical either way (checked on a two-axes
+          figure, same SHA-256) because pyqtgraph paints from its own
+          pens and not from QSS, and more decisively THE GRAB'S RESULT IS
+          DISCARDED -- it is called for its side effect, never assigned.
+      `resources/home/.../render.py`  calls `page.show()` BEFORE it grabs,
+          so the widget fails both the visibility and the
+          `WA_WState_Created` clause. The home-screen version art renders
+          exactly as before; this is the one that would have been
+          expensive to get wrong.
+      `gate_editor`, `app_screen`, `setup_dialog`, `tutorial.engine`
+          all grab a parented widget or a shown window, so the
+          `parent() is None` clause excludes them.
+
+    A caller that DOES expect the sheet in a grab of an unshown parentless
+    widget will not get it, and has to show it or parent it.
+
+    :param widget: the object the filter is looking at. It has already
+        answered True to ``isWindow()``.
+    :returns: ``True`` to leave the widget alone until it is shown or
+        parented.
+    """
+    return bool(
+        widget.parent() is None
+        and widget.windowType() == Qt.Window
+        and not widget.testAttribute(Qt.WA_WState_Created)
+        and not widget.isVisible()
+    )
+
 
 class _SheetsEveryWindowThatAppears(QObject):
     """Gives a window born after a theme change the theme, not the last one.
@@ -3002,6 +3122,13 @@ class _SheetsEveryWindowThatAppears(QObject):
     def eventFilter(self, watched, event):  # noqa: N802 - Qt override
         """Sheet a window at the moment Qt says it needs its style.
 
+        A `Polish` ON A WIDGET THAT IS NOT YET REALLY A WINDOW IS NOT THE
+        MOMENT, and skipping it is 3,817 ms of a 10,518 ms sweep --
+        :func:`_a_window_for_want_of_a_parent` has
+        the measurement and the argument for why nothing goes unsheeted.
+        The test is applied to `Polish` only: a `Show` means the widget is
+        appearing whatever its parentage, and that is always the moment.
+
         :param watched: the object the event is for. A window is sheeted
             along with the roots it belongs to, a widget marked as a
             sheet target is sheeted on its own, and anything else is left
@@ -3013,9 +3140,13 @@ class _SheetsEveryWindowThatAppears(QObject):
             consumed, because swallowing a polish or a show would stop
             the widget being styled or shown at all.
         """
-        if event.type() in (QEvent.Polish, QEvent.Show):
+        kind = event.type()
+        if kind in _SHEETING_MOMENTS:
             try:
                 if watched.isWindow():
+                    if (kind == QEvent.Polish
+                            and _a_window_for_want_of_a_parent(watched)):
+                        return False
                     for root in _roots_for(watched):
                         _sheet_one_window(root)
                 elif watched.property(_SHEET_TARGET):
