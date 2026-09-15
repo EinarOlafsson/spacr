@@ -313,3 +313,48 @@ picker; the English catalog has neither "Host", "Toxicity", "Viability",
 "Selectivity" nor a second-agent label. New runtime captions are the catalog
 lane's, so those two steps wait on that lane rather than landing a red caption
 test on nightly.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- STEP 3 OF 4: THE SELECTIVITY INDEX, AND THE FIRST STAGED CAPTIONS
+--------------------------------------------------------------------------------
+
+WHAT IT DOES. A Host response picker names a second readout from the same wells
+-- host-cell count, viability. Each group is fitted on it as well, and
+`selectivity_index` divides the host EC50 by the response EC50 with the
+interval it deserves. The report pane gives one line per group after the
+pooled lines: the index, its interval, and the two EC50s it was divided from;
+or "no selectivity index" with the engine's reason when a curve was refused.
+
+ONE DECISION: THE HOST READOUT IS FITTED RAW. Plate normalisation scales the
+response by that response's own controls; a host readout has different
+controls or none, and an EC50 is a concentration, not a percentage, so it does
+not need them.
+
+THE FIRST NEW CAPTIONS OF THE SCREEN HALF, AND HOW THEY WERE ADDED. "Host
+response" and its tooltip exist nowhere in the English catalog. Per the catalog
+lane's instruction (325, 2026-09-15), the English strings are in the screen and
+nine reviewed records are staged in
+docs/i18n/reviewed/runtime/<lang>/2026-09-15-dose-response-host-readout.json
+(schema 1, source-bound); spacr/qt/i18n_catalogs is NOT regenerated here. So
+two tests stay red on this branch until that pass, by design:
+`test_every_generated_catalog_candidate_has_a_source_hash` and the two
+coverage-report tests. Swedish and French pin their reviewed-record counts;
+both moved by exactly these two records (201 -> 203, 179 -> 181).
+
+The records use dose-response terms rather than the screen's existing catalog
+wording, several of which are wrong for a science UI (zh_CN renders "Response"
+as "answer" and "Concentration" as "focus"; Icelandic "Interval" as "future").
+Those are reported to the catalog lane, not changed here.
+
+HOW IT WAS CHECKED. `tests/qt/test_dose_response_selectivity_index.py`: two
+compounds each killing the parasite at 1 uM, one with a host EC50 of 10 uM and
+one whose host never dies. Three tests; with steps 1-2 and the existing screen
+tests, 61 pass. Every record-reading i18n test passes except the coverage pair.
+
+      the host readout is ignored            2 red
+      the selectivity lines left out         2 red
+      host and response swapped in the ratio 2 red
+
+THREE PROPERTY TRAPS IN FOUR ENGINE CLASSES so far -- `PlateReport.usable`,
+`PooledFit.reproducible`, `GroupFit.status` -- each read without parentheses.
+Worth checking decorators before calling anything on the next one.

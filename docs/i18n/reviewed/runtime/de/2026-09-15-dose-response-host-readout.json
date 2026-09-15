@@ -1,0 +1,20 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "A second readout from the same wells, such as the host-cell count. Each group's host EC50 divided by its response EC50 is the selectivity index.",
+      "source": "A second readout from the same wells, such as the host-cell count. Each group's host EC50 divided by its response EC50 is the selectivity index.",
+      "source_sha256": "6e593794f19cf75358574c5eb01eab7dc57190feb5b0e8556a09f1789d2595bf",
+      "table": "ui",
+      "translation": "Ein zweiter Messwert aus denselben Wells, etwa die Zahl der Wirtszellen. Die Wirts-EC50 jeder Gruppe geteilt durch ihre Reaktions-EC50 ist der Selektivitätsindex."
+    },
+    {
+      "key": "Host response",
+      "source": "Host response",
+      "source_sha256": "09a4a9bb743470a050c41a926a106fdc6241a014d729a46445e49540cbba2916",
+      "table": "ui",
+      "translation": "Wirtsreaktion"
+    }
+  ],
+  "schema": 1
+}

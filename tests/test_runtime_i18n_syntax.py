@@ -79,7 +79,11 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # whole-image mode made it untrue. PROVED BY SUBTRACTION with the loader:
     # 201 + 21 - 3 = 219 is the live count, the live count minus that file's
     # sources is 198 (201 - 3), and the file shares no source with any other.
-    assert len(reviewed) == 219
+    # +2 on 2026-09-15, both from 387's selectivity index on the
+    # Dose-Response screen: "Host response" and its tooltip, in
+    # 2026-09-15-dose-response-host-readout.json. Staged for the catalog
+    # pass rather than regenerated here, as the catalog lane asked.
+    assert len(reviewed) == 221
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -170,7 +174,11 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # wordings as Swedish. 179 + 21 - 3 = 197 is the live count, the live
     # count minus the new file's sources is 176 (179 - 3), and the file shares
     # no source with any other.
-    assert len(reviewed) == 197
+    # +2 on 2026-09-15, both from 387's selectivity index on the
+    # Dose-Response screen: "Host response" and its tooltip, in
+    # 2026-09-15-dose-response-host-readout.json. Staged for the catalog
+    # pass rather than regenerated here, as the catalog lane asked.
+    assert len(reviewed) == 199
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

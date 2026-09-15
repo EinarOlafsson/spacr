@@ -66,7 +66,8 @@ from ..widgets.graph_spec import CATEGORICAL, column_kinds
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
 from ..widgets.dose_response import (PERCENT_COLUMN, PlateSpec,
-                                     normalise_to_controls, pool_frame)
+                                     normalise_to_controls, pool_frame,
+                                     selectivity_index)
 
 LOG = logging.getLogger("spacr.qt.screens.dose_response")
 
@@ -123,7 +124,8 @@ _POSITIVE_HINTS = ("pos", "kill", "max")
 _NEGATIVE_HINTS = ("neg", "vehicle", "dmso", "mock")
 
 
-def _fit_with_plates(frame, spec, plate_spec, plate_column=None):
+def _fit_with_plates(frame, spec, plate_spec, plate_column=None,
+                     host_column=None):
     """Fit ``frame``, normalising and pooling across plates as asked.
 
     :param frame: the loaded table.
@@ -134,10 +136,15 @@ def _fit_with_plates(frame, spec, plate_spec, plate_column=None):
         ``None`` for no pooling. It does not need controls: every plate is
         fitted on its own scale, so an EC50 is comparable across plates even
         when their raw signals are not.
-    :returns: ``(result set, plate reports, pooled fits)``. The reports are
-        empty when nothing was normalised; the pooled fits map each group to
-        its :class:`~spacr.qt.widgets.dose_response.PooledFit`, or to the
-        engine's sentence when pooling was refused.
+    :param host_column: a second readout from the same wells -- host-cell
+        count, viability -- or ``None``. Each group is fitted on it too, and
+        its host EC50 divided by the response EC50 is the selectivity index.
+    :returns: ``(result set, plate reports, pooled fits, selectivity)``. The
+        reports are empty when nothing was normalised; the pooled fits map
+        each group to its :class:`~spacr.qt.widgets.dose_response.PooledFit`,
+        or to the engine's sentence when pooling was refused; selectivity
+        maps each group to its
+        :class:`~spacr.qt.widgets.dose_response.SelectivityIndex`.
 
     RAW RESPONSES ARE NOT COMPARABLE ACROSS PLATES, which is the engine's
     argument for normalising and the screen's for offering it: two plates read
@@ -155,7 +162,18 @@ def _fit_with_plates(frame, spec, plate_spec, plate_column=None):
     result = fit_frame(fitted_frame, fitted_spec)
     pooled = (_pool_each_group(fitted_frame, fitted_spec, plate_column)
               if plate_column else {})
-    return result, reports, pooled
+    selectivity = {}
+    if host_column:
+        # THE HOST READOUT IS FITTED RAW, on the table as loaded. Plate
+        # normalisation scales the RESPONSE by that response's own controls;
+        # a host readout has different controls, or none, and an EC50 does not
+        # need them -- it is a concentration, not a percentage.
+        host = fit_frame(frame, replace(spec, response=host_column))
+        for fit in result:
+            host_fit = host.get(fit.group)
+            selectivity[fit.group] = selectivity_index(
+                fit.result, None if host_fit is None else host_fit.result)
+    return result, reports, pooled, selectivity
 
 
 def _pool_each_group(frame, spec, plate):
@@ -241,6 +259,9 @@ class DoseResponseScreen(QWidget):
         #: Group -> pooled fit (or the refusal sentence) from the last fit
         #: that had a plate column. Empty when nothing was pooled.
         self._pooled = {}
+        #: Group -> selectivity index from the last fit that had a host
+        #: readout. Empty when none was chosen.
+        self._selectivity = {}
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
 
@@ -367,6 +388,25 @@ class DoseResponseScreen(QWidget):
         plates.addStretch(1)
         outer.addLayout(plates)
 
+        # THE HOST READOUT. A second column from the same wells; with it, each
+        # group's host EC50 over its response EC50 is the selectivity index --
+        # the number that decides whether an anti-parasitic compound is worth
+        # anything, because killing the parasite at 1 uM means nothing if the
+        # host monolayer dies at 1.2.
+        hosts = QHBoxLayout()
+        hosts.setContentsMargins(0, 0, 0, 0)
+        hosts.setSpacing(SPACING["sm"])
+        hosts.addWidget(QLabel("Host response", self))
+        self.host_picker = QComboBox(self)
+        self.host_picker.setObjectName("DoseResponseHost")
+        self.host_picker.setToolTip(
+            "A second readout from the same wells, such as the host-cell "
+            "count. Each group's host EC50 divided by its response EC50 is "
+            "the selectivity index.")
+        hosts.addWidget(self.host_picker)
+        hosts.addStretch(1)
+        outer.addLayout(hosts)
+
         body = QSplitter(Qt.Horizontal, self)
         body.setChildrenCollapsible(False)
 
@@ -433,8 +473,10 @@ class DoseResponseScreen(QWidget):
                      [_NO_COLUMN] + [str(name) for name in frame.columns])
         self._refill(self.control_picker, [_NO_COLUMN] + groups)
         self._on_control_picked(self.control_picker.currentText())
+        self._refill(self.host_picker, [_NO_COLUMN] + list(responses))
         self._plate_reports = ()
         self._pooled = {}
+        self._selectivity = {}
         self.fit_button.setEnabled(bool(doses and responses))
         self.table.setRowCount(0)
         self.report.setPlainText("")
@@ -503,7 +545,7 @@ class DoseResponseScreen(QWidget):
                          negative=(negative,) if negative else ())
 
     def _with_plates(self, text: str) -> str:
-        """Prefix ``text`` with the plate verdicts and the pooled EC50s.
+        """Prefix ``text`` with plate verdicts, pooled EC50s and selectivity.
 
         Both lead because they decide what the curve below them means: a
         refused plate is not in the fit, and a pooled EC50 is the number a
@@ -545,6 +587,22 @@ class DoseResponseScreen(QWidget):
                     f"I² {spread}")
             if not pooled.reproducible:
                 line += ", plates disagree"
+            if row["note"]:
+                line += f" — {row['note']}"
+            lines.append(line)
+        if lines and self._selectivity:
+            lines.append("")
+        for group, index in self._selectivity.items():
+            name = group or "all rows"
+            row = index.summary_row()
+            if row["status"] == STATUS_REFUSED:
+                lines.append(f"{name}: no selectivity index — {row['note']}")
+                continue
+            line = (f"{name}: selectivity index "
+                    f"{_format(row['selectivity_index'])} "
+                    f"({_format(row['si_low'])}–{_format(row['si_high'])}), "
+                    f"host EC50 {_format(row['host_ec50'])} over response "
+                    f"EC50 {_format(row['pathogen_ec50'])}")
             if row["note"]:
                 line += f" — {row['note']}"
             lines.append(line)
@@ -641,6 +699,9 @@ class DoseResponseScreen(QWidget):
             plate_column = self.plate_picker.currentText()
             plate_column = (None if plate_column in ("", _NO_COLUMN)
                             else plate_column)
+            host_column = self.host_picker.currentText()
+            host_column = (None if host_column in ("", _NO_COLUMN)
+                           else host_column)
         except DoseResponseError as exc:
             self.report.setPlainText(str(exc))
             return
@@ -648,21 +709,24 @@ class DoseResponseScreen(QWidget):
         self._jobs.cancel()
         self.report.setPlainText("fitting…")
         self._jobs.submit(
-            lambda: _fit_with_plates(frame, spec, plate_spec, plate_column),
+            lambda: _fit_with_plates(frame, spec, plate_spec, plate_column,
+                                     host_column),
             self._on_fitted)
 
     def _on_fitted(self, result) -> None:
         """Fill the grid from the engine's table. GUI thread only.
 
-        :param result: the fit, or ``(fit, plate reports, pooled fits)`` as
-            the fitting job hands it back.
+        :param result: the fit, or ``(fit, plate reports, pooled fits,
+            selectivity)`` as the fitting job hands it back.
         """
-        reports, pooled = (), {}
+        reports, pooled, selectivity = (), {}, {}
         if isinstance(result, tuple):
             result, reports, *rest = result
             pooled = rest[0] if rest else {}
+            selectivity = rest[1] if len(rest) > 1 else {}
         self._plate_reports = tuple(reports)
         self._pooled = dict(pooled)
+        self._selectivity = dict(selectivity)
         self._set = result
         rows = result.table()
         self.table.setRowCount(len(rows))
