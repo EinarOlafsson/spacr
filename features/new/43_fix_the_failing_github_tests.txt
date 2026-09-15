@@ -1137,8 +1137,10 @@ Minimum dependencies failed. Read from their logs:
   the same command on the same tree and machine:
 
       run 1   fee40b72a's parentless-Polish skip ON    segfault at 7%
-      run 2   skip OFF                                  cleared 13%, clean
-      run 3   skip ON                                   cleared 13%, clean
+      run 2   skip OFF                                  clean to 13% (stopped
+                                                        there; question answered)
+      run 3   skip ON                                   clean to 23%, then the
+                                                        2,400 s timeout (exit 124)
 
   After runs 1-2 the skip was named as the cause and a revert was announced;
   run 3, the confirmation, did not crash. At n=3 the crash is
@@ -1155,6 +1157,12 @@ Minimum dependencies failed. Read from their logs:
   one Python wrapper whose C++ object is already gone is enough to corrupt
   memory, and the damage surfaces later in whatever runs next.
 
-  AND A FACT THAT OUTLIVES THE HYPOTHESIS: `tests/qt` had never been run end to
-  end in one process by either session. CI shards it, so "all Qt tests pass"
-  has meant "every shard passed separately" for the life of this suite.
+  Run 3 went more than three times past the point where run 1 crashed. 1 crash
+  in 2 skip-on runs: nondeterministic, unattributed.
+
+  AND A FACT THAT OUTLIVES THE HYPOTHESIS: `tests/qt` CANNOT be run end to end
+  in one process inside a CI job's budget -- 23% in 2,400 s puts the whole
+  directory near three hours serially. That is why it is sharded, and why a
+  crash that needs one process to live long enough was invisible: "all Qt
+  tests pass" has meant "every shard passed separately" for the life of this
+  suite.
