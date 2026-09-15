@@ -757,3 +757,13 @@ exists. A stock-seeded queue is being built (see the next section when it
 lands). The other decisions listed above -- the plaque queue curation, the
 four same-field clusters, the v1 zoo row correction, placement and publishing
 -- are still open.
+
+  A SIXTH REQUIREMENT FOR ANY HELD-OUT SET, added with the decision above:
+  THE SEED MODEL IS NEVER THE MODEL UNDER TEST. Truth drafted by a candidate
+  agrees with that candidate wherever it is confidently wrong, so the set
+  cannot show where the candidate fails -- where it is wrong, the truth is
+  wrong too. Seed with stock weights, hand outlines, or a model from a
+  different lineage, never with the model whose scorecard the set exists to
+  produce. This matters beyond v1: scoring DINOCell or SAMCell (404/405)
+  against toxoplasma_pv_v1 on a v1-seeded set would be rigged in v1's favour
+  by construction, and nothing in the numbers would show it.
