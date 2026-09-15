@@ -1,0 +1,161 @@
+================================================================================
+THE TRANSLATION CACHE OUTLIVES A HAND FIX, AND A PLAIN BUILD PUTS THE BAD ROW
+BACK
+================================================================================
+
+Status:    FOUND AND CONTAINED 2026-09-14. The 88 affected zh_CN rows are
+           pinned as reviewed records and a rebuild no longer regresses
+           them. The CACHE ITSELF IS STILL WRONG and is not fixed here --
+           see WHAT IS NOT DONE.
+Requested: not requested. Found while fixing the `resume` label, when a
+           rebuild silently undid a hand fix committed forty minutes
+           earlier.
+Numbered: filed as 403 on 2026-09-14 and renumbered 406 the same day, because
+           the work session's future items 403-405 landed first.
+Owner:     unassigned. `tools/build_i18n_catalogs.py:5273`, and
+           `<model_root>/.spacr_translation_cache/<language>.json`.
+
+--------------------------------------------------------------------------------
+WHAT HAPPENED, IN ORDER
+--------------------------------------------------------------------------------
+
+1. CI named THREE bad zh_CN rows. A `--repair-invalid-only` pass turned the
+   audit green by rewriting EIGHTY-SEVEN, most of them into fluent Chinese
+   that means something else (`白色白色`, `导游`, `超越模型`). See the HANDOFF
+   rule AN EXIT CODE IS A CLAIM ABOUT THE CHECKS, NEVER ABOUT THE CONTENT.
+
+2. The pass was reverted and the three rows written by hand. Committed as
+   909b30967. Runtime audit exit 0, three rows changed instead of 87.
+
+3. Five locales then needed the `resume` label fixed, which needs a build.
+   A plain `--languages fr hi is zh_CN ko` build was run.
+
+4. fr, hi, is and ko each moved FOUR LINES. zh_CN moved 176 -- and the
+   eighty-seven bad rows were all back, INCLUDING `pca_whiten`, which the
+   commit forty minutes earlier had set to `Pca 白化` and which came back as
+   `白色白色`.
+
+--------------------------------------------------------------------------------
+WHY: A HAND EDIT TO A CATALOG IS NOT AN INPUT, IT IS AN OUTPUT
+--------------------------------------------------------------------------------
+
+`_translate_unique` keeps a cache outside the repository:
+
+    cache_dir  = model_root / ".spacr_translation_cache"
+    cache_path = cache_dir / f"{language}.json"        # 58,837 entries for zh_CN
+
+The bad values are IN it, keyed by English source:
+
+    'Pca whiten'        -> 白色白色
+    'Surrogate model'   -> 超越模型
+    'Guide permutations' -> 导游转换
+
+So the repair pass that produced them also wrote them there, and every
+subsequent build prefers the cache to whatever is in the committed catalog.
+Editing `spacr/qt/i18n_catalogs/zh_CN.py` by hand fixes the SHIPPED ARTIFACT
+and changes nothing the builder reads. The next person to run a build undoes
+it without being told.
+
+  THE CACHE IS NOT IN THE REPOSITORY, WHICH CUTS BOTH WAYS. CI builds from
+  empty and cannot be poisoned by it, so the committed catalogs are what
+  ship and this is not release-blocking. But it also means the damage is
+  invisible to every check in the repo and lives only on the machine that
+  ran the repair.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+The only durable override is a reviewed record: those are read from the
+repository and beat the cache.
+
+Every row where a fresh build differs from the good committed catalog was
+measured -- 88, across SETTING_LABELS (10), SETTING_TOOLTIPS (19), UI (54)
+and the category help (5) -- and each was pinned at its GOOD value in
+`docs/i18n/reviewed/runtime/zh_CN/2026-09-14-cache-regression-pins.json`.
+
+TWO DETAILS THAT COST TIME AND ARE WORTH KNOWING:
+
+  * The records spell tables in lower case and NOT after the catalog
+    attribute. `CATEGORY_HELP` rows belong to the table named `categories`;
+    passing `category_help` raises "no table 'category_help'; known tables:
+    categories, installer, module_summaries, setting_labels,
+    setting_tooltips, ui". Five rows were skipped this way on the first
+    pass and are easy not to notice, because the tool reports them and
+    exits 0.
+
+  * Pinning the whole diff pinned `Resume` at the value it was being fixed
+    AWAY from, and the builder refuses that outright: "conflicting reviewed
+    runtime targets for 'Resume'". A pin of a row you are simultaneously
+    repairing is a contradiction, and the builder is right to say so.
+
+--------------------------------------------------------------------------------
+WHAT IS NOT DONE
+--------------------------------------------------------------------------------
+
+THE CACHE STILL HOLDS THE BAD VALUES. Nothing removed them, and they will be
+offered again for any source string that is not pinned. The pins cover the
+88 that were measured against zh_CN; another locale, or a new English
+string that happens to hash to one of those sources, is not covered.
+
+Three options, none taken, because deleting 58,837 cached entries to fix 88
+is not obviously right and costs a full retranslation:
+
+  a. Delete the affected keys from the cache file, so the next build
+     re-decodes them. They would probably come back the same -- that is
+     where they came from.
+  b. Never write a repair pass's output to the cache. That is a real change
+     to the builder and needs its own reasoning.
+  c. Leave it, and rely on reviewed records. This is what is in effect now.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    python tools/build_i18n_catalogs.py --languages zh_CN
+    git diff --stat spacr/qt/i18n_catalogs/zh_CN.py
+
+Before the pins: 176 lines. After: the build must not move a row that a pin
+covers. And the audit must still exit 0 afterwards, since a pin that the
+gate rejects is not a pin, it is a new failure.
+
+--------------------------------------------------------------------------------
+2026-09-14 -- MEASURED. THE PINS HOLD.
+--------------------------------------------------------------------------------
+
+    python tools/build_i18n_catalogs.py --languages zh_CN
+
+    before the pins    176 lines moved, all 87 bad rows back
+    after the pins       4 lines moved, and both are the resume fix itself
+                         (SETTING_LABELS 'resume' and the UI row 'Resume')
+
+The five canaries, read out of the freshly built catalog rather than the
+committed one:
+
+    pca_whiten                Pca 白化          (was coming back as 白色白色)
+    infection_pca_method      感染 pca 方法
+    guide_permutations        引导 RNA转换       (was 导游转换, "tour guide")
+    guide_presence_threshold  引导 RNA出席限制   (was 主持人, "host/presenter")
+    surrogate_model           Surrogate 模型    (was 超越模型, "surpass model")
+    resume                    继续              (the intended change)
+
+Runtime audit exit 0 afterwards, so no pin is a new failure.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- A CORRECTION TO A COMMIT MESSAGE THAT CANNOT BE AMENDED
+--------------------------------------------------------------------------------
+
+The work session's 63d796225, "Three Chinese rows by hand, because a repair
+pass rewrote seventy", is on a pushed branch and says the three zh_CN rows
+were fixed by hand. That is true, and it reads as durable, which it is not:
+the next `build_i18n_catalogs.py --languages zh_CN` would have put all three
+back from the cache. The work session asked for the correction to be recorded
+where the next reader looks, so it is here.
+
+The 88 pins in `docs/i18n/reviewed/runtime/zh_CN/2026-09-14-cache-regression-
+pins.json` are the durable fix, and those three rows are inside them.
+Checked against origin's catalog after both sessions' work landed: 87 of the
+88 pinned values are byte-identical to origin. The one that differs is the
+figure-folder caption ("Writes a FOLDER: ..."), where origin carries the
+original sentence with `PDF` lowercased and the pin carries a full rewrite of
+the sentence; the pin wins, by agreement.

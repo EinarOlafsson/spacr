@@ -137,3 +137,28 @@ HOW TO KNOW IT WORKED
 and, the one that actually matters, both under load: run them while a second
 pytest is saturating the machine. The failure never reproduced on a quiet box
 in 15 attempts.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE ROOT GUARD MET A STAND-IN, AND NOW STEPS AROUND IT
+--------------------------------------------------------------------------------
+
+On the first CI run after 324524948 the guard itself produced four teardown
+ERRORs: "module 'spacr.flowview.trace' has no attribute 'get_collector'" in
+test_cov_r8_ml_flowview_gate (x3) and test_cov_r7_deep_spacr. Those tests put
+a STAND-IN at that sys.modules key on purpose -- a hand-built ModuleType, or
+an object with only `is_enabled` -- and monkeypatch, set up by an earlier
+autouse fixture, undoes the swap only AFTER this guard tears down. So the
+guard asked the stand-in for its collector.
+
+Fixed in f59b5903a: the guard restores the module it SNAPSHOTTED, whatever
+sys.modules holds at teardown, and ignores anything that is not the real
+tracer (a real import has a `__spec__`; `types.ModuleType(...)` does not).
+4 errors -> 0; the 402 guard tests plus tests/flowview: 38 passed.
+
+AND A FALSE "SPLIT" THAT LOOKED LIKE IT CAME FROM THE RELOAD, AND DID NOT.
+test_no_spacr_submodule_is_split_from_its_package reported
+`spacr.flowview.export` in the same run. Disabling the guard's reload branch
+did not change it: `spacr/flowview/__init__.py` does `from .export import
+export`, so the package attribute is the FUNCTION of that name. The detector
+now compares module attributes only (ce40fa74c), and a staged real split
+still fails it.
