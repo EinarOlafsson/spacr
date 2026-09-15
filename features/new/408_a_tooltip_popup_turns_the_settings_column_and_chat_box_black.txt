@@ -173,3 +173,46 @@ ASKED OF THE MAINTAINER: a screenshot of the black box, and how he launches
 spaCR (this checkout or an installed copy). No speculative fix is committed:
 every candidate mechanism above was measured and none changes anything, so a
 "fix" today would be a guess with a green test attached.
+
+--------------------------------------------------------------------------------
+2026-09-15, LATER -- WHICH spaCR HE RUNS, AND THE WORK SESSION'S LIFECYCLE COUNT
+--------------------------------------------------------------------------------
+
+WHICH spaCR, measured so the maintainer does not have to answer it: the app
+open on :0 (pid 3806342) was launched from a terminal at 21:15 his time with
+cwd /mnt/firecuda2/Claude/repo/spacr in the `spacr` conda environment, which
+imports spacr from this checkout (editable). So he runs the CURRENT WORKING
+TREE; the black box is in current code, not in a stale install.
+
+HIS APP-MENU LAUNCHERS ARE STALE, and that is worth fixing whatever 408 turns
+out to be. `~/.local/share/applications/io.github.olafssonlab.spacr.desktop`
+runs an installer TEST build from 2026-09-10 living in a session scratchpad,
+and `spacr.desktop` points at a /tmp launcher that no longer exists. Anyone
+opening spaCR from the menu gets a five-day-old build or nothing. Not changed
+without his say, since they are his desktop files.
+
+THE WORK SESSION'S BACKDROP LIFECYCLE COUNT, taken on a different probe for a
+different reason (to prove its theme.py change does not move the hand-off),
+identical with and without that change:
+
+    phase        install_ambient  start  stop  set_animating
+    startup                    2      2     1              1
+    mask                       1      0     1              1
+    measure                    1      0     1              1
+    regression                 1      0     1              1
+
+Two facts in it are defects in their own right, independent of the popup:
+
+  * STARTUP INSTALLS TWICE. That is the one-backdrop-for-the-window rule
+    broken, and it matches the hand-off seen in this file's startup trace
+    (the window retires the screen's own backdrop, the screen installs one
+    again 60 ms later). Reproduced independently by both sessions.
+  * EVERY MODULE OPEN INSTALLS A BACKDROP AND IMMEDIATELY RETIRES IT, never
+    starting it: install=1, stop=1, start=0 on the plain open path with
+    ambient on. AT NO MEASURABLE COST -- the work session timed it at
+    0.7-0.8 ms for the install and 0.0 ms for the stop against module opens
+    of 2.5-5.1 s, because the expensive part is deferred -- so it is a
+    correctness smell and not a performance item. What matters is the STATE
+    it leaves: no start, so no shaded replacement frame, which is what a
+    partial repaint after a hover would redraw from. That keeps it on the list
+    of places 408 can live even though no probe has shown it turning black.
