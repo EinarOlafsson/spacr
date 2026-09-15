@@ -19,70 +19,13 @@ import pandas as pd
 LOG = logging.getLogger("spacr.stream_dataset")
 
 #: Supported selection methods represented as ``(value, display label)``.
-STREAM_METHODS: Tuple[Tuple[str, str], ...] = (
-    ("column", "coordinates from a column in a table"),
-    ("array", "object numbers from a mask array"),
-)
-
-#: Settings consumed by each selection method.
-METHOD_SETTINGS: Dict[str, Tuple[str, ...]] = {
-    "column": ("object_array", "channel_arrays"),
-    "array": ("object_array", "channel_arrays", "bounding_box"),
-}
-
-#: Canonical object-identifier column for each object-array type.
-COORDINATE_COLUMNS: Dict[str, str] = {
-    "cell": "cell_id",
-    "nucleus": "nucleus_id",
-    "pathogen": "pathogen_id",
-    "cytoplasm": "cytoplasm_id",
-    "organelle": "organelle_id",
-    "organelleb": "organelleb_id",
-    "organellec": "organellec_id",
-    "organelled": "organelled_id",
-}
-
-#: What the selection table records for each object.
-SELECTION_COLUMNS: Tuple[str, ...] = (
-    "plateID", "rowID", "columnID", "fieldID", "objectID",
-    "object_array", "split", "source",
-)
-
-#: The file the decision is written to, in the destination folder.
-SELECTION_FILE = "stream_selection.csv"
-
-
-def coordinate_column(object_array: str) -> str:
-    """Return the identifier column for an object-array type.
-
-    Parameters
-    ----------
-    object_array : str
-        Object type such as ``"cell"`` or ``"nucleus"``.
-
-    Returns
-    -------
-    str
-        Canonical identifier column.
-
-    Raises
-    ------
-    KeyError
-        If the object type is unsupported.
-    """
-    return COORDINATE_COLUMNS[str(object_array).strip().lower()]
-
-
-def settings_for_method(method: str) -> Tuple[str, ...]:
-    """Return settings used by a dataset-selection method.
-
-    Raises
-    ------
-    KeyError
-        If ``method`` is unsupported.
-    """
-    return METHOD_SETTINGS[str(method).strip().lower()]
-
+# Re-exported so every existing importer of these names keeps working. They
+# live in `stream_selection` because `spacr.settings` needs them and must not
+# pay for pandas to get them.
+from .stream_selection import (COORDINATE_COLUMNS, METHOD_SETTINGS,  # noqa: E402,F401
+                               SELECTION_COLUMNS, SELECTION_FILE,
+                               STREAM_METHODS, coordinate_column,
+                               settings_for_method)
 
 
 def _split_labels(count: int, test_split: float, seed: int) -> np.ndarray:

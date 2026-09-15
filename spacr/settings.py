@@ -3717,7 +3717,7 @@ def _coordinate_columns_for(object_array):
     is what it did on the first attempt.
     """
     try:
-        from .stream_dataset import coordinate_column
+        from .stream_selection import coordinate_column
 
         return [coordinate_column(object_array)]
     except Exception:                                            # noqa: BLE001
@@ -5393,7 +5393,7 @@ def get_setting_dependencies():
                 f"The value is kept and saved."),
         )
 
-    from .stream_dataset import METHOD_SETTINGS as _METHOD_SETTINGS
+    from .stream_selection import METHOD_SETTINGS as _METHOD_SETTINGS
 
     def _streaming(settings) -> bool:
         """Whether the run reads images from a stream rather than from disk."""

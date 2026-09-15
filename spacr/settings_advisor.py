@@ -16,7 +16,17 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
-import pandas as pd
+
+# PANDAS IS IMPORTED WHERE IT IS USED, not here. Only `read_the_counts` and
+# `read_the_response` touch it, and both READ A TABLE -- work that happens
+# when the user asks for advice, never while a screen is being built. At
+# module level it cost ~200 ms on the main thread during a screen open,
+# because this module is reachable from the settings panel and an import is
+# paid by whoever arrives first. Every annotation that names it is already a
+# string, so nothing needs the name at definition time.
+#
+# Both functions already import their other helpers locally, so this joins a
+# pattern rather than starting one.
 
 #: How many object rows the response is read from before the sample is
 #: declared capped. Large enough that a proportion's range, boundedness and
@@ -218,6 +228,8 @@ def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
 
     :param paths: count-table paths to read together as one screen design.
     """
+    import pandas as pd
+
     from .cell_montage import fractions_from_counts
     from .control_names import common_prefix
     from .gene_measurement_sweep import gene_of_guide
@@ -297,6 +309,8 @@ def read_the_response(paths: Sequence[str], dependent_variable: str = "",
         Measured response properties and any non-fatal problems in
         ``"trouble"``.
     """
+    import pandas as pd
+
     from .tabular import read_table
 
     out: Dict[str, Any] = {"trouble": []}
