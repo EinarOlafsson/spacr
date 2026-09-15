@@ -1664,6 +1664,55 @@ def install_run_hook() -> bool:
     return True
 
 
+def _uninstall_process_hooks() -> None:
+    # THE INVERSE OF `register()`'S TWO INSTALLS, for a process that has to
+    # take them back: the test suite, where one QApplication outlives every
+    # test. `register()` parents a repeating QTimer to the application and
+    # connects `_on_registry_changed` to the run registry, and nothing ever
+    # removed either -- so the sweep ticked for the rest of the session and
+    # fired in whatever test next spun the event loop, reading (and since
+    # 286, migrating and SAVING) whatever preference store that test had put
+    # in place. tests/qt/conftest.py calls this before and after every test.
+    #
+    # `_LAUNCH_DONE` is deliberately left set: the launch cleanup is once per
+    # process by design, and resetting it would make every later launch in
+    # the suite drop caches again.
+    global _BUDGET_TIMER, _BUDGET_SWEEP_PENDING, _INSTALLED
+    timer, _BUDGET_TIMER = _BUDGET_TIMER, None
+    if timer is not None:
+        try:
+            timer.stop()
+            timer.deleteLater()
+        except (AttributeError, RuntimeError):
+            pass                  # already destroyed with its application
+    # EVERY CONNECTION, WHATEVER `_INSTALLED` SAYS. A caller that resets the
+    # flag and installs again (tests monkeypatch `_INSTALLED = False` to
+    # exercise `install_run_hook`) connects a second copy, and the flag is
+    # restored afterwards while the connection is not. Disconnect until
+    # PySide6 reports nothing left; it WARNS before it raises on that last
+    # attempt, which here is the expected end of the loop, not news.
+    try:
+        import warnings
+
+        from .bridge import registry
+
+        changed = registry().changed
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            for _attempt in range(64):
+                try:
+                    if not changed.disconnect(_on_registry_changed):
+                        break
+                except (RuntimeError, TypeError):
+                    break
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not reach the run registry to disconnect the "
+                  "pre-run cleanup hook", exc_info=True)
+    _INSTALLED = False
+    _BUDGET_SWEEP_PENDING = False
+    _SEEN_RUNS.clear()
+
+
 def register() -> bool:
     """Entry point for :data:`spacr.qt.SELF_REGISTERING_MODULES`.
 

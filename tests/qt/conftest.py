@@ -282,6 +282,45 @@ def _sandbox_remote_execution_state(monkeypatch, tmp_path):
     )
 
 
+@pytest.fixture(autouse=True)
+def _the_resource_hooks_do_not_outlive_the_test():
+    """Take back the budget sweep and run hook ``launch`` installs.
+
+    ``resource_cleanup.register()`` -- reached by every ``launch`` and every
+    ``register_self_registering_modules()`` -- parents a repeating QTimer to
+    the session's one QApplication and connects a hook to the run registry.
+    Nothing took them back, so the sweep ticked for the rest of the session
+    in whatever test next spun the event loop. pytest-qt spins it after every
+    test's fixtures are set up, so a tick landed after a test had put its own
+    preference store in place, and since 286 the sweep's level-derived budget
+    MIGRATES and SAVES the level into that store. That is how
+    ``test_the_level_migration_removes_what_it_replaced.py`` failed only in
+    a long serial run.
+
+    BEFORE AND AFTER, not only after: after stops a test handing the hooks
+    on, and before covers a hook installed by something with no teardown of
+    its own -- a module-scoped fixture, or a caller in plain ``tests/`` that
+    this conftest does not reach. Nothing is imported: a test that never
+    loaded ``resource_cleanup`` has nothing to take back.
+    """
+    import sys
+
+    def _take_back():
+        module = sys.modules.get("spacr.qt.resource_cleanup")
+        uninstall = getattr(module, "_uninstall_process_hooks", None)
+        if callable(uninstall):
+            try:
+                uninstall()
+            except Exception:                                # noqa: BLE001
+                pass
+
+    _take_back()
+    try:
+        yield
+    finally:
+        _take_back()
+
+
 @pytest.fixture(scope="session")
 def _registry_baseline():
     """The app registry as the SESSION found it, captured once.
