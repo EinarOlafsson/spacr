@@ -541,6 +541,13 @@
       "translation": "一个 ``.npy`` **堆栈**,其第一个轴是时间——采用内存映射,因此一个切片只会访问该图像层所在的页面。"
     },
     {
+      "context": "Segmentation QC",
+      "label": "spacr.report#13",
+      "source": "Segmentation QC",
+      "source_sha256": "d3d7000b72703f52a9a9c0a06246f2d9e55c6e65182cdffa89899258f8362f2e",
+      "translation": "分割 QC"
+    },
+    {
       "context": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between application views with nothing on application view to say so.",
       "label": "spacr.schema.add_screen_column#3",
       "source": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between screens with nothing on screen to say so.",

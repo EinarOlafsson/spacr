@@ -667,6 +667,13 @@
       "translation": "첫 번째 축이 시간인 ``.npy`` **스택** — 메모리 매핑되므로 슬라이스 하나는 해당 이미지 레이어의 페이지만 건드립니다."
     },
     {
+      "context": "Segmentation QC",
+      "label": "spacr.report#13",
+      "source": "Segmentation QC",
+      "source_sha256": "d3d7000b72703f52a9a9c0a06246f2d9e55c6e65182cdffa89899258f8362f2e",
+      "translation": "분할 QC"
+    },
+    {
       "context": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between application views with nothing on application view to say so.",
       "label": "spacr.schema.add_screen_column#3",
       "source": "The frame has one, and ``screen`` is ``None``. Its labels are kept. Relabelling a frame that already knows which experiment it came from would move rows between screens with nothing on screen to say so.",
