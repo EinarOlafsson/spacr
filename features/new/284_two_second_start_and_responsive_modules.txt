@@ -545,3 +545,48 @@ WHAT CHASING THE IMPORTS SHOWED, and it is the most useful thing here.
 
   DO NOT MEASURE ANY OF THIS FROM A SCRIPT OUTSIDE THE WORKTREE. See the
   harness note above.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE FIRST FIX THAT IS ABOUT A SCREEN RATHER THAN A LIBRARY
+--------------------------------------------------------------------------------
+
+THE PRELOADER CHANGES THE QUESTION. `_PipelinePreloader` already imports the
+seven pipeline modules on a worker thread 1500 ms after launch. With it run
+first, a Regression open imports 220 modules instead of 729 -- and the other
+stall offenders import almost nothing at all: Mask 6 new modules, Measure 2,
+Classify 7. Yet Mask still took 1.84 s and Measure 1.11 s. So after the
+first screen, THE STALL IS WIDGET CONSTRUCTION, NOT IMPORTS, and every earlier
+note in this item that pointed at imports was describing the first open only.
+
+WHAT A MASK OPEN WAS DOING: `ast.parse`, 73 times, 0.71 s of a 2.05 s
+profiled open. `fold_strip._host_declarations` reads each fold host's SOURCE
+and parses it -- deliberately, because importing fifteen hosts would load
+pandas and scipy before Home paints -- and nothing kept the answer.
+`folded_fallback` asks `folded_modules` once per key, `folded_modules` walks
+all fifteen hosts, so a fold strip asking about its keys re-parsed every host
+file per key. Measured with the cache removed: asking about 8 keys parsed 112
+files.
+
+FIXED by caching `_host_declarations` per module name. A host's source cannot
+change while the application runs. The cache lives in that function and NOT
+in `folded_modules`, whose answer grows as modules register, and which two
+tests call twice expecting a different second answer after they replace
+`_host_declarations` -- replacing it bypasses the cache, which is what they
+need, and they still pass.
+
+      first `folded_modules()`    14 parses
+      every call after            0 parses, identical answer
+      open Mask                   1.43-1.86 s -> 1.02-1.24 s  (3 interleaved
+                                  rounds, taken under suite load, so the range
+                                  matters more than either end)
+
+The guard COUNTS parses rather than timing them -- how many times is an
+integer a loaded runner cannot change. Removing the cache lookup reddens two
+of its three tests; the third checks the cached answer equals a cold read and
+passes either way, correctly.
+
+STILL OPEN. This is roughly a third off one screen; the ceiling needs Mask
+under 500 ms of main-thread time. The method that found it -- run the
+preloader first, then profile a SECOND screen by internal time -- is the one
+to keep using, because it separates widget cost from import cost and the
+import cost was hiding everything else.

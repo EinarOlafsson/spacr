@@ -180,6 +180,32 @@ def fold_label(key: str) -> Tuple[str, str, str]:
     return _describe(key)
 
 
+#: `_host_declarations` answers, keyed by dotted module name.
+#:
+#: THE SOURCE OF A HOST CANNOT CHANGE WHILE THE APPLICATION RUNS, so parsing
+#: it twice can only ever produce the same answer twice. It was parsed a great
+#: deal more than twice: `folded_fallback` asks `folded_modules` per key, and
+#: `folded_modules` walks every host, so ONE Mask screen open ran `ast.parse`
+#: 73 times and spent 0.71 s of its 2.05 s doing it -- a third of the open,
+#: compiling Python nobody was going to execute.
+#:
+#: The cache lives HERE and deliberately not in `folded_modules`, whose answer
+#: depends on registration state and is meant to grow as modules register --
+#: and which two tests call twice, expecting the second answer to differ after
+#: they replace this function. Replacing it bypasses this cache, which is the
+#: behaviour those tests need.
+_HOST_DECLARATION_CACHE: dict = {}
+
+
+def _forget_host_declarations() -> None:
+    """Drop the parsed-source cache.
+
+    For a test that edits a host's source on disk mid-process, which the
+    application never does.
+    """
+    _HOST_DECLARATION_CACHE.clear()
+
+
 def _host_declarations(module_name: str):
     """``(folded keys, fallback table)`` read from a host's SOURCE.
 
@@ -197,11 +223,17 @@ def _host_declarations(module_name: str):
     import importlib.util
     import pathlib
 
+    if module_name in _HOST_DECLARATION_CACHE:
+        return _HOST_DECLARATION_CACHE[module_name]
+
     try:
         spec = importlib.util.find_spec(module_name)
         tree = ast.parse(
             pathlib.Path(spec.origin).read_text(encoding="utf-8"))
     except Exception:                                   # noqa: BLE001
+        # Cached too: a host that cannot be read cannot start being readable,
+        # and re-parsing to fail again costs the same as parsing to succeed.
+        _HOST_DECLARATION_CACHE[module_name] = None
         return None
 
     constants: dict = {}
@@ -270,6 +302,7 @@ def _host_declarations(module_name: str):
                 table[key] = ast.literal_eval(value_node)
             except Exception:                           # noqa: BLE001
                 continue
+    _HOST_DECLARATION_CACHE[module_name] = (members, table)
     return members, table
 
 
