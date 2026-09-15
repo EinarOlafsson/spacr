@@ -547,3 +547,197 @@ WHAT REMAINS AFTER THE LABELLING: the publish action to Hugging Face, which
 is the maintainer's credential and decision. That is not engineering and no
 session should attempt it.
 
+
+--------------------------------------------------------------------------------
+2026-09-14 (night): A HELD-OUT SCORECARD FOR toxoplasma_pv_v1, AND THE PLAQUE
+LABELLING PREPARED. Folded into the ledger by the home session; the working files are in the
+home session's scratchpad (sc370/), listed at the end.
+--------------------------------------------------------------------------------
+
+The maintainer answered tonight: "Label a new set for the purpose". This is the
+part of that which needs no maintainer: one scored PV set, one plaque queue ready
+to curate. Everything is under scratchpad/sc370/. Nothing on /mnt/wd4tb was
+written (the only path changed there tonight is another session's
+metrics/cv/models/cv_fold2), nothing in spacr/, docs/, tests/ or features/ was
+touched, nothing committed, nothing published.
+
+HEADLINE: ON THIS SET, v1 IS NOT BETTER AT FINDING PVs THAN STOCK CELLPOSE-SAM.
+IT OUTLINES THE ONES IT FINDS BETTER, AND PART OF THAT IS INHERITED FROM HOW THE
+TRUTH WAS MADE.
+
+TWO THINGS ALREADY IN THE TREE ARE WRONG; FIX BOTH BEFORE ANY PV SCORECARD SHIPS
+===============================================================================
+
+  1. holdout_round3/scorecard_toxo_pv_v1.csv (toxo-pv-round3 @ 2026-09-10) DID
+     NOT SCORE toxoplasma_pv_v1. Its script (scratchpad/score370.py) loads
+     models/cpsam_v2_toxo, which is ROUND 1. v1's published sha256 182d8cf6... is
+     models/cpsam_v2_toxo_r2 (re-hashed tonight). Re-running it on r2 would not
+     rescue it: its 366 fields are exactly the 366 "done" stems of r2's own
+     curate_status.csv, and r2 trained on 125 of them (round2.log). Nothing in
+     spacr/, docs/ or packaging/ references it, and the Hugging Face catalogue's
+     models list is empty, so nothing public carries it.
+  2. THE ZOO ROW DESCRIBES ROUND 1 AND SHIPS ROUND 2. BUNDLED_REMOTE_MODELS
+     toxoplasma_pv_v1 says "115 images", "104 train / 11 test", "F1 0.867
+     against 0.713" -- round 1's train_report.json and vanilla_vs_finetuned.json.
+     The checkpoint is r2: 229 training images; on the same 11 NAS wells r2
+     scored F1 0.864 (round2_vs_round1.csv).
+
+IS THE LITERATURE TEST SPLIT HELD OUT FROM v1? YES
+=================================================
+
+  * BY PAPER. split_papers.json: 38 train / 7 test PMCs, disjoint, and every
+    manifest row agrees. CORRECTION to the scoping pass: only 5 of the 7 test
+    papers contribute -- PMC12700200 and PMC9386420 are all state=skip. The set
+    is 43 fields, 720 objects, 5 papers.
+  * BY TRAINING SET AND DATE. v1 (r2) trained on 104 NAS + 125 in-house curated
+    fields. No literature image existed before 2026-09-02 (all mtimes); the r2
+    checkpoint is 2026-08-24. No test stem is among the 138 literature panels
+    exported into data/toxoplasma_pv (the r3/r4 pool) either.
+  * BY AUTHORSHIP (Europe PMC): Knoll; Coppens/Grigg; Song/Suo; Sijwali;
+    Nishikawa. No Carruthers or Olafsson, so in-house fields have no route in.
+  * BY PIXELS. neardup.py -- pHash, 32x32 correlation, RootSIFT + RANSAC
+    similarity (crop- and scale-invariant) -- each panel (max projection and
+    each channel) against v1's 115 NAS fields and 500 new originals, the
+    619-image toxoplasma_pv pool and the 189 literature-train panels:
+      v1 NAS fields, v1 new originals   0 SIFT inliers for all 43; best pHash
+                                        8/63 bits, corr <= 0.63, near-empty panels
+      toxoplasma_pv pool                max 8 inliers
+      literature train                  18-24 inliers, PMC12675473 -> PMC12471860:
+                                        CHECKED BY EYE, the shared keypoints are the
+                                        label "NcGRA7" in two Neospora papers
+    SENSITIVITY, stated: 4 of 8 synthetic crops of v1 fields found (pseudo-colour,
+    downscale, JPEG q70); the harvest's own duplicate rows matched strongly in
+    6 of 8. So the pixels corroborate; authorship, dates and the paper split
+    carry the conclusion.
+  * INSIDE THE SET: four clusters are the SAME FIELD twice (merge vs single
+    channel, brightfield with/without overlay), checked by eye --
+    PMC12147184 p-089/p-093 and p-126/p-127/p-130; PMC12749514 p-004 p4/p5;
+    PMC12136440 tmpr4rm115n p0/p2. Not a leak; it counts 197 objects twice.
+    Four more detector hits were different fields sharing labels or scale bars
+    (PMC12136440 d8qh p9/p11, sx7xvlx9 p7/p8; PMC12675473 p0/p1, p1/p2).
+
+HOW THE TRUTH WAS MADE, MEASURED RATHER THAN ASSUMED
+===================================================
+
+  * The harvest seeded these panels with cpsam_v2_toxo_r2 = v1
+    (harvest_supplements.py PROFILES["pv"]). Confirmed exactly: v1's predictions
+    tonight equal the 2026-09-08 seeds on every field (550 objects each).
+  * On 2026-09-12 the uncurated panels were re-seeded with cpsam_v2_toxo_r3;
+    20 that r3 blanked went back to the 09-08 seed on 09-13. Of the 43: 37
+    curated from r3 seeds, 6 from v1's. Curated 2026-09-14 11:32-12:09.
+  * THE TRUTH IS FAR FROM v1's OWN SEEDS: F1 0.403 pooled (seed_bias_check.csv),
+    so the curators did not simply accept v1.
+  * IT KEEPS r3's OUTLINES WHERE IT KEPT r3's OBJECTS (diag_r3.py, a diagnostic,
+    not a scorecard): r3 against truth F1 0.415, precision 0.614, recall 0.314,
+    and Dice 0.992 on matched objects. Curators deleted ~40% of r3's objects,
+    drew ~70% of the truth themselves, and left the kept outlines untouched.
+    r3 descends from r2, so the OUTLINE metrics (Dice, IoU, area error) lean
+    toward v1. Detection metrics (F1, precision, recall) are much less exposed.
+  * Out of domain for everything scored: phase-contrast and brightfield merges,
+    Neospora, pseudo-coloured figure panels. On PMC12136440 p0 (phase + red)
+    truth has 50 objects, v1 finds 4, cpsam_v2 90 (overlays/).
+
+SCORECARD: toxo-pv-literature-test @ 2026-09-14, 43 fields, 720 objects, IoU 0.5
+===============================================================================
+
+  vanilla = cpsam_v2 (the base r2 was fine-tuned from; cellpose 4.2.1.1's
+  default), sha256 0f1cc3f7... Eval as the project's own: normalize, flow 0.4,
+  cellprob 0.0. score_model_on_holdout -> scorecard_rows -> scorecard_csv.
+
+                          v1       cpsam_v2   delta    | cpsam (first release)
+  F1                      0.403    0.400      +0.004   | 0.392
+  precision / recall      0.465 / 0.356   0.318 / 0.536 | 0.329 / 0.483
+  n_pred (truth 720)      550      1212                | 1057
+  Dice, per object        0.932    0.845      +0.086   | 0.846
+  IoU, mean matched       0.880    0.741      +0.140   | 0.742
+  AP 0.5 / AP 0.5-0.9     0.263 / 0.217   0.340 / 0.190 | 0.318 / 0.177
+  boundary F1 1/2/3 px    0.370/0.398/0.410   0.483/0.571/0.606 | 0.469/0.551/0.589
+  Dice, pixel             0.398    0.571      -0.173   | 0.579
+  pixel AUPRC             0.561    0.498      +0.063   | 0.506
+  pixel AUROC             0.853    0.918      -0.065   | 0.933
+  splits / merges         9 / 9    54 / 3              | 57 / 8
+  area error, abs mean    0.107    0.265      -0.158   | 0.269
+
+  AUPRC IS PIXEL-LEVEL: sigmoid(cellprob) against truth foreground, pooled over
+  8.49 M pixels through scorecard.score_classifier. scorecard.score_segmentation
+  has no AUPRC; boundary F1 and pixel Dice are image-level and rise with object
+  count, which is why the over-calling vanilla wins them.
+
+  PER PAPER, pooled F1 v1 / cpsam_v2: PMC12136440 0.459/0.451 (385 obj);
+  PMC12147184 0.293/0.404 (241); PMC12589591 0.111/0.175 (40); PMC12675473
+  0.182/0.000 (11); PMC12749514 0.809/0.549 (43). Leaving one paper out moves
+  the F1 delta between -0.016 and +0.049: THE SIGN IS NOT STABLE.
+  ONE FIELD PER SAME-FIELD CLUSTER (38 fields, 523 objects): F1 0.428 vs 0.370,
+  Dice 0.937 vs 0.849, boundary F1 2 px 0.435 vs 0.555.
+
+  READING: no detection advantage on out-of-domain literature panels; v1
+  under-calls (-170), stock over-calls and splits (+492, 54 splits). The outline
+  advantage is real in direction and overstated in size by the r3-kept outlines.
+  Not a number to publish as "v1 is better" until the truth is re-seeded.
+
+PLAQUE: WHAT v1 SAW, WHAT IT DID NOT, AND A QUEUE READY TO LABEL
+===============================================================
+
+  * v1 (cpsam_plaque_r3) trained on 184 wells (model.db training_set): 95 NAS
+    (68 patrick, 27 bigbean) + 89 literature (67 pmc_staged, 22 curate_single).
+    ALL 89 are in the curated pool (263 done: 241 pmc_staged + 22 curate_single).
+    Strict subset, none missing.
+  * UNSEEN CURATED WELLS: 174, not "about 79" (263 - 89; the NAS wells were never
+    in the pool, so 263 - 184 subtracted the wrong thing). 131 with plaques, 43
+    reviewed-empty, all pmc_staged. 24 share a paper with v1's training; 150 are
+    paper-disjoint. plaque_unseen_curated_wells.csv. Unseen by v1 only: round 4
+    trained on all 263.
+  * THE 113 LITERATURE SEEDS came from v1's lineage (the harvest skill names
+    cpsam_plaque_r3), so they were not reused. 8 figures left out: 3 share a
+    paper with v1's training, 5 more with the curated pool
+    (plaque_literature_paper_overlap.csv).
+  * QUEUE BUILT: plaque_literature_vanilla_queue/ -- 105 figures, sibling layout
+    (images/ + masks/), 108 MB. Seeded with VANILLA cpsam (plaqueseg.finetune's
+    base; sha256 e1440429...), plaqueseg's EVAL_DEFAULTS (min_size 150,
+    max_size_fraction 0.95), cellpose 4.2.1.1. 4,792 objects against 11,534 in
+    the old seeds; median F1 0.40 against them; no empty seed. Checked with
+    spacr.curation_queue.build_queue: 105 remaining, 0 missing masks.
+    queue_provenance.json inside records model, hash, eval, exclusions.
+      - `easy` falls back to `value`: there is no curate_scores.csv. Harmless.
+      - ONE FILE PER STEM: of the 42 stems with two files, the .jpg is the YOLO
+        preview with boxes drawn and red/blue swapped (seen for PMC12589591
+        p-047). Chosen: 45 png, 7 tif/tiff, 53 jpg; the jpgs are stems with no
+        other file (one checked by eye: a clean photo).
+      - Not checked: pixel near-duplicates between these figures and the pool's
+        well crops; only paper identity was compared.
+
+WHAT NEEDS THE MAINTAINER
+=========================
+
+  1. CURATE the plaque queue to truth with item 396's queue
+     (spacr/cli_make_masks.py: --folder, --order, --limit). Hold-out labels:
+     never train on them.
+  2. RE-SEED THE PV SET WITH VANILLA AND RE-CURATE, or accept a set whose kept
+     outlines are r3's. Only a vanilla seed removes the lean toward v1.
+  3. DECIDE the 4 same-field clusters: drop the duplicates or publish n as is.
+  4. CORRECT the toxoplasma_pv_v1 zoo row, and retire scorecard_toxo_pv_v1.csv.
+  5. PLACE AND PUBLISH. Proposed: PV set beside holdout_round3 as
+     toxoplasma_pv_model/holdout_literature_2026-09-14/ (manifest + images/ +
+     masks/, already relative); plaque queue at
+     automated_plaque_assay/curation/plaque_literature_vanilla_queue/ (af3 syncs
+     it); both sets on Hugging Face beside the models, e.g. einarolafsson/models
+     holdouts/<name>/<version>/. The publish is the maintainer's call.
+
+A TRAP, PAID FOR TONIGHT: the GPU gate `while pgrep -f "[r]epair-api-blocks"`
+matches ANY command line containing the name. My first PV chain echoed "waiting
+for repair-api-blocks" and so waited on itself; it was killed by PID and
+relaunched. The i18n chain's own watcher also holds the gate through its
+CPU-only audits. Never put the gated word in the waiting command.
+
+FILES (scratchpad/sc370/)
+  pv_literature_holdout.json + pv_literature_holdout/   the frozen PV set
+  scorecard_toxoplasma_pv_v1_vs_cpsam_v2.csv (+ .pdf)   THE scorecard
+  scorecard_toxoplasma_pv_v1_vs_cpsam.csv               against the first cpsam
+  scorecard_toxoplasma_pv_v1_vs_cpsam_v2_dedup.csv      one field per cluster
+  scorecard_per_paper.csv, seed_bias_check.csv, diag_r3.log, overlays/
+  predictions/                                          masks, cellprob, per-field JSON
+  neardup_results.csv, neardup_controls.csv, neardup_pairs/, neardup2.log
+  plaque_unseen_curated_wells.csv, plaque_literature_paper_overlap.csv
+  plaque_literature_vanilla_queue/, plaque_seed_comparison.csv
+  build_holdout.py, neardup.py, gpu_pv.py, report_pv.py, holdout_dedup.py,
+  diag_r3.py, plaque_prep.py                            how every number was made
