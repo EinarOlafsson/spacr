@@ -268,3 +268,40 @@ def test_a_second_embed_does_not_mix_rows_in_a_sorted_preview(qtbot):
         f"{len(mixed)} row(s) carry values from more than one object after a "
         f"second fill of a sorted table: {mixed[:3]}. The table must be "
         "cleared before it is refilled; see _fill_preview.")
+
+
+def test_a_second_embed_reuses_the_scale_the_first_one_estimated(qtbot,
+                                                                 monkeypatch):
+    """410: one fixed scale per loaded plate, not one per click.
+
+    Changing the batch size and embedding again is a rerun of the same
+    plate; it must see the same numbers in front of the backbone. Loading
+    different crops is a different plate, and estimates afresh.
+    """
+    import spacr.embeddings as engine
+
+    screen = _screen(qtbot)
+    real = engine.embed_array
+    monkeypatch.setattr(
+        engine, "embed_array",
+        lambda crops, spec=None, **kw: real(crops, spec,
+                                            encoder=_fake_encoder))
+    estimates = []
+    real_estimate = engine._estimate_channel_scale
+    monkeypatch.setattr(
+        engine, "_estimate_channel_scale",
+        lambda *a, **k: estimates.append(1) or real_estimate(*a, **k))
+
+    screen.set_crops(_crops())
+    screen.embed()
+    first = screen._result.spec.channel_scale
+    screen._batch.setValue(2)
+    screen.embed()
+
+    assert first is not None and len(estimates) == 1
+    assert screen._result.spec.channel_scale == first
+
+    screen.set_crops(_crops() * 3.0)
+    screen.embed()
+    assert len(estimates) == 2
+    assert screen._result.spec.channel_scale != first

@@ -89,3 +89,97 @@ brightness, removes the batch dependence." This is option (b), and it is what
 the 395 benchmark harness already did (85, 79 and 198 for channels 0-2 from
 2,048 random crops). Building it on its own branch; the batch-independence
 test above is the acceptance check.
+
+
+--------------------------------------------------------------------------------
+2026-09-15: BUILT ON wip/410-plate-scale -- OPTION b, A FIXED SCALE PER PLATE
+--------------------------------------------------------------------------------
+
+Decided by the maintainer tonight: "Fixed scale per plate -- estimate one
+scale per channel from a random sample of the plate, store it with the run,
+apply it to every crop."
+
+WHAT WAS BUILT, all in `spacr/embeddings.py`:
+
+  * `EmbeddingSpec.channel_scale: Optional[Tuple[float, ...]] = None`, one
+    value per ENCODED channel in encoding order. Validated where the spec is
+    built (coerced to floats; finite and >= 0; refused with normalize=False;
+    length checked against `channels` when they are named) and again against
+    the crops in `_prepare` when `channels` is None. Zero is legal: it is what
+    a channel blank across the plate estimates to, and it scales to zeros.
+    `fingerprint()` appends the scale ONLY when set, so every unscaled spec
+    keeps its pre-410 fingerprint (the default is still ee13fbde21d1062c,
+    386's recorded run).
+  * `_scaled(plane, scale)` never derives a scale from the plane it is given
+    any more. That derivation WAS the defect: the plane is a whole batch.
+  * `_estimate_channel_scale(crops, channels=None, *, sample_size=2048,
+    seed=0, read_batch=256)`: the 99th percentile of every pixel in a random
+    sample drawn without replacement by default_rng(seed), read in sorted
+    index chunks of `read_batch` (works on an ndarray, memmap or HDF5
+    dataset). A plate no larger than the sample is used whole, so the result
+    is exactly the whole-plate percentile.
+  * `_embed_plate(crops, spec, *, encoder, record, ...)`: THE PLATE PATH.
+    Estimates once for every channel of the plate, writes
+    `record["channel_scale"] = {"0": .., "1": ..}` and
+    `record["channel_scale_sample"] = {percentile, size, seed, n_crops}` into
+    the run's JSON-serialisable record, and reuses a record that already has
+    one -- another backbone, batch size, channel subset or crop order sees
+    the same numbers without re-estimating. A record missing a channel the
+    run encodes is refused rather than topped up from a second sample.
+
+WHERE THE PLATE IS EMBEDDED. There is no plate-embedding pipeline in spacr/
+(395 already noted the retrieval harness was never committed). The one run in
+the package is the Embeddings screen: `EmbeddingsScreen.embed` now calls
+`_embed_plate` with a per-screen record that `set_crops` resets, so every
+Embed on one loaded stack uses the scale the first one estimated, and
+`screen._result.spec.channel_scale` carries it.
+
+DIRECT CALLERS. `embed_array(crops, spec)` with normalize=True and no scale
+treats the stack it was handed as the plate: it estimates the scale from a
+random sample of that stack, applies it to every crop, logs a WARNING naming
+the numbers, and returns them on `result.spec.channel_scale`. Chosen over
+(i) raising, which breaks `embed_array(crops)` with the default spec in the
+tutorial, the screen tests and every existing caller, and (ii) per-crop
+scaling, which is option a -- the one the maintainer did not pick. For a stack
+of up to 2,048 crops the numbers are IDENTICAL to pre-410 (asserted), so no
+existing result moves; what changes is that the scale is visible and can be
+passed on. The dependence on call composition remains for a caller who splits
+one plate across calls without passing the scale on, and the warning and the
+docstring both say so.
+
+EVIDENCE. tests/test_an_embedding_does_not_depend_on_its_batch.py (15 tests)
+and one screen test. On the pre-410 code all 16 failed; the one that uses only
+the pre-410 API failed on the arithmetic itself:
+
+    one crop's scaled mean was 0.286 alone, 0.294 among c1 crops and
+    0.079 among c2 crops
+
+After: all pass, and the rest of the embedding and screen tests still pass.
+
+I18N. Public blocks whose text changed: spacr.embeddings.EmbeddingSpec#6 and
+#7, spacr.embeddings.EmbeddingSpec.__post_init__#2, spacr.embeddings.embed_array#1
+(embed_array#2-#6 keep their text at a new index). No public symbol added;
+the 10,533 symbol count is unchanged. The nine API catalogs were NOT rebuilt
+on this branch -- they ship with the merge. Two reds until they do, both
+measured on this branch (306 other tests in those files pass):
+
+  tests/test_documentation_i18n.py::
+    test_documentation_api_catalog_inventory_and_hashes_are_current
+      stale source/hash for exactly 3 symbols: EmbeddingSpec,
+      EmbeddingSpec.__post_init__, embed_array
+  tests/test_docstring_correctness.py::
+    test_public_callable_inventory_is_source_derived_not_docstring_derived
+      parameter total 17,295 -> 17,296 (+1, `channel_scale`); the required
+      total 8,815 does not move (it has a default); the inventory digest
+      below it also moves, for the same one parameter
+
+NOT DONE. tools/tutorials/embeddings_example.py still records `asdict(spec)`
+(the input spec) in its run.json, so its recorded spec does not show the
+scale the warning names. Recording `result.spec` instead is a one-line change,
+left undone because the helper's sha256 (afd77f8e...) is pinned in
+tools/tutorials/evidence/2026-09-12_embeddings_api_preflight.json and
+2026-09-12_embeddings_final_checks.json -- editing it re-opens that evidence.
+
+No plain `#` comments were added to spacr/ (2026-09-13 rule: comments leave
+the modules); the reasons are in the private helpers' docstrings, which no
+catalog pins.

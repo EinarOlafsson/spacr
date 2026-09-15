@@ -94,6 +94,7 @@ class EmbeddingsScreen(QWidget):
         self.setObjectName("EmbeddingsScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._result = None
+        self._scale_record: dict = {}
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
 
@@ -213,6 +214,7 @@ class EmbeddingsScreen(QWidget):
                 f"{crops.shape}. spacr.crops produces this stack, and "
                 f"spacr.embeddings.embed_array expects channels last.")
         self._crops = crops
+        self._scale_record = {}
         self._source.setText(
             label or f"{crops.shape[0]} objects x {crops.shape[-1]} channels")
         self._run.setEnabled(True)
@@ -236,6 +238,7 @@ class EmbeddingsScreen(QWidget):
             self._status.setText("Load crops first.")
             return
         spec = self.spec()
+        record = self._scale_record
         self._status.setText(f"Embedding {crops.shape[0]} objects…")
 
         def work():
@@ -245,9 +248,9 @@ class EmbeddingsScreen(QWidget):
             opens this screen should not pay for it, and a user who does
             should pay for it once, here, rather than at launch.
             """
-            from ...embeddings import embed_array
+            from ...embeddings import _embed_plate
 
-            return embed_array(crops, spec)
+            return _embed_plate(crops, spec, record=record)
 
         self._jobs.submit(work, self._on_embedded)
 
