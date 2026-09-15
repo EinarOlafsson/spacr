@@ -7996,3 +7996,29 @@ WHAT THE RELEASE STILL NEEDS, for whoever picks it up next:
      is NOT landed: wip/417-settings-models and wip/417-drag-merge.
   4. Owed to the maintainer on real hardware: 412's dataset button, 414 and
      415 on Windows, 416's installer on the 1.5.0.1 machine.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- CODEX: MAINTAINER-REQUESTED TAKEOVER, NEW FEATURES FIRST
+--------------------------------------------------------------------------------
+
+The maintainer has stopped both Claude sessions and assigned the remaining
+new features, then future features, to Codex in /mnt/firecuda2/codex/repo/spacr.
+Both main checkouts are clean at 5ffa25cd2. The first implementation is 417:
+the clean, committed branches wip/417-settings-models (04352fe18) and
+wip/417-drag-merge (279671836) have been preserved as recovery/417-* refs in
+the Codex clone. They are not on nightly yet; no worktree was reset or removed.
+
+Codex claims the remaining 417 implementation, tests and its accompanying
+runtime/API evidence and catalogs. Existing approved translations and the
+maintainer's Icelandic/Hindi decisions are preserved. Regeneration is one
+coherent pass per lane for the completed feature, not per source edit, and
+new API keys must land with the source that adds them. Measurements run on
+unchanging source with the 100 GiB system-memory guard and no concurrent
+heavy suite or GPU job. Completed work is committed and pushed to nightly
+with explicit paths; release publication remains a separate gated action.
+
+411's Phase B handoff is accepted and verified, but its rollout remains
+empty while the new-feature list takes priority. Its Phase A Docs run
+34987365233 passed. On 5ffa25cd2, the source-only inventory has 813 canonical
+eligible helper entries in 184 modules and no eligible undocumented helper;
+the old Preferences finding has therefore already been resolved in source.
