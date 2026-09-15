@@ -192,3 +192,179 @@ WHAT IS ACTUALLY OWED, in order:
   SAME SHAPE AS ITEM 400, FOUND THE SAME DAY: work that was really done, whose
   artefact is not reachable from the checkout, and whose file says it is ready.
   An item is only as actionable as the code a reader can find.
+
+--------------------------------------------------------------------------------
+2026-09-14 -- MEASURED FROM SCRATCH: A CELL-TRAINED ENCODER AGAINST IMAGENET
+--------------------------------------------------------------------------------
+
+(Ledger note for 395, written to scratch because another session holds
+uncommitted edits to this file. Paste beside the 09-13 note; do not replace
+the resnet18 figures in 386.)
+
+THE MAINTAINER'S RULING, 2026-09-14: "Don't remember -- rerun from scratch."
+So 0.695 / 0.894 are NOT the baseline any more. Every feature set below was
+measured tonight on the SAME objects and the SAME saved fold indices.
+
+THE HARNESS IS NOW IN THE TREE: tools/measure_encoder_retrieval.py
+
+    python tools/measure_encoder_retrieval.py \
+        --plate /mnt/firecuda2/methods_paper/plate1 \
+        --encoders panel,panel3ch,resnet18,resnet18_imnorm,openphenom,openphenom_joint,biomedclip \
+        --out <dir>
+
+  Stages index -> folds -> embed -> evaluate, each reusable. Folds and
+  embedding caches are keyed by a digest of the object list and are refused,
+  not silently rebuilt, when it changes.
+
+THE PLATE AND THE OBJECTS. plate1 of the TSG101 screen,
+/mnt/firecuda2/methods_paper/plate1, measurements/measurements.db opened
+read-only. png_list 60,816 rows, paths rewritten from the dead
+/nas_mnt/carruthers/... prefix; every crop DECODED, not just stat'ed.
+One is zero bytes and is skipped:
+  data/single_nucleus/single_pathogen/plate1_M02/cell_png/plate1_M02_5_21.png (c2)
+60,815 objects over 342 wells; index digest 68d6a6cbad51a90e.
+
+THE DESIGN.
+  gene       c1 (SAG1) 6,287 vs c2 (GRA14) 10,598 -- 16,885 objects, 16+16 wells
+  position   c5 2,818 vs c6 3,112 -- 5,930 objects, 16+13 wells
+  pairs      all 20 adjacent library-column pairs c4-c5 .. c23-c24
+             (c5-c6 is one of them)
+  nulls      labels permuted across objects, and across wells, on gene and
+             position
+  folds      5-fold StratifiedGroupKFold(shuffle=True, random_state=0),
+             grouped by well, computed once per contrast from the true labels,
+             saved to disk, reused for every feature set and every null; no
+             well in both halves (asserted per fold)
+  metric     kNN k=15, Euclidean, brute; StandardScaler fit on train only;
+             accuracy, balanced accuracy, recall per class; mean +/- sd over
+             folds
+
+TWO DELIBERATE DEPARTURES FROM `embed_array`'s DEFAULTS, AND WHY.
+
+  1. normalize=False, with ONE plate-wide per-channel scale instead.
+     EmbeddingSpec(normalize=True) divides each channel by the 99th percentile
+     of THE WHOLE STACK IT IS HANDED. An object's embedding therefore depends
+     on which other crops share its batch. Checked tonight with a stand-in
+     encoder on one c1 crop, channel-1 input mean:
+         alone 0.311    in a batch of c1 crops 0.076    in a batch of c2 0.094
+     and identical alone vs batched once normalize=False. A harness that
+     batches a column-sorted index (the 09-12 one did) partly normalises PER
+     COLUMN -- on exactly the axis the contrast is. Tonight every crop is
+     divided by the p99 of 2,048 random crops (seed 0): [85, 79, 198], then
+     clipped to [0, 1], for every encoder.
+     THIS IS A DEFECT IN spacr/embeddings.py and is NOT fixed here (scope):
+     the percentile should be per crop, or fixed, never per batch.
+
+  2. The panel is also scored on channels 0-2 only (panel3ch, 116 of 156
+     columns) because the crops carry only those three.
+
+ENCODERS.
+  resnet18          spacr.embeddings._timm_encoder, timm resnet18.a1_in1k,
+                    per-channel, [0,1] input as the module feeds it
+  resnet18_imnorm   same weights with ImageNet mean/std, to separate the
+                    encoder from the module's preprocessing
+  biomedclip        microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224,
+                    image tower, CLIP mean/std, 512-d projection, per-channel
+                    (open_clip 3.3.0 from a scratch --target dir)
+  openphenom        recursionpharma/OpenPhenom @0f92333685f6, CA-MAE ViT-S/16,
+                    per-channel: each plane given ALONE as one channel,
+                    bilinear 224->256, x255 into the model's own Normalizer +
+                    InstanceNorm, 384-d per channel
+  openphenom_joint  the model's native mode: all three channels in one pass,
+                    channel-wise contextualised embeddings, 3x384
+  Weight digests are in embeddings/<encoder>.json.
+
+NOT MEASURED, AND WHY.
+  SubCell      no public HuggingFace repository resolves (CZI/SubCell 404).
+  Cell-DINO    no public HuggingFace repository resolves (facebook/cell-dino 404).
+  DINOCell     KadenStillwagon/DINOCell IS in the local cache, and it is NOT
+               Cell-DINO: an empty model card, a "demo" checkpoint, a
+               DINOv2-reg ViT-B/8 at 896 px fine-tuned for cellpose-style
+               flows with a segmentation neck. Unvetted provenance; skipped.
+
+RESULTS (run 2026-09-14 21:35 -> 2026-09-15 03:05). kNN k=15, same 5 folds.
+Balanced accuracy mean +/- sd over folds; recall a/b = first/second column.
+
+                     GENE c1-c2              POSITION c5-c6         NULLS (bal.acc)          20 PAIRS
+                     bal.acc      recall     bal.acc      recall     gene obj/well  pos obj/well   mean+/-sd  gene z
+  panel (156)        0.888+/-.024 .817/.960  0.535+/-.037 .491/.580  .495/.489      .500/.472      .516+/-.033  +11.2
+  panel3ch (116)     0.902+/-.019 .840/.963  0.506+/-.040 .503/.509  .502/.482      .505/.479      .518+/-.034  +11.2
+  resnet18           0.634+/-.040 .370/.899  0.520+/-.016 .445/.594  .503/.502      .508/.485      .509+/-.026   +4.9
+  resnet18_imnorm    0.663+/-.027 .486/.839  0.510+/-.027 .396/.624  .502/.498      .495/.482      .505+/-.026   +6.1
+  openphenom         0.673+/-.030 .502/.844  0.516+/-.027 .462/.570  .502/.463      .490/.494      .509+/-.026   +6.3
+  openphenom_joint   0.685+/-.034 .525/.844  0.512+/-.037 .468/.557  .498/.477      .500/.487      .512+/-.036   +4.9
+  biomedclip         0.752+/-.030 .609/.895  0.534+/-.007 .471/.598  .500/.492      .489/.475      .511+/-.026   +9.2
+
+  class balance gene 6,287/10,598 (majority 0.628); position 2,818/3,112 (0.525)
+
+PAIRED, BECAUSE THE FOLDS ARE THE SAME (gene balanced accuracy, per fold):
+  biomedclip       - resnet18          +0.118 (sd 0.014)  5/5 folds
+  openphenom_joint - resnet18          +0.050 (sd 0.023)  5/5
+  openphenom       - resnet18          +0.039 (sd 0.020)  5/5
+  openphenom_joint - openphenom        +0.012 (sd 0.006)  5/5
+  resnet18_imnorm  - resnet18          +0.028 (sd 0.018)  4/5
+  biomedclip       - openphenom_joint  +0.068 (sd 0.015)  5/5
+  panel            - biomedclip        +0.136 (sd 0.009)  5/5
+  panel3ch         - panel             +0.013 (sd 0.006)  5/5
+
+WHAT IT SAYS.
+  1. THE CELL-TRAINED ENCODER BEATS IMAGENET, BY A LITTLE. OpenPhenom scores
+     0.673 per-channel and 0.685 in its native joint mode, against resnet18's
+     0.634, and wins on every fold. Roughly half of that gap is preprocessing
+     rather than training data: resnet18 given ImageNet mean/std gets 0.663.
+  2. IT IS NOT THE BEST ENCODER. BiomedCLIP, trained on PubMed figures and not
+     on cells, scores 0.752 and beats OpenPhenom by 6.8 points on every fold.
+     "Trained on cells" is not what predicts the score on this task.
+  3. EVERY ENCODER LOSES TO THE PANEL, AND BY A LOT. The best one is 13.6
+     points behind (0.752 vs 0.888), on every fold. By 395's criterion this is
+     a success: the question was what a cell-trained encoder scores.
+  4. THE CONTROLS HOLD FOR EVERY ENCODER. c5-c6 reads 0.506-0.535, the 20-pair
+     means are 0.505-0.518, and every shuffled null is 0.463-0.508. The
+     highest single pairs (openphenom_joint c11-c12 0.620, panel c6-c7 0.597)
+     have fold sd 0.15-0.18, sit on columns with 11-16 wells, and are not the
+     same pair across encoders -- noise, not position.
+  5. CHANNEL 3 DOES NOT HELP. The panel scores HIGHER without its 40
+     channel_3 columns (0.902 vs 0.888, 5/5 folds), so the encoders are not
+     losing for want of the fourth stain.
+
+CAVEATS, NOT TESTED TONIGHT.
+  * OpenPhenom's model card asks for PCA-CenterScale or TVN batch correction
+     on control wells before use. Nothing here does that beyond a
+     StandardScaler, for any encoder; it may lift OpenPhenom more than the
+     others.
+  * OpenPhenom was trained on 6-channel Cell Painting fields; these are
+     3-channel single-cell crops upsampled 224->256. That is a domain shift
+     for it, as it is for BiomedCLIP.
+  * The fresh resnet18 figure (0.634) is below the 09-12 one (0.695). The
+     per-column normalisation in the 09-12 harness is one candidate
+     explanation; it has not been tested and the old number is retired anyway.
+
+RUN TIMES (RTX 3090 shared through gpu.lock; lock waits excluded):
+  index + folds (60,816 decodes)       3 m 02 s, CPU
+  resnet18           238 s   255 crops/s   peak 0.88 GiB
+  resnet18_imnorm    182 s   334 crops/s   peak 0.95 GiB
+  openphenom         331 s   184 crops/s   peak 1.62 GiB
+  openphenom_joint   458 s   133 crops/s   peak 3.34 GiB
+  biomedclip         669 s    91 crops/s   peak 1.34 GiB
+  evaluate, all 7 sets x 21 contrasts + nulls   1 m 44 s, CPU
+  Most of the wall clock was queueing: biomedclip waited ~2 h for the lock.
+
+WHERE THE 09-12 HARNESS WAS. The 09-13 and 09-14 notes say it is gone. It is
+not: the scripts are in the Claude session scratchpad at
+  /tmp/claude-1000/-home-olafsson/e13e1d73-d9c5-45da-86bb-17ca14551f88/scratchpad/386/
+  (build_index.py, evaluate.py, embed_all.py, robust.py, sweep.py, qc.py ...)
+They were read to understand the old design and NOT reused, per the ruling.
+They also show the per-column normalisation above: embed_all.py sorts by
+column, then embeds in chunks of 384 with normalize=True.
+
+ARTEFACTS (scratch, not committed):
+  /tmp/claude-1000/-home-olafsson/e13e1d73-d9c5-45da-86bb-17ca14551f88/scratchpad/enc395/
+    index.csv, index_report.json, panel.npy, folds/, embeddings/,
+    results.csv, results_folds.csv, pairs_summary.csv, logs/
+
+  ADDENDUM, 2026-09-15 (home session): the batch-dependent scaling reported
+  above IS FIXED on nightly by item 410 -- EmbeddingSpec.channel_scale, one
+  fixed per-channel scale estimated once per plate and carried in the run's
+  record. This benchmark already used one fixed scale per channel, so its
+  numbers are unaffected. The harness is committed as
+  tools/measure_encoder_retrieval.py.
