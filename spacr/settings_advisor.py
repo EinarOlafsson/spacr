@@ -13,9 +13,12 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 # PANDAS IS IMPORTED WHERE IT IS USED, not here. Only `read_the_counts` and
 # `read_the_response` touch it, and both READ A TABLE -- work that happens
