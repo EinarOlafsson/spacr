@@ -314,3 +314,197 @@ expectations, the module denominator, an undeclared dependency, a phantom
 packaging exclusion, three archived installers, and the environment and
 app-registry leaks. What is left is these three plus the API catalogs,
 which are rebuilding.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- OWNERSHIP MOVES FROM CODEX. THE TRUE STATE, AND WHAT IS OWED
+--------------------------------------------------------------------------------
+
+OWNERSHIP. The maintainer, 2026-09-15: "codex is not working on this
+anymore". 358 now belongs to the Claude session working in
+/mnt/firecuda2/Claude/repo/spacr, and the 2026-09-09 "neither Claude session
+touches them" rule no longer applies to this item. Nothing below reads or
+writes /mnt/firecuda2/codex.
+
+THE 2026-09-11 NOTE IS STALE. All three of its reds pass at a8fdda325:
+test_the_name_is_spaCR.py 5 passed; test_tutorial_release_audit.py plus
+test_docs_media_budget.py 36 passed. The route test is green because ops,
+import_images and regression_diagnostics now have lessons (76, 74, 75).
+
+WHAT EXISTS
+
+  * Private candidate refresh_2026-09-09/release-candidate-zveusu2j: 77
+    routes, 76 ready lessons plus Investigate Hit as Coming soon, 3,800
+    tracks, unpublished, release hold in force. verify_release_candidate.py:
+    exit 0, 90 PASS (14 Coming-soon languages, 76 playback cases). A second
+    run while a Qt capture held the CPU at 100% failed a single clock check
+    (01_pypi_github video 0.55 s behind audio, limit 0.5). A re-run with no
+    capture of mine running failed the same check (0.73 s). Other sessions
+    held the load average at 25-31 on 32 cores (neardup.py workers and
+    build_documentation_i18n.py --device cuda). Both runs passed the
+    candidate's media-hash validation before playback, and nothing under
+    release_candidate/ changed. Re-run on a quiet machine before trusting
+    either result.
+  * Running app, 1.5.0.7: 45 registered modules; Home bands Core, Data,
+    Tools, Assays; Core is Mask, Measure, Annotate, Classify, Map Barcodes,
+    Regression. 36 physical folds plus 3 hosted modes make 39 folded routes.
+    The candidate's host_app_key map equals that map exactly, and its 71
+    routed lessons equal registry plus folds.
+
+AUTHORING SUITE (tools/tutorials/authoring/tests; CI does not collect it):
+7 failed / 101 passed -> 108 passed. Every failure was the TEST or the
+SNAPSHOT behind the app and candidate, not a lesson defect.
+
+  * Route and Home tests pinned 23 folds, 67 routes, 44 modules and six Home
+    categories. FOLDED_LESSON_HOSTS is now the live 39. The live-app
+    ratchets read release_candidate/web/catalog, because authoring/catalog
+    is the held pre-refresh set the reviewed-translation tests still pin.
+    Home core names come from the Home Core band: Feature Explorer is
+    registered Core but folded into Classify, so it has no tile. The
+    refreshed nine-scene Home narrates no module count, no
+    Alpha/Beta/Stable and no Performance selector, so those assertions
+    were DROPPED, not moved. Whether Home should teach the Performance
+    selector again is the maintainer's call.
+  * Player test: "8 languages · 50 voices" left index.html on 09-11
+    (5da4a6a95). Counts are now ratcheted from voice_catalog.js (8
+    languages, 50 voices); the app_v2 key is 20260911-narration-captions.
+  * web/logo_spacr.png (the same git blob as spacr/resources/icons) and
+    production/01_pypi_github/scenes.json were copied from the workspace.
+  * SPACR_REPO defaulted to the Codex tree in test_catalog_routes.py,
+    publish_tutorials.py and capture_make_masks_experiment.py. It now
+    defaults to the checkout containing the file. Another 24
+    authoring/tools/*.py still hard-code /mnt/firecuda2/codex; no suite runs
+    them.
+  * HAZARD: snapshot_sources.py copies the workspace over authoring/. The
+    workspace still has the old tests, so a routine snapshot reverts all
+    of this.
+
+tools/tutorials/tests is ALSO NOT A READABLE GATE, AND IT IS NOT IN CI. It is
+order-dependent: 749 passed / 2857 errors before these edits, 1828 passed /
+10 failed / 679 errors after. The errors are teardowns in tests/conftest.py
+calling torch.cuda after a tutorial test stubbed torch with a
+SimpleNamespace. The 10 failures are test_image_scatter_evidence.py
+("painted X" discrepancy). That file fails the same way when run alone and
+reads nothing these edits touched.
+
+PER-LESSON STATE (scene numbers are 1-based in the candidate catalog)
+
+  07_mask -- STALE: re-capture AND re-narration.
+    * Scene 1 never named OPS, which is now folded into Mask's action row
+      (3D, Time, Live, OPS, AI; confirmed on 1.5.0.7). SOURCE EDITED in
+      lessons/07_mask.json: scene 1 narration, related_lessons += 76_ops,
+      objective 1, and the prerequisite's "OPS remains unproven and is not
+      taught here". The existing frame shows the current row but a 1.5.0.6
+      footer.
+    * Scenes 4-8 (preview_04/05/09/10/12) were recorded 09-09 on 1.5.0.4.
+      Their Live settings dialog shows Min object area, Min distance, Area
+      multiplier, Min intensity pct, Max intensity pct, Intensity percentile
+      and an Intensity threshold method. Today it shows Minimum area to
+      split, Minimum watershed distance and an absolute Intensity threshold,
+      and the other four rows are gone (391: 4fcb3266b and 9fc41242d, 09-12).
+      The form behind the dialog still shows the retired Normalize plots.
+      The lesson's own reuse rule (live_preview.py byte-identical) is
+      broken, and compose_mask_capture.py refuses at HEAD for that reason.
+      The counts narrated in scenes 6-8 (51 -> 25 -> 51 at 5642 px; 42 after
+      diameter 30 -> 60) must be re-measured on the new capture before any
+      narration is rendered.
+    * Scenes 2, 3, 9, 10 and 16 (09-11, 1.5.0.6) show Essentials rows only,
+      and none of those rows is renamed. Scene 10's overlay-loop failure has
+      not been re-checked at HEAD. Scenes 11-15 are terminal and external
+      viewer frames and are unaffected.
+    * CAPTURE HYGIENE: a fresh, isolated 1.5.0.7 capture shows Source =
+      /tmp/pytest-of-olafsson/pytest-1133/test_the_chain_runs_mask_then_0/toxo
+      before Load test data. A test writes state that the capture's
+      XDG_CONFIG_HOME isolation does not cover; the store was not found in
+      ~/.config, ~/.local/share or ~/.spacr. Until that is fixed, no
+      pre-download Mask frame is usable.
+  13_regression -- FRAMES STALE; narration current.
+    Recorded 09-09 (2a2917985, 1.5.0.4), before 364's renames (3758412b0 on
+    09-09, 313d36f54 on 09-10). Every frame showing the full form has
+    CONTROLS & FILTERS rows Positive control, Negative control, Min cell
+    count and Min n. Today they read Positive control ID, Negative control
+    ID, Min cells per well and Min observations per hit; Control gRNA/Gene
+    kept its label under nontargeting_control_grnas. Viewed: scenes 1, 2,
+    12, 14, 19/21 and 20. Scenes 13, 15, 16, 17 and 18 use the same layout
+    and were not viewed individually. Scenes 3-11 are search-filtered and
+    unaffected. No narration reads a renamed label. Re-capture with
+    capture_refresh.py --module regression --download --run --ai-controls
+    --settings-tour.
+  08_measure -- CURRENT on settings. Its 09-10 capture (88abc232c) has the
+    same 67 keys as today's factory, and no label has changed since.
+  12_map_barcodes -- CURRENT on settings. Recorded 09-13 (6e72b1611). The
+    only later label change is the grna retirement (2acee777a), and grna was
+    never a row on the Map form (grna_csv is). If the held `barcodes`
+    retirement lands, recheck gui_04, gui_11 and gui_20.
+  09_annotate and the Classify lessons -- not re-audited tonight.
+  05_home (not a Core lesson; found in passing) -- scene 3 lists Data as
+    Import, Run Compare, Experiment Design, Power and Design, Dose Response
+    and quality control. The live Data band also has Embeddings (7f0f74ac7,
+    09-11).
+
+CPU CAPTURE RUN TONIGHT (Qt offscreen, CUDA_VISIBLE_DEVICES="", new stage
+refresh_2026-09-15_cpu so refresh_2026-09-09 is not overwritten):
+
+    capture_refresh.py --module mask --stage $W/refresh_2026-09-15_cpu
+      --download --preview --preview-variants --capture-name <name>
+      --timeout 3000 --platform offscreen
+
+  * mask_preview_cpu: the 1.65 GB example download broke at 323 MB
+    (IncompleteRead); no images arrived. Frames 00-03 only.
+  * mask_preview_cpu2: the download completed (208 TIFFs), then Live loaded
+    no field within 90 s. After the 09-12 rewrite, the panel fills its set
+    table only from an image the user chooses. capture_refresh.py now falls
+    back to the real "Choose image…" dialog (plate1 E01 F001) and records
+    preview_choice.json.
+  * mask_preview_cpu3: frames 00-06 captured by 22:18. Its 05_live_settings
+    shows today's dialog (Min area, Max area, Minimum area to split, Minimum
+    watershed distance, Perimeter fraction, absolute Intensity threshold,
+    merge/split/border/Adjust cells). The retired rows are gone, and
+    Normalize plots is gone from the form behind it. The preview model was
+    still running on CPU (Cellpose ViT encoder, about 240% CPU) when this
+    was written. Frames 07-12 and the new counts in
+    preview_outputs.json / live_variants.json were NOT yet available.
+    Check its log before composing, and verify the counts independently
+    before any narration change.
+
+OWED, IN ORDER. Nothing here has been run. [GPU] marks the GPU steps.
+
+  CPU first: point compose_mask_capture.py at the new preview capture
+  instead of commit 04b23431f and captures/mask; independently re-verify the
+  preview counts (mask_preview_evidence.py); update the scene 6-8 numbers;
+  run stage_lesson.py lessons/07_mask.json --capture-module mask. Re-capture
+  Regression and recompose 13_regression's visuals.
+
+  Common:
+    cd /mnt/firecuda2/Claude/repo/spacr
+    V=/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/.venv/bin/python
+    W=/mnt/firecuda2/Claude/toxoplasma_projects/tutorials
+    ST=$W/refresh_2026-09-09
+
+  07_mask (narration changed: translation, 50 voices and master):
+    [GPU] python tools/run_memory_guarded.py --limit-gib 100 -- $V tools/tutorials/translate_refresh.py --lessons 07_mask --device cuda
+          # default languages are all 13: es fr hi it ja pt-BR zh-CN da de is ko nb sv.
+          # Drafts land in $ST/catalog-drafts. Review them, then:
+          $V tools/tutorials/apply_translation_review.py <review.json>
+    [GPU] SPACR_TUTORIAL_WORKSPACE=$ST python tools/run_memory_guarded.py --limit-gib 100 -- $V $W/tools/render_all_voices.py --lessons 7 --device cuda
+          # the 50-voice matrix over the render_kokoro_narration.py stack; one track only:
+          # $V $W/tools/render_kokoro_narration.py <scenes.json> --output-dir <dir> --voice af_heart --device cuda
+          $V tools/tutorials/verify_staged_audio.py --lesson 07_mask --languages en es fr hi it ja pt-BR zh-CN
+    [encode] $V $W/tools/render_visual_master.py $ST/production/07_mask/visual.json --timings $ST/production/07_mask/audio/en/af_heart.json --output $ST/production/07_mask/video/07_mask_silent.mp4
+          $V tools/tutorials/check_completed_matrix.py --lesson 07_mask
+          # then refresh the library checkpoint with verify_library_checkpoint.py
+    [encode] $V tools/tutorials/stage_web_renditions.py --lesson 07_mask
+          # then build_release_candidate.py and verify_release_candidate.py <new candidate>
+
+  13_regression (narration unchanged: no translation, no voices):
+    [encode] $V $W/tools/render_visual_master.py $ST/production/13_regression/visual.json --timings $ST/production/13_regression/audio/en/af_heart.json --output $ST/production/13_regression/video/13_regression_silent.mp4
+    [encode] $V tools/tutorials/stage_web_renditions.py --lesson 13_regression
+
+  05_home, if Embeddings is added to scene 3: as 07_mask, with
+  --lessons 05_home for translation and --lessons 5 for voices.
+
+  08_measure, 12_map_barcodes: nothing owed for renames.
+
+NEEDS THE MAINTAINER: lifting the publication hold (the candidate still uses
+local media_host roots), uploading a new versioned media revision to
+Hugging Face, deploying Pages from main, and the Home/Performance question
+above.

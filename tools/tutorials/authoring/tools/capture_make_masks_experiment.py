@@ -15,7 +15,17 @@ from capture_mask_experiment import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPO = Path("/mnt/firecuda2/codex/repo/spacr")
+
+
+def _containing_repo() -> Path:
+    """Return the spaCR checkout this script lives in, never another tree."""
+    for parent in Path(__file__).resolve().parents:
+        if (parent / "spacr" / "__init__.py").is_file() and (parent / ".git").exists():
+            return parent
+    raise SystemExit("Set SPACR_REPO: this script is not inside a spaCR checkout")
+
+
+REPO = Path(os.environ.get("SPACR_REPO") or _containing_repo())
 DEFAULT_DATA = ROOT / "synthetic" / "make_masks_real"
 OUTPUT = ROOT / "production" / "14_make_masks" / "keyframes"
 

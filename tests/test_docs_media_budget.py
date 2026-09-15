@@ -252,7 +252,7 @@ def test_narration_is_the_stable_mobile_clock():
     # catalogs/media remain distinct from the unpublished refreshed candidate.
     #
     #     docs/source/_extra/tutorials/        20260911-narration-captions
-    #     tools/tutorials/release_candidate/   20260911-coming-soon
+    #     tools/tutorials/release_candidate/   20260911-narration-captions
     #
     # `_LIBRARY` is `budget.extra_root(...)` -- the published collection --
     # so this key is the right one for what this test reads. Do NOT retarget

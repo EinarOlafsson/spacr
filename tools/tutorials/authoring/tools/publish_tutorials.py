@@ -42,8 +42,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "web"
 PRODUCTION = ROOT / "production"
-REPO = Path(os.environ.get(
-    "SPACR_REPO", "/mnt/firecuda2/codex/repo/spacr"))
+
+
+def _containing_repo() -> Path:
+    """Return the spaCR checkout this script lives in, never another tree."""
+    for parent in Path(__file__).resolve().parents:
+        if (parent / "spacr" / "__init__.py").is_file() and (parent / ".git").exists():
+            return parent
+    raise SystemExit("Set SPACR_REPO: this script is not inside a spaCR checkout")
+
+
+REPO = Path(os.environ.get("SPACR_REPO") or _containing_repo())
 DESTINATION = REPO / "docs/source/_extra/tutorials"
 
 #: Must match tools/docs_media_budget.py NARRATION_HOST and the
