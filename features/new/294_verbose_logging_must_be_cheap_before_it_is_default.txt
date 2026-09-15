@@ -1,5 +1,10 @@
 294 — Verbose logging must be cheap before it can be the default
 
+Status:    PARTLY, verified 2026-09-15 against the code: the three "cheap"
+           bullets and the tooltip are done; left: a whole-app measurement with
+           verbose on, then flipping DEFAULT_VERBOSE_LOGGING (still False,
+           preferences.py:3672). See the dated sections below.
+
 Asked 2026-08-28: "verbose logging should be on by default".
 
 MEASURED THE SAME DAY, with verbose on: spaCR wrote three 5 MB log files
@@ -98,3 +103,42 @@ WHAT IS LEFT BEFORE "ON BY DEFAULT"
 Until 2 exists, DO NOT flip the default. The original ask stands unshipped for
 the original reason: nobody has measured the app with it on since it was made
 cheaper.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- STATUS VERIFIED
+--------------------------------------------------------------------------------
+
+Checked against the four bullets, "THEN turn it on by default" and this file's
+own WHAT IS LEFT, on the tree at 90df1a332.
+
+  CRITERION                          VERDICT  EVIDENCE
+  never trace the per-frame paint    met      logging_util.py:269
+    path                                      _TRACE_SKIP_MODULES (ambient and
+                                              the three fractal modules); :243
+                                              _TRACE_SKIP_NAMES
+  the hook costs nothing when the    met      qt/verbose_logger.py:482 checks
+    level is off                              is_verbose() (:457) before
+                                              formatting; logging_util.py:619
+                                              installs the hook only when on
+  the log is bounded                 met      logging_util.py:51-52: 5 MB x
+                                              BACKUP_COUNT 3, a 20 MB ceiling,
+                                              not the 30 MB stated above
+  the tooltip says what it costs     met      qt/preferences.py:5076-5088
+                                              ("3 seconds with this off and 65
+                                              seconds with it on"), there since
+                                              beb04d46a on 2026-08-28. The
+                                              "STILL OPEN" above was wrong.
+  a whole-app measurement with       NOT MET  none exists, in a test or here
+    verbose on, against 284's
+    budgets
+  THEN on by default                 NOT MET  qt/preferences.py:3672
+                                              DEFAULT_VERBOSE_LOGGING = False,
+                                              pinned by tests/test_verbose_
+                                              logging_is_cheap.py:120
+
+Run today, serial: 4 tests from test_verbose_logging_is_cheap.py and 1 from
+test_verbose_tracing_is_cheap_enough_to_leave_on.py -- 5 passed.
+
+LEFT: measure the app with verbose on against 284's budgets; then, if it fits,
+flip the default. The tooltip's 3 s / 65 s predates the realpath cache
+(fe5a7cfea, 2026-09-14), so that measurement also refreshes its numbers.

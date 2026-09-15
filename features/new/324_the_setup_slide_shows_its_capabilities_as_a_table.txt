@@ -1,6 +1,11 @@
 324 — THE SETUP SLIDE'S CAPABILITY LIST BECOMES A TABLE
 =======================================================
 
+Status:    PARTLY, verified 2026-09-15 against the code: the paragraph, the
+           coloured device line and the derived, translated table are on the
+           first slide; left: spacr-doctor reporting every row, and a test
+           asserting the table equals it. See the dated sections below.
+
 ASKED FOR (2026-08-31)
 ----------------------
 "the setup spacr first page now describes the capabilities of the computer
@@ -227,3 +232,62 @@ It was also on HANDOFF section 1 as a question for the maintainer for about
 twenty minutes, and has been taken off. It was answered before he woke up,
 which is the right outcome for a question that was really a task.
 
+--------------------------------------------------------------------------------
+2026-09-15 -- STATUS VERIFIED
+--------------------------------------------------------------------------------
+
+Checked against DONE MEANS, NAMING, KEEP and DERIVE COLUMN 2, on the tree at
+90df1a332.
+
+  CRITERION                          VERDICT  EVIDENCE
+  the three parts, in that order,    met      widgets/setup_slides.py:1619-
+    on the first slide                        1624: GPU_REQUIREMENT (:205),
+                                              the device line (:1598-1618),
+                                              then the table
+  column 2 derived from              met      setup_slides.py:1664-1688 reads
+    capabilities(), not typed                 accelerator.capabilities()
+                                              (accelerator.py:682);
+                                              GPU_TABLE_ROWS (:231) holds no
+                                              verdicts
+  ... and asserted equal to what     NOT MET  no test compares the two; no file
+    spacr-doctor reports                      in tests/ renders both
+  the doctor reports the backdrop    NOT MET  doctor.py:1241 reads
+    too (DERIVE COLUMN 2)                     capabilities() only on a non-CUDA
+                                              GPU, and prints only the tasks
+                                              NOT accelerated; the backdrop is
+                                              hard-coded True
+                                              (accelerator.py:707), so the
+                                              doctor never names it
+  a test fakes CUDA and Metal: UMAP  met      tests/qt/test_the_setup_slide_
+    differs, Cellpose agrees                  draws_a_capability_table.py:71
+  nothing claims acceleration for a  met      accelerator.py:119 is_gpu needs
+    detected-but-unusable device              usable; the resolver's one
+                                              detected-but-unusable build
+                                              (accelerator.py:197-199) is
+                                              Metal, so is_cuda is False too;
+                                              test_an_unusable_card_is_still_
+                                              named_in_red
+  new strings human-translated       met      qt/i18n.py:116-124; tr() today:
+                                              de Visualisierung, Maschinelles
+                                              Lernen, Live-Hintergrund, UMAP /
+                                              t-SNE / Clustering, Torch-Modelle;
+                                              zh_CN and hi resolve too
+  naming: one backdrop name; the     met      "Live backdrop" in GPU_TABLE_ROWS
+    Cellpose version from the                 and in capabilities()
+    package                                   (accelerator.py:707);
+                                              setup_slides.py:1629-1642
+  KEEP: neural engines, failure      met      setup_slides.py:1703; the
+    swallowing, band and clamp                try/except blocks in
+                                              _what_this_machine_can_do
+                                              (:1645); :1575-1596
+
+Run today, serial: all 12 tests in test_the_setup_slide_draws_a_capability_
+table.py -- 12 passed.
+
+LEFT: spacr-doctor reporting every capabilities() row, the backdrop included,
+and then one test that renders the slide's table and the doctor's answer for
+the same faked machine and asserts they agree.
+
+Found, outside scope: `Accelerator.is_cuda` (accelerator.py:129) does not check
+`usable`, so a hand-built kind="cuda", usable=False accelerator would show the
+UMAP row as GPU; no resolver path builds one today.
