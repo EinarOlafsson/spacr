@@ -1945,9 +1945,9 @@ _PAINT_DIAG_KEYS_IN_ORDER = (
 def _install_the_paint_diagnostic(window):
     """Bind the paint-diagnostic key when the launch asked for it.
 
-    Item 408: two viewports paint opaque black in the maintainer's own
-    session and in no probe run outside it, so the widget state behind the
-    box has to be RECORDED where it happens rather than reconstructed.
+    A viewport can paint opaque black in a real session while no offscreen
+    probe reproduces it, so the widget state behind such a box has to be
+    RECORDED where it happens rather than reconstructed.
 
     :returns: the application-wide ``QShortcut``, or ``None`` when
         ``SPACR_PAINT_DIAG`` was not ``1`` or the key could not be bound.
