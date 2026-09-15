@@ -19676,10 +19676,11 @@
         "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
         "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
         "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
-        "c9bc5ad94d8c3f67656191905edd02e7d37454a6233ddd0da233b3b44896f5b4"
+        "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
+        "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed"
       ],
-      "source_sha256": "21494b889f3fefbf854713581e7a6f15e34c39f2dcd96e3df6de01b158847924",
-      "text": "어떻게 삽입, 기록 그래서 매트릭스는 그것이 어디에서 왔는지 말할 수 있습니다.\n\n:param backbone: 암호화 이름, 시간에 의해 해결.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: 어떤 이미지 데이터 채널 인덱스를 암호화하려면, 순서로. ``None``는 각 이미지 데이터 센터를 의미합니다.\n:param batch_size: 앞으로의 통과로 추출 된 이미지 지역.\n:param device: torch 장치 라인, 또는 ``None`` 하나를 선택합니다.\n:param normalize: 각 이미지 데이터 채널을 암호화하기 전에 자신의 99th 센티일로 분할합니다.미크로스코피 역학 범위는 점 사이의 크기의 명령에 따라 다르며, 사진에 훈련 된 암호는 그렇지 않으면 하나의 이미지 데이터채널을 소음으로 볼 것입니다.",
+      "source_sha256": "d4dcdff695ff190579a75136fa594617ac50e248969cb867b0314248ad6e639e",
+      "text": "어떻게 삽입, 기록 그래서 매트릭스는 그것이 어디에서 왔는지 말할 수 있습니다.\n\n:param backbone: 암호화 이름, 시간에 의해 해결.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: 어떤 이미지 데이터 채널 인덱스를 암호화하려면, 순서로. ``None``는 각 이미지 데이터 센터를 의미합니다.\n:param batch_size: 앞으로의 통과로 추출 된 이미지 지역.\n:param device: torch 장치 라인, 또는 ``None`` 하나를 선택합니다.\n:param normalize: 인코딩 전에 각 채널을 고정된 스케일로 나누고 [0, 1] 범위로 자릅니다. 현미경 영상의 동적 범위는 염색마다 몇 자릿수씩 다르므로, 그렇지 않으면 사진으로 학습한 인코더가 한 채널을 잡음으로 봅니다.\n:param channel_scale: 그 스케일로, 인코딩 순서에 따라 인코딩되는 채널마다 값 하나 -- 보통 플레이트의 무작위 표본에서 구한 각 채널의 99번째 백분위수입니다. 모든 크롭에 같은 수를 쓰므로 객체의 임베딩은 어떤 크롭과 같은 배치에 들어가는지에 좌우되지 않습니다. ``None`` 이면 :func:`embed_array` 가 전달받은 크롭에서 추정합니다.",
       "translation_source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
         "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
@@ -19687,21 +19688,22 @@
         "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
         "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
         "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
-        "c63929f86e8d344a85d73180d981921751bbbf037fed7b7ef0e32a7d75a5bac2"
+        "1c03067c558d03507b1e662442596d567110e94e719dc17873823785d0f1c49f",
+        "34840b8d6d29244125b0665df32b84584f8da66e72e79768d014badd52cce9c0"
       ]
     },
     "spacr.embeddings.EmbeddingSpec.__post_init__": {
       "source_blocks_sha256": [
         "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
         "f56d85217de1cb26860c431c88271f867d79ee87d697789c85a43b724c2800e3",
-        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+        "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7"
       ],
-      "source_sha256": "6a66c6ad25c0f2fde0ae68e93a0153e07694cfa708c1ccc1819eb6f3e240a420",
-      "text": "매트릭스를 생성할 수 없는 사양을 거부한다.\n\n검사는 스펙이 구축되는 대신 사용되는 곳에서 수행됩니다, 왜냐하면 하나의 스펙은 실행의 모든 추출 된 이미지 영역을 암호화하기 때문입니다 : 알려지지 않은 이미지 데이터 채널 정책 또는 하나 아래의 배치 크기는 인쇄 오류이며, 이미지가 충전 된 후에 그것을 발견하면 부하가 사라집니다.\n\n:raises EmbeddingError: ``channel_policy``이 :data:`CHANNEL_POLICIES` 중 하나가 아니거나 ``batch_size``이 하나 아래에 있는 경우.",
+      "source_sha256": "08a363c9db6cf1d3cb2bcb8cbb6bbd9c9573d3092f84439a055f1b7899a3ba51",
+      "text": "매트릭스를 생성할 수 없는 사양을 거부한다.\n\n검사는 스펙이 구축되는 대신 사용되는 곳에서 수행됩니다, 왜냐하면 하나의 스펙은 실행의 모든 추출 된 이미지 영역을 암호화하기 때문입니다 : 알려지지 않은 이미지 데이터 채널 정책 또는 하나 아래의 배치 크기는 인쇄 오류이며, 이미지가 충전 된 후에 그것을 발견하면 부하가 사라집니다.\n\n:raises EmbeddingError: ``channel_policy`` 가 :data:`CHANNEL_POLICIES` 중 하나가 아니거나, ``batch_size`` 가 하나보다 작거나, ``channel_scale`` 이 ``normalize`` 없이 설정되었거나 음수 또는 유한하지 않은 값을 담고 있거나 ``channels`` 의 채널마다 값을 하나씩 주지 않을 때.",
       "translation_source_blocks_sha256": [
         "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
         "e65869bbd8b37a09ceef528360e940963fbf80a121570dd3b22e5e39ea30a4cb",
-        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+        "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7"
       ]
     },
     "spacr.embeddings.EmbeddingSpec.fingerprint": {
@@ -19733,16 +19735,18 @@
     "spacr.embeddings.embed_array": {
       "source_blocks_sha256": [
         "bdea2d4d935fdada62dc3f44c8b2456c622173b79320fd5a7cf4e8a0e178deb1",
+        "327457c3cb011cac25d4b9ef6ca31a55d0c811e35b1ff3b12eb3512f9998a5ed",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
         "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
         "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
         "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
       ],
-      "source_sha256": "9e90f089952fc770b53a0f5290a65d2483079279bee14335b43f7ef8233f4217",
-      "text": "추출 된 이미지 영역의 덩어리를 삽입합니다.\n\n:param crops: ``(n, height, width, channels)``, 이미 :mod:`spacr.crops` 형식이 생성됩니다.\n:param spec: 삽입하는 방법; 기본은 per-channel resnet18입니다.\n:param encoder: 호출기는 ``(n, height, width, 3)`` float32를 [0, 1]로 가져오고 ``(n, dims)``를 반환합니다. 테스트에 의해 주입하여 케이블을 다운로드하지 않고 연습 할 수 있습니다; 생산 호출자는 ``None``를 떠납니다.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: 모양 또는 이미지 데이터 채널 문제, 어떤 모델이 충전되기 전에 - 다운로드는 순서가 잘못되었다는 것을 알 수있는 느린 방법입니다.",
+      "source_sha256": "2ff67c7a6631dfbff8feb9f4eb13a9f23a250a73969d2204b9e453e4233e2a60",
+      "text": "추출 된 이미지 영역의 덩어리를 삽입합니다.\n\n모든 크롭은 같은 채널별 스케일 ``spec.channel_scale`` 로 나뉘므로, 크롭의 임베딩은 ``crops`` 에 있는 다른 크롭에 좌우되지 않습니다. 사양에 스케일이 없으면 ``crops`` 의 무작위 표본에서 추정하고 -- 이때 스택 전체를 플레이트 전체로 간주합니다 -- 경고를 기록합니다. 한 플레이트를 여러 번의 호출로 임베딩하려면 각 호출에 같은 스케일을 넘기십시오. 반환된 ``spec`` 에 그 값이 들어 있습니다.\n\n:param crops: ``(n, height, width, channels)``, 이미 :mod:`spacr.crops` 형식이 생성됩니다.\n:param spec: 삽입하는 방법; 기본은 per-channel resnet18입니다.\n:param encoder: 호출기는 ``(n, height, width, 3)`` float32를 [0, 1]로 가져오고 ``(n, dims)``를 반환합니다. 테스트에 의해 주입하여 케이블을 다운로드하지 않고 연습 할 수 있습니다; 생산 호출자는 ``None``를 떠납니다.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: 모양 또는 이미지 데이터 채널 문제, 어떤 모델이 충전되기 전에 - 다운로드는 순서가 잘못되었다는 것을 알 수있는 느린 방법입니다.",
       "translation_source_blocks_sha256": [
         "414f2d1719a77b29f99b0afea94418b6d92cb1c87873bc1694abff536ec22aba",
+        "2a2643f2cf41032790018efe21250d670c2fd1e01266dfe68c0a7c1d7ec4b287",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
         "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",

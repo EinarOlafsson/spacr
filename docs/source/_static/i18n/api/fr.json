@@ -19676,10 +19676,11 @@
         "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
         "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
         "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
-        "c9bc5ad94d8c3f67656191905edd02e7d37454a6233ddd0da233b3b44896f5b4"
+        "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
+        "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed"
       ],
-      "source_sha256": "21494b889f3fefbf854713581e7a6f15e34c39f2dcd96e3df6de01b158847924",
-      "text": "Comment intégrer, enregistré pour qu'une matrice puisse dire d'où elle vient.\n\n:param backbone: nom d'encodeur, résolu par timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: quel canal de données d'image indexer pour encoder, dans l'ordre. ``None`` signifie chaque canal de donnée d'images que le tableau a.\n:param batch_size: régions d'image extraites par passe vers l'avant.\n:param device: torch chaîne de périphérique, ou ``None`` pour en choisir une.\n:param normalize: Divisez chaque canal de données d'image par son propre 99e percentile avant d'encoder. La gamme dynamique de microscopie varie selon l'ordre de grandeur entre les taches, et un encodeur formé sur des photographies verra autrement un canal de donnée d'images comme du bruit.",
+      "source_sha256": "d4dcdff695ff190579a75136fa594617ac50e248969cb867b0314248ad6e639e",
+      "text": "Comment intégrer, enregistré pour qu'une matrice puisse dire d'où elle vient.\n\n:param backbone: nom d'encodeur, résolu par timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: quel canal de données d'image indexer pour encoder, dans l'ordre. ``None`` signifie chaque canal de donnée d'images que le tableau a.\n:param batch_size: régions d'image extraites par passe vers l'avant.\n:param device: torch chaîne de périphérique, ou ``None`` pour en choisir une.\n:param normalize: diviser chaque canal par une échelle fixe avant l'encodage, borné à [0, 1]. La plage dynamique en microscopie varie de plusieurs ordres de grandeur d'un marquage à l'autre, et un encodeur entraîné sur des photographies verrait sinon un canal comme du bruit.\n:param channel_scale: cette échelle, une valeur par canal encodé dans l'ordre d'encodage -- normalement le 99e centile de chaque canal sur un échantillon aléatoire de la plaque. Les mêmes nombres pour chaque vignette font que le plongement d'un objet ne dépend pas des vignettes qui partagent son lot. ``None`` laisse :func:`embed_array` l'estimer à partir des vignettes qu'on lui donne.",
       "translation_source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
         "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
@@ -19687,21 +19688,22 @@
         "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
         "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
         "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
-        "c63929f86e8d344a85d73180d981921751bbbf037fed7b7ef0e32a7d75a5bac2"
+        "1c03067c558d03507b1e662442596d567110e94e719dc17873823785d0f1c49f",
+        "34840b8d6d29244125b0665df32b84584f8da66e72e79768d014badd52cce9c0"
       ]
     },
     "spacr.embeddings.EmbeddingSpec.__post_init__": {
       "source_blocks_sha256": [
         "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
         "f56d85217de1cb26860c431c88271f867d79ee87d697789c85a43b724c2800e3",
-        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+        "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7"
       ],
-      "source_sha256": "6a66c6ad25c0f2fde0ae68e93a0153e07694cfa708c1ccc1819eb6f3e240a420",
-      "text": "Rejeter une spécification qui ne pouvait pas produire de matrice.\n\nLe contrôle est effectué là où la spec est construite plutôt que là où elle est utilisée, parce qu'une spec code chaque région d'image extraite d'une exécution: une politique de canal de données d'images inconnue ou une taille de lot inférieure à une est une erreur de saisie, et la découvrir après que les images sont chargées gaspille la charge.\n\n:raises EmbeddingError: lorsque ``channel_policy`` n'est pas un de :data:`CHANNEL_POLICIES`, ou ``batch_size`` est inférieur à un.",
+      "source_sha256": "08a363c9db6cf1d3cb2bcb8cbb6bbd9c9573d3092f84439a055f1b7899a3ba51",
+      "text": "Rejeter une spécification qui ne pouvait pas produire de matrice.\n\nLe contrôle est effectué là où la spec est construite plutôt que là où elle est utilisée, parce qu'une spec code chaque région d'image extraite d'une exécution: une politique de canal de données d'images inconnue ou une taille de lot inférieure à une est une erreur de saisie, et la découvrir après que les images sont chargées gaspille la charge.\n\n:raises EmbeddingError: lorsque ``channel_policy`` ne fait pas partie de :data:`CHANNEL_POLICIES`, que ``batch_size`` est inférieur à un, ou que ``channel_scale`` est défini sans ``normalize``, contient une valeur négative ou non finie, ou ne donne pas une valeur par canal de ``channels``.",
       "translation_source_blocks_sha256": [
         "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
         "e65869bbd8b37a09ceef528360e940963fbf80a121570dd3b22e5e39ea30a4cb",
-        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+        "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7"
       ]
     },
     "spacr.embeddings.EmbeddingSpec.fingerprint": {
@@ -19733,16 +19735,18 @@
     "spacr.embeddings.embed_array": {
       "source_blocks_sha256": [
         "bdea2d4d935fdada62dc3f44c8b2456c622173b79320fd5a7cf4e8a0e178deb1",
+        "327457c3cb011cac25d4b9ef6ca31a55d0c811e35b1ff3b12eb3512f9998a5ed",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
         "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
         "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
         "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
       ],
-      "source_sha256": "9e90f089952fc770b53a0f5290a65d2483079279bee14335b43f7ef8233f4217",
-      "text": "Intégré une pile de régions d'images extraites.\n\n:param crops: ``(n, height, width, channels)``, la forme :mod:`spacr.crops` produit déjà.\n:param spec: comment intégrer; la valeur par défaut est resnet par canal18.\n:param encoder: un appelable prenant ``(n, height, width, 3)`` float32 en [0, 1] et retournant ``(n, dims)``. Injecté par les tests pour que le câblage puisse être exercé sans télécharger un épine dorsale; les appelants de production le laissent ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: sur un problème de forme ou de canal de données d'image, avant que n'importe quel modèle ne soit chargé -- un téléchargement est un moyen lent de découvrir que le tableau était erroné.",
+      "source_sha256": "2ff67c7a6631dfbff8feb9f4eb13a9f23a250a73969d2204b9e453e4233e2a60",
+      "text": "Intégré une pile de régions d'images extraites.\n\nChaque vignette est divisée par la même échelle par canal, ``spec.channel_scale``, si bien que le plongement d'une vignette ne dépend pas des autres vignettes de ``crops``. Lorsque la spécification n'en porte aucune, une échelle est estimée à partir d'un échantillon aléatoire de ``crops`` -- la pile est traitée comme la plaque entière -- et un avertissement est journalisé. Pour plonger une plaque en plusieurs appels, passez la même échelle à chacun : le ``spec`` renvoyé la porte.\n\n:param crops: ``(n, height, width, channels)``, la forme :mod:`spacr.crops` produit déjà.\n:param spec: comment intégrer; la valeur par défaut est resnet par canal18.\n:param encoder: un appelable prenant ``(n, height, width, 3)`` float32 en [0, 1] et retournant ``(n, dims)``. Injecté par les tests pour que le câblage puisse être exercé sans télécharger un épine dorsale; les appelants de production le laissent ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: sur un problème de forme ou de canal de données d'image, avant que n'importe quel modèle ne soit chargé -- un téléchargement est un moyen lent de découvrir que le tableau était erroné.",
       "translation_source_blocks_sha256": [
         "414f2d1719a77b29f99b0afea94418b6d92cb1c87873bc1694abff536ec22aba",
+        "2a2643f2cf41032790018efe21250d670c2fd1e01266dfe68c0a7c1d7ec4b287",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
         "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",

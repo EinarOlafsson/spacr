@@ -12091,19 +12091,20 @@
         "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
         "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
         "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
-        "c9bc5ad94d8c3f67656191905edd02e7d37454a6233ddd0da233b3b44896f5b4"
+        "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
+        "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed"
       ],
-      "source_sha256": "21494b889f3fefbf854713581e7a6f15e34c39f2dcd96e3df6de01b158847924",
-      "text": "How to embed, recorded so a matrix can say where it came from.\n\n:param backbone: encoder name, resolved through timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or\n    :data:`CHANNEL_PROJECT`.\n:param channels: which channel indices to encode, in order. ``None``\n    means every channel the array has.\n:param batch_size: crops per forward pass.\n:param device: torch device string, or ``None`` to choose one.\n:param normalize: divide each channel by its own 99th percentile before\n    encoding. Microscopy dynamic range varies by orders of magnitude\n    between stains, and an encoder trained on photographs will otherwise\n    see one channel as noise."
+      "source_sha256": "d4dcdff695ff190579a75136fa594617ac50e248969cb867b0314248ad6e639e",
+      "text": "How to embed, recorded so a matrix can say where it came from.\n\n:param backbone: encoder name, resolved through timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or\n    :data:`CHANNEL_PROJECT`.\n:param channels: which channel indices to encode, in order. ``None``\n    means every channel the array has.\n:param batch_size: crops per forward pass.\n:param device: torch device string, or ``None`` to choose one.\n:param normalize: divide each channel by a fixed scale before encoding,\n    clipped to [0, 1]. Microscopy dynamic range varies by orders of\n    magnitude between stains, and an encoder trained on photographs will\n    otherwise see one channel as noise.\n:param channel_scale: that scale, one value per encoded channel in\n    encoding order -- normally each channel's 99th percentile over a\n    random sample of the plate. The same numbers for every crop mean an\n    object's embedding does not depend on which crops share its batch.\n    ``None`` lets :func:`embed_array` estimate it from the crops it is\n    given."
     },
     "spacr.embeddings.EmbeddingSpec.__post_init__": {
       "source_blocks_sha256": [
         "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
         "f56d85217de1cb26860c431c88271f867d79ee87d697789c85a43b724c2800e3",
-        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+        "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7"
       ],
-      "source_sha256": "6a66c6ad25c0f2fde0ae68e93a0153e07694cfa708c1ccc1819eb6f3e240a420",
-      "text": "Reject a specification that could not produce a matrix.\n\nThe check is made where the spec is built rather than where it is\nused, because one spec encodes every crop of a run: an unknown\nchannel policy or a batch size below one is a typing mistake, and\ndiscovering it after the images are loaded wastes the load.\n\n:raises EmbeddingError: when ``channel_policy`` is not one of\n    :data:`CHANNEL_POLICIES`, or ``batch_size`` is below one."
+      "source_sha256": "08a363c9db6cf1d3cb2bcb8cbb6bbd9c9573d3092f84439a055f1b7899a3ba51",
+      "text": "Reject a specification that could not produce a matrix.\n\nThe check is made where the spec is built rather than where it is\nused, because one spec encodes every crop of a run: an unknown\nchannel policy or a batch size below one is a typing mistake, and\ndiscovering it after the images are loaded wastes the load.\n\n:raises EmbeddingError: when ``channel_policy`` is not one of\n    :data:`CHANNEL_POLICIES`, ``batch_size`` is below one, or\n    ``channel_scale`` is set without ``normalize``, holds a negative\n    or non-finite value, or does not give one value per channel in\n    ``channels``."
     },
     "spacr.embeddings.EmbeddingSpec.fingerprint": {
       "source_blocks_sha256": [
@@ -12125,14 +12126,15 @@
     "spacr.embeddings.embed_array": {
       "source_blocks_sha256": [
         "bdea2d4d935fdada62dc3f44c8b2456c622173b79320fd5a7cf4e8a0e178deb1",
+        "327457c3cb011cac25d4b9ef6ca31a55d0c811e35b1ff3b12eb3512f9998a5ed",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
         "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
         "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
         "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
       ],
-      "source_sha256": "9e90f089952fc770b53a0f5290a65d2483079279bee14335b43f7ef8233f4217",
-      "text": "Embed a stack of crops.\n\n:param crops: ``(n, height, width, channels)``, the shape\n    :mod:`spacr.crops` already produces.\n:param spec: how to embed; the default is per-channel resnet18.\n:param encoder: a callable taking ``(n, height, width, 3)`` float32 in\n    [0, 1] and returning ``(n, dims)``. Injected by the tests so the\n    wiring can be exercised without downloading a backbone; production\n    callers leave it ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: on a shape or channel problem, before any model\n    is loaded -- a download is a slow way to find out the array was\n    wrong."
+      "source_sha256": "2ff67c7a6631dfbff8feb9f4eb13a9f23a250a73969d2204b9e453e4233e2a60",
+      "text": "Embed a stack of crops.\n\nEvery crop is divided by the same per-channel scale,\n``spec.channel_scale``, so a crop's embedding does not depend on the other\ncrops in ``crops``. When the spec carries none, one is estimated from a\nrandom sample of ``crops`` -- the stack is treated as the whole plate --\nand a warning is logged. To embed one plate in several calls, pass the\nsame scale to each: the returned ``spec`` carries it.\n\n:param crops: ``(n, height, width, channels)``, the shape\n    :mod:`spacr.crops` already produces.\n:param spec: how to embed; the default is per-channel resnet18.\n:param encoder: a callable taking ``(n, height, width, 3)`` float32 in\n    [0, 1] and returning ``(n, dims)``. Injected by the tests so the\n    wiring can be exercised without downloading a backbone; production\n    callers leave it ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: on a shape or channel problem, before any model\n    is loaded -- a download is a slow way to find out the array was\n    wrong."
     },
     "spacr.embeddings.embedding_column_names": {
       "source_blocks_sha256": [

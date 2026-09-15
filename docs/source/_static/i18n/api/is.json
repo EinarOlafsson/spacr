@@ -19676,10 +19676,11 @@
         "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
         "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
         "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
-        "c9bc5ad94d8c3f67656191905edd02e7d37454a6233ddd0da233b3b44896f5b4"
+        "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
+        "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed"
       ],
-      "source_sha256": "21494b889f3fefbf854713581e7a6f15e34c39f2dcd96e3df6de01b158847924",
-      "text": "Hvernig á að fylgjast, skráð þannig að matrix getur sagt hvar það kom frá.\n\n:param backbone: Kódernafn, löst í klukkustundum.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: sem mynd gögn kanna sýningar til að skrá, í röð. ``None`` þýðir hvert mynd gögnin kanna sem áætlun hefur.\n:param batch_size: Myndin er notað á svæðum á framtíðinni.\n:param device: torch tæki rita, eða ``None`` til að velja einn.\n:param normalize: skilja hverri mynd gögn kanna með eigin 99th percentile áður en skódingu. mikroskópur dæmum fjöldi er mismunandi eftir aðstæður magn milli skugga, og en skáld þjálfun á myndum mun annars sjá einn mynd gögnin kanna sem hljóð.",
+      "source_sha256": "d4dcdff695ff190579a75136fa594617ac50e248969cb867b0314248ad6e639e",
+      "text": "Hvernig á að fylgjast, skráð þannig að matrix getur sagt hvar það kom frá.\n\n:param backbone: Kódernafn, löst í klukkustundum.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: sem mynd gögn kanna sýningar til að skrá, í röð. ``None`` þýðir hvert mynd gögnin kanna sem áætlun hefur.\n:param batch_size: Myndin er notað á svæðum á framtíðinni.\n:param device: torch tæki rita, eða ``None`` til að velja einn.\n:param normalize: deila hverri rás með föstum kvarða fyrir kóðun, klippt við [0, 1]. Kvikt svið í smásjármyndum er breytilegt um margar stærðargráður milli litana, og kóðari sem þjálfaður er á ljósmyndum sæi annars eina rás sem suð.\n:param channel_scale: sá kvarði, eitt gildi fyrir hverja kóðaða rás í kóðunarröð -- venjulega 99. hundraðshlutamark hverrar rásar yfir slembiúrtak af plötunni. Sömu tölur fyrir hverja úrklippu þýða að greyping hlutar ræðst ekki af því hvaða úrklippur lenda í sömu lotu. ``None`` lætur :func:`embed_array` meta hann út frá úrklippunum sem það fær.",
       "translation_source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
         "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
@@ -19687,21 +19688,22 @@
         "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
         "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
         "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
-        "c63929f86e8d344a85d73180d981921751bbbf037fed7b7ef0e32a7d75a5bac2"
+        "1c03067c558d03507b1e662442596d567110e94e719dc17873823785d0f1c49f",
+        "34840b8d6d29244125b0665df32b84584f8da66e72e79768d014badd52cce9c0"
       ]
     },
     "spacr.embeddings.EmbeddingSpec.__post_init__": {
       "source_blocks_sha256": [
         "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
         "f56d85217de1cb26860c431c88271f867d79ee87d697789c85a43b724c2800e3",
-        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+        "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7"
       ],
-      "source_sha256": "6a66c6ad25c0f2fde0ae68e93a0153e07694cfa708c1ccc1819eb6f3e240a420",
-      "text": "Skýringu sem gæti ekki framleiða matrix.\n\nSkoðun er gert þar sem spektrum er byggð en ekki þar sem það er notað, vegna þess að einn spektrur skódir hverri útgreidd myndar svæðis af hreyfingu: óþekkt myndur gögnum tákna stjórn eða töflur stærð undir einn er greiningur, og uppgötva það eftir myndirnar eru ladded eyðileggja þekkingu.\n\n:raises EmbeddingError: þegar ``channel_policy`` er ekki einn af :data:`CHANNEL_POLICIES` eða ``batch_size`` er undir einn.",
+      "source_sha256": "08a363c9db6cf1d3cb2bcb8cbb6bbd9c9573d3092f84439a055f1b7899a3ba51",
+      "text": "Skýringu sem gæti ekki framleiða matrix.\n\nSkoðun er gert þar sem spektrum er byggð en ekki þar sem það er notað, vegna þess að einn spektrur skódir hverri útgreidd myndar svæðis af hreyfingu: óþekkt myndur gögnum tákna stjórn eða töflur stærð undir einn er greiningur, og uppgötva það eftir myndirnar eru ladded eyðileggja þekkingu.\n\n:raises EmbeddingError: þegar ``channel_policy`` er ekki eitt af :data:`CHANNEL_POLICIES`, ``batch_size`` er minna en einn, eða ``channel_scale`` er stillt án ``normalize``, inniheldur neikvætt gildi eða gildi sem er ekki endanlegt, eða gefur ekki eitt gildi fyrir hverja rás í ``channels``.",
       "translation_source_blocks_sha256": [
         "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
         "e65869bbd8b37a09ceef528360e940963fbf80a121570dd3b22e5e39ea30a4cb",
-        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+        "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7"
       ]
     },
     "spacr.embeddings.EmbeddingSpec.fingerprint": {
@@ -19733,16 +19735,18 @@
     "spacr.embeddings.embed_array": {
       "source_blocks_sha256": [
         "bdea2d4d935fdada62dc3f44c8b2456c622173b79320fd5a7cf4e8a0e178deb1",
+        "327457c3cb011cac25d4b9ef6ca31a55d0c811e35b1ff3b12eb3512f9998a5ed",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
         "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
         "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
         "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
       ],
-      "source_sha256": "9e90f089952fc770b53a0f5290a65d2483079279bee14335b43f7ef8233f4217",
-      "text": "Íhuga stack af útgreiddum myndum svæðum.\n\n:param crops: ``(n, height, width, channels)``, myndin :mod:`spacr.crops` er þegar að framleiða.\n:param spec: Hvernig á að fylgjast; í staðsetningu er per-channel resnet18.\n:param encoder: a callable taka ``(n, height, width, 3)`` float32 í [0, 1] og aftur ``(n, dims)``. Íhugað af prófunum svo að litið er hægt að þjálfa án þess að hlaða bakbón; framleiðslu callers yfirgefa það ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: á form eða mynd gögn kanna vandamál, áður en hvaða mönnun er lendað - niðurstöður er slæmt leið til að finna út áætlun var rangt.",
+      "source_sha256": "2ff67c7a6631dfbff8feb9f4eb13a9f23a250a73969d2204b9e453e4233e2a60",
+      "text": "Íhuga stack af útgreiddum myndum svæðum.\n\nHver úrklippa er deild með sama kvarða fyrir hverja rás, ``spec.channel_scale``, svo greyping úrklippu ræðst ekki af hinum úrklippunum í ``crops``. Þegar forskriftin ber engan kvarða er hann metinn út frá slembiúrtaki af ``crops`` -- staflinn er meðhöndlaður sem öll platan -- og viðvörun er skráð. Til að greypa eina plötu í nokkrum köllum skaltu senda sama kvarða í hvert þeirra: skilað ``spec`` ber hann.\n\n:param crops: ``(n, height, width, channels)``, myndin :mod:`spacr.crops` er þegar að framleiða.\n:param spec: Hvernig á að fylgjast; í staðsetningu er per-channel resnet18.\n:param encoder: a callable taka ``(n, height, width, 3)`` float32 í [0, 1] og aftur ``(n, dims)``. Íhugað af prófunum svo að litið er hægt að þjálfa án þess að hlaða bakbón; framleiðslu callers yfirgefa það ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: á form eða mynd gögn kanna vandamál, áður en hvaða mönnun er lendað - niðurstöður er slæmt leið til að finna út áætlun var rangt.",
       "translation_source_blocks_sha256": [
         "414f2d1719a77b29f99b0afea94418b6d92cb1c87873bc1694abff536ec22aba",
+        "2a2643f2cf41032790018efe21250d670c2fd1e01266dfe68c0a7c1d7ec4b287",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
         "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",

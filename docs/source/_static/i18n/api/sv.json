@@ -19676,10 +19676,11 @@
         "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
         "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
         "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
-        "c9bc5ad94d8c3f67656191905edd02e7d37454a6233ddd0da233b3b44896f5b4"
+        "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
+        "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed"
       ],
-      "source_sha256": "21494b889f3fefbf854713581e7a6f15e34c39f2dcd96e3df6de01b158847924",
-      "text": "Hur man bäddar in, registreras så att en matris kan säga var den kom ifrån.\n\n:param backbone: kodare namn, löst genom timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: vilket bilddatakanalindex som ska kodas, i ordning. ``None`` betyder att varje bilddatakanaler som arrayen har.\n:param batch_size: extraherade bildområden per framfart.\n:param device: torch enhetssträng, eller ``None`` för att välja en.\n:param normalize: dela varje bild datakanal med sin egen 99: e percentil före kodning. Mikroskopi dynamisk räckvidd varierar efter storleksordningar mellan fläckar, och en kodare tränas på fotografier annars kommer att se en bild data kanal som buller.",
+      "source_sha256": "d4dcdff695ff190579a75136fa594617ac50e248969cb867b0314248ad6e639e",
+      "text": "Hur man bäddar in, registreras så att en matris kan säga var den kom ifrån.\n\n:param backbone: kodare namn, löst genom timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: vilket bilddatakanalindex som ska kodas, i ordning. ``None`` betyder att varje bilddatakanaler som arrayen har.\n:param batch_size: extraherade bildområden per framfart.\n:param device: torch enhetssträng, eller ``None`` för att välja en.\n:param normalize: dividera varje kanal med en fast skala före kodningen, begränsat till [0, 1]. Mikroskopins dynamiska omfång skiljer sig med flera storleksordningar mellan färgningar, och en kodare som tränats på fotografier ser annars en kanal som brus.\n:param channel_scale: den skalan, ett värde per kodad kanal i kodningsordning -- normalt varje kanals 99:e percentil över ett slumpmässigt urval av plattan. Samma tal för varje utsnitt gör att ett objekts inbäddning inte beror på vilka utsnitt som hamnar i samma omgång. ``None`` låter :func:`embed_array` uppskatta den från de utsnitt den får.",
       "translation_source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
         "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
@@ -19687,21 +19688,22 @@
         "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
         "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
         "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
-        "c63929f86e8d344a85d73180d981921751bbbf037fed7b7ef0e32a7d75a5bac2"
+        "1c03067c558d03507b1e662442596d567110e94e719dc17873823785d0f1c49f",
+        "34840b8d6d29244125b0665df32b84584f8da66e72e79768d014badd52cce9c0"
       ]
     },
     "spacr.embeddings.EmbeddingSpec.__post_init__": {
       "source_blocks_sha256": [
         "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
         "f56d85217de1cb26860c431c88271f867d79ee87d697789c85a43b724c2800e3",
-        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+        "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7"
       ],
-      "source_sha256": "6a66c6ad25c0f2fde0ae68e93a0153e07694cfa708c1ccc1819eb6f3e240a420",
-      "text": "Avvisa en specifikation som inte kunde producera en matris.\n\nKontrollen görs där spec är byggd snarare än var den används, eftersom en spec kodar varje extraherad bild region av en körning: en okänd bild datakanal policy eller en batch storlek under en är ett skrivfel, och upptäcka det efter bilderna laddas slösar lasten.\n\n:raises EmbeddingError: när ``channel_policy`` inte är en av :data:`CHANNEL_POLICIES` eller ``batch_size`` är lägre än en.",
+      "source_sha256": "08a363c9db6cf1d3cb2bcb8cbb6bbd9c9573d3092f84439a055f1b7899a3ba51",
+      "text": "Avvisa en specifikation som inte kunde producera en matris.\n\nKontrollen görs där spec är byggd snarare än var den används, eftersom en spec kodar varje extraherad bild region av en körning: en okänd bild datakanal policy eller en batch storlek under en är ett skrivfel, och upptäcka det efter bilderna laddas slösar lasten.\n\n:raises EmbeddingError: när ``channel_policy`` inte är en av :data:`CHANNEL_POLICIES`, ``batch_size`` är mindre än ett, eller ``channel_scale`` är satt utan ``normalize``, innehåller ett negativt eller icke-ändligt värde, eller inte anger ett värde per kanal i ``channels``.",
       "translation_source_blocks_sha256": [
         "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
         "e65869bbd8b37a09ceef528360e940963fbf80a121570dd3b22e5e39ea30a4cb",
-        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+        "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7"
       ]
     },
     "spacr.embeddings.EmbeddingSpec.fingerprint": {
@@ -19733,16 +19735,18 @@
     "spacr.embeddings.embed_array": {
       "source_blocks_sha256": [
         "bdea2d4d935fdada62dc3f44c8b2456c622173b79320fd5a7cf4e8a0e178deb1",
+        "327457c3cb011cac25d4b9ef6ca31a55d0c811e35b1ff3b12eb3512f9998a5ed",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
         "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
         "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
         "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
       ],
-      "source_sha256": "9e90f089952fc770b53a0f5290a65d2483079279bee14335b43f7ef8233f4217",
-      "text": "Lägga in en hög med extraherade bildområden.\n\n:param crops: ``(n, height, width, channels)``, bildas redan formen :mod:`spacr.crops`.\n:param spec: hur man bäddar in; standardvärdet är resnet per kanal18.\n:param encoder: ett inkallbart intag ``(n, height, width, 3)`` float32 i [0, 1] och retur ``(n, dims)``. Injicerat av testerna så att ledningarna kan utövas utan att ladda ner en ryggrad; produktionsväljare lämnar det ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: på en form eller bild datakanal problem, innan någon modell laddas - en nedladdning är ett långsamt sätt att ta reda på arrayen var fel.",
+      "source_sha256": "2ff67c7a6631dfbff8feb9f4eb13a9f23a250a73969d2204b9e453e4233e2a60",
+      "text": "Lägga in en hög med extraherade bildområden.\n\nVarje utsnitt divideras med samma skala per kanal, ``spec.channel_scale``, så ett utsnitts inbäddning beror inte på de andra utsnitten i ``crops``. Saknar specifikationen en skala uppskattas den från ett slumpmässigt urval av ``crops`` -- stapeln behandlas som hela plattan -- och en varning loggas. För att bädda in en platta i flera anrop, skicka samma skala till vart och ett: den returnerade ``spec`` bär den.\n\n:param crops: ``(n, height, width, channels)``, bildas redan formen :mod:`spacr.crops`.\n:param spec: hur man bäddar in; standardvärdet är resnet per kanal18.\n:param encoder: ett inkallbart intag ``(n, height, width, 3)`` float32 i [0, 1] och retur ``(n, dims)``. Injicerat av testerna så att ledningarna kan utövas utan att ladda ner en ryggrad; produktionsväljare lämnar det ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: på en form eller bild datakanal problem, innan någon modell laddas - en nedladdning är ett långsamt sätt att ta reda på arrayen var fel.",
       "translation_source_blocks_sha256": [
         "414f2d1719a77b29f99b0afea94418b6d92cb1c87873bc1694abff536ec22aba",
+        "2a2643f2cf41032790018efe21250d670c2fd1e01266dfe68c0a7c1d7ec4b287",
         "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
         "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
         "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
