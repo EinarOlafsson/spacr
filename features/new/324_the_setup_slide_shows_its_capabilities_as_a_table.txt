@@ -192,3 +192,38 @@ THE LESSON, which is the reason this correction is longer than the finding: a
 lookup that answers "absent" is only evidence if you are reading the table the
 code reads. I checked nine catalogs carefully and thoroughly and none of them
 was the one `tr()` consults first.
+
+--------------------------------------------------------------------------------
+2026-09-15 04:2x -- THE FOUR CAPTIONS ARE TRANSLATED. 324 IS DONE.
+--------------------------------------------------------------------------------
+
+The other session added them as compact `_ROWS` rows in `spacr/qt/i18n.py`,
+commit 2b0c1230c, in origin/nightly bac9151d0. Five strings, not four -- they
+also caught "Torch models", where the composite had been producing the
+un-hyphenated "Torch Modelle".
+
+VERIFIED HERE THROUGH `tr()`, the instrument this file learned to use the hard
+way, on a tree containing that commit:
+
+    caption                    de es fr hi is ko pt sv zh_CN
+    Visualization              ok ok ok ok ok ok ok ok ok
+    Machine learning           ok ok ok ok ok ok ok ok ok
+    Live backdrop              ok ok ok ok ok ok ok ok ok
+    UMAP / t-SNE / cluster     ok ok ok ok ok ok ok ok ok
+    Torch models               ok ok ok ok ok ok ok ok ok
+
+    de: Visualisierung | Maschinelles Lernen | Live-Hintergrund |
+        UMAP / t-SNE / Clustering | Torch-Modelle
+
+Human-written rows, not a machine pass, which is what this item's own bullet
+required: "They are user-facing prose and must not be machine-drafted."
+
+SO EVERY BULLET IN THIS FILE IS NOW MET. The paragraph, the coloured device
+line with 319's detected-but-unusable distinction, the derived three-column
+table, the CUDA-vs-Metal test this file demanded by name, and the translations.
+324 IS DONE.
+
+It was also on HANDOFF section 1 as a question for the maintainer for about
+twenty minutes, and has been taken off. It was answered before he woke up,
+which is the right outcome for a question that was really a task.
+
