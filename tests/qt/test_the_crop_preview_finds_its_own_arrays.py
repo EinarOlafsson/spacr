@@ -109,10 +109,16 @@ def test_an_empty_folder_says_what_is_wrong(tmp_path):
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
-def panel(qapp):
+def panel(qtbot):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
 
-    return MeasurePreviewPanel(threaded=False)
+    made = MeasurePreviewPanel(threaded=False)
+    # REGISTERED, so pytest-qt closes and deletes it when the test ends. Left
+    # to Python, a parentless panel is destroyed by the cycle collector
+    # whenever it next runs, and on dispatch 35012948690 that collection, in
+    # another file on the same worker, segfaulted it.
+    qtbot.addWidget(made)
+    return made
 
 
 def test_a_src_setting_loads_a_field(panel, tmp_path, monkeypatch):
