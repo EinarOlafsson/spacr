@@ -2,6 +2,76 @@
   "language": "ko",
   "records": [
     {
+      "context": "when the orientation label is not one of the two, or when the table is not DNA and so cannot be complemented at all.",
+      "label": "spacr.barcode_search.BarcodeTable.oriented#3",
+      "source": "when the orientation label is not one of the two, or when the table is not DNA and so cannot be complemented at all.",
+      "source_sha256": "53f37c12c55fe49dec2437e6f1e080af6f2e9a588386b97beed6f76c1e5fbf0d",
+      "translation": "방향 레이블이 둘 중 어느 것도 아닐 때, 또는 테이블이 DNA 가 아니어서 상보 서열로 바꿀 수 없을 때."
+    },
+    {
+      "context": "A non-nucleotide table is refused rather than mangled. Peptide tags and amino-acid barcodes pass through `reverse_complement` unchanged -- it maps only the four bases and N -- so a flipped table would be the same letters reversed, searched for, and never found. Saying no is the honest answer; silently searching for a sequence that cannot match reports \"this reference is absent from the reads\", which is a conclusion about the data rather than about the request.",
+      "label": "spacr.barcode_search.BarcodeTable.oriented#4",
+      "source": "A NON-NUCLEOTIDE TABLE IS REFUSED RATHER THAN MANGLED. Peptide tags and amino-acid barcodes pass through `reverse_complement` unchanged -- it maps only the four bases and N -- so a flipped table would be the same letters reversed, searched for, and never found. Saying no is the honest answer; silently searching for a sequence that cannot match reports \"this reference is absent from the reads\", which is a conclusion about the data rather than about the request.",
+      "source_sha256": "1e3ba3e13cf8e2f1c0cf30f9f40267c0ef4d38e8211e4f9f884d86f0f36c4545",
+      "translation": "뉴클레오타이드가 아닌 테이블은 망가뜨리지 않고 거부합니다. 펩타이드 태그와 아미노산 바코드는 `reverse_complement` 를 거쳐도 바뀌지 않으므로 -- 이 함수는 네 염기와 N 만 변환합니다 -- 뒤집은 테이블은 같은 글자를 거꾸로 늘어놓은 것일 뿐이고, 검색해도 절대 찾을 수 없습니다. 거부하는 것이 정직한 답입니다. 일치할 수 없는 서열을 조용히 검색하면 “이 참조는 리드에 없음”이라고 보고하는데, 이는 요청이 아니라 데이터에 대한 결론이 되어 버립니다."
+    },
+    {
+      "context": "The numbers a barcode search judges by, and what each one judges.",
+      "label": "spacr.barcode_search.SearchThresholds#0",
+      "source": "The numbers a barcode search judges by, and what each one judges.",
+      "source_sha256": "c37afe97c98e140c0d99484ebaf720920c5d8e7dbedba3f7b641b9f940a9dadf",
+      "translation": "바코드 검색이 판단 기준으로 삼는 수치와, 각 수치가 판단하는 대상."
+    },
+    {
+      "context": "These were module constants. They were chosen against one screen's data, which is exactly the kind of number that is right until someone runs a different assay -- a shorter read, a smaller reference, a library where 10% of reads carrying the barcode is a good day rather than a failure. The values here are those same numbers, so a caller who passes nothing gets the behaviour that already existed; what changes is that the numbers can now be said out loud by someone whose data disagrees with them.",
+      "label": "spacr.barcode_search.SearchThresholds#1",
+      "source": "THESE WERE MODULE CONSTANTS. They were chosen against one screen's data, which is exactly the kind of number that is right until someone runs a different assay -- a shorter read, a smaller reference, a library where 10% of reads carrying the barcode is a good day rather than a failure. The values here are those same numbers, so a caller who passes nothing gets the behaviour that already existed; what changes is that the numbers can now be said out loud by someone whose data disagrees with them.",
+      "source_sha256": "04a580c281f193258580d1bed1e86b4299fa827a10cf992b41162183fab61e80",
+      "translation": "원래는 모듈 상수였습니다. 한 스크리닝의 데이터를 기준으로 고른 값이라, 누군가 다른 분석을 실행하기 전까지만 맞는 바로 그런 종류의 수치입니다 -- 더 짧은 리드, 더 작은 참조, 바코드를 가진 리드가 10%이면 실패가 아니라 좋은 날인 라이브러리처럼요. 여기의 값은 그 수치 그대로이므로, 아무것도 전달하지 않는 호출자는 기존 동작을 그대로 얻습니다. 달라진 점은 데이터가 이 수치와 맞지 않는 사람이 이제 그 수치를 명시적으로 지정할 수 있다는 것입니다."
+    },
+    {
+      "context": "Each field judges a DIFFERENT question, and they are asked in this order: is the sample big enough to say anything, is the hit rate distinguishable from coincidence, is it big enough to map from, and do the hits sit at one place in the read. A verdict of INDETERMINATE names which question it was that could not be answered.",
+      "label": "spacr.barcode_search.SearchThresholds#2",
+      "source": "Each field judges a DIFFERENT question, and they are asked in this order: is the sample big enough to say anything, is the hit rate distinguishable from coincidence, is it big enough to map from, and do the hits sit at one place in the read. A verdict of INDETERMINATE names which question it was that could not be answered.",
+      "source_sha256": "a3ff9da17ef70f78d92abef3e825c039431035e4452739a05a59e6e4b8d6fffb",
+      "translation": "각 필드는 서로 다른 질문을 판단하며, 질문은 이 순서로 던져집니다: 표본이 무언가를 말할 만큼 큰가, 히트 비율을 우연과 구별할 수 있는가, 그로부터 매핑할 만큼 큰가, 그리고 히트가 리드의 한 위치에 모여 있는가. INDETERMINATE 판정은 어느 질문에 답할 수 없었는지를 알려 줍니다."
+    },
+    {
+      "context": "Refuse thresholds that cannot decide anything.",
+      "label": "spacr.barcode_search.SearchThresholds.__post_init__#0",
+      "source": "Refuse thresholds that cannot decide anything.",
+      "source_sha256": "0a8c492b342b72b0feb0e870cf20e3ed3db53acacc5a0b124c0568597f83d963",
+      "translation": "아무것도 결정할 수 없는 임계값을 거부합니다."
+    },
+    {
+      "context": "A threshold out of range does not fail loudly at the point it is set; it produces a report in which every table is PRESENT, or every table is ABSENT, and the processing session looks like it worked. Checking here means the complaint names the setting rather than the data.",
+      "label": "spacr.barcode_search.SearchThresholds.__post_init__#1",
+      "source": "A threshold out of range does not fail loudly at the point it is set; it produces a report in which every table is PRESENT, or every table is ABSENT, and the run looks like it worked. Checking here means the complaint names the setting rather than the data.",
+      "source_sha256": "116841653e0fed48cd108791bdd144d3b4581d732e55d35599d8108da8151b7e",
+      "translation": "범위를 벗어난 임계값은 설정되는 시점에 요란하게 실패하지 않습니다. 대신 모든 테이블이 PRESENT 이거나 모든 테이블이 ABSENT 인 보고서를 만들고, 실행은 제대로 된 것처럼 보입니다. 여기서 검사하면 오류가 데이터가 아니라 설정을 지목하게 됩니다."
+    },
+    {
+      "context": "when a threshold cannot produce a real verdict.",
+      "label": "spacr.barcode_search.SearchThresholds.__post_init__#2",
+      "source": "when a threshold cannot produce a real verdict.",
+      "source_sha256": "755feb49c0b4cbcf75c611c3289ba8412254cc77edb372b5676157b0653debc4",
+      "translation": "임계값이 실제 판정을 내릴 수 없을 때."
+    },
+    {
+      "context": "a :class:`SearchThresholds` saying what counts as present, absent and undecided, or None for the defaults. Every verdict in every yielded report is judged by these.",
+      "label": "spacr.barcode_search.iter_barcode_search#7",
+      "source": "a :class:`SearchThresholds` saying what counts as present, absent and undecided, or None for the defaults. Every verdict in every yielded report is judged by these.",
+      "source_sha256": "65e3d8d5828e85f4233f0a895b02ae30aec1a206bba2b57fa8b853b1ea2e9751",
+      "translation": "무엇을 존재, 부재, 미결정으로 볼지 정하는 :class:`SearchThresholds`, 또는 기본값을 쓰려면 None. 반환되는 모든 보고서의 모든 판정이 이 기준으로 내려집니다."
+    },
+    {
+      "context": "a :class:`SearchThresholds`, or None for the defaults.",
+      "label": "spacr.barcode_search.search_barcodes#7",
+      "source": "a :class:`SearchThresholds`, or None for the defaults.",
+      "source_sha256": "8a9e4b3324b32fb251ada822277089828dd13b8c45a0cb6d80550ff7f78e1a8a",
+      "translation": ":class:`SearchThresholds`, 또는 기본값을 쓰려면 None."
+    },
+    {
       "context": "Find every older spaCR on this computer, and remove the installer-made ones.",
       "label": "spacr.install_cleanup#0",
       "source": "Find every older spaCR on this computer, and remove the installer-made ones.",
@@ -611,11 +681,32 @@
       "translation": "``font_scale``: float, 1.0 = 100 % (기본값). [0.10, 2.0] 범위로 제한됩니다."
     },
     {
+      "context": "It follows the form. Once a search has been asked for, changing any setting the search reads -- the sequencing folder, a reference table, the barcode set or the anchor -- starts it again after the form has been still for a moment, the way the Mask live preview follows its settings. Settings the search does not read never start one. Apply is the exception to everything live about this panel: the form changes only when it is pressed, so a value somebody typed is never replaced by a measurement that arrived while they were typing.",
+      "label": "spacr.qt.screens.map_barcodes.BarcodeSearchPanel#3",
+      "source": "It follows the form. Once a search has been asked for, changing any setting the search reads -- the sequencing folder, a reference table, the barcode set or the anchor -- starts it again after the form has been still for a moment, the way the Mask live preview follows its settings. Settings the search does not read never start one. Apply is the exception to everything live about this panel: the form changes only when it is pressed, so a value somebody typed is never replaced by a measurement that arrived while they were typing.",
+      "source_sha256": "76bb2fe9e4bbcd267b0807aa35f714fb163113624d88d26d671c3aa08cac71a1",
+      "translation": "이 패널은 폼을 따라갑니다. 검색을 한 번 요청한 뒤에는 검색이 읽는 설정 -- 시퀀싱 폴더, 참조 테이블, 바코드 세트, 앵커 -- 중 하나라도 바꾸면 폼이 잠시 멈춘 뒤 검색이 다시 시작됩니다. 마스크의 실시간 미리보기가 설정을 따라가는 것과 같은 방식입니다. 검색이 읽지 않는 설정은 검색을 시작하지 않습니다. 적용 버튼은 이 패널의 모든 실시간 동작에서 예외입니다: 폼은 버튼을 눌렀을 때에만 바뀌므로, 누군가 입력한 값이 입력하는 동안 도착한 측정값으로 바뀌는 일은 없습니다."
+    },
+    {
       "context": "at least 1 px, because Qt refuses a pixel size of zero or less; no larger floor is imposed.",
       "label": "spacr.qt.theme.font_px#5",
       "source": "at least 1 px, because Qt refuses a pixel size of zero or less; no larger floor is imposed.",
       "source_sha256": "23b6fbe53b6e1de3d14cf1572ae8b2fbf1fc85850f9d87e5331a1772d87f7126",
       "translation": "최소 1 px입니다. Qt는 0 이하의 픽셀 크기를 거부하기 때문이며, 그보다 큰 하한은 두지 않습니다."
+    },
+    {
+      "context": "The kind that will actually be drawn.",
+      "label": "spacr.qt.widgets.graph_spec.GraphSpec.resolved_kind#0",
+      "source": "The kind that will actually be drawn.",
+      "source_sha256": "20da71f8ba82bae80518ce6cc4d05a9ba6d1e6369cd2f747d8e09f9cc95b863a",
+      "translation": "실제로 그려질 종류."
+    },
+    {
+      "context": "THE PIN, then the setting, then the inference. An explicit pin is the user saying \"this chart, now\" and still wins outright. With no pin, the Default Graph Type preference chooses among the forms that fit, and the inference answers when there is no preference or the chosen form cannot be drawn here -- see :func:`_kind_and_note`.",
+      "label": "spacr.qt.widgets.graph_spec.GraphSpec.resolved_kind#1",
+      "source": "THE PIN, THEN THE SETTING, THEN THE INFERENCE. An explicit pin is the user saying \"this chart, now\" and still wins outright. With no pin, the Default Graph Type preference chooses among the forms that fit, and the inference answers when there is no preference or the chosen form cannot be drawn here -- see :func:`_kind_and_note`.",
+      "source_sha256": "a99b098682ea2062035c2d71444303d0626bd5e14c0ee5121d4398d291c6c44c",
+      "translation": "고정, 그다음 설정, 그다음 추론. 명시적 고정은 사용자가 “바로 이 차트, 지금”이라고 말하는 것이며 여전히 무조건 우선합니다. 고정이 없으면 Default Graph Type 환경설정이 알맞은 형태 중에서 고르고, 환경설정이 없거나 선택한 형태를 여기서 그릴 수 없을 때는 추론이 답합니다 -- :func:`_kind_and_note` 참조."
     }
   ],
   "schema": 1

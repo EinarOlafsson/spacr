@@ -2,6 +2,76 @@
   "language": "zh_CN",
   "records": [
     {
+      "context": "when the orientation label is not one of the two, or when the table is not DNA and so cannot be complemented at all.",
+      "label": "spacr.barcode_search.BarcodeTable.oriented#3",
+      "source": "when the orientation label is not one of the two, or when the table is not DNA and so cannot be complemented at all.",
+      "source_sha256": "53f37c12c55fe49dec2437e6f1e080af6f2e9a588386b97beed6f76c1e5fbf0d",
+      "translation": "当方向标签不是这两种之一，或者该表不是 DNA、因而根本无法取互补序列时。"
+    },
+    {
+      "context": "A non-nucleotide table is refused rather than mangled. Peptide tags and amino-acid barcodes pass through `reverse_complement` unchanged -- it maps only the four bases and N -- so a flipped table would be the same letters reversed, searched for, and never found. Saying no is the honest answer; silently searching for a sequence that cannot match reports \"this reference is absent from the reads\", which is a conclusion about the data rather than about the request.",
+      "label": "spacr.barcode_search.BarcodeTable.oriented#4",
+      "source": "A NON-NUCLEOTIDE TABLE IS REFUSED RATHER THAN MANGLED. Peptide tags and amino-acid barcodes pass through `reverse_complement` unchanged -- it maps only the four bases and N -- so a flipped table would be the same letters reversed, searched for, and never found. Saying no is the honest answer; silently searching for a sequence that cannot match reports \"this reference is absent from the reads\", which is a conclusion about the data rather than about the request.",
+      "source_sha256": "1e3ba3e13cf8e2f1c0cf30f9f40267c0ef4d38e8211e4f9f884d86f0f36c4545",
+      "translation": "非核苷酸表会被拒绝，而不是被弄乱。肽标签和氨基酸条形码经过 `reverse_complement` 时保持不变 -- 它只转换四种碱基和 N --，因此翻转后的表只是同样的字母倒过来，被搜索却永远找不到。拒绝才是诚实的回答；悄悄搜索一个不可能匹配的序列会报告“读段中不存在此参考序列”，这是关于数据的结论，而不是关于请求的结论。"
+    },
+    {
+      "context": "The numbers a barcode search judges by, and what each one judges.",
+      "label": "spacr.barcode_search.SearchThresholds#0",
+      "source": "The numbers a barcode search judges by, and what each one judges.",
+      "source_sha256": "c37afe97c98e140c0d99484ebaf720920c5d8e7dbedba3f7b641b9f940a9dadf",
+      "translation": "条形码搜索据以判断的各项数值，以及每项数值判断的内容。"
+    },
+    {
+      "context": "These were module constants. They were chosen against one screen's data, which is exactly the kind of number that is right until someone runs a different assay -- a shorter read, a smaller reference, a library where 10% of reads carrying the barcode is a good day rather than a failure. The values here are those same numbers, so a caller who passes nothing gets the behaviour that already existed; what changes is that the numbers can now be said out loud by someone whose data disagrees with them.",
+      "label": "spacr.barcode_search.SearchThresholds#1",
+      "source": "THESE WERE MODULE CONSTANTS. They were chosen against one screen's data, which is exactly the kind of number that is right until someone runs a different assay -- a shorter read, a smaller reference, a library where 10% of reads carrying the barcode is a good day rather than a failure. The values here are those same numbers, so a caller who passes nothing gets the behaviour that already existed; what changes is that the numbers can now be said out loud by someone whose data disagrees with them.",
+      "source_sha256": "04a580c281f193258580d1bed1e86b4299fa827a10cf992b41162183fab61e80",
+      "translation": "这些原来是模块常量。它们是根据某一次筛选的数据选定的，而这恰恰是那种一直正确、直到有人运行不同检测才出问题的数值 -- 更短的读段、更小的参考序列，或者一个带条形码的读段占 10% 就算好日子而不是失败的文库。这里的取值就是那些数值，因此什么都不传的调用方得到的是原有行为；变化在于，数据与这些数值不符的人现在可以明确给出这些数值。"
+    },
+    {
+      "context": "Each field judges a DIFFERENT question, and they are asked in this order: is the sample big enough to say anything, is the hit rate distinguishable from coincidence, is it big enough to map from, and do the hits sit at one place in the read. A verdict of INDETERMINATE names which question it was that could not be answered.",
+      "label": "spacr.barcode_search.SearchThresholds#2",
+      "source": "Each field judges a DIFFERENT question, and they are asked in this order: is the sample big enough to say anything, is the hit rate distinguishable from coincidence, is it big enough to map from, and do the hits sit at one place in the read. A verdict of INDETERMINATE names which question it was that could not be answered.",
+      "source_sha256": "a3ff9da17ef70f78d92abef3e825c039431035e4452739a05a59e6e4b8d6fffb",
+      "translation": "每个字段判断一个不同的问题，并按以下顺序提问：样本是否大到足以得出结论，命中率能否与偶然区分开，它是否大到足以据此进行比对，以及命中是否位于读段中的同一位置。INDETERMINATE 判定会指明是哪个问题无法回答。"
+    },
+    {
+      "context": "Refuse thresholds that cannot decide anything.",
+      "label": "spacr.barcode_search.SearchThresholds.__post_init__#0",
+      "source": "Refuse thresholds that cannot decide anything.",
+      "source_sha256": "0a8c492b342b72b0feb0e870cf20e3ed3db53acacc5a0b124c0568597f83d963",
+      "translation": "拒绝无法做出任何判断的阈值。"
+    },
+    {
+      "context": "A threshold out of range does not fail loudly at the point it is set; it produces a report in which every table is PRESENT, or every table is ABSENT, and the processing session looks like it worked. Checking here means the complaint names the setting rather than the data.",
+      "label": "spacr.barcode_search.SearchThresholds.__post_init__#1",
+      "source": "A threshold out of range does not fail loudly at the point it is set; it produces a report in which every table is PRESENT, or every table is ABSENT, and the run looks like it worked. Checking here means the complaint names the setting rather than the data.",
+      "source_sha256": "116841653e0fed48cd108791bdd144d3b4581d732e55d35599d8108da8151b7e",
+      "translation": "超出范围的阈值不会在设置时就明确报错；它会生成一份报告，其中每张表都是 PRESENT，或者每张表都是 ABSENT，而这次运行看起来一切正常。在这里检查意味着报错指向的是设置，而不是数据。"
+    },
+    {
+      "context": "when a threshold cannot produce a real verdict.",
+      "label": "spacr.barcode_search.SearchThresholds.__post_init__#2",
+      "source": "when a threshold cannot produce a real verdict.",
+      "source_sha256": "755feb49c0b4cbcf75c611c3289ba8412254cc77edb372b5676157b0653debc4",
+      "translation": "当阈值无法产生真正的判定时。"
+    },
+    {
+      "context": "a :class:`SearchThresholds` saying what counts as present, absent and undecided, or None for the defaults. Every verdict in every yielded report is judged by these.",
+      "label": "spacr.barcode_search.iter_barcode_search#7",
+      "source": "a :class:`SearchThresholds` saying what counts as present, absent and undecided, or None for the defaults. Every verdict in every yielded report is judged by these.",
+      "source_sha256": "65e3d8d5828e85f4233f0a895b02ae30aec1a206bba2b57fa8b853b1ea2e9751",
+      "translation": "一个 :class:`SearchThresholds`，说明什么算存在、缺失和未定，或为 None 表示使用默认值。每份产出的报告中的每个判定都依据这些阈值做出。"
+    },
+    {
+      "context": "a :class:`SearchThresholds`, or None for the defaults.",
+      "label": "spacr.barcode_search.search_barcodes#7",
+      "source": "a :class:`SearchThresholds`, or None for the defaults.",
+      "source_sha256": "8a9e4b3324b32fb251ada822277089828dd13b8c45a0cb6d80550ff7f78e1a8a",
+      "translation": "一个 :class:`SearchThresholds`，或为 None 表示使用默认值。"
+    },
+    {
       "context": "Find every older spaCR on this computer, and remove the installer-made ones.",
       "label": "spacr.install_cleanup#0",
       "source": "Find every older spaCR on this computer, and remove the installer-made ones.",
@@ -611,11 +681,32 @@
       "translation": "``font_scale``: float，1.0 = 100 %（默认值）。限制在 [0.10, 2.0] 范围内。"
     },
     {
+      "context": "It follows the form. Once a search has been asked for, changing any setting the search reads -- the sequencing folder, a reference table, the barcode set or the anchor -- starts it again after the form has been still for a moment, the way the Mask live preview follows its settings. Settings the search does not read never start one. Apply is the exception to everything live about this panel: the form changes only when it is pressed, so a value somebody typed is never replaced by a measurement that arrived while they were typing.",
+      "label": "spacr.qt.screens.map_barcodes.BarcodeSearchPanel#3",
+      "source": "It follows the form. Once a search has been asked for, changing any setting the search reads -- the sequencing folder, a reference table, the barcode set or the anchor -- starts it again after the form has been still for a moment, the way the Mask live preview follows its settings. Settings the search does not read never start one. Apply is the exception to everything live about this panel: the form changes only when it is pressed, so a value somebody typed is never replaced by a measurement that arrived while they were typing.",
+      "source_sha256": "76bb2fe9e4bbcd267b0807aa35f714fb163113624d88d26d671c3aa08cac71a1",
+      "translation": "它跟随表单。一旦请求过搜索，更改搜索读取的任何设置 -- 测序文件夹、参考表、条形码集或锚点 -- 都会在表单静止片刻后重新开始搜索，就像掩膜的实时预览跟随其设置一样。搜索不读取的设置从不触发搜索。“应用”按钮是此面板中一切实时行为的例外：表单只在按下该按钮时才会改变，因此有人输入的值绝不会被输入期间到达的测量结果替换。"
+    },
+    {
       "context": "at least 1 px, because Qt refuses a pixel size of zero or less; no larger floor is imposed.",
       "label": "spacr.qt.theme.font_px#5",
       "source": "at least 1 px, because Qt refuses a pixel size of zero or less; no larger floor is imposed.",
       "source_sha256": "23b6fbe53b6e1de3d14cf1572ae8b2fbf1fc85850f9d87e5331a1772d87f7126",
       "translation": "至少 1 px，因为 Qt 拒绝零或更小的像素尺寸；不设置更高的下限。"
+    },
+    {
+      "context": "The kind that will actually be drawn.",
+      "label": "spacr.qt.widgets.graph_spec.GraphSpec.resolved_kind#0",
+      "source": "The kind that will actually be drawn.",
+      "source_sha256": "20da71f8ba82bae80518ce6cc4d05a9ba6d1e6369cd2f747d8e09f9cc95b863a",
+      "translation": "实际将要绘制的类型。"
+    },
+    {
+      "context": "THE PIN, then the setting, then the inference. An explicit pin is the user saying \"this chart, now\" and still wins outright. With no pin, the Default Graph Type preference chooses among the forms that fit, and the inference answers when there is no preference or the chosen form cannot be drawn here -- see :func:`_kind_and_note`.",
+      "label": "spacr.qt.widgets.graph_spec.GraphSpec.resolved_kind#1",
+      "source": "THE PIN, THEN THE SETTING, THEN THE INFERENCE. An explicit pin is the user saying \"this chart, now\" and still wins outright. With no pin, the Default Graph Type preference chooses among the forms that fit, and the inference answers when there is no preference or the chosen form cannot be drawn here -- see :func:`_kind_and_note`.",
+      "source_sha256": "a99b098682ea2062035c2d71444303d0626bd5e14c0ee5121d4398d291c6c44c",
+      "translation": "先看固定，再看设置，最后看推断。显式固定就是用户在说“就这个图表，现在”，并且仍然直接胜出。没有固定时，由 Default Graph Type 偏好设置在适用的形式中选择；当没有偏好设置或所选形式无法在此绘制时，由推断给出答案 -- 参见 :func:`_kind_and_note`。"
     }
   ],
   "schema": 1
