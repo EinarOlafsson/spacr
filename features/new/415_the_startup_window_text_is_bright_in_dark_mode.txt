@@ -2,7 +2,11 @@
 THE STARTUP WINDOW'S TEXT IS BRIGHT IN DARK MODE
 ================================================================================
 
-Status:    OPEN, filed 2026-09-15.
+Status:    BUILT 2026-09-15, verified offscreen only. The startup window now
+           wears the theme spaCR opens in, and its words read at 7:1 or
+           better in every OS-scheme x spaCR-theme pair. STILL OWED: a check
+           on a real Windows machine by the maintainer (OS light, spaCR
+           dark; and both light).
 Requested: 2026-09-15, by the maintainer, in these words (item 2 of three):
            "the text in the startup needs to be bright if the mode is dark
            mode."
@@ -52,3 +56,102 @@ HOW TO KNOW IT WORKED
   * A test builds the startup window under each OS-scheme x spaCR-theme
     combination and requires a minimum contrast ratio between every text
     colour it paints and its background.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- BUILT
+--------------------------------------------------------------------------------
+
+REPRODUCED FIRST, and the hypothesis above was wrong: the OS scheme played no
+part. The loading screen never reads it; every word is drawn with an explicit
+pen and the widget has no child widgets. Offscreen, with the application
+palette set to a light or a dark OS scheme and spaCR's theme stored in a
+sandboxed preference store, the loading screen painted exactly the same
+colours in all combinations.
+
+THE CAUSE, TWO FAULTS THAT MAKE THE REPORTED PICTURE TOGETHER:
+
+  1. The splash never asked which theme spaCR was in.
+     `loading_screen._role` looked its colours up with `palette_for()`, and
+     `palette_for` takes a theme and DEFAULTS TO DARK. So the startup window
+     was black whatever spaCR was set to. "Follow system" is the default
+     theme, so on a light Windows spaCR is in "white mode" while its startup
+     window is in dark mode, which is the report's wording. The same lookup
+     (`splash_role("splash_bg")`) is what `MainWindow.__init__` fills its
+     first frame with. Under a light theme that frame put the application's
+     window text, #0d0e10, on #000000 at 1.09:1.
+
+  2. The unlit phases were dark gray.
+     `_splash_roles` solved `splash_ink_dim` to only 3:1, which on black
+     lands on the floor alpha: #6e6e6e, 4.12:1. The last phase lights only at
+     completion and the first only a third of the way in, so for most of the
+     load the whole sentence is #6e6e6e on #000000. That is the "dark gray
+     ... not legable" text, and it goes away when the main window replaces
+     it.
+
+THE FIX
+  * `loading_screen._role` reads `active_palette()`, which resolves through
+    `preferences.resolve_effective_theme()`. That is the same call
+    `apply_preferences_to_app` makes in `launch` before `MainWindow` exists,
+    so the startup window and the main window read the theme from one place.
+    "Follow system" reaches the OS scheme the one way the main window does.
+    `MainWindow`'s first-frame fill follows automatically.
+  * `_splash_roles` solves the dim ink to 7:1 (WCAG AAA) instead of 3:1.
+    That is still well short of the lit ink (21:1 on dark, 18.5:1 on light),
+    so an unlit phase still reads as not yet reached. The solve is memoised
+    per (ink, bg), capped at 256 entries, because it runs inside every
+    `palette_for` call. Uncached at 7:1, `palette_for("dark")` went from
+    10.6 to 156.6 us; cached it is 6.1 us.
+  * No new user-visible strings; no docstrings changed. Reasons are in
+    docs/notes/spacr/qt/widgets/loading_screen.md and
+    docs/notes/spacr/qt/theme.md.
+
+COLOURS PAINTED, measured offscreen from the paint path's pens and read back
+from the rendered pixels (these agreed to within 0.04:1). "Unlit" is every
+word before a phase lands; "lit" is a finished phase.
+
+  OS     spaCR   | BEFORE: bg      lit              unlit
+  -------------- | ---------------------------------------------------
+  light  light   |         #000000 #ffffff 21.00:1  #6e6e6e 4.12:1  (black window, light spaCR)
+  light  dark    |         #000000 #ffffff 21.00:1  #6e6e6e 4.12:1  <- the report
+  dark   light   |         #000000 #ffffff 21.00:1  #6e6e6e 4.12:1  (black window, light spaCR)
+  dark   dark    |         #000000 #ffffff 21.00:1  #6e6e6e 4.12:1
+
+  OS     spaCR   | AFTER:  bg      lit              unlit
+  -------------- | ---------------------------------------------------
+  light  light   |         #fafafa #0d0e10 18.50:1  #555658 7.04:1
+  light  dark    |         #000000 #ffffff 21.00:1  #959595 7.01:1
+  dark   light   |         #fafafa #0d0e10 18.50:1  #555658 7.04:1
+  dark   dark    |         #000000 #ffffff 21.00:1  #959595 7.01:1
+
+  "Follow system" follows the OS row: light gives the light row, dark the
+  dark row. Before the fix both were black with #6e6e6e.
+  MainWindow's first frame, window text on fill: 1.09:1 before under a light
+  theme (#0d0e10 on #000000), 18.50:1 after; 21.00:1 under dark both times.
+
+THE TESTS
+  tests/qt/test_the_startup_window_reads_in_every_scheme.py, 19 cases:
+  * every word on the startup window reads against its background, for
+    OS light/dark x spaCR light/dark/system, in launch order (theme applied)
+    and before the theme reaches the application. Each case requires 4.5:1
+    from the pen AND from the brightest rendered pixel in the word's box,
+    bright-on-dark or dark-on-light, and a background equal to the window
+    colour of the theme the main window opens in;
+  * the loading screen has no child widget whose text could fall back to a
+    widget palette that follows the OS;
+  * MainWindow's first-frame fill carries the application's window text at
+    4.5:1 or better, for the same six pairs.
+  NEGATIVE CONTROL: on the unfixed code 15 of the 19 failed, including OS
+  light + spaCR dark ("pen #6e6e6e on #000000 = 4.12:1, brightest pixel
+  4.08:1"). The 4 that passed were the child-widget check and the three dark
+  first-frame pairs, which were readable before too. All 19 pass after.
+  Three existing tests were re-pointed, not loosened. One is a `palette_for`
+  stand-in that took no arguments. The other two named dark colours without
+  saying the theme was dark; they now store the dark theme in the sandbox or
+  compare against `active_palette()`.
+
+STILL OWED
+  A check on a real Windows machine by the maintainer: OS light + spaCR dark
+  shows bright words on black, and both light shows dark words on light.
+  Note that the loading screen only appears with the "eager" preload policy;
+  the default is "on_demand". Under the default, what shows at startup is
+  MainWindow's first frame, which this also fixes.

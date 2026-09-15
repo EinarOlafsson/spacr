@@ -13,7 +13,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [pane_alpha](#pane_alpha) (1 entry)
 - [panel_alpha](#panel_alpha) (1 entry)
 - [field_chrome](#field_chrome) (1 entry)
-- [_splash_roles](#_splash_roles) (2 entries)
+- [_splash_roles](#_splash_roles) (3 entries)
 - [_scrim_bounds](#_scrim_bounds) (1 entry)
 - [_solve_scrims_over_drift](#_solve_scrims_over_drift) (1 entry)
 - [_apply_dressing](#_apply_dressing) (1 entry)
@@ -906,10 +906,20 @@ Glass rounds its inputs to 10px; everything else uses RADIUS.sm.
 ### lines 1018-1023
 
 ```python
-dim = splash_dim_alpha(ink, bg)
+dim = _SPLASH_DIM_ALPHAS.get((ink, bg))
 ```
 
 The dim weight is SOLVED, not fixed, for the same reason the scrims are. A fixed alpha does not mean a fixed contrast: dark ink fading toward a light surface loses contrast faster than white ink fading toward black gains it, so the 110 that read at 3.04:1 on the dark theme read at 2.31:1 on the light one -- under the floor, on the screen that is up while the user has nothing else to look at.
+
+### lines 815-820 -- item 415, 2026-09-15
+
+```python
+ink, bg, target=7.0)
+```
+
+SOLVED TO 7:1, NOT 3:1. At 3:1 the dark theme's dim weight landed on the floor alpha, #6e6e6e on black (4.12:1). At the start of a load all three phases are unlit, so the whole strap line was that dark gray: the report of 2026-09-15, "the text is dark gray in the startup spacr window ... so it is not legable". 7:1 (WCAG AAA for body text) gives #959595 on dark, #555658 on light, #97999b on cell and #9b9c9e on glass. That is still well short of the lit ink (21:1 on dark, 18.5:1 on light), so an unlit phase still reads as not yet reached. `tests/qt/test_the_startup_window_reads_in_every_scheme.py` requires 4.5:1 from the pen and from the rendered pixels; antialiased glyphs come out a few hundredths under their pen, which is why the target is not 4.5 itself.
+
+MEMOISED because the search climbs one alpha at a time from 110 and `_splash_roles` runs inside every `palette_for` call. At 7:1 that is about 40-65 contrast evaluations, measured at 10.6 -> 156.6 us per uncached `palette_for("dark")`. The table is keyed on (ink, bg) and cleared at 256 entries, because spaceout re-hues the palette as it drifts and would otherwise grow it without bound.
 
 ### lines 1025-1029
 

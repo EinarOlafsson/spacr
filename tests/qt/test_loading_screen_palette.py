@@ -125,7 +125,31 @@ def test_the_constant_is_renamed_and_the_old_name_still_works():
     assert module.INSTALLER_GREEN == module.SPLASH_BACKGROUND
 
 
-def test_the_painted_colours_come_from_the_palette():
+@pytest.fixture
+def dark_theme_stored():
+    """Store the dark theme in the sandboxed preferences; restore after.
+
+    Since 415 the splash wears the theme spaCR opens in rather than the dark
+    palette unconditionally, so a test that names dark colours has to say
+    the theme is dark. tests/qt/conftest.py points the store at a throwaway
+    directory, so this never reaches the user's real preferences.
+    """
+    from spacr.qt import preferences
+
+    store = preferences._settings()
+    had = store.contains(preferences._KEY_THEME)
+    saved = store.value(preferences._KEY_THEME)
+    preferences.set_theme("dark")
+    yield
+    store = preferences._settings()
+    if had:
+        store.setValue(preferences._KEY_THEME, saved)
+    else:
+        store.remove(preferences._KEY_THEME)
+    store.sync()
+
+
+def test_the_painted_colours_come_from_the_palette(dark_theme_stored):
     dark = palette_for("dark")
     assert module._role_color("splash_bg").name().lower() == "#000000"
     assert module._role_color("splash_ink").name().lower() == "#ffffff"
@@ -196,5 +220,8 @@ def test_the_screen_paints_without_raising(qtbot):
     assert (shot.width(), shot.height()) == (640, 400)
     # The background it painted is the role's colour, read back off the
     # pixels rather than off the palette that was asked for.
+    # Since 415 that is the theme spaCR opens in, not the dark palette.
+    from spacr.qt.theme import active_palette
+
     corner = shot.toImage().pixelColor(2, 2)
-    assert corner.name().lower() == palette_for()["splash_bg"].lower()
+    assert corner.name().lower() == active_palette()["splash_bg"].lower()

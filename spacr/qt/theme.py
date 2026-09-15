@@ -787,6 +787,9 @@ def field_chrome(theme: str = "dark") -> Dict[str, object]:
     }
 
 
+_SPLASH_DIM_ALPHAS: dict = {}
+
+
 def _splash_roles(palette: dict) -> dict:
     """The loading screen's colours, derived from the theme's own surface.
 
@@ -809,7 +812,12 @@ def _splash_roles(palette: dict) -> dict:
     """
     ink = str(palette.get("fg", "#ffffff"))
     bg = str(palette.get("bg", "#000000"))
-    dim = splash_dim_alpha(ink, bg)
+    dim = _SPLASH_DIM_ALPHAS.get((ink, bg))
+    if dim is None:
+        if len(_SPLASH_DIM_ALPHAS) >= 256:
+            _SPLASH_DIM_ALPHAS.clear()
+        dim = _SPLASH_DIM_ALPHAS[(ink, bg)] = splash_dim_alpha(
+            ink, bg, target=7.0)
     return {
         "splash_bg": bg,
         "splash_ink": ink,

@@ -54,8 +54,8 @@ def _role(name: str, fallback: str) -> str:
     a traceback, so every lookup carries the literal it replaced.
     """
     try:
-        from ..theme import palette_for
-        value = palette_for().get(name)
+        from ..theme import active_palette
+        value = active_palette().get(name)
         return str(value) if value else fallback
     except Exception:
         return fallback

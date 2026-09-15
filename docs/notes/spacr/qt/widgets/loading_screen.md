@@ -7,7 +7,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 
 ## Contents
 
-- [_role](#_role) (1 entry)
+- [_role](#_role) (2 entries)
 - [LoadingScreen.__init__](#loadingscreen__init__) (1 entry)
 - [LoadingScreen._load_logo](#loadingscreen_load_logo) (1 entry)
 - [LoadingScreen.paintEvent](#loadingscreenpaintevent) (4 entries)
@@ -21,6 +21,16 @@ return fallback
 ```
 
 THE SPLASH MUST NOT FAIL. It is the first thing painted, sometimes before the theme has resolved and always before anything else could report a problem, so a palette lookup that raised would replace it with a traceback.
+
+### line 58 -- item 415, 2026-09-15
+
+```python
+value = active_palette().get(name)
+```
+
+THE SPLASH WEARS THE THEME THE WINDOW OPENS IN. This used to read `palette_for()`, which takes a theme and defaults to dark, so the startup window was black whatever spaCR was set to. `MainWindow.__init__` also fills its first frame with `splash_bg` (through `splash_role`), under the application's own window text, so a light spaCR -- including the default "Follow system" on a light Windows -- showed #0d0e10 text on #000000 there, 1.09:1. `active_palette()` resolves through `resolve_effective_theme()`, the call `apply_preferences_to_app` made moments earlier in `launch`, so the startup window and the main window read the theme from the same place and cannot disagree. The OS scheme is not read here directly: an explicit theme ignores it, and "Follow system" reads it the one way the main window does, through the application palette. The fallback still holds: `active_palette` falls back to dark, and if that raises too, the `except` below gives the literal back.
+
+Reproduced offscreen before the change for OS light/dark x spaCR light/dark/system; the OS scheme changed nothing on the loading screen, which never read it. `tests/qt/test_the_startup_window_reads_in_every_scheme.py` holds all of it, measured from the pens and from the rendered pixels.
 
 ## LoadingScreen.__init__
 
