@@ -6,9 +6,33 @@ it, and the shape becomes a :class:`spacr.selection.DataFilter` clause that
 every open view honours — the UMAP, the plate map, the crop grid, the Graph
 Builder, Small Multiples.
 
+**What it is for.** Selecting a population by its measurements once Measure
+has run: the cells above an intensity threshold, or one cluster in a
+two-feature scatter. Gates can sit inside other gates, and each shows its
+object count and its percentage of both its parent gate and the whole table.
+
+**What it needs.** A measurement table: one table of a ``measurements.db``,
+where the object tables are offered first, or a CSV or TSV file. Several
+databases can be loaded as one table; plate identifiers that collide between
+them are reported rather than silently pooled. Database tables are read as a
+sample set by ``sample_fraction`` and capped by ``max_points``, both in the
+screen's settings.
+
+**What it produces.** Threshold, rectangle, oval, polygon and wand gates on
+one or two measurements, box, cylinder and prism gates in the 3D view, and
+combinations of other gates. Publishing a gate narrows every linked view to
+that population. The gating strategy saves to and loads from a JSON file
+(``gates.json`` by default) so that the next plate is gated the same way;
+Export writes each gate as a column of the ``filters`` table in the
+measurements database, and the graph saves as PNG or PDF.
+
+**What to do next.** Look at the gated population in the views that follow
+the shared filter, such as Image UMAP, Graph Builder and the crop grid, and
+load the saved gating strategy on the next plate.
+
 Assembles:
 
-* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the three
+* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the gate
   tools and the hierarchy with its percentages;
 * :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data
   Filter, which the gate composes *onto* rather than replacing;

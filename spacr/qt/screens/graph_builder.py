@@ -10,6 +10,27 @@ Assembles three things that already exist into one surface:
 * :mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells
   in the UMAP and on the plate map, and a lasso there highlights them here.
 
+**What it is for.** Exploring a measurement table without plotting code,
+usually after Measure or Classify: drag columns onto the chart and it
+redraws as each one lands.
+
+**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file,
+chosen with Load table. The object tables and ``png_list`` are offered first;
+every other table in the database stays available.
+
+**What it produces.** A chart with six drop zones: x, y, colour, size, facet
+row and facet column. Only x and y decide the chart type -- one continuous
+column gives a histogram, one categorical column a bar chart of counts, two
+continuous columns a scatter plot, one of each a box plot and two categorical
+columns a heatmap of counts -- and violin and line plots are explicit choices.
+A brushed rectangle becomes the shared selection, highlighted in the UMAP and
+on the plate map.
+
+**What to do next.** Press Open selection in Annotate to see the brushed
+objects as image crops, narrow every view with the Local Data Filter beside
+the chart, or move to Gate Editor when a population should become a named
+gate that can be saved and re-applied.
+
 The screen goes into the app registry through
 :func:`spacr.qt.app.register_app` rather than through a row in the table
 inside ``app.py``, and its styling goes through

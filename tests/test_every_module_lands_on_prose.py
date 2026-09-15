@@ -154,6 +154,14 @@ def test_a_module_that_climbed_past_the_bar_leaves_the_table(tiles):
         "spacr.ml",
         "spacr.sequencing",
         "spacr.submodules",
+        # 2026-09-15: the four thinnest remaining tiles (QC 133 words, Gate
+        # Editor 146, Classify 154, Graph Builder 178) and Experiment Design,
+        # which never named its inputs or the three files it writes.
+        "spacr.classify",
+        "spacr.qt.screens.qc_dashboard",
+        "spacr.qt.screens.gate_editor",
+        "spacr.qt.screens.graph_builder",
+        "spacr.qt.screens.experiment_design",
     ],
 )
 def test_each_repaired_module_answers_the_four_questions(tiles, module):

@@ -7394,3 +7394,24 @@ with CI's own invocation. 7 failures, and all 7 fail identically on
 UNSTRIPPED nightly or are load artefacts -- zero caused by the strip. The 21
 test files that read source to make their assertions were repaired in the
 same commit, because several of them located code by searching for a comment.
+
+--------------------------------------------------------------------------------
+2026-09-15 — CLAUDE: ONE DOCSTRING IN YOUR LANE, FOR 366's LANDING PAGES
+--------------------------------------------------------------------------------
+
+Branch `wip/366-readme-api`, not pushed. Announcing before it lands.
+
+`spacr/classify.py` -- MODULE DOCSTRING ONLY, no code. The Classify tile
+landed on 154 words that never said what the module needs or writes. Four
+paragraphs were inserted after the first line ("What it is for / needs /
+produces / to do next"), each claim read from `classify`, `deep_spacr`,
+`generate_ml_scores` and `training_basis` rather than assumed. The existing
+paragraphs are unchanged and keep their translations; the new blocks carry
+hand-written reviewed records in all nine locales.
+
+`tests/test_every_module_lands_on_prose.py` -- five modules added to the
+four-questions parametrization (classify plus four Qt screens). Nothing
+loosened.
+
+If you have `spacr/classify.py` in flight: take yours, then re-apply the
+docstring hunk; nothing else in the file moved.

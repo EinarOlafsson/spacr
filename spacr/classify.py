@@ -1,5 +1,34 @@
 """One Classify entry point over both classifier families.
 
+**What it is for.** Classify is the fourth step of the pipeline, after Mask,
+Measure and Annotate. It learns the classes a screen is scored on and
+predicts them for every object. ``classifier_family`` chooses how: ``cv``
+trains an image model on object crops through
+:func:`spacr.deep_spacr.deep_spacr`, and ``ml`` fits a classical model such as
+XGBoost, LightGBM or a random forest on measured features through
+:func:`spacr.ml.generate_ml_scores`.
+
+**What it needs.** A project that has been through Mask and Measure, so that
+``measurements/measurements.db`` and its object crops exist, and a definition
+of the classes. ``dataset_mode`` sets that definition for both families:
+``metadata`` takes classes from plate metadata such as the positive and
+negative control wells, and ``annotation`` takes them from an annotation
+column of ``png_list``, as written by Annotate. The CV family reads crops from
+PNG files or cuts them from the ``merged`` arrays, as ``crop_source`` selects.
+
+**What it produces.** A CV run writes model checkpoints,
+``DL_model_settings.csv``, a dataset tar, a ``top_examples/`` folder with the
+most confident crops of each class and an evaluation bundle with the held-out
+performance and ``leakage.json``, and merges each object's predicted class and
+probability into ``png_list``. An ML run writes per-object predictions,
+feature-importance and permutation tables and a plate heatmap to
+``results/`` beside the measurements database.
+
+**What to do next.** Check the held-out performance, and the leakage verdict
+on the QC screen, before trusting the predictions. Then take per-well scores
+into Regression, which pairs them with the guide counts from Map Barcodes to
+estimate which guides and genes explain the phenotype.
+
 Classify (CV) trains a Torch model on object crops. Classify (ML) fits a
 gradient-boosted model on measured features. They answer the same question --
 *which class is this object* -- and until now they were two modules that

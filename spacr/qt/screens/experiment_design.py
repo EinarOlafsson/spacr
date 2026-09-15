@@ -11,6 +11,30 @@ only on the plate edge, a control confined to one column, a condition with a
 single replicate. All of them are free to fix the day before and impossible to
 fix the day after.
 
+**What it is for.** Planning a plate before it is imaged, as the first step
+of a screen: a layout can still be changed then, and the plate map exported
+here is what the measurements are joined to later.
+
+**What it needs.** A plate identifier, a plate format from 6 to 1536 wells,
+and a list of conditions, each with a number of replicates and a role:
+treatment, positive control, negative control or blank. The layout --
+``random``, ``row``, ``column`` or ``block`` -- places the replicates, the
+edge setting uses the outer ring of wells or leaves it empty, and the seed
+makes a random layout reproducible.
+
+**What it produces.** Export plate map writes three files to the chosen
+folder: ``plate_map.csv``, one row per well keyed by ``plateID``, ``rowID``
+and ``columnID``; ``plate_map.json``, the design and the findings that were
+shown, so the layout can be regenerated; and ``plate_map_settings.json``, the
+``treatments`` and ``treatment_plate_metadata`` settings for an analysis. A
+random layout cannot be written as whole rows or columns, so that file then
+records why instead, and ``plate_map.csv`` is the authoritative record.
+
+**What to do next.** Resolve the findings, then image the plate. When the
+data comes back, ``plate_map.csv`` joins the measurement tables on
+``plateID``, ``rowID`` and ``columnID`` without a translation step, and the
+settings file fills in the treatment settings of the analysis.
+
 ONE PLATE WIDGET WHERE THERE CAN BE ONE. The square, the constant it is
 pitched at and the row/column headers come from
 :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second

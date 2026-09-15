@@ -1,0 +1,160 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "**What it is for.** Classify is the fourth step of the workflow, after Mask, Measure and Annotate. It learns the classes a screen is scored on and predicts them for every object. ``classifier_family`` chooses how: ``cv`` trains an image model on object extracted image regions through :func:`spacr.deep_spacr.deep_spacr`, and ``ml`` fits a classical model such as XGBoost, LightGBM or a random forest on measured features through :func:`spacr.ml.generate_ml_scores`.",
+      "label": "spacr.classify#1",
+      "source": "**What it is for.** Classify is the fourth step of the pipeline, after Mask, Measure and Annotate. It learns the classes a screen is scored on and predicts them for every object. ``classifier_family`` chooses how: ``cv`` trains an image model on object crops through :func:`spacr.deep_spacr.deep_spacr`, and ``ml`` fits a classical model such as XGBoost, LightGBM or a random forest on measured features through :func:`spacr.ml.generate_ml_scores`.",
+      "source_sha256": "580dd8c91c0f25d59434190a62f707a78a5be8ab61221788c572139e9341e25e",
+      "translation": "**用途。** Classify 是工作流程的第四步，位于 Mask、Measure 和 Annotate 之后。它学习用来给一次筛选实验打分的类别，并为每个对象预测类别。``classifier_family`` 决定方式：``cv`` 通过 :func:`spacr.deep_spacr.deep_spacr` 在对象裁剪图像上训练图像模型，``ml`` 通过 :func:`spacr.ml.generate_ml_scores` 在测量特征上拟合 XGBoost、LightGBM 或随机森林等经典模型。"
+    },
+    {
+      "context": "**What it needs.** A project that has been through Mask and Measure, so that ``measurements/measurements.db`` and its object extracted image regions exist, and a definition of the classes. ``dataset_mode`` sets that definition for both families: ``metadata`` takes classes from laboratory microplate metadata such as the positive and negative control microplate sample positions, and ``annotation`` takes them from an annotation column of ``png_list``, as written by Annotate. The CV family reads extracted image regions from PNG files or cuts them from the ``merged`` arrays, as ``crop_source`` selects.",
+      "label": "spacr.classify#2",
+      "source": "**What it needs.** A project that has been through Mask and Measure, so that ``measurements/measurements.db`` and its object crops exist, and a definition of the classes. ``dataset_mode`` sets that definition for both families: ``metadata`` takes classes from plate metadata such as the positive and negative control wells, and ``annotation`` takes them from an annotation column of ``png_list``, as written by Annotate. The CV family reads crops from PNG files or cuts them from the ``merged`` arrays, as ``crop_source`` selects.",
+      "source_sha256": "127ccad0853606b1f61b30db3431fb1c812d12d89f503df9d82d9418af58c069",
+      "translation": "**所需输入。** 一个已经完成 Mask 和 Measure 的项目，使 ``measurements/measurements.db`` 及其对象裁剪图像已经存在，以及类别的定义。``dataset_mode`` 为两个方法族设定这一定义：``metadata`` 从板的元数据中获取类别，例如阳性和阴性对照孔，``annotation`` 则从 ``png_list`` 的注释列中获取类别，即 Annotate 写入的列。CV 方法族从 PNG 文件读取裁剪图像，或从 ``merged`` 数组中切出裁剪图像，由 ``crop_source`` 选择。"
+    },
+    {
+      "context": "**What it produces.** A CV run writes model checkpoints, ``DL_model_settings.csv``, a dataset tar, a ``top_examples/`` folder with the most confident extracted image regions of each class and an evaluation bundle with the held-out performance and ``leakage.json``, and merges each object's predicted class and probability into ``png_list``. An ML run writes per-object predictions, feature-importance and permutation tables and a plate heatmap to ``results/`` beside the measurements database.",
+      "label": "spacr.classify#3",
+      "source": "**What it produces.** A CV run writes model checkpoints, ``DL_model_settings.csv``, a dataset tar, a ``top_examples/`` folder with the most confident crops of each class and an evaluation bundle with the held-out performance and ``leakage.json``, and merges each object's predicted class and probability into ``png_list``. An ML run writes per-object predictions, feature-importance and permutation tables and a plate heatmap to ``results/`` beside the measurements database.",
+      "source_sha256": "0edc8a01b335c43dfc27f5a7d8b61f0be7a45b8fbb70b2fea04ddb4cc6046082",
+      "translation": "**输出内容。** 一次 CV 运行会写出模型检查点、``DL_model_settings.csv``、数据集 tar 包、包含每个类别中置信度最高的裁剪图像的 ``top_examples/`` 文件夹，以及含有留出数据性能和 ``leakage.json`` 的评估包，并把每个对象的预测类别和概率合并到 ``png_list`` 中。一次 ML 运行会把逐对象预测、特征重要性表和置换表以及板热图写入测量数据库旁边的 ``results/``。"
+    },
+    {
+      "context": "**What to do next.** Check the held-out performance, and the leakage verdict on the QC screen, before trusting the predictions. Then take per-microplate sample position scores into Regression, which pairs them with the guide counts from Map Barcodes to estimate which guides and genes explain the phenotype.",
+      "label": "spacr.classify#4",
+      "source": "**What to do next.** Check the held-out performance, and the leakage verdict on the QC screen, before trusting the predictions. Then take per-well scores into Regression, which pairs them with the guide counts from Map Barcodes to estimate which guides and genes explain the phenotype.",
+      "source_sha256": "43003a36df3b4999f9159e0d3ee5879cd7bf7bbf625131187b20de5d5e76c05d",
+      "translation": "**下一步。** 在信任这些预测之前，先检查留出数据上的性能，以及 QC 屏幕上的泄漏判定。然后把每孔得分带入 Regression，它将这些得分与 Map Barcodes 得到的引导序列计数配对，以估计哪些引导序列和基因能够解释该表型。"
+    },
+    {
+      "context": "**Where it sits in the workflow.** Annotate is the third step of the workflow. It needs the extracted image regions Measure lists in ``png_list``, and the labels it writes into an annotation column of that table are what Classify trains on when ``dataset_mode`` is ``annotation``.",
+      "label": "spacr.qt.screens.annotate#2",
+      "source": "**Where it sits in the workflow.** Annotate is the third step of the pipeline. It needs the crops Measure lists in ``png_list``, and the labels it writes into an annotation column of that table are what Classify trains on when ``dataset_mode`` is ``annotation``.",
+      "source_sha256": "c09ba8afb320118e1dddfc9fcc0511196e79a17932bdf962cec0b383b38e16dd",
+      "translation": "**在工作流程中的位置。** Annotate 是流程的第三步。它需要 Measure 在 ``png_list`` 中列出的裁剪图像，而它写入该表某个注释列的标签，正是 ``dataset_mode`` 为 ``annotation`` 时 Classify 用来训练的数据。"
+    },
+    {
+      "context": "**What it is for.** Planning a laboratory microplate before it is imaged, as the first step of a screen: a layout can still be changed then, and the laboratory microplate map exported here is what the measurements are joined to later.",
+      "label": "spacr.qt.screens.experiment_design#3",
+      "source": "**What it is for.** Planning a plate before it is imaged, as the first step of a screen: a layout can still be changed then, and the plate map exported here is what the measurements are joined to later.",
+      "source_sha256": "eba6eceda23475bb3733d2fd06511a1f018ed88ff1fe00609f10b267c3925bbb",
+      "translation": "**用途。** 在板成像之前规划板，作为一次筛选实验的第一步：此时布局仍可修改，而这里导出的板图就是之后测量结果要连接的对象。"
+    },
+    {
+      "context": "**What it needs.** A laboratory microplate identifier, a laboratory microplate format from 6 to 1536 microplate sample positions, and a list of conditions, each with a number of replicates and a role: treatment, positive control, negative control or blank. The layout -- ``random``, ``row``, ``column`` or ``block`` -- places the replicates, the edge setting uses the outer ring of microplate sample positions or leaves it empty, and the seed makes a random layout reproducible.",
+      "label": "spacr.qt.screens.experiment_design#4",
+      "source": "**What it needs.** A plate identifier, a plate format from 6 to 1536 wells, and a list of conditions, each with a number of replicates and a role: treatment, positive control, negative control or blank. The layout -- ``random``, ``row``, ``column`` or ``block`` -- places the replicates, the edge setting uses the outer ring of wells or leaves it empty, and the seed makes a random layout reproducible.",
+      "source_sha256": "341864ac8206f6cbdb45fbcf1b868f2de05113946f3bc0b3e56603a13e859343",
+      "translation": "**所需输入。** 一个板标识符、6 到 1536 孔的板规格，以及条件列表，每个条件都有重复数和角色：处理、阳性对照、阴性对照或空白。布局 ``random``、``row``、``column`` 或 ``block`` 决定重复的摆放方式，边缘设置决定使用还是留空最外圈的孔，随机种子使随机布局可以复现。"
+    },
+    {
+      "context": "**What it produces.** Export laboratory microplate map writes three files to the chosen folder: ``plate_map.csv``, one row per microplate sample position keyed by ``plateID``, ``rowID`` and ``columnID``; ``plate_map.json``, the design and the findings that were shown, so the layout can be regenerated; and ``plate_map_settings.json``, the ``treatments`` and ``treatment_plate_metadata`` settings for an analysis. A random layout cannot be written as whole rows or columns, so that file then records why instead, and ``plate_map.csv`` is the authoritative record.",
+      "label": "spacr.qt.screens.experiment_design#5",
+      "source": "**What it produces.** Export plate map writes three files to the chosen folder: ``plate_map.csv``, one row per well keyed by ``plateID``, ``rowID`` and ``columnID``; ``plate_map.json``, the design and the findings that were shown, so the layout can be regenerated; and ``plate_map_settings.json``, the ``treatments`` and ``treatment_plate_metadata`` settings for an analysis. A random layout cannot be written as whole rows or columns, so that file then records why instead, and ``plate_map.csv`` is the authoritative record.",
+      "source_sha256": "1f04dd75d44041fb50a1d3548ce2e067880bb2ea84dc04db60747967e5441825",
+      "translation": "**输出内容。** 导出板图会在所选文件夹中写入三个文件：``plate_map.csv``，每孔一行，以 ``plateID``、``rowID`` 和 ``columnID`` 为键；``plate_map.json``，包含设计和当时显示的检查结果，以便重新生成布局；以及 ``plate_map_settings.json``，即用于分析的 ``treatments`` 和 ``treatment_plate_metadata`` 设置。随机布局无法写成整行或整列，因此该文件会改为记录原因，而 ``plate_map.csv`` 是权威记录。"
+    },
+    {
+      "context": "**What to do next.** Resolve the findings, then image the plate. When the data comes back, ``plate_map.csv`` joins the measurement tables on ``plateID``, ``rowID`` and ``columnID`` without a translation step, and the settings file fills in the treatment settings of the analysis.",
+      "label": "spacr.qt.screens.experiment_design#6",
+      "source": "**What to do next.** Resolve the findings, then image the plate. When the data comes back, ``plate_map.csv`` joins the measurement tables on ``plateID``, ``rowID`` and ``columnID`` without a translation step, and the settings file fills in the treatment settings of the analysis.",
+      "source_sha256": "9251a11962fd0b1e49fb2e36933168e3ed4cd817f10eb3d9866c9f87af950991",
+      "translation": "**下一步。** 先解决检查结果，再对板成像。数据返回后，``plate_map.csv`` 通过 ``plateID``、``rowID`` 和 ``columnID`` 与测量表连接，无需任何转换步骤，设置文件则填入分析的处理设置。"
+    },
+    {
+      "context": "**What it is for.** Selecting a population by its measurements once Measure has run: the cells above an intensity threshold, or one cluster in a two-feature scatter. Data-selection boundaries can sit inside other data-selection boundaries, and each shows its object count and its percentage of both its parent data-selection boundary and the whole table.",
+      "label": "spacr.qt.screens.gate_editor#2",
+      "source": "**What it is for.** Selecting a population by its measurements once Measure has run: the cells above an intensity threshold, or one cluster in a two-feature scatter. Gates can sit inside other gates, and each shows its object count and its percentage of both its parent gate and the whole table.",
+      "source_sha256": "18e88c1de632fb65b473bfc7400fad34a4ec90391d438e4706e8845d7725da7d",
+      "translation": "**用途。** 在 Measure 运行之后，按测量值选出一个群体：例如强度阈值以上的细胞，或双特征散点图中的一个簇。门控区域可以嵌套在其他门控区域内，每个门控区域都会显示其对象数，以及它占上级门控区域和整张表的百分比。"
+    },
+    {
+      "context": "**What it needs.** A measurement table: one table of a ``measurements.db``, where the object tables are offered first, or a CSV or TSV file. Several databases can be loaded as one table; laboratory microplate identifiers that collide between them are reported rather than silently pooled. Database tables are read as a sample set by ``sample_fraction`` and capped by ``max_points``, both in the screen's settings.",
+      "label": "spacr.qt.screens.gate_editor#3",
+      "source": "**What it needs.** A measurement table: one table of a ``measurements.db``, where the object tables are offered first, or a CSV or TSV file. Several databases can be loaded as one table; plate identifiers that collide between them are reported rather than silently pooled. Database tables are read as a sample set by ``sample_fraction`` and capped by ``max_points``, both in the screen's settings.",
+      "source_sha256": "9a4debb0f8d6e87082d1ffa84483d23b3198c65b1b5126919fdb80664480b7a1",
+      "translation": "**所需输入。** 一张测量表：``measurements.db`` 中的一张表（对象表会优先列出），或者一个 CSV 或 TSV 文件。多个数据库可以作为一张表加载；它们之间冲突的板标识符会被报告出来，而不会被悄悄合并。数据库表按 ``sample_fraction`` 抽样读取，并受 ``max_points`` 限制，二者都在该视图的设置中。"
+    },
+    {
+      "context": "**What it produces.** Threshold, rectangle, oval, polygon and wand data-selection boundaries on one or two measurements, box, cylinder and prism data-selection boundaries in the 3D view, and combinations of other data-selection boundaries. Publishing a data-selection boundary narrows every linked view to that population. The data-selection filtering strategy saves to and loads from a JSON file (``gates.json`` by default) so that the next laboratory microplate is gated the same way; Export writes each data-selection boundary as a column of the ``filters`` table in the measurements database, and the graph saves as PNG or PDF.",
+      "label": "spacr.qt.screens.gate_editor#4",
+      "source": "**What it produces.** Threshold, rectangle, oval, polygon and wand gates on one or two measurements, box, cylinder and prism gates in the 3D view, and combinations of other gates. Publishing a gate narrows every linked view to that population. The gating strategy saves to and loads from a JSON file (``gates.json`` by default) so that the next plate is gated the same way; Export writes each gate as a column of the ``filters`` table in the measurements database, and the graph saves as PNG or PDF.",
+      "source_sha256": "9a7a051375217ca9fe0ae5acab2dcd6b132a8f9f2b52abee0aa101d0a1485e67",
+      "translation": "**输出内容。** 基于一个或两个测量值的阈值、矩形、椭圆、多边形和魔棒门控，3D 视图中的立方体、圆柱和棱柱门控，以及由其他门控组合而成的门控。发布一个门控会把每个联动视图限定到该群体。门控策略保存到 JSON 文件并可从中加载（默认为 ``gates.json``），使下一块板以同样方式设置门控；导出会把每个门控写成测量数据库中 ``filters`` 表的一列，图表可保存为 PNG 或 PDF。"
+    },
+    {
+      "context": "**What to do next.** Look at the gated population in the views that follow the shared filter, such as Image UMAP, Graph Builder and the extracted-image-region grid, and load the saved data-selection filtering strategy on the next plate.",
+      "label": "spacr.qt.screens.gate_editor#5",
+      "source": "**What to do next.** Look at the gated population in the views that follow the shared filter, such as Image UMAP, Graph Builder and the crop grid, and load the saved gating strategy on the next plate.",
+      "source_sha256": "777cec7724e961ebd556bc885987088c4853a206dd3f0bc9d57635416f42ba26",
+      "translation": "**下一步。** 在跟随共享过滤条件的视图中查看门控后的群体，例如 Image UMAP、Graph Builder 和裁剪图像网格，并在下一块板上加载保存的门控策略。"
+    },
+    {
+      "context": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the data-selection boundary tools and the hierarchy with its percentages;",
+      "label": "spacr.qt.screens.gate_editor#7",
+      "source": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the gate tools and the hierarchy with its percentages;",
+      "source_sha256": "1f3de1f7408fc69b5b0d3e50c09aac04245ac1c893084fed33fe47ef75c13e51",
+      "translation": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — 画布、门控工具以及带百分比的层级结构；"
+    },
+    {
+      "context": "**What it is for.** Exploring a measurement table without plotting code, usually after Measure or Classify: drag columns onto the chart and it redraws as each one lands.",
+      "label": "spacr.qt.screens.graph_builder#5",
+      "source": "**What it is for.** Exploring a measurement table without plotting code, usually after Measure or Classify: drag columns onto the chart and it redraws as each one lands.",
+      "source_sha256": "3ce9e834a6db422e060250c028dcb842b417026568f68837c116cc4fd4bb3926",
+      "translation": "**用途。** 无需编写绘图代码即可探索一张测量表，通常在 Measure 或 Classify 之后使用：把列拖到图表上，每放下一列图表就会重新绘制。"
+    },
+    {
+      "context": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available.",
+      "label": "spacr.qt.screens.graph_builder#6",
+      "source": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available.",
+      "source_sha256": "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
+      "translation": "**所需输入。** ``measurements.db`` 中的一张表，或者一个 CSV 或 TSV 文件，通过加载表格的按钮选择。对象表和 ``png_list`` 会优先列出；数据库中的其他所有表仍然可用。"
+    },
+    {
+      "context": "**What it produces.** A chart with six drop zones: x, y, colour, size, facet row and facet column. Only x and y decide the chart type -- one continuous column gives a histogram, one categorical column a bar chart of counts, two continuous columns a scatter plot, one of each a box plot and two categorical columns a heatmap of counts -- and violin and line plots are explicit choices. A brushed rectangle becomes the shared selection, highlighted in the UMAP and on the laboratory microplate map.",
+      "label": "spacr.qt.screens.graph_builder#7",
+      "source": "**What it produces.** A chart with six drop zones: x, y, colour, size, facet row and facet column. Only x and y decide the chart type -- one continuous column gives a histogram, one categorical column a bar chart of counts, two continuous columns a scatter plot, one of each a box plot and two categorical columns a heatmap of counts -- and violin and line plots are explicit choices. A brushed rectangle becomes the shared selection, highlighted in the UMAP and on the plate map.",
+      "source_sha256": "3a6684acc216fc722fce4a8dbaca2669c9e3215b99b2928bfe1bf88902336342",
+      "translation": "**输出内容。** 一个带有六个放置区的图表：x、y、颜色、大小、分面行和分面列。只有 x 和 y 决定图表类型：一个连续列生成直方图，一个分类列生成计数条形图，两个连续列生成散点图，一连续一分类生成箱线图，两个分类列生成计数热图；小提琴图和折线图需要明确选择。用画笔框出的矩形会成为共享选择，并在 UMAP 和板图上高亮显示。"
+    },
+    {
+      "context": "**What to do next.** Press Open selection in Annotate to see the brushed objects as extracted image regions, narrow every view with the Local Data Filter beside the chart, or move to filter data Editor when a population should become a named data-selection boundary that can be saved and re-applied.",
+      "label": "spacr.qt.screens.graph_builder#8",
+      "source": "**What to do next.** Press Open selection in Annotate to see the brushed objects as image crops, narrow every view with the Local Data Filter beside the chart, or move to Gate Editor when a population should become a named gate that can be saved and re-applied.",
+      "source_sha256": "1fb2849ed26e00028887d9edfd4a71b8965f154677187d9305111e2b83c1bf3f",
+      "translation": "**下一步。** 在 Annotate 中打开所选内容，以裁剪图像的形式查看框选的对象；用图表旁边的本地数据过滤器缩小所有视图；或者当某个群体需要成为可保存、可重新应用的命名门控时，转到 Gate Editor。"
+    },
+    {
+      "context": "**What it is for.** Checking a project before its numbers are used. After Mask and Measure, and again after Classify, QC gathers the verdicts those steps already wrote into one place, so the question does not need five application views.",
+      "label": "spacr.qt.screens.qc_dashboard#2",
+      "source": "**What it is for.** Checking a project before its numbers are used. After Mask and Measure, and again after Classify, QC gathers the verdicts those steps already wrote into one place, so the question does not need five screens.",
+      "source_sha256": "ae8693d6d97aeb6ea3475cbf705c72ac48317fa18a2c74c1b63a0c211214f3ee",
+      "translation": "**用途。** 在使用项目的数据之前先检查它。在 Mask 和 Measure 之后，以及 Classify 之后再次，QC 把这些步骤已经写出的判定汇集到一处，这样回答这个问题就不必打开五个界面。"
+    },
+    {
+      "context": "**What it needs.** A project or laboratory microplate folder, chosen with Browse or dropped onto the screen. Each card reads a file that is already on disk: the segmentation scorecards a Mask run writes (``seg_qc``), the units stamp Measure puts on every row of ``measurements.db``, ``leakage.json`` from the newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and ``agreement.json`` when a laboratory microplate-effect or annotator-agreement report has been saved under the project.",
+      "label": "spacr.qt.screens.qc_dashboard#3",
+      "source": "**What it needs.** A project or plate folder, chosen with Browse or dropped onto the screen. Each card reads a file that is already on disk: the segmentation scorecards a Mask run writes (``seg_qc``), the units stamp Measure puts on every row of ``measurements.db``, ``leakage.json`` from the newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and ``agreement.json`` when a plate-effect or annotator-agreement report has been saved under the project.",
+      "source_sha256": "25ac226a22fea059de88882de265e1dd4042a9c13f4d8799656a22e1d6924816",
+      "translation": "**所需输入。** 一个项目或板文件夹，通过浏览选择或拖放到该界面上。每张卡片读取一个已经存在于磁盘上的文件：Mask 运行写出的分割评分卡（``seg_qc``），Measure 在 ``measurements.db`` 每一行上加的单位标记，最新的 Classify (CV) 评估包中的 ``leakage.json``，以及在项目下保存了板效应或标注者一致性报告时的 ``plate_qc.json`` 和 ``agreement.json``。"
+    },
+    {
+      "context": "**What it produces.** Nothing on disk. Each card carries a verdict -- ``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the details behind it and, for a check that has never run, the step that would produce it; the screen's summary is the worst of them. A card older than its inputs is marked stale rather than downgraded, and ``missing`` means nothing was checked, not that nothing is wrong.",
+      "label": "spacr.qt.screens.qc_dashboard#4",
+      "source": "**What it produces.** Nothing on disk. Each card carries a verdict -- ``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the details behind it and, for a check that has never run, the step that would produce it; the screen's summary is the worst of them. A card older than its inputs is marked stale rather than downgraded, and ``missing`` means nothing was checked, not that nothing is wrong.",
+      "source_sha256": "2f03363eb66f991c262a98adb48d707b7797c6c13168572349816336a24d16fd",
+      "translation": "**输出内容。** 不向磁盘写入任何内容。每张卡片带有一个判定：``ok``、``missing``、``warn``、``fail`` 或 ``error``，并附有标题、背后的细节，对于从未运行过的检查，还会给出能产生它的步骤；该界面的汇总取其中最差的判定。比其输入更旧的卡片会被标记为过期，而不是被降级；``missing`` 表示什么都没有检查，而不是什么都没有问题。"
+    },
+    {
+      "context": "**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source and re-run that step; the cards are read again when a file has changed. Layer Viewer shows the images behind a failing check, Control Charts follows the same checks over time and Outliers finds the microplate sample positions or objects unlike the rest; all three open from this application view's masthead.",
+      "label": "spacr.qt.screens.qc_dashboard#5",
+      "source": "**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source and re-run that step; the cards are read again when a file has changed. Layer Viewer shows the images behind a failing check, Control Charts follows the same checks over time and Outliers finds the wells or objects unlike the rest; all three open from this screen's masthead.",
+      "source_sha256": "d71e9b428ed3a221a506ba634c7b076c212e211b239d55478397fa7d796555aa",
+      "translation": "**下一步。** 在源头修复 ``warn`` 或 ``fail`` 卡片指出的问题，然后重新运行该步骤；文件发生变化时卡片会被重新读取。Layer Viewer 显示失败检查背后的图像，Control Charts 跟踪同样的检查随时间的变化，Outliers 找出与其余不同的孔或对象；这三者都从该界面的标题栏打开。"
+    }
+  ],
+  "schema": 1
+}
