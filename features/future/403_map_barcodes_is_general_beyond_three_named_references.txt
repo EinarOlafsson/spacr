@@ -326,3 +326,56 @@ maintainer first and the two readings differ in a way that matters.
   in make" fits both readings, and the difference between them is whether the
   user's typed settings can be overwritten without a click. That is not a
   question to settle by inference. Filed as a question in HANDOFF section 1.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- C IS ANSWERED. LIVE SEARCH, APPLY BY CLICK.
+--------------------------------------------------------------------------------
+
+Asked through the question tool and answered, verbatim: "Live search, Apply by
+click (Recommended)". The option he chose read: "The search re-runs whenever a
+setting changes, like Live preview, and the results update as you go. Your form
+values only change when you press Apply, so nothing you typed is overwritten."
+
+That is reading 1 of the two above, and it settles the only part that was
+genuinely ambiguous. BUILD IT.
+
+WHAT THAT MEANS CONCRETELY, against the code as it stands:
+
+  * THE SEARCH RE-RUNS ON A SETTINGS CHANGE. Today `search_button.clicked`
+    is the only trigger (`map_barcodes.py:1618`). It gains the Live preview
+    shape: the inputs `plan_barcode_search` actually reads -- the sequencing
+    folder, the reference tables, the anchor -- re-trigger it when they
+    change. Those are the inputs and not "every setting on the screen":
+    re-running because someone changed `comp_level` would be a search that
+    cannot produce a different answer.
+
+  * IT IS DEBOUNCED, and this is not optional. A path field emits on every
+    KEYSTROKE, so an undebounced live search starts a run per character and
+    the last one to finish wins -- which is a race whose winner is not
+    necessarily the one matching what is now on screen. A single-shot QTimer
+    restarted on each change, and the in-flight search cancelled, is the
+    shape; `cancel_button` already exists, so cancellation is not new work.
+
+  * APPLY STAYS A CLICK, unchanged. `apply_proposal` already says "Nothing
+    calls this on its own", and the maintainer's answer now agrees with that
+    docstring in his own words: "nothing you typed is overwritten". Do not
+    weaken it.
+
+  * THE PROPOSAL IS SHOWN CONTINUOUSLY even while the verdicts move. A
+    verdict legitimately travels INDETERMINATE -> PRESENT -> ABSENT as the
+    sample grows, so the panel has to be readable mid-flight rather than
+    flickering between three answers. `iter_barcode_search` already yields a
+    complete report per chunk whose counts only ever grow, which is what
+    makes that possible.
+
+  * IT IS AFFORDABLE, measured rather than assumed: 0.27 s over the default
+    20,000-read sample uncompressed, 0.07 s on a 32 MB gzipped file holding
+    2,000,000 reads. The sample is bounded, so file size barely matters.
+
+HOW IT WILL BE CHECKED: changing a reference table with the panel open
+re-runs the search without a click and updates the verdicts; changing an
+unrelated setting does not; typing a path one character at a time starts ONE
+search rather than one per character; and the form's values do not change
+until Apply is pressed -- that last one asserted by typing a value into the
+form by hand, letting a live search complete with a different proposal, and
+requiring the typed value to still be there.
