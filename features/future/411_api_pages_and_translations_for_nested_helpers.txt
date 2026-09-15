@@ -65,6 +65,7 @@ on it; line numbers drift.
                                                  ignores
     work session, 2026-09-15          901          --          1,682
     home session, 2026-09-15          863          842         1,517
+    reconciled (see below)            863          842         1,684
 
   The home count uses the counter in tests/test_nested_functions_are_documented.py
   (~222-243), then drops the `autoapi_ignore` globs in docs/source/conf.py, then
@@ -79,6 +80,31 @@ on it; line numbers drift.
   excludes, reconcile it with both rows above, and write the reconciled numbers
   into this file under a dated heading. Every later pin derives from that
   function, never from either row above.
+
+  RECONCILIATION, 2026-09-15, by the work session, measured at ed8ff92d8 with
+  test_nested_functions_are_documented's walk: up from each FunctionDef or
+  AsyncFunctionDef, through any node type, to the nearest enclosing function,
+  with no lambdas.
+
+      all nested functions                      863 in 186 modules
+      after autoapi_ignore                      842 in 182 modules
+      translatable_blocks() over those 842    1,684
+      unique block strings among them           930
+
+  * 842 in 182 modules confirms the home session's recount exactly.
+  * The work session's 901 does not reproduce under any walk tried (lambdas
+    1,940; a ClassDef barrier 772; nested classes counted as helpers 879;
+    spacr/ plus tools/ 1,608). It is WITHDRAWN.
+  * The home session's 1,517 blocks does not reproduce either: 1,726 over the
+    863, 930 deduplicated. It came from a research pass whose filter was never
+    written down. 1,684 is the working figure, and step 0 still settles it,
+    because the block count, not the function count, is the size of the job.
+  * ALL 842 ALREADY CARRY DOCSTRINGS: "blocks over documented helpers" and
+    "blocks over all helpers" are the same 1,684. So 411 is rendering and
+    translating, not writing docstrings.
+  * 930 unique strings among 1,684 blocks means shared lines are the norm
+    here. Trap 5.2(3), records keyed by source text, cuts both ways: one record
+    serves many helpers, and one wrong record lands on many.
 
   spacr/spacrops.py holds 24 of the 842. It is BEING DELETED (item 372; the
   maintainer answered "Delete it now" on 2026-09-15, and the Claude home
@@ -100,10 +126,11 @@ on it; line numbers drift.
       qt/bridge.py 8                     qt/widgets/gate_editor.py 8
       deep_spacr.py 7
 
-  Scale: 842 x 9 languages = ~7,600 helpers' worth of blocks (~13,650
-  block-translations at 1,517 blocks). That is well over twice the 5,538
-  reviewed records the whole 2026-09-15 catalog batch published. Plan for weeks
-  of slices, not one push.
+  Scale: 1,684 blocks x 9 languages = 15,156 block-translations. The floor is
+  930 unique strings x 9 = 8,370, reached only if every shared line translates
+  the same way in every context, which trap 5.2(3) says to check rather than
+  assume. Either figure is far above the 5,538 reviewed records the whole
+  2026-09-15 catalog batch published. Plan for weeks of slices, not one push.
 
 ================================================================================
 3. RENDERING -- WHY NESTED HELPERS HAVE NO PAGE TODAY, AND WHAT MUST CHANGE
