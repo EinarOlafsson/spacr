@@ -313,6 +313,9 @@ def test_real_helper_corpus_builds_in_an_isolated_english_fixture(tmp_path):
     Sphinx process. OPS is excluded because its retirement belongs to another
     session, not because its helpers are exempt from the inventory.
     """
+    pytest.importorskip("bs4")
+    from bs4 import BeautifulSoup
+
     definitions = helpers.inventory(ROOT, ignore_patterns=builder.AUTOAPI_IGNORE)
     modules = {definition.module for definition in definitions
                if not definition.ignored_by and definition.module != "spacr.spacrops"}
@@ -339,12 +342,29 @@ def test_real_helper_corpus_builds_in_an_isolated_english_fixture(tmp_path):
     inventory_keys = {line.split()[0] for line in zlib.decompress(payload).decode().splitlines()
                       if line.split()[1] == "py:function"}
     assert inventory_keys == {entry.qualified_key for entry in entries}
-    pages = {module: (output / "api" / Path(*module.split(".")) / "index.html").read_text()
-             for module in modules}
+    pages = {module: BeautifulSoup(
+        (output / "api" / Path(*module.split(".")) / "index.html").read_text(), "html.parser",
+    ) for module in modules}
+    signature_count = default_count = 0
     for entry in entries:
-        assert pages[entry.module].count(f'id="{entry.qualified_key}"') == 1, entry.qualified_key
+        anchors = pages[entry.module].find_all(id=entry.qualified_key)
+        assert len(anchors) == 1, entry.qualified_key
+        signatures = anchors[0].parent.find_all("dt", recursive=False)
+        assert len(signatures) == len(entry.signatures), entry.qualified_key
+        for original, displayed in zip(entry.signatures, signatures):
+            # Derive expected values independently from the original signature,
+            # not from the rendering adapter whose output this verifies.
+            arguments = ast.parse(f"def {original}: pass").body[0].args
+            defaults = [ast.unparse(value) for value in
+                        [*arguments.defaults, *arguments.kw_defaults] if value is not None]
+            rendered = [node.get_text() for node in displayed.select(".default_value")]
+            assert rendered == defaults, (entry.qualified_key, original, rendered, defaults)
+            signature_count += 1
+            default_count += len(defaults)
     assert helpers.ENABLED_MODULES == original_switch
-    print(f"Isolated English preflight: {len(entries)} anchors in {len(modules)} modules; "
+    assert default_count > 0
+    print(f"Isolated English preflight: {len(entries)} anchors in {len(modules)} modules, "
+          f"{signature_count} signatures and {default_count} exact source defaults; "
           "no production rollout or translation claim.")
 
 

@@ -662,3 +662,25 @@ its own completed Docs run. No manual deployment has been dispatched.
 Phase B is still held by the explicit handoff rule in section 8. The corpus
 preflight is opt-in because it diagnoses not-yet-selected documents; the
 mandatory built-site check always enforces every actually enabled helper.
+
+2026-09-15 — CODEX: SOURCE-TO-HTML DEFAULT VALUES NOW CHECKED ACROSS THE CORPUS
+
+The opt-in corpus check now independently parses each original signature and
+compares every displayed default value with that source. All 808 signatures
+and 205 default values match across the 181 non-OPS modules. This strengthens
+the earlier anchor-only sweep; the focused synthetic cases still cover
+different-signature overloads, which the current real corpus does not contain.
+
+The new comparison was tested against a deliberate renderer-source mutation:
+replacing restored defaults with SPACR_411_DELIBERATE_BAD_DEFAULT left Sphinx
+building successfully but made the corpus assertion fail at
+spacr.accelerator._keep_cellpose_flows_off_metal.on_the_cpu (expected 0.4 and
+None). Restoring the renderer byte-for-byte made the same check pass again:
+1 passed in 22.89 s. The mutation was not committed; no renderer, application,
+catalog, reviewed-record or rollout change remains in this checkpoint.
+
+CI run 34976034510 has now PASSED its localization audit (32 min 22 s) and
+entered the Sphinx build. That remains evidence for its exact 6d040d879 SHA,
+not a claim that the latest checkpoint or a production helper slice is green.
+Phase B still awaits the explicit handoff; production helper translations
+remain at zero.
