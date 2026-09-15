@@ -1117,3 +1117,44 @@ Minimum dependencies failed. Read from their logs:
 
   BY SCOPE
     Coverage / every shipped module at 100%: 175 modules, unchanged.
+
+--------------------------------------------------------------------------------
+2026-09-15 (07:50 UTC) - A SIXTH CRASH SITE, REPRODUCED LOCALLY AND SERIALLY, AND NOT ATTRIBUTED
+--------------------------------------------------------------------------------
+
+  Found by the work session: a plain serial `pytest tests/qt -q -p no:randomly`
+  (offscreen, no xdist, no CI) segfaulted at about 7%, exit 139, core dumped.
+  The current thread was a FIXTURE, not a test:
+
+      tests/qt/conftest.py:179  _restore_font_scale -> app.setStyleSheet(...)
+
+  with the four spacr/qt/path_probe.py workers (the designed WORKERS=4 pool,
+  ruled out in three shapes) and the conftest watchdog alive. The comment
+  above that line says the fixture exists to stop old suite crashes by
+  applying a saved style only after pytest-qt's deleteLater queue drains.
+
+  NOT ATTRIBUTED, AND RECORDED WITH THE RETRACTION ON PURPOSE. Three runs of
+  the same command on the same tree and machine:
+
+      run 1   fee40b72a's parentless-Polish skip ON    segfault at 7%
+      run 2   skip OFF                                  cleared 13%, clean
+      run 3   skip ON                                   cleared 13%, clean
+
+  After runs 1-2 the skip was named as the cause and a revert was announced;
+  run 3, the confirmation, did not crash. At n=3 the crash is
+  NONDETERMINISTIC and the evidence supports NO attribution. fee40b72a is not
+  reverted. (Its separate field_fade regression is real, understood, and fixed
+  with its contract written as a test: an unshown parentless widget renders
+  without the sheet -- show it or parent it.)
+
+  WHAT FOLLOWS FOR THE CRASH CLASS: the five CI sites above predate fee40b72a
+  (a5ef1cd7b, 988a4fa7d) and all look alike -- a worker dying in unrelated
+  code a few tests after something else. A nondeterministic crash inside a
+  teardown re-polish is ONE phenomenon consistent with all six.
+  HYPOTHESIS, UNPROVEN: `app.setStyleSheet()` re-polishes every live widget;
+  one Python wrapper whose C++ object is already gone is enough to corrupt
+  memory, and the damage surfaces later in whatever runs next.
+
+  AND A FACT THAT OUTLIVES THE HYPOTHESIS: `tests/qt` had never been run end to
+  end in one process by either session. CI shards it, so "all Qt tests pass"
+  has meant "every shard passed separately" for the life of this suite.
