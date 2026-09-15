@@ -16,6 +16,21 @@ NO MODULE WRITES rcParams GLOBALLY. `plt.rcParams` is process-wide, so a
 module that themes one figure through it themes every LATER figure in the
 process — including one being saved for paper. `spacr.figure_style` is the one
 place allowed to, because applying the house style globally is its job.
+
+NARROWED 2026-09-15, ITEM 291. The maintainer decided "Global in the app
+only": the spaCR GUI and spaCR's pipeline runs make Open Sans matplotlib's
+default, and plain `import spacr` in a notebook leaves the user's matplotlib
+alone. What this file promises about the PROCESS is now exactly that second
+half -- importing spaCR, or any spaCR module as a library, changes no rcParam
+-- and `test_importing_spacr_leaves_every_rcparam_alone` proves it in a child
+interpreter, because by the time this file runs pytest has imported most of
+spaCR already and an in-process snapshot would compare nothing.
+
+The line scan stays, as the rule for DRAWING code: a plot function still may
+not theme globally. The app's default needs no exemption from it, because
+`spacr.figure_font._open_sans_is_the_default` holds it with `rc_context` for
+the length of the run, and `tests/test_open_sans_is_the_default_in_the_app_
+and_runs_only.py` proves the entry points do.
 """
 from __future__ import annotations
 
@@ -228,6 +243,97 @@ def test_no_module_writes_rcParams_globally():
         "these write matplotlib's PROCESS-WIDE state, so every later figure "
         "in the process inherits it -- including one saved for paper. Use "
         f"`matplotlib.rc_context` instead:\n{offenders}")
+
+
+#: What a notebook imports. The heavy fronts first, then every module that
+#: names a font or starts a run -- the ones a global default would be tempted
+#: into -- then the Qt entry modules, which a library user can import too.
+LIBRARY_IMPORTS = (
+    "spacr", "spacr.utils", "spacr.plot", "spacr.io", "spacr.measure",
+    "spacr.ml", "spacr.illumination", "spacr.figure_font",
+    "spacr.figure_style", "spacr.figures.style", "spacr.style_base",
+    "spacr.volcano_style", "spacr.cli", "spacr.batch", "spacr.cli_repro",
+    "spacr.parameter_sweep", "spacr.qt", "spacr.qt.app",
+    "spacr.qt.tutorial.__main__",
+)
+
+#: Runs in the child. Prints one ``PROBE `` line of JSON.
+_LIBRARY_PROBE = r'''
+import importlib, json, os, sys
+
+import matplotlib
+matplotlib.use("Agg")
+
+MARKER = "SPACR_FIGURES_IN_OPEN_SANS"
+before = {k: repr(v) for k, v in matplotlib.rcParams.items()}
+marker_before = os.environ.get(MARKER)
+imported, unavailable = [], []
+for name in json.loads(sys.argv[1]):
+    try:
+        importlib.import_module(name)
+    except ImportError as exc:
+        root = (getattr(exc, "name", "") or "").split(".")[0]
+        if root in ("PySide6", "shiboken6"):
+            unavailable.append(name)
+            continue
+        raise
+    imported.append(name)
+after = {k: repr(v) for k, v in matplotlib.rcParams.items()}
+
+import spacr
+print("PROBE " + json.dumps({
+    "spacr": spacr.__file__,
+    "imported": imported,
+    "unavailable": unavailable,
+    "changed": {k: [before.get(k), after.get(k)]
+                for k in sorted(set(before) | set(after))
+                if before.get(k) != after.get(k)},
+    "marker": [marker_before, os.environ.get(MARKER)],
+}))
+'''
+
+
+def test_importing_spacr_leaves_every_rcparam_alone(tmp_path):
+    """Item 291's library half: `import spacr` is not a style decision.
+
+    A CHILD INTERPRETER, because the question is what the imports do, and in
+    this process they happened long ago. Every rcParam is compared, not only
+    the font ones -- a notebook user's figure size or colour cycle is theirs
+    too.
+    """
+    import json
+    import subprocess
+    import sys
+
+    from tests.child_env import child_env
+
+    repo = _spacr().parent
+    finished = subprocess.run(
+        [sys.executable, "-c", _LIBRARY_PROBE, json.dumps(LIBRARY_IMPORTS)],
+        cwd=str(tmp_path), capture_output=True, text=True, timeout=600,
+        env=child_env(home=str(tmp_path), pythonpath=str(repo), qt=True,
+                      SPACR_FIGURES_IN_OPEN_SANS=""))
+    lines = [line for line in finished.stdout.splitlines()
+             if line.startswith("PROBE ")]
+    assert finished.returncode == 0 and lines, (
+        f"the import probe did not finish:\n{finished.stdout[-2000:]}\n"
+        f"{finished.stderr[-4000:]}")
+    probe = json.loads(lines[-1][len("PROBE "):])
+
+    # Guard the guard: the child imported THIS checkout, and really imported
+    # the heavy modules, or an unchanged snapshot would prove nothing.
+    assert probe["spacr"].startswith(str(repo / "spacr")), probe["spacr"]
+    assert {"spacr.utils", "spacr.plot", "spacr.figure_font", "spacr.cli"} \
+        <= set(probe["imported"]), probe["imported"]
+
+    assert probe["changed"] == {}, (
+        "importing spaCR changed matplotlib's global settings, so a notebook "
+        "that does `import spacr` gets spaCR's style on its own figures. "
+        "Item 291 keeps the Open Sans default to the app and pipeline entry "
+        "points (spacr.figure_font._open_sans_is_the_default):\n"
+        + "\n".join(f"  {key}: {old} -> {new}"
+                    for key, (old, new) in probe["changed"].items()))
+    assert probe["marker"] == ["", ""], probe["marker"]
 
 
 @pytest.mark.parametrize("black", [True, False])

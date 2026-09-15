@@ -45,20 +45,26 @@ def main(argv=None) -> int:
         format="%(asctime)s %(name)s %(levelname)s: %(message)s",
     )
 
+    from ...figure_font import _open_sans_is_the_default
+
     targets = AVAILABLE_TUTORIALS if args.app == "all" else [args.app]
-    for name in targets:
-        if name not in AVAILABLE_TUTORIALS:
-            print(f"unknown tutorial: {name}", file=sys.stderr)
-            return 2
-        print(f"rendering {name}…")
-        result = render_tutorial(
-            name, out_dir=args.out,
-            voice_model=args.voice,
-            length_scale=args.length_scale,
-        )
-        print(f"  → {result.mp4} ({result.duration_s:.1f}s, "
-                f"{result.frames} frames)")
-        print(f"  → {result.srt}")
+    # 291: the tutorial films the application, which draws its figures in
+    # Open Sans; `render_tutorial` builds MainWindow itself rather than going
+    # through `spacr.qt.run`, so it holds the same default here.
+    with _open_sans_is_the_default():
+        for name in targets:
+            if name not in AVAILABLE_TUTORIALS:
+                print(f"unknown tutorial: {name}", file=sys.stderr)
+                return 2
+            print(f"rendering {name}…")
+            result = render_tutorial(
+                name, out_dir=args.out,
+                voice_model=args.voice,
+                length_scale=args.length_scale,
+            )
+            print(f"  → {result.mp4} ({result.duration_s:.1f}s, "
+                    f"{result.frames} frames)")
+            print(f"  → {result.srt}")
     return 0
 
 

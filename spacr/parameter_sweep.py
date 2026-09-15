@@ -867,10 +867,14 @@ def _execute_trial(payload):
         row["_resource_workers"] = resource_workers
         return row
 
+    from .figure_font import _open_sans_if_a_run_started_this
     from .ml import perform_regression
 
     try:
-        output = perform_regression(settings)
+        # 291: a `spawn` worker starts on matplotlib's stock default; the
+        # trial's figures follow the app or pipeline run that started it.
+        with _open_sans_if_a_run_started_this():
+            output = perform_regression(settings)
         row["status"] = "ok"
         if isinstance(output, Mapping):
             row.update(_count_hits(output))

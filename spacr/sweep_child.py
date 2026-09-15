@@ -76,9 +76,14 @@ def main(argv=None) -> int:
         from .parameter_sweep import _pin_threads
         _pin_threads()
 
+        from .figure_font import _open_sans_if_a_run_started_this
         from .ml import perform_regression
 
-        output = perform_regression(dict(settings))
+        # 291: this interpreter starts on matplotlib's stock default. When
+        # the app or a pipeline run started the sweep, the trial's figures
+        # follow it into Open Sans; started from a notebook, they do not.
+        with _open_sans_if_a_run_started_this():
+            output = perform_regression(dict(settings))
         result["status"] = "ok"
 
         from .trial_metrics import summarise_trial

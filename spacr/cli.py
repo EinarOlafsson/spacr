@@ -1643,8 +1643,14 @@ def cmd_run(args: argparse.Namespace) -> int:
     started = time.time()
     log.info("starting %s", module.key)
     try:
+        from .figure_font import _open_sans_is_the_default
         from .run_journal import open_run
-        with _NoShow():
+        # 291 ("Global in the app only"): a pipeline run draws every figure,
+        # a plain `Figure()` included, in Open Sans. Held for the run rather
+        # than set bare, because `main` is also called in-process -- by
+        # `spacr.batch.inprocess_runner` and by tests -- and the caller gets
+        # its matplotlib back when the run ends.
+        with _NoShow(), _open_sans_is_the_default():
             log.info("recording reproducibility input hashes")
             with open_run(module.key, settings) as run:
                 log.info("reproducibility manifest %s", run.dir)

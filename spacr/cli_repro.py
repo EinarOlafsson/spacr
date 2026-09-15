@@ -131,8 +131,12 @@ def main(argv=None) -> int:
         _print_settings(settings)
         return 0
 
+    from .figure_font import _open_sans_is_the_default
+
     print(f"replaying {app_key} — this opens a NEW run journal folder.")
-    with open_run(app_key, settings) as run:
+    # 291: a replay is a pipeline run, so its figures are in Open Sans like
+    # the run it replays.
+    with _open_sans_is_the_default(), open_run(app_key, settings) as run:
         try:
             entry(settings)
             run.set_status("success")

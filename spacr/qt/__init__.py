@@ -400,7 +400,25 @@ def run(argv: list[str] | None = None) -> int:
 
     register_self_registering_modules()
 
-    return launch(argv)
+    # 291, decided 2026-09-15: "Global in the app only". Every GUI console
+    # script reaches the window through this line -- spacr, spacr-qt,
+    # spacr-nightly, spacr-server, spaceout, spacr-make-masks and
+    # `python -m spacr` -- so this is where Open Sans becomes matplotlib's
+    # default, and a plain `Figure()` anywhere in the application draws in
+    # the face the interface uses. Held around `launch`, which is the life of
+    # the process; see `spacr.figure_font._open_sans_is_the_default`.
+    #
+    # NOT IN SAFE MODE. `safespacr` is the least spaCR that can still change
+    # a setting (296), and this imports matplotlib and registers eight font
+    # files before the first window.
+    preferences = sys.modules.get(f"{__name__}.preferences")
+    if preferences is not None and preferences.in_safe_mode():
+        return launch(argv)
+
+    from ..figure_font import _open_sans_is_the_default
+
+    with _open_sans_is_the_default():
+        return launch(argv)
 
 
 #: Modules that own an app and register it through
