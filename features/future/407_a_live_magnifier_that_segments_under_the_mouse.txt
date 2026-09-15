@@ -209,3 +209,28 @@ SECOND PASS
   * Commit only the object under the cursor (a modifier-click), a keyboard
     shortcut for the toggle, and measuring whether models do better on the
     upsampled crop.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE MAINTAINER'S ANSWER ON CLICK BEHAVIOUR, AND A NEW MODE
+--------------------------------------------------------------------------------
+
+Asked with the question tool whether a click should add every object the box
+outlines, only the object under the cursor, or both with a modifier. Answer,
+verbatim:
+
+  "All the objects in the magnified box get added with the option to exclude
+  objects touching the border that may not be completely in the area and with
+  an additional mode that generates object on the entire image once then the
+  user goes over with the mag box and clicks objects that are to be added and
+  rich clicks to remove"
+
+WHAT THAT ASKS FOR:
+  1. Keep: a click adds ALL the objects outlined in the magnified box.
+  2. An OPTION (a visible setting on the Live magnifier card) to exclude
+     objects that touch the box's border, because they may not be completely
+     inside the area. Today this exclusion is always on for the box's inner
+     edge; it becomes the user's choice.
+  3. An ADDITIONAL MODE: segment the ENTIRE image once; then the magnifier box
+     shows those precomputed objects as the user moves over the image; a
+     left-click ADDS the object(s) clicked, a right-click REMOVES the clicked
+     object from the mask.
