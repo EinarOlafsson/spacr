@@ -6,9 +6,12 @@ MODULE IS LEFT AND REOPENED
 Status:    OPEN, PRIORITY, filed 2026-09-15. HALF FIXED 2026-09-15: the
            per-object table mounted by a Preferences save on a screen already
            on show was never swept, and now is (4bd07819d, with a test red
-           before the fix). The AI chat input and the tooltip as trigger are
-           NOT reproduced; an in-session paint diagnostic (SPACR_PAINT_DIAG=1,
-           Ctrl+Alt+Shift+D) exists to record them. See the dated notes.
+           before the fix). CHAT-BOX HALF FIXED 2026-09-15, branch
+           wip/408-chat-input: the first hover re-polishes the screen, and the
+           container sweep that polish sets off stripped the stylesheet from
+           the chat input; `make_transparent` no longer re-polishes a tag
+           already in force (test red before the fix). Awaiting the
+           maintainer's confirmation on his display. See the dated notes.
 Requested: 2026-09-15, by the maintainer, verbatim: "as soon as a tooltip (not
            for per object settings based tooltips that dont generate a popup)
            appears in mask, measure and probably the other moduals a black box
@@ -609,3 +612,70 @@ NOT EXPLAINED YET, AND THIS ITEM STAYS OPEN FOR IT:
     builds after its first show -- the diagnostic's probe also saw a console
     output block added after the sweep untagged (named, so its own
     transparent rule covers it) -- is a candidate for the chat-input half.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE CHAT-BOX HALF REPRODUCED AND FIXED: A SWEEP RUN INSIDE QT'S
+OWN POLISH OF THE SCREEN
+--------------------------------------------------------------------------------
+
+The maintainer, after 4bd07819d: "the one behind the settings is gone but the
+one behind the ai chat box is still there".
+
+MEASURED STATE, NOT ONLY PIXELS. Real MainWindow on Mask, his qt.conf copied
+into a sandbox, offscreen and under xvfb (presented pixels through
+`QScreen.grabWindow`). One perturbation at a time, snapshotting the chat
+input, its viewport, the chat row, ConsoleSplit, ConsoleBox and the wrap:
+
+  HoverTooltip.show_for, QToolTip.showText, chat focus set/clear,
+  WindowDeactivate/ActivationChange/WindowActivate, setEnabled off/on,
+  append_stdout                                   -> no state change
+  a real Enter on a setting label (the screen's eventFilter)
+                                                  -> chat viewport near-black
+     0.0 -> 0.999 (grab and grabWindow alike); chat input, chat row and
+     ConsoleSplit WA_StyleSheetTarget and WA_SetPalette True -> False; viewport
+     autoFillBackground False -> True; palette back to the application's
+     (Base #0d0e10, opaque)
+  Home and back                                   -> all of it restored
+
+WHY THE EARLIER PROBES SAW NOTHING: WA_StyleSheet stays True on the broken
+widgets, the tag stays True, and no widget is built -- only the attributes
+above move.
+
+THE CAUSE, split out of the Enter handler part by part. Only `_write_hint`
+does it (the bottom strip; `tooltips_bottom=true`), and only the first time:
+
+  1. `_hold_the_hint` connects its new timer to `self._release_the_hint`, and
+     PySide grows AppScreen's metaobject for it (50 -> 51 methods, a new
+     pointer). Qt's next `ensurePolished` sees a different metaobject and
+     polishes the screen again.
+  2. That stylesheet polish raises PaletteChange on the screen, and
+     `changeEvent` -> `refresh_ambient_background` -> `_install_ambient`
+     (window backdrop shared) -> `_clear_page_surfaces` -> `make_transparent`
+     runs INSIDE `QStyleSheetStyle::polish(screen)`.
+  3. Qt's recursion guard refuses a polish nested in ANOTHER sheet style's
+     call, and has no guard on unpolish. A widget with a sheet of its own
+     (ConsoleSplit, ConsoleScroll, CategoryHintStrip) has its own
+     QStyleSheetStyle, so it and its subtree -- the chat row and the chat
+     input -- were unpolished and never polished again.
+
+The popup looked like the trigger because the same hover shows it. Deferring
+the handler one event-loop turn also keeps the chat box (measured), but the
+handler is pinned synchronous by test_ambient_wiring and
+test_a_module_screen_is_built_once_not_twice, so it is not what shipped.
+RULED OUT: activation or focus (above), and a re-sheet of the main window --
+only the popup is sheeted.
+
+FIX: `make_transparent` skips a target whose tag is already in force (tagged
+AND WA_StyleSheetTarget), so there is no unpolish left for Qt to half-refuse.
+A widget a nested unpolish did reach has WA_StyleSheetTarget cleared, so it is
+still re-polished, and heals at the next sweep as before. Every palette-event
+sweep also stops re-polishing containers that are already transparent.
+TEST: tests/qt/test_a_hovered_setting_does_not_turn_the_chat_box_black.py --
+the hover, and `screen.style().polish(screen)` for the mechanism alone. Both
+RED with the fix reverted (chat input, chat row, console splitter and the
+self-filling viewport listed), green with it. Under xvfb with the fix, the
+Enter changes no state and no presented pixel of the chat box.
+
+LEFT: the maintainer's confirmation on his display. A container tagged for the
+FIRST time by a sweep that happens to run inside a polish would still be
+half-refused, as it was before this change, until the next sweep.
