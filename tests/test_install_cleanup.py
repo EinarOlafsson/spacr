@@ -1277,7 +1277,7 @@ def test_a_folder_that_cannot_be_opened_is_reported_not_a_crash(
         locked.chmod(0o700)
 
     [report] = reports
-    assert report.failed == [(str(root), "in use or not permitted")]
+    assert report.failed == [(str(root), "in use or not permitted; close anything using it and try again")]
     assert (locked / "wheel.whl").exists()
     assert result is None and installs == []
 
@@ -1288,7 +1288,7 @@ def test_a_folder_that_cannot_be_opened_is_reported_not_a_crash(
 
 @_PERMISSIONS_BIND
 @pytest.mark.parametrize(("needs_admin", "reason"), [
-    (False, "in use or not permitted"), (True, "needs administrator rights")])
+    (False, "in use or not permitted; close anything using it and try again"), (True, "needs administrator rights; delete it as an administrator")])
 def test_a_folder_you_may_not_change_stops_the_update_and_says_why(
         tmp_path, needs_admin, reason):
     box = Box(tmp_path)
@@ -1314,7 +1314,7 @@ def test_a_folder_you_may_not_change_stops_the_update_and_says_why(
 
 @pytest.mark.parametrize(("error", "reason"), [
     (PermissionError(errno.EACCES, "The process cannot access the file because "
-                     "it is being used by another process"), "in use or not permitted"),
+                     "it is being used by another process"), "in use or not permitted; close anything using it and try again"),
     (OSError(errno.EBUSY, "Device or resource busy"), "Device or resource busy"),
 ], ids=["in-use", "busy"])
 def test_a_launcher_that_cannot_be_deleted_stops_the_update(
@@ -1359,7 +1359,7 @@ def test_deleting_what_another_process_already_deleted_records_nothing(tmp_path)
     gone = tmp_path / "spacr"
     report = ic.RemovalReport(_record("installer", gone))
 
-    ic._delete(str(gone), [], report, "in use or not permitted")
+    ic._delete(str(gone), [], report, "in use or not permitted; close anything using it and try again")
 
     assert (report.removed, report.failed, report.skipped) == ([], [], [])
 
@@ -1380,7 +1380,8 @@ def test_a_named_path_that_is_not_recognisably_spacr_is_refused(tmp_path, real):
         lambda: installs.append(1), records=[record], system=machine)
 
     assert reports[0].failed == [
-        (str(other), "refused: not recognisably a spaCR installation")]
+        (str(other), "refused: not recognisably a spaCR installation; "
+                    "delete it by hand if it is one")]
     assert other.exists() and not root.exists()
     assert result is None and installs == []
 
@@ -1458,7 +1459,7 @@ def test_a_registry_entry_you_may_not_delete_stops_the_update(tmp_path, monkeypa
                                              system=machine)
 
     [report] = reports
-    assert report.failed == [(f"registry:HKCU\\{ic._UNINSTALL_KEY}", "not permitted")]
+    assert report.failed == [(f"registry:HKCU\\{ic._UNINSTALL_KEY}", "not permitted; delete this registry entry by hand")]
     assert box.registry.exists(ic._UNINSTALL_KEY)
     assert result is None and installs == []
 
@@ -1735,7 +1736,7 @@ def test_a_ticked_user_site_is_uninstalled_only_with_a_python_found_on_path(tmp_
     [sandboxed] = ic.find_old_installs(system=machine)
     assert sandboxed.python is None, "a sandboxed computer never consults PATH"
     report = ic.remove_install(sandboxed, ticked=True, system=machine)
-    assert report.failed == [(str(user_site), "no interpreter found to uninstall with")]
+    assert report.failed == [(str(user_site), "no Python found in it; run pip uninstall spacr in that environment")]
     assert box.commands == []
 
     machine.real = True
@@ -2255,7 +2256,7 @@ def test_the_command_line_exit_code_says_whether_every_old_copy_went(
     assert (root / "install.log").exists() and not (root / "venv").exists()
     assert prefix.is_dir() and box.commands == []
     if denied:
-        assert f"could not remove: {launcher} (in use or not permitted)" in out
+        assert f"could not remove: {launcher} (in use or not permitted; close anything using it and try again)" in out
         assert "nothing new was installed" in out
     else:
         assert not launcher.exists()

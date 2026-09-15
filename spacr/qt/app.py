@@ -3898,12 +3898,14 @@ class MainWindow(QMainWindow):
             if not plan.get("command"):
                 QMessageBox.warning(
                     self, "Updates",
-                    f"Upgrade unavailable: {plan.get('error')}")
+                    tr("Upgrade unavailable: {error}",
+                       error=self._removal_reason_text(
+                           str(plan.get("error")))))
                 return
             QMessageBox.information(
                 self, "Updates",
-                f"spaCR will close, remove the older copies, install "
-                f"{version} and start again.")
+                tr("spaCR will close, remove the older copies, install "
+                   "{version} and start again.", version=version))
             self.close()
             return
         self._start_update_worker(
@@ -3926,29 +3928,29 @@ class MainWindow(QMainWindow):
 
         dialog = QDialog(self)
         dialog.setObjectName("OldInstallsDialog")
-        dialog.setWindowTitle("Remove older spaCR copies")
+        dialog.setWindowTitle(tr("Remove older spaCR copies"))
         layout = QVBoxLayout(dialog)
         copies = [r for r in records if r.kind == "installer"]
         yours = [r for r in records if r.kind == "environment" and not r.running]
         if copies:
-            layout.addWidget(QLabel(
+            layout.addWidget(QLabel(tr(
                 "These older copies of spaCR will be removed before the new "
-                "version is installed:"))
+                "version is installed:")))
             for record in copies:
                 layout.addWidget(QLabel(
                     f"{record.root}  ({record.version or '?'})"))
         boxes = []
         if yours:
-            layout.addWidget(QLabel(
+            layout.addWidget(QLabel(tr(
                 "Environments you made. Tick one to uninstall spaCR from it; "
-                "the environment itself is kept."))
+                "the environment itself is kept.")))
             for record in yours:
                 box = QCheckBox(f"{record.root}  ({record.version or '?'})")
                 layout.addWidget(box)
                 boxes.append((record, box))
         buttons = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        buttons.button(QDialogButtonBox.Ok).setText("Remove and update")
+        buttons.button(QDialogButtonBox.Ok).setText(tr("Remove and update"))
         buttons.accepted.connect(dialog.accept)
         buttons.rejected.connect(dialog.reject)
         layout.addWidget(buttons)
@@ -3968,15 +3970,63 @@ class MainWindow(QMainWindow):
             return
         reports, result = outcome
         if result is None:
-            failed = [f"{item}: {why}" for report in reports
-                      for item, why in report.failed]
+            failed = [f"{item}: {self._removal_reason_text(why)}"
+                      for report in reports for item, why in report.failed]
             QMessageBox.warning(
                 self, "Updates",
-                "The update stopped before installing, because an older "
-                "copy of spaCR could not be removed:\n\n"
-                + "\n".join(failed[:8]))
+                tr("The update stopped before installing, because an older "
+                   "copy of spaCR could not be removed:")
+                + "\n\n" + "\n".join(failed[:8]))
             return
         self._on_upgrade_done(result)
+
+    @staticmethod
+    def _removal_reason_text(why: str) -> str:
+        """Say why an old copy was not removed, in the interface language.
+
+        :mod:`spacr.install_cleanup` answers in English, because the
+        installers run it where no spaCR, and so no catalog, is installed.
+        The reasons it can give an in-app update are translated here, each
+        written out in full so the catalog builder finds it. Anything else --
+        an operating-system error, the last line pip printed -- is not
+        spaCR's wording and is shown as it came.
+
+        :param why: a reason from a
+            :class:`spacr.install_cleanup.RemovalReport`, or the error
+            :func:`spacr.install_cleanup.start_update_helper` returned.
+        :returns: the reason to show.
+        """
+        prefix = "needs administrator rights; run: "
+        if why.startswith(prefix):
+            return tr("needs administrator rights; run: {command}",
+                      command=why[len(prefix):])
+        reasons = {
+            "needs administrator rights; delete it as an administrator":
+                tr("needs administrator rights; delete it as an "
+                   "administrator"),
+            "in use or not permitted; close anything using it and try again":
+                tr("in use or not permitted; close anything using it and "
+                   "try again"),
+            "not permitted; delete this registry entry by hand":
+                tr("not permitted; delete this registry entry by hand"),
+            "no Python found in it; run pip uninstall spacr in that "
+            "environment":
+                tr("no Python found in it; run pip uninstall spacr in that "
+                   "environment"),
+            "refused: a shared folder, not a spaCR installation; remove "
+            "spaCR from it by hand":
+                tr("refused: a shared folder, not a spaCR installation; "
+                   "remove spaCR from it by hand"),
+            "refused: not recognisably a spaCR installation; delete it by "
+            "hand if it is one":
+                tr("refused: not recognisably a spaCR installation; delete "
+                   "it by hand if it is one"),
+            "no Python outside the installation could be found to finish "
+            "the update; run the new installer instead":
+                tr("no Python outside the installation could be found to "
+                   "finish the update; run the new installer instead"),
+        }
+        return reasons.get(why, why)
 
     def _on_update_worker_failed(self, operation: str, details: str) -> None:
         """Report an updater exception instead of losing it in a QThread."""

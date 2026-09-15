@@ -94,7 +94,7 @@ Write-Host "  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation 
 Write-Host "  $(Get-SpacrInstallerMessage 'resolver_guards'): $($ResolverGuards -join ', ')"
 
 if ($DryRun -or $env:SPACR_INSTALL_DRY_RUN -eq "1") {
-    Write-Host "DRY RUN: would find and remove every older spaCR installation first"
+    Write-Host (Get-SpacrInstallerMessage "dry_remove_old")
     Write-Host (Get-SpacrInstallerMessage "dry_download" @($UvInstallUrl))
     Write-Host (Get-SpacrInstallerMessage "dry_create" @($VenvDir))
     Write-Host (Get-SpacrInstallerMessage "dry_launcher" @($Launcher))
@@ -174,7 +174,7 @@ try {
         --keep (Join-Path $InstallRoot "spacr.ico") `
         --keep (Join-Path $InstallRoot "nsis-bootstrap-status.txt")
     if ($LASTEXITCODE -ne 0) {
-        throw "Installation stopped: an older spaCR could not be removed (see above). Close any running spaCR and run the installer again."
+        throw (Get-SpacrInstallerMessage "old_copy_not_removed")
     }
 
     New-Item -ItemType Directory -Force -Path $BootstrapDir, $PythonDir, $CacheDir | Out-Null

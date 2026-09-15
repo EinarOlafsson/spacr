@@ -502,7 +502,8 @@ def _needs_admin(command: str = "") -> str:
     :param command: the command a user can run instead, if there is one.
     """
     reason = "needs administrator rights"
-    return f"{reason}; run: {command}" if command else reason
+    return f"{reason}; run: {command}" if command else (
+        f"{reason}; delete it as an administrator")
 
 
 # ---------------------------------------------------------------------------
@@ -1078,7 +1079,8 @@ def _refusal(path: str, machine: _Machine, record: InstallRecord) -> Optional[st
     """
     target = _norm(path)
     if any(target == _norm(f) for f in _never_delete(machine)):
-        return "refused: a shared folder, not a spaCR installation"
+        return ("refused: a shared folder, not a spaCR installation; "
+                "remove spaCR from it by hand")
     for data in _user_data(machine):
         if _inside(path, data) or _inside(data, path):
             return "kept: preferences and user data"
@@ -1095,7 +1097,8 @@ def _refusal(path: str, machine: _Machine, record: InstallRecord) -> Optional[st
             _exists(os.path.join(path, m)) for m in (
                 "venv", "Uninstall.exe", "uninstall-spacr.sh", "spacr.exe")):
         return None
-    return "refused: not recognisably a spaCR installation"
+    return ("refused: not recognisably a spaCR installation; "
+            "delete it by hand if it is one")
 
 
 def _delete(path: str, keep: Sequence[str], report: RemovalReport,
@@ -1221,7 +1224,8 @@ def remove_install(record: InstallRecord, *, ticked: bool = False,
             return report
         _uninstall_from_environment(record, machine, report)
         return report
-    denied = _needs_admin() if record.needs_admin else "in use or not permitted"
+    denied = _needs_admin() if record.needs_admin else (
+        "in use or not permitted; close anything using it and try again")
     packaged = any(r.startswith("deb:") for r in record.registrations)
     paths = [] if packaged else [record.root, *record.launchers, *record.shortcuts,
              *record.menu_entries,
@@ -1282,7 +1286,8 @@ def _remove_registration(token: str, machine: _Machine,
         if not registry.values(key) and not registry.subkeys(key):
             registry.delete_key(key)
     except OSError as exc:
-        report.failed.append((token, _reason(exc, "not permitted")))
+        report.failed.append((token, _reason(
+            exc, "not permitted; delete this registry entry by hand")))
         return
     report.removed.append(token)
 
@@ -1300,7 +1305,8 @@ def _uninstall_from_environment(record: InstallRecord, machine: _Machine,
     names = sorted({_dist_name(d) for d in dists}) or ["spacr"]
     python = record.python
     if not python:
-        report.failed.append((record.root, "no interpreter found to uninstall with"))
+        report.failed.append((record.root, "no Python found in it; run pip "
+                              "uninstall spacr in that environment"))
         return
     has_pip = any(os.path.isdir(os.path.join(site, "pip"))
                   for site in _site_packages(record.root))

@@ -11,6 +11,7 @@
   "downloading_python": "Téléchargement de l’environnement Python privé %s...",
   "downloading_uv": "Téléchargement de la version fixe du programme d’amorçage uv...",
   "dry_create": "SIMULATION : créerait et validerait %s",
+  "dry_remove_old": "SIMULATION : rechercherait et supprimerait d’abord toutes les anciennes installations de spaCR",
   "dry_download": "SIMULATION : téléchargerait %s",
   "dry_launcher": "SIMULATION : installerait le lanceur %s",
   "help_dry_run": "Afficher le plan résolu sans rien télécharger.",
@@ -34,7 +35,7 @@
   "no_sudo": "La commande sudo est introuvable. Poursuite sans les bibliothèques Qt facultatives pour Linux.",
   "nsis_application": "Application de bureau spaCR",
   "nsis_downloading": "Téléchargement de Python, Qt, PyTorch et spaCR. Cette opération peut prendre plusieurs minutes.",
-  "nsis_failed": "L’installation de spaCR a échoué avec le code de sortie %s. L’installation existante, le cas échéant, a été conservée.",
+  "nsis_failed": "spaCR n’a pas été installé (code de sortie %s). Un ancien spaCR a peut-être déjà été supprimé. Relancez ce programme d’installation ; install.log, dans le dossier d’installation, indique ce qui a échoué.",
   "nsis_gpu": "Accélération matérielle automatique (recommandée)",
   "nsis_launch": "Lancer spaCR",
   "nsis_uninstall": "Désinstaller spaCR",
@@ -61,5 +62,6 @@
   "old_install_removed": "L'installation précédente a été supprimée.",
   "old_install_kept": "Conservée. L'environnement est remplacé dans tous les cas ; les caches et les réglages restent.",
   "old_install_noninteractive": "Pas un terminal, donc rien n'a été demandé. L'environnement est remplacé ; les caches et les réglages restent.",
-  "old_install_same": "C'est la même version que celle fournie par ce programme d'installation."
+  "old_install_same": "C'est la même version que celle fournie par ce programme d'installation.",
+  "old_copy_not_removed": "Installation interrompue : un ancien spaCR n’a pas pu être supprimé (voir ci-dessus). Fermez tout spaCR en cours d’exécution et relancez le programme d’installation."
 }
