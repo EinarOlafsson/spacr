@@ -3609,6 +3609,16 @@ def _indirect_runtime_ui_sources() -> set[str]:
     for _sequence in (PERFORMANCE_NOTES, HARDWARE_NOTES, _REJECTED):
         found.update(str(value) for value in _sequence
                      if str(value).strip())
+    # ITERATING A DICT YIELDS ITS KEYS, so the loop above collected
+    # "laptop", "workstation", ... and never the prose: every performance
+    # level tooltip stayed English in all nine languages (286). The keys stay
+    # because they are catalog rows with identities of their own; the VALUES
+    # are what the interface shows. `_REJECTED`'s values (the formula
+    # editor's refusals) have the same defect and are not collected here --
+    # that is its own item, not this one.
+    for _table in (PERFORMANCE_NOTES, HARDWARE_NOTES):
+        found.update(str(value) for value in _table.values()
+                     if str(value).strip())
     found.update(map(str, PREFERENCE_TIPS.values()))
     found.update(map(str, MODE_LABELS.values()))
     found.update(map(str, MODE_NOTES.values()))

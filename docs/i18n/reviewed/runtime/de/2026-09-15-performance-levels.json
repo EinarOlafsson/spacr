@@ -1,0 +1,76 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "64 GB or more, and yours alone",
+      "source": "64 GB or more, and yours alone",
+      "source_sha256": "40136f527608ebcce11b510065c6903527523183d348c49e8d3efecfe47b35b3",
+      "table": "ui",
+      "translation": "64 GB oder mehr und nur für Sie"
+    },
+    {
+      "key": "8 GB or less, or running on battery",
+      "source": "8 GB or less, or running on battery",
+      "source_sha256": "98322e2f98a1573b2b14fbd8e0c3d36eb37594868572ef3997f89bb11253a4e7",
+      "table": "ui",
+      "translation": "8 GB oder weniger oder im Akkubetrieb"
+    },
+    {
+      "key": "For a machine with 64 GB or more that is yours alone. spaCR keeps the most: the most editable figures, and by default cached data for 60 minutes unused and up to 16384 MB. Nothing is cleared at launch or before a run. Uses the most memory of any level, by design.",
+      "source": "For a machine with 64 GB or more that is yours alone. spaCR keeps the most: the most editable figures, and by default cached data for 60 minutes unused and up to 16384 MB. Nothing is cleared at launch or before a run. Uses the most memory of any level, by design.",
+      "source_sha256": "58f887f610a48b0f33946a1fc96bfdacedd4572c6b04b00fab268ff9cd8c8488",
+      "table": "ui",
+      "translation": "Für einen Rechner mit 64 GB oder mehr, den nur Sie nutzen. spaCR behält am meisten: die meisten bearbeitbaren Abbildungen und standardmäßig zwischengespeicherte Daten für 60 Minuten ohne Nutzung und bis zu 16384 MB. Beim Start und vor einem Lauf wird nichts geleert. Verbraucht bewusst den meisten Speicher aller Stufen."
+    },
+    {
+      "key": "For a machine with 8 GB of memory or less, or one running on battery. spaCR keeps the least: no animated backdrop, the fewest editable figures, and by default cached data is dropped after 2 minutes unused or above 256 MB. Caches are also cleared at launch and before every run, so going back to a figure is slower.",
+      "source": "For a machine with 8 GB of memory or less, or one running on battery. spaCR keeps the least: no animated backdrop, the fewest editable figures, and by default cached data is dropped after 2 minutes unused or above 256 MB. Caches are also cleared at launch and before every run, so going back to a figure is slower.",
+      "source_sha256": "444b647788d9abab31efc95922d4b5c2210df5ec8294d52a0bc2dc278e2a3b1d",
+      "table": "ui",
+      "translation": "Für einen Rechner mit 8 GB Arbeitsspeicher oder weniger oder einen, der im Akkubetrieb läuft. spaCR behält am wenigsten: kein animierter Hintergrund, die wenigsten bearbeitbaren Abbildungen, und standardmäßig werden zwischengespeicherte Daten nach 2 Minuten ohne Nutzung oder oberhalb von 256 MB verworfen. Caches werden außerdem beim Start und vor jedem Lauf geleert, daher dauert die Rückkehr zu einer Abbildung länger."
+    },
+    {
+      "key": "For a machine with other work on it. spaCR clears its caches and unused GPU memory once, at launch, leaves your visual settings alone, and by default drops cached data after 10 minutes unused or above 1024 MB.",
+      "source": "For a machine with other work on it. spaCR clears its caches and unused GPU memory once, at launch, leaves your visual settings alone, and by default drops cached data after 10 minutes unused or above 1024 MB.",
+      "source_sha256": "8076998594904e2e93566a693df61789c02e5333245dfc2b2038fd065a5a9575",
+      "table": "ui",
+      "translation": "Für einen Rechner, auf dem auch andere Arbeit läuft. spaCR leert seine Caches und ungenutzten GPU-Speicher einmal beim Start, lässt Ihre visuellen Einstellungen unverändert und verwirft standardmäßig zwischengespeicherte Daten nach 10 Minuten ohne Nutzung oder oberhalb von 1024 MB."
+    },
+    {
+      "key": "For a shared machine you do not want spaCR to crowd. spaCR clears its caches, unused GPU memory and idle threads at launch and before every run, turns every visual setting to its minimum, and by default drops cached data after 5 minutes unused or above 512 MB.",
+      "source": "For a shared machine you do not want spaCR to crowd. spaCR clears its caches, unused GPU memory and idle threads at launch and before every run, turns every visual setting to its minimum, and by default drops cached data after 5 minutes unused or above 512 MB.",
+      "source_sha256": "96159c6b2979fa59789400db935fc10986e857387150d729cd430b24b2b8c962",
+      "table": "ui",
+      "translation": "Für einen gemeinsam genutzten Rechner, den spaCR nicht vereinnahmen soll. spaCR leert seine Caches, ungenutzten GPU-Speicher und untätige Threads beim Start und vor jedem Lauf, setzt jede visuelle Einstellung auf ihr Minimum und verwirft standardmäßig zwischengespeicherte Daten nach 5 Minuten ohne Nutzung oder oberhalb von 512 MB."
+    },
+    {
+      "key": "For an ordinary desktop with 16 GB or more. Nothing is cleared at launch or before a run, recent figures and images stay ready so going back is instant, and by default cached data is dropped after 15 minutes unused or above 2048 MB.",
+      "source": "For an ordinary desktop with 16 GB or more. Nothing is cleared at launch or before a run, recent figures and images stay ready so going back is instant, and by default cached data is dropped after 15 minutes unused or above 2048 MB.",
+      "source_sha256": "7e20bf58836a8766db0bb33154d1c2b4e9ac641c7f0d8d0dc4043a44b8e89ff6",
+      "table": "ui",
+      "translation": "Für einen gewöhnlichen Desktop-Rechner mit 16 GB oder mehr. Beim Start und vor einem Lauf wird nichts geleert, die letzten Abbildungen und Bilder bleiben bereit, sodass die Rückkehr sofort geht, und standardmäßig werden zwischengespeicherte Daten nach 15 Minuten ohne Nutzung oder oberhalb von 2048 MB verworfen."
+    },
+    {
+      "key": "a machine with other work on it",
+      "source": "a machine with other work on it",
+      "source_sha256": "daecc42ef5873d594d75dc5610ccdcbe39574b0f697b75010f446eb92e97895d",
+      "table": "ui",
+      "translation": "ein Rechner, auf dem auch andere Arbeit läuft"
+    },
+    {
+      "key": "a shared machine you do not want spaCR to crowd",
+      "source": "a shared machine you do not want spaCR to crowd",
+      "source_sha256": "692fa89d6c1fc363c5eaa16c83d80f23567c804213989c11f22448a95c0abba0",
+      "table": "ui",
+      "translation": "ein gemeinsam genutzter Rechner, den spaCR nicht vereinnahmen soll"
+    },
+    {
+      "key": "an ordinary desktop, 16 GB or more",
+      "source": "an ordinary desktop, 16 GB or more",
+      "source_sha256": "4ff093e38243be7e34ac78a2e1814ce628f56ae2e318a69d01489418e7348324",
+      "table": "ui",
+      "translation": "ein gewöhnlicher Desktop-Rechner, 16 GB oder mehr"
+    }
+  ],
+  "schema": 1
+}

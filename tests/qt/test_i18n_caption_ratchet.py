@@ -68,9 +68,17 @@ ROOT = Path(__file__).resolve().parents[2]
 # entire difference. Nothing was retired and nothing was reworded, which is
 # why the count and the digest move together this time rather than the
 # digest alone.
-COMPACT_CAPTION_COUNT = 209
+# 209 -> 208 on 2026-09-15, +0/-1, for item 286. Retired: "spaCR mode", the
+# caption first-run setup gave the performance selector -- the name of the
+# control 286 removed. Setup now captions it "Performance", as Preferences
+# does, and "Performance" was already on this surface, so nothing arrived.
+# PROVED BY SUBTRACTION with this test's own formula: today's set plus
+# "spaCR mode" gives e0b2c63f3e43a544..., the previous pin byte for byte.
+# Its `_ROWS` row stays; this test only requires a row per caption, not the
+# converse.
+COMPACT_CAPTION_COUNT = 208
 COMPACT_CAPTION_SHA256 = (
-    "e0b2c63f3e43a544cd50c22c7d9ee03e76437c4a41a5810d278b0443983c154e"
+    "4663f4f0872bf921d343da2b9909a56e6b8697ccb832936b011b144566b64eb2"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -332,7 +340,15 @@ EXTERNAL_SOURCE_COUNTS = {
     # are DISJOINT, so the count is the plain sum -- and it was MEASURED, not
     # added: canonical_sources() on the rebased tree returns 3,462, so 394's
     # rules found nothing more in the magnifier's new code.
-    "UI": 3462,
+    #
+    # 3,462 -> 3,472 on 2026-09-15, +10/-0, only UI, for item 286: the five
+    # performance-level tooltips and the five hardware notes. The extractor
+    # iterated PERFORMANCE_NOTES and HARDWARE_NOTES as dicts, so it collected
+    # their keys ("laptop", ...) and never the prose; it now collects the
+    # values too (the keys stay, so no existing row leaves). Each of the ten
+    # has a reviewed record in all nine languages, and a plain rebuild changed
+    # no other row in any catalog.
+    "UI": 3472,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -398,8 +414,13 @@ EXTERNAL_SOURCE_COUNTS = {
 #   minus the 17 magnifier rows        dba7b70df0f039c3...  this batch's pin
 #   minus the 156 of this batch        dacb857799ad804e...  nightly's pin
 #   minus both                         f576cb08f184154f...  the 8f4171fd9 pin
+# Moved again on 2026-09-15 for item 286, with the UI count above: 10
+# identities arrive and none leave, all UI -- the five performance-level
+# tooltips (PERFORMANCE_NOTES) and the five hardware notes (HARDWARE_NOTES).
+# PROVED BY SUBTRACTION with this test's own formula: today's identities
+# minus those ten give ba2a0af05393208f..., the previous pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "ba2a0af05393208fe9b234c89c63fb483ee1b441d1271b8ff88d5d3b0a833f92"
+    "119746de960bd997cf863f1a4a36a13bb803691a129eb5eaecd1fbd41e2fc773"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
