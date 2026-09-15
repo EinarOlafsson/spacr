@@ -1630,14 +1630,25 @@ def test_the_citation_version_doi_is_the_one_for_the_version_it_claims():
 
 
 def test_the_conda_recipe_names_the_version_this_repo_ships():
-    """59: a recipe pinned to an older release publishes that older release.
+    """59: keep the in-repo recipe honest about which release it names.
 
     The recipe carries a version AND the sha256 of that version's sdist, and
     nothing updates either when `packaging/release.py bump` runs -- the same
-    shape as the CITATION.cff DOI trap next door. Left alone it drifts
-    silently, and the failure is not a broken build: conda-forge would
-    cheerfully publish 1.5.0.4 as the current package while PyPI served
-    1.5.0.6.
+    shape as the CITATION.cff DOI trap next door, so it drifts silently.
+
+    WHAT THIS DOES NOT GUARD, corrected 2026-09-14. This docstring used to say
+    "conda-forge would cheerfully publish 1.5.0.4 as the current package while
+    PyPI served 1.5.0.6". THAT IS FALSE and it was false when written.
+    conda-forge does not build from this file. It builds from
+    `conda-forge/spacr-feedstock`, which has existed since 2026-08-27 and
+    which the autotick bot updates on its own -- it merged v1.5.0.6 on
+    2026-09-10 and v1.5.0.7 on 2026-09-13, both `[bot-automerge]`, neither
+    touching this repository.
+
+    SO THIS FILE IS A MIRROR, not a gate, and this test keeps the mirror from
+    lying to whoever reads it. That is a smaller job than the one the old
+    docstring claimed, and worth saying plainly: a test whose stated reason is
+    wrong gets deleted by the next person who checks the reason.
 
     Checked offline. The sha256 cannot be verified without the network, so
     this asserts only what it can: that the version matches, and that the

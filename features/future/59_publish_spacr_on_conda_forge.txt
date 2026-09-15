@@ -2,7 +2,21 @@
 PUBLISH spaCR ON CONDA-FORGE
 ================================================================================
 
-Status:    THE RECIPE IS WRITTEN AND VALIDATED, 2026-09-11. Everything that
+Status:    DONE. spaCR IS ON CONDA-FORGE AND HAS BEEN SINCE 2026-08-27.
+           VERIFIED 2026-09-14 -- see the section at the foot of this file.
+           `conda install -c conda-forge spacr` works today and the package
+           tracks PyPI without anybody doing anything.
+
+           THIS FILE SPENT THREE DAYS DESCRIBING A SUBMISSION THAT HAD
+           ALREADY BEEN MADE. The status block below is preserved verbatim
+           because being wrong in a specific way is the useful part of it; its
+           last paragraph says the staged-recipes pull request is what remains,
+           and that pull request was merged eighteen days before it was
+           written.
+
+           ---- the 2026-09-11 status, superseded, kept for the record ----
+
+           THE RECIPE IS WRITTEN AND VALIDATED, 2026-09-11. Everything that
            can be done without an outward-facing action is done; what remains
            is ONE submission the maintainer makes.
 
@@ -119,3 +133,98 @@ record the PR link here.
 
 Also note it cannot be finished before instruction 54. Publishing a recipe
 with a wrong floor pins the wrong floor for everyone who installs it.
+
+--------------------------------------------------------------------------------
+2026-09-14 -- IT IS PUBLISHED. THE MAINTAINER WAS RIGHT AND THIS FILE WAS WRONG
+--------------------------------------------------------------------------------
+
+The maintainer said, verbatim: "conda-forge and Zenodo happen automatically, I
+know for a fact that at least Zenodo does." He was hedging on conda-forge. He
+did not need to. BOTH are automatic and both were checked rather than believed.
+
+WHAT WAS CHECKED, and how, because this file has claimed things it had not
+looked at:
+
+    gh api repos/conda-forge/spacr-feedstock
+
+  * THE FEEDSTOCK EXISTS. Created 2026-08-27, "Initial feedstock commit with
+    conda-smithy". A feedstock only comes into existence when a
+    staged-recipes pull request has been reviewed and MERGED, so the one
+    outward-facing action this file was waiting for was taken eighteen days
+    before the file said it was outstanding.
+  * `einarolafsson` IS REGISTERED AS ITS MAINTAINER -- the 2026-08-27 "add/
+    remove IDs for maintainers" commit.
+  * THE AUTOTICK BOT IS DOING THE WORK. Its commit log, in full:
+
+        2026-09-13  [bot-automerge] spacr v1.5.0.7 (#2)
+        2026-09-10  [bot-automerge] spacr v1.5.0.6 (#1)
+        2026-09-10  MNT: Re-rendered with conda-smithy 2026.9.1
+        2026-08-27  Initial feedstock commit with conda-smithy
+
+    Two releases picked up, version and sha256 bumped, pull request opened,
+    CI run and merged -- four times over, with no human in the loop. That is
+    what "happens automatically" means and it is now on the record with dates.
+  * UPSTREAM IS AT 1.5.0.7, sha256 709b8e50..., which matches `setup.py`.
+
+AND ZENODO, from its own REST API rather than from the GitHub settings page
+this file used to point at:
+
+    spaCR: spatial phenotype analysis of CRISPR-Cas9 screens
+    version DOI   10.5281/zenodo.22726094
+    concept DOI   10.5281/zenodo.21343316
+    version       v1.5.0.7
+    published     2026-09-12
+
+  The toggle 304 describes as the unbuilt first step has evidently been on for
+  some time: 1.5.0.7 shipped on 2026-09-12 and Zenodo archived it the same day.
+
+--------------------------------------------------------------------------------
+THE ONE REAL DEFECT THIS TURNED UP, AND IT IS FIXED
+--------------------------------------------------------------------------------
+
+`conda-forge/recipe/recipe.yaml` IN THIS REPOSITORY said 1.5.0.6 while
+`setup.py` said 1.5.0.7, so `test_the_conda_recipe_names_the_version_this_
+repo_ships` WAS FAILING ON NIGHTLY. Not skipping -- failing, and it had been
+since v1.5.0.7 was tagged. Found by running it, not by reading it.
+
+Fixed: the recipe now names 1.5.0.7 with sha256 709b8e50..., and 52/52 of
+`tests/test_packaging_metadata.py` pass.
+
+THE SHA WAS VERIFIED THREE WAYS, none of them "the feedstock says so":
+the 44,859,515-byte sdist was downloaded and hashed (709b8e50...), PyPI's own
+JSON digest was read (709b8e50...), and the upstream recipe was read
+(709b8e50...). This file's 2026-09-11 note set that precedent -- "verified by
+downloading the 46 MB sdist and hashing it, not by trusting PyPI's JSON" --
+and it is the one habit here that has held up.
+
+THE TEST'S DOCSTRING WAS ALSO WRONG and has been rewritten. It claimed
+"conda-forge would cheerfully publish 1.5.0.4 as the current package while
+PyPI served 1.5.0.6". conda-forge does not build from this repository at all.
+THE IN-REPO RECIPE IS A MIRROR, NOT A GATE. Keeping it honest is still worth a
+test -- it is what a reader of this repo will believe -- but it is a smaller
+claim than the one that was written, and a test whose stated reason is false
+gets deleted by the first person who checks the reason.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+Nothing, for a session or for the maintainer. Two decisions someone may want
+to make eventually, neither of them work and neither blocking:
+
+  * UPSTREAM CARRIES `tensorboard-2.20.patch`, which this repository's copy
+    does not. The mirror has therefore already diverged in substance and not
+    only in version. Whoever next touches it should diff the two rather than
+    assume they are the same file.
+  * THE MIRROR COULD BE DELETED and this file point at the feedstock instead.
+    That is a real simplification -- one recipe, maintained where it is built
+    -- but deleting a directory is a bigger call than the question that was
+    asked, so it is recorded here and not taken.
+
+THE LESSON, which is the reason this file is this long: an item can be blocked
+on an outward-facing action, have that action taken by the person it was
+waiting for, and stay open for weeks because nobody asked the outside world.
+ONE `gh api` CALL CLOSED IT. Every remaining item in this folder that says
+"blocked on the maintainer" deserves the same thirty seconds before it is
+described as blocked again.
+

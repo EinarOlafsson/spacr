@@ -66,10 +66,18 @@ is still unowned. If a module feels slow again, read that file before
 measuring anything: eleven causes are already eliminated there.
 
 WHAT NEEDS THE MAINTAINER AND NOTHING ELSE — see section 1 — is now short
-enough to list here: the Zenodo toggle, the 1.5.0.5 go-ahead, the measure
-settings instruction 337 part 3 needs, three sentences of Spanish, Chinese and
-Korean for instruction 306, and the nine hand-written `_ROWS` translations
-instruction 316 is waiting on.
+enough to list here: the measure settings instruction 337 part 3 needs, three
+sentences of Spanish, Chinese and Korean for instruction 306, and the nine
+hand-written `_ROWS` translations instruction 316 is waiting on.
+
+**THE ZENODO TOGGLE AND THE 1.5.0.5 GO-AHEAD CAME OFF THAT LIST ON
+2026-09-14**, and not by being granted — by being checked. Zenodo has been
+archiving releases all along (`10.5281/zenodo.22726094`, v1.5.0.7, published
+2026-09-12; concept DOI `10.5281/zenodo.21343316`) and conda-forge has had a
+live self-updating feedstock since 2026-08-27. Both were listed as blocked on
+the maintainer for weeks. **ONE API CALL EACH CLOSED THEM.** Before writing
+"blocked on the maintainer" about anything outward-facing, ask the outside
+world first — 59 has the full account and the one red test it turned up.
 
 ## THE MEASUREMENT LESSONS OF 2026-09-02
 
@@ -510,7 +518,7 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
 | ~~**81**~~ | ~~The reporter's `df -T` on issue #15~~ — **NOT NEEDED, checked 2026-09-13.** #15 was closed 2026-08-14 and 81's own header records it "fixed across local and shared filesystems in 13c41543", so the answer stopped mattering: both branches are covered. | — |
 | ~~**81**~~ | ~~A stack trace for the remaining native crash~~ — **NOT NEEDED, checked 2026-09-13.** That is #72, closed 2026-08-12. The repository has **0 open issues and 86 closed**. | — |
 | **44/45/53** | A macOS host, a Windows host, and `makensis`. The Linux halves can be done without them. | — |
-| **59** | conda-forge accounts. | — |
+| ~~**59**~~ | ~~conda-forge accounts~~ — **NOT NEEDED, checked 2026-09-14.** `conda-forge/spacr-feedstock` has existed since 2026-08-27 with `einarolafsson` as maintainer, and its autotick bot `[bot-automerge]`d v1.5.0.6 and v1.5.0.7 by itself. spaCR is published. | — |
 | **93** | Whether a stack whose intensities exceed the 16-bit ceiling should be **refused** rather than silently rescaled. See §4. | a decision |
 
 ---
@@ -985,7 +993,8 @@ defect it displayed is closed and the numbers fit it exactly.
 | **47** | Qt suite | Diagnosed (§3d). ~15 failures unnamed |
 | **75** | Image UMAP figures | **Superseded by 95** — can be closed |
 | **81** | GitHub issues | 25 of 26 closed |
-| 44, 45, 53, 59 | Installers, conda-forge | Blocked, §1 |
+| 44, 45, 53 | Installers | Blocked, §1 |
+| **59** | conda-forge | **DONE — published since 2026-08-27, bot-maintained.** Verified 2026-09-14 |
 | 48, 83 | Tutorials, catalogs | **codex — do not touch** |
 | **82** | Green CI | **SECOND TO LAST.** Version bump discarded by the maintainer |
 | **58** | Strip Claude from history | **LAST.** Includes `git config user.name "Einar Olafsson"` — the repo has none set, so codex commits show `olafsson` |

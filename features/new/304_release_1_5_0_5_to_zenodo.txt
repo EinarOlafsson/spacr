@@ -71,3 +71,64 @@ work item either session can pick up.
 NOT A CLAIM THAT 1.5.0.5 IS RELEASED. It is a claim that nothing is waiting
 on an agent. If any of these is reopened, reopen it as work rather than
 inheriting this note.
+
+--------------------------------------------------------------------------------
+2026-09-14 -- OFF THE LIST FOR GOOD. ZENODO IS LIVE, AND AUTOMATIC.
+--------------------------------------------------------------------------------
+
+Instruction, verbatim: "conda-forge and Zenodo happen automatically, I know for
+a fact that at least Zenodo does. so take Zenodo off the list!"
+
+TAKEN OFF, AND VERIFIED BEFORE BEING TAKEN OFF -- Zenodo's own REST API,
+`zenodo.org/api/records?q=spacr`, not the GitHub settings page this file kept
+pointing at:
+
+    spaCR: spatial phenotype analysis of CRISPR-Cas9 screens
+    version DOI   10.5281/zenodo.22726094
+    concept DOI   10.5281/zenodo.21343316
+    version       v1.5.0.7
+    published     2026-09-12
+
+WHAT THAT SETTLES, point by point against what this file says above:
+
+  * "Zenodo archives a repository only after the GitHub-Zenodo integration is
+    switched ON" -- true, and it evidently IS on. 1.5.0.7 shipped 2026-09-12
+    and Zenodo archived it the same day. The toggle is not a pending step.
+  * "The toggle has to be set BEFORE the release is published" -- true and now
+    moot. It was.
+  * "confirm the DOI Zenodo mints" -- minted. BOTH of them, exactly as this
+    file predicted: a concept DOI and a version DOI.
+
+AND THE ITEM'S SUBJECT IS TWO RELEASES STALE. This file is titled "Release
+1.5.0.5, archived on Zenodo". 1.5.0.5, 1.5.0.6 and 1.5.0.7 have all shipped;
+1.5.0.7 is archived. There is no version of this item that can still be done.
+
+STEP 5 IS ALSO ALREADY DONE, and checked against the live record rather than
+against a passing test. Step 5 above says to confirm the minted DOIs and put
+the concept one in CITATION.cff and the README. Every value agrees with what
+Zenodo's API returns:
+
+    CITATION.cff  version         1.5.0.7          = Zenodo v1.5.0.7
+    CITATION.cff  date-released   2026-09-12       = Zenodo published
+    CITATION.cff  doi             ...zenodo.22726094 = Zenodo version DOI
+    CITATION.cff  identifiers[1]  ...zenodo.21343316 = Zenodo concept DOI
+    README.rst    badge + link    ...zenodo.21343316 = Zenodo concept DOI
+
+AND THE RIGHT ONE IS IN THE RIGHT PLACE, which is the part a test cannot
+check: the README cites the CONCEPT DOI, so it always resolves to the newest
+release, while CITATION.cff's `doi` is the VERSION DOI for the exact code.
+That is what step 5 asked for, written before either DOI existed.
+
+`test_the_citation_version_doi_is_the_one_for_the_version_it_claims` guards
+the pairing offline and the packaging suite is 52/52 green -- but the reason
+this is closed is the five lines above, not the exit code. AN EXIT CODE IS A
+CLAIM ABOUT THE CHECKS, NEVER ABOUT THE CONTENT.
+
+NOT "1.5.0.5 WAS RELEASED TO ZENODO". It never was, and it never will be. The
+claim is that the mechanism this item was filed to establish is established,
+running, and has archived a newer release than the one in the title -- so
+there is nothing here for a session or for the maintainer.
+
+See 59 for the same story on conda-forge, checked the same day, with the same
+result and one real red test found along the way.
+

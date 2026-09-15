@@ -3,37 +3,44 @@ MEASURE AN ENCODER THAT WAS TRAINED ON CELLS, BECAUSE THE ONE THAT LOST WAS
 TRAINED ON PHOTOGRAPHS
 ================================================================================
 
-Status:    OPEN, AND NOT ONE LINE AWAY -- corrected 2026-09-13. The
-           retrieval harness that produced the baseline figures is NOT
-           in this repository, so "a second run" means rebuilding it
-           first; see the 09-13 note. Filed 2026-09-12 as: the
-           engine, the screen, the column family and the measurement harness
-           all exist and all have been run end to end. What is missing is one
-           line of configuration and a second run.
-Owner:     BLOCKED ON THE MAINTAINER, 2026-09-14 -- the item cannot start
-           until somebody says WHICH PLATE produced the baseline.
-           `spacr/embeddings.py` holds `EmbeddingSpec` and `_timm_encoder`;
-           the measurement is the one 386 records.
+Status:    OPEN AND UNBLOCKED, 2026-09-14. Ordinary work, no longer waiting
+           on anybody. Filed 2026-09-12; corrected 2026-09-13 when the
+           retrieval harness that produced the baseline turned out not to be
+           in this repository; unblocked 2026-09-14 by the maintainer's answer
+           below.
+Owner:     unassigned. `spacr/embeddings.py` holds `EmbeddingSpec` and
+           `_timm_encoder`; the harness has to be rebuilt under `tools/`.
 
-           SEARCHED FOR THE ARTEFACTS 2026-09-14 before accepting that, across
-           /media/carruthers/mnt3/claude and /media/carruthers/mnt1: no file
-           named for retrieval or gene_retrieval exists anywhere, and every
-           hit for the literal strings "0.894" and "0.695" is a coincidental
-           value in an unrelated CSV (phenotype.csv, a control-chart fixture)
-           rather than a record of the run. The harness is not merely
-           uncommitted; it is gone.
+           THE BLOCKING QUESTION WAS ASKED AND ANSWERED. Asked: which plate
+           produced the 2026-09-12 baseline? Answered 2026-09-14, verbatim --
+           "Don't remember -- rerun from scratch".
 
-           WHY THAT BLOCKS RATHER THAN DELAYS. This item's own success
-           criterion is a number "reported beside 0.695 and 0.894, ON THE SAME
-           PLATE, the same objects and the same folds". A harness written
-           fresh is a new split, and the item itself warns that changing the
-           encoder and the measurement in one step produces a number nobody
-           can attribute. Rebuilding blind does not satisfy the criterion --
-           it quietly replaces it.
+           SO THE BASELINE IS ABANDONED, DELIBERATELY AND ON THE RECORD.
+           0.695 and 0.894 are not reproducible: the harness is gone (searched
+           2026-09-14 across /media/carruthers/mnt3/claude and
+           /media/carruthers/mnt1 -- no file named for retrieval or
+           gene_retrieval anywhere, and every hit for the literal strings
+           "0.894" and "0.695" is a coincidental value in an unrelated CSV)
+           and the plate is not remembered. A rebuilt harness is a new split
+           on possibly different data.
 
-           THE ONE QUESTION THAT UNBLOCKS IT: which plate was the 2026-09-12
-           retrieval measurement run on? With that, step 1 (rebuild the
-           harness under `tools/`, plate named) becomes ordinary work.
+           WHAT THAT CHANGES ABOUT THE SUCCESS CRITERION, and it is the whole
+           point of this note: this item used to require a number "reported
+           beside 0.695 and 0.894, ON THE SAME PLATE, the same objects and the
+           same folds". THAT CRITERION IS RETIRED. It cannot be met. Anyone
+           who prints a new number next to 0.695 is comparing two measurements
+           that share nothing but a name.
+
+           THE REPLACEMENT CRITERION IS A FRESH PAIR. Rerun BOTH arms --
+           embeddings AND the measured panel -- in the same rebuilt harness,
+           on one named plate, in one session. The claim this item exists to
+           test is "an encoder trained on cells beats an encoder trained on
+           photographs", and that is a comparison INTERNAL to the new run. It
+           does not need the old numbers and must not borrow them.
+
+           STEP 1 IS THEREFORE THE HARNESS, and it lands under `tools/` WITH
+           THE PLATE NAMED IN IT, so that the next person to ask "which plate"
+           reads the answer instead of filing this note again.
 
 --------------------------------------------------------------------------------
 WHY THIS EXISTS
@@ -65,32 +72,59 @@ not "embeddings lose".
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-Point `EmbeddingSpec` at a backbone trained on microscopy and re-run 386's
-measurement UNCHANGED. Candidates, in the order worth trying:
+REBUILD THE HARNESS FIRST, then point `EmbeddingSpec` at a backbone trained
+on microscopy. Candidates, in the order worth trying:
 
     Cell-DINO / DINOv2 fine-tuned on cells
     OpenPhenom
     SubCell
 
-RE-RUN THE MEASUREMENT AS IT STANDS. The harness, the split, the controls and
-the nulls are all recorded in 386 and none of them should move -- changing
-the encoder and the measurement in the same step produces a number nobody can
-attribute. The four figures above are the baseline to beat, and the position
-control must be re-run too: a different encoder is a different chance of
-finding position instead of biology.
+REVISED 2026-09-14. This section used to say "re-run 386's measurement
+UNCHANGED", which was the right instruction while the harness existed. It does
+not, and the maintainer's answer is "rerun from scratch" -- so the instruction
+is now:
+
+  BUILD ONE HARNESS AND RUN EVERY ARM THROUGH IT. The design is still 386's
+  and none of it should change: grouped-by-well split, the twenty adjacent
+  library-column pairs as a position control, shuffled nulls. What changes is
+  that the MEASURED PANEL is re-run too rather than read off this file. Both
+  arms, one harness, one plate, one session -- that is what makes the
+  comparison mean anything now that the old pair cannot be reproduced.
+
+  The four figures above are HISTORY, not a baseline to beat. They record what
+  was measured on 2026-09-12 on a plate nobody remembers, and the new numbers
+  sit beside them as a separate run rather than in the same table.
+
+  The position control must be run for every arm: a different encoder is a
+  different chance of finding position instead of biology.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-  * The gene-retrieval balanced accuracy is reported beside 0.695 and 0.894,
-    on the same plate, the same objects and the same folds.
-  * The position control is re-run for the new encoder and still reads
-    chance. Without that the new number means nothing, for the same reason
-    the old one would not have.
-  * Whatever the result, it is written into 386 beside the resnet18 figures
-    rather than replacing them. Two encoders measured the same way is the
-    useful artefact; one number that moved is not.
+REWRITTEN 2026-09-14. The first bullet used to read "reported beside 0.695
+and 0.894, on the same plate, the same objects and the same folds". That is
+unsatisfiable -- see the Status block -- and an unsatisfiable criterion is how
+an item stays open forever or gets closed dishonestly.
+
+  * BOTH ARMS COME OUT OF ONE RUN. The cell-trained encoder AND the measured
+    panel, same plate, same objects, same folds, same harness, reported
+    together. The comparison is internal to the new run.
+  * THE PLATE IS NAMED, in the harness and in the result. This item exists in
+    its present form because the last one was not.
+  * The position control is run for every arm and still reads chance. Without
+    that the new number means nothing, for the same reason the old one would
+    not have.
+  * resnet18 IS ONE OF THE ARMS. It is the cheap way to find out whether the
+    new harness reproduces the old finding at all: if resnet18 scores far from
+    0.695 on the new plate, that is information about the harness and the
+    data, not about encoders, and it must be reported rather than quietly
+    absorbed.
+  * Whatever the result, it is written into 386 as a NEW TABLE beside the
+    2026-09-12 figures rather than replacing them or merging with them. Two
+    encoders measured the same way is the useful artefact; two numbers from
+    two harnesses in one column is the thing this file spent two days
+    preventing.
 
 A RESULT THAT IS STILL BELOW THE PANEL IS A SUCCESS FOR THIS ITEM. The
 question is what a cell-trained encoder scores, not whether it wins, and

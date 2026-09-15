@@ -1,73 +1,91 @@
 ================================================================================
-SAMCELL AND LIVECELL, FOR TIMELAPSE
+SAMCELL, TRAINED ON LIVECELL, FOR TIMELAPSE
 ================================================================================
 
-Status:    FUTURE, filed 2026-09-14. Not blocking.
+Status:    FUTURE, filed 2026-09-14. APPROVED FOR BUILD by the maintainer the
+           same day: "implement both, both are available on pypi".
 Requested: 2026-09-14, verbatim -- "we shuld also support SAMCell-LIVECell
-           especislly for timelapse"
-Owner:     unassigned. Related to 404 (DINOCell) -- both are the same
-           question, "what segments a cell spaCR was not trained on", and
-           they should share one backend seam rather than growing two.
+           especislly for timelapse", and then the source, verbatim --
+           "this is the samcell i mean https://github.com/saahilsanganeriya/SAMCell"
+Owner:     unassigned. Shares a seam with 404 (DINOCell): both answer "what
+           segments a cell spaCR was not trained on", and they must extend ONE
+           backend mechanism rather than growing two a month apart.
 
 --------------------------------------------------------------------------------
-WHAT IS KNOWN, AND WHAT IS NOT
+WHAT IT IS, READ FROM THE REPOSITORY 2026-09-14
 --------------------------------------------------------------------------------
 
-READ FROM github.com/NathanMalta/SAMCell ON 2026-09-14: MIT licence,
-copyright 2023 Nathan Malta, folders `dataset_processing` and `src`, and a
-`requirements.txt`. THE REPOSITORY HAS NO README. Backbone, training data,
-checkpoints, entry points and whether LIVECell is among its training sets are
-all UNSTATED there, and this file does not guess at them. Anyone taking this
-item starts by establishing those facts, not by trusting this paragraph.
+github.com/saahilsanganeriya/SAMCell. Label-free biological cell
+segmentation on Meta's Segment Anything backbone -- SAM-Base (ViT-B), 89M
+parameters, encoder pretrained on 11M images. MIT licence.
 
-Corroborating, from a third party rather than from SAMCell itself: DINOCell's
-README (item 404) names "SAMCell" as one of the two baselines it claims to
-beat, alongside Cellpose-SAM. So it is a real and current point of comparison
-in this space, which is worth something and is not a specification.
+    pip install samcell
+    samcell segment image.png --model samcell-generalist.pt
+    samcell.FinetunedSAM() ; samcell.SAMCellPipeline()
 
-WHY LIVECELL IS THE PART THAT MATTERS. LIVECell is a large label-free
-phase-contrast segmentation dataset. A model trained on it is trained on the
-modality timelapse actually produces. Every Cellpose model in spaCR's zoo
-today is fluorescence-oriented, and the three published entries are all
-Toxoplasma-specific. A live-cell run in brightfield or phase contrast is
-currently asking a fluorescence model to do something it was not trained for.
+Dependencies: Python >= 3.8, torch >= 1.9, transformers >= 4.26, OpenCV >= 4.5,
+scikit-image >= 0.19, pandas >= 1.3.
+
+TRAINED ON LIVECELL, which is the whole reason this item exists: 5,000+
+PHASE-CONTRAST images across 8 cell types, plus Cellpose Cytoplasm (~600
+images from diverse sources). Two checkpoints ship, SAMCell-Generalist and
+SAMCell-Cyto.
+
+AN EARLIER DRAFT OF THIS FILE POINTED AT THE WRONG REPOSITORY --
+github.com/NathanMalta/SAMCell, which has no README -- and said so rather than
+guessing at its contents. The maintainer supplied the right one. Recorded
+because "the repository has no README" was a true statement about the wrong
+project, and a true statement about the wrong thing is the most convincing
+kind of wrong.
 
 --------------------------------------------------------------------------------
 WHY TIMELAPSE SPECIFICALLY
 --------------------------------------------------------------------------------
 
-Timelapse is where a segmentation failure compounds rather than stays local.
-A single bad frame is one bad measurement; a model that is systematically
+Every Cellpose model in spaCR's zoo is fluorescence-oriented and all three
+published entries are Toxoplasma-specific. Timelapse is routinely
+phase-contrast or brightfield, so a live-cell run today asks a fluorescence
+model to do something it was not trained for.
+
+AND A SEGMENTATION FAILURE IN TIMELAPSE COMPOUNDS RATHER THAN STAYING LOCAL.
+A single bad frame is one bad measurement. A model that is systematically
 weaker on label-free images produces a track that breaks, and a broken track
-is a lineage error that propagates through every downstream number. The
-maintainer's "especially for timelapse" is the right emphasis for that reason.
+is a lineage error that propagates through every downstream number. That is
+why the maintainer's "especially for timelapse" is the right emphasis, and why
+the scorecard for this one has to count SPLITS AND MERGES rather than only
+Dice -- those are the failures that break a track.
 
 --------------------------------------------------------------------------------
-WHAT TO BUILD, AND THE ORDER
+WHAT TO BUILD
 --------------------------------------------------------------------------------
 
-  1. ESTABLISH THE FACTS FIRST. Which checkpoint, trained on what, emitting
-     what -- masks, flows, or SAM-style prompts. That decides whether it
-     shares 404's seam or needs its own mask path, and it is not knowable
-     from the repository page today.
-  2. ONE BACKEND SEAM, NOT TWO. If 404 lands first, this should extend the
-     same `ModelEntry.kind` mechanism. Two parallel non-Cellpose paths added
-     a month apart is how a mask pipeline acquires a second way of doing
-     everything.
-  3. OPTIONAL DEPENDENCY, as 404 says and item 282 requires.
-  4. SCORED ON TIMELAPSE DATA, not on still frames. The claim being made is
-     about label-free live-cell imaging, so the held-out set that tests it
-     has to be that -- and `spacr/scorecard.py` scores splits and merges,
-     which are exactly the failures that break a track.
+  * ONE BACKEND SEAM SHARED WITH 404. `ModelEntry.kind` is already the
+    discriminator -- 'cellpose' and 'detector' both exist. DINOCell emits
+    Cellpose-style flows and may need no new mask path at all; SAMCell emits
+    masks through `SAMCellPipeline`, so IT is the one that decides whether a
+    second path is needed. Establish that before writing either.
+  * AN OPTIONAL DEPENDENCY, not a core one. `samcell` pulls torch,
+    transformers and a ViT checkpoint. A user who never opens it must not pay
+    for it: item 282's lazy-import discipline is the standard, and
+    `tests/test_perf_guard.py` is what enforces it by asserting the module is
+    absent from `sys.modules` after the Qt launch path.
+  * BOTH CHECKPOINTS IN THE ZOO, named for what they were trained on.
+    Generalist and Cyto are different answers and a user choosing between them
+    needs to know which is which -- `ModelEntry.trained_on` is where that
+    goes, as it already does for the three Toxoplasma entries.
 
 --------------------------------------------------------------------------------
 HOW IT WILL BE CHECKED
 --------------------------------------------------------------------------------
 
 A phase-contrast or brightfield timelapse runs end to end and produces tracks,
-with a scorecard against a labelled held-out set of the same modality, beside
-whatever Cellpose does on the same frames. The comparison is the deliverable:
-"better on label-free" is the claim, and a number on fluorescence data does
-not test it.
+with no import of `samcell` in a process that does not use it. And a scorecard
+-- `spacr/scorecard.py`, which already scores Dice, IoU, boundary F1, AUPRC
+and splits/merges -- against a labelled held-out set OF THE SAME MODALITY,
+published beside whatever Cellpose scores on the same frames.
 
-BLOCKED, like 404 and 370, on labelled held-out data that does not exist yet.
+The comparison is the deliverable. "Better on label-free" is the claim, and a
+number measured on fluorescence data does not test it.
+
+The held-out set is being labelled for the purpose (see 370); the integration
+can land before it, the RECOMMENDATION cannot.

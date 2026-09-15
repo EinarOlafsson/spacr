@@ -2,7 +2,11 @@
 DINOCELL AS A SEGMENTATION BACKEND
 ================================================================================
 
-Status:    FUTURE, filed 2026-09-14. Not blocking.
+Status:    FUTURE, filed 2026-09-14. APPROVED FOR BUILD by the maintainer the
+           same day, verbatim -- "build DINOCell and here is SAMcell
+           https://github.com/saahilsanganeriya/SAMCell implement both both
+           are available on pypi". Not blocking a release; it is now real work
+           rather than a note.
 Requested: 2026-09-14, verbatim -- "we should add to future features to add
            support for DINOCell  https://github.com/kadenstillwagon/DINOCell"
 Owner:     unassigned. `spacr/model_zoo.py` holds `ModelEntry` and its `kind`
@@ -71,10 +75,25 @@ HOW IT WILL BE CHECKED
 DINOCell segments a spaCR project end to end through the ordinary Mask path,
 with no import of `dinocell` in a process that does not use it -- proved the
 way 282 proves it, by asserting the module is absent from `sys.modules` after
-the Qt launch path. And a scorecard against the same held-out set that
-`toxoplasma_pv_v1` was scored on, so the two numbers are comparable, published
-beside them.
+the Qt launch path. And a scorecard on THE SET 370 AUTHORISED -- with
+`toxoplasma_pv_v1` re-scored on that same set in the same run, because the
+published 0.867 was measured on something else and two numbers from two sets
+are not a comparison.
 
-BLOCKED ON THE SAME THING 370 IS: the held-out set is labelled data and does
-not exist yet. The integration can land before the scorecard; the
-RECOMMENDATION cannot.
+NOT BLOCKED ANY MORE, as of 2026-09-14. 370 asked whether a labelled held-out
+set existed and the maintainer answered "Label a new set for the purpose", so
+the set is authorised and its requirements are written down in 370's last
+section -- including that it be WIDER THAN TOXOPLASMA, which exists because of
+this item and 405. Read that before scoring anything.
+
+The order is unchanged and still matters: the INTEGRATION can land before a
+single field is labelled, the RECOMMENDATION cannot. "DINOCell generalises
+zero-shot" is the vendor's claim, and until it is measured on our set it stays
+the vendor's claim in this file's own words.
+
+BUILD IT WITH 405, NOT AFTER IT. Both were approved in one sentence and both
+extend `ModelEntry.kind`. DINOCell emits Cellpose-style flows and may need no
+new mask path at all; SAMCell emits masks through its own pipeline and is the
+one that decides whether a second path is needed. Settle THAT question once,
+across both, before writing either -- two backends added a month apart is how
+one mechanism becomes two.

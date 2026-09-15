@@ -28,8 +28,11 @@ Status:    THE MEASUREMENT HALF IS BUILT -- `spacr/scorecard.py`, by the
              * HUGGING FACE -- the catalogue publishes to
                `einarolafsson/models` via `REMOTE_CATALOGUE_URI`.
 
-           SO NOTHING HERE IS BLOCKED ON CODE. What is left needs the
-           maintainer and cannot be done by a session:
+           SO NOTHING HERE IS BLOCKED ON CODE, AND SINCE 2026-09-14 NOTHING
+           IS BLOCKED ON AN ANSWER EITHER -- the maintainer said "Label a new
+           set for the purpose", which is the last section of this file and
+           the thing to read before touching the two bullets below. What is
+           left is a labelling job and a publish action:
              * THE LABELLED HELD-OUT SET, published beside the models. This is
                data. The item's own crux paragraph is right that a number
                computed on fields chosen at call time is not comparable
@@ -481,3 +484,66 @@ DRAWS -- the metric names, the refusal when none are present, the two-bar
 case -- and none covered how it is written. A figure is not finished when it
 looks right; it is finished when it goes out through the one writer wearing
 the house style.
+
+--------------------------------------------------------------------------------
+2026-09-14 -- THE HELD-OUT SET IS AUTHORISED. LABEL A NEW ONE.
+--------------------------------------------------------------------------------
+
+Asked: does a labelled held-out set exist somewhere, or should one be made?
+Answered by the maintainer, verbatim -- "Label a new set for the purpose".
+
+THAT SETTLES THE LAST OPEN QUESTION IN THIS ITEM. Nothing here is waiting on
+an answer any more; what is left is a labelling job and a publish action.
+
+WHY "FOR THE PURPOSE" IS THE OPERATIVE PHRASE. A set assembled from whatever
+labelled fields happen to be lying around is the failure this item was filed
+against: a number computed on fields chosen at call time is not comparable
+between two models or two days. A set labelled FOR the scorecard is defined
+once, frozen, and used by every model that is ever scored. The difference is
+not the labels; it is that the set stops moving.
+
+WHAT THE SET HAS TO SATISFY, so that whoever labels it does not have to
+re-derive this:
+
+  * FROZEN AND ADDRESSABLE. It is published beside the models, with a
+    checksum, and `verify_holdout` in `spacr/scorecard.py` already exists to
+    assert the thing being scored is the thing that was published. A set that
+    is silently re-labelled makes every previously published number wrong
+    without changing any of them.
+  * DISJOINT FROM TRAINING, and demonstrably so -- by plate or by experiment,
+    not by field. Fields from the same well are not independent, and a split
+    that puts some in training and some in the held-out set reports memory as
+    generalisation. This is the same grouping argument 395 makes about wells.
+  * WIDER THAN TOXOPLASMA. All three published entries are Toxoplasma-specific
+    and the two backends now approved for build -- 404 (DINOCell) and 405
+    (SAMCell) -- are being adopted precisely for cell types spaCR was not
+    trained on. A held-out set that is only Toxoplasma PV can score
+    `toxoplasma_pv_v1` and cannot test the claim that either new backend
+    generalises.
+  * MODALITY-LABELLED. Fluorescence and label-free are different questions.
+    405's whole argument is that timelapse is often phase-contrast, and a
+    label-free claim measured on fluorescence frames tests nothing. The set
+    does not have to cover both on day one, but each frame has to SAY which it
+    is, or the scores cannot be read.
+  * BIG ENOUGH TO SEPARATE THE MODELS IT IS FOR. The published gap between
+    `toxoplasma_pv_v1` and stock cpsam is F1 0.867 against 0.713 at IoU 0.5.
+    A set that cannot resolve a difference that size resolves nothing smaller
+    either, and every comparison run on it will be a coin flip reported as a
+    result.
+
+WHAT IS NOW UNBLOCKED BY THIS
+
+  370   the last data question is answered; the scorecard machinery is built.
+  404   DINOCell -- its recommendation waited on this set. The integration
+        never did.
+  405   SAMCell -- same, with the added requirement that its arm be scored on
+        label-free frames, which is the claim being tested.
+
+  The INTEGRATIONS in 404 and 405 can land before a single field is labelled.
+  The RECOMMENDATIONS cannot, and neither can a scorecard row. That order has
+  not changed; only the availability of the set has.
+
+WHAT REMAINS AFTER THE LABELLING: the publish action to Hugging Face, which
+is the maintainer's credential and decision. That is not engineering and no
+session should attempt it.
+

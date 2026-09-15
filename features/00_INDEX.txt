@@ -50,7 +50,10 @@ FUTURE FEATURES
 --------------------------------------------------------------------------------
 
    59  PUBLISH spaCR ON CONDA-FORGE
-       [BLOCKED: needs the maintainer's accounts]
+       [DONE -- published since 2026-08-27. conda-forge/spacr-feedstock is
+        live, einarolafsson is its maintainer, and its autotick bot merged
+        v1.5.0.6 and v1.5.0.7 on its own. Verified 2026-09-14; it was never
+        blocked on accounts, and nobody had asked.]
        59_publish_spacr_on_conda_forge.txt
 
   288  ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
@@ -387,7 +390,7 @@ NEW FEATURES
   301  The Mandelbrot deep-zoom theme in spaceout
   302  A committed value brings its settings back
   303  The fractal settings need real controls, and real ranges
-  304  Release 1.5.0.5, archived on Zenodo
+  304  Release 1.5.0.5, archived on Zenodo  [CLOSED 2026-09-14 -- Zenodo is live and automatic; v1.5.0.7 archived 2026-09-12, DOI 10.5281/zenodo.22726094]
   305  THE INSTALLED PACKAGE LOADS QUICKLY AND RUNS WITHIN MEASURED RESOURCE BUDGETS
   306  THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
   307  SEGMENTATION QC -> FIELD BROWSER + QUARANTINE
