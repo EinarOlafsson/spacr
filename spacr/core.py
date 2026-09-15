@@ -137,6 +137,21 @@ def _score_v2_masks(src, settings, object_type: str = "cell"):
     return result
 
 
+def _overlay_candidates(merged_src):
+    """The merged image stacks an overlay plot can draw, and nothing else.
+
+    ``merged/`` also holds sidecar files -- ``.spacr_plane_layout.json``
+    among them -- and handing one of those to
+    :func:`spacr.plot.plot_image_mask_overlay` as an image fails that plot.
+    Only ``.npy`` stacks are returned, which is also what the test-mode
+    example count already counts, so the count and the list agree.
+
+    :param merged_src: the ``merged`` folder of a plate.
+    :returns: the ``.npy`` file names in that folder, in directory order.
+    """
+    return [name for name in os.listdir(merged_src) if name.endswith('.npy')]
+
+
 def preprocess_generate_masks(settings):
     """Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.
 
@@ -503,7 +518,7 @@ def preprocess_generate_masks(settings):
                                 plot_ledger = RunLedger('preprocess_generate_masks:overlay_plots')
                                 try:
                                     merged_src = os.path.join(src,'merged')
-                                    files = os.listdir(merged_src)
+                                    files = _overlay_candidates(merged_src)
                                 except Exception as e:
                                     print(f'Failed to plot image mask overly. Error: {e}')
                                     plot_ledger.record_failure(os.path.join(src, 'merged'),
