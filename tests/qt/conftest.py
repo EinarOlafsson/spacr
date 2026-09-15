@@ -907,6 +907,49 @@ def linked_filter_starts_empty(deferred_deletions_flushed):
 
 
 @pytest.fixture(autouse=True)
+def _no_modifier_key_is_held_over(deferred_deletions_flushed):
+    """No test starts with Shift, or any modifier, still held by another.
+
+    ``QGuiApplication.keyboardModifiers()`` is PROCESS-WIDE, and synthesized
+    input writes it: QApplication records the modifiers of every spontaneous
+    event it is handed, and every ``QTest`` mouse and key event is marked
+    spontaneous. ``QTest.keyClick`` presses and then releases its modifier
+    keys, so it leaves nothing behind. ``QTest.mouseRelease(w, Qt.LeftButton,
+    Qt.ShiftModifier, ...)`` does not: the Shift key release a real user makes
+    never follows it, so Shift stays "held" for the rest of the process.
+
+    Qt reads that state for any selection made without an event of its own.
+    With Shift held, ``QTableView.selectRow(0)`` extends a range from an anchor
+    the new table does not have, and selects nothing. On CI run 34981786045
+    (shard 10, one worker) ``test_roi_tool.py``'s
+    ``test_shift_dragging_still_pans_while_the_pen_is_attached`` was the last
+    input before ``test_cov_wf_qt_widgets_sweep_runs.py``, and two of that
+    file's tests found an empty selection after ``selectRow(0)``.
+    ``test_layer_viewer.py``, ``test_comparison_grid.py`` and
+    ``test_shift_clicking_a_crop_fills_the_container.py`` end their gestures
+    the same way. A later spontaneous event without modifiers happens to clear
+    it, which is why the failure depends on file order and passes in a file
+    run alone.
+
+    Released at SETUP, after ``deferred_deletions_flushed``, like the other
+    process-wide state here, and by the same kind of event that set it: a
+    synthesized Key_Shift release carrying no modifier, to a throwaway widget
+    that is destroyed before the test starts. Nothing is sent when nothing is
+    held.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QGuiApplication
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QWidget
+
+    if QGuiApplication.keyboardModifiers() != Qt.NoModifier:
+        receiver = QWidget()
+        QTest.keyRelease(receiver, Qt.Key_Shift, Qt.NoModifier)
+        del receiver
+    yield
+
+
+@pytest.fixture(autouse=True)
 def _the_live_backdrop_controls_do_not_leak():
     """Restore ``fractal_travel._LIVE_CONTROLS`` around every test.
 
