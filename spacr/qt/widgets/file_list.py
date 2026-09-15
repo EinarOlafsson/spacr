@@ -1069,6 +1069,13 @@ class FilePathListWidget(QWidget):
     """
 
     value_changed = Signal()
+    # ANY change to what the list holds, including one made by `set_value`.
+    # `value_changed` is deliberately the USER's edit: it is what marks a
+    # screen dirty and re-writes a settings file, so a load must not emit it.
+    # That leaves a listener which has to follow the value itself -- Map
+    # Barcodes' live search -- deaf to a settings file replacing a path. This
+    # is that listener's signal, and every user edit emits it too.
+    contents_changed = Signal()
 
     def __init__(
         self,
@@ -1209,11 +1216,14 @@ class FilePathListWidget(QWidget):
         wrongly rendered as lists: ``['/x/barcodes_row.csv']`` comes back as
         ``/x/barcodes_row.csv`` rather than carrying the wrong shape forward.
         """
+        before = self.paths()
         self._list.clear()
         paths = self._coerce(value)
         for path in (paths[-1:] if self._single else paths):
             self._append(path)
         self._refresh_hint()
+        if self.paths() != before:
+            self.contents_changed.emit()
 
     def paths(self) -> List[str]:
         """Every path currently listed, in order -- always a list."""
@@ -1278,6 +1288,7 @@ class FilePathListWidget(QWidget):
             self._append(chosen)
             self._refresh_hint()
             self.value_changed.emit()
+            self.contents_changed.emit()
             return 1
         added = 0
         for raw in incoming:
@@ -1290,6 +1301,7 @@ class FilePathListWidget(QWidget):
         if added:
             self._refresh_hint()
             self.value_changed.emit()
+            self.contents_changed.emit()
         return added
 
     def _folder_members(self, folder: str) -> List[str]:
@@ -1344,6 +1356,7 @@ class FilePathListWidget(QWidget):
         if rows:
             self._refresh_hint()
             self.value_changed.emit()
+            self.contents_changed.emit()
 
     def clear(self) -> None:
         """Drop every path, and say so only if there was anything to drop."""
@@ -1351,6 +1364,7 @@ class FilePathListWidget(QWidget):
             self._list.clear()
             self._refresh_hint()
             self.value_changed.emit()
+            self.contents_changed.emit()
 
     def _move_selected(self, offset: int) -> None:
         """Move the single selected row by ``offset``, keeping it selected."""
@@ -1365,6 +1379,7 @@ class FilePathListWidget(QWidget):
         self._list.insertItem(target, item)
         self._list.setCurrentRow(target)
         self.value_changed.emit()
+        self.contents_changed.emit()
 
     def _empty_hint(self) -> str:
         """What to say when no paths have been added.

@@ -379,3 +379,63 @@ search rather than one per character; and the form's values do not change
 until Apply is pressed -- that last one asserted by typing a value into the
 form by hand, letting a live search complete with a different proposal, and
 requiring the typed value to still be there.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- C BUILT: THE SEARCH FOLLOWS THE FORM, AND ONLY APPLY WRITES IT
+--------------------------------------------------------------------------------
+
+WHAT IT DOES. Once a search has been asked for, changing any setting the
+search reads -- `src`, `column_csv`, `grna_csv`, `row_csv`, `barcode_set`,
+`target_sequence` -- starts it again after the form has been still for 600 ms.
+The list is derived from `_SHIPPED_REFERENCE_KEYS` and what
+`plan_barcode_search` reads, so a table added there is watched automatically.
+Settings the search does not read never start one. Apply is unchanged: the form
+changes only when it is pressed. That is the maintainer's answer, "Live
+search, Apply by click", in code.
+
+THREE DECISIONS THE SENTENCE DID NOT MAKE, recorded so they can be reversed
+on purpose rather than by accident:
+
+  1. THE FIRST SEARCH IS STILL ASKED FOR. Opening Map Barcodes and typing a
+     folder is not a request to read it. After the first search, every change
+     to its inputs is. A search on open would be a one-line change if wanted.
+  2. A SEARCH REPLACED BY A NEWER ONE IS DROPPED QUIETLY. Nobody pressed
+     Cancel, so the status line does not say they did.
+  3. APPLY ADOPTS WHAT IT WROTE. `propose_map_barcodes_settings` can write a
+     reference table's path, which is a search input. Without adopting the
+     post-Apply inputs, Apply would start a second search that repeats the
+     first and wipes the "wrote these settings" summary off the screen.
+
+A SHARED WIDGET GAINED A SIGNAL. `FilePathListWidget.set_value` never emitted
+`value_changed`, deliberately: that signal marks a screen dirty and re-writes a
+settings file, so a load must not emit it. The consequence was that a settings
+load replacing a reference table was invisible to anything that follows the
+value. `contents_changed` now fires on any change to the list, including
+`set_value`; every user edit still emits both. A test pins that a load emits
+`contents_changed` and NOT `value_changed`.
+
+HOW IT WAS CHECKED -- `tests/qt/test_the_barcode_search_follows_the_form.py`,
+ten tests, each mutation run against the real code and restored:
+
+      the form is never listened to        4 red
+      no pause before searching            2 red
+      the inputs are not compared          1 red
+      a load does not announce itself      4 red
+      Apply does not adopt its own writes  0 red at first, then 1 red
+
+THAT ZERO WAS THE USEFUL RESULT. The Apply test wrote only the read window,
+which starts no search whether or not Apply adopts anything, so it passed
+against both versions. It now writes the anchor, a setting the search reads,
+and fails without the adoption. A test that cannot tell two versions apart is
+not evidence about either.
+
+API SURFACE. The three barcode-reference helpers from requirement B are now
+private -- `_fill_missing_barcode_references`, `_ensure_bundled_barcode`,
+`_bundled_barcode_url` -- because only `spacr.qt.app` calls them, and a public
+name is a contract translated into nine languages. `SearchThresholds` stays
+public: `search_barcodes(thresholds=...)` takes one.
+
+STATUS: every part of this item that was asked for is built -- requirements 1
+and 2 (found already built), 3 and 4, and the maintainer's A, B and C. The
+five threshold knobs in the settings panel were an agent's proposal, not a
+request, and are deliberately not built.

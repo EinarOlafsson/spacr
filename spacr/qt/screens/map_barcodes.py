@@ -1140,6 +1140,49 @@ _SHIPPED_REFERENCE_KEYS: Tuple[Tuple[str, str], ...] = (
     ("row_csv", "row"),
 )
 
+#: The settings a search reads, and therefore the only ones whose change
+#: starts a new one.
+#:
+#: TAKEN FROM WHAT `plan_barcode_search` ACTUALLY READS -- the sequencing
+#: folder, every reference table, the barcode set and the anchor -- and not
+#: from "every setting on the form". Re-searching because someone changed the
+#: compression level would read the same reads against the same tables and
+#: produce the same report, which is a second of disk for a flicker. The
+#: reference keys come from `_SHIPPED_REFERENCE_KEYS` rather than being spelled
+#: again, so adding a table there cannot leave the live search blind to it.
+_LIVE_SEARCH_KEYS: Tuple[str, ...] = (
+    ("src",)
+    + tuple(key for key, _role in _SHIPPED_REFERENCE_KEYS)
+    + ("barcode_set", "target_sequence")
+)
+
+#: How long the form must sit still before a changed input starts a search.
+#:
+#: A path field emits on EVERY KEYSTROKE. Without a pause, typing a folder
+#: starts one search per character, and the last to finish wins -- which need
+#: not be the one matching what is now on screen. The pause is restarted by
+#: each edit, so a burst of typing costs exactly one search.
+_LIVE_SEARCH_DEBOUNCE_MS = 600
+
+
+def _search_inputs(settings) -> Tuple[str, ...]:
+    """Reduce the settings to the part a search depends on.
+
+    Two forms that agree here would produce the same search, so this is what
+    is compared to decide whether an edit is worth a new one.
+
+    :param settings: the Map Barcodes settings as the form holds them.
+    :returns: one normalised text value per key in `_LIVE_SEARCH_KEYS`.
+    """
+    settings = settings or {}
+    values = []
+    for key in _LIVE_SEARCH_KEYS:
+        value = settings.get(key)
+        if isinstance(value, (list, tuple, set)):
+            value = "\n".join(str(item) for item in value)
+        values.append(str(value if value is not None else "").strip())
+    return tuple(values)
+
 
 @dataclass(frozen=True)
 class BarcodeSearchPlan:
@@ -1530,6 +1573,15 @@ class BarcodeSearchPanel(QWidget):
     proposal shows the value the form holds beside the value the search
     suggests, so what Apply is about to do is legible before it does it.
 
+    It follows the form. Once a search has been asked for, changing any
+    setting the search reads -- the sequencing folder, a reference table, the
+    barcode set or the anchor -- starts it again after the form has been still
+    for a moment, the way the Mask live preview follows its settings. Settings
+    the search does not read never start one. Apply is the exception to
+    everything live about this panel: the form changes only when it is
+    pressed, so a value somebody typed is never replaced by a measurement that
+    arrived while they were typing.
+
     What it costs. Every file is read inside a submitted job, one chunk at a
     time, so the interface stays live throughout and a search can be abandoned
     at any point. Cancelling proposes nothing: an interrupted measurement is
@@ -1595,8 +1647,17 @@ class BarcodeSearchPanel(QWidget):
         #: is running so that reads appear early, and once more at the end
         #: when the counts behind the colouring have settled.
         self._reads_shown = 0
+        #: The search inputs the last search was started from, or None before
+        #: any search. An edit that leaves them unchanged starts nothing.
+        self._searched_inputs: Optional[Tuple[str, ...]] = None
+        self._watched: list = []
+        self._live_timer = QTimer(self)
+        self._live_timer.setSingleShot(True)
+        self._live_timer.setInterval(_LIVE_SEARCH_DEBOUNCE_MS)
+        self._live_timer.timeout.connect(self._run_live_search)
         self._build_ui()
         self._update_buttons()
+        self._watch_the_form()
 
 
     def _build_ui(self) -> None:
@@ -1729,6 +1790,63 @@ class BarcodeSearchPanel(QWidget):
             item.setToolTip(tr(hint))
 
 
+    def _watch_the_form(self) -> int:
+        """Listen to the settings a search reads, and nothing else.
+
+        Safe to call again after the form has been rebuilt: a field already
+        listened to is not connected twice, so one edit cannot schedule two
+        searches.
+
+        :returns: how many of the search's settings are now being listened
+            to. Zero when there is no form, or the form has none of them.
+        """
+        widgets = getattr(getattr(self._screen, "_settings_model", None),
+                          "_widgets", None) or {}
+        for key in _LIVE_SEARCH_KEYS:
+            widget = widgets.get(key)
+            if widget is None or any(w is widget for w in self._watched):
+                continue
+            # `contents_changed` first where a widget has one: it follows a
+            # settings load as well as an edit, which `value_changed` is
+            # deliberately kept from doing.
+            signal = (getattr(widget, "contents_changed", None)
+                      or getattr(widget, "value_changed", None)
+                      or getattr(widget, "textChanged", None))
+            if signal is None:
+                continue
+            signal.connect(self._on_form_edited)
+            self._watched.append(widget)
+        return len(self._watched)
+
+    def _on_form_edited(self, *_args) -> None:
+        """Restart the pause before a search, if a search has been asked for.
+
+        A form nobody has searched yet is left alone: opening Map Barcodes
+        and typing a folder is not a request to read it. After the first
+        search every change to its inputs is.
+
+        :param _args: whatever the edited field's signal carried, unused.
+        """
+        if self._searched_inputs is None:
+            return
+        self._live_timer.start()
+
+    def _run_live_search(self) -> None:
+        """Search again when the form's inputs differ from the last search's.
+
+        A search already running is dropped without being announced as
+        cancelled: nobody pressed Cancel, and a status line saying they did
+        would be wrong for the half second before the new search replaces it.
+        """
+        settings = self.current_settings()
+        if _search_inputs(settings) == self._searched_inputs:
+            return
+        if self._running:
+            self._running = False
+            self._iterator = None
+            self._jobs.cancel()
+        self.start_search()
+
     def on_search_clicked(self, _checked: bool = False) -> None:
         """Start a search, or restart one that is already running.
 
@@ -1764,6 +1882,8 @@ class BarcodeSearchPanel(QWidget):
         if self._running:
             return False
         settings = self.current_settings()
+        self._searched_inputs = _search_inputs(settings)
+        self._live_timer.stop()
         self._reset()
         self._running = True
         self._update_buttons()
@@ -1864,6 +1984,13 @@ class BarcodeSearchPanel(QWidget):
                 LOG.debug("could not write %s into the form", key,
                           exc_info=True)
         self._changes = ()
+        # WHAT APPLY WROTE CAME FROM THIS SEARCH, so the form now holds what
+        # the search found and searching again would only repeat it -- while
+        # wiping the "wrote these" summary off the screen. Adopting the
+        # post-Apply inputs as the searched ones stops that re-run; a later
+        # edit by the user still starts one.
+        self._searched_inputs = _search_inputs(self.current_settings())
+        self._live_timer.stop()
         self._update_buttons()
         self._render_proposal(applied=tuple(written))
         self._set_status(
@@ -2254,6 +2381,9 @@ class BarcodeSearchPanel(QWidget):
         """
         self._running = False
         self._iterator = None
+        timer = getattr(self, "_live_timer", None)
+        if timer is not None:
+            timer.stop()
         runner = getattr(self, "_jobs", None)
         if runner is not None:
             runner.shutdown()
