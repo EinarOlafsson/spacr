@@ -3309,7 +3309,16 @@ _TERM_ROWS: Dict[str, tuple[str, ...]] = {
     "Advanced": _row("Avancerat", "Erweitert", "Avanzado", "高级", "Avançado", "उन्नत", "고급", "Ítarlegt", "Avancé"),
     "General": _row("Allmänt", "Allgemein", "General", "常规", "Geral", "सामान्य", "일반", "Almennt", "Général"),
     "Paths": _row("Sökvägar", "Pfade", "Rutas", "路径", "Caminhos", "पथ", "경로", "Slóðir", "Chemins"),
-    "Controls": _row("Kontroller", "Kontrollen", "Controles", "控件", "Controles", "नियंत्रण", "컨트롤", "Stýringar", "Contrôles"),
+    # EXPERIMENTAL CONTROLS, NOT INTERFACE CONTROLS. This row is reached by
+    # exactly two kinds of text on screen, and both mean positive/negative
+    # controls: the exact caption -- the regression screen's "Controls" tab,
+    # its filtered-family tab name and its live tile, all ControlSeparation --
+    # and the word inside the section headings "Plate Layout & Controls",
+    # "Controls & Filters" and "Controls & Minimum Counts". No drawn caption
+    # uses "Controls" for widgets, yet zh_CN/ko/is carried the widget sense
+    # (控件, 컨트롤, Stýringar), so a Chinese reader saw "widgets" over the
+    # assay-window plot. They now match the singular "Control" row below.
+    "Controls": _row("Kontroller", "Kontrollen", "Controles", "对照", "Controles", "नियंत्रण", "대조군", "Viðmið", "Contrôles"),
     "Plate": _row("Platta", "Platte", "Placa", "孔板", "Placa", "प्लेट", "플레이트", "Plata", "Plaque"),
     "Plates": _row("Plattor", "Platten", "Placas", "板", "Placas", "प्लेट", "플레이트", "Plötur", "Plaques"),
     "Batch": _row("Batch", "Batch", "Lote", "批次", "Lote", "बैच", "배치", "Lota", "Lot"),
