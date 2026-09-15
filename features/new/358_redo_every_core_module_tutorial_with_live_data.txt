@@ -978,3 +978,24 @@ FRESH-COPY RECAPTURE FAILED, AND IT HELD THE SHARED GPU LOCK FOR TWO IDLE HOURS.
     the wrong control. Backups: production/07_mask/pre-2026-09-15/ (visual,
     lesson.en, refresh-status, final-artifact-checks, poster, staged English
     catalog). Translation drafts are queued on the GPU lock.
+  COUNT ROWS WRITTEN AND VALIDATED FOR ALL 13 LANGUAGES (not yet applied):
+    tools/tutorials/lessons/reviews/pending_07_mask_count_rows.json. The
+    edits are exact old -> new substrings of each language's existing
+    reviewed rows: scene 4 (the preview is no longer "the preserved
+    recording"), scenes 6-8 (105 / 510 / 52 / 36), and the prerequisite's
+    live-preview sentence(s). Spoken languages spell the numbers out, as
+    before (es ciento cinco, fr cent cinq, it centocinque, pt-BR cento e
+    cinco, hi एक सौ पाँच, ja 百五, zh-CN 一百零五); caption languages use
+    digits, as before. Icelandic 51 took the singular "frumumerkingu"; 105
+    takes the plural "frumumerkingar".
+    DRY BUILD of OPS + count bundles against the 13 real reviews, nothing
+    written: every substring matches exactly once; exactly 7 rows change
+    per language (prerequisite, objectives[0], scenes[0,3,5,6,7]); Home /
+    Mask / Live / Time / OPS survive; es fr it pt-BR hi ja zh-CN pass
+    spoken_form + assert_pronunciation_safe on every changed scene. Two
+    stale-word hits (is "varðveitt", pt-BR "preservad") were FALSE
+    POSITIVES. Each sits in an UNCHANGED sentence that legitimately says
+    keep: "retaining known channel identities" and "failed runs and probes
+    are preserved but not presented as complete". Neither refers to the
+    retired "preserved recording".
+    Still to do before applying: compare with the GPU drafts once they land.
