@@ -53,39 +53,39 @@ table derives them from the same source the builders read.
 
 | Language | Reviewed runtime records | Of 5,835 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 191 | 3.27% | 5,644 | 505 | 4.79% | 10,028 |
-| German | 154 | 2.64% | 5,681 | 458 | 4.35% | 10,075 |
-| Spanish | 161 | 2.76% | 5,674 | 344 | 3.27% | 10,189 |
-| Simplified Chinese | 473 | 8.11% | 5,362 | 607 | 5.76% | 9,926 |
-| Portuguese | 154 | 2.64% | 5,681 | 565 | 5.36% | 9,968 |
-| Hindi | 235 | 4.03% | 5,600 | 499 | 4.74% | 10,034 |
-| Korean | 372 | 6.38% | 5,463 | 563 | 5.35% | 9,970 |
-| Icelandic | 324 | 5.55% | 5,511 | 1,078 | 10.23% | 9,455 |
-| French | 169 | 2.90% | 5,666 | 505 | 4.79% | 10,028 |
+| Swedish | 191 | 3.27% | 5,644 | 509 | 4.83% | 10,024 |
+| German | 154 | 2.64% | 5,681 | 467 | 4.43% | 10,066 |
+| Spanish | 163 | 2.79% | 5,672 | 348 | 3.30% | 10,185 |
+| Simplified Chinese | 477 | 8.17% | 5,358 | 618 | 5.87% | 9,915 |
+| Portuguese | 154 | 2.64% | 5,681 | 579 | 5.50% | 9,954 |
+| Hindi | 236 | 4.04% | 5,599 | 512 | 4.86% | 10,021 |
+| Korean | 373 | 6.39% | 5,462 | 585 | 5.55% | 9,948 |
+| Icelandic | 324 | 5.55% | 5,511 | 1,080 | 10.25% | 9,453 |
+| French | 169 | 2.90% | 5,666 | 508 | 4.82% | 10,025 |
 
 *Regenerated 2026-09-15 for the 08:15 integration batch (wip/integ-0815) on
-nightly 554dcf371. The runtime denominator moves 5,679 -> 5,835, +156/-0: 154
+nightly ddc0af2f3. The runtime denominator moves 5,679 -> 5,835, +156/-0: 154
 UI captions that 394's keyed extractor rules found behind local helpers
 (always on screen, never in a catalog), plus the `segmentation_backend` label
 and tooltip (404/405). The API denominator does not move; the new backend
 module is not rendered. EVERY RUNTIME COUNT RISES, and each rise is proved by
-subtraction: nightly's count, plus 2 for `segmentation_backend`, plus 1 in sv,
-zh_CN and ko for the UI row the model left English, plus the records authored
-from a read of every row the batch's GPU pass changed (sv 54, de 51, es 44,
-zh_CN 102, pt 37, hi 85, ko 104, is 149, fr 51). That is 1,535 + 18 + 3 + 677
-= 2,233, and no record left any locale. The API counts rise by the authored
-corrections (sv 32, de 27, es 53, zh_CN 84, pt 111, hi 33, ko 104, is 47,
-fr 35), plus the batch's surviving hand-written or restored blocks (de 1,
-zh_CN 1, pt 2), plus one block in zh_CN, ko and is: `spacr.report#13`, the
-two words "Segmentation QC". That English is also a UI caption the runtime
-reviewers corrected in exactly those three locales (zh_CN and ko had read
-"classification QC"). The API audit then refused the stale API block as a
-contextual false friend, so the API side now carries the same reviewed
-translation. Icelandic's corrections add 46 sources, not 47, because two of
-them are the same "Design notes:" block in two symbols: one English source
-with one translation, and this table counts sources. The
-re-binding of item 63's markup fixes retired and re-bound the same number of
-records in every locale, so it moves nothing here. Coverage is not review:
+subtraction from nightly's count. It adds 2 for `segmentation_backend`, then
+the records from a read of every row the batch's GPU pass changed: the
+reviewers' corrections as written, plus the ones the gates had refused,
+repaired to keep a quoted literal, a code literal's order or an ** span, and
+the three UI rows the model left English (sv 55, de 51, es 46, zh_CN 107,
+pt 37, hi 86, ko 106, is 149, fr 51). That is 1,535 + 18 + 688 = 2,241, and no
+record left any locale.
+
+The API counts rise by the same read (sv 36, de 37, es 57, zh_CN 96, pt 127,
+hi 46, ko 126, is 52, fr 38), plus `spacr.report#13` in zh_CN, ko and is.
+"Segmentation QC" is also a UI caption, and the API block now carries the
+runtime reviewers' translation. Icelandic adds 49 sources, not 53, for two
+reasons. Two of its corrections are the same "Design notes:" block in two
+symbols, one English source with one translation. And three replace the
+translations of 2026-09-15-rebound-63 records, retired in place, for sources
+already counted. The ko UI row "Choose a regression results folder" keeps the
+batch's own record, which matches its sibling rows. Coverage is not review:
 these are corrections to text that was wrong, and the Icelandic and Hindi
 ones still want a native reader.*
 
@@ -258,5 +258,5 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 191, de 154, es 161, zh_CN 473, pt 154, hi 235, ko 372, is 324, fr 169 -- 2,233 runtime records across nine locales.
+Reviewed totals today: sv 191, de 154, es 163, zh_CN 477, pt 154, hi 236, ko 373, is 324, fr 169 -- 2,241 runtime records across nine locales.
 

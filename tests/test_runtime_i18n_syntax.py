@@ -55,13 +55,14 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # (wip/integ-0815) on nightly 554dcf371:
     #    2  the `segmentation_backend` label and tooltip (404/405),
     #       2026-09-15-segmentation-backend.json
-    #    1  the Cellpose 4 diameter-check UI row the model left English,
-    #       2026-09-15-integration-new.json
-    #   54  corrections from reading every row the batch's GPU pass changed,
-    #       2026-09-15-integration-review.json
+    #   55  corrections from reading every row the batch's GPU pass changed,
+    #       2026-09-15-integration-review.json -- including the Cellpose 4
+    #       diameter-check UI row the model left English, whose reviewed
+    #       translation replaced the hand-written one first recorded in
+    #       2026-09-15-integration-new.json (that file is gone)
     # PROVED BY SUBTRACTION with the loader itself: the live count minus the
-    # sources in those three files is 134, the three share no source with each
-    # other, and none shares one with any other file.
+    # sources in those two files is 134, they share no source with each other,
+    # and neither shares one with any other file.
     assert len(reviewed) == 191
     for source, translated in reviewed.items():
         assert source in current_values

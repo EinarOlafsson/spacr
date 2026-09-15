@@ -487,13 +487,15 @@ the build uses validated each one. Where a corrected translation replaced one
 of the restorations above, the restoration was removed:
 
     superseded by a reviewer's correction   pt 6, ko 2
-    kept, because the correction failed     pt spacr.active_learning.should_stop#6
-    `_syntax_preserved`                     pt spacr.power_model.scan_parameters#2
+    replaced by a careful translation       pt spacr.active_learning.should_stop#6
+                                            pt spacr.power_model.scan_parameters#2
                                             zh_CN spacr.power_model.scan_parameters#1
 
-In the two pt cases the correction translated a quoted English phrase
-("flat" and "unmeasurable"; "this fit crashed") that the gates keep
-verbatim. In the zh_CN case it kept every inline code literal but put them
-in a different order, which the literal check also refuses. The restoration still ships, and it is
-still the 8f4171fd9 model output named as weak above. It needs a correction
-that keeps the quoted literal as written.
+The reviewers' corrections for those three were rejected by the gates. In
+pt they had translated a quoted English phrase ("flat" and "unmeasurable";
+"this fit crashed") that the gates keep verbatim. In zh_CN every inline code
+literal was there, but in a different order, which the literal check also
+refuses. Rather than keep the weak 8f4171fd9 text, each block was translated
+again: the quoted phrase is kept as written with a gloss after it, and the
+code literals are in source order. All three pass the loader's own
+predicates, so none of the eleven now ships its 8f4171fd9 model output.
