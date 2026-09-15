@@ -727,3 +727,12 @@ GPU QUEUE, 04:27 UTC. The 07_mask preview capture has waited on the shared
   04:24:31 to 04:26:53 it used +141.7 CPU-s (one full core), read +14.5 MB
   and wrote 0 B, with the GPU at 0 %. That fits a CPU-only audit pass. It was
   left alone. Samples: <scratchpad>/358_mask/holder_liveness.txt.
+  VOICE RENDER RE-RUN RULE CHECKED (render_all_voices.py, read, not run):
+    with SPACR_TUTORIAL_WORKSPACE=$ST it reads $ST/catalog and writes
+    $ST/production. A complete existing track is SKIPPED only when its
+    render_fingerprint matches (the fingerprint covers the per-scene speech
+    plan), or when only display narration changed with an identical speech
+    plan and a matching media hash (audio_equivalent_render_inputs strips
+    `narration`, never speech). New scene 1 / scene 6-8 wording therefore
+    re-renders the affected tracks without --force. Do not add --force: it
+    also re-synthesizes tracks whose speech did not change.
