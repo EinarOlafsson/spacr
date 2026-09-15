@@ -455,16 +455,24 @@ refresh_2026-09-15_cpu so refresh_2026-09-09 is not overwritten):
     table only from an image the user chooses. capture_refresh.py now falls
     back to the real "Choose image…" dialog (plate1 E01 F001) and records
     preview_choice.json.
-  * mask_preview_cpu3: frames 00-06 captured by 22:18. Its 05_live_settings
-    shows today's dialog (Min area, Max area, Minimum area to split, Minimum
-    watershed distance, Perimeter fraction, absolute Intensity threshold,
-    merge/split/border/Adjust cells). The retired rows are gone, and
-    Normalize plots is gone from the form behind it. The preview model was
-    still running on CPU (Cellpose ViT encoder, about 240% CPU) when this
-    was written. Frames 07-12 and the new counts in
-    preview_outputs.json / live_variants.json were NOT yet available.
-    Check its log before composing, and verify the counts independently
-    before any narration change.
+  * mask_preview_cpu3: FAILED at 22:46 (exit 134) with "Preview not finished:
+    Running preview…" after the full 3000 s --timeout. A single CPSAM preview
+    on one 4-channel field did not finish in 50 minutes on CPU, on a machine
+    other sessions held at load 25-31. Frames 00-06 exist. Its
+    05_live_settings shows today's dialog (Min area, Max area, Minimum area
+    to split, Minimum watershed distance, Perimeter fraction, absolute
+    Intensity threshold, merge/split/border/Adjust cells). The retired rows
+    are gone, and Normalize plots is gone from the form behind it. Frames
+    07-12, preview_outputs.json and live_variants.json were NOT produced, so
+    the scene 6-8 counts are still unmeasured.
+  * On this run the cached-load route loaded a field by itself within the
+    3 s settle, so the new "Choose image…" fallback was NOT exercised. It is
+    untested; it exists because run 2 (fresh download) loaded nothing in
+    90 s.
+  * NEXT CAPTURE: this preview is GPU-scale. Re-run the same command
+    without CUDA_VISIBLE_DEVICES="" once the GPU is free, or on CPU with
+    --timeout 7200 on a quiet machine. Use a new --capture-name. The 1.6 GB
+    stage (example data included) is outside the repository.
 
 OWED, IN ORDER. Nothing here has been run. [GPU] marks the GPU steps.
 
