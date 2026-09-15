@@ -1263,3 +1263,34 @@ Minimum dependencies failed. Read from their logs:
   a cancellation. Shard durations vary widely (b740c741d: shard 0 130 min,
   shard 1 23 min; 3f27b926a: shard 1 62 min), so a duration alone does not say
   whether a shard was cut short. Read the last lines.
+
+  THE FIRST UNCANCELLABLE RUN (2026-09-15). With three sessions pushing to
+  nightly, every push-triggered tests run was being cancelled by the next push
+  before a Qt shard (60-130 min) could finish. Item 101's design already exempts
+  workflow_dispatch from cancel-in-progress, so the release signal is now a
+  DISPATCHED run: tests 34989909231 and compat-matrix 34989930732, both on
+  2a84d1d60. Early failures, all taken by the home session:
+
+      shard 6    test_the_paint_harness_can_see_a_second_layer -- AmbientWidget
+                 .eventFilter reads self._watched before it exists
+                 (ambient.py:4905)
+      Qt 1       teardown of test_dna_rain::test_install_dna_rain_is_inert_until
+                 _shown -- DnaRainWidget.eventFilter reads self._watched and
+                 hideEvent -> stop() reads self._timer before they exist
+                 (dna_rain.py:1091, 1084, 1036). THE FigureQueue SHAPE AGAIN
+                 (32c914f4a); a sweep of spacr/qt for event handlers that read
+                 __init__ attributes is on wip/43-events-before-init.
+      shard 6    test_the_checkout_size_in_the_readme_matches_the_tree -- README
+                 941 MB, tree 1,186 MB. Measured: 965 MB at 17172faa8, and ALL
+                 220 MB of growth is docs/source/_extra, the 358 tutorial Pages
+                 tree. Intended; the README is stale (wip/43-readme-size).
+      shard 11   test_no_tooltip_is_an_archive -- 'segmentation_backend' 677 >
+                 600 chars. The English is spacr/settings.py:3804 (tooltips),
+                 its nine translations are reviewed runtime records; shortened to
+                 568 chars, it lands with them in one commit.
+      Qt 1       gw2 crashed in test_cov_r5_preferences::test_saving_the_fractal
+                 _tab_stores_what_the_fields_hold -- the crash family (eighth
+                 site), unattributed.
+      compat     "3.15 installs, from wheels only": pandas publishes no 3.15
+                 wheels. The cell is continue-on-error (informational), so it
+                 does not decide the workflow.
