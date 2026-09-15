@@ -157,3 +157,126 @@ mutation of the source. `tests/qt/test_live_preview_coverage.py`'s
 `test_the_status_line_reports_the_object_count` asserted the status line by
 equality and now asserts its leading clause, because the line gained the
 model's name.
+
+--------------------------------------------------------------------------------
+STATUS, 2026-09-14 (second pass) -- THE THREE "NOT DONE" ITEMS, AND ONE MORE
+--------------------------------------------------------------------------------
+
+Branch `wip/333-preview-models`. Evidence is still
+`tests/qt/test_the_preview_uses_the_model_the_run_will_use.py`, now 36 tests:
+the 17 above plus 19. All 19 were written first, and the before column below
+is those tests run against the unmodified tree.
+
+MEASURED FIRST, ON SCREENS BUILT FROM THIS TREE, what each form collects:
+
+    analyze_plaques  {'plaque_model': 'bundled', 'model_name': 'cpsam'}
+    cellpose_masks   {'model_name': 'cpsam', 'custom_model': None}
+
+1. PLAQUE ASSAY: THE DIVERGENCE WAS REAL, AND IT WAS THE DEFAULT CASE.
+   The plaque run resolves `plaque_model` through
+   `spacr.submodules._resolve_plaque_model` and loads the answer as
+   `custom_model`, so `model_name` never reaches Cellpose. The preview
+   seeded `model_name`. A user who opened Plaque Assay and touched nothing
+   previewed stock cpsam against a run on the bundled plaque model.
+
+     before  the run segments with '.../spacr/resources/models/
+             toxo_plaque_cyto_e25000_X1120_Y1120.CP_model'; the preview
+             holds 'cpsam'          (test_the_plaque_preview_follows_the_
+                                     real_screens_default, built screen)
+     after   the combo holds the resolver's own answer
+
+   The preview CALLS THE RUN'S RESOLVER. It does not copy the resolver's
+   rules. Two changes to the resolver made that possible.
+   `_resolve_plaque_model(settings, fetch=True)` gained `fetch=False`, which
+   takes only what is already on this machine: the package's bundled pack,
+   or a zoo checkpoint at the entry's path or `~/.spacr/models/<name>`.
+   Anything else raises `ModelZooMissing`, and nothing is downloaded, neither
+   the bundled pack nor a zoo key. The new `_requested_plaque_model` holds
+   the `'bundled'` default, so the preview can name an unresolvable request
+   without restating that default.
+
+   What the resolver cannot find comes back as the requested value. The pass
+   previews with cpsam and says so on the status line. A zoo KEY is not
+   path-shaped, so `_checkpoint_is_missing` could never see one was missing;
+   the panel keeps the resolver's verdict instead (`_models_not_here`).
+
+   `spacr.submodules` IS A 3.5 s IMPORT (torch, cellpose, scikit-learn),
+   measured cold. The app has not paid it when the card is first shown, so
+   the plaque seed runs on its own JobRunner (`_model_jobs`) and is adopted
+   when it lands, unless the user picked a model meanwhile. A pass that
+   starts before it lands resolves on the spot (`_settle_the_run_model`)
+   rather than segment with whatever the combo held. Mask keeps its
+   synchronous key read and never imports submodules.
+
+   The panel learns whose run it previews from `_build_live_preview_card`,
+   which now passes the host's `app_key` as `LivePreviewPanel(module=...)`.
+
+2. CELLPOSE MASKS: SAME SHAPE, NOT RECORDED BEFORE.
+   `identify_masks_finetune` loads `custom_model` whenever it is not None,
+   and the preview read only `model_name`.
+     before  "the Cellpose Masks run loads custom_model; the preview showed
+             'cpsam'"
+     after   `_RUN_MODEL_KEYS['cellpose_masks'] = ('custom_model',
+             'model_name')`
+
+3. THE TRACK PREVIEW (Timelapse, folded into Mask): SAME SHAPE, SECOND PANEL.
+   `TimelapsePreviewPanel.apply_settings` seeded the object, the channel and
+   the diameter, and never the model.
+     before  "the track preview segmented with 'cpsam'" with
+             `pathogen_model` set
+     after   seeded through the same `_model_the_run_would_use` and the
+             shared `_offer_the_run_model`
+
+4. ORGANELLE SLOTS: RE-CHECKED, NO DIVERGENCE. The run reads slot b's model
+   through `spacr.object_roles.organelle_settings_view`, which exposes
+   `organelleb_model_name` as `organelle_model_name`. The panel's
+   `_model_keys_for('organelleb')` reads the same key. A guard test asserts
+   agreement against that function. It was green before and after, so it is
+   a guard, not a fix.
+   Mask cell, nucleus and pathogen were re-checked against
+   `_get_object_settings` and object.py 696-697 and are unchanged.
+
+5. THE ROUND TRIP, for both registry modules.
+   * `custom_model` is written back only when the settings already set it.
+     A checkpoint is written as itself, and a stock name CLEARS it: writing
+     'cpsam' into `custom_model` makes the run print "Custom model not found"
+     and return.
+   * `plaque_model` is written back only when the user changed the model to
+     a checkpoint FILE. An untouched preview would otherwise rewrite
+     'bundled' as a path, and the plaque run cannot load a stock name.
+   Both keys were added to their `PREVIEWS[...].propagation` maps, because
+   the registry drops every name its map does not carry.
+
+6. THE PROVENANCE CLAUSE IS TRANSLATED, WITH NO NEW CAPTION.
+     before  sv: "Found cell=1.  Modell: cpsam — /models/not_downloaded_yet.pth
+             is not on this machine."
+     after   "Modell: cpsam — /models/not_downloaded_yet.pth: saknas."
+   It is composed from `tr("Model")` (a term row) and `tr("missing")`, a
+   reviewed compact `_ROWS` row that the AI panel's status already uses, so
+   it resolves in all nine locales. `test_i18n_caption_ratchet.py` is green
+   with no count or digest moved.
+
+PUBLIC DOCSTRINGS: NONE MOVED. Checked with the builder's own
+`public_docstrings()` and `_source_block_hashes` against `api/en.json`: 184
+public symbols across submodules, live_preview, timelapse_preview,
+preview_registry and app_screen, with 0 moved, 0 new and 0 gone. A
+`:param module:` line in `LivePreviewPanel.__init__` WOULD have moved the
+class's pinned block, because AutoAPI merges `__init__` prose into the class
+entry (`_autoapi_class_doc`). It was taken out and the parameter is documented
+at the attribute instead.
+
+LEFT, deliberately:
+* The track preview seeds its model in `apply_settings` only. Unlike the
+  Mask panel, it does not follow its own object selector onto that object's
+  model. A missing checkpoint there fails loudly ("Preview failed: ... looks
+  like a checkpoint path but no file is there"); it does not fall back, since
+  that panel has no provenance clause to state a fallback in.
+* `pipeline_style='v2'` segments its single pass with `cell_model_name` and
+  ignores `pathogen_model` (core.py, `run_v2`), while the preview reads
+  per-object keys. That is a different shape, a different segmentation
+  structure rather than a key the preview skipped, so it is reported and not
+  changed.
+* Outside the preview: the plaque run's zoo-key branch calls
+  `model_zoo.fetch` on EVERY run, and fetch always downloads into a new
+  versioned file. The preview's `fetch=False` finds an existing copy; the run
+  never looks for one.

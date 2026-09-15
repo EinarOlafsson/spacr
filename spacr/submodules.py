@@ -1184,7 +1184,21 @@ class ModelZooMissing(FileNotFoundError):
     """A named model is not where it should be."""
 
 
-def _resolve_plaque_model(settings):
+def _requested_plaque_model(settings):
+    """What ``plaque_model`` asks for, with the run's default applied.
+
+    Separate from :func:`_resolve_plaque_model` so a caller that has to NAME
+    the request when it cannot be resolved -- the live preview, stating a
+    fallback -- reads the same default rather than restating it.
+
+    :param settings: the plaque settings dict.
+    :returns: a path, a :mod:`spacr.model_zoo` key, or ``'bundled'``, which is
+        also what an unset or empty value means.
+    """
+    return str(settings.get('plaque_model') or 'bundled')
+
+
+def _resolve_plaque_model(settings, fetch=True):
     """The Cellpose checkpoint the plaque analysis should segment with.
 
     Three sources, in priority order, because they answer different questions:
@@ -1208,21 +1222,30 @@ def _resolve_plaque_model(settings):
     someone who did not notice them.
 
     :param settings: the plaque settings dict.
+    :param fetch: download what is not here -- the bundled pack through
+        :func:`spacr.utils.download_models`, a zoo key through
+        :func:`spacr.model_zoo.fetch`. ``False`` is for a caller that must
+        not start a download, which is the live preview: a 1.2 GB fetch from
+        a preview refresh is the surprise item 333 forbids. It takes only
+        what is already on this machine and raises :class:`ModelZooMissing`
+        for the rest, so the preview answers with THIS resolver rather than
+        with a copy of its rules.
     :returns: a filesystem path to a Cellpose checkpoint.
     """
     from .utils import download_models
 
-    requested = str(settings.get('plaque_model') or 'bundled')
+    requested = _requested_plaque_model(settings)
 
     if os.path.isfile(requested):
         return requested
 
     if requested == 'bundled':
-        local_dir = download_models()
+        local_dir = download_models() if fetch else None
         package_dir = os.path.dirname(__file__)
         for candidate in (
-                os.path.join(str(local_dir or ''),
-                             'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model'),
+                os.path.join(str(local_dir),
+                             'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')
+                if local_dir else '',
                 os.path.join(package_dir, 'resources', 'models',
                              'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')):
             if candidate and os.path.isfile(candidate):
@@ -1241,6 +1264,15 @@ def _resolve_plaque_model(settings):
             f"string 'bundled', nor a model_zoo key. Known keys: "
             f"{sorted(e.key for e in model_zoo.catalogue(remote=True))}")
     dest = os.path.join(os.path.expanduser('~'), '.spacr', 'models')
+    if not fetch:
+        for candidate in (str(getattr(entry, 'path', '') or ''),
+                          os.path.join(dest, str(getattr(entry, 'name', '')
+                                                 or ''))):
+            if candidate and os.path.isfile(candidate):
+                return candidate
+        raise ModelZooMissing(
+            f"plaque_model={requested!r} is not on this machine yet (looked "
+            f"in {dest}); running the plaque analysis downloads it.")
     os.makedirs(dest, exist_ok=True)
     return str(model_zoo.fetch(entry, dest))
 

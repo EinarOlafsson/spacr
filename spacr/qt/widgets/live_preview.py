@@ -1158,7 +1158,23 @@ def _is_a_real_model_name(value: str) -> bool:
 _STOCK_MODEL = "cpsam"
 
 
-def _model_keys_for(primary: str) -> Tuple[str, ...]:
+#: The app key of the one module whose model is RESOLVED rather than read.
+_PLAQUE_MODULE = "analyze_plaques"
+
+#: Modules whose RUN names its model with other keys than Mask's, in the
+#: run's own precedence; the first one set wins.
+#:
+#: ``cellpose_masks`` -- :func:`spacr.spacr_cellpose.identify_masks_finetune`
+#: loads ``custom_model`` whenever it is not ``None`` and reads ``model_name``
+#: only then. Measured on a built Cellpose Masks screen the form carries both,
+#: ``{'model_name': 'cpsam', 'custom_model': None}``, and this panel read only
+#: the second, so a user with a custom checkpoint previewed stock cpsam.
+_RUN_MODEL_KEYS: Dict[str, Tuple[str, ...]] = {
+    "cellpose_masks": ("custom_model", "model_name"),
+}
+
+
+def _model_keys_for(primary: str, module: str = "") -> Tuple[str, ...]:
     """The settings keys that decide ``primary``'s model, in the RUN's order.
 
     NOT a second opinion about which model to use -- it is the pipeline's own
@@ -1178,23 +1194,82 @@ def _model_keys_for(primary: str) -> Tuple[str, ...]:
         :func:`~spacr.object.generate_cellpose_masks_sam`, and again at
         1069-1070 on the older path. (The ledger cited 769-771; the lines
         have moved, the rule has not.)
-      * the bare ``model_name`` comes last because the two modules that
-        reach this panel through :mod:`spacr.qt.preview_registry` --
-        ``cellpose_masks`` and ``analyze_plaques`` -- have one object type
-        and call its model that. Mask never sets it.
+      * the bare ``model_name`` comes last, for a panel that serves no
+        named module. Mask never sets it.
+
+    The two modules that reach this panel through
+    :mod:`spacr.qt.preview_registry` DO NOT read the bare ``model_name`` the
+    way this list once assumed they did. ``cellpose_masks`` loads
+    ``custom_model`` first (:data:`_RUN_MODEL_KEYS`), and ``analyze_plaques``
+    resolves its model instead of reading one
+    (:func:`_plaque_model_the_run_would_use`).
 
     :param primary: the compartment the panel's common controls target.
+    :param module: the app key whose run the panel stands in for. ``""``
+        and ``"mask"`` both mean Mask's keys.
     :returns: the keys to try, first one SET wins.
     """
+    if module in _RUN_MODEL_KEYS:
+        return _RUN_MODEL_KEYS[module]
     role = str(primary or "cell")
     if role == "pathogen":
         return ("pathogen_model", "pathogen_model_name", "model_name")
     return (f"{role}_model_name", "model_name")
 
 
+def _plaque_model_the_run_would_use(
+        settings: Optional[Dict[str, Any]]) -> Tuple[str, str, bool]:
+    """The checkpoint the plaque RUN would segment with, by its own resolver.
+
+    ``analyze_plaques`` never hands ``model_name`` to Cellpose. It resolves
+    ``plaque_model`` -- ``'bundled'`` by default, a :mod:`spacr.model_zoo`
+    key, or a path -- through :func:`spacr.submodules._resolve_plaque_model`
+    and loads the answer as ``custom_model``. Measured on a built Plaque Assay
+    screen the form carries ``plaque_model='bundled'`` AND
+    ``model_name='cpsam'``, and this panel seeded the second: a preview on
+    stock cpsam, against a run on the plaque model.
+
+    THE RESOLVER IS CALLED, NOT COPIED, with ``fetch=False``. The run
+    downloads what is missing and a preview must not. What is not on this
+    machine -- a zoo key never downloaded, a bundled pack that is absent, a
+    value that is neither a file nor a key, on which the run itself stops --
+    comes back as the REQUESTED value with ``here=False``; the pass then
+    falls back and says so.
+
+    Importing :mod:`spacr.submodules` costs about 3.5 s cold (torch, cellpose,
+    scikit-learn), so the panel calls this off the GUI thread; see
+    :meth:`LivePreviewPanel._seed_the_model`.
+
+    :param settings: the plaque settings dict.
+    :returns: ``(model, "plaque_model", here)``.
+    """
+    settings = dict(settings or {})
+    try:
+        from spacr.submodules import (_requested_plaque_model,
+                                      _resolve_plaque_model)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the plaque model resolver could not be imported",
+                  exc_info=True)
+        return "", "plaque_model", False
+    requested = _requested_plaque_model(settings)
+    try:
+        return (str(_resolve_plaque_model(settings, fetch=False)),
+                "plaque_model", True)
+    except (FileNotFoundError, ValueError):
+        # ModelZooMissing is a FileNotFoundError. ValueError is a value the
+        # run cannot resolve either.
+        return requested, "plaque_model", False
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not resolve plaque_model=%r", requested,
+                  exc_info=True)
+        return requested, "plaque_model", False
+
+
 def _model_the_run_would_use(settings: Optional[Dict[str, Any]],
-                            primary: str) -> Tuple[str, str]:
-    """Which model the RUN would segment ``primary`` with, and which key said so.
+                            primary: str,
+                            module: str = "") -> Tuple[str, str, bool]:
+    """Which model the RUN would segment ``primary`` with, which key said so,
+    and whether the run could find it here.
 
     A key that is present but ``None`` does not count. That is not a corner
     case: Mask always carries ``pathogen_model`` and spells "not set" as
@@ -1202,18 +1277,29 @@ def _model_the_run_would_use(settings: Optional[Dict[str, Any]],
     reason. Treating the key's presence as an answer would have the preview
     read a model of ``"None"``.
 
+    ``analyze_plaques`` is answered by the plaque run's own resolver rather
+    than by a key (:func:`_plaque_model_the_run_would_use`), and that is the
+    only answer that can come back ``here=False``. A key read leaves a
+    missing checkpoint to :func:`_checkpoint_is_missing`, which can see a
+    path; nothing path-shaped can be seen in a zoo key, which is why the
+    resolver's verdict is carried out rather than re-derived.
+
     :param settings: the module's settings dict.
     :param primary: the compartment the preview is tuned for.
-    :returns: ``(model, key)``, or ``("", "")`` when no key names a model.
+    :param module: the app key whose run the panel stands in for.
+    :returns: ``(model, key, here)``, or ``("", "", True)`` when no key names
+        a model.
     """
-    for key in _model_keys_for(primary):
+    if module == _PLAQUE_MODULE:
+        return _plaque_model_the_run_would_use(settings)
+    for key in _model_keys_for(primary, module):
         value = (settings or {}).get(key)
         if value is None:
             continue
         text = str(value).strip()
         if text:
-            return text, key
-    return "", ""
+            return text, key, True
+    return "", "", True
 
 
 def _checkpoint_is_missing(model_name: Any) -> bool:
@@ -1242,6 +1328,42 @@ def _checkpoint_is_missing(model_name: Any) -> bool:
     if not text or os.path.isfile(text):
         return False
     return os.sep in text or text.endswith((".pth", ".pt"))
+
+
+def _offer_the_run_model(combo: QComboBox, wanted: str,
+                         here: bool = True) -> bool:
+    """Select the model a run would use, adding it to ``combo`` if needed.
+
+    Added when it can load -- a checkpoint on disk, or a retired pre-SAM
+    spelling (:func:`_is_a_real_model_name`) -- AND when it cannot: a
+    checkpoint path with no file behind it, or anything the run's resolver
+    reported absent (``here=False``). The second is on purpose. It is what
+    the run is configured with, and hiding it would put the preview back to
+    showing cpsam while saying nothing, which is the silence item 333 exists
+    to end. The pass falls back and states it; see
+    :meth:`LivePreviewPanel._model_for_this_pass`.
+
+    Anything else is a typo, and is not offered.
+
+    Shared by every panel that segments with a run's model, so the rule for
+    what is offered cannot differ between them.
+
+    :param combo: the model dropdown.
+    :param wanted: the model the run would use.
+    :param here: False when the run's resolver could not find it here.
+    :returns: True when ``wanted`` is now selected.
+    """
+    if not wanted:
+        return False
+    index = combo.findText(wanted)
+    if index < 0 and (not here or _is_a_real_model_name(wanted)
+                      or _checkpoint_is_missing(wanted)):
+        combo.addItem(wanted)
+        index = combo.count() - 1
+    if index < 0:
+        return False
+    combo.setCurrentIndex(index)
+    return True
 
 
 def _model_menu():
@@ -1328,7 +1450,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     PREVIEW_SOURCE_HINT = "Load an image first."
 
-    def __init__(self, parent=None, *, threaded: bool = True):
+    def __init__(self, parent=None, *, threaded: bool = True,
+                 module: str = ""):
         """Build the preview panel and arm it to accept dropped images.
 
         :param parent: parent widget, or ``None``.
@@ -1355,9 +1478,27 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         #: it has seeded none. It is how the panel tells its own value from
         #: one the user picked: see :meth:`_reseed_the_model_for_the_object`.
         self._model_seeded_to: Optional[str] = None
+        #: ``module``: the app key whose RUN this preview stands in for. Mask,
+        #: Cellpose Masks and Plaque Assay name the model with different
+        #: settings (:func:`_model_the_run_would_use`); ``""`` means Mask's.
+        #: Not in the docstring above because AutoAPI merges ``__init__``
+        #: prose into the class's pinned, nine-times-translated entry.
+        self._module: str = str(module or "")
+        #: Models the RUN's resolver could not find on this machine. A zoo
+        #: key is not path-shaped, so :func:`_checkpoint_is_missing` cannot
+        #: see that one is missing; the resolver's verdict is kept instead.
+        self._models_not_here: set = set()
+        #: A seed resolving off the GUI thread, as ``(token, settings,
+        #: primary, combo text when it started)``; see :meth:`_seed_the_model`.
+        self._run_model_pending: Optional[Tuple[int, Dict[str, Any], str,
+                                                str]] = None
+        self._run_model_token: int = 0
         self._worker: Optional[_PreviewWorker] = None
         self._load_jobs = JobRunner(self, threaded=threaded,
                                     app_key="preview image")
+        self._model_jobs = JobRunner(self, threaded=threaded,
+                                     app_key="preview model",
+                                     user_visible=False)
         self._image_load_token: int = 0
         self._run_token: int = 0
         self._propagate_cb = None
@@ -1904,9 +2045,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         Called from :meth:`closeEvent`, and safe to call directly when a
         screen is torn down without one.
         """
-        runner = getattr(self, "_load_jobs", None)
-        if runner is not None:
-            runner.shutdown()
+        for name in ("_load_jobs", "_model_jobs"):
+            runner = getattr(self, name, None)
+            if runner is not None:
+                runner.shutdown()
 
     def closeEvent(self, event):    # noqa: N802 (Qt naming)
         """Cancel a load in progress rather than let it outlive the panel."""
@@ -2500,9 +2642,43 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if primary == "pathogen" and self._settings.get(
                 "pathogen_model") is not None:
             out["pathogen_model"] = model
+        out.update(self._model_write_back(model))
         if hasattr(self, "_compartment_widgets"):
             out.update(self._compartment_settings())
         return out
+
+    def _model_write_back(self, model: str) -> Dict[str, Any]:
+        """The model keys a registry module's run reads, written back safely.
+
+        :meth:`settings_for_propagation` writes ``model_name``, and neither
+        registry module's run segments with that alone:
+
+        * ``cellpose_masks`` loads ``custom_model`` whenever it is set.
+          Leaving it untouched kept the old checkpoint in charge, and writing
+          a stock name INTO it stops the run outright -- it prints "Custom
+          model not found" and returns. So a checkpoint path is written as
+          itself and a stock name CLEARS the override. Only when the settings
+          already set it: the rule the pathogen override follows, for the
+          same reason.
+        * ``analyze_plaques`` resolves ``plaque_model``, which is often
+          ``'bundled'`` or a zoo key that this panel shows as the path it
+          resolved to. It is written only when the user CHANGED the model to
+          a checkpoint file. An untouched preview must not rewrite what a
+          recorded run asked for, and the plaque run cannot load a stock name.
+
+        :param model: the combo's current value.
+        :returns: the extra keys to propagate, possibly none.
+        """
+        if self._module == "cellpose_masks":
+            if self._settings.get("custom_model") is None:
+                return {}
+            is_a_checkpoint = (os.path.isfile(model)
+                               or _checkpoint_is_missing(model))
+            return {"custom_model": model if is_a_checkpoint else None}
+        if self._module == _PLAQUE_MODULE:
+            if model != self._model_seeded_to and os.path.isfile(model):
+                return {"plaque_model": model}
+        return {}
 
     def propagate_settings(self) -> None:
         """Send the current live settings to the main panel (if a callback is
@@ -2643,25 +2819,78 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         ignored, the same way :meth:`_choose_a_preview_model` adds one the
         zoo just downloaded.
 
+        PLAQUE ASSAY IS RESOLVED OFF THE GUI THREAD. Its run's resolver lives
+        in :mod:`spacr.submodules`, which imports torch, cellpose and
+        scikit-learn -- 3.5 s cold, measured, in an app that has not imported
+        it by the time this card is first shown. So the answer is computed on
+        :attr:`_model_jobs` and adopted when it lands, unless the user has
+        picked a model meanwhile. A pass that starts first settles it on the
+        spot (:meth:`_settle_the_run_model`) rather than segment with
+        whatever the combo held.
+
         :param settings: the module's settings, as collected from its form.
         :param primary: the compartment the common controls target.
         """
-        wanted, _key = _model_the_run_would_use(settings, primary)
+        if self._module != _PLAQUE_MODULE:
+            self._select_the_run_model(
+                *_model_the_run_would_use(settings, primary, self._module))
+            return
+        self._run_model_token += 1
+        token = self._run_model_token
+        snapshot = dict(settings or {})
+        self._run_model_pending = (token, snapshot, primary,
+                                   self._model_box.currentText())
+        self._model_jobs.submit(
+            lambda: _model_the_run_would_use(snapshot, primary,
+                                             _PLAQUE_MODULE),
+            lambda answer, _t=token: self._on_run_model_resolved(_t, answer))
+
+    def _on_run_model_resolved(self, token: int, answer) -> None:
+        """Adopt an off-thread answer unless it is stale or overruled.
+
+        :param token: which request this answers; a newer one supersedes it,
+            and a pass that settled it first leaves nothing to adopt.
+        :param answer: ``(model, key, here)``.
+        """
+        pending = self._run_model_pending
+        if pending is None or pending[0] != token:
+            return
+        self._run_model_pending = None
+        if self._model_box.currentText() != pending[3]:
+            return                          # the user picked one meanwhile
+        self._select_the_run_model(*answer)
+
+    def _settle_the_run_model(self) -> None:
+        """Resolve a pending seed now, on this thread, before a pass needs it.
+
+        The job's own answer then finds nothing pending when it lands.
+        """
+        pending = self._run_model_pending
+        if pending is None:
+            return
+        self._run_model_pending = None
+        _token, snapshot, primary, before = pending
+        if self._model_box.currentText() != before:
+            return
+        self._select_the_run_model(
+            *_model_the_run_would_use(snapshot, primary, self._module))
+
+    def _select_the_run_model(self, wanted: str, _key: str = "",
+                              here: bool = True) -> None:
+        """Put the run's model in the combo and remember that the panel did.
+
+        :param wanted: the model the run would use.
+        :param _key: the setting that named it. Unused; it keeps the shape of
+            :func:`_model_the_run_would_use`'s answer.
+        :param here: False when the run's resolver could not find it here.
+        """
         if not wanted:
             return
-        idx = self._model_box.findText(wanted)
-        if idx < 0 and (_is_a_real_model_name(wanted)
-                        or _checkpoint_is_missing(wanted)):
-            # A checkpoint that is NOT on disk is still offered, on purpose.
-            # It is what the run is configured with, and hiding it would put
-            # the preview back to showing cpsam while saying nothing --
-            # exactly the silence this method exists to end. The pass itself
-            # falls back and states the fallback; see
-            # :meth:`_model_for_this_pass`.
-            self._model_box.addItem(wanted)
-            idx = self._model_box.count() - 1
-        if idx >= 0:
-            self._model_box.setCurrentIndex(idx)
+        if here:
+            self._models_not_here.discard(wanted)
+        else:
+            self._models_not_here.add(wanted)
+        if _offer_the_run_model(self._model_box, wanted, here):
             self._model_seeded_to = self._model_box.currentText()
 
     def _reseed_the_model_for_the_object(self) -> None:
@@ -3374,13 +3603,24 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         is never substituted in silence, which is the defect this whole
         mechanism exists to end.
 
+        Missing means a checkpoint path with no file behind it, or a value
+        the run's own resolver reported absent -- a zoo key never downloaded,
+        a bundled plaque pack that is not installed -- which no path test
+        can see.
+
+        The note is built from the existing ``missing`` catalogue row, so it
+        reads in the user's language without adding a caption; see
+        :meth:`_model_provenance`.
+
         :returns: ``(model, note)``. ``note`` is empty when the model that
             loads is the model that was asked for.
         """
+        self._settle_the_run_model()
         chosen = str(self._model_box.currentText() or "").strip()
-        if not _checkpoint_is_missing(chosen):
+        if (chosen not in self._models_not_here
+                and not _checkpoint_is_missing(chosen)):
             return chosen, ""
-        return _STOCK_MODEL, f"{chosen} is not on this machine"
+        return _STOCK_MODEL, f"{chosen}: {tr('missing')}"
 
     def _model_provenance(self) -> str:
         """One clause naming the model that made the picture on screen.
@@ -3389,17 +3629,20 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         combo does not re-segment, so captioning the masks with the current
         selection would name a model that never touched them.
 
-        COMPOSED RATHER THAN TRANSLATED, and that is a constraint rather
-        than a preference. A new literal caption anywhere under
-        ``spacr/qt`` enters the generated i18n layer, whose inventory is
-        pinned by count AND digest in
+        COMPOSED FROM CATALOGUE SOURCES THAT ALREADY EXIST, and that is a
+        constraint rather than a preference. A new literal caption anywhere
+        under ``spacr/qt`` enters the generated i18n layer, whose inventory
+        is pinned by count AND digest in
         ``tests/qt/test_i18n_caption_ratchet.py``; adding one means
-        regenerating nine locale catalogues. ``Model`` is already a
-        catalogue source, so the word is translated, and the rest follows
-        the object-count sentence it is appended to, which has never been
-        translated either.
+        regenerating nine locale catalogues. ``Model`` (a term row) and
+        ``missing`` (a reviewed compact row the AI panel's status already
+        uses) cover the whole clause, so it reads in every locale --
+        ``Modell: cpsam — toxoplasma_plaque_v1: saknas.`` -- where the note
+        used to say "is not on this machine" in English whatever the
+        language.
 
-        :returns: the clause, e.g. ``Model: cpsam.``
+        :returns: the clause, e.g. ``Model: cpsam.``, or
+            ``Model: cpsam — <requested>: missing.`` after a fallback.
         """
         model = self._model_that_ran or self._model_box.currentText()
         label = tr("Model")

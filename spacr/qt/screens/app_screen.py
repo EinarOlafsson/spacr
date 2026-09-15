@@ -8890,10 +8890,17 @@ def _build_live_preview_card(host):
     The Mask app screen embeds this into a QSplitter alongside the
     console so the two panels can be resized against each other. The panel
     starts hidden and is shown when the user clicks the Live toggle.
+
+    The panel is told WHOSE run it previews -- the host's ``app_key`` --
+    because Mask, Cellpose Masks and Plaque Assay each name the model with a
+    different setting, and :mod:`spacr.qt.preview_registry` mounts this same
+    builder for all three. Without it the plaque preview seeded
+    ``model_name`` while the plaque run segments with ``plaque_model``.
     """
     from ..widgets.live_preview import LivePreviewPanel
     card = Card(title="Live preview")
-    panel = LivePreviewPanel(card)
+    panel = LivePreviewPanel(
+        card, module=str(getattr(host, "app_key", "") or ""))
     card.body_layout.addWidget(panel)
     card.setMinimumHeight(300)
     return panel, card

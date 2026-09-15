@@ -95,6 +95,9 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             "cell_flow_threshold": "flow_threshold",
             "cell_cellprob_threshold": "CP_prob",
             "model_name": "model_name",
+            # The run loads `custom_model` over `model_name` when it is set;
+            # the panel writes it back only if it was (333).
+            "custom_model": "custom_model",
             "normalize": "normalize",
         }),
     "analyze_plaques": PreviewSpec(
@@ -105,6 +108,10 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             "cell_diameter": "diameter",
             "cell_flow_threshold": "flow_threshold",
             "cell_cellprob_threshold": "CP_prob",
+            # The plaque run segments with `plaque_model`, never
+            # `model_name`; the panel writes it only for a checkpoint the
+            # user picked (333).
+            "plaque_model": "plaque_model",
         }),
 }
 

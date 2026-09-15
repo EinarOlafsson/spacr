@@ -156,9 +156,9 @@ def test_a_model_the_user_picked_survives_an_object_switch(panel, tmp_path,
 
 
 def test_the_bare_model_name_still_seeds_the_modules_that_use_it(panel):
-    """``cellpose_masks`` and ``analyze_plaques`` reach this panel through
-    the preview registry, have one object type and call its model
-    ``model_name``. That read must not be lost."""
+    """A panel serving no named module still reads the bare ``model_name``,
+    and so does Cellpose Masks while ``custom_model`` is unset. That read
+    must not be lost. (Plaque Assay does NOT read it -- section 6.)"""
     panel.apply_settings({"model_name": "cyto2"})
 
     assert panel._model_box.currentText() == "cyto2"
@@ -317,3 +317,420 @@ def test_the_preview_offers_only_cellpose_models(panel, monkeypatch):
     panel._choose_a_preview_model()
 
     assert seen["kinds"] == ("cellpose",)
+
+
+# --------------------------------------------------------------------------
+# 6. the other two modules this panel serves
+# --------------------------------------------------------------------------
+#
+# ``cellpose_masks`` and ``analyze_plaques`` reach this panel through
+# :mod:`spacr.qt.preview_registry`, and NEITHER RUN SEGMENTS WITH
+# ``model_name`` the way the first pass assumed. Measured on screens built
+# from this tree (2026-09-14):
+#
+#   analyze_plaques  collect() -> {'plaque_model': 'bundled', 'model_name': 'cpsam'}
+#   cellpose_masks   collect() -> {'model_name': 'cpsam', 'custom_model': None}
+#
+# The plaque run resolves ``plaque_model`` through
+# ``spacr.submodules._resolve_plaque_model`` and hands the result to Cellpose
+# as ``custom_model``; ``model_name`` never reaches Cellpose. So the plaque
+# preview showed cpsam's masks against a run on the plaque model -- the
+# defect this file exists for, one module over. The Cellpose Masks run loads
+# ``custom_model`` over ``model_name`` whenever it is set
+# (``spacr.spacr_cellpose.identify_masks_finetune``).
+
+
+@pytest.fixture
+def module_panel(qapp):
+    """A synchronous panel serving ``module``, as the registry mounts it."""
+    from spacr.qt.widgets.live_preview import LivePreviewPanel
+
+    made = []
+
+    def build(module):
+        widget = LivePreviewPanel(threaded=False, module=module)
+        made.append(widget)
+        return widget
+
+    yield build
+    for widget in made:
+        widget.deleteLater()
+
+
+@pytest.fixture
+def no_download(monkeypatch):
+    """Fail the test if anything starts a download.
+
+    A preview refresh that fetched 1.2 GB would be the surprise the item's
+    WATCH OUT forbids, and both of the resolver's download paths are named
+    here so neither can be reached quietly.
+    """
+    from spacr import model_zoo, utils
+
+    def refuse(*_a, **_k):
+        raise AssertionError("the preview started a download")
+
+    monkeypatch.setattr(model_zoo, "fetch", refuse)
+    monkeypatch.setattr(utils, "download_models", refuse)
+
+
+def _zoo_entry(monkeypatch, key, name):
+    from types import SimpleNamespace
+
+    from spacr import model_zoo
+
+    entry = SimpleNamespace(key=key, name=name, path="")
+    monkeypatch.setattr(model_zoo, "catalogue",
+                        lambda *a, **k: [entry])
+    return entry
+
+
+def _registry_built(qtbot, module):
+    """The card and panel exactly as ``preview_registry`` builds them."""
+    from types import SimpleNamespace
+
+    from spacr.qt.screens.app_screen import _build_live_preview_card
+
+    panel, card = _build_live_preview_card(SimpleNamespace(app_key=module))
+    qtbot.addWidget(card)
+    # Returned and HELD by the caller: qtbot keeps no strong reference, and
+    # the panel is the card's child, so dropping the card deletes the combo.
+    return panel, card
+
+
+def _wait_for_model(qtbot, panel, expected, timeout=20000):
+    """Wait for an off-thread resolution, then assert with what was SEEN."""
+    try:
+        qtbot.waitUntil(
+            lambda: panel._model_box.currentText() == expected,
+            timeout=timeout)
+    except Exception:                                    # noqa: BLE001
+        pass
+    assert panel._model_box.currentText() == expected, (
+        f"the run segments with {expected!r}; the preview holds "
+        f"{panel._model_box.currentText()!r}")
+
+
+def test_the_plaque_preview_uses_the_model_the_plaque_run_resolves(
+        qtbot, checkpoint):
+    """The reported shape, for Plaque Assay, through the registry's builder.
+
+    The expectation is the RUN's own resolver's answer, not a copy of its
+    rules, so the two cannot drift apart again.
+    """
+    from spacr.submodules import _resolve_plaque_model
+
+    settings = {"plaque_model": checkpoint, "model_name": "cpsam"}
+    expected = _resolve_plaque_model(dict(settings))
+
+    panel, _card = _registry_built(qtbot, "analyze_plaques")
+    panel.apply_settings(settings)
+
+    _wait_for_model(qtbot, panel, expected)
+
+
+def test_the_plaque_preview_follows_the_real_screens_default(
+        qtbot, monkeypatch):
+    """End to end on a built Plaque Assay screen, whose default is 'bundled'.
+
+    Before this the preview seeded ``model_name`` ('cpsam') from the same
+    form, so the two most visible values on the screen disagreed.
+    """
+    from spacr.qt.app import MainWindow
+    from spacr.qt.preview_registry import install
+    from spacr.qt.settings_search import install as install_search
+    from spacr.submodules import ModelZooMissing, _resolve_plaque_model
+
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window._on_nav_selected("analyze_plaques")
+    qtbot.wait(50)
+    screen = window._screens["analyze_plaques"]
+    install_search(screen)
+    host = install(screen)
+    collected = screen._settings_model.collect()
+    assert collected["plaque_model"] == "bundled"
+    try:
+        expected = _resolve_plaque_model(dict(collected))
+    except ModelZooMissing:
+        expected = "bundled"
+
+    host.toggle.setChecked(True)
+
+    _wait_for_model(qtbot, host.panel, expected)
+
+
+def test_an_unset_plaque_model_means_what_the_run_takes_it_to_mean(
+        module_panel, tmp_path, monkeypatch, no_download):
+    """``None`` is 'bundled' to the run. Read the bundled pack from a
+    package directory the test controls, so this does not depend on what
+    this machine happens to have installed."""
+    import spacr.submodules as sm
+
+    package = tmp_path / "package"
+    bundled = (package / "resources" / "models"
+               / "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model")
+    bundled.parent.mkdir(parents=True)
+    bundled.write_bytes(b"w")
+    monkeypatch.setattr(sm, "__file__", str(package / "submodules.py"))
+
+    panel = module_panel("analyze_plaques")
+    panel.apply_settings({"plaque_model": None, "model_name": "cyto2"})
+
+    assert panel._model_box.currentText() == str(bundled)
+    assert panel._model_for_this_pass() == (str(bundled), "")
+
+
+def test_a_downloaded_plaque_zoo_key_previews_its_local_copy(
+        module_panel, tmp_path, monkeypatch, no_download):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _zoo_entry(monkeypatch, "toxoplasma_plaque_v1", "cpsam_plaque_r3")
+    local = tmp_path / ".spacr" / "models" / "cpsam_plaque_r3"
+    local.parent.mkdir(parents=True)
+    local.write_bytes(b"w")
+
+    panel = module_panel("analyze_plaques")
+    panel.apply_settings({"plaque_model": "toxoplasma_plaque_v1"})
+
+    assert panel._model_box.currentText() == str(local)
+
+
+def test_a_plaque_zoo_key_not_downloaded_is_stated_and_never_fetched(
+        module_panel, tmp_path, monkeypatch, no_download):
+    """A zoo KEY is not path-shaped, so the path test that catches a missing
+    checkpoint cannot see it. Without the resolver's answer the key would
+    either be dropped (cpsam, in silence) or handed to Cellpose, which maps
+    an unknown name to cpsam with a log line and nothing on screen."""
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _zoo_entry(monkeypatch, "toxoplasma_plaque_v1", "cpsam_plaque_r3")
+
+    panel = module_panel("analyze_plaques")
+    panel.apply_settings({"plaque_model": "toxoplasma_plaque_v1"})
+
+    assert panel._model_box.currentText() == "toxoplasma_plaque_v1"
+    model, note = panel._model_for_this_pass()
+    assert model == "cpsam"
+    assert "toxoplasma_plaque_v1" in note
+
+
+def test_a_missing_bundled_plaque_model_is_stated_and_never_downloaded(
+        module_panel, tmp_path, monkeypatch, no_download):
+    import spacr.submodules as sm
+
+    monkeypatch.setattr(sm, "__file__",
+                        str(tmp_path / "empty" / "submodules.py"))
+
+    panel = module_panel("analyze_plaques")
+    panel.apply_settings({"plaque_model": "bundled"})
+
+    model, note = panel._model_for_this_pass()
+    assert model == "cpsam"
+    assert "bundled" in note
+
+
+def test_a_pass_started_before_the_resolution_lands_still_uses_it(
+        qapp, checkpoint):
+    """The plaque resolver lives in ``spacr.submodules``, a 3.5 s import the
+    app has not paid when the preview opens, so it runs off the GUI thread.
+    A pass that starts before the answer is delivered must not segment with
+    whatever the combo held in the meantime."""
+    from spacr.qt.widgets.live_preview import LivePreviewPanel
+
+    panel = LivePreviewPanel(threaded=True, module="analyze_plaques")
+    try:
+        panel.apply_settings({"plaque_model": checkpoint,
+                              "model_name": "cpsam"})
+        # No event processing in between: the job's answer cannot have been
+        # delivered yet.
+        assert panel._model_for_this_pass() == (checkpoint, "")
+    finally:
+        panel._model_jobs.shutdown()
+        panel.deleteLater()
+
+
+def test_a_late_resolution_does_not_undo_a_model_the_user_picked(
+        qtbot, checkpoint, tmp_path):
+    from spacr.qt.widgets.live_preview import LivePreviewPanel
+
+    chosen = tmp_path / "chosen.pth"
+    chosen.write_bytes(b"w")
+    panel = LivePreviewPanel(threaded=True, module="analyze_plaques")
+    qtbot.addWidget(panel)
+    panel.apply_settings({"plaque_model": checkpoint})
+    _offer(panel, str(chosen))
+
+    qtbot.waitUntil(lambda: panel._model_jobs.pending_jobs() == 0,
+                    timeout=20000)
+    qtbot.wait(20)
+    assert panel._model_box.currentText() == str(chosen)
+    panel._model_jobs.shutdown()
+
+
+def test_the_cellpose_masks_preview_loads_custom_model_over_model_name(
+        qtbot, checkpoint):
+    panel, _card = _registry_built(qtbot, "cellpose_masks")
+    panel.apply_settings({"model_name": "cpsam", "custom_model": checkpoint})
+
+    assert panel._model_box.currentText() == checkpoint, (
+        "the Cellpose Masks run loads custom_model; the preview showed "
+        f"{panel._model_box.currentText()!r}")
+
+
+def test_an_unset_custom_model_leaves_model_name_in_charge(module_panel):
+    panel = module_panel("cellpose_masks")
+    panel.apply_settings({"model_name": "cyto2", "custom_model": None})
+
+    assert panel._model_box.currentText() == "cyto2"
+
+
+# ---- the round trip, for both ---------------------------------------------
+
+def test_an_untouched_plaque_model_is_not_rewritten_as_a_path(
+        module_panel, checkpoint, no_download):
+    """'bundled' and a zoo key resolve to paths. Writing the resolved path
+    back over the setting the user chose would change what a recorded run
+    says it asked for, which the resolver's own docstring warns against."""
+    panel = module_panel("analyze_plaques")
+    panel.apply_settings({"plaque_model": checkpoint})
+
+    assert "plaque_model" not in panel.settings_for_propagation()
+
+
+def test_a_plaque_checkpoint_the_user_picks_propagates(
+        module_panel, checkpoint, tmp_path, no_download):
+    from spacr.qt.preview_registry import PREVIEWS
+
+    chosen = tmp_path / "chosen.pth"
+    chosen.write_bytes(b"w")
+    panel = module_panel("analyze_plaques")
+    panel.apply_settings({"plaque_model": checkpoint})
+    _offer(panel, str(chosen))
+
+    out = panel.settings_for_propagation()
+    assert out["plaque_model"] == str(chosen)
+    assert PREVIEWS["analyze_plaques"].propagation.get(
+        "plaque_model") == "plaque_model", (
+        "the registry drops every name its map does not carry")
+
+
+def test_a_stock_name_is_not_written_into_plaque_model(
+        module_panel, checkpoint, no_download):
+    """The plaque run cannot load a stock name -- the resolver raises
+    ValueError on 'cpsam' -- so propagating one would break the run."""
+    panel = module_panel("analyze_plaques")
+    panel.apply_settings({"plaque_model": checkpoint})
+    _offer(panel, "cpsam")
+
+    assert "plaque_model" not in panel.settings_for_propagation()
+
+
+def test_choosing_a_stock_model_clears_custom_model(module_panel, checkpoint):
+    """Writing only ``model_name`` back left ``custom_model`` in charge, and
+    writing 'cpsam' INTO ``custom_model`` stops the run outright: it prints
+    "Custom model not found" and returns."""
+    from spacr.qt.preview_registry import PREVIEWS
+
+    panel = module_panel("cellpose_masks")
+    panel.apply_settings({"model_name": "cpsam", "custom_model": checkpoint})
+    _offer(panel, "cpsam")
+
+    out = panel.settings_for_propagation()
+    assert out["custom_model"] is None
+    assert out["model_name"] == "cpsam"
+    assert PREVIEWS["cellpose_masks"].propagation.get(
+        "custom_model") == "custom_model"
+
+
+def test_an_untouched_custom_model_round_trips(module_panel, checkpoint):
+    panel = module_panel("cellpose_masks")
+    panel.apply_settings({"model_name": "cpsam", "custom_model": checkpoint})
+
+    assert panel.settings_for_propagation()["custom_model"] == checkpoint
+
+
+def test_propagation_does_not_switch_custom_model_on(module_panel, checkpoint):
+    panel = module_panel("cellpose_masks")
+    panel.apply_settings({"model_name": "cpsam", "custom_model": None})
+    _offer(panel, checkpoint)
+
+    assert "custom_model" not in panel.settings_for_propagation()
+
+
+# --------------------------------------------------------------------------
+# 7. organelle slots read the key the run reads
+# --------------------------------------------------------------------------
+
+def test_an_organelle_slot_reads_the_key_the_run_reads(panel, tmp_path):
+    """The run reads a slot's model through
+    ``spacr.object_roles.organelle_settings_view``, which exposes
+    ``organelleb_model_name`` as ``organelle_model_name``. Asserted against
+    that function rather than against a spelling, so a change to the view
+    is a change to this test."""
+    from spacr.object_roles import organelle_settings_view
+    from spacr.organelle_types import NUMBER_OF_ORGANELLES
+    from spacr.qt.widgets.live_preview import object_role
+
+    first = tmp_path / "first.pth"
+    first.write_bytes(b"w")
+    second = tmp_path / "second.pth"
+    second.write_bytes(b"w")
+    settings = {NUMBER_OF_ORGANELLES: 2,
+                "organelle_model_name": str(first),
+                "organelleb_model_name": str(second)}
+    panel.apply_settings(settings)
+
+    box = panel._object_box
+    index = next(i for i in range(box.count())
+                 if object_role(box.itemData(i) or box.itemText(i))
+                 == "organelleb")
+    box.setCurrentIndex(index)
+
+    run = organelle_settings_view(settings, "organelleb")
+    assert panel._model_box.currentText() == run["organelle_model_name"]
+
+
+# --------------------------------------------------------------------------
+# 8. the provenance clause is in the reader's language
+# --------------------------------------------------------------------------
+
+def test_the_stated_fallback_is_in_the_readers_language(panel, monkeypatch):
+    """Composed only from catalogue sources that already exist -- ``Model``
+    and ``missing`` -- so no new caption enters the pinned inventory."""
+    from spacr.qt import i18n
+    from spacr.qt.i18n_catalogs import CATALOG_LANGUAGES
+
+    for language in CATALOG_LANGUAGES:
+        monkeypatch.setattr(i18n, "current_language",
+                            lambda code=language: code)
+        _mask_arrived(panel, "/models/not_downloaded_yet.pth")
+        text = panel._status.text()
+        assert i18n.tr("missing", language) in text, (language, text)
+        assert i18n.tr("Model", language) in text, (language, text)
+        assert "not on this machine" not in text, (language, text)
+        assert "/models/not_downloaded_yet.pth" in text
+
+
+# --------------------------------------------------------------------------
+# 9. the tracking preview Mask folds in for Timelapse
+# --------------------------------------------------------------------------
+
+def test_the_track_preview_segments_with_the_tracked_objects_run_model(
+        qapp, checkpoint):
+    """Same defect, second panel. The Timelapse fold tracks the masks the
+    Mask run makes, and those are made with that object's model key -- but
+    ``TimelapsePreviewPanel.apply_settings`` seeded the object, channel and
+    diameter and never the model, so every frame was segmented with the
+    menu's first entry."""
+    from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
+
+    track = TimelapsePreviewPanel(threaded=False)
+    try:
+        track.apply_settings({"timelapse_objects": ["pathogen"],
+                              "pathogen_model": checkpoint,
+                              "pathogen_model_name": "cpsam"})
+        assert track._object_box.currentText() == "pathogen"
+        assert track.current_params()["model"] == checkpoint, (
+            "the track preview segmented with "
+            f"{track.current_params()['model']!r}")
+    finally:
+        track.deleteLater()
