@@ -51,17 +51,28 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,835 | Remainder | Reviewed API blocks | Of 10,534 | Remainder |
+| Language | Reviewed runtime records | Of 5,841 | Remainder | Reviewed API blocks | Of 10,542 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 191 | 3.27% | 5,644 | 539 | 5.12% | 9,995 |
-| German | 154 | 2.64% | 5,681 | 497 | 4.72% | 10,037 |
-| Spanish | 163 | 2.79% | 5,672 | 378 | 3.59% | 10,156 |
-| Simplified Chinese | 477 | 8.17% | 5,358 | 648 | 6.15% | 9,886 |
-| Portuguese | 154 | 2.64% | 5,681 | 609 | 5.78% | 9,925 |
-| Hindi | 236 | 4.04% | 5,599 | 542 | 5.15% | 9,992 |
-| Korean | 373 | 6.39% | 5,462 | 615 | 5.84% | 9,919 |
-| Icelandic | 324 | 5.55% | 5,511 | 1,110 | 10.54% | 9,424 |
-| French | 169 | 2.90% | 5,666 | 538 | 5.11% | 9,996 |
+| Swedish | 197 | 3.37% | 5,644 | 539 | 5.11% | 10,003 |
+| German | 160 | 2.74% | 5,681 | 497 | 4.71% | 10,045 |
+| Spanish | 169 | 2.89% | 5,672 | 378 | 3.59% | 10,164 |
+| Simplified Chinese | 483 | 8.27% | 5,358 | 648 | 6.15% | 9,894 |
+| Portuguese | 160 | 2.74% | 5,681 | 609 | 5.78% | 9,933 |
+| Hindi | 242 | 4.14% | 5,599 | 542 | 5.14% | 10,000 |
+| Korean | 379 | 6.49% | 5,462 | 615 | 5.83% | 9,927 |
+| Icelandic | 330 | 5.65% | 5,511 | 1,110 | 10.53% | 9,432 |
+| French | 175 | 3.00% | 5,666 | 538 | 5.10% | 10,004 |
+
+*Regenerated 2026-09-15 for item 412's "Load test data…" button in Make
+Masks (wip/412-make-masks-demo on nightly e996fe296), with the test's own
+derivation. The runtime denominator moves 5,835 -> 5,841, +6/-0: the button's
+tooltip and five status strings, and every runtime count rises by exactly those
+six records (412-make-masks-demo.json, sources in no other file), 2,241 ->
+2,295 in all, so each Remainder is unchanged. The API denominator moves
+10,534 -> 10,542, +8/-0: the new `spacr.qt.make_masks_demo` module and its
+seven public functions. No reviewed API record moved, so each API count is
+unchanged and only its percentage and Remainder follow the denominator. The
+API catalogs do not carry those eight symbols yet.*
 
 *Regenerated 2026-09-15, third pass, when local nightly (91ac88b51) was
 rebased onto the work session's batch (5fce82971). Neither parent's rows hold
@@ -288,5 +299,5 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 191, de 154, es 163, zh_CN 477, pt 154, hi 236, ko 373, is 324, fr 169 -- 2,241 runtime records across nine locales.
+Reviewed totals today: sv 197, de 160, es 169, zh_CN 483, pt 160, hi 242, ko 379, is 330, fr 175 -- 2,295 runtime records across nine locales.
 
