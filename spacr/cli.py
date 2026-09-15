@@ -204,26 +204,23 @@ _MODULE_LIST: Tuple[Module, ...] = (
     ),
     Module(
         key="ops",
-        summary="Stitch an optical-pooled-screening plate and place its "
-                "phenotype images onto the mosaics.",
-        entry="spacr.spacrops:ops_preprocess",
+        summary="Stitch, segment and decode the wells of an optical "
+                "pooled screen's sequencing acquisition.",
+        entry="spacr.ops_engine:run_ops",
         defaults=None,
         defaults_entry="spacr.ops_settings:ops_defaults",
         validate_key="",
-        requires=("genotype_source \u2014 the low-magnification acquisition "
-                  "carrying the barcodes",
-                  "phenotype_source \u2014 the high-magnification "
-                  "acquisition carrying the morphology"),
-        writes=("<dst_root>/<well>/stitch/ \u2014 the per-well mosaic",
-                "<dst_root>/<well>/results/ \u2014 the pairwise and mosaic "
-                "reports",
-                "<dst_root>/<well>/stitch/crops_20x/ \u2014 each phenotype "
-                "field placed on the mosaic, with its transform"),
-        note="ALPHA. The stitch is measured correct against a plate with "
-             "known geometry, but it has not met a real acquisition: check "
-             "the QC overlays before trusting a mosaic. Set downsample=1.0 "
-             "if pairs are being skipped \u2014 at the 0.5 default a small "
-             "tile leaves the detector almost no corners.",
+        requires=("genotype_source \u2014 the sequencing acquisition: "
+                  "10X_c<cycle>_<well>_<channels>_Site-<n>.tif tiles, cycle 1 "
+                  "carrying DAPI",),
+        writes=("<dst_root>/measurements.db \u2014 ops_geometry, ops_objects "
+                "and ops_barcodes",
+                "<dst_root>/<well>/ops_report.json \u2014 counts, unreadable "
+                "files and timings per phase"),
+        note="ALPHA. Validated on one plate (screenA 20200202_6W-LaC024A, "
+             "372 PART 14-M). It does not place the phenotype acquisition, "
+             "and the base channels, read threshold and raster overlap are "
+             "that plate's.",
     ),
     Module(
         key="foreign",

@@ -3424,7 +3424,7 @@ _APP_API_MODULE = {
     "curate": "qt/screens/curate",
     "parameter_sweep": "parameter_sweep",
     "align": "align",
-    "ops": "spacrops",
+    "ops": "ops_engine",
     "convert": "convert",
     "foreign": "foreign",
     "queue": "qt/plate_queue",

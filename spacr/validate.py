@@ -98,7 +98,7 @@ APP_FUNCTIONS: Dict[str, str] = {
     "foreign": "spacr.foreign.import_project",
     "external_masks": "spacr.external_masks.prepare_external_masks",
     "align": "spacr.align.align_folder",
-    "ops": "spacr.spacrops.ops_preprocess",
+    "ops": "spacr.ops_engine.run_ops",
     "umap": "spacr.core.generate_image_umap",
     "train_cellpose": "spacr.submodules.train_cellpose",
     "ml_analyze": "spacr.ml.generate_ml_scores",
