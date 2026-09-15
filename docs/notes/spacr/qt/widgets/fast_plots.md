@@ -21,7 +21,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_ask_style_value](#_ask_style_value) (2 entries)
 - [_figure_colors](#_figure_colors) (1 entry)
 - [_violin_profile](#_violin_profile) (2 entries)
-- [FastPlot.__init__](#fastplot__init__) (13 entries)
+- [FastPlot.__init__](#fastplot__init__) (14 entries)
 - [FastPlot._reset_scene](#fastplot_reset_scene) (1 entry)
 - [FastPlot.add_smoother](#fastplotadd_smoother) (1 entry)
 - [FastPlot._refresh_level_control](#fastplot_refresh_level_control) (1 entry)
@@ -443,6 +443,14 @@ self.plot.setContextMenuPolicy(Qt.CustomContextMenu)
 ```
 
 Right-click to restyle, the same gesture the matplotlib figures use.
+
+### lines 1186-1191
+
+```python
+self.destroyed.connect(menu.deleteLater)
+```
+
+TIED TO THE PLOT, because nothing in Qt owns these menus. pyqtgraph builds the `PlotItem` control menu and each `ViewBox` menu as parentless top-level windows held only by Python references. `closeEvent` below retires them, but a plot embedded in a panel never receives a close event: it is destroyed with its parent, or detached and deleted when the panel redraws (`MeasurementComparePanel._draw`). Its menus then stayed live until Python's cycle collector freed them at whatever allocation it happened to run, and that was not harmless. On 2026-09-15 (item 43) `tests/qt/test_cov_r5_cell_montage_view.py` followed by `tests/qt/test_one_close_mark.py` segfaulted inside `QApplication.setStyleSheet` in every run with automatic collection on (3 of 3 on clean nightly), and never with it off. The Compare tab's `GroupedPlot` was built in one test, the collector freed its two `ViewBoxMenu` twelve tests later, and the next application-wide restyle crashed in Qt. Keeping the menus alive, or deleting them at a fixed point, removed the crash; with this connection the pair passed 5 of 5. A receiver connection to the menu's own `deleteLater` rather than a Python slot: it captures no plot, and Qt drops it by itself when `closeEvent` has already retired the menu. Tested in `tests/qt/test_an_embedded_plot_takes_its_menus_with_it.py`.
 
 ## FastPlot._reset_scene
 

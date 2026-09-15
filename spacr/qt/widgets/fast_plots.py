@@ -1183,6 +1183,12 @@ class FastPlot(QWidget):
         layout.addLayout(self._header)
 
         self.plot = pg.PlotWidget(title=title or None)
+        # pyqtgraph's menus are parentless windows: tie them to this plot, or
+        # an embedded plot leaves them to the cycle collector. See
+        # docs/notes/spacr/qt/widgets/fast_plots.md.
+        for menu in (self.plot.plotItem.ctrlMenu, self.plot.plotItem.vb.menu):
+            if menu is not None:
+                self.destroyed.connect(menu.deleteLater)
         self._install_axis_hooks()
         self._install_rubber_band()
         self.plot.setLabel("bottom", x_label)
