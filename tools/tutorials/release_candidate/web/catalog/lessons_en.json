@@ -627,7 +627,7 @@
       "section": "Core",
       "description": "Use the real downloadable microscopy example, test live area and diameter changes, run two fields with Plot enabled, and recover a missing overlay through an explicit Python plotting workaround.",
       "objectives": [
-        "Find Mask on Home and its nested Live, Time and 3D controls.",
+        "Find Mask on Home and its nested Live, Time, 3D and OPS controls.",
         "Check source metadata and channel identities before testing segmentation.",
         "Distinguish a reversible display filter from a model-parameter rerun.",
         "Inspect genuine batch output, preserve the partial-overlay warning and export both arrays explicitly.",
@@ -636,14 +636,15 @@
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "Use the actual Mask download, retaining known channel identities and filename metadata. Preserved live-preview footage is reused only after confirming live_preview.py and preview_contract.py are byte-identical to their recorded source; its saved masks independently reproduce 51→25→51 at minimum area 5642 and 42 after diameter 30→60. The new two-field batch is a separate example, not a direct count benchmark: Plot=True, test_images=2, batch_size=2, n_jobs=2, diameters 30/30/15 and explicit cell/nucleus/pathogen flow thresholds 0.4. Archive value 100 disables flow filtering and is not taught as recommended. The native overlay loop STILL fails on .spacr_plane_layout.json: one of two overlays is missing despite Finished. Do not delete the layout or enable pickle loading. The linked helper calls spacr.plot.plot_image_mask_overlay on regular .npy files only, requiring four intensity planes followed by cell/nucleus/pathogen at 4/5/6. It writes a new opaque-background PNG folder, never changes source arrays, and does not fix the GUI loop. Both source array hashes match the native run journal. Final labels are 25/19/8 and 52/50/58; first-field pathogen QC warns near_empty_field. Cell QC precedes mask adjustment. Independent checks cover 95,424,864 channel RGB array values and 7,952,072 combined-foreground pixels, not biological accuracy. Previous failed runs and transparent-plot probes are preserved but not presented as complete. No AI request, training, scientific approval or publication. API: spacr.core.preprocess_generate_masks and spacr.plot.plot_image_mask_overlay. OPS remains unproven and is not taught here.",
+      "prerequisite": "Use the actual Mask download, retaining known channel identities and filename metadata. The live preview was recorded on 1.5.0.7 from the shipped example settings on a fresh copy, and is reused only while live_preview.py and preview_contract.py stay byte-identical to that recording; its saved masks independently reproduce 105→52→105 at minimum area 510 and 36 after diameter 30→60. The new two-field batch is a separate example, not a direct count benchmark: Plot=True, test_images=2, batch_size=2, n_jobs=2, diameters 30/30/15 and explicit cell/nucleus/pathogen flow thresholds 0.4. Archive value 100 disables flow filtering and is not taught as recommended. The native overlay loop STILL fails on .spacr_plane_layout.json: one of two overlays is missing despite Finished. Do not delete the layout or enable pickle loading. The linked helper calls spacr.plot.plot_image_mask_overlay on regular .npy files only, requiring four intensity planes followed by cell/nucleus/pathogen at 4/5/6. It writes a new opaque-background PNG folder, never changes source arrays, and does not fix the GUI loop. Both source array hashes match the native run journal. Final labels are 25/19/8 and 52/50/58; first-field pathogen QC warns near_empty_field. Cell QC precedes mask adjustment. Independent checks cover 95,424,864 channel RGB array values and 7,952,072 combined-foreground pixels, not biological accuracy. Previous failed runs and transparent-plot probes are preserved but not presented as complete. No AI request, training, scientific approval or publication. API: spacr.core.preprocess_generate_masks and spacr.plot.plot_image_mask_overlay. OPS is a separate page opened from Mask's action row and has its own lesson; this lesson does not run it.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Open Mask from Home. It is a main module; Live, Time and three-dimensional settings are reached inside it. Time has its own linked tutorial under Mask in the submodule section. This lesson covers a two-dimensional example, live comparisons and a plotting workaround, not an automatically validated segmentation.",
+          "narration": "Open Mask from Home. It is a main module; its action row holds the Live, Time, three-dimensional and OPS switches. Time and OPS each have their own linked tutorial under Mask in the submodule section. This lesson covers a two-dimensional example, live comparisons and a plotting workaround, not an automatically validated segmentation.",
           "related_lessons": [
             "05_home",
-            "17_timelapse"
+            "17_timelapse",
+            "76_ops"
           ],
           "hold_after": 0.7
         },
@@ -659,7 +660,7 @@
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Turn on Live and select a field for inspection. Preview is where you compare the image with the proposed masks before a larger run. The preserved preview uses a different field from the two batch fields shown later. A displayed preview count is not directly comparable with a batch total.",
+          "narration": "Turn on Live and select a field for inspection. Preview is where you compare the image with the proposed masks before a larger run. This preview uses a different field from the two batch fields shown later. A displayed preview count is not directly comparable with a batch total.",
           "hold_after": 0.7
         },
         {
@@ -669,17 +670,17 @@
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "The baseline contains fifty-one cell labels. Raising minimum area to five thousand six hundred forty-two pixels leaves twenty-five visible labels. This is a reversible filter of the existing result: the raw mask stays unchanged and the model is not rerun. The threshold is a demonstration, not an optimal biological cutoff.",
+          "narration": "The baseline contains one hundred five cell labels. Raising minimum area to five hundred ten pixels leaves fifty-two visible labels. This is a reversible filter of the existing result: the raw mask stays unchanged and the model is not rerun. The threshold is a demonstration, not an optimal biological cutoff.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_10_filters_restored",
-          "narration": "Restore the original area limit and all fifty-one labels return. Inspect which objects disappear and why before adopting a filter. Small objects may be genuine objects or segmentation errors; removing them does not itself answer that question. Keep the raw result and the chosen filter values separately identifiable.",
+          "narration": "Restore the original area limit and all one hundred five labels return. Inspect which objects disappear and why before adopting a filter. Small objects may be genuine objects or segmentation errors; removing them does not itself answer that question. Keep the raw result and the chosen filter values separately identifiable.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "Changing diameter from thirty to sixty pixels and running again is a model-parameter comparison, not just a display filter. This produces forty-two labels in the recorded field. Compare boundaries with the image, not only the count. Fewer labels do not establish a better model, and these settings are not a universal recommendation.",
+          "narration": "Changing diameter from thirty to sixty pixels and running again is a model-parameter comparison, not just a display filter. This produces thirty-six labels in the recorded field. Compare boundaries with the image, not only the count. Fewer labels do not establish a better model, and these settings are not a universal recommendation.",
           "hold_after": 0.7
         },
         {

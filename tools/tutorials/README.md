@@ -99,9 +99,12 @@ workspace pending separate media-host upload approval; they are not in Git.
 
 The candidate is an **offline preview**: its narration and 4K roots are relative
 to its sibling `media_host/`. Do not copy that index directly into live docs or
-run the legacy publisher against the old authoring catalogs. The version-update
-and live-publication hold remains in force; release requires a separately
-approved deployment with final hosted roots and live-byte verification.
+run the legacy publisher against the old authoring catalogs. Release requires a
+separately approved deployment with final hosted roots and live-byte verification.
+On 15 September 2026 the maintainer approved it for `release-candidate-8738b_pd`:
+`publish_release_candidate.py` uploaded `media_host/` to a new media revision,
+read every byte back, and wrote the Pages tree pinned to that commit (see
+`release_candidate/README.md`). Pages deploys with the merge to `main`.
 
 1. Preserve and reconcile authoring/published sources; measure the live registry.
 2. Capture the current Home/navigation and rebuild each runtime Core lesson using

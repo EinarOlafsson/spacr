@@ -3,6 +3,13 @@
 
 No remote network, UI mocks, synthesis, or deployment. The server exposes only
 the candidate directory and supports the real player's media byte ranges.
+
+``--published <pages tree>`` runs the same checks on a Pages tree built from
+the candidate, whose index pins narration and 4K to one immutable hosted
+commit. The player's own files are still served locally (as Pages would), the
+media are fetched from the host, and only that commit's URLs (plus the host's
+download redirects) are allowed. Loading anything else, including
+``resolve/main``, fails the run.
 """
 from __future__ import annotations
 
@@ -11,7 +18,9 @@ import functools
 import http.server
 import json
 from pathlib import Path
+import re
 import threading
+from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
 
@@ -20,6 +29,9 @@ from coming_soon import COPY, first_placeholder
 from stage_lesson import read, write
 from validate_candidate import validate
 from verify_staged_lesson import Handler
+
+PINNED_ROOT = r'https://huggingface\.co/datasets/[^/]+/[^/]+/resolve/[0-9a-f]{40}'
+REDIRECT_HOSTS = ('.hf.co', '.huggingface.co')
 
 
 def check_sentence_cues(page):
@@ -43,31 +55,62 @@ def check_sentence_cues(page):
     return cases
 
 
-def verify(root, *, placeholders_only=False):
+def published_tree(root, pages):
+    """Return the pinned media root after proving the tree is the candidate's web bytes."""
+    index = (pages / 'index.html').read_text(encoding='utf-8')
+    roots = set(re.findall(r'data-(?:audio|video4k)-root="([^"]+)"', index))
+    if len(roots) != 1 or not re.fullmatch(PINNED_ROOT, next(iter(roots))):
+        raise ValueError(f'The published index must pin one immutable media root, found {roots}')
+    for record in read(root / 'release-manifest.json')['files']:
+        if record['path'].startswith('web/') and record['path'] != 'web/index.html':
+            if digest(pages / record['path'][len('web/'):]) != record['sha256']:
+                raise ValueError(f"Pages tree differs from the candidate: {record['path']}")
+    return next(iter(roots))
+
+
+def verify(root, *, placeholders_only=False, published=None):
     root = Path(root).resolve()
-    validate(root, include_hosted_media=True)
+    validate(root, include_hosted_media=published is None)
+    records = {r['path']: r for r in read(root / 'release-manifest.json')['files']}
+    if published is None:
+        served, entry, media_root = root, '/web/', None
+    else:
+        published = Path(published).resolve()
+        media_root = published_tree(root, published)
+        served, entry = published.parent, '/' + published.name + '/'
     server = http.server.ThreadingHTTPServer(('127.0.0.1', 0),
-            functools.partial(Handler, directory=str(root)))
+            functools.partial(Handler, directory=str(served)))
     server.daemon_threads = True
     threading.Thread(target=server.serve_forever, daemon=True).start()
     origin = f'http://127.0.0.1:{server.server_port}'
     output = root / 'checks'
     output.mkdir(exist_ok=True)
-    errors, foreign, screens, playback = [], [], [], []
+    errors, foreign, screens, playback, hosted = [], [], [], [], []
     english = read(root / 'web/catalog/lessons_en.json')
     ready = [l for l in english['lessons'] if l.get('status') != 'coming_soon']
     placeholders = [l['id'] for l in english['lessons'] if l.get('status') == 'coming_soon']
     unavailable = first_placeholder(english['lessons'])
+
+    def allowed_remote(url):
+        if not media_root:
+            return False
+        host = urlparse(url).hostname or ''
+        return url.startswith(media_root + '/') or (host != 'huggingface.co' and host.endswith(REDIRECT_HOSTS))
+
     try:
         with sync_playwright() as engine:
             browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True)
             def context(language='en', width=1440):
                 ctx = browser.new_context(viewport={'width': width, 'height': 1100})
                 def no_remote(route):
-                    if route.request.url.startswith(origin + '/'):
+                    url = route.request.url
+                    if url.startswith(origin + '/'):
+                        route.continue_()
+                    elif allowed_remote(url):
+                        hosted.append(url)
                         route.continue_()
                     else:
-                        foreign.append(route.request.url)
+                        foreign.append(url)
                         route.abort()
                 ctx.route('**/*', no_remote)
                 caption_only = language in ('da', 'de', 'is', 'ko', 'nb', 'sv')
@@ -87,7 +130,7 @@ def verify(root, *, placeholders_only=False):
                 media_requests = []
                 page.on('request', lambda req: media_requests.append(req.url)
                         if any(ext in req.url for ext in ('.mp4', '.m4a')) else None)
-                page.goto(origin + '/web/#lesson=' + unavailable, wait_until='networkidle')
+                page.goto(origin + entry + '#lesson=' + unavailable, wait_until='networkidle')
                 for identity in placeholders:
                     page.evaluate('(id) => selectLesson(id)', identity)
                     page.wait_for_function('(text) => document.querySelector("#planned-title").textContent === text', arg=COPY[language][0])
@@ -120,7 +163,8 @@ def verify(root, *, placeholders_only=False):
                         return el.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
                     }'''), (language, width, 'placeholder text obscured')
                     if language in ('en', 'de', 'ja') and width in (390, 1440):
-                        page.screenshot(path=str(output / f'coming-soon-{language}-{width}.png'), full_page=True)
+                        prefix = 'published-' if published else ''
+                        page.screenshot(path=str(output / f'{prefix}coming-soon-{language}-{width}.png'), full_page=True)
                 assert not errors, errors
                 print(language, len(placeholders), 'Coming soon screens PASS', flush=True)
                 ctx.close()
@@ -129,7 +173,9 @@ def verify(root, *, placeholders_only=False):
                 ctx = context()
                 page = ctx.new_page()
                 page.on('pageerror', lambda error: errors.append(str(error)))
-                page.goto(origin + '/web/#lesson=' + unavailable, wait_until='networkidle')
+                requested_urls = []
+                page.on('request', lambda req: requested_urls.append(req.url))
+                page.goto(origin + entry + '#lesson=' + unavailable, wait_until='networkidle')
                 for lesson in ready:
                     identity = lesson['id']
                     page.evaluate('(id) => selectLesson(id)', identity)
@@ -145,7 +191,12 @@ def verify(root, *, placeholders_only=False):
                         const hash = await crypto.subtle.digest('SHA-256', bytes);
                         return Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2,'0')).join('');
                     }''')
-                    expected = digest(root / 'media_host' / identity / 'audio/en/af_heart.m4a')
+                    relative = f'{identity}/audio/en/af_heart.m4a'
+                    if media_root:
+                        expected = records['media_host/' + relative]['sha256']
+                        assert f'{media_root}/{relative}' in requested_urls, (identity, 'not loaded from the pinned host')
+                    else:
+                        expected = digest(root / 'media_host' / relative)
                     assert loaded == expected, identity
                     paired = page.evaluate('''() => ({voice: audioTimings.voice,
                         hash: audioTimings.media_sha256,
@@ -190,7 +241,16 @@ def verify(root, *, placeholders_only=False):
                   'manifest_sha256': digest(root / 'release-manifest.json'),
                   'placeholder_cases': screens, 'ready_playback_cases': playback,
                   'passed': True, 'published': False}
-        write(output / ('placeholder-browser-checks.json' if placeholders_only else 'candidate-browser-checks.json'), result)
+        if published:
+            result.update(scope='Pages tree playback against the pinned hosted media, before the Pages deploy',
+                          pages_tree=str(published), media_root=media_root,
+                          hosted_requests=len(hosted),
+                          hosted_hosts=sorted({urlparse(url).hostname for url in hosted}),
+                          index_sha256=digest(published / 'index.html'))
+            name = 'published-media-browser-checks.json'
+        else:
+            name = 'placeholder-browser-checks.json' if placeholders_only else 'candidate-browser-checks.json'
+        write(output / name, result)
         return result
     finally:
         server.shutdown()
@@ -201,6 +261,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('candidate', type=Path)
     parser.add_argument('--placeholders-only', action='store_true')
+    parser.add_argument('--published', type=Path,
+                        help='Pages tree pinned to hosted media; plays it against the host')
     parser.add_argument('--serve', action='store_true', help='Preview locally until Ctrl-C; never uploads')
     args = parser.parse_args()
     if args.serve:
@@ -219,4 +281,4 @@ if __name__ == '__main__':
         finally:
             server.server_close()
     else:
-        verify(args.candidate, placeholders_only=args.placeholders_only)
+        verify(args.candidate, placeholders_only=args.placeholders_only, published=args.published)

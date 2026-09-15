@@ -681,7 +681,7 @@
       "section": "Módulos principales",
       "description": "Use el ejemplo real descargable, compare área y diámetro en vivo, ejecute dos campos con Plot activado y recupere una superposición mediante un paso explícito en Python.",
       "objectives": [
-        "Encontrar Mask en Home y sus controles integrados Live, Time y 3D.",
+        "Encontrar Mask en Home y sus controles integrados Live, Time, 3D y OPS.",
         "Comprobar metadatos y canales antes de segmentar.",
         "Distinguir filtrado reversible y nueva inferencia con otro parámetro.",
         "Inspeccionar resultados reales, conservar el aviso de superposición parcial y exportar ambos arrays explícitamente.",
@@ -690,17 +690,18 @@
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "Use la descarga real de Mask y conserve identidades de canales y metadatos. La implementación de Live no cambió desde la grabación conservada: los arrays verifican 51→25→51 con área mínima 5642 y 42 tras diámetro 30→60. El nuevo lote de dos campos es otro ejemplo, no una comparación directa: Plot=True, test_images=2, batch_size=2, n_jobs=2, diámetros 30/30/15 y umbrales de flujo 0.4 para los tres objetos. El 100 del archivo desactiva el filtrado y no se recomienda como predeterminado. El bucle nativo AÚN falla con .spacr_plane_layout.json: falta una de dos superposiciones aunque diga Finished. No borre el metadato ni active pickle. El helper usa spacr.plot.plot_image_mask_overlay solo con .npy regulares; exige cuatro canales y máscaras célula/núcleo/patógeno en 4/5/6. Escribe PNG opacos en una carpeta nueva, sin modificar arrays ni reparar la GUI. Sus hashes coinciden con el diario nativo. Etiquetas finales: 25/19/8 y 52/50/58; QC del primer campo avisa near_empty_field. QC celular precede al ajuste de máscaras. Se comprobaron 95,424,864 valores RGB de paneles y 7,952,072 píxeles de cobertura combinada, no exactitud biológica. Se conservan fallos y pruebas transparentes, sin presentarlos como completos. Sin petición AI, entrenamiento, aprobación ni publicación. API: spacr.core.preprocess_generate_masks y spacr.plot.plot_image_mask_overlay. OPS sigue sin demostrarse y no se enseña aquí.",
+      "prerequisite": "Use la descarga real de Mask y conserve identidades de canales y metadatos. La vista previa Live se grabó en 1.5.0.7 con los ajustes del ejemplo en una copia nueva y solo se reutiliza mientras live_preview.py y preview_contract.py sigan idénticos byte a byte a esa grabación: los arrays verifican 105→52→105 con área mínima 510 y 36 tras diámetro 30→60. El nuevo lote de dos campos es otro ejemplo, no una comparación directa: Plot=True, test_images=2, batch_size=2, n_jobs=2, diámetros 30/30/15 y umbrales de flujo 0.4 para los tres objetos. El 100 del archivo desactiva el filtrado y no se recomienda como predeterminado. El bucle nativo AÚN falla con .spacr_plane_layout.json: falta una de dos superposiciones aunque diga Finished. No borre el metadato ni active pickle. El helper usa spacr.plot.plot_image_mask_overlay solo con .npy regulares; exige cuatro canales y máscaras célula/núcleo/patógeno en 4/5/6. Escribe PNG opacos en una carpeta nueva, sin modificar arrays ni reparar la GUI. Sus hashes coinciden con el diario nativo. Etiquetas finales: 25/19/8 y 52/50/58; QC del primer campo avisa near_empty_field. QC celular precede al ajuste de máscaras. Se comprobaron 95,424,864 valores RGB de paneles y 7,952,072 píxeles de cobertura combinada, no exactitud biológica. Se conservan fallos y pruebas transparentes, sin presentarlos como completos. Sin petición AI, entrenamiento, aprobación ni publicación. API: spacr.core.preprocess_generate_masks y spacr.plot.plot_image_mask_overlay. OPS es una página aparte que se abre desde la fila de acciones de Mask y tiene su propia lección; esta lección no lo ejecuta.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Abra Mask desde Home. Es un módulo principal; Live, Time y los ajustes tridimensionales se abren dentro de él. Time tiene su tutorial enlazado bajo Mask en los submódulos. Esta lección muestra un ejemplo bidimensional, comparaciones en vivo y una solución alternativa de trazado, no una segmentación validada automáticamente.",
+          "narration": "Abra Mask desde Home. Es un módulo principal; su fila de acciones contiene los interruptores Live, Time, tridimensional y OPS. Time y OPS tienen cada uno su tutorial enlazado bajo Mask en los submódulos. Esta lección muestra un ejemplo bidimensional, comparaciones en vivo y una solución alternativa de trazado, no una segmentación validada automáticamente.",
           "related_lessons": [
             "05_home",
-            "17_timelapse"
+            "17_timelapse",
+            "76_ops"
           ],
           "hold_after": 0.7,
-          "speech_text": "Abra Mask desde Home. Es un módulo principal; Live, Time y los ajustes tridimensionales se abren dentro de él. Time tiene su tutorial enlazado bajo Mask en los submódulos. Esta lección muestra un ejemplo bidimensional, comparaciones en vivo y una solución alternativa de trazado, no una segmentación validada automáticamente."
+          "speech_text": "Abra Mask desde Home. Es un módulo principal; su fila de acciones contiene los interruptores Live, Time, tridimensional y OPS. Time y OPS tienen cada uno su tutorial enlazado bajo Mask en los submódulos. Esta lección muestra un ejemplo bidimensional, comparaciones en vivo y una solución alternativa de trazado, no una segmentación validada automáticamente."
         },
         {
           "visual": "native_02_download",
@@ -716,9 +717,9 @@
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Active Live y seleccione un campo. La vista previa permite comparar la imagen con las máscaras propuestas antes de una ejecución mayor. La grabación conservada usa otro campo distinto de los dos campos del lote posterior. No compare directamente un recuento de vista previa con el total de un lote.",
+          "narration": "Active Live y seleccione un campo. La vista previa permite comparar la imagen con las máscaras propuestas antes de una ejecución mayor. Esta vista previa usa un campo distinto de los dos campos del lote posterior. No compare directamente un recuento de vista previa con el total de un lote.",
           "hold_after": 0.7,
-          "speech_text": "Active Live y seleccione un campo. La vista previa permite comparar la imagen con las máscaras propuestas antes de una ejecución mayor. La grabación conservada usa otro campo distinto de los dos campos del lote posterior. No compare directamente un recuento de vista previa con el total de un lote."
+          "speech_text": "Active Live y seleccione un campo. La vista previa permite comparar la imagen con las máscaras propuestas antes de una ejecución mayor. Esta vista previa usa un campo distinto de los dos campos del lote posterior. No compare directamente un recuento de vista previa con el total de un lote."
         },
         {
           "visual": "preview_05_live_settings",
@@ -728,21 +729,21 @@
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "El resultado inicial tiene cincuenta y una etiquetas celulares. Al elevar el área mínima a cinco mil seiscientos cuarenta y dos píxeles quedan veinticinco visibles. Es un filtro reversible del resultado existente: la máscara original no cambia ni se vuelve a ejecutar el modelo. El umbral demuestra el control, no un corte biológico óptimo.",
+          "narration": "El resultado inicial tiene ciento cinco etiquetas celulares. Al elevar el área mínima a quinientos diez píxeles quedan cincuenta y dos visibles. Es un filtro reversible del resultado existente: la máscara original no cambia ni se vuelve a ejecutar el modelo. El umbral demuestra el control, no un corte biológico óptimo.",
           "hold_after": 0.7,
-          "speech_text": "El resultado inicial tiene cincuenta y una etiquetas celulares. Al elevar el área mínima a cinco mil seiscientos cuarenta y dos píxeles quedan veinticinco visibles. Es un filtro reversible del resultado existente: la máscara original no cambia ni se vuelve a ejecutar el modelo. El umbral demuestra el control, no un corte biológico óptimo."
+          "speech_text": "El resultado inicial tiene ciento cinco etiquetas celulares. Al elevar el área mínima a quinientos diez píxeles quedan cincuenta y dos visibles. Es un filtro reversible del resultado existente: la máscara original no cambia ni se vuelve a ejecutar el modelo. El umbral demuestra el control, no un corte biológico óptimo."
         },
         {
           "visual": "preview_10_filters_restored",
-          "narration": "Restaure el límite de área original y regresan las cincuenta y una etiquetas. Antes de adoptar un filtro, examine qué objetos desaparecen y por qué. Los objetos pequeños pueden ser reales o errores de segmentación; eliminarlos no resuelve esa cuestión. Mantenga identificables por separado el resultado original y los valores del filtro.",
+          "narration": "Restaure el límite de área original y regresan las ciento cinco etiquetas. Antes de adoptar un filtro, examine qué objetos desaparecen y por qué. Los objetos pequeños pueden ser reales o errores de segmentación; eliminarlos no resuelve esa cuestión. Mantenga identificables por separado el resultado original y los valores del filtro.",
           "hold_after": 0.7,
-          "speech_text": "Restaure el límite de área original y regresan las cincuenta y una etiquetas. Antes de adoptar un filtro, examine qué objetos desaparecen y por qué. Los objetos pequeños pueden ser reales o errores de segmentación; eliminarlos no resuelve esa cuestión. Mantenga identificables por separado el resultado original y los valores del filtro."
+          "speech_text": "Restaure el límite de área original y regresan las ciento cinco etiquetas. Antes de adoptar un filtro, examine qué objetos desaparecen y por qué. Los objetos pequeños pueden ser reales o errores de segmentación; eliminarlos no resuelve esa cuestión. Mantenga identificables por separado el resultado original y los valores del filtro."
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "Cambiar el diámetro de treinta a sesenta píxeles y ejecutar de nuevo compara un parámetro del modelo, no solo un filtro visual. En el campo grabado produce cuarenta y dos etiquetas. Compare límites con la imagen, no solo recuentos. Menos etiquetas no demuestran un modelo mejor ni estos ajustes son universales.",
+          "narration": "Cambiar el diámetro de treinta a sesenta píxeles y ejecutar de nuevo compara un parámetro del modelo, no solo un filtro visual. En el campo grabado produce treinta y seis etiquetas. Compare límites con la imagen, no solo recuentos. Menos etiquetas no demuestran un modelo mejor ni estos ajustes son universales.",
           "hold_after": 0.7,
-          "speech_text": "Cambiar el diámetro de treinta a sesenta píxeles y ejecutar de nuevo compara un parámetro del modelo, no solo un filtro visual. En el campo grabado produce cuarenta y dos etiquetas. Compare límites con la imagen, no solo recuentos. Menos etiquetas no demuestran un modelo mejor ni estos ajustes son universales."
+          "speech_text": "Cambiar el diámetro de treinta a sesenta píxeles y ejecutar de nuevo compara un parámetro del modelo, no solo un filtro visual. En el campo grabado produce treinta y seis etiquetas. Compare límites con la imagen, no solo recuentos. Menos etiquetas no demuestran un modelo mejor ni estos ajustes son universales."
         },
         {
           "visual": "native_20_batch_settings",

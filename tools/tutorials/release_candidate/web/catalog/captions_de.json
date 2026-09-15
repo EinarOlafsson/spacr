@@ -606,7 +606,7 @@
       "section": "Core",
       "description": "Mit den echten Beispieldaten Fläche und Durchmesser live vergleichen, zwei Felder mit Plot verarbeiten und ein fehlendes Overlay durch einen ausdrücklichen Python-Schritt exportieren.",
       "objectives": [
-        "Mask auf Home und die eingebetteten Live-, Time- und 3D-Steuerungen finden.",
+        "Mask auf Home und die eingebetteten Live-, Time-, 3D- und OPS-Steuerungen finden.",
         "Metadaten und Kanalidentitäten vor der Segmentierung prüfen.",
         "Reversiblen Filter und erneuten Modelllauf unterscheiden.",
         "Echte Ergebnisse prüfen, Warnung erhalten und beide Arrays ausdrücklich exportieren.",
@@ -615,14 +615,15 @@
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "Den echten Mask-Download verwenden und Kanalidentitäten sowie Dateinamenmetadaten erhalten. live_preview.py und preview_contract.py sind bytegleich zum erhaltenen Preview-Mitschnitt. Gespeicherte Masken reproduzieren unabhängig 51→25→51 bei Mindestfläche 5642 und 42 nach Durchmesser 30→60. Der neue Lauf mit zwei Feldern ist ein getrenntes Beispiel, kein direkter Mengenvergleich: Plot=True, test_images=2, batch_size=2, n_jobs=2, Durchmesser 30/30/15 und drei Flow-Schwellen 0.4. Archivwert 100 deaktiviert Flow-Filterung und wird nicht als Standard empfohlen. Die native Overlay-Schleife scheitert WEITER an .spacr_plane_layout.json: Trotz Finished fehlt ein Overlay von zwei. Layout nicht löschen und pickle nicht aktivieren. Der Helfer ruft spacr.plot.plot_image_mask_overlay nur für reguläre .npy-Dateien auf; erforderlich sind vier Intensitätsebenen und Zell-/Kern-/Pathogenmasken an 4/5/6. Er schreibt PNG mit deckendem Hintergrund in einen neuen Ordner, verändert keine Quellarrays und repariert nicht die GUI. Die Quellhashes stimmen mit dem Laufjournal überein. Endzahlen: 25/19/8 und 52/50/58; Pathogen-QC im ersten Feld warnt near_empty_field. Zell-QC liegt vor der Maskenanpassung. Unabhängig geprüft: 95,424,864 Kanal-RGB-Werte und 7,952,072 kombinierte Vordergrundpixel, nicht biologische Genauigkeit. Frühere Fehlläufe und transparente Plotversuche bleiben erhalten, gelten aber nicht als vollständig. Keine AI-Anfrage, kein Training, keine wissenschaftliche Freigabe oder Veröffentlichung. API: spacr.core.preprocess_generate_masks und spacr.plot.plot_image_mask_overlay. OPS ist unerprobt und wird hier nicht gelehrt.",
+      "prerequisite": "Den echten Mask-Download verwenden und Kanalidentitäten sowie Dateinamenmetadaten erhalten. Die Live-Vorschau wurde auf 1.5.0.7 mit den mitgelieferten Beispieleinstellungen auf einer frischen Kopie aufgenommen und wird nur wiederverwendet, solange live_preview.py und preview_contract.py bytegleich zu dieser Aufnahme bleiben. Gespeicherte Masken reproduzieren unabhängig 105→52→105 bei Mindestfläche 510 und 36 nach Durchmesser 30→60. Der neue Lauf mit zwei Feldern ist ein getrenntes Beispiel, kein direkter Mengenvergleich: Plot=True, test_images=2, batch_size=2, n_jobs=2, Durchmesser 30/30/15 und drei Flow-Schwellen 0.4. Archivwert 100 deaktiviert Flow-Filterung und wird nicht als Standard empfohlen. Die native Overlay-Schleife scheitert WEITER an .spacr_plane_layout.json: Trotz Finished fehlt ein Overlay von zwei. Layout nicht löschen und pickle nicht aktivieren. Der Helfer ruft spacr.plot.plot_image_mask_overlay nur für reguläre .npy-Dateien auf; erforderlich sind vier Intensitätsebenen und Zell-/Kern-/Pathogenmasken an 4/5/6. Er schreibt PNG mit deckendem Hintergrund in einen neuen Ordner, verändert keine Quellarrays und repariert nicht die GUI. Die Quellhashes stimmen mit dem Laufjournal überein. Endzahlen: 25/19/8 und 52/50/58; Pathogen-QC im ersten Feld warnt near_empty_field. Zell-QC liegt vor der Maskenanpassung. Unabhängig geprüft: 95,424,864 Kanal-RGB-Werte und 7,952,072 kombinierte Vordergrundpixel, nicht biologische Genauigkeit. Frühere Fehlläufe und transparente Plotversuche bleiben erhalten, gelten aber nicht als vollständig. Keine AI-Anfrage, kein Training, keine wissenschaftliche Freigabe oder Veröffentlichung. API: spacr.core.preprocess_generate_masks und spacr.plot.plot_image_mask_overlay. OPS ist eine eigene Seite, die aus der Aktionszeile von Mask geöffnet wird und eine eigene Anleitung hat; diese Lektion führt es nicht aus.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Mask über Home öffnen. Es ist ein Hauptmodul; Live, Time und dreidimensionale Einstellungen liegen darin. Time hat im Untermodulbereich unter Mask eine eigene verlinkte Anleitung. Diese Lektion zeigt ein zweidimensionales Beispiel, Live-Vergleiche und einen Plotting-Umweg, keine automatisch validierte Segmentierung.",
+          "narration": "Mask über Home öffnen. Es ist ein Hauptmodul; seine Aktionszeile enthält die Schalter Live, Time, dreidimensional und OPS. Time und OPS haben im Untermodulbereich unter Mask jeweils eine eigene verlinkte Anleitung. Diese Lektion zeigt ein zweidimensionales Beispiel, Live-Vergleiche und einen Plotting-Umweg, keine automatisch validierte Segmentierung.",
           "related_lessons": [
             "05_home",
-            "17_timelapse"
+            "17_timelapse",
+            "76_ops"
           ],
           "hold_after": 0.7
         },
@@ -638,7 +639,7 @@
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Live aktivieren und ein Feld auswählen. Die Vorschau vergleicht Bild und vorgeschlagene Masken vor einem größeren Lauf. Die erhaltene Aufnahme verwendet ein anderes Feld als die beiden späteren Batch-Felder. Eine angezeigte Vorschauanzahl ist nicht unmittelbar mit einer Batch-Gesamtzahl vergleichbar.",
+          "narration": "Live aktivieren und ein Feld auswählen. Die Vorschau vergleicht Bild und vorgeschlagene Masken vor einem größeren Lauf. Diese Vorschau verwendet ein anderes Feld als die beiden späteren Batch-Felder. Eine angezeigte Vorschauanzahl ist nicht unmittelbar mit einer Batch-Gesamtzahl vergleichbar.",
           "hold_after": 0.7
         },
         {
@@ -648,17 +649,17 @@
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "Das Ausgangsergebnis enthält 51 Zelllabels. Eine Mindestfläche von 5642 Pixeln lässt 25 sichtbar. Das ist ein reversibler Filter des bestehenden Ergebnisses: Die Rohmaske bleibt gleich, das Modell läuft nicht erneut. Der Wert demonstriert die Bedienung und ist keine optimale biologische Grenze.",
+          "narration": "Das Ausgangsergebnis enthält 105 Zelllabels. Eine Mindestfläche von 510 Pixeln lässt 52 sichtbar. Das ist ein reversibler Filter des bestehenden Ergebnisses: Die Rohmaske bleibt gleich, das Modell läuft nicht erneut. Der Wert demonstriert die Bedienung und ist keine optimale biologische Grenze.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_10_filters_restored",
-          "narration": "Die ursprüngliche Flächengrenze wiederherstellen: Alle 51 Labels kehren zurück. Vor Übernahme eines Filters prüfen, welche Objekte verschwinden und warum. Kleine Objekte können echt oder Segmentierungsfehler sein; ihr Entfernen beantwortet diese Frage nicht. Rohergebnis und gewählte Filterwerte getrennt nachvollziehbar halten.",
+          "narration": "Die ursprüngliche Flächengrenze wiederherstellen: Alle 105 Labels kehren zurück. Vor Übernahme eines Filters prüfen, welche Objekte verschwinden und warum. Kleine Objekte können echt oder Segmentierungsfehler sein; ihr Entfernen beantwortet diese Frage nicht. Rohergebnis und gewählte Filterwerte getrennt nachvollziehbar halten.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "Den Durchmesser von 30 auf 60 Pixel ändern und erneut ausführen: Das vergleicht einen Modellparameter, nicht nur einen Darstellungsfilter. Im aufgezeichneten Feld entstehen 42 Labels. Grenzen mit dem Bild vergleichen, nicht nur Zahlen. Weniger Labels belegen kein besseres Modell; die Werte sind keine allgemeine Empfehlung.",
+          "narration": "Den Durchmesser von 30 auf 60 Pixel ändern und erneut ausführen: Das vergleicht einen Modellparameter, nicht nur einen Darstellungsfilter. Im aufgezeichneten Feld entstehen 36 Labels. Grenzen mit dem Bild vergleichen, nicht nur Zahlen. Weniger Labels belegen kein besseres Modell; die Werte sind keine allgemeine Empfehlung.",
           "hold_after": 0.7
         },
         {

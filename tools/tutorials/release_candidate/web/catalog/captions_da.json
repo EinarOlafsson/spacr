@@ -606,7 +606,7 @@
       "section": "Core",
       "description": "Brug de faktiske eksempeldata, sammenlign areal og diameter live, kør to felter med Plot slået til, og eksporter et manglende overlay gennem et tydeligt Python-trin.",
       "objectives": [
-        "Find Mask på Home og de indlejrede Live-, Time- og 3D-kontroller.",
+        "Find Mask på Home og de indlejrede Live-, Time-, 3D- og OPS-kontroller.",
         "Kontrollér metadata og kanalidentiteter før segmentering.",
         "Skeln mellem et reversibelt filter og en ny modelkørsel.",
         "Undersøg de faktiske resultater, bevar advarslen, og eksporter begge arrays eksplicit.",
@@ -615,14 +615,15 @@
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "Brug det rigtige Mask-download, og bevar kanalidentiteter og filnavnsmetadata. Den bevarede preview-kode i live_preview.py og preview_contract.py er byteidentisk med den optagne version. Gemte masker reproducerer uafhængigt 51→25→51 ved minimumsareal 5642 og 42 efter diameter 30→60. Den nye batch med to felter er et andet eksempel, ikke en direkte tællesammenligning: Plot=True, test_images=2, batch_size=2, n_jobs=2, diametre 30/30/15 og alle flowgrænser 0.4. Arkivværdien 100 slår flowfiltrering fra og anbefales ikke som standard. Den indbyggede overlay-løkke fejler STADIG på .spacr_plane_layout.json: ét af to overlays mangler trods Finished. Slet ikke layoutet, og aktivér ikke pickle. Hjælperen kalder spacr.plot.plot_image_mask_overlay kun på almindelige .npy-filer; fire intensitetsplaner og celle/kerne/patogen på 4/5/6 kræves. Den gemmer PNG med uigennemsigtig baggrund i en ny mappe uden at ændre arrays eller reparere GUI'en. Kildehashene matcher kørselsjournalen. Endelige antal: 25/19/8 og 52/50/58; første felts patogen-QC advarer near_empty_field. Celle-QC ligger før maskejustering. 95,424,864 kanal-RGB-værdier og 7,952,072 kombinerede forgrundspixel er kontrolleret uafhængigt, ikke biologisk nøjagtighed. Tidligere fejl og transparente plotforsøg bevares, men kaldes ikke komplette. Ingen AI-anmodning, træning, videnskabelig godkendelse eller publicering. API: spacr.core.preprocess_generate_masks og spacr.plot.plot_image_mask_overlay. OPS er uprøvet og undervises ikke her.",
+      "prerequisite": "Brug det rigtige Mask-download, og bevar kanalidentiteter og filnavnsmetadata. Live-preview er optaget på 1.5.0.7 med eksemplets medfølgende indstillinger på en ny kopi og genbruges kun, så længe live_preview.py og preview_contract.py er byteidentiske med den optagelse. Gemte masker reproducerer uafhængigt 105→52→105 ved minimumsareal 510 og 36 efter diameter 30→60. Den nye batch med to felter er et andet eksempel, ikke en direkte tællesammenligning: Plot=True, test_images=2, batch_size=2, n_jobs=2, diametre 30/30/15 og alle flowgrænser 0.4. Arkivværdien 100 slår flowfiltrering fra og anbefales ikke som standard. Den indbyggede overlay-løkke fejler STADIG på .spacr_plane_layout.json: ét af to overlays mangler trods Finished. Slet ikke layoutet, og aktivér ikke pickle. Hjælperen kalder spacr.plot.plot_image_mask_overlay kun på almindelige .npy-filer; fire intensitetsplaner og celle/kerne/patogen på 4/5/6 kræves. Den gemmer PNG med uigennemsigtig baggrund i en ny mappe uden at ændre arrays eller reparere GUI'en. Kildehashene matcher kørselsjournalen. Endelige antal: 25/19/8 og 52/50/58; første felts patogen-QC advarer near_empty_field. Celle-QC ligger før maskejustering. 95,424,864 kanal-RGB-værdier og 7,952,072 kombinerede forgrundspixel er kontrolleret uafhængigt, ikke biologisk nøjagtighed. Tidligere fejl og transparente plotforsøg bevares, men kaldes ikke komplette. Ingen AI-anmodning, træning, videnskabelig godkendelse eller publicering. API: spacr.core.preprocess_generate_masks og spacr.plot.plot_image_mask_overlay. OPS er en separat side, der åbnes fra handlingsrækken i Mask, og har sin egen vejledning; denne lektion kører det ikke.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Åbn Mask fra Home. Det er et hovedmodul; Live, Time og tredimensionelle indstillinger findes indeni. Time har sin egen linkede vejledning under Mask i afsnittet med undermoduler. Her viser vi et todimensionelt eksempel, live-sammenligninger og en omvej til plotting, ikke automatisk valideret segmentering.",
+          "narration": "Åbn Mask fra Home. Det er et hovedmodul; dets handlingsrække rummer kontakterne Live, Time, tredimensionel og OPS. Time og OPS har hver deres linkede vejledning under Mask i afsnittet med undermoduler. Her viser vi et todimensionelt eksempel, live-sammenligninger og en omvej til plotting, ikke automatisk valideret segmentering.",
           "related_lessons": [
             "05_home",
-            "17_timelapse"
+            "17_timelapse",
+            "76_ops"
           ],
           "hold_after": 0.7
         },
@@ -638,7 +639,7 @@
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Slå Live til, og vælg et felt. Preview sammenligner billedet med de foreslåede masker før en større kørsel. Den bevarede optagelse bruger et andet felt end batchens to felter senere. Et vist preview-antal kan ikke direkte sammenlignes med en batchtotal.",
+          "narration": "Slå Live til, og vælg et felt. Preview sammenligner billedet med de foreslåede masker før en større kørsel. Denne preview bruger et andet felt end batchens to felter senere. Et vist preview-antal kan ikke direkte sammenlignes med en batchtotal.",
           "hold_after": 0.7
         },
         {
@@ -648,17 +649,17 @@
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "Udgangspunktet har 51 cellelabels. Hæves minimumsarealet til 5642 pixel, er 25 labels synlige. Det er et reversibelt filter på det eksisterende resultat: råmasken er uændret, og modellen køres ikke igen. Grænsen demonstrerer kontrollen og er ikke en optimal biologisk tærskel.",
+          "narration": "Udgangspunktet har 105 cellelabels. Hæves minimumsarealet til 510 pixel, er 52 labels synlige. Det er et reversibelt filter på det eksisterende resultat: råmasken er uændret, og modellen køres ikke igen. Grænsen demonstrerer kontrollen og er ikke en optimal biologisk tærskel.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_10_filters_restored",
-          "narration": "Gendan den oprindelige arealgrænse, og alle 51 labels kommer tilbage. Undersøg, hvilke objekter der forsvinder og hvorfor, før et filter vælges. Små objekter kan være reelle eller segmenteringsfejl; fjernelse afgør ikke spørgsmålet. Hold råresultat og valgte filterværdier særskilt identificerbare.",
+          "narration": "Gendan den oprindelige arealgrænse, og alle 105 labels kommer tilbage. Undersøg, hvilke objekter der forsvinder og hvorfor, før et filter vælges. Små objekter kan være reelle eller segmenteringsfejl; fjernelse afgør ikke spørgsmålet. Hold råresultat og valgte filterværdier særskilt identificerbare.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "At ændre diameter fra 30 til 60 pixel og køre igen sammenligner en modelparameter, ikke kun et visningsfilter. Det giver 42 labels i det optagne felt. Sammenlign grænser med billedet, ikke kun antal. Færre labels beviser ikke en bedre model, og indstillingerne er ikke universelle anbefalinger.",
+          "narration": "At ændre diameter fra 30 til 60 pixel og køre igen sammenligner en modelparameter, ikke kun et visningsfilter. Det giver 36 labels i det optagne felt. Sammenlign grænser med billedet, ikke kun antal. Færre labels beviser ikke en bedre model, og indstillingerne er ikke universelle anbefalinger.",
           "hold_after": 0.7
         },
         {
