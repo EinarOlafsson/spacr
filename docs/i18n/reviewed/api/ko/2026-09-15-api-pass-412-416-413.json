@@ -1,0 +1,622 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Find every older spaCR on this computer, and remove the installer-made ones.",
+      "label": "spacr.install_cleanup#0",
+      "source": "Find every older spaCR on this computer, and remove the installer-made ones.",
+      "source_sha256": "fc72c12d5368fe8c1e458068f4cea0c92fb3305cd2a2c0b164e76e66a35f3f00",
+      "translation": "이 컴퓨터에 있는 모든 이전 spaCR을 찾고, 설치 프로그램이 만든 사본을 제거합니다."
+    },
+    {
+      "context": "An update or an install runs three steps, in this order, whether it starts from the in-app **Check for updates** or from a native installer:",
+      "label": "spacr.install_cleanup#1",
+      "source": "An update or an install runs three steps, in this order, whether it starts from the in-app **Check for updates** or from a native installer:",
+      "source_sha256": "e8addc4ae0ad599dcbfc5d127f10148da39e82b6c48f7fe15cf2ecb4a44ab4fb",
+      "translation": "업데이트나 설치는 앱 안의 **업데이트 확인** 메뉴에서 시작하든 네이티브 설치 프로그램에서 시작하든 다음 세 단계를 이 순서대로 실행합니다:"
+    },
+    {
+      "context": "1. find old spaCR files -- :func:`find_old_installs` 2. delete old spaCR files -- :func:`remove_install` 3. install new spaCR -- :func:`run_update_sequence` runs the install only after step 2 removed every installer-made copy.",
+      "label": "spacr.install_cleanup#2",
+      "source": "1. find old spaCR files -- :func:`find_old_installs` 2. delete old spaCR files -- :func:`remove_install` 3. install new spaCR -- :func:`run_update_sequence` runs the install only after step 2 removed every installer-made copy.",
+      "source_sha256": "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
+      "translation": "1. 이전 spaCR 파일 찾기 -- :func:`find_old_installs` 2. 이전 spaCR 파일 삭제 -- :func:`remove_install` 3. 새 spaCR 설치 -- :func:`run_update_sequence` 함수는 2단계에서 설치 프로그램이 만든 사본을 모두 제거한 뒤에만 설치를 실행합니다."
+    },
+    {
+      "context": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry structured-data name on Windows).",
+      "label": "spacr.install_cleanup#3",
+      "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
+      "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
+      "translation": "제거할 때 이전 버전 자체의 제거 프로그램은 절대 실행하지 않으므로, ``Uninstall.exe`` 또는 ``uninstall-spacr.sh`` 파일이 없거나 손상된 사본도 똑같이 제거됩니다. 환경설정과 사용자 데이터는 유지됩니다: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, Hugging Face 캐시, 그리고 ``spacr``/``qt`` 설정(``~/.config/spacr``, macOS의 환경설정 파일, Windows의 ``Software\\spacr`` 레지스트리 키)."
+    },
+    {
+      "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
+      "label": "spacr.install_cleanup#4",
+      "source": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
+      "source_sha256": "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
+      "translation": "사용자가 만든 pip 또는 conda 환경은 목록에 표시되지만 절대 삭제되지 않으며, 호출자가 그 환경이 선택되었다고 알려 줄 때에만 그 환경에서 spaCR 패키지를 제거합니다. 편집 가능한 소스 체크아웃은 보고만 하고 그대로 둡니다."
+    },
+    {
+      "context": "The module uses only the standard library and imports nothing from spaCR, so an installer can execute it with its bootstrapped Python before any spaCR exists, and a helper process can execute a copy of it after the executing spaCR has closed",
+      "label": "spacr.install_cleanup#5",
+      "source": "The module uses only the standard library and imports nothing from spaCR, so an installer can run it with its bootstrapped Python before any spaCR exists, and a helper process can run a copy of it after the running spaCR has closed",
+      "source_sha256": "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
+      "translation": "이 모듈은 표준 라이브러리만 사용하고 spaCR에서 아무것도 가져오지 않으므로, 설치 프로그램은 spaCR이 아직 없을 때에도 자신이 직접 설치한 Python으로 이 모듈을 실행할 수 있고, 도우미 프로세스는 실행 중이던 spaCR이 종료된 뒤에 이 모듈의 사본을 실행할 수 있습니다"
+    },
+    {
+      "context": "One spaCR installation found on this computer.",
+      "label": "spacr.install_cleanup.InstallRecord#0",
+      "source": "One spaCR installation found on this computer.",
+      "source_sha256": "e87d2c823cfaf5c94e0b7b077da7fa06c09d4ea4f3b48a73d20f6e33f9dba2c0",
+      "translation": "이 컴퓨터에서 찾은 spaCR 설치 하나."
+    },
+    {
+      "context": "``\"installer\"`` for a copy a spaCR installer made, ``\"environment\"`` for a pip or conda environment the user made, or ``\"checkout\"`` for an editable source checkout.",
+      "label": "spacr.install_cleanup.InstallRecord#1",
+      "source": "``\"installer\"`` for a copy a spaCR installer made, ``\"environment\"`` for a pip or conda environment the user made, or ``\"checkout\"`` for an editable source checkout.",
+      "source_sha256": "c8ad72cba483d0fddeefe2e833378fffccb39ee88ea11fb00de6bdec0d5c636a",
+      "translation": "``\"installer\"`` 값은 spaCR 설치 프로그램이 만든 사본, ``\"environment\"`` 값은 사용자가 만든 pip 또는 conda 환경, ``\"checkout\"`` 값은 편집 가능한 소스 체크아웃을 뜻합니다."
+    },
+    {
+      "context": "the environment's interpreter, used to uninstall spaCR.",
+      "label": "spacr.install_cleanup.InstallRecord#10",
+      "source": "the environment's interpreter, used to uninstall spaCR.",
+      "source_sha256": "4aa235c3ba72a8ea5be0a81f457dd570a98847895bc309af6512a67bd5d726d8",
+      "translation": "spaCR 제거에 쓰는 환경의 인터프리터."
+    },
+    {
+      "context": "whether the current process runs from this copy.",
+      "label": "spacr.install_cleanup.InstallRecord#11",
+      "source": "whether the current process runs from this copy.",
+      "source_sha256": "50cc081899ad0dab19fd4f7d7b2146e79b4b6eab36ea4bb7bf4ff7cf0e622ed1",
+      "translation": "현재 프로세스가 이 사본에서 실행 중인지 여부."
+    },
+    {
+      "context": "whether removal needs administrator rights.",
+      "label": "spacr.install_cleanup.InstallRecord#12",
+      "source": "whether removal needs administrator rights.",
+      "source_sha256": "59f7b1eb731064d0bd8ec3bc9b837ae5aad907dd6e2b0e834aec5710c5bec9b7",
+      "translation": "제거에 관리자 권한이 필요한지 여부."
+    },
+    {
+      "context": "other facts worth showing, such as a missing uninstaller.",
+      "label": "spacr.install_cleanup.InstallRecord#13",
+      "source": "other facts worth showing, such as a missing uninstaller.",
+      "source_sha256": "1f7a382f328e5f453fdd3272e40ab3e393c0bfa7ed7bcdf3d42212f645703af9",
+      "translation": "제거 프로그램이 없다는 사실처럼 표시할 가치가 있는 그 밖의 정보."
+    },
+    {
+      "context": "which layout it is, for example ``\"windows-online\"``, ``\"linux-online\"``, ``\"macos-app\"`` or ``\"conda\"``.",
+      "label": "spacr.install_cleanup.InstallRecord#2",
+      "source": "which layout it is, for example ``\"windows-online\"``, ``\"linux-online\"``, ``\"macos-app\"`` or ``\"conda\"``.",
+      "source_sha256": "8694467c5332fb1e6d334b10cde5bbe631101a9026319fea7f58fbfcea482298",
+      "translation": "어떤 레이아웃인지. 예: ``\"windows-online\"``, ``\"linux-online\"``, ``\"macos-app\"`` 또는 ``\"conda\"``."
+    },
+    {
+      "context": "the directory the installation lives in.",
+      "label": "spacr.install_cleanup.InstallRecord#4",
+      "source": "the directory the installation lives in.",
+      "source_sha256": "6700302286e48dfd002857ca32e6a67aaaae1aa680316517c5014d6f9873c132",
+      "translation": "설치가 들어 있는 디렉터리."
+    },
+    {
+      "context": "the spaCR version, when it can be read.",
+      "label": "spacr.install_cleanup.InstallRecord#5",
+      "source": "the spaCR version, when it can be read.",
+      "source_sha256": "8b43e11217244f91f76daa03f564d30a653d6a0b3e008048ee08294c4d364dcd",
+      "translation": "읽을 수 있을 때의 spaCR 버전."
+    },
+    {
+      "context": "command launchers that start this copy.",
+      "label": "spacr.install_cleanup.InstallRecord#6",
+      "source": "command launchers that start this copy.",
+      "source_sha256": "e4324236e5289d041ffdaca0ae6263c1b6d509c7dd8d5f160edb8575b5e636a5",
+      "translation": "이 사본을 시작하는 명령 실행기."
+    },
+    {
+      "context": "desktop and Start Menu shortcut files.",
+      "label": "spacr.install_cleanup.InstallRecord#7",
+      "source": "desktop and Start Menu shortcut files.",
+      "source_sha256": "4cbfff613b639176b769021b6a696d9e6a515553b635cdf402eeaf0326ccfa0b",
+      "translation": "바탕 화면과 시작 메뉴의 바로 가기 파일."
+    },
+    {
+      "context": "application-menu entries: ``.desktop`` files and Start Menu folders.",
+      "label": "spacr.install_cleanup.InstallRecord#8",
+      "source": "application-menu entries: ``.desktop`` files and Start Menu folders.",
+      "source_sha256": "1700c4a05eba8920d61e03e08f3b0e5eb22d916af899d174029684cd4c575498",
+      "translation": "애플리케이션 메뉴 항목: ``.desktop`` 파일과 시작 메뉴 폴더."
+    },
+    {
+      "context": "uninstall registrations: ``registry:`` keys, ``deb:`` packages, and application bundles.",
+      "label": "spacr.install_cleanup.InstallRecord#9",
+      "source": "uninstall registrations: ``registry:`` keys, ``deb:`` packages, and application bundles.",
+      "source_sha256": "b3e8a2fc7ed7c9abc7be931cab0d871b0caefecfe24633f13d1de1437ccb0207",
+      "translation": "제거 등록 정보: ``registry:`` 키, ``deb:`` 패키지, 애플리케이션 번들."
+    },
+    {
+      "context": "What :func:`remove_install` did with one installation.",
+      "label": "spacr.install_cleanup.RemovalReport#0",
+      "source": "What :func:`remove_install` did with one installation.",
+      "source_sha256": "56ea728d94591c183c79e938cf6d416c90e67bd23a3f936c11a6d041af87b34b",
+      "translation": ":func:`remove_install` 함수가 설치 하나에 대해 수행한 작업."
+    },
+    {
+      "context": "the installation this report is about.",
+      "label": "spacr.install_cleanup.RemovalReport#1",
+      "source": "the installation this report is about.",
+      "source_sha256": "3ea100fe9cba603e225c8a84796affd61338570f7897131ff0b54d9440631a82",
+      "translation": "이 보고서가 다루는 설치."
+    },
+    {
+      "context": "every path, registry entry and package that was removed.",
+      "label": "spacr.install_cleanup.RemovalReport#2",
+      "source": "every path, registry entry and package that was removed.",
+      "source_sha256": "7239ebaceeae6dc2afcc53ac2670f2a1a28670fed2ed29d9f5b86c8f097333b6",
+      "translation": "제거된 모든 경로, 레지스트리 항목, 패키지."
+    },
+    {
+      "context": "``(item, reason)`` for everything that could not be removed.",
+      "label": "spacr.install_cleanup.RemovalReport#3",
+      "source": "``(item, reason)`` for everything that could not be removed.",
+      "source_sha256": "123ddd66bf2f57aca04aad612e23b5c93e67f140c331c854bc052b80d2d5942f",
+      "translation": "제거할 수 없었던 모든 항목에 대한 ``(item, reason)``."
+    },
+    {
+      "context": "``(item, reason)`` for everything left in place on purpose.",
+      "label": "spacr.install_cleanup.RemovalReport#4",
+      "source": "``(item, reason)`` for everything left in place on purpose.",
+      "source_sha256": "deaaa6eaa045d52b8fab749eda5844c785242eb47e995c3bb94c7838a71a19fd",
+      "translation": "의도적으로 그대로 둔 모든 항목에 대한 ``(item, reason)``."
+    },
+    {
+      "context": "Whether nothing failed.",
+      "label": "spacr.install_cleanup.RemovalReport.ok#0",
+      "source": "Whether nothing failed.",
+      "source_sha256": "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50",
+      "translation": "실패한 것이 하나도 없는지 여부."
+    },
+    {
+      "context": "Find every spaCR installation on this computer.",
+      "label": "spacr.install_cleanup.find_old_installs#0",
+      "source": "Find every spaCR installation on this computer.",
+      "source_sha256": "cfe96f2e3cd9807b937778c7536e6f80f2e56dbe13033812f3c9bf3ddf55e13c",
+      "translation": "이 컴퓨터에 있는 모든 spaCR 설치를 찾습니다."
+    },
+    {
+      "context": "Installer-made copies come first, then environments the user made, then editable source checkouts. Every layout any released installer used is looked for: the Windows online and offline installers, the Linux and macOS online installers, the macOS application bundle, and the Debian package.",
+      "label": "spacr.install_cleanup.find_old_installs#1",
+      "source": "Installer-made copies come first, then environments the user made, then editable source checkouts. Every layout any released installer used is looked for: the Windows online and offline installers, the Linux and macOS online installers, the macOS application bundle, and the Debian package.",
+      "source_sha256": "832ffd69766a0a4fa88579dddd6c0b6f0ef10919f7fe3f97490f47b30a0fa4c8",
+      "translation": "설치 프로그램이 만든 사본이 먼저 오고, 그다음 사용자가 만든 환경, 그다음 편집 가능한 소스 체크아웃이 옵니다. 지금까지 배포된 설치 프로그램이 사용한 모든 레이아웃을 찾습니다: Windows 온라인 및 오프라인 설치 프로그램, Linux 및 macOS 온라인 설치 프로그램, macOS 애플리케이션 번들, Debian 패키지."
+    },
+    {
+      "context": "the computer to look at; ``None`` means this one. Tests pass a stand-in over a temporary directory.",
+      "label": "spacr.install_cleanup.find_old_installs#2",
+      "source": "the computer to look at; ``None`` means this one. Tests pass a stand-in over a temporary directory.",
+      "source_sha256": "a58b9ca29358e4e9dbfbfcd8e2d7e2e276fe3d1d2e9a5478cd0a77f33a222ec0",
+      "translation": "살펴볼 컴퓨터. ``None`` 값은 이 컴퓨터를 뜻합니다. 테스트에서는 임시 디렉터리 위에 만든 대체 객체를 전달합니다."
+    },
+    {
+      "context": "one :class:`InstallRecord` per installation.",
+      "label": "spacr.install_cleanup.find_old_installs#3",
+      "source": "one :class:`InstallRecord` per installation.",
+      "source_sha256": "e77e003f82e54621b2c59eb4cbc6524bfe54745a2965ba85106d1a53079d3d19",
+      "translation": "설치마다 하나씩의 :class:`InstallRecord`."
+    },
+    {
+      "context": "Remove one installation, without running its own uninstaller.",
+      "label": "spacr.install_cleanup.remove_install#0",
+      "source": "Remove one installation, without running its own uninstaller.",
+      "source_sha256": "2b532f8660f6c200865a7c60727acd65daea951cffa01360369b54fb784c3f0e",
+      "translation": "설치 하나를, 그 설치의 자체 제거 프로그램을 실행하지 않고 제거합니다."
+    },
+    {
+      "context": "An installer-made copy is removed completely: its folder, launchers, shortcuts, menu entries and uninstall registrations. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "label": "spacr.install_cleanup.remove_install#1",
+      "source": "An installer-made copy is removed completely: its folder, launchers, shortcuts, menu entries and uninstall registrations. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "source_sha256": "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
+      "translation": "설치 프로그램이 만든 사본은 완전히 제거됩니다: 폴더, 실행기, 바로 가기, 메뉴 항목, 제거 등록 정보. Debian 패키지는 패키지 관리자로 제거하며, 권한 때문에 막히면 관리자 권한이 필요하다고 보고합니다. 사용자가 만든 환경에서는 spaCR 패키지만, 그것도 ``ticked`` 값이 참일 때에만 제거하며 환경 자체는 남습니다. 소스 체크아웃은 건너뜁니다."
+    },
+    {
+      "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs: :func:`start_update_helper` removes it after spaCR has closed.",
+      "label": "spacr.install_cleanup.remove_install#2",
+      "source": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs: :func:`start_update_helper` removes it after spaCR has closed.",
+      "source_sha256": "a9653bfcfb994d827a61358cc2130db1d98ee6c09fcae986d61be3fdfbeb3ad6",
+      "translation": "실행 중인 사본은 여기서 제거하지 않습니다. Windows에서는 설치가 실행되는 동안 자기 자신을 삭제할 수 없기 때문입니다: :func:`start_update_helper` 함수가 spaCR이 종료된 뒤에 제거합니다."
+    },
+    {
+      "context": "an installation from :func:`find_old_installs`.",
+      "label": "spacr.install_cleanup.remove_install#3",
+      "source": "an installation from :func:`find_old_installs`.",
+      "source_sha256": "697f2bf859f1f4c749e6749d315aba0ea5a26283f1769192f44a9457d2c3bc9f",
+      "translation": ":func:`find_old_installs` 함수에서 얻은 설치 하나."
+    },
+    {
+      "context": "whether the user ticked this environment for removal.",
+      "label": "spacr.install_cleanup.remove_install#4",
+      "source": "whether the user ticked this environment for removal.",
+      "source_sha256": "c349a54c16603802a98f5ec3c8aa72b3de6cad94ef39d46d34afa9e990e0bf0d",
+      "translation": "사용자가 이 환경을 제거 대상으로 선택했는지 여부."
+    },
+    {
+      "context": "paths to leave in place, such as the log of the install that is about to start.",
+      "label": "spacr.install_cleanup.remove_install#5",
+      "source": "paths to leave in place, such as the log of the install that is about to start.",
+      "source_sha256": "168f9714cc4b89c880d2335fb7457443bd0d8527f9b18d71931970c6491f81c1",
+      "translation": "곧 시작될 설치의 로그처럼 그대로 두어야 할 경로."
+    },
+    {
+      "context": "the computer; ``None`` means this one.",
+      "label": "spacr.install_cleanup.remove_install#6",
+      "source": "the computer; ``None`` means this one.",
+      "source_sha256": "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
+      "translation": "대상 컴퓨터. ``None`` 값은 이 컴퓨터를 뜻합니다."
+    },
+    {
+      "context": "what was removed, what could not be, and why.",
+      "label": "spacr.install_cleanup.remove_install#7",
+      "source": "what was removed, what could not be, and why.",
+      "source_sha256": "e82d84566e43d71d630068922b9a66e43ba249b1ad02cbbd8b72285d992e566b",
+      "translation": "무엇이 제거되었는지, 무엇을 제거할 수 없었는지, 그리고 그 이유."
+    },
+    {
+      "context": "Find, then delete, then install -- and never install over an old copy.",
+      "label": "spacr.install_cleanup.run_update_sequence#0",
+      "source": "Find, then delete, then install -- and never install over an old copy.",
+      "source_sha256": "4d0869a5ed02684f69757141b04f06f69b43061a7ed72b31cf0d0a7c65d11bbd",
+      "translation": "찾고, 삭제하고, 그다음 설치합니다 -- 이전 사본 위에 덮어 설치하는 일은 절대 없습니다."
+    },
+    {
+      "context": "Every installer-made copy is removed, the spaCR package is uninstalled from each ticked environment, and only then is ``install`` called. When an installer-made copy could not be removed, ``install`` is not called at all, and the reports say what stopped it.",
+      "label": "spacr.install_cleanup.run_update_sequence#1",
+      "source": "Every installer-made copy is removed, the spaCR package is uninstalled from each ticked environment, and only then is ``install`` called. When an installer-made copy could not be removed, ``install`` is not called at all, and the reports say what stopped it.",
+      "source_sha256": "793fb1f29ed7db9dfbf28b0c9a28ab993f6a1c19861465cd9b23a1c0635def4d",
+      "translation": "설치 프로그램이 만든 사본을 모두 제거하고, 선택된 각 환경에서 spaCR 패키지를 제거한 다음에야 ``install`` 함수를 호출합니다. 설치 프로그램이 만든 사본을 제거하지 못하면 ``install`` 함수는 아예 호출되지 않으며, 무엇 때문에 멈췄는지는 보고서에 나옵니다."
+    },
+    {
+      "context": "zero-argument callable that installs the new version.",
+      "label": "spacr.install_cleanup.run_update_sequence#2",
+      "source": "zero-argument callable that installs the new version.",
+      "source_sha256": "0399abee387a0b34067465e61b57264f45c3eaee3839b6faf68fb3cc5a1b27d5",
+      "translation": "새 버전을 설치하는 인수 없는 호출 가능 객체."
+    },
+    {
+      "context": "installations already found; :func:`find_old_installs` is called when ``None``.",
+      "label": "spacr.install_cleanup.run_update_sequence#3",
+      "source": "installations already found; :func:`find_old_installs` is called when ``None``.",
+      "source_sha256": "b0566f5d0d609b8299ff20772571bafcfcb425a2fbbb32caa0c377589b0692f7",
+      "translation": "이미 찾은 설치들. :func:`find_old_installs` 함수는 이 값이 ``None`` 일 때 호출됩니다."
+    },
+    {
+      "context": "roots of the environments the user ticked.",
+      "label": "spacr.install_cleanup.run_update_sequence#4",
+      "source": "roots of the environments the user ticked.",
+      "source_sha256": "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
+      "translation": "사용자가 선택한 환경의 루트 경로."
+    },
+    {
+      "context": "paths removal must leave in place.",
+      "label": "spacr.install_cleanup.run_update_sequence#5",
+      "source": "paths removal must leave in place.",
+      "source_sha256": "d5e608ba832c0b233797610809e7f802a7fa20b5bbc272e1e6ee8d3bc7c59052",
+      "translation": "제거 과정에서 그대로 두어야 하는 경로."
+    },
+    {
+      "context": "replaces :func:`find_old_installs`.",
+      "label": "spacr.install_cleanup.run_update_sequence#6",
+      "source": "replaces :func:`find_old_installs`.",
+      "source_sha256": "c0aa60c75346ebc929f5eaf95621c4f800e5bd93e9d52104c6f32417da94e73a",
+      "translation": ":func:`find_old_installs` 함수를 대체합니다."
+    },
+    {
+      "context": "replaces :func:`remove_install`.",
+      "label": "spacr.install_cleanup.run_update_sequence#7",
+      "source": "replaces :func:`remove_install`.",
+      "source_sha256": "1d330f7f920386d7f129766cf963a57e2c04add66ce309757b639e23f55442c1",
+      "translation": ":func:`remove_install` 함수를 대체합니다."
+    },
+    {
+      "context": "``(reports, install_result)``; ``install_result`` is ``None`` when the install was not run.",
+      "label": "spacr.install_cleanup.run_update_sequence#9",
+      "source": "``(reports, install_result)``; ``install_result`` is ``None`` when the install was not run.",
+      "source_sha256": "652f01ac13e02a060269da73392a95b87502e69e2b46d8d55e3a8550ae0fd335",
+      "translation": "``(reports, install_result)``. 설치가 실행되지 않았으면 ``install_result`` 값은 ``None`` 입니다."
+    },
+    {
+      "context": "Hand deleting and installing to a process that outlives spaCR.",
+      "label": "spacr.install_cleanup.start_update_helper#0",
+      "source": "Hand deleting and installing to a process that outlives spaCR.",
+      "source_sha256": "53a4372d5ee733dcea5beb653cc2903c614acadd319e859a11ad2dcabec09aeb",
+      "translation": "삭제와 설치를 spaCR보다 오래 살아남는 프로세스에 넘깁니다."
+    },
+    {
+      "context": "Used when the executing spaCR is itself an installer-made copy, which on Windows cannot delete itself while it executes. The helper waits for this process to exit, downloads the new installer, removes every older copy including the one that was executing, runs the installer, and starts the new version. If any installer-made copy cannot be removed, nothing is installed and the reason is written to the update log.",
+      "label": "spacr.install_cleanup.start_update_helper#1",
+      "source": "Used when the running spaCR is itself an installer-made copy, which on Windows cannot delete itself while it runs. The helper waits for this process to exit, downloads the new installer, removes every older copy including the one that was running, runs the installer, and starts the new version. If any installer-made copy cannot be removed, nothing is installed and the reason is written to the update log.",
+      "source_sha256": "4db8f45182e856b247dcc77a715e53910750bbda9d4389daecdaf8cdc0fecea6",
+      "translation": "실행 중인 spaCR 자체가 설치 프로그램이 만든 사본일 때 사용합니다. 이런 사본은 Windows에서 실행되는 동안 자기 자신을 삭제할 수 없습니다. 도우미는 이 프로세스가 끝나기를 기다린 뒤, 새 설치 프로그램을 내려받고, 실행 중이던 사본을 포함해 이전 사본을 모두 제거하고, 설치 프로그램을 실행한 다음 새 버전을 시작합니다. 설치 프로그램이 만든 사본 중 하나라도 제거할 수 없으면 아무것도 설치하지 않으며, 그 이유를 업데이트 로그에 기록합니다."
+    },
+    {
+      "context": "installations from :func:`find_old_installs`.",
+      "label": "spacr.install_cleanup.start_update_helper#2",
+      "source": "installations from :func:`find_old_installs`.",
+      "source_sha256": "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
+      "translation": ":func:`find_old_installs` 함수에서 얻은 설치들."
+    },
+    {
+      "context": "the version to install.",
+      "label": "spacr.install_cleanup.start_update_helper#3",
+      "source": "the version to install.",
+      "source_sha256": "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
+      "translation": "설치할 버전."
+    },
+    {
+      "context": "the process to wait for; this process when ``None``.",
+      "label": "spacr.install_cleanup.start_update_helper#5",
+      "source": "the process to wait for; this process when ``None``.",
+      "source_sha256": "cc3b6cb25b19441b1007a8196c241f842cf130721109778b50093f3dd9fe8b72",
+      "translation": "기다릴 프로세스. ``None`` 값이면 이 프로세스입니다."
+    },
+    {
+      "context": "the helper's folder; a new temporary folder when ``None``.",
+      "label": "spacr.install_cleanup.start_update_helper#6",
+      "source": "the helper's folder; a new temporary folder when ``None``.",
+      "source_sha256": "2a7fd576ab7b59557ffbe2364c244953f75480298685169c67c069f0f4e6658f",
+      "translation": "도우미의 폴더. ``None`` 값이면 새 임시 폴더입니다."
+    },
+    {
+      "context": "replaces the detached process launcher.",
+      "label": "spacr.install_cleanup.start_update_helper#8",
+      "source": "replaces the detached process launcher.",
+      "source_sha256": "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
+      "translation": "분리된 프로세스를 시작하는 실행기를 대체합니다."
+    },
+    {
+      "context": "the plan as written to ``plan.json``. ``plan[\"command\"]`` is the helper's command, or ``None`` with ``plan[\"error\"]`` saying why nothing was started.",
+      "label": "spacr.install_cleanup.start_update_helper#9",
+      "source": "the plan as written to ``plan.json``. ``plan[\"command\"]`` is the helper's command, or ``None`` with ``plan[\"error\"]`` saying why nothing was started.",
+      "source_sha256": "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
+      "translation": "``plan.json`` 파일에 기록된 계획. ``plan[\"command\"]`` 값은 도우미의 명령이며, 아무것도 시작하지 않았으면 ``None`` 값이고 그 이유는 ``plan[\"error\"]`` 값에 있습니다."
+    },
+    {
+      "context": "Make Masks' test data: ten Toxoplasma vacuole fields, one button away.",
+      "label": "spacr.qt.make_masks_demo#0",
+      "source": "Make Masks' test data: ten Toxoplasma vacuole fields, one button away.",
+      "source_sha256": "e7cfbdcfefe2f9d1f5198a328e55ca3dc2442576b3045434de61513e539ec952",
+      "translation": "Make Masks 테스트 데이터: Toxoplasma 액포 시야 열 개를 버튼 하나로 받습니다."
+    },
+    {
+      "context": "Ledger item 412. The maintainer asked for ten images of the Toxoplasma PV training set on Hugging Face as \"a small test dataset for make masks\", and \"a button for loading this dataset which automatically triggers opening the first image with make masks\".",
+      "label": "spacr.qt.make_masks_demo#1",
+      "source": "Ledger item 412. The maintainer asked for ten images of the Toxoplasma PV training set on Hugging Face as \"a small test dataset for make masks\", and \"a button for loading this dataset which automatically triggers opening the first image with make masks\".",
+      "source_sha256": "8c89ddde44409766fcf87b2dd7b794cc41565c81e2d3ecf8a7148f19b85e614e",
+      "translation": "작업 목록 412번 항목. 메인테이너는 Hugging Face에 있는 Toxoplasma PV 학습 세트의 이미지 열 장을 “make masks용 작은 테스트 데이터셋”으로 요청했고, “이 데이터셋을 불러오면 make masks로 첫 번째 이미지가 자동으로 열리는 버튼”도 요청했습니다."
+    },
+    {
+      "context": "What is published. :data:`MAKE_MASKS_EXAMPLE_REPO` holds ten of the lab's own acquisitions -- no figure harvested from a paper, no held-out microscope field of view -- at the top level, their curated label masks under ``ground_truth_masks/``, a ``manifest.csv`` carrying each image's row from the in-house manifest, and one archive of all of it. The images open UNSEGMENTED: Make Masks reads drafts from ``masks/``, never from ``ground_truth_masks/``, so the editor starts on raw microscope fields of view and the truth sits beside them.",
+      "label": "spacr.qt.make_masks_demo#2",
+      "source": "WHAT IS PUBLISHED. :data:`MAKE_MASKS_EXAMPLE_REPO` holds ten of the lab's own acquisitions -- no figure harvested from a paper, no held-out field -- at the top level, their curated label masks under ``ground_truth_masks/``, a ``manifest.csv`` carrying each image's row from the in-house manifest, and one archive of all of it. The images open UNSEGMENTED: Make Masks reads drafts from ``masks/``, never from ``ground_truth_masks/``, so the editor starts on raw fields and the truth sits beside them.",
+      "source_sha256": "d3dcf8b961108af4adbfa57b8b31b84633a02c91cde9d0ec0a1ccc9f557880ea",
+      "translation": "공개되는 내용. :data:`MAKE_MASKS_EXAMPLE_REPO` 저장소의 최상위에는 연구실이 직접 획득한 이미지 열 장(논문에서 가져온 그림도, 평가용으로 떼어 둔 시야도 아님)이 있고, ``ground_truth_masks/`` 폴더 아래에 검수된 레이블 마스크, 내부 매니페스트에서 각 이미지의 행을 담은 ``manifest.csv`` 파일, 그리고 이 모두를 묶은 아카이브 하나가 있습니다. 이미지는 분할되지 않은 상태로 열립니다: Make Masks는 초안을 ``masks/`` 폴더에서만 읽고 ``ground_truth_masks/`` 폴더에서는 절대 읽지 않으므로, 편집기는 원본 시야에서 시작하고 정답 마스크는 그 옆에 놓입니다."
+    },
+    {
+      "context": "The same pattern as every other example set. One uncompressed ``.tar`` per repository, streamed to a ``.part`` file on a background execution unit behind the shared progress dialog, unpacked through the tar data filter (:class:`spacr.qt.hf_download._TarExampleWorker` does all of that), and cached: :func:`is_present` is asked first, so a second press opens the folder without a request.",
+      "label": "spacr.qt.make_masks_demo#3",
+      "source": "THE SAME PATTERN AS EVERY OTHER EXAMPLE SET. One uncompressed ``.tar`` per repository, streamed to a ``.part`` file on a worker thread behind the shared progress dialog, unpacked through the tar data filter (:class:`spacr.qt.hf_download._TarExampleWorker` does all of that), and cached: :func:`is_present` is asked first, so a second press opens the folder without a request.",
+      "source_sha256": "b8e5f30be572dbd508ddad7f28ce384b99ffe2029772725fff3b2d73a1ad696c",
+      "translation": "다른 모든 예제 세트와 같은 방식. 저장소마다 압축하지 않은 ``.tar`` 파일 하나를 공유 진행 대화상자 뒤의 작업 스레드에서 ``.part`` 파일로 스트리밍하고, tar 데이터 필터로 풀고(:class:`spacr.qt.hf_download._TarExampleWorker` 클래스가 이 모든 일을 합니다), 캐시에 보관합니다: 먼저 :func:`is_present` 함수로 확인하므로 두 번째로 누르면 요청 없이 폴더가 열립니다."
+    },
+    {
+      "context": "Its own folder, not the shared laboratory microplate. The Measure and Annotate sets unpack into ``example_plate_folder()`` because they compose into one laboratory microplate. These ten microscope fields of view are not part of that laboratory microplate, and the Mask demo decides it is present by finding ``*.tif`` there, so unpacking them into it would make that demo think it had been downloaded.",
+      "label": "spacr.qt.make_masks_demo#4",
+      "source": "ITS OWN FOLDER, NOT THE SHARED PLATE. The Measure and Annotate sets unpack into ``example_plate_folder()`` because they compose into one plate. These ten fields are not part of that plate, and the Mask demo decides it is present by finding ``*.tif`` there, so unpacking them into it would make that demo think it had been downloaded.",
+      "source_sha256": "bad8b7f34dc28c5cd20b70502379739a27d696da09ee5d21c6f4ea3a3611b9ff",
+      "translation": "공유 플레이트가 아닌 전용 폴더. 측정과 어노테이션 예제 세트는 함께 하나의 플레이트를 이루기 때문에 ``example_plate_folder()`` 폴더에 풀립니다. 이 시야 열 개는 그 플레이트에 속하지 않으며, 마스크 데모는 그곳에서 ``*.tif`` 파일을 찾는지로 자신이 있는지 판단하므로, 여기에 풀면 그 데모가 이미 내려받아졌다고 착각하게 됩니다."
+    },
+    {
+      "context": "Why this is a module and not a method. The screen gets one call in its navigation row. Everything else lives here, so ``make_masks.py`` -- which several items edit at once -- carries a two-line hook.",
+      "label": "spacr.qt.make_masks_demo#5",
+      "source": "WHY THIS IS A MODULE AND NOT A METHOD. The screen gets one call in its navigation row. Everything else lives here, so ``make_masks.py`` -- which several items edit at once -- carries a two-line hook.",
+      "source_sha256": "c042f9157b9a59411a88615686fb8fff2ed5c63f8180d921af4acd648473451f",
+      "translation": "이것이 메서드가 아니라 모듈인 이유. 화면은 탐색 줄에서 호출 하나만 받습니다. 나머지는 모두 여기에 있으므로, 여러 작업 항목이 동시에 편집하는 ``make_masks.py`` 파일에는 두 줄짜리 훅만 들어갑니다."
+    },
+    {
+      "context": "Fetch the Make Masks test data behind the shared progress dialog.",
+      "label": "spacr.qt.make_masks_demo.download_make_masks_example#0",
+      "source": "Fetch the Make Masks test data behind the shared progress dialog.",
+      "source_sha256": "0a0045efc5c17dc8f87a2d8120ca9f46d8f599d15576b8b6fba07e73371dd864",
+      "translation": "공유 진행 대화상자 뒤에서 Make Masks 테스트 데이터를 가져옵니다."
+    },
+    {
+      "context": "the widget the progress dialog belongs to.",
+      "label": "spacr.qt.make_masks_demo.download_make_masks_example#1",
+      "source": "the widget the progress dialog belongs to.",
+      "source_sha256": "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+      "translation": "진행 대화상자가 속한 위젯."
+    },
+    {
+      "context": "the folder the archive unpacks into.",
+      "label": "spacr.qt.make_masks_demo.download_make_masks_example#2",
+      "source": "the folder the archive unpacks into.",
+      "source_sha256": "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+      "translation": "아카이브를 풀 폴더."
+    },
+    {
+      "context": "called on the main GUI execution path as ``on_done(result, error)``. ``result`` is ``None`` on failure or cancellation, and ``error`` then says why.",
+      "label": "spacr.qt.make_masks_demo.download_make_masks_example#3",
+      "source": "called on the GUI thread as ``on_done(result, error)``. ``result`` is ``None`` on failure or cancellation, and ``error`` then says why.",
+      "source_sha256": "ef4186f319302483f570bfd7adba2bbfe69e5af8c02f7775e0492fdc1959a49f",
+      "translation": "GUI 스레드에서 ``on_done(result, error)`` 형태로 호출됩니다. 실패하거나 취소되면 ``result`` 값은 ``None`` 이고, 이때 ``error`` 값이 이유를 알려 줍니다."
+    },
+    {
+      "context": "Build Make Masks' \"Load test data…\" button, wired to ``screen``.",
+      "label": "spacr.qt.make_masks_demo.install_test_data_button#0",
+      "source": "Build Make Masks' \"Load test data…\" button, wired to ``screen``.",
+      "source_sha256": "5c4633fd2231420a3f761f32ed90a72201cfb613d26bf6a8993937f311844568",
+      "translation": "Make Masks의 \"Load test data…\"(테스트 데이터 불러오기...) 버튼을 만들고 ``screen`` 화면에 연결합니다."
+    },
+    {
+      "context": "the Make Masks screen the data opens in. The button is kept on it as ``_btn_test_data``, so a load can disable it while the download runs.",
+      "label": "spacr.qt.make_masks_demo.install_test_data_button#1",
+      "source": "the Make Masks screen the data opens in. The button is kept on it as ``_btn_test_data``, so a load can disable it while the download runs.",
+      "source_sha256": "838d37a7cd4beef3bf32e13346b4523e85e202d4659af5c93a408ab56842f9eb",
+      "translation": "데이터가 열릴 Make Masks 화면. 버튼은 이 화면에 ``_btn_test_data`` 속성으로 보관되므로, 불러오기 작업이 다운로드가 진행되는 동안 버튼을 비활성화할 수 있습니다."
+    },
+    {
+      "context": "the button, for the caller to place.",
+      "label": "spacr.qt.make_masks_demo.install_test_data_button#2",
+      "source": "the button, for the caller to place.",
+      "source_sha256": "be9d195ef15c320561f4d93dc45da4a7db23144626a723714cef8edd7c507855",
+      "translation": "호출자가 배치할 버튼."
+    },
+    {
+      "context": "Whether a complete copy of the test data is unpacked in ``folder``.",
+      "label": "spacr.qt.make_masks_demo.is_present#0",
+      "source": "Whether a complete copy of the test data is unpacked in ``folder``.",
+      "source_sha256": "2cda27968d84c6a671e20f87dd1304874bade3c5434bcf8bc3e6a2a33d44d645",
+      "translation": "테스트 데이터의 완전한 사본이 ``folder`` 폴더에 풀려 있는지 여부."
+    },
+    {
+      "context": "where the dataset is expected.",
+      "label": "spacr.qt.make_masks_demo.is_present#1",
+      "source": "where the dataset is expected.",
+      "source_sha256": "a75922bbc1bea253a623aabaeeb9ce23fd9f08447c213c382ca1befbf52cb159",
+      "translation": "데이터셋이 있어야 할 위치."
+    },
+    {
+      "context": "``True`` only when the manifest exists and every image and mask it lists is a file. A half-unpacked set reads as absent, which is the answer that gets it downloaded again.",
+      "label": "spacr.qt.make_masks_demo.is_present#2",
+      "source": "``True`` only when the manifest exists and every image and mask it lists is a file. A half-unpacked set reads as absent, which is the answer that gets it downloaded again.",
+      "source_sha256": "56cf37b10b842a08cac9d900a127e252f38bad5b7cf5b64c03ad6b7cd132ab05",
+      "translation": "매니페스트가 있고 그 안에 나열된 모든 이미지와 마스크가 파일일 때에만 ``True`` 입니다. 절반만 풀린 세트는 없는 것으로 간주되며, 바로 이 답 때문에 다시 내려받게 됩니다."
+    },
+    {
+      "context": "Every file the dataset's ``manifest.csv`` says a complete copy holds.",
+      "label": "spacr.qt.make_masks_demo.listed_files#0",
+      "source": "Every file the dataset's ``manifest.csv`` says a complete copy holds.",
+      "source_sha256": "9eb145b856650b218ffd74cad6f85233ac32e8b2845b25a672155ac60b6a47a5",
+      "translation": "데이터셋의 ``manifest.csv`` 파일에 따르면 완전한 사본에 들어 있어야 하는 모든 파일."
+    },
+    {
+      "context": "where the dataset was unpacked.",
+      "label": "spacr.qt.make_masks_demo.listed_files#1",
+      "source": "where the dataset was unpacked.",
+      "source_sha256": "01c48271aad649718107c1cbfe52467d06c19ec71cb0d64c8082cf08bd194f82",
+      "translation": "데이터셋을 푼 위치."
+    },
+    {
+      "context": "paths relative to ``folder``, each image followed by its ground-truth mask, in manifest order. Empty when there is no readable manifest, or when any row names no image, so that an incomplete or unrecognised folder is never mistaken for the dataset.",
+      "label": "spacr.qt.make_masks_demo.listed_files#2",
+      "source": "paths relative to ``folder``, each image followed by its ground-truth mask, in manifest order. Empty when there is no readable manifest, or when any row names no image, so that an incomplete or unrecognised folder is never mistaken for the dataset.",
+      "source_sha256": "7503e22ae286417c5260c5759bd2c28d081e473220f0ac080d4c28ae41797e2e",
+      "translation": "``folder`` 기준 상대 경로이며, 각 이미지 뒤에 해당 정답 마스크가 오고 매니페스트 순서를 따릅니다. 읽을 수 있는 매니페스트가 없거나 이미지를 지정하지 않은 행이 하나라도 있으면 비어 있으므로, 불완전하거나 알 수 없는 폴더를 이 데이터셋으로 오인하는 일이 없습니다."
+    },
+    {
+      "context": "Open the test data in Make Masks, downloading it first when needed.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#0",
+      "source": "Open the test data in Make Masks, downloading it first when needed.",
+      "source_sha256": "795c58a3c9c1432fbba16cc42c6bfc9f16c0b28f7cc95dc41350e6363bf4a6cc",
+      "translation": "Make Masks에서 테스트 데이터를 열고, 필요하면 먼저 내려받습니다."
+    },
+    {
+      "context": "A cached copy opens at once. Otherwise the button is disabled, the status line says a download is executing, and the download executes on a background execution unit behind a progress dialog. When it finishes, the folder opens on its first image by name. A failure is reported with the reason the downloader gave, on the status line and, when there is a display to show one, in a warning.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#1",
+      "source": "A cached copy opens at once. Otherwise the button is disabled, the status line says a download is running, and the download runs on a worker thread behind a progress dialog. When it finishes, the folder opens on its first image by name. A failure is reported with the reason the downloader gave, on the status line and, when there is a display to show one, in a warning.",
+      "source_sha256": "21bf5327b9d802542c7e50b58e99db26ac44a21053f146d52be3f1c4e119cbac",
+      "translation": "캐시된 사본은 바로 열립니다. 그렇지 않으면 버튼이 비활성화되고, 상태 줄에 다운로드 중이라고 표시되며, 다운로드는 진행 대화상자 뒤의 작업 스레드에서 실행됩니다. 완료되면 폴더가 이름순으로 첫 번째 이미지에서 열립니다. 실패하면 다운로더가 알려 준 이유를 상태 줄에 보고하고, 경고를 표시할 디스플레이가 있으면 경고로도 보고합니다."
+    },
+    {
+      "context": "the Make Masks screen to open the data in.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#2",
+      "source": "the Make Masks screen to open the data in.",
+      "source_sha256": "3d4948199cc53882d09ff15775f59e3a01749691a7d9fc5341d966dc5b436cf0",
+      "translation": "데이터를 열 Make Masks 화면."
+    },
+    {
+      "context": "replaces :func:`download_make_masks_example`, for tests. It is called as ``ask(screen, folder, on_done)``.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#3",
+      "source": "replaces :func:`download_make_masks_example`, for tests. It is called as ``ask(screen, folder, on_done)``.",
+      "source_sha256": "fa49516933362f26b00bfb3ae34641673e73e255880e38b69ac3f79aaf44f4c3",
+      "translation": "테스트용으로 :func:`download_make_masks_example` 함수를 대체합니다. ``ask(screen, folder, on_done)`` 형태로 호출됩니다."
+    },
+    {
+      "context": "replaces :func:`make_masks_example_folder`, for tests.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#4",
+      "source": "replaces :func:`make_masks_example_folder`, for tests.",
+      "source_sha256": "97b69744857a10f86b2971dfff49f3acf0272efebe4b56694edf5edb1ad09f5d",
+      "translation": "테스트용으로 :func:`make_masks_example_folder` 함수를 대체합니다."
+    },
+    {
+      "context": "whether this call opened the data. ``False`` while a download is still executing, and after a failure.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#5",
+      "source": "whether this call opened the data. ``False`` while a download is still running, and after a failure.",
+      "source_sha256": "2fecfaa864b9b43ed75b55c6f71a3a75fa809cb5b0ea3660f2acbd67fb367e0b",
+      "translation": "이 호출이 데이터를 열었는지 여부. 다운로드가 아직 진행 중일 때와 실패한 뒤에는 ``False`` 입니다."
+    },
+    {
+      "context": "Where the test data is unpacked and cached.",
+      "label": "spacr.qt.make_masks_demo.make_masks_example_folder#0",
+      "source": "Where the test data is unpacked and cached.",
+      "source_sha256": "346e0b8cd42b8163c7f23f5afec4d23d754c8469c276266ffda313872be1e9b9",
+      "translation": "테스트 데이터를 풀고 캐시하는 위치."
+    },
+    {
+      "context": "``~/.cache/spacr/example_data/make_masks_toxo_pv``, beside the shared example plate rather than inside it. See the module docstring for why.",
+      "label": "spacr.qt.make_masks_demo.make_masks_example_folder#1",
+      "source": "``~/.cache/spacr/example_data/make_masks_toxo_pv``, beside the shared example plate rather than inside it. See the module docstring for why.",
+      "source_sha256": "c2439cc0c2174e93b294c8d691a9556a9e450126ade3a1a5aa3ee73c823058f5",
+      "translation": "``~/.cache/spacr/example_data/make_masks_toxo_pv`` 경로로, 공유 예제 플레이트 안이 아니라 그 옆입니다. 이유는 모듈 docstring을 참고하세요."
+    },
+    {
+      "context": "the folder. It is not created here.",
+      "label": "spacr.qt.make_masks_demo.make_masks_example_folder#2",
+      "source": "the folder. It is not created here.",
+      "source_sha256": "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8",
+      "translation": "그 폴더. 여기서 만들지는 않습니다."
+    },
+    {
+      "context": "Open an unpacked copy of the test data on its first image by name.",
+      "label": "spacr.qt.make_masks_demo.open_the_test_data#0",
+      "source": "Open an unpacked copy of the test data on its first image by name.",
+      "source_sha256": "46761a29f2b42fa54ca47ab7a91003ee2e06dc6519acf8dc5832729161161f85",
+      "translation": "풀려 있는 테스트 데이터 사본을 이름순 첫 번째 이미지에서 엽니다."
+    },
+    {
+      "context": "the Make Masks screen.",
+      "label": "spacr.qt.make_masks_demo.open_the_test_data#1",
+      "source": "the Make Masks screen.",
+      "source_sha256": "9c29319932ee88cad454f5650da97662cb52e6a90474a6c20ff94d74d5170483",
+      "translation": "Make Masks 화면."
+    },
+    {
+      "context": "where the data was unpacked.",
+      "label": "spacr.qt.make_masks_demo.open_the_test_data#2",
+      "source": "where the data was unpacked.",
+      "source_sha256": "c5fc5523b800d543030b985173109557acc280866912d519a9389a187a5528f6",
+      "translation": "데이터를 푼 위치."
+    },
+    {
+      "context": "whether the screen is now on it. An incomplete copy is reported rather than opened, because half the fields would pass for the whole set.",
+      "label": "spacr.qt.make_masks_demo.open_the_test_data#3",
+      "source": "whether the screen is now on it. An incomplete copy is reported rather than opened, because half the fields would pass for the whole set.",
+      "source_sha256": "72e558c582d848966985298afef65f51e26d94d5d295c82960d5f4a44476810f",
+      "translation": "화면이 이제 그 데이터를 보여 주는지 여부. 불완전한 사본은 열지 않고 보고합니다. 그렇지 않으면 시야의 절반이 전체 세트로 통할 것이기 때문입니다."
+    },
+    {
+      "context": "``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].",
+      "label": "spacr.qt.preferences#9",
+      "source": "``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].",
+      "source_sha256": "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
+      "translation": "``font_scale``: float, 1.0 = 100 % (기본값). [0.10, 2.0] 범위로 제한됩니다."
+    },
+    {
+      "context": "at least 1 px, because Qt refuses a pixel size of zero or less; no larger floor is imposed.",
+      "label": "spacr.qt.theme.font_px#5",
+      "source": "at least 1 px, because Qt refuses a pixel size of zero or less; no larger floor is imposed.",
+      "source_sha256": "23b6fbe53b6e1de3d14cf1572ae8b2fbf1fc85850f9d87e5331a1772d87f7126",
+      "translation": "최소 1 px입니다. Qt는 0 이하의 픽셀 크기를 거부하기 때문이며, 그보다 큰 하한은 두지 않습니다."
+    }
+  ],
+  "schema": 1
+}
