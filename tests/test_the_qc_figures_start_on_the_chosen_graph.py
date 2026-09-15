@@ -2,7 +2,7 @@
 
 "In settings there is a DEFAULT GRAPH TYPE ... and it decides which graph is
 drawn FIRST" -- and, said twice in the same file, "THE SAME BEHAVIOUR FOR
-EVERY GRAPH IN SPACR, not only Regression".
+EVERY GRAPH IN spaCR, not only Regression".
 
 `spacr/ml.py` drew its three QC figures as a hardcoded `'jitter_bar'`. 293's
 own WHAT STILL DOES NOT list named those three lines, together with the
