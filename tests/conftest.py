@@ -2406,64 +2406,56 @@ def hf_spacr_settings(tmp_path_factory):
     return paths
 
 
-@pytest.fixture(scope="session")
-def _the_real_accelerator():
-    """Probe this machine ONCE for the whole session.
+def _forget_the_cached_accelerator():
+    """Clear ``spacr.accelerator``'s cached device, if that module is loaded.
 
-    Probing torch is not free, and the answer cannot change while the
-    suite runs. Resolving once here is what lets the per-test fixture
-    below restore a WARM cache rather than an empty one.
+    Looks in ``sys.modules`` rather than importing: a module nobody has
+    imported has cached nothing, and importing it here would drag torch
+    into every test process that never asked for it.
     """
-    try:
-        from spacr import accelerator
-    except Exception:               # accelerator unimportable in this env
-        return None
-    try:
-        return accelerator.resolve()
-    except Exception:
-        return None
+    accelerator = sys.modules.get("spacr.accelerator")
+    reset = getattr(accelerator, "_reset_device_cache", None)
+    if reset is not None:
+        reset()
 
 
 @pytest.fixture(autouse=True)
-def _the_accelerator_verdict_does_not_leak_between_tests(
-        _the_real_accelerator):
-    """Put ``spacr.accelerator._CACHED`` back after every test.
+def _the_accelerator_verdict_does_not_leak_between_tests():
+    """Start and end every test with no accelerator cached.
 
     ``resolve()`` caches the machine's accelerator the first time it is
-    asked, which is right in production -- probing torch is not free and
-    the answer cannot change mid-run.
+    asked, which is right in production -- the answer cannot change
+    mid-run. In a test process a cached answer leaks in BOTH directions:
 
-    In a test process it is a trap. A test that makes ``torch.cuda`` raise
-    to prove the CPU fallback works leaves "this machine has no GPU"
-    CACHED, and monkeypatch undoes the torch patch but knows nothing about
-    the cache. Every later test in that process then sees a machine with
-    no GPU.
+    * OUT of a test. One that makes ``torch.cuda`` raise to prove the CPU
+      fallback leaves "no GPU" cached, and monkeypatch undoes the torch
+      patch but knows nothing about the cache. That is how
+      tests/qt/test_a_preview_without_torch_still_segments.py failed.
+    * INTO a test. On a machine WITH a GPU, a ``cuda:0`` cached before a
+      test patches ``torch.cuda.is_available`` to False keeps answering
+      ``cuda:0``: ``torch.load(map_location=cuda:0)`` then raises "Attempting
+      to deserialize object on a CUDA device", or a device check reads
+      ``'cuda:0' == 'cpu'``. CI has no GPU, so only a GPU workstation sees
+      it (tests/test_cov_object_organelle_sam.py, and
+      test_load_unet_model_loads_on_cpu_in_eval_mode, 2026-09-15).
 
-    That is exactly how
-    tests/qt/test_a_preview_without_torch_still_segments.py failed: the
-    second test passed alone and failed after the first, and the failure
-    looked like a bug in the preview's device choice rather than a
-    neighbouring test's leftovers.
+    The previous version restored a session-wide warm ``cuda:0`` after
+    every test, which fixed the first direction and CAUSED the second. It
+    kept the cache warm to avoid re-probing, but a re-probe on a GPU whose
+    context is already up costs about 0.025 ms (measured on the RTX 3090,
+    2026-09-15); the expensive part is importing torch and starting CUDA,
+    which the session-wide probe paid in every pytest process, even ones
+    that never touch torch. Clearing costs nothing; a test pays the
+    re-probe only if it asks, and it asks with its own patches in place.
 
-    RESTORES THE REAL VERDICT, NOT WHATEVER WAS THERE BEFORE. Putting
-    back the pre-test value would mean putting back ``None`` for the first
-    test that runs, and every test after it would re-probe torch -- slow,
-    and on a machine with a flaky driver, differently flaky. Restoring the
-    session's own answer keeps the cache warm and still lets no fake
-    machine escape the test that built it.
-
-    Autouse and unconditional: any test may poison the cache, so every
-    test is protected rather than the handful known to need it.
+    Within a test the cache still caches, so a test that relies on two
+    calls agreeing is unaffected.
     """
-    try:
-        from spacr import accelerator
-    except Exception:
-        yield
-        return
+    _forget_the_cached_accelerator()
     try:
         yield
     finally:
-        accelerator._CACHED = _the_real_accelerator
+        _forget_the_cached_accelerator()
 
 
 @pytest.fixture(autouse=True)

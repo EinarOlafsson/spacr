@@ -146,6 +146,21 @@ _CPU = Accelerator(
 _CACHED: Optional[Accelerator] = None
 
 
+def _reset_device_cache() -> None:
+    """Forget the cached accelerator so the next :func:`resolve` probes again.
+
+    For test isolation. A test that fakes the machine -- ``torch.cuda``
+    patched to answer False, say -- is only believed if nothing was cached
+    before the patch; otherwise the real ``cuda:0`` answers for the fake
+    CPU-only machine and ``torch.load(map_location=...)`` sends the weights
+    to a GPU the test said was not there. Imports nothing and probes
+    nothing, so clearing is free; the re-probe is paid only by a caller
+    that actually asks.
+    """
+    global _CACHED
+    _CACHED = None
+
+
 def _torch():
     """torch, or None. spaCR runs without it for plenty of tasks."""
     try:
