@@ -504,6 +504,12 @@ class _TarExampleWorker(QObject):
     #: Set by each subclass.
     repo: str = ""
 
+    #: The archive to fetch from `repo`. Empty means the one
+    #: `EXAMPLE_ARCHIVES` names for it. A set whose repo is not in that table
+    #: -- Make Masks' test data, which must not join `EXAMPLE_SETS` because it
+    #: does not unpack into the shared plate -- names its archive here instead.
+    archive: str = ""
+
     def after_extract(self, dest) -> None:
         """Hook for whatever one set needs after unpacking. Nothing by default."""
 
@@ -545,7 +551,7 @@ class _TarExampleWorker(QObject):
         try:
             import requests
 
-            archive_name = EXAMPLE_ARCHIVES[self.repo]
+            archive_name = self.archive or EXAMPLE_ARCHIVES[self.repo]
             self.info.emit("Downloading the example dataset…")
             url = (f"https://huggingface.co/datasets/{self.repo}/resolve/main/"
                    f"{archive_name}?download=true")

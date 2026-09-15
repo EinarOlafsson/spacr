@@ -2636,6 +2636,8 @@ class MakeMasksScreen(QWidget):
         self._btn_open.setCursor(Qt.PointingHandCursor)
         self._btn_open.clicked.connect(self._on_pick_folder)
         nav_row.addWidget(self._btn_open)
+        from ..make_masks_demo import install_test_data_button
+        nav_row.addWidget(install_test_data_button(self))
 
         self._btn_prev = QPushButton("Prev image")
         self._btn_prev.setIcon(iconset.icon("prev"))
