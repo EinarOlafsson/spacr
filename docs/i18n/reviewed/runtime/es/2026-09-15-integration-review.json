@@ -16,6 +16,13 @@
       "translation": "Fondo de una figura exportada ('none' deja ver la página a través)"
     },
     {
+      "key": "Build the digest first.",
+      "source": "Build the digest first.",
+      "source_sha256": "071bfce0a4e37d56ccd0a3587c48bffd58adacb214b80780e161be988bea161f",
+      "table": "ui",
+      "translation": "Cree primero el compendio."
+    },
+    {
       "key": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
       "source": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
       "source_sha256": "6e87588f0d1532cecbad8dfe8bf788361b7cc6bf7c50eb354c37245946aff269",
@@ -175,6 +182,13 @@
       "source_sha256": "f6a53f9aac380bcfa5959194c803f6cc9ed46feeb6069a51f77377c7d5f1a194",
       "table": "ui",
       "translation": "Título del gráfico"
+    },
+    {
+      "key": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source_sha256": "a5038f58402ee32decf4d04419420346cbcec24d0494ee02fe1a85ee49b1bb9a",
+      "table": "ui",
+      "translation": "Apunte primero src a una carpeta de placa — todavía no hay nada que medir."
     },
     {
       "key": "Positive control wells",

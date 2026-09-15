@@ -2,6 +2,13 @@
   "language": "is",
   "records": [
     {
+      "key": "segmentation_backend",
+      "source": "Which model segments cells, nuclei and pathogens. 'cellpose' (default) runs the Cellpose model that each object's model name selects. 'dinocell' (DINOCell) and 'samcell' (SAMCell, trained partly on the label-free LIVECell set) are optional 2-D models for live-cell and label-free images: they read only the object's own channel, ignore diameter and flow_threshold, and refuse z_stack and t_stack runs. 'samcell' needs pip install \"spacr[samcell]\". 'dinocell' needs the dinocell package, whose published release pins versions that conflict with spaCR's, so it currently needs an environment of its own. Their masks are not comparable with Cellpose's. Default 'cellpose'.",
+      "source_sha256": "67fbf9c38c8f479478634626512c12642bb097f6d534af509018dde33d76773d",
+      "table": "setting_tooltips",
+      "translation": "Hvaða líkan bútar frumur, kjarna og sýkla. 'cellpose' (sjálfgefið) keyrir það Cellpose-líkan sem líkansheiti hvers hlutar velur. 'dinocell' (DINOCell) og 'samcell' (SAMCell, þjálfað að hluta á merkjalausa LIVECell-safninu) eru valfrjáls 2-D líkön fyrir myndir af lifandi frumum og merkjalausar myndir: þau lesa aðeins eigin rás hlutarins, hunsa diameter og flow_threshold og hafna keyrslum með z_stack og t_stack. 'samcell' þarf pip install \"spacr[samcell]\". 'dinocell' þarf pakkann dinocell, en útgefin útgáfa hans festir útgáfur sem stangast á við útgáfur spaCR, svo hann þarf eins og er sitt eigið umhverfi. Grímur þeirra eru ekki sambærilegar við grímur Cellpose. Sjálfgefið 'cellpose'."
+    },
+    {
       "key": "Advisory only — nothing here changes a setting until you press Use.",
       "source": "Advisory only — nothing here changes a setting until you press Use.",
       "source_sha256": "60d63c71a85338a87fec2f0e2c2a39cad379d229117c7c461a7d61c8cde14e04",

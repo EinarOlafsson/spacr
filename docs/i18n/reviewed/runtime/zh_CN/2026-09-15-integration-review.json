@@ -23,6 +23,13 @@
       "translation": "导出图的背景（'none' 时透出下方的页面）"
     },
     {
+      "key": "Background on screen ('none' shows the page through)",
+      "source": "Background on screen ('none' shows the page through)",
+      "source_sha256": "b013b043858f7f5aca7094a3107c45dfa7a8c83707af1c0c66590298adce56ae",
+      "table": "ui",
+      "translation": "界面上的背景（'none' 时透出下方的页面）"
+    },
+    {
       "key": "Boolean column marking the non-targeting controls, for the 'control' method",
       "source": "Boolean column marking the non-targeting controls, for the 'control' method",
       "source_sha256": "3ad7de77b343ae4e40bc3542773c6845c80972af5d8f09555746556336e1d0bb",
@@ -219,6 +226,20 @@
       "translation": "颜色标尺的上限"
     },
     {
+      "key": "How fast the animation moves, against the speed each one was designed at. It applies to every kind of motion in the chosen animation at once, and changing it never makes what is already on screen jump.",
+      "source": "How fast the animation moves, against the speed each one was designed at. It applies to every kind of motion in the chosen animation at once, and changing it never makes what is already on screen jump.",
+      "source_sha256": "3b0e0fb078df0e0ec979171334e971324f5e70d89edb26b6ad05c9ff4df24397",
+      "table": "ui",
+      "translation": "动画的运动速度，相对于每个动画设计时的速度。它同时作用于所选动画中的所有运动，并且修改它绝不会让界面上已有的内容跳动。"
+    },
+    {
+      "key": "How large the moving elements are: blob width, curtain height, the spacing between ripples, star size, cell diameter. Scaled against each animation's own range, so one setting means the same thing in all of them.",
+      "source": "How large the moving elements are: blob width, curtain height, the spacing between ripples, star size, cell diameter. Scaled against each animation's own range, so one setting means the same thing in all of them.",
+      "source_sha256": "331a2b9d5ffe68f003627876e5f729a755b28000021727b5f5709ef66521b481",
+      "table": "ui",
+      "translation": "运动元素的大小：色团宽度、帘幕高度、涟漪间距、星星大小、细胞直径。按每个动画自身的范围缩放，因此同一设置在所有动画中含义相同。"
+    },
+    {
       "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
       "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
       "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
@@ -280,6 +301,13 @@
       "source_sha256": "0386cebfba418e555151984ebc6d6687c51815f2ee6cd529bdc508f145c3f3c4",
       "table": "ui",
       "translation": "正在加载内置的 Toxoplasma 注释…"
+    },
+    {
+      "key": "Loading was cancelled; the run already on screen is unchanged.",
+      "source": "Loading was cancelled; the run already on screen is unchanged.",
+      "source_sha256": "c0343cbd4a08c584d320d03d53754cc253ce89d93e40375e054c9589b1124207",
+      "table": "ui",
+      "translation": "加载已取消；界面上已有的运行保持不变。"
     },
     {
       "key": "Low end of the colour scale",
@@ -518,6 +546,13 @@
       "source_sha256": "0d3b1934ba287f5b67c34f6dcea83ee629a33a670ac6f6e3ff8b1bafcea06cf6",
       "table": "ui",
       "translation": "分割 y 轴（断轴）"
+    },
+    {
+      "key": "Stop the search. What it has measured so far stays on screen, and nothing is proposed from a search that was interrupted.",
+      "source": "Stop the search. What it has measured so far stays on screen, and nothing is proposed from a search that was interrupted.",
+      "source_sha256": "77957637a0af1b966e395959d06af86266bd9aa7275f2fa8a26bcae743bc0267",
+      "table": "ui",
+      "translation": "停止搜索。已测量的结果会保留在界面上，被中断的搜索不会给出任何建议。"
     },
     {
       "key": "The digest could not be built.",
