@@ -75260,18 +75260,20 @@
       "source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ],
-      "source_sha256": "d55772379171308ba166a6b999d2c0928979e0b07d4b77da2f8d0bd8447186ce",
-      "text": "Láttu settunum niður fyrirmynd sendur, fyrir THIS modul.\n\nAðferðarstæðin við gögnum: notandi sem þarf að vinna út hvaða stólinn haldið merki, hvað maski stærð eru og hvaða mynd gögn kanna voru meidd hefur gert flest vinnu dæmi var áætlað að bjarga.\n\nMeð sömu tveimur hringjum \"Import settings…\" gerir, þannig að sendur skrif landar nákvæmlega eins og notandi eiginn myndi - annar lesendur myndi flýja frá því, og þá dæmi myndi setja skrefið öðruvísi frá innfang sama skrif.\n\n:param folder: Þessar unpacked dataset fótbolta.\n:returns: Hversu mörg setningar voru notuð; 0 þegar ekki fannst skrá.",
+      "source_sha256": "fdf3f553dc75f7c559c9596f3fc94a8a33e6f713e6e21e5a1b1251f59721414d",
+      "text": "Hleður inn stillingunum sem fylgdu sóttu dæmi, fyrir ÞESSA einingu.\n\nTilgangurinn með því að láta stillingar fylgja gögnunum er þessi: notandi sem þarf að finna út hvaða dálkur inniheldur merkingarnar, hvaða víddir grímurnar hafa og hvaða myndrásir voru mældar hefur þegar unnið mestalla þá vinnu sem dæmið átti að spara. Þegar stillingunum hefur verið beitt er Run næsta aðgerð.\n\nNotar sameiginlega lesarann fyrir stillingapakka til að færa gömul heiti yfir í ný og birta upplýsingar um endurnefndar, felldar út og ólæsilegar línur í stjórnborðinu. Beitir aðeins gildum sem pakkinn inniheldur og lætur önnur gildi eyðublaðsins standa óbreytt. Aðlagar slóðir útgefandans að staðbundna gagnasafninu og varðveitir undirmöppurnar.\n\n:param folder: mappan með afþjöppuðu gagnasafninu.\n:param pack_folder: valfrjáls mappa með CSV-stillingaskrám sem fylgdu dæminu; hún hefur forgang fram yfir eigin ``settings``-undirmöppu gagnasafnsins.\n:returns: fjöldi stillinga sem var beitt; 0 ef engin skrá fannst, engar meðfylgjandi stillingar eiga við þetta eyðublað eða ekki tókst að beita þeim.",
       "translation_source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "2110a68efe9d0b1445421b19a89cf99dbef6bb7cb9e6c5f2b82f9109ef6cd542",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {

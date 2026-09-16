@@ -75260,18 +75260,20 @@
       "source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ],
-      "source_sha256": "d55772379171308ba166a6b999d2c0928979e0b07d4b77da2f8d0bd8447186ce",
-      "text": "이 모듈을 위한 다운로드된 예제로 설정을 업로드합니다.\n\n데이터 옆에 배송 설정의 지점 : 어떤 열이 라벨을 붙잡고 있는지, 어떤 마스크 차원이 있고 어떤 이미지 데이터 채널이 측정되었는지 알아야 하는 사용자는 대부분의 작업을 수행했습니다.\n\n동일한 두 개의 호출을 통해 \"Import settings…\"를 만드는, 그래서 배송 된 파일은 사용자의 것처럼 정확히 내려갈 것입니다 - 두 번째 독자는 그것에서 드리프트 할 것입니다, 그리고 다음 예제는 같은 파일의 수입에서 패널을 다른 방식으로 구성 할 것입니다.\n\n:param folder: 포장되지 않은 데이터 세트 폴더.\n:returns: 얼마나 많은 설정이 적용되었는지; 0 파일이 발견되지 않은 경우.",
+      "source_sha256": "fdf3f553dc75f7c559c9596f3fc94a8a33e6f713e6e21e5a1b1251f59721414d",
+      "text": "다운로드한 예제에 함께 제공된 설정을 이 모듈용으로 불러옵니다.\n\n데이터와 함께 설정을 제공하는 이유는 사용자가 레이블이 어느 열에 있는지, 마스크의 차원 크기가 무엇인지, 어떤 이미지 채널이 측정되었는지를 직접 알아내야 한다면 예제가 덜어 주려던 작업의 대부분을 이미 하게 되기 때문입니다. 이 설정을 적용한 뒤에는 Run 버튼을 누르면 됩니다.\n\n공유 설정 팩 리더를 사용해 이전 이름을 마이그레이션하고, 이름이 변경되거나 제외되었거나 읽을 수 없는 행을 콘솔에 보고합니다. 팩에 제공된 값만 적용하고 폼의 나머지 값은 그대로 둡니다. 하위 폴더 구조를 유지하면서 배포자의 경로를 로컬 데이터셋 기준으로 다시 지정합니다.\n\n:param folder: 압축을 푼 데이터셋 폴더입니다.\n:param pack_folder: 예제와 함께 제공된 설정 CSV 파일이 들어 있는 폴더를 선택적으로 지정하며, 데이터셋 자체의 ``settings`` 하위 폴더보다 우선합니다.\n:returns: 적용된 설정 수입니다. 파일을 찾지 못했거나, 제공된 설정 중 이 폼에 적용되는 항목이 없거나, 설정 적용에 실패한 경우에는 0을 반환합니다.",
       "translation_source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "2110a68efe9d0b1445421b19a89cf99dbef6bb7cb9e6c5f2b82f9109ef6cd542",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {

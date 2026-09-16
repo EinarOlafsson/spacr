@@ -75260,18 +75260,20 @@
       "source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ],
-      "source_sha256": "d55772379171308ba166a6b999d2c0928979e0b07d4b77da2f8d0bd8447186ce",
-      "text": "Ladda inställningarna ett nedladdat exempel levereras, för denna modul.\n\nPoängen med fraktinställningar bredvid data: en användare som måste räkna ut vilken kolumn som innehåller etiketterna, vad maskdimensionerna är och vilka bilddatakanaler som uppmätts har gjort det mesta av det arbete som exemplet var avsett att spara. Med dem tillämpade, Kör är nästa åtgärd.\n\nGenom samma två samtal \"Import settings…\" gör, så en skickad fil landar exakt som användarens egen skulle -- en andra läsare skulle glida från det, och sedan ett exempel skulle konfigurera panelen annorlunda från en import av samma fil.\n\n:param folder: den uppackade datauppsättningsmappen.\n:returns: hur många inställningar som tillämpades; 0 när ingen fil hittades.",
+      "source_sha256": "fdf3f553dc75f7c559c9596f3fc94a8a33e6f713e6e21e5a1b1251f59721414d",
+      "text": "Läs in inställningarna som följde med ett hämtat exempel, för DEN HÄR modulen.\n\nSyftet med att låta inställningar följa med data är detta: en användare som måste ta reda på vilken kolumn som innehåller etiketterna, vilka dimensioner maskerna har och vilka bildkanaler som har mätts har redan gjort det mesta av det arbete som exemplet skulle spara. När inställningarna har tillämpats är Run nästa steg.\n\nAnvänd den gemensamma läsaren för inställningspaket för att migrera äldre namn och rapportera omdöpta, borttagna och oläsbara rader i konsolen. Tillämpa endast värden som finns i paketet och lämna formulärets övriga värden oförändrade. Anpassa utgivarens sökvägar till den lokala datauppsättningen och bevara undermapparna.\n\n:param folder: mappen med den uppackade datauppsättningen.\n:param pack_folder: valfri mapp med medföljande CSV-filer för inställningar; den har företräde framför datauppsättningens egen undermapp ``settings``.\n:returns: antalet inställningar som tillämpades; 0 om ingen fil hittades, inga medföljande inställningar gäller detta formulär eller om det inte gick att tillämpa dem.",
       "translation_source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "2110a68efe9d0b1445421b19a89cf99dbef6bb7cb9e6c5f2b82f9109ef6cd542",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {

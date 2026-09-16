@@ -75261,18 +75261,20 @@
       "source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ],
-      "source_sha256": "d55772379171308ba166a6b999d2c0928979e0b07d4b77da2f8d0bd8447186ce",
-      "text": "下载设置下载的示例发送,为此模块。\n\n除了数据之外,发送设置的点:一个用户必须研究哪个列包含标签,掩膜的尺寸是什么以及图像数据渠道被测量,已经完成了大部分工作,该示例旨在保存。\n\n通过相同的两个呼叫 \"Import settings…\" 做,所以一个发送的文件就就像用户的自己的 - 一个第二个读者会从它跳动,然后一个例子会配置面板不同于进口相同文件。\n\n:param folder: 未包装的数据集文件夹。\n:returns: 使用了多少设置; 0 当没有找到文件时。",
+      "source_sha256": "fdf3f553dc75f7c559c9596f3fc94a8a33e6f713e6e21e5a1b1251f59721414d",
+      "text": "加载下载的示例随附的、适用于当前模块的设置。\n\n将设置与数据一起提供，是为了避免用户还要自行查明标签位于哪一列、掩膜的维度是多少，以及测量了哪些图像通道；否则，用户就已经完成了示例本应替其省去的大部分工作。应用这些设置后，下一步就是点击 Run。\n\n使用共享的设置包读取器迁移旧设置名称，并在控制台中报告重命名、丢弃及无法读取的行。仅应用设置包提供的值，不改动表单中的其他值。将发布者提供的路径重新指向本地数据集，同时保留子文件夹结构。\n\n:param folder: 已解压的数据集文件夹。\n:param pack_folder: 可选的随附设置 CSV 文件所在文件夹；优先于数据集自身的 ``settings`` 子文件夹。\n:returns: 已应用的设置数量；若未找到文件、提供的设置均不适用于此表单，或应用设置失败，则返回 0。",
       "translation_source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "2110a68efe9d0b1445421b19a89cf99dbef6bb7cb9e6c5f2b82f9109ef6cd542",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {

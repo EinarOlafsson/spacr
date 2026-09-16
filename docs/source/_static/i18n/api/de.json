@@ -45720,7 +45720,7 @@
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
       "source_sha256": "1b368441e876fcc00b2e3e7f18d604b6bd238cd0f842499fb2feb532964e931c",
-      "text": "Segment ein Objekt Bilddatenkanal über alle ``.npz`` Chargen unter ``src`` mit einem gewählten Cellpose Modell.\n\nWählt das Modell über :func:`spacr.utils._choose_model` (stock oder custom), führt per-batch-Inferenz mit den objektspezifischen Bilddatenkanal-/Schwelle-Einstellungen aus, gilt :func:`spacr.utils._filter_cp_masks`, verfolgt optional Zeitrafferobjekte und schreibt ``.npy`` Masken plus pro-object Counts.\n\n:param src: Verzeichnis mit den vorgewölbten ``.npz`` Bildstapeln.\n:param settings: Workflow-Einstellungen Schlüssel-Wert-Mapping; canonicalisiert über :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n:param object_type: ``'cell'``, ``'nucleus'`` oder ``'pathogen'``; Laufwerke Channel/Threshold-Suchen und Ausgabeordnername.\n:returns: None.",
+      "text": "Segment ein Objekt Bilddatenkanal über alle ``.npz`` Chargen unter ``src`` mit einem gewählten Cellpose Modell.\n\nWählt das Modell über :func:`spacr.utils._choose_model` (stock oder custom), führt per-batch-Inferenz mit den objektspezifischen Bilddatenkanal-/Schwelle-Einstellungen aus, gilt :func:`spacr.utils._filter_cp_masks`, verfolgt optional Zeitrafferobjekte und schreibt ``.npy`` Masken plus pro-object Counts.\n\n:param src: Verzeichnis mit den bereits in Batches organisierten ``.npz``-Bildstapeln.\n:param settings: Workflow-Einstellungen Schlüssel-Wert-Mapping; canonicalisiert über :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n:param object_type: ``'cell'``, ``'nucleus'`` oder ``'pathogen'``; Laufwerke Channel/Threshold-Suchen und Ausgabeordnername.\n:returns: None.",
       "translation_source_blocks_sha256": [
         "f614e7a1251de4dfabd2a8ac2f13b29b88004c38b4cb9b4389b5698356166efd",
         "563bd7eae412ab4fb00317ab3d73b7c1019d3fe4b0ebf2ba15c7f047da961661",
@@ -75260,18 +75260,20 @@
       "source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ],
-      "source_sha256": "d55772379171308ba166a6b999d2c0928979e0b07d4b77da2f8d0bd8447186ce",
-      "text": "Laden Sie die Einstellungen eines heruntergeladenen Beispiels für DAS Modul.\n\nDer Punkt der Versandeinstellungen neben Daten: Ein Benutzer, der herausarbeiten muss, welche Spalte die Etiketten hält, welche Maskenmaße und welche Bilddatenkanäle gemessen wurden, hat den größten Teil der Arbeit getan, die das Beispiel speichern sollte. Mit ihnen angewandt, Run ist die nächste Aktion.\n\nDurch die gleichen zwei Anrufe \"Import settings…\" macht, so dass eine ausgelieferte Datei landet genau wie der eigene Benutzer - ein zweiter Leser würde davon abdriften, und dann ein Beispiel würde das Panel anders als ein Import der gleichen Datei konfigurieren.\n\n:param folder: den ausgepackten Datensatzordner.\n:returns: wie viele Einstellungen angewendet wurden; 0 wenn keine Datei gefunden wurde.",
+      "source_sha256": "fdf3f553dc75f7c559c9596f3fc94a8a33e6f713e6e21e5a1b1251f59721414d",
+      "text": "Lädt die Einstellungen, die mit einem heruntergeladenen Beispiel geliefert wurden, für DIESES Modul.\n\nDer Zweck mitgelieferter Einstellungen ist folgender: Wer erst herausfinden muss, welche Spalte die Labels enthält, welche Dimensionen die Masken haben und welche Bildkanäle gemessen wurden, hat den Großteil der Arbeit bereits erledigt, die das Beispiel ersparen sollte. Nach dem Anwenden der Einstellungen ist Run der nächste Schritt.\n\nVerwendet die gemeinsame Einlesefunktion für Einstellungspakete, um alte Namen zu migrieren und umbenannte, verworfene sowie nicht lesbare Zeilen in der Konsole zu melden. Übernimmt ausschließlich die im Paket enthaltenen Werte und lässt andere Formularwerte unverändert. Passt die Pfade des Herausgebers an den lokalen Datensatz an und behält dabei die Unterordner bei.\n\n:param folder: der Ordner mit dem entpackten Datensatz.\n:param pack_folder: optionaler Ordner mit mitgelieferten Einstellungs-CSV-Dateien; er hat Vorrang vor dem eigenen Unterordner ``settings`` des Datensatzes.\n:returns: Anzahl der tatsächlich angewendeten Einstellungen; 0, wenn keine Datei gefunden wurde, keine mitgelieferten Einstellungen auf dieses Formular anwendbar sind oder ihre Anwendung fehlgeschlagen ist.",
       "translation_source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "2110a68efe9d0b1445421b19a89cf99dbef6bb7cb9e6c5f2b82f9109ef6cd542",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {
@@ -160063,7 +160065,7 @@
         "45c7b1455ad4e52187460017198273062594e28000481d829aa56b5ee450d177"
       ],
       "source_sha256": "bbf641794adcacafbfee45268b49e703027a03df74d720e1f66240ac25d30f14",
-      "text": "Variante von :func:`reduction_and_clustering`, die zusätzliche Reduktions-Kwargs über ``reduction_param`` akzeptiert.\n\n:param numeric_data: numerische Datenmatrix.\n:param n_neighbors: UMAP ``n_neighbors`` oder t-SNE Verwirrtheit (int oder fraktioniert).\n:param min_dist: UMAP ``min_dist``.\n:param metric: Entfernungsmetrik.\n:param eps: DBSCAN ``eps``.\n:param min_samples: DBSCAN ``min_samples`` oder KMeans Cluster zählen.\n:param clustering: ``'dbscan'`` or ``'kmeans'``.\n:param reduction_method: ``'umap'`` or ``'tsne'``.\n:param verbose: Druckfortschritt.\n:param reduction_param: Extra-Kwargs an den Reduktionslader weitergeleitet.\n:param embedding: Vorab berechnete Einbettung zum Überspringen der Montage.\n:param n_jobs: Parallelarbeitszahl.\n:returns: ``(embedding, labels)``.\n:raises ValueError: auf nicht unterstützten ``reduction_method`` oder ``clustering``.",
+      "text": "Variante von :func:`reduction_and_clustering`, die zusätzliche Reduktions-Kwargs über ``reduction_param`` akzeptiert.\n\n:param numeric_data: numerische Datenmatrix.\n:param n_neighbors: UMAP ``n_neighbors`` oder t-SNE Verwirrtheit (int oder fraktioniert).\n:param min_dist: UMAP ``min_dist``.\n:param metric: Entfernungsmetrik.\n:param eps: DBSCAN ``eps``.\n:param min_samples: DBSCAN ``min_samples`` oder KMeans Cluster zählen.\n:param clustering: ``'dbscan'`` or ``'kmeans'``.\n:param reduction_method: ``'umap'`` or ``'tsne'``.\n:param verbose: Druckfortschritt.\n:param reduction_param: Extra-Kwargs an den Reduktionslader weitergeleitet.\n:param embedding: Vorab berechnete Einbettung zum Überspringen der Montage.\n:param n_jobs: Anzahl paralleler Worker.\n:returns: ``(embedding, labels)``.\n:raises ValueError: auf nicht unterstützten ``reduction_method`` oder ``clustering``.",
       "translation_source_blocks_sha256": [
         "1b0c70e76579dc25d0f8f705338f993b7214c8db58add15b48c6e29fc35bab5e",
         "5850f42fa771360b39ed4b0c26f464a89f086dc1c4984c1c900e2d61e28c08c7",

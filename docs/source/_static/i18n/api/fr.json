@@ -75260,18 +75260,20 @@
       "source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ],
-      "source_sha256": "d55772379171308ba166a6b999d2c0928979e0b07d4b77da2f8d0bd8447186ce",
-      "text": "Chargez les paramètres d'un exemple téléchargé expédié, pour CE module.\n\nLe point d'expédition des paramètres à côté des données: un utilisateur qui doit travailler sur quelle colonne détient les étiquettes, quelles sont les dimensions du masque et quels canaux de données d'image ont été mesurés a fait la plupart du travail que l'exemple était destiné à enregistrer. Avec eux appliqués, Exécuter est la prochaine action.\n\nÀ travers les mêmes deux appels \"Import settings…\" fait, de sorte qu'un fichier expédié atterrit exactement comme le serait le propre de l'utilisateur -- un deuxième lecteur dériverait de lui, et alors un exemple configurerait le panneau différemment d'une importation du même fichier.\n\n:param folder: le dossier dataset déballé.\n:returns: combien de paramètres ont été appliqués; 0 quand aucun fichier n'a été trouvé.",
+      "source_sha256": "fdf3f553dc75f7c559c9596f3fc94a8a33e6f713e6e21e5a1b1251f59721414d",
+      "text": "Charger les paramètres fournis avec un exemple téléchargé, pour CE module.\n\nL’intérêt de fournir les paramètres avec les données : un utilisateur qui doit déterminer quelle colonne contient les étiquettes, quelles sont les dimensions des masques et quels canaux d’image ont été mesurés a déjà accompli l’essentiel du travail que l’exemple était censé lui épargner. Une fois ces paramètres appliqués, l’action suivante est Run.\n\nUtiliser le lecteur partagé de jeux de paramètres pour migrer les anciens noms et signaler dans la console les lignes renommées, écartées ou illisibles. Appliquer uniquement les valeurs fournies par le jeu de paramètres, sans modifier les autres valeurs du formulaire. Adapter les chemins du fournisseur à l’emplacement local du jeu de données tout en conservant les sous-dossiers.\n\n:param folder: le dossier du jeu de données décompressé.\n:param pack_folder: dossier facultatif contenant les fichiers CSV de paramètres fournis, utilisé en priorité par rapport au sous-dossier ``settings`` du jeu de données.\n:returns: le nombre de paramètres appliqués ; 0 si aucun fichier n’a été trouvé, si aucun des paramètres fournis ne s’applique à ce formulaire ou si leur application a échoué.",
       "translation_source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "2110a68efe9d0b1445421b19a89cf99dbef6bb7cb9e6c5f2b82f9109ef6cd542",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {

@@ -75260,18 +75260,20 @@
       "source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ],
-      "source_sha256": "d55772379171308ba166a6b999d2c0928979e0b07d4b77da2f8d0bd8447186ce",
-      "text": "Carregue as configurações de um exemplo baixado enviado, para ESTE módulo.\n\nO ponto de configurações de envio ao lado de dados: um usuário que tem que descobrir qual coluna contém os rótulos, quais são as dimensões da máscara e quais canais de dados de imagem foram medidos fez a maior parte do trabalho que o exemplo foi destinado a salvar. Com eles aplicados, Executar é a próxima ação.\n\nAtravés das mesmas duas chamadas \"Import settings…\" faz, então um arquivo enviado pousa exatamente como o próprio usuário faria - um segundo leitor se afastaria dele, e então um exemplo configuraria o painel de forma diferente de uma importação do mesmo arquivo.\n\n:param folder: a pasta de conjunto de dados descompactado.\n:returns: quantas configurações foram aplicadas; 0 quando nenhum arquivo foi encontrado.",
+      "source_sha256": "fdf3f553dc75f7c559c9596f3fc94a8a33e6f713e6e21e5a1b1251f59721414d",
+      "text": "Carregar as configurações fornecidas com um exemplo baixado, para ESTE módulo.\n\nO motivo de fornecer as configurações junto com os dados: um usuário que precisa descobrir qual coluna contém os rótulos, quais são as dimensões das máscaras e quais canais de imagem foram medidos já fez a maior parte do trabalho que o exemplo deveria poupar. Depois de aplicar essas configurações, a próxima ação é Run.\n\nUsar o leitor compartilhado de pacotes de configurações para migrar os nomes antigos e informar no console as linhas renomeadas, descartadas ou ilegíveis. Aplicar apenas os valores fornecidos pelo pacote, sem alterar os demais valores do formulário. Adaptar os caminhos do fornecedor à localização do conjunto de dados local, preservando as subpastas.\n\n:param folder: a pasta do conjunto de dados descompactado.\n:param pack_folder: pasta opcional com os arquivos CSV de configurações fornecidos, que tem prioridade sobre a subpasta ``settings`` do próprio conjunto de dados.\n:returns: o número de configurações aplicadas; 0 quando nenhum arquivo foi encontrado, nenhuma das configurações fornecidas se aplica a este formulário ou a aplicação delas falhou.",
       "translation_source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "2110a68efe9d0b1445421b19a89cf99dbef6bb7cb9e6c5f2b82f9109ef6cd542",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {
