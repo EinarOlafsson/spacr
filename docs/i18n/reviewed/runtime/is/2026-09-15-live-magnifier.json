@@ -23,13 +23,6 @@
       "translation": "Hve mörgum sinnum stærra en striginn reiturinn teiknar svæðið sitt. Músarhjólið breytir því á meðan kveikt er á stækkunarglerinu. Það breytir aðeins því sem þú sérð: líkanið hlutar svæðið alltaf í upplausn myndarinnar sjálfrar."
     },
     {
-      "key": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
-      "source": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
-      "source_sha256": "b7e9d723bde23a65da1855459ff252d52ab64ad5f991717378adb759707565b6",
-      "table": "ui",
-      "translation": "Hversu auðveldlega hlutur er samþykktur. Hækkaðu það til að taka með daufari eða óvissari hluti, lækkaðu það til að halda aðeins skýrum; 0 er sjálfgefið gildi hvers líkans. Fyrir Cellpose er það þröskuldur frumulíkinda með öfugu formerki, svo næmi 1.5 jafngildir þröskuldi -1.5."
-    },
-    {
       "key": "Live magnifier",
       "source": "Live magnifier",
       "source_sha256": "886ee4e35e283ff0705084c59eb144aab13bc0b5f9f2b6efff3b05a11c268ba8",
@@ -84,13 +77,6 @@
       "source_sha256": "0217cb326bbd11f699df8e270e0b72e5618e0dd2050c9b54debfc96412fd88f3",
       "table": "ui",
       "translation": "Hvað nýr hlutur gerir þar sem gríman hefur þegar hlut. Klippa heldur aðeins ómerktum pixlum hans, svo enginn fyrirliggjandi hlutur missir pixel. Sleppa sleppir hverjum hlut sem snertir fyrirliggjandi hlut. Skipta út lætur nýja hlutinn taka hvern pixel sem hann þekur."
-    },
-    {
-      "key": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
-      "source": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
-      "source_sha256": "010df707916a267a57b3d01639d05180c78f7c613a13b0ab1c40986ece0101ce",
-      "table": "ui",
-      "translation": "Hvaða líkan hlutar svæðið í reitnum. Hefðbundin setur þröskuld á svæðið við Otsu-mörk og skilur að hluti sem snertast með vatnaskilum; hún þarf ekkert uppsett, fylgir rofanum Bjart og reitnum Min area undir Hlutaaðgerðir, og keyrir hvenær sem ekki er hægt að hlaða líkani. Cellpose notar líkanið og þvermálið sem stillt er í Cellpose-SAM-stillingunum og er hægt án GPU."
     }
   ],
   "schema": 1

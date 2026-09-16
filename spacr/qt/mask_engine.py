@@ -676,6 +676,45 @@ def otsu_instances(image: np.ndarray, *, bright: bool = True,
     return connected_instances(binary, min_area=min_area)
 
 
+def _otsu_instances(image: np.ndarray, *, bright: bool = True,
+                    min_area: int = 0,
+                    correction: float = 1.0) -> np.ndarray:
+    """:func:`otsu_instances` with Otsu's level multiplied by ``correction``.
+
+    Item 417's "threshold correction", which is CellProfiler's threshold
+    correction factor: the level Otsu finds is multiplied before it is used.
+    Above 1 is stricter and below 1 takes in dimmer pixels, on either side --
+    for dark objects the level is measured on the inverted image, the way a
+    dark-object threshold is, so a correction reads the same way for both.
+
+    A correction of exactly 1 IS :func:`otsu_instances`, looked up by name at
+    call time, so the uncorrected path does not move at all.
+
+    :param correction: the factor, greater than 0.
+    :raises ValueError: on an empty image, or a correction that is not
+        greater than 0.
+    """
+    factor = float(correction)
+    if not factor > 0.0:
+        raise ValueError(
+            f"The Otsu threshold correction must be greater than 0; got "
+            f"{correction!r}.")
+    if factor == 1.0:
+        return otsu_instances(image, bright=bright, min_area=min_area)
+    from skimage.filters import threshold_otsu
+
+    values = np.asarray(image, dtype=np.float32)
+    if not values.size:
+        raise ValueError("Otsu needs an image; this one is empty.")
+    level = float(threshold_otsu(values))
+    if bright:
+        binary = values > level * factor
+    else:
+        top = float(values.max())
+        binary = (top - values) > (top - level) * factor
+    return connected_instances(binary, min_area=min_area)
+
+
 def combine_masks(old: np.ndarray, new: np.ndarray,
                   mode: str = "replace") -> np.ndarray:
     """Fold a fresh detection into an existing mask.
@@ -809,7 +848,8 @@ def _drop_cut_objects(labels: np.ndarray, box, shape) -> np.ndarray:
 
 def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
                              bright: bool = True,
-                             min_area: int = 0) -> np.ndarray:
+                             min_area: int = 0,
+                             correction: float = 1.0) -> np.ndarray:
     """Threshold one magnifier region and split the objects that touch.
 
     The classical magnifier mode, and the fallback whenever a model cannot
@@ -831,6 +871,11 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
     :param min_area: objects smaller than this are dropped. It also sets how
         far apart two seeds must be, so an object of the smallest allowed
         size is not split in two.
+    :param correction: Otsu's level is multiplied by this before
+        ``sensitivity`` moves it (item 417's threshold correction; see
+        :func:`_otsu_instances`). Above 1 is stricter. A region with no two
+        clear populations is cut at its noise floor, which is not Otsu's
+        level, and this does not apply to it.
     :returns: int32 labels 1..N shaped like ``region``; all zero for a
         region with nothing above its noise.
     """
@@ -859,7 +904,8 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
         gap = float(stretched[upper].mean() - stretched[~upper].mean())
         separation = share * (1.0 - share) * gap * gap / total
     if separation >= _CLASSICAL_MIN_SEPARATION:
-        cut = level - _CLASSICAL_SENSITIVITY_STEP * float(sensitivity)
+        cut = (level * float(correction)
+               - _CLASSICAL_SENSITIVITY_STEP * float(sensitivity))
         foreground = stretched > cut
     else:
         centre = float(np.median(smooth))

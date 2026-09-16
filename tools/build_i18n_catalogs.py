@@ -277,7 +277,8 @@ _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
-    "CSV", "Cellpose-SAM", "FlowView", "JSON", "MIP", "ML", "NaN", "PDF",
+    "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
+    "NaN", "PDF", "SAMCell",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
@@ -3398,6 +3399,10 @@ _HELPER_CAPTION_RULES: dict[
         ("screens/distributed_jobs.py", ((1, "source_label"),)),
     ("screens/hit_list.py", "_set_summary"):
         ("screens/hit_list.py", ((0, "text"),)),
+    # A settings category on the Make Masks panel: its heading and the
+    # sentence under it (item 417).
+    ("screens/make_masks.py", "_settings_category"):
+        ("screens/make_masks.py", ((0, "title"), (1, "subtitle"))),
     # A QPlainTextEdit, whose contents the language pass does not translate.
     ("screens/make_masks.py", "say"):
         ("screens/make_masks.py", ((0, "text"),)),

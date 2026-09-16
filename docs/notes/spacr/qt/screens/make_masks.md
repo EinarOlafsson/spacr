@@ -1,5 +1,19 @@
 # Notes from `spacr/qt/screens/make_masks.py`
 
+## Magnifier integration notes (2026-09-15)
+
+- `_MaskCanvas.wheelEvent`: Shift + wheel changes the magnifier size, never
+  the view zoom. Some platforms report a shifted wheel as horizontal, so a
+  horizontal notch has the same meaning. With no Shift modifier the wheel
+  changes the magnifier zoom while the magnifier is enabled.
+- `_LiveMagnifier` worker delivery: when a model fails to load, the newly
+  computed settings key identifies the Classical fallback that actually ran.
+- `MakeMasksScreen._note_curated`: read `self._queue.folder` outside the
+  write-error handler. Only a failure to persist the record (for example a
+  full disk or a read-only sync folder) should be swallowed after the mask
+  is safe. A missing queue is a programming error; catching its AttributeError
+  here would incorrectly report it as a record-write failure.
+
 Prose lifted out of `spacr/qt/screens/make_masks.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 

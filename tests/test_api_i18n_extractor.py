@@ -1213,6 +1213,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
         # stream_dataset. Private, re-exported, and never rendered.
         "spacr._outlier_criteria",
         "spacr._stream_selection",
+        "spacr.qt._magnifier_drag",
     }
     assert builder.AUTOAPI_NON_RENDERED_SYMBOLS == {
         "spacr.qt.run_without_setup",
@@ -1474,7 +1475,12 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # pre-filter key set gained exactly the sixteen post-filter arrivals
     # (dropping them returns 10,746 and 10,523), so every one is rendered
     # and the boundary stays 223.
-    assert 10_762 - len(docs) == 223
+    # 417 adds one private module document, not a rendered API: before the
+    # mirror correction, pre=10,763 and post=10,540; after it, pre=10,763
+    # and post=10,539. The new boundary entry is exactly _magnifier_drag.
+    # A real Sphinx fixture checks the absence of its page and inventory key,
+    # alongside a visible positive control, in test_the_magnifier_drag_module_is_private.
+    assert 10_763 - len(docs) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

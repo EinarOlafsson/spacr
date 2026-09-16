@@ -152,6 +152,9 @@ AUTOAPI_NON_RENDERED_MODULES = frozenset({
     # that always owned the names.
     "spacr._outlier_criteria",
     "spacr._stream_selection",
+    # 417: private stroke arithmetic. Real Sphinx verification confirms this
+    # module has no page; do not create catalog keys for an invisible API.
+    "spacr.qt._magnifier_drag",
 })
 AUTOAPI_NON_RENDERED_SYMBOLS = frozenset({
     "spacr.qt.run_without_setup",

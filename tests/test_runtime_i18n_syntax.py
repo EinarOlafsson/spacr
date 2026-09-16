@@ -118,7 +118,21 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 2026-09-15-update-removes-old-installs.json. Its branch never moved
     # this pin. The live count minus that file's fifteen sources is 269, and
     # none of the fifteen is in any other file.
-    assert len(reviewed) == 284
+    #
+    # 284 -> 299 on 2026-09-15, +18/-3, for the combined magnifier second round
+    # (417): the Otsu threshold correction, the Model zoo… button, the note
+    # that the Cellpose-SAM settings drive the magnifier, the DINOCell and
+    # SAMCell install lines, "{name} (not downloaded)", and five reworded
+    # tooltips (Size, Mode, Sensitivity, Model, Otsu detect), in
+    # 2026-09-15-magnifier-round-two-settings.json. Retired: the old Mode,
+    # Sensitivity and Size wordings from the two earlier magnifier files.
+    # "DINOCell" and "SAMCell" themselves are builder _IDENTITY_TEXT, not
+    # records. The second branch adds six more sources for drag-to-merge (417,
+    # parts 5-6) -- the "Objects added" row, its two choices and tooltip, and
+    # two status lines -- 2026-09-15-magnifier-round-two-drag.json, written by
+    # hand. Measured on the combined source: all eighteen sources are distinct
+    # and present. Removing them leaves 281 = 284 - 3; 281 + 18 = 299.
+    assert len(reviewed) == 299
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -240,7 +254,12 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 244 -> 259 on 2026-09-15, +15/-0: 416's update dialog and removal
     # reasons, 2026-09-15-update-removes-old-installs.json, the same fifteen
     # as the Swedish note above. The live count minus them is 244.
-    assert len(reviewed) == 259
+    #
+    # 259 -> 274 on 2026-09-15, +18/-3: the combined 417 settings/model and
+    # drag-to-merge records, matching the Swedish sets above. Measured on
+    # the combined source: removing the eighteen distinct new sources leaves
+    # 256 = 259 - 3, and 256 + 18 = 274. No unrelated pin was moved.
+    assert len(reviewed) == 274
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

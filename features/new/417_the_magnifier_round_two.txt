@@ -2,7 +2,8 @@
 THE MAGNIFIER, ROUND 2: LARGER BOX, MODELS, THRESHOLDS AND DRAG-TO-MERGE
 ================================================================================
 
-Status:    OPEN, filed 2026-09-15. Building (Claude home session).
+Status:    DONE, 2026-09-15 (Codex). Both recovered halves integrated,
+           acceptance verified locally, including real Cellpose weights.
 Requested: 2026-09-15, by the maintainer, after trying item 407's magnifier,
            in these words:
 
@@ -37,7 +38,7 @@ Requested: 2026-09-15, by the maintainer, after trying item 407's magnifier,
            and add otsu settings here as well. if you can add other computer
            vision models like a live YOLO or DINOCell, and remember to add the
            model zoo button for cellpose"
-Owner:     Claude home session. Builds on item 407 (the live magnifier in Make
+Owner:     Codex, after recovering both Claude branches. Builds on item 407 (the live magnifier in Make
            Masks), which stays as built.
 
 --------------------------------------------------------------------------------
@@ -85,3 +86,343 @@ HOW TO KNOW IT WORKED
   * DINOCell (and SAMCell) are selectable detectors where installed, with a
     clear message where not; YOLO is either added or recorded here with why not.
   * New labels and tooltips are translated in all nine languages.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- PARTS 1-4, 7-10 BUILT
+--------------------------------------------------------------------------------
+
+Branch wip/417-settings-models, cut from nightly 884eacaab, not pushed. Parts
+5 and 6 (click-and-drag, what is saved) are another agent's, in their own
+module; nothing here touches _MaskCanvas's mouse press/move/release handlers.
+
+WHAT EACH PART DOES NOW
+
+  1. BOX SIZE. The Size box's range is (32, 512) only while no field is open.
+     When a field opens, the canvas calls _LiveMagnifier.forget() with the new
+     field in place, which emits size_range_changed; the range becomes (32,
+     the field's LONGER side) -- the box is square -- and a size past it is
+     clamped, in the box and in the magnifier. A field smaller than 32 px
+     lowers the floor with it, so the range is never empty.
+  2. COLLAPSIBLE CATEGORIES. All seven categories (Brush, Magic wand, Display,
+     Auto-filter objects, Object operations, Cellpose-SAM, Live magnifier) are
+     the core applications' own spacr.qt.widgets.section.Section: SectionCard,
+     the chevron SectionHeader with the uppercase translated title, a click
+     that folds the body. They START OPEN, unlike a core module's -- this is the
+     editor's tool column, used between strokes -- and what the user folds is
+     remembered through preferences.set_section_layout("make_masks/settings")
+     and restored next visit; unfolding is remembered too.
+  3. CELLPOSE MODELS. The Cellpose-SAM Model box lists the installed Cellpose
+     (cpsam first) and every Cellpose entry in the model zoo, read without
+     waiting on the network. A zoo model on this machine is listed by its zoo
+     key and carries its path; one not downloaded is greyed out, with no path
+     -- a combo box is not where a gigabyte download should start. The zoo's
+     YOLO well detector is not listed. "Model zoo…" beside the box opens the
+     same picker as the live preview's, restricted to kinds=("cellpose",),
+     rebuilds the zoo rows (so a model just downloaded becomes selectable) and
+     selects the pick.
+  4. THRESHOLDS. The flow threshold and cell-probability threshold are the
+     Cellpose-SAM category's existing boxes (defaults FLOW_THRESHOLD 0.4 and
+     CELLPROB_THRESHOLD 0.0; ranges 0-10 and -12..12, which hold Cellpose's
+     own GUI ranges), and they are now what the magnifier's Cellpose call gets.
+  7. OTSU. "Otsu threshold correction" (0.10-5.00, default 1.00) in the
+     Cellpose-SAM category: a threshold correction factor in CellProfiler's
+     sense -- Otsu's level is multiplied by it. Otsu detect applies it through
+     mask_engine._otsu_instances (dark objects are measured on the inverted
+     image, so above 1 is stricter on either side; exactly 1 is otsu_instances
+     itself). The magnifier's Classical mode applies it to its Otsu cut
+     (_classical_region_labels(correction=)). A region that is not two clear
+     populations is cut at its noise floor, which is not Otsu's level, and the
+     correction does not apply there; the tooltip says so.
+  8. SHIFT + SCROLL. With the magnifier on, Shift + wheel over the canvas steps
+     the size by the canvas's Zoom per notch (at least 1 px), clamped to the
+     range, and the Size box follows. It never zooms the view or the box. A
+     sideways notch counts, for platforms that send Shift + wheel
+     horizontally. Plain wheel, and any wheel with the magnifier off, is as
+     item 407 left it. Built in wheelEvent.
+  9. ONE SOURCE OF TRUTH. The magnifier reads the Cellpose-SAM category's
+     model, flow threshold, cell probability, diameter and normalization, and
+     the Otsu correction, through _magnifier_context; _MagnifierRequest carries
+     them; the Cellpose segmenter passes them to cellpose_detect exactly as
+     Cellpose-SAM detect does. The old FLOW_THRESHOLD constant and
+     "-sensitivity" are gone from that call. The magnifier's Sensitivity is now
+     the Classical mode's only, and is greyed out in any other mode. Changing
+     any of these discards whole-image objects and re-segments. A sentence in
+     the category says which magnifier mode reads which setting, and ledger
+     entries record the thresholds, model, diameter and correction.
+ 10. OTHER MODELS. DINOCell and SAMCell are Mode choices wherever their
+     packages are installed; where not, the Live magnifier category shows a
+     line per missing model naming its extra (pip install "spacr[dinocell]" /
+     "spacr[samcell]"). Both run through spacr._segmentation_backends
+     ._load_backend -- the loader segmentation_backend uses -- built once per
+     process, and their eval answers cellpose_detect's call, so DINOCell gets
+     the category's cell probability and SAMCell uses its own thresholds. One
+     that is installed but cannot build falls back to Classical, and the
+     status line carries the backend's own message naming the extra.
+
+YOLO: NOT ADDED, AND WHY
+
+  * There are no weights to run. The zoo's only YOLO,
+    yolo_welldetect_v3.pt, is a box DETECTOR of plate wells: no masks, not
+    cells. Ultralytics' stock -seg checkpoints are trained on COCO classes
+    (person, car, ...) and do not segment cells or vacuoles, so a live YOLO
+    mode today would be a choice that finds nothing useful.
+  * The dependency is feasible as an optional extra -- ultralytics is already
+    spacr[plaque], imported function-locally by spacr/plaque.py, and absent
+    from the dev environment -- but it is AGPL-3.0 against spaCR's BSD-3, a
+    reason not to lean on it further for a mode with no model.
+  * When a cell instance-segmentation YOLO checkpoint exists in the zoo, it is
+    one segmenter in _MAGNIFIER_SEGMENTERS plus a find_spec("ultralytics")
+    offer, the same shape as DINOCell and SAMCell.
+
+EVIDENCE
+
+  * tests/qt/test_the_magnifier_round_two_settings.py, 25 tests, each part's
+    red on the commit before it (the two stand-in signature checks excepted,
+    which are meant to pass either way). The spy test sets flow 0.85, cell
+    probability -2.5, diameter 37, normalize off and a zoo checkpoint in the
+    category and asserts the region call, the whole-image call and
+    Cellpose-SAM detect each receive exactly those values and that model.
+    Shift + wheel grows the box to the 64 px image and stops, shrinks it to 32
+    and stops. The DINOCell/SAMCell tests register a real _PlaneBackend
+    subclass in _BACKEND_CLASSES and go through the real _load_backend, eval,
+    parse and cellpose_detect.
+  * The 24 Make Masks files (the 23 named for make_masks, magnifier or
+    mask_engine, plus the new one), serial, offscreen, CI's pytest 8: 605
+    passed, 1 skipped (the opt-in real-Cellpose test), 1 failed --
+    test_every_help_string_on_the_panel_has_an_exact_catalog_row, which waits
+    on the catalogs (below). Before this branch: 581 passed, 1 skipped.
+  * Twelve reviewed runtime records in nine languages, hand-written, in
+    2026-09-15-magnifier-round-two-settings.json; three reworded captions'
+    old records retired (27). check_reviewed_runtime_evidence: 3117 checked,
+    clean. Swedish and French pins moved by subtraction.
+  * Not run: a real Cellpose or DINOCell call through the screen on the GPU
+    (tests use stand-ins checked against the real signatures), and the 380
+    responsiveness harness.
+
+WHAT IS LEFT
+
+  * THE CATALOGS. spacr/qt/i18n_catalogs was not regenerated here, by
+    instruction. Until the home session does, test_i18n_caption_ratchet's two
+    source-hash tests (UI 3527 -> 3536) and the panel's exact-catalog-row test
+    fail. "DINOCell" and "SAMCell" are now builder _IDENTITY_TEXT, so the
+    regeneration keeps them as names.
+  * CATALOG ROWS FOUND WRONG while matching UI names, not fixed here: is
+    "Model zoo…" = Góðursjöllun..., is "Cell probability" = Hugsanlegur
+    sjúkdómur (possible disease), hi "Otsu detect" = "detect Osama", zh_CN
+    "Otsu detect" = Oscar detection, and "Min area:" as "my area" in is, hi, ko
+    and zh_CN. The new tooltips keep those names in English there.
+--------------------------------------------------------------------------------
+2026-09-15 -- PARTS 5-6 BUILT: DRAG-TO-MERGE AND WHAT IS SAVED
+--------------------------------------------------------------------------------
+
+Branch wip/417-drag-merge, cut from nightly 884eacaab, not pushed. Parts 1-4
+and 7-10 are another agent's, on their own branch; nothing here touches the
+detection call, and the settings panel gains one line (below).
+
+WHAT IT DOES
+
+  * PRESS AND DRAG (part 5). With the magnifier on, a left press starts a
+    stroke and adds nothing yet. Once the mouse has travelled the platform's
+    drag distance (10 px) it is a drag: every quarter of a box of travel
+    (Size 128 -> every 32 image px) the box there is segmented, on the
+    existing region worker and pinned so later moves cannot supersede it. A
+    long jump between two mouse events asks for a box at every quarter-box
+    along the line, so no stretch of the path goes unseen. What the stroke
+    adds is pasted onto the mask LIVE, at most every 40 ms, and the model
+    never runs on the GUI thread.
+  * THE OBJECTS THE CURSOR PASSES OVER BECOME ONE OBJECT, from every box along
+    the drag. On release the stroke waits for any box still on the worker
+    ("Magnifier: segmenting the last regions ..."), then goes in as ONE edit:
+    one undo step and one "magnifier" ledger entry with drag=True, save,
+    frames and merged (pieces joined into the object under the path). The
+    Overlap rule and Min area apply exactly as for a click.
+  * WHAT IS SAVED (part 6): "Objects added" on the Live magnifier card,
+    "All objects in the zoom area" (the default, 407's behaviour) or "Only
+    objects touching the mouse". With the second, a click adds just the
+    object under the cursor and a drag adds just the object(s) under the
+    path; objects elsewhere in the box are not saved.
+  * A PRESS THAT DOES NOT MOVE IS STILL 407's CLICK, now on release rather
+    than on press, under "All objects in the zoom area" and under Whole
+    image. Under Whole image a drag merges the already-found objects the path
+    passes over and asks no model.
+  * RIGHT BUTTON: unchanged. Under Region under the mouse a right drag still
+    sweep-deletes every object it passes over as one undo step; under Whole
+    image a right press still removes the one object under it and does not
+    sweep.
+  * Moving to another field mid-drag drops the stroke without adding to
+    either field; a box that cannot be segmented is dropped from the stroke
+    rather than holding it up; a stroke that adds nothing says so and leaves
+    no undo step.
+
+HOW "MERGE ALL OBJECT FRAMES INTO ONE OBJECT OVER THE CENTER OF THE ROI" WAS READ
+
+  The magnifier's ROI is always centred on the cursor, so "the object over
+  the centre of the ROI" is the object under the cursor, and its "frames" are
+  the pieces of it that the successive boxes along the drag each found. They
+  are merged by UNION AT THEIR TRUE IMAGE POSITIONS: nothing is moved or
+  re-centred. The rules, in spacr/qt/_magnifier_drag.py:
+    1. every piece the path passes over, in any box, goes into one object;
+    2. a piece sharing at least half of the smaller of the two with an object
+       already gathered (counted inside the new box) is that object seen
+       again and joins it -- so a piece the path did not cross still joins
+       the object it belongs to, while neighbours whose outlines disagree by
+       a few pixels stay apart;
+    3. other objects are added separately under "All objects in the zoom
+       area" and left out under "Only objects touching the mouse";
+    4. a pixel two objects both claim stays with the first.
+
+  EXAMPLE. Size 128, Only objects touching the mouse, border option unticked.
+  A cell 300 px long lies along a row; press on its left end and pull to its
+  right end. A box is taken every 32 px; each sees the part of the cell inside
+  it, cut by the box's edges. The pieces overlap, so they become ONE object
+  covering the whole cell, exactly where the cell is, and a neighbouring cell
+  visible at the side of every box is not saved.
+
+  THE BORDER OPTION KEEPS ITS 407 MEANING IN EVERY BOX. With "Exclude objects
+  touching the box border" ticked (the default) a piece the box cuts is not
+  offered, so an object LARGER than the box contributes nothing and is not
+  added; untick it to assemble such objects from their pieces. An object
+  smaller than half the box is never cut under the cursor, so the default
+  works for it, and the successive boxes' outlines of it are merged into one.
+
+WHERE THE CODE IS
+
+  * spacr/qt/_magnifier_drag.py (new, private, no Qt): the stroke state
+    machine -- path, frame spacing, rules 1-4, the label image to paste.
+  * spacr/qt/screens/make_masks.py, +253/-2 (166 code, 61 docstring, 26
+    comment or blank): three canvas hooks (press starts, move drags, release
+    commits); on _LiveMagnifier a drag_ready signal, one line in __init__,
+    and press/drag/release with six private helpers; on the screen
+    _apply_magnifier_drag, four wiring lines, and the save-mode row as its
+    own method _build_magnifier_save_mode(form), called by ONE line in
+    _build_magnifier_card after the border checkbox.
+
+EVIDENCE
+
+  * tests/qt/test_the_magnifier_drag_merges_what_the_cursor_passes_over.py,
+    25 passed, stand-in model, offscreen: a drag across two adjacent cells is
+    one label and one undo step; objects show while the button is down with
+    no undo step; "only touching" drops an object never under the cursor and
+    "all in zoom area" keeps it; the pieces of an object longer than the box
+    merge into one label, with the path along it and beside it; a press with
+    one pixel of jitter is still 407's click; a touching click adds just the
+    object under the cursor; a 0.5 s-per-box model: slowest move measured
+    0.0002 s against a 0.4 s bound, the model never on the GUI thread, the
+    event loop ticking while the stroke waits; whole-image drag with one model call; the right-button
+    sweep; field change, a failed box, background; and nine tests of the
+    state machine on plain arrays.
+  * spacr/qt/_magnifier_drag.py at 100% statements and branches under that
+    file alone (155 statements, 40 branches).
+  * The Make Masks suites (23 files matching make_masks, magnifier and
+    mask_engine; none matches curation_queue): 580 passed, 1 skipped (the
+    opt-in real-Cellpose test), 1 failed -- the panel's exact-catalog-row
+    test, on the new tooltip, which goes green when the catalogs are
+    regenerated.
+  * Strings: 6 new captions (the row label, its two choices, its tooltip,
+    two status lines) x 9 languages, hand-written in
+    docs/i18n/reviewed/runtime/<lang>/2026-09-15-magnifier-round-two-drag.json;
+    tools/check_reviewed_runtime_evidence.py clean (3090 records). The
+    Swedish and French reviewed-record pins moved 284 -> 290 and 259 -> 265.
+    The drag's success line reuses 407's "Magnifier added {n} object(s)".
+    No existing caption was reworded.
+  * No public symbol added. ruff clean on the new files; make_masks.py has
+    the same 7 findings as before.
+
+OWED AT LANDING (catalogs not regenerated on this branch, as instructed)
+
+  * tests/qt/test_i18n_caption_ratchet.py: UI 3527 -> 3533 (the six captions)
+    and its digest, and the source-hash test, until the runtime catalogs are
+    rebuilt; test_make_masks_settings_explain_themselves's catalog-row test
+    likewise.
+  * tests/test_docstring_correctness.py's callable boundary 10539 -> 10540:
+    the one entry is the private module spacr.qt._magnifier_drag's docstring,
+    which the documentation inventory counts; its API-lane catalog entry is
+    owed.
+  * Not mine: the two test_user_facing_docstrings task-history tests, on
+    spacr/qt/make_masks_demo.py line 1 ("maintainer"). MEASURED on a clean
+    checkout of nightly 884eacaab: those two fail there and the other five
+    named above pass, so the five are this branch's and these two are not.
+    With the sv/fr pins moved, this branch's own file and those two pins run
+    27 passed.
+
+NOT DONE
+
+  * The box does not yet preview the save mode (outline only the object under
+    the cursor under "only touching"), nor the stroke's own objects.
+  * Not measured with a real model, nor under the 380 responsiveness harness.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- CODEX INTEGRATION OF BOTH PRESERVED BRANCHES
+--------------------------------------------------------------------------------
+
+The two implementation branches above were recovered without resetting either
+Claude worktree. Their tips, 04352fe18 and 279671836, remain in recovery/417-*
+refs; their application-source edits merged cleanly. The historical branch
+notes above describe their own baselines, not the final integrated result.
+
+ONE ADDITIONAL DEFECT REPRODUCED AND FIXED
+
+A second mouse press could replace a released drag whose last segmentation
+was still pending, losing the first edit. The magnifier now lets that pending
+stroke finish and ignores the intervening press/drag/release sequence. The
+regression failed before the repair; it covers completion both before and
+after the ignored release, then positively checks that a fresh click works
+and undo removes only that later edit.
+
+VERIFIED ON THE INTEGRATED APPLICATION SOURCE
+
+  * The 24 files selected by make_masks|magnifier|mask_engine under tests/qt,
+    in separate serial pytest processes: 580 passed, 1 opt-in test skipped,
+    no failures. The recovered settings and drag files each passed 25 tests.
+  * The separate opt-in real-model test
+    tests/qt/test_the_magnifier_merges_real_cellpose_objects.py passed in
+    72.20 s on CPU, with the already downloaded cpsam weights. Four synthetic
+    discs produced four real Cellpose objects; dragging across the upper two
+    merged just those two. Touching-only excluded both lower objects; all-in-
+    zoom retained them separately. No fallback or downloaded model substituted
+    for the requested model. This is real Cellpose evidence, not a claim of
+    real DINOCell/SAMCell benchmarking or a whole-app 380 performance sweep.
+  * Runtime catalogs: +20/-5 UI sources, 3,541 -> 3,556. Eighteen added prose
+    rows have source-bound reviewed records in each of nine languages; the
+    other two are the product names DINOCell and SAMCell. Every pre-existing
+    translation was preserved verbatim. No model generation was used.
+  * All 3,171 reviewed runtime records match their source. Runtime inventory
+    is 5,819/5,819 per locale, with zero orphans. The caption ratchet passes
+    (11 tests), the sv/fr reviewed-record checks pass (3 tests), the API
+    extractor checks pass (8 tests), and docstring correctness passes (134).
+    The broader documentation/i18n file also passes all 141 tests.
+  * Final focused measurements: _magnifier_drag.py has 155/155 statements
+    and 40/40 branches executed, zero exclusions (100.00%). Both pending-
+    stroke regression cases pass, and their JSON coverage confirms the press,
+    drag and release guards AND each guarded body executed. The real-Sphinx
+    private-module boundary regression passes on Python 3.10 as well.
+  * The UI identity digest is b4d1896bbc1135f9f4098b3473ac4163d9cf36bf3d58c7447daeb652dacf725f.
+    Reversing the measured +20/-5 delta gives the previous 2f2e22a2... digest
+    exactly. The sv/fr reviewed-record counts are 299/274: their previous
+    284/259 plus 18 new records minus 3 retired records each.
+
+API BOUNDARY -- CORRECTION TO THE DRAG BRANCH'S "OWED AT LANDING"
+
+Real Sphinx does not render the new private _magnifier_drag module. A fixture
+with a visible positive control proved that its page and inventory entry are
+absent; the extractor wrongly included it and the new test failed on that
+disagreement. The non-rendered-module mirror now excludes exactly that module.
+The measured pre/post-filter counts are 10,763/10,539 (boundary 224), and the
+public source set AND every source text still equal en.json's 10,539 records.
+There is therefore no new public API key to translate or catalog regeneration
+for this integration. This does not activate or exempt any 411 helper slice.
+
+SEPARATE BASELINE DEFECT FOUND, NOT HIDDEN BY THE NEW COUNTS
+
+The full runtime audit fails on five old Dose-Response rows: Spanish pooled
+EC50, selectivity index and synergy-excess messages, and Portuguese selectivity
+index and synergy-excess messages. Each was already exact English and hash-
+current on a2ecc32b8; the integration preserved it unchanged. These require a
+separate 306 translation repair before claiming the overall docs gate is green.
+
+The optional preview refinements and whole-app profiling listed in the drag
+branch's NOT DONE remain follow-up work, not evidence claimed by this item.
+The requested save modes themselves are implemented and tested. YOLO retains
+the reason recorded above: there is no suitable cell-mask checkpoint in the zoo.
+All verification used a 100 GiB system-memory cutoff, one heavy process at a
+time, and no full-repository coverage run.

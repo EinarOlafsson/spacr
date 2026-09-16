@@ -1,0 +1,90 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Classical mode wherever a region holds two clear populations.",
+      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Classical mode wherever a region holds two clear populations.",
+      "source_sha256": "0df64be98ac90ecee9625cefec6ba2a8bf4b9cfaafcf05719b9f286568c44f32",
+      "table": "ui",
+      "translation": "阈值校正系数：Otsu 阈值在使用前乘以该系数。大于 1 更严格，对象会缩小，暗淡的对象会被舍弃；小于 1 会纳入更暗淡的像素；1 即 Otsu 自身的阈值。Otsu detect 使用它，实时放大镜 的 传统方法 模式在区域包含两个清晰群体时也会使用它。"
+    },
+    {
+      "key": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
+      "source": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
+      "source_sha256": "5953c8c31498297d04d4e07ec15f0d3b18adb968bec94f4e86cccb76d4d31893",
+      "table": "ui",
+      "translation": "浏览模型库，下载一个 Cellpose 模型并用它进行分割。在那里选中的模型会在此按钮旁的列表中被选中。"
+    },
+    {
+      "key": "DINOCell appears in Mode once installed: pip install \"spacr[dinocell]\"",
+      "source": "DINOCell appears in Mode once installed: pip install \"spacr[dinocell]\"",
+      "source_sha256": "9512f92d6c53f6749dc48612c724c4744ad5d757945867d1651457099ac17a3e",
+      "table": "ui",
+      "translation": "安装后，DINOCell 会出现在 Mode 中: pip install \"spacr[dinocell]\""
+    },
+    {
+      "key": "How readily the Classical mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Cellpose-SAM settings instead, so this is greyed out while another mode is chosen.",
+      "source": "How readily the Classical mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Cellpose-SAM settings instead, so this is greyed out while another mode is chosen.",
+      "source_sha256": "703abbde8d818b23f68c86ddbc4ffd5a8f06f843841bfa8a1e6ff6b36e173352",
+      "table": "ui",
+      "translation": "传统方法 模式接受对象的难易程度。调高可纳入更暗或不太确定的对象，调低则只保留清晰的对象；0 为默认分割点。模型改为从 Cellpose-SAM 设置中读取各自的阈值，因此选择其他模式时此项显示为灰色。"
+    },
+    {
+      "key": "Otsu threshold correction",
+      "source": "Otsu threshold correction",
+      "source_sha256": "57a71cdfcaf0a9c75df58b95b112f4610d1c128d5e9926e75b4069e14d29f18d",
+      "table": "ui",
+      "translation": "Otsu 阈值校正"
+    },
+    {
+      "key": "SAMCell appears in Mode once installed: pip install \"spacr[samcell]\"",
+      "source": "SAMCell appears in Mode once installed: pip install \"spacr[samcell]\"",
+      "source_sha256": "20fadbd4c12b87070a0abc04f9e4744b83886433dec54b05b642b2f330e1ebe9",
+      "table": "ui",
+      "translation": "安装后，SAMCell 会出现在 Mode 中: pip install \"spacr[samcell]\""
+    },
+    {
+      "key": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
+      "source": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
+      "source_sha256": "7e3849bd96a50a540c32fa32ac80f26b8b5b12f80e564e92b057bc9af6947717",
+      "table": "ui",
+      "translation": "正方形框的边长，以图像像素计，最大可达所打开图像自身的高度或宽度。选择 鼠标下方的区域 时，它也是模型分割的区域，因此请把它设得比想添加的最大对象更宽。放大镜开启时，Shift + 鼠标滚轮 可以更改它。"
+    },
+    {
+      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, DINOCell the cell probability, and Classical mode the Otsu threshold correction.",
+      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, DINOCell the cell probability, and Classical mode the Otsu threshold correction.",
+      "source_sha256": "5dc630e32acbc9d0f852ae9646eab4c0f4e48f682ee172bdfc0189ba510394af",
+      "table": "ui",
+      "translation": "实时放大镜 也会读取这些设置：Cellpose 模式使用模型、两个阈值、直径和归一化，DINOCell 使用细胞概率，传统方法 模式使用 Otsu 阈值校正。"
+    },
+    {
+      "key": "Threshold the image at Otsu's level, multiplied by the Otsu threshold correction under Cellpose-SAM, and label what is left, honouring the minimum area above.",
+      "source": "Threshold the image at Otsu's level, multiplied by the Otsu threshold correction under Cellpose-SAM, and label what is left, honouring the minimum area above.",
+      "source_sha256": "ec800dcb1c6d85e2fe62c9400aea428b72acdd51e1bb6c4e87b40fb76e79ae84",
+      "table": "ui",
+      "translation": "按 Otsu 阈值乘以 Cellpose-SAM 下的 Otsu 阈值校正系数对图像进行阈值分割，并标记剩余部分，同时遵守上方的最小面积。"
+    },
+    {
+      "key": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations and the Otsu threshold correction under Cellpose-SAM, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Cellpose-SAM, and is slow without a GPU. DINOCell and SAMCell are offered once installed; DINOCell reads the cell probability set under Cellpose-SAM, and SAMCell uses its own thresholds.",
+      "source": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations and the Otsu threshold correction under Cellpose-SAM, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Cellpose-SAM, and is slow without a GPU. DINOCell and SAMCell are offered once installed; DINOCell reads the cell probability set under Cellpose-SAM, and SAMCell uses its own thresholds.",
+      "source_sha256": "5432f89a6fec5fa7b67b89d19c117c352bffdc397b99dd9f1f1e8a4931175e55",
+      "table": "ui",
+      "translation": "由哪个模型分割框中的区域。传统方法 按 Otsu 阈值对区域进行阈值分割，并用分水岭分开相互接触的对象；它无需安装任何东西，遵循 对象操作 下的 明亮 开关和 Min area 框以及 Cellpose-SAM 下的 Otsu 阈值校正，并在无法加载模型时运行。Cellpose 使用 Cellpose-SAM 下设置的模型、两个阈值、直径和归一化，没有 GPU 时速度较慢。DINOCell 和 SAMCell 在安装后提供；DINOCell 读取 Cellpose-SAM 下设置的细胞概率，SAMCell 使用其自身的阈值。"
+    },
+    {
+      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out until Model zoo… fetches it.",
+      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out until Model zoo… fetches it.",
+      "source_sha256": "4ce53388d126793bbf23be6d318e93d4bd4bb3b5d5bcf8e95436db32f10646b2",
+      "table": "ui",
+      "translation": "由哪些权重分割此视野，以及在 Cellpose 模式下分割 实时放大镜 的框。列表包括本机安装的 Cellpose 和模型库中的每个 Cellpose 模型；尚未下载的模型库模型会显示为灰色，直到 Model zoo… 将其获取。"
+    },
+    {
+      "key": "{name} (not downloaded)",
+      "source": "{name} (not downloaded)",
+      "source_sha256": "cbd91332316192ec43faa12ca9dcbc7b8a185d00fb36ae3657b5ee86d8019493",
+      "table": "ui",
+      "translation": "{name} (未下载)"
+    }
+  ],
+  "schema": 1
+}

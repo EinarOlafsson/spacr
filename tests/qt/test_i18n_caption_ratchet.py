@@ -414,7 +414,12 @@ EXTERNAL_SOURCE_COUNTS = {
     # selectivity-index and synergy-excess lines with their four
     # refusal captions, the plates-disagree line, the axis words
     # "concentration" and "response", and the whole-table note.
-    "UI": 3541,
+    # 417: 3,541 -> 3,556, +20/-5 against a2ecc32b8's English manifest.
+    # Eighteen authored strings (12 settings/model rows and 6 drag rows)
+    # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
+    # Every new prose row has a reviewed record in each of the nine locales.
+    # The runtime pass preserved every pre-existing translated value.
+    "UI": 3556,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -517,7 +522,9 @@ EXTERNAL_SOURCE_COUNTS = {
 # 6408b9e46d4b7478430257a6f632bbb12ec43a279df807213c4433b8e37d6a72, the
 # previous pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "2f2e22a27d8763cee733db462033c11bfbfd869cc07500b8e5fc55b2c94e1fb8"
+    # 417: reversing the +20/-5 UI delta gives the previous digest exactly:
+    # 2f2e22a27d8763cee733db462033c11bfbfd869cc07500b8e5fc55b2c94e1fb8.
+    "b4d1896bbc1135f9f4098b3473ac4163d9cf36bf3d58c7447daeb652dacf725f"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

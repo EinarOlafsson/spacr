@@ -121,13 +121,6 @@
       "translation": "Zeigt unter dem Mauszeiger einen Kasten, in dem der umliegende Bereich vergrößert und die von einem Modell gefundenen Objekte umrissen sind. Ein Klick fügt sie der Maske als neue Objekte hinzu — unter Ganzes Bild nur das angeklickte Objekt —, ein Rückgängig-Schritt pro Klick. Solange sie an ist, ändert das Mausrad den Zoom des Kastens statt den der Ansicht."
     },
     {
-      "key": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
-      "source": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
-      "source_sha256": "eeb419a0b5364ac04176caacff804eb2eff0fe302e21212d7ebb7efca5c68369",
-      "table": "ui",
-      "translation": "Seitenlänge des quadratischen Kastens, in Bildpixeln. Unter Bereich unter dem Mauszeiger ist er auch der Bereich, den das Modell segmentiert; wählen Sie ihn also breiter als das größte Objekt, das Sie hinzufügen möchten."
-    },
-    {
       "key": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
       "source": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
       "source_sha256": "1a3b29a22afd721b9ed4ec028eeb151a0c21281c1e85aecde24a31f4b427c332",

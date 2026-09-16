@@ -1,0 +1,90 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Classical mode wherever a region holds two clear populations.",
+      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Classical mode wherever a region holds two clear populations.",
+      "source_sha256": "0df64be98ac90ecee9625cefec6ba2a8bf4b9cfaafcf05719b9f286568c44f32",
+      "table": "ui",
+      "translation": "임계값 보정 계수입니다. Otsu 수준에 이 값을 곱한 뒤 사용합니다. 1보다 크면 더 엄격해져 객체가 줄어들고 흐린 객체는 빠지며, 1보다 작으면 더 흐린 픽셀까지 포함하고, 1은 Otsu 자체 수준입니다. Otsu detect 가 이 값을 사용하며, 실시간 돋보기의 고전적 방법 모드도 영역에 뚜렷한 두 집단이 있는 곳에서는 이 값을 사용합니다."
+    },
+    {
+      "key": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
+      "source": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
+      "source_sha256": "5953c8c31498297d04d4e07ec15f0d3b18adb968bec94f4e86cccb76d4d31893",
+      "table": "ui",
+      "translation": "모델 저장소를 둘러보고 Cellpose 모델을 내려받아 그 모델로 분할합니다. 거기서 고른 모델이 이 버튼 옆 목록에서 선택됩니다."
+    },
+    {
+      "key": "DINOCell appears in Mode once installed: pip install \"spacr[dinocell]\"",
+      "source": "DINOCell appears in Mode once installed: pip install \"spacr[dinocell]\"",
+      "source_sha256": "9512f92d6c53f6749dc48612c724c4744ad5d757945867d1651457099ac17a3e",
+      "table": "ui",
+      "translation": "DINOCell 은 설치되면 Mode 에 나타납니다: pip install \"spacr[dinocell]\""
+    },
+    {
+      "key": "How readily the Classical mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Cellpose-SAM settings instead, so this is greyed out while another mode is chosen.",
+      "source": "How readily the Classical mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Cellpose-SAM settings instead, so this is greyed out while another mode is chosen.",
+      "source_sha256": "703abbde8d818b23f68c86ddbc4ffd5a8f06f843841bfa8a1e6ff6b36e173352",
+      "table": "ui",
+      "translation": "고전적 방법 모드가 객체를 얼마나 쉽게 받아들이는지입니다. 더 흐리거나 덜 확실한 객체까지 넣으려면 높이고, 뚜렷한 객체만 남기려면 낮추십시오. 0은 기본 기준입니다. 모델들은 대신 Cellpose-SAM 설정에서 임계값을 읽으므로, 다른 모드를 고른 동안에는 흐리게 표시됩니다."
+    },
+    {
+      "key": "Otsu threshold correction",
+      "source": "Otsu threshold correction",
+      "source_sha256": "57a71cdfcaf0a9c75df58b95b112f4610d1c128d5e9926e75b4069e14d29f18d",
+      "table": "ui",
+      "translation": "Otsu 임계값 보정"
+    },
+    {
+      "key": "SAMCell appears in Mode once installed: pip install \"spacr[samcell]\"",
+      "source": "SAMCell appears in Mode once installed: pip install \"spacr[samcell]\"",
+      "source_sha256": "20fadbd4c12b87070a0abc04f9e4744b83886433dec54b05b642b2f330e1ebe9",
+      "table": "ui",
+      "translation": "SAMCell 은 설치되면 Mode 에 나타납니다: pip install \"spacr[samcell]\""
+    },
+    {
+      "key": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
+      "source": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
+      "source_sha256": "7e3849bd96a50a540c32fa32ac80f26b8b5b12f80e564e92b057bc9af6947717",
+      "table": "ui",
+      "translation": "정사각형 상자의 한 변 길이로, 이미지 픽셀 단위이며 열린 이미지의 높이나 너비까지 늘릴 수 있습니다. 마우스 아래 영역에서는 모델이 분할하는 영역이기도 하므로, 추가하려는 가장 큰 객체보다 넓게 설정하십시오. 돋보기가 켜져 있는 동안 Shift + 마우스 휠로 바꿀 수 있습니다."
+    },
+    {
+      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, DINOCell the cell probability, and Classical mode the Otsu threshold correction.",
+      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, DINOCell the cell probability, and Classical mode the Otsu threshold correction.",
+      "source_sha256": "5dc630e32acbc9d0f852ae9646eab4c0f4e48f682ee172bdfc0189ba510394af",
+      "table": "ui",
+      "translation": "실시간 돋보기도 이 설정을 읽습니다. Cellpose 모드는 모델, 두 임계값, 직경과 정규화를 사용하고, DINOCell 은 세포 확률을, 고전적 방법 모드는 Otsu 임계값 보정을 사용합니다."
+    },
+    {
+      "key": "Threshold the image at Otsu's level, multiplied by the Otsu threshold correction under Cellpose-SAM, and label what is left, honouring the minimum area above.",
+      "source": "Threshold the image at Otsu's level, multiplied by the Otsu threshold correction under Cellpose-SAM, and label what is left, honouring the minimum area above.",
+      "source_sha256": "ec800dcb1c6d85e2fe62c9400aea428b72acdd51e1bb6c4e87b40fb76e79ae84",
+      "table": "ui",
+      "translation": "Cellpose-SAM 아래의 Otsu 임계값 보정을 곱한 Otsu 수준으로 이미지를 이진화하고, 위의 최소 면적을 지키면서 남은 부분에 레이블을 붙입니다."
+    },
+    {
+      "key": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations and the Otsu threshold correction under Cellpose-SAM, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Cellpose-SAM, and is slow without a GPU. DINOCell and SAMCell are offered once installed; DINOCell reads the cell probability set under Cellpose-SAM, and SAMCell uses its own thresholds.",
+      "source": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations and the Otsu threshold correction under Cellpose-SAM, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Cellpose-SAM, and is slow without a GPU. DINOCell and SAMCell are offered once installed; DINOCell reads the cell probability set under Cellpose-SAM, and SAMCell uses its own thresholds.",
+      "source_sha256": "5432f89a6fec5fa7b67b89d19c117c352bffdc397b99dd9f1f1e8a4931175e55",
+      "table": "ui",
+      "translation": "상자 안의 영역을 어떤 모델이 분할할지입니다. 고전적 방법은 Otsu 수준으로 영역을 이진화하고 맞닿은 객체를 워터셰드로 나눕니다. 따로 설치할 것이 없고, 객체 작업 아래의 밝음 스위치와 Min area 상자, Cellpose-SAM 아래의 Otsu 임계값 보정을 따르며, 모델을 불러올 수 없을 때마다 실행됩니다. Cellpose 는 Cellpose-SAM 아래에서 정한 모델, 두 임계값, 직경과 정규화를 사용하며 GPU 없이는 느립니다. DINOCell 과 SAMCell 은 설치되면 제공됩니다. DINOCell 은 Cellpose-SAM 아래에서 정한 세포 확률을 읽고, SAMCell 은 자체 임계값을 사용합니다."
+    },
+    {
+      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out until Model zoo… fetches it.",
+      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out until Model zoo… fetches it.",
+      "source_sha256": "4ce53388d126793bbf23be6d318e93d4bd4bb3b5d5bcf8e95436db32f10646b2",
+      "table": "ui",
+      "translation": "이 필드를 분할하는 가중치이며, Cellpose 모드에서는 실시간 돋보기의 상자도 분할합니다. 목록은 이 컴퓨터에 설치된 Cellpose 와 모델 저장소의 모든 Cellpose 모델입니다. 아직 내려받지 않은 저장소 모델은 Model zoo… 로 가져올 때까지 흐리게 표시됩니다."
+    },
+    {
+      "key": "{name} (not downloaded)",
+      "source": "{name} (not downloaded)",
+      "source_sha256": "cbd91332316192ec43faa12ca9dcbc7b8a185d00fb36ae3657b5ee86d8019493",
+      "table": "ui",
+      "translation": "{name} (내려받지 않음)"
+    }
+  ],
+  "schema": 1
+}

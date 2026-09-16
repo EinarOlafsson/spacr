@@ -23,13 +23,6 @@
       "translation": "상자가 영역을 캔버스보다 몇 배 크게 그리는지입니다. 돋보기가 켜져 있는 동안 마우스 휠로 바꿉니다. 보이는 모습만 바뀌며, 모델은 항상 이미지 원래 해상도에서 영역을 분할합니다."
     },
     {
-      "key": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
-      "source": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
-      "source_sha256": "b7e9d723bde23a65da1855459ff252d52ab64ad5f991717378adb759707565b6",
-      "table": "ui",
-      "translation": "객체를 얼마나 쉽게 받아들이는지입니다. 더 흐리거나 덜 확실한 객체까지 넣으려면 높이고, 뚜렷한 객체만 남기려면 낮추십시오. 0은 각 모델의 기본값입니다. Cellpose 에서는 부호를 뒤집은 세포 확률 임계값이므로, 민감도 1.5는 임계값 -1.5에 해당합니다."
-    },
-    {
       "key": "Live magnifier",
       "source": "Live magnifier",
       "source_sha256": "886ee4e35e283ff0705084c59eb144aab13bc0b5f9f2b6efff3b05a11c268ba8",
@@ -84,13 +77,6 @@
       "source_sha256": "0217cb326bbd11f699df8e270e0b72e5618e0dd2050c9b54debfc96412fd88f3",
       "table": "ui",
       "translation": "마스크에 이미 객체가 있는 곳에서 새 객체가 어떻게 되는지입니다. 잘라내기는 레이블이 없는 픽셀만 남기므로 기존 객체는 픽셀을 하나도 잃지 않습니다. 건너뛰기는 기존 객체에 닿는 객체를 모두 뺍니다. 바꾸기는 새 객체가 덮는 모든 픽셀을 차지하게 합니다."
-    },
-    {
-      "key": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
-      "source": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
-      "source_sha256": "010df707916a267a57b3d01639d05180c78f7c613a13b0ab1c40986ece0101ce",
-      "table": "ui",
-      "translation": "상자 안의 영역을 어떤 모델이 분할할지입니다. 고전적 방법은 Otsu 수준으로 영역을 이진화하고 맞닿은 객체를 워터셰드로 나눕니다. 따로 설치할 것이 없고, 객체 작업 아래의 밝음 스위치와 Min area 상자를 따르며, 모델을 불러올 수 없을 때마다 실행됩니다. Cellpose 는 Cellpose-SAM 설정의 모델과 직경을 사용하며 GPU 없이는 느립니다."
     }
   ],
   "schema": 1

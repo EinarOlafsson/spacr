@@ -23,13 +23,6 @@
       "translation": "Quantas vezes maior do que a tela a caixa desenha a sua região. A roda do rato altera-o enquanto a lupa está ligada. Só altera o que vê: o modelo segmenta sempre a região na resolução da própria imagem."
     },
     {
-      "key": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
-      "source": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
-      "source_sha256": "b7e9d723bde23a65da1855459ff252d52ab64ad5f991717378adb759707565b6",
-      "table": "ui",
-      "translation": "Com que facilidade um objeto é aceite. Aumente-a para incluir objetos mais ténues ou menos certos, diminua-a para manter só os nítidos; 0 é a predefinição de cada modelo. Para o Cellpose é o limiar de probabilidade de célula com o sinal invertido, portanto uma sensibilidade de 1.5 corresponde a um limiar de -1.5."
-    },
-    {
       "key": "Live magnifier",
       "source": "Live magnifier",
       "source_sha256": "886ee4e35e283ff0705084c59eb144aab13bc0b5f9f2b6efff3b05a11c268ba8",
@@ -84,13 +77,6 @@
       "source_sha256": "0217cb326bbd11f699df8e270e0b72e5618e0dd2050c9b54debfc96412fd88f3",
       "table": "ui",
       "translation": "O que um objeto novo faz onde a máscara já tem um objeto. Recortar mantém apenas os seus píxeis sem rótulo, pelo que nenhum objeto existente perde um píxel. Ignorar deixa de fora qualquer objeto que toque num existente. Substituir deixa o objeto novo ocupar todos os píxeis que cobre."
-    },
-    {
-      "key": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
-      "source": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
-      "source_sha256": "010df707916a267a57b3d01639d05180c78f7c613a13b0ab1c40986ece0101ce",
-      "table": "ui",
-      "translation": "Que modelo segmenta a região na caixa. Clássico aplica à região um limiar ao nível de Otsu e separa objetos que se tocam com uma linha de partilha de águas; não precisa de nada instalado, segue o interruptor Brilhante e a caixa Min area em Operações de objectos, e é executado sempre que um modelo não pode ser carregado. O Cellpose usa o modelo e o diâmetro definidos nas definições do Cellpose-SAM e é lento sem GPU."
     }
   ],
   "schema": 1
