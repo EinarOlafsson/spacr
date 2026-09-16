@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |Qt| |Python| |Release date| |Conda| |PyPI| |Issues| |Downloads| |Source| |License| |Preprint| |DOI| 
+|Docs| |Tutorials| |Qt| |Python| |Release date| |Conda| |PyPI| |Issues| |Downloads| |Source| |License| |Preprint| |DOI| |Cite| |Platforms|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -46,10 +46,6 @@
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge latest_release_date
 
-
-.. |Python| image:: https://img.shields.io/pypi/pyversions/spacr?logo=python&logoColor=white
-   :target: https://pypi.org/project/spacr/
-   :alt: Supported Python versions
 
 .. |PyPI Downloads| image:: https://img.shields.io/pypi/dm/spacr?label=PyPI%20downloads
    :target: https://pypi.org/project/spacr/
