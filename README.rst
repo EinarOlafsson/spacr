@@ -1,4 +1,5 @@
-|Docs| |Tutorials| |Qt| |Python| |Release date| |Conda| 
+|Docs| |Tutorials| |Qt| |Python| |Release date| 
+|Conda| 
 |PyPI| |Issues| |Downloads| |Source| |License| |Preprint| |DOI| 
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
