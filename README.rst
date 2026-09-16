@@ -474,17 +474,6 @@ Every module spaCR ships, in the order the home screen lists them: the six
 pipeline modules first, then everything else. Select a tile to open that
 module's API page.
 
-
-Make Masks
-~~~~~~~~~~
-
-Make Masks appears under **Tools** for manual correction of segmentation
-masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**,
-**Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**,
-**Zoom** and **Recrop**. Draw makes one filled label from a closed outline,
-Divide separates a merged object along a drawn line, Recrop turns one object
-in a crowded field into its own field.
-
 See the `feature guide <docs/source/features.rst>`_ for each tool.
 
 Other resources
