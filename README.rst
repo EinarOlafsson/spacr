@@ -47,8 +47,6 @@
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge latest_release_date
 
-https://anaconda.org/conda-forge/spacr/badges/downloads.svg
-
 
 .. image:: spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
