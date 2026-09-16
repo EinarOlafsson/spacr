@@ -2,7 +2,8 @@
 MASK FILTERS OBJECTS BY MIN AND MAX INTENSITY; THE SPLIT AND MERGE SETTINGS GO
 ================================================================================
 
-Status:    OPEN, filed 2026-09-15. Not started.
+Status:    IN PROGRESS. Shared mean-intensity filter verified; pipeline/GUI
+           wiring, removed-setting migration and catalogs still pending.
 Requested: 2026-09-15, by the maintainer, in these words:
 
            "for the mask modual for the filtering options, remove minimum area
@@ -26,7 +27,7 @@ Requested: 2026-09-15, by the maintainer, in these words:
                watershed-split and intensity-merge code paths they drive. An
                old settings file that still carries the keys is read without
                error and the keys are ignored.
-Owner:     unassigned. Mask settings and pipeline: spacr/settings.py,
+Owner:     Codex. Mask settings and pipeline: spacr/settings.py,
            spacr/object.py, spacr/utils.py. Live Preview:
            spacr/qt/widgets/live_preview.py.
 
@@ -117,3 +118,32 @@ DONE WHEN
 * Min/Max intensity filter identically in a Mask run and in Live Preview:
   one test runs both on the same image and settings and gets the same labels.
 * A settings file carrying the removed keys loads and runs.
+
+2026-09-15 — SHARED FILTER CHECKPOINT, NOT FEATURE COMPLETION
+----------------------------------------------------------
+
+_filter_objects now accepts keyword-only min_intensity/max_intensity, with
+zero disabling each side and equality retained. It computes float64 object
+means on the supplied own-channel plane (not a percentile quota). Missing
+or mismatched planes and nonfinite object means are refused when filtering
+is active; nonfinite background is irrelevant. Existing area and border
+filters still compose with it. No existing caller enables the new bounds
+yet, and the five old settings/code paths have NOT been removed in this
+checkpoint.
+
+Evidence: tests/test_mask_mean_intensity_bounds.py was red on the parent
+(17 failures, unsupported keyword), then 18/18 passed after the overlap case
+was added. Per-function coverage on this source is 58/58 statements and
+36/36 branches, with no exclusions. Five in-memory source mutations were
+rejected: inclusive rejection at either bound, maximum instead of mean,
+disabled intensity filtering, and silently accepting a nonfinite mean.
+The 37 existing tests in test_cov_utils_labels_mergesplit.py also passed.
+
+The remaining wiring cannot just forward today's intensity_images: the v1
+NPZs and v2 segmentation batch hold normalized data, whereas Live Preview's
+_image holds original values. Raw stack planes must feed the shared filter
+in both runs, independently of display/segmentation normalization. Preview
+also has a correct _channel_for_object selector, but _obj_channel currently
+ignores it for pathogen and organelles. Reuse that selector rather than
+creating another role/channel table. Preserve organelle-slot settings and
+batch padding/resume filename alignment in the tests of the next slice.

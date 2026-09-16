@@ -724,25 +724,31 @@ def _apply_union_find(label_img, parent):
     return _relabel_sequential(merged.astype(np.uint16))
     
 def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
-                    remove_border=False):
-    """Remove objects by area and border contact.
+                    remove_border=False, *, min_intensity=0, max_intensity=0):
+    """Remove objects by area, absolute mean intensity and border contact.
 
-    THE INTENSITY-PERCENTILE BAND WAS REMOVED IN 391. ``intensity_img`` is
-    kept in the signature because callers pass it positionally and it costs
-    nothing; nothing here reads it any more.
+    Intensity bounds use the object's own-channel plane, in the units of
+    that plane. The caller must supply the original pixel values, not a
+    display-normalized image. Unlike the percentile quota removed in 391,
+    these bounds can retain every object or remove every object in a field.
 
     Parameters
     ----------
     label_img : ndarray (uint16)
         Label image.
-    intensity_img : ndarray (float32) or None
-        Accepted and unused; see the note above.
+    intensity_img : ndarray or None
+        Own-channel intensity plane, with exactly the label image's shape.
+        Required only when an intensity bound is enabled and objects exist.
     min_area : int
         Remove objects with area < min_area. 0 = disabled.
     max_area : int
         Remove objects with area > max_area. 0 = disabled.
     remove_border : bool
         Remove objects touching any image edge.
+    min_intensity, max_intensity : float
+        Remove objects whose mean is below/above the respective bound.
+        Equality is retained; 0 disables that side. Object means must be
+        finite; nonfinite background pixels do not contribute to a mean.
 
     Returns
     -------
@@ -775,6 +781,25 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
     if removed_by_area > 0:
         print(f"  Area filter: removed {removed_by_area}/{len(labels_present)} objects "
               f"(min_area={min_area}, max_area={max_area})")
+
+    if min_intensity > 0 or max_intensity > 0:
+        if intensity_img is None or np.shape(intensity_img) != label_img.shape:
+            raise ValueError("An intensity plane with the same shape as the mask is required")
+        means = ndi.mean(np.asarray(intensity_img, dtype=np.float64),
+                         labels=label_img, index=labels_present)
+        if not np.all(np.isfinite(means)):
+            raise ValueError("Intensity filtering requires finite object mean intensities")
+        rejected = np.zeros(len(labels_present), dtype=bool)
+        if min_intensity > 0:
+            rejected |= means < min_intensity
+        if max_intensity > 0:
+            rejected |= means > max_intensity
+        intensity_labels = set(labels_present[rejected].tolist())
+        additional = len(intensity_labels - remove)
+        remove.update(intensity_labels)
+        if additional:
+            print(f"  Intensity filter: removed {additional} additional objects "
+                  f"(min_intensity={min_intensity}, max_intensity={max_intensity})")
 
     if remove_border:
         h, w = label_img.shape
