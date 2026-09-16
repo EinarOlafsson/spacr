@@ -1,4 +1,4 @@
-|Platforms| |Python| |Qt| |Release date| |Issues| |Source| |Conda| |PyPI| |Docs| |Tutorials| |Conda Downloads| |PyPI Downloads| |Preprint| |DOI| |Cite| |License|
+|Platforms| |Python| |Qt| |Release date| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
