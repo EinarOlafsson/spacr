@@ -39,13 +39,29 @@
 .. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge version
-
 .. |Downloads| image:: https://anaconda.org/conda-forge/spacr/badges/downloads.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge downloads
 .. |Release date| image:: https://anaconda.org/conda-forge/spacr/badges/latest_release_date.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge latest_release_date
+
+
+.. |Python| image:: https://img.shields.io/pypi/pyversions/spacr?logo=python&logoColor=white
+   :target: https://pypi.org/project/spacr/
+   :alt: Supported Python versions
+
+.. |PyPI Downloads| image:: https://img.shields.io/pypi/dm/spacr?label=PyPI%20downloads
+   :target: https://pypi.org/project/spacr/
+   :alt: PyPI downloads
+
+.. |Platforms| image:: https://img.shields.io/badge/Platforms-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey
+   :target: https://einarolafsson.github.io/spacr/
+   :alt: Linux, macOS, and Windows
+
+.. |Cite| image:: https://img.shields.io/badge/Cite-CITATION.cff-8A2BE2
+   :target: https://github.com/EinarOlafsson/spacr/blob/main/CITATION.cff
+   :alt: Cite spaCR
 
 
 .. image:: spacr/resources/icons/logo_spacr_readme.png
