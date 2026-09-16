@@ -407,16 +407,9 @@ def test_a_main_window_survives_ten_percent_and_comes_back(
     ``caplog`` sees), and no "Pixel size <= 0" / "Point size <= 0" from Qt,
     which is what a zero-pixel font produces.
 
-    COMES BACK means every label sized by the sheets a Zoom change rebuilds
-    -- the window's, the page's and the status bar's -- is at exactly its
-    100 % size again, compared with a window built at 100 %.
-
-    NOT CHECKED, AND WHY: a label under a sheet its own widget composed at
-    construction (the setting chips, the run instruction, the first-run
-    tour) keeps the size it was built at until its screen is rebuilt. That
-    is not a 10 % problem: built at 200 % and wheeled down to 100 %, the
-    same eleven labels stay at 200 %. It is recorded on item 413 as a
-    follow-up.
+    COMES BACK includes self-styled chips, the run instruction and the
+    first-run tour, not only labels inheriting the window stylesheet.
+    Their effective sizes must match a window built at 100 %.
     """
     caplog.set_level(logging.ERROR, logger="spacr")
 
@@ -429,10 +422,7 @@ def test_a_main_window_survives_ten_percent_and_comes_back(
     assert prefs.get_font_scale() == pytest.approx(REQUESTED_FLOOR)
     at_10 = _visible_label_sizes(window)
 
-    carriers = {window, window._stack.currentWidget(), window.statusBar(),
-                None}
-    rebuilt = [key for key, (_px, carrier) in at_10.items()
-               if key in at_100 and carrier in carriers]
+    rebuilt = [key for key in at_10 if key in at_100]
     assert len(rebuilt) >= 30, (
         f"only {len(rebuilt)} labels to compare; the test would prove little")
     not_smaller = [(key, at_100[key][0], at_10[key][0]) for key in rebuilt
@@ -460,10 +450,72 @@ def test_a_main_window_survives_ten_percent_and_comes_back(
     back = _visible_label_sizes(window)
     not_restored = [(key, at_100[key][0], back[key][0]) for key in rebuilt
                     if key in back and back[key][0] != at_100[key][0]]
-    assert not_restored == [], f"not back at 100 %: {not_restored[:5]}"
+    own_styles = [(key, back[key][1].styleSheet()[:240])
+                  for key, _old, _new in not_restored if back[key][1] is not None]
+    assert not_restored == [], (
+        f"not back at 100 %: {not_restored}; nearest font sheets: {own_styles}")
     assert all(key in back for key in rebuilt), "labels vanished on the way"
 
     zero_size = [text for text in qt_messages if "size <= 0" in text.lower()]
     assert zero_size == [], zero_size[:5]
     assert [r.getMessage() for r in caplog.records
             if r.levelno >= logging.ERROR] == []
+
+
+def test_console_text_obeys_ten_percent_and_recovers(qtbot, qt_theme_applied):
+    from spacr.qt.widgets.console_panel import ConsolePanel, _StdoutBlock
+
+    original_scale = prefs.get_font_scale()
+    prefs.set_font_scale(1.0)
+    console = ConsolePanel()
+    qtbot.addWidget(console)
+    console.append_stdout("Existing output must shrink and recover.")
+    console.show()
+    block = console.findChild(_StdoutBlock)
+    assert block is not None
+    QApplication.processEvents()
+    full_pt = block.font().pointSize()
+    full_px = _rendered_px(block)
+    try:
+        prefs.set_font_scale(REQUESTED_FLOOR)
+        console.apply_zoom()
+        QApplication.processEvents()
+        assert block.font().pointSize() == max(1, round(full_pt * REQUESTED_FLOOR))
+        assert 0 < _rendered_px(block) < full_px
+        prefs.set_font_scale(1.0)
+        console.apply_zoom()
+        QApplication.processEvents()
+        assert block.font().pointSize() == full_pt
+        assert _rendered_px(block) == full_px
+    finally:
+        prefs.set_font_scale(original_scale)
+        console.close()
+
+
+@pytest.mark.parametrize("start", [REQUESTED_FLOOR, 2.0])
+def test_setting_chips_and_the_group_button_follow_each_zoom(
+        qtbot, qt_theme_applied, start):
+    from spacr.qt.screens.settings_model import _ListEditor
+    from spacr.qt.theme import font_px
+
+    original_scale = prefs.get_font_scale()
+    prefs.set_font_scale(start)
+    prefs.apply_preferences_to_app(qt_theme_applied)
+    editor = _ListEditor(default=[["one", "two"]], nested_capable=True)
+    qtbot.addWidget(editor)
+    editor.show()
+    try:
+        for scale in (start, 1.0, REQUESTED_FLOOR, 2.0, 1.0):
+            prefs.set_font_scale(scale)
+            prefs.apply_preferences_to_app(qt_theme_applied)
+            _pump(qt_theme_applied)
+            chips = editor.findChildren(QLabel, "SettingChipText")
+            assert len(chips) == 2
+            assert editor._footer.isVisible()
+            for widget in [*chips, editor._footer]:
+                assert _rendered_px(widget) == font_px(12, scale), (
+                    widget.objectName(), scale, _rendered_px(widget))
+    finally:
+        prefs.set_font_scale(original_scale)
+        prefs.apply_preferences_to_app(qt_theme_applied)
+        editor.close()

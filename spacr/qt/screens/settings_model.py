@@ -6569,7 +6569,7 @@ class _Chip(QFrame):
         """Build the pill: its text and the mark that removes it."""
         super().__init__(parent)
         from ..i18n import tr
-        from ..theme import apply_close_mark, font_px
+        from ..theme import apply_close_mark
         self.setObjectName("SettingChip")
         self._text = text
         row = QHBoxLayout(self)
@@ -6595,7 +6595,6 @@ class _Chip(QFrame):
             QLabel#SettingChipText {{
                 color: {colours['fg']};
                 background: transparent;
-                font-size: {font_px(12)}px;
             }}
             """
         )
@@ -6995,7 +6994,7 @@ class _ListEditor(QWidget):
         :param parent: parent widget.
         """
         super().__init__(parent)
-        from ..theme import active_palette, font_px
+        from ..theme import active_palette
         self._colours = active_palette()
         self._key = key
         self._nested_capable = bool(nested_capable)
@@ -7021,7 +7020,7 @@ class _ListEditor(QWidget):
         self._footer.clicked.connect(self._on_footer)
         self._footer.setStyleSheet(
             f"QToolButton#SettingListFooter {{ color: {self._colours['accent']};"
-            f" background: transparent; border: none; font-size: {font_px(12)}px;"
+            " background: transparent; border: none;"
             f" padding: 0px; text-align: left; }}"
         )
         self._outer.addWidget(self._footer, 0, Qt.AlignLeft)

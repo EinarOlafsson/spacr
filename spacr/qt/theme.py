@@ -4306,6 +4306,25 @@ QLabel#SubtitleSmall, QLabel#Muted {{
     font-size: {F["small"]}px;
     background: transparent;
 }}
+QLabel#SettingChipText, QToolButton#SettingListFooter {{
+    font-size: {font_px(12, font_scale)}px;
+}}
+QLabel#TourStep {{
+    font-size: {font_px(10, font_scale)}px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    letter-spacing: 2px;
+}}
+QLabel#TourTitle {{
+    font-size: {font_px(20, font_scale)}px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+}}
+QLabel#TourBody {{
+    font-size: {font_px(13, font_scale)}px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+}}
 QLabel#Caption {{
     color: {P["fg_dim"]};
     font-size: {F["xs"]}px;

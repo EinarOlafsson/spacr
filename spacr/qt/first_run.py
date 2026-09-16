@@ -223,7 +223,10 @@ class _TourOverlay(QWidget):
 
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setGeometry(window.rect())
-        self.setStyleSheet("background: transparent;")
+        from .theme import mark_as_a_sheet_target
+        self.setObjectName("TourOverlay")
+        self.setStyleSheet("QWidget#TourOverlay { background: transparent; }")
+        mark_as_a_sheet_target(self)
         self.raise_()
 
         self._card = QWidget(self)
@@ -243,30 +246,21 @@ class _TourOverlay(QWidget):
         col.setSpacing(8)
 
         from .i18n import tr
-        from .theme import font_px
         self._step_lbl = QLabel(tr("Step {n} / {total}", n=1,
                                    total=len(steps)))
-        self._step_lbl.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif;"
-            f"font-weight: 600; font-size: {font_px(10)}px;"
-            "letter-spacing: 2px; color: #4A9EFF;"
-        )
+        self._step_lbl.setObjectName("TourStep")
+        self._step_lbl.setStyleSheet("color: #4A9EFF;")
         col.addWidget(self._step_lbl)
 
         self._title_lbl = QLabel(tr(steps[0].title))
-        self._title_lbl.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif;"
-            f"font-weight: 400; font-size: {font_px(20)}px; color: #e5e5e5;"
-        )
+        self._title_lbl.setObjectName("TourTitle")
+        self._title_lbl.setStyleSheet("color: #e5e5e5;")
         col.addWidget(self._title_lbl)
 
         self._body_lbl = QLabel(tr(steps[0].body))
+        self._body_lbl.setObjectName("TourBody")
         self._body_lbl.setWordWrap(True)
-        self._body_lbl.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif;"
-            f"font-weight: 300; font-size: {font_px(13)}px;"
-            "color: #a1a6ad;"
-        )
+        self._body_lbl.setStyleSheet("color: #a1a6ad;")
         col.addWidget(self._body_lbl)
 
         btn_row = QWidget()

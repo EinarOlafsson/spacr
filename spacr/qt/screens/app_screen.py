@@ -352,7 +352,7 @@ class ModuleHeader(QWidget):
         self.title_label = QLabel(str(title))
         self.title_label.setObjectName("DisplayHeading")
         title_col.addWidget(self.title_label)
-        self.instruction_label = QLabel(str(instruction or ""))
+        self.instruction_label = QLabel(str(instruction or ""), self)
         self.instruction_label.setObjectName("Muted")
         self.instruction_label.setWordWrap(True)
         self.instruction_label.setVisible(bool(instruction))

@@ -1185,7 +1185,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             QFontDatabase.FixedFont).pointSize()) or 10
         try:
             from ..preferences import get_font_scale
-            return max(6, int(round(base * get_font_scale())))
+            return max(1, int(round(base * get_font_scale())))
         except Exception:
             return base
 

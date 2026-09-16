@@ -2,15 +2,14 @@
 THE FONT ZOOM FLOOR IS 10%, NOT 75%
 ================================================================================
 
-Status:    BUILT, ON NIGHTLY, 2026-09-15. The floor is 10% on every path and
-           renders as 10%; the app survives it and wheels back. The two
-           docstrings that stated the old range were corrected with their nine
-           languages in 20199e598. Open: the console's own 6 pt floor, and
-           eleven self-styled labels that keep their build size on any Zoom
-           change.
+Status:    DONE, 2026-09-15. The floor renders at 10% on every zoom path,
+           including the console. Chips, the group button, run instruction
+           and tour follow live zoom and return to their normal sizes.
+           The range docstrings and nine languages were corrected in
+           20199e598; the follow-up evidence is at the end of this file.
 Requested: 2026-09-15, by the maintainer, in these words:
            "i would like to change the font zoom floor from 75% to 10%"
-Owner:     Claude home session.
+Owner:     Codex (completed the remaining follow-ups after takeover).
 
 --------------------------------------------------------------------------------
 WHAT IS THERE NOW
@@ -210,3 +209,58 @@ elsewhere:
 MERGE NOTE. The main checkout carries this file untracked in features/new;
 this branch adds it, so remove that untracked copy before merging or git
 refuses to overwrite it.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- CODEX: CONSOLE AND SELF-STYLED FOLLOW-UPS CLOSED
+--------------------------------------------------------------------------------
+
+ConsolePanel's remaining 6 pt floor is now 1 pt. Existing output shrinks
+at 10% and returns to its original effective font, without replacing the
+output or rebuilding the screen.
+
+The chip text and list-group button no longer freeze their construction-time
+font in their own sheets. Their 12 px base size lives in the theme sheet
+that zoom rebuilds. Tour step/title/body typography is likewise in that
+sheet; the overlay is marked as a theme target so it receives the correct
+sheet when first shown, not only after the next zoom. Its transparent
+background rule is scoped to the overlay itself.
+
+The run instruction had a different cause: setVisible() was called before
+the parentless label joined its layout. It briefly became a top-level window,
+received a per-window sheet, and retained that frozen sheet after reparenting.
+Constructing it with its ModuleHeader parent prevents the stray window and
+lets it inherit the live typography.
+
+The real-MainWindow 10% -> 100% test now checks every common visible-label
+key, including the labels the earlier test explicitly excluded. On current
+source the earlier eleven instances collapse to eight distinct text/name
+keys; the regression does not depend on that historical count. It requires
+at least thirty compared labels, all to shrink, none to disappear, all to
+recover, and no zero-size font warnings or swallowed ERROR logs. The added
+console test checks rendered output, and two chip/group cases exercise
+10% and 200% construction followed by 100%, 10%, 200%, and 100% changes.
+
+Four deliberate source mutations were tested and restored:
+  * restore the console's 6 pt floor: 6 != 1;
+  * remove the instruction's construction parent: 12 px stays at 1 px;
+  * remove the tour's initial theme target: three labels stay at 12 px
+    at both 100% and 10%;
+  * restore the group's inline font: 100% stays at 1 px or 24 px, depending
+    on the construction scale. Both starting-scale cases fail.
+
+The final zoom file passes 10/10 under branch coverage. All fourteen changed
+executable statements execute, with no exclusions; the enclosing statements
+for the changed theme/chip/group QSS strings execute too. Rendered-font
+assertions, rather than coverage alone, prove those string changes work.
+Coverage artifact: /tmp/spacr-413-final.json (local measurement, not shipped).
+
+Adjacent files were run in separate, serial, memory-guarded processes:
+  console_ui 19; cov_w2_6_first_run 35; walkthrough 19;
+  settings_list_editor 83; no_font_size_is_written_as_a_literal 2;
+  z_and_the_wheel_resize_the_text 28; zoom_reaches_text 8;
+  cov_11_theme 17. All passed. No public docstring or runtime caption changed
+in this follow-up, so it requires no translation regeneration.
+
+The documentation_i18n file also passes 141/141, including live API symbol
+inventory and source/block hash equality for English and all nine locales.
+Fatal-error lint, git diff --check and the generated feature index check pass.
