@@ -1,0 +1,27 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "key": "{name}: pooled EC50 {ec50}{unit} ({low}–{high}) across {used} of {plates} plates, I² {spread}",
+      "source": "{name}: pooled EC50 {ec50}{unit} ({low}–{high}) across {used} of {plates} plates, I² {spread}",
+      "source_sha256": "58b33b80a37045d408cbe9a9c3b27b0dc64526e95251582fa93f9ba182748451",
+      "table": "ui",
+      "translation": "{name}: EC50 agrupada {ec50}{unit} ({low}–{high}) a partir de {used} de {plates} placas, I² {spread}"
+    },
+    {
+      "key": "{name}: selectivity index {index} ({low}–{high}), host EC50 {host} over response EC50 {response}",
+      "source": "{name}: selectivity index {index} ({low}–{high}), host EC50 {host} over response EC50 {response}",
+      "source_sha256": "0fd035f3b3700f93f81842346ddb2417a0dcfb6dd7ef563fd915ae56d83eecb9",
+      "table": "ui",
+      "translation": "{name}: índice de seletividade {index} ({low}–{high}), EC50 do hospedeiro {host} dividida pela EC50 da resposta {response}"
+    },
+    {
+      "key": "{name}: {model} excess over {cells} combination wells, max {max} at {dose_a} + {dose_b}, min {min}; {synergistic} synergistic, {antagonistic} antagonistic",
+      "source": "{name}: {model} excess over {cells} combination wells, max {max} at {dose_a} + {dose_b}, min {min}; {synergistic} synergistic, {antagonistic} antagonistic",
+      "source_sha256": "5cde0d6192e9673bfd65f0ab5da40e7747791f23d6ba792584a22ca200d70884",
+      "table": "ui",
+      "translation": "{name}: excesso em relação a {model} em {cells} poços de combinação, máximo {max} em {dose_a} + {dose_b}, mínimo {min}; {synergistic} sinérgicos, {antagonistic} antagônicos"
+    }
+  ],
+  "schema": 1
+}

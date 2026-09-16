@@ -2126,3 +2126,46 @@ boundary, an INTRODUCED literal the source never had, and a renamed label. A
 gate that refuses a translation for adding "gRNA" where the English says
 "guide" looks pedantic until it stops you shipping the wrong vocabulary in
 nine languages.
+
+2026-09-15 -- DOSE-RESPONSE REPORT TRANSLATIONS REPAIRED (CODEX)
+
+The runtime audit found five source-current rows still in English on the
+starting commit a2ecc32b8: Spanish pooled EC50, selectivity index and model-
+excess reports, and Portuguese selectivity index and model-excess reports.
+417 preserved those old values rather than silently regenerating unrelated
+translations; this is their separate repair.
+
+Reading the other versions exposed semantic defects the audit could not:
+Chinese "host" meant a presenter, Korean "synergistic" meant synchronized,
+Hindi meant sympathetic, German wells were water wells, and Icelandic prose
+did not describe the reported statistics. All three report templates now
+have source-bound technical review records in all nine languages, 27 records.
+The wording keeps the pooled estimate, the host/response EC50 division and
+the excess relative to the combination model explicit. Values, placeholders,
+their required order, EC50 and I-squared are preserved.
+
+There were no existing reviewed records for these three sources before this
+repair. Every other catalog value and source hash was compared and preserved,
+including the maintainer's Icelandic choices. This is technical review, not
+a claim of native-speaker approval; Hindi's unreviewed status is unchanged.
+
+EVIDENCE
+  * The focused regression first reproduced exactly 5 failures / 22 passes.
+    Its additional source-bound wording checks then caught 8 locales still
+    carrying unreviewed drafts even after the exact-English five were fixed.
+    The finished file passes all 36 cases.
+  * Reviewed-runtime syntax tests: 3 passed. Caption ratchet: 11 passed.
+  * Every reviewed runtime record matches its source: 3,198 checked.
+  * Full runtime audit: PASS in all nine languages, 998 setting tooltips,
+    194 categories, 3,556 UI sources and 68 module summaries.
+  * Runtime coverage remains 5,819/5,819 per language, zero orphans. Five
+    English fallbacks became translated; the remaining improvements change
+    meaning and grammar, not the count of non-English values.
+  * Reviewed-source pins: Swedish 299 -> 302 and French 274 -> 277. Removing
+    exactly the three new sources returns the previous counts. No runtime
+    source-identity pin, English manifest or API catalog changed.
+
+The test is tests/qt/test_dose_response_summaries_do_not_fall_back_to_english.py;
+the evidence files are reviewed/runtime/<locale>/2026-09-15-dose-response-
+summary-repair.json under docs/i18n/. This does not close 316's broader
+semantic/human-review work or claim a full-repository CI verdict.

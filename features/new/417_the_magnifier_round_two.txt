@@ -426,3 +426,7 @@ The requested save modes themselves are implemented and tested. YOLO retains
 the reason recorded above: there is no suitable cell-mask checkpoint in the zoo.
 All verification used a 100 GiB system-memory cutoff, one heavy process at a
 time, and no full-repository coverage run.
+
+FOLLOW-UP: the separate 306 repair now resolves the five baseline English
+fallbacks and corrects these three report messages in all nine languages.
+The full runtime audit passes; its evidence is recorded in item 306.

@@ -132,7 +132,10 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # two status lines -- 2026-09-15-magnifier-round-two-drag.json, written by
     # hand. Measured on the combined source: all eighteen sources are distinct
     # and present. Removing them leaves 281 = 284 - 3; 281 + 18 = 299.
-    assert len(reviewed) == 299
+    # 299 -> 302: three distinct Dose-Response report sources gain reviewed
+    # wording (pooled EC50, selectivity index, combination-model excess).
+    # None had a reviewed record before; removing these three returns 299.
+    assert len(reviewed) == 302
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -259,7 +262,9 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # drag-to-merge records, matching the Swedish sets above. Measured on
     # the combined source: removing the eighteen distinct new sources leaves
     # 256 = 259 - 3, and 256 + 18 = 274. No unrelated pin was moved.
-    assert len(reviewed) == 274
+    # 274 -> 277: the same three report sources gain reviewed French wording;
+    # no source/key changes or retired records. Subtracting them returns 274.
+    assert len(reviewed) == 277
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
