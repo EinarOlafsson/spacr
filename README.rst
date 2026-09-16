@@ -16,7 +16,7 @@
    :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
    :alt: Test suite
 .. |Qt| image:: https://img.shields.io/badge/GUI-Qt%20%28PySide6%29-41CD52
-   :target: https://einarolafsson.github.io/spacr/
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/index.html#module-spacr.qt
    :alt: Qt interface
 .. |Source| image:: https://img.shields.io/badge/GitHub-Source-181717?logo=github
    :target: https://github.com/EinarOlafsson/spacr
