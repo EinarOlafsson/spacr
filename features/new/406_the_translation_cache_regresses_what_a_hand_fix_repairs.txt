@@ -3,16 +3,16 @@ THE TRANSLATION CACHE OUTLIVES A HAND FIX, AND A PLAIN BUILD PUTS THE BAD ROW
 BACK
 ================================================================================
 
-Status:    FOUND AND CONTAINED 2026-09-14. The 88 affected zh_CN rows are
-           pinned as reviewed records and a rebuild no longer regresses
-           them. The CACHE ITSELF IS STILL WRONG and is not fixed here --
-           see WHAT IS NOT DONE.
+Status:    DONE 2026-09-15. Current committed runtime rows outrank the cache;
+           accepted API review is published verbatim; ordinary API builds
+           now retain source-proven unchanged paragraphs. Historical notes
+           below describe the original incidents, not remaining work.
 Requested: not requested. Found while fixing the `resume` label, when a
            rebuild silently undid a hand fix committed forty minutes
            earlier.
 Numbered: filed as 403 on 2026-09-14 and renumbered 406 the same day, because
            the work session's future items 403-405 landed first.
-Owner:     unassigned. `tools/build_i18n_catalogs.py:5273`, and
+Owner:     Codex. `tools/build_i18n_catalogs.py`, and
            `<model_root>/.spacr_translation_cache/<language>.json`.
 
 --------------------------------------------------------------------------------
@@ -576,3 +576,41 @@ This is a checkpoint, not completion of item 406: the ordinary-build
 historical paragraph-reuse gap above remains open. Runtime cache precedence
 and reviewed API repair are now fixed; ordinary API builds still need the
 same proof-bound history preservation already available in repair mode.
+
+2026-09-15 -- ORDINARY BUILDS NOW PRESERVE PROVEN PARAGRAPHS; ITEM COMPLETE
+------------------------------------------------------------------------
+
+The remaining ordinary-build gap is fixed. Both build modes now share
+_proven_api_history, which selects the working or HEAD English record only
+when its source hash matches the translated record. The existing source,
+layout, contextual hash and target-validity checks are unchanged. Historical
+targets stay per symbol: two symbols with identical English may retain two
+different valid committed translations. Reviewed evidence outranks both.
+
+Ordinary main() publishes the new English manifest only after all requested
+locales have been written. A failure in a later locale therefore leaves the
+old English available for a retry. --force bypasses ordinary historical
+reuse, while retaining the existing decoder/cache contract rather than
+silently adopting repair mode's forced decoding. --sources-only and the
+README-only path retain their existing behavior.
+
+Nine new tests in test_documentation_i18n_plain_history.py drive real main(),
+the history validators and the artifact writer against temporary catalogs.
+Models and the HEAD reader are bounded recorders, not network/GPU calls.
+They cover distinct same-English targets, both manifest locations, the
+two-locale success/failure sequence, changed paragraphs, force, reviewed
+precedence, missing source proof and stale contextual hashes.
+
+Before the change: four failed, five passed. After: nine passed. The existing
+API repair/historical/plain-build selection in test_documentation_i18n.py
+also passed (16 cases), as did the twelve runtime cache-precedence tests.
+Measured branch coverage executes all 29 statements and all eight branches
+of _proven_api_history, with no exclusions; the changed plain-build
+selection and deferred manifest-write statements are also executed.
+
+The earlier reviewed-target fix is pushed as 0560c747a. The old external
+cache need not be erased: it cannot displace proven committed rows, and
+source-bound reviews remain authoritative. This closes both remaining API
+gaps recorded above, not a claim that every unrelated translation is good.
+418 still owns its new English/docstring/catalog changes and their separate
+freshness verification.
