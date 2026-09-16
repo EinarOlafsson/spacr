@@ -82,3 +82,56 @@ DONE WHEN
 * The command that runs is the provider's own install_hint for that operating
   system, and there is one definition of it.
 * Every failure path shows a message and leaves the screen usable.
+
+--------------------------------------------------------------------------------
+2026-09-16 — ADDED BY THE MAINTAINER: THE GITHUB CLI TOO, AND A WAY TO GET AN ACCOUNT
+--------------------------------------------------------------------------------
+
+In his words:
+
+    "and same for the github cli, add that to and a button that links to
+    generating a github account"
+
+So the Install button above covers the GitHub CLI as well, and beside it there
+is a button that takes a user who has no GitHub account to where they can make
+one.
+
+WHAT IS THERE TODAY (read on nightly 7fa5105a1)
+
+  * The GitHub CLI is NOT a ChatProvider, so it has none of the machinery the
+    AI providers have -- no install_hint, no is_installed(), no is_logged_in().
+    spaCR only consumes it: spacr/qt/ai/github_auth.py reads a token with
+    `gh auth token` (~84) and its docstring tells interactive users to run
+    `gh auth login` themselves (~62); spacr/qt/ai/issue_report.py reports the
+    CLI's version or the bare marker "not installed" (~278-286).
+  * So today a user without `gh` is told it is missing and left to install and
+    log in somewhere else -- the same dead end this item removes for the AI
+    providers.
+
+WHAT TO BUILD
+
+  * Give the GitHub CLI the same three states the AI providers have -- not
+    installed, installed but not logged in, ready -- and the same Install
+    button, running the CLI's own installer for the running operating system.
+    Either extend the provider seam to cover it or give it the same small
+    interface; do not grow a second, different way of asking "is it there?".
+  * After installing, take the user through `gh auth login` and leave the CLI
+    logged in, so `gh auth token` answers and the issue reporter works without
+    a restart.
+  * Beside it, a button for a user with no GitHub account at all: it opens
+    GitHub's sign-up page in the browser. Creating the account happens on
+    GitHub, in the browser -- the button is the link, nothing more -- and when
+    the user comes back, Install and login finish the job.
+  * The cautions above apply unchanged: show the command before running it,
+    never run it unasked, keep the GUI responsive, and leave an actionable
+    message on every failure. The new captions are translated strings for the
+    catalog lane.
+
+DONE WHEN
+
+  * On a machine without `gh`, Install leaves it installed and logged in, and
+    spacr/qt/ai/github_auth.py gets a token without the user opening a
+    terminal.
+  * The account button opens GitHub's sign-up page.
+  * A user who declines any step is left with a working screen and the command
+    still visible.
