@@ -2,7 +2,7 @@
 spaCR FEATURES -- NEW, AND FUTURE
 ================================================================================
 
-Regenerated 2026-09-15 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-09-16 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/future/*.txt

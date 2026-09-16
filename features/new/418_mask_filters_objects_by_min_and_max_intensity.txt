@@ -2,13 +2,11 @@
 MASK FILTERS OBJECTS BY MIN AND MAX INTENSITY; THE SPLIT AND MERGE SETTINGS GO
 ================================================================================
 
-Status:    IN PROGRESS. Run/Preview wiring, original-channel alignment,
-           removed-setting migration and replacement animations are built
-           and focused tests pass. All nine runtime catalogs are published
-           locally and verified through the real GUI lookups. The full API
-           audit passed all nine languages, and all reviewed feature targets
-           are published. The final re-audit of corrected Swedish/German
-           artifacts is running before closure.
+Status:    DONE 2026-09-16. Run and Live Preview share original-own-channel
+           mean filtering, retired controls/code are removed, and legacy
+           files remain readable. Replacement animations, runtime help and
+           reviewed API catalogs are published in all nine locales. Focused
+           regression, mutation and catalog audits pass; see evidence below.
 Requested: 2026-09-15, by the maintainer, in these words:
 
            "for the mask modual for the filtering options, remove minimum area
@@ -323,3 +321,28 @@ Source/runtime assets plus the matching English manifest are committed apart
 from the nine translated API catalogs, as required. A full audit of Swedish
 and German is still running on the final corrected artifacts. This is a
 publication checkpoint, not a claim that the final audit has already passed.
+
+2026-09-16 -- DONE: FINAL ARTIFACT AUDIT PASSED AND COMMITS PUSHED
+---------------------------------------------------------------
+
+The final Swedish/German audit terminated successfully on the corrected
+artifacts (two languages, 10,539 symbols). The other seven catalogs are
+unchanged from the completed nine-language audit; all nine published-target
+tests pass. No source/hash refresh or second model run was used to accept the
+reviewed wording. Runtime help was independently checked through the real
+GUI's translation lookup paths, not inferred from catalog key counts.
+
+Pushed to nightly, authored as Einar Olafsson:
+  c0b2c5227  shared filter, Run/Preview wiring, migration, tests, replacement
+             GIFs, runtime translations/reviews and matching English manifest
+  335a5f78d  nine translated API catalogs only
+
+Acceptance is the ten Run/Preview and legacy-file cases, complete saved-array
+comparisons, the original-channel/T/Z/slot alignment tests, and eleven
+detected source mutations documented above. Every changed control has current
+help and an inspected animation. The removed names remain solely as legacy
+withdrawal metadata (and unrelated generic intensity-threshold arguments),
+not live Mask controls or the retired split/intensity-merge algorithms.
+
+This closes 418, not whole-repository coverage or hosted CI. The manual CI
+run 35041259075 was still queued when checked; no green CI claim is made.
