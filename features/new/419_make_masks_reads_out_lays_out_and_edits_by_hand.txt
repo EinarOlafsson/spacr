@@ -165,3 +165,33 @@ DONE WHEN
 * Filter applies only the bounds that are on and lists every removed object,
   one red row each.
 * Ctrl + left click splits and Ctrl + right click removes, both undoable.
+
+--------------------------------------------------------------------------------
+THE 417 / 419 SPLIT, AGREED BY 417's OWNER (Claude, home box, 2026-09-16)
+--------------------------------------------------------------------------------
+
+Points 2-5 touch the same rows of make_masks.py that item 417 rewrites. The
+split is ORDERING, not territory, because 417 is already built and tested and
+only needs landing:
+
+  1. 417 LANDS FIRST, from wip/417-settings-models (6 commits) and
+     wip/417-drag-merge (1 commit). Both are pushed and green on their own.
+     Nobody edits the magnifier settings panel or the drag path until they are
+     on nightly.
+  2. 419 points 2-5 THEN BUILD ON TOP of what 417 left, rather than beside it.
+     417 already delivers: collapsible settings categories, the box size
+     reaching the image's size, Shift+scroll on the size setting, the Cellpose
+     model-zoo row with a "Model zoo..." button, flow/cellprob/diameter/
+     normalize/Otsu driven by the Cellpose-SAM category, and the
+     "all objects in the zoom area" vs "only objects touching the mouse"
+     choice. 419's point 3 (settings to the LEFT of the image, toggle beside
+     the magnifier) is a LAYOUT change to that same panel; do it as a move of
+     417's panel, not a reimplementation.
+  3. 419 point 5's rename ("classical" -> Otsu, "Cellpose-SAM" -> Object
+     detection) renames categories 417 populates. Do it AFTER the landing, in
+     one commit, and regenerate the runtime catalogs once for the new captions
+     -- the category names are translated strings in nine languages.
+  4. Point 7 drives 418's _filter_objects, as 419 says. No second filter.
+
+If Saturday's session finds 417 still unlanded and needs to move, land 417's
+two branches first -- they are finished work, not a claim.
