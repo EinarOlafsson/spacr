@@ -40,6 +40,16 @@
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge version
 
+.. |Downloads| image:: https://anaconda.org/conda-forge/spacr/badges/downloads.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge downloads
+.. |Release date| image:: https://anaconda.org/conda-forge/spacr/badges/latest_release_date.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge latest_release_date
+
+https://anaconda.org/conda-forge/spacr/badges/downloads.svg
+
+
 .. image:: spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
    :width: 920

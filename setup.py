@@ -33,7 +33,6 @@ dependencies = [
     'matplotlib_venn>=1.1,<2.0',
     'pypdf>=6.16.1,<7.0',
     'cycler>=0.10,<1',
-
     'PySide6>=6.6,<7',
     'qtawesome>=1.3,<2',
     'pyqtgraph>=0.13.3,<1',
