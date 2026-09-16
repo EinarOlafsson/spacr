@@ -7,9 +7,9 @@ recorded and never performed -- `minimum_cell_count`, `organelle_min_size`,
 `organelle_max_size`, `redunction_method` -- so `spacr-doctor` printed
 "renamed to X" about a file whose value the run then replaced with a default.
 
-A SECOND, WORSE CLASS was recorded in NEITHER. The four families renamed by
-b7ae412af (`<role>_FT`, `<role>_CP_prob`, `<role>_Signal_to_noise`,
-`<role>_min_object_area`) were absent from both tables, so an old file got no
+A SECOND, WORSE CLASS was recorded in NEITHER. The families renamed by
+b7ae412af (`<role>_FT`, `<role>_CP_prob`, `<role>_Signal_to_noise`)
+were absent from both tables, so an old file got no
 migration AND no warning: `cell_FT=0.42` came out of the mask factory as
 `cell_flow_threshold=100`, the default, silently.
 
@@ -26,7 +26,8 @@ from __future__ import annotations
 import pytest
 
 from spacr.object_roles import (ALL_ROLES, RENAMED_SETTING_SUFFIXES,
-                                split_role_setting)
+                                WITHDRAWN_SETTING_SUFFIXES, split_role_setting,
+                                withdrawn_setting_reason)
 from spacr.settings import (RENAMED_SETTINGS, SEMANTIC_FOLDS, expected_types,
                             _fold_renamed_settings, surviving_setting_name)
 from spacr.validate import RETIRED_SETTINGS
@@ -190,13 +191,15 @@ def test_the_doctor_speaks_for_every_key_the_run_migrates():
     disagreed = []
     corpus = list(RETIRED_SETTINGS)
     corpus += [f"{role}_{suffix}" for role in SAMPLE_ROLES
-               for suffix in RENAMED_SETTING_SUFFIXES]
+               for suffix in (*RENAMED_SETTING_SUFFIXES,
+                              *WITHDRAWN_SETTING_SUFFIXES)]
     for key in corpus:
         if key in SEMANTIC_FOLDS:
             continue
         migrated = bool(surviving_setting_name(key))
         spoke = bool(_check_retired_keys({key: PROBE}))
-        withdrawn = RETIRED_SETTINGS.get(key) == ""
+        withdrawn = (RETIRED_SETTINGS.get(key) == ""
+                     or withdrawn_setting_reason(key) is not None)
         if withdrawn:
             # A withdrawal is warned about and never moved, by design.
             assert spoke and not migrated, key
@@ -217,6 +220,8 @@ def test_a_withdrawn_setting_keeps_its_key():
     place so the doctor can name it.
     """
     withdrawn = [k for k, v in RETIRED_SETTINGS.items() if not v]
+    withdrawn += [f"{role}_{suffix}" for role in SAMPLE_ROLES
+                  for suffix in WITHDRAWN_SETTING_SUFFIXES]
     assert withdrawn, "expected withdrawals in the table"
     for key in withdrawn:
         settings = {key: PROBE}
@@ -228,10 +233,9 @@ def test_a_withdrawn_setting_keeps_its_key():
 def test_a_chain_of_renames_resolves_to_the_end(monkeypatch):
     """IMPOSSIBLE: a two-step chain stopping after one step.
 
-    391 creates exactly this -- `<role>_min_object_area` becomes
-    `_min_split_area` becomes `_minimum_area_to_split` -- so the oldest files
-    need two hops and a resolver that takes one leaves the value on a key
-    nothing reads.
+    A later rename can extend an existing chain. The synthetic two-hop
+    chain ends at a live area setting, so stopping on the intermediate
+    spelling would leave a value on a key nothing reads.
     """
     monkeypatch.setitem(RENAMED_SETTING_SUFFIXES, "aa", "bb")
     monkeypatch.setitem(RENAMED_SETTING_SUFFIXES, "bb", "min_area")
@@ -293,16 +297,16 @@ def test_the_mask_factory_keeps_the_values_an_old_file_set():
     assert old_file["cell_cellprob_threshold"] == -0.7
     assert old_file["nucleus_signal_to_noise"] == 7.5
     assert old_file["organellez_min_area"] == 44
-    # THE TWO-HOP CHAIN, and it is the reason this assertion changed once
-    # already. `cell_min_object_area` became `cell_min_split_area` in
-    # b7ae412af and `cell_minimum_area_to_split` in 391, so the oldest files
-    # need BOTH hops. This asserted the INTERMEDIATE name until 391 landed and
-    # failed the moment it did -- which is the guard working: a resolver that
-    # stopped after one step would leave the value on a key nothing reads.
-    assert old_file["cell_minimum_area_to_split"] == 123
-    assert "cell_min_split_area" not in old_file, (
-        "the value stopped on the intermediate name, which nothing reads")
-    for dead in ("cell_FT", "cell_CP_prob", "cell_min_object_area",
+    # Feature 418 withdraws the entire split family, including old aliases.
+    # Retain its original spelling so the doctor can explain why it is inert;
+    # it must not populate either the dead intermediate names or new bounds.
+    assert old_file["cell_min_object_area"] == 123
+    assert withdrawn_setting_reason("cell_min_object_area") is not None
+    assert "cell_minimum_area_to_split" not in old_file
+    assert "cell_min_split_area" not in old_file
+    assert old_file["cell_min_intensity"] == 0.0
+    assert old_file["cell_max_intensity"] == 0.0
+    for dead in ("cell_FT", "cell_CP_prob",
                  "nucleus_Signal_to_noise", "organellez_min_size"):
         assert dead not in old_file, f"{dead} was left behind"
 
@@ -360,6 +364,11 @@ def test_the_qt_load_agrees_with_the_run():
     for old, new in (("cell_FT", "cell_flow_threshold"),
                      ("organelleq_min_size", "organelleq_min_area")):
         assert _translate_legacy_setting_keys({old: PROBE}) == {new: PROBE}
+
+    for role in SAMPLE_ROLES:
+        for suffix in WITHDRAWN_SETTING_SUFFIXES:
+            key = f"{role}_{suffix}"
+            assert _translate_legacy_setting_keys({key: PROBE}) == {key: PROBE}
 
 
 def test_split_role_setting_never_matches_a_bare_key():

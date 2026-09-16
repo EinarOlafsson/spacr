@@ -508,7 +508,8 @@ def stream_masks_from_stack(
         assembled stack before it is handed to Cellpose — taken modulo the
         channel count and de-duplicated in order. It is NOT forwarded as
         Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a
-        single plane, not a grayscale pair.
+        single plane, not a grayscale pair. The first selected channel is
+        the object's own channel for absolute mean-intensity filtering.
     :param diameter: expected object diameter in px (None → Cellpose
         auto).
     :param batch_fields: how many field stacks to load into memory at
@@ -532,6 +533,15 @@ def stream_masks_from_stack(
     if not stacks:
         return stacks
 
+    from .utils import _resolve_cellpose_pretrained, _validated_intensity_bounds
+
+    intensity_settings = postprocess_settings or {}
+    minimum, maximum = _validated_intensity_bounds(
+        intensity_settings.get(f"{object_type}_min_intensity", 0),
+        intensity_settings.get(f"{object_type}_max_intensity", 0),
+    )
+    filter_by_raw_intensity = minimum > 0 or maximum > 0
+
     scratch = Path(npz_dir) if npz_dir else stacks[0].path.parent / "_scratch"
     scratch.mkdir(parents=True, exist_ok=True)
 
@@ -543,7 +553,6 @@ def stream_masks_from_stack(
         ) from e
 
     import torch
-    from .utils import _resolve_cellpose_pretrained
 
     from .accelerator import is_gpu, torch_device
 
@@ -574,9 +583,12 @@ def stream_masks_from_stack(
         )
 
         selected_images: List[np.ndarray] = []
+        raw_intensity_per_field: List[np.ndarray] = []
         for sf, arr in zip(batch, loaded):
             indices = _cellpose_channel_indices(
                 channels_for_cellpose, arr.shape[-1])
+            if filter_by_raw_intensity:
+                raw_intensity_per_field.append(arr[..., indices[0]])
             selected = arr[..., list(indices)]
             if illumination_session is not None:
                 from .measure_hooks import PreprocessingContext
@@ -666,9 +678,21 @@ def stream_masks_from_stack(
 
         if postprocess_settings is not None:
             from .object import merge_split_filter_masks
+            filter_images = intensity_per_field
+            if filter_by_raw_intensity:
+                # Match the padded segmentation canvas while retaining the
+                # original values, before illumination and normalization.
+                filter_images = [
+                    np.pad(raw, (
+                        (0, image.shape[0] - raw.shape[0]),
+                        (0, image.shape[1] - raw.shape[1]),
+                    ))
+                    for raw, image in zip(raw_intensity_per_field,
+                                          cellpose_images)
+                ]
             masks_per_field = list(merge_split_filter_masks(
                 masks=masks_per_field,
-                intensity_images=intensity_per_field,
+                intensity_images=filter_images,
                 settings=postprocess_settings,
                 object_type=object_type,
                 batch_filenames=[stack.path.name for stack in batch],

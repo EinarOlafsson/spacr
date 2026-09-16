@@ -1,0 +1,315 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review": "Codex AI semantic review on 2026-09-15 against the current English feature-418 sources, covering the complete 44-row family. Corrects min-as-minutes, nucleus-as-atomic, reversed minimum-bound direction, dim-as-dirty, and corrupted perimeter/mean wording. Preserves whole-object means in the original own channel and raw units; strict lower/upper comparisons with equality retained; independent zero-disabled bounds; positive upper-bound direction; perimeter-before-area/mean filtering; inclusive border-setting OR and synchronized aliases; all identifiers and True/False literals. This is AI-assisted review, not human native-speaker approval.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cell_min_intensity",
+      "source_sha256": "68aad2538c67164612d23f8d32c17f003acda8738d497e0b1b944f57f3d4bb7c",
+      "source": "Delete cell objects whose mean pixel intensity in cell_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन कोशिका ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से कम है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल cell_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। कमज़ोर संकेत वाले ऑब्जेक्ट हटाने के लिए इस सीमा को बढ़ाएँ। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_max_intensity",
+      "source_sha256": "f94400c9c8d7904d7bbb51e08e54eeca8bf537f9cd6c2c2337df04a7893ba5e5",
+      "source": "Delete cell objects whose mean pixel intensity in cell_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन कोशिका ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से अधिक है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल cell_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। अधिक संख्या में चमकीले ऑब्जेक्ट हटाने के लिए किसी धनात्मक सीमा को कम करें। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_min_intensity",
+      "source_sha256": "49e3fbe983ff2bd7ecc6b7ec3023f35a57ba7ccaff37f61ad33eadabce30a02b",
+      "source": "Delete nucleus objects whose mean pixel intensity in nucleus_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन नाभिक ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से कम है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल nucleus_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। कमज़ोर संकेत वाले ऑब्जेक्ट हटाने के लिए इस सीमा को बढ़ाएँ। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_max_intensity",
+      "source_sha256": "e545f1e4ae2b0768ad5965e3a194dba4a20fc56dc2fed02e37246e74c163c3af",
+      "source": "Delete nucleus objects whose mean pixel intensity in nucleus_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन नाभिक ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से अधिक है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल nucleus_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। अधिक संख्या में चमकीले ऑब्जेक्ट हटाने के लिए किसी धनात्मक सीमा को कम करें। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_min_intensity",
+      "source_sha256": "6edf30d7b7cabc061a168cb5d37e2e9ea66314683277b8f034f469288ce8ce27",
+      "source": "Delete pathogen objects whose mean pixel intensity in pathogen_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन रोगजनक ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से कम है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल pathogen_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। कमज़ोर संकेत वाले ऑब्जेक्ट हटाने के लिए इस सीमा को बढ़ाएँ। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_max_intensity",
+      "source_sha256": "a412cdbc074156beeb0642913f4d3255982c7b10ce4a64886dd84cf86bc563e3",
+      "source": "Delete pathogen objects whose mean pixel intensity in pathogen_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन रोगजनक ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से अधिक है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल pathogen_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। अधिक संख्या में चमकीले ऑब्जेक्ट हटाने के लिए किसी धनात्मक सीमा को कम करें। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_min_intensity",
+      "source_sha256": "4204fd9d295fa76231ccc7847b8fc750e95ac51d154c93f28a133a8163f34fed",
+      "source": "Delete organelle objects whose mean pixel intensity in organelle_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन कोशिकांग ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से कम है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल organelle_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। कमज़ोर संकेत वाले ऑब्जेक्ट हटाने के लिए इस सीमा को बढ़ाएँ। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_max_intensity",
+      "source_sha256": "cb561ea15fd0d61949cd0368646b3074ac0168137ff260917473f4eba7e174d7",
+      "source": "Delete organelle objects whose mean pixel intensity in organelle_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन कोशिकांग ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से अधिक है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल organelle_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। अधिक संख्या में चमकीले ऑब्जेक्ट हटाने के लिए किसी धनात्मक सीमा को कम करें। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_min_intensity",
+      "source_sha256": "584d2e5c828cf8c99e795673b7e36758322bffcf4045be559e8b0430c7194c5f",
+      "source": "Delete organelle 2 objects whose mean pixel intensity in organelleb_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन कोशिकांग 2 ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से कम है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल organelleb_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। कमज़ोर संकेत वाले ऑब्जेक्ट हटाने के लिए इस सीमा को बढ़ाएँ। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_max_intensity",
+      "source_sha256": "9657f2bcc0bd00418dd5b90c9168ea292f6d9101501b59163ffc8180b71a81d8",
+      "source": "Delete organelle 2 objects whose mean pixel intensity in organelleb_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन कोशिकांग 2 ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से अधिक है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल organelleb_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। अधिक संख्या में चमकीले ऑब्जेक्ट हटाने के लिए किसी धनात्मक सीमा को कम करें। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_min_intensity",
+      "source_sha256": "0399118475e194f267c043ef7175b23cb0ef68523a20dfc3e74dd87be7a5a164",
+      "source": "Delete organelle 3 objects whose mean pixel intensity in organellec_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन कोशिकांग 3 ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से कम है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल organellec_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। कमज़ोर संकेत वाले ऑब्जेक्ट हटाने के लिए इस सीमा को बढ़ाएँ। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_max_intensity",
+      "source_sha256": "3cb424c80c4cb4c227de2117752528ea4c759671f8799e3a60456a475e234c3f",
+      "source": "Delete organelle 3 objects whose mean pixel intensity in organellec_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन कोशिकांग 3 ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से अधिक है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल organellec_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। अधिक संख्या में चमकीले ऑब्जेक्ट हटाने के लिए किसी धनात्मक सीमा को कम करें। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_min_intensity",
+      "source_sha256": "dce50ec6172434d6f40467c5240176d369d752fd55a18c734ec72c780969ff48",
+      "source": "Delete organelle 4 objects whose mean pixel intensity in organelled_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन कोशिकांग 4 ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से कम है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल organelled_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। कमज़ोर संकेत वाले ऑब्जेक्ट हटाने के लिए इस सीमा को बढ़ाएँ। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_max_intensity",
+      "source_sha256": "fc2c3d1c154072a111024bc3bc850cdd8539fd6a69a4b130c9abb1c06e8d3956",
+      "source": "Delete organelle 4 objects whose mean pixel intensity in organelled_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
+      "translation": "उन कोशिकांग 4 ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से अधिक है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल organelled_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। अधिक संख्या में चमकीले ऑब्जेक्ट हटाने के लिए किसी धनात्मक सीमा को कम करें। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_perimeter_fraction",
+      "source_sha256": "dd3076e269912be1653112147acac9d830de8d046f2e6f536632be4af9bddd11",
+      "source": "Merge two touching organelle labels when their shared boundary is at least this fraction of the smaller object's perimeter. Range 0-1; increase it toward 1 to merge only nearly fully fused pairs, or decrease it to merge labels with shorter shared boundaries. Applied before area and mean-intensity filtering in both Mask runs and Live Preview. Default 0 (disabled).",
+      "translation": "आपस में छूने वाले दो कोशिकांग लेबल तब जोड़ता है जब उनकी साझा सीमा की लंबाई छोटे ऑब्जेक्ट की परिमिति के कम से कम इस अंश के बराबर हो। मान की सीमा 0-1 है; केवल लगभग पूरी तरह जुड़े हुए जोड़ों को मिलाने के लिए इसे 1 की ओर बढ़ाएँ, या छोटी साझा सीमाओं वाले लेबलों को मिलाने के लिए इसे घटाएँ। Mask चलाते समय और Live Preview में, क्षेत्रफल और औसत तीव्रता की फ़िल्टरिंग से पहले लागू होता है। डिफ़ॉल्ट 0 (बंद)।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_remove_border",
+      "source_sha256": "a8ea0c3550ad1df9c2334a00cf3857bfdc9e0a837df610a0f91cba4127c3bd13",
+      "source": "Delete organelle labels touching any image edge in both Mask runs and Live Preview. Enabled when either this setting or organelle_remove_border_objects is True; the Live Preview toggle updates both names together. Removes partially imaged objects from area and intensity statistics, at the cost of losing valid objects at the field boundary. Default False.",
+      "translation": "Mask चलाते समय और Live Preview में, छवि के किसी भी किनारे को छूने वाले कोशिकांग लेबल हटाता है। यह तब चालू होता है जब यह सेटिंग या organelle_remove_border_objects में से कम से कम एक का मान True हो; Live Preview का टॉगल दोनों नामों वाली सेटिंगों को एक साथ बदलता है। इससे छवि में केवल आंशिक रूप से दिखाई देने वाले ऑब्जेक्ट क्षेत्रफल और तीव्रता के आँकड़ों से हट जाते हैं, लेकिन दृश्य-क्षेत्र की सीमा पर मौजूद वैध ऑब्जेक्ट भी खो जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_remove_border_objects",
+      "source_sha256": "47176af04d627f0a36628951a32841d5bed75f67ff75fca7025410d3cec72ddc",
+      "source": "Delete organelle labels touching any image edge in both Mask runs and Live Preview. Enabled when either this setting or organelle_remove_border is True; the Live Preview toggle updates both names together. Removes partially imaged objects from area and intensity statistics, at the cost of losing valid objects at the field boundary. Default False.",
+      "translation": "Mask चलाते समय और Live Preview में, छवि के किसी भी किनारे को छूने वाले कोशिकांग लेबल हटाता है। यह तब चालू होता है जब यह सेटिंग या organelle_remove_border में से कम से कम एक का मान True हो; Live Preview का टॉगल दोनों नामों वाली सेटिंगों को एक साथ बदलता है। इससे छवि में केवल आंशिक रूप से दिखाई देने वाले ऑब्जेक्ट क्षेत्रफल और तीव्रता के आँकड़ों से हट जाते हैं, लेकिन दृश्य-क्षेत्र की सीमा पर मौजूद वैध ऑब्जेक्ट भी खो जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_perimeter_fraction",
+      "source_sha256": "ac45ff3c3df06fa12d38e76bf51bd4b2d8d0ca7038c84ae291b1c825663bd48c",
+      "source": "Merge two touching organelle 2 labels when their shared boundary is at least this fraction of the smaller object's perimeter. Range 0-1; increase it toward 1 to merge only nearly fully fused pairs, or decrease it to merge labels with shorter shared boundaries. Applied before area and mean-intensity filtering in both Mask runs and Live Preview. Default 0 (disabled).",
+      "translation": "आपस में छूने वाले दो कोशिकांग 2 लेबल तब जोड़ता है जब उनकी साझा सीमा की लंबाई छोटे ऑब्जेक्ट की परिमिति के कम से कम इस अंश के बराबर हो। मान की सीमा 0-1 है; केवल लगभग पूरी तरह जुड़े हुए जोड़ों को मिलाने के लिए इसे 1 की ओर बढ़ाएँ, या छोटी साझा सीमाओं वाले लेबलों को मिलाने के लिए इसे घटाएँ। Mask चलाते समय और Live Preview में, क्षेत्रफल और औसत तीव्रता की फ़िल्टरिंग से पहले लागू होता है। डिफ़ॉल्ट 0 (बंद)।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_remove_border",
+      "source_sha256": "1c588ed7a87cae4a6bc03c0b94f1cf21cfdc1ada3e4e53d9fbbc439258bd15d2",
+      "source": "Delete organelle 2 labels touching any image edge in both Mask runs and Live Preview. Enabled when either this setting or organelleb_remove_border_objects is True; the Live Preview toggle updates both names together. Removes partially imaged objects from area and intensity statistics, at the cost of losing valid objects at the field boundary. Default False.",
+      "translation": "Mask चलाते समय और Live Preview में, छवि के किसी भी किनारे को छूने वाले कोशिकांग 2 लेबल हटाता है। यह तब चालू होता है जब यह सेटिंग या organelleb_remove_border_objects में से कम से कम एक का मान True हो; Live Preview का टॉगल दोनों नामों वाली सेटिंगों को एक साथ बदलता है। इससे छवि में केवल आंशिक रूप से दिखाई देने वाले ऑब्जेक्ट क्षेत्रफल और तीव्रता के आँकड़ों से हट जाते हैं, लेकिन दृश्य-क्षेत्र की सीमा पर मौजूद वैध ऑब्जेक्ट भी खो जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_remove_border_objects",
+      "source_sha256": "36d60717558fbf5e7fb274d69a6ab2ea6c5140a247983be004d3cf01f535b96b",
+      "source": "Delete organelle 2 labels touching any image edge in both Mask runs and Live Preview. Enabled when either this setting or organelleb_remove_border is True; the Live Preview toggle updates both names together. Removes partially imaged objects from area and intensity statistics, at the cost of losing valid objects at the field boundary. Default False.",
+      "translation": "Mask चलाते समय और Live Preview में, छवि के किसी भी किनारे को छूने वाले कोशिकांग 2 लेबल हटाता है। यह तब चालू होता है जब यह सेटिंग या organelleb_remove_border में से कम से कम एक का मान True हो; Live Preview का टॉगल दोनों नामों वाली सेटिंगों को एक साथ बदलता है। इससे छवि में केवल आंशिक रूप से दिखाई देने वाले ऑब्जेक्ट क्षेत्रफल और तीव्रता के आँकड़ों से हट जाते हैं, लेकिन दृश्य-क्षेत्र की सीमा पर मौजूद वैध ऑब्जेक्ट भी खो जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_perimeter_fraction",
+      "source_sha256": "50d982c4145386cbb6717cc47c82ac39ca8c2a7c8db9687d97347496e8d9070d",
+      "source": "Merge two touching organelle 3 labels when their shared boundary is at least this fraction of the smaller object's perimeter. Range 0-1; increase it toward 1 to merge only nearly fully fused pairs, or decrease it to merge labels with shorter shared boundaries. Applied before area and mean-intensity filtering in both Mask runs and Live Preview. Default 0 (disabled).",
+      "translation": "आपस में छूने वाले दो कोशिकांग 3 लेबल तब जोड़ता है जब उनकी साझा सीमा की लंबाई छोटे ऑब्जेक्ट की परिमिति के कम से कम इस अंश के बराबर हो। मान की सीमा 0-1 है; केवल लगभग पूरी तरह जुड़े हुए जोड़ों को मिलाने के लिए इसे 1 की ओर बढ़ाएँ, या छोटी साझा सीमाओं वाले लेबलों को मिलाने के लिए इसे घटाएँ। Mask चलाते समय और Live Preview में, क्षेत्रफल और औसत तीव्रता की फ़िल्टरिंग से पहले लागू होता है। डिफ़ॉल्ट 0 (बंद)।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_remove_border",
+      "source_sha256": "bb401bc8ae28b60a10efc4665678617898f3a92679e5c85e05fcaec41895135c",
+      "source": "Delete organelle 3 labels touching any image edge in both Mask runs and Live Preview. Enabled when either this setting or organellec_remove_border_objects is True; the Live Preview toggle updates both names together. Removes partially imaged objects from area and intensity statistics, at the cost of losing valid objects at the field boundary. Default False.",
+      "translation": "Mask चलाते समय और Live Preview में, छवि के किसी भी किनारे को छूने वाले कोशिकांग 3 लेबल हटाता है। यह तब चालू होता है जब यह सेटिंग या organellec_remove_border_objects में से कम से कम एक का मान True हो; Live Preview का टॉगल दोनों नामों वाली सेटिंगों को एक साथ बदलता है। इससे छवि में केवल आंशिक रूप से दिखाई देने वाले ऑब्जेक्ट क्षेत्रफल और तीव्रता के आँकड़ों से हट जाते हैं, लेकिन दृश्य-क्षेत्र की सीमा पर मौजूद वैध ऑब्जेक्ट भी खो जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_remove_border_objects",
+      "source_sha256": "976bfabb4bdbf4099867bfd0a9e499c65c807dd96e7850a0137c924cd14d3981",
+      "source": "Delete organelle 3 labels touching any image edge in both Mask runs and Live Preview. Enabled when either this setting or organellec_remove_border is True; the Live Preview toggle updates both names together. Removes partially imaged objects from area and intensity statistics, at the cost of losing valid objects at the field boundary. Default False.",
+      "translation": "Mask चलाते समय और Live Preview में, छवि के किसी भी किनारे को छूने वाले कोशिकांग 3 लेबल हटाता है। यह तब चालू होता है जब यह सेटिंग या organellec_remove_border में से कम से कम एक का मान True हो; Live Preview का टॉगल दोनों नामों वाली सेटिंगों को एक साथ बदलता है। इससे छवि में केवल आंशिक रूप से दिखाई देने वाले ऑब्जेक्ट क्षेत्रफल और तीव्रता के आँकड़ों से हट जाते हैं, लेकिन दृश्य-क्षेत्र की सीमा पर मौजूद वैध ऑब्जेक्ट भी खो जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_perimeter_fraction",
+      "source_sha256": "1ca33838ac38bb055a98e48e3ac2cf3914e8c9ff3530b34ebdd654cff72ae3cb",
+      "source": "Merge two touching organelle 4 labels when their shared boundary is at least this fraction of the smaller object's perimeter. Range 0-1; increase it toward 1 to merge only nearly fully fused pairs, or decrease it to merge labels with shorter shared boundaries. Applied before area and mean-intensity filtering in both Mask runs and Live Preview. Default 0 (disabled).",
+      "translation": "आपस में छूने वाले दो कोशिकांग 4 लेबल तब जोड़ता है जब उनकी साझा सीमा की लंबाई छोटे ऑब्जेक्ट की परिमिति के कम से कम इस अंश के बराबर हो। मान की सीमा 0-1 है; केवल लगभग पूरी तरह जुड़े हुए जोड़ों को मिलाने के लिए इसे 1 की ओर बढ़ाएँ, या छोटी साझा सीमाओं वाले लेबलों को मिलाने के लिए इसे घटाएँ। Mask चलाते समय और Live Preview में, क्षेत्रफल और औसत तीव्रता की फ़िल्टरिंग से पहले लागू होता है। डिफ़ॉल्ट 0 (बंद)।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_remove_border",
+      "source_sha256": "f1cd7644e334506210dfdfbf005dc16dc1b7fa54031ae0a3af3317251a51e974",
+      "source": "Delete organelle 4 labels touching any image edge in both Mask runs and Live Preview. Enabled when either this setting or organelled_remove_border_objects is True; the Live Preview toggle updates both names together. Removes partially imaged objects from area and intensity statistics, at the cost of losing valid objects at the field boundary. Default False.",
+      "translation": "Mask चलाते समय और Live Preview में, छवि के किसी भी किनारे को छूने वाले कोशिकांग 4 लेबल हटाता है। यह तब चालू होता है जब यह सेटिंग या organelled_remove_border_objects में से कम से कम एक का मान True हो; Live Preview का टॉगल दोनों नामों वाली सेटिंगों को एक साथ बदलता है। इससे छवि में केवल आंशिक रूप से दिखाई देने वाले ऑब्जेक्ट क्षेत्रफल और तीव्रता के आँकड़ों से हट जाते हैं, लेकिन दृश्य-क्षेत्र की सीमा पर मौजूद वैध ऑब्जेक्ट भी खो जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_remove_border_objects",
+      "source_sha256": "5917055830fdcbb81f1f441f568d7f612040797f5ff6da19f3431fa421ed964c",
+      "source": "Delete organelle 4 labels touching any image edge in both Mask runs and Live Preview. Enabled when either this setting or organelled_remove_border is True; the Live Preview toggle updates both names together. Removes partially imaged objects from area and intensity statistics, at the cost of losing valid objects at the field boundary. Default False.",
+      "translation": "Mask चलाते समय और Live Preview में, छवि के किसी भी किनारे को छूने वाले कोशिकांग 4 लेबल हटाता है। यह तब चालू होता है जब यह सेटिंग या organelled_remove_border में से कम से कम एक का मान True हो; Live Preview का टॉगल दोनों नामों वाली सेटिंगों को एक साथ बदलता है। इससे छवि में केवल आंशिक रूप से दिखाई देने वाले ऑब्जेक्ट क्षेत्रफल और तीव्रता के आँकड़ों से हट जाते हैं, लेकिन दृश्य-क्षेत्र की सीमा पर मौजूद वैध ऑब्जेक्ट भी खो जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "categories",
+      "key": "The umbrella over the settings that are one decision applied to several objects — what is done to the pixels before segmentation, which detected objects are kept by area, mean intensity in their own channel and border filters, and whether touching labels are merged by their shared perimeter. Each group is broken down per object, so the same choice for cells and for nuclei sits side by side instead of under two unrelated headings. Nothing here needs touching on a first run.",
+      "source_sha256": "f323684fb56f27512bbcaf78af533f94645b617d4d94cfbe9623ed6bca2bcaa5",
+      "source": "The umbrella over the settings that are one decision applied to several objects — what is done to the pixels before segmentation, which detected objects are kept by area, mean intensity in their own channel and border filters, and whether touching labels are merged by their shared perimeter. Each group is broken down per object, so the same choice for cells and for nuclei sits side by side instead of under two unrelated headings. Nothing here needs touching on a first run.",
+      "translation": "यह समूह उन सेटिंगों को एक जगह रखता है जिनमें एक ही निर्णय कई ऑब्जेक्ट प्रकारों पर लागू होता है — सेगमेंटेशन से पहले पिक्सेलों पर क्या किया जाता है; क्षेत्रफल, हर ऑब्जेक्ट के अपने चैनल में औसत तीव्रता और किनारों से संबंधित फ़िल्टरों के आधार पर कौन से पहचाने गए ऑब्जेक्ट रखे जाते हैं; और क्या आपस में छूने वाले लेबल उनकी साझा परिमिति के आधार पर जोड़े जाते हैं। हर समूह ऑब्जेक्ट प्रकार के अनुसार विभाजित है, इसलिए कोशिकाओं और नाभिकों के लिए एक जैसे विकल्प दो असंबंधित शीर्षकों के नीचे रहने के बजाय साथ-साथ दिखाई देते हैं। पहली बार चलाते समय यहाँ कुछ भी बदलना आवश्यक नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "The umbrella over the settings that are one decision applied to several objects — what is done to the pixels before segmentation, which detected objects are kept by area, mean intensity in their own channel and border filters, and whether touching labels are merged by their shared perimeter. Each group is broken down per object, so the same choice for cells and for nuclei sits side by side instead of under two unrelated headings. Nothing here needs touching on a first run.",
+      "source_sha256": "f323684fb56f27512bbcaf78af533f94645b617d4d94cfbe9623ed6bca2bcaa5",
+      "source": "The umbrella over the settings that are one decision applied to several objects — what is done to the pixels before segmentation, which detected objects are kept by area, mean intensity in their own channel and border filters, and whether touching labels are merged by their shared perimeter. Each group is broken down per object, so the same choice for cells and for nuclei sits side by side instead of under two unrelated headings. Nothing here needs touching on a first run.",
+      "translation": "यह समूह उन सेटिंगों को एक जगह रखता है जिनमें एक ही निर्णय कई ऑब्जेक्ट प्रकारों पर लागू होता है — सेगमेंटेशन से पहले पिक्सेलों पर क्या किया जाता है; क्षेत्रफल, हर ऑब्जेक्ट के अपने चैनल में औसत तीव्रता और किनारों से संबंधित फ़िल्टरों के आधार पर कौन से पहचाने गए ऑब्जेक्ट रखे जाते हैं; और क्या आपस में छूने वाले लेबल उनकी साझा परिमिति के आधार पर जोड़े जाते हैं। हर समूह ऑब्जेक्ट प्रकार के अनुसार विभाजित है, इसलिए कोशिकाओं और नाभिकों के लिए एक जैसे विकल्प दो असंबंधित शीर्षकों के नीचे रहने के बजाय साथ-साथ दिखाई देते हैं। पहली बार चलाते समय यहाँ कुछ भी बदलना आवश्यक नहीं है।"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_min_intensity",
+      "source_sha256": "b68dd69e77c7d29f9cfbce12120c02d5f276ded1ef95be72c9707a231ca1da20",
+      "source": "Cell min intensity",
+      "translation": "कोशिका की न्यूनतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_max_intensity",
+      "source_sha256": "bbb79089090e99292c8bc1278fda189cfaf7756ca7927660dbb9d83df656532b",
+      "source": "Cell max intensity",
+      "translation": "कोशिका की अधिकतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_min_intensity",
+      "source_sha256": "438e489b5b23d47278c1722786288223ea5aa6f3750aa2de2a005099190a7fcc",
+      "source": "Nucleus min intensity",
+      "translation": "नाभिक की न्यूनतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_max_intensity",
+      "source_sha256": "d368b0ff375ab4026a6344d3b3af967f29fd7ee8696d32aabc4b20ad936d0ec3",
+      "source": "Nucleus max intensity",
+      "translation": "नाभिक की अधिकतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_min_intensity",
+      "source_sha256": "aca7095fd0b18d9668efe62254f505d5f4c94dd99c5a139770ec525bafdc8f68",
+      "source": "Pathogen min intensity",
+      "translation": "रोगजनक की न्यूनतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_max_intensity",
+      "source_sha256": "80852ead2ab46166386e6fc734b7213f6c20937040439d288e60798082a6295c",
+      "source": "Pathogen max intensity",
+      "translation": "रोगजनक की अधिकतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_min_intensity",
+      "source_sha256": "981462a2376bccbf97a10e8cb32020e83bd66817548263994291dafcb529eafd",
+      "source": "Organelle 1 — Min intensity",
+      "translation": "कोशिकांग 1 — न्यूनतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_max_intensity",
+      "source_sha256": "397f8c395b910a9f668a9a68992e41db9be2851ce7efd9a74734604d3b18248a",
+      "source": "Organelle 1 — Max intensity",
+      "translation": "कोशिकांग 1 — अधिकतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_min_intensity",
+      "source_sha256": "8583eedabd79416ebe550f87122d55dd5dceb25a9a069bf6333b793e8c5971af",
+      "source": "Organelle 2 — Min intensity",
+      "translation": "कोशिकांग 2 — न्यूनतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_max_intensity",
+      "source_sha256": "9b448d0867df5dd86e802d9b8ae465e7faef7a6b9eee6620fb8211ae2a4ee8cb",
+      "source": "Organelle 2 — Max intensity",
+      "translation": "कोशिकांग 2 — अधिकतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_min_intensity",
+      "source_sha256": "e011486910f142313c71cb2a692fdfbf03042b054524d62c931b5de60c4f6dc4",
+      "source": "Organelle 3 — Min intensity",
+      "translation": "कोशिकांग 3 — न्यूनतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_max_intensity",
+      "source_sha256": "8f2d41f7e70e63732e2a9d0d88e0e5d0854c2ec3689fbf04b94d7182c36cb88d",
+      "source": "Organelle 3 — Max intensity",
+      "translation": "कोशिकांग 3 — अधिकतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_min_intensity",
+      "source_sha256": "44f4dc7876313e5f422c0725fb29784c7c6b678b09791c95bc42f2871ff84fc4",
+      "source": "Organelle 4 — Min intensity",
+      "translation": "कोशिकांग 4 — न्यूनतम तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_max_intensity",
+      "source_sha256": "976d29c9b54dc0b60739f728f136fca9674f1d212fa9c83b636ad65a992c8f16",
+      "source": "Organelle 4 — Max intensity",
+      "translation": "कोशिकांग 4 — अधिकतम तीव्रता"
+    },
+    {
+      "table": "ui",
+      "key": "Min intensity",
+      "source_sha256": "415c02e487a771b5056791c235a409355426a6bbe1a25b6695c2970dd1f3c203",
+      "source": "Min intensity",
+      "translation": "न्यूनतम तीव्रता"
+    },
+    {
+      "table": "ui",
+      "key": "Max intensity",
+      "source_sha256": "92918ea73adebf7229e10673cfbc20f2e018a0a825f997b99754f76666eb4cb8",
+      "source": "Max intensity",
+      "translation": "अधिकतम तीव्रता"
+    }
+  ]
+}

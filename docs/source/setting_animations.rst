@@ -22,7 +22,8 @@ Qt renders those exact Bezier paths at high resolution before each
 animation frame is composited, keeping the outlines smooth at small
 sizes. Source-template SHA-256 hashes are recorded in the manifest.
 
-Animations are resolved by exact setting key through
+Animations are resolved by setting key, with numbered organelle slots
+reusing the primary slot's animation through
 :mod:`spacr.setting_animations`; the assets and manifest are generated
 reproducibly by ``tools/generate_setting_animations.py``.
 
@@ -62,6 +63,28 @@ Cell — Maximum object area
 
 **Settings:** ``cell_max_area``
 
+.. _setting-animation-cell-min-intensity:
+
+Cell — Minimum mean intensity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../spacr/resources/setting_animations/gifs/cell_min_intensity.gif
+   :alt: Cell — Minimum mean intensity setting animation
+   :width: 300px
+
+**Settings:** ``cell_min_intensity``
+
+.. _setting-animation-cell-max-intensity:
+
+Cell — Maximum mean intensity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../spacr/resources/setting_animations/gifs/cell_max_intensity.gif
+   :alt: Cell — Maximum mean intensity setting animation
+   :width: 300px
+
+**Settings:** ``cell_max_intensity``
+
 .. _setting-animation-nucleus-remove-border-objects:
 
 Nucleus — Remove border objects
@@ -94,6 +117,28 @@ Nucleus — Maximum object area
    :width: 300px
 
 **Settings:** ``nucleus_max_area``
+
+.. _setting-animation-nucleus-min-intensity:
+
+Nucleus — Minimum mean intensity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_min_intensity.gif
+   :alt: Nucleus — Minimum mean intensity setting animation
+   :width: 300px
+
+**Settings:** ``nucleus_min_intensity``
+
+.. _setting-animation-nucleus-max-intensity:
+
+Nucleus — Maximum mean intensity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_max_intensity.gif
+   :alt: Nucleus — Maximum mean intensity setting animation
+   :width: 300px
+
+**Settings:** ``nucleus_max_intensity``
 
 .. _setting-animation-pathogen-remove-border-objects:
 
@@ -128,6 +173,28 @@ Pathogen — Maximum object area
 
 **Settings:** ``pathogen_max_area``
 
+.. _setting-animation-pathogen-min-intensity:
+
+Pathogen — Minimum mean intensity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_min_intensity.gif
+   :alt: Pathogen — Minimum mean intensity setting animation
+   :width: 300px
+
+**Settings:** ``pathogen_min_intensity``
+
+.. _setting-animation-pathogen-max-intensity:
+
+Pathogen — Maximum mean intensity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_max_intensity.gif
+   :alt: Pathogen — Maximum mean intensity setting animation
+   :width: 300px
+
+**Settings:** ``pathogen_max_intensity``
+
 .. _setting-animation-organelle-remove-border-objects:
 
 Organelle — Remove border objects
@@ -160,6 +227,28 @@ Organelle — Maximum object area
    :width: 300px
 
 **Settings:** ``organelle_max_area``
+
+.. _setting-animation-organelle-min-intensity:
+
+Organelle — Minimum mean intensity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../spacr/resources/setting_animations/gifs/organelle_min_intensity.gif
+   :alt: Organelle — Minimum mean intensity setting animation
+   :width: 300px
+
+**Settings:** ``organelle_min_intensity``
+
+.. _setting-animation-organelle-max-intensity:
+
+Organelle — Maximum mean intensity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../spacr/resources/setting_animations/gifs/organelle_max_intensity.gif
+   :alt: Organelle — Maximum mean intensity setting animation
+   :width: 300px
+
+**Settings:** ``organelle_max_intensity``
 
 Mask repair
 -----------
@@ -197,28 +286,6 @@ Cell perimeter merge
 
 **Settings:** ``cell_perimeter_fraction``
 
-.. _setting-animation-cell-intensity-merge:
-
-Cell intensity merge
-~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/cell_intensity_merge.gif
-   :alt: Cell intensity merge setting animation
-   :width: 300px
-
-**Settings:** ``cell_intensity_merge``, ``cell_intensity_threshold``
-
-.. _setting-animation-cell-intensity-split:
-
-Cell watershed split
-~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/cell_intensity_split.gif
-   :alt: Cell watershed split setting animation
-   :width: 300px
-
-**Settings:** ``cell_intensity_split``, ``cell_min_watershed_distance``, ``cell_minimum_area_to_split``
-
 .. _setting-animation-nucleus-perimeter-fraction:
 
 Nucleus perimeter merge
@@ -229,28 +296,6 @@ Nucleus perimeter merge
    :width: 300px
 
 **Settings:** ``nucleus_perimeter_fraction``
-
-.. _setting-animation-nucleus-intensity-merge:
-
-Nucleus intensity merge
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_intensity_merge.gif
-   :alt: Nucleus intensity merge setting animation
-   :width: 300px
-
-**Settings:** ``nucleus_intensity_merge``, ``nucleus_intensity_threshold``
-
-.. _setting-animation-nucleus-intensity-split:
-
-Nucleus watershed split
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_intensity_split.gif
-   :alt: Nucleus watershed split setting animation
-   :width: 300px
-
-**Settings:** ``nucleus_intensity_split``, ``nucleus_min_watershed_distance``, ``nucleus_minimum_area_to_split``
 
 .. _setting-animation-pathogen-perimeter-fraction:
 
@@ -263,28 +308,6 @@ Pathogen perimeter merge
 
 **Settings:** ``pathogen_perimeter_fraction``
 
-.. _setting-animation-pathogen-intensity-merge:
-
-Pathogen intensity merge
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_intensity_merge.gif
-   :alt: Pathogen intensity merge setting animation
-   :width: 300px
-
-**Settings:** ``pathogen_intensity_merge``, ``pathogen_intensity_threshold``
-
-.. _setting-animation-pathogen-intensity-split:
-
-Pathogen watershed split
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_intensity_split.gif
-   :alt: Pathogen watershed split setting animation
-   :width: 300px
-
-**Settings:** ``pathogen_intensity_split``, ``pathogen_min_watershed_distance``, ``pathogen_minimum_area_to_split``
-
 .. _setting-animation-organelle-perimeter-fraction:
 
 Organelle perimeter merge
@@ -295,28 +318,6 @@ Organelle perimeter merge
    :width: 300px
 
 **Settings:** ``organelle_perimeter_fraction``
-
-.. _setting-animation-organelle-intensity-merge:
-
-Organelle intensity merge
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/organelle_intensity_merge.gif
-   :alt: Organelle intensity merge setting animation
-   :width: 300px
-
-**Settings:** ``organelle_intensity_merge``, ``organelle_intensity_threshold``
-
-.. _setting-animation-organelle-intensity-split:
-
-Organelle watershed split
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/organelle_intensity_split.gif
-   :alt: Organelle watershed split setting animation
-   :width: 300px
-
-**Settings:** ``organelle_intensity_split``, ``organelle_min_watershed_distance``, ``organelle_minimum_area_to_split``
 
 .. _setting-animation-fill-in:
 

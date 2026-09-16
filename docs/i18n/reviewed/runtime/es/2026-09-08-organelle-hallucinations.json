@@ -1,20 +1,5 @@
 {
   "schema": 1,
   "language": "es",
-  "records": [
-    {
-      "table": "setting_tooltips",
-      "key": "organelle_min_watershed_distance",
-      "source_sha256": "a61874031f1c5d2f2104cb382f34a7cda950ed3a9df8ab96ac81396eb12776cd",
-      "source": "Minimum separation in pixels between watershed seeds when splitting oversized organelles; distance-transform peaks closer than this collapse into a single seed. Increase it to prevent excessive fragmentation of a single organelle, or decrease it to separate tightly packed puncta. Default 10. Currently inactive because the organelle mask writer does not run the merge/split stage.",
-      "translation": "Separación mínima en píxeles entre las semillas del watershed al dividir orgánulos de tamaño excesivo; los picos de la transformada de distancia más próximos entre sí que este valor se funden en una única semilla. Auméntalo para evitar la fragmentación excesiva de un mismo orgánulo, o redúcelo para separar puncta muy agrupados. Valor predeterminado: 10. Actualmente inactivo porque el escritor de máscaras de orgánulo no ejecuta la etapa de fusión/división."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelled_min_watershed_distance",
-      "source_sha256": "482dcafce24c6590ce2d5906efb3237418bff7032fc82235e1f6c1ffcd7349d6",
-      "source": "Minimum separation in pixels between watershed seeds when splitting oversized organelles; distance-transform peaks closer than this collapse into a single seed. Increase it to prevent excessive fragmentation of a single organelle, or decrease it to separate tightly packed puncta. Default 10. Currently inactive because the organelle 4 mask writer does not run the merge/split stage.",
-      "translation": "Separación mínima en píxeles entre las semillas del watershed al dividir orgánulos de tamaño excesivo; los picos de la transformada de distancia más próximos entre sí que este valor se funden en una única semilla. Auméntalo para evitar la fragmentación excesiva de un mismo orgánulo, o redúcelo para separar puncta muy agrupados. Valor predeterminado: 10. Actualmente inactivo porque el escritor de máscaras de orgánulo 4 no ejecuta la etapa de fusión/división."
-    }
-  ]
+  "records": []
 }

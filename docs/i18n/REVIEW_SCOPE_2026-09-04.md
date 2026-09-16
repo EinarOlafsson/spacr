@@ -43,7 +43,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 5,249 runtime entries and 10,339 public API docstrings. As before,
+remembered one: 5,767 runtime entries and 10,539 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and the
 proportion is small by design: the evidence is defect-driven.
 
@@ -51,17 +51,30 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,804 | Remainder | Reviewed API blocks | Of 10,539 | Remainder |
+| Language | Reviewed runtime records | Of 5,767 | Remainder | Reviewed API blocks | Of 10,539 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 284 | 4.89% | 5,520 | 717 | 6.80% | 9,822 |
-| German | 247 | 4.26% | 5,557 | 675 | 6.40% | 9,864 |
-| Spanish | 253 | 4.36% | 5,551 | 556 | 5.28% | 9,983 |
-| Simplified Chinese | 552 | 9.51% | 5,252 | 823 | 7.81% | 9,716 |
-| Portuguese | 243 | 4.19% | 5,561 | 787 | 7.47% | 9,752 |
-| Hindi | 333 | 5.74% | 5,471 | 715 | 6.78% | 9,824 |
-| Korean | 454 | 7.82% | 5,350 | 792 | 7.51% | 9,747 |
-| Icelandic | 401 | 6.91% | 5,403 | 1,286 | 12.20% | 9,253 |
-| French | 259 | 4.46% | 5,545 | 716 | 6.79% | 9,823 |
+| Swedish | 328 | 5.69% | 5,439 | 721 | 6.84% | 9,818 |
+| German | 290 | 5.03% | 5,477 | 701 | 6.65% | 9,838 |
+| Spanish | 292 | 5.06% | 5,475 | 581 | 5.51% | 9,958 |
+| Simplified Chinese | 609 | 10.56% | 5,158 | 863 | 8.19% | 9,676 |
+| Portuguese | 302 | 5.24% | 5,465 | 811 | 7.70% | 9,728 |
+| Hindi | 392 | 6.80% | 5,375 | 758 | 7.19% | 9,781 |
+| Korean | 513 | 8.90% | 5,254 | 836 | 7.93% | 9,703 |
+| Icelandic | 460 | 7.98% | 5,307 | 1,335 | 12.67% | 9,204 |
+| French | 318 | 5.51% | 5,449 | 744 | 7.06% | 9,795 |
+
+*Re-measured 2026-09-16 for 418 using the actual source extractors and
+reviewed-record loaders, against the clean `f7df13e93` worktree. Runtime
+sources decrease 5,819 -> 5,767: labels -21, tooltips -21, categories -1,
+UI -9, module summaries unchanged. The previous report's 5,804 denominator
+had already missed earlier work; it is not the baseline for this feature.
+Accepted runtime evidence increases 3,188 -> 3,504 after source retirement
+and source-string deduplication. The API inventory stays at 10,539 symbols;
+285 new API records minus two genuinely stale retired records increase
+accepted API blocks 7,067 -> 7,350. All new evidence explicitly identifies
+AI-assisted semantic review, not native-speaker approval. API percentages
+retain this report's historical block-count/symbol-count denominator and
+must not be read as the fraction of complete API pages reviewed.*
 
 *Regenerated 2026-09-15 on nightly 08a2c1719, on top of runtime pass A, for
 the API lane pass that lands items 412, 416 and 413 and catalogues the work
@@ -385,5 +398,4 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 284, de 247, es 253, zh_CN 552, pt 243, hi 333, ko 454, is 401, fr 259 -- 3,026 runtime records across nine locales.
-
+Reviewed totals today: sv 328, de 290, es 292, zh_CN 609, pt 302, hi 392, ko 513, is 460, fr 318 -- 3,504 runtime records across nine locales.

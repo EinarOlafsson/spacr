@@ -4,13 +4,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "Intensity Handling (all objects)",
-      "source_sha256": "0b7397f777fe31d98838c965535ce576f94f2661d492eb2ac7591301eabb1bb7",
-      "source": "Intensity Handling (all objects)",
-      "translation": "तीव्रता प्रबंधन (सभी ऑब्जेक्ट)"
-    },
-    {
-      "table": "ui",
       "key": "Plate Sources & Workflow",
       "source_sha256": "a911ad2a1eb28ee568392dae7c368d6f57d54be35c75f6983180c0e91a795507",
       "source": "Plate Sources & Workflow",
@@ -29,13 +22,6 @@
       "source_sha256": "21232021a6cdaa1443f234cc9deded1509370c7e32d39310c1d23aa7b066933b",
       "source": "Evaluation & Results",
       "translation": "मूल्यांकन और परिणाम"
-    },
-    {
-      "table": "ui",
-      "key": "Min object area",
-      "source_sha256": "45bd4fb391211df98034b81ab2ce2b18a416ff261b151b678397b3ef99db69d8",
-      "source": "Min object area",
-      "translation": "ऑब्जेक्ट का न्यूनतम क्षेत्रफल"
     },
     {
       "table": "ui",

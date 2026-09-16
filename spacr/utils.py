@@ -557,17 +557,6 @@ def _compute_shared_boundaries(label_img):
     return shared
 
 
-def _get_boundary_coords(label_img, la, lb):
-    """Get pixel coordinates along the shared boundary between two labels."""
-    coords = []
-    for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-        shifted = np.roll(np.roll(label_img, dy, axis=0), dx, axis=1)
-        mask = ((label_img == la) & (shifted == lb)) | ((label_img == lb) & (shifted == la))
-        ys, xs = np.where(mask)
-        coords.extend(zip(ys, xs))
-    return coords
-
-
 def _merge_by_perimeter(label_img, perimeter_fraction, parent):
     """Mark label pairs for merging based on shared perimeter fraction."""
     perimeters = _compute_label_perimeters(label_img)
@@ -579,127 +568,6 @@ def _merge_by_perimeter(label_img, perimeter_fraction, parent):
         smaller_perim = min(perim_a, perim_b)
         if shared_px / smaller_perim >= perimeter_fraction:
             _union_find_merge(parent, la, lb)
-
-
-def _merge_by_intensity(label_img, intensity_img, parent,
-                        intensity_threshold=None):
-    """Merge touching labels whose shared boundary is brighter than a
-    threshold, i.e. where there is no real edge between them.
-
-    AN ABSOLUTE THRESHOLD, IN THE IMAGE'S OWN INTENSITY UNITS -- the numbers
-    in the TIFF, the ones a pixel inspector shows. This replaced a pair of
-    RELATIVE schemes (the mean of the dimmer object, or a percentile of it),
-    and the reason is that neither was a number a user could read off an
-    image and type in: they could only be tuned by trial, because the
-    reference moved with whatever else happened to be in the field.
-
-    ITS KNOWN COST, accepted deliberately: a threshold in raw counts does NOT
-    carry between acquisitions taken at different exposure or gain. That is
-    the price of a number that can be read off an image, and the setting's
-    tooltip says so rather than letting a user assume it travels.
-
-    :param intensity_threshold: boundary mean at or above which a pair is
-        merged, in raw image units. ``None`` merges nothing and says so --
-        there is no safe default, because the right number depends on the
-        acquisition.
-    :returns: a one-line report of what happened, for the caller to print.
-    """
-    shared = _compute_shared_boundaries(label_img)
-
-    boundaries = {}
-    for (la, lb), _ in shared.items():
-        coords = _get_boundary_coords(label_img, la, lb)
-        if not coords:
-            continue
-        ys, xs = zip(*coords)
-        boundaries[(la, lb)] = float(np.mean(intensity_img[ys, xs]))
-
-    if not boundaries:
-        return "  Intensity merge: no touching objects, nothing to merge"
-
-    values = list(boundaries.values())
-    low, high = min(values), max(values)
-
-    if intensity_threshold is None:
-        return (f"  Intensity merge: REFUSED -- no intensity threshold set. "
-                f"Shared boundaries in this field run {low:.1f} to {high:.1f} "
-                f"in raw units; set the threshold within that range to merge "
-                f"anything.")
-
-    merged = 0
-    for (la, lb), boundary_intensity in boundaries.items():
-        if boundary_intensity >= intensity_threshold:
-            _union_find_merge(parent, la, lb)
-            merged += 1
-
-    if merged == 0:
-        return (f"  Intensity merge: threshold {intensity_threshold:g} is ABOVE "
-                f"every shared boundary in this field (brightest {high:.1f}), "
-                f"so nothing was merged. Lower it to merge anything.")
-    if merged == len(boundaries):
-        return (f"  Intensity merge: threshold {intensity_threshold:g} is at or "
-                f"BELOW every shared boundary (dimmest {low:.1f}), so all "
-                f"{merged} touching pairs merged. Raise it to merge less.")
-    return (f"  Intensity merge: {merged}/{len(boundaries)} touching pairs "
-            f"merged at threshold {intensity_threshold:g} "
-            f"(boundaries {low:.1f} to {high:.1f})")
-
-
-def _split_by_watershed(label_img, min_watershed_distance=10,
-                        minimum_area_to_split=100):
-    """Split labels larger than an absolute area, by distance-transform
-    watershed seeded at local maxima.
-
-    THE THRESHOLD IS ABSOLUTE NOW, AND THAT IS A BEHAVIOUR CHANGE. It used to
-    be ``max(area_multiplier * median_area, min_object_area)`` -- a multiple of
-    the median object area in whatever field happened to be under the lens.
-    That moved with the field: the same object was split in a dish of small
-    cells and kept in a dish of large ones, and no number the user typed could
-    pin it down. Removing ``area_multiplier`` removes the median term, so the
-    threshold is the area the user asked for and nothing else.
-
-    :param min_watershed_distance: minimum pixel separation between seeds.
-    :param minimum_area_to_split: objects at or below this area are never
-        split. Absolute, in pixels.
-    """
-    labels_present = np.unique(label_img)
-    labels_present = labels_present[labels_present > 0]
-    if len(labels_present) == 0:
-        return label_img
-
-    areas = ndimage.sum(np.ones_like(label_img), label_img, labels_present)
-    area_map = dict(zip(labels_present.astype(int), areas.astype(int)))
-    threshold = minimum_area_to_split
-    min_distance = min_watershed_distance
-
-    output = label_img.copy()
-    next_label = int(label_img.max()) + 1
-
-    for lbl, area in area_map.items():
-        if area <= threshold:
-            continue
-
-        obj_mask = (label_img == lbl)
-        dist = ndimage.distance_transform_edt(obj_mask)
-
-        local_max_coords = peak_local_max(dist, min_distance=min_distance,
-                                          labels=obj_mask.astype(int))
-        if len(local_max_coords) <= 1:
-            continue
-
-        seeds = np.zeros_like(label_img, dtype=np.int32)
-        for i, (y, x) in enumerate(local_max_coords, start=1):
-            seeds[y, x] = i
-
-        ws = watershed(-dist, markers=seeds, mask=obj_mask)
-
-        ws_labels = np.unique(ws)
-        ws_labels = ws_labels[ws_labels > 0]
-        for wl in ws_labels:
-            output[ws == wl] = next_label
-            next_label += 1
-
-    return output
 
 
 def _relabel_sequential(label_img):
@@ -723,6 +591,19 @@ def _apply_union_find(label_img, parent):
     merged = mapping[label_img]
     return _relabel_sequential(merged.astype(np.uint16))
     
+def _validated_intensity_bounds(minimum, maximum):
+    """Coerce saved bounds without treating nonfinite or negative values as off."""
+    message = "Intensity bounds must be finite nonnegative numbers"
+    try:
+        bounds = tuple(0.0 if value is None else float(value)
+                       for value in (minimum, maximum))
+    except (TypeError, ValueError) as error:
+        raise ValueError(message) from error
+    if any(not np.isfinite(value) or value < 0 for value in bounds):
+        raise ValueError(message)
+    return bounds
+
+
 def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
                     remove_border=False, *, min_intensity=0, max_intensity=0):
     """Remove objects by area, absolute mean intensity and border contact.
@@ -755,6 +636,8 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
     ndarray (uint16)
         Filtered and relabelled image.
     """
+    min_intensity, max_intensity = _validated_intensity_bounds(
+        min_intensity, max_intensity)
     labels_present = np.unique(label_img)
     labels_present = labels_present[labels_present > 0]
 
@@ -802,12 +685,10 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
                   f"(min_intensity={min_intensity}, max_intensity={max_intensity})")
 
     if remove_border:
-        h, w = label_img.shape
         border_labels = set()
-        border_labels.update(np.unique(label_img[0, :]).tolist())
-        border_labels.update(np.unique(label_img[-1, :]).tolist())
-        border_labels.update(np.unique(label_img[:, 0]).tolist())
-        border_labels.update(np.unique(label_img[:, -1]).tolist())
+        for axis in range(label_img.ndim):
+            border_labels.update(np.unique(label_img.take(0, axis=axis)).tolist())
+            border_labels.update(np.unique(label_img.take(-1, axis=axis)).tolist())
         border_labels.discard(0)
         new_border = border_labels - remove
         remove.update(border_labels)
@@ -822,45 +703,44 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
         label_img[mask] = 0
     
     result = _relabel_sequential(label_img)
-    remaining_count = len(np.unique(result)) - 1
+    remaining_count = len(np.unique(result[result > 0]))
     print(f"  Filter summary: {total_original} objects → {remaining_count} objects ({total_removed} removed)")
     
     return result
 
-def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
-                                  do_split, do_perimeter_merge, do_intensity_merge,
-                                  perimeter_fraction, min_watershed_distance,
-                                  minimum_area_to_split, intensity_threshold,
-                                  min_area, max_area, remove_border_objects,
-                                  progress_callback=None, fov_index=0, total_fovs=0, op_name=''):
-    """Process one field of view in memory: split → merge → filter."""
+def _process_single_fov_in_memory(mask, intensity_img=None, intensity_channel=None,
+                                  do_perimeter_merge=False, perimeter_fraction=0.5,
+                                  min_area=0, max_area=0, remove_border_objects=False,
+                                  progress_callback=None, fov_index=0, total_fovs=0,
+                                  op_name='', *, min_intensity=0, max_intensity=0):
+    """Copy one label field, merge by perimeter, then apply shared object filters.
+
+    Intensity input is an original own-channel plane or an explicitly
+    indexed channel-last array. Its dtype is preserved until the shared
+    filter accumulates object means in float64; layout is never guessed.
+    """
 
     start = time.time()
 
     if mask is None:
         return None
 
+    min_intensity, max_intensity = _validated_intensity_bounds(
+        min_intensity, max_intensity)
     label_img = np.asarray(mask).astype(np.uint16).copy()
     
-    n_before = len(np.unique(label_img)) - 1
+    n_before = len(np.unique(label_img[label_img > 0]))
     if n_before == 0:
         print(f"  FOV {fov_index}: empty mask, skipping")
         return label_img
 
     intensity_img_use = None
-    if do_intensity_merge and intensity_img is not None:
-        intensity_img_use = _select_intensity_channel(intensity_img, intensity_channel)
-
-    if do_split:
-        label_img = _split_by_watershed(
-            label_img,
-            min_watershed_distance=min_watershed_distance,
-            minimum_area_to_split=minimum_area_to_split,
-        )
-        label_img = _relabel_sequential(label_img)
-        n_after_split = len(np.unique(label_img)) - 1
-        if n_after_split != n_before:
-            print(f"  FOV {fov_index} split: {n_before} → {n_after_split} objects")
+    if (min_intensity > 0 or max_intensity > 0) and intensity_img is not None:
+        intensity_img_use = np.asarray(intensity_img)
+        if intensity_img_use.ndim == label_img.ndim + 1:
+            if intensity_channel is None:
+                raise ValueError("An explicit own-channel index is required for intensity filtering")
+            intensity_img_use = intensity_img_use[..., intensity_channel]
 
     all_labels = np.unique(label_img)
     all_labels = all_labels[all_labels > 0]
@@ -872,16 +752,8 @@ def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
         if do_perimeter_merge:
             _merge_by_perimeter(label_img, perimeter_fraction, parent)
 
-        if do_intensity_merge and intensity_img_use is not None:
-            print(_merge_by_intensity(
-                label_img,
-                intensity_img_use,
-                parent,
-                intensity_threshold=intensity_threshold,
-            ))
-
         label_img = _apply_union_find(label_img, parent)
-        n_after_merge = len(np.unique(label_img)) - 1
+        n_after_merge = len(np.unique(label_img[label_img > 0]))
         if n_after_merge != n_before_merge:
             print(f"  FOV {fov_index} merge: {n_before_merge} → {n_after_merge} objects")
 
@@ -891,6 +763,8 @@ def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
         min_area=min_area,
         max_area=max_area,
         remove_border=remove_border_objects,
+        min_intensity=min_intensity,
+        max_intensity=max_intensity,
     )
 
     duration = time.time() - start
@@ -900,36 +774,31 @@ def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
     return label_img
     
 def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None,
-                        perimeter_fraction=0.5, intensity_merge=False, intensity_split=False,
-                        min_watershed_distance=10, minimum_area_to_split=100,
-                        intensity_threshold=None,
+                        perimeter_fraction=0.5,
                         min_area=0, max_area=0, remove_border_objects=False,
-                        n_jobs=1, progress_callback=None, op_name=''):
-    """Split, merge, and filter labeled objects across a directory of masks.
+                        n_jobs=1, progress_callback=None, op_name='', *,
+                        min_intensity=0, max_intensity=0):
+    """Merge by perimeter and filter labeled objects across a directory of masks.
 
-    Runs the split -> merge -> filter pipeline on each mask file in
+    Runs the shared in-memory merge/filter pipeline on each mask file in
     ``mask_src`` in parallel, overwriting each mask in place.
 
     :param mask_src: directory containing mask .tif/.tiff/.npy files.
-    :param intensity_img_src: directory of matched intensity images, or ``None``.
-    :param intensity_channel: channel index to pull from multi-channel intensity images.
+    :param intensity_img_src: directory of matched original intensity images,
+        required when either intensity bound is enabled.
+    :param intensity_channel: explicit channel-last index for multi-channel
+        intensity images; unnecessary for single-channel planes.
     :param perimeter_fraction: minimum shared-boundary fraction for perimeter-based merging.
-    :param intensity_merge: enable boundary-intensity-based merging.
-    :param intensity_split: enable watershed splitting of oversized objects.
-    :param min_watershed_distance: minimum pixel distance between watershed seeds.
-    :param minimum_area_to_split: objects at or below this area are never split.
-        ABSOLUTE, in pixels: 391 removed the ``area_multiplier * median_area``
-        term, so the threshold no longer moves with whatever else is in the field.
-    :param intensity_threshold: boundary mean at or above which two touching
-        objects merge, in RAW IMAGE UNITS. ``None`` merges nothing and says so.
-        It does not carry between acquisitions at different exposure or gain --
-        that is the price of a number that can be read off an image.
     :param min_area: remove objects smaller than this (px); 0 disables.
     :param max_area: remove objects larger than this (px); 0 disables.
     :param remove_border_objects: drop objects touching the image border.
     :param n_jobs: parallel worker count.
     :param progress_callback: optional callback(fov_index, total, duration, op_name).
     :param op_name: label passed to the progress callback.
+    :param min_intensity: remove objects whose own-channel mean is below this
+        raw-image value; equality is kept and 0 disables the lower bound.
+    :param max_intensity: remove objects whose own-channel mean is above this
+        raw-image value; equality is kept and 0 disables the upper bound.
     :returns: None.
     """
     valid_ext = ('.tif', '.tiff', '.npy')
@@ -939,8 +808,8 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
         return
 
     do_perimeter_merge = perimeter_fraction > 0
-    do_intensity_merge = intensity_merge and intensity_img_src is not None
-    do_split = intensity_split
+    min_intensity, max_intensity = _validated_intensity_bounds(
+        min_intensity, max_intensity)
 
     mask_paths = [os.path.join(mask_src, f) for f in mask_files]
     if intensity_img_src is not None:
@@ -953,67 +822,38 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
     Parallel(n_jobs=n_jobs)(
         delayed(_process_single_fov)(
             mp, ip, intensity_channel,
-            do_split, do_perimeter_merge, do_intensity_merge,
-            perimeter_fraction, min_watershed_distance,
-            minimum_area_to_split, intensity_threshold,
+            do_perimeter_merge, perimeter_fraction,
             min_area, max_area, remove_border_objects,
             progress_callback, idx, total, op_name,
+            min_intensity=min_intensity, max_intensity=max_intensity,
         )
         for idx, (mp, ip) in enumerate(zip(mask_paths, intensity_paths))
     )
 
 def _process_single_fov(mask_path, intensity_path, intensity_channel,
-                        do_split, do_perimeter_merge, do_intensity_merge,
-                        perimeter_fraction, min_watershed_distance,
-                        minimum_area_to_split, intensity_threshold,
+                        do_perimeter_merge, perimeter_fraction,
                         min_area, max_area, remove_border_objects,
-                        progress_callback=None, fov_index=0, total_fovs=0, op_name=''):
-    """Process one field of view: split → merge → filter."""
-    import time
+                        progress_callback=None, fov_index=0, total_fovs=0, op_name='', *,
+                        min_intensity=0, max_intensity=0):
+    """Load one field and save the result of the same filter used in memory."""
     start = time.time()
-    
     label_img = _load_image(mask_path)
     if label_img is None:
         return
-    label_img = label_img.astype(np.uint16)
-
     intensity_img = None
-    if do_intensity_merge and intensity_path is not None:
-        raw = _load_image(intensity_path)
-        if raw is not None:
-            intensity_img = _select_intensity_channel(raw, intensity_channel)
-
-    if do_split:
-        label_img = _split_by_watershed(
-            label_img,
-            min_watershed_distance=min_watershed_distance,
-            minimum_area_to_split=minimum_area_to_split,
-        )
-        label_img = _relabel_sequential(label_img)
-
-    all_labels = np.unique(label_img)
-    all_labels = all_labels[all_labels > 0]
-    if len(all_labels) > 0:
-        parent = {int(l): int(l) for l in all_labels}
-
-        if do_perimeter_merge:
-            _merge_by_perimeter(label_img, perimeter_fraction, parent)
-
-        if do_intensity_merge and intensity_img is not None:
-            print(_merge_by_intensity(label_img, intensity_img, parent,
-                                      intensity_threshold=intensity_threshold))
-
-        label_img = _apply_union_find(label_img, parent)
-
-    label_img = _filter_objects(label_img, intensity_img,
-                                min_area=min_area, max_area=max_area,
-                                remove_border=remove_border_objects)
-
-    _save_image(mask_path, label_img)
-    
-    duration = time.time() - start
+    min_intensity, max_intensity = _validated_intensity_bounds(
+        min_intensity, max_intensity)
+    if (min_intensity > 0 or max_intensity > 0) and intensity_path is not None:
+        intensity_img = _load_image(intensity_path)
+    filtered = _process_single_fov_in_memory(
+        label_img, intensity_img, intensity_channel,
+        do_perimeter_merge, perimeter_fraction, min_area, max_area,
+        remove_border_objects, None, fov_index, total_fovs, op_name,
+        min_intensity=min_intensity, max_intensity=max_intensity,
+    )
+    _save_image(mask_path, filtered)
     if progress_callback:
-        progress_callback(fov_index, total_fovs, duration, op_name)
+        progress_callback(fov_index, total_fovs, time.time() - start, op_name)
 
 def _organelle_diagnostic(img, morphology, method, settings):
     """

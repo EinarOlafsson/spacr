@@ -169,6 +169,17 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: legitimately dropping out of the category map is distinguishable from one
 #: that fell out by accident -- which is the whole point of this file.
 KEYS_RETIRED = frozenset({
+    # Feature 418 removes post-segmentation watershed splitting and merging
+    # by boundary intensity. Mean-intensity bounds are new controls, not
+    # replacement names for any value held by these retired settings.
+    "cell_minimum_area_to_split", "cell_min_watershed_distance",
+    "cell_intensity_threshold", "cell_intensity_merge", "cell_intensity_split",
+    "nucleus_minimum_area_to_split", "nucleus_min_watershed_distance",
+    "nucleus_intensity_threshold", "nucleus_intensity_merge", "nucleus_intensity_split",
+    "pathogen_minimum_area_to_split", "pathogen_min_watershed_distance",
+    "pathogen_intensity_threshold", "pathogen_intensity_merge", "pathogen_intensity_split",
+    "organelle_minimum_area_to_split", "organelle_min_watershed_distance",
+    "organelle_intensity_threshold", "organelle_intensity_merge", "organelle_intensity_split",
     # RENAMED to `nontargeting_control_grnas` on 2026-09-10, instruction
     # 364, and the last of the seven. `controls` is a common word doing
     # four jobs -- a figure panel key, a sweep payload field, a dependency
@@ -328,6 +339,12 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # Feature 418: absolute object-mean intensity bounds in each own channel.
+    # Numbered organelle slots use the existing dynamic registry expansion.
+    "cell_min_intensity", "cell_max_intensity",
+    "nucleus_min_intensity", "nucleus_max_intensity",
+    "pathogen_min_intensity", "pathogen_max_intensity",
+    "organelle_min_intensity", "organelle_max_intensity",
     # 364, 2026-09-12: three organelle preprocessing settings that
     # `spacr/io.py` had READ since the per-channel loop was written and
     # nothing declared, so organelle was the only object channel whose
@@ -989,8 +1006,8 @@ def test_the_one_visible_choice_is_in_the_basic_heading():
 #: `cell_min_size` are one decision, not two.
 #:
 #: Read off `CATEGORY_PARENTS` rather than listed again: that table is what
-#: says which headings are advanced families, and a third one was added the
-#: moment the per-object preprocessing group existed.
+#: says which headings are advanced families, including the shared object
+#: filters and per-object image preprocessing.
 ADVANCED_FAMILY_HEADINGS = tuple(S.CATEGORY_PARENTS)
 
 
@@ -1329,13 +1346,12 @@ def _rendered_sections(app_key):
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
-            # The three advanced families, in the order the layout writes
+            # The two advanced families, in the order the layout writes
             # them. They nest under one "Advanced settings" umbrella in
             # `build_sections`; this mirror is the FLAT category map, which
             # is where they are declared.
             "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
-            "Intensity Handling (all objects)",
             "Quality Control", "Volumetric Processing (Beta)",
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
             "Output & Storage", "Runtime & Reliability",
@@ -1361,13 +1377,12 @@ def _rendered_sections(app_key):
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
-            # The three advanced families, in the order the layout writes
+            # The two advanced families, in the order the layout writes
             # them. They nest under one "Advanced settings" umbrella in
             # `build_sections`; this mirror is the FLAT category map, which
             # is where they are declared.
             "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
-            "Intensity Handling (all objects)",
             "Quality Control", "Tracking Setup", "Tracking Backends",
             "Visualization & Diagnostics", "Output & Storage",
             "Runtime & Reliability",

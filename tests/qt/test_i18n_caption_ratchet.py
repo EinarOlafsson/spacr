@@ -295,6 +295,36 @@ COMPACT_CAPTION_SHA256 = (
 #
 # Nothing left the table. The reverse check: removing these 156 identities
 # from the current set gives f576cb08... back exactly.
+#
+# Feature 418, measured against 0f21cbfb3's English catalog on 2026-09-15:
+# SETTING_LABELS 1003 -> 982 and SETTING_TOOLTIPS 998 -> 977, each +14/-35.
+# The exact role set is cell, nucleus, pathogen, organelle, organelleb,
+# organellec, organelled. Each loses minimum_area_to_split,
+# min_watershed_distance, intensity_threshold, intensity_merge, intensity_split;
+# each gains min_intensity and max_intensity. Numbered slots beyond these
+# seven catalogued roles still use the existing runtime registry expansion.
+#
+# CATEGORY_HELP 194 -> 193, +1/-2: INTENSITY HANDLING's explanation leaves,
+# and ADVANCED SETTINGS changes from intensity-driven splitting/merging to
+# area, own-channel mean intensity, border filtering and perimeter merging.
+# Each explanation is keyed by its full source, so the rewritten umbrella
+# contributes one arrival and one removal in both CATEGORY_HELP and UI.
+#
+# UI 3556 -> 3547, +3/-12: the same two old explanations leave and the new
+# umbrella arrives, alongside the new "Min intensity" and "Max intensity"
+# captions. The ten other removals are exactly "Intensity Handling (all objects)",
+# "Min object area", "Min distance", "Area multiplier", "Min intensity pct",
+# "Max intensity pct", "Intensity percentile", "Intensity threshold",
+# "Intensity merge", and "Intensity split". These dead helper captions
+# were frozen in the builder; COMPARTMENT_FIELDS now supplies current rows.
+# MODULE_SUMMARIES remains 68. Total identity delta: +32/-84.
+#
+# Fourteen existing tooltip identities also have new source text:
+# cell_max_area, pathogen_max_area, and each of the four catalogued organelle
+# slots' perimeter_fraction, remove_border and remove_border_objects. They
+# retain their keys and therefore do not change this identity fingerprint.
+# This is a measured source inventory, not verification of translations.
+# Catalog equality and locale-quality checks remain pending the catalog pass.
 EXTERNAL_SOURCE_COUNTS = {
     # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
     # DIFFERENCE of the identities against the tree before the deletion,
@@ -305,15 +335,15 @@ EXTERNAL_SOURCE_COUNTS = {
     # to the fingerprint below.
     # `recursive` keeps its row: its English now comes from
     # spacr.external_masks, which reads it, so its identity is unchanged.
-    "SETTING_LABELS": 1003,
-    "SETTING_TOOLTIPS": 998,
+    "SETTING_LABELS": 982,
+    "SETTING_TOOLTIPS": 977,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
     # tooltip says nothing about the settings under it, which costs the
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
-    "CATEGORY_HELP": 194,
+    "CATEGORY_HELP": 193,
     # 2,988 -> 3,291 on 2026-09-14, and reviewed record by record against
     # 49c1189f7, where every count in this dict still reproduces exactly.
     # +304 / -1, NOT a flat +303: the four other tables did not move at all,
@@ -419,7 +449,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
     # Every new prose row has a reviewed record in each of the nine locales.
     # The runtime pass preserved every pre-existing translated value.
-    "UI": 3556,
+    "UI": 3547,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -522,9 +552,10 @@ EXTERNAL_SOURCE_COUNTS = {
 # 6408b9e46d4b7478430257a6f632bbb12ec43a279df807213c4433b8e37d6a72, the
 # previous pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    # 417: reversing the +20/-5 UI delta gives the previous digest exactly:
-    # 2f2e22a27d8763cee733db462033c11bfbfd869cc07500b8e5fc55b2c94e1fb8.
-    "b4d1896bbc1135f9f4098b3473ac4163d9cf36bf3d58c7447daeb652dacf725f"
+    # 418: 0f21cbfb3's English identities reproduce the previous pin exactly:
+    # b4d1896bbc1135f9f4098b3473ac4163d9cf36bf3d58c7447daeb652dacf725f.
+    # The +32/-84 identities named above give this current source digest.
+    "476736243fbfe6359464c3ce219efe4a66f17dbec4f596710050a29595b9a5ac"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

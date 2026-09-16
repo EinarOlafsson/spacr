@@ -249,11 +249,8 @@ RENAMED_SETTING_SUFFIXES: Dict[str, str] = {
     "FT": "flow_threshold",
     "CP_prob": "cellprob_threshold",
     "Signal_to_noise": "signal_to_noise",
-    "min_object_area": "min_split_area",
     "min_size": "min_area",
     "max_size": "max_area",
-    "min_split_area": "minimum_area_to_split",
-    "min_distance": "min_watershed_distance",
 }
 
 
@@ -270,21 +267,24 @@ RENAMED_SETTING_SUFFIXES: Dict[str, str] = {
 #: key -- a settings file that quietly loses a value the user set is worse
 #: than one that refuses to load."
 #:
-#: AND ONE OF THESE WAS WORSE THAN SILENT. `<role>_intensity_threshold_method`
-#: held 'mean' or 'percentile', and the fuzzy typo-matcher pointed it at the
-#: new `<role>_intensity_threshold`, which holds a NUMBER -- so the advice was
-#: to copy a method name into a float. A wrong suggestion is followed; silence
-#: at least gets investigated.
+#: Withdrawn merge/split controls and their older aliases stay here so old
+#: files receive an explanation without migrating values onto the mean
+#: intensity filters, which make a different decision about each object.
 WITHDRAWN_SETTING_SUFFIXES: Dict[str, str] = {
+    "minimum_area_to_split": "post-segmentation watershed splitting was removed",
+    "min_watershed_distance": "post-segmentation watershed splitting was removed",
+    "intensity_split": "post-segmentation watershed splitting was removed",
+    "min_object_area": "post-segmentation watershed splitting was removed",
+    "min_split_area": "post-segmentation watershed splitting was removed",
+    "min_distance": "post-segmentation watershed splitting was removed",
+    "intensity_threshold": "merging labels by boundary intensity was removed",
+    "intensity_merge": "merging labels by boundary intensity was removed",
     "area_multiplier": (
-        "the watershed split threshold is now the absolute "
-        "<role>_minimum_area_to_split alone, with no median term"),
+        "post-segmentation watershed splitting was removed"),
     "intensity_threshold_method": (
-        "merging no longer chooses between a mean and a percentile: set "
-        "<role>_intensity_threshold to an absolute intensity instead"),
+        "merging labels by boundary intensity was removed"),
     "intensity_percentile": (
-        "merging now compares the shared boundary against the absolute "
-        "<role>_intensity_threshold, not a percentile of the dimmer object"),
+        "merging labels by boundary intensity was removed"),
     "min_intensity_percentile": (
         "the intensity band was removed: it dropped its share of objects "
         "however bright the field, which is a quota rather than a filter"),
@@ -309,7 +309,7 @@ def withdrawn_setting_reason(key: str):
 
 
 def split_role_setting(key: str):
-    """``organellezz_min_split_area`` -> ``("organellezz", "min_split_area")``.
+    """``organellezz_min_area`` -> ``("organellezz", "min_area")``.
 
     The inverse of :func:`role_setting`, and the reason a suffix rename can
     cost six lines instead of 3,522. Every role is a single word with no

@@ -770,6 +770,12 @@ def _focus_scores(planes: np.ndarray) -> np.ndarray:
     )
 
 
+def _best_focus_index(z_first):
+    """Choose the z plane once from the model's actual selected input channels."""
+    planes = z_first if z_first.ndim == 3 else z_first.max(axis=-1)
+    return int(np.argmax(_focus_scores(planes)))
+
+
 def project(volume, mode: Optional[str] = "max", z_axis: Optional[int] = 0):
     """Collapse the z axis of ``volume`` to a single plane.
 
@@ -803,8 +809,7 @@ def project(volume, mode: Optional[str] = "max", z_axis: Optional[int] = 0):
 
     if vol.shape[0] == 1:
         return vol[0]
-    scores = _focus_scores(vol if vol.ndim == 3 else vol.max(axis=-1))
-    return vol[int(np.argmax(scores))]
+    return vol[_best_focus_index(vol)]
 
 
 

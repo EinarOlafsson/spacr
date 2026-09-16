@@ -194,7 +194,6 @@ _TEXT_CONSTRUCTORS = {
 # owners and is rejected by the runtime ratchet.
 _INDIRECT_CHROME_UI_SOURCES = frozenset({
     # Settings-section headings assembled by settings_model.
-    "Intensity Handling (all objects)",
     "Plate Sources & Workflow",
     "Labels & Classes",
     "Evaluation & Results",
@@ -212,21 +211,9 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     "Deuteranopia (red-green)",
     "Protanopia (red-green)",
     "Tritanopia (blue-yellow)",
-    # Live-preview form rows stored in COMPARTMENT_FIELDS or added through a
-    # form helper whose literal label is not itself passed to ``tr``.
-    "Min area (px²)",
-    "Max area (px²)",
-    "Min object area",
-    "Min distance",
-    "Area multiplier",
-    "Perimeter fraction",
-    "Min intensity pct",
-    "Max intensity pct",
-    "Intensity percentile",
-    "Intensity threshold",
-    "Intensity merge",
-    "Intensity split",
-    "Remove border objects",
+    # Additional preview rows passed through helpers. COMPARTMENT_FIELDS
+    # itself is read from the live registry below, so retired controls cannot
+    # linger here and new filter captions cannot silently miss translation.
     "Signal to noise",
     "Remove background",
     "Outline colour",
@@ -3619,9 +3606,11 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.widgets.fractal_travel import PATTERN_LABELS
     from spacr.qt.widgets.gate_editor import TOOL_LABELS
     from spacr.qt.widgets.graph_builder import CHANNEL_HINTS
+    from spacr.qt.widgets.live_preview import COMPARTMENT_FIELDS
 
     found: set[str] = set(PREFERENCE_TIPS)
     found.update(_INDIRECT_CHROME_UI_SOURCES)
+    found.update(str(row[1]) for row in COMPARTMENT_FIELDS)
     for _table in (CATEGORY_TOOLTIPS, PATH_LIST_TITLES, APP_TITLES,
                    FUNCTION_HELP, TOOL_LABELS, RULE_NAMES, RULE_DETECTS,
                    ESTIMATOR_LABELS, CHANNEL_HINTS, PATTERN_LABELS):

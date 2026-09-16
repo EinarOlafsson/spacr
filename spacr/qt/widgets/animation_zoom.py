@@ -60,10 +60,10 @@ BACKGROUND_LEVEL = 8
 
 #: Lit 8-neighbours a lit pixel needs before it counts as content.
 #:
-#: GIF quantisation leaves single specks one level above the background —
-#: ``nucleus_intensity_merge`` has exactly one, value 9, in the far corner of
-#: one frame out of eighteen. Left in, that speck alone stretched the measured
-#: content from 132x86 to 231x203 and the zoom then framed an empty corner.
+#: GIF quantisation can leave single specks one level above the background.
+#: The synthetic regression places a value-9 pixel at (300, 300) beside a
+#: 40x40 shape: counting the speck expands the content bounds to 201x201 and
+#: makes the zoom frame an otherwise empty corner.
 #: Real content here is anti-aliased line art and filled shapes, where every
 #: pixel of a stroke has neighbours; an isolated pixel is never a drawing.
 MIN_NEIGHBOURS = 1

@@ -16,7 +16,8 @@
     "The four border animations are measured, not judged by eye, with spacr.setting_animations.measure_border_object_removal: it reads the well edge off the DRAWN rule rather than the generator's own touches flag, and compares two frames at the same zoom rather than frame 0, which is zoomed out. All four report crossing=2 interior=0.",
     "Two sessions audited this concurrently on 2026-08-18. This record is the union of both: an animation is WEAK if either pass found it weak.",
     "2026-08-20: the eight WEAK animations were fixed rather than left recorded. Five were faint-at-tooltip-size and were redrawn heavier; three (use_bounding_box, organelle_diameter, organelle_skeletonize) were showing the wrong thing and were rebuilt around what the code actually does. Every one was re-watched as a contact sheet after regeneration, and the visible_change figures here are re-measured off the shipped GIF.",
-    "2026-09-08: eleven slugs were renamed in 0d384115b -- the four *_CP_prob to *_cellprob_threshold, the four *_FT to *_flow_threshold and the three *_Signal_to_noise to *_signal_to_noise. git records all eleven as R100, byte-identical, so the artefact each verdict was watched against on 2026-08-20 is the same file under a new name and the judgement carries with its evidence. Nothing here was re-judged; an animation whose PIXELS changed would have to be re-watched. The same commit b7ae412af renamed <object>_min_object_area to <object>_min_split_area across the four intensity-split animations and retired organelle_min_size / organelle_max_size, which the two organelle area entries had listed beside their live key; those settings lists are migrated here by the same reasoning."
+    "2026-09-08: eleven slugs were renamed in 0d384115b -- the four *_CP_prob to *_cellprob_threshold, the four *_FT to *_flow_threshold and the three *_Signal_to_noise to *_signal_to_noise. git records all eleven as R100, byte-identical, so the artefact each verdict was watched against on 2026-08-20 is the same file under a new name and the judgement carries with its evidence. Nothing here was re-judged; an animation whose PIXELS changed would have to be re-watched. The same commit b7ae412af renamed <object>_min_object_area to <object>_min_split_area across the four intensity-split animations and retired organelle_min_size / organelle_max_size, which the two organelle area entries had listed beside their live key; those settings lists are migrated here by the same reasoning.",
+    "2026-09-15 (418): Only the eight new absolute mean-bound animations for cell, nucleus, pathogen and organelle were reviewed in this pass. All stored frames of their first shipped render were inspected as contact sheets. After changing the disabled endpoint from an inequality to plain 0, native-size before/filtered/return panels from all eight final shipped GIFs were rechecked: equal-sized objects differ in brightness, equality is retained, lower and upper bounds discard opposite pairs, and 0 restores all objects. Each new record has its own reviewed date and visible_change remeasured from the final shipped file with spacr.setting_animations.measure_visible_change. The other 78 GIFs were verified byte-identical to HEAD 0560c747a94ee403bb7a0c46eb976cfcad096dee, and their existing review evidence is carried forward unchanged; they were not rewatched in this pass. The original audit dates above are preserved. The eight retired merge/split entries, reviewed in August 2026 and reconfirmed on 2026-09-14, were removed because their controls no longer ship; their historical verdicts are not evidence for the new animations."
   ],
   "animations": [
     {
@@ -140,52 +141,48 @@
       "note": "FIXED 2026-08-20. The subject was right -- a brightness ramp across five objects responding to the setting -- and the animation BRIGHTENED while raising Signal_to_noise raises the normalisation ceiling and makes things DIMMER. Same class as the flow thresholds and filed the same milder way: a picture that moves the wrong way is not undirected, it is directed wrongly, and a viewer will read it. The ramp dims now, and THE DIMMEST LOSES MOST -- each object's fall is scaled by its own base, so the faintest fades toward nothing while the brightest merely dulls, which is what raising the ceiling does to a field. The same track the flow thresholds use sits below, FILLING rather than emptying, because here the value goes up as the picture goes down. Measured on the regenerated GIF: 18 frames, brightest at index 0 (3002 bright pixels) and dimmest at index 11 (2563) -- and that is with the gauge ADDING ink as it fills."
     },
     {
-      "slug": "cell_intensity_split",
-      "scene": "split",
+      "slug": "cell_min_intensity",
+      "scene": "mean_intensity",
       "settings": [
-        "cell_intensity_split",
-        "cell_min_watershed_distance",
-        "cell_minimum_area_to_split"
+        "cell_min_intensity"
       ],
       "verdict": "GOOD",
-      "visible_change": 0.0504,
-      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14, against the settings the animation ships today. The keys it was originally judged against were renamed and consolidated since: cell_area_multiplier, cell_min_distance and cell_min_split_area became cell_min_watershed_distance and cell_minimum_area_to_split, three controls into two. The ANIMATION itself did not change, which is why the verdict stands rather than being re-derived -- and the record is updated only because a human watched it again, not to quiet the test."
+      "reviewed": "2026-09-15",
+      "visible_change": 0.03866512345679012,
+      "note": "Reviewed from the shipped GIF. Four equal-sized objects have distinct brightness and mean labels 20/40/60/80. Enabling the absolute minimum at >= 60 removes means 20 and 40; equality at 60 and the brighter mean 80 survive without changing brightness. The plain-zero before/return state restores all four objects. The visible criterion is absolute mean intensity, not area, merging, splitting, or a percentile quota."
     },
     {
-      "slug": "nucleus_intensity_split",
-      "scene": "split",
+      "slug": "nucleus_min_intensity",
+      "scene": "mean_intensity",
       "settings": [
-        "nucleus_intensity_split",
-        "nucleus_min_watershed_distance",
-        "nucleus_minimum_area_to_split"
+        "nucleus_min_intensity"
       ],
       "verdict": "GOOD",
-      "visible_change": 0.0376,
-      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
+      "reviewed": "2026-09-15",
+      "visible_change": 0.0780787037037037,
+      "note": "Reviewed from the shipped GIF. Four equal-sized objects have distinct brightness and mean labels 20/40/60/80. Enabling the absolute minimum at >= 60 removes means 20 and 40; equality at 60 and the brighter mean 80 survive without changing brightness. The plain-zero before/return state restores all four objects. The visible criterion is absolute mean intensity, not area, merging, splitting, or a percentile quota."
     },
     {
-      "slug": "organelle_intensity_split",
-      "scene": "split",
+      "slug": "organelle_min_intensity",
+      "scene": "mean_intensity",
       "settings": [
-        "organelle_intensity_split",
-        "organelle_min_watershed_distance",
-        "organelle_minimum_area_to_split"
+        "organelle_min_intensity"
       ],
       "verdict": "GOOD",
-      "visible_change": 0.0788,
-      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
+      "reviewed": "2026-09-15",
+      "visible_change": 0.07553240740740741,
+      "note": "Reviewed from the shipped GIF. Four equal-sized objects have distinct brightness and mean labels 20/40/60/80. Enabling the absolute minimum at >= 60 removes means 20 and 40; equality at 60 and the brighter mean 80 survive without changing brightness. The plain-zero before/return state restores all four objects. The visible criterion is absolute mean intensity, not area, merging, splitting, or a percentile quota."
     },
     {
-      "slug": "pathogen_intensity_split",
-      "scene": "split",
+      "slug": "pathogen_min_intensity",
+      "scene": "mean_intensity",
       "settings": [
-        "pathogen_intensity_split",
-        "pathogen_min_watershed_distance",
-        "pathogen_minimum_area_to_split"
+        "pathogen_min_intensity"
       ],
       "verdict": "GOOD",
-      "visible_change": 0.1097,
-      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
+      "reviewed": "2026-09-15",
+      "visible_change": 0.12885802469135801,
+      "note": "Reviewed from the shipped GIF. Four equal-sized objects have distinct brightness and mean labels 20/40/60/80. Enabling the absolute minimum at >= 60 removes means 20 and 40; equality at 60 and the brighter mean 80 survive without changing brightness. The plain-zero before/return state restores all four objects. The visible criterion is absolute mean intensity, not area, merging, splitting, or a percentile quota."
     },
     {
       "slug": "stitch_threshold",
@@ -506,15 +503,15 @@
       "note": "A threshold sweeps through the four objects in the documented order and one always survives."
     },
     {
-      "slug": "cell_intensity_merge",
-      "scene": "merge",
+      "slug": "cell_max_intensity",
+      "scene": "mean_intensity",
       "settings": [
-        "cell_intensity_merge",
-        "cell_intensity_threshold"
+        "cell_max_intensity"
       ],
       "verdict": "GOOD",
-      "visible_change": 0.0451,
-      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
+      "reviewed": "2026-09-15",
+      "visible_change": 0.03895061728395062,
+      "note": "Reviewed from the shipped GIF. Four equal-sized objects have distinct brightness and mean labels 20/40/60/80. Enabling the absolute maximum at <= 40 removes means 60 and 80; equality at 40 and the dimmer mean 20 survive without changing brightness. The plain-zero before/return state restores all four objects. The visible criterion is absolute mean intensity, not area, merging, splitting, or a percentile quota."
     },
     {
       "slug": "cell_perimeter_fraction",
@@ -527,15 +524,15 @@
       "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
     },
     {
-      "slug": "nucleus_intensity_merge",
-      "scene": "merge",
+      "slug": "nucleus_max_intensity",
+      "scene": "mean_intensity",
       "settings": [
-        "nucleus_intensity_merge",
-        "nucleus_intensity_threshold"
+        "nucleus_max_intensity"
       ],
       "verdict": "GOOD",
-      "visible_change": 0.0397,
-      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
+      "reviewed": "2026-09-15",
+      "visible_change": 0.07888888888888888,
+      "note": "Reviewed from the shipped GIF. Four equal-sized objects have distinct brightness and mean labels 20/40/60/80. Enabling the absolute maximum at <= 40 removes means 60 and 80; equality at 40 and the dimmer mean 20 survive without changing brightness. The plain-zero before/return state restores all four objects. The visible criterion is absolute mean intensity, not area, merging, splitting, or a percentile quota."
     },
     {
       "slug": "nucleus_perimeter_fraction",
@@ -548,15 +545,15 @@
       "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
     },
     {
-      "slug": "organelle_intensity_merge",
-      "scene": "merge",
+      "slug": "organelle_max_intensity",
+      "scene": "mean_intensity",
       "settings": [
-        "organelle_intensity_merge",
-        "organelle_intensity_threshold"
+        "organelle_max_intensity"
       ],
       "verdict": "GOOD",
-      "visible_change": 0.0361,
-      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
+      "reviewed": "2026-09-15",
+      "visible_change": 0.07672067901234568,
+      "note": "Reviewed from the shipped GIF. Four equal-sized objects have distinct brightness and mean labels 20/40/60/80. Enabling the absolute maximum at <= 40 removes means 60 and 80; equality at 40 and the dimmer mean 20 survive without changing brightness. The plain-zero before/return state restores all four objects. The visible criterion is absolute mean intensity, not area, merging, splitting, or a percentile quota."
     },
     {
       "slug": "organelle_perimeter_fraction",
@@ -569,15 +566,15 @@
       "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
     },
     {
-      "slug": "pathogen_intensity_merge",
-      "scene": "merge",
+      "slug": "pathogen_max_intensity",
+      "scene": "mean_intensity",
       "settings": [
-        "pathogen_intensity_merge",
-        "pathogen_intensity_threshold"
+        "pathogen_max_intensity"
       ],
       "verdict": "GOOD",
-      "visible_change": 0.0426,
-      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
+      "reviewed": "2026-09-15",
+      "visible_change": 0.13031635802469135,
+      "note": "Reviewed from the shipped GIF. Four equal-sized objects have distinct brightness and mean labels 20/40/60/80. Enabling the absolute maximum at <= 40 removes means 60 and 80; equality at 40 and the dimmer mean 20 survive without changing brightness. The plain-zero before/return state restores all four objects. The visible criterion is absolute mean intensity, not area, merging, splitting, or a percentile quota."
     },
     {
       "slug": "pathogen_perimeter_fraction",

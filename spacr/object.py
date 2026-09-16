@@ -91,16 +91,19 @@ def _fill_holes_smaller_than(binary, area_threshold):
             binary, area_threshold=int(area_threshold))
 
 def merge_split_filter_masks(masks, intensity_images, settings, object_type, batch_filenames=None):
-    """Apply merge/split/filter operations directly to in-memory masks.
+    """Merge by perimeter and filter each in-memory field's objects.
 
     Skips work when no operation is enabled for ``object_type``; otherwise
     processes each FOV serially so progress reporting stays in order.
 
-    :param masks: 2D/3D ndarray or iterable of 2D masks (one per FOV).
-    :param intensity_images: Matching intensity arrays for scoring merges/splits.
+    :param masks: 2D/3D ndarray or iterable of masks (one per field).
+    :param intensity_images: Original own-channel arrays matching the masks,
+        required only when an intensity bound is enabled. For channel-last
+        batches the first channel must be the object's own channel.
     :param settings: Dict of pipeline settings; per-object-type suffixes control
-        which operations run (e.g. ``<type>_perimeter_fraction``,
-        ``<type>_intensity_merge``, ``<type>_min_area``).
+        perimeter merging, min/max area, border removal and min/max intensity.
+        Intensity bounds compare whole-object means in original image units;
+        equality is retained and 0 disables each bound independently.
     :param object_type: Label used to look up per-object settings (``'cell'``,
         ``'nucleus'``, ``'pathogen'``, ``'organelle'``).
     :param batch_filenames: Optional per-FOV filenames used only for logging.
@@ -108,20 +111,20 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
         list of filtered mask arrays (one per FOV).
     """
     import numpy as np
-    from .utils import print_progress, _process_single_fov_in_memory
+    from .utils import (print_progress, _process_single_fov_in_memory,
+                        _validated_intensity_bounds)
 
     pf = settings.get(f'{object_type}_perimeter_fraction', settings.get(f'{object_type}_perimiter_fraction', 0))
-    im = settings.get(f'{object_type}_intensity_merge', False)
-    isp = settings.get(f'{object_type}_intensity_split', False)
-    moa = settings.get(f'{object_type}_minimum_area_to_split', 0)
     mna = settings.get(f'{object_type}_min_area', 0)
     mxa = settings.get(f'{object_type}_max_area', 0)
     rb = settings.get(f'{object_type}_remove_border_objects', False)
-    ith = settings.get(f'{object_type}_intensity_threshold', None)
+    minimum, maximum = _validated_intensity_bounds(
+        settings.get(f'{object_type}_min_intensity', 0),
+        settings.get(f'{object_type}_max_intensity', 0))
 
     needs_work = (
-        pf > 0 or im or isp or moa > 0 or mna > 0 or
-        (mxa and mxa > 0) or rb
+        pf > 0 or mna > 0 or (mxa and mxa > 0) or rb or
+        minimum > 0 or maximum > 0
     )
 
     if not needs_work:
@@ -132,9 +135,9 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
         return None
 
     print(f"merge_split_filter_masks({object_type}): "
-          f"perimeter_merge={pf > 0}(frac={pf}), intensity_merge={im}, "
-          f"split={isp}, min_area={mna}, max_area={mxa}, "
-          f"remove_border={rb}, intensity_threshold={ith}")
+          f"perimeter_merge={pf > 0}(frac={pf}), "
+          f"min_area={mna}, max_area={mxa}, remove_border={rb}, "
+          f"min_intensity={minimum}, max_intensity={maximum}")
 
     if isinstance(masks, np.ndarray):
         if masks.ndim == 2:
@@ -146,7 +149,9 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     else:
         mask_list = list(masks)
 
-    if isinstance(intensity_images, np.ndarray):
+    if intensity_images is None:
+        intensity_list = [None] * len(mask_list)
+    elif isinstance(intensity_images, np.ndarray):
         if intensity_images.ndim == 2:
             intensity_list = [intensity_images]
         elif intensity_images.ndim == 3:
@@ -187,16 +192,13 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
             mask=mask,
             intensity_img=intensity_img,
             intensity_channel=0,
-            do_split=isp,
             do_perimeter_merge=(pf > 0),
-            do_intensity_merge=(im and intensity_images is not None),
             perimeter_fraction=pf,
-            min_watershed_distance=settings.get(f'{object_type}_min_watershed_distance', 10),
-            minimum_area_to_split=moa,
-            intensity_threshold=ith,
             min_area=mna,
             max_area=mxa if mxa else 0,
             remove_border_objects=rb,
+            min_intensity=minimum,
+            max_intensity=maximum,
             progress_callback=_progress,
             fov_index=idx,
             total_fovs=total,
@@ -370,9 +372,10 @@ def _segment_volumes_with_z(volumes, model, z_plan, eval_kwargs):
     :returns: ``(masks, results, intensity)`` — a list of label arrays, 2-D
         under ``'project'`` and 3-D otherwise; the matching
         :class:`spacr.zstack.ZStackResult` records; and, under ``'project'``
-        only, the projected ``(N, Y, X, C)`` intensity array that was actually
-        segmented, which is what the 2-D merge/split/filter step must score
-        against rather than the original volume.
+        only, the projected ``(N, Y, X, C)`` normalized model-input array.
+        These values are not raw intensity-filter units; absolute bounds use
+        original own-channel planes loaded separately by
+        :func:`_raw_filter_images`.
     """
     from .zstack import project, segment_3d
 
@@ -488,17 +491,16 @@ def _require_t_axis(stack, t_plan, path):
     calling the result 4-D is indistinguishable, after the fact, from a real
     4-D run. So it is a hard error naming both the cause and the way out.
 
-    ``t_stack`` reads the batch's leading axis as time, so what is missing from
-    an ordinary batch is the **z** axis: ``(N, Y, X, C)`` has four axes where a
-    4-D acquisition needs five.
+    ``t_stack`` reads time and z from the declared acquisition axes. What is
+    missing from an ordinary batch is the **z** axis: ``(N, Y, X, C)`` has
+    four axes where a 4-D acquisition needs five.
 
     A spec with ``z_axis=None`` describes a flat ``(T, Y, X, C)`` time series
     and needs only four, which is what an ordinary batch already is -- see
     :func:`spacr.zstack.segment_4d`, which makes one plain 2-D call per frame
-    for it. ``spacr.zstack.plan_4d_from_settings`` cannot build such a spec
-    from settings today, so this branch is reachable only through the Python
-    API; the settings-level path for a flat time series is the ``timelapse``
-    setting.
+    for it. ``t_axis_order='TYX'`` declares that flat case explicitly; the
+    legacy ``timelapse`` setting also supports flat time series without a
+    t-stack plan.
 
     :param stack: the ``(N, ...)`` array loaded from one ``.npz`` batch.
     :param t_plan: the active :class:`spacr.zstack.TStackSpec`.
@@ -544,9 +546,9 @@ def _segment_timepoints_with_t(acquisition, model, t_plan, eval_kwargs):
     :returns: ``(masks, result, intensity)`` — one label array per timepoint,
         2-D under ``'project'`` and 3-D otherwise; the
         :class:`spacr.zstack.TStackResult`; and, under ``'project'`` only, the
-        projected ``(T, Y, X, C)`` intensity array that was actually
-        segmented, which is what the 2-D merge/split/filter step must score
-        against rather than the original volumes.
+        projected ``(T, Y, X, C)`` normalized model-input array. These values
+        are not raw intensity-filter units; absolute bounds use original
+        own-channel planes loaded separately by :func:`_raw_filter_images`.
     """
     from .zstack import iter_volumes, project, segment_4d
 
@@ -597,15 +599,68 @@ def _refuse_t_stack(settings, where):
     )
 
 
+def _raw_filter_images(src, filenames, model_inputs, masks, channel, *,
+                       z_axis=None, projection=None):
+    """Read original own-channel values on the canvas the model segmented.
+
+    Filenames are the surviving resume manifest, while the canvas comes
+    from the retained normalized batch, not the size of surviving fields.
+    Projected volumes reuse the model's projection, including its focus
+    plane choice. Whole-volume labels keep the complete original z axis.
+    """
+    from .zstack import _best_focus_index, project
+
+    if not (len(filenames) == len(model_inputs) == len(masks)):
+        raise ValueError("Raw intensity fields, model inputs and masks must align")
+    if channel is None:
+        raise ValueError("Intensity filtering requires an explicit own-channel index")
+    result = []
+    for filename, model_input, mask in zip(filenames, model_inputs, masks):
+        filename = str(filename)
+        if os.path.basename(filename) != filename:
+            raise ValueError("Raw intensity filenames must be field basenames")
+        raw = np.load(os.path.join(os.path.dirname(src), 'stack', filename))
+        canvas = np.shape(model_input)[:-1]
+        if raw.ndim == len(canvas) and int(channel) == 0:
+            plane = raw
+        elif raw.ndim == len(canvas) + 1 and 0 <= int(channel) < raw.shape[-1]:
+            plane = raw[..., int(channel)]
+        else:
+            raise ValueError(f"Raw intensity shape/channel mismatch for {filename}")
+        if any(actual > target for actual, target in zip(plane.shape, canvas)):
+            raise ValueError(f"Raw intensity field exceeds segmentation canvas: {filename}")
+        plane = np.pad(plane, [(0, target - actual)
+                              for actual, target in zip(plane.shape, canvas)])
+        if z_axis is not None:
+            plane = np.moveaxis(plane, z_axis, 0)
+            if np.ndim(mask) == plane.ndim - 1:
+                if plane.shape[0] == 1:
+                    plane = plane[0]
+                elif projection == 'best_focus':
+                    selected = np.moveaxis(model_input, z_axis, 0)
+                    plane = plane[_best_focus_index(selected)]
+                else:
+                    plane = project(plane, mode=projection, z_axis=0)
+        if plane.shape != np.shape(mask):
+            raise ValueError(f"Raw intensity plane must have the same shape as mask: {filename}")
+        result.append(plane)
+    return result
+
+
 def generate_cellpose_masks_sam(src, settings, object_type):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
 
     Loads the ``cpsam`` pretrained model — or, when
     ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint
     the user trained, that checkpoint — iterates over each pre-batched
-    ``.npz`` file, runs merge/split/filter on the resulting masks, optionally
-    tracks timelapse objects, saves per-image ``.npy`` masks, and records
-    per-object counts to the run's SQLite database.
+    ``.npz`` file, applies perimeter merging and area/border filtering to 2-D
+    masks, and optionally filters objects by their absolute mean intensity
+    in the original own-channel image. It then optionally tracks timelapse
+    objects, saves per-image ``.npy`` masks, and records per-object counts to
+    the run's SQLite database. Time-stack archives must contain one filename
+    per timepoint, regardless of the declared time-axis position; each raw
+    filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its
+    ``(Y, X, C)`` image for a flat ``TYX`` series.
 
     :param src: Directory containing the pre-batched ``.npz`` image stacks.
     :param settings: Pipeline settings dict; canonicalized via
@@ -625,6 +680,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output
     from .cancellation import checkpoint as cancellation_checkpoint
+    from dataclasses import replace
+    from .zstack import as_t_first
     
     gc.collect()
     if not torch.cuda.is_available():
@@ -660,6 +717,12 @@ def generate_cellpose_masks_sam(src, settings, object_type):
 
     t_plan = _t_stack_plan(settings)
     z_plan = _reconcile_z_and_t_plans(z_plan, t_plan, timelapse=timelapse)
+
+    from .utils import _validated_intensity_bounds
+    intensity_bounds = _validated_intensity_bounds(
+        settings.get(f'{object_type}_min_intensity', 0),
+        settings.get(f'{object_type}_max_intensity', 0))
+    filter_by_raw_intensity = any(value > 0 for value in intensity_bounds)
 
     if t_plan is not None:
         beta_mode = None if t_plan.z_axis is None else t_plan.z_mode
@@ -727,13 +790,30 @@ def generate_cellpose_masks_sam(src, settings, object_type):
         with np.load(path) as data:
             stack = data['data']
             filenames = data['filenames']
-            
-            for i, filename in enumerate(filenames):
-                output_path = os.path.join(output_folder, filename)
-                
-                if os.path.exists(output_path):
-                    print(f"File {filename} already exists in the output folder. Skipping...")
-                    continue
+
+        # Filename selection, resume and batching all operate on timepoints.
+        # Canonicalize each archive with the original acquisition plan, then
+        # give the segmenter a local plan for this view. Mutating t_plan here
+        # would interpret later ZTYX archives as if they were already TZYX.
+        archive_t_plan = t_plan
+        if t_plan is not None:
+            _require_t_axis(stack, t_plan, path)
+            stack = as_t_first(stack, t_plan)
+            if filenames.ndim != 1 or len(filenames) != stack.shape[0]:
+                raise ValueError(
+                    f"t_stack requires one filename per timepoint in "
+                    f"{os.path.basename(path)}: time axis has length "
+                    f"{stack.shape[0]}, filenames have shape {filenames.shape}")
+            archive_t_plan = replace(
+                t_plan, t_axis=0,
+                z_axis=1 if t_plan.z_axis is not None else None)
+        elif z_plan is not None:
+            _require_z_axis(stack, z_plan, path)
+
+        for filename in filenames:
+            output_path = os.path.join(output_folder, filename)
+            if os.path.exists(output_path):
+                print(f"File {filename} already exists in the output folder. Skipping...")
                 
         if timelapse:
             trackable_objects = ['cell','nucleus','pathogen']
@@ -745,17 +825,15 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 print(f'Changed batch_size:{batch_size} to {len(stack)}, data length:{len(stack)}')
                 settings['timelapse_batch_size'] = len(stack)
                 batch_size = len(stack)
-                if isinstance(timelapse_frame_limits, list):
-                    if len(timelapse_frame_limits) >= 2:
-                        stack = stack[timelapse_frame_limits[0]: timelapse_frame_limits[1], :, :, :].astype(stack.dtype)
-                        filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
-                        batch_size = len(stack)
-                        print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
-        
-        if t_plan is not None:
-            _require_t_axis(stack, t_plan, path)
-        elif z_plan is not None:
-            _require_z_axis(stack, z_plan, path)
+            if isinstance(timelapse_frame_limits, list):
+                if len(timelapse_frame_limits) >= 2:
+                    stack = stack[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
+                    filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
+                    batch_size = len(stack)
+                    print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
+
+        if len(stack) == 0:
+            continue
 
         for i in range(0, stack.shape[0], batch_size):
             cancellation_checkpoint()
@@ -820,7 +898,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 )
                 if t_plan is not None:
                     masks, t_result, beta_intensity = _segment_timepoints_with_t(
-                        cp_batch, model, t_plan, z_eval_kwargs
+                        cp_batch, model, archive_t_plan, z_eval_kwargs
                     )
                     if settings['verbose']:
                         for note in t_result.notes:
@@ -839,10 +917,23 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                                 print(f"[3D] {filename}: {note}")
                 flows = None
 
-            if beta_mode is None or beta_mode == 'project':
+            filter_images = batch if beta_mode is None else beta_intensity
+            if filter_by_raw_intensity:
+                filter_z_axis = (0 if archive_t_plan is not None and archive_t_plan.z_axis is not None
+                                 else (z_plan.z_axis or 0) if z_plan is not None
+                                 else None)
+                projection = (archive_t_plan.projection if archive_t_plan is not None
+                              else z_plan.projection if z_plan is not None else None)
+                filter_images = _raw_filter_images(
+                    src, batch_filenames, batch_list, masks,
+                    settings.get(f'{object_type}_channel'),
+                    z_axis=filter_z_axis, projection=projection)
+
+            if beta_mode is None or beta_mode == 'project' or all(
+                    np.ndim(mask) == 2 for mask in masks):
                 masks = merge_split_filter_masks(
                     masks=masks,
-                    intensity_images=batch if beta_mode is None else beta_intensity,
+                    intensity_images=filter_images,
                     settings=settings,
                     object_type=object_type,
                     batch_filenames=batch_filenames,
@@ -850,10 +941,16 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             else:
                 print(
                     f"merge_split_filter_masks({object_type}): skipped — the "
-                    f"merge/split/filter operations are 2-D only and would be "
+                    f"perimeter and area operations are 2-D only and would be "
                     f"applied per z plane, breaking the 3-D labels that "
                     f"z_segmentation_mode='{beta_mode}' just produced"
                 )
+                if filter_by_raw_intensity:
+                    from .utils import _filter_objects
+                    masks = [_filter_objects(
+                        np.asarray(mask).copy(), plane,
+                        min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1])
+                        for mask, plane in zip(masks, filter_images)]
             
             if timelapse:
                 if settings['plot']:
@@ -1320,6 +1417,15 @@ def generate_organelle_masks_sam(src, settings, object_type):
     settings = organelle_settings_view(
         _set_organelle_defaults(settings), object_type)
 
+    from .utils import _validated_intensity_bounds
+    intensity_bounds = _validated_intensity_bounds(
+        settings.get('organelle_min_intensity', 0),
+        settings.get('organelle_max_intensity', 0))
+    filter_by_raw_intensity = any(value > 0 for value in intensity_bounds)
+    settings['organelle_remove_border_objects'] = bool(
+        settings.get('organelle_remove_border_objects', False)
+        or settings.get('organelle_remove_border', False))
+
     _refuse_t_stack(settings, 'object.generate_organelle_masks_sam')
 
     morphology = settings['organelle_morphology']
@@ -1446,11 +1552,15 @@ def generate_organelle_masks_sam(src, settings, object_type):
             if masks is None or len(masks) == 0:
                 continue
 
-            mask_stack = _postprocess_masks(
-                masks,
-                min_size=settings['organelle_min_area'],
-                max_size=settings['organelle_max_area'],
-                remove_border=settings['organelle_remove_border'],
+            raw_images = None
+            if filter_by_raw_intensity:
+                inputs = [image if image.ndim == 3 else image[..., None]
+                          for image in batch]
+                raw_images = _raw_filter_images(
+                    src, batch_filenames, inputs, masks,
+                    settings['organelle_channel'])
+            mask_stack = merge_split_filter_masks(
+                masks, raw_images, settings, 'organelle', batch_filenames,
             )
 
             _save_object_counts_to_database(

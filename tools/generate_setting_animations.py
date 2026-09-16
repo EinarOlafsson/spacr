@@ -664,33 +664,10 @@ def _filter_scene(painter: Painter, spec: Spec, action: float) -> None:
     if kind == "cell":
         sizes = [(25, 20), (35, 27), (45, 34), (56, 42)]
         centers = [(73, 73), (165, 64), (278, 76), (180, 166)]
-    # These settings are THRESHOLDS: everything past the threshold is
-    # discarded, not one representative object. Fading a single object made
-    # the `minimum` and `dim` variants measure a fifth of a percent -- the
-    # object they fade is the smallest one -- and taught the viewer that the
-    # setting drops one thing. A threshold sweeping through the objects in
-    # order is both the larger change and the true illustration.
-    by_intensity = variant in ("dim", "bright")
-    # Intensity variants need visibly different brightnesses for an order to
-    # exist at all; area variants read their order off the sizes.
-    base = [0.4, 0.6, 0.8, 1.0] if by_intensity else [1.0] * len(sizes)
-    if by_intensity:
-        # AND THEY NEED ONE SIZE. Until 2026-08-18 the intensity animations
-        # kept the four different sizes the area animations use, so the
-        # objects differed in size AND brightness and the two families were
-        # the same picture -- 20-22% of the drawn ink separated
-        # `*_min_area` from `*_min_intensity_percentile`, and nothing told a
-        # viewer which property the threshold had read. One size leaves
-        # brightness as the only order there is, which is the criterion.
-        uniform = sizes[2]
-        sizes = [uniform] * len(sizes)
-    if by_intensity:
-        rank_by = lambda index: base[index]
-    else:
-        rank_by = lambda index: sizes[index][0] * sizes[index][1]
+    # Sweep the area threshold through the objects, not just one example.
     order = sorted(
-        range(len(sizes)), key=rank_by,
-        reverse=variant in ("maximum", "bright"),
+        range(len(sizes)), key=lambda index: sizes[index][0] * sizes[index][1],
+        reverse=variant == "maximum",
     )
     for rank, index in enumerate(order):
         # One object always survives; an empty frame reads as a broken render
@@ -698,8 +675,49 @@ def _filter_scene(painter: Painter, spec: Spec, action: float) -> None:
         gone = min(1.0, max(0.0, action * (len(order) - 1) - rank))
         _object_outline(
             painter, kind, centers[index], sizes[index],
-            base[index] * (1.0 - gone),
+            1.0 - gone,
             phase=index * 0.8, width=0.5,
+        )
+
+
+def _mean_intensity_scene(painter: Painter, spec: Spec, action: float) -> None:
+    """Enable an absolute object-mean bound, then return to zero/off.
+
+    Equal-sized objects have explicit raw means, not ranks or percentiles.
+    The inclusive comparison retains the object exactly on the bound. Only
+    rejected masks fade; retained masks keep their original brightness. A
+    zero bound leaves every object present even at the enabled endpoint.
+    """
+    _well(painter)
+    kind = spec.params["kind"]
+    minimum = spec.params["variant"] == "minimum"
+    bound = float(spec.params["bound"])
+    means = spec.params["means"]
+    centers = [(90, 55), (265, 55), (90, 190), (265, 190)]
+    size = (45, 35)
+    font = _font(11 * SCALE)
+    symbol = "≥" if minimum else "≤"
+    # Numeric, language-independent annotations distinguish an absolute
+    # mean cutoff from a quota. The before state shows its disabled value.
+    shown_bound = bound if action > 0 else 0
+    caption = f"{symbol} {shown_bound:g}" if shown_bound != 0 else "0"
+    painter.draw.text(
+        painter.point((180, -20)), caption,
+        font=font, fill=WHITE, anchor="mm",
+    )
+    for index, (center, mean) in enumerate(zip(centers, means)):
+        rejected = bound != 0 and (mean < bound if minimum else mean > bound)
+        visible = 1.0 - action if rejected else 1.0
+        # A fixed raw-value scale: adding/removing another object cannot
+        # change either this object's appearance or the filtering decision.
+        brightness = 0.4 + 0.6 * min(1.0, max(0.0, mean / 80.0))
+        _object_outline(
+            painter, kind, center, size, brightness * visible,
+            phase=index * 0.8, width=0.5,
+        )
+        painter.draw.text(
+            painter.point((center[0], center[1] + 67)), f"μ={mean:g}",
+            font=font, fill=_mix(WHITE, visible), anchor="mm",
         )
 
 
@@ -854,28 +872,10 @@ def _adjust_cells(painter: Painter, action: float) -> None:
 
 
 def _generic_merge(painter: Painter, spec: Spec, action: float) -> None:
-    """Two touching pairs, of which the setting's criterion merges exactly one.
+    """Merge the pair sharing enough boundary; retain the barely touching pair.
 
-    THESE ARE TWO DIFFERENT SETTINGS AND THEY USED TO BE ONE PICTURE. A single
-    pair merged, and `*_intensity_merge` added a pulsing line over it; measured
-    against `*_perimeter_fraction`, 98% of the drawn pixels were identical. A
-    viewer comparing the two animations learned that the settings do the same
-    thing, which is the failure this whole audit is about -- an animation is a
-    stronger claim than a sentence.
-
-    So each now draws its own criterion, and draws a pair that FAILS it:
-
-    * `perimeter_fraction` is shared boundary length over the smaller object's
-      perimeter. One pair overlaps deeply and merges; one pair touches at a
-      point, shares almost no boundary, and stays two objects.
-    * `intensity_merge` asks whether there is a real membrane between them.
-      The pair with no visible boundary merges; the pair divided by a bright
-      membrane stays two objects, and the membrane is drawn the whole time
-      rather than pulsed, because it is the evidence and not decoration.
-
-    A threshold that keeps something is the honest illustration of a
-    threshold. One that dissolves the only pair on screen shows a merge, not a
-    criterion.
+    The surviving pair is the control: dissolving the only pair on screen
+    would show a merge, but not the shared-perimeter criterion deciding it.
     """
     _well(painter)
     kind = spec.params["kind"]
@@ -883,10 +883,7 @@ def _generic_merge(painter: Painter, spec: Spec, action: float) -> None:
     wide, narrow = 58 * scale, 29 * scale
     tall = 31 * scale
     top, bottom = 70.0, 172.0
-    intensity = bool(spec.params.get("intensity"))
-
-    # The pair that MERGES. For perimeter_fraction it is the deeply overlapping
-    # one; for intensity_merge it is the one with no membrane between halves.
+    # The deeply overlapping pair merges.
     _object_outline(painter, kind, (168, top), (wide, 42 * scale), action, 0.5)
     _object_outline(
         painter, kind, (168 - narrow * 0.42, top), (narrow, tall),
@@ -897,73 +894,12 @@ def _generic_merge(painter: Painter, spec: Spec, action: float) -> None:
         1.0 - action, 0.9,
     )
 
-    # The pair that does NOT merge, and the reason it does not.
-    if intensity:
-        # Same geometry as above; the membrane is what keeps them apart.
-        _object_outline(
-            painter, kind, (168 - narrow * 0.42, bottom), (narrow, tall), 1.0, 0.3,
-        )
-        _object_outline(
-            painter, kind, (168 + narrow * 0.42, bottom), (narrow, tall), 1.0, 1.1,
-        )
-        painter.line(
-            [(168, bottom - tall * 0.62), (168, bottom + tall * 0.62)],
-            WHITE, 0.9,
-        )
-    else:
-        # Barely touching, so the shared boundary is a fraction of a perimeter.
-        _object_outline(
-            painter, kind, (168 - narrow * 1.05, bottom), (narrow, tall), 1.0, 0.3,
-        )
-        _object_outline(
-            painter, kind, (168 + narrow * 1.05, bottom), (narrow, tall), 1.0, 1.1,
-        )
-
-
-def _split_scene(painter: Painter, spec: Spec, action: float) -> None:
-    """An oversized object is split -- and one that is not oversized is NOT.
-
-    THE CONTROL WAS MISSING. Every object in the frame split, so the animation
-    showed the CONSEQUENCE of the setting and nothing about what DECIDES it: a
-    viewer could not tell whether it splits everything or only some things,
-    which is the only question a threshold setting raises.
-
-    The audit prescribed the fix and it is the one taken here -- draw an
-    object that is not split. settings.py records that the split is purely
-    GEOMETRIC for pathogen, so drawing an intensity valley would have been a
-    picture of a mechanism this setting does not use.
-
-    So: a large object on the left splits, a small one on the right does not,
-    and both are on screen the whole time. The difference between them is the
-    thing the setting is about.
-    """
-    _well(painter)
-    kind = spec.params["kind"]
-    scale = 1.45 if kind == "cell" else 1.0
-
-    # THE ONE THAT SPLITS -- oversized, so it comes apart.
+    # Barely touching, so the shared boundary is a fraction of a perimeter.
     _object_outline(
-        painter, kind, (120, 120), (30 * scale, 34 * scale), action, 0.2,
+        painter, kind, (168 - narrow * 1.05, bottom), (narrow, tall), 1.0, 0.3,
     )
     _object_outline(
-        painter, kind, (172, 120), (30 * scale, 34 * scale), action, 0.9,
-    )
-    _object_outline(
-        painter, kind, (146, 120), (58 * scale, 37 * scale),
-        1.0 - action, 0.5,
-    )
-    # THE CUT, drawn where the two halves part. A split has a place it
-    # happens, and showing it is the difference between "two now" and "cut
-    # here".
-    if action > 0.05:
-        painter.line([(146, 120 - 34 * scale), (146, 120 + 34 * scale)],
-                     _mix(WHITE, 0.20 + 0.45 * action), 0.5)
-
-    # THE ONE THAT DOES NOT -- small enough to be left alone, unchanged in
-    # every frame. It is the control, and without it the animation says
-    # nothing about what decides a split.
-    _object_outline(
-        painter, kind, (268, 120), (30 * scale, 34 * scale), 1.0, 0.55,
+        painter, kind, (168 + narrow * 1.05, bottom), (narrow, tall), 1.0, 1.1,
     )
 
 
@@ -1825,6 +1761,8 @@ def render_frame(spec: Spec, index: int) -> Image.Image:
     action = _cycle(index)
     if spec.scene == "filter":
         _filter_scene(painter, spec, action)
+    elif spec.scene == "mean_intensity":
+        _mean_intensity_scene(painter, spec, action)
     elif spec.scene == "border":
         _border_scene(painter, spec, index)
     elif spec.scene == "merge_edge_pathogen_cells":
@@ -1833,8 +1771,6 @@ def render_frame(spec: Spec, index: int) -> Image.Image:
         _adjust_cells(painter, action)
     elif spec.scene == "merge":
         _generic_merge(painter, spec, action)
-    elif spec.scene == "split":
-        _split_scene(painter, spec, action)
     elif spec.scene == "probability":
         _probability_scene(painter, spec, action)
     elif spec.scene == "flow":
@@ -1923,8 +1859,6 @@ def _specs() -> List[Spec]:
         "border": "Remove border objects",
         "minimum": "Minimum object area",
         "maximum": "Maximum object area",
-        "dim": "Minimum intensity percentile",
-        "bright": "Maximum intensity percentile",
     }
     for kind, variants in aliases.items():
         for variant, keys in variants.items():
@@ -1932,6 +1866,16 @@ def _specs() -> List[Spec]:
             specs.append(Spec(
                 keys[0], f"{kind.capitalize()} — {names[variant]}", category,
                 scene, keys, {"kind": kind, "variant": variant},
+            ))
+        for bound, variant, cutoff in (
+            ("min", "minimum", 60), ("max", "maximum", 40),
+        ):
+            key = f"{kind}_{bound}_intensity"
+            specs.append(Spec(
+                key, f"{kind.capitalize()} — {variant.capitalize()} mean intensity",
+                category, "mean_intensity", (key,),
+                {"kind": kind, "variant": variant, "bound": cutoff,
+                 "means": (20, 40, 60, 80)},
             ))
 
     specs.extend([
@@ -1949,19 +1893,6 @@ def _specs() -> List[Spec]:
         specs.append(Spec(
             f"{kind}_perimeter_fraction", f"{kind.capitalize()} perimeter merge",
             "Mask repair", "merge", (f"{kind}_perimeter_fraction",),
-            {"kind": kind},
-        ))
-        specs.append(Spec(
-            f"{kind}_intensity_merge", f"{kind.capitalize()} intensity merge",
-            "Mask repair", "merge",
-            (f"{kind}_intensity_merge", f"{kind}_intensity_threshold"),
-            {"kind": kind, "intensity": True},
-        ))
-        specs.append(Spec(
-            f"{kind}_intensity_split", f"{kind.capitalize()} watershed split",
-            "Mask repair", "split",
-            (f"{kind}_intensity_split",
-             f"{kind}_min_watershed_distance", f"{kind}_minimum_area_to_split"),
             {"kind": kind},
         ))
 
@@ -2419,7 +2350,8 @@ def _write_docs_gallery(specs: Sequence[Spec]) -> None:
         "animation frame is composited, keeping the outlines smooth at small",
         "sizes. Source-template SHA-256 hashes are recorded in the manifest.",
         "",
-        "Animations are resolved by exact setting key through",
+        "Animations are resolved by setting key, with numbered organelle slots",
+        "reusing the primary slot's animation through",
         ":mod:`spacr.setting_animations`; the assets and manifest are generated",
         "reproducibly by ``tools/generate_setting_animations.py``.",
         "",

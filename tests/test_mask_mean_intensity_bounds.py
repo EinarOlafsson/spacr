@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from spacr.utils import _filter_objects
+from spacr.utils import _filter_objects, _process_single_fov_in_memory
 
 
 def labelled_field():
@@ -137,3 +137,43 @@ def test_random_fields_agree_with_a_per_object_float64_reference():
         result = _filter_objects(mask.copy(), intensity,
                                  min_intensity=lower, max_intensity=upper)
         np.testing.assert_array_equal(result, expected)
+
+
+@pytest.mark.parametrize("bad", [-1, np.nan, np.inf, -np.inf, "bad", []])
+@pytest.mark.parametrize("bound", ["min_intensity", "max_intensity"])
+def test_invalid_bounds_are_not_silently_disabled_even_on_an_empty_field(bad, bound):
+    mask, intensity = labelled_field()
+    assert _filter_objects(mask.copy(), intensity, **{bound: "10"}).any()
+    for field in (mask, np.zeros_like(mask)):
+        with pytest.raises(ValueError, match="finite nonnegative"):
+            _filter_objects(field.copy(), intensity, **{bound: bad})
+    # Saved nulls retain the historical disabled meaning.
+    np.testing.assert_array_equal(
+        _filter_objects(mask.copy(), None, **{bound: None}) > 0, mask > 0)
+
+
+@pytest.mark.parametrize("axis", [0, 1, 2])
+@pytest.mark.parametrize("face", [0, -1])
+def test_volumetric_border_filter_checks_every_face(axis, face):
+    mask = np.zeros((5, 6, 7), np.uint16)
+    mask[2, 2, 2] = 11
+    position = [2, 2, 2]
+    position[axis] = face
+    mask[tuple(position)] = 22
+    raw = np.full(mask.shape, 10.0)
+    unfiltered = _filter_objects(mask.copy(), raw, min_intensity=10)
+    assert unfiltered[2, 2, 2] == 1
+    assert unfiltered[tuple(position)] == 2
+    result = _filter_objects(mask.copy(), raw, min_intensity=10, remove_border=True)
+    np.testing.assert_array_equal(result, (mask == 11).astype(np.uint16))
+
+
+def test_full_field_object_is_not_mistaken_for_an_empty_mask(capsys):
+    mask = np.full((3, 4), 17, np.uint16)
+    raw = np.full(mask.shape, 10.0)
+    kept = _process_single_fov_in_memory(mask, raw, min_intensity=10)
+    np.testing.assert_array_equal(kept, np.ones_like(mask))
+    assert "Filter summary: 1 objects → 1 objects (0 removed)" in capsys.readouterr().out
+    removed = _process_single_fov_in_memory(mask, raw, min_intensity=11)
+    np.testing.assert_array_equal(removed, np.zeros_like(mask))
+    np.testing.assert_array_equal(mask, np.full((3, 4), 17, np.uint16))

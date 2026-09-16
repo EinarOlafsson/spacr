@@ -37,30 +37,34 @@ def test_every_registered_displayed_setting_has_authored_help():
             if not str(descriptions.get(key, "")).strip():
                 missing.append(f"{app_key}.{key}")
 
-    # Fresh forms now start with zero organelles, so inactive generated slots
-    # no longer inflate this occurrence count. Ratchet the complete current
-    # registry instead of retaining the pre-count threshold.
-    #
-    # 759 -> 754 on 2026-09-12, and the delta is NOT one change's arithmetic.
-    # 759 was set on 2026-08-30 (5effb31ec) and this floor only trips when the
-    # count FALLS, so it sat unmoved while a fortnight of additions raised it.
-    # Instruction 391 then removed five settings at four object roles -- twenty
-    # declared keys -- and added one absolute threshold at four, which is -16
-    # on its own. The net being -5 means roughly eleven settings were added by
-    # other work in between. Anyone reading -5 as "391 removed five settings"
-    # would be wrong twice over.
-    #
-    # THE ASSERTION THAT MATTERS IS THE ONE BELOW, not this one. `missing` is
-    # empty: every displayed setting, including the four new
-    # `<role>_intensity_threshold` keys, has authored help. This floor only
-    # catches the registry becoming less exhaustive, and a deliberate removal
-    # is not that.
-    assert checked >= 754, (
+    # 418, measured against clean HEAD c29b56397 on 2026-09-15: the actual
+    # baseline was 758 occurrences across 39 apps, already four above the old
+    # floor of 754. Only Mask changes, from 180 to 168: remove five controls
+    # at four roles (20), add two absolute mean bounds at four roles (8).
+    # The other 38 apps' 578 occurrences are identical: 758 - 20 + 8 = 746.
+    # Keep scanning every displayed key; intentional retirement is not an
+    # exemption from authored help or a reason to skip any registered app.
+    assert checked >= 746, (
         f"only {checked} setting occurrences were checked; the registry "
         "inventory is no longer exhaustive")
     assert not missing, (
         "registered settings with no authored tooltip:\n  "
         + "\n  ".join(missing))
+
+    mask_shown = set(inventories["mask"]) - set(_APP_HIDDEN_KEYS.get("mask", set()))
+    roles = ("cell", "nucleus", "pathogen", "organelle")
+    new_bounds = {f"{role}_{bound}_intensity"
+                  for role in roles for bound in ("min", "max")}
+    retired_controls = {
+        f"{role}_{suffix}" for role in roles for suffix in (
+            "intensity_merge", "intensity_split", "intensity_threshold",
+            "min_watershed_distance", "minimum_area_to_split",
+        )
+    }
+    assert new_bounds <= mask_shown, (
+        f"Mask is missing displayed mean bounds: {sorted(new_bounds - mask_shown)}")
+    assert not (retired_controls & mask_shown), (
+        f"Mask displays retired controls: {sorted(retired_controls & mask_shown)}")
 
 
 def test_a_hand_built_setting_uses_the_shared_label_only_popup(qtbot):

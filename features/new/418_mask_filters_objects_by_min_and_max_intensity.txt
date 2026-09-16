@@ -2,8 +2,13 @@
 MASK FILTERS OBJECTS BY MIN AND MAX INTENSITY; THE SPLIT AND MERGE SETTINGS GO
 ================================================================================
 
-Status:    IN PROGRESS. Shared mean-intensity filter verified; pipeline/GUI
-           wiring, removed-setting migration and catalogs still pending.
+Status:    IN PROGRESS. Run/Preview wiring, original-channel alignment,
+           removed-setting migration and replacement animations are built
+           and focused tests pass. All nine runtime catalogs are published
+           locally and verified through the real GUI lookups. The full API
+           audit passed all nine languages, and all reviewed feature targets
+           are published. The final re-audit of corrected Swedish/German
+           artifacts is running before closure.
 Requested: 2026-09-15, by the maintainer, in these words:
 
            "for the mask modual for the filtering options, remove minimum area
@@ -174,3 +179,147 @@ also all exercised. Adjacent files passed separately: live_preview_coverage
 This is not the final run/preview intensity-filter acceptance: the new
 intensity controls and raw-pipeline-plane wiring are still pending, as are
 the five retired settings, their code, migration tests and catalog changes.
+
+2026-09-15 -- IMPLEMENTATION VERIFIED; PUBLICATION STILL IN PROGRESS
+-----------------------------------------------------------------
+
+The new float bounds now reach both Mask engines, the organelle generator
+and cached Live Preview through the shared mean filter. V1 reloads original
+own-channel planes by the retained filename manifest, preserving resume,
+padding, z projection (including the model-selected best-focus slice) and
+non-leading time axes. V2 preserves original own-channel values before
+illumination correction/normalization. Whole-volume labels are filtered by
+their complete means, not independently per z plane. Equality and zero-off
+semantics, float64 precision, nonfinite/missing raw data and border aliases
+are tested. UI edits do not resurrect a hidden saved bound when set to zero.
+
+The retired split/intensity-merge algorithms and active controls are gone.
+Their names remain only in the withdrawal registry so old saved files can
+be diagnosed and ignored, not mapped onto the new controls. Perimeter merge
+and the separate organelle watershed segmentation method remain supported.
+
+Six acceptance cases run the actual Mask generator with a strict CPU model
+fake, load its saved labels, apply the identical image/settings to Live
+Preview, and compare complete arrays. All six pass; relaxing the preview
+controls restores the untouched cached labels without another model call.
+The current preview file passes 21 cases, settings contract 8, original
+Z-stack file 69, time-stack file 31, and new V1/V2 raw-value files 20/17.
+These are focused file measurements, not a whole-repository coverage claim.
+
+Eight in-memory source mutations are rejected: rejecting equality at either
+bound, maximum rather than mean, skipping a fully labelled image, selecting
+the wrong original channel in either engine, bypassing preview filtering,
+and not canonicalizing a non-leading time axis. A Qt-library startup error
+in the first V1 mutation attempt was NOT counted; the corrected harness uses
+pytest-qt's normal import order and the rerun fails in the test bodies.
+
+Eight old merge/split GIFs were replaced with absolute mean-bound examples.
+Main inspected the shipped frames and corrected a misleading inequality
+at the disabled-zero endpoint. All 78 other GIFs are byte-identical; their
+old review evidence was retained, not represented as a new visual review.
+Animation checks pass: distinct scenes 55, registry/assets 31, generated
+gallery 7, visible change 10, Qt zoom 25, audit completeness 6.
+
+English runtime catalogs, setting-to-reader maps and settings-flow artifacts
+were regenerated from source. The initial locale generation passed some
+mechanical checks while mistranslating bound as link, mean as a verb, or
+dropping the zero-off clause. Source-bound semantic corrections are being
+written and validated; generated output alone is not acceptance. This note
+does not close the feature: publish the corrected runtime/API catalogs,
+verify all current artifact gates and review the final diff before closing.
+
+2026-09-16 -- RUNTIME PUBLICATION AND SAVED-SETTINGS ACCEPTANCE VERIFIED
+---------------------------------------------------------------------
+
+All nine runtime catalogs now contain the source-bound semantic corrections.
+The actual setting_label/setting_tooltip/tr/format_tooltip paths pass 36 cases,
+including slots 2 and 702. Before publication those same checks failed 24
+cases, exposing stale machine wording; twelve already-current cases passed.
+The Chinese primary-organelle prose is unnumbered so a slot-702 fallback cannot
+describe slot 1. Review metadata identifies AI semantic review explicitly,
+not native-speaker human approval. Runtime catalog contracts pass 17 selected
+cases, the caption inventory ratchet passes 11, and the source builder's final
+nine-language audit passes.
+
+Four additional acceptance cases now load actual legacy CSV files, pass their
+enabled retired controls directly into the generator, and compare saved label
+arrays against both a legacy-free run and independent expected survivors.
+Both CSV headers and disabled/active new bounds are covered. The full
+Run/Preview acceptance file passes 10 cases. An in-memory mutation repurposing
+the old merge flag into an active area limit fails all four new cases.
+
+The displayed-tooltip inventory was compared with clean c29b56397, not merely
+re-pinned: 758 occurrences across 39 apps becomes 746, solely from Mask losing
+20 retired controls and gaining 8 mean bounds. Every other displayed pair is
+unchanged. Both all-settings tooltip checks pass, and explicit presence/absence
+checks now pin that replacement in addition to the exhaustive authored-help scan.
+
+Fresh branch measurements on the final source:
+  utils._filter_objects                 57/57 statements, 38/38 branches
+  utils._validated_intensity_bounds       8/8 statements,   2/2 branches
+  object._raw_filter_images             33/33 statements, 24/24 branches
+  live_preview._apply_size_filter       18/18 statements,   8/8 branches
+These are function-level results, not claims about whole modules or the repo.
+The retired-filter regression files pass 63 and 22 cases; reviewed-runtime
+evidence classification passes 7. The repository's E9/F63/F7/F82 lint gate
+passes for spacr and tests.
+
+API generation is still running, CPU-only under the 100 GiB guard. Swedish
+semantic review already found omissions of whole-object means and optional
+filtering; five current-source corrections are recorded and accepted by the
+review loader, but are not yet published into the completed API artifact set.
+Do not close this item until those targets and the other locales are checked
+and the coherent source/catalog commits are pushed.
+
+2026-09-16 -- FINAL REVIEW: KEYBOARD EDITS AND THE PUBLIC SIGNATURE
+----------------------------------------------------------------
+
+Six real-keyboard cases exposed a distinction the numeric-widget tests missed:
+Return can emit valueChanged for an untouched rounded/clamped display. That
+must not discard the original saved bound, while explicitly typing zero over
+the same display must discard it. The intensity controls now observe actual
+text edits separately and preserve untouched values. All 27 focused Preview
+cases pass; two in-memory mutations each fail all six keyboard cases. The new
+private handler executes 7/7 statements and 6/6 branches in a fresh coverage
+run. Its event wiring adds no public API entry or translatable source.
+
+The public-callable ratchet initially failed on the retired options, as it
+should. Comparing every inventory row with clean f7df13e93 finds exactly one
+changed signature: utils.merge_split_objects drops the five optional retired
+parameters and gains keyword-only min_intensity/max_intensity. Restoring that
+complete baseline row restores the old digest exactly. The parameter total
+therefore changes 17,228 -> 17,225; 8,698 callables, 8,830 required parameters
+and 8,705 variants stay unchanged. All 134 docstring-correctness tests pass
+after this measured ratchet migration, with no test boundary removed.
+
+Current-source localization review counts were also compared against the clean
+baseline and recorded in REVIEW_SCOPE_2026-09-04.md. They identify AI-assisted
+review explicitly; neither generated text nor these records are represented
+as native-speaker approval. Final API artifact publication is still pending.
+
+The completed documentation-builder file passes 147 tests and the complete
+external-catalog contract file passes 31. A JSON-level comparison against
+f7df13e93 confirms no API symbols were added or removed: seven English
+documents changed. In six locales the builder also reuses corrections for
+identical paragraphs on up to four unchanged-source pages (batch directories,
+setting keys and parallel workers). Those extra paragraph replacements were
+inspected; they are shared-source review reuse, not unrelated English edits.
+The full nine-language API audit remains running; its quiet output is not
+treated as completion, and the final Swedish/German review overlay is held
+until that writer terminates.
+
+2026-09-16 -- COHERENT PUBLICATION CHECKPOINT
+-------------------------------------------
+
+The original generation plus complete API audit terminated successfully:
+nine languages, 10,539 symbols. After it stopped, the ordinary validated
+review overlay published the late Swedish/German corrections; the other
+seven files needed no change. No model was run a second time. All nine
+feature-specific published-target tests now pass, against the exact reviewed
+paragraphs and current source hashes. The coverage/evidence-report file
+passes four tests, and the repository E9/F63/F7/F82 lint gate passes.
+
+Source/runtime assets plus the matching English manifest are committed apart
+from the nine translated API catalogs, as required. A full audit of Swedish
+and German is still running on the final corrected artifacts. This is a
+publication checkpoint, not a claim that the final audit has already passed.

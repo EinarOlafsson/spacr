@@ -1,22 +1,13 @@
 """Two settings must not be illustrated by the same picture.
 
-`*_perimeter_fraction` and `*_intensity_merge` are different criteria --
-the first merges on how much boundary two objects share, the second on
-whether there is a real membrane between them -- and both were drawn by one
-scene in which a single pair dissolved. Measured over the drawn area of the
-GIFs, 98% of the ink was identical; the whole difference was a pulsing line.
-
-That is the failure this audit exists to catch, and it is invisible to every
-other check: both files are intact, both change far more than 1% of the
-frame, and both illustrate *a* merge. What neither illustrated was its own
-criterion, so a user comparing them learns the two settings do the same
-thing.
-
-The fix is a second pair that FAILS the criterion and survives, because a
-threshold that keeps something is the honest picture of a threshold.
+Area filters vary size; absolute mean-intensity filters vary brightness.
+The latter have fixed numeric object means and an inclusive numeric bound,
+not a percentile or a fixed quota of objects to remove. Perimeter merging
+still has a surviving pair that fails its shared-boundary criterion.
 """
 
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -37,15 +28,17 @@ MIN_DISTINCT_INK = 0.15
 
 
 def _frames(path):
-    frames = []
+    frames, durations = [], []
     with Image.open(path) as image:
         try:
             while True:
                 frames.append(np.asarray(image.convert("RGB"), dtype=np.int16))
+                durations.append(image.info.get("duration", 100))
                 image.seek(image.tell() + 1)
         except EOFError:
             pass
-    return frames
+    edges = np.cumsum([0, *durations], dtype=float)
+    return frames, edges / edges[-1]
 
 
 def _ink_difference(first, second):
@@ -55,14 +48,23 @@ def _ink_difference(first, second):
     360x360 canvas is mostly black, so two line drawings that share every
     stroke still differ in "only 0.1% of the frame" and look fine.
     """
-    a, b = _frames(first), _frames(second)
-    assert len(a) == len(b), "different frame counts cannot be compared this way"
+    a, a_edges = _frames(first)
+    b, b_edges = _frames(second)
+    # Pillow combines repeated hold frames. Compare at every transition in
+    # either normalized timeline, rather than treating a longer hold as a
+    # different number of animation steps or ignoring an unmatched frame.
+    times = np.unique(np.concatenate((a_edges[:-1], b_edges[:-1])))
+    pairs = [
+        (a[np.searchsorted(a_edges, t, side="right") - 1],
+         b[np.searchsorted(b_edges, t, side="right") - 1])
+        for t in times
+    ]
     drawn = np.logical_or(
         np.logical_or.reduce([f.sum(2) > 45 for f in a]),
         np.logical_or.reduce([f.sum(2) > 45 for f in b]),
     )
     differs = np.logical_or.reduce(
-        [np.abs(x - y).sum(2) > 30 for x, y in zip(a, b)])
+        [np.abs(x - y).sum(2) > 30 for x, y in pairs])
     return float((differs & drawn).sum()) / float(drawn.sum())
 
 
@@ -72,25 +74,32 @@ def paths():
 
 
 @pytest.mark.parametrize("kind", KINDS)
-def test_perimeter_and_intensity_merge_are_different_pictures(kind, paths):
+@pytest.mark.parametrize("bound", ("min", "max"))
+def test_area_and_mean_intensity_are_different_pictures(kind, bound, paths):
     got = _ink_difference(
-        paths[f"{kind}_perimeter_fraction"], paths[f"{kind}_intensity_merge"])
+        paths[f"{kind}_{bound}_area"], paths[f"{kind}_{bound}_intensity"])
     assert got > MIN_DISTINCT_INK, (
-        f"{kind}_perimeter_fraction and {kind}_intensity_merge differ in only "
+        f"{kind}_{bound}_area and {kind}_{bound}_intensity differ in only "
         f"{got:.1%} of their drawn area; they illustrate different criteria"
     )
 
 
-class TestTheSceneDrawsItsCriterion:
-    """Both variants must keep a pair that the criterion rejects."""
+@pytest.mark.parametrize("kind", KINDS)
+def test_lower_and_upper_mean_bounds_remove_different_objects(kind, paths):
+    got = _ink_difference(
+        paths[f"{kind}_min_intensity"], paths[f"{kind}_max_intensity"])
+    assert got > MIN_DISTINCT_INK, f"{kind}: lower/upper bounds look alike ({got:.1%})"
 
-    def _record(self, kind, intensity, action):
+
+class TestTheSceneDrawsItsCriterion:
+    """The shared-perimeter criterion must leave its rejecting pair alone."""
+
+    def _record(self, kind, action):
         gen = pytest.importorskip("generate_setting_animations")
         outlines, lines = [], []
         spec = next(
             s for s in gen._specs()
-            if s.slug == (f"{kind}_intensity_merge" if intensity
-                          else f"{kind}_perimeter_fraction")
+            if s.slug == f"{kind}_perimeter_fraction"
         )
 
         class Recorder:
@@ -120,9 +129,9 @@ class TestTheSceneDrawsItsCriterion:
         return outlines, lines
 
     @pytest.mark.parametrize("kind", KINDS)
-    @pytest.mark.parametrize("intensity", [False, True])
-    def test_a_pair_survives_the_merge(self, kind, intensity):
-        outlines, _ = self._record(kind, intensity, 1.0)
+    def test_a_pair_survives_the_merge(self, kind):
+        outlines, lines = self._record(kind, 1.0)
+        assert lines == []
         solid = [o for o in outlines if o[3] >= 0.99]
         # one merged object plus the pair that failed the criterion
         assert len(solid) == 3, [(o[1], o[3]) for o in outlines]
@@ -131,21 +140,11 @@ class TestTheSceneDrawsItsCriterion:
         assert survivors[0][1][0] != survivors[1][1][0], "the pair is one object"
 
     @pytest.mark.parametrize("kind", KINDS)
-    def test_only_the_intensity_variant_draws_a_membrane(self, kind):
-        _, without = self._record(kind, False, 1.0)
-        _, with_line = self._record(kind, True, 1.0)
-        assert without == []
-        assert len(with_line) == 1
-        points, _color, width = with_line[0]
-        assert points[0][0] == points[1][0], "the membrane is not vertical"
-        assert width > 0.5, "a membrane a viewer cannot see is not evidence"
-
-    @pytest.mark.parametrize("kind", KINDS)
     def test_the_perimeter_variant_separates_its_surviving_pair(self, kind):
         """Its criterion is shared boundary length, so the pair that fails it
         must share less boundary than the pair that passes -- which is
         distance, and is checkable."""
-        outlines, _ = self._record(kind, False, 0.0)
+        outlines, _ = self._record(kind, 0.0)
         levels = {}
         for _kind, center, _size, amount in outlines:
             if amount >= 0.99:
@@ -161,17 +160,91 @@ class TestTheSceneDrawsItsCriterion:
         )
 
 
-# `test_the_intensity_filter_is_not_the_area_filter` stood here. It compared
-# each `*_min_area` animation against its `*_[min|max]_intensity_percentile`
-# twin and required them to differ in more than 20% of their drawn area -- the
-# two had once been nearly identical, because both drew four objects of four
-# sizes and only one of them was about size at all.
-#
-# INSTRUCTION 391 DELETED THE TWIN, so there is nothing left to be confusable
-# with. The concern it encoded is preserved in
-# `TestTheIntensityFilterAnimationsAreGone` below, which asserts the animation
-# and its setting are both really gone rather than letting the comparison
-# quietly become a no-op against a missing file.
+class TestAbsoluteMeanIntensityScenes:
+    def _record(self, kind, bound_name, action, monkeypatch, **params):
+        gen = pytest.importorskip("generate_setting_animations")
+        spec = next(s for s in gen._specs() if s.slug == f"{kind}_{bound_name}_intensity")
+        spec = replace(spec, params={**spec.params, **params})
+        outlines, labels = [], []
+
+        class Recorder:
+            point = staticmethod(lambda point: point)
+
+            def __init__(self):
+                self.draw = self
+
+            def text(self, point, text, **kwargs):
+                labels.append((point, text, kwargs["fill"]))
+
+        def outline(_painter, kind_, center, size, amount=1.0, **kwargs):
+            outlines.append((kind_, center, size, amount))
+
+        with monkeypatch.context() as patch:
+            patch.setattr(gen, "_object_outline", outline)
+            patch.setattr(gen, "_well", lambda *_args: None)
+            patch.setattr(gen, "_font", lambda *_args: None)
+            gen._mean_intensity_scene(Recorder(), spec, action)
+        return outlines, labels
+
+    @pytest.mark.parametrize("kind", KINDS)
+    @pytest.mark.parametrize("bound", ("min", "max"))
+    def test_equal_sizes_vary_mean_brightness_not_area(self, kind, bound, monkeypatch):
+        outlines, labels = self._record(kind, bound, 0, monkeypatch)
+        assert len(outlines) == 4
+        assert len({o[2] for o in outlines}) == 1
+        assert [o[3] for o in outlines] == pytest.approx([0.55, 0.7, 0.85, 1.0])
+        assert [label[1] for label in labels[1:]] == ["μ=20", "μ=40", "μ=60", "μ=80"]
+        assert labels[0][1] == "0"
+
+    @pytest.mark.parametrize("kind", KINDS)
+    @pytest.mark.parametrize("bound,expected,caption", [
+        ("min", [0, 0, 0.85, 1.0], "≥ 60"),
+        ("max", [0.55, 0.7, 0, 0], "≤ 40"),
+    ])
+    def test_bound_equality_survives_and_only_the_rejected_masks_fade(
+            self, kind, bound, expected, caption, monkeypatch):
+        outlines, labels = self._record(kind, bound, 1, monkeypatch)
+        assert [o[3] for o in outlines] == pytest.approx(expected)
+        assert labels[0][1] == caption
+
+    @pytest.mark.parametrize("kind", KINDS)
+    @pytest.mark.parametrize("bound", ("min", "max"))
+    def test_zero_is_off_even_at_the_filtered_endpoint(self, kind, bound, monkeypatch):
+        outlines, labels = self._record(kind, bound, 1, monkeypatch, bound=0)
+        assert [o[3] for o in outlines] == pytest.approx([0.55, 0.7, 0.85, 1.0])
+        assert labels[0][1] == "0"
+
+    @pytest.mark.parametrize("bound,means,expected", [
+        ("min", (60, 60, 60, 60), [0.85] * 4),
+        ("min", (59, 59, 59, 59), [0] * 4),
+        ("max", (40, 40, 40, 40), [0.7] * 4),
+        ("max", (41, 41, 41, 41), [0] * 4),
+    ])
+    def test_absolute_cutoffs_can_keep_all_or_none_not_a_fixed_quota(
+            self, bound, means, expected, monkeypatch):
+        outlines, _ = self._record("nucleus", bound, 1, monkeypatch, means=means)
+        assert [o[3] for o in outlines] == pytest.approx(expected)
+
+
+def test_the_five_retired_control_families_have_no_specs_or_routes():
+    gen = pytest.importorskip("generate_setting_animations")
+    retired = {
+        f"{kind}_{suffix}" for kind in KINDS for suffix in (
+            "minimum_area_to_split", "min_watershed_distance", "intensity_threshold",
+            "intensity_merge", "intensity_split",
+        )
+    }
+    specs = gen._specs()
+    assert not (retired & {key for spec in specs for key in spec.settings})
+    assert not (retired & {spec.slug for spec in specs})
+    assert not (retired & {key for item in setting_animations() for key in item.settings})
+    assets = TOOLS.parent / "spacr" / "resources" / "setting_animations" / "gifs"
+    assert not [
+        key for key in sorted(retired) if (assets / f"{key}.gif").exists()
+    ], "retired merge/split GIFs must not remain packaged"
+    assert not any(spec.scene == "split" for spec in specs)
+    # Independent organelle watershed segmentation is not the retired repair.
+    assert any(spec.slug == "organelle_watershed_spots" for spec in specs)
 
 
 class TestTheIntensityFilterAnimationsAreGone:

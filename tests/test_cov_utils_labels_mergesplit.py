@@ -1,9 +1,8 @@
-"""CPU coverage for the label merge/split/filter block of ``spacr.utils``.
+"""CPU coverage for the label merge/filter block of ``spacr.utils``.
 
 Covers the small IO helpers (``_load_image`` / ``_save_image``), the
-union-find plumbing, the defensive ``continue`` branches inside
-``_merge_by_intensity`` and ``_split_by_watershed``, every intensity-image
-shape branch of ``_process_single_fov_in_memory``, and the on-disk
+union-find plumbing, original own-channel mean-intensity filtering in
+``_process_single_fov_in_memory``, and the on-disk
 ``merge_split_objects`` / ``_process_single_fov`` pair.
 
 Everything runs on tiny synthetic label images so the whole file is
@@ -35,16 +34,6 @@ def _two_touching_blocks(size=16):
     return m
 
 
-def _dumbbell():
-    """One label: two discs joined by a thin neck -> watershed splits it."""
-    m = np.zeros((40, 80), dtype=np.uint16)
-    yy, xx = np.ogrid[:40, :80]
-    m[(xx - 20) ** 2 + (yy - 20) ** 2 < 150] = 1
-    m[(xx - 60) ** 2 + (yy - 20) ** 2 < 150] = 1
-    m[18:22, 20:60] = 1
-    return m
-
-
 def _big_square_plus_speck():
     """A 30x30 solid square (label 1) and a 2x2 speck (label 2)."""
     m = np.zeros((60, 60), dtype=np.uint16)
@@ -63,13 +52,8 @@ def _in_memory_kwargs(**overrides):
         mask=None,
         intensity_img=None,
         intensity_channel=None,
-        do_split=False,
         do_perimeter_merge=False,
-        do_intensity_merge=False,
         perimeter_fraction=0.5,
-        min_watershed_distance=10,
-        minimum_area_to_split=100,
-        intensity_threshold=None,
         min_area=0,
         max_area=0,
         remove_border_objects=False,
@@ -79,17 +63,13 @@ def _in_memory_kwargs(**overrides):
 
 
 def _fov_args(mask_path, intensity_path=None, intensity_channel=None,
-              do_split=False, do_perimeter_merge=True, do_intensity_merge=False,
-              perimeter_fraction=0.5, min_watershed_distance=10,
-              minimum_area_to_split=100, intensity_threshold=None,
+              do_perimeter_merge=True, perimeter_fraction=0.5,
               min_area=0, max_area=0,
               remove_border_objects=False, **kw):
     """Positional argument tuple for the file-based ``_process_single_fov``."""
     return (
         (mask_path, intensity_path, intensity_channel,
-         do_split, do_perimeter_merge, do_intensity_merge,
-         perimeter_fraction, min_watershed_distance,
-         minimum_area_to_split, intensity_threshold,
+         do_perimeter_merge, perimeter_fraction,
          min_area, max_area, remove_border_objects),
         kw,
     )
@@ -189,96 +169,6 @@ def test_apply_union_find_merges_united_labels():
 
 
 # ---------------------------------------------------------------------------
-# _merge_by_intensity defensive branches
-# ---------------------------------------------------------------------------
-
-def test_merge_by_intensity_skips_pair_without_boundary_coords(monkeypatch):
-    """A touching pair whose boundary lookup comes back empty is skipped."""
-    import spacr.utils as U
-    m = _two_touching_blocks()
-    intensity = np.ones(m.shape, dtype=np.float32)  # uniform => would merge
-    monkeypatch.setattr(U, "_get_boundary_coords", lambda *a, **k: [])
-
-    parent = {1: 1, 2: 2}
-    U._merge_by_intensity(m, intensity, parent)
-
-    assert parent == {1: 1, 2: 2}
-    assert U._union_find_root(parent, 1) != U._union_find_root(parent, 2)
-
-
-def test_merge_by_intensity_skips_pair_with_label_missing_from_stats(monkeypatch):
-    """A shared-boundary pair naming a label absent from the image is skipped."""
-    import spacr.utils as U
-    m = _two_touching_blocks()
-    intensity = np.ones(m.shape, dtype=np.float32)
-    # label 99 does not exist in `m`, so its intensity stats are missing
-    monkeypatch.setattr(U, "_compute_shared_boundaries", lambda img: {(1, 99): 20})
-    monkeypatch.setattr(U, "_get_boundary_coords",
-                        lambda img, la, lb: [(5, 7), (5, 8)])
-
-    parent = {1: 1, 2: 2, 99: 99}
-    U._merge_by_intensity(m, intensity, parent)
-
-    assert parent == {1: 1, 2: 2, 99: 99}
-
-
-def test_merge_by_intensity_keeps_a_dark_boundary_split():
-    """A genuinely dark boundary is not merged, and the report says why.
-
-    The percentile METHOD this used to exercise was removed in 391 along with
-    the rest of the relative scheme. The intent survives and is now a number
-    the user could have read off the image: the seam is 0 and the threshold
-    is 50, so nothing merges.
-    """
-    from spacr.utils import _merge_by_intensity, _union_find_root
-    m = _two_touching_blocks()
-    intensity = np.zeros(m.shape, dtype=np.float32)
-    intensity[m > 0] = 100.0
-    intensity[:, 7:9] = 0.0     # dark seam exactly on the shared boundary
-
-    parent = {1: 1, 2: 2}
-    said = _merge_by_intensity(m, intensity, parent, intensity_threshold=50.0)
-
-    assert _union_find_root(parent, 1) != _union_find_root(parent, 2)
-    # AND IT REFUSES OUT LOUD. A threshold above every boundary used to be
-    # silent, which looks exactly like the setting having no effect.
-    assert "ABOVE every shared boundary" in said, said
-
-
-# ---------------------------------------------------------------------------
-# _split_by_watershed skip branches
-# ---------------------------------------------------------------------------
-
-def test_split_by_watershed_skips_small_and_single_peak_objects(capsys):
-    """Small objects fall under the area threshold; a convex object above the
-    threshold has a single distance maximum and is left alone."""
-    from spacr.utils import _split_by_watershed
-    m = _big_square_plus_speck()
-
-    out = _split_by_watershed(m, min_watershed_distance=10,
-                              minimum_area_to_split=10)
-
-    # threshold = max(0.5 * median(900, 4), 10) = 226
-    #   label 2 (4 px)   -> below threshold, skipped
-    #   label 1 (900 px) -> above threshold but a single peak, skipped
-    assert np.array_equal(out, m)
-    assert sorted(np.unique(out).tolist()) == [0, 1, 2]
-
-
-def test_split_by_watershed_splits_dumbbell():
-    from spacr.utils import _split_by_watershed
-    m = _dumbbell()
-    assert _n_objects(m) == 1
-
-    out = _split_by_watershed(m, min_watershed_distance=5,
-                              minimum_area_to_split=10)
-
-    assert _n_objects(out) >= 2
-    # splitting only re-labels foreground; it never grows or erodes it
-    assert np.array_equal(out > 0, m > 0)
-
-
-# ---------------------------------------------------------------------------
 # _process_single_fov_in_memory
 # ---------------------------------------------------------------------------
 
@@ -320,115 +210,125 @@ def test_in_memory_perimeter_merge_and_progress_callback():
     assert duration >= 0.0
 
 
-def test_in_memory_split_phase_increases_object_count(capsys):
-    from spacr.utils import _process_single_fov_in_memory
-
-    out = _process_single_fov_in_memory(**_in_memory_kwargs(
-        mask=_dumbbell(),
-        do_split=True,
-        min_watershed_distance=5,
-        minimum_area_to_split=10,
-        fov_index=1,
-    ))
-
-    assert _n_objects(out) >= 2
-    assert "split: 1 →" in capsys.readouterr().out
-
-
-def test_in_memory_intensity_merge_2d_intensity(capsys):
+def test_in_memory_intensity_bounds_use_object_mean_not_maximum(capsys):
     from spacr.utils import _process_single_fov_in_memory
     m = _two_touching_blocks()
+    intensity = np.zeros(m.shape, dtype=np.float64)
+    intensity[m == 1] = 5
+    intensity[2, 8] = 1200  # label 2: 60 pixels, mean 20, maximum 1200
 
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
         mask=m,
-        intensity_img=np.full(m.shape, 5.0, dtype=np.float64),
-        do_intensity_merge=True, intensity_threshold=0.0,
+        intensity_img=intensity,
+        min_intensity=10, max_intensity=25,
         fov_index=2,
     ))
 
-    assert _n_objects(out) == 1
-    assert "merge: 2 → 1" in capsys.readouterr().out
+    np.testing.assert_array_equal(out, (m == 2).astype(np.uint16))
+    assert "Intensity filter: removed 1" in capsys.readouterr().out
 
 
-def test_in_memory_intensity_channel_last_small_stack():
+def test_in_memory_intensity_channel_last_preserves_raw_precision():
     from spacr.utils import _process_single_fov_in_memory
     m = _two_touching_blocks()
-    raw = np.zeros((16, 16, 3), dtype=np.uint16)
-    raw[..., 1] = 9        # only channel 1 is bright -> uniform -> merge
+    raw = np.zeros((16, 16, 3), dtype=np.uint32)
+    exact = 2**24 + 1  # float32 would round this below the inclusive bound
+    raw[m == 1, 1] = exact
+    raw[m == 2, 1] = exact + 2
+    original = raw.copy()
 
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
-        mask=m, intensity_img=raw, intensity_channel=1, do_intensity_merge=True, intensity_threshold=0.0))
+        mask=m, intensity_img=raw, intensity_channel=1,
+        min_intensity=exact, max_intensity=exact))
 
-    assert _n_objects(out) == 1
+    np.testing.assert_array_equal(out, (m == 1).astype(np.uint16))
+    np.testing.assert_array_equal(raw, original)
 
 
 def test_in_memory_intensity_channel_last_out_of_bounds():
     from spacr.utils import _process_single_fov_in_memory
-    with pytest.raises(ValueError, match="channel-last"):
+    with pytest.raises(IndexError, match="out of bounds"):
         _process_single_fov_in_memory(**_in_memory_kwargs(
             mask=_two_touching_blocks(),
             intensity_img=np.zeros((16, 16, 3), dtype=np.uint16),
             intensity_channel=5,
-            do_intensity_merge=True, intensity_threshold=0.0,
+            min_intensity=1,
         ))
 
 
-def test_in_memory_intensity_channel_first_small_stack():
+def test_in_memory_channel_first_requires_explicit_axis_conversion():
     from spacr.utils import _process_single_fov_in_memory
     m = _two_touching_blocks()
     raw = np.zeros((3, 16, 16), dtype=np.uint16)
-    raw[1] = 4
+    raw[1, m == 1] = 9
+    raw[1, m == 2] = 3
+
+    with pytest.raises(ValueError, match="same shape"):
+        _process_single_fov_in_memory(**_in_memory_kwargs(
+            mask=m, intensity_img=raw, intensity_channel=1, min_intensity=5))
 
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
-        mask=m, intensity_img=raw, intensity_channel=1, do_intensity_merge=True, intensity_threshold=0.0))
+        mask=m, intensity_img=np.moveaxis(raw, 0, -1),
+        intensity_channel=1, min_intensity=5))
 
-    assert _n_objects(out) == 1
+    np.testing.assert_array_equal(out, (m == 1).astype(np.uint16))
 
 
-def test_in_memory_intensity_channel_first_out_of_bounds():
+def test_in_memory_short_spatial_axis_is_not_guessed_to_be_channels():
     from spacr.utils import _process_single_fov_in_memory
-    with pytest.raises(ValueError, match="channel-first"):
-        _process_single_fov_in_memory(**_in_memory_kwargs(
-            mask=_two_touching_blocks(),
-            intensity_img=np.zeros((3, 16, 16), dtype=np.uint16),
-            intensity_channel=5,
-            do_intensity_merge=True, intensity_threshold=0.0,
-        ))
+    m = np.zeros((3, 16), dtype=np.uint16)
+    m[1, 2:6] = 1
+    m[1, 10:14] = 2
+    raw = np.zeros((3, 16, 6), dtype=np.uint16)
+    raw[m == 1, 5] = 4
+    raw[m == 2, 5] = 14
+
+    out = _process_single_fov_in_memory(**_in_memory_kwargs(
+        mask=m, intensity_img=raw, intensity_channel=5, min_intensity=7))
+
+    np.testing.assert_array_equal(out, (m == 2).astype(np.uint16))
 
 
 def test_in_memory_intensity_many_channel_stack_uses_last_axis():
-    """Neither axis looks like a channel axis (both > 4) -> channel-last."""
+    """Explicit channel-last selection also works beyond four channels."""
     from spacr.utils import _process_single_fov_in_memory
     m = _two_touching_blocks()
     raw = np.zeros((16, 16, 6), dtype=np.uint16)
-    raw[..., 5] = 11
+    raw[m == 1, 5] = 5
+    raw[m == 2, 5] = 11
 
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
-        mask=m, intensity_img=raw, intensity_channel=5, do_intensity_merge=True, intensity_threshold=0.0))
+        mask=m, intensity_img=raw, intensity_channel=5,
+        min_intensity=10, max_intensity=12))
 
-    assert _n_objects(out) == 1
+    np.testing.assert_array_equal(out, (m == 2).astype(np.uint16))
 
 
 def test_in_memory_intensity_many_channel_stack_out_of_bounds():
     from spacr.utils import _process_single_fov_in_memory
-    with pytest.raises(ValueError, match=r"out of bounds for image with shape"):
+    with pytest.raises(IndexError, match="out of bounds"):
         _process_single_fov_in_memory(**_in_memory_kwargs(
             mask=_two_touching_blocks(),
             intensity_img=np.zeros((16, 16, 6), dtype=np.uint16),
             intensity_channel=10,
-            do_intensity_merge=True, intensity_threshold=0.0,
+            min_intensity=1,
         ))
 
 
-def test_in_memory_intensity_3d_without_channel_is_passed_through():
-    """``intensity_channel=None`` on a 3-D stack falls to the generic cast."""
+def test_in_memory_multichannel_intensity_requires_an_explicit_channel():
     from spacr.utils import _process_single_fov_in_memory
     m = np.zeros((16, 16), dtype=np.uint16)
-    m[3:9, 3:9] = 1                                  # a single object, so the
-    raw = np.ones((3, 16, 16), dtype=np.uint16)      # percentile filter no-ops
+    m[3:9, 3:9] = 1
+    raw = np.zeros((16, 16, 3), dtype=np.uint16)
+    raw[..., 1] = 9
+
+    with pytest.raises(ValueError, match="explicit own-channel index"):
+        _process_single_fov_in_memory(**_in_memory_kwargs(
+            mask=m, intensity_img=raw, min_intensity=8))
 
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
-        mask=m, intensity_img=raw, intensity_channel=None))
+        mask=m, intensity_img=raw, intensity_channel=1,
+        min_intensity=8, max_intensity=10))
 
     assert _n_objects(out) == 1
     assert out.shape == (16, 16)
@@ -477,37 +377,30 @@ def test_process_single_fov_merges_and_overwrites_npy(tmp_path):
     assert len(calls) == 1 and calls[0][0] == 4 and calls[0][3] == "merge_nucleus"
 
 
-def test_process_single_fov_split_writes_more_objects(tmp_path):
-    from spacr.utils import _process_single_fov
-    path = tmp_path / "mask.tif"
-    tifffile.imwrite(str(path), _dumbbell())
-    args, kw = _fov_args(str(path), do_split=True, do_perimeter_merge=False,
-                         perimeter_fraction=0.0,
-                         min_watershed_distance=5, minimum_area_to_split=10)
-
-    _process_single_fov(*args, **kw)
-
-    out = tifffile.imread(str(path))
-    assert _n_objects(out) >= 2
-    assert np.array_equal(out > 0, _dumbbell() > 0)
-
-
-def test_process_single_fov_channel_first_intensity_merge(tmp_path):
+def test_process_single_fov_rejects_channel_first_without_overwriting(tmp_path):
     from spacr.utils import _process_single_fov
     mask_path = tmp_path / "mask.tif"
     int_path = tmp_path / "intensity.tif"
-    tifffile.imwrite(str(mask_path), _two_touching_blocks())
+    m = _two_touching_blocks()
+    tifffile.imwrite(str(mask_path), m)
     raw = np.zeros((3, 16, 16), dtype=np.float32)
-    raw[0] = 7.0
+    raw[0, m == 1] = 3
+    raw[0, m == 2] = 7
     tifffile.imwrite(str(int_path), raw)
     args, kw = _fov_args(str(mask_path), str(int_path), intensity_channel=0,
-                         do_perimeter_merge=False, do_intensity_merge=True, intensity_threshold=0.0,
-                         perimeter_fraction=0.0)
+                         do_perimeter_merge=False, perimeter_fraction=0.0,
+                         min_intensity=5)
 
+    before = mask_path.read_bytes()
+    with pytest.raises(ValueError, match="same shape"):
+        _process_single_fov(*args, **kw)
+    assert mask_path.read_bytes() == before
+
+    tifffile.imwrite(str(int_path), np.moveaxis(raw, 0, -1))
     _process_single_fov(*args, **kw)
 
     out = tifffile.imread(str(mask_path))
-    assert sorted(np.unique(out).tolist()) == [0, 1]
+    np.testing.assert_array_equal(out, (m == 2).astype(np.uint16))
 
 
 def test_process_single_fov_intensity_without_channel(tmp_path):
@@ -523,40 +416,41 @@ def test_process_single_fov_intensity_without_channel(tmp_path):
     tifffile.imwrite(str(int_path), intensity)
     args, kw = _fov_args(str(mask_path), str(int_path), intensity_channel=None,
                          do_perimeter_merge=False, perimeter_fraction=0.0,
-                         do_intensity_merge=True, intensity_threshold=0.0)
+                         min_intensity=100, max_intensity=300)
 
     _process_single_fov(*args, **kw)
 
     out = tifffile.imread(str(mask_path))
-    # The whole intensity image was read, so the two touching blocks merged.
-    # NOTHING IS DROPPED ANY MORE: this used to assert the dim object fell
-    # below the 50th percentile and was filtered, which is exactly the
-    # behaviour 391 removed -- a band on the field's own distribution always
-    # removes its share, however bright the field.
-    assert sorted(np.unique(out).tolist()) == [0, 1]
-    assert int(np.sum(out > 0)) == 120
+    np.testing.assert_array_equal(out, (m == 2).astype(np.uint16))
+    assert int(np.sum(out > 0)) == 60
 
 
-def test_process_single_fov_unreadable_intensity_is_ignored(tmp_path):
+def test_process_single_fov_requires_readable_intensity_only_for_active_bounds(tmp_path):
     from spacr.utils import _process_single_fov
     mask_path = tmp_path / "mask.tif"
     tifffile.imwrite(str(mask_path), _two_touching_blocks())
     bad_intensity = tmp_path / "intensity.png"
     bad_intensity.write_bytes(b"junk")
     args, kw = _fov_args(str(mask_path), str(bad_intensity), intensity_channel=0,
-                         do_intensity_merge=True, intensity_threshold=0.0, perimeter_fraction=0.5)
+                         perimeter_fraction=0.5)
 
     _process_single_fov(*args, **kw)
 
-    # intensity merge silently disabled; perimeter merge still ran
+    # A perimeter-only operation does not need the unreadable intensity file.
     out = tifffile.imread(str(mask_path))
     assert sorted(np.unique(out).tolist()) == [0, 1]
+    assert int(np.sum(out > 0)) == 120
+    before = mask_path.read_bytes()
+    with pytest.raises(ValueError, match="intensity plane.*same shape"):
+        _process_single_fov(*args, **kw, min_intensity=1)
+    assert mask_path.read_bytes() == before
 
 
 def test_process_single_fov_2d_intensity_with_channel(tmp_path):
     from spacr.utils import _process_single_fov, _process_single_fov_in_memory
     m = _two_touching_blocks()
     intensity = np.full(m.shape, 5.0, dtype=np.float32)
+    intensity[m == 2] = 15
 
     mask_path = tmp_path / "mask.tif"
     int_path = tmp_path / "intensity.tif"
@@ -565,11 +459,12 @@ def test_process_single_fov_2d_intensity_with_channel(tmp_path):
 
     expected = _process_single_fov_in_memory(**_in_memory_kwargs(
         mask=m, intensity_img=intensity, intensity_channel=0,
-        do_intensity_merge=True, intensity_threshold=0.0, perimeter_fraction=0.0))
+        min_intensity=10, max_intensity=20, perimeter_fraction=0.0))
+    np.testing.assert_array_equal(expected, (m == 2).astype(np.uint16))
 
     args, kw = _fov_args(str(mask_path), str(int_path), intensity_channel=0,
-                         do_perimeter_merge=False, do_intensity_merge=True, intensity_threshold=0.0,
-                         perimeter_fraction=0.0)
+                         do_perimeter_merge=False, perimeter_fraction=0.0,
+                         min_intensity=10, max_intensity=20)
     _process_single_fov(*args, **kw)
 
     assert np.array_equal(tifffile.imread(str(mask_path)), expected)
@@ -578,8 +473,10 @@ def test_process_single_fov_2d_intensity_with_channel(tmp_path):
 def test_process_single_fov_channel_last_intensity(tmp_path):
     from spacr.utils import _process_single_fov, _process_single_fov_in_memory
     m = _two_touching_blocks()
-    raw = np.zeros((16, 16, 3), dtype=np.float32)
-    raw[..., 1] = 6.0
+    raw = np.zeros((16, 16, 3), dtype=np.uint32)
+    exact = 2**24 + 1
+    raw[m == 1, 1] = exact
+    raw[m == 2, 1] = exact + 2
 
     mask_path = tmp_path / "mask.tif"
     int_path = tmp_path / "intensity.tif"
@@ -588,14 +485,16 @@ def test_process_single_fov_channel_last_intensity(tmp_path):
 
     expected = _process_single_fov_in_memory(**_in_memory_kwargs(
         mask=m, intensity_img=raw, intensity_channel=1,
-        do_intensity_merge=True, intensity_threshold=0.0, perimeter_fraction=0.0))
+        min_intensity=exact, max_intensity=exact, perimeter_fraction=0.0))
+    np.testing.assert_array_equal(expected, (m == 1).astype(np.uint16))
 
     args, kw = _fov_args(str(mask_path), str(int_path), intensity_channel=1,
-                         do_perimeter_merge=False, do_intensity_merge=True, intensity_threshold=0.0,
-                         perimeter_fraction=0.0)
+                         do_perimeter_merge=False, perimeter_fraction=0.0,
+                         min_intensity=exact, max_intensity=exact)
     _process_single_fov(*args, **kw)
 
     assert np.array_equal(tifffile.imread(str(mask_path)), expected)
+    np.testing.assert_array_equal(tifffile.imread(str(int_path)), raw)
 
 
 # ---------------------------------------------------------------------------
@@ -643,33 +542,34 @@ def test_merge_split_objects_with_intensity_directory(tmp_path):
     int_dir.mkdir()
     m = _two_touching_blocks()
     tifffile.imwrite(str(mask_dir / "A01_f01.tif"), m)
-    raw = np.zeros((3, 16, 16), dtype=np.float32)
-    raw[2] = 3.0                       # uniform bright channel -> merge
+    raw = np.zeros((16, 16, 3), dtype=np.float32)
+    raw[m == 1, 2] = 3
+    raw[m == 2, 2] = 9
     tifffile.imwrite(str(int_dir / "A01_f01.tif"), raw)
 
     merge_split_objects(str(mask_dir), intensity_img_src=str(int_dir),
                         intensity_channel=2, perimeter_fraction=0.0,
-                        intensity_merge=True, intensity_threshold=0.0,
+                        min_intensity=6, max_intensity=10,
                         n_jobs=1)
 
     out = tifffile.imread(str(mask_dir / "A01_f01.tif"))
-    assert sorted(np.unique(out).tolist()) == [0, 1]
-    assert int(np.sum(out > 0)) == 120
+    np.testing.assert_array_equal(out, (m == 2).astype(np.uint16))
+    assert int(np.sum(out > 0)) == 60
 
 
-def test_merge_split_objects_split_and_area_filter(tmp_path):
+def test_merge_split_objects_area_filter(tmp_path):
     from spacr.utils import merge_split_objects
     mask_dir = tmp_path / "masks"
     mask_dir.mkdir()
-    tifffile.imwrite(str(mask_dir / "d.tif"), _dumbbell())
+    m = _big_square_plus_speck()
+    tifffile.imwrite(str(mask_dir / "d.tif"), m)
 
     merge_split_objects(str(mask_dir), perimeter_fraction=0.0,
-                        intensity_split=True,
-                        min_watershed_distance=5, minimum_area_to_split=10, min_area=20,
+                        min_area=20,
                         n_jobs=1)
 
     out = tifffile.imread(str(mask_dir / "d.tif"))
-    assert _n_objects(out) >= 2
+    np.testing.assert_array_equal(out, (m == 1).astype(np.uint16))
     # every surviving object clears the 20 px minimum area
     ids, counts = np.unique(out[out > 0], return_counts=True)
     assert bool(np.all(counts >= 20))

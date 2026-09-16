@@ -484,29 +484,48 @@ def test_an_explicit_order_reaches_segment_4d_with_the_acquisition_and_spec(
     assert spec.z_mode == "project", "the shared z default"
 
 
-def test_the_zt_order_is_carried_through_to_the_spec(tmp_path, fake_model,
-                                                     monkeypatch):
-    """'ZTYX' must reach segment_4d as ``t_axis=1``, not be normalised away."""
+def test_the_zt_order_is_canonicalized_before_batches_and_saved_masks(
+        tmp_path, fake_model, monkeypatch):
+    """The manifest names T frames, even when the stored leading axis is Z."""
     src = tmp_path / "stack"
-    _write_npz(src, (4, 3, 32, 32, 2))
+    src.mkdir()
+    acquisition = np.empty((4, 3, 32, 32, 2), dtype=np.float32)
+    for z in range(4):
+        for t in range(3):
+            acquisition[z, t, ..., 0] = 0.2 + t * 0.1 + z * 0.01
+            acquisition[z, t, ..., 1] = 0.75
+    filenames = np.array([f"plate1_A01_{i + 1}.npy" for i in range(3)])
+    np.savez(src / "batch1.npz", data=acquisition, filenames=filenames)
 
-    seen = {}
+    seen = []
     real_segment_4d = Z.segment_4d
 
     def _spy(array, spec, segment_fn, verbose=False):
-        seen["spec"] = spec
-        return real_segment_4d(array, spec,
-                               lambda plane, **kw: np.zeros(
-                                   np.asarray(plane).shape[:2], np.uint16))
+        seen.append((np.asarray(array).copy(), spec))
+        return real_segment_4d(array, spec, segment_fn, verbose=verbose)
 
     monkeypatch.setattr(Z, "segment_4d", _spy)
 
-    O.generate_cellpose_masks_sam(
-        str(src), _base_settings(src, t_stack=True, t_axis_order="ZTYX"),
-        "cell")
+    settings = _base_settings(src, t_stack=True, t_axis_order="ZTYX", batch_size=2)
+    O.generate_cellpose_masks_sam(str(src), settings, "cell")
 
-    assert (seen["spec"].t_axis, seen["spec"].z_axis) == (1, 0)
-    assert seen["spec"].axis_order == Z.AXIS_ORDER_ZTYX
+    assert len(seen) == 2
+    # The segmenter receives the cell's selected dense channel first.
+    canonical = np.moveaxis(acquisition, 1, 0)[..., [1, 0]]
+    np.testing.assert_array_equal(seen[0][0], canonical[:2])
+    np.testing.assert_array_equal(seen[1][0], canonical[2:])
+    for _, spec in seen:
+        assert (spec.t_axis, spec.z_axis) == (0, 1)
+        assert spec.axis_order == Z.AXIS_ORDER_TZYX
+    assert settings["t_axis_order"] == "ZTYX"
+    assert fake_model["model"].eval_shapes == [[(32, 32, 2)]] * 3
+    output_dir = src / "cell_mask_stack"
+    assert {path.name for path in output_dir.iterdir()} == set(filenames)
+    expected = np.zeros((32, 32), dtype=np.uint16)
+    expected[2:8, 2:8] = 1
+    expected[12:18, 12:18] = 2
+    for filename in filenames:
+        np.testing.assert_array_equal(np.load(output_dir / filename), expected)
 
 
 def test_a_volumetric_4d_run_drives_cellpose_once_per_timepoint(tmp_path,
@@ -548,7 +567,7 @@ def test_a_projected_4d_run_gives_one_2d_mask_per_timepoint(tmp_path,
     settings = _base_settings(
         src, t_stack=True, t_axis_order="TZYX",
         z_segmentation_mode="project", z_projection="max",
-        cell_min_split_area=1,          # force merge/split/filter to run
+        cell_min_area=1,                # force the retained area filter to run
     )
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 
@@ -558,25 +577,26 @@ def test_a_projected_4d_run_gives_one_2d_mask_per_timepoint(tmp_path,
         assert np.load(path).shape == (32, 32)
 
 
-def test_project_mode_filters_against_the_projection_it_segmented(
+def test_project_mode_applies_area_filter_to_the_projected_labels(
         tmp_path, fake_model, capsys):
-    """merge/split/filter scores masks against intensities, so it must see the
-    plane the masks were drawn on, not the volume it came from."""
+    """Area filtering still runs on 2-D labels after a time-series projection."""
     src = tmp_path / "stack"
     _write_npz(src, (2, 4, 32, 32, 2))
 
     settings = _base_settings(
         src, t_stack=True, t_axis_order="TZYX",
-        z_segmentation_mode="project", cell_min_split_area=1,
+        z_segmentation_mode="project", cell_min_area=36,
     )
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 
     out = capsys.readouterr().out
-    # Reaching here at all is the assertion: handing merge_split_filter_masks
-    # the raw (T, Z, Y, X, C) acquisition raises "Unsupported intensity_images
-    # ndim: 5".
     assert "merge_split_filter_masks(cell): skipped" not in out
     assert "perimeter_merge" in out, "the filter step really ran"
+    expected = np.zeros((32, 32), np.uint16)
+    expected[2:8, 2:8] = 1
+    expected[12:18, 12:18] = 2
+    for path in (src / "cell_mask_stack").iterdir():
+        np.testing.assert_array_equal(np.load(path), expected)
 
 
 def test_the_volumetric_4d_modes_skip_the_2d_merge_split_filter_step(
@@ -588,7 +608,7 @@ def test_the_volumetric_4d_modes_skip_the_2d_merge_split_filter_step(
     settings = _base_settings(
         src, t_stack=True, t_axis_order="TZYX",
         z_segmentation_mode="volumetric", anisotropy=2.0,
-        cell_min_split_area=1,
+        cell_min_area=1,
     )
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 

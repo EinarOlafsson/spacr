@@ -72,13 +72,6 @@
       "translation": "以分裂为"
     },
     {
-      "key": "organelle_intensity_merge",
-      "source": "Organelle 1 — Intensity merge",
-      "source_sha256": "4903080387029ca8a473d35ba96ae6726ed3331c5788bb43fdd57f1ad2579549",
-      "table": "setting_labels",
-      "translation": "Organelle 1 - 密集融合"
-    },
-    {
       "key": "organelle_rolling_ball_radius",
       "source": "Organelle 1 — Rolling ball radius",
       "source_sha256": "20c481573f3ee27f9c8ec4b35d4ecd8a9d74dd796ae837dd98c671e9ab4d1849",
@@ -357,13 +350,6 @@
       "source_sha256": "8f6765598d054647d48f9e018f8e9aab3947b24ec99315288fde7ddb1147ee92",
       "table": "ui",
       "translation": "加载运行示威和设置..."
-    },
-    {
-      "key": "Min intensity pct",
-      "source": "Min intensity pct",
-      "source_sha256": "9eec6c2dbdaf12924aee5bd5009f4314e228a333058833572fe6914a79a302bd",
-      "table": "ui",
-      "translation": "微强度 pct"
     },
     {
       "key": "Minimum number of guides the per-gRNA table holds for the gene.",

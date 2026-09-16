@@ -2371,7 +2371,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # install_test_data_button 1, is_present 1, listed_files 1,
     # load_the_test_data 3, make_masks_example_folder 0, open_the_test_data 2
     # (412: 11). Subtracted, 17,181.
-    assert sum(len(item.parameters) for item in callables) == 17_228
+    # 17,228 -> 17,225 on 2026-09-16 for 418: the existing
+    # `spacr.utils.merge_split_objects` drops five optional parameters
+    # (intensity_merge, intensity_split, intensity_threshold,
+    # min_watershed_distance, minimum_area_to_split) and gains the two
+    # keyword-only bounds min_intensity=0 and max_intensity=0. Compared every
+    # inventory row with f7df13e93 (/tmp/spacr-publish.tDTL40): +0/-0 symbols,
+    # exactly that one changed row, and no required/variant/category changes.
+    # Restoring its complete baseline row also restores the 17,228 total.
+    assert sum(len(item.parameters) for item in callables) == 17_225
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2417,6 +2425,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # functions, spacr.install_cleanup's four and its two dataclasses)
     # returns 2494eb63..., the previous pin, byte for byte. No existing line
     # changed.
+    # Moved 2026-09-16 for 418, PROVED against f7df13e93 using the same
+    # source-derived _public_callables helper on both trees. Replacing only
+    # merge_split_objects' full current row with its baseline row restores
+    # 6bb6e91888a29f1795a6af5a4fc180682b9735a21582dd8432ca5b44cf736802
+    # exactly. Both parameters and accepted_documented_parameters changed;
+    # its sole required parameter remains mask_src. All other 8,697 rows,
+    # 8,705 variants and 8,830 required parameters are unchanged.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2460,7 +2475,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # that failed to match would have read as "something unexplained moved"
     # when what had actually moved was my reconstruction. Subtract using the
     # recorded baseline LINE, not a field-by-field rebuild of it.
-) == "6bb6e91888a29f1795a6af5a4fc180682b9735a21582dd8432ca5b44cf736802"
+) == "eb541d39a804b75db13a72ce408f304b65f6f642d5d0093415005c6aab09bc5c"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

@@ -33,11 +33,15 @@ def test_the_request_carries_the_channel_the_user_set(lp, qapp, obj, attr,
     try:
         panel._object_box.setCurrentText(obj)
         getattr(panel, attr).setValue(channel)
+        panel._compartment_widgets[obj]["min_intensity"].setValue(1.25)
+        panel._compartment_widgets[obj]["max_intensity"].setValue(3.5)
         panel._image = np.zeros((8, 8, 4), dtype=np.uint16)
         request = panel._build_request()
         assert request.channels.get(obj) == channel, (
             f"{obj} segmented channel {request.channels.get(obj)}; a missing "
             f"entry falls back to 0, which is the cell channel")
+        assert request.postprocess_settings[f"{obj}_min_intensity"] == 1.25
+        assert request.postprocess_settings[f"{obj}_max_intensity"] == 3.5
     finally:
         panel.deleteLater()
 

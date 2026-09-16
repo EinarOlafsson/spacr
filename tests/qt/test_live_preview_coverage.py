@@ -425,8 +425,8 @@ class TestApplySizeFilter:
             mask,
             {"cell_min_area": 0, "cell_max_area": 0,
              "cell_remove_border_objects": False,
-             "cell_min_intensity_percentile": 0,
-             "cell_max_intensity_percentile": 100},
+             "cell_min_intensity": 0,
+             "cell_max_intensity": 0},
             "cell")
         assert out is mask
 
@@ -462,67 +462,46 @@ class TestApplySizeFilter:
         assert int((out > 0).sum()) == 36
         assert out[0, 0] == 0
 
-    def test_an_absolute_intensity_threshold_removes_no_object(self):
-        """The dim object SURVIVES, and the run is what says so.
-
-        This was ``test_intensity_percentile_drops_the_dim_object`` and
-        asserted that ``cell_min_intensity_percentile=50`` deleted the
-        dimmer of two objects. That setting is gone, and the expectation is
-        re-pointed rather than re-pinned to whatever the preview now emits,
-        because the old one did not encode a filter at all -- it encoded a
-        quota. A percentile band cut the FIELD'S OWN distribution, so it
-        removed its share however bright the field was: with two objects it
-        dropped one of them unconditionally. ``spacr.utils._filter_objects``
-        was stripped of it and keeps ``intensity_img`` only so positional
-        callers still work; nothing there reads it.
-
-        What replaced it is an ABSOLUTE threshold in the image's own raw
-        units, and it lives in a different phase: ``{obj}_intensity_threshold``
-        is measured along the boundary two TOUCHING labels share and MERGES
-        them. It can never delete a label, so no intensity, however dim,
-        costs an object its place in the filter.
-
-        The surviving-object claim is therefore checked against
-        ``spacr.object.merge_split_filter_masks`` -- the batch worker -- run
-        on the same mask and the same settings, rather than against numbers
-        typed in here. Preview-agrees-with-run is the property actually
-        wanted, and a hand-written expectation cannot notice when only one
-        of the two changes.
-        """
+    def test_mean_intensity_bounds_agree_with_the_run_and_expected_labels(self):
+        """Both paths retain the inclusive upper boundary in original units."""
         m = np.zeros((20, 20), np.int32)
         m[2:6, 2:6] = 1               # 16 px, dim
         m[10:14, 10:14] = 2           # 16 px, bright, and not touching it
+        m[2:6, 10:14] = 3             # 16 px, above the upper bound
         inten = np.zeros((20, 20), np.float32)
         inten[2:6, 2:6] = 10.0        # dim
         inten[10:14, 10:14] = 900.0   # bright
-        # A threshold above the dim object and below the bright one: the
-        # exact shape that used to cost object 1 its existence.
-        settings = {"cell_intensity_threshold": 500.0,
-                    "cell_intensity_merge": True,
-                    # An area rule both sides agree is a no-op at 16 px,
-                    # present so the filter genuinely runs and gets handed
-                    # the intensity image instead of short-circuiting
-                    # before it could have ignored it.
+        inten[2:6, 10:14] = 1000.0
+        settings = {"cell_min_intensity": 500.0,
+                    "cell_max_intensity": 900.0,
                     "cell_min_area": 4}
         out = LP._apply_size_filter(m, settings, "cell", intensity_img=inten)
-        assert (out[2:6, 2:6] > 0).all(), "the dim object was dropped on intensity"
-        assert (out[10:14, 10:14] > 0).all()
+        expected = np.zeros_like(m)
+        expected[10:14, 10:14] = 1
+        np.testing.assert_array_equal(out, expected)
 
         from spacr.object import merge_split_filter_masks
         run = merge_split_filter_masks(
             m.astype(np.uint16), inten, dict(settings), "cell")[0]
-        assert np.array_equal(np.asarray(run), out), (
-            "the preview and the batch run disagree about what survives")
+        np.testing.assert_array_equal(run, expected)
 
-    def test_a_failing_filter_returns_the_unfiltered_mask(self, monkeypatch):
+        settings.update(cell_min_intensity=0, cell_max_intensity=0)
+        np.testing.assert_array_equal(
+            LP._apply_size_filter(m, settings, "cell", intensity_img=inten), m)
+        np.testing.assert_array_equal(
+            merge_split_filter_masks(m, inten, settings, "cell")[0], m)
+
+    def test_a_failing_filter_raises_without_mutating_the_raw_mask(self, monkeypatch):
         import spacr.utils as SU
         mask = self._two_objects()
+        original = mask.copy()
 
         def _boom(*a, **k):
             raise RuntimeError("filter exploded")
         monkeypatch.setattr(SU, "_filter_objects", _boom)
-        out = LP._apply_size_filter(mask, {"cell_min_area": 10}, "cell")
-        assert np.array_equal(out, mask)
+        with pytest.raises(RuntimeError, match="filter exploded"):
+            LP._apply_size_filter(mask, {"cell_min_area": 10}, "cell")
+        np.testing.assert_array_equal(mask, original)
 
 
 # ===========================================================================
@@ -1342,26 +1321,17 @@ class TestPanelSettings:
         assert s["remove_background_cell"] is False
 
     def test_compartment_defaults_match_the_pipeline_defaults(self, qtbot):
-        """BUG FIX: the panel defaulted ``*_min_intensity_percentile`` to 1,
-        ``*_max_intensity_percentile`` to 99, ``*_perimeter_fraction`` to 0.5
-        and ``*_intensity_percentile`` to 50, against the pipeline's 0 / 100 /
-        0 / 75. The first two switched the intensity filter ON for every
-        preview — with two objects it dropped both — and Propagate wrote all
-        four into the main settings panel behind the user's back."""
+        """Every offered filter must use the run's default for every role."""
         from spacr.settings import (
             set_default_settings_preprocess_generate_masks as defaults)
         pipeline = defaults({})
         p = _panel(qtbot)
         live = p._compartment_settings()
-        checked = 0
         for comp in LP.COMPARTMENTS:
             for suffix, *_ in LP.COMPARTMENT_FIELDS:
                 key = f"{comp}_{suffix}"
-                if key not in pipeline:
-                    continue
+                assert key in pipeline, f"the run does not define {key}"
                 assert live[key] == pipeline[key], f"{key} drifted"
-                checked += 1
-        assert checked >= 30, "the comparison found almost nothing to check"
 
     def test_default_filters_are_neutral_so_a_preview_shows_raw_masks(
             self, qtbot):
@@ -1532,11 +1502,18 @@ class TestRecomputeOnSettingsChange:
         assert p._masks == {}
         assert emitted == []
 
-    def test_recompute_without_an_image_is_a_no_op(self, qtbot):
+    def test_recompute_without_an_image_reports_failure_and_keeps_raw_masks(self, qtbot):
         p = _panel(qtbot)
-        p._raw_masks = {"cell": np.ones((4, 4), np.int32)}
+        raw = np.ones((4, 4), np.int32)
+        p._raw_masks = {"cell": raw.copy()}
+        p._masks = {"cell": raw.copy()}
+        emitted = []
+        p.preview_ready.connect(emitted.append)
         p._recompute_masks()
         assert p._masks == {}
+        assert emitted == [None]
+        assert p._status.text() == LP.preview_failure_message(p.PREVIEW_SOURCE_HINT)
+        np.testing.assert_array_equal(p._raw_masks["cell"], raw)
 
 
 # ===========================================================================
@@ -1806,14 +1783,20 @@ class TestWorkerLifecycle:
             timeout=5000)
         assert p._masks == {}
 
-    def test_a_result_arriving_after_the_image_was_cleared_is_ignored(
+    def test_a_result_arriving_after_the_image_was_cleared_reports_failure(
             self, qtbot, gray_tif):
         p = _panel(qtbot)
         p.load_image(gray_tif)
+        raw = np.ones((4, 4), np.int32)
+        p._masks = {"cell": raw.copy()}
+        emitted = []
+        p.preview_ready.connect(emitted.append)
         p._image = None
-        p._on_worker_done({"cell": np.ones((4, 4), np.int32)}, "")
-        assert p._status.text() == "Preview returned no masks."
+        p._on_worker_done({"cell": raw.copy()}, "")
+        assert p._status.text() == LP.preview_failure_message(p.PREVIEW_SOURCE_HINT)
         assert p._masks == {}
+        assert emitted == [None]
+        np.testing.assert_array_equal(p._raw_masks["cell"], raw)
 
     def test_release_worker_is_safe_with_nothing_to_release(self, qtbot):
         p = _panel(qtbot)

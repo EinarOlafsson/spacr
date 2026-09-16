@@ -1060,7 +1060,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Image Preprocessing (per object)",
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
-        ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
@@ -1168,7 +1167,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Image Preprocessing (per object)",
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
-        ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
         ("Tracking Setup", (
             "timelapse_objects", "timelapse_frame_limits",
@@ -2193,8 +2191,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "ADVANCED SETTINGS":
         "The umbrella over the settings that are one decision applied to "
         "several objects — what is done to the pixels before segmentation, "
-        "which detected objects are kept, and how intensity decides "
-        "splitting and merging. Each group inside it is broken down per "
+        "which detected objects are kept by area, mean intensity in their "
+        "own channel and border filters, and whether touching labels are "
+        "merged by their shared perimeter. Each group is broken down per "
         "object, so the same choice for cells and for nuclei sits side by "
         "side instead of under two unrelated headings. Nothing here needs "
         "touching on a first run.",
@@ -2215,13 +2214,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
         "your measurements.",
-    "INTENSITY HANDLING (ALL OBJECTS)":
-        "How object intensity decides splitting, merging and inclusion, for "
-        "every object class in one place. The percentiles set the window "
-        "that intensities are read against; merge and split use intensity "
-        "to join objects the segmentation cut apart or separate ones it ran "
-        "together. Open this when the masks look right but the objects are "
-        "systematically over- or under-segmented.",
     "OBJECT FILTRATION":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
@@ -2232,13 +2224,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
         "your measurements.",
-    "INTENSITY HANDLING":
-        "How object intensity decides splitting, merging and inclusion, for "
-        "every object class in one place. The percentiles set the window "
-        "that intensities are read against; merge and split use intensity "
-        "to join objects the segmentation cut apart or separate ones it ran "
-        "together. Open this when the masks look right but the objects are "
-        "systematically over- or under-segmented.",
     "ORGANELLE ADVANCED":
         "The forty-eight detection parameters behind the organelle type: "
         "shape family and method, the background and contrast correction "

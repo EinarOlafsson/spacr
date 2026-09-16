@@ -146,7 +146,8 @@ def test_no_animation_documents_a_setting_the_shipped_manifest_does_not_carry():
     # 134 -> 118 on 2026-09-12, and it is -16 rather than -8 because the
     # eight animations 391 removed each mapped TWO settings: the dim and
     # bright halves of the intensity-percentile band, at four roles.
-    assert sum(len(keys) for keys in specs.values()) == 118
+    # 418 replaces 20 retired merge/split keys with eight mean-bound keys.
+    assert sum(len(keys) for keys in specs.values()) == 106
 
 
 def test_the_gallery_names_only_settings_spacr_actually_has():

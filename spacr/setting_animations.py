@@ -198,10 +198,20 @@ def animation_for_setting(setting_key: str) -> Optional[SettingAnimation]:
 
     :param setting_key: exact, case-sensitive settings key to look up.
 
-    Matching is deliberately exact and case-sensitive so similarly named
-    scientific settings cannot accidentally display misleading help.
+    Exact matches take precedence. A numbered organelle slot can reuse its
+    primary slot's animation through the shared slot-name mapping; unknown
+    settings and case variants still do not acquire unrelated help.
     """
-    return animations_by_setting().get(str(setting_key))
+    from .organelle_types import ALL_ORGANELLE_ROLES, primary_setting
+
+    key = str(setting_key)
+    by_setting = animations_by_setting()
+    animation = by_setting.get(key)
+    if animation is not None:
+        return animation
+    if key.partition("_")[0] not in ALL_ORGANELLE_ROLES:
+        return None
+    return by_setting.get(primary_setting(key))
 
 
 def animation_path_for_setting(setting_key: str) -> Optional[Path]:

@@ -198,9 +198,8 @@ def test_the_field_boundary_is_not_counted_as_content():
 def test_an_isolated_speck_is_not_content():
     """One quantisation speck used to stretch the crop across an empty half.
 
-    ``nucleus_intensity_merge`` carries exactly one pixel of value 9 in one
-    frame of eighteen; before it was discounted it pulled the measured content
-    from 132x86 to 231x203 and the zoom framed a corner with nothing in it.
+    A value-9 pixel outside a 40-by-40 object must not expand that object's
+    crop to 201 by 201 and frame the empty corner as meaningful content.
     """
     size = az.SOURCE_SIZE
     frame = np.zeros((size, size, 3), dtype=np.uint8)

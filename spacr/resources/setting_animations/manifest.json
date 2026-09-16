@@ -63,6 +63,60 @@
     },
     {
       "category": "Mask filtering",
+      "file": "gifs/cell_min_intensity.gif",
+      "params": {
+        "bound": 60,
+        "kind": "cell",
+        "means": [
+          20,
+          40,
+          60,
+          80
+        ],
+        "variant": "minimum"
+      },
+      "scene": "mean_intensity",
+      "settings": [
+        "cell_min_intensity"
+      ],
+      "slug": "cell_min_intensity",
+      "title": "Cell \u2014 Minimum mean intensity",
+      "validation": {
+        "bytes": 60107,
+        "frames": 18,
+        "sha256": "be41290194429765dd06c51942f6ba85494d631d7bbcd3cd162067a3f72f8931",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/cell_max_intensity.gif",
+      "params": {
+        "bound": 40,
+        "kind": "cell",
+        "means": [
+          20,
+          40,
+          60,
+          80
+        ],
+        "variant": "maximum"
+      },
+      "scene": "mean_intensity",
+      "settings": [
+        "cell_max_intensity"
+      ],
+      "slug": "cell_max_intensity",
+      "title": "Cell \u2014 Maximum mean intensity",
+      "validation": {
+        "bytes": 63668,
+        "frames": 18,
+        "sha256": "0de6129b3a032c25660b4a03de99db87eef0403141a9e86ae04f4f7f1c6cb7ff",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask filtering",
       "file": "gifs/nucleus_remove_border_objects.gif",
       "params": {
         "kind": "nucleus",
@@ -119,6 +173,60 @@
         "bytes": 71402,
         "frames": 18,
         "sha256": "56f8c6f539c41b2207918572ac8133d4aac46e40632a4e9144a9477138b0c9ba",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/nucleus_min_intensity.gif",
+      "params": {
+        "bound": 60,
+        "kind": "nucleus",
+        "means": [
+          20,
+          40,
+          60,
+          80
+        ],
+        "variant": "minimum"
+      },
+      "scene": "mean_intensity",
+      "settings": [
+        "nucleus_min_intensity"
+      ],
+      "slug": "nucleus_min_intensity",
+      "title": "Nucleus \u2014 Minimum mean intensity",
+      "validation": {
+        "bytes": 128570,
+        "frames": 18,
+        "sha256": "d922b41a0593ea480b477db062550f8b36ee5fd2f8acc8e8c3452b31f37d3e18",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/nucleus_max_intensity.gif",
+      "params": {
+        "bound": 40,
+        "kind": "nucleus",
+        "means": [
+          20,
+          40,
+          60,
+          80
+        ],
+        "variant": "maximum"
+      },
+      "scene": "mean_intensity",
+      "settings": [
+        "nucleus_max_intensity"
+      ],
+      "slug": "nucleus_max_intensity",
+      "title": "Nucleus \u2014 Maximum mean intensity",
+      "validation": {
+        "bytes": 134773,
+        "frames": 18,
+        "sha256": "0216093bf03e1308c0ebb666229932b2657673a764d528e1556fa53cb3f6beba",
         "unique_frames": 17
       }
     },
@@ -185,6 +293,60 @@
     },
     {
       "category": "Mask filtering",
+      "file": "gifs/pathogen_min_intensity.gif",
+      "params": {
+        "bound": 60,
+        "kind": "pathogen",
+        "means": [
+          20,
+          40,
+          60,
+          80
+        ],
+        "variant": "minimum"
+      },
+      "scene": "mean_intensity",
+      "settings": [
+        "pathogen_min_intensity"
+      ],
+      "slug": "pathogen_min_intensity",
+      "title": "Pathogen \u2014 Minimum mean intensity",
+      "validation": {
+        "bytes": 198892,
+        "frames": 18,
+        "sha256": "9d2ea92a8fd566f6329f50f464d67e789b999a77ec5b29928bd9df420c61a462",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/pathogen_max_intensity.gif",
+      "params": {
+        "bound": 40,
+        "kind": "pathogen",
+        "means": [
+          20,
+          40,
+          60,
+          80
+        ],
+        "variant": "maximum"
+      },
+      "scene": "mean_intensity",
+      "settings": [
+        "pathogen_max_intensity"
+      ],
+      "slug": "pathogen_max_intensity",
+      "title": "Pathogen \u2014 Maximum mean intensity",
+      "validation": {
+        "bytes": 221727,
+        "frames": 18,
+        "sha256": "7618455eea8ad91645df60fd86d2a4f80331404388e6c98c724d7c4a0b0ed5bf",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask filtering",
       "file": "gifs/organelle_remove_border_objects.gif",
       "params": {
         "kind": "organelle",
@@ -245,6 +407,60 @@
       }
     },
     {
+      "category": "Mask filtering",
+      "file": "gifs/organelle_min_intensity.gif",
+      "params": {
+        "bound": 60,
+        "kind": "organelle",
+        "means": [
+          20,
+          40,
+          60,
+          80
+        ],
+        "variant": "minimum"
+      },
+      "scene": "mean_intensity",
+      "settings": [
+        "organelle_min_intensity"
+      ],
+      "slug": "organelle_min_intensity",
+      "title": "Organelle \u2014 Minimum mean intensity",
+      "validation": {
+        "bytes": 302793,
+        "frames": 18,
+        "sha256": "214a7b0f69219e91c23d41a5cb497b44484783c82f8da92e201f688f915a1219",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/organelle_max_intensity.gif",
+      "params": {
+        "bound": 40,
+        "kind": "organelle",
+        "means": [
+          20,
+          40,
+          60,
+          80
+        ],
+        "variant": "maximum"
+      },
+      "scene": "mean_intensity",
+      "settings": [
+        "organelle_max_intensity"
+      ],
+      "slug": "organelle_max_intensity",
+      "title": "Organelle \u2014 Maximum mean intensity",
+      "validation": {
+        "bytes": 296882,
+        "frames": 18,
+        "sha256": "be6a74aa40024be60622328f6b2fe8359f0092dcc28ce2669afe2aa24329683a",
+        "unique_frames": 17
+      }
+    },
+    {
       "category": "Mask repair",
       "file": "gifs/merge_edge_pathogen_cells.gif",
       "params": {},
@@ -299,48 +515,6 @@
     },
     {
       "category": "Mask repair",
-      "file": "gifs/cell_intensity_merge.gif",
-      "params": {
-        "intensity": true,
-        "kind": "cell"
-      },
-      "scene": "merge",
-      "settings": [
-        "cell_intensity_merge",
-        "cell_intensity_threshold"
-      ],
-      "slug": "cell_intensity_merge",
-      "title": "Cell intensity merge",
-      "validation": {
-        "bytes": 76830,
-        "frames": 18,
-        "sha256": "45c89b950ed5d448aad772aef3872bc496eb40468ab9b8dc078c8409873c7a43",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask repair",
-      "file": "gifs/cell_intensity_split.gif",
-      "params": {
-        "kind": "cell"
-      },
-      "scene": "split",
-      "settings": [
-        "cell_intensity_split",
-        "cell_min_watershed_distance",
-        "cell_minimum_area_to_split"
-      ],
-      "slug": "cell_intensity_split",
-      "title": "Cell watershed split",
-      "validation": {
-        "bytes": 79385,
-        "frames": 18,
-        "sha256": "120144ef9514e66388bb92f364dec14df8ac5bacea8dc90abc32821234212a27",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask repair",
       "file": "gifs/nucleus_perimeter_fraction.gif",
       "params": {
         "kind": "nucleus"
@@ -355,48 +529,6 @@
         "bytes": 127371,
         "frames": 18,
         "sha256": "e121f2f56c158c2654c717b5cda59fcbf6e2a8490f7728e5af1529c5ec749f33",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask repair",
-      "file": "gifs/nucleus_intensity_merge.gif",
-      "params": {
-        "intensity": true,
-        "kind": "nucleus"
-      },
-      "scene": "merge",
-      "settings": [
-        "nucleus_intensity_merge",
-        "nucleus_intensity_threshold"
-      ],
-      "slug": "nucleus_intensity_merge",
-      "title": "Nucleus intensity merge",
-      "validation": {
-        "bytes": 128245,
-        "frames": 18,
-        "sha256": "83351ec3d16c424a17d9082d69e72abb37ddcb3948a779be6bad917d5e704b17",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask repair",
-      "file": "gifs/nucleus_intensity_split.gif",
-      "params": {
-        "kind": "nucleus"
-      },
-      "scene": "split",
-      "settings": [
-        "nucleus_intensity_split",
-        "nucleus_min_watershed_distance",
-        "nucleus_minimum_area_to_split"
-      ],
-      "slug": "nucleus_intensity_split",
-      "title": "Nucleus watershed split",
-      "validation": {
-        "bytes": 115787,
-        "frames": 18,
-        "sha256": "20a6ffa9ebdd0f408bc57acda9f85d2477ff49fe65be336ef2f582417b01874f",
         "unique_frames": 17
       }
     },
@@ -421,48 +553,6 @@
     },
     {
       "category": "Mask repair",
-      "file": "gifs/pathogen_intensity_merge.gif",
-      "params": {
-        "intensity": true,
-        "kind": "pathogen"
-      },
-      "scene": "merge",
-      "settings": [
-        "pathogen_intensity_merge",
-        "pathogen_intensity_threshold"
-      ],
-      "slug": "pathogen_intensity_merge",
-      "title": "Pathogen intensity merge",
-      "validation": {
-        "bytes": 210396,
-        "frames": 18,
-        "sha256": "b3d57a3d5c5464ce01ad70c46f4662fcd8477ff1639b9a460585b50902ff29b3",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask repair",
-      "file": "gifs/pathogen_intensity_split.gif",
-      "params": {
-        "kind": "pathogen"
-      },
-      "scene": "split",
-      "settings": [
-        "pathogen_intensity_split",
-        "pathogen_min_watershed_distance",
-        "pathogen_minimum_area_to_split"
-      ],
-      "slug": "pathogen_intensity_split",
-      "title": "Pathogen watershed split",
-      "validation": {
-        "bytes": 229699,
-        "frames": 18,
-        "sha256": "e8016b1c57498217dff28c8590b988896523a8f122e4cb3a537a537cf084e5f8",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask repair",
       "file": "gifs/organelle_perimeter_fraction.gif",
       "params": {
         "kind": "organelle"
@@ -477,48 +567,6 @@
         "bytes": 176732,
         "frames": 18,
         "sha256": "be0fbca30c9e2e78e6a2c05d47dc934151b7582ea9dee58b0355599e1229ffce",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask repair",
-      "file": "gifs/organelle_intensity_merge.gif",
-      "params": {
-        "intensity": true,
-        "kind": "organelle"
-      },
-      "scene": "merge",
-      "settings": [
-        "organelle_intensity_merge",
-        "organelle_intensity_threshold"
-      ],
-      "slug": "organelle_intensity_merge",
-      "title": "Organelle intensity merge",
-      "validation": {
-        "bytes": 173929,
-        "frames": 18,
-        "sha256": "0237fbdfc88bb961763f69ba1a6001f8c7f844201b490002d1655a61a9bb18f1",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask repair",
-      "file": "gifs/organelle_intensity_split.gif",
-      "params": {
-        "kind": "organelle"
-      },
-      "scene": "split",
-      "settings": [
-        "organelle_intensity_split",
-        "organelle_min_watershed_distance",
-        "organelle_minimum_area_to_split"
-      ],
-      "slug": "organelle_intensity_split",
-      "title": "Organelle watershed split",
-      "validation": {
-        "bytes": 263898,
-        "frames": 18,
-        "sha256": "fc18ff1b6c6670c09dcea4c33297cff571b586913348142b33fa6dac2bd413ff",
         "unique_frames": 17
       }
     },

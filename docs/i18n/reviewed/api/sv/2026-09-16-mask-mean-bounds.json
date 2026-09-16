@@ -1,0 +1,47 @@
+{
+  "language": "sv",
+  "schema": 1,
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Source-bound semantic corrections for feature 418 API documentation: optional filtering, whole-object means, intensity bounds, shared-boundary perimeter merging, and the progress callback signature.",
+    "limitations": "AI semantic review against the current English source docstrings; not native-speaker human review or approval. Catalog publication and loader validation are separate steps."
+  },
+  "records": [
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#1",
+      "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
+      "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
+      "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
+      "translation": "Laddar den förtränade modellen ``cpsam`` — eller den kontrollpunkt som användaren har tränat, när ``<object_type>_model_name`` (eller ``pathogen_model``) anger en sådan — går igenom varje ``.npz``-fil som redan har delats in i satser, tillämpar omkretsbaserad sammanfogning och area-/kantfiltrering på 2-D-masker och filtrerar valfritt objekten efter deras absoluta medelintensitet i originalbilden för objektets egen kanal. Därefter spårar den valfritt objekt över tid, sparar ``.npy``-masker för varje bild och registrerar antalet objekt per objekttyp i körningens SQLite-databas. Arkiv med tidsstackar måste innehålla ett filnamn per tidpunkt, oavsett tidsaxelns angivna position; varje råbildsfilnamn identifierar tidpunktens ``(Z, Y, X, C)``-volym eller dess ``(Y, X, C)``-bild för en plan ``TYX``-serie."
+    },
+    {
+      "label": "spacr.object.merge_split_filter_masks#3",
+      "source": "Original own-channel arrays matching the masks, required only when an intensity bound is enabled. For channel-last batches the first channel must be the object's own channel.",
+      "source_sha256": "1eddc60d5f07dc9ca0d3076f4ab1cee7aaf22f0896c516f0400723421b5786c2",
+      "context": "Original own-image data channel arrays matching the masks, required only when an intensity bound is enabled. For image-channel-last batches the first image data channel must be the object's own image data channel.",
+      "translation": "Originalmatriser från objektets egen bildkanal som matchar maskerna; de krävs endast när en intensitetsgräns är aktiverad. För satser med kanalaxeln sist måste den första kanalen vara objektets egen kanal."
+    },
+    {
+      "label": "spacr.object.merge_split_filter_masks#4",
+      "source": "Dict of pipeline settings; per-object-type suffixes control perimeter merging, min/max area, border removal and min/max intensity. Intensity bounds compare whole-object means in original image units; equality is retained and 0 disables each bound independently.",
+      "source_sha256": "8160e9c6ff6a8d347711391b128d416f330368867c62fc005521dfa7a0791da0",
+      "context": "Key-value mapping of workflow settings; per-object-type suffixes control perimeter merging, min/max area, border removal and min/max intensity. Intensity bounds compare whole-object means in original image units; equality is retained and 0 disables each bound independently.",
+      "translation": "Nyckel-värdemappning med arbetsflödets inställningar; suffix för respektive objekttyp styr omkretsbaserad sammanfogning, min/max-area, borttagning av kantobjekt och min/max-intensitet. Intensitetsgränserna jämför medelvärdet över hela objektet i originalbildens enheter; objekt vars medelvärde är lika med gränsen behålls, och 0 inaktiverar varje gräns oberoende av den andra."
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#5",
+      "source": "minimum shared-boundary fraction for perimeter-based merging.",
+      "source_sha256": "71a3fdaeab1856e1919fdd4121a26d5759b81ceaa026ac34a992e960171153fe",
+      "context": "minimum shared-boundary fraction for perimeter-based merging.",
+      "translation": "minsta andel gemensam gräns som krävs för omkretsbaserad sammanfogning."
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#10",
+      "source": "optional callback(fov_index, total, duration, op_name).",
+      "source_sha256": "bb45ff5a41caf6b310c9f90638229246e5d9b82b85f9f7de1ffdf5b168566d1c",
+      "context": "optional callback(fov_index, total, duration, op_name).",
+      "translation": "valfri återanropsfunktion callback(fov_index, total, duration, op_name)."
+    }
+  ]
+}

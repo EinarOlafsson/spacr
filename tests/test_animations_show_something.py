@@ -12,7 +12,7 @@ from PIL import Image
 
 from spacr.setting_animations import (
     MIN_VISIBLE_CHANGE, measure_visible_change,
-    validate_animations_show_something,
+    setting_animations, validate_animations_show_something,
 )
 
 
@@ -101,13 +101,14 @@ class TestTheShippedAnimations:
             "pathogen_diameter", "organelle_diameter",
             "cell_min_area", "nucleus_min_area",
             "pathogen_min_area", "organelle_min_area",
-            "cell_min_intensity_percentile",
-            "nucleus_min_intensity_percentile",
-            "pathogen_min_intensity_percentile",
-            "organelle_min_intensity_percentile",
+            "cell_min_intensity", "cell_max_intensity",
+            "nucleus_min_intensity", "nucleus_max_intensity",
+            "pathogen_min_intensity", "pathogen_max_intensity",
+            "organelle_min_intensity", "organelle_max_intensity",
             "remove_cluster_noise", "plot_points", "plot_by_cluster",
             "min_dist", "plot_images", "remove_image_canvas", "dot_size",
         )
+        assert set(repaired) <= {animation.slug for animation in setting_animations()}
         back = [slug for slug in repaired if slug in failures]
         assert not back, f"back under the visible-change threshold: {back}"
 

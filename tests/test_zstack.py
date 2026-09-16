@@ -917,23 +917,18 @@ def test_the_stitch_path_asks_cellpose_for_plain_2d_planes(tmp_path, fake_model)
     assert len(ids[ids > 0]) == 2
 
 
-def test_project_mode_filters_against_the_projection_it_segmented(
+def test_project_mode_applies_area_filter_to_the_projected_labels(
         tmp_path, fake_model, capsys):
-    """merge/split/filter scores masks against intensities, so in project mode
-    it must see the projected plane, not the volume it came from."""
+    """Area filtering still runs on the projected labels, not per z plane."""
     src = tmp_path / "stack"
     _write_npz(src, (1, 4, 32, 32, 2))
 
     settings = _base_settings(
         src, z_stack=True, z_segmentation_mode="project", z_projection="max",
-        # force merge/split/filter to actually run
-        cell_min_split_area=1,
+        cell_min_area=36,
     )
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 
-    # Reaching here at all is the assertion: handing merge_split_filter_masks
-    # the raw (N, Z, Y, X, C) volume raises "Unsupported intensity_images
-    # ndim: 5".
     out = capsys.readouterr().out
     assert "merge_split_filter_masks(cell): skipped" not in out, (
         "project mode produces 2-D masks, so the 2-D filters still apply"
@@ -942,6 +937,10 @@ def test_project_mode_filters_against_the_projection_it_segmented(
 
     mask = np.load(src / "cell_mask_stack" / "plate1_A01_1.npy")
     assert mask.shape == (32, 32), "project mode gives a 2-D mask"
+    expected = np.zeros((32, 32), np.uint16)
+    expected[2:8, 2:8] = 1
+    expected[12:18, 12:18] = 2
+    np.testing.assert_array_equal(mask, expected)
 
 
 def test_the_3d_modes_skip_the_2d_merge_split_filter_step(tmp_path, fake_model,
@@ -952,7 +951,7 @@ def test_the_3d_modes_skip_the_2d_merge_split_filter_step(tmp_path, fake_model,
 
     settings = _base_settings(
         src, z_stack=True, z_segmentation_mode="volumetric", anisotropy=2.0,
-        cell_min_split_area=1,
+        cell_min_area=1,
     )
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
 

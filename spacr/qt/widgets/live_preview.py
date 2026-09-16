@@ -171,7 +171,7 @@ RANDOM_OUTLINE_SEEDS: Dict[str, int] = {
 #: dispatches them.
 #:
 #: WHY THIS TABLE EXISTS. Every other compartment is segmented by Cellpose and
-#: needs the ten generic filters in :data:`COMPARTMENT_FIELDS`. An organelle is
+#: needs the generic filters in :data:`COMPARTMENT_FIELDS`. An organelle is
 #: not: `spacr.object._segment_single_image` dispatches on
 #: ``organelle_morphology`` first and ``organelle_method`` second, and each
 #: morphology reads a different set of about half a dozen knobs. Fifty-odd
@@ -228,12 +228,9 @@ ORGANELLE_MORPHOLOGIES = ("spots", "network", "irregular", "ring")
 COMPARTMENT_FIELDS = (
     ("min_area",                   "Min area (px²)",        "int",   (0, 100_000_000, 0)),
     ("max_area",                   "Max area (px²)",        "int",   (0, 100_000_000, 0)),
-    ("minimum_area_to_split",      "Minimum area to split", "int",   (0, 100_000_000, 100)),
-    ("min_watershed_distance",     "Minimum watershed distance", "int", (0, 100_000, 10)),
+    ("min_intensity",              "Min intensity",         "float", (0.0, 1_000_000_000_000.0, 0.0)),
+    ("max_intensity",              "Max intensity",         "float", (0.0, 1_000_000_000_000.0, 0.0)),
     ("perimeter_fraction",         "Perimeter fraction",    "float", (0.0, 1.0, 0.0)),
-    ("intensity_threshold",        "Intensity threshold",   "float", (0.0, 1_000_000.0, 0.0)),
-    ("intensity_merge",            "Intensity merge",       "bool",  None),
-    ("intensity_split",            "Intensity split",       "bool",  None),
     ("remove_border_objects",      "Remove border objects", "bool",  None),
 )
 
@@ -890,9 +887,11 @@ def _apply_size_filter(mask: np.ndarray,
     """Apply the *same* post-segmentation filters the pipeline uses, so the
     live preview matches a real run.
 
-    Reads the per-compartment knobs (``{obj}_min_area``, ``{obj}_max_area``,
-    ``{obj}_remove_border_objects``) — the exact keys the compartment panels
-    write — and runs them through :func:`spacr.utils._filter_objects`. Legacy
+    Reads the per-compartment area, mean-intensity and border limits — the
+    exact keys the compartment panels write — and runs them through
+    :func:`spacr.utils._filter_objects`, after the pipeline's perimeter merge
+    when enabled. The intensity plane contains the
+    original values in the object's own channel. Legacy
     ``{obj}_min_size``/``{obj}_max_size`` are honoured as a fallback. No-ops
     when nothing is set."""
     if not settings or mask is None:
@@ -908,22 +907,38 @@ def _apply_size_filter(mask: np.ndarray,
 
     min_area = _num(f"{obj}_min_area", _num(f"{obj}_min_size", 0))
     max_area = _num(f"{obj}_max_area", _num(f"{obj}_max_size", 0))
+    perimeter_fraction = _num(f"{obj}_perimeter_fraction", 0.0)
+    from spacr.utils import _validated_intensity_bounds
+    min_intensity, max_intensity = _validated_intensity_bounds(
+        settings.get(f"{obj}_min_intensity"),
+        settings.get(f"{obj}_max_intensity"))
     remove_border = bool(settings.get(f"{obj}_remove_border_objects", False))
+    if obj.startswith("organelle"):
+        remove_border = remove_border or bool(
+            settings.get(f"{obj}_remove_border", False))
 
-    if not (min_area > 0 or max_area > 0 or remove_border):
+    if not (min_area > 0 or max_area > 0 or remove_border or perimeter_fraction > 0
+            or min_intensity != 0 or max_intensity != 0):
         return mask
 
-    try:
-        from spacr.utils import _filter_objects
-        return _filter_objects(
-            mask.astype(np.uint16).copy(),
-            intensity_img=intensity_img,
+    if perimeter_fraction > 0:
+        from spacr.utils import _process_single_fov_in_memory
+        return _process_single_fov_in_memory(
+            mask, intensity_img=intensity_img,
+            do_perimeter_merge=True, perimeter_fraction=perimeter_fraction,
             min_area=int(min_area), max_area=int(max_area),
-            remove_border=remove_border,
+            remove_border_objects=remove_border,
+            min_intensity=min_intensity, max_intensity=max_intensity,
         ).astype(mask.dtype)
-    except Exception:
-        LOG.debug("size filter failed", exc_info=True)
-        return mask
+
+    from spacr.utils import _filter_objects
+    return _filter_objects(
+        mask.astype(np.uint16).copy(),
+        intensity_img=intensity_img,
+        min_area=int(min_area), max_area=int(max_area),
+        remove_border=remove_border,
+        min_intensity=min_intensity, max_intensity=max_intensity,
+    ).astype(mask.dtype)
 
 
 
@@ -2731,11 +2746,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         diameter also cost the flow threshold, the channels and the model.
         """
         settings = dict(settings or {})
-        self._settings = settings
         try:
             self._rebuild_object_choices(organelle_count(settings))
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not rebuild the object choices", exc_info=True)
+        self._settings = settings
         for role in organelle_roles(max(1, organelle_count(settings))):
             raw = settings.get(f"{role}_channel")
             if raw is None:
@@ -2783,6 +2798,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             key = (f"{self._active_organelle_role}_channel"
                    if comp == "organelle" else f"{comp}_channel")
             _seed(getattr(self, f"_{comp}_channel"), (key,), int)
+            self._seed_compartment_widgets(comp)
 
         self._seed_organelle_column(settings)
 
@@ -2798,6 +2814,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             except Exception:
                 LOG.debug("apply_settings: bad normalize", exc_info=True)
         self._seed_the_model(settings, primary)
+        self._recompute_masks()
 
     def _seed_the_model(self, settings: dict, primary: str) -> None:
         """Select the model the RUN would use for ``primary``.
@@ -3048,6 +3065,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                                  self._pathogen_channel,
                                  self._organelle_channel):
             _channel_spinner.valueChanged.connect(self._follow_object_channel)
+            _channel_spinner.valueChanged.connect(
+                lambda *_: self._recompute_masks())
         self._common_widgets["signal_to_noise"].setToolTip(
             "(int) Signal-to-noise ratio used to set the normalisation "
             "intensity range for the chosen object's channel.")
@@ -3100,6 +3119,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "(bool) Adjust cell masks using the nucleus/pathogen masks.")
 
         self._compartment_widgets: Dict[str, Dict[str, QWidget]] = {}
+        self._compartment_defaults: Dict[str, Dict[str, Any]] = {}
         #: ``id(widget) -> (what it holds, what it was given)`` for a
         #: seeded value the widget could not represent.
         self._clamped_on_seeding: Dict[int, tuple] = {}
@@ -3118,11 +3138,27 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 if shipped is not None and kind in ("int", "float"):
                     spin_args = (spin_args[0], spin_args[1], shipped)
                 w = _spin(kind, spin_args)
+                if suffix in ("min_intensity", "max_intensity"):
+                    w.setDecimals(6)
+                    # Return may emit valueChanged even without an edit.
+                    # Conversely, typing 0 over a rounded-to-0 seed need
+                    # not change the number. Observe actual text edits too.
+                    w.valueChanged.connect(
+                        lambda *_args, widget=w:
+                        self._forget_edited_intensity_seed(widget))
+                    w.lineEdit().textEdited.connect(
+                        lambda *_args, widget=w:
+                        self._forget_edited_intensity_seed(
+                            widget, text_edited=True))
                 key = f"{comp}_{suffix}"
                 desc = _spacr_desc.get(key) or _spacr_desc.get(suffix)
                 w.setToolTip(desc if desc else f"{label} for {comp} objects.")
                 group[suffix] = w
             self._compartment_widgets[comp] = group
+            self._compartment_defaults[comp] = {
+                suffix: self._widget_value(widget)
+                for suffix, widget in group.items()
+            }
 
         for w in self._all_compartment_widgets():
             for sig_name in ("valueChanged", "currentTextChanged", "toggled"):
@@ -3132,6 +3168,18 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                         sig.connect(lambda *_: self._recompute_masks())
                     except (TypeError, RuntimeError):
                         pass
+
+    def _forget_edited_intensity_seed(self, widget, *, text_edited=False):
+        """Preserve untouched seeds but let explicit edits replace hidden values."""
+        remembered = self._clamped_on_seeding.get(id(widget))
+        if remembered is None:
+            return
+        if text_edited or self._widget_value(widget) != remembered[0]:
+            self._clamped_on_seeding.pop(id(widget))
+            if text_edited:
+                # A same-number edit emits no numeric change to trigger the
+                # ordinary cached-mask refresh below.
+                self._recompute_masks()
 
     def _all_compartment_widgets(self) -> List[QWidget]:
         """Collect every control the Live Settings dialog manages.
@@ -3144,6 +3192,42 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         for group in self._compartment_widgets.values():
             ws.extend(group.values())
         return ws
+
+    def _seed_compartment_widgets(self, comp: str) -> None:
+        """Restore the selected role's filters without transient re-filtering.
+
+        Each organelle slot shares one set of controls. Unrepresentable input
+        is retained for the shared filter to validate, rather than silently
+        replacing an invalid intensity limit with a disabled one.
+        """
+        role = self._active_organelle_role if comp == "organelle" else comp
+        for suffix, widget in self._compartment_widgets[comp].items():
+            default = self._compartment_defaults[comp][suffix]
+            wanted = self._settings.get(f"{role}_{suffix}", default)
+            if wanted is None:
+                wanted = default
+            if comp == "organelle" and suffix == "remove_border_objects":
+                wanted = bool(wanted) or bool(
+                    self._settings.get(f"{role}_remove_border", False))
+            blocked = widget.blockSignals(True)
+            try:
+                if isinstance(widget, Toggle):
+                    widget.setChecked(bool(wanted))
+                else:
+                    value = type(widget.value())(wanted)
+                    if not np.isfinite(value):
+                        raise ValueError("Nonfinite filter setting")
+                    widget.setValue(value)
+            except (TypeError, ValueError, OverflowError):
+                LOG.debug("unrepresentable filter setting %s_%s=%r",
+                          role, suffix, wanted)
+            finally:
+                widget.blockSignals(blocked)
+            held = self._widget_value(widget)
+            if held != wanted:
+                self._clamped_on_seeding[id(widget)] = (held, wanted)
+            else:
+                self._clamped_on_seeding.pop(id(widget), None)
 
     def _primary_object(self) -> str:
         """The compartment the common controls target — the first selected."""
@@ -3170,20 +3254,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     @classmethod
     def _keys_whose_off_is_none(cls) -> frozenset:
-        """Setting keys where ``None`` disables and 0 means something else.
+        """Setting keys whose shipped disabled value is ``None``.
 
-        The two filters that read an upper area bound do NOT agree on what
-        switches it off. `spacr.utils._filter_objects` tests ``max_area > 0``,
-        so 0 disables it; `spacr.object._postprocess_masks` tests
-        ``max_size is not None``, so 0 there means "remove every object
-        bigger than nothing" and takes the whole mask with it.
-
-        The module's own default is the honest signal for which convention a
-        key follows, so it is read rather than guessed at.
-
-        ``<role>_intensity_threshold`` joins them: it is an absolute
-        intensity with no default, and ``None`` is how the merge step is
-        told there is no number yet.
+        Mask's filtering path accepts both 0 and None as no upper limit,
+        including for organelles. Preserve the module's shipped spelling
+        when propagating a spin box's zero, for compatibility with saved
+        settings and other consumers of legacy size limits.
         """
         if cls._OFF_IS_NONE is None:
             try:
@@ -3195,7 +3271,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             cls._OFF_IS_NONE = frozenset(
                 key for key, value in shipped.items()
                 if value is None and key.endswith(
-                    ("_max_area", "_max_size", "_intensity_threshold")))
+                    ("_max_area", "_max_size")))
         return cls._OFF_IS_NONE
 
     def _unclamped(self, widget, value):
@@ -3212,12 +3288,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         return wanted if value == held else value
 
     def _off_as_the_run_spells_it(self, key: str, value):
-        """Write "no limit" the way the run reads it, for ``key``.
+        """Preserve the shipped spelling of a disabled upper limit.
 
-        A spin box cannot hold ``None``, so it says "no limit" with 0. For a
-        key whose reader treats 0 as a REAL limit of zero pixels, propagating
-        that 0 does not carry the user's answer across -- it replaces "no
-        cap" with "delete everything".
+        A spin box represents ``None`` with zero. Writing None back for a
+        key that ships it keeps existing settings round trips compatible.
         """
         if value == 0 and key in self._keys_whose_off_is_none():
             return None
@@ -3232,7 +3306,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             for suffix, w in group.items():
                 key = f"{prefix}_{suffix}"
                 out[key] = self._off_as_the_run_spells_it(
-                    key, self._widget_value(w))
+                    key, self._unclamped(w, self._widget_value(w)))
+            if comp == "organelle":
+                out[f"{prefix}_remove_border"] = out[
+                    f"{prefix}_remove_border_objects"]
         for obj in self._selected_object_types():
             out[f"{obj}_signal_to_noise"] = self._widget_value(
                 self._common_widgets["signal_to_noise"])
@@ -3572,7 +3649,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 self._organelle_channel.value())
         if not role.startswith("organelle"):
             return
+        if role != previous:
+            for suffix, widget in self._compartment_widgets["organelle"].items():
+                key = f"{previous}_{suffix}"
+                self._settings[key] = self._off_as_the_run_spells_it(
+                    key, self._unclamped(widget, self._widget_value(widget)))
+            self._settings[f"{previous}_remove_border"] = self._settings[
+                f"{previous}_remove_border_objects"]
         self._active_organelle_role = role
+        if role != previous:
+            self._seed_compartment_widgets("organelle")
         stored = self._organelle_channel_values.get(role)
         if stored is None or int(stored) == self._organelle_channel.value():
             return
@@ -3591,6 +3677,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._follow_object_channel()
         self._reseed_the_model_for_the_object()
         self._refresh_cycle_controls()
+        self._recompute_masks()
 
     def _model_for_this_pass(self) -> Tuple[str, str]:
         """The model this preview will really load, and what to say about it.
@@ -3965,7 +4052,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._status.setText(preview_failure_message(err))
             self.preview_ready.emit(None)
             return
-        if masks is None or not masks or self._image is None:
+        if masks is None or not masks:
             self._status.setText("Preview returned no masks.")
             return
         self._raw_masks = masks
@@ -3985,18 +4072,31 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         masks and refresh the views — no Cellpose re-run. Called both after a
         preview and whenever a filter widget changes."""
         raw = getattr(self, "_raw_masks", None)
-        if not raw or self._image is None:
+        if not raw:
             return
         if snapshot:
             self._roll_auto_outline_colours()
-        post = dict(self._settings)
-        if hasattr(self, "_compartment_widgets"):
-            post.update(self._compartment_settings())
-        out = {}
-        for obj, raw_mask in raw.items():
-            intensity = _select_channel(self._image, self._obj_channel(obj))
-            out[obj] = _apply_size_filter(raw_mask, post, obj,
-                                          intensity_img=intensity)
+        try:
+            if self._image is None:
+                raise ValueError(self.PREVIEW_SOURCE_HINT)
+            post = dict(self._settings)
+            if hasattr(self, "_compartment_widgets"):
+                post.update(self._compartment_settings())
+            out = {}
+            for obj, raw_mask in raw.items():
+                intensity = _select_channel(self._image, self._obj_channel(obj))
+                out[obj] = _apply_size_filter(raw_mask, post, obj,
+                                              intensity_img=intensity)
+        except Exception as exc:
+            LOG.debug("preview filtering failed", exc_info=True)
+            self._masks = {}
+            self._status.setText(preview_failure_message(exc))
+            if self._image is None:
+                self._mask_view.set_pixmap(QPixmap())
+            else:
+                self._refresh_canvases()
+            self.preview_ready.emit(None)
+            return
         self._masks = out
         counts = [f"{k}={int(v.max() if v.size else 0)}"
                     for k, v in out.items()]
