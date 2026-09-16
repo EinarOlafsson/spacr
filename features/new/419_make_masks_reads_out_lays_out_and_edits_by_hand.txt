@@ -1,0 +1,167 @@
+================================================================================
+MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
+================================================================================
+
+Status:    OPEN, filed 2026-09-16. Not started.
+Requested: 2026-09-16, by the maintainer, in these words, numbered as he wrote
+           them:
+
+           "1. In make masks, hovering should show intensity and object area,
+           etc., e.g. in the top left corner.
+
+           2. the settings categorys should be to the left of the image and
+           there should be a slight distance between the image and the
+           settings. and the text to the right of the Make Masks "correct a
+           m..." which has a tooltip should be removed. and the settings
+           toggle button should be directly to the right of the magnifier
+           button.
+
+           3. for the new models, these should be grayed out in the model zoo
+           button and clickable to install them in the spacr environment. and
+           the text under live magnifier telling the user that they can be
+           installed should be removed. these models should also be available
+           in the mask modual in the same way as i just discribed, that is
+           grayed out untill clicked, which installs them and makes them
+           accessable to loade.
+
+           4. in make masks to the right of the mak, cell probability, Flows
+           should be explanations for the shortcuts, like hold shift to move,
+           scroll to zoom, drag to choose in magnifier mode, etc., but written
+           in a consise way.
+
+           5. please add some more settings for the Otsu mode, change the name
+           of classical to Otsu, and change the name of cellpose-sam to Object
+           detection.
+
+           6. Add these buttons: Clear (clears all of jects after clicking and
+           clicking ok on a popup), dialate, shring.
+
+           7. add a filter button and add this as a settings category with
+           Minimum Area, Maximum Area, Minimum intensity, Maximum Intensity.
+           these should default to off but if on when the user clicks the
+           filter buton they are applied and red text in a text box in the
+           Filter settings category says something like object 22 with area x
+           and intensity y was removed by minimum intensity. with one row per
+           removed object.
+
+           8. if the user holds down ctrl and left clicks then the object
+           should be split, if the user holds ctrl and right clicks the object
+           that is hovered should be removed."
+Owner:     unassigned. Almost all of it is spacr/qt/screens/make_masks.py
+           (5,954 lines on nightly 32f3f5ff4); the model side is
+           spacr/model_zoo.py and spacr/_segmentation_backends.py.
+
+IT MEETS TWO ITEMS ALREADY OPEN, AND THE OWNER MUST READ BOTH FIRST
+-------------------------------------------------------------------
+
+* 417 (magnifier round two, Claude home session) already covers the same
+  screen: collapsible settings categories, the Cellpose model zoo button with
+  its models and thresholds, Otsu controls, Shift+scroll sizing and
+  drag-to-merge. Points 2, 3, 4 and 5 below overlap it. WHOEVER PICKS THIS UP
+  AGREES THE SPLIT WITH 417's OWNER BEFORE EDITING make_masks.py, or the two
+  land on the same rows twice.
+* 418 (min/max intensity filtering, DONE 2026-09-16) already gives
+  spacr.utils._filter_objects keyword-only min_intensity/max_intensity beside
+  min_area/max_area, with 0 meaning off and the mean measured on the object's
+  own channel. POINT 7 IS THAT FILTER, DRIVEN BY HAND FROM THIS SCREEN: use
+  it, do not write a second one.
+
+WHAT IS THERE TODAY (read on nightly 32f3f5ff4)
+------------------------------------------------
+
+  1  A status line exists (`_status_label`, set at ~3296, ~4538, ~5746) but
+     says nothing about the pixel or object under the cursor. The magnifier
+     already tracks the cursor: `hover(pos)` ~2081, and the canvas calls it
+     from mouseMoveEvent ~1009.
+  2  The screen's toolbar buttons are built around ~3415-3437 (Open folder,
+     Prev, Next, Save mask), ~3803-3824 (Reset zoom, Undo, Redo, Settings =
+     `_btn_settings`) and ~5240 (`_btn_magnifier`, "Magnifier").
+  3  `_cp_model` (~4774) lists Cellpose models and `_cp_model_zoo_btn`
+     ("Model zoo…", ~4786) opens the zoo. The install sentences the maintainer
+     wants gone are a dict at ~5122-5129, one line per backend that is not
+     installed ('pip install "spacr[dinocell]"',
+     'pip install "spacr[samcell]"'). The zoo's own installer is
+     spacr.model_zoo.install(entry, dest) -> ModelEntry, which fetches,
+     verifies the digest and registers the local entry. DINOCell and SAMCell
+     are Python extras, not zoo entries: installing them is a pip extra, which
+     is a different act from fetching a weights file, and the item asks for
+     both to look the same to the user.
+  4  Modifiers today: PAN_MODIFIERS = Shift|Alt (~330), wheel zoom ~686,
+     magnifier drag ~1012. Nothing on the screen says so.
+  5  The two detector names to change are everywhere: "classical" is a
+     segmenter key (SEGMENTERS ~1605, and ~1636, ~1905, ~1961, ~2130) and
+     "Cellpose-SAM" is a settings category (~4766), a button (~4866,
+     "Cellpose-SAM detect"), a tooltip (~4870) and the module docstring (~47).
+     A key rename reaches saved settings files; a caption rename reaches the
+     catalogs. "Otsu detect" (`_btn_otsu` ~4256) and the Otsu threshold
+     correction (~1515, ~4260) are the existing Otsu surface to extend.
+  6  "Clear mask" exists (~4281) and "Remove" (~4249); dilate and shrink do
+     not.
+  7  "Apply filter now" exists (`_btn_filter` ~4219) but no Filter settings
+     category and no record of what a filter removed.
+  8  Right-click already removes the hovered object in the magnifier's
+     whole-image mode (~915-919, ~1064-1066). Ctrl is unused.
+
+WHAT TO BUILD, IN THE MAINTAINER'S ORDER
+-----------------------------------------
+
+1. A readout in the image's top-left corner following the cursor: the pixel
+   intensity, and for the object under the cursor its label and area. It reads
+   the same numbers the filter judges by (418's mean intensity on the object's
+   own channel), so a user can predict what a filter will remove.
+2. Settings categories to the LEFT of the image, with a visible gap between
+   them and the image. Remove the tooltipped sentence beside the Make Masks
+   title. Move the settings toggle to sit directly right of the Magnifier
+   button.
+3. Every model the screen can use is listed even when it is not installed:
+   greyed out, and clicking it installs it into the running spaCR environment
+   and then makes it selectable. Same list and same behaviour in the model zoo
+   button and in the Mask module. The "you can install this" sentences under
+   the live magnifier go.
+4. A short shortcut list to the right of the Mask / Cell probability / Flows
+   views: hold Shift to move, scroll to zoom, drag to choose in magnifier
+   mode, and the rest, one terse line each.
+5. More Otsu settings (the existing threshold correction is the start), and
+   two renames: the "classical" detector becomes "Otsu", and "Cellpose-SAM"
+   becomes "Object detection".
+6. Buttons: Clear (clears every object, after an OK/Cancel confirmation),
+   Dilate, Shrink.
+7. A Filter button and a Filter settings category holding Minimum Area,
+   Maximum Area, Minimum Intensity, Maximum Intensity, all off by default.
+   Clicking Filter applies the ones that are on, through 418's
+   _filter_objects, and writes one red line per removed object into a text box
+   in that category: which object, its area, its intensity, and which bound
+   removed it.
+8. Ctrl + left click splits the object under the cursor; Ctrl + right click
+   removes it.
+
+WHAT MOVES WITH IT
+------------------
+
+* Renames in 5 are not cosmetic. "classical" is a stored settings value and a
+  dict key; "Cellpose-SAM" is a settings category name, a button caption and a
+  tooltip. A settings file written before the rename must still load. The
+  captions and every new string here (the readout, the shortcut list, the
+  filter's removal lines, the new buttons) need reviewed records and a catalog
+  pass, which is the catalog lane's; list them there rather than regenerating
+  spacr/qt/i18n_catalogs.
+* Installing from a click runs a package install inside the running
+  application: it needs to say what it is doing, survive failing without
+  breaking the screen, and not block the GUI thread.
+* Ctrl+click edits are undoable, like the existing edits.
+
+DONE WHEN
+---------
+
+* Hovering shows intensity and the object's area and label, and they match
+  what the filter reports for the same object.
+* The layout is as described, and the tooltipped sentence is gone.
+* An uninstalled model is visible, greyed, installs on click, and is
+  selectable afterwards, in both places.
+* The shortcut list is on the screen beside the views.
+* "Otsu" and "Object detection" are the names everywhere, old settings files
+  still load, and Otsu has its new settings.
+* Clear (with its confirmation), Dilate and Shrink work and are undoable.
+* Filter applies only the bounds that are on and lists every removed object,
+  one red row each.
+* Ctrl + left click splits and Ctrl + right click removes, both undoable.
