@@ -195,3 +195,60 @@ only needs landing:
 
 If Saturday's session finds 417 still unlanded and needs to move, land 417's
 two branches first -- they are finished work, not a claim.
+
+--------------------------------------------------------------------------------
+2026-09-16 — POINT 9 FROM THE MAINTAINER: INVERT FOR OBJECT DETECTION
+--------------------------------------------------------------------------------
+
+Added to this item the same day, in his words:
+
+    "in the cellpose-sam settings category (which should change to Object
+    detection as per my preveous settings) there should be a new boolean
+    slider (also change all booleans in this modual to the boolean sliders
+    used throughout the package) invert for object detection. if this is on
+    then the magnifyer shows an inverted image in the magnefication which will
+    allow e.g. otsu to work on dark things. if this is on and and the
+    cellpose-SMA detect button is pressed the masks are generated from the
+    inverted image. in this case there should als obe a warning somewhere
+    reminding the user that masks are generated from the inverted image."
+
+WHAT IS THERE TODAY (read on nightly 7c7ab705c)
+
+  * The module draws its booleans as plain QCheckBox -- seven of them in
+    spacr/qt/screens/make_masks.py -- and uses the package's slider NOWHERE.
+    The slider is `Toggle` in spacr/qt/widgets/toggle.py (a QCheckBox subclass,
+    so the swap is a widget change, not a signal change).
+  * The magnifier paints its region in `paint` (~2653); detection runs through
+    `cellpose_detect` (~1346), called from the detect button
+    (`_btn_cellpose.clicked` ~4873) and from the magnifier's own paths (~1536,
+    ~1589, ~5012). Otsu detect is `_btn_otsu` (~4256) with the threshold
+    correction read from the Cellpose-SAM category (~1515, ~4260).
+
+WHAT TO BUILD
+
+  9a. Every boolean in this module becomes the package's `Toggle` slider. It is
+      a QCheckBox subclass, so setChecked/isChecked and the existing signal
+      wiring stay; the tests that find these controls by type are part of the
+      change.
+  9b. A new boolean, "Invert", in the Object detection category (the renamed
+      Cellpose-SAM category of point 5 -- file it under whichever name that
+      category carries when this is built).
+  9c. When Invert is on, the magnifier shows the inverted image inside the
+      magnification, so a dark object reads as a bright one and Otsu can take
+      it.
+  9d. When Invert is on and the detect button is pressed, the masks are
+      generated FROM THE INVERTED IMAGE -- the inversion is what the detector
+      sees, not a display trick, so it applies on the same path for
+      Cellpose-SAM/Object detection and for Otsu detect.
+  9e. While Invert is on, a warning is visible saying the masks are being
+      generated from the inverted image.
+
+  Open for the builder to settle, and worth settling before coding: what
+  "inverted" means numerically for a 16-bit field (max - value on the image's
+  own range, or on the contrast-stretched view). The readout of point 1 and the
+  filter of point 7 must keep reporting the ORIGINAL intensities, or a user
+  filtering by intensity would be judging inverted numbers.
+
+ORDERING: 9b's caption sits in the category 417 populates and point 5 renames,
+so it lands with or after that rename, in one catalog pass -- "Invert" and the
+warning are translated strings in nine languages, like the rest.
