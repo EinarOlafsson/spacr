@@ -49,7 +49,7 @@
    :target: https://pepy.tech/projects/spacr
    :alt: PyPI Downloads
 .. |Platforms| image:: https://img.shields.io/badge/Platforms-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey
-   :target: https://einarolafsson.github.io/spacr/
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
    :alt: Linux, macOS, and Windows
 .. |Cite| image:: https://img.shields.io/badge/Cite-CITATION.cff-8A2BE2
    :target: https://github.com/EinarOlafsson/spacr/blob/main/CITATION.cff
