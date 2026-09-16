@@ -1,10 +1,10 @@
 324 — THE SETUP SLIDE'S CAPABILITY LIST BECOMES A TABLE
 =======================================================
 
-Status:    PARTLY, verified 2026-09-15 against the code: the paragraph, the
-           coloured device line and the derived, translated table are on the
-           first slide; left: spacr-doctor reporting every row, and a test
-           asserting the table equals it. See the dated sections below.
+Status:    DONE, verified 2026-09-15. The derived setup table and spacr-doctor
+           now report the same shared capability decisions. Every capability,
+           including the backdrop, is reported; diagnostic failures and
+           existing device/precision details remain intact. See closure below.
 
 ASKED FOR (2026-08-31)
 ----------------------
@@ -291,3 +291,46 @@ the same faked machine and asserts they agree.
 Found, outside scope: `Accelerator.is_cuda` (accelerator.py:129) does not check
 `usable`, so a hand-built kind="cuda", usable=False accelerator would show the
 UMAP row as GPU; no resolver path builds one today.
+
+--------------------------------------------------------------------------------
+2026-09-15 — THE TWO REMAINING ACCEPTANCE GAPS ARE CLOSED
+--------------------------------------------------------------------------------
+
+check_gpu now appends every capabilities() row, in order, to each diagnostic
+result, using one capability snapshot. This includes CPU-only installations,
+missing torch, detected-but-unusable Metal, CUDA mismatches and successful
+CUDA/Metal results. A capability-enumeration failure cannot replace or prevent
+the existing diagnosis, fix, device name, precision warning or allocation
+failure. No resolver, setup-widget, public API or public docstring changed.
+
+Evidence, run serially on the final source with CUDA hidden and fake hardware:
+
+  tests/test_doctor_capability_rows.py                         7 passed
+  tests/qt/test_setup_capabilities_match_doctor.py             1 passed
+  tests/test_the_doctor_names_a_non_nvidia_accelerator.py       5 passed
+  tests/test_doctor.py -k gpu                                  9 passed
+  tests/test_doctor.py::test_run_checks_runs_the_whole_registry_by_default
+                                                              1 passed
+  tests/qt/test_the_setup_slide_draws_a_capability_table.py    12 passed
+
+35 focused checks, not a whole-suite claim. Before implementation, all six
+new diagnostic cases failed on missing task rows while their positive failure-
+swallowing control passed. The render comparison also failed: the actual
+doctor report had no capability rows while the actual setup table had them.
+After the fix it renders both surfaces for the same fake CUDA and Metal
+machines, compares every displayed decision, and independently pins the
+Cellpose agreement and CUDA-only UMAP difference. A future sentinel capability
+in the doctor tests proves reporting is not restricted to today's five names.
+
+Two in-memory source mutations were detected: dropping the capability rows
+failed all six diagnostic cases; reversing GPU/CPU failed the render comparison.
+These were test-body failures, not collection/probe errors. Fresh branch
+coverage measured all six statements in check_gpu._result, including its
+exception fallback; check_gpu itself is 44/46 statements and 15/16 branches
+in this focused selection, not claimed to be whole-module coverage.
+
+The tests use fake torch/resolver/OpenGL evidence and no real device allocation.
+The 12 existing setup-table checks remain green; earlier verified translation,
+layout, device-colour, neural-engine and package-version criteria are unchanged.
+The hypothetical hand-built unusable-CUDA finding above remains a separate
+resolver hardening observation, not silently changed to close this item.

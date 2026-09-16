@@ -1221,11 +1221,29 @@ def check_gpu(ctx: Context) -> Result:
         and can therefore pass on a GPU that would fail at the first
         allocation.
     """
+    def _result(status, message, *, fix="", details=()):
+        """Append shared task evidence without changing the GPU diagnosis."""
+        # Take one shared capability snapshot for every diagnostic path,
+        # including CPU-only and broken installations. Optional display
+        # evidence must not replace or prevent the underlying diagnosis.
+        try:
+            from .accelerator import capabilities
+
+            capability_details = tuple(
+                f"{task}: {'GPU' if accelerated else 'CPU'} — {detail}"
+                for task, accelerated, detail in capabilities()
+            )
+        except Exception:                                    # noqa: BLE001
+            capability_details = ()
+        return Result(
+            "gpu", status, message, fix=fix,
+            details=tuple(details) + capability_details,
+        )
+
     try:
         torch = _import_torch()
     except Exception:
-        return Result(
-            "gpu",
+        return _result(
             SKIP,
             "torch does not import, so CUDA cannot be checked.",
             fix="Fix the `torch` row above first.",
@@ -1234,33 +1252,28 @@ def check_gpu(ctx: Context) -> Result:
     built = getattr(getattr(torch, "version", None), "cuda", None)
 
     try:
-        from .accelerator import capabilities, inspect_torch
+        from .accelerator import inspect_torch
 
         found = inspect_torch(torch)
         if found.is_gpu and not found.is_cuda:
-            slow = [task for task, ok, _ in capabilities() if not ok]
             details = [f"device: {found.device}"]
-            if slow:
-                details.append("still on the CPU: " + ", ".join(slow))
             if not found.float64:
                 details.append(
                     "float64 is unsupported on this backend, so anything "
                     "needing double precision runs on the CPU")
-            return Result("gpu", PASS,
-                          f"{found.label} — spaCR will use it.",
-                          details=tuple(details))
+            return _result(PASS, f"{found.label} — spaCR will use it.",
+                           details=tuple(details))
         if found.detected and not found.usable and not driver:
-            return Result("gpu", WARN,
-                          f"{found.label} was detected but spaCR cannot "
-                          f"use it.",
-                          details=(found.note,) if found.note else ())
+            return _result(WARN,
+                           f"{found.label} was detected but spaCR cannot "
+                           f"use it.",
+                           details=(found.note,) if found.note else ())
     except Exception:                                        # noqa: BLE001
         pass
 
     if not built:
         if driver:
-            return Result(
-                "gpu",
+            return _result(
                 FAIL,
                 f"An NVIDIA driver ({driver}) is present, but this torch is a "
                 "CPU-only build and will never use the card.",
@@ -1269,8 +1282,7 @@ def check_gpu(ctx: Context) -> Result:
                     "--index-url https://download.pytorch.org/whl/cu124"
                 ),
             )
-        return Result(
-            "gpu",
+        return _result(
             WARN,
             "No NVIDIA driver and a CPU-only torch: spaCR will run, but "
             "segmentation and training will be very slow.",
@@ -1287,8 +1299,7 @@ def check_gpu(ctx: Context) -> Result:
         except Exception as exc:
             reason = f"{type(exc).__name__}: {exc}"
         if driver is None:
-            return Result(
-                "gpu",
+            return _result(
                 FAIL,
                 f"torch was built against CUDA {built} but no NVIDIA driver is "
                 "answering, so no GPU can be used.",
@@ -1298,8 +1309,7 @@ def check_gpu(ctx: Context) -> Result:
                 ),
                 details=(reason,) if reason else (),
             )
-        return Result(
-            "gpu",
+        return _result(
             FAIL,
             f"Driver {driver} is loaded and torch was built against CUDA "
             f"{built}, but torch.cuda.is_available() is False — a driver / "
@@ -1324,8 +1334,7 @@ def check_gpu(ctx: Context) -> Result:
             float((tensor @ tensor).sum().item())
             torch.cuda.synchronize()
         except Exception as exc:
-            return Result(
-                "gpu",
+            return _result(
                 FAIL,
                 f"CUDA reports {count} device(s) but the first allocation "
                 f"failed: {type(exc).__name__}: {exc}",
@@ -1336,14 +1345,12 @@ def check_gpu(ctx: Context) -> Result:
                     "--index-url https://download.pytorch.org/whl/cu124"
                 ),
             )
-        return Result(
-            "gpu",
+        return _result(
             PASS,
             f"{count} CUDA device(s) usable: {names} (driver {driver}, "
             f"torch CUDA {built}).",
         )
-    return Result(
-        "gpu",
+    return _result(
         PASS,
         f"{count} CUDA device(s) reported: {names} (driver {driver}, torch "
         f"CUDA {built}); allocation probe skipped.",

@@ -26,6 +26,29 @@ from spacr import doctor
 from spacr.doctor import FAIL, PASS, WARN
 
 
+@pytest.fixture(autouse=True)
+def _fake_accelerator_probes(monkeypatch):
+    """Keep capability resolution and backend fallbacks on the fake machine."""
+    from spacr import accelerator
+
+    original_import = doctor._import_torch
+
+    def resolve_fake():
+        """Resolve the same fake torch used for the doctor's diagnosis."""
+        assert doctor._import_torch is not original_import
+        return accelerator.inspect_torch(doctor._import_torch())
+
+    def forbidden_probe(*_args, **_kwargs):
+        """Reject any attempt to discover the host's torch device."""
+        raise AssertionError("GPU diagnostics must use their fake torch")
+
+    monkeypatch.setattr(accelerator, "resolve", resolve_fake)
+    monkeypatch.setattr(accelerator, "_torch", forbidden_probe)
+    monkeypatch.setattr(accelerator, "_directml", lambda: None)
+    monkeypatch.setattr(accelerator, "_metal_gpu_name", lambda: "Fake Metal GPU")
+    monkeypatch.setattr(accelerator, "_opengl_likely", lambda: True)
+
+
 @pytest.fixture
 def ctx():
     """A context with the allocation probe left on, as the CLI has it."""
@@ -94,10 +117,11 @@ def test_the_metal_row_says_what_is_still_on_the_cpu(ctx, monkeypatch):
         ("UMAP / t-SNE / clustering", False, "cuML is CUDA-only"),
     ))
 
-    details = " ".join(doctor.check_gpu(ctx).details or ())
+    details = doctor.check_gpu(ctx).details
 
-    assert "still on the CPU" in details
-    assert "float64" in details, (
+    assert "Segmentation (Cellpose): GPU — on the GPU" in details
+    assert "UMAP / t-SNE / clustering: CPU — cuML is CUDA-only" in details
+    assert any("float64" in detail for detail in details), (
         "float64 raises on Metal; a run that needs it silently moves to "
         "the CPU and the reader should hear that here")
 
