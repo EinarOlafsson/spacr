@@ -16,7 +16,6 @@ import json
 import logging
 import os
 import re
-import resource
 import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
@@ -24,7 +23,29 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
+try:
+    import resource
+except ImportError:
+    # Windows has no `resource`. The module still has to import there: the
+    # only thing it is used for is the peak-memory line in the report, and a
+    # missing number is not a reason to refuse to run the pipeline.
+    resource = None
+
 LOG = logging.getLogger("spacr.ops_engine")
+
+
+def _peak_rss_gb() -> float:
+    """Peak resident memory of this process and its children, in GB.
+
+    Returns 0.0 where the platform cannot report it, which today means
+    Windows. The caller writes the number into the well report, so a
+    platform that cannot measure it says zero rather than failing the well.
+    """
+    if resource is None:
+        return 0.0
+    return round(max(
+        resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+        resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss) / 1024 / 1024, 2)
 
 __all__ = ["run_ops"]
 
@@ -835,9 +856,7 @@ def run_ops(settings: Mapping[str, Any], *,
             report["decode"] = _decode(db, plate, well, cycle_files, reference,
                                        settings, gpu, barcodes)
         report["seconds"] = round(time.perf_counter() - started, 1)
-        report["peak_rss_gb"] = round(max(
-            resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
-            resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss) / 1024 / 1024, 2)
+        report["peak_rss_gb"] = _peak_rss_gb()
         folder = os.path.join(destination, well)
         os.makedirs(folder, exist_ok=True)
         with open(os.path.join(folder, "ops_report.json"), "w", encoding="utf-8") as handle:

@@ -500,6 +500,7 @@ jobs:
           python -m pip install \
             "ruff>=0.9,<1" \
             "mypy>=1.11,<2" \
+            "types-PyYAML>=6,<7" \
             "xenon>=0.9,<1"
 
       - name: Enforce repository and maintained-code quality gates
