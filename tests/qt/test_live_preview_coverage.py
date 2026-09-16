@@ -1279,10 +1279,13 @@ class TestPanelSettings:
         p = _panel(qtbot)
         p._cell_channel.setValue(2)
         p._nucleus_channel.setValue(5)
+        p._pathogen_channel.setValue(4)
+        p._organelle_channel.setValue(6)
         assert p._obj_channel("cell") == 2
         assert p._obj_channel("nucleus") == 5
-        assert p._obj_channel("pathogen") == 0
-        assert p._obj_channel("organelle") == 0
+        assert p._obj_channel("pathogen") == 4
+        assert p._obj_channel("organelle") == 6
+        assert p._obj_channel("unconfigured") == 0
 
     def test_build_request_carries_widget_state(self, qtbot, gray_tif):
         p = _panel(qtbot)

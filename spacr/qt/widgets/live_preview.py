@@ -3660,11 +3660,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         :returns: the request to hand the preview worker.
         """
         obj_types = self._selected_object_types()
+        roles = (*COMPARTMENTS, *self._organelle_channel_values, *obj_types)
         channels = {
-            "cell":      self._cell_channel.value(),
-            "nucleus":   self._nucleus_channel.value(),
-            "pathogen":  self._pathogen_channel.value(),
-            "organelle": self._organelle_channel.value(),
+            role: self._obj_channel(role) for role in roles
         }
         merged = dict(self._settings)
         if hasattr(self, "_compartment_widgets"):
@@ -3974,12 +3972,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._recompute_masks(snapshot=True)
 
     def _obj_channel(self, obj: str) -> int:
-        """Intensity channel index used for a given compartment."""
-        if obj == "cell":
-            return int(self._cell_channel.value())
-        if obj == "nucleus":
-            return int(self._nucleus_channel.value())
-        return 0
+        """Use the same own-channel selection for segmentation and filtering.
+
+        Numbered organelles retain their stored channel while another slot
+        owns the shared spinner. Unknown roles keep the legacy zero fallback.
+        """
+        channel = self._channel_for_object(obj)
+        return 0 if channel is None else channel
 
     def _recompute_masks(self, snapshot: bool = False) -> None:
         """Re-apply the current per-compartment filters to the cached raw

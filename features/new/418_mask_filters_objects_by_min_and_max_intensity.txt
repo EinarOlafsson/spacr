@@ -147,3 +147,30 @@ also has a correct _channel_for_object selector, but _obj_channel currently
 ignores it for pathogen and organelles. Reuse that selector rather than
 creating another role/channel table. Preserve organelle-slot settings and
 batch padding/resume filename alignment in the tests of the next slice.
+
+2026-09-15 — PREVIEW CHANNEL ROUTING CHECKPOINT
+--------------------------------------------
+
+The channel prerequisite above is fixed. _obj_channel delegates to the
+existing _channel_for_object, so pathogen and all declared organelle slots
+use their own channel rather than zero. _build_request uses the same
+selector and includes the declared numbered organelles: previously selecting
+"organelle 2" omitted organelleb from the request's channel map, and the
+segmentation worker silently read channel zero too. The old test that pinned
+zero for pathogen/organelle now checks actual nonzero spinner selections.
+
+Evidence: test_preview_filter_channel_matches_segmentation.py checks six
+roles against distinct raw TIFF planes, repeated organelle-slot switches,
+and the plane handed to the second organelle's segmentation function.
+Five of the first seven cases failed on the parent for the actual wrong
+channel/missing-key reasons; the eighth independently reproduced channel
+zero reaching organelle 2's segmenter. All eight now pass. Reintroducing
+the zero fallback and the four-entry-only request in memory each makes
+its regression fail. Coverage executes every statement of _obj_channel,
+_channel_for_object and _build_request; the selector's four branches are
+also all exercised. Adjacent files passed separately: live_preview_coverage
+148, live_preview 49, live_preview_channels 7, organelle-slot preview 9.
+
+This is not the final run/preview intensity-filter acceptance: the new
+intensity controls and raw-pipeline-plane wiring are still pending, as are
+the five retired settings, their code, migration tests and catalog changes.
