@@ -2401,8 +2401,9 @@ classes
 |     ``_describe_classifier_training`` **-- reads it**
 | ``_migrate_control_wells`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.qt.settings_pack.settings_from_pack` **-- reads it**
 
-Read by ``_record_generated_folder_names``, :py:func:`~spacr.classify_classes.annotation_column_of`, :py:func:`~spacr.classify_classes.class_metadata_of`, :py:func:`~spacr.classify_classes.class_names`, :py:func:`~spacr.classify_classes.class_rules`, :py:func:`~spacr.classify_classes.folder_names`, :py:func:`~spacr.classify_classes.normalize_settings`, ``_cross_validate_model``, ``_class_column``, ``_describe_classifier_training``, ``_migrate_control_wells``, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_record_generated_folder_names``, :py:func:`~spacr.classify_classes.annotation_column_of`, :py:func:`~spacr.classify_classes.class_metadata_of`, :py:func:`~spacr.classify_classes.class_names`, :py:func:`~spacr.classify_classes.class_rules`, :py:func:`~spacr.classify_classes.folder_names`, :py:func:`~spacr.classify_classes.normalize_settings`, ``_cross_validate_model``, ``_class_column``, ``_describe_classifier_training``, ``_migrate_control_wells``, :py:func:`~spacr.qt.settings_pack.settings_from_pack`, :py:func:`~spacr.settings.get_train_test_model_settings`.
 
 .. _setting-flow-classifier_accuracy:
 
@@ -10002,6 +10003,14 @@ number_of_organelles
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.organelle_types.active_organelle_roles`
 |         :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
+| :py:func:`~spacr.qt.settings_pack.settings_from_pack`
+|     ``_defaults_for_pack_shape``
+|         :py:func:`~spacr.settings.organelle_slots_beyond_the_count`
+|             ``_clone_primary_organelle_values``
+|                 :py:func:`~spacr.organelle_types.declared_organelle_roles`
+|                     :py:func:`~spacr.organelle_types.active_organelle_roles`
+|                         :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
 | ``_classical_organelle_mask``
 |     ``_set_organelle_defaults``
 |         :py:func:`~spacr.organelle_types.declared_organelle_roles`
@@ -10016,11 +10025,6 @@ number_of_organelles
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
 |     :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
 |     ``_slots_the_settings_speak_for``
-|         :py:func:`~spacr.organelle_types.declared_organelle_roles`
-|             :py:func:`~spacr.organelle_types.active_organelle_roles`
-|                 :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
-| :py:func:`~spacr.settings.organelle_slots_beyond_the_count`
-|     ``_clone_primary_organelle_values``
 |         :py:func:`~spacr.organelle_types.declared_organelle_roles`
 |             :py:func:`~spacr.organelle_types.active_organelle_roles`
 |                 :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
@@ -15242,7 +15246,6 @@ src
 | :py:func:`~spacr.qt.screens.queue.wire_add_current` **-- reads it**
 | :py:func:`~spacr.qt.screens.settings_model.resolve_default_settings` **-- reads it**
 | :py:func:`~spacr.qt.settings_pack.settings_from_pack` **-- reads it**
-|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
 | ``_perform_regression``
 |     :py:func:`~spacr.ml.perform_regression`

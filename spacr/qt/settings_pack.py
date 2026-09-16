@@ -66,6 +66,10 @@ from typing import Any, Dict, List, Optional, Tuple
 
 LOG = logging.getLogger("spacr.qt.settings_pack")
 
+# Shared with ordinary GUI CSV imports; these form names remain accepted
+# legacy pipeline inputs and therefore are not globally retired settings.
+_FORM_RENAMES = {"png_dims": "png_channel_mapping"}
+
 #: Keys that MOVED, per app: ``{app_key: {old name: new name}}``.
 #:
 #: Deliberately small and deliberately explicit. A rename belongs here only
@@ -272,7 +276,7 @@ def read_pack(app_key: str, pack_dir: str) -> Tuple[Dict[str, Any], int]:
 
 
 def _package_renames(key: str) -> Tuple[str, ...]:
-    """What ``spacr.settings`` says this key became, or nothing.
+    """Resolve shared form aliases, then package setting renames.
 
     A SECOND OPINION, NOT A REPLACEMENT for `PACK_RENAMES`. That table is
     curated per app and can say "this one changed meaning, drop it"; this
@@ -292,6 +296,8 @@ def _package_renames(key: str) -> Tuple[str, ...]:
     a few dozen times per load at most, not per event. Do not hoist it
     without measuring what it adds to screen construction first.
     """
+    if key in _FORM_RENAMES:
+        return (_FORM_RENAMES[key],)
     try:
         from ..settings import surviving_setting_name
     except Exception:                                       # noqa: BLE001
@@ -322,6 +328,113 @@ def _is_a_setting_somewhere(key: str) -> bool:
         return False
 
 
+def _defaults_for_pack_shape(defaults: Dict[str, Any], raw: Dict[str, Any],
+                             renames: Dict[str, str]) -> Dict[str, Any]:
+    """Expand this schema's slots before classifying incoming pack keys.
+
+    The caller's defaults remain authoritative: only existing slot keys or
+    slot families with a primary key in that mapping can reveal controls.
+    An unrelated globally known setting must not become part of this app.
+    Use the same slot expansion and count inference as the settings form,
+    retaining supplied higher-slot values when an explicit count hides them.
+    Neither the caller's defaults nor the parsed pack mapping is modified.
+    """
+    settings = dict(defaults)
+    if not raw:
+        return settings
+    from ..organelle_types import (
+        ALL_ORGANELLE_ROLES, NUMBER_OF_ORGANELLES,
+        declared_organelle_roles, organelle_count, organelle_role_of,
+        primary_setting,
+    )
+
+    if NUMBER_OF_ORGANELLES not in settings:
+        return settings
+
+    slot_values = {}
+    allowed_roles = set(ALL_ORGANELLE_ROLES)
+    for key, value in raw.items():
+        candidates = (key, renames.get(key), *_package_renames(key))
+        for target in candidates:
+            if target is None:
+                continue
+            role = organelle_role_of(target)
+            if role in allowed_roles and (
+                    target in settings or primary_setting(target) in settings):
+                # An explicit current spelling wins independently of CSV order,
+                # including the primary values cloned into newly revealed slots.
+                slot_values[target] = raw[target] if target in raw else value
+                break
+
+    if not slot_values and NUMBER_OF_ORGANELLES not in raw:
+        return settings
+    deciding = dict(slot_values)
+    if NUMBER_OF_ORGANELLES in raw:
+        deciding[NUMBER_OF_ORGANELLES] = raw[NUMBER_OF_ORGANELLES]
+    else:
+        # Infer from the incoming slots, not a default count of zero.
+        settings[NUMBER_OF_ORGANELLES] = organelle_count(deciding)
+
+    from ..settings import organelle_slots_beyond_the_count
+
+    # Declared slots include saved values above an explicitly lowered count;
+    # expanding their schema must not raise that active count again.
+    count = len(declared_organelle_roles(deciding))
+    # Newly revealed slots inherit the pack's primary values, just as the
+    # pipeline's defaults do. Existing/supplied secondary values still win.
+    settings.update(slot_values)
+    return organelle_slots_beyond_the_count(settings, count)
+
+
+def _classes_from_pack(settings: Dict[str, Any], raw: Dict[str, Any]):
+    """Keep the form's existing compound class migration before row filtering."""
+    metadata_sources = {
+        "location_column", "negative_control_id", "positive_control_id"}
+    if ("classes" not in settings or raw.get("classes")
+            or metadata_sources.intersection(settings)):
+        return None, set()
+
+    # Match the form's rename-then-compound order without importing a screen.
+    # A current spelling wins when an old and current key coexist.
+    context = dict(raw)
+    canonical = {}
+    for key, value in raw.items():
+        survivors = _package_renames(key)
+        target = survivors[0] if len(survivors) == 1 else key
+        canonical[key] = target
+        context.setdefault(target, value)
+    if not metadata_sources.intersection(context):
+        return None, set()
+    try:
+        from ..classify_classes import normalize_settings
+        from ..training_basis import resolve_basis
+
+        classes = normalize_settings(context).get("classes")
+        if not classes:
+            return None, set()
+        if resolve_basis(context) == "metadata":
+            sources = metadata_sources
+        else:
+            sources = {"annotation_column", "annotation_columns",
+                       "annotation_values", "annotated_classes",
+                       "write_random_annotation_column"}
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("could not migrate the pack's class definitions", exc_info=True)
+        return None, set()
+    consumed = {key for key in raw
+                if key not in settings and canonical[key] in sources}
+    return classes, consumed
+
+
+def _value_for_destination(key, destination, value):
+    """Preserve the legacy colour order in the current mapping representation."""
+    if key == "png_dims" and destination == "png_channel_mapping":
+        from ..crops import png_dims_to_channel_mapping
+
+        return png_dims_to_channel_mapping(value)
+    return value
+
+
 def settings_from_pack(app_key: str, pack_dir: str, *,
                        src: Optional[str] = None,
                        defaults: Optional[Dict[str, Any]] = None,
@@ -341,26 +454,38 @@ def settings_from_pack(app_key: str, pack_dir: str, *,
     if defaults is None:
         from .screens.settings_model import resolve_default_settings
         defaults = dict(resolve_default_settings(app_key))
-    settings = dict(defaults)
     renames = PACK_RENAMES.get(app_key, {})
     found = _pack_path(app_key, pack_dir)
     raw, malformed = read_pack(app_key, pack_dir)
+    settings = _defaults_for_pack_shape(defaults, raw, renames)
     report = PackReport(malformed=malformed,
                         source=os.path.basename(found) if found else "")
 
+    classes, class_sources = _classes_from_pack(settings, raw)
+    if classes is not None:
+        settings["classes"] = classes
+
     for key, value in raw.items():
+        if key in class_sources:
+            report.renamed.append((key, "classes"))
+            continue
+        if key == "classes" and classes is not None:
+            # An explicitly empty Classes value does not erase the migration.
+            value = classes
         if key in settings:
             settings[key] = value
             report.applied.append(key)
             continue
         moved = renames.get(key)
         if moved and moved in settings:
-            settings[moved] = value
+            if moved not in raw:
+                settings[moved] = _value_for_destination(key, moved, value)
             report.renamed.append((key, moved))
             continue
         for survivor in _package_renames(key):
             if survivor in settings:
-                settings[survivor] = value
+                if survivor not in raw:
+                    settings[survivor] = _value_for_destination(key, survivor, value)
                 report.renamed.append((key, survivor))
                 break
         else:

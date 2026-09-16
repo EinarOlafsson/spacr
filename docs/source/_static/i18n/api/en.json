@@ -46809,12 +46809,13 @@
       "source_blocks_sha256": [
         "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
         "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
-        "0549850657aa5fee624b1ae90942d45dc8f354b13e79c283c2b3ffb72d9c4719",
+        "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
         "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
-        "7a5873e0a497d40b398730e6b00178b2a899d1fa94d5fca486c9a6ea749446d3"
+        "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+        "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee"
       ],
-      "source_sha256": "d55772379171308ba166a6b999d2c0928979e0b07d4b77da2f8d0bd8447186ce",
-      "text": "Load the settings a downloaded example shipped, for THIS module.\n\nThe point of shipping settings beside data: a user who has to work out\nwhich column holds the labels, what the mask dimensions are and which\nchannels were measured has done most of the work the example was meant\nto save. With them applied, Run is the next action.\n\nThrough the same two calls \"Import settings…\" makes, so a shipped file\nlands exactly as the user's own would -- a second reader would drift\nfrom it, and then an example would configure the panel differently\nfrom an import of the very same file.\n\n:param folder: the unpacked dataset folder.\n:returns: how many settings were applied; 0 when no file was found."
+      "source_sha256": "fdf3f553dc75f7c559c9596f3fc94a8a33e6f713e6e21e5a1b1251f59721414d",
+      "text": "Load the settings a downloaded example shipped, for THIS module.\n\nThe point of shipping settings beside data: a user who has to work out\nwhich column holds the labels, what the mask dimensions are and which\nchannels were measured has done most of the work the example was meant\nto save. With them applied, Run is the next action.\n\nUse the shared settings-pack reader to migrate old names and report\nrenamed, dropped, and unreadable rows in the console. Apply only values\nsupplied by the pack, leaving other form values alone. Re-anchor the\npublisher's paths onto the local dataset while preserving subfolders.\n\n:param folder: the unpacked dataset folder.\n:param pack_folder: optional folder of shipped settings CSVs, preferred\n    over the dataset's own ``settings`` subfolder.\n:returns: how many settings were applied; 0 when no file was found,\n    no supplied settings apply to this form, or applying them failed."
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {
       "source_blocks_sha256": [

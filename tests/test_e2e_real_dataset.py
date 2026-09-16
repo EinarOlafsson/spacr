@@ -4,7 +4,8 @@ There is no built-in path here. Both of these environment variables must name
 an existing directory, and they are the only way in:
 
 * ``SPACR_E2E_DATA``     — a plate folder of raw images
-* ``SPACR_E2E_SETTINGS`` — a folder of ``<app_key>_settings.csv`` files
+* ``SPACR_E2E_SETTINGS`` — a settings-pack folder, for example containing
+  ``gen_masks_settings.csv`` and ``crop_measure_settings.csv``
 
 Run it explicitly with::
 
@@ -108,38 +109,37 @@ def _settings_root():
 # ---------------------------------------------------------------------------
 
 def _load_settings_for(app_key: str,
-                          settings_root: Path,
-                          src: Path) -> dict:
-    """Look up ``{app_key}_settings.csv`` under ``settings_root`` (or
-    fall back to spacr defaults) and rewrite ``src`` to the local copy.
+                       settings_root: Path,
+                       src: Path) -> dict:
+    """Migrate the required stage pack over full pipeline defaults.
+
+    The shared reader accepts the published filenames and key renames. The
+    E2E must not silently run on defaults when its stage pack is absent.
+    ``src`` always names the copied plate; each pipeline resolves its own
+    derived folders, such as Measure's ``merged`` directory.
     """
-    from spacr.qt.screens.settings_model import resolve_default_settings
-    settings = dict(resolve_default_settings(app_key))
-    csv_path = settings_root / f"{app_key}_settings.csv"
-    if csv_path.is_file():
-        import csv
-        with csv_path.open() as fh:
-            reader = csv.reader(fh)
-            for row in reader:
-                if not row or row[0].startswith("#"):
-                    continue
-                if len(row) < 2:
-                    continue
-                k = row[0].strip()
-                v = row[1]
-                # Best-effort coercion
-                if v.lower() in ("true", "false"):
-                    v = v.lower() == "true"
-                else:
-                    try:
-                        v = int(v)
-                    except ValueError:
-                        try:
-                            v = float(v)
-                        except ValueError:
-                            pass
-                settings[k] = v
-    settings["src"] = str(src)
+    from spacr.qt.settings_pack import _pack_candidates, settings_from_pack
+    from spacr.settings import (
+        get_measure_crop_settings,
+        set_default_settings_preprocess_generate_masks,
+    )
+
+    defaults_for = {
+        "mask": set_default_settings_preprocess_generate_masks,
+        "measure": get_measure_crop_settings,
+    }
+    if app_key not in defaults_for:
+        raise ValueError(f"no real-dataset E2E pipeline for {app_key!r}")
+    settings, report = settings_from_pack(
+        app_key, str(settings_root), src=str(src),
+        defaults=defaults_for[app_key](settings={}))
+    assert report.source, (
+        f"the settings pack at {settings_root} has no file for {app_key!r}; "
+        f"expected one of {_pack_candidates(app_key)}. "
+        f"What it does ship: "
+        f"{sorted(path.name for path in settings_root.glob('*.csv'))}. "
+        "Refusing to run the real-dataset E2E on defaults alone.")
+    print(f"[e2e:{app_key}] {report.summary()}")
     return settings
 
 

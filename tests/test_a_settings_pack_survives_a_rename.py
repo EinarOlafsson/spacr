@@ -96,18 +96,18 @@ def test_a_key_the_package_cannot_place_is_still_dropped(tmp_path):
     assert not report.renamed
 
 
-def test_the_per_app_table_still_wins(tmp_path):
-    """`PACK_RENAMES` is curated and is consulted first, by construction.
-
-    It can say "this changed MEANING, do not carry the value" where the
-    mechanical resolver only knows the name changed. Asserting the order
-    keeps that possible.
-    """
+def test_the_per_app_table_still_wins(tmp_path, monkeypatch):
+    """A curated destination wins over a different valid package rename."""
     assert "mask" in PACK_RENAMES, "the per-app table lost its mask entry"
-    # The mask table is empty today; the ordering is what this pins.
-    source = pathlib.Path(
-        __import__("spacr.qt.settings_pack", fromlist=["x"]).__file__
-    ).read_text(encoding="utf-8")
-    per_app = source.index("moved = renames.get(key)")
-    package = source.index("_package_renames(key)")
-    assert per_app < package, "the per-app table must be consulted first"
+    from spacr.settings import surviving_setting_name
+
+    assert surviving_setting_name("cell_FT") == ("cell_flow_threshold",)
+    monkeypatch.setitem(PACK_RENAMES, "mask", {"cell_FT": "cell_diameter"})
+    directory = _pack(tmp_path, "mask", {"cell_FT": "27"})
+    settings, report = settings_from_pack(
+        "mask", str(directory), defaults={"cell_diameter": 10,
+                                         "cell_flow_threshold": 0.4})
+
+    assert settings == {"cell_diameter": 27, "cell_flow_threshold": 0.4}
+    assert report.renamed == [("cell_FT", "cell_diameter")]
+    assert report.dropped == []

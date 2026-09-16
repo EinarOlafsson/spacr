@@ -16,7 +16,17 @@ from pathlib import Path
 
 import pytest
 
+from spacr.qt import settings_pack
 from spacr.qt.screens.app_screen import AppScreen
+
+
+@pytest.fixture(autouse=True)
+def _small_form_schema(monkeypatch):
+    """Keep file-discovery tests independent of full pipeline defaults."""
+    from spacr.qt.screens import settings_model
+
+    monkeypatch.setattr(settings_model, "resolve_default_settings",
+                        lambda app_key: {"src": "", "verbose": False})
 
 
 def _settings_file(folder, name, rows):
@@ -35,7 +45,6 @@ class _Screen:
 
     def __init__(self, app_key):
         self.app_key = app_key
-        self.loaded = None
         self.applied_with = None
         self._console = type("C", (), {
             "append_notice": lambda *a, **k: None,
@@ -46,11 +55,7 @@ class _Screen:
     apply_settings_that_came_with = AppScreen.apply_settings_that_came_with
     # The applier re-homes the publisher's paths before applying them, so a
     # stand-in that is "only what the applier touches" has to carry this too.
-    reanchor_example_paths = AppScreen.reanchor_example_paths
-
-    def _load_settings_csv(self, path):
-        self.loaded = path
-        return {"src": "/somewhere", "cell_mask_dim": 4}
+    reanchor_example_paths = staticmethod(AppScreen.reanchor_example_paths)
 
     def apply_settings_dict(self, values):
         self.applied_with = values
@@ -63,11 +68,11 @@ class _Screen:
     ("classify", "classify_settings.csv"),
 ])
 def test_each_module_finds_its_own_file(tmp_path, app, name):
-    _settings_file(tmp_path, name, [("cell_mask_dim", "4")])
+    _settings_file(tmp_path, name, [("src", "/somewhere"), ("verbose", "True")])
     screen = _Screen(app)
 
     assert screen.apply_settings_that_came_with(tmp_path) == 2
-    assert screen.applied_with == {"src": "/somewhere", "cell_mask_dim": 4}
+    assert screen.applied_with == {"src": "/somewhere", "verbose": True}
 
 
 def test_an_older_archives_spelling_still_works(tmp_path):
@@ -75,23 +80,27 @@ def test_an_older_archives_spelling_still_works(tmp_path):
     a mask run saves gen_mask_settings.csv and the older pack shipped
     gen_masks_settings.csv. Trying each is what keeps an older archive
     working rather than silently filling in nothing."""
-    _settings_file(tmp_path, "gen_masks_settings.csv", [("a", "1")])
-    assert _Screen("mask").apply_settings_that_came_with(tmp_path) == 2
+    _settings_file(tmp_path, "gen_masks_settings.csv", [("verbose", "True")])
+    screen = _Screen("mask")
+    assert screen.apply_settings_that_came_with(tmp_path) == 1
+    assert screen.applied_with == {"verbose": True}
 
 
 def test_the_preferred_spelling_wins(tmp_path):
-    _settings_file(tmp_path, "gen_mask_settings.csv", [("a", "1")])
-    _settings_file(tmp_path, "gen_masks_settings.csv", [("a", "2")])
+    _settings_file(tmp_path, "gen_mask_settings.csv", [("verbose", "False")])
+    _settings_file(tmp_path, "gen_masks_settings.csv", [("verbose", "True")])
     screen = _Screen("mask")
-    screen.apply_settings_that_came_with(tmp_path)
-    assert screen.loaded.endswith("gen_mask_settings.csv")
+    assert screen.apply_settings_that_came_with(tmp_path) == 1
+    assert screen.applied_with == {"verbose": False}
 
 
 def test_a_module_takes_only_its_own_file(tmp_path):
     """The annotate archive ships BOTH an annotate and a classify file; the
     Mask screen must not pick one of them up."""
-    _settings_file(tmp_path, "classify_settings.csv", [("a", "1")])
-    assert _Screen("mask").apply_settings_that_came_with(tmp_path) == 0
+    _settings_file(tmp_path, "classify_settings.csv", [("verbose", "True")])
+    screen = _Screen("mask")
+    assert screen.apply_settings_that_came_with(tmp_path) == 0
+    assert screen.applied_with is None
 
 
 def test_no_settings_file_is_not_an_error(tmp_path):
@@ -101,24 +110,34 @@ def test_no_settings_file_is_not_an_error(tmp_path):
 def test_an_unreadable_file_does_not_raise(tmp_path, monkeypatch):
     """A dataset with a broken settings file must still leave the data
     usable -- the download is the expensive part."""
-    _settings_file(tmp_path, "classify_settings.csv", [("a", "1")])
+    _settings_file(tmp_path, "classify_settings.csv", [("verbose", "True")])
     screen = _Screen("classify")
 
-    def _explode(path):
+    def _explode(*args, **kwargs):
         raise ValueError("that is not a settings file")
 
-    monkeypatch.setattr(screen, "_load_settings_csv", _explode)
+    monkeypatch.setattr(settings_pack, "settings_from_pack", _explode)
     assert screen.apply_settings_that_came_with(tmp_path) == 0
+    assert screen.applied_with is None
 
 
-def test_it_goes_through_the_real_import_path(tmp_path):
-    """A second reader would drift, and then an example would configure the
-    panel differently from an import of the very same file."""
-    import inspect
+def test_it_goes_through_the_shared_migrating_reader(tmp_path, monkeypatch):
+    """Example callers share the reader that explains migration and losses."""
+    _settings_file(tmp_path, "gen_masks_settings.csv", [("verbose", "True")])
+    original = settings_pack.settings_from_pack
+    calls = []
 
-    source = inspect.getsource(AppScreen.apply_settings_that_came_with)
-    assert "self._load_settings_csv" in source
-    assert "self.apply_settings_dict" in source
+    def record(app_key, pack_dir, **kwargs):
+        result = original(app_key, pack_dir, **kwargs)
+        calls.append((app_key, Path(pack_dir), result[1].source))
+        return result
+
+    monkeypatch.setattr(settings_pack, "settings_from_pack", record)
+    screen = _Screen("mask")
+
+    assert screen.apply_settings_that_came_with(tmp_path) == 1
+    assert calls == [("mask", tmp_path / "settings", "gen_masks_settings.csv")]
+    assert screen.applied_with == {"verbose": True}
 
 
 @pytest.mark.parametrize("where", [

@@ -62,6 +62,42 @@ from .settings_model import (
 
 LOG = logging.getLogger(__name__)
 
+
+def _example_pack_console(screen, owner):
+    """Return the registered form's console after a possible screen rebuild."""
+    current = getattr(owner, "_screens", {}).get(screen.app_key)
+    return getattr(current, "_console", screen._console)
+
+
+def _append_example_pack_report(console, report, applied: int) -> None:
+    """Localize migration details while distinguishing reader and form counts."""
+    console.append_notice(
+        "[example] {applied} settings applied to the form from {name}; "
+        "{accepted} CSV keys accepted.\n",
+        applied=applied, name=report.source,
+        accepted=len(report.applied) + len(report.renamed))
+    if report.renamed:
+        console.append_notice(
+            "[example] Renamed {count} settings: {renames}\n",
+            count=len(report.renamed),
+            renames=", ".join(f"{old} → {new}" for old, new in report.renamed))
+    elsewhere = set(report.elsewhere)
+    dropped = sorted(key for key in report.dropped if key not in elsewhere)
+    if dropped:
+        console.append_notice(
+            "[example] Dropped {count} unknown or retired settings: {keys}\n",
+            count=len(dropped), keys=", ".join(dropped))
+    if elsewhere:
+        console.append_notice(
+            "[example] Ignored {count} settings available in this build "
+            "but not on this form: {keys}\n",
+            count=len(elsewhere), keys=", ".join(sorted(elsewhere)))
+    if report.malformed:
+        console.append_notice(
+            "[example] Skipped {count} unreadable CSV row(s).\n",
+            count=report.malformed)
+
+
 #: `organelleb_model_name`, `organellec_model_name`, ... -- the
 #: per-organelle model fields generated when a run has more than one.
 _ORGANELLE_MODEL_KEY = re.compile(r"^organelle[a-z]?_model_name$")
@@ -744,7 +780,7 @@ def _theme_wallpaper():
 #: comes from a CSV, a demo pack or another screen, and any of those may have
 #: been written before the rename -- so the translation belongs here, at the
 #: point a dict meets the widgets, rather than in every producer.
-_RENAMED_SETTING_KEYS = {"png_dims": "png_channel_mapping"}
+from ..settings_pack import _FORM_RENAMES as _RENAMED_SETTING_KEYS
 
 def _translate_legacy_setting_keys(settings: dict) -> dict:
     """Rename retired setting keys so their values still reach a widget.
@@ -3632,17 +3668,25 @@ class AppScreen(QWidget):
         channels were measured has done most of the work the example was meant
         to save. With them applied, Run is the next action.
 
-        Through the same two calls "Import settings…" makes, so a shipped file
-        lands exactly as the user's own would -- a second reader would drift
-        from it, and then an example would configure the panel differently
-        from an import of the very same file.
+        Use the shared settings-pack reader to migrate old names and report
+        renamed, dropped, and unreadable rows in the console. Apply only values
+        supplied by the pack, leaving other form values alone. Re-anchor the
+        publisher's paths onto the local dataset while preserving subfolders.
 
         :param folder: the unpacked dataset folder.
-        :returns: how many settings were applied; 0 when no file was found.
+        :param pack_folder: optional folder of shipped settings CSVs, preferred
+            over the dataset's own ``settings`` subfolder.
+        :returns: how many settings were applied; 0 when no file was found,
+            no supplied settings apply to this form, or applying them failed.
         """
         from pathlib import Path
 
+        from ..settings_pack import settings_from_pack
+
         folder = Path(folder)
+        # A form rebuild detaches this widget before bulk application returns.
+        # Keep its owner so the report can reach the replacement's console.
+        owner = self.window() if hasattr(self, "window") else None
         # THE SHIPPED PACK FIRST, THEN THE PLATE'S OWN FOLDER.
         #
         # A completed run writes `<src>/settings/<name>.csv` --
@@ -3665,30 +3709,39 @@ class AppScreen(QWidget):
         roots = []
         if pack_folder is not None:
             roots.append(Path(pack_folder))
-        roots.append(folder)
+        roots.append(folder / "settings")
         for root in roots:
-            for name in self._EXAMPLE_SETTINGS_FILES.get(self.app_key, ()):
-                path = root / name if root is not folder else (
-                    root / "settings" / name)
-                if not path.is_file():
+            report = None
+            path = root
+            try:
+                # Do not override src here: Measure's pack points at /merged,
+                # which reanchor_example_paths preserves below the local plate.
+                loaded, report = settings_from_pack(self.app_key, root)
+                if not report.source:
                     continue
+                # The reader returns defaults too; an example import must not
+                # reset values the pack never supplied. A found pack remains
+                # authoritative even when all its keys were dropped.
+                supplied = set(report.applied)
+                supplied.update(new for _old, new in report.renamed)
+                loaded = {key: value for key, value in loaded.items()
+                          if key in supplied}
+                path = root / report.source
                 try:
-                    loaded = self._load_settings_csv(str(path))
-                    try:
-                        loaded = self.reanchor_example_paths(loaded, folder)
-                    except Exception:                        # noqa: BLE001
-                        LOG.debug("could not re-home %s", path, exc_info=True)
-                    applied = self.apply_settings_dict(loaded)
-                except Exception as exc:                     # noqa: BLE001
-                    LOG.debug("could not apply %s", path, exc_info=True)
-                    self._console.append_notice(
-                        "[example] {name} could not be applied: {detail}\n",
-                        name=name, detail=exc)
-                    return 0
-                self._console.append_notice(
-                    "[example] {count} settings loaded from {name}\n",
-                    count=applied, name=name)
-                return applied
+                    loaded = self.reanchor_example_paths(loaded, folder)
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not re-home %s", path, exc_info=True)
+                applied = self.apply_settings_dict(loaded) if loaded else 0
+            except Exception as exc:                         # noqa: BLE001
+                name = report.source if report and report.source else str(root)
+                LOG.debug("could not apply %s", path, exc_info=True)
+                _example_pack_console(self, owner).append_notice(
+                    "[example] {name} could not be applied: {detail}\n",
+                    name=name, detail=exc)
+                return 0
+            _append_example_pack_report(
+                _example_pack_console(self, owner), report, applied)
+            return applied
         return 0
 
     def screen_data_destination(self):

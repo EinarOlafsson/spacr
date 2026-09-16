@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Semantic review of all six current translatable blocks of spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with. Preserves module scope, Run, shared-reader migration/reporting, pack-supplied values only, unchanged other form values, local path reanchoring with subfolders, explicit pack-folder priority, and all zero-return conditions.",
+    "limitations": "AI-assisted semantic review against exact current English sources and API contexts; not human native-speaker review or approval. Generated catalog publication is a separate step."
+  },
+  "records": [
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#0",
+      "source": "Load the settings a downloaded example shipped, for THIS module.",
+      "source_sha256": "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
+      "context": "Load the settings a downloaded example shipped, for THIS module.",
+      "translation": "다운로드한 예제에 함께 제공된 설정을 이 모듈용으로 불러옵니다."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#1",
+      "source": "The point of shipping settings beside data: a user who has to work out which column holds the labels, what the mask dimensions are and which channels were measured has done most of the work the example was meant to save. With them applied, Run is the next action.",
+      "source_sha256": "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
+      "context": "The point of shipping settings beside data: a user who has to work out which column holds the labels, what the mask dimensions are and which image data channels were measured has done most of the work the example was meant to save. With them applied, Run is the next action.",
+      "translation": "데이터와 함께 설정을 제공하는 이유는 사용자가 레이블이 어느 열에 있는지, 마스크의 차원 크기가 무엇인지, 어떤 이미지 채널이 측정되었는지를 직접 알아내야 한다면 예제가 덜어 주려던 작업의 대부분을 이미 하게 되기 때문입니다. 이 설정을 적용한 뒤에는 Run 버튼을 누르면 됩니다."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#2",
+      "source": "Use the shared settings-pack reader to migrate old names and report renamed, dropped, and unreadable rows in the console. Apply only values supplied by the pack, leaving other form values alone. Re-anchor the publisher's paths onto the local dataset while preserving subfolders.",
+      "source_sha256": "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
+      "context": "Use the shared settings-pack reader to migrate old names and report renamed, dropped, and unreadable rows in the console. Apply only values supplied by the pack, leaving other form values alone. Re-anchor the publisher's paths onto the local dataset while preserving subfolders.",
+      "translation": "공유 설정 팩 리더를 사용해 이전 이름을 마이그레이션하고, 이름이 변경되거나 제외되었거나 읽을 수 없는 행을 콘솔에 보고합니다. 팩에 제공된 값만 적용하고 폼의 나머지 값은 그대로 둡니다. 하위 폴더 구조를 유지하면서 배포자의 경로를 로컬 데이터셋 기준으로 다시 지정합니다."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#3",
+      "source": "the unpacked dataset folder.",
+      "source_sha256": "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
+      "context": "the unpacked dataset folder.",
+      "translation": "압축을 푼 데이터셋 폴더입니다."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#4",
+      "source": "optional folder of shipped settings CSVs, preferred over the dataset's own ``settings`` subfolder.",
+      "source_sha256": "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+      "context": "optional folder of shipped settings CSVs, preferred over the dataset's own ``settings`` subfolder.",
+      "translation": "예제와 함께 제공된 설정 CSV 파일이 들어 있는 폴더를 선택적으로 지정하며, 데이터셋 자체의 ``settings`` 하위 폴더보다 우선합니다."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#5",
+      "source": "how many settings were applied; 0 when no file was found, no supplied settings apply to this form, or applying them failed.",
+      "source_sha256": "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee",
+      "context": "how many settings were applied; 0 when no file was found, no supplied settings apply to this form, or applying them failed.",
+      "translation": "적용된 설정 수입니다. 파일을 찾지 못했거나, 제공된 설정 중 이 폼에 적용되는 항목이 없거나, 설정 적용에 실패한 경우에는 0을 반환합니다."
+    }
+  ]
+}

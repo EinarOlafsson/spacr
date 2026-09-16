@@ -33,8 +33,10 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
-PACK_ROW = "flow_threshold,0.4\n"
-RUN_ROW = "flow_threshold,100\n"
+# The unscoped flow_threshold belongs to other forms, not Mask. The shared
+# reader correctly drops it here, so exercise priority with Mask's live key.
+PACK_ROW = "cell_flow_threshold,0.4\n"
+RUN_ROW = "cell_flow_threshold,100\n"
 
 
 def _a_plate_with_both(tmp_path):
@@ -76,7 +78,7 @@ def test_the_shipped_pack_wins_over_the_users_own_run(tmp_path, qtbot,
 
     screen.apply_settings_that_came_with(plate, pack_folder=dest / "settings")
 
-    assert str(seen.get("flow_threshold")) == "0.4", (
+    assert str(seen.get("cell_flow_threshold")) == "0.4", (
         f"the form was filled from {seen!r}; 100 is the user's own run "
         f"output and 0.4 is the shipped pack, so the cached example loaded "
         f"the wrong file")
@@ -104,7 +106,7 @@ def test_without_a_pack_folder_the_plate_is_still_read(tmp_path, qtbot,
 
     screen.apply_settings_that_came_with(plate)
 
-    assert str(seen.get("flow_threshold")) == "100", (
+    assert str(seen.get("cell_flow_threshold")) == "100", (
         "with no pack folder given, the plate's own settings are the only "
         "ones there are and must still be read")
 
@@ -134,6 +136,6 @@ def test_a_pack_folder_that_holds_nothing_falls_back_to_the_plate(tmp_path,
 
     screen.apply_settings_that_came_with(plate, pack_folder=dest / "settings")
 
-    assert str(seen.get("flow_threshold")) == "100", (
+    assert str(seen.get("cell_flow_threshold")) == "100", (
         "an empty pack folder made the loader give up instead of falling "
         "back to the plate's own settings")

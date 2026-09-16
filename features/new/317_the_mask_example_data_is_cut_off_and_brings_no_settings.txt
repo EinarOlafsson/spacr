@@ -2,7 +2,13 @@
 THE MASK EXAMPLE DATA: A CLIPPED DIALOG, AND SETTINGS THAT NEVER ARRIVE
 ================================================================================
 
-Status:    PARTLY DONE, corrected 2026-09-14. Read part by part, because the
+Status:    DONE, 2026-09-16: shared settings-pack import, example-button
+           integration, reporting, runtime/API catalogs and focused gates
+           complete. Full real-data imaging pipelines were not rerun.
+           The dated notes below preserve the investigation, not live blockers.
+
+HISTORICAL PART-BY-PART STATUS BEFORE THE FINAL INTEGRATION:
+           PARTLY DONE, corrected 2026-09-16. Read part by part, because the
            three are in three different states and the header said OPEN for
            all of them. PART 3'S ENTRY WAS INVERTED until tonight and is
            rewritten below; the old wording is quoted in the 2026-09-14
@@ -18,12 +24,13 @@ Status:    PARTLY DONE, corrected 2026-09-14. Read part by part, because the
                 name". Held by
                 `tests/qt/test_the_download_window_shows_its_percentage.py`.
 
-             2. THE MASK EXAMPLE STILL BRINGS SYNTHETIC SETTINGS. OPEN.
-                `mask.load_the_example_images` still calls
-                `demo_settings("mask", ...)`. Note that f47a4ff0c's message,
-                "Every example applies its settings", is about a DIFFERENT
-                thing -- that examples apply settings at all -- and does not
-                close this.
+             2. REAL-DATA BUTTONS AND OFFLINE DEMOS COEXIST. VERIFIED.
+                AppScreen's Mask and Measure buttons download the real
+                datasets and apply their packs. Help > Demos separately
+                exposes the local synthetic generators. The synthetic
+                installer does not replace an already-installed real-data
+                button. No maintainer clarification is needed for this part;
+                the earlier question below is preserved as history.
 
              3. THE SUCCESSOR IS REAL, ITS RENAME HOLE IS CLOSED, AND IT
                 HAD NOT REPLACED THE UNSAFE READER. Half open.
@@ -414,3 +421,129 @@ NOT FIXED HERE. Recorded with the mechanism so the next session starts from
 the cause rather than from the symptom, and because "the settings are wrong
 after you have used it once" is the kind of report that otherwise gets chased
 as a settings-form bug for a day.
+
+2026-09-16 -- CURRENT ROUTES VERIFIED; REPORTING REPAIR IN PROGRESS
+----------------------------------------------------------------
+
+The historical "NOT FIXED HERE" above is superseded by the shipped optional
+pack_folder priority, already described earlier in the same dated section.
+That priority must survive the reporting repair; a stale run's preferred
+filename must not outrank the known downloaded pack directory.
+
+Part 2 needs no question or new selector. AppScreen installs real-data buttons
+for Mask (Input & Metadata) and Measure (Input & Experiment). Mask's action
+uses _MaskTarWorker for the toxo_mito archive and applies its settings;
+Measure's uses download_measure_example / _MeasureTarWorker and applies its
+own shipped pack. Help > Demos > Mask demo and Measure demo remain separate
+offline routes through _on_load_demo and the synthetic generators. The old
+mask.install_example_data_button returns an existing button rather than
+overwriting the real-data action. These are traced source routes, not a
+claim to have repeated the downloads or run the full imaging pipelines.
+
+The current example importer still hides losses behind a count, and the e2e
+loader still describes defaults as a loaded pack when no pack was found.
+The new caller tests reproduce four failures with four positive controls.
+Preparing their shared-reader repair exposed another real defect: the reader
+starts with zero organelle slots, accepts a count of two, then discards the
+second slot's channel and intensity settings as not belonging to the form.
+Four real-CSV/default-schema tests fail on those losses; the positive control
+that rejects another module's learning_rate and a nonexistent key passes.
+Source changes are deliberately not applied while feature 418's API catalog
+generation is reading the frozen source. This note is not a closure.
+
+2026-09-16 -- SHARED READER FIXES VERIFIED; BUTTON INTEGRATION STILL PENDING
+------------------------------------------------------------------------
+
+After 418's model-generation pass ended, the private settings-pack helpers
+were implemented without changing any public signature/docstring or runtime
+catalog source. Ten failing real-CSV cases plus five positive controls became
+16 passing cases after adding the absent-pack control. Every statement and
+branch of the new shape helper executes (27 statements, 16 branches), with
+no exclusions. It retains same-module secondary slots, infers a missing count,
+honours explicit lowered counts, and inherits newly exposed slots from the
+pack's primary values rather than unrelated defaults. Four deliberate source
+mutations were detected in test bodies.
+
+Another eight order-sensitive cases found four actual failures: an old alias
+after its current spelling overwrote the current value, including primary
+values cloned into secondary slots. Both rename routes and the shape prepass
+now honour current spellings independently of row order; the full file passes
+24 cases. Unknown settings and fields outside a caller's narrow schema remain
+reported as losses, not accepted merely because another module knows them.
+
+Two legacy Classify cases failed while two explicit-Classes controls passed.
+The shared reader now preserves the form's existing compound normalization
+before filtering, and all four pass: metadata controls or annotation columns
+become class rules without discarding the selected training basis. Current
+Classes definitions still win. These fixes are not the whole item: the
+user-facing example importer, its localized report, the missing-pack status,
+and the real-dataset E2E test reader still await the prepared integration.
+
+2026-09-16 -- BUTTON INTEGRATION, COLOR MAPPING AND REPORTING VERIFIED
+-------------------------------------------------------------------
+
+The prepared integrations are now applied. All example-button callers use
+the shared migrating reader, prefer a known downloaded pack over a user's
+run settings, preserve Measure's /merged suffix while reanchoring paths,
+apply only supplied keys, and report accepted CSV rows separately from the
+actual number of controls updated. A found-but-inapplicable pack remains
+authoritative; it does not silently fall through to a stale run's settings.
+Reports reach the visible replacement screen even when applying a setting
+rebuilds the form. The e2e demo explicitly distinguishes a missing pack from
+loaded settings and does not start a pipeline automatically.
+
+The opt-in real-dataset E2E test now uses the same reader with full pipeline
+defaults, the actual shipped filenames, and a hard assertion if the pack is
+missing. Seven focused tests execute that actual helper, rather than skipping
+with the opt-in module or requiring a download/model run.
+
+An additional real Measure-pack regression was reproduced (eight failing
+cases, one positive control): png_dims was being discarded, and merely
+renaming its list would not produce the dictionary the current run expects.
+The reader and GUI now share the form alias, and the existing crops converter
+preserves the legacy blue/green/red list order. All nine cases pass through
+the real run's channel-map resolver, including current-name precedence in
+either CSV order and a narrow legacy-only caller schema.
+
+Read-only remeasurement of the installed packs at
+/home/olafsson/datasets/settings, using the current GUI schemas:
+  Mask:    32 applied + 9 renamed + 17 dropped = 58 settings rows.
+           10 of the 17 are live elsewhere, not unknown/retired.
+  Measure: 31 applied + 1 renamed + 5 dropped = 37 settings rows.
+           1 of the 5 is live elsewhere. png_dims -> png_channel_mapping
+           produces {'r': 3, 'g': 2, 'b': 0}, accepted by the run resolver.
+  Both:    channels is the actual [0, 1, 2, 3] list; zero malformed rows.
+
+Additional adjacent checks: rename precedence 4 passed; shipped filenames
+18 passed; download dialog 16 passed; offline synthetic demos 40 passed
+(eight existing multiprocessing/fork deprecation warnings). The real
+downloads and a full real-data imaging run were NOT repeated; the integration
+uses cached real settings and focused caller/pipeline tests.
+
+Fifteen deliberate in-memory mutations have been caught in test bodies:
+eight shape/compound-class/current-name mutations, wrong RGB order, bypassed
+curated rename precedence, hidden rename notices, accepted count passed off
+as applied count, retired console selection, reset of unsupplied values, and
+fallback after an authoritative empty pack. No mutation edited disk source.
+
+Runtime text changes: seven additions, one removal. The sole changed public
+API symbol is AppScreen.apply_settings_that_came_with (six prose blocks).
+Nine locales have source-bound semantic review records for all seven notices
+and all six blocks: 117 records, explicitly AI-reviewed, not native-speaker
+approval. Generation and publication checks are pending, so this note does
+not yet close the item.
+
+2026-09-16 -- FINAL CATALOG AND ACCEPTANCE GATES
+-----------------------------------------------
+
+The nine-language runtime catalog audit passed with 977 settings, 193
+categories, 3,553 UI strings and 68 modules. The full nine-language API
+catalog audit passed with 10,539 symbols. Focused checks passed: 33 pack
+and caller cases, 18 published translation checks, one API manifest test,
+31 external catalog tests, and three source-bound review-evidence tests.
+The feature index and whitespace checks also passed. The generated coverage
+report was refreshed after the audits; the separate freshness check is run
+at publication. Reviewed translations here are AI-reviewed, not a claim of
+native-speaker certification. The real downloads and a full real-data run
+were not repeated; cached shipped packs and focused integration tests were
+used instead.

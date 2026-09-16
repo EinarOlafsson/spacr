@@ -3467,15 +3467,13 @@ class MainWindow(QMainWindow):
 
         from .settings_pack import settings_from_pack
 
-        def _settings_for(app_key: str) -> dict:
-            """The settings one module in the chain should run with."""
-            settings, report = settings_from_pack(
-                app_key, settings_path, src=dataset_path)
-            if report.dropped or report.renamed or report.malformed:
-                LOG.info("settings pack for %s: %s", app_key, report.summary())
-            return settings
-
-        settings = _settings_for("mask")
+        settings, report = settings_from_pack(
+            "mask", settings_path, src=dataset_path)
+        if report.source:
+            LOG.info("settings pack for %s: %s", "mask", report.summary())
+        else:
+            LOG.warning("No settings pack found for mask in %s; using defaults.",
+                        settings_path)
         self._on_nav_selected("mask")
         widget = self._screens.get("mask")
         if widget is None:
@@ -3496,9 +3494,15 @@ class MainWindow(QMainWindow):
                 "its settings could not be filled in automatically:\n"
                 f"{type(error).__name__}: {error}")
             return
-        self.statusBar().showMessage(
-            "Demo dataset loaded with its settings. Press Live Preview to "
-            "see one field, or Run to process the plate.", 12000)
+        if report.source:
+            self.statusBar().showMessage(
+                tr("Demo dataset loaded with its settings. Press Live Preview to "
+                   "see one field, or Run to process the plate."), 12000)
+        else:
+            self.statusBar().showMessage(
+                tr("Demo dataset loaded without a settings pack; using defaults. "
+                   "Press Live Preview to see one field, or Run to process the "
+                   "plate."), 12000)
 
     def _run_demo_generator(self, demo_key: str, dst: str):
         """Isolated for tests — invoke the named generator function

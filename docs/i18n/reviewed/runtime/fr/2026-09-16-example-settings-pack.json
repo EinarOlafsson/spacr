@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Source-bound semantic review for feature 317: all seven new runtime UI messages for example settings packs, including actual form-applied versus accepted CSV-key counts, renames, unknown or retired keys, settings available elsewhere, unreadable rows, and loaded/missing-pack statuses.",
+    "limitations": "AI-assisted semantic review against the current canonical English source; not human native-speaker review or approval. Exact source, context where applicable, hashes, placeholders, code literals, and protected UI names are preserved. Generated catalog publication is separate."
+  },
+  "records": [
+    {
+      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+      "translation": "Jeu de données de démonstration chargé avec ses paramètres. Cliquez sur Live Preview pour afficher un champ de vue, ou sur Run pour traiter la plaque.",
+      "table": "ui",
+      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate."
+    },
+    {
+      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+      "translation": "Jeu de données de démonstration chargé sans jeu de paramètres ; les valeurs par défaut sont utilisées. Cliquez sur Live Preview pour afficher un champ de vue, ou sur Run pour traiter la plaque.",
+      "table": "ui",
+      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate."
+    },
+    {
+      "source": "[example] Dropped {count} unknown or retired settings: {keys}",
+      "source_sha256": "a2ce4d5c7bb78b45f367a059440d82df3e5549962aaa808f9ac4bfaff5ce07b3",
+      "translation": "[example] {count} paramètres inconnus ou retirés exclus : {keys}",
+      "table": "ui",
+      "key": "[example] Dropped {count} unknown or retired settings: {keys}"
+    },
+    {
+      "source": "[example] Ignored {count} settings available in this build but not on this form: {keys}",
+      "source_sha256": "66d523a5ef74556a60b5bc3448f94c9a062844c660bd4eab7ee8a514c11392cf",
+      "translation": "[example] {count} paramètres disponibles dans cette version, mais absents de ce formulaire, ignorés : {keys}",
+      "table": "ui",
+      "key": "[example] Ignored {count} settings available in this build but not on this form: {keys}"
+    },
+    {
+      "source": "[example] Renamed {count} settings: {renames}",
+      "source_sha256": "aea30a23c71e25ddd69e6dd66c10a40a318c9e3297773351a8f0e3deccf4c6eb",
+      "translation": "[example] {count} paramètres renommés : {renames}",
+      "table": "ui",
+      "key": "[example] Renamed {count} settings: {renames}"
+    },
+    {
+      "source": "[example] Skipped {count} unreadable CSV row(s).",
+      "source_sha256": "504869209ed558fba92660a57e4471891f90420636e6dad13fcb19b736c92e27",
+      "translation": "[example] {count} ligne(s) CSV illisible(s) ignorée(s).",
+      "table": "ui",
+      "key": "[example] Skipped {count} unreadable CSV row(s)."
+    },
+    {
+      "source": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted.",
+      "source_sha256": "bf3e16003a8ca5391dcf9cfb76d1539e18b7a19a554705d47ea00f6ee60b0f73",
+      "translation": "[example] {applied} paramètres de {name} appliqués au formulaire ; {accepted} clés CSV acceptées.",
+      "table": "ui",
+      "key": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted."
+    }
+  ]
+}

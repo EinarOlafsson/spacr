@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Semantic review of all seven new feature 317 runtime UI sources, derived from current canonical_sources()['ui'] minus en.UI_SOURCES. Preserves Live Preview, Run, CSV, console tags and placeholders; distinguishes settings actually applied to the form from accepted CSV keys, unknown/retired settings from settings on another form, and missing-pack defaults from successfully loaded settings.",
+    "limitations": "AI-assisted semantic review against exact current English sources and API contexts; not human native-speaker review or approval. Generated catalog publication is a separate step."
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "translation": "演示数据集及其设置已加载。点击 Live Preview 查看一个显微视野，或点击 Run 处理整块孔板。"
+    },
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "translation": "演示数据集已加载，但没有设置包；使用默认设置。点击 Live Preview 查看一个显微视野，或点击 Run 处理整块孔板。"
+    },
+    {
+      "table": "ui",
+      "key": "[example] Dropped {count} unknown or retired settings: {keys}",
+      "source_sha256": "a2ce4d5c7bb78b45f367a059440d82df3e5549962aaa808f9ac4bfaff5ce07b3",
+      "source": "[example] Dropped {count} unknown or retired settings: {keys}",
+      "translation": "[example] 已丢弃 {count} 项未知或已停用的设置：{keys}"
+    },
+    {
+      "table": "ui",
+      "key": "[example] Ignored {count} settings available in this build but not on this form: {keys}",
+      "source_sha256": "66d523a5ef74556a60b5bc3448f94c9a062844c660bd4eab7ee8a514c11392cf",
+      "source": "[example] Ignored {count} settings available in this build but not on this form: {keys}",
+      "translation": "[example] 已忽略 {count} 项在当前构建版本中可用、但不属于此表单的设置：{keys}"
+    },
+    {
+      "table": "ui",
+      "key": "[example] Renamed {count} settings: {renames}",
+      "source_sha256": "aea30a23c71e25ddd69e6dd66c10a40a318c9e3297773351a8f0e3deccf4c6eb",
+      "source": "[example] Renamed {count} settings: {renames}",
+      "translation": "[example] 已重命名 {count} 项设置：{renames}"
+    },
+    {
+      "table": "ui",
+      "key": "[example] Skipped {count} unreadable CSV row(s).",
+      "source_sha256": "504869209ed558fba92660a57e4471891f90420636e6dad13fcb19b736c92e27",
+      "source": "[example] Skipped {count} unreadable CSV row(s).",
+      "translation": "[example] 已跳过 CSV 中无法读取的 {count} 行。"
+    },
+    {
+      "table": "ui",
+      "key": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted.",
+      "source_sha256": "bf3e16003a8ca5391dcf9cfb76d1539e18b7a19a554705d47ea00f6ee60b0f73",
+      "source": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted.",
+      "translation": "[example] 已向表单应用 {applied} 项来自 {name} 的设置；已接受 {accepted} 个 CSV 键。"
+    }
+  ]
+}
