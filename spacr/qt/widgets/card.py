@@ -62,9 +62,6 @@ class Card(QFrame):
             outer.addWidget(divider)
 
         self.body = QWidget(self)
-        # The global `QWidget { background: bg }` rule would paint the body
-        # solid black over the card's rounded surface. Make it transparent so
-        # the card colour shows behind the content (bars, etc.).
         self.body.setObjectName("CardBody")
         self.body.setStyleSheet("QWidget#CardBody { background: transparent; }")
         self.body_layout = QVBoxLayout(self.body)
@@ -75,8 +72,5 @@ class Card(QFrame):
         if foldable and title_label is not None:
             from .foldable import make_foldable
 
-            # The BODY folds, not the card: the title has to stay to be
-            # clicked again, which is what makes the folded state a strip
-            # that names itself rather than a disappearance.
             self.folder = make_foldable(title_label, self.body, name=title,
                                         persist_key=fold_key)

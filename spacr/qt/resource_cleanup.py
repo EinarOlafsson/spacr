@@ -40,7 +40,7 @@ What each button can honestly do
     Drops spaCR's own caches: the merged-field LRU
     (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image
     stacks), the file-format and DB-format caches, the zoomed-animation
-    cache, the icon and preview ``lru_cache``s, the filter-kind cache, every
+    cache, the icon and preview ``lru_cache``\\ s, the filter-kind cache, every
     live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and
     Qt's own ``QPixmapCache``. A process with no live Qt application also
     runs ``gc.collect()``. The GUI deliberately does not: walking a heap of
@@ -127,16 +127,10 @@ _DICT_CACHES: Tuple[Tuple[str, str], ...] = (
     ("spacr.qt.annotate_engine", "_EDGE_CACHE"),
 )
 
-# A sweep does bounded work on the GUI thread.  If more is required, the next
-# five-second tick continues it; no single pass can pickle/spill hundreds of
-# figures and turn a memory safeguard into the event-loop freeze it prevents.
 BUDGET_SWEEP_INTERVAL_MS = 5000
 BUDGET_SWEEP_MAX_ENTRIES = 64
 
 
-# ---------------------------------------------------------------------------
-# What a cleanup reports
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Reclaim:
@@ -315,9 +309,6 @@ def human_bytes(count: int) -> str:
     return f"{value:.1f} TB"
 
 
-# ---------------------------------------------------------------------------
-# Measurement
-# ---------------------------------------------------------------------------
 
 def process_rss() -> int:
     """This process's resident set size in bytes, or ``0`` if unknowable.
@@ -363,9 +354,6 @@ def _cuda_stat(torch, name: str) -> int:
     try:
         return sum(int(getter(device)) for device in range(count))
     except TypeError:
-        # Small test doubles and old compatible torch builds may expose only
-        # the no-argument form.  It still measures the current device rather
-        # than turning a cleanup into an import or context initialisation.
         return int(getter())
 
 
@@ -424,9 +412,6 @@ def _thread_count() -> int:
     return int(threading.active_count())
 
 
-# ---------------------------------------------------------------------------
-# The live-cache budget
-# ---------------------------------------------------------------------------
 
 def _loaded_cache_owners():
     """Return cache owners already present in this process; import nothing.
@@ -456,7 +441,6 @@ def _loaded_cache_owners():
             owners.extend(accessor())
         except Exception:                                      # noqa: BLE001
             LOG.debug("could not enumerate %s", module_name, exc_info=True)
-    # A buggy screen must not make the same owner count twice.
     return tuple({id(owner): owner for owner in owners}.values())
 
 
@@ -580,11 +564,6 @@ def _a_run_is_active() -> bool:
         return True
 
 
-# The allocator exposes no "last kernel finished" timestamp.  Observing its
-# reclaimable byte count on the existing five-second sweep is the honest
-# substitute: a change, or any registered run in flight, is activity; an
-# unchanged cache after the run is idle.  These two scalars retain no tensor
-# and therefore cannot become another cache themselves.
 _CUDA_CACHE_BYTES: Optional[int] = None
 _CUDA_CACHE_LAST_USED = 0.0
 
@@ -721,9 +700,6 @@ def sweep_memory_budget(*, now: Optional[float] = None,
             break
         _evict(row)
 
-    # Headroom is a hard floor, not another per-cache size.  Once ordinary
-    # idle/ceiling evictions have run, release the coldest remaining entries
-    # until the measured floor is restored or this bounded pass is exhausted.
     remaining = sorted((row for row in candidates
                         if row.token not in attempted),
                        key=lambda row: row.last_used)
@@ -744,15 +720,10 @@ def sweep_memory_budget(*, now: Optional[float] = None,
         allocator_attempted = True
     if pressure_remaining and len(attempted) < limit and not run_active:
         models_released = _release_models_under_pressure()
-        # CUDA allocator blocks are reclaimable state too.  This never imports
-        # torch or initialises a CUDA context; clear_vram has both guards.
         result = clear_vram(release_models=False)
         vram_freed = result.freed
         _record_cuda_cleanup(instant)
     elif cuda_due and len(attempted) < limit and not run_active:
-        # A stable allocator cache obeys the same idle timeout and byte
-        # ceiling as the RAM caches.  Live allocations are excluded by
-        # ``_cuda_cached`` and a registered run pins the allocator wholesale.
         result = clear_vram(release_models=False)
         vram_freed = result.freed
         _record_cuda_cleanup(instant)
@@ -775,9 +746,6 @@ def sweep_memory_budget(*, now: Optional[float] = None,
     )
 
 
-# ---------------------------------------------------------------------------
-# RAM
-# ---------------------------------------------------------------------------
 
 def _clear_lru_caches() -> List[str]:
     """Drop every ``lru_cache`` in spaCR's own asset modules."""
@@ -786,8 +754,6 @@ def _clear_lru_caches() -> List[str]:
     for name in _LRU_CACHE_MODULES:
         module = sys.modules.get(name)
         if module is None:
-            # Not imported means not populated. Importing it to clear it
-            # would allocate rather than free.
             continue
         for attr in dir(module):
             try:
@@ -889,10 +855,6 @@ def _clear_pixmap_cache() -> List[str]:
     try:
         from PySide6.QtGui import QPixmapCache
 
-        # Qt 6 removed ``totalUsed`` from the Python API. Absence of an
-        # accounting reading must not turn into absence of the cleanup: clear
-        # the cache either way, and report a byte count only when Qt supplied
-        # one. Inventing a count would violate Reclaim's measured contract.
         total_used = getattr(QPixmapCache, "totalUsed", None)
         held = int(total_used()) if callable(total_used) else None
         QPixmapCache.clear()
@@ -964,9 +926,6 @@ def clear_ram(*, aggressive: bool = False) -> Reclaim:
                    note=" ".join(notes))
 
 
-# ---------------------------------------------------------------------------
-# VRAM
-# ---------------------------------------------------------------------------
 
 def clear_vram(*, release_models: bool = True) -> Reclaim:
     """Return torch's reserved-but-unused CUDA blocks to the driver.
@@ -1005,11 +964,6 @@ def clear_vram(*, release_models: bool = True) -> Reclaim:
             details.append(f"{released} model reference(s) released")
     torch = _torch_if_loaded()
     try:
-        # EVERY BACKEND CACHES, not only CUDA. Metal holds freed blocks in
-        # exactly the same way and answers `torch.mps.empty_cache()`; on a
-        # 4 GB card that is the difference between the next screen opening
-        # and an allocation failure. Routed through the resolver so the
-        # right call is made without a vendor branch here. See 319.
         from ..accelerator import empty_cache as release_device_memory
 
         made = release_device_memory(torch)
@@ -1026,9 +980,6 @@ def clear_vram(*, release_models: bool = True) -> Reclaim:
     return Reclaim("vram", before, after, tuple(details), note=note)
 
 
-# ---------------------------------------------------------------------------
-# CPU
-# ---------------------------------------------------------------------------
 
 #: Never fewer than this many threads for spaCR's own libraries. One is a
 #: hang waiting to happen in anything that fans out and joins.
@@ -1129,9 +1080,6 @@ def clear_cpu(*, target_threads: Optional[int] = None) -> Reclaim:
     return Reclaim("cpu", before, after, tuple(details), note=" ".join(notes))
 
 
-# ---------------------------------------------------------------------------
-# Disk
-# ---------------------------------------------------------------------------
 
 def _the_gui_thread_is_asking() -> bool:
     """Whether this call is running on the thread that paints the window.
@@ -1198,9 +1146,6 @@ def _is_a_folder(path: str) -> bool:
     try:
         from . import path_probe
     except Exception:                                          # noqa: BLE001
-        # No probe available and no licence to stat: say no rather than
-        # freeze. The folder returns to the report as soon as the disk
-        # check runs where it belongs.
         return False
     return path_probe.isdir(path)
 
@@ -1329,8 +1274,6 @@ def _readings_within_the_budget(paths: Sequence[str]) -> Dict[str, object]:
     deadline = time.monotonic() + _GUI_DISK_BUDGET_S
     for helper in helpers:
         helper.join(max(0.0, deadline - time.monotonic()))
-    # A copy, so a late answer cannot appear halfway through the report and
-    # give one folder a line the one above it was denied.
     return dict(answers)
 
 
@@ -1385,12 +1328,6 @@ def disk_report(paths: Optional[Sequence[str]] = None) -> DiskReport:
     return DiskReport(tuple(entries), note)
 
 
-# ---------------------------------------------------------------------------
-# What the confirmation says
-# ---------------------------------------------------------------------------
-# A confirmation that asks "are you sure?" is not a confirmation: a user
-# cannot consent to an unnamed action. Each of these names what will happen,
-# in the order it will happen, and says what the action cannot do.
 
 _CONFIRMATIONS: Dict[str, Tuple[str, str]] = {
     "ram": (
@@ -1501,9 +1438,6 @@ def summary_text(action: str) -> str:
     return _SUMMARIES.get(action) or _CONFIRMATIONS[action][1]
 
 
-# ---------------------------------------------------------------------------
-# The modes
-# ---------------------------------------------------------------------------
 
 def _mode() -> str:
     """Return the configured spaCR resource mode.
@@ -1604,15 +1538,15 @@ def run_pre_run_cleanup(app_key: str = "") -> List[Reclaim]:
     return results
 
 
-# ---------------------------------------------------------------------------
-# Wiring
-# ---------------------------------------------------------------------------
 
 _INSTALLED = False
 _LAUNCH_DONE = False
 _SEEN_RUNS: set = set()
 _BUDGET_TIMER = None
 _BUDGET_SWEEP_PENDING = False
+#: One handle per connection `install_run_hook` made, so each can be taken
+#: back exactly; see `_uninstall_process_hooks`.
+_RUN_HOOK_CONNECTIONS: list = []
 
 
 def _on_registry_changed() -> None:
@@ -1632,9 +1566,6 @@ def _on_registry_changed() -> None:
     _SEEN_RUNS.intersection_update(live)
     fresh = [handle for handle in handles if id(handle) not in _SEEN_RUNS]
     if not fresh:
-        # A run just finished (or the registry only shed a handle).  Its
-        # caches are no longer in use; let the event loop settle, then apply
-        # the same global policy the periodic sweep uses.
         _request_budget_sweep()
         return
     _SEEN_RUNS.update(id(handle) for handle in fresh)
@@ -1660,17 +1591,6 @@ def _budget_tick() -> None:
     try:
         result = sweep_memory_budget()
         if result.dropped or result.models_released or result.vram_freed:
-            # DEBUG, NOT INFO. This is housekeeping the user did not ask for
-            # and cannot act on, and it fired on EVERY module open -- reported
-            # against Mask, Measure and Map Barcodes alike. It also read as
-            # nonsense when it did: "memory budget: 0.0 -> 0.0 MiB ... and 2.6
-            # GB VRAM released" is two different accountings in one sentence,
-            # because before_mb/after_mb are HOST RSS and vram_freed is device
-            # memory. Host RSS legitimately does not move when VRAM is
-            # released, so the line was correct and unreadable at once.
-            #
-            # Kept rather than deleted: it is genuinely useful when chasing a
-            # leak, which is what the debug level is for.
             LOG.debug(
                 "memory budget: host RSS %.1f -> %.1f MiB; %d cache entries, "
                 "%d model references and %s device VRAM released",
@@ -1694,8 +1614,6 @@ def _request_budget_sweep() -> None:
         QTimer.singleShot(0, _budget_tick)
     except Exception:                                        # noqa: BLE001
         _BUDGET_SWEEP_PENDING = False
-        # No event loop means the periodic integration is inapplicable.  The
-        # explicit ``sweep_memory_budget`` API remains usable by headless code.
         LOG.debug("could not queue the live-cache sweep", exc_info=True)
 
 
@@ -1741,12 +1659,82 @@ def install_run_hook() -> bool:
         return True
     try:
         from .bridge import registry
-        registry().changed.connect(_on_registry_changed)
+        connection = registry().changed.connect(_on_registry_changed)
     except Exception:
         LOG.debug("could not install the pre-run cleanup hook", exc_info=True)
         return False
+    _RUN_HOOK_CONNECTIONS.append(connection)
     _INSTALLED = True
     return True
+
+
+def _uninstall_process_hooks() -> None:
+    """Take back the budget sweep timer and the run-registry hook.
+
+    :returns: None; the timer is stopped and scheduled for deletion, every
+        ``_on_registry_changed`` connection is removed, and the install flags
+        are cleared so a later install starts clean.
+
+    THE INVERSE OF ``register()``'S TWO INSTALLS, for a process that has to
+    take them back: the test suite, where one QApplication outlives every
+    test. ``register()`` parents a repeating QTimer to the application and
+    connects ``_on_registry_changed`` to the run registry, and nothing ever
+    removed either -- so the sweep ticked for the rest of the session and
+    fired in whatever test next spun the event loop, reading (and since 286,
+    migrating and SAVING) whatever preference store that test had put in
+    place. tests/qt/conftest.py calls this before and after every test.
+
+    ``_LAUNCH_DONE`` is deliberately left set: the launch cleanup is once per
+    process by design, and resetting it would make every later launch in the
+    suite drop caches again.
+    """
+    global _BUDGET_TIMER, _BUDGET_SWEEP_PENDING, _INSTALLED
+    timer, _BUDGET_TIMER = _BUDGET_TIMER, None
+    if timer is not None:
+        try:
+            timer.stop()
+            timer.deleteLater()
+        except (AttributeError, RuntimeError):
+            pass                  # already destroyed with its application
+    # EVERY CONNECTION, WHATEVER `_INSTALLED` SAYS. A caller that resets the
+    # flag and installs again (tests monkeypatch `_INSTALLED = False` to
+    # exercise `install_run_hook`) connects a second copy, and the flag is
+    # restored afterwards while the connection is not.
+    #
+    # BY HANDLE FIRST. PySide6 6.11's `disconnect(slot)` removes ONE
+    # connection of a slot connected several times and then answers False
+    # while the others are still connected, so asking by slot alone left
+    # every copy after the first firing in later tests. Each handle
+    # `install_run_hook` kept names exactly one connection. The loop by slot
+    # stays for a connection made without a handle; PySide6 WARNS before it
+    # raises on that last attempt, which here is the expected end of the
+    # loop, not news.
+    try:
+        import warnings
+
+        from PySide6.QtCore import QObject
+
+        from .bridge import registry
+
+        changed = registry().changed
+        connections = list(_RUN_HOOK_CONNECTIONS)
+        _RUN_HOOK_CONNECTIONS.clear()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            for connection in connections:
+                QObject.disconnect(connection)
+            for _attempt in range(64):
+                try:
+                    if not changed.disconnect(_on_registry_changed):
+                        break
+                except (RuntimeError, TypeError):
+                    break
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not reach the run registry to disconnect the "
+                  "pre-run cleanup hook", exc_info=True)
+    _INSTALLED = False
+    _BUDGET_SWEEP_PENDING = False
+    _SEEN_RUNS.clear()
 
 
 def register() -> bool:

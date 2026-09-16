@@ -289,7 +289,6 @@ class _ExclusionRuleRow(QWidget):
         row.addWidget(self.values, 3)
 
         remove = QToolButton(self)
-        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
         apply_close_mark(remove, tooltip="Remove this exclusion rule")
         remove.clicked.connect(lambda: self.remove_requested.emit(self))
         row.addWidget(remove)
@@ -361,10 +360,6 @@ class RowExclusionEditor(QWidget):
         self._pending: dict[_ExclusionRuleRow, str] = {}
         self._threaded = bool(threaded)
 
-        # Two runners, not one. `JobRunner.cancel` abandons *everything*
-        # that runner has in flight, and superseding a keystroke's value
-        # read must not also abandon the schema read that tells us which
-        # databases that column even lives in.
         self._schema_jobs = JobRunner(self, threaded=self._threaded,
                                       app_key="exclusion schema")
         self._value_jobs = JobRunner(self, threaded=self._threaded,
@@ -373,7 +368,6 @@ class RowExclusionEditor(QWidget):
         self._debounce = QTimer(self)
         self._debounce.setSingleShot(True)
         self._debounce.setInterval(max(0, int(debounce_ms)))
-        # A bound method of a GUI-thread QObject, per job_runner's rules.
         self._debounce.timeout.connect(self._run_pending_loads)
 
         self._outer = QVBoxLayout(self)
@@ -425,8 +419,6 @@ class RowExclusionEditor(QWidget):
         list that is half a second stale beats a frozen window, and on
         the first call they are showing nothing anyway.
         """
-        # Everything cached describes the *previous* source, and any read
-        # still in flight would repopulate it. Drop both.
         self._value_cache.clear()
         self._pending.clear()
         self._debounce.stop()
@@ -494,7 +486,6 @@ class RowExclusionEditor(QWidget):
             row.deleteLater()
         self._rows.clear()
 
-    # -- values ------------------------------------------------------------
 
     def _refresh_values(self, row, selected=(), preserve: bool = True) -> None:
         """Show ``row``'s values, reading them in the background if needed.
@@ -511,16 +502,11 @@ class RowExclusionEditor(QWidget):
             self._pending.pop(row, None)
             row.values.set_options(cached or (), selected)
             return
-        # Not read yet. Show the selection alone rather than the previous
-        # column's values, which are now wrong, and queue the read.
         row.values.set_options((), selected)
         self._pending[row] = column
         if self._threaded:
             self._debounce.start()
         else:
-            # `threaded=False` promises the values are there when the
-            # call that asked for them returns, so there is nothing to
-            # coalesce and nothing to wait a timer out for.
             self._run_pending_loads()
 
     def _run_pending_loads(self) -> None:
@@ -538,9 +524,6 @@ class RowExclusionEditor(QWidget):
             return
         request = {column: list(self._column_sources.get(column, ()))
                    for column in sorted(wanted)}
-        # Supersede: a read started by an earlier keystroke is for a
-        # column the user has already moved off. Its thread is asked to
-        # stop and its result is dropped on arrival.
         self._value_jobs.cancel()
         self._value_jobs.submit(
             lambda req=request: {column: distinct_values(sources, column)
@@ -559,7 +542,6 @@ class RowExclusionEditor(QWidget):
                                        row.values.checked_values())
         self.loaded.emit(False)
 
-    # -- background state --------------------------------------------------
 
     def is_busy(self) -> bool:
         """True while a read is queued, running, or undelivered."""
@@ -604,7 +586,6 @@ class RowExclusionEditor(QWidget):
         self.shutdown()
         super().closeEvent(event)
 
-    # -- kept for callers that predate the module-level readers ------------
 
     @staticmethod
     def _source_paths(source) -> list[Path]:

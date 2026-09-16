@@ -105,7 +105,6 @@ FULLY_DOCUMENTED = frozenset({
     "spacr/setting_animations.py",
     "spacr/settings_advisor.py",
     "spacr/sim.py",
-    "spacr/spacrops.py",
     "spacr/sra.py",
     "spacr/stream_dataset.py",
     "spacr/submodules.py",

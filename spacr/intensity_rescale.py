@@ -173,7 +173,7 @@ def fallback_record(data: np.ndarray, filename: str,
     kind = _kind(data.dtype, top, has_intensity)
     if kind == "fixed_normalized":
         factor = UINT16_MAX
-        comparable = True  # fixed by definition, even without a pre-pass
+        comparable = True
         scope = kind
     elif kind == "raw" and top > UINT16_MAX:
         factor = UINT16_MAX / top
@@ -223,7 +223,6 @@ def resolve_record(data: np.ndarray, filename: str,
     elif kind == "no_intensity":
         factor, scope, comparable = 1.0, kind, True
     elif plate_top is None or top > float(plate_top) * (1.0 + 1e-12):
-        # Missing plate or pixels replaced by brighter ones after the scan.
         return fallback_record(data, filename, settings)
     elif float(plate_top) > UINT16_MAX:
         factor, scope, comparable = UINT16_MAX / float(plate_top), "plate", True

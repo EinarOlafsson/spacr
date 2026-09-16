@@ -162,11 +162,6 @@ def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
     if os.path.isfile(root):
         if not root.lower().endswith(".csv"):
             return []
-        # AND THE REST OF THE RUN. A permutation run writes its guides to
-        # results.csv and its genes to results_gene.csv beside it; handed the
-        # one file, returning it alone hides the level the reader asked for.
-        # The siblings follow RESULT_FILENAMES order with the chosen file
-        # first, so it stays the primary table `read_run_tables` merges into.
         home = os.path.dirname(root)
         rest = []
         for name in RESULT_FILENAMES:
@@ -192,7 +187,7 @@ def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
             candidate = os.path.join(folder, name)
             try:
                 stamp = os.path.getmtime(candidate)
-            except OSError:            # vanished between listing and stat
+            except OSError:
                 continue
             found.append((order, candidate))
             newest = stamp if newest is None else max(newest, stamp)
@@ -247,7 +242,7 @@ def read_run_tables(tables):
     home = os.path.dirname(found)
     for sibling in tables[1:]:
         if os.path.dirname(sibling) != home:
-            continue          # a different run, not a second half of this one
+            continue
         name = os.path.basename(sibling)
         wants = ("gene" if "gene" in name else
                  "grna" if "grna" in name else "")
@@ -300,12 +295,6 @@ def for_table(frame):
     columns = list(getattr(frame, "columns", ()))
     if not columns or len(frame) == 0:
         return frame
-    # THE SAME NUMBER UNDER TWO NAMES IS WORSE THAN EITHER NAME ALONE. The
-    # permutation path copies `standardized_marginal_effect` into
-    # `coefficient` so the rest of the screen can read one name, and a reader
-    # then sees two identical columns and asks which is the real one -- and
-    # whether a quantity bounded in [-1, 1] is a coefficient at all. It is
-    # not: it is a partial correlation. The accurate name is the one kept.
     if ("coefficient" in columns
             and "standardized_marginal_effect" in columns):
         try:
@@ -355,10 +344,7 @@ def _summary_filenames() -> tuple:
     """
     try:
         from ...ml import SUMMARY_FILENAMES
-    except Exception:                  # ml unavailable
-        # Named rather than guessed: without the writer there is nothing to
-        # agree with, and inventing the list here would be the second source
-        # of truth this indirection exists to avoid.
+    except Exception:
         return ()
     return tuple(SUMMARY_FILENAMES)
 
@@ -390,9 +376,6 @@ def find_summary_file(path) -> Optional[str]:
         folders.append(os.path.dirname(root))
     elif os.path.isdir(root):
         folders.append(root)
-    # A PARENT OF A RUN FOLDER IS ALSO A LEGAL ANSWER, and it is the one
-    # `load` accepts, so the summary is looked for beside the table that was
-    # actually chosen rather than only in the folder the user typed.
     table = find_results_table(root)
     if table:
         folder = os.path.dirname(table)
@@ -447,7 +430,6 @@ NO_MODEL_FROM_DISK = (
     "run, so the fitted model is not here")
 NO_MODEL_AT_ALL = "no run in this session has fitted anything yet"
 
-# Canonical results tables share the run folder's remembered plot state.
 _CANONICAL_TABLE = "results.csv"
 
 
@@ -554,9 +536,6 @@ def _with_spacr_summary(path, statsmodels_text: str, *,
     """
     spacr = _spacr_summary_text(path)
     if not spacr:
-        # NOTHING AT ALL, and the tab says exactly that. "No summary" is the
-        # sentinel every caller tests for; the qualified wording below is
-        # only honest when there IS a spaCR summary above it.
         return f"No summary: {statsmodels_text}" if missing else statsmodels_text
     body = (f"No statsmodels summary: {statsmodels_text}" if missing
             else statsmodels_text)
@@ -578,8 +557,6 @@ def _spacr_summary_text(path) -> str:
             text = handle.read().strip()
     except OSError:
         return ""
-    # A file that is ONLY statsmodels text is a run from before spaCR wrote
-    # its own summary. Nothing to put in front.
     if not text or not text.startswith(SPACR_SUMMARY_HEADING):
         return ""
     cut = text.find(VERBATIM_HEADING)
@@ -614,7 +591,7 @@ def backend_of(path) -> Optional[str]:
         return None
     try:
         from ...hits import NO_P_VALUE_TYPES
-    except Exception:                  # hits unavailable
+    except Exception:
         return None
     parts = {
         re.sub(r"_\d+$", "", part.strip().lower())
@@ -674,11 +651,6 @@ class RegressionResultsPanel(QWidget):
         layout.setSpacing(4)
 
         header = QHBoxLayout()
-        # A WAY IN THAT DOES NOT REQUIRE STARTING A RUN. The panel used to be
-        # filled from exactly one place -- successful run completion -- so a
-        # user whose results were already on disk, or whose run finished while
-        # the settings pointed somewhere else, had no way to open them at all
-        # and no reason given for the empty table.
         self._load_button = QPushButton("Load results…")
         self._load_button.setToolTip(
             "Choose a regression results folder, or a parent of one. The most "
@@ -688,21 +660,6 @@ class RegressionResultsPanel(QWidget):
         self._source = QLabel("No regression loaded.")
         self._source.setWordWrap(True)
         header.addWidget(self._source, 1)
-        # WHICH RUN IS ON SCREEN, SAID WHERE THE RESULTS ARE. Instruction 157:
-        # the loaded mark lived in the Runs tab and the coefficients lived
-        # here, so the only way to notice the two had diverged was to compare
-        # two views -- and the maintainer did exactly that ("even if the ols
-        # model is marked as loaded i still see the mixed results"). A panel
-        # that names its own run makes the disagreement visible in the view
-        # that is wrong, rather than in the one that is right.
-        # THE SECOND ROW, AND IT WRAPS. Everything below has a minimum
-        # width -- three combo boxes at 140, 120 and 120 plus two labels --
-        # and a QHBoxLayout asked for more than the panel has does not
-        # shrink its children below their minimum: it lets them OVERLAP.
-        # Measured on the real screen at a 577 px panel, the second combo
-        # began 48 px inside the first, the third began 27 px inside the
-        # second, and the third ran 32 px off the right edge of the panel.
-        # `FlowLayout` puts the overflow on a new line instead (236 C10).
         controls_row = FlowHost()
         controls = FlowLayout(controls_row, spacing=6)
         #: The wrapping row itself, named so its HEIGHT can be measured: a
@@ -713,21 +670,6 @@ class RegressionResultsPanel(QWidget):
         self._run_label = QLabel(self.NO_RUN_NAMED)
         self._run_label.setObjectName("resultsRunName")
         controls.addWidget(self._run_label)
-        # WHICH HALF OF THE RUN IS ON SCREEN, ON THE PANEL ITSELF.
-        #
-        # "in the regression module i still only get gRNA level coefficients
-        # i cant plot the gene level coefficients ...or see the gene level
-        # coefficients." Both halves were there and both were reachable --
-        # from the VOLCANO's own header and from the coefficient table's
-        # right-click menu. Neither is on screen while the reader is on the
-        # p-value tab, the Q-Q or the effect ranks, and the volcano's control
-        # is not in this panel at all when the host places the plot itself
-        # (`external_volcano`). A filter that decides what SEVEN tabs draw
-        # belongs on the panel that holds them.
-        #
-        # THE SAME `set_level`, so the three entry points cannot end up with
-        # three opinions about which rows are being shown -- the rule the
-        # table's menu was added under, applied once more.
         self._level_label = QLabel("level")
         self._level_label.setToolTip(
             "Which family of coefficients every tab draws.\n\n"
@@ -744,34 +686,9 @@ class RegressionResultsPanel(QWidget):
         self._level_box = QComboBox()
         self._level_box.setMinimumWidth(120)
         self._level_box.setToolTip(self._level_label.toolTip())
-        # `activated`, not `currentIndexChanged`: refilling the box on every
-        # redraw must not look like a choice. See `_offer_levels`.
         self._level_box.activated.connect(self._level_chosen)
         controls.addWidget(self._level_box)
-        # THE CONTROL BELONGS ON THE FIGURE IT CHANGES. Asked for 2026-08-19:
-        # "the color by in results can be removed as its alos in the right
-        # click for the volcano graph the only place it is used i think" --
-        # and it is: the volcano's own menu already offers "Colour by a
-        # column…" and "Colour by localisation", and the volcano is the only
-        # thing this combo redraws.
-        #
-        # HIDDEN, NOT DELETED, and the difference matters. `_redraw_volcano`
-        # reads `currentData()`, `_restore_plot_state` writes it back, and a
-        # saved run carries a `colour_by` key -- so the object stays and
-        # keeps answering, while the header loses a duplicate. Deleting it
-        # would have meant unpicking a saved-state field for a cosmetic win.
-        # VISIBLE AGAIN, because it no longer duplicates the menu. It was
-        # hidden when it offered exactly what the volcano's own "Colour by a
-        # column…" offered; it now offers something that menu cannot -- three
-        # ORDERED channels at once (instruction 222) -- and a feature nobody
-        # can reach is not a feature.
         self._colour_by_label = QLabel("colour by")
-        # ONE TOOLTIP, ON THE NAME. The combo carried a second one saying
-        # what the first channel does, and `retarget_field_tooltips` leaves a
-        # field alone when its label already has help of its own -- so this
-        # was the one control on the panel whose hover help stayed on the
-        # field. Both sentences belong to the same name, so they are one
-        # tooltip on it.
         self._colour_by_label.setToolTip(
             "Up to three columns can be encoded simultaneously: the "
             "first is the colour, the second the marker shape, the third the "
@@ -786,11 +703,6 @@ class RegressionResultsPanel(QWidget):
         self._colour_by.setMinimumWidth(140)
         self._colour_by.currentIndexChanged.connect(self._redraw_volcano)
         controls.addWidget(self._colour_by)
-        # THE SECOND AND THIRD COLUMNS (instruction 222). Separate combos
-        # rather than one checkable list, because the ORDER is the encoding:
-        # first is hue, second is shape, third is opacity, and a checklist
-        # has no way to say which is which. Each offers the same columns and
-        # "nothing", so the user adds a channel by filling in the next box.
         self._colour_by_2 = QComboBox()
         self._colour_by_2.setMinimumWidth(120)
         self._colour_by_2.setToolTip(
@@ -809,11 +721,6 @@ class RegressionResultsPanel(QWidget):
         layout.addLayout(header)
         layout.addWidget(controls_row)
 
-        # WHY A LEVEL IS EMPTY, WHERE THE EMPTY THING IS. Above the tabs, so
-        # it is beside whichever tab the reader is looking at rather than
-        # only on the one that happens to carry a status line -- and hidden
-        # whenever there is nothing to say, because a banner that is always
-        # there is a banner nobody reads. Filled by :meth:`_offer_levels`.
         self._missing_level = QLabel("")
         self._missing_level.setObjectName("Muted")
         self._missing_level.setWordWrap(True)
@@ -824,35 +731,19 @@ class RegressionResultsPanel(QWidget):
         self.tabs = QTabWidget()
         layout.addWidget(self.tabs, 1)
 
-        # Volcano and table share a splitter: the two views of one table
-        # belong beside each other, and the divider is the user's to move.
         self.volcano = VolcanoPlot()
         self.table = ResultsTable()
         self.external_volcano = bool(external_volcano)
         self.table.setMinimumHeight(150)
-        # THE SAME GESTURE ON THE TABLE AS ON THE PLOT. Instruction 128 L:
-        # "i should be able to right click on the coeffisients table and only
-        # see grna or genes and this should also filer the subsequent
-        # data/graphs in the subsequent tabs". Wired to the SAME
-        # :meth:`set_level`, so the two entry points cannot end up with two
-        # opinions about which rows the panel is showing.
         self.table.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.table.customContextMenuRequested.connect(self._level_menu_at)
         if self.external_volcano:
-            # The table is the panel; the graph is the caller's to place.
             self._volcano_tab, self._volcano_tab_name = self.table, "Coefficients"
             self.tabs.addTab(self.table, "Coefficients")
         else:
             split = QSplitter(Qt.Vertical)
             split.setChildrenCollapsible(False)
             split.addWidget(self.volcano)
-            # WHICH MODEL DREW THIS (189 B), directly under the graph and not
-            # three tabs away. Two volcanoes can be correctly identical --
-            # glm and quasi_binomial share every coefficient, because
-            # dispersion moves the standard errors and not the point
-            # estimates -- and without a label that is indistinguishable from
-            # a bug. It was, and it is what "all the plots look the same no
-            # matter which regression type i do" was about.
             self._model_line = QLabel("")
             self._model_line.setObjectName("Muted")
             self._model_line.setWordWrap(True)
@@ -861,29 +752,11 @@ class RegressionResultsPanel(QWidget):
             split.addWidget(self.table)
             split.setStretchFactor(0, 3)
             split.setStretchFactor(1, 2)
-            # Floors, not preferences. Without them the panel's share of the
-            # window is divided by the widgets' own size hints and BOTH end up
-            # too short to read -- a volcano with no room for its axes and a
-            # table showing its header and one row, which is what this looked
-            # like on the real screen before the numbers were put in.
             self.volcano.setMinimumHeight(240)
             split.setSizes([340, 20, 220])
             self._volcano_tab, self._volcano_tab_name = split, "Volcano"
             self.tabs.addTab(split, "Volcano")
 
-        # THE TWO EFFECT PANELS, which the sheet has drawn since it existed
-        # and the screen had no twin of -- instruction 129 B, where the gap
-        # was measured at exactly these two. They sit directly after the
-        # volcano because they read in the same order the sheet does: the
-        # result, then HOW BIG it is and how sure, then whether the model was
-        # entitled to say it.
-        #
-        # A volcano ranks by significance and cannot answer either question.
-        # On the TSG101 screen its top guide by p is not its top guide by
-        # effect, and the strongest effect in the screen (4.37) has q = 3e-05
-        # while the third strongest (-4.22) has q = 0.063 -- one is called and
-        # the other is not, and only a ranked list with intervals shows that
-        # they are the same size.
         self.effect_rank = EffectRankPlot()
         self.effect_distribution = EffectDistribution()
         self.tabs.addTab(self.effect_rank, "Effect rank")
@@ -906,60 +779,18 @@ class RegressionResultsPanel(QWidget):
         self.tabs.addTab(self.qq, "Q-Q")
         self.tabs.addTab(self.controls, "Controls")
 
-        # THE STATSMODELS SUMMARY. Monospace, read-only and SELECTABLE: the
-        # reason to want it is usually to paste a number into a methods
-        # section, and a summary you cannot select is a summary you retype.
         from PySide6.QtGui import QFontDatabase
-        # 168 D: "The Summary tab shows the verdict expanded and each
-        # section collapsed, with the section headings as the outline."
-        # A drop-in for the QPlainTextEdit that was here -- same
-        # setPlainText/toPlainText -- so nothing that fills or reads it
-        # changes, and text with no spaCR headings (the statsmodels summary)
-        # is still shown whole.
         from .folding_summary import FoldingSummaryView
 
         self._summary = FoldingSummaryView()
         self._summary.setPlainText(
             "Run a regression to see its summary.")
-        # ADDED AFTER THE DIAGNOSTICS, not before them. Q-Q, Controls,
-        # Residuals, Scale-location and Influence are one group that reads in
-        # order, and a test asserts they sit together; dropping the Summary
-        # into the middle of it split the group.
 
-        # THE RESIDUAL DIAGNOSTICS, LIVE. "in the tabs Q-Q and Controls, there
-        # should be Tabs like residuals showing the residuals and regression
-        # controll graphs like that."
-        #
-        # Every tab so far is drawn from the COEFFICIENT table, which is one
-        # row per guide and says nothing about how well the model fitted the
-        # WELLS it was given. These three are the well-level half, and they
-        # are the three the QC report leads with: is the mean right, is the
-        # variance flat, is the answer resting on one well. They come from
-        # `spacr.regression_qc` -- the same arrays the saved report draws --
-        # rather than being recomputed here, because a live panel that named
-        # different influential wells than the PDF beside it would be worse
-        # than no live panel.
-        #
-        # THEY ARE ALWAYS TABS, even before there is a model to fill them,
-        # and each one SAYS why it is empty. A diagnostic that appears only
-        # once it happens to be computable is one nobody knows to look for.
         self.residuals = ResidualPlot()
         self.scale_location = ScaleLocationPlot()
         self.influence = InfluencePlot()
         self.tabs.addTab(self.residuals, "Residuals")
 
-        # THE HOMOGENEITY VERDICT, BESIDE THE PICTURE. Instruction 128 M: the
-        # Scale-location tab shipped the plot and never asked the question the
-        # plot exists to answer -- is the residual spread constant across the
-        # fitted range? A reader who cannot answer that from a scatter of 610
-        # points (and most cannot) has no way to know that every standard
-        # error in the Summary tab, and so every p-value in the coefficient
-        # table, is optimistic.
-        #
-        # A LABEL, NOT A STATUS LINE. The plot's own status is overwritten by
-        # whatever was last clicked (`FastPlot.note_selection`), and a verdict
-        # that disappears when the user interacts with the panel is a verdict
-        # they will not have read.
         self.homogeneity = QLabel(self.NO_HOMOGENEITY_VERDICT)
         self.homogeneity.setWordWrap(True)
         self.homogeneity.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -971,27 +802,14 @@ class RegressionResultsPanel(QWidget):
         spread.addWidget(self.homogeneity)
         self.tabs.addTab(self._scale_location_tab, "Scale-location")
         self.tabs.addTab(self.influence, "Influence")
-        # WHERE THE ANNOTATED CELLS LAND (215). An independent check: the
-        # annotation is made from sequencing fractions plus a phenotype
-        # call, and this asks where the cell sits among the CONTROLS using
-        # every measurement at once. Agreement between two routes that
-        # different is worth more than either alone.
-        #
-        # Nothing is computed until the tab is opened and its button
-        # pressed. A UMAP over a screen's cells is seconds of work, and a
-        # tab that embedded on construction would charge that to every user
-        # who never looks at it.
         try:
             from .annotation_umap_tab import AnnotationUmapTab
 
             self.annotation_umap = AnnotationUmapTab(self)
             self.tabs.addTab(self.annotation_umap, "Annotation check")
         except Exception:                                    # noqa: BLE001
-            # A panel that cannot build its optional tab is still a panel.
             self.annotation_umap = None
 
-        # The statsmodels summary closes the diagnostic group: it is the
-        # model-level readout the panels above it are pictures of.
         self.tabs.addTab(self._summary, "Summary")
         self.tabs.setTabToolTip(
             self.tabs.indexOf(self.residuals),
@@ -1007,14 +825,6 @@ class RegressionResultsPanel(QWidget):
             "Leverage against standardised residual. Which wells are moving "
             "the coefficients on their own.")
 
-        # GUIDE SUPPORT. The one thing the volcano structurally cannot show:
-        # a gene carried by a single surviving guide and a gene whose guides
-        # agree are the same dot, ranked by the same number, and only one of
-        # them is independent evidence.
-        #
-        # Plot above table, the same arrangement as the volcano tab and for
-        # the same reason: the picture says which genes rest on one guide at a
-        # glance, and the numbers behind any one of them are a click away.
         self.agreement = GuideAgreementPlot()
         self.support = ResultsTable()
         agreement_split = QSplitter(Qt.Vertical)
@@ -1029,81 +839,19 @@ class RegressionResultsPanel(QWidget):
         self._support_tab = agreement_split
         self.tabs.addTab(agreement_split, "Guide support")
 
-        # THE GENE TILE. Instruction 121. The volcano answers "which guides
-        # moved" and structurally cannot answer "what IS 411710", which is the
-        # question the user has the instant they click one. The frame is
-        # reached through a callable rather than stored, so a newly loaded
-        # regression is never answered from the previous one.
-        #
-        # `GenePanel` and not `GeneTilePanel`: the tile alone says WHICH gene
-        # a dot is and what THIS screen measured about it, both read out of
-        # the frame already on screen. The panel adds the other half the
-        # instruction asks for -- product, DeepTMHMM topology with each
-        # segment's coordinates, hyperLOPIT compartment, the published
-        # fitness screens and the stage expression -- out of
-        # `spacr.annotation`, and it loads those five CSVs on a worker
-        # thread. Cold that read is 360 ms, and 360 ms inside a mouse press
-        # is a plot that reads as broken.
         from .gene_panel import GenePanel
         self.gene = GenePanel(frame_provider=lambda: self._frame)
         if not self.external_volcano:
             self.tabs.addTab(self.gene, "Gene")
-        # When the volcano is external the tile goes WITH IT, not behind a
-        # tab: "when a gene is clicked a tile should appear with all the
-        # information on that gene" -- appear, beside the point that was
-        # clicked. A tile the user has to go and find is a tile they will not
-        # look at. The caller places it, exactly as it places the volcano.
 
-        # THE TWO DIRECTIONS OF THE SAME LINK, JOINED ON THE KEY.
-        #
-        # Not on a position. The table is sorted by whatever column the user
-        # clicked last and filtered by whatever is in the search box; the
-        # volcano is drawn in input order and, since it stopped plotting the
-        # nuisance terms, does not even hold the same number of rows. Two
-        # frames in two orders joined by index highlight the wrong guide --
-        # silently, and in the one direction nobody questions, because a point
-        # did light up.
-        #
-        # `feature` is the key: 1,213 rows and 1,213 distinct values on the
-        # real screen. It is checked, not assumed -- see _key_column.
-        #
-        # EVERY PLOT WHOSE POINTS ARE COEFFICIENTS, not just the volcano.
-        # Instruction 124 F: "id like to be able to presson the datapoints of
-        # all graphs where data is represented as genes and grnas, e.g. like
-        # the Q-Q plots". A Q-Q point IS a coefficient; so is a dot in the
-        # control panel and a gene in the agreement plot. They all reach the
-        # table by the same one-line route, which is why they cannot disagree
-        # about what a click means.
         for plot in self._keyed_plots():
             plot.key_selected.connect(self._select_from_a_plot)
-        # A BAR IS NOT A POINT. The histogram is the one mark here that stands
-        # for many rows, so it narrows the table to them rather than pretending
-        # to pick one -- see PValueHistogram.select_bin. When a bar happens to
-        # hold exactly ONE coefficient there is nothing to guess between, so it
-        # selects it like any other point and takes the same route as the rest.
         self.p_values.key_selected.connect(self.table.select_key)
         self.p_values.keys_selected.connect(self._show_keys)
-        # The effect distribution is the OTHER histogram, and it takes the
-        # same route for the same reason: its marks are bars of many
-        # coefficients, so it narrows the table rather than guessing which of
-        # them the user meant.
         self.effect_distribution.key_selected.connect(self.table.select_key)
         self.effect_distribution.keys_selected.connect(self._show_keys)
         self.table.key_selected.connect(self._select_key)
-        # ON THE TABLE, NOT THE VOLCANO, and one connection rather than two:
-        # table.key_selected is the funnel BOTH directions already pass
-        # through -- volcano.key_selected -> table.select_key -> selection
-        # change -> re-emit. Connecting the volcano as well would build the
-        # tile twice for every click.
         self.table.key_selected.connect(self.gene.show_feature)
-        # THE MULTI-SELECT ROUTE, THE SAME SHAPE AS THE SINGLE ONE
-        # (instruction 206). Every keyed plot's band and modifier-click reach
-        # the table, and the table re-emits to the consumers -- so there is
-        # still exactly one place that decides what "the selection" is, and
-        # the gene tile cannot be showing one guide while the image tabs show
-        # another. The two histograms are NOT on this route: their
-        # `keys_selected` means "the rows behind this bar", which narrows the
-        # table rather than selecting, and is already connected above.
         for plot in self._keyed_plots():
             if plot in (self.p_values, self.effect_distribution):
                 continue
@@ -1135,13 +883,6 @@ class RegressionResultsPanel(QWidget):
         self._threshold_multiplier = DEFAULT_THRESHOLD_MULTIPLIER
         #: Why a colour-by option is present but useless, or "".
         self._colour_by_note = ""
-        # LOADING A RUN GOES OFF THE GUI THREAD (instruction 159). `load`
-        # walked the folder, read the CSV and rebuilt every view inline, and
-        # this file contained no JobRunner at all -- so a big table or a deep
-        # folder stopped the window with no spinner and no cancel, which is
-        # indistinguishable from a crash. It is the same defect 154 A fixed
-        # for the merge, and this is the same machinery rather than a second
-        # one.
         from ..job_runner import JobRunner
 
         self._loading = False
@@ -1149,25 +890,6 @@ class RegressionResultsPanel(QWidget):
         self._load_jobs.job_failed.connect(self._on_load_job_failed)
         #: None, "gene" or "grna" -- which rows EVERY tab draws. One piece of
         #: state, read by every draw path: see :meth:`refresh_views`.
-        #
-        # A DEFAULT, NOT A PIN, and there is exactly one statement of it:
-        # :meth:`_default_level`, which every table goes through. This line
-        # used to be a second, unconditional `= "grna"`, and that is what made
-        # the gene half of a `level='both'` run unreachable to a reader who
-        # never right-clicked the plot.
-        #
-        # GUIDES ARE STILL WHERE A TABLE OPENS. The guide is the unit the
-        # screen measures, and a permutation run reports guides only, so it is
-        # the level the two inference modes agree on. What has changed is that
-        # the other two are on the panel beside it.
-        #
-        # The duplication the pin was fixing -- `225160` drawn four times,
-        # once per guide plus once for itself, every one of them labelled
-        # `225160` -- is fixed at its source now: the rows are keyed and
-        # labelled by the design-matrix TERM, so the four read
-        # `gene_fraction:gene[225160]`, `fraction:grna[225160_1]`, `[_2]` and
-        # `[_3]`, and a `level` column says which fit each came from. Checked
-        # on the real screen before this default was relaxed, not assumed.
         self._level = self._default_level()
         #: Fitted model behind the table when the current process produced it.
         self._model = None
@@ -1188,24 +910,15 @@ class RegressionResultsPanel(QWidget):
         #: The constant-spread verdict now on screen.
         self._homogeneity_text = self.NO_HOMOGENEITY_VERDICT
 
-        # The diagnostics start out saying what they are waiting for. An
-        # empty plot with no sentence is indistinguishable from a broken one.
         self.clear_diagnostics()
         for plot in (self.effect_rank, self.effect_distribution):
             plot.set_status(self.NO_EFFECTS_YET)
 
-        # RE-FITTING IS OFFERED FROM THE PLOT, under its own heading, because
-        # that is where it was asked for: "right click on the regression plot
-        # and choose a different regression". It is separated from the
-        # restyling entries above it for the reason `offer_refit` gives.
         self.volcano.offer_refit(self.ask_refit)
         self._offer_levels()
         self._offer_baselines()
         self._offer_compartments()
 
-        # These three editors share one visible setting name. Keep each
-        # channel's detailed help, but expose it from that name instead of
-        # requiring the pointer to discover help on the editable fields.
         self._colour_by_label.setToolTip("\n\n".join([
             self._colour_by_label.toolTip(),
             self._colour_by.toolTip(),
@@ -1215,11 +928,9 @@ class RegressionResultsPanel(QWidget):
         for field in (self._colour_by, self._colour_by_2, self._colour_by_3):
             field.setToolTip("")
 
-        # Move any remaining editor help to the label that names its setting.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -------------------------------------------------------------- re-fitting
 
     def set_run_settings(self, settings) -> None:
         """Remember the settings that produced the table now on screen.
@@ -1230,18 +941,8 @@ class RegressionResultsPanel(QWidget):
         screen, so on a second run it describes the wrong one.
         """
         self._run_settings = dict(settings) if settings else None
-        # ONLY THE LIVE PATH CALLS THIS, so it is also the answer to "did
-        # this table come from a run in this session or off the disk" -- a
-        # question the Summary tab used to answer with a guess.
         self._from_live_run = True
-        # THE SETTINGS ARE EVIDENCE ABOUT AN EMPTY LEVEL, so the sentence
-        # that reads them is rebuilt now rather than at the next click:
-        # `level='grna'` is the plainest possible answer to "why is Gene
-        # empty", and it arrives after the table it describes.
         self._offer_levels()
-        # The reason for an absent summary has just changed, so the sentence
-        # on the tab has to. Only when there is no model to render: a summary
-        # already on screen is the run's own and is not rewritten.
         if self._model is None:
             self.set_summary(None)
 
@@ -1260,11 +961,6 @@ class RegressionResultsPanel(QWidget):
         try:
             refit_settings(base or {})
         except ValueError as error:
-            # No settings, or no count data in them. SAID ON THE PANEL and
-            # BEFORE the dialog opens: a form whose only content is a
-            # disabled button and an error is worse than a sentence, and the
-            # user right-clicked a graph -- a traceback is not an answer to
-            # that either.
             self.say(str(error))
             return False
 
@@ -1279,7 +975,6 @@ class RegressionResultsPanel(QWidget):
         self.refit_requested.emit(settings)
         return True
 
-    # ------------------------------------------------------------ diagnostics
 
     #: Message shown when diagnostics have no fitted model. It distinguishes
     #: disk-loaded coefficient tables from a live fit and names the available
@@ -1413,9 +1108,6 @@ class RegressionResultsPanel(QWidget):
         if page is None:
             return False
         try:
-            # -1 when the widget exists but was never added, which is the
-            # ordinary state of the volcano and gene tabs on a screen that
-            # shows the volcano outside the panel.
             if self.tabs.indexOf(page) < 0:
                 return False
             self.tabs.setCurrentWidget(page)
@@ -1446,9 +1138,6 @@ class RegressionResultsPanel(QWidget):
         for plot in self.diagnostic_plots():
             plot._reset_scene()
             plot.set_status(reason or self.NO_MODEL_MESSAGE)
-        # THE VERDICT GOES WITH THE PICTURE IT JUDGED. Left behind, it would
-        # be a sentence about the previous fit sitting under an empty plot,
-        # which is the worst of both: authoritative and about nothing.
         self._homogeneity = {}
         self._homogeneity_text = (
             f"No constant-spread verdict: {reason}" if reason
@@ -1466,10 +1155,6 @@ class RegressionResultsPanel(QWidget):
         every other tool the reader compares it against.
         """
         if model is None:
-            # THE MODEL THIS PANEL ALREADY HAS. A caller handing over a
-            # payload whose `model` key is empty is saying "the run returned
-            # none", not "throw away the one you were given" -- and the fit
-            # kept by `set_diagnostics` is the same fit this table came from.
             model = self._model
         text = summary_text(model, regression_type, path=self._path,
                             reason=self._no_model_reason())
@@ -1501,9 +1186,6 @@ class RegressionResultsPanel(QWidget):
             LOG.debug("could not name the model", exc_info=True)
             said = ""
         label.setText(said)
-        # HIDDEN WHEN IT HAS NOTHING TO SAY. An empty muted strip under the
-        # graph is a row of pixels that means nothing, and a caption that
-        # guessed would be worse than no caption.
         label.setVisible(bool(said))
         return said
 
@@ -1521,11 +1203,6 @@ class RegressionResultsPanel(QWidget):
         if self._model is not None:
             return ""
         if self._diagnostics_error:
-            # Defensive rather than expected: `set_diagnostics` now stores the
-            # fit BEFORE it tries to draw anything, so a diagnostics failure
-            # no longer takes the model with it. If some other path ever
-            # loses one, the tab says which error did it rather than telling
-            # the disk story again.
             return (f"the diagnostics failed and the fit was not kept "
                     f"({self._diagnostics_error})")
         if self._from_live_run:
@@ -1555,16 +1232,6 @@ class RegressionResultsPanel(QWidget):
             self.clear_diagnostics()
             return False
 
-        # THE FIT IS STORED BEFORE ANYTHING IS DRAWN FROM IT.
-        #
-        # It used to be assigned at the bottom, after the context had been
-        # built, so every early return below threw the model away -- and the
-        # Summary tab then explained its absence with "this panel was opened
-        # from a results table on disk", which for a live run whose
-        # diagnostics could not be built is simply untrue. A failure in the
-        # VIEW must not destroy the thing being viewed: the model is the fit,
-        # the diagnostics are one way of looking at it, and the summary is
-        # another that works perfectly well when this one does not.
         self._model = model
         self._diagnostics_error = ""
         try:
@@ -1602,9 +1269,6 @@ class RegressionResultsPanel(QWidget):
             cooks_distance(ctx.std_resid, ctx.leverage, ctx.p),
             labels=labels, n_params=ctx.p, reason=reason or "")
         self.judge_homogeneity(ctx)
-        # The three plots above each wrote their own headline, which clears
-        # whatever note was on them -- so the "these are wells, not
-        # coefficients" sentence is put back last or it is not there at all.
         self._note_the_diagnostics()
         return True
 
@@ -1646,9 +1310,6 @@ class RegressionResultsPanel(QWidget):
         try:
             stats = draw_panel("scale_location", ctx, figure.add_subplot(111))
         except PanelUnavailable as error:
-            # A real answer about the fit -- a quantile or hinge fit has no
-            # error scale, so it has no standardised residual to judge -- and
-            # it must not read like a broken panel.
             self._homogeneity = {}
             self._homogeneity_text = f"No constant-spread verdict: {error}"
         except Exception as error:                               # noqa: BLE001
@@ -1763,9 +1424,6 @@ class RegressionResultsPanel(QWidget):
         if combo is self._colour_by_3 and \
                 chosen == self._colour_by_2.currentData():
             return None
-        # LOPIT is materialised onto the frame copy under its own name by the
-        # caller, and only for the FIRST channel. Asking for it here would
-        # name a column that is not there.
         if chosen == self.LOPIT_KEY:
             return None
         return str(chosen)
@@ -1789,9 +1447,6 @@ class RegressionResultsPanel(QWidget):
         """
         keys = [str(k) for k in (keys or ())]
         if len(keys) < 2:
-            # One key is the ordinary single click, which already has a
-            # route. Taking it here as well would select it twice and build
-            # the gene tile twice for every click.
             return
         self._selected_key = keys[-1]
         self.table.select_keys(keys)
@@ -1807,7 +1462,6 @@ class RegressionResultsPanel(QWidget):
             return keys
         return [self._selected_key] if self._selected_key else []
 
-    # ------------------------------------------------------------------ load
 
     def results_frame(self):
         """Return the complete coefficient table for the displayed run.
@@ -1844,13 +1498,6 @@ class RegressionResultsPanel(QWidget):
             return path
         if os.path.isfile(path):
             return os.path.dirname(path)
-        # A PATH THAT NO LONGER EXISTS IS STILL EVIDENCE. A run folder that
-        # was deleted (146) or moved should name the run it named yesterday
-        # rather than reading as "this table came from nowhere" -- and the
-        # state keyed on it has to be reachable to be forgotten. The two
-        # shapes are told apart by the only thing left to read: a results
-        # table is `results.csv` and a run folder is `ols_3`, so a suffix
-        # means a file and no suffix means the folder.
         if os.path.splitext(os.path.basename(path))[1]:
             return os.path.dirname(path)
         return path
@@ -1974,7 +1621,7 @@ class RegressionResultsPanel(QWidget):
                     "The most recently written results table under it is "
                     "loaded.")
         except RuntimeError:                                     # noqa: BLE001
-            pass                       # the widget went away under a close
+            pass
 
     def cancel_load(self) -> bool:
         """Cancel an active result load while preserving the current view.
@@ -1990,8 +1637,6 @@ class RegressionResultsPanel(QWidget):
         self._set_loading(False)
         self.say("Loading was cancelled; the run already on screen is "
                  "unchanged.")
-        # THE SAME ENDING AS EVERY OTHER, because a caller waiting on
-        # `load_finished` must not be left waiting by a cancel either.
         self.load_finished.emit(False)
         return True
 
@@ -2016,8 +1661,8 @@ class RegressionResultsPanel(QWidget):
         started = self._load_jobs.submit(
             lambda: self._read_run(path),
             self._finish_load)
-        if not started:                      # JobRunner
-            self._set_loading(False)         # always returns True today
+        if not started:
+            self._set_loading(False)
         return bool(started)
 
     @staticmethod
@@ -2060,8 +1705,6 @@ class RegressionResultsPanel(QWidget):
             ok = self._apply_loaded_run(
                 outcome["frame"], outcome["found"], outcome["searched"],
                 outcome["tables"])
-        # ALWAYS, on both endings. A caller waiting on this must not be left
-        # waiting by a failure -- that is a spinner nothing clears.
         self.load_finished.emit(bool(ok))
         return ok
 
@@ -2122,8 +1765,6 @@ class RegressionResultsPanel(QWidget):
         merge had been moved off it is that nobody had made them one path.
         """
         if not self.set_frame(frame, source=found):
-            # set_frame said why -- an empty table is not the same failure as
-            # a missing one -- but the folder it came from is worth adding.
             self.say(f"{self._status} ({found}, found under {searched})")
             return False
         runs = {os.path.dirname(table) for table in tables}
@@ -2197,7 +1838,7 @@ class RegressionResultsPanel(QWidget):
         """
         try:
             from ...hits import coefficient_levels
-        except Exception:              # hits unavailable
+        except Exception:
             return frame
         columns = list(getattr(frame, "columns", ()))
         if "level" in columns or "feature" not in columns:
@@ -2206,15 +1847,7 @@ class RegressionResultsPanel(QWidget):
         if not (levels == "gene").any() or not (levels == "grna").any():
             return frame
         frame = frame.copy()
-        # A NAME FOR THE ROWS IN NEITHER FAMILY. The intercept and the plate
-        # row/column terms are covariates, not hypotheses, so they belong to
-        # no level -- and a blank in a column offered as a colouring is a
-        # legend entry with no name on it. `coefficient_levels` does not
-        # recognise the word, so reading the column back still places those
-        # rows by their term, which is where the blank came from.
         levels = levels.replace("", "nuisance")
-        # BESIDE THE IDENTIFIER IT QUALIFIES, not appended after thirty
-        # annotation columns where a reader scanning the row never reaches it.
         frame.insert(columns.index("feature") + 1, "level", levels)
         return frame
 
@@ -2226,55 +1859,19 @@ class RegressionResultsPanel(QWidget):
             self.say("The results table is empty: it has columns but no "
                       "rows, so the fit produced no coefficients.")
             return False
-        # ROWS BUT NO P VALUES IS NOT AN EMPTY TABLE, and saying nothing
-        # about it produced the report "with guides i see nothing in the
-        # graph" (2026-08-21) against a run that had worked perfectly.
-        #
-        # A MIXED MODEL MAKES THE GUIDE A RANDOM EFFECT. Each guide gets a
-        # shrunken BLUP -- a prediction -- and a BLUP has no p value, so a
-        # volcano, whose vertical axis IS the p value, has nothing to draw.
-        # The run already says this in the console; the panel the user is
-        # looking at did not.
         self._say_if_no_p_values(frame)
-        # THE LEVEL IS WRITTEN INTO THE TABLE, so it survives the panel.
         frame = self._name_the_levels(frame)
-        # THE OUTGOING RUN KEEPS WHAT THE USER BUILT ON IT. Saved BEFORE
-        # anything is replaced, because every line below this one resets a
-        # piece of it -- and saved against the OLD path, which is the key the
-        # user will come back through.
         self._remember_plot_state()
         self._frame = frame
         self._path = source
-        # NAMED THE MOMENT THE TABLE CHANGES, not at the end: every early
-        # return below this line would otherwise leave the header naming the
-        # previous run over the new one's coefficients.
         self._name_the_run()
         self._ranking = self._rank_by(frame, source)
 
-        # A NEW TABLE IS A NEW FIT, so the old fit's residuals have to go. The
-        # caller that HAS a model calls `set_diagnostics` immediately after
-        # this; the caller that loaded a CSV has none, and leaving the last
-        # run's residuals on the tabs would describe a fit the user is no
-        # longer looking at -- with nothing on screen saying so.
         self._from_live_run = False
         self.clear_diagnostics()
 
-        # AND THE SUMMARY IS THE SAME KIND OF STALENESS. It was left
-        # untouched here, so a table opened from disk sat under the PREVIOUS
-        # run's statsmodels output with nothing saying whose it was. Refreshed
-        # from the new table's own folder: `perform_regression` writes the
-        # summary beside `results.csv`, so a run re-opened from disk shows the
-        # text it showed while it was running -- byte for byte, because it is
-        # the same bytes. A live run overrides this a moment later with the
-        # model itself, which is better still.
         self.set_summary(None)
 
-        # WHICH SETTINGS PRODUCED THIS TABLE. Read from beside the table, and
-        # REPLACED rather than kept: a new table is a new experiment, and
-        # carrying the last run's settings over would offer to re-fit a
-        # screen the panel is no longer showing. A live run overrides this by
-        # calling `set_run_settings` afterwards, which is better still --
-        # the shared settings/ copy on disk is overwritten by every later run.
         from ...refit import settings_of_run
 
         try:
@@ -2282,8 +1879,6 @@ class RegressionResultsPanel(QWidget):
         except Exception:                                        # noqa: BLE001
             self._run_settings = None
 
-        # Offer every column that could sensibly colour the points, without
-        # guessing: a column with one value per point is not a category.
         self._colour_by.blockSignals(True)
         self._colour_by.clear()
         self._colour_by.addItem("nothing", None)
@@ -2301,22 +1896,12 @@ class RegressionResultsPanel(QWidget):
                 if 1 < distinct <= cap:
                     self._colour_by.addItem(f"{name} ({distinct})", name)
                 elif name in self.ALWAYS_OFFERED:
-                    # OFFERED ANYWAY, AND THE COUNT SAYS WHY IT IS USELESS.
-                    # A `condition` column with ONE value is not a boring
-                    # column, it is a FINDING: it means the negative/positive
-                    # control names matched no feature, so nothing got
-                    # labelled. Dropping it silently hides that, and the
-                    # maintainer reported exactly this as "the color by
-                    # doesn't include condition".
                     self._colour_by.addItem(f"{name} ({distinct})", name)
                     skipped.append(
                         f"{name} has {distinct} distinct value"
                         f"{'' if distinct == 1 else 's'}"
                         + (" -- the control names matched no feature"
                            if distinct == 1 and name == "condition" else ""))
-        # LOPIT IS NOT A COLUMN, so the walk above cannot see it. It is
-        # joined from the bundled TAGM table, and only offered when this
-        # screen actually has compartments in it.
         try:
             from ...localisation import present
 
@@ -2327,14 +1912,9 @@ class RegressionResultsPanel(QWidget):
             self._colour_by.addItem(
                 f"LOPIT localisation ({len(compartments)})", self.LOPIT_KEY)
 
-        # 'condition' is what a screen labels its controls with, so it is the
-        # colouring a reader wants first.
         preferred = self._colour_by.findData("condition")
         self._colour_by.setCurrentIndex(preferred if preferred >= 0 else 0)
         self._colour_by.blockSignals(False)
-        # THE SAME OFFER IN ALL THREE, so a user can put any column on any
-        # channel. Built from the first rather than by walking the frame
-        # again: two walks are two chances to offer different lists.
         for extra in (self._colour_by_2, self._colour_by_3):
             keep = extra.currentData()
             extra.blockSignals(True)
@@ -2347,62 +1927,22 @@ class RegressionResultsPanel(QWidget):
             extra.blockSignals(False)
         self._colour_by_note = "; ".join(skipped)
 
-        # A new table is a new experiment; carrying the old selection over
-        # would ring a point that means something else now.
-        #
-        # EVERY PLOT, not just the volcano. Each one re-marks `_selected_key`
-        # at the end of its own draw so a restyle does not lose the user's
-        # place -- which means a plot whose selection is NOT cleared here
-        # cheerfully re-rings the new run at the old key. Caught by exporting
-        # the control panel after a reload and finding a ring still on it.
         self._selected_key = None
-        # AND THE TABLE'S OWN ROW, because the table is what re-establishes
-        # a selection. Clearing `_selected_key` and the rings was not enough:
-        # rebuilding the table leaves a row highlighted, that row re-emits
-        # `key_selected`, and the panel comes back from the reset holding a
-        # key -- on the new run, but one nobody chose, and a mark nobody
-        # chose is exactly what this reset exists to prevent. Blocked, so the
-        # clear itself does not emit a THIRD time.
         try:
             blocked = self.table.table.blockSignals(True)
             self.table.table.clearSelection()
             self.table.table.setCurrentCell(-1, -1)
             self.table.table.blockSignals(blocked)
         except (RuntimeError, AttributeError):
-            # A table whose C++ half has gone raises RuntimeError; one
-            # that was never built raises AttributeError. Neither is a
-            # reason to refuse the frame -- the selection being cleared
-            # is housekeeping ahead of repopulating it.
             pass
         for plot in self._keyed_plots():
             plot.clear_highlight()
         for histogram in (self.p_values, self.effect_distribution):
             histogram.clear_highlight()
-        # AND THE GENE TILE, for the same reason and it is the worst offender:
-        # a plot re-rings a point, but the tile keeps a whole paragraph about
-        # a gene from the previous screen, with this screen's effect nowhere
-        # near it and nothing on it saying which run it came from.
         self.gene.clear()
-        # Warm the annotation for THIS screen's genes, off the GUI thread.
-        # One join covers the whole table -- 400 genes cost the same 21 ms as
-        # one -- so every click afterwards is a dictionary lookup.
         self.gene.warm_for(frame)
 
-        # THE COMPARTMENT MENU IS BUILT FROM THE TABLE, so it has to be
-        # rebuilt when the table changes. Built once in __init__ it is built
-        # from no frame at all, which is an empty submenu that never appears
-        # -- and a new screen would otherwise be offered the last one's
-        # compartments.
         self._compartment = None
-        # AND SO DO THE EFFECT CUT AND THE AXIS WINDOW, which they did not.
-        # Measured on the real panel: after typing an x-range of (-1.5, 1.5)
-        # and a 2-spread cut on run A, opening run B drew run B inside run
-        # A's window with run A's cut -- a picture nobody chose, with nothing
-        # on screen saying where it came from. The other four resets in this
-        # block exist for exactly that reason; these two were missing.
-        #
-        # A run RETURNED TO gets its own back at the end of this method
-        # (`_restore_plot_state`), so the reset costs nothing a user built.
         self._threshold_method = DEFAULT_THRESHOLD_METHOD
         self._threshold_multiplier = DEFAULT_THRESHOLD_MULTIPLIER
         self._p_value_kind = "raw"
@@ -2411,50 +1951,23 @@ class RegressionResultsPanel(QWidget):
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not release the previous run's axis limits",
                       exc_info=True)
-        # THE DEFAULT LEVEL IS READ OFF THE TABLE, not asserted.
-        #
-        # Defaulting to "grna" unconditionally is what fixed the four-fold
-        # duplication -- a gene drawn once per guide -- and it is right for
-        # the table a mixed or hierarchical run writes, which carries both
-        # levels. It is WRONG for the table instruction 128 R produces: the
-        # separate gene fit writes `results_gene.csv`, whose every row is a
-        # gene term, and a guide filter over it selects nothing. The panel
-        # then draws an empty volcano with a full coefficient table beside
-        # it, which reads as a broken plot rather than as an empty filter.
         self._level = self._default_level()
         self._offer_levels()
         self._offer_p_values()
         self._offer_thresholds()
         self._offer_compartments()
 
-        # EVERY TAB THROUGH ONE PATH. A new table and a change of the
-        # gene/guide filter draw the panel with the same method, so the two
-        # cannot leave it in two different states -- which is the whole of
-        # instruction 128 L.
         self.refresh_views()
         self._mark_the_level_on_the_plots()
-        # BOTH FITS ARE ANNOUNCED ON LOAD. A run at level='both' writes two
-        # tables and the panel opens on one; until this line nothing said the
-        # other existed, and a user who ran glm reported "it only runs once"
-        # about a run that had written both.
         note = self.both_levels_note()
         if note:
             self.say(f"{self._status} {note}")
         if self._colour_by_note:
-            # SAID, not swallowed. A colouring the user expected and cannot
-            # find is a bug report; the same colouring listed with the reason
-            # it is useless is an answer.
             self.say(f"{self._status} Colouring: {self._colour_by_note}.")
-        # AND A RUN COME BACK TO GETS ITS PLOT BACK. Last, so it wins over
-        # every default the lines above chose from the table -- which is the
-        # whole point: those defaults are right the FIRST time a run is
-        # opened and wrong every time after, because by then the user has
-        # said what they want to look at.
         self._restore_plot_state(source)
         self.loaded.emit(source or "")
         return True
 
-    # ----------------------------------------------- a run owns its plot
 
     def plot_state(self) -> dict:
         """What the user has built on the plot, as data.
@@ -2470,9 +1983,6 @@ class RegressionResultsPanel(QWidget):
         is rebuilt from each table's own columns and index 3 is a different
         column in the next run.
         """
-        # THE PLOT'S OWN ANSWER, through its public method (116's last
-        # private coupling). `getattr(volcano, "_pinned")` was reaching into
-        # another module's attribute for a question that module can answer.
         reader = getattr(self.volcano, "pinned_limits", None)
         pinned = reader() if callable(reader) else (
             getattr(self.volcano, "_pinned", None) or {})
@@ -2485,9 +1995,6 @@ class RegressionResultsPanel(QWidget):
             "threshold_method": self._threshold_method,
             "threshold_multiplier": self._threshold_multiplier,
             "selected_key": self._selected_key,
-            # ONLY WHAT THE USER PINNED. Storing the view range would freeze
-            # an auto-ranged plot at whatever it happened to show, so a run
-            # returned to would stop following its own data.
             "x_limits": pinned.get("x"),
             "y_limits": pinned.get("y"),
         }
@@ -2515,9 +2022,6 @@ class RegressionResultsPanel(QWidget):
         if colour is not None:
             index = self._colour_by.findData(colour)
             if index >= 0:
-                # Blocked: the redraw below covers it, and letting the combo
-                # fire here would draw the panel against a level that has
-                # not been re-offered yet.
                 blocked = self._colour_by.blockSignals(True)
                 self._colour_by.setCurrentIndex(index)
                 self._colour_by.blockSignals(blocked)
@@ -2537,10 +2041,6 @@ class RegressionResultsPanel(QWidget):
                           exc_info=True)
         key = state.get("selected_key")
         if key:
-            # THE ROW MAY NOT BE THERE. A saved selection is a feature NAME,
-            # and the level restored above may filter it out -- a gene picked
-            # at level=None is not in the guide table. Missing is not an
-            # error; it is a row the user cannot currently see.
             try:
                 self._select_key(str(key))
             except Exception:                                    # noqa: BLE001
@@ -2556,7 +2056,6 @@ class RegressionResultsPanel(QWidget):
         """
         return tuple(self._plot_states)
 
-    # -- State contributed to a saved workspace ------------------------------
 
     def workspace_state(self) -> dict:
         """Return saved view state for every run opened in this panel.
@@ -2588,9 +2087,6 @@ class RegressionResultsPanel(QWidget):
                 if isinstance(remembered, dict):
                     self._plot_states[str(key)] = dict(remembered)
         path = str(state.get("path") or "")
-        # LOADED, not just assigned. `_path` without the table behind it is a
-        # panel claiming to show a run it has not read, and every diagnostic
-        # tab would draw the previous run's numbers under the new run's name.
         if path and os.path.exists(path):
             return bool(self.load(path))
         return bool(runs)
@@ -2674,18 +2170,6 @@ class RegressionResultsPanel(QWidget):
         user comes back to the tab, and the answer belongs beside the marks
         it describes.
         """
-        # THE VOLCANO ONLY, and deliberately. The diagnostics carry the
-        # numbers they exist for -- the inflation factor, the control
-        # medians, how many genes rest on one guide -- and writing the level
-        # sentence over those would trade a panel's whole content for
-        # something the header already says. The volcano is the plot the
-        # report was about and the one a user looks at first.
-        #
-        # THROUGH `_offer_levels`, NOT `set_status_note`. The click slot is
-        # rewritten by every click, so the sentence was gone the first time
-        # the plot was used; `offer_levels`' own note slot is durable. One
-        # call keeps the control, its counts and its sentence in step, which
-        # is why this is a delegation and not a second copy of the sentence.
         self._offer_levels()
 
     def refresh_views(self) -> None:
@@ -2706,24 +2190,12 @@ class RegressionResultsPanel(QWidget):
         """
         frame = self._frame
         if frame is None:
-            # THE LABELS STILL GO ON. A panel with no table yet is still a
-            # panel whose filter is set to something, and tab labels that
-            # disagreed with `level()` for as long as it took a run to finish
-            # would be the exact failure this method exists to prevent.
             self._say_which_family()
             return
         shown = self.filtered_frame()
         kind, column = self._ranking
         self._redraw_volcano()
-        # "significant only" cuts on `value <= alpha`. That is the right way
-        # round for a p-value and exactly backwards for a selection frequency,
-        # where the interesting rows are the HIGH ones -- so on a penalised
-        # backend the checkbox is taken away rather than left to hide every
-        # feature the bootstrap kept.
         self.table.configure(significance_filter=(kind == "p-value"))
-        # The table prefers a CORRECTED column when there is one, and that is
-        # the right cut; the detected column is only needed when the p-value
-        # is spelled some way the table would not recognise.
         significance = None
         if kind == "p-value" and not any(
                 name in shown.columns
@@ -2735,10 +2207,6 @@ class RegressionResultsPanel(QWidget):
         self._show_significance(shown, kind, column, self._path or "")
         self._draw_effects(shown, kind)
         self._draw_controls(shown)
-        # THE FULL TABLE, on purpose. A gene's concordance is how its GUIDES
-        # agree, so the guide rows are what the number is made of -- see
-        # `_draw_guide_support`, which narrows which genes are LISTED without
-        # touching how any of them was computed.
         self._draw_guide_support(frame)
         self._say_which_family()
 
@@ -2752,12 +2220,6 @@ class RegressionResultsPanel(QWidget):
         columns = list(getattr(self._frame, "columns", ()))
         if any(name in columns for name in PERMUTATION_COLUMNS):
             return "permutation"
-        # THE TABLE DECIDES, and only a table with no columns at all defers to
-        # the settings. A saved settings file carries the MODULE's default
-        # inference, not what the run did -- an OLS folder beside this one
-        # says inference='nonparametric' and was fitted, so reading the
-        # settings first labelled an unbounded OLS coefficient a partial
-        # correlation. The permutation writes its columns every time.
         if columns:
             return "fitted"
         settings = self._run_settings if isinstance(self._run_settings,
@@ -2782,7 +2244,7 @@ class RegressionResultsPanel(QWidget):
             return {}
         try:
             from ...hits import gene_of
-        except Exception:              # hits unavailable
+        except Exception:
             return {}
         terms = {}
         for feature in frame["feature"].astype(str):
@@ -2797,11 +2259,11 @@ class RegressionResultsPanel(QWidget):
         """Per-gene guide agreement, ordered by gene p."""
         try:
             from ...guide_concordance import guide_support
-        except Exception:  # module unavailable
+        except Exception:
             return
         try:
             support = guide_support(frame)
-        except Exception:  # odd table shape
+        except Exception:
             self.support.set_frame(None)
             self.agreement.set_support(None)
             return
@@ -2810,14 +2272,9 @@ class RegressionResultsPanel(QWidget):
             self.agreement.set_support(None)
             return
         table = support.reset_index()
-        # The term each gene is called in the coefficient table, put in the
-        # table as a column so the support rows and the agreement points join
-        # on the SAME key every other view here uses.
         terms = self._gene_terms(frame)
         table.insert(0, "feature",
                      [terms.get(str(gene)) for gene in table["gene"]])
-        # A verdict column, because "n_guides=1" is a fact and "this hit rests
-        # on one guide" is what the reader needs to take from it.
         def verdict(row):
             """Whether one row's guide support is sufficient to trust."""
             if row["single_guide"]:
@@ -2828,13 +2285,6 @@ class RegressionResultsPanel(QWidget):
                 return "agreement is the evidence"
             return "supported"
         table["verdict"] = table.apply(verdict, axis=1)
-        # THE FILTER NARROWS WHICH GENES ARE LISTED, never how one was
-        # measured. "genes only" keeps the genes the fit gave a gene-level
-        # term -- the ones whose dot is on the filtered volcano -- and drops
-        # the genes that exist here only as a bundle of guides. "guides only"
-        # drops nothing, because every row of this table IS a gene's guides;
-        # that is stated on the tab rather than left to look like a filter
-        # that failed to fire.
         if self._level == "gene":
             table = table[table["feature"].notna()].reset_index(drop=True)
         if not len(table):
@@ -2845,10 +2295,6 @@ class RegressionResultsPanel(QWidget):
                 "“genes only” leaves nothing to draw here. "
                 + self.GUIDE_SUPPORT_NEEDS_BOTH)
             return
-        # A gene with no gene-level term has no key. Offering `feature` as the
-        # key column anyway would make every such row unselectable AND make
-        # the column non-unique on None; the table checks, so say nothing and
-        # let it fall back.
         usable = table["feature"].notna().all() and table["feature"].is_unique
         self.support.set_frame(table,
                                key_column="feature" if usable else None)
@@ -2903,11 +2349,6 @@ class RegressionResultsPanel(QWidget):
         rows = len(frame)
         where = source or "this table"
         if kind == "p-value":
-            # THE KEYS GO IN WITH THE VALUES, IN FRAME ORDER. Both are taken
-            # positionally out of the same frame, so they stay aligned however
-            # the plot reorders them afterwards -- and the Q-Q reorders them
-            # completely, which is the whole point of handing them over rather
-            # than letting the plot infer a row from a drawing position.
             keys = self._keys_for(frame)
             self.p_values.set_p_values(frame[column], keys=keys)
             self.qq.set_p_values(frame[column], keys=keys)
@@ -3143,13 +2584,6 @@ class RegressionResultsPanel(QWidget):
         levels = self._levels_of(frame)
         if frame is None or levels is None:
             return {None: 0, "gene": 0, "grna": 0}
-        # NOT A COMPLEMENT. `gene` used to be "every row that is not a guide",
-        # which counts the intercept and the plate row/column terms as genes
-        # -- and on a run fitted at both levels it counts the GUIDE fit's
-        # intercept as one. The two families are counted separately, so a row
-        # in neither is in neither count and the menu can be read as an
-        # inventory: 790 + 381 = 1171 on the real screen, where the complement
-        # gave 789 + 382.
         return {None: int(len(frame)),
                 "grna": int((levels == "grna").sum()),
                 "gene": int((levels == "gene").sum())}
@@ -3187,9 +2621,6 @@ class RegressionResultsPanel(QWidget):
               (lambda k=key: self.set_level(k)), key == self._level)
              for key, label in self.LEVELS],
             note=note)
-        # REFILLED WITHOUT FIRING. `activated` is a person's choice only, so
-        # this cannot re-enter `set_level` -- blocked as well, because a
-        # future `currentIndexChanged` here would, and silently.
         blocked = self._level_box.blockSignals(True)
         self._level_box.clear()
         for key, label in self.LEVELS:
@@ -3283,9 +2714,6 @@ class RegressionResultsPanel(QWidget):
         if not self._level:
             return (f"Every tab covers the whole fit: all {total} "
                     f"coefficients, one multiple-testing family.")
-        # A LEVEL WITH NO ROWS IS NOT A NARROWER FAMILY, IT IS NO FAMILY.
-        # Saying "the inflation figure is this family's" about zero tests
-        # describes a diagnostic that is not on screen and cannot be.
         missing = self.missing_level_note()
         if missing:
             return missing
@@ -3317,10 +2745,6 @@ class RegressionResultsPanel(QWidget):
         self._mark_the_level_on_the_plots()
         counts = self.level_counts()
         shown = counts.get(level, counts.get(None, 0))
-        # THE REASON LEADS WHEN THERE IS NOTHING TO DRAW. "0 of 789
-        # coefficients — genes only" is arithmetic; it does not tell the
-        # reader that this run has no gene fit, which is what they are
-        # looking at an empty tab wondering about.
         missing = self.missing_level_note()
         headline = missing or (
             f"{shown} of {counts.get(None, 0)} coefficients — "
@@ -3362,10 +2786,6 @@ class RegressionResultsPanel(QWidget):
             if index >= 0:
                 self.tabs.setTabText(index, f"{name}{suffix}")
                 self.tabs.setTabToolTip(index, note)
-            # THE TITLE, NOT THE STATUS LINE. A plot's status is overwritten
-            # by whatever was last clicked -- `note_selection` does exactly
-            # that -- so a family written there is gone the moment the reader
-            # uses the panel. A title is not.
             plot.plot.setTitle(
                 f"{title}{self.LEVEL_TITLES.get(self._level, '')}")
         support = self.tabs.indexOf(self._support_tab)
@@ -3401,7 +2821,7 @@ class RegressionResultsPanel(QWidget):
         """
         try:
             from ...hits import coefficient_levels
-        except Exception:              # hits unavailable
+        except Exception:
             return None
         return coefficient_levels(frame)
 
@@ -3434,7 +2854,6 @@ class RegressionResultsPanel(QWidget):
             values = frame["multiple_testing_method"].dropna().unique()
             method = str(values[0]) if len(values) else ""
         if method.lower() in ("none", "nan", ""):
-            # The column is there and it is the raw p under another name.
             self.volcano.offer_p_values([])
             self._p_value_note = (
                 f"No correction was applied, so {corrected!r} equals the raw "
@@ -3552,8 +2971,6 @@ class RegressionResultsPanel(QWidget):
 
         options = [("none (up / down)", lambda: self.set_compartment(None),
                     self._compartment is None)]
-        # ALL, asked for on 2026-08-20. Second, so the one-at-a-time reading
-        # the house style prefers is still what a user lands on first.
         options.append(("all localisations",
                         lambda: self.set_compartment(ALL_COMPARTMENTS),
                         self._compartment == ALL_COMPARTMENTS))
@@ -3574,10 +2991,6 @@ class RegressionResultsPanel(QWidget):
         from ...localisation import ALL as ALL_COMPARTMENTS
 
         if name == ALL_COMPARTMENTS:
-            # ITS OWN SENTENCE. `mask` takes ONE compartment, so the branch
-            # below would hand it the sentinel and report "0 annotated
-            # \x00all-localisations" -- a number about nothing, printed
-            # confidently.
             from ...localisation import of as compartment_of
 
             annotated = 0
@@ -3620,9 +3033,6 @@ class RegressionResultsPanel(QWidget):
             chosen = resolve(self._frame, kind or "zero",
                              column=self._effect_column(self._frame),
                              name=name)
-            # THE REASON, WHEN THERE IS ONE. A request that could not be
-            # honoured silently falling back to zero is a user who believes
-            # they are reading control-relative effects and is not.
             self.say(chosen.sentence
                      + (f" Asked for the {kind} baseline, but "
                         f"{chosen.reason}." if chosen.reason else ""))
@@ -3638,29 +3048,17 @@ class RegressionResultsPanel(QWidget):
         """
         if self._frame is None:
             return
-        # WHAT THE HORIZONTAL AXIS IS. The permutation path copies its
-        # partial correlation into `coefficient` so the rest of the screen
-        # can read one name, which leaves the axis calling a bounded
-        # correlation a coefficient. Named per redraw rather than at load,
-        # because a panel can be handed a different run without being rebuilt.
         try:
             self.volcano.name_the_effect(self._analysis_path())
         except AttributeError:                               # noqa: BLE001
             pass
         kind, column = self._ranking
-        # A volcano's y-axis IS -log10(p). Where there is no p-value the axis
-        # has nothing to be, so the plot is left empty on purpose and says
-        # why -- rather than plotting the OLS-style number a penalised fit
-        # carries, which would look exactly like a volcano and be one of a
-        # quantity nobody tested.
         p_column = column if kind == "p-value" else "\0no p-value"
         if kind == "p-value" and self._p_value_kind == "adjusted":
             corrected = _match_column(self._frame,
                                       ("q_value", "adjusted_p_value"))
             if corrected is not None:
                 p_column = corrected
-        # MEASURED FROM WHATEVER THE USER CHOSE, on a copy. The run's own
-        # table is not shifted under the coefficient table beside it.
         from ...baseline import apply as apply_baseline
         from ...baseline import resolve as resolve_baseline
 
@@ -3670,9 +3068,6 @@ class RegressionResultsPanel(QWidget):
                                     column=effect_column, name=baseline_name)
         frame = apply_baseline(self._frame, baseline, column=effect_column)
 
-        # THE LOPIT OPTION IS DERIVED, so it is materialised onto the copy
-        # rather than looked up as a column. On the copy, not the run's own
-        # table -- the same rule the baseline follows.
         category = self._colour_by.currentData()
         if category == self.LOPIT_KEY:
             from ...localisation import of as compartments_of
@@ -3699,33 +3094,14 @@ class RegressionResultsPanel(QWidget):
                                                      category),
             key_column=self._key_column(frame),
             compartment=self._compartment,
-            # THE CUT THE MENU COMPUTED, actually drawn.
-            #
-            # Reported 2026-08-17: "the coefficient threshold still dosnt
-            # work". It did not: the seven methods, the multiplier and the
-            # status sentence all landed, and the NUMBER was never handed to
-            # the plot -- `set_results`'s `effect_threshold` defaults to None,
-            # so every method redrew the same volcano with no line and only
-            # the sentence changed. A feature whose every visible part works
-            # except the one that draws it.
             effect_threshold=self._current_threshold(),
         )
         if not drawn:
-            # AN EMPTY DRAW HAS TO EMPTY THE IDENTIFIERS TOO. `set_results`
-            # returns early on a frame with no rows, and the early return is
-            # the one path through the plot that does not re-key it -- so
-            # after choosing a level this run has none of, the plot showed
-            # nothing and still answered `highlight_key` for the 789 guides it
-            # drew a moment ago. A selection that rings a point on an empty
-            # plot is the linkage reporting a hit it does not have.
             self.volcano.set_keys(())
         if kind != "p-value":
             self.volcano.set_status(
                 "No p-value in this table, so there is no -log10(p) to plot. "
                 "The coefficients are in the Coefficients tab.")
-        # THE SELECTION SURVIVES A SETTINGS CHANGE. Changing the colouring
-        # redraws from scratch; without this the ring the user was reading
-        # disappears and they have to find their guide again.
         if self._selected_key is not None:
             self.volcano.highlight_key(self._selected_key)
 
@@ -3794,7 +3170,7 @@ class RegressionResultsPanel(QWidget):
             return None
         try:
             from ...hits import tested_family
-        except Exception:              # hits unavailable
+        except Exception:
             return None
         return tested_family(frame["feature"])
 
@@ -3815,9 +3191,6 @@ class RegressionResultsPanel(QWidget):
             rows = frame[frame["condition"].astype(str) == key]
             if len(rows):
                 groups[label] = rows[effect].to_numpy()
-                # Sliced out of the frame WITH their values, so a dot's row
-                # travels with it into a group that is drawn in a different
-                # order from the table.
                 if key_column is not None:
                     keys[label] = rows[key_column].astype(str).tolist()
         self.controls.set_groups(groups, keys=keys or None)
@@ -3855,8 +3228,6 @@ class RegressionResultsPanel(QWidget):
         from PySide6.QtCore import QTimer
 
         self.set_level("grna" if guide_of(str(key)) else "gene")
-        # A single shot rather than a direct call: see the docstring. The
-        # bound method keeps the panel alive for the one turn it needs.
         QTimer.singleShot(0, lambda k=str(key): self.table.select_key(k))
         self.say(f"Showing {self.LEVEL_NAMES.get(self._level, 'everything')} "
                  f"so the point you clicked has a row.")
@@ -3876,11 +3247,6 @@ class RegressionResultsPanel(QWidget):
         if mask is None:
             return True
         features = self._frame["feature"].astype(str)
-        # A KEY THE TABLE DOES NOT HOLD AT ANY LEVEL IS REACHABLE, which
-        # reads oddly and is right: moving the filter cannot produce a row
-        # that does not exist, so the only thing it would achieve is
-        # rearranging the panel around a click nobody can honour. The plot
-        # that emitted it reports the miss; that is its job, not this one's.
         if str(key) not in set(features):
             return True
         return str(key) in set(features[mask])
@@ -3901,9 +3267,5 @@ class RegressionResultsPanel(QWidget):
         self._selected_key = str(key)
         for plot in self._keyed_plots():
             plot.note_selection(key, plot.highlight_key(key))
-        # A histogram has no point to ring, but it can outline the bar the
-        # coefficient falls in, which is the honest equivalent. No note goes
-        # with it: a bar is a hundred rows, and printing one row's name beside
-        # it would read as a claim that the bar IS that row.
         for histogram in (self.p_values, self.effect_distribution):
             histogram.highlight_key(key)

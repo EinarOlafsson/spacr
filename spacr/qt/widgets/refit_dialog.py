@@ -35,9 +35,6 @@ class RefitDialog(QDialog):
         :param parent: parent widget; ownership only.
         """
         super().__init__(parent)
-        # From the spec, not from ml: importing ml here would pull torch,
-        # cv2 and IPython onto the GUI thread the moment the user opens this
-        # dialog. The tables are the same objects; ml re-exports them.
         from ...regression_spec import (REGRESSION_SETTINGS_USED,
                                         REGRESSION_TYPES)
         from ...multiple_testing import METHODS
@@ -49,12 +46,6 @@ class RefitDialog(QDialog):
 
         layout = QVBoxLayout(self)
         current = self._settings.get("regression_type")
-        # WRAPPED, like `_notice` below it. Without this the sentence is one
-        # line and the dialog is either too wide for its content or clipping
-        # the end of it -- measured at 828 px of room for 875 px of text at
-        # font scale 1, and 1656 for 1752 at scale 2. It is prose, so it
-        # wraps; eliding would lose the half that says the current run is
-        # safe, which is the reassurance it exists to give.
         intro = QLabel(
             f"The table on screen was fitted with <b>{current or 'auto'}</b>. "
             f"Re-fitting runs the same data through another model; the run "
@@ -64,9 +55,6 @@ class RefitDialog(QDialog):
 
         form = QFormLayout()
         self._type = QComboBox()
-        # "As before" first, because changing ONLY the correction is a real
-        # request -- comparing thirteen corrections on one fit is what the
-        # results-folder rule was written for.
         self._type.addItem("as before", None)
         for name in REGRESSION_TYPES:
             self._type.addItem(name, name)
@@ -75,14 +63,6 @@ class RefitDialog(QDialog):
         self._type.currentIndexChanged.connect(self._refresh)
         form.addRow("Regression", self._type)
 
-        # LEVEL, BECAUSE IT IS WHAT TURNS A BLUP INTO AN ESTIMATE. A mixed
-        # fit makes the guide a RANDOM effect, so its guide rows are shrunken
-        # predictions with no p value and the guide volcano has nothing to
-        # draw. The question that follows -- "how do I get a p value per
-        # guide" -- is answered by re-fitting at guide level with a
-        # fixed-effect model, and until now the dialog could change the model
-        # but not the level, so the answer was out of reach from the panel
-        # where the question arises.
         from ...settings import REGRESSION_LEVELS
 
         self._level = QComboBox()
@@ -112,9 +92,6 @@ class RefitDialog(QDialog):
         self._correction.currentIndexChanged.connect(self._refresh)
         form.addRow("Correction", self._correction)
 
-        # THE SIGNIFICANCE LEVEL, which is not the penalty weight below it
-        # despite `alpha` being the name of both in the settings. This one
-        # cuts the hit list; that one changes the model.
         self._fdr_alpha = QDoubleSpinBox()
         self._fdr_alpha.setDecimals(4)
         self._fdr_alpha.setRange(0.0001, 0.5)
@@ -152,7 +129,6 @@ class RefitDialog(QDialog):
 
         self._refresh()
 
-    # ------------------------------------------------------------------ state
 
     def chosen(self) -> dict:
         """``{regression_type, correction_method, level, alpha}`` as picked.
@@ -178,7 +154,6 @@ class RefitDialog(QDialog):
 
         return refit_settings(self._settings, **self.chosen())
 
-    # ------------------------------------------------------------------- view
 
     def _refresh(self, *_args) -> None:
         """Say what will change, before anything does."""
@@ -186,9 +161,6 @@ class RefitDialog(QDialog):
 
         chosen = self._type.currentData() or self._settings.get(
             "regression_type")
-        # A penalty weight on an unpenalised model is not ignored, it is
-        # REFUSED -- so the box is disabled rather than left to produce a
-        # number the run will reject.
         self._alpha.setEnabled("alpha" in self._used.get(chosen, ()))
 
         try:
@@ -201,17 +173,6 @@ class RefitDialog(QDialog):
         where = destination(settings)
         lines = list(notes)
         if where is None:
-            # THE OLD FALLBACK SAID THE OPPOSITE OF THE TRUTH, and said it
-            # only here: "Nothing to change ... would repeat the run you are
-            # looking at" was reachable ONLY when `where` was None, because a
-            # resolved destination always adds a line of its own. So the one
-            # case where the dialog could not work out where the output would
-            # go was the one case where it promised nothing would happen --
-            # with the button still enabled to start a real fit.
-            #
-            # destination() returns None when no count-data path resolves or
-            # the results folder cannot be created, so there is nothing to
-            # describe and nothing safe to start. Refuse, and say why.
             lines.append(
                 "The output folder cannot be worked out from these settings, "
                 "so the re-fit is not offered. Check the count data path.")

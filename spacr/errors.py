@@ -117,9 +117,6 @@ _TRUTHY = frozenset({'1', 'true', 'yes', 'on', 'y', 't'})
 _RULE = '=' * 78
 
 
-# ---------------------------------------------------------------------------
-# Exception types
-# ---------------------------------------------------------------------------
 
 class SpacrError(Exception):
     """Base class for every spaCR-raised error.
@@ -175,9 +172,6 @@ class RunStatusUnreadable(DataIntegrityError):
     """
 
 
-# ---------------------------------------------------------------------------
-# Failure record
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Failure:
@@ -222,9 +216,6 @@ def _utcnow() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
-# ---------------------------------------------------------------------------
-# The ledger
-# ---------------------------------------------------------------------------
 
 class RunLedger:
     """Accounting for one batch run: what was attempted, what failed, and why.
@@ -260,7 +251,6 @@ class RunLedger:
         self._n_succeeded = 0
         self._success_by_stage: Counter = Counter()
 
-    # -- counters ---------------------------------------------------------
 
     @property
     def failures(self) -> List[Failure]:
@@ -309,7 +299,6 @@ class RunLedger:
         return (f'<RunLedger {self.name!r} status={self.status} '
                 f'attempted={self.n_attempted} failed={self.n_failed}>')
 
-    # -- recording --------------------------------------------------------
 
     def record_success(self, item: Any, stage: Optional[str] = None) -> 'RunLedger':
         """Record that ``item`` completed cleanly.
@@ -356,9 +345,6 @@ class RunLedger:
         self._log.error('[%s] FAILED %s (stage %s): %s: %s',
                         self.name, failure.item, stage_name, exc_type, message)
         if tb:
-            # DEBUG, not ERROR: forty failures would otherwise dump forty
-            # tracebacks over the console. The full text is kept on the
-            # Failure and persisted by stamp(), which is the durable record.
             self._log.debug('[%s] traceback for %s:\n%s',
                             self.name, failure.item, tb)
         return failure
@@ -396,10 +382,8 @@ class RunLedger:
         try:
             yield self
         except ConfigurationError:
-            # Setup is wrong for every item — surviving is not an option.
             raise
         except (KeyboardInterrupt, SystemExit):
-            # Operator intent, not a data problem.
             raise
         except Exception as exc:
             self.record_failure(name, stage, exc)
@@ -408,7 +392,6 @@ class RunLedger:
         else:
             self.record_success(name, stage)
 
-    # -- reporting --------------------------------------------------------
 
     def grouped_failures(self) -> "OrderedDict[str, List[Failure]]":
         """Group failures by exception type, in first-seen order.
@@ -516,9 +499,6 @@ class RunLedger:
         """
         text = self.summary()
         if self._failures:
-            # One-line log record, full block on stdout: logging the whole
-            # block too rendered the summary twice in a plain terminal
-            # session (logging's last-resort handler writes to stderr).
             self._log.error('[%s] RUN INCOMPLETE — %d of %d items failed '
                             '(%.1f%%); artifacts are partial',
                             self.name, self.n_failed, self.n_attempted,
@@ -535,7 +515,6 @@ class RunLedger:
             self.raise_if_worse_than(threshold)
         return self
 
-    # -- persistence ------------------------------------------------------
 
     def to_dict(self) -> Dict[str, Any]:
         """Return the whole ledger as a JSON-serialisable dict."""
@@ -627,9 +606,6 @@ class RunLedger:
         return sidecar
 
 
-# ---------------------------------------------------------------------------
-# Reading a stamp back
-# ---------------------------------------------------------------------------
 
 def _sidecar_path(artifact: Union[str, os.PathLike]) -> Path:
     """Return the ``<stem>.run_status.json`` path for ``artifact``."""
@@ -709,8 +685,6 @@ def read_run_status(artifact: Union[str, os.PathLike],
             conn = connect(target, readonly=True, timeout=timeout)
             try:
                 if not _has_run_status_table(conn):
-                    # Never stamped. The artifact predates stamping, or was
-                    # written by a code path that does not stamp yet.
                     return []
                 rows = conn.execute(
                     f'SELECT {", ".join(_STATUS_COLUMNS)} FROM {RUN_STATUS_TABLE} '
@@ -737,9 +711,6 @@ def read_run_status(artifact: Union[str, os.PathLike],
     try:
         payload = json.loads(sidecar.read_text(encoding='utf-8'))
     except (OSError, ValueError) as exc:
-        # A sidecar half-written by an interrupted run is the same
-        # species of evidence as a locked database, and gets the same
-        # answer: unknown, never "complete".
         raise RunStatusUnreadable(
             f'{sidecar} exists but cannot be read: {exc}. A run status '
             f'sidecar truncated mid-write means the run that was writing '
@@ -799,9 +770,6 @@ def assert_run_complete(artifact: Union[str, os.PathLike],
         f'{artifact} was produced by a run that did not complete:\n{detail}')
 
 
-# ---------------------------------------------------------------------------
-# Strict mode
-# ---------------------------------------------------------------------------
 
 def strict_errors(settings: Any = None) -> bool:
     """True when recoverable setup errors should be raised instead of printed.

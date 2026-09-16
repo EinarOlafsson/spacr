@@ -106,9 +106,6 @@ class EdgeDrawer(QWidget):
         self.resize(self._width, host.height())
         panel.resize(self._width, self.height())
 
-        # Start fully off-screen to the left. Not hidden: a hidden widget
-        # reports no geometry, and the tutorial overlay (which highlights
-        # the sidebar) needs a rectangle to point at.
         self.move(-self._width, 0)
         self.hide()
 
@@ -127,16 +124,12 @@ class EdgeDrawer(QWidget):
         self._close_timer.setInterval(self.CLOSE_DELAY_MS)
         self._close_timer.timeout.connect(self._close_unless_held)
 
-        # The hot strip. A separate zero-chrome child so the drawer's own
-        # geometry can stay off-screen while something on-screen still
-        # receives the hover.
         self._trigger = _EdgeTrigger(host, self)
         self._trigger.show()
 
         host.installEventFilter(self)
         self.setAttribute(Qt.WA_Hover, True)
 
-    # -- geometry ------------------------------------------------------
     def _owns_panel(self) -> bool:
         """True while the panel is still ours to size.
 
@@ -157,7 +150,6 @@ class EdgeDrawer(QWidget):
         self._trigger.raise_()
         self.move(0 if self.is_open() else -self._width, 0)
 
-    # -- the preference: locked, hidden, or the reveal ------------------
     def set_enabled(self, enabled: bool) -> None:
         """Arm or disarm the whole reveal.
 
@@ -203,7 +195,6 @@ class EdgeDrawer(QWidget):
         """True only once the slide has finished."""
         return self._open_state and self.x() >= 0
 
-    # -- open / close --------------------------------------------------
     def arm(self) -> None:
         """Pointer entered the hot strip — start the dwell timer."""
         if not self._enabled:
@@ -303,7 +294,6 @@ class EdgeDrawer(QWidget):
                 return child
         return None
 
-    # -- animation -----------------------------------------------------
     def _animate_to(self, x: int) -> None:
         """Slide the drawer to a horizontal position.
 
@@ -325,7 +315,6 @@ class EdgeDrawer(QWidget):
         if not self._held:
             self.close()
 
-    # -- events --------------------------------------------------------
     def eventFilter(self, obj, event):
         """Watch the host for the events that open and close the drawer.
 
@@ -333,7 +322,11 @@ class EdgeDrawer(QWidget):
         :param event: the event.
         :returns: True to stop the event going further.
         """
-        if obj is self._host and event.type() == QEvent.Resize:
+        # getattr: the drawer and its host are a reference cycle, so the
+        # collector can clear this wrapper before the host's destructor
+        # reaches the filter.
+        host = getattr(self, "_host", None)
+        if host is not None and obj is host and event.type() == QEvent.Resize:
             self.relayout()
         return super().eventFilter(obj, event)
 

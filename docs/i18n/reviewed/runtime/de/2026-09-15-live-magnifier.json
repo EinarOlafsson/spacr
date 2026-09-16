@@ -1,0 +1,83 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "Classical",
+      "source": "Classical",
+      "source_sha256": "5550f80de667506a37a21ab31f601c8cf1d259c2759ff40d63ca92e7a3d446df",
+      "table": "ui",
+      "translation": "Klassisch"
+    },
+    {
+      "key": "Clip",
+      "source": "Clip",
+      "source_sha256": "82337888d76466b26eeef984735aa945a1ab2ac99c46c87e994189c940c0b95e",
+      "table": "ui",
+      "translation": "Beschneiden"
+    },
+    {
+      "key": "How many times larger than the canvas the box draws its region. The mouse wheel changes it while the magnifier is on. It changes only what you see: the model always segments the region at the image's own resolution.",
+      "source": "How many times larger than the canvas the box draws its region. The mouse wheel changes it while the magnifier is on. It changes only what you see: the model always segments the region at the image's own resolution.",
+      "source_sha256": "af61776b26183018ce604f1b865ad31a9eee7a949770738a5f09da3e2034b776",
+      "table": "ui",
+      "translation": "Wie viel größer als die Arbeitsfläche der Kasten seinen Bereich zeichnet. Das Mausrad ändert den Wert, solange die Lupe an ist. Er ändert nur, was Sie sehen: Das Modell segmentiert den Bereich immer in der eigenen Auflösung des Bildes."
+    },
+    {
+      "key": "Live magnifier",
+      "source": "Live magnifier",
+      "source_sha256": "886ee4e35e283ff0705084c59eb144aab13bc0b5f9f2b6efff3b05a11c268ba8",
+      "table": "ui",
+      "translation": "Live-Lupe"
+    },
+    {
+      "key": "Magnifier",
+      "source": "Magnifier",
+      "source_sha256": "b3a4c2cd1daea7f8ee7b0924c30154618e8541289bfee8c4867b221e48ac8ecb",
+      "table": "ui",
+      "translation": "Lupe"
+    },
+    {
+      "key": "Magnifier off. The objects it added stay in the mask.",
+      "source": "Magnifier off. The objects it added stay in the mask.",
+      "source_sha256": "ab2959dd7d3bb4b084cb34e241affbc8aaff770060f1a319c12d2b44043369f4",
+      "table": "ui",
+      "translation": "Lupe aus. Die hinzugefügten Objekte bleiben in der Maske."
+    },
+    {
+      "key": "Magnifier on: a click adds the objects outlined in the box; the mouse wheel changes its zoom.",
+      "source": "Magnifier on: a click adds the objects outlined in the box; the mouse wheel changes its zoom.",
+      "source_sha256": "1bd2cdea1990127e09484704cd3ffef3e48b1f339d9f9c9aafd68b0f5dbd3ff4",
+      "table": "ui",
+      "translation": "Lupe an: Ein Klick fügt die im Kasten umrissenen Objekte hinzu; das Mausrad ändert ihren Zoom."
+    },
+    {
+      "key": "Magnifier: nothing to add — the box outlines no object, or every object it outlines overlaps one already in the mask.",
+      "source": "Magnifier: nothing to add — the box outlines no object, or every object it outlines overlaps one already in the mask.",
+      "source_sha256": "c046b887a7c710b4307da11cb9c16a97ef1fbfc0b3d4357b7f9365e53ebd9ffd",
+      "table": "ui",
+      "translation": "Lupe: nichts hinzuzufügen — der Kasten umreißt kein Objekt, oder jedes umrissene Objekt überlappt eines, das schon in der Maske ist."
+    },
+    {
+      "key": "Replace",
+      "source": "Replace",
+      "source_sha256": "95e154398a4bc0091aa4d6b607472ac5a89e41fbc84a3a49f823314d6de9eebc",
+      "table": "ui",
+      "translation": "Ersetzen"
+    },
+    {
+      "key": "Updating…",
+      "source": "Updating…",
+      "source_sha256": "dfe40efe921fe88e332575a3516f4e8cd6bbb71437cf260b2bb9b947c65d1484",
+      "table": "ui",
+      "translation": "Wird aktualisiert…"
+    },
+    {
+      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers.",
+      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers.",
+      "source_sha256": "0217cb326bbd11f699df8e270e0b72e5618e0dd2050c9b54debfc96412fd88f3",
+      "table": "ui",
+      "translation": "Was ein neues Objekt dort tut, wo die Maske schon ein Objekt hat. Beschneiden behält nur seine unbeschrifteten Pixel, sodass kein vorhandenes Objekt ein Pixel verliert. Überspringen lässt jedes Objekt weg, das ein vorhandenes berührt. Ersetzen lässt das neue Objekt jedes Pixel übernehmen, das es bedeckt."
+    }
+  ],
+  "schema": 1
+}

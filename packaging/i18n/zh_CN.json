@@ -11,6 +11,7 @@
   "downloading_python": "正在下载私有 Python %s 运行环境...",
   "downloading_uv": "正在下载固定版本的 uv 引导程序...",
   "dry_create": "模拟运行：将创建并验证 %s",
+  "dry_remove_old": "模拟运行：将首先查找并删除所有旧的 spaCR 安装",
   "dry_download": "模拟运行：将下载 %s",
   "dry_launcher": "模拟运行：将安装启动器 %s",
   "help_dry_run": "显示解析后的安装计划，但不下载任何内容。",
@@ -34,7 +35,7 @@
   "no_sudo": "未找到 sudo 命令。将不安装可选的 Linux Qt 库并继续。",
   "nsis_application": "spaCR 桌面应用程序",
   "nsis_downloading": "正在下载 Python、Qt、PyTorch 和 spaCR。这可能需要几分钟。",
-  "nsis_failed": "spaCR 安装失败，退出代码为 %s。现有安装（如有）已保留。",
+  "nsis_failed": "spaCR 未安装（退出代码 %s）。旧版 spaCR 可能已被删除。请重新运行本安装程序；安装文件夹中的 install.log 记录了失败原因。",
   "nsis_gpu": "自动硬件加速（推荐）",
   "nsis_launch": "启动 spaCR",
   "nsis_uninstall": "卸载 spaCR",
@@ -61,5 +62,6 @@
   "old_install_removed": "已删除先前的安装。",
   "old_install_kept": "予以保留。环境无论如何都会被替换；缓存和设置将保留。",
   "old_install_noninteractive": "并非终端，因此未作询问。环境将被替换；缓存和设置将保留。",
-  "old_install_same": "这与本安装程序所含版本相同。"
+  "old_install_same": "这与本安装程序所含版本相同。",
+  "old_copy_not_removed": "安装已停止：无法删除旧版 spaCR（见上文）。请关闭所有正在运行的 spaCR，然后重新运行安装程序。"
 }

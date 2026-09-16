@@ -24,90 +24,8 @@ from spacr import utils
 
 
 # ===========================================================================
-# splitting, merging and filtering one field
+# merging and filtering one field
 # ===========================================================================
-
-def _in_memory(mask, **overrides):
-    """Call ``_process_single_fov_in_memory`` with the pipeline's defaults.
-
-    THE SPLIT THRESHOLD IS ABSOLUTE, which is why this helper no longer has an
-    ``area_multiplier`` to pass. The threshold used to be
-    ``max(area_multiplier * median_area, min_object_area)`` -- a multiple of
-    the median object area in whatever field was under the lens -- and it is
-    now ``minimum_area_to_split`` alone, in pixels. ``min_distance`` and
-    ``min_object_area`` are the same two knobs under their new names,
-    ``min_watershed_distance`` and ``minimum_area_to_split``.
-
-    The merge step's ``intensity_threshold`` is a boundary mean in the image's
-    own raw units, replacing the method-and-percentile pair. It is inert here:
-    every test below leaves ``do_intensity_merge`` off, and ``None`` is the
-    pipeline's own default, which merges nothing.
-    """
-    settings = dict(
-        intensity_img=None, intensity_channel=None, do_split=True,
-        do_perimeter_merge=False, do_intensity_merge=False,
-        perimeter_fraction=0.5, min_watershed_distance=10,
-        minimum_area_to_split=100, intensity_threshold=None,
-        min_area=0, max_area=0, remove_border_objects=False)
-    settings.update(overrides)
-    return utils._process_single_fov_in_memory(
-        mask, settings['intensity_img'], settings['intensity_channel'],
-        settings['do_split'], settings['do_perimeter_merge'],
-        settings['do_intensity_merge'], settings['perimeter_fraction'],
-        settings['min_watershed_distance'],
-        settings['minimum_area_to_split'], settings['intensity_threshold'],
-        settings['min_area'], settings['max_area'],
-        settings['remove_border_objects'])
-
-
-def _dumbbell():
-    """Two overlapping discs the watershed can separate."""
-    mask = np.zeros((40, 60), np.uint16)
-    yy, xx = np.ogrid[:40, :60]
-    mask[((yy - 20) ** 2 + (xx - 18) ** 2) <= 100] = 1
-    mask[((yy - 20) ** 2 + (xx - 40) ** 2) <= 100] = 1
-    return mask
-
-
-def test_a_split_that_changed_nothing_is_not_announced(capsys):
-    """The line is a report of work done, so no work means no line.
-
-    A split pass runs over every field of a run. Printing "1 -> 1 objects" for
-    each of them buries the fields where the split really did something, which
-    is the only reason the line exists.
-
-    Both halves are re-pointed at the absolute split threshold, and BOTH REACH
-    THE SAME OUTCOME THEY DID UNDER THE RELATIVE ONE -- the arithmetic is
-    beside each call. The assertions are the ones this test always made.
-    """
-    small = np.zeros((30, 30), np.uint16)
-    small[2:5, 2:5] = 1
-    small[20:23, 20:23] = 2
-
-    # Two 3x3 objects, 9 px each, against the pipeline's default threshold of
-    # 100 px. Neither is eligible, so nothing is split and nothing is said.
-    # The old rule agreed for the same field by a different route:
-    # max(area_multiplier * median_area, min_object_area) was max(2.0 * 9, 100),
-    # i.e. 100 -- the absolute floor already dominated the median term, so
-    # dropping the median term leaves this case exactly where it was.
-    kept = _in_memory(small)
-
-    assert sorted(np.unique(kept).tolist()) == [0, 1, 2]
-    assert "split:" not in capsys.readouterr().out
-
-    # One label covering two discs, 634 px in total, against a threshold of
-    # 10 px: eligible, two distance-transform maxima at least 5 px apart, so
-    # it splits and the line is printed. The old call asked for the same split
-    # with `min_object_area=10, area_multiplier=0.5`, whose threshold worked
-    # out at max(0.5 * 634, 10) = 317 -- also below 634. The multiplier is
-    # gone and the 10 is now the whole threshold, which is the point of the
-    # change: the number typed is the number used.
-    split = _in_memory(_dumbbell(), minimum_area_to_split=10,
-                       min_watershed_distance=5)
-
-    assert sorted(np.unique(split).tolist()) == [0, 1, 2]
-    assert "split: 1 → 2 objects" in capsys.readouterr().out
-
 
 def test_a_field_with_no_objects_is_written_back_unchanged(tmp_path):
     """An empty mask has nothing to merge, and must still be a mask.
@@ -121,9 +39,6 @@ def test_a_field_with_no_objects_is_written_back_unchanged(tmp_path):
     A PLATE WHERE A ROLE SEGMENTED NOTHING PRODUCES THIS FIELD, so the three
     things asserted below are the three that would be missed: the file is
     still there, it still holds a mask, and the run still counts the field.
-    Only the argument list moved when the split and merge thresholds became
-    absolute -- the empty field never reaches either threshold, because the
-    label count gates both, so what this test asserts is unchanged.
     """
     empty = tmp_path / "empty.npy"
     np.save(empty, np.zeros((16, 16), np.uint16))
@@ -134,14 +49,9 @@ def test_a_field_with_no_objects_is_written_back_unchanged(tmp_path):
     np.save(occupied, labelled)
     seen = []
 
-    # perimeter_fraction=0.5, min_watershed_distance=10,
-    # minimum_area_to_split=100, intensity_threshold=None -- the last being the
-    # pipeline's own default, which merges nothing and is never consulted here
-    # because the intensity merge is off.
     for path in (empty, occupied):
         utils._process_single_fov(
-            str(path), None, None, False, True, False, 0.5, 10, 100, None,
-            0, 0, False,
+            str(path), None, None, True, 0.5, 0, 0, False,
             lambda *args: seen.append(args), 0, 2, 'merge')
 
     assert np.array_equal(np.load(empty), np.zeros((16, 16), np.uint16))

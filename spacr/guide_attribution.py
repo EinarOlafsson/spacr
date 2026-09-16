@@ -117,16 +117,9 @@ def _beta_density(scores: np.ndarray, effect: float,
     x = np.clip(np.asarray(scores, dtype=float), eps, 1.0 - eps)
     base = min(max(float(centre), eps), 1.0 - eps)
     shifted = math.log(base / (1.0 - base)) + float(effect)
-    # `1 / (1 + exp(-shifted))` RAISES OverflowError once shifted drops below
-    # about -709, so a guide with a large negative effect killed the whole
-    # well instead of being attributed. Saturating there is not an
-    # approximation: the clamp on the next line already pins the mean at
-    # `eps` for every shift below about -14, so the value returned is
-    # identical to what the unclamped expression produced.
     mean = 0.0 if shifted < -700.0 else 1.0 / (1.0 + math.exp(-shifted))
     mean = min(max(mean, eps), 1.0 - eps)
     spread = float(scale) if scale and scale > 0 else 0.1
-    # Concentration from the spread: var = mean(1-mean)/(1+nu) inverted.
     variance = min(max(spread * spread, 1e-9), mean * (1.0 - mean) * 0.999)
     nu = max(mean * (1.0 - mean) / variance - 1.0, 1e-3)
     return _beta.pdf(x, mean * nu, (1.0 - mean) * nu)
@@ -185,25 +178,23 @@ def posterior(scores: Sequence[float], priors: Mapping[str, float],
         _density(likelihood, values, float(effects.get(g, 0.0)), centre, scale)
         for g in guides])
     density = np.nan_to_num(density, nan=0.0, posinf=0.0, neginf=0.0)
-    # A cell no guide can explain is given the prior rather than dropped: it
-    # is a cell, it carries something, and the honest answer is "no idea".
     dead = density.sum(axis=1) <= 0
     if dead.any():
         density[dead, :] = weights
 
     target = weights * n
-    r = density * weights                       # start from plain Bayes
+    r = density * weights
     for _ in range(int(iterations)):
         rows = r.sum(axis=1, keepdims=True)
         rows[rows <= 0] = 1.0
-        r = r / rows                            # every cell carries one guide
+        r = r / rows
         columns = r.sum(axis=0)
         moved = np.abs(columns - target).max()
         if moved <= tolerance * max(n, 1):
             break
         factor = np.divide(target, columns, out=np.ones_like(columns),
                            where=columns > 0)
-        r = r * factor                          # pin each guide to its reads
+        r = r * factor
     rows = r.sum(axis=1, keepdims=True)
     rows[rows <= 0] = 1.0
     return r / rows, guides
@@ -279,8 +270,6 @@ def attribute_well(scores: Sequence[float], fractions: Mapping[str, float],
             out.append(Attribution(AMBIGUOUS, 0.0, True, 0.0))
             continue
         best = float(row.max())
-        # EXACT ties only. `np.isclose` here would make an arbitrary choice on
-        # values that are merely similar, which is a different claim.
         tied = np.flatnonzero(row == best)
         pick = int(tied[0] if tied.size == 1 else rng.choice(tied))
         order = np.argsort(row)[::-1]
@@ -328,13 +317,6 @@ def attributable(effect: float, scale: float, prior: float, *,
         return True, 1.0
     sigma = float(scale) if scale and scale > 0 else 1.0
     mine = float(effect)
-    # EACH WEIGHT IS READ ONCE. Converting in the filter and again in the
-    # stored tuple let a weight whose conversion is not pure -- a lazily
-    # fetched count, a mutable proxy, a value re-read from a stream -- pass
-    # the positivity test and then be stored non-positive. The weight the
-    # filter approved would not be the weight used, and the well could be
-    # reported "this guide can never be called" on data that looked positive
-    # when it was checked. Reading once makes the two agree by construction.
     rest = [pair for pair in
             ((float(e), float(w)) for e, w in (others or ()))
             if pair[1] > 0.0] or [(0.0, 1.0 - p)]
@@ -343,8 +325,6 @@ def attributable(effect: float, scale: float, prior: float, *,
         return False, 0.0
     rest = [(e, w * (1.0 - p) / total) for e, w in rest]
 
-    # The range of scores a cell could plausibly take: `span` sigmas either
-    # side of the centre, widened to cover every component's own centre.
     effects = [mine] + [e for e, _ in rest]
     low = centre + min(effects) - span * sigma
     high = centre + max(effects) + span * sigma
@@ -450,35 +430,6 @@ def preflight(guide, fractions_by_well, effects, *, scale, centre=0.0,
                      best=best, threshold=float(threshold))
 
 
-# --------------------------------------------------------------------------- #
-#  The constrained assignment -- the Sudoku one
-# --------------------------------------------------------------------------- #
-#
-# "my mind always goes to suduko where you have rules and conditions that must
-# be met and you use the little information you have within the confines of
-# the rules to do your inference."
-#
-# That is the better framing, and the soft posterior above throws away its
-# central mechanism. Sudoku's power is not probability, it is EXCLUSION: if
-# this cell takes that value, no other cell in the region can. `posterior`
-# gives each cell an independent marginal and then notices that none of them
-# is confident. The constraints here are exactly Sudoku's shape:
-#
-#     every cell carries EXACTLY ONE guide
-#     guide g occupies EXACTLY round(N * pi_g) cells of the well
-#     a guide absent from the well occupies NONE of it
-#
-# Solved as a minimum-cost assignment: expand each guide into its own integer
-# number of slots and match cells to slots so the total -log likelihood is
-# smallest. Every count is then exactly right BY CONSTRUCTION, and every cell
-# has a definite guide -- which the marginal posterior can never deliver when
-# the priors are small.
-#
-# WHAT IT DOES NOT DO, and this is the honest half. An assignment being
-# OPTIMAL does not make it CERTAIN. When the evidence is weak, many
-# assignments are nearly as good, and swapping two cells costs almost
-# nothing. `Assignment.degeneracy` reports exactly that, so a reader can tell
-# a solved grid from one that merely satisfies the rules.
 
 
 @dataclass(frozen=True)
@@ -540,17 +491,9 @@ def assign_well(scores: Sequence[float], fractions: Mapping[str, float],
         return Assignment(guides=(AMBIGUOUS,) * n, cost=float("inf"),
                           degeneracy=0.0, counts={})
 
-    # HOW MANY SLOTS EACH GUIDE GETS, summing to n exactly.
     exact = np.array([priors[g] * n for g in names], dtype=float)
     slots = np.floor(exact).astype(int)
     short = n - int(slots.sum())
-    # ONLY THE SHORT-BY-SOME CASE. There was an `elif short < 0` arm
-    # undoing an overshoot, marked "rare"; it is not rare, it is
-    # impossible. `priors` sums to 1, so `exact` sums to n, and
-    # `floor(x) <= x` gives `slots.sum() <= n` -- `short` cannot be
-    # negative. Argued, then checked over 30,000 random fraction sets
-    # with magnitudes spanning twelve orders and well sizes to 400: the
-    # most negative value seen was 0.
     if short > 0:
         order = np.argsort(-(exact - np.floor(exact)))
         for index in order[:short]:
@@ -562,25 +505,12 @@ def assign_well(scores: Sequence[float], fractions: Mapping[str, float],
     density = np.nan_to_num(density, nan=0.0, posinf=0.0, neginf=0.0)
     cost_per_guide = -np.log(np.clip(density, 1e-300, None))
 
-    # One column per SLOT, so the counts are a property of the matrix rather
-    # than something checked afterwards.
-    # `slots` sums to exactly n after the correction above, so this has
-    # exactly n entries. The truncation that used to follow could not
-    # fire for the same reason the removed arm could not: the only way
-    # to get more than n columns is `slots.sum() > n`, which requires
-    # the negative `short` that cannot happen.
     columns = np.repeat(np.arange(len(names)), slots)
     cost = cost_per_guide[:, columns]
     rows, picks = linear_sum_assignment(cost)
     chosen = columns[picks]
 
     total = float(cost[rows, picks].sum())
-    # HOW ARBITRARY IS IT: what this cell would cost under its best ALTERNATIVE
-    # GUIDE, not its second-cheapest slot. Slots of the same guide have
-    # identical cost, so the second-cheapest slot is almost always another
-    # slot of the guide already chosen and the difference is exactly zero --
-    # which made this read "arbitrary" for a perfectly decided grid. Caught by
-    # the test that asks a decided assignment to score above an undecided one.
     order = np.empty(n, dtype=int)
     order[rows] = chosen
     best = cost_per_guide[np.arange(n), order]
@@ -592,42 +522,13 @@ def assign_well(scores: Sequence[float], fractions: Mapping[str, float],
     degeneracy = float(np.mean(gap)) if gap.size else 0.0
 
     rng = np.random.default_rng(int(seed))
-    del rng                                            # ties are broken by the
-    # solver deterministically; the seed is accepted so the signature matches
-    # `attribute_well` and a caller can pass one without thinking about it.
+    del rng
     assigned = tuple(str(names[c]) for c in chosen)
     counts = {g: int((chosen == i).sum()) for i, g in enumerate(names)}
     return Assignment(guides=assigned, cost=total, degeneracy=degeneracy,
                       counts=counts)
 
 
-# --------------------------------------------------------------------------- #
-# Option C -- every measurement, not just the score                            #
-# --------------------------------------------------------------------------- #
-#
-# "best case i can use all the fraction information and all the measurement
-# and classefication data to estimate which grna is linked to which cell ...
-# eaven if it only holds a timy little bit of information it still might
-# work, right?"
-#
-# Right in principle, and the arithmetic below is what makes the "might"
-# honest. Two things have to be got correct or this produces confident
-# nonsense.
-#
-# 1. LOG SPACE. A product of 785 densities underflows to exactly zero in
-#    double precision long before it reaches the end, and every cell then
-#    looks equally impossible -- which the code above answers by handing back
-#    the prior. The bug would present as "option C always says ambiguous".
-#
-# 2. THE MEASUREMENTS ARE NOT INDEPENDENT, and pretending otherwise is the
-#    difference between a method and a fiction. `cell_area` and
-#    `cell_perimeter` are one measurement wearing two names; multiplying
-#    their likelihoods counts the same evidence twice. Measured on the
-#    maintainer's own screen, 785 measurement columns carry an effective
-#    dimension in the low tens. So the summed log-likelihood is SCALED by
-#    n_eff / n_measured, which is the standard design-effect correction.
-#    Without it the posterior saturates at 0 or 1 for every cell and the
-#    0.55 threshold becomes decorative.
 
 
 def effective_dimension(matrix: np.ndarray) -> float:
@@ -648,9 +549,6 @@ def effective_dimension(matrix: np.ndarray) -> float:
         return 1.0
     centred = values - values.mean(axis=0, keepdims=True)
     spread = centred.std(axis=0, ddof=0)
-    # A column that does not vary carries no information and must not be
-    # allowed to divide by zero; it is dropped rather than kept at scale 1,
-    # which would have made it look like an independent measurement.
     alive = spread > 0
     if not alive.any():
         return 0.0
@@ -725,15 +623,8 @@ def posterior_multivariate(measurements: np.ndarray,
         factor = float(min(n_eff / n_measured, 1.0))
     report["scale_factor"] = factor
 
-    # LOG DENSITY, SUMMED. `_density` is per-measurement, so this is a loop
-    # over columns rather than one vectorised call -- 785 columns is nothing
-    # beside the per-cell work, and reusing the same densities is what keeps
-    # option C's answer commensurable with option A's.
     log_density = np.zeros((n_cells, len(guides)), dtype=float)
     for column, (centre, scale) in enumerate(zip(centres, scales)):
-        # A measurement missing for a cell contributes NOTHING for that cell
-        # rather than a zero score, which would be a real and usually
-        # extreme value.
         present = finite[:, column]
         if not present.any():
             continue
@@ -749,9 +640,6 @@ def posterior_multivariate(measurements: np.ndarray,
             log_density[present, index] += np.log(np.maximum(density, 1e-300))
 
     log_density *= factor
-    # Subtract the per-cell maximum before exponentiating: the shift cancels
-    # in the normalisation and is the difference between a usable number and
-    # exp(-4000).
     log_density -= log_density.max(axis=1, keepdims=True)
     density = np.exp(log_density)
 

@@ -140,9 +140,6 @@ DASH = [1.4, 1.6]
 DASH_L = [2.0, 2.0]
 
 
-# ---------------------------------------------------------------------------
-# shared sub-drawings
-# ---------------------------------------------------------------------------
 
 def dots(c, pts, r=0.030):
     """A handful of solid points -- a 'population', never a spray."""
@@ -309,9 +306,6 @@ def field(c, x, y, w_, h, wd=W_SEC, n=3):
         c.ell(x + w_ * fx, y + h * fy, w_ * fr, h * fr * 0.86, 0.0, W_SEC)
 
 
-# =====================================================================
-# trellis (Small Multiples) -- THE REPETITION IS THE SUBJECT
-# =====================================================================
 
 def trellis_01(c):
     """A 3x3 of identical frames, the same mark standing at a different height."""
@@ -428,9 +422,6 @@ def trellis_10(c):
         c.disc(0.14 + 0.56 * fx, 0.30 + 0.52 * 0.30, 0.028)
 
 
-# =====================================================================
-# gate_editor -- A BOUNDARY DRAWN BY HAND, AND THE POPULATION IT KEEPS
-# =====================================================================
 
 def gate_editor_01(c):
     """A threshold swept across a histogram by hand; beyond it is kept."""
@@ -553,9 +544,6 @@ def gate_editor_10(c):
     cursor(c, 0.82, 0.10, s=0.15)
 
 
-# =====================================================================
-# feature_explorer -- MANY FEATURES RANKED BY SEPARATION
-# =====================================================================
 
 def feature_explorer_01(c):
     """Every row a feature, every feature two humps, sorted by how far apart."""
@@ -680,11 +668,6 @@ def feature_explorer_10(c):
               filled=True)
 
 
-# =====================================================================
-# napari_bridge
-#   01-05  derived from napari's mark  (napari's trademark, not spaCR's)
-#   06-10  original spaCR marks about the handoff (no third-party mark)
-# =====================================================================
 
 def napari_bridge_01(c):
     """[napari mark] The four-petal rosette on its own, monochrome."""
@@ -783,7 +766,6 @@ def napari_bridge_10(c):
     c.arrow(0.66, 0.74, 0.555, 0.74, W_MAIN * 1.4, head=0.085)
 
 
-# ---------------------------------------------------------------------------
 GROUPS = {
     "trellis": ("Small Multiples (trellis) - the repetition is the subject", [
         ("A 3x3 of identical frames, the same mark standing at a different height.",

@@ -15,6 +15,7 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 _PENDING_STYLESHEET = None
+_PENDING_FONT = None
 
 # Skipping while this conftest is imported aborts collection of the entire
 # repository on pytest 7, leaving pytest with exit code 5 ("no tests
@@ -218,6 +219,46 @@ def _restore_font_scale(deferred_deletions_flushed):
 
 
 @pytest.fixture(autouse=True)
+def _the_application_font_is_left_as_it_was_found(deferred_deletions_flushed):
+    """Put the application font back the way the test found it.
+
+    ``spacr.qt.app.apply_interface_font`` sets the font APPLICATION-WIDE,
+    and both ``MainWindow`` and a Preferences Save reach it. Once the
+    bundled Open Sans is registered, a Save leaves the whole process drawing
+    in Open Sans at the interface weight -- Light by default -- and nothing
+    here put it back, so every later test measured type in a font no
+    assertion had asked for.
+
+    Measured on dispatch 35012948690, Qt shard 1's third worker:
+    ``test_the_setup_is_a_sequence_of_slides`` registered the bundled faces,
+    ``test_preferences_tabs::test_saving_from_one_tab_still_writes_the_others``
+    clicked Save, and a few files later
+    ``test_one_close_mark::test_the_glyph_is_drawn_larger_than_the_mark_it_replaces``
+    found no nearly-opaque pixel in a 13 px Open Sans Light close glyph
+    ("nothing was drawn"). Either file alone ahead of it leaves the font
+    unregistered or untouched, and passes; the worker's order with the font
+    put back passes.
+
+    Restored at the NEXT test's setup, after its deleteLater queue has been
+    flushed, for the reason ``_restore_font_scale`` gives for the style
+    sheet: an application-wide font change visits every live widget, and at
+    teardown some of them are part-way through being destroyed.
+    """
+    global _PENDING_FONT
+
+    from PySide6.QtGui import QFont
+
+    app = deferred_deletions_flushed
+    if _PENDING_FONT is not None:
+        app.setFont(_PENDING_FONT)
+        _PENDING_FONT = None
+    original = QFont(app.font())
+    yield
+    if app.font() != original:
+        _PENDING_FONT = original
+
+
+@pytest.fixture(autouse=True)
 def _restore_app_registry():
     """Put ``spacr.qt.app``'s registry back the way the test found it.
 
@@ -280,6 +321,45 @@ def _sandbox_remote_execution_state(monkeypatch, tmp_path):
     monkeypatch.setenv(
         "SPACR_REMOTE_STATE_DIR", str(tmp_path / "remote-execution-state")
     )
+
+
+@pytest.fixture(autouse=True)
+def _the_resource_hooks_do_not_outlive_the_test():
+    """Take back the budget sweep and run hook ``launch`` installs.
+
+    ``resource_cleanup.register()`` -- reached by every ``launch`` and every
+    ``register_self_registering_modules()`` -- parents a repeating QTimer to
+    the session's one QApplication and connects a hook to the run registry.
+    Nothing took them back, so the sweep ticked for the rest of the session
+    in whatever test next spun the event loop. pytest-qt spins it after every
+    test's fixtures are set up, so a tick landed after a test had put its own
+    preference store in place, and since 286 the sweep's level-derived budget
+    MIGRATES and SAVES the level into that store. That is how
+    ``test_the_level_migration_removes_what_it_replaced.py`` failed only in
+    a long serial run.
+
+    BEFORE AND AFTER, not only after: after stops a test handing the hooks
+    on, and before covers a hook installed by something with no teardown of
+    its own -- a module-scoped fixture, or a caller in plain ``tests/`` that
+    this conftest does not reach. Nothing is imported: a test that never
+    loaded ``resource_cleanup`` has nothing to take back.
+    """
+    import sys
+
+    def _take_back():
+        module = sys.modules.get("spacr.qt.resource_cleanup")
+        uninstall = getattr(module, "_uninstall_process_hooks", None)
+        if callable(uninstall):
+            try:
+                uninstall()
+            except Exception:                                # noqa: BLE001
+                pass
+
+    _take_back()
+    try:
+        yield
+    finally:
+        _take_back()
 
 
 @pytest.fixture(scope="session")
@@ -868,6 +948,49 @@ def linked_filter_starts_empty(deferred_deletions_flushed):
 
 
 @pytest.fixture(autouse=True)
+def _no_modifier_key_is_held_over(deferred_deletions_flushed):
+    """No test starts with Shift, or any modifier, still held by another.
+
+    ``QGuiApplication.keyboardModifiers()`` is PROCESS-WIDE, and synthesized
+    input writes it: QApplication records the modifiers of every spontaneous
+    event it is handed, and every ``QTest`` mouse and key event is marked
+    spontaneous. ``QTest.keyClick`` presses and then releases its modifier
+    keys, so it leaves nothing behind. ``QTest.mouseRelease(w, Qt.LeftButton,
+    Qt.ShiftModifier, ...)`` does not: the Shift key release a real user makes
+    never follows it, so Shift stays "held" for the rest of the process.
+
+    Qt reads that state for any selection made without an event of its own.
+    With Shift held, ``QTableView.selectRow(0)`` extends a range from an anchor
+    the new table does not have, and selects nothing. On CI run 34981786045
+    (shard 10, one worker) ``test_roi_tool.py``'s
+    ``test_shift_dragging_still_pans_while_the_pen_is_attached`` was the last
+    input before ``test_cov_wf_qt_widgets_sweep_runs.py``, and two of that
+    file's tests found an empty selection after ``selectRow(0)``.
+    ``test_layer_viewer.py``, ``test_comparison_grid.py`` and
+    ``test_shift_clicking_a_crop_fills_the_container.py`` end their gestures
+    the same way. A later spontaneous event without modifiers happens to clear
+    it, which is why the failure depends on file order and passes in a file
+    run alone.
+
+    Released at SETUP, after ``deferred_deletions_flushed``, like the other
+    process-wide state here, and by the same kind of event that set it: a
+    synthesized Key_Shift release carrying no modifier, to a throwaway widget
+    that is destroyed before the test starts. Nothing is sent when nothing is
+    held.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QGuiApplication
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QWidget
+
+    if QGuiApplication.keyboardModifiers() != Qt.NoModifier:
+        receiver = QWidget()
+        QTest.keyRelease(receiver, Qt.Key_Shift, Qt.NoModifier)
+        del receiver
+    yield
+
+
+@pytest.fixture(autouse=True)
 def _the_live_backdrop_controls_do_not_leak():
     """Restore ``fractal_travel._LIVE_CONTROLS`` around every test.
 
@@ -902,3 +1025,26 @@ def _the_live_backdrop_controls_do_not_leak():
         yield
     finally:
         fractal_travel._LIVE_CONTROLS[:] = before
+
+
+@pytest.fixture(autouse=True)
+def _no_qt_test_touches_a_real_spacr_installation(monkeypatch):
+    """Keep every Qt test away from this computer's real spaCR installations.
+
+    The in-app update finds older copies and removes them. A test that reached
+    it unpatched would scan the workstation and could delete a real desktop
+    install, so here the finder sees nothing and the remover and the update
+    helper refuse. A test of that flow patches in its own fakes.
+    """
+    try:
+        import spacr.install_cleanup as cleanup
+    except Exception:                                        # noqa: BLE001
+        return
+
+    def _refuse(*args, **kwargs):
+        raise AssertionError(
+            "a Qt test reached the real spaCR remover; patch in a fake")
+
+    monkeypatch.setattr(cleanup, "find_old_installs", lambda **kwargs: [])
+    monkeypatch.setattr(cleanup, "remove_install", _refuse)
+    monkeypatch.setattr(cleanup, "start_update_helper", _refuse)

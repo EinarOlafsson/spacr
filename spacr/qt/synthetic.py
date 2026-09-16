@@ -73,9 +73,6 @@ import numpy as np
 LOG = logging.getLogger("spacr.qt.synthetic")
 
 
-# ---------------------------------------------------------------------------
-# Data classes
-# ---------------------------------------------------------------------------
 
 @dataclass
 class DemoLayout:
@@ -95,9 +92,6 @@ class DemoLayout:
     notes: Dict[str, Any] = field(default_factory=dict)
 
 
-# ---------------------------------------------------------------------------
-# Filename builder — matches spacr's cellvoyager regex
-# ---------------------------------------------------------------------------
 
 def cellvoyager_filename(
     plate: str = "plate1",
@@ -137,12 +131,7 @@ def _stable_seed(*parts: Any) -> int:
     return zlib.crc32(text.encode("utf-8")) & 0xFFFFFFFF
 
 
-# ---------------------------------------------------------------------------
-# Synthetic image content
-# ---------------------------------------------------------------------------
 
-# Channel layout every mask default expects. Keys are the settings
-# names in spacr.settings that pipeline functions read.
 CHANNEL_LAYOUT = {
     "nucleus_channel":   0,
     "cell_channel":      1,
@@ -287,7 +276,6 @@ def _synth_blob_image(
     for _ in range(n_blobs):
         cy = float(rng.integers(blob_radius, max(h - blob_radius, blob_radius + 1)))
         cx = float(rng.integers(blob_radius, max(w - blob_radius, blob_radius + 1)))
-        # Slight per-blob intensity + radius jitter
         r = blob_radius * (0.7 + 0.6 * rng.random())
         peak = intensity * (0.5 + 0.8 * rng.random())
         spots.append((cy, cx, r, peak))
@@ -332,7 +320,7 @@ def _synth_field(
     step_y, step_x = h / CELL_GRID, w / CELL_GRID
     wanted = {int(c) for c in channels}
 
-    cells: List[Tuple[float, float, float]] = []   # (cy, cx, size_scale)
+    cells: List[Tuple[float, float, float]] = []
     margin = _RADIUS_CELL + 2
     for gy in range(CELL_GRID):
         for gx in range(CELL_GRID):
@@ -341,10 +329,6 @@ def _synth_field(
             vy, vx = rng.normal(0.0, 1.2, 2)
             cy = float(np.clip(cy + frame * vy, margin, h - margin))
             cx = float(np.clip(cx + frame * vx, margin, w - margin))
-            # Per-cell size jitter. Without it every object has the identical
-            # area, the median absolute deviation of the size distribution is
-            # zero, and seg_qc's robust range collapses to a point so that
-            # every object reads as a size outlier.
             cells.append((cy, cx, 0.82 + 0.36 * rng.random()))
 
     images: Dict[int, np.ndarray] = {}
@@ -354,7 +338,6 @@ def _synth_field(
         """One object's peak intensity, jittered around the nominal."""
         return _PEAK * (0.75 + 0.45 * rng.random())
 
-    # --- cell + nucleus: concentric, one per lattice site -----------------
     for role, sigma, radius in (
         ("cell", _SIGMA_CELL, _RADIUS_CELL),
         ("nucleus", _SIGMA_NUCLEUS, _RADIUS_NUCLEUS),
@@ -369,7 +352,6 @@ def _synth_field(
         if chan in wanted:
             images[chan] = _draw_spots(shape, spots, rng)
 
-    # --- pathogens: inside the cell and clear of its nucleus --------------
     path_mask = np.zeros(shape, dtype=np.uint16)
     path_spots = []
     label = 0
@@ -382,9 +364,6 @@ def _synth_field(
                              _PATHOGENS_PER_INFECTED_CELL[1] + 1))
         base_angle = rng.uniform(0, 2 * np.pi)
         for k in range(n):
-            # Evenly spaced around the cell centre, so several pathogens in
-            # one cell never land on top of each other and the mask holds n
-            # objects rather than one peanut.
             angle = base_angle + 2 * np.pi * k / n
             py = cy + _OFFSET_PATHOGEN * scale * np.sin(angle)
             px = cx + _OFFSET_PATHOGEN * scale * np.cos(angle)
@@ -395,7 +374,6 @@ def _synth_field(
     if CHANNEL_LAYOUT["pathogen_channel"] in wanted:
         images[CHANNEL_LAYOUT["pathogen_channel"]] = _draw_spots(shape, path_spots, rng)
 
-    # --- organelles: a rosette of puncta per cell -------------------------
     org_mask = np.zeros(shape, dtype=np.uint16)
     org_spots = []
     label = 0
@@ -412,17 +390,12 @@ def _synth_field(
     if CHANNEL_LAYOUT["organelle_channel"] in wanted:
         images[CHANNEL_LAYOUT["organelle_channel"]] = _draw_spots(shape, org_spots, rng)
 
-    # Any channel the caller asked for that is not one of the four roles gets
-    # plain background rather than a KeyError further down.
     for chan in sorted(wanted - set(images)):
         images[chan] = _draw_spots(shape, [], rng)
 
     return _Field(images=images, masks=masks)
 
 
-# ---------------------------------------------------------------------------
-# Generators — one per app family
-# ---------------------------------------------------------------------------
 
 def _mask_roles(channels: Sequence[int]) -> List[str]:
     """Which mask planes a plate with ``channels`` acquired would carry.
@@ -457,8 +430,6 @@ def _emit_images(
     produced: Dict[Tuple[str, int, int], _Field] = {}
     for well in wells:
         for f in range(1, fields + 1):
-            # One seed per (well, field): every timepoint of that field is
-            # the same cells, drifting.
             seed = _stable_seed(plate, well, f)
             for t in range(1, times + 1):
                 fld = _synth_field(seed, channels=channels, shape=shape,
@@ -610,7 +581,7 @@ def generate_measure_demo(
           ``"organelle" in settings['summarize_organelles_by']`` — a *substring*
           test when the value is a str. Running this demo with
           ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary``
-          (16 rows/field) and still **no ``organelle`` table**. Only a value
+          (16 rows/field) and still no ``organelle`` table. Only a value
           containing ``'organelle'`` writes the per-organelle table
           (``['cell', 'organelle']`` → organelle 64 rows/field, verified).
        2. A list cannot be shipped today: ``spacr.settings.expected_types``
@@ -722,7 +693,7 @@ def generate_classify_demo(
     That is exactly what this writes, and exactly what
     ``spacr.utils._map_wells_png`` parses plate/row/column/field back out of.
 
-    **The ``cell_png`` leaf matches.** measure_crop appends
+    The ``cell_png`` leaf matches. measure_crop appends
     ``f"{crop_mode}_png/"`` to the folder, so a real cell crop does live under
     ``cell_png/`` — which is what
     :func:`spacr.io.generate_training_dataset`'s
@@ -738,7 +709,7 @@ def generate_classify_demo(
     infection status per synthetic crop would be a fiction the pixels do not
     support.
 
-    **The ``png_list`` columns do not match either.**
+    The ``png_list`` columns do not match either.
     :func:`spacr.utils.filepaths_to_database` writes ``png_path, file_name,
     plateID, rowID, columnID, fieldID, prcfo, cell_id``, with the tokenised
     values ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. This table
@@ -767,20 +738,14 @@ def generate_classify_demo(
         crop_dir = dst / "data" / f"{plate}_{well}" / CROP_FOLDER
         crop_dir.mkdir(parents=True, exist_ok=True)
         for k in range(per_well):
-            # Alternate blob patterns to give the classifier something to
-            # discriminate (label 1 = dense, label 2 = sparse).
             cls = 1 if k % 2 == 0 else 2
             arr = _synth_blob_image(
                 shape=(64, 64), n_blobs=8 if cls == 1 else 2,
                 blob_radius=6,
                 seed=i,
             )
-            # Save as an 8-bit RGB PNG (what spacr.io stores).
             arr8 = (arr / 256).astype(np.uint8)
             rgb = np.stack([arr8, arr8, arr8], axis=-1)
-            # Fields of _CROPS_PER_FIELD objects each, so the crops carry the
-            # same plate/well/field/time/label name spaCR parses metadata back
-            # out of.
             field = k // _CROPS_PER_FIELD + 1
             label = k % _CROPS_PER_FIELD + 1
             p = crop_dir / f"{plate}_{well}_{field}_1_{label}.png"
@@ -879,9 +844,6 @@ def generate_timelapse_demo(
     )
     settings = demo_settings("timelapse", str(dst), channels=channels)
     settings["timelapse"] = True
-    # [start, end] is a *slice* of frame indices — spacr.object does
-    # `stack[limits[0]:limits[1]]`. [1, times] therefore silently threw away
-    # the first frame of every field; [0, times] keeps all of them.
     settings["timelapse_frame_limits"] = [0, times]
     layout = DemoLayout(
         src=dst, image_dir=dst,
@@ -894,9 +856,6 @@ def generate_timelapse_demo(
     return layout
 
 
-# ---------------------------------------------------------------------------
-# Settings — reverse-engineered per app so the demo actually runs
-# ---------------------------------------------------------------------------
 
 def _channel_settings(channels: Sequence[int]) -> Dict[str, Any]:
     """`*_channel` for the roles this dataset acquired, None for the rest.
@@ -946,11 +905,6 @@ def demo_settings(app_key: str, src: str,
         "plot": False,
         "test_mode": False,
     }
-    # Only the apps that ingest raw acquisition files parse filenames or care
-    # about the objective. Measure reads merged/*.npy, whose field names and
-    # plane layout are already fixed, so shipping these to it would be more
-    # keys the Measure screen has no widget for and measure_crop never reads —
-    # accepted, dropped, and impossible to notice.
     acquisition: Dict[str, Any] = {
         "metadata_type": "cellvoyager",
         "custom_regex": None,
@@ -962,43 +916,22 @@ def demo_settings(app_key: str, src: str,
             **base,
             **acquisition,
             **layout,
-            # The demo draws cells at _RADIUS_CELL and nuclei at
-            # _RADIUS_NUCLEUS; Cellpose 4 rescales by 30/diameter, so telling
-            # it the truth is what puts the objects near the size cpsam was
-            # trained on.
             "cell_diameter": _RADIUS_CELL * 2,
             "nucleus_diameter": _RADIUS_NUCLEUS * 2,
             "pathogen_diameter": _RADIUS_PATHOGEN * 2,
-            # The camera offset the images are actually drawn on. All three
-            # object channels, not just the cell: `*_background` is multiplied
-            # by `*_signal_to_noise` to set the normalisation ceiling, and a
-            # demo that declares the right offset for one channel and the
-            # 100 default for the other two normalises them differently for
-            # no reason.
             "cell_background": _BACKGROUND,
             "nucleus_background": _BACKGROUND,
             "pathogen_background": _BACKGROUND,
-            # Real key is capital-S `cell_signal_to_noise`. The demo shipped
-            # `cell_signal_to_noise` for a year: not a spaCR setting, so it
-            # was accepted, ignored, and the default used instead.
             "cell_signal_to_noise": 10,
             "nucleus_signal_to_noise": 10,
             "pathogen_signal_to_noise": 10,
             "cell_cellprob_threshold": 0.0,
             "cell_flow_threshold": 1.0,
-            # 'cyto' / 'nuclei' until Cellpose 4 removed them. The demo
-            # settings are what a new user copies, so they name the model
-            # that exists; a legacy value in a real settings file is still
-            # accepted and mapped forward by
-            # settings.normalize_cellpose_model_name.
             "cell_model_name": "cpsam",
             "nucleus_model_name": "cpsam",
         }
     if app_key in ("measure", "crop"):
         crop = app_key == "crop"
-        # No `*_channel` here: measure_crop indexes merged/*.npy with
-        # `*_mask_dim` and never reads the raw acquisition channel keys, and
-        # the Qt Measure screen has no widget for them either.
         return {
             **base,
             **_mask_dim_settings(channels),
@@ -1010,84 +943,23 @@ def demo_settings(app_key: str, src: str,
             "experiment": "demo",
             "crop_mode": ["cell"],
             "save_png": crop,
-            # png_size is a [height, width] pair, not a scalar — a bare int
-            # is a hard pre-flight error ("png_size=64 is a int, but list is
-            # expected").
             "png_size": [64, 64],
-            # The declared mapping, not the retired `png_dims` list. This
-            # value is identical to what `png_dims=[0, 1, 2]` always meant on
-            # screen -- the 405 plane in blue -- but it says so, and it is a
-            # key the Measure screen actually renders. Written as the old key
-            # it had no widget, so the demo's own setting was dropped on the
-            # floor when the pack was applied.
             "png_channel_mapping": {"r": 2, "g": 1, "b": 0},
-            # No `normalize` / `normalize_by` here, deliberately. measure_crop
-            # reads `normalize` as a [low, high] percentile PAIR, but
-            # spacr.settings declares it ``bool`` and the Qt Measure screen
-            # therefore renders it as a Toggle: importing a demo that shipped
-            # `normalize=[1, 99]` put **False** in the form
-            # (`_apply_value` does `str(val).lower() in ("true","1","yes")`),
-            # so the CSV on disk and the form the user is looking at disagreed
-            # about how every crop is scaled. `normalize_by` alone is inert —
-            # measure.py only consults it when `normalize` is a list — so
-            # shipping it would be decoration. Omitting both leaves the
-            # measure defaults (normalize=False, normalize_by='png'), which is
-            # what the run does anyway, and nothing is silently rewritten.
-            # Making [1, 99] loadable needs a real widget for the pair in
-            # spacr/qt/screens/settings_model.py + a `(bool, list)` type in
-            # spacr/settings.py; neither is in this module.
         }
     if app_key == "classify":
         return {
             "src": src,
-            # Every other demo carries plot=False through `base`; classify
-            # does not spread `base` (its keys are a different set) and so
-            # shipped nothing, which meant `deep_spacr_defaults` supplied its
-            # own default of True. That is not cosmetic: with plotting on,
-            # `_plot_training_curves` runs at the end of every epoch, and
-            # outside the Qt GUI (where the bridge replaces `plt.show`) the
-            # interactive backend's blocking show parks the run in the Qt main
-            # loop forever — the classify demo never finished. The blocking
-            # show is fixed at source, and the demo says what it means here.
             "plot": False,
-            # The crops are labelled in png_list, not by well metadata, so the
-            # dataset has to be built in 'annotation' mode. The shipped
-            # default is 'metadata', which selects on the class column
-            # ('columnID') and would build two classes out of one well.
             "dataset_mode": "annotation",
-            # Only the singular key: generate_training_dataset falls back to
-            # `[settings['annotation_column']]` when `annotation_columns` is
-            # unset, and the plural spelling — which io.py reads — is not
-            # declared in spacr.settings, so shipping it makes pre-flight warn
-            # "did you mean 'annotation_column'?" on every demo load.
             "annotation_column": "annotate",
-            # `annotated_classes` is gone: nothing ever read it, so shipping
-            # it in a demo taught the shape of a setting that did nothing.
-            # The classes come from dataset_mode instead.
             "png_type": "cell_png",
             "file_type": "cell_png",
             "image_size": 64,
             "batch_size": 8,
             "epochs": 2,
             "test_split": 0.25,
-            # 'cnn' is not a model: model_type is fed to torchvision, and the
-            # GUI offers only names from that list. resnet50 is the smallest
-            # of them that trains sensibly on 64 px crops.
             "model_type": "resnet50",
-            # `train_channels`, not `channels`. Classify runs
-            # spacr.deep_spacr.deep_spacr, which selects the crop's colour
-            # planes with `settings['train_channels']` (r/g/b letters) and
-            # never reads `channels` at all — `channels` is not even in
-            # deep_spacr_defaults, so the Classify screen has no widget for it
-            # and `_apply_demo_to_screen` dropped it on the floor. The demo's
-            # crops are a greyscale plane replicated into RGB, so all three
-            # planes carry signal.
             "train_channels": ["r", "g", "b"],
-            # No `channel_of_interest`: it is a spacr.ml recruitment/regression
-            # setting (it picks `pathogen_channel_<n>_mean_intensity` columns),
-            # deep_spacr never reads it, and the Classify screen renders it as
-            # a QSpinBox — so the `None` this used to ship came back from the
-            # form as 3.
         }
     if app_key == "timelapse":
         return {
@@ -1095,16 +967,8 @@ def demo_settings(app_key: str, src: str,
             **acquisition,
             **layout,
             "timelapse": True,
-            # A slice, not an inclusive 1-based range: see
-            # generate_timelapse_demo, which overwrites this with the real
-            # frame count.
             "timelapse_frame_limits": [0, 8],
             "timelapse_objects": ["cell"],
-            # 'trackastra' is the shipped default and the better tracker, but
-            # it is an optional dependency: a machine without it cannot run
-            # the demo at all. 'iou' ships with spaCR, needs no tuning, and
-            # is exactly right for objects that drift a couple of pixels per
-            # frame — which is what this dataset is.
             "timelapse_mode": "iou",
             "cell_diameter": _RADIUS_CELL * 2,
             "nucleus_diameter": _RADIUS_NUCLEUS * 2,
@@ -1113,11 +977,6 @@ def demo_settings(app_key: str, src: str,
         barcodes = os.path.join(src, BARCODE_DIRNAME)
         return {
             "src": src,
-            # The three CSVs spacr.sequencing.map_sequences_to_names reads;
-            # each needs 'name' and 'sequence' columns. Leaving them unset is
-            # a hard pre-flight error, and the demo used to ship
-            # `barcode_length` / `barcode_offset` / `processes` — none of
-            # which is a spaCR setting.
             "grna_csv": os.path.join(barcodes, "grna.csv"),
             "row_csv": os.path.join(barcodes, "row.csv"),
             "column_csv": os.path.join(barcodes, "column.csv"),
@@ -1125,9 +984,6 @@ def demo_settings(app_key: str, src: str,
             "single_direction": "R1",
             "target_sequence": SEQ_TARGET,
             "offset_start": SEQ_OFFSET_START,
-            # `window_length` since 364's rename; the constant beside it
-            # already had the right word, which is the argument for the
-            # setting having it too.
             "window_length": SEQ_WINDOW_LENGTH,
             "chunk_size": 1000,
             "n_jobs": 2,
@@ -1138,15 +994,7 @@ def demo_settings(app_key: str, src: str,
     return base
 
 
-# ---------------------------------------------------------------------------
-# Synthetic FASTQ generator — matches EO1_R1_001.fastq.gz structure
-# ---------------------------------------------------------------------------
 
-# NovaSeq X read layout observed in EO1_R1_001.fastq.gz:
-#   header: @<instr>:<run>:<flowcell>:<lane>:<tile>:<x>:<y> 1:N:0:<i7>
-#   seq   : 150 bp
-#   qual  : 150 bp of Illumina 1.8+ Phred+33 scores
-# Every read of the real fastq carried i7 index GCTTGCGC.
 FASTQ_READ_LENGTH = 150
 FASTQ_INSTRUMENT  = "LH00000"
 FASTQ_RUN         = 1
@@ -1169,27 +1017,6 @@ FASTQ_SAMPLE = "demo"
 #: file, and a folder never does.
 BARCODE_DIRNAME = "barcodes"
 
-# --- the read frame the shipped barcode-mapping defaults expect ------------
-#
-# spacr.settings.set_default_generate_barecode_mapping anchors on
-# `target_sequence`, slices `window_length` bases starting `offset_start` from
-# the anchor, and splits that window with DEFAULT_BARCODE_REGEX:
-#
-#   ^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*
-#
-# So the 89-base window has to be laid out exactly like this, and it is:
-#
-#   [ 0: 8]  column barcode        8
-#   [ 8:34]  SEQ_TARGET           26   <- the anchor; supplies TGCTG…TAAAC
-#   [34:55]  gRNA barcode         21
-#   [55:60]  SEQ_GRNA_SUFFIX       5   <- the AACTT the regex demands
-#   [60:68]  SEQ_FILL              8
-#   [68:73]  SEQ_ROW_PREFIX        5   <- the AGAAG the regex demands
-#   [73:81]  row barcode           8
-#   [81:89]  SEQ_TAIL              8
-#
-# and the anchor sits `-offset_start` = 8 bases into the window, which is why
-# the column barcode is exactly 8 long.
 SEQ_TARGET = "TGCTGTTTCCAGCATAGCTCTTAAAC"
 SEQ_OFFSET_START = -8
 SEQ_WINDOW_LENGTH = 89
@@ -1226,8 +1053,6 @@ def _phred_run(length: int, mean_q: int = 30,
         rng.normal(loc=mean_q, scale=6, size=length).round().astype(int),
         2, 40,
     )
-    # Fade quality toward the tail — real reads drop below Q20 near
-    # the end. Roughly halve the base quality over the last third.
     tail = int(length * 0.33)
     scores[-tail:] = np.clip(scores[-tail:] - rng.integers(4, 12, tail),
                               2, 40)
@@ -1350,7 +1175,7 @@ def _reverse_complement(seq: str) -> str:
 def _fastq_header(index: int, read: int = 1, tile: int = 1101,
                     y: Optional[int] = None) -> str:
     """Build one @-prefixed FASTQ header matching Illumina 1.8+ format."""
-    x = 1000 + (index % 9000)          # 1000..9999
+    x = 1000 + (index % 9000)
     y = y if y is not None else 1000 + (index // 9000)
     return (
         f"@{FASTQ_INSTRUMENT}:{FASTQ_RUN}:{FASTQ_FLOWCELL}"
@@ -1503,9 +1328,6 @@ def generate_map_barcodes_demo(
     )
 
 
-# ---------------------------------------------------------------------------
-# Settings CSV — spacr's own load_settings format
-# ---------------------------------------------------------------------------
 
 def save_settings_csv(path: Path, settings: Dict[str, Any]) -> Path:
     """Write `settings` in the two-column Key,Value format that
@@ -1521,9 +1343,6 @@ def save_settings_csv(path: Path, settings: Dict[str, Any]) -> Path:
     return path
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 _GENERATORS = {
     "mask":         generate_mask_demo,

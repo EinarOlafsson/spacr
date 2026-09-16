@@ -112,7 +112,7 @@ def filter_selection(selection: pd.DataFrame,
         is what the Measure panel writes for an unset field -- treating 0 as a
         real minimum would drop nothing and look like it had worked.
     ``wells`` / ``exclude_wells``
-        Well ids to keep or drop, as ``rowID``+``columnID`` pairs or as plain
+        Well ids to keep or drop, as ``rowID+columnID`` pairs or as plain
         well names.
     ``max_objects``
         A cap, applied LAST and deterministically (by the sort the selection
@@ -135,8 +135,6 @@ def filter_selection(selection: pd.DataFrame,
     if area is not None:
         minimum = settings.get(f"{object_type}_min_size")
         maximum = settings.get(f"{object_type}_max_size")
-        # 0 IS NOT A MINIMUM. The Measure panel writes 0 for an unset bound,
-        # and honouring it as one would filter nothing while looking filtered.
         if minimum:
             frame = frame[frame[area] >= float(minimum)]
         if maximum:
@@ -154,8 +152,6 @@ def filter_selection(selection: pd.DataFrame,
 
     cap = settings.get("max_objects")
     if cap:
-        # Head of the existing order, not a sample: a set that differs between
-        # two runs of the same settings cannot be compared with anything.
         frame = frame.head(int(cap))
     return frame.reset_index(drop=True)
 
@@ -193,9 +189,6 @@ def png_list_frame(selection: pd.DataFrame, paths: Sequence[str]) -> pd.DataFram
         "fieldID": frame.get("fieldID", ""),
         "cell_id": ["o" + str(v) for v in frame.get("objectID", [])],
     })
-    # `prcfo` is the join key every other measurement table carries, so a
-    # streamed set can be joined to the measurements the same way a measured
-    # one can.
     out["fieldID"] = out["fieldID"].astype(str)
     out["prcfo"] = (out["plateID"].astype(str) + "_"
                     + out["rowID"].astype(str) + "_"
@@ -306,10 +299,6 @@ def generate_annotation_dataset(settings: Mapping[str, Any]) -> Dict[str, Any]:
                    or os.path.join(src, "measurements", "measurements.db"))
     object_type = str(settings.get("object_array") or "cell")
 
-    # THE TABLE NAME IS CLAIMED FIRST, and the crop folder is named after it.
-    # `png_list` gets `data`, `png_list_2` gets `data_2` -- so a folder on
-    # disk says which table describes it. Two independent counters would
-    # drift the first time either was deleted.
     table = str(settings.get("table") or "")
     if not table:
         try:
@@ -326,8 +315,6 @@ def generate_annotation_dataset(settings: Mapping[str, Any]) -> Dict[str, Any]:
 
     objects = None
     if source == "database":
-        # THE COORDINATE COLUMNS. They are all the database stores, which is
-        # why this route can only ever produce a bounding box.
         objects = read_objects_from_database(database, object_type)
         if objects is None or not len(objects):
             return {"written": 0, "missing": 0, "fields": 0, "folders": [],
@@ -361,15 +348,6 @@ def generate_annotation_dataset(settings: Mapping[str, Any]) -> Dict[str, Any]:
             captured list using the captured channels and PNG size, preserving
             alignment with the subsequently registered selection rows.
         """
-        # `measure_crop`'S OWN WRITER, not a second one.
-        #
-        # The annotation viewer shows pictures, so a set written as .npy is
-        # not an annotation set -- but that is the smaller reason. The bigger
-        # one is that instruction 338 asks for a streamed set and a measured
-        # set to be the SAME IMAGES, and two writers cannot be relied on to
-        # narrow to 8-bit, pad a two-channel crop, or resize identically. One
-        # writer makes that a property of the code rather than a coincidence
-        # to be re-tested after every change to either.
         from .measure import _save_object_crop
 
         target = os.path.splitext(str(path))[0] + ".png"
@@ -378,7 +356,6 @@ def generate_annotation_dataset(settings: Mapping[str, Any]) -> Dict[str, Any]:
     report = stream(
         selection, merged, destination,
         channel_arrays=list(settings.get("channel_arrays") or (0, 1, 2)),
-        # FORCED for the database route, which has no mask to cut to.
         bounding_box=(True if source == "database"
                       else bool(settings.get("bounding_box", True))),
         crop_mode=object_type, write=_write)
@@ -388,9 +365,6 @@ def generate_annotation_dataset(settings: Mapping[str, Any]) -> Dict[str, Any]:
         frame = png_list_frame(selection.head(len(written)), written)
         report["table"] = write_png_list(database, frame, table=table)
     else:
-        # The reserved table stays, empty, rather than being dropped: it is
-        # the record that this name is spoken for, and dropping it would let
-        # a later run reuse a name whose folder is already on disk.
         report["table"] = ""
         report.setdefault("trouble", []).append(
             f"nothing was written; the reserved table {table} is empty")

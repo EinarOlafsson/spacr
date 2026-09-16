@@ -11,6 +11,7 @@
   "downloading_python": "Sæki einkaeintak af Python %s...",
   "downloading_uv": "Sæki fasta útgáfu af uv-ræsiforritinu...",
   "dry_create": "PRUFUKEYRSLA: myndi búa til og staðfesta %s",
+  "dry_remove_old": "PRUFUKEYRSLA: myndi fyrst finna og fjarlægja allar eldri uppsetningar spaCR",
   "dry_download": "PRUFUKEYRSLA: myndi sækja %s",
   "dry_launcher": "PRUFUKEYRSLA: myndi setja upp ræsiforritið %s",
   "help_dry_run": "Sýna útfærða áætlun án þess að sækja neitt.",
@@ -34,7 +35,7 @@
   "no_sudo": "sudo-skipunin fannst ekki. Haldið er áfram án valfrjálsra Linux-safna fyrir Qt.",
   "nsis_application": "spaCR-skjáborðsforrit",
   "nsis_downloading": "Sæki Python, Qt, PyTorch og spaCR. Þetta getur tekið nokkrar mínútur.",
-  "nsis_failed": "Uppsetning spaCR mistókst með stöðukóðanum %s. Fyrri uppsetning var varðveitt, ef hún var til.",
+  "nsis_failed": "spaCR var ekki sett upp (stöðukóði %s). Eldri spaCR gæti þegar hafa verið fjarlægt. Keyrðu uppsetningarforritið aftur; install.log í uppsetningarmöppunni segir hvað mistókst.",
   "nsis_gpu": "Sjálfvirk vélbúnaðarhröðun (mælt með)",
   "nsis_launch": "Ræsa spaCR",
   "nsis_uninstall": "Fjarlægja spaCR",
@@ -61,5 +62,6 @@
   "old_install_removed": "Fyrri uppsetningin var fjarlægð.",
   "old_install_kept": "Henni er haldið. Umhverfið er endurnýjað hvort sem er; skyndiminni og stillingar haldast.",
   "old_install_noninteractive": "Ekki skjáhermir, svo ekkert var spurt. Umhverfið er endurnýjað; skyndiminni og stillingar haldast.",
-  "old_install_same": "Það er sama útgáfa og þetta uppsetningarforrit ber."
+  "old_install_same": "Það er sama útgáfa og þetta uppsetningarforrit ber.",
+  "old_copy_not_removed": "Uppsetning stöðvuð: ekki tókst að fjarlægja eldri spaCR (sjá ofar). Lokaðu öllum spaCR sem eru í gangi og keyrðu uppsetningarforritið aftur."
 }

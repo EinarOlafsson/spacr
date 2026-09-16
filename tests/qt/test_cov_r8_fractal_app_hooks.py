@@ -33,6 +33,83 @@ class _CheapEngine:
         return np.zeros((height, width, 3), dtype=np.uint8)
 
 
+#: Run in a fresh interpreter by the real-quit test: frees three backdrops
+#: with their screens, keeps one, quits, and reports whose render threads
+#: the application's ``aboutToQuit`` hooks joined.
+_REAL_QUIT_CHILD = r'''
+import json
+
+import numpy as np
+from PySide6.QtCore import SIGNAL, QEvent, QTimer
+from PySide6.QtWidgets import QApplication, QWidget
+
+import spacr
+from spacr.qt.widgets import fractal_travel as F
+
+
+class Cheap:
+    def __init__(self, thread_count):
+        self.thread_count = thread_count
+
+    def render(self, width, height, *_args, **_kwargs):
+        return np.zeros((height, width, 3), dtype=np.uint8)
+
+
+app = QApplication([])
+F.OrbitEngine = Cheap
+
+
+def build():
+    return F._make_cpu_widget(F.Settings(pattern="orbit", backend="cpu"),
+                              F.RuntimeControls(),
+                              F.HardwareProfile(logical_cpus=4))
+
+
+def flush():
+    app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    app.processEvents()
+
+
+freed = []
+for _ in range(3):
+    screen = QWidget()
+    backdrop = build()
+    backdrop.setParent(screen)
+    freed.append(backdrop._thread)
+    screen.deleteLater()
+    flush()
+live = build()
+
+joined = []
+real_join = F._quit_and_join_thread
+
+
+def spy(thread):
+    if thread is live._thread:
+        joined.append("live")
+    elif any(thread is gone for gone in freed):
+        joined.append("freed")
+    else:
+        joined.append("unknown")
+    real_join(thread)
+
+
+F._quit_and_join_thread = spy
+QTimer.singleShot(0, app.quit)
+app.exec()
+F._quit_and_join_thread = real_join
+
+live.shutdown()
+live.deleteLater()
+flush()
+print("REPORT " + json.dumps({
+    "spacr": spacr.__file__,
+    "joined_at_quit": joined,
+    "receivers_after_teardown": app.receivers(SIGNAL("aboutToQuit()")),
+}), flush=True)
+'''
+
+
 @pytest.fixture
 def widget(qapp, monkeypatch):
     monkeypatch.setattr(F, "OrbitEngine", _CheapEngine)
@@ -152,6 +229,92 @@ class TestTheApplicationHookItself:
             "one of the two application lookups changed shape")
         assert source.count("if application is not None:") == 2, (
             "an application lookup is no longer guarded against None")
+
+    def test_a_backdrop_freed_with_its_screen_takes_its_quit_hook_along(
+            self, qapp, monkeypatch):
+        """Deleting the screen takes the backdrop's ``aboutToQuit`` hook too.
+
+        A backdrop is reparented into its screen and deleted with it, and a
+        child freed with its parent is never sent ``closeEvent`` -- so
+        ``shutdown``, which disconnects the hook, never runs. Before the fix
+        every such teardown left one connection on the application, holding
+        a finished render thread until quit: three screens, three receivers.
+
+        Counted with ``receivers`` rather than by emitting ``aboutToQuit``,
+        which would run every other test's hooks on the shared application.
+        """
+        import shiboken6
+        from PySide6.QtCore import SIGNAL, QEvent
+        from PySide6.QtWidgets import QWidget
+
+        monkeypatch.setattr(F, "OrbitEngine", _CheapEngine)
+        before = qapp.receivers(SIGNAL("aboutToQuit()"))
+        for _ in range(3):
+            # Counted per pass, so a hook left by the previous pass fails the
+            # final assertion rather than this precondition.
+            was = qapp.receivers(SIGNAL("aboutToQuit()"))
+            screen = QWidget()
+            backdrop = F._make_cpu_widget(
+                F.Settings(pattern="orbit", backend="cpu"),
+                F.RuntimeControls(), F.HardwareProfile(logical_cpus=4))
+            backdrop.setParent(screen)
+            # ASSERTED, or the final count proves nothing: a backdrop that
+            # never hooked aboutToQuit would pass it just as well.
+            assert qapp.receivers(SIGNAL("aboutToQuit()")) == was + 1, (
+                "the backdrop did not hook aboutToQuit")
+            screen.deleteLater()
+            qapp.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+            qapp.processEvents()
+            assert not shiboken6.isValid(backdrop), (
+                "the screen was deleted without its backdrop")
+
+        assert qapp.receivers(SIGNAL("aboutToQuit()")) == before, (
+            "a backdrop freed with its screen left its aboutToQuit hook "
+            "connected")
+
+    def test_a_real_quit_joins_the_live_backdrop_and_no_freed_one(self):
+        """What the application does when it quits, in a fresh interpreter.
+
+        A child process, because quitting the shared test application is not
+        something one test may do to the rest. Three backdrops are freed with
+        their screens and one is left showing; ``_quit_and_join_thread`` is
+        spied on, so the child reports whose threads the quit reached. Before
+        the fix it reached all four -- three of them for widgets that no
+        longer existed. The live one is then shut down and freed, the path on
+        which the hook is disconnected twice, and that has to stay silent.
+        """
+        import json
+        import os
+        import subprocess
+        import sys
+        from pathlib import Path
+
+        import spacr
+
+        # Rooted at the checkout this test imported, not wherever an editable
+        # install points: the child has to run the code under test.
+        root = Path(spacr.__file__).resolve().parent.parent
+        env = dict(os.environ)
+        env["QT_QPA_PLATFORM"] = "offscreen"
+        env["PYTHONPATH"] = os.pathsep.join(
+            [str(root)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH")
+                           else []))
+        done = subprocess.run([sys.executable, "-c", _REAL_QUIT_CHILD],
+                              cwd=root, env=env, capture_output=True,
+                              text=True, timeout=300)
+
+        assert done.returncode == 0, done.stderr
+        lines = [line for line in done.stdout.splitlines()
+                 if line.startswith("REPORT ")]
+        assert lines, f"the child reported nothing\n{done.stderr}"
+        report = json.loads(lines[-1][len("REPORT "):])
+        assert Path(report["spacr"]).resolve().parent.parent == root
+        assert report["joined_at_quit"] == ["live"], (
+            "the quit ran a hook other than the live backdrop's -- a freed "
+            "backdrop's aboutToQuit hook was still connected")
+        assert report["receivers_after_teardown"] == 0
+        assert "Traceback" not in done.stderr, done.stderr
+        assert "Failed to disconnect" not in done.stderr, done.stderr
 
     def test_an_application_exists_for_every_test_in_this_file(self, qapp):
         from PySide6.QtWidgets import QApplication

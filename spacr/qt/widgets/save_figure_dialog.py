@@ -259,8 +259,6 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
         figure.set_size_inches(float(width), float(height))
     if dpi:
         figure.set_dpi(int(dpi))
-    # Apply the scale to existing artists because rcParams only affect text
-    # created after the parameter change.
     if font_scale and font_scale > 0:
         for text in figure.findobj(match=lambda o: hasattr(o, "get_fontsize")):
             try:
@@ -283,9 +281,6 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
             axes.title.set_color(text_ink)
             axes.xaxis.label.set_color(text_ink)
             axes.yaxis.label.set_color(text_ink)
-            # THE NUMBERS BESIDE THE TICKS ARE TEXT and the little dashes are
-            # lines, so the two halves of `tick_params` follow two different
-            # controls. One call with both would tie them together again.
             axes.tick_params(labelcolor=text_ink, which="both")
             legend = axes.get_legend()
             if legend is not None:
@@ -297,8 +292,6 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
             axes.tick_params(color=line_ink, which="both")
             for spine in axes.spines.values():
                 spine.set_edgecolor(line_ink)
-        # Matplotlib enables the grid when line properties accompany
-        # ``grid(False)``. Supply styling arguments only for the enabled case.
         if grid:
             axes.grid(True, which="major", linewidth=0.4, alpha=0.35)
         elif grid is not None:
@@ -371,7 +364,6 @@ class SaveFigureDialog(QDialog):
         layout = QVBoxLayout(self)
         form = QFormLayout()
 
-        # ------------------------------------------- the four that are the file's
         self.background = self._colour_box(
             BACKGROUNDS,
             "The page behind the figure. Transparent takes whatever the "
@@ -396,20 +388,12 @@ class SaveFigureDialog(QDialog):
         self.line_width.valueChanged.connect(self.refresh)
         form.addRow("line width", self.line_width)
 
-        # NAMED `ink` IN THE CODE, "text colour" ON THE ROW. The attribute is
-        # what every caller and test already reaches for; the label is the
-        # word the maintainer used and the word the row beside it uses.
         self.ink = self._colour_box(
             INKS,
             "Every piece of text in the file: the title, the axis labels, "
             "the numbers beside the ticks and the legend.")
         form.addRow("text colour", self.ink)
 
-        # A MATPLOTLIB FIGURE HAS NO LIVE STYLE MENU. Its page can be reduced
-        # from a wide on-screen figure to a journal column here, but without
-        # an export-only scale the existing labels remain full size and crowd
-        # out the axes. Fast plots already own one font-size setting on their
-        # right-click menu, so they must not get a second answer here.
         if not self._fast:
             self.font_scale = QDoubleSpinBox()
             self.font_scale.setRange(0.25, 4.0)
@@ -423,15 +407,6 @@ class SaveFigureDialog(QDialog):
             self.font_scale.valueChanged.connect(self.refresh)
             form.addRow("text scale", self.font_scale)
 
-        # THE SHAPE OF THE FIGURE, as a choice rather than a number. A ratio
-        # is a number, and a reader deciding how a figure sits on a page is
-        # choosing a shape.
-        #
-        # THE SAME VOCABULARY THE GRAPH'S OWN MENU USES, read from the one
-        # table, so a figure shaped from the menu and one shaped here are
-        # shaped by the same names. "Lock axis scales" -- one y unit drawn as
-        # n x units -- is a statement about the DATA and lives on that menu
-        # under Axes; it is not what "save it as a square" means.
         try:
             from .fast_plots import CANVAS_SHAPE_LABELS, CANVAS_SHAPES
         except Exception:                                    # noqa: BLE001
@@ -451,17 +426,12 @@ class SaveFigureDialog(QDialog):
         self.graph_shape.currentIndexChanged.connect(self._shape_changed)
         form.addRow("graph shape", self.graph_shape)
 
-        # ---------------------------------------------- what the file IS
         self.format = QComboBox()
         for value, label in (FAST_PLOT_FORMATS if self._fast else FORMATS):
             self.format.addItem(label, value)
         self.format.currentIndexChanged.connect(self._format_changed)
         form.addRow("format", self.format)
 
-        # A RASTER EXPORT IS WHAT A RESOLUTION IS FOR. It follows the FORMAT
-        # and not the kind of plot: a journal asking for 300 dpi is asking
-        # about the PNG, and greying the one control that decides how big
-        # that file really is takes the answer away.
         self.dpi = QSpinBox()
         self.dpi.setRange(72, 1200)
         self.dpi.setValue(300)
@@ -480,11 +450,6 @@ class SaveFigureDialog(QDialog):
         self.height.setRange(1.0, 40.0)
         self.height.setSuffix(" in")
         if self._fast:
-            # The page a pyqtgraph plot writes onto is set in millimetres on
-            # its OWN right-click menu (`set_export_size`), and it is read by
-            # all three of its export paths. Offering a second answer in
-            # inches here would give the user two controls for one quantity
-            # and no way to tell which won -- so these SHOW it instead.
             for box in (self.width, self.height):
                 box.setEnabled(False)
                 box.setToolTip(_SIZE_REASON)
@@ -508,9 +473,6 @@ class SaveFigureDialog(QDialog):
         self._holder = QVBoxLayout()
         layout.addLayout(self._holder, 1)
 
-        # WHERE A REFUSAL IS SAID OUT LOUD. A preview or a save that fails
-        # writes its reason here; an empty label is hidden, so the dialog
-        # gains a line only when there is something to read.
         self._trouble = QLabel()
         self._trouble.setWordWrap(True)
         self._trouble.setVisible(False)
@@ -531,7 +493,6 @@ class SaveFigureDialog(QDialog):
         self.resize(760, 760)
         self._format_changed()
 
-    # -------------------------------------------------------------- colours
 
     def _colour_box(self, choices, tooltip: str) -> QComboBox:
         """A colour combo: the presets, then a chooser for anything else.
@@ -546,9 +507,6 @@ class SaveFigureDialog(QDialog):
             box.addItem(label, value)
         box.addItem(_CHOOSE_LABEL, _CHOOSE)
         box.setToolTip(tooltip)
-        # THE CHOOSER RUNS FIRST. Connected before the refresh so a chosen
-        # colour is already in the combo by the time the preview is rebuilt;
-        # the other order previews the sentinel and then the colour.
         box.currentIndexChanged.connect(
             lambda _index, which=box: self._resolve_choice(which))
         box.currentIndexChanged.connect(self.refresh)
@@ -568,11 +526,6 @@ class SaveFigureDialog(QDialog):
                 name = chosen.name()
                 index = box.findData(name)
                 if index < 0:
-                    # CASE-INSENSITIVELY, because QColor.name() answers in
-                    # lower case and the shipped entries are written upper.
-                    # An exact match misses "white" for #ffffff and inserts a
-                    # second, visually identical row -- once for every time
-                    # the user picks a colour the list already had.
                     lowered = name.lower()
                     for position in range(box.count()):
                         data = box.itemData(position)
@@ -580,7 +533,6 @@ class SaveFigureDialog(QDialog):
                             index = position
                             break
                 if index < 0:
-                    # Before the chooser, so the chooser stays last.
                     index = box.count() - 1
                     box.insertItem(index, name, name)
             box.setCurrentIndex(index)
@@ -593,7 +545,6 @@ class SaveFigureDialog(QDialog):
         value = box.currentData()
         return "" if not value or value == _CHOOSE else str(value)
 
-    # ---------------------------------------------------------- the file rows
 
     def _format_changed(self, *_args) -> None:
         """Light the resolution for a raster format and grey it for vector.
@@ -681,9 +632,6 @@ class SaveFigureDialog(QDialog):
             for box, inches in ((self.width, width_mm / 25.4),
                                 (self.height,
                                  (height_mm if height_mm else width_mm) / 25.4)):
-                # Written with the handler blocked: these boxes only REPORT
-                # the plot's page, and letting them re-enter the refresh that
-                # is about to run renders the preview twice per keystroke.
                 blocked = box.blockSignals(True)
                 try:
                     box.setValue(round(inches, 2))
@@ -734,7 +682,6 @@ class SaveFigureDialog(QDialog):
             return width, None
         return width, max(1, int(round(width * float(ratio))))
 
-    # ------------------------------------------------------------- preview
 
     def preview(self):
         """Return the current detached preview.
@@ -855,16 +802,12 @@ class SaveFigureDialog(QDialog):
             label.setAlignment(Qt.AlignCenter)
             label.setPixmap(pixmap)
             self._holder.addWidget(label)
-            # The pixmap IS the preview; there is no figure object behind it.
             self._preview = pixmap
             self._save.setEnabled(True)
             self._say("")
             return pixmap
         self._save.setEnabled(False)
         if failure:
-            # KEEP THE FIGURE. The holder is NOT cleared: what is in it is
-            # the last drawing that worked, and the note says exactly that
-            # so it cannot be read as the answer to the settings just made.
             self._say(f"{PREVIEW_FAILED} {failure}" if self._preview is not None
                       else f"{PREVIEW_FAILED_ALONE} {failure}")
             return None
@@ -888,7 +831,6 @@ class SaveFigureDialog(QDialog):
                 widget.setParent(None)
                 widget.deleteLater()
 
-    # ---------------------------------------------------------------- save
 
     def save(self, path: str = "") -> str:
         """Write the figure using the current export settings.
@@ -932,12 +874,6 @@ class SaveFigureDialog(QDialog):
             self._say(f"{SAVE_FAILED} there is no figure to write.")
             return ""
         try:
-            # NOT `plot.save_figure`, and deliberately. Every decision that
-            # writer makes -- the format, the DPI, the page colour -- the
-            # user has just made in this dialog and is looking at in the
-            # preview. Overriding any of them here would write something
-            # other than what was previewed, which is the one thing this
-            # window promises not to do.
             target.savefig(chosen, dpi=int(self.dpi.value()),
                            bbox_inches="tight",
                            facecolor=target.patch.get_facecolor(),

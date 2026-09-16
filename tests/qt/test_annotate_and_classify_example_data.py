@@ -165,14 +165,15 @@ def test_the_two_modules_share_one_download():
     assert annotate_dir == classify_dir
 
 
-def test_the_settings_land_through_the_real_import_path():
-    """A second reader would drift from "Import settings…", and the point of
-    shipping settings is that they land exactly as a user's own file would."""
-    source = Path(
-        __import__("spacr.qt.screens.app_screen", fromlist=["x"]).__file__
-    ).read_text(encoding="utf-8")
-    assert "loaded = self._load_settings_csv(str(path))" in source
-    assert "applied = self.apply_settings_dict(loaded)" in source
+def test_the_settings_land_through_the_shared_pack_reader():
+    """Downloaded examples share migration reporting and the real form applier."""
+    from inspect import getsource
+
+    from spacr.qt.screens.app_screen import AppScreen
+
+    source = getsource(AppScreen.apply_settings_that_came_with)
+    assert "settings_from_pack(" in source
+    assert "self.apply_settings_dict(loaded)" in source
 
 
 def test_the_cached_copy_is_reused(tmp_path):

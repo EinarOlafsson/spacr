@@ -42,9 +42,6 @@ def _queue_path() -> Path:
     return p
 
 
-# ---------------------------------------------------------------------------
-# Data classes
-# ---------------------------------------------------------------------------
 
 class Status(str, Enum):
     """Per-item lifecycle. Mirrors the run journal's terminology."""
@@ -87,9 +84,6 @@ class QueueItem:
         return end - self.start_ts
 
 
-# ---------------------------------------------------------------------------
-# Queue container
-# ---------------------------------------------------------------------------
 
 class PlateQueue:
     """Ordered list of :class:`QueueItem` objects with atomic on-disk snapshots.
@@ -113,7 +107,6 @@ class PlateQueue:
         self._items: List[QueueItem] = []
         self.load()
 
-    # -- accessors ---------------------------------------------------------
 
     def __len__(self) -> int:
         """Return the number of queued items."""
@@ -141,7 +134,6 @@ class PlateQueue:
         return not any(i.status in (Status.QUEUED, Status.RUNNING)
                         for i in self._items)
 
-    # -- mutations ---------------------------------------------------------
 
     def add(self, item: QueueItem) -> None:
         """Append a plate and save immediately.
@@ -211,7 +203,6 @@ class PlateQueue:
         if changed:
             self.save()
 
-    # -- persistence -------------------------------------------------------
 
     def save(self) -> None:
         """Write the queue to disk."""
@@ -275,9 +266,6 @@ class PlateQueue:
         )
 
 
-# ---------------------------------------------------------------------------
-# CSV import
-# ---------------------------------------------------------------------------
 
 def import_plates_from_csv(csv_path: Any,
                               base_settings: Dict[str, Any],
@@ -310,7 +298,6 @@ def import_plates_from_csv(csv_path: Any,
             for k, v in row.items():
                 if k in (None, "", "src"):
                     continue
-                # Try numeric coercion; fall back to raw string.
                 vv: Any = v
                 if v is not None:
                     try:
@@ -319,7 +306,6 @@ def import_plates_from_csv(csv_path: Any,
                         try:
                             vv = float(v)
                         except ValueError:
-                            # Preserve booleans + None-ish tokens
                             if v.lower() in ("true", "yes"):
                                 vv = True
                             elif v.lower() in ("false", "no"):
@@ -331,9 +317,6 @@ def import_plates_from_csv(csv_path: Any,
     return items
 
 
-# ---------------------------------------------------------------------------
-# Runner — pure Python, injectable for testing
-# ---------------------------------------------------------------------------
 
 RunnerFn = Callable[[QueueItem], None]
 

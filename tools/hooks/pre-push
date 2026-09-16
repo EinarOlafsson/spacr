@@ -80,7 +80,7 @@ if [ "$found" -ne 0 ]; then
     echo "" >&2
     echo "  This repository is authored by Einar Olafsson alone." >&2
     echo "  Rewrite the offending messages and push again; see" >&2
-    echo "  instructions/open/58_remove_claude_as_a_github_contributor.txt" >&2
+    echo "  features/new/58_remove_claude_and_github_actions_from_contributors.txt" >&2
     exit 1
 fi
 

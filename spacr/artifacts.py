@@ -164,7 +164,6 @@ _COLUMNS = (
     "settings_json", "extra_json", "schema_version",
 )
 
-# Staleness cause codes.
 CAUSE_UNKNOWN = "unknown-artifact"
 CAUSE_UPSTREAM_MISSING = "upstream-missing"
 CAUSE_UPSTREAM_NEWER = "upstream-newer"
@@ -174,9 +173,6 @@ CAUSE_SETTINGS_CHANGED = "settings-changed"
 CAUSE_CYCLE = "cycle"
 
 
-# ---------------------------------------------------------------------------
-# Records
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Fingerprint:
@@ -316,9 +312,6 @@ class Staleness:
         return f"{self.artifact_id}: {verdict} — {'; '.join(self.reasons)}"
 
 
-# ---------------------------------------------------------------------------
-# Provenance primitives
-# ---------------------------------------------------------------------------
 
 def material_settings(settings: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
     """Return only the settings that can change the numbers.
@@ -448,9 +441,6 @@ def _loads(text: str) -> Dict[str, Any]:
     return json.loads(text) if text else {}
 
 
-# ---------------------------------------------------------------------------
-# The registry
-# ---------------------------------------------------------------------------
 
 class Registry:
     """The artifact registry for one project.
@@ -498,7 +488,6 @@ class Registry:
             os.makedirs(os.path.dirname(self.path) or ".", exist_ok=True)
         self._ensure_schema()
 
-    # -- plumbing ---------------------------------------------------------
 
     def _connect(self) -> sqlite3.Connection:
         """Open one connection, in WAL where the filesystem supports it."""
@@ -509,9 +498,6 @@ class Registry:
                 return connect(self.path, timeout=self.timeout,
                                journal_mode="WAL")
             except DatabaseConfigurationError:
-                # SQLite kept the old journal mode -- an older file, or a
-                # filesystem that will not do shared memory. DELETE mode is
-                # slower under contention but always correct.
                 pass
         return connect(self.path, timeout=self.timeout)
 
@@ -543,7 +529,6 @@ class Registry:
                 for statement in _SCHEMA:
                     connection.execute(statement)
 
-    # -- writing ----------------------------------------------------------
 
     def register(self,
                  *,
@@ -679,7 +664,6 @@ class Registry:
                     (artifact_id,))
                 return int(cursor.rowcount)
 
-    # -- reading ----------------------------------------------------------
 
     def _row_to_artifact(self, connection: sqlite3.Connection,
                          row: Sequence[Any]) -> Artifact:
@@ -883,7 +867,6 @@ class Registry:
                 frontier.extend(edges(connection, artifact_id))
         return found
 
-    # -- staleness --------------------------------------------------------
 
     def is_stale(self, artifact: Union[str, Artifact], *,
                  settings: Optional[Mapping[str, Any]] = None) -> Staleness:
@@ -969,9 +952,6 @@ class Registry:
                          tuple(causes), missing=not record.exists)
 
 
-# ---------------------------------------------------------------------------
-# Module-level convenience
-# ---------------------------------------------------------------------------
 
 def open_registry(project: Union[str, os.PathLike, None] = None, *,
                   path: Union[str, os.PathLike, None] = None,
@@ -1076,9 +1056,6 @@ def is_stale(artifact: Union[str, Artifact], *,
     return _resolve(registry, project).is_stale(artifact, **kwargs)
 
 
-# ---------------------------------------------------------------------------
-# The run-completion hook
-# ---------------------------------------------------------------------------
 
 def register_run_outputs(module: str,
                          settings: Optional[Mapping[str, Any]] = None,

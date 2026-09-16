@@ -120,9 +120,6 @@ def default_copy_limit_mb() -> float:
         return float(_DEFAULT_LIMIT_MB)
 
 
-# ---------------------------------------------------------------------------
-# The registry — how GUI state reaches a journal that cannot import Qt
-# ---------------------------------------------------------------------------
 
 def register(name: str, provider: Callable[[], Any]) -> None:
     """Register a named workspace-state provider.
@@ -169,9 +166,6 @@ def clear_providers() -> None:
         _DEFAULT_LIMIT_MB = float(DEFAULT_COPY_LIMIT_MB)
 
 
-# ---------------------------------------------------------------------------
-# Collecting
-# ---------------------------------------------------------------------------
 
 def _state_of(source: Any) -> Optional[Dict[str, Any]]:
     """The state dict a contributor offers, or ``None`` if it offers none."""
@@ -183,9 +177,6 @@ def _state_of(source: Any) -> Optional[Dict[str, Any]]:
     if callable(getter):
         state = getter()
         return dict(state) if isinstance(state, Mapping) else None
-    # The regression panel already had this pair before the workspace
-    # existed. Taking it as-is keeps ONE state model for the volcano rather
-    # than a second one that has to be remembered alongside it.
     legacy = getattr(source, "plot_state", None)
     if callable(legacy):
         state = legacy()
@@ -211,10 +202,6 @@ def section_states(
         try:
             if callable(source) and not isinstance(source, Mapping):
                 source = source()
-            # NOT OPEN IS NOT A PROBLEM. Every screen registers the same
-            # panels and most screens build none of them -- a measure screen
-            # has no volcano. Reporting those would bury the one section that
-            # genuinely failed under a dozen that were simply not there.
             if source is None:
                 continue
             state = _state_of(source)
@@ -411,9 +398,6 @@ def collect(
     return doc
 
 
-# ---------------------------------------------------------------------------
-# Writing
-# ---------------------------------------------------------------------------
 
 def resolve_mode(value: Any) -> str:
     """Normalize a workspace-saving mode.
@@ -508,10 +492,6 @@ def save(
             if not wanted:
                 continue
             size = record.get("size") or 0
-            # The limit bounds `copy`; a file a section asked to CARRY is
-            # carried whatever its size, because the section is asserting it
-            # exists nowhere else and a silently dropped figure is worse than
-            # a large run folder.
             if mode == "copy" and not record.get("carry") and size > limit_bytes:
                 record["copied"] = None
                 record["skipped"] = (
@@ -606,9 +586,6 @@ def has_workspace(run_dir: Any) -> bool:
         return False
 
 
-# ---------------------------------------------------------------------------
-# Putting it back
-# ---------------------------------------------------------------------------
 
 def check_files(doc: Mapping[str, Any], *, run_dir: Any = None) -> List[Dict[str, Any]]:
     """Check the current state of every file in a workspace document.
@@ -696,9 +673,6 @@ def restore(
                 {"section": name, "why": f"{type(exc).__name__}: {exc}"})
             LOG.debug("workspace section %r could not be restored", name, exc_info=True)
             continue
-        # `False` is an ANSWER, not a failure: a panel with no table yet
-        # cannot take a plot state and says so. It is reported as skipped
-        # because from the user's side nothing was put back either way.
         if applied is False:
             report["skipped"].append({"section": name, "why": "the panel declined it"})
         else:
@@ -707,9 +681,6 @@ def restore(
     return report
 
 
-# ---------------------------------------------------------------------------
-# Saying what is in one
-# ---------------------------------------------------------------------------
 
 def _human_size(n: Any) -> str:
     """Format a byte count using compact binary-scaled units.

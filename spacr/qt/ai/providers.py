@@ -44,16 +44,13 @@ class ChatProvider(ABC):
     :ivar install_hint: shell one-liner suggested for installation.
     :ivar login_command: shell one-liner the user runs to authenticate.
     """
-    name: str = ""            # short id: "claude" / "codex" / "gemini"
-    label: str = ""           # human-readable label
-    cli_name: str = ""        # the executable on PATH
-    install_hint: str = ""    # shell one-liner to install
-    login_command: str = ""   # shell one-liner the user should run
+    name: str = ""
+    label: str = ""
+    cli_name: str = ""
+    install_hint: str = ""
+    login_command: str = ""
 
     def __init__(self):
-        # Tracks the currently-running child process so cancel_stream()
-        # can actually terminate it — otherwise `for line in proc.stdout`
-        # blocks indefinitely and the worker thread never exits.
         """Create the provider with no child process running.
 
         The running process is tracked so that cancelling a stream can actually
@@ -112,12 +109,7 @@ class ChatProvider(ABC):
         """Yield text chunks streaming from the CLI subprocess."""
 
 
-# ---------------------------------------------------------------------------
-# Shared subprocess helper
-# ---------------------------------------------------------------------------
 
-# Noise the vendor CLIs emit that we drop before showing to the user.
-# Match on line prefix (case-sensitive).
 _NOISE_LINE_PREFIXES = (
     "Permission deny rule",
     "Permission allow rule",
@@ -237,7 +229,7 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
-            bufsize=1,           # line-buffered
+            bufsize=1,
             env=env,
         )
     except FileNotFoundError as e:
@@ -262,8 +254,6 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
                 continue
             yield line
     finally:
-        # Always tear the child down cleanly — cancel_stream() may have
-        # already terminated it; ok to call terminate again defensively.
         try:
             proc.stdout.close()
         except Exception:
@@ -303,9 +293,6 @@ def _format_conversation(messages: List[Dict], system: str = "") -> str:
     return "\n".join(parts)
 
 
-# ---------------------------------------------------------------------------
-# Anthropic Claude — via `claude` (Claude Code)
-# ---------------------------------------------------------------------------
 
 class ClaudeCliProvider(ChatProvider):
     """Anthropic Claude via the ``claude`` (Claude Code) CLI."""
@@ -313,19 +300,9 @@ class ClaudeCliProvider(ChatProvider):
     name = "claude"
     label = "Claude (via Claude Code)"
     cli_name = "claude"
-    # ONE COMMAND, WHOLE, PER PLATFORM. It was a single line carrying both
-    # forms joined by "# or", which pastes correctly -- the shell comments the
-    # rest away -- and copies badly: the maintainer took the curl half without
-    # `| bash` on 2026-09-10, and curl then printed the installer to the
-    # terminal instead of running it. Nothing failed and nothing installed,
-    # which is the worst shape a copied command can have.
-    #
-    # NOT JUST THE curl FORM, which is what was asked for: install.sh refuses
-    # Windows outright ("Windows is not supported by this script"), so the npm
-    # form is the only one that works there. Choosing by platform gives every
-    # reader exactly one command that is whole and correct for them.
     install_hint = (
-        "npm install -g @anthropic-ai/claude-code"
+        'cmd /c "curl -fsSL https://claude.ai/install.cmd -o install.cmd'
+        ' && install.cmd && del install.cmd"'
         if _sys.platform.startswith("win")
         else "curl -fsSL https://claude.ai/install.sh | bash"
     )
@@ -354,9 +331,6 @@ class ClaudeCliProvider(ChatProvider):
         yield from _stream_process(argv, provider=self)
 
 
-# ---------------------------------------------------------------------------
-# OpenAI ChatGPT — via `codex` (OpenAI Codex CLI)
-# ---------------------------------------------------------------------------
 
 class CodexCliProvider(ChatProvider):
     """OpenAI ChatGPT via the ``codex`` CLI."""
@@ -389,9 +363,6 @@ class CodexCliProvider(ChatProvider):
         yield from _stream_process(argv, provider=self)
 
 
-# ---------------------------------------------------------------------------
-# Google Gemini — via `gemini` CLI
-# ---------------------------------------------------------------------------
 
 class GeminiCliProvider(ChatProvider):
     """Google Gemini via the ``gemini`` CLI."""
@@ -420,7 +391,6 @@ class GeminiCliProvider(ChatProvider):
         if model:
             argv += ["-m", model]
         else:
-            # SPEED_MAP uses --model; translate to -m for the gemini CLI
             args = ai_settings.provider_args(self.name)
             if args and args[0] == "--model":
                 argv += ["-m", args[1]]
@@ -429,9 +399,6 @@ class GeminiCliProvider(ChatProvider):
         yield from _stream_process(argv, provider=self)
 
 
-# ---------------------------------------------------------------------------
-# Registry
-# ---------------------------------------------------------------------------
 
 _PROVIDERS: List[ChatProvider] = [
     ClaudeCliProvider(),

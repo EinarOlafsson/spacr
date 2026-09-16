@@ -55,7 +55,6 @@ class DotLink(QToolButton):
         self.setAccessibleName(tooltip)
         self.setAccessibleDescription(accessible_description)
         self.setText("")
-        # The visible mark is deliberately smaller than its hit target.
         self.setFixedSize(14, 14)
 
     def paintEvent(self, _event) -> None:

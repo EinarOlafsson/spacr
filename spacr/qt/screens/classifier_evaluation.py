@@ -58,15 +58,6 @@ from PySide6.QtWidgets import (
 )
 
 from ... import confusion as cx
-# `spacr.classifier_evaluation` is NOT imported here, and the two functions it
-# owns are imported inside the worker bodies that call them instead. It reads
-# `sklearn.metrics` at its top, which reads `scipy.sparse`, which is the whole
-# of both libraries and the better part of a second -- and this screen module
-# is one of `theme.WIDGET_QSS_MODULES`, so every launch imported it to collect
-# a stylesheet block, whether or not anybody ever opened Classifier
-# Evaluation.
-# Both call sites are already inside a background worker, so the import is
-# paid off the GUI thread by the user who asked for the scan.
 from ..bridge import make_thread
 from ..iconset import icon
 from ..i18n import tr
@@ -187,8 +178,6 @@ def _tabs_qss(palette: dict, opacity) -> str:
     return page_tabs_qss(TABS_NAME, palette, opacity)
 
 
-# ``replace=True``: this module owns the name, so a reimport re-registers
-# rather than raising and leaving the tabs unstyled.
 register_widget_qss(TABS_NAME, _tabs_qss, replace=True)
 
 
@@ -236,13 +225,8 @@ class ClassifierEvaluationScreen(QWidget):
         self._set_status(
             tr("Choose or drop a classifier run folder, then select Scan.")
         )
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "classifier_evaluation")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
@@ -353,9 +337,6 @@ class ClassifierEvaluationScreen(QWidget):
         table.verticalHeader().setVisible(False)
         return table
 
-    # ------------------------------------------------------------------
-    # C8 — the confusion matrix as a set of live queries
-    # ------------------------------------------------------------------
     def _build_confusion_page(self) -> QWidget:
         """The matrix, the ranking in words, and the clicked cell's two lists.
 
@@ -387,10 +368,6 @@ class ClassifierEvaluationScreen(QWidget):
 
         controls = QHBoxLayout()
         controls.addWidget(QLabel(tr("The model counts as sure at"), inspector))
-        # Where "sure" starts is a property of the assay, not of arithmetic —
-        # see `spacr.confusion.confidence_threshold`. Exposed rather than
-        # baked in, because the person reading the crops is the one who can
-        # tell whether 0.75 is where their model stops guessing.
         self._threshold = QDoubleSpinBox(inspector)
         self._threshold.setRange(0.0, 1.0)
         self._threshold.setSingleStep(0.05)
@@ -452,8 +429,6 @@ class ClassifierEvaluationScreen(QWidget):
         button.setEnabled(False)
         button.clicked.connect(on_open)
         box.addWidget(button)
-        # `heading` is kept on the layout only for the caller's convenience;
-        # the layout itself is what gets added, so nothing here is orphaned.
         return box, listing, button
 
     def _choose_source(self) -> None:
@@ -651,9 +626,6 @@ class ClassifierEvaluationScreen(QWidget):
             frame = frame.loc[mask]
         self._render_frame(self._predictions, frame, row_limit=2000)
 
-    # ------------------------------------------------------------------
-    # C8 — rendering and routing
-    # ------------------------------------------------------------------
     def _render_confusion(self, summary: Dict[str, Any]) -> None:
         """Draw the matrix in COUNTS, and say the ranking out loud.
 

@@ -215,9 +215,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 
 #: Prefix every column that is *theirs* rather than spaCR's carries. One
 #: glance at a column name answers "did this number come out of spaCR or
@@ -351,9 +348,6 @@ _TABLE_READERS: Dict[str, str] = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Small helpers
-# ---------------------------------------------------------------------------
 
 def _transliterate(text: str) -> str:
     """Replace the handful of non-ASCII characters real headers contain."""
@@ -464,9 +458,6 @@ def _unique(name: str, taken: Set[str]) -> str:
     return f'{name}_{index}'
 
 
-# ---------------------------------------------------------------------------
-# The column mapping
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ColumnMap:
@@ -500,7 +491,6 @@ class ColumnMap:
     unit_out: str = ''
     note: str = ''
 
-    # -- parsing -----------------------------------------------------------
 
     @property
     def literal_factor(self) -> Optional[float]:
@@ -555,7 +545,6 @@ class ColumnMap:
             return family_in != family_out or self.normalised_unit_in != self.normalised_unit_out
         return family_in != family_out or power_in != power_out
 
-    # -- resolution --------------------------------------------------------
 
     def resolve(self, um_per_px: Optional[float] = None) -> Tuple[Optional[float], str]:
         """Return ``(factor, reason)`` for this mapping.
@@ -573,8 +562,6 @@ class ColumnMap:
             return literal, ''
         name = str(self.transform or 'identity').strip().lower()
         if name not in TRANSFORMS:
-            # Includes '/0', whose literal_factor is None because dividing
-            # by zero is not a unit conversion.
             return None, (f'unknown transform {self.transform!r}; expected '
                           f'one of {", ".join(TRANSFORMS)} or a literal '
                           f'factor like "*0.65"')
@@ -620,11 +607,9 @@ class ColumnMap:
         if not np.isfinite(scale) or scale <= 0:
             return None, f'um_per_px={um_per_px!r} must be a positive number'
         if family_in == 'metric':
-            # px = um / (um per px)
             return float(scale ** -power), ''
         return float(scale ** power), ''
 
-    # -- serialisation -----------------------------------------------------
 
     def to_row(self) -> Dict[str, str]:
         """This mapping as one row of the column-map file."""
@@ -770,9 +755,6 @@ class Conflict:
         return f'[{self.kind}] {self.source!r} -> {self.target!r}: {self.detail}'
 
 
-# ---------------------------------------------------------------------------
-# Inference
-# ---------------------------------------------------------------------------
 
 def _column_unit_hint(name: str) -> str:
     """Read a unit out of a column header, or ``''``.
@@ -904,9 +886,6 @@ def infer_column_map(df: 'pd.DataFrame',
     return proposals
 
 
-# ---------------------------------------------------------------------------
-# The column-map file
-# ---------------------------------------------------------------------------
 
 def save_column_map(plan_or_maps: Union['ImportPlan', Sequence[ColumnMap]],
                     path: str) -> Path:
@@ -981,9 +960,6 @@ def load_column_map(path: str) -> List[ColumnMap]:
     return maps
 
 
-# ---------------------------------------------------------------------------
-# Reading their measurement table
-# ---------------------------------------------------------------------------
 
 def _sqlite_tables(path: str) -> List[str]:
     """Every user table in a SQLite file, in schema order."""
@@ -1056,9 +1032,6 @@ def read_measurements(source: Union[str, 'pd.DataFrame'],
             f'{path} could not be read as a measurement table: {exc}') from exc
 
 
-# ---------------------------------------------------------------------------
-# Images <-> masks
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class MaskMapping:
@@ -1192,9 +1165,6 @@ def _mask_labels(array: np.ndarray) -> Tuple[int, ...]:
     return tuple(int(v) for v in values if int(v) > 0)
 
 
-# ---------------------------------------------------------------------------
-# The join
-# ---------------------------------------------------------------------------
 
 @dataclass
 class JoinReport:
@@ -1381,9 +1351,6 @@ def _resolve_field(value: Any, index: TMapping[str, str]) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# The plan
-# ---------------------------------------------------------------------------
 
 @dataclass
 class ImportPlan:
@@ -1500,9 +1467,6 @@ class ImportPlan:
 
         resolved, conflicts, resolve_warnings = _resolve_columns(
             maps, no_entry, scale, self.prefix, conflict_mode, allow)
-        # "Unmapped" covers both ways a column ends up undecided: no row in
-        # the map file at all, and a row whose target was left blank. They
-        # are the same thing to the user, so they are one list.
         status = {r.source: r.status for r in resolved}
         unmapped = [c for c in columns if status.get(c) == 'unmapped']
 
@@ -1619,7 +1583,6 @@ def _resolve_columns(column_maps: Sequence[ColumnMap],
             reason = ('no target was given in the column map; imported under '
                       'the foreign prefix rather than dropped')
 
-        # -- reserved key columns: never, under any setting ----------------
         if target in RESERVED_COLUMNS:
             detail = (f'{target!r} is one of spaCR\'s key columns; a foreign '
                       f'value there does not corrupt a measurement, it '
@@ -1631,7 +1594,6 @@ def _resolve_columns(column_maps: Sequence[ColumnMap],
                             f'{renamed!r}: {detail}.')
             target, status, reason = renamed, 'renamed', detail
 
-        # -- a name spaCR itself writes ------------------------------------
         elif is_spacr_name(target) and not allow_spacr_targets:
             entry = fdict.parse_column(target)
             detail = (f'{target!r} is a spaCR {entry.family} column '
@@ -1647,7 +1609,6 @@ def _resolve_columns(column_maps: Sequence[ColumnMap],
                                 f'{renamed!r}: {detail}.')
             target, status, reason = renamed, 'renamed', detail
 
-        # -- two sources, one target ---------------------------------------
         if target in taken:
             renamed = _foreign(source)
             detail = (f'another column already maps to {target!r}; two '
@@ -1662,7 +1623,6 @@ def _resolve_columns(column_maps: Sequence[ColumnMap],
 
         taken.add(target)
 
-        # -- units ----------------------------------------------------------
         factor, problem = mapping.resolve(um_per_px)
         unit = mapping.normalised_unit_out
         calibrated = True
@@ -1688,7 +1648,6 @@ def _resolve_columns(column_maps: Sequence[ColumnMap],
             mapping=mapping, target=target, factor=factor,
             calibrated=calibrated, unit=unit, status=status, reason=reason))
 
-    # -- columns nobody mapped at all --------------------------------------
     for source in unmapped:
         target = _foreign(source)
         taken.add(target)
@@ -1799,7 +1758,6 @@ def plan_import(images: str,
             f'Unknown on_conflict {on_conflict!r}; expected one of '
             f'{", ".join(ON_CONFLICT)}')
 
-    # -- 1. images -----------------------------------------------------------
     image_sources = cv.scan(images, layout=layout)
     image_plan = cv.plan(image_sources, z_handling=z_handling,
                          plate_naming=plate_naming)
@@ -1808,9 +1766,6 @@ def plan_import(images: str,
     warnings: List[str] = []
     notes: List[str] = []
 
-    # A merged array is (H, W, C): one plane per channel, no z axis. Keeping
-    # every plane would produce N files per channel with nothing to merge
-    # them into, so it is refused here rather than half-way through.
     if z_handling == cv.Z_KEEP and any(m.z > 1 for m in image_plan.mappings):
         errors.append(
             "z_handling='keep' was requested but some fields hold more than "
@@ -1849,7 +1804,6 @@ def plan_import(images: str,
         errors.append(f'… and {len(ragged) - 20} more field(s) with a '
                       f'different channel count.')
 
-    # -- 2. masks ------------------------------------------------------------
     folders = _mask_folders(masks)
     if not folders:
         errors.append('No mask folder was given. A spaCR project without '
@@ -1870,8 +1824,6 @@ def plan_import(images: str,
             normalised = _normalise_mask_field(source.field, object_type, suffixes)
             if normalised != source.field:
                 keys.append((source.plate, source.well, normalised, 'normalised'))
-            # A mask tree that has no plate/well folders of its own still
-            # has to reach the images' single plate and well.
             hit = None
             for plate_key, well_key, field_key, how in keys:
                 candidate = (plate_key, well_key, field_key)
@@ -1946,10 +1898,6 @@ def plan_import(images: str,
     mask_dims = {name: n_channels + index
                  for index, name in enumerate(folders)}
 
-    # -- 3. their table ------------------------------------------------------
-    # reset_index so row positions are 0..n-1: every count below is
-    # positional, and a table read back from SQL with a non-unique index
-    # would otherwise silently multiply rows on the .loc select.
     frame = read_measurements(measurements,
                               table=measurement_table).reset_index(drop=True)
     columns = [str(c) for c in frame.columns]
@@ -1984,7 +1932,6 @@ def plan_import(images: str,
             'A 3-D run stamped measurement_units = "um" is already in '
             'micrometres — check the target table before converting.')
 
-    # -- 4. the join ---------------------------------------------------------
     join = JoinReport(image_key=str(image_key or ''),
                       label_key=str(label_key or ''),
                       object_type=object_type,
@@ -2053,10 +2000,6 @@ def plan_import(images: str,
                 f'the measurement table; they exist in the merged arrays and '
                 f'in the crops, with no foreign measurements attached.')
 
-    # -- 5. the columns ------------------------------------------------------
-    # Built last, and through with_column_maps(), so that the mapping a GUI
-    # re-resolves on every edit goes down exactly the same code path as the
-    # one plan_import produces. One resolver, one set of conflicts.
     proposed = column_maps is None
     if proposed:
         reviewed = infer_column_map(frame, image_key=image_key,
@@ -2090,9 +2033,6 @@ def plan_import(images: str,
     return plan
 
 
-# ---------------------------------------------------------------------------
-# Rendering the plan
-# ---------------------------------------------------------------------------
 
 def format_plan(plan: ImportPlan) -> str:
     """Render an :class:`ImportPlan` as the block a user reads before agreeing.
@@ -2180,9 +2120,6 @@ def format_plan(plan: ImportPlan) -> str:
     return '\n'.join(lines)
 
 
-# ---------------------------------------------------------------------------
-# The result
-# ---------------------------------------------------------------------------
 
 @dataclass
 class ImportResult:
@@ -2298,9 +2235,6 @@ class ImportResult:
         return '\n'.join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Running the import
-# ---------------------------------------------------------------------------
 
 def _imread(path: str) -> np.ndarray:
     """Read one converted TIFF back. Split out so tests can make it fail."""
@@ -2411,9 +2345,6 @@ def _foreign_frame(plan: ImportPlan, stems: Sequence[str],
     return out
 
 
-# ---------------------------------------------------------------------------
-# Never writing over what is already there
-# ---------------------------------------------------------------------------
 
 def _db_table_names(connection: 'sqlite3.Connection') -> Set[str]:
     """Every user table in an open database."""
@@ -2597,9 +2528,6 @@ def _preserve_note(object_type: str, count: int) -> str:
             f'"{object_type}_with_foreign".')
 
 
-# ---------------------------------------------------------------------------
-# Handing the canonical table back
-# ---------------------------------------------------------------------------
 
 #: Alias the canonical table is given wherever the release reasons about
 #: its rows — counting them, checking them against ``foreign_<object>``,
@@ -2755,8 +2683,7 @@ def release_canonical_copy(db_path: str, object_type: str,
             return 0
         importer_clause = resume.importer_rows_clause(connection, object_type)
         if importer_clause is None:
-            return 0                      # no import ever touched this table
-        # Read before the un-claim below removes the provenance it comes from.
+            return 0
         written = resume.importer_written_columns(connection, object_type) or set()
         mine = _RELEASE_ALIAS
         held = int(connection.execute(
@@ -2787,31 +2714,16 @@ def release_canonical_copy(db_path: str, object_type: str,
         if dry_run:
             return held
 
-        # One transaction for the delete and the un-claim: a claim that
-        # outlives the rows it was about is the failure this replaces.
         connection.isolation_level = None
         cursor = connection.cursor()
         cursor.execute('BEGIN IMMEDIATE')
         try:
             removed = 0
             if held:
-                # The same WHERE clause the two counts above were taken
-                # with, applied to the table itself. No row identity is
-                # named: see :data:`_RELEASE_ALIAS` for what naming one
-                # cost. ``DELETE FROM t AS alias`` has been SQLite since
-                # 3.25 and this module already needs 3.35 for the DROP
-                # COLUMN below.
                 cursor.execute(
                     f'DELETE FROM "{object_type}" AS {mine} '
                     f'WHERE {importer_clause} AND {twin}')
                 removed = int(cursor.rowcount or 0)
-            # ``held`` rows matched the importer clause and ``orphans`` of
-            # them — zero, or the raise above fired — failed the twin
-            # check, so exactly ``held`` rows should have gone. Anything
-            # else means the delete did not select what the checks
-            # inspected, which is the failure this whole function exists
-            # to make impossible. Refuse loudly and roll the delete back
-            # rather than report a number that is not what happened.
             if removed != held:
                 raise ConfigurationError(
                     f'Refusing to release "{object_type}" in {db_path}: the '
@@ -2821,11 +2733,6 @@ def release_canonical_copy(db_path: str, object_type: str,
                     f'the result can be trusted. The database was rolled '
                     f'back and is exactly as it was.')
             names = _db_table_names(connection)
-            # ``"table"`` is checked for rather than assumed: SQLite reads a
-            # double-quoted name matching no column as a string literal, so
-            # a provenance table without it would silently match nothing
-            # instead of failing — the same trap that once made
-            # :func:`_importer_owns` answer False for its own table.
             if (FOREIGN_COLUMNS_TABLE in names
                     and 'table' in _db_columns(connection,
                                                FOREIGN_COLUMNS_TABLE)):
@@ -2848,14 +2755,6 @@ def release_canonical_copy(db_path: str, object_type: str,
             cursor.execute('ROLLBACK')
             raise
 
-        # Their measurement columns are left behind by the delete, empty,
-        # and would otherwise collide with the same columns in the view
-        # below — ``cell.foreign_areashape_area`` (all NULL) forcing
-        # theirs to be aliased ``foreign_foreign_areashape_area``. Dropped
-        # only when provably empty, one at a time, and never fatally:
-        # ALTER TABLE … DROP COLUMN needs SQLite 3.35 and refuses a column
-        # an index names, and a tidier schema is not worth failing a
-        # release that has already happened.
         for column in [c for c in _db_columns(connection, object_type)
                        if c in written and c not in METADATA_COLUMNS]:
             if connection.execute(
@@ -2869,8 +2768,6 @@ def release_canonical_copy(db_path: str, object_type: str,
                 break
     finally:
         connection.close()
-    # Outside the transaction: the view is a convenience, and a failure to
-    # build one must not roll back a release that already succeeded.
     _write_view(db_path, object_type)
     return removed
 
@@ -2920,13 +2817,6 @@ def _check_destination(db_path: str, plan: ImportPlan, object_type: str,
                 f'will overwrite an existing measurement table.')
 
         if measure:
-            # spaCR's own measurements are about to fill ``<object>``, and
-            # a *previous* import may have left its convenience copy in
-            # there — this branch used to return before ever looking. The
-            # copy has to go, and whether it can go losslessly is asked
-            # here, before a single file is written, rather than after the
-            # conversion has run for minutes. Asked through the function
-            # that does the removal, so the answer cannot differ from it.
             copied = release_canonical_copy(db_path, object_type,
                                             dry_run=True)
             return 'measure', ([_release_note(object_type, copied)]
@@ -2951,7 +2841,7 @@ def _replace_table_atomically(connection: 'sqlite3.Connection', table: str,
     :func:`spacr.utils.rename_columns_in_db`.
     """
     staging = f'_staging_{table}'
-    connection.isolation_level = None      # so BEGIN below is really ours
+    connection.isolation_level = None
     cursor = connection.cursor()
     cursor.execute(f'DROP TABLE IF EXISTS "{staging}"')
     try:
@@ -3317,8 +3207,6 @@ def run_import(plan: ImportPlan, dst: str, *,
     db_dir = os.path.join(dst, 'measurements')
     db_path = os.path.join(db_dir, 'measurements.db')
 
-    # Asked and answered before a single file is written: a destination
-    # that cannot take this import must not be left holding half of it.
     mode, destination_notes = _check_destination(db_path, plan, object_type,
                                                  bool(measure))
 
@@ -3340,7 +3228,6 @@ def run_import(plan: ImportPlan, dst: str, *,
         if progress is not None:
             progress(index, total, message)
 
-    # -- 1. their images -> Yokogawa TIFFs, via spacr.convert ---------------
     _step(1, 'converting images')
     images_dir = os.path.join(dst, IMAGES_DIRNAME)
     result.conversion = cv.convert(plan.images, images_dir,
@@ -3349,7 +3236,6 @@ def run_import(plan: ImportPlan, dst: str, *,
     written = {m.target for m in result.conversion.written}
     written |= {m.target for m in result.conversion.existing}
 
-    # -- 2. intensity stacks -------------------------------------------------
     _step(2, 'writing stacks')
     stack_dir = os.path.join(dst, 'stack')
     os.makedirs(stack_dir, exist_ok=True)
@@ -3377,26 +3263,10 @@ def run_import(plan: ImportPlan, dst: str, *,
                 os.path.join(stack_dir, f'{stem}.npy'), stack))
             usable.append(stem)
 
-    # -- 3. their masks ------------------------------------------------------
-    #
-    # ``mask_type``, not ``object_type``: an import declares one mask class
-    # per folder but has exactly **one** measured object type — the one the
-    # table was joined against, ``plan.join.object_type``, bound above and
-    # already used to decide ``mode`` against the destination. A loop
-    # variable named ``object_type`` rebinds it to the *last* mask class,
-    # and everything downstream then aims at the wrong table: their cell
-    # measurements were written to ``foreign_nucleus`` and to the canonical
-    # ``nucleus`` table, joined by a ``nucleus_with_foreign`` view that
-    # paired their cell 1 with spaCR's nucleus 1, while ``foreign_import``
-    # went on recording ``canonical_table = 'cell'``. Python has no block
-    # scope, so the only guard is the name.
     _step(3, 'writing masks')
     for mask_type in plan.object_types:
         os.makedirs(os.path.join(dst, 'masks', f'{mask_type}_mask_stack'),
                     exist_ok=True)
-    # Iterating the field's own masks rather than the declared classes: a
-    # stem only reaches ``masks.fields`` when it has every class, so there
-    # is no "missing" case here to guess at.
     for stem in usable:
         for mask_type, mask in plan.masks.fields[stem].items():
             folder = os.path.join(dst, 'masks', f'{mask_type}_mask_stack')
@@ -3405,7 +3275,6 @@ def run_import(plan: ImportPlan, dst: str, *,
                 result.mask_files.append(_save_npy(
                     os.path.join(folder, f'{stem}.npy'), array))
 
-    # -- 4. merged arrays, with spaCR's own merger --------------------------
     _step(4, 'merging arrays')
     result.merged = _build_merged(dst, plan)
     merged_stems = {os.path.splitext(os.path.basename(p))[0]
@@ -3414,7 +3283,6 @@ def run_import(plan: ImportPlan, dst: str, *,
         if stem not in merged_stems:
             result.warnings.append(f'{stem}: no merged array was produced.')
 
-    # -- 5. the database -----------------------------------------------------
     _step(5, 'writing measurements')
     os.makedirs(db_dir, exist_ok=True)
     result.db_path = db_path
@@ -3427,25 +3295,11 @@ def run_import(plan: ImportPlan, dst: str, *,
     connection = sqlite3.connect(db_path, timeout=30)
     connection.isolation_level = None
     try:
-        # replace, never append: a second run of the same import must not
-        # leave two generations of the same rows behind. This table is the
-        # importer's own, which is the only reason replacing it is safe.
         _replace_table_atomically(connection, table, frame)
         connection.execute(
             f'CREATE INDEX IF NOT EXISTS idx_{table}_prcf_obj '
             f'ON "{table}" (prcf, object_label)')
         if mode == 'write':
-            # A project built purely by import has no spaCR measurements of
-            # its own, so the same rows are copied into the canonical table
-            # to make it readable by every tool that reads one.
-            #
-            # The question was already answered before any file was
-            # written, and it is asked again here against the database as
-            # it is now: minutes of image conversion separate the two, and
-            # a measure_crop running alongside would have created that
-            # table in between. The check that decides whether a table may
-            # be dropped has to be the one taken at the moment it is
-            # dropped.
             allowed, held = _may_write_canonical(connection, object_type)
             if allowed:
                 _replace_table_atomically(connection, object_type, frame)
@@ -3468,15 +3322,8 @@ def run_import(plan: ImportPlan, dst: str, *,
     result.column_map_path = str(save_column_map(
         plan.column_maps, os.path.join(dst, COLUMN_MAP_FILENAME)))
 
-    # -- 6. spaCR's own measurements, optional and separate -----------------
     if measure:
         _step(6, 're-extracting spaCR measurements')
-        # An earlier import's convenience copy is superseded by what is
-        # about to be measured, and ``measure_crop`` appends. Released
-        # here, at the last moment before the write, for the same reason
-        # the canonical write above re-asks its question: minutes of image
-        # conversion separate this point from the check in
-        # ``_check_destination``, which established that it *can* be done.
         release_canonical_copy(db_path, object_type)
         with run.item(dst, stage='measure'):
             from .measure import measure_crop
@@ -3496,7 +3343,6 @@ def run_import(plan: ImportPlan, dst: str, *,
             result.measured = True
         _write_view(db_path, object_type)
 
-    # -- 7. crops, optional --------------------------------------------------
     if crops:
         _step(total, 'cutting crops')
         with run.item(dst, stage='crops'):
@@ -3508,9 +3354,6 @@ def run_import(plan: ImportPlan, dst: str, *,
     return result
 
 
-# ---------------------------------------------------------------------------
-# The settings-dict entry point
-# ---------------------------------------------------------------------------
 
 def default_settings(settings: Optional[TMapping[str, Any]] = None
                      ) -> Dict[str, Any]:
@@ -3600,10 +3443,6 @@ def import_project(settings: Optional[TMapping[str, Any]] = None,
             + '\n  '.join(list(plan.images.errors) + list(plan.errors)
                           + [str(c) for c in plan.blocking_conflicts]))
 
-    # What the destination already holds is part of the plan a user reads,
-    # so it is checked here too and not only inside run_import — a preview
-    # that does not mention the table it will refuse to touch is not a
-    # preview of this import.
     for note in _check_destination(
             os.path.join(dst, 'measurements', 'measurements.db'), plan,
             plan.join.object_type, bool(resolved.get('measure')))[1]:

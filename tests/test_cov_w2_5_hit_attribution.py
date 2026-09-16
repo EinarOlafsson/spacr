@@ -762,11 +762,6 @@ def test_the_within_well_rank_of_the_score_is_a_perfect_proxy_for_it(
     assert min(correlations) == pytest.approx(1.0)
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="candidate_rank / candidate_percentile are ranks of "
-                          "score_column, so the default feature set carries "
-                          "the model output that include_original_score=False "
-                          "is meant to exclude")
 def test_the_default_features_exclude_every_transform_of_the_score(hit_frame):
     """Excluding the score has to exclude the columns computed from it.
 

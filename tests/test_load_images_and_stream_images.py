@@ -251,3 +251,239 @@ def test_the_annotate_window_writes_the_mode_back(qtbot):
         [combo.itemData(i) for i in range(combo.count())].index(STREAM_IMAGES))
 
     assert dialog.collect().crop_source == STREAM_IMAGES
+
+
+# ------------------------------- the TRAINING panel, asked in the same words
+
+#: Training persists its own spelling of the two names. The STORED VALUES
+#: differ from the viewers' on purpose -- ``spacr.settings`` normalises every
+#: choice into this pair and then copies `image_source` onto `crop_source` --
+#: and instruction 171's point is that the WORDS shown may not.
+TRAINING_LOAD_IMAGES = "load_images"
+TRAINING_STREAM_IMAGES = "stream_images"
+
+#: Every spelling a settings CSV has ever carried for this setting, and the
+#: mode it has always meant. A panel that offered any of these AS A WORD
+#: would be the fourth vocabulary 171 exists to delete; a panel that refused
+#: them would stop old settings files loading.
+RETIRED_SPELLINGS = [
+    (None, TRAINING_LOAD_IMAGES),
+    ("", TRAINING_LOAD_IMAGES),
+    ("auto", TRAINING_LOAD_IMAGES),
+    ("png", TRAINING_LOAD_IMAGES),
+    ("pre_generated", TRAINING_LOAD_IMAGES),
+    ("generate", TRAINING_LOAD_IMAGES),
+    ("load_images", TRAINING_LOAD_IMAGES),
+    ("merged", TRAINING_STREAM_IMAGES),
+    ("stream", TRAINING_STREAM_IMAGES),
+    ("on_demand", TRAINING_STREAM_IMAGES),
+    ("stream_images", TRAINING_STREAM_IMAGES),
+]
+
+
+def _training_image_source_widget(app_key, stored="__unset__"):
+    """The control the Classify panel actually builds for `image_source`."""
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    current = None if stored == "__unset__" else {"image_source": stored}
+    model = SettingsWidgets(app_key, current=current)
+    widget = model._widget_for("entry", None,
+                               model._defaults.get("image_source"),
+                               "image_source")
+    return model, widget
+
+
+@pytest.mark.parametrize("app_key", ["classify", "classify_merged"])
+def test_the_training_panel_offers_the_two_modes_and_not_a_text_box(qtbot,
+                                                                   app_key):
+    """The one panel the whole migration was for had no control at all.
+
+    `image_source` is not in `_APP_HIDDEN_KEYS`, so the Classify screens lay
+    out a row for it -- and a key absent from `_APP_COMBO_OPTIONS` gets
+    whatever widget its default's TYPE implies, which for a string is a
+    free-text box. So the panel that 171's "training vocabulary is migrated"
+    section is about was the one panel where a user could type a fourth
+    spelling, and a typo or a remembered 'pre_generated' refused the run at
+    the door with a CropSourceError naming words no user had seen.
+    """
+    pytest.importorskip("PySide6")
+    from PySide6.QtWidgets import QComboBox
+
+    _model, widget = _training_image_source_widget(app_key)
+    qtbot.addWidget(widget)
+
+    assert isinstance(widget, QComboBox), (
+        f"{app_key} builds a {type(widget).__name__} for image_source, so "
+        f"the two names are not offered -- they are typed")
+    offered = [widget.itemData(i) for i in range(widget.count())]
+    labels = [widget.itemText(i).lower() for i in range(widget.count())]
+    assert offered == [TRAINING_LOAD_IMAGES, TRAINING_STREAM_IMAGES]
+    assert labels[0].startswith("load images"), labels
+    assert labels[1].startswith("stream images"), labels
+    # AND NOTHING ELSE. 'auto' answers what is available (rule E) and
+    # 'generate' is an ACTION rather than a source (rule D); neither is an
+    # answer to which mode the user wants.
+    for retired in ("pre_generated", "on_demand", "auto", "generate"):
+        assert retired not in offered, retired
+        assert retired not in " ".join(labels), retired
+
+
+def test_the_training_panel_says_the_same_sentences_as_the_viewers():
+    """One question, one wording. The two tables differ only in what they
+    STORE, which is the thing 171 promised would not move."""
+    from spacr.qt.screens.settings_model import (_CROP_SOURCE_OPTIONS,
+                                                 _IMAGE_SOURCE_OPTIONS)
+
+    assert [label for _v, label in _IMAGE_SOURCE_OPTIONS] == [
+        label for _v, label in _CROP_SOURCE_OPTIONS], (
+        "the training panel and the viewers word the same choice differently")
+    assert [v for v, _l in _CROP_SOURCE_OPTIONS] == [LOAD_IMAGES,
+                                                     STREAM_IMAGES]
+    assert [v for v, _l in _IMAGE_SOURCE_OPTIONS] == [TRAINING_LOAD_IMAGES,
+                                                      TRAINING_STREAM_IMAGES]
+
+
+@pytest.mark.parametrize("app_key", ["classify", "classify_merged"])
+def test_the_training_panel_opens_on_load_images(qtbot, app_key):
+    """LOAD IMAGES IS THE DEFAULT (rule A), in the panel and not only in the
+    settings dict."""
+    pytest.importorskip("PySide6")
+
+    model, widget = _training_image_source_widget(app_key)
+    qtbot.addWidget(widget)
+
+    assert model._defaults["image_source"] == TRAINING_LOAD_IMAGES
+    assert widget.currentData() == TRAINING_LOAD_IMAGES
+    assert widget.currentIndex() == 0
+
+
+@pytest.mark.parametrize("stored,selects", RETIRED_SPELLINGS)
+def test_an_older_settings_file_selects_its_mode_not_a_third_item(qtbot,
+                                                                  stored,
+                                                                  selects):
+    """ACCEPTED, NOT REFUSED -- and not shown either.
+
+    A combo whose stored value matches no item keeps that value as a new
+    first item, which is right for a free alphabet and wrong for a two-way
+    question: a settings CSV carrying 'on_demand' put a THIRD entry, spelled
+    in a retired vocabulary, in front of the user. Every old spelling now
+    SELECTS the mode it has always meant.
+    """
+    pytest.importorskip("PySide6")
+
+    model, widget = _training_image_source_widget("classify", stored)
+    qtbot.addWidget(widget)
+
+    offered = [widget.itemData(i) for i in range(widget.count())]
+    assert offered == [TRAINING_LOAD_IMAGES, TRAINING_STREAM_IMAGES], (
+        f"crop_source={stored!r} added a third, retired spelling to the panel")
+    assert widget.currentData() == selects, stored
+    # And what the panel COLLECTS is the selected mode, so saving a screen
+    # that was opened on an old file writes one of the two names.
+    assert model._read_widget(widget) == selects, stored
+
+
+def test_every_value_the_training_panel_offers_reaches_a_source():
+    """The claim that would have caught the rename, bound to the panel's own
+    table rather than to a hand-written list beside it.
+
+    `io._canonical_crop_source` passes an unrecognised value through
+    UNCHANGED so `resolve_crop_source` raises and names it -- which is how
+    'load_images' produced "crop_source='load_images' is not one of [...]"
+    on every computer-vision run.
+    """
+    from spacr.crop_source import CROP_SOURCE_ALIASES
+    from spacr.io import _canonical_crop_source
+    from spacr.qt.screens.settings_model import _IMAGE_SOURCE_OPTIONS
+
+    landed = {}
+    for stored, _label in _IMAGE_SOURCE_OPTIONS:
+        assert stored in CROP_SOURCE_ALIASES, stored
+        landed[stored] = _canonical_crop_source(stored)
+    assert landed == {TRAINING_LOAD_IMAGES: LOAD_IMAGES,
+                      TRAINING_STREAM_IMAGES: STREAM_IMAGES}
+
+
+def test_training_load_images_with_no_data_folder_streams_instead(tmp_path):
+    """Rule B and rule C, through the door a training run goes through.
+
+    The viewers' fallback is tested above against `resolve_crop_source`
+    directly; this asserts the value the TRAINING panel writes reaches it.
+    """
+    from spacr.io import open_crop_source
+
+    root = _screen(tmp_path, "train_onlymerged", merged=True)
+
+    source = open_crop_source({"src": root,
+                               "crop_source": TRAINING_LOAD_IMAGES},
+                              verbose=False)
+
+    assert source is not None, "the training door refused the panel's own value"
+    assert source.kind == STREAM_IMAGES
+    assert LOAD_IMAGES_LABEL in source.reason, "say what was asked for"
+    assert STREAM_IMAGES_LABEL in source.reason, "and what actually drew"
+
+
+def test_training_stream_images_with_no_merged_folder_loads_instead(tmp_path):
+    """And the other direction, which is what "always try the other" means."""
+    from spacr.io import open_crop_source
+
+    root = _screen(tmp_path, "train_onlypng", png=True)
+
+    source = open_crop_source({"src": root,
+                               "crop_source": TRAINING_STREAM_IMAGES},
+                              verbose=False)
+
+    assert source is not None
+    assert source.kind == LOAD_IMAGES
+    assert STREAM_IMAGES_LABEL in source.reason
+    assert LOAD_IMAGES_LABEL in source.reason
+
+
+@pytest.mark.parametrize("app_key", ["classify", "classify_merged"])
+def test_the_training_modes_drive_the_panel_and_are_not_a_label(qtbot,
+                                                                app_key):
+    """A control nothing reads is a label with a dropdown arrow.
+
+    `settings.setting_dependencies` gates the streaming-only settings on
+    ``image_source``, and `_rules_for_this_panel` fires a rule only when the
+    setting it READS is on the panel too. So the combo is the thing that
+    makes "controls that do not apply to the selected source are disabled"
+    -- which the shipped `crop_source` tooltip promises -- true on the
+    training panel.
+
+    NOTHING HERE CALLS `_refresh_setting_dependencies` BY HAND, which is the
+    whole assertion. Driving the refresh from the test proves only that the
+    rule can read the widget; it passes unchanged when
+    `_connect_setting_dependency_signals` skips ``image_source`` altogether
+    -- and a combo whose change reaches no rule leaves the streaming
+    settings greyed out for a user who just asked to stream, which is the
+    version of "a label with an arrow" that actually reaches a screen.
+    Verified by skipping that key in the connect loop: all 36 tests in this
+    file still passed, and so did `tests/qt/test_no_control_is_inert.py`.
+    """
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    model = SettingsWidgets(app_key)
+    model.build_sections()
+    combo = model._widgets["image_source"]
+    qtbot.addWidget(combo)
+    stream_only = model._widgets["stream_method"]
+
+    assert combo.currentData() == TRAINING_LOAD_IMAGES
+    assert not stream_only.isEnabled(), (
+        "stream_method is read only while streaming, and the panel opened on "
+        "LOAD IMAGES")
+
+    combo.setCurrentIndex(1)
+    assert combo.currentData() == TRAINING_STREAM_IMAGES
+    assert stream_only.isEnabled(), (
+        "choosing STREAM IMAGES left the streaming settings greyed out")
+
+    # And back, so the rule is bound to the CHOICE rather than to having been
+    # touched once.
+    combo.setCurrentIndex(0)
+    assert combo.currentData() == TRAINING_LOAD_IMAGES
+    assert not stream_only.isEnabled(), (
+        "going back to LOAD IMAGES left the streaming settings editable")

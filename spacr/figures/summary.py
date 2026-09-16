@@ -101,7 +101,6 @@ def summarise(frame, *, alpha: float = 0.05,
     else:
         lines.append(f"{int(called.sum())} pass {rule}.")
 
-    # WHICH ONES. A count without names is not something anyone can act on.
     if called_and_big.any():
         names = label_series(sub)
         order = np.argsort(-np.abs(np.where(called_and_big, values, 0.0)))
@@ -112,8 +111,6 @@ def summarise(frame, *, alpha: float = 0.05,
         lines.append(f"Strongest: {listed}"
                      + (f", and {more} more." if more > 0 else "."))
 
-    # DID THE ASSAY WORK. A screen whose controls do not separate has not
-    # measured anything, however many hits the correction reports.
     condition = None
     for name in ("condition", "control", "class"):
         if name in frame.columns:
@@ -142,8 +139,6 @@ def summarise(frame, *, alpha: float = 0.05,
                 f"{negative.size} negative controls and no positive ones, so "
                 f"there is nothing to check the assay window against.")
 
-    # CALIBRATION. On a real screen this is routinely off, and which way it
-    # is off changes whether the hit count is an over- or an undercount.
     if p is not None:
         raw = np.asarray(sub[p], dtype="float64")
         raw = raw[np.isfinite(raw) & (raw > 0)]

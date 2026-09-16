@@ -123,8 +123,6 @@ class ReportScreen(QWidget):
         self._report: Optional[rep.Report] = None
         self._written: List[str] = []
         self._busy = False
-        # Ownership list for in-flight (QThread, worker) pairs — a QThread
-        # collected while still running takes the process down with it.
         self._jobs: List[tuple] = []
         self._pending: List[Tuple[Dict[str, Any], Callable[[Any], None]]] = []
         self._thread = None
@@ -141,7 +139,6 @@ class ReportScreen(QWidget):
             "qc/ and results/ — then Scan.")
         self._update_controls()
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the source row, the section list, the output row and the actions."""
@@ -166,7 +163,6 @@ class ReportScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        # ── Source row ────────────────────────────────────────────────
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
@@ -182,19 +178,16 @@ class ReportScreen(QWidget):
         src_row.addWidget(self._btn_scan)
         outer.addLayout(src_row)
 
-        # ── Overall verdict ───────────────────────────────────────────
         self._verdict = QLabel("", self)
         self._verdict.setWordWrap(True)
         outer.addWidget(self._verdict)
 
-        # ── Section list ──────────────────────────────────────────────
         outer.addWidget(QLabel("Sections found in this folder:", self))
         self._sections = QListWidget(self)
         self._sections.setAlternatingRowColors(True)
         self._sections.setSelectionMode(QListWidget.NoSelection)
         outer.addWidget(self._sections, 1)
 
-        # ── Options ───────────────────────────────────────────────────
         opts = QHBoxLayout()
         opts.setSpacing(SPACING["sm"])
         opts.addWidget(QLabel("Format", self))
@@ -212,7 +205,6 @@ class ReportScreen(QWidget):
         opts.addStretch(1)
         outer.addLayout(opts)
 
-        # ── Output row ────────────────────────────────────────────────
         out_row = QHBoxLayout()
         out_row.setSpacing(SPACING["sm"])
         self._out_edit = QLineEdit(self)
@@ -236,7 +228,6 @@ class ReportScreen(QWidget):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
-    # -- state -------------------------------------------------------------
 
     @property
     def report(self) -> Optional[rep.Report]:
@@ -281,7 +272,6 @@ class ReportScreen(QWidget):
             self._format.setCurrentIndex(index)
         self._update_controls()
 
-    # -- pickers -----------------------------------------------------------
 
     def _pick_run_folder(self) -> None:
         """Ask for a run folder and scan it straight away."""
@@ -317,7 +307,6 @@ class ReportScreen(QWidget):
         suffix = ".pdf" if self.output_format() == "pdf" else ".html"
         return os.path.join(os.path.expanduser("~"), f"{name}_report{suffix}")
 
-    # -- scanning ----------------------------------------------------------
 
     def scan(self) -> bool:
         """Collect the report for the folder in the source box.
@@ -405,7 +394,6 @@ class ReportScreen(QWidget):
                 item.setForeground(_brush(active_palette()["error"]))
             self._sections.addItem(item)
 
-    # -- generating --------------------------------------------------------
 
     def generate(self) -> bool:
         """Write the report to the path in the output box.
@@ -464,7 +452,6 @@ class ReportScreen(QWidget):
         self._set_status(f"Opened {os.path.basename(target)}.")
         return True
 
-    # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None]) -> bool:
@@ -501,27 +488,11 @@ class ReportScreen(QWidget):
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)
-        # Strong references: PySide6 will not keep the worker alive through
-        # the started→run connection alone, and a QThread garbage-collected
-        # while still running takes the process down with it.
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
         self._pending.append((box, on_done))
         worker.error.connect(self._on_worker_error_text)
         worker.finished.connect(self._job_settled)
-        # A BOUND METHOD, not a closure — the rule `make_thread` states and
-        # then relies on for its own `handle.retire`. `thread.finished` is
-        # emitted in the worker thread, so PySide6 queues the call to the
-        # RECEIVER's thread; with a closure the receiver is the QThread
-        # itself, and `make_thread` connects `thread.finished ->
-        # thread.deleteLater` FIRST. Slots run in connection order, so the
-        # DeferredDelete for the QThread is posted ahead of the closure's
-        # metacall — and Qt discards queued events for a destroyed receiver.
-        # The job was then never retired, `active_jobs()` never returned to
-        # zero, and every `waitUntil(active_jobs() == 0)` sat there until it
-        # timed out with the QThread's C++ half already gone. Binding to the
-        # widget makes the widget the receiver, so the call survives the
-        # thread it is reporting on.
         thread.finished.connect(self._on_thread_finished)
         self._busy = True
         self._update_controls()
@@ -586,7 +557,6 @@ class ReportScreen(QWidget):
         self._busy = False
         self._set_status(f"Report failed: {line}", error=True)
 
-    # -- chrome ------------------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Deliberately never a QMessageBox — a modal dialog

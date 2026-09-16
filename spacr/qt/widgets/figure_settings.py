@@ -71,14 +71,13 @@ def _as_hex(colour, fallback: str = "#1f77b4") -> str:
         import numpy as np
 
         value = colour
-        # A collection stores one row per element; they share a colour here.
         if isinstance(value, np.ndarray):
             value = value[0] if value.ndim > 1 and len(value) else value
         elif isinstance(value, (list, tuple)) and len(value) \
                 and isinstance(value[0], (list, tuple, np.ndarray)):
             value = value[0]
         return to_hex(value, keep_alpha=False)
-    except Exception:  # genuinely unreadable colour
+    except Exception:
         return fallback
 
 
@@ -97,8 +96,6 @@ def _colour_button(initial, on_pick: Callable[[str], None]) -> QPushButton:
                 f"color: {'#000' if colour.lightness() > 127 else '#fff'};")
 
     def _choose():
-        # Qt's own dialog, never the platform one -- see
-        # :mod:`spacr.qt.widgets.colour_picker`.
         """Ask for a colour and keep it if the dialog returned one."""
         colour = pick_colour(button, state["colour"])
         if colour.isValid():
@@ -132,12 +129,6 @@ def _series_of(axis):
     return series
 
 
-# THE ARGUMENTS ARE DOCUMENTED ON `__init__`, ONCE. They were listed here
-# too, as a NumPy ``Parameters`` section, and AutoAPI runs with
-# ``class_content='both'``: the class docstring and ``__init__``'s are
-# concatenated before Napoleon sees them, the section became a field list,
-# and ``__init__``'s opening prose then ended it mid-way -- "Field list
-# ends without a blank line", which `sphinx-build -W` makes fatal.
 class FigureSettingsDialog(QDialog):
     """Edit the supported appearance settings of a live figure.
 
@@ -180,31 +171,18 @@ class FigureSettingsDialog(QDialog):
         self._propagate_cb = propagate_callback
         self.resize(520, 640)
 
-        # A SNAPSHOT TO GO BACK TO. The dialog this replaced restored the
-        # figure on Cancel, and said why: "live apply with no way out is a
-        # trap: the user drags a spin box to see what it does and there is no
-        # longer an 'as it was'". This dialog changes far more than that one
-        # did, so the trap is correspondingly worse. The copy is the same one
-        # the preview renderer takes, ~14 ms, and buys a working Cancel.
         self._snapshot = None
         try:
             import pickle
             self._snapshot = pickle.dumps(figure)
-        except Exception:  # artists that will not pickle
+        except Exception:
             pass
-        # The per-figure text size is an ATTRIBUTE, and `reject` restores the
-        # figure by copying axes out of the snapshot rather than by swapping
-        # the object -- so the attribute would survive a Cancel that undid
-        # everything it applies to. Kept here and put back explicitly.
         try:
             from .figure_queue import figure_text_size_override
             self._text_size_at_open = figure_text_size_override(figure)
-        except Exception:  # figure_queue unavailable
+        except Exception:
             self._text_size_at_open = 0
 
-        # Coalesce redraws. Every control calls _changed(); this restarts a
-        # single-shot timer, so a burst of twenty value changes costs one
-        # render instead of twenty.
         #: Whether a preview render is currently running.
         self._rendering = False
         #: Whether another preview is required after the current render.
@@ -218,9 +196,6 @@ class FigureSettingsDialog(QDialog):
         layout.addWidget(self.tabs)
 
         self.tabs.addTab(self._scroll(self._figure_tab()), "Figure")
-        # STATISTICS, only for a figure that actually compares groups. A tab
-        # offering a t-test on a Q-Q plot would be an invitation to report a
-        # number that means nothing -- see `_statistics_tab`.
         if getattr(figure, "_spacr_groups", None):
             self.tabs.addTab(self._scroll(self._statistics_tab()),
                              "Statistics")
@@ -228,20 +203,12 @@ class FigureSettingsDialog(QDialog):
             name = axis.get_title() or f"Axes {index + 1}"
             self.tabs.addTab(self._scroll(self._axes_tab(axis)), name[:18])
 
-        # The Image UMAP half (instruction 75): every UMAP setting, live
-        # against this figure. Only for a figure carrying the embedding it was
-        # drawn from -- without it "live" would mean re-running the reduction
-        # and every point would move.
         self._umap_settings = None
         self._umap_payload = getattr(figure, "_spacr_umap_payload", None)
         self._umap_applied = {}
         if isinstance(self._umap_payload, dict):
             self._build_umap_tab()
 
-        # Scrolling the panel must scroll it, not edit whatever is under the
-        # pointer. Qt gives spin boxes and combos the wheel by default, so a
-        # scroll gesture over this dialog changed a dozen settings and
-        # triggered a render for each -- which is what made it unusable.
         self._block_wheel_on_inputs()
 
         buttons = QDialogButtonBox(
@@ -262,13 +229,12 @@ class FigureSettingsDialog(QDialog):
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
 
-    # ------------------------------------------------------- UMAP, propagate
 
     def _build_umap_tab(self) -> None:
         """Add every Image UMAP setting, live against this figure."""
         try:
             from .umap_figure_settings import UmapFigureSettings
-        except Exception:  # UMAP support absent
+        except Exception:
             return
         values = dict(self._umap_payload.get("settings") or {})
         self._umap_settings = UmapFigureSettings(values, self)
@@ -324,30 +290,21 @@ class FigureSettingsDialog(QDialog):
                 import pickle
 
                 restored = pickle.loads(self._snapshot)
-                # Copy the restored state back INTO the figure the queue
-                # holds, rather than swapping the object -- everything else
-                # refers to the original by identity.
                 self._figure.clear()
                 for axis in list(restored.axes):
-                    # DETACHED FIRST. matplotlib refuses to put one artist
-                    # in two figures, and a restored axes still belongs to
-                    # the figure the snapshot was unpickled into -- so
-                    # re-homing it without the detach raised on the first
-                    # axes and Cancel left a CLEARED figure behind, with
-                    # neither the size nor the ground it opened with.
                     axis.remove()
                     self._figure._axstack.add(axis)
                     axis.set_figure(self._figure)
                 self._figure.patch.set_facecolor(restored.patch.get_facecolor())
                 self._figure.set_size_inches(*restored.get_size_inches())
                 self._changed()
-            except Exception:  # restore is best-effort
+            except Exception:
                 pass
         try:
             from .figure_queue import set_figure_text_size_override
             set_figure_text_size_override(
                 self._figure, getattr(self, "_text_size_at_open", 0))
-        except Exception:  # figure_queue unavailable
+        except Exception:
             pass
         super().reject()
 
@@ -389,14 +346,11 @@ class FigureSettingsDialog(QDialog):
             colormap = mpl.colormaps[name]
             count = max(len(series), 1)
             for index, (_label, artist) in enumerate(series):
-                # A qualitative map is indexed by position; a continuous one
-                # is sampled across its range. Using the wrong one gives every
-                # series nearly the same colour.
                 colour = (colormap(index % colormap.N) if colormap.N <= 32
                           else colormap(index / max(count - 1, 1)))
                 try:
                     artist.set_color(colour)
-                except Exception:  # artist without colour
+                except Exception:
                     pass
             self._changed()
         palette.currentIndexChanged.connect(apply_palette)
@@ -494,7 +448,6 @@ class FigureSettingsDialog(QDialog):
             self._redraw_now(preview=False)
         super().closeEvent(event)
 
-    # ------------------------------------------------------------- plumbing
 
     @staticmethod
     def _scroll(widget: QWidget) -> QScrollArea:
@@ -535,18 +488,6 @@ class FigureSettingsDialog(QDialog):
         """
         if self._on_change is None:
             return
-        # RENDERS MUST NOT STACK.
-        #
-        # A preview blocks the GUI thread for ~150 ms. Qt keeps delivering
-        # events during that render -- spin-box auto-repeat, wheel, the timer
-        # itself -- and without this guard each one lands another render behind
-        # the current one. The queue grows faster than it drains and the window
-        # stops responding: the hang.
-        #
-        # Instead a request that arrives mid-render only sets a flag, and one
-        # final redraw runs afterwards. Interaction stays smooth because the
-        # thread is always free between renders, and the picture still ends up
-        # matching the controls.
         if self._rendering:
             self._dirty = True
             return
@@ -555,7 +496,6 @@ class FigureSettingsDialog(QDialog):
             try:
                 self._on_change(preview=preview)
             except TypeError:
-                # A caller that does not know about preview rendering.
                 self._on_change()
         finally:
             self._rendering = False
@@ -563,7 +503,6 @@ class FigureSettingsDialog(QDialog):
             self._dirty = False
             self._redraw.start(self.REDRAW_DELAY_MS)
 
-    # ----------------------------------------------------------------- tabs
 
     def _statistics_tab(self) -> QWidget:
         """Build the statistical-test controls and show the resolved choice.
@@ -611,7 +550,7 @@ class FigureSettingsDialog(QDialog):
             for key in METHODS:
                 correction.addItem(key, key)
             correction.setCurrentText("fdr_bh")
-        except Exception:              # module absent
+        except Exception:
             correction.addItem("fdr_bh", "fdr_bh")
         correction.setToolTip(
             "Adjust p-values across all comparisons shown in this panel. "
@@ -719,31 +658,7 @@ class FigureSettingsDialog(QDialog):
             lambda value: (figure.set_dpi(value), self._changed()))
         form.addRow("DPI", dpi)
 
-        # One control that reaches EVERY text object at once, because "make
-        # the fonts bigger" is a single intention.
-        #
-        # GitHub issue #108 (2026-08-17): "Font size is by default to large to
-        # be visible. Adjusting font size ... from 10 to 2, does not reduce
-        # the font size, in fact increases it, and when returning ... the font
-        # size has been returned to 10."
-        #
-        # All three symptoms were this control, and the cause is what it did
-        # NOT reach. Measured on a volcano-shaped figure: 23 text objects, 20
-        # reached, and the three it missed were
-        #
-        #     ('EAF1', 22.0)      an ax.texts annotation -- a GENE LABEL, and
-        #                         the LARGEST text on the figure
-        #     ('a run', 12.0)     the figure suptitle
-        #     ('condition', 10.0) the legend's title
-        #
-        # So shrinking "all text" shrank everything EXCEPT the biggest thing
-        # on the plot, which then dominated it -- and reads exactly as "the
-        # font got bigger". The volcano annotates its hits by name, so this
-        # is the common case, not a corner one.
         all_text = QSpinBox()
-        # Down to 2, because 2 is what the reporter typed. A 2pt font is
-        # unreadable and that is their business; a control that silently
-        # clamps is one that lies about what it did.
         all_text.setRange(2, 96)
         all_text.setValue(_current_text_size(figure))
 
@@ -751,21 +666,6 @@ class FigureSettingsDialog(QDialog):
             """Set one font size on every piece of text in the figure."""
             for item in _every_text(figure):
                 item.set_fontsize(size)
-            # AND REMEMBER IT ON THE FIGURE. Setting the sizes alone was not
-            # enough and that is issue #108's third symptom: the next full
-            # render calls `render_figure_to_png`, which re-applies the
-            # GLOBAL text-size preference to every text object, so the user's
-            # choice survived only until the dialog closed -- and reopening
-            # the dialog, which reads the size off the figure, showed the
-            # preference again. The override is per FIGURE and is not written
-            # to the preference, for the same reason the colour buttons on
-            # this tab are not: this dialog restyles the figure in front of
-            # the user, and the setting for every figure is Preferences.
-            #
-            # Connected AFTER `setValue` above, so this runs only when a user
-            # moves the control -- seeding never writes back. That is the
-            # rule at the head of the figure colour section in
-            # `spacr/qt/preferences.py`: NEVER PERSIST A RESOLVED DEFAULT.
             set_figure_text_size_override(figure, size)
             self._changed()
         all_text.valueChanged.connect(set_all_text)
@@ -776,22 +676,6 @@ class FigureSettingsDialog(QDialog):
             "every figure starts at is in Preferences → Figures.")
         form.addRow("All text size", all_text)
 
-        # AND THE COLOUR OF ALL OF IT -- IN TWO CONTROLS, NOT ONE.
-        #
-        # There was a size control here and no colour control at all, so the
-        # background could be changed and the writing on top of it could not,
-        # which on a dark background is a figure with invisible axes and no
-        # way to fix it. The first version of the fix was ONE "All text
-        # colour" that also drove the spines and the tick marks.
-        #
-        # The maintainer's decision (instruction 152 B) splits it by what a
-        # mark IS rather than by which code draws it: "line color which
-        # should change the color of all lines including axis lines and
-        # ticks, and then a font color that controls the color of all font in
-        # the graph". So a user can now say "dark axes, coloured labels" or
-        # the other way round, and the first report -- "doesnt look like
-        # there is an option to change the axis color" -- has an answer that
-        # is not "change your text as well".
         def set_line_ink(colour):
             """Recolour every line in the figure."""
             apply_line_colour(figure, colour)
@@ -808,13 +692,13 @@ class FigureSettingsDialog(QDialog):
             try:
                 current_font_colour = _as_hex(
                     figure.axes[0].xaxis.label.get_color())
-            except Exception:      # odd colour spec
+            except Exception:
                 pass
             try:
                 spines = list(figure.axes[0].spines.values())
                 if spines:
                     current_line_colour = _as_hex(spines[0].get_edgecolor())
-            except Exception:      # odd colour spec
+            except Exception:
                 current_line_colour = current_font_colour
         form.addRow("Line colour",
                     _colour_button(current_line_colour, set_line_ink))
@@ -851,7 +735,6 @@ class FigureSettingsDialog(QDialog):
                 lambda e=edit, s=setter: (s(e.text()), self._changed()))
             form.addRow(label, edit)
 
-        # Scales -- the data-bound controls a saved page could never offer.
         for label, getter, setter in (
             ("X scale", axis.get_xscale, axis.set_xscale),
             ("Y scale", axis.get_yscale, axis.set_yscale),
@@ -865,9 +748,6 @@ class FigureSettingsDialog(QDialog):
                 lambda value, s=setter: (s(value), self._changed()))
             form.addRow(label, combo)
 
-        # Limits. Four boxes and an autoscale switch, because "zoom the
-        # volcano to the part with the hits in it" is the single most common
-        # thing anyone wants from a plot and there was no way to ask for it.
         for label, getter, setter in (
             ("X limits", axis.get_xlim, axis.set_xlim),
             ("Y limits", axis.get_ylim, axis.set_ylim),
@@ -880,13 +760,11 @@ class FigureSettingsDialog(QDialog):
             boxes = []
             for value in (low, high):
                 box = QDoubleSpinBox()
-                # Room to move well outside the data, and enough precision for
-                # a log axis where the interesting range can be tiny.
                 box.setRange(-1e12, 1e12)
                 box.setDecimals(4)
                 box.setSingleStep(span / 20.0)
                 box.setValue(value)
-                box.setKeyboardTracking(False)  # not one redraw per keystroke
+                box.setKeyboardTracking(False)
                 boxes.append(box)
                 row_layout.addWidget(box)
 
@@ -898,7 +776,7 @@ class FigureSettingsDialog(QDialog):
                 """
                 lower, upper = b[0].value(), b[1].value()
                 if lower == upper:
-                    return  # a zero-width axis throws; wait for the other box
+                    return
                 s(lower, upper)
                 self._changed()
             for box in boxes:
@@ -925,7 +803,6 @@ class FigureSettingsDialog(QDialog):
                 lambda _v, s=setter: (s(), self._changed()))
             form.addRow(label, check)
 
-        # Grid
         grid = QCheckBox()
         grid.setChecked(any(line.get_visible()
                             for line in axis.get_xgridlines()))
@@ -938,11 +815,6 @@ class FigureSettingsDialog(QDialog):
         grid_colour = {"value": "#cccccc"}
 
         def apply_grid(*_):
-            # Line properties are passed ONLY when enabling. matplotlib warns
-            # "First parameter to grid() is false, but line properties are
-            # supplied" and then turns the grid ON regardless -- so the
-            # unconditional version made the checkbox unable to switch the
-            # grid off, which is the opposite of what it says.
             """Show or hide the grid, passing line properties ONLY when enabling.
 
             matplotlib warns "First parameter to grid() is false, but line
@@ -967,7 +839,6 @@ class FigureSettingsDialog(QDialog):
             grid_colour["value"],
             lambda c: (grid_colour.__setitem__("value", c), apply_grid())))
 
-        # Spines and ticks
         spine_width = QDoubleSpinBox()
         spine_width.setRange(0.0, 10.0)
         spine_width.setSingleStep(0.25)
@@ -1005,9 +876,6 @@ class FigureSettingsDialog(QDialog):
             lambda value: (axis.tick_params(labelsize=value), self._changed()))
         form.addRow("Tick label size", tick_size)
 
-        # Legend -- only offered when there is one, or something to make one
-        # from. A legend row on a figure with no labelled series is a control
-        # that does nothing.
         handles, _labels = axis.get_legend_handles_labels()
         if axis.get_legend() is not None or handles:
             legend_on = QCheckBox()
@@ -1031,10 +899,6 @@ class FigureSettingsDialog(QDialog):
                         existing.set_visible(False)
                     self._changed()
                     return
-                # Rebuilding needs labelled artists. Calling legend() without
-                # them warns "No artists with labels found to put in legend"
-                # and returns nothing, losing the legend the figure already
-                # had -- so an existing legend is restyled in place instead.
                 handles, _labels = axis.get_legend_handles_labels()
                 if handles:
                     axis.legend(loc=legend_where.currentText(),
@@ -1059,19 +923,10 @@ class FigureSettingsDialog(QDialog):
             form.addRow("Legend frame", legend_frame)
 
         series = _series_of(axis)
-        # MANY SERIES GET A RULE, NOT A CONTROL EACH.
-        #
-        # A volcano scatters once per compartment, so an axis can hold 27
-        # collections. One block each is 135 controls and reads as styling
-        # individual data points, which is not a thing anyone wants to do to a
-        # screen. Past the threshold the dialog offers what actually governs
-        # the appearance: a palette applied across the series, and one set of
-        # size/opacity controls that reach all of them.
         if len(series) > self.SERIES_DETAIL_LIMIT:
             self._add_series_rules(form, axis, series)
             return page
 
-        # Few enough to be worth naming individually.
         for label, artist in series:
             form.addRow(QLabel(f"— {label} —"))
 
@@ -1084,7 +939,7 @@ class FigureSettingsDialog(QDialog):
                 """
                 try:
                     a.set_color(colour)
-                except Exception:  # artist without colour
+                except Exception:
                     pass
                 self._changed()
             try:
@@ -1097,9 +952,6 @@ class FigureSettingsDialog(QDialog):
                 line_width = QDoubleSpinBox()
                 line_width.setRange(0.0, 12.0)
                 line_width.setSingleStep(0.25)
-                # A collection returns an ARRAY of widths, one per element,
-                # not a scalar. float() on it happens to work today and is
-                # deprecated; take the first explicitly.
                 try:
                     raw = artist.get_linewidth()
                     if hasattr(raw, "__len__") and not isinstance(raw, str):
@@ -1207,18 +1059,13 @@ def apply_line_colour(figure, colour) -> int:
     for artist in figure_line_artists(figure):
         try:
             if hasattr(artist, "set_edgecolor"):
-                artist.set_edgecolor(colour)     # a spine
+                artist.set_edgecolor(colour)
             else:
                 artist.set_color(colour)
             touched += 1
-        except Exception:                        # odd spec
+        except Exception:
             continue
     for axis in getattr(figure, "axes", ()):
-        # THE TICK MARKS, SEPARATELY, and `color=` only. `colors=` would set
-        # the LABEL as well, which is the conflation the two controls exist
-        # to undo -- and it is done through `tick_params` rather than over
-        # the current ticks because matplotlib rebuilds them on every draw,
-        # so a colour set on the objects is lost at the next autoscale.
         try:
             axis.tick_params(color=colour, which="both")
         except Exception:
@@ -1250,8 +1097,6 @@ def apply_font_colour(figure, colour) -> int:
         except Exception:
             continue
     for axis in getattr(figure, "axes", ()):
-        # The labels are regenerated on every draw, so the colour has to be
-        # set on the TICK rather than only on today's label objects.
         try:
             axis.tick_params(labelcolor=colour, which="both")
         except Exception:
@@ -1273,7 +1118,7 @@ def figure_follows_the_theme(figure) -> None:
 
         _bg, font = get_figure_colors()
         line = get_figure_line_colour()
-    except Exception:                            # no store
+    except Exception:
         font = line = "#000000"
     apply_line_colour(figure, line)
     apply_font_colour(figure, font)
@@ -1313,7 +1158,7 @@ def graph_style_as_dict(general=None, per_graph=None) -> dict:
                 general = get_figure_style()
             if per_graph is None:
                 per_graph = get_figure_style_per_graph()
-        except Exception:                    # no store
+        except Exception:
             general, per_graph = general or {}, per_graph or {}
     return {
         "spacr_style_kind": GRAPH_STYLE_FILE_KIND,
@@ -1544,8 +1389,6 @@ def _pairs_from_axes(axes):
     labels = _tick_labels(axes)
     pairs = []
 
-    # BARS. Height is the value and the bar's centre picks the tick label.
-    # Patches that span the whole axes are backgrounds, not data.
     try:
         from matplotlib.patches import Rectangle
 
@@ -1564,7 +1407,6 @@ def _pairs_from_axes(axes):
     except Exception:                                        # noqa: BLE001
         pass
 
-    # SCATTER AND STRIP.
     try:
         for collection in list(axes.collections):
             offsets = collection.get_offsets()
@@ -1576,8 +1418,6 @@ def _pairs_from_axes(axes):
     except Exception:                                        # noqa: BLE001
         pass
 
-    # LINES AND MARKERS. A line with no marker and two points is usually a
-    # reference line rather than data, and is left out.
     try:
         for line in list(axes.lines):
             data = line.get_xydata()
@@ -1615,23 +1455,11 @@ def derive_replot_recipe(figure):
         return None
     axes = [a for a in getattr(figure, "axes", []) if a is not None]
     if len(axes) != 1:
-        # ONE AXES ONLY. A grid of panels redrawn as a single violin would
-        # throw away every panel but one, silently.
         return None
     pairs = _pairs_from_axes(axes[0])
     if len(pairs) < 2:
         return None
     frame = pandas.DataFrame(pairs, columns=[DERIVED_GROUP, DERIVED_VALUE])
-    # NO `nunique() < 1` GUARD. The group column comes only from
-    # `_named`, which returns either a tick label or `f"{float(x):g}"` --
-    # always a str, never a missing value, and "nan" for a NaN x rather
-    # than NaN itself. With at least two rows guaranteed above,
-    # `nunique()` is 1 or more by construction.
-    #
-    # It could only be reached by making `_pairs_from_axes` return actual
-    # NaN group names, which is not a figure. Instruction 310 A15 counted
-    # it, and a reader maintaining this was being told nameless groups
-    # are a case that occurs.
     return {
         "df": frame,
         "grouping_column": DERIVED_GROUP,
@@ -1715,11 +1543,6 @@ def _which_types_fit(recipe) -> tuple:
         for kind, _caption, reason in rows:
             (why.__setitem__(kind, reason) if reason
              else fits.append(kind))
-        # The two vocabularies differ: `graph_types` says `bar_jitter` where
-        # the drawer says `jitter_bar`, and it has no `jitter_box`. Map the
-        # ones that mean the same thing rather than renaming either -- one
-        # is the analysis vocabulary and the other the drawer's, and each is
-        # right in its own module.
         alias = {"bar_jitter": ("jitter_bar", "jitter_box")}
         for source, targets in alias.items():
             if source in fits:
@@ -1765,10 +1588,6 @@ def _add_group_colours(menu, figure, recipe, on_change, parent) -> None:
         if not chosen.isValid():
             return
         current[group] = chosen.name()
-        # STORED ON THE RECIPE AND REDRAWN, not painted onto the artists.
-        # Setting an artist's colour lasts until the next redraw and then
-        # silently reverts -- which is what "changing the colors changes
-        # nothing" looks like from the other side.
         recipe["colors"] = current
         figure._spacr_replot = recipe
         _replot(figure, str(recipe.get("graph_type") or "bar"), on_change)
@@ -1780,9 +1599,6 @@ def _add_group_colours(menu, figure, recipe, on_change, parent) -> None:
         action.triggered.connect(
             lambda _checked=False, g=group: _recolour(g))
     if len(groups) > 24:
-        # NAMED, NOT SILENTLY DROPPED. A menu that shows the first
-        # twenty-four of ninety groups and says nothing looks like a menu
-        # that has them all.
         note = colours.addAction(
             tr("({count} more groups not listed)", count=len(groups) - 24))
         note.setEnabled(False)
@@ -1836,18 +1652,12 @@ def save_figure_bundle(figure, folder: str, name: str = "") -> str:
     groups = None
     if frame is not None and column in getattr(frame, "columns", ()) \
             and value in getattr(frame, "columns", ()):
-        # `observed=True`: a categorical grouping column would otherwise
-        # yield a group per unused CATEGORY as well, and an empty group is a
-        # comparison arm with no observations in it.
         groups = {str(key): part[value].dropna().to_numpy()
                   for key, part in frame.groupby(column, observed=True)}
 
     title = name or _figure_title(figure) or "graph"
 
     def _render(path: str) -> None:
-        # A bundle deliberately contains both formats, but each rendering
-        # still uses the shared export path so print colours, embedded fonts,
-        # and raster DPI match every other figure the user keeps.
         """Render one file of the bundle through the SHARED export path.
 
         Both formats go through `save_figure` rather than each drawing itself, so
@@ -1906,12 +1716,6 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         Context menu owned by ``parent``.
     """
     menu = QMenu(parent)
-    # AN OWNER FOR THE ACTIONS, WHICH IS NOT ALWAYS `parent`. `QMenu.addAction`
-    # does not adopt an action built here, so a QAction whose only reference is
-    # a local name and whose parent is `None` is collected the moment this
-    # function returns -- and the menu comes back holding Save, the two
-    # submenus and nothing else. `add_graph_style_file_entries` already falls
-    # back this way for the same reason.
     owner = parent if parent is not None else menu
     if figure is None:
         action = QAction(tr("This figure can no longer be restyled"), owner)
@@ -1921,17 +1725,8 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
 
     axes = list(figure.axes)
 
-    # SHOW THE SAME DATA ANOTHER WAY (178 A). Offered only where the figure
-    # carries its own recipe -- `create_grouped_plot` attaches one -- because
-    # a menu entry that cannot redraw the figure it is on is worse than an
-    # absent one. Every other figure in spaCR simply does not get the group.
     recipe = getattr(figure, "_spacr_replot", None)
     if not (isinstance(recipe, dict) and recipe.get("df") is not None):
-        # NO RECIPE, SO READ ONE BACK OFF THE AXES. Only
-        # `create_grouped_plot` attaches `_spacr_replot`, which left the
-        # menu on a handful of figures and absent from every other plot in
-        # the software. Derived recipes are marked so a redraw does not
-        # claim to be the original data.
         derived = derive_replot_recipe(figure)
         if derived is not None:
             recipe = derived
@@ -1941,20 +1736,9 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
             except Exception:                                # noqa: BLE001
                 pass
     if isinstance(recipe, dict) and recipe.get("df") is not None:
-        # Give Python and C++ an explicit ownership chain. ``addMenu(str)``
-        # can leave the Python wrapper as the submenu's only live owner, so a
-        # caller retrieving it through the parent action gets an already
-        # deleted QMenu. This is the same lifetime rule used by Appearance
-        # and Axis scale below.
-        # NAMED "Graph type", which is what it was asked for by: "an option
-        # when i right click on a graph, called graph type that would allow
-        # the user to switch between graph types".
         show_as = QMenu(tr("Graph type"), menu)
         menu.addMenu(show_as)
         current = str(recipe.get("graph_type") or "")
-        # ONLY THE TYPES THAT FIT THE DATA (instruction 200 A), and the rest
-        # greyed with the reason rather than absent -- a list that silently
-        # shortens leaves the user wondering whether they misremembered.
         fits, why_not = _which_types_fit(recipe)
         for kind, label in GROUPED_PLOT_TYPES:
             action = show_as.addAction(label)
@@ -1970,17 +1754,8 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
                                                            on_change))
         show_as.setToolTipsVisible(True)
 
-        # THE GROUPS, NOT THE ELEMENTS (reported 2026-08-21: "i also want to
-        # modify thing on the group level not individual points and barts").
-        # The Appearance menu below colours the FURNITURE -- spines, ticks,
-        # text -- which is why changing a colour there appeared to do
-        # nothing to the bars: it was never about them.
         _add_group_colours(menu, figure, recipe, on_change, parent)
 
-    # AND THE WHOLE THING, on every figure that has its data (instruction
-    # 223). This was on the pyqtgraph plots only, which is not where these
-    # graphs are drawn -- so a feature that existed was unreachable from
-    # where the user was looking.
     _add_bundle_save(menu, figure, parent)
 
     def _notify() -> None:
@@ -2037,7 +1812,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         lambda checked: _apply(lambda a: a.grid(checked)))
     menu.addAction(grid_action)
 
-    scales = QMenu(tr("Axis scale"), menu)  # see "Appearance" below for why
+    scales = QMenu(tr("Axis scale"), menu)
     menu.addMenu(scales)
     for name, setter in (("X", "set_xscale"), ("Y", "set_yscale")):
         submenu = QMenu(name, scales)
@@ -2050,16 +1825,6 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
             submenu.addAction(action)
 
     menu.addSeparator()
-    # THE TWO COLOUR CONTROLS, ON THE RIGHT-CLICK ITSELF (instruction 152 B).
-    # They are two clicks away behind "Figure settings…", and the report that
-    # opened 152 was a user who could not find an axis colour at all -- a
-    # control nobody can find is a control that does not exist.
-    # BUILT WITH AN EXPLICIT PARENT, not `menu.addMenu("Appearance")`.
-    # `addMenu(str)` hands back a QMenu that PySide does not keep alive: the
-    # Python wrapper is the only owner, and the moment it goes out of scope
-    # the C++ object is deleted under the still-visible parent action. Driving
-    # the entry then raises "Internal C++ object (QMenu) already deleted",
-    # which is what a user would see as a submenu that opens empty.
     appearance = QMenu(tr("Appearance"), menu)
     menu.addMenu(appearance)
 
@@ -2108,10 +1873,6 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     save.triggered.connect(lambda: save_figure_as(parent, figure))
     menu.addAction(save)
 
-    # STYLE IT FOR THE FILE FIRST (178 C.2). "the user should be able to
-    # change all of theis for the saved graph, get a preview then save."
-    # Beside the direct save rather than replacing it: writing what is on
-    # screen is one click and remains one click.
     styled = QAction(tr("Save figure with a preview…"), owner)
     styled.setToolTip(tr(
         "Choose the ink, background, grid, size and resolution for the saved "
@@ -2239,24 +2000,10 @@ def save_figure_as(parent, figure, path: str = "") -> str:
         if not path:
             return ""
 
-    # THROUGH `spacr.plot.save_figure`, WHICH IS THE POINT OF INSTRUCTION 108
-    # POINT 6. This function used to write the file itself, with the SCREEN's
-    # background and no print rule, which made it one of the twenty-three
-    # `savefig` calls that bypass the one place a figure the user keeps gets
-    # written -- and on a dark theme it produced exactly instruction 150's
-    # report: white text on a transparent ground, invisible the moment it is
-    # pasted into a manuscript. `save_figure` applies the DPI preference and
-    # `print_ready`'s ink rule, and a light-mode save is unchanged by it.
-    #
-    # THE USER'S OWN EXTENSION WINS over the format preference, and that is
-    # the one thing this cannot delegate: `save_figure` corrects the extension
-    # to the chosen FORMAT, so a user who typed `figure.pdf` while the
-    # preference says PNG would get a PNG. The extension is passed as `fmt`
-    # when it is one `save_figure` knows.
     extension = os.path.splitext(path)[1].lower().lstrip(".")
     try:
         from ...plot import FIGURE_FORMATS, print_ready, save_figure
-    except Exception:                    # Qt-only build
+    except Exception:
         FIGURE_FORMATS, print_ready, save_figure = (), None, None
 
     if save_figure is not None and extension in FIGURE_FORMATS:
@@ -2269,16 +2016,12 @@ def save_figure_as(parent, figure, path: str = "") -> str:
         finally:
             export_sidecars(figure, path)
 
-    # SVG and EPS are NOT among `FIGURE_FORMATS`, so they cannot go through
-    # `save_figure` without having their extension rewritten under them --
-    # and they are offered in the dialog because they are what a journal asks
-    # for. They still get the print rule, which is the half that matters.
     try:
         from ..preferences import (figure_bg_is_transparent, get_figure_colors,
                                    get_figure_png_dpi)
         background, _foreground = get_figure_colors()
         dpi = get_figure_png_dpi()
-    except Exception:                    # no settings store
+    except Exception:
         background, dpi = "none", 200
 
         def figure_bg_is_transparent(value):
@@ -2288,8 +2031,6 @@ def save_figure_as(parent, figure, path: str = "") -> str:
     from contextlib import nullcontext
 
     try:
-        # Vector formats have no meaningful DPI, and passing one makes
-        # matplotlib rasterise text in some backends.
         vector = extension in ("pdf", "svg", "eps")
         ink = print_ready(figure) if print_ready is not None else nullcontext()
         with ink:
@@ -2349,9 +2090,6 @@ def export_sidecars(figure, path) -> list:
             usable = {label: values for label, values in groups.items()
                       if values is not None and len(values) >= 2}
             if len(usable) >= 2:
-                # EVERY PAIR, corrected across them. Six pairwise tests at
-                # 0.05 is a 26% chance of one false positive and the
-                # individual p-values give no hint of it.
                 labels = list(usable)
                 comparisons = []
                 for index, left in enumerate(labels):
@@ -2388,37 +2126,7 @@ __all__ = ["FigureSettingsDialog", "build_figure_context_menu", "AXIS_SCALES",
            "export_sidecars", "save_figure_as"]
 
 
-# ---------------------------------------------------------------------------
-# INSTRUCTION 118 -- FIGURE PREFERENCES: GENERAL, AND PER GRAPH TYPE
-#
-#   "in the general app preferences in the figure tab theere should be general
-#    graph settings and specialized settings for al the possible different
-#    sets of graphs"
-#
-# The MODEL for this already existed: `spacr.figure_style` holds
-# GENERAL_DEFAULTS, GRAPH_DEFAULTS and `resolve`, and `spacr.figures.style`
-# lays a user's deltas over the publication house style. What did not exist
-# was any way to SET them -- the Figures tab held format, DPI, cache size and
-# the dynamic switch, and nothing at all about how a plot looks.
-#
-# BUILT FROM `figure_style`'S OWN TABLES, not from a hand-written list. That
-# is the same decision `add_style_entries` made for instruction 108 and for
-# the same reason: a style gains a key, the panel gains a control, and the two
-# cannot fall out of step. It also means this file never has to know what a
-# volcano is.
-#
-# THE STORE HOLDS DELTAS, NOT THE RESOLVED STYLE, and that contract is older
-# than this panel -- `get_figure_style` returns {} on a fresh install and
-# `figures.style.user_overrides` returns only the keys the user MOVED, so a
-# user who has never opened Preferences gets the published house style
-# exactly. Writing the whole resolved style here would replace the house style
-# for everybody, which is the same class of mistake as instruction 152 A's
-# persisted resolution.
-# ---------------------------------------------------------------------------
 
-# Fallback choices keep the preferences panel usable if ``figure_style``
-# cannot be imported. Normal operation reads the canonical choices from that
-# module through ``style_choices_for``.
 _FALLBACK_CHOICES = {
     "palette": ("colorblind", "deep", "muted", "pastel", "bright", "dark"),
     "grid_style": tuple(style for style, _label in LINE_STYLES),
@@ -2456,7 +2164,7 @@ def style_choices_for(name: str) -> tuple:
         from ...figure_style import style_choices
 
         return tuple(style_choices(name))
-    except Exception:                   # import guard
+    except Exception:
         return tuple(_FALLBACK_CHOICES.get(name, ()))
 
 
@@ -2517,12 +2225,6 @@ def style_setting_label(name: str) -> str:
         str(name), str(name).replace("_", " ").strip().capitalize())
 
 
-# THE ARGUMENTS ARE DOCUMENTED ON `__init__`, ONCE. They were listed here
-# too, as a NumPy ``Parameters`` section, and AutoAPI runs with
-# ``class_content='both'``: the class docstring and ``__init__``'s are
-# concatenated before Napoleon sees them, the section became a field list,
-# and ``__init__``'s opening prose then ended it mid-way -- "Field list
-# ends without a blank line", which `sphinx-build -W` makes fatal.
 class FigureStylePreferences(QWidget):
     """Edit general and graph-specific figure-style preferences.
 
@@ -2606,10 +2308,6 @@ class FigureStylePreferences(QWidget):
         column.addWidget(self._pages)
         self._kind_box.currentIndexChanged.connect(self._pages.setCurrentIndex)
 
-        # SAVE / LOAD, instruction 108 point 5, on the panel that owns these
-        # settings. The same file the figure's right-click menu reads and
-        # writes -- one format, two ways in, and no third place a graph style
-        # can live.
         file_row = QHBoxLayout()
         save_button = QPushButton("Save style…")
         save_button.setToolTip(
@@ -2626,18 +2324,9 @@ class FigureStylePreferences(QWidget):
         file_row.addStretch(1)
         column.addLayout(file_row)
 
-        # HOVER HELP BELONGS ON THE SETTING'S NAME, NOT ON THE CONTROL
-        # (instruction 113, restated across every module 2026-08-19: "the
-        # tooltip should only be visable when hovering the mouse over the
-        # setting name text, and not when hovering over the field, checkbox,
-        # or whatever the setting controlls"). One post-pass rather than a
-        # convention every hand-built row has to remember -- which is what
-        # `tests/test_tooltips_are_on_the_setting_not_the_field.py` exists to
-        # catch, and did catch this screen.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- a house style as a file ---------------------------------------------
 
     def _save_to_file(self) -> None:
         """Write WHAT IS ON SCREEN, not what is stored.
@@ -2701,7 +2390,6 @@ class FigureStylePreferences(QWidget):
             for name, (_getter, setter, default) in controls.items():
                 setter(stored.get(name, default))
 
-    # -- building one control ------------------------------------------------
 
     def _control(self, name: str, value):
         """Build a widget, getter, and setter from one style value.
@@ -2724,10 +2412,6 @@ class FigureStylePreferences(QWidget):
                 combo.addItem(str(option), option)
             index = combo.findData(value)
             if index < 0:
-                # A stored value the package no longer offers. Kept and
-                # shown rather than snapped to the first entry, because
-                # silently changing a user's setting while showing them a
-                # settings dialog is the worst place to do it.
                 combo.addItem(f"{value} (not offered)", value)
                 index = combo.count() - 1
             combo.setCurrentIndex(index)
@@ -2746,11 +2430,6 @@ class FigureStylePreferences(QWidget):
             def _set_colour(v, b=button, h=holder):
                 """Store a colour and repaint the swatch that shows it."""
                 h["value"] = str(v)
-                # THE SWATCH TOO. `_colour_button` paints itself from its own
-                # state, so writing the holder alone would leave the button
-                # showing the old colour -- a reset the user can see did not
-                # happen. Rebuilt in place rather than reaching into the
-                # button's private state.
                 b.setText(str(v))
                 colour = QColor(str(v))
                 if colour.isValid():
@@ -2830,7 +2509,6 @@ class FigureStylePreferences(QWidget):
 
         return row, _get, _set
 
-    # -- reading it back -----------------------------------------------------
 
     def values(self) -> tuple:
         """Return style settings that differ from package defaults.

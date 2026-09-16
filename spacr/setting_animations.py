@@ -198,10 +198,20 @@ def animation_for_setting(setting_key: str) -> Optional[SettingAnimation]:
 
     :param setting_key: exact, case-sensitive settings key to look up.
 
-    Matching is deliberately exact and case-sensitive so similarly named
-    scientific settings cannot accidentally display misleading help.
+    Exact matches take precedence. A numbered organelle slot can reuse its
+    primary slot's animation through the shared slot-name mapping; unknown
+    settings and case variants still do not acquire unrelated help.
     """
-    return animations_by_setting().get(str(setting_key))
+    from .organelle_types import ALL_ORGANELLE_ROLES, primary_setting
+
+    key = str(setting_key)
+    by_setting = animations_by_setting()
+    animation = by_setting.get(key)
+    if animation is not None:
+        return animation
+    if key.partition("_")[0] not in ALL_ORGANELLE_ROLES:
+        return None
+    return by_setting.get(primary_setting(key))
 
 
 def animation_path_for_setting(setting_key: str) -> Optional[Path]:
@@ -256,7 +266,7 @@ def measure_visible_change(path) -> float:
     try:
         import numpy as np
         from PIL import Image
-    except Exception:                       # no imaging
+    except Exception:
         return 1.0
     try:
         frames = []
@@ -312,7 +322,7 @@ def _animation_frames(path):
     try:
         import numpy as np
         from PIL import Image
-    except Exception:                       # no imaging
+    except Exception:
         return None
     frames = []
     try:
@@ -350,7 +360,7 @@ def measure_border_artifact(path) -> float:
     """
     try:
         import numpy as np
-    except Exception:                       # no imaging
+    except Exception:
         return 0.0
     frames = _animation_frames(path)
     if not frames or len(frames) < 2:
@@ -436,7 +446,7 @@ def measure_border_object_removal(path) -> Dict[str, int]:
       object registers as changed. The pair used here is the FIRST and LAST
       frames at which the drawn well edge sits at the same column, which is
       the interval where the zoom is complete and only the removal happens.
-    * **Not the generator's own ``touches`` flag.** That flag is the thing
+    * Not the generator's own ``touches`` flag. That flag is the thing
       under test; a check that classifies objects by it validates the
       generator against itself and reported "all correct" on the assets that
       shipped the bug. The well edge is recovered from the drawn pixels.

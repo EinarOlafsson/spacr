@@ -212,9 +212,6 @@ def canonical_labels(mask: np.ndarray) -> np.ndarray:
             used.add(candidate)
     top = int(out.max()) if out.size else 0
     if top > np.iinfo(np.uint16).max:
-        # Wrapping would fuse object 65536 with object 0 — background —
-        # and lose it silently. A mask is uint16 everywhere in spaCR, so
-        # this is a mask that cannot be written, not one to truncate.
         raise ValueError(
             f"mask carries label {top}, past what a uint16 mask can hold.")
     return out.astype(np.uint16)
@@ -290,9 +287,6 @@ def overlay_mask(image: np.ndarray, mask: np.ndarray, alpha: float = 0.5) -> np.
     return combined
 
 
-# ---------------------------------------------------------------------------
-# Mask edits — brush / erase / object-level ops
-# ---------------------------------------------------------------------------
 
 def paint_disk(mask: np.ndarray, cx: int, cy: int, radius: int,
                value: int = 255) -> None:
@@ -330,9 +324,6 @@ def paint_line(mask: np.ndarray, x0: int, y0: int, x1: int, y1: int,
             y += sy
 
 
-# ---------------------------------------------------------------------------
-# Region tools — the free-form outline and the dividing line
-# ---------------------------------------------------------------------------
 
 #: Width, in image pixels, of the cut a divide draws through an object.
 #:
@@ -399,9 +390,6 @@ def fill_polygon(mask: np.ndarray, points, label_value: Optional[int] = None):
     pts = np.asarray(list(points), dtype=float)
     if pts.ndim != 2 or pts.shape[0] < 3:
         return mask.copy(), 0
-    # Shoelace area of the closed path. skimage's polygon() hands back the
-    # traced pixels themselves for a degenerate outline, which would make a
-    # straight drag into a hairline "object".
     x, y = pts[:, 0], pts[:, 1]
     if abs(float(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1)))) < 1.0:
         return mask.copy(), 0
@@ -427,8 +415,6 @@ def _segment_band(shape, p0, p1, width: float) -> np.ndarray:
     x0, y0 = float(p0[0]), float(p0[1])
     x1, y1 = float(p1[0]), float(p1[1])
     half = max(0.5, float(width) / 2.0)
-    # Only the segment's bounding box can be within half a width of it, so
-    # the distance is computed there instead of over the whole field.
     lo_x = max(0, int(np.floor(min(x0, x1) - half)))
     hi_x = min(width_px, int(np.ceil(max(x0, x1) + half)) + 1)
     lo_y = max(0, int(np.floor(min(y0, y1) - half)))
@@ -486,10 +472,10 @@ def divide_object(mask: np.ndarray, p0, p1,
         remainder = body & ~band
         pieces, count = _ndimage().label(remainder, structure=_EIGHT)
         if count < 2:
-            continue                      # the line stopped short: not a cut
+            continue
         areas = np.bincount(pieces.ravel())
         keeps = int(np.argmax(areas[1:])) + 1
-        out[body] = 0                     # drop the cut pixels with the rest
+        out[body] = 0
         out[pieces == keeps] = source
         for piece in range(1, count + 1):
             if piece == keeps:
@@ -631,17 +617,10 @@ def filter_objects(mask: np.ndarray, image: np.ndarray, *,
     grey = np.asarray(image, dtype=np.float32)
     if grey.ndim == 3:
         grey = grey.mean(axis=2)
-    # Measured on the canonical labelling, not on the raw array: two
-    # separate blobs a brush painted with the same value are one region to
-    # regionprops, and their combined area and mean intensity describe
-    # neither of them.
     labels = canonical_labels(mask)
     dropped: List[int] = []
     for region in regionprops(labels.astype(np.int32), intensity_image=grey):
         area = int(region.area)
-        # scikit-image renamed mean_intensity to intensity_mean and warns on
-        # the old spelling; both names are live across the versions spaCR
-        # supports, so ask for the new one and fall back.
         mean = float(region.intensity_mean
                      if hasattr(region, "intensity_mean")
                      else region.mean_intensity)
@@ -697,6 +676,45 @@ def otsu_instances(image: np.ndarray, *, bright: bool = True,
     return connected_instances(binary, min_area=min_area)
 
 
+def _otsu_instances(image: np.ndarray, *, bright: bool = True,
+                    min_area: int = 0,
+                    correction: float = 1.0) -> np.ndarray:
+    """:func:`otsu_instances` with Otsu's level multiplied by ``correction``.
+
+    Item 417's "threshold correction", which is CellProfiler's threshold
+    correction factor: the level Otsu finds is multiplied before it is used.
+    Above 1 is stricter and below 1 takes in dimmer pixels, on either side --
+    for dark objects the level is measured on the inverted image, the way a
+    dark-object threshold is, so a correction reads the same way for both.
+
+    A correction of exactly 1 IS :func:`otsu_instances`, looked up by name at
+    call time, so the uncorrected path does not move at all.
+
+    :param correction: the factor, greater than 0.
+    :raises ValueError: on an empty image, or a correction that is not
+        greater than 0.
+    """
+    factor = float(correction)
+    if not factor > 0.0:
+        raise ValueError(
+            f"The Otsu threshold correction must be greater than 0; got "
+            f"{correction!r}.")
+    if factor == 1.0:
+        return otsu_instances(image, bright=bright, min_area=min_area)
+    from skimage.filters import threshold_otsu
+
+    values = np.asarray(image, dtype=np.float32)
+    if not values.size:
+        raise ValueError("Otsu needs an image; this one is empty.")
+    level = float(threshold_otsu(values))
+    if bright:
+        binary = values > level * factor
+    else:
+        top = float(values.max())
+        binary = (top - values) > (top - level) * factor
+    return connected_instances(binary, min_area=min_area)
+
+
 def combine_masks(old: np.ndarray, new: np.ndarray,
                   mode: str = "replace") -> np.ndarray:
     """Fold a fresh detection into an existing mask.
@@ -727,9 +745,6 @@ def combine_masks(old: np.ndarray, new: np.ndarray,
         added = np.where(incoming > 0, incoming + base, 0)
         free = out == 0
         out[free] = added[free]
-    # Width follows the values, as it does everywhere else a mask is made
-    # here: merging 300 detected objects into a uint8 mask and keeping uint8
-    # would wrap object 300 round to 44 and silently fuse it with another.
     top = int(out.max()) if out.size else 0
     if top > np.iinfo(np.uint16).max:
         raise ValueError(
@@ -738,9 +753,268 @@ def combine_masks(old: np.ndarray, new: np.ndarray,
     return out.astype(np.uint8 if top <= 255 else np.uint16)
 
 
-# ---------------------------------------------------------------------------
-# Magic wand — flood-fill by intensity tolerance (mirrors ModifyMaskApp)
-# ---------------------------------------------------------------------------
+#: The rules a live-magnifier commit knows for an object that lands on one
+#: already labelled, in the order the editor offers them. ``clip`` keeps
+#: only the new object's unlabelled pixels, so no existing object loses a
+#: pixel; ``skip`` leaves out any object that touches an existing one;
+#: ``replace`` lets the new object take every pixel it covers.
+_MAGNIFIER_OVERLAP_RULES = ("clip", "skip", "replace")
+
+#: How far one unit of magnifier sensitivity moves the classical cut, as a
+#: fraction of the region's stretched intensity range. Positive lowers the
+#: cut, so a more sensitive magnifier takes in dimmer pixels.
+_CLASSICAL_SENSITIVITY_STEP = 0.05
+
+#: Otsu's effectiveness -- between-class over total variance -- at or above
+#: which a region is taken to hold two populations and is cut between them.
+#: Below it the region is one population, background, with at most a few dim
+#: objects in it; and background still HAS an Otsu level -- it splits the
+#: noise in half, at an effectiveness near 2/pi for Gaussian noise -- so
+#: cutting there hands back a sponge of objects that are not there. Such a
+#: region is cut at a noise floor instead, :data:`_CLASSICAL_NOISE_SIGMAS`
+#: robust deviations above its median.
+_CLASSICAL_MIN_SEPARATION = 0.8
+
+#: How many robust standard deviations (1.4826 x the median absolute
+#: deviation) above the median a smoothed pixel must be to count as an
+#: object in a one-population region. Each unit of sensitivity takes half a
+#: deviation off, down to one.
+_CLASSICAL_NOISE_SIGMAS = 4.0
+
+#: Gaussian smoothing, in pixels, before either cut. It averages pixel noise
+#: down about three and a half times, which is the difference between a dim
+#: object being found and being broken into speckle.
+_CLASSICAL_SMOOTHING = 1.0
+
+
+def _magnifier_box(shape, x: int, y: int,
+                   size: int) -> Tuple[int, int, int, int]:
+    """The region a magnifier at image pixel ``(x, y)`` covers, clipped.
+
+    :param shape: the image shape, ``(height, width, ...)``.
+    :param x: column of the pixel under the cursor.
+    :param y: row of the pixel under the cursor.
+    :param size: side of the unclipped square, in image pixels. The cursor
+        sits at index ``size // 2`` of it, so an even size puts the cursor
+        just right of and below the middle.
+    :returns: ``(x0, y0, x1, y1)`` with ``x1``/``y1`` exclusive -- the slice
+        ``image[y0:y1, x0:x1]``. At the image border the box is cut short on
+        that side only and never padded, so a crop is always real pixels and
+        its top-left corner is always where its labels go.
+    """
+    height, width = int(shape[0]), int(shape[1])
+    side = max(1, int(size))
+    left = int(x) - side // 2
+    top = int(y) - side // 2
+    return (max(0, left), max(0, top),
+            min(width, left + side), min(height, top + side))
+
+
+def _drop_cut_objects(labels: np.ndarray, box, shape) -> np.ndarray:
+    """Zero every object the box's own edge cuts through.
+
+    An object touching an edge of the box that lies INSIDE the image is the
+    part of an object the box happened to cover, and its boundary there is
+    where the box ends -- the rule :func:`cut_recrop` applies to a recrop.
+    An edge that is the image border cuts nothing off, so objects touching
+    it are kept.
+
+    :param labels: label image in crop coordinates.
+    :param box: the crop's ``(x0, y0, x1, y1)`` in image pixels.
+    :param shape: the image shape the box was clipped to.
+    :returns: a copy of ``labels`` without the cut objects.
+    """
+    out = np.array(labels, copy=True)
+    if not out.size or not out.max():
+        return out
+    x0, y0, x1, y1 = (int(v) for v in box[:4])
+    height, width = int(shape[0]), int(shape[1])
+    edges = []
+    if y0 > 0:
+        edges.append(out[0, :])
+    if y1 < height:
+        edges.append(out[-1, :])
+    if x0 > 0:
+        edges.append(out[:, 0])
+    if x1 < width:
+        edges.append(out[:, -1])
+    if edges:
+        cut = np.unique(np.concatenate(edges))
+        cut = cut[cut > 0]
+        if cut.size:
+            out[np.isin(out, cut)] = 0
+    return out
+
+
+def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
+                             bright: bool = True,
+                             min_area: int = 0,
+                             correction: float = 1.0) -> np.ndarray:
+    """Threshold one magnifier region and split the objects that touch.
+
+    The classical magnifier mode, and the fallback whenever a model cannot
+    run: it needs nothing beyond scikit-image. The region is smoothed
+    (:data:`_CLASSICAL_SMOOTHING`) and then cut one of two ways. A region
+    that holds two clear populations
+    (:data:`_CLASSICAL_MIN_SEPARATION`) is cut at Otsu's level, moved by
+    ``sensitivity`` steps of :data:`_CLASSICAL_SENSITIVITY_STEP` of its
+    stretched range; any other region is background with at most a few dim
+    objects, and is cut :data:`_CLASSICAL_NOISE_SIGMAS` robust deviations
+    above its median. The foreground is opened, hole-filled and split with a
+    watershed on its distance transform.
+
+    :param region: 2-D intensity crop.
+    :param sensitivity: 0 is the default cut; positive takes in dimmer
+        pixels, negative keeps only the brightest.
+    :param bright: objects are brighter than background; False takes the
+        dark side, for brightfield.
+    :param min_area: objects smaller than this are dropped. It also sets how
+        far apart two seeds must be, so an object of the smallest allowed
+        size is not split in two.
+    :param correction: Otsu's level is multiplied by this before
+        ``sensitivity`` moves it (item 417's threshold correction; see
+        :func:`_otsu_instances`). Above 1 is stricter. A region with no two
+        clear populations is cut at its noise floor, which is not Otsu's
+        level, and this does not apply to it.
+    :returns: int32 labels 1..N shaped like ``region``; all zero for a
+        region with nothing above its noise.
+    """
+    from skimage.feature import peak_local_max
+    from skimage.filters import threshold_otsu
+    from skimage.segmentation import watershed
+
+    ndimage = _ndimage()
+    values = np.asarray(region, dtype=np.float32)
+    empty = np.zeros(values.shape, dtype=np.int32)
+    if values.ndim != 2 or values.size < 4:
+        return empty
+    smooth = ndimage.gaussian_filter(values, _CLASSICAL_SMOOTHING)
+    if not bright:
+        smooth = -smooth
+    lo, hi = (float(v) for v in np.percentile(smooth, (1.0, 99.8)))
+    if hi <= lo:
+        return empty
+    stretched = np.clip((smooth - lo) / (hi - lo), 0.0, 1.0)
+    level = float(threshold_otsu(stretched))
+    upper = stretched > level
+    share = float(upper.mean())
+    total = float(stretched.var())
+    separation = 0.0
+    if 0.0 < share < 1.0 and total > 0.0:
+        gap = float(stretched[upper].mean() - stretched[~upper].mean())
+        separation = share * (1.0 - share) * gap * gap / total
+    if separation >= _CLASSICAL_MIN_SEPARATION:
+        cut = (level * float(correction)
+               - _CLASSICAL_SENSITIVITY_STEP * float(sensitivity))
+        foreground = stretched > cut
+    else:
+        centre = float(np.median(smooth))
+        spread = 1.4826 * float(np.median(np.abs(smooth - centre)))
+        if spread <= 0.0:
+            return empty
+        sigmas = max(1.0, _CLASSICAL_NOISE_SIGMAS - 0.5 * float(sensitivity))
+        foreground = smooth > centre + sigmas * spread
+
+    binary = ndimage.binary_opening(foreground, structure=_EIGHT)
+    binary = ndimage.binary_fill_holes(binary)
+    if not binary.any():
+        return empty
+    distance = ndimage.gaussian_filter(
+        ndimage.distance_transform_edt(binary), 1.0)
+    components, count = ndimage.label(binary, structure=_EIGHT)
+    spacing = max(2, int(np.sqrt(max(int(min_area), 12) / np.pi)))
+    peaks = peak_local_max(distance, min_distance=spacing, labels=components,
+                           exclude_border=False)
+    markers = np.zeros(values.shape, dtype=np.int32)
+    for index, (row, col) in enumerate(peaks, start=1):
+        markers[row, col] = index
+    seeded = {int(v) for v in np.unique(components[markers > 0])}
+    next_marker = len(peaks) + 1
+    for component in range(1, count + 1):
+        if component in seeded:
+            continue
+        where = int(np.argmax(np.where(components == component, distance, -1.0)))
+        markers.flat[where] = next_marker
+        next_marker += 1
+    labels = watershed(-distance, markers, mask=binary)
+    areas = np.bincount(labels.ravel())
+    keep = areas >= max(1, int(min_area))
+    keep[0] = False
+    lookup = np.zeros(areas.size, dtype=np.int32)
+    lookup[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
+    return lookup[labels]
+
+
+def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
+                          overlap: str = "clip",
+                          min_area: int = 0) -> Tuple[np.ndarray, List[int]]:
+    """Add a region's objects to ``mask`` as new objects.
+
+    What a live-magnifier click commits. The labels arrive in the region's
+    own coordinates and ``origin`` is where the region's top-left pixel sits
+    in the image, so an object at ``labels[r, c]`` lands on
+    ``mask[origin_y + r, origin_x + c]``. Anything that would fall outside
+    the image is dropped rather than wrapped or clamped.
+
+    :param mask: the label image to copy and add to. Its objects keep their
+        ids; the dtype widens only when a new id needs it.
+    :param labels: label image in region coordinates. Each distinct positive
+        value is one object.
+    :param origin: ``(x, y)`` of ``labels[0, 0]`` in image pixels.
+    :param overlap: one of :data:`_MAGNIFIER_OVERLAP_RULES` -- what a new
+        object does where the mask is already labelled. Under ``clip`` an
+        object that an existing one splits in two keeps only its largest
+        piece, because one id must name one object.
+    :param min_area: an object left smaller than this once the rule has been
+        applied is not added.
+    :returns: ``(mask, new_ids)``. New ids start one past the mask's top id
+        (:func:`next_label`) and follow the incoming labels' order, so they
+        cannot collide with any id the mask holds. Nothing added returns a
+        copy of ``mask`` and an empty list.
+    :raises ValueError: for an unknown ``overlap`` rule.
+    """
+    if overlap not in _MAGNIFIER_OVERLAP_RULES:
+        raise ValueError(
+            f"overlap must be one of {_MAGNIFIER_OVERLAP_RULES}, "
+            f"not {overlap!r}")
+    incoming = np.asarray(labels)
+    height, width = mask.shape[:2]
+    ox, oy = int(origin[0]), int(origin[1])
+    x0, y0 = max(0, ox), max(0, oy)
+    x1 = min(width, ox + incoming.shape[1])
+    y1 = min(height, oy + incoming.shape[0])
+    if x1 <= x0 or y1 <= y0:
+        return mask.copy(), []
+    incoming = incoming[y0 - oy:y1 - oy, x0 - ox:x1 - ox]
+    values = [int(v) for v in np.unique(incoming) if int(v) > 0]
+    if not values:
+        return mask.copy(), []
+    occupied = np.asarray(mask)[y0:y1, x0:x1] > 0
+    out = mask.astype(np.int64, copy=True)
+    window = out[y0:y1, x0:x1]
+    new_id = next_label(mask)
+    added: List[int] = []
+    for value in values:
+        body = incoming == value
+        if overlap == "skip" and bool((body & occupied).any()):
+            continue
+        if overlap == "clip":
+            body = body & ~occupied
+            pieces, count = _ndimage().label(body, structure=_EIGHT)
+            if count > 1:
+                areas = np.bincount(pieces.ravel())
+                areas[0] = 0
+                body = pieces == int(np.argmax(areas))
+        if int(body.sum()) < max(1, int(min_area)):
+            continue
+        window[body] = new_id
+        added.append(new_id)
+        new_id += 1
+    if not added:
+        return mask.copy(), []
+    return _fit_label_width(out, mask), added
+
+
 
 #: How many pixels the wand may EXAMINE per pixel it is allowed to change.
 #:
@@ -790,23 +1064,6 @@ def magic_wand(
     visited = np.zeros(image.shape[:2], dtype=bool)
     q = deque([(seed_x, seed_y)])
     added = 0
-    # A SECOND BUDGET, ON WORK RATHER THAN ON CHANGES.
-    #
-    # `added` counts only pixels that CHANGE state, which is the budget a
-    # user thinks in -- "fill at most this many". But a flood that changes
-    # nothing never increments it, so `added < max_pixels` stayed true
-    # forever and the search walked the entire frame. Erasing where the
-    # mask is already empty, or adding over ground the mask already owns,
-    # is the most ordinary wrong click there is: measured at 4.8 s on an
-    # 800x800 field with max_pixels=100, and roughly half a minute at
-    # 2048x2048, with the GUI unresponsive and no way to cancel.
-    #
-    # So visits are bounded too. The multiplier is generous on purpose --
-    # a legitimate fill examines its region AND the out-of-tolerance
-    # perimeter around it, and a thin structure can have as much perimeter
-    # as area -- so this stops the pathological case without shortening
-    # any fill a user would recognise. The floor keeps small budgets
-    # workable, since a max_pixels of 10 still needs room to look around.
     examined = 0
     visit_budget = max(VISIT_BUDGET_FACTOR * max_pixels,
                        max_pixels + VISIT_BUDGET_FLOOR)
@@ -836,9 +1093,6 @@ def magic_wand(
     return out
 
 
-# ---------------------------------------------------------------------------
-# Undo history — small bounded ring of mask snapshots
-# ---------------------------------------------------------------------------
 
 class MaskHistory:
     """Bounded undo/redo stack of mask arrays. Deep-copies on push so
@@ -899,37 +1153,6 @@ class MaskHistory:
         return np.array(snap, copy=True)
 
 
-# ---------------------------------------------------------------------------
-# Recrop — cutting one field into the several fields it should have been
-# ---------------------------------------------------------------------------
-#
-# Every other tool in this module edits the mask on the field in view.
-# Recrop is the one that changes WHICH field is in view: a staged crop that
-# holds several cells, wells or plaques is not one training example, and
-# curating it as though it were teaches the network that two objects are one
-# picture. So the user boxes each one, every box becomes a field of its own
-# carrying that region of BOTH the image and the draft mask, and the
-# multi-object original is retired rather than curated.
-#
-# WHAT spaCR CAN AND CANNOT RETIRE. The Make Masks queue is a FOLDER:
-# :func:`list_images` sorts the image files in it and the screen walks that
-# list, with each mask at ``<folder>/masks/<stem>.tif``. spaCR does have a
-# crop DATABASE -- ``png_list`` in ``measurements.db``, which is what the
-# Annotate app and the classifiers read -- but it is keyed on each crop's
-# absolute ``png_path`` and carries no lifecycle column: there is no field in
-# it that can be set to "recropped", and no row that a screen reading a
-# folder has any claim to rewrite. So the original CANNOT be marked retired
-# in spaCR's database the way the standalone marks it in its status CSV.
-#
-# The nearest thing that is recoverable, and what these functions do, is to
-# move the original out of the enumeration and leave every byte of it on
-# disk: image, mask and curation ledger go into ``<folder>/recropped_originals/``
-# (the mask keeping its ``masks/`` sub-layout), which :func:`list_images`
-# does not descend into, and :data:`RECROP_MANIFEST` inside that folder
-# records what was moved, which boxes were cut out of it and what the
-# children were called. A recrop drawn wrong is undone by moving two files
-# back; a dataset registered in ``png_list`` can be repointed from the
-# manifest rather than from a guess.
 
 #: Smallest side, in image pixels, a recrop box may have. A box smaller than
 #: this is a mis-click or the tail of a drag that never really started, and

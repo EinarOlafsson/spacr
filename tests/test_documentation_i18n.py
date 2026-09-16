@@ -125,7 +125,62 @@ TOOLS = ROOT / "tools"
 #: spacr.qt.screens, 14 spacr.settings, 12 spacr.qt.widgets. All nine API
 #: catalogs were regenerated AND repaired before this number moved, which is
 #: the order the assertion's own message asks for.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_478
+# 2026-09-14: 10,478 -> 10,531. Moved by SET DIFFERENCE against the symbol
+# list at f15be8dd2, not by accepting the new total: 53 added, 0 removed, and
+# every addition attributable --
+#     36  spacr.curation_queue        (396, a new module)
+#      8  spacr.cli_make_masks        (396, a new module)
+#      5  spacr.graph_types           (293)
+#      2  spacr.style_base            (291: font_names, font_rc)
+#      1  MakeMasksScreen.open_queue  (396)
+#      1  GroupedPlot.starting_mark   (293)
+# A total that merely rose by 53 would look the same if 53 arrived and 53 of
+# something else quietly left, which is why the baseline set is differenced
+# rather than the counts subtracted.
+# 10,531 -> 10,533 on 2026-09-14: +2 / -0 by set difference --
+# spacr.embeddings.EmbeddingSpec.__post_init__ and
+# spacr.ops_store.Readiness.__bool__, two dunders that already existed
+# and were undocumented. Documenting them is what admits them.
+#
+# THIS NUMBER LIVES IN FOUR FILES: here, test_documentation_i18n,
+# test_api_i18n_extractor (twice) and test_docstring_correctness. It has
+# now been moved twice and BOTH TIMES some siblings were missed and found
+# a day later by a sweep. Grep the literal before believing one edit was
+# enough.
+# 10,533 -> 10,534 on 2026-09-15, +1: `spacr.graph_types.mark_to_start_on`,
+# the helper that reads the Default Graph Type setting and answers in the
+# drawing code's vocabulary (graph_types spells `bar_jitter`, spacrGraph draws
+# `jitter_bar`). Its sibling QC helper became private in the same batch
+# because only one module calls it. Catalogued with reviewed records in all
+# nine languages. NOT A COMPLETE CENSUS: the inventory walks `def`s, so a
+# public name bound by assignment (`canonical_app_key = _normalize_app`) enters
+# the API without moving this number.
+# 10,534 -> 10,541 on 2026-09-15 (372 PART 14-M): +7 / -0 by set difference
+# against nightly 3f27b926a (the same seven moved c3f562c4f's 10,533 to
+# 10,540 before the rebase) -- spacr.ops_engine and spacr.ops_engine.run_ops,
+# spacr.ops_cycles.AlignedField and align_field, spacr.ops_sbs.attribute_reads
+# and assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. Their
+# blocks carry reviewed records in all nine locales.
+# 10,541 -> 10,521 on 2026-09-15, +0 / -20 by set difference against
+# the switch commit when the old OPS engine was deleted: the 17 symbols of
+# the old engine's module and `spacr.settings.set_default_stitch`,
+# `set_default_multichannel` and `set_default_general`, the old
+# stitcher's defaults, which nothing called.
+# 10,521 -> 10,523 on 2026-09-15: `spacr.barcode_search.SearchThresholds` and
+# its `__post_init__`. The count is the live surface, measured; the catalogs
+# are NOT regenerated for the two, so the inventory half of the test below
+# names them as missing until the pre-release catalog rebuild runs.
+# 10,523 -> 10,539 on 2026-09-15, +16 / -0 by set difference against
+# nightly dca970671:
+# spacr.qt.make_masks_demo and its seven public functions (412), and
+# spacr.install_cleanup with InstallRecord, RemovalReport,
+# RemovalReport.ok, find_old_installs, remove_install,
+# run_update_sequence and start_update_helper (416). 413 rewrote two
+# existing docstrings and added none. The live surface with those sixteen
+# keys dropped is 10,523, the previous value. Their blocks carry reviewed
+# records in all nine locales
+# (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_539
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
@@ -429,6 +484,96 @@ def test_historical_api_reuse_rejects_unverified_context_hashes():
     ) == {source: "Retorna o estado da tarefa."}
 
 
+def test_api_repair_recovers_history_after_the_manifest_was_rewritten(
+    tmp_path, monkeypatch,
+):
+    """A rewritten ``en.json`` must not cost a changed docstring its old paragraphs.
+
+    On 2026-09-15 ``--sources-only`` ran before ``--repair-api-blocks``, so
+    the working-tree manifest already held the NEW English. No paragraph of a
+    changed docstring could be proven unchanged (``historical_reused=0`` in
+    all nine locales), and eleven that had passed the audit the commit
+    before, and were in no cache, came back exact English. The committed
+    manifest still held the previous English; the repair now reads it as the
+    second candidate, bound by the same source hash.
+    """
+    import argparse
+    import shutil
+    import subprocess
+
+    import build_documentation_i18n as builder
+
+    if shutil.which("git") is None:
+        pytest.skip("git is not available")
+
+    key = "spacr.example"
+    old_source = "Return the task status.\n\nKeep the saved image."
+    old_target = "Retorna o estado da tarefa.\n\nMantém a imagem salva."
+    new_source = "Return the processing status.\n\nKeep the saved image."
+    new_block = "Return the processing status."
+    new_target = "Retorna o estado do processamento."
+    repo = tmp_path / "repo"
+    api_dir = repo / "api"
+    api_dir.mkdir(parents=True)
+    (api_dir / "en.json").write_text(
+        json.dumps(builder._english_manifest({key: old_source})),
+        encoding="utf-8",
+    )
+    (api_dir / "pt.json").write_text(
+        json.dumps({
+            "schema": 2,
+            "language": "pt",
+            "symbols": {key: {
+                "source_sha256": builder._source_hash(old_source),
+                "source_blocks_sha256":
+                    builder._source_block_hashes(old_source),
+                "translation_source_blocks_sha256":
+                    builder._translation_source_block_hashes(old_source),
+                "text": old_target,
+            }},
+        }),
+        encoding="utf-8",
+    )
+    git = [
+        "git", "-C", str(repo),
+        "-c", "user.name=spaCR test", "-c", "user.email=test@example.invalid",
+        "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null",
+    ]
+    subprocess.run([*git, "init", "-q"], check=True)
+    subprocess.run([*git, "add", "api"], check=True)
+    subprocess.run([*git, "commit", "-q", "-m", "previous English"], check=True)
+    # What --sources-only did first: the working tree now holds the NEW
+    # English, and only the commit remembers the old.
+    (api_dir / "en.json").write_text(
+        json.dumps(builder._english_manifest({key: new_source})),
+        encoding="utf-8",
+    )
+    reviewed = tmp_path / "reviewed"
+    reviewed.mkdir()
+    monkeypatch.setattr(builder, "ROOT", repo)
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    captured = {}
+
+    def fake_translate(blocks, language, model_root, args, **kwargs):
+        captured["blocks"] = list(blocks)
+        return {new_block: new_target}
+
+    monkeypatch.setattr(builder, "_translate_blocks", fake_translate)
+    repaired = builder.repair_api_translations(
+        {key: new_source},
+        "pt",
+        tmp_path / "models",
+        argparse.Namespace(),
+    )
+    # Only the paragraph whose English changed goes to the model; the
+    # unchanged one is carried from the translated catalog.
+    assert captured["blocks"] == [new_block]
+    assert repaired == {
+        key: f"{new_target}\n\nMantém a imagem salva."
+    }
+
+
 def test_reviewed_api_blocks_are_exact_bound_accepted_only_evidence(
     tmp_path, monkeypatch,
 ):
@@ -475,6 +620,114 @@ def test_reviewed_api_blocks_are_exact_bound_accepted_only_evidence(
     evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
     with pytest.raises(ValueError, match="stale reviewed API context"):
         builder.reviewed_api_block_translations(docs, "pt")
+
+
+def _reviewed_pt_block(tmp_path, monkeypatch, builder, label, source, target):
+    """Point the builder at one accepted Portuguese reviewed API record."""
+    import hashlib
+
+    reviewed = tmp_path / "reviewed"
+    (reviewed / "pt").mkdir(parents=True)
+    (reviewed / "pt" / "tail.json").write_text(json.dumps({
+        "schema": 1,
+        "language": "pt",
+        "records": [{
+            "label": label,
+            "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+            "source": source,
+            "context": builder._api_translation_source(source),
+            "translation": target,
+        }],
+    }), encoding="utf-8")
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+
+
+def test_plain_api_build_publishes_accepted_review_instead_of_decoding_it(
+    tmp_path, monkeypatch,
+):
+    """The plain build published English over an accepted reviewed record.
+
+    On 2026-09-15, 410's ``spacr.embeddings.embed_array#1`` shipped the
+    English context expansion in es, zh_CN, pt, ko and is. Each locale had
+    an accepted reviewed record for that block. ``_translate_api_documents``
+    never read reviewed evidence, the model's decode of that block failed,
+    and the fallback is the model input. The fake model here fails the same
+    way: it echoes its input, so decoding the reviewed block would publish
+    English again.
+    """
+    import build_documentation_i18n as builder
+
+    key = "spacr.example"
+    reviewed_block = "Return the processing session status."
+    target = "Retorna o estado da sessão de processamento."
+    other_block = "Keep the saved image."
+    other_target = "Mantém a imagem salva."
+    _reviewed_pt_block(
+        tmp_path, monkeypatch, builder, f"{key}#0", reviewed_block, target,
+    )
+    other_context = builder._api_translation_source(other_block)
+    captured = []
+
+    def echoing_translate(blocks, language, model_root, args, **kwargs):
+        blocks = list(blocks)
+        captured.append(blocks)
+        return {
+            block: other_target if block == other_context else block
+            for block in blocks
+        }
+
+    monkeypatch.setattr(builder, "_translate_blocks", echoing_translate)
+    translated = builder._translate_api_documents(
+        {key: f"{reviewed_block}\n\n{other_block}"}, "pt", tmp_path, object(),
+    )
+    assert captured == [[other_context]]
+    assert translated == {key: f"{target}\n\n{other_target}"}
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("a fully reviewed document must not load a model")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    assert builder._translate_api_documents(
+        {key: reviewed_block}, "pt", tmp_path, object(),
+    ) == {key: target}
+
+
+def test_plain_api_build_restores_accepted_review_over_reused_model_text(
+    tmp_path, monkeypatch,
+):
+    """Reuse keeps a stored entry whole, which must not outrank review.
+
+    A record written for a block whose English did not change leaves the
+    entry's hashes current, so ``reusable_api_translations`` hands back the
+    stored model text. The overlay replaces exactly the reviewed block and
+    returns every other entry unchanged.
+    """
+    import inspect
+
+    import build_documentation_i18n as builder
+
+    key = "spacr.example"
+    reviewed_block = "Return the processing session status."
+    target = "Retorna o estado da sessão de processamento."
+    other_target = "Mantém a imagem salva."
+    _reviewed_pt_block(
+        tmp_path, monkeypatch, builder, f"{key}#0", reviewed_block, target,
+    )
+    docs = {
+        key: f"{reviewed_block}\n\nKeep the saved image.",
+        "spacr.other": "Keep the other image.",
+    }
+    stored = {
+        key: f"Retorna o status da sessão.\n\n{other_target}",
+        "spacr.other": "Mantém a outra imagem.",
+    }
+    assert builder._reviewed_api_overlay(docs, stored, "pt") == {
+        key: f"{target}\n\n{other_target}",
+        "spacr.other": "Mantém a outra imagem.",
+    }
+    # The plain build is the caller that skipped review; hold it to the
+    # overlay rather than only the helper.
+    assert "_reviewed_api_overlay(" in inspect.getsource(builder.main)
 
 
 def test_reviewed_api_validation_waives_only_copied_prose_heuristics():
@@ -552,6 +805,137 @@ def test_api_repair_keeps_a_source_bound_reviewed_false_friend(
         docs, "de", tmp_path / "models", argparse.Namespace(),
     )
     assert repaired == {"spacr.example": target}
+
+
+def _integration_review_record(language, label):
+    """Read one actual source-bound record from the item-406 incident."""
+    path = (ROOT / "docs" / "i18n" / "reviewed" / "api" / language
+            / "2026-09-15-integration-review.json")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return next(record for record in payload["records"]
+                if record["label"] == label and not record.get("retired"))
+
+
+@pytest.mark.parametrize("catalog_state", ["missing", "current"])
+@pytest.mark.parametrize("language,label,rewrite_passes", [
+    pytest.param("pt", "spacr.qt.widgets.outlier_model#27", False,
+                 id="portuguese-rewrite-rejected"),
+    pytest.param("de", "spacr.schema.add_screen_column#3", True,
+                 id="german-rewrite-still-passes"),
+])
+def test_api_repair_publishes_reviewed_target_verbatim_after_contextual_rewrite(
+    tmp_path, monkeypatch, capsys, catalog_state, language, label, rewrite_passes,
+):
+    """An accepted review is neither rewritten nor replaced with English.
+
+    The Portuguese review's ``poço fora`` becomes ``bem fora`` and fails
+    the semantic gate. The German review is changed but still passes: an
+    unresolved-count assertion alone would miss that regression entirely.
+    Both targets come from the actual source-bound integration reviews.
+    """
+    import argparse
+
+    import build_documentation_i18n as builder
+
+    record = _integration_review_record(language, label)
+    source, target = record["source"], record["translation"]
+    context = builder._api_translation_source(source)
+    assert record["context"] == context
+    key = label.rpartition("#")[0]
+    docs = {key: source}
+    reviewed = tmp_path / "reviewed"
+    language_dir = reviewed / language
+    language_dir.mkdir(parents=True)
+    # The fixture contains just the incident paragraph, so its index is zero;
+    # its actual English, source hash, context and reviewed target are intact.
+    evidence_path = language_dir / "incident.json"
+    evidence_path.write_text(json.dumps({
+        "schema": 1, "language": language,
+        "records": [{**record, "label": f"{key}#0"}],
+    }), encoding="utf-8")
+    evidence_bytes = evidence_path.read_bytes()
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+
+    assert builder.reviewed_api_block_translations(docs, language) == {source: target}
+    rewritten = builder._contextualize(target, language, source)
+    assert rewritten != target
+    assert all(builder._reviewed_api_block_valid(text, rewritten, language)
+               for text in (source, context)) is rewrite_passes
+    if not rewrite_passes:
+        assert "scientific-well-as-adverb" in builder._semantic_false_friends(
+            source, rewritten, language,
+        )
+    if catalog_state == "current":
+        builder.write_language(docs, language, {key: target})
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("accepted reviewed evidence must not be decoded")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    repaired = builder.repair_api_translations(
+        docs, language, tmp_path / "models", argparse.Namespace(),
+    )
+    assert repaired == {key: target}
+    assert "unresolved=0" in capsys.readouterr().out
+    builder.write_language(docs, language, repaired)
+    published = json.loads((api_dir / f"{language}.json").read_text(encoding="utf-8"))
+    assert published["symbols"][key]["text"] == target
+    assert published["symbols"][key]["source_sha256"] == record["source_sha256"]
+    assert evidence_path.read_bytes() == evidence_bytes
+
+
+@pytest.mark.parametrize("catalog_state", ["missing", "current"])
+def test_api_repair_still_contextualizes_unreviewed_targets(
+    tmp_path, monkeypatch, capsys, catalog_state,
+):
+    """The verbatim exemption belongs to accepted evidence, not all targets."""
+    import argparse
+
+    import build_documentation_i18n as builder
+
+    language = "de"
+    record = _integration_review_record(language, "spacr.schema.add_screen_column#3")
+    source, target = record["source"], record["translation"]
+    key = "spacr.example"
+    docs = {key: source}
+    context = builder._api_translation_source(source)
+    rewritten = builder._contextualize(target, language, source)
+    assert rewritten != target
+    assert all(builder._api_block_valid(text, rewritten, language)
+               for text in (source, context))
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    # Deliberately omit the source-bound evidence. The same words in a
+    # catalog or decoder checkpoint do not acquire reviewed provenance.
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", tmp_path / "no_reviews")
+    if catalog_state == "current":
+        builder.write_language(docs, language, {key: target})
+    model_root = tmp_path / "models"
+    cache_dir = model_root / ".spacr_translation_cache"
+    cache_dir.mkdir(parents=True)
+    cache_path = cache_dir / f"{language}.json"
+    cache_path.write_text(json.dumps({
+        f"{builder.API_BLOCK_CACHE_NAMESPACE}\0{context}": target,
+    }), encoding="utf-8")
+    cache_bytes = cache_path.read_bytes()
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("valid catalog/cache candidates must avoid decoding")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    repaired = builder.repair_api_translations(
+        docs, language, model_root, argparse.Namespace(),
+    )
+    assert repaired == {key: rewritten}
+    assert "unresolved=0" in capsys.readouterr().out
+    builder.write_language(docs, language, repaired)
+    published = json.loads((api_dir / f"{language}.json").read_text(encoding="utf-8"))
+    assert published["symbols"][key]["text"] == rewritten
+    assert cache_path.read_bytes() == cache_bytes
 
 
 def test_api_audit_prefers_exact_source_bound_review_to_contextual_rewrite():
@@ -1302,15 +1686,6 @@ def test_canonical_indented_literal_shapes_are_never_translation_blocks():
         blocks, _layout = translatable_blocks(docs[key])
         assert not any(fragment in block for block in blocks), (key, fragment)
 
-    stitcher_blocks, _layout = translatable_blocks(
-        docs["spacr.spacrops.spacrStitcher"]
-    )
-    assert any(
-        "if True  → use RANSAC affine" in block
-        and "if False → translation-only" in block
-        for block in stitcher_blocks
-    )
-
 
 def test_code_definition_shape_inside_explicit_literal_block_stays_exact():
     from build_documentation_i18n import rebuild_document, translatable_blocks
@@ -1388,8 +1763,11 @@ def test_canonical_indented_api_explanations_are_translation_blocks():
             "``channel_arrays`` is exactly the array",
         "spacr.model_compare":
             "one model's settings, plus what of it survives.",
+        # Re-pointed 2026-09-15: item 63 (63d5cd86e) removed the bold around
+        # this sentence. reST cannot nest ``False`` inside **...**, so the
+        # old markup rendered its own asterisks.
         "spacr.power_model.scan_parameters":
-            "**Returning exactly ``False`` stops the sweep**",
+            "Returning exactly ``False`` stops the sweep",
     }
     for key, fragment in expected_fragments.items():
         blocks, _layout = translatable_blocks(docs[key])

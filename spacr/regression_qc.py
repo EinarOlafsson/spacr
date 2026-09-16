@@ -400,10 +400,6 @@ class RegressionQCContext:
         return self.fitted if self.decision_score is None else self.decision_score
 
 
-# ---------------------------------------------------------------------------
-# Statistics — public because they are what the tests assert on, and because
-# each is useful on its own from a notebook.
-# ---------------------------------------------------------------------------
 
 
 def leverage_from_design(X, weights=None):
@@ -443,9 +439,6 @@ def leverage_from_design(X, weights=None):
                 f"{Xm.shape[0]} rows")
         gram = Xm.T @ (Xm * w[:, None])
         hat = w * np.einsum("ij,jk,ik->i", Xm, np.linalg.pinv(gram), Xm)
-    # Numerically h can come out a hair outside [0, 1]; clipping keeps
-    # sqrt(1 - h) real. Anything materially outside the interval is a bug, so
-    # only the float noise is absorbed.
     if np.any(hat < -1e-6) or np.any(hat > 1 + 1e-6):
         raise ValueError(
             "hat-matrix diagonal outside [0, 1]; the design matrix or the "
@@ -556,7 +549,6 @@ def variance_inflation_factors(X, tol=1e-10):
     std = frame.std(ddof=1)
     varying = [c for c in frame.columns if np.isfinite(std[c]) and std[c] > 0]
     if len(varying) < 2:
-        # One varying predictor cannot be collinear with anything.
         for col in varying:
             out[col] = 1.0
         return out
@@ -569,9 +561,6 @@ def variance_inflation_factors(X, tol=1e-10):
 
     values = np.diag(np.linalg.pinv(corr)).astype(float).copy()
     if np.any(null_mask):
-        # A direction with (essentially) zero variance is an exact linear
-        # dependency; every column with weight in it is unidentified, and its
-        # VIF is infinite, not the finite number pinv would hand back.
         loading = np.abs(eigvecs[:, null_mask]).max(axis=1)
         values[loading > 1e-6] = np.inf
     for col, value in zip(varying, values):
@@ -604,9 +593,6 @@ def condition_number(X):
     if Xm.ndim != 2 or Xm.size == 0:
         raise ValueError(f"design matrix must be a non-empty 2-D array, got {Xm.shape}")
     norms = np.linalg.norm(Xm, axis=0)
-    # A genuinely all-zero column has no direction; scaling it by 1 leaves it
-    # zero, which is exactly what makes the matrix singular, and the singular
-    # value of 0 that follows is the honest answer.
     norms = np.where(norms > 0, norms, 1.0)
     scaled_sv = np.linalg.svd(Xm / norms, compute_uv=False)
     raw_sv = np.linalg.svd(Xm, compute_uv=False)
@@ -619,11 +605,6 @@ def condition_number(X):
             smallest is at or below NumPy's numerical-rank tolerance computed
             from its dtype and the captured design shape.
         """
-        # LAPACK implementations do not all return an exact zero for the
-        # same rank-deficient matrix. Use the numerical-rank threshold behind
-        # ``numpy.linalg.matrix_rank`` so a duplicated predictor is singular
-        # on every supported runner, including when roundoff leaves a tiny
-        # positive final singular value.
         tolerance = np.finfo(sv.dtype).eps * max(Xm.shape) * float(sv[0])
         if sv[-1] <= tolerance:
             return np.inf
@@ -694,10 +675,6 @@ def calibration_curve(y_true, y_pred, n_bins=10, weights=None, strategy="quantil
         edges = np.quantile(yp, np.linspace(0.0, 1.0, n_bins + 1))
         edges = np.unique(edges)
         if edges.size < 3:
-            # Predictions are (nearly) constant: quantile edges collapse and
-            # every point lands in one bin, which is not a curve. Fall back to
-            # equal width over the observed range so the panel still says
-            # something true, and let the caller see it in `n_bins`.
             edges = np.linspace(yp.min(), yp.max() + 1e-12, n_bins + 1)
     elif strategy == "uniform":
         edges = np.linspace(0.0, 1.0, n_bins + 1)
@@ -828,9 +805,6 @@ def residual_normality(resid, *, min_n=NORMALITY_MIN_N):
     values = values[np.isfinite(values)]
     n = int(values.size)
     if n < 3:
-        # skew and kurtosis of two points are not undefined so much as
-        # meaningless, and scipy returns them without complaint. Naming the
-        # count is the only honest answer.
         return {"skew": float("nan"), "excess_kurtosis": float("nan"),
                 "normality_statistic": float("nan"),
                 "normality_p": float("nan"),
@@ -910,9 +884,6 @@ def diagnose_p_value_histogram(p_values, n_bins=20):
 
     first = counts[0] / expected
     last = counts[-1] / expected
-    # The middle is the reference: it is where the null lives whatever the
-    # tails are doing, so comparing the ends to it (rather than to each other)
-    # keeps the verdict stable as the number of real hits changes.
     middle = counts[1:-1]
     middle_ratio = float(np.mean(middle) / expected) if middle.size else 1.0
     out["first_bin_ratio"] = float(first)
@@ -947,9 +918,6 @@ def diagnose_p_value_histogram(p_values, n_bins=20):
     return out
 
 
-# ---------------------------------------------------------------------------
-# Residual standardisation — one registry, keyed on the fitted model's class
-# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -1357,9 +1325,6 @@ def resolve_residual_standardisation(model, resid, n_obs, n_params):
     return result
 
 
-# ---------------------------------------------------------------------------
-# Context construction
-# ---------------------------------------------------------------------------
 
 
 def _as_frame(X):
@@ -1431,12 +1396,8 @@ def _decision_score(model, X, y):
     try:
         score = np.asarray(decision(X), dtype=float)
     except Exception:                               # noqa: BLE001
-        # An estimator that advertises decision_function and cannot run it on
-        # its own design is not a reason to lose the other twenty panels.
         return None
     if score.ndim != 1 or score.size != np.size(y):
-        # Multi-class one-vs-rest returns (n, k): there is no single ranking to
-        # draw one ROC from, so the panel falls back and says so.
         return None
 
     classes = getattr(model, "classes_", None)
@@ -1444,11 +1405,8 @@ def _decision_score(model, X, y):
         try:
             low, high = float(classes[0]), float(classes[1])
         except (TypeError, ValueError):
-            return score                            # non-numeric labels
+            return score
         if high < low:
-            # classes_[1] is the SMALLER label, so a larger decision value
-            # means a more NEGATIVE well. sklearn sorts classes_ and so never
-            # lands here; a hand-rolled or wrapped estimator can.
             return -score
     return score
 
@@ -1510,10 +1468,6 @@ def _well_labels(index, metadata, n):
                                for value in metadata[schema.PRC_KEY]])
         parts = [c for c in schema.WELL_KEY_COLUMNS if c in metadata.columns]
         if len(parts) == len(schema.WELL_KEY_COLUMNS):
-            # Pandas 3's extension dtypes can retain numeric scalars through
-            # ``astype(str)``; joining the rows then raises because ``join``
-            # receives floats.  Convert each scalar at the Python boundary so
-            # mixed numeric/string plate metadata always yields text labels.
             values = metadata[list(parts)].to_numpy(dtype=object)
             return np.asarray([
                 schema.KEY_SEPARATOR.join(str(value) for value in row)
@@ -1540,10 +1494,6 @@ def _align_metadata(metadata, index, n):
         metadata = pd.DataFrame(metadata)
     covered = 0
     if index is not None and metadata.index.is_unique:
-        # `index.isin(metadata.index)`, not the reverse: the question is
-        # whether every FITTED row can be found, and a duplicated metadata
-        # index would make .loc fan the frame out, so uniqueness is required
-        # before the lookup is allowed.
         found = pd.Index(index).isin(metadata.index)
         covered = int(found.sum())
         if covered == len(index):
@@ -1608,17 +1558,9 @@ def build_context(model, X, y, *, weights=None, metadata=None, coef_df=None,
         raise ValueError(
             f"weights has {w.size} entries but the fit has {n} observations")
 
-    # A weighted fit's hat matrix carries its weights. Take them from the model
-    # rather than from the caller: they are the weights `model.scale` was
-    # formed with, so they are the only ones that make the scale, the residual
-    # and the hat diagonal agree. A caller who passes cell counts that are not
-    # the fitted weights would otherwise get a leverage for a fit nobody ran.
     kind, model_class = _model_kind(model)
     fitted_weights = _fit_weights(model, n) if kind in ("WLS", "GLS") else None
 
-    # Leverage: prefer whatever the model itself computed, because for a GLM
-    # the IRLS weights belong in the hat matrix and the design matrix alone
-    # does not know them.
     leverage, source = None, ""
     getter = getattr(model, "get_hat_matrix_diag", None)
     if callable(getter):
@@ -1635,11 +1577,6 @@ def build_context(model, X, y, *, weights=None, metadata=None, coef_df=None,
                     influence().hat_matrix_diag, dtype=float).ravel()
                 source = "model.get_influence().hat_matrix_diag"
             except Exception:                   # noqa: BLE001
-                # statsmodels raises a different exception per model class for
-                # "influence is not defined here" (MixedLM, regularised fits);
-                # the fallback below is exact for the unweighted case and
-                # explicitly labelled, so a broad catch costs nothing but the
-                # attempt.
                 leverage = None
     if leverage is None or leverage.size != n:
         hat_weights = w if fitted_weights is None else fitted_weights
@@ -1661,10 +1598,6 @@ def build_context(model, X, y, *, weights=None, metadata=None, coef_df=None,
             std_resid = standardisation.base / np.sqrt(
                 scale * np.clip(1.0 - leverage, 1e-12, None))
     else:
-        # No correct scale exists for this model class. An all-NaN array is
-        # not a fallback: it is what forces the panels built on a standardised
-        # residual to skip, with `standardisation.reason` printed, instead of
-        # naming outlier wells off a number that is not a z-score.
         scale = float("nan")
         std_resid = np.full(n, np.nan)
 
@@ -1754,9 +1687,6 @@ def context_from_model(model, *, coef_df=None, regression_type=None,
                          volcano_path=volcano_path)
 
 
-# ---------------------------------------------------------------------------
-# Drawing helpers
-# ---------------------------------------------------------------------------
 
 
 def _finish(ax, title, xlabel, ylabel, n=None, unit="wells"):
@@ -1781,8 +1711,6 @@ def _note(ax, text, loc="upper left", color="#222222"):
     }[loc]
     ax.text(x, y, text, transform=ax.transAxes, ha=ha, va=va, fontsize=7,
             color=color, linespacing=1.35,
-            # 178 A: the same fault, the same fix -- this box carries the
-            # panel's own note in `color`, which follows the theme.
             bbox=dict(boxstyle="round,pad=0.3",
                       facecolor=resolve_label_ground(theme_target()),
                       edgecolor="#cccccc", alpha=0.85))
@@ -1817,24 +1745,6 @@ def _trend(ax, x, y, color=None, label=None):
     ax.plot(sx, sy, color=color, lw=WEIGHTS["data"], zorder=4,
             label=label)
 
-    # A TIE IS NOT A TREND.
-    #
-    # A well-level fit routinely has most of its fitted values identical --
-    # on the tsg101 screen 451 of 610 wells share one value to seven decimal
-    # places, because most wells carry the same guide mixture. LOWESS fits a
-    # local regression in a neighbourhood; where the neighbourhood is a
-    # single repeated x it is fitting a line through a vertical stack, and
-    # the smoothed value there is unconstrained. Two adjacent points 2e-6
-    # apart came back 0.12 apart.
-    #
-    # Taking the maximum over that included the artefact, so the panel
-    # reported |trend| max = 0.109 where the real curve away from the tie
-    # block spans 0.030 -- a 3.6x inflation, on the number the panel exists
-    # to report, in the one artist the panel draws in colour.
-    #
-    # So the trend is measured where x actually varies. The curve is still
-    # drawn in full: hiding the spike would hide the tie, and the tie is
-    # worth seeing.
     return float(_trend_off_the_ties(sx, sy))
 
 
@@ -1860,8 +1770,6 @@ def _trend_off_the_ties(sx, sy) -> float:
     span = float(np.ptp(sx))
     if span <= 0:
         return float("nan")
-    # A point is trustworthy when at least one of its neighbours is a real
-    # distance away in x.
     gap_before = np.diff(sx, prepend=sx[0] - span)
     gap_after = np.diff(sx, append=sx[-1] + span)
     trustworthy = (np.maximum(gap_before, gap_after) / span) > _TIE_SPAN
@@ -1902,11 +1810,6 @@ def _skip_box(ax, title, reason):
     """Draw the "this panel could not be computed, and here is why" tile."""
     ax.set_axis_off()
     ax.set_facecolor("#ececec")
-    # set_axis_off() hides the patch as well, so the grey tile has to be turned
-    # back on explicitly — otherwise a skipped panel is an invisible gap, which
-    # is precisely the failure mode this box exists to prevent. The dashed
-    # border does the same job at a glance: a reader scanning the page must be
-    # able to tell "not computed" from "computed and unremarkable".
     ax.patch.set_visible(True)
     ax.add_patch(Rectangle((0.02, 0.02), 0.96, 0.96, transform=ax.transAxes,
                            facecolor="none", edgecolor="#b0b0b0", lw=1.0,
@@ -1917,9 +1820,6 @@ def _skip_box(ax, title, reason):
             va="center", fontsize=7.5, color="#7a2020", transform=ax.transAxes)
 
 
-# ---------------------------------------------------------------------------
-# Panels — model fit
-# ---------------------------------------------------------------------------
 
 
 def _wells(n, unit="wells"):
@@ -1942,9 +1842,6 @@ def _fit_sample(ctx):
 def _panel_residuals_vs_fitted(ctx, ax):
     """Residual vs fitted: the single most informative regression diagnostic."""
     with figure_style(_REPORT_TARGET):
-        # The wells are the default ink. This panel asks exactly one question
-        # — is there structure left in the residuals — and the smoother is
-        # the answer, so the smoother is the only artist entitled to colour.
         ax.scatter(ctx.fitted, ctx.resid, s=18, color=ROLES["data"],
                    edgecolors="none", zorder=3)
         reference_line(ax, y=0.0)
@@ -1982,15 +1879,8 @@ def _panel_residual_distribution(ctx, ax):
         grid = np.linspace(resid.min(), resid.max(), 256)
         drew_kde = np.ptp(resid) > 0
         if drew_kde:
-            # A KDE on constant data raises inside scipy (singular covariance);
-            # the range check keeps that failure from reaching the report.
-            # The empirical density is what the panel is ABOUT — whether the
-            # residuals are normal — so it is the one thing that gets colour.
             ax.plot(grid, sps.gaussian_kde(resid)(grid),
                     color=ROLES["highlight"], lw=WEIGHTS["data"], zorder=4)
-        # The normal curve is a reference, not a result: grey, thin and
-        # dashed, exactly like style.reference_line, which cannot draw it
-        # because it is a curve rather than a horizontal or vertical rule.
         ax.plot(grid, sps.norm.pdf(grid, resid.mean(), resid.std(ddof=1) or 1e-12),
                 color=ROLES["reference"], lw=WEIGHTS["reference"],
                 ls=(0, (4, 3)), zorder=1)
@@ -1999,10 +1889,6 @@ def _panel_residual_distribution(ctx, ax):
             entries.insert(0, ("KDE", ROLES["highlight"]))
         text_legend(ax, entries)
 
-        # ONE STATEMENT OF THE VERDICT, shared with the summary -- see
-        # `residual_normality`. The panel and `spacr.regression_summary`
-        # print the same three numbers about the same residuals, and they
-        # only stay the same three numbers because there is one function.
         shape = residual_normality(resid)
         skew = shape["skew"]
         kurt = shape["excess_kurtosis"]
@@ -2010,9 +1896,6 @@ def _panel_residual_distribution(ctx, ax):
         pval = shape["normality_p"]
         test = shape["test"]
         ink = _house_axes(ax, "residual distribution", "residual", "density")
-        # The n moved off the title and into the note: the descriptor says
-        # which panel this is, the note carries everything a reader needs to
-        # judge the number.
         annotate(ax, f"{_wells(resid.size)}\nskew = {skew:+.2f}\n"
                      f"excess kurtosis = {kurt:+.2f}\n"
                      f"{test} = {statistic:.3g}, p = {pval:.3g}"
@@ -2050,8 +1933,6 @@ def _panel_scale_location(ctx, ax):
     fitted, root = ctx.fitted[good], root[good]
     rho, rho_p = sps.spearmanr(fitted, root)
 
-    # Brown-Forsythe: Levene centred on the median, which is the version that
-    # survives the heavy-tailed residuals screen data actually produces.
     levene_p, sd_ratio = float("nan"), float("nan")
     resid = ctx.resid[good]
     if good.sum() >= 20 and np.ptp(fitted) > 0:
@@ -2067,8 +1948,6 @@ def _panel_scale_location(ctx, ax):
                 try:
                     levene_p = float(sps.levene(*groups, center="median")[1])
                 except ValueError:
-                    # scipy refuses when a group is constant; that is a real
-                    # answer about the data, not a panel failure.
                     levene_p = float("nan")
 
     unequal = np.isfinite(levene_p) and levene_p < 0.01
@@ -2095,9 +1974,6 @@ def _panel_scale_location(ctx, ax):
                      f"Spearman rho = {rho:+.2f} (p = {rho_p:.2g})\n"
                      f"Brown-Forsythe p = {levene_p:.2g}\n"
                      f"max/min quartile SD = {sd_ratio:.2f}", colour=ink)
-        # The verdict is the one line a reader acts on, so it is the one line
-        # that changes colour: rust when the panel is saying the variance is
-        # not constant, plain ink when it is saying nothing is wrong.
         flat = verdict == "no detectable trend in spread"
         annotate(ax, verdict, y=0.78,
                  colour=ink if flat else ROLES["down"])
@@ -2116,8 +1992,6 @@ def _panel_qq_residuals(ctx, ax):
         raise PanelUnavailable(
             f"only {sample.size} finite standardised residual(s); a Q-Q plot "
             f"needs at least 5")
-    # Blom plotting positions: the standard choice, and unbiased for the
-    # normal order statistics that the reference line assumes.
     quantiles = sps.norm.ppf((np.arange(1, sample.size + 1) - 0.375)
                              / (sample.size + 0.25))
     q1_t, q3_t = sps.norm.ppf([0.25, 0.75])
@@ -2126,10 +2000,6 @@ def _panel_qq_residuals(ctx, ax):
     intercept = q1_s - slope * q1_t
     xs = np.array([quantiles[0], quantiles[-1]])
     corr = float(np.corrcoef(quantiles, sample)[0, 1])
-    # The numerical normality test belongs on the Q-Q panel as well as in the
-    # residual-distribution panel.  A Q-Q plot is otherwise an invitation to
-    # make an unrecorded visual judgement, and the manuscript diagnostic asks
-    # for the exact K-squared, skew and tail-weight values beside the points.
     shape = residual_normality(ctx.resid)
     skew = shape["skew"]
     kurt = shape["excess_kurtosis"]
@@ -2139,10 +2009,6 @@ def _panel_qq_residuals(ctx, ax):
     with figure_style(_REPORT_TARGET):
         ax.scatter(quantiles, sample, s=16, color=ROLES["data"],
                    edgecolors="none")
-        # The quartile line is a REFERENCE, not a result: the claim of this
-        # panel is whether the points follow it, so it is drawn the way every
-        # other threshold in the report is — thin, dashed and grey. It used
-        # to be the boldest artist on the axes.
         ax.plot(xs, intercept + slope * xs, color=ROLES["reference"],
                 lw=WEIGHTS["reference"], ls=(0, (4, 3)), zorder=0)
         ink = _house_axes(ax, "normal q-q", "theoretical normal quantile",
@@ -2183,10 +2049,6 @@ def _panel_observed_vs_predicted(ctx, ax):
     pearson = float(np.corrcoef(obs, pred)[0, 1]) if np.ptp(pred) > 0 else float("nan")
     with figure_style(_REPORT_TARGET):
         ax.scatter(pred, obs, s=18, color=ROLES["data"], edgecolors="none")
-        # The skill's own words for this plot: "scatter, grey, with a
-        # highlighted subset, dotted 1:1 diagonal". There is no subset to
-        # highlight here — the whole cloud is the answer — so the diagonal is
-        # dotted grey and nothing else is coloured.
         ax.plot([lo - pad, hi + pad], [lo - pad, hi + pad],
                 color=ROLES["reference"], lw=WEIGHTS["reference"],
                 ls=(0, (1, 2)), zorder=0)
@@ -2204,9 +2066,6 @@ def _panel_observed_vs_predicted(ctx, ax):
             "limitation": ctx.prediction_note}
 
 
-# ---------------------------------------------------------------------------
-# Panels — influence and leverage
-# ---------------------------------------------------------------------------
 
 
 def _panel_cooks_distance(ctx, ax):
@@ -2224,10 +2083,6 @@ def _panel_cooks_distance(ctx, ax):
     order = above[np.argsort(-np.nan_to_num(finite[above], nan=0.0))][:5]
     worst = int(np.nanargmax(finite)) if np.any(np.isfinite(finite)) else -1
     with figure_style(_REPORT_TARGET):
-        # The sentence is "these wells are influential", so the wells above
-        # the rule are the only thing on the panel that carries colour, and
-        # they are drawn from the same `above` set the stats report. Every
-        # other well is the grey it was always entitled to.
         ax.vlines(below, 0, heights[below], color=ROLES["data"],
                   lw=WEIGHTS["reference"])
         ax.vlines(above, 0, heights[above], color=ROLES["down"],
@@ -2240,9 +2095,6 @@ def _panel_cooks_distance(ctx, ax):
                         color=ROLES["down"])
         ink = _house_axes(ax, "cook's distance per well", "well (fit order)",
                           "cook's distance")
-        # The note goes to whichever top corner the worst well is NOT in: the
-        # tallest stem carries a label, and a fixed corner puts the two on top
-        # of each other whenever the worst well lands on that side.
         side = "left" if worst >= ctx.n / 2 else "right"
         edge = 0.02 if side == "left" else 0.98
         annotate(ax, f"{above.size} {ctx.fit_unit}(s) above 4/n",
@@ -2272,9 +2124,6 @@ def _panel_influence(ctx, ax):
     guides = [float(mult * ctx.p / ctx.n) for mult in _LEVERAGE_RULES]
     high = int(np.sum(ctx.leverage > guides[0]))
     with figure_style(_REPORT_TARGET):
-        # The five wells the panel NAMES are the five it colours. Labelling a
-        # well in one colour and drawing its bubble in another was the panel
-        # saying two different things about the same well.
         ax.scatter(ctx.leverage[~named], ctx.std_resid[~named],
                    s=sizes[~named], color=ROLES["data"], edgecolors="none")
         ax.scatter(ctx.leverage[named], ctx.std_resid[named], s=sizes[named],
@@ -2318,21 +2167,6 @@ def _panel_dffits(ctx, ax):
     above = np.where(magnitude > threshold)[0]
     below = np.setdiff1d(np.arange(ctx.n), above)
 
-    # A SATURATED ROW HAS leverage == 1 AND THEREFORE DFFITS == +inf, and the
-    # real tsg101 fit has 186 of them. `nan_to_num(magnitude, nan=0.0)` leaves
-    # the infinity alone except to swap it for 1.797e308, which overflows the
-    # y-autoscale; matplotlib then falls back to a DEGENERATE view,
-    # ylim == (-1e-12, 1e-12). Everything positioned in DATA coordinates --
-    # `reference_line`'s label at y = threshold, the well labels -- lands
-    # about 1e12 axes-heights off the page, so the tight bounding box is two
-    # trillion inches tall and `savefig(bbox_inches="tight")` raises out of
-    # the Agg renderer. That took down the whole combined report, not just
-    # this panel.
-    #
-    # So the DRAWING is clamped to the largest finite |DFFITS| while the
-    # STATISTICS below are left exactly as they were: `max_abs_dffits` is
-    # still `inf` and an unbounded well is still in `flagged`. Clamping the
-    # number instead of the mark would be a re-analysis.
     finite = magnitude[np.isfinite(magnitude)]
     ceiling = float(finite.max()) if finite.size else 0.0
     ceiling = max(ceiling, float(threshold), 1e-12)
@@ -2350,8 +2184,6 @@ def _panel_dffits(ctx, ax):
                         fontsize=TYPE_SCALE["annotation"],
                         textcoords="offset points", xytext=(2, 2),
                         color=ROLES["down"])
-        # Explicit, because a single unbounded well is enough to make the
-        # autoscale useless even after the heights are clamped.
         ax.set_ylim(0.0, ceiling * 1.08)
         ink = _house_axes(ax, "dffits per well", "well (fit order)",
                           "|dffits| (fitted-value shift, in standard errors)")
@@ -2362,20 +2194,12 @@ def _panel_dffits(ctx, ax):
         annotate(ax, f"{_wells(ctx.n)}\n"
                      f"max = {np.nanmax(magnitude):.3g}",
                  x=edge, y=0.91, ha=side, colour=ink)
-    # `n_points` so the verdict can score the FRACTION above the line rather
-    # than the maximum. 2*sqrt(p/n) is a screening threshold that a correct
-    # model is EXPECTED to exceed for a few percent of observations, so on 400
-    # wells the largest |DFFITS| is routinely twice it and a rule read off the
-    # maximum flags a clean fit -- measured, and it did.
     return {"threshold": float(threshold), "n_above": int(above.size),
             "n_points": int(ctx.n),
             "max_abs_dffits": float(np.nanmax(magnitude)),
             "flagged": [str(ctx.labels[i]) for i in above]}
 
 
-# ---------------------------------------------------------------------------
-# Panels — design and collinearity
-# ---------------------------------------------------------------------------
 
 
 #: Where the panels in this module are going, and therefore which ink they get.
@@ -2425,29 +2249,13 @@ def _house_axes(ax, text, xlabel, ylabel, target=None):
     ax.set_ylabel(ylabel, fontsize=TYPE_SCALE["label"], color=ink)
     ax.tick_params(colors=ink, labelsize=TYPE_SCALE["tick"],
                    width=WEIGHTS["spine"], length=2.6)
-    # MINOR ticks on the same terms. ``tick_params`` defaults to
-    # ``which='major'``, and a log axis grows a second, minor set: without
-    # this line the cell-count panel labelled its minor decades at
-    # matplotlib's default 10 pt, larger than the axis label at 7 and half
-    # again the major ticks at 6.2, which made "2 x 10^2" the loudest type in
-    # the figure. Set unconditionally — an axis with no minor ticks is
-    # unaffected, and a panel that adds a log scale keeps the setting.
     ax.tick_params(which="minor", colors=ink, labelsize=TYPE_SCALE["tick"],
                    width=WEIGHTS["spine"], length=1.4)
     for side, spine in ax.spines.items():
-        # Cell-style L framing: left and bottom only.
         spine.set_visible(side in ("left", "bottom"))
         spine.set_color(ink)
         spine.set_linewidth(WEIGHTS["spine"])
     ax.set_facecolor(TRANSPARENT)
-    # NO GRIDLINES. EVER — the style module's own words. ``rc()`` sets
-    # ``axes.grid`` False, but rcParams decide an artist's fate when it is
-    # CREATED and the report driver creates this axes outside the style
-    # context. That is exactly why the ink, the type and the spines are
-    # pushed on here instead of being left to the context manager, and the
-    # grid belongs on that list: any caller holding a global grid-on style
-    # (``spacr.figure_style.apply`` defaults ``grid`` to True) otherwise
-    # rules a spreadsheet through every panel in this report.
     ax.grid(False, which="both")
     return ink
 
@@ -2482,12 +2290,6 @@ def _panel_vif(ctx, ax):
     positions = np.arange(len(shown))
     n_inf = int(np.sum(~np.isfinite(usable)))
     with figure_style(_REPORT_TARGET):
-        # Grey and RUST, and nothing else. The traffic light this replaces
-        # spent GREEN on a healthy VIF, and GREEN is `up` in the shared
-        # vocabulary: a reader who learned that from the coefficient forest
-        # would read "no collinearity problem" as "called, upregulated". It
-        # also coloured every bar, so on a healthy design the panel shouted in
-        # three hues while claiming nothing.
         colors = [ROLES["down"] if v > 10 else ROLES["data"] for v in shown]
         ax.barh(positions, plot_values.to_numpy(), color=colors, zorder=1)
         ax.set_yticks(positions)
@@ -2495,28 +2297,13 @@ def _panel_vif(ctx, ax):
                            fontsize=TYPE_SCALE["annotation"])
         ax.invert_yaxis()
         for guide in (5.0, 10.0):
-            # style.reference_line parks a rule at zorder 0, which is right
-            # for a scatter and wrong for bars: the bars would cover the very
-            # thresholds they are meant to be read against. Lifted just above
-            # them; still thin, still dashed, still grey. Unlabelled, because
-            # the x axis already has a tick at 5 and at 10 and the note below
-            # counts how many predictors are past each -- the old rotated
-            # "VIF=5" tag was ink laid over the top bar to say what two ticks
-            # were already saying.
             reference_line(ax, x=guide).set_zorder(2)
         for pos, value in zip(positions, shown):
             if not np.isfinite(value):
                 ax.text(plot_values.iloc[pos], pos, "  inf (aliased)",
                         fontsize=TYPE_SCALE["annotation"],
                         color=ROLES["down"], va="center", zorder=3)
-        # Room for the "inf (aliased)" tags to the right of the longest bar,
-        # and never less than the VIF = 10 guide, which on a healthy design
-        # sits far beyond every bar and still has to be on the panel.
         ax.set_xlim(0.0, max(float(np.nanmax(plot_values)) * 1.45, 11.5))
-        # Room UNDER the last bar for the note. A ranked-bar panel has no
-        # empty corner -- the old note was a white box laid over the bottom
-        # five bars and their aliasing tags, which is what a box is for and
-        # exactly why the style has none.
         ax.set_ylim(len(shown) + 4.5, -0.5)
         ink = _house_axes(ax, "variance inflation",
                           "variance inflation factor", "")
@@ -2544,40 +2331,18 @@ def _panel_condition_number(ctx, ax):
                                   if singular.size else 0)))
     severe = scaled >= 30
     with figure_style(_REPORT_TARGET):
-        # The spectrum has no minority to highlight — its SHAPE is the claim —
-        # so the bars stay grey and the colour is spent on the verdict, which
-        # is the only thing here that can be a warning.
         ax.bar(positions, np.where(singular > 0, singular, np.nan),
                color=ROLES["data"])
         ax.set_yscale("log")
         positive = singular[singular > 0]
         if positive.size:
             top, bottom = float(positive.max()), float(positive.min())
-            # Headroom for the verdict, measured in decades rather than
-            # pixels. The old panel wrote the number at 0.88 of the axes and
-            # the verdict at 0.75, both straight over the bars, which on any
-            # design with a full-height spectrum made both unreadable. A fixed
-            # multiplier cannot work either: a healthy spectrum spans a
-            # fraction of one decade and a singular one spans sixteen. The
-            # floor of 3 is for the orthonormal case, where the spectrum is
-            # flat and proportional headroom would be no headroom at all.
             span = max(top / bottom, 1.0)
             ax.set_ylim(bottom / 2.0, top * max(span ** 0.55, 3.0))
         ink = _house_axes(ax, "design conditioning",
                           "singular value, largest first",
                           "singular value of the column-scaled X")
-        # All three blocks are one left-aligned column in the headroom, and
-        # not, as before, a centred headline over the bars with the numbers in
-        # the bottom-left corner. A singular-value spectrum starts at the axes
-        # floor, so on a design whose bars span the panel there IS no
-        # bottom-left corner; and anything centred collides with anything
-        # right-aligned once the panel is a 4.6-inch cell on the combined
-        # page rather than a figure of its own.
         warning = ROLES["down"] if severe else ink
-        # One tier up from an annotation, because this number IS the panel —
-        # the bars are only the evidence for it. RUST when the design is
-        # badly conditioned, plain ink when it is not; never GREEN, which in
-        # the shared vocabulary means "called up" and would read as a result.
         ax.text(0.02, 0.98,
                 f"scaled condition number = {_readable_number(scaled)}",
                 transform=ax.transAxes, ha="left", va="top",
@@ -2605,9 +2370,6 @@ def _panel_predictor_correlation(ctx, ax):
     limit = 40
     truncated = varying.shape[1] > limit
     if truncated:
-        # Beyond ~40 rows the cells are smaller than the axis labels, so the
-        # heatmap stops being readable. Keep the predictors with the largest
-        # spread, which are the ones carrying the design.
         keep = varying.std(ddof=1).sort_values(ascending=False).head(limit).index
         varying = varying[keep]
     corr = np.corrcoef(varying.to_numpy(dtype=float), rowvar=False)
@@ -2616,18 +2378,8 @@ def _panel_predictor_correlation(ctx, ax):
     flat = np.abs(off)
     worst = np.unravel_index(int(np.argmax(flat)), flat.shape)
     with figure_style(_REPORT_TARGET):
-        # THE DIVERGING MAP STAYS. The skill permits one exactly here:
-        # "diverging colormaps appear only for genuinely signed quantities",
-        # and Pearson r on [-1, 1] is the example. Mapping it to the
-        # categorical palette or to Palette.SEQUENTIAL would put r = -0.9 and
-        # r = +0.9 at the same lightness and destroy the panel's only
-        # encoding. The grey-plus-highlight rule does not apply either: there
-        # is no minority to pick out, because the whole matrix is the claim.
         image = ax.imshow(corr, cmap="RdBu_r", vmin=-1, vmax=1)
         bar = ax.figure.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
-        # Named on the ticks, so the axes are not labelled "predictor" twice
-        # over the names themselves; named on the axes when there are too many
-        # predictors to tick, so the reader still knows what the grid is.
         named = varying.shape[1] <= 25
         ink = _house_axes(ax, "predictor correlation",
                           "" if named else "predictor",
@@ -2640,30 +2392,19 @@ def _panel_predictor_correlation(ctx, ax):
         if named:
             ax.set_xticks(range(varying.shape[1]))
             ax.set_yticks(range(varying.shape[1]))
-            # 20 characters, not 14. Every predictor in a spaCR screen design
-            # is named `fraction:grna[<id>]`, and 14 is the length of the
-            # prefix -- every tick came out reading `fraction:grna[`.
             ax.set_xticklabels([str(c)[:20] for c in varying.columns],
                                fontsize=TYPE_SCALE["legend"])
             ax.set_yticklabels([str(c)[:20] for c in varying.columns],
                                fontsize=TYPE_SCALE["legend"])
-            # 45 degrees right-aligned, not the 90 this drew before: the skill
-            # pins the angle, and a vertical label reads a word at a time.
             rotate_ticks(ax, 45)
         else:
             ax.set_xticks([])
             ax.set_yticks([])
-        # 28 characters, not 18. Every predictor in a spaCR screen design is
-        # named `fraction:grna[<id>]`, and 18 cut every one of them inside the
-        # bracket -- "between fraction:grna[2130 and fraction:grna[2276" names
-        # no pair at all.
         caption = (f"largest |r| = {flat.max():.2f} between "
                    f"{str(varying.columns[worst[0]])[:28]} and "
                    f"{str(varying.columns[worst[1]])[:28]}")
         if truncated:
             caption += f"\ntop {limit} of {ctx.X.shape[1]} predictors by spread"
-        # Below the rotated tick labels when there are any, below the axis
-        # label when there are not.
         annotate(ax, caption, x=0.5, y=-0.34 if named else -0.16,
                  ha="center", va="top", colour=ink)
     return {"n_predictors": int(varying.shape[1]),
@@ -2673,9 +2414,6 @@ def _panel_predictor_correlation(ctx, ax):
             "truncated": bool(truncated)}
 
 
-# ---------------------------------------------------------------------------
-# Panels — response and coefficients
-# ---------------------------------------------------------------------------
 
 
 def _coefficient_table(ctx):
@@ -2727,27 +2465,15 @@ def _panel_coefficient_forest(ctx, ax, top_n=25):
     with figure_style(_REPORT_TARGET):
         if has_ci:
             crosses_zero = ((shown["lower"] <= 0) & (shown["upper"] >= 0))
-            # Grey unless the interval excludes zero, and then the sign picks
-            # the colour -- the same rule, the same two hues, as
-            # spacr.figures.panels.effect_rank, so a reader who has learned
-            # green/rust from the volcano sheet reads this panel for free.
             colours = np.where(
                 crosses_zero.to_numpy(), ROLES["data"],
                 np.where(shown["coefficient"].to_numpy() > 0,
                          ROLES["up"], ROLES["down"]))
-            # hlines from lower to upper is exactly what errorbar drew from
-            # (coefficient - lower, upper - coefficient); the caps are gone
-            # because a cap is ink that carries no number, and the interval
-            # can now take one colour per term, which errorbar's single
-            # `ecolor` could not.
             ax.hlines(positions, shown["lower"].to_numpy(),
                       shown["upper"].to_numpy(), colors=colours,
                       linewidth=1.0, zorder=1)
         else:
             crosses_zero = pd.Series(False, index=shown.index)
-            # No interval means nothing has been called, so nothing is
-            # coloured. A penalised fit whose every term came out green or
-            # rust would be stating a claim the fit never made.
             colours = np.full(len(shown), ROLES["data"])
         ax.scatter(shown["coefficient"], positions, s=14, c=colours,
                    linewidths=0, zorder=2)
@@ -2797,8 +2523,6 @@ def _panel_p_value_histogram(ctx, ax):
     counts, edges = diag["counts"], diag["edges"]
     bad = diag["verdict"] in ("excess-large", "u-shaped", "anti-uniform")
     with figure_style(_REPORT_TARGET):
-        # No bar edge. The old white 0.4pt edge drew white gaps between the
-        # bars, which on a transparent or dark ground is a comb of light.
         ax.bar(edges[:-1], counts, width=np.diff(edges), align="edge",
                color=ROLES["fill"], edgecolor="none")
         reference_line(ax, y=diag["expected"], label="uniform")
@@ -2806,10 +2530,6 @@ def _panel_p_value_histogram(ctx, ax):
                           "number of coefficients")
         annotate(ax, f"{_wells(diag['n'], 'coefficients')}\nsource: {source}",
                  x=0.98, ha="right", colour=ink)
-        # The verdict is the only thing on this panel that can be a warning,
-        # so it is the only thing entitled to a colour. RUST when the shape
-        # says the fit is wrong, plain ink when it is not — a verdict drawn
-        # red on a healthy histogram teaches the reader to ignore red.
         ax.text(0.5, -0.22, textwrap.fill(diag["message"], 64),
                 transform=ax.transAxes, ha="center", va="top",
                 fontsize=TYPE_SCALE["annotation"],
@@ -2819,9 +2539,6 @@ def _panel_p_value_histogram(ctx, ax):
             "frac_below_0.05": diag["frac_below_0.05"],
             "first_bin_ratio": diag["first_bin_ratio"],
             "last_bin_ratio": diag["last_bin_ratio"],
-            # Too few coefficients to read a shape is a real limitation of the
-            # panel, not a clean pass — it is reported as PARTIAL so nobody
-            # quotes the histogram of a five-term model.
             "limitation": (diag["message"] if diag["verdict"] == "too-few"
                            else None)}
 
@@ -2834,8 +2551,6 @@ def _panel_response_distribution(ctx, ax):
     bins = int(np.clip(np.sqrt(finite.size), 10, 60))
     family = ctx.family + (f" / {ctx.link} link" if ctx.link else "")
     with figure_style(_REPORT_TARGET):
-        # The whole distribution IS the claim here — there is no minority to
-        # highlight — so every bar is the house fill and nothing is coloured.
         ax.hist(finite, bins=bins, color=ROLES["fill"], edgecolor="none")
         ink = _house_axes(ax, "response distribution", "response value",
                           "wells")
@@ -2980,8 +2695,6 @@ def _panel_count_fit(ctx, ax):
                edgecolors="none")
     hi = float(max(np.nanmax(ctx.fitted), np.nanmax(ctx.y)))
     ax.plot([0, hi], [0, hi], color=_ACCENT, ls="--", lw=1.2, label="identity")
-    # Poisson's own +/- 2 SD envelope: outside it the mean-variance assumption
-    # is visibly failing, which is the whole point of the panel.
     grid = np.linspace(0, hi, 128)
     ax.fill_between(grid, np.maximum(grid - 2 * np.sqrt(grid), 0),
                     grid + 2 * np.sqrt(grid), color=_GUIDE, alpha=0.18,
@@ -3000,9 +2713,6 @@ def _panel_count_fit(ctx, ax):
             "n_outside_2sd": outside}
 
 
-# ---------------------------------------------------------------------------
-# Panels — screen level
-# ---------------------------------------------------------------------------
 
 
 def _grouped_residuals(ctx, column):
@@ -3014,11 +2724,6 @@ def _grouped_residuals(ctx, column):
         raise PanelUnavailable(
             f"metadata has no {column!r} column (present: "
             f"{', '.join(map(str, ctx.metadata.columns[:8]))})")
-    # Pandas 3 preserves missing values when ``astype(str)`` is applied to
-    # its native string dtype.  The resulting object array contains ``nan``;
-    # since ``nan != nan``, grouping on it creates a named but empty group and
-    # silently drops every well whose position is missing.  Normalise scalars
-    # at the Python boundary and give missing positions a stable display name.
     keys = np.asarray([
         "<missing>" if pd.isna(value) else str(value)
         for value in ctx.metadata[column].to_numpy(dtype=object)
@@ -3061,8 +2766,6 @@ def _positional_effect_panel(ctx, ax, column, label, mark_edges):
     try:
         _, kruskal_p = sps.kruskal(*[v for v in values if v.size])
     except ValueError:
-        # scipy refuses when every value is identical; that is a legitimate
-        # answer ("no difference"), not a failure of the panel.
         kruskal_p = float("nan")
 
     edge_delta = float("nan")
@@ -3073,9 +2776,6 @@ def _positional_effect_panel(ctx, ax, column, label, mark_edges):
     edge_artefact = bool(np.isfinite(edge_delta)
                          and abs(edge_delta) > 0.5 * np.nanstd(ctx.resid))
 
-    # Who carries colour. Grey by default; the edge claim overrides the
-    # largest-median one where the two name the same group, so a fired edge
-    # statistic is never quietly recoloured into something else.
     marks = [ROLES["data"]] * len(groups)
     summaries = [ROLES["control_negative"]] * len(groups)
     if np.isfinite(kruskal_p) and kruskal_p < _POSITION_ALPHA:
@@ -3091,8 +2791,6 @@ def _positional_effect_panel(ctx, ax, column, label, mark_edges):
                          showfliers=False)
         for index, colour in enumerate(summaries):
             box["boxes"][index].set(color=colour, lw=WEIGHTS["spine"])
-            # The median bar is the number a reader actually takes off this
-            # panel, so it is the one artist drawn at data weight.
             box["medians"][index].set(color=colour, lw=WEIGHTS["data"])
             for part in ("whiskers", "caps"):
                 for artist in box[part][2 * index:2 * index + 2]:
@@ -3100,8 +2798,6 @@ def _positional_effect_panel(ctx, ax, column, label, mark_edges):
         for i, v in enumerate(values):
             jitter = (np.random.default_rng(i).uniform(-0.16, 0.16, v.size)
                       if v.size > 1 else np.zeros(1))
-            # The skill's superplot exception: the small raw points are
-            # the only marks allowed alpha, so the summary reads on top.
             ax.scatter(i + jitter, v, s=4.5, alpha=0.5, color=marks[i],
                        edgecolors="none",
                        zorder=4 if marks[i] != ROLES["data"] else 3)
@@ -3111,18 +2807,9 @@ def _positional_effect_panel(ctx, ax, column, label, mark_edges):
         names = [str(g)[:10] for g in groups]
         ax.set_xticklabels(names)
         ink = _house_axes(ax, f"residuals by {label}", label, "residual")
-        # 45 degrees is the rule for labels that would not fit flat. `r16` and
-        # `c24` do fit, and rotating them costs a third of the panel's height
-        # for nothing; `plate1` does not.
         if max(len(name) for name in names) > 3:
             rotate_ticks(ax, 45)
 
-        # "observations", not "wells": `ctx.n` counts DESIGN ROWS, which is
-        # one per well only when the design has one row per well. The
-        # guide-level screen designs put several rows in a well -- the real
-        # tsg101 fit has 1,945 of them across 610 wells -- and every one is a
-        # mark here. Saying "wells" would misstate the unit of replication by
-        # a factor of three on the screen this panel was verified against.
         text = (f"{len(groups)} {label}s, n = {ctx.n:,} observations\n"
                 f"Kruskal-Wallis p = {kruskal_p:.2g}\n"
                 f"largest |median| = {medians[worst]:+.3g} ({groups[worst]})")
@@ -3192,9 +2879,6 @@ def _panel_cell_count_vs_effect(ctx, ax):
     extreme = mag > 2.0
     frac_low = (float(np.mean(x[extreme] <= low_cut)) if np.any(extreme)
                 else float("nan"))
-    # The panel's whole sentence is "the tails are the small wells", and
-    # until now it was stated only in the text block while every point on the
-    # axes wore the same colour. These are the wells the sentence is about.
     driving = extreme & (x <= low_cut)
     with figure_style(_REPORT_TARGET):
         ax.scatter(x[~driving], mag[~driving], s=18, color=ROLES["data"],
@@ -3207,13 +2891,6 @@ def _panel_cell_count_vs_effect(ctx, ax):
         ink = _house_axes(ax, "cell count vs residual",
                           "cells in well (log scale)",
                           "|standardised residual|")
-        # The log axis grows minor ticks; `_house_axes` inks AND sizes both
-        # sets, so there is nothing left to do here. It used to be done in
-        # this panel and only for the colour, which left the minor decade
-        # labels at matplotlib's 10 pt — the largest type in the figure.
-        # Right-hand corner, not left: the decile guide is the 10th percentile
-        # of the counts, so it is always near the left edge and its label runs
-        # up the top of the axes -- exactly where a left-hand note sits.
         annotate(ax, f"{_wells(int(good.sum()))}\n"
                      f"Spearman rho = {rho:+.2f} (p = {pval:.2g})\n"
                      f"10th pct count = {low_cut:.0f} cells\n"
@@ -3254,8 +2931,6 @@ def _panel_volcano_reference(ctx, ax):
         body = (textwrap.fill("The volcano plot for this run was written by "
                               "spacr.plot.volcano_plot to", 52)
                 + f"\n\n{os.path.basename(ctx.volcano_path)}\n\n"
-                # Wrapped: the real screen's results folder is 79 characters
-                # and ran off both sides of the panel.
                 + textwrap.fill(f"in {os.path.dirname(ctx.volcano_path) or '.'}",
                                 52))
         state = "referenced"
@@ -3282,9 +2957,6 @@ def _panel_volcano_reference(ctx, ax):
     return {"state": state, "volcano_path": ctx.volcano_path}
 
 
-# ---------------------------------------------------------------------------
-# Panel registry
-# ---------------------------------------------------------------------------
 
 _PANELS: Tuple[Tuple[str, str, str, Callable[[Any, Any], Dict[str, Any]]], ...] = (
     ("residuals_vs_fitted", "Residuals vs fitted", "fit", _panel_residuals_vs_fitted),
@@ -3343,41 +3015,6 @@ _GROUP_TITLES = (
 )
 
 
-# ---------------------------------------------------------------------------
-# THE VERDICT: what the panel CONCLUDED, on the panel (instruction 115).
-#
-# Requested 2026-08-16 -- "i want the module to test everything relevant to
-# regression like coliniarity, homogenicity, residual analasys and so on, all
-# of these graphs should be saved".
-#
-# THE PANELS AND THE NUMBERS WERE ALREADY THERE. Twenty-three panels, each
-# returning its own statistics dict, and a text report listing every one of
-# them. What was missing is the step a reader had to do by hand: deciding, per
-# panel, whether the number is fine. A Q-Q plot with a `quantile_correlation`
-# of 0.982 printed beside it tells a statistician something and tells everyone
-# else nothing, and a suite of twenty of those is twenty judgements a user is
-# quietly expected to make -- which is how a run with a rank-deficient design
-# and a plate effect gets reported as "the QC looked fine".
-#
-# SO EACH PANEL SCORES ITSELF, AND THE VERDICT IS DRAWN ON THE PANEL. Not in a
-# summary table somewhere else: instruction 139 C made saved and visible one
-# event for the same reason, and a verdict a reader has to go and find is a
-# verdict that gets found after the figure has already been believed.
-#
-# THREE RULES THE THRESHOLDS FOLLOW.
-#   * They are the CONVENTIONAL ones, cited where there is a convention (VIF
-#     of 5 and 10, a scaled condition number of 30 and 100, Cook's D of 0.5
-#     and 1, p >= 0.05 for a diagnostic test). A threshold invented here would
-#     be a number a reviewer cannot check.
-#   * A DIAGNOSTIC TEST'S p IS BACKWARDS, and this is the commonest way to
-#     read one wrong: a LARGE p is the good outcome, because the null is "the
-#     assumption holds". Every rule below that reads a p is written in that
-#     direction, and the sentence beside it says so.
-#   * "check" IS NOT "fail". A screen with real hits has a p-value spike at
-#     zero, a real design has some leverage, and a plate effect may be
-#     biology. The middle level says a human should look; only the level above
-#     it says the fit is not entitled to its inference.
-# ---------------------------------------------------------------------------
 
 #: What a diagnostic can conclude, worst last.
 VERDICT_LEVELS = ("unknown", "pass", "check", "fail")
@@ -3543,9 +3180,6 @@ def _score_observed_vs_predicted(stats):
     r2 = _number(stats, "r2")
     if r2 is None:
         return PanelVerdict("unknown", "no R² was computed")
-    # NOT A PASS/FAIL OF THE MODEL. A screen's guide-level fit explains a
-    # small fraction of well-to-well variation and is still the correct
-    # model; a near-zero R² is worth SEEING rather than worth failing.
     level = "pass" if r2 >= 0.1 else "check"
     return PanelVerdict(
         level,
@@ -3797,9 +3431,6 @@ def _score_precision_recall(stats):
     if average is None or prevalence is None:
         return PanelVerdict("unknown", "no average precision was computed")
     lift = average / prevalence if prevalence else None
-    # A BIGGER LIFT IS THE BETTER OUTCOME, the same way a bigger AUC is, so
-    # the thresholds are read downwards: below 1.1x the model is no better
-    # than the base rate.
     level = _band(lift, 1.5, 1.1, above_is_bad=False)
     return PanelVerdict(
         level,
@@ -3971,11 +3602,6 @@ def draw_verdict(ax, verdict) -> None:
     ax.text(0.02, 0.02, f"{verdict.word}  {verdict.headline}",
             transform=ax.transAxes, ha="left", va="bottom",
             fontsize=TYPE_SCALE["annotation"], color=ink, zorder=6,
-            # THE BOX FOLLOWS THE THEME TOO (178 A). It was hard-coded
-            # white while its text is `ink` -- which on the dark theme IS
-            # white -- so the verdict was drawn, was there, and could not be
-            # read. A label that is invisible at one theme setting is the
-            # exact fault this instruction names.
             bbox=dict(boxstyle="round,pad=0.28",
                       facecolor=resolve_label_ground(theme_target()),
                       edgecolor=ink, linewidth=WEIGHTS["spine"], alpha=0.9))
@@ -4039,9 +3665,6 @@ def draw_panel(name, ctx, ax):
     return fn(ctx, ax)
 
 
-# ---------------------------------------------------------------------------
-# Report driver
-# ---------------------------------------------------------------------------
 
 
 def _save(fig, path, fmt=None, renderer=None, title=None):
@@ -4062,11 +3685,6 @@ def _save(fig, path, fmt=None, renderer=None, title=None):
 
     written, drew, why = write_figure(fig, path, fmt=fmt, renderer=renderer,
                                       title=title, bbox_inches="tight")
-    # Figures built via matplotlib.figure.Figure are not registered with
-    # pyplot, so there is nothing for plt.close() to close; dropping the last
-    # reference is the whole clean-up. clf() is belt-and-braces for the case
-    # where a panel parked a callback on the figure. It happens AFTER the
-    # publish, because a cleared figure has nothing left to render.
     fig.clf()
     return (written or path), drew, why
 
@@ -4090,9 +3708,6 @@ def format_qc_report(manifest):
              f"unique wells     : {manifest.get('n_unique_wells')}",
              f"predictors       : {manifest.get('n_predictors')}",
              f"leverage source  : {manifest.get('leverage_source')}",
-             # The residual scale is on the header because it sets every |z|
-             # on the influence panels, and getting it wrong is silent: the
-             # wells are still named, they are just the wrong wells.
              f"standardised by  : {manifest.get('residual_scale')}",
              f"standardised what: {manifest.get('standardised_quantity')}",
              f"output directory : {manifest.get('directory')}", ""]
@@ -4114,10 +3729,6 @@ def format_qc_report(manifest):
         for panel in panels:
             head = f"  [{panel.status.upper():<7}] {panel.title}"
             lines.append(head)
-            # THE VERDICT FIRST, because it is the line a reader acts on and
-            # the statistics under it are the evidence for it. A report that
-            # lists eight numbers and then concludes is a report whose
-            # conclusion is read last or not at all.
             if panel.verdict is not None and panel.verdict.level != "unknown":
                 lines.append(f"      verdict: {panel.verdict.word} — "
                              f"{panel.verdict.headline}")
@@ -4158,8 +3769,6 @@ def format_qc_report(manifest):
     lines.append("=" * 60)
     lines.append(f"{written} panel(s) drawn, {len(skipped)} skipped, "
                  f"{len(failed)} failed")
-    # THE WORST VERDICT, NAMED, AND EVERY PANEL THAT REACHED IT. A count of
-    # passes is the summary that hides the one panel the suite was run for.
     counts = manifest.get("verdict_counts") or {}
     if counts:
         lines.append("verdicts: " + ", ".join(
@@ -4265,10 +3874,6 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
 
     from .figures.scene import scene_renderer
 
-    # DECIDED ONCE, FOR THE WHOLE SUITE. Asking per panel is not the same
-    # question asked twenty times: an earlier attempt elsewhere in this project
-    # drew one run's first figure in matplotlib and its other six in pyqtgraph,
-    # because the first figure itself changed the answer.
     renderer, renderer_reason = scene_renderer(renderer)
     drawn_by: Dict[str, int] = {}
     fell_back: List[Tuple[str, str]] = []
@@ -4289,9 +3894,6 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
             fig.clf()
             if strict:
                 raise
-            # A diagnostic that crashes must be loud (it is printed and it is
-            # on the report as FAILED) but must not destroy a fit that already
-            # succeeded and cost an hour.
             message = f"{type(exc).__name__}: {exc}"
             if verbose:
                 print(f"[regression_qc] panel {name!r} failed: {message}")
@@ -4299,32 +3901,14 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
                                          status="failed", reason=message))
             continue
         limitation = stats.get("limitation") if isinstance(stats, dict) else None
-        # SCORED AFTER IT DREW, STAMPED BEFORE IT IS WRITTEN. The verdict is
-        # read off the statistics the panel just returned, so it cannot
-        # disagree with the numbers printed beside it, and the axes is still
-        # open -- which is what lets the judgement go ON the panel rather than
-        # into a table the reader has to go and find.
         verdict = score_panel(name, stats)
         draw_verdict(ax, verdict)
-        # No extension unless the caller forced one: `save_figure` appends the
-        # one that matches the format it actually writes.
         path = os.path.join(out_dir, name if not fmt else f"{name}.{fmt}")
         fig.tight_layout()
-        # THE PATH THAT WAS WRITTEN, not the one that was asked for. `_save`
-        # goes through `spacr.plot.save_figure`, which rewrites the extension
-        # to the user's figure-format preference -- so with the preference on
-        # PNG this recorded `residuals_vs_fitted.pdf` for a file that is
-        # `residuals_vs_fitted.png` on disk. Every consumer of the manifest
-        # (the text report, `written`, the gallery link) then named a file
-        # that does not exist, which is "saved but I cannot see it" wearing a
-        # different hat.
         path, drew, why = _save(fig, path, fmt=fmt, renderer=renderer,
                                 title=title)
         drawn_by[drew] = drawn_by.get(drew, 0) + 1
         if renderer == "pyqtgraph" and drew != renderer and why:
-            # Only when the SUITE was going to be drawn by pyqtgraph. Naming
-            # twenty panels as having "fallen back" on a machine that never had
-            # Qt is twenty lines saying the one thing the header already said.
             fell_back.append((name, why))
         results.append(QCPanelResult(
             name=name, title=title, group=group,
@@ -4341,12 +3925,6 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         if renderer == "pyqtgraph" and drew != renderer and why:
             fell_back.append(("regression_qc_report", why))
 
-        # A compact, stable OLS-only sheet for a supplement.  The complete
-        # report above remains the audit trail; this second page contains just
-        # the eight assumption/influence/batch panels a reader needs together.
-        # It is emitted only when the caller requested the full set, so a
-        # deliberately narrow ``panels=[...]`` call still writes exactly what
-        # it asked for.
         if (str(regression_type or "").strip().lower() == "ols"
                 and set(OLS_ASSUMPTION_PANELS).issubset(selected)):
             assumptions_path, drew, why = _write_combined_page(
@@ -4383,10 +3961,6 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         "residual_scale_reason": (ctx.standardisation.reason
                                   if ctx.standardisation is not None else None),
         "notes": list(ctx.notes),
-        # WHICH LIBRARY DREW THEM, recorded rather than assumed. A user
-        # comparing a figure in a run folder against a tab on screen has to be
-        # able to find out which one they are holding, and the answer varies
-        # per machine.
         "renderer": renderer,
         "renderer_counts": dict(drawn_by),
         "renderer_fallbacks": list(fell_back),
@@ -4397,9 +3971,6 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
     manifest["verdict_counts"] = {
         level: sum(1 for v in verdicts if v.level == level)
         for level in VERDICT_LEVELS}
-    # THE SUITE'S OWN VERDICT IS ITS WORST PANEL. Nineteen passes and one
-    # rank-deficient design is a run whose coefficients are one of infinitely
-    # many solutions; "95% passed" is the sentence that loses that.
     worst = worst_verdict(verdicts)
     manifest["verdict"] = worst
     manifest["verdict_level"] = worst.level if worst else "unknown"
@@ -4453,10 +4024,6 @@ def _write_qc_numbers(out_dir, manifest, results) -> Optional[str]:
         if value is None or isinstance(value, (bool, int, str)):
             return value
         if isinstance(value, float):
-            # NaN and inf are real answers here -- a test with no finite
-            # p-value is not the same as a test that was not run -- and
-            # `json.dump` writes them as bare NaN, which is not JSON and
-            # which `json.load` in another process may refuse.
             return value if np.isfinite(value) else None
         if isinstance(value, (np.integer,)):
             return int(value)
@@ -4476,9 +4043,6 @@ def _write_qc_numbers(out_dir, manifest, results) -> Optional[str]:
         "n_observations": manifest.get("n_observations"),
         "n_unique_wells": manifest.get("n_unique_wells"),
         "n_predictors": manifest.get("n_predictors"),
-        # FLAT, and per panel. Flat is what a reader wants -- one lookup for
-        # "the normality p-value" -- and the per-panel copy is what keeps it
-        # honest when two panels measure something with the same name.
         "panels": {r.name: _plain(dict(r.stats or {})) for r in results},
         "verdicts": {
             name: _plain({"level": v.level, "word": v.word,
@@ -4497,10 +4061,6 @@ def _write_qc_numbers(out_dir, manifest, results) -> Optional[str]:
         manifest["numbers"] = path
         return path
     except Exception as error:                                   # noqa: BLE001
-        # A run is not worth losing to a failure in its own bookkeeping --
-        # but it is said out loud, because the advisor reading this file is
-        # the only thing that notices it is missing, and it notices by going
-        # quiet.
         print(f"[regression_qc] could not write {QC_NUMBERS_FILE}: "
               f"{type(error).__name__}: {error}")
         return None
@@ -4531,16 +4091,9 @@ def _write_combined_page(ctx, results, out_dir, selected, fmt=None,
             continue
         try:
             fn(ctx, ax)
-            # THE VERDICT THE PANEL ALREADY REACHED, not a second opinion.
-            # Re-scoring the redraw would let the combined page and the
-            # individual file disagree about the same panel, which is exactly
-            # the failure this suite exists to catch elsewhere.
             if show_verdicts:
                 draw_verdict(ax, result.verdict)
         except Exception as exc:                # noqa: BLE001
-            # The panel drew a moment ago on its own figure, so this can only
-            # be an axes-specific problem; state it rather than leaving a
-            # blank tile.
             ax.clear()
             _skip_box(ax, title, f"redraw failed: {type(exc).__name__}: {exc}")
     for slot in range(len(order), n_rows * n_cols):

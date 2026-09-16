@@ -12,10 +12,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from .figures.style import figure_style, theme_target
+from .object_roles import ORGANELLE_ROLES
 from .style_base import SHARED_CHOICES, FigureStyle
 
 #: Explanations for the controls in the measurement-comparison panel.
@@ -220,10 +218,6 @@ def control_wells(counts: "pd.DataFrame", typed, *,
     guides = counts[guide_column]
     genes = counts[gene_column] if gene_column in counts.columns else None
     names = [str(g) for g in pd.Series(guides).astype(str).unique()]
-    # ONE NAME IS A NAME, NOT FOUR LETTERS. `resolve_controls` iterates its
-    # argument, so a bare string arrives as a sequence of characters and
-    # every one of them resolves to nothing. The control field hands over a
-    # list; a caller with one control in hand should not have to know that.
     wanted = [typed] if isinstance(typed, str) else list(typed or ())
     found: List[str] = []
     for spec in resolve_controls(wanted, names=names) or ():
@@ -297,7 +291,7 @@ class Comparison:
 
     measurement: str
     level: str
-    frame: pd.DataFrame            # long: group, value, and the unit id
+    frame: pd.DataFrame
     statistics: List[Dict[str, Any]] = field(default_factory=list)
     note: str = ""
 
@@ -389,12 +383,6 @@ def build(objects: pd.DataFrame, measurement: str, *,
         picked = objects.index.isin(list(members))
         labels[picked] = str(name)
 
-    # ------------------------------------------------------- the contrast
-    # WHICH ROWS ARE "the rest" IS THE QUESTION (187 B). The same annotated
-    # cells against the rest of their own well, against the controls, and
-    # against every other well are three different experiments, and the
-    # default -- everything else, wherever it is -- is the one that mixes
-    # all three together.
     contrast = str(contrast or "")
     chosen_note = ""
     keep = pd.Series(True, index=objects.index)
@@ -411,8 +399,6 @@ def build(objects: pd.DataFrame, measurement: str, *,
         annotated = labels.astype(str) != REST
         theirs = set(where[annotated].astype(str))
 
-        # THE CHOSEN WELLS FIRST, because every contrast below is defined
-        # against the annotation that is actually being used.
         if wells is not None:
             wanted = {str(w) for w in wells}
             left_out = theirs - wanted
@@ -428,10 +414,6 @@ def build(objects: pd.DataFrame, measurement: str, *,
             mine = set(where[annotated].astype(str))
             keep &= annotated | (rest & where.astype(str).isin(mine))
         elif contrast == "against_other_wells":
-            # `theirs`, NOT `mine`: a well excluded from the annotation is
-            # excluded, full stop. Letting it back in as "another well"
-            # would put the very rows the user threw out on the other side
-            # of the comparison.
             keep &= annotated | (rest & ~where.astype(str).isin(theirs))
         elif contrast == "against_controls":
             named = {str(w) for w in (controls or ())}
@@ -462,21 +444,9 @@ def build(objects: pd.DataFrame, measurement: str, *,
                   f"{', '.join(_unit_columns(level))} on the object rows, "
                   f"and they are not there"))
     for key in keys:
-        # `.loc[work.index]` because the contrast may have dropped rows:
-        # assigning the FULL column onto a shorter frame aligns on the index
-        # and leaves NaN wherever the two disagree, which then joins every
-        # such row into one well named "nan".
         work[key] = objects[key].astype(str).loc[work.index]
     work = work.dropna(subset=["value"])
 
-    # NOTHING LEFT IS AN ANSWER, NOT A CRASH. Every other empty case in this
-    # function returns a Comparison carrying the reason, and this one used to
-    # raise instead: on an empty frame `agg("_".join, axis=1)` hands back an
-    # empty DATAFRAME of the key columns rather than a Series, and assigning
-    # that to one column is a ValueError -- "Cannot set a DataFrame with
-    # multiple columns to the single column unit". It reached the user as a
-    # traceback out of the Cells tab's Compare dialog, from a measurement
-    # that simply held no numbers.
     if not len(work):
         return Comparison(
             measurement=measurement, level=level,
@@ -487,16 +457,11 @@ def build(objects: pd.DataFrame, measurement: str, *,
     if level == "cell":
         work["unit"] = work.index.astype(str)
     else:
-        # ONE ROW PER (unit, group), not per unit: see the docstring.
         work["unit"] = work[keys].agg("_".join, axis=1)
         work = (work.groupby(["unit", "group"], as_index=False)["value"]
                 .mean())
 
     note = ""
-    # THE CONTRAST IS NAMED FIRST, ahead of every other caveat, because it
-    # decides what the p-value below is a p-value ABOUT. A number from
-    # "within the well" and a number from "against every other well" are not
-    # comparable, and nothing else on the panel distinguishes them.
     said = contrast_note(contrast) if contrast else ""
     if said:
         label = next((l for c, l, _w in CONTRASTS if c == contrast), contrast)
@@ -504,9 +469,6 @@ def build(objects: pd.DataFrame, measurement: str, *,
     if chosen_note:
         note = ((note + " · ") if note else "") + chosen_note
     if dropped:
-        # SAID, ALWAYS. A comparison quietly computed on fewer rows than the
-        # user thinks is the kind of result that survives review and is
-        # wrong.
         note = ((note + " · ") if note else "") + (
             f"{dropped:,} row(s) left out: the denominator was zero or "
             f"missing, which has no value rather than an extreme one")
@@ -552,9 +514,6 @@ def with_statistics(comparison: Comparison) -> Comparison:
     for row in rows or []:
         row.setdefault("Level", comparison.level)
         row["Measurement"] = comparison.measurement
-        # THE ASSUMPTION CHECKS TRAVEL WITH THE RESULT. "where the variance
-        # and normality and n is noted and the correct test chosen" -- a test
-        # name without the checks that produced it cannot be reported.
         row["Normality"] = _summarise(normal)
         row["Equal variance"] = _summarise(levene)
         row["n per group"] = "; ".join(
@@ -594,9 +553,6 @@ def _summarise(result) -> str:
     return str(result)
 
 
-# --------------------------------------------------------------------------- #
-# Drawing                                                                      #
-# --------------------------------------------------------------------------- #
 
 
 def plot(comparison: Comparison, path: Optional[str] = None, *,
@@ -631,18 +587,11 @@ def plot(comparison: Comparison, path: Optional[str] = None, *,
     if not any(len(s) for s in series):
         return None
 
-    # GREY IS THE REST, COLOUR IS THE CLAIM. More than one gene gets the
-    # palette in its fixed order rather than a colormap, so the same gene is
-    # the same colour in every panel of a figure.
     highlight = [HOUSE.BLUE, HOUSE.RUST, HOUSE.GREEN, HOUSE.PURPLE,
                  HOUSE.OCHRE, HOUSE.NAVY]
     colours = [HOUSE.GREY if g == REST else highlight[i % len(highlight)]
                for i, g in enumerate(order)]
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(1.5 + 1.15 * len(order), 3.6))
         positions = np.arange(len(order))
@@ -698,8 +647,6 @@ def plot(comparison: Comparison, path: Optional[str] = None, *,
 
         smallest = min((len(s) for s in series if len(s)), default=0)
         if kind == "bar" and 0 < smallest <= 8:
-            # Preserve the requested bar plot but identify when the sample is so
-            # small that showing individual observations would be more informative.
             axes.text(0.02, 0.98,
                       f"n = {smallest} in the smallest group: individual points "
                       f"say more than a bar here",
@@ -719,17 +666,12 @@ def plot(comparison: Comparison, path: Optional[str] = None, *,
         _readable(figure, axes)
         figure.tight_layout()
         if path:
-            # 108 point 6: the one writer, so a comparison saved from this
-            # panel is in the format every other kept figure is in.
             from .plot import save_figure
 
             save_figure(figure, path, bbox_inches="tight")
         return figure
 
 
-# --------------------------------------------------------------------------- #
-# Saving                                                                       #
-# --------------------------------------------------------------------------- #
 
 
 def save(comparison: Comparison, folder: str, *, kind: str = "jitter_box",
@@ -768,26 +710,15 @@ def save(comparison: Comparison, folder: str, *, kind: str = "jitter_box",
             for suffix in ("pdf", "png"):
                 path = os.path.join(folder, f"comparison.{suffix}")
                 try:
-                    # BOTH FORMATS ON PURPOSE (the folder is a deliverable),
-                    # so `fmt` is the loop's; everything else `save_figure`
-                    # does -- the DPI rule and the repaint for paper -- is
-                    # gained.
                     written[suffix] = save_figure(
                         figure, path, fmt=suffix, bbox_inches="tight")
                 except Exception:                            # noqa: BLE001
                     continue
         finally:
-            # ``save`` returns paths rather than the figure, so there is no
-            # caller that can own this pyplot registration.  Keeping it open
-            # accumulated one figure per saved comparison in long-lived GUI
-            # and batched-test processes.
             plt.close(figure)
 
     if len(comparison.frame):
         path = os.path.join(folder, "data.csv")
-        # THE DATA BEHIND THE GRAPH, which is the frame that was PLOTTED --
-        # not the objects it came from. A reader checking the figure needs
-        # the numbers the figure drew.
         comparison.frame.to_csv(path, index=False)
         written["data"] = path
 
@@ -806,8 +737,6 @@ def save(comparison: Comparison, folder: str, *, kind: str = "jitter_box",
         "note": comparison.note,
     }
     if settings:
-        # THE SETTINGS THAT GENERATED THE REGRESSION AND THE GRAPH, together
-        # under separate keys, so it is never ambiguous which produced which.
         record["regression_settings"] = {
             str(k): _plain(v) for k, v in dict(settings).items()}
     path = os.path.join(folder, "settings.json")
@@ -830,8 +759,6 @@ def save(comparison: Comparison, folder: str, *, kind: str = "jitter_box",
                 Image.fromarray(data.astype("uint8")[:, :, :3]).save(
                     os.path.join(here, f"{index:04d}.png"))
             except Exception:                                # noqa: BLE001
-                # A crop that will not encode costs one image, never the
-                # save: the figure and the numbers are the point.
                 continue
         written.setdefault("cells", os.path.join(folder, "cells"))
 
@@ -849,9 +776,6 @@ def _plain(value):
     return str(value)
 
 
-# ---------------------------------------------------------------------------
-# 187 A: every measurement in the database, not only the ones on png_list
-# ---------------------------------------------------------------------------
 
 #: Columns an object's integer label can arrive under, in the order
 #: :func:`object_identity` reads them. The same order
@@ -894,15 +818,6 @@ def object_identity(frame: "pd.DataFrame") -> Optional["pd.Series"]:
     elif "prc" in columns and "fieldID" in columns:
         head = frame["prc"].astype(str) + "_" + frame["fieldID"].astype(str)
     elif all(c in columns for c in FIELD_KEY):
-        # THE FOUR COLUMNS ARE THE FIELD KEY. `prcf` is nothing but
-        # plateID_rowID_columnID_fieldID pasted together -- `plate1_r5_c1_f16`
-        # -- and `png_list` carries the four without ever carrying the paste.
-        # So the crop table, which is the object table the Compare panel
-        # starts from, had "no object identity" and the join refused it:
-        # "these object rows carry no object identity (prcfo, or prcf and an
-        # object label)". Every morphological measurement in the screen was
-        # unreachable from that panel because of a column that was not
-        # written rather than data that was not there.
         head = frame[FIELD_KEY[0]].astype(str)
         for column in FIELD_KEY[1:]:
             head = head + "_" + frame[column].astype(str)
@@ -968,18 +883,19 @@ def measurements_are_joined(objects: "pd.DataFrame") -> bool:
 ANNOTATION_COLUMNS: frozenset = frozenset({
     "grna", "grna_name", "gene", "gene_name", "condition", "prediction",
     "predicted_class", "annotation", "class",
-    # FROM `png_list`, and the reason it is worth joining at all: the score
-    # and the call are there and in no object table. `png_path` stays out --
-    # a path is not a measurement and it would be offered in the comparison
-    # chooser.
     "pred", "score", "test", "cv_predicted_class",
 })
 
 
 #: The object tables, without the crop table. `_read_and_join_tables`
 #: defaults to these PLUS `png_list`, so leaving it out has to be said
-#: explicitly.
-OBJECT_TABLES: Tuple[str, ...] = ("cell", "cytoplasm", "nucleus", "pathogen")
+#: explicitly. The organelle slots are named for the same reason they are
+#: named in :data:`spacr.run_compare.OBJECT_TABLES`: a comparison that cannot
+#: see an organelle table cannot report that one run measured organelles and
+#: another did not.
+OBJECT_TABLES: Tuple[str, ...] = (
+    "cell", "cytoplasm", "nucleus", "pathogen", *ORGANELLE_ROLES,
+)
 
 
 def join_measurements(objects: "pd.DataFrame",
@@ -1056,9 +972,6 @@ def join_measurements(objects: "pd.DataFrame",
     wide = pd.concat(frames, ignore_index=True) if len(frames) > 1 \
         else frames[0]
     wide = wide.drop_duplicates(subset=["_prcfo"], keep="first")
-    # ONLY WHAT IS NEW. A column present on both sides is already the value
-    # the montage selected on, and replacing it here would move the cells
-    # under the user's feet.
     have = set(map(str, objects.columns))
     fresh = [c for c in wide.columns
              if str(c) not in have and str(c) != "_prcfo"
@@ -1072,25 +985,6 @@ def join_measurements(objects: "pd.DataFrame",
     lookup = lookup[~lookup.index.duplicated(keep="first")]
     added = lookup.reindex(mine.values)
 
-    # ASSIGNED BY POSITION, not joined. `_all_objects` concatenates one frame
-    # per plan, so the index can repeat -- and a join on a repeated label is
-    # a cartesian product of the matching rows on both sides, which turns
-    # 20,000 cells into 40,000 and every count on the panel with it.
-    # ALL AT ONCE, not column by column. Inserting them in a loop makes a
-    # new block per column, and a measurement table brings hundreds -- which
-    # is O(n^2) copying and a PerformanceWarning per column, hundreds of
-    # identical lines in the user's terminal for one merge.
-    #
-    # RESET BOTH INDEXES FIRST, and that is the positional contract above,
-    # not tidying: `concat(axis=1)` ALIGNS ON THE INDEX, so with a repeated
-    # label -- which `_all_objects` produces, one frame per plan -- it would
-    # do exactly the cartesian product the loop existed to avoid. Two clean
-    # RangeIndexes make the concatenation positional, and the real index goes
-    # back on afterwards.
-    #
-    # `reset_index` rather than `to_numpy`, so each column keeps its own
-    # dtype. One array for the block would cast an integer count to float
-    # because some other column beside it is float.
     out = pd.concat(
         [objects.reset_index(drop=True),
          added[fresh].reset_index(drop=True)], axis=1)
@@ -1099,16 +993,6 @@ def join_measurements(objects: "pd.DataFrame",
     matched = int(added[fresh[0]].notna().sum())
     note = ""
     if not matched and len(objects):
-        # A SILENT ZERO IS THE REAL FAULT (instruction 203). There is no run
-        # where NONE of the objects have a measurement, so zero matches is
-        # a join key that does not line up -- and a merge that matched
-        # nothing looks exactly like a merge that worked on an empty column
-        # once it reaches a panel that draws it.
-        #
-        # THE ORIGINAL ROWS GO BACK, not the widened ones. Handing on a
-        # frame of all-NaN measurement columns is how the empty plot gets
-        # drawn; returning what the caller already had leaves them exactly
-        # where they were, with a sentence saying why.
         return objects, (
             f"THE MERGE MATCHED NOTHING: none of {len(objects):,} object "
             f"row(s) were found in the measurement tables, so no measurement "
@@ -1117,10 +1001,6 @@ def join_measurements(objects: "pd.DataFrame",
             f"up. Nothing was changed."
             + (" · " + "; ".join(troubles) if troubles else ""))
     if matched < len(objects):
-        # SAID, ALWAYS -- the same rule the dropped denominators follow. A
-        # measurement that is missing on a third of the cells produces a
-        # comparison on a third fewer cells, and the panel has to be able to
-        # say so rather than quietly shrinking.
         note = (f"{len(objects) - matched:,} of {len(objects):,} object "
                 f"row(s) found no match in the measurement tables and carry "
                 f"no joined measurement")
@@ -1129,9 +1009,6 @@ def join_measurements(objects: "pd.DataFrame",
     return out, note
 
 
-# ---------------------------------------------------------------------------
-# 108 points 1 and 2: a second style on the shared base, and the contract
-# ---------------------------------------------------------------------------
 
 @dataclass
 class ComparisonStyle(FigureStyle):
@@ -1290,9 +1167,6 @@ def render_comparison(comparison: Comparison, style: "ComparisonStyle" = None,
     colours = [rest if g == REST else highlight[i % len(highlight)]
                for i, g in enumerate(order)]
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS, and that is why the
-    # `figure=` branch is inside the context too: an axes added to an
-    # existing figure creates its own spines and ticks at that moment.
     with figure_style(theme_target()):
         if figure is None:
             figure, axes = plt.subplots(
@@ -1341,9 +1215,6 @@ def render_comparison(comparison: Comparison, style: "ComparisonStyle" = None,
         axes.set_xticklabels(
             [f"{g}\n(n={len(s)})" if style.show_counts else str(g)
              for g, s in zip(order, series)])
-        # THE DEFAULT LABEL IS THE MEASUREMENT'S NAME, and a style that names
-        # one wins -- `apply_page` sets it after this and only when it is not
-        # blank, so "leave it alone" and "set it to nothing" stay different.
         axes.set_ylabel(str(comparison.measurement))
         apply_page(figure, axes, style)
 

@@ -151,10 +151,6 @@ def set_figure_text_size_override(fig, size: int) -> None:
 FIGURE_LOCK = threading.RLock()
 
 
-# The budget service holds no FigureQueue strongly.  Closing a screen remains
-# sufficient to retire its queue; while it is live, the service can account
-# for the two genuinely reclaimable layers it owns (editable Figures and
-# decoded full-resolution pixmaps).
 _LIVE_QUEUES: "weakref.WeakSet[FigureQueue]" = weakref.WeakSet()
 
 
@@ -182,8 +178,6 @@ def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0,
                 ax.set_facecolor(bg)
                 for sp in ax.spines.values():
                     sp.set_color(ink)
-                # `colors=` sets the mark AND the label together, which is
-                # exactly the conflation the two controls exist to undo.
                 ax.tick_params(color=ink, labelcolor=fg, which="both")
             for t in figure_text_items(fig):
                 t.set_color(fg)
@@ -263,25 +257,11 @@ def _export_vector_pdf(fig, pdf_path: Path, dpi: int, bg: str) -> bool:
     try:
         from matplotlib import rc_context
         with rc_context({"pdf.fonttype": 42}):
-            # BYPASSES `plot.save_figure` DELIBERATELY (instruction 108 point
-            # 6): this page is not a file the user keeps, it is the vector
-            # source the queue rasterises at 2200 px to put ON SCREEN, so the
-            # print rule would make every figure flash to a light page a
-            # moment after it appeared. The format and DPI preferences are
-            # read above, which is the part `save_figure` exists for.
             fig.savefig(str(pdf_path), dpi=dpi, bbox_inches="tight",
                         facecolor=bg)
         return True
     except Exception as exc:
-        # This used to be a bare ``except Exception: pass``, which made a
-        # failed export indistinguishable from a successful one: the PNG
-        # appeared, the caller returned True, and the only symptom a user
-        # could ever see was that the figure never sharpened.
         LOG.warning("vector PDF export failed for %s: %s", pdf_path, exc)
-        # A half-written page is worse than no page — the queue would
-        # rasterise it and show a torn figure — and a *stale* one left over
-        # from an earlier render of this slot would show the wrong figure
-        # entirely. Either way the right state is "absent".
         try:
             pdf_path.unlink()
         except OSError:
@@ -345,16 +325,8 @@ def render_figure_to_png(fig, png_path: str) -> bool:
             dpi, fmt = 200, "png"
             bg, fg, text_size = "#ffffff", "#000000", 0
             line = fg
-        # THE FIGURE'S OWN CHOICE BEATS THE GLOBAL DEFAULT, and this line is the
-        # whole of issue #108's third symptom. Without it every full render put
-        # the preference back over the size the user had just set in "Figure
-        # settings…", so the control appeared to do nothing and reopening the
-        # dialog showed the old number again.
         text_size = figure_text_size_override(fig) or text_size
         _style_figure_colors(fig, bg, fg, text_size, line)
-        # Cap the DISPLAY raster so a big multi-panel figure at a high DPI can't
-        # balloon into a slow-to-decode PNG. Screen never needs > ~4000 px on the
-        # long side; the vector .pdf keeps full quality for export.
         try:
             w_in, h_in = fig.get_size_inches()
             longest_in = max(float(w_in), float(h_in)) or 1.0
@@ -362,32 +334,11 @@ def render_figure_to_png(fig, png_path: str) -> bool:
         except Exception:
             display_dpi = min(dpi, 200)
         try:
-            # `transparent=True` when the background is "none": savefig
-            # otherwise falls back to the rcParam and writes an opaque page,
-            # so setting the facecolor alone is not enough.
             from ..preferences import figure_bg_is_transparent
-            # BYPASSES `plot.save_figure` DELIBERATELY (108 point 6): this is the
-            # screen raster, into a temp directory, at a capped display DPI. It is
-            # what the user is LOOKING at, so it follows the theme rather than the
-            # page. The file they keep is written by `figure_settings.save_figure_as`,
-            # which does go through `save_figure`.
             fig.savefig(png_path, dpi=display_dpi, bbox_inches="tight",
                         facecolor=bg,
                         transparent=figure_bg_is_transparent(bg))
         except Exception as e:
-            # A DEAD Qt CANVAS IS NOT A DEAD FIGURE. `savefig` renders through
-            # whatever canvas the figure currently holds, and a figure that was
-            # ever shown in a Qt widget holds a FigureCanvasQTAgg -- which Qt
-            # destroys with the widget, leaving `Internal C++ object
-            # (FigureCanvasQTAgg) already deleted`. Seventy of those are in the
-            # maintainer's log, and every one is a tile that silently did not
-            # render.
-            #
-            # The figure itself is intact; only its painter is gone. Attaching
-            # a fresh Agg canvas gives it one that has no Qt object to lose,
-            # which is also the right canvas for a WORKER-THREAD render --
-            # Agg touches no Qt at all, which is why the render was put on a
-            # worker in the first place.
             if not _retry_on_a_fresh_canvas(fig, png_path, display_dpi, bg):
                 LOG.info("figure render failed: %s", e)
                 return False
@@ -429,7 +380,7 @@ def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
 
         if not Path(pdf_path).is_file():
             return None
-        doc = QPdfDocument()            # NO parent — see the docstring.
+        doc = QPdfDocument()
         if doc.load(str(pdf_path)) != QPdfDocument.Error.None_:
             return None
         if doc.pageCount() < 1:
@@ -447,8 +398,6 @@ def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
         box = {}
 
         def _page_rendered(_page, _size, image, _options, _request_id):
-            # Runs on THIS thread (queued from Qt's render thread), so the
-            # only Python that ever holds the GIL is this handful of lines.
             """Take the rendered page. Queued back onto THIS thread.
 
             Which is why it is a handful of lines: it is the only Python holding the
@@ -458,9 +407,6 @@ def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
             loop.quit()
 
         renderer.pageRendered.connect(_page_rendered)
-        # An explicit timer rather than QTimer.singleShot: this one is a local
-        # and dies with the frame, so nothing is left armed against a
-        # QEventLoop that has already been collected.
         guard = QTimer()
         guard.setSingleShot(True)
         guard.timeout.connect(loop.quit)
@@ -476,8 +422,6 @@ def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
         return None
 
 
-# Number of full-resolution pixmaps kept in RAM. Older figures live
-# only as PNGs on disk until viewed.
 RAM_CAP = 100
 
 
@@ -512,8 +456,6 @@ class _ClearFiguresLabel(QLabel):
         super().__init__(tr("Clear figures"), parent)
         self.setObjectName("FigureQueueClear")
         self.setCursor(Qt.PointingHandCursor)
-        # Focusable and Enter/Space-activatable: it is a control, and a
-        # control reachable only by mouse is one some users cannot reach.
         self.setFocusPolicy(Qt.StrongFocus)
         self._flash = Flash(self)
         self._restyle()
@@ -527,14 +469,9 @@ class _ClearFiguresLabel(QLabel):
         """
         try:
             palette = active_palette()
-            # Flash stays the ACCENT: it is the app-wide "your click landed"
-            # mark, shared with the console's copy glyph, and a control that
-            # invented its own flash colour would be inconsistent in the
-            # other direction. Resting is `error`.
             colour = (palette["accent"] if self._flash.active
                       else palette["error"])
         except Exception:
-            # A palette that will not load is not a reason to draw nothing.
             colour = "#4A9EFF" if self._flash.active else "#f85149"
         self.setStyleSheet(
             f"QLabel#FigureQueueClear {{ color: {colour}; "
@@ -544,14 +481,9 @@ class _ClearFiguresLabel(QLabel):
         """Light the text briefly, then return it to its resting colour."""
         self._flash.trigger()
         self._restyle()
-        # Flash.trigger repaints via update(), which a stylesheet colour does
-        # not follow, so the restyle is scheduled explicitly just after the
-        # shared duration.
         QTimer.singleShot(FLASH_MS + 10, self._restyle)
 
     def mouseReleaseEvent(self, event):        # noqa: N802 (Qt naming)
-        # Release rather than press, so dragging off the label cancels, which
-        # is what every other clickable in the app does.
         """Clear the figures on a click inside the label.
 
         On release rather than press, so dragging off cancels -- this discards
@@ -600,49 +532,18 @@ class FigureQueue(QWidget):
         super().__init__(parent)
         self._ram_cap = int(ram_cap)
         self._count = 0
-        # id(fig) -> index, for dedup of repeated emits of the same fig.
         self._fig_index: Dict[int, int] = {}
-        # index -> temp PNG path (every figure has one).
         self._png_paths: Dict[int, str] = {}
-        # index -> matplotlib Figure, kept so a figure can be restyled and
-        # re-rendered rather than only looked at. An LRU: capped by the
-        # "Editable figures kept" preference, ordered by USE so restoring an
-        # old figure does not immediately evict it again.
         self._figures: "OrderedDict[int, object]" = OrderedDict()
         self._figure_last_used: Dict[int, float] = {}
         self._figure_bytes: Dict[int, int] = {}
-        # index -> the figure's own name, taken ONCE when it arrives.
-        #
-        # A NAME IS NOT A CACHE. `figure_titles` used to read the label off
-        # the live Figure every time it was asked, so a figure's caption
-        # survived exactly as long as its Figure did: the moment
-        # `_trim_live_figures` spilled it past the live cap the grid fell back
-        # to the temp file's stem. Measured with the default cap of 20 --
-        # three runs of the house-style panels put 21 figures in, and the
-        # first three tiles were captioned `fig_00000`, `fig_00001`,
-        # `fig_00002`. On a screen that has done twelve runs that is almost
-        # every caption on the grid. A name costs a short string and is what
-        # the figure itself said it was called; nothing about running low on
-        # RAM makes that untrue.
         self._titles: Dict[int, str] = {}
-        # WHERE EACH RUN'S FIGURES START. The queue accumulates across runs --
-        # that is the point of it, an earlier run stays reachable -- but the
-        # grid letters its cells, and panel letters belong to a FIGURE. A
-        # second run continuing at L rather than restarting at A is what the
-        # maintainer reported: "the figure letters just keep climing i want
-        # each run seperated into sections".
         self._runs: list = []
-        # LRU cache of index -> full-res QPixmap (capped at ram_cap).
         self._ram: "OrderedDict[int, QPixmap]" = OrderedDict()
         self._ram_last_used: Dict[int, float] = {}
         self._ram_bytes: Dict[int, int] = {}
         self._tempdir: Optional[Path] = None
         self._current = -1
-        # Crisp vector-page renders run off the GUI thread. JobRunner is the
-        # one approved way to do that (see spacr.qt.job_runner) — in
-        # particular it is what wires ``thread.finished`` to a bound method
-        # rather than a closure, which is the bug this widget would otherwise
-        # have re-derived.
         self._jobs = JobRunner(self, app_key="figures")
         #: index -> the in-flight render's token (an int), or ``"done"`` /
         #: ``"failed"`` once settled. Absent means "may be refined". See
@@ -667,7 +568,6 @@ class FigureQueue(QWidget):
             install()
         self._build_ui()
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self):
         """Lay out the thumbnail strip, the raster view and the live canvas.
@@ -691,8 +591,6 @@ class FigureQueue(QWidget):
         self._list.setObjectName("FiguresList")
         self._list.setFixedWidth(160)
         self._list.setIconSize(THUMB_SIZE)
-        # Thumbnails are right-clickable too: the figure a user wants to
-        # restyle is often not the one currently shown.
         self._list.setContextMenuPolicy(Qt.CustomContextMenu)
         self._list.customContextMenuRequested.connect(self._list_context_menu)
         self._list.setSpacing(4)
@@ -700,30 +598,13 @@ class FigureQueue(QWidget):
         body.addWidget(self._list)
 
         self._view = _ZoomView(self)
-        # ZOOMING PAST THE RASTER RE-RENDERS THE VECTOR PAGE, rather than
-        # magnifying pixels of it. See `_on_view_zoomed`.
         self._view.zoom_changed.connect(self._on_view_zoomed)
-        # THE CONTAINER DOES NOT PAINT A BACKGROUND. Instruction 118 asks for
-        # figures with "not black not white just transparent", and a
-        # transparent PNG dropped into a container that paints its own base
-        # is a transparent figure on an opaque slab -- reported as "the figure
-        # container has a black background".
-        #
-        # A QGraphicsView is three surfaces, not one: the widget, its
-        # viewport, and the SCENE's own background brush, which is what a
-        # QGraphicsView actually paints behind its items. Clearing the first
-        # two and leaving the third is the way to get this half-right and see
-        # no change at all.
         self._view.setFrameShape(QFrame.NoFrame)
         self._view.setBackgroundBrush(Qt.NoBrush)
         try:
             self._view.scene().setBackgroundBrush(Qt.NoBrush)
         except Exception:               # pragma: no cover - no scene yet
             pass
-        # A QGraphicsView's viewport sets autoFillBackground on ITSELF, so
-        # the theme helper's property is not enough here -- it has to be
-        # turned off explicitly or the viewport keeps painting the palette's
-        # Base, which is white.
         self._view.viewport().setAutoFillBackground(False)
         try:
             from ..theme import make_transparent
@@ -731,24 +612,9 @@ class FigureQueue(QWidget):
             make_transparent(self._view, self._view.viewport())
         except Exception:
             pass
-        # Right-click anywhere on the figure, or on a thumbnail, to restyle
-        # it. Without this the panel had one button and three controls, and
-        # clicking a figure did nothing at all.
         self._view.setContextMenuPolicy(Qt.CustomContextMenu)
         self._view.customContextMenuRequested.connect(self._view_context_menu)
-        # Re-emitted so a caller can react to "the user clicked the
-        # figure" without reaching into a private view.
         self._view.clicked.connect(self.figure_clicked)
-        # Re-render the figure when the container changes size, rather than
-        # scaling the raster. A UMAP draws its thumbnails with
-        # `OffsetImage(zoom=...)`, which is in DISPLAY pixels -- so a figure
-        # re-rendered at a larger size spreads the points out and leaves
-        # every thumbnail the same size on screen, which is what makes a
-        # crowded embedding readable. Scaling the PNG magnifies the
-        # thumbnails with everything else, which is the opposite.
-        #
-        # Debounced: a drag emits a resize per frame and re-rendering a
-        # figure with a few thousand thumbnails is not a per-frame cost.
         self._resize_timer = QTimer(self)
         self._resize_timer.setSingleShot(True)
         self._resize_timer.setInterval(FIGURE_RESIZE_DEBOUNCE_MS)
@@ -756,35 +622,13 @@ class FigureQueue(QWidget):
         self._view.installEventFilter(self)
         self._view.setMinimumHeight(280)
 
-        # THE LIVE CANVAS. A figure that still has its matplotlib Figure is
-        # shown by matplotlib itself rather than as a picture of itself.
-        #
-        # Everything above this line is a raster pipeline: draw the figure,
-        # encode it, hand Qt a pixmap, and scale that pixmap into the view.
-        # It is blurry whenever the view is not exactly the size the raster
-        # was drawn at -- which is most of the time, and always when zoomed --
-        # and it pays a full render just to LOOK at a figure.
-        #
-        # A FigureCanvasQTAgg redraws from the figure at the widget's own
-        # device resolution, so it is crisp at any size and at any zoom, and
-        # showing a figure costs nothing at all: no render, no encode, no
-        # copy. A restyle is one draw_idle, which matplotlib coalesces to one
-        # draw per event-loop turn.
-        #
-        # The raster view stays for figures whose Figure is gone (spilled past
-        # the live window, or loaded from a PDF), which genuinely are only a
-        # picture.
         self._stack = QStackedWidget(self)
-        self._stack.addWidget(self._view)          # index 0: raster
+        self._stack.addWidget(self._view)
         self._canvas_host = QWidget(self)
         self._canvas_layout = QVBoxLayout(self._canvas_host)
         self._canvas_layout.setContentsMargins(0, 0, 0, 0)
         self._canvas_layout.setSpacing(0)
-        self._stack.addWidget(self._canvas_host)   # index 1: live canvas
-        # ONE OPAQUE CONTAINER IS ENOUGH TO BURY THE BACKDROP, and there are
-        # four between the figure and the theme's wallpaper: this widget, the
-        # stack, the canvas host and the thumbnail strip. Tagging three of
-        # them and missing one looks exactly like tagging none.
+        self._stack.addWidget(self._canvas_host)
         try:
             from ..theme import make_transparent
 
@@ -801,9 +645,6 @@ class FigureQueue(QWidget):
         body.addWidget(self._stack, 1)
         root.addLayout(body, 1)
 
-        # Navigation is via the thumbnail strip (click a thumbnail) — no
-        # separate Prev/Next buttons. A "Figure settings…" button (shown only
-        # when figures are rendered as PDF/vector) restyles the current figure.
         nav = QHBoxLayout()
         self._pos_label = QLabel("0 / 0", self)
         self._pos_label.setAlignment(Qt.AlignCenter)
@@ -819,8 +660,15 @@ class FigureQueue(QWidget):
 
     def eventFilter(self, obj, event):
         """Debounce the view's resizes into one re-render."""
-        if obj is self._view and event.type() == QEvent.Resize:
-            self._resize_timer.start()
+        # Qt can deliver an event here while the queue has no view -- before
+        # `_build_ui` made one, or while a teardown takes the widget apart --
+        # and an unguarded `self._view` raised inside the event loop. With no
+        # view there is nothing to debounce.
+        view = getattr(self, "_view", None)
+        if view is not None and obj is view and event.type() == QEvent.Resize:
+            timer = getattr(self, "_resize_timer", None)
+            if timer is not None:
+                timer.start()
         return super().eventFilter(obj, event)
 
     def _rerender_for_size(self) -> None:
@@ -849,15 +697,6 @@ class FigureQueue(QWidget):
             LOG.debug("could not resize the figure", exc_info=True)
             return
 
-        # OFF the GUI thread. `render_figure_to_png` is pure matplotlib and
-        # documents itself as safe to call from a worker, and re-rendering a
-        # real figure is not cheap: doing it inline stalled the GUI thread
-        # for 1321 ms against a 250 ms budget and
-        # `test_adding_a_pdf_figure_does_not_freeze_the_gui_thread` caught
-        # it. The same `_jobs.submit` seam the PDF refinement uses.
-        #
-        # The callable touches no widget and returns a path, not a QPixmap:
-        # QPixmap is GUI-thread-only.
         idx = self._current
         self._resize_seq = getattr(self, "_resize_seq", 0) + 1
         token = self._resize_seq
@@ -885,7 +724,6 @@ class FigureQueue(QWidget):
         if pixmap.isNull():
             return
         self._cache_pixmap(idx, pixmap)
-        # Any crisp render cached for this slot is of the old size.
         self._pdf_state.pop(idx, None)
         self._view.set_pixmap(self._display_pixmap(idx, pixmap))
 
@@ -916,33 +754,22 @@ class FigureQueue(QWidget):
             page is rewritten when the dialog closes, so nothing stays stale.
         :returns: True when the view was updated.
         """
-        # figure_for, not a dict lookup: an evicted figure is restored from
-        # its spill, so restyling an old figure redraws it too.
         fig = self.figure_for(self._current)
         png = self._png_paths.get(self._current)
         if fig is None or not png:
             return False
-        # A live figure is drawn by matplotlib, not rasterised and copied.
-        # One draw_idle, coalesced by matplotlib to one draw per event-loop
-        # turn, and the result is crisp because it is drawn at the widget's
-        # own resolution rather than stretched from a raster.
         if self.show_live_canvas(fig):
             if not preview:
-                # The files on disk still have to match what is on screen.
                 self._render_figure(fig, Path(png))
                 self._pdf_state.pop(self._current, None)
             return True
         if preview and self._render_preview_async(fig):
-            # The worker will deliver it; the picture on screen stays put for
-            # ~100 ms rather than the window freezing for that long.
             return True
         pixmap = (self._render_preview(fig, Path(png)) if preview
                   else self._render_figure(fig, Path(png)))
         if pixmap is None:
             return False
         self._cache_pixmap(self._current, pixmap)
-        # The sibling .pdf was rewritten too, so any crisp render already
-        # cached for this slot is of the OLD styling.
         self._pdf_state.pop(self._current, None)
         shown = self._display_pixmap(self._current, pixmap)
         self._view.set_pixmap(shown)
@@ -992,11 +819,6 @@ class FigureQueue(QWidget):
         figure = self.figure_for(self._current)
         if figure is None:
             return
-        # NO REFRESH AFTER exec(). The dialog's closeEvent already lands a
-        # full-quality redraw before it returns, so a second call here
-        # rendered the same figure twice on every close -- measured at ~263 ms
-        # each on a 823-point volcano, i.e. half a second of dead GUI for one
-        # of them to overwrite the other with an identical picture.
         FigureSettingsDialog(
             figure, self, on_change=self.refresh_current_figure,
             propagate_callback=self._propagate_cb).exec()
@@ -1061,7 +883,6 @@ class FigureQueue(QWidget):
         row = self._list.row(item) if item is not None else self._current
         self.show_figure_menu(self._list.mapToGlobal(point), row)
 
-    # -- temp dir ----------------------------------------------------------
 
     def _ensure_tempdir(self) -> Path:
         """Return the queue's temporary directory, creating it on first use.
@@ -1072,7 +893,6 @@ class FigureQueue(QWidget):
             self._tempdir = Path(tempfile.mkdtemp(prefix="spacr_figq_"))
         return self._tempdir
 
-    # -- public API --------------------------------------------------------
 
     def add_figure(self, fig, prerendered_png: Optional[str] = None) -> int:
         """Render + append ``fig`` (a matplotlib Figure). Returns its
@@ -1100,9 +920,6 @@ class FigureQueue(QWidget):
         self._figures[idx] = fig
         self._figure_last_used[idx] = time.time()
         self._figure_bytes[idx] = self._measure_live_figure_bytes(fig)
-        # BEFORE the trim, not after: this figure is the newest, but a
-        # `live_figure_cap` of 1 evicts it on the very next arrival and a name
-        # read later would already be gone.
         name = self._figure_name(fig)
         if name:
             self._titles[idx] = name
@@ -1111,7 +928,6 @@ class FigureQueue(QWidget):
         png_path = self._ensure_tempdir() / f"fig_{idx:05d}.png"
         pixmap = None
         if prerendered_png and Path(prerendered_png).is_file():
-            # Adopt the worker-rendered PNG (and its sibling .pdf, if any).
             try:
                 shutil.move(prerendered_png, str(png_path))
                 src_pdf = _sibling_pdf(prerendered_png)
@@ -1123,32 +939,17 @@ class FigureQueue(QWidget):
             except Exception:
                 pixmap = None
         if pixmap is None:
-            # No usable prerender — fall back to rendering here.
             pixmap = self._render_figure(fig, png_path)
         self._png_paths[idx] = str(png_path)
         if pixmap is not None:
             self._cache_pixmap(idx, pixmap)
 
-        # Thumbnail (small icon) — always kept.
         item = QListWidgetItem(f"#{idx + 1}")
         item.setTextAlignment(Qt.AlignCenter)
         if pixmap is not None and not pixmap.isNull():
             item.setIcon(self._thumb_icon(pixmap))
         self._list.addItem(item)
 
-        # FOLLOW THE TAIL, BUT ONLY WHILE THE USER IS AT IT.
-        #
-        # This used to jump to the newest figure unconditionally, so a user
-        # reading figure 3 of a Cellpose run -- which produces figures
-        # steadily, for minutes -- was thrown off it every few seconds and
-        # could not read any of them. It is also most of the queue's cost
-        # while a run streams: every arrival tore down the live canvas and
-        # built another, whether or not anyone was looking at the result.
-        #
-        # "At the tail" means the view is on what WAS the newest figure, which
-        # is where it sits when nobody has navigated. The moment the user
-        # clicks a tile, the view stops following and new figures arrive
-        # quietly in the list -- which is where they can then click them.
         if self._following_the_tail(idx):
             self._list.setCurrentRow(idx)
             self.show_index(idx)
@@ -1209,10 +1010,6 @@ class FigureQueue(QWidget):
             pixmap = QPixmap(str(target))
             if pixmap.isNull():
                 return
-            # Both the .png and the .pdf under this slot just changed, so a
-            # crisp render already cached (or still in flight) for it is of
-            # the previous frame. Dropping the state supersedes the in-flight
-            # one and lets the new page be rendered.
             self._pdf_state.pop(idx, None)
             self._cache_pixmap(idx, pixmap)
             pixmap = self._display_pixmap(idx, pixmap)
@@ -1236,16 +1033,6 @@ class FigureQueue(QWidget):
         if not (0 <= idx < self._count):
             return
         self._current = idx
-        # Prefer the live canvas: matplotlib draws the figure at the widget's
-        # own resolution, so it is crisp at any size and any zoom, and showing
-        # it costs no render at all. Only a figure that is genuinely just a
-        # picture -- spilled past the live window, or loaded from a PDF --
-        # falls back to the raster view.
-        # has_live_figure, NOT figure_for: figure_for restores a spilled
-        # figure from disk, so using it here would un-spill a figure merely
-        # because the user navigated past it -- which is exactly what the
-        # live-figure cap exists to prevent. Viewing an old figure keeps
-        # showing the picture; restyling it is what earns a restore.
         live = self._figures.get(idx) if self.has_live_figure(idx) else None
         if live is not None:
             self._figures.move_to_end(idx)
@@ -1260,17 +1047,6 @@ class FigureQueue(QWidget):
         self._show_raster()
         pixmap = self._pixmap_for(idx)
         if pixmap is None:
-            # SAY WHY, RATHER THAN OPEN BLANK (199 B). Reported as "i can not
-            # see #2 when i click on it this run": the tile HAS a picture on
-            # it -- `set_pinned` refuses a null pixmap -- so the raster
-            # existed and the full-size view showed nothing.
-            #
-            # Leaving the view untouched is worse than empty: it keeps the
-            # PREVIOUS figure, so clicking figure 2 shows figure 1 and the
-            # user reads it as figure 2.
-            #
-            # "figure 2 could not be restored from its spill" is an answer.
-            # An empty panel is the fault this is against.
             pixmap = self._explanation_pixmap(self._why_not_shown(idx))
         self._view.set_pixmap(pixmap)
         if self._list.currentRow() != idx:
@@ -1320,9 +1096,6 @@ class FigureQueue(QWidget):
         """
         start = self._count
         if self._runs and self._runs[-1]["start"] == start:
-            # Two starts with nothing between them: the earlier run produced
-            # no figures at all. Keep the later label rather than an empty
-            # section for each.
             self._runs[-1]["label"] = label or self._runs[-1]["label"]
             return start
         self._runs.append({"label": label or f"run {len(self._runs) + 1}",
@@ -1348,8 +1121,6 @@ class FigureQueue(QWidget):
             return 0
         start, count = span
         if count <= 0:
-            # A section that drew nothing: forget the MARK so the label stops
-            # appearing, but there is nothing to renumber.
             self._runs = [r for r in self._runs if r.get("label") != wanted]
             return 0
         end = start + count
@@ -1372,9 +1143,6 @@ class FigureQueue(QWidget):
         self._ram_last_used = _shift(self._ram_last_used)
         self._ram_bytes = _shift(self._ram_bytes)
         self._pdf_state = _shift(self._pdf_state)
-        # `_fig_index` is the one keyed the OTHER way round -- id(fig) to
-        # index -- so it is rebuilt rather than shifted, and the ids of the
-        # forgotten figures go with it.
         self._fig_index = {
             key: (value - count if value >= end else value)
             for key, value in self._fig_index.items()
@@ -1391,10 +1159,6 @@ class FigureQueue(QWidget):
             kept.append(mark)
         self._runs = kept
 
-        # WHERE THE VIEW IS LOOKING. A current index inside the forgotten span
-        # names a figure that no longer exists; one above it has moved. Left
-        # alone, the queue shows the wrong figure or none, which is the same
-        # class of bug as a mark pointing at a run that is not on screen.
         if self._current >= end:
             self._current -= count
         elif start <= self._current < end:
@@ -1496,11 +1260,7 @@ class FigureQueue(QWidget):
 
     def clear(self) -> None:
         """Drop everything and delete the temp dir."""
-        # Before the temp dir goes: a worker is reading its PDF out of it.
         self._shutdown_jobs()
-        # The live canvas owns callbacks into the Figure objects cleared
-        # below. Tear it down first so neither those callbacks nor a queued
-        # matplotlib idle draw can outlive the objects they refer to.
         self._show_raster()
         if self._figures:
             try:
@@ -1532,7 +1292,6 @@ class FigureQueue(QWidget):
         self._delete_tempdir()
         self._refresh_nav()
 
-    # -- internals ---------------------------------------------------------
 
     @staticmethod
     def _style_figure(fig, bg: str, fg: str, text_size: int = 0,
@@ -1592,10 +1351,6 @@ class FigureQueue(QWidget):
         png = self._png_paths.get(idx)
         if not png:
             return
-        # Normally gated on the PDF preference. But a page written earlier,
-        # under a preference since switched to PNG, is still a vector page on
-        # disk -- and "load the PDF if it exists" is exactly what the dynamic
-        # figures option promises for a figure whose live Figure is gone.
         if not self._figure_format_is_pdf():
             if not (self.dynamic_figures_enabled()
                     and not self.has_live_figure(idx)
@@ -1603,13 +1358,6 @@ class FigureQueue(QWidget):
                 return
         pdf = _sibling_pdf(png)
         if not pdf.is_file():
-            # PDF mode is on and the vector page is not there: the export
-            # failed (:func:`_export_vector_pdf` logged why) or this slot was
-            # filled from a prerender that never carried one. Silently
-            # returning made that indistinguishable from a page still on its
-            # way, which is how a broken PDF export stayed invisible. Record
-            # it as failed instead — one log line, and no re-stat of the same
-            # missing file on every subsequent navigation to this figure.
             LOG.warning(
                 "figure #%d has no vector page at %s — showing the raster; "
                 "the PDF export did not happen", idx + 1, pdf)
@@ -1618,13 +1366,8 @@ class FigureQueue(QWidget):
         self._pdf_seq += 1
         token = self._pdf_seq
         self._pdf_state[idx] = token
-        # The baseline a later zoom compares against: without it the first
-        # wheel notch cannot tell whether a finer render would show anything.
         self._pdf_render_px[idx] = PDF_DISPLAY_MAX_PX
         path = str(pdf)
-        # The submitted callable runs on a worker thread: it touches no
-        # widget, no member of this object, and builds a QImage rather than a
-        # QPixmap. Everything it needs is bound as a default argument.
         self._jobs.submit(
             lambda _i=idx, _t=token, _p=path: (_i, _t, render_pdf_to_image(_p)),
             self._on_pdf_rendered)
@@ -1656,14 +1399,13 @@ class FigureQueue(QWidget):
             width = max(1, int(self._view.viewport().width()))
         except Exception:                                    # noqa: BLE001
             return
-        # What the view is actually asking the page for, in pixels.
         wanted = int(width * float(scale))
         have = int(self._pdf_render_px.get(idx, 0))
         if have and wanted < have * PDF_ZOOM_REFINE_RATIO:
             return
         target = min(max(wanted, PDF_DISPLAY_MAX_PX), PDF_ZOOM_MAX_PX)
         if have >= target:
-            return                       # already as fine as it will ever get
+            return
         self._pdf_seq += 1
         token = self._pdf_seq
         self._pdf_state[idx] = token
@@ -1701,8 +1443,6 @@ class FigureQueue(QWidget):
             return
         if idx != self._current or not (0 <= idx < self._count):
             return
-        # QPixmap is GUI-thread-only, which is why the worker returned a
-        # QImage and the conversion happens here.
         pixmap = QPixmap.fromImage(image)
         if pixmap.isNull():
             self._pdf_state[idx] = "failed"
@@ -1752,51 +1492,20 @@ class FigureQueue(QWidget):
                 return True
             self._teardown_canvas()
             canvas = FigureCanvasQTAgg(fig)
-            # THE CANVAS DOES NOT PAINT A BACKGROUND EITHER. It is the surface
-            # actually showing the figure most of the time, so a transparent
-            # raster view with an opaque canvas in front of it is no better
-            # than before. Qt's widget base and matplotlib's own figure patch
-            # are two different opaque layers and both have to go.
             canvas.setStyleSheet("background: transparent;")
             canvas.setAttribute(Qt.WA_TranslucentBackground, True)
             canvas.setAutoFillBackground(False)
-            # AND ITS PALETTE. matplotlib's paintEvent erases the rect before
-            # blitting the Agg buffer, and eraseRect fills with the widget's
-            # palette brush -- which is Base, i.e. white, whatever the
-            # stylesheet says. That erase is why a figure whose patch is
-            # already 'none' still sits on a white rectangle.
             transparent = canvas.palette()
             for role in (QPalette.Window, QPalette.Base):
                 transparent.setColor(role, QColor(0, 0, 0, 0))
             canvas.setPalette(transparent)
-            # matplotlib's Qt backend sets WA_OpaquePaintEvent, which tells Qt
-            # nothing is behind this widget and it need not clear -- so the
-            # canvas must paint every pixel itself, and it paints the ones the
-            # Agg buffer left transparent as WHITE. That single attribute is
-            # why a figure with facecolor 'none' still shows a white plot
-            # rectangle with a transparent margin around it.
             canvas.setAttribute(Qt.WA_OpaquePaintEvent, False)
             canvas.setAttribute(Qt.WA_NoSystemBackground, True)
-            # Right-click must still restyle, exactly as on the raster view.
             canvas.setContextMenuPolicy(Qt.CustomContextMenu)
             canvas.customContextMenuRequested.connect(self._view_context_menu)
             toolbar = NavigationToolbar2QT(canvas, self._canvas_host)
-            # Pan and zoom re-render from the figure, so zooming in gives more
-            # detail rather than bigger pixels.
             self._canvas_layout.addWidget(toolbar)
             self._canvas_layout.addWidget(canvas, 1)
-            # WHEEL ZOOM, because the raster view has it and this one did not.
-            #
-            # The two views are meant to be interchangeable -- the user is not
-            # told which one they are looking at, and should not have to care.
-            # But `_ZoomView` zooms on a plain wheel turn while a matplotlib
-            # canvas ignores the wheel entirely and offers zoom only through
-            # the toolbar's magnifier. So whether scrolling zoomed depended on
-            # whether the figure was still live, which is invisible: a recent
-            # Cellpose figure is live and refused to zoom, and the same figure
-            # zoomed fine an hour later once it had spilled to a raster.
-            # Reported as "i cant zoom into the figures generated from
-            # cellpose".
             canvas.mpl_connect("scroll_event", self._on_canvas_scroll)
             self._canvas = canvas
             self._canvas_toolbar = toolbar
@@ -1841,14 +1550,9 @@ class FigureQueue(QWidget):
         if x is None or y is None:
             return
         step = self.CANVAS_ZOOM_STEP
-        # 'up' is towards the screen, which everywhere else in this
-        # application means closer -- so it narrows the limits.
         factor = (1.0 / step) if getattr(event, "button", "") == "up" else step
         left, right = axes.get_xlim()
         bottom, top = axes.get_ylim()
-        # Anchored on the pointer: each edge keeps its DISTANCE RATIO to the
-        # cursor, so the data under it does not move. Written to survive
-        # inverted axes, which every `imshow` panel has.
         axes.set_xlim(x - (x - left) * factor, x + (right - x) * factor)
         axes.set_ylim(y - (y - bottom) * factor, y + (top - y) * factor)
         canvas = getattr(self, "_canvas", None)
@@ -1876,19 +1580,10 @@ class FigureQueue(QWidget):
         """
         canvas, toolbar = self._canvas, self._canvas_toolbar
         if canvas is not None:
-            # ``FigureCanvasQT.draw_idle`` posts ``_draw_idle`` through a
-            # zero-delay QTimer and exposes no cancellation handle. Merely
-            # deleting the widget therefore leaves that bound callback in the
-            # event queue; when it runs, matplotlib asks ``height()`` of a
-            # canvas whose C++ object is already gone. Clearing the pending
-            # flag is matplotlib's own no-op path through that callback and
-            # must happen before ``deleteLater`` below.
             try:
                 canvas._draw_pending = False
             except Exception:
                 pass
-            # The toolbar's own connection ids, then anything else left on
-            # the registry: a stale callback of any kind is a crash here.
             for attribute in ("_id_press", "_id_release", "_id_drag",
                               "_id_zoom", "_id_pan"):
                 cid = getattr(toolbar, attribute, None)
@@ -1897,22 +1592,10 @@ class FigureQueue(QWidget):
                         canvas.mpl_disconnect(cid)
                     except Exception:
                         pass
-            # Anything else still bound to the two dying widgets. Disconnected
-            # through mpl_disconnect rather than by clearing the registry:
-            # matplotlib keeps its OWN entries in there (the pylab figure
-            # manager's _cidgcf among them) and emptying the dict behind its
-            # back makes its later disconnect raise KeyError instead.
             try:
                 doomed = {id(canvas), id(toolbar)}
                 for _signal, entries in list(canvas.callbacks.callbacks.items()):
                     for cid, proxy in list(entries.items()):
-                        # CallbackRegistry stores bound methods as
-                        # ``weakref.WeakMethod`` and other callbacks in
-                        # Matplotlib's ``_StrongRef`` wrapper. Neither has
-                        # the ``.func`` attribute older versions exposed.
-                        # Do not call an unknown proxy: a future registry may
-                        # store the callback itself, and teardown must never
-                        # execute user code.
                         if isinstance(proxy, weakref.ReferenceType):
                             target = proxy()
                         else:
@@ -1923,18 +1606,6 @@ class FigureQueue(QWidget):
             except Exception:
                 pass
         for widget in (toolbar, canvas):
-            # ASKED BEFORE HANDED OVER. `removeWidget`, `setParent` and
-            # `deleteLater` are C++ calls, and passing something that is not
-            # a QWidget fails inside PySide6's binding layer rather than in
-            # Python. The `except` below looked sufficient and is not: under
-            # `coverage run` the tracing perturbs that failure into a
-            # SEGMENTATION FAULT, reproducible every time and never once
-            # without coverage.
-            #
-            # It reads as a flaky coverage tool and is not: it is a real
-            # object handed to a real C++ API that cannot take it. A canvas
-            # that has lost its C++ half still passes this check, which is
-            # why the try/except stays.
             if widget is None or not isinstance(widget, QWidget):
                 continue
             try:
@@ -1974,8 +1645,6 @@ class FigureQueue(QWidget):
             size = self._view.size()
             ratio = float(self._view.devicePixelRatioF() or 1.0)
             longest = max(size.width(), size.height()) * ratio
-            # A sane floor for a view that has not been laid out yet, and a
-            # ceiling so a maximised 4K window does not ask for a 6000 px draw.
             return float(min(max(longest, 600.0), 2400.0))
         except Exception:
             return float(self.PREVIEW_MAX_PX)
@@ -2000,22 +1669,10 @@ class FigureQueue(QWidget):
         """
         import pickle
 
-        # One draw in flight at a time. The copy is cheap but not free, and a
-        # worker per control change would spend the interaction copying
-        # figures whose renders are stale before they land. A change arriving
-        # mid-draw is remembered and drawn once, from the figure as it stands
-        # when the worker frees up.
         if self._preview_busy:
             self._preview_pending = True
             return True
 
-        # UNDER `FIGURE_LOCK` (instruction 166). The copy is taken on the GUI
-        # thread, and the figure it walks may be one a WORKER is rendering at
-        # that moment: `bridge._capture_show` re-renders any figure marked
-        # `_spacr_live_update` -- the training monitor -- for as long as the
-        # fit runs, and `_rerender_for_size` hands the current figure to a
-        # worker on every resize. Pickling a Figure mid-draw is the same
-        # C-layer race as restyling one, and matplotlib is not thread-safe.
         try:
             with FIGURE_LOCK:
                 blob = pickle.dumps(fig)
@@ -2029,8 +1686,6 @@ class FigureQueue(QWidget):
         target = self._preview_target_px()
         facecolor = fig.get_facecolor()
 
-        # Runs on a worker thread: it touches no widget and no member of this
-        # object, and returns a QImage because QPixmap is GUI-thread-only.
         def work(_blob=blob, _target=target, _token=token,
                  _idx=self._current, _face=facecolor):
             """Render one preview off the GUI thread.
@@ -2049,7 +1704,6 @@ class FigureQueue(QWidget):
             canvas = FigureCanvasAgg(copy)
             canvas.draw()
             width, height = canvas.get_width_height()
-            # .copy() detaches from the canvas buffer, which is freed with it.
             image = QImage(canvas.buffer_rgba(), width, height,
                            QImage.Format_RGBA8888).copy()
             return (_idx, _token, image)
@@ -2065,14 +1719,8 @@ class FigureQueue(QWidget):
         they land and painting them would make the figure flicker backwards.
         """
         self._preview_busy = False
-        # PAINT BEFORE STARTING THE NEXT ONE. Starting it first bumps the
-        # sequence, and this payload -- freshly drawn, perfectly good -- would
-        # then be discarded as stale by its own successor, so a continuous
-        # drag would show nothing at all until the user stopped moving.
         self._paint_preview(payload)
 
-        # Whatever changed while this was drawing still has to reach the
-        # picture, and now there is a free worker to draw it.
         if self._preview_pending:
             self._preview_pending = False
             pending = self.figure_for(self._current)
@@ -2092,8 +1740,6 @@ class FigureQueue(QWidget):
         if pixmap.isNull():
             return
         self._cache_pixmap(idx, pixmap)
-        # A refinement started before this restyle would repaint the OLD
-        # picture over the new one when it lands.
         self._pdf_state.pop(idx, None)
         self._view.set_pixmap(pixmap)
         item = self._list.item(idx)
@@ -2115,18 +1761,6 @@ class FigureQueue(QWidget):
             longest = max(fig.get_size_inches()) or 1.0
             dpi = max(min(self.PREVIEW_MAX_PX / longest, 160.0), 40.0)
             buffer = BytesIO()
-            # NO bbox_inches='tight' HERE. It measures the tight box by doing a
-            # complete extra draw, which on the volcano is a flat ~125 ms on
-            # top of the ~150 ms render -- the single largest cost in the live
-            # path, and it buys only trimmed whitespace nobody is looking at
-            # mid-drag. The full render on dialog close still trims.
-            #
-            # BYPASSES `plot.save_figure` DELIBERATELY (108 point 6): this
-            # writes to a BytesIO for a drag preview and never to a file.
-            # UNDER `FIGURE_LOCK` (instruction 166), for the same reason the
-            # restyle is: this is a GUI-thread draw of a figure a worker may
-            # be rendering. The lock is re-entrant and this holds it only for
-            # the draw.
             with FIGURE_LOCK:
                 fig.savefig(buffer, format="png", dpi=dpi,
                             facecolor=fig.get_facecolor())
@@ -2305,12 +1939,6 @@ class FigureQueue(QWidget):
         cap = max(int(self.live_figure_cap()), 1)
         if len(self._figures) <= cap:
             return
-        # LEAST RECENTLY USED, not lowest-numbered. Trimming by index looks
-        # equivalent while figures only ever arrive in order -- but the moment
-        # an old figure is restored so the user can restyle it, index order
-        # says it is the oldest and evicts the very figure just asked for.
-        # `_figures` is insertion-ordered and every access moves its key to
-        # the end, so the front of it is genuinely the coldest.
         for old in list(self._figures)[:len(self._figures) - cap]:
             self._evict_live_figure(old)
 
@@ -2322,8 +1950,6 @@ class FigureQueue(QWidget):
         self._figure_last_used.pop(idx, None)
         self._figure_bytes.pop(idx, None)
         self._spill_figure(idx, figure)
-        # Close it, or matplotlib's own registry keeps it alive and the cache
-        # policy has removed a lookup without releasing the object.
         try:
             import matplotlib.pyplot as plt
 
@@ -2398,8 +2024,6 @@ class FigureQueue(QWidget):
         self._figure_last_used[index] = time.time()
         self._figure_bytes[index] = self._measure_live_figure_bytes(fig)
         self._fig_index[id(fig)] = index
-        # The spill holds a pickle of the OLD figure; leaving it would let a
-        # later eviction restore the picture this call replaced.
         try:
             self._forget_spill(index)
         except Exception:                                    # noqa: BLE001
@@ -2422,7 +2046,7 @@ class FigureQueue(QWidget):
         re-applied. Returns ``None`` only when the figure was never spillable.
         """
         if idx in self._figures:
-            self._figures.move_to_end(idx)     # asked for = most recently used
+            self._figures.move_to_end(idx)
             self._figure_last_used[idx] = time.time()
             return self._figures[idx]
         if not self.dynamic_figures_enabled():
@@ -2505,22 +2129,16 @@ class FigureQueue(QWidget):
         than a soft enlargement of a thumbnail-grade image.
         """
         if idx in self._ram:
-            self._ram.move_to_end(idx)   # mark as recently used
+            self._ram.move_to_end(idx)
             self._ram_last_used[idx] = time.time()
             return self._display_pixmap(idx, self._ram[idx])
         path = self._png_paths.get(idx)
         if path and Path(path).is_file():
             pm = QPixmap(path)
             if not pm.isNull():
-                # Reaching here means the RAM copy was evicted, and with it
-                # any crisp render this slot had. ``"done"`` no longer holds,
-                # so clear it and let the refinement run again.
                 self._pdf_state.pop(idx, None)
                 self._cache_pixmap(idx, pm)
                 pixmap = self._display_pixmap(idx, pm)
-                # The figure itself is gone, so nothing will re-render it from
-                # source. Its vector page is the only remaining way to show it
-                # sharply, and this is the moment the user asked for it.
                 if (not self.has_live_figure(idx)
                         and self.dynamic_figures_enabled()
                         and _sibling_pdf(path).is_file()):
@@ -2546,9 +2164,6 @@ class FigureQueue(QWidget):
         self._pos_label.setText(
             f"{self._current + 1} / {self._count}" if self._count
             else "0 / 0")
-        # Figure settings (background/text colour + size) restyle the figure
-        # and re-render, so they apply in both PNG and PDF mode — show whenever
-        # there's a figure to tweak.
         self._fig_settings_btn.setVisible(self._count > 0)
 
     def _shutdown_jobs(self, timeout_ms: int = 2000) -> None:
@@ -2572,7 +2187,6 @@ class FigureQueue(QWidget):
         try:
             jobs.shutdown(timeout_ms=timeout_ms)
         except Exception:
-            # Reachable from __del__, where the C++ half may already be gone.
             LOG.debug("figure render shutdown failed", exc_info=True)
 
     def _delete_tempdir(self) -> None:
@@ -2588,12 +2202,8 @@ class FigureQueue(QWidget):
                 pass
             self._tempdir = None
 
-    # -- lifecycle ---------------------------------------------------------
 
     def closeEvent(self, event):
-        # Cancel matplotlib's queued idle draw before Qt destroys the canvas.
-        # A pending QTimer otherwise calls into the deleted C++ widget during
-        # the next event-loop drain.
         """Stop background rendering before going away.
 
         :param event: the Qt close event.
@@ -2604,11 +2214,6 @@ class FigureQueue(QWidget):
         super().closeEvent(event)
 
     def __del__(self):
-        # Best-effort temp cleanup if the widget is GC'd without close. The
-        # canvas goes first so its queued idle draw cannot run after Python
-        # has released the owning widget. The workers follow because they read
-        # out of the directory about to be removed, and a live QThread must
-        # not be left holding a runner whose last reference is being dropped.
         """Best-effort cleanup if the widget is collected without being closed.
 
         The canvas goes first, so its queued idle draw cannot run after Python
@@ -2621,7 +2226,6 @@ class FigureQueue(QWidget):
         try:
             self._teardown_canvas()
         except Exception:
-            # The C++ half may already be gone when Qt initiated destruction.
             pass
         try:
             self._shutdown_jobs()
@@ -2633,9 +2237,6 @@ class FigureQueue(QWidget):
             pass
 
 
-# ---------------------------------------------------------------------------
-# Figure settings dialog — restyle a matplotlib figure (PDF/vector mode)
-# ---------------------------------------------------------------------------
 
 class _FigureSettingsDialog(QDialog):
     """Edit vector-figure colors and text size, then render the result.
@@ -2676,29 +2277,11 @@ class _FigureSettingsDialog(QDialog):
             from ..preferences import (get_figure_color_tokens,
                                        get_figure_line_token,
                                        get_figure_text_size)
-            # THE STORED TOKENS, not the resolved pair. `get_figure_colors()`
-            # answers "what colour is the text right now", which on a dark
-            # theme is "#ffffff" whether the user chose it or not -- and this
-            # dialog WRITES ITS SEED BACK on OK, so seeding from the answer
-            # turned "follow the theme" into a hard white for every future
-            # figure the first time anybody pressed OK. That is instruction
-            # 152 section A, and the rule it cost is stated at the head of
-            # the figure colour section in `spacr/qt/preferences.py`:
-            # NEVER PERSIST A RESOLVED DEFAULT.
             self._bg, self._fg = get_figure_color_tokens()
             self._line = get_figure_line_token()
-            # THE SAME RULE, IN THE SIZE KEY. 0 means "leave every figure the
-            # sizes it was drawn with", and 10 is only what the box SHOWS
-            # while that is true. `_apply_and_accept` used to write the shown
-            # number back, so pressing OK once -- to change a colour, or by
-            # accident -- froze 10 into every figure this user would ever
-            # draw, which is issue #108's "the font size is by default too
-            # large". `_size_touched` is what tells the two apart.
             self._stored_size = get_figure_text_size()
             _init_size = self._stored_size or 10
         except Exception:
-            # The literal rather than AUTO_FIGURE_COLOR: this branch exists
-            # for the case where importing preferences failed.
             self._bg, self._fg, _init_size = "auto", "auto", 10
             self._line = "auto"
             self._stored_size = 0
@@ -2706,12 +2289,6 @@ class _FigureSettingsDialog(QDialog):
         self._bg_btn.clicked.connect(lambda: self._pick("_bg", self._bg_btn))
         self._fg_btn = _QPB("Font colour…")
         self._fg_btn.clicked.connect(lambda: self._pick("_fg", self._fg_btn))
-        # THE SECOND OF THE TWO CONTROLS (instruction 152 B). "Text colour"
-        # was the only ink this dialog offered and it drove the spines and
-        # the tick marks as well, so there was no way to say "dark axes,
-        # coloured labels" or the other way round -- and the first report
-        # ("doesnt look like there is an option to change the axis color")
-        # was about exactly the half that had no control.
         self._line_btn = _QPB("Line colour…")
         self._line_btn.clicked.connect(
             lambda: self._pick("_line", self._line_btn))
@@ -2719,9 +2296,6 @@ class _FigureSettingsDialog(QDialog):
         form.addRow("Line colour", self._line_btn)
         form.addRow("Font colour", self._fg_btn)
 
-        # The explicit route back. A user frozen by the old dialog -- or by
-        # their own click -- otherwise has no way to un-set a colour, and a
-        # preference that can only ever be set is a trap.
         self._auto_btn = _QPB("Follow the theme")
         self._auto_btn.clicked.connect(self._follow_theme)
         form.addRow("Automatic", self._auto_btn)
@@ -2767,28 +2341,17 @@ class _FigureSettingsDialog(QDialog):
             self._fg_btn: "figure_text_color",
             self._size: "figure_text_size",
         })
-        # Set after the sweep above, which owns the other three tooltips.
-        # This one is not a documented setting — it is the way out of one.
         self._auto_btn.setToolTip(
             "Put the background, line colour and font colour back to "
             "following the app theme, so a light theme gives dark ink and a "
             "dark theme gives light. Greyed out when they already do.")
-        # Not routed through `install_api_tooltips`: that maps a widget onto a
-        # DOCUMENTED setting key, and this control is one half of a split that
-        # the settings documentation still spells as one ("figure_text_color").
-        # Mapping it onto that key would put the wrong sentence on it.
         self._line_btn.setToolTip(
             "The colour of every LINE in the figure: the axis spines and the "
             "tick marks. The numbers printed beside the ticks are text and "
             "follow the font colour.")
         if self._umap_settings is not None:
-            # Scoped to the section rather than to the dialog: a second sweep
-            # over the whole dialog would re-decorate the three figure
-            # controls under the "umap" app key, and their documentation
-            # lives under "figure".
             install_api_tooltips(self._umap_settings, "umap")
 
-    # -- the Image UMAP half -----------------------------------------------
 
     def _build_umap_section(self, outer) -> None:
         """Add every Image UMAP setting, live against this figure."""
@@ -2868,7 +2431,6 @@ class _FigureSettingsDialog(QDialog):
                 self._on_umap_changed(initial)
         super().reject()
 
-    # -- the two colour tokens ---------------------------------------------
 
     @staticmethod
     def _is_auto(token) -> bool:
@@ -2923,10 +2485,6 @@ class _FigureSettingsDialog(QDialog):
         """
         from PySide6.QtGui import QColor
         auto_bg, auto_fg = self._auto_preview()
-        # The line button's automatic answer is the FONT's, not the theme's
-        # directly: "auto" on the line half means "follow the text", so a
-        # user who has chosen a green font sees "Automatic (#00ff00)" and is
-        # told what the axes are actually about to be drawn in.
         auto_line = auto_fg if self._is_auto(self._fg) else self._fg
         for token, btn, auto_value in ((self._bg, self._bg_btn, auto_bg),
                                        (self._line, self._line_btn, auto_line),
@@ -2941,12 +2499,7 @@ class _FigureSettingsDialog(QDialog):
                 btn.setStyleSheet(
                     f"background-color: {colour.name()}; color: {ink};")
             else:
-                # A transparent background has no swatch to show; painting
-                # one would be a lie about what the figure will look like.
                 btn.setStyleSheet("")
-        # Greyed when it would do nothing, per instruction 106 — and it is
-        # also the readout for "am I frozen?", which is the question a user
-        # bitten by this arrives with.
         self._auto_btn.setEnabled(
             not (self._is_auto(self._bg) and self._is_auto(self._fg)
                  and self._is_auto(self._line)))
@@ -2984,11 +2537,6 @@ class _FigureSettingsDialog(QDialog):
         leave the store exactly as it was found, which is the regression this
         method exists to not repeat.
         """
-        # 0 = automatic, and it stays 0 unless the user moved the box. The
-        # colours are seeded from their TOKENS for this reason and the size
-        # is seeded from a RESOLVED 10, which is why it needed the flag
-        # rather than a comparison: a store of 0 and a box showing 10 are not
-        # the same state, and only one of them may be written.
         size = int(self._size.value()) if self._size_touched \
             else int(getattr(self, "_stored_size", 0) or 0)
         bg, fg = self._resolved_pair()
@@ -3003,13 +2551,8 @@ class _FigureSettingsDialog(QDialog):
         except Exception:
             pass
         if self._size_touched:
-            # This box is the size for EVERY figure, so a per-figure override
-            # left on the figure in front of the user would make it the one
-            # figure that ignored what they just asked for.
             set_figure_text_size_override(self._fig, 0)
         if self._umap_settings is not None:
-            # A value still sitting on the debounce timer is a value the user
-            # typed and would otherwise lose by pressing OK promptly.
             self._umap_settings.flush()
         FigureQueue._style_figure(self._fig, bg, fg, size, line)
         self.accept()

@@ -17,6 +17,18 @@ Everything here is read off the filesystem at run time. The only hand-written
 part is the small table of stages and blockers below, which is the one thing
 the files themselves do not say in a machine-readable way.
 
+TWO FOLDERS, NOT THREE, AND THE HEADER NOW SAYS WHICH. The scan is
+``features/future/*.txt`` and ``features/new/*.txt`` -- the folders named in
+``SCANNED`` -- and nothing else. ``features/`` itself still holds ledger files
+the rename from ``instructions/`` left behind, and an index that told a reader
+it was generated "from the files themselves" while skipping them is what item
+398 was filed about. They are globbed per run by ``_unscanned_top_level`` and
+printed in the index header BY NAME, never as a count: a number written into
+prose does not move when the folder does, and this ledger has been caught by
+exactly that several times. Listing them also puts them under ``--check``, so
+a file arriving at the top level makes the committed index stale instead of
+being invisible to every check that exists.
+
 Usage::
 
     python tools/build_instruction_index.py            # rewrite
@@ -36,6 +48,11 @@ from typing import Dict, List, Tuple
 REPO = Path(__file__).resolve().parent.parent
 INSTRUCTIONS = REPO / "features"
 INDEX = INSTRUCTIONS / "00_INDEX.txt"
+
+#: The folders this index is generated from, named once. Every scan below
+#: reads this tuple and the header prints it, so the folders the tool claims
+#: to read cannot drift from the folders it does read.
+SCANNED: Tuple[str, ...] = ("future", "new")
 
 #: Instructions owned by the concurrent codex session. Named here rather than
 #: inferred, because "do not touch this" is not something a file says about
@@ -70,9 +87,29 @@ BLOCKED: Dict[str, str] = {
     "44": "needs a macOS/Windows host",
     "45": "needs a macOS/Windows host",
     "53": "needs makensis + both other OSes",
-    "59": "needs the maintainer's accounts",
-    "81": "needs the reporter's `df -T` and a stack trace",
 }
+
+#: TWO CAME OFF `BLOCKED` ON 2026-09-14, AND NOT BY BEING GRANTED -- by being
+#: checked against the outside world, which nobody had done.
+#:
+#:   "59": "needs the maintainer's accounts"
+#:       conda-forge/spacr-feedstock has existed since 2026-08-27 with
+#:       einarolafsson registered as its maintainer, and its autotick bot
+#:       merged v1.5.0.6 and v1.5.0.7 by itself. A feedstock exists only
+#:       after a staged-recipes PR is MERGED, so the one action 59 called
+#:       outstanding had been taken eighteen days earlier.
+#:       `gh api repos/conda-forge/spacr-feedstock/commits`
+#:   "81": "needs the reporter's `df -T` and a stack trace"
+#:       0 open issues and 86 closed. #15 was closed 2026-08-14 and #72 on
+#:       08-12, so neither answer can still matter.
+#:       `gh issue list --repo EinarOlafsson/spacr --state open` -> 0
+#:
+#: THE LESSON, and it is why this comment is here rather than in a commit
+#: message nobody will read again: an item can be blocked on an outward-facing
+#: action, have that action taken by the person it was waiting for, and stay
+#: blocked in this dictionary for weeks because the dictionary is hand-written
+#: and nothing re-checks it. BEFORE ADDING A NUMBER HERE, and before trusting
+#: one that is here, spend the thirty seconds it takes to ask.
 
 #: The two the maintainer has scheduled at the end, in this order.
 LAST: Dict[str, str] = {
@@ -87,10 +124,19 @@ STAGE: Dict[str, str] = {
     # as not-started with all five parts shipped, 306 read as finished with
     # its ratchet red). Re-audit before trusting any figure here.
     "01": "100% of the code; blocked on publishing 1.5.0.5",
+    "59": "DONE -- published on conda-forge since 2026-08-27, and its "
+          "autotick bot keeps it current",
+    "81": "DONE -- 0 open issues, 86 closed",
     "05": "~40% -- mechanism verified at 1.5.0.4; needs one green SHA, then approval",
     "253": "0% by construction -- closes last",
     "288": "coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; zero open issues",
-    "304": "~60% -- metadata in place; needs the Zenodo toggle and the bump",
+    # Zenodo is live and automatic, verified 2026-09-14 from its REST API:
+    # v1.5.0.7 published 09-12, version DOI 10.5281/zenodo.22726094, concept
+    # DOI 10.5281/zenodo.21343316, and CITATION.cff and README.rst already
+    # carry the right one in each place. The item's own title is two releases
+    # stale and there is no version of it left to do.
+    "304": "CLOSED 2026-09-14 -- Zenodo is live and automatic; v1.5.0.7 "
+           "archived, DOI 10.5281/zenodo.22726094",
     "305": "~60% -- startup accepted from an installed wheel; sdist, GPU, matrix, profiles left",
     "315": "~75% -- 3a/3b/3c fixed; 3d now itemised into three named optimisations",
     "316": "READMEs delivered in all nine; lane triaged 2026-09-06, 26 red -> 19: 1,089 catalog rows blocked on OPUS models absent from this machine, 5 are 372's OPS tooltips, the rest are pins and two stale strings",
@@ -175,7 +221,7 @@ def _sort_key(number: str) -> tuple[int, str]:
 def _files_for_number(number: str) -> List[str]:
     """Every feature file whose name starts with this item number."""
     found: List[str] = []
-    for folder in ("future", "new"):
+    for folder in SCANNED:
         base = INSTRUCTIONS / folder
         if not base.is_dir():
             continue
@@ -183,10 +229,29 @@ def _files_for_number(number: str) -> List[str]:
     return found
 
 
+def _unscanned_top_level() -> List[str]:
+    """``features/*.txt`` files that no list in this index is built from.
+
+    GLOBBED PER RUN, NEVER PINNED AT A NUMBER. Item 398 is the record of what
+    these are: `instructions/` held files in three places -- `open/`, `done/`
+    and its own top level -- and the rename carried all three across, so the
+    top level kept ledger files that neither ``SCANNED`` folder contains. The
+    count of them has been written into prose three times and has been wrong
+    since the day it was written each time; the index prints the names this
+    call returns instead, so it is right on the run and shrinks when somebody
+    resolves one.
+
+    The index itself is excluded: a file cannot be an input to its own
+    generation.
+    """
+    return sorted((path.name for path in INSTRUCTIONS.glob("*.txt")
+                   if path.name != INDEX.name), key=str.lower)
+
+
 def _duplicate_numbers() -> set:
     """Item numbers carried by more than one file, across both lists."""
     seen: Dict[str, int] = {}
-    for folder in ("future", "new"):
+    for folder in SCANNED:
         base = INSTRUCTIONS / folder
         if not base.is_dir():
             continue
@@ -200,8 +265,16 @@ def _duplicate_numbers() -> set:
 
 def render(today: str = "") -> str:
     """The whole index as text."""
-    future_rows = _entries("future")
-    new_rows = _entries("new")
+    # Keyed off SCANNED, which the header also prints, so the folders named
+    # and the folders read are one list. DROPPING a folder from SCANNED is a
+    # KeyError on the next two lines rather than a header that quietly
+    # describes the wrong scan. ADDING one is not: it would be globbed, and
+    # printed in the header, while its rows went into no list -- so a third
+    # folder needs a list of its own below, which is why the two lookups are
+    # spelled out here instead of iterated.
+    rows = {folder: _entries(folder) for folder in SCANNED}
+    future_rows = rows["future"]
+    new_rows = rows["new"]
     # Kept under the old names below so the rest of this renderer, which
     # predates the split into two lists, does not have to be rewritten to
     # say the same thing.
@@ -210,17 +283,51 @@ def render(today: str = "") -> str:
     percent = (len(done_rows) * 100 // total) if total else 0
     stamp = today or datetime.date.today().isoformat()
 
+    unscanned = _unscanned_top_level()
+
     lines = [
         "=" * 80,
         "spaCR FEATURES -- NEW, AND FUTURE",
         "=" * 80,
         "",
-        f"Regenerated {stamp} by `tools/build_instruction_index.py`, from the "
-        "files",
-        "themselves. Do not hand-edit: it went nine days stale last time, and "
-        "an index",
-        "that disagrees with the folder is worse than none, because it is "
+        f"Regenerated {stamp} by `tools/build_instruction_index.py`, from "
+        "the files in",
+        "these globs and nothing else:",
+        "",
+    ]
+    lines += [f"  features/{folder}/*.txt" for folder in SCANNED]
+    lines += [
+        "",
+        "Do not hand-edit: it went nine days stale last time, and an index "
+        "that",
+        "disagrees with the folder is worse than none, because it is "
         "believed.",
+        "",
+    ]
+    if unscanned:
+        lines += [
+            "features/ ITSELF IS NOT SCANNED, and the .txt files below sit "
+            "there, in",
+            "neither list. They are globbed on every run rather than counted "
+            "once in",
+            "prose, so this list is right on the day it is read and shrinks "
+            "when one is",
+            "resolved; item 398 holds what becomes of the ledger ones. Where "
+            "the number",
+            "a name here opens with also has a row below, 398 measured this "
+            "top-level",
+            "copy as the staler of the two -- and it is the one a reader "
+            "reaches first.",
+            "",
+        ]
+        lines += [f"  {name}" for name in unscanned]
+    else:
+        lines += [
+            "features/ ITSELF IS NOT SCANNED, and today it holds no .txt "
+            "file but this",
+            "one, so the globs above are the whole ledger.",
+        ]
+    lines += [
         "",
         "Each file says the same four things: what the state is, why it "
         "matters, what",

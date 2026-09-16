@@ -80,28 +80,62 @@ class TestItOpensIntoTheResults:
         assert other in panel.volcano._status.text()
 
     def test_it_is_fast_enough_to_recolour_interactively(self, qtbot, results):
-        """The lag that started all of this was on exactly this redraw."""
+        """The lag that started all of this was on exactly this redraw.
+
+        AGAINST THE MATPLOTLIB FIGURE IT REPLACED, NOT AGAINST A CLOCK. This
+        asserted ``each < 50`` ms, which is a statement about the machine: on
+        run 34961482728 a coverage shard's runner took 54 ms for a redraw that
+        takes 12 ms here, and the test failed a contract the code keeps. The
+        claim the budget stood for was "less than half the Matplotlib path
+        this replaced", so that is what is measured now: the same table drawn
+        by `spacr.figures.panels.volcano` on an Agg canvas, in the same
+        process, on the same thread, under the same tracer when there is one.
+        Measured here, 2026-09-15, five runs each: the redraw is 0.25 of the
+        Matplotlib figure uninstrumented and about 0.3 under branch coverage.
+
+        THE NEGATIVE CONTROL is the regression `_categorical_brushes` exists
+        to prevent: one `pg.mkBrush` per point instead of one per colour.
+        With that put back the redraw costs about as much as Matplotlib and
+        this test fails -- while the old 50 ms budget still passed it here.
+        """
         import time
 
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+        from matplotlib.figure import Figure
+
+        from spacr.figures.panels import volcano
         from spacr.qt.widgets.regression_results import RegressionResultsPanel
 
         panel = RegressionResultsPanel()
         qtbot.addWidget(panel)
         panel.set_frame(results)
 
-        # Warm Qt/pyqtgraph's lazy paths before timing the steady-state redraw.
-        # Thread CPU time measures the work performed by the interface thread
-        # without counting pre-emption by another xdist worker on a shared CI
-        # runner. The redraw is synchronous and performs no I/O, so this keeps
-        # the original performance contract while avoiding scheduler noise.
+        def matplotlib_redraw():
+            figure = Figure(figsize=(6, 4), dpi=100)
+            FigureCanvasAgg(figure)
+            volcano(figure.add_subplot(), results)
+            figure.canvas.draw()
+
+        # Warm both paths first: the first call of each pays one-time import
+        # and cache costs that a steady-state redraw does not. Thread CPU time
+        # leaves out pre-emption by another xdist worker, and both redraws are
+        # synchronous on this thread with no I/O. The Qt paint that follows a
+        # pyqtgraph update is not included, as in the original 45-against-115
+        # ms benchmark in fast_plots' module docstring.
         panel._redraw_volcano()
+        matplotlib_redraw()
         start = time.thread_time()
         for _ in range(9):
             panel._redraw_volcano()
         each = (time.thread_time() - start) / 9 * 1000
-        # Fifty milliseconds sustains 20 interactive redraws per second and
-        # remains less than half the 115 ms Matplotlib path this replaced.
-        assert each < 50, f"the volcano took {each:.0f} ms (matplotlib: 115)"
+        start = time.thread_time()
+        for _ in range(5):
+            matplotlib_redraw()
+        matplotlib = (time.thread_time() - start) / 5 * 1000
+        assert each < matplotlib / 2, (
+            f"the volcano took {each:.0f} ms and the Matplotlib figure it "
+            f"replaced {matplotlib:.0f} ms in this process; the fast plot must "
+            f"cost less than half of it")
 
     def test_only_plausible_categories_are_offered_for_colour(self, qtbot,
                                                               results):

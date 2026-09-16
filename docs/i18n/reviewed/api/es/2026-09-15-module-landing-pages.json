@@ -1,0 +1,160 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "**What it is for.** Classify is the fourth step of the workflow, after Mask, Measure and Annotate. It learns the classes a screen is scored on and predicts them for every object. ``classifier_family`` chooses how: ``cv`` trains an image model on object extracted image regions through :func:`spacr.deep_spacr.deep_spacr`, and ``ml`` fits a classical model such as XGBoost, LightGBM or a random forest on measured features through :func:`spacr.ml.generate_ml_scores`.",
+      "label": "spacr.classify#1",
+      "source": "**What it is for.** Classify is the fourth step of the pipeline, after Mask, Measure and Annotate. It learns the classes a screen is scored on and predicts them for every object. ``classifier_family`` chooses how: ``cv`` trains an image model on object crops through :func:`spacr.deep_spacr.deep_spacr`, and ``ml`` fits a classical model such as XGBoost, LightGBM or a random forest on measured features through :func:`spacr.ml.generate_ml_scores`.",
+      "source_sha256": "580dd8c91c0f25d59434190a62f707a78a5be8ab61221788c572139e9341e25e",
+      "translation": "**Para qué sirve.** Classify es el cuarto paso del flujo de trabajo, después de Mask, Measure y Annotate. Aprende las clases con las que se puntúa un cribado y las predice para cada objeto. ``classifier_family`` elige cómo: ``cv`` entrena un modelo de imagen con recortes de objetos mediante :func:`spacr.deep_spacr.deep_spacr`, y ``ml`` ajusta un modelo clásico como XGBoost, LightGBM o un bosque aleatorio sobre características medidas mediante :func:`spacr.ml.generate_ml_scores`."
+    },
+    {
+      "context": "**What it needs.** A project that has been through Mask and Measure, so that ``measurements/measurements.db`` and its object extracted image regions exist, and a definition of the classes. ``dataset_mode`` sets that definition for both families: ``metadata`` takes classes from laboratory microplate metadata such as the positive and negative control microplate sample positions, and ``annotation`` takes them from an annotation column of ``png_list``, as written by Annotate. The CV family reads extracted image regions from PNG files or cuts them from the ``merged`` arrays, as ``crop_source`` selects.",
+      "label": "spacr.classify#2",
+      "source": "**What it needs.** A project that has been through Mask and Measure, so that ``measurements/measurements.db`` and its object crops exist, and a definition of the classes. ``dataset_mode`` sets that definition for both families: ``metadata`` takes classes from plate metadata such as the positive and negative control wells, and ``annotation`` takes them from an annotation column of ``png_list``, as written by Annotate. The CV family reads crops from PNG files or cuts them from the ``merged`` arrays, as ``crop_source`` selects.",
+      "source_sha256": "127ccad0853606b1f61b30db3431fb1c812d12d89f503df9d82d9418af58c069",
+      "translation": "**Qué necesita.** Un proyecto que haya pasado por Mask y Measure, de modo que existan ``measurements/measurements.db`` y sus recortes de objetos, y una definición de las clases. ``dataset_mode`` fija esa definición para ambas familias: ``metadata`` toma las clases de los metadatos de la placa, como los pocillos de control positivo y negativo, y ``annotation`` las toma de una columna de anotación de ``png_list``, tal como la escribe Annotate. La familia CV lee los recortes de archivos PNG o los corta de las matrices ``merged``, según lo que seleccione ``crop_source``."
+    },
+    {
+      "context": "**What it produces.** A CV run writes model checkpoints, ``DL_model_settings.csv``, a dataset tar, a ``top_examples/`` folder with the most confident extracted image regions of each class and an evaluation bundle with the held-out performance and ``leakage.json``, and merges each object's predicted class and probability into ``png_list``. An ML run writes per-object predictions, feature-importance and permutation tables and a plate heatmap to ``results/`` beside the measurements database.",
+      "label": "spacr.classify#3",
+      "source": "**What it produces.** A CV run writes model checkpoints, ``DL_model_settings.csv``, a dataset tar, a ``top_examples/`` folder with the most confident crops of each class and an evaluation bundle with the held-out performance and ``leakage.json``, and merges each object's predicted class and probability into ``png_list``. An ML run writes per-object predictions, feature-importance and permutation tables and a plate heatmap to ``results/`` beside the measurements database.",
+      "source_sha256": "0edc8a01b335c43dfc27f5a7d8b61f0be7a45b8fbb70b2fea04ddb4cc6046082",
+      "translation": "**Qué produce.** Una ejecución CV escribe puntos de control del modelo, ``DL_model_settings.csv``, un archivo tar del conjunto de datos, una carpeta ``top_examples/`` con los recortes más seguros de cada clase y un paquete de evaluación con el rendimiento sobre datos reservados y ``leakage.json``, e incorpora la clase predicha y la probabilidad de cada objeto a ``png_list``. Una ejecución ML escribe predicciones por objeto, tablas de importancia de características y de permutación y un mapa de calor de la placa en ``results/``, junto a la base de datos de mediciones."
+    },
+    {
+      "context": "**What to do next.** Check the held-out performance, and the leakage verdict on the QC screen, before trusting the predictions. Then take per-microplate sample position scores into Regression, which pairs them with the guide counts from Map Barcodes to estimate which guides and genes explain the phenotype.",
+      "label": "spacr.classify#4",
+      "source": "**What to do next.** Check the held-out performance, and the leakage verdict on the QC screen, before trusting the predictions. Then take per-well scores into Regression, which pairs them with the guide counts from Map Barcodes to estimate which guides and genes explain the phenotype.",
+      "source_sha256": "43003a36df3b4999f9159e0d3ee5879cd7bf7bbf625131187b20de5d5e76c05d",
+      "translation": "**Qué hacer después.** Compruebe el rendimiento sobre datos reservados, y el veredicto de fuga en la pantalla QC, antes de confiar en las predicciones. Después lleve las puntuaciones por pocillo a Regression, que las empareja con los recuentos de guías de Map Barcodes para estimar qué guías y genes explican el fenotipo."
+    },
+    {
+      "context": "**Where it sits in the workflow.** Annotate is the third step of the workflow. It needs the extracted image regions Measure lists in ``png_list``, and the labels it writes into an annotation column of that table are what Classify trains on when ``dataset_mode`` is ``annotation``.",
+      "label": "spacr.qt.screens.annotate#2",
+      "source": "**Where it sits in the workflow.** Annotate is the third step of the pipeline. It needs the crops Measure lists in ``png_list``, and the labels it writes into an annotation column of that table are what Classify trains on when ``dataset_mode`` is ``annotation``.",
+      "source_sha256": "c09ba8afb320118e1dddfc9fcc0511196e79a17932bdf962cec0b383b38e16dd",
+      "translation": "**Dónde se sitúa en el flujo de trabajo.** Annotate es el tercer paso del flujo de trabajo. Necesita los recortes que Measure enumera en ``png_list``, y las etiquetas que escribe en una columna de anotación de esa tabla son con lo que Classify entrena cuando ``dataset_mode`` es ``annotation``."
+    },
+    {
+      "context": "**What it is for.** Planning a laboratory microplate before it is imaged, as the first step of a screen: a layout can still be changed then, and the laboratory microplate map exported here is what the measurements are joined to later.",
+      "label": "spacr.qt.screens.experiment_design#3",
+      "source": "**What it is for.** Planning a plate before it is imaged, as the first step of a screen: a layout can still be changed then, and the plate map exported here is what the measurements are joined to later.",
+      "source_sha256": "eba6eceda23475bb3733d2fd06511a1f018ed88ff1fe00609f10b267c3925bbb",
+      "translation": "**Para qué sirve.** Planificar una placa antes de adquirir sus imágenes, como primer paso de un cribado: en ese momento la disposición aún puede cambiarse, y el mapa de placa exportado aquí es aquello con lo que se unirán después las mediciones."
+    },
+    {
+      "context": "**What it needs.** A laboratory microplate identifier, a laboratory microplate format from 6 to 1536 microplate sample positions, and a list of conditions, each with a number of replicates and a role: treatment, positive control, negative control or blank. The layout -- ``random``, ``row``, ``column`` or ``block`` -- places the replicates, the edge setting uses the outer ring of microplate sample positions or leaves it empty, and the seed makes a random layout reproducible.",
+      "label": "spacr.qt.screens.experiment_design#4",
+      "source": "**What it needs.** A plate identifier, a plate format from 6 to 1536 wells, and a list of conditions, each with a number of replicates and a role: treatment, positive control, negative control or blank. The layout -- ``random``, ``row``, ``column`` or ``block`` -- places the replicates, the edge setting uses the outer ring of wells or leaves it empty, and the seed makes a random layout reproducible.",
+      "source_sha256": "341864ac8206f6cbdb45fbcf1b868f2de05113946f3bc0b3e56603a13e859343",
+      "translation": "**Qué necesita.** Un identificador de placa, un formato de placa de 6 a 1536 pocillos y una lista de condiciones, cada una con un número de réplicas y un papel: tratamiento, control positivo, control negativo o blanco. La disposición, ``random``, ``row``, ``column`` o ``block``, coloca las réplicas; el ajuste de bordes usa el anillo exterior de pocillos o lo deja vacío, y la semilla hace reproducible una disposición aleatoria."
+    },
+    {
+      "context": "**What it produces.** Export laboratory microplate map writes three files to the chosen folder: ``plate_map.csv``, one row per microplate sample position keyed by ``plateID``, ``rowID`` and ``columnID``; ``plate_map.json``, the design and the findings that were shown, so the layout can be regenerated; and ``plate_map_settings.json``, the ``treatments`` and ``treatment_plate_metadata`` settings for an analysis. A random layout cannot be written as whole rows or columns, so that file then records why instead, and ``plate_map.csv`` is the authoritative record.",
+      "label": "spacr.qt.screens.experiment_design#5",
+      "source": "**What it produces.** Export plate map writes three files to the chosen folder: ``plate_map.csv``, one row per well keyed by ``plateID``, ``rowID`` and ``columnID``; ``plate_map.json``, the design and the findings that were shown, so the layout can be regenerated; and ``plate_map_settings.json``, the ``treatments`` and ``treatment_plate_metadata`` settings for an analysis. A random layout cannot be written as whole rows or columns, so that file then records why instead, and ``plate_map.csv`` is the authoritative record.",
+      "source_sha256": "1f04dd75d44041fb50a1d3548ce2e067880bb2ea84dc04db60747967e5441825",
+      "translation": "**Qué produce.** La exportación del mapa de placa escribe tres archivos en la carpeta elegida: ``plate_map.csv``, una fila por pocillo con las claves ``plateID``, ``rowID`` y ``columnID``; ``plate_map.json``, el diseño y los hallazgos que se mostraron, para poder regenerar la disposición; y ``plate_map_settings.json``, los ajustes ``treatments`` y ``treatment_plate_metadata`` para un análisis. Una disposición aleatoria no puede escribirse como filas o columnas completas, así que ese archivo registra entonces el motivo, y ``plate_map.csv`` es el registro de referencia."
+    },
+    {
+      "context": "**What to do next.** Resolve the findings, then image the plate. When the data comes back, ``plate_map.csv`` joins the measurement tables on ``plateID``, ``rowID`` and ``columnID`` without a translation step, and the settings file fills in the treatment settings of the analysis.",
+      "label": "spacr.qt.screens.experiment_design#6",
+      "source": "**What to do next.** Resolve the findings, then image the plate. When the data comes back, ``plate_map.csv`` joins the measurement tables on ``plateID``, ``rowID`` and ``columnID`` without a translation step, and the settings file fills in the treatment settings of the analysis.",
+      "source_sha256": "9251a11962fd0b1e49fb2e36933168e3ed4cd817f10eb3d9866c9f87af950991",
+      "translation": "**Qué hacer después.** Resuelva los hallazgos y después adquiera las imágenes de la placa. Cuando lleguen los datos, ``plate_map.csv`` se une a las tablas de mediciones por ``plateID``, ``rowID`` y ``columnID`` sin ningún paso de traducción, y el archivo de ajustes completa los ajustes de tratamiento del análisis."
+    },
+    {
+      "context": "**What it is for.** Selecting a population by its measurements once Measure has run: the cells above an intensity threshold, or one cluster in a two-feature scatter. Data-selection boundaries can sit inside other data-selection boundaries, and each shows its object count and its percentage of both its parent data-selection boundary and the whole table.",
+      "label": "spacr.qt.screens.gate_editor#2",
+      "source": "**What it is for.** Selecting a population by its measurements once Measure has run: the cells above an intensity threshold, or one cluster in a two-feature scatter. Gates can sit inside other gates, and each shows its object count and its percentage of both its parent gate and the whole table.",
+      "source_sha256": "18e88c1de632fb65b473bfc7400fad34a4ec90391d438e4706e8845d7725da7d",
+      "translation": "**Para qué sirve.** Seleccionar una población por sus mediciones una vez que Measure se ha ejecutado: las células por encima de un umbral de intensidad, o un grupo en un diagrama de dispersión de dos características. Los gates pueden estar dentro de otros gates, y cada uno muestra su número de objetos y su porcentaje tanto del gate padre como de la tabla completa."
+    },
+    {
+      "context": "**What it needs.** A measurement table: one table of a ``measurements.db``, where the object tables are offered first, or a CSV or TSV file. Several databases can be loaded as one table; laboratory microplate identifiers that collide between them are reported rather than silently pooled. Database tables are read as a sample set by ``sample_fraction`` and capped by ``max_points``, both in the Data-selection boundary Editor settings.",
+      "label": "spacr.qt.screens.gate_editor#3",
+      "source": "**What it needs.** A measurement table: one table of a ``measurements.db``, where the object tables are offered first, or a CSV or TSV file. Several databases can be loaded as one table; plate identifiers that collide between them are reported rather than silently pooled. Database tables are read as a sample set by ``sample_fraction`` and capped by ``max_points``, both in the Gate Editor settings.",
+      "source_sha256": "7ad8256125910d7c6e53f73988b70e80fc3d3bf0ce1fcc171194312a2b7da1c6",
+      "translation": "**Qué necesita.** Una tabla de mediciones: una tabla de un ``measurements.db``, donde las tablas de objetos se ofrecen primero, o un archivo CSV o TSV. Se pueden cargar varias bases de datos como una sola tabla; los identificadores de placa que coinciden entre ellas se notifican en lugar de combinarse en silencio. Las tablas de la base de datos se leen como una muestra fijada por ``sample_fraction`` y se limitan con ``max_points``, ambos en la configuración de Gate Editor."
+    },
+    {
+      "context": "**What it produces.** Threshold, rectangle, oval, polygon and wand data-selection boundaries on one or two measurements, box, cylinder and prism data-selection boundaries in the 3D view, and combinations of other data-selection boundaries. Publishing a data-selection boundary narrows every linked view to that population. The data-selection filtering strategy saves to and loads from a JSON file (``gates.json`` by default) so that the next laboratory microplate is gated the same way; Export writes each data-selection boundary as a column of the ``filters`` table in the measurements database, and the graph saves as PNG or PDF.",
+      "label": "spacr.qt.screens.gate_editor#4",
+      "source": "**What it produces.** Threshold, rectangle, oval, polygon and wand gates on one or two measurements, box, cylinder and prism gates in the 3D view, and combinations of other gates. Publishing a gate narrows every linked view to that population. The gating strategy saves to and loads from a JSON file (``gates.json`` by default) so that the next plate is gated the same way; Export writes each gate as a column of the ``filters`` table in the measurements database, and the graph saves as PNG or PDF.",
+      "source_sha256": "9a7a051375217ca9fe0ae5acab2dcd6b132a8f9f2b52abee0aa101d0a1485e67",
+      "translation": "**Qué produce.** Gates de umbral, rectángulo, óvalo, polígono y varita sobre una o dos mediciones, gates de caja, cilindro y prisma en la vista 3D, y combinaciones de otros gates. Al publicar un gate, cada vista vinculada se reduce a esa población. La estrategia de gating se guarda en un archivo JSON y se carga desde él (``gates.json`` por defecto), para que la siguiente placa se delimite de la misma manera; la exportación escribe cada gate como una columna de la tabla ``filters`` en la base de datos de mediciones, y el gráfico se guarda como PNG o PDF."
+    },
+    {
+      "context": "**What to do next.** Look at the gated population in the views that follow the shared filter, such as Image UMAP, Graph Builder and the extracted-image-region grid, and load the saved data-selection filtering strategy on the next plate.",
+      "label": "spacr.qt.screens.gate_editor#5",
+      "source": "**What to do next.** Look at the gated population in the views that follow the shared filter, such as Image UMAP, Graph Builder and the crop grid, and load the saved gating strategy on the next plate.",
+      "source_sha256": "777cec7724e961ebd556bc885987088c4853a206dd3f0bc9d57635416f42ba26",
+      "translation": "**Qué hacer después.** Examine la población seleccionada en las vistas que siguen el filtro compartido, como Image UMAP, Graph Builder y la cuadrícula de recortes, y cargue la estrategia de gating guardada en la siguiente placa."
+    },
+    {
+      "context": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the data-selection boundary tools and the hierarchy with its percentages;",
+      "label": "spacr.qt.screens.gate_editor#7",
+      "source": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the gate tools and the hierarchy with its percentages;",
+      "source_sha256": "1f3de1f7408fc69b5b0d3e50c09aac04245ac1c893084fed33fe47ef75c13e51",
+      "translation": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — el lienzo, las herramientas de gate y la jerarquía con sus porcentajes;"
+    },
+    {
+      "context": "**What it is for.** Exploring a measurement table without plotting code, usually after Measure or Classify: drag columns onto the chart and it redraws as each one lands.",
+      "label": "spacr.qt.screens.graph_builder#5",
+      "source": "**What it is for.** Exploring a measurement table without plotting code, usually after Measure or Classify: drag columns onto the chart and it redraws as each one lands.",
+      "source_sha256": "3ce9e834a6db422e060250c028dcb842b417026568f68837c116cc4fd4bb3926",
+      "translation": "**Para qué sirve.** Explorar una tabla de mediciones sin escribir código de gráficos, normalmente después de Measure o Classify: arrastre columnas al gráfico y este se vuelve a dibujar a medida que llega cada una."
+    },
+    {
+      "context": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available.",
+      "label": "spacr.qt.screens.graph_builder#6",
+      "source": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available.",
+      "source_sha256": "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
+      "translation": "**Qué necesita.** Una tabla de un ``measurements.db`` o un archivo CSV o TSV, elegido con el botón para cargar una tabla. Las tablas de objetos y ``png_list`` se ofrecen primero; todas las demás tablas de la base de datos siguen disponibles."
+    },
+    {
+      "context": "**What it produces.** A chart with six drop zones: x, y, colour, size, facet row and facet column. Only x and y decide the chart type -- one continuous column gives a histogram, one categorical column a bar chart of counts, two continuous columns a scatter plot, one of each a box plot and two categorical columns a heatmap of counts -- and violin and line plots are explicit choices. A brushed rectangle becomes the shared selection, highlighted in the UMAP and on the laboratory microplate map.",
+      "label": "spacr.qt.screens.graph_builder#7",
+      "source": "**What it produces.** A chart with six drop zones: x, y, colour, size, facet row and facet column. Only x and y decide the chart type -- one continuous column gives a histogram, one categorical column a bar chart of counts, two continuous columns a scatter plot, one of each a box plot and two categorical columns a heatmap of counts -- and violin and line plots are explicit choices. A brushed rectangle becomes the shared selection, highlighted in the UMAP and on the plate map.",
+      "source_sha256": "3a6684acc216fc722fce4a8dbaca2669c9e3215b99b2928bfe1bf88902336342",
+      "translation": "**Qué produce.** Un gráfico con seis zonas de colocación: x, y, color, tamaño, fila de facetas y columna de facetas. Solo x e y deciden el tipo de gráfico: una columna continua da un histograma, una columna categórica un gráfico de barras de recuentos, dos columnas continuas un diagrama de dispersión, una de cada tipo un diagrama de caja y dos columnas categóricas un mapa de calor de recuentos; los gráficos de violín y de líneas se eligen explícitamente. Un rectángulo trazado con el pincel se convierte en la selección compartida, resaltada en la UMAP y en el mapa de la placa."
+    },
+    {
+      "context": "**What to do next.** Press Open selection in Annotate to see the brushed objects as extracted image regions, narrow every view with the Local Data Filter beside the chart, or move to filter data Editor when a population should become a named data-selection boundary that can be saved and re-applied.",
+      "label": "spacr.qt.screens.graph_builder#8",
+      "source": "**What to do next.** Press Open selection in Annotate to see the brushed objects as image crops, narrow every view with the Local Data Filter beside the chart, or move to Gate Editor when a population should become a named gate that can be saved and re-applied.",
+      "source_sha256": "1fb2849ed26e00028887d9edfd4a71b8965f154677187d9305111e2b83c1bf3f",
+      "translation": "**Qué hacer después.** Abra la selección en Annotate para ver los objetos marcados como recortes de imagen, reduzca todas las vistas con el filtro de datos local junto al gráfico, o pase a Gate Editor cuando una población deba convertirse en un gate con nombre que se pueda guardar y volver a aplicar."
+    },
+    {
+      "context": "**What it is for.** Checking a project before its numbers are used. After Mask and Measure, and again after Classify, QC gathers the verdicts those steps already wrote into one place, so the question does not need five application views.",
+      "label": "spacr.qt.screens.qc_dashboard#2",
+      "source": "**What it is for.** Checking a project before its numbers are used. After Mask and Measure, and again after Classify, QC gathers the verdicts those steps already wrote into one place, so the question does not need five screens.",
+      "source_sha256": "ae8693d6d97aeb6ea3475cbf705c72ac48317fa18a2c74c1b63a0c211214f3ee",
+      "translation": "**Para qué sirve.** Comprobar un proyecto antes de usar sus cifras. Después de Mask y Measure, y de nuevo después de Classify, QC reúne en un solo lugar los veredictos que esos pasos ya escribieron, para que la pregunta no requiera cinco pantallas."
+    },
+    {
+      "context": "**What it needs.** A project or laboratory microplate folder, chosen with Browse or dropped onto QC. Each card reads a file that is already on disk: the segmentation scorecards a Mask run writes (``seg_qc``), the units stamp Measure puts on every row of ``measurements.db``, ``leakage.json`` from the newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and ``agreement.json`` when a laboratory microplate-effect or annotator-agreement report has been saved under the project.",
+      "label": "spacr.qt.screens.qc_dashboard#3",
+      "source": "**What it needs.** A project or plate folder, chosen with Browse or dropped onto QC. Each card reads a file that is already on disk: the segmentation scorecards a Mask run writes (``seg_qc``), the units stamp Measure puts on every row of ``measurements.db``, ``leakage.json`` from the newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and ``agreement.json`` when a plate-effect or annotator-agreement report has been saved under the project.",
+      "source_sha256": "746a001acee09eda8da304f5dc315f67af96023c2810a95b4d3a91c462cc9c8f",
+      "translation": "**Qué necesita.** Una carpeta de proyecto o de placa, elegida con el explorador de archivos o arrastrada a QC. Cada tarjeta lee un archivo que ya está en el disco: las evaluaciones de segmentación que escribe una ejecución de Mask (``seg_qc``), el sello de unidades que Measure pone en cada fila de ``measurements.db``, ``leakage.json`` del paquete de evaluación más reciente de Classify (CV), y ``plate_qc.json`` y ``agreement.json`` cuando se ha guardado en el proyecto un informe de efectos de placa o de concordancia entre anotadores."
+    },
+    {
+      "context": "**What it produces.** Nothing on disk. Each card carries a verdict -- ``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the details behind it and, for a check that has never run, the step that would produce it; the overall verdict is the worst of them. A card older than its inputs is marked stale rather than downgraded, and ``missing`` means nothing was checked, not that nothing is wrong.",
+      "label": "spacr.qt.screens.qc_dashboard#4",
+      "source": "**What it produces.** Nothing on disk. Each card carries a verdict -- ``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the details behind it and, for a check that has never run, the step that would produce it; the overall verdict is the worst of them. A card older than its inputs is marked stale rather than downgraded, and ``missing`` means nothing was checked, not that nothing is wrong.",
+      "source_sha256": "754239afae8b251857d86faa929d2648e01a7879167d415c8366c4cda341b22e",
+      "translation": "**Qué produce.** Nada en el disco. Cada tarjeta lleva un veredicto, ``ok``, ``missing``, ``warn``, ``fail`` o ``error``, con un titular, los detalles que lo respaldan y, para una comprobación que nunca se ha ejecutado, el paso que la produciría; el veredicto global es el peor de ellos. Una tarjeta más antigua que sus entradas se marca como obsoleta en lugar de rebajarse, y ``missing`` significa que no se comprobó nada, no que nada esté mal."
+    },
+    {
+      "context": "**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source and re-run that step; the cards are read again when a file has changed. Layer Viewer shows the images behind a failing check, Control Charts follows the same checks over time and Outliers finds the microplate sample positions or objects unlike the rest; all three open from this application view's masthead.",
+      "label": "spacr.qt.screens.qc_dashboard#5",
+      "source": "**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source and re-run that step; the cards are read again when a file has changed. Layer Viewer shows the images behind a failing check, Control Charts follows the same checks over time and Outliers finds the wells or objects unlike the rest; all three open from this screen's masthead.",
+      "source_sha256": "d71e9b428ed3a221a506ba634c7b076c212e211b239d55478397fa7d796555aa",
+      "translation": "**Qué hacer después.** Corrija en su origen lo que señala una tarjeta ``warn`` o ``fail`` y vuelva a ejecutar ese paso; las tarjetas se leen de nuevo cuando un archivo ha cambiado. Layer Viewer muestra las imágenes detrás de una comprobación fallida, Control Charts sigue las mismas comprobaciones a lo largo del tiempo y Outliers encuentra los pocillos u objetos distintos del resto; los tres se abren desde la cabecera de esta pantalla."
+    }
+  ],
+  "schema": 1
+}

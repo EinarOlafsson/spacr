@@ -51,8 +51,8 @@ Large data
 
 spaCR measurement tables run to 10^5–10^6 object rows and nobody wants a
 scatter of a million overlapping dots. Three strategies, chosen by what the
-plot actually needs, and **the chosen one is always named in
-:attr:`RenderData.notice`** so a subset can never be mistaken for the whole:
+plot actually needs, and **the chosen one is always named in**
+:attr:`RenderData.notice` so a subset can never be mistaken for the whole:
 
 * **aggregate plots use every row, always.** A histogram, bar, box, violin or
   heatmap is already a reduction — sampling before aggregating would change the
@@ -111,9 +111,6 @@ class SpecError(ValueError):
     """
 
 
-# ---------------------------------------------------------------------------
-# The six channels
-# ---------------------------------------------------------------------------
 
 X = "x"
 Y = "y"
@@ -132,9 +129,6 @@ POSITIONAL_CHANNELS: Tuple[str, ...] = (X, Y)
 #: The two that split one chart into a grid of them.
 FACET_CHANNELS: Tuple[str, ...] = (FACET_ROW, FACET_COL)
 
-# ---------------------------------------------------------------------------
-# The plot types
-# ---------------------------------------------------------------------------
 
 SCATTER = "scatter"
 LINE = "line"
@@ -172,9 +166,6 @@ PLOT_KINDS: Tuple[str, ...] = (
 #: *is* the answer, and computing it on a tenth of the rows would move it.
 AGGREGATE_KINDS = frozenset({HISTOGRAM, BAR, BOX, VIOLIN, HEATMAP})
 
-# ---------------------------------------------------------------------------
-# Column kinds
-# ---------------------------------------------------------------------------
 
 CONTINUOUS = "continuous"
 CATEGORICAL = "categorical"
@@ -245,9 +236,6 @@ def _axis_kind(column: Optional[str], kinds: Mapping[str, str]) -> Optional[str]
     return CONTINUOUS if kind == CONTINUOUS else CATEGORICAL
 
 
-# ---------------------------------------------------------------------------
-# The spec
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class GraphSpec:
@@ -318,8 +306,6 @@ class GraphSpec:
         """
         for channel in CHANNELS:
             value = getattr(self, channel)
-            # "" and None both mean "empty zone"; normalising here is what
-            # lets `if spec.x:` be the whole test everywhere else.
             object.__setattr__(self, channel,
                                str(value) if value else None)
         if self.kind is not None:
@@ -346,7 +332,6 @@ class GraphSpec:
         object.__setattr__(self, "shared_x", bool(self.shared_x))
         object.__setattr__(self, "shared_y", bool(self.shared_y))
 
-    # -- channels ------------------------------------------------------
     @property
     def channels(self) -> Dict[str, Optional[str]]:
         """``{channel: column or None}`` for all six, in :data:`CHANNELS` order."""
@@ -398,7 +383,6 @@ class GraphSpec:
         """Nothing on x and nothing on y: there is no chart to draw yet."""
         return not self.x and not self.y
 
-    # -- kinds ---------------------------------------------------------
     def kinds_for(self, frame: pd.DataFrame) -> Dict[str, str]:
         """:func:`column_kinds` of ``frame`` with this spec's overrides applied."""
         kinds = column_kinds(frame)
@@ -407,10 +391,28 @@ class GraphSpec:
         return kinds
 
     def resolved_kind(self, kinds: Mapping[str, str]) -> str:
-        """The kind that will actually be drawn — the pin, or the inference."""
-        return self.kind or infer_kind(self, kinds)
+        """The kind that will actually be drawn.
 
-    # -- serialisation --------------------------------------------------
+        THE PIN, THEN THE SETTING, THEN THE INFERENCE. An explicit pin is the
+        user saying "this chart, now" and still wins outright. With no pin,
+        the Default Graph Type preference chooses among the forms that fit,
+        and the inference answers when there is no preference or the chosen
+        form cannot be drawn here -- see :func:`_kind_and_note`.
+        """
+        if self.kind:
+            return self.kind
+        return _kind_and_note(self, kinds)[0]
+
+    def _kind_note(self, kinds: Mapping[str, str]) -> str:
+        """Why the drawn kind is not the chosen one, or ``""``.
+
+        Empty for a pin: the user asked for that chart directly and nothing
+        was overridden.
+        """
+        if self.kind:
+            return ""
+        return _kind_and_note(self, kinds)[1]
+
     def to_dict(self) -> Dict[str, Any]:
         """A plain JSON-able dict. Every field, always — a stable schema beats
         a compact one for something later screens read."""
@@ -457,7 +459,6 @@ class GraphSpec:
         """
         return cls.from_dict(json.loads(text))
 
-    # -- for a caption --------------------------------------------------
     def describe(self, kinds: Optional[Mapping[str, str]] = None) -> str:
         """One human line, for the chart's caption and the window title."""
         kinds = dict(kinds or {})
@@ -467,7 +468,77 @@ class GraphSpec:
             return "nothing dropped yet"
         kind = self.resolved_kind(kinds)
         pinned = " (pinned)" if self.kind else ""
-        return f"{kind}{pinned} · " + " · ".join(parts)
+        note = self._kind_note(kinds)
+        said = f"{kind}{pinned} · " + " · ".join(parts)
+        # THE FALLBACK IS SAID OUT LOUD, in the one line that becomes the
+        # chart's caption and the window title. A preference that is quietly
+        # ignored leaves the user looking at a chart they did not choose with
+        # no way to find out why.
+        return f"{said} — {note}" if note else said
+
+
+#: Which :data:`spacr.graph_types.DATA_SHAPES` name each inferred kind is an
+#: answer for. Only these three shapes have a Default Graph Type preference;
+#: a bar of counts and a contingency heatmap are not choices between forms of
+#: the same picture, so the setting has nothing to say about them.
+_SHAPE_FOR_KIND = {
+    BOX: "categorical_continuous",
+    SCATTER: "continuous_continuous",
+    HISTOGRAM: "continuous_only",
+}
+
+
+def _kind_and_note(spec: "GraphSpec", kinds: Mapping[str, str]):
+    """The kind to draw and, when it is not the one chosen, why not.
+
+    THE SETTING WINS UNLESS THE DATA CANNOT BE DRAWN THAT WAY. The Default
+    Graph Type preference decides which of the forms that FIT a data shape is
+    drawn first; the inference decides what the shape IS. Those are different
+    questions -- "what kind of chart do these columns imply" against "which
+    fitting type do I want" -- and this is where the second one is asked,
+    leaving :func:`infer_kind` to go on answering only the first.
+
+    TWO WAYS A CHOICE IS REFUSED, and both say so out loud:
+
+    * IT DOES NOT FIT THE SHAPE. `graph_types.chosen_for` drops it before
+      this function sees it -- a scatter of grouped data is a different
+      graph of different data, not a preference about this one.
+    * THIS BUILDER CANNOT DRAW IT. The preference vocabulary is wider than
+      the Graph Builder's: `box_jitter`, `bar_jitter` and `jitter` all fit
+      `categorical_continuous` and none of them is a kind this module
+      renders. A user who asked for the five numbers AND the observations
+      gets the box, and is told that is what happened.
+
+    :param spec: the chart being built.
+    :param kinds: column name to ``CONTINUOUS``/``CATEGORICAL``.
+    :returns: ``(kind, note)``. The note is empty whenever the kind drawn is
+        the one that was asked for, which includes the ordinary case of no
+        preference at all.
+    """
+    inferred = infer_kind(spec, kinds)
+    shape = _SHAPE_FOR_KIND.get(inferred)
+    if shape is None:
+        return inferred, ""
+    try:
+        from ...graph_types import GRAPH_NAMES, chosen_for
+    except Exception:                                        # noqa: BLE001
+        return inferred, ""
+    chosen = chosen_for(shape)
+    if not chosen or chosen == inferred:
+        return inferred, ""
+    if chosen in _DRAWABLE_KINDS:
+        return chosen, ""
+    asked = GRAPH_NAMES.get(chosen, chosen) if GRAPH_NAMES else chosen
+    return inferred, (
+        f"{asked} is not a chart this builder draws, so {inferred} is shown "
+        f"instead")
+
+
+#: Every kind this module can actually render, so a preference naming
+#: something else is refused rather than passed on to a renderer that would
+#: fail or quietly draw something else.
+_DRAWABLE_KINDS = frozenset({SCATTER, LINE, HISTOGRAM, BAR, BOX, VIOLIN,
+                             HEATMAP})
 
 
 def infer_kind(spec: GraphSpec, kinds: Mapping[str, str]) -> str:
@@ -508,9 +579,6 @@ def infer_kind(spec: GraphSpec, kinds: Mapping[str, str]) -> str:
     return BOX
 
 
-# ---------------------------------------------------------------------------
-# Faceting
-# ---------------------------------------------------------------------------
 
 _DIGIT_RUN = re.compile(r"(\d+)")
 
@@ -535,13 +603,11 @@ def _sort_key(text: str):
     except (TypeError, ValueError):
         pass
     else:
-        # NaN has no order, and one in a sort key makes the whole sort
-        # arbitrary rather than wrong in one place. Treat it as text.
         if value == value:
             return ((0, value, ""),)
     key = []
     for index, chunk in enumerate(_DIGIT_RUN.split(str(text))):
-        if index % 2:                       # split() alternates text, digits
+        if index % 2:
             key.append((1, float(chunk), ""))
         else:
             key.append((2, 0.0, chunk))
@@ -685,10 +751,6 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
             return (None,), 0
         levels, cut = _levels(source, column, max_levels)
         if not levels:
-            # A facet column with no levels at all — everything filtered out,
-            # or an all-NaN column. One panel, drawn empty. A zero-column grid
-            # is not a figure matplotlib (or anyone) can draw, and "your
-            # filter matches nothing" is an answer worth rendering.
             return (None,), 0
         if cut:
             notices.append(
@@ -699,27 +761,16 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
     row_levels, _row_cut = axis(spec.facet_row)
     col_levels, _col_cut = axis(spec.facet_col)
 
-    # Trim the *columns* axis first when the product is too big: a grid is
-    # read down the page, so losing a column costs less than losing a row.
     while len(row_levels) * len(col_levels) > max_panels:
         if len(col_levels) >= len(row_levels) and len(col_levels) > 1:
             col_levels = col_levels[:-1]
         elif len(row_levels) > 1:
             row_levels = row_levels[:-1]
         else:
-            # NEITHER AXIS CAN LOSE ANOTHER LEVEL. At one row and one
-            # column the product is 1, so the loop is only still running
-            # if the ceiling is below 1 -- which no caller in spaCR
-            # passes, but `max_panels` is a documented keyword and the
-            # cost of being wrong here is not a wrong picture, it is an
-            # infinite loop and a frozen window with nothing in the log.
             break
         notices.append(f"grid capped at {max_panels} panels")
 
     n = len(frame)
-    # Only split on an axis that actually has levels: an axis that degenerated
-    # to `(None,)` above is a single panel, and matching rows against a level
-    # of ``None`` would put every one of them nowhere.
     row_live = bool(spec.facet_row) and row_levels != (None,)
     col_live = bool(spec.facet_col) and col_levels != (None,)
     row_keys = (_level_series(frame, spec.facet_row).to_numpy()
@@ -754,9 +805,6 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
         notice="; ".join(dict.fromkeys(notices)))
 
 
-# ---------------------------------------------------------------------------
-# Shared scales
-# ---------------------------------------------------------------------------
 
 def _numeric(frame: pd.DataFrame, column: Optional[str]) -> Optional[np.ndarray]:
     """Read one column as floats, or ``None`` when it is not there.
@@ -958,9 +1006,6 @@ def _count_limit(frame: pd.DataFrame, spec: GraphSpec, grid: FacetGrid,
     return tallest * 1.08
 
 
-# ---------------------------------------------------------------------------
-# The large-data policy
-# ---------------------------------------------------------------------------
 
 #: Every row is an individual mark.
 FULL = "full"
@@ -1010,11 +1055,6 @@ def prepare_data(frame: pd.DataFrame, spec: GraphSpec,
                           n_shown=total,
                           notice=(f"{total:,} rows" if total else "no rows"))
 
-    # Above the budget. Binning keeps every row, so it is preferred — but it
-    # can only draw what a raster can carry: a density, optionally shaded by
-    # the mean of a continuous colour column. A categorical colour or a size
-    # channel needs one mark per row, and for those the only honest option
-    # left is a sample the chart admits to.
     per_point_encoding = bool(spec.size) or (
         bool(spec.colour) and _axis_kind(spec.colour, kinds) == CATEGORICAL)
     if kind == SCATTER and not per_point_encoding:
@@ -1024,9 +1064,6 @@ def prepare_data(frame: pd.DataFrame, spec: GraphSpec,
                     f"density — every row is counted"))
 
     budget = min(spec.point_budget, total)
-    # Positional, seeded, and sorted back into the frame's own order — not
-    # `DataFrame.sample`, whose result has to be re-sorted by *index*, which
-    # is not the row order for a frame that arrived from a filter or a join.
     picked = np.sort(np.random.default_rng(spec.seed).choice(
         total, size=budget, replace=False))
     sample = frame.iloc[picked]

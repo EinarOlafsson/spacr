@@ -70,9 +70,6 @@ QLabel#ComparisonStatus {{
 register_widget_qss("ComparisonGrid", _grid_qss, replace=True)
 
 
-# ---------------------------------------------------------------------------
-# One cell of the grid
-# ---------------------------------------------------------------------------
 
 class _LinkedCanvas(LayerCanvas):
     """A canvas whose widget resize keeps the MAGNIFICATION, not the view.
@@ -189,9 +186,6 @@ class ComparisonPanel(QWidget):
         self.canvas.detach()
 
 
-# ---------------------------------------------------------------------------
-# The grid
-# ---------------------------------------------------------------------------
 
 class ComparisonGrid(LinkedView, QWidget):
     """N panels of the same field, locked together.
@@ -228,10 +222,6 @@ class ComparisonGrid(LinkedView, QWidget):
         """
         super().__init__(parent)
         self.setObjectName("ComparisonGrid")
-        # NOT `_link`: that name belongs to LinkedView, which keeps the
-        # process-wide selection bus in it. Shadowing it here would leave this
-        # grid publishing selections into its own canvas link and hearing
-        # nothing from the rest of the app.
         self._canvas_link = CanvasLink()
         self._panels: Dict[str, ComparisonPanel] = {}
         self._titles = dict(titles or {})
@@ -256,7 +246,6 @@ class ComparisonGrid(LinkedView, QWidget):
                  else [tuple(entry) for entry in panels])
         return [(str(key), stack) for key, stack in items]
 
-    # -- construction ------------------------------------------------------
     def _build(self) -> None:
         """Lay out the panel grid, the view buttons and the status line."""
         outer = QVBoxLayout(self)
@@ -283,7 +272,6 @@ class ComparisonGrid(LinkedView, QWidget):
         self.status.setObjectName("ComparisonStatus")
         outer.addWidget(self.status)
 
-    # -- panels ------------------------------------------------------------
     @property
     def canvas_link(self) -> CanvasLink:
         """The shared world window every locked panel is on.
@@ -355,7 +343,6 @@ class ComparisonGrid(LinkedView, QWidget):
             self.grid.addWidget(panel, index // columns, index % columns)
             panel.show()
 
-    # -- keeping the panels together ---------------------------------------
     def _on_panel_view_changed(self, key: str, canvas: Optional[Canvas]
                                ) -> None:
         """One panel moved: put every locked panel on the same window."""
@@ -439,7 +426,6 @@ class ComparisonGrid(LinkedView, QWidget):
                 break
         self._refresh_status()
 
-    # -- selection ---------------------------------------------------------
     def _on_panel_picked(self, key: str, layer, world, value) -> None:
         """A click in one panel reaches every other view in the app."""
         if not isinstance(layer, LabelsLayer) or not value:
@@ -484,7 +470,6 @@ class ComparisonGrid(LinkedView, QWidget):
             return
         self.highlight(str(selection.keys[0]))
 
-    # -- status ------------------------------------------------------------
     def _refresh_status(self) -> None:
         """Say how many panels there are and which are not following the shared view.
 

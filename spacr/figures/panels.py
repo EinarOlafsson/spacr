@@ -16,9 +16,6 @@ import numpy as np
 from .style import (ROLES, TYPE_SCALE, Palette, annotate, descriptor,
                     panel_letter, reference_line, rotate_ticks, text_legend)
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from ..figures.style import figure_style, theme_target
 
 
@@ -162,9 +159,6 @@ def label_series(frame):
     return pd.Series([str(i) for i in range(len(frame))], index=frame.index)
 
 
-# --------------------------------------------------------------------------- #
-#  The result
-# --------------------------------------------------------------------------- #
 
 #: The control classes a screen's `condition` column uses for its
 #: non-targeting guides. These are the null the effect-size cut is measured
@@ -212,9 +206,6 @@ def control_threshold(frame, multiplier=3.0):
             if spread > 0:
                 return (f"{multiplier:g}σ of {controls.size} controls",
                         multiplier * spread * 1.4826)
-    # No usable controls: the all-guide MAD, which is the same statistic over
-    # a family that includes the hits. Named differently so a reader is never
-    # told a number is control-based when it is not.
     finite = values[np.isfinite(values)]
     if finite.size < MIN_CONTROLS:
         return "too few coefficients", None
@@ -269,11 +260,6 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
                      reason="no effect or p-value column",
                      needs=("coefficient", "p_value"))
 
-    # BEFORE THE THRESHOLD IS COMPUTED, not after. The effect-size cut is
-    # derived from the control guides' spread, so a baseline that moved the
-    # controls to zero and a cut placed on the unshifted column would be a
-    # line drawn in the wrong place -- the one failure mode this whole panel
-    # is meant to avoid.
     baseline = resolve_baseline(frame, baseline_kind or "zero",
                                 column=effect, name=baseline_name)
     frame = apply_baseline(frame, baseline, column=effect)
@@ -285,9 +271,6 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
     smallest = np.nanmin(raw[raw > 0]) if np.any(raw > 0) else 1e-300
     y = -np.log10(np.clip(raw, smallest * 1e-3, 1.0))
 
-    # THE EFFECT-SIZE CUT IS ON BY DEFAULT NOW. "in your versions i have
-    # never seen the effect size threshold" -- because it defaulted to None
-    # and drew no line at all.
     rule = ""
     if effect_threshold == "auto":
         rule, effect_threshold = control_threshold(frame)
@@ -302,10 +285,6 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
     down = called & (x < 0)
     rest = ~called
 
-    # COMPARTMENT COLOURING REPLACES THE UP/DOWN COLOURING RATHER THAN
-    # JOINING IT. Both are "the thing the sentence is about", and a volcano
-    # carrying two of those has no sentence -- a reader cannot tell whether a
-    # coloured dot is coloured for being called or for being a rhoptry.
     in_compartment = None
     if compartment:
         from ..localisation import mask as compartment_mask
@@ -328,23 +307,16 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
                    else f"p = {alpha:g}")
     if effect_threshold:
         for sign in (-1, 1):
-            # The rule is named on the line, once. A threshold a reader
-            # cannot attribute is a threshold they cannot report.
             reference_line(ax, x=sign * abs(effect_threshold),
                            label=rule if sign > 0 else "")
 
     names = label_series(sub)
     if label_top:
-        # Label the strongest, and only where a label would not land on
-        # another one. A volcano with every hit labelled is a word cloud.
         order = np.argsort(-np.nan_to_num(np.where(called, y, 0.0), nan=0.0))
         placed = []
         for index in order[: label_top * 3]:
             if not called[index] or len(placed) >= label_top:
                 continue
-            # Pandas 2 turns a missing label into the string ``"nan"`` here,
-            # while pandas 3 can preserve the float NaN. Normalise before any
-            # string operation so the same coefficient table draws on both.
             name = str(names.iloc[index]).strip()
             if not name or name.casefold() in {"nan", "none", "<na>", "nat"}:
                 continue
@@ -367,7 +339,6 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
     ax.set_xlabel("effect size")
     ax.set_ylabel("$-$log$_{10}$ " + ("q" if q else "p"))
     if in_compartment is not None and in_compartment.any():
-        # TWO ENTRIES, which is the whole point of one compartment at a time.
         text_legend(ax, [
             (f"{compartment} ({int(in_compartment.sum())})",
              ROLES["highlight"]),
@@ -445,11 +416,6 @@ def effect_rank(ax, frame, *, alpha=0.05, top=14) -> Panel:
     ax.scatter(x, y, s=14, c=colours, linewidths=0, zorder=2)
     reference_line(ax, x=0.0)
 
-    # NAMES INSIDE THE PANEL, not on the axis. A y-tick label is drawn
-    # outside the axes, so a long gene id in one cell of a sheet reaches into
-    # the cell to its left -- which is what the first pass did to panel A.
-    # Inside, each name sits against its own dot and cannot collide with a
-    # neighbouring panel at any width.
     ax.set_yticks([])
     span = float(np.nanmax(np.abs(x))) or 1.0
     for row, (value, name) in enumerate(zip(x, names)):
@@ -498,7 +464,6 @@ def p_histogram(ax, frame, *, bins=40) -> Panel:
     ax.set_xlabel("p")
     ax.set_ylabel("coefficients")
 
-    # The shape, stated. A reader should not have to judge flatness by eye.
     upper = float(np.mean(values > 0.5)) * 2.0
     annotate(ax, f"n = {values.size}\nπ₀ ≈ {min(upper, 1):.2f}")
     return Panel("p_histogram", "p-value distribution",
@@ -604,16 +569,9 @@ def control_separation(ax, frame) -> Panel:
                   colors=colour, linewidth=1.4, zorder=2)
     reference_line(ax, y=0.0)
     ax.set_xticks(range(len(labels)))
-    # THE COUNT BESIDE THE LABEL. It was in the annotation below the panel
-    # and the axis said only "pc" -- so the reader had to carry three numbers
-    # from one line to another to know that one of these groups is three
-    # points. Same request, same fix, as the interactive plot; the two must
-    # not disagree about what they show.
     ax.set_xticklabels([f"{label}\n(n={len(g)})"
                         for label, g in zip(labels, groups)])
     ax.set_ylabel("effect size")
-    # The annotation keeps what the axis cannot: the MEDIAN of each group,
-    # which is the number the panel is actually comparing.
     annotate(ax, "  ".join(
         f"{label} median={float(np.median(g[np.isfinite(g)])):.3g}"
         for label, g in zip(labels, groups)
@@ -625,10 +583,6 @@ def control_separation(ax, frame) -> Panel:
                           "separate from the negative ones."),
                  needs=(effect, condition),
                  data=frame.loc[frame[condition].astype(str).isin(names)],
-                 # THE UNIT HERE IS THE COEFFICIENT, not the cell and not the
-                 # well: each point is one fitted guide or gene effect. Named
-                 # so the exported stats table cannot claim otherwise -- a
-                 # test across the wrong unit returns p < 1e-10 on noise.
                  groups={label: values for label, values
                          in zip(labels, groups)})
 
@@ -665,9 +619,6 @@ def guide_agreement(ax, frame) -> Panel:
     size = grouped.apply(lambda values: values.abs().mean())
 
     multi = counts >= 2
-    # JITTERED, because guides-per-gene is an integer and agreement is a
-    # small set of fractions: without it several hundred genes stack into a
-    # dozen dots and the panel looks like it has no data in it.
     rng = np.random.default_rng(0)
     jitter = rng.uniform(-0.22, 0.22, len(counts))
     ax.scatter(counts[multi] + jitter[multi.to_numpy()],
@@ -755,10 +706,6 @@ def available(frame) -> Dict[str, bool]:
     import matplotlib.pyplot as plt
 
     answer = {}
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure = plt.figure()
         try:

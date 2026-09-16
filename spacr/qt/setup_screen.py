@@ -119,46 +119,16 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
         return [(n, str(n).replace("_", " ")) for n in names]
 
     out: List[Tuple[str, str, Callable, Callable, Any]] = [
-        # THE NATIVE NAME, not the code. A user choosing their own language
-        # is the one person who cannot be expected to recognise its ISO
-        # code, and `getattr(prefs, "VALID_LANGUAGES", ("en",))` -- which is
-        # what this read before -- found no such attribute and offered
-        # English alone, on a screen whose first question is the language.
         ("language", "Language", prefs.get_language, prefs.set_language,
          _language_choices()),
-        # FLIPPED, because `theme_choices()` is (caption, value) while every
-        # other list here is (value, caption). Normalised at the source
-        # rather than special-cased in the screen: a screen that knows which
-        # of its questions is back to front is a screen that gets it wrong
-        # the next time a question is added.
         ("theme", "Theme", prefs.get_theme_choice, prefs.set_theme_choice,
          [(value, caption) for caption, value in prefs.theme_choices()]),
         ("colour_blind", "Colour-blind mode", prefs.get_color_blind_mode,
          prefs.set_color_blind_mode, choices_of(prefs.VALID_CB_MODES)),
-        # THE LEVELS, NOT THE POSTURES. This offered `SPACR_MODES`, which is
-        # the OLD three-value resource posture -- Extra Performance,
-        # Performance, Balanced -- while Preferences offers the five
-        # `PERFORMANCE_LEVELS`. So Laptop and Workstation existed, were
-        # settable in Preferences, and could not be chosen on the screen
-        # whose whole job is choosing them once.
-        #
-        # They are not interchangeable. `spacr_mode_for_level` folds five
-        # levels onto three postures (laptop -> extra_performance,
-        # workstation -> balanced), so writing through `set_spacr_mode`
-        # cannot express either end of the scale: picking Balanced here and
-        # Workstation in Preferences produced the same posture and two
-        # different answers to "what did I choose".
-        #
-        # The level is the setting a user picks; the posture is what the
-        # cleanup code reads. `set_performance_level` writes both, in that
-        # order, which is why it is the one to call.
-        #
-        # (The previous defect here was the same shape one layer down: a
-        # `getattr(prefs, "VALID_SPACR_MODES")` that found nothing and fell
-        # back to a one-item default, so the screen offered Balanced alone.
-        # Named directly ever since, so a rename breaks the import instead
-        # of silently shortening the list.)
-        ("spacr_mode", "spaCR mode", prefs.get_performance_level,
+        # Captioned as Preferences captions the same selector (286: "the same
+        # names ... appear in first-run setup"). The key stays `spacr_mode`
+        # because the slide and dialog groupings are keyed by it.
+        ("spacr_mode", "Performance", prefs.get_performance_level,
          prefs.set_performance_level,
          [(level, prefs.PERFORMANCE_LABELS.get(
              level, str(level).replace("_", " ")))
@@ -208,9 +178,6 @@ def _provider_choices():
     except Exception:                                        # noqa: BLE001
         return []
     found = [(n, n.replace("_", " ")) for n in names if n]
-    # "whatever is available" first, and it IS the default: a machine with
-    # two CLIs today may have one tomorrow, and a pinned name that is gone
-    # is worse than no preference.
     return [("", "whatever is available")] + found if found else []
 
 

@@ -114,9 +114,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 
 #: Figures embedded before the rest are listed by name only. Every embedded
 #: PNG lands in the file as base64, which is 4/3 of its byte size, so the
@@ -203,9 +200,6 @@ _STATUS_LABELS = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Small helpers
-# ---------------------------------------------------------------------------
 
 def _esc(value: Any) -> str:
     """HTML-escape ``value``.
@@ -400,10 +394,6 @@ def _read_csv_head(path: Path, max_rows: int,
                 if i == 0:
                     columns = [str(c) for c in row]
                     continue
-                # Python's CSV reader no longer rejects embedded NUL bytes on
-                # every supported version. Treat them as the documented
-                # half-written-file boundary before counting or displaying
-                # the corrupt row.
                 if any("\x00" in cell for cell in row):
                     break
                 n_total += 1
@@ -417,9 +407,6 @@ def _read_csv_head(path: Path, max_rows: int,
     return columns, rows, n_total
 
 
-# ---------------------------------------------------------------------------
-# Data model
-# ---------------------------------------------------------------------------
 
 @dataclass
 class Figure:
@@ -582,9 +569,6 @@ class Report:
         return self.status in ("partial", "failed")
 
 
-# ---------------------------------------------------------------------------
-# Discovery
-# ---------------------------------------------------------------------------
 
 def _find_artifacts(src: Path) -> Dict[str, List[Path]]:
     """Locate the files the report reads, once, so no collector re-walks.
@@ -602,8 +586,6 @@ def _find_artifacts(src: Path) -> Dict[str, List[Path]]:
     if not src.is_dir():
         return found
 
-    # Top level + the folders that hold results. measurements/ holds the
-    # database; qc/ the scorecards; settings/ the settings CSVs.
     roots: List[Tuple[Path, bool]] = [(src, False)]
     for name in ("measurements", "qc", "settings", "model") + RESULT_DIRS:
         child = src / name
@@ -726,7 +708,6 @@ def _settings_point_at(settings: Dict[str, Any], src: Path) -> bool:
     if isinstance(value, (list, tuple, set)):
         values = value
     elif isinstance(value, str) and value.strip().startswith("["):
-        # A CSV round-trip turns a list of plates into its repr.
         try:
             import ast
             parsed = ast.literal_eval(value)
@@ -738,9 +719,6 @@ def _settings_point_at(settings: Dict[str, Any], src: Path) -> bool:
     return any(_same_path(v, src) for v in values if v)
 
 
-# ---------------------------------------------------------------------------
-# Section: run status  (first, always, because failure must not be buried)
-# ---------------------------------------------------------------------------
 
 def _read_stamps(paths: Sequence[Path]) -> Tuple[List[Tuple[Path, Dict[str, Any]]], List[str]]:
     """Read every :meth:`spacr.errors.RunLedger.stamp` on ``paths``."""
@@ -876,9 +854,6 @@ def _collect_run_status(src: Path, artifacts: Dict[str, Any],
     return section, status, detail
 
 
-# ---------------------------------------------------------------------------
-# Section: provenance + versions
-# ---------------------------------------------------------------------------
 
 _ENV_ORDER = ("spacr", "spacr_git", "python", "platform", "torch", "torchvision",
               "cellpose", "numpy", "scipy", "pandas", "scikit_image",
@@ -1091,9 +1066,6 @@ def _fingerprints(runs: Sequence[Dict[str, Any]]) -> Tuple[List[str], List[str]]
     return html, text
 
 
-# ---------------------------------------------------------------------------
-# Section: segmentation QC
-# ---------------------------------------------------------------------------
 
 def _field_qcs_from_csv(path: Path) -> Tuple[List[Any], Optional[str]]:
     """Rebuild :class:`spacr.seg_qc.FieldQC` objects from a scorecard CSV.
@@ -1149,10 +1121,6 @@ def _field_qcs_from_csv(path: Path) -> Tuple[List[Any], Optional[str]]:
     except OSError as exc:
         return [], f"{path.name} unreadable ({exc.__class__.__name__})"
     except csv.Error as exc:
-        # A damaged scorecard is reported as unreadable rather than
-        # summarised from the rows that did parse: a plate verdict derived
-        # from half a scorecard is a different verdict, and this module
-        # does not invent one.
         return [], f"{path.name} is not readable as CSV ({exc})"
     return out, None
 
@@ -1282,9 +1250,6 @@ def _collect_segmentation_qc(src: Path, artifacts: Dict[str, Any],
     return section
 
 
-# ---------------------------------------------------------------------------
-# Section: plate QC / edge effects
-# ---------------------------------------------------------------------------
 
 _LAYOUT_MARKERS = frozenset({"ring", "is_edge"})
 
@@ -1340,9 +1305,6 @@ def _collect_plate_qc(src: Path, artifacts: Dict[str, Any],
                     if flag in ("1", "true", "yes"):
                         n_edge += 1
         except (OSError, csv.Error):
-            # Damaged past some row: the wells counted so far are real,
-            # and a layout export that cannot be parsed to the end must
-            # not take the whole report down with it.
             pass
         rows.append([path.name, str(n_total), str(n_edge),
                      _fmt_bytes(path.stat().st_size if path.exists() else 0)])
@@ -1364,9 +1326,6 @@ def _collect_plate_qc(src: Path, artifacts: Dict[str, Any],
     return section
 
 
-# ---------------------------------------------------------------------------
-# Section: figures
-# ---------------------------------------------------------------------------
 
 def _embed_figure(path: Path, max_px: int) -> Tuple[Optional[bytes], str, str]:
     """Read a raster figure, downscale it, and return PNG bytes.
@@ -1493,9 +1452,6 @@ def _collect_figures(src: Path, artifacts: Dict[str, Any], max_figures: int,
     return section
 
 
-# ---------------------------------------------------------------------------
-# Section: statistics / result tables
-# ---------------------------------------------------------------------------
 
 def _collect_statistics(src: Path, artifacts: Dict[str, Any],
                         max_rows: int, max_files: int = 12) -> Section:
@@ -1604,9 +1560,6 @@ def _sqlite_table_counts(path: Path, max_tables: int = 40) -> List[Tuple[str, in
     return out
 
 
-# ---------------------------------------------------------------------------
-# Section: settings
-# ---------------------------------------------------------------------------
 
 def _collect_settings(src: Path, artifacts: Dict[str, Any],
                       runs: Sequence[Dict[str, Any]],
@@ -1696,9 +1649,6 @@ def _describe_plan_safe(settings: Dict[str, Any], app_key: str) -> str:
         return ""
 
 
-# ---------------------------------------------------------------------------
-# Section: appendix
-# ---------------------------------------------------------------------------
 
 def _collect_appendix(src: Path, artifacts: Dict[str, Any],
                       max_dict_rows: int = DEFAULT_MAX_DICT_ROWS) -> Section:
@@ -1735,9 +1685,6 @@ def _collect_appendix(src: Path, artifacts: Dict[str, Any],
             lines.append(f"  feature dictionary: {n_total} column(s) across "
                          f"{len(families)} family/families")
         else:
-            # THE FILE EXISTS, BUT MEASURE WROTE NO FEATURES. This is neither
-            # an absent database nor a describer error, and omitting it makes a
-            # run interrupted before its first table look complete.
             have_something = True
             body.append("<h3>Measured features</h3>")
             body.append(
@@ -1870,9 +1817,6 @@ def _file_inventory(src: Path) -> Tuple[List[List[str]], bool]:
     return rows, truncated
 
 
-# ---------------------------------------------------------------------------
-# Collection
-# ---------------------------------------------------------------------------
 
 def collect_report(src: Any,
                    *,
@@ -1922,10 +1866,6 @@ def collect_report(src: Any,
     try:
         src_path = src_path.resolve()
     except (OSError, RuntimeError):
-        # RuntimeError is what pathlib raises for a symlink loop (ELOOP),
-        # and this function promises never to raise for bad input: an
-        # unresolvable folder is reported as "does not exist", not as a
-        # traceback in the caller's face.
         pass
 
     artifacts = _find_artifacts(src_path)
@@ -1944,9 +1884,6 @@ def collect_report(src: Any,
         _collect_appendix(src_path, artifacts),
     ]
 
-    # Third-party report chapters are inserted relative to stable core keys.
-    # A failing builder becomes a visible problem chapter rather than silently
-    # disappearing from the report.
     try:
         from .plugins import (
             ReportContext, load_object, record_diagnostic, report_sections,
@@ -2056,9 +1993,6 @@ def collect_report(src: Any,
     )
 
 
-# ---------------------------------------------------------------------------
-# HTML rendering
-# ---------------------------------------------------------------------------
 
 _CSS = """
 :root { color-scheme: light dark; }
@@ -2344,7 +2278,6 @@ def _table_text(table: Table, width: int = 76) -> List[str]:
     for row in table.rows:
         grid.append([str(c) for c in row] + [""] * (n_columns - len(row)))
     widths = [min(28, max(len(str(r[i])) for r in grid)) for i in range(n_columns)]
-    # Squeeze the widest column when the row would overflow the page.
     while sum(widths) + 2 * n_columns > width and max(widths) > 8:
         widths[widths.index(max(widths))] -= 1
     for j, row in enumerate(grid):
@@ -2362,9 +2295,6 @@ def _table_text(table: Table, width: int = 76) -> List[str]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Writers
-# ---------------------------------------------------------------------------
 
 def write_html(report: Report, path: Any) -> Path:
     """Write ``report`` as a single self-contained HTML file.
@@ -2437,9 +2367,6 @@ def write_pdf(report: Report, path: Any) -> Path:
     :param path: destination file. Parent directories are created.
     :returns: the path written.
     """
-    # `import matplotlib` does NOT bind `matplotlib.image`; reaching it that
-    # way raises AttributeError, which the per-figure guard below would
-    # swallow into "could not be drawn" on *every* page. Import it by name.
     import matplotlib.image as mpimage
     from matplotlib.backends.backend_pdf import PdfPages
     from matplotlib.figure import Figure as MplFigure
@@ -2466,10 +2393,6 @@ def write_pdf(report: Report, path: Any) -> Path:
                 except Exception:
                     axes.text(0.5, 0.5, f"[{payload.title} could not be drawn]",
                               ha="center", va="center", fontsize=9)
-            # `PdfPages.savefig`, NOT a Figure's (108 point 6). These are
-            # pages appended to a multi-page book, and the book's format is
-            # named by the caller that asked for a report; there is no single
-            # file here for a format preference to rename.
             pdf.savefig(figure)
         if not specs:
             figure = MplFigure(figsize=(8.27, 11.69))

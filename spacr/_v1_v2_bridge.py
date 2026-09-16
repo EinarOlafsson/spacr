@@ -27,12 +27,8 @@ from typing import Any, Dict, List, Sequence, Tuple
 LOG = logging.getLogger("spacr.pipeline_v2.bridge")
 
 
-# ---------------------------------------------------------------------------
-# Settings → v2 kwargs
-# ---------------------------------------------------------------------------
 
 _CHANNEL_KEYS = [
-    # (settings key,          human name)
     ("nucleus_channel",       "nucleus"),
     ("cell_channel",          "cell"),
     ("pathogen_channel",      "pathogen"),
@@ -71,7 +67,6 @@ def v2_channels_from_settings(settings: Dict[str, Any]
         except (TypeError, ValueError):
             continue
     if not chans:
-        # Fall back to a top-level `channels` list if the user set that
         raw = settings.get("channels")
         if isinstance(raw, (list, tuple)):
             for i, c in enumerate(raw):
@@ -81,15 +76,11 @@ def v2_channels_from_settings(settings: Dict[str, Any]
                 except (TypeError, ValueError):
                     continue
     if not chans:
-        # Last-ditch default — 4-channel plate
         chans = [0, 1, 2, 3]
         names = ["ch0", "ch1", "ch2", "ch3"]
     return chans, names
 
 
-# ---------------------------------------------------------------------------
-# Disk-savings reporter
-# ---------------------------------------------------------------------------
 
 def report_disk_savings(src: Path, stacks: Sequence[Any]) -> Dict[str, Any]:
     """After a v2 run, log an estimate of v1's disk footprint vs v2's.
@@ -117,7 +108,6 @@ def report_disk_savings(src: Path, stacks: Sequence[Any]) -> Dict[str, Any]:
             v2_bytes += Path(s.path).stat().st_size
         except Exception:
             continue
-    # Add the filename map + channel-order sidecars
     for extra in (src / "filename_map.csv",
                     src / "filename_map.json",
                     src / "merged" / "channel_order.json"):
@@ -127,7 +117,7 @@ def report_disk_savings(src: Path, stacks: Sequence[Any]) -> Dict[str, Any]:
         except Exception:
             pass
 
-    v1_estimated_bytes = v2_bytes * 4   # see docstring for rationale
+    v1_estimated_bytes = v2_bytes * 4
     saved = v1_estimated_bytes - v2_bytes
     saved_pct = round(100.0 * saved / max(1, v1_estimated_bytes), 1)
 
@@ -200,10 +190,6 @@ def v2_mask_source(merged_dir, object_type: str = "cell"):
     if wanted in mask_channels:
         offset = mask_channels.index(wanted)
     elif len(mask_channels) == 1:
-        # One mask and a name that does not match: score it anyway. The
-        # channel was written by the run being scored, and refusing over a
-        # naming difference would report "no masks" about a plate that has
-        # them.
         offset = 0
     else:
         return {}

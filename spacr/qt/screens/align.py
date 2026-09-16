@@ -63,15 +63,6 @@ __all__ = [
 #: The registry key this screen answers to; the fold reader looks for it.
 HOST_KEY = "align"
 
-# NOTHING IS FOLDED ONTO THIS MASTHEAD ANY MORE. Optical pooled screening
-# was: OPS is stitching, which is this screen's job, so it was reached from
-# here. It is reached from MASK GENERATION instead, as asked on 2026-09-09 --
-# "i think the OPS button should be in Mask generation instead of align" --
-# and it is a switch in that screen's actions row beside Live rather than an
-# icon on a masthead. Its declaration, its name, its sentence and its
-# maturity moved with it: see `spacr.qt.screens.mask.PAGE_FOLDS` and
-# `mask.FOLD_FALLBACK`. This screen is consequently no longer a fold host,
-# which is why it is no longer in `fold_strip.FOLD_HOST_MODULES`.
 
 _PAD = 10
 
@@ -119,10 +110,6 @@ class TileLayoutWidget(QWidget):
         self._plan = None
         self.setMinimumHeight(240)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # The panel is drawn in `paintEvent`, so the widget itself must not
-        # also paint the blanket window fill underneath it — that fill is
-        # opaque and would swallow the backdrop before the translucent
-        # panel ever composited over it.
         make_transparent(self)
 
     def set_plan(self, plan) -> None:
@@ -167,10 +154,6 @@ class TileLayoutWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = active_palette()
-        # A rounded panel at the page opacity, not `fillRect(..., surface)`:
-        # the hex `active_palette` returns carries no alpha, so the empty
-        # state used to be the one flat black rectangle on an otherwise
-        # see-through page.
         paint_panel(painter, self, role="surface", inset=0.5)
 
         rects = self.tile_rects()
@@ -191,12 +174,6 @@ class TileLayoutWidget(QWidget):
             colour = confidence_colour(placement.confidence, placement.method)
             painter.fillRect(rect, QBrush(colour))
             if placement.method == align_mod.METHOD_NOMINAL:
-                # Hatch as well as colour: a colour-vision-impaired reader
-                # must still be able to count the fallbacks. The hatch is
-                # drawn in the *surface* colour, not the warning colour —
-                # warning-on-warning is the same colour twice and paints
-                # nothing at all, which is exactly as much help to that
-                # reader as leaving the hatch out.
                 painter.fillRect(rect, QBrush(QColor(palette["surface"]),
                                               Qt.BDiagPattern))
             painter.setPen(QPen(QColor(palette["border"]), 1))
@@ -261,13 +238,9 @@ class AlignScreen(QWidget):
             "Planning reads headers and overlap strips only — nothing is "
             "written and no canvas is allocated.")
         self._update_controls()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the source and destination rows, the preview and the actions."""
@@ -292,7 +265,6 @@ class AlignScreen(QWidget):
         outer.addWidget(subtitle)
         outer.addWidget(Divider())
 
-        # ── Source row ────────────────────────────────────────────────
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._src_edit = QLineEdit(self)
@@ -307,7 +279,6 @@ class AlignScreen(QWidget):
         src_row.addWidget(self._btn_pick_src)
         outer.addLayout(src_row)
 
-        # ── Layout row ────────────────────────────────────────────────
         grid_row = QHBoxLayout()
         grid_row.setSpacing(SPACING["sm"])
         grid_row.addWidget(QLabel("Grid", self))
@@ -357,7 +328,6 @@ class AlignScreen(QWidget):
         grid_row.addStretch(1)
         outer.addLayout(grid_row)
 
-        # ── Quality row ───────────────────────────────────────────────
         qual_row = QHBoxLayout()
         qual_row.setSpacing(SPACING["sm"])
         qual_row.addWidget(QLabel("Min confidence", self))
@@ -407,7 +377,6 @@ class AlignScreen(QWidget):
         qual_row.addWidget(self._btn_plan)
         outer.addLayout(qual_row)
 
-        # ── Layout | report ───────────────────────────────────────────
         split = QSplitter(Qt.Horizontal, self)
         self._layout_view = TileLayoutWidget(self)
         self._layout_view.tile_clicked.connect(self._on_tile_clicked)
@@ -433,7 +402,6 @@ class AlignScreen(QWidget):
         split.setStretchFactor(1, 2)
         outer.addWidget(split, 1)
 
-        # ── Output row ────────────────────────────────────────────────
         out_row = QHBoxLayout()
         out_row.setSpacing(SPACING["sm"])
         out_row.addWidget(QLabel("Write to", self))
@@ -476,7 +444,6 @@ class AlignScreen(QWidget):
             self._blend_combo: "blend",
         })
 
-    # -- introspection -----------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Deliberately never a QMessageBox — a modal dialog
@@ -513,12 +480,6 @@ class AlignScreen(QWidget):
 
     def active_jobs(self) -> int:
         """How many worker threads are still winding down."""
-        # A queued ``QThread.finished`` signal can outlive its sender's C++
-        # object: ``make_thread`` schedules deferred thread deletion before
-        # this screen installs its retirement slot. In that ordering ``sender()``
-        # intermittently returned None and the dead tuple stayed here for
-        # ever. Polling is also a safe recovery path for a queued retirement
-        # event: a finished QThread may release its last references now.
         self._retire_finished_jobs()
         return len(self._jobs)
 
@@ -542,7 +503,6 @@ class AlignScreen(QWidget):
                        self._btn_pick_dst):
             widget.setEnabled(ready)
 
-    # -- settings ----------------------------------------------------------
 
     def settings(self) -> Dict[str, Any]:
         """Return the controls as a :func:`spacr.align.default_settings` dict.
@@ -590,7 +550,6 @@ class AlignScreen(QWidget):
         self._overwrite_box.setChecked(bool(resolved.get('overwrite')))
         self._update_controls()
 
-    # -- pickers -----------------------------------------------------------
 
     def _pick_source(self) -> None:
         """Ask for the folder of tiles, starting where the field points."""
@@ -613,7 +572,6 @@ class AlignScreen(QWidget):
         if path:
             self._dst_edit.setText(path)
 
-    # -- planning ----------------------------------------------------------
 
     def build_plan(self) -> bool:
         """Scan the source and solve the layout. Writes nothing.
@@ -689,7 +647,6 @@ class AlignScreen(QWidget):
                 return
         self._tile_label.setText("")
 
-    # -- writing -----------------------------------------------------------
 
     def write_stack(self) -> bool:
         """Composite the current plan to disk, and optionally to the database."""
@@ -733,7 +690,6 @@ class AlignScreen(QWidget):
         self._set_status(message, error=bool(result.n_skipped))
         self.stack_written.emit(result.stack_path)
 
-    # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None]) -> bool:
@@ -777,18 +733,11 @@ class AlignScreen(QWidget):
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)
-        # Strong references: PySide6 will not keep the worker alive through
-        # the started→run connection alone, and a QThread garbage-collected
-        # while still running takes the process down with it.
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
         self._pending.append((box, on_done))
         worker.error.connect(self._on_worker_error_text)
         worker.finished.connect(self._job_settled)
-        # A context-free lambda may run in the emitting worker thread. Use a
-        # bound QObject slot so Qt queues retirement onto this widget's GUI
-        # thread; otherwise active_jobs() can race the thread's final signal
-        # under a loaded full suite.
         thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()

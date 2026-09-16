@@ -37,7 +37,6 @@ LOG = logging.getLogger("spacr.qt.maturity")
 #: tutorial lesson 32" is one, because the next person to disagree can go
 #: and look.
 PROMOTIONS: Dict[str, Tuple[str, str]] = {
-    # -- Data --------------------------------------------------------------
     "align": ("stable",
               "769 assertions across four test files, a `spacr-run align` "
               "module with its own pre-flight validation rules, and tutorial "
@@ -80,7 +79,6 @@ PROMOTIONS: Dict[str, Tuple[str, str]] = {
                      "222 assertions and a deliberate no-headless-delete "
                      "design, but no documentation, and a launch crash "
                      "already in its short history."),
-    # -- Segmentation models ----------------------------------------------
     "model_compare": ("stable",
                       "363 assertions and a live cross-screen signal — Model "
                       "Zoo's compare button drives it, so shelving it breaks "
@@ -89,7 +87,6 @@ PROMOTIONS: Dict[str, Tuple[str, str]] = {
                   "280 assertions, tutorial lesson 22, an integration in the "
                   "plugin SDK documentation, its own drop handler, and it "
                   "feeds Model Compare."),
-    # -- Results & QC ------------------------------------------------------
     "plate_view": ("stable",
                    "165 assertions across three focused files (1536-well and "
                    "linked-filter among them), `plate_qc.detect_edge_effect` "
@@ -123,7 +120,6 @@ PROMOTIONS: Dict[str, Tuple[str, str]] = {
                     "122 tests and 344 assertions, but one commit old, "
                     "undocumented, and nothing else in the codebase depends "
                     "on it yet."),
-    # -- Explore -----------------------------------------------------------
     "layer_viewer": ("beta",
                      "112 assertions, translations in nine languages and a "
                      "slot on the Home shelf, but no documentation and a "
@@ -141,12 +137,10 @@ PROMOTIONS: Dict[str, Tuple[str, str]] = {
                      "report, schema, foreign and anndata_export all import "
                      "it — with 429 assertions; the panel is newer, and its "
                      "app row still escapes the registry parity check."),
-    # -- Toxoplasma --------------------------------------------------------
     "invasion": ("stable",
                  "A real `spacr-run invasion` pipeline with pre-flight "
                  "rules, curated settings categories, 238 assertions and "
                  "tutorial lesson 26."),
-    # -- Design ------------------------------------------------------------
     "power": ("beta",
               "197 tests and 465 assertions across five files, and the only "
               "module in the Design section — but one commit old with no "
@@ -296,12 +290,6 @@ def apply(stages: Dict[str, str] = None, keys=None) -> List[str]:
         if order.get(current, 2) >= order.get(stage, 0):
             continue
         if stage == "stable":
-            # Stable is the ABSENCE of a line, not a line reading "stable".
-            # ``APP_STAGE`` exists to record what is *not* signed off, and
-            # signing an app off is deleting its entry — writing the word in
-            # would give the table a second way to say the same thing, which
-            # `test_every_app_has_a_stage_and_it_is_written_down_once` exists
-            # to prevent.
             stages.pop(app_key, None)
         else:
             stages[app_key] = stage
@@ -314,9 +302,6 @@ def apply(stages: Dict[str, str] = None, keys=None) -> List[str]:
         except Exception:
             LOG.debug("could not retire %r", app_key, exc_info=True)
 
-    # Phase 2 — the default, made explicit. `stages.get(key)` and not
-    # `key in stages` because a table that somehow holds an empty string or
-    # a None for a key has not said anything about it either.
     for app_key in unassessed_apps(stages, keys):
         if str(stages.get(app_key) or ""):
             continue

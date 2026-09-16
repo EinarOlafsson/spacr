@@ -12,35 +12,19 @@ from typing import Any, Mapping, NamedTuple, Optional, Tuple
 
 #: Default settings applied to every figure before per-graph overrides.
 GENERAL_DEFAULTS: dict[str, Any] = {
-    # The face spaCR ships, registered with the font manager by
-    # `spacr.figure_font` so the name resolves on a machine that never had
-    # Open Sans installed. DejaVu Sans was matplotlib's fallback, not a
-    # choice.
     "font_family": "Open Sans",
     "font_size": 11.0,
     "title_size": 13.0,
     "label_size": 11.0,
     "tick_size": 9.0,
-    # Colour-blind-safe and print-safe. A screen's categories are nominal, so
-    # a sequential map would imply an order that is not there.
     "palette": "colorblind",
-    # TRANSPARENT, NOT WHITE. The store keeps deltas from this table, so
-    # choosing the default in the panel stores nothing and the figure
-    # renders on whatever is behind it -- which meant the declared default
-    # and the observed behaviour disagreed, and picking '#FFFFFF'
-    # deliberately was the one thing the panel could not express.
-    #
-    # 'none' is also the right answer for the job: a figure going into a
-    # paper or a slide takes the ground it is placed on, and a white
-    # rectangle behind it is visible on every dark background it lands on.
-    # A user who wants white can still say so, and now it stores.
     "background": "none",
     "foreground": "#222222",
     "grid": True,
     "grid_colour": "#DDDDDD",
     "grid_width": 0.6,
     "grid_style": "-",
-    "spines": "left_bottom",      # all | left_bottom | none
+    "spines": "left_bottom",
     "spine_width": 1.0,
     "marker_size": 28.0,
     "line_width": 1.4,
@@ -48,22 +32,8 @@ GENERAL_DEFAULTS: dict[str, Any] = {
     "format": "pdf",
     "tight_layout": True,
 
-    # ---- D: THE FURNITURE IS ONE INK (instruction 200) -----------------
-    #
-    # ONE CONTROL FOR THE LINES, not one per line. The axis spines, the
-    # periphery box and the grid are the same thing -- they are the FRAME --
-    # and making the user set each is the "user chooses each line"
-    # complaint. `chrome_colour` is what a user reaches for; `grid_colour`
-    # and the rest stay as the per-element override underneath it, and
-    # `chrome_of` below resolves the two.
-    #
-    # EMPTY MEANS "FOLLOW THE INK", not black. `resolve_ink(theme_target())`
-    # is what a figure's text already does, for the reason 178 measured
-    # eleven times, and a frame pinned to a literal while the text follows
-    # the theme is a figure that looks wrong in one of the two themes.
     "chrome_colour": "",
 
-    # ---- C and E ------------------------------------------------------
     "mark_colouring": "group",
     "marker_style": "o",
     "page_shape": "landscape",
@@ -97,9 +67,6 @@ GRAPH_DEFAULTS: dict[str, dict[str, Any]] = {
         "label_top_n": 10,
         "annotate": True,
         "split_axis": False,
-        # 27 LOPIT compartments is a legend taller than the plot, and it
-        # costs 40 ms of every redraw. Colour identifies them; the legend
-        # only names them.
         "legend": False,
     },
     "plate_heatmap": {
@@ -107,8 +74,6 @@ GRAPH_DEFAULTS: dict[str, dict[str, Any]] = {
         "centred": False,
         "annotate_cells": False,
         "per_row": 2,
-        # A plate is 24x16 wells. Forcing it square stops the wells being
-        # square, which is the whole point of looking at one.
         "aspect": "equal",
         "grid": False,
     },
@@ -141,8 +106,6 @@ GRAPH_DEFAULTS: dict[str, dict[str, Any]] = {
         "jitter_width": 0.28,
         "marker_size": 18.0,
         "point_alpha": 0.7,
-        # The set this may take is STYLE_CHOICES["error_bars"], not the
-        # comment that used to be on this line.
         "error_bars": "sem",
         "bar_alpha": 0.35,
     },
@@ -164,23 +127,9 @@ STYLE_CHOICES = {
     "error_bars": ("sem", "sd", "ci95", "none"),
     "aspect": ("equal", "auto"),
 
-    # ---- C: THE MARKS (instruction 200) --------------------------------
-    #
-    # BY GROUP is the default and the house rule is why: everything is grey
-    # except what the sentence is about. UNIFORM is that rule taken all the
-    # way. RANDOM was asked for by name and is for telling points apart by
-    # eye -- a random colour per point carries no information, so it belongs
-    # in a working view rather than in a figure that makes a claim, and its
-    # tooltip says so.
     "mark_colouring": ("group", "uniform", "random"),
     "marker_style": ("o", "s", "^", "D", "v", "P", "X", "*"),
 
-    # ---- E: THE SHAPE OF THE PAGE --------------------------------------
-    #
-    # A NAMED RATIO rather than two boxes of inches. The inches stay for a
-    # user who wants a journal's exact column width; the ratio is what
-    # somebody choosing how a figure LOOKS is actually choosing, and it
-    # keeps the two axes consistent when the size changes.
     "page_shape": ("square", "portrait", "landscape", "wide", "custom"),
 }
 
@@ -310,9 +259,6 @@ def rc_params(style: Mapping[str, Any]) -> dict:
     dict
         Matplotlib parameter names and values derived from ``style``.
     """
-    # NAMING THE FAMILY IS NOT ENOUGH. A family matplotlib cannot resolve is
-    # a silent fallback to DejaVu Sans, not an error, so the bundled files
-    # have to be in the font manager before the name is used. Idempotent.
     from .figure_font import use_open_sans_for_figures
     use_open_sans_for_figures()
 
@@ -348,11 +294,6 @@ def rc_params(style: Mapping[str, Any]) -> dict:
     if style.get("tight_layout"):
         params["figure.autolayout"] = True
 
-    # THE FRAME IS ONE INK. The spines, the tick marks and the grid are the
-    # same furniture, so `chrome_colour` colours all three at once and a
-    # per-element value overrides it where the user set one. An empty
-    # `chrome_colour` leaves each element exactly where it was, so a style
-    # that never mentions the frame renders as before.
     spine_ink = chrome_of(style, "spine")
     if spine_ink:
         params["axes.edgecolor"] = spine_ink
@@ -360,36 +301,18 @@ def rc_params(style: Mapping[str, Any]) -> dict:
     if tick_ink:
         params["xtick.color"] = tick_ink
         params["ytick.color"] = tick_ink
-    # The grid carries its own colour by default, and a default is not an
-    # override: the one control wins over it, and only a grid colour the user
-    # actually chose wins back.
     frame_ink = str(style.get("chrome_colour", "") or "").strip()
     grid_ink = str(style.get("grid_colour", "") or "").strip()
     if frame_ink and grid_ink in ("", GENERAL_DEFAULTS["grid_colour"]):
         params["grid.color"] = frame_ink
 
-    # THE MARK. `marker_style` is the shape drawn at each point of a line or
-    # a series; scatter marks pass their own and are unaffected. Emitted only
-    # when it is not the default shape, because these params are pushed into
-    # the global rcParams: naming the default would put a marker on every
-    # line ever drawn, which is a decision no user made.
     marker = str(style.get("marker_style", "") or "").strip()
     if marker and marker != GENERAL_DEFAULTS["marker_style"]:
         params["lines.marker"] = marker
 
-    # THE SHAPE OF THE PAGE. One number in, two out: naming the ratio keeps
-    # the two axes consistent when the size changes. `custom` has no ratio --
-    # it means the caller's own inches -- so it emits no size at all, and
-    # neither does the default shape, for the reason above.
     shape = str(style.get("page_shape", "") or "").strip()
     if shape in PAGE_SHAPES and shape != GENERAL_DEFAULTS["page_shape"]:
         params["figure.figsize"] = list(page_size(shape, PAGE_WIDTH_IN))
-    # THE PALETTE IS AN rcParam TOO, and it has to be one here rather than
-    # only inside `apply`. `spacr.figures.style.rc` -- the only supported way
-    # a figure gets this style -- builds its overrides by DIFFING two
-    # `rc_params` dicts, so a setting this function does not emit cannot
-    # reach a drawn figure at all: a user who picked a palette in Preferences
-    # got the Matplotlib default cycle back.
     colours = palette_colours(style.get("palette"))
     if colours:
         from cycler import cycler
@@ -430,7 +353,7 @@ def apply(kind: Optional[str] = None,
         palette = style.get("palette")
         if palette:
             _apply_palette(palette)
-    except Exception:  # never fail a run over styling
+    except Exception:
         pass
     return style
 
@@ -469,26 +392,6 @@ def _apply_palette(name: str) -> None:
         mpl.rcParams["axes.prop_cycle"] = cycler(color=colours)
 
 
-# ---------------------------------------------------------------------------
-# A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN.
-#
-# Instruction 150, reported 2026-08-18: "when a graph is saved and the user is
-# on a dark theme white elements are changed to black for saving (text lines,
-# etc)". On a dark theme `spacr.qt.preferences.get_figure_colors()` hands both
-# renderers a WHITE foreground, so the axes, ticks, labels, title and legend
-# are white -- and nothing anywhere inverted them at export time. A PNG saved
-# with a transparent ground even looks right in a dark file manager and
-# disappears when it is pasted into a manuscript, which means the user finds
-# out at the point of writing the paper.
-#
-# THE DECISION LIVES HERE AND THE APPLICATION DOES NOT. This half is
-# matplotlib-free and Qt-free, like the rest of the module, so the pyqtgraph
-# exporter (`FastPlot._paint_scene`, instruction 150 C) can import
-# `saved_figure_appearance` and get the same answer as `spacr.plot.print_ready`
-# without either of them owning the rule. Two renderers deciding separately
-# what "print" means is the same defect as two engines deciding which
-# statistical test applies.
-# ---------------------------------------------------------------------------
 
 #: Supported export modes: ``print`` uses a light background and dark figure
 #: elements; ``screen`` preserves the displayed appearance; ``transparent``
@@ -549,7 +452,7 @@ def to_rgb(colour) -> Optional[tuple]:
                 except ValueError:
                     return None
                 if len(digits) == 8 and int(digits[6:8], 16) == 0:
-                    return None          # fully transparent is not a colour
+                    return None
                 return tuple(values)
             return None
     else:
@@ -561,7 +464,7 @@ def to_rgb(colour) -> Optional[tuple]:
             return None
         if len(values) in (3, 4):
             return tuple(values[:3])
-    try:                                   # the colour spellings only matplotlib reads
+    try:
         from matplotlib.colors import to_rgba
 
         red, green, blue, alpha = to_rgba(colour)
@@ -715,31 +618,16 @@ def export_colour(current, kind: str, look=None) -> Optional[str]:
     """
     look = saved_figure_appearance() if look is None else look
     if not look.flip or kind == "data":
-        # THE DATA NEVER MOVES. A white data point turned black is, on a
-        # volcano, the colour of "not a hit" -- section A exists to prevent
-        # exactly that, and it is the one line of this function that must
-        # never grow a special case.
         return None
     page = look.ground or PRINT_GROUND
     if kind == "ground":
-        # Only a DARK ground is repainted. A deliberately tinted light
-        # background is somebody's choice, and 'transparent' has no ground to
-        # argue about -- the writer owns that.
         luminance = relative_luminance(current)
         if look.ground is None or luminance is None or luminance >= 0.5:
             return None
         return look.ground
     if is_legible_on(current, page):
         return None
-    # A grid repainted in the ink is a cage over the data, so an illegible
-    # grid becomes the faint print grey instead.
     replacement = look.grid if kind == "grid" else look.ink
-    # AND NOTHING IS "REPAINTED" IN THE COLOUR IT ALREADY IS. The light-mode
-    # grid default IS `PRINT_GRID`, and #DDDDDD on white is 1.27 contrast --
-    # deliberately faint, correctly below the chrome floor, and already the
-    # colour it would be changed to. Saying None here is what makes "a
-    # light-mode save changes nothing at all" true of the artists as well as
-    # of the pixels, and it leaves the caller nothing to restore.
     if to_rgb(replacement) == to_rgb(current):
         return None
     return replacement
@@ -827,7 +715,7 @@ def figure_save_mode() -> str:
     requested = os.environ.get("SPACR_FIGURE_SAVE_MODE", "").strip().lower()
     if requested in SAVE_MODES:
         return requested
-    try:                                   # the GUI's own answer, when there is one
+    try:
         from .qt import preferences
 
         stored = str(preferences.get_figure_save_mode()).strip().lower()
@@ -868,9 +756,6 @@ def theme_ink() -> Tuple[str, str]:
         theme = str(resolve_effective_theme() or "").strip().lower()
     except Exception:                                            # noqa: BLE001
         return PRINT_INK, PRINT_GRID
-    # `resolve_effective_theme` says so itself: compare against "light" and
-    # treat everything else as dark, because Space and Cell are dark themes
-    # and "system" has already been resolved by the time it answers.
     return (PRINT_INK, PRINT_GRID) if theme == "light" else (DARK_INK, DARK_GRID)
 
 def saved_figure_appearance(mode: Optional[str] = None
@@ -895,22 +780,6 @@ def saved_figure_appearance(mode: Optional[str] = None
     if chosen == "screen":
         return SavedFigureAppearance("screen", None, None, None, False, False)
     if chosen == "transparent":
-        # THE INK FOLLOWS THE THEME HERE, and only here.
-        #
-        # Asked for twice: "the background of the figures should be
-        # transparent and the lines should be white on a dark theme and black on
-        # a light one", and then reported as a fault -- "a lot of the text in
-        # the figures is black on the dark theme and the axes as well".
-        #
-        # This mode used to keep the PRINT ink on the ground that it removes,
-        # on the argument that dark ink on a transparent ground is still
-        # unreadable on a dark slide. That argument is right about `print` and
-        # wrong about this: transparent MEANS the ground is whatever the
-        # figure is pasted onto, and the only thing that knows what that is,
-        # is the user -- who says so by the theme they are working in.
-        #
-        # `print` is unchanged and is still the default, so a figure going
-        # into a manuscript is untouched by this.
         ink, grid = theme_ink()
         return SavedFigureAppearance("transparent", None, ink, grid,
                                      True, True)

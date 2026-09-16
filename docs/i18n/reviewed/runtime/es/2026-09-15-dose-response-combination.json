@@ -1,0 +1,34 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "A second dose column, for a two-compound checkerboard. The curves then use only the wells without it, and each group's combination wells are scored against the chosen model.",
+      "source": "A second dose column, for a two-compound checkerboard. The curves then use only the wells without it, and each group's combination wells are scored against the chosen model.",
+      "source_sha256": "480279b86228df193a81c313b0a58eaab6504ec018cd403e8060015e03f94b7b",
+      "table": "ui",
+      "translation": "Una segunda columna de dosis, para un tablero de dos compuestos. Las curvas usan entonces solo los pocillos sin él, y los pocillos de combinación de cada grupo se evalúan frente al modelo elegido."
+    },
+    {
+      "key": "Bliss independence",
+      "source": "Bliss independence",
+      "source_sha256": "13b2f8c9929b5b33b40c25f044da056b88f7776654eb14e98f971b8f7a44e7ef",
+      "table": "ui",
+      "translation": "Independencia de Bliss"
+    },
+    {
+      "key": "Loewe additivity",
+      "source": "Loewe additivity",
+      "source_sha256": "69d7c5f446ceeef8038a43d8914901e6b2ade156a3f11a36bcfa1ff830509c90",
+      "table": "ui",
+      "translation": "Aditividad de Loewe"
+    },
+    {
+      "key": "Second compound",
+      "source": "Second compound",
+      "source_sha256": "12ed80bdef69b5d1cf08f2dc6354bb5b3e9111ed2dd00889290e9098fd62d563",
+      "table": "ui",
+      "translation": "Segundo compuesto"
+    }
+  ],
+  "schema": 1
+}

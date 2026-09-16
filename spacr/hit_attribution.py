@@ -69,6 +69,21 @@ _IDENTIFIER_HINTS = (
     "prediction", "probability", "posterior", "score",
 )
 
+#: Columns :func:`build_hit_cell_frame` computes from ``score_column`` ALONE.
+#:
+#: A within-well rank and a within-well percentile are monotone transforms of
+#: the score, so each carries the model output in full while matching none of
+#: :data:`_IDENTIFIER_HINTS` by name. :func:`_default_features` therefore
+#: treats them exactly as it treats the score itself -- kept only when the
+#: caller asked for the score -- because otherwise
+#: ``include_original_score=False`` excludes the score and admits a perfect
+#: proxy for it in the same breath, and without the warning the explicit
+#: opt-in attaches.
+SCORE_DERIVED_COLUMNS: Tuple[str, ...] = (
+    "candidate_rank",
+    "candidate_percentile",
+)
+
 
 def _now() -> str:
     """The current UTC time, as an ISO string for a provenance record.
@@ -233,14 +248,16 @@ def build_hit_cell_frame(
     if direction_key not in {"positive", "negative"}:
         raise HitAttributionError("direction must be 'positive' or 'negative'")
     ascending = direction_key == "negative"
+    # Both of these are functions of score_column alone, so both are listed
+    # in SCORE_DERIVED_COLUMNS -- rename one here and rename it there too, or
+    # _default_features will start handing the score back to the model under
+    # a name that does not look like it.
     frame["candidate_rank"] = (
         frame.groupby(wells, dropna=False)[score_column]
         .rank(method="first", ascending=ascending).astype(int))
     frame["candidate_percentile"] = (
         frame.groupby(wells, dropna=False)[score_column]
         .rank(method="average", pct=True, ascending=not ascending))
-    # High is always more hit-like. For a negative hit the descending=False
-    # rank above gives the lowest raw score the highest percentile.
     frame["candidate_for_review"] = frame["target_guide_fraction"] > 0
     frame.attrs.update({
         "well_columns": wells,
@@ -616,8 +633,6 @@ def crossfit_candidate_probabilities(
         sample_weight = np.ones(len(train), dtype=float)
         if "target_guide_fraction" in frame.columns:
             fraction = frame.iloc[train]["target_guide_fraction"].to_numpy(float)
-            # Fractions modulate evidence among positive bags but are not
-            # treated as known cell-label proportions.
             sample_weight[labels[train]] = 0.5 + np.sqrt(
                 np.clip(fraction[labels[train]], 0, 1))
         model.fit(values.iloc[train], labels[train], sample_weight=sample_weight)
@@ -685,14 +700,15 @@ def _default_features(frame: pd.DataFrame, score_column: str,
 
     :param frame: the object table.
     :param score_column: the score column, kept only if asked for.
-    :param include_score: keep the score among the features.
+    :param include_score: keep the score -- and everything derived from it,
+        see :data:`SCORE_DERIVED_COLUMNS` -- among the features.
     :returns: the feature names.
     """
     numeric = list(frame.select_dtypes(include=[np.number]).columns)
     features = []
     for column in numeric:
         low = str(column).lower()
-        if column == score_column:
+        if column == score_column or column in SCORE_DERIVED_COLUMNS:
             if include_score:
                 features.append(column)
             continue
@@ -793,9 +809,6 @@ def _refitted_permutation_p_values(
                 posterior, _folds, _fit_iterations = _crossfit_mixture(
                     values, permuted, groups)
             except HitAttributionError:
-                # A sparse permutation can leave one training fold with only
-                # one bag class. It is an unidentified null draw, not evidence;
-                # omit it and report the completed count explicitly.
                 continue
             temporary = pd.DataFrame({
                 "_well": well_keys,

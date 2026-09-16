@@ -74,26 +74,6 @@ FOLD_WINDOW_SIZE = (1180, 760)
 #: asserted to agree for every key that has one, so the two cannot drift
 #: apart while both exist.
 FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
-    # THE THREE REGRESSION FOLDS THAT HAD NO FALLBACK, added 2026-09-08.
-    #
-    # `regression.FOLDED_APPS` named six keys and this table answered for
-    # three of them. The other three still have standalone registry rows, so
-    # `restate_fold_button` finds their name and description there and the
-    # buttons read correctly TODAY -- which is exactly why the gap was
-    # invisible. The day those rows are dropped, as the fold intends, three
-    # buttons on Regression go mute.
-    #
-    # `test_the_fold_fallback_is_in_the_table_that_is_actually_read` is the
-    # assertion that caught it, and its own docstring says why this table
-    # and no other: `install_folds` restates through
-    # `map_barcodes.restate_fold_button`, which looks here and nowhere else.
-    # THE TEXT IS THE REGISTRY'S, CHARACTER FOR CHARACTER, and the first
-    # version of these three was not: a trailing full stop and a `beta`
-    # where the row says `alpha` were both caught by
-    # `test_the_fold_fallback_agrees_with_whatever_still_knows`. A fallback
-    # that paraphrases is a second source of truth, and it drifts silently
-    # the moment the row it stands in for is edited -- which is precisely
-    # the day this table starts being read.
     "investigate_hit": (
         "Investigate Hit",
         "Link a regression hit to cross-fitted candidate cells and "
@@ -151,7 +131,6 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "Quantify track velocity and straightness and stratify results by "
         "infection state.",
         "beta"),
-    # Image UMAP's two other projections of the same measurement table.
     "image_scatter": (
         "Image Scatter",
         "Hover a point to see the cell; click it to open the crop",
@@ -161,7 +140,6 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "Principal components of the measurement table, with a loadings "
         "biplot",
         "alpha"),
-    # Regression's three: the figure, the list and the write-up.
     "volcano_explorer": (
         "Volcano Explorer",
         "Open a regression result, click any point for its full record, "
@@ -198,17 +176,6 @@ def fold_description(key: str) -> Tuple[str, str, str]:
     except Exception:
         LOG.debug("Could not read the app registry", exc_info=True)
     if not name:
-        # THE DECLARED CATALOGUE, before any hand-written table. Several
-        # folded modules never had a registry row at all -- they are
-        # declared in `app_catalog` and built from it -- and that
-        # declaration already carries the name, the sentence and the
-        # maturity this button needs. Copying those three strings into a
-        # per-host `FOLD_FALLBACK` is the same knowledge written twice,
-        # and the copy is the one that goes stale.
-        #
-        # Only consulted when the registry had nothing: a module that is
-        # BOTH registered and declared must present as the registry says,
-        # because that is what its tile and its menu entry say.
         try:
             from ..app_catalog import DECLARED_APPS
             for declared in DECLARED_APPS:
@@ -221,11 +188,6 @@ def fold_description(key: str) -> Tuple[str, str, str]:
             LOG.debug("Could not read the declared catalogue", exc_info=True)
     fallback = FOLD_FALLBACK.get(key)
     if fallback is None:
-        # NOT EVERY FOLD LANDS HERE. This table holds what the modules
-        # folded into THIS screen said; a module folded into Measure or
-        # Classify keeps its record on that host instead. The shared
-        # resolver walks them all, so a button asks one question rather
-        # than each host having to know about every other host's folds.
         try:
             from ..widgets.fold_strip import folded_fallback
             fallback = folded_fallback(key)
@@ -255,10 +217,6 @@ def restate_fold_button(button, key: str) -> None:
         button.setAccessibleName(name)
     if not stage:
         return
-    # Asked of the button rather than done here: a switch also carries a
-    # widget-local ":checked" fill computed from the stage it was built
-    # with, and setting the property alone left it lighting stable-blue
-    # when it was on while hovering in its own colour.
     set_stage = getattr(button, "set_stage", None)
     if callable(set_stage):
         set_stage(stage)
@@ -384,9 +342,6 @@ def show_as_window(screen: QWidget, owner: Optional[QWidget],
     screen.setParent(parent, Qt.Window)
     screen.setWindowTitle(title)
     screen.resize(*FOLD_WINDOW_SIZE)
-    # A fallback window bypasses MainWindow._theme_screen. Its builder may
-    # have imported another late registrar, so give the window its own scope
-    # before the first show just as the ordinary screen-host path does.
     from ..theme import ensure_widget_qss_applied
     ensure_widget_qss_applied(root=screen)
     screen.show()
@@ -395,26 +350,6 @@ def show_as_window(screen: QWidget, owner: Optional[QWidget],
     return screen
 
 
-# ---------------------------------------------------------------------------
-# A fold that is a page on its host, rather than a window over it
-# ---------------------------------------------------------------------------
-#
-# "some new module could take space above the console or become a tab.
-# anything to integrate the new module naturally ... if you cannot find
-# any other way, then do your new window idea."
-#
-# A folded module that has a screen of its own -- a bundle browser, a SHAP
-# panel, a kappa table, a settings form and its Run button -- is a VIEW ON
-# THE HOST'S DATA rather than a set of settings the host already has. So
-# it becomes a page beside the host's own: the module itself, whole, but
-# inside the window the user is already in rather than floating over it.
-#
-# NOTHING IS REIMPLEMENTED AND NOTHING IS LOST. It is the same widget the
-# window held, with the same signals wired to the same host; only where it
-# is mounted changes. Closing its tab keeps the built screen, so the state
-# it had -- a loaded bundle, a typed path, a finished run -- is still
-# there when the button is pressed again, which is more than the window
-# managed.
 
 #: The objectName the host's page strip carries, so one QSS rule can style
 #: every one of them and tests can find it without knowing the host.
@@ -456,11 +391,6 @@ def _ensure_pages_qss(screen: QWidget) -> None:
         LOG.debug("Could not register the fold page QSS", exc_info=True)
 
 
-# Registered at import as well, so a session that builds its stylesheet
-# before any fold page exists already carries the rule. The import-time
-# registration is what ``theme.WIDGET_QSS_MODULES`` loads; the call above
-# is what covers a page made after the sheet was composed. Both, because
-# either alone leaves one of the two orders unstyled.
 try:
     from ..theme import register_widget_qss as _register_widget_qss
 
@@ -504,9 +434,6 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
     """
     existing = getattr(screen, "_fold_pages", None)
     if isinstance(existing, QTabWidget):
-        # Building the next folded module may have registered more QSS since
-        # this strip was created. Refresh the host's one owned suffix before
-        # the new child is mounted; otherwise only the first fold is styled.
         _ensure_pages_qss(screen)
         return existing
     body = _page_body(screen)
@@ -526,23 +453,11 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
     pages.setTabsClosable(True)
     layout.removeWidget(body)
     pages.addTab(body, name)
-    # The host's own page has no close button: there is nothing behind it.
-    #
-    # HIDDEN, NOT CLEARED. `QTabBar.setTabButton(index, side, None)`
-    # destroys the button that was there, and the tab bar goes on holding
-    # a pointer to it -- which lands as a segmentation fault in whatever
-    # the process happens to be doing when that memory is next touched,
-    # three tests away from the line that caused it. Hiding it leaves
-    # ownership where Qt put it.
     bar = pages.tabBar()
     for side in (QTabBar.RightSide, QTabBar.LeftSide):
         button = bar.tabButton(0, side)
         if button is not None:
             button.hide()
-    # THE APPLICATION'S CLOSE MARK, NOT THIS STRIP'S. The host page's
-    # button stays hidden -- `install_close_marks` carries that across --
-    # so folding still costs the host nothing. See
-    # `theme.install_close_marks`.
     install_close_marks(pages, tooltip=tr("Close"))
     pages.tabCloseRequested.connect(
         partial(_close_fold_page, pages))
@@ -584,8 +499,6 @@ def hide_as_page(screen: QWidget, host: Optional[QWidget]) -> bool:
     if not isinstance(pages, QTabWidget):
         return False
     index = pages.indexOf(screen)
-    # Never index 0: that is the host's own body, which has no close mark
-    # for the same reason -- there is nothing behind it.
     if index <= 0:
         return False
     _close_fold_page(pages, index)
@@ -607,23 +520,12 @@ def show_as_page(screen: QWidget, host: Optional[QWidget],
     index = pages.indexOf(screen)
     if index < 0:
         index = pages.addTab(screen, title)
-        # Qt builds its own small close button for a new tab. Ask for the
-        # application's mark here rather than waiting for the strip's
-        # watcher, so the page never appears carrying the wrong one.
         install_close_marks(pages, tooltip=tr("Close"))
-    # THE MODULE'S OWN MARK ON ITS TAB. A folded module gave up its tile,
-    # and the icon is the thing a user already associates with it -- so a
-    # page carrying only a title asks them to re-learn a name for
-    # something they could recognise at a glance. The key is taken from
-    # the screen itself, so a page opened by any host is marked the same.
     key = str(getattr(screen, "app_key", "") or "")
     if key:
         try:
             from .. import iconset
 
-            # See the note in `widgets/fold_strip.py`: resolving by
-            # filename alone ignores `_ICON_OVERRIDES` and hands a
-            # borrowing module the wrong picture.
             from ..app import _icon_for_app
             icon = _icon_for_app(key)
             if icon is not None and not icon.isNull():
@@ -672,8 +574,6 @@ class FoldOpener:
             try:
                 built.isVisible()
             except RuntimeError:
-                # Qt deleted the C++ side under us. Build a fresh one
-                # rather than try to resurrect a dangling wrapper.
                 built = self.window = None
         if built is None:
             host_window = (self.screen.window()
@@ -739,7 +639,6 @@ def install_fold_strip(screen: QWidget, host_key: str,
         LOG.debug("Could not build the fold strip for %s", host_key,
                   exc_info=True)
         return None
-    # The openers outlive this call only because the screen holds them.
     screen._fold_openers = openers
     screen._fold_strip = strip
     return strip
@@ -773,15 +672,6 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)
 
 
-# ---------------------------------------------------------------------------
-# Reaching the screens the window builds
-# ---------------------------------------------------------------------------
-#
-# A host screen is the generic ``AppScreen``, which knows nothing about
-# who folded into it and should not have to. The strips are hung on it
-# from outside, as each screen reaches the window's stack -- the route
-# :mod:`spacr.qt.preview_registry` and :mod:`spacr.qt.recipes` take to
-# put their own controls on a screen they do not own.
 
 #: Host app key → the module in this package that owns its fold strip.
 #: A host absent from here has no folds; one pass over the stack serves
@@ -792,22 +682,12 @@ FOLD_HOST_MODULES: Dict[str, str] = {
     "map_barcodes": "map_barcodes",
     "classify_merged": "classify",
     "measure": "measure",
-    # Mask Generation's two folds are settings categories rather than
-    # windows, but they reach their host by the same walk: the screen is
-    # the generic `AppScreen`, built by the window, and the strip is hung
-    # on it from outside.
     "mask": "mask",
     "regression": "regression",
     "umap": "image_umap",
-    # Instruction 318's folds. Each of these hosts gained two buttons for
-    # modules that used to hold a Home tile of their own -- a tile says
-    # "start here", and none of the six is a job anyone sets out to do:
-    # they are second views of something the host is already showing.
     "graph_builder": "graph_builder",
     "db_browser": "db_browser",
     "qc_dashboard": "qc_dashboard",
-    # Import: Format Converter and External Masks, folded onto the screen
-    # that was Import Project.
     "foreign": "foreign",
 }
 
@@ -882,26 +762,10 @@ def install_window_hooks(window) -> Optional[_StackWatcher]:
         LOG.debug("Could not follow the screen stack", exc_info=True)
         return None
     window._fold_watcher = watcher
-    # The first screen is already current when this runs, and no
-    # currentChanged is coming for it.
     QTimer.singleShot(0, watcher.install_current)
     return watcher
 
 
-# ---------------------------------------------------------------------------
-# A fold that is not a window: the module as settings categories on its host
-# ---------------------------------------------------------------------------
-#
-# A WINDOW IS THE LAST RESORT. Some folded modules are not a second screen
-# at all -- they are the host's own pipeline with a gate turned on and a
-# few extra knobs. Timelapse and Motility on Mask Generation are the case
-# the maintainer named: "these buttons just need to toggle the visability
-# of their settings categories as they share the rest with [the host]".
-#
-# So the button reveals the module's own settings CATEGORIES on the host's
-# form and turns the pipeline flag they belong to on. Nothing opens,
-# nothing is replaced, and the settings the two modules share are edited
-# once, in the place the user is already looking.
 
 
 def _widget_keys(model) -> Dict[int, str]:
@@ -958,7 +822,6 @@ class CategoryFold:
         self.settings_keys: Tuple[str, ...] = ()
         self._active = False
 
-    # -- mounting ------------------------------------------------------
     def mount(self) -> bool:
         """Build the module's categories and put them on the host, hidden.
 
@@ -975,27 +838,10 @@ class CategoryFold:
         from .settings_model import (SettingsWidgets,
                                      keys_hidden_by_their_object)
 
-        # ONLY WHAT THIS FOLD ADDS. The loop below keeps a row exactly when
-        # the host does not already hold its key, so building the rest was
-        # 96% waste: the timelapse fold on the mask screen built 364
-        # settings to keep 14, at 1,148 ms on every module open. The host's
-        # own keys are skipped up front instead.
         already = set(getattr(host_model, "_widgets", {}))
         model = SettingsWidgets(self.key, parent=content, skip_keys=already)
         built = model.build_sections()
         held = set(getattr(host_model, "_widgets", {}))
-        # AND NOT WHAT THIS RUN HAS NO OBJECT FOR. The host builds every
-        # object's rows and hides the ones whose channel is unset, so a
-        # fold that mounted them would put the host's own hidden category
-        # on the form a second time -- the timelapse fold mounted a second
-        # PATHOGEN SEGMENTATION card on mask for the one pathogen setting
-        # mask's registry spells differently. Judged against the HOST's
-        # channels, because it is the host's run these rows would join.
-        # THE HOST'S KEYS GO IN WITH THE FOLD'S. The rule gates a role only
-        # when that role's switch is on the same panel, so that it never
-        # hides a row whose switch lives on a screen the user cannot reach.
-        # Here the switch IS reachable -- it is on the host, one card up --
-        # and the panel these rows would join is the union of the two.
         try:
             run_hides = set(keys_hidden_by_their_object(
                 set(model._widgets) | held,
@@ -1017,8 +863,6 @@ class CategoryFold:
             if not own:
                 continue
             section = self._build_section(str(title), own, by_widget)
-            # Before the trailing stretch the panel ends with, or the
-            # categories would be pushed off the bottom of the column.
             layout.insertWidget(max(0, layout.count() - 1), section)
             section.setVisible(False)
             self.sections.append(section)
@@ -1027,24 +871,12 @@ class CategoryFold:
             return False
         self.model = model
         self.settings_keys = tuple(mounted_keys)
-        # THE HOST NOW COLLECTS THEM. `collect()` walks `_widgets`, so a
-        # control that is on the host's form and not in this map is a
-        # control the run never sees.
         host_model._widgets.update(
             {key: model._widgets[key] for key in mounted_keys})
-        # And the module's settings that have no control -- the ones its
-        # own screen does not render either -- ride along as defaults, so
-        # the pipeline is handed the same dict its own module would have
-        # handed it. The gates are excluded: they are this fold's switch,
-        # and their value is decided by the button rather than inherited.
         for name, value in getattr(model, "_defaults", {}).items():
             if name in self.gates:
                 continue
             host_model._defaults.setdefault(name, value)
-        # AND SO DO THE ROWS THE RUN HAS NO OBJECT FOR. They get no control
-        # -- the host already shows that object's category -- but the
-        # module's pipeline still reads them by name, so their value rides
-        # along exactly as a setting with no control does.
         if run_hides:
             try:
                 values = model.collect()
@@ -1086,16 +918,12 @@ class CategoryFold:
             html = widget.toolTip()
             caption.setProperty("apiTooltipHtml", html)
             caption.setProperty("apiTooltipDisplayRole", "tooltip")
-            # The help lives on the label, as it does on every other row:
-            # a tooltip on the field itself pops while the user is typing
-            # into it.
             widget.setToolTip("")
             caption.installEventFilter(self.screen)
             section.add_row(caption, widget, info_widget=None,
                             wrap_label=True)
         return section
 
-    # -- switching -----------------------------------------------------
     @property
     def active(self) -> bool:
         """Whether this module is currently part of the host's run."""
@@ -1154,7 +982,6 @@ class CategoryFoldSet:
             for key, gates in folds.items()}
         self.strip: Optional[FoldStrip] = None
 
-    # -- building ------------------------------------------------------
     def mount(self) -> Tuple[str, ...]:
         """Mount each fold's categories on the host in a hidden state.
 
@@ -1185,7 +1012,6 @@ class CategoryFoldSet:
         self.strip = strip
         return strip
 
-    # -- switching -----------------------------------------------------
     def set_active(self, key: str, on: bool) -> None:
         """Set a fold's state and update its dependency relationships.
 
@@ -1216,9 +1042,6 @@ class CategoryFoldSet:
         """Move one fold's button, or the fold itself when there is no strip."""
         button = self.strip.button_for(key) if self.strip is not None else None
         if button is not None:
-            # The toggle comes back through `set_active`, so the fold and
-            # everything it implies are switched by the same path a user
-            # pressing the button takes.
             button.setChecked(bool(on))
             return
         fold = self.folds.get(key)
@@ -1278,63 +1101,6 @@ def _reads_as_true(value) -> bool:
     return bool(value)
 
 
-# ---------------------------------------------------------------------------
-# The live barcode search: settings read off the reads instead of guessed
-# ---------------------------------------------------------------------------
-#
-# "implementing a search function that searches for barcodes and sets
-# settings automatically, and the ability to find more than 3, i.e. an
-# arbitrary number of barcodes ... The automatic settings mode should be like
-# live mode ... the user should also see the matching barcodes in a text
-# window with 1 read per row and the different barcodes matches visualized by
-# coloring different barcodes different colors."
-#
-# THE RUN THIS EXISTS TO PREVENT. The Map Barcodes tutorial could not be
-# written because a real paired run produced 8,611 consensus rows and zero
-# mapped counts, and finished normally while doing it. The reads of a pair are
-# read from opposite ends of one fragment, so a barcode that is plain in one
-# mate is reverse complemented in the other, and spaCR ships its reference
-# tables in one orientation only. Measured on that run, per barcode table and
-# per mate:
-#
-#     barcode type   R1 plain   R1 RC    R2 plain   R2 RC    chance
-#     gRNA              0.1%    79.7%      79.0%     0.2%     ~0%
-#     column            0.9%    27.9%       2.7%     1.0%     5.2%
-#     row               6.8%     6.9%       6.8%     1.3%     6.9%
-#
-# Reading column barcodes off R1 against the shipped table therefore matched
-# 0.9% of reads against a 5.2% coincidence rate -- below noise -- and the run
-# mapped nothing without ever saying so.
-#
-# WHY EVERY RATE ON THIS PANEL IS PRINTED BESIDE ITS CHANCE RATE. Look at the
-# row barcodes in that table. They match 6.8% of reads and they are not there
-# at all: thirty-two barcodes of eight bases scanned across a hundred and
-# fifty base read match somewhere by pure coincidence in
-# 32 * (150 - 8 + 1) / 4**8 of reads, which is 6.98%. A panel that showed
-# "row barcodes found, 6.8%" would send someone hunting for a bug that does
-# not exist, or would auto-configure a mapping that produces garbage. So the
-# chance rate has a column of its own directly beside the observed one, the
-# enrichment between them has a third, and no verdict says a table is present
-# unless the engine's own thresholds clear coincidence by a wide margin. That
-# pairing is the feature. Dropping the chance column to save width would turn
-# this panel back into the thing it was built to replace.
-#
-# HOW IT RUNS WITHOUT FREEZING ANYTHING. The engine hands back a complete
-# report after every chunk of reads, so this submits one chunk at a time
-# through `JobRunner` and submits the next when the previous one lands on the
-# GUI thread -- the same route the live preview takes, which is also what puts
-# the work in the process-wide run registry that turns the activity spinner.
-# Nothing here reads a file on the GUI thread: the folder scan, the reference
-# tables, the reads and the annotation all happen inside a submitted job and
-# come back as plain data. Measured against the run above, a chunk of two
-# thousand reads from each of two mates against four reference tables takes
-# 0.25 s, so a twenty thousand read sample settles in about two and a half
-# seconds and refines visibly while it does.
-#
-# AND APPLYING IS A SEPARATE PRESS. The search proposes; the user disposes.
-# Silently rewriting settings somebody typed is not acceptable even when the
-# rewrite is right, so the proposal is rendered as old value beside new value
-# and nothing reaches the form until the Apply button is pressed.
 
 #: Object name of the card the search sits in, so one QSS rule can reach it
 #: and a test can find it without knowing the screen's layout.
@@ -1373,6 +1139,49 @@ _SHIPPED_REFERENCE_KEYS: Tuple[Tuple[str, str], ...] = (
     ("grna_csv", "grna"),
     ("row_csv", "row"),
 )
+
+#: The settings a search reads, and therefore the only ones whose change
+#: starts a new one.
+#:
+#: TAKEN FROM WHAT `plan_barcode_search` ACTUALLY READS -- the sequencing
+#: folder, every reference table, the barcode set and the anchor -- and not
+#: from "every setting on the form". Re-searching because someone changed the
+#: compression level would read the same reads against the same tables and
+#: produce the same report, which is a second of disk for a flicker. The
+#: reference keys come from `_SHIPPED_REFERENCE_KEYS` rather than being spelled
+#: again, so adding a table there cannot leave the live search blind to it.
+_LIVE_SEARCH_KEYS: Tuple[str, ...] = (
+    ("src",)
+    + tuple(key for key, _role in _SHIPPED_REFERENCE_KEYS)
+    + ("barcode_set", "target_sequence")
+)
+
+#: How long the form must sit still before a changed input starts a search.
+#:
+#: A path field emits on EVERY KEYSTROKE. Without a pause, typing a folder
+#: starts one search per character, and the last to finish wins -- which need
+#: not be the one matching what is now on screen. The pause is restarted by
+#: each edit, so a burst of typing costs exactly one search.
+_LIVE_SEARCH_DEBOUNCE_MS = 600
+
+
+def _search_inputs(settings) -> Tuple[str, ...]:
+    """Reduce the settings to the part a search depends on.
+
+    Two forms that agree here would produce the same search, so this is what
+    is compared to decide whether an edit is worth a new one.
+
+    :param settings: the Map Barcodes settings as the form holds them.
+    :returns: one normalised text value per key in `_LIVE_SEARCH_KEYS`.
+    """
+    settings = settings or {}
+    values = []
+    for key in _LIVE_SEARCH_KEYS:
+        value = settings.get(key)
+        if isinstance(value, (list, tuple, set)):
+            value = "\n".join(str(item) for item in value)
+        values.append(str(value if value is not None else "").strip())
+    return tuple(values)
 
 
 @dataclass(frozen=True)
@@ -1463,9 +1272,6 @@ def _planned_reference_tables(settings):
     try:
         barcode_set = barcode_set_from_settings(settings)
     except Exception:
-        # A set that cannot be read is a settings mistake the run itself
-        # reports in full. The search still has the three shipped references
-        # to work with, and saying so twice helps nobody.
         LOG.debug("could not read the barcode set from the settings",
                   exc_info=True)
     if barcode_set is not None:
@@ -1556,15 +1362,6 @@ def _with_problem(plan, problem):
     return replace(plan, problem=str(problem))
 
 
-# ---------------------------------------------------------------------------
-# The three pieces of work that happen off the GUI thread
-# ---------------------------------------------------------------------------
-#
-# Each of these takes data and returns data. None of them touches a widget,
-# which is what lets `JobRunner` hand them to a worker thread, and each
-# returns its failure in the result rather than raising, because an exception
-# on a worker thread has nobody to catch it and a panel that goes quiet is
-# worse than one that says what went wrong.
 
 
 def _prepare_barcode_search(settings, max_reads, chunk_reads):
@@ -1663,9 +1460,6 @@ def _sample_annotated_reads(path, tables, anchor, limit):
     return out
 
 
-# ---------------------------------------------------------------------------
-# Rendering measurements as something a person can act on
-# ---------------------------------------------------------------------------
 
 
 def _same_setting_value(left, right):
@@ -1779,6 +1573,15 @@ class BarcodeSearchPanel(QWidget):
     proposal shows the value the form holds beside the value the search
     suggests, so what Apply is about to do is legible before it does it.
 
+    It follows the form. Once a search has been asked for, changing any
+    setting the search reads -- the sequencing folder, a reference table, the
+    barcode set or the anchor -- starts it again after the form has been still
+    for a moment, the way the Mask live preview follows its settings. Settings
+    the search does not read never start one. Apply is the exception to
+    everything live about this panel: the form changes only when it is
+    pressed, so a value somebody typed is never replaced by a measurement that
+    arrived while they were typing.
+
     What it costs. Every file is read inside a submitted job, one chunk at a
     time, so the interface stays live throughout and a search can be abandoned
     at any point. Cancelling proposes nothing: an interrupted measurement is
@@ -1831,10 +1634,6 @@ class BarcodeSearchPanel(QWidget):
         self._max_reads = int(max_reads or DEFAULT_SAMPLE_READS)
         self._chunk_reads = int(chunk_reads or DEFAULT_CHUNK_READS)
         self._read_sample = int(read_sample)
-        # Every file read goes through here rather than through a thread this
-        # file owns, for the reason the live preview gives: `JobRunner`
-        # submits through `bridge.make_thread`, and that is what puts the work
-        # in the run registry the activity spinner watches.
         self._jobs = JobRunner(self, threaded=threaded,
                                app_key="barcode search")
         self._plan = None
@@ -1848,10 +1647,18 @@ class BarcodeSearchPanel(QWidget):
         #: is running so that reads appear early, and once more at the end
         #: when the counts behind the colouring have settled.
         self._reads_shown = 0
+        #: The search inputs the last search was started from, or None before
+        #: any search. An edit that leaves them unchanged starts nothing.
+        self._searched_inputs: Optional[Tuple[str, ...]] = None
+        self._watched: list = []
+        self._live_timer = QTimer(self)
+        self._live_timer.setSingleShot(True)
+        self._live_timer.setInterval(_LIVE_SEARCH_DEBOUNCE_MS)
+        self._live_timer.timeout.connect(self._run_live_search)
         self._build_ui()
         self._update_buttons()
+        self._watch_the_form()
 
-    # -- building ---------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the controls, the findings table, the proposal and reads."""
@@ -1909,34 +1716,19 @@ class BarcodeSearchPanel(QWidget):
         self._explain_chance_column()
         self.findings.setSizePolicy(QSizePolicy.Expanding,
                                     QSizePolicy.Expanding)
-        # Every view in the package asks for this, and this one did not: the
-        # columns hold read counts and chance rates, which are numbers.
         install_sorting(self.findings)
         self.findings.setMinimumHeight(150)
 
         self.reads = ReadView(self)
         self.reads.setMinimumHeight(120)
 
-        # THE TWO HALVES SHARE ONE HEIGHT, and which of them deserves it
-        # depends on what the reader is doing. Checking a verdict wants rows
-        # of reads; comparing tables wants rows of measurements. A splitter
-        # lets that be answered by the person looking rather than by a
-        # number chosen here, and neither half can be collapsed to nothing.
         self.proposal_label = QLabel(self)
         self.proposal_label.setObjectName("CardSubtitle")
         self.proposal_label.setWordWrap(True)
         self.proposal_label.setTextFormat(Qt.PlainText)
         self.proposal_label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         self.proposal_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        # WHAT A MEASUREMENT SAID IS NOT CHROME. The sentences here are the
-        # search engine's own account of what it found, assembled per run and
-        # naming files, rates and settings keys, so the translator leaves them
-        # alone rather than looking each assembled paragraph up as a caption.
         self.proposal_label.setProperty("i18nSkipText", True)
-        # SCROLLED RATHER THAN GROWN. The notes are one sentence per barcode
-        # plus one per decision, so a run that decodes six barcodes writes a
-        # paragraph. Left to size itself, the label took that height out of
-        # the reads below it and pushed them off the card entirely.
         notes = QScrollArea(self)
         notes.setObjectName("BarcodeSearchNotes")
         notes.setWidget(self.proposal_label)
@@ -1948,12 +1740,6 @@ class BarcodeSearchPanel(QWidget):
             "{ background: transparent; }")
         notes.setMinimumHeight(70)
 
-        # THE THREE PANES SHARE ONE HEIGHT, and which of them deserves it
-        # depends on what the reader is doing. Checking a verdict wants rows
-        # of reads; comparing tables wants rows of measurements; deciding
-        # whether to apply wants the notes. A splitter lets that be answered
-        # by the person looking rather than by a number chosen here, and no
-        # pane can be collapsed to nothing.
         split = QSplitter(Qt.Vertical, self)
         split.setChildrenCollapsible(False)
         split.addWidget(self.findings)
@@ -2003,7 +1789,63 @@ class BarcodeSearchPanel(QWidget):
         if item is not None:
             item.setToolTip(tr(hint))
 
-    # -- the controls -----------------------------------------------------
+
+    def _watch_the_form(self) -> int:
+        """Listen to the settings a search reads, and nothing else.
+
+        Safe to call again after the form has been rebuilt: a field already
+        listened to is not connected twice, so one edit cannot schedule two
+        searches.
+
+        :returns: how many of the search's settings are now being listened
+            to. Zero when there is no form, or the form has none of them.
+        """
+        widgets = getattr(getattr(self._screen, "_settings_model", None),
+                          "_widgets", None) or {}
+        for key in _LIVE_SEARCH_KEYS:
+            widget = widgets.get(key)
+            if widget is None or any(w is widget for w in self._watched):
+                continue
+            # `contents_changed` first where a widget has one: it follows a
+            # settings load as well as an edit, which `value_changed` is
+            # deliberately kept from doing.
+            signal = (getattr(widget, "contents_changed", None)
+                      or getattr(widget, "value_changed", None)
+                      or getattr(widget, "textChanged", None))
+            if signal is None:
+                continue
+            signal.connect(self._on_form_edited)
+            self._watched.append(widget)
+        return len(self._watched)
+
+    def _on_form_edited(self, *_args) -> None:
+        """Restart the pause before a search, if a search has been asked for.
+
+        A form nobody has searched yet is left alone: opening Map Barcodes
+        and typing a folder is not a request to read it. After the first
+        search every change to its inputs is.
+
+        :param _args: whatever the edited field's signal carried, unused.
+        """
+        if self._searched_inputs is None:
+            return
+        self._live_timer.start()
+
+    def _run_live_search(self) -> None:
+        """Search again when the form's inputs differ from the last search's.
+
+        A search already running is dropped without being announced as
+        cancelled: nobody pressed Cancel, and a status line saying they did
+        would be wrong for the half second before the new search replaces it.
+        """
+        settings = self.current_settings()
+        if _search_inputs(settings) == self._searched_inputs:
+            return
+        if self._running:
+            self._running = False
+            self._iterator = None
+            self._jobs.cancel()
+        self.start_search()
 
     def on_search_clicked(self, _checked: bool = False) -> None:
         """Start a search, or restart one that is already running.
@@ -2028,7 +1870,6 @@ class BarcodeSearchPanel(QWidget):
         """
         self.apply_proposal()
 
-    # -- running the search ----------------------------------------------
 
     def start_search(self) -> bool:
         """Begin a fresh search over the files the settings form names.
@@ -2041,6 +1882,8 @@ class BarcodeSearchPanel(QWidget):
         if self._running:
             return False
         settings = self.current_settings()
+        self._searched_inputs = _search_inputs(settings)
+        self._live_timer.stop()
         self._reset()
         self._running = True
         self._update_buttons()
@@ -2141,6 +1984,13 @@ class BarcodeSearchPanel(QWidget):
                 LOG.debug("could not write %s into the form", key,
                           exc_info=True)
         self._changes = ()
+        # WHAT APPLY WROTE CAME FROM THIS SEARCH, so the form now holds what
+        # the search found and searching again would only repeat it -- while
+        # wiping the "wrote these" summary off the screen. Adopting the
+        # post-Apply inputs as the searched ones stops that re-run; a later
+        # edit by the user still starts one.
+        self._searched_inputs = _search_inputs(self.current_settings())
+        self._live_timer.stop()
         self._update_buttons()
         self._render_proposal(applied=tuple(written))
         self._set_status(
@@ -2149,7 +1999,6 @@ class BarcodeSearchPanel(QWidget):
         self.settings_applied.emit(dict(written))
         return tuple(written)
 
-    # -- the steps, as their results arrive on the GUI thread -------------
 
     def _on_prepared(self, result) -> None:
         """Adopt a prepared search, or say why there is none.
@@ -2248,9 +2097,6 @@ class BarcodeSearchPanel(QWidget):
             try:
                 from ...barcode_search import propose_map_barcodes_settings
 
-                # Read once. Collecting the form walks every widget on it, and
-                # a proposal compared against a second reading would be a
-                # proposal compared against a different dictionary.
                 settings = self.current_settings()
                 self._proposal = propose_map_barcodes_settings(
                     report, base_settings=settings)
@@ -2274,13 +2120,9 @@ class BarcodeSearchPanel(QWidget):
         self._running = False
         self._iterator = None
         self._update_buttons()
-        # Through the same helper as every other line, so that a language
-        # changed afterwards re-renders this one rather than restoring
-        # whatever sentence the status carried before the search failed.
         self._set_status("{problem}", problem=str(problem))
         self.search_finished.emit(None)
 
-    # -- showing what was measured ---------------------------------------
 
     def _absorb(self, report) -> None:
         """Take one report, refresh the display from it and say so.
@@ -2333,24 +2175,11 @@ class BarcodeSearchPanel(QWidget):
                 tr(str(finding.verdict)),
             )
             for column, text in enumerate(cells):
-                # REUSED WHERE THERE IS ONE, because this is redrawn after
-                # every chunk of reads. Replacing the items would drop the
-                # row the reader had selected and the place they had
-                # scrolled to, three times a second, which is a display
-                # nobody can read while it is working.
                 item = self.findings.item(row, column)
                 if item is None:
-                    # THE SHARED ITEM, not `QTableWidgetItem`. A bare Qt cell
-                    # sorts its text as words, so the read counts in this
-                    # table would order 10 before 9 the moment a reader
-                    # clicked the header.
                     item = table_item()
                     self.findings.setItem(row, column, item)
                 item.setText(str(text))
-                # The sentence the engine wrote about this finding says which
-                # check it passed or failed, which is the one thing a reader
-                # who disagrees with a verdict needs and the one thing no
-                # column is wide enough to hold.
                 item.setToolTip(str(finding.reason))
                 if column == len(cells) - 1:
                     ink = verdict_ink.get(finding.verdict)
@@ -2462,12 +2291,6 @@ class BarcodeSearchPanel(QWidget):
         lines = []
         unresolved = tuple(getattr(proposal, "unresolved_roles", ()) or ())
         if unresolved and not applied:
-            # THE WINDOW IS DERIVED FROM WHAT WAS ESTABLISHED, and nothing
-            # else. A run whose column and row references never cleared
-            # coincidence gets a window around the guide alone, which is the
-            # honest answer to what was measured and is still not a window
-            # that will decode the reads the regex describes. Saying so above
-            # the numbers costs one line and saves a run that maps nothing.
             lines.append(tr(
                 "No reference table stood clear of coincidence for {roles}. "
                 "A mapping run will not decode those barcodes, and any "
@@ -2529,7 +2352,6 @@ class BarcodeSearchPanel(QWidget):
         self.proposal_label.setText("")
         self.reads.clear()
 
-    # -- living in a themed, closable window ------------------------------
 
     def changeEvent(self, event) -> None:                    # noqa: N802
         """Redraw the measurements when the theme underneath them changes.
@@ -2559,6 +2381,9 @@ class BarcodeSearchPanel(QWidget):
         """
         self._running = False
         self._iterator = None
+        timer = getattr(self, "_live_timer", None)
+        if timer is not None:
+            timer.stop()
         runner = getattr(self, "_jobs", None)
         if runner is not None:
             runner.shutdown()
@@ -2673,8 +2498,6 @@ def install_barcode_search(screen: QWidget, **kwargs):
     if bar is not None and hasattr(bar, "add_trailing_widget"):
         bar.add_trailing_widget(toggle)
     else:
-        # No strip on this screen, so the toggle goes above the card rather
-        # than nowhere, or the search would be installed and unreachable.
         toggle.setParent(screen)
         _insert_above_actions(screen, toggle)
     screen._barcode_search = panel

@@ -153,9 +153,6 @@ def _localize(widget: QWidget, setter_name: str, property_name: str,
     getattr(widget, setter_name)(rendered)
 
 
-# ---------------------------------------------------------------------------
-# The strip
-# ---------------------------------------------------------------------------
 
 class SettingsSearchBar(QWidget):
     """Search box, Modified filter, Essentials/All switch, and a count line.
@@ -190,21 +187,13 @@ class SettingsSearchBar(QWidget):
         """
         super().__init__(parent)
         self.setObjectName(BAR_NAME)
-        # Fixed height, explicitly. The strip is two rows tall and the scroll
-        # area under it wants everything else; without this the two share the
-        # pane by their stretch factors and the search box ends up 800 pixels
-        # high on first layout.
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         self._screen = screen
         self._app_key = str(getattr(screen, "app_key", "") or "")
         self._model = getattr(screen, "_settings_model", None)
-        # key -> (section, field widget). Built once, from the rendered form,
-        # so the filter never has to guess which section a key ended up in.
         self._index: Dict[str, Tuple[QWidget, QWidget]] = {}
         self._sections: List[QWidget] = list(
             getattr(screen, "_settings_sections", []) or [])
-        # Which sections the user had open before a filter took over, so
-        # clearing the box puts the form back rather than leaving it splayed.
         self._restore_expanded: Optional[Dict[int, bool]] = None
         self._level = disclosure_for(self._app_key)
 
@@ -231,9 +220,6 @@ class SettingsSearchBar(QWidget):
         self._input.textChanged.connect(self._on_query_changed)
         row.addWidget(self._input, 1)
 
-        # A `Toggle`, not a QCheckBox: every boolean control in the shell is
-        # a switch, and `tests/qt/test_widgets.py` bans the plain checkbox
-        # outright so one panel cannot quietly reintroduce it.
         self._modified_label = QLabel(self)
         _localize(self._modified_label, "setText", "_spacr_i18n_text",
                   "Modified")
@@ -259,14 +245,8 @@ class SettingsSearchBar(QWidget):
         self._disclosure.setChecked(self._level == ALL)
         self._disclosure.toggled.connect(self._on_disclosure_toggled)
         row.addWidget(self._disclosure, 0)
-        # Where other modules hang their own controls — see
-        # `spacr.qt.recipes.install`. Kept as the row itself rather than a
-        # nested container so a trailing button lines up with the ones
-        # above it rather than being visibly bolted on.
         self._controls_row = row
 
-        # The count line sits under the controls, so the whole strip is one
-        # widget the host inserts in one place.
         self._count = QLabel(self)
         self._count.setObjectName(COUNT_NAME)
         self._count.setWordWrap(True)
@@ -276,7 +256,6 @@ class SettingsSearchBar(QWidget):
         self._build_index()
         self.apply()
 
-    # -- public -------------------------------------------------------
     def query(self) -> str:
         """The current search text."""
         return self._input.text()
@@ -347,23 +326,6 @@ class SettingsSearchBar(QWidget):
         total = len(self._index)
         wanted = set(self._index)
 
-        # THE OBJECT RULE OUTRANKS THE INDEX, and is subtracted BEFORE the
-        # level and the query rather than undone afterwards. This strip
-        # indexed every row on the panel, including rows belonging to
-        # objects the run does not have, so "All settings" filled Mask with
-        # nucleus and pathogen settings while every channel was None -- the
-        # maintainer's report, and what
-        # `test_the_object_rows_stay_off_the_form` guards.
-        #
-        # SUBTRACTED, NOT RE-HIDDEN. Showing them and hiding them again in
-        # the same pass leaves `visible_keys()` disagreeing with the form
-        # for as long as it takes the second write to land, and it is the
-        # strip's own index that answers that question. Removing them from
-        # `wanted` means the row is never shown, so there is one answer
-        # throughout.
-        #
-        # Asked of the model, because the strip has no idea which objects a
-        # run has and teaching it would put the same rule in two places.
         hidden_by_run = getattr(model, "keys_hidden_by_the_run", None)
         if callable(hidden_by_run):
             try:
@@ -409,7 +371,6 @@ class SettingsSearchBar(QWidget):
         self._count.setText(
             self._compose_count(len(wanted), total, len(essentials)))
 
-    # -- wiring -------------------------------------------------------
     def _on_query_changed(self, _text: str) -> None:
         """Re-apply the filter after the search text changed.
 
@@ -434,7 +395,6 @@ class SettingsSearchBar(QWidget):
         self._refresh_disclosure_text()
         self.apply()
 
-    # -- internals ----------------------------------------------------
     def _refresh_disclosure_text(self) -> None:
         """Caption the switch for the level it is now on.
 
@@ -476,13 +436,6 @@ class SettingsSearchBar(QWidget):
                     continue
                 key = by_widget.get(id(field))
                 if key is None:
-                    # THE FIELD IN THE ROW IS NOT ALWAYS THE FIELD. A setting
-                    # that takes a Cellpose checkpoint sits in a little
-                    # holder beside its "Model zoo…" button, so the form's
-                    # row is the HOLDER and matching on it alone left
-                    # `cell_model_name` out of the index entirely -- typing
-                    # "model" on Mask found nothing and the row could not be
-                    # reached from the search at all.
                     for child in field.findChildren(QWidget):
                         key = by_widget.get(id(child))
                         if key is not None:
@@ -509,9 +462,6 @@ class SettingsSearchBar(QWidget):
             count = shown.get(id(section), 0)
             visible = count > 0
             if not visible and not narrowing:
-                # Not narrowing means nothing is filtered, and a section
-                # with no rows was already invisible for its own reasons
-                # (maturity). Leave that judgement alone.
                 continue
             section.setVisible(visible)
             if not hasattr(section, "set_expanded"):
@@ -524,8 +474,6 @@ class SettingsSearchBar(QWidget):
                     self._restore_expanded.get(id(section), False))
         if not narrowing:
             self._restore_expanded = None
-            # Hand maturity visibility back to the screen, which is the only
-            # thing that knows why a section was hidden in the first place.
             refresh = getattr(self._screen, "refresh_maturity_visibility", None)
             if callable(refresh):
                 try:
@@ -536,10 +484,6 @@ class SettingsSearchBar(QWidget):
 
     def _compose_count(self, shown: int, total: int,
                        essentials: int) -> str:
-        # COMPOSED FROM TRANSLATED PARTS. The catalog is keyed on the
-        # sentence with its numbers as placeholders; a line built out of
-        # f-strings first and looked up after matches nothing, and this
-        # line sits under every settings panel in the program.
         """Build the line under the form saying how much of it is showing.
 
         Composed from translated parts rather than assembled and then looked up:
@@ -569,14 +513,6 @@ class SettingsSearchBar(QWidget):
         return " — ".join(parts) + "."
 
 
-# ---------------------------------------------------------------------------
-# Row visibility
-# ---------------------------------------------------------------------------
-#
-# `Section` builds its rows with `QFormLayout.addRow`, and the label side is
-# a wrapper widget it builds itself and does not hand back. `setRowVisible`
-# keyed on the FIELD widget therefore reaches both halves, which nothing
-# outside the section can do by hand.
 
 def _form_of(section: QWidget) -> Optional[QFormLayout]:
     """Find the form layout a settings section lays its rows out with.
@@ -609,9 +545,6 @@ def _set_row_visible(section: QWidget, field: QWidget, visible: bool) -> None:
     try:
         form.setRowVisible(field, visible)
     except (AttributeError, RuntimeError):
-        # Qt < 6.4 has no setRowVisible. Hiding the field alone leaves an
-        # orphaned label, but a stranded label is a far smaller problem than
-        # a settings panel that will not draw.
         field.setVisible(visible)
 
 
@@ -632,9 +565,6 @@ def _row_is_visible(section: QWidget, field: QWidget) -> bool:
         return field.isVisible()
 
 
-# ---------------------------------------------------------------------------
-# Installation
-# ---------------------------------------------------------------------------
 
 def install(screen: QWidget) -> Optional[SettingsSearchBar]:
     """Put a search strip above ``screen``'s settings form.
@@ -666,32 +596,14 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         index = parent.indexOf(scroll)
         sizes = list(parent.sizes())
         bar = SettingsSearchBar(screen)
-        # NO PARENT HERE. `insertWidget` below parents this container to the
-        # splitter, and handing it the same parent at construction parents
-        # it twice -- Shiboken then releases the wrapper twice when the
-        # screen's children are deleted, and the process dies inside
-        # QObjectPrivate::deleteChildren.
-        #
-        # It is a SEGFAULT, so it does not arrive as a failing assertion:
-        # the test body passes and the process dies afterwards, which xdist
-        # reports as a failed test with no message and which takes the rest
-        # of that shard with it.
         container = QWidget()
         container.setObjectName(PANE_NAME)
         column = QVBoxLayout(container)
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(0)
         column.addWidget(bar)
-        # addWidget re-parents the scroll area out of the splitter, which is
-        # what frees the slot the container then takes.
         column.addWidget(scroll, 1)
         parent.insertWidget(index, container)
-        # `setParent` hides a widget, and a hidden widget is one a layout
-        # skips. Without these two the QVBoxLayout saw no visible children,
-        # left the scroll area at the geometry it had as a splitter pane,
-        # and centred the strip on top of the settings form -- both of them
-        # drawing over each other at full pane height. Nothing that reads
-        # form-row visibility notices, which is why it has a geometry test.
         container.show()
         scroll.show()
         bar.show()
@@ -701,11 +613,6 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         LOG.debug("could not install the settings search strip", exc_info=True)
         return None
     screen._settings_search = bar
-    # The strip captions itself in the user's language, but it is also an
-    # extension point — `spacr.qt.recipes` hangs a button on it — and it is
-    # built from `stack.currentChanged`, long after the window has run its
-    # one language pass over this screen. A pass over the finished strip is
-    # idempotent and means nothing added here can be left in English.
     try:
         from .i18n import retranslate_widget_tree
         retranslate_widget_tree(bar)
@@ -770,7 +677,6 @@ def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:
         LOG.debug("could not follow the screen stack", exc_info=True)
         return None
     window._settings_search_watcher = watcher
-    # The first module may already be on screen by the time hooks run.
     QTimer.singleShot(0, watcher.install_current)
     return watcher
 
@@ -840,10 +746,6 @@ QToolButton#{DISCLOSURE_NAME}:checked {{
 """
 
 
-# AT IMPORT TIME, so the failure is not a missing background --
-# it is the module not importing, which takes down whatever
-# imports it. Driven in
-# tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py.
 try:
     from .theme import register_widget_qss as _register_widget_qss
     _register_widget_qss(BAR_NAME, _bar_qss, replace=True)

@@ -30,14 +30,6 @@ import math
 import re
 from typing import Dict, Optional, Tuple
 
-# QEvent AT MODULE SCOPE, NOT INSIDE THE CALLBACK. A function-local
-# import in an event handler is not lazy loading: this module is a
-# QWidget module and cannot load without QtCore, so the import bought
-# nothing but a sys.modules lookup on every event -- and it put an
-# EXCEPTION SITE on a path with no way to report one. The same shape in
-# `ModuleHintBar.event` produced 419 errors in one sweep when a test
-# stubbed PySide6.QtCore out of sys.modules and teardown then delivered
-# a paint event.
 from PySide6.QtCore import QEvent, QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import (QColor, QPainter, QPainterPath,
                            QTransform)
@@ -52,12 +44,6 @@ BRAND: Dict[str, str] = {
     "claude": "#D97757",
     "gpt": "#10A37F",
     "gemini": "#4285F4",
-    # GitHub's mark is monochrome, so "in colour" means in the theme's own
-    # ink rather than in a brand hue -- "if the colour of the icon is black
-    # and white go from grey to black and white". Signed out it takes the
-    # muted ink like any other unavailable mark. The value here is the
-    # LIGHT-theme ink; on a dark theme `_ready_ink` inverts it, because
-    # GitHub's own near-black on a near-black card is an invisible mark.
     "github": "#181717",
 }
 
@@ -123,9 +109,6 @@ def gemini_path(box: QRectF) -> QPainterPath:
     path.moveTo(points[0])
     for index in range(4):
         nxt = points[(index + 1) % 4]
-        # The control point sits near the centre, which is what pulls each
-        # side inward and makes the four points read as a spark rather than
-        # as a plain diamond.
         between = 2.0 * math.pi * (index + 0.5) / 4.0 - math.pi / 2.0
         path.quadTo(QPointF(centre.x() + waist * math.cos(between),
                             centre.y() + waist * math.sin(between)), nxt)
@@ -342,9 +325,6 @@ class ProviderMark(QWidget):
         but signed out has to say so here.
     """
 
-    # Gating the choice on availability was reported 2026-08-22 -- "for the
-    # ai assistant i can only click claude" -- and the report is right: a
-    # preference is not a launch.
 
     #: Emitted with the provider code when this mark is chosen.
     chosen = Signal(str)
@@ -393,10 +373,8 @@ class ProviderMark(QWidget):
         self.setMinimumSize(QSize(72, 82))
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         self.setAttribute(Qt.WA_Hover, True)
-        # EVERY MARK IS CLICKABLE, so every one gets the hand.
         self.setCursor(Qt.PointingHandCursor)
 
-    # ------------------------------------------------------------- state
 
     def is_chosen(self) -> bool:
         """Whether this provider is the selected one."""
@@ -409,12 +387,8 @@ class ProviderMark(QWidget):
             self._chosen = chosen
             self.update()
 
-    # ------------------------------------------------------------ events
 
     def mousePressEvent(self, event):           # noqa: N802 - Qt naming
-        # AVAILABILITY DOES NOT GATE THE CHOICE. It is drawn -- brand colour
-        # when the CLI is here, muted ink when it is not -- and said in the
-        # tooltip, which is information rather than obstruction.
         """Open the provider's page.
 
         :param event: the Qt mouse event.
@@ -438,7 +412,6 @@ class ProviderMark(QWidget):
             self.update()
         return super().event(event)
 
-    # ----------------------------------------------------------- painting
 
     def sizeHint(self) -> QSize:                # noqa: N802 - Qt naming
         """The mark's natural size, from the artwork it draws.
@@ -455,8 +428,6 @@ class ProviderMark(QWidget):
         try:
             self._paint()
         except Exception:
-            # Decoration is never load-bearing: an unpainted mark is still a
-            # control that answers the question when it is clicked.
             pass
 
     def _ready_ink(self, palette) -> QColor:
@@ -469,10 +440,6 @@ class ProviderMark(QWidget):
         """
         if self.code != "github":
             return QColor(BRAND.get(self.code, palette["accent"]))
-        # THE THEME'S OWN INK, which is the end of monochrome that can be
-        # read against the card it sits on: white on a dark theme, near
-        # black on a light one. GitHub's #181717 IS the light-theme value;
-        # painted on a dark card it is a signed-in state nobody can see.
         return QColor(palette.get("fg", BRAND["github"]))
 
     def _colours(self) -> Tuple[QColor, QColor]:
@@ -481,12 +448,6 @@ class ProviderMark(QWidget):
 
         palette = active_palette()
         if not self.available:
-            # THE BRAND FILL IS WHAT "READY" LOOKS LIKE, so a provider that
-            # is not installed does not get one: "GPT and Gemini should only
-            # get their color fill when they are installed". The mark is
-            # muted ink -- legible, at alpha 190 rather than the 110 that
-            # made it a ghost -- and HOVER gives the brand background, so
-            # the colour still tells you which provider you are pointing at.
             ink = QColor(palette.get("fg_muted", palette["fg"]))
             ink.setAlpha(190)
             halo = QColor(BRAND.get(self.code, palette["accent"]))
@@ -536,16 +497,11 @@ class ProviderMark(QWidget):
                 painter.setBrush(ink)
                 painter.drawPath(path)
 
-            # THE NAME IS ALWAYS LEGIBLE. It used to fade with the mark, so
-            # a provider that was not set up had no readable name either.
             painter.setPen(QColor(palette["fg"]))
             below = QRectF(rect.left(), box.bottom() + 4.0,
                            rect.width(), rect.bottom() - box.bottom() - 4.0)
             painter.drawText(below, Qt.AlignHCenter | Qt.AlignTop, self.label)
 
-            # AND WHAT TO DO ABOUT IT, under the name, in the brand colour.
-            # A greyed control that does not say why is the thing this
-            # replaces.
             note = self.STATUS_TEXT.get(self.status, "")
             if note:
                 from ..i18n import tr

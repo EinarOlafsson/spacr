@@ -17,22 +17,10 @@ import pandas as pd
 LOG = logging.getLogger("spacr.outlier_filter")
 
 #: Supported filter criteria represented as ``(setting, display label)``.
-CRITERIA: Tuple[Tuple[str, str], ...] = (
-    ("cell_area", "cell area"),
-    ("nucleus_area", "nucleus area"),
-    ("cell_intensity", "cell channel intensity"),
-    ("nucleus_intensity", "nucleus channel intensity"),
-)
-
-#: Column names each criterion may appear under, most canonical first.
-COLUMNS: Dict[str, Tuple[str, ...]] = {
-    "cell_area": ("cell_area", "cell_area_px", "area_cell"),
-    "nucleus_area": ("nucleus_area", "nucleus_area_px", "area_nucleus"),
-    "cell_intensity": ("cell_channel_1_mean_intensity",
-                       "cell_mean_intensity", "cell_intensity"),
-    "nucleus_intensity": ("nucleus_channel_1_mean_intensity",
-                          "nucleus_mean_intensity", "nucleus_intensity"),
-}
+# Re-exported so every existing importer of `outlier_filter.CRITERIA` and
+# `.COLUMNS` keeps working. They live in `_outlier_criteria` because
+# `spacr.settings` needs them and must not pay for pandas to get them.
+from ._outlier_criteria import COLUMNS, CRITERIA           # noqa: E402,F401
 
 #: Default number of scaled MADs separating an outlier from the median.
 DEFAULT_MADS = 5.0
@@ -53,9 +41,6 @@ def column_for(frame: pd.DataFrame, criterion: str) -> Optional[str]:
     for name in COLUMNS.get(str(criterion), ()):
         if name in getattr(frame, "columns", ()):
             return name
-    # An intensity column carries its channel in its name, and the channel is
-    # the user's -- so accept the first that matches the shape rather than
-    # insisting on channel 1.
     if "intensity" in str(criterion):
         stem = str(criterion).split("_")[0]
         for name in getattr(frame, "columns", ()):
@@ -141,9 +126,6 @@ def apply(frame: pd.DataFrame, settings: Optional[Dict[str, Any]] = None
             continue
         column = column_for(frame, criterion)
         if column is None:
-            # NOT SILENT. A filter the user switched on that found no column
-            # removed nothing, and a run that says nothing about it looks
-            # exactly like one where the filter worked and found nothing.
             report.append({"criterion": criterion, "caption": caption,
                            "column": "", "mads": mads, "removed": 0,
                            "note": f"this table has no {caption} column, so "

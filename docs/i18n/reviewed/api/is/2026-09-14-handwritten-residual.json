@@ -1,0 +1,27 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "Image UMAP returns an annotated DataFrame containing the two-dimensional coordinates and ``cluster`` labels, or a Matplotlib figure when ``return_fig=True``.  Depending on the save and plotting settings, it also writes the embedding, cluster views, representative-extracted image region grids, feature summaries, and the resolved settings alongside the project.",
+      "label": "spacr.core#8",
+      "source": "Image UMAP returns an annotated DataFrame containing the two-dimensional coordinates and ``cluster`` labels, or a Matplotlib figure when ``return_fig=True``.  Depending on the save and plotting settings, it also writes the embedding, cluster views, representative-crop grids, feature summaries, and the resolved settings alongside the project.",
+      "source_sha256": "debe4677dd3fee7823d2350f086e6620dfa9d062b8b39ce57bb87532248a9f48",
+      "translation": "Image UMAP skilar DataFrame með skýringum sem inniheldur tvívíð hnit og ``cluster`` merkingar, eða Matplotlib-mynd þegar ``return_fig=True``.  Eftir því hvaða stillingar gilda um vistun og teikningu skrifar hún einnig innfellinguna, klasasýnir, ristir af dæmigerðum úrklippum, eiginleikayfirlit og uppleystu stillingarnar við hlið verkefnisins."
+    },
+    {
+      "context": "THE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites the extension itself, which is why every matplotlib save has honoured the preference for months -- but pyqtgraph decides what it writes FROM THE NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a renderer that is handed ``volcano.pdf`` writes a PDF whatever the user chose. The name has to be settled before the export sees it, and settling it twice in two modules is how the two drift apart.",
+      "label": "spacr.plot.figure_path#1",
+      "source": "THE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites the extension itself, which is why every matplotlib save has honoured the preference for months -- but pyqtgraph decides what it writes FROM THE NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a renderer that is handed ``volcano.pdf`` writes a PDF whatever the user chose. The name has to be settled before the export sees it, and settling it twice in two modules is how the two drift apart.",
+      "source_sha256": "3373e8946963e49c0ba1254c2bac4ea5e94f29c0e8bbba043be6369c9fce8c58",
+      "translation": "EINI STAÐURINN ÞAR SEM TEIKNARI SEM ER EKKI MATPLOTLIB GETUR SPURT. ``save_figure`` endurskrifar skráarendinguna sjálft, og þess vegna hefur sérhver matplotlib-vistun virt stillinguna mánuðum saman -- en pyqtgraph ákveður hvað það skrifar ÚT FRÁ NAFNINU (``FastPlot.export`` greinist eftir ``.pdf`` / ``.svg`` / annars), þannig að teiknari sem fær ``volcano.pdf`` í hendur skrifar PDF hverju sem notandinn valdi. Nafnið verður að vera ákveðið áður en útflutningurinn sér það, og að ákveða það tvisvar í tveimur einingum er einmitt leiðin til þess að þau tvö reki í sundur."
+    },
+    {
+      "context": "The session decides WHICH microscope fields of view and in what order -- reviewed ones already dropped, ``--limit`` already applied -- and this application view shows them. Only the nested layout is opened: this editor reads a draft from ``<folder>/masks/<stem>.tif`` and saves back to the same place, so a sibling or ``_seg.npy`` set would be read and written somewhere other than where its masks are. ``spacr-make-masks`` refuses those before Qt is imported; this is the second half of the same refusal, for anything that reaches the application view another way.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue#1",
+      "source": "The session decides WHICH fields and in WHAT ORDER -- reviewed ones already dropped, ``--limit`` already applied -- and this screen shows them. Only the nested layout is opened: this editor reads a draft from ``<folder>/masks/<stem>.tif`` and saves back to the same place, so a sibling or ``_seg.npy`` set would be read and written somewhere other than where its masks are. ``spacr-make-masks`` refuses those before Qt is imported; this is the second half of the same refusal, for anything that reaches the screen another way.",
+      "source_sha256": "12a40f07166ff8bf5ea5434a82693a1b5578efd4d6c857e05fa9f870b42bb58d",
+      "translation": "Lotan ákveður HVAÐA reiti og Í HVAÐA RÖÐ -- þeim yfirförnu er þegar sleppt, ``--limit`` er þegar beitt -- og þessi skjár sýnir þá. Aðeins hreiðraða skipulagið er opnað: þessi ritill les drög úr ``<folder>/masks/<stem>.tif`` og vistar aftur á sama stað, þannig að systkinasett eða ``_seg.npy`` sett yrði lesið og skrifað annars staðar en möskvar þess eru. ``spacr-make-masks`` hafnar slíku áður en Qt er flutt inn; þetta er seinni helmingur sömu höfnunar, fyrir allt sem kemst á skjáinn eftir annarri leið."
+    }
+  ],
+  "schema": 1
+}

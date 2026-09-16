@@ -138,7 +138,6 @@ def _lt(a: str, b: str) -> bool:
         pb = tuple(int(x) for x in b.split(".") if x.isdigit())
     except Exception:
         return False
-    # Pad to same length
     n = max(len(pa), len(pb))
     pa = pa + (0,) * (n - len(pa))
     pb = pb + (0,) * (n - len(pb))
@@ -160,9 +159,6 @@ def find_uv() -> Optional[str]:
         pip-managed environment.
     """
     bootstrap = Path(sys.prefix).parent / "bootstrap"
-    # The Windows bootstrap writes uv.exe; POSIX installers write uv. Check
-    # both names rather than relying on PATHEXT, because this directory is
-    # deliberately private and is not added to PATH.
     for name in ("uv.exe", "uv") if os.name == "nt" else ("uv", "uv.exe"):
         candidate = bootstrap / name
         if candidate.is_file() and os.access(candidate, os.X_OK):
@@ -228,7 +224,6 @@ def editable_install_location() -> Optional[str]:
         if os.path.basename(marker) in ("site-packages", "dist-packages") \
                 and here == marker:
             return None
-    # Not under a site-packages: this is a checkout.
     return here if os.path.isdir(os.path.join(here, ".git")) or \
         os.path.isfile(os.path.join(here, "pyproject.toml")) else None
 
@@ -242,19 +237,6 @@ def run_pip_upgrade(pre_release: bool = False):
         output remains available to desktop installations launched without a
         terminal.
     """
-    # NEVER UPGRADE OVER A DEVELOPMENT CHECKOUT. `pip install --upgrade spacr`
-    # uninstalls whatever is there and installs from the index -- including
-    # when what is there is an EDITABLE install pointing at a working tree.
-    # The developer's source stops being what runs, nothing says so, and every
-    # change they make afterwards has no effect they can see. Reported
-    # 2026-08-18: an update check ran mid-session and the console showed
-    # "Uninstalling spacr-1.5.0.4 ... Successfully installed spacr-1.5.0.4",
-    # which is that exact operation.
-    #
-    # An editable install is a statement that this checkout IS the package, so
-    # the upgrade is refused rather than confirmed -- there is no version of
-    # "yes" that leaves the checkout in charge, and `git pull` is the upgrade
-    # for a checkout.
     editable = editable_install_location()
     if editable:
         return (0, (
@@ -295,19 +277,6 @@ def run_install_command(args, timeout: float = 1800.0):
     return completed.returncode, output
 
 
-# ---------------------------------------------------------------------------
-# Offering to install something spaCR needs but does not have
-# ---------------------------------------------------------------------------
-#
-# Instruction 158. A greyed-out option has to be able to say what would ungrey
-# it, and -- where that is honestly possible HERE -- to do it. The machinery
-# lives in this module because this module already knows how to install into
-# spaCR's own environment (:func:`find_uv`, :func:`upgrade_command`) and
-# already handles the install where ``python -m pip`` was never seeded.
-#
-# It is deliberately Qt-free. The GUI half is
-# :mod:`spacr.qt.widgets.availability_panel`, and the split is what lets the
-# three answers below be tested without a screen.
 
 #: Packages where an install that MOVES OR REMOVES one changes spaCR's results
 #: not to its tooling. A user pressing Install on an optional accelerator has
@@ -336,7 +305,6 @@ def installed_version(name) -> Optional[str]:
     try:
         from importlib.metadata import PackageNotFoundError, version
     except Exception:
-        # A bundler that ships only what it saw imported can leave this out.
         return None
     try:
         return str(version(str(name)))
@@ -508,9 +476,6 @@ class DryRun:
         additions = self.additions
         lines = [f"Installing {self.requirement} would:"]
         if additions:
-            # WITH THEIR VERSIONS. "adds cuml-cu12" and "adds cuml-cu12
-            # 26.2.0" are different amounts of evidence, and the second is
-            # what lets a reader check the wheel they are about to take.
             lines.append(f"  add {len(additions)} package(s): "
                          + ", ".join(f"{c.name} {c.proposed or '?'}"
                                      for c in additions[:12])
@@ -589,12 +554,6 @@ def _parse_pip_report(text: str):
     the JSON is found rather than assumed to start at character zero.
     """
     body = str(text or "")
-    # `json.loads` CANNOT BE USED HERE. Measured 2026-08-18 against pip 25.3:
-    # `--report -` writes the document to stdout with pip's own progress
-    # BEFORE it and a "Would install ..." line AFTER it, so a whole-string
-    # parse fails on trailing data and the plan is lost -- the failure mode
-    # being "the packaging tool produced no readable plan" on a resolve that
-    # succeeded. `raw_decode` stops at the end of the first valid document.
     decoder = json.JSONDecoder()
     start = body.find("{")
     while start != -1:

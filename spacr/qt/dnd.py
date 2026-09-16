@@ -62,15 +62,10 @@ from PySide6.QtWidgets import (
 
 LOG = logging.getLogger("spacr.qt.dnd")
 
-# File extensions that count as images for "does this folder have
-# images?" checks. Keep in sync with spacr.io's readers.
 IMAGE_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".czi",
               ".nd2", ".lif")
 
 
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
 
 class DropHandler(ABC):
     """Per-module drop policy.
@@ -84,7 +79,6 @@ class DropHandler(ABC):
         accepts_multiple()        — True if multi-folder drops make sense.
     """
 
-    # -- public API subclasses implement -----------------------------------
     @abstractmethod
     def can_accept(self, path: Path) -> bool:
         """Return True if ``path`` (folder OR file) is usable as-is."""
@@ -126,12 +120,8 @@ def install_dropzone(target: QWidget, handler: DropHandler,
     """
     target.setAcceptDrops(True)
 
-    # Store the handler + owning-screen on the widget itself so the
-    # event filter can look them up without capturing them in a
-    # closure that would keep the target alive after destruction.
     target._dnd_handler = handler
     target._dnd_screen = screen
-    # Filter is parented to target — Qt cleans it up when target dies.
     f = _DropzoneFilter(target)
     target.installEventFilter(f)
 
@@ -175,30 +165,11 @@ class _DropzoneFilter(QObject):
     """
 
     def __init__(self, target: QWidget):
-        # QObject parenting can synchronously deliver a ChildAdded event to
-        # the target.  Set this first so eventFilter is fully initialized even
-        # during super().__init__ (standalone tool screens exposed this race).
         """Install on ``target`` and route its drops to that widget's handler."""
         self._target = target
-        super().__init__(target)   # parent → auto-cleanup
+        super().__init__(target)
 
     def eventFilter(self, obj, event):    # noqa: N802  (Qt naming)
-        # `getattr`, not `self._target`, and the reason is not defensiveness
-        # for its own sake. Qt goes on delivering events to a filter after the
-        # target's C++ half is gone, and PySide6 clears the Python wrapper's
-        # __dict__ when that happens -- so `self._target` raises AttributeError
-        # from INSIDE the Qt event loop, which prints
-        #
-        #     Error calling Python override of QObject::eventFilter()
-        #     AttributeError: '_DropzoneFilter' object has no attribute '_target'
-        #
-        # once per delivered event, and cannot be caught by any caller because
-        # there is no Python caller. A filter whose target is gone has nothing
-        # to filter, so declining the event is both correct and quiet.
-        #
-        # The same shape as `RunHandle.is_running` swallowing "Internal C++
-        # object already deleted": the destroyed wrapper IS the answer, not an
-        # error condition.
         """Accept drags and drops on the target, and decline once it is gone.
 
         ``getattr`` rather than a direct attribute read, and not defensiveness
@@ -229,7 +200,6 @@ class _DropzoneFilter(QObject):
             return True
         return False
 
-    # -- handlers ----------------------------------------------------------
     def _on_drag_enter(self, event: QDragEnterEvent) -> None:
         """Accept a drag that carries local paths, and no other."""
         mime = event.mimeData()
@@ -263,19 +233,12 @@ class _DropzoneFilter(QObject):
         paths = _mime_local_paths(event.mimeData())
         if not paths:
             return
-        # Tell the drag source the drop landed as soon as we know we have
-        # something to do with it. Doing this only at the very end meant a
-        # settings-CSV-only drop (which IS handled below) was reported back
-        # to the OS as rejected.
         event.acceptProposedAction()
         handler: DropHandler = self._target._dnd_handler
         screen = self._target._dnd_screen
         _route_drop(paths, handler, screen)
 
 
-# ---------------------------------------------------------------------------
-# Drop routing: the scan half runs on a worker, the widget half on the GUI
-# ---------------------------------------------------------------------------
 
 def _classify_drop(paths: Sequence[Path], handler: DropHandler,
                    takes_csv: bool, multiple: bool) -> List[dict]:
@@ -316,10 +279,6 @@ def _classify_drop(paths: Sequence[Path], handler: DropHandler,
                 report.append(entry)
                 continue
             others += 1
-            # Modules that do not handle multi-drop degrade to first-only,
-            # and the ones beyond the first are dropped HERE rather than
-            # scanned and then discarded -- a second sleeping mount is a
-            # second freeze.
             if not multiple and others > 1:
                 continue
             entry["accepted"] = bool(handler.can_accept(path))
@@ -328,10 +287,6 @@ def _classify_drop(paths: Sequence[Path], handler: DropHandler,
                 entry["alternatives"] = list(
                     handler.suggest_alternatives(path))
         except Exception as exc:                                 # noqa: BLE001
-            # A policy that raises used to raise inside Qt's event delivery,
-            # where there is no Python caller to catch it. Off the GUI thread
-            # it would be swallowed by the runner instead, and the user would
-            # be told nothing at all -- so it is carried back as a rejection.
             LOG.debug("drop classification failed for %s", path,
                       exc_info=True)
             entry["csv"] = None
@@ -374,8 +329,6 @@ def _deliver_drop(report: Sequence[dict], handler: DropHandler,
     :param handler: the module's policy, for ``apply`` only.
     :param screen: the widget the handler wires the drop into.
     """
-    # CSVs first, as they always were: a settings CSV and a folder in one
-    # drop means the folder wins, because it is applied last.
     for entry in report:
         if entry.get("csv") is not None:
             _apply_settings_csv(entry["path"], screen, scan=entry["csv"])
@@ -583,15 +536,6 @@ def _drain(queue: list) -> None:
         return
     _draining.append(queue)
     try:
-        # POP BEFORE DELIVERING, AND RE-READ AFTER. A slot left on the queue
-        # while its own delivery is running would be delivered a second time
-        # by a scan that lands from inside it, and one that raised would
-        # block every later drop on this screen for the life of the window.
-        # Taking the whole ready run off in one batch would fix that too,
-        # but it would then miss the slots answered DURING the run -- and a
-        # delivery that opens a modal dialog is exactly when a slow scan
-        # lands. `_run_delivery` swallows what a delivery raises, so one bad
-        # drop cannot break the loop.
         while queue and queue[0].answered:
             _run_delivery(queue.pop(0))
     finally:
@@ -613,33 +557,23 @@ def _queue_drop(screen, deliver: Callable[[object], None]):
         if queue is None:
             queue = []
             _pending_drops[screen] = queue
-    except TypeError:               # not weak-referenceable / not hashable
+    except TypeError:
         return None
-    # A new drop is the moment to notice that an older one can never be
-    # delivered, and to stop holding this one behind it.
     _forget_abandoned(screen, queue)
     slot = _PendingDrop(deliver)
     queue.append(slot)
-    # Anything that was waiting behind a slot just written off is ready now.
-    # The new slot is at the BACK and unanswered, so it holds nothing up and
-    # nothing here delivers it.
     _drain(queue)
     return slot
 
 
 def _answer_drop(screen, slot, report) -> None:
     """Fill ``slot`` in, then deliver every drop now ready, oldest first."""
-    if slot is None:                # untracked screen: nothing to order
+    if slot is None:
         return
     slot.report = report
     slot.answered = True
     queue = _pending_drops.get(screen)
     if queue is None or slot not in queue:
-        # This slot lost its place in line: the screen's queue is gone, or a
-        # later drop wrote this one off as abandoned (:func:`_forget_abandoned`)
-        # and the scan answered after all. Deliver it where it stands -- the
-        # ordering guarantee went with its place, and a drop delivered out of
-        # order still beats the silent no-op of one never delivered.
         _run_delivery(slot)
         return
     _drain(queue)
@@ -686,10 +620,6 @@ def _route_drop(paths: Sequence[Path], handler: DropHandler, screen) -> None:
         :param report: the classification `scan` produced.
         """
         if slot is None:
-            # Untracked screen: no queue to order it against, and no
-            # `_answer_drop` to keep a delivery that raises to itself. It is
-            # kept here instead -- see :func:`_run_delivery` for why an
-            # exception must not leave this callback.
             untracked = _PendingDrop(
                 lambda answer: _deliver_drop(answer, handler, screen))
             untracked.report = report
@@ -707,21 +637,11 @@ def _route_drop(paths: Sequence[Path], handler: DropHandler, screen) -> None:
     try:
         dispatched = bool(_scan_then(screen, scan, deliver))
     except Exception:                                            # noqa: BLE001
-        # The scanner refused outright. Answer the slot anyway: an
-        # unanswered slot is a screen whose every later drop is silently
-        # queued behind it forever.
         LOG.debug("the drop scanner refused; classifying inline",
                   exc_info=True)
         deliver(scan())
         return
     if not dispatched and slot is not None and not slot.answered:
-        # ``_scan_then`` returns False both for a scan it ran INLINE and for
-        # one that RAISED there -- and in the second case it never calls
-        # back at all. Left alone, this drop's slot would stay unanswered at
-        # the head of the screen's queue and hold every later drop behind it
-        # for the life of the window. :func:`_classify_drop` is written never
-        # to raise, so this is the guard for the day something beneath it
-        # does; the drop is reported rather than silently forgotten.
         LOG.warning("a dropped path was never classified: %s",
                     ", ".join(str(item) for item in paths))
         deliver(_unclassified(paths))
@@ -753,9 +673,6 @@ def _find_console(screen):
     console = getattr(window, "_console", None)
     if console is not None:
         return console
-    # Standalone tool screens are hosted alongside AppScreens. Prefer the
-    # most recently visited screen so rejected drops never disappear merely
-    # because the tool itself has no embedded console.
     screens = getattr(window, "_screens", {}) or {}
     visit_order = list(getattr(window, "_visit_order", []) or [])
     for key in reversed(visit_order + list(screens)):
@@ -813,8 +730,6 @@ def _report_drop_problem(screen, path: Path, reason: str, suggestion: str,
         except Exception:
             LOG.debug("Could not route rejected drop through AI",
                       exc_info=True)
-    # Standalone tools use a read-only summary/log pane instead of an
-    # AppScreen ConsolePanel. Put the same actionable text there as well.
     if not displayed_inline:
         for attr in ("_summary", "_log", "_console_text"):
             widget = getattr(screen, attr, None)
@@ -832,9 +747,6 @@ def _report_drop_problem(screen, path: Path, reason: str, suggestion: str,
     return message
 
 
-# ---------------------------------------------------------------------------
-# Mime helpers
-# ---------------------------------------------------------------------------
 
 def _mime_has_local_paths(mime: QMimeData) -> bool:
     """Whether a drag carries at least one local file.
@@ -859,9 +771,6 @@ def _mime_local_paths(mime: QMimeData) -> List[Path]:
             if u.isLocalFile()]
 
 
-# ---------------------------------------------------------------------------
-# Universal CSV → settings importer
-# ---------------------------------------------------------------------------
 
 #: Header shapes that identify a CSV as a spaCR SETTINGS export rather than
 #: data. Everything else dropped on a screen is data for one of its inputs.
@@ -921,12 +830,6 @@ def _read_settings_csv(path: Path) -> dict:
         return scan
     try:
         from spacr.utils import load_settings
-        # spaCR's own save_settings writes Key/Value columns; other tools
-        # (and older spaCR CSVs) use setting_key/setting_value. load_settings
-        # RAISES on a column mismatch rather than returning something
-        # non-dict, so the second form has to be tried in its own except —
-        # otherwise the fallback was unreachable and every
-        # setting_key/setting_value CSV was reported as a failed import.
         try:
             loaded = load_settings(str(path),
                                      setting_key="Key",
@@ -970,13 +873,6 @@ def _route_data_csv_to_inputs(path: Path, screen, header=None):
     header = set(_csv_header(path) if header is None else header)
     is_count = bool({"grna", "grna_name"} & header) and "count" in header
 
-    # An ANNOTATION table is neither side of the pairing.
-    #
-    # Classifying only count-vs-score meant everything that was not a count
-    # became a score, so a gRNA barcode export (name, sequence) landed in the
-    # score column of the pairing table. It has no plate, no well and no
-    # response; it annotates results after the fit. Recognised by carrying an
-    # identifier and no per-well coordinates.
     identifiers = {"name", "gene id", "gene_id", "geneid", "gene", "grna",
                    "grna_name"}
     coordinates = {"row", "rowid", "row_name", "col", "column", "columnid",
@@ -990,22 +886,12 @@ def _route_data_csv_to_inputs(path: Path, screen, header=None):
             widget.add_paths([str(path)])
             return "metadata_files"
 
-    # THE PAIRED TABLE IS TRIED FIRST, and that ordering is the whole fix.
-    #
-    # The regression panel replaced its separate score_data / count_data
-    # lists with one paired_data table. This router looked for those two keys
-    # as FilePathListWidgets, found neither, and fell through to
-    # metadata_files -- the only FilePathListWidget left on the screen. So
-    # every CSV dropped on the regression panel went to metadata: score
-    # tables, count tables, all of it.
     paired = widgets.get("paired_data")
     adder = getattr(paired, "add_paths_for_side", None)
     if callable(adder):
         adder([str(path)], "count" if is_count else "score")
         return "paired_data (count)" if is_count else "paired_data (score)"
 
-    # Most specific first: a count table must not land in the score slot just
-    # because that widget happens to come first in the panel.
     preferred = ("count_data", "score_data") if is_count else \
         ("score_data", "count_data")
     for key in (*preferred, "metadata_files"):
@@ -1036,9 +922,6 @@ def _apply_settings_csv(path: Path, screen,
     if scan is None:
         scan = _read_settings_csv(path)
     header = scan.get("header") or []
-    # A dropped file is DATA unless its header says it is settings. Deciding
-    # by header rather than by extension is what lets the regression screen
-    # accept four score CSVs and four count CSVs by drag and drop.
     if not _header_is_settings(header):
         taken = _route_data_csv_to_inputs(path, screen, header=header)
         if taken:
@@ -1066,9 +949,6 @@ def _apply_settings_csv(path: Path, screen,
                     )
             return
         except Exception as e:
-            # The read succeeded and the screen refused what it read. Same
-            # report as a failed read, because to the user it is the same
-            # sentence: this CSV did not become settings.
             failure = str(e)
     _report_drop_problem(
         screen, path, f"Settings CSV import failed: {failure}",
@@ -1078,9 +958,6 @@ def _apply_settings_csv(path: Path, screen,
     QMessageBox.warning(screen, "CSV import failed", str(failure))
 
 
-# ---------------------------------------------------------------------------
-# "Did you mean X?" dialog
-# ---------------------------------------------------------------------------
 
 def suggest_alternatives_dialog(
     parent, original: Path, alternatives: Sequence[Path], why: str = "",
@@ -1173,18 +1050,6 @@ def choose_one_dialog(parent, headline: str, question: str,
     return None if row < 0 else str(options[row])
 
 
-# ---------------------------------------------------------------------------
-# Filesystem helpers reused by handlers
-#
-# WORKER-THREAD ONLY, ALL THREE. They list directories, and the directory is
-# always one the user dropped -- which on the maintainer's machine reaches
-# ``/nas_mnt`` shares behind an ``autofs`` mount that took more than twenty
-# seconds to answer a single stat on 2026-09-04. Called from a handler's
-# ``can_accept`` or ``suggest_alternatives``, they are already on the drop
-# scanner's thread (see :func:`_route_drop`); called from anywhere that draws,
-# they are the freeze. Same contract as the scans in
-# :mod:`spacr.qt.dnd_handlers`: no Qt, no widgets, data out.
-# ---------------------------------------------------------------------------
 
 def has_images_in(path: Path, min_count: int = 1,
                     exts: Sequence[str] = IMAGE_EXTS) -> bool:
@@ -1211,12 +1076,10 @@ def find_image_folders_nearby(path: Path, max_depth: int = 1,
     of a folder the user chose.
     """
     hits: List[Path] = []
-    # One level up: check siblings
     if path.parent and path.parent.is_dir():
         for sib in path.parent.iterdir():
             if sib.is_dir() and sib != path and has_images_in(sib, min_count):
                 hits.append(sib)
-    # One level down: check immediate children
     if path.is_dir():
         for child in path.iterdir():
             if child.is_dir() and has_images_in(child, min_count):

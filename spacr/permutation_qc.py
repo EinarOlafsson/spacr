@@ -88,16 +88,6 @@ def position_effect(residuals: Sequence[float],
         if abs(float(here.mean()) - grand) > abs(worst):
             worst, worst_level = float(here.mean()) - grand, level
 
-    # ETA-SQUARED ALONE CANNOT BE COMPARED TO A FIXED THRESHOLD, and doing
-    # so was this module's first bug: under the null it has an expected
-    # value of about (k-1)/(n-1), so with twelve levels pure noise scores
-    # 0.046 and any tolerance near 0.05 flags it. Caught immediately, on the
-    # control case that was supposed to pass.
-    #
-    # THE F TEST IS THE COMPARISON THAT KNOWS THIS. It divides the between
-    # -level variance by the within-level variance with the right degrees of
-    # freedom, so "how many levels" is already accounted for and the answer
-    # is a p-value that means the same thing at any k.
     within = total - between
     k, n = len(levels), int(values.size)
     p_value = 1.0
@@ -108,9 +98,6 @@ def position_effect(residuals: Sequence[float],
         p_value = float(_f.sf(statistic, k - 1, n - k))
     return {
         "eta_squared": float(between / total),
-        # UNBIASED, so it can be reported beside the p-value without
-        # contradicting it: omega-squared subtracts the variance the null
-        # would have produced anyway.
         "omega_squared": float(max(
             0.0, (between - (k - 1) * (within / (n - k))) /
             (total + (within / (n - k))))) if within > 0 and n > k else 0.0,

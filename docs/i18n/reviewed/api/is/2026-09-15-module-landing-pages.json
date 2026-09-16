@@ -1,0 +1,160 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "**What it is for.** Classify is the fourth step of the workflow, after Mask, Measure and Annotate. It learns the classes a screen is scored on and predicts them for every object. ``classifier_family`` chooses how: ``cv`` trains an image model on object extracted image regions through :func:`spacr.deep_spacr.deep_spacr`, and ``ml`` fits a classical model such as XGBoost, LightGBM or a random forest on measured features through :func:`spacr.ml.generate_ml_scores`.",
+      "label": "spacr.classify#1",
+      "source": "**What it is for.** Classify is the fourth step of the pipeline, after Mask, Measure and Annotate. It learns the classes a screen is scored on and predicts them for every object. ``classifier_family`` chooses how: ``cv`` trains an image model on object crops through :func:`spacr.deep_spacr.deep_spacr`, and ``ml`` fits a classical model such as XGBoost, LightGBM or a random forest on measured features through :func:`spacr.ml.generate_ml_scores`.",
+      "source_sha256": "580dd8c91c0f25d59434190a62f707a78a5be8ab61221788c572139e9341e25e",
+      "translation": "**Til hvers það er.** Classify er fjórða skrefið í vinnuferlinu, á eftir Mask, Measure og Annotate. Það lærir flokkana sem skimun er metin eftir og spáir fyrir um þá fyrir hvert viðfang. ``classifier_family`` ræður aðferðinni: ``cv`` þjálfar myndlíkan á myndbútum af viðföngum í gegnum :func:`spacr.deep_spacr.deep_spacr`, og ``ml`` aðlagar hefðbundið líkan á borð við XGBoost, LightGBM eða slembiskóg (random forest) að mældum eiginleikum í gegnum :func:`spacr.ml.generate_ml_scores`."
+    },
+    {
+      "context": "**What it needs.** A project that has been through Mask and Measure, so that ``measurements/measurements.db`` and its object extracted image regions exist, and a definition of the classes. ``dataset_mode`` sets that definition for both families: ``metadata`` takes classes from laboratory microplate metadata such as the positive and negative control microplate sample positions, and ``annotation`` takes them from an annotation column of ``png_list``, as written by Annotate. The CV family reads extracted image regions from PNG files or cuts them from the ``merged`` arrays, as ``crop_source`` selects.",
+      "label": "spacr.classify#2",
+      "source": "**What it needs.** A project that has been through Mask and Measure, so that ``measurements/measurements.db`` and its object crops exist, and a definition of the classes. ``dataset_mode`` sets that definition for both families: ``metadata`` takes classes from plate metadata such as the positive and negative control wells, and ``annotation`` takes them from an annotation column of ``png_list``, as written by Annotate. The CV family reads crops from PNG files or cuts them from the ``merged`` arrays, as ``crop_source`` selects.",
+      "source_sha256": "127ccad0853606b1f61b30db3431fb1c812d12d89f503df9d82d9418af58c069",
+      "translation": "**Hvað það þarf.** Verkefni sem hefur farið í gegnum Mask og Measure, þannig að ``measurements/measurements.db`` og myndbútar viðfanganna séu til, auk skilgreiningar á flokkunum. ``dataset_mode`` setur þá skilgreiningu fyrir báðar fjölskyldurnar: ``metadata`` sækir flokkana í lýsigögn plötunnar, til dæmis brunna jákvæðra og neikvæðra viðmiða, og ``annotation`` sækir þá í merkingardálk í ``png_list``, eins og Annotate skrifar hann. CV-fjölskyldan les myndbúta úr PNG-skrám eða sker þá úr ``merged``-fylkjunum, eftir því hvað ``crop_source`` velur."
+    },
+    {
+      "context": "**What it produces.** A CV run writes model checkpoints, ``DL_model_settings.csv``, a dataset tar, a ``top_examples/`` folder with the most confident extracted image regions of each class and an evaluation bundle with the held-out performance and ``leakage.json``, and merges each object's predicted class and probability into ``png_list``. An ML run writes per-object predictions, feature-importance and permutation tables and a plate heatmap to ``results/`` beside the measurements database.",
+      "label": "spacr.classify#3",
+      "source": "**What it produces.** A CV run writes model checkpoints, ``DL_model_settings.csv``, a dataset tar, a ``top_examples/`` folder with the most confident crops of each class and an evaluation bundle with the held-out performance and ``leakage.json``, and merges each object's predicted class and probability into ``png_list``. An ML run writes per-object predictions, feature-importance and permutation tables and a plate heatmap to ``results/`` beside the measurements database.",
+      "source_sha256": "0edc8a01b335c43dfc27f5a7d8b61f0be7a45b8fbb70b2fea04ddb4cc6046082",
+      "translation": "**Hvað það skilar.** CV-keyrsla skrifar vistunarpunkta líkansins, ``DL_model_settings.csv``, tar-safn með gagnasafninu, möppuna ``top_examples/`` með öruggustu myndbútum hvers flokks og matspakka með frammistöðu á fráteknum gögnum og ``leakage.json``, og færir spáðan flokk og líkur hvers viðfangs inn í ``png_list``. ML-keyrsla skrifar spár fyrir hvert viðfang, töflur um vægi eiginleika og umraðanir og hitakort af plötunni í ``results/`` hjá mæligagnagrunninum."
+    },
+    {
+      "context": "**What to do next.** Check the held-out performance, and the leakage verdict on the QC screen, before trusting the predictions. Then take per-microplate sample position scores into Regression, which pairs them with the guide counts from Map Barcodes to estimate which guides and genes explain the phenotype.",
+      "label": "spacr.classify#4",
+      "source": "**What to do next.** Check the held-out performance, and the leakage verdict on the QC screen, before trusting the predictions. Then take per-well scores into Regression, which pairs them with the guide counts from Map Barcodes to estimate which guides and genes explain the phenotype.",
+      "source_sha256": "43003a36df3b4999f9159e0d3ee5879cd7bf7bbf625131187b20de5d5e76c05d",
+      "translation": "**Hvað svo.** Athugaðu frammistöðuna á fráteknum gögnum, og lekamatið á QC-skjánum, áður en spánum er treyst. Farðu síðan með stig fyrir hvern brunn í Regression, sem parar þau við fjölda stýriraða (guides) úr Map Barcodes til að meta hvaða stýriraðir og gen skýra svipgerðina."
+    },
+    {
+      "context": "**Where it sits in the workflow.** Annotate is the third step of the workflow. It needs the extracted image regions Measure lists in ``png_list``, and the labels it writes into an annotation column of that table are what Classify trains on when ``dataset_mode`` is ``annotation``.",
+      "label": "spacr.qt.screens.annotate#2",
+      "source": "**Where it sits in the workflow.** Annotate is the third step of the pipeline. It needs the crops Measure lists in ``png_list``, and the labels it writes into an annotation column of that table are what Classify trains on when ``dataset_mode`` is ``annotation``.",
+      "source_sha256": "c09ba8afb320118e1dddfc9fcc0511196e79a17932bdf962cec0b383b38e16dd",
+      "translation": "**Hvar það er í vinnuferlinu.** Annotate er þriðja skrefið í vinnuferlinu. Það þarf myndbútana sem Measure skráir í ``png_list``, og merkin sem það skrifar í merkingardálk þeirrar töflu eru það sem Classify þjálfast á þegar ``dataset_mode`` er ``annotation``."
+    },
+    {
+      "context": "**What it is for.** Planning a laboratory microplate before it is imaged, as the first step of a screen: a layout can still be changed then, and the laboratory microplate map exported here is what the measurements are joined to later.",
+      "label": "spacr.qt.screens.experiment_design#3",
+      "source": "**What it is for.** Planning a plate before it is imaged, as the first step of a screen: a layout can still be changed then, and the plate map exported here is what the measurements are joined to later.",
+      "source_sha256": "eba6eceda23475bb3733d2fd06511a1f018ed88ff1fe00609f10b267c3925bbb",
+      "translation": "**Til hvers það er.** Að skipuleggja plötu áður en hún er mynduð, sem fyrsta skref skimunar: þá er enn hægt að breyta uppsetningunni, og plötukortið sem er flutt út hér er það sem mælingarnar eru síðar tengdar við."
+    },
+    {
+      "context": "**What it needs.** A laboratory microplate identifier, a laboratory microplate format from 6 to 1536 microplate sample positions, and a list of conditions, each with a number of replicates and a role: treatment, positive control, negative control or blank. The layout -- ``random``, ``row``, ``column`` or ``block`` -- places the replicates, the edge setting uses the outer ring of microplate sample positions or leaves it empty, and the seed makes a random layout reproducible.",
+      "label": "spacr.qt.screens.experiment_design#4",
+      "source": "**What it needs.** A plate identifier, a plate format from 6 to 1536 wells, and a list of conditions, each with a number of replicates and a role: treatment, positive control, negative control or blank. The layout -- ``random``, ``row``, ``column`` or ``block`` -- places the replicates, the edge setting uses the outer ring of wells or leaves it empty, and the seed makes a random layout reproducible.",
+      "source_sha256": "341864ac8206f6cbdb45fbcf1b868f2de05113946f3bc0b3e56603a13e859343",
+      "translation": "**Hvað það þarf.** Plötuauðkenni, plötusnið frá 6 upp í 1536 brunna og lista af skilyrðum, hvert með fjölda endurtekninga og hlutverk: meðferð, jákvætt viðmið, neikvætt viðmið eða tómur brunnur. Uppsetningin, ``random``, ``row``, ``column`` eða ``block``, raðar endurtekningunum, jaðarstillingin notar ytri hring brunnanna eða skilur hann eftir tóman, og slembifræið gerir slembna uppsetningu endurtakanlega."
+    },
+    {
+      "context": "**What it produces.** Export laboratory microplate map writes three files to the chosen folder: ``plate_map.csv``, one row per microplate sample position keyed by ``plateID``, ``rowID`` and ``columnID``; ``plate_map.json``, the design and the findings that were shown, so the layout can be regenerated; and ``plate_map_settings.json``, the ``treatments`` and ``treatment_plate_metadata`` settings for an analysis. A random layout cannot be written as whole rows or columns, so that file then records why instead, and ``plate_map.csv`` is the authoritative record.",
+      "label": "spacr.qt.screens.experiment_design#5",
+      "source": "**What it produces.** Export plate map writes three files to the chosen folder: ``plate_map.csv``, one row per well keyed by ``plateID``, ``rowID`` and ``columnID``; ``plate_map.json``, the design and the findings that were shown, so the layout can be regenerated; and ``plate_map_settings.json``, the ``treatments`` and ``treatment_plate_metadata`` settings for an analysis. A random layout cannot be written as whole rows or columns, so that file then records why instead, and ``plate_map.csv`` is the authoritative record.",
+      "source_sha256": "1f04dd75d44041fb50a1d3548ce2e067880bb2ea84dc04db60747967e5441825",
+      "translation": "**Hvað það skilar.** Útflutningur plötukortsins skrifar þrjár skrár í valda möppu: ``plate_map.csv``, eina línu fyrir hvern brunn með lyklunum ``plateID``, ``rowID`` og ``columnID``; ``plate_map.json``, hönnunina og niðurstöðurnar sem voru sýndar, svo hægt sé að endurgera uppsetninguna; og ``plate_map_settings.json``, stillingarnar ``treatments`` og ``treatment_plate_metadata`` fyrir greiningu. Slembna uppsetningu er ekki hægt að skrifa sem heilar raðir eða dálka, svo sú skrá tilgreinir þá í staðinn hvers vegna, og ``plate_map.csv`` er hin gilda skrá."
+    },
+    {
+      "context": "**What to do next.** Resolve the findings, then image the plate. When the data comes back, ``plate_map.csv`` joins the measurement tables on ``plateID``, ``rowID`` and ``columnID`` without a translation step, and the settings file fills in the treatment settings of the analysis.",
+      "label": "spacr.qt.screens.experiment_design#6",
+      "source": "**What to do next.** Resolve the findings, then image the plate. When the data comes back, ``plate_map.csv`` joins the measurement tables on ``plateID``, ``rowID`` and ``columnID`` without a translation step, and the settings file fills in the treatment settings of the analysis.",
+      "source_sha256": "9251a11962fd0b1e49fb2e36933168e3ed4cd817f10eb3d9866c9f87af950991",
+      "translation": "**Hvað svo.** Leystu úr niðurstöðunum og myndaðu síðan plötuna. Þegar gögnin berast tengist ``plate_map.csv`` mælitöflunum á ``plateID``, ``rowID`` og ``columnID`` án þýðingarskrefs, og stillingaskráin fyllir út meðferðarstillingar greiningarinnar."
+    },
+    {
+      "context": "**What it is for.** Selecting a population by its measurements once Measure has run: the cells above an intensity threshold, or one cluster in a two-feature scatter. Data-selection boundaries can sit inside other data-selection boundaries, and each shows its object count and its percentage of both its parent data-selection boundary and the whole table.",
+      "label": "spacr.qt.screens.gate_editor#2",
+      "source": "**What it is for.** Selecting a population by its measurements once Measure has run: the cells above an intensity threshold, or one cluster in a two-feature scatter. Gates can sit inside other gates, and each shows its object count and its percentage of both its parent gate and the whole table.",
+      "source_sha256": "18e88c1de632fb65b473bfc7400fad34a4ec90391d438e4706e8845d7725da7d",
+      "translation": "**Til hvers það er.** Að velja þýði eftir mælingum þess þegar Measure hefur keyrt: frumurnar yfir styrkleikaþröskuldi, eða einn klasa í dreifiriti tveggja eiginleika. Afmarkanir (gates) geta legið innan annarra afmarkana, og hver þeirra sýnir fjölda viðfanga og hlutfall sitt bæði af yfirafmörkuninni og allri töflunni."
+    },
+    {
+      "context": "**What it needs.** A measurement table: one table of a ``measurements.db``, where the object tables are offered first, or a CSV or TSV file. Several databases can be loaded as one table; laboratory microplate identifiers that collide between them are reported rather than silently pooled. Database tables are read as a sample set by ``sample_fraction`` and capped by ``max_points``, both in the Data-selection boundary Editor settings.",
+      "label": "spacr.qt.screens.gate_editor#3",
+      "source": "**What it needs.** A measurement table: one table of a ``measurements.db``, where the object tables are offered first, or a CSV or TSV file. Several databases can be loaded as one table; plate identifiers that collide between them are reported rather than silently pooled. Database tables are read as a sample set by ``sample_fraction`` and capped by ``max_points``, both in the Gate Editor settings.",
+      "source_sha256": "7ad8256125910d7c6e53f73988b70e80fc3d3bf0ce1fcc171194312a2b7da1c6",
+      "translation": "**Hvað það þarf.** Mælitöflu: eina töflu úr ``measurements.db``, þar sem viðfangstöflurnar eru boðnar fyrst, eða CSV- eða TSV-skrá. Hægt er að hlaða nokkrum gagnagrunnum inn sem einni töflu; plötuauðkenni sem rekast á milli þeirra eru tilkynnt í stað þess að vera sameinuð í hljóði. Gagnagrunnstöflur eru lesnar sem úrtak samkvæmt ``sample_fraction`` og takmarkaðar af ``max_points``, hvort tveggja í stillingum Gate Editor."
+    },
+    {
+      "context": "**What it produces.** Threshold, rectangle, oval, polygon and wand data-selection boundaries on one or two measurements, box, cylinder and prism data-selection boundaries in the 3D view, and combinations of other data-selection boundaries. Publishing a data-selection boundary narrows every linked view to that population. The data-selection filtering strategy saves to and loads from a JSON file (``gates.json`` by default) so that the next laboratory microplate is gated the same way; Export writes each data-selection boundary as a column of the ``filters`` table in the measurements database, and the graph saves as PNG or PDF.",
+      "label": "spacr.qt.screens.gate_editor#4",
+      "source": "**What it produces.** Threshold, rectangle, oval, polygon and wand gates on one or two measurements, box, cylinder and prism gates in the 3D view, and combinations of other gates. Publishing a gate narrows every linked view to that population. The gating strategy saves to and loads from a JSON file (``gates.json`` by default) so that the next plate is gated the same way; Export writes each gate as a column of the ``filters`` table in the measurements database, and the graph saves as PNG or PDF.",
+      "source_sha256": "9a7a051375217ca9fe0ae5acab2dcd6b132a8f9f2b52abee0aa101d0a1485e67",
+      "translation": "**Hvað það skilar.** Þröskulds-, rétthyrnings-, sporbaugs-, marghyrnings- og töfrasprotaafmarkanir á einni eða tveimur mælingum, kassa-, sívalnings- og strendingsafmarkanir í 3D-sýninni og samsetningar annarra afmarkana. Þegar afmörkun er birt þrengist hver tengd sýn að því þýði. Afmörkunaráætlunin vistast í og hleðst úr JSON-skrá (``gates.json`` sjálfgefið) svo að næsta plata sé afmörkuð á sama hátt; útflutningur skrifar hverja afmörkun sem dálk í töflunni ``filters`` í mæligagnagrunninum, og grafið vistast sem PNG eða PDF."
+    },
+    {
+      "context": "**What to do next.** Look at the gated population in the views that follow the shared filter, such as Image UMAP, Graph Builder and the extracted-image-region grid, and load the saved data-selection filtering strategy on the next plate.",
+      "label": "spacr.qt.screens.gate_editor#5",
+      "source": "**What to do next.** Look at the gated population in the views that follow the shared filter, such as Image UMAP, Graph Builder and the crop grid, and load the saved gating strategy on the next plate.",
+      "source_sha256": "777cec7724e961ebd556bc885987088c4853a206dd3f0bc9d57635416f42ba26",
+      "translation": "**Hvað svo.** Skoðaðu afmarkaða þýðið í sýnunum sem fylgja sameiginlegu síunni, svo sem Image UMAP, Graph Builder og myndbútanetinu, og hladdu vistuðu afmörkunaráætluninni inn fyrir næstu plötu."
+    },
+    {
+      "context": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the data-selection boundary tools and the hierarchy with its percentages;",
+      "label": "spacr.qt.screens.gate_editor#7",
+      "source": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the gate tools and the hierarchy with its percentages;",
+      "source_sha256": "1f3de1f7408fc69b5b0d3e50c09aac04245ac1c893084fed33fe47ef75c13e51",
+      "translation": ":class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — teiknisvæðið, afmörkunartólin og stigveldið með hlutföllum sínum;"
+    },
+    {
+      "context": "**What it is for.** Exploring a measurement table without plotting code, usually after Measure or Classify: drag columns onto the chart and it redraws as each one lands.",
+      "label": "spacr.qt.screens.graph_builder#5",
+      "source": "**What it is for.** Exploring a measurement table without plotting code, usually after Measure or Classify: drag columns onto the chart and it redraws as each one lands.",
+      "source_sha256": "3ce9e834a6db422e060250c028dcb842b417026568f68837c116cc4fd4bb3926",
+      "translation": "**Til hvers það er.** Að kanna mælitöflu án þess að skrifa kóða fyrir gröf, oftast eftir Measure eða Classify: dragðu dálka á grafið og það teiknast upp á nýtt um leið og hver dálkur lendir."
+    },
+    {
+      "context": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available.",
+      "label": "spacr.qt.screens.graph_builder#6",
+      "source": "**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file, chosen with Load table. The object tables and ``png_list`` are offered first; every other table in the database stays available.",
+      "source_sha256": "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
+      "translation": "**Hvað það þarf.** Eina töflu úr ``measurements.db`` eða CSV- eða TSV-skrá, valda með hnappinum til að hlaða inn töflu. Viðfangstöflurnar og ``png_list`` eru boðnar fyrst; allar aðrar töflur gagnagrunnsins eru áfram tiltækar."
+    },
+    {
+      "context": "**What it produces.** A chart with six drop zones: x, y, colour, size, facet row and facet column. Only x and y decide the chart type -- one continuous column gives a histogram, one categorical column a bar chart of counts, two continuous columns a scatter plot, one of each a box plot and two categorical columns a heatmap of counts -- and violin and line plots are explicit choices. A brushed rectangle becomes the shared selection, highlighted in the UMAP and on the laboratory microplate map.",
+      "label": "spacr.qt.screens.graph_builder#7",
+      "source": "**What it produces.** A chart with six drop zones: x, y, colour, size, facet row and facet column. Only x and y decide the chart type -- one continuous column gives a histogram, one categorical column a bar chart of counts, two continuous columns a scatter plot, one of each a box plot and two categorical columns a heatmap of counts -- and violin and line plots are explicit choices. A brushed rectangle becomes the shared selection, highlighted in the UMAP and on the plate map.",
+      "source_sha256": "3a6684acc216fc722fce4a8dbaca2669c9e3215b99b2928bfe1bf88902336342",
+      "translation": "**Hvað það skilar.** Graf með sex sleppisvæðum: x, y, litur, stærð, röð undirgrafa og dálkur undirgrafa. Aðeins x og y ráða gerð grafsins: einn samfelldur dálkur gefur stuðlarit, einn flokkadálkur súlurit með fjölda, tveir samfelldir dálkar dreifirit, einn af hvoru kassarit og tveir flokkadálkar hitakort með fjölda; fiðlurit og línurit eru valin sérstaklega. Rétthyrningur sem dreginn er með penslinum verður sameiginlega valið og er auðkenndur í UMAP og á plötukortinu."
+    },
+    {
+      "context": "**What to do next.** Press Open selection in Annotate to see the brushed objects as extracted image regions, narrow every view with the Local Data Filter beside the chart, or move to filter data Editor when a population should become a named data-selection boundary that can be saved and re-applied.",
+      "label": "spacr.qt.screens.graph_builder#8",
+      "source": "**What to do next.** Press Open selection in Annotate to see the brushed objects as image crops, narrow every view with the Local Data Filter beside the chart, or move to Gate Editor when a population should become a named gate that can be saved and re-applied.",
+      "source_sha256": "1fb2849ed26e00028887d9edfd4a71b8965f154677187d9305111e2b83c1bf3f",
+      "translation": "**Hvað svo.** Opnaðu valið í Annotate til að sjá merktu viðföngin sem myndbúta, þrengdu allar sýnir með staðbundnu gagnasíunni við grafið, eða farðu í Gate Editor þegar þýði á að verða nefnd afmörkun sem hægt er að vista og beita aftur."
+    },
+    {
+      "context": "**What it is for.** Checking a project before its numbers are used. After Mask and Measure, and again after Classify, QC gathers the verdicts those steps already wrote into one place, so the question does not need five application views.",
+      "label": "spacr.qt.screens.qc_dashboard#2",
+      "source": "**What it is for.** Checking a project before its numbers are used. After Mask and Measure, and again after Classify, QC gathers the verdicts those steps already wrote into one place, so the question does not need five screens.",
+      "source_sha256": "ae8693d6d97aeb6ea3475cbf705c72ac48317fa18a2c74c1b63a0c211214f3ee",
+      "translation": "**Til hvers það er.** Að athuga verkefni áður en tölur þess eru notaðar. Eftir Mask og Measure, og aftur eftir Classify, safnar QC saman á einn stað þeim niðurstöðum sem þessi skref hafa þegar skrifað, svo spurningin krefjist ekki fimm skjámynda."
+    },
+    {
+      "context": "**What it needs.** A project or laboratory microplate folder, chosen with Browse or dropped onto QC. Each card reads a file that is already on disk: the segmentation scorecards a Mask run writes (``seg_qc``), the units stamp Measure puts on every row of ``measurements.db``, ``leakage.json`` from the newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and ``agreement.json`` when a laboratory microplate-effect or annotator-agreement report has been saved under the project.",
+      "label": "spacr.qt.screens.qc_dashboard#3",
+      "source": "**What it needs.** A project or plate folder, chosen with Browse or dropped onto QC. Each card reads a file that is already on disk: the segmentation scorecards a Mask run writes (``seg_qc``), the units stamp Measure puts on every row of ``measurements.db``, ``leakage.json`` from the newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and ``agreement.json`` when a plate-effect or annotator-agreement report has been saved under the project.",
+      "source_sha256": "746a001acee09eda8da304f5dc315f67af96023c2810a95b4d3a91c462cc9c8f",
+      "translation": "**Hvað það þarf.** Verkefnis- eða plötumöppu, valda með því að fletta eða dregna á QC. Hvert spjald les skrá sem þegar hefur verið vistuð: hlutunarmötin sem Mask-keyrsla skrifar (``seg_qc``), einingastimpilinn sem Measure setur á hverja línu í ``measurements.db``, ``leakage.json`` úr nýjasta matspakka Classify (CV), og ``plate_qc.json`` og ``agreement.json`` þegar skýrsla um plötuáhrif eða samræmi milli merkjenda hefur verið vistuð í verkefninu."
+    },
+    {
+      "context": "**What it produces.** Nothing on disk. Each card carries a verdict -- ``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the details behind it and, for a check that has never run, the step that would produce it; the overall verdict is the worst of them. A card older than its inputs is marked stale rather than downgraded, and ``missing`` means nothing was checked, not that nothing is wrong.",
+      "label": "spacr.qt.screens.qc_dashboard#4",
+      "source": "**What it produces.** Nothing on disk. Each card carries a verdict -- ``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the details behind it and, for a check that has never run, the step that would produce it; the overall verdict is the worst of them. A card older than its inputs is marked stale rather than downgraded, and ``missing`` means nothing was checked, not that nothing is wrong.",
+      "source_sha256": "754239afae8b251857d86faa929d2648e01a7879167d415c8366c4cda341b22e",
+      "translation": "**Hvað það skilar.** Engar skrár. Hvert spjald ber niðurstöðu, ``ok``, ``missing``, ``warn``, ``fail`` eða ``error``, með fyrirsögn, smáatriðunum að baki og, fyrir athugun sem hefur aldrei keyrt, skrefinu sem myndi framkalla hana; heildarniðurstaðan er sú versta þeirra. Spjald sem er eldra en inntak þess er merkt úrelt í stað þess að vera lækkað, og ``missing`` þýðir að ekkert var athugað, ekki að ekkert sé að."
+    },
+    {
+      "context": "**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source and re-run that step; the cards are read again when a file has changed. Layer Viewer shows the images behind a failing check, Control Charts follows the same checks over time and Outliers finds the microplate sample positions or objects unlike the rest; all three open from this application view's masthead.",
+      "label": "spacr.qt.screens.qc_dashboard#5",
+      "source": "**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source and re-run that step; the cards are read again when a file has changed. Layer Viewer shows the images behind a failing check, Control Charts follows the same checks over time and Outliers finds the wells or objects unlike the rest; all three open from this screen's masthead.",
+      "source_sha256": "d71e9b428ed3a221a506ba634c7b076c212e211b239d55478397fa7d796555aa",
+      "translation": "**Hvað svo.** Lagaðu við upptökin það sem ``warn``- eða ``fail``-spjald bendir á og keyrðu það skref aftur; spjöldin eru lesin á ný þegar skrá hefur breyst. Layer Viewer sýnir myndirnar að baki misheppnaðri athugun, Control Charts fylgir sömu athugunum yfir tíma og Outliers finnur brunna eða viðföng sem skera sig úr; öll þrjú opnast úr haus þessa skjás."
+    }
+  ],
+  "schema": 1
+}

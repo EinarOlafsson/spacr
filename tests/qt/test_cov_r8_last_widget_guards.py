@@ -141,19 +141,53 @@ class TestTheGateCountColumn:
 
         assert labels == ["a gate", "1,234", "50.0%", "25.0%"]
 
-    def test_a_gate_the_working_set_cannot_answer_says_so(self):
+    def test_a_gate_the_working_set_cannot_answer_says_so(
+            self, qt_theme_applied, qtbot):
         """THE UNCOVERED ARC: no statistic, and the name is unavailable.
 
-        The gate keeps its row and its colour, and the count column
-        carries the fact that this working set cannot answer it --
-        rather than vanishing, which reads as a gate that was deleted.
+        Driven rather than read: a working set holding only the cell
+        measurements cannot count a gate on ``nucleus_area``, so that
+        gate has no statistic and its name comes back in the
+        unavailable map. It keeps its row and the count column says so,
+        rather than the row vanishing -- which reads as a gate that was
+        deleted -- and the cell gate beside it keeps its number.
         """
         from spacr.qt.widgets import gate_editor as G
+        from spacr.qt.widgets.gate_spec import GateSet, RectGate
 
         source = inspect.getsource(G)
         assert "elif gate.name in unavailable:" in source
         assert "labels = [gate.name, self.UNAVAILABLE, \"\", \"\"]" in source
-        assert "Says so rather than vanishing" in source
+
+        gates = (GateSet()
+                 .add(RectGate(name="big_cell", x_column="cell_area",
+                               y_column="cell_intensity",
+                               x_low=0.0, x_high=1e9,
+                               y_low=0.0, y_high=1e9))
+                 .add(RectGate(name="bright_nucleus", x_column="nucleus_area",
+                               y_column="nucleus_intensity",
+                               x_low=0.0, x_high=1e9,
+                               y_low=0.0, y_high=1e9)))
+        frame = pd.DataFrame({"cell_area": [1.0, 2.0, 3.0],
+                              "cell_intensity": [10.0, 20.0, 30.0]})
+
+        tree = G.GateTree()
+        qtbot.addWidget(tree)
+        tree.set_gates(gates, frame)
+
+        rows = {tree.tree.topLevelItem(i).text(0): tree.tree.topLevelItem(i)
+                for i in range(tree.tree.topLevelItemCount())}
+        assert "bright_nucleus" in rows, (
+            "the gate this working set cannot answer vanished instead of "
+            "saying so, which reads as a gate that was deleted")
+        assert rows["bright_nucleus"].text(1) == G.GateTree.UNAVAILABLE, (
+            "the count column no longer carries the fact that this working "
+            "set cannot answer the gate")
+        assert G.GateTree.UNAVAILABLE, (
+            "the unavailable marker is empty, so the row is indistinguishable "
+            "from a gate that simply has not been counted yet")
+        assert rows["big_cell"].text(1) == "3", (
+            "the unanswerable gate took the answerable one's count with it")
 
     def test_a_gate_with_neither_shows_blanks(self):
         """The third case, and the reason the elif is an elif: a gate

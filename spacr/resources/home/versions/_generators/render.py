@@ -29,9 +29,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import common  # noqa: E402
 
-# ---------------------------------------------------------------------------
-# Layout audit — a variant with clipped text is a bug, not a variant
-# ---------------------------------------------------------------------------
 
 def audit(page) -> Dict[str, list]:
     """Inspect a laid-out page for the defects that invalidate a render.
@@ -83,9 +80,6 @@ def audit(page) -> Dict[str, list]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Rendering
-# ---------------------------------------------------------------------------
 
 def render_one(app, spec: dict, theme: str, out_path: str) -> Dict[str, list]:
     """Build one variant in one theme, grab it, save it. Returns its audit."""
@@ -108,9 +102,6 @@ def render_one(app, spec: dict, theme: str, out_path: str) -> Dict[str, list]:
     page.hide()
     page.setParent(None)
     page.deleteLater()
-    # processEvents() does NOT drain DeferredDelete, so without this the
-    # thirty pages (and their few thousand child widgets) all stay alive
-    # for the whole run and each successive render gets slower.
     from PySide6.QtCore import QEvent
     app.sendPostedEvents(None, QEvent.DeferredDelete)
     app.processEvents()
@@ -172,9 +163,6 @@ def load_audit() -> Dict[Tuple[int, str], Dict[str, list]]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Contact sheet
-# ---------------------------------------------------------------------------
 
 def build_sheet(specs: Sequence[dict], theme: str = "dark",
                 cols: int = 5, thumb_w: int = 440) -> str:
@@ -220,9 +208,6 @@ def _sheet_font(size: int):
         return ImageFont.load_default()
 
 
-# ---------------------------------------------------------------------------
-# VARIANTS.md
-# ---------------------------------------------------------------------------
 
 _INTRO = """# Thirty Home-screen arrangements
 
@@ -392,10 +377,6 @@ def _scroll_finding(specs: Sequence[dict],
 
     def _wrapped(sentence: str) -> str:
         """Wrap a finding to 72 columns with its continuation indent."""
-        # Re-wrapped to the width the surrounding hand-written findings
-        # use, continuation lines under the list item's hanging indent.
-        # Substituting one very long line into a numbered list turns the
-        # whole findings block into something nobody re-reads.
         return textwrap.fill(sentence, width=72,
                              subsequent_indent="   ").lstrip()
 
@@ -448,10 +429,6 @@ def write_markdown(specs: Sequence[dict], themes: Sequence[str],
     space_note = (", plus `space.png`" if "space" in themes
                   else " (the `space` palette was not available when these "
                        "were rendered)")
-    # n_apps is read, never typed: this document said "29 apps" for long
-    # enough that five more were registered without anyone noticing. The
-    # scrollbar tally is read too, for the same reason and out of the
-    # `reports` this function was already handed.
     lines = [_INTRO.format(space_note=space_note, sidebar_h=sidebar_h,
                            sidebar_avail=sidebar_avail,
                            n_apps=common.n_apps(),
@@ -481,9 +458,6 @@ def write_markdown(specs: Sequence[dict], themes: Sequence[str],
     return out
 
 
-# ---------------------------------------------------------------------------
-# Self-check
-# ---------------------------------------------------------------------------
 
 def self_check(specs: Sequence[dict], themes: Sequence[str]) -> dict:
     """Verify every PNG exists, is 1440x900, and is not near-uniform."""
@@ -500,9 +474,6 @@ def self_check(specs: Sequence[dict], themes: Sequence[str]) -> dict:
             with Image.open(path) as im:
                 size = im.size
                 arr = np.asarray(im.convert("RGB"), dtype=np.uint8)
-            # Pack RGB into one int32 before counting: np.unique(axis=0)
-            # over 1.3 M rows takes seconds per image, and there are
-            # ninety images.
             packed = ((arr[..., 0].astype(np.int32) << 16)
                       | (arr[..., 1].astype(np.int32) << 8)
                       | arr[..., 2].astype(np.int32))
@@ -533,20 +504,12 @@ def measure_sidebar(app) -> Tuple[int, int]:
     ctx.apply_theme()
     from spacr.qt.app import Sidebar
     bar = Sidebar()
-    # EVERY SECTION OPEN. The dock now starts with Core open and the rest
-    # collapsed, so its resting height says nothing about whether the
-    # navigation fits -- it fits because most of it is folded away. The
-    # height worth measuring is the one a user sees after opening the
-    # sections they work in, which is the fully expanded dock.
     for section in list(getattr(bar, "_section_headers", {})):
         if not bar.section_is_open(section):
             bar.toggle_section(section)
     bar.resize(bar.width(), 850)
     bar.show()
     app.processEvents()
-    # Private attribute on purpose: there is no public accessor for the
-    # scrolled widget, and falling back to the outer layout keeps this
-    # working (with a smaller number) if the scroll area is ever removed.
     scroll = getattr(bar, "_scroll", None)
     inner = scroll.widget() if scroll is not None else None
     layout = inner.layout() if inner is not None else bar.layout()
@@ -555,13 +518,9 @@ def measure_sidebar(app) -> Tuple[int, int]:
     bar.setParent(None)
     bar.deleteLater()
     app.processEvents()
-    # 900 window - 26 menu strip - 24 status bar
     return int(need), common.CANVAS_H - 26 - 24
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 def main(argv: Optional[List[str]] = None) -> int:
     """Render selected Home variants or audit the existing generated assets."""
@@ -606,8 +565,6 @@ def main(argv: Optional[List[str]] = None) -> int:
         print("sheet:", build_sheet(specs))
     if not args.no_md:
         need, avail = measure_sidebar(app)
-        # A partial run keeps the prose for every variant, but only the
-        # audit lines for the ones just rendered.
         print("markdown:", write_markdown(specs, themes, reports, need, avail))
     _report_check(self_check(specs, themes))
     return 0

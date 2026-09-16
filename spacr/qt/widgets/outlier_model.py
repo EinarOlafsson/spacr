@@ -106,7 +106,7 @@ detectors" and they are not interchangeable:
   That number is knowable in advance and is printed in
   :meth:`OutlierResult.caveats`. An isolation forest's score has no such null
   distribution and therefore no calibrated cut point at all.
-* **Isolation forest requires ``contamination``** — the share of the data that
+* **Isolation forest requires** ``contamination`` — the share of the data that
   is bad — declared *in advance*. That share is precisely the unknown the
   analysis is trying to estimate. Setting ``contamination=0.01`` guarantees
   1% of the objects come back flagged whether the plate is pristine or ruined,
@@ -260,9 +260,6 @@ class OutlierError(ValueError):
     """
 
 
-# ---------------------------------------------------------------------------
-# Methods
-# ---------------------------------------------------------------------------
 
 #: Modified z-score against the median and the scaled MAD. Per feature, and
 #: the default: it is the univariate test with the highest breakdown point on
@@ -285,9 +282,6 @@ TRANSFORM_NONE = "none"
 TRANSFORM_LOG10 = "log10"
 TRANSFORMS: Tuple[str, ...] = (TRANSFORM_NONE, TRANSFORM_LOG10)
 
-# ---------------------------------------------------------------------------
-# The constants of the robust scale estimators
-# ---------------------------------------------------------------------------
 
 #: ``1 / Phi^-1(0.75)``. The factor that makes ``MAD * MAD_TO_SIGMA`` a
 #: consistent estimator of sigma for a Gaussian, so a threshold of 3.5 reads on
@@ -369,9 +363,6 @@ WELL_KEY_SETS: Tuple[Tuple[str, ...], ...] = (
 )
 
 
-# ---------------------------------------------------------------------------
-# The robust estimators, on their own so they can be tested on a hand vector
-# ---------------------------------------------------------------------------
 
 def median_absolute_deviation(values: Sequence[float]) -> float:
     """``median(|x - median(x)|)`` over the finite values. **Unscaled.**
@@ -504,9 +495,6 @@ def well_key_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
         f"per_well=False if these measurements did not come off a plate.")
 
 
-# ---------------------------------------------------------------------------
-# The spec
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class OutlierSpec:
@@ -627,7 +615,6 @@ class OutlierSpec:
             object.__setattr__(self, "support_fraction", fraction)
         object.__setattr__(self, "seed", int(self.seed))
 
-    # -- edits ------------------------------------------------------------
     def with_features(self, features: Sequence[str]) -> "OutlierSpec":
         """A copy testing ``features``."""
         return replace(self, features=tuple(features))
@@ -644,7 +631,6 @@ class OutlierSpec:
         """A copy grouping wells by ``keys``."""
         return replace(self, well_keys=tuple(keys))
 
-    # -- the threshold ----------------------------------------------------
     def threshold(self, n_features: int = 1) -> float:
         """The number :attr:`OutlierResult.scores` is compared against.
 
@@ -660,7 +646,6 @@ class OutlierSpec:
         from scipy.stats import chi2
         return float(chi2.ppf(1.0 - self.alpha, max(1, int(n_features))))
 
-    # -- serialisation ----------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
         """A plain JSON-able dict. Every field, always — a stable schema beats
         a compact one for something a report reads back."""
@@ -718,9 +703,6 @@ class OutlierSpec:
         return f"{self.method} · {features} · {rule}{transform}{wells}"
 
 
-# ---------------------------------------------------------------------------
-# The result
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class OutlierResult:
@@ -772,7 +754,6 @@ class OutlierResult:
     column_names: Mapping[str, str] = field(default_factory=dict)
     notes: Tuple[str, ...] = ()
 
-    # -- shape ------------------------------------------------------------
     def __len__(self) -> int:
         """Objects the test was given — **not** the objects it flagged.
 
@@ -812,7 +793,6 @@ class OutlierResult:
         """Whether the across-well pass produced anything."""
         return bool(self.well_keys) and not self.wells.empty
 
-    # -- reading the wells -------------------------------------------------
     def flagged_wells(self) -> Tuple[Any, ...]:
         """The wells the across-well rule flagged, as key tuples.
 
@@ -845,7 +825,6 @@ class OutlierResult:
             return tuple(rest[keys[0]].tolist())
         return tuple(map(tuple, rest[keys].itertuples(index=False, name=None)))
 
-    # -- frames ------------------------------------------------------------
     def object_frame(self, source: pd.DataFrame) -> pd.DataFrame:
         """``source`` with the flag columns **added**. Nothing is dropped.
 
@@ -908,7 +887,6 @@ class OutlierResult:
                 f"applied to a different frame.")
         return source.iloc[np.flatnonzero(~self.flags)]
 
-    # -- saying it in words -------------------------------------------------
     def method_label(self) -> str:
         """The method and its threshold in one token, for the added column."""
         if self.method == METHOD_MAD:
@@ -1069,9 +1047,6 @@ def _chi2_quantile(alpha: float, df: int) -> float:
     return float(chi2.ppf(1.0 - alpha, max(1, int(df))))
 
 
-# ---------------------------------------------------------------------------
-# The computation
-# ---------------------------------------------------------------------------
 
 def _select_features(frame: pd.DataFrame, spec: OutlierSpec) -> List[str]:
     """The requested features that exist, refusing when there is no test left."""
@@ -1231,9 +1206,6 @@ def _reasons_per_feature(scores: np.ndarray, matrix: np.ndarray,
     reasons = [""] * scores.shape[0]
     for row in np.flatnonzero(flags):
         offending = np.flatnonzero(scores[row] > spec.threshold())
-        # A scan's own flags come from these scores, so this only trips
-        # for a caller that supplied its own. Such a row gets no
-        # sentence rather than an invented one.
         if offending.size == 0:
             continue
         order = offending[np.argsort(scores[row][offending])[::-1]][:3]

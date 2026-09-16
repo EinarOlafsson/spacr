@@ -15,8 +15,8 @@ changes.
 WHY THIS SHAPE IS WHAT LETS AN ARBITRARY ORGANELLE COUNT LAND. The number of
 organelles a run may declare is not fixed. In a flat vocabulary each new organelle is twenty new
 settings that every tooltip table and translation catalog has to learn; here
-it is one COLUMN, and the number of questions does not move. :meth:`
-ObjectSettingsGrid.add_object` is that operation, and it starts a new
+it is one COLUMN, and the number of questions does not move.
+:meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new
 organelle from the first one's answers rather than from a global default
 nobody chose.
 
@@ -130,9 +130,6 @@ def _coerce(text: str, like: Any) -> Any:
         is.
     """
     raw = str(text).strip()
-    # BOTH WORDS CLEAR THE CELL. The table draws an unset value as "auto" for
-    # most questions and "off" for a channel, and whichever word the user is
-    # looking at is the one they will type back.
     if raw == "" or raw.lower() in (AUTO_TEXT, OFF_TEXT):
         return None
     if isinstance(like, bool):
@@ -144,9 +141,6 @@ def _coerce(text: str, like: Any) -> Any:
         except (TypeError, ValueError):
             continue
     if like is None or isinstance(like, str):
-        # NO TYPE TO COPY. Read a number as a number so a diameter typed
-        # into an empty cell is not stored as text, and leave anything else
-        # as the string it is -- a model name is a string and always was.
         for kind in (int, float):
             try:
                 return kind(raw)
@@ -180,7 +174,6 @@ class ObjectSettingsModel(QAbstractTableModel):
         self._questions: Tuple[str, ...] = ()
         self._objects: Tuple[str, ...] = ()
 
-    # -- content -----------------------------------------------------------
 
     def set_table(self, table: Mapping[str, Mapping[str, Any]]) -> None:
         """Show ``table``, as :func:`spacr.object_settings_table.to_table`
@@ -218,7 +211,6 @@ class ObjectSettingsModel(QAbstractTableModel):
         """
         return obj in self._table.get(question, {})
 
-    # -- QAbstractTableModel ----------------------------------------------
 
     def rowCount(self, parent=QModelIndex()) -> int:
         """How many questions the table asks.
@@ -252,8 +244,6 @@ class ObjectSettingsModel(QAbstractTableModel):
         question = self.question_at(index.row())
         obj = self._objects[index.column()]
         if not self.asks(question, obj):
-            # NOT EDITABLE AND NOT ENABLED: a cell that can be typed into
-            # invents a settings key nothing reads.
             return Qt.ItemIsSelectable
         return base | Qt.ItemIsEditable
 
@@ -309,9 +299,6 @@ class ObjectSettingsModel(QAbstractTableModel):
         current = row.get(obj)
         like = current
         if like is None:
-            # THE SAME QUESTION ABOUT ANOTHER OBJECT is the best evidence
-            # available about what this one is: a diameter is a diameter
-            # whether it is a cell's or a nucleus's.
             like = next((v for o, v in row.items()
                          if o != obj and v is not None), None)
         new = _coerce(value, like)
@@ -336,11 +323,6 @@ class ObjectSettingsModel(QAbstractTableModel):
             return setting_label(self._questions[section])
         if role == Qt.ToolTipRole:
             if orientation == Qt.Vertical:
-                # NO TOOLTIP ON THE ROW HEADER. Every cell in the row now
-                # carries the full help -- the typed body, the API link and
-                # the setting's animation -- and a second, plainer tooltip on
-                # the name beside them is the same explanation twice, in the
-                # place the pointer crosses on its way to the cell.
                 return None
             obj = self._objects[section]
             return (f"{column_label(obj)}. Every row below asks this object "
@@ -370,8 +352,6 @@ class _GridHeightGrip(QFrame):
         self._grid = grid
         self._press_y: Optional[float] = None
         self._start_height = 0
-        # The console's handle is styled by this name; the two are the same
-        # affordance and should not look like two.
         self.setObjectName("ConsoleSectionResizeHandle")
         self.setCursor(Qt.SizeVerCursor)
         self.setFixedHeight(self.HEIGHT)
@@ -466,21 +446,6 @@ class ObjectSettingsGrid(QWidget):
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(SPACING["sm"])
 
-        # THE HELP GOES ABOVE THE TABLE, in a band that does not move.
-        #
-        # A popup was tried twice and neither placement works over a table.
-        # Under the pointer it covers the row being read, which is the one
-        # thing the reader is comparing the help against, and it jumps with
-        # every cell. Beside the table it is in one place, but "the table"
-        # is the whole container -- wider than the columns -- and aiming at
-        # the columns' right edge would move the help further right with
-        # every organelle added.
-        #
-        # A fixed band solves both: one position for the life of the panel,
-        # never over the data, and it cannot drift as the table grows. It is
-        # reserved at a constant height so a hover does not reflow the form
-        # around it -- a help area that resized would push the table under
-        # the pointer as the text arrived.
         from .hover_tooltip import (ANIMATION_MARK, API_MARK, PURPLE, TEAL,
                                     _AnimationView, _LinkWord)
 
@@ -494,14 +459,7 @@ class ObjectSettingsGrid(QWidget):
         column.setSpacing(2)
 
         self._help = QLabel("", self._help_band)
-        # `SubtitleSmall` is the per-setting hint strip's own object name,
-        # borrowed rather than invented: this band says the same kind of
-        # thing in the same voice, and a new name would be a new themed
-        # surface to keep in step with it.
         self._help.setObjectName("SubtitleSmall")
-        # A caption over the backdrop, not a surface. Named widgets keep
-        # their fill under the blanket `QWidget { background-color: bg }`
-        # rule, which would draw a panel-coloured slab above the table.
         self._help.setStyleSheet("background: transparent;")
         self._help.setWordWrap(True)
         self._help.setTextFormat(Qt.TextFormat.RichText)
@@ -511,12 +469,6 @@ class ObjectSettingsGrid(QWidget):
                                  QSizePolicy.Policy.Fixed)
         column.addWidget(self._help)
 
-        # THE SAME TWO WORDS THE POPUP DRAWS, and the same widgets: `API` in
-        # teal, `Animation` in purple, borrowed from `hover_tooltip` rather
-        # than restyled here. A second implementation of the footer is a
-        # second thing to re-theme, and the request was for a link that
-        # looks EXACTLY like the one on every other setting -- which is a
-        # thing that can only be guaranteed by using it.
         self._help_links = QWidget(self._help_band)
         links = QHBoxLayout(self._help_links)
         links.setContentsMargins(0, 0, 0, 0)
@@ -537,8 +489,6 @@ class ObjectSettingsGrid(QWidget):
         links.addWidget(self._help_api)
         links.addWidget(self._help_anim)
         links.addStretch(1)
-        # The popup styles these two from its own sheet; the band is not a
-        # popup, so it carries the same two rules itself.
         self._help_links.setStyleSheet(
             f"QLabel#HoverTooltipApiLink {{ color: {TEAL};"
             f" text-decoration: none; }}"
@@ -548,10 +498,6 @@ class ObjectSettingsGrid(QWidget):
         column.addStretch(1)
         band.addLayout(column, 1)
 
-        # SMALLER THAN THE POPUP'S 220px SQUARE. The band is reserved
-        # permanently above the table, so its height is space the settings
-        # never get back -- and it may not grow when an animation arrives,
-        # or the table moves out from under the pointer that asked for it.
         self._help_animation = _AnimationView(self.HELP_ANIMATION_PX,
                                               self._help_band)
         self._help_animation.hide()
@@ -568,10 +514,6 @@ class ObjectSettingsGrid(QWidget):
 
         self._table = QTableView(self)
         self._table.setModel(self._model)
-        # AFTER setModel, as the contract requires: a QTableView is wrapped in
-        # a proxy, so the selection model has to be taken afterwards. The
-        # stored answers are unaffected -- `table()` reads the model, not the
-        # view, so sorting the questions on screen reorders nothing on disk.
         install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectItems)
         self._table.setAlternatingRowColors(True)
@@ -579,12 +521,6 @@ class ObjectSettingsGrid(QWidget):
             QHeaderView.ResizeToContents)
         self._table.verticalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
-        # THE TABLE OWNS ITS HEIGHT, and the grip below changes it. Inside a
-        # settings panel the table is one row of a scrolling form, so it gets
-        # whatever height the form hands it -- which was a QTableView's
-        # default and put twenty-odd questions behind an inner scrollbar
-        # inside an outer one. It now opens tall enough to show its rows and
-        # can be dragged taller or shorter from the grip.
         self._table.setSizePolicy(QSizePolicy.Policy.Expanding,
                                   QSizePolicy.Policy.Fixed)
         self._table.clicked.connect(self._cell_clicked)
@@ -626,24 +562,12 @@ class ObjectSettingsGrid(QWidget):
         self._help_hide_timer = QTimer(self)
         self._help_hide_timer.setSingleShot(True)
         self._help_hide_timer.timeout.connect(lambda: self._write_help(""))
-        # ENTERING THE BAND CANCELS THE HIDE, which is what makes the API
-        # link reachable at all: the pointer leaves the table to get to it,
-        # and leaving the table is what started the countdown.
         self._help_band.installEventFilter(self)
 
         self._sync_help_height()
         self._write_help("")
-        # THE BAND IS RE-RESERVED THROUGH `eventFilter`, not a `changeEvent`
-        # override. The font scale is a preference the user can move while a
-        # panel is open, and a band sized once at construction would keep the
-        # old height and clip its last lines -- but a new public override is
-        # a new symbol in the API surface, which is mirrored symbol-for-symbol
-        # into nine locales' catalogs and cannot be translated from here.
-        # This class already has an `eventFilter`; filtering itself costs no
-        # new surface.
         self.installEventFilter(self)
 
-    # -- the help band -----------------------------------------------------
 
     #: Lines reserved above the table for a setting's help.
     #:
@@ -694,9 +618,6 @@ class ObjectSettingsGrid(QWidget):
         self._help.ensurePolished()
         lines = self._help.fontMetrics().lineSpacing() * self.HELP_LINES
         self._help.setFixedHeight(lines)
-        # The BAND, not just the prose: the square sits beside the text and
-        # is taller than it, so reserving only the text's height would let
-        # the band grow the moment an animation arrived.
         self._help_band.setFixedHeight(max(lines, self.HELP_ANIMATION_PX))
 
     def set_app_key(self, app_key: str) -> None:
@@ -751,8 +672,6 @@ class ObjectSettingsGrid(QWidget):
             elif kind == QEvent.Type.Leave:
                 self._hovered_key = ""
                 self._help_show_timer.stop()
-                # LINGER, do not clear. The reader may be on their way to
-                # the API link, and the way to it leaves the table.
                 self._help_hide_timer.start(self.HELP_HIDE_DELAY_MS)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the table could not offer its tooltip", exc_info=True)
@@ -771,13 +690,9 @@ class ObjectSettingsGrid(QWidget):
         self._hovered_key = key
         self._help_hide_timer.stop()
         if not key:
-            # Off a cell but still inside the table: let the last help
-            # stand for a moment rather than blanking between rows.
             self._help_show_timer.stop()
             self._help_hide_timer.start(self.HELP_HIDE_DELAY_MS)
             return
-        # AFTER A REST, NOT ON ARRIVAL. Dragging across a row of twenty
-        # cells rewrote the band twenty times, which reads as flicker.
         self._help_pending = key
         self._help_show_timer.start(self.HELP_SHOW_DELAY_MS)
 
@@ -824,9 +739,6 @@ class ObjectSettingsGrid(QWidget):
         else:
             self._help_animation.clear_animation()
         self._help_animation.setVisible(showing)
-        # Offered but folded -> the word is the invitation. Showing -> it
-        # folds away again. Undecodable -> no word, because a word that
-        # visibly does nothing is worse than no word.
         self._help_anim.setVisible(
             animation is not None and (showing or not self._help_animation_shown))
         self._help_links.setVisible(
@@ -859,18 +771,11 @@ class ObjectSettingsGrid(QWidget):
                       "documentation.")
             body, url = text, ""
         else:
-            # THE ANCHOR BECOMES THE WORD. `format_tooltip` ends the body
-            # with "Open spaCR API documentation" as a full anchor; every
-            # other surface in spaCR renders that destination as the teal
-            # **API** word instead, and this one was showing the sentence.
             body, url = split_api_link(text)
         self._help.setText(body)
         self._help_api_url = url
         self._help_api.setVisible(bool(url))
 
-        # The animation belongs to the SETTING, so it is resolved from the
-        # key rather than from the prose, and it is folded away by default
-        # exactly as the popup's is -- the word is the invitation.
         animation = None
         if key:
             try:
@@ -883,7 +788,6 @@ class ObjectSettingsGrid(QWidget):
         self._help_offered_animation = animation
         self._apply_help_animation()
 
-    # -- the model-zoo buttons ---------------------------------------------
 
     def _cell_clicked(self, index) -> None:
         """Open the model zoo when a model-name cell is clicked.
@@ -925,7 +829,6 @@ class ObjectSettingsGrid(QWidget):
             return False
         return self.set_value(MODEL_QUESTION, obj, path)
 
-    # -- height ------------------------------------------------------------
 
     #: Never shorter than this, however few rows there are: a table that
     #: collapses to its header is one the user cannot grab to make bigger.
@@ -967,7 +870,6 @@ class ObjectSettingsGrid(QWidget):
         self._table.setFixedHeight(
             max(self.MIN_TABLE_H, min(self.AUTO_TABLE_H, fit)))
 
-    # -- content -----------------------------------------------------------
 
     def set_settings(self, settings: Mapping[str, Any]) -> None:
         """Show the per-object half of a flat settings dict.
@@ -1006,11 +908,6 @@ class ObjectSettingsGrid(QWidget):
             }
             for question, row in to_table(self._base).items()
         }
-        # AND THE COUNT CAN ASK FOR MORE THAN THE FILE HOLDS. A settings dict
-        # carries keys for the slots it has been given, which is usually one;
-        # a count of three is then three columns, and two of them have to be
-        # made. Seeded from the slot before, so a second organelle starts
-        # where the first one is.
         for index, role in enumerate(live):
             if any(role in row for row in table.values()):
                 continue
@@ -1072,7 +969,6 @@ class ObjectSettingsGrid(QWidget):
         """Which questions are on screen, in order."""
         return tuple(self._model.table())
 
-    # -- widening ----------------------------------------------------------
 
     def next_organelle(self) -> str:
         """The role the next organelle column would take, or ``''``.
@@ -1109,28 +1005,10 @@ class ObjectSettingsGrid(QWidget):
                 f"lettered and carry past 'z', so that is where two "
                 f"letters run out.")
             return False
-        # THE COUNT IS RAISED, NOT JUST THE TABLE. `number_of_organelles` is
-        # what every other reader of these settings goes by -- the flat form,
-        # the pipeline, a saved settings file -- so a column added here
-        # without it would be a column the rest of the application does not
-        # believe in, and would vanish the next time the table was rebuilt
-        # from the count.
-        # THE EDITS FIRST. What is on screen may differ from `_base` -- every
-        # cell the user has typed into lives in the model until something
-        # folds it back -- and the rebuild below reads `_base`. Without this
-        # line, adding an organelle silently reverts every unsaved edit and
-        # seeds the new column from the values on disk.
         self._base = from_table(self._model.table(), self._base)
         self._base[NUMBER_OF_ORGANELLES] = organelle_count(self._base) + 1
-        # REBUILT FROM THE COUNT, not widened from what is on screen. The
-        # settings dict already carries this slot's keys -- that is why
-        # lowering the count is reversible -- so raising it brings back the
-        # answers the slot had rather than a copy of its neighbour's.
         table = self._visible_table()
         if not any(role in row for row in table.values()):
-            # A settings dict that never held this slot at all. Seed it from
-            # the organelle before it, so a second mitochondrion starts where
-            # the first one is rather than at a default nobody chose.
             previous = [o for o in self._model.objects()
                         if o.startswith("organelle")]
             table = widen(table, role, like=previous[-1] if previous else None)

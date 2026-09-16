@@ -90,7 +90,6 @@ class GateEditorSettings:
     only when something that actually costs a read has changed.
     """
 
-    # -- general ----------------------------------------------------------
     #: Fraction of the table loaded, in (0, 1]. The lag fix: gates are drawn
     #: on this, and applied to everything on export.
     sample_fraction: float = 1.0
@@ -133,7 +132,6 @@ class GateEditorSettings:
             return chosen
         return "log" if getattr(self, f"log_{axis}", False) else "linear"
 
-    # -- 2D ---------------------------------------------------------------
     default_tool: str = "rectangle"
     gate_line_width: float = 0.5
     #: Ring the gated objects, rather than only outlining the gate.
@@ -156,7 +154,6 @@ class GateEditorSettings:
     cluster_walk: bool = False
     cluster_walk_steps: int = 12
 
-    # -- 3D ---------------------------------------------------------------
     #: How many axes are DRAWN: "2D" or "3D".
     #:
     #: "xD" used to be a third value here, and that was the mistake. xD is
@@ -211,9 +208,6 @@ class GateEditorSettings:
         turned on.
         """
         if str(self.gate_mode).strip().lower() == "xd":
-            # A settings file written while xD was a third mode. It meant
-            # "project, and give me a Z" -- xD produced three components
-            # precisely so the 3D view had one -- so that is what it becomes.
             object.__setattr__(self, "gate_mode", "3D")
             object.__setattr__(self, "xd_projection", True)
         object.__setattr__(self, "merge_overrides",
@@ -301,7 +295,6 @@ class GateSettingsDialog(QDialog):
         buttons.accepted.connect(self.accept)
         outer.addWidget(buttons)
 
-    # -- the tabs ---------------------------------------------------------
     def _general_tab(self) -> QWidget:
         """Build the General page: sampling, colours, scales and grid.
 
@@ -581,8 +574,6 @@ class GateSettingsDialog(QDialog):
             column = QVBoxLayout(inner)
             offered = names.get(kind, [])
             if not offered:
-                # Stated, not an empty box: "no channels in this table" and
-                # "channels exist and none are ticked" are different answers.
                 column.addWidget(QLabel(
                     f"No {kind} groups in this table.", inner))
             for name in offered:
@@ -618,11 +609,6 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(components=int(v)))
         form.addRow("Components", self._components)
 
-        # GREYED, NOT REMOVED, when another method is chosen -- INVARIANTS 6,
-        # and the same rule the merged Classify module follows. A control
-        # that vanishes teaches the user nothing about why; a greyed one says
-        # "this belongs to a method you are not using", and the value they
-        # set survives switching away and back.
         self._n_neighbors = QSpinBox(page)
         self._n_neighbors.setRange(2, 500)
         self._n_neighbors.setValue(int(self._settings.xd_n_neighbors))
@@ -831,18 +817,6 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(spin_speed=float(v)))
         form.addRow("Spin speed", self._spin)
 
-        # THE VOLUME ITSELF IS NOT BUILT YET (instruction 52), and until it is
-        # these four controls turn nothing. They are still SHOWN -- the values
-        # are saved, reloaded and carried in the settings, so hiding them
-        # would lose a user's 3D setup silently the first time they opened
-        # this tab. What changes is that they no longer promise behaviour the
-        # application does not have.
-        #
-        # This is instruction 52's own prescription, quoted: "Until this
-        # instruction lands, the 3D group should either be hidden or carry a
-        # visible 'not yet'." A control that turns nothing is a promise the
-        # app does not keep, which is the defect the whole phantom-settings
-        # sweep of instruction 77 was about.
         pending = QLabel(
             "The 3D volume is not built yet, so these four settings are "
             "saved but do not change what is drawn. 2D and xD gating are "
@@ -874,7 +848,6 @@ class GateSettingsDialog(QDialog):
         form.addRow("", note)
         return page
 
-    # -- edits ------------------------------------------------------------
     def _on_merge_key_toggled(self, _checked: bool) -> None:
         """Merge keys are one setting, so they are collected, not appended.
 

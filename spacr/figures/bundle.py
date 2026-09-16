@@ -68,17 +68,8 @@ def statistics_rows(comparison) -> list:
     for label, count in zip(comparison.groups, comparison.n):
         rows.append((f"n [{label}]", int(count), "usable observations"))
     for assumption in comparison.assumptions:
-        # READ THE CHECK'S OWN VERDICT (`passed`), never re-derive it from
-        # the p-value. The normality check compares the worst of k groups
-        # against a BONFERRONI threshold, and a caller re-deriving
-        # `p_value >= 0.05` silently discards the correction -- which in
-        # this codebase sent 18% of four-group comparisons on normal data to
-        # a rank test instead of 5%.
         state = "holds" if assumption.passed else "does not hold"
         if not assumption.informative:
-            # A CHECK THAT COULD NOT SEE IS NOT A CHECK THAT PASSED, and a
-            # file recording it as "holds" would be the more misleading of
-            # the two.
             state = "could not tell"
         rows.append((assumption.name, state, assumption.verdict))
         rows.append((f"{assumption.name} p", float(assumption.p_value),
@@ -184,10 +175,6 @@ def save(folder: str, name: str, *,
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not write %s", path, exc_info=True)
 
-    # `write_table`, not `to_csv`: the point of the bundle is that the
-    # numbers behind a figure can be read back and recomputed, and a well
-    # column spelled three ways across the codebase is the first thing that
-    # stops. Canonical on the way out is what makes the pair re-readable.
     from ..tabular import write_table
 
     frame = data if isinstance(data, pd.DataFrame) else pd.DataFrame()

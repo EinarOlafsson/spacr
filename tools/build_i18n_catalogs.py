@@ -34,6 +34,7 @@ import fcntl
 import hashlib
 import importlib.util
 import json
+import logging
 import os
 import pprint
 import re
@@ -165,6 +166,19 @@ _TEXT_METHODS = {
     "setPlaceholderText", "setAccessibleName", "setAccessibleDescription",
     "setInformativeText", "setDetailedText", "append_notice",
     "set_translatable_text", "tr",
+    # A ONE-LINE WRAPPER HIDES ITS TEMPLATES FROM THIS EXTRACTOR ENTIRELY.
+    # `map_barcodes._set_status(text, **values)` forwards to
+    # `set_translatable_text(self.status, text, **values)`, so the literal sits
+    # at the WRAPPER's call site and the extractor, looking only at the
+    # forwarding call, sees a parameter name. Measured 2026-09-13: all ELEVEN
+    # of the Map Barcodes status sentences were absent from the catalogs and
+    # therefore untranslated in all nine languages -- the screen's entire
+    # progress commentary, in English, for every non-English user.
+    #
+    # Named here rather than by un-wrapping the method: the wrapper is
+    # reasonable code, and an extractor that only understands one spelling of
+    # a call is the thing that should bend.
+    "_set_status",
 }
 _TEXT_CONSTRUCTORS = {
     "QLabel", "QPushButton", "QToolButton", "QCheckBox", "QRadioButton",
@@ -180,7 +194,6 @@ _TEXT_CONSTRUCTORS = {
 # owners and is rejected by the runtime ratchet.
 _INDIRECT_CHROME_UI_SOURCES = frozenset({
     # Settings-section headings assembled by settings_model.
-    "Intensity Handling (all objects)",
     "Plate Sources & Workflow",
     "Labels & Classes",
     "Evaluation & Results",
@@ -198,21 +211,9 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     "Deuteranopia (red-green)",
     "Protanopia (red-green)",
     "Tritanopia (blue-yellow)",
-    # Live-preview form rows stored in COMPARTMENT_FIELDS or added through a
-    # form helper whose literal label is not itself passed to ``tr``.
-    "Min area (px²)",
-    "Max area (px²)",
-    "Min object area",
-    "Min distance",
-    "Area multiplier",
-    "Perimeter fraction",
-    "Min intensity pct",
-    "Max intensity pct",
-    "Intensity percentile",
-    "Intensity threshold",
-    "Intensity merge",
-    "Intensity split",
-    "Remove border objects",
+    # Additional preview rows passed through helpers. COMPARTMENT_FIELDS
+    # itself is read from the live registry below, so retired controls cannot
+    # linger here and new filter captions cannot silently miss translation.
     "Signal to noise",
     "Remove background",
     "Outline colour",
@@ -263,7 +264,8 @@ _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
-    "CSV", "Cellpose-SAM", "FlowView", "JSON", "MIP", "ML", "NaN", "PDF",
+    "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
+    "NaN", "PDF", "SAMCell",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
@@ -294,6 +296,33 @@ _KNOWN_CONTAMINATION_MARKERS = (
     "en anglais seulement",
 )
 
+#: The screens the application actually shows, by the exact name on the
+#: tile and in the Help menu. Multi-word only -- see the note inside
+#: :data:`_PROTECTED_TERMS`.
+UI_SCREEN_NAMES: tuple[str, ...] = (
+    "Align & Stitch",
+    "Batch Runner",
+    "Data Manager",
+    "Database Browser",
+    "Distributed Jobs",
+    "External Masks",
+    "Format Converter",
+    "Graph Builder",
+    "Image UMAP",
+    "Invasion Assay",
+    "Make Masks",
+    "Map Barcodes",
+    "Pipeline Graph",
+    "Plaque Assay",
+    "Plate Queue",
+    "Plate Viewer",
+    "Project Browser",
+    "Replication Assay",
+    "Run History",
+    "Training Runs",
+)
+
+
 _PROTECTED_TERMS = tuple(sorted({
     "spaCR", "Cellpose", "PyTorch", "TensorBoard", "NumPy", "pandas",
     "SciPy", "scikit-image", "scikit-learn", "XGBoost", "LightGBM",
@@ -313,6 +342,27 @@ _PROTECTED_TERMS = tuple(sorted({
     "cellpose", "numpy", "scipy", "skimage", "umap", "python", "spacr",
     "PIL", "cv2", "TensorFlow", "Tk", "QThread", "ConsolePanel",
     "DirectConnection", "GUI", "UI", "DEBUG",
+    # THE SCREENS THE APPLICATION ACTUALLY SHOWS. A reader told to open
+    # 地图条形码 or `Karta Barkodum` cannot find it: the interface says
+    # "Map Barcodes" in every language. Measured 2026-09-13 before this
+    # list existed, the name survived in only 50 of 153 API blocks across
+    # the nine locales, and in NONE of the seventeen in Hindi or Korean --
+    # and every one of those blocks passed the audit, because the gate is
+    # fail-closed on "left in English" and blind to "translated a name that
+    # must not be translated".
+    #
+    # MULTI-WORD NAMES ONLY, DELIBERATELY. Sixteen screens are named with
+    # ordinary English words -- Mask, Measure, Classify, Annotate, Import,
+    # Report, Home, Regression -- and `measure` alone appears 2,053 times
+    # in the English API corpus. Protecting those would turn ordinary prose
+    # into untranslatable islands, which is the condition that stalls the
+    # checkpoints, so it would trade a naming defect for a much larger
+    # translation one. Their screens stay translatable; that is a known and
+    # accepted gap, not an oversight.
+    #
+    # Matching is case-sensitive, so "make masks" in prose is untouched
+    # while the screen "Make Masks" is held.
+    *UI_SCREEN_NAMES,
     "RSS", "Yokogawa", "MAD", "IQR", "Tukey", "SUM", "MIN", "MAX",
     "SUCCESS", "FAILED",
     "SKIPPED", "QUEUED", "RUNNING", "TODO", "TO-DO",
@@ -322,6 +372,23 @@ _PROTECTED_TERMS = tuple(sorted({
     "Z-prime",
     "NVIDIA", "Python", "Windows", "Linux", "macOS", "OpenGL", "XCB",
     "PATH", "SPEC", "SSH", "Slurm", "HPC", "WHERE",
+    # THE REST OF THE ACCELERATOR BACKENDS. ``CUDA`` was protected alone,
+    # and there is no rule that admits it and excludes the others: they
+    # name the same kind of thing in the same sentences. Swedish was told
+    # about ``metall``, the material, because ``Metal`` was left open.
+    #
+    # ``Metal`` is an ordinary English word, which is the argument against
+    # protecting the single-word screen names above -- so it was measured
+    # rather than assumed. Lowercase ``metal`` appears ZERO times in the
+    # README, the API corpus, the runtime corpus and the package source;
+    # capital ``Metal`` appears 44 times and is Apple's GPU API every
+    # time. Matching is case-sensitive, so the material sense is not
+    # reachable from this repository's prose.
+    #
+    # ``OpenCL`` and ``Vulkan`` are deliberately absent: zero prose
+    # occurrences, so they would be entries that can never fire, in a list
+    # whose length is itself a cost.
+    "Metal", "MPS", "ROCm", "DirectML", "Apple Silicon",
 }, key=len, reverse=True))
 
 _SHORT_QUOTED_LITERAL_RE = re.compile(
@@ -506,10 +573,27 @@ _PROTECT_PATTERNS = (
     re.compile(r"%(?:\d+\$)?[sd]"),
 )
 
+#: ASCII IDENTIFIER BOUNDARIES, NOT ``\w`` -- the same choice the snake_case
+#: protector made on 2026-09-13, and for the same reason. Python's ``\w`` is
+#: Unicode-aware, so CJK and Hangul characters ARE word characters and every
+#: "word boundary" idiom silently stops firing beside them. A protected term
+#: next to Chinese or Korean text then becomes invisible to the checker, which
+#: reports a CORRECT translation as having dropped the term.
+#:
+#: Three faces of it in one night, all against real reviewed translations:
+#:   ``Mask는``           a trailing Hangul particle defeats ``(?!\w)``
+#:   ``是Run History``     a leading CJK character defeats ``(?<!\w)``
+#:   ``Apple Silicon에서``  the same, in a record that was already correct
+#:
+#: The boundary that is actually meant is "not part of a LATIN word": ``Masking``
+#: must not match ``Mask``, and ``CUDA_PATH`` must not match ``CUDA``, while a
+#: Hangul particle or a CJK character is a perfectly good place for the term to
+#: end. An ASCII class says that; ``\w`` says something else and is wrong
+#: wherever a script has no spaces.
 _PRODUCT_PROTECT_RE = re.compile(
-    r"(?<!\w)(?:"
+    r"(?<![A-Za-z0-9_])(?:"
     + "|".join(re.escape(term) for term in _PROTECTED_TERMS)
-    + r")(?:s)?(?!\w)"
+    + r")(?:s)?(?![A-Za-z0-9_])"
 )
 
 _PROTECT_RE = re.compile(
@@ -572,10 +656,31 @@ _FRAGMENT_PROTECT_RE = re.compile(
 # visible so a source-conditioned phrase can repair grammar around them (for
 # example ``GUI thread``), but code spans, quoted option values, CLI flags,
 # format fields, links and snake_case identifiers must never be rewritten.
+#: A screen name must survive the English sense expansion as well as the
+#: translation. The expansion exists to turn ambiguous English into something
+#: a model can render -- "job queue" into "software job list" -- and three of
+#: its rules rewrote a SCREEN NAME on the way past: `Plate Queue` became
+#: "Plate-processing list", `Pipeline Graph` became "Workflow Graph", and
+#: `Training Runs` became "Training processing sessions". Every locale then
+#: faithfully translated the renamed thing, so the docs sent a reader to a
+#: screen the application does not have -- the same defect the protection
+#: below exists to stop, arriving one stage earlier.
+#:
+#: Only the screen names are added here. Ordinary product names stay VISIBLE
+#: to the transforms on purpose, because a phrase has to be able to repair the
+#: grammar around them -- one of the `run` transforms lists `GUI` among its own
+#: alternatives, and masking it would silently stop that rule matching.
+_UI_SCREEN_NAME_RE = re.compile(
+    r"(?<!\w)(?:"
+    + "|".join(re.escape(name) for name in sorted(UI_SCREEN_NAMES, key=len,
+                                                  reverse=True))
+    + r")(?!\w)"
+)
+
 _CONTEXT_HARD_PROTECT_PATTERNS = tuple(
     pattern for pattern in _PROTECT_PATTERNS
     if pattern.pattern not in {r"\*\*", r"\*"}
-)
+) + (_UI_SCREEN_NAME_RE,)
 _CONTEXT_HARD_PROTECT_RE = re.compile(
     "|".join(
         f"(?:{pattern.pattern})"
@@ -2625,6 +2730,23 @@ MANUAL_UI: dict[str, dict[str, str]] = {
         "fr": "Analyse spatiale des phénotypes des criblages CRISPR.",
     },
     "Regex": {code: "Regex" for code in MODEL_SPECS},
+    # FRENCH "CONCENTRATION" IS THE ENGLISH WORD, AND THAT IS THE TRANSLATION.
+    # The Dose-Response column label is spelt identically in French -- la
+    # concentration of a compound -- so the exact-English gate refused the
+    # right answer and the generated catalog shipped the plural
+    # "Concentrations" for a single column. The same reviewed identity
+    # decision as `fr: "Source"` and `fr: "Figure"` in
+    # tools/i18n_reviewed_ui.py, but written HERE because this table is
+    # per-locale: a row there must fill all nine locales and is read before
+    # reviewed records, so it would override the zh_CN, hi, ko and is records
+    # already written for this label.
+    "Concentration": {"fr": "Concentration"},
+    # THE SAME DECISION FOR THE GRID'S "Doses" HEADER, in two locales: the
+    # plural of dose is "doses" in French and in Portuguese, so the correct
+    # header equals the English and the exact-English gate would refuse it.
+    # Per-locale for the same reason as the row above; the other seven locales
+    # carry reviewed records (2026-09-15-dose-response-grid.json).
+    "Doses": {"fr": "Doses", "pt": "Doses"},
     "Ft": {
         "sv": "Flödeströskel (FT)", "de": "Flussschwellenwert (FT)",
         "es": "Umbral de flujo (FT)", "zh_CN": "流场阈值（FT）",
@@ -3071,7 +3193,24 @@ def _reviewed_translation(source: str, language: str) -> str | None:
     )
     if static is not None or language in _REVIEWED_RUNTIME_LOADING:
         return static
-    return reviewed_runtime_translations(language).get(str(source))
+    record = reviewed_runtime_translations(language).get(str(source))
+    if record is not None:
+        return record
+    # AN IMPLICIT IDENTITY DECISION, for a row with no prose outside its
+    # protected literals. `_IDENTITY_TEXT` above is the same decision written
+    # out by hand, and answering here rather than at each call site is what
+    # makes every downstream check agree: the exact-English audits, the
+    # incremental-repair fixed point, and `_translate_batches` all ask this
+    # function what a reviewed answer would be.
+    #
+    # PLACED AFTER THE RECORD LOOKUP ON PURPOSE. `{location}: {path}` is made
+    # entirely of protected literals AND carries a deliberate hand-written
+    # record in all nine locales, where a reviewer added the word
+    # path/Pfad/chemin/sökväg to make the string readable. Asking this
+    # question before reading the records would discard all nine.
+    if not _has_prose_outside_protected_literals(str(source)):
+        return str(source)
+    return None
 
 
 def _call_name(node: ast.Call) -> str:
@@ -3164,6 +3303,11 @@ def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
         # template that must enter the runtime catalog.
         yield node.args[1]
         return
+    if name == "_set_status" and node.args:
+        # `_set_status(text, **values)` -- the widget is `self.status`, so the
+        # template is the FIRST positional argument rather than the second.
+        yield node.args[0]
+        return
     if name == "addTab" and len(node.args) >= 2:
         yield node.args[1]
         return
@@ -3202,6 +3346,139 @@ def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
         yield node.args[0]
 
 
+#: CAPTIONS A LOCAL HELPER CARRIES, keyed by (call-site module, helper name).
+#: Paths are relative to ``spacr/qt``. Each value names the module that DEFINES
+#: the helper and the ``(call position, parameter)`` pairs holding a caption;
+#: the parameter name also matches a keyword spelling of the same argument.
+#:
+#: WHY KEYED AND NOT BY NAME like ``_set_status`` above. Measured 2026-09-14:
+#: ``_say`` is defined in twelve modules and ``say``, ``_label``, ``_line``,
+#: ``_spin``, ``_check`` and ``_set_verdict`` in two or three, with the
+#: caption at different positions -- ``prerun._label(text, name)`` holds a
+#: caption at 0 and an objectName at 1; ``formula_editor._say(text, state)``
+#: holds a style key at 1; ``class_editor._say`` shows data verbatim and must
+#: never be catalogued; ``plate_map_picker._say`` takes an int. One module may
+#: also call a helper another defines (``app_screen`` calls the results
+#: panel's ``say``). A name-only rule would put objectNames, style keys and
+#: runtime values into the catalog.
+#:
+#: tests/test_a_helper_does_not_hide_a_caption_from_the_catalog.py checks that
+#: each parameter still stands at its recorded position, so a signature change
+#: fails there instead of silently capturing the wrong argument.
+_HELPER_CAPTION_RULES: dict[
+    tuple[str, str], tuple[str, tuple[tuple[int, str], ...]]
+] = {
+    ("preferences.py", "_percent_row"):
+        ("preferences.py", ((1, "label_text"), (5, "tip"))),
+    ("prerun.py", "_label"): ("prerun.py", ((0, "text"),)),
+    ("prerun.py", "_say"): ("prerun.py", ((0, "text"),)),
+    ("screens/annotate.py", "_set_kbd_hint"):
+        ("screens/annotate.py", ((0, "text"),)),
+    # Writes to the console, which the language pass does not translate.
+    ("screens/app_screen.py", "_say"):
+        ("screens/app_screen.py", ((0, "message"),)),
+    # ``panel.say(...)``: the regression results panel's own method.
+    ("screens/app_screen.py", "say"):
+        ("widgets/regression_results.py", ((0, "text"), (1, "detail"))),
+    ("screens/data_manager.py", "_note"):
+        ("screens/data_manager.py", ((0, "text"),)),
+    ("screens/distributed_jobs.py", "_add_profile_row"):
+        ("screens/distributed_jobs.py", ((1, "source_label"),)),
+    ("screens/hit_list.py", "_set_summary"):
+        ("screens/hit_list.py", ((0, "text"),)),
+    # A settings category on the Make Masks panel: its heading and the
+    # sentence under it (item 417).
+    ("screens/make_masks.py", "_settings_category"):
+        ("screens/make_masks.py", ((0, "title"), (1, "subtitle"))),
+    # A QPlainTextEdit, whose contents the language pass does not translate.
+    ("screens/make_masks.py", "say"):
+        ("screens/make_masks.py", ((0, "text"),)),
+    ("screens/map_barcodes.py", "_button"):
+        ("screens/map_barcodes.py", ((0, "caption"), (1, "hint"))),
+    ("screens/methods_export.py", "_set_provenance"):
+        ("screens/methods_export.py", ((0, "text"),)),
+    ("screens/pipeline_graph.py", "_set_verdict"):
+        ("screens/pipeline_graph.py", ((0, "text"),)),
+    ("screens/run_compare.py", "_set_verdict"):
+        ("screens/run_compare.py", ((0, "text"),)),
+    ("screens/run_history.py", "_text_tab"):
+        ("screens/run_history.py", ((0, "accessible_name"),)),
+    # Positions 1 and 2 are a Qt setter name and an i18n property name.
+    ("settings_search.py", "_localize"):
+        ("settings_search.py", ((3, "source"),)),
+    # Position 1 is the settings key.
+    ("widgets/annotation_strategy_panel.py", "_add_row"):
+        ("widgets/annotation_strategy_panel.py", ((2, "title"),)),
+    # A QPlainTextEdit, whose contents the language pass does not translate.
+    ("widgets/annotation_umap_tab.py", "say"):
+        ("widgets/annotation_umap_tab.py", ((0, "text"),)),
+    ("widgets/fast_plots.py", "_gated"):
+        ("widgets/fast_plots.py", ((1, "label"), (3, "reason"))),
+    # The plot's style note, stored and shown later.
+    ("widgets/fast_plots.py", "_say"):
+        ("widgets/fast_plots.py", ((0, "message"),)),
+    # Position 1 is the status style key ("ok", "error", "idle").
+    ("widgets/formula_editor.py", "_say"):
+        ("widgets/formula_editor.py", ((0, "text"),)),
+    # An escaped QTextBrowser paragraph, which the language pass does not
+    # translate.
+    ("widgets/gene_panel.py", "_say"):
+        ("widgets/gene_panel.py", ((0, "text"),)),
+    # A progress stage; the panel appends a row count to it before showing it.
+    ("widgets/measurement_scan_panel.py", "_say"):
+        ("widgets/measurement_scan_panel.py", ((0, "stage"),)),
+    # 1 is the accessible name, 2 the tooltip; 0 is the start value.
+    ("widgets/percentile_pair.py", "_field"):
+        ("widgets/percentile_pair.py", ((1, "name"), (2, "why"))),
+    ("widgets/regression_results.py", "say"):
+        ("widgets/regression_results.py", ((0, "text"), (1, "detail"))),
+    ("widgets/save_figure_dialog.py", "_colour_box"):
+        ("widgets/save_figure_dialog.py", ((1, "tooltip"),)),
+    ("widgets/setup_slides.py", "_say"):
+        ("widgets/setup_slides.py", ((0, "text"),)),
+    ("widgets/sweep_runs.py", "_say"):
+        ("widgets/sweep_runs.py", ((0, "note"),)),
+    # The volcano style panel: every control's caption is its label and its
+    # tooltip. The numeric arguments before it are ranges and steps.
+    ("widgets/volcano_explorer.py", "_check"):
+        ("widgets/volcano_explorer.py", ((0, "caption"),)),
+    ("widgets/volcano_explorer.py", "_combo"):
+        ("widgets/volcano_explorer.py", ((1, "caption"),)),
+    ("widgets/volcano_explorer.py", "_int_spin"):
+        ("widgets/volcano_explorer.py", ((2, "caption"),)),
+    ("widgets/volcano_explorer.py", "_line"):
+        ("widgets/volcano_explorer.py", ((0, "caption"),)),
+    ("widgets/volcano_explorer.py", "_optional"):
+        ("widgets/volcano_explorer.py", ((4, "caption"),)),
+    ("widgets/volcano_explorer.py", "_readonly"):
+        ("widgets/volcano_explorer.py", ((0, "caption"),)),
+    ("widgets/volcano_explorer.py", "_spin"):
+        ("widgets/volcano_explorer.py", ((4, "caption"),)),
+}
+
+
+def _helper_caption_arguments(
+    node: ast.Call, module: str, name: str,
+) -> Iterable[ast.AST]:
+    """Yield the caption arguments of a call to a keyed local helper.
+
+    :param node: the call.
+    :param module: the calling module's path relative to ``spacr/qt``.
+    :param name: the called name, as :func:`_call_name` reports it.
+    :returns: the argument nodes at the rule's caption positions, positional
+        or by keyword. Nothing for a helper without a rule in ``module``.
+    """
+    rule = _HELPER_CAPTION_RULES.get((module, name))
+    if rule is None:
+        return
+    for position, parameter in rule[1]:
+        if position < len(node.args):
+            yield node.args[position]
+        for keyword in node.keywords:
+            if keyword.arg == parameter:
+                yield keyword.value
+
+
 def _looks_translatable(text: str) -> bool:
     source = text.strip()
     if not source or source in _IDENTITY_TEXT:
@@ -3226,6 +3503,28 @@ def _looks_translatable(text: str) -> bool:
     return bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]{2,}", source))
 
 
+def _has_prose_outside_protected_literals(text: str) -> bool:
+    """Is there anything in ``text`` a translator could actually change?
+
+    SEPARATE FROM :func:`_looks_translatable` ON PURPOSE, and the difference
+    matters. That predicate decides what ENTERS the inventory, so narrowing
+    it drops rows out -- and a row that leaves takes any reviewed record
+    written against it with it. Tried once: excluding all-protected strings
+    there orphaned a hand-written Swedish record for ``{location}: {path}``
+    and the build stopped with "stale reviewed runtime source".
+
+    This one answers a smaller question, asked only by the exact-English
+    audit: is demanding a translation for this row even satisfiable? For
+    ``Image UMAP…`` it is not. Both words are protected literals and the
+    rest is an ellipsis, so every locale correctly leaves it alone and the
+    audit then calls all nine of them untranslated.
+
+    :param text: the English source of one catalog row.
+    :returns: True when prose survives with the protected literals removed.
+    """
+    return bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]{2,}", _PROTECT_RE.sub(" ", text)))
+
+
 def _indirect_runtime_ui_sources() -> set[str]:
     """Return presentation prose exposed through runtime data structures.
 
@@ -3246,6 +3545,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.screens.app_screen import DIMENSION_TOGGLES
     from spacr.qt.screens.batch import ON_ERROR_LABELS
     from spacr.qt.screens.hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
+    from spacr.qt.screens.mask import OPS_TOGGLE_TOOLTIP
     from spacr.qt.screens.parameter_sweep import (
         SWEEP_TOGGLE_TEXT,
         SWEEP_TOGGLE_TOOLTIP,
@@ -3273,8 +3573,65 @@ def _indirect_runtime_ui_sources() -> set[str]:
         MAX_SETS_TOOLTIP,
     )
 
+    # LOOKUP TABLES THE EXTRACTOR CANNOT SEE, found on 2026-09-13 by
+    # searching for the SHAPE rather than the name: every module-level
+    # collection in spacr/qt holding three or more human-readable strings,
+    # minus the committed inventory. Searching for the naming convention
+    # `*_UI_SOURCES` finds only what somebody already thought of as a UI
+    # source, and these are named nothing like it -- CATEGORY_TOOLTIPS is
+    # 169 settings tooltips that had never been translated into any of the
+    # nine languages.
+    #
+    # TWO COLLECTIONS THE SEARCH RETURNED ARE DELIBERATELY ABSENT:
+    # `methods_export.APP_TRANSLATIONS` holds SWEDISH, so it is a
+    # translation table rather than hidden source -- the same false
+    # positive as `i18n._row`, and the file holding translations is not a
+    # file hiding them. `terms.TERMS` is an end user licence agreement;
+    # machine translating it changes what a user agrees to, and that is a
+    # maintainer's decision rather than a gap to close quietly.
+    from spacr.qt.memory_budget import HARDWARE_NOTES
+    from spacr.qt.preferences import PERFORMANCE_NOTES
+    from spacr.qt.screens.app_screen import APP_TITLES
+    from spacr.qt.screens.settings_model import (
+        CATEGORY_TOOLTIPS,
+        CATEGORY_TOOLTIPS_BY_APP,
+        PATH_LIST_TITLES,
+    )
+    from spacr.qt.widgets.control_chart import (
+        ESTIMATOR_LABELS,
+        RULE_DETECTS,
+        RULE_NAMES,
+    )
+    from spacr.qt.widgets.formula import FUNCTION_HELP, _REJECTED
+    from spacr.qt.widgets.fractal_travel import PATTERN_LABELS
+    from spacr.qt.widgets.gate_editor import TOOL_LABELS
+    from spacr.qt.widgets.graph_builder import CHANNEL_HINTS
+    from spacr.qt.widgets.live_preview import COMPARTMENT_FIELDS
+
     found: set[str] = set(PREFERENCE_TIPS)
     found.update(_INDIRECT_CHROME_UI_SOURCES)
+    found.update(str(row[1]) for row in COMPARTMENT_FIELDS)
+    for _table in (CATEGORY_TOOLTIPS, PATH_LIST_TITLES, APP_TITLES,
+                   FUNCTION_HELP, TOOL_LABELS, RULE_NAMES, RULE_DETECTS,
+                   ESTIMATOR_LABELS, CHANNEL_HINTS, PATTERN_LABELS):
+        found.update(str(value) for value in _table.values()
+                     if str(value).strip())
+    for _per_app in CATEGORY_TOOLTIPS_BY_APP.values():
+        found.update(str(value) for value in _per_app.values()
+                     if str(value).strip())
+    for _sequence in (PERFORMANCE_NOTES, HARDWARE_NOTES, _REJECTED):
+        found.update(str(value) for value in _sequence
+                     if str(value).strip())
+    # ITERATING A DICT YIELDS ITS KEYS, so the loop above collected
+    # "laptop", "workstation", ... and never the prose: every performance
+    # level tooltip stayed English in all nine languages (286). The keys stay
+    # because they are catalog rows with identities of their own; the VALUES
+    # are what the interface shows. `_REJECTED`'s values (the formula
+    # editor's refusals) have the same defect and are not collected here --
+    # that is its own item, not this one.
+    for _table in (PERFORMANCE_NOTES, HARDWARE_NOTES):
+        found.update(str(value) for value in _table.values()
+                     if str(value).strip())
     found.update(map(str, PREFERENCE_TIPS.values()))
     found.update(map(str, MODE_LABELS.values()))
     found.update(map(str, MODE_NOTES.values()))
@@ -3289,6 +3646,10 @@ def _indirect_runtime_ui_sources() -> set[str]:
         str(TOGGLE_TOOLTIP),
         str(SWEEP_TOGGLE_TEXT),
         str(SWEEP_TOGGLE_TOOLTIP),
+        # Mask Generation's OPS switch, passed to AiToggleLabel as a name
+        # imported from `mask`, exactly like the two toggles above; its
+        # caption "OPS" is a compact `_ROWS` row, so only the tooltip is here.
+        str(OPS_TOGGLE_TOOLTIP),
         str(ALL_CHANNELS),
         str(MAX_SETS_TOOLTIP),
         str(PREVIEW_RUN_TEXT),
@@ -3453,6 +3814,12 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             if not isinstance(node, ast.Call):
                 continue
             name = _call_name(node)
+            for argument in _helper_caption_arguments(
+                node, path.relative_to(ROOT / "spacr" / "qt").as_posix(), name,
+            ):
+                for value in _literal_strings(argument, constants):
+                    if _looks_translatable(value):
+                        found.add(value.strip())
             if not (
                 name in _TEXT_METHODS
                 or name in _TEXT_CONSTRUCTORS
@@ -3517,6 +3884,7 @@ def canonical_sources() -> dict[str, object]:
     from spacr.qt.screens.settings_model import (
         _APP_TOOLTIP_OVERRIDES,
         _FOLDED_DEFAULTS_MODULES,
+        _REGRESSION_MENU_UI_SOURCES,
         _SETTINGS_MODEL_UI_SOURCES,
         CATEGORY_TOOLTIPS,
         CATEGORY_TOOLTIPS_BY_APP,
@@ -3530,6 +3898,7 @@ def canonical_sources() -> dict[str, object]:
     from spacr.qt.widgets.settings_advisor_dialog import (
         _SETTINGS_ADVISOR_UI_SOURCES,
     )
+    from spacr.qt.screens.dose_response import _DOSE_RESPONSE_UI_SOURCES
 
     # Several self-contained modules contribute defaults, tooltips, and a
     # module description only when their registered defaults module is first
@@ -3646,7 +4015,18 @@ def canonical_sources() -> dict[str, object]:
     ui_sources = set(extract_static_ui_sources())
     ui_sources.update(_GENE_TILE_UI_SOURCES)
     ui_sources.update(_SETTINGS_MODEL_UI_SOURCES)
+    # THE REGRESSION-MODEL MENU, which is composed at run time from
+    # `spacr.regression_families` and so is invisible to the literal-string
+    # extractor at its `addItem` call site. `settings_model` declares the set
+    # for exactly this reason -- and nothing consumed it, so all 21 captions
+    # ("auto -- chosen from the response by check_distribution", "lasso --
+    # parametric: normal errors plus an L1 penalty", ...) were absent from
+    # every catalog and English in all nine languages.
+    ui_sources.update(_REGRESSION_MENU_UI_SOURCES)
     ui_sources.update(_SETTINGS_ADVISOR_UI_SOURCES)
+    # The Dose-Response grid's headers and status words reach their widgets
+    # through a tuple and a dict, so the literal extractor never sees them.
+    ui_sources.update(_DOSE_RESPONSE_UI_SOURCES)
     ui_sources.update(str(value) for value in APP_INTROS.values())
     ui_sources.update(str(value) for value in APP_TITLES.values())
     ui_sources.update(str(value) for value in _SECTION_NOTE_LIBRARY.values())
@@ -4453,6 +4833,15 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
     return corrected
 
 
+#: Acronyms a target language may name where the English only implied them,
+#: as ``{acronym: source pattern that licenses it}``. Deliberately tiny and
+#: evidence-led: each entry is here because real reviewed output needed it,
+#: and the source pattern keeps the allowance from becoming "RNA anywhere".
+_IMPLIED_BY_THE_SOURCE: Mapping[str, str] = {
+    "RNA": r"(?<![A-Za-z0-9_])(?:guides?|gRNAs?|sgRNAs?)(?![A-Za-z0-9_])",
+}
+
+
 def _syntax_preserved(
     source: str,
     value: str,
@@ -4593,10 +4982,37 @@ def _syntax_preserved(
 
     protected_products = product_matches(source)
     rendered_products = product_matches(value)
+    # A TARGET MAY NAME AN ACRONYM THE SOURCE ONLY IMPLIED, in two narrow
+    # cases, and refusing them makes the translation worse rather than safer.
+    #
+    # The no-new-products rule exists to stop a model INVENTING a product --
+    # rendering something as "Cellpose" where the English never said it. That
+    # is a real hazard and the rule stays. These two are not inventions:
+    #
+    #   CASE. The source writes the acronym in lower case and the target
+    #   canonicalizes it: "the figure as pdf and png" -> "PDF". The token is
+    #   the source's own, and `_syntax_preserved_or_reviewed` already accepts
+    #   this shape for reviewed labels (``pca`` -> ``PCA``).
+    #
+    #   IMPLIED DOMAIN TERM. Chinese renders "guides" as ``引导 RNA``, because
+    #   引导 alone is "guidance/lead" and is ambiguous in a CRISPR screen. All
+    #   57 rows that do this on 2026-09-14 follow a source that says guide,
+    #   guides, gRNA or sgRNA -- zero exceptions, which is why the trigger is
+    #   a source pattern rather than a blanket allowance for RNA.
+    #
+    # THESE WERE INVISIBLE UNTIL THE TERM BOUNDARY WAS FIXED. ``RNA具有`` put
+    # a CJK character after the acronym, and the old ``(?!\w)`` could not see
+    # it, so 85 zh_CN rows passed a check that had never actually read them.
+    # They are not newly wrong; they were never examined.
+    unexpected = rendered_products - protected_products
+    for literal in list(unexpected):
+        trigger = _IMPLIED_BY_THE_SOURCE.get(literal)
+        if trigger is not None and re.search(trigger, str(source), re.IGNORECASE):
+            del unexpected[literal]
     product_mismatch = (
         any(rendered_products[literal] < count
             for literal, count in protected_products.items())
-        or bool(rendered_products - protected_products)
+        or bool(unexpected)
     )
     return (
         structural
@@ -4710,14 +5126,34 @@ def _seed_cache_from_catalog(
     cache: dict[str, str],
     skip_sources: Iterable[str] = (),
 ) -> None:
-    """Reuse current catalog prose except authoritative reviewed captions.
+    """Carry committed catalog rows forward, OVER the model cache.
 
     Short, context-sensitive captions and exact technical identities are
     resolved by deterministic review tables.  Never seed their historical
     catalog values into the model cache: an earlier semantically valid but
     contextually wrong translation must not survive a reviewed correction.
+
+    A COMMITTED ROW OUTRANKS THE CACHE (item 406).  A row is carried forward
+    when the committed catalog's own ``SOURCE_HASHES`` entry for that table
+    and key still matches the English source, the catalog was produced by the
+    current model, the value passes the release gates, and the source is not
+    in ``skip_sources`` -- which is where a repair mode's force set and the
+    authoritative tables arrive.  Such a row REPLACES whatever the cache holds
+    for its source.  This function used ``cache.setdefault``, so any cached
+    value won: a ``--repair-invalid-only`` pass wrote 87 fluent-but-wrong
+    zh_CN rows into the cache (``'Pca whiten' -> 白色白色``), they were
+    reverted and fixed by hand in ``zh_CN.py``, and the next PLAIN build put
+    every one back.  The cache lives outside the repository, so the hand edit
+    changed nothing the builder read.  Now a plain build sends only new or
+    changed sources to the cache or the model, and re-translating a current
+    row is what the explicit repair modes are for.
+
+    Among committed rows that share one English source, the first table in
+    the order below wins, as before: translations are keyed by source, so
+    ``write_language`` writes one value to every row with that English.
     """
     skipped = frozenset(map(str, skip_sources))
+    committed: dict[str, str] = {}
     try:
         from spacr.qt.i18n_catalogs import en as english
         target = __import__(
@@ -4751,7 +5187,7 @@ def _seed_cache_from_catalog(
                 and hash_is_current(name, key, source)
                 and _translation_candidate_valid(source, value, language)
             ):
-                cache.setdefault(
+                committed.setdefault(
                     str(source), _contextualize(value, language, source)
                 )
     for name in ("CATEGORY_HELP", "UI"):
@@ -4763,7 +5199,7 @@ def _seed_cache_from_catalog(
                 and hash_is_current(name, source, source)
                 and _translation_candidate_valid(source, value, language)
             ):
-                cache.setdefault(
+                committed.setdefault(
                     str(source), _contextualize(value, language, source)
                 )
     canonical_modules = getattr(english, "MODULE_SUMMARIES", {})
@@ -4777,9 +5213,15 @@ def _seed_cache_from_catalog(
             and hash_is_current("MODULE_SUMMARIES", key, source)
             and _translation_candidate_valid(source, value, language)
         ):
-            cache.setdefault(
+            committed.setdefault(
                 str(source), _contextualize(value, language, source)
             )
+    # Replace, never ``setdefault``: see the docstring.  The caller snapshots
+    # its cache baseline BEFORE seeding, so these replacements count as
+    # updates and reach the shared cache file at the next checkpoint -- which
+    # only a build that reaches the model performs.  A plain build that
+    # decodes nothing leaves the cache file untouched.
+    cache.update(committed)
 
 
 def _invalid_catalog_sources(
@@ -4793,6 +5235,11 @@ def _invalid_catalog_sources(
     retried when it is missing, source-stale, blank, exact English without an
     explicit reviewed-identity decision, or rejected by the current
     syntax/script/semantic/context contracts.
+
+    EXACT ENGLISH IS NOT ALWAYS A FALLBACK.  A row with no prose outside its
+    protected literals -- a bare identifier, a caption whose every word is a
+    product name, a format string of nothing but placeholders -- is CORRECT in
+    English, in all nine locales, and is not retried.
     """
     namespace: dict[str, object] = {}
     catalog_path = CATALOG_DIR / f"{language}.py"
@@ -4840,6 +5287,14 @@ def _invalid_catalog_sources(
                 or (
                     value == source
                     and _looks_translatable(source)
+                    # ...AND there is prose in it to translate. Without this,
+                    # a row made entirely of protected literals is retried on
+                    # every incremental repair forever: it comes back English
+                    # because English is the only correct answer, and coming
+                    # back English is what marks it invalid. The catalogs
+                    # could never become the fixed point this function is
+                    # asked to certify.
+                    and _has_prose_outside_protected_literals(source)
                     and reviewed != source
                 )
                 or _contextualize(str(value), language, source) != str(value)
@@ -4985,6 +5440,45 @@ def _rank_aligned_joins(
     return joined
 
 
+_LOG = logging.getLogger(__name__)
+
+#: Set once this process has asked torch to size its inter-op pool.
+_TORCH_INTEROP_POOL_REQUESTED = False
+
+
+def _limit_torch_interop_threads(torch_module, wanted: int) -> None:
+    """Ask torch for a ``wanted``-thread inter-op pool at most once per process.
+
+    torch sizes that pool once. A second ``set_num_interop_threads`` call, or
+    one after inter-op work has started, fails a C++ check: torch 2.13 raises
+    ``RuntimeError``, but torch 2.1.0 (the minimum-dependency pin) lets the
+    ``c10::Error`` escape the binding, so ``std::terminate`` aborts the whole
+    process and no ``except`` runs. That is how CI run 34989909231 lost a
+    pytest-xdist worker on its second model-reaching translation test
+    (item 43, 2026-09-15).
+
+    The pool size is only a performance hint, so the call is prevented rather
+    than recovered from: skip it when torch already reports ``wanted``, and
+    never make it a second time in this process.
+    """
+    global _TORCH_INTEROP_POOL_REQUESTED
+    if _TORCH_INTEROP_POOL_REQUESTED:
+        _LOG.debug("torch inter-op pool already requested in this process")
+        return
+    _TORCH_INTEROP_POOL_REQUESTED = True
+    current = torch_module.get_num_interop_threads()
+    if current == wanted:
+        _LOG.debug("torch inter-op pool is already %d threads", current)
+        return
+    try:
+        torch_module.set_num_interop_threads(wanted)
+    except RuntimeError as error:
+        # Not the abort guard (an abort never reaches here). A torch that
+        # raises instead of aborting lands here only when other code in this
+        # process started inter-op work first; the hint is then skipped.
+        _LOG.debug("torch inter-op pool left at %d threads: %s", current, error)
+
+
 def _translate_batches(
     strings: list[str],
     language: str,
@@ -5112,6 +5606,33 @@ def _translate_batches(
                 if language == "zh_CN" else reviewed_value,
                 language, source,
             )
+        elif not _has_prose_outside_protected_literals(source):
+            # NOTHING HERE A TRANSLATOR COULD CHANGE, so asking for a
+            # translation can only produce damage. Placed BELOW the two
+            # reviewed branches on purpose: `{location}: {path}` has a
+            # hand-written record in all nine locales that deliberately adds
+            # the word "path" to make the string readable, and that is a
+            # reviewer's decision, not model noise. Everything below this
+            # point -- compact, cache, fresh generation -- is machine output,
+            # and on these rows the machine has no information to add.
+            #
+            # `_IDENTITY_TEXT` above is the ENUMERATED half of this rule and
+            # its own comment records the failure it was written for
+            # (``viridis`` to Korean "virus", ``slurm`` to German "mud").
+            # Enumeration cannot keep up: every new identifier-shaped caption
+            # reintroduces the bug until someone notices and appends to the
+            # list. Tonight's rebuild produced, with no reviewed record and
+            # nothing to translate:
+            #     'extra_performance'  -> 'extra_performance oder'   (de)
+            #     'extra_performance'  -> 'extra_performance에 해당되는 글 1건' (ko)
+            #     'Image UMAP…'        -> 'Image UMAP...'            (de)
+            #     '[{severity}] {object_type}: {flags}'
+            #                          -> '({severity}] {object_type}: {flags}'
+            # That last one turns a matched bracket pair into a mismatched
+            # one in a user-facing severity line, and no audit saw any of it:
+            # all four differ from English, so every one scored as TRANSLATED.
+            translated[source] = source
+            cache.pop(source_cache_key, None)
         elif (
             compact_value is not None
             and candidate_valid(source, compact_value)
@@ -5182,12 +5703,7 @@ def _translate_batches(
     from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
     torch.set_num_threads(max(1, threads))
-    try:
-        torch.set_num_interop_threads(1)
-    except RuntimeError:
-        # PyTorch permits setting the inter-op pool only before parallel work
-        # starts. A reused process has already fixed the same one-thread pool.
-        pass
+    _limit_torch_interop_threads(torch, 1)
     tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True)
     # Both OPUS and M2M can otherwise continue a high-probability word or CJK
     # character until ``max_new_tokens`` on terse technical labels.  These
@@ -6415,6 +6931,9 @@ def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
                 if (
                     str(value) == str(source_tables[name].get(key, key))
                     and _looks_translatable(
+                        str(source_tables[name].get(key, key))
+                    )
+                    and _has_prose_outside_protected_literals(
                         str(source_tables[name].get(key, key))
                     )
                     and _reviewed_translation(

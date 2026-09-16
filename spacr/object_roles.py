@@ -11,7 +11,6 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Tuple
 
-# These schema sets remain re-exported for existing ``object_roles`` consumers.
 from .schema import (  # noqa: F401
     ALL_ROLES,
     CHILD_ROLES,
@@ -103,64 +102,11 @@ def organelle_label(role: str) -> str:
 #: not confused in settings forms.
 EXACT_LABELS = {
     "nontargeting_control_grnas": "Control gRNA/Gene",
-    # THE THIRD SENSE OF "log", and the reason these are spelled out rather
-    # than left to the humaniser. `dog` and the Laplacian-of-Gaussian `log_*`
-    # suffixes are handled in CASED_TERMS and CASED_PHRASES below; these three
-    # are the ORDINARY logarithm, and "Log x" is ambiguous in English before
-    # any translator sees it. Every machine translator read the logbook:
-    # German "Protokoll x" and "Protokollieren y", Spanish "Registro x",
-    # French "Journal x", and Chinese rendered `log_x` as "彩票X" -- lottery.
-    #
-    # Saying "logarithmic" removes the ambiguity at the source instead of
-    # correcting nine locales separately, which is the same fix as `dog` and
-    # for the same reason: the translators were not wrong about the word they
-    # were given. It is also more accurate English -- all three are log10 or
-    # log(x + 1e-6), not "log" in any other sense.
     "log_x": "Logarithmic x",
     "log_y": "Logarithmic y",
     "log_data": "Log-transform features",
-    # "Src" is an abbreviation of an abbreviation: the humaniser capitalises
-    # the key and stops there, so the field that asks for the images read
-    # "Src". Asked for on 2026-09-01 -- "path should always just say path".
-    # The KEY stays `src`; every settings CSV in existence uses it.
-    #
-    # NOT applied to regression, which overrides this to "Output directory"
-    # in `settings_model._label_for`. That one is not an abbreviation, it is
-    # a more specific true statement -- regression's `src` is where results
-    # are written, not where images are read from.
-    # SOURCE, NOT PATH, AND THIS IS THE SECOND RENAME. The humaniser
-    # capitalises the key and stops, so the field that asks for the images
-    # read "Src" -- an abbreviation of an abbreviation. It was renamed to
-    # "Path" on 2026-09-01 ("path should always just say path"), and to
-    # "Source" on 2026-09-04, to standardise one word across every surface
-    # that names where a run reads its input. Both are recorded because the
-    # second reverses the first, and a reader who finds only the current
-    # answer cannot tell a decision from an oversight.
-    #
-    # THE KEY STAYS `src`. Every settings CSV in existence uses it, and this
-    # renames the label, not the setting.
-    #
-    # ONLY `src`. The other path-like keys -- `model_path`,
-    # `custom_model_path`, `organelle_unet_model_path` -- name a MODEL, not a
-    # source, and calling them Source would be a lie that reads as a
-    # standard. Measured across all 508 keys in `spacr.settings`: `src` is
-    # the only source among them.
-    #
-    # NOT applied to regression, which overrides this to "Output directory"
-    # in `settings_model._label_for`. That one is not an abbreviation, it is
-    # a more specific true statement -- regression's `src` is where results
-    # are written, not where images are read from.
     "src": "Source",
-    # "Sample" reads as the thing being sampled; it is a CAP on how many
-    # crops are drawn. The key stays `sample` -- every settings CSV in
-    # existence uses it, and this renames the label, not the setting.
     "sample": "Sample size limit",
-    # These keys belong to the statistical-power simulator, not electrical
-    # power.  Leaving the ordinary underscore humaniser to infer their labels
-    # produced awkward English ("Power n genes") and led translation models
-    # to choose electrical/mechanical terminology in several languages.
-    # Qualify the whole family at its single label source so every settings
-    # surface and every source-hashed locale catalog carries the same meaning.
     "power": "Statistical power",
     "power_backend": "Statistical power — inference backend",
     "power_background_positive_rate": (
@@ -196,14 +142,6 @@ CASED_TERMS = {
     "png": "PNG",
     "qc": "QC",
     "id": "ID",
-    # DIFFERENCE OF GAUSSIANS, and the only reason it is spelled out here is
-    # that the machine translators read the lower-case word as the animal.
-    # "Organelle 1 — Dog sigma high" became "Hundesigma hoch" in German,
-    # "Chien sigma haut" in French, "강아지 Sigma" (puppy) in Korean and "狗
-    # Sigma" in Chinese, in the label of a blob-detector parameter. `dog`
-    # appears in exactly two suffixes in the whole vocabulary,
-    # `dog_sigma_high` and `dog_sigma_low`, so there is no ambiguity to
-    # weigh -- it is always skimage's `blob_dog`.
     "dog": "DoG",
 }
 
@@ -230,9 +168,6 @@ def _recase(text: str) -> str:
     :returns: The text with :data:`CASED_TERMS` spellings restored.
     """
     text = str(text)
-    # PHRASES FIRST. A phrase rule exists because its word is ambiguous on
-    # its own, so applying the word rules first would settle the ambiguity
-    # the wrong way and leave nothing for the phrase rule to match.
     lowered = text.lower()
     for phrase, cased in CASED_PHRASES.items():
         if phrase in lowered:
@@ -266,10 +201,6 @@ def setting_label(key: str) -> str:
     from .organelle_types import organelle_role_of
 
     key = str(key)
-    # RESOLVED FROM THE KEY, not by looping the four roles the schema
-    # segments. A settings file may carry any slot the vocabulary allows,
-    # and one that fell outside those four rendered as "Organellee
-    # channel" -- the raw suffix -- instead of "Organelle 5 — Channel".
     role = organelle_role_of(key)
     if role is not None:
         suffix = key[len(role):].lstrip('_').replace('_', ' ')
@@ -315,31 +246,11 @@ def role_setting(role: str, suffix: str) -> str:
 #: ``cell_min_area`` at SEGMENTATION time, as `cell_min_size`'s own tooltip
 #: says. Deriving the scope cannot make that mistake.
 RENAMED_SETTING_SUFFIXES: Dict[str, str] = {
-    # All six landed in b7ae412af (2026-09-02), "retire organelle's duplicate
-    # size settings, rename four families" -- 90 settings across 26 organelle
-    # slots. None of them got a migration, which is what this table repairs.
     "FT": "flow_threshold",
     "CP_prob": "cellprob_threshold",
     "Signal_to_noise": "signal_to_noise",
-    "min_object_area": "min_split_area",
     "min_size": "min_area",
     "max_size": "max_area",
-    # 391, 2026-09-12. Both are honest corrections: `min_split_area` is NOT a
-    # minimum object area -- an object below it is kept, it is simply never
-    # split -- and `min_distance` is the minimum separation between watershed
-    # seeds, which means nothing outside that algorithm.
-    #
-    # NOTE THE CHAIN THIS CREATES, and that it is why the resolver walks to a
-    # fixed point rather than taking one step:
-    #
-    #     <role>_min_object_area  ->  <role>_min_split_area
-    #                             ->  <role>_minimum_area_to_split
-    #
-    # A file written before b7ae412af needs BOTH hops. One hop would leave the
-    # value on `_min_split_area`, which nothing reads any more -- the same
-    # silent loss this table exists to prevent, one rename later.
-    "min_split_area": "minimum_area_to_split",
-    "min_distance": "min_watershed_distance",
 }
 
 
@@ -356,21 +267,24 @@ RENAMED_SETTING_SUFFIXES: Dict[str, str] = {
 #: key -- a settings file that quietly loses a value the user set is worse
 #: than one that refuses to load."
 #:
-#: AND ONE OF THESE WAS WORSE THAN SILENT. `<role>_intensity_threshold_method`
-#: held 'mean' or 'percentile', and the fuzzy typo-matcher pointed it at the
-#: new `<role>_intensity_threshold`, which holds a NUMBER -- so the advice was
-#: to copy a method name into a float. A wrong suggestion is followed; silence
-#: at least gets investigated.
+#: Withdrawn merge/split controls and their older aliases stay here so old
+#: files receive an explanation without migrating values onto the mean
+#: intensity filters, which make a different decision about each object.
 WITHDRAWN_SETTING_SUFFIXES: Dict[str, str] = {
+    "minimum_area_to_split": "post-segmentation watershed splitting was removed",
+    "min_watershed_distance": "post-segmentation watershed splitting was removed",
+    "intensity_split": "post-segmentation watershed splitting was removed",
+    "min_object_area": "post-segmentation watershed splitting was removed",
+    "min_split_area": "post-segmentation watershed splitting was removed",
+    "min_distance": "post-segmentation watershed splitting was removed",
+    "intensity_threshold": "merging labels by boundary intensity was removed",
+    "intensity_merge": "merging labels by boundary intensity was removed",
     "area_multiplier": (
-        "the watershed split threshold is now the absolute "
-        "<role>_minimum_area_to_split alone, with no median term"),
+        "post-segmentation watershed splitting was removed"),
     "intensity_threshold_method": (
-        "merging no longer chooses between a mean and a percentile: set "
-        "<role>_intensity_threshold to an absolute intensity instead"),
+        "merging labels by boundary intensity was removed"),
     "intensity_percentile": (
-        "merging now compares the shared boundary against the absolute "
-        "<role>_intensity_threshold, not a percentile of the dimmer object"),
+        "merging labels by boundary intensity was removed"),
     "min_intensity_percentile": (
         "the intensity band was removed: it dropped its share of objects "
         "however bright the field, which is a quota rather than a filter"),
@@ -395,7 +309,7 @@ def withdrawn_setting_reason(key: str):
 
 
 def split_role_setting(key: str):
-    """``organellezz_min_split_area`` -> ``("organellezz", "min_split_area")``.
+    """``organellezz_min_area`` -> ``("organellezz", "min_area")``.
 
     The inverse of :func:`role_setting`, and the reason a suffix rename can
     cost six lines instead of 3,522. Every role is a single word with no
@@ -479,9 +393,6 @@ def ordered(*roles: str) -> Tuple[str, ...]:
             f"{list(ALL_ROLES)}")
     return tuple(roles)
 
-# ---------------------------------------------------------------------------
-# The anchor: one concept, two column names
-# ---------------------------------------------------------------------------
 
 #: EVERY OBJECT TABLE IS ANCHORED TO THE CELL, and the column carrying that
 #: anchor has two names depending on the table:

@@ -80,9 +80,6 @@ QLabel#RoiStatusWarning {{
 register_widget_qss("RoiPanel", _roi_tool_qss, replace=True)
 
 
-# ---------------------------------------------------------------------------
-# The pen
-# ---------------------------------------------------------------------------
 
 class RoiPen(CanvasTool, QObject):
     """Turns clicks on a :class:`~spacr.qt.layer_viewer.LayerCanvas` into a shape.
@@ -134,7 +131,6 @@ class RoiPen(CanvasTool, QObject):
         self._pending: List[List[float]] = []
         self._preview = False
 
-    # -- state ------------------------------------------------------------
     @property
     def layer(self) -> ShapesLayer:
         """The layer this pen draws into."""
@@ -152,7 +148,6 @@ class RoiPen(CanvasTool, QObject):
             return np.zeros((0, self._layer.ndim), dtype=np.float64)
         return np.asarray(self._pending, dtype=np.float64)
 
-    # -- the tool protocol -------------------------------------------------
     def press(self, view: LayerCanvas, world: Dict[str, float],
               event: Any) -> bool:
         """Place a vertex (left button) or take the last one back (right)."""
@@ -189,7 +184,6 @@ class RoiPen(CanvasTool, QObject):
         """Taken off the canvas: drop anything half-drawn."""
         self.cancel()
 
-    # -- editing ------------------------------------------------------------
     def add_world(self, world: Dict[str, float]) -> int:
         """Add one vertex given as ``{axis: world}``; returns the vertex count.
 
@@ -236,7 +230,6 @@ class RoiPen(CanvasTool, QObject):
         self.roi_finished.emit(index)
         return index
 
-    # -- the half-drawn outline --------------------------------------------
     def _refresh_preview(self) -> None:
         """Redraw the rubber-band path through the vertices placed so far.
 
@@ -259,9 +252,6 @@ class RoiPen(CanvasTool, QObject):
             self._layer.remove(len(self._layer) - 1)
 
 
-# ---------------------------------------------------------------------------
-# The panel
-# ---------------------------------------------------------------------------
 
 class RoiPanel(QWidget):
     """Draw an ROI, then measure only inside it.
@@ -299,7 +289,6 @@ class RoiPanel(QWidget):
         self._build()
         self._refresh_status()
 
-    # -- construction -------------------------------------------------------
     def _build(self) -> None:
         """Lay out the draw controls, the keep rule, the field scope and the buttons."""
         outer = QVBoxLayout(self)
@@ -383,7 +372,6 @@ class RoiPanel(QWidget):
         self.status.setWordWrap(True)
         outer.addWidget(self.status)
 
-    # -- the shapes layer ---------------------------------------------------
     @property
     def stack(self) -> LayerStack:
         """The stack the canvas is showing."""
@@ -436,7 +424,6 @@ class RoiPanel(QWidget):
         self._refresh_status()
         return removed
 
-    # -- drawing ------------------------------------------------------------
     @property
     def pen(self) -> Optional[RoiPen]:
         """The pen while drawing is switched on, else ``None``."""
@@ -501,7 +488,6 @@ class RoiPanel(QWidget):
         if path:
             self.set_roi_path(path)
 
-    # -- handing it to Measure ---------------------------------------------
     def fields(self) -> List[str]:
         """The field stems the ROI is filed under, from the scope box."""
         text = self.field_edit.text().strip()
@@ -549,7 +535,6 @@ class RoiPanel(QWidget):
         self._refresh_status()
         return removed
 
-    # -- status -------------------------------------------------------------
     def _refresh_status(self) -> None:
         """Say how many ROIs are drawn and whether the workers can see them.
 
@@ -575,8 +560,6 @@ class RoiPanel(QWidget):
         self.status.setObjectName("RoiStatusWarning" if warning
                                   else "RoiStatus")
         self.status.setText(text)
-        # An objectName change only takes effect on a re-polish; without this
-        # the warning colour arrives one message late.
         style = self.status.style()
         style.unpolish(self.status)
         style.polish(self.status)

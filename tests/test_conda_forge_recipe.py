@@ -114,21 +114,37 @@ def test_conda_recipe_exercises_heavy_and_desktop_imports_without_pip_metadata()
 
 
 def test_conda_recipe_preserves_the_license_of_its_pypi_source():
-    """The recipe tracks the PUBLISHED sdist, not ``setup.py``.
+    """The LICENCE of the recipe, which is what this test is named for.
 
-    1.5.0.4 -> 1.5.0.6 on 2026-09-11, with the conda-forge PR that moved it.
+    IT USED TO PIN THE VERSION TO A LITERAL, `== "1.5.0.6"`, AND THAT LITERAL
+    WENT STALE ON 2026-09-15 the moment the recipe was moved to 1.5.0.7 --
+    which is a thing its own docstring had argued for. It said, correctly,
+    that the recipe "builds from a PyPI sdist and carries its sha256, so it
+    can only name a version that has actually been published", and that the
+    pin lagging `setup.py` is "the NORMAL state between a bump and a
+    publish". Both true. Neither is an argument for writing one release's
+    number into a test.
 
-    THE TWO VERSIONS ARE NOT THE SAME NUMBER AND SHOULD NOT BE. This recipe
-    builds from a PyPI sdist and carries its sha256, so it can only name a
-    version that has actually been published. The repository's own version
-    moves first and the recipe follows once the release is on PyPI, which
-    means this pin lagging `setup.py` is the NORMAL state between a bump and
-    a publish -- not a staleness to fix by matching them.
+    A HARDCODED VERSION IN A TEST IS THE DRIFT IT WARNS ABOUT, one level up:
+    it goes red on the correct change and stays green through an incorrect
+    one, because it compares the recipe to a constant rather than to
+    anything real.
+
+    THE VERSION CONTRACT LIVES IN ONE PLACE NOW:
+    `tests/test_packaging_metadata.py::
+    test_the_conda_recipe_names_the_version_this_repo_ships`, which compares
+    the recipe to `setup.py` and SKIPS while that version is not yet tagged
+    -- so it encodes the lag this docstring describes instead of asserting
+    one side of it. That test is the one to change if the rule changes.
+
+    What is left here is what the name promises and what nothing else holds:
+    the licence and the licence file survive a version move.
     """
     recipe = yaml.safe_load(RECIPE.read_text(encoding="utf-8"))
-    assert recipe["context"]["version"] == "1.5.0.6"
     assert recipe["about"]["license"] == "BSD-3-Clause"
     assert recipe["about"]["license_file"] == "LICENSE"
+    assert str(recipe["context"]["version"]).count(".") >= 2, (
+        "the recipe's version is not a release number at all")
 
 
 def test_conda_forge_bot_tracks_pypi_and_automerge_is_limited_to_versions():
@@ -159,13 +175,22 @@ def test_conda_forge_bot_tracks_pypi_and_automerge_is_limited_to_versions():
 #: `opencv-python-headless 4.9.0.80` is a wrapper whose fourth component is
 #: the wrapper build, not the OpenCV release; conda-forge ships the library
 #: itself as `opencv 4.9.0`, so the two spellings name the same floor.
-#: PyPI's maintained `nvidia-ml-py` distribution uses NVIDIA driver-branch
-#: versions such as `11.450.51`, whereas conda-forge exposes the compatible
-#: `pynvml` line as `11.5`. The translated floors are the minimum compatible
-#: releases in their respective package indexes.
+#: THERE IS NO nvidia-ml-py ROW, and the one that used to sit here was wrong,
+#: not merely dead. It read `"pynvml": {"11.450.51": "11.5"}` under the claim
+#: that "conda-forge exposes the compatible `pynvml` line as 11.5" -- i.e.
+#: that the two names are one project versioned differently. They are not.
+#: conda-forge/nvidia-ml-py is NVIDIA's own (home nvidia.com), 25 releases
+#: running 11.450.51 ... 13.610.43, the same driver-numbered sequence PyPI
+#: serves; conda-forge/pynvml is github.com/gpuopenanalytics/pynvml, the
+#: retired wrapper, whose 11.x releases are that wrapper's own implementation
+#: and only become a shim over `nvidia-ml-py` at 12.0.0. So `11.5` was not a
+#: translation of `11.450.51` into another index -- it was a different
+#: package. The recipe names `nvidia-ml-py` with setup.py's own floor and
+#: needs no translation; tests/test_dependency_bounds.py::
+#: test_the_conda_recipe_names_nvidias_bindings_and_not_the_retired_wrapper
+#: is what keeps it from being renamed back.
 FLOOR_TRANSLATIONS = {
     "opencv": {"4.9.0.80": "4.9.0"},
-    "pynvml": {"11.450.51": "11.5"},
 }
 
 

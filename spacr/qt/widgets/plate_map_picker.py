@@ -149,15 +149,7 @@ class _Header(QLabel):
         """Build the header, locked to the same square as a well."""
         super().__init__(text, parent)
         self.setAlignment(Qt.AlignCenter)
-        # The hint. The floor and the ceiling are in the sheet below, for the
-        # reason `_locked_square` gives.
         self.setFixedSize(well_side(), well_side())
-        # `border-width` IS STATED, and only the width. `_locked_square` pins
-        # padding, margin and the min/max box, but Qt adds the BORDER back on
-        # top of all four -- so an application sheet carrying
-        # `QLabel { border: 5px solid ... }` grew this header to 32 x 32 in a
-        # grid pitched at 22, and the letters drifted off their rows. The
-        # colour is left alone so the theme still paints the rim it wants.
         self.setStyleSheet("QLabel { border-width: 0px; %s }"
                            % _locked_square())
 
@@ -179,19 +171,11 @@ class _Well(QPushButton):
         super().__init__(parent)
         self.row, self.column = int(row), int(column)
         self.setCheckable(True)
-        # The hint only: `_paint` states the floor and the ceiling in the
-        # sheet, which is the half of this that survives being polished.
         self.setFixedSize(well_side(), well_side())
         self.setToolTip(well_label(row, column))
         self._paint()
         self.toggled.connect(lambda *_: self._paint())
 
-    # ---------------------------------------------------------- the drag
-    #
-    # THE PRESSED BUTTON RECEIVES EVERY MOVE, because Qt grabs the mouse on
-    # a press -- so a sibling's `enterEvent` never fires while a drag is in
-    # progress, and the well under the pointer has to be found by asking the
-    # grid rather than by waiting to be told.
 
     def _picker(self):
         """The :class:`PlateMapPicker` this well belongs to, or ``None``.
@@ -243,9 +227,6 @@ class _Well(QPushButton):
         :param event: the mouse event.
         """
         picker = self._picker()
-        # BEFORE `super()`, which is what emits `clicked` and toggles the
-        # button: a drag that has already painted the rectangle must not
-        # then have its anchor flipped a second time by the click.
         dragged = (picker is not None and hasattr(picker, "finish_drag")
                    and picker.finish_drag())
         if dragged:
@@ -307,7 +288,6 @@ class PlateMapPicker(QDialog):
         area.setWidget(self._holder)
         outer.addWidget(area, 1)
 
-        # THE THREE BUTTONS THE ASK NAMED, bottom right and in that order.
         row = QHBoxLayout()
         row.addStretch(1)
         self.plate_button = QPushButton("Plate", self)
@@ -326,7 +306,6 @@ class PlateMapPicker(QDialog):
 
         self.set_layout_size(self._layout_size, keep=value)
 
-    # ------------------------------------------------------------ the grid
 
     def set_layout_size(self, layout: int, keep: str = "") -> None:
         """Rebuild the map for a plate layout and retain valid selections.
@@ -338,17 +317,11 @@ class PlateMapPicker(QDialog):
         self._layout_size = int(layout)
         wanted = self.selection() if not keep else self._read(keep)
 
-        # EVERY ITEM IN THIS GRID IS A WIDGET -- it is built with `addWidget`
-        # alone, and the minimum sizes and stretches below add no items of
-        # their own -- so each one taken out is a label or a well to drop.
         while self._grid.count():
             widget = self._grid.takeAt(0).widget()
             widget.setParent(None)
             widget.deleteLater()
         self._wells = {}
-        # A GRID KEEPS ITS ROW AND COLUMN COUNT when its items are taken out,
-        # so the stretch that absorbed the spare space on the previous layout
-        # would sit in the middle of a smaller one.
         for index in range(self._grid.rowCount()):
             self._grid.setRowStretch(index, 0)
         for index in range(self._grid.columnCount()):
@@ -365,21 +338,11 @@ class PlateMapPicker(QDialog):
                 well.pressed.connect(
                     lambda r=row, c=column: self._begin(r, c))
                 well.toggled.connect(lambda *_: self._say())
-                # CENTRED, LIKE ITS LABEL. Both share the cell, so a column
-                # number is over its column and a row letter beside its row
-                # however wide the cell has had to grow for the text in it.
                 self._grid.addWidget(well, row, column, Qt.AlignCenter)
                 self._wells[(row, column)] = well
 
-        # The corner the labels meet in holds nothing, and is a cell of the
-        # plate all the same.
         self._grid.setColumnMinimumWidth(0, well_side())
         self._grid.setRowMinimumHeight(0, well_side())
-        # WHERE THE SPARE SPACE GOES: past the last well, into an empty row
-        # and column that hold nothing. The holder fills the scroll area, and
-        # a grid with nowhere to put the extra width shares it out among the
-        # cells -- which is exactly what pulls the numbers off their columns
-        # and the letters off their rows as the window grows.
         self._grid.setRowStretch(rows + 1, 1)
         self._grid.setColumnStretch(columns + 1, 1)
 
@@ -403,18 +366,11 @@ class PlateMapPicker(QDialog):
         self.set_layout_size(int(chosen))
         return self._layout_size
 
-    # ------------------------------------------------------- the selection
 
     def _begin(self, row: int, column: int) -> None:
         """A press starts a drag; the anchor is where it started."""
         self._anchor = (row, column)
 
-    # ------------------------------------------------------------ the drag
-    #
-    # `select_region` SELECTS A RECTANGLE WITHOUT A HUMAN, which is all it can
-    # do on its own: press, move and release are what reach it from a mouse,
-    # and a picker that is only ever driven through the method below has the
-    # gesture implemented and unreachable.
 
     def begin_drag(self, row: int, column: int, modifiers=None) -> None:
         """Anchor a drag on one well.
@@ -429,9 +385,6 @@ class PlateMapPicker(QDialog):
         self._anchor = (int(row), int(column))
         self._adding = bool(modifiers is not None
                             and (modifiers & Qt.ControlModifier))
-        # WHAT TO GO BACK TO ON EVERY PREVIEW. A drag redraws from the state
-        # at the PRESS rather than from the last frame, so growing and then
-        # shrinking the rectangle leaves nothing behind.
         self._before = self.selection()
         self._dragged = False
 
@@ -560,8 +513,6 @@ class PlateMapPicker(QDialog):
         try:
             return parse(text, self._layout_size)
         except WellSpecError:
-            # A FIELD THAT WILL NOT PARSE OPENS EMPTY rather than refusing to
-            # open: the picker is how a user fixes a value they typed wrong.
             return set()
 
     def value(self) -> str:

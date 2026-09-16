@@ -678,10 +678,10 @@
       "title": "Mask：实时筛选、真实运行与经核查的叠加图导出",
       "series": 1,
       "app_key": "mask",
-      "section": "Core",
+      "section": "核心模块",
       "description": "使用真实可下载示例比较面积和直径，开启Plot运行两个视野，并通过明确的Python步骤补全缺失叠加图。",
       "objectives": [
-        "找到Home中的Mask及其内部Live、Time和3D控件。",
+        "找到Home中的Mask及其内部Live、Time、3D和OPS控件。",
         "分割前核对元数据与通道。",
         "区分可逆筛选与更改模型参数后重新运行。",
         "检查实际结果、保留警告并显式导出两个数组的叠加图。",
@@ -690,17 +690,18 @@
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "使用真实Mask下载，保留通道身份和文件名元数据。复用录像前确认live_preview.py和preview_contract.py与录制时逐字节一致；保存数组独立复现最小面积5642时51→25→51，以及直径30→60后42个标签。新的双视野批处理是另一个示例，不能直接比较数量：Plot=True、test_images=2、batch_size=2、n_jobs=2，直径30/30/15，三类流阈值均0.4。下载值100会禁用流筛选，不作为推荐值。原生叠加图循环仍在.spacr_plane_layout.json处失败，即使显示Finished仍缺一张图。不要删除布局文件或启用pickle。脚本仅对普通.npy文件调用spacr.plot.plot_image_mask_overlay，要求四个强度平面及位于4/5/6的细胞、细胞核和病原体掩膜。它在新文件夹输出不透明背景PNG，不改数组，也不修复GUI。两个数组哈希与原生运行日志一致。最终标签为25/19/8和52/50/58；第一视野病原体QC仍有near_empty_field警告。细胞QC早于掩膜调整。独立核查95,424,864个通道RGB值和7,952,072个合并前景像素，不代表生物学准确性。保留此前失败及透明背景试验，不把它们称作完整运行。没有AI请求、训练、科学批准或发布。API为spacr.core.preprocess_generate_masks和spacr.plot.plot_image_mask_overlay。OPS尚未实证，本课不讲解。",
+      "prerequisite": "使用真实Mask下载，保留通道身份和文件名元数据。Live预览于1.5.0.7在新副本上使用示例自带设置录制，仅在live_preview.py和preview_contract.py与该录制逐字节一致时复用；保存数组独立复现最小面积510时105→52→105，以及直径30→60后36个标签。新的双视野批处理是另一个示例，不能直接比较数量：Plot=True、test_images=2、batch_size=2、n_jobs=2，直径30/30/15，三类流阈值均0.4。下载值100会禁用流筛选，不作为推荐值。原生叠加图循环仍在.spacr_plane_layout.json处失败，即使显示Finished仍缺一张图。不要删除布局文件或启用pickle。脚本仅对普通.npy文件调用spacr.plot.plot_image_mask_overlay，要求四个强度平面及位于4/5/6的细胞、细胞核和病原体掩膜。它在新文件夹输出不透明背景PNG，不改数组，也不修复GUI。两个数组哈希与原生运行日志一致。最终标签为25/19/8和52/50/58；第一视野病原体QC仍有near_empty_field警告。细胞QC早于掩膜调整。独立核查95,424,864个通道RGB值和7,952,072个合并前景像素，不代表生物学准确性。保留此前失败及透明背景试验，不把它们称作完整运行。没有AI请求、训练、科学批准或发布。API为spacr.core.preprocess_generate_masks和spacr.plot.plot_image_mask_overlay。OPS是从Mask操作栏打开的独立页面，有自己的课程；本课不运行它。",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "从Home打开Mask。它是主模块，Live、Time和三维设置都在内部。Time有独立教程，位于子模块部分的Mask分类下。本课展示二维示例、实时比较和绘图变通步骤，不是自动获得验证的分割流程。",
+          "narration": "从Home打开Mask。它是主模块，操作栏中有Live、Time、三维和OPS开关。Time和OPS各有独立教程，位于子模块部分的Mask分类下。本课展示二维示例、实时比较和绘图变通步骤，不是自动获得验证的分割流程。",
           "related_lessons": [
             "05_home",
-            "17_timelapse"
+            "17_timelapse",
+            "76_ops"
           ],
           "hold_after": 0.7,
-          "speech_text": "从主页打开Mask。它是主模块，Live、Time和三维设置都在内部。Time有独立教程，位于子模块部分的Mask分类下。本课展示二维示例、实时比较和绘图变通步骤，不是自动获得验证的分割流程。"
+          "speech_text": "从主页打开Mask。它是主模块，操作栏中有Live、Time、三维和OPS开关。Time和OPS各有独立教程，位于子模块部分的Mask分类下。本课展示二维示例、实时比较和绘图变通步骤，不是自动获得验证的分割流程。"
         },
         {
           "visual": "native_02_download",
@@ -716,9 +717,9 @@
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "开启Live并选择要检查的视野。预览用于在大批量运行前比较图像和候选掩膜。保留的预览录像使用的视野，与后面批处理的两个视野不同。因此，预览显示的数量不能直接与批处理总数比较。",
+          "narration": "开启Live并选择要检查的视野。预览用于在大批量运行前比较图像和候选掩膜。本次预览使用的视野，与后面批处理的两个视野不同。因此，预览显示的数量不能直接与批处理总数比较。",
           "hold_after": 0.7,
-          "speech_text": "开启Live并选择要检查的视野。预览用于在大批量运行前比较图像和候选掩膜。保留的预览录像使用的视野，与后面批处理的两个视野不同。因此，预览显示的数量不能直接与批处理总数比较。"
+          "speech_text": "开启Live并选择要检查的视野。预览用于在大批量运行前比较图像和候选掩膜。本次预览使用的视野，与后面批处理的两个视野不同。因此，预览显示的数量不能直接与批处理总数比较。"
         },
         {
           "visual": "preview_05_live_settings",
@@ -728,21 +729,21 @@
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "初始结果包含五十一个细胞标签。把最小面积提高到五千六百四十二像素后，只显示二十五个标签。这是对现有结果的可逆筛选：原始掩膜不变，模型没有重新运行。该阈值仅用于演示，并非最佳生物学分界。",
+          "narration": "初始结果包含一百零五个细胞标签。把最小面积提高到五百一十像素后，只显示五十二个标签。这是对现有结果的可逆筛选：原始掩膜不变，模型没有重新运行。该阈值仅用于演示，并非最佳生物学分界。",
           "hold_after": 0.7,
-          "speech_text": "初始结果包含五十一个细胞标签。把最小面积提高到五千六百四十二像素后，只显示二十五个标签。这是对现有结果的可逆筛选：原始掩膜不变，模型没有重新运行。该阈值仅用于演示，并非最佳生物学分界。"
+          "speech_text": "初始结果包含一百零五个细胞标签。把最小面积提高到五百一十像素后，只显示五十二个标签。这是对现有结果的可逆筛选：原始掩膜不变，模型没有重新运行。该阈值仅用于演示，并非最佳生物学分界。"
         },
         {
           "visual": "preview_10_filters_restored",
-          "narration": "恢复原来的面积限制，五十一个标签全部回来。采用筛选前，要查看哪些物体消失以及原因。小物体既可能真实存在，也可能是分割错误，删除它们并不能回答这个问题。原始结果和选定筛选值应分别清楚保存。",
+          "narration": "恢复原来的面积限制，一百零五个标签全部回来。采用筛选前，要查看哪些物体消失以及原因。小物体既可能真实存在，也可能是分割错误，删除它们并不能回答这个问题。原始结果和选定筛选值应分别清楚保存。",
           "hold_after": 0.7,
-          "speech_text": "恢复原来的面积限制，五十一个标签全部回来。采用筛选前，要查看哪些物体消失以及原因。小物体既可能真实存在，也可能是分割错误，删除它们并不能回答这个问题。原始结果和选定筛选值应分别清楚保存。"
+          "speech_text": "恢复原来的面积限制，一百零五个标签全部回来。采用筛选前，要查看哪些物体消失以及原因。小物体既可能真实存在，也可能是分割错误，删除它们并不能回答这个问题。原始结果和选定筛选值应分别清楚保存。"
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "把直径从三十改为六十像素并重新运行，是模型参数比较，不只是显示筛选。录像中的视野得到四十二个标签。应结合图像比较边界，而不只看数量。标签减少不能证明模型更好，这些设置也不是通用建议。",
+          "narration": "把直径从三十改为六十像素并重新运行，是模型参数比较，不只是显示筛选。录像中的视野得到三十六个标签。应结合图像比较边界，而不只看数量。标签减少不能证明模型更好，这些设置也不是通用建议。",
           "hold_after": 0.7,
-          "speech_text": "把直径从三十改为六十像素并重新运行，是模型参数比较，不只是显示筛选。录像中的视野得到四十二个标签。应结合图像比较边界，而不只看数量。标签减少不能证明模型更好，这些设置也不是通用建议。"
+          "speech_text": "把直径从三十改为六十像素并重新运行，是模型参数比较，不只是显示筛选。录像中的视野得到三十六个标签。应结合图像比较边界，而不只看数量。标签减少不能证明模型更好，这些设置也不是通用建议。"
         },
         {
           "visual": "native_20_batch_settings",
@@ -843,7 +844,7 @@
       "title": "Measure：实时视野查看、实际测量与保存结果",
       "series": 1,
       "app_key": "measure",
-      "section": "Core",
+      "section": "核心模块",
       "description": "使用可下载的十六视野示例查看实时视野和通道，恢复不归一化的裁剪设置，阅读质量警告，并核验开启 Plot 后的测量结果。",
       "objectives": [
         "加载当前示例，区分强度通道与标签掩膜平面。",
@@ -959,7 +960,7 @@
       "title": "Annotate：真实裁剪图像、已保存标签和复核工具",
       "series": 1,
       "app_key": "annotate",
-      "section": "Core",
+      "section": "核心模块",
       "description": "加载可下载的裁剪图像数据集，创建独立标注列，验证真正保存的标签，调整视图，并找到当前 Annotate 模块中的复核与训练工具。",
       "objectives": [
         "选择合适的裁剪图像或按需读取示例，并打开实际项目文件夹。",
@@ -1160,7 +1161,7 @@
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
-      "section": "Core",
+      "section": "核心模块",
       "description": "保留下载裁剪图的原始像素与明确孔位身份，运行小型模型，并如实检查其有限性能。",
       "objectives": [
         "找到主模块Classify中的计算机视觉分类方式。",
@@ -1339,7 +1340,7 @@
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
-      "section": "Core",
+      "section": "核心模块",
       "description": "使用可下载的已测量细胞、明确的元数据标签、小型随机森林、真实控制台输出和已保存的预测来操作Classify。",
       "objectives": [
         "选择表格分类器，并通过数据选择器载入已测量的示例。",
@@ -1487,16 +1488,107 @@
       "id": "12_map_barcodes",
       "number": 12,
       "slug": "map_barcodes",
-      "title": "映射条形码",
+      "title": "Map Barcodes：实时搜索、经核验的参考表和真实计数",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "Core",
-      "description": "本教程尚未上线。请先浏览其他教程。",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "即将推出"
+      "section": "主模块",
+      "description": "下载少量真实测序数据，检查实时条形码搜索结果，明确应用建议设置并核验计数。另用当前Python API演示包含两类条形码的集合。",
+      "objectives": [
+        "找出真实读段支持的参考表和方向。",
+        "区分搜索建议、已应用设置以及方向正确的参考文件。",
+        "检查保存的计数，明确指定条形码集合，不虚构额外条形码。"
+      ],
+      "prerequisite": "使用带条形码搜索功能的spaCR 1.5.0.7 nightly。录像采用可下载的SRR33531217，以及维护者提供的匹配primers_3列、行参考表和向导序列参考表，而非旧版内置参考表。映射前请准备与自己的文库匹配的参考表。",
+      "scenes": [
+        {
+          "visual": "gui_01_module",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc"
+          ],
+          "narration": "从Home打开Map Barcodes。该模块把测序读段转换为按名称识别的条形码计数。Barcode QC是其下属的质量控制模块，独立教程仍然可用。",
+          "speech_text": "从主页打开Map Barcodes。该模块把测序读段转换为按名称识别的条形码计数。Barcode QC是其下属的质量控制模块，独立教程仍然可用。"
+        },
+        {
+          "visual": "gui_02_archive_bounded_choice",
+          "hold_after": 0.7,
+          "narration": "选择Load test data，然后选中公共归档中第一个测序运行的两个配对读段文件。将每个文件限制为一万条读段。这样下载的是真实双端样本的一部分，而不是整个测序归档。",
+          "speech_text": "选择Load test data，然后选中公共归档中第一个测序运行的两个配对读段文件。将每个文件限制为一万条读段。这样下载的是真实双端样本的一部分，而不是整个测序归档。"
+        },
+        {
+          "visual": "gui_04_reference_tables",
+          "hold_after": 0.7,
+          "narration": "选择属于该文库的参考表。这里使用匹配的primers三列参考表、行参考表和向导序列参考表，而不是旧的默认表。为了展示建议如何改变设置，我们有意从一百二十个碱基的窗口长度开始。",
+          "speech_text": "选择属于该文库的参考表。这里使用匹配的primers三列参考表、行参考表和向导序列参考表，而不是旧的默认表。为了展示建议如何改变设置，我们有意从一百二十个碱基的窗口长度开始。"
+        },
+        {
+          "visual": "gui_06_live_search_progress",
+          "hold_after": 0.7,
+          "narration": "打开Find barcodes并开始搜索。对两个文件、两个方向的真实读段采样时，计数会持续更新。实时细化搜索的过程中，设置表单保持不变。",
+          "speech_text": "打开Find barcodes并开始搜索。对两个文件、两个方向的真实读段采样时，计数会持续更新。实时细化搜索的过程中，设置表单保持不变。"
+        },
+        {
+          "visual": "gui_07_search_verdicts",
+          "hold_after": 0.7,
+          "narration": "将Observed与By chance比较，再检查方向、位置和判定。仅凭匹配率不能确认某类条形码。匹配位置是否集中、观察到多少种不同参考条形码，也会影响判断；应用前请阅读判定说明。",
+          "speech_text": "将Observed与By chance比较，再检查方向、位置和判定。仅凭匹配率不能确认某类条形码。匹配位置是否集中、观察到多少种不同参考条形码，也会影响判断；应用前请阅读判定说明。"
+        },
+        {
+          "visual": "gui_08_coloured_reads",
+          "hold_after": 0.7,
+          "narration": "读段查看器每行显示一条真实读段。图例标出列、向导序列、行和锚定序列的颜色。彩色匹配有助于检查证据，但单独一个彩色匹配并不能证明参考表正确。",
+          "speech_text": "读段查看器每行显示一条真实读段。图例标出列、向导序列、行和锚定序列的颜色。彩色匹配有助于检查证据，但单独一个彩色匹配并不能证明参考表正确。"
+        },
+        {
+          "visual": "gui_09_proposed_settings",
+          "hold_after": 0.7,
+          "narration": "检查建议。该样本的提取窗口长度为八十九个碱基。只有点击Apply these settings，建议的变化才会写入表单。自动发现并不意味着获准自动替换你的设置。",
+          "speech_text": "检查建议。该样本的提取窗口长度为八十九个碱基。只有点击Apply these settings，建议的变化才会写入表单。自动发现并不意味着获准自动替换你的设置。"
+        },
+        {
+          "visual": "gui_11_oriented_reference_copies",
+          "hold_after": 0.7,
+          "narration": "说明还要求行和向导序列参考表采用反向互补方向。Apply不会创建这些文件。请选择另行核验过的反向互补副本，保留每个原始条形码名称；列参考表保持原有方向。",
+          "speech_text": "说明还要求行和向导序列参考表采用反向互补方向。Apply不会创建这些文件。请选择另行核验过的反向互补副本，保留每个原始条形码名称；列参考表保持原有方向。"
+        },
+        {
+          "visual": "gui_20_batch_settings",
+          "hold_after": 0.7,
+          "narration": "使用两个工作进程、每批一千条记录，并开启注释读段保存，来处理下载的配对文件。缺失的归属仍保留为缺失。此映射流程使用CPU，不需要GPU。",
+          "speech_text": "使用两个工作进程、每批一千条记录，并开启注释读段保存，来处理下载的配对文件。缺失的归属仍保留为缺失。此映射流程使用CPU，不需要GPU。"
+        },
+        {
+          "visual": "gui_23_batch_finished",
+          "hold_after": 0.7,
+          "narration": "实际运行提取了八千六百一十一个窗口，将七千六百五十七条读段映射为四千零九十九行计数。没有匹配或存在歧义的参考仍不分配名称。完成状态通过保存文件核验，而不只是依赖控制台的结束消息。",
+          "speech_text": "实际运行提取了八千六百一十一个窗口，将七千六百五十七条读段映射为四千零九十九行计数。没有匹配或存在歧义的参考仍不分配名称。完成状态通过保存文件核验，而不只是依赖控制台的结束消息。"
+        },
+        {
+          "visual": "api_01_actual_two_barcode_api",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "narration": "当前Python API接受任意大小的条形码集合，但这个表单尚无条形码集合编辑器。这里进行第二次真实计算，在一千对读段中只选择列和向导序列两类条形码。每个条目都需要模式中对应的命名捕获组。省略行身份后，结果按列和向导序列计数，而不是按孔计数。",
+          "speech_text": "当前Python API接受任意大小的条形码集合，但这个表单尚无条形码集合编辑器。这里进行第二次真实计算，在一千对读段中只选择列和向导序列两类条形码。每个条目都需要模式中对应的命名捕获组。省略行身份后，结果按列和向导序列计数，而不是按孔计数。"
+        },
+        {
+          "visual": "api_02_real_count_figure",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc",
+            "13_regression"
+          ],
+          "narration": "这幅Python核验图显示GUI三类条形码运行所保存的读段深度。每个计数都与注释读段和参考名称独立核对。深度不均属于质量控制观察，不代表生物学效应；进入下游Regression之前，应先检查Barcode QC。",
+          "speech_text": "这幅Python核验图显示GUI三类条形码运行所保存的读段深度。每个计数都与注释读段和参考名称独立核对。深度不均属于质量控制观察，不代表生物学效应；进入下游Regression之前，应先检查Barcode QC。"
+        },
+        {
+          "visual": "gui_30_ai_unsent_question",
+          "hold_after": 0.7,
+          "narration": "配置服务提供商后，spaCR AI控件可以帮助解释运行结果。录像只展示了尚未发送的问题，没有任何AI回答。扩大处理规模前，请自行核对参考身份、方向、警告和保存的计数。",
+          "speech_text": "配置服务提供商后，斯佩克尔 AI控件可以帮助解释运行结果。录像只展示了尚未发送的问题，没有任何AI回答。扩大处理规模前，请自行核对参考身份、方向、警告和保存的计数。"
+        }
+      ]
     },
     {
       "id": "13_regression",
@@ -1505,7 +1597,7 @@
       "title": "Regression：用真实示例从配对数据表走到结果",
       "series": 1,
       "app_key": "regression",
-      "section": "Core",
+      "section": "核心模块",
       "description": "加载可下载的示例筛选数据，配置一次规模受限的向导置换分析，查看真实控制台和图形，并找到现已嵌套在 Regression 内的专用工具。",
       "objectives": [
         "通过界面上的测试数据控件加载四组配对的得分与计数表，并选择独立的输出文件夹。",
@@ -1676,7 +1768,7 @@
       "title": "Make Masks：可撤销编辑、重新裁剪与本地检测",
       "series": 1,
       "app_key": "make_masks",
-      "section": "Tools",
+      "section": "分割模型",
       "description": "通过真实操作编辑下载的细胞标签，区分显示与掩膜变化，创建可恢复的训练裁剪图像，并检查真实的Cellpose检测及其中间视图。",
       "objectives": [
         "打开配对的二维图像和实例掩膜，不修改下载的源数据。",
@@ -1852,7 +1944,7 @@
       "title": "Image UMAP：真实测量数据与裁剪图像的交互检查",
       "series": 1,
       "app_key": "umap",
-      "section": "Tools",
+      "section": "结果与质量控制",
       "description": "使用已下载示例的测量数据构建小规模嵌入，交互查看真实裁剪图像，并找到嵌套的投影工具。",
       "objectives": [
         "复用已下载的项目并选择测量表。",
@@ -1998,7 +2090,7 @@
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "Classify",
+      "section": "结果与质量控制",
       "description": "在Classify内打开Activation Maps，将可信模型与真实裁剪图匹配，比较两种输出，不把归因当作验证。",
       "objectives": [
         "找到当前嵌套工具并保持模型输入约定。",
@@ -2100,7 +2192,7 @@
       "title": "时间序列追踪",
       "series": 2,
       "app_key": "timelapse",
-      "section": "Core",
+      "section": "核心模块",
       "host_app_key": "mask",
       "description": "从 Mask 内嵌流程运行八帧合成示例，并在 Track preview 中比较实际掩膜的连接。",
       "objectives": [
@@ -2311,7 +2403,7 @@
       "title": "运动性分析",
       "series": 2,
       "app_key": "motility",
-      "section": "Core",
+      "section": "核心模块",
       "host_app_key": "measure",
       "description": "在 Measure 内的 Motility 中，用可复现的合成轨迹学习实时筛选与单位换算。",
       "objectives": [
@@ -2522,7 +2614,7 @@
       "series": 3,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "Tools",
+      "section": "分割模型",
       "title": "Train Cellpose：经核查的配对数据与明确的API替代步骤",
       "description": "找到Cellpose Workbench内的Train，识别当前来源导入缺陷，并用六组可下载细胞图像和掩膜完成真实的两轮Python训练演示。",
       "objectives": [
@@ -2660,7 +2752,7 @@
       "series": 3,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "Tools",
+      "section": "分割模型",
       "title": "应用 Cellpose：保存掩膜与实时筛选检查",
       "description": "通过嵌套的 Workbench，将 CPSAM 应用于三张可下载的真实图像，检查图表和控制台，并区分实时预览与批量推理。",
       "objectives": [
@@ -2789,7 +2881,7 @@
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "分割模型",
       "description": "打开嵌套的比较界面，加载真实视野，并用可运行的API比较已保存的分割结果。一致性不代表准确性，也不表示GUI推理问题已修复。",
       "objectives": [
         "在Make Masks内找到Model Compare并加载真实示例视野。",
@@ -2912,7 +3004,7 @@
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "分割模型",
       "description": "打开嵌套的模型库，扫描现有本地缓存，区分已记录的训练信息与未知来源。当前Cellpose参数不兼容问题尚在，不能声称已成功完成基准测试。",
       "objectives": [
         "在Make Masks内找到Model Zoo并扫描本地模型目录。",
@@ -3022,7 +3114,7 @@
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "打开嵌套工具，在真实下载裁剪图像的副本上比较明确标为人工教学用途的标签，并区分两两一致性与多轮标注汇总。",
       "objectives": [
         "从 Annotate 打开 Annotator Agreement。",
@@ -3107,7 +3199,7 @@
       "title": "蚀斑分析",
       "series": 3,
       "app_key": "analyze_plaques",
-      "section": "Toxoplasma assays",
+      "section": "弓形虫实验",
       "description": "复用合成掩膜，明确选择预览模型，检查可逆过滤和实际保存的数据表。",
       "objectives": [
         "区分已保存掩膜的分析与新的模型预测。",
@@ -3304,7 +3396,7 @@
       "slug": "recruitment",
       "series": 3,
       "app_key": "recruitment",
-      "section": "Assays",
+      "section": "弓形虫实验",
       "title": "Recruitment：用真实测量值验证区室间比值",
       "description": "对真实测量表进行限定范围的分析，查看当前的筛选条件和图表，并区分宿主细胞比值、孔级汇总与生物学结论。",
       "objectives": [
@@ -3570,7 +3662,7 @@
       "title": "侵入实验",
       "series": 3,
       "app_key": "invasion",
-      "section": "Toxoplasma assays",
+      "section": "弓形虫实验",
       "description": "配置当前的双色染色分析，区分染色基准孔和实验条件，检查真实阈值、图表与输出文件。演示数据库明确为合成数据。",
       "objectives": [
         "将细胞外染色和总染色对应到正确的测量列。",
@@ -3754,7 +3846,7 @@
       "title": "复制实验分析",
       "series": 3,
       "app_key": "replication",
-      "section": "Toxoplasma assays",
+      "section": "弓形虫实验",
       "description": "按寄生泡统计寄生虫，检查分布，并在不改变数据的情况下调整图例。整个示例使用合成数据，不证明治疗效果。",
       "objectives": [
         "以寄生泡而非宿主细胞作为计数单位。",
@@ -3923,7 +4015,7 @@
       "series": 4,
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
-      "section": "Tools",
+      "section": "结果与质量控制",
       "title": "Training Runs：用合成日志练习比较操作",
       "description": "在 Classify 中打开 Training Runs，使用明确标注为合成数据的进度日志，查看记录的指标、自动生成的设置差异和各折的显示模式，而不训练或评估模型。",
       "objectives": [
@@ -4135,7 +4227,7 @@
       "slug": "report",
       "series": 4,
       "app_key": "report",
-      "section": "Help",
+      "section": "结果与质量控制",
       "title": "Report：查看并分享已记录的结果，无需重新运行分析",
       "description": "根据真实的 External Masks 示例生成报告，区分处理完成与缺少质量控制证据，并在分享前检查实际生成的独立 HTML 文件。",
       "objectives": [
@@ -4289,7 +4381,7 @@
       "slug": "plate_queue",
       "series": 4,
       "app_key": "queue",
-      "section": "Data and batch runs",
+      "section": "数据和批处理运行",
       "title": "Plate Queue：运行、在任务之间停止并继续",
       "description": "把经过验证的 Recruitment 示例在两个独立目录中重复运行，检查实际保存的结果，并区分受控停止与尚未验证的崩溃恢复。",
       "objectives": [
@@ -4421,7 +4513,7 @@
       "series": 4,
       "app_key": "external_masks",
       "host_app_key": "foreign",
-      "section": "Data",
+      "section": "数据和批处理运行",
       "title": "External Masks：测量现有细胞标签，无需重新分割",
       "description": "复用真实显微图像和现有细胞标签，检查分配结果，在不写入项目数据的情况下预览，并验证新测量的 spaCR 项目，同时区分显示用裁剪图、与细胞重复的细胞质区域和独立的生物学证据。",
       "objectives": [
@@ -4724,7 +4816,7 @@
       "slug": "align_stitch",
       "series": 4,
       "app_key": "align",
-      "section": "Tools",
+      "section": "数据和批处理运行",
       "title": "Align & Stitch：检查实际方案，核验写出的拼接图像",
       "description": "使用当前拼接界面处理保留原始像素的真实显微图像，检查求解得到的布局，以大小受限的图像条带写出结果，并核验拼接图像及其坐标记录。",
       "objectives": [
@@ -4857,7 +4949,7 @@
       "title": "孔板查看器",
       "series": 4,
       "app_key": "plate_view",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "以板热图形式探索测量值，并检测空间伪影或边缘效应。",
       "objectives": [
         "生成合适的板热图。",
@@ -4932,7 +5024,7 @@
       "title": "数据库浏览器",
       "series": 4,
       "app_key": "db_browser",
-      "section": "Data",
+      "section": "数据",
       "description": "无需命令行即可浏览、过滤和导出 spaCR 测量数据库。",
       "objectives": [
         "安全打开数据库并逐页浏览。",
@@ -5006,7 +5098,7 @@
       "series": 4,
       "app_key": "convert",
       "host_app_key": "foreign",
-      "section": "Data",
+      "section": "数据",
       "title": "Format Converter：写出真实图像前核对标识",
       "description": "通过 Import 打开 Format Converter，预览两幅真实图像的映射，写入独立的输出目录，并在不改变原始数据的前提下验证检查点复用。",
       "objectives": [
@@ -5207,7 +5299,7 @@
       "series": 5,
       "title": "Import Project：核查真实掩膜、测量值与来源",
       "app_key": "foreign",
-      "section": "Data",
+      "section": "数据",
       "description": "导入包含两个真实显微视野的子集，在写入前核查对象关联和列名，并区分导入的测量值与 spaCR 重新执行测量的结果。",
       "objectives": [
         "找到 Import Project 及其三个嵌套输入工具。",
@@ -5370,7 +5462,7 @@
       "slug": "batch",
       "series": 5,
       "app_key": "batch",
-      "section": "Data and batch runs",
+      "section": "数据和批处理运行",
       "title": "Batch Runner：经过验证的任务、依赖关系和独立日志",
       "description": "用真实的多线程界面和文件选择器配置三次保留通道的转换，核对依赖顺序，保存并重新加载队列，再停止和继续真实子进程任务。",
       "objectives": [
@@ -5533,7 +5625,7 @@
       "title": "分布式任务",
       "series": 5,
       "app_key": "distributed_jobs",
-      "section": "Data and batch runs",
+      "section": "数据和批处理运行",
       "description": "从Help准备真实的执行配置，区分保存配置与经过验证的远程执行。",
       "objectives": [
         "从Help打开Distributed jobs并保存配置。",
@@ -5671,7 +5763,7 @@
       "title": "分类器评估",
       "series": 3,
       "app_key": "classifier_evaluation",
-      "section": "Tools",
+      "section": "结果与质量控制",
       "host_app_key": "classify_merged",
       "description": "在 Classify 中检查真实的已保存预测，并识别训练集与测试集的孔位重叠。",
       "objectives": [
@@ -5869,7 +5961,7 @@
       "slug": "run_history",
       "series": 5,
       "app_key": "run_history",
-      "section": "Data and batch runs",
+      "section": "结果与质量控制",
       "title": "Run History：检查真实运行日志并恢复可用设置",
       "description": "从 Help 查找运行记录，查看设置、文件清单、警告和故障，并重新打开真实的 Recruitment 配置，不重新运行或删除任何内容。",
       "objectives": [
@@ -6035,7 +6127,7 @@
       "title": "Classify：主模块及其嵌套工具",
       "series": 4,
       "app_key": "classify_merged",
-      "section": "Core",
+      "section": "核心模块",
       "description": "选择基于图像或测量值的分类，使用可下载示例，检查真实结果，并找到Classify内的五个嵌套工具。",
       "objectives": [
         "从统一的Home模块选择分类方式。",
@@ -6205,7 +6297,7 @@
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
-      "section": "Make Masks",
+      "section": "核心模块",
       "example_files": [
         "Curate_SYNTHETIC_practice.zip"
       ],
@@ -6344,7 +6436,7 @@
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
-      "section": "Data",
+      "section": "数据",
       "description": "在Measure的Illumination页面中，用下载的图像估计照明场，检查实际导出的质控图，并区分数值改善与生物学验证。",
       "objectives": [
         "打开嵌套的Illumination页面，选择合并图像中的实际强度通道。",
@@ -6528,7 +6620,7 @@
       "slug": "data_manager",
       "series": 5,
       "app_key": "data_manager",
-      "section": "Data and batch runs",
+      "section": "数据",
       "title": "Data Manager：安全检查、清理和归档真实示例",
       "description": "检查已登记与未登记的文件，取消并确认精确的裁剪图像清理，再将专用项目副本连同归档记录移至目标位置。",
       "objectives": [
@@ -6669,7 +6761,7 @@
       "slug": "project_browser",
       "series": 5,
       "app_key": "project_browser",
-      "section": "Data and batch runs",
+      "section": "数据",
       "title": "Project Browser：发现真实项目并解读证据",
       "description": "查找已登记和未登记的示例，控制搜索深度，按实际磁盘占用排序，在不运行分析或删除文件的情况下查看记录。",
       "objectives": [
@@ -6821,7 +6913,7 @@
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
-      "section": "Mask correction",
+      "section": "分割模型",
       "description": "使用合成图像与标签文件练习经过逐像素核验的往返流程，包括备份、原生 Fill 与 Undo，以及每次导入之间关闭再打开查看器。",
       "objectives": [
         "在 Make Masks 内打开 Napari Bridge，分别选择图像文件和标签文件。",
@@ -6940,7 +7032,7 @@
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
-      "section": "Map Barcodes",
+      "section": "结果与质量控制",
       "description": "使用已发布的计数示例运行Barcode QC，在实际保存的图形中比较读段深度和阈值取舍。",
       "objectives": [
         "在Map Barcodes内找到Barcode QC并选择真实计数表。",
@@ -7034,7 +7126,7 @@
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "Regression",
+      "section": "结果与质量控制",
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
@@ -7129,7 +7221,7 @@
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "Regression",
+      "section": "结果与质量控制",
       "description": "打开Regression内的工具，使用真实的已完成运行，识别三个审查问题，并保存明确标为未审查的Markdown。",
       "objectives": [
         "在Regression中找到工具，选择已完成运行的正确来源。",
@@ -7245,7 +7337,7 @@
       "title": "Run Compare：比较两个真实的Measure快照",
       "series": 5,
       "app_key": "run_compare",
-      "section": "Data",
+      "section": "结果与质量控制",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
@@ -7365,7 +7457,7 @@
       "series": 5,
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
-      "section": "Data",
+      "section": "结果与质量控制",
       "title": "Control Charts：用明确的对照和界限检查实验批次序列",
       "description": "从 QC 打开专用工具，加载明确标注为合成数据的三十块板示例，核对所选对照与基线，并导出经过独立核验的图表数据点。",
       "objectives": [
@@ -7493,7 +7585,7 @@
       "slug": "pipeline_graph",
       "series": 5,
       "app_key": "pipeline_graph",
-      "section": "Explore",
+      "section": "探索",
       "title": "Pipeline Graph：检查真实来源记录和缺失产物",
       "description": "读取真实产物记录，区分文件缺失与来源未记录，筛选图并复制完整的Graphviz表示，而不重新运行分析。",
       "objectives": [
@@ -7647,7 +7739,7 @@
       "title": "预测剖面",
       "series": 5,
       "app_key": "profiler",
-      "section": "Explore",
+      "section": "探索",
       "description": "导入用合成数据拟合的模型，改变一个输入，并检查固定值和绘图设置对预测的影响。",
       "objectives": [
         "在 Regression 中打开 Prediction Profiler 并导入适用的系数表。",
@@ -7795,7 +7887,7 @@
       "slug": "qc_dashboard",
       "series": 5,
       "app_key": "qc_dashboard",
-      "section": "Data",
+      "section": "探索",
       "title": "QC：阅读证据，不只看摘要",
       "description": "阅读真实下载和计算得到的质量报告，区分缺失检查、警告与失败，并找到 QC 下的三个子模块工具。",
       "objectives": [
@@ -7933,7 +8025,7 @@
       "series": 5,
       "app_key": "image_scatter",
       "host_app_key": "umap",
-      "section": "Explore",
+      "section": "探索",
       "title": "Image Scatter：真实测量值与每个点对应的图像",
       "description": "在 Image UMAP 内使用 Image Scatter，查看下载的真实细胞测量值、经过核对的悬停图像，以及向 Annotate 精确传递单个细胞的过程。",
       "objectives": [
@@ -8087,7 +8179,7 @@
       "series": 5,
       "app_key": "lineage",
       "host_app_key": "db_browser",
-      "section": "Explore",
+      "section": "探索",
       "title": "Lineage：包含关系身份与已核实的父细胞图像",
       "description": "检查保存的父子关系和显示上限，区分正确的父细胞裁剪图与缺失子图像的错误替代。",
       "objectives": [
@@ -8203,7 +8295,7 @@
       "slug": "layer_viewer",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "Explore",
+      "section": "探索",
       "title": "Layer Viewer：真实图像与掩膜叠加、显示控制和不改动源数据的检查",
       "description": "在 QC 中打开 Layer Viewer，载入匹配的强度图像与细胞掩膜，试用可见性、不透明度、混合和图层顺序，并区分视图操作、编辑与标定。",
       "objectives": [
@@ -8373,7 +8465,7 @@
       "slug": "graph_builder",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "Explore",
+      "section": "探索",
       "title": "Graph Builder：真实测量、实时筛选与移交限制",
       "description": "用实际测量列绘图，按采集元数据分面，并识别当前向Annotate移交选择的缺陷。",
       "objectives": [
@@ -8480,7 +8572,7 @@
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "Measure",
+      "section": "探索",
       "description": "找到嵌套导出工具，了解缺失元数据造成的错误，并用明确、经过核验的 Python 方案导出真实示例。",
       "objectives": [
         "找到 Measure 内的 AnnData Export 和源测量数据库。",
@@ -8645,7 +8737,7 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "Explore",
+      "section": "探索",
       "title": "PCA：真实测量、实时重拟合与缺失值",
       "description": "在 Image UMAP 中使用 PCA，通过下载的真实细胞数据查看经过核验的得分、可逆筛选、明确的缺失值策略和三份真实 CSV 导出。",
       "objectives": [
@@ -8843,7 +8935,7 @@
       "slug": "tabulate",
       "series": 5,
       "app_key": "tabulate",
-      "section": "Explore",
+      "section": "探索",
       "title": "Tabulate：汇总真实测量值、核对计数并更新汇总图",
       "description": "在Database Browser中打开Tabulate，按孔和视野汇总下载的测量数据，查看真实缺失值，导出已核对的统计量，并区分实时汇总表、过期图表和分类坐标轴。",
       "objectives": [
@@ -9039,7 +9131,7 @@
       "slug": "feature_dictionary",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "Help",
+      "section": "探索",
       "title": "Feature Dictionary：查询含义、单位和计算函数",
       "description": "使用 Help 菜单中的实际词典查找特征定义，按概念和对象筛选，并区分通用文档与项目中实际可用的测量结果。",
       "objectives": [
@@ -9168,7 +9260,7 @@
       "slug": "small_multiples",
       "series": 5,
       "app_key": "trellis",
-      "section": "Explore",
+      "section": "探索",
       "title": "Small Multiples：真实分组、实时筛选与准确的坐标尺度",
       "description": "在Graph Builder中打开Small Multiples，以共享或独立坐标范围比较下载的真实测量数据，检查空组与分面显示上限，并创建可撤销的派生列。",
       "objectives": [
@@ -9319,7 +9411,7 @@
       "slug": "gate_editor",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "Tools",
+      "section": "探索",
       "title": "Gate Editor：实测群体、可还原的视图与精确导出",
       "description": "在下载的细胞测量数据上绘制门，核验保存的归属信息，比较三个实际测量维度的视图与投影视图，并在限定范围内检查聚类，不凭空赋予生物学标签。",
       "objectives": [
@@ -9507,7 +9599,7 @@
       "slug": "feature_explorer",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "Explore",
+      "section": "探索",
       "title": "Feature Explorer：为真实测量值排序，并明确比较对象",
       "description": "打开 Classify 中的子模块，比较真实的孔板行测量值、检查分布、实时筛选、添加计算列，并导出所需的排名；不训练分类器。",
       "objectives": [
@@ -9673,7 +9765,7 @@
       "slug": "outliers",
       "series": 5,
       "app_key": "outliers",
-      "section": "Explore",
+      "section": "探索",
       "title": "Outliers：检查真实标记，不删除观测值",
       "description": "在 QC 内打开 Outliers，对真实细胞测量值比较稳健规则，区分未评分的孔与没有问题的孔，检查一次真实的对数变换拒绝，并导出保留标记的所有数据行。",
       "objectives": [
@@ -9900,7 +9992,7 @@
       "slug": "experiment_design",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "Data",
+      "section": "实验设计",
       "title": "Experiment Design：可重现的板布局与精确导出",
       "description": "通过实际控件编辑拟定的板布局，检查容量和重复数警告，重现随机分配，并导出精确的孔位图。",
       "objectives": [
@@ -10060,7 +10152,7 @@
       "title": "Power / Design：理解模拟器及其局限",
       "series": 5,
       "app_key": "power",
-      "section": "Design",
+      "section": "实验设计",
       "example_files": [
         "Power_recorded_simulation_review.zip"
       ],
@@ -10164,7 +10256,7 @@
       "slug": "dose_response",
       "series": 5,
       "app_key": "dose_response",
-      "section": "Data",
+      "section": "实验设计",
       "title": "剂量–反应：拟合曲线、不确定性与有依据的拒绝",
       "description": "使用可复现的合成数据表操作当前 Dose Response 界面，比较剖面似然与 Wald 区间，并区分已拟合、无法界定和被拒绝的结果。",
       "objectives": [
@@ -10399,7 +10491,7 @@
       "title": "解释计算机视觉模型",
       "series": 5,
       "app_key": "explain_cv",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "host_app_key": "classify_merged",
       "description": "在Classify中检查真实的代理模型拟合，识别何时不能解读其解释结果。",
       "objectives": [
@@ -10546,7 +10638,7 @@
       "title": "调查命中",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "本教程尚未上线。请先浏览其他教程。",
       "objectives": [],
       "prerequisite": "",
@@ -10563,7 +10655,7 @@
       "series": 5,
       "app_key": "volcano_explorer",
       "host_app_key": "regression",
-      "section": "Regression",
+      "section": "结果与质量控制",
       "example_files": [
         "Volcano_real_guide_family.zip"
       ],
@@ -10682,7 +10774,7 @@
       "title": "参数扫描",
       "series": 5,
       "app_key": "parameter_sweep",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "host_app_key": "regression",
       "description": "在 Regression 中运行两个试验，区分计算完成与统计推断有效。",
       "objectives": [
@@ -11017,7 +11109,7 @@
       "title": "Embeddings：当前界面与真实的Python示例",
       "series": 2,
       "app_key": "embeddings",
-      "section": "Data",
+      "section": "数据",
       "description": "了解新模块，通过API编码真实图像，并区分界面限制、探索性展示与生物学验证。",
       "objectives": [
         "区分当前界面和可用的API。",
@@ -11161,7 +11253,7 @@
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
-      "section": "Segmentation models",
+      "section": "分割模型",
       "description": "在Mask中找到OPS，随后查看基于四幅真实图像验证的配准与合成示例。这不是完成整板处理、细胞分割或条形码解码的工作流。",
       "objectives": [
         "找到OPS嵌套界面并理解示例的范围。",

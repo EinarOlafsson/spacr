@@ -56,15 +56,34 @@ def panel(qapp):
     made.deleteLater()
 
 
-@pytest.fixture
-def no_singleton_left_behind():
-    """`instance()` and `explain()` build a process-wide panel; clear it."""
-    yield
+def _clear_the_process_wide_panel():
+    """Dismiss and forget the singleton, if this process has one."""
     existing = AvailabilityPanel._INSTANCE
     if existing is not None:
         existing.dismiss()
         existing.deleteLater()
     AvailabilityPanel._INSTANCE = None
+
+
+@pytest.fixture
+def no_singleton_left_behind():
+    """`instance()` and `explain()` build a process-wide panel; clear it.
+
+    CLEARED BEFORE AS WELL AS AFTER, and the "before" half is the one that
+    was missing. Leaving nothing behind makes this file safe for its
+    NEIGHBOURS; it does nothing about a panel a neighbour left for US, and
+    `test_explaining_nothing_opens_nothing` asserts the singleton is None --
+    a statement about the whole process, not about this test.
+
+    Six other Qt test files reach this panel, and
+    `spacr/qt/screens/settings_model.py` builds one through `instance()` at
+    four sites, so any settings test that opens a greyed row can leave one
+    standing. That is why the failure is CI-only and order-dependent: run the
+    file alone and there is no neighbour to inherit from.
+    """
+    _clear_the_process_wide_panel()
+    yield
+    _clear_the_process_wide_panel()
 
 
 # ---------------------------------------------------------------------------

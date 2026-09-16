@@ -403,8 +403,6 @@ def walk_recipes(base: UmapRecipe, *, steps: int = 12,
             for c in (components or [base.n_components]):
                 grid.append(replace(base, n_neighbors=int(n),
                                     min_dist=float(d), n_components=int(c)))
-    # Deduplicated, keeping order: a walk that scores the same recipe twice
-    # spends the time and reports a second row that adds nothing.
     seen, unique = set(), []
     for recipe in grid:
         key = json.dumps(recipe.to_dict(), sort_keys=True)

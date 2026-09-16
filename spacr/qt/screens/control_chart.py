@@ -78,13 +78,7 @@ QWidget#{CONTROLS_OBJECT}, QWidget#{OUTPUT_OBJECT} {{
 """
 
 
-# `replace=True`: reachable through the screens package and by direct
-# import, and a second import must refresh the block rather than raise.
 register_widget_qss("ControlChart", _control_chart_qss, replace=True)
-# `_canvas_class` is the owned-timer FigureCanvas fix: matplotlib schedules its
-# idle draw on a static QTimer that is not owned by the canvas and can fire
-# after Qt has deleted it, which is a segfault on close. Imported from the one
-# place that has it rather than copied.
 from ..widgets.graph_builder import (_canvas_class, _page_surface_axes,
                                      categorical_colours)
 from ..widgets.control_chart import (
@@ -165,9 +159,6 @@ class ControlChartCanvas(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(0)
-        # No `facecolor` and no inline `background:` -- the canvas paints
-        # the page panel in its own `paintEvent` under a transparent figure
-        # patch, and either of those would put the opaque rectangle back.
         self.figure = Figure(figsize=(8.0, 4.2))
         self.canvas = _canvas_class()(self.figure)
         self.canvas.setMinimumHeight(260)
@@ -189,7 +180,6 @@ class ControlChartCanvas(QWidget):
         """Redraw from the held result. Idempotent."""
         palette = active_palette()
         self.figure.clear()
-        # `clear()` restores the rc facecolor and its alpha with it.
         self.figure.patch.set_alpha(0.0)
         ax = self.figure.add_subplot(111)
         _page_surface_axes(ax, palette)
@@ -216,10 +206,6 @@ class ControlChartCanvas(QWidget):
         centre = np.full(len(result), result.centre)
         sigma = result.sigma_at
 
-        # The zones, outermost first so the inner ones sit on top. Three bands
-        # rather than two lines because rules 5 and 6 are statements about the
-        # 2- and 1-sigma bands, and a reader cannot check them against a chart
-        # that only draws the 3-sigma limit.
         if not result.degenerate:
             for k, alpha in ((3, 0.10), (2, 0.16), (1, 0.24)):
                 ax.fill_between(x, centre - k * sigma, centre + k * sigma,
@@ -232,10 +218,6 @@ class ControlChartCanvas(QWidget):
         ax.plot(x, centre, color=palette["fg_dim"], linewidth=1.2, zorder=2,
                 label="centre")
 
-        # Where Phase I ends. The limits are a statement about the points to
-        # the left of this line and a test of the points to the right, and a
-        # chart that does not show the boundary invites reading the baseline
-        # as evidence for itself.
         if result.baseline.size and int(result.baseline.max()) < len(result) - 1:
             ax.axvline(float(result.baseline.max()) + 0.5,
                        color=palette["fg_muted"], linewidth=1.0,
@@ -248,9 +230,6 @@ class ControlChartCanvas(QWidget):
                 marker="o", markersize=3.4, zorder=3,
                 markerfacecolor=palette["surface"])
 
-        # One overplotted marker per rule, so a plate that trips three rules
-        # carries three marks and the legend says which. Colour-coded by rule
-        # number through the fixed eight-hue series — eight rules, eight hues.
         series = categorical_colours()
         marks: Dict[int, List[int]] = {}
         for violation in result.violations:
@@ -375,12 +354,8 @@ class ControlChartScreen(QWidget):
         right.addWidget(self.canvas)
 
         lower = QWidget(self)
-        # Named, so it is a panel rather than scaffolding the container
-        # sweep tags transparent -- see `_control_chart_qss`.
         lower.setObjectName(OUTPUT_OBJECT)
         lower_layout = QVBoxLayout(lower)
-        # Room for the column's own rounded surface around the report and
-        # the violations table, which show it through.
         lower_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                         SPACING["sm"], SPACING["sm"])
         lower_layout.setSpacing(SPACING["xs"])
@@ -412,35 +387,19 @@ class ControlChartScreen(QWidget):
         body.setStretchFactor(0, 0)
         body.setStretchFactor(1, 1)
         outer.addWidget(body, 1)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "control_chart")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- the form ---------------------------------------------------------
     def _build_controls(self) -> QWidget:
         """The left-hand column: what a plate is, what the control is, and the
         three statistical choices that change the answer."""
         panel = QWidget(self)
         panel.setObjectName(CONTROLS_OBJECT)
-        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
-        # settings column eating the figure beside it, and 330 px is the
-        # right answer at 100 %% -- and only there. The glyphs inside it
-        # double at 200 %% and the box did not, which is the same defect
-        # instruction 350 already fixed on UsageBar's fixed 48 px caption
-        # column. Measured on Control Charts: the column's own sizeHint
-        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
-        # cap that stayed 330 in all three.
         from ..preferences import scaled_px
         panel.setMaximumWidth(scaled_px(330))
         form = QFormLayout(panel)
-        # Room for the panel's own rounded surface: the column sits ON a
-        # page surface now rather than straight on the window.
         form.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                 SPACING["sm"], SPACING["sm"])
         form.setSpacing(SPACING["xs"])
@@ -478,6 +437,27 @@ class ControlChartScreen(QWidget):
         self._levels.setSelectionMode(QAbstractItemView.MultiSelection)
         self._levels.setMaximumHeight(96)
         self._levels.setToolTip("Which level(s) are the control being charted")
+        # THE ONE ROW IN FORTY-FIVE SCREENS THAT KEPT ITS HELP ON THE FIELD.
+        #
+        # `retarget_field_tooltips` moves a setting's help onto the name the
+        # user hovers, and `_is_a_settings_field` decides what counts: an
+        # editor type, or anything carrying a `settingKey`. A QListWidget is
+        # neither, so this row was skipped -- measured across all forty-five
+        # registry screens, it was the last one left.
+        #
+        # THE KEY IS WHAT MARKS IT, NOT A WIDER PREDICATE. Adding QListWidget
+        # to the editor types, or dropping the key requirement, would change
+        # the rule for every screen to fix one row. `_is_a_settings_field`
+        # says outright that carrying a key is "the definitive mark of 'this
+        # widget is a setting's field', whatever it was built from" -- so the
+        # honest fix is to mark this one.
+        #
+        # `control_levels` is not a pipeline setting and has no entry in
+        # `spacr.settings`; it is screen-local. `format_tooltip` handles that:
+        # an unknown key yields the humanised name, the body, and a link to
+        # the API index rather than a broken deep link.
+        self._levels.setProperty("settingKey", "control_levels")
+        self._levels.setProperty("settingsAppKey", "control_chart")
         self._levels.itemSelectionChanged.connect(self._on_control_changed)
         form.addRow("Control is", self._levels)
 
@@ -540,7 +520,6 @@ class ControlChartScreen(QWidget):
         form.addRow("Negative control", self._negative)
         return panel
 
-    # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Chart ``frame``. The one call a host needs."""
         self._frame = frame
@@ -565,11 +544,6 @@ class ControlChartScreen(QWidget):
         values = list(candidate_value_columns(frame))
         columns = [str(c) for c in frame.columns]
         if not values:
-            # The classifier offers *continuous* columns, and a control that
-            # never moved is not continuous — which is exactly the table a user
-            # opens this screen to find out about. Falling back to every
-            # numeric column keeps the degenerate case reachable; falling back
-            # to every column would offer the plate id as a measurement.
             values = [name for name in columns
                       if pd.api.types.is_numeric_dtype(frame[name])]
 
@@ -657,7 +631,6 @@ class ControlChartScreen(QWidget):
         if not self._loading:
             self.recompute()
 
-    # -- the chart --------------------------------------------------------
     def spec(self) -> ControlChartSpec:
         """The spec the form describes.
 
@@ -671,8 +644,6 @@ class ControlChartScreen(QWidget):
         positive = self._positive.currentText()
         negative = self._negative.currentText()
         if self._zprime.isChecked() and column and not levels:
-            # Z' does not chart one control's level, so an empty tick list is
-            # not a missing answer here — the two named controls are.
             levels = tuple(x for x in (positive, negative) if x)
         return ControlChartSpec(
             value=self._value.currentText(),
@@ -757,7 +728,6 @@ class ControlChartScreen(QWidget):
         refused."""
         return self._result
 
-    # -- loading ----------------------------------------------------------
     def choose_table(self) -> None:
         """Ask for a measurement table and load it."""
         path, _ = QFileDialog.getOpenFileName(
@@ -825,7 +795,6 @@ class ControlChartScreen(QWidget):
         """True while a read or a chart is in flight."""
         return self._jobs.is_busy()
 
-    # -- export -----------------------------------------------------------
     def choose_export(self) -> None:
         """Ask where to write the per-plate table and write it."""
         path, _ = QFileDialog.getSaveFileName(
@@ -844,9 +813,6 @@ class ControlChartScreen(QWidget):
         return path
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        # Abandon in-flight work rather than let it outlive the screen: Qt
-        # aborts the process if a running QThread is destroyed, and a worker
-        # delivering into a closed widget is a use-after-free.
         """Stop background work and unlink before going away.
 
         :param event: the Qt close event.
@@ -861,11 +827,6 @@ def make_control_chart_screen(app_key: Optional[str] = None) -> QWidget:
     return ControlChartScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

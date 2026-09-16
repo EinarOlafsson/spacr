@@ -60,10 +60,10 @@ BACKGROUND_LEVEL = 8
 
 #: Lit 8-neighbours a lit pixel needs before it counts as content.
 #:
-#: GIF quantisation leaves single specks one level above the background —
-#: ``nucleus_intensity_merge`` has exactly one, value 9, in the far corner of
-#: one frame out of eighteen. Left in, that speck alone stretched the measured
-#: content from 132x86 to 231x203 and the zoom then framed an empty corner.
+#: GIF quantisation can leave single specks one level above the background.
+#: The synthetic regression places a value-9 pixel at (300, 300) beside a
+#: 40x40 shape: counting the speck expands the content bounds to 201x201 and
+#: makes the zoom frame an otherwise empty corner.
 #: Real content here is anti-aliased line art and filled shapes, where every
 #: pixel of a stroke has neighbours; an isolated pixel is never a drawing.
 MIN_NEIGHBOURS = 1
@@ -79,9 +79,6 @@ MAX_FILL = 0.80
 DEFAULT_DELAY_MS = 80
 
 
-# ---------------------------------------------------------------------------
-# Decoding
-# ---------------------------------------------------------------------------
 
 def read_frames(path) -> Tuple[Tuple[np.ndarray, ...], Tuple[int, ...]]:
     """Decode ``path`` into composed RGB frames and their delays.
@@ -101,9 +98,6 @@ def read_frames(path) -> Tuple[Tuple[np.ndarray, ...], Tuple[int, ...]]:
     return tuple(frames), tuple(delays)
 
 
-# ---------------------------------------------------------------------------
-# Measurement
-# ---------------------------------------------------------------------------
 
 def field_geometry(size: int) -> Tuple[Tuple[float, float, float, float], float]:
     """Return the well rectangle and corner radius for a frame of ``size``."""
@@ -211,10 +205,6 @@ def content_mask(
     """
     accumulated: Optional[np.ndarray] = None
     for frame in frames:
-        # Three plane comparisons, not ``frame.max(axis=2) > level``: the
-        # reduction runs along the length-3 interleaved axis and measured ten
-        # times slower, which across every frame of every animation is the
-        # difference between a hover that stutters and one that does not.
         lit = (
             (frame[..., 0] > BACKGROUND_LEVEL)
             | (frame[..., 1] > BACKGROUND_LEVEL)
@@ -280,9 +270,6 @@ def source_content_extent(path) -> float:
     return content_extent(frames, chrome_mask(frames[0].shape[0]))
 
 
-# ---------------------------------------------------------------------------
-# Zoom
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ZoomedAnimation:
@@ -326,8 +313,6 @@ class ZoomedAnimation:
                 FIELD_BOX, (left, top, left, top)
             )
         )
-        # The mask has to stay wider than the line after the downscale, or
-        # remnants of the well re-enter the measurement.
         pad = max(3.0, FIELD_PAD * scale + 1.0)
         return chrome_mask(self.size, box, FIELD_RADIUS * scale, pad)
 
@@ -373,14 +358,6 @@ def zoom_frames(
         and crop_top + side >= field_bottom + FIELD_PAD
     )
 
-    # Built once, not per frame: the mask is the same in every frame and
-    # rasterising a rounded rectangle twice per frame would dominate the load.
-    # It has to be the whole chrome mask — the ring *and* everything outside
-    # the well — because that is exactly what the content measurement
-    # discounts. Erasing only the ring leaves whatever the generator painted
-    # outside the well in the crop, and since a sliced well means the output
-    # carries no chrome mask at all, that leftover measures as content at the
-    # frame's full extent.
     erase = None if shows_field else chrome
 
     scaled = []
@@ -389,9 +366,6 @@ def zoom_frames(
         if erase is not None:
             source = frame.copy()
             source[erase] = 0
-        # Pillow's crop pads out-of-bounds regions with black, which is the
-        # animations' own background — so scaling content *down* needs no
-        # special case.
         cropped = Image.fromarray(source).crop(
             (crop_left, crop_top, crop_left + side, crop_top + side)
         )
@@ -475,9 +449,6 @@ def clear_cache() -> None:
     zoomed_animation.cache_clear()
 
 
-# ---------------------------------------------------------------------------
-# Qt bridge
-# ---------------------------------------------------------------------------
 
 def to_qimage(frame: np.ndarray):
     """Convert one RGB frame to a self-owned :class:`QImage`.

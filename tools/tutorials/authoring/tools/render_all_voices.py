@@ -227,6 +227,13 @@ def track_speech_text(lesson_id, language, voice, display_text, speech_text):
     Match it explicitly so neither the second CUDA mention nor another voice
     is silently changed. The resolved speech text enters the fingerprint.
     """
+    if (lesson_id, language, display_text) == (
+        "12_map_barcodes", "en",
+        "This Python verification figure displays read depth from the saved three-barcode GUI run.",
+    ):
+        if speech_text.count("read depth") != 1:
+            raise ValueError("The Map read-depth pronunciation premise changed")
+        return speech_text.replace("read depth", "[read](/ɹˈid/) depth")
     if (lesson_id, language, voice, display_text) == (
         "04_platform_installers", "en", "af_heart",
         "Here the request was auto and the selected backend is CUDA on NVIDIA hardware.",
@@ -341,6 +348,15 @@ def mastering_config(lesson_id: str, language: str, voice: str) -> dict:
     result = dict(MASTERING_CONFIG)
     result["filters"] = list(MASTERING_CONFIG["filters"])
     if (lesson_id, language, voice) == ("18_motility", "en", "bf_isabella"):
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("12_map_barcodes", "en", "bm_fable"):
+        # Measured AAC overshoot was -0.6 dBFS after the normal encodes.
+        # Keep the -1 dBFS acceptance gate and attenuate only this track.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("07_mask", "en", "bm_fable"):
+        # 2026-09-15 refresh (105/52/36 narration): decoded AAC true peak was
+        # -0.8 dBFS after all three normal encodes. Same voice, same repair
+        # as Map above; the -1 dBFS gate still decides acceptance.
         result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
     return result
 

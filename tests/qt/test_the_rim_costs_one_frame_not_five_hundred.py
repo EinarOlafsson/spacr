@@ -59,6 +59,18 @@ def _paint_once(card):
     return image
 
 
+def _digest(image):
+    """SHA-256 of ``image``'s pixels, read while ``image`` is still held.
+
+    ``QImage.bits()`` returns a memoryview that does not keep its image
+    alive, so ``_paint_once(card).bits().tobytes()`` copied the buffer of a
+    temporary QImage that had already been freed -- whatever the allocator
+    had written over it by then. Taken as an argument, the image stays
+    referenced until its bytes are copied.
+    """
+    return hashlib.sha256(image.bits().tobytes()).hexdigest()
+
+
 def _count(monkeypatch, module, name):
     """Replace ``module.name`` with a counting wrapper. Returns the list."""
     seen = []
@@ -179,11 +191,41 @@ def test_the_same_state_paints_the_same_pixels(app, mode, align):
         try:
             card._at = card._towards = 0.137
             card._phase = 1.7
-            digests.append(hashlib.sha256(
-                _paint_once(card).bits().tobytes()).hexdigest())
+            digests.append(_digest(_paint_once(card)))
         finally:
             card.deleteLater()
     assert digests[0] == digests[1]
+
+
+def test_a_frame_hashed_under_allocation_churn_is_one_digest(app):
+    """The two pixel hashes in this file were read through a dangling view.
+
+    Coverage shard 11 of dispatch 35012948690 failed
+    ``test_the_same_state_paints_the_same_pixels[centre-rainbow]`` with two
+    digests for one state. Nothing in the frame varied. Both digests were
+    taken as ``_paint_once(card).bits().tobytes()``, and the memoryview
+    ``bits()`` returns does not hold its QImage, so the bytes were copied
+    from a freed buffer after the allocator had reused it. Allocations of
+    the image's own size between frames are what reuse it; under them the
+    old spelling differed on every frame, and :func:`_digest` never does.
+    """
+    card = _card(app, mode="rainbow", align="centre", arc=280)
+    try:
+        card._at = card._towards = 0.137
+        card._phase = 1.7
+        held = _paint_once(card)
+        # The premise. If PySide ever makes bits() own its image, the
+        # helper is a no-op and this file can go back to one expression.
+        assert held.bits().obj is None
+        truth = _digest(held)
+        churn = []
+        for _ in range(12):
+            churn.append(bytearray(held.sizeInBytes()))
+            if len(churn) > 3:
+                churn.pop(0)
+            assert _digest(_paint_once(card)) == truth
+    finally:
+        card.deleteLater()
 
 
 def test_a_cold_card_and_a_warm_one_paint_the_same_frame(app):
@@ -197,9 +239,7 @@ def test_a_cold_card_and_a_warm_one_paint_the_same_frame(app):
         for _ in range(5):                      # give `warm` a history
             warm._phase = 3.9
             _paint_once(warm)
-        assert (hashlib.sha256(_paint_once(warm).bits().tobytes()).hexdigest()
-                == hashlib.sha256(
-                    _paint_once(cold).bits().tobytes()).hexdigest())
+        assert _digest(_paint_once(warm)) == _digest(_paint_once(cold))
     finally:
         warm.deleteLater()
         cold.deleteLater()

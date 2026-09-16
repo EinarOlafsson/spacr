@@ -17,8 +17,6 @@ import pandas as pd
 
 REGRESSION_LAYOUTS = ("auto", "long", "wide")
 
-# Columns that describe the observation rather than one independent
-# variable.  Callers can add project-specific columns through ``id_columns``.
 DEFAULT_ID_COLUMNS = (
     "prc", "plateID", "rowID", "columnID", "screenID", "fieldID",
     "objectID", "timeID", "cell_count", "gene", "condition",
@@ -219,9 +217,6 @@ def normalise_count_table_layout(
             f"independent_variable_layout={layout!r}; choose one of "
             f"{REGRESSION_LAYOUTS}."
         )
-    # ``process_reads`` has accepted the historical downloadable-data header
-    # ``grna_name`` for years.  Canonicalise it before layout inference so an
-    # otherwise valid long table is not misdiagnosed as a malformed wide one.
     if (guide_column == "grna" and "grna" not in frame.columns
             and "grna_name" in frame.columns):
         frame = frame.rename(columns={"grna_name": "grna"})

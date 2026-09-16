@@ -316,9 +316,6 @@ class _ScaledPreview(QLabel):
         super().__init__(text, parent)
         self._source = QPixmap()
         self.setMinimumSize(self.MINIMUM_SIDE, self.MINIMUM_SIDE)
-        # Dragging the window onto a denser screen changes how many real
-        # pixels this label has without changing its size, so no resize
-        # arrives and the crop would stay at the old density.
         follow_device_ratio(self, self._rescale)
 
     def sizeHint(self):                                # noqa: N802 - Qt name
@@ -412,12 +409,7 @@ class ImageUmapExplorer(LinkedView, QWidget):
             "sidebar_width": 280,
         }
         self._build_ui()
-        # After the UI: both hooks repaint, and a filter can already be set
-        # by the time this screen opens.
         self.link_selection("umap")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
@@ -468,8 +460,6 @@ class ImageUmapExplorer(LinkedView, QWidget):
                 try:
                     self.draw()
                 except RuntimeError:
-                    # Qt may be closing the parent hierarchy in this same
-                    # event-loop turn. There is nothing left to repaint.
                     return
 
             def cancel_pending_draw(self):
@@ -486,13 +476,6 @@ class ImageUmapExplorer(LinkedView, QWidget):
         self._body_splitter = QSplitter(Qt.Horizontal, self)
         self._body_splitter.setObjectName("UmapBodySplit")
         self._body_splitter.setChildrenCollapsible(False)
-        # A HAIRLINE THAT CAN STILL BE HIT. Trading width between the chart
-        # and the sidebar is this widget's main gesture -- a projection of a
-        # few thousand crops is unreadable at panel size -- and the theme
-        # paints every splitter handle 1px, which is 1px of paint and about
-        # 5px of grab. The handle keeps the 1px line the rest of the app
-        # uses and gets a real grab area around it, the same trade the
-        # console panel's divider makes.
         self._body_splitter.setHandleWidth(SPACING["sm"])
         surface = active_palette()["surface"]
         self._figure = Figure(figsize=(8, 6), facecolor=surface)
@@ -531,18 +514,6 @@ class ImageUmapExplorer(LinkedView, QWidget):
         form.addRow("Manual label", self._value)
         side.addLayout(form)
 
-        # THESE TWO SET THE SIDEBAR'S FLOOR, AND THROUGH IT THE DIVIDER'S.
-        #
-        # A plain QPushButton's size hint is its whole label, and its
-        # horizontal policy treats that as a hard minimum -- so "Propagate
-        # automatic clusters" pinned the sidebar at 198 px. Measured: the
-        # chart/sidebar divider moved on a 1400 px window and was STUCK at
-        # 1000 px and below, because the sidebar was already as narrow as
-        # its widest word allowed. It was never the image preview.
-        #
-        # An eliding button shortens its own label instead, so the sidebar
-        # gives way and the divider moves at every window size. The full
-        # text stays reachable: eliding sets the tooltip to it.
         self._apply_selected = ElidingPushButton("Label lasso selection", self)
         self._apply_selected.setObjectName("PrimaryButton")
         self._apply_selected.clicked.connect(self._write_selected)
@@ -553,10 +524,6 @@ class ImageUmapExplorer(LinkedView, QWidget):
             "Write the current DBSCAN/KMeans cluster number for every point.")
         self._apply_clusters.clicked.connect(self._write_clusters)
         side.addWidget(self._apply_clusters)
-        # Every display setting in one window, live and not-live together,
-        # as asked. The propagate callback is the same seam the Mask live
-        # preview uses, so a value tuned here lands in the settings panel
-        # and is saved with the run rather than living only in this widget.
         self._display_btn = QPushButton("Display settings…", self)
         self._display_btn.setToolTip(
             "Dot size, colour and opacity apply to this figure straight "
@@ -573,9 +540,6 @@ class ImageUmapExplorer(LinkedView, QWidget):
         side_wrap.setLayout(side)
         side_wrap.setStyleSheet(f"background: {surface};")
         self._body_splitter.addWidget(side_wrap)
-        # The line inside the grab area, so a wider handle does not become a
-        # wider bar -- and an accent line on hover, so the divider answers
-        # before it is dragged.
         try:
             border = active_palette()["border_soft"]
             accent = active_palette()["accent"]
@@ -591,9 +555,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
     border-left: 1px solid {accent};
 }}
 """)
-        # THE ONLY THING THAT SAYS THE DIVIDER IS THERE before it is found.
-        # A 1px line with no hover text is indistinguishable from the edge
-        # of the chart.
         handle = self._body_splitter.handle(1)
         if handle is not None:
             handle.setToolTip(
@@ -640,9 +601,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
     def open_display_settings(self) -> None:
         """Open the one window, apply what can apply, propagate all of it."""
         values = dict(self._display)
-        # The not-live half is not held by this widget -- it belongs to the
-        # run -- so seed it from the settings panel when there is one, or
-        # the dialog opens showing zeros for settings that have values.
         getter = getattr(self, "_settings_getter", None)
         if callable(getter):
             try:
@@ -695,8 +653,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
             int(self._display["canvas_width"]),
             int(self._display["sidebar_width"]),
         ])
-        # Redrawn from `self._embedding`, which nothing above touched, so
-        # every point keeps its coordinates and its neighbours.
         self._draw_embedding()
         return True
 
@@ -739,7 +695,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._recompute_linked_points()
         self._draw_embedding()
 
-    # -- identity ----------------------------------------------------------
 
     def _build_point_identity(self, frame: Optional[pd.DataFrame]) -> None:
         """Work out which measured object each point is, once per payload.
@@ -757,11 +712,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
             [_record_identity(r) or {} for r in self._records],
             columns=columns)
         if identity.isna().any(axis=None):
-            # A payload that names only *some* of its points is worse than
-            # one that names none, in both directions: half a lasso gets
-            # published as the whole of it, and a filter tested against a
-            # column of blanks dims every point as though it had matched
-            # nothing. Refuse the lot.
             identity = identity.iloc[:, :0]
         if isinstance(frame, pd.DataFrame):
             table = frame.reset_index(drop=True)
@@ -772,7 +722,7 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         else:
             table = identity
         if not len(table.columns):
-            return          # nothing to key on, and nothing to filter with
+            return
         self._point_frame = table
         if any(c not in table.columns for c in columns):
             return
@@ -830,9 +780,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._picked_artist = self._axes.scatter(
             [], [], s=110, facecolors="none", edgecolors="#ffcc33",
             linewidths=float(self._display["outline_width"]))
-        # Selections made elsewhere get their own ring, in the accent colour
-        # rather than the foreground one, so "what I lassoed" and "what the
-        # table is showing me" stay tellable apart at a glance.
         self._linked_artist = self._axes.scatter(
             [], [], s=90, facecolors="none",
             edgecolors=palette.get("accent", "#4A9EFF"),
@@ -871,7 +818,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         return (f"{len(self._records)} points · {writable} database-backed · "
                 "drag around points to select them." + self._filter_note)
 
-    # -- the shared filter: dim, never remove -------------------------------
 
     def _recompute_visible_points(self) -> None:
         """Work out which points the shared filter keeps.
@@ -927,12 +873,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
                   else np.where(self._point_visible, base,
                                 base * DIMMED_ALPHA))
         if np.iterable(self._scatter.get_alpha()) and not np.iterable(target):
-            # `Artist.set_alpha` short-circuits on `alpha != self._alpha`,
-            # which raises "the truth value of an array is ambiguous" when
-            # the artist is currently holding a per-point array and a scalar
-            # is being set (matplotlib 3.10). Array→array and scalar→scalar
-            # are fine; only this direction needs the array dropped first,
-            # and there is no public call that does it.
             self._scatter._alpha = None
         self._scatter.set_alpha(target)
 
@@ -950,7 +890,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._status.setText(self._payload_status())
         self._canvas.draw_idle()
 
-    # -- the shared selection: highlight, never hide ------------------------
 
     def _recompute_linked_points(self,
                                  selection: Optional[Selection] = None) -> None:
@@ -964,11 +903,6 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         if keys is None or not selection.is_active or not len(self._embedding):
             self._linked_points = np.empty(0, dtype=int)
             return
-        # `match_keys`, not `Index.isin`: the table publishes `..._f1_cell1`
-        # now that a reader states which table it read, while these points
-        # are keyed off a `prcfo` that states nothing. Exact equality
-        # highlighted nothing at all, which on a UMAP is indistinguishable
-        # from the user having lassoed empty space.
         self._linked_points = np.flatnonzero(
             match_keys(keys, selection.keys))
 
@@ -1185,15 +1119,12 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         try:
             self.unlink_selection()
         except (RuntimeError, TypeError):
-            # The process-wide link's C++ side is gone (interpreter teardown).
             pass
         worker = self._worker
         if worker is not None:
             worker.requestInterruption()
             worker.wait()
             self._worker = None
-        # FigureCanvasQTAgg implements draw_idle with a zero-delay Qt timer.
-        # Cancel that pending draw before Qt deletes the C++ canvas.
         if self._lasso is not None:
             self._lasso.disconnect_events()
             self._lasso = None

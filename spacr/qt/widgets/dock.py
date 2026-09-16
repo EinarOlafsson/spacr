@@ -46,14 +46,6 @@ from __future__ import annotations
 
 from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
-# QEvent AT MODULE SCOPE, NOT INSIDE THE CALLBACK. A function-local
-# import in an event handler is not lazy loading: this module is a
-# QWidget module and cannot load without QtCore, so the import bought
-# nothing but a sys.modules lookup on every event -- and it put an
-# EXCEPTION SITE on a path with no way to report one. The same shape in
-# `ModuleHintBar.event` produced 419 errors in one sweep when a test
-# stubbed PySide6.QtCore out of sys.modules and teardown then delivered
-# a paint event.
 from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtWidgets import QFrame, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 
@@ -107,57 +99,20 @@ class DockRow(ElidingPushButton):
             bottom of the window, which is where descriptions go.
         :param parent: parent widget.
         """
-        # `&` DOUBLED, OR QT EATS IT. A QPushButton reads a single
-        # ampersand as a mnemonic marker, so "Align & Stitch" draws as
-        # "Align _Stitch" -- the ampersand gone and the S underlined. The
-        # accessible name below keeps the real character, because a screen
-        # reader must not say the escape.
         super().__init__(name.replace("&", "&&"), parent)
         self.key = key
         self.desc = desc
-        # THE LEGACY OBJECT NAME, deliberately: the theme carries eight
-        # `QPushButton#SidebarItem` rules and a rename would silently
-        # un-style every row in the dock.
         self.setObjectName("SidebarItem")
-        # What the bottom strip reads off whatever the pointer is over.
         self.setProperty("moduleNameSource", name)
         self.setProperty("moduleSummarySource", desc)
-        # `navKey` is how refresh_icons, the tutorial highlighter and the
-        # maturity tests find a row. It is the row's identity to everything
-        # outside this module.
         self.setProperty("navKey", key)
-        # `moduleAppKey` is module_hints.KEY_PROPERTY: the bottom strip's
-        # event filter reads it off whatever the pointer is over. Setting it
-        # here is what makes the dock explain itself through the SAME
-        # mechanism as the menus and the tiles, rather than a second one.
         self.setProperty("moduleAppKey", key)
-        # AND THE STYLE, without which the two lines below are English for
-        # ever. `_refresh_module_help` dispatches on this property: "sidebar"
-        # retranslates the accessible name and description on every language
-        # change, and anything else falls through to a branch that sets a
-        # status tip and leaves both alone. This row was in that fallback, so
-        # a screen reader announced every module in English in all nine
-        # languages -- the name and summary set below are correct exactly
-        # once, at construction, in whatever language the app started in.
-        #
-        # It also clears the popup tooltip on each pass, which is what this
-        # row already wants: see "NO POPUP TOOLTIP" below.
         self.setProperty("moduleTooltipStyle", "sidebar")
-        # AN ACCESSIBLE NAME EVEN THOUGH THE TEXT IS VISIBLE. The old row
-        # painted no text and needed one; a screen reader still needs the
-        # full name when a long one has been elided down to fit the column.
         self.setAccessibleName(name)
-        # AND THE DESCRIPTION, which this dock stopped setting when it was
-        # rewritten. The summary is drawn nowhere on the row -- it goes to
-        # the strip along the bottom -- so for a screen reader the accessible
-        # description is the ONLY route to it, and without this a row
-        # announced its name and nothing about what the module does.
         self.setAccessibleDescription(desc)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setSizePolicy(QSizePolicy.Policy.Preferred,
                            QSizePolicy.Policy.Fixed)
-        # NO POPUP TOOLTIP. The bottom strip is the explanation surface; a
-        # popup here would be a second one, in a place the pointer covers.
         self.setToolTip("")
         self._hovered = False
 
@@ -207,8 +162,6 @@ class SectionHeader(QLabel):
         """
         super().__init__(section, parent)
         self.section = section
-        # The legacy name, deliberately: the theme styles `SidebarSection`
-        # and the maturity test looks headers up by it.
         self.setObjectName("SidebarSection")
         self.setProperty("sectionName", section)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -260,21 +213,6 @@ class Dock(QWidget):
         """
         super().__init__(parent)
         self.setObjectName("Dock")
-        # WITHOUT THIS THE COLUMN PAINTS NOTHING AT ALL. A plain QWidget
-        # ignores a stylesheet background unless it is told to draw one, so
-        # the ground set in `apply_theme` was being dropped and the
-        # translucent panel composited straight onto the window's black base
-        # -- the "black box" behind the dock.
-        # THE BLANKET RULE WAS THE BOX. The application sheet carries
-        # `QWidget { background-color: bg }`, so any untagged container paints
-        # an opaque rectangle -- and a plain QWidget holding a rounded panel
-        # is exactly that: a square of `bg` behind rounded corners. Colouring
-        # it (black, grey, the page ground) only changes which colour the
-        # rectangle is; `make_transparent` stops it painting at all.
-        #
-        # `Panel` in `home.py` already does this, and its comment says why in
-        # as many words: six untagged wrappers stacked down the aside "read as
-        # one large black column behind every panel". The dock is one of them.
         from ..theme import make_transparent
         make_transparent(self)
         self._icon_for = icon_for
@@ -284,29 +222,9 @@ class Dock(QWidget):
         self._section_rows: Dict[str, List[DockRow]] = {}
         self._section_of: Dict[str, str] = {}
         self._open: set = set()
-        # THE OLD PRIVATE NAMES, bound to the same objects. Several suites
-        # reach into `_items` and `_section_headers` rather than through
-        # `rows()` and `sections()`, and a rename that broke them would be
-        # churn with no reader-visible gain.
         self._items = self._rows
         self._section_headers = self._headers
 
-        # A ROUNDED PANEL, NOT A BLACK COLUMN, and it is a CHILD frame rather
-        # than the dock's own background for a reason. Instruction 369 took
-        # the dock's container off where there is no picture behind it, and
-        # tests/qt/test_space_theme.py pins `#Sidebar` transparent on the flat
-        # themes to keep it off. Painting the panel here satisfies both: the
-        # container stays transparent and the panel is a widget inside it.
-        #
-        # The look is HomePanelBox's, deliberately -- asked for on 2026-09-04,
-        # "a rectangle with rounded edges like the top box on the Home screen
-        # with the spacr logo and text" -- so the two read as the same
-        # material rather than as two guesses at one.
-        # NO INSET HERE. The dock widget itself is the rounded box now, and
-        # a widget's own margins sit inside its background -- an inset here
-        # would pad the contents without moving the box off the window edge.
-        # The gap around the box is the SLOT's margin; see
-        # `MainWindow._dock_slot`.
         outer = QVBoxLayout(self)
         outer.setContentsMargins(PANEL_INSET, PANEL_INSET,
                                  PANEL_INSET, PANEL_INSET)
@@ -323,15 +241,8 @@ class Dock(QWidget):
         title.setObjectName("SidebarTitle")
         panel_column.addWidget(title)
 
-        # THE ROWS SCROLL AND THE TITLE DOES NOT. Measured at 1440x900 -- the
-        # realistic laptop -- a row per module plus a heading per section
-        # asks for more height than the window has, and the last few modules
-        # were simply unreachable. This is structure, not decoration.
         self._scroll = QScrollArea(self)
         self._scroll.setObjectName("SidebarScroll")
-        # A QScrollArea and its VIEWPORT are two widgets and the viewport is
-        # the one that paints; `make_transparent` tags both, and forgetting
-        # the viewport is the documented way to get this wrong.
         make_transparent(self._scroll)
         self._scroll.setWidgetResizable(True)
         self._scroll.setFrameShape(QFrame.Shape.NoFrame)
@@ -349,21 +260,12 @@ class Dock(QWidget):
 
         current = None
         for key, name, desc, section in rows:
-            # A ROW WITH NO SECTION stands above the headings and is never
-            # collapsed away. Home is the one that needs it: it is how you
-            # get back, so it cannot live inside a category you can shut.
             if section and section != current:
                 header = SectionHeader(section)
-                # The heading is a label, so the click comes through the
-                # filter rather than a pressed signal.
                 header.installEventFilter(self)
                 column.addWidget(header)
                 self._headers[section] = header
                 self._section_rows.setdefault(section, [])
-                # ONLY THE FIRST CATEGORY STARTS OPEN. Every section open at
-                # once makes the dock taller than a 900 px laptop screen,
-                # which is the failure collapsing was introduced to fix. The
-                # first is the pipeline, and it is why the dock is on screen.
                 if not self._headers or len(self._headers) == 1:
                     self._open.add(section)
                 current = section
@@ -382,7 +284,6 @@ class Dock(QWidget):
         self.apply_theme()
         self.refresh_visibility()
 
-    # -- what the pointer does -------------------------------------------
     def _on_row_hovered(self, key: str, entered: bool) -> None:
         """Name the hovered module, and light exactly that one row.
 
@@ -418,8 +319,6 @@ class Dock(QWidget):
         on every pointer move across the column.
         """
         for row in self._rows:
-            # Same reason as `refresh_icons`: a row this dock did not build
-            # has no `key`, and it is never the one to light.
             want = (key is not None and getattr(row, "key", None) == key)
             if bool(row.property("hovered")) == want:
                 continue
@@ -481,7 +380,6 @@ class Dock(QWidget):
         row = self.hovered_row()
         return row.key if row is not None else None
 
-    # -- categories -------------------------------------------------------
     def sections(self) -> List[str]:
         """Every category heading, in the order they are drawn."""
         return list(self._headers)
@@ -517,7 +415,6 @@ class Dock(QWidget):
         """Always ``False``: there are no folded child rows to expand."""
         return False
 
-    # -- visibility -------------------------------------------------------
     def refresh_visibility(self) -> None:
         """Show a row if its category is open AND maturity allows it.
 
@@ -533,20 +430,16 @@ class Dock(QWidget):
         for row in self._rows:
             mature = row.key == HOME_KEY or bool(allowed(row.key))
             section = self._section_of.get(row.key, "")
-            # A section-less row (Home) has no heading to be shut by.
             row.setVisible(mature and (not section or section in self._open))
             if mature and section:
                 populated.add(section)
         for section, header in self._headers.items():
             header.setVisible(section in populated)
-            # The stylesheet and the tests both read `open` off the heading
-            # to tell a shut category from one that is merely empty.
             header.setProperty("open", section in self._open)
             header.style().unpolish(header)
             header.style().polish(header)
         self.setFixedWidth(self.fitting_width())
 
-    # -- appearance -------------------------------------------------------
     def refresh_icons(self) -> None:
         """Re-ask the provider for every row's icon.
 
@@ -560,17 +453,9 @@ class Dock(QWidget):
         from ..preferences import scaled_px
         side = scaled_px(ICON_PX)
         for row in self._rows:
-            # ONE SIZE, SET ONCE, FOR EVERY ROW IN EVERY STATE. The old dock
-            # grew the icon under the pointer and shrank it again, and that
-            # is what relaid the column out and made it blink.
             row.setIconSize(QSize(side, side))
             if self._icon_for is None:
                 continue
-            # `getattr`, NOT `row.key`. `_rows` is a plain list and callers
-            # append to it: three tests put a bare `ElidingPushButton` in to
-            # check that a row with no nav key is left alone, and a row this
-            # dock did not build has no `key` at all. Asking for one raised
-            # `AttributeError` out of a theme refresh.
             key = getattr(row, "key", None)
             if key is None:
                 continue
@@ -596,15 +481,6 @@ class Dock(QWidget):
         palette = active_palette()
         accent = palette["accent"]
         self.setStyleSheet(
-            # THE BOX IS A FRAME INSIDE A TRANSPARENT CONTAINER, which
-            # is `Panel`'s arrangement in `home.py` and the one the request
-            # asks for: "cant you just make that same box widget in place of
-            # the dock". Same three values as `QFrame#HomePanelBox` --
-            # `pane_surface('surface_alt')`, `border_soft`, 8 px -- so the
-            # dock and the Home boxes stay one material.
-            #
-            # The container above it paints nothing. That was the whole bug:
-            # a frame cannot round the corners of the widget behind it.
             "QFrame#DockPanel {"
             f"  background: {pane_surface('surface_alt')};"
             f"  border: 1px solid {palette['border_soft']};"
@@ -618,10 +494,6 @@ class Dock(QWidget):
             "  background: transparent; border: none; text-align: left;"
             "  padding: 6px 10px;"
             "}"
-            # `[hovered="true"]`, NOT `:hover`. Qt drives `:hover` from
-            # `WA_UnderMouse`, which sticks when a click swaps the screen out
-            # from under the pointer -- see `_on_row_hovered`. The dock sets
-            # this property itself so at most one row is ever lit.
             f'QPushButton#SidebarItem[hovered="true"] {{ color: {accent}; }}'
             "QLabel#SidebarSection {"
             "  padding: 10px 10px 4px 10px; font-weight: 600;"
@@ -645,18 +517,6 @@ class Dock(QWidget):
 
         from ..preferences import scaled_px
 
-        # MEASURED FROM THE FULL NAME, not from `sizeHint()`. These rows
-        # ELIDE, so their size hint reports the width of the shortened text
-        # -- ask it how much room it wants and it answers with how much it
-        # has already given up. Measured 2026-09-05: "Cellpose Model
-        # Comparison Workbench" hinted 263 px, the column sized itself to
-        # 275, and the row was still clipped, because 263 was the width of
-        # "Cellpose Model Comparis...".
-        #
-        # The icon is added explicitly for the same reason. The old dock
-        # painted icons and no text, so a width tuned for text alone was
-        # right; this one draws both, and the icon's slot is not in a text
-        # measurement.
         widest = 0
         for row in self._rows:
             if row.isHidden():
@@ -664,13 +524,6 @@ class Dock(QWidget):
             metrics = QFontMetrics(row.font())
             text = getattr(row, "full_text", lambda: row.text())()
             widest = max(widest, metrics.horizontalAdvance(str(text)))
-        # THE ALLOWANCE IS MEASURED, not guessed. At 100 % with the longest
-        # shipped-length name ("Cellpose Model Comparison Workbench", 243 px
-        # of text) the overhead between the column's width and the room the
-        # row leaves that text is 58 px: 14 for the panel's border and the
-        # scroll area, 44 for the row's own icon slot and padding. 34 + the
-        # icon came to 54 and left the name four pixels short -- which is a
-        # column that widened for a name and clipped it anyway.
         room = widest + scaled_px(ICON_PX) + scaled_px(40)
         return max(scaled_px(self.WIDTH_MIN),
                    min(room, scaled_px(self.WIDTH_MAX)))

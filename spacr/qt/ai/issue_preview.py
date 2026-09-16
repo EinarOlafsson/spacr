@@ -69,9 +69,6 @@ class IssuePreviewDialog(QDialog):
         super().__init__(parent)
         self._source_body = str(report.get("body", ""))
         self._fingerprint = str(report.get("fingerprint", ""))
-        # The console owns the AI conversation; this dialog borrows it. Taken
-        # from the parent when not passed, so the screen that opens this does
-        # not have to know about the button.
         self._console = console if console is not None else getattr(
             parent, "_console", None)
         self._traceback_text = str(traceback_text or "")
@@ -108,11 +105,6 @@ class IssuePreviewDialog(QDialog):
         buttons = QDialogButtonBox()
         send = buttons.addButton(tr("Send report"), QDialogButtonBox.AcceptRole)
         cancel = buttons.addButton(tr("Cancel"), QDialogButtonBox.RejectRole)
-        # ASK spaCR AI FROM HERE. The report is the moment the user is looking
-        # hardest at the error, and it is also the last moment before it goes
-        # somewhere public -- a diagnosis is worth having in both directions:
-        # it may save the report entirely, and it makes the report better if
-        # it does not.
         self.diagnose_btn = buttons.addButton(
             tr("Diagnose"), QDialogButtonBox.ActionRole)
         self.diagnose_btn.setToolTip(tr(
@@ -138,7 +130,6 @@ class IssuePreviewDialog(QDialog):
             strip_report_paths(self._source_body) if strip else self._source_body
         )
 
-    # -- Diagnose ---------------------------------------------------------
 
     def _tell(self, title: str, message: str) -> None:
         """Say something to the user. One seam, so tests can listen."""
@@ -230,8 +221,6 @@ class IssuePreviewDialog(QDialog):
         console = self._console
         finished = getattr(console, "_ai_thread", None) is None
         if finished and self._diagnose_elapsed > DIAGNOSE_POLL_MS * 2:
-            # The stream ended without an answer for this error -- a provider
-            # error, or a reply the console did not pair with this traceback.
             self._end_diagnosing()
             self._tell(tr("Diagnose"),
                        tr("spaCR AI did not return an analysis. The console "
@@ -269,8 +258,6 @@ class IssuePreviewDialog(QDialog):
         if "spaCR AI's analysis of this error" in self._source_body:
             self._scroll_to_diagnosis()
             return
-        # Into the SOURCE too, so the strip toggle does not drop it:
-        # `_refresh_body` rebuilds the box from `_source_body`.
         self._source_body += section
         self.body_edit.setPlainText(
             strip_report_paths(self._source_body)

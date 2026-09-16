@@ -89,8 +89,6 @@ class ColumnAlignedRow(QLayout):
 
     def __init__(self, header, parent: Optional[QWidget] = None,
                  on_invalidate=None) -> None:
-        # `parent` installs this as the widget's layout, which is why the
-        # caller has to have removed the previous one first.
         """Lay a row out against a header's column widths.
 
         Passing ``parent`` installs this as that widget's layout, which is why
@@ -112,23 +110,11 @@ class ColumnAlignedRow(QLayout):
         self._on_invalidate = on_invalidate
         self.setContentsMargins(0, 0, 0, 0)
         if _alive(header):
-            # THE ONLY THREE THINGS THAT MOVE A COLUMN. A drag on a section
-            # edge (`sectionResized`), a reorder if one is ever enabled
-            # (`sectionMoved`), and the header itself being re-laid-out when
-            # the table changes width (`geometriesChanged`). None of them
-            # resizes the strip, so without these the buttons would stay
-            # where the last strip resize left them.
             header.sectionResized.connect(self._restate)
             header.sectionMoved.connect(self._restate)
             header.geometriesChanged.connect(self._restate)
-            # And the table MOVING under the strip, which changes where the
-            # columns are without changing their widths -- a section opening
-            # above it does exactly that. The viewport is watched rather than
-            # the table because it is the widget the column positions are
-            # measured from.
             header.viewport().installEventFilter(self)
 
-    # ------------------------------------------------------ QLayout's five
 
     def addItem(self, item) -> None:                          # noqa: N802
         """Qt's own door, used by ``addWidget``: no column, so it trails."""
@@ -248,9 +234,6 @@ class ColumnAlignedRow(QLayout):
         if owner is None:
             return
         trailing = []
-        # Where the aligned run ends, so the un-aligned buttons start clear
-        # of it. Starts at the strip's own left edge for the case where no
-        # column could be read at all.
         right = rect.x()
         for item, column in self._items:
             hint = item.sizeHint()
@@ -270,7 +253,6 @@ class ColumnAlignedRow(QLayout):
             item.setGeometry(QRect(right, top, hint.width(), height))
             right += hint.width()
 
-    # ------------------------------------------------------------- reading
 
     def _column_span(self, owner: QWidget,
                      column: Optional[int]):
@@ -343,17 +325,11 @@ def align_row_to_columns(
     if isinstance(existing, ColumnAlignedRow):
         return existing
     if existing is not None:
-        # EMPTIED FIRST, THEN DELETED. Deleting a layout that still holds its
-        # items deletes the buttons with it, which would take the Download
-        # row away rather than align it.
         while existing.count():
             item = existing.takeAt(0)
             widget = item.widget() if item is not None else None
             if widget is not None:
                 widget.setParent(strip)
-        # `shiboken6.delete`, not `deleteLater`: the new layout is installed
-        # on the next line, and Qt refuses to install one while the widget
-        # still has a layout -- which a deferred deletion leaves it with.
         shiboken6.delete(existing)
     row = ColumnAlignedRow(header, strip, on_invalidate=on_invalidate)
     for widget, column in columns:

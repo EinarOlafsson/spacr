@@ -2,9 +2,12 @@
 #
 # Install spaCR from source WITHOUT downloading the whole repository.
 #
-# Instruction 328. A plain `git clone` of spaCR fetches a multi-gigabyte
-# history and lays down ~427 MB of tracked files, of which ~76 MB is what
-# you actually need to run the program. This script fetches only that.
+# Instruction 328. A plain `git clone` of spaCR downloads 5.8 GB and lays
+# down ~941 MB of tracked files, of which ~55 MB is what you actually need
+# to run the program. This script fetches only that: measured 2026-09-14
+# against `main`, 86 MB on disk in 5 s, against 6.7 GB in 131 s. Re-measure
+# with packaging/measure_clone_forms.sh; the old numbers in this header
+# (427 MB and 76 MB) were a year of tree-growth out of date.
 #
 # It uses two independent git features, and they cut different things:
 #
@@ -26,10 +29,11 @@
 #   --dir PATH            where to put the checkout (default ./spacr)
 #   --branch REF          branch or tag to install (default main)
 #   --repo URL            source repository
-#   --with-translations   keep the extended translation catalogs (+33 MB)
-#   --with-tests          keep the test suite (+32 MB)
-#   --with-docs           keep the documentation sources (+236 MB)
+#   --with-translations   keep the extended translation catalogs (+17 MB)
+#   --with-tests          keep the test suite (+35 MB)
+#   --with-docs           keep the documentation sources (+419 MB)
 #   --no-install          fetch only; skip `pip install`
+#   --show-exclusions     print the exclusion list and where it came from
 #   --help
 #
 set -eu
@@ -41,8 +45,22 @@ KEEP_TRANSLATIONS=0
 KEEP_TESTS=0
 KEEP_DOCS=0
 DO_INSTALL=1
+SHOW_EXCLUSIONS=0
 
-usage() { sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
+# WHERE THIS SCRIPT LIVES, resolved HERE and not inside the function that
+# wants it, because the function is called after `cd "$DIR"` and `$0` is a
+# RELATIVE path for the ordinary invocation:
+#
+#     sh packaging/install_from_source.sh
+#
+# `dirname "$0"` was then resolved against the new checkout, found no
+# `packaging/`, and fell back to the embedded copy of the list -- silently.
+# Editing packaging/source_install_excludes.txt and running the script the
+# obvious way did nothing at all, and nothing said so. An absolute `$0`
+# happened to work, which is why the end-to-end test never saw it.
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd) || SCRIPT_DIR=""
+
+usage() { sed -n '3,38p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -53,6 +71,7 @@ while [ $# -gt 0 ]; do
         --with-tests)       KEEP_TESTS=1; shift ;;
         --with-docs)        KEEP_DOCS=1; shift ;;
         --no-install)       DO_INSTALL=0; shift ;;
+        --show-exclusions)  SHOW_EXCLUSIONS=1; shift ;;
         -h|--help)          usage ;;
         *) echo "unknown option: $1" >&2; exit 2 ;;
     esac
@@ -71,13 +90,22 @@ done
 # A self-contained script has no such failure mode. A test asserts this
 # copy is character-for-character the same as the file, so the two cannot
 # drift.
+# Which of the two the run will use, as a value rather than as a variable
+# set inside a function: `list=$(read_the_exclusions)` runs the function in
+# a subshell, so anything it assigned was lost and --show-exclusions printed
+# an empty origin. One function answers where, the other answers what.
+exclusions_file() {
+    if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/source_install_excludes.txt" ]; then
+        echo "$SCRIPT_DIR/source_install_excludes.txt"
+    fi
+}
+
 read_the_exclusions() {
-    HERE=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd) || HERE=""
-    if [ -n "$HERE" ] && [ -f "$HERE/source_install_excludes.txt" ]; then
+    from=$(exclusions_file)
+    if [ -n "$from" ]; then
         # Running from inside a checkout: prefer the file, so someone
         # editing the list sees their edit take effect immediately.
-        grep -v '^[[:space:]]*#' "$HERE/source_install_excludes.txt" \
-            | grep -v '^[[:space:]]*$'
+        grep -v '^[[:space:]]*#' "$from" | grep -v '^[[:space:]]*$'
         return
     fi
     cat <<'SPACR_EXCLUDES'
@@ -95,6 +123,17 @@ read_the_exclusions() {
 !/spacr/qt/i18n_catalogs/
 SPACR_EXCLUDES
 }
+
+# Answering --show-exclusions BEFORE anything is created: it is the flag
+# somebody reaches for when they have edited the list and want to know
+# whether the script can see the edit, and it should not leave a directory
+# behind to answer that.
+if [ "$SHOW_EXCLUSIONS" = 1 ]; then
+    from=$(exclusions_file)
+    echo "exclusions read from: ${from:-the copy embedded in this script}"
+    read_the_exclusions
+    exit 0
+fi
 
 if [ -e "$DIR" ]; then
     echo "error: $DIR already exists -- pass --dir to choose somewhere else" >&2

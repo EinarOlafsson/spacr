@@ -88,14 +88,10 @@ def flood_region(image: np.ndarray, seed_x: int, seed_y: int,
         return np.zeros((height, width), dtype=bool)
     values = values.astype(np.float32)
     seed_value = values[seed_y, seed_x]
-    # Flooding the *distance from the seed* rather than the image itself
-    # collapses grey and multi-channel into one code path: the seed sits at
-    # distance 0, so a tolerance band around it is exactly the wand's rule.
     if values.ndim == 2:
         distance = np.abs(values - seed_value)
     else:
         distance = np.linalg.norm(values - seed_value, axis=-1).astype(np.float32)
-    # connectivity=1 is the four-neighbourhood the BFS wand steps through.
     return _sk_flood(distance, (int(seed_y), int(seed_x)),
                      connectivity=1, tolerance=float(max(0.0, tolerance)))
 
@@ -149,9 +145,6 @@ def trim_directional_runaway(region: np.ndarray, seed_yx: Tuple[int, int],
     for direction, profile in profiles.items():
         profile = np.asarray(profile, dtype=float)
         for i in range(warmup, len(profile) - confirm + 1):
-            # The baseline is the established width BEFORE the candidate.
-            # Including the candidate would let a leak raise the bar it has
-            # to clear and hide itself.
             baseline = float(profile[:i].max(initial=0))
             if baseline < min_baseline:
                 continue
@@ -261,9 +254,6 @@ def taper_region_to_intensity(image: np.ndarray, flooded_region: np.ndarray,
     inset = max(0, int(foreground_erode))
     foreground = (binary_erosion(provisional, iterations=inset)
                   if inset else provisional.copy())
-    # Erosion can erase a small object entirely. The click is trusted, so a
-    # few pixels around it are always foreground -- enough to seed the
-    # watershed without dictating the shape of its answer.
     yy, xx = np.ogrid[:height, :width]
     foreground |= (((xx - x) ** 2 + (yy - y) ** 2 <= 4) & provisional)
 
@@ -335,9 +325,6 @@ def wand_region(image: np.ndarray, seed_x: int, seed_y: int,
                         confirm=s["runaway_confirm"])
         straight, cuts = trim_directional_runaway(region, seed, **detector)
         if cuts and s["intensity_border"]:
-            # The detector proved this tolerance escapes. Rather than keep
-            # the half-plane cut, bisect for the highest tolerance whose
-            # whole flood stays put: that boundary is drawn by the image.
             lo, hi = 0.0, float(tolerance)
             best, best_tol = None, 0.0
             for _ in range(max(1, int(s["intensity_steps"]))):
@@ -372,18 +359,12 @@ def wand_region(image: np.ndarray, seed_x: int, seed_y: int,
     n = int(region.sum())
     if n > limit:
         if not s["salvage_over_cap"]:
-            # Refusing is a real answer: an object truncated at a budget is
-            # not the object, and a user who is tuning tolerance needs to
-            # see that the budget was the thing that stopped the flood.
             report.update(rejected=True, capped=True, kept_px=0)
             return np.zeros_like(region), report
         over_cap = region
         bounded = cap_region_from_seed(over_cap, seed, limit)
         region = bounded
         if s["gradient_taper"]:
-            # A geodesic cap ends in an arc. Give it an intensity edge too,
-            # narrowing the band until the tapered result still fits the
-            # budget it was capped to.
             wide = max(1, int(s["gradient_margin"]))
             for band in sorted({wide, max(1, wide // 2), 1}, reverse=True):
                 tapered = taper_region_to_intensity(
@@ -410,8 +391,6 @@ def magic_wand(image: np.ndarray, mask: np.ndarray, seed_x: int, seed_y: int,
     the new mask. A rejected flood leaves the mask untouched.
     """
     if mask is None or image is None:
-        # Same report shape as a real click, so a caller writing it into a
-        # ledger does not have to special-case the nothing-to-do path.
         return mask, {"flooded_px": 0, "kept_px": 0, "cuts": [],
                       "intensity_border": False, "refined_tolerance": 0.0,
                       "tapered": False, "capped": False, "rejected": True}

@@ -140,8 +140,6 @@ QLabel#MethodsExportProvenance[problem="true"] {{
 """
 
 
-# ``replace=True`` because this module owns the name: a reimport must
-# re-register the same block rather than raise and leave the screen unstyled.
 register_widget_qss("MethodsExportSources", _methods_qss, replace=True)
 
 
@@ -208,17 +206,11 @@ class MethodsExportScreen(QWidget):
         self._fields["model"].setText(model_path)
         self._set_provenance(
             "Name at least one source, then build the digest.", problem=False)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "methods_export")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction -----------------------------------------------------
 
     def _build_ui(self) -> None:
         """Source panel, action row, provenance strip, then the tabs."""
@@ -315,7 +307,6 @@ class MethodsExportScreen(QWidget):
         self._tabs.setTabVisible(4, False)
         outer.addWidget(self._tabs, 1)
 
-    # -- the digest -------------------------------------------------------
 
     def sources(self) -> Dict[str, str]:
         """The four source paths as the fields currently stand."""
@@ -348,8 +339,6 @@ class MethodsExportScreen(QWidget):
         """Show a freshly built digest and spaCR's own sections."""
         self._digest = digest
         if not digest:
-            # None or empty -- both are as useless as each other here,
-            # and saying nothing would leave the previous digest up.
             self._set_provenance("The digest could not be built.",
                                  problem=True)
             return
@@ -375,7 +364,6 @@ class MethodsExportScreen(QWidget):
         self._set_provenance(message, problem=bool(notes))
         self.digest_built.emit(digest)
 
-    # -- the draft --------------------------------------------------------
 
     def generate(self) -> None:
         """Ask the configured AI provider for the two sections."""
@@ -422,7 +410,6 @@ class MethodsExportScreen(QWidget):
                 f"run digest and every one of them came from it.")
         return "\n".join(str(problem) for problem in draft.problems)
 
-    # -- output -----------------------------------------------------------
 
     def text(self) -> str:
         """Both sections as they currently stand, ready to paste."""
@@ -467,12 +454,7 @@ class MethodsExportScreen(QWidget):
             return ""
         return render_prompt(self._digest)[1]
 
-    # -- slots ------------------------------------------------------------
 
-    # MODAL IS A REASON NOT TO OPEN ONE IN A TEST, not a reason to leave
-    # these untested: everything that matters happens after the dialog
-    # returns. Driven in
-    # tests/qt/test_the_modal_slots_do_what_the_dialog_returns.py.
     def _on_browse(self, key: str, is_folder: bool) -> None:
         """Ask for a path for one source field."""
         if is_folder:
@@ -517,7 +499,6 @@ class MethodsExportScreen(QWidget):
             style.unpolish(self._provenance)
             style.polish(self._provenance)
 
-    # -- lifecycle --------------------------------------------------------
 
     def is_busy(self) -> bool:
         """True while a digest or a draft is still being produced."""
@@ -553,9 +534,6 @@ def _reader() -> QPlainTextEdit:
     return view
 
 
-# ---------------------------------------------------------------------------
-# Construction
-# ---------------------------------------------------------------------------
 
 def make_methods_export_screen(app_key: Optional[str] = None) -> QWidget:
     """Build the screen with nothing filled in.
@@ -568,19 +546,3 @@ def make_methods_export_screen(app_key: Optional[str] = None) -> QWidget:
     return MethodsExportScreen()
 
 
-# NO REGISTRY ROW. Methods & Results is not a tile: it is a button on
-# Regression's masthead that opens the module seeded with the project and the
-# results folder that screen is already pointed at --
-# :data:`spacr.qt.screens.regression.FOLDED_APPS` and
-# :data:`spacr.qt.screens.regression.BUILDERS`. That seeding is what makes the
-# fold a superset of the tile, which opened on two empty path boxes and asked
-# the user to type what the host already knew.
-#
-# Everything the row used to fan out has a home that outlives it: the
-# button's name, sentence and alpha maturity colour in
-# :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, the API link in
-# ``settings_model._APP_API_MODULE``, the headless answer in
-# :data:`spacr.cli.INTERACTIVE_ONLY`, and the nine translated names in the
-# shipped i18n catalogs. The strings above stay because they are this
-# module's own description, and because those homes are asserted against
-# them.

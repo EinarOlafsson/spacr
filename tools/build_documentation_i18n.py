@@ -17,6 +17,7 @@ import inspect
 import json
 import re
 import stat
+import subprocess
 import sys
 import tempfile
 import unicodedata
@@ -24,6 +25,8 @@ from collections import Counter
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Callable, Iterable, Mapping
+
+import nested_helper_docs
 
 from build_i18n_catalogs import (
     MODEL_ROOT_CANDIDATES,
@@ -138,6 +141,20 @@ AUTOAPI_NON_RENDERED_MODULES = frozenset({
     # drift between extractor and site that is exactly what the audit is
     # for. `spacr._v1_v2_bridge` above is the same case.
     "spacr.qt._layout_policy",
+    # 2026-09-15, items 404/405: the DINOCell/SAMCell backend seam. Its header
+    # became a module docstring, which the extractor would otherwise pin in
+    # nine catalogs for a page AutoAPI never builds.
+    "spacr._segmentation_backends",
+    # 2026-09-15: the two pandas-free data modules split out of
+    # `outlier_filter` and `stream_dataset`, so a settings default can read
+    # four criteria and two selection tables without importing pandas. Data
+    # nothing outside the package imports, re-exported by the public modules
+    # that always owned the names.
+    "spacr._outlier_criteria",
+    "spacr._stream_selection",
+    # 417: private stroke arithmetic. Real Sphinx verification confirms this
+    # module has no page; do not create catalog keys for an invisible API.
+    "spacr.qt._magnifier_drag",
 })
 AUTOAPI_NON_RENDERED_SYMBOLS = frozenset({
     "spacr.qt.run_without_setup",
@@ -4125,6 +4142,10 @@ def public_docstrings() -> dict[str, str]:
                         path, module, child_key,
                     ):
                         _merge_source_doc(docs, child_key, child_doc)
+    for helper in nested_helper_docs.active_entries(ROOT, ignore_patterns=AUTOAPI_IGNORE):
+        if helper.qualified_key in docs:
+            raise ValueError(f"Nested-helper key collides with existing API: {helper.qualified_key}")
+        docs[helper.qualified_key] = helper.docstring
     for alias, canonical in API_DOC_ALIASES.items():
         if alias in docs:
             raise ValueError(
@@ -5576,6 +5597,7 @@ def _localize_readme_link_labels(
 
 def _translate_api_documents(
     documents: Mapping[str, str], language: str, model_root: Path, args,
+    *, reuse_history: bool = False,
 ) -> dict[str, str]:
     """Translate API documents through their current reviewed source context.
 
@@ -5583,13 +5605,47 @@ def _translate_api_documents(
     metadata.  Every model/cache lookup must use the exact contextual block
     whose hash is later written; otherwise an old translation of the raw
     canonical sentence could be relabelled as current after context changes.
+
+    ACCEPTED REVIEWED EVIDENCE IS PUBLISHED, NOT DECODED. Until 2026-09-15
+    this path never read ``docs/i18n/reviewed/api``: only
+    ``repair_api_translations`` and the audit did. So a plain build of a
+    changed symbol sent every block to the model, including blocks with an
+    accepted reviewed record, and published whatever came back. For 410's
+    ``spacr.embeddings.embed_array#1`` the decode failed in es, zh_CN, pt,
+    ko and is. The fallback is the model input, so those five catalogs
+    shipped the ENGLISH context expansion over a reviewed translation that
+    ``reviewed_api_block_translations`` accepted. The same build also
+    replaced zh_CN ``EmbeddingSpec.__post_init__#1``, whose older reviewed
+    record had been published verbatim until then. A reviewed record is
+    already bound to this block's source and context hashes and has passed
+    the reviewed gates, so it is the provenance ``write_language`` records.
+
+    Ordinary builds also opt into source-proven historical paragraphs. They
+    stay keyed by symbol: identical English in two symbols need not have the
+    same committed target. Reviewed evidence still outranks this history,
+    and unproven blocks retain the ordinary decoder/cache path. Forced builds
+    leave ``reuse_history`` off.
     """
+    reviewed = reviewed_api_block_translations(documents, language)
+    historical_by_key: dict[str, dict[str, str]] = {}
+    if reuse_history:
+        (_current_symbols, historical_by_key,
+         history_from_head, history_unproven) = _proven_api_history(
+            documents, language,
+        )
+        print(
+            f"{language}: API history_from_head={history_from_head} "
+            f"history_unproven={history_unproven}",
+            flush=True,
+        )
     block_map: dict[str, tuple[list[str], list[tuple[str, object]]]] = {}
     translation_inputs: dict[str, str] = {}
     for key, value in documents.items():
         blocks, layout = translatable_blocks(value)
         block_map[key] = (blocks, layout)
         for block in blocks:
+            if block in reviewed or block in historical_by_key.get(key, {}):
+                continue
             contextual = _api_translation_source(block)
             if not _syntax_preserved(block, contextual):
                 raise ValueError(
@@ -5611,17 +5667,57 @@ def _translate_api_documents(
                 if current_context == contextual
             )
         ),
-    )
+    ) if translation_inputs else {}
     translations = {
         block: translated_context.get(contextual, block)
         for block, contextual in translation_inputs.items()
     }
+    translations.update(reviewed)
     return {
         key: rebuild_document(
-            layout, [translations[block] for block in blocks],
+            layout, [
+                reviewed[block] if block in reviewed else
+                historical_by_key.get(key, {}).get(
+                    block, translations.get(block, block),
+                )
+                for block in blocks
+            ],
         )
         for key, (blocks, layout) in block_map.items()
     }
+
+
+def _reviewed_api_overlay(
+    docs: Mapping[str, str], translations: Mapping[str, str], language: str,
+) -> dict[str, str]:
+    """Return reused API entries with every accepted reviewed block restored.
+
+    ``reusable_api_translations`` reuses a whole stored entry while its
+    source hashes are unchanged. That is also the usual moment to write a
+    reviewed record: one block the model got wrong in one locale, fixed
+    without touching the English. Reuse alone would keep the stored model
+    text over that record until someone ran ``--repair-api-blocks``, which
+    is the other half of the defect ``_translate_api_documents`` describes.
+    Only an entry with a block that differs is rebuilt. Every other entry is
+    returned byte for byte. On 2026-09-15 the block split and rebuild
+    reproduced all 94,797 stored catalog texts exactly.
+    """
+    reviewed = reviewed_api_block_translations(docs, language)
+    overlaid = dict(translations)
+    if not reviewed:
+        return overlaid
+    for key, text in translations.items():
+        source_blocks, _source_layout = translatable_blocks(docs[key])
+        target_blocks, target_layout = translatable_blocks(text)
+        if len(source_blocks) != len(target_blocks):
+            continue
+        restored = [
+            reviewed.get(source_block, target_block)
+            for source_block, target_block in zip(source_blocks, target_blocks)
+        ]
+        if restored != target_blocks:
+            overlaid[key] = rebuild_document(target_layout, restored)
+    return overlaid
 
 
 def write_language(
@@ -5882,16 +5978,66 @@ def _historical_api_block_translations(
     return candidates
 
 
-def repair_api_translations(
-    docs: Mapping[str, str], language: str, model_root: Path, args,
-) -> dict[str, str]:
-    """Repair stale/untranslated API blocks while retaining valid blocks.
+def _committed_english_api_symbols() -> dict[str, object]:
+    """The English API manifest as last committed, when git can say.
 
-    Current documents are reused positionally.  For changed documents, an
-    unchanged paragraph may also be reused by exact source text, but only when
-    the old English and target manifests still prove the same source, block
-    layout and translation context. Executable/type/code-only blocks are
-    always copied from the canonical source.
+    WHY A SECOND MANIFEST. ``repair_api_translations`` carries an unchanged
+    paragraph of a CHANGED docstring forward only when an English manifest
+    records the same source hash as the translated catalog does. It reads
+    that manifest from the working tree, which holds the previous English
+    only until something rewrites it -- and two ordinary steps do:
+    ``--sources-only``, and a ``--repair-api-blocks`` run over a subset of
+    languages, which writes the manifest for all nine. After either, the
+    working-tree manifest already describes the NEW English, no paragraph can
+    be proven unchanged, and every paragraph of a changed docstring that is
+    in no cache goes back to the model. On 2026-09-15 that left eleven
+    paragraphs exact English which had passed the audit one commit earlier
+    (item 406, the API-lane section).
+
+    The committed manifest is still the previous English in both cases. It
+    is only a second candidate: a record is used only when its
+    ``source_sha256`` equals the translated record's, so a manifest that
+    describes some other English cannot match, and every reused block still
+    passes the same gates.
+
+    :returns: the ``symbols`` of ``HEAD``'s manifest, or ``{}`` when the
+        manifest is outside this repository, git is missing, or the file is
+        not committed.
+    """
+    manifest = API_DIR / "en.json"
+    try:
+        relative = manifest.resolve().relative_to(Path(ROOT).resolve())
+    except ValueError:
+        return {}
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(ROOT), "show",
+             f"HEAD:./{relative.as_posix()}"],
+            capture_output=True, check=False,
+        )
+    except OSError:
+        return {}
+    if completed.returncode != 0:
+        return {}
+    try:
+        symbols = json.loads(completed.stdout.decode("utf-8")).get("symbols")
+    except (UnicodeDecodeError, json.JSONDecodeError, AttributeError):
+        return {}
+    return symbols if isinstance(symbols, dict) else {}
+
+
+def _proven_api_history(
+    docs: Mapping[str, str], language: str,
+) -> tuple[dict[str, object], dict[str, dict[str, str]], int, int]:
+    """Read existing targets and prove historical blocks separately per symbol.
+
+    Ordinary builds and repairs use the same working-manifest/HEAD selection
+    and the same source, layout, context and target gates. The returned block
+    mappings are not flattened by English source: different symbols may have
+    different valid committed translations of an identical paragraph.
+
+    Return the stored symbol records, per-symbol historical blocks, and the
+    existing ``history_from_head`` / ``history_unproven`` diagnostic counts.
     """
     try:
         payload = json.loads(
@@ -5907,6 +6053,57 @@ def repair_api_translations(
         old_english_symbols = english_payload.get("symbols", {})
     except (FileNotFoundError, json.JSONDecodeError, AttributeError):
         old_english_symbols = {}
+    historical_by_key: dict[str, dict[str, str]] = {}
+    committed_english_symbols: dict[str, object] | None = None
+    history_from_head = 0
+    history_unproven = 0
+
+    for key, source in docs.items():
+        canonical_key = API_DOC_ALIASES.get(key, key)
+        record = current_symbols.get(canonical_key, {})
+        english_record = old_english_symbols.get(canonical_key, {})
+        translated_hash = record.get("source_sha256")
+        if (
+            translated_hash
+            and str(record.get("text", "")).strip()
+            and translated_hash != _source_hash(source)
+            and english_record.get("source_sha256") != translated_hash
+        ):
+            # The working-tree manifest no longer describes the English this
+            # catalog was built from; see _committed_english_api_symbols.
+            if committed_english_symbols is None:
+                committed_english_symbols = _committed_english_api_symbols()
+            committed_record = committed_english_symbols.get(canonical_key, {})
+            if (
+                isinstance(committed_record, Mapping)
+                and committed_record.get("source_sha256") == translated_hash
+            ):
+                english_record = committed_record
+                history_from_head += 1
+            else:
+                history_unproven += 1
+        historical_by_key[key] = _historical_api_block_translations(
+            english_record,
+            record,
+            language,
+        )
+    return (current_symbols, historical_by_key,
+            history_from_head, history_unproven)
+
+
+def repair_api_translations(
+    docs: Mapping[str, str], language: str, model_root: Path, args,
+) -> dict[str, str]:
+    """Repair stale/untranslated API blocks while retaining valid blocks.
+
+    Current documents are reused positionally.  For changed documents, an
+    unchanged paragraph may also be reused by exact source text, but only when
+    the old English and target manifests still prove the same source, block
+    layout and translation context. Executable/type/code-only blocks are
+    always copied from the canonical source.
+    """
+    (current_symbols, historical_by_key,
+     history_from_head, history_unproven) = _proven_api_history(docs, language)
     reviewed_blocks = reviewed_api_block_translations(docs, language)
 
     plans: dict[
@@ -5922,11 +6119,7 @@ def repair_api_translations(
         source_blocks, source_layout = translatable_blocks(source)
         canonical_key = API_DOC_ALIASES.get(key, key)
         record = current_symbols.get(canonical_key, {})
-        historical = _historical_api_block_translations(
-            old_english_symbols.get(canonical_key, {}),
-            record,
-            language,
-        )
+        historical = historical_by_key[key]
         current_text = str(record.get("text", ""))
         current_ok = record.get("source_sha256") == _source_hash(source)
         current_blocks, _current_layout = translatable_blocks(current_text)
@@ -6089,14 +6282,17 @@ def repair_api_translations(
         for index in pending_indexes:
             source_block = source_blocks[index]
             contextual_source = _api_translation_source(source_block)
-            candidate = _contextualize(
-                reviewed_blocks.get(
-                    source_block,
+            if source_block in reviewed_sources:
+                # The loader already bound this exact target to its source
+                # and context. Contextualizing it again can silently rewrite
+                # accepted review or turn it into an English fallback.
+                candidate = reviewed_blocks[source_block]
+            else:
+                candidate = _contextualize(
                     generated.get(source_block, source_block),
-                ),
-                language,
-                source_block,
-            )
+                    language,
+                    source_block,
+                )
             # A failed contextual decode must not become an apparently valid
             # translation merely because its English fallback differs from
             # the original wording.  Validate both semantic contracts: the
@@ -6128,7 +6324,9 @@ def repair_api_translations(
         f"generated={len(pending_sources)} unresolved={unresolved} "
         f"review_recovered={recovered_review} "
         f"cache_recovered={recovered_cache} "
-        f"decoded={len(translation_input)} relaid_symbols={relaid_symbols}",
+        f"decoded={len(translation_input)} relaid_symbols={relaid_symbols} "
+        f"history_from_head={history_from_head} "
+        f"history_unproven={history_unproven}",
         flush=True,
     )
     return repaired
@@ -6603,10 +6801,6 @@ def main() -> int:
         print(f"wrote English API manifest: symbols={len(docs)}")
         return audit(docs, args.languages)
 
-    if not args.rebuild_readme:
-        _write_json(API_DIR / "en.json", _english_manifest(docs))
-        print(f"wrote English API manifest: symbols={len(docs)}")
-
     readme = README_SOURCE.read_text(encoding="utf-8")
     readme_links: list[tuple[str, str, str]] = []
     for index, match in enumerate(re.finditer(
@@ -6625,8 +6819,8 @@ def main() -> int:
     for language in args.languages:
         pending = {}
         if not args.rebuild_readme:
-            reusable = {} if args.force else reusable_api_translations(
-                docs, language,
+            reusable = {} if args.force else _reviewed_api_overlay(
+                docs, reusable_api_translations(docs, language), language,
             )
             pending = {
                 key: source for key, source in docs.items()
@@ -6637,6 +6831,7 @@ def main() -> int:
                 translated.update(
                     _translate_api_documents(
                         pending, language, args.model_root, args,
+                        reuse_history=not args.force,
                     )
                 )
             write_language(docs, language, translated)
@@ -6772,6 +6967,10 @@ def main() -> int:
         )
     if args.rebuild_readme:
         return 0
+    # Every locale needs the previous English to prove unchanged paragraphs.
+    # Publish the new manifest only after all locale writes have succeeded.
+    _write_json(API_DIR / "en.json", _english_manifest(docs))
+    print(f"wrote English API manifest: symbols={len(docs)}")
     return audit(docs, args.languages)
 
 

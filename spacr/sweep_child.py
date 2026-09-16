@@ -14,15 +14,10 @@ for _variable in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
                   "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
     os.environ.setdefault(_variable, "1")
 
-# Volunteer for the OOM killer, before importing anything large. Same reason
-# as spacr.parameter_sweep.be_polite: left alone the kernel scores by resident
-# size and kills the biggest process on the box, which during a sweep is the
-# user's editor and not this child. Repeated here because a contained trial is
-# exec'd into a fresh interpreter and never runs be_polite.
 try:
     with open(f"/proc/{os.getpid()}/oom_score_adj", "w") as _handle:
         _handle.write("800")
-except OSError:  # not Linux, or not permitted
+except OSError:
     pass
 
 import json  # noqa: E402
@@ -70,9 +65,6 @@ def main(argv=None) -> int:
     result = {
         "status": "failed",
         "trial_id": trial_id,
-        # The parent removes this private transport field before writing the
-        # sweep table. PID plus creation time lets the run sampler attach the
-        # trial name to samples it took while this short-lived child existed.
         "_resource_worker": _worker_stamp(
             "parameter_sweep_trial", trial_id),
     }
@@ -82,24 +74,21 @@ def main(argv=None) -> int:
         matplotlib.use("Agg")
 
         from .parameter_sweep import _pin_threads
-        # Belt as well as braces: the environment above is read at import,
-        # this resizes the pool that already exists.
         _pin_threads()
 
+        from .figure_font import _open_sans_if_a_run_started_this
         from .ml import perform_regression
 
-        output = perform_regression(dict(settings))
+        # 291: this interpreter starts on matplotlib's stock default. When
+        # the app or a pipeline run started the sweep, the trial's figures
+        # follow it into Open Sans; started from a notebook, they do not.
+        with _open_sans_if_a_run_started_this():
+            output = perform_regression(dict(settings))
         result["status"] = "ok"
 
         from .trial_metrics import summarise_trial
         result.update(summarise_trial(output, settings))
 
-        # The caller's own control ALIASES, on top of the canonical
-        # positive_control_* columns. The sweep screen puts `positive_rank` in
-        # its table, and that column is built from this mapping -- so a
-        # contained trial that did not compute it would leave the one column
-        # the run is judged on blank, which looks exactly like a control that
-        # was never recovered.
         controls = payload.get("controls") or {}
         if controls:
             try:

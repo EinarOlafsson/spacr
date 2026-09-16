@@ -27,17 +27,6 @@ from PySide6.QtWidgets import (QDialog, QHBoxLayout, QLabel,
                                QProgressBar, QProgressDialog,
                                QPushButton, QVBoxLayout, QWidget)
 
-# THE DATA HALF OF THIS MODULE NOW LIVES IN `spacr.example_archives`, and is
-# imported back here so nothing that already calls one of these names has to
-# change -- including the tests that patch `hf_download._download_one` and
-# `hf_download._list_files` to keep the demo flow off the network. Those still
-# name real attributes of this module, and they are still what the workers
-# below resolve.
-#
-# It moved because `spacr-download` fetches the same datasets from a cluster
-# login node, and importing this module to reach them would demand PySide6 on
-# a machine with no display to give it. What is left here is Qt: the dialog,
-# the threads, the signals. What left was only ever about the data.
 from ..example_archives import (                              # noqa: F401
     ANNOTATE_EXAMPLE_REPO, DATASET_PLACEHOLDER, DATASET_REPO, DATASET_SUB,
     EXAMPLE_ARCHIVES, MEASURE_EXAMPLE_REPO, SETTINGS_REPO, _content_length,
@@ -65,9 +54,6 @@ class DownloadResult:
     settings_path: Path
 
 
-# ---------------------------------------------------------------------------
-# Worker
-# ---------------------------------------------------------------------------
 
 class _HFDownloadWorker(QObject):
     """Background worker that fetches both repos, emitting granular
@@ -152,9 +138,6 @@ class _HFDownloadWorker(QObject):
             self.finished.emit(False, "", "", explain_download_failure(e))
 
 
-# ---------------------------------------------------------------------------
-# GUI-thread receiver
-# ---------------------------------------------------------------------------
 
 class _DownloadDialog(QDialog):
     """The download window: bar on top, status centred, Cancel beside it.
@@ -202,15 +185,13 @@ class _DownloadDialog(QDialog):
         self._bar = QProgressBar(self)
         self._bar.setRange(0, 1)
         self._bar.setValue(0)
-        self._bar.setTextVisible(False)      # the caption below says it all
+        self._bar.setTextVisible(False)
         outer.addWidget(self._bar)
 
         row = QHBoxLayout()
         self._cancel = QPushButton("Cancel", self)
         self._cancel.clicked.connect(self._on_cancel)
 
-        # The spacer matches the button, so the caption is centred on the
-        # window and not on the gap beside the button.
         spacer = QWidget(self)
         spacer.setFixedWidth(self._cancel.sizeHint().width())
         row.addWidget(spacer)
@@ -226,7 +207,6 @@ class _DownloadDialog(QDialog):
         self._auto_close = True
         self._cancelled = False
 
-    # -- the QProgressDialog surface the download flow uses -----------------
 
     def _on_cancel(self) -> None:
         """Mark the download cancelled and tell the worker.
@@ -364,8 +344,6 @@ class _HFDownloadUI(QObject):
         self._dlg.setMaximum(total)
         self._dlg.setValue(done)
         percent = round(done * 100 / total)
-        # The name last: it is the part that can be long, so a window too
-        # narrow for all of it still shows the percentage.
         self._dlg.setLabelText(f"{percent}%  ({done}/{total})  {name}")
 
     @Slot(str)
@@ -378,10 +356,6 @@ class _HFDownloadUI(QObject):
 
     @Slot(bool, str, str, str)
     def on_finished(self, ok: bool, ds: str, st: str, err: str) -> None:
-        # Close the dialog *before* invoking the user callback — the
-        # callback may open its own modals (Continue/Stop prompts, etc.),
-        # and stacking one modal on top of another confuses Qt into the
-        # "app not responding" state on Linux.
         """Tear the download down and hand the result to the caller.
 
         The dialog is closed BEFORE the callback runs: the callback may open its
@@ -410,8 +384,6 @@ class _HFDownloadUI(QObject):
         dlg.deleteLater()
         self._thread.quit()
         self._thread.wait(2000)
-        # Drop retained refs on the owner so the QThread + dialog can
-        # be garbage-collected once the download flow ends.
         for attr in ("_hf_download_thread", "_hf_download_worker",
                      "_hf_download_dialog", "_hf_download_ui"):
             try:
@@ -420,10 +392,6 @@ class _HFDownloadUI(QObject):
                 pass
         on_done = self._on_done
         self.deleteLater()
-        # Defer the user callback via a 0-ms singleShot so Qt processes
-        # any pending events (close event, deleteLater) before the
-        # chained pipeline modals appear. This is the specific fix for
-        # the "force-quit dialog after download" symptom.
         if ok:
             QTimer.singleShot(
                 0,
@@ -435,9 +403,6 @@ class _HFDownloadUI(QObject):
             QTimer.singleShot(0, lambda: on_done(None, err))
 
 
-# ---------------------------------------------------------------------------
-# Public entry point
-# ---------------------------------------------------------------------------
 
 class _MeasureExampleWorker(QObject):
     """Fetch Measure's example plate and leave it in the shape Measure reads.
@@ -499,9 +464,6 @@ class _MeasureExampleWorker(QObject):
                     self.finished.emit(False, "", "", "Cancelled by user.")
                     return
                 self.progress.emit(name, done, total)
-                # Sub-paths are preserved: `merged/` is where Measure looks,
-                # and flattening the repo would put the arrays where nothing
-                # reads them.
                 target = root / name
                 target.parent.mkdir(parents=True, exist_ok=True)
                 _download_one(MEASURE_EXAMPLE_REPO, name, target.parent)
@@ -541,6 +503,12 @@ class _TarExampleWorker(QObject):
 
     #: Set by each subclass.
     repo: str = ""
+
+    #: The archive to fetch from `repo`. Empty means the one
+    #: `EXAMPLE_ARCHIVES` names for it. A set whose repo is not in that table
+    #: -- Make Masks' test data, which must not join `EXAMPLE_SETS` because it
+    #: does not unpack into the shared plate -- names its archive here instead.
+    archive: str = ""
 
     def after_extract(self, dest) -> None:
         """Hook for whatever one set needs after unpacking. Nothing by default."""
@@ -583,7 +551,7 @@ class _TarExampleWorker(QObject):
         try:
             import requests
 
-            archive_name = EXAMPLE_ARCHIVES[self.repo]
+            archive_name = self.archive or EXAMPLE_ARCHIVES[self.repo]
             self.info.emit("Downloading the example dataset…")
             url = (f"https://huggingface.co/datasets/{self.repo}/resolve/main/"
                    f"{archive_name}?download=true")
@@ -598,9 +566,6 @@ class _TarExampleWorker(QObject):
             with part.open("wb") as handle:
                 for chunk in response.iter_content(chunk_size=1 << 20):
                     if self._cancel:
-                        # BETWEEN CHUNKS, so Cancel and application shutdown
-                        # both take effect within a megabyte rather than after
-                        # the whole set has arrived.
                         part.unlink(missing_ok=True)
                         self.finished.emit(False, "", "", "Cancelled by user.")
                         return
@@ -621,12 +586,9 @@ class _TarExampleWorker(QObject):
 
             self.info.emit("Unpacking…")
             extract_example_archive(target, self._dest)
-            # The archive is not kept: it is a second copy of everything that
-            # was just written, and these sets are hundreds of megabytes.
             target.unlink(missing_ok=True)
 
             self.info.emit("Preparing the files…")
-            # Whatever this particular set needs doing to it after unpacking.
             self.after_extract(self._dest)
             make_the_example_paths_absolute(self._dest)
             self.progress.emit("done", 1, 1)
@@ -684,7 +646,7 @@ class _ChosenArchivesWorker(_TarExampleWorker):
                     f"Downloading {archive} ({position} of "
                     f"{len(self._archives)})…")
                 if not self._fetch_one(archive):
-                    return                      # it emitted its own outcome
+                    return
                 done.append(archive)
             self.info.emit("Preparing the files…")
             make_the_example_paths_absolute(self._dest)
@@ -763,7 +725,6 @@ class _MeasureTarWorker(_TarExampleWorker):
         Measure loads `.npy`. Converting here keeps the second format entirely
         inside the downloader rather than teaching every reader about it.
         """
-        # No worker is constructed: see expand_measure_arrays.
         expand_measure_arrays(Path(dest) / "merged")
 
 
@@ -857,70 +818,26 @@ def download_toxo_mito_demo(parent,
     dest.mkdir(parents=True, exist_ok=True)
 
     dlg = _DownloadDialog(title, parent)
-    # WIDE ENOUGH FOR WHAT IT WILL SAY, on top of the wrapping the dialog
-    # already does. Widening alone never fixed this -- the longest caption is
-    # a FILE NAME and there is no longest file name -- but a window sized from
-    # "Preparing…" starts absurdly narrow and jumps on the first update.
     dlg.setMinimumWidth(max(
         dlg.minimumWidth(),
         dlg.spacr_caption.fontMetrics().horizontalAdvance(_WIDEST_CAPTION)
         + _CAPTION_MARGIN))
     dlg.setMinimumDuration(0)
     dlg.setValue(0)
-    # AutoClose True so hitting max value closes the dialog and returns
-    # control to the event loop — otherwise a stuck modal blocks the
-    # main thread and Qt shows the "Application not responding" prompt.
     dlg.setAutoClose(True)
     dlg.setAutoReset(True)
     dlg.show()
 
     thread = QThread(parent)
-    # WHICH worker, so a second dataset reuses this function's wiring rather
-    # than copying it. The thread affinity, the direct-connected cancel and
-    # the deliberate absence of a `deleteLater` below are all load-bearing and
-    # were each arrived at from a measured crash; a second copy of them would
-    # be a second place for one of them to be dropped.
-    # THE DEFAULT STAYS THE PER-FILE WORKER, and the Mask demo asks for the
-    # tar at its call site instead.
-    #
-    # Switching the default here looked tidier and broke
-    # `tests/qt/test_console_thread_safety.py`, which patches `_list_files`
-    # and drives this function to prove the offline failure path stays on the
-    # GUI thread. The tar worker does not call `_list_files`, so the patched
-    # test went to the network for real and aborted. A shared entry point's
-    # default is part of its contract with everything already calling it.
     worker = (worker_factory or _HFDownloadWorker)(dest)
     worker.moveToThread(thread)
 
-    # ``ui`` is constructed here, on the GUI thread, so every connection
-    # below is a queued one — see _HFDownloadUI's docstring.
     ui = _HFDownloadUI(dlg, thread, worker, parent, on_done)
     worker.progress.connect(ui.on_progress)
     worker.info.connect(ui.on_info)
     worker.finished.connect(ui.on_finished)
 
-    # DirectConnection is mandatory here: the worker's event loop is
-    # blocked for the whole of run(), so a queued cancel would not be
-    # delivered until after the download it was meant to abort had
-    # already finished. cancel() only flips a bool, which is safe to do
-    # from the GUI thread.
     dlg.canceled.connect(worker.cancel, Qt.DirectConnection)
-    # AND QUITTING THE APPLICATION CANCELS IT TOO.
-    #
-    # Nothing did. A download still running when the window closed left a
-    # QThread to be destroyed with its thread alive -- "QThread: Destroyed
-    # while thread '' is still running", then abort -- because the finished
-    # handler that quits and waits for the thread only runs if the worker
-    # EMITS finished, and a worker that is still downloading never does.
-    #
-    # DirectConnection for the same reason the cancel above uses it: the
-    # worker's event loop is blocked for the whole of run(), so a queued call
-    # would be delivered after the shutdown it was meant to survive. cancel()
-    # only flips a bool.
-    #
-    # The wait is bounded and then given up on: a shutdown that hangs on a
-    # slow socket is a worse failure than the one being prevented, and the
-    # loop checks its flag between files.
     try:
         from PySide6.QtCore import QCoreApplication
 
@@ -944,21 +861,7 @@ def download_toxo_mito_demo(parent,
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not arm the shutdown cancel", exc_info=True)
     thread.started.connect(worker.run)
-    # NOTE the absence of `thread.finished.connect(worker.deleteLater)`.
-    # `spacr.qt.bridge.make_thread` documents why, from a measured crash:
-    # the worker's affinity is the WORKER thread, so a deferred delete is
-    # posted into a loop that is stopping, and it races the GUI thread
-    # dropping the object's last Python reference in `on_finished`. Two
-    # owners, one object — gdb put it in
-    # `QThread -> sendPostedEvents -> ~QObject`. Chaining off
-    # `thread.finished` rather than `worker.finished` does not help; that
-    # exact variant was measured at 2 crashes in 20 runs. The worker is a
-    # Python-constructed PySide6 object, so Python already owns it: the
-    # last reference (held by `_HFDownloadUI`) frees it, on the thread
-    # that holds it.
     thread.start()
-    # Retain references on the parent so the QThread + worker + dialog
-    # aren't garbage-collected while the download is in flight.
     parent._hf_download_thread = thread
     parent._hf_download_worker = worker
     parent._hf_download_dialog = dlg

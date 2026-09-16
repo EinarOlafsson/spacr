@@ -240,11 +240,6 @@ def _collect(report: CrashReport, name: str,
     try:
         text = gather()
     except BaseException as exc:            # noqa: BLE001 - see the docstring
-        # BaseException rather than Exception: a collector that trips a
-        # MemoryError or a RecursionError must still leave a report behind,
-        # and re-raising here would lose every section gathered before it.
-        # KeyboardInterrupt is re-raised, because a user pressing Ctrl-C
-        # while a report is being written means stop, not "record that".
         if isinstance(exc, KeyboardInterrupt):
             raise
         entry["status"] = "failed"
@@ -275,8 +270,6 @@ def _tail(path: Path, limit: int) -> Tuple[str, Dict[str, Any]]:
     with open(path, "rb") as handle:
         if total > limit:
             handle.seek(total - limit)
-            # The seek lands mid-line; drop the partial first line rather than
-            # present half a message as a whole one.
             handle.readline()
         payload = handle.read()
     text = payload.decode("utf-8", "replace")
@@ -682,9 +675,6 @@ def collect(run_id: Optional[str] = None, *,
 
     def environment() -> str:
         """Return redacted environment JSON and record every redacted name."""
-        # Inside the collector, not beside it. Everything in this function
-        # that runs outside _collect is a way for the whole bundle to be lost,
-        # and two of them were found here by the tests that say so.
         redacted = _redacted_environment()
         report.manifest["redacted_environment"] = sorted(
             name for name, value in redacted.items() if value == "<redacted>")
@@ -738,8 +728,6 @@ def write_crash_report(destination: Optional[os.PathLike] = None,
     target.parent.mkdir(parents=True, exist_ok=True)
     payload = io.BytesIO()
     with zipfile.ZipFile(payload, "w", zipfile.ZIP_DEFLATED) as archive:
-        # summary first, manifest last: the two files a reader wants at the
-        # top and the bottom of the listing.
         archive.writestr("summary.txt", report.summary())
         for name in sorted(report.sections):
             archive.writestr(name, report.sections[name])
@@ -875,5 +863,5 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     return 0
 
 
-if __name__ == "__main__":               # the module entry point
+if __name__ == "__main__":
     raise SystemExit(main())

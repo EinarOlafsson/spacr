@@ -111,9 +111,6 @@ def ripley_k(points, mask, radii, *, spacing=None,
     n = len(located)
     frame = pd.DataFrame({"r": radii})
     if n < 2 or area <= 0:
-        # ONE POINT HAS NO PATTERN. NaN rather than zero: zero is a
-        # measured absence of clustering and this is the absence of a
-        # measurement.
         frame["k"] = np.nan
         frame["l"] = np.nan
         frame["l_minus_r"] = np.nan
@@ -135,11 +132,8 @@ def ripley_k(points, mask, radii, *, spacing=None,
         if not kept:
             values.append(np.nan)
             continue
-        # `- 1` FOR THE POINT ITSELF, which every ball contains.
         counts = tree.query_ball_point(metric[keep], r, return_length=True)
         pairs = float(np.sum(counts) - kept)
-        # lambda-hat is n / A from ALL the points -- the density is a
-        # property of the window, not of the subset the correction kept.
         values.append(area * pairs / (float(n) * kept))
 
     k = np.asarray(values, dtype=float)
@@ -185,10 +179,6 @@ def csr_envelope(mask, n_points: int, radii, *, spacing=None,
     rng = np.random.default_rng(seed)
     runs = []
     for _ in range(int(simulations)):
-        # WITHOUT REPLACEMENT. Two cells cannot share a centroid pixel, and
-        # a duplicated point is a pair at distance zero -- which would put
-        # clustering into the null itself and raise the envelope at exactly
-        # the small radii the observation is being judged at.
         chosen = inside[rng.choice(len(inside), size=int(n_points),
                                    replace=int(n_points) > len(inside))]
         runs.append(ripley_k(chosen, window, radii, spacing=spacing,
@@ -197,9 +187,6 @@ def csr_envelope(mask, n_points: int, radii, *, spacing=None,
     with np.errstate(invalid="ignore"):
         return pd.DataFrame({
             "r": radii,
-            # MIN AND MAX, NOT A QUANTILE. This is what makes the envelope
-            # an exact test at 2 / (simulations + 1); a percentile of a
-            # small sample has no such guarantee.
             "lo": np.nanmin(stack, axis=0),
             "hi": np.nanmax(stack, axis=0),
             "mean": np.nanmean(stack, axis=0),
@@ -242,7 +229,6 @@ def ripley_test(points, mask, radii=None, *, spacing=None,
     return merged
 
 
-# --- the parts that decide the answer ---------------------------------------
 
 
 def _distance_to_boundary(window: np.ndarray, scale: np.ndarray) -> np.ndarray:
@@ -292,6 +278,17 @@ def _points_in_window(points, window: np.ndarray) -> np.ndarray:
 
 
 def _as_radii(radii) -> np.ndarray:
+    """The radii to evaluate at, checked before any of them is used.
+
+    :param radii: one radius or a sequence of them, in the units the
+        spacing is given in.
+    :returns: a one-dimensional float array of the radii, in the order
+        they were given.
+    :raises ValueError: when there are no radii, or one of them is not
+        finite or not positive. K(0) is zero by construction and a
+        negative radius has no meaning, so either is a mistake worth
+        saying out loud rather than a column of zeros in the result.
+    """
     values = np.atleast_1d(np.asarray(radii, dtype=float))
     if not values.size:
         raise ValueError("no radii to evaluate")

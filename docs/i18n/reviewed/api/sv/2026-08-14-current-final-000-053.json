@@ -368,7 +368,9 @@
       "source_sha256": "43d842108a4f46744240de0ae683e8c51fa93844791f34754b6fb3a76f3abbdb",
       "source": "Dict of pipeline settings; per-object-type suffixes control which operations run (e.g. ``<type>_perimeter_fraction``, ``<type>_intensity_merge``, ``<type>_min_area``).",
       "context": "Key-value mapping of workflow settings; per-object-type suffixes control which operations run (e.g. ``<type>_perimeter_fraction``, ``<type>_intensity_merge``, ``<type>_min_area``).",
-      "translation": "Nyckel-värde mappning av arbetsflödesinställningar; per-objekt-typ suffix styr vilka operationer som körs (till exempel ``<type>_perimeter_fraction``, ``<type>_intensity_merge``, ``<type>_min_area``)."
+      "translation": "Nyckel-värde mappning av arbetsflödesinställningar; per-objekt-typ suffix styr vilka operationer som körs (till exempel ``<type>_perimeter_fraction``, ``<type>_intensity_merge``, ``<type>_min_area``).",
+      "retired": "2026-09-15",
+      "retired_reason": "Feature 418 rewrote this settings parameter block to describe perimeter merging and absolute own-channel mean-intensity bounds after withdrawing intensity merging; the reviewed source is no longer present. The original source, hash and translation are retained as evidence."
     }
   ]
 }

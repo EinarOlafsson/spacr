@@ -129,9 +129,6 @@ class RoiError(ConfigurationError):
     """
 
 
-# ---------------------------------------------------------------------------
-# The geometry
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True, eq=False)
 class RegionOfInterest:
@@ -221,9 +218,6 @@ class RegionOfInterest:
                 f"RoiSet.save()") from exc
 
 
-# ---------------------------------------------------------------------------
-# The set, and how it is judged
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class RoiSet:
@@ -290,10 +284,6 @@ class RoiSet:
                 f"an ROI lies in a plane: axes takes exactly two different "
                 f"axis names, got {axes}")
         if axes == ('x', 'y'):
-            # Refused rather than transposed for the caller: a mask is (Y, X)
-            # and the vertices are stored row-first, so this pair means the ROI
-            # would be rasterised on its side. It still draws a region, which
-            # is exactly why it has to raise.
             raise RoiError(
                 "axes ('x', 'y') is the vertex order reversed: an ROI's "
                 "vertices are stored in the mask's own axis order, outermost "
@@ -332,7 +322,6 @@ class RoiSet:
                 f"{list(ON_MISSING)}")
         object.__setattr__(self, 'on_missing', on_missing)
 
-    # -- queries ---------------------------------------------------------
     def __len__(self) -> int:
         """Return the total number of ROIs assigned across all fields."""
         return sum(len(v) for v in self.fields.values())
@@ -374,7 +363,6 @@ class RoiSet:
         return (f"{len(self)} ROI(s) over {where}, measuring {inside} them "
                 f"({rule}, {self.units}, {', '.join(self.object_types)})")
 
-    # -- construction ----------------------------------------------------
     @classmethod
     def from_shapes_layer(cls, layer, *, fields: Any = ANY_FIELD,
                           **kwargs: Any) -> 'RoiSet':
@@ -419,7 +407,6 @@ class RoiSet:
         return cls(fields={_field_stem(n): tuple(rois) for n in names},
                    axes=axes, units=spacing.units, **kwargs)
 
-    # -- persistence -----------------------------------------------------
     def as_dict(self) -> Dict[str, Any]:
         """A JSON-safe dict — what :meth:`save` writes and :meth:`load` reads."""
         return {
@@ -534,9 +521,6 @@ def _plane_axes(spacing) -> Tuple[str, str]:
     return axes[-2], axes[-1]
 
 
-# ---------------------------------------------------------------------------
-# The filter itself
-# ---------------------------------------------------------------------------
 
 class RoiRegionFilter:
     """The callable :func:`spacr.measure_hooks.register_region_filter_hook` runs.
@@ -577,7 +561,6 @@ class RoiRegionFilter:
         self._cache_key: Optional[Tuple[Any, ...]] = None
         self._cache: Optional[np.ndarray] = None
 
-    # -- the hook --------------------------------------------------------
     def __call__(self, context) -> np.ndarray:
         """Decide which of ``context.labels`` are inside the ROI.
 
@@ -630,7 +613,6 @@ class RoiRegionFilter:
         self.stats['kept'] += int(np.count_nonzero(keep))
         self.stats['dropped'] += int(keep.size - np.count_nonzero(keep))
 
-    # -- placing the ROI on the mask -------------------------------------
     def _raster(self, context, rois: Sequence[RegionOfInterest]) -> np.ndarray:
         """The ROI rasterised on the mask's own in-plane grid, ``(ny, nx)``.
 
@@ -683,7 +665,6 @@ class RoiRegionFilter:
                 f"spacing as the measurement.")
         return Spacing(scale=scale, axes=axes, units=units)
 
-    # -- the two rules ---------------------------------------------------
     @staticmethod
     def _by_centroid(context, inside: np.ndarray) -> np.ndarray:
         """Keep an object when the pixel under its centroid is inside."""
@@ -700,8 +681,6 @@ class RoiRegionFilter:
         labels = context.labels
         width = int(labels.max()) + 1
         flat = mask.reshape(-1).astype(np.int64, copy=False)
-        # A 2-D ROI applies to every z of a 3-D mask: the polygon was drawn
-        # looking down the stack, so it names a column through it.
         covered = np.broadcast_to(inside, mask.shape).reshape(-1)
         total = np.bincount(flat, minlength=width)
         hit = np.bincount(flat, weights=covered.astype(np.float64),
@@ -716,9 +695,6 @@ class RoiRegionFilter:
                 f"{self.stats['fields']} field(s)")
 
 
-# ---------------------------------------------------------------------------
-# Enabling it — including in worker processes
-# ---------------------------------------------------------------------------
 
 def _env_entries(value: str) -> list:
     """Split a ``SPACR_MEASURE_HOOKS`` value into its non-empty entries."""
@@ -778,7 +754,7 @@ def enable_roi_filter(roi_set: Any, *, path: Optional[str] = None,
     """
     if isinstance(roi_set, (str, os.PathLike)):
         roi_path = os.path.abspath(str(roi_set))
-        RoiSet.load(roi_path)  # fail here, not in a worker
+        RoiSet.load(roi_path)
     else:
         if not isinstance(roi_set, RoiSet):
             roi_set = RoiSet.from_shapes_layer(roi_set)
@@ -795,11 +771,6 @@ def enable_roi_filter(roi_set: Any, *, path: Optional[str] = None,
         entries.append(INSTALLER_ENTRY)
     os.environ[HOOKS_ENV_VAR] = ','.join(entries)
 
-    # Consulting the registry runs the environment installers, which is how
-    # this process ends up with a hook tagged 'env' — the same tag a worker
-    # gets, and the one measure_crop's start-method warning knows not to shout
-    # about. The variable is only read once per process, so if it has already
-    # been read this does nothing and we install directly instead.
     if HOOK_NAME not in [entry.name for entry in region_filter_hooks()]:
         install()
     if verbose:

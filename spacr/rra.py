@@ -61,11 +61,6 @@ def _rho(sorted_ranks: np.ndarray, k: int, alpha: float) -> np.ndarray:
         eligible rank receive ``1.0``.
     """
     scores = _beta_cdf(sorted_ranks, k)
-    # OUTSIDE THE TOP alpha IS NOT CONSIDERED, and 1.0 is how a minimum
-    # ignores it: a probability can never exceed 1, so a masked position can
-    # never be the minimum unless every position is masked -- which happens
-    # only when a gene has no guide in the top alpha at all, and rho = 1 is
-    # then the right answer rather than a missing value.
     scores = np.where(sorted_ranks <= alpha, scores, 1.0)
     return scores.min(axis=-1)
 
@@ -151,9 +146,6 @@ def rank_aggregate(scores, groups, *, alpha: float = DEFAULT_ALPHA,
     out: Dict[str, np.ndarray] = {"gene": genes, "n_guides": sizes}
 
     for tail in wanted:
-        # A HIGH SCORE IS THE WORST RANK FOR DEPLETION and the best for
-        # enrichment; `argsort` of the negated score is the whole difference
-        # between the two tails.
         order = np.argsort(score if tail == "neg" else -score, kind="stable")
         rank = np.empty(n_guides, dtype=float)
         rank[order] = (np.arange(n_guides) + 1) / n_guides
@@ -168,9 +160,6 @@ def rank_aggregate(scores, groups, *, alpha: float = DEFAULT_ALPHA,
             if k not in nulls:
                 nulls[k] = _null(k, n_guides, alpha, n_permutations, rng)
             null = nulls[k]
-            # +1 IN BOTH PLACES. A permutation P value of exactly zero claims
-            # a precision the permutation count does not have, and it is the
-            # value that survives an FDR correction to become a "finding".
             p[index] = (1.0 + np.sum(null <= rhos[index])) / (null.size + 1.0)
 
         adjusted, _rejected = adjust_p_values(p, method=correction,

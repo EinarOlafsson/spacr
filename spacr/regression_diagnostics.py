@@ -36,24 +36,14 @@ from typing import Mapping, Sequence
 import numpy as np
 import pandas as pd
 
-# THE HOUSE PALETTE, BY ROLE. This module drew in seaborn's `deep` -- nine
-# hardcoded hexes with no rule behind which one meant what -- so a run wrote
-# its design and inference panels in a third visual idiom beside the seven
-# house-style panels and the nineteen QC ones.
-#
-# Mapped rather than renamed: `#4C72B0` was doing the job of "the data" in one
-# panel and "the highlight" in another, so a find-and-replace would have kept
-# the inconsistency and only changed the hues. See
-# `.claude/skills/apicomplexan-figures`: everything is grey except what the
-# sentence is about.
 from .figures.style import ROLES, TYPE_SCALE, WEIGHTS, figure_style
 
 #: What each old hex was actually being used FOR, decided per call site.
-_DATA = ROLES["data"]              # bars, clouds, anything not the claim
-_BAD = ROLES["down"]               # a failed check, a threshold crossed
-_GOOD = ROLES["up"]                # a passed check
-_MARK = ROLES["highlight"]         # the one series a panel is about
-_REFERENCE = ROLES["reference"]    # thresholds and guides
+_DATA = ROLES["data"]
+_BAD = ROLES["down"]
+_GOOD = ROLES["up"]
+_MARK = ROLES["highlight"]
+_REFERENCE = ROLES["reference"]
 
 
 def _separator() -> str:
@@ -88,7 +78,6 @@ __all__ = [
 ]
 
 
-# --------------------------------------------------------------------- design
 
 
 def design_report(fractions: pd.DataFrame, *, block: pd.Series | None = None,
@@ -110,9 +99,6 @@ def design_report(fractions: pd.DataFrame, *, block: pd.Series | None = None,
     block_levels = 0
     if block is not None:
         labels = pd.Series(block).copy()
-        # A named Series normally arrives indexed by well.  Align it rather
-        # than trusting incidental row order; the fallback by position keeps
-        # the plain-array API working for callers without labels.
         if isinstance(fractions, pd.DataFrame) and isinstance(block, pd.Series):
             if not labels.index.is_unique:
                 raise ValueError("block labels must have a unique well index")
@@ -136,10 +122,6 @@ def design_report(fractions: pd.DataFrame, *, block: pd.Series | None = None,
             ).to_numpy(dtype=float)
     blocks = int(block_matrix.shape[1])
 
-    # Rank the matrix whose parameter count is reported.  Previously the
-    # report added block terms to ``parameters`` but omitted those columns
-    # from ``design``; every multi-plate run could therefore be declared
-    # non-identifiable even when the complete design was full rank.
     design = np.column_stack([
         np.ones((n_wells, 1)), block_matrix, matrix
     ])
@@ -166,8 +148,6 @@ def design_report(fractions: pd.DataFrame, *, block: pd.Series | None = None,
         "condition_number": condition,
         "wells_per_parameter": (
             float(n_wells / parameters) if parameters else float("nan")),
-        # The single verdict. Rank deficiency is not a warning: a coefficient
-        # in a rank-deficient fit is one of infinitely many solutions.
         "identifiable": bool(rank >= parameters and residual_df > 0),
         "guide_support_min": int(support.min()) if support.size else 0,
         "guide_support_median": float(np.median(support)) if support.size else 0.0,
@@ -219,9 +199,6 @@ def collinear_guide_pairs(fractions: pd.DataFrame, *,
             break
     columns = ["guide_a", "guide_b", "correlation", "shared_wells"]
     if not rows:
-        # A well-designed screen legitimately has no collinear pair. Building
-        # the frame from an empty list gives it no columns at all, so sorting
-        # raised KeyError('correlation') on exactly the healthy case.
         return pd.DataFrame(columns=columns)
     return pd.DataFrame(rows, columns=columns).sort_values(
         "correlation", ascending=False, key=abs, kind="stable"
@@ -261,9 +238,6 @@ def variance_inflation_factors(fractions: pd.DataFrame, *,
     if n_guides == 0:
         return pd.DataFrame(columns=["guide", "vif"])
     if n_wells <= n_guides:
-        # The engine would answer `inf` for every guide here, which is true and
-        # useless. A rank-deficient design has no VIF to report, and saying so
-        # is what sends the caller to the panel that can describe it.
         raise ValueError(
             f"Variance inflation factors need more wells ({n_wells}) than "
             f"guides ({n_guides}); this design is rank deficient, so use "
@@ -281,7 +255,6 @@ def variance_inflation_factors(fractions: pd.DataFrame, *,
         drop=True)
 
 
-# ------------------------------------------------------------------ residuals
 
 
 def residual_report(observed, fitted, *, design: np.ndarray | None = None) -> dict:
@@ -308,9 +281,6 @@ def residual_report(observed, fitted, *, design: np.ndarray | None = None) -> di
     }
     if n > 2:
         from scipy import stats
-        # Shapiro-Wilk is exact but degrades above a few thousand points, where
-        # D'Agostino's K^2 is the right test -- the same rule the manuscript's
-        # own statistics section uses.
         if n < 5000:
             statistic, p_value = stats.shapiro(residual)
             report["normality_test"] = "shapiro"
@@ -321,7 +291,6 @@ def residual_report(observed, fitted, *, design: np.ndarray | None = None) -> di
         report["normality_p_value"] = float(p_value)
         report["skew"] = float(stats.skew(residual))
         report["kurtosis"] = float(stats.kurtosis(residual))
-        # Breusch-Pagan against the fitted values: is the spread constant?
         if np.std(yhat) > 0:
             slope_design = np.column_stack([np.ones(n), yhat])
             squared = residual ** 2
@@ -348,30 +317,10 @@ def residual_report(observed, fitted, *, design: np.ndarray | None = None) -> di
                 leverage / (1.0 - leverage) ** 2)
         cooks = np.nan_to_num(cooks, nan=0.0, posinf=np.inf)
         report["max_cooks_distance"] = float(np.max(cooks)) if cooks.size else float("nan")
-        # 4/n is the usual screening rule for "look at this point".
         report["high_influence_points"] = int(np.sum(cooks > 4.0 / max(n, 1)))
     return report
 
 
-# ------------------------------------------------------------------- verdicts
-#
-# EVERY DIAGNOSTIC REACHES A VERDICT, INCLUDING THESE THREE.
-#
-# `spacr.regression_qc` scores each of its twenty-three panels and stamps the
-# judgement on the panel, so a reader is told whether a number is fine instead
-# of being expected to know. These three sheets did not, and they are the ones
-# a permutation run gets INSTEAD of that suite -- so on the analysis mode where
-# there is no fitted design matrix, nothing in the whole output said whether
-# the design was usable. That is the reading this section exists to prevent.
-#
-# THE VOCABULARY IS BORROWED, NOT REBUILT. `PanelVerdict`, the four levels and
-# the badge come from `regression_qc`; a second set of words for the same four
-# states is how a run comes to say CHECK on one page and WARN on another about
-# the same fit.
-#
-# A SHEET GETS ONE VERDICT because a sheet answers one question -- is this
-# design usable, are these residuals behaved, is this null calibrated -- and
-# its panels are the evidence for that one answer.
 
 
 def _verdict(level, headline, detail="", score=None, statistic=""):
@@ -546,7 +495,6 @@ def _stamp(axis, verdict) -> None:
         pass
 
 
-# ------------------------------------------------------------------- plotting
 
 
 def _house(axis, title="", xlabel="", ylabel=""):
@@ -697,11 +645,6 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
     support = presence.sum(axis=0)
     per_well = presence.sum(axis=1)
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS.
-    # rcParams colour an artist when it is CREATED, so a
-    # context opened after plt.subplots would leave the
-    # spines, ticks and text at whatever the caller's global
-    # style happened to be.
     with figure_style():
         fig, axes = plt.subplots(2, 3, figsize=(14, 8))
 
@@ -725,7 +668,6 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
         axis.axvline(float(np.mean(per_well)), color=_REFERENCE, linestyle="--",
                      linewidth=1)
 
-        # Identifiability, stated rather than implied.
         axis = axes[0, 2]
         axis.axis("off")
         verdict = "IDENTIFIABLE" if report["identifiable"] else "NOT IDENTIFIABLE"
@@ -751,7 +693,6 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
                       transform=axis.transAxes, ha="center", va="bottom",
                       fontsize=8, color=_BAD)
 
-        # Cumulative singular-value spectrum: where the rank runs out.
         axis = axes[1, 0]
         design = np.column_stack([np.ones((matrix.shape[0], 1)), matrix])
         singular = np.linalg.svd(design, compute_uv=False)
@@ -783,7 +724,6 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
                       transform=axis.transAxes, ha="right", va="top",
                       fontsize=8, color=_BAD)
 
-        # Occupancy map: which wells hold which guides, sorted so structure shows.
         axis = axes[1, 2]
         order = np.argsort(-support)
         shown = presence[:, order[:min(200, presence.shape[1])]]
@@ -793,10 +733,6 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
         axis.set_title("Occupancy")
 
         fig.suptitle("Screen design diagnostics", fontsize=13, fontweight="bold")
-        # SCORED AFTER IT DREW AND STAMPED BEFORE IT IS WRITTEN, exactly as
-        # the QC suite does it: the verdict is read off the report the panels
-        # were drawn from, so it cannot disagree with the numbers printed
-        # beside it.
         verdict = score_design(report)
         _stamp(axes[0, 0], verdict)
         report = dict(report, verdict=verdict.headline,
@@ -822,11 +758,6 @@ def plot_residual_diagnostics(observed, fitted, *,
     panels = 6 if design is not None else 4
     rows = 2
     columns = 3 if panels == 6 else 2
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS.
-    # rcParams colour an artist when it is CREATED, so a
-    # context opened after plt.subplots would leave the
-    # spines, ticks and text at whatever the caller's global
-    # style happened to be.
     with figure_style():
         fig, axes = plt.subplots(rows, columns, figsize=(4.6 * columns, 8))
         flat = axes.ravel()
@@ -932,11 +863,6 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
     values = values[np.isfinite(values)]
     n = values.size
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS.
-    # rcParams colour an artist when it is CREATED, so a
-    # context opened after plt.subplots would leave the
-    # spines, ticks and text at whatever the caller's global
-    # style happened to be.
     with figure_style():
         fig, axes = plt.subplots(1, 3, figsize=(14, 4.2))
 
@@ -953,7 +879,6 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
         axis.text(0.98, 0.80, f"π₀ ≈ {pi0:.2f}\n({(1 - pi0) * 100:.0f}% non-null)",
                   transform=axis.transAxes, ha="right", va="top", fontsize=8)
 
-        # QQ against the uniform null, on -log10 so the tail is readable.
         axis = axes[1]
         observed = -np.log10(np.sort(np.clip(values, np.finfo(float).tiny, 1.0)))
         expected = -np.log10((np.arange(1, n + 1) - 0.5) / n)
@@ -965,7 +890,6 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
         axis.set_xlabel("Expected −log₁₀(P)")
         axis.set_ylabel("Observed −log₁₀(P)")
         axis.set_title("P-value Q-Q")
-        # Genomic inflation: median observed chi-square over its null median.
         inflation = float("nan")
         if n:
             from scipy import stats
@@ -1003,11 +927,6 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
             "tests": int(n),
             "pi0": float(pi0),
             "estimated_non_null": float((1.0 - pi0) * n),
-            # ON THE REPORT, NOT ONLY ON THE PICTURE. lambda was computed here
-            # to colour one annotation and then thrown away, so the one number
-            # that says whether the whole family of p-values can be believed
-            # was readable by eye and by nothing else -- not by the summary
-            # CSV, not by a sweep row, not by a verdict.
             "genomic_inflation": inflation,
         }
         if adjusted is not None:
@@ -1061,9 +980,6 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
     stem = f"_{label}" if label else ""
     written: dict[str, str] = {}
     reports: dict[str, dict] = {}
-    # None is the sentinel for "the preference decides"; it has to survive as
-    # far as `save_figure`, so it is a one-element list rather than a resolved
-    # format string.
     requested = [None] if formats is None else [str(f) for f in formats]
 
     def _emit(name, function, **kwargs):
@@ -1085,10 +1001,6 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
                 suffix = fmt or "figure"
                 written[f"{name}_{suffix}_error"] = f"{type(error).__name__}: {error}"
                 continue
-            # KEYED BY WHAT WAS WRITTEN, not by what was asked for. The
-            # extension `save_figure` chose is the only one that names a file
-            # that exists, and a manifest entry pointing at a file that is not
-            # there is worse than no entry.
             suffix = (os.path.splitext(str(_written))[1].lstrip(".").lower()
                       or (fmt or "figure"))
             written[f"{name}_{suffix}"] = str(_written)
@@ -1124,17 +1036,6 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
             for section, report in reports.items()
             for key, value in report.items()
         ]
-        # THE SUITE'S VERDICT IS ITS WORST SHEET, and it goes in the SUMMARY
-        # rather than in the returned mapping. That mapping's contract is
-        # "key -> a file that exists", and a caller iterating it to check its
-        # own output is entitled to that; a verdict string in it is a path
-        # that is not there. Per-sheet verdicts are already rows here, because
-        # each report carries `verdict`, `verdict_level` and `verdict_detail`.
-        #
-        # A design that cannot identify its own coefficients beside two clean
-        # sheets is not "two out of three": it is a run whose numbers are one
-        # of infinitely many answers, and a summary that averages that away
-        # loses exactly the thing worth reporting.
         levels = [report.get("verdict_level") for report in reports.values()
                   if report.get("verdict_level")]
         if levels:

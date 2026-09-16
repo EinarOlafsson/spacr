@@ -62,9 +62,6 @@ import pandas as pd
 
 from . import schema
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from .figures.style import ROLES, figure_style, theme_target
 
 #: The app key this module registers its settings under.
@@ -111,9 +108,6 @@ DEFAULT_SWEEP_SPAN = 4.0
 DEFAULT_SWEEP_POINTS = 25
 
 
-# ---------------------------------------------------------------------------
-# Loading and normalising the count table
-# ---------------------------------------------------------------------------
 
 def _resolve_column(df: pd.DataFrame, canonical: str) -> Optional[str]:
     """Return the column of ``df`` that plays the ``canonical`` role."""
@@ -171,12 +165,6 @@ def load_count_table(count_data, plate: Optional[str] = None) -> pd.DataFrame:
             df = source.copy()
             label = f"count_data[{index}]"
         else:
-            # THROUGH THE FUNNEL (145). These are the COUNT CSVs, and they are
-            # the case that instruction measured: `row_name`, `column_name`,
-            # `grna_name` and NO plate column at all, so four plates' r1/c1
-            # pooled into one well -- 384 wells instead of 1,536 -- with the
-            # fractions still summing to 1, so nothing downstream could
-            # notice.
             from .tabular import read_table
 
             df = read_table(source, report=None)
@@ -213,10 +201,6 @@ def load_count_table(count_data, plate: Optional[str] = None) -> pd.DataFrame:
             df[key] = df[key].astype("string")
         df["count"] = pd.to_numeric(df["count"], errors="coerce")
         df = df.dropna(subset=list(COUNT_COLUMNS))
-        # A zero or negative count is not a call — it is an artefact of a
-        # table that was merged or hand-edited. Keeping it would put a
-        # gRNA in a well at fraction 0.0 and inflate every "gRNAs per
-        # well" count below every threshold.
         df = df[df["count"] > 0]
         frames.append(df)
 
@@ -230,22 +214,13 @@ def load_count_table(count_data, plate: Optional[str] = None) -> pd.DataFrame:
     counts["prc"] = (counts["plateID"].astype(str) + sep
                      + counts["rowID"].astype(str) + sep
                      + counts["columnID"].astype(str))
-    # Sum first: two sources may legitimately hold the same well (a
-    # resequenced lane), and their reads belong to the same well total.
     counts = (counts.groupby(["prc", "plateID", "rowID", "columnID", "grna"],
                              as_index=False, observed=True)["count"].sum())
-    # No zero-total well can reach this line: every surviving row carries a
-    # positive count, so every well's sum is positive and the division
-    # below is always defined. That is why there is no guard here — one
-    # would be unreachable, and unreachable guards get believed.
     counts["well_reads"] = counts.groupby("prc")["count"].transform("sum")
     counts["fraction"] = counts["count"] / counts["well_reads"]
     return counts.reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
-# Per-well read depth and starvation
-# ---------------------------------------------------------------------------
 
 def reads_per_well(counts: pd.DataFrame) -> pd.DataFrame:
     """Return one row per well: its read total and how many gRNAs it saw.
@@ -344,10 +319,6 @@ def position_effects(counts: pd.DataFrame,
         for axis, key in (("row", "rowID"), ("column", "columnID")):
             for label, group in plate_wells.groupby(key, observed=True):
                 median = float(group["reads"].median())
-                # A plate median of zero cannot happen (load_count_table
-                # rejects empty wells), but a defensive guard here keeps
-                # the ratio finite for a caller that built the frame by
-                # hand.
                 fold = median / plate_median if plate_median else np.inf
                 rows.append({
                     "plateID": plate, "axis": axis, "label": label,
@@ -360,17 +331,12 @@ def position_effects(counts: pd.DataFrame,
                                       "ratio_to_plate", "flagged"])
     if out.empty:
         return out
-    # Worst first: distance from parity on a log scale, so a half-depth
-    # row and a double-depth row rank equally badly.
     order = np.abs(np.log2(out["ratio_to_plate"].replace(0, np.nan)))
     return (out.assign(_order=order.fillna(np.inf))
                .sort_values("_order", ascending=False)
                .drop(columns="_order").reset_index(drop=True))
 
 
-# ---------------------------------------------------------------------------
-# Library read depth
-# ---------------------------------------------------------------------------
 
 def _gini(values: np.ndarray) -> float:
     """Gini coefficient of a non-negative array (0 = even, 1 = one winner)."""
@@ -418,9 +384,6 @@ def library_depth(counts: pd.DataFrame,
 
     if values.size:
         p10, p90 = np.percentile(values, [10, 90])
-        # p10 of a library where a tenth of the guides are absent is 0.
-        # Reporting inf is honest — the skew is unbounded — and is what a
-        # user needs to see rather than a silently clipped ratio.
         skew = float(p90 / p10) if p10 > 0 else float("inf")
         top_n = max(1, int(np.ceil(0.1 * values.size)))
         top_share = float(np.sort(values)[::-1][:top_n].sum() / values.sum())
@@ -440,9 +403,6 @@ def library_depth(counts: pd.DataFrame,
     }
 
 
-# ---------------------------------------------------------------------------
-# Unmapped reads
-# ---------------------------------------------------------------------------
 
 def unmapped_read_fractions(qc_data, counts: Optional[pd.DataFrame] = None
                             ) -> Dict[str, Any]:
@@ -502,9 +462,6 @@ def unmapped_read_fractions(qc_data, counts: Optional[pd.DataFrame] = None
     out: Dict[str, Any] = {
         "total_reads": total,
         "per_field": per_field,
-        # A read is lost if ANY field failed. At best the failures all
-        # coincide on the same reads (lower bound = the worst field); at
-        # worst they are disjoint (upper bound = their sum).
         "unmapped_fraction_lower": max(per_field.values()) if per_field else 0.0,
         "unmapped_fraction_upper": min(1.0, sum(per_field.values())),
     }
@@ -515,9 +472,6 @@ def unmapped_read_fractions(qc_data, counts: Optional[pd.DataFrame] = None
     return out
 
 
-# ---------------------------------------------------------------------------
-# Barcode reference collisions
-# ---------------------------------------------------------------------------
 
 def _read_reference(reference) -> Dict[str, str]:
     """Return ``{name: sequence}`` from a barcode CSV, FASTA, or mapping."""
@@ -542,10 +496,6 @@ def _read_reference(reference) -> Dict[str, str]:
         if name is not None:
             table[name] = "".join(chunks).upper()
         return table
-    # RAW, DELIBERATELY. This is a barcode table -- `name` and `sequence` --
-    # and carries no plate, row, column, field or well. Canonicalising it
-    # would be a no-op with an import behind it, and 145's rule is about
-    # readers of METADATA-bearing tables.
     df = pd.read_csv(path)
     missing = {"name", "sequence"}.difference(df.columns)
     if missing:
@@ -602,7 +552,6 @@ def barcode_collisions(references: Mapping[str, Any], max_distance: int = 1
         seqs = [table[n] for n in names]
         seen: set = set()
 
-        # Exact duplicates, by sequence.
         by_sequence: Dict[str, List[str]] = {}
         for name, seq in zip(names, seqs):
             by_sequence.setdefault(seq, []).append(name)
@@ -616,11 +565,6 @@ def barcode_collisions(references: Mapping[str, Any], max_distance: int = 1
                                  "sequence_a": seq, "sequence_b": seq})
 
         if max_distance >= 1:
-            # Hamming-1 neighbours without the N^2 comparison: two equal-
-            # length sequences differ in at most one position exactly when
-            # they agree after masking that position. A pooled gRNA
-            # library is 10^4-10^5 barcodes, where N^2 is not affordable
-            # and this is linear in N.
             buckets: Dict[Tuple[int, str], List[int]] = {}
             for idx, seq in enumerate(seqs):
                 for pos in range(len(seq)):
@@ -644,9 +588,6 @@ def barcode_collisions(references: Mapping[str, Any], max_distance: int = 1
                             "sequence_b": table[pair[1]]})
 
         if max_distance >= 2:
-            # Beyond one substitution the masking trick no longer applies
-            # and the honest implementation is the pairwise one. It is
-            # only reachable when the caller asks for it.
             arrays = [np.frombuffer(s.encode(), dtype=np.uint8) for s in seqs]
             for i in range(len(names)):
                 for j in range(i + 1, len(names)):
@@ -718,9 +659,6 @@ def collision_summary(references: Mapping[str, Any],
                                        "collision_rate", "reads_at_risk"])
 
 
-# ---------------------------------------------------------------------------
-# The threshold: derive it from the target, then sweep around it
-# ---------------------------------------------------------------------------
 
 class WellFractions:
     """Per-well gRNA abundance fractions, prepared for repeated thresholding.
@@ -931,8 +869,6 @@ def derive_threshold(counts: pd.DataFrame, target_grnas_per_well: float,
         the same monotone statistic.
         """
         high = float(candidates[index])
-        # Last candidate whose statistic is still strictly above the one
-        # we settled on; everything after it is on the plateau.
         low_index = 0
         if index > 0 and stat(float(candidates[0])) > achieved:
             lo, hi = 0, index - 1
@@ -943,13 +879,8 @@ def derive_threshold(counts: pd.DataFrame, target_grnas_per_well: float,
                 else:
                     hi = mid - 1
             low_index = lo + 1
-        # Thresholds below the smallest observed fraction all behave
-        # identically, so that fraction — not zero — is the meaningful
-        # bottom of an open-ended plateau.
         low = float(candidates[low_index - 1] if low_index > 0
                     else candidates[0])
-        # Geometric middle: abundances are ratios spanning orders of
-        # magnitude, so halfway between 0.004 and 0.22 is 0.03, not 0.11.
         middle = float(np.sqrt(low * high)) if high > low else high
         return ThresholdChoice(
             threshold=middle, achieved=achieved, target=target,
@@ -959,14 +890,8 @@ def derive_threshold(counts: pd.DataFrame, target_grnas_per_well: float,
 
     lowest = stat(candidates[0])
     if lowest < target:
-        # Even keeping every observed gRNA does not reach the target. No
-        # threshold can; say so instead of returning the smallest number
-        # in the table as though it were a choice.
         return choice_at(0, lowest, attainable=False)
 
-    # Largest candidate whose statistic still meets the target. The
-    # statistic is non-increasing, so the predicate is monotone and a
-    # bisection is exact.
     low, high = 0, int(candidates.size) - 1
     while low < high:
         mid = (low + high + 1) // 2
@@ -976,10 +901,6 @@ def derive_threshold(counts: pd.DataFrame, target_grnas_per_well: float,
             high = mid - 1
     best_index, achieved = low, stat(float(candidates[low]))
 
-    # The next candidate up is the first that falls short. When it lands
-    # closer to the target than the one that meets it, it is the better
-    # answer; on a tie the one that meets the target wins, because a well
-    # short of its guides has lost power that no later step recovers.
     if low + 1 < candidates.size:
         alternative_achieved = stat(float(candidates[low + 1]))
         if abs(alternative_achieved - target) < abs(achieved - target):
@@ -1028,11 +949,6 @@ def sweep_grid(threshold: float, span: float = DEFAULT_SWEEP_SPAN,
             f"the sweep range ({bottom!r}, {top!r}] is empty or non-positive; "
             "check low/high against the derived threshold.")
     grid = np.geomspace(bottom, top, int(points))
-    # Drop grid points that merely round to the centre before inserting
-    # it. np.unique compares bit patterns, so geomspace's 0.21999999999997
-    # would survive next to an inserted 0.22 as a second, near-identical
-    # row of the sweep — two lines the user cannot tell apart reporting
-    # different numbers.
     grid = grid[~np.isclose(grid, threshold, rtol=1e-9, atol=0.0)]
     grid = np.concatenate([grid, [threshold]])
     grid = grid[(grid > 0) & (grid <= 1.0)]
@@ -1174,9 +1090,6 @@ def recommend_threshold(sweep: pd.DataFrame, choice: ThresholdChoice) -> str:
                 f"the sweep — which is why the middle is the number to quote "
                 f"and not either edge.")
 
-    # Quote the thresholds where the answer actually CHANGES, not the ends
-    # of the sweep: on a wide plateau the ends both report the same
-    # gRNAs-per-well and the sentence says nothing.
     here = float(at["grnas_per_well"])
     looser = sweep[(sweep["threshold"] < t) & (sweep["grnas_per_well"] > here)]
     tighter = sweep[(sweep["threshold"] > t) & (sweep["grnas_per_well"] < here)]
@@ -1206,11 +1119,6 @@ def recommend_threshold(sweep: pd.DataFrame, choice: ThresholdChoice) -> str:
                 f"changes neither the {statistic} nor well retention — the "
                 f"guides this keeps are well clear of the cutoff.")
 
-    # The knee: the adjacent pair of thresholds below the derived one
-    # across which the collision rate climbs fastest per octave. That is
-    # the sentence a methods section wants — "below X, collisions rise
-    # sharply" — so it is quoted as the two measured values, not as a
-    # slope the reader has to integrate.
     below = sweep[sweep["threshold"] <= t].sort_values("threshold")
     if len(below) >= 2:
         thresholds = below["threshold"].to_numpy(float)
@@ -1228,9 +1136,6 @@ def recommend_threshold(sweep: pd.DataFrame, choice: ThresholdChoice) -> str:
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Figures
-# ---------------------------------------------------------------------------
 
 def _save_figure(fig, dst: Optional[str], name: str) -> Optional[str]:
     """Write ``fig`` to ``dst/name.pdf`` and return the path (or None)."""
@@ -1238,7 +1143,6 @@ def _save_figure(fig, dst: Optional[str], name: str) -> Optional[str]:
         return None
     os.makedirs(dst, exist_ok=True)
     path = os.path.join(dst, f"{name}.pdf")
-    # 108 point 6: the format and the DPI are the user's, not this line's.
     from .plot import save_figure
 
     return save_figure(fig, path, bbox_inches="tight")
@@ -1274,10 +1178,6 @@ def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,
     amber = (200 / 255, 130 / 255, 0 / 255)
     red = (180 / 255, 40 / 255, 60 / 255)
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         fig, (top, bottom) = plt.subplots(
             2, 1, figsize=(9, 7), sharex=True,
@@ -1288,11 +1188,8 @@ def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,
         top.plot(sweep["threshold"], sweep["grnas_per_well_retained"],
                  color=teal, lw=1.2, ls=":",
                  label="gRNAs per well (retained wells only)")
-        # 178 A: the reference role, so the line is visible in both themes.
         top.axhline(choice.target, color=ROLES["reference"], ls="--", lw=1,
                     label=f"target ({choice.target:g})")
-        # linscale keeps the 0-1 linear band from eating a third of the panel;
-        # "no guides left" needs to be visible, not prominent.
         top.set_yscale("symlog", linthresh=1, linscale=0.35)
         top.set_ylim(bottom=0)
         top.set_ylabel("gRNAs per well")
@@ -1313,9 +1210,6 @@ def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,
 
         for axis in (top, bottom):
             axis.axvline(choice.threshold, color=ROLES["reference"], lw=1.2)
-        # Anchored in axes coordinates on the y and data coordinates on the x,
-        # so the label rides the line at a fixed height whatever the symlog
-        # axis does with its limits.
         top.annotate(f"derived: {choice.threshold:.4f}",
                      xy=(choice.threshold, 0.02),
                      xycoords=top.get_xaxis_transform(),
@@ -1351,14 +1245,9 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
     """
     import matplotlib.pyplot as plt
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         fig, axes = plt.subplots(2, 2, figsize=(13, 9))
 
-        # 1 — reads per well.
         ax = axes[0][0]
         reads = per_well["reads"].to_numpy(float)
         bins = min(40, max(5, int(np.sqrt(max(reads.size, 1)))))
@@ -1375,14 +1264,10 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
         ax.set_title(f"Read depth across {len(per_well)} wells "
                      f"({counts['count'].sum():,.0f} mapped reads)")
 
-        # 2 — position effects.
         ax = axes[0][1]
         if positions.empty:
             ax.set_axis_off()
         else:
-            # Natural order, so c2 sits between c1 and c10 rather than after
-            # c12 — a position-effect panel whose columns are out of plate
-            # order cannot be read against the plate.
             def _natural(value):
                 """Split a position label into text and numeric sort parts.
 
@@ -1403,8 +1288,6 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
             colors = [(180 / 255, 40 / 255, 60 / 255) if flag
                       else (120 / 255, 120 / 255, 120 / 255)
                       for flag in ordered["flagged"]]
-            # The axis initial is only worth a prefix when the label does not
-            # already carry it.
             labels = [str(b) if str(b).lower().startswith(a[0])
                       else f"{a[0]}:{b}"
                       for a, b in zip(ordered["axis"], ordered["label"])]
@@ -1417,7 +1300,6 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
                 f"Row and column position effects "
                 f"({int(ordered['flagged'].sum())} flagged)")
 
-        # 3 — library coverage, as a Lorenz curve.
         ax = axes[1][0]
         values = np.sort(depth["reads_per_grna"].to_numpy(float))
         if values.size and values.sum() > 0:
@@ -1434,7 +1316,6 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
                 title += f", {100 * dropout:.1f}% never seen"
             ax.set_title(title, fontsize=10)
 
-        # 4 — read fate.
         ax = axes[1][1]
         if unmapped:
             names = list(unmapped["per_field"])
@@ -1456,9 +1337,6 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
         return fig
 
 
-# ---------------------------------------------------------------------------
-# Settings and entry point
-# ---------------------------------------------------------------------------
 
 def barcode_qc_defaults(settings=None) -> Dict[str, Any]:
     """Return the default settings for :func:`barcode_qc`.
@@ -1676,26 +1554,15 @@ def barcode_qc(settings: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     population = None
     if settings.get("exclude_starved_wells", True) and not starved.empty:
         keep = set(per_well["prc"]) - set(starved["prc"])
-        # Never hand an empty population to the derivation: when every
-        # well is below the cut the run is starved as a whole, and the
-        # honest answer is to fit on what there is and say so in the QC.
         population = keep or None
 
     choice = derive_threshold(counts, float(settings["target_grnas_per_well"]),
                               str(settings["target_statistic"]),
                               wells=population)
-    # Reach down into the bleed-through tail even when the derived
-    # threshold sits far above it, so the collision knee is on the curve.
-    # Floored at a thousandth of the derived value: a run with one
-    # freakishly small fraction should not stretch the plot over six
-    # decades of empty space.
     tail = float(np.quantile(counts["fraction"].to_numpy(float), 0.01))
     grid = sweep_grid(choice.threshold, float(settings["sweep_span"]),
                       int(settings["sweep_points"]),
                       low=max(tail, choice.threshold / 1e3),
-                      # ...and up past the top of the plateau, so the cost
-                      # of tightening is on the curve too rather than
-                      # sitting just off the right-hand edge of it.
                       high=choice.interval_high * 1.5)
     sweep = threshold_sweep(counts, grid,
                             float(settings["target_grnas_per_well"]),
@@ -1748,10 +1615,6 @@ def barcode_qc(settings: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         panels = plot_barcode_qc(counts, per_well=per_well, starved=starved,
                                  positions=positions, depth=depth,
                                  unmapped=unmapped, dst=figure_dst)
-        # Closed rather than shown: this runs inside a mapping pipeline and
-        # inside the Qt worker thread, neither of which owns a GUI event
-        # loop, and an accumulating figure stack is a memory leak over a
-        # plate's worth of samples.
         plt.close(figure)
         plt.close(panels)
 

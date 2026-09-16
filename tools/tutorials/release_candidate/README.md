@@ -1,17 +1,23 @@
-# Tutorial release candidate — updated 12 September 2026
+# Tutorial release candidate — updated 15 September 2026
 
-This is an **unpublished candidate within the maintainer-approved scope**, not the current
-live tutorial site. `checkpoint.json` identifies the complete on-disk package;
+This checkpoint is **candidate `release-candidate-8738b_pd`, approved for
+publication on 15 September 2026** (see "Release hold" below). Its media revision
+is uploaded and read back, and its Pages tree is staged in
+`docs/source/_extra/tutorials`. The live site changes only when that tree is
+merged to `main`. `checkpoint.json` identifies the complete on-disk package;
 `release-manifest.json` records every web/media file and its SHA-256 hash.
 
 | Contents | Count |
 | --- | ---: |
-| Fully produced tutorial packages | 72 |
-| Coming soon screens | 5 |
+| Fully produced tutorial packages | 76 |
+| Coming soon screens | 1 (Investigate Hit) |
 | Total navigable entries | 77 |
 | Catalog languages | 14 |
 | Narration languages / voices per ready lesson | 8 / 50 |
-| Verified narration tracks, including retained tracks | 3,600 |
+| Verified narration tracks, including retained tracks | 3,800 |
+
+The historical notes below describe earlier candidates. Since then Map Barcodes,
+Model Compare, Model Zoo, OPS and Embeddings have been promoted to full lessons.
 
 The five unavailable workflows are Map Barcodes, Model Compare, Model Zoo,
 Investigate Hit and OPS. They remain reachable through the correct Main modules
@@ -76,10 +82,21 @@ All 49 other installer voice pairs and the shared movie remain byte-identical.
 Do not overwrite the older live repair with this different narration. Technical
 phoneme and playback checks are not human pronunciation/listening acceptance.
 
-## Release hold
+## Release hold — lifted 15 September 2026 (item 358)
 
-**Do not publish yet.** The candidate index deliberately uses local relative
-media roots. After the maintainer clears the hold:
+The maintainer approved publication of candidate `release-candidate-8738b_pd`
+("Publish now"). `publication-receipt.json` records the media revision: the
+dataset, a new branch (never `main`), its tag and the pinned 40-character commit.
+It also records the read-back of every uploaded file's bytes.
+`published-media-browser-checks.json` plays the Pages tree against that commit.
+`checkpoint.json` carries `release_hold: false`. `release-manifest.json` stays
+exactly as built, still held, because the browser evidence hashes it. Pages
+deploys only when `docs/source/_extra/tutorials` reaches `main`.
+`tools/tutorials/publish_release_candidate.py` (upload, readback, pages, record)
+performs these steps for any later candidate.
+
+The candidate index itself still deliberately uses local relative media roots.
+The steps that apply to every publication:
 
 1. Recheck the manifest and confirm the intended app version still matches
    the recordings. Check the current GUI route inventory again.

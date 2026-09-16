@@ -162,9 +162,6 @@ def _flat_qss(selector: str) -> str:
         f"  border: none;"
         f"  background: transparent;"
         f"}}"
-        # QSpinBox draws two framed arrow buttons of its own. Left alone they
-        # are the only chrome in a row that is otherwise pure text, so strip
-        # them the same way the combo's drop-down is stripped.
         f"{selector}#{FLAT_CONTROL_NAME}::up-button,"
         f"{selector}#{FLAT_CONTROL_NAME}::down-button {{"
         f"  border: none;"
@@ -184,9 +181,6 @@ class _FlatStyleMixin:
         self.setStyleSheet(_flat_qss(self._flat_selector))
 
     def showEvent(self, event):      # noqa: N802 (Qt naming)
-        # Preferences can change the theme while this panel is hidden; the
-        # widget stylesheet keeps whatever palette it was born with until it
-        # is rebuilt, so rebuild it every time the panel comes back.
         """Rebuild the flat style each time the control comes back on screen.
 
         Preferences can change the theme while the panel is hidden, and a
@@ -223,10 +217,6 @@ class FlatComboBox(_FlatStyleMixin, QComboBox):
         super().__init__(parent)
         self.setObjectName(FLAT_CONTROL_NAME)
         self.setCursor(Qt.PointingHandCursor)
-        # The entries are *data* (file names, channel indices), not prose.
-        # Letting the language pass rewrite them would break every lookup
-        # that reads ``currentText()`` back — the same trap that silently
-        # reverted the live preview's outline colour to its default.
         self.setProperty("i18nSkipItems", True)
         if tooltip:
             self.setToolTip(tooltip)
@@ -296,8 +286,6 @@ class FlatSpinBox(_FlatStyleMixin, QSpinBox):
         self.setButtonSymbols(QSpinBox.UpDownArrows)
         self.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.setMinimum(1)
-        # Wide open until a folder is enumerated; configure_max_sets_box then
-        # clamps it to the number of sets that actually exist.
         self.setMaximum(10_000_000)
         self.setValue(int(value))
         self.setAccelerated(True)
@@ -433,9 +421,6 @@ def populate_fov_combo(combo: QComboBox, sources: Sequence[Path],
         combo.blockSignals(blocked)
 
 
-# ---------------------------------------------------------------------------
-# Enumerating image sets without loading them
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ImageSet:
@@ -529,7 +514,6 @@ def _get_regex_callable():
     if module is not None:
         return getattr(module, "_get_regex", None)
     try:
-        # find_spec locates the file without executing it.
         spec = importlib.util.find_spec("spacr.utils")
         source = Path(spec.origin).read_text(encoding="utf8")
         tree = ast.parse(source)
@@ -566,8 +550,6 @@ def _acquisition_regex(metadata_type: str = DEFAULT_METADATA_TYPE,
                                 custom_regex=custom_regex)
         return re.compile(pattern, re.IGNORECASE)
     except Exception:
-        # An unparsable custom regex must degrade to "one set per file",
-        # never take the panel down.
         return None
 
 
@@ -596,10 +578,6 @@ def enumerate_image_sets(directory, suffixes: Sequence[str],
     except TypeError:
         return [], []
     wanted = tuple(s.lower() for s in suffixes)
-    # One pattern per file extension, looked up by the extension rather than
-    # tried in turn: the acquisition regex back-tracks heavily, and on a
-    # 98 304-file plate trying all five suffix variants per name cost 713 ms
-    # against 368 ms for the single right one (os.scandir alone is 40 ms).
     patterns: Dict[str, "re.Pattern"] = {}
     for fmt in {s.lstrip(".").lower() for s in wanted} or {"tif"}:
         compiled = _acquisition_regex(metadata_type, fmt, custom_regex)
@@ -629,23 +607,11 @@ def enumerate_image_sets(directory, suffixes: Sequence[str],
                            str(groups.get("wellID") or ""),
                            str(groups.get("fieldID") or ""))
                     chan = str(groups.get("chanID") or "")
-                    # sliceID is what separates the planes of a stack. Under
-                    # cellvoyager/cq1 the regex has this group and every plane
-                    # is its own name; under metadata_type='auto' it does not,
-                    # and a field is one file per channel already.
                     slice_id = str(groups.get("sliceID") or "")
                     channels.add(chan)
                 else:
-                    # Not an acquisition name: one set per file, labelled with
-                    # the file name exactly as the dropdown always showed it.
-                    # Keyed on the *name*, not the stem, so ``a.tif`` and
-                    # ``a.tiff`` stay two entries rather than colliding.
                     key = ("", "", name)
                     chan = ""
-                # Collect every plane rather than keeping the first and
-                # dropping the rest. `setdefault(chan, name)` silently threw
-                # away 20 planes of a 21-plane stack, and which one survived
-                # was decided by directory order.
                 grouped.setdefault(key, {}).setdefault(chan, []).append(
                     (_plane_sort_key(slice_id), name))
     except (OSError, ValueError):
@@ -655,8 +621,6 @@ def enumerate_image_sets(directory, suffixes: Sequence[str],
     for key, chan_map in sorted(grouped.items()):
         ordered = {}
         for chan, entries in sorted(chan_map.items()):
-            # Acquisition order, by sliceID where the regex reports one and
-            # by name otherwise, so plane 2 does not sort between 19 and 20.
             ordered[chan] = [name for _sort, name in sorted(entries)]
         sets.append(ImageSet(
             key=key, directory=str(directory),
@@ -752,7 +716,6 @@ class ImageSetSampler:
         #: file name -> set, built on first lookup, dropped with the cache.
         self._by_name: Optional[Dict[str, ImageSet]] = None
 
-    # -- enumeration (touches the filesystem) ------------------------------
 
     @staticmethod
     def _key_for(directory, metadata_type: str, custom_regex) -> str:
@@ -832,7 +795,6 @@ class ImageSetSampler:
         self._pinned = None
         self._by_name = None
 
-    # -- sampling (pure) ---------------------------------------------------
 
     @property
     def total(self) -> int:
@@ -869,7 +831,6 @@ class ImageSetSampler:
         if value == self.max_sets:
             return False
         self.max_sets = value
-        # A new cap is a new draw; the old pin has no claim on it.
         self._pinned = None
         return True
 

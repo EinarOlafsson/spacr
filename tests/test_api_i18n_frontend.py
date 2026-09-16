@@ -57,7 +57,49 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: case the assertion below distinguishes: the constant was the stale thing,
 #: not the catalog. A two-way message would have sent the reader to rebuild
 #: something already correct.
-REAL_SYMBOL_COUNT = 10_478
+# 10,531 -> 10,533 on 2026-09-14: +2 / -0 by set difference --
+# spacr.embeddings.EmbeddingSpec.__post_init__ and
+# spacr.ops_store.Readiness.__bool__, two dunders that already existed
+# and were undocumented. Documenting them is what admits them.
+#
+# THIS NUMBER LIVES IN FOUR FILES: here, test_documentation_i18n,
+# test_api_i18n_extractor (twice) and test_docstring_correctness. It has
+# now been moved twice and BOTH TIMES some siblings were missed and found
+# a day later by a sweep. Grep the literal before believing one edit was
+# enough.
+# 10,533 -> 10,534 on 2026-09-15: +1 / -0 by set difference --
+# spacr.graph_types.mark_to_start_on, and nothing else. The live surface
+# with that one key dropped is 10,533, the previous value. Moved in all four
+# files in one commit, per the note above.
+# 10,534 -> 10,541 on 2026-09-15 (372 PART 14-M): +7 / -0 by set difference
+# against nightly 3f27b926a (the same seven moved c3f562c4f's 10,533 to
+# 10,540 before the rebase) -- spacr.ops_engine and spacr.ops_engine.run_ops,
+# spacr.ops_cycles.AlignedField and align_field, spacr.ops_sbs.attribute_reads
+# and assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. Their
+# blocks carry reviewed records in all nine locales.
+# 10,541 -> 10,521 on 2026-09-15, +0 / -20 by set difference against
+# the switch commit when the old OPS engine was deleted: the 17 symbols of
+# the old engine's module and `spacr.settings.set_default_stitch`,
+# `set_default_multichannel` and `set_default_general`, the old
+# stitcher's defaults, which nothing called.
+# 10,521 -> 10,523 on 2026-09-15, +2 / -0 by set difference against
+# origin/nightly df1216b3f: spacr.barcode_search.SearchThresholds and its __post_init__.
+# Moved in all four files in one commit. THE ENGLISH CATALOG DOES NOT CARRY
+# THESE TWO -- it is not regenerated for them -- so the catalog gate below
+# reports exactly those two as "in the source but NOT in the catalog" until
+# the pre-release catalog rebuild runs. That message is the recorded debt,
+# and it is the accurate one: the source is right and the catalog is stale.
+# 10,523 -> 10,539 on 2026-09-15, +16 / -0 by set difference against
+# nightly dca970671:
+# spacr.qt.make_masks_demo and its seven public functions (412), and
+# spacr.install_cleanup with InstallRecord, RemovalReport,
+# RemovalReport.ok, find_old_installs, remove_install,
+# run_update_sequence and start_update_helper (416). 413 rewrote two
+# existing docstrings and added none. The live surface with those sixteen
+# keys dropped is 10,523, the previous value. Their blocks carry reviewed
+# records in all nine locales
+# (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
+REAL_SYMBOL_COUNT = 10_539
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

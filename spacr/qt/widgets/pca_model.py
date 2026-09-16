@@ -159,9 +159,6 @@ class PCAError(ValueError):
     """
 
 
-# ---------------------------------------------------------------------------
-# Policies
-# ---------------------------------------------------------------------------
 
 #: Centre and divide by the sample SD — a correlation PCA. The default; see
 #: the module docstring for why.
@@ -259,9 +256,6 @@ def candidate_features(frame: pd.DataFrame) -> Tuple[str, ...]:
                         if kind == CONTINUOUS))
 
 
-# ---------------------------------------------------------------------------
-# The spec
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class PCASpec:
@@ -324,7 +318,6 @@ class PCASpec:
                 f"[0, 1], not {self.structural_missing}")
         object.__setattr__(self, "structural_missing", fraction)
 
-    # -- edits ----------------------------------------------------------
     def with_features(self, features: Sequence[str]) -> "PCASpec":
         """A copy decomposing a different set of columns.
 
@@ -365,7 +358,6 @@ class PCASpec:
         """
         return replace(self, n_components=n)
 
-    # -- serialisation ---------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
         """This spec as plain data.
 
@@ -416,9 +408,6 @@ class PCASpec:
                 f"NaN: {self.nan_policy} · {self.n_components} components")
 
 
-# ---------------------------------------------------------------------------
-# The result
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class PCAResult:
@@ -474,7 +463,6 @@ class PCAResult:
     collinear_groups: Tuple[Tuple[str, ...], ...] = ()
     notes: Tuple[str, ...] = ()
 
-    # -- shape ------------------------------------------------------------
     def __len__(self) -> int:
         """Objects in the analysis."""
         return int(self.scores.shape[0])
@@ -522,7 +510,6 @@ class PCAResult:
         """Fraction of the given objects the analysis is about."""
         return (len(self) / self.n_rows_in) if self.n_rows_in else 0.0
 
-    # -- reading one component --------------------------------------------
     def _check(self, k: int) -> int:
         """Bounds-check a component index.
 
@@ -624,7 +611,6 @@ class PCAResult:
         order = np.argsort(strength)[::-1][:max(0, int(count))]
         return tuple(int(i) for i in order)
 
-    # -- frames -----------------------------------------------------------
     def scores_frame(self, source: pd.DataFrame, *,
                      components: Optional[int] = None) -> pd.DataFrame:
         """``source``'s surviving rows with ``PC1…PCk`` columns added.
@@ -660,7 +646,6 @@ class PCAResult:
             "cumulative_ratio": self.cumulative_ratio,
         })
 
-    # -- saying it in words ------------------------------------------------
     def headline(self, k: int = 0) -> str:
         """One sentence about component ``k``, including the bad news."""
         k = self._check(k)
@@ -763,9 +748,6 @@ class PCAResult:
         return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# The computation
-# ---------------------------------------------------------------------------
 
 def _select_features(frame: pd.DataFrame, spec: PCASpec
                      ) -> Tuple[List[str], Dict[str, str]]:
@@ -808,12 +790,11 @@ def _apply_nan_policy(matrix: np.ndarray, features: List[str], spec: PCASpec,
         reason = "at least one object has no value for it"
     elif spec.nan_policy == NAN_AUTO:
         keep_feature = fraction <= spec.structural_missing
-        reason = None  # per-feature, below
+        reason = None
     elif spec.nan_policy == NAN_MEAN:
-        # A feature nobody has a value for has no mean to impute with.
         keep_feature = fraction < 1.0
         reason = "no object has a value for it, so there is nothing to impute"
-    else:  # NAN_COMPLETE keeps every feature and pays for it in rows.
+    else:
         reason = None
 
     for i, name in enumerate(features):
@@ -989,19 +970,7 @@ def pca(frame: pd.DataFrame, spec: Optional[PCASpec] = None) -> PCAResult:
     n, p = standard.shape
     singular, vectors = _decompose(standard)
     largest = float(singular.max()) if singular.size else 0.0
-    # NO `largest <= 0` OR `rank < 1` GUARD. Both were marked
     # `# pragma: no cover`, and their own reasons were right:
-    # `_drop_constant` above has already refused a matrix with no
-    # variance in it, with a message that names the offending features --
-    # "every selected feature is constant over the analysed objects", or
-    # "only 1 feature varies... PCA needs two". A matrix that reaches
-    # here therefore has at least two varying features, so its largest
-    # singular value is positive and its rank is at least one.
-    #
-    # Checked rather than assumed: identical columns, one constant
-    # column, and denormal values all raise from `_drop_constant`;
-    # perfectly collinear columns get through and decompose, which is
-    # correct -- collinearity reduces the rank to 1, not to 0.
     tolerance = largest * max(n, p) * float(np.finfo(float).eps)
     rank = int((singular > tolerance).sum())
 
@@ -1009,10 +978,6 @@ def pca(frame: pd.DataFrame, spec: Optional[PCASpec] = None) -> PCAResult:
     loadings = np.asarray(vectors[:, :k], dtype=float)
     scores = standard @ loadings
 
-    # SVD signs are arbitrary; pin them so the same data draws the same
-    # picture every time and a figure in a report matches the screen it came
-    # from. Convention: the largest-magnitude loading of each component is
-    # positive.
     for i in range(k):
         lead = int(np.argmax(np.abs(loadings[:, i])))
         if loadings[lead, i] < 0:
@@ -1023,8 +988,6 @@ def pca(frame: pd.DataFrame, spec: Optional[PCASpec] = None) -> PCAResult:
     total = float(variance.sum())
     ratio = (variance[:k] / total) if total > 0 else np.zeros(k)
 
-    # Feature-component correlations, computed rather than derived, so the
-    # arrows in the biplot cannot drift out of step with the scores.
     column_sd = standard.std(axis=0, ddof=1)
     score_sd = scores.std(axis=0, ddof=1)
     denominator = np.outer(column_sd, score_sd) * (n - 1)

@@ -1,0 +1,713 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "when the orientation label is not one of the two, or when the table is not DNA and so cannot be complemented at all.",
+      "label": "spacr.barcode_search.BarcodeTable.oriented#3",
+      "source": "when the orientation label is not one of the two, or when the table is not DNA and so cannot be complemented at all.",
+      "source_sha256": "53f37c12c55fe49dec2437e6f1e080af6f2e9a588386b97beed6f76c1e5fbf0d",
+      "translation": "lorsque l’étiquette d’orientation n’est aucune des deux, ou lorsque la table ne contient pas de DNA et ne peut donc pas du tout être complémentée."
+    },
+    {
+      "context": "A non-nucleotide table is refused rather than mangled. Peptide tags and amino-acid barcodes pass through `reverse_complement` unchanged -- it maps only the four bases and N -- so a flipped table would be the same letters reversed, searched for, and never found. Saying no is the honest answer; silently searching for a sequence that cannot match reports \"this reference is absent from the reads\", which is a conclusion about the data rather than about the request.",
+      "label": "spacr.barcode_search.BarcodeTable.oriented#4",
+      "source": "A NON-NUCLEOTIDE TABLE IS REFUSED RATHER THAN MANGLED. Peptide tags and amino-acid barcodes pass through `reverse_complement` unchanged -- it maps only the four bases and N -- so a flipped table would be the same letters reversed, searched for, and never found. Saying no is the honest answer; silently searching for a sequence that cannot match reports \"this reference is absent from the reads\", which is a conclusion about the data rather than about the request.",
+      "source_sha256": "1e3ba3e13cf8e2f1c0cf30f9f40267c0ef4d38e8211e4f9f884d86f0f36c4545",
+      "translation": "UNE TABLE NON NUCLÉOTIDIQUE EST REFUSÉE PLUTÔT QUE MUTILÉE. Les étiquettes peptidiques et les codes-barres d’acides aminés traversent `reverse_complement` sans changement -- il ne convertit que les quatre bases et N --, de sorte qu’une table retournée serait faite des mêmes lettres inversées, recherchées et jamais trouvées. Dire non est la réponse honnête ; rechercher en silence une séquence qui ne peut pas correspondre signale « cette référence est absente des lectures », ce qui est une conclusion sur les données et non sur la demande."
+    },
+    {
+      "context": "The numbers a barcode search judges by, and what each one judges.",
+      "label": "spacr.barcode_search.SearchThresholds#0",
+      "source": "The numbers a barcode search judges by, and what each one judges.",
+      "source_sha256": "c37afe97c98e140c0d99484ebaf720920c5d8e7dbedba3f7b641b9f940a9dadf",
+      "translation": "Les nombres d’après lesquels une recherche de codes-barres juge, et ce que chacun juge."
+    },
+    {
+      "context": "These were module constants. They were chosen against one screen's data, which is exactly the kind of number that is right until someone runs a different assay -- a shorter read, a smaller reference, a library where 10% of reads carrying the barcode is a good day rather than a failure. The values here are those same numbers, so a caller who passes nothing gets the behaviour that already existed; what changes is that the numbers can now be said out loud by someone whose data disagrees with them.",
+      "label": "spacr.barcode_search.SearchThresholds#1",
+      "source": "THESE WERE MODULE CONSTANTS. They were chosen against one screen's data, which is exactly the kind of number that is right until someone runs a different assay -- a shorter read, a smaller reference, a library where 10% of reads carrying the barcode is a good day rather than a failure. The values here are those same numbers, so a caller who passes nothing gets the behaviour that already existed; what changes is that the numbers can now be said out loud by someone whose data disagrees with them.",
+      "source_sha256": "04a580c281f193258580d1bed1e86b4299fa827a10cf992b41162183fab61e80",
+      "translation": "C’ÉTAIENT DES CONSTANTES DU MODULE. Elles ont été choisies d’après les données d’un seul criblage, et c’est exactement le genre de nombre qui est juste jusqu’à ce que quelqu’un réalise un autre essai -- une lecture plus courte, une référence plus petite, une banque où 10 % de lectures portant le code-barres est un bon jour et non un échec. Les valeurs ici sont ces mêmes nombres, de sorte qu’un appelant qui ne passe rien obtient le comportement qui existait déjà ; ce qui change, c’est que quelqu’un dont les données contredisent ces nombres peut désormais les indiquer explicitement."
+    },
+    {
+      "context": "Each field judges a DIFFERENT question, and they are asked in this order: is the sample big enough to say anything, is the hit rate distinguishable from coincidence, is it big enough to map from, and do the hits sit at one place in the read. A verdict of INDETERMINATE names which question it was that could not be answered.",
+      "label": "spacr.barcode_search.SearchThresholds#2",
+      "source": "Each field judges a DIFFERENT question, and they are asked in this order: is the sample big enough to say anything, is the hit rate distinguishable from coincidence, is it big enough to map from, and do the hits sit at one place in the read. A verdict of INDETERMINATE names which question it was that could not be answered.",
+      "source_sha256": "a3ff9da17ef70f78d92abef3e825c039431035e4452739a05a59e6e4b8d6fffb",
+      "translation": "Chaque champ juge une question DIFFÉRENTE, et elles sont posées dans cet ordre : l’échantillon est-il assez grand pour dire quelque chose, le taux de résultats positifs se distingue-t-il du hasard, est-il assez grand pour en tirer une cartographie, et les résultats positifs se situent-ils au même endroit de la lecture. Un verdict INDETERMINATE indique à quelle question il n’a pas été possible de répondre."
+    },
+    {
+      "context": "Refuse thresholds that cannot decide anything.",
+      "label": "spacr.barcode_search.SearchThresholds.__post_init__#0",
+      "source": "Refuse thresholds that cannot decide anything.",
+      "source_sha256": "0a8c492b342b72b0feb0e870cf20e3ed3db53acacc5a0b124c0568597f83d963",
+      "translation": "Refuse les seuils qui ne peuvent rien décider."
+    },
+    {
+      "context": "A threshold out of range does not fail loudly at the point it is set; it produces a report in which every table is PRESENT, or every table is ABSENT, and the processing session looks like it worked. Checking here means the complaint names the setting rather than the data.",
+      "label": "spacr.barcode_search.SearchThresholds.__post_init__#1",
+      "source": "A threshold out of range does not fail loudly at the point it is set; it produces a report in which every table is PRESENT, or every table is ABSENT, and the run looks like it worked. Checking here means the complaint names the setting rather than the data.",
+      "source_sha256": "116841653e0fed48cd108791bdd144d3b4581d732e55d35599d8108da8151b7e",
+      "translation": "Un seuil hors plage n’échoue pas bruyamment là où il est défini ; il produit un rapport dans lequel chaque table est PRESENT, ou chaque table est ABSENT, et l’exécution semble avoir fonctionné. Vérifier ici fait que la plainte désigne le réglage plutôt que les données."
+    },
+    {
+      "context": "when a threshold cannot produce a real verdict.",
+      "label": "spacr.barcode_search.SearchThresholds.__post_init__#2",
+      "source": "when a threshold cannot produce a real verdict.",
+      "source_sha256": "755feb49c0b4cbcf75c611c3289ba8412254cc77edb372b5676157b0653debc4",
+      "translation": "lorsqu’un seuil ne peut pas produire un vrai verdict."
+    },
+    {
+      "context": "a :class:`SearchThresholds` saying what counts as present, absent and undecided, or None for the defaults. Every verdict in every yielded report is judged by these.",
+      "label": "spacr.barcode_search.iter_barcode_search#7",
+      "source": "a :class:`SearchThresholds` saying what counts as present, absent and undecided, or None for the defaults. Every verdict in every yielded report is judged by these.",
+      "source_sha256": "65e3d8d5828e85f4233f0a895b02ae30aec1a206bba2b57fa8b853b1ea2e9751",
+      "translation": "un :class:`SearchThresholds` indiquant ce qui compte comme présent, absent et indécis, ou None pour les valeurs par défaut. Chaque verdict de chaque rapport produit est jugé selon ces seuils."
+    },
+    {
+      "context": "a :class:`SearchThresholds`, or None for the defaults.",
+      "label": "spacr.barcode_search.search_barcodes#7",
+      "source": "a :class:`SearchThresholds`, or None for the defaults.",
+      "source_sha256": "8a9e4b3324b32fb251ada822277089828dd13b8c45a0cb6d80550ff7f78e1a8a",
+      "translation": "un :class:`SearchThresholds`, ou None pour les valeurs par défaut."
+    },
+    {
+      "context": "Find every older spaCR on this computer, and remove the installer-made ones.",
+      "label": "spacr.install_cleanup#0",
+      "source": "Find every older spaCR on this computer, and remove the installer-made ones.",
+      "source_sha256": "fc72c12d5368fe8c1e458068f4cea0c92fb3305cd2a2c0b164e76e66a35f3f00",
+      "translation": "Trouve toutes les anciennes copies de spaCR sur cet ordinateur et supprime celles qu’un programme d’installation a créées."
+    },
+    {
+      "context": "An update or an install runs three steps, in this order, whether it starts from the in-app **Check for updates** or from a native installer:",
+      "label": "spacr.install_cleanup#1",
+      "source": "An update or an install runs three steps, in this order, whether it starts from the in-app **Check for updates** or from a native installer:",
+      "source_sha256": "e8addc4ae0ad599dcbfc5d127f10148da39e82b6c48f7fe15cf2ecb4a44ab4fb",
+      "translation": "Une mise à jour ou une installation exécute trois étapes, dans cet ordre, qu’elle parte de **Rechercher des mises à jour** dans l’application ou d’un programme d’installation natif :"
+    },
+    {
+      "context": "1. find old spaCR files -- :func:`find_old_installs` 2. delete old spaCR files -- :func:`remove_install` 3. install new spaCR -- :func:`run_update_sequence` runs the install only after step 2 removed every installer-made copy.",
+      "label": "spacr.install_cleanup#2",
+      "source": "1. find old spaCR files -- :func:`find_old_installs` 2. delete old spaCR files -- :func:`remove_install` 3. install new spaCR -- :func:`run_update_sequence` runs the install only after step 2 removed every installer-made copy.",
+      "source_sha256": "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
+      "translation": "1. trouver les anciens fichiers de spaCR -- :func:`find_old_installs` 2. supprimer les anciens fichiers de spaCR -- :func:`remove_install` 3. installer le nouveau spaCR -- :func:`run_update_sequence` n’exécute l’installation qu’une fois que l’étape 2 a supprimé toutes les copies créées par un programme d’installation."
+    },
+    {
+      "context": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry structured-data name on Windows).",
+      "label": "spacr.install_cleanup#3",
+      "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
+      "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
+      "translation": "La suppression n’exécute jamais le programme de désinstallation propre à une ancienne version, de sorte qu’une copie dont ``Uninstall.exe`` ou ``uninstall-spacr.sh`` est absent ou endommagé est supprimée quand même. Les préférences et les données utilisateur sont conservées : ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, le cache de Hugging Face et les réglages ``spacr``/``qt`` (``~/.config/spacr``, le fichier de préférences sous macOS et la clé de registre ``Software\\spacr`` sous Windows)."
+    },
+    {
+      "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
+      "label": "spacr.install_cleanup#4",
+      "source": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
+      "source_sha256": "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
+      "translation": "Un environnement pip ou conda créé par l’utilisateur est listé mais jamais supprimé ; le paquet spaCR n’en est désinstallé que si l’appelant indique qu’il a été coché. Une copie de travail modifiable des sources est signalée et laissée intacte."
+    },
+    {
+      "context": "The module uses only the standard library and imports nothing from spaCR, so an installer can execute it with its bootstrapped Python before any spaCR exists, and a helper process can execute a copy of it after the executing spaCR has closed",
+      "label": "spacr.install_cleanup#5",
+      "source": "The module uses only the standard library and imports nothing from spaCR, so an installer can run it with its bootstrapped Python before any spaCR exists, and a helper process can run a copy of it after the running spaCR has closed",
+      "source_sha256": "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
+      "translation": "Le module n’utilise que la bibliothèque standard et n’importe rien de spaCR, si bien qu’un programme d’installation peut l’exécuter avec le Python qu’il a lui-même installé avant qu’un quelconque spaCR existe, et qu’un processus auxiliaire peut en exécuter une copie après la fermeture du spaCR en cours d’exécution"
+    },
+    {
+      "context": "One spaCR installation found on this computer.",
+      "label": "spacr.install_cleanup.InstallRecord#0",
+      "source": "One spaCR installation found on this computer.",
+      "source_sha256": "e87d2c823cfaf5c94e0b7b077da7fa06c09d4ea4f3b48a73d20f6e33f9dba2c0",
+      "translation": "Une installation de spaCR trouvée sur cet ordinateur."
+    },
+    {
+      "context": "``\"installer\"`` for a copy a spaCR installer made, ``\"environment\"`` for a pip or conda environment the user made, or ``\"checkout\"`` for an editable source checkout.",
+      "label": "spacr.install_cleanup.InstallRecord#1",
+      "source": "``\"installer\"`` for a copy a spaCR installer made, ``\"environment\"`` for a pip or conda environment the user made, or ``\"checkout\"`` for an editable source checkout.",
+      "source_sha256": "c8ad72cba483d0fddeefe2e833378fffccb39ee88ea11fb00de6bdec0d5c636a",
+      "translation": "``\"installer\"`` pour une copie créée par un programme d’installation de spaCR, ``\"environment\"`` pour un environnement pip ou conda créé par l’utilisateur, ou ``\"checkout\"`` pour une copie de travail modifiable des sources."
+    },
+    {
+      "context": "the environment's interpreter, used to uninstall spaCR.",
+      "label": "spacr.install_cleanup.InstallRecord#10",
+      "source": "the environment's interpreter, used to uninstall spaCR.",
+      "source_sha256": "4aa235c3ba72a8ea5be0a81f457dd570a98847895bc309af6512a67bd5d726d8",
+      "translation": "l’interpréteur de l’environnement, utilisé pour désinstaller spaCR."
+    },
+    {
+      "context": "whether the current process runs from this copy.",
+      "label": "spacr.install_cleanup.InstallRecord#11",
+      "source": "whether the current process runs from this copy.",
+      "source_sha256": "50cc081899ad0dab19fd4f7d7b2146e79b4b6eab36ea4bb7bf4ff7cf0e622ed1",
+      "translation": "si le processus courant s’exécute depuis cette copie."
+    },
+    {
+      "context": "whether removal needs administrator rights.",
+      "label": "spacr.install_cleanup.InstallRecord#12",
+      "source": "whether removal needs administrator rights.",
+      "source_sha256": "59f7b1eb731064d0bd8ec3bc9b837ae5aad907dd6e2b0e834aec5710c5bec9b7",
+      "translation": "si la suppression nécessite des droits d’administrateur."
+    },
+    {
+      "context": "other facts worth showing, such as a missing uninstaller.",
+      "label": "spacr.install_cleanup.InstallRecord#13",
+      "source": "other facts worth showing, such as a missing uninstaller.",
+      "source_sha256": "1f7a382f328e5f453fdd3272e40ab3e393c0bfa7ed7bcdf3d42212f645703af9",
+      "translation": "d’autres informations utiles à afficher, comme un programme de désinstallation manquant."
+    },
+    {
+      "context": "which layout it is, for example ``\"windows-online\"``, ``\"linux-online\"``, ``\"macos-app\"`` or ``\"conda\"``.",
+      "label": "spacr.install_cleanup.InstallRecord#2",
+      "source": "which layout it is, for example ``\"windows-online\"``, ``\"linux-online\"``, ``\"macos-app\"`` or ``\"conda\"``.",
+      "source_sha256": "8694467c5332fb1e6d334b10cde5bbe631101a9026319fea7f58fbfcea482298",
+      "translation": "la disposition dont il s’agit, par exemple ``\"windows-online\"``, ``\"linux-online\"``, ``\"macos-app\"`` ou ``\"conda\"``."
+    },
+    {
+      "context": "the directory the installation lives in.",
+      "label": "spacr.install_cleanup.InstallRecord#4",
+      "source": "the directory the installation lives in.",
+      "source_sha256": "6700302286e48dfd002857ca32e6a67aaaae1aa680316517c5014d6f9873c132",
+      "translation": "le répertoire où se trouve l’installation."
+    },
+    {
+      "context": "the spaCR version, when it can be read.",
+      "label": "spacr.install_cleanup.InstallRecord#5",
+      "source": "the spaCR version, when it can be read.",
+      "source_sha256": "8b43e11217244f91f76daa03f564d30a653d6a0b3e008048ee08294c4d364dcd",
+      "translation": "la version de spaCR, quand elle peut être lue."
+    },
+    {
+      "context": "command launchers that start this copy.",
+      "label": "spacr.install_cleanup.InstallRecord#6",
+      "source": "command launchers that start this copy.",
+      "source_sha256": "e4324236e5289d041ffdaca0ae6263c1b6d509c7dd8d5f160edb8575b5e636a5",
+      "translation": "lanceurs de commande qui démarrent cette copie."
+    },
+    {
+      "context": "desktop and Start Menu shortcut files.",
+      "label": "spacr.install_cleanup.InstallRecord#7",
+      "source": "desktop and Start Menu shortcut files.",
+      "source_sha256": "4cbfff613b639176b769021b6a696d9e6a515553b635cdf402eeaf0326ccfa0b",
+      "translation": "fichiers de raccourci du bureau et du menu Démarrer."
+    },
+    {
+      "context": "application-menu entries: ``.desktop`` files and Start Menu folders.",
+      "label": "spacr.install_cleanup.InstallRecord#8",
+      "source": "application-menu entries: ``.desktop`` files and Start Menu folders.",
+      "source_sha256": "1700c4a05eba8920d61e03e08f3b0e5eb22d916af899d174029684cd4c575498",
+      "translation": "entrées du menu des applications : fichiers ``.desktop`` et dossiers du menu Démarrer."
+    },
+    {
+      "context": "uninstall registrations: ``registry:`` keys, ``deb:`` packages, and application bundles.",
+      "label": "spacr.install_cleanup.InstallRecord#9",
+      "source": "uninstall registrations: ``registry:`` keys, ``deb:`` packages, and application bundles.",
+      "source_sha256": "b3e8a2fc7ed7c9abc7be931cab0d871b0caefecfe24633f13d1de1437ccb0207",
+      "translation": "enregistrements de désinstallation : clés ``registry:``, paquets ``deb:`` et paquets d’application."
+    },
+    {
+      "context": "What :func:`remove_install` did with one installation.",
+      "label": "spacr.install_cleanup.RemovalReport#0",
+      "source": "What :func:`remove_install` did with one installation.",
+      "source_sha256": "56ea728d94591c183c79e938cf6d416c90e67bd23a3f936c11a6d041af87b34b",
+      "translation": "Ce que :func:`remove_install` a fait d’une installation."
+    },
+    {
+      "context": "the installation this report is about.",
+      "label": "spacr.install_cleanup.RemovalReport#1",
+      "source": "the installation this report is about.",
+      "source_sha256": "3ea100fe9cba603e225c8a84796affd61338570f7897131ff0b54d9440631a82",
+      "translation": "l’installation dont traite ce rapport."
+    },
+    {
+      "context": "every path, registry entry and package that was removed.",
+      "label": "spacr.install_cleanup.RemovalReport#2",
+      "source": "every path, registry entry and package that was removed.",
+      "source_sha256": "7239ebaceeae6dc2afcc53ac2670f2a1a28670fed2ed29d9f5b86c8f097333b6",
+      "translation": "chaque chemin, entrée de registre et paquet qui a été supprimé."
+    },
+    {
+      "context": "``(item, reason)`` for everything that could not be removed.",
+      "label": "spacr.install_cleanup.RemovalReport#3",
+      "source": "``(item, reason)`` for everything that could not be removed.",
+      "source_sha256": "123ddd66bf2f57aca04aad612e23b5c93e67f140c331c854bc052b80d2d5942f",
+      "translation": "``(item, reason)`` pour tout ce qui n’a pas pu être supprimé."
+    },
+    {
+      "context": "``(item, reason)`` for everything left in place on purpose.",
+      "label": "spacr.install_cleanup.RemovalReport#4",
+      "source": "``(item, reason)`` for everything left in place on purpose.",
+      "source_sha256": "deaaa6eaa045d52b8fab749eda5844c785242eb47e995c3bb94c7838a71a19fd",
+      "translation": "``(item, reason)`` pour tout ce qui a été laissé en place volontairement."
+    },
+    {
+      "context": "Whether nothing failed.",
+      "label": "spacr.install_cleanup.RemovalReport.ok#0",
+      "source": "Whether nothing failed.",
+      "source_sha256": "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50",
+      "translation": "Indique si rien n’a échoué."
+    },
+    {
+      "context": "Find every spaCR installation on this computer.",
+      "label": "spacr.install_cleanup.find_old_installs#0",
+      "source": "Find every spaCR installation on this computer.",
+      "source_sha256": "cfe96f2e3cd9807b937778c7536e6f80f2e56dbe13033812f3c9bf3ddf55e13c",
+      "translation": "Trouve toutes les installations de spaCR sur cet ordinateur."
+    },
+    {
+      "context": "Installer-made copies come first, then environments the user made, then editable source checkouts. Every layout any released installer used is looked for: the Windows online and offline installers, the Linux and macOS online installers, the macOS application bundle, and the Debian package.",
+      "label": "spacr.install_cleanup.find_old_installs#1",
+      "source": "Installer-made copies come first, then environments the user made, then editable source checkouts. Every layout any released installer used is looked for: the Windows online and offline installers, the Linux and macOS online installers, the macOS application bundle, and the Debian package.",
+      "source_sha256": "832ffd69766a0a4fa88579dddd6c0b6f0ef10919f7fe3f97490f47b30a0fa4c8",
+      "translation": "Les copies créées par un programme d’installation viennent en premier, puis les environnements créés par l’utilisateur, puis les copies de travail modifiables des sources. Chaque disposition utilisée par un programme d’installation publié est recherchée : les programmes d’installation en ligne et hors ligne pour Windows, les programmes d’installation en ligne pour Linux et macOS, le paquet d’application pour macOS et le paquet Debian."
+    },
+    {
+      "context": "the computer to look at; ``None`` means this one. Tests pass a stand-in over a temporary directory.",
+      "label": "spacr.install_cleanup.find_old_installs#2",
+      "source": "the computer to look at; ``None`` means this one. Tests pass a stand-in over a temporary directory.",
+      "source_sha256": "a58b9ca29358e4e9dbfbfcd8e2d7e2e276fe3d1d2e9a5478cd0a77f33a222ec0",
+      "translation": "l’ordinateur à examiner ; ``None`` désigne cet ordinateur-ci. Les tests passent un substitut construit sur un répertoire temporaire."
+    },
+    {
+      "context": "one :class:`InstallRecord` per installation.",
+      "label": "spacr.install_cleanup.find_old_installs#3",
+      "source": "one :class:`InstallRecord` per installation.",
+      "source_sha256": "e77e003f82e54621b2c59eb4cbc6524bfe54745a2965ba85106d1a53079d3d19",
+      "translation": "un :class:`InstallRecord` par installation."
+    },
+    {
+      "context": "Remove one installation, without running its own uninstaller.",
+      "label": "spacr.install_cleanup.remove_install#0",
+      "source": "Remove one installation, without running its own uninstaller.",
+      "source_sha256": "2b532f8660f6c200865a7c60727acd65daea951cffa01360369b54fb784c3f0e",
+      "translation": "Supprime une installation sans exécuter son propre programme de désinstallation."
+    },
+    {
+      "context": "An installer-made copy is removed completely: its folder, launchers, shortcuts, menu entries and uninstall registrations. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "label": "spacr.install_cleanup.remove_install#1",
+      "source": "An installer-made copy is removed completely: its folder, launchers, shortcuts, menu entries and uninstall registrations. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "source_sha256": "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
+      "translation": "Une copie créée par un programme d’installation est supprimée entièrement : son dossier, ses lanceurs, ses raccourcis, ses entrées de menu et ses enregistrements de désinstallation. Un paquet Debian est supprimé via le gestionnaire de paquets et signalé comme nécessitant des droits d’administrateur quand c’est ce qui bloque la suppression. Dans un environnement créé par l’utilisateur, seul le paquet spaCR est désinstallé, et seulement si ``ticked`` est vrai ; l’environnement lui-même reste en place. Une copie de travail des sources est ignorée."
+    },
+    {
+      "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs: :func:`start_update_helper` removes it after spaCR has closed.",
+      "label": "spacr.install_cleanup.remove_install#2",
+      "source": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs: :func:`start_update_helper` removes it after spaCR has closed.",
+      "source_sha256": "a9653bfcfb994d827a61358cc2130db1d98ee6c09fcae986d61be3fdfbeb3ad6",
+      "translation": "La copie en cours d’exécution n’est pas supprimée ici, car sous Windows une installation ne peut pas se supprimer elle-même pendant qu’elle s’exécute : :func:`start_update_helper` la supprime après la fermeture de spaCR."
+    },
+    {
+      "context": "an installation from :func:`find_old_installs`.",
+      "label": "spacr.install_cleanup.remove_install#3",
+      "source": "an installation from :func:`find_old_installs`.",
+      "source_sha256": "697f2bf859f1f4c749e6749d315aba0ea5a26283f1769192f44a9457d2c3bc9f",
+      "translation": "une installation issue de :func:`find_old_installs`."
+    },
+    {
+      "context": "whether the user ticked this environment for removal.",
+      "label": "spacr.install_cleanup.remove_install#4",
+      "source": "whether the user ticked this environment for removal.",
+      "source_sha256": "c349a54c16603802a98f5ec3c8aa72b3de6cad94ef39d46d34afa9e990e0bf0d",
+      "translation": "si l’utilisateur a coché cet environnement pour suppression."
+    },
+    {
+      "context": "paths to leave in place, such as the log of the install that is about to start.",
+      "label": "spacr.install_cleanup.remove_install#5",
+      "source": "paths to leave in place, such as the log of the install that is about to start.",
+      "source_sha256": "168f9714cc4b89c880d2335fb7457443bd0d8527f9b18d71931970c6491f81c1",
+      "translation": "chemins à laisser en place, comme le journal de l’installation sur le point de démarrer."
+    },
+    {
+      "context": "the computer; ``None`` means this one.",
+      "label": "spacr.install_cleanup.remove_install#6",
+      "source": "the computer; ``None`` means this one.",
+      "source_sha256": "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
+      "translation": "l’ordinateur ; ``None`` désigne cet ordinateur-ci."
+    },
+    {
+      "context": "what was removed, what could not be, and why.",
+      "label": "spacr.install_cleanup.remove_install#7",
+      "source": "what was removed, what could not be, and why.",
+      "source_sha256": "e82d84566e43d71d630068922b9a66e43ba249b1ad02cbbd8b72285d992e566b",
+      "translation": "ce qui a été supprimé, ce qui n’a pas pu l’être, et pourquoi."
+    },
+    {
+      "context": "Find, then delete, then install -- and never install over an old copy.",
+      "label": "spacr.install_cleanup.run_update_sequence#0",
+      "source": "Find, then delete, then install -- and never install over an old copy.",
+      "source_sha256": "4d0869a5ed02684f69757141b04f06f69b43061a7ed72b31cf0d0a7c65d11bbd",
+      "translation": "Trouver, puis supprimer, puis installer -- et ne jamais installer par-dessus une ancienne copie."
+    },
+    {
+      "context": "Every installer-made copy is removed, the spaCR package is uninstalled from each ticked environment, and only then is ``install`` called. When an installer-made copy could not be removed, ``install`` is not called at all, and the reports say what stopped it.",
+      "label": "spacr.install_cleanup.run_update_sequence#1",
+      "source": "Every installer-made copy is removed, the spaCR package is uninstalled from each ticked environment, and only then is ``install`` called. When an installer-made copy could not be removed, ``install`` is not called at all, and the reports say what stopped it.",
+      "source_sha256": "793fb1f29ed7db9dfbf28b0c9a28ab993f6a1c19861465cd9b23a1c0635def4d",
+      "translation": "Chaque copie créée par un programme d’installation est supprimée, le paquet spaCR est désinstallé de chaque environnement coché, et c’est seulement ensuite que ``install`` est appelé. Si une copie créée par un programme d’installation n’a pas pu être supprimée, ``install`` n’est pas appelé du tout, et les rapports indiquent ce qui l’en a empêché."
+    },
+    {
+      "context": "zero-argument callable that installs the new version.",
+      "label": "spacr.install_cleanup.run_update_sequence#2",
+      "source": "zero-argument callable that installs the new version.",
+      "source_sha256": "0399abee387a0b34067465e61b57264f45c3eaee3839b6faf68fb3cc5a1b27d5",
+      "translation": "appelable sans argument qui installe la nouvelle version."
+    },
+    {
+      "context": "installations already found; :func:`find_old_installs` is called when ``None``.",
+      "label": "spacr.install_cleanup.run_update_sequence#3",
+      "source": "installations already found; :func:`find_old_installs` is called when ``None``.",
+      "source_sha256": "b0566f5d0d609b8299ff20772571bafcfcb425a2fbbb32caa0c377589b0692f7",
+      "translation": "installations déjà trouvées ; :func:`find_old_installs` est appelé si la valeur est ``None``."
+    },
+    {
+      "context": "roots of the environments the user ticked.",
+      "label": "spacr.install_cleanup.run_update_sequence#4",
+      "source": "roots of the environments the user ticked.",
+      "source_sha256": "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
+      "translation": "racines des environnements cochés par l’utilisateur."
+    },
+    {
+      "context": "paths removal must leave in place.",
+      "label": "spacr.install_cleanup.run_update_sequence#5",
+      "source": "paths removal must leave in place.",
+      "source_sha256": "d5e608ba832c0b233797610809e7f802a7fa20b5bbc272e1e6ee8d3bc7c59052",
+      "translation": "chemins que la suppression doit laisser en place."
+    },
+    {
+      "context": "replaces :func:`find_old_installs`.",
+      "label": "spacr.install_cleanup.run_update_sequence#6",
+      "source": "replaces :func:`find_old_installs`.",
+      "source_sha256": "c0aa60c75346ebc929f5eaf95621c4f800e5bd93e9d52104c6f32417da94e73a",
+      "translation": "remplace :func:`find_old_installs`."
+    },
+    {
+      "context": "replaces :func:`remove_install`.",
+      "label": "spacr.install_cleanup.run_update_sequence#7",
+      "source": "replaces :func:`remove_install`.",
+      "source_sha256": "1d330f7f920386d7f129766cf963a57e2c04add66ce309757b639e23f55442c1",
+      "translation": "remplace :func:`remove_install`."
+    },
+    {
+      "context": "``(reports, install_result)``; ``install_result`` is ``None`` when the install was not run.",
+      "label": "spacr.install_cleanup.run_update_sequence#9",
+      "source": "``(reports, install_result)``; ``install_result`` is ``None`` when the install was not run.",
+      "source_sha256": "652f01ac13e02a060269da73392a95b87502e69e2b46d8d55e3a8550ae0fd335",
+      "translation": "``(reports, install_result)`` ; ``install_result`` vaut ``None`` quand l’installation n’a pas été exécutée."
+    },
+    {
+      "context": "Hand deleting and installing to a process that outlives spaCR.",
+      "label": "spacr.install_cleanup.start_update_helper#0",
+      "source": "Hand deleting and installing to a process that outlives spaCR.",
+      "source_sha256": "53a4372d5ee733dcea5beb653cc2903c614acadd319e859a11ad2dcabec09aeb",
+      "translation": "Confie la suppression et l’installation à un processus qui survit à spaCR."
+    },
+    {
+      "context": "Used when the executing spaCR is itself an installer-made copy, which on Windows cannot delete itself while it executes. The helper waits for this process to exit, downloads the new installer, removes every older copy including the one that was executing, runs the installer, and starts the new version. If any installer-made copy cannot be removed, nothing is installed and the reason is written to the update log.",
+      "label": "spacr.install_cleanup.start_update_helper#1",
+      "source": "Used when the running spaCR is itself an installer-made copy, which on Windows cannot delete itself while it runs. The helper waits for this process to exit, downloads the new installer, removes every older copy including the one that was running, runs the installer, and starts the new version. If any installer-made copy cannot be removed, nothing is installed and the reason is written to the update log.",
+      "source_sha256": "4db8f45182e856b247dcc77a715e53910750bbda9d4389daecdaf8cdc0fecea6",
+      "translation": "Utilisé quand le spaCR en cours d’exécution est lui-même une copie créée par un programme d’installation, qui sous Windows ne peut pas se supprimer elle-même pendant qu’elle s’exécute. Le processus auxiliaire attend la fin de ce processus, télécharge le nouveau programme d’installation, supprime toutes les anciennes copies, y compris celle qui était en cours d’exécution, lance le programme d’installation et démarre la nouvelle version. Si une copie créée par un programme d’installation ne peut pas être supprimée, rien n’est installé et la raison est écrite dans le journal de mise à jour."
+    },
+    {
+      "context": "installations from :func:`find_old_installs`.",
+      "label": "spacr.install_cleanup.start_update_helper#2",
+      "source": "installations from :func:`find_old_installs`.",
+      "source_sha256": "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
+      "translation": "installations issues de :func:`find_old_installs`."
+    },
+    {
+      "context": "the version to install.",
+      "label": "spacr.install_cleanup.start_update_helper#3",
+      "source": "the version to install.",
+      "source_sha256": "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
+      "translation": "la version à installer."
+    },
+    {
+      "context": "the process to wait for; this process when ``None``.",
+      "label": "spacr.install_cleanup.start_update_helper#5",
+      "source": "the process to wait for; this process when ``None``.",
+      "source_sha256": "cc3b6cb25b19441b1007a8196c241f842cf130721109778b50093f3dd9fe8b72",
+      "translation": "le processus à attendre ; ce processus-ci si la valeur est ``None``."
+    },
+    {
+      "context": "the helper's folder; a new temporary folder when ``None``.",
+      "label": "spacr.install_cleanup.start_update_helper#6",
+      "source": "the helper's folder; a new temporary folder when ``None``.",
+      "source_sha256": "2a7fd576ab7b59557ffbe2364c244953f75480298685169c67c069f0f4e6658f",
+      "translation": "le dossier du processus auxiliaire ; un nouveau dossier temporaire si la valeur est ``None``."
+    },
+    {
+      "context": "replaces the detached process launcher.",
+      "label": "spacr.install_cleanup.start_update_helper#8",
+      "source": "replaces the detached process launcher.",
+      "source_sha256": "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
+      "translation": "remplace le lanceur du processus détaché."
+    },
+    {
+      "context": "the plan as written to ``plan.json``. ``plan[\"command\"]`` is the helper's command, or ``None`` with ``plan[\"error\"]`` saying why nothing was started.",
+      "label": "spacr.install_cleanup.start_update_helper#9",
+      "source": "the plan as written to ``plan.json``. ``plan[\"command\"]`` is the helper's command, or ``None`` with ``plan[\"error\"]`` saying why nothing was started.",
+      "source_sha256": "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
+      "translation": "le plan tel qu’il a été écrit dans ``plan.json``. ``plan[\"command\"]`` est la commande du processus auxiliaire, ou ``None``, auquel cas ``plan[\"error\"]`` indique pourquoi rien n’a été démarré."
+    },
+    {
+      "context": "Make Masks' test data: ten Toxoplasma vacuole fields, one button away.",
+      "label": "spacr.qt.make_masks_demo#0",
+      "source": "Make Masks' test data: ten Toxoplasma vacuole fields, one button away.",
+      "source_sha256": "e7cfbdcfefe2f9d1f5198a328e55ca3dc2442576b3045434de61513e539ec952",
+      "translation": "Les données de test de Make Masks : dix champs de vacuoles de Toxoplasma, à portée d’un bouton."
+    },
+    {
+      "context": "Ledger item 412. The maintainer asked for ten images of the Toxoplasma PV training set on Hugging Face as \"a small test dataset for make masks\", and \"a button for loading this dataset which automatically triggers opening the first image with make masks\".",
+      "label": "spacr.qt.make_masks_demo#1",
+      "source": "Ledger item 412. The maintainer asked for ten images of the Toxoplasma PV training set on Hugging Face as \"a small test dataset for make masks\", and \"a button for loading this dataset which automatically triggers opening the first image with make masks\".",
+      "source_sha256": "8c89ddde44409766fcf87b2dd7b794cc41565c81e2d3ecf8a7148f19b85e614e",
+      "translation": "Élément 412 du registre des tâches. Le mainteneur a demandé dix images du jeu d’entraînement PV de Toxoplasma sur Hugging Face comme « un petit jeu de données de test pour make masks », et « un bouton pour charger ce jeu de données qui déclenche automatiquement l’ouverture de la première image avec make masks »."
+    },
+    {
+      "context": "What is published. :data:`MAKE_MASKS_EXAMPLE_REPO` holds ten of the lab's own acquisitions -- no figure harvested from a paper, no held-out microscope field of view -- at the top level, their curated label masks under ``ground_truth_masks/``, a ``manifest.csv`` carrying each image's row from the in-house manifest, and one archive of all of it. The images open UNSEGMENTED: Make Masks reads drafts from ``masks/``, never from ``ground_truth_masks/``, so the editor starts on raw microscope fields of view and the truth sits beside them.",
+      "label": "spacr.qt.make_masks_demo#2",
+      "source": "WHAT IS PUBLISHED. :data:`MAKE_MASKS_EXAMPLE_REPO` holds ten of the lab's own acquisitions -- no figure harvested from a paper, no held-out field -- at the top level, their curated label masks under ``ground_truth_masks/``, a ``manifest.csv`` carrying each image's row from the in-house manifest, and one archive of all of it. The images open UNSEGMENTED: Make Masks reads drafts from ``masks/``, never from ``ground_truth_masks/``, so the editor starts on raw fields and the truth sits beside them.",
+      "source_sha256": "d3dcf8b961108af4adbfa57b8b31b84633a02c91cde9d0ec0a1ccc9f557880ea",
+      "translation": "CE QUI EST PUBLIÉ. :data:`MAKE_MASKS_EXAMPLE_REPO` contient au premier niveau dix acquisitions propres au laboratoire -- aucune figure tirée d’un article, aucun champ réservé à l’évaluation --, leurs masques d’étiquettes vérifiés à la main sous ``ground_truth_masks/``, un ``manifest.csv`` portant la ligne de chaque image issue du manifeste interne, et une archive de l’ensemble. Les images s’ouvrent NON SEGMENTÉES : Make Masks lit les brouillons dans ``masks/``, jamais dans ``ground_truth_masks/``, si bien que l’éditeur démarre sur des champs bruts et que la vérité terrain se trouve à côté."
+    },
+    {
+      "context": "The same pattern as every other example set. One uncompressed ``.tar`` per repository, streamed to a ``.part`` file on a background execution unit behind the shared progress dialog, unpacked through the tar data filter (:class:`spacr.qt.hf_download._TarExampleWorker` does all of that), and cached: :func:`is_present` is asked first, so a second press opens the folder without a request.",
+      "label": "spacr.qt.make_masks_demo#3",
+      "source": "THE SAME PATTERN AS EVERY OTHER EXAMPLE SET. One uncompressed ``.tar`` per repository, streamed to a ``.part`` file on a worker thread behind the shared progress dialog, unpacked through the tar data filter (:class:`spacr.qt.hf_download._TarExampleWorker` does all of that), and cached: :func:`is_present` is asked first, so a second press opens the folder without a request.",
+      "source_sha256": "b8e5f30be572dbd508ddad7f28ce384b99ffe2029772725fff3b2d73a1ad696c",
+      "translation": "LE MÊME SCHÉMA QUE POUR TOUS LES AUTRES JEUX D’EXEMPLES. Un ``.tar`` non compressé par dépôt, transféré en flux vers un fichier ``.part`` dans un thread de travail derrière la boîte de dialogue de progression partagée, décompressé à travers le filtre de données de tar (:class:`spacr.qt.hf_download._TarExampleWorker` fait tout cela), et mis en cache : :func:`is_present` est consulté d’abord, donc un second clic ouvre le dossier sans nouvelle requête."
+    },
+    {
+      "context": "Its own folder, not the shared laboratory microplate. The Measure and Annotate sets unpack into ``example_plate_folder()`` because they compose into one laboratory microplate. These ten microscope fields of view are not part of that laboratory microplate, and the Mask demo decides it is present by finding ``*.tif`` there, so unpacking them into it would make that demo think it had been downloaded.",
+      "label": "spacr.qt.make_masks_demo#4",
+      "source": "ITS OWN FOLDER, NOT THE SHARED PLATE. The Measure and Annotate sets unpack into ``example_plate_folder()`` because they compose into one plate. These ten fields are not part of that plate, and the Mask demo decides it is present by finding ``*.tif`` there, so unpacking them into it would make that demo think it had been downloaded.",
+      "source_sha256": "bad8b7f34dc28c5cd20b70502379739a27d696da09ee5d21c6f4ea3a3611b9ff",
+      "translation": "SON PROPRE DOSSIER, PAS LA PLAQUE PARTAGÉE. Les jeux de Mesure et d’Annotation sont décompressés dans ``example_plate_folder()`` parce qu’ils composent ensemble une plaque. Ces dix champs ne font pas partie de cette plaque, et la démo de Masques décide qu’elle est présente en y trouvant ``*.tif``, donc les y décompresser ferait croire à cette démo qu’elle a déjà été téléchargée."
+    },
+    {
+      "context": "Why this is a module and not a method. The screen gets one call in its navigation row. Everything else lives here, so ``make_masks.py`` -- which several items edit at once -- carries a two-line hook.",
+      "label": "spacr.qt.make_masks_demo#5",
+      "source": "WHY THIS IS A MODULE AND NOT A METHOD. The screen gets one call in its navigation row. Everything else lives here, so ``make_masks.py`` -- which several items edit at once -- carries a two-line hook.",
+      "source_sha256": "c042f9157b9a59411a88615686fb8fff2ed5c63f8180d921af4acd648473451f",
+      "translation": "POURQUOI C’EST UN MODULE ET NON UNE MÉTHODE. L’écran reçoit un seul appel dans sa ligne de navigation. Tout le reste se trouve ici, si bien que ``make_masks.py`` -- que plusieurs éléments modifient en même temps -- ne porte qu’un crochet de deux lignes."
+    },
+    {
+      "context": "Fetch the Make Masks test data behind the shared progress dialog.",
+      "label": "spacr.qt.make_masks_demo.download_make_masks_example#0",
+      "source": "Fetch the Make Masks test data behind the shared progress dialog.",
+      "source_sha256": "0a0045efc5c17dc8f87a2d8120ca9f46d8f599d15576b8b6fba07e73371dd864",
+      "translation": "Télécharge les données de test de Make Masks derrière la boîte de dialogue de progression partagée."
+    },
+    {
+      "context": "the widget the progress dialog belongs to.",
+      "label": "spacr.qt.make_masks_demo.download_make_masks_example#1",
+      "source": "the widget the progress dialog belongs to.",
+      "source_sha256": "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+      "translation": "le widget auquel appartient la boîte de dialogue de progression."
+    },
+    {
+      "context": "the folder the archive unpacks into.",
+      "label": "spacr.qt.make_masks_demo.download_make_masks_example#2",
+      "source": "the folder the archive unpacks into.",
+      "source_sha256": "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+      "translation": "le dossier dans lequel l’archive est décompressée."
+    },
+    {
+      "context": "called on the main GUI execution path as ``on_done(result, error)``. ``result`` is ``None`` on failure or cancellation, and ``error`` then says why.",
+      "label": "spacr.qt.make_masks_demo.download_make_masks_example#3",
+      "source": "called on the GUI thread as ``on_done(result, error)``. ``result`` is ``None`` on failure or cancellation, and ``error`` then says why.",
+      "source_sha256": "ef4186f319302483f570bfd7adba2bbfe69e5af8c02f7775e0492fdc1959a49f",
+      "translation": "appelé dans le thread de la GUI sous la forme ``on_done(result, error)``. ``result`` vaut ``None`` en cas d’échec ou d’annulation, et ``error`` indique alors pourquoi."
+    },
+    {
+      "context": "Build Make Masks' \"Load test data…\" button, wired to ``screen``.",
+      "label": "spacr.qt.make_masks_demo.install_test_data_button#0",
+      "source": "Build Make Masks' \"Load test data…\" button, wired to ``screen``.",
+      "source_sha256": "5c4633fd2231420a3f761f32ed90a72201cfb613d26bf6a8993937f311844568",
+      "translation": "Construit le bouton \"Load test data…\" (Charger les données de test...) de Make Masks, relié à ``screen``."
+    },
+    {
+      "context": "the Make Masks screen the data opens in. The button is kept on it as ``_btn_test_data``, so a load can disable it while the download runs.",
+      "label": "spacr.qt.make_masks_demo.install_test_data_button#1",
+      "source": "the Make Masks screen the data opens in. The button is kept on it as ``_btn_test_data``, so a load can disable it while the download runs.",
+      "source_sha256": "838d37a7cd4beef3bf32e13346b4523e85e202d4659af5c93a408ab56842f9eb",
+      "translation": "l’écran de Make Masks dans lequel les données s’ouvrent. Le bouton y est conservé sous ``_btn_test_data``, afin qu’un chargement puisse le désactiver pendant le téléchargement."
+    },
+    {
+      "context": "the button, for the caller to place.",
+      "label": "spacr.qt.make_masks_demo.install_test_data_button#2",
+      "source": "the button, for the caller to place.",
+      "source_sha256": "be9d195ef15c320561f4d93dc45da4a7db23144626a723714cef8edd7c507855",
+      "translation": "le bouton, que l’appelant place lui-même."
+    },
+    {
+      "context": "Whether a complete copy of the test data is unpacked in ``folder``.",
+      "label": "spacr.qt.make_masks_demo.is_present#0",
+      "source": "Whether a complete copy of the test data is unpacked in ``folder``.",
+      "source_sha256": "2cda27968d84c6a671e20f87dd1304874bade3c5434bcf8bc3e6a2a33d44d645",
+      "translation": "Indique si une copie complète des données de test est décompressée dans ``folder``."
+    },
+    {
+      "context": "where the dataset is expected.",
+      "label": "spacr.qt.make_masks_demo.is_present#1",
+      "source": "where the dataset is expected.",
+      "source_sha256": "a75922bbc1bea253a623aabaeeb9ce23fd9f08447c213c382ca1befbf52cb159",
+      "translation": "où le jeu de données est attendu."
+    },
+    {
+      "context": "``True`` only when the manifest exists and every image and mask it lists is a file. A half-unpacked set reads as absent, which is the answer that gets it downloaded again.",
+      "label": "spacr.qt.make_masks_demo.is_present#2",
+      "source": "``True`` only when the manifest exists and every image and mask it lists is a file. A half-unpacked set reads as absent, which is the answer that gets it downloaded again.",
+      "source_sha256": "56cf37b10b842a08cac9d900a127e252f38bad5b7cf5b64c03ad6b7cd132ab05",
+      "translation": "``True`` seulement si le manifeste existe et que chaque image et chaque masque qu’il liste est un fichier. Un jeu à moitié décompressé est considéré comme absent, et c’est cette réponse qui le fait télécharger à nouveau."
+    },
+    {
+      "context": "Every file the dataset's ``manifest.csv`` says a complete copy holds.",
+      "label": "spacr.qt.make_masks_demo.listed_files#0",
+      "source": "Every file the dataset's ``manifest.csv`` says a complete copy holds.",
+      "source_sha256": "9eb145b856650b218ffd74cad6f85233ac32e8b2845b25a672155ac60b6a47a5",
+      "translation": "Tous les fichiers qu’une copie complète contient d’après le ``manifest.csv`` du jeu de données."
+    },
+    {
+      "context": "where the dataset was unpacked.",
+      "label": "spacr.qt.make_masks_demo.listed_files#1",
+      "source": "where the dataset was unpacked.",
+      "source_sha256": "01c48271aad649718107c1cbfe52467d06c19ec71cb0d64c8082cf08bd194f82",
+      "translation": "où le jeu de données a été décompressé."
+    },
+    {
+      "context": "paths relative to ``folder``, each image followed by its ground-truth mask, in manifest order. Empty when there is no readable manifest, or when any row names no image, so that an incomplete or unrecognised folder is never mistaken for the dataset.",
+      "label": "spacr.qt.make_masks_demo.listed_files#2",
+      "source": "paths relative to ``folder``, each image followed by its ground-truth mask, in manifest order. Empty when there is no readable manifest, or when any row names no image, so that an incomplete or unrecognised folder is never mistaken for the dataset.",
+      "source_sha256": "7503e22ae286417c5260c5759bd2c28d081e473220f0ac080d4c28ae41797e2e",
+      "translation": "chemins relatifs à ``folder``, chaque image suivie de son masque de vérité terrain, dans l’ordre du manifeste. Vide s’il n’y a pas de manifeste lisible, ou si une ligne ne nomme aucune image, afin qu’un dossier incomplet ou non reconnu ne soit jamais pris pour le jeu de données."
+    },
+    {
+      "context": "Open the test data in Make Masks, downloading it first when needed.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#0",
+      "source": "Open the test data in Make Masks, downloading it first when needed.",
+      "source_sha256": "795c58a3c9c1432fbba16cc42c6bfc9f16c0b28f7cc95dc41350e6363bf4a6cc",
+      "translation": "Ouvre les données de test dans Make Masks, en les téléchargeant d’abord si nécessaire."
+    },
+    {
+      "context": "A cached copy opens at once. Otherwise the button is disabled, the status line says a download is executing, and the download executes on a background execution unit behind a progress dialog. When it finishes, the folder opens on its first image by name. A failure is reported with the reason the downloader gave, on the status line and, when there is a display to show one, in a warning.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#1",
+      "source": "A cached copy opens at once. Otherwise the button is disabled, the status line says a download is running, and the download runs on a worker thread behind a progress dialog. When it finishes, the folder opens on its first image by name. A failure is reported with the reason the downloader gave, on the status line and, when there is a display to show one, in a warning.",
+      "source_sha256": "21bf5327b9d802542c7e50b58e99db26ac44a21053f146d52be3f1c4e119cbac",
+      "translation": "Une copie en cache s’ouvre immédiatement. Sinon, le bouton est désactivé, la ligne d’état indique qu’un téléchargement est en cours, et le téléchargement s’exécute dans un thread de travail derrière une boîte de dialogue de progression. Une fois terminé, le dossier s’ouvre sur sa première image par nom. Un échec est signalé avec la raison fournie par le téléchargeur, dans la ligne d’état et, lorsqu’il y a un écran pour l’afficher, dans un avertissement."
+    },
+    {
+      "context": "the Make Masks screen to open the data in.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#2",
+      "source": "the Make Masks screen to open the data in.",
+      "source_sha256": "3d4948199cc53882d09ff15775f59e3a01749691a7d9fc5341d966dc5b436cf0",
+      "translation": "l’écran de Make Masks dans lequel ouvrir les données."
+    },
+    {
+      "context": "replaces :func:`download_make_masks_example`, for tests. It is called as ``ask(screen, folder, on_done)``.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#3",
+      "source": "replaces :func:`download_make_masks_example`, for tests. It is called as ``ask(screen, folder, on_done)``.",
+      "source_sha256": "fa49516933362f26b00bfb3ae34641673e73e255880e38b69ac3f79aaf44f4c3",
+      "translation": "remplace :func:`download_make_masks_example`, pour les tests. Elle est appelée sous la forme ``ask(screen, folder, on_done)``."
+    },
+    {
+      "context": "replaces :func:`make_masks_example_folder`, for tests.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#4",
+      "source": "replaces :func:`make_masks_example_folder`, for tests.",
+      "source_sha256": "97b69744857a10f86b2971dfff49f3acf0272efebe4b56694edf5edb1ad09f5d",
+      "translation": "remplace :func:`make_masks_example_folder`, pour les tests."
+    },
+    {
+      "context": "whether this call opened the data. ``False`` while a download is still executing, and after a failure.",
+      "label": "spacr.qt.make_masks_demo.load_the_test_data#5",
+      "source": "whether this call opened the data. ``False`` while a download is still running, and after a failure.",
+      "source_sha256": "2fecfaa864b9b43ed75b55c6f71a3a75fa809cb5b0ea3660f2acbd67fb367e0b",
+      "translation": "si cet appel a ouvert les données. ``False`` tant qu’un téléchargement est encore en cours, et après un échec."
+    },
+    {
+      "context": "Where the test data is unpacked and cached.",
+      "label": "spacr.qt.make_masks_demo.make_masks_example_folder#0",
+      "source": "Where the test data is unpacked and cached.",
+      "source_sha256": "346e0b8cd42b8163c7f23f5afec4d23d754c8469c276266ffda313872be1e9b9",
+      "translation": "Où les données de test sont décompressées et mises en cache."
+    },
+    {
+      "context": "``~/.cache/spacr/example_data/make_masks_toxo_pv``, beside the shared example plate rather than inside it. See the module docstring for why.",
+      "label": "spacr.qt.make_masks_demo.make_masks_example_folder#1",
+      "source": "``~/.cache/spacr/example_data/make_masks_toxo_pv``, beside the shared example plate rather than inside it. See the module docstring for why.",
+      "source_sha256": "c2439cc0c2174e93b294c8d691a9556a9e450126ade3a1a5aa3ee73c823058f5",
+      "translation": "``~/.cache/spacr/example_data/make_masks_toxo_pv``, à côté de la plaque d’exemple partagée plutôt qu’à l’intérieur. La docstring du module explique pourquoi."
+    },
+    {
+      "context": "the folder. It is not created here.",
+      "label": "spacr.qt.make_masks_demo.make_masks_example_folder#2",
+      "source": "the folder. It is not created here.",
+      "source_sha256": "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8",
+      "translation": "le dossier. Il n’est pas créé ici."
+    },
+    {
+      "context": "Open an unpacked copy of the test data on its first image by name.",
+      "label": "spacr.qt.make_masks_demo.open_the_test_data#0",
+      "source": "Open an unpacked copy of the test data on its first image by name.",
+      "source_sha256": "46761a29f2b42fa54ca47ab7a91003ee2e06dc6519acf8dc5832729161161f85",
+      "translation": "Ouvre une copie décompressée des données de test sur sa première image par nom."
+    },
+    {
+      "context": "the Make Masks screen.",
+      "label": "spacr.qt.make_masks_demo.open_the_test_data#1",
+      "source": "the Make Masks screen.",
+      "source_sha256": "9c29319932ee88cad454f5650da97662cb52e6a90474a6c20ff94d74d5170483",
+      "translation": "l’écran de Make Masks."
+    },
+    {
+      "context": "where the data was unpacked.",
+      "label": "spacr.qt.make_masks_demo.open_the_test_data#2",
+      "source": "where the data was unpacked.",
+      "source_sha256": "c5fc5523b800d543030b985173109557acc280866912d519a9389a187a5528f6",
+      "translation": "où les données ont été décompressées."
+    },
+    {
+      "context": "whether the screen is now on it. An incomplete copy is reported rather than opened, because half the fields would pass for the whole set.",
+      "label": "spacr.qt.make_masks_demo.open_the_test_data#3",
+      "source": "whether the screen is now on it. An incomplete copy is reported rather than opened, because half the fields would pass for the whole set.",
+      "source_sha256": "72e558c582d848966985298afef65f51e26d94d5d295c82960d5f4a44476810f",
+      "translation": "si l’écran les affiche maintenant. Une copie incomplète est signalée plutôt qu’ouverte, car la moitié des champs passerait pour le jeu complet."
+    },
+    {
+      "context": "``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].",
+      "label": "spacr.qt.preferences#9",
+      "source": "``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].",
+      "source_sha256": "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
+      "translation": "``font_scale``: float, 1.0 = 100 % (valeur par défaut). Borné à [0.10, 2.0]."
+    },
+    {
+      "context": "It follows the form. Once a search has been asked for, changing any setting the search reads -- the sequencing folder, a reference table, the barcode set or the anchor -- starts it again after the form has been still for a moment, the way the Mask live preview follows its settings. Settings the search does not read never start one. Apply is the exception to everything live about this panel: the form changes only when it is pressed, so a value somebody typed is never replaced by a measurement that arrived while they were typing.",
+      "label": "spacr.qt.screens.map_barcodes.BarcodeSearchPanel#3",
+      "source": "It follows the form. Once a search has been asked for, changing any setting the search reads -- the sequencing folder, a reference table, the barcode set or the anchor -- starts it again after the form has been still for a moment, the way the Mask live preview follows its settings. Settings the search does not read never start one. Apply is the exception to everything live about this panel: the form changes only when it is pressed, so a value somebody typed is never replaced by a measurement that arrived while they were typing.",
+      "source_sha256": "76bb2fe9e4bbcd267b0807aa35f714fb163113624d88d26d671c3aa08cac71a1",
+      "translation": "Il suit le formulaire. Une fois qu’une recherche a été demandée, modifier n’importe quel réglage que la recherche lit -- le dossier de séquençage, une table de référence, le jeu de codes-barres ou l’ancre -- la relance dès que le formulaire est resté immobile un instant, comme l’aperçu en direct de Masques suit ses réglages. Les réglages que la recherche ne lit pas n’en lancent jamais. Appliquer est l’exception à tout ce qui est en direct dans ce panneau : le formulaire ne change que lorsqu’on appuie sur le bouton, de sorte qu’une valeur saisie par quelqu’un n’est jamais remplacée par une mesure arrivée pendant la saisie."
+    },
+    {
+      "context": "at least 1 px, because Qt refuses a pixel size of zero or less; no larger floor is imposed.",
+      "label": "spacr.qt.theme.font_px#5",
+      "source": "at least 1 px, because Qt refuses a pixel size of zero or less; no larger floor is imposed.",
+      "source_sha256": "23b6fbe53b6e1de3d14cf1572ae8b2fbf1fc85850f9d87e5331a1772d87f7126",
+      "translation": "au moins 1 px, car Qt refuse une taille de pixel nulle ou négative ; aucun plancher plus élevé n’est imposé."
+    },
+    {
+      "context": "The kind that will actually be drawn.",
+      "label": "spacr.qt.widgets.graph_spec.GraphSpec.resolved_kind#0",
+      "source": "The kind that will actually be drawn.",
+      "source_sha256": "20da71f8ba82bae80518ce6cc4d05a9ba6d1e6369cd2f747d8e09f9cc95b863a",
+      "translation": "Le type qui sera réellement dessiné."
+    },
+    {
+      "context": "THE PIN, then the setting, then the inference. An explicit pin is the user saying \"this chart, now\" and still wins outright. With no pin, the Default Graph Type preference chooses among the forms that fit, and the inference answers when there is no preference or the chosen form cannot be drawn here -- see :func:`_kind_and_note`.",
+      "label": "spacr.qt.widgets.graph_spec.GraphSpec.resolved_kind#1",
+      "source": "THE PIN, THEN THE SETTING, THEN THE INFERENCE. An explicit pin is the user saying \"this chart, now\" and still wins outright. With no pin, the Default Graph Type preference chooses among the forms that fit, and the inference answers when there is no preference or the chosen form cannot be drawn here -- see :func:`_kind_and_note`.",
+      "source_sha256": "a99b098682ea2062035c2d71444303d0626bd5e14c0ee5121d4398d291c6c44c",
+      "translation": "L’ÉPINGLE, PUIS LE RÉGLAGE, PUIS L’INFÉRENCE. Une épingle explicite, c’est l’utilisateur qui dit « ce graphique, maintenant », et elle l’emporte toujours d’office. Sans épingle, la préférence Default Graph Type choisit parmi les formes qui conviennent, et l’inférence répond lorsqu’il n’y a pas de préférence ou que la forme choisie ne peut pas être dessinée ici -- voir :func:`_kind_and_note`."
+    }
+  ],
+  "schema": 1
+}

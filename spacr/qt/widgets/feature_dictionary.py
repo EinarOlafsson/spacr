@@ -115,9 +115,6 @@ _ANY_OBJECT = "Any object"
 _MEASUREMENT_TABLE_THRESHOLD = 3
 
 
-# ---------------------------------------------------------------------------
-# rendering
-# ---------------------------------------------------------------------------
 
 def _escape(text: object) -> str:
     """Minimal HTML escape for the detail pane."""
@@ -194,11 +191,6 @@ def _doc_html(doc: FeatureDoc, entry=None) -> str:
     field("Family", f"{_escape(doc.family)} — "
                     f"{_escape(FEATURE_FAMILIES.get(doc.family, ''))}")
     field("Objects", _escape(_objects_sentence(doc)))
-    # Only for a genuine per-object-table feature. `cell_before_filtration`
-    # carries a `cell_` prefix and lives in pivoted_counts, and an
-    # `organelle_summary_*` column lives in `<parent>_organelle_summary` — for
-    # either of them "the cell table" would be a confident lie, and each says
-    # where it really lives in its own note.
     if (entry is not None and entry.object_type and doc.family != "meta"
             and not doc.key.startswith("organelle_summary_")):
         field("This column", f"the {_escape(entry.object_type)} table")
@@ -243,9 +235,6 @@ def _unknown_html(column: str) -> str:
         "app, or a column from a spaCR version older than this one.</p>")
 
 
-# ---------------------------------------------------------------------------
-# the panel
-# ---------------------------------------------------------------------------
 
 class FeatureDictionaryPanel(QWidget):
     """Searchable dictionary of every measurement spaCR writes.
@@ -341,13 +330,9 @@ class FeatureDictionaryPanel(QWidget):
         else:
             self._refresh()
 
-    # -- public API ------------------------------------------------------
 
     def set_query(self, text: str) -> None:
         """Type ``text`` into the search box and re-run the search."""
-        # A search is a new question.  In particular, do not leave a concrete
-        # column supplied by ``show_column`` pinned while the result list is
-        # replaced underneath it.
         self._column = None
         text = str(text or "")
         if text == self._search.text():
@@ -371,8 +356,6 @@ class FeatureDictionaryPanel(QWidget):
         self._search.blockSignals(True)
         self._search.setText(column)
         self._search.blockSignals(False)
-        # A column name is a specific question; the filters would only
-        # narrow it away.
         self._concept.setCurrentIndex(0)
         self._object.setCurrentIndex(0)
         self._refresh()
@@ -397,7 +380,6 @@ class FeatureDictionaryPanel(QWidget):
         """The detail pane's rendered text — what the user actually reads."""
         return self._detail.toPlainText()
 
-    # -- internals -------------------------------------------------------
 
     def _select_key(self, key: str) -> None:
         """Select the row holding ``key``, adding it if the search missed."""
@@ -405,8 +387,6 @@ class FeatureDictionaryPanel(QWidget):
             if hit.doc.key == key:
                 self._list.setCurrentRow(row)
                 return
-        # A concrete column always resolves even when the free-text search
-        # would not have surfaced its feature; show it anyway.
         doc = doc_for(key)
         if doc is not None:
             self._render(doc)
@@ -460,8 +440,6 @@ class FeatureDictionaryPanel(QWidget):
         if not (0 <= row < len(self._hits)):
             return
         doc = self._hits[row].doc
-        # Once the user moves off the column they asked about, stop pinning
-        # the detail pane to it.
         entry = None
         if self._column:
             candidate = parse_column(self._column)
@@ -566,9 +544,6 @@ def close_feature_dictionary() -> None:
         dialog.deleteLater()
 
 
-# ---------------------------------------------------------------------------
-# hook 1 — the app registry and the theme, through their seams
-# ---------------------------------------------------------------------------
 
 def make_screen(host=None) -> QWidget:
     """Screen factory for :func:`spacr.qt.app.register_app`."""
@@ -621,8 +596,6 @@ def register() -> bool:
                 cli_note=APP_CLI_NOTE,
             )
     except Exception:
-        # A registry that cannot take one more app is not a reason for the
-        # GUI to refuse to start; the Help menu route still works.
         LOG.exception("Could not register the Feature Dictionary app")
         ok = False
     try:
@@ -634,9 +607,6 @@ def register() -> bool:
     return ok
 
 
-# ---------------------------------------------------------------------------
-# hook 2 — Help menu + "What is this?" on every results table
-# ---------------------------------------------------------------------------
 
 def _find_menu(window: QMainWindow, title: str) -> Optional[QMenu]:
     """The window's menu-bar menu titled ``title``, ignoring ``&``.
@@ -680,8 +650,6 @@ def install_help_action(window: QMainWindow) -> Optional[QAction]:
         if act.text() == HELP_ACTION_TEXT:
             return None
     action = QAction(HELP_ACTION_TEXT, window)
-    # Explicit, so Qt cannot relocate it on macOS by liking its text.
-    # See spacr.qt.menus for what that costs when it happens.
     from ..menus import set_menu_role
     set_menu_role(action, "none")
     action.setStatusTip(
@@ -689,8 +657,6 @@ def install_help_action(window: QMainWindow) -> Optional[QAction]:
         "which objects it exists for and which module computes it.")
     action.triggered.connect(
         lambda checked=False: open_feature_dictionary(window))
-    # Above the separator that precedes "Check for updates…", so it sits with
-    # the other "explain something" entries rather than with the tools.
     before = None
     for act in menu.actions():
         if act.isSeparator():
@@ -725,10 +691,6 @@ def column_name_at(widget: QObject, pos) -> Optional[str]:
     model = view.model()
     if model is None:
         return None
-    # QAbstractItemView.indexAt consumes *viewport* coordinates. Context-menu
-    # events delivered to the view itself use view coordinates, which include
-    # the row-header/frame offset and can therefore select a neighbouring
-    # column near a boundary.
     viewport = view.viewport()
     local_pos = (viewport.mapFrom(view, pos)
                  if widget is view else pos)
@@ -816,14 +778,6 @@ def set_menu_runner(runner) -> None:
 
 
 
-# RESOLVED ONCE, NOT PER EVENT. `_still_alive` is called twice for every
-# event in the application -- 323,014 times while a single Regression screen
-# is built -- because `FeatureHelpFilter` is installed on the QApplication
-# and has to check liveness BEFORE it may touch `event.type()`. With the
-# import inside the function that is 323,014 executions of an import
-# statement: 625 ms per screen build, against 33 ms resolved once. Measured,
-# not assumed. The fallback stays a module-level None so the "cannot ask the
-# question" branch below behaves exactly as it did.
 try:
     from shiboken6 import isValid as _SHIBOKEN_IS_VALID
 except Exception:                                        # noqa: BLE001
@@ -856,34 +810,6 @@ class FeatureHelpFilter(QObject):
     """
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
-        # THIS RUNS FOR EVERY EVENT IN THE APPLICATION, and it segfaulted.
-        #
-        # Captured by the crash dump on 2026-08-19, milliseconds after a
-        # regression closed [success] while that run's figure widgets were
-        # being torn down:
-        #
-        #     Fatal Python error: Segmentation fault
-        #     Current thread (most recent call first):
-        #       feature_dictionary.py, line 776 in eventFilter
-        #       app.py, line 3110 in launch
-        #
-        # The frame EXISTS at the `def` line, so PySide had already built both
-        # wrappers and the crash is on the first bytecode -- `event.type()`,
-        # reading a QEvent whose C++ half was already freed. An
-        # application-wide filter is handed every event in the process,
-        # including ones whose receiver is being destroyed at that instant.
-        #
-        # THE FILTER STAYS APPLICATION-WIDE. Installing it on the item views
-        # instead was tried and REVERTED: the feature deliberately answers a
-        # right-click on an arbitrary child widget INSIDE a cell by walking
-        # back to the table behind it, and a per-view install cannot see
-        # those events. Three tests name that case.
-        #
-        # So this is a seatbelt, and its limit is worth stating: `isValid`
-        # reports a wrapper whose deletion shiboken was TOLD about. It turns
-        # that case from a segfault into a no-op. A C++ object freed without
-        # shiboken being told still dereferences, and the fix for that is
-        # wherever the object is being freed, not here.
         """Watch the widgets this filter is installed on.
 
         :param obj: the object the event is for.
@@ -894,7 +820,7 @@ class FeatureHelpFilter(QObject):
             return False
         try:
             kind = event.type()
-        except (RuntimeError, ReferenceError):   # died between the two checks
+        except (RuntimeError, ReferenceError):
             return False
         if kind != QEvent.Type.ContextMenu:
             return False
@@ -903,9 +829,6 @@ class FeatureHelpFilter(QObject):
                 return False
             if _claims_own_menu(obj):
                 return False
-            # An ignored event from the vertical header propagates to the
-            # table.  Its second delivery must remain a row-header gesture,
-            # rather than being reinterpreted as a click on column zero.
             view = obj if isinstance(obj, QAbstractItemView) else obj.parent()
             vertical_header = getattr(view, "verticalHeader", None)
             if callable(vertical_header):
@@ -920,8 +843,6 @@ class FeatureHelpFilter(QObject):
             entry = parse_column(column)
             if (entry.family == "unknown"
                     and not _table_looks_measured(_model_of(obj))):
-                # Somebody else's grid: not a measurements table, so an item
-                # about spaCR features would be noise on it.
                 return False
             menu = QMenu(obj if isinstance(obj, QWidget) else None)
             action = menu.addAction(CONTEXT_ACTION_TEXT)
@@ -933,8 +854,6 @@ class FeatureHelpFilter(QObject):
             event.accept()
             return True
         except Exception:
-            # A context menu is help, not function: never let it take a
-            # right-click (or the app) down with it.
             LOG.debug("Feature help context menu failed", exc_info=True)
             return False
 

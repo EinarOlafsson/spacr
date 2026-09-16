@@ -365,6 +365,7 @@ def test_preferences_dialog_shows_the_saved_values_and_cancel_saves_nothing(
     read back below."""
     from PySide6.QtWidgets import QComboBox, QDialog, QDialogButtonBox, QSlider
     from spacr.qt.preferences import (
+        FONT_SCALE_MAX, FONT_SCALE_MIN,
         PreferencesDialog, get_color_blind_mode, get_font_scale,
         get_theme_choice, set_color_blind_mode, set_font_scale,
         set_theme_choice, theme_choices,
@@ -389,7 +390,9 @@ def test_preferences_dialog_shows_the_saved_values_and_cancel_saves_nothing(
     language_combo = dlg.findChild(QComboBox, "LanguagePreference")
     assert language_combo is not None
     scale_slider = next(s for s in dlg.findChildren(QSlider)
-                        if (s.minimum(), s.maximum()) == (75, 200))
+                        if (s.minimum(), s.maximum()) == (
+                            int(FONT_SCALE_MIN * 100),
+                            int(FONT_SCALE_MAX * 100)))
 
     # It opened on what is stored.
     assert theme_combo.currentData() == "light"

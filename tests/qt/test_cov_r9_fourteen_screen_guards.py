@@ -96,14 +96,20 @@ class TestLayingOutOneWaitingRow:
 
 class TestTheExampleButtonCaption:
 
-    def test_the_caption_is_restored_through_tr(self):
+    def test_the_caption_is_restored_through_tr(self, monkeypatch):
         """THE PIN, and the reason it is not a plain string.
 
         The language pass rendered this caption once. Putting the English
         source back would both show the wrong word to a non-English user
         AND opt the button out of every later pass, because the extractor
         keys on the `tr` call.
+
+        DRIVEN as well as read, which is the stronger half: the restore is
+        made to happen with a `tr` that marks whatever came out of it, so a
+        caption put back as a plain literal arrives unmarked and the test
+        fails on the property rather than on a sentence about it.
         """
+        from spacr import example_data as E
         from spacr.qt.screens import app_screen as A
 
         source = inspect.getsource(A.AppScreen.load_the_example_screen)
@@ -115,9 +121,51 @@ class TestTheExampleButtonCaption:
         assert "button.setText(tr(" in source, (
             "the caption is put back as a plain string, which shows English "
             "to a non-English user and opts the button out of later passes")
-        assert "opt the button out of every" in source, (
-            "the reason the caption goes back through tr is no longer "
-            "written down")
+
+        class _Button:
+            """Only what the restore touches: enabled state and caption."""
+
+            def __init__(self):
+                self.enabled = True
+                self.captions = []
+
+            def setEnabled(self, on):
+                self.enabled = bool(on)
+
+            def setText(self, text):
+                self.captions.append(text)
+
+        class _Console:
+            def append_stdout(self, text):
+                """The failure is reported here; nothing asserts on it."""
+
+        class _Screen:
+            def _say_the_download_is_moving(self, *args, **kwargs):
+                """The progress callback `fetch` is handed."""
+
+        screen = _Screen()
+        screen._example_data_button = button = _Button()
+        screen._console = _Console()
+
+        monkeypatch.setattr(E, "missing",
+                            lambda folder=None, kind=None: [{"name": "one"}])
+
+        def _no_network(*args, **kwargs):
+            raise E.ExampleDataError("the download failed")
+
+        # The fetch has to FAIL: the restore lives in the `finally`, and a
+        # download that cannot happen is the path a user actually meets.
+        monkeypatch.setattr(E, "fetch", _no_network)
+        monkeypatch.setattr(A, "tr", lambda text, **kw: f"\u2039{text}\u203a")
+
+        assert A.AppScreen.load_the_example_screen(screen,
+                                                   download=False) == {}
+        assert button.enabled is True, (
+            "a failed download leaves the button disabled for the session")
+        assert button.captions[-1] == "\u2039Load test data\u2026\u203a", (
+            "the caption came back without passing through `tr`, which shows "
+            "English to a non-English user and opts the button out of every "
+            "later language pass -- the extractor keys on the `tr` call")
 
     def test_it_is_restored_in_a_finally(self):
         from spacr.qt.screens import app_screen as A
@@ -157,14 +205,45 @@ class TestTheRuntimePanelSwitches:
         assert "Show or hide the interactive Cellpose segmentation" in source
 
     def test_the_explorer_is_not_a_preview(self):
-        """The distinction the comment draws, and it is a real one: a
-        preview redraws when a setting changes; the explorer makes an
-        already-computed embedding clickable and no setting changes what
-        it draws."""
-        from spacr.qt.screens import app_screen as A
+        """The distinction the switch's caption draws, asked of the types
+        that keep it rather than of the sentence that explained it.
 
+        A LIVE view re-renders a module's own output from the current
+        settings before a run, and the four that do it are the four that
+        inherit :class:`LivePreviewContract`. The explorer does not: it
+        makes an already-computed embedding clickable, and no setting
+        changes what it draws. That is why its switch says "Interactive".
+        """
+        from spacr.qt.screens import app_screen as A
+        from spacr.qt.widgets.live_preview import LivePreviewPanel
+        from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
+        from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
+        from spacr.qt.widgets.preview_contract import LivePreviewContract
+        from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
+        from spacr.qt.widgets.umap_explorer import ImageUmapExplorer
+
+        for panel in (LivePreviewPanel, TimelapsePreviewPanel,
+                      MeasurePreviewPanel, MotilityPreviewPanel):
+            assert issubclass(panel, LivePreviewContract), (
+                f"{panel.__name__} no longer implements the live-preview "
+                f"contract, so 'Live' names one fewer thing than it did")
+
+        assert not issubclass(ImageUmapExplorer, LivePreviewContract), (
+            "the image-UMAP explorer now implements the live-preview "
+            "contract, so calling its switch 'Interactive' rather than "
+            "'Live' no longer says anything true about it")
+        assert not hasattr(ImageUmapExplorer, "can_preview"), (
+            "the explorer answers the preview contract's questions, so it "
+            "is one of the things 'Live' means")
+
+        # The caption that carries the distinction to the user.
         source = inspect.getsource(A.AppScreen._build_runtime_panel)
-        assert "One word for one thing." in source
+        built = source.index("self._interactive_switch = AiToggleLabel(")
+        assert 'text="Interactive"' in source[built:built + 200], (
+            "the explorer switch is no longer captioned Interactive")
+        assert '"Live"' not in source[built:built + 200], (
+            "the explorer switch is captioned Live, which is the word the "
+            "four preview panels use")
 
 
 class TestTheWidgetTypeDispatch:
@@ -221,7 +300,45 @@ class TestTheMontageStatus:
         source = _source(C)
         assert "if not self._name:" in source
         assert "NOTHING_SELECTED" in source
-        assert "looks exactly like one built from the right" in source
+
+        class _View:
+            """A stand-in with only what :meth:`_announce` reads."""
+
+            NOTHING_SELECTED = C.CellMontageView.NOTHING_SELECTED
+            _plans = ()
+
+            def __init__(self, name):
+                self._name = name
+                self.said = None
+
+            def reason(self):
+                return ""
+
+            def loaded_run_name(self):
+                return "plate1_2026_09_05"
+
+            def selected_coefficients(self):
+                return ()
+
+            def _summary(self):
+                return "a summary of the montage on screen"
+
+            def _set_status(self, text):
+                self.said = text
+
+        nothing_picked = _View("")
+        C.CellMontageView._announce(nothing_picked)
+        assert nothing_picked.said == C.CellMontageView.NOTHING_SELECTED, (
+            "with nothing selected the status falls back to whatever run "
+            "happens to be loaded instead of saying nothing is picked")
+        assert "plate1_2026_09_05" not in nothing_picked.said
+
+        picked = _View("PLK1")
+        C.CellMontageView._announce(picked)
+        assert "plate1_2026_09_05" in picked.said, (
+            "the status no longer names the run, so a montage built from "
+            "the wrong one looks exactly like one built from the right one")
+        assert "PLK1" in picked.said
 
 
 class TestWritingAnAnnotation:
@@ -258,12 +375,44 @@ class TestWritingAnAnnotation:
 
     def test_a_path_with_a_line_break_stays_one_console_record(self):
         """A filesystem path can legally contain line breaks, and a
-        console record split across lines is one a search will not
-        find."""
+        console record split across lines is one a search will not find.
+
+        Driven on a path that has one, which is the only honest way to ask.
+        """
         from spacr.qt.screens import annotate as A
 
-        source = _source(A)
-        assert "A filesystem path can legally contain line breaks" in source
+        class _Console:
+            def __init__(self):
+                self.records = []
+
+            def append_stdout(self, text):
+                self.records.append(text)
+
+        class _Screen:
+            def __init__(self, path):
+                self._page_paths = [(path,)]
+                self._console = _Console()
+
+            def _slot_is_valid(self, slot):
+                return True
+
+            def _current_value(self, slot):
+                return None
+
+            def _set_annotation(self, slot, value):
+                self.wrote = value
+                return True
+
+        screen = _Screen("/data/screen\n2/crop.png")
+        A.AnnotateScreen._toggle_annotation(screen, 0, 1)
+
+        record, = screen._console.records
+        assert record.endswith("\n")
+        assert record.count("\n") == 1, (
+            "the path's own line break went through unescaped, so one click "
+            "is two console records and neither can be searched for")
+        assert "/data/screen\\n2/crop.png" in record
+        assert "annotation=1" in record
 
     def test_escape_is_left_alone_unless_the_legend_is_showing(self):
         """THE ARC: ``token == "escape"`` with the legend shut.
@@ -276,7 +425,30 @@ class TestWritingAnAnnotation:
         source = _source(A)
         escape = source.index('if token == "escape":')
         assert "if self._legend_expanded:" in source[escape:escape + 400]
-        assert "leave Escape to whatever dialog/window wants it" in source
+
+        # `handle_key` is the single entry point for the whole keyboard
+        # feature and says so, so the two answers can just be asked for.
+        assert A.key_token("Escape") == "escape"
+
+        class _Screen:
+            def __init__(self, expanded):
+                self._legend_expanded = expanded
+                self.toggled = 0
+
+            def _toggle_legend(self):
+                self.toggled += 1
+                return True
+
+        legend_shut = _Screen(False)
+        assert A.AnnotateScreen.handle_key(legend_shut, "Escape") is False, (
+            "Escape is swallowed while the reference is hidden, so a dialog "
+            "or window that wants it never sees it")
+        assert legend_shut.toggled == 0
+
+        legend_showing = _Screen(True)
+        assert A.AnnotateScreen.handle_key(legend_showing, "Escape") is True
+        assert legend_showing.toggled == 1, (
+            "Escape no longer closes the reference it opened")
 
 
 class TestTheCropRegionMask:
@@ -312,17 +484,47 @@ class TestTheCropRegionMask:
         keep = np.zeros((4, 4), dtype=bool)
         assert not keep.any()
 
-    def test_a_crop_with_no_region_is_not_masked_at_all(self):
-        """THE ARC above it: ``region is None``.
+    def test_the_region_the_mask_is_built_from_is_always_there(self):
+        """WHY THE TWO GUARDS ABOVE ARE GONE, driven rather than read.
 
-        A crop taken without an object mask -- a whole-field thumbnail --
-        keeps every pixel, where masking with an all-False array would
-        return a black square.
+        ``_crop_from_field`` used to ask ``if region is not None:`` and
+        ``if oy1 > oy0 and ox1 > ox0:`` before masking. Both were removed
+        as re-checks of a contract ``_region_for`` already keeps: it
+        always answers a region, and the crop window is centred on a
+        point inside that region's bounds, so the overlap is never empty.
+        This drives that contract on a real field -- if either half stops
+        holding, the masking line above is cutting into a shape nobody
+        checked any more.
         """
         from spacr import crops as C
 
-        source = inspect.getsource(C._crop_from_field)
-        assert "if region is not None:" in source
-        assert "np.where(keep[:, :, None], crop, 0)" in source
-        assert source.index("if region is not None:") < \
-            source.index("np.where(keep[:, :, None]")
+        cell_plane = 3
+        field = np.random.default_rng(3).integers(
+            400, 4000, size=(32, 40, 4)).astype(np.uint16)
+        field[:, :, cell_plane] = 0
+        field[8:16, 10:20, cell_plane] = 7
+
+        merged = C.MergedField("in-memory.npy", array=field,
+                               mask_dims={"cell": cell_plane})
+        spec = C.CropSpec(merged_path="in-memory.npy", object_type="cell",
+                          label=7, channels=(0, 1, 2), size=(16, 16))
+
+        centroid, (ry0, ry1, rx0, rx1), region = C._region_for(merged, spec)
+        assert region is not None and region.any(), (
+            "_region_for answered without a region, so the mask below it is "
+            "built from nothing and the guard that caught that is gone")
+
+        width, height = spec.size
+        wy0 = int(centroid[0]) - height // 2
+        wx0 = int(centroid[1]) - width // 2
+        oy0, oy1 = max(wy0, ry0), min(wy0 + height, ry1)
+        ox0, ox1 = max(wx0, rx0), min(wx0 + width, rx1)
+        assert oy1 > oy0 and ox1 > ox0, (
+            "the window centred on the centroid misses the region's bounds, "
+            "so the two assignment shapes disagree")
+
+        crop = C._crop_from_field(merged, spec)
+        assert crop.shape == (16, 16, 3)
+        assert crop.any(), "the whole crop came back masked out"
+        assert not crop[0, 0].any(), (
+            "a pixel outside the object survived, so the mask is not applied")

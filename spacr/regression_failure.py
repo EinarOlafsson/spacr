@@ -127,9 +127,6 @@ def describe_failure(error: BaseException, *, stage: str = "",
                 "\nWHAT TO CHANGE\n  This failure has no recorded remedy. The "
                 "traceback below is the whole of what is known; a guess here "
                 "would be worse than none.")
-        # WHAT IT COST ON THE WAY (instruction 160). A failure that ran out of
-        # memory looks identical to one that did not, unless the readings taken
-        # per stage are beside it.
         try:
             from .fit_resources import describe_resources
 
@@ -144,7 +141,6 @@ def describe_failure(error: BaseException, *, stage: str = "",
             parts.append("\nTRACEBACK\n" + tb.rstrip())
         return "\n".join(parts) + "\n"
     except Exception:                                            # noqa: BLE001
-        # The reporter must never replace the failure it is reporting.
         return f"THE REGRESSION FAILED: {type(error).__name__}: {error}\n"
 
 

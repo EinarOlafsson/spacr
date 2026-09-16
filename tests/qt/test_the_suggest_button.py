@@ -1,7 +1,7 @@
 """The Suggest button: a model's opinion you can reject, not a bulk edit.
 
 WHAT THIS IS ABOUT. ``spacr.suggest`` was a library with tests and no
-caller -- the exact state ``spacrops.py`` was in when instruction 372 was
+caller -- the exact state the old OPS engine was in when instruction 372 was
 filed for it. Annotate now calls it, and these are the properties that make
 the calling safe rather than the ones that make it work:
 

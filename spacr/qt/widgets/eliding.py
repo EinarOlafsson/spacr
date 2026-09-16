@@ -37,7 +37,6 @@ class ElidingLabel(QLabel):
         self._elided = False
         self.setText(text)
 
-    # -- text ----------------------------------------------------------
     def setText(self, text: str) -> None:      # noqa: N802 (Qt casing)
         """Set the full text, then render as much of it as fits."""
         self._full_text = text or ""
@@ -62,7 +61,6 @@ class ElidingLabel(QLabel):
         """Px currently available to draw text in, margins removed."""
         return self._available_width()
 
-    # -- geometry ------------------------------------------------------
     def sizeHint(self) -> QSize:               # noqa: N802
         """Hint the width of the *full* text so the layout can grant it."""
         base = super().sizeHint()
@@ -82,7 +80,6 @@ class ElidingLabel(QLabel):
         super().resizeEvent(event)
         self._refresh()
 
-    # -- internals -----------------------------------------------------
     def _available_width(self) -> int:
         """Return the width left for text after the contents margins.
 
@@ -96,9 +93,6 @@ class ElidingLabel(QLabel):
         fm = QFontMetrics(self.font())
         available = self._available_width()
         needed = fm.horizontalAdvance(self._full_text)
-        # Before the first layout pass the widget still carries Qt's
-        # default 100 px size, which would elide almost everything and
-        # leave a stale tooltip behind. Wait for a real geometry.
         if not self.testAttribute(Qt.WA_Resized):
             available = max(available, needed)
         if available <= 0 or needed <= available:
@@ -110,8 +104,6 @@ class ElidingLabel(QLabel):
         self._elided = True
         QLabel.setText(
             self, fm.elidedText(self._full_text, self._elide_mode, available))
-        # A user who cannot read the whole name must still be able to
-        # discover it — the tooltip is the only place left to put it.
         self.setToolTip(self._full_text)
 
 
@@ -144,15 +136,11 @@ class ElidingPushButton(QPushButton):
         self._full_text = ""
         self._elide_mode = mode
         self._elided = False
-        # Horizontally shrinkable: without this the layout treats the
-        # size hint as a hard minimum and squeezes the *whole* sidebar
-        # instead of shortening one label.
         policy = self.sizePolicy()
         policy.setHorizontalPolicy(QSizePolicy.Preferred)
         self.setSizePolicy(policy)
         self.setText(text)
 
-    # -- text ----------------------------------------------------------
     def setText(self, text: str) -> None:      # noqa: N802
         """Set the full text, then render as much of it as fits."""
         self._full_text = text or ""
@@ -166,7 +154,6 @@ class ElidingPushButton(QPushButton):
         """True when the displayed text is a shortened copy."""
         return self._elided
 
-    # -- geometry ------------------------------------------------------
     def sizeHint(self) -> QSize:               # noqa: N802
         """Hint the width the *full* text needs, elided or not.
 
@@ -205,7 +192,6 @@ class ElidingPushButton(QPushButton):
                   - fm.horizontalAdvance(super().text()))
         return self.width() - chrome
 
-    # -- internals -----------------------------------------------------
     def _refresh(self) -> None:
         """Re-elide the label to whatever width the button now has.
 
@@ -216,8 +202,6 @@ class ElidingPushButton(QPushButton):
         fm = QFontMetrics(self.font())
         available = self.available_text_width()
         needed = fm.horizontalAdvance(self._full_text)
-        # See ElidingLabel._refresh — don't elide against the default
-        # 100 px size a widget carries before its first layout pass.
         if not self.testAttribute(Qt.WA_Resized):
             available = max(available, needed)
         if available <= 0 or needed <= available:

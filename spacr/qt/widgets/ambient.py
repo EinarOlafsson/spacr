@@ -184,6 +184,7 @@ import random
 import sys
 import threading
 import time
+import weakref
 from dataclasses import dataclass
 from typing import (Callable, Dict, List, NamedTuple, Optional, Sequence,
                     Tuple, Union)
@@ -218,9 +219,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Themes
-# ---------------------------------------------------------------------------
 
 #: Every theme, in the order a menu should list them.
 #:
@@ -275,9 +273,6 @@ _THEME_LABELS = {
     "drift": "Starfield",
     "bokeh": "Bokeh",
     "cells": "Cells",
-    # Never shown: nothing builds a menu row from a name that is not in
-    # `AMBIENT_THEMES`. Present so that a log line, a traceback or a test
-    # naming this engine reads like the other six.
     SPACEOUT_THEME: "Fractals",
 }
 
@@ -298,9 +293,6 @@ _THEME_NOTES = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Palettes
-# ---------------------------------------------------------------------------
 
 
 class PaletteSpec(NamedTuple):
@@ -336,8 +328,6 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
         "there."),
     "mono": PaletteSpec(
         "Monochrome",
-        # Neutral greys, not slate: a set named Monochrome that carries a
-        # blue cast is a set that lies about what it is.
         ("#A3A3A3", "#CFCFCF", "#707070"),
         "Greys only — motion without colour, for when colour is a "
         "distraction."),
@@ -347,9 +337,6 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
         "The Okabe–Ito set. Its colours stay distinguishable under "
         "protanopia and deuteranopia — red–green deficiency, the common "
         "kind — because no pair in it differs by red versus green alone."),
-    # Not invented: these are the emission lines the sky actually radiates,
-    # converted to sRGB. Ordered by the role the aurora engine gives them —
-    # main, high, fringe, blend — see AURORA_RAMP.
     "borealis": PaletteSpec(
         "Aurora borealis",
         ("#7CFC9E", "#FF3C5A", "#5B6BFF", "#D9FFA8"),
@@ -358,20 +345,12 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
         "appears high up), ionised nitrogen at 427.8 nm (the blue-violet "
         "lower fringe), and the pale yellow-green where the green and the "
         "red overlap."),
-    # The spaceout palette. Seven stops right around the wheel and back to
-    # where they started, because the fractal reads it as a RING: the escape
-    # bands cycle through it repeatedly across one frame, so the last colour
-    # sits next to the first and a set that did not close would show a seam
-    # at every band boundary. Offered by no theme a menu lists — see
-    # `_THEME_PALETTES`.
     "rainbow": PaletteSpec(
         "Rainbow",
         ("#FF0040", "#FF7A00", "#FFE000", "#00E05A", "#00C8FF", "#4030FF",
          "#C02BFF"),
         "The spectrum, closed into a ring: red through orange, yellow, "
         "green, cyan and blue to violet, and back round to red."),
-    # Also not invented: the three filter cubes on essentially every
-    # fluorescence scope, at the wavelength the eyepiece sees.
     "fluor": PaletteSpec(
         "Fluorescence",
         ("#3AA0FF", "#3DFF6E", "#FF5A3C", "#FFD24A"),
@@ -410,9 +389,6 @@ _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
               "fluor"),
     "bokeh": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor"),
     "cells": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor"),
-    # One palette, and it is offered by nothing else: `palettes_for` is what
-    # the Preferences palette picker is filled from, and it is only ever
-    # asked about a theme from `AMBIENT_THEMES`.
     SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
 
@@ -580,9 +556,6 @@ def dressed(theme: str, palette: str) -> Tuple[str, str]:
     return theme, palette
 
 
-# ---------------------------------------------------------------------------
-# Timing and sizing constants
-# ---------------------------------------------------------------------------
 
 #: Frame-rate cap. Nothing here moves fast enough to need more, and this
 #: matches the DNA rain so the app has one animation cadence.
@@ -652,43 +625,9 @@ def screen_pixels(widget: Optional[QWidget] = None) -> int:
         pixels = int(size.width() * ratio) * int(size.height() * ratio)
     except Exception:
         return BUFFER_MAX_PIXELS
-    # A screen smaller than the fallback is still a real ceiling; a
-    # nonsensical one (a headless plugin reporting nothing) is not.
     return pixels if pixels >= BUFFER_MIN_EDGE ** 2 else BUFFER_MAX_PIXELS
 
 
-# ---------------------------------------------------------------------------
-# The user controls: resolution, blur, speed, size and density
-# ---------------------------------------------------------------------------
-# All of them are *multipliers on what the theme already does*, never absolute
-# pixels or seconds. 1.0 is the shipped animation, exactly — every engine is
-# written so that multiplying by 1.0 is the identity, and the tests assert
-# the default frame is byte-for-byte the frame from before these existed.
-# A multiplier is also the only formulation that means the same thing in every
-# theme: "twice as big" is meaningful for a blob radius, a curtain, a ripple
-# wavelength and a 2 px star, where "40 px" is meaningful for none of them.
-#
-# Resolution and blur used to be ONE control, and that was the bug this pair
-# replaces. Blur was implemented *as* the buffer resolution — softer meant
-# shading fewer pixels and stretching them further — so "sharper" and "less
-# blocky" were the same slider, and a sharp *soft* backdrop could not be
-# asked for at all. They are two different questions and they now have two
-# different answers:
-#
-#   resolution  how many pixels the scene is shaded into. Decides how much
-#               of the geometry survives: where the aurora's lower edge
-#               falls between two pixels, how wide each ray of its comb is.
-#   blur        how much of what was shaded is then thrown away, by an
-#               area average over the finished buffer. Decides how soft it
-#               looks, and nothing else.
-#
-# The order matters and is the whole point. Shading at a low resolution
-# *point-samples* the geometry: the fold's position is quantised, the ray
-# comb aliases against the buffer grid, and no amount of subsequent blurring
-# puts back what was never computed. Shading high and averaging down
-# *prefilters* it: the same softness, with every edge still where the model
-# put it. That is the difference between "soft" and "blocky", and it is why
-# a picture can now be both sharp and soft.
 
 #: How much detail is computed, as a multiplier on the theme's own buffer
 #: edge. Above 1.0 costs quadratically more (shading is per buffer pixel);
@@ -823,12 +762,6 @@ DARK_LUMINANCE_MAX = 0.30
 LIGHT_TINT = 0.55
 
 
-# ---------------------------------------------------------------------------
-# Small colour helpers
-# ---------------------------------------------------------------------------
-# Deliberately local rather than imported from ``dna_rain``: this module is
-# installed on *every* module screen, and it should not drag the sequencing
-# backdrop in behind it just to reuse fifteen lines of arithmetic.
 
 def _as_color(value: Union[QColor, str, None], fallback: QColor) -> QColor:
     """Coerce ``value`` to a valid opaque QColor, or fall back to a colour
@@ -939,9 +872,6 @@ def _theme_background() -> QColor:
         from ..theme import active_page_colour
         return QColor(active_page_colour())
     except Exception:
-        # `page_colour` is imported at module scope, so this arm cannot
-        # itself fail on an import the way a second `from ..theme import`
-        # could — and a backdrop must never raise on its way to a screen.
         return QColor(page_colour("dark"))
 
 
@@ -965,9 +895,6 @@ def _numpy():
     return _NUMPY
 
 
-# ---------------------------------------------------------------------------
-# Engines
-# ---------------------------------------------------------------------------
 
 class AmbientEngine:
     """Base class: a deterministic, time-parameterised painter.
@@ -1034,7 +961,6 @@ class AmbientEngine:
         #: Most pixels this engine's buffer may hold. The screen's, once a
         #: widget has told it; :data:`BUFFER_MAX_PIXELS` until then.
         self.max_pixels = BUFFER_MAX_PIXELS
-        # Before ``_configure``: a subclass may size something from them.
         self.blur = _clamp(blur, *BLUR_RANGE)
         self.speed = _clamp(speed, *SPEED_RANGE)
         self.size = _clamp(size, *SIZE_RANGE)
@@ -1047,7 +973,6 @@ class AmbientEngine:
         self._configure(random.Random(seed))
         self._restyle()
 
-    # -- construction hooks -------------------------------------------
     def _configure(self, rng: random.Random) -> None:
         """Roll the per-element constants. Called exactly once."""
 
@@ -1080,7 +1005,6 @@ class AmbientEngine:
         out = [c for c in out if c.isValid()]
         return out or [QColor("#808080")]
 
-    # -- state ---------------------------------------------------------
     @property
     def colors(self) -> List[QColor]:
         """The palette this engine paints with.
@@ -1113,7 +1037,6 @@ class AmbientEngine:
         self._background = _as_color(color, self._background)
         self._restyle()
 
-    # -- the user controls ---------------------------------------------
     def set_blur(self, value: float) -> None:
         """How much the finished picture is softened. 0.0 is untouched.
 
@@ -1271,7 +1194,6 @@ class AmbientEngine:
         a theme change."""
         self.time = float(seconds)
 
-    # -- painting ------------------------------------------------------
     def paint(self, painter: QPainter, width: int, height: int) -> None:
         """Draw this engine's current frame.
 
@@ -1488,7 +1410,6 @@ class _BufferedEngine(AmbientEngine):
         raise NotImplementedError
 
 
-# -- blobs ------------------------------------------------------------------
 
 #: How many blobs. Cheap enough to raise (the shading happens over 37 000
 #: buffer pixels), but past about twenty the fields merge into a single wash
@@ -1497,18 +1418,18 @@ BLOB_COUNT = 14
 
 #: Every third blob is a small one, so the field has a sense of scale.
 BLOB_SMALL_EVERY = 3
-BLOB_LARGE_RADIUS = (0.22, 0.46)   # fraction of the short edge
+BLOB_LARGE_RADIUS = (0.22, 0.46)
 BLOB_SMALL_RADIUS = (0.07, 0.16)
 
 #: Drift, as a fraction of the canvas, and the period of that drift. Long
 #: periods are the point: this must never look like it is *moving*, only like
 #: it has moved when you look back at it.
 BLOB_DRIFT = (0.04, 0.12)
-BLOB_DRIFT_PERIOD = (24.0, 70.0)   # seconds
+BLOB_DRIFT_PERIOD = (24.0, 70.0)
 
 #: The pulse — "changing size" — as a fraction of the base radius.
 BLOB_PULSE = (0.12, 0.35)
-BLOB_PULSE_PERIOD = (7.0, 19.0)    # seconds
+BLOB_PULSE_PERIOD = (7.0, 19.0)
 
 #: Peak alpha at a blob's centre. Light needs more than dark because the
 #: colour has been mixed 55 % toward white before it is multiplied — but not
@@ -1555,9 +1476,6 @@ class BlobsEngine(_BufferedEngine):
     name = "blobs"
 
     def _configure(self, rng: random.Random) -> None:
-        # Seed the blobs on a jittered 5x3 grid rather than uniformly at
-        # random: with only fourteen of them, uniform sampling reliably
-        # leaves one corner empty and clumps three in the middle.
         """Roll this theme's constants from the seed.
 
         ONCE, at construction: an engine is deterministic, so the same seed and
@@ -1567,10 +1485,6 @@ class BlobsEngine(_BufferedEngine):
         cells = list(range(cols * rows))
         rng.shuffle(cells)
         self.blobs: List[Blob] = []
-        # The pool is rolled for the top of the density range and then a
-        # prefix of it is painted. Extending the loop is the one way to add
-        # them that leaves the first BLOB_COUNT draws bit-identical: the RNG
-        # is consumed in order, so blob 3 gets the numbers it always got.
         for i in range(_pool_size(BLOB_COUNT)):
             cell = cells[i % len(cells)]
             col, row = cell % cols, cell // cols
@@ -1589,9 +1503,6 @@ class BlobsEngine(_BufferedEngine):
                 pulse=rng.uniform(*BLOB_PULSE),
                 pulse_rate=2 * math.pi / rng.uniform(*BLOB_PULSE_PERIOD),
                 pulse_phase=rng.uniform(0.0, 2 * math.pi),
-                # Straight round-robin, not a random pick: with three
-                # colours and fourteen blobs a random assignment leaves a
-                # palette colour missing about one run in fifty.
                 color=i,
             ))
 
@@ -1644,60 +1555,6 @@ class BlobsEngine(_BufferedEngine):
             painter.drawEllipse(QPointF(cx, cy), radius, radius)
 
 
-# -- aurora -----------------------------------------------------------------
-#
-# What the real thing does, and what each part of it costs here.
-#
-# An aurora is not a band of colour sliding across the sky. It is a *folded
-# sheet seen edge-on*: charged particles spiral down the geomagnetic field
-# lines and light the atmosphere along them, so the sheet is made of vertical
-# rays, and the arc is where that sheet crosses the sky. Four things follow,
-# and all four are what makes it recognisable:
-#
-# 1. *Vertical ray striations.* The rays are the defining feature. A smooth
-#    band with no rays reads as a gradient, which is what this theme was
-#    before.
-# 2. *The folds travel ALONG the arc.* The sheet ripples the way a ribbon
-#    held at one end does — the fold pattern propagates lengthwise while the
-#    arc itself stays where it is. It does not slide sideways as a body.
-#    Every wave below is written ``sin(2*pi*(u - v*t)/lambda)``: a phase that
-#    depends on position and travels at ``v``, which is a travelling wave and
-#    nothing else.
-# 3. *Several frequencies at once.* One slow, long, deep fold with faster
-#    small ripples riding on it. A single sine is a flag, not an aurora.
-# 4. *Brightness surges* running along the arc on their own schedule, faster
-#    than the folds and on a different wavelength, so the two are visibly
-#    independent phenomena rather than one driving the other.
-#
-# Then the vertical colour structure, which is pure atomic physics and the
-# cheapest realism available. 557.7 nm atomic oxygen (green) through the body,
-# 630.0 nm atomic oxygen (red) at the top where the air is thin enough for
-# that slow transition to survive the wait, and 427.8 nm ionised nitrogen
-# (blue-violet) along the bottom. The lower edge is *sharp* — it is where the
-# particles finally run out of altitude — and the top is diffuse.
-#
-# The single most useful thing to know about that colour structure is that it
-# is a function of ALTITUDE, not of position within the curtain. The ramp is
-# therefore anchored to the frame and not to the folded edge, and everything
-# falls out of it for free:
-#
-# * where the fold dips low, the sheet's edge reaches into the violet, and
-#   where it rises, it does not — which is exactly what photographs show;
-# * the curtain looks *taller* where the fold dips, because its top is at a
-#   fixed altitude and only its bottom moved. Real rays behave that way for
-#   the same reason, and it costs nothing to reproduce;
-# * one affine brush transform per curtain is correct, so the curtain is one
-#   filled path and not a strip of separately anchored pieces. Anchoring per
-#   piece was tried first: it puts a step in the ramp at every seam, and at
-#   these alphas the step is ~13/255 — visible as vertical banding.
-#
-# How it is drawn, and why. Measured at 1920x1080 in the 256 px buffer: one
-# ``drawImage`` per ray costs ~5 us of Python-to-Qt overhead, so 150 rays is
-# 0.8 ms — more than this theme is allowed in total. Instead each curtain is
-# ONE filled path (the folded sheet) painted with a *tiled texture brush*
-# whose tile is the ray comb crossed with the colour ramp, and then filled a
-# second time with a small per-frame image holding the surge. The ray count
-# costs nothing because the rays are the brush rather than the geometry.
 
 #: Three curtains at different depths. Two read as one curtain and a copy;
 #: four stop being separable at these alphas.
@@ -1771,8 +1628,8 @@ AURORA_OVERHANG = 1.12
 #: The slow bob of the whole arc's altitude, and its period. This is the only
 #: bulk motion the curtain has, and it is vertical: the folds do the rest.
 AURORA_DRIFT = (0.05, 0.18)
-AURORA_DRIFT_PERIOD = (30.0, 90.0)  # seconds
-AURORA_HUE_PERIOD = (18.0, 46.0)    # seconds per colour cross-fade cycle
+AURORA_DRIFT_PERIOD = (30.0, 90.0)
+AURORA_HUE_PERIOD = (18.0, 46.0)
 
 #: The fold, as three superposed travelling waves: ``(amplitude as a fraction
 #: of the canvas height, wavelength as a fraction of the arc's length, travel
@@ -2012,9 +1869,6 @@ class AuroraEngine(_BufferedEngine):
         """
         self.curtains: List[Curtain] = []
         for i in range(_pool_size(AURORA_CURTAINS)):
-            # Each extra tier of three sits a little lower than the last, or
-            # a dense aurora would be three curtains painted on top of each
-            # other inside one jitter's width rather than a deeper one.
             base = (AURORA_BASE[i % len(AURORA_BASE)]
                     + (i // len(AURORA_BASE)) * AURORA_TIER_OFFSET)
             self.curtains.append(Curtain(
@@ -2026,8 +1880,6 @@ class AuroraEngine(_BufferedEngine):
                 phase=rng.uniform(0.0, 2 * math.pi),
                 hue_rate=2 * math.pi / rng.uniform(*AURORA_HUE_PERIOD),
                 hue_phase=rng.uniform(0.0, 2 * math.pi),
-                # Every wave gets its own phase, or the three curtains fold
-                # in lockstep and the depth illusion collapses.
                 fold_phase=tuple(rng.uniform(0.0, 2 * math.pi)
                                  for _ in AURORA_FOLDS),
                 pulse_phase=rng.uniform(0.0, 2 * math.pi),
@@ -2042,12 +1894,10 @@ class AuroraEngine(_BufferedEngine):
         self._surges = {}
 
     def _resize(self) -> None:
-        # Both caches are keyed on pixel sizes derived from it.
         """Re-lay the bands for a new widget size."""
         self._tiles = {}
         self._surges = {}
 
-    # -- the model -----------------------------------------------------
     def count(self) -> int:
         """How many curtains are painted right now."""
         return self.element_count(AURORA_CURTAINS, len(self.curtains))
@@ -2178,9 +2028,6 @@ class AuroraEngine(_BufferedEngine):
         """
         colors = self.paint_colors
         body = colors[0]
-        # Never index 0: a curtain whose wander target is its own body colour
-        # does not shimmer at all, which is what happened to the third one on
-        # every three-colour palette.
         wander = colors[1 + curtain.color % (len(colors) - 1)] \
             if len(colors) > 1 else body
         u = self.hue_phase(curtain)
@@ -2207,7 +2054,6 @@ class AuroraEngine(_BufferedEngine):
         blend = colors[3] if n > 3 else _mix(main, high, 0.5)
         return {"main": main, "high": high, "fringe": fringe, "blend": blend}
 
-    # -- painting ------------------------------------------------------
     def ray_lengths(self, curtain: Curtain) -> Tuple[float, ...]:
         """Each ray's current length, as a fraction of the full one.
 
@@ -2225,11 +2071,6 @@ class AuroraEngine(_BufferedEngine):
         for period, offset in AURORA_RAY_LIFE:
             angle = (2 * math.pi * (self.time / period + offset)
                      + curtain.pulse_phase)
-            # Quantise the UNIT and then map, not the mapped value. The
-            # other way round quantises [low, high] against a 0..1 grid, so
-            # only the top of the range survives -- measured, it gave four
-            # levels spanning 0.80..0.98 out of an intended 0.55..0.98, and
-            # the breathing was a fifth of the depth it should have been.
             unit = 0.5 * (1.0 + math.sin(angle))
             stepped = round(unit * (AURORA_LENGTH_STEPS - 1)) \
                 / (AURORA_LENGTH_STEPS - 1)
@@ -2255,8 +2096,6 @@ class AuroraEngine(_BufferedEngine):
         if tile is not None:
             return tile
         if len(self._tiles) >= AURORA_TILE_CACHE:
-            # Only a long run of resizes can get here. Start again rather
-            # than grow without bound.
             self._tiles = {}
 
         top_f, bottom_f = AURORA_TILE_RAMP
@@ -2268,17 +2107,12 @@ class AuroraEngine(_BufferedEngine):
         alpha = peak * AURORA_DEPTHS[curtain.depth % len(AURORA_DEPTHS)][2]
         inner = QPainter(tile)
         inner.setPen(Qt.NoPen)
-        # Ramp position 0 is the curtain's lower edge, which is the *bottom*
-        # of the ramp rows, so the gradient runs upward through the image.
         gradient = QLinearGradient(0.0, float(ramp_bottom), 0.0,
                                    float(ramp_top))
         for stop, role, scale in AURORA_RAMP:
             gradient.setColorAt(stop, _with_alpha(roles[role], alpha * scale))
         inner.setBrush(gradient)
         inner.drawRect(0, ramp_top, width, ramp_bottom - ramp_top)
-        # ... then cut the ray comb out of it. DestinationIn keeps the colour
-        # and replaces the alpha, which is one pass over 1 920 pixels, done
-        # about three dozen times in the life of the widget.
         inner.setCompositionMode(QPainter.CompositionMode_DestinationIn)
         comb = QLinearGradient(0.0, 0.0, float(width), 0.0)
         floor = QColor(0, 0, 0, int(round(255 * AURORA_TILE_FLOOR)))
@@ -2292,14 +2126,6 @@ class AuroraEngine(_BufferedEngine):
         inner.setBrush(comb)
         inner.drawRect(0, 0, width, height)
 
-        # Each ray cut to its own length. Done AFTER the comb, still in
-        # DestinationIn, so it takes alpha away from one ray's band without
-        # touching its neighbours or the sheet between them.
-        #
-        # Cut from the TOP: an aurora ray is anchored at the lower edge and
-        # reaches upward, so a ray that is breathing shortens away from its
-        # tip. Shortening from the bottom would lift it off the curtain's
-        # edge and look like it is floating.
         for (centre, half, _strength), length in zip(AURORA_TILE_RAYS,
                                                      lengths):
             if length >= 1.0:
@@ -2308,26 +2134,12 @@ class AuroraEngine(_BufferedEngine):
             right = int(round(min(1.0, centre + half) * width))
             if right <= left:
                 continue
-            # `ramp_bottom` is the curtain's lower edge and `ramp_top` its
-            # tip, so the kept part runs upward from the bottom.
             kept = int(round((ramp_bottom - ramp_top) * length))
             cut_bottom = ramp_bottom - kept
-            # The tip fades over a fixed share of the FULL ray length, so a
-            # short ray and a long one taper alike rather than the short one
-            # being all taper.
             feather = max(1, int(round(
                 (ramp_bottom - ramp_top) * AURORA_RAY_FEATHER)))
             if cut_bottom <= 0:
                 continue
-            # FEATHERED, not a hard rectangle. A square cut gives a
-            # shortened ray a flat tip, which is both wrong -- a real ray
-            # fades out at the top -- and measurable: it sharpened the
-            # curtain's upper edge until the lower-edge-to-upper-edge
-            # contrast fell from 2.5x to 2.1x and
-            # `test_the_lower_edge_is_sharp_and_the_top_is_diffuse` caught
-            # it. The asymmetry between the two edges is as recognisable
-            # as the colour, so it is not something to trade away for a
-            # cheaper fill.
             fade = QLinearGradient(0.0, float(max(0, cut_bottom - feather)),
                                    0.0, float(cut_bottom))
             fade.setColorAt(0.0, QColor(0, 0, 0, 0))
@@ -2352,13 +2164,12 @@ class AuroraEngine(_BufferedEngine):
             width, height = AURORA_PULSE_TEXTURE
             pad = AURORA_PULSE_PAD
             band = 1.0 + 2 * pad
-            edge = pad / band              # the curtain's lower edge
+            edge = pad / band
             reach = AURORA_PULSE_HEIGHT / band
             mask = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
             mask.fill(Qt.transparent)
             inner = QPainter(mask)
             inner.setPen(Qt.NoPen)
-            # Stops run bottom-to-top, so 0.0 is the bottom of the image.
             fade = QLinearGradient(0.0, float(height), 0.0, 0.0)
             fade.setColorAt(0.0, QColor(0, 0, 0, 255))
             fade.setColorAt(edge, QColor(0, 0, 0, 255))
@@ -2439,9 +2250,6 @@ class AuroraEngine(_BufferedEngine):
         """
         peak = (AURORA_ALPHA_DARK if self.dark else AURORA_ALPHA_LIGHT) \
             * self.alpha_scale()
-        # The fold is a near-horizontal edge in a buffer that is about to be
-        # stretched sevenfold. Without antialiasing it upscales as a visible
-        # staircase; with it, it costs about 0.03 ms.
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         samples = self.geometry(width, height)
@@ -2468,18 +2276,11 @@ class AuroraEngine(_BufferedEngine):
                 max(AURORA_TILE_MIN_PX,
                     int(round(ray / (bottom_f - top_f)))))
             brush = QBrush(tile)
-            # Translation only — see AURORA_TILE_RAMP for why that matters.
             brush.setTransform(QTransform.fromTranslate(
                 0.0, zero - bottom_f * tile.height()))
             painter.setBrush(brush)
             painter.drawPath(sheet)
 
-            # The surge, over its own shorter path: it is transparent above
-            # AURORA_PULSE_HEIGHT and the rest of the sheet is not worth
-            # compositing nothing onto. It is a texture brush rather than a
-            # blit so that the path clips it — a surge that spilled past the
-            # sheet's lower edge would soften the one edge that has to stay
-            # hard.
             left, right = columns[0][0], columns[-1][0]
             band = ray * (1.0 + 2 * AURORA_PULSE_PAD)
             surge = QBrush(self._surge(curtain, peak))
@@ -2512,12 +2313,11 @@ class AuroraEngine(_BufferedEngine):
         path.closeSubpath()
         return path
 
-# -- ripple -----------------------------------------------------------------
 
 RIPPLE_SOURCES = 3
 RIPPLE_RINGS = 4
-RIPPLE_PERIOD = (14.0, 26.0)     # seconds for a ring to cross its reach
-RIPPLE_REACH = (0.55, 0.95)      # fraction of half the canvas diagonal
+RIPPLE_PERIOD = (14.0, 26.0)
+RIPPLE_REACH = (0.55, 0.95)
 
 #: Ring thickness, as a fraction of its own radius. Started at 0.38, which
 #: drew four crisp concentric circles per source and read as a dartboard.
@@ -2555,11 +2355,6 @@ class RippleEngine(_BufferedEngine):
     name = "ripple"
 
     def _configure(self, rng: random.Random) -> None:
-        # The first three are the shipped anchors. The rest exist for the
-        # density control and are placed on a jittered ring around the
-        # middle: reusing the same three with a wider jitter puts two
-        # sources close enough that their rings arrive together, which
-        # reads as one source with a doubled amplitude rather than as two.
         """Roll this theme's constants from the seed.
 
         ONCE, at construction: an engine is deterministic, so the same seed and
@@ -2604,9 +2399,6 @@ class RippleEngine(_BufferedEngine):
         out = []
         for source in self.sources[:self.count()]:
             cx, cy = source.x * width, source.y * height
-            # The size setting is the ripple's *wavelength*: the rings of one
-            # source are evenly spaced across its reach, so stretching the
-            # reach stretches the spacing between them by the same factor.
             reach = source.reach * half_diagonal * self.size
             for k in range(RIPPLE_RINGS):
                 u = (t / source.period + source.phase
@@ -2639,14 +2431,13 @@ class RippleEngine(_BufferedEngine):
             painter.drawEllipse(QPointF(cx, cy), radius, radius)
 
 
-# -- drift ------------------------------------------------------------------
 
 #: The particle pool. The whole pool is rolled once; how many of them are
 #: actually painted depends on the canvas (see :data:`DRIFT_AREA_PER_PARTICLE`)
 #: so that a small screen is not a snowstorm — but the pool itself never
 #: changes, which keeps a resize from re-rolling the field.
 DRIFT_POOL = 240
-DRIFT_AREA_PER_PARTICLE = 9500     # pixels of canvas per particle
+DRIFT_AREA_PER_PARTICLE = 9500
 DRIFT_MIN_PARTICLES = 40
 
 #: Three depth layers: ``(dot diameter in px, alpha, speed in canvas heights
@@ -2680,8 +2471,8 @@ DRIFT_LIGHT_BOOST = 1.25
 #: above 1.0 each one gets a second, wider, dimmer pass around it: a halo.
 #: The widening and the dimming are tied together so the dot's total light
 #: stays roughly constant, which is what "the same star, out of focus" means.
-DRIFT_HALO_SPREAD = 1.6      # extra diameter per unit of blur above 1
-DRIFT_HALO_ALPHA = 0.34      # halo alpha as a share of the dot's own
+DRIFT_HALO_SPREAD = 1.6
+DRIFT_HALO_ALPHA = 0.34
 #: A cap, because this is the one theme whose cost is *area* rather than a
 #: fixed buffer: two hundred dots at maximum blur and maximum size would
 #: otherwise light a quarter of the page and cost 3.2 ms a frame, which is
@@ -2769,11 +2560,6 @@ class DriftEngine(AmbientEngine):
                 color=i,
             )
 
-        # The draw order here is load-bearing and is the reason this reads
-        # oddly. The shipped pool and the shipped twinkle came off this RNG
-        # in this order, and the frame the tests hold this engine to is the
-        # one those exact numbers produce. Everything density and direction
-        # added is drawn *after* both, so the shipped starfield is untouched.
         for i in range(DRIFT_POOL):
             self.particles.append(roll(i))
         self.twinkle_rates = [
@@ -2890,7 +2676,6 @@ class DriftEngine(AmbientEngine):
                      - wander * math.cos(particle.heading))
             else:
                 x = particle.x + sway
-                # Wrapped: the field never runs out.
                 y = particle.y + sign * particle.speed * t
             out.append((x % 1.0 * width, y % 1.0 * height,
                         self.dot_size(particle.layer)))
@@ -2923,8 +2708,6 @@ class DriftEngine(AmbientEngine):
             if halo:
                 alpha *= DRIFT_HALO_ALPHA
             pen = QPen(_with_alpha(colors[color_index % len(colors)], alpha))
-            # A round-capped pen makes drawPoints draw filled circles, which
-            # is how a batch of dots gets drawn in one call.
             pen.setWidthF(self.halo_size(layer) if halo
                           else self.dot_size(layer))
             pen.setCapStyle(Qt.RoundCap)
@@ -2954,8 +2737,6 @@ class DriftEngine(AmbientEngine):
             key = (particle.color % n_colors, particle.layer,
                    steps[particle.layer])
             buckets.setdefault(key, []).append(QPointF(x, y))
-        # The halo goes down first, so the crisp core sits on top of it
-        # rather than being washed out by it.
         if self.blur > 0.0:
             for key, points in buckets.items():
                 painter.setPen(self._pen(*key, halo=True))
@@ -2965,24 +2746,6 @@ class DriftEngine(AmbientEngine):
             painter.drawPoints(points)
 
 
-# -- bokeh ------------------------------------------------------------------
-#
-# What an epifluorescence field looks like off the focal plane, which is a
-# state every user of this app has spent hours staring at. A point source out
-# of focus does not become a Gaussian smudge: it becomes an image of the
-# aperture — a disc, brighter at its rim than in its middle, with a hard-ish
-# edge. That inversion is the whole reason bokeh is recognisable and is the
-# whole reason this is not "blobs with different numbers": a blob is a
-# Gaussian, brightest in the centre and gone by the edge.
-#
-# Two things follow and both are cheap:
-#
-# 1. *Focus varies per disc.* A field has depth, so some sources are nearly
-#    in focus (small, tight, bright rim) and some are far out (large, flat,
-#    faint). One radial gradient expresses both — see :meth:`_stops`.
-# 2. *They overlap and add.* Additive compositing over a dark page is
-#    literally correct here rather than merely convenient: two out-of-focus
-#    emitters really do sum.
 
 #: How many discs. Fewer than blobs on purpose: each one has to stay
 #: readable *as a disc*, and past about a dozen the rims start crossing
@@ -3072,9 +2835,6 @@ class BokehEngine(_BufferedEngine):
             col, row = cell % cols, cell // cols
             lo, hi = BOKEH_RADIUS
             radius = rng.uniform(lo, hi)
-            # Focus falls with size. An aperture image is large exactly
-            # because it is far out of focus, so a big disc with a knife
-            # edge on it is not a defocused anything — it is a ring.
             near = 1.0 - (radius - lo) / max(1e-6, hi - lo)
             flo, fhi = BOKEH_FOCUS
             focus = flo + (fhi - flo) * (0.35 + 0.65 * near) * rng.uniform(
@@ -3137,10 +2897,6 @@ class BokehEngine(_BufferedEngine):
                 (BOKEH_RIM, rim), (BOKEH_EDGE, rim * 0.35), (1.0, 0.0))
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
-        # A bokeh disc has an edge — that is what makes it a disc and not a
-        # blob — and an edge in a buffer that is about to be stretched
-        # fourfold upscales as a staircase without this. Same trade the
-        # aurora makes for its fold, and the same ~0.03 ms.
         """Draw one frame's field of shapes.
 
         :param painter: the painter to draw with.
@@ -3165,19 +2921,6 @@ class BokehEngine(_BufferedEngine):
         painter.setRenderHint(QPainter.Antialiasing, False)
 
 
-# -- cells ------------------------------------------------------------------
-#
-# The other thing this app's users look at all day. A cell in a widefield
-# image is three concentric statements, not one: a soft cytoplasmic body, a
-# slightly brighter membrane where the edge is seen nearly edge-on, and a
-# distinctly brighter nucleus sitting off-centre. Draw those three and the
-# shape reads as a cell at any size; draw only the first and it is a blob.
-#
-# They are ellipses rather than circles, they are not all pointing the same
-# way, and they turn as they drift — slowly, because this sits behind a
-# settings form. The rotation is a painter transform per cell (nine of them a
-# frame, in a 480x270 buffer), which measures free next to the two gradient
-# fills each one already costs.
 
 #: How many cells. Nine reads as a sparse field at 1080p; the density
 #: control is there for anyone who wants a confluent one.
@@ -3305,7 +3048,6 @@ class CellsEngine(_BufferedEngine):
         return tuple(out)
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
-        # The membrane is an edge; see BokehEngine._paint_field.
         """Draw one frame's field of shapes.
 
         :param painter: the painter to draw with.
@@ -3322,11 +3064,6 @@ class CellsEngine(_BufferedEngine):
             painter.save()
             painter.translate(cx, cy)
             painter.rotate(math.degrees(angle))
-            # Body plus membrane: one gradient, because the membrane is a
-            # brightening of the body's own falloff and not a stroked
-            # outline. A stroked one is line work — see the module docstring
-            # for what that costs — and it also looks drawn rather than
-            # imaged.
             body = QRadialGradient(0.0, 0.0, major)
             body.setColorAt(0.0, _with_alpha(color, peak * 0.55))
             body.setColorAt(0.62, _with_alpha(color, peak * 0.72))
@@ -3335,9 +3072,6 @@ class CellsEngine(_BufferedEngine):
             body.setColorAt(0.97, _with_alpha(color, peak * 0.30))
             body.setColorAt(1.0, _with_alpha(color, 0.0))
             painter.setBrush(body)
-            # The ellipse is the circle the gradient was built for, squashed
-            # on one axis — so the gradient squashes with it and the membrane
-            # stays on the edge all the way round.
             painter.save()
             painter.scale(1.0, minor / major)
             painter.drawEllipse(QPointF(0.0, 0.0), major, major)
@@ -3360,9 +3094,6 @@ class CellsEngine(_BufferedEngine):
         painter.setRenderHint(QPainter.Antialiasing, False)
 
 
-# -- fractal ----------------------------------------------------------------
-# The spaceout backdrop. Not one of :data:`AMBIENT_THEMES` and not reachable
-# from Preferences — see :data:`SPACEOUT_THEME`.
 
 #: Longest buffer edge the fractal shades into at resolution 1.0, before
 #: the guard.
@@ -3505,21 +3236,6 @@ FRACTAL_LIGHT_TINT = 0.40
 FRACTAL_LEVELS = 256
 FRACTAL_INTERIOR_LEVEL = 255
 
-# -- the fractal is alive: states, a beat, buds and a vortex -----------------
-# Everything below is what separates a living pattern from a screensaver, and
-# the distinction is a real one: a loop that always does the same thing at the
-# same rate is learnable in about a minute, and once it is learned it stops
-# being looked at. So the engine has STATES it moves between — deep and flat,
-# busy and quiet, fast and slow, crowded and empty — on its own, gradually,
-# and in an order that does not repeat.
-#
-# ALL OF IT IS A PURE FUNCTION OF (SEED, TIME). Not an aesthetic preference:
-# `shade` runs on `_FrameProducer`, a test renders the same clock twice and
-# compares byte for byte, and `set_time` carries the clock across a theme
-# change. A state machine that stepped itself per frame would break all three.
-# The wander below is therefore hashed noise indexed by a cell number rather
-# than a random walk, and the beat's phase is an integral in closed form
-# rather than an accumulator.
 
 #: The wander's octaves, as ``(seconds per cell, weight)``.
 #:
@@ -3737,11 +3453,6 @@ FRACTAL_BUD_FEATHER = 0.30
 FRACTAL_BUD_ZOOM = (0.35, 1.6)
 
 
-# -- the guard --------------------------------------------------------------
-# `WORK_BUDGET` bounds what the USER can ask for, in multiples of what the
-# theme costs at its own defaults. It cannot answer the other question — what
-# this machine can afford — because it knows nothing about the machine. This
-# does: it measures the shading pass and trims the engine until it fits.
 
 #: What one shading pass may cost, as a share of the frame interval at
 #: :data:`DEFAULT_FPS`.
@@ -3857,9 +3568,6 @@ class FractalEngine(_BufferedEngine):
             else _mix(color, QColor(255, 255, 255), FRACTAL_LIGHT_TINT)
 
     def _configure(self, rng: random.Random) -> None:
-        # Independent phases and a direction, so two backdrops built with
-        # different seeds are not in lockstep — the same reason every other
-        # engine rolls its periods rather than sharing one clock.
         """Roll this theme's constants from the seed.
 
         ONCE, at construction: an engine is deterministic, so the same seed and
@@ -3887,7 +3595,6 @@ class FractalEngine(_BufferedEngine):
         self._afford = 1.0
         self._spent: List[float] = []
 
-    # -- the state machine ---------------------------------------------
     def wander(self, channel: int, at: Optional[float] = None) -> float:
         """Return continuous deterministic state noise for one channel.
 
@@ -3940,7 +3647,6 @@ class FractalEngine(_BufferedEngine):
             value += height * math.exp(-(gap / width) ** 2)
         return _clamp(value, 0.0, 1.0)
 
-    # -- the guard -----------------------------------------------------
     def frame_budget(self) -> float:
         """Return the target duration of one shading pass in milliseconds."""
         return FRACTAL_FRAME_SHARE * 1000.0 / DEFAULT_FPS
@@ -3956,9 +3662,6 @@ class FractalEngine(_BufferedEngine):
         spent, self._spent = self._spent, []
         if not spent or dt <= 0:
             return
-        # The worst of the batch, not the mean: the guard is answering
-        # "can this machine keep up", and one long pass a second is a
-        # dropped frame however cheap the others were.
         over = max(spent) / max(0.001, self.frame_budget())
         ease = FRACTAL_AFFORD_EASE[0] if over > 1.0 else FRACTAL_AFFORD_EASE[1]
         step = _clamp(float(dt) * ease, 0.0, 1.0)
@@ -3972,7 +3675,6 @@ class FractalEngine(_BufferedEngine):
                                 * math.sqrt(self._afford)),
                           BUFFER_MIN_EDGE, BUFFER_EDGE_CEILING)
 
-    # -- what is drawn -------------------------------------------------
     def iterations(self) -> int:
         """Return the guarded Julia-map iteration count for this frame."""
         busy = _lerp(FRACTAL_BUSY, self.wander(FRACTAL_STATE_BUSY))
@@ -4017,11 +3719,7 @@ class FractalEngine(_BufferedEngine):
         breath = 1.0 + FRACTAL_BREATH * math.sin(
             2.0 * math.pi * (self.time / FRACTAL_BREATH_PERIOD
                              + self._phase_breath))
-        # The beat is a squeeze on the whole form, so it pulses rather than
-        # drifting evenly.
         breath *= 1.0 - FRACTAL_BEAT_ZOOM * self.beat()
-        # The size control is a *zoom*: bigger elements means fewer units of
-        # the plane across the canvas, so it divides the span.
         span = (_lerp((FRACTAL_SPAN, FRACTAL_SPAN_DEEP), deep) * breath
                 / max(0.01, self.size))
         beta_re, beta_im = self.fixed_point()
@@ -4047,10 +3745,6 @@ class FractalEngine(_BufferedEngine):
         c_re, c_im = self.constant()
         iterations = self.iterations()
         deep = self.depth()
-        # A BUD IS A BUBBLE OF THE SAME VORTEX. It carries its parent's
-        # constant and looks at the same fixed point, so what is inside it
-        # is the parent's own field at the bud's scale rather than a second
-        # picture that happens to be nearby.
         beta_re, beta_im = self.fixed_point()
         out: List[Form] = []
         for slot in range(eligible):
@@ -4066,15 +3760,10 @@ class FractalEngine(_BufferedEngine):
             if through >= life:
                 continue
             age = through / life
-            # It LEAVES the rim: at birth the centre is on the parent's own
-            # rim and it drifts outward from there, so the bud is seen to
-            # separate rather than to appear somewhere else.
             heading = 2.0 * math.pi * _hash01(self._salt, 400 + slot, number)
             travel = _lerp(FRACTAL_BUD_TRAVEL,
                            _hash01(self._salt, 500 + slot, number))
             away = rim + rim * travel * age * age * (3.0 - 2.0 * age)
-            # And it swells and goes: nothing at the moment of budding,
-            # widest in the middle of its life, nothing again at the end.
             bulge = math.sin(math.pi * age) ** 0.65
             radius = (rim * _lerp(FRACTAL_BUD_RADIUS,
                                   _hash01(self._salt, 600 + slot, number))
@@ -4322,8 +4011,6 @@ class FractalEngine(_BufferedEngine):
             zr2 = zr * zr
             zi2 = zi * zi
             np.add(zr2, zi2, out=magnitude)
-            # A FRACTION of an iteration, not a yes/no — see
-            # FRACTAL_SOFT_LIMIT.
             np.subtract(soft_top, magnitude, out=share)
             share *= soft_scale
             np.clip(share, 0.0, 1.0, out=share)
@@ -4334,38 +4021,20 @@ class FractalEngine(_BufferedEngine):
             np.subtract(zr2, zi2, out=zr)
             zr += c_re32
             zi = cross
-            # An escaped orbit doubles its exponent every iteration and would
-            # reach infinity in six, and then NaN on the first `zr2 - zi2`
-            # that subtracts one infinity from another — which would poison
-            # the clip above and take the pixel with it. Bounding z is two
-            # passes a frame and is the price of a smooth field; the
-            # alternative, counting escapes as integers, is free and is what
-            # the visible banding of a fractal is made of.
             np.clip(zr, -reach, reach, out=zr)
             np.clip(zi, -reach, reach, out=zi)
 
-        # Inside the set: never escaped, so every iteration counted. Taken
-        # before the wrap, because after it the interior is just another
-        # point on the ring.
         interior = survived >= np.float32(iterations - 0.5)
         survived *= np.float32(FRACTAL_INTERIOR_LEVEL
                                / FRACTAL_ITERS_PER_CYCLE)
         if bands is not None:
-            # The tunnel: rings spaced on the log of the radius, travelling
-            # down it. Added in index units, so it moves the colour without
-            # touching what the field is.
             survived += bands
         np.mod(survived, np.float32(FRACTAL_INTERIOR_LEVEL), out=survived)
         survived[interior] = np.float32(FRACTAL_INTERIOR_LEVEL)
         frame = self._colour_table()[survived.astype(np.uint8)]
-        # The QImage borrows `frame`'s memory rather than copying it, so the
-        # array has to outlive the blit — it does, by being a local here, and
-        # `drawImage` is synchronous.
         painter.drawImage(0, 0, QImage(frame.data, width, height,
                                        int(frame.strides[0]),
                                        QImage.Format_RGB32))
-        # What it cost, for `advance` to act on. Measured rather than
-        # modelled: the guard is answering a question about the machine.
         self._spent.append((time.perf_counter() - started) * 1000.0)
         if len(self._spent) > 16:
             del self._spent[:-16]
@@ -4443,9 +4112,6 @@ def preferred_motion() -> Motion:
         return fallback
 
 
-# ---------------------------------------------------------------------------
-# Widget
-# ---------------------------------------------------------------------------
 
 #: Frames painted by every ambient backdrop in this process, ever.
 #:
@@ -4543,7 +4209,6 @@ class _FrameProducer:
         self._stop = threading.Event()
         self._thread: Optional[threading.Thread] = None
 
-    # -- lifetime ------------------------------------------------------
     def start(self) -> None:
         """Begin shading. A second call is a no-op."""
         if self._thread is not None:
@@ -4578,7 +4243,6 @@ class _FrameProducer:
         the frame in flight."""
         self._interval = 1.0 / max(1, int(fps))
 
-    # -- the frame slot ------------------------------------------------
     def publish(self, image: QImage) -> None:
         """Make ``image`` the frame the next paint will use."""
         with self._frame_lock:
@@ -4600,7 +4264,6 @@ class _FrameProducer:
         finally:
             self._frame_lock.release()
 
-    # -- the loop ------------------------------------------------------
     def _run(self) -> None:
         """Shade frames on the beat until stopped.
 
@@ -4621,20 +4284,6 @@ class _FrameProducer:
                 self.publish(image)
                 self.frames_shaded += 1
             remaining = self._interval - (time.monotonic() - started)
-            # Sleeping on the stop event rather than time.sleep is what makes
-            # stop() return immediately instead of at the end of the beat.
-            #
-            # A pass that overran the beat gets no sleep at all, which is how
-            # this thread degrades: it keeps shading as fast as it can and the
-            # GUI thread repeats whatever the last finished frame was. That
-            # cannot make the machine worse, and the reason is arithmetic
-            # rather than good intentions: the no-sleep branch is only reached
-            # when one pass already took longer than the interval, so the rate
-            # is 1/pass and therefore *below* the cap by construction. Driven
-            # and counted at 1080p on ``cells``, cap 24: 23.5 passes a second
-            # idle, 15.4 with one Python worker, 0.7 with three. The total
-            # shading work is what the GUI thread used to do, on a thread
-            # nobody is waiting for.
             self._stop.wait(remaining if remaining > 0 else 0.0)
 
 
@@ -4724,11 +4373,6 @@ class AmbientWidget(QWidget):
         #: square backdrop behind a rounded card is visible as a second
         #: surface -- which is exactly what it looked like.
         self._corner_radius = max(0, int(corner_radius))
-        # -- the shading thread ---------------------------------------
-        # First, before anything that could reach a setter: every one of
-        # them takes the lock, so a construction order that reached one
-        # early would raise AttributeError rather than race.
-        #
         #: Guards every touch of the engine, because :class:`_FrameProducer`
         #: shades it on another thread while the GUI thread's setters change
         #: it. :meth:`paintEvent` never *waits* on this lock — see there.
@@ -4750,14 +4394,10 @@ class AmbientWidget(QWidget):
         box = self._producer_box
         self.destroyed.connect(lambda *_: _retire_producer(box))
 
-        # What is asked for, then what is actually worn — see `dressed`.
         theme, palette = dressed(theme, palette)
         self._theme = _require_theme(theme)
         self._palette = coerce_palette(self._theme, palette)
         self._seed = seed
-        # Unset means "whatever the user asked for in Preferences", so a
-        # screen built after a settings change comes up already correct
-        # instead of waiting for the next apply_ambient_preferences().
         asked = (blur, speed, size, resolution, density, direction)
         stored = preferred_motion() if None in asked else None
         self._blur = _clamp(stored.blur if blur is None else blur,
@@ -4773,15 +4413,10 @@ class AmbientWidget(QWidget):
         wanted = stored.direction if direction is None else direction
         self._direction = wanted if is_valid_drift_direction(wanted) \
             else DEFAULT_DRIFT_DIRECTION
-        # Remember whether the caller *chose* the colour. If they did, a
-        # later application palette change is theirs to react to; if they did
-        # not, this widget follows the theme itself rather than leaving a
-        # black rectangle on a white page.
         self._background_explicit = background is not None
         self._background = _as_color(background, _theme_background())
         self._backdrop: Optional[QPixmap] = _as_pixmap(backdrop)
 
-        # Never in front of, never in the way of, the real content.
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setAttribute(Qt.WA_OpaquePaintEvent, True)
         self.setFocusPolicy(Qt.NoFocus)
@@ -4804,20 +4439,19 @@ class AmbientWidget(QWidget):
         self.frames_painted = 0
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
         self._clock = QElapsedTimer()
-        # One timer for the life of the widget. Switching theme swaps the
-        # engine underneath it and never creates a second one.
         self._timer = QTimer(self)
         self._timer.setTimerType(Qt.CoarseTimer)
         self._timer.setInterval(max(1, 1000 // self._fps))
         self._timer.timeout.connect(self._on_tick)
-        self._watched: Optional[QWidget] = None
+        # WEAK, or the window and this widget form a reference cycle; see
+        # docs/notes/spacr/qt/widgets/ambient.md for what the collector does.
+        self._watched: Optional[weakref.ReferenceType] = None
 
     def focusInEvent(self, event) -> None:  # noqa: N802 (Qt override)
         """Reject even programmatic focus; this widget is decorative only."""
         event.ignore()
         self.clearFocus()
 
-    # -- what is being painted ----------------------------------------
     @property
     def engine(self) -> AmbientEngine:
         """The live engine. Replaced wholesale by :meth:`set_theme`."""
@@ -4944,14 +4578,11 @@ class AmbientWidget(QWidget):
         with self._engine_lock:
             engine.set_time(self._engine.time)
             self._engine = engine
-        # The old engine's last frame was drawn by the old engine; keeping it
-        # would blit the theme the user just switched away from.
         self._last_frame = None
         if running:
             self._start_producer()
         self.update()
 
-    # -- the user controls ---------------------------------------------
     def blur(self) -> float:
         """How much the picture is softened; 0.0 is the shipped animation."""
         return self._blur
@@ -5019,7 +4650,6 @@ class AmbientWidget(QWidget):
         self._size = _clamp(value, *SIZE_RANGE)
         self._mutate_engine(lambda: self._engine.set_size(self._size))
 
-    # -- appearance ----------------------------------------------------
     def background_color(self) -> QColor:
         """The colour painted behind the animation.
 
@@ -5084,7 +4714,6 @@ class AmbientWidget(QWidget):
                 and not self._background_explicit:
             self._apply_background(_theme_background(), explicit=False)
 
-    # -- run state -----------------------------------------------------
     def fps(self) -> int:
         """The cap on repaints per second.
 
@@ -5228,7 +4857,6 @@ class AmbientWidget(QWidget):
         else:
             self.stop()
 
-    # -- Qt events -----------------------------------------------------
     def showEvent(self, event):
         """Start animating, and follow the window this widget belongs to.
 
@@ -5236,11 +4864,12 @@ class AmbientWidget(QWidget):
         """
         super().showEvent(event)
         window = self.window()
-        if window is not None and window is not self._watched:
-            if self._watched is not None:
-                self._watched.removeEventFilter(self)
+        watched = self._watched() if self._watched is not None else None
+        if window is not None and window is not watched:
+            if watched is not None:
+                watched.removeEventFilter(self)
             window.installEventFilter(self)
-            self._watched = window
+            self._watched = weakref.ref(window)
         self._follow_screen()
         self._sync_run_state()
 
@@ -5270,21 +4899,24 @@ class AmbientWidget(QWidget):
         costs nothing. Qt sends this to the children of a hidden parent too,
         so switching tabs stops the animation on the tab you left."""
         super().hideEvent(event)
-        self.stop()
+        # Absent when the collector cleared this wrapper before its window
+        # was destroyed: nothing is left to stop.
+        if getattr(self, "_timer", None) is not None:
+            self.stop()
 
     def eventFilter(self, obj, event):
         """Follow the parent's size; pause when the window is minimised."""
         etype = event.type()
+        # getattr for the same teardown as hideEvent: nothing watched.
+        ref = getattr(self, "_watched", None)
+        watched = ref() if ref is not None else None
         if etype == QEvent.Resize and obj is self.parent():
             self.setGeometry(obj.rect())
-        elif obj is self._watched and etype in (
+        elif watched is not None and obj is watched and etype in (
                 QEvent.WindowStateChange, QEvent.Hide, QEvent.Show):
             self._sync_run_state()
-        elif obj is self._watched and etype in (QEvent.Move,
-                                                QEvent.ScreenChangeInternal):
-            # The window was dragged, possibly onto another display — see
-            # `_follow_screen`. A move that stays on one screen finds the
-            # ceiling unchanged and returns without touching the engine.
+        elif watched is not None and obj is watched and etype in (
+                QEvent.Move, QEvent.ScreenChangeInternal):
             self._follow_screen()
         return super().eventFilter(obj, event)
 
@@ -5296,7 +4928,6 @@ class AmbientWidget(QWidget):
             self.setGeometry(parent.rect())
         self.lower()
 
-    # -- animation -----------------------------------------------------
     def _on_tick(self) -> None:
         """One beat: step the clock, ask for a repaint. Never waits.
 
@@ -5314,47 +4945,9 @@ class AmbientWidget(QWidget):
         shading passes, which is what keeps a frame a pure function of the
         clock even though two threads are involved.
         """
-        # NO POPUP HOLD HERE, AND THE REASON IS A MEASUREMENT (385).
-        #
-        # This tick used to return early while a menu or a tooltip was up,
-        # borrowed from the fix for the dock flicker. That fix's own
-        # diagnosis names its subject exactly: "a popup composited over the
-        # NATIVE GL backdrop". This widget has no GL surface and no native
-        # window -- it is a QWidget painting with QPainter -- so the
-        # mechanism it was defending against is not one this widget has.
-        #
-        # And the burst it was counting is not the popup's. Widget repaints
-        # over 1.2 s with an ambient backdrop running behind forty labels
-        # and twelve buttons, offscreen:
-        #
-        #     menu open,  hold on      2      (the animation is stopped)
-        #     menu open,  hold off  1,592
-        #     NO menu,    hold on   1,590
-        #     NO menu,    hold off  1,590
-        #
-        # The last two lines are the finding. A moving backdrop repaints
-        # everything above it whether or not a popup is on screen, so
-        # holding for the popup was not removing a burst the popup caused
-        # -- it was stopping the animation, which stops the burst that was
-        # there the whole time.
-        #
-        # The cost of that was the whole of 385: opening Preferences or the
-        # Help menu froze the theme, and Preferences is where the theme's
-        # own controls live, so a user changing the speed could not see the
-        # change they were making. The GL path in `fractal_travel` keeps
-        # its hold, because that is where the flicker was reported.
         dt = self._clock.restart() / 1000.0
         step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._fps
         self._pending_dt += step
-        # THE PALETTE'S DRIFT RIDES THIS TICK. It is process state in
-        # `theme` and something has to move it; a wall clock read inside
-        # `palette_for` would make the palette a different value on two
-        # calls in the same frame, and `palette_for` is on the path of
-        # every stylesheet build and every widget that paints. A backdrop
-        # already painting frames is the honest driver — and a user who
-        # turned the animation off asked for zero frames and gets a still
-        # palette to go with them, which is the same bargain the rest of
-        # this widget makes. Costs a comparison on an ordinary start.
         advance_spaceout_drift(step)
         if self._engine_lock.acquire(blocking=False):
             try:
@@ -5383,7 +4976,6 @@ class AmbientWidget(QWidget):
         """Jump the animation clock and repaint."""
         self._mutate_engine(lambda: self._engine.set_time(seconds))
 
-    # -- painting ------------------------------------------------------
     def _paint_base(self, painter: QPainter, rect: QRect) -> None:
         """Whatever sits *under* the animation: the flat colour, or the
         matching piece of the backdrop over it.
@@ -5414,7 +5006,7 @@ class AmbientWidget(QWidget):
         picture visibly jumps at the widget's edge.
         """
         pixmap = self._backdrop
-        window = self.window()   # never None; the widget itself if top level
+        window = self.window()
         x = (window.width() - pixmap.width()) // 2
         y = (window.height() - pixmap.height()) // 2
         offset = self.mapTo(window, QPoint(0, 0))
@@ -5454,9 +5046,6 @@ class AmbientWidget(QWidget):
         painter = QPainter(self)
         rect = self.rect()
         if self._corner_radius > 0:
-            # Clip BEFORE the base fill, so the flat page colour is rounded
-            # too. Anti-aliased, because a setMask() region would give the
-            # corners hard stair-steps against the card's smooth rim.
             painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
             path = QPainterPath()
             path.addRoundedRect(QRectF(rect), self._corner_radius,
@@ -5471,32 +5060,6 @@ class AmbientWidget(QWidget):
             return
 
         producer.size = (width, height)
-        # A PARTIAL REPAINT MUST NOT ADVANCE THE ANIMATION, and this is the
-        # line that decides it. Qt clips this paint to `event.rect()`, so a
-        # repaint asked for by something on top of the backdrop -- a hovered
-        # settings category writing the hint strip, a scrollbar appearing, a
-        # console line -- redraws a BAND and leaves every pixel outside it
-        # holding the frame that was blitted last time. Taking the newest
-        # frame for that band paints it one animation step ahead of its own
-        # surroundings, and on a 3840x2160 screen with the blobs backdrop
-        # that is a rectangle of mismatched backdrop appearing and vanishing
-        # -- the "random flickers", and the flicker under the strips and the
-        # settings categories.
-        #
-        # MEASURED on the mask screen at font_scale 2, offscreen, counting
-        # every paint this widget received: three seconds of moving the
-        # pointer across eight category headers gave 368 backdrop repaints,
-        # 329 of them partial, and 36 of those partial ones swapped in a
-        # newer frame -- twelve torn bands a second. Six expand/collapse
-        # clicks gave four more. Idle, all 37 repaints were full-widget and
-        # every swap was legitimate.
-        #
-        # `latest()` PEEKS at the producer's slot rather than draining it, so
-        # a frame passed over here is still there for the next full repaint;
-        # the timer's own repaint is always full-widget. The cost of this
-        # rule is that a band redrawn between two ticks shows backdrop that
-        # is up to one frame old, which is exactly what the pixels beside it
-        # are showing.
         whole = event.rect().contains(rect)
         fresh = producer.latest() if whole else None
         if fresh is not None and fresh is not self._last_frame:
@@ -5512,9 +5075,6 @@ class AmbientWidget(QWidget):
                 self._engine_lock.release()
 
 
-# ---------------------------------------------------------------------------
-# Integration
-# ---------------------------------------------------------------------------
 
 def _retire_fractals_on(host) -> int:
     """Shut down and unparent any fractal backdrop already on ``host``.
@@ -5564,17 +5124,6 @@ def _the_heavy_import_lock_is_free() -> bool:
     still worth it because it keeps a retry timer from paying the
     bounded wait on every tick while a long import runs.
     """
-    # NOT IMPORTED MEANS NOT LOCKED, and asking is what used to cost.
-    #
-    # `from .fractal_travel import _heavy_import_lock` IMPORTS the module
-    # if nothing has yet, and that module pulls numba: measured at 0.44 s
-    # in a cold interpreter, spent on the GUI thread inside something
-    # documented as "the cheap half" of the pair.
-    #
-    # It is also unnecessary. The lock lives in that module, so nothing
-    # can be holding it while the module has never been imported -- the
-    # only code that takes it is code that had to import it first.
-    # Answering from sys.modules is exact here, not an approximation.
     if "spacr.qt.widgets.fractal_travel" not in sys.modules:
         return True
     try:
@@ -5609,8 +5158,6 @@ def _the_backdrop_wants_a_retry(error: BaseException) -> bool:
     try:
         from .fractal_travel import _HeavyImportInProgress
     except Exception:                                        # noqa: BLE001
-        # No class to compare against means no backdrop module, which
-        # means nothing could have raised it.
         return False
     return isinstance(error, _HeavyImportInProgress)
 
@@ -5632,11 +5179,6 @@ def _the_spaceout_fractal(host):
     except Exception:                                        # noqa: BLE001
         return None
 
-    # ONE BACKDROP PER HOST. `install_ambient` is called again whenever a
-    # screen is rebuilt, and the previous fractal was left parented and
-    # RUNNING: four live canvases, four vispy timers and four render threads
-    # were on screen at once, which is what filled the console with
-    # "Internal C++ object already deleted" and ended in a core dump.
     _retire_fractals_on(host)
 
     try:
@@ -5649,10 +5191,6 @@ def _the_spaceout_fractal(host):
         widget = create_fractal_widget(
             Settings(pattern=values["pattern"], backend=values["backend"],
                      quality=values["quality"], scale=values["scale"]),
-            # EVERY SAVED CONTROL, not most of them. The three pointer
-            # settings were collected, stored and never passed, so Mouse
-            # gravity could not be turned off: `RuntimeControls` defaults it
-            # to on, and nothing here ever said otherwise.
             RuntimeControls(speed=values["speed"], dream=values["dream"],
                             variable_speed=values["variable_speed"],
                             speed_min=values["speed_min"],
@@ -5670,12 +5208,6 @@ def _the_spaceout_fractal(host):
         host.installEventFilter(_FractalTracksItsHost(widget, host))
         return widget
     except _HeavyImportInProgress:
-        # NOT A FAILURE, and so not something to log an exception for or to
-        # answer with `None`. `None` means "this launch has no fractal" and
-        # the caller then installs the ordinary ambient engine instead --
-        # which under spaceout is the wrong artwork, kept for good, because
-        # a heavy import happened to be running at the moment a screen was
-        # opened. Raising says "not yet"; see `_the_backdrop_wants_a_retry`.
         raise
     except Exception:                                        # noqa: BLE001
         LOG.exception("Could not install the spaceout fractal")
@@ -5750,12 +5282,6 @@ def install_ambient(host: QWidget, layout=None, *,
         should not pass them.
     :returns: the widget, already shown and lowered.
     """
-    # SPACEOUT DRAWS THE OTHER FRACTAL (instruction 260). Hooked HERE rather
-    # than at the call sites because there are three of them -- the module
-    # screens, the Home screen and the setup slides -- and hooking one left
-    # Home showing the old Julia set, which is what the maintainer saw.
-    # `dressed()` below would otherwise swap the theme to SPACEOUT_THEME,
-    # which IS the old artwork.
     replacement = _the_spaceout_fractal(host)
     if replacement is not None:
         return replacement

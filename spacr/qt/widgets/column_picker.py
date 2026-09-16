@@ -128,9 +128,6 @@ ROWID_ALIASES: Tuple[str, ...] = ("_rowid_", "oid", "rowid")
 NEAR_MISS_CUTOFF = 0.6
 
 
-# ---------------------------------------------------------------------------
-# Path resolution + read-only schema access
-# ---------------------------------------------------------------------------
 
 def resolve_db_path(path: str) -> str:
     """Turn whatever a host screen holds into a path to a database file.
@@ -192,15 +189,8 @@ class SchemaReader:
         self.path = resolve_db_path(path)
         self.uri = _read_only_uri(self.path)
         self.executed: List[str] = []
-        # `executed` is appended to on whichever thread runs the query and
-        # read from the GUI thread by `ColumnPickerDialog.executed_sql`.
-        # list.append is atomic under the GIL, but the *snapshot* the
-        # assertion hook hands out must not be taken mid-append, or a test
-        # that asserts "opening cost no COUNT(*)" could be reading a list
-        # that is one element ahead of the statement it is about.
         self._log_lock = threading.Lock()
 
-    # -- plumbing ----------------------------------------------------------
 
     def _connect(self) -> sqlite3.Connection:
         """Open a fresh read-only connection.
@@ -238,7 +228,6 @@ class SchemaReader:
         with self._log_lock:
             return list(self.executed)
 
-    # -- schema ------------------------------------------------------------
 
     def probe(self) -> None:
         """Open the file once so "that isn't a database" surfaces early.
@@ -275,7 +264,7 @@ class SchemaReader:
         estimate and every caller must label it one. ``None`` for a view,
         a WITHOUT ROWID table, or an empty table.
 
-        **It is spelt ``_rowid_``, and that is load-bearing.** Every
+        It is spelt ``_rowid_``, and that is load-bearing. Every
         spaCR object table declares a column called ``rowID`` — the plate
         row, ``'r1'``, ``'r2'`` — and SQLite identifiers are
         case-insensitive, so a bare ``rowid`` resolves to *that column*
@@ -347,18 +336,12 @@ def open_reader(path: Any) -> Tuple[Optional[SchemaReader], str]:
     try:
         reader.probe()
     except sqlite3.OperationalError as exc:
-        # "unable to open database file" — a permission problem, a stale
-        # network mount. Saying "not a database" here would send the user
-        # looking for the wrong fault.
         return None, f"Cannot open {os.path.basename(resolved)}: {exc}"
     except sqlite3.DatabaseError as exc:
         return None, f"{os.path.basename(resolved)} is not a SQLite database ({exc})."
     return reader, ""
 
 
-# ---------------------------------------------------------------------------
-# Name validation
-# ---------------------------------------------------------------------------
 
 _IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
@@ -465,9 +448,6 @@ def near_miss(name: str, columns: Sequence[str],
     matches = difflib.get_close_matches(text, pool, n=1, cutoff=cutoff)
     if matches:
         return matches[0]
-    # get_close_matches compares whole strings, so a long shared prefix with
-    # a short tail ('annotate' vs 'annotate_pass_two_of_the_second_batch')
-    # scores below the cutoff. Those are near-misses too.
     lower = text.lower()
     for col in pool:
         c = col.lower()
@@ -476,9 +456,6 @@ def near_miss(name: str, columns: Sequence[str],
     return ""
 
 
-# ---------------------------------------------------------------------------
-# Worker-safe reads — everything opening the dialog costs, off the GUI thread
-# ---------------------------------------------------------------------------
 
 def read_table(reader: Optional[SchemaReader],
                table: str) -> Dict[str, Any]:
@@ -544,16 +521,13 @@ def read_schema(db_path: Any, reader: Optional[SchemaReader] = None,
     return payload
 
 
-# ---------------------------------------------------------------------------
-# The dialog
-# ---------------------------------------------------------------------------
 
 #: Outcomes of the name box, in the order the dialog checks them.
-ACTION_USE = "use"            # the name is an existing column
-ACTION_CREATE = "create"      # the name is new and safe
-ACTION_CONFIRM = "confirm"    # the name is new but looks like a typo
-ACTION_INVALID = "invalid"    # SQLite would refuse the name
-ACTION_UNCHECKED = "unchecked"  # no database to check against
+ACTION_USE = "use"
+ACTION_CREATE = "create"
+ACTION_CONFIRM = "confirm"
+ACTION_INVALID = "invalid"
+ACTION_UNCHECKED = "unchecked"
 
 
 class ColumnPickerDialog(QDialog):
@@ -650,9 +624,6 @@ class ColumnPickerDialog(QDialog):
                                app_key="column picker")
 
         self._build_ui()
-        # Unthreaded, `submit` calls its job inline and `_apply_schema`
-        # has run by the time this returns — which is the whole of the
-        # default mode's contract.
         self._jobs.submit(
             lambda p=db_path, r=reader, t=self._preferred_table:
                 read_schema(p, r, t),
@@ -660,7 +631,6 @@ class ColumnPickerDialog(QDialog):
         self._name.setText(str(current or ""))
         self._evaluate()
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the banner, the table list, the column tree and the name box."""
@@ -676,8 +646,6 @@ class ColumnPickerDialog(QDialog):
         self._source = QLabel(self)
         self._source.setObjectName("ColumnPickerSource")
         self._source.setWordWrap(True)
-        # Threaded, nothing has been opened yet and saying "No database
-        # open." would be a lie the user reads for the whole of the load.
         self._source.setText("Reading the schema…" if self._threaded
                              else "No database open.")
         outer.addWidget(self._source)
@@ -716,8 +684,6 @@ class ColumnPickerDialog(QDialog):
         self._column_tree.currentItemChanged.connect(self._on_column_changed)
         self._column_tree.itemDoubleClicked.connect(self._on_column_activated)
         if self._multi:
-            # The selection, not the name box, is the answer in this mode,
-            # so the verdict has to follow it.
             self._column_tree.itemSelectionChanged.connect(self._evaluate)
         self._columns_label.setText(self._columns_heading(""))
         header = self._column_tree.header()
@@ -766,7 +732,6 @@ class ColumnPickerDialog(QDialog):
         self._buttons.rejected.connect(self.reject)
         outer.addWidget(self._buttons)
 
-    # -- loading -----------------------------------------------------------
 
     def _set_banner(self, text: str) -> None:
         """Show a message above the dialog, or hide the banner.
@@ -804,12 +769,6 @@ class ColumnPickerDialog(QDialog):
             return
         self._tables.addItems(names)
         wanted = payload.get("table") or names[0]
-        # The columns for `wanted` are already in `payload` — the worker
-        # read them in the same trip. Letting `setCurrentRow` fire
-        # `currentTextChanged` would send `_on_table_changed` off to read
-        # them a second time, and in threaded mode that is a second job
-        # racing the one that just landed. Select it quietly and paint
-        # from what we were handed.
         blocked = self._tables.blockSignals(True)
         try:
             self._tables.setCurrentRow(names.index(wanted))
@@ -824,8 +783,6 @@ class ColumnPickerDialog(QDialog):
             self._load_columns(name)
             self._evaluate()
             return
-        # Supersede: clicking down the table list must not leave the tree
-        # showing whichever read happened to finish last.
         self._jobs.cancel()
         self._begin_table(name)
         self._jobs.submit(
@@ -906,7 +863,6 @@ class ColumnPickerDialog(QDialog):
             item = self._column_tree.topLevelItem(i)
             item.setHidden(bool(needle) and needle not in item.text(0).lower())
 
-    # -- interaction -------------------------------------------------------
 
     def _on_column_changed(self, current, _previous=None) -> None:
         """Copy the newly selected column into the name box.
@@ -948,7 +904,6 @@ class ColumnPickerDialog(QDialog):
             return
         item.setText(2, f"{n:,}")
 
-    # -- the verdict -------------------------------------------------------
 
     def _evaluate(self, *_args) -> None:
         """Recompute what the typed name means and say so, in words."""
@@ -956,10 +911,6 @@ class ColumnPickerDialog(QDialog):
         table = self.chosen_table() or "the table"
         existing = [c for c, _t in self._columns]
 
-        # Multi-select: once more than one row is highlighted the name box is
-        # no longer the answer, so judging the name would report on one column
-        # out of several. Every selected row is an existing column by
-        # construction, so the verdict is simply "use them".
         picked = self._selected_column_names()
         if self._multi and len(picked) > 1:
             self._near = ""
@@ -1053,7 +1004,6 @@ class ColumnPickerDialog(QDialog):
         ok.setEnabled(self._action in (ACTION_USE, ACTION_CREATE,
                                        ACTION_UNCHECKED))
 
-    # -- public API --------------------------------------------------------
 
     def action(self) -> str:
         """Return what OK would do: ``use``/``create``/``confirm``/
@@ -1113,8 +1063,6 @@ class ColumnPickerDialog(QDialog):
         picked = self._selected_column_names() if self._multi else []
         typed = self.chosen_column()
         if typed and typed not in picked:
-            # Only one row selected: the tree filled the name box from it, so
-            # `typed` IS that row and appending it would not add anything.
             picked = picked + [typed]
         return list(dict.fromkeys(picked))
 
@@ -1132,8 +1080,6 @@ class ColumnPickerDialog(QDialog):
                 found.append(item.text(0))
                 last = item
         if last is not None:
-            # setCurrentItem would clear the selection we just made; the
-            # current item only matters for the name box and Count non-null.
             tree.setCurrentItem(last, 0, QItemSelectionModel.NoUpdate)
             self._name.setText(last.text(0))
         self._evaluate()
@@ -1206,8 +1152,6 @@ class ColumnPickerDialog(QDialog):
         return self._buttons.button(QDialogButtonBox.Ok).isEnabled()
 
     def accept(self) -> None:  # noqa: D102 - Qt override
-        # Belt and braces: the button is already disabled in these states,
-        # but Enter in the name box would otherwise bypass it.
         """Take the chosen columns and close."""
         if self._action not in (ACTION_USE, ACTION_CREATE, ACTION_UNCHECKED):
             return
@@ -1227,9 +1171,6 @@ class ColumnPickerDialog(QDialog):
         super().done(result)
 
 
-# ---------------------------------------------------------------------------
-# The button + the one-line attachment
-# ---------------------------------------------------------------------------
 
 class ColumnPickerButton(QToolButton):
     """The small ``SQL`` button that opens a :class:`ColumnPickerDialog`.
@@ -1296,7 +1237,6 @@ class ColumnPickerButton(QToolButton):
             "one. Opening this reads the schema only — nothing is written.")
         self.clicked.connect(self.open_picker)
 
-    # -- wiring ------------------------------------------------------------
 
     def db_path(self) -> str:
         """Return the path the getter currently reports (``""`` on error)."""
@@ -1458,8 +1398,6 @@ def set_field_values(field: Optional[QWidget], names: Sequence[str],
         editor.set_value(list(dict.fromkeys(existing + wanted)))
         return True
     if not append:
-        # Replacing a single-valued field with several names would lose all
-        # but one silently; keep them all, in the field's own style.
         ok = set_field_text(field, wanted[0], append=False)
         for name in wanted[1:]:
             ok = set_field_text(field, name, append=True) and ok
@@ -1555,10 +1493,6 @@ def _replace_layout_widget(layout: QLayout, field: QWidget,
     if old is not None or position < 0:
         return old
 
-    # Python QLayout subclasses do not expose Qt's protected replaceAt(), so
-    # replaceWidget() cannot update them. Rebuild only the suffix around the
-    # occupied slot; retaining the QLayoutItems preserves their widgets and
-    # their reading order instead of appending the replacement at the end.
     trailing = []
     while layout.count() > position + 1:
         item = layout.takeAt(position + 1)
@@ -1637,10 +1571,4 @@ def attach_column_picker(field: QWidget, db_path_getter: Any,
     row.setSpacing(4)
     row.addWidget(field, 1)
     row.addWidget(button, 0)
-    # Visibility is deliberately left alone. Qt's own reparent-into-layout
-    # path handles it: QWidget::setParent clears WA_WState_ExplicitShowHide
-    # when it hides an already-shown widget, so the field reappears with the
-    # wrapper, and QLayout::addChildWidget queues a show for a wrapper added
-    # under a parent that is visible right now. Forcing visibility here would
-    # set the explicit-show flag and break a collapsed Section's expand.
     return button

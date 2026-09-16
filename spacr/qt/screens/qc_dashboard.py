@@ -4,6 +4,32 @@ The screen half of :mod:`spacr.qt.widgets.qc_summary`. It shows the
 segmentation, units, leakage, plate-effect and agreement verdicts side by
 side, with the one-line summary they add up to.
 
+**What it is for.** Checking a project before its numbers are used. After
+Mask and Measure, and again after Classify, QC gathers the verdicts those
+steps already wrote into one place, so the question does not need five
+screens.
+
+**What it needs.** A project or plate folder, chosen with Browse or dropped
+onto QC. Each card reads a file that is already on disk: the
+segmentation scorecards a Mask run writes (``seg_qc``), the units stamp
+Measure puts on every row of ``measurements.db``, ``leakage.json`` from the
+newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and
+``agreement.json`` when a plate-effect or annotator-agreement report has been
+saved under the project.
+
+**What it produces.** Nothing on disk. Each card carries a verdict --
+``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the
+details behind it and, for a check that has never run, the step that would
+produce it; the overall verdict is the worst of them. A card older than its
+inputs is marked stale rather than downgraded, and ``missing`` means nothing
+was checked, not that nothing is wrong.
+
+**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source
+and re-run that step; the cards are read again when a file has changed.
+Layer Viewer shows the images behind a failing check, Control Charts follows
+the same checks over time and Outliers finds the wells or objects unlike the
+rest; all three open from this screen's masthead.
+
 It **reads**; it does not score. The rule is :mod:`spacr.qt.prerun`'s, and
 that module says why: opening a plate's masks costs seconds to minutes, and a
 screen that pays that on every visit is a screen nobody keeps. So the reads go
@@ -47,11 +73,6 @@ __all__ = [
 #: Stable app id. Chosen once; saved user state and the registry key off it.
 APP_KEY = "qc_dashboard"
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc
@@ -147,8 +168,6 @@ def _dashboard_qss(palette: dict, opacity: Optional[float] = None) -> str:
 """
 
 
-# `replace=True`: reachable both through the screens package and by direct
-# import, and a second import must refresh the block rather than raise.
 register_widget_qss("QCDashboard", _dashboard_qss, replace=True)
 
 
@@ -185,21 +204,8 @@ class QCDashboardScreen(QWidget):
         :param reader: an alternative verdict reader, for tests.
         """
         super().__init__(parent)
-        # ITS OWN REGISTRY KEY. Screens that build themselves rather
-        # than being the generic `AppScreen` had no `app_key`, and
-        # `install_folds_on` dispatches on exactly that -- so this screen
-        # could declare folds (it does, below) and never be handed them.
-        # Every other consumer of `app_key` reads it the same way the
-        # generic screen sets it, so naming it here is the screen
-        # answering a question it always could.
         self.app_key = "qc_dashboard"
         self.setObjectName("QCDashboardScreen")
-        # `user_visible=False`: this runner never runs anything. It reads
-        # verdicts that are already on disk, and it now also takes the
-        # folder check and the fingerprint that used to sit inline in
-        # `refresh` -- so it fires on every visit, including the ones
-        # where nothing has changed. Visible, each of those would flash
-        # "QC - running" on Home for a read the user never started.
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY,
                                user_visible=False)
         self._jobs.job_failed.connect(self._on_job_failed)
@@ -213,12 +219,9 @@ class QCDashboardScreen(QWidget):
         self._build()
         if src:
             self.set_source(src)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "qc_dashboard")
 
-    # -- construction -----------------------------------------------------
 
     def _build(self) -> None:
         """Lay out the source row, the verdict line and the scrolling card column."""
@@ -263,31 +266,15 @@ class QCDashboardScreen(QWidget):
         self._cards_panel = QWidget()
         self._cards_panel.setObjectName(CARDS_OBJECT)
         self._cards_layout = QVBoxLayout(self._cards_panel)
-        # Room for the panel's own border: the cards sit ON a surface now
-        # rather than directly on the window, and zero margins would put the
-        # first heading through the hairline.
         self._cards_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                               SPACING["sm"], SPACING["sm"])
         self._cards_layout.setSpacing(SPACING["sm"])
         self._cards_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         scroll = QScrollArea()
         scroll.setWidget(self._cards_panel)
-        # setWidget() enables autoFillBackground on its child. This panel
-        # already owns a QSS surface, so leaving that flag on paints the same
-        # 30% fill twice (0.7 * 0.7 = 0.49 transmission).
         self._cards_panel.setAutoFillBackground(False)
         scroll.setWidgetResizable(True)
-        # A QScrollArea's viewport auto-fills by default, and what it fills
-        # with is the WINDOW colour -- not a surface -- so no page-opacity
-        # setting can reach it and the card column reads as an opaque slab
-        # over the animated backdrop. Same call the settings column and the
-        # sidebar make.
         scroll.viewport().setAutoFillBackground(False)
-        # ...and tag it, because autoFillBackground(False) does NOT stop a
-        # STYLESHEET background: QSS paints through QStyle regardless of that
-        # flag, so the blanket `QWidget { background-color: bg }` still
-        # reaches the viewport. `make_transparent` tags a scroll area's
-        # viewport along with it, which is the whole reason it takes one.
         try:
             from ..theme import make_transparent
             make_transparent(scroll)
@@ -303,7 +290,6 @@ class QCDashboardScreen(QWidget):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
-    # -- reading ----------------------------------------------------------
 
     def set_source(self, src: Any) -> None:
         """Point the screen at a project folder and read it."""
@@ -403,8 +389,6 @@ class QCDashboardScreen(QWidget):
 
         self._jobs.cancel()
         self._set_status("Reading...")
-        # Assumed started, then corrected by `_on_read` -- which has already
-        # run by the time `submit` returns when the screen reads inline.
         self._read_started = True
         started = bool(self._jobs.submit(work, self._on_read))
         return started and self._read_started
@@ -445,7 +429,6 @@ class QCDashboardScreen(QWidget):
         """The most recent :class:`~spacr.qt.widgets.qc_summary.Dashboard`."""
         return self._dashboard
 
-    # -- drawing ----------------------------------------------------------
 
     def _draw(self, dashboard: Dashboard) -> None:
         """Rebuild the verdict line and the cards from a dashboard.
@@ -520,7 +503,6 @@ class QCDashboardScreen(QWidget):
         """The status line. For tests."""
         return self._status.text()
 
-    # -- events -----------------------------------------------------------
 
     def _on_browse(self) -> None:
         """Ask for a project folder and read it."""
@@ -536,7 +518,6 @@ class QCDashboardScreen(QWidget):
         self._set_status(f"Could not read the verdicts: {message}",
                          is_error=True)
 
-    # -- lifecycle --------------------------------------------------------
 
     def active_jobs(self) -> int:
         """How many worker threads are still winding down."""
@@ -568,9 +549,6 @@ def register() -> bool:
 register()
 
 
-# ---------------------------------------------------------------------------
-# Folded modules
-# ---------------------------------------------------------------------------
 
 HOST_KEY = "qc_dashboard"
 
@@ -588,9 +566,6 @@ FOLDED_APPS: Tuple[str, ...] = ('layer_viewer', 'control_chart',
 
 def _build_layer_viewer(host_window: Optional[QWidget] = None) -> QWidget:
     """Layer Viewer, as the window builds it."""
-    # IMPORTED HERE. This module used `build_registered_screen`
-    # without importing it, so every folded module it hosts raised
-    # NameError the moment its button was pressed.
     from .map_barcodes import build_registered_screen
 
     return build_registered_screen("layer_viewer", host_window)

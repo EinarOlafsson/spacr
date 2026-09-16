@@ -7,8 +7,8 @@
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature

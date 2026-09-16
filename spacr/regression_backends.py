@@ -117,8 +117,6 @@ def resolve_backend_name(value) -> str:
     for name, spec in REGRESSION_BACKENDS.items():
         if lowered in (name.lower(), str(spec['label']).lower()):
             return name
-    # 'statsmodels (cpu)' with the suffix mangled, 'lme4', 'rapids' -- the
-    # spellings a person actually types.
     aliases = {'lme4': 'pymer4', 'rapids': 'cuml', 'pytorch': 'torch',
                'sm': 'statsmodels', 'default': 'statsmodels'}
     if lowered in aliases:
@@ -238,10 +236,6 @@ def backend_status(name, regression_type=None) -> dict:
         status['short_reason'] = short
         return status
 
-    # THE TYPE FIRST, because it is about the choice the user just made
-    # rather than about the machine, and it is the one they can fix from the
-    # same panel. "cuML has no mixed model" is instruction 141 C's own
-    # example.
     if regression_type is not None and not backend_supports(key,
                                                             regression_type):
         types = spec['types']
@@ -251,19 +245,6 @@ def backend_status(name, regression_type=None) -> dict:
             f"{regression_type!r}; it fits {listed}.",
             f"no {regression_type} model; fits {listed}")
     if regression_type is None and spec['types'] != ALL_REGRESSION_TYPES:
-        # SAY WHICH TYPES, AND WHETHER IT IS INSTALLED. Reported 2026-08-21:
-        # with the family left to be chosen from the response, every optional
-        # backend read "unavailable: needs an explicit regression type" --
-        # seven identical lines saying what was MISSING and nothing about
-        # what any of them does or whether it is even on the machine.
-        #
-        # "write the explisit regression type and what needs to be done if it
-        # is not installed. if it is intalled write installed."
-        #
-        # Both facts belong here because they are answered differently: the
-        # types tell the user which choice would make this row selectable,
-        # and the install state tells them whether making that choice would
-        # be enough.
         listed = ', '.join(spec['types'])
         short_listed = '/'.join(spec['types'][:2])
         if len(spec['types']) > 2:
@@ -271,9 +252,6 @@ def backend_status(name, regression_type=None) -> dict:
         installed = package_installed(spec['package'])
         short_install = str(spec['pip']).split("  (", 1)[0]
 
-        # Keep the machine state explicit in the dropdown itself; a package
-        # command alone does not say whether it is required or merely an
-        # optional upgrade.
         if not spec['implemented']:
             short_state = ("not wired up; installed" if installed
                            else "not wired up")
@@ -286,7 +264,6 @@ def backend_status(name, regression_type=None) -> dict:
             short_state = (f"not installed — {spec['pip']}"
                            if spec['pip'] else "not installed")
 
-        # LONG FORM: room to say both, and to say what to DO.
         if installed:
             long_state = "installed"
         elif spec['pip']:
@@ -304,21 +281,8 @@ def backend_status(name, regression_type=None) -> dict:
             f"it turns out to be. This backend is {long_state}.",
             f"fits {short_listed}; {short_state}")
 
-    # NOT INSTALLED IS SAID ALONGSIDE NOT WIRED UP, not instead of it.
-    #
-    # The unimplemented test used to return first, so on a machine with none
-    # of the six optional packages -- which is every machine, since they are
-    # extras -- the pip command instruction 141 C asks for was never shown by
-    # anything. Both facts are true of the same entry and both are what a
-    # reader needs: installing the package alone would not make it choosable,
-    # and neither would wiring it up alone.
     missing = not package_installed(spec['package'])
     if not spec['implemented']:
-        # "not wired up" in the long form as well as the short one. The
-        # long form used to carry the fact only as a paraphrase, and the
-        # install command was what a reader matched on -- so once a backend
-        # became a core dependency and had no install command to offer, the
-        # entry stopped naming its own state in the words the menu uses.
         reason = (
             f"{spec['label']} is described here but is not wired up: spaCR "
             f"does not route any fit through it yet, so choosing it would "
@@ -465,16 +429,6 @@ def describe_backends(regression_type=None, html: bool = True,
     return "\n\n".join(blocks)
 
 
-# ---------------------------------------------------------------------------
-# What would make an unavailable backend available, and can it be done HERE
-# ---------------------------------------------------------------------------
-#
-# Instruction 158. `backend_status` already says WHY an entry is greyed out;
-# this half says what would ungrey it, and whether that is honestly possible
-# in this environment. The three answers are install-here, possible-elsewhere
-# and not-possible, and the shapes are `spacr.updater.InstallOffer` so the
-# Image UMAP's GPU acceleration (`spacr.gpu_reduce.install_offer`) answers in
-# the same vocabulary and one shared panel serves both.
 
 #: Installation recipes shared by the generated API reference and the GUI.
 #: Keeping one source ensures both surfaces present the same requirements.
@@ -662,8 +616,6 @@ def backend_install_offer(name, regression_type=None):
 
     installed = package_installed(package)
 
-    # 1. NOT POSSIBLE BY INSTALLING -- said first when it is true of the
-    #    package itself rather than of this machine.
     if key == 'pymer4' and not installed:
         return offer_impossible(
             label,
@@ -672,7 +624,6 @@ def backend_install_offer(name, regression_type=None):
             "run a pip command that reports success and leaves you with an "
             "import error.", recipe)
 
-    # 2. POSSIBLE, BUT NOT HERE.
     if key == 'cuml' and not installed and not _cuml_python_supported():
         version = f"{sys.version_info.major}.{sys.version_info.minor}"
         return offer_elsewhere(
@@ -683,7 +634,6 @@ def backend_install_offer(name, regression_type=None):
             f"the CUDA runtime torch is built against. Nothing has been run.",
             recipe)
 
-    # 3. INSTALLABLE HERE.
     if not installed:
         requirement = BACKEND_REQUIREMENTS.get(key, package)
         message = (f"{label} needs {requirement}, which is not installed in "
@@ -695,7 +645,6 @@ def backend_install_offer(name, regression_type=None):
                         "choosable -- it makes the package available to you.")
         return offer_install(label, message, requirement, recipe)
 
-    # The package is here. Whatever is left is not an install problem.
     if spec['device'] == 'gpu' and not cuda_present_without_importing_torch():
         return offer_impossible(
             label,

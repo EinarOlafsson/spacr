@@ -72,9 +72,6 @@ HOST_CONNECTIONS: Dict[str, str] = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Styling
-# ---------------------------------------------------------------------------
 
 def _qss(palette: Dict[str, Any], opacity) -> str:
     """Return the strip's stylesheet for one palette.
@@ -115,9 +112,6 @@ def _qss(palette: Dict[str, Any], opacity) -> str:
     """
 
 
-# ---------------------------------------------------------------------------
-# Widget helpers
-# ---------------------------------------------------------------------------
 
 def _widget_value(widget) -> Any:
     """Return what a settings widget currently holds, or None.
@@ -170,9 +164,6 @@ class _ShowFilter(QObject):
         return False
 
 
-# ---------------------------------------------------------------------------
-# The strip
-# ---------------------------------------------------------------------------
 
 class ChainingBar(QFrame):
     """The strip above a module's Run button.
@@ -250,9 +241,6 @@ class ChainingBar(QFrame):
         #: Set when a refresh was dropped for that reason, so exactly one
         #: catch-up runs when the in-flight one lands.
         self._resolve_again: Optional[bool] = None
-        # A root skipped because the probe had not answered yet comes back
-        # when it does -- otherwise `search_roots` would drop it for the life
-        # of the screen and the strip would silently stop chaining.
         from . import path_probe as _probe
 
         def _root_answered(_path: str, _answer: bool) -> None:
@@ -269,15 +257,10 @@ class ChainingBar(QFrame):
             try:
                 self.refresh()
             except RuntimeError:
-                pass            # the strip has gone; the signal outlived it
+                pass
 
         self._root_answered = _root_answered
         _probe.probes.answered.connect(_root_answered)
-        # AND DISCONNECTED WHEN THE STRIP GOES. `probes` is process-wide and
-        # outlives any one screen, so a connection left behind is a signal
-        # delivered to a Python wrapper whose C++ half has been deleted --
-        # which raises out of whatever happened to emit it. `destroyed` fires
-        # while the wrapper is still usable, which is the moment to let go.
         def _let_go(*_args) -> None:
             """Drop the probe connection while this wrapper still works.
 
@@ -290,7 +273,7 @@ class ChainingBar(QFrame):
             try:
                 _probe.probes.answered.disconnect(_root_answered)
             except (RuntimeError, TypeError):
-                pass            # already disconnected, or the source is gone
+                pass
 
         self.destroyed.connect(_let_go)
 
@@ -357,7 +340,6 @@ class ChainingBar(QFrame):
         self._wire_edit_signals()
         self._wire_run_button()
 
-    # -- wiring -----------------------------------------------------------
 
     def _widgets(self) -> Dict[str, QWidget]:
         """Return the screen's settings widgets, keyed by settings key."""
@@ -430,7 +412,6 @@ class ChainingBar(QFrame):
             LOG.exception("could not follow the Run button on %s",
                           self.app_key)
 
-    # -- the pin ----------------------------------------------------------
 
     def _capture_edits(self) -> None:
         """Record any bound path the user has changed since we last wrote it.
@@ -445,11 +426,6 @@ class ChainingBar(QFrame):
         for key in self._bound_settings():
             value = _widget_value(widgets.get(key))
             if _chaining.is_empty_path(value):
-                # Empty is only a *clearing* if the field held something
-                # first. On the first refresh of a fresh screen it just means
-                # nobody has typed anything yet, and unpinning there would
-                # throw away the path the user chose in a previous session —
-                # the exact promise this store exists to keep.
                 if key in self._seen:
                     self._pins.unpin(self.app_key, key)
                     self._offered.pop(key, None)
@@ -485,7 +461,6 @@ class ChainingBar(QFrame):
         self.refresh()
         return applied
 
-    # -- slots ------------------------------------------------------------
 
     def _on_screen_shown(self) -> None:
         """Re-read the registry when the user comes back to this screen."""
@@ -587,7 +562,6 @@ class ChainingBar(QFrame):
             except Exception:
                 LOG.exception("could not seed %s", step.module)
 
-    # -- the refresh ------------------------------------------------------
 
     def current_settings(self) -> Dict[str, Any]:
         """Return the screen's settings, or ``{}`` when they will not collect.
@@ -635,12 +609,6 @@ class ChainingBar(QFrame):
                               *get_recent_sources(key, limit=4)):
                 if not candidate or candidate in roots:
                     continue
-                # BELT AND BRACES, on top of running this off the GUI
-                # thread. `isdir` answers False for a root it has not probed
-                # yet, which is the pessimistic direction and the right one
-                # here: skipping a root costs one refresh, and the probe
-                # signal below brings it back the moment the answer lands.
-                # Stating it costs however long a sleeping mount takes.
                 if path_probe.isdir(candidate):
                     roots.append(candidate)
         return tuple(roots)
@@ -685,8 +653,6 @@ class ChainingBar(QFrame):
         self._capture_edits()
         settings = self.current_settings()
         if self._resolving:
-            # One question, asked once. `finished` is sticky so a completed
-            # run's next-step offer is not lost to a coalesced refresh.
             self._resolve_again = bool(self._resolve_again) or finished
             return
         roots = self.search_roots()
@@ -725,19 +691,12 @@ class ChainingBar(QFrame):
                     self.refresh(finished=bool(again))
 
         if not self._resolver.submit(work, done):
-            # The runner refused -- shutting down, or already busy. The strip
-            # simply does not update, which is what `refresh` promises.
             self._resolving = False
 
     def _paint(self, resolution, notes, *, finished: bool) -> None:
         """Draw a finished resolution. GUI thread only."""
         self._held = dict(resolution.held)
 
-        # Everything the resolution decided — a restored pin as much as a
-        # chained default — goes into the field, but only where the field is
-        # empty. That single rule is what makes a pin survive a restart (the
-        # widget starts on its placeholder and the pin fills it) while never
-        # overwriting anything the user can see.
         widgets = self._widgets()
         applied: Dict[str, Any] = {}
         for key in self._bound_settings():
@@ -758,10 +717,6 @@ class ChainingBar(QFrame):
         self._draw_pins(resolution.moved)
         self._draw_staleness(resolution.settings, notes)
         self._draw_next(resolution.settings, finished=finished)
-        # ``isHidden`` and not ``isVisible``: a widget whose window has not
-        # been shown yet is not *visible*, so asking that question during the
-        # screen's construction would answer "nothing to say" every time and
-        # latch the strip hidden for the life of the screen.
         self.setVisible(any(not w.isHidden() for w in (
             self._source, self._pinned_row, self._stale, self._next_row)))
 
@@ -864,7 +819,6 @@ class ChainingBar(QFrame):
             self._next_layout.insertWidget(1 + index, button)
         self._next_row.show()
 
-    # -- introspection, for tests and for the next module's Continue -------
 
     @property
     def steps(self) -> Tuple[NextStep, ...]:
@@ -899,9 +853,6 @@ class ChainingBar(QFrame):
             root=_ports.project_root(settings, self.app_key))
 
 
-# ---------------------------------------------------------------------------
-# Installation
-# ---------------------------------------------------------------------------
 
 def chaining_bar(screen) -> Optional[ChainingBar]:
     """Return the strip installed on ``screen``, or None."""
@@ -943,18 +894,6 @@ def install_chaining(screen, *, pins=None) -> Optional[ChainingBar]:
         bar = ChainingBar(screen, pins=pins)
         index = layout.indexOf(actions)
         layout.insertWidget(index if index >= 0 else layout.count(), bar)
-        # SWEEP THE STRIP'S OWN CONTAINERS. The screen was themed when it
-        # was built, and this arrives afterwards -- so the page-surface
-        # sweep that ran then never saw the rows inside it. An anonymous
-        # QWidget holding a layout inherits the blanket
-        # `QWidget { background-color: bg }` rule and paints the WINDOW
-        # colour, which is not a surface and which no opacity setting can
-        # reach. That is the black box the user reported behind the
-        # pinned-input row and its "Use it" button, directly above Run.
-        #
-        # The bar itself is a QFrame and is deliberately NOT swept: it is
-        # a component that paints on purpose. Only the scaffolding inside
-        # it is tagged, which is the same rule the screen sweep uses.
         try:
             from .theme import clear_container_surfaces
 
@@ -1021,12 +960,6 @@ def _chained_app_screen(app_key: str, host=None):
 _SUCCEEDED_BY = {
     "classify": "classify_merged",
     "ml_analyze": "classify_merged",
-    # Timelapse is the mask pipeline with tracking on, and the GUI folded it
-    # into Mask Generation as a settings category with a switch. The port
-    # graph still declares it because `spacr-run timelapse` still runs it, so
-    # a chain whose next step is timelapse must offer the screen that now
-    # carries it -- otherwise "what comes next" simply stops mentioning a
-    # step that is perfectly runnable.
     "timelapse": "mask",
 }
 
@@ -1112,9 +1045,6 @@ def register() -> bool:
     for key in chained_app_keys():
         existing = APP_FACTORIES.get(key)
         if existing is not None and existing is not _chained_app_screen:
-            # Somebody else owns this screen — a plugin, or a module that
-            # ships its own. Theirs wins; a strip is not worth overriding a
-            # whole screen for.
             continue
         APP_FACTORIES[key] = _chained_app_screen
         installed = True

@@ -1,0 +1,552 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "One microscope field of view's sequencing cycles, every channel moved into one frame.",
+      "label": "spacr.ops_cycles.AlignedField#0",
+      "source": "One field's sequencing cycles, every channel moved into one frame.",
+      "source_sha256": "bd3c464ba7c1e383af82723d56a979c52fe6ec952d9d321493ada19d256ea9ae",
+      "translation": "一个视野的测序循环，每个通道都移到同一坐标系中。"
+    },
+    {
+      "context": "``(cycles, channels, Y, X)`` float32, one entry per cycle in :attr:`kept` and in that order.",
+      "label": "spacr.ops_cycles.AlignedField#1",
+      "source": "``(cycles, channels, Y, X)`` float32, one entry per cycle in :attr:`kept` and in that order.",
+      "source_sha256": "5128ac59d6f63e1c8855592ba9861c52816dbd0bb68fe20eed4e090d6f31e530",
+      "translation": "``(cycles, channels, Y, X)`` float32，:attr:`kept` 中每个循环一项，并按该顺序排列。"
+    },
+    {
+      "context": "the cycle numbers the stack holds, ascending. The reference cycle is always among them.",
+      "label": "spacr.ops_cycles.AlignedField#2",
+      "source": "the cycle numbers the stack holds, ascending. The reference cycle is always among them.",
+      "source_sha256": "3f49d4dbf181db42bdd28c957d7b86229c492c801c57172cb8168187d0e40edc",
+      "translation": "堆栈所含的循环编号，按升序排列。参考循环总在其中。"
+    },
+    {
+      "context": "cycles whose registration against the reference was not accepted. They are left out of the stack, because base calls read at untrusted coordinates decode to a wrong barcode rather than to none.",
+      "label": "spacr.ops_cycles.AlignedField#3",
+      "source": "cycles whose registration against the reference was not accepted. They are left out of the stack, because base calls read at untrusted coordinates decode to a wrong barcode rather than to none.",
+      "source_sha256": "515eee73be9eccb8dea4e4de5058e97cfe07cdc992d023bb988cb1c3aaa13563",
+      "translation": "相对参考的配准未被接受的循环。它们不进入堆栈，因为在不可信坐标上读出的碱基会解码成错误的条形码，而不是没有条形码。"
+    },
+    {
+      "context": "cycles offered with no image layers at all -- a file that could not be read, for instance.",
+      "label": "spacr.ops_cycles.AlignedField#4",
+      "source": "cycles offered with no planes at all -- a file that could not be read, for instance.",
+      "source_sha256": "41385b03734c138b45064627ad0272ae0ee312ed8a8de82cc8fcb74a0e5d6762",
+      "translation": "提供时完全没有平面的循环 -- 例如一个无法读取的文件。"
+    },
+    {
+      "context": "``cycle -> one (dy, dx) per channel``, the shift that moved each channel onto the first channel of its cycle.",
+      "label": "spacr.ops_cycles.AlignedField#5",
+      "source": "``cycle -> one (dy, dx) per channel``, the shift that moved each channel onto the first channel of its cycle.",
+      "source_sha256": "7a1214b9e4759ac4ba6bd96cf45eb1e3663b32d6fdf1cb206b6a83695a4e1f3c",
+      "translation": "``cycle -> one (dy, dx) per channel``，把每个通道移到其循环第一个通道上的位移。"
+    },
+    {
+      "context": "``cycle -> (dy, dx)``, the shift that moved each kept cycle onto the reference; the reference's own is ``(0, 0)``.",
+      "label": "spacr.ops_cycles.AlignedField#6",
+      "source": "``cycle -> (dy, dx)``, the shift that moved each kept cycle onto the reference; the reference's own is ``(0, 0)``.",
+      "source_sha256": "7baafa0b7e03c1103e5948d3896be8aaaf9605d1ee2be9e1a19818648a4bf041",
+      "translation": "``cycle -> (dy, dx)``，把每个保留的循环移到参考上的位移；参考自身的为 ``(0, 0)``。"
+    },
+    {
+      "context": "``(cycle, channel)`` pairs whose within-cycle registration was refused and which were therefore not moved.",
+      "label": "spacr.ops_cycles.AlignedField#7",
+      "source": "``(cycle, channel)`` pairs whose within-cycle registration was refused and which were therefore not moved.",
+      "source_sha256": "fe2a6d36f2c79cb063eca1c38f31c879b77834b315ecf310d6e2ae684a0d00af",
+      "translation": "循环内配准被拒绝、因而没有移动的 ``(cycle, channel)`` 对。"
+    },
+    {
+      "context": "Register one microscope field of view's channels within each cycle, then its cycles.",
+      "label": "spacr.ops_cycles.align_field#0",
+      "source": "Register one field's channels within each cycle, then its cycles.",
+      "source_sha256": "13e01cfdc5d576571ce120dcf9e2ac341bcfaeff666f621e730ea2187dd3c2b0",
+      "translation": "先在每个循环内配准一个视野的各通道，再配准其各循环。"
+    },
+    {
+      "context": "Each base image data channel is first moved onto its cycle's first image data channel, on the clipped cell background the image data channels share -- on the measured laboratory microplate they sat up to 14 px apart, which no cycle-to-cycle registration can see -- and each cycle is then moved onto the reference with :func:`sbs_mean_target`. A cycle offered as ``None`` or with a missing image layer is reported in :attr:`AlignedField.missing` and one whose registration is refused in :attr:`AlignedField.refused`; the rest are still aligned, so one lost cycle does not cost the microscope field of view.",
+      "label": "spacr.ops_cycles.align_field#1",
+      "source": "Each base channel is first moved onto its cycle's first channel, on the clipped cell background the channels share -- on the measured plate they sat up to 14 px apart, which no cycle-to-cycle registration can see -- and each cycle is then moved onto the reference with :func:`sbs_mean_target`. A cycle offered as ``None`` or with a missing plane is reported in :attr:`AlignedField.missing` and one whose registration is refused in :attr:`AlignedField.refused`; the rest are still aligned, so one lost cycle does not cost the field.",
+      "source_sha256": "39d05e48ed3f3462dc95f9cba322d1446c63f078d0a5c6a4f6a733f72b8a9197",
+      "translation": "每个碱基通道先依据各通道共有的截断细胞背景移到其循环的第一个通道上 -- 在实测板上它们相距可达 14 px，而循环之间的配准看不到这一点 -- 然后用 :func:`sbs_mean_target` 把每个循环移到参考上。以 ``None`` 或缺少平面的方式提供的循环记录在 :attr:`AlignedField.missing` 中，配准被拒绝的循环记录在 :attr:`AlignedField.refused` 中；其余循环照样对齐，因此丢失一个循环不会让整个视野作废。"
+    },
+    {
+      "context": "``cycle -> the base channels of that cycle``, every image layer one 2-D image of the same shape.",
+      "label": "spacr.ops_cycles.align_field#2",
+      "source": "``cycle -> the base channels of that cycle``, every plane one 2-D image of the same shape.",
+      "source_sha256": "f211b53d9666d844c68e1b911ddc96e3c0ef7b2c13967fbc066e39b3e30e0f02",
+      "translation": "``cycle -> the base channels of that cycle``，每个平面都是同一形状的 2-D 图像。"
+    },
+    {
+      "context": "the cycle everything is moved onto. None takes the lowest cycle that has image layers.",
+      "label": "spacr.ops_cycles.align_field#3",
+      "source": "the cycle everything is moved onto. None takes the lowest cycle that has planes.",
+      "source_sha256": "f27c769d803e0a2d9ad01e5607b2e4f6c0228b4befecd2e861ebe32b72ee3a79",
+      "translation": "所有内容都移向的循环。None 则取有平面的最低循环。"
+    },
+    {
+      "context": "how far a cycle may land from the reference and still be accepted, in pixels.",
+      "label": "spacr.ops_cycles.align_field#4",
+      "source": "how far a cycle may land from the reference and still be accepted, in pixels.",
+      "source_sha256": "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+      "translation": "一个循环落在离参考多远之内仍被接受，以像素计。"
+    },
+    {
+      "context": "let the phase correlations run on the card.",
+      "label": "spacr.ops_cycles.align_field#5",
+      "source": "let the phase correlations run on the card.",
+      "source_sha256": "87a9bc6c1dc62e8d639b061853353588bd2a4a9505e91128dd8aa9803987b97f",
+      "translation": "让相位相关在显卡上运行。"
+    },
+    {
+      "context": "the aligned field.",
+      "label": "spacr.ops_cycles.align_field#6",
+      "source": "the aligned field.",
+      "source_sha256": "ed752024a436f66df9a5e8118075d0e2392f5e8a202440dcab808b7a7ef503b7",
+      "translation": "对齐后的视野。"
+    },
+    {
+      "context": "when no cycle has image layers, or when the reference cycle has none.",
+      "label": "spacr.ops_cycles.align_field#7",
+      "source": "when no cycle has planes, or when the reference cycle has none.",
+      "source_sha256": "95e5b8500674d5534f485b2db469e50c1dc2a53ab38e0ef50cc0e90dd9a274ea",
+      "translation": "当没有任何循环有平面，或参考循环没有平面时。"
+    },
+    {
+      "context": "Run an optical pooled screening experiment's sequencing acquisition from microscope image fields to tables.",
+      "label": "spacr.ops_engine#0",
+      "source": "Run an optical pooled screen's sequencing acquisition from tiles to tables.",
+      "source_sha256": "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
+      "translation": "从图块到表格运行光学混池筛选的测序采集。"
+    },
+    {
+      "context": "One call takes each microplate sample position from its microscope image field files to three tables in ``measurements.db``: ``ops_geometry``, where each nuclear microscope image field sits in the microplate sample position frame; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the microplate sample position; and ``ops_barcodes``, one row per nucleus whose attributed reads agree.",
+      "label": "spacr.ops_engine#1",
+      "source": "One call takes each well from its tile files to three tables in ``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the well frame; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the well; and ``ops_barcodes``, one row per nucleus whose attributed reads agree.",
+      "source_sha256": "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
+      "translation": "一次调用把每个孔从其图块文件带到 ``measurements.db`` 中的三张表：``ops_geometry``，记录每个核图块在孔坐标系中的位置；``ops_objects``，每个细胞核一行，在拼合的核图上分割并为整个孔统一编号；以及 ``ops_barcodes``，每个归属读段一致的细胞核一行。"
+    },
+    {
+      "context": "A file that cannot be read costs one cycle of the microscope field of view it belongs to and is listed in the report; it does not cost the microplate sample position. The phenotype acquisition is not placed by this step.",
+      "label": "spacr.ops_engine#2",
+      "source": "A file that cannot be read costs one cycle of the field it belongs to and is listed in the report; it does not cost the well. The phenotype acquisition is not placed by this step.",
+      "source_sha256": "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73",
+      "translation": "无法读取的文件只让它所属视野损失一个循环，并列在报告中；它不会让整个孔作废。此步骤不放置表型采集。"
+    },
+    {
+      "context": "Stitch, segment and decode the microplate sample positions of one sequencing acquisition.",
+      "label": "spacr.ops_engine.run_ops#0",
+      "source": "Stitch, segment and decode the wells of one sequencing acquisition.",
+      "source_sha256": "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
+      "translation": "对一次测序采集的各孔进行拼接、分割和解码。"
+    },
+    {
+      "context": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing microscope image fields, searched recursively; ``dst_root``, where ``measurements.db`` and the per-microplate sample position reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many microscope fields of view decode at once; ``cellpose_model`` and ``cellpose_diameter``.",
+      "label": "spacr.ops_engine.run_ops#1",
+      "source": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing tiles, searched recursively; ``dst_root``, where ``measurements.db`` and the per-well reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields decode at once; ``cellpose_model`` and ``cellpose_diameter``.",
+      "source_sha256": "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
+      "translation": "OPS 设置。这里读取：``genotype_source``，测序图块所在的文件夹，会递归搜索；``dst_root``，``measurements.db`` 和各孔报告的输出位置，为空时使用源文件夹；``plate``，为空时使用源文件夹的名称；``ops_gpu``；``n_workers``，同时解码多少个视野；``cellpose_model`` 和 ``cellpose_diameter``。"
+    },
+    {
+      "context": "which microplate sample positions to run; every microplate sample position found when None.",
+      "label": "spacr.ops_engine.run_ops#2",
+      "source": "which wells to run; every well found when None.",
+      "source_sha256": "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
+      "translation": "要运行哪些孔；为 None 时运行找到的每个孔。"
+    },
+    {
+      "context": "any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a microplate sample position can be stitched once and decoded again.",
+      "label": "spacr.ops_engine.run_ops#3",
+      "source": "any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a well can be stitched once and decoded again.",
+      "source_sha256": "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
+      "translation": "``\"stitch\"``、``\"objects\"`` 和 ``\"decode\"`` 中的任意几项，按该顺序运行。省略的阶段会从数据库读取所需内容，因此一个孔可以只拼接一次、再次解码。"
+    },
+    {
+      "context": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide.",
+      "label": "spacr.ops_engine.run_ops#4",
+      "source": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide.",
+      "source_sha256": "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+      "translation": "向导条形码，可以是序列，也可以是含 ``prefix``、``barcode`` 或 ``sequence`` 列的 CSV 路径。提供时，每个条形码还会映射到最接近的向导。"
+    },
+    {
+      "context": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "label": "spacr.ops_engine.run_ops#5",
+      "source": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "source_sha256": "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+      "translation": "``{\"db\": path, \"wells\": {well: {phase: report}}}``."
+    },
+    {
+      "context": "when the source holds no microscope image fields this can name, an unknown phase or well is asked for, or a phase's input is missing.",
+      "label": "spacr.ops_engine.run_ops#6",
+      "source": "when the source holds no tiles this can name, an unknown phase or well is asked for, or a phase's input is missing.",
+      "source_sha256": "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c",
+      "translation": "当源中没有此处能识别的图块、请求了未知的阶段或孔，或某个阶段缺少输入时。"
+    },
+    {
+      "context": "half a microscope image field's side, in grid units. A site is kept when its whole microscope image field lies inside the circle: at ``(dx, dy)`` from the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero keeps every site whose centre is inside, which is the rule every layout followed before this microscope field of view existed.",
+      "label": "spacr.ops_layout.WellLayout#5",
+      "source": "half a tile's side, in grid units. A site is kept when its whole tile lies inside the circle: at ``(dx, dy)`` from the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero keeps every site whose centre is inside, which is the rule every layout followed before this field existed.",
+      "source_sha256": "8f325a816c5bbaf3978bc1b0e1f2384012d77d38ea943976debc17de5c593ee7",
+      "translation": "图块边长的一半，以网格单位计。当一个位点的整个图块都位于圆内时才保留它：距中心 ``(dx, dy)`` 处，当 ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2`` 时。取零则保留中心在圆内的每个位点，这是在该字段出现之前所有布局都遵循的规则。"
+    },
+    {
+      "context": "The microscope image field has to fit, not its centre. The centre rule holds the 333-microscope field of view sequencing well and cannot produce the column heights the 1,281-microscope field of view phenotype well was measured at, for any radius. With the footprint term both come out as measured, and every column is centred on the same row.",
+      "label": "spacr.ops_layout.WellLayout#6",
+      "source": "The tile has to fit, not its centre. The centre rule holds the 333-field sequencing well and cannot produce the column heights the 1,281-field phenotype well was measured at, for any radius. With the footprint term both come out as measured, and every column is centred on the same row.",
+      "source_sha256": "06ca32f7fa55d96acacd275df9f0d6e990beb502f91bbcbbe942f5df4ab41384",
+      "translation": "必须容纳的是整个图块，而不只是它的中心。中心规则能得到 333 个视野的测序孔，却无论取什么半径都得不到 1,281 个视野的表型孔实测的列高。加入足迹项后，两者都与实测一致，而且每一列都以同一行为中心。"
+    },
+    {
+      "context": "the inclusive absolute row range of the sites whose whole microscope image field lies inside the circle -- see :attr:`half_tile`.",
+      "label": "spacr.ops_layout.WellLayout.span#2",
+      "source": "the inclusive absolute row range of the sites whose whole tile lies inside the circle -- see :attr:`half_tile`.",
+      "source_sha256": "d77615f3844acc7c09a54d943d69b162328c176cfda972687c5a161de66ffbb4",
+      "translation": "整个图块位于圆内的位点所占的绝对行范围（含两端） -- 参见 :attr:`half_tile`。"
+    },
+    {
+      "context": "The measured well is returned unchanged whenever the search lands on its 333 sites, so the confirmed model is never re-derived. For any other count the radius is searched -- a well imaged at a different magnification or a different laboratory microplate format is the same circle with a different number of microscope fields of view in it.",
+      "label": "spacr.ops_layout.round_well_layout#1",
+      "source": "The measured well is returned unchanged whenever the search lands on its 333 sites, so the confirmed model is never re-derived. For any other count the radius is searched -- a well imaged at a different magnification or a different plate format is the same circle with a different number of fields in it.",
+      "source_sha256": "86268289cc8151bcdee1cedd1f609ed53d034ff8323229112d2a1cfb1a521f55",
+      "translation": "只要搜索落在实测孔的 333 个位点上，就原样返回实测孔，因此已确认的模型不会被重新推导。对于其他任何数量，都会搜索半径 -- 以不同放大倍数或不同板格式成像的孔，是同一个圆，只是其中视野数不同。"
+    },
+    {
+      "context": "half a microscope image field's side in microscope image field pitches -- the microscope image field size over twice the registered pitch. A microscope field of view is kept when its whole microscope image field lies inside the circle; zero keeps it when its centre does. The default is the phenotype acquisition's measured 0.5857. The sequencing acquisition measured 0.5840, and every value strictly between 0.5 and 2.0 gives both microplate sample positions -- 333 and 1,281 microscope fields of view -- the column heights they were measured at.",
+      "label": "spacr.ops_layout.round_well_layout#4",
+      "source": "half a tile's side in tile pitches -- the tile size over twice the registered pitch. A field is kept when its whole tile lies inside the circle; zero keeps it when its centre does. The default is the phenotype acquisition's measured 0.5857. The sequencing acquisition measured 0.5840, and every value strictly between 0.5 and 2.0 gives both wells -- 333 and 1,281 fields -- the column heights they were measured at.",
+      "source_sha256": "c63e219d31a59ab085b7434370040f30d072e66e0a9e87fdca14135374b066ac",
+      "translation": "图块边长的一半，以图块间距计 -- 即图块尺寸除以两倍的配准间距。当一个视野的整个图块都在圆内时保留它；取零时，只要其中心在圆内就保留。默认值是表型采集实测的 0.5857。测序采集实测为 0.5840，而严格介于 0.5 和 2.0 之间的每个值，都能让两个孔 -- 333 和 1,281 个视野 -- 得到实测的列高。"
+    },
+    {
+      "context": "when no circle holds exactly that many microscope fields of view, which is the honest answer -- a count that no round well produces means the acquisition is not one, and guessing the nearest would place every microscope image field slightly wrong. Also when ``half_tile`` is negative or not a number.",
+      "label": "spacr.ops_layout.round_well_layout#6",
+      "source": "when no circle holds exactly that many fields, which is the honest answer -- a count that no round well produces means the acquisition is not one, and guessing the nearest would place every tile slightly wrong. Also when ``half_tile`` is negative or not a number.",
+      "source_sha256": "c2fc36d4de364217c55b41aa0312bda2c72f6671f1df7fcbed55d6c8e88713b0",
+      "translation": "当没有任何圆恰好容纳这么多视野时，这是诚实的回答 -- 没有圆形孔能产生的数量说明该采集不是圆形孔，而猜测最接近的数量会让每个图块都放错一点。当 ``half_tile`` 为负数或不是数字时也会引发。"
+    },
+    {
+      "context": "For one half microscope image field, the count fixes the fields. The number of fields inside the circle only grows with the radius, so every radius that holds exactly ``site_count`` holds the same ones. The radius the layout carries is one of those, not a measurement.",
+      "label": "spacr.ops_layout.round_well_layout#7",
+      "source": "For one half tile, the count fixes the fields. The number of fields inside the circle only grows with the radius, so every radius that holds exactly ``site_count`` holds the same ones. The radius the layout carries is one of those, not a measurement.",
+      "source_sha256": "2f7270145a6377b6ae43cc385f4e785ba75db522e11a7e546a7397c17f3eede2",
+      "translation": "对给定的半个图块而言，数量决定了视野。圆内的视野数只随半径增长，因此每个恰好容纳 ``site_count`` 个视野的半径容纳的都是同一批视野。布局所带的半径只是其中之一，并非测量值。"
+    },
+    {
+      "context": "Which leaves one failure that must not be silent: an object larger than the overlap, which every window clips. :func:`number` refuses those rather than emitting a fragment, because a fragment looks exactly like a small nucleus and would be counted as one for the rest of the processing session.",
+      "label": "spacr.ops_objects#7",
+      "source": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT: an object larger than the overlap, which every window clips. :func:`number` refuses those rather than emitting a fragment, because a fragment looks exactly like a small nucleus and would be counted as one for the rest of the run.",
+      "source_sha256": "9ba2321f17439d3fd4a3b06d53ac4f49127ce9a492def8e4f8a737101af7d7c9",
+      "translation": "WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT（因此剩下一种绝不能悄无声息的失败）：比重叠区还大的对象，每个窗口都会把它裁掉。:func:`number` 会拒绝这类对象，而不是输出碎片，因为碎片看起来和小细胞核一模一样，并会在整个运行的其余部分被当作一个细胞核计数。"
+    },
+    {
+      "context": "refuse a group with no complete observation. Turned off, such a group is dropped rather than numbered -- nothing with a truncated area is emitted -- and how many were dropped is logged as a warning.",
+      "label": "spacr.ops_objects.number#4",
+      "source": "refuse a group with no complete observation. Turned off, such a group is dropped rather than numbered -- nothing with a truncated area is emitted -- and how many were dropped is logged as a warning.",
+      "source_sha256": "0f75b76c314c4d15d29f84bd661073dbe9ab813285691cec2fc234d0af15b135",
+      "translation": "拒绝没有完整观测的组。关闭后，这样的组会被丢弃而不编号 -- 不会输出任何面积被截断的对象 -- 并以警告记录丢弃了多少个。"
+    },
+    {
+      "context": "when a group holds only clipped observations: either the object is larger than the window overlap, or it is a fragment that matched no window's whole view of its nucleus. The message gives the object's extent and the remedy for each case.",
+      "label": "spacr.ops_objects.number#5",
+      "source": "when a group holds only clipped observations: either the object is larger than the window overlap, or it is a fragment that matched no window's whole view of its nucleus. The message gives the object's extent and the remedy for each case.",
+      "source_sha256": "58a565752a296ed89b63b85396757945cb1e66244b2b11ec7b672190c797e6ac",
+      "translation": "当一个组只包含被裁剪的观测时：要么对象比窗口重叠区还大，要么它是一个碎片，与任何窗口对其细胞核的完整视图都不匹配。消息会给出对象的范围以及每种情况的解决办法。"
+    },
+    {
+      "context": "Two labels of one window are never one object, because a label image does not give one nucleus two labels. Two complete observations from different windows are one nucleus when their centroids agree within ``tolerance`` on each axis and either their areas agree to ``area_ratio`` or their centroids lie within the smaller one's equivalent radius -- the radius of a disc of its area. Pairs whose areas agree are joined first, then the rest closest first, and a join that would give a group two labels of one window is refused.",
+      "label": "spacr.ops_objects.sew#3",
+      "source": "Two labels of one window are never one object, because a label image does not give one nucleus two labels. Two complete observations from different windows are one nucleus when their centroids agree within ``tolerance`` on each axis and either their areas agree to ``area_ratio`` or their centroids lie within the smaller one's equivalent radius -- the radius of a disc of its area. Pairs whose areas agree are joined first, then the rest closest first, and a join that would give a group two labels of one window is refused.",
+      "source_sha256": "e6a068fbc21d22cc74076240d9d00fdb7c084ebf5ec574cb7a23df54d95de6fd",
+      "translation": "同一窗口的两个标签绝不会是同一个对象，因为标签图不会给一个细胞核两个标签。来自不同窗口的两个完整观测，当它们的质心在每个轴上相差不超过 ``tolerance``，并且面积之比达到 ``area_ratio`` 或者质心位于较小者的等效半径之内时，就是同一个细胞核 -- 等效半径即与其面积相同的圆盘的半径。面积一致的对先合并，其余的按距离由近到远合并，而会让一个组含有同一窗口两个标签的合并会被拒绝。"
+    },
+    {
+      "context": "A clipped observation is matched by containment, not by a fixed distance: the cut moves its centroid inward by up to the nucleus's radius, so a fixed tolerance misses exactly the deep clips. It joins a complete observation from another window when its centroid lies inside that observation's equivalent disc, or its bounding box lies inside that observation's box give or take two pixels. It joins only the closest such observation, so one clip can never make two nuclei one object. Clipped observations that match nothing complete are grouped with each other where their boxes overlap.",
+      "label": "spacr.ops_objects.sew#4",
+      "source": "A clipped observation is matched by containment, not by a fixed distance: the cut moves its centroid inward by up to the nucleus's radius, so a fixed tolerance misses exactly the deep clips. It joins a complete observation from another window when its centroid lies inside that observation's equivalent disc, or its bounding box lies inside that observation's box give or take two pixels. It joins only the closest such observation, so one clip can never make two nuclei one object. Clipped observations that match nothing complete are grouped with each other where their boxes overlap.",
+      "source_sha256": "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
+      "translation": "被裁剪的观测按包含关系匹配，而不是按固定距离：裁剪会把它的质心向内移动至多一个细胞核半径，因此固定容差恰恰会漏掉深度裁剪。当它的质心位于另一个窗口中某个完整观测的等效圆盘内，或者它的外接框在正负两个像素的误差内位于该观测的框内时，它就并入该完整观测。它只并入最近的这样一个观测，因此一个裁剪片段永远不会把两个细胞核合成一个对象。与任何完整观测都不匹配的裁剪观测，会在它们的框相互重叠处彼此归为一组。"
+    },
+    {
+      "context": "Where every phenotype field's centre lies, from a few measured ones.",
+      "label": "spacr.ops_phenotype.phenotype_centres#0",
+      "source": "Where every phenotype field's centre lies, from a few measured ones.",
+      "source_sha256": "dbf9f8f8baaca3a380de1e981744ee7568e6b5810c96282e61f03d4bcca4f4e5",
+      "translation": "根据少数实测中心，求出每个表型视野的中心位置。"
+    },
+    {
+      "context": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many microscope fields of view it holds.",
+      "label": "spacr.ops_phenotype.phenotype_centres#1",
+      "source": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.",
+      "source_sha256": "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+      "translation": "表型采集的 :class:`spacr.ops_layout.WellLayout`，或它包含的视野数。"
+    },
+    {
+      "context": "``{site: (y, x)}``, the microplate sample position-frame centres of at least three aligned microscope fields of view whose grid positions are not all on one line. Six spread over the microplate sample position is what the method was validated with.",
+      "label": "spacr.ops_phenotype.phenotype_centres#2",
+      "source": "``{site: (y, x)}``, the well-frame centres of at least three aligned fields whose grid positions are not all on one line. Six spread over the well is what the method was validated with.",
+      "source_sha256": "a72f71fa491262526c02f83f4a7ec3603ecff94045440e61c8c1c9c5811c5b57",
+      "translation": "``{site: (y, x)}``，至少三个已对齐视野在孔坐标系中的中心，这些视野的网格位置不能全在一条直线上。该方法是用分布在全孔的六个视野验证的。"
+    },
+    {
+      "context": "``{site: (y, x)}`` for every field of the layout, anchors included -- their fitted centres, not the measured ones.",
+      "label": "spacr.ops_phenotype.phenotype_centres#3",
+      "source": "``{site: (y, x)}`` for every field of the layout, anchors included -- their fitted centres, not the measured ones.",
+      "source_sha256": "da6aaf41af594656fb5b29883683dbc950628ef4b53c56191e8618b82f5375b0",
+      "translation": "``{site: (y, x)}``，布局中每个视野一项，包括锚点 -- 给出的是拟合中心，而不是实测中心。"
+    },
+    {
+      "context": "when the anchors cannot fix a raster: fewer than three, on one line of the grid, or a centre that is not two finite numbers. Also for a microscope field of view count no round well holds.",
+      "label": "spacr.ops_phenotype.phenotype_centres#4",
+      "source": "when the anchors cannot fix a raster: fewer than three, on one line of the grid, or a centre that is not two finite numbers. Also for a field count no round well holds.",
+      "source_sha256": "62734fbdc05ad91105b8666536bf5de38fa2efd63b6c2a9c5a89883340d8da45",
+      "translation": "当锚点无法确定栅格时：少于三个、位于网格的同一直线上，或某个中心不是两个有限数。视野数不是任何圆形孔能容纳的数量时也会引发。"
+    },
+    {
+      "context": "when an anchor names a site the layout does not hold.",
+      "label": "spacr.ops_phenotype.phenotype_centres#5",
+      "source": "when an anchor names a site the layout does not hold.",
+      "source_sha256": "c2a14c0e4e88a8f8e263b48df0ca2eb265dbe18a56dd44877a9b7d10a855531a",
+      "translation": "当某个锚点指定了布局中不存在的位点时。"
+    },
+    {
+      "context": "Six numbers place the whole well. The layout gives every microscope field of view's grid position, and the acquisition raster maps a grid position into the well frame by an origin, a column step and a row step, each a ``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by least squares on six microscope fields of view of a real well, that predicted the other 472 microscope fields of view' measured centres to a median 1.2 px and a worst 4.0 px, and a second well's 451 to a worst 4.4 px.",
+      "label": "spacr.ops_phenotype.phenotype_centres#6",
+      "source": "Six numbers place the whole well. The layout gives every field's grid position, and the acquisition raster maps a grid position into the well frame by an origin, a column step and a row step, each a ``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by least squares on six fields of a real well, that predicted the other 472 fields' measured centres to a median 1.2 px and a worst 4.0 px, and a second well's 451 to a worst 4.4 px.",
+      "source_sha256": "869851e6ed102bb8bc4f3c240b3f674eca045bb487f031f3c41457e759e709a1",
+      "translation": "六个数就能定位整个孔。布局给出每个视野的网格位置，采集栅格通过一个原点、一个列步长和一个行步长把网格位置映射到孔坐标系中，每一项都是一个 ``(dy, dx)`` 对，承载着载物台几个像素的倾斜。在一个真实孔的六个视野上用最小二乘拟合后，它预测其余 472 个视野实测中心的中位误差为 1.2 px、最大 4.0 px，预测第二个孔的 451 个视野最大误差为 4.4 px。"
+    },
+    {
+      "context": "Which sequencing tile covers each phenotype microscope field of view.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#0",
+      "source": "Which sequencing tile covers each phenotype field.",
+      "source_sha256": "d8987e7ccf9126ae97b1035274f1858ed5d91a9c926e1041d075a74f46bda5c2",
+      "translation": "每个表型视野落在哪个测序图块上。"
+    },
+    {
+      "context": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many microscope fields of view it holds.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#1",
+      "source": "the phenotype acquisition's :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.",
+      "source_sha256": "c872576a46b310ed4305969cb125a648bf81fbf37ee431e925030e1434688b94",
+      "translation": "表型采集的 :class:`spacr.ops_layout.WellLayout`，或它包含的视野数。"
+    },
+    {
+      "context": "``{sequencing site: (y, x)}``, the centre of each stitched sequencing microscope image field in the microplate sample position frame -- its placement plus half a microscope image field.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#2",
+      "source": "``{sequencing site: (y, x)}``, the centre of each stitched sequencing tile in the well frame -- its placement plus half a tile.",
+      "source_sha256": "5ee088d6438ce7110691e740d8d39daf49266a6bfecbabe2da381af4c445991b",
+      "translation": "``{sequencing site: (y, x)}``，每个拼接后的测序图块在孔坐标系中的中心 -- 即其放置位置加上半个图块。"
+    },
+    {
+      "context": "``{phenotype site: (y, x)}``, measured well-frame centres of at least three aligned phenotype microscope fields of view, as :func:`phenotype_centres` takes them.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#3",
+      "source": "``{phenotype site: (y, x)}``, measured well-frame centres of at least three aligned phenotype fields, as :func:`phenotype_centres` takes them.",
+      "source_sha256": "9482032d0529e408eedc31b529b11c047715bf35366e88b102aabc2b5761a35f",
+      "translation": "``{phenotype site: (y, x)}``，至少三个已对齐表型视野在孔坐标系中的实测中心，格式与 :func:`phenotype_centres` 所接受的相同。"
+    },
+    {
+      "context": "``(height, width)`` of a sequencing microscope image field, in well-frame pixels.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#4",
+      "source": "``(height, width)`` of a sequencing tile, in well-frame pixels.",
+      "source_sha256": "7b4ad6c687274f962bda174e28f7bedfb4e7466743ab89786faba23d1ae362f7",
+      "translation": "测序图块的 ``(height, width)``，以孔坐标系像素计。"
+    },
+    {
+      "context": "``{phenotype site: sequencing site}``. Each microscope field of view goes to the tile whose centre is nearest its predicted centre, among the tiles that contain it; a microscope field of view whose predicted centre lies inside no tile is omitted.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#5",
+      "source": "``{phenotype site: sequencing site}``. Each field goes to the tile whose centre is nearest its predicted centre, among the tiles that contain it; a field whose predicted centre lies inside no tile is omitted.",
+      "source_sha256": "343e414cceff1565e0cee8d9a8ec18e898ad8efe76cf98bf334aff2939a9be51",
+      "translation": "``{phenotype site: sequencing site}``。在包含该视野的图块中，每个视野归入中心离其预测中心最近的图块；预测中心不落在任何图块内的视野会被省略。"
+    },
+    {
+      "context": "when ``tile_shape`` is not two positive sizes, or when :func:`phenotype_centres` refuses the anchors or the count.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#6",
+      "source": "when ``tile_shape`` is not two positive sizes, or when :func:`phenotype_centres` refuses the anchors or the count.",
+      "source_sha256": "166ffba77cd3418ebaab1f8b16a4309f6a86fc8b8c2c042a51f7f17ff88454f7",
+      "translation": "当 ``tile_shape`` 不是两个正尺寸，或 :func:`phenotype_centres` 拒绝了锚点或数量时。"
+    },
+    {
+      "context": "A position, not an index. The microscope image field a microscope field of view lies on depends on where the microscope image field boundaries actually fall, and halving a phenotype grid index about the microplate sample position centre cannot see them: at twice the microscope image field density half the phenotype microscope fields of view lie on or near a sequencing microscope image field boundary. On the real laboratory microplate halving found the exact microscope image field for 0.45 to 0.61 of the aligned microscope fields of view; predicting each centre from six anchors and taking the nearest stitched microscope image field found it for 472 of 472 and 451 of 451.",
+      "label": "spacr.ops_phenotype.phenotype_site_map#7",
+      "source": "A position, not an index. The tile a field lies on depends on where the tile boundaries actually fall, and halving a phenotype grid index about the well centre cannot see them: at twice the tile density half the phenotype fields lie on or near a sequencing tile boundary. On the real plate halving found the exact tile for 0.45 to 0.61 of the aligned fields; predicting each centre from six anchors and taking the nearest stitched tile found it for 472 of 472 and 451 of 451.",
+      "source_sha256": "d67e620df54a44769db2cde7feabc8935859b8753a09913120bda2d3e3ce9b27",
+      "translation": "要的是位置，而不是索引。一个视野落在哪个图块上，取决于图块边界实际在哪里，而把表型网格索引围绕孔中心减半是看不到这些边界的：图块密度加倍时，一半的表型视野位于测序图块边界上或其附近。在真实板上，减半法只为 0.45 到 0.61 的已对齐视野找到了正确图块；而用六个锚点预测每个中心并取最近的拼接图块，则分别为 472 个中的 472 个和 451 个中的 451 个找到了正确图块。"
+    },
+    {
+      "context": "Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which already normalises each cycle's channels and reports quality as the MINIMUM over cycles -- \"a barcode is only as trustworthy as its worst base\". Repeating that here would be a second decoder to keep in step.",
+      "label": "spacr.ops_sample.barcode_rows#1",
+      "source": "Delegates the call itself to :func:`spacr.ops_sbs.call_reads`, which already normalises each cycle's channels and reports quality as the MINIMUM over cycles -- \"a barcode is only as trustworthy as its worst base\". Repeating that here would be a second decoder to keep in step.",
+      "source_sha256": "5d2039e78e592410566d24a13fc32dd31eff57f16c48afc3e432ff09e035ae0d",
+      "translation": "将实际的识别交给 :func:`spacr.ops_sbs.call_reads`，它已经对每个循环的通道做归一化，并把质量报告为各循环上的 MINIMUM（最小值） -- \"条形码的可信程度只取决于它最差的碱基\"。在这里重复一遍，就等于多了一个需要保持同步的解码器。"
+    },
+    {
+      "context": "Optical pooled screening reads the guide barcode out of the images. Each sequencing cycle stains four image data channels, one per base, and a spot's base in that cycle is whichever image data channel is brightest -- once the image data channels have been put on a common scale. Read one base per cycle at the same spot and the cycles spell the barcode.",
+      "label": "spacr.ops_sbs#2",
+      "source": "Optical pooled screening reads the guide barcode OUT OF THE IMAGES. Each sequencing cycle stains four channels, one per base, and a spot's base in that cycle is whichever channel is brightest -- once the channels have been put on a common scale. Read one base per cycle at the same spot and the cycles spell the barcode.",
+      "source_sha256": "96f751fe3936bc37122069588f7980e88b041b2cf6fb2905765d0397cbed37c3",
+      "translation": "光学混池筛选直接从图像中读取向导条形码，即 OUT OF THE IMAGES。每个测序循环染色四个通道，每个碱基一个；在该循环中，一个斑点的碱基就是最亮的通道 -- 前提是各通道已被放到同一尺度上。在同一斑点上每个循环读一个碱基，这些循环便拼出条形码。"
+    },
+    {
+      "context": "**The brightest raw channel is not the base.** Every channel has its own gain and background, and on a real plate both drift from cycle to cycle, so the raw argmax is biased toward whichever channel is brightest overall. Each cycle's channels are divided by their median over the reads first. Unmixing the dyes' bleed-through is available on top of that; on the first real plate it lowered the library match.",
+      "label": "spacr.ops_sbs#7",
+      "source": "**The brightest raw channel is not the base.** Every channel has its own gain and background, and on a real plate both drift from cycle to cycle, so the raw argmax is biased toward whichever channel is brightest overall. Each cycle's channels are divided by their median over the reads first. Unmixing the dyes' bleed-through is available on top of that; on the first real plate it lowered the library match.",
+      "source_sha256": "64f1ee1de688d97474f8d1dd2367fc7bd51e0c40c26af10557d7135c6d8435f3",
+      "translation": "**最亮的原始通道并不是碱基。** 每个通道都有自己的增益和背景，在真实板上两者都会随循环漂移，因此原始 argmax 会偏向整体最亮的通道。每个循环的各通道先除以其在所有读段上的中位数。在此基础上还可以对染料串色进行解混；在第一块真实板上，它降低了文库匹配率。"
+    },
+    {
+      "context": "Give each laboratory microplate object the barcode its attributed reads agree on.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#0",
+      "source": "Give each plate object the barcode its attributed reads agree on.",
+      "source_sha256": "56bd36897564e1ddb76e61dccdb0383bbb0f00a6a8b43788faf4396aa8743653",
+      "translation": "为每个板级对象赋予其归属读段一致认同的条形码。"
+    },
+    {
+      "context": "The same rule as :func:`assign_reads_to_cells` -- at least ``min_reads`` reads, ``min_fraction`` of them carrying one barcode, and no tie for first -- keyed by the object id each read was attributed to rather than by the label a read lands on. That is what lets reads collected from several microscope fields of view vote once for the object they belong to.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#1",
+      "source": "The same rule as :func:`assign_reads_to_cells` -- at least ``min_reads`` reads, ``min_fraction`` of them carrying one barcode, and no tie for first -- keyed by the object id each read was attributed to rather than by the label a read lands on. That is what lets reads collected from several fields vote once for the object they belong to.",
+      "source_sha256": "3c6bfdd6dcb24565647dc9aa1ea26a3fee06fddeae59f21f2a58c53a3758852d",
+      "translation": "规则与 :func:`assign_reads_to_cells` 相同 -- 至少 ``min_reads`` 个读段，其中 ``min_fraction`` 携带同一条形码，且第一名没有并列 -- 只是按每个读段归属的对象 ID 分组，而不是按读段落在哪个标签上。正因如此，从多个视野收集的读段才能为它们所属的对象只投一次票。"
+    },
+    {
+      "context": "one object id per read; 0 or a negative id means the read has no owner and is ignored.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#2",
+      "source": "one object id per read; 0 or a negative id means the read has no owner and is ignored.",
+      "source_sha256": "eaeb1a7068c8e40b42f2d34164ad9f91de046b367da33db1b770a9e6d49a2b98",
+      "translation": "每个读段一个对象 ID；0 或负数 ID 表示该读段没有归属并被忽略。"
+    },
+    {
+      "context": "one called barcode per read.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#3",
+      "source": "one called barcode per read.",
+      "source_sha256": "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608",
+      "translation": "每个读段一个识别出的条形码。"
+    },
+    {
+      "context": "optional per-read quality from :func:`call_reads`.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#4",
+      "source": "optional per-read quality from :func:`call_reads`.",
+      "source_sha256": "96ad03e67832180f0672281881b8ccd4acc004f829621051a918a01ea3360fba",
+      "translation": "来自 :func:`call_reads` 的可选的每读段质量。"
+    },
+    {
+      "context": "how many reads an object needs before it may be assigned.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#5",
+      "source": "how many reads an object needs before it may be assigned.",
+      "source_sha256": "bc7bdcb0e479c72d197ce50d219d94c30a9843b60076d376a8d135adbbbcccc0",
+      "translation": "一个对象至少需要多少个读段才能被赋值。"
+    },
+    {
+      "context": "what share of them must agree.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#6",
+      "source": "what share of them must agree.",
+      "source_sha256": "0dcf41cff940de3e74f64f1753c50c508061b018da4cd5040bd5289a627402e8",
+      "translation": "其中需要一致的比例。"
+    },
+    {
+      "context": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every object that met the bar.",
+      "label": "spacr.ops_sbs.assign_reads_to_objects#7",
+      "source": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every object that met the bar.",
+      "source_sha256": "91692f0a611e6a486ee226e2b0c99d23cb7398086d212d2bebd11fc08474fbe6",
+      "translation": "``{object_id: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}``，对每个达到标准的对象给出。"
+    },
+    {
+      "context": "Give each detected read to the object whose boundary is nearest.",
+      "label": "spacr.ops_sbs.attribute_reads#0",
+      "source": "Give each detected read to the object whose boundary is nearest.",
+      "source_sha256": "528fd48e6f56fd2d1f47458f6ee8ecd7a30b03a7aa5f8f33a71e7bc27ff8c62d",
+      "translation": "将每个检测到的读段分配给边界最近的对象。"
+    },
+    {
+      "context": "Reads are detected over the whole field first and attributed here, so a footprint that is too tight shows up as reads with no owner rather than staying invisible. The boundary is each object's equivalent disc, the circle of its area about its centroid, and a read whose two nearest boundaries lie within ``tie`` of each other is given to neither and flagged.",
+      "label": "spacr.ops_sbs.attribute_reads#1",
+      "source": "Reads are detected over the whole field first and attributed here, so a footprint that is too tight shows up as reads with no owner rather than staying invisible. The boundary is each object's equivalent disc, the circle of its area about its centroid, and a read whose two nearest boundaries lie within ``tie`` of each other is given to neither and flagged.",
+      "source_sha256": "d0691f9cb7e73cd3c7176dac16cecf2f348bff01825099dffaaeef4d631ee3e4",
+      "translation": "读段先在整个视野中检测出来，再在这里归属，因此过紧的足迹会表现为没有归属的读段，而不是悄无声息。边界是每个对象的等效圆盘，即以其质心为中心、面积与其相同的圆；如果一个读段最近的两条边界彼此相差不到 ``tie``，它不归属任何对象并被标记。"
+    },
+    {
+      "context": "``(N, 2)`` read positions ``(y, x)``.",
+      "label": "spacr.ops_sbs.attribute_reads#2",
+      "source": "``(N, 2)`` read positions ``(y, x)``.",
+      "source_sha256": "33f6cec2ace0264a6bc85b7efc7a67db6ab5a9c186e15e6196fedf441adf5629",
+      "translation": "``(N, 2)`` 读段位置 ``(y, x)``。"
+    },
+    {
+      "context": "``(M, 2)`` object centroids ``(y, x)``, in the same frame as ``peaks``.",
+      "label": "spacr.ops_sbs.attribute_reads#3",
+      "source": "``(M, 2)`` object centroids ``(y, x)``, in the same frame as ``peaks``.",
+      "source_sha256": "7cbecd393ac99c58c394a9f7a15face8621b7cd8bd18d5ac1fa68933e40564e7",
+      "translation": "``(M, 2)`` 对象质心 ``(y, x)``，与 ``peaks`` 位于同一坐标系。"
+    },
+    {
+      "context": "``(M,)`` object areas in pixels.",
+      "label": "spacr.ops_sbs.attribute_reads#4",
+      "source": "``(M,)`` object areas in pixels.",
+      "source_sha256": "c86aaf1cd12ce707efa69fa4afda166a020f7ee89396fad87eb086583c48287d",
+      "translation": "``(M,)`` 以像素计的对象面积。"
+    },
+    {
+      "context": "how far beyond an object's boundary a read may lie and still be its read, in pixels. On the first real plate 98 % of spots lay within 10 px of a nucleus and 67 % within 3 px.",
+      "label": "spacr.ops_sbs.attribute_reads#5",
+      "source": "how far beyond an object's boundary a read may lie and still be its read, in pixels. On the first real plate 98 % of spots lay within 10 px of a nucleus and 67 % within 3 px.",
+      "source_sha256": "de387d4e4bf1092510230112634cb81a8e64efc30dc0bec6c34f86c6fb9c5279",
+      "translation": "读段可以位于对象边界之外多远仍算作该对象的读段，以像素计。在第一块真实板上，98 % 的斑点位于细胞核 10 px 以内，67 % 位于 3 px 以内。"
+    },
+    {
+      "context": "how close the two nearest boundaries may be before a read is refused as ambiguous, in pixels.",
+      "label": "spacr.ops_sbs.attribute_reads#6",
+      "source": "how close the two nearest boundaries may be before a read is refused as ambiguous, in pixels.",
+      "source_sha256": "77b0dee08a2cadd626b541d64a639a77d9a976507f23e71f03688b0327d46ccb",
+      "translation": "最近的两条边界之间相距多近时，读段会被判为有歧义而拒绝，以像素计。"
+    },
+    {
+      "context": "``(owner, ambiguous)`` -- the index into ``centroids`` of each read's owner, or -1, and whether each read was refused as ambiguous.",
+      "label": "spacr.ops_sbs.attribute_reads#7",
+      "source": "``(owner, ambiguous)`` -- the index into ``centroids`` of each read's owner, or -1, and whether each read was refused as ambiguous.",
+      "source_sha256": "421a0f6bed68513cfefab79a84f98675952a440c0947981551341057ea32c3b3",
+      "translation": "``(owner, ambiguous)`` -- 每个读段归属对象在 ``centroids`` 中的索引（无归属时为 -1），以及每个读段是否因歧义而被拒绝。"
+    },
+    {
+      "context": "A cycle that was not measured is called ``N``. Where a read's values for one cycle are NaN -- the cycle's file could not be read, or its registration was refused -- that letter is ``N`` and the quality is taken over the cycles that were measured, so one lost cycle costs one base of each read and not the read.",
+      "label": "spacr.ops_sbs.call_reads#2",
+      "source": "A cycle that was not measured is called ``N``. Where a read's values for one cycle are NaN -- the cycle's file could not be read, or its registration was refused -- that letter is ``N`` and the quality is taken over the cycles that were measured, so one lost cycle costs one base of each read and not the read.",
+      "source_sha256": "7fe6fca9c65a58c37f979c6ff3fdf4453676f12a6110497a37ca0ffc89c87a30",
+      "translation": "未测量的循环记为 ``N``。当某个读段在一个循环中的值为 NaN 时 -- 即该循环的文件无法读取，或其配准被拒绝 -- 该位置的字母为 ``N``，质量只在已测量的循环上计算；因此丢失一个循环只让每个读段损失一个碱基，而不会损失整个读段。"
+    },
+    {
+      "context": "undo cross-talk with :func:`compensate_crosstalk` after normalising. Off by default: on the first real plate it lowered the library match.",
+      "label": "spacr.ops_sbs.call_reads#5",
+      "source": "undo cross-talk with :func:`compensate_crosstalk` after normalising. Off by default: on the first real plate it lowered the library match.",
+      "source_sha256": "89583e2e4bcaa7ea02bea3a62355dfe1a1e6843ec4a855ff839e767854891b64",
+      "translation": "在归一化之后用 :func:`compensate_crosstalk` 消除串扰。默认关闭：在第一块真实板上它降低了文库匹配率。"
+    },
+    {
+      "context": "divide each cycle's channels by their median over the reads first, which removes the per-channel gain and background drift between cycles. Skipped when there are too few reads for a median.",
+      "label": "spacr.ops_sbs.call_reads#7",
+      "source": "divide each cycle's channels by their median over the reads first, which removes the per-channel gain and background drift between cycles. Skipped when there are too few reads for a median.",
+      "source_sha256": "bace4d4658dab3c98c9543be8b7304e7c44a4ce6c9c5c6f9a8dbf92bb7546c13",
+      "translation": "先将每个循环的各通道除以其在读段上的中位数，从而消除各通道在循环之间的增益和背景漂移。读段太少、无法求中位数时跳过。"
+    },
+    {
+      "context": "let the compensation's multiply run on the card. False keeps the whole call on the CPU.",
+      "label": "spacr.ops_sbs.call_reads#8",
+      "source": "let the compensation's multiply run on the card. False keeps the whole call on the CPU.",
+      "source_sha256": "7ff568a483027e72d36fcf7053b0b88607882ebfd195fb71b4b8adc79464acf4",
+      "translation": "让补偿中的矩阵乘法在显卡上运行。False 则让整个调用留在 CPU 上。"
+    },
+    {
+      "context": "An ``N`` is a base that was not measured, not a mismatch. It matches any letter and is not counted against ``max_distance``; the uniqueness rule still applies, so a read whose lost base is the only thing separating two guides maps to neither.",
+      "label": "spacr.ops_sbs.correct_to_library#3",
+      "source": "An ``N`` is a base that was not measured, not a mismatch. It matches any letter and is not counted against ``max_distance``; the uniqueness rule still applies, so a read whose lost base is the only thing separating two guides maps to neither.",
+      "source_sha256": "9c0666d44c0ab9c071a89a03a09d4a6cd098ef4c6dd6d544a47e3c23206229cc",
+      "translation": "``N`` 表示一个未被测量的碱基，而不是错配。它与任意字母匹配，也不计入 ``max_distance``；唯一性规则仍然适用，因此如果一个读段丢失的碱基恰好是区分两个向导的唯一位置，它不会映射到其中任何一个。"
+    },
+    {
+      "context": "on an unknown table; when the sidecar it just wrote does not have the same number of rows as the database; or when ``ops_objects`` or ``ops_barcodes`` would hold two rows for one object, inside the frame or between the frame and the table it is appended to. One row per object is a UNIQUE constraint in the schema, and nothing is written when it would be broken.",
+      "label": "spacr.ops_store.write_table#6",
+      "source": "on an unknown table; when the sidecar it just wrote does not have the same number of rows as the database; or when ``ops_objects`` or ``ops_barcodes`` would hold two rows for one object, inside the frame or between the frame and the table it is appended to. One row per object is a UNIQUE constraint in the schema, and nothing is written when it would be broken.",
+      "source_sha256": "dc53bc338a70d2d1507691e19feb1b6399f2d4be9eabb6599d54ccf0d1a25dec",
+      "translation": "遇到未知表时；刚写入的附属文件与数据库的行数不一致时；或者 ``ops_objects`` 或 ``ops_barcodes`` 会为同一个对象保存两行时，无论是在数据框内部，还是在数据框与其追加到的表之间。每个对象一行是模式中的 UNIQUE 约束，一旦会违反该约束，就不会写入任何内容。"
+    }
+  ],
+  "schema": 1
+}

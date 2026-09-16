@@ -121,14 +121,6 @@ class TrellisScreen(QWidget):
         body.addWidget(self.panel)
 
         side = QTabWidget(self)
-        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
-        # settings column eating the figure beside it, and 360 px is the
-        # right answer at 100 %% -- and only there. The glyphs inside it
-        # double at 200 %% and the box did not, which is the same defect
-        # instruction 350 already fixed on UsageBar's fixed 48 px caption
-        # column. Measured on Control Charts: the column's own sizeHint
-        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
-        # cap that stayed 330 in all three.
         from ..preferences import scaled_px
         side.setMaximumWidth(scaled_px(360))
         self.filters = DataFilterPanel(self, link=link)
@@ -140,17 +132,11 @@ class TrellisScreen(QWidget):
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
         outer.addWidget(body, 1)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "trellis")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Plot ``frame``. The one call a host needs."""
         self._frame = frame
@@ -211,8 +197,6 @@ class TrellisScreen(QWidget):
             self._table_picker.setCurrentText(table)
         self._table_picker.blockSignals(False)
         chosen = table or (self._table_picker.currentText() or None)
-        # A second load supersedes the first, so switching table twice does
-        # not deliver the frames in whatever order the reads happen to finish.
         self._jobs.cancel()
         self._source.setText(
             f"loading {os.path.basename(path)}"
@@ -264,7 +248,6 @@ class TrellisScreen(QWidget):
         """
         return self._jobs.is_busy()
 
-    # -- the grid ---------------------------------------------------------
     @property
     def spec(self) -> TrellisSpec:
         """The grid the screen is drawing.
@@ -281,8 +264,6 @@ class TrellisScreen(QWidget):
         self.panel.set_spec(spec)
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        # Abandon an in-flight read rather than let it outlive the screen:
-        # Qt aborts the process if a running QThread is destroyed.
         """Let the panel close first, so it can unlink its canvas.
 
         :param event: the Qt close event.
@@ -297,11 +278,6 @@ def make_trellis_screen(app_key: Optional[str] = None) -> QWidget:
     return TrellisScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

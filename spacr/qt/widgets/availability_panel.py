@@ -154,8 +154,6 @@ class AvailabilityPanel(QFrame):
     CORRIDOR_GRACE_MS = 2500
 
     def __init__(self) -> None:
-        # Qt.Tool rather than Qt.ToolTip: a ToolTip window can never take
-        # focus, and the keyboard route in `open_for` needs it to.
         """Build the availability popup.
 
         A ``Qt.Tool`` window rather than a ``Qt.ToolTip`` one: a tooltip window
@@ -181,9 +179,6 @@ class AvailabilityPanel(QFrame):
         self._body.setMaximumWidth(self.TEXT_WIDTH)
         self._body.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
-        # THE TWO LINK WORDS. Separate labels rather than one, so "INSTALL to
-        # the right of the API link" is a fact about geometry a test can
-        # measure rather than a claim about a string.
         self._links = QWidget(self)
         self._links.setObjectName("AvailabilityPanelLinks")
         row = QHBoxLayout(self._links)
@@ -250,14 +245,10 @@ class AvailabilityPanel(QFrame):
         label = QLabel(self)
         label.setObjectName(name)
         label.setTextFormat(Qt.RichText)
-        # The measured route: `linkActivated` carries the href, and
-        # TextBrowserInteraction includes LinksAccessibleByKeyboard, which is
-        # what puts the word in the tab order once the panel has focus.
         label.setTextInteractionFlags(Qt.TextBrowserInteraction)
         label.linkActivated.connect(self._on_link)
         return label
 
-    # -- singleton ----------------------------------------------------------
 
     @classmethod
     def instance(cls) -> "AvailabilityPanel":
@@ -266,7 +257,6 @@ class AvailabilityPanel(QFrame):
             cls._INSTANCE = AvailabilityPanel()
         return cls._INSTANCE
 
-    # -- what is on screen --------------------------------------------------
 
     def entries(self) -> List[Dict[str, Any]]:
         """The entries this panel is currently cycling through."""
@@ -299,7 +289,6 @@ class AvailabilityPanel(QFrame):
         """Was this opened by keyboard? A pinned panel ignores hover timers."""
         return self._pinned
 
-    # -- showing ------------------------------------------------------------
 
     def show_for(self, anchor: QWidget, entries, index: int = 0, *,
                  anchor_rect: Optional[QRect] = None,
@@ -377,9 +366,6 @@ class AvailabilityPanel(QFrame):
         reason = str(entry.get('reason') or "")
         message = str(getattr(offer, 'message', "") or "")
         self._title.setText(f"<b>{escape(title)}</b>")
-        # The refusal first, then what would fix it. Two sentences that say
-        # the same thing are collapsed to one -- `backend_status` and
-        # `backend_install_offer` genuinely agree on some entries.
         parts = [reason]
         if message and message.strip() != reason.strip():
             parts.append(message)
@@ -439,7 +425,6 @@ class AvailabilityPanel(QFrame):
             return None
         return QRect(top_left, anchor.size())
 
-    # -- staying alive across the gap --------------------------------------
 
     def start_hide(self, delay_ms: Optional[int] = None) -> None:
         """Schedule the hide the pointer is allowed to interrupt."""
@@ -500,8 +485,6 @@ class AvailabilityPanel(QFrame):
         elapsed_ms = (time.monotonic() - self._hide_since) * 1000.0
         if (corridor is not None and elapsed_ms < self.CORRIDOR_GRACE_MS
                 and corridor.contains(self._cursor_pos())):
-            # Still travelling. Re-arm rather than close, or the Install link
-            # can never be reached.
             self._hide_timer.start(int(self.HIDE_DELAY_MS))
             return
         self.dismiss()
@@ -522,7 +505,6 @@ class AvailabilityPanel(QFrame):
         if was_visible:
             self.dismissed.emit()
 
-    # -- events -------------------------------------------------------------
 
     def enterEvent(self, event):
         """The pointer arrived: the panel stays."""
@@ -582,7 +564,6 @@ class AvailabilityPanel(QFrame):
         self._remove_filter()
         super().hideEvent(event)
 
-    # -- routing ------------------------------------------------------------
 
     def _on_link(self, href: str) -> None:
         """``api`` and ``install`` -- the two hrefs this panel understands."""
@@ -596,13 +577,12 @@ class AvailabilityPanel(QFrame):
             return
         if target == "install":
             offer = entry.get('offer')
-            self._pinned = True     # the dialog steals the pointer; stay put
+            self._pinned = True
             self.cancel_hide()
             self.install_requested.emit(offer)
             return
         LOGGER.debug("AvailabilityPanel ignored href %r", href)
 
-    # -- looks --------------------------------------------------------------
 
     def _apply_theme(self) -> None:
         """Tooltip styling, inline, because this is a separate top-level."""
@@ -627,9 +607,6 @@ class AvailabilityPanel(QFrame):
         )
 
 
-# ---------------------------------------------------------------------------
-# What pressing the word actually does
-# ---------------------------------------------------------------------------
 
 def run_install_offer(parent, offer, *, confirm=None, inform=None,
                       dry_run=None, install=None) -> str:
@@ -679,9 +656,6 @@ def run_install_offer(parent, offer, *, confirm=None, inform=None,
         return "ready"
 
     if action in ("elsewhere", "impossible"):
-        # RUNS NOTHING. This is the branch instruction 158 B exists for: a
-        # prompt that runs pip here either fails, or succeeds at breaking the
-        # install, and the second is worse.
         inform(title, offer.as_text())
         return "explained"
 
@@ -706,9 +680,6 @@ def run_install_offer(parent, offer, *, confirm=None, inform=None,
         return "declined"
 
     if decision['needs_second_confirmation']:
-        # THE SECOND CONFIRMATION NAMES WHAT MOVES. Not "are you sure" -- the
-        # packages, with their versions, in the sentence the user has to
-        # agree to.
         if not confirm("This moves packages spaCR depends on",
                        decision['headline'] + "\n\n" + command):
             return "refused"

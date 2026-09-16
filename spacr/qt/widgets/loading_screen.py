@@ -54,20 +54,31 @@ def _role(name: str, fallback: str) -> str:
     a traceback, so every lookup carries the literal it replaced.
     """
     try:
-        from ..theme import palette_for
-        value = palette_for().get(name)
+        from ..theme import active_palette
+        value = active_palette().get(name)
         return str(value) if value else fallback
     except Exception:
-        # THE SPLASH MUST NOT FAIL. It is the first thing painted,
-        # sometimes before the theme has resolved and always before
-        # anything else could report a problem, so a palette lookup that
-        # raised would replace it with a traceback.
         return fallback
 
 
 #: Alias kept for readability at the one call site that names a colour
 #: rather than painting with it.
 splash_role = _role
+
+
+def _dark_role(name: str, fallback: str) -> str:
+    """A role from the dark palette, or ``fallback`` if it cannot be read.
+
+    For module constants. A constant is evaluated once, at import, so a
+    read through :func:`_role` would keep whichever theme was in force at
+    that moment; the dark palette is the same answer in every process.
+    """
+    try:
+        from ..theme import palette_for
+        value = palette_for("dark").get(name)
+        return str(value) if value else fallback
+    except Exception:
+        return fallback
 
 
 def _rgba(spec: str, fallback: "QColor") -> "QColor":
@@ -134,7 +145,7 @@ def _ink(alpha: int) -> "QColor":
 #: has nothing to flash.
 #:
 #: The name changed with the colour. `INSTALLER_GREEN` described neither.
-SPLASH_BACKGROUND = splash_role("splash_bg", "#000000")
+SPLASH_BACKGROUND = _dark_role("splash_bg", "#000000")
 
 #: Deprecated alias. It was never green after this change and was not
 #: accurately named before it; kept only so an existing importer does not
@@ -171,8 +182,6 @@ class LoadingScreen(QWidget):
         self._total = max(0, int(total))
         self._done = 0
         self._logo: Optional[QPixmap] = None
-        # Opaque: this covers a partly-built window, and any transparency
-        # would show the thing it exists to hide.
         self.setAutoFillBackground(True)
         self.setAttribute(Qt.WA_OpaquePaintEvent, True)
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -180,7 +189,6 @@ class LoadingScreen(QWidget):
             self.setGeometry(parent.rect())
         self._load_logo()
 
-    # -- state -------------------------------------------------------------
     def set_total(self, total: int) -> None:
         """Set the denominator; repaints if it changed."""
         total = max(0, int(total))
@@ -210,7 +218,6 @@ class LoadingScreen(QWidget):
             return len(STRAP_PHASES)
         return min(len(STRAP_PHASES) - 1, int(f * len(STRAP_PHASES)))
 
-    # -- painting ----------------------------------------------------------
     def _load_logo(self) -> None:
         """Load the splash logo, tolerating its absence.
 
@@ -224,8 +231,6 @@ class LoadingScreen(QWidget):
             if not pix.isNull():
                 self._logo = pix
         except Exception:
-            # A missing logo must not stop the app from starting. The screen
-            # still covers the window and still reports progress.
             self._logo = None
 
     def resizeEvent(self, event) -> None:
@@ -249,13 +254,10 @@ class LoadingScreen(QWidget):
             side = scaled_px(140)
             gap = scaled_px(28)
             font = QFont(self.font())
-            font.setPixelSize(max(11, scaled_px(15)))
+            font.setPixelSize(scaled_px(15))
             painter.setFont(font)
             metrics = painter.fontMetrics()
 
-            # Translated at PAINT time, not at import: the loading screen is
-            # built before the user's language preference has necessarily
-            # been read, and a phase cached in English would stay English.
             phases = [_translate(p) for p in STRAP_PHASES]
             widths = [metrics.horizontalAdvance(p) for p in phases]
             arrow_w = metrics.horizontalAdvance("  →  ")
@@ -266,15 +268,11 @@ class LoadingScreen(QWidget):
             y = self.height() / 2.0
 
             if self._logo is not None:
-                # Scaled inside the paint, so it asks the ratio again on
-                # every frame and a splash dragged between screens is right
-                # on the next repaint with nothing to subscribe to.
                 scaled = scaled_for(self._logo, self, side)
                 drawn = logical_size(scaled)
                 painter.drawPixmap(
                     int(x), int(y - drawn.height() / 2.0), scaled)
 
-            # The sentence, one phase at a time.
             lit = self.lit_phases()
             tx = x + side + gap
             baseline = y + metrics.ascent() / 2.0 - metrics.descent() / 2.0
@@ -290,9 +288,6 @@ class LoadingScreen(QWidget):
                     painter.drawText(int(tx), int(baseline), "  →  ")
                     tx += arrow_w
 
-            # A hairline under the sentence, filled to the same fraction.
-            # Thin on purpose: the sentence is the progress indicator, and a
-            # second loud one would compete with it.
             rule_y = baseline + metrics.descent() + scaled_px(12)
             rule_w = text_w
             rule_x = x + side + gap

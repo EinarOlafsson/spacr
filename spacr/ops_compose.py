@@ -145,7 +145,6 @@ def compose_window(window: Window,
             shape = (int(probe.shape[0]), int(probe.shape[1]))
         t_top, t_left = int(round(float(top))), int(round(float(left)))
         t_bottom, t_right = t_top + shape[0], t_left + shape[1]
-        # Does this tile touch the window at all? Most do not.
         if t_bottom <= window.top or t_top >= window.bottom:
             continue
         if t_right <= window.left or t_left >= window.right:
@@ -155,7 +154,6 @@ def compose_window(window: Window,
             raise ComposeError(
                 f"site {site} is not a single plane; compose one channel at "
                 f"a time (got shape {tile.shape})")
-        # The intersection, in window coordinates and in tile coordinates.
         wy0, wx0 = max(t_top, window.top), max(t_left, window.left)
         wy1, wx1 = min(t_bottom, window.bottom), min(t_right, window.right)
         ty0, tx0 = wy0 - t_top, wx0 - t_left

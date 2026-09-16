@@ -77,15 +77,9 @@ def _prefer_checkout_package() -> None:
             sys.modules.pop(module_name, None)
 
 
-# The tables below read the registry during module import, before
-# :func:`bootstrap` is called. Select the checkout now so those tables and the
-# later renderer cannot disagree about which spaCR tree they represent.
 _prefer_checkout_package()
 
 
-# ---------------------------------------------------------------------------
-# Bootstrap
-# ---------------------------------------------------------------------------
 
 def bootstrap():
     """Create (or return) the offscreen QApplication, isolated + fonted.
@@ -101,20 +95,9 @@ def bootstrap():
     from PySide6.QtCore import QSettings
     from PySide6.QtWidgets import QApplication
 
-    # QSettings.setDefaultFormat / setPath are PROCESS-GLOBAL. Redirecting
-    # them when we did not create the QApplication reaches into a host that
-    # is already running: under pytest-qt it repoints every other test's
-    # preferences at a temp directory mid-session, which is how this file
-    # took the whole tests/qt suite down with a segfault. Only isolate when
-    # this really is our own standalone process.
     global _WE_OWN_THE_APP
     app = QApplication.instance()
     if app is None:
-        # NativeFormat as well as Ini. `preferences._settings()` builds
-        # `QSettings("spacr", "qt")`, which is a NativeFormat object and
-        # ignores setDefaultFormat/setPath(IniFormat, ...) — redirecting only
-        # Ini left every render reading the operator's own saved font scale
-        # and theme, so "deterministic" renders differed per machine.
         sandbox = tempfile.mkdtemp(prefix="spacr-home-variants-")
         QSettings.setDefaultFormat(QSettings.IniFormat)
         for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
@@ -149,15 +132,9 @@ def available_themes() -> Tuple[str, ...]:
     return tuple(out)
 
 
-# ---------------------------------------------------------------------------
-# The real app registry
-# ---------------------------------------------------------------------------
 
 def _registry():
     """Return the live app registry together with its icon display overrides."""
-    # ``spacr.qt.run`` performs these registrations before constructing
-    # MainWindow. Home and the sidebar therefore show this launched registry,
-    # not the shorter import-time table from ``app.py`` alone.
     import spacr.qt
 
     spacr.qt.register_self_registering_modules()
@@ -272,7 +249,6 @@ class Ctx:
         """
         from spacr.qt.theme import apply_qpalette
         if not _WE_OWN_THE_APP:
-            # Guest inside someone else's QApplication: never touch it.
             if target is not None:
                 target.setStyleSheet(self.qss())
             return
@@ -323,11 +299,6 @@ class Ctx:
         return scaled
 
 
-# ---------------------------------------------------------------------------
-# Mock content for the elements that do not exist yet
-# ---------------------------------------------------------------------------
-# Fixed literals, never live state — see the module docstring. Anything
-# drawn from these is *proposed* UI, not something spaCR reports today.
 MOCK = {
     "project":   "toxo_mito_screen",
     "plates":    "12 plates",
@@ -382,19 +353,10 @@ USE_COUNTS = {
 UNUSED_APP_COUNT = 4
 
 for _key in all_keys():
-    # Variant 14 reads ``USE_COUNTS[k]`` for the badge on every tile, so a
-    # key missing here is not "sorts to the bottom", it is a KeyError that
-    # takes all thirty variants down. That is a hand-edit a module which
-    # registers itself from its own file cannot make, so the table fills
-    # itself and the literals above stay a statement about the apps
-    # somebody actually had an opinion on.
     USE_COUNTS.setdefault(_key, UNUSED_APP_COUNT)
 del _key
 
 
-# ---------------------------------------------------------------------------
-# Categorisations — every one covers every real app key exactly once
-# ---------------------------------------------------------------------------
 
 def cats_current() -> "List[Tuple[str, List[str]]]":
     """The current non-empty sections, straight out of ``spacr.qt.app``."""
@@ -438,10 +400,6 @@ def _with_late_registrations(
             f"{retired}. Remove each folded module from the Home table and "
             "route it through its host screen instead.")
 
-    # New registrations still enter the declared fallback so the review
-    # surface remains buildable. Retired rows are deliberately different:
-    # retaining one would present a standalone Home tile that no longer
-    # exists, so the explicit failure above makes that drift visible.
     result = [(title, list(keys)) for title, keys in cats]
     placed = {key for _title, keys in result for key in keys}
     missing = [key for key in all_keys() if key not in placed]
@@ -451,15 +409,6 @@ def _with_late_registrations(
                 keys.extend(missing)
                 break
         else:
-            # THE SAFETY NET HAS TO SAY WHEN IT IS NOT THERE. The fallback is
-            # matched by exact title, so a rename or a typo in the caller's
-            # table turns this whole mechanism off. Silently returning the
-            # unrepaired table does not avoid the failure, it MOVES it: the
-            # uncategorised keys then hit `check_coverage`, which raises
-            # "keys not categorised: [...]" at module import of the variant
-            # generators and takes all thirty Home renders down -- blaming the
-            # registry for a mistake in the band title. Raising here names the
-            # actual cause, at the line that can see it.
             raise AssertionError(
                 f"the fallback band {fallback!r} is not one of "
                 f"{[title for title, _ in result]!r}, so {len(missing)} "
@@ -468,9 +417,6 @@ def _with_late_registrations(
 
 
 CATS_BROAD3 = _with_late_registrations([
-    # Power / Design is the only app in the registry that runs BEFORE the
-    # images exist. "Prepare" is the closest of these three to that, and
-    # it is where a screener would look for it.
     ("Prepare", ["power", "experiment_design", "convert", "align",
                  "foreign", "external_masks", "project_browser",
                  "make_masks"]),
@@ -491,25 +437,16 @@ CATS_BROAD3 = _with_late_registrations([
 #: Seven tiles fit per row; the focused test pins the current widest band so
 #: registry growth or consolidation cannot silently add or leave an empty row.
 CATS_STAGE5 = _with_late_registrations([
-    # Design precedes acquisition; project conversion, dispatch and storage
-    # management all prepare inputs rather than interpret results.
     ("Acquire", ["power", "experiment_design", "convert", "align", "foreign",
                  "external_masks", "queue", "batch",
                  "distributed_jobs", "data_manager", "project_browser"]),
-    # Mask creation, manual correction and registered layer inspection are
-    # one segmentation stage; folded model tools are reached through Mask.
     ("Segment", ["mask", "make_masks", "layer_viewer"]),
-    # These applications quantify, label or summarize measured objects.
     ("Measure", ["measure", "annotate", "lineage", "analyze_plaques",
                  "recruitment", "invasion", "replication", "tabulate",
                  "feature_dict"]),
-    # Classification, barcode mapping, regression and exploratory model
-    # interrogation produce analytical results.
     ("Analyse", ["classify_merged", "map_barcodes", "regression", "umap",
                  "graph_builder", "profiler", "investigate_hit", "trellis",
                  "gate_editor", "feature_explorer", "dose_response"]),
-    # Provenance, QC, comparisons and export determine whether a result can
-    # be reported and preserve the evidence used to reach that decision.
     ("Report", ["plate_view", "train_compare", "run_history", "run_compare",
                  "db_browser", "report",
                  "pipeline_graph", "qc_dashboard", "outliers",
@@ -517,15 +454,10 @@ CATS_STAGE5 = _with_late_registrations([
 ], fallback="Report")
 
 CATS_NARROW8 = _with_late_registrations([
-    # The bands stay deliberately narrow. Folded capabilities remain on
-    # their host screens and therefore do not receive standalone entries.
     ("Segment",          ["mask", "make_masks"]),
     ("Measure",          ["measure", "tabulate", "feature_dict"]),
     ("Label",            ["annotate"]),
     ("Classify",         ["classify_merged", "train_compare"]),
-    # The Prediction Profiler goes here rather than under "Classify":
-    # what it sweeps is a screen's regression, which is this band's
-    # subject, while Classify contains the classifier and training review.
     ("Screens & reports", ["map_barcodes", "regression",
                            "umap", "graph_builder", "layer_viewer",
                            "plate_view", "report",
@@ -543,9 +475,6 @@ CATS_NARROW8 = _with_late_registrations([
 ], fallback="Screens & reports")
 
 CATS_QUESTIONS = _with_late_registrations([
-    # Power / Design answers the question BEFORE the first one here — "do
-    # I have enough images?" — and the honest place for it is the band
-    # about getting images, since that is the decision it feeds.
     ("I have images. Where are my objects?",
      ["mask", "make_masks", "align", "convert", "foreign",
       "external_masks", "power", "experiment_design", "project_browser"]),
@@ -553,18 +482,11 @@ CATS_QUESTIONS = _with_late_registrations([
      ["measure", "annotate", "analyze_plaques", "recruitment",
       "invasion", "replication", "layer_viewer", "tabulate", "lineage",
       "feature_dict"]),
-    # Hit List answers this band's question in the most direct way there
-    # is — it IS the list of genes that matter — and the Prediction
-    # Profiler is how you interrogate the model that produced it.
     ("I have a screen. Which genes matter?",
      ["classify_merged", "map_barcodes",
       "regression", "umap", "graph_builder", "profiler",
       "investigate_hit", "trellis", "gate_editor", "feature_explorer",
       "outliers", "dose_response"]),
-    # Pipeline Graph belongs here for the literal reason: it marks the
-    # outputs that no longer follow from their inputs, which is the
-    # question in the heading. Methods & Results is the other half — what
-    # you write down once you have decided you do believe it.
     ("Should I believe any of this?",
      ["plate_view", "train_compare", "report", "run_history", "run_compare", "db_browser", "data_manager",
       "queue", "batch", "distributed_jobs", "pipeline_graph",

@@ -249,10 +249,6 @@ def _object_prefixes(df: pd.DataFrame, object_type: Any) -> Optional[pd.Series]:
     stated = raw[~blank]
     if stated.empty:
         return None
-    # Validate the vocabulary once per call rather than once per row: an
-    # object table has a handful of distinct types and tens of millions of
-    # rows, and `object_type_prefix` raising per row would be the slow part
-    # of the only function on the lasso's hot path.
     for value in stated.unique():
         schema.object_type_prefix(value)
     return raw.where(~blank, "")
@@ -265,8 +261,6 @@ def _key_columns(timelapse: bool) -> list:
     """
     cols = list(OBJECT_KEY_COLUMNS)
     if timelapse:
-        # Insert the timepoint before the object label, matching the order
-        # `ObjectTableSchema.row_key_columns(timelapse=True)` uses.
         cols = list(schema.TIMEPOINT_KEY_COLUMNS) + [schema.OBJECT_LABEL_KEY]
     return cols
 
@@ -280,11 +274,6 @@ def _compose(df: pd.DataFrame, cols: list,
     joined = parts[0]
     for p in parts[1:]:
         joined = joined.str.cat(p, sep=schema.KEY_SEPARATOR)
-    # One pass over the composed key tells us whether any component smuggled
-    # a separator in: a well-formed key has exactly one per join. Checking
-    # here rather than per column keeps the common case — nothing to escape,
-    # and the key is byte for byte what it always was — at two extra passes
-    # instead of ten.
     expected = len(cols) - 1
     needs_escape = bool(
         (joined.str.count(schema.KEY_SEPARATOR) != expected).any()
@@ -447,10 +436,6 @@ class RangeFilter:
                 f"range filter names column {self.column!r}, which this frame "
                 f"does not have")
         values = pd.to_numeric(df[self.column], errors="coerce")
-        # Pandas 3 may expose this boolean array as a read-only view.  The
-        # bounds below deliberately refine it in place, so ask pandas for an
-        # owned, writable buffer rather than relying on version-specific
-        # ``to_numpy`` ownership.
         keep = values.notna().to_numpy(copy=True)
         if self.low is not None:
             keep &= (values >= self.low).to_numpy()
@@ -603,8 +588,6 @@ def _match(typed_rows: pd.Index, untyped_rows: Any,
         against fully typed keys.
     """
     keys = [str(k) for k in wanted]
-    # `Index.isin` already returns an ndarray — unlike `Series.isin`, which
-    # returns a Series. Calling `.to_numpy()` on it raises.
     mask = np.asarray(typed_rows.isin(keys), dtype=bool)
     if not keys or mask.all():
         return mask
@@ -617,13 +600,8 @@ def _match(typed_rows: pd.Index, untyped_rows: Any,
         return mask
     plain = untyped_rows() if callable(untyped_rows) else untyped_rows
     if loose:
-        # A key naming no type names the object whatever its type.
         mask |= np.asarray(plain.isin(loose), dtype=bool)
     if narrowed:
-        # A typed key still names a row that has not said what it is — but
-        # only such a row. Without the `row_untyped` guard a selection of
-        # `nucleus1` would light up `pathogen1`, which is the collapse
-        # rebuilt one level up.
         row_untyped = np.asarray(typed_rows) == np.asarray(plain)
         mask |= (row_untyped
                  & np.asarray(plain.isin(narrowed), dtype=bool))
@@ -814,9 +792,6 @@ class Selection:
         return cls(keys=None, source="")
 
 
-# ---------------------------------------------------------------------------
-# "Show me exactly these objects"
-# ---------------------------------------------------------------------------
 
 def as_key_index(keys: Any, *, timelapse: bool = False,
                  object_type: Any = None) -> pd.Index:

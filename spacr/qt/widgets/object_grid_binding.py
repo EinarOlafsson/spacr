@@ -67,13 +67,6 @@ class ObjectGridBinding(QObject):
         super().__init__(parent)
         self._grid = grid
         self._panel = panel
-        # REENTRANCY. Writing a value into a widget makes that widget emit,
-        # and a screen that reseeds the grid on every widget change would
-        # then rebuild the table under the cursor that is still in a cell.
-        # NO VALUE depends on this: `write_through` reads the grid once,
-        # before the first widget moves, so a reseed halfway cannot drop an
-        # edit. What the guard buys is that the table does not visibly
-        # rebuild, and the cell being typed into keeps its focus.
         self._busy = False
         #: Widgets already connected, so `follow_the_form` can be called
         #: again after the table widens without doubling every connection.
@@ -81,7 +74,6 @@ class ObjectGridBinding(QObject):
         self._grid.settings_changed.connect(self._write_back)
         self._grid.settings_changed.connect(self.follow_the_form)
 
-    # -- what the grid speaks for -----------------------------------------
 
     def owned_keys(self) -> FrozenSet[str]:
         """The settings keys the grid answers, as the panel now stands.
@@ -90,18 +82,12 @@ class ObjectGridBinding(QObject):
         panel hides the settings of an object whose channel names no plane
         and the grid must not claim a key that is no longer there.
         """
-        # READ FROM THE GRID, NOT FROM THE SETTINGS. The grid draws only the
-        # questions every object asks, and only the organelle slots the count
-        # asks for. Claiming a key it does not show would hide that setting
-        # from the form as well, and it would then be reachable from nowhere
-        # at all -- which is worse than either place on its own.
         owned = set()
         for question, row in self._grid.table().items():
             for obj in row:
                 owned.add(f"{obj}_{question}")
         return frozenset(owned)
 
-    # -- the two directions ------------------------------------------------
 
     def seed(self) -> None:
         """Show the panel's current answers in the grid.
@@ -117,9 +103,6 @@ class ObjectGridBinding(QObject):
             self._grid.set_settings(self._panel.collect())
         finally:
             self._busy = False
-        # AFTER THE TABLE EXISTS, not before. `follow_the_form` connects the
-        # widgets behind the cells the grid is SHOWING, and before the first
-        # seed it is showing none.
         self.follow_the_form()
 
     def follow_the_form(self) -> int:
@@ -190,12 +173,6 @@ class ObjectGridBinding(QObject):
                 continue
             if key in shown and _same(shown[key], current[key]):
                 continue
-            # SPLIT BY THE TABLE'S OWN RULE. `cell_mask_dim` divides into
-            # `cell` and `mask_dim`, but `organelleb_min_area` has to divide
-            # at the longest object prefix rather than the first underscore.
-            # Asking `to_table` for a one-key dict gets exactly the split the
-            # grid itself was built with, instead of a second rule beside it
-            # that could disagree.
             value = current[key]
             for question, row in to_table({key: value}).items():
                 for obj in row:
@@ -222,10 +199,6 @@ class ObjectGridBinding(QObject):
         still makes it emit, and a panel that re-validates on every emit
         would do the whole form's work on each keystroke in the table.
         """
-        # READ BOTH SIDES FIRST. Writing a widget makes it emit, which a
-        # screen may answer by reseeding the grid; taking the grid's answers
-        # as a snapshot here means the rest of the write proceeds from what
-        # the user actually typed rather than from a table reloaded halfway.
         before = self._panel.collect()
         after = self._grid.settings()
         changed: Dict[str, Any] = {}

@@ -125,7 +125,83 @@ def test_the_constant_is_renamed_and_the_old_name_still_works():
     assert module.INSTALLER_GREEN == module.SPLASH_BACKGROUND
 
 
-def test_the_painted_colours_come_from_the_palette():
+def test_the_constant_does_not_depend_on_the_theme_in_force_at_import(
+        monkeypatch):
+    """A module constant is read once; the theme at that moment must not
+    decide it.
+
+    Since 415 `_role` reads the theme spaCR opens in, and the constant was
+    still defined through it, so it held whichever theme resolved when the
+    process first imported this module. On dispatch 35012948690 that was a
+    Qt worker whose first import ran under a light application palette, and
+    the constant read `#fafafa`. The painted colour is `splash_role`, read
+    at paint time; the constant is the dark palette's, in every process.
+
+    The module is executed afresh under a light theme here rather than
+    trusting whatever order this process imported it in.
+    """
+    import importlib.util
+
+    from spacr.qt import preferences
+    from spacr.qt.theme import active_palette
+
+    monkeypatch.setattr(preferences, "resolve_effective_theme",
+                        lambda: "light")
+    # The premise: under this patch a live read IS light.
+    assert active_palette()["splash_bg"].lower() != "#000000"
+    assert module.splash_role("splash_bg", "#000000").lower() != "#000000"
+
+    spec = importlib.util.spec_from_file_location(
+        "spacr.qt.widgets._loading_screen_import_probe", module.__file__)
+    fresh = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fresh)
+
+    assert fresh.SPLASH_BACKGROUND.lower() == "#000000"
+    assert fresh.INSTALLER_GREEN == fresh.SPLASH_BACKGROUND
+
+
+def test_the_constant_is_read_from_the_dark_palette_with_a_fallback(
+        monkeypatch):
+    """The constant's lookup keeps the splash's rule: never raise."""
+    import spacr.qt.theme as theme
+
+    assert (module._dark_role("splash_bg", "#123456")
+            == palette_for("dark")["splash_bg"])
+
+    def explode(*args, **kwargs):
+        raise RuntimeError("no palette yet")
+
+    monkeypatch.setattr(theme, "palette_for", explode)
+    assert module._dark_role("splash_bg", "#123456") == "#123456"
+    monkeypatch.setattr(theme, "palette_for", lambda *a, **k: {})
+    assert module._dark_role("splash_bg", "#654321") == "#654321"
+
+
+@pytest.fixture
+def dark_theme_stored():
+    """Store the dark theme in the sandboxed preferences; restore after.
+
+    Since 415 the splash wears the theme spaCR opens in rather than the dark
+    palette unconditionally, so a test that names dark colours has to say
+    the theme is dark. tests/qt/conftest.py points the store at a throwaway
+    directory, so this never reaches the user's real preferences.
+    """
+    from spacr.qt import preferences
+
+    store = preferences._settings()
+    had = store.contains(preferences._KEY_THEME)
+    saved = store.value(preferences._KEY_THEME)
+    preferences.set_theme("dark")
+    yield
+    store = preferences._settings()
+    if had:
+        store.setValue(preferences._KEY_THEME, saved)
+    else:
+        store.remove(preferences._KEY_THEME)
+    store.sync()
+
+
+def test_the_painted_colours_come_from_the_palette(dark_theme_stored):
     dark = palette_for("dark")
     assert module._role_color("splash_bg").name().lower() == "#000000"
     assert module._role_color("splash_ink").name().lower() == "#ffffff"
@@ -196,5 +272,8 @@ def test_the_screen_paints_without_raising(qtbot):
     assert (shot.width(), shot.height()) == (640, 400)
     # The background it painted is the role's colour, read back off the
     # pixels rather than off the palette that was asked for.
+    # Since 415 that is the theme spaCR opens in, not the dark palette.
+    from spacr.qt.theme import active_palette
+
     corner = shot.toImage().pixelColor(2, 2)
-    assert corner.name().lower() == palette_for()["splash_bg"].lower()
+    assert corner.name().lower() == active_palette()["splash_bg"].lower()

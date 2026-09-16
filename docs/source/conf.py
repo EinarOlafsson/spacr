@@ -9,6 +9,11 @@ from __future__ import annotations
 import hashlib
 import os
 import sys
+from pathlib import Path
+
+_SOURCE_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(_SOURCE_ROOT / 'tools'))
+import nested_helper_docs as _nested_helper_docs
 
 sys.path.insert(0, os.path.abspath(
     os.path.join(__file__, '..', '..', 'spacr')
@@ -131,6 +136,14 @@ autoapi_python_class_content = 'both'   # class docstring + __init__ docstring
 # runs, which clears it first, so nothing stale survives.
 autoapi_keep_files           = True
 autoapi_member_order         = 'groupwise'   # attrs → methods, alphabetical inside
+# A changed rollout must invalidate AutoAPI's otherwise unchanged source cache.
+spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))
+
+
+def autoapi_prepare_jinja_env(env):
+    _nested_helper_docs.prepare_jinja(
+        env, root=_SOURCE_ROOT, ignore_patterns=autoapi_ignore,
+    )
 
 # -- HTML output — furo ----------------------------------------------------
 html_theme      = 'furo'
@@ -242,6 +255,9 @@ html_theme_options = {
 
 def _skip_implementation_data(app, what, name, obj, skip, options):
     """Hide mutable module state while retaining documented constants."""
+    helper_policy = _nested_helper_docs.helper_page_policy(what, name, obj, skip, options)
+    if helper_policy is not None:
+        return helper_policy
     if what in {'data', 'attribute'}:
         short_name = str(name).rsplit('.', 1)[-1]
         if not short_name.isupper():
@@ -250,4 +266,6 @@ def _skip_implementation_data(app, what, name, obj, skip, options):
 
 
 def setup(app):
+    app.add_config_value('spacr_nested_helper_modules', (), 'env')
+    _nested_helper_docs.register_sphinx_directive(app)
     app.connect('autoapi-skip-member', _skip_implementation_data)

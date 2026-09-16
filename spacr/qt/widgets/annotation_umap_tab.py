@@ -125,9 +125,6 @@ class PurityScatter(FastPlot):
         try:
             self.colour_by_column("purity", PURITY_COLORMAP)
         except ValueError as exc:
-            # Every cell shares one purity, or none of them has a finite one.
-            # The scatter is still worth showing; what is not true is that
-            # the colour means anything, so it is said rather than implied.
             self.set_status(f"Purity is not drawn as a colour: {exc}")
             return int(len(frame))
         self.set_status(
@@ -177,9 +174,6 @@ class AnnotationUmapTab(QWidget):
         row = QHBoxLayout()
         row.addWidget(QLabel("Annotation method"))
         self.method = QComboBox()
-        # THE ONES THIS CHECK CAN SPEAK ABOUT. `rank` is absent on purpose:
-        # it takes the top-scoring cells in the well, so its cells sitting
-        # near the positive controls restates how it chose them.
         from ...cell_montage import PICKING_MODES
 
         for name in PICKING_MODES:
@@ -190,10 +184,6 @@ class AnnotationUmapTab(QWidget):
         row.addWidget(self.run_button)
         layout.addLayout(row)
 
-        # The plot and the table are two views of ONE result, so they sit
-        # side by side behind a divider the user owns: the picture says where
-        # the cells landed, the table says by how much, and reading one
-        # against the other is the whole job.
         self.body = QSplitter(Qt.Horizontal)
         self.body.setChildrenCollapsible(False)
         self.plot = PurityScatter()
@@ -212,7 +202,6 @@ class AnnotationUmapTab(QWidget):
                  "computed until then.")
         self.clear_result("Nothing has been embedded yet.")
 
-    # ------------------------------------------------------------------
     def say(self, text: str) -> None:
         """Put ``text`` in the report box, replacing what was there."""
         self.report.setPlainText(str(text))
@@ -246,7 +235,6 @@ class AnnotationUmapTab(QWidget):
         self._controls = list(control_labels or [])
         self._effects = dict(effects or {})
 
-    # ------------------------------------------------------------------
     def run(self) -> dict:
         """Tune, embed, score, and report. Returns what it found."""
         from ...annotation_umap_qc import circularity_warning
@@ -254,9 +242,6 @@ class AnnotationUmapTab(QWidget):
         method = str(self.method.currentData() or "")
         warning = circularity_warning(method)
         if warning:
-            # SHOWN INSTEAD OF THE PLOT, not beside it. A picture drawn
-            # under a warning that it means nothing is still a picture
-            # somebody will screenshot.
             self.refuse(
                 "This method picked its cells by the phenotype score.",
                 f"This check cannot judge {method!r}.\n\n{warning}\n\n"
@@ -340,11 +325,6 @@ class AnnotationUmapTab(QWidget):
 
         recipes = [{"n_neighbors": n, "min_dist": d}
                    for n in (10, 15, 30) for d in (0.05, 0.1, 0.3)]
-        # HOLD THE WELLS APART WHERE THE FRAME NAMES THEM. Sibling control
-        # cells on both sides of the split would separate because they came
-        # from the same well, and the held-out silhouette would report that
-        # as biology. A frame that cannot name a well is split per object,
-        # which the result records rather than hiding.
         groups, level = self._control_groups(control_rows)
         chosen = fit_on_controls(
             features.iloc[control_rows].to_numpy(dtype=float),
@@ -358,9 +338,6 @@ class AnnotationUmapTab(QWidget):
         held = float(chosen.get("holdout_silhouette", float("nan")))
         gap = float(chosen.get("overfit_gap", float("nan")))
         if not chosen.get("trustworthy") or held <= self.MINIMUM_SEPARATION:
-            # REFUSED, WITH THE NUMBERS. This is the guard that matters: a
-            # search that separates only the half it was tuned on has found
-            # the split, not the biology.
             self.refuse(
                 f"Held-out separation {held:.3f} is not enough to judge on.",
                 f"The controls did not separate on cells the search never "

@@ -61,10 +61,10 @@ Consequences worth writing down because they are the ones that get fumbled:
 
 * row 0 -> ``A``, row 7 -> ``H`` (a 96-well plate), row 15 -> ``P`` (384).
 * row 25 -> ``Z``.
-* **row 26 -> ``AA``**, not ``[`` (which is what ``chr(65 + 26)`` gives) and
+* **row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and
   not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives).
   This is bijective base 26, and it is not a hypothetical: a 1536-well plate
-  has 32 rows and runs ``A``..``Z``, ``AA``..``AF``. Column 47 -> ``48``, for
+  has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for
   the same plate, so nothing here caps the column at 24 either.
 * the column is zero padded to two digits (``A01``, never ``A1``) because
   spaCR's strict Yokogawa regex is ``[A-Z]\\d{2}``.
@@ -99,7 +99,7 @@ either.
 Not downloading a 100 GB plate to answer "what is in it"
 --------------------------------------------------------
 :func:`inspect_container` reports the image count, the wells, the dimensions
-and the channel names **without ever calling ``getPlane``** — a fact the test
+and the channel names **without ever calling** ``getPlane`` — a fact the test
 suite pins by counting calls on the fake gateway. The importers additionally
 take ``limit`` (stop after N OMERO images) and ``dry_run`` (build the complete
 plan, list every filename that would be written, touch no pixels).
@@ -161,12 +161,12 @@ This follows :data:`spacr.qt._QT_MISSING_MESSAGE` and
 
 Two details of that guard are worth knowing:
 
-* **A missing ``Ice`` counts as a missing omero extra.** A half-built
+* A missing ``Ice`` counts as a missing omero extra. A half-built
   ``zeroc-ice`` is the single most likely way this fails in the field, and
   ``No module named 'Ice'`` mentions neither OMERO nor spaCR.
   :func:`missing_omero_message` says what happened.
-* **This module is called ``spacr/omero.py`` and does not shadow the
-  third-party ``omero`` package.** Absolute imports have been the default
+* This module is called ``spacr/omero.py`` and does not shadow the
+  third-party ``omero`` package. Absolute imports have been the default
   since Python 3, so a module inside the ``spacr`` package that asks for
   ``omero`` gets the top-level distribution, not its own sibling. That is
   verified rather than assumed — see
@@ -296,9 +296,6 @@ __all__ = [
 LOGGER = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# The optional dependency
-# ---------------------------------------------------------------------------
 
 #: The ``setup.py`` extra that provides ``omero-py``.
 OMERO_EXTRA = "omero"
@@ -379,13 +376,9 @@ def _missing_omero_extra(exc: ImportError) -> Optional[str]:
     :returns: the top-level module name to name in the hint, or ``None`` when
         ``exc`` has nothing to do with the extra.
     """
-    # ModuleNotFoundError sets `.name` to the module that was not found; a
-    # failed `from omero.gateway import BlitzGateway` sets it to the submodule.
     root = (getattr(exc, "name", None) or "").split(".", 1)[0]
     if root in OMERO_EXTRA_MODULES:
         return root
-    # Import hooks and hand-raised ImportErrors leave `.name` unset, so fall
-    # back to the message text before giving up on the friendly path.
     text = str(exc)
     for module in sorted(OMERO_EXTRA_MODULES):
         if re.search(rf"\b{re.escape(module)}\b", text):
@@ -412,10 +405,6 @@ def require_omero() -> Any:
         if module is None:
             raise
         raise OmeroExtraMissing(missing_omero_message(module)) from exc
-    # A silent self-import would look exactly like a broken OMERO install, so
-    # it is checked rather than argued about. It cannot happen through normal
-    # absolute-import resolution; it can happen if something has put this
-    # package's own directory on sys.path ahead of site-packages.
     origin = getattr(gateway, "__file__", "") or ""
     if os.path.realpath(origin) == os.path.realpath(__file__):
         raise OmeroExtraMissing(
@@ -438,9 +427,6 @@ def have_omero() -> bool:
     return True
 
 
-# ---------------------------------------------------------------------------
-# Errors
-# ---------------------------------------------------------------------------
 
 class OmeroError(ValueError):
     """Base class for every refusal this module makes.
@@ -468,9 +454,6 @@ class OmeroWellError(OmeroError):
     """A well's row/column indices are not a position on a plate."""
 
 
-# ---------------------------------------------------------------------------
-# The namespace
-# ---------------------------------------------------------------------------
 
 #: The root of every namespace spaCR writes.
 #:
@@ -516,9 +499,6 @@ def is_spacr_namespace(namespace: Optional[str]) -> bool:
     return namespace in SPACR_NAMESPACES
 
 
-# ---------------------------------------------------------------------------
-# Connection settings
-# ---------------------------------------------------------------------------
 
 #: OMERO's default SSL port.
 DEFAULT_PORT = 4064
@@ -783,8 +763,6 @@ def connect(
         settings = connection_settings(**overrides)
     factory = gateway_factory or _default_gateway_factory
 
-    # Everything logged about a connection goes through `describe()`, which
-    # cannot contain a credential.
     LOGGER.info("connecting to OMERO at %s", settings.describe())
     gateway = factory(settings)
 
@@ -800,9 +778,6 @@ def connect(
     return gateway
 
 
-# ---------------------------------------------------------------------------
-# Object ids
-# ---------------------------------------------------------------------------
 
 #: The OMERO container types this module knows how to name. Case is
 #: normalised to OMERO's own capitalisation, which is what ``getObject``
@@ -862,7 +837,6 @@ def parse_object_ref(value: Any) -> OmeroRef:
     if isinstance(value, OmeroRef):
         return value
     if isinstance(value, bool):
-        # bool is an int; `True` is not an object id and must not become 1.
         raise OmeroIdError(f"{value!r} is not an OMERO object id.")
     if isinstance(value, int):
         return _checked_ref(None, value, str(value))
@@ -936,9 +910,6 @@ def parse_object_id(value: Any, expect: Optional[str] = None) -> int:
     return ref.object_id
 
 
-# ---------------------------------------------------------------------------
-# The well mapping — OMERO (0-based row, column) -> spaCR keys
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class WellPosition:
@@ -1014,7 +985,6 @@ def _plate_index(value: Any, what: str) -> int:
             f"was never placed on the plate has no position, and guessing one "
             f"would put it on top of a real well.")
     if isinstance(value, bool) or not isinstance(value, int):
-        # A float row index is not a rounding problem, it is a wrong object.
         try:
             as_int = int(str(value).strip())
         except (TypeError, ValueError):
@@ -1044,7 +1014,7 @@ def omero_indices(well: str) -> Tuple[int, int]:
     """
     try:
         row_id, column_id = schema.parse_well(well, strict=True)
-    except Exception as exc:                       # schema raises WellParseError
+    except Exception as exc:
         raise OmeroWellError(
             f"{well!r} is not a well name; expected something like 'A01'.") from exc
     row_index = schema.row_index(row_id)
@@ -1054,9 +1024,6 @@ def omero_indices(well: str) -> Tuple[int, int]:
     return row_index - 1, column_index - 1
 
 
-# ---------------------------------------------------------------------------
-# Filenames
-# ---------------------------------------------------------------------------
 
 #: Characters kept in a plate token. Must agree with
 #: ``spacr.convert._sanitise``; ``tests/test_omero.py`` asserts that it does.
@@ -1128,16 +1095,13 @@ def well_from_image_name(name: Any) -> Optional[str]:
             row_id, column_id = schema.parse_well(token, strict=True)
             row_index = schema.row_index(row_id)
             column_index = schema.column_index(column_id)
-        except Exception:                          # not a well; try the next token
+        except Exception:
             continue
         if row_index and column_index and row_index <= 32 and column_index <= 48:
             return schema.well_id(row_index, column_index)
     return None
 
 
-# ---------------------------------------------------------------------------
-# Pixel size — a length, not a number of micrometres
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class PixelSize:
@@ -1187,9 +1151,6 @@ def pixel_size_from(length: Any) -> PixelSize:
     if isinstance(length, bool):
         return PixelSize()
     if isinstance(length, (int, float)):
-        # omero-py's `getPixelSizeX()` with no `units=` argument returns a
-        # float already converted to micrometres. Recording the unit it used
-        # is the whole point of this function.
         return PixelSize(float(length), "MICROMETER")
 
     value = None
@@ -1198,7 +1159,7 @@ def pixel_size_from(length: Any) -> PixelSize:
         if callable(method):
             try:
                 value = method()
-            except Exception:                      # a stub without the call
+            except Exception:
                 value = None
             break
     if value is None:
@@ -1228,9 +1189,6 @@ def pixel_size_from(length: Any) -> PixelSize:
     return PixelSize(value, None if unit is None else str(unit))
 
 
-# ---------------------------------------------------------------------------
-# Walking containers (the adapter, kept as thin as it can be)
-# ---------------------------------------------------------------------------
 
 def _call(obj: Any, *names: str, default: Any = None) -> Any:
     """Return the result of the first callable attribute in ``names``."""
@@ -1239,7 +1197,7 @@ def _call(obj: Any, *names: str, default: Any = None) -> Any:
         if callable(method):
             try:
                 return method()
-            except Exception:                      # the server said no
+            except Exception:
                 return default
     return default
 
@@ -1310,9 +1268,6 @@ def _resolve(gateway: Any, kind: str, object_id: int) -> Any:
     return obj
 
 
-# ---------------------------------------------------------------------------
-# Listing / inspecting, without fetching pixels
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ImageInfo:
@@ -1496,9 +1451,6 @@ def inspect_container(gateway: Any, ref: Any, *,
         unplaced_wells=unplaced)
 
 
-# ---------------------------------------------------------------------------
-# Import
-# ---------------------------------------------------------------------------
 
 #: The per-plane sidecar written next to the TIFFs.
 SIDECAR_CSV = "omero_import.csv"
@@ -1678,7 +1630,6 @@ def _write_planes(image_by_id: Mapping[int, Any],
                     f"image {plan.image_id} has no pixels; it may still be "
                     f"importing on the server.")
             pixels_cache[plan.image_id] = pixels
-        # OMERO's getPlane is (theZ, theC, theT), all 0-based.
         plane = pixels.getPlane(plan.z - 1, plan.channel - 1, plan.t - 1)
         write_tiff(target, plane)
         written.append(plan.filename)
@@ -1697,8 +1648,6 @@ def _write_sidecars(dst: Path, result_kind: str, object_id: int, name: str,
             writer.writerow(plan.csv_row(plate))
 
     first = listing.images[0] if listing.images else None
-    # `settings.redacted()` rather than `settings`: this file is written into
-    # a project folder that gets copied, zipped and shared.
     payload = {
         "spacr_version": get_version(),
         "imported_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -1973,9 +1922,6 @@ def import_container(gateway: Any, ref: Any, dst: Union[str, os.PathLike], *,
         f"a Plate.")
 
 
-# ---------------------------------------------------------------------------
-# Export: measurements -> key/value pairs
-# ---------------------------------------------------------------------------
 
 #: Keep a missing value as an explicit ``NaN`` entry. The default.
 NAN_KEEP = "keep"
@@ -2073,8 +2019,6 @@ def format_map_value(value: Any, *, float_format: str = FLOAT_FORMAT,
     if isinstance(value, bool):
         return "True" if value else "False"
     if getattr(getattr(value, "dtype", None), "kind", None) == "b":
-        # np.bool_ is not a bool and does answer __index__, so without this it
-        # would render as '1'. The dtype kind is the exact question to ask.
         return "True" if bool(value) else "False"
     if isinstance(value, int):
         return str(int(value))
@@ -2083,10 +2027,6 @@ def format_map_value(value: Any, *, float_format: str = FLOAT_FORMAT,
             return "inf" if value > 0 else "-inf"
         return float_format.format(value)
     if not isinstance(value, (str, bytes)):
-        # numpy scalars and Decimal reach here: they behave like numbers but
-        # are instances of neither builtin type. `__index__` is the exact
-        # question "is this an integer?" and is what distinguishes np.int64
-        # from np.float64 without a dtype lookup.
         try:
             if hasattr(value, "__index__"):
                 return str(int(value))
@@ -2260,8 +2200,6 @@ def summarise_rows(rows: Sequence[Mapping[str, Any]], *,
         elif not numbers and not others:
             summary[key] = None
         else:
-            # Mixed text and numbers in one column: there is no honest
-            # summary, so say nothing rather than average half of it.
             summary[key] = None
     return summary
 
@@ -2282,9 +2220,6 @@ def well_summary_pairs(rows: Sequence[Mapping[str, Any]], *,
     return measurement_pairs(summarise_rows(rows, columns=columns), **kwargs)
 
 
-# ---------------------------------------------------------------------------
-# Export: the replace-or-append decision
-# ---------------------------------------------------------------------------
 
 #: Update spaCR's own previous annotation in place. The default.
 REPLACE = "replace"
@@ -2445,9 +2380,6 @@ def _check_mode_and_namespace(mode: str, namespace: str) -> None:
             f"annotation safe: it can only ever replace its own.")
 
 
-# ---------------------------------------------------------------------------
-# Export: the adapter
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class AnnotationResult:

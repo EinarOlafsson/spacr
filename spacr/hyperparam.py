@@ -89,9 +89,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Messages the GUI and the CLI both surface verbatim
-# ---------------------------------------------------------------------------
 
 #: Shown instead of an ImportError traceback when umap-learn is absent.
 UMAP_MISSING_MESSAGE = (
@@ -205,9 +202,6 @@ APP_CRITERIA: Dict[str, List[str]] = {
     ],
     "classify": ["accuracy", "prauc", "loss"],
     "ml_analyze": ["accuracy", "roc_auc", "f1"],
-    # THE MERGED SCREEN SEARCHES EITHER FAMILY. The criteria both halves
-    # share come first, so a user who switches `classifier_family` keeps
-    # the one they picked.
     "classify_merged": ["accuracy", "prauc", "roc_auc", "f1", "loss"],
     "activation": ["deletion_auc", "insertion_auc", "pointing_game",
                    "sanity_gap"],
@@ -231,17 +225,10 @@ DEFAULT_SPACES: Dict[str, Dict[str, List[Any]]] = {
         "learning_rate": [0.001, 0.01, 0.1],
         "n_estimators": [100, 500, 1000],
     },
-    # Learning rate is the one knob both families take, so it is the
-    # default grid for the merged screen whichever one is selected.
     "classify_merged": {
         "learning_rate": [1e-4, 3e-4, 1e-3],
         "dropout_rate": [0.0, 0.1, 0.3],
     },
-    # One representative of each attribution family, because agreement within
-    # a family is nearly worthless and disagreement across families is the
-    # finding. Score-CAM and feature ablation are left out of the default
-    # grid: both are an order of magnitude slower than the rest and a sweep
-    # the user cancels tells them nothing.
     "activation": {
         "cam_type": ["gradcam", "gradcam_pp", "layercam", "saliency",
                      "integrated_gradients", "occlusion"],
@@ -250,9 +237,6 @@ DEFAULT_SPACES: Dict[str, Dict[str, List[Any]]] = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Search space
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class SearchSpace:
@@ -352,9 +336,6 @@ class SearchSpace:
         return f"{' × '.join(parts)}  ({self.size()} configurations)"
 
 
-# ---------------------------------------------------------------------------
-# Trials + results
-# ---------------------------------------------------------------------------
 
 @dataclass
 class Trial:
@@ -415,7 +396,6 @@ class SearchResult:
     higher_is_better: bool = True
     objectives: Dict[str, bool] = field(default_factory=dict)
 
-    # -- basic slices ----------------------------------------------------
 
     @property
     def successful(self) -> List[Trial]:
@@ -491,7 +471,6 @@ class SearchResult:
         indexes = {id(trial) for trial in front}
         return [trial for trial in self.ranked() if id(trial) in indexes]
 
-    # -- spread ----------------------------------------------------------
 
     def score_stats(self) -> Dict[str, Optional[float]]:
         """Summary statistics over the successful trials' scores.
@@ -589,9 +568,6 @@ class SearchResult:
         return rows
 
 
-# ---------------------------------------------------------------------------
-# Persisted UMAP-search trials
-# ---------------------------------------------------------------------------
 
 def umap_checkpoint_path(settings: Mapping[str, Any]) -> Optional[str]:
     """Return the default UMAP-search checkpoint path for module settings.
@@ -612,9 +588,6 @@ def umap_checkpoint_path(settings: Mapping[str, Any]) -> Optional[str]:
     if not source:
         return None
     path = os.path.abspath(os.path.expanduser(str(source)))
-    # A hand-built/test settings dict may carry a placeholder such as "/x".
-    # Only explicit checkpoint_path is allowed to create a new project tree;
-    # an inferred path must start from a source that actually exists.
     if not os.path.exists(path):
         return None
     if os.path.isfile(path) or path.lower().endswith((".db", ".sqlite")):
@@ -768,9 +741,6 @@ class _UmapCheckpoint:
         self.store.finish(meta=state)
 
 
-# ---------------------------------------------------------------------------
-# The runner every search shares
-# ---------------------------------------------------------------------------
 
 def _normalise_outcome(value: Any) -> Tuple[Optional[float], Dict[str, Any]]:
     """Coerce whatever a fit function returned into ``(score, extra_metrics)``.
@@ -884,7 +854,7 @@ def _run_trials(fit_fn: Callable[..., Any],
                                "configuration")
         except PipelineCancelled:
             raise
-        except Exception as exc:  # one bad configuration must not lose the sweep
+        except Exception as exc:
             trial.error = f"{type(exc).__name__}: {exc}"
         trial.duration = time.perf_counter() - started
         result.trials.append(trial)
@@ -951,9 +921,6 @@ def _append_summary_notes(result: SearchResult, requested: int) -> None:
         )
 
 
-# ---------------------------------------------------------------------------
-# Public searches
-# ---------------------------------------------------------------------------
 
 def grid_search(fit_fn: Callable[[Dict[str, Any]], Any],
                 space: SearchSpace,
@@ -1050,9 +1017,6 @@ def random_search(fit_fn: Callable[[Dict[str, Any]], Any],
                 f"evaluated — this is an exhaustive grid, not a random sample."
             )
         seen = set()
-        # Bounded rejection sampling; the cap keeps a pathological space from
-        # spinning forever, and the fallback fills the remainder from the grid
-        # in deterministic order.
         attempts = 0
         max_attempts = max(1000, wanted * 200)
         while len(picked) < wanted and attempts < max_attempts:
@@ -1106,31 +1070,8 @@ def umap_metrics() -> Tuple[str, ...]:
     ordinary thing to do.
     """
     try:
-        # NOT a bare `from umap.distances import ...`. umap's package
-        # __init__ reaches umap.parametric_umap, which imports TENSORFLOW,
-        # and spaCR's standing rule is that no module drags TF in.
-        #
-        # `spacr.utils.umap` is a lazy loader for `umap.umap_` with the
-        # TF-backed roots blocked. Touching it first puts the guarded package
-        # in sys.modules, after which the sibling submodule is fetched by
-        # name -- importlib rather than an import statement, because the
-        # no-TF guard is a line-level grep and a `from umap.` line is what it
-        # is there to catch.
         from .utils import umap as _guarded_umap
         _guarded_umap.UMAP
-        # `__import__`, deliberately, and not importlib.import_module.
-        #
-        # Two constraints meet here. The no-TF guard is a line-level grep, so
-        # a `from umap.` line is out. And
-        # `test_the_panel_builds_without_umap_installed` simulates a machine
-        # with no umap by patching `builtins.__import__` -- which
-        # importlib.import_module bypasses, so using it made that test pass
-        # umap-less machines a library they do not have.
-        #
-        # `__import__` satisfies both: the grep does not match it, and the
-        # test's patch does intercept it. The guarded loader above has
-        # already put the package in sys.modules with the TF-backed roots
-        # blocked, so this only fetches the sibling submodule.
         named_distances = __import__(
             "umap.distances", fromlist=["named_distances"]).named_distances
     except Exception:
@@ -1153,7 +1094,7 @@ UMAP_WALK_PARAMETERS: Dict[str, Dict[str, Any]] = {
     "min_dist": {"step": 0.05, "minimum": 0.0, "maximum": 1.0},
     "n_components": {"step": 1.0, "minimum": 1.0, "maximum": 10.0,
                      "integer": True},
-    "metric": {"choices": None},  # filled from the installed umap-learn
+    "metric": {"choices": None},
     "spread": {"step": 0.25, "minimum": 0.1, "maximum": 10.0},
     "set_op_mix_ratio": {"step": 0.1, "minimum": 0.0, "maximum": 1.0},
     "local_connectivity": {"step": 1.0, "minimum": 1.0, "integer": True},
@@ -1551,10 +1492,6 @@ def walk_search(fit_fn: Callable[[Dict[str, Any]], Any],
 
     def _persisted_state() -> Dict[str, Any]:
         """Return a fresh walk checkpoint with legacy two-axis centre keys."""
-        # `centre_n`/`centre_d` are written alongside the general `centre`
-        # so a checkpoint from this build stays readable by the 1.5.x
-        # two-axis reader. Dropping them would make an in-flight search
-        # unresumable by the version that started it.
         payload: Dict[str, Any] = {
             "rounds_completed": rounds_completed,
             "centre": dict(centre),
@@ -1573,7 +1510,6 @@ def walk_search(fit_fn: Callable[[Dict[str, Any]], Any],
                 if axis.name in stored:
                     centre[axis.name] = axis.clamp(stored[axis.name])
         else:
-            # A checkpoint written before the walk went N-dimensional.
             legacy = {"n_neighbors": state.get("centre_n"),
                       "min_dist": state.get("centre_d")}
             for axis in axes:
@@ -1806,10 +1742,6 @@ def local_direction_search(
         raise ValueError(
             "Local UMAP optimization steps must be positive and the minimum "
             "improvement must be zero or greater.")
-    # The conversion is inside the guard and the comparison is outside it.
-    # With the comparison inside, its own ValueError was caught by the very
-    # except that was meant for a non-numeric value, and a user who typed a
-    # negative threshold was told their numbers were not numbers.
     try:
         improvement = float(min_improvement)
     except (TypeError, ValueError) as exc:
@@ -1846,9 +1778,6 @@ def local_direction_search(
         should_stop=should_stop, notes=notes, checkpoint=checkpoint)
 
 
-# ---------------------------------------------------------------------------
-# UMAP
-# ---------------------------------------------------------------------------
 
 def umap_available() -> Tuple[bool, str]:
     """Whether umap-learn can be imported.
@@ -1856,9 +1785,6 @@ def umap_available() -> Tuple[bool, str]:
     :returns: ``(True, "")`` when available, otherwise ``(False, message)``
         carrying :data:`UMAP_MISSING_MESSAGE`.
     """
-    # Through spacr.utils, never a bare `import umap`: umap's package
-    # __init__ imports umap.parametric_umap -> tensorflow, and TF is not
-    # a spaCR dependency. The lazy wrapper blocks it for that import.
     from .utils import umap, OptionalDependencyCompatibilityError
     try:
         umap.UMAP  # noqa: B018 - forces the deferred import
@@ -1877,14 +1803,11 @@ def _default_umap_embed(features, params: Dict[str, Any], seed: int):
     :param seed: ``random_state`` so a repeated sweep reproduces.
     :returns: the 2-D embedding.
     """
-    from .utils import umap  # never a bare `import umap` — see umap_available
+    from .utils import umap
     kwargs = dict(params)
     kwargs.setdefault("n_components", 2)
     kwargs.setdefault("random_state", seed)
     reducer = umap.UMAP(**kwargs)
-    # umap-learn intentionally disables parallel optimisation when a
-    # random_state is supplied. That is expected for a reproducible search,
-    # but it emits the same warning for every trial and buries useful output.
     import warnings
     with warnings.catch_warnings():
         warnings.filterwarnings(
@@ -1913,7 +1836,6 @@ def _umap_scores(features, embedding, labels, k: int) -> Dict[str, float]:
     X = np.asarray(features, dtype=float)
     E = np.asarray(embedding, dtype=float)
     n = X.shape[0]
-    # trustworthiness requires k < n/2.
     kk = max(1, min(int(k), (n - 1) // 2))
     out: Dict[str, float] = {
         "trustworthiness": float(trustworthiness(X, E, n_neighbors=kk)),
@@ -1962,8 +1884,6 @@ def embedding_stability(
     k = max(1, min(int(neighbourhood_k), shape[0] - 1))
     neighbourhoods = []
     for array in arrays:
-        # Query k+1 because a row is its own nearest point, then remove it
-        # explicitly rather than relying on sklearn's query-mode distinction.
         raw = NearestNeighbors(n_neighbors=k + 1).fit(array).kneighbors(
             array, return_distance=False,
         )
@@ -2149,8 +2069,6 @@ def umap_objective_scores(
         "stability": float(stability),
         "cluster_structure": float(structure),
     }
-    # A geometric mean prevents one excellent property from fully hiding a
-    # collapsed objective, while a tiny floor keeps the result finite.
     composite = math.exp(sum(
         normalized_weights[name] * math.log(max(1e-12, objectives[name]))
         for name in UMAP_OBJECTIVES
@@ -2299,11 +2217,6 @@ def umap_search(features,
             "UMAP hyperparameter search needs at least 3 rows after filtering; "
             f"only {n_samples} remain.")
 
-    # umap-learn otherwise silently truncates every oversized n_neighbors
-    # value to n_samples - 1. Apart from filling the terminal with warnings,
-    # that can make several nominally different trials evaluate the exact same
-    # embedding. Bound and de-duplicate the search before any reducer is fit so
-    # the reported parameters are the parameters that were actually evaluated.
     maximum_neighbors = n_samples - 1
     bounded_params = dict(space.params)
     neighbor_note = ""
@@ -2369,8 +2282,6 @@ def umap_search(features,
                 value = value.get()
             return np.asarray(value)
     else:
-        # An injected embedder is neither umap-learn nor cuML. Reusing either
-        # requested label would be false provenance in checkpoints and rows.
         requested_backend = "custom"
 
     notes = [
@@ -2446,9 +2357,6 @@ def umap_search(features,
     def _fit(params: Dict[str, Any]) -> Tuple[float, Dict[str, Any]]:
         """Embed one configuration and score it with every criterion."""
         fit_params = dict(params)
-        # A search may vary only min_dist/metric. Keep UMAP's implicit default
-        # safe for a small dataset too, without adding an unsearched table
-        # column to Trial.params.
         fit_params.setdefault("n_neighbors", implicit_neighbors)
         fit_params.setdefault("n_components", n_components)
         repeat_count = (
@@ -2508,8 +2416,6 @@ def umap_search(features,
                     ],
                 })
             except Exception as exc:
-                # Clustering is an optional second analysis of a valid map.
-                # Its failure must stay on that row, not erase the embedding.
                 extra["cluster_error"] = f"{type(exc).__name__}: {exc}"
         if keep_embeddings:
             extra["embedding"] = embedding
@@ -2523,16 +2429,11 @@ def umap_search(features,
                 "parameter -- it is a path through the space from one point, "
                 "not a grid over it. Enter a single value in each field.")
         if walk_parameters:
-            # The user chose the space. Anything they named that the
-            # starting point does not carry is an error there rather than
-            # here, so `umap_walk_axes` is given the whole start dict.
             axes = umap_walk_axes(
                 starts[0], parameters=walk_parameters,
                 steps=walk_steps, resolutions=walk_resolutions,
                 n_neighbors_max=maximum_neighbors)
         else:
-            # The two-axis default, expressed as axes rather than as a
-            # separate code path, so there is one Walk and not two.
             axes = [
                 WalkAxis("n_neighbors", step=float(n_neighbors_step),
                          minimum=2.0, integer=True,
@@ -2584,9 +2485,6 @@ def umap_search(features,
     return result
 
 
-# ---------------------------------------------------------------------------
-# Activation — sweeping what a trained model is said to attend to
-# ---------------------------------------------------------------------------
 
 @dataclass
 class ActivationSearchData:
@@ -2623,8 +2521,6 @@ def _activation_params(params: Mapping[str, Any]) -> Tuple[str, Dict[str, Any],
     :returns: ``(method, method_kwargs, smoothgrad_samples, smoothgrad_sigma)``.
     """
     p = dict(params)
-    # Both spellings are removed whichever one supplied the value, so neither
-    # can leak downstream into the attribution call as a stray keyword.
     named = p.pop("method", None)
     method = str(p.pop("cam_type", None) or named or "gradcam")
     if method in ("saliency_image", "saliency_channel"):
@@ -2726,10 +2622,6 @@ def activation_fit_fn(data: ActivationSearchData,
             "n_images": len(maps),
             "n_flat_maps": flat,
         }
-        # The image-to-image spread of the ranked criterion is this search's
-        # noise yardstick, the way fold-to-fold spread is the classifiers'. A
-        # configuration that wins by less than the variation between images has
-        # not won.
         per_image = {"deletion_auc": deletions,
                      "insertion_auc": insertions}.get(criterion, [])
         scores["fold_std"] = (statistics.pstdev(per_image)
@@ -2961,12 +2853,6 @@ def load_activation_data(settings: Mapping[str, Any],
     steps = [transforms.ToTensor(),
              transforms.CenterCrop(size=(image_size, image_size))]
     if settings.get("normalize_input", True):
-        # WHICH statistics is `input_statistics`, the same setting the
-        # training and inference loaders read. A hard-coded 0.5/0.5 here
-        # attributes a model under statistics it was not trained with: the
-        # saliency is computed on inputs shifted away from the ones the
-        # weights learned, so the peak it reports need not be the peak the
-        # model would produce in a real run.
         from .normalization import normalization_stats
         stats = normalization_stats(
             settings.get("input_statistics", "symmetric"),
@@ -2996,9 +2882,6 @@ def load_activation_data(settings: Mapping[str, Any],
                                 notes=notes)
 
 
-# ---------------------------------------------------------------------------
-# Grouped cross-validated search — Classify (CV) and Classify (ML)
-# ---------------------------------------------------------------------------
 
 def build_folds(labels,
                 n_folds: int = 5,
@@ -3160,9 +3043,6 @@ def cv_search(fit_fn: Callable[[Dict[str, Any], Any, Any], Any],
         folds = [(np.asarray(tr, dtype=int), np.asarray(va, dtype=int))
                  for tr, va in folds]
 
-    # Structural guarantee, checked rather than assumed: no fold — train or
-    # validation — may contain a test index. A search that scores on test data
-    # selects a configuration that has already seen the answers.
     for i, (tr, va) in enumerate(folds):
         leaked = test_set.intersection(int(x) for x in tr) | \
                  test_set.intersection(int(x) for x in va)
@@ -3242,9 +3122,6 @@ def cv_search(fit_fn: Callable[[Dict[str, Any], Any, Any], Any],
                        notes=notes, call=_call)
 
 
-# ---------------------------------------------------------------------------
-# Reporting
-# ---------------------------------------------------------------------------
 
 def format_search(result: SearchResult, max_rows: int = 20) -> str:
     """Render a search result as plain text, caveats first.
@@ -3331,9 +3208,6 @@ def format_search(result: SearchResult, max_rows: int = 20) -> str:
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# App backends — what the GUI's "Hyperparameter search" button actually runs
-# ---------------------------------------------------------------------------
 
 @dataclass
 class SearchData:
@@ -3440,7 +3314,6 @@ def load_search_data(app_key: str, settings: Mapping[str, Any]) -> SearchData:
     if app_key == "umap":
         return data
 
-    # Supervised searches need labels and well ids.
     groups, warn = _well_groups(frame)
     data.groups = groups
     if warn:
@@ -3831,11 +3704,6 @@ def run_search_for_app(app_key: str,
             run_sanity_check=bool(settings.get("sanity_check", True)),
             on_trial=on_trial, should_stop=should_stop)
 
-    # THE MERGED SCREEN TAKES THIS ARM WHEN IT IS THE TORCH FAMILY. Its
-    # `classifier_family` says which classifier it is about to fit, and
-    # the cross-validated image path is the one `classify` used to own;
-    # a gradient-boosting family falls through to the measured-feature
-    # path below, which is what `ml_analyze` used.
     family = str(settings.get("classifier_family", "cv") or "cv").lower()
     if app_key == "classify" or (
             app_key == "classify_merged" and family in ("cv", "torch", "dl")):

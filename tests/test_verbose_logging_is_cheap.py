@@ -45,6 +45,10 @@ def test_the_animation_modules_are_never_traced():
     assert "spacr.qt.widgets.ambient" in logging_util._TRACE_SKIP_MODULES
     assert "spacr.qt.widgets.fractal_travel" in logging_util._TRACE_SKIP_MODULES
     assert "spacr.qt.widgets.fractal_cascade" in logging_util._TRACE_SKIP_MODULES
+    # The third spaceout pattern. Listed here because the skip list had
+    # two of its three siblings and the omission was invisible: nothing
+    # fails when a hot module is merely absent from a skip list.
+    assert "spacr.qt.widgets.fractal_space" in logging_util._TRACE_SKIP_MODULES
 
 
 def test_a_paint_helper_emits_nothing_while_verbose_is_on(caplog):

@@ -25,22 +25,6 @@ PANELS: Tuple[Tuple[str, str, str], ...] = (
 )
 
 
-# NO ``Attributes`` SECTION, AND THAT IS THE FIX RATHER THAN A STYLE
-# CHOICE. AutoAPI runs with ``class_content='both'``, so this docstring
-# and ``__init__``'s are concatenated before Napoleon sees them, and a
-# trailing ``Attributes`` section swallows whatever follows it: Sphinx
-# emitted `.. attribute:: Build the panel that follows a training run's
-# losses and metrics.` and then bare `.. attribute::` directives carrying
-# `:type: param parent: ...`. That is an ERROR -- "1 argument(s)
-# required, 0 supplied" -- and `sphinx-build -W` fails the docs job on it.
-#
-# TWO WEAKER FIXES WERE TRIED AND MEASURED, both on the real build:
-# a closing paragraph after the section (the ERROR survived), and making
-# ``__init__`` NumPy-sectioned so the two agreed on a style (it became
-# TWO errors). The section itself is the problem, so the two attributes
-# are prose. They are still documented; they are simply not a Napoleon
-# section in a class whose docstring is about to have another one glued
-# to it.
 class TrainingMonitor(QWidget):
     """Display training metrics as incrementally updated curves.
 
@@ -82,7 +66,6 @@ class TrainingMonitor(QWidget):
             layout.addWidget(plot)
             self.plots[key] = plot
 
-    # ------------------------------------------------------------- drawing
 
     def _curve(self, panel: str, name: str):
         """Return the persistent plot item for a metric series."""
@@ -120,14 +103,12 @@ class TrainingMonitor(QWidget):
             except (TypeError, ValueError):
                 continue
             if not np.isfinite(y):
-                # Omitting the point represents a non-finite epoch as a gap.
                 continue
             panel = self._panel_for(str(name))
             curve = self._curve(panel, str(name))
             xs, ys = self._points[str(name)]
             xs.append(float(epoch))
             ys.append(y)
-            # Updating the existing item preserves the view and legend.
             curve.setData(xs, ys)
             touched += 1
         return touched

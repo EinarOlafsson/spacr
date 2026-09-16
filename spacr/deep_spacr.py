@@ -22,22 +22,14 @@ from sklearn.metrics import precision_recall_curve, auc, average_precision_score
 from torchvision import transforms
 from torch.utils.data import DataLoader, Subset
 
-# Fail-loud accounting: a cross-validation fold that dies must not be
-# averaged away silently, and an optional plot that fails must still be
-# visible somewhere other than /dev/null.
 from .errors import RunLedger
-from .plot import save_figure  # every kept figure goes through the format/DPI preference
-# One seed reaching Python, NumPy and Torch (CPU + CUDA) rather than only
-# the split helpers. See spacr.runctx.
+from .plot import save_figure
 from .runctx import resolve_seed, seed_everything, seed_worker, torch_generator
 from .torch_artifacts import (
     load_model_artifact,
     restore_training_state,
     save_model_artifact,
 )
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib only
-# inside its own functions, so naming it here costs nothing at
-# import time.
 from .figures.style import figure_style, theme_target
 
 
@@ -194,11 +186,6 @@ def autocasting(on, device):
     if not on:
         yield
         return
-    # CPU autocast accepted float16 only in newer Torch releases.  The
-    # supported 2.1 floor accepts bfloat16 there; CUDA uses float16 in every
-    # supported release. Production enables AMP only for CUDA, but keeping
-    # this helper valid for either device makes its context-manager contract
-    # independently testable on CPU-only hosts.
     dtype = torch.bfloat16 if device.type == "cpu" else torch.float16
     with torch.autocast(device_type=device.type, dtype=dtype):
         yield
@@ -239,19 +226,10 @@ def pick_device(room_mb: int = GPU_ROOM_MB, what: str = "this run"):
     if not found.is_gpu:
         return torch.device("cpu"), ""
     if not found.is_cuda:
-        # ANY OTHER ACCELERATOR IS TAKEN AT FACE VALUE. The free-memory
-        # check below is `torch.cuda.mem_get_info`, which exists only on
-        # CUDA -- Metal shares memory with the system and has no
-        # equivalent, and asking ROCm costs a context for a number spaCR
-        # would only use to print. A real OOM stays a real failure, which
-        # is the same bargain the missing-mem_get_info branch already
-        # strikes for old CUDA drivers.
         return found.torch_device, ""
     try:
         free, total = torch.cuda.mem_get_info()
     except Exception:                                        # noqa: BLE001
-        # An older driver with no mem_get_info. Use the card and let a real
-        # OOM be a real failure; guessing would be worse.
         return torch.device("cuda"), ""
     free_mb, total_mb = free / (1024 * 1024), total / (1024 * 1024)
     if free_mb >= room_mb:
@@ -342,12 +320,6 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
         print(note)
     
     if normalize:
-        # WHICH statistics is now a setting. spaCR has always used 0.5/0.5,
-        # which maps [0,1] to [-1,1]; every ImageNet-pretrained torchvision
-        # model was fitted on 0.485/0.456/0.406 and 0.229/0.224/0.225, so a
-        # finetune under the old default hands pretrained weights inputs
-        # distributed differently from the ones they learned. The default is
-        # unchanged so existing scores do not move under anybody.
         from .normalization import normalization_stats
         stats = normalization_stats(input_statistics)
         steps = [transforms.ToTensor(),
@@ -364,19 +336,10 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
 
     print(model)
     
-    # `len(dataset)`, NOT `len(src)`. Both of these counted the CHARACTERS
-    # IN THE PATH: a run over a folder whose name happened to be 98
-    # characters long announced "Loading dataset ... with 98 images" and
-    # then "Loaded 98 images", and returned an empty frame. The number was
-    # plausible, it was printed twice, and it had nothing to do with the
-    # data (236 B5).
     dataset = NoClassDataset(data_dir=src, transform=transform, shuffle=False,
                              load_to_memory=False)
     print(f'Loading dataset in {src} with {len(dataset)} images')
     if not len(dataset):
-        # AND AN EMPTY FOLDER IS NOT A RESULT. It returned a frame with the
-        # right columns and no rows, which reads downstream as "the model
-        # scored nothing" rather than "there was nothing to score".
         raise ValueError(
             f"No images to score in {src!r}. `apply_model` reads the "
             f"pictures lying DIRECTLY in that folder -- it does not walk "
@@ -461,8 +424,6 @@ def apply_model_to_tar(settings=None):
         print(note)
 
     if settings['normalize']:
-        # See the note on the other transform: which statistics is a setting
-        # now, and the model card records the answer.
         from .normalization import describe_normalization, normalization_stats
         mode = settings.get('input_statistics', 'symmetric')
         stats = normalization_stats(
@@ -492,11 +453,6 @@ def apply_model_to_tar(settings=None):
     model, _ = _load_inference_model(settings['model_path'], device)
 
     dataset = TarImageDataset(tar_path, transform=transform)
-    # A tar built from on-demand crops carries the crop-format marker, so say
-    # which channel ordering the model is about to be shown. The pixels are
-    # NOT re-ordered here: a model's weights are tied to the order it was
-    # trained on, and quietly correcting a legacy archive at inference time
-    # would invalidate every model trained before spaCR grew the marker.
     if getattr(dataset, 'crop_format', None) is not None:
         from .crops import CROP_FORMAT_RGB
         order = 'rgb' if dataset.crop_format == CROP_FORMAT_RGB else 'bgr (legacy)'
@@ -563,8 +519,6 @@ def apply_model_to_tar(settings=None):
     df = pd.DataFrame(data, index=None)
     df = process_vision_results(df, settings['score_threshold'])
     if probability_columns:
-        # Multiclass predictions are class indices, not a binary threshold on
-        # the winning class's confidence.
         df['cv_predictions'] = df['predicted_label'].astype(int)
 
     df.to_csv(result_loc, index=True, header=True, mode='w')
@@ -591,11 +545,9 @@ def _binary_metrics(y_true: np.ndarray, pos_probs: np.ndarray) -> dict:
     """Metrics for binary classification."""
     if y_true.ndim != 1:
         y_true = y_true.reshape(-1)
-    # Precision-Recall AUC
     if len(np.unique(y_true)) >= 2:
         precision, recall, thresholds = precision_recall_curve(y_true, pos_probs, pos_label=1)
         pr_auc = auc(recall, precision)
-        # F1-optimal threshold (optional; we still report 0.5 preds below)
         thresholds = np.append(thresholds, 1.0)
         with np.errstate(divide='ignore', invalid='ignore'):
             f1 = 2 * (precision * recall) / (precision + recall)
@@ -605,10 +557,8 @@ def _binary_metrics(y_true: np.ndarray, pos_probs: np.ndarray) -> dict:
         pr_auc = np.nan
         opt_thr = 0.5
 
-    # Discrete preds at 0.5 threshold for stability/readability
     pred = (pos_probs >= 0.5).astype(int)
 
-    # Accuracies
     acc = (pred == y_true).mean() if len(y_true) else np.nan
     neg_mask = y_true == 0
     pos_mask = y_true == 1
@@ -621,17 +571,9 @@ def _binary_metrics(y_true: np.ndarray, pos_probs: np.ndarray) -> dict:
         "pos_accuracy": float(acc_pos),
         "prauc": float(pr_auc),
         "optimal_threshold": float(opt_thr),
-        # train_model has always PRINTED f1_macro, but neither metric helper
-        # returned it, so it read nan on every line and never reached the CSV.
         "f1_macro": (float(f1_score(y_true, pred, average='macro',
                                     zero_division=0))
                      if len(y_true) else float(np.nan)),
-        # Binary reported its two class accuracies under names nothing else
-        # understood, so every consumer that wanted "the per-class numbers"
-        # had to branch on the head shape. Report the same two values under
-        # the SAME key the multiclass path uses, so the live view, the
-        # TensorBoard scalars and the model card are one code path.
-        # neg/pos stay for backwards compatibility.
         "per_class_accuracy": [
             0.0 if not np.isfinite(acc_neg) else float(acc_neg),
             0.0 if not np.isfinite(acc_pos) else float(acc_pos),
@@ -649,10 +591,6 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
     """
     C = prob_mat.shape[1]
     if len(y_true) == 0:
-        # scikit-learn 1.7 rejects empty arrays in confusion_matrix. An empty
-        # validation split is still a valid evaluator result: its metrics are
-        # undefined, its class schema is known, and no fabricated sample
-        # should be introduced merely to make a dependency accept the call.
         return {
             "accuracy": float(np.nan),
             "neg_accuracy": float(np.nan),
@@ -668,49 +606,30 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
     preds = prob_mat.argmax(axis=1)
     acc = (preds == y_true).mean()
 
-    # Per-class (diagonal / row sum)
     cm = confusion_matrix(y_true, preds, labels=np.arange(prob_mat.shape[1]))
-    # The old `cm.sum(axis=1, where=(rowsums != 0), initial=1)` looked like a
-    # divide-by-zero guard but was neither: `initial` seeds np.add.reduce, so it
-    # added 1 to *every* row sum (a perfect classifier scored diag/(rowsum+1)),
-    # and the (C,) mask broadcasts over the LAST axis of the (C, C) matrix, so it
-    # dropped columns instead of rows. Guard the row sums explicitly; classes with
-    # no true support report 0.0.
     row_sums = cm.sum(axis=1)
     per_class_acc = np.where(row_sums > 0, np.diag(cm) / np.maximum(row_sums, 1), 0.0)
-    # Average precision macro (one-vs-rest)
-    # Build one-hot y_true
     y_true_oh = np.zeros((len(y_true), C), dtype=int)
     y_true_oh[np.arange(len(y_true)), y_true] = 1
     try:
         ap_macro = average_precision_score(y_true_oh, prob_mat, average="macro")
     except Exception as e:
-        # NaN is written straight into the metrics CSV, where it is
-        # indistinguishable from "not computed". Say why, at least once.
         logging.getLogger('spacr.deep_spacr').error(
             'macro average-precision could not be computed (%s: %s); '
             'prauc will be NaN for this evaluation',
             type(e).__name__, e)
         ap_macro = np.nan
 
-    # For compatibility with your logging keys:
     return {
         "accuracy": float(acc),
-        "neg_accuracy": np.nan,  # not meaningful in multiclass
-        "pos_accuracy": np.nan,  # not meaningful in multiclass
-        "prauc": float(ap_macro),  # reuse key for macro-AP
+        "neg_accuracy": np.nan,
+        "pos_accuracy": np.nan,
+        "prauc": float(ap_macro),
         "optimal_threshold": np.nan,
-        # Macro F1 is the metric that actually matters on an imbalanced screen:
-        # accuracy is dominated by the majority class, and this weights every
-        # class equally. It was printed but never computed.
         "f1_macro": (float(f1_score(y_true, preds, average='macro',
                                     zero_division=0))
                      if len(y_true) else float(np.nan)),
         "per_class_accuracy": per_class_acc.tolist(),
-        # Support belongs beside the accuracy it was computed from: a class
-        # at 0.40 over 500 objects is a broken classifier, the same 0.40 over
-        # 5 objects is two mistakes. Without it, the per-class line invites
-        # exactly the wrong reading.
         "class_support": [int(v) for v in row_sums],
         "num_classes": int(C),
     }
@@ -782,9 +701,6 @@ def attach_per_class_columns(metrics, classes=None):
     """
     rows = per_class_accuracy(metrics, classes)
     if rows:
-        # Stamped so the history is self-describing: everything downstream
-        # (the live plot, the model card) can name the classes from one
-        # epoch dict rather than needing the list threaded through it.
         metrics['class_names'] = [name for name, _, _ in rows]
     for name, acc, support in rows:
         metrics[f'{PER_CLASS_ACC_PREFIX}{name}'] = float(acc)
@@ -849,7 +765,7 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
     total_loss, total_samples = 0.0, 0
     all_labels = []
     prob_bucket = []
-    head_dim = None  # infer from first batch
+    head_dim = None
     binary_mode = None
 
     with torch.no_grad():
@@ -857,28 +773,21 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
             data = data.to(device)
             logits = model(data)
 
-            # infer head size/mode once
             if head_dim is None:
                 head_dim = logits.size(1) if (logits.ndim == 2) else 1
                 binary_mode = (head_dim == 1)
 
-            # ----- target normalization for loss/metrics -----
             if binary_mode:
-                # BCE-style targets: float {0,1}, allow (N,) or (N,1)
                 target = target.to(device).float()
                 y_true_batch = (target.view(-1) > 0.5).long().detach().cpu().numpy()
             else:
-                # CE-style: class indices (N,)
                 if target.ndim == 2:
-                    # handle one-hot inputs robustly
                     target = target.argmax(dim=1)
                 target = target.to(device).long()
                 y_true_batch = target.view(-1).detach().cpu().numpy()
 
-            # ----- choose loss (prefer training's loss_fn if provided) -----
             local_loss_fn = loss_fn
             if local_loss_fn is None:
-                # fallback: construct something reasonable matching the head
                 local_loss_fn = build_loss(loss_type or 'auto',
                                            num_classes=head_dim,
                                            class_counts=None,
@@ -894,7 +803,6 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
             total_samples += batch_size
             all_labels.extend(y_true_batch.tolist())
 
-            # ----- probabilities for metrics -----
             if binary_mode:
                 probs = torch.sigmoid(logits.view(-1))
                 prob_bucket.append(probs.detach().cpu().numpy())
@@ -902,12 +810,10 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
                 probs = torch.softmax(logits, dim=1)
                 prob_bucket.append(probs.detach().cpu().numpy())
 
-    # aggregate
     mean_loss = total_loss / max(1, total_samples)
     y_true = np.asarray(all_labels, dtype=int)
 
     if len(prob_bucket) == 0:
-        # empty loader: synthesize empty array with correct rank
         if (num_classes or head_dim or 1) == 1:
             probs_np = np.empty((0,))
         else:
@@ -916,7 +822,6 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
     else:
         probs_np = np.concatenate(prob_bucket, axis=0)
 
-    # metrics (assumes _binary_metrics / _multiclass_metrics exist)
     if probs_np.ndim == 1:
         metrics = _binary_metrics(y_true, probs_np)
     else:
@@ -981,19 +886,16 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
             logits = model(data)
             batch_size = data.size(0)
             loss = calculate_loss(logits, target, prefer_focal=True)
-            #loss = calculate_loss(logits, target, loss_type=loss_type)
             total_loss += float(loss.item()) * batch_size
             total_samples += batch_size
 
-            # labels & filenames
             y_true = _to_numpy_labels(target)
             all_labels.extend(y_true)
             filenames.extend(list(batch_filenames))
 
-            # probs
             if logits.ndim == 1 or logits.size(-1) == 1:
                 probs = torch.sigmoid(logits.view(-1)).detach().cpu().numpy()
-                probs_rows.append(probs.reshape(-1, 1))  # keep 2D for uniform handling
+                probs_rows.append(probs.reshape(-1, 1))
             else:
                 probs = torch.softmax(logits, dim=1).detach().cpu().numpy()
                 probs_rows.append(probs)
@@ -1003,7 +905,6 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
     prob_mat = np.vstack(probs_rows) if probs_rows else np.empty((0, 1))
     C = prob_mat.shape[1]
 
-    # metrics
     if C == 1:
         metrics = _binary_metrics(y_true, prob_mat.ravel())
     else:
@@ -1012,7 +913,6 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
     metrics["epoch"] = int(epoch)
     metrics["Accuracy"] = metrics["accuracy"]
 
-    # Build per-file results dataframe
     df_dict = {
         "filename": filenames,
         "true_label": y_true.tolist(),
@@ -1021,7 +921,6 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
     if C == 1:
         df_dict["class_1_probability"] = prob_mat.ravel().tolist()
     else:
-        # add one column per class probs: prob_class_0, prob_class_1, ...
         for k in range(C):
             df_dict[f"prob_class_{k}"] = prob_mat[:, k].tolist()
 
@@ -1057,7 +956,6 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
         loss_type=loss_type,
     )
 
-    # The old function returned a DataFrame in 'result'; emulate that:
     result_df = pd.DataFrame([data_dict])
     return result_df, results_df
 
@@ -1071,7 +969,6 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
 #: classes would otherwise summarise accuracy, loss and prauc and nothing
 #: about the classes at all. Anything NaN is dropped from the spread, so
 #: the binary names cost nothing where they do not apply.
-# Driven on a three-class dataset built from plate1 of the tsg101 screen.
 CV_METRIC_KEYS = ('accuracy', 'loss', 'prauc', 'f1_macro',
                   'neg_accuracy', 'pos_accuracy')
 
@@ -1107,8 +1004,6 @@ def resolve_class_balance_loss(loss_type, class_balance, num_classes):
 
     if class_balance in ('weighted_sampler', 'sqrt_weighted_sampler'):
         if loss_type in reweighting:
-            # Both corrections multiply: the rare class ends up over-weighted
-            # and the model swings to over-predicting it.
             return loss_type, (
                 f"WARNING: class_balance={class_balance!r} resamples the train "
                 f"loader while loss_type={loss_type!r} also reweights by class "
@@ -1151,7 +1046,6 @@ def summarize_cv_metrics(fold_df, metric_keys=None):
         if vals.empty:
             continue
         mean = float(vals.mean())
-        # ddof=1: folds are a sample of the possible splits, not the population.
         std = float(vals.std(ddof=1)) if len(vals) > 1 else float('nan')
         rows.append({
             'metric': key,
@@ -1297,10 +1191,6 @@ def _cross_validate_model(settings, num_classes):
             focal_gamma=settings.get('focal_gamma', 2.0),
             focal_alpha=settings.get('focal_alpha'),
             logit_adjust_tau=settings.get('logit_adjust_tau', 1.0),
-            # DERIVED, NOT STORED. `steps = 1` is the off state, so the
-            # step count alone says whether to accumulate -- see
-            # `settings._fold_gradient_accumulation` for why the boolean
-            # that used to sit beside it was folded in.
             gradient_accumulation=int(
                 settings['gradient_accumulation_steps']) > 1,
             gradient_accumulation_steps=settings[
@@ -1352,10 +1242,6 @@ def _cross_validate_model(settings, num_classes):
                 settings.get('class_balance', 'none'),
             )
         workers = max(0, int(settings.get('n_jobs', 0) or 0))
-        # A shuffled loader with no generator draws its permutation from
-        # torch's global RNG, and a worker inherits (fork) or loses (spawn)
-        # the parent's stream -- so the inner folds were never reproducible
-        # even with random_seed set. See spacr.runctx.seed_worker.
         return DataLoader(
             dataset,
             batch_size=settings['batch_size'],
@@ -1374,8 +1260,6 @@ def _cross_validate_model(settings, num_classes):
     oof_paths = []
     oof_folds = []
     leakage_reports = [cv_partition_audit]
-    # A fold that does not train is dropped from the spread. Two dead folds
-    # out of five used to produce a "5-fold CV" summary computed on three.
     ledger = RunLedger('cross_validation')
     for i, (train_loader, val_loader) in enumerate(fold_loaders, start=1):
         fold_dst = os.path.join(dst, f'fold_{i}')
@@ -1517,12 +1401,6 @@ def _cross_validate_model(settings, num_classes):
                'n_val': len(val_loader.dataset)}
         if fold_model_path:
             row['model_path'] = str(fold_model_path)
-        # FLATTENED FIRST. The per-class accuracies live in `metrics` as a
-        # LIST under 'per_class_accuracy', which no spread statistic can
-        # aggregate; `attach_per_class_columns` is what turns them into one
-        # scalar column per class, and it had only ever been called on the
-        # way to the epoch CSVs. So a cross-validation over three classes
-        # reported accuracy, loss and prauc and nothing per class.
         attach_per_class_columns(metrics, settings.get('classes'))
         for key in cv_metric_keys(metrics):
             row[key] = metrics[key]
@@ -1598,9 +1476,6 @@ def _cross_validate_model(settings, num_classes):
     print(f"\nPer-fold metrics: {folds_loc}")
     print(f"Fold spread:      {summary_loc}")
     print(f"Fold composition: {split_loc}")
-    # The per-fold CSV is stamped so a reader can see it covers fewer folds
-    # than requested, and a run in which most folds died aborts outright:
-    # the "spread" of two surviving folds out of five is not a spread.
     ledger.finalize(artifact=folds_loc, threshold=0.5)
     return folds_loc
 
@@ -1671,13 +1546,6 @@ def train_test_model(settings):
     _flowview_advance("dataset")
     settings = get_train_test_model_settings(settings)
 
-    # random_seed used to reach the split helpers below and nothing else:
-    # torch's own initialisation -- weight init, dropout, the shuffle inside
-    # every DataLoader -- was never seeded at all, so two "identical" runs
-    # trained two different models. One call fixes Python, NumPy and Torch
-    # (CPU and CUDA); what it still cannot promise is in
-    # spacr.runctx.SeedReport.caveats, and cudnn.benchmark (set True at the
-    # top of this module) is one of the things deterministic=True undoes.
     seed_everything(resolve_seed(settings),
                     deterministic=bool(settings.get('deterministic', False)))
 
@@ -1699,9 +1567,6 @@ def train_test_model(settings):
             "classes names any. Training needs one folder name per "
             "class, in label order.")
 
-    # Audit the permanent dataset boundary before a model sees a pixel. This
-    # catches renamed byte-identical copies as well as plate/well/object and
-    # exported-augmentation relationships.
     if settings.get('leakage_audit_train_test', True):
         from .classifier_evaluation import (
             audit_dataset_splits, write_leakage_audit,
@@ -1731,10 +1596,6 @@ def train_test_model(settings):
     if settings.get('loss_type') in (None, 'auto'):
         settings['loss_type'] = 'cross_entropy' if num_classes > 1 else 'binary_cross_entropy_with_logits'
 
-    # Class-imbalance steering: 'weighted_loss' is expressed as a loss_type, the
-    # sampler modes as a DataLoader sampler inside generate_loaders. Either way
-    # the change is announced before the settings snapshot is written, so the
-    # saved settings record what actually ran.
     class_balance = settings.get('class_balance', 'none')
     if class_balance not in CLASS_BALANCE_MODES:
         raise ValueError(
@@ -1754,10 +1615,6 @@ def train_test_model(settings):
               f"{settings.get('val_split')}).")
         cv_folds = 0
 
-    # This ladder used to sit inside an outer `if settings['train']:`, which made
-    # the test-only arm unreachable (a test-only run snapshotted nothing), and the
-    # `is True` comparisons also skipped the snapshot for truthy-but-not-True flags
-    # such as train=1 coming from a scripted caller.
     if settings['train'] and settings['test']:
         save_settings(settings, name=f"train_test_{settings['model_type']}_{settings['epochs']}", show=True)
     elif settings['train']:
@@ -1765,12 +1622,6 @@ def train_test_model(settings):
     elif settings['test']:
         save_settings(settings, name=f"test_{settings['model_type']}_{settings['epochs']}", show=True)
 
-    # save_settings writes to <src>/settings/<name>.csv, and the name is keyed
-    # on model_type and epochs alone -- so a second run of the same shape with
-    # a different learning rate silently OVERWRITES the first run's snapshot,
-    # and the first run's curves become unattributable. A copy inside dst is
-    # per-run by construction, since dst already varies with the run.
-    # spacr.train_compare.load_run prefers this one.
     try:
         pd.DataFrame(list(settings.items()), columns=['Key', 'Value']).to_csv(
             os.path.join(dst, 'settings.csv'), index=False)
@@ -1785,9 +1636,6 @@ def train_test_model(settings):
         _flowview_advance("split")
 
     if settings['train'] and cv_folds >= 2:
-        # k-fold replaces the single split entirely: every crop is validated
-        # once, and the reported number is a mean with its fold-to-fold spread
-        # rather than one draw from it.
         cv_result_loc = _cross_validate_model(settings, num_classes)
 
     elif settings['train']:
@@ -1898,9 +1746,6 @@ def train_test_model(settings):
         )
 
         if model is None:
-            # choose_model could not build model_type (e.g. a typo in settings).
-            # Abort here rather than falling through into the test branch, where
-            # pick_best_model would look for a checkpoint that was never written.
             print(f"Training aborted: model_type {settings['model_type']!r} could not be built.")
             return None
 
@@ -1922,8 +1767,6 @@ def train_test_model(settings):
         )
 
         if model_path and os.path.isfile(model_path):
-            # Test the checkpoint selected by validation, not the final
-            # in-memory epoch (which may already have overfit).
             print(f'Loading selected checkpoint for testing: {model_path}')
             model, _ = _load_inference_model(model_path, torch.device('cpu'))
         elif model is None:
@@ -1952,8 +1795,6 @@ def train_test_model(settings):
     gc.collect()
 
     if settings['train']:
-        # In k-fold mode there is no single "the model"; the per-fold metric
-        # CSV is the artefact worth handing back.
         return cv_result_loc if cv_folds >= 2 else model_path
     if settings['test']:
         return result_loc
@@ -1971,8 +1812,8 @@ _CLASS_CURVE_COLORS = ('#2aa198', '#4A9EFF', '#9b7fd4', '#8a8f98',
                        '#ed333b', '#ff7800')
 
 #: The two series every training run has. Teal and blue, from the same list.
-_TRAIN_CURVE_COLOR = _CLASS_CURVE_COLORS[1]     # blue
-_VAL_CURVE_COLOR = _CLASS_CURVE_COLORS[0]       # teal
+_TRAIN_CURVE_COLOR = _CLASS_CURVE_COLORS[1]
+_VAL_CURVE_COLOR = _CLASS_CURVE_COLORS[0]
 
 
 def _per_class_series(history, classes=None):
@@ -2036,25 +1877,14 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None,
     tr_loss = [d.get('loss', float('nan')) for d in train_hist]
     tr_acc = [d.get('accuracy', float('nan')) for d in train_hist]
 
-    # Prefer held-out per-class accuracy; fall back to train so a run without
-    # a validation split still gets the panel rather than a blank third.
     class_hist = val_hist if val_hist else train_hist
     class_split = 'val' if val_hist else 'train'
     cls_ep, cls_series = _per_class_series(class_hist, classes)
 
     if figure is None:
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 4))
             fig._spacr_live_update = True
-            # Transparent from the start, so the container shows through and the
-            # page opacity reaches the plot. The GUI restyles text and spines for
-            # the active theme when it renders (figure_queue._style_figure_colors);
-            # what matters here is that no opaque page is baked in, because a
-            # white or black rectangle cannot be undone by restyling.
             fig.patch.set_alpha(0.0)
     else:
         fig = figure
@@ -2158,9 +1988,6 @@ def _log_tensorboard_epoch(writer, train_dict, val_dict, epoch, classes=None):
     writer.flush()
 
 
-# ---------------------------------------------------------------------------
-# Model cards — what a checkpoint was trained on, and how well it did
-# ---------------------------------------------------------------------------
 
 #: Written beside ``<model>.pth`` as ``<model>.card.json``. A sidecar rather
 #: than a key inside the checkpoint, on purpose: the card has to be readable
@@ -2418,9 +2245,6 @@ def format_model_card(card):
                      f"{held.get('accuracy', float('nan')):.4f} · macro-F1 "
                      f"{held.get('f1_macro', float('nan')):.4f}")
         lines.append('')
-        # Anything held_out_report had to say about WHICH rows those are.
-        # A card whose n and whose accuracy describe different populations is
-        # the failure this block exists to make impossible to miss.
         for note in held.get('notes') or []:
             lines.append(f"> {note}")
             lines.append('')
@@ -2578,8 +2402,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 gradient_accumulation=False, gradient_accumulation_steps=4,
                 channels=None, verbose=False, num_classes=2,
                 image_size=224, plot=False, tensorboard=True,
-                # add early stopping parameters
-                early_stopping_patience=0,  # 0 = disabled; e.g. 20 = stop after 20 epochs without val improvement
+                early_stopping_patience=0,
                 custom_model_path=None, resume_checkpoint=None,
                 preprocessing=None, classes=None,
                 label_smoothing=0.1, focal_gamma=2.0, focal_alpha=None,
@@ -2682,20 +2505,12 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
 
     head_dim = max(1, int(num_classes))
 
-    #counts = estimate_class_counts(train_loaders, head_dim) if head_dim >= 2 else None
 
     train_data_dir = os.path.join(src, 'train')
 
     if os.path.isdir(train_data_dir):
-        # The folder names in ImageFolder's sorted order ARE the head order,
-        # so they win over whatever the caller passed.
         classes = sorted([d for d in os.listdir(train_data_dir) if os.path.isdir(os.path.join(train_data_dir, d)) and not d.startswith('.')])
     elif not classes:
-        # ...but with no folder tree to read (a tar-backed dataset, a caller
-        # supplying its own loaders), the caller's list is the only class
-        # naming there is. The old `else: classes = None` threw it away, so
-        # the checkpoint and every per-class report came out as
-        # class_0/class_1 even when the names were passed in.
         classes = None
 
     counts = estimate_class_counts(train_loaders, head_dim, src=train_data_dir, classes=classes) if (head_dim >= 2 and classes) else None
@@ -2716,10 +2531,6 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                          dropout_rate,
                          use_checkpoint, verbose=verbose, num_classes=head_dim,
                          height=image_size, width=image_size)
-    # NO `if model is None` BRANCH. `choose_model` raises now, naming the
-    # setting, the value it was given and the nearest spellings -- which is
-    # what "Model X not found" followed by (None, None) and a failure three
-    # frames later never managed to say. See instruction 236 B4.
 
     resume_payload = None
     if initialization_path:
@@ -2790,12 +2601,9 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     if schedule == 'step_lr':
         scheduler = StepLR(optimizer, step_size=max(1, int(epochs / 5)), gamma=0.75)
     elif schedule == 'reduce_lr_on_plateau':
-        # `verbose` was deprecated in torch 2.2 and removed in 2.5; passing it
-        # made this documented schedule raise TypeError before the first batch.
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             optimizer, mode='min', factor=0.1, patience=10)
     elif schedule == 'cosine':
-        # FIX: new option — cosine annealing
         scheduler = CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-7)
     elif schedule == 'cosine_warm_restarts':
         scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
@@ -2830,23 +2638,12 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 f"epochs={epochs}. Increase epochs to continue training.")
 
     accumulated_train_dicts, accumulated_val_dicts = [], []
-    # Full per-epoch history kept for the live training plot (the accumulators
-    # above get consumed/cleared by _save_progress each epoch).
     live_train_hist, live_val_hist = [], []
     live_figure = None
-    # (epoch, metrics, [probs, labels]) of the epoch whose weights became the
-    # best checkpoint — the ONLY held-out evaluation that describes the file
-    # the model card is written beside. Using the last epoch's numbers for a
-    # checkpoint saved five epochs earlier is the quiet way a card lies.
     held_out_raw = None
-    # Kept separate from any training ledger: a failed live plot says nothing
-    # about whether the weights are trustworthy.
     _curve_ledger = RunLedger('train_model:live_curves')
     tensorboard_writer, _ = _open_tensorboard_writer(dst, tensorboard)
 
-    # MIXED PRECISION, asked for by `amp` and only ever taken on a card
-    # that has tensor cores. `mixed_precision` is the answer for THIS
-    # machine, so everything below is one code path rather than two.
     mixed_precision, amp_note = resolve_mixed_precision(
         settings.get('mixed_precision', False) if isinstance(settings, dict) else False,
         device)
@@ -2867,15 +2664,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         if gradient_accumulation:
             optimizer.zero_grad(set_to_none=True)
 
-        # record total number of batches so we can detect leftover gradients
         n_batches = len(train_loaders)
 
         for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
             data = data.to(device)
-            # HALF PRECISION FOR THE FORWARD AND THE LOSS, full precision
-            # for the weights. See `autocasting`: on a card with tensor
-            # cores this is most of the speed and half the activation
-            # memory, and outside one it is a no-op context.
             with autocasting(mixed_precision, device):
                 logits = model(data)
 
@@ -2896,9 +2688,6 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             if gradient_accumulation:
                 loss = loss / gradient_accumulation_steps
 
-            # SCALED, or float16 gradients underflow to zero and the model
-            # simply does not learn. The scaler is a no-op when it is
-            # disabled, so this is one code path rather than two.
             scaler.scale(loss).backward()
 
             if (not gradient_accumulation) or (batch_idx % gradient_accumulation_steps == 0):
@@ -2906,13 +2695,11 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 scaler.update()
                 optimizer.zero_grad(set_to_none=True)
 
-        # flush leftover accumulated gradients at the end of the epoch
         if gradient_accumulation and (n_batches % gradient_accumulation_steps != 0):
             scaler.step(optimizer)
             scaler.update()
             optimizer.zero_grad(set_to_none=True)
 
-        # Epoch end: evaluate
         train_time = time.time() - start_time
         loop_loss_type = 'ce' if head_dim >= 2 else 'bce'
         train_dict, _ = evaluate_model_performance(
@@ -2922,14 +2709,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             num_classes=head_dim
         )
         train_dict['train_time'] = train_time
-        # The schedule moves the learning rate every epoch and nothing
-        # recorded it, so "why did the curve bend at epoch 30" was
-        # unanswerable from the run folder alone.
         train_dict['lr'] = float(optimizer.param_groups[0]['lr'])
         attach_per_class_columns(train_dict, classes)
         accumulated_train_dicts.append(train_dict)
 
-        # initialize val_dict to None so the variable always exists for _save_model
         val_dict = None
 
         is_best = False
@@ -2952,14 +2735,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                   f"Val acc.: {val_dict.get('accuracy', float('nan')):.3f}, "
                   f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}, "
                   f"Val F1(macro): {val_dict.get('f1_macro', float('nan')):.3f}")
-            # The aggregate above is the number that hides a dead class.
-            # Print the breakdown on its own line, every epoch, held-out
-            # first — not once at the end, by which point the run is over.
             class_line = format_per_class_accuracy(val_dict, classes, 'Val ')
             if class_line:
                 print(f"  {class_line}")
 
-            # track best validation accuracy for early stopping and best-model selection
             current_val_acc = val_dict.get('accuracy', 0.0)
             if current_val_acc > best_val_acc:
                 best_val_acc = current_val_acc
@@ -2995,41 +2774,25 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 pass
             tensorboard_writer = None
 
-        # Live training curves — follow loss/accuracy in real time in the GUI
-        # when plot is enabled. Each epoch refreshes the same figure (the GUI
-        # bridge captures plt.show and routes it to the figure view).
-        # Accumulated unconditionally: the accumulators above are consumed
-        # and cleared by _save_progress every epoch, so this is the only
-        # in-memory record of the run, and the model card's curve needs it
-        # whether or not anyone asked for a live plot.
         live_train_hist.append(train_dict)
         if val_dict is not None:
             live_val_hist.append(val_dict)
         if plot:
-            # Cosmetic: a live curve that fails to render must not kill the
-            # training run. It must not be *invisible* either — the bare
-            # `pass` here hid a broken plot for the whole run.
             with _curve_ledger.item(f'epoch_{epoch}', stage='live_curves'):
-                # Class names ride along inside the epoch dicts (see
-                # attach_per_class_columns), so this call site keeps the
-                # signature every existing caller and stub already has.
                 live_figure = _plot_training_curves(
                     live_train_hist, live_val_hist, epochs, live_figure)
 
         if scheduler and schedule in (
                 'step_lr', 'cosine', 'cosine_warm_restarts',
                 'exponential', 'linear'):
-            # FIX: also step cosine scheduler here
             scheduler.step()
 
-        # Save rolling CSVs
         if accumulated_val_dicts:
             _save_progress(dst, pd.DataFrame(accumulated_train_dicts),
                            pd.DataFrame(accumulated_val_dicts))
         else:
             _save_progress(dst, pd.DataFrame(accumulated_train_dicts), None)
         accumulated_train_dicts, accumulated_val_dicts = [], []
-        # pass val_dict to _save_model so checkpoint decisions use validation accuracy
         will_stop = (
             early_stopping_patience > 0
             and epochs_without_improvement >= early_stopping_patience
@@ -3047,19 +2810,16 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                                  classes=classes,
                                  force_last=will_stop)
 
-        # track the best model path based on validation accuracy
         if model_path is not None and is_best:
             best_model_path = model_path
         elif model_path is not None and best_model_path is None:
             best_model_path = model_path
 
-        # early stopping — break if val hasn't improved for `patience` epochs
         if will_stop:
             print(f"\nEarly stopping at epoch {epoch}: no val improvement for "
                   f"{early_stopping_patience} epochs. Best val acc: {best_val_acc:.4f}")
             break
 
-        # Periodic suggestions (every 25 epochs and final epoch)
         if (epoch % 25 == 0) or (epoch == epochs):
             try:
                 report = suggest_training_changes(dst)
@@ -3074,21 +2834,13 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             except Exception as e:
                 print(f"[suggest_training_changes] Skipped at epoch {epoch}: {e}")
 
-    # Not stamped and not fatal — the training artifacts are unaffected —
-    # but a run where every live plot failed now says so instead of ending
-    # with a silently empty figure pane.
     _curve_ledger.finalize()
     if tensorboard_writer is not None:
         tensorboard_writer.close()
 
-    # return best_model_path if available, otherwise fall back to last model_path
     final_path = best_model_path if best_model_path is not None else model_path
 
     if write_card and final_path:
-        # A card that fails to write must not lose the weights that were
-        # just trained for six hours, but it must also not fail silently —
-        # an uncarded checkpoint that nobody noticed is the state this
-        # feature exists to end.
         try:
             held_epoch, held_metrics, held_raw = (
                 held_out_raw if held_out_raw is not None else (None, None, None))
@@ -3169,13 +2921,6 @@ def generate_activation_map(settings):
     if settings['cam_type'] in ['saliency_image', 'saliency_channel']:
         settings['target_layer'] = None
 
-    # Anything outside the four legacy names is one of the methods registered
-    # in spacr.attribution (Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM,
-    # Eigen-CAM, guided backprop, input x gradient, DeepLIFT, integrated
-    # gradients, occlusion, feature ablation, attention rollout). They run
-    # through the same batch loop via AttributionMapGenerator, which exposes
-    # the same compute_*_and_predictions / plot_activation_grid calls the two
-    # legacy generators do.
     _LEGACY_CAM_TYPES = ('gradcam', 'gradcam_pp', 'saliency_image',
                          'saliency_channel')
     cam_type = settings['cam_type']
@@ -3189,23 +2934,15 @@ def generate_activation_map(settings):
     settings.setdefault('smoothgrad_samples', 0)
     settings.setdefault('smoothgrad_sigma', 0.15)
 
-    # Set number of jobs for loading
     n_jobs = settings['n_jobs']
     if n_jobs is None:
         n_jobs = max(1, cpu_count() - 4)
 
-    # Set transforms for images. The Normalize step has to be appended
-    # conditionally: an inline `... if normalize_input else None` put a literal
-    # None into the Compose list, so normalize_input=False raised
-    # "TypeError: 'NoneType' object is not callable" on the first image.
     transform_steps = [
         transforms.ToTensor(),
         transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
     ]
     if settings['normalize_input']:
-        # `normalize_input` stays the on/off it has always been; WHICH
-        # statistics is `input_statistics`, so an existing settings file
-        # keeps its meaning exactly.
         from .normalization import normalization_stats
         stats = normalization_stats(
             settings.get('input_statistics', 'symmetric'),
@@ -3217,17 +2954,14 @@ def generate_activation_map(settings):
     transform_steps.append(SelectChannels(settings['channels']))
     transform = transforms.Compose(transform_steps)
 
-    # Handle dataset path
     if not os.path.exists(settings['dataset']):
         print(f"Dataset not found at {settings['dataset']}")
         return
 
-    # Load the model
     model, _ = _load_inference_model(settings['model_path'], device)
     model.to(device)
     model.eval()
 
-    # Create directory for saving activation maps if it does not exist
     dataset_dir = os.path.dirname(settings['dataset'])
     dataset_name = os.path.splitext(os.path.basename(settings['dataset']))[0]
     save_dir = os.path.join(dataset_dir, dataset_name, settings['cam_type'])
@@ -3241,15 +2975,11 @@ def generate_activation_map(settings):
         os.makedirs(batch_grid_fldr, exist_ok=True)
         print(f"Batch grid maps will be saved in: {batch_grid_fldr}")
     
-    # Load dataset
     dataset = TarImageDataset(settings['dataset'], transform=transform)
-    # Seeded generator + worker init: which images land in the activation-map
-    # batches is otherwise a different sample every run.
     data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=settings['shuffle'], num_workers=n_jobs, pin_memory=True,
                              generator=torch_generator(stream='activation_maps'),
                              worker_init_fn=seed_worker if n_jobs else None)
 
-    # Initialize generator based on cam_type
     if use_attribution:
         cam_generator = AttributionMapGenerator(
             model, method=cam_type, target_layer=settings['target_layer'],
@@ -3267,7 +2997,6 @@ def generate_activation_map(settings):
         img_paths = []
         inputs = inputs.to(device)
 
-        # Compute activation maps and predictions
         if use_attribution:
             activation_maps, predicted_classes = cam_generator.compute_maps_and_predictions(inputs)
         elif settings['cam_type'] in ['gradcam', 'gradcam_pp']:
@@ -3275,44 +3004,28 @@ def generate_activation_map(settings):
         else:
             activation_maps, predicted_classes = cam_generator.compute_saliency_and_predictions(inputs)
 
-        # Move activation maps to CPU
         activation_maps = activation_maps.cpu()
 
-        # Sum saliency maps for 'saliency_image' type
         if settings['cam_type'] == 'saliency_image':
             summed_activation_maps = []
             for i in range(activation_maps.size(0)):
                 activation_map = activation_maps[i]                
-                #print(f"1: {activation_map.shape}")
                 activation_map_sum = activation_map.sum(dim=0, keepdim=False)
-                #print(f"2: {activation_map.shape}")
                 activation_map_sum = np.squeeze(activation_map_sum, axis=0)
-                #print(f"3: {activation_map_sum.shape}")
                 summed_activation_maps.append(activation_map_sum)
             activation_maps = torch.stack(summed_activation_maps)
 
-        # For plotting
         if settings['plot']:
             fig = cam_generator.plot_activation_grid(inputs, activation_maps, predicted_classes, overlay=settings['overlay'], normalize=settings['normalize'])
             pdf_save_path = os.path.join(batch_grid_fldr,f"batch_{batch_idx}_grid.pdf")
             pdf_save_path = save_figure(fig, pdf_save_path)
             print(f"Saved batch grid to {pdf_save_path}")
-            #plt.show()
             display(fig)
                     
         for i in range(inputs.size(0)):
             activation_map = activation_maps[i].detach().numpy()
 
-            # A flat map (e.g. a Grad-CAM fully suppressed by its F.relu, which
-            # happens whenever the target layer has collapsed to 1x1) has
-            # max == min, so the unguarded min-max rescale below used to produce
-            # 0/0 -> all-NaN and then an undefined NaN -> uint8 cast. `rng > 0` is
-            # also False for NaN, so a map that arrives already NaN is absorbed too.
             if use_attribution or settings['cam_type'] in ['saliency_image', 'gradcam', 'gradcam_pp']:
-                # Every spacr.attribution method returns a single (H, W) map,
-                # so it takes the same greyscale path the summed saliency and
-                # the CAMs already took.
-                #activation_map = activation_map.sum(axis=0)
                 lo = activation_map.min()
                 rng = activation_map.max() - lo
                 activation_map = (activation_map - lo) / rng if rng > 0 else np.zeros_like(activation_map)
@@ -3320,9 +3033,8 @@ def generate_activation_map(settings):
                 activation_image = Image.fromarray(activation_map, mode='L')
 
             else:
-                # Handle each channel separately and save as RGB
                 rgb_activation_map = np.zeros((activation_map.shape[1], activation_map.shape[2], 3), dtype=np.uint8)
-                for c in range(min(activation_map.shape[0], 3)):  # Limit to 3 channels for RGB
+                for c in range(min(activation_map.shape[0], 3)):
                     channel_map = activation_map[c]
                     lo = channel_map.min()
                     rng = channel_map.max() - lo
@@ -3330,7 +3042,6 @@ def generate_activation_map(settings):
                     rgb_activation_map[:, :, c] = (channel_map * 255).astype(np.uint8)
                 activation_image = Image.fromarray(rgb_activation_map, mode='RGB')
 
-            # Save activation maps
             class_pred = predicted_classes[i].item()
             parts = filenames[i].split('_')
             plate = parts[0]
@@ -3503,7 +3214,7 @@ def visualize_classes(model, dtype, class_names, **kwargs):
     """
     from .utils import class_visualization
 
-    for target_y in range(2):  # Assuming binary classification
+    for target_y in range(2):
         print(f"Visualizing class: {class_names[target_y]}")
         visualization = class_visualization(target_y, model, dtype, **kwargs)
         plt.imshow(visualization)
@@ -3557,10 +3268,6 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
         integrated_grads = integrated_gradients.generate_integrated_gradients(input_tensor, target_label_idx)
         integrated_grads = np.mean(integrated_grads, axis=1).squeeze()
 
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, ax = plt.subplots(1, 3, figsize=(20, 5))
             ax[0].imshow(image)
@@ -3569,12 +3276,9 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
             ax[1].imshow(integrated_grads, cmap='hot')
             ax[1].axis('off')
             ax[1].set_title("Integrated Gradients")
-            # Same trap as in visualize_smooth_grad: `image` is the unresized original
-            # while the attribution map is image_size square, so the blend below only
-            # broadcast when the source PNG happened to be image_size square.
             overlay = np.array(image.resize((image_size, image_size)))
             overlay = overlay / overlay.max()
-            integrated_grads_rgb = np.stack([integrated_grads] * 3, axis=-1)  # Convert saliency map to RGB
+            integrated_grads_rgb = np.stack([integrated_grads] * 3, axis=-1)
             overlay = (overlay * 0.5 + integrated_grads_rgb * 0.5).clip(0, 1)
             ax[2].imshow(overlay)
             ax[2].axis('off')
@@ -3619,10 +3323,6 @@ class SmoothGrad:
             noisy_input.requires_grad_()
             output = self.model(noisy_input)
             self.model.zero_grad()
-            # Back-propagate the whole target column, not just row 0: with
-            # `output[0, target_class]` autograd only populated row 0 of .grad, so
-            # a batched input silently came back with all-zero attributions for
-            # every sample after the first. Identical for a single sample.
             output[:, target_class].sum().backward()
             total_gradients += noisy_input.grad
 
@@ -3672,10 +3372,6 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
         smooth_grad_map = smooth_grad.compute_smooth_grad(input_tensor, target_label_idx)
         smooth_grad_map = np.mean(smooth_grad_map.cpu().data.numpy(), axis=1).squeeze()
 
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, ax = plt.subplots(1, 3, figsize=(20, 5))
             ax[0].imshow(image)
@@ -3684,14 +3380,9 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
             ax[1].imshow(smooth_grad_map, cmap='hot')
             ax[1].axis('off')
             ax[1].set_title("SmoothGrad")
-            # preprocess_image returns the UNRESIZED PIL image next to the resized
-            # tensor, so blending np.array(image) with the image_size-sized map raised
-            # a broadcast ValueError for any source PNG that is not image_size square.
-            # Blend at the resolution the model actually saw (a no-op copy when they
-            # already match); ax[0] still shows the full-resolution original.
             overlay = np.array(image.resize((image_size, image_size)))
             overlay = overlay / overlay.max()
-            smooth_grad_map_rgb = np.stack([smooth_grad_map] * 3, axis=-1)  # Convert smooth grad map to RGB
+            smooth_grad_map_rgb = np.stack([smooth_grad_map] * 3, axis=-1)
             overlay = (overlay * 0.5 + smooth_grad_map_rgb * 0.5).clip(0, 1)
             ax[2].imshow(overlay)
             ax[2].axis('off')
@@ -3740,8 +3431,6 @@ def save_top_class_examples(df, tar_path, dst, n=20, classes=None):
             probability_columns.append((int(match.group(1)), column))
     probability_columns.sort()
 
-    # Build each folder's selection once. ``classes`` contains human-readable
-    # labels, whereas the probability-column suffix is the model-output index.
     selections = []
     if probability_columns:
         labels = list(classes) if classes is not None else [
@@ -3766,8 +3455,6 @@ def save_top_class_examples(df, tar_path, dst, n=20, classes=None):
             (labels[1], df.nlargest(n, 'pred')),
         ]
 
-    # Build a lookup: tar member name → list of destination paths. An image can
-    # legitimately appear at both binary extremes in a one-row result.
     member_destinations = {}
     for label, top in selections:
         safe_label = re.sub(r'[^A-Za-z0-9._-]+', '_', str(label)).strip('_')
@@ -3779,7 +3466,6 @@ def save_top_class_examples(df, tar_path, dst, n=20, classes=None):
             dest_file = os.path.join(cls_dir, fname)
             member_destinations.setdefault(row['path'], []).append(dest_file)
 
-    # -- single pass through the tar: extract only the members we need --
     extracted = 0
     with tarfile.open(tar_path, 'r') as tar:
         for member in tar.getmembers():
@@ -3896,20 +3582,16 @@ def deep_spacr(settings=None):
     if settings is None:
         settings = {}
     import os
-    # local imports kept inside to avoid import cycles on some setups
     from .settings import deep_spacr_defaults
     from .io import generate_training_dataset, generate_dataset
     from .utils import save_settings
 
-    # 1) expand defaults (now supports things like metadata_rules, annotation_columns, etc.)
     settings = deep_spacr_defaults(settings)
     src_before = settings.get('src')
 
-    # persist a snapshot of the config for reproducibility
     save_settings(settings, name='DL_model')
     _flowview_advance("tables")
 
-    # 2) dataset generation (train/test)
     if settings.get('train') or settings.get('test'):
         if settings.get('generate_training_dataset'):
             _flowview_advance("dataset")
@@ -3922,9 +3604,8 @@ def deep_spacr(settings=None):
                 settings['src'] = os.path.dirname(train_path)
             else:
                 print("Training dataset generation failed; skipping model training step.")
-                return  # or raise RuntimeError if you prefer hard fail
+                return
             
-            # point training to the newly created train folder by default
             settings['src'] = os.path.dirname(train_path)
         elif isinstance(settings.get('src'), (list, tuple)):
             training_sources = [
@@ -3946,12 +3627,8 @@ def deep_spacr(settings=None):
                 settings['model_path'] = cv_best
             else:
                 settings['model_path'] = training_result
-        # restore original src (so later steps like apply can use the user’s dataset if needed)
         settings['src'] = src_before
         
-    # 3) build the full, unlabelled inference dataset independently of model
-    # application when requested. Applying a model still creates it on demand,
-    # preserving the previous one-switch workflow.
     tar_path = settings.get('tar_path')
     needs_tar = settings.get('generate_full_dataset') or settings.get(
         'apply_model_to_dataset')
@@ -3966,26 +3643,20 @@ def deep_spacr(settings=None):
                 "Full dataset generation did not produce a readable tar file.")
         settings['tar_path'] = tar_path
 
-    # 4) apply model to the full dataset/tar
     if settings.get('apply_model_to_dataset'):
 
         model_path = settings.get('model_path')
         if model_path and os.path.exists(model_path):
-            # -- run inference and get the results DataFrame --
             _flowview_advance("evaluation")
             df = apply_model_to_tar(settings)
             _flowview_metric("objects", len(df))
 
-            # -- NEW: save the top-N most confident images per class --
-            # dst sits next to the tar file, in a subfolder called 'top_examples'
             examples_dst = os.path.join(os.path.dirname(tar_path), 'top_examples')
             n_examples = settings.get('n_top_examples', 20)
             save_top_class_examples(
                 df, tar_path, examples_dst, n=n_examples,
                 classes=_class_folder_names(settings))
 
-            # -- NEW: merge predictions back into the measurements database --
-            # settings['src'] can be a string or list; use the first entry
             _flowview_advance("scores")
             src_list = settings['src'] if isinstance(settings['src'], list) else [settings['src']]
             matched_objects = 0
@@ -4036,14 +3707,12 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
     if int(epochs) < 1:
         raise ValueError("epochs must be at least 1.")
 
-    # Adjust filename to reflect knowledge-distillation if desired
     if student_save_path.endswith('.pth'):
         base, ext = os.path.splitext(student_save_path)
     else:
         base = student_save_path
     student_save_path = base + '_KD.pth'
 
-    # -- 1. Load teacher models --
     teachers = []
     print("Loading teacher models:")
     for path in teacher_paths:
@@ -4070,7 +3739,6 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
             f"{sorted(teacher_classes)}.")
     num_classes = teacher_classes.pop()
 
-    # -- 2. Initialize the student TorchModel --
     student_model = TorchModel(
         model_name=student_model_name,
         pretrained=pretrained,
@@ -4079,12 +3747,9 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
         num_classes=num_classes,
     ).to(device)
 
-    # You could load a partial checkpoint into the student here if desired.
 
-    # -- 3. Optimizer --
     optimizer = optim.Adam(student_model.parameters(), lr=lr)
 
-    # Distillation training loop
     for epoch in range(epochs):
         student_model.train()
         running_loss = 0.0
@@ -4095,13 +3760,10 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
             if labels.ndim == 2 and labels.size(1) > 1:
                 labels = labels.argmax(dim=1)
 
-            # Forward pass student
-            logits_s = student_model(images)         # shape: (B, num_classes)
-            logits_s_temp = logits_s / temperature   # scale by T
+            logits_s = student_model(images)
+            logits_s_temp = logits_s / temperature
 
-            # Distillation from teachers
             with torch.no_grad():
-                # We'll average teacher probabilities
                 teacher_probs_list = []
                 for tm in teachers:
                     logits_t = tm(images) / temperature
@@ -4111,10 +3773,8 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
                             torch.stack((1.0 - positive, positive), dim=1))
                     else:
                         teacher_probs_list.append(F.softmax(logits_t, dim=1))
-                # average them
                 teacher_probs_ensemble = torch.mean(torch.stack(teacher_probs_list), dim=0)
 
-            # Student probabilities (log-softmax)
             if num_classes == 1:
                 flat = logits_s_temp.reshape(-1)
                 student_log_probs = torch.stack(
@@ -4122,22 +3782,18 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
             else:
                 student_log_probs = F.log_softmax(logits_s_temp, dim=1)
 
-            # Distillation loss => KLDiv
             loss_distill = F.kl_div(
                 student_log_probs,
                 teacher_probs_ensemble,
                 reduction='batchmean'
             ) * (temperature ** 2)
 
-            # Real label loss => cross-entropy
-            # We can compute this on the raw logits or scaled. Typically raw logits is standard:
             if num_classes == 1:
                 loss_ce = F.binary_cross_entropy_with_logits(
                     logits_s.reshape(-1), labels.float().reshape(-1))
             else:
                 loss_ce = F.cross_entropy(logits_s, labels.long().reshape(-1))
 
-            # Weighted sum
             loss = alpha * loss_ce + (1 - alpha) * loss_distill
 
             optimizer.zero_grad()
@@ -4190,7 +3846,6 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
         raise ValueError(f"Invalid aggregator '{aggregator}'. "
                          f"Must be one of {valid_aggregators}.")
 
-    # --- 1. Load the first checkpoint to figure out architecture & hyperparams ---
     print(f"Loading the first model from: {model_paths[0]} to derive architecture")
     try:
         fused_model, first_metadata = load_model_artifact(
@@ -4202,7 +3857,6 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
     fused_model = fused_model.to(device)
     state_dicts = [fused_model.state_dict()]
 
-    # --- 2. Load the rest of the checkpoints ---
     for path in model_paths[1:]:
         print(f"Loading model from: {path}")
         try:
@@ -4214,22 +3868,16 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
                 "architecture.") from exc
         state_dicts.append(loaded.state_dict())
 
-    # --- 3. Verify all state dicts have the same keys ---
     fused_sd = fused_model.state_dict()
     for sd in state_dicts:
         if fused_sd.keys() != sd.keys() or any(
                 fused_sd[key].shape != sd[key].shape for key in fused_sd):
             raise ValueError("All models must have identical architecture/state_dict keys.")
 
-    # --- 4. Define aggregator logic ---
     def combine_tensors(tensor_list, mode='mean'):
         """Given a list of Tensors, combine them using the chosen aggregator."""
-        # stack along new dimension => shape (num_models, *tensor.shape)
         first = tensor_list[0]
         if not first.is_floating_point() and not first.is_complex():
-            # Counters such as BatchNorm.num_batches_tracked are state, not
-            # learnable weights. Combining them numerically corrupts their
-            # meaning, so retain the first compatible model's value.
             return first.clone()
         stacked = torch.stack(
             [tensor.to(device=first.device, dtype=torch.float64)
@@ -4238,8 +3886,6 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
         if mode == 'mean':
             combined = stacked.mean(dim=0)
         elif mode == 'geomean':
-            # Neural weights are signed. Use a signed geometric mean of
-            # magnitudes and preserve the sign of the arithmetic mean.
             zero = (stacked == 0).any(dim=0)
             magnitude = torch.exp(
                 torch.log(stacked.abs().clamp_min(torch.finfo(stacked.dtype).tiny))
@@ -4258,13 +3904,10 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
             raise ValueError(f"Unsupported aggregator: {mode}")
         return combined.to(dtype=first.dtype)
 
-    # --- 5. Combine the weights ---
     for key in fused_sd.keys():
-        # gather all versions of this tensor
         all_tensors = [sd[key] for sd in state_dicts]
         fused_sd[key] = combine_tensors(all_tensors, mode=aggregator)
 
-    # Load combined weights into the fused model
     fused_model.load_state_dict(fused_sd)
 
     save_model_artifact(
@@ -4302,10 +3945,6 @@ def annotate_filter_vision(settings):
         :param csv_file: Path to the score CSV.
         :returns: Filtered DataFrame.
         """
-        # Split the path to identify the datasets folder and build the training folder path.
-        # Unpacking the split into two names raised a bare "not enough values to
-        # unpack" for any CSV outside a '.../datasets/...' tree; say what is wrong
-        # instead, since remove_train cannot locate the training images without it.
         marker = os.sep + "datasets" + os.sep
         if marker not in csv_file:
             raise ValueError(
@@ -4315,20 +3954,16 @@ def annotate_filter_vision(settings):
         before_datasets = csv_file.split(marker, 1)[0]
         train_fldr = os.path.join(before_datasets, 'datasets', 'training', 'train')
 
-        # Paths for train/nc and train/pc
         nc_folder = os.path.join(train_fldr, 'nc')
         pc_folder = os.path.join(train_fldr, 'pc')
 
-        # Load the CSV file into a DataFrame
         df = pd.read_csv(csv_file)
 
-        # Collect PNG filenames from train/nc and train/pc
         png_files = set()
         for folder in [nc_folder, pc_folder]:
-            if os.path.exists(folder):  # Ensure the folder exists
+            if os.path.exists(folder):
                 png_files.update({file for file in os.listdir(folder) if file.endswith(".png")})
 
-        # Filter the DataFrame by excluding rows where filenames match PNG files
         filtered_df = df[~df['path'].isin(png_files)]
 
         return filtered_df

@@ -121,6 +121,29 @@ def ctx(tmp_path):
     return Context(checkout=tmp_path, probe_gpu=False)
 
 
+@pytest.fixture
+def _fake_gpu_capabilities(monkeypatch):
+    """Resolve task evidence only against the diagnostic's fake torch."""
+    from spacr import accelerator
+
+    original_import = doctor._import_torch
+
+    def resolve_fake():
+        """Use the test's torch rather than the host or a cached device."""
+        assert doctor._import_torch is not original_import
+        return accelerator.inspect_torch(doctor._import_torch())
+
+    def forbidden_probe(*_args, **_kwargs):
+        """Fail before a capability check can import the host's torch."""
+        raise AssertionError("GPU diagnostics must use their fake torch")
+
+    monkeypatch.setattr(accelerator, "resolve", resolve_fake)
+    monkeypatch.setattr(accelerator, "_torch", forbidden_probe)
+    monkeypatch.setattr(accelerator, "_directml", lambda: None)
+    monkeypatch.setattr(accelerator, "_metal_gpu_name", lambda: "Fake Metal GPU")
+    monkeypatch.setattr(accelerator, "_opengl_likely", lambda: True)
+
+
 # ---------------------------------------------------------------------------
 # the Result / Context vocabulary
 # ---------------------------------------------------------------------------
@@ -1104,6 +1127,7 @@ def test_torch_check_names_a_cpu_only_build(ctx, monkeypatch):
     assert "CPU-only build" in doctor.check_torch(ctx).message
 
 
+@pytest.mark.usefixtures("_fake_gpu_capabilities")
 def test_gpu_check_skips_without_torch(ctx, monkeypatch):
     def explode():
         raise ImportError("no torch")
@@ -1113,6 +1137,7 @@ def test_gpu_check_skips_without_torch(ctx, monkeypatch):
     assert row.status == SKIP
 
 
+@pytest.mark.usefixtures("_fake_gpu_capabilities")
 def test_gpu_check_fails_when_a_card_is_present_but_torch_is_cpu_only(
     ctx, monkeypatch
 ):
@@ -1124,6 +1149,7 @@ def test_gpu_check_fails_when_a_card_is_present_but_torch_is_cpu_only(
     assert "download.pytorch.org/whl/cu124" in row.fix
 
 
+@pytest.mark.usefixtures("_fake_gpu_capabilities")
 def test_gpu_check_warns_on_a_machine_with_no_gpu_at_all(ctx, monkeypatch):
     monkeypatch.setattr(doctor, "_import_torch", lambda: _fake_torch(cuda_build=None))
     monkeypatch.setattr(doctor, "_nvidia_driver", lambda: None)
@@ -1132,7 +1158,14 @@ def test_gpu_check_warns_on_a_machine_with_no_gpu_at_all(ctx, monkeypatch):
     assert "nvidia-smi" in row.fix
 
 
+@pytest.mark.usefixtures("_fake_gpu_capabilities")
 def test_gpu_check_fails_when_the_driver_is_missing_entirely(ctx, monkeypatch):
+    from spacr import accelerator
+
+    monkeypatch.setattr(
+        accelerator, "capabilities",
+        lambda: (("Segmentation (Cellpose)", False, "CPU only"),),
+    )
     monkeypatch.setattr(
         doctor,
         "_import_torch",
@@ -1143,19 +1176,30 @@ def test_gpu_check_fails_when_the_driver_is_missing_entirely(ctx, monkeypatch):
     assert row.status == FAIL
     assert "no NVIDIA driver is answering" in row.message
     assert "nvidia-driver" in row.fix
-    assert row.details == ("RuntimeError: no driver",)
+    assert row.details == (
+        "RuntimeError: no driver",
+        "Segmentation (Cellpose): CPU — CPU only",
+    )
 
 
+@pytest.mark.usefixtures("_fake_gpu_capabilities")
 def test_gpu_check_fails_on_a_driver_runtime_mismatch(ctx, monkeypatch):
+    from spacr import accelerator
+
+    monkeypatch.setattr(
+        accelerator, "capabilities",
+        lambda: (("Live backdrop and spaceout", True, "GPU shader"),),
+    )
     monkeypatch.setattr(doctor, "_import_torch", lambda: _fake_torch(available=False))
     monkeypatch.setattr(doctor, "_nvidia_driver", lambda: "470.0")
     row = doctor.check_gpu(ctx)
     assert row.status == FAIL
     assert "driver / runtime mismatch" in row.message
     assert "--force-reinstall torch" in row.fix
-    assert row.details == ()
+    assert row.details == ("Live backdrop and spaceout: GPU — GPU shader",)
 
 
+@pytest.mark.usefixtures("_fake_gpu_capabilities")
 def test_gpu_check_fails_when_the_first_allocation_dies(monkeypatch, tmp_path):
     """`torch.cuda.is_available()` can say yes and the allocator still refuse."""
     monkeypatch.setattr(
@@ -1170,6 +1214,7 @@ def test_gpu_check_fails_when_the_first_allocation_dies(monkeypatch, tmp_path):
     assert "nvidia-smi" in row.fix
 
 
+@pytest.mark.usefixtures("_fake_gpu_capabilities")
 def test_gpu_check_passes_when_the_allocation_probe_succeeds(monkeypatch, tmp_path):
     monkeypatch.setattr(doctor, "_import_torch", lambda: _fake_torch(devices=2))
     monkeypatch.setattr(doctor, "_nvidia_driver", lambda: "580.0")
@@ -1178,6 +1223,7 @@ def test_gpu_check_passes_when_the_allocation_probe_succeeds(monkeypatch, tmp_pa
     assert "2 CUDA device(s) usable" in row.message
 
 
+@pytest.mark.usefixtures("_fake_gpu_capabilities")
 def test_gpu_check_says_when_the_probe_was_skipped(ctx, monkeypatch):
     monkeypatch.setattr(doctor, "_import_torch", lambda: _fake_torch())
     monkeypatch.setattr(doctor, "_nvidia_driver", lambda: "580.0")
@@ -1186,6 +1232,7 @@ def test_gpu_check_says_when_the_probe_was_skipped(ctx, monkeypatch):
     assert "allocation probe skipped" in row.message
 
 
+@pytest.mark.usefixtures("_fake_gpu_capabilities")
 def test_gpu_check_survives_an_unnameable_device(ctx, monkeypatch):
     monkeypatch.setattr(
         doctor,
@@ -1743,7 +1790,11 @@ def test_run_checks_accepts_none_and_multi_row_returns(ctx):
     assert [row.message for row in rows] == ["one", "two"]
 
 
-def test_run_checks_runs_the_whole_registry_by_default(tmp_path):
+@pytest.mark.usefixtures("_fake_gpu_capabilities")
+def test_run_checks_runs_the_whole_registry_by_default(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        doctor, "_import_torch", lambda: _fake_torch(cuda_build=None, available=False))
+    monkeypatch.setattr(doctor, "_nvidia_driver", lambda: None)
     rows = doctor.run_checks(Context(checkout=tmp_path, probe_gpu=False))
     labels = {row.check for row in rows}
     for expected in ("python", "spacr package", "running checkout", "cellpose",

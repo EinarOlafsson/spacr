@@ -58,8 +58,6 @@ def describe(values: Sequence[float]) -> Dict[str, Any]:
         from scipy import stats
 
         out["skew"] = float(stats.skew(data))
-        # D'Agostino, which is what `check_distribution` itself uses -- so
-        # the number on the panel is the number that chose the family.
         out["normality_p"] = float(stats.normaltest(data).pvalue)
     except Exception:                                            # noqa: BLE001
         LOG.debug("could not measure the response's shape", exc_info=True)
@@ -69,9 +67,6 @@ def describe(values: Sequence[float]) -> Dict[str, Any]:
 
         from .ml import check_distribution
 
-        # `check_distribution` PRINTS its reasoning, which is useful in a run
-        # log and is noise when a plot asks it a question. Swallowed here
-        # rather than removed there: the printing is somebody's diagnostic.
         with contextlib.redirect_stdout(io.StringIO()):
             family = str(check_distribution(data))
     except Exception:                                            # noqa: BLE001
@@ -150,8 +145,6 @@ def compare(values: Sequence[float], transform: str) -> Dict[str, Any]:
         "after": describe(after),
         "values_before": data,
         "values_after": after,
-        # A TRANSFORM THAT CHANGED NOTHING IS VISIBLE AS SUCH. An absent
-        # panel reads as a missing feature rather than as an answer.
         "changed": bool(changed),
         "rescaled": name in RESCALING,
     }
@@ -239,10 +232,6 @@ def fast_panel(values: Sequence[float], transform: str, plot=None,
         if not series.size:
             continue
         counts, edges = np.histogram(series, bins=bins)
-        # A STEP OUTLINE, NOT FILLED BARS. Two filled histograms on one axis
-        # hide each other whichever order they are drawn in; two outlines
-        # overlay and stay readable, which is the comparison being asked
-        # for.
         xs = np.repeat(edges, 2)[1:-1]
         ys = np.repeat(counts, 2)
         plot.plot.plot(xs, ys, pen=_pen(colour_for(index), name))
@@ -289,10 +278,6 @@ def panel(values: Sequence[float], transform: str, ax=None,
     after = result["values_after"]
 
     if result["rescaled"] and result["changed"]:
-        # SEPARATE AXES, SHARED FIGURE. A log of a proportion and the
-        # proportion itself have no common scale, and forcing them onto one
-        # puts every point of the smaller into a single bar -- which looks
-        # like a finding and is an artefact of the axis.
         twin = ax.twiny()
         ax.hist(before, bins=40, alpha=0.55, label="before",
                 color="#4C72B0")
@@ -303,7 +288,6 @@ def panel(values: Sequence[float], transform: str, ax=None,
         ax.legend(handles, ["before", f"after {result['transform']}"],
                   loc="upper right", fontsize=8)
     else:
-        # ONE AXIS, which is what makes "what changed" readable at a glance.
         both = np.concatenate([before, after]) if after.size else before
         edges = np.histogram_bin_edges(both[np.isfinite(both)], bins=40)
         ax.hist(before, bins=edges, alpha=0.55, label="before",
@@ -315,8 +299,6 @@ def panel(values: Sequence[float], transform: str, ax=None,
     ax.set_xlabel(dependent_variable or "response")
     ax.set_ylabel("wells")
     ax.set_title("Response before and after the transform", fontsize=10)
-    # THE NAMES GO ON THE PANEL, which is the substance of the request --
-    # not left for the reader to judge by eye.
     ax.text(0.01, -0.22, caption(result), transform=ax.transAxes,
             fontsize=8, va="top", wrap=True)
     result["axes"] = ax

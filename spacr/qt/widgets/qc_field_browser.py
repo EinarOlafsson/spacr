@@ -64,10 +64,6 @@ __all__ = [
 ]
 
 
-# A 4096-square camera frame is 32 MB per uint16 plane.  The browser is an
-# overview, not an editor, so prepare a bounded display copy and leave the
-# memory-mapped source immediately.  1600 px still resolves five-pixel QC
-# objects while keeping four image planes plus masks under a modest budget.
 MAX_DISPLAY_EDGE = 1600
 
 _MASK_COLOURS: Dict[str, Tuple[int, int, int]] = {
@@ -219,9 +215,6 @@ def _keys_for_finding(
                 verdict.object_type == object_type
                 for verdict in group["verdicts"]):
             continue
-        # A flag finding carries exact fields.  A positional finding does not:
-        # every matching field is part of the pattern and belongs in the
-        # browser, including individually-clean fields.
         if exact or str(getattr(finding, "kind", "")) != "clean":
             keys.append(key)
     return keys
@@ -391,9 +384,6 @@ def load_qc_field(
         channel_names = tuple(str(name) for name in raw_names[:intensity_count])
         mask_dims = dict(layout.get("mask_dims") or {})
     else:
-        # Legacy arrays carry no manifest.  Their contract still appends one
-        # mask plane per stack after the intensities, so the discovered stack
-        # count is stronger evidence than blindly assuming four channels.
         if stacks and planes > len(stacks):
             intensity_count = planes - len(stacks)
         elif planes > min(DEFAULT_MASK_DIMS.values()):
@@ -435,9 +425,6 @@ def load_qc_field(
                 "Could not read the {object_type} mask: {error}",
                 language=language,
                 object_type=object_type, error=str(exc)))
-    # Drop the memmap before quarantine can be offered.  On Windows an open
-    # mapping prevents the atomic rename; the bounded copies above own their
-    # bytes independently.
     del array
     return QCFieldImage(
         path=str(path),
@@ -642,7 +629,6 @@ def _mask_colour(object_type: str) -> Tuple[int, int, int]:
         return _MASK_COLOURS[object_type]
     if object_type.startswith("organelle"):
         return _MASK_COLOURS["organelle"]
-    # Stable and vivid for custom object-role names.
     seed = sum((index + 1) * ord(char)
                for index, char in enumerate(object_type))
     return (70 + seed % 170, 70 + (seed // 7) % 170,
@@ -812,14 +798,6 @@ class QCFieldBrowser(QDialog):
             self, threaded=threaded, app_key="segmentation QC rendering",
             user_visible=False)
         self._render_jobs.job_failed.connect(self._on_render_failed)
-        # A THIRD RUNNER, not a share of `_jobs`. The quarantine move used to
-        # run inline on the GUI thread; putting it on the loading runner
-        # instead would have made `_on_load_failed` report a failed rename as
-        # "Could not load this field", and would have let `_show_target`'s
-        # `cancel()` orphan a move mid-flight. `user_visible=True` is left at
-        # its default deliberately: unlike the two above, this runner carries
-        # only work the user asked for by pressing the button, and a move on a
-        # slow share is exactly the kind of activity Home should own up to.
         self._move_jobs = JobRunner(
             self, threaded=threaded, app_key="segmentation QC quarantine")
         self._move_jobs.job_failed.connect(self._on_move_failed)
@@ -937,23 +915,12 @@ class QCFieldBrowser(QDialog):
         self._run_timer.timeout.connect(self._sync_action)
         self._run_timer.start()
         path_probe.probes.answered.connect(self._on_probe_answered)
-        # `closeEvent` is NOT a teardown hook for this dialog: it is
-        # `WA_DeleteOnClose`, and Escape goes through `QDialog.done`, which
-        # deletes the widget without ever raising a close event (verified on
-        # Qt 6.10). `finished` is emitted on both paths, while the object is
-        # still alive, which is the only place a move that committed during
-        # the dismissal can still be announced.
         self.finished.connect(self._on_finished)
         self._recheck_timer = QTimer(self)
         self._recheck_timer.setInterval(2000)
         self._recheck_timer.timeout.connect(self._recheck_files)
         self._recheck_timer.start()
 
-        # Arrow keys belong to field navigation even when a canvas, button or
-        # channel picker currently owns focus.  QGraphicsView consumes arrows
-        # for scrolling before a dialog-level keyPressEvent can see them, so
-        # install one narrow filter across this dialog's children as well as
-        # retaining QShortcuts for native shortcut dispatch.
         for widget in self.findChildren(QWidget):
             widget.installEventFilter(self)
 
@@ -1005,9 +972,6 @@ class QCFieldBrowser(QDialog):
         self._channel.clear()
         self._channel.setEnabled(False)
         self._load_status.setText(tr("Loading merged image and masks…"))
-        # A different field knows nothing about the last one's two copies.
-        # Back to the module's own defaults until this field's load, a couple
-        # of lines below, settles them exactly.
         self._last_active = True
         self._last_quarantined = False
         self._jobs.cancel()
@@ -1286,7 +1250,7 @@ class QCFieldBrowser(QDialog):
             return
         for path in paths:
             path_probe.forget(path)
-        self._file_state()  # queues both probes again; the answers repaint
+        self._file_state()
 
     def _on_probe_answered(self, path: str, _present: bool) -> None:
         """Repaint the button when a background probe corrects the cache.
@@ -1310,7 +1274,6 @@ class QCFieldBrowser(QDialog):
             if path in self._field_paths():
                 self._sync_action()
         except RuntimeError:
-            # The dialog has gone; the signal outlived it.
             pass
 
     def _sync_action(self) -> None:
@@ -1337,11 +1300,6 @@ class QCFieldBrowser(QDialog):
                 "which fields it can see."))
             return
         if self._move_jobs.is_busy():
-            # A move already running owns this field. The button is refused
-            # so the same rename cannot be started twice, and the status line
-            # is left exactly as it was: the move was instantaneous and
-            # silent while it ran on the GUI thread, and it is not this
-            # dialog's job to invent a caption for having stopped freezing.
             self._quarantine.setEnabled(False)
             return
         if self._jobs.is_busy():
@@ -1382,7 +1340,7 @@ class QCFieldBrowser(QDialog):
             self._sync_action()
             return
         active, quarantined = self._file_state()
-        if active == quarantined:  # both present or both absent
+        if active == quarantined:
             self._sync_action()
             return
         sink: Dict[str, Any] = {
@@ -1393,10 +1351,6 @@ class QCFieldBrowser(QDialog):
             _move_field(selected, was, box),
             lambda _outcome, box=sink: self._apply_move(box))
         if self._pending_move is sink:
-            # Still in flight -- repaint the button as refused. When the
-            # runner is unthreaded (tests) the handlers above have already
-            # run and already repainted, and syncing again here would erase
-            # the failure notice one of them just wrote.
             self._sync_action()
 
     def _apply_move(self, sink: Dict[str, Any]) -> None:
@@ -1408,20 +1362,11 @@ class QCFieldBrowser(QDialog):
             self._pending_move = None
         target = sink["target"]
         changed, destination = sink.pop("outcome")
-        # The rename just made the probe cache wrong in both directions, and
-        # the truth is already in hand -- prime rather than forget, or the
-        # two keys answer with the PRE-MOVE state (that is what
-        # `_last_active` carries forward) until a fresh probe lands, and the
-        # button offers to quarantine a file that is already in quarantine.
         active_path, quarantined_path = self._paths_for(target)
         path_probe.prime(active_path, not changed)
         path_probe.prime(quarantined_path, changed)
         self.quarantineChanged.emit(target.field, changed)
         if target is not self.current_target:
-            # A banner link re-pointed the dialog while the move was in
-            # flight. The move still happened and the listener above still
-            # has to hear about it, but this field's notice belongs to a
-            # field that is no longer on screen.
             self._sync_action()
             return
         self._action_notice = tr(
@@ -1429,8 +1374,6 @@ class QCFieldBrowser(QDialog):
             field=target.field, path=destination) if changed else tr(
             "Restored {field} to {path}.",
             field=target.field, path=destination)
-        # Reload from the new location, both to release stale path text and to
-        # prove the reversible move left a readable array.
         self._show_target(preserve_notice=True)
 
     def _on_move_busy_changed(self, _busy: bool) -> None:
@@ -1450,10 +1393,6 @@ class QCFieldBrowser(QDialog):
         sink = self._pending_move
         self._pending_move = None
         target = sink["target"] if sink is not None else self.current_target
-        # Nothing is known about either copy after a half-finished move.
-        # Forget rather than prime, and let the background probe settle it;
-        # `_last_active` keeps the button showing the pre-move state in the
-        # meantime, which is the state a failed move should leave.
         for path in self._paths_for(target):
             path_probe.forget(path)
         if target is not self.current_target:
@@ -1564,9 +1503,6 @@ class QCFieldBrowser(QDialog):
         try:
             path_probe.probes.answered.disconnect(self._on_probe_answered)
         except (RuntimeError, TypeError):
-            # Escape never reaches this method at all, so the connection is
-            # only ever dropped here as a courtesy; Qt has already done it
-            # by the time the object is really gone.
             pass
         self._render_jobs.shutdown()
         self._jobs.shutdown()

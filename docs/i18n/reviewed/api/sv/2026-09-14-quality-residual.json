@@ -1,0 +1,13 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "**Per-job logs go to their own file** — one interleaved log from twelve overnight jobs is unreadable — and the path is on the job record.",
+      "label": "spacr.batch#9",
+      "source": "**Per-job logs go to their own file** — one interleaved log from twelve overnight jobs is unreadable — and the path is on the job record.",
+      "source_sha256": "353ad8b1134aa6a59462fa7089b8d691ee2c478e1ef2bcf7d2cf1873456e0ab5",
+      "translation": "**Loggar per jobb hamnar i en egen fil** — en sammanflätad logg från tolv nattjobb går inte att läsa — och sökvägen står i jobbposten."
+    }
+  ],
+  "schema": 1
+}

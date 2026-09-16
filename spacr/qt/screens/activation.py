@@ -168,9 +168,6 @@ class ExplainNavigator:
             if opened is not None:
                 apply_seed(opened, values)
                 return opened
-            # No fold on this host -- the page is in a window of its own.
-            # Ask the window for the module by the name the registry knows
-            # it under rather than by the one that reaches nothing.
             key = APP_KEY
         window = self.window
         if window is None or not callable(

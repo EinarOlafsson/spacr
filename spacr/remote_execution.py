@@ -85,14 +85,22 @@ def _run_command(
     input_text: Optional[str] = None,
     timeout: float = 60.0,
 ) -> CommandResult:
-    """Run one argument vector without a shell and capture UTF-8 output."""
+    """Run one argument vector without a shell and capture UTF-8 output.
+
+    ``timeout`` is floored at one second: a sub-second budget is shorter than
+    process startup on any real machine, so honouring it literally would kill
+    every command. The floored value is what is WAITED and therefore what the
+    timeout message must name -- reporting the raw request would print a
+    number the user cannot reconcile with the wall clock.
+    """
+    waited = max(1.0, float(timeout))
     try:
         result = subprocess.run(
             list(argv),
             input=input_text,
             text=True,
             capture_output=True,
-            timeout=max(1.0, float(timeout)),
+            timeout=waited,
             check=False,
         )
     except FileNotFoundError as exc:
@@ -102,7 +110,7 @@ def _run_command(
         ) from exc
     except subprocess.TimeoutExpired as exc:
         raise RemoteExecutionError(
-            f"Command timed out after {timeout:g}s: {argv[0]}"
+            f"Command timed out after {waited:g}s: {argv[0]}"
         ) from exc
     except OSError as exc:
         raise RemoteExecutionError(
@@ -1410,9 +1418,6 @@ class RemoteJobManager:
             )
         profile = self.profiles.get(profile_name).validate()
         job_id = uuid.uuid4().hex
-        # Keep settings beside the selected JobStore.  Besides making custom
-        # installations coherent, this ensures a portable/test store never
-        # leaks files into the user's normal state directory.
         job_dir = self.jobs.path.parent / "jobs" / job_id
         mapped = map_settings_paths(
             dict(settings), profile.local_root, profile.remote_root
@@ -1469,9 +1474,6 @@ class RemoteJobManager:
                     job.log_tail = f"Log not available yet: {exc}"
             job.error = ""
         except Exception as exc:
-            # A transient SSH/cloud outage must not turn a still-running remote
-            # job into a permanent failure.  Preserve its prior state and make
-            # the polling error visible.
             job.error = f"{type(exc).__name__}: {exc}"
         self.jobs.save(job)
         return job

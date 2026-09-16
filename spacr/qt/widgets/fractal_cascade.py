@@ -330,9 +330,6 @@ if njit is not None:
         trap_slant = inverse_blend * a2 + blend * b2
         energy = inverse_blend * a3 + blend * b3
 
-        # Rational trap profiles: four exponentials per subpixel is the
-        # single most expensive thing this kernel could do, and these stay
-        # smooth and bounded for a fraction of it.
         ring_base = 1.0 / (1.0 + 20.0 * trap_ring)
         diagonal_base = 1.0 / (1.0 + 17.0 * trap_diagonal)
         slant_base = 1.0 / (1.0 + 12.5 * trap_slant)
@@ -390,10 +387,6 @@ if njit is not None:
         ) * (0.55 + 0.75 * dream)
         camera_cs = _fast_cos(camera_rotation)
         camera_sn = _fast_sin(camera_rotation)
-        # THE POINTER MOVES THE CAMERA, not the field. Folding it into the
-        # translation below draws the fold toward the cursor and shoves it
-        # away on a click, without a second warp term fighting the one the
-        # pattern already has.
         toward_x = pointer_x * (pull * 0.30 - push * 0.55)
         toward_y = pointer_y * (pull * 0.30 - push * 0.55)
         tx = dream * (0.090 * _fast_sin(_FAST_TWO_PI * t / 47.0)

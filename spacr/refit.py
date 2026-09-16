@@ -125,9 +125,6 @@ def prune_for_type(settings: dict, regression_type) -> Tuple[dict, List[str]]:
         if name in used or name not in out:
             continue
         value = out[name]
-        # The same 'auto'/None spelling regression_model treats as "no
-        # penalty chosen": not a request, so not something to report having
-        # dropped.
         if name == "alpha" and (value is None or value == "auto"):
             out[name] = default
             continue
@@ -198,20 +195,12 @@ def refit_settings(base: dict, *, regression_type=None,
     if correction_method is not None:
         from .multiple_testing import canonical_method
 
-        # Canonicalised here rather than passed through: the run raises on an
-        # unknown spelling, and it should do that while the dialog is open
-        # rather than twenty minutes into a fit.
         correction_method = canonical_method(correction_method)
         old = settings.get(CORRECTION_KEY)
         if correction_method != old:
             settings[CORRECTION_KEY] = correction_method
             notes.append(f"correction {old!r} -> {correction_method!r}")
     if fdr_alpha is not None:
-        # Compared against the run's own default when the settings did not
-        # record one, so a dialog whose spin box always holds a number does
-        # not report "significance level None -> 0.05" as a change on every
-        # single re-fit. A note that fires every time is a note nobody reads,
-        # and the notes that matter are in the same sentence.
         old = settings.get(CORRECTION_ALPHA_KEY, DEFAULT_FDR_ALPHA)
         settings[CORRECTION_ALPHA_KEY] = fdr_alpha
         if fdr_alpha != old:
@@ -221,23 +210,12 @@ def refit_settings(base: dict, *, regression_type=None,
     if alpha is not None:
         settings["alpha"] = alpha
 
-    # RANDOM EFFECTS WIN OVER A NAMED MODEL, and the run refuses the
-    # combination rather than choosing. Turning the flag off when the user
-    # has just asked for a specific backend is what they meant by asking --
-    # leaving it on would fit a MixedLM and file it under the name they
-    # picked, which is the exact bug _reconcile_random_row_column_effects
-    # was written for.
     if settings.get("random_row_column_effects") and chosen not in (
             None, "mixed"):
         settings["random_row_column_effects"] = False
         notes.append("random row/column effects off (they fit a mixed model, "
                      f"and {chosen!r} was asked for)")
 
-    # A GUIDE-LEVEL MIXED FIT STILL HAS NO GUIDE P VALUES, and saying so here
-    # is the difference between a re-fit that answers the question and one
-    # that returns the same empty volcano under a new folder name. `mixed`
-    # makes the guide a RANDOM effect at every level, so asking for
-    # level='grna' does not turn its BLUPs into estimates.
     if (str(settings.get("level", "")).lower() == "grna"
             and str(chosen or "").lower() == "mixed"):
         notes.append(
@@ -252,17 +230,10 @@ def refit_settings(base: dict, *, regression_type=None,
         notes.append(f"{chosen!r} does not read " + ", ".join(reset)
                      + " — reset to default")
 
-    # THE FIGURES COME BACK ON. save_settings writes plot=False so a reload
-    # reproduces the run headlessly; a re-fit asked for FROM a figure that
-    # then drew no figures would look like it had failed.
     if settings.get("plot") is False:
         settings["plot"] = True
     settings["test_mode"] = False
 
-    # `src` is rebuilt by the run from the count data unless it is set, and
-    # the previous run left it pointing at its own output root. Dropping it
-    # is what puts the re-fit in a sibling folder rather than nested inside
-    # the run it is being compared with.
     settings.pop("src", None)
     return settings, notes
 

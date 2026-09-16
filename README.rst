@@ -238,20 +238,26 @@ which is the usual cause.
 Install from source (light)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Full clone: 427 MB. Core clone: 76 MB.
+Contributors need the history; to only run spaCR, take one of these,
+measured 2026-09-15 by ``packaging/measure_clone_forms.sh``::
 
-::
+    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Skips ``docs/``, ``tests/``, Cellpose checkpoints, archived figures and the
-extended translation catalogs. The result is a normal checkout.
-
-Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``,
-``--with-docs``, ``--with-translations``, ``--no-install``.
-
-``packaging/source_install_excludes.txt`` lists every skipped path.
+The full clone downloads 5.8 GB for a 1186 MB checkout.
+Adding ``--filter=blob:none`` to that clone saves nothing: the checkout
+fetches the blobs anyway.
 
 
 Command-line entry points
@@ -269,6 +275,8 @@ Command-line entry points
    spacr-repro RUN_DIR                        # replay a recorded run
    spacr-download --list                      # what example data exists
    spacr-download measure annotate            # fetch example sets by name
+   spacr-make-masks --folder DIR              # curate masks as a resumable queue
+   spacr-make-masks --folder DIR --order easy --limit 50
 
 Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written
 to ``~/.spacr/logs/spacr.log``.
@@ -550,8 +558,8 @@ because a truncated or substituted checkpoint cannot be told from the real one.
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -578,7 +586,7 @@ was accepted at precision 0.858 with recall 0.811 over an earlier round at
 
 **IoU**, intersection over union, is how much a predicted object and the real
 one overlap, divided by the area they cover together. It is the ruler the rest
-are read against, so a score means nothing without its threshold: "F1 0.867 at
+are read against, so a score means nothing without its threshold: "F1 0.864 at
 IoU 0.5" counts a vacuole as found when the two outlines agree over half their
 combined area.
 

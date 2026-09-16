@@ -1,0 +1,61 @@
+{
+  "language": "is",
+  "schema": 1,
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "All seven canonical UI additions for feature 317, derived from canonical_sources()['ui'] minus en.UI_SOURCES. Actual form applications are distinct from accepted CSV keys; other-form settings are distinct from unknown or retired settings.",
+    "limitations": "AI semantic review against canonical English source; not native-speaker human review or approval. Identifiers, placeholders and the protected UI names Live Preview and Run are preserved."
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+      "translation": "Dæmigagnasafnið var hlaðið inn ásamt stillingum þess. Veldu Live Preview til að sjá eitt sjónsvið eða Run til að vinna úr plötunni."
+    },
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+      "translation": "Dæmigagnasafnið var hlaðið inn án stillingapakka; sjálfgefnar stillingar eru notaðar. Veldu Live Preview til að sjá eitt sjónsvið eða Run til að vinna úr plötunni."
+    },
+    {
+      "table": "ui",
+      "key": "[example] Dropped {count} unknown or retired settings: {keys}",
+      "source": "[example] Dropped {count} unknown or retired settings: {keys}",
+      "source_sha256": "a2ce4d5c7bb78b45f367a059440d82df3e5549962aaa808f9ac4bfaff5ce07b3",
+      "translation": "[example] Sleppti {count} óþekktum eða aflögðum stillingum: {keys}"
+    },
+    {
+      "table": "ui",
+      "key": "[example] Ignored {count} settings available in this build but not on this form: {keys}",
+      "source": "[example] Ignored {count} settings available in this build but not on this form: {keys}",
+      "source_sha256": "66d523a5ef74556a60b5bc3448f94c9a062844c660bd4eab7ee8a514c11392cf",
+      "translation": "[example] Hunsaði {count} stillingar sem eru tiltækar í þessari útgáfu en ekki á þessu eyðublaði: {keys}"
+    },
+    {
+      "table": "ui",
+      "key": "[example] Renamed {count} settings: {renames}",
+      "source": "[example] Renamed {count} settings: {renames}",
+      "source_sha256": "aea30a23c71e25ddd69e6dd66c10a40a318c9e3297773351a8f0e3deccf4c6eb",
+      "translation": "[example] Endurnefndi {count} stillingar: {renames}"
+    },
+    {
+      "table": "ui",
+      "key": "[example] Skipped {count} unreadable CSV row(s).",
+      "source": "[example] Skipped {count} unreadable CSV row(s).",
+      "source_sha256": "504869209ed558fba92660a57e4471891f90420636e6dad13fcb19b736c92e27",
+      "translation": "[example] Sleppti {count} ólæsilegum CSV-línum."
+    },
+    {
+      "table": "ui",
+      "key": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted.",
+      "source": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted.",
+      "source_sha256": "bf3e16003a8ca5391dcf9cfb76d1539e18b7a19a554705d47ea00f6ee60b0f73",
+      "translation": "[example] {applied} stillingar úr {name} voru færðar inn í eyðublaðið; {accepted} CSV-lyklar voru samþykktir."
+    }
+  ]
+}

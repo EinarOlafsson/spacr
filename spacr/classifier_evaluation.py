@@ -27,9 +27,6 @@ from sklearn.metrics import (
     recall_score,
 )
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from .figures.style import figure_style, theme_target
 
 
@@ -48,7 +45,6 @@ EVALUATION_FILES = {
 """Stable file names produced by :func:`write_evaluation_bundle`."""
 
 
-# Train/test grouping ladder, from least to most independent.
 SPLIT_LEVELS: Tuple[str, ...] = ("cell", "field", "well", "plate")
 
 _SPLIT_COLUMNS: Dict[str, Tuple[str, ...]] = {
@@ -224,9 +220,6 @@ def split_group_values(*, group_by: Any = "well",
         groups = []
         for position, path in enumerate(paths):
             identity = sample_identity(path)
-            # A crop needs plate, well, field, and object tokens. Accepting a
-            # two-token arbitrary filename as ``plate_well`` invents a well
-            # identity and turns a random split into a grouped-looking one.
             encoded = augmentation_family(path).split("_")
             value = identity.get(level, "")
             if len(encoded) < 4 or not value:
@@ -285,22 +278,6 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
     if not np.isfinite(fraction) or not 0.0 < fraction < 1.0:
         raise ValueError("holdout must be a finite fraction strictly between 0 and 1")
 
-    # NOTHING TO SPLIT, SAID HERE RATHER THAN BY SKLEARN (issue #110).
-    #
-    # An empty label array falls all the way through to `train_test_split`
-    # and surfaces as
-    #
-    #     ValueError: With n_samples=0, test_size=0.2 the train set will be
-    #     empty
-    #
-    # which names neither the setting that is wrong nor what to do about it,
-    # and is filed against spaCR rather than read as a data problem. Every
-    # other degenerate shape below is already refused in words; this was the
-    # one that was not.
-    #
-    # The named-holdout path divides by `len(y)` to report the cell fraction,
-    # so an empty array is a ZeroDivisionError there instead. Both are
-    # answered by refusing before either can happen.
     if len(y) == 0:
         raise ValueError(
             "there are no labelled objects to split, so a classifier cannot "
@@ -311,8 +288,6 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
             "values present in the control column, and that any measurement "
             "filters still leave objects behind.")
     if len(group_values) != len(y):
-        # A group per label is what every split below assumes; a mismatch
-        # silently misaligns the two and produces a split that looks valid.
         raise ValueError(
             "group-aware splitting requires one group per label; the split "
             f"has {len(group_values)} groups for {len(y)} labels")
@@ -320,8 +295,6 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
         raise ValueError("a train/test split needs at least two labelled cells")
     classes = np.unique(y)
 
-    # A NAMED HOLDOUT SHORT-CIRCUITS THE SAMPLING. There is nothing to
-    # stratify: the caller has said which groups are the test side.
     if hold_out_groups:
         wanted = {str(g).strip() for g in hold_out_groups if str(g).strip()}
         as_text = np.array([str(g) for g in group_values])
@@ -392,10 +365,6 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
         candidates: List[Tuple[np.ndarray, np.ndarray, str]] = []
         requested_splits = max(
             2, min(int(round(1.0 / fraction)), len(distinct), 20))
-        # The nearest whole-group fraction may not contain every class. Try a
-        # small ladder down to a half holdout before declaring the design
-        # impossible; 25% over four class-confounded wells, for example, has
-        # no two-class one-well test set but does have an honest two-well one.
         split_counts = sorted({
             requested_splits,
             *range(2, min(5, len(distinct)) + 1),
@@ -410,7 +379,6 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
                         f"{len(distinct)} {level} groups"))
             except ValueError:
                 continue
-        # More candidates make uneven group sizes land closer to test_size.
         splitter = GroupShuffleSplit(
             n_splits=min(256, max(32, len(distinct) * 4)),
             test_size=fraction,
@@ -449,7 +417,7 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
         )
         train_groups = set(group_values[train_idx].astype(str))
         test_groups = set(group_values[test_idx].astype(str))
-        if train_groups & test_groups:  # defensive: sklearn promises this
+        if train_groups & test_groups:
             raise RuntimeError(f"{level} groups crossed the train/test boundary")
 
     train_idx = np.sort(np.asarray(train_idx, dtype=int))
@@ -554,13 +522,6 @@ def sample_identity(path: Any) -> Dict[str, str]:
     Unknown levels are returned as empty strings rather than guessed. The
     object identity is the augmentation-normalized full stem.
     """
-    # Exported crop names use either ``plate_well_field_object`` (for example
-    # ``plate1_A01_f2_o7``), separate row/column exports such as
-    # ``plate1_A_01_1_7``, or canonical PRCFO tokens
-    # (``plate1_r1_c1_f2_o7``). Parse from the field token toward the left so
-    # plate identifiers may themselves contain underscores. Including a field
-    # token in the well identity would split one biological well into multiple
-    # leakage groups.
     family = augmentation_family(path)
     parts = family.split("_")
     field_index = next(
@@ -1231,11 +1192,6 @@ def cross_calibrate_probabilities(
     probs = normalize_probabilities(probabilities)
     y = np.asarray(y_true, dtype=int)
     folds = np.asarray(fold_ids)
-    # REFUSE a label the head has no column for. Without this every fold's
-    # fit raised inside its own try/except, each fell back to temperature
-    # 1.0, and the function returned UNCALIBRATED probabilities while
-    # reporting that calibration ran -- visible only as a printed warning a
-    # caller has no reason to be watching.
     if len(y) and probs.shape[1]:
         stray = sorted({int(v) for v in y if v < 0 or v >= probs.shape[1]})
         if stray:
@@ -1326,9 +1282,6 @@ def calibration_table(
     if len(y) != len(probs):
         raise ValueError("y_true and probabilities must have equal length.")
     n_classes = probs.shape[1]
-    # A label with no column matches nothing, so every observed_frequency
-    # reads 0.0 and the reliability curve looks catastrophically
-    # miscalibrated rather than wrong. Refuse it.
     if len(y) and n_classes:
         stray = sorted({int(v) for v in y if v < 0 or v >= n_classes})
         if stray:
@@ -1369,10 +1322,6 @@ def calibration_table(
                     observed[mask].mean() - confidence[mask].mean()
                 ),
             })
-    # Name the columns even with no rows. `pd.DataFrame([])` is shape (0, 0),
-    # so a caller indexing 'class_name' or 'bin' on an empty result got a
-    # KeyError rather than an empty column -- and an empty table is a
-    # legitimate state (every bin can be empty), not a broken frame.
     return pd.DataFrame(rows, columns=CALIBRATION_COLUMNS)
 
 
@@ -1752,10 +1701,6 @@ def _write_confusion_figure(frame: pd.DataFrame, path: Path) -> None:
     """Render a normalized confusion heatmap."""
     import matplotlib.pyplot as plt
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         fig, axis = plt.subplots(figsize=(6, 5))
         image = axis.imshow(frame.to_numpy(dtype=float), vmin=0, vmax=1,
@@ -1773,18 +1718,6 @@ def _write_confusion_figure(frame: pd.DataFrame, path: Path) -> None:
                           color="white" if value > 0.5 else "black")
         fig.colorbar(image, ax=axis, label="Row-normalized fraction")
         fig.tight_layout()
-        # THE RESOLUTION IS THE USER'S; THE FORMAT IS NOT (108 point 6).
-        # This wrote a PNG at a fixed DPI whatever the preferences said, so
-        # "Resolution" reached everything except the files a pipeline leaves
-        # behind -- and it gains `print_ready`, so a bundle written from a
-        # dark session is not white ink on a white page.
-        #
-        # BUT `fmt` STAYS PNG, and that is not an oversight. These two files
-        # are named in `EVALUATION_FILES`, which is the bundle's CONTRACT:
-        # `read_evaluation_bundle` opens `confusion_matrix.png` by that exact
-        # name. Letting a format preference rename it makes the bundle
-        # unreadable by the function that wrote it -- a preference must not
-        # rename a file another part of the code opens by name.
         from .plot import save_figure
 
         save_figure(fig, path, fmt="png", close=True)
@@ -1794,10 +1727,6 @@ def _write_calibration_figure(frame: pd.DataFrame, path: Path) -> None:
     """Render one reliability curve per class."""
     import matplotlib.pyplot as plt
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         fig, axis = plt.subplots(figsize=(6, 5))
         axis.plot([0, 1], [0, 1], linestyle="--", color="#777777",
@@ -1816,18 +1745,6 @@ def _write_calibration_figure(frame: pd.DataFrame, path: Path) -> None:
         axis.set_title("Out-of-fold calibration")
         axis.legend(loc="best")
         fig.tight_layout()
-        # THE RESOLUTION IS THE USER'S; THE FORMAT IS NOT (108 point 6).
-        # This wrote a PNG at a fixed DPI whatever the preferences said, so
-        # "Resolution" reached everything except the files a pipeline leaves
-        # behind -- and it gains `print_ready`, so a bundle written from a
-        # dark session is not white ink on a white page.
-        #
-        # BUT `fmt` STAYS PNG, and that is not an oversight. These two files
-        # are named in `EVALUATION_FILES`, which is the bundle's CONTRACT:
-        # `read_evaluation_bundle` opens `confusion_matrix.png` by that exact
-        # name. Letting a format preference rename it makes the bundle
-        # unreadable by the function that wrote it -- a preference must not
-        # rename a file another part of the code opens by name.
         from .plot import save_figure
 
         save_figure(fig, path, fmt="png", close=True)

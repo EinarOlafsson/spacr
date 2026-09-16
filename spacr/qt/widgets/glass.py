@@ -210,8 +210,6 @@ def clear_the_containers(dialog: QWidget) -> int:
     for child in dialog.findChildren(QWidget):
         if isinstance(child, OPAQUE):
             continue
-        # A control's internals are not containers either: a combo's popup
-        # view and a spin box's line edit are children of an opaque thing.
         if any(isinstance(parent, OPAQUE)
                for parent in _ancestors(child, dialog)):
             continue
@@ -304,8 +302,6 @@ class _ResizeByEdge(QObject):
         window.installEventFilter(self)
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
-        # `getattr`, for the reason on `_DragByBackground`: Qt delivers to
-        # a filter whose Python attributes have already been cleared.
         """Resize the frameless window when an edge is pressed, and shape the cursor.
 
         The resize is handed to the compositor rather than implemented here, so
@@ -388,12 +384,6 @@ class _DragByBackground(QObject):
         dialog.installEventFilter(self)
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
-        # `getattr`, NOT `self._dialog`. The C++ QObject outlives this
-        # Python object's attributes: during teardown Qt goes on delivering
-        # events to a filter whose `__dict__` has already been cleared, and
-        # the AttributeError is printed by Qt on every one of them --
-        # "Error calling Python override of QObject::eventFilter" -- which
-        # is noise nobody can act on in a test log.
         """Move the frameless dialog when its background is dragged.
 
         :param watched: the dialog.
@@ -407,10 +397,6 @@ class _DragByBackground(QObject):
             kind = event.type()
             if kind == QEvent.Type.MouseButtonPress and \
                     event.button() == Qt.LeftButton:
-                # ONLY ON THE BACKGROUND. `childAt` answers None when the
-                # press is on the dialog itself rather than on something
-                # in it, which is exactly the empty space a title bar used
-                # to be.
                 where = event.position().toPoint()
                 if dialog.childAt(where) is None:
                     self._grab = (event.globalPosition().toPoint()
@@ -471,43 +457,15 @@ def make_frameless(dialog: QDialog) -> bool:
     `exec()` sat on an invisible modal window with no way to dismiss it.
     """
     try:
-        # `isVisible()` is not the test: a child of a parent that has never
-        # been shown reports False while still being marked visible itself,
-        # and hiding one of those would leave it hidden when its parent
-        # finally opened.
         was_showing = not dialog.isHidden()
-        # THE ATTRIBUTE BEFORE THE FLAGS. `setWindowFlags` RECREATES the
-        # native window, and a translucency asked for afterwards applies to
-        # a window that already exists -- which on X11 means it does not
-        # apply at all. Reported 2026-08-22: "there is a box with square
-        # edges behind the box with rounded edges."
         dialog.setAttribute(Qt.WA_TranslucentBackground, True)
-        # ONE FLAGS CHANGE, NOT TWO. `spacr.qt.dialogs._DetachEveryDialog`
-        # also rewrites the flags on Polish, to turn Qt.Dialog into
-        # Qt.Window so a window manager cannot glue the popup to its
-        # parent. Each `setWindowFlags` RECREATES the native window, and a
-        # window recreated after the translucent one was made is where the
-        # square corners came back -- reported as "the rectangular
-        # non-rounded black corners are still visible around the
-        # preferences and settings windows". So the detach happens here,
-        # in the same call, and the marker below tells that filter this
-        # dialog is already done.
         dialog.setWindowFlags((dialog.windowFlags()
                                & ~Qt.WindowType.Dialog)
                               | Qt.WindowType.Window
                               | Qt.FramelessWindowHint)
         dialog.setProperty(DETACHED, True)
-        # AND THE STYLESHEET HAS TO AGREE. WA_TranslucentBackground stops Qt
-        # filling the window with the palette's base; it does NOT stop the
-        # application stylesheet's `QDialog { background: ... }` rule, which
-        # paints the square box this is about. Scoped to the dialog itself
-        # with `#objectName`-free `QDialog` -- a bare `QDialog` selector in
-        # a widget stylesheet applies to that widget and inherits to its
-        # QDialog children, of which a settings popup has none.
         _paint_nothing_behind_the_card(dialog)
         _DragByBackground(dialog)
-        # AND RESIZABLE. Dropping the frame dropped the resize grips with
-        # it, so a settings window could be moved and not resized.
         let_the_user_resize(dialog)
         if was_showing and dialog.isHidden():
             dialog.show()
@@ -541,15 +499,6 @@ def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
         rect = dialog.rect()
         if rect.width() <= 0 or rect.height() <= 0:
             return False
-        # BUILT AT FOUR TIMES THE SIZE AND SCALED BACK. `toFillPolygon`
-        # flattens the arcs at a fixed tolerance, and at real size that
-        # polygon keeps pixels just outside the curve the card paints --
-        # so a sliver of whatever drifts behind the card showed along
-        # each rounded corner. Flattening a four-times path puts the
-        # polygon's error below one pixel once it is scaled down.
-        # NOT ERODED. A mask a pixel inside the edge cuts the outermost
-        # row all the way round, which takes the rim with it -- the card
-        # paints the full rect, so the mask covers the full rect too.
         step = 4.0
         path = QPainterPath()
         path.addRoundedRect(
@@ -560,8 +509,6 @@ def round_the_corners(dialog: QWidget, radius: int = CARD_RADIUS) -> bool:
         dialog.setMask(QRegion(polygon.toPolygon()))
         return True
     except Exception:                                        # noqa: BLE001
-        # A window that cannot be masked is a window with square corners,
-        # which is worse-looking and still perfectly usable.
         LOG.debug("could not round the window corners", exc_info=True)
         return False
 
@@ -607,13 +554,6 @@ class _Backdrop(QObject):
             LOG.debug("the backdrop would not fit", exc_info=True)
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
-        # `getattr`, for the reason spelled out on `_DragByBackground`: the
-        # C++ QObject outlives this Python object's `__dict__`, so a filter
-        # still installed during teardown is asked about events after its
-        # attributes are gone. Reading `self._dialog` directly raised
-        # AttributeError on every one of them, and Qt printed the whole
-        # traceback -- "Error calling Python override of
-        # QObject::eventFilter" -- at spaCR startup.
         """Refit the backdrop when the dialog is resized or shown.
 
         :param watched: the dialog.
@@ -642,44 +582,20 @@ def glass(dialog: QDialog) -> bool:
         LOG.debug("no card to put behind this dialog", exc_info=True)
         return False
     try:
-        # THE DRIFTING BACKDROP FIRST, so the card has something to be
-        # translucent OVER. A translucent panel on an opaque dialog is just
-        # a slightly different opaque panel -- what makes the setup screen
-        # read as glass is the moving strata showing through it, and that
-        # is what "the same transparent background" means here.
         backdrop = _install_the_backdrop(dialog)
 
-        # THE DIALOG PAINTS NOTHING OF ITS OWN. Without this its square
-        # background shows around the card wherever the card does not
-        # reach -- the black box behind the periphery.
         _paint_nothing_behind_the_card(dialog)
 
         card = SetupCard(dialog, radius=CARD_RADIUS)
-        # BEHIND THE CONTENTS, IN FRONT OF THE BACKDROP, and never in the
-        # layout: it is not added to one at all, because a backdrop that
-        # took part in a layout would push the dialog's own contents
-        # around, and the contents are the point.
         card.lower()
         card.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        # SHOWN EXPLICITLY. This runs on the dialog's Show event, so the
-        # parent is already visible and a child made now stays hidden until
-        # it is told otherwise -- which is a card that is there, sized, and
-        # painting nothing.
         card.show()
-        # AND THE BACKDROP GOES UNDER THE CARD. `install_ambient` lowers
-        # itself to the bottom of the sibling order and so does the card,
-        # so whichever is lowered LAST wins the bottom -- and a card under
-        # the strata is a card nobody sees, rim and all. One more `lower`
-        # on the backdrop puts them in the order the look needs: strata,
-        # then the translucent body, then the dialog's own contents.
         if backdrop is not None:
             backdrop.lower()
         _make_room_for_the_rim(dialog)
         make_frameless(dialog)
         round_the_corners(dialog)
         spin_on_every_button(dialog, card)
-        # AND THE DIALOG'S OWN VERDICT, for the paths that never touch a
-        # button -- Escape rejects, and code can accept directly.
         try:
             dialog.accepted.connect(lambda c=card: c.circuit(clockwise=True))
             dialog.rejected.connect(lambda c=card: c.circuit(clockwise=False))
@@ -691,8 +607,6 @@ def glass(dialog: QDialog) -> bool:
         dialog.setProperty(GLASSED, True)
         return True
     except Exception:                                        # noqa: BLE001
-        # DECORATION IS NEVER LOAD-BEARING. A dialog that cannot be glassed
-        # is a dialog that opens looking as it always did.
         LOG.debug("could not glass a dialog", exc_info=True)
         return False
 
@@ -736,9 +650,6 @@ def _say_how_to_close_it(dialog: QDialog) -> bool:
 
     if dialog.property(CLOSE_HINT):
         return False
-    # A BUTTON THAT CLOSES IT is any button at all: every dialog button box
-    # rejects or accepts, and a bare button in a dialog with no box is what
-    # a hand-built OK looks like.
     if dialog.findChildren(QDialogButtonBox) or dialog.findChildren(
             QAbstractButton):
         return False
@@ -751,7 +662,6 @@ def _say_how_to_close_it(dialog: QDialog) -> bool:
         hint = QLabel(tr("press Escape to close"), dialog)
         hint.setObjectName("Muted")
         hint.setAlignment(Qt.AlignHCenter)
-        # SMALL, as asked. It is a reminder, not a control.
         from ..theme import font_px
         hint.setStyleSheet(f"font-size: {font_px(10)}px;")
         hint.setAttribute(Qt.WA_TransparentForMouseEvents, True)
@@ -774,17 +684,9 @@ def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
     try:
         from ..preferences import get_ambient_enabled, get_popup_backdrop
 
-        # THE USER'S OWN ANSWER ABOUT ANIMATED BACKGROUNDS. Somebody who
-        # turned the backdrop off on the module screens has not asked for
-        # it back in every popup; the card and the rim still apply, so the
-        # look is the same one, just still.
         if not get_ambient_enabled():
             return None
         theme = get_popup_backdrop()
-        # AND THEIR ANSWER FOR POPUPS IN PARTICULAR. What belongs behind a
-        # screen full of figures is not necessarily what belongs behind a
-        # form somebody is reading, so `off` drops the movement and keeps
-        # the card and the rim.
         if theme == "off":
             return None
     except Exception:                                        # noqa: BLE001
@@ -793,15 +695,9 @@ def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
         from .ambient import install_ambient
         from .setup_slides import BACKDROP_SPEED
 
-        # ROUNDED TO THE CARD'S RADIUS, for the reason the setup window
-        # needed it: a SQUARE backdrop behind a rounded card is a second
-        # surface, and it is exactly the "non rounded edge black box behind
-        # the periphery" reported on About spaCR and the live mask settings.
         return install_ambient(dialog, theme=theme, speed=BACKDROP_SPEED,
                                corner_radius=CARD_RADIUS)
     except Exception:                                        # noqa: BLE001
-        # INVARIANTS 10: with no ambient engine the card is still a card,
-        # and the dialog still works.
         LOG.debug("no ambient backdrop for this dialog", exc_info=True)
         return None
 
@@ -823,12 +719,6 @@ class _GlassInstaller(QObject):
         :returns: ``False`` -- never consumed.
         """
         try:
-            # POLISH FIRST, SHOW AS THE FALLBACK. Polish arrives before a
-            # widget is visible, which is when the window flags can be
-            # changed without hiding it. Not every dialog is polished
-            # before its first show -- one built and exec'd in a single
-            # expression may not be -- so Show still catches it, and
-            # `make_frameless` puts back what it had to hide.
             if (event.type() in (QEvent.Type.Polish, QEvent.Type.Show)
                     and wants_glass(watched)):
                 glass(watched)
@@ -871,9 +761,6 @@ def install_glass_everywhere(application=None) -> bool:
         if _INSTALLED is not None and _INSTALLED_APP is application:
             return False
 
-        # A filter belongs to the object it was installed on.  Forgetting
-        # only the owner and retaining the filter makes a later application
-        # look "already installed" while receiving no events at all.
         if _INSTALLED is not None:
             try:
                 if _INSTALLED_APP is not None:
@@ -915,9 +802,6 @@ def uninstall_glass_everywhere(application=None) -> bool:
     try:
         from PySide6.QtWidgets import QApplication
 
-        # Remove it from the object that owns it.  The optional argument is
-        # retained for callers written before ownership was tracked, and is
-        # the fallback for an installation made by such an older module.
         application = _INSTALLED_APP or application or QApplication.instance()
         if application is not None:
             application.removeEventFilter(_INSTALLED)

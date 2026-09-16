@@ -206,9 +206,6 @@ def _well_order(design: PlateDesign) -> List[Tuple[int, int]]:
     if design.layout == "column":
         wells.sort(key=lambda w: (w[1], w[0]))
     elif design.layout == "random":
-        # A dedicated Random rather than numpy: this is a shuffle of at most
-        # 1536 tuples, and seeding a local instance cannot disturb any other
-        # stream in the process.
         random.Random(int(design.seed)).shuffle(wells)
     return wells
 
@@ -309,7 +306,6 @@ def check_design(design: PlateDesign,
     controls = table.loc[table["role"].isin((ROLE_POSITIVE, ROLE_NEGATIVE))]
     roles_present = set(table["role"])
 
-    # -- the named requirement ------------------------------------------
     if len(controls) and bool(controls["is_edge"].all()):
         wells = ", ".join(sorted(controls["well"])[:8])
         findings.append(DesignFinding(
@@ -331,7 +327,6 @@ def check_design(design: PlateDesign,
                 "edge, where evaporation and temperature differ from the "
                 "interior. Spread them inward."))
 
-    # -- confounding with position --------------------------------------
     for role, label in ((ROLE_POSITIVE, "positive control"),
                         (ROLE_NEGATIVE, "negative control")):
         block = table.loc[table["role"] == role]
@@ -359,7 +354,6 @@ def check_design(design: PlateDesign,
             "analysis can separate them. Use the random layout unless the "
             "pipetting cost is genuinely prohibitive."))
 
-    # -- the design itself ----------------------------------------------
     if ROLE_NEGATIVE not in roles_present:
         findings.append(DesignFinding(
             "no_negative_control", "warn",
@@ -468,14 +462,6 @@ def to_settings_fragment(design: PlateDesign,
 
     out["settings"][plural] = names
     out["settings"][meta_key] = locations
-    # THE ROLE AND THE SETTING ARE TWO DIFFERENT STRINGS NOW, which is
-    # what this line was always saying and could not show while they were
-    # spelled the same. `ROLE_POSITIVE` is a Qt WIDGET ROLE -- the token
-    # `experiment_design`'s stylesheet selects a well by -- and the second
-    # element is the SETTING the design writes. Renaming the setting to
-    # `positive_control_id` (364) left the role alone; a blanket replace
-    # would have taken both, and the wells would have lost their colour
-    # with no error anywhere.
     for role, setting in ((ROLE_POSITIVE, "positive_control_id"),
                           (ROLE_NEGATIVE, "negative_control_id")):
         matching = [c.name for c in design.conditions if c.role == role]

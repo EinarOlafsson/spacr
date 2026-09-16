@@ -9,9 +9,23 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SPACR_REPO = Path(os.environ.get(
-    "SPACR_REPO", "/mnt/firecuda2/codex/repo/spacr"
-))
+
+
+def _containing_repo() -> Path:
+    """Return the spaCR checkout this copy lives in, never another tree."""
+    for parent in Path(__file__).resolve().parents:
+        if (parent / "spacr" / "__init__.py").is_file() and (parent / ".git").exists():
+            return parent
+    raise RuntimeError("Set SPACR_REPO: this copy is not inside a spaCR checkout")
+
+
+SPACR_REPO = Path(os.environ.get("SPACR_REPO") or _containing_repo())
+#: The live-app ratchets read the refreshed release candidate. ``ROOT /
+#: "catalog"`` holds the pre-refresh catalogs that the reviewed-translation
+#: tests below still pin, and those predate the Home rewrite and the
+#: import_images / regression_diagnostics / ops / embeddings lessons, so they
+#: can no longer equal the running application.
+CANDIDATE_CATALOG = ROOT.parent / "release_candidate" / "web" / "catalog"
 sys.path.insert(0, str(ROOT / "tools"))
 
 from translate_pre_app import (  # noqa: E402
@@ -33,21 +47,37 @@ FOLDED_LESSON_HOSTS = {
     "cellpose_masks": "make_masks",
     "classifier_evaluation": "classify_merged",
     "classify": "classify_merged",
+    "control_chart": "qc_dashboard",
+    "convert": "foreign",
     "curate": "make_masks",
     "explain_cv": "classify_merged",
+    "external_masks": "foreign",
+    "feature_explorer": "classify_merged",
     "hit_list": "regression",
     "illumination": "measure",
     "image_scatter": "umap",
+    "import_images": "foreign",
+    "investigate_hit": "regression",
+    "layer_viewer": "qc_dashboard",
+    "lineage": "db_browser",
     "methods_export": "regression",
     "ml_analyze": "classify_merged",
     "model_compare": "make_masks",
     "model_zoo": "make_masks",
     "motility": "measure",
     "napari_bridge": "make_masks",
+    "ops": "mask",
+    "outliers": "qc_dashboard",
     "parameter_sweep": "regression",
     "pca": "umap",
+    "plate_view": "graph_builder",
+    "profiler": "regression",
+    "regression_diagnostics": "regression",
+    "tabulate": "db_browser",
     "timelapse": "mask",
     "train_cellpose": "make_masks",
+    "train_compare": "classify_merged",
+    "trellis": "graph_builder",
     "volcano_explorer": "regression",
 }
 
@@ -107,11 +137,15 @@ import json
 import spacr.qt
 spacr.qt.register_self_registering_modules()
 from spacr.qt.app import APPS, home_categories
+names = {row[0]: row[1] for row in APPS}
+categories = home_categories(APPS)
 print(json.dumps({
     "count": len(APPS),
     "keys": [row[0] for row in APPS],
-    "categories": home_categories(APPS),
-    "core_names": [row[1] for row in APPS if row[3] == "Core"],
+    "categories": categories,
+    # The Home Core band, not every row registered as Core: a Core row that
+    # is folded into a host (Feature Explorer, into Classify) has no tile.
+    "core_names": [names[key] for key in dict(categories)["Core"]],
 }))
 """
     env = dict(
@@ -137,7 +171,7 @@ def test_authoring_route_map_matches_the_live_fold_owners() -> None:
 def test_lesson_inventory_matches_every_live_primary_and_folded_workflow() -> None:
     """Every current workflow has one lesson; retired workflows have none."""
     catalog = json.loads(
-        (ROOT / "catalog" / "lessons_en.json").read_text(encoding="utf-8")
+        (CANDIDATE_CATALOG / "lessons_en.json").read_text(encoding="utf-8")
     )
     routed = [
         lesson["app_key"] for lesson in catalog["lessons"]
@@ -146,7 +180,7 @@ def test_lesson_inventory_matches_every_live_primary_and_folded_workflow() -> No
     expected = set(_live_home_inventory()["keys"]) | set(
         FOLDED_LESSON_HOSTS
     )
-    assert len(routed) == len(set(routed)) == len(expected) == 67
+    assert len(routed) == len(set(routed)) == len(expected) == 71
     assert set(routed) == expected
     assert [
         lesson["id"] for lesson in catalog["lessons"]
@@ -158,7 +192,12 @@ def test_lesson_inventory_matches_every_live_primary_and_folded_workflow() -> No
 
 
 def test_every_full_catalog_preserves_the_exact_host_routes() -> None:
-    for path in sorted((ROOT / "catalog").glob("lessons_*.json")):
+    paths = sorted(
+        list(CANDIDATE_CATALOG.glob("lessons_*.json"))
+        + list(CANDIDATE_CATALOG.glob("captions_*.json"))
+    )
+    assert len(paths) == 14
+    for path in paths:
         catalog = json.loads(path.read_text(encoding="utf-8"))
         actual = {
             lesson["app_key"]: lesson.get("host_app_key")
@@ -491,74 +530,58 @@ def test_installer_tutorial_keeps_acceleration_default_and_cpu_fallback() -> Non
 
 def test_home_tutorial_is_ratcheted_to_the_live_registry_and_categories() -> None:
     live = _live_home_inventory()
-    assert live["count"] == 44
+    assert live["count"] == 45
     assert [item[0] for item in live["categories"]] == [
-        "Core", "Data", "Results & QC", "Explore", "Assays", "Design",
+        "Core", "Data", "Tools", "Assays",
     ]
     assert live["core_names"] == [
         "Mask", "Measure", "Annotate", "Classify", "Map Barcodes",
         "Regression",
     ]
 
+    # The refreshed Home lesson is nine scenes, one per Home category plus
+    # the folded hosts and Help. It no longer narrates a module count, the
+    # Alpha/Beta/Stable names or the Performance level selector, so those
+    # 2026-08 assertions have nothing current to pin.
     english = json.loads(
-        (ROOT / "catalog" / "lessons_en.json").read_text(encoding="utf-8")
+        (CANDIDATE_CATALOG / "lessons_en.json").read_text(encoding="utf-8")
     )
     home = next(
         lesson for lesson in english["lessons"] if lesson["id"] == "05_home"
     )
     overview = home["scenes"][0]["narration"]
-    modules = home["scenes"][2]["narration"]
-    performance = home["scenes"][3]["narration"]
-    assert "all forty four registered spaCR modules" in overview
-    assert "Core, Data, Results & QC, Explore, Assays, and Design" in overview
-    assert all(name in modules for name in live["core_names"])
-    assert "Hover over a tile" in modules
-    assert "module description" in modules
-    assert all(stage in modules for stage in ("Alpha", "Beta", "Stable"))
-    assert "Preferences can hide Alpha or Beta modules" in modules
-    assert "Stable modules remain visible" in modules
-    assert "one Performance level selector" in performance
-    assert all(label in performance for label in (
-        "Laptop", "Extra Performance", "Performance", "Balanced",
-        "Workstation",
-    ))
-    assert "not scientific settings or results" in performance
+    core = home["scenes"][1]["narration"]
+    assert "Core, Data, Tools, and Assays" in overview
+    assert all(name in core for name in live["core_names"])
+    assert "Load test data" in home["scenes"][7]["narration"]
 
 
 def test_every_home_localization_preserves_current_exact_ui_labels() -> None:
     paths = sorted(
-        list((ROOT / "catalog").glob("lessons_*.json"))
-        + list((ROOT / "catalog").glob("captions_*.json"))
+        list(CANDIDATE_CATALOG.glob("lessons_*.json"))
+        + list(CANDIDATE_CATALOG.glob("captions_*.json"))
     )
-    labels = (
-        "Core", "Data", "Results & QC", "Explore", "Assays", "Design",
-    )
+    assert len(paths) == 14
+    labels = ("Core", "Data", "Tools", "Assays")
     failures = []
     for path in paths:
         catalog = json.loads(path.read_text(encoding="utf-8"))
         lesson = next(
             item for item in catalog["lessons"] if item["id"] == "05_home"
         )
-        if len(lesson["scenes"]) != 5:
+        if len(lesson["scenes"]) != 9:
             failures.append(f"{path.name}: Home scene count changed")
             continue
         overview = lesson["scenes"][0]["narration"]
-        modules = lesson["scenes"][2]["narration"]
-        performance = lesson["scenes"][3]["narration"]
+        core = lesson["scenes"][1]["narration"]
         for label in labels:
             if label not in overview:
                 failures.append(f"{path.name}: Home label {label!r} missing")
         for name in (
                 "Mask", "Measure", "Annotate", "Classify", "Map Barcodes",
-                "Regression", "Alpha", "Beta", "Stable"):
-            if name not in modules:
+                "Regression"):
+            if name not in core:
                 failures.append(f"{path.name}: module label {name!r} missing")
-        for label in (
-                "Laptop", "Extra Performance", "Performance", "Balanced",
-                "Workstation"):
-            if label not in performance:
-                failures.append(
-                    f"{path.name}: performance label {label!r} missing")
     assert not failures, failures
 
 

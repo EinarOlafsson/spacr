@@ -163,16 +163,6 @@ def connect(
         raise
 
 
-# Smallest per-attempt busy timeout worth asking SQLite for.
-#
-# SQLite's default busy handler sleeps down a fixed ladder --
-# 1, 2, 5, 10, 15, 20, 25, 25, 25, 50, 50, 100 ms -- and clamps the final
-# sleep to whatever is left of the budget. A 1 ms budget therefore buys one
-# 1 ms sleep and a single re-try of the lock: BEGIN gives up while the holder
-# is still inside its commit, and the caller burns a whole retry attempt on a
-# lock that was about to be released. 25 ms is where the ladder reaches its
-# steady step, so it is the smallest budget in which a contended writer can
-# realistically hand the lock over.
 MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS = 25
 
 
@@ -249,12 +239,6 @@ def transaction(
     delay = max(0.0, float(initial_delay))
     timeout_row = connection.execute("PRAGMA busy_timeout").fetchone()
     original_busy_timeout = int(timeout_row[0]) if timeout_row else 0
-    # sqlite's busy_timeout applies to *each* BEGIN. Without dividing the
-    # caller's budget, eight retries on a 30-second connection can block for
-    # four minutes. Share that budget across attempts -- clamped by
-    # _attempt_busy_timeout_ms, because a plain division handed a 50 ms
-    # connection asking for 40 attempts 1 ms per BEGIN -- then restore the
-    # connection's own value before executing the transaction body.
     total_busy_timeout = (
         original_busy_timeout if busy_timeout is None
         else max(0, int(float(busy_timeout) * 1000))
@@ -325,20 +309,10 @@ def _filesystem_type_via_psutil(target: Path) -> Optional[str]:
         import psutil
     except Exception:                                        # noqa: BLE001
         return None
-    # NO WALK-UP BEFORE MATCHING. A mount point either is a prefix of this
-    # path or it is not, and that is true whether or not the leaf exists yet --
-    # a measurement.db about to be created on a share is still on the share.
-    # Walking up to the nearest EXISTING ancestor first sent a path under a
-    # share that had no file yet all the way to "/", which matches the root
-    # mount and reports the local disk. That is the one wrong answer that
-    # matters here: the root is usually apfs, apfs is on WAL_SAFE_FILESYSTEMS,
-    # and the result would be WAL enabled on a network share.
     best: Optional[tuple] = None
     try:
         partitions = psutil.disk_partitions(all=True)
     except Exception:                                        # noqa: BLE001
-        # Advisory only: a platform that refuses to enumerate mounts leaves
-        # the answer unknown, which wal_is_safe_here already treats as unsafe.
         return None
     for part in partitions:
         mount = str(getattr(part, "mountpoint", "") or "")
@@ -365,16 +339,6 @@ def filesystem_type(path: os.PathLike | str) -> Optional[str]:
     target = Path(path).expanduser().resolve()
     mounts = Path("/proc/mounts")
     if not mounts.is_file():
-        # NOT LINUX. Until this branch existed the answer here was None on
-        # every macOS and Windows machine, and `wal_is_safe_here` turns None
-        # into False -- so every Mac ran without WAL even on local APFS, and,
-        # worse, `doctor` could not tell a user on an SMB share that they WERE
-        # on one. Issue 115 is exactly that reporter: Apple Silicon, a
-        # measurement.db on an SMB server, and nothing in spaCR able to name
-        # the filesystem in its own diagnosis.
-        #
-        # psutil is already a declared dependency and reports fstype on every
-        # platform spaCR supports, so this needs no new requirement.
         return _filesystem_type_via_psutil(target)
     while not target.exists() and target != target.parent:
         target = target.parent
@@ -467,10 +431,6 @@ def enable_wal_where_safe(path: os.PathLike | str) -> Optional[str]:
     try:
         connection = connect(path, journal_mode="WAL")
     except (sqlite3.Error, DatabaseConfigurationError, OSError):
-        # A refusal here is informative, not fatal: SQLite declines WAL on
-        # storage that cannot hold it, which is exactly the outcome the
-        # allowlist is guessing at. Staying on DELETE is the shipped
-        # behaviour, so the run continues as it always did.
         return None
     try:
         return str(connection.execute(
@@ -721,18 +681,6 @@ def run_concurrency_probe(
                 "choose a new scratch path.")
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
 
-    # A PROBE THAT NEVER RAN LEAVES NOTHING BEHIND. Everything from here to
-    # the metrics is inside one handler, because a failure anywhere in it
-    # happens AFTER the scratch database has been created and the cleanup
-    # used to be the last statement of the function. The commonest is a
-    # journal mode `connect` refuses -- 'MEMORY', 'TRUNCATE' -- which left an
-    # empty scratch database in the system temp directory for good, and at an
-    # explicit path left a file that makes the NEXT run on it fail with
-    # FileExistsError against a database the user never got a probe out of.
-    #
-    # The deliberate survivor is the STALLED one: a worker that outlives the
-    # join deadline is a normal return, guarded by `not alive` at the end, and
-    # its database is worth keeping to look at.
     try:
         journal_mode = _probe_journal_mode(journal_mode)
         return _run_probe(
@@ -754,13 +702,12 @@ def _discard_scratch(db_path: str, temporary_dir: Optional[str]) -> None:
         if temporary_dir is not None:
             shutil.rmtree(temporary_dir, ignore_errors=True)
             return
-        # An explicit path, with the sidecars WAL leaves beside it.
         for suffix in ("", "-wal", "-shm"):
             try:
                 os.remove(db_path + suffix)
             except OSError:
                 pass
-    except Exception:      # below OSError: a path the OS rejects outright
+    except Exception:
         LOG.debug("could not remove the probe's scratch database",
                   exc_info=True)
 
@@ -864,16 +811,10 @@ def _run_probe(
         thread.join(timeout=max(0.0, deadline - time.monotonic()))
     alive = [thread for thread in threads if thread.is_alive()]
     if alive:
-        # Release reader loops even if a writer stalled, then give all workers
-        # one final bounded chance to close their thread-owned connection.
         finished.set()
         for thread in alive:
             thread.join(timeout=1.0)
         alive = [thread for thread in threads if thread.is_alive()]
-    # ``is_alive`` can change between the post-join snapshot above and this
-    # final check. Keep only workers that are still alive now, so a thread
-    # that exits in that small window is neither reported as stalled nor used
-    # to preserve an otherwise disposable scratch database.
     survivors = []
     for thread in alive:
         if thread.is_alive():

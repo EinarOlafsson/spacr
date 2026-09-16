@@ -62,9 +62,6 @@ from PySide6.QtCore import QCoreApplication, QObject, Signal
 from shiboken6 import isValid
 
 
-# ---------------------------------------------------------------------------
-# The single handler instance
-# ---------------------------------------------------------------------------
 
 _console_ref: "Optional[weakref.ReferenceType[Any]]" = None
 _handler: "Optional[_ConsoleForwarder]" = None
@@ -150,9 +147,6 @@ def _drop_console_target(ref=None) -> None:
         _console_ref = None
 
 
-# ---------------------------------------------------------------------------
-# Log file — always on, so a crash/hang can be diagnosed after the fact
-# ---------------------------------------------------------------------------
 
 def log_dir() -> Path:
     """Return ``~/.spacr/logs/`` — created if it doesn't exist.
@@ -186,21 +180,6 @@ def _ensure_file_handler() -> RotatingFileHandler:
     """
     global _file_handler
     if _file_handler is not None:
-        # ALREADY BUILT IS NOT ALREADY ATTACHED. This returned here
-        # unconditionally, and the console sink does not: `_ensure_handler`
-        # continues past its own `is None` block and re-adds itself when it
-        # is missing from the sink logger. So the two functions promised the
-        # same thing -- "attach a handler at the package root, idempotent" --
-        # and only one of them kept it if anything had detached the handler
-        # since.
-        #
-        # Nothing in the application detaches it, which is why this never
-        # showed in a run; a test that restores `spacr`'s handler list does,
-        # and `test_it_attaches_at_the_package_root` then failed depending on
-        # which sibling ran first (seeds 3-7 of eight, and not 1, 2 or 8).
-        #
-        # Re-attaching costs one list membership test and makes the pair
-        # consistent.
         if _file_handler not in logging.getLogger(_SINK_LOGGER).handlers:
             logging.getLogger(_SINK_LOGGER).addHandler(_file_handler)
         return _file_handler
@@ -212,13 +191,7 @@ def _ensure_file_handler() -> RotatingFileHandler:
             encoding="utf-8",
         )
     except Exception:
-        # If we can't open the file, don't crash — just skip file
-        # logging so the app still runs.
         return None                                                       # type: ignore[return-value]
-    # COMPACT FOR THE TRACE, ordinary for everything else. See
-    # `_CompactTraceFormat`: on a trace line the level is always DEBUG, the
-    # logger is always `spacr.trace`, and the date is the same on every line
-    # of one run -- so the prefix was longer than the message it introduced.
     from ..logging_util import _CompactTraceFormat
 
     handler.setFormatter(_CompactTraceFormat(
@@ -231,7 +204,6 @@ def _ensure_file_handler() -> RotatingFileHandler:
         logger = logging.getLogger(name)
         if name != _SINK_LOGGER and handler in logger.handlers:
             logger.removeHandler(handler)
-        # Ensure records propagate to the root logger's format if any.
         logger.setLevel(min(logger.level or logging.INFO, logging.INFO))
     _file_handler = handler
     return handler
@@ -271,32 +243,20 @@ class _ConsoleRelay(QObject):
 
     def _deliver(self, text: str) -> None:
         """Append ``text`` to the registered console. GUI thread only."""
-        # Records produced *by* a console write are dropped, not queued: see
-        # :data:`_DELIVERY_STATE`. Re-entering the widget mid-``setPlainText``
-        # destroys its QTextDocument's frames twice and takes the process
-        # down. Dropping them loses nothing a user could act on — they are
-        # the trace of the console drawing the previous line.
         if console_write_in_progress():
             return
         target = _console_ref() if _console_ref is not None else None
         if target is None:
             return
-        # A weak reference only detects Python collection. PySide can keep the
-        # wrapper alive after Qt has deleted the underlying C++ QWidget; calling
-        # a method on that zombie can segfault rather than raise RuntimeError.
         if not isValid(target):
             _drop_console_target(_console_ref)
             return
         append = getattr(target, "append_stdout", None)
         if append is None:
             return
-        # The latch is raised by the *innermost* writer — ConsolePanel's own
-        # append methods — and only checked here. Raising it around this call
-        # instead would make the panel refuse the very delivery it was handed.
         try:
             append(text)
         except Exception:
-            # Never let a logging failure escape into the app.
             pass
 
 
@@ -320,10 +280,6 @@ class _ConsoleForwarder(logging.Handler):
     """
 
     def emit(self, record: logging.LogRecord) -> None:
-        # Cut the feedback loop as early as possible: a record emitted while
-        # this thread is inside a console write is a record *about* that
-        # write. Formatting and emitting it would run more spaCR code, which
-        # under the function-trace profile hook produces more records still.
         """Forward one record to the console, unless that would recurse.
 
         The feedback loop is cut as early as possible: a record emitted while
@@ -344,7 +300,6 @@ class _ConsoleForwarder(logging.Handler):
             msg = self.format(record)
             _ensure_relay().line.emit(msg + "\n")
         except Exception:
-            # Never let a logging failure escape into the app.
             pass
 
 
@@ -459,10 +414,7 @@ def apply_console_levels(levels) -> None:
             break
     else:
         handler.addFilter(LevelSetFilter(wanted))
-    # The handler's own threshold would veto the filter before it ran.
     handler.setLevel(logging.DEBUG)
-    # The loggers feeding it carry thresholds too; open them to the lowest
-    # level any sink wants. The file filters still decide what is written.
     lowest = min(wanted) if wanted else logging.CRITICAL
     for name in _ATTACHED_LOGGERS:
         logger = logging.getLogger(name)
@@ -497,25 +449,10 @@ def apply_verbose_logging(on: bool) -> None:
         file_handler.setLevel(level)
     for name in _ATTACHED_LOGGERS:
         logging.getLogger(name).setLevel(level)
-    # Keep the interpreter-wide profiler an explicit developer tool. Even a
-    # filtered profile hook runs for every Python call in every thread, so it
-    # cannot be part of an always-on GUI preference. Decorated entry points,
-    # button presses, and ordinary DEBUG records still provide the useful
-    # verbose trail without imposing that process-wide cost.
     if on:
-        # Nudge cellpose's own logger to INFO so its "loaded model X"
-        # breadcrumbs come through. We deliberately DO NOT touch
-        # torch/PIL/matplotlib: torch's built-in handler writes to a
-        # stream that pytest captures + closes, and dialling that
-        # logger up produces spurious "I/O operation on closed file"
-        # noise. Users can raise those loggers manually if they need
-        # to.
         logging.getLogger("cellpose").setLevel(logging.INFO)
 
 
-# ---------------------------------------------------------------------------
-# Function-entry / button-press auto-logging
-# ---------------------------------------------------------------------------
 
 def is_verbose() -> bool:
     """Cheap runtime check — decorated functions call this on entry so

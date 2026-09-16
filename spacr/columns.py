@@ -68,7 +68,7 @@ class ColumnNotFound(KeyError):
         #: columns are grouped together.
         self.available = list(available)
 
-    def __str__(self) -> str:                       # trivial
+    def __str__(self) -> str:
         """Return the message without :class:`KeyError`'s added quoting."""
         return self.message
 
@@ -100,9 +100,6 @@ def headers(paths) -> Dict[str, List[str]]:
         try:
             found[path] = list(pd.read_csv(path, nrows=0).columns)
         except Exception:                           # noqa: BLE001
-            # A file that is not a CSV, or is empty, or is being written.
-            # Not fatal: the other paths may answer the question, and the
-            # caller is about to be told which files it could read.
             continue
     return found
 

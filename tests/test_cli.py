@@ -37,12 +37,19 @@ PKG_ROOT = REPO_ROOT / "spacr"
 
 @pytest.fixture(autouse=True)
 def _clean_cli_state(monkeypatch, tmp_path):
-    """Drop the CLI's log handlers and restore the env vars it sets.
+    """Put the CLI logger back as it was and restore the env vars it sets.
 
     ``setup_logging`` binds a handler to whatever ``sys.stdout`` is at the
     time; left in place it would write into a closed capsys buffer during a
-    later test. ``_quiet_progress_bars`` mutates ``os.environ`` directly, which
-    monkeypatch cannot undo for us.
+    later test. It also sets ``propagate = False`` and a level, and those are
+    process-wide too: every test here that reaches ``cmd_run`` past the
+    settings check calls it through ``cli.main``. Removing only the handlers
+    left ``spacr.cli`` non-propagating for the rest of the session, so under
+    pytest 8 (CI's pin) ``caplog`` at the root never saw a ``spacr.cli``
+    record again and ``test_cov_8_cli_registry`` read an empty
+    ``caplog.text``. pytest 9 attaches to non-propagating loggers too, which
+    is why the leak hid on a newer local pytest. ``_quiet_progress_bars``
+    mutates ``os.environ`` directly, which monkeypatch cannot undo for us.
     """
     import os
     from spacr import run_journal
@@ -53,9 +60,13 @@ def _clean_cli_state(monkeypatch, tmp_path):
 
     watched = ("TQDM_DISABLE", "SPACR_NO_PROGRESS", "MPLBACKEND")
     before = {k: os.environ.get(k) for k in watched}
+    log_propagate = cli.LOG.propagate
+    log_level = cli.LOG.level
     yield
     for handler in list(cli.LOG.handlers):
         cli.LOG.removeHandler(handler)
+    cli.LOG.propagate = log_propagate
+    cli.LOG.setLevel(log_level)
     for key, value in before.items():
         if value is None:
             os.environ.pop(key, None)

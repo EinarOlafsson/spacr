@@ -50,14 +50,17 @@ count of things attempted is not a measure of anything succeeding.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
+
+from .ops_layout import WellLayout, round_well_layout
 
 __all__ = [
     "Alignment",
     "align_phenotype_to_sbs",
     "nuclear_points",
+    "phenotype_centres",
     "phenotype_site_map",
     "refine_similarity",
     "seed_by_scaled_pairs",
@@ -305,13 +308,6 @@ def refine_similarity(source: np.ndarray, target: np.ndarray, seed,
     """
     scale, rotation, translation = seed
     result = None
-    # WIDE FIRST, THEN TIGHT. The seed is poor by construction, so the
-    # first pass has to accept correspondences a long way out or there is
-    # nothing to re-solve from; the last pass has to accept only close ones
-    # or it re-solves from coincidences. One radius cannot be both, and
-    # using the scoring radius throughout refused every noisy case that
-    # this schedule now recovers. The final pass is always at `radius`, so
-    # what comes back is measured at the radius the caller asked for.
     widths = [radius * 4.0, radius * 2.0]
     schedule = widths + [radius] * max(1, int(rounds))
     for width in schedule:
@@ -517,23 +513,7 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
     rng = np.random.default_rng(seed)
     best = None
     best_score = 1
-    # A SEED IS SCORED LOOSELY, and this is not the same number the answer
-    # is scored with. Two points fix a transform exactly at those two
-    # points and approximately everywhere else, and the error grows with
-    # the distance from them -- so scoring a seed at the final radius asks
-    # it to already be the answer. It only has to be in the right basin.
     seed_radius = radius * 4.0
-    # AND A SEED NEEDS A BASELINE. A pair of nuclei 10 px apart fixes the
-    # rotation to within the centroid noise, which is to say not at all;
-    # the same noise on a pair a third of the field apart is a fraction of
-    # a degree. Short pairs are also where the separation test stops
-    # discriminating, because almost any target pair passes it.
-    # `np.ptp(a)` AND NOT `a.ptp()`: NumPy 2.0 removed the ndarray METHOD
-    # and kept only the function. Every other `ptp` in this package was
-    # already written the surviving way, so this line was the one that
-    # raised AttributeError on any NumPy 2 install -- which is every
-    # install now, and is why this module measured 52% in the coverage
-    # sweep: seven tests could not reach past it.
     extent = float(max(np.ptp(src[:, 0]), np.ptp(src[:, 1])))
     min_span = 0.2 * extent
     for _ in range(max(1, int(trials))):
@@ -550,17 +530,6 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
             got = float(np.hypot(*(dst[l] - dst[k])))
             if abs(got - want) > want * tolerance:
                 continue
-            # Two points fix the rotation: the angle between the source
-            # separation and the target separation.
-            #
-            # BOTH ANGLES ARE TAKEN THE SAME WAY ROUND, and it has to be
-            # the way the rotation matrix below reads. These are (row,
-            # column) points, so a separation is (dy, dx) and the angle
-            # that matches `[[cos, -sin], [sin, cos]]` acting on (row,
-            # column) is `arctan2(dy, dx)`. Written as `arctan2(dx, dy)`
-            # the two angles are each the complement of the right one, so
-            # their difference comes out NEGATED -- a seed rotated the
-            # wrong way, which the refinement then has to climb out of.
             source_angle = np.arctan2(*(src[j] - src[i]))
             target_angle = np.arctan2(*(dst[l] - dst[k]))
             angle = target_angle - source_angle
@@ -579,39 +548,155 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
     return best
 
 
-def phenotype_site_map(phenotype_sites: int, sbs_sites: int
-                       ) -> Dict[int, int]:
-    """Which sequencing tile covers each phenotype tile.
+def _phenotype_layout(layout: Union["WellLayout", int]) -> "WellLayout":
+    """The phenotype acquisition's layout, from a layout or a field count.
 
-    :param phenotype_sites: how many fields the phenotype acquisition holds.
-    :param sbs_sites: how many the sequencing acquisition holds.
-    :returns: ``{phenotype site -> sequencing site}``, omitting any
-        phenotype tile whose sequencing position is outside that circle.
-    :raises ValueError: when either count is not a round well, which
-        :func:`spacr.ops_layout.round_well_layout` decides.
-
-    IT IS A LAYOUT QUESTION, NOT AN IMAGE ONE, and answering it by image
-    was how the first three attempts at A4 spent an afternoon: phenotype
-    site N was matched against sequencing site N, which is a different part
-    of the well, and every pair came back at 2-9 % inliers. The layout says
-    it in closed form. The measured acquisition fits 41 columns at radius
-    20.15 against the sequencing well's 21 at 10.25 -- the same round well
-    at twice the tile density, and 41 = 2 * 21 - 1 -- so a phenotype grid
-    position halves about the centre.
+    :param layout: a :class:`spacr.ops_layout.WellLayout`, or how many
+        fields the acquisition holds.
+    :returns: the layout. A count goes through
+        :func:`spacr.ops_layout.round_well_layout` at its default half tile,
+        which raises ValueError for a count no round well holds.
     """
-    from .ops_layout import round_well_layout
+    if isinstance(layout, WellLayout):
+        return layout
+    return round_well_layout(int(layout))
 
-    phenotype = round_well_layout(int(phenotype_sites))
-    sbs = round_well_layout(int(sbs_sites))
-    ratio = (phenotype.columns - 1) / max(1, (sbs.columns - 1))
-    p_col, p_row = phenotype.centre
-    s_col, s_row = sbs.centre
+
+def _fit_raster(layout: "WellLayout",
+                anchors: Mapping[int, Tuple[float, float]]):
+    """The acquisition raster, fitted to measured field centres.
+
+    :param layout: the phenotype acquisition's layout.
+    :param anchors: ``{site: (y, x)}``, measured well-frame centres.
+    :returns: ``(origin, column step, row step, residuals)`` -- three
+        ``(dy, dx)`` arrays, for grid ``(0, 0)``, one column right and one
+        row down -- and ``{site: pixels}``, how far each anchor's measured
+        centre sits from the fitted raster.
+    :raises ValueError: fewer than three anchors, a centre that is not two
+        finite numbers, or anchors whose grid positions lie on one line.
+    :raises IndexError: an anchor the layout does not hold.
+
+    372 PART 14-L 2c: least squares on the rule layout's grid positions,
+    six numbers from six anchor fields. Three anchors fit exactly and leave
+    every residual at zero, so the residuals only say something from four
+    anchors up -- which is what makes them the check on a misaligned one.
+    """
+    if len(anchors) < 3:
+        raise ValueError(
+            f"{len(anchors)} anchor field(s) cannot fix a raster: an origin "
+            "and two steps take at least three fields whose grid positions "
+            "are not on one line")
+    sites = [int(site) for site in anchors]
+    grid = np.array([layout.position(site) for site in sites], dtype=float)
+    try:
+        measured = np.array([anchors[site] for site in anchors], dtype=float)
+    except (TypeError, ValueError):
+        measured = np.full((len(sites), 2), np.nan)
+    if measured.shape != (len(sites), 2) or not np.all(np.isfinite(measured)):
+        raise ValueError("every anchor centre must be a finite (y, x) pair")
+    design = np.column_stack([np.ones(len(sites)), grid])
+    if np.linalg.matrix_rank(design) < 3:
+        raise ValueError(
+            "the anchor fields lie on one line of the grid, which fixes the "
+            "step along that line and nothing across it; take anchors from "
+            "several rows and several columns")
+    solution, *_ = np.linalg.lstsq(design, measured, rcond=None)
+    residuals = np.hypot(*(design @ solution - measured).T)
+    return (solution[0], solution[1], solution[2],
+            {site: float(value) for site, value in zip(sites, residuals)})
+
+
+def phenotype_centres(layout: Union["WellLayout", int],
+                      anchors: Mapping[int, Tuple[float, float]]
+                      ) -> Dict[int, Tuple[float, float]]:
+    """Where every phenotype field's centre lies, from a few measured ones.
+
+    :param layout: the phenotype acquisition's
+        :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.
+    :param anchors: ``{site: (y, x)}``, the well-frame centres of at least
+        three aligned fields whose grid positions are not all on one line.
+        Six spread over the well is what the method was validated with.
+    :returns: ``{site: (y, x)}`` for every field of the layout, anchors
+        included -- their fitted centres, not the measured ones.
+    :raises ValueError: when the anchors cannot fix a raster: fewer than
+        three, on one line of the grid, or a centre that is not two finite
+        numbers. Also for a field count no round well holds.
+    :raises IndexError: when an anchor names a site the layout does not
+        hold.
+
+    Six numbers place the whole well. The layout gives every field's grid
+    position, and the acquisition raster maps a grid position into the
+    well frame by an origin, a column step and a row step, each a
+    ``(dy, dx)`` pair carrying the stage's few pixels of skew. Fitted by
+    least squares on six fields of a real well, that predicted the other
+    472 fields' measured centres to a median 1.2 px and a worst 4.0 px, and
+    a second well's 451 to a worst 4.4 px.
+    """
+    layout = _phenotype_layout(layout)
+    origin, col_step, row_step, _residuals = _fit_raster(layout, anchors)
+    grid = np.asarray(layout.positions(), dtype=float)
+    centres = (origin + np.outer(grid[:, 0], col_step)
+               + np.outer(grid[:, 1], row_step))
+    return {site: (float(y), float(x)) for site, (y, x) in enumerate(centres)}
+
+
+def phenotype_site_map(phenotype_sites: Union["WellLayout", int],
+                       sbs_centres: Mapping[int, Tuple[float, float]],
+                       anchors: Mapping[int, Tuple[float, float]], *,
+                       tile_shape: Tuple[float, float] = (1480, 1480)
+                       ) -> Dict[int, int]:
+    """Which sequencing tile covers each phenotype field.
+
+    :param phenotype_sites: the phenotype acquisition's
+        :class:`spacr.ops_layout.WellLayout`, or how many fields it holds.
+    :param sbs_centres: ``{sequencing site: (y, x)}``, the centre of each
+        stitched sequencing tile in the well frame -- its placement plus
+        half a tile.
+    :param anchors: ``{phenotype site: (y, x)}``, measured well-frame
+        centres of at least three aligned phenotype fields, as
+        :func:`phenotype_centres` takes them.
+    :param tile_shape: ``(height, width)`` of a sequencing tile, in
+        well-frame pixels.
+    :returns: ``{phenotype site: sequencing site}``. Each field goes to the
+        tile whose centre is nearest its predicted centre, among the tiles
+        that contain it; a field whose predicted centre lies inside no tile
+        is omitted.
+    :raises ValueError: when ``tile_shape`` is not two positive sizes, or
+        when :func:`phenotype_centres` refuses the anchors or the count.
+
+    A position, not an index. The tile a field lies on depends on where the
+    tile boundaries actually fall, and halving a phenotype grid index about
+    the well centre cannot see them: at twice the tile density half the
+    phenotype fields lie on or near a sequencing tile boundary. On the real
+    plate halving found the exact tile for 0.45 to 0.61 of the aligned
+    fields; predicting each centre from six anchors and taking the nearest
+    stitched tile found it for 472 of 472 and 451 of 451.
+    """
+    try:
+        height, width = (float(size) for size in tile_shape)
+    except (TypeError, ValueError):
+        height = width = float("nan")
+    if not (height > 0 and width > 0):
+        raise ValueError(
+            f"tile_shape {tile_shape!r} is not a (height, width) of two "
+            "positive sizes")
+    predicted = phenotype_centres(phenotype_sites, anchors)
+    if not sbs_centres:
+        return {}
+    tiles = [int(site) for site in sbs_centres]
+    tile_centres = np.array([sbs_centres[site] for site in sbs_centres],
+                            dtype=float).reshape(-1, 2)
+    fields = list(predicted)
+    points = np.array([predicted[site] for site in fields], dtype=float)
     mapping: Dict[int, int] = {}
-    for site in range(phenotype.site_count):
-        column, row = phenotype.position(site)
-        target_column = int(round(s_col + (column - p_col) / ratio))
-        target_row = int(round(s_row + (row - p_row) / ratio))
-        found = sbs.site(target_column, target_row)
-        if found is not None:
-            mapping[site] = found
+    chunk = 512
+    for start in range(0, len(fields), chunk):
+        away = points[start:start + chunk, None, :] - tile_centres[None, :, :]
+        inside = ((np.abs(away[..., 0]) <= height / 2)
+                  & (np.abs(away[..., 1]) <= width / 2))
+        distance = np.where(inside, np.hypot(away[..., 0], away[..., 1]),
+                            np.inf)
+        for offset, nearest in enumerate(distance.argmin(axis=1)):
+            if inside[offset, nearest]:
+                mapping[fields[start + offset]] = tiles[nearest]
     return mapping

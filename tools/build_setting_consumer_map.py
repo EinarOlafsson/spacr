@@ -78,6 +78,168 @@ def setting_keys() -> set[str]:
     return keys
 
 
+# ---------------------------------------------------------------------------
+# The rows whose key ``expected_types`` cannot see, PINNED BY NAME
+# ---------------------------------------------------------------------------
+#
+# Instruction 397 measured that 77 rows of ``SETTING_API_TARGETS`` name a key
+# that is not in ``spacr.settings.expected_types``, and asked for the
+# remainder to be "a named, committed list with a reason each, so the next
+# person measuring stranded rows can subtract a set rather than a number".
+# This is that set. It is grouped by the reason each row is absent, and
+# ``tests/test_the_rows_expected_types_cannot_see_are_pinned.py`` re-derives
+# both the membership and the reason from the live package.
+#
+# A COUNT IS NOT A PIN. Seventy-seven rows leaving and seventy-seven other
+# rows arriving reads identically from a total, and that is precisely the
+# failure 364 found: a rename strands a generated row while every number
+# stays put. So the members are named and the test reports arrivals and
+# departures separately.
+#
+# NOTHING BELOW IS A DEFECT LIST, and three of the four causes are properties
+# of WHEN and WHERE the comparison vocabulary is built rather than of the
+# table. Only ``catalog_only`` is unexplained, and it has two members.
+
+ABSENT_FROM_EXPECTED_TYPES = {
+    # TYPED AFTER ALL -- but only once the module that registers the key has
+    # been imported. These call ``register_defaults`` from a module body, so
+    # ``import spacr.settings`` on its own sees none of them and the audit
+    # that produced the 77 counted every one. It is HANDOFF.md trap 3c, and
+    # the bulk of the 77 rather than the thirteen keys trap 3c lists.
+    "late_registration": (
+        "collision_max_distance", "exclude_starved_wells",
+        "guide_fractions_file", "hit_bootstrap", "hit_direction",
+        "hit_effect", "hit_fdr", "hit_feature_columns",
+        "hit_gallery_per_stratum", "hit_guide_agreement",
+        "hit_include_original_score", "hit_n_guides",
+        "hit_permutations", "hit_phenotype",
+        "hit_pipeline_permutations", "hit_probability_threshold",
+        "hit_random_seed", "hit_split_by", "hit_store_database",
+        "hit_well_support", "inputs", "layout",
+        "min_reads_per_well", "on_error", "on_error_attempts",
+        "on_error_backoff", "overwrite", "plate_naming",
+        "position_effect_ratio", "prediction_column",
+        "preview_only", "qc_data", "results_folder",
+        "starved_read_fraction", "surrogate_correlation_threshold",
+        "surrogate_exclude", "surrogate_min_fidelity_improvement",
+        "surrogate_model", "surrogate_n_estimators",
+        "surrogate_n_repeats", "surrogate_random_seed",
+        "surrogate_shap_max_samples", "surrogate_split_by",
+        "surrogate_test_size", "sweep_points", "sweep_span",
+        "target_gene", "target_grnas_per_well", "target_guides",
+        "target_statistic", "z_handling",
+        # 2026-09-15 (372): `recursive` was typed from the first import by
+        # the old OPS engine's settings. With those deleted, the module
+        # that reads it, `spacr.external_masks`, types it as bool when it
+        # registers -- late, like the rest of this group.
+        "recursive",
+    ),
+    # HALF-DECLARED: in ``spacr.settings.tooltips`` from the first import and
+    # in ``expected_types`` never, so a user gets prose to read and
+    # ``check_settings`` gets nothing to validate what they typed. This is
+    # the class 397 filed as "the interesting ones", and the later note that
+    # dismissed it -- "ALL 77 have a tooltip, so tooltip presence cannot
+    # discriminate anything" -- was measuring the EN CATALOG's tooltips,
+    # which every row has by construction. The MODULE-SCOPE ``tooltips``
+    # table discriminates exactly this group.
+    "tooltip_without_type": (
+        "blue_channel", "columnID", "control_sgrnas", "csv",
+        "csv_name", "cv_csv", "data_column", "data_column_cv",
+        "feature_importance", "filter_1", "folders",
+        "fraction_grna", "green_channel", "include_all",
+        "permutation_importance", "red_channel", "scores", "shap",
+        "shap_sample", "threshold", "value_col",
+    ),
+    # NOT SETTINGS AT ALL. ``spacr.settings.descriptions`` holds the per-APP
+    # blurbs, and the EN catalog carries them inside ``SETTING_TOOLTIPS``
+    # beside the real per-setting text -- byte for byte, which is how these
+    # are told apart -- so the name of a PANEL enters this tool's vocabulary
+    # and earns a row. No such key can ever be in ``expected_types``.
+    "app_key": (
+        "cellpose_all", "cellpose_masks", "measure",
+    ),
+    # THE GENUINE REMAINDER. Known only to the EN catalog: in no settings
+    # table even after the whole package is imported. Reasons per key are in
+    # ``CATALOG_ONLY_NOTES`` below, which is what "a reason each" meant.
+    "catalog_only": (
+        "barcode_qc", "umap.reduction_method",
+    ),
+}
+
+
+#: What each group of ``ABSENT_FROM_EXPECTED_TYPES`` means, in one line.
+#: The test refuses a pinned key whose cause is not one of these, so the
+#: vocabulary cannot grow silently.
+ABSENCE_CAUSES = {
+    "late_registration":
+        "typed, but only after the registering module body has run",
+    "tooltip_without_type":
+        "declared in `tooltips` and in no type table: prose, no validation",
+    "app_key":
+        "an app name from `descriptions`, not a setting; never typed",
+    "catalog_only":
+        "in no settings table at all; see CATALOG_ONLY_NOTES",
+}
+
+
+#: The unexplained two, each with its reason, so the next audit subtracts a
+#: SET with a story rather than a number.
+CATALOG_ONLY_NOTES = {
+    "barcode_qc":
+        "A live flag -- `spacr/sequencing.py` reads settings.get('barcode_qc')"
+        " to decide whether to run QC after mapping -- and also the APP_KEY of"
+        " spacr/sequencing_qc.py. It is typed nowhere and its tooltip is"
+        " registered nowhere this tool's vocabulary can reach, so only the"
+        " catalog knows it. Giving it a type in `expected_types` is the safer"
+        " of the two fixes: nothing then depends on which module got imported.",
+    "umap.reduction_method":
+        "A DUPLICATE that renders nothing. It is the only dotted key of all"
+        " the rows, and its row is ('spacr.validate', '', False) -- empty"
+        " symbol, so no anchor is emitted. The bare `reduction_method` is"
+        " declared, is read, and carries the correct row to"
+        " spacr.core.generate_image_umap. Its dotted siblings `umap.metric`"
+        " and `umap.n_neighbors` have no row at all, which is what a"
+        " screen-scoped key normally looks like here. Removing it is a change"
+        " to a GENERATED table and belongs with the generator's next pass.",
+}
+
+
+#: Of the pinned ``catalog_only`` keys, the ones NOTHING reads out of a
+#: settings mapping. Both directions are asserted by the test, so this tuple
+#: is what tells a search that finds everything from a search that finds
+#: nothing: ``barcode_qc`` must be found, this one must not.
+CATALOG_ONLY_UNREAD = ("umap.reduction_method",)
+
+
+def pinned_absences() -> dict:
+    """``key -> cause`` for every pinned row, flattened from the groups."""
+    return {key: cause
+            for cause, keys in ABSENT_FROM_EXPECTED_TYPES.items()
+            for key in keys}
+
+
+def classify_absence(key: str, *, descriptions, expected_types, tooltips) -> str:
+    """Why ``key`` is absent from a FRESH ``spacr.settings.expected_types``.
+
+    The caller supplies the vocabulary, because the answer depends on how much
+    of the package has been imported and this module deliberately imports none
+    of it. Pass ``descriptions`` and ``tooltips`` from ``spacr.settings``, and
+    ``expected_types`` AFTER importing the package's modules -- a key that has
+    arrived by then is one the registering module body put there.
+
+    The order of the tests is the order of the causes: an app name can never
+    be a setting, a key that arrives late is typed, a key with a tooltip and
+    no type is half-declared, and what is left is known only to the catalog.
+    """
+    if key in descriptions:
+        return "app_key"
+    if key in expected_types:
+        return "late_registration"
+    if key in tooltips:
+        return "tooltip_without_type"
+    return "catalog_only"
+
+
 #: Names a settings mapping is plausibly bound to at a read site.
 #:
 #: WHY THE OBJECT HAS TO BE CHECKED AT ALL. Without this the visitor recorded
@@ -631,6 +793,12 @@ def main() -> int:
     print(f"  resolved API targets         {out['target_count']}"
           f" ({out['exact_targets']} exact, "
           f"{out['target_count'] - out['exact_targets']} to an ancestor)")
+    # NOT a measurement -- the size of the PIN, which is AST-only and cannot
+    # see a runtime table. It is printed so whoever regenerates the map knows
+    # the set exists before reading a total and calling it stranded rows.
+    print(f"  pinned as absent from expected_types "
+          f"{len(pinned_absences())} "
+          f"({', '.join(f'{c} {len(k)}' for c, k in ABSENT_FROM_EXPECTED_TYPES.items())})")
     # A generated runtime table, so the GUI does not read docs/ at import.
     # Mirrors how the localized catalogs are generated into the package.
     lines = [

@@ -18,46 +18,15 @@ import pandas as pd
 
 LOG = logging.getLogger("spacr.stream_dataset")
 
-#: Supported selection methods represented as ``(value, display label)``.
-STREAM_METHODS: Tuple[Tuple[str, str], ...] = (
-    ("column", "coordinates from a column in a table"),
-    ("array", "object numbers from a mask array"),
-)
-
-#: Settings consumed by each selection method.
-METHOD_SETTINGS: Dict[str, Tuple[str, ...]] = {
-    "column": ("object_array", "channel_arrays"),
-    # `mask_array` was here and is retired (357-Q4): it claimed to name the
-    # labelled plane and this module takes that from `object_array` for
-    # BOTH methods, so the 'array' route's own documented input was never
-    # read. Greying a setting that does not exist greys nothing.
-    "array": ("object_array", "channel_arrays", "bounding_box"),
-}
-
-#: Canonical object-identifier column for each object-array type.
-COORDINATE_COLUMNS: Dict[str, str] = {
-    "cell": "cell_id",
-    "nucleus": "nucleus_id",
-    "pathogen": "pathogen_id",
-    "cytoplasm": "cytoplasm_id",
-    # THE ORGANELLE ROLES TOO. The column is named after the object type
-    # in every case, so the four organelle planes a measure run can write
-    # follow the same rule -- and a user who segmented one and cannot
-    # stream it has an object type spaCR measured and will not show.
-    "organelle": "organelle_id",
-    "organelleb": "organelleb_id",
-    "organellec": "organellec_id",
-    "organelled": "organelled_id",
-}
-
-#: What the selection table records for each object.
-SELECTION_COLUMNS: Tuple[str, ...] = (
-    "plateID", "rowID", "columnID", "fieldID", "objectID",
-    "object_array", "split", "source",
-)
-
-#: The file the decision is written to, in the destination folder.
-SELECTION_FILE = "stream_selection.csv"
+# THE SELECTION TABLES LIVE IN `_stream_selection`, which imports nothing
+# but typing: `spacr.settings` reads them while a settings panel is being
+# laid out, and must not pay for pandas to read two dictionaries. They are
+# re-exported here, and the two lookups below stay this module's public API
+# and delegate, so there is one implementation and nothing moved for a caller.
+from . import _stream_selection  # noqa: E402
+from ._stream_selection import (COORDINATE_COLUMNS, METHOD_SETTINGS,  # noqa: E402,F401
+                                SELECTION_COLUMNS, SELECTION_FILE,
+                                STREAM_METHODS)
 
 
 def coordinate_column(object_array: str) -> str:
@@ -78,7 +47,7 @@ def coordinate_column(object_array: str) -> str:
     KeyError
         If the object type is unsupported.
     """
-    return COORDINATE_COLUMNS[str(object_array).strip().lower()]
+    return _stream_selection.coordinate_column(object_array)
 
 
 def settings_for_method(method: str) -> Tuple[str, ...]:
@@ -89,12 +58,8 @@ def settings_for_method(method: str) -> Tuple[str, ...]:
     KeyError
         If ``method`` is unsupported.
     """
-    return METHOD_SETTINGS[str(method).strip().lower()]
+    return _stream_selection.settings_for_method(method)
 
-
-# ---------------------------------------------------------------------------
-# The table, which comes first
-# ---------------------------------------------------------------------------
 
 def _split_labels(count: int, test_split: float, seed: int) -> np.ndarray:
     """Generate deterministic train/test labels for ``count`` objects."""
@@ -184,8 +149,6 @@ def selection_from_objects(frame: pd.DataFrame, *, object_array: str = "cell",
                  f"it would stream crops it cannot identify")
         if ask is None:
             raise ValueError(tried)
-        # The user knows where the coordinates live and the program does
-        # not, so asking is strictly more useful than reporting.
         answer, why = ask(tried=tried, object_array=object_array)
         if answer is None:
             raise ValueError(f"{tried}. {why}")
@@ -256,7 +219,7 @@ def selection_from_arrays(merged_folder: str, *, object_array: str = "cell",
         labels = np.unique(np.asarray(plane))
         parts = parts_from_path(name)
         for label in labels:
-            if int(label) == 0:      # background is not an object
+            if int(label) == 0:
                 continue
             rows.append({
                 PLATE_KEY: parts.get(PLATE_KEY, ""),
@@ -301,22 +264,12 @@ def build_selection(dst: str, *, objects: Optional[pd.DataFrame] = None,
                                       test_split=test_split, seed=seed)
     os.makedirs(str(dst), exist_ok=True)
     path = os.path.join(str(dst), SELECTION_FILE)
-    # WRITTEN BEFORE ANY IMAGE IS. A training set decided at run time and
-    # never recorded cannot be re-made or audited.
-    #
-    # Through `tabular.write_table`, not `to_csv`: the selection names wells
-    # and plates, and those columns have three spellings in this codebase.
-    # A record written in whichever one the source frame happened to use is
-    # a record the next reader has to guess at.
     from .tabular import write_table
 
     write_table(table, path)
     return table, path
 
 
-# ---------------------------------------------------------------------------
-# The crop, named the way measure_crop names one
-# ---------------------------------------------------------------------------
 
 def crop_name(field_stem: str, object_id, *, crop_mode: str = "cell",
               nucleus_ids=(), pathogen_ids=(), timelapse: bool = False
@@ -373,9 +326,6 @@ def cut(stack: np.ndarray, mask: np.ndarray, label: int, *,
                        shape="bounding_box" if bounding_box else "object")
 
 
-# ---------------------------------------------------------------------------
-# The pass that writes the dataset
-# ---------------------------------------------------------------------------
 
 def _field_stem(row) -> str:
     """Return the canonical field stem used in crop names."""
@@ -404,21 +354,9 @@ def _stack_for(merged_folder: str, stem: str) -> Optional[str]:
             continue
         if os.path.splitext(name)[0] == wanted:
             return os.path.join(str(merged_folder), name)
-    # A field written as `plate_A01_1_0.npy` has a trailing token the stem
-    # does not; match on the prefix as a second pass rather than a first, so
-    # an exact name always wins.
     for name in sorted(os.listdir(str(merged_folder))):
         if name.endswith(".npy") and name.startswith(wanted):
             return os.path.join(str(merged_folder), name)
-    # AND THE WELL SPELLING, which is the difference between the two routes.
-    #
-    # A selection built from the merged arrays records the file it came from,
-    # so it never reaches here. One built from the DATABASE has only the
-    # parsed identifiers, and those come back as `r1`/`c1` while the file is
-    # named `plate1_A01_1_1.npy` -- so neither test above matches and every
-    # object in every field was reported missing. The database route wrote
-    # nothing at all, which is what instruction 338's parity test found the
-    # first time it ran.
     well = _well_spelling(wanted)
     if well and well != wanted:
         for name in sorted(os.listdir(str(merged_folder))):
@@ -449,8 +387,6 @@ def _well_spelling(stem: str) -> str:
         return ""
     number = int(parts[row][1:])
     if not 1 <= number <= 26:
-        # Beyond Z a plate uses AA, AB … and this is not the place to invent
-        # that convention; say so by returning nothing.
         return ""
     letter = chr(ord("A") + number - 1)
     well = f"{letter}{int(parts[column][1:]):02d}"
@@ -514,11 +450,6 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
         return report
 
     frame = selection.copy()
-    # THE TABLE ALREADY KNOWS WHICH FILE EACH OBJECT CAME FROM when it was
-    # built from the .npy stacks, and that beats rebuilding the name from
-    # the parsed parts: a merged file is named `plate1_A01_1_0.npy` while
-    # the parts come back as r1/c1, so a rebuilt stem matches NOTHING. The
-    # first attempt at this missed every field for exactly that reason.
     frame["_stem"] = [
         _stem_of(row) for _, row in frame.iterrows()]
     for split in sorted(set(map(str, frame.get("split", ["train"])))):
@@ -528,15 +459,9 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
 
     for stem, here in frame.groupby("_stem", sort=True):
         path = _stack_for(merged_folder, str(stem))
-        # The stem AS THE FILE SPELLS IT, which is what the crops are named
-        # after. `_stack_for` resolves a database-built stem onto the file's
-        # own well spelling, and that resolution must reach the names too.
         found_stem = (os.path.splitext(os.path.basename(path))[0]
                       if path else str(stem))
         if path is None:
-            # COUNTED, NOT SKIPPED SILENTLY. A dataset short by a field is a
-            # dataset trained on a different screen from the one the table
-            # describes, and nothing else would say so.
             report["missing"] += int(len(here))
             report["trouble"].append(f"no merged stack for {stem}")
             continue
@@ -551,14 +476,6 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
         mask = stack[..., plane] if getattr(stack, "ndim", 0) >= 3 else stack
         for _, row in here.iterrows():
             try:
-                # THROUGH THE ONE PARSER. The coordinate method takes its
-                # object id from the object table's own column, and
-                # `png_list` spells it `cell_id = 'o2'` -- so `int(float(...))`
-                # raised on every row of the crop table and each object was
-                # counted as missing and dropped in silence. The array method
-                # never hit it, because a label scanned off a mask plane is
-                # already an integer, so the two methods produced different
-                # datasets from the same screen.
                 from .crops import object_label
 
                 label = object_label(row[OBJECT_KEY])
@@ -570,12 +487,6 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
             if crop is None:
                 report["missing"] += 1
                 continue
-            # NAMED FROM THE FILE THAT WAS FOUND, not from the stem that
-            # went looking for it. The two spell the same field differently
-            # -- `plate1_A01_1_1` from the arrays, `plate1_r1_c1_1` from the
-            # database -- so naming from the stem gave the two routes
-            # different names for identical pictures, and a set built one way
-            # could not be matched against a set built the other.
             name = crop_name(found_stem, label, crop_mode=crop_mode)
             out = os.path.join(str(dst), str(row.get("split", "train")), name)
             write(out, crop)

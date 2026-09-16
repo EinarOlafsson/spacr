@@ -33,7 +33,7 @@ Where they disagree, the disagreement is the finding: a feature ranked high
 by gain and low by permutation is usually one the model could have used and
 did not.
 
-**The join goes through ``png_list``.** A CV model keys on the crop it
+**The join goes through** ``png_list``. A CV model keys on the crop it
 scored; the features key on the object. ``png_list`` is the only table that
 holds both, so it is the bridge — and joining on ``png_path`` alone is not
 enough, because a path is not stable across machines.
@@ -51,9 +51,6 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from .figures.style import figure_style, theme_target
 
 __all__ = [
@@ -278,9 +275,6 @@ def available_backends() -> Dict[str, Dict[str, Any]]:
     return result
 
 
-# ---------------------------------------------------------------------------
-# Building the frame
-# ---------------------------------------------------------------------------
 
 def _read_png_list(db_path: str) -> pd.DataFrame:
     """Read the crop-to-object bridge table from a measurements database.
@@ -330,9 +324,6 @@ def build_surrogate_frame(db_path: str,
 
     preds = predictions[[path_column, prediction_column]].copy()
     preds.columns = ["png_path", "cv_prediction"]
-    # Match on basename as well as full path: a model scored on one machine
-    # and a database written on another agree about the file name and not
-    # about the mount point.
     preds["_key"] = preds["png_path"].astype(str).map(os.path.basename)
     png["_key"] = png["png_path"].astype(str).map(os.path.basename)
     preds = preds.drop_duplicates("_key")
@@ -350,17 +341,6 @@ def build_surrogate_frame(db_path: str,
     if "prcfo" not in features.columns and features.index.name == "prcfo":
         features = features.reset_index()
 
-    # THE CROP PATH IS AN OBJECT IDENTITY TOO, and on a real spaCR database
-    # it is the only one both sides have. `prcfo` is written into
-    # `png_list`; the measurement tables carry `plateID`, `rowID`,
-    # `columnID`, `fieldID` and `object_label` and compose it on demand, so
-    # the joined feature frame has no `prcfo` column at all -- and the
-    # surrogate refused every database spaCR has ever written (236 B6,
-    # driven on plate1 of the tsg101 screen).
-    #
-    # The basename is the same key `preds` was matched on ten lines above,
-    # for the same reason: two machines agree about a file name and not
-    # about a mount point.
     if "prcfo" in features.columns and "prcfo" in bridged.columns:
         on, left, right = "prcfo", features, bridged
     elif "png_path" in features.columns and "png_path" in bridged.columns:
@@ -408,9 +388,6 @@ def _feature_columns(frame: pd.DataFrame) -> Tuple[List[str], List[str]]:
     return features, leaky
 
 
-# ---------------------------------------------------------------------------
-# Fitting
-# ---------------------------------------------------------------------------
 
 def available_model_families() -> Dict[str, Dict[str, Any]]:
     """Return every fixed surrogate choice and whether it can run here.
@@ -655,20 +632,11 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
             "importance; held-out permutation and SHAP remain available")
 
     if str(model_family).lower() == "xgboost":
-        # The estimator was fitted on encoded classes, so its scorer must see
-        # those same labels. Displayed predictions are decoded above.
         permutation_labels = pd.Series(
             model._spacr_label_encoder.transform(y_test), index=y_test.index)
     else:
         permutation_labels = y_test
 
-    # joblib's default Loky backend keeps its reusable worker processes alive
-    # after ``permutation_importance`` returns.  A completed explanation then
-    # owns an ExecutorManagerThread and one process per CPU until interpreter
-    # shutdown (32 workers on the CI host).  Permutations share one fitted,
-    # read-only estimator, so threads avoid both that lifecycle leak and the
-    # cost of serialising the model into every process while retaining the
-    # feature-level parallelism.
     permutation_jobs = guarded_n_jobs(
         -1, "surrogate permutation importance")
     with single_threaded_openmp("surrogate permutation importance"):
@@ -687,9 +655,9 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
         if isinstance(shap_output, tuple):
             if len(shap_output) == 3:
                 shap_importance, signed_shap, shap_feature_values = shap_output
-            else:  # compatibility with callers replacing the helper
+            else:
                 shap_importance, signed_shap = shap_output
-        else:  # compatibility with callers/tests replacing this helper
+        else:
             shap_importance = shap_output
         importance["shap"] = shap_importance
 
@@ -781,8 +749,6 @@ def _shap_importance(model, x_test: pd.DataFrame, max_samples: int,
     sample = x_test
     if len(sample) > max_samples:
         sample = sample.sample(max_samples, random_state=0)
-        # Said out loud: a silently truncated sample reads as "explained
-        # everything" when it did not.
         warnings.append(
             f"SHAP computed on {max_samples:,} of {len(x_test):,} held-out "
             f"objects (it is O(rows)); raise shap_max_samples for more.")
@@ -797,11 +763,6 @@ def _shap_importance(model, x_test: pd.DataFrame, max_samples: int,
                         f"gain and permutation columns are unaffected.")
         return None
 
-    # Older SHAP returns a list of (rows, features), one per class. Newer
-    # releases return (rows, features, classes). Normalise both before asking
-    # which axis holds features; averaging the old list-shaped array over the
-    # wrong axes produces one importance per ROW and used to be silently
-    # accepted whenever rows happened to equal features.
     if isinstance(values, list):
         arrays = [np.asarray(value) for value in values]
         if not arrays or any(value.ndim != 2 for value in arrays):
@@ -844,9 +805,6 @@ def _shap_importance(model, x_test: pd.DataFrame, max_samples: int,
     return importance, details, sample.copy()
 
 
-# ---------------------------------------------------------------------------
-# The one call most people want
-# ---------------------------------------------------------------------------
 
 def explain_classifier(db_path: str, predictions: pd.DataFrame, *,
                        path_column: str = "path",
@@ -950,10 +908,6 @@ def write_surrogate_result(result: SurrogateResult,
                     if column in result.importance and
                     result.importance[column].notna().any()]
         if measures:
-            # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-            # rcParams reach an artist when it is CREATED, so a
-            # context opened after `plt.subplots` would leave the
-            # spines, ticks and labels at the caller's globals.
             with figure_style(theme_target()):
                 fig, axes = plt.subplots(
                     1, len(measures), figsize=(5.2 * len(measures), 5.0),
@@ -969,12 +923,6 @@ def write_surrogate_result(result: SurrogateResult,
                     f"Held-out fidelity {result.fidelity:.3f} "
                     f"(baseline {result.baseline:.3f})")
                 fig.tight_layout()
-                # 108 point 6, and the explicit `fmt` is the point: this
-                # writes BOTH a pdf and a png of the same figure deliberately,
-                # so the format is the loop's and not the preference's. What
-                # it gains is the rest of `save_figure` -- the DPI rule, the
-                # TrueType embedding, and the repaint for paper that a figure
-                # saved from a dark session needs.
                 from .plot import save_figure
 
                 for extension in ("pdf", "png"):
@@ -994,10 +942,6 @@ def write_surrogate_result(result: SurrogateResult,
         if ranked:
             columns = min(3, len(ranked))
             rows = int(np.ceil(len(ranked) / columns))
-            # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-            # rcParams reach an artist when it is CREATED, so a
-            # context opened after `plt.subplots` would leave the
-            # spines, ticks and labels at the caller's globals.
             with figure_style(theme_target()):
                 fig, axes = plt.subplots(
                     rows, columns, figsize=(4.6 * columns, 3.7 * rows),
@@ -1015,7 +959,6 @@ def write_surrogate_result(result: SurrogateResult,
                     axis.set_visible(False)
                 fig.suptitle("Held-out SHAP dependence")
                 fig.tight_layout()
-                # 108 point 6; both formats on purpose, see above.
                 from .plot import save_figure
 
                 for extension in ("pdf", "png"):

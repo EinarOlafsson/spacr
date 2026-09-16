@@ -64,13 +64,6 @@ class InstallerConsentDialog(QDialog):
         self.setWindowTitle(tr("spaCR privacy and optional account setup"))
         from .preferences import scaled_px
 
-        # SIZED IN SCALED PIXELS, NOT RAW ONES. A dialog size set from
-        # Python does not grow when the stylesheet's font size does, so at
-        # the 200%% font scale the prose inside this window wrapped to more
-        # height than the window had and the last line was cut off. The
-        # size-policy fix on the label was necessary and not sufficient:
-        # a policy stops a parent handing a label less than it asks for, but
-        # it cannot make a window grow that has no room to give.
         self.setMinimumWidth(scaled_px(640))
         layout = QVBoxLayout(self)
         explanation = QLabel(tr(
@@ -83,12 +76,6 @@ class InstallerConsentDialog(QDialog):
             "optional and revocable in Preferences."
         ))
         explanation.setWordWrap(True)
-        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
-        # Preferred height a parent is free to hand it less than its
-        # heightForWidth. This is the house rule `prerun._label` documents.
-        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
-        # label clipped at 2.0x, because the container above it does not grow
-        # either. See 350; the remaining fix is the dialog's layout, not this.
         explanation.setSizePolicy(QSizePolicy.Preferred,
                                      QSizePolicy.Minimum)
         layout.addWidget(explanation)
@@ -177,8 +164,6 @@ def maybe_show_installer_consent(parent) -> bool:
         accepted = dialog.exec() == QDialog.Accepted
         choices = dialog.choices() if accepted else {}
 
-    # Mark before opening another modal. If that dialog or a vendor CLI fails,
-    # the privacy page must not reappear and rewrite the user's choices.
     sign_in = apply_choices(choices)
     store.setValue(_KEY_APPLIED, True)
     store.sync()

@@ -158,8 +158,6 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
     labels = pd.to_numeric(crops[annotation_column], errors="coerce")
 
     if classes is None:
-        # The retrain encoded classes from the sorted annotation values, and
-        # a suggestion offset is not one of them.
         seen = sorted({int(v) for v in labels.dropna().unique()
                        if int(v) < SUGGESTION_OFFSET})
         classes = seen or list(range(len(score_cols)))
@@ -208,22 +206,6 @@ def write_suggestions(db_path: str, annotation_column: str,
     """
     if suggestions.empty or "png_path" not in suggestions.columns:
         return 0
-    # 379-C, ANSWERED 2026-09-10 AND NOT THE WAY IT WAS ASKED. The question
-    # was "should this extend past two classes"; the answer is that it
-    # already does. `suggest_from_scores` argmaxes across N score columns
-    # and nothing in it counts to two, so classes 1 to 9 round-trip today --
-    # driven in
-    # `tests/test_the_suggestion_offset_holds_more_than_two_classes.py`.
-    #
-    # THE LIMIT IS A CLASS VALUE, NOT A CLASS COUNT, and that is what the
-    # refusal below is for. The maintainer confirmed he does not use class
-    # values of ten or more, so the offset stays at 10 and this guard stays
-    # a refusal rather than becoming a bound. The
-    # offset assumes real class values stay below it, and with a class 11 a
-    # suggested 1 and an answered 11 are the same integer -- so a bulk KEEP
-    # would rewrite somebody's class 11 to a 1 and nothing would ever say
-    # so. Refused by name rather than guarded downstream, because by the
-    # time the value is in the column the two are indistinguishable.
     if "suggested" in suggestions.columns:
         collides = sorted({int(v) for v in suggestions["suggested"]
                            if pd.notna(v) and int(v) >= SUGGESTION_OFFSET})
@@ -235,23 +217,6 @@ def write_suggestions(db_path: str, annotation_column: str,
                 f"{SUGGESTION_OFFSET + 1} would be the same number. "
                 f"Classes 1 to 9 are fine and always have been -- it is the "
                 f"VALUE that collides, not the count.")
-    # 379-C, THE OTHER DIRECTION, and the one the guard above does not
-    # reach. That one refuses to SUGGEST a class at or above the offset.
-    # This refuses to write suggestions into a column that ALREADY HOLDS
-    # one, which is the case that loses a person's work rather than merely
-    # confusing a number.
-    #
-    # `pending_suggestions` counts every value above the offset as
-    # outstanding, and `is_suggestion` reads one the same way, so a human
-    # who annotated class 11 has a row that the bulk KEEP will rewrite to a
-    # 1. PART 2's first rule is that a suggestion must never overwrite a
-    # human annotation, and this is the only route by which it still could.
-    #
-    # SAFE TO REFUSE HERE because the screen clears outstanding suggestions
-    # before it asks for new ones -- `resolve_suggestions(keep=False)` in
-    # `annotate._on_suggest` -- so anything at or above the offset that
-    # survives to this point is a real answer and not a stale proposal. A
-    # caller that has not cleared gets told to, which is the same sentence.
     with _connect_read_only(db_path) as db:
         try:
             existing = sorted({

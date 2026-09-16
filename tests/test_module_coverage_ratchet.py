@@ -1,4 +1,10 @@
-"""The 100% gate follows the package and cannot be weakened by omission."""
+"""The coverage gate follows the package and cannot be weakened by omission.
+
+Since 2026-09-15 (item 288) CI gates on a per-module ratchet baseline rather
+than 100% per module; the ratchet's rules are tested in
+``tests/test_coverage_ratchet_rules.py``.  Without ``--baseline`` the tool
+still demands 100% of every module, which is what the CLI tests here use.
+"""
 
 from __future__ import annotations
 
@@ -53,6 +59,20 @@ def _load_coverage_runner():
     sys.modules[runner_spec.name] = runner
     runner_spec.loader.exec_module(runner)
     return runner
+
+
+def _write_clean_ledger(runner, env) -> None:
+    """What the ledger plugin writes when every worker returned its data."""
+    Path(env[runner.LEDGER_ENV]).write_text(
+        json.dumps({
+            "schema": runner.LEDGER_SCHEMA,
+            "exitstatus": 0,
+            "workers": {},
+            "crashes": [],
+            "unreported_files": [],
+        }),
+        encoding="utf-8",
+    )
 
 
 def _project(tmp_path: Path) -> Path:
@@ -313,7 +333,43 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # coverage test and was found a day later by a full sweep. A merge that
     # adds a module moves counts in at least three unrelated files, and
     # there is no list of them anywhere.
-    assert len(shipped) == 565
+    # 565 -> 567 on 2026-09-14, +2/-0: spacr/curation_queue.py and
+    # spacr/cli_make_masks.py, both arriving with 396. Measured by diffing
+    # the shipped set against 49c1189f7, which returns exactly those two.
+    # The note above predicted this: a module landing moves counts in at
+    # least three unrelated files. It moved four this time.
+    # 567 -> 568 on 2026-09-15, +1/-0: spacr/_segmentation_backends.py, the
+    # DINOCell/SAMCell seam behind `segmentation_backend` (404/405). Private
+    # and still shipped, like `_layout_policy`. Measured by diffing the shipped
+    # set against 8f4171fd9: now - base is exactly that file, base - now is
+    # empty, and removing it gives the 567-member set back unchanged.
+    # 568 -> 569 on 2026-09-15, +1/-0: `spacr/ops_engine.py`, 372's
+    # sequencing engine -- tile files to `ops_geometry`, `ops_objects` and
+    # `ops_barcodes` for one well, the entry the OPS button is to call once
+    # PART 14-M's validation passes. No module left: the row-offset solver
+    # the same work retired was a function inside `spacr/ops_layout.py`.
+    # Measured by diffing the shipped set against nightly 3f27b926a: now -
+    # base is exactly that file, base - now is empty, and removing it gives
+    # the 568-member set back unchanged.
+    # 569 -> 568 on 2026-09-15, +0/-1: the old OPS engine's module file,
+    # deleted by the maintainer's decision once `spacr.ops_engine`
+    # had replaced it on every route. Measured by diffing the shipped set
+    # against the switch commit: base - now is exactly that file, now - base is
+    # empty, and adding it back gives the 569-member set unchanged.
+    # 568 -> 570 on 2026-09-15, +2/-0: spacr/_outlier_criteria.py and
+    # spacr/_stream_selection.py, the pandas-free data modules split out of
+    # `outlier_filter` and `stream_dataset` so a settings default reads four
+    # criteria and two selection tables without importing pandas (284).
+    # Private and still shipped, like `_segmentation_backends`. Measured by
+    # diffing the shipped set against origin/nightly df1216b3f: now - base is
+    # exactly those two files and base - now is empty.
+    # 570 -> 572 on 2026-09-15, +2/-0: spacr/qt/make_masks_demo.py (412,
+    # Make Masks' test data) and spacr/install_cleanup.py (416, the finder
+    # and remover for older installs), both at 100% under their own tests.
+    # Measured by diffing the shipped set against origin/nightly dca970671:
+    # now - base is exactly those two files and base - now is empty. The
+    # workflow's --expected-file-count and its pin below move with it.
+    assert len(shipped) == 572
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -335,13 +391,21 @@ def test_cli_passes_only_at_exact_statement_and_branch_coverage(tmp_path):
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert report["schema"] == "spacr.module-coverage-ratchet/v1"
+    assert report["schema"] == "spacr.module-coverage-ratchet/v3"
     assert report["status"] == "pass"
     assert report["summary"] == {
         "failed_modules": 0,
         "global_issue_count": 0,
-        "passed_modules": 2,
+        "improved_modules": 0,
+        "integrity_issue_count": 0,
+        "modules_at_100_percent": 2,
+        "modules_below_100_percent": 0,
+        "modules_checked": 2,
+        "shipped_modules": 2,
+        "stale_baseline_entries": 0,
+        "unconfirmed_modules": 0,
     }
+    assert report["measurement_integrity"] == {"checked": False}
     assert text.startswith("spaCR shipped-module coverage ratchet: PASS\n")
     assert result.stdout == text
 
@@ -365,8 +429,9 @@ def test_new_shipped_module_is_not_hidden_by_an_old_coverage_file(tmp_path):
         module for module in report["modules"]
         if module["path"] == "demo/new_feature.py"
     )
-    assert new_module["issues"] == ["missing coverage row"]
-    assert "demo/new_feature.py: missing coverage row" in text
+    assert new_module["failures"] == ["missing coverage row"]
+    assert "ERROR: demo/new_feature.py: missing coverage row" in text
+    assert "Modules checked: 2 of 3" in text
 
 
 def test_uncovered_line_and_branch_have_actionable_diagnostics(tmp_path):
@@ -393,12 +458,14 @@ def test_uncovered_line_and_branch_have_actionable_diagnostics(tmp_path):
         module for module in report["modules"]
         if module["path"] == "demo/logic.py"
     )
-    assert logic["issues"] == [
+    assert logic["gaps"] == [
         "uncovered statements: 4",
         "uncovered branches: 2->4",
     ]
-    assert "demo/logic.py: uncovered statements: 4" in text
-    assert "demo/logic.py: uncovered branches: 2->4" in text
+    assert logic["failures"][0].startswith("new module is not at 100%")
+    assert "GAP: demo/logic.py: 1 uncovered statements, 1 uncovered branches" in text
+    assert "    uncovered statements: 4\n" in text
+    assert "    uncovered branches: 2->4\n" in text
 
 
 def test_excluded_line_and_real_no_cover_comment_both_fail(tmp_path):
@@ -428,12 +495,14 @@ def test_excluded_line_and_real_no_cover_comment_both_fail(tmp_path):
         module for module in report["modules"]
         if module["path"] == "demo/logic.py"
     )
-    assert logic_report["issues"] == [
+    assert logic_report["gaps"] == [
         "coverage-excluded lines: 5",
         "pragma: no cover comments: 5",
     ]
-    assert "demo/logic.py: coverage-excluded lines: 5" in text
-    assert "demo/logic.py: pragma: no cover comments: 5" in text
+    assert logic_report["counts"]["excluded_lines"] == 1
+    assert logic_report["counts"]["pragma_no_cover"] == 1
+    assert "    coverage-excluded lines: 5\n" in text
+    assert "    pragma: no cover comments: 5\n" in text
 
 
 def test_branchless_coverage_input_is_rejected_even_when_counts_are_full(tmp_path):
@@ -470,6 +539,7 @@ def test_coverage_batches_use_unique_data_files_and_argument_lists(
 
     def fake_run(command, *, env, check):
         calls.append((command, env["COVERAGE_FILE"], check))
+        _write_clean_ledger(coverage_runner, env)
         return subprocess.CompletedProcess(command, 0)
 
     monkeypatch.chdir(project)
@@ -498,6 +568,18 @@ def test_coverage_batches_use_unique_data_files_and_argument_lists(
     assert calls[0][1] != calls[1][1]
     assert all(isinstance(command, list) and check is False
                for command, _data, check in calls)
+    # Every batch loads the ledger that says whose coverage came back, and
+    # the shard records that both batches ran and neither lost any.
+    assert all(
+        command[command.index("-p") + 1] == coverage_runner.PLUGIN
+        for command, _data, _check in calls
+    )
+    record = json.loads(
+        (data_dir / coverage_runner.integrity_record_name(0))
+        .read_text(encoding="utf-8")
+    )
+    assert (record["batches_finished"], record["batches_total"]) == (2, 2)
+    assert [batch["lost_files"] for batch in record["batches"]] == [[], []]
 
 
 def test_coverage_batches_discard_an_incomplete_child_database(
@@ -522,6 +604,7 @@ def test_coverage_batches_discard_an_incomplete_child_database(
         incomplete = basename.with_name(f"{basename.name}.incomplete")
         incomplete.write_bytes(b"SQLite format 3\x00")
         written.update(readable=readable, incomplete=incomplete)
+        _write_clean_ledger(coverage_runner, env)
         return subprocess.CompletedProcess(command, 0)
 
     monkeypatch.chdir(project)
@@ -547,6 +630,15 @@ def test_coverage_batches_discard_an_incomplete_child_database(
     output = capsys.readouterr().out
     assert "discarding unreadable coverage process data" in output
     assert written["incomplete"].name in output
+    # The discard is written down for the gate, which fails a discard that
+    # no lost worker explains as an incomplete measurement.
+    record = json.loads(
+        (data_dir / coverage_runner.integrity_record_name(0))
+        .read_text(encoding="utf-8")
+    )
+    assert record["batches"][0]["discarded_data_files"] == [
+        written["incomplete"].name
+    ]
 
 
 def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
@@ -575,7 +667,14 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     )
     assert "coverage combine --keep" in combine_script
     assert "coverage json --pretty-print" in combine_script
-    assert "--expected-file-count 528" in combine_script
+    # 568 -> 569 with `spacr/ops_engine.py` (372), the same +1 as `shipped`,
+    # and back to 568 when the old OPS engine's module was deleted, the same -1.
+    # 570 -> 572 on 2026-09-15 with spacr/qt/make_masks_demo.py (412) and
+    # spacr/install_cleanup.py (416), the same +2 as `shipped`; the gate's own
+    # inventory, verify_module_coverage.discover_shipped_python_files, returns
+    # 572.
+    assert "--expected-file-count 572" in combine_script
+    assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
     assert "coverage-combine" in jobs["release-gate"]["needs"]

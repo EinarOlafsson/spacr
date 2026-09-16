@@ -39,17 +39,8 @@ from PySide6.QtWidgets import (
 from .hidpi import scaled_for
 from .i18n import tr
 from . import iconset
-# The declared registry rows and the stand-in that defers a screen's import
-# until it is built. Cheap on purpose: `app_catalog` imports nothing beyond
-# `importlib` and `inspect`, and reads `register_app` back out of this module
-# from inside a function, so naming it here is not a cycle.
 from .app_catalog import (LazyScreenFactory, declared_for as _declared_for,
                           register_declared as _register_declared)
-# Nothing in this module uses a colour, a spacing or the palette API any
-# more — the Home page, the sidebar QSS and `apply_preferences_to_app`
-# each own their own. The import stayed behind after they moved out, and
-# because it named `PALETTE` it fired the deprecation warning on every
-# `import spacr.qt.app` for a value nobody read.
 from .widgets.dock import Dock
 
 LOG = logging.getLogger(__name__)
@@ -90,16 +81,6 @@ def _carry_preview_state(old, fresh) -> None:
         try:
             if getattr(target, "_image", None) is not None:
                 target._show_elided_path()
-                # THE SET TABLE TOO, not just the canvas. Carrying `_image`
-                # alone left the panel showing a picture above an EMPTY table
-                # -- and the table is how a field is chosen, so the preview
-                # looked loaded and could not be driven. Worse, `_image_path`
-                # was carried too, so the panel read as already-loaded and
-                # pressing Choose appeared to do nothing.
-                #
-                # `_refresh_source_selectors` re-enumerates from `_image_path`,
-                # and that enumeration is cached per folder, so the table comes
-                # back without re-scanning the disk.
                 target._refresh_source_selectors()
                 target._refresh_canvases()
         except Exception:                                    # noqa: BLE001
@@ -178,22 +159,12 @@ def _open_at_the_measured_width(window) -> bool:
         metrics = {"available": [available.width(), available.height()],
                    "font_scale": round(scale, 4)}
 
-        # RESOLVED ONCE, NOT RE-DERIVED EVERY LAUNCH (instruction 359). The
-        # answer is reused only while the evidence behind it still holds --
-        # the same available geometry and the same font scale. Move to
-        # another monitor or change the font size and the record stops
-        # matching, which is the point: it is a decision ABOUT those
-        # numbers, so it expires when they do.
         recorded = _get_layout_decision()
         if recorded and all(recorded.get(k) == v for k, v in metrics.items()):
             wanted = int(recorded.get("width") or 0)
         else:
             wanted, _height = recommended_window_size(
                 (available.width(), available.height()), scale)
-            # RECORDED WITH THE EVIDENCE, not just the answer. A width on
-            # its own cannot be checked later; a width beside the geometry
-            # and scale it came from can be, and `reason` says in words
-            # what the artifact said in numbers.
             _set_layout_decision({**metrics, "width": int(wanted),
                                  "reason": why(scale)})
         if wanted <= window.width():
@@ -244,9 +215,6 @@ def install_the_spaceout_fractal(screen) -> bool:
         widget.setGeometry(screen.rect())
         widget.lower()
         widget.show()
-        # It follows the screen's geometry the way the ambient backdrop
-        # does; without this it keeps its first size and a resized window
-        # shows bare ground beside it.
         screen.installEventFilter(_FractalFollowsItsScreen(widget, screen))
     except Exception:                                        # noqa: BLE001
         LOG.exception("Could not place the spaceout fractal")
@@ -284,8 +252,6 @@ class _UpdateWorker(QThread):
         except Exception:
             details = traceback.format_exc()
             LOG.exception("Updater %s failed", self.operation)
-            # `emit_safely`: an exception out of a QThread::run override
-            # aborts the process, and the window may be gone by now.
             emit_safely(self.failed, self.operation, details)
             return
         emit_safely(self.succeeded, result)
@@ -344,7 +310,7 @@ class _DragsTheWindowByTheMenuBar(QObject):
             return False
         try:
             if watched.actionAt(event.position().toPoint()) is not None:
-                return False                  # a menu, not the bare strip
+                return False
             handle = self._window.windowHandle()
             if handle is None:
                 return False
@@ -421,9 +387,6 @@ class _PipelinePreloader:
         self._thread = threading.Thread(
             target=self._work, name="spacr-preload", daemon=True)
         self._thread.start()
-        # THE CALLBACKS RUN HERE, on the GUI thread. A worker that called
-        # `on_step` directly would be touching a loading screen from off the
-        # GUI thread, which is the crash this file has already had once.
         self._poll = QTimer()
         self._poll.setInterval(40)
         self._poll.timeout.connect(self._drain)
@@ -470,52 +433,6 @@ class _PipelinePreloader:
 
 
 
-# ---------------------------------------------------------------------------
-# The app registry
-# ---------------------------------------------------------------------------
-#
-# Two axes, and only ONE of them is a place.
-#
-# An app is filed under WHAT IT DOES — Core, Data, Segmentation models,
-# Results & QC, Toxoplasma. That is stable: Format Converter is a Data
-# app whether or not anyone has finished it, and it is the axis the
-# sidebar, the command palette and the Home tabs all group by.
-#
-# An app is *also* staged by HOW FINISHED IT IS — alpha, beta or stable
-# — and 22 of the 30 are not yet signed off. #16i made that second axis
-# two extra CATEGORIES, which meant three of the five subject tabs
-# drained to nothing and "where is the format converter" acquired two
-# answers. #16j undoes exactly that: maturity is now drawn as the
-# tile's HOVER COLOUR, with a legend beside the tiles, so it is visible
-# on the same tile that is in the right category. One table
-# (:data:`APP_STAGE`), one place per app, no second grouping.
-#
-#   Core            the end-to-end pipeline: images in, single-object
-#                   measurements out, hits called.
-#   Data            get images and tables in, run many plates, get the
-#                   numbers back out.
-#   Segmentation    build, train, pick and check the Cellpose models
-#     models        the Mask step runs.
-#   Results & QC    read what came out and decide whether to believe it.
-#   Explore         ask the numbers a question you did not plan for.
-#   Toxoplasma      parasite-specific readouts.
-#   Design          plan the next experiment before it runs.
-#
-# A section holds AT MOST `MAX_APPS_PER_SECTION` apps. Past that nobody
-# reads the row — which is exactly how "Tools" grew to sixteen entries and
-# became unusable. If a section is full, the honest fix is a new section
-# with a name that means something, not a longer row.
-#
-# Explore and Design are the two that fix accordingly: the modules queued
-# behind this file (Graph Builder, pivot/formula, gate editor, feature
-# explorer, layer viewer; power/design, experiment designer) would have
-# taken Results & QC from eight to fifteen. They are DECLARED and EMPTY —
-# no tab, no heading, nothing drawn — until their first app registers,
-# because a tab that opens on an empty pane is worse than no tab.
-#
-# The names are as short as they can be and still mean something: they
-# are TAB LABELS on Home, where long names would not fit on one line, and
-# a tab that has to elide is a tab nobody can read.
 SECTION_CORE = "Core"
 SECTION_DATA = "Data"
 SECTION_MODELS = "Segmentation models"
@@ -626,10 +543,6 @@ _PLUGIN_SECTION_MAP = {
     "data": SECTION_DATA,
     "tools": SECTION_TOOLS,
     "toxo": SECTION_ASSAYS,
-    # Retired sections, aimed at where their built-ins went: report and
-    # the control chart moved from Results & QC into Data, the power
-    # calculator from Design into Data, and the feature dictionary from
-    # Explore into Tools.
     "results": SECTION_DATA,
     "models": SECTION_DATA,
     "design": SECTION_DATA,
@@ -847,10 +760,6 @@ class _LiveSections(list):
 SECTIONS = _LiveSections()
 
 
-# MOVED UP 2026-09-02, and the position is load-bearing:
-# `_refresh_sections` reads this to keep a tile-less section out of
-# Home's tab bar, and it runs during `register_app` at import time --
-# which is before this constant's old position further down the file.
 
 #: Apps that are REGISTERED but get no tile and no sidebar row.
 #:
@@ -868,29 +777,23 @@ SECTIONS = _LiveSections()
 #: pipeline that names one still resolves it. What changed is what Home
 #: OFFERS, not what exists.
 TILELESS_APPS = frozenset({
-    # Reached from Help -- a user looking something up.
     "feature_dict",
     "run_history",
     "pipeline_graph",
     "project_browser",
-    # Reached from a button in the module they belong to.
-    "investigate_hit",     # Regression, new tab
-    "profiler",            # Regression, new tab
-    "train_compare",       # Classify
-    "feature_explorer",    # Classify
-    "plate_view",          # Graph Builder
-    "trellis",             # Graph Builder -- "small multiples"
-    "lineage",             # Database Browser
-    "tabulate",            # Database Browser
-    "layer_viewer",        # QC
-    "control_chart",       # QC
-    "outliers",            # QC
-    # Folded into Import: one module for getting data in, three ways.
-    "convert",             # Import -- Format Converter
-    "external_masks",      # Import -- External Masks
-    # Help menu entries rather than tiles. None of the six is a place to
-    # START: each one inspects or administers work that already exists,
-    # which is what a menu is for and what a tile is not.
+    "investigate_hit",
+    "profiler",
+    "train_compare",
+    "feature_explorer",
+    "plate_view",
+    "trellis",
+    "lineage",
+    "tabulate",
+    "layer_viewer",
+    "control_chart",
+    "outliers",
+    "convert",
+    "external_masks",
     "report",
     "data_manager",
     "db_browser",
@@ -1044,15 +947,6 @@ def register_app(key: str, name: str, desc: str, section: str, *,
     }
     _publish_meta(key)
     _refresh_sections()
-    # The cap is a design rule, not a runtime one: a violation is fixed
-    # by splitting the section, and refusing to start the app would not
-    # help anyone do that. The suite fails on it; this makes a late
-    # registration (a plugin, a lazily-imported module) visible too.
-    # The warning this used to log is gone by request. It fired on every
-    # registration past the cap, once per app, so a full section produced a
-    # stream of identical lines at launch -- and it told the reader nothing
-    # the suite does not already assert. The cap itself still stands and
-    # tests/qt/test_cov_qt_app.py still enforces it.
     return row
 
 
@@ -1071,12 +965,6 @@ def unregister_app(key: str) -> bool:
     APP_STAGE.pop(key, None)
     meta = APP_META.pop(key, None)
     if meta is not None:
-        # The side tables get the row taken back out too, or a plugin
-        # that unloads leaves a title, an intro, an API link and a
-        # "GUI-only" excuse behind for an app that no longer exists —
-        # and `test_the_gui_only_list_holds_no_apps_that_no_longer_
-        # exist` is exactly that failure. Only entries this app put
-        # there are removed: a hand-written one was not ours to drop.
         for module_name, attribute, field in _META_TARGETS:
             module = sys.modules.get(module_name)
             table = getattr(module, attribute, None) if module else None
@@ -1133,7 +1021,6 @@ def _call_screen_factory(factory, key: str, host=None):
     try:
         params = inspect.signature(factory).parameters
     except (TypeError, ValueError):
-        # Builtins and C callables have no introspectable signature.
         params = {}
     takes_any = any(p.kind is inspect.Parameter.VAR_KEYWORD
                     for p in params.values())
@@ -1144,38 +1031,9 @@ def _call_screen_factory(factory, key: str, host=None):
 
 
 _BUILTIN_APPS = [
-    # (key, human name, description, section)
-    #
-    # `section` is what the app IS ABOUT. How finished it is lives in
-    # APP_STAGE below and is drawn as a colour, not as a place.
-    #
-    # NOTE: keys are load-bearing. bridge.resolve_pipeline_entry,
-    # cli.INTERACTIVE_ONLY, validate.APP_FUNCTIONS, dnd_handlers,
-    # settings_model.resolve_default_settings and saved user state all
-    # key off them. Renaming a key silently breaks those; renaming the
-    # display name or moving an app between sections is free.
-    #
-    # -- Core pipeline: images in, single-object measurements out, hits
-    #    called. Ctrl+1..6 map to these six before Ctrl+7..9 continue into
-    #    the next apps in sidebar order.
-    # CORE IS THE PIPELINE, IN THE ORDER YOU RUN IT: mask, measure,
-    # annotate, classify, map barcodes, regression. Nothing else belongs in
-    # it -- Timelapse and the Motility assay are assays and are filed as
-    # such, and a section that lists everything is a section that sorts
-    # nothing.
     ("mask",           "Mask",           "Generate segmentation masks for cells, nuclei, pathogens and organelles from microscopy images using Cellpose and supported alternatives", SECTION_CORE),
     ("measure",        "Measure",        "Quantify per-object intensity and morphology features",       SECTION_CORE),
     ("annotate",       "Annotate",       "Assign annotations to single-object images and store them in the project database",  SECTION_CORE),
-    # ONE CLASSIFY SCREEN. "Classify (CV)" and "Classify (ML)" were the two
-    # originals kept beside the merged one so a saved settings CSV would
-    # keep working -- but three entries for one job is three places to look
-    # and two of them are the same run with half the choices. Removed on
-    # 2026-08-23 at the maintainer's instruction.
-    #
-    # THE ENTRY POINTS ARE UNTOUCHED: `deep_spacr` and `generate_ml_scores`
-    # are what `classify.classify` dispatches to, so a notebook importing
-    # either still works and a settings CSV for either still runs -- through
-    # the one screen, which reads `classifier_family`.
     ("classify_merged", "Classify",      "Train classifiers on image crops with PyTorch or on measured features with gradient boosting", SECTION_CORE),
     ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      SECTION_CORE),
     ("regression",     "Regression",     "Regression analysis of screen scores",                        SECTION_CORE),
@@ -1186,71 +1044,13 @@ _BUILTIN_APPS = [
     ("batch",          "Batch Runner",   "Queue modules, plates and settings for unattended sequential execution", SECTION_DATA),
     ("distributed_jobs", "Distributed Jobs", "Submit and monitor spaCR runs on SSH workstations, Slurm or cloud/HPC commands", SECTION_DATA),
     ("db_browser",     "Database Browser", "Browse, filter and export tables from measurements.db", SECTION_DATA),
-    # CLASSIFIER EVALUATION, EXPLAIN CV MODEL AND ACTIVATION ARE BUTTONS ON
-    # CLASSIFY.
-    # A classifier is trained on one screen and argued about on two
-    # others, so both fold onto the Classify masthead
-    # (`spacr.qt.screens.classify`) and open their own screen as a page
-    # beside the training settings. Neither has a row here any more; what
-    # each tile said is `map_barcodes.FOLD_FALLBACK`, and every table a
-    # row used to feed -- the drop handler, the API link, the header, the
-    # translated name -- names them directly instead.
     ("run_history",    "Run History",    "Search run settings, outputs, warnings, failures and performance metrics", SECTION_DATA),
     ("report",         "Report",         "Generate shareable HTML or PDF reports containing QC results, figures, statistics, settings and software versions", SECTION_DATA),
-    # -- Data & batch runs: get images and tables into a spaCR project,
-    #    run many plates unattended, get the numbers back out.
-    # RESULTS, NOT CORE. Core is the pipeline and its order IS the pipeline
-    # -- it is the category the dock opens by default and the first thing a
-    # new user reads. Training Runs compares finished runs, which is a
-    # result rather than a step, and it is ALSO a folded child of Classify,
-    # so it was on Home twice. Moved on the maintainer's instruction,
-    # 2026-09-08, with Prediction Profiler and Investigate Hit.
     ("train_compare",  "Training Runs",  "Compare training curves and settings across multiple runs", SECTION_TOOLS),
     ("align",          "Align & Stitch", "Register and stitch image tiles into an incrementally written mosaic with bounded memory use", SECTION_TOOLS),
-    # -- Segmentation models: build, train, pick and check the Cellpose
-    #    models the Mask step runs.
-    # Not a training screen despite where it sits: MakeMasksScreen is the
-    # brush, the flood fill and the object operations, i.e. correcting a
-    # mask by hand. It carried Train Cellpose's description verbatim, which
-    # is the app directly below it.
-    # DATA, NOT MODELS. Make Masks does not train, choose or run a
-    # segmentation model: it is hand curation of masks that already exist,
-    # which is the same kind of work as the other tools filed under Data.
     ("make_masks",     "Make Masks",     "Edit segmentation masks with brush, flood-fill, relabel, fill and small-object removal tools",  SECTION_TOOLS),
-    # THE SEGMENTATION WORKBENCH HAS NO SATELLITE TILES. Training a model,
-    # comparing two of them, browsing the zoo and curating a mask by hand are
-    # all one loop -- segment, look, correct, train, segment again -- and they
-    # were four rows the user had to leave the loop to reach. They are buttons
-    # on the Make Masks masthead now (`make_masks.FOLD_ORDER`), each opening
-    # the module's own screen as a page beside the editor.
-    #
-    # THE KEYS ARE STILL REAL, which is the whole difficulty of dropping the
-    # rows: `spacr-run train_cellpose` runs, a settings file written for it
-    # still loads, a file dropped on the page still lands, and `spacr-run
-    # model_compare / model_zoo / curate` still say what to do instead --
-    # `cli.INTERACTIVE_ONLY` holds those three sentences in its own literal
-    # now that no row carries a `cli_note=`. What went is the tile.
-    # -- Results & QC: look at what came out, decide whether to believe it,
-    #    and hand it to someone else.
     ("plate_view",     "Plate Viewer",   "Visualize measurements as plate heatmaps and detect edge effects",  SECTION_TOOLS),
-    # ANNOTATOR AGREEMENT HAS NO ROW. Scoring how well two annotation
-    # passes agree is the sentence after annotating them, so it is a
-    # button on the Annotate masthead that opens its own screen, whole
-    # (`spacr.qt.screens.annotate`). `cli.INTERACTIVE_ONLY` still names
-    # it, so `spacr-run agreement` still says where to find it.
     ("umap",           "Image UMAP",     "Visualize UMAP embeddings with image glyphs",                  SECTION_TOOLS),
-    # -- Toxoplasma assays: parasite-specific readouts.
-    #
-    # TIMELAPSE AND MOTILITY HAVE NO ROW. Timelapse is the mask pipeline
-    # with tracking on, so it is a switch on the Mask Generation masthead
-    # that reveals its own settings categories (`spacr.qt.screens.mask`);
-    # the Motility Assay reads finished masks and writes a measurements
-    # table, so it is a button on the Measure masthead that opens its own
-    # screen (`spacr.qt.screens.measure`). Both still run from
-    # `spacr-run`, from a settings CSV and from a chained hand-off --
-    # `spacr.cli.MODULES`, `validate.APP_FUNCTIONS` and
-    # `bridge.resolve_pipeline_entry` all still know them. What went is
-    # the tile, not the module.
     ("analyze_plaques", "Plaque Assay",  "Quantify plaque assay measurements",                          SECTION_ASSAYS),
     ("recruitment",    "Recruitment",    "Quantify molecular recruitment measurements",                 SECTION_ASSAYS),
     ("invasion",       "Invasion Assay", "Quantify attached and invaded parasites using two-colour differential staining and calculate invasion efficiency per well", SECTION_ASSAYS),
@@ -1258,9 +1058,6 @@ _BUILTIN_APPS = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Maturity — the second axis, drawn as colour rather than as a place
-# ---------------------------------------------------------------------------
 
 STAGE_STABLE = "stable"
 STAGE_BETA = "beta"
@@ -1281,11 +1078,6 @@ STAGES = (STAGE_ALPHA, STAGE_BETA, STAGE_STABLE)
 #: Signing an app off is deleting its line here. Nothing else moves: the
 #: app is already filed under what it does.
 APP_STAGE = {
-    # -- alpha: built and reachable, not yet trusted end to end (16)
-    # The merged Classify module is new. "stable" is the ABSENCE of a line
-    # here, so leaving it out would have claimed a maturity it has not
-    # earned -- it dispatches to two pipelines that ARE trusted, but the
-    # merged screen itself has not been run on real data yet.
     "classify_merged": STAGE_ALPHA,
     "align":           STAGE_ALPHA,
     "convert":         STAGE_ALPHA,
@@ -1300,60 +1092,17 @@ APP_STAGE = {
     "train_compare":   STAGE_ALPHA,
     "run_history":     STAGE_ALPHA,
     "report":          STAGE_ALPHA,
-    # -- beta: further along, in regular use, still not signed off
     "make_masks":      STAGE_BETA,
     "analyze_plaques": STAGE_BETA,
     "replication":     STAGE_BETA,
     "umap":            STAGE_BETA,
 }
 
-# The built-ins go through the same door as everything else. Registering
-# 34 rows one at a time on every import is what keeps `register_app`
-# honest: an ordering or validation mistake in it shows up here, at
-# import, rather than the first time somebody adds the 35th app.
 for _row in _BUILTIN_APPS:
     register_app(*_row)
 del _row
 
 
-# ---------------------------------------------------------------------------
-# Apps that lived in their own module
-# ---------------------------------------------------------------------------
-# Nothing registers here any more, and the section is kept for the note.
-# Two pipeline modules were registered from this file rather than from
-# themselves, because neither is a Qt module: `spacr.illumination` and
-# `spacr.sequencing_qc` are imported into worker processes and into
-# `spacr-run`, and neither may grow an import of PySide6 to call
-# `register_app` at its own import. Both have since folded into the screen
-# that runs them, and a folded module has no row.
-#
-# ILLUMINATION IS A BUTTON ON MEASURE. Flat-field correction is a property
-# of the measure run it changes rather than a run of its own:
-# `measure_crop` calls `spacr.illumination.prepare_illumination_correction`
-# itself, and the nine `illumination_*` keys are a settings category on
-# Measure's own panel. The one thing that panel cannot express is
-# estimating and QCing the field WITHOUT measuring the plate -- an hour of
-# QC figures before a day of measuring -- so the module keeps its own
-# settings form and Run button and opens as a page beside the measure
-# settings (`spacr.qt.screens.measure`). `spacr-run illumination` never
-# went through this row and is untouched.
-#
-# BARCODE QC IS A BUTTON ON MAP BARCODES. A mapping run is judged by
-# reads per well, starved wells, unmapped reads, collisions, position
-# effects and the abundance threshold they imply, so the question "did
-# this run work" belongs on the screen that produced the run. It folds
-# onto the Map Barcodes masthead and opens as a page beside the mapping
-# settings; `spacr-run barcode_qc` and the automatic call from the end of
-# the sequencing pipeline never went through this row and are untouched.
-#
-# EVERYTHING `register_app` FANS OUT DIES WITH THE ROW, so each answer has
-# a home that outlives a tile: the entry point in
-# `spacr.qt.bridge.resolve_pipeline_entry`, the defaults module in
-# `settings_model._FOLDED_DEFAULTS_MODULES`, the API link in
-# `settings_model._APP_API_MODULE`, the screen title and intro in
-# `app_screen.APP_TITLES` and `APP_INTROS`, and the name, sentence and
-# maturity colour the fold button carries in
-# `spacr.qt.screens.map_barcodes.FOLD_FALLBACK`.
 
 
 #: Modules that own their registry row and call ``register_app``
@@ -1375,15 +1124,6 @@ del _row
 #: screen that has no row of its own; every registration function named
 #: here is idempotent, so being called from both costs nothing.
 _SELF_REGISTERING_APPS = (
-    # THE SIX THAT USED TO ARRIVE BY ACCIDENT. Each of these registers at its
-    # own import, and each was reached only because some other screen in this
-    # table happened to import it -- Data Manager because Run Compare reads
-    # projects, Lineage because the Layer Viewer registers its companions. So
-    # the row existed exactly when the import chain that produced it did, and
-    # the moment a screen stopped being imported at launch its tile vanished
-    # with it. Named here, they are registered because somebody asked for
-    # them; the order is the order they used to arrive in, so the tiles keep
-    # the positions users know.
     ("spacr.qt.screens.data_manager", "register"),
     ("spacr.qt.screens.pipeline_graph", "register"),
     ("spacr.qt.screens.profiler", "register"),
@@ -1392,60 +1132,10 @@ _SELF_REGISTERING_APPS = (
     ("spacr.qt.screens.experiment_design", "register"),
     ("spacr.qt.layer_viewer", "register_layer_viewer_app"),
     ("spacr.qt.screens.graph_builder", "register"),
-    # The three that arrived just after the seam landed and sat finished,
-    # tested and unreachable for the same reason the first four did.
-    #
-    # Power is the first app of the Design section, so this row is also
-    # what makes that tab appear — the section has been declared, noted
-    # and empty since the sections were named.
     ("spacr.qt.screens.power", "register"),
-    # Run Compare registers at its own import and is named in
-    # ``spacr.qt.SELF_REGISTERING_MODULES`` too, which only runs at
-    # ``run()``. That made the row appear at launch and not under
-    # ``import spacr.qt.app``, i.e. exactly the sometimes-there row the
-    # note above is about. Both calls are idempotent.
     ("spacr.qt.screens.run_compare", "register"),
-    # Tabulate: finished, tested, and defining a register() that nothing
-    # called. It was held back when Explore was at the MAX_APPS_PER_SECTION
-    # ceiling of 13; it is at 8 now, so the reason has expired. Found by the
-    # README pass, which declined to advertise a screen with no tile -- which
-    # is the right instinct and also how a feature stays invisible for a
-    # fortnight.
-    #
-    # PCA stood beside it here until it was folded onto Image UMAP: it is a
-    # button on that masthead now, opened already pointed at the same
-    # measurements database, so there is no row for this table to put in the
-    # registry.
     ("spacr.qt.screens.tabulate", "register"),
     ("spacr.qt.screens.investigate_hit", "register"),
-    # THE THREE THE MAINTAINER COUNTED ON SCREEN AND THIS TABLE DID NOT HAVE.
-    # Asked for 2026-09-05: Home is core:6 data:6 tools:5 assays:4 and the
-    # dock's Help heading is 9. Measured from `import spacr.qt.app` alone it
-    # was 6/5/4/4 and Help 8 -- Data short `dose_response`, Tools short
-    # `gate_editor`, Help short `project_browser`.
-    #
-    # NOT A MATURITY PROBLEM, which was the first guess and is worth writing
-    # down so it is not guessed a second time. All three declare
-    # stage='alpha', `DEFAULT_SHOW_ALPHA` is True, and `app_is_visible`
-    # already answers yes for every one of them. They were simply NOT IN THE
-    # REGISTRY: each declares its row in `app_catalog` and was named only in
-    # `spacr.qt.SELF_REGISTERING_MODULES`, which `run()` walks -- so the three
-    # rows existed in a launched GUI and nowhere else. That is exactly the
-    # sometimes-there row the note at the top of this table is about, and a
-    # line here is the fix that note prescribes.
-    #
-    # No section and no stage moved. `SECTION_TILE_ORDER` has named
-    # `dose_response` in Data and `gate_editor` in Tools since 2026-08-31 and
-    # `_HELP_MODULES` has named `project_browser` since it was written: the
-    # filing was right all along, the registration was late.
-    #
-    # THE OTHER FIVE LAUNCH-ONLY ROWS STAY WHERE THEY ARE. `control_chart`,
-    # `outliers`, `trellis`, `feature_explorer` and `feature_dict` are all in
-    # `TILELESS_APPS`, so not one of them changes a count on either screen --
-    # and `feature_dict` is reachable from neither a tile nor `_HELP_MODULES`,
-    # so registering it here would fail
-    # `test_no_module_falls_out_of_the_dock_altogether` over a door this
-    # change was not asked to find.
     ("spacr.qt.screens.dose_response", "register"),
     ("spacr.qt.screens.gate_editor", "register"),
     ("spacr.qt.screens.project_browser", "register"),
@@ -1453,34 +1143,19 @@ _SELF_REGISTERING_APPS = (
 
 for _module_name, _func_name in _SELF_REGISTERING_APPS:
     try:
-        # THE ROW WITHOUT THE SCREEN. Every module named above declares its
-        # row in `app_catalog`, so the registry can be filled in from strings
-        # and the screen's own code — pandas, scipy, sklearn behind it — is
-        # left unimported until somebody opens the app. `register_declared`
-        # returns None for a module that declares nothing, and that module is
-        # imported the old way.
         if _declared_for(_module_name) is not None:
             _register_declared(_module_name)
         else:
             getattr(_importlib.import_module(_module_name), _func_name)()
     except Exception:
-        # One screen's import-time bug costs that screen and nothing
-        # else. The same posture this file already takes towards
-        # plugins, for the same reason: the window still opens.
         LOG.exception("Could not register the app owned by %s", _module_name)
 del _module_name, _func_name
 
 
-# Plugin apps use the same registry rows and maturity annotations as built-ins.
-# Contributions can add a key but never replace one.
 try:
     from spacr.plugins import plugin_apps as _plugin_apps
     from spacr.plugins import record_diagnostic
     for _plugin_app in _plugin_apps():
-        # Recomputed per plugin, not snapshotted before the loop: the old
-        # snapshot held built-in keys only, so two plugins claiming the
-        # same key both landed in APPS and the duplicate only showed up
-        # as two identical sidebar rows.
         if _plugin_app.key in {row[0] for row in APPS}:
             record_diagnostic(
                 _plugin_app.key,
@@ -1497,10 +1172,6 @@ try:
                 stage=_plugin_app.stage,
             )
         except (ValueError, TypeError) as _exc:
-            # Everything `spacr.plugins` already validates — section,
-            # stage, non-empty name — plus anything it starts allowing
-            # that this registry does not. One bad contribution is
-            # dropped; the rest of the plugins still load.
             record_diagnostic(
                 _plugin_app.key,
                 f"Plugin app {_plugin_app.key!r} was not registered: {_exc}",
@@ -1532,28 +1203,28 @@ def app_stage(key: str) -> str:
 #: is enough". Only its TILE was asked for. A second entry here would put
 #: the same screen in the same menu twice.
 _HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
-    ("run_history", "Run history",
+    ("run_history", "Run History",
      "Search every recorded job -- its settings, hashed inputs and "
      "outputs, warnings, failures, versions and seeds."),
-    ("pipeline_graph", "Pipeline graph",
+    ("pipeline_graph", "Pipeline Graph",
      "How the modules feed one another, and what each one needs before "
      "it can run."),
-    ("project_browser", "Project browser",
+    ("project_browser", "Project Browser",
      "Every spaCR project this machine knows about, and what is in it."),
-    ("db_browser", "Database browser",
+    ("db_browser", "Database Browser",
      "Browse, filter and export tables from measurements.db."),
     ("report", "Report",
      "Generate a shareable HTML or PDF report of QC results, figures, "
      "statistics, settings and software versions."),
-    ("data_manager", "Data manager",
+    ("data_manager", "Data Manager",
      "Inspect project disk usage and remove derived data while keeping "
      "the source images."),
-    ("queue", "Plate queue",
+    ("queue", "Plate Queue",
      "Run the same processing pipeline across several plates."),
-    ("batch", "Batch runner",
+    ("batch", "Batch Runner",
      "Queue modules, plates and settings for unattended sequential "
      "execution."),
-    ("distributed_jobs", "Distributed jobs",
+    ("distributed_jobs", "Distributed Jobs",
      "Submit and monitor spaCR runs on SSH workstations, Slurm, or "
      "cloud and HPC commands."),
 )
@@ -1604,8 +1275,6 @@ def dock_rows() -> List[Tuple[str, str, str, str]]:
         for key, name, desc, section in APPS
         if key in tiles or key in helpers
     ]
-    # Stable, so the order WITHIN a section is the registry order the dock
-    # has always used; only the grouping moves.
     rows.sort(key=lambda row: rank.get(row[3], len(rank)))
     return rows
 
@@ -1778,10 +1447,6 @@ def _declared_folds(module_name: str):
     constants: Dict[str, str] = {}
     declared: Dict[str, object] = {}
     for node in tree.body:
-        # ANNOTATED ASSIGNMENTS TOO. Most hosts write
-        # `FOLDED_APPS: Tuple[str, ...] = (...)`, which is an `AnnAssign` and
-        # not an `Assign` -- reading only the latter found the host key and an
-        # empty fold list for ten of the twelve hosts.
         if isinstance(node, ast.AnnAssign):
             targets, value = [node.target], node.value
         elif isinstance(node, ast.Assign):
@@ -1825,11 +1490,6 @@ def _declared_folds(module_name: str):
             return node.value
         if isinstance(node, ast.Name):
             return constants.get(node.id)
-        # ANOTHER MODULE'S CONSTANT, read the same way rather than by
-        # importing it: `classify` writes `activation.APP_KEY` in its fold
-        # list, and importing `activation` to learn one string is the cost
-        # this whole function exists to avoid. One level only, which is all
-        # any host uses.
         if isinstance(node, ast.Attribute) and _depth == 0:
             owner = node.value
             if isinstance(owner, ast.Name) and owner.id in siblings:
@@ -1854,12 +1514,6 @@ def _declared_folds(module_name: str):
 SECTION_TILE_ORDER: Dict[str, Tuple[str, ...]] = {
     SECTION_CORE: ("mask", "measure", "annotate", "classify_merged",
                    "map_barcodes", "regression"),
-    # `embeddings` sits beside `foreign` because both ANSWER THE SAME
-    # QUESTION -- where do the numbers come from. One imports a measured
-    # table from outside spaCR; the other makes one from the images with a
-    # self-supervised backbone. Filed under Data by its catalog row since it
-    # was written; it had no place in this table until now, which is a tile
-    # the registry drew and Home could not sort.
     SECTION_DATA: ("foreign", "embeddings", "run_compare",
                    "experiment_design", "power", "dose_response",
                    "qc_dashboard"),
@@ -1975,12 +1629,6 @@ def make_home_page(parent=None):
     the suite.
     """
     from .widgets.home import HomePage
-    # BOTH filters, and they are different questions. `visible_apps` drops
-    # what the maturity preference hides; `tiled_apps` drops what has been
-    # folded into a host and reached by a button instead. Home is the one
-    # surface that wants both -- the command palette and the spaCR menu
-    # want only the first, which is why the tile filter does not live in
-    # `app_is_visible`.
     apps = tiled_apps(visible_apps())
     return HomePage(
         apps, _icon_for_app, parent,
@@ -2031,92 +1679,10 @@ def demo_label_for_app(app_key: str) -> Optional[str]:
     return None
 
 
-# Explicit key -> icon-filename overrides for cases where the app_key
-# doesn't match any resource filename. Add entries here rather than
-# renaming resource files.
 _ICON_OVERRIDES = {
-    # ONE ENTRY, and it is the only genuine borrow left.
-    #
-    # The Cellpose Workbench is the key `train_cellpose`, and
-    # `train_cellpose.png` is a DUMBBELL -- the training glyph. Reported
-    # 2026-09-02: "the cellpose workbench icon should be the cellpose white
-    # ico ni made, not the train icon." So this key keeps borrowing the white
-    # cell outline, and the dumbbell stays on disk for anything that really
-    # does mean "train".
     "train_cellpose":  "cellpose_masks.png",
-    #
-    # FIVE ENTRIES WERE REMOVED HERE on 2026-09-02 -- `analyze_plaques`
-    # (plaque.png), `agreement` (annotate.png), `plate_view`
-    # (map_barcodes.png), `model_compare` (mask.png) and `model_zoo`
-    # (download.png) -- for the same reason the four before them went: each
-    # has since been given ARTWORK OF ITS OWN, and it is better than what it
-    # was borrowing. `agreement.png` is two overlapping circles, which is
-    # what agreement between two annotators looks like; `model_zoo.png` is a
-    # grid of model cards rather than a download arrow; `plate_view.png` is a
-    # plate rather than a row of barcodes. An override is for an app that
-    # BORROWS another app's picture; it is not the place to record "this app
-    # has an icon".
-    #
-    # They were invisible until now: three surfaces resolved icons WITHOUT
-    # this table, so the fold buttons and settings headings were already
-    # showing the artwork while the tiles showed the borrow. Fixing those
-    # three surfaces is what made the staleness visible, by making all five
-    # borrows take effect everywhere at once.
-    #
-    # FOUR entries were REMOVED here — `timelapse`→run.png,
-    # `motility`→recruitment.png, `db_browser`→map_barcodes.png and
-    # `train_compare`→classify.png — because the user chose artwork for
-    # each and it is now installed as `<key>.png`, which `app_icon`
-    # finds without being told. An override is for an app that BORROWS
-    # another app's picture; it is not the place to record "this app has
-    # an icon". (`align` and `foreign` gained artwork in the same round;
-    # neither was ever in this table — `align` was in _FORCE_GLYPH below
-    # and `foreign` had nothing at all.)
-    #
-    # `motility` is the one worth remembering. It borrowed
-    # recruitment.png, so re-skinning Recruitment silently re-skinned
-    # Motility Assay as well — the old recruitment drawing had to be
-    # kept and installed as motility.png to stop that. A borrowed icon
-    # is a coupling between two apps that nothing declares.
-    #
-    # Of the six left, FOUR are genuine sharing and are a debt:
-    # `train_cellpose` shows Cellpose Masks' picture, `agreement` shows
-    # Annotate's, `plate_view` shows Map Barcodes', `model_compare`
-    # shows Mask's. The other two are only renames — no app is keyed
-    # `plaque` or `download`, so `analyze_plaques` and `model_zoo` are
-    # the sole users of that artwork and share it with nobody.
-    #
-    # queue.png / batch.png / invasion.png / replication.png are drawn for
-    # these apps and named after them, so they need no override. They used
-    # to: `queue` and `batch` BOTH aliased sequencing.png (a DNA helix,
-    # "the closest visual match for now"), which made two different apps
-    # render identically as a picture of neither. The new pair carries the
-    # distinction that matters -- queue is the same settings over many
-    # plates, batch is arbitrary module+plate combinations in sequence.
 }
 
-# Keys that render their qtawesome glyph instead of a bundled PNG.
-#
-# EMPTY, deliberately, and kept rather than deleted: it is the documented
-# fallback for an app whose meaning no bundled artwork carries, and
-# emptying the set is not the same as removing the escape hatch.
-#
-# ``align`` was the last entry. No bundled PNG read as "tiles registered
-# into ONE canvas", so it drew ``fa5s.border-all`` — a square divided
-# into four by its own seams. The user has since chosen
-# ``cellpose_all_01`` for it, which is that judgement overruled by the
-# person whose app it is; the PNG is installed as ``align.png`` and the
-# glyph is out of the way.
-#
-# WORTH KNOWING: ``cellpose_all_01.png`` was already installed as
-# ``cellpose_all.png``, so ``align.png`` is now byte-identical to it.
-# No two Qt tiles collide — ``cellpose_all`` is a Tk-only module and is
-# not in :data:`APPS` — but the Tk GUI's "Cellpose All" and Qt's
-# Align & Stitch draw the same picture, and re-inking one re-inks both.
-# The user chose it explicitly; this is the note, not an objection.
-#
-# ``invasion`` left for the same reason earlier ("no bundled PNG reads
-# as inside vs outside") once it had artwork that did.
 _FORCE_GLYPH: set = set()
 
 
@@ -2138,8 +1704,6 @@ def _icon_for_app(key: str) -> Optional[QIcon]:
             return iconset.icon(plugin_app.icon)
     except Exception:
         LOG.debug("Could not resolve plugin icon for %s", key, exc_info=True)
-    # Keys that should use their themed qtawesome glyph rather than a bundled
-    # PNG (e.g. train_cellpose got a fresh 'brain' glyph).
     if key in _FORCE_GLYPH:
         return iconset.icon(key)
     return iconset.app_icon(key, override=_ICON_OVERRIDES.get(key))
@@ -2361,6 +1925,503 @@ def _the_missing_pip_escape(output: str) -> Optional[str]:
     return shlex.join(parts)
 
 
+#: The in-session paint diagnostic (item 408) is armed only when the process
+#: was LAUNCHED with this set to ``1``. Nothing is bound and nothing is shown
+#: otherwise.
+_PAINT_DIAG_ENV = "SPACR_PAINT_DIAG"
+_PAINT_DIAG_KEYS = "Ctrl+Alt+Shift+D"
+#: The black the eye sees, not only exact (0, 0, 0) -- 408's second
+#: measurement trap: max(r, g, b) at or below this counts as black.
+_NEAR_BLACK_MAX = 16
+#: The documented top level of the JSON, in the order it is written.
+_PAINT_DIAG_KEYS_IN_ORDER = (
+    "suspects", "captured_utc", "files", "qt_platform", "spacr_version",
+    "spacr_path", "git_head", "git_dirty", "preferences", "environment",
+    "window_backdrop", "screen", "stylesheets", "screenshot",
+    "top_level_windows", "widgets", "errors",
+)
+
+
+def _install_the_paint_diagnostic(window):
+    """Bind the paint-diagnostic key when the launch asked for it.
+
+    A viewport can paint opaque black in a real session while no offscreen
+    probe reproduces it, so the widget state behind such a box has to be
+    RECORDED where it happens rather than reconstructed.
+
+    :returns: the application-wide ``QShortcut``, or ``None`` when
+        ``SPACR_PAINT_DIAG`` was not ``1`` or the key could not be bound.
+    """
+    if os.environ.get(_PAINT_DIAG_ENV, "").strip() != "1":
+        return None
+    try:
+        from PySide6.QtGui import QShortcut
+
+        shortcut = QShortcut(QKeySequence(_PAINT_DIAG_KEYS), window)
+        shortcut.setContext(Qt.ShortcutContext.ApplicationShortcut)
+        shortcut.activated.connect(lambda: _dump_paint_diagnostics(window))
+        LOG.info("paint diagnostic armed: %s writes to %s",
+                 _PAINT_DIAG_KEYS, _paint_diagnostics_folder())
+        return shortcut
+    except Exception:                                        # noqa: BLE001
+        LOG.exception("could not bind the paint diagnostic")
+        return None
+
+
+def _paint_diagnostics_folder():
+    """Where a dump goes when the caller does not say."""
+    from pathlib import Path
+
+    return Path.home() / ".cache" / "spacr" / "paint_diagnostics"
+
+
+def _plain(value):
+    """``value`` as something ``json`` writes without a fallback."""
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    return str(value)
+
+
+def _sheet_fingerprint(text) -> dict:
+    """Length and sha1 of a style sheet, so two sheets compare without
+    writing either one into the dump."""
+    import hashlib
+
+    from .theme import TRANSPARENT_PROPERTY
+
+    text = text or ""
+    return {"length": len(text),
+            "sha1": hashlib.sha1(text.encode("utf-8", "replace")).hexdigest(),
+            "carries_transparent_rule": TRANSPARENT_PROPERTY in text}
+
+
+def _colour_record(colour) -> dict:
+    """A ``QColor`` as its name and its alpha -- alpha is half of 408."""
+    return {"name": colour.name(), "alpha": colour.alpha()}
+
+
+def _rect_in_window(widget, window) -> list:
+    """``[x, y, width, height]`` of ``widget`` in ``window`` coordinates."""
+    from PySide6.QtCore import QPoint
+
+    if widget is window:
+        origin = QPoint(0, 0)
+    elif window.isAncestorOf(widget):
+        origin = widget.mapTo(window, QPoint(0, 0))
+    else:
+        origin = (widget.mapToGlobal(QPoint(0, 0))
+                  - window.mapToGlobal(QPoint(0, 0)))
+    return [origin.x(), origin.y(), widget.width(), widget.height()]
+
+
+def _widget_path(widget, stop) -> str:
+    """``Class#name > ... > Class#name`` from ``stop`` down to ``widget``."""
+    parts = []
+    node = widget
+    while node is not None:
+        name = node.objectName()
+        parts.append(type(node).__name__ + (f"#{name}" if name else ""))
+        if node is stop:
+            break
+        node = node.parentWidget()
+    return " > ".join(reversed(parts))
+
+
+def _nearest_sheet_ancestor(widget):
+    """The closest ancestor carrying a non-empty style sheet, or ``None``."""
+    parent = widget.parentWidget()
+    while parent is not None:
+        sheet = parent.styleSheet()
+        if sheet:
+            record = {"class": type(parent).__name__,
+                      "objectName": parent.objectName()}
+            record.update(_sheet_fingerprint(sheet))
+            return record
+        parent = parent.parentWidget()
+    return None
+
+
+def _the_transparent_rule_is_on_the_ancestry(widget) -> bool:
+    """Whether any sheet from ``widget`` up, or the application's, has the rule.
+
+    Presence only: a more specific rule nearer the widget can still win.
+    """
+    from .theme import TRANSPARENT_PROPERTY
+
+    node = widget
+    while node is not None:
+        if TRANSPARENT_PROPERTY in node.styleSheet():
+            return True
+        node = node.parentWidget()
+    app = QApplication.instance()
+    return bool(app is not None and TRANSPARENT_PROPERTY in app.styleSheet())
+
+
+def _paint_state_of(widget, window) -> dict:
+    """Everything that decides whether ``widget`` paints its own background."""
+    from .theme import SURFACE_PROPERTY, TRANSPARENT_PROPERTY
+
+    attribute = Qt.WidgetAttribute
+    palette = widget.palette()
+    active = QPalette.ColorGroup.Active
+    return {
+        "class": type(widget).__name__,
+        "objectName": widget.objectName(),
+        "geometry": _rect_in_window(widget, window),
+        TRANSPARENT_PROPERTY: _plain(widget.property(TRANSPARENT_PROPERTY)),
+        SURFACE_PROPERTY: _plain(widget.property(SURFACE_PROPERTY)),
+        "autoFillBackground": bool(widget.autoFillBackground()),
+        "WA_TranslucentBackground": bool(
+            widget.testAttribute(attribute.WA_TranslucentBackground)),
+        "WA_OpaquePaintEvent": bool(
+            widget.testAttribute(attribute.WA_OpaquePaintEvent)),
+        "WA_NoSystemBackground": bool(
+            widget.testAttribute(attribute.WA_NoSystemBackground)),
+        "styleSheet": _sheet_fingerprint(widget.styleSheet()),
+        "palette": {
+            "Base": _colour_record(
+                palette.color(active, QPalette.ColorRole.Base)),
+            "Window": _colour_record(
+                palette.color(active, QPalette.ColorRole.Window)),
+        },
+        "nearest_sheet_ancestor": _nearest_sheet_ancestor(widget),
+        "transparent_rule_on_ancestry":
+            _the_transparent_rule_is_on_the_ancestry(widget),
+    }
+
+
+def _pixels_of(image):
+    """An ``(h, w, 4)`` RGBA ``numpy`` copy of ``image``, or ``None``."""
+    import numpy as np
+    from PySide6.QtGui import QImage
+
+    image = image.convertToFormat(QImage.Format.Format_RGBA8888)
+    height, width = image.height(), image.width()
+    if not width or not height:
+        return None
+    flat = np.frombuffer(image.constBits(), dtype=np.uint8)
+    rows = flat[:height * image.bytesPerLine()].reshape(
+        height, image.bytesPerLine())
+    return rows[:, :width * 4].reshape(height, width, 4).copy()
+
+
+def _near_black_fraction(pixels, rect, scale) -> Optional[float]:
+    """Share of ``rect`` (window coordinates) that is near-black on screen."""
+    if pixels is None:
+        return None
+    import math
+
+    height, width = pixels.shape[:2]
+    x, y, w, h = rect
+    x0 = max(0, int(math.floor(x * scale[0])))
+    y0 = max(0, int(math.floor(y * scale[1])))
+    x1 = min(width, int(math.ceil((x + w) * scale[0])))
+    y1 = min(height, int(math.ceil((y + h) * scale[1])))
+    if x1 <= x0 or y1 <= y0:
+        return None
+    region = pixels[y0:y1, x0:x1, :3]
+    return round(float((region.max(axis=2) <= _NEAR_BLACK_MAX).mean()), 4)
+
+
+def _paint_suspects(records, rule_in_play) -> list:
+    """The records worth reading first, each with the reasons it is here.
+
+    SCROLL AREAS: a visible one whose viewport is untagged or fills its own
+    background -- the shape of both 408 widgets. They sort first.
+
+    SHEETS, NARROWED BY MEASUREMENT on a HEALTHY themed Mask. Comparing each
+    widget's own or nearest-ancestor sheet digest with the screen's flagged
+    50 and 176 of 184 visible widgets, and "own sheet carries the rule and
+    differs from the screen's" still flagged 30-33: the settings splitter,
+    the form editors and the toggles carry theme-derived sheets of their own,
+    and Qt merges every ancestor's sheet, so a sheet that differs is normal.
+    The one sheet state flagged is the one that stops the rule outright and
+    flagged nothing healthy: a tagged widget with no sheet on its ancestry,
+    nor the application's, carrying the rule -- checked only when the rule
+    is in play at all. Every digest is still in ``widgets``.
+    """
+    from .theme import TRANSPARENT_PROPERTY
+
+    suspects = []
+    for record in records:
+        reasons = []
+        viewport = record.get("viewport")
+        if viewport is not None:
+            if not viewport.get(TRANSPARENT_PROPERTY):
+                reasons.append("viewport untagged")
+            if viewport.get("autoFillBackground"):
+                reasons.append("viewport autoFillBackground")
+        if (rule_in_play and record.get(TRANSPARENT_PROPERTY)
+                and not record.get("transparent_rule_on_ancestry")):
+            reasons.append("tagged, but no sheet on its ancestry carries "
+                           "the transparent rule")
+        if reasons:
+            suspects.append({
+                "class": record["class"],
+                "objectName": record["objectName"],
+                "path": record.get("path"),
+                "geometry": record["geometry"],
+                "reasons": reasons,
+            })
+    suspects.sort(key=lambda s: not s["reasons"][0].startswith("viewport"))
+    return suspects
+
+
+def _git_state(where: str):
+    """``(HEAD, dirty)`` of the checkout at ``where``, ``(None, None)`` if none."""
+    import subprocess
+
+    head = subprocess.run(["git", "-C", where, "rev-parse", "HEAD"],
+                          capture_output=True, text=True, timeout=5)
+    if head.returncode != 0 or not head.stdout.strip():
+        return None, None
+    status = subprocess.run(
+        ["git", "-C", where, "status", "--porcelain", "--untracked-files=no"],
+        capture_output=True, text=True, timeout=15)
+    dirty = bool(status.stdout.strip()) if status.returncode == 0 else None
+    return head.stdout.strip(), dirty
+
+
+def _dump_paint_diagnostics(window, _out_dir=None) -> dict:
+    """Write the paint state of the screen on show, and what is ON screen.
+
+    Two files named by the UTC time: ``<stamp>.png``, the window as the
+    display holds it (``QScreen.grabWindow`` on the window id -- a
+    ``QWidget.grab`` re-renders the tree and can never show a paint fault),
+    and ``<stamp>.json``, whose top-level keys are
+    :data:`_PAINT_DIAG_KEYS_IN_ORDER`. Both paths go to the console and the
+    log.
+
+    :param window: the ``MainWindow``.
+    :param _out_dir: where to write; ``~/.cache/spacr/paint_diagnostics``
+        when ``None``.
+    :returns: the report as written. Never raises: a part that fails is
+        logged, named in ``errors``, and the rest is still written.
+    """
+    report = dict.fromkeys(_PAINT_DIAG_KEYS_IN_ORDER)
+    report["suspects"] = []
+    report["errors"] = []
+    report["files"] = {"json": None, "png": None}
+    try:
+        _collect_paint_diagnostics(window, _out_dir, report)
+    except Exception as exc:                                 # noqa: BLE001
+        LOG.exception("the paint diagnostic stopped early")
+        report["errors"].append(f"stopped early: {exc!r}")
+    return report
+
+
+def _collect_paint_diagnostics(window, out_dir, report) -> None:
+    """Fill ``report`` and write it; see :func:`_dump_paint_diagnostics`."""
+    import json
+    from datetime import datetime, timezone
+    from pathlib import Path
+
+    errors = report["errors"]
+
+    def failed(what):
+        """Log the exception being handled and name it in ``errors``."""
+        LOG.warning("paint diagnostic: could not %s", what, exc_info=True)
+        errors.append(f"{what}: {sys.exc_info()[1]!r}")
+
+    now = datetime.now(timezone.utc)
+    stamp = now.strftime("%Y%m%dT%H%M%S") + f".{now.microsecond // 1000:03d}Z"
+    folder = Path(out_dir) if out_dir is not None \
+        else _paint_diagnostics_folder()
+    json_path = folder / f"{stamp}.json"
+    png_path = folder / f"{stamp}.png"
+    report["captured_utc"] = now.isoformat()
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+    except Exception:                                        # noqa: BLE001
+        failed(f"create {folder}")
+
+    # FIRST, before anything below can change a pixel.
+    pixels, scale = None, (1.0, 1.0)
+    try:
+        app = QApplication.instance()
+        display = window.screen() or app.primaryScreen()
+        pixmap = display.grabWindow(window.winId())
+        image = pixmap.toImage()
+        report["screenshot"] = {
+            "method": "QScreen.grabWindow(window.winId())",
+            "display": display.name(),
+            "size": [image.width(), image.height()],
+            "devicePixelRatio": pixmap.devicePixelRatio(),
+            "window_size": [window.width(), window.height()],
+        }
+        if image.isNull():
+            raise RuntimeError("the grab came back empty")
+        if pixmap.save(str(png_path), "PNG"):
+            report["files"]["png"] = str(png_path)
+        else:
+            errors.append(f"save {png_path}: QPixmap.save returned False")
+        pixels = _pixels_of(image)
+        scale = (image.width() / max(1, window.width()),
+                 image.height() / max(1, window.height()))
+    except Exception:                                        # noqa: BLE001
+        failed("grab the window from the display")
+
+    try:
+        report["qt_platform"] = QApplication.platformName()
+    except Exception:                                        # noqa: BLE001
+        failed("read the Qt platform")
+    try:
+        import spacr
+
+        report["spacr_version"] = getattr(spacr, "__version__", None)
+        where = Path(spacr.__file__).resolve().parent
+        report["spacr_path"] = str(where)
+        report["git_head"], report["git_dirty"] = _git_state(str(where.parent))
+    except Exception:                                        # noqa: BLE001
+        failed("read the spaCR version and checkout")
+
+    from . import preferences
+
+    wanted = {}
+    for name in ("ambient_enabled", "ambient_animation", "ambient_theme",
+                 "ambient_palette", "pane_opacity", "theme",
+                 "tooltips_box_enabled", "tooltips_bottom_enabled",
+                 "object_grid_enabled"):
+        try:
+            wanted[name] = _plain(getattr(preferences, f"get_{name}")())
+        except Exception:                                    # noqa: BLE001
+            failed(f"read the {name} preference")
+    report["preferences"] = wanted
+    report["environment"] = {name: os.environ.get(name)
+                             for name in ("SPACR_NO_BACKDROP", "SPACR_NO_GL")}
+
+    try:
+        backdrop = window.window_backdrop()
+        state = {"present": backdrop is not None}
+        if backdrop is not None:
+            running = getattr(backdrop, "is_running", None)
+            state.update({
+                "class": type(backdrop).__name__,
+                "visible": bool(backdrop.isVisible()),
+                "running": bool(running()) if callable(running) else None,
+                "geometry": _rect_in_window(backdrop, window),
+            })
+        report["window_backdrop"] = state
+    except Exception:                                        # noqa: BLE001
+        failed("read the window backdrop")
+
+    screen = None
+    try:
+        stack = getattr(window, "_stack", None)
+        screen = stack.currentWidget() if stack is not None else None
+        state = {"present": screen is not None}
+        if screen is not None:
+            own = getattr(screen, "_ambient", None)
+            state.update({
+                "class": type(screen).__name__,
+                "objectName": screen.objectName(),
+                "app_key": _plain(getattr(screen, "app_key", None)),
+                "geometry": _rect_in_window(screen, window),
+                "_ambient": None if own is None else {
+                    "class": type(own).__name__,
+                    "visible": bool(own.isVisible()),
+                    "running": bool(own.is_running())
+                    if callable(getattr(own, "is_running", None)) else None,
+                },
+                "_uses_window_backdrop": _plain(
+                    getattr(screen, "_uses_window_backdrop", None)),
+                "page_fill": None,
+            })
+        report["screen"] = state
+        if screen is not None and callable(getattr(screen, "page_fill", None)):
+            fill = screen.page_fill()
+            state["page_fill"] = (None if fill is None
+                                  else _colour_record(QColor(fill)))
+    except Exception:                                        # noqa: BLE001
+        failed("read the current screen")
+
+    try:
+        app = QApplication.instance()
+        report["stylesheets"] = {
+            "window": _sheet_fingerprint(window.styleSheet()),
+            "screen": (_sheet_fingerprint(screen.styleSheet())
+                       if screen is not None else None),
+            "application": _sheet_fingerprint(app.styleSheet()),
+        }
+    except Exception:                                        # noqa: BLE001
+        failed("fingerprint the style sheets")
+
+    try:
+        report["top_level_windows"] = [
+            {"class": type(top).__name__, "objectName": top.objectName(),
+             "windowType": getattr(top.windowType(), "name",
+                                   str(top.windowType())),
+             "geometry": [top.x(), top.y(), top.width(), top.height()]}
+            for top in QApplication.topLevelWidgets() if top.isVisible()]
+    except Exception:                                        # noqa: BLE001
+        failed("list the top-level windows")
+
+    records = []
+    if screen is not None:
+        from PySide6.QtWidgets import QAbstractScrollArea
+
+        for widget in screen.findChildren(QWidget):
+            try:
+                if not widget.isVisible():
+                    continue
+                record = _paint_state_of(widget, window)
+                record["path"] = _widget_path(widget, screen)
+                if isinstance(widget, QAbstractScrollArea):
+                    viewport = widget.viewport()
+                    record["viewport"] = (None if viewport is None
+                                          else _paint_state_of(viewport,
+                                                               window))
+                records.append(record)
+            except Exception:                                # noqa: BLE001
+                failed(f"read the paint state of a {type(widget).__name__}")
+    report["widgets"] = records
+
+    try:
+        sheets = report.get("stylesheets") or {}
+        rule_in_play = any((sheet or {}).get("carries_transparent_rule")
+                           for sheet in sheets.values())
+        suspects = _paint_suspects(records, rule_in_play)
+        for suspect in suspects:
+            suspect["near_black_fraction"] = _near_black_fraction(
+                pixels, suspect["geometry"], scale)
+        report["suspects"] = suspects
+    except Exception:                                        # noqa: BLE001
+        failed("pick the suspects")
+
+    try:
+        json_path.write_text(json.dumps(report, indent=2, default=str),
+                             encoding="utf-8")
+        report["files"]["json"] = str(json_path)
+        # Rewritten so the file names itself; the first write is the one
+        # that proves the folder takes a file at all.
+        json_path.write_text(json.dumps(report, indent=2, default=str),
+                             encoding="utf-8")
+    except Exception:                                        # noqa: BLE001
+        failed(f"write {json_path}")
+
+    _say_where_the_paint_diagnostic_went(window, screen, report["files"])
+
+
+def _say_where_the_paint_diagnostic_went(window, screen, files) -> None:
+    """Put both paths on the console on show and in the log."""
+    line = (f"Paint diagnostic: {files.get('json')}\n"
+            f"On-screen capture: {files.get('png')}\n")
+    LOG.info("paint diagnostic written: json=%s png=%s",
+             files.get("json"), files.get("png"))
+    try:
+        from .widgets.console_panel import ConsolePanel
+
+        console = getattr(screen, "_console", None)
+        if console is None or not console.isVisible():
+            console = next((panel for panel in window.findChildren(ConsolePanel)
+                            if panel.isVisible()), console)
+        if console is not None:
+            console.append_stdout(line)
+    except Exception:                                        # noqa: BLE001
+        LOG.warning("paint diagnostic: could not write to the console",
+                    exc_info=True)
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -2390,10 +2451,6 @@ class MainWindow(QMainWindow):
         """
         super().__init__()
         self._closing = False
-        # The compositor may map the native window before a child has drawn.
-        # Make that first backing store an opaque splash-coloured surface, so
-        # it can never expose stale desktop pixels while LoadingScreen queues
-        # its first paint.
         from .widgets.loading_screen import splash_role
         startup_palette = self.palette()
         startup_palette.setColor(
@@ -2402,57 +2459,13 @@ class MainWindow(QMainWindow):
         )
         self.setPalette(startup_palette)
         self.setAutoFillBackground(True)
-        # NOT `WA_OpaquePaintEvent`. That attribute is a PROMISE that the
-        # widget paints every pixel of its own rect, and Qt takes it by
-        # skipping the erase before a repaint. This window does not keep
-        # that promise: applying the application stylesheet clears
-        # `autoFillBackground` again, so by the time the window is shown it
-        # reads `autoFill=False, opaquePaint=True` -- claiming to fill while
-        # filling nothing.
-        #
-        # What Qt then does is leave whatever was already on screen, and
-        # transparent children draw on top of it. That is the defect
-        # reported on 2026-09-05: "in the bottom left corner there is text
-        # that overlaps (new text is pasted over old text)", together with
-        # flicker on the menu bar, the status bar and the version label --
-        # every text surface that sits over the animated backdrop without a
-        # ground of its own.
-        #
-        # The splash still paints: the stylesheet fills the window, and a
-        # styled background is drawn whether or not anything claims to be
-        # opaque. What is removed is only the false promise.
         self.setWindowTitle("spaCR")
         self.setMinimumSize(1200, 720)
-        # NO TITLE BAR. Asked for on 2026-08-23: "remove the minus and x bar
-        # from the spacr window and just have an icon in the top left for
-        # true fullscreen". The window is frameless and the menu bar is what
-        # you drag it by; Quit keeps its usual shortcut, so nothing about
-        # closing depends on a button that is no longer there.
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, True)
 
         self._build_menu_bar()
         self._install_fullscreen_button()
 
-        # Central layout: a row that holds an (initially empty) dock slot
-        # and the screen stack. By default the app list is a REVEAL over
-        # the stack's left edge rather than anything in that slot.
-        #
-        # The column was 220-320 px of the 1440 a laptop has, on every
-        # screen, holding a list most sessions never touch — and it is
-        # the reason Home could not fit its five categories plus a state
-        # column without scrolling. As a drawer it costs 6 px of trigger
-        # strip and is one hover, one click, or Ctrl+Shift+A away.
-        #
-        # The slot is what "lock the dock" fills: see
-        # :meth:`apply_dock_mode`. It exists whatever the mode, because a
-        # QMainWindow's central widget cannot be swapped without
-        # re-parenting the stack, and re-parenting a stack that already
-        # holds live screens is how a locked dock would cost you the
-        # screen you were looking at.
-        #
-        # `self._sidebar` is the SAME `Sidebar` object it always was, only
-        # reparented: the tutorial highlights it, the command palette and
-        # the tests all reach it by that name.
         self._stack = QStackedWidget()
         central = QWidget()
         central.setObjectName("CentralRow")
@@ -2461,24 +2474,12 @@ class MainWindow(QMainWindow):
         row.setSpacing(0)
         self._dock_slot = QWidget()
         self._dock_slot.setObjectName("DockSlot")
-        # Paints nothing: the dock's own rounded panel is the only surface
-        # here, and a slot with a fill of its own puts a square back behind
-        # it.
-        # PAINTS NOTHING. The application sheet already grounds the window
-        # -- `QMainWindow { background-color: bg }`, or the sky gradient on
-        # the picture themes -- and anything painted here covers it. That is
-        # what put an opaque slab behind the Home masthead, which had been
-        # showing the window through it.
         self._dock_slot.setStyleSheet(
             "QWidget#DockSlot { background: transparent; border: none; }")
         #: The dock column's own backdrop, or ``None``. See
         #: :meth:`_backdrop_the_dock_column`.
         self._dock_backdrop = None
         slot_col = QVBoxLayout(self._dock_slot)
-        # THE GAP AROUND THE DOCK LIVES HERE. The dock widget is itself the
-        # rounded box, and a widget's own margins are inside its background,
-        # so the space that keeps the box off the window edge has to be put
-        # around it by whatever holds it.
         slot_col.setContentsMargins(0, 0, 0, 0)
         slot_col.setSpacing(0)
         self._dock_slot.hide()
@@ -2489,9 +2490,6 @@ class MainWindow(QMainWindow):
         self._sidebar = Sidebar()
         self._sidebar.nav_selected.connect(self._on_nav_selected)
         self._sidebar.nav_selected.connect(self._on_drawer_navigated)
-        # A folded row goes through `open_module`, not `_on_nav_selected`:
-        # the key names a fold rather than a screen, and navigating to it
-        # directly would build an orphan page with no way back.
         self._sidebar.fold_child_selected.connect(self.open_module)
         self._sidebar.module_hovered.connect(self._show_module_hint)
 
@@ -2501,7 +2499,6 @@ class MainWindow(QMainWindow):
         self.apply_dock_mode()
         self._backdrop_the_dock_column()
 
-        # Register screens lazily — created on first navigation.
         self._screens: dict[str, QWidget] = {}
         #: The interface scale each cached screen was BUILT at, by key.
         #:
@@ -2522,7 +2519,6 @@ class MainWindow(QMainWindow):
         self._visit_order: list[str] = []
         self._install_startup_page()
 
-        # Rich status bar: transient message (left) + active app + version
         status = QStatusBar()
         self._status_app_label = QLabel("Home")
         self._status_app_label.setObjectName("Muted")
@@ -2531,19 +2527,10 @@ class MainWindow(QMainWindow):
         status.addPermanentWidget(self._status_app_label)
         status.addPermanentWidget(self._status_version_label)
         status.showMessage(tr("Ready"))
-        # FIXED HEIGHT, so a longer message cannot grow the bar and relay
-        # the window out under the pointer. The module hints below write
-        # into it on every hover; without this the dock flickered on
-        # Linux each time one arrived.
         status.setSizeGripEnabled(False)
         status.setFixedHeight(status.sizeHint().height())
         self.setStatusBar(status)
 
-        # MODULE DESCRIPTIONS GO HERE, not into a popup over the grid.
-        # Asked for on 2026-09-01; Home already worked this way and the
-        # reason is on AppTile -- these blurbs run to several hundred
-        # characters, which is fine in a fixed line and wrong in a box
-        # covering what the user is reading to choose between.
         try:
             from .module_hints import install_module_hints
 
@@ -2552,48 +2539,12 @@ class MainWindow(QMainWindow):
             LOG.debug("module hints unavailable", exc_info=True)
             self._module_hints = None
 
-        # The AI Console now lives inside each pipeline app's Console
-        # panel (see spacr.qt.widgets.console_panel). No side-dock.
 
-        # Preload the heavy pipeline imports IMMEDIATELY, behind a loading
-        # screen that covers the window until they land.
-        #
-        # They used to start on a 1500 ms timer, which put a 2.1 s freeze on
-        # a window that already looked interactive -- measured on a real
-        # launch, `spacr.core` alone is 1968 ms and the chain is 3140 ms. The
-        # delay also predates the loading screen: it existed because kicking
-        # the chain off pre-nav once caused a circular-import race in
-        # spacr.core/IPython ("partially initialized module 'IPython'"), and
-        # sleeping through it was the cheap fix. Starting after the first
-        # screen is built still satisfies that, and this call site is after
-        # it.
-        #
-        # The imports stay on the MAIN thread. A worker races Qt's own GPU
-        # init and segfaults -- see the note on _PipelinePreloader. Blocking
-        # the loop is acceptable precisely because nothing interactive is on
-        # screen while it happens.
         from PySide6.QtCore import QTimer
         self._loading_screen = self._install_loading_screen()
         self._preloader = _PipelinePreloader(
             on_step=self._on_preload_step, on_done=self._on_preload_done)
 
-        # LOADED WHEN CALLED (instruction 282). Preloading is off by default
-        # now, and the maintainer's own timing report is why. Measured on a
-        # real launch, the preload thread ground for TWENTY SECONDS:
-        #
-        #   spacr.core         15.6 s     spacr.deep_spacr    9.8 s
-        #   torchvision         8.5 s     torch               6.8 s
-        #   torch._dynamo       5.9 s     IPython             2.5 s
-        #   sympy               2.9 s     torch.distributed.fsdp  1.8 s
-        #
-        # The torch COMPILER, sympy, DISTRIBUTED TRAINING and IPython, to
-        # draw a window. Importing them ahead of first use was supposed to
-        # move the cost earlier; what it actually did was spend it while the
-        # user was trying to work, which is worse than spending it when they
-        # ask for the thing that needs it.
-        #
-        # Nothing is lost that was not already paid: the first run of a
-        # pipeline imports what it needs, once, exactly as it would have.
         from .preferences import get_preload_policy
 
         if get_preload_policy() != "eager":
@@ -2605,37 +2556,25 @@ class MainWindow(QMainWindow):
                     pass
                 self._loading_screen = None
         elif self._loading_screen is None:
-            # Headless, or the screen could not be built: keep the old
-            # deferred start so a test process is not made to pay 3.1 s of
-            # imports it may not need.
             QTimer.singleShot(1500, self._preloader.start)
         else:
             self._loading_screen.set_total(self._preloader.total())
             QTimer.singleShot(0, self._preloader.start)
 
-        # Keyboard shortcuts — Ctrl+H, Ctrl+1..9, Ctrl+K, F1/?, etc.
         try:
             from . import shortcuts
             shortcuts.install(self)
         except Exception:
             pass
+        #: Item 408's in-session paint diagnostic; ``None`` unless the
+        #: process was launched with ``SPACR_PAINT_DIAG=1``.
+        self._paint_diagnostic_shortcut = _install_the_paint_diagnostic(self)
 
         if initial_app:
-            # Through `open_module`, not straight to the key: `spacr-qt
-            # timelapse` is in shell histories and scripts, and that key
-            # is a switch on Mask Generation now rather than a screen.
             self.open_module(initial_app)
         else:
-            # INSTRUCTION 142: come back to where the Force restart left off.
-            # After an explicit `initial_app`, because a user who named a
-            # module on the command line is asking for that module, and a
-            # saved state that overrode it would be spaCR ignoring what it
-            # was just told.
             self.resume_after_restart()
 
-        # 178 D, for the window's own tab bars as well as the screens'. A
-        # screen built later takes the arrows off itself; this covers what is
-        # already here.
         try:
             from .theme import take_the_scroll_arrows_off
             take_the_scroll_arrows_off(self)
@@ -2643,25 +2582,14 @@ class MainWindow(QMainWindow):
             LOG.debug("could not take the tab scroll arrows off",
                       exc_info=True)
 
-        # Apply the persisted language after every startup widget exists.
-        # New lazy screens are translated separately when first constructed.
         self.refresh_language()
 
-        # First-launch tour — coach-marks over the home layout the
-        # first time this user boots spacr. State stored in QSettings,
-        # so subsequent launches are silent. Delayed a beat so the
-        # window has time to render before the overlay attaches.
         try:
             from PySide6.QtCore import QTimer
 
             from .first_run import maybe_show_tour
             from .install_consent import maybe_show_installer_consent
-            # Installer privacy choices precede the product tour. The native
-            # installers collect them when they have an interactive surface;
-            # an unattended package gets the same all-off page here instead.
-            # Parent the delayed callback to the window. A static singleShot
-            # outlives a window closed during its first 800 ms, then invokes
-            # the tour with a deleted C++ object on the next event-loop spin.
+            from .preferences import in_safe_mode
             self._tour_timer = QTimer(self)
             self._tour_timer.setSingleShot(True)
             self._tour_timer.timeout.connect(
@@ -2672,12 +2600,11 @@ class MainWindow(QMainWindow):
             def _finish_installer_onboarding():
                 """Show the installer consent, then start the tour after it closes."""
                 maybe_show_installer_consent(self)
-                # Start after the modal flow closes, so the tour never opens
-                # behind the consent/provider dialogs' nested event loops.
                 self._tour_timer.start(500)
 
             self._consent_timer.timeout.connect(_finish_installer_onboarding)
-            self._consent_timer.start(250)
+            if not in_safe_mode():
+                self._consent_timer.start(250)
         except Exception:
             pass
 
@@ -2699,7 +2626,6 @@ class MainWindow(QMainWindow):
             screen.show()
             return screen
         except Exception:
-            # A launch must never fail for want of a splash.
             LOG.debug("could not install the loading screen", exc_info=True)
             return None
 
@@ -2711,12 +2637,8 @@ class MainWindow(QMainWindow):
         try:
             screen.set_total(total)
             screen.advance(done)
-            # The imports block the loop, so without an explicit repaint the
-            # screen would jump from empty to full at the end and show no
-            # progress at all.
             screen.repaint()
         except RuntimeError:
-            # Deleted underneath us during teardown.
             self._loading_screen = None
 
     def _on_preload_done(self) -> None:
@@ -2758,7 +2680,6 @@ class MainWindow(QMainWindow):
         except Exception:
             return "dev"
 
-    # -- window chrome ----------------------------------------------------
     def _install_fullscreen_button(self):
         """One icon, top left, that toggles TRUE fullscreen.
 
@@ -2771,19 +2692,10 @@ class MainWindow(QMainWindow):
         first menu rather than beside it, and it is what the top-left
         corner of the window holds.
         """
-        # TOP RIGHT, minimise then full screen -- the order a title bar
-        # puts them in. Closing is not here: Quit is in the spaCR menu with
-        # its usual shortcut, and a stray click on an x mid-analysis costs
-        # more than reaching for the menu does.
         from PySide6.QtWidgets import QHBoxLayout, QWidget
 
         corner = QWidget(self)
         corner.setObjectName("WindowChrome")
-        # A plain QWidget paints its own Window palette role.  MainWindow's
-        # first-frame palette is deliberately black, so leaving this corner
-        # implicit produced one black rectangle behind the three otherwise
-        # transparent marks.  Paint no surface here: the menu bar is the
-        # title bar and must remain visible through the whole corner widget.
         corner.setAutoFillBackground(False)
         corner.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         row = QHBoxLayout(corner)
@@ -2811,70 +2723,10 @@ class MainWindow(QMainWindow):
                               CHROME_HOVER["CloseWindow"])
         close.setObjectName("CloseWindow")
         close.setToolTip("Quit spaCR")
-        # THE SAME THING QUIT DOES. Not `close()` on the window -- Quit is
-        # what every other exit path goes through, and two ways of leaving
-        # that differ is how a session ends without saving something.
         close.clicked.connect(self.close)
         row.addWidget(close)
         self._close_button = close
 
-        # THE MARK CHANGES COLOUR, NOT THE PLATE BEHIND IT. The colour is
-        # painted into the glyph by `_ChromeButton` (see CHROME_HOVER):
-        # red on the x, blue on the square and on the minus. A filled
-        # rounded plate behind a 10 px mark reads as a button growing a
-        # background rather than as the mark itself lighting up, which is
-        # what was asked for.
-        # THE BAR'S OWN COLOUR, NOT `transparent`. Same defect as
-        # `QMenuBar::item` in theme.py, and reported in the same breath:
-        # "there are black boxes behind the minimize, fullscreen and close
-        # icons... the black boxes appear only after hovering".
-        #
-        # `transparent` means paint nothing, and what is behind this
-        # corner is the WINDOW, whose palette Window role is the splash
-        # colour -- pure black. On Linux the menu bar's fill covers that;
-        # on macOS the hover repaint clears to the window first and the
-        # black arrives as a plate behind the mark. Painting the bar's
-        # colour is identical wherever transparent already worked.
-        #
-        # TRANSPARENT, NOT "the same colour as the bar".
-        #
-        # This used to read menu_bar_background() and paint that, so the
-        # corner could not drift from the bar it sits on. It drifted
-        # anyway, reported 2026-09-01: "the x square and minus in the top
-        # right dont always have the same background as the container".
-        #
-        # A colour copied once at construction is a snapshot. The bar
-        # repaints for a theme change, for a palette change, and on macOS
-        # for a translucency the copied value never had -- and every one
-        # of those leaves three plates in the old colour. Matching by
-        # copying is the bug; matching by showing through cannot drift,
-        # because there is nothing to keep in step.
-        #
-        # Safe here in a way it is NOT for the bar itself: transparent
-        # means "paint nothing", and these sit INSIDE the menu bar, which
-        # paints its own surface. The bar is a top-level surface and would
-        # show the desktop through instead.
-        #
-        # The hover state is unaffected: it is a repaint of the GLYPH in
-        # the hover colour, never a plate behind it.
-        # TRANSPARENT, AND IT STAYS TRANSPARENT. On 2026-09-07 this was
-        # changed to paint `menu_bar_background()` on the strength of the
-        # macOS black-box report, and that was WRONG: the maintainer
-        # superseded that fix on 2026-09-01 with "the x square and minus in
-        # the top right dont always have the same background as the
-        # container, please remove or make transparent their background
-        # color if possible".
-        #
-        # AND THE REASON IS BETTER THAN THE ONE I OVERRODE IT WITH. Painting
-        # the bar's colour here is a SNAPSHOT: the bar repaints for a theme
-        # change, a palette change, and on macOS for a translucency the
-        # copied value never had, and each of those leaves three plates in
-        # the old colour. Matching by copying is the bug. Showing through
-        # cannot drift, because there is nothing to keep in step.
-        #
-        # See `tests/qt/test_the_window_buttons_show_the_bar_through.py`,
-        # whose `test_the_bar_colour_is_no_longer_copied_into_the_corner`
-        # exists to stop exactly the change I made.
         corner.setStyleSheet("""
             QWidget#WindowChrome {
                 background: transparent;
@@ -2893,15 +2745,9 @@ class MainWindow(QMainWindow):
         self.menuBar().setCornerWidget(corner, Qt.Corner.TopRightCorner)
         self._window_buttons = corner
 
-        # THE MENU BAR IS THE TITLE BAR NOW. Without this the window cannot
-        # be moved at all, which is a worse trade than the bar it replaced.
         self._drag_from = None
         self.menuBar().installEventFilter(self)
 
-        # AND THE FRAME WAS WHERE IT WAS RESIZED. Dropping the frame took
-        # the grips with it, so the window could be moved and not resized;
-        # the edges do it now, handed to the window manager so the drag
-        # behaves like every other window on the desktop.
         try:
             from .widgets.glass import let_the_user_resize
 
@@ -2909,11 +2755,6 @@ class MainWindow(QMainWindow):
         except Exception:                                    # noqa: BLE001
             LOG.debug("the window could not be made resizable", exc_info=True)
 
-        # THE ACTION THE WINDOW SUBMENU ALREADY HOLDS. A second QAction with
-        # the same F11 shortcut is an ambiguous overload, which Qt resolves
-        # by firing neither -- so the same object is registered on the
-        # window as well, which widens its context instead of competing
-        # with it.
         action = getattr(self, "_act_fullscreen", None)
         if action is None:
             action = QAction("Full screen", self)
@@ -2939,8 +2780,6 @@ class MainWindow(QMainWindow):
         pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
         pen.setWidthF(1.6)
         painter.setPen(pen)
-        # THE SAME PAD THE FULL-SCREEN MARK USES, so the x spans exactly
-        # the box the square spans.
         pad = size * CHROME_PAD
         painter.drawLine(pad, pad, size - pad, size - pad)
         painter.drawLine(size - pad, pad, pad, size - pad)
@@ -3012,7 +2851,6 @@ class MainWindow(QMainWindow):
             if (kind == QEvent.Type.MouseButtonPress
                     and event.button() == Qt.MouseButton.LeftButton
                     and bar.actionAt(event.position().toPoint()) is None):
-                # ONLY ON EMPTY BAR. A press on a menu opens the menu.
                 self._drag_from = (event.globalPosition().toPoint()
                                    - self.frameGeometry().topLeft())
             elif kind == QEvent.Type.MouseMove and self._drag_from is not None:
@@ -3042,12 +2880,6 @@ class MainWindow(QMainWindow):
         if event.type() != QEvent.Type.WindowStateChange:
             return
         self._relay_the_menu_bar()
-        # AND AGAIN ONCE THE NEW SIZE HAS ARRIVED. `changeEvent` is
-        # delivered when the STATE changes, which is before the compositor
-        # has resized the window -- so a re-lay done only here measures the
-        # old geometry and the menu still opens against the previous action
-        # rectangle. The zero-timer runs after the resize has been
-        # delivered and the layout has settled.
         try:
             from PySide6.QtCore import QTimer
 
@@ -3103,7 +2935,6 @@ class MainWindow(QMainWindow):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not re-lay the menu bar", exc_info=True)
 
-    # -- menu -------------------------------------------------------------
     def _build_menu_bar(self):
         """Build the application menu bar.
 
@@ -3111,38 +2942,13 @@ class MainWindow(QMainWindow):
         widget, which is where this frameless window's window marks live.
         """
         mb = self.menuBar()
-        # NOT THE NATIVE macOS MENU BAR. Qt defaults this to True on darwin,
-        # which moves the whole bar up into the system strip -- and that one
-        # default is the cause of THREE separate macOS bugs at once:
-        #
-        #   1. A native menu bar DRAWS NO CORNER WIDGET. The minimise, full
-        #      screen and close marks live in this bar's top-right corner
-        #      (see `_install_fullscreen_button`), so on macOS they simply
-        #      were not there. The window is frameless on every platform, so
-        #      that left a Mac with no window buttons at all.
-        #   2. It splits the spaCR menu in two. macOS hoists Preferences,
-        #      About and Quit into the application menu -- titled "Python"
-        #      for an unbundled launch -- leaving a second, half-empty
-        #      "spaCR" menu beside it.
-        #   3. Nothing is left in the window to DRAG. The bar is this
-        #      window's title bar; in the system strip it cannot move it.
-        #
-        # The comment that used to sit below this said the relocation "cannot
-        # be overridden". It can -- this is how -- and turning it off gives
-        # macOS the same one-menu, three-button, draggable bar as Linux.
         if sys.platform == "darwin":
             mb.setNativeMenuBar(False)
-        # DRAGGABLE. The window is frameless, so without this it cannot be
-        # moved: there is no title bar for the compositor to offer.
         self._menu_drag = _DragsTheWindowByTheMenuBar(self)
         mb.installEventFilter(self._menu_drag)
 
         app_menu = mb.addMenu("&spaCR")
 
-        # Preferences and Quit FIRST, as asked. This ordering is now what
-        # EVERY platform sees: the native menu bar is off on macOS (above),
-        # so Qt no longer hoists Preferences and Quit into a separate
-        # application menu and the order written here is the order shown.
         act_home = QAction("Home", self)
         act_home.setShortcut(QKeySequence("Ctrl+H"))
         act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
@@ -3155,27 +2961,11 @@ class MainWindow(QMainWindow):
         act_quit.setShortcut(QKeySequence.Quit)
         act_quit.triggered.connect(self.close)
         app_menu.addAction(act_quit)
-        # MINIMISE AND MAXIMISE GO IN ABOVE QUIT -- but not from here. The
-        # Window submenu builds those two actions further down this method,
-        # and the SAME objects are inserted here once it has
-        # (`_lift_the_window_actions_into_the_spacr_menu`). Two QActions for
-        # one behaviour is what this file already warns about for F11: Qt
-        # resolves a duplicated shortcut by firing neither, and even without
-        # a shortcut a second object is a second enabled state to keep in
-        # step. Remembered rather than searched for, because Quit's label is
-        # translated and matching on it would break in every other language.
         self._act_quit = act_quit
         app_menu.addSeparator()
 
-        # ONE SUBMENU PER CATEGORY. Fifty-six modules in one flat list is a
-        # column taller than most screens, and reading it means reading all
-        # of it -- "the modules should be in module category dropdowns to
-        # make it more digestable". The categories are the ones Home and the
-        # dock already use, in the same order, so the three surfaces agree.
         self._app_actions: dict[str, QAction] = {}
         self._section_menus: dict[str, QMenu] = {}
-        # Read once for the whole bar rather than per section: both walk the
-        # host modules, and neither answer changes while the menu is built.
         from .widgets.fold_strip import folded_modules
 
         folded = folded_children()
@@ -3190,9 +2980,6 @@ class MainWindow(QMainWindow):
             for key, name, desc, _section in members:
                 act = QAction(name, self)
                 act.setStatusTip(desc)
-                # Translate the name and reviewed scientific summary as
-                # separate semantic fields; word-by-word translation of the
-                # combined text can produce misleading mixed-language help.
                 act.setProperty("moduleAppKey", key)
                 act.setProperty("moduleNameSource", name)
                 act.setProperty("moduleSummarySource", desc)
@@ -3202,13 +2989,6 @@ class MainWindow(QMainWindow):
                 if not kids:
                     submenu.addAction(act)
                 else:
-                    # THE SECOND LEVEL, asked for on 2026-09-01. Instruction
-                    # 318 folded 33 modules onto 11 mastheads and none of them
-                    # appeared here at all, so finding Volcano Explorer meant
-                    # knowing it lives on Regression. The host keeps its own
-                    # entry as the FIRST item rather than becoming a bare
-                    # container: opening the host is still what most of these
-                    # menu visits want.
                     host_menu = QMenu(name, self)
                     host_menu.setProperty("moduleAppKey", key)
                     host_menu.setProperty("moduleNameSource", name)
@@ -3225,10 +3005,6 @@ class MainWindow(QMainWindow):
                         sub_act.setProperty("moduleAppKey", child)
                         sub_act.setProperty("moduleNameSource", str(child_name))
                         sub_act.setProperty("moduleSummarySource", str(child_desc))
-                        # `open_module` resolves the folded key to its host and
-                        # switches the fold on. Reused rather than
-                        # reimplemented: the routing rules live in one place
-                        # and the fold strip already presses this path.
                         sub_act.triggered.connect(
                             lambda checked=False, k=child: self.open_module(k))
                         host_menu.addAction(sub_act)
@@ -3236,20 +3012,7 @@ class MainWindow(QMainWindow):
                 self._app_actions[key] = act
         self._refresh_app_action_visibility()
 
-        # "All apps" is NOT in the menu: a menu entry whose purpose is not
-        # obvious from its name costs attention every time it is read, and
-        # this one names a drawer most users never knew existed.
-        #
-        # The action itself stays, registered on the window rather than on
-        # the menu. Ctrl+Shift+A is the keyboard route into the edge reveal --
-        # a panel you can otherwise summon only by hovering a 6 px strip is
-        # a panel a keyboard user does not have -- and deleting the action
-        # would take the shortcut with it.
         act_all = QAction("All apps", self)
-        # MOVED OFF Ctrl+B, which was asked for as the blank-background key
-        # -- twice, and it was quietly given to Ctrl+Shift+B because this
-        # already held it. A shortcut somebody asks for by name and gets
-        # something else from is worse than an unfamiliar one.
         act_all.setShortcut(QKeySequence("Ctrl+Shift+A"))
         act_all.setStatusTip(
             "Show the full app list. Also revealed by moving the pointer "
@@ -3257,10 +3020,6 @@ class MainWindow(QMainWindow):
         act_all.triggered.connect(self.toggle_app_drawer)
         self.addAction(act_all)
 
-        # THE BACKDROP OFF AND ON. Registered on the window like Ctrl+Shift+A
-        # above, so it works wherever focus is. It STOPS the animation
-        # rather than hiding it: a hidden backdrop that kept rendering would
-        # be the worst of both, spending the cores and showing nothing.
         act_backdrop = QAction("Animated background", self)
         act_backdrop.setObjectName("ToggleBackdrop")
         act_backdrop.setCheckable(True)
@@ -3273,9 +3032,6 @@ class MainWindow(QMainWindow):
         self.addAction(act_backdrop)
         self._act_backdrop = act_backdrop
 
-        # RESTART THE BACKDROP. Listed here rather than left as an
-        # undocumented key: a shortcut nobody can find is one nobody uses,
-        # and this menu is where the other two live.
         act_restart = QAction("Restart the background", self)
         act_restart.setObjectName("RestartBackdrop")
         act_restart.setShortcut(QKeySequence("Ctrl+R"))
@@ -3288,9 +3044,6 @@ class MainWindow(QMainWindow):
         self.addAction(act_restart)
         self._act_restart_backdrop = act_restart
 
-        # THE BACKDROP ON ITS OWN, full screen. Ctrl+Shift+F because Ctrl+F
-        # is search everywhere and F11 is the window's own full screen --
-        # this is a third thing: the animation with nothing else on top.
         act_saver = QAction("Full-screen background", self)
         act_saver.setObjectName("ShowScreensaver")
         act_saver.setShortcut(QKeySequence("Ctrl+Shift+F"))
@@ -3301,13 +3054,6 @@ class MainWindow(QMainWindow):
         self.addAction(act_saver)
         self._act_screensaver = act_saver
 
-        # PAUSE AND GO FLAT. Ctrl+T stops the animation and leaves the last
-        # frame up, which is still a picture behind the work; this one also
-        # paints the ground flat, which is what "I am looking at images and
-        # want nothing behind them" actually asks for.
-        #
-        # Ctrl+B was explicitly requested for this action. The drawer moved
-        # to Ctrl+Shift+A, which keeps both window actions keyboard-reachable.
         act_flat = QAction("Blank the background", self)
         act_flat.setObjectName("BlankBackdrop")
         act_flat.setCheckable(True)
@@ -3323,18 +3069,6 @@ class MainWindow(QMainWindow):
         #: a menu entry that says so.
         self._act_all_apps = act_all
 
-        # DEMOS LIVES UNDER HELP. A demo is something you reach for when
-        # you are learning what a module does, which is what the Help menu
-        # is for, and it was taking a top-level slot on a bar that has to
-        # stay short. Built here, before Help, and added to it below --
-        # the submenu is the same QMenu either way.
-        # PARENTED TO THE MENU BAR, not to the window. `first_run.find_menu`
-        # -- which the walkthrough and the tutorial scripts both use --
-        # reaches a menu through `menuBar().findChildren(QMenu)`, because
-        # walking the bar's actions returns QMenu wrappers that go stale on
-        # PySide6 6.11. A menu parented elsewhere is invisible to that
-        # lookup, so Demos would have become unfindable the moment it
-        # stopped being a top-level menu.
         demo_menu = QMenu("&Demos", mb)
         self._demo_menu = demo_menu
         self._demo_actions: dict[str, QAction] = {}
@@ -3358,33 +3092,12 @@ class MainWindow(QMainWindow):
         help_menu = mb.addMenu("&Help")
         help_menu.addMenu(demo_menu)
         help_menu.addSeparator()
-        # THE HOTKEY MAP, FIRST (197). Asked for 2026-08-21: "add hotkey map
-        # to help tab".
-        #
-        # `show_cheat_sheet` has drawn this map for a long time and was
-        # reachable from exactly two places -- the `?` key, which you have to
-        # know about, and the command palette, which you have to know about.
-        # The Help menu is where a user who does NOT already know a shortcut
-        # goes to look for one, which is the entire population this screen is
-        # for.
-        #
-        # ABOVE THE WEB LINKS because it is the only entry here that answers
-        # without a browser.
         act_keys = QAction("Keyboard shortcuts", self)
         act_keys.setStatusTip(
             "Every key spaCR binds, what it does, and where it works.")
         act_keys.triggered.connect(self._show_shortcuts)
         help_menu.addAction(act_keys)
 
-        # THE SETUP SCREEN, REACHABLE AGAIN. It ran once on the first launch
-        # and then never -- and it is the only place several of these
-        # settings are explained rather than merely offered, so a user who
-        # dismissed it lost the explanation along with the questions.
-        #
-        # IN HELP because that is where somebody goes to be told what a
-        # choice means. Preferences is where they go when they already know
-        # and want to change it; both exist, and they answer different
-        # questions.
         act_setup = QAction("Set spaCR up again…", self)
         act_setup.setStatusTip(
             "The first-run questions, with the explanation of each -- "
@@ -3394,14 +3107,6 @@ class MainWindow(QMainWindow):
         help_menu.addAction(act_setup)
         help_menu.addSeparator()
 
-        # THE FOUR LOOK-IT-UP MODULES (318). Each opens exactly the screen
-        # it opened from its tile; only the door changed. They are here
-        # rather than on Home because none of them is a job a user sets out
-        # to do -- they are things you consult, which is what this menu is
-        # for.
-        #
-        # `_on_nav_selected` is the same entry point a tile click uses, so
-        # there is one path into a module and not two that can drift.
         for key, label, tip in _HELP_MODULES:
             action = QAction(label, self)
             action.setStatusTip(tip)
@@ -3409,17 +3114,6 @@ class MainWindow(QMainWindow):
                 lambda _checked=False, k=key: self._on_nav_selected(k))
             help_menu.addAction(action)
         help_menu.addSeparator()
-        # NO ICON AND NO "(web)". The icon was
-        # `SP_MessageBoxInformation`, the platform's blue circled i, which
-        # is the glyph a dialog uses to mean "here is a notice" -- next to
-        # a menu label it read as a badge rather than as an illustration of
-        # anything. That both entries carried the SAME one made it noise
-        # twice over. Where the page opens is said in the status tip, which
-        # is where a detail belongs; a label is for what the thing is.
-        #
-        # The catalog in `spacr/qt/i18n.py` keys on the English string, so
-        # both keys moved with these labels -- renaming here alone would
-        # drop the translation in nine languages.
         act_tutorial = QAction("Tutorial", self)
         act_tutorial.setStatusTip(
             "Open the interactive spaCR lesson library in a browser.")
@@ -3452,17 +3146,6 @@ class MainWindow(QMainWindow):
         help_menu.addMenu(self._build_window_menu(mb))
         self._lift_the_window_actions_into_the_spacr_menu(app_menu)
 
-        # Every menu action gets an EXPLICIT macOS role, and everything that
-        # is not genuinely Preferences/Quit/About gets NoRole. Left to Qt,
-        # the role is guessed from the action's TEXT, and an action whose
-        # text merely contains "settings" or "options" is silently moved out
-        # of its menu into the application menu -- which is how
-        # `recipes.MENU_ACTION_TEXT` ("Settings recipes…") ended up as the
-        # Preferences item of the macOS "python" menu while the real
-        # Preferences and Quit vanished from this one. See spacr.qt.menus.
-        #
-        # Collected from the menu bar rather than listed by hand, so an
-        # action added later is covered without anyone remembering to.
         self._act_preferences = act_prefs
         self._act_quit = act_quit
         self._act_about = act_about
@@ -3548,10 +3231,6 @@ class MainWindow(QMainWindow):
         menu.addAction(act_max)
         self._act_maximise = act_max
 
-        # THE SAME ACTION THE WINDOW ITSELF CARRIES, not a second one with
-        # the same shortcut. Two distinct QActions bound to F11 on one
-        # window is an ambiguous overload and Qt then fires NEITHER, so a
-        # menu copy would have cost the key it advertises.
         act_full = QAction("Full screen", self)
         act_full.setShortcut(QKeySequence("F11"))
         act_full.setStatusTip(
@@ -3568,10 +3247,6 @@ class MainWindow(QMainWindow):
 
         menu.addSeparator()
 
-        # THE TEXT IS COPIED VERBATIM from the two actions in the spaCR
-        # menu. `spacr.qt.i18n` keys its catalog on the English string, so a
-        # copy worded differently would be a copy that stays English in the
-        # other nine languages.
         act_prefs_here = QAction("Preferences…", self)
         act_prefs_here.setStatusTip(
             "The same Preferences the spaCR menu offers. macOS moves that "
@@ -3642,18 +3317,9 @@ class MainWindow(QMainWindow):
         if bar is None:
             return out
         for menu in bar.findChildren(QMenu):
-            # The menu's OWN action too -- the one that opens it from the bar
-            # (or from a parent menu). It is an action like any other and Qt
-            # will happily give "&Options" a role if left to guess.
             for action in list(menu.actions()) + [menu.menuAction()]:
                 if action is None or action.isSeparator():
                     continue
-                # Qt's role heuristic matches on TEXT, so an action with no
-                # text has nothing to match and cannot be relocated. They
-                # turn up here because `menuAction()` CREATES one for a menu
-                # that has never been attached to a bar -- i.e. this walk can
-                # manufacture them. Skipping keeps the sweep and the audit
-                # agreeing about what exists.
                 if not action.text():
                     continue
                 if id(action) in seen:
@@ -3670,20 +3336,11 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.statusBar().showMessage(f"Failed to open {url}: {e}", 5000)
 
-    # -- demos -----------------------------------------------------------
-    # Map each demo key to (target-app key, generator function name).
-    # Kept as a class constant so tests can introspect it without launching
-    # the file dialog.
     DEMO_TARGETS = {
         "mask":      ("mask",       "generate_mask_demo"),
         "measure":   ("measure",    "generate_measure_demo"),
         "crop":      ("measure",    "generate_crop_demo"),
         "classify":  ("annotate",   "generate_classify_demo"),
-        # The timelapse demo writes a settings CSV with timelapse=True, and
-        # that key has no widget on the Mask form -- the masthead switch is
-        # its control. `AppScreen.apply_settings_dict` moves the switch from
-        # the dict it applies, so the demo lands on Mask with tracking
-        # already on and its categories already showing.
         "timelapse": ("mask",       "generate_timelapse_demo"),
         "map_barcodes": ("map_barcodes", "generate_map_barcodes_demo"),
     }
@@ -3808,25 +3465,15 @@ class MainWindow(QMainWindow):
         dataset_path  = Path(dataset_path)
         settings_path = Path(settings_path)
 
-        # MIGRATED, NOT MERGED. `settings_from_pack` reads the pack
-        # against this build's settings and reports what it could not
-        # place -- see spacr/qt/settings_pack.py for why reading a CSV
-        # straight over the defaults was the bug rather than the shortcut.
         from .settings_pack import settings_from_pack
 
-        def _settings_for(app_key: str) -> dict:
-            """The settings one module in the chain should run with."""
-            settings, report = settings_from_pack(
-                app_key, settings_path, src=dataset_path)
-            if report.dropped or report.renamed or report.malformed:
-                LOG.info("settings pack for %s: %s", app_key, report.summary())
-            return settings
-
-        # ONE STAGE. Measure and Annotate are reached from Mask
-        # Generation once there are masks to measure; opening them now,
-        # against a dataset with no masks in it, would open two screens
-        # that can only report that there is nothing to do.
-        settings = _settings_for("mask")
+        settings, report = settings_from_pack(
+            "mask", settings_path, src=dataset_path)
+        if report.source:
+            LOG.info("settings pack for %s: %s", "mask", report.summary())
+        else:
+            LOG.warning("No settings pack found for mask in %s; using defaults.",
+                        settings_path)
         self._on_nav_selected("mask")
         widget = self._screens.get("mask")
         if widget is None:
@@ -3847,9 +3494,15 @@ class MainWindow(QMainWindow):
                 "its settings could not be filled in automatically:\n"
                 f"{type(error).__name__}: {error}")
             return
-        self.statusBar().showMessage(
-            "Demo dataset loaded with its settings. Press Live Preview to "
-            "see one field, or Run to process the plate.", 12000)
+        if report.source:
+            self.statusBar().showMessage(
+                tr("Demo dataset loaded with its settings. Press Live Preview to "
+                   "see one field, or Run to process the plate."), 12000)
+        else:
+            self.statusBar().showMessage(
+                tr("Demo dataset loaded without a settings pack; using defaults. "
+                   "Press Live Preview to see one field, or Run to process the "
+                   "plate."), 12000)
 
     def _run_demo_generator(self, demo_key: str, dst: str):
         """Isolated for tests — invoke the named generator function
@@ -3861,23 +3514,39 @@ class MainWindow(QMainWindow):
 
     def _apply_demo_to_screen(self, widget, layout) -> None:
         """Push the demo layout into a target screen, in whatever way
-        that screen supports (settings CSV, source folder, or DB path)."""
+        that screen supports (settings CSV, source folder, or DB path).
+
+        A BARCODE REFERENCE THE DEMO LEFT EMPTY IS FILLED FROM THE PACKAGE, so
+        loading test data never leaves Map Barcodes without its reference
+        tables. The three CSVs ship inside the wheel, so this normally costs
+        nothing; when package data has been stripped they are fetched from the
+        release tag on GitHub and checked against a pinned hash.
+
+        THE SETTINGS SAY WHETHER THIS APPLIES, rather than the app key. A
+        map_barcodes settings file DECLARES `grna_csv`, `row_csv` and
+        `column_csv`; a mask one does not, so it cannot accidentally gain
+        three path settings that mean nothing to it. That also means the
+        tutorial runner, which calls this method too, gets the same
+        behaviour without being told about it.
+        """
+        from spacr.settings import (BUNDLED_BARCODE_SETTING,
+                                    _fill_missing_barcode_references)
         from spacr.utils import load_settings
 
-        # AppScreen: load the CSV into its settings model
         if hasattr(widget, "apply_settings_dict") and layout.settings_csv:
             loaded = load_settings(
                 str(layout.settings_csv),
                 setting_key="Key", setting_value="Value",
             )
             if isinstance(loaded, dict):
+                if any(key in loaded
+                       for key in BUNDLED_BARCODE_SETTING.values()):
+                    _fill_missing_barcode_references(loaded)
                 widget.apply_settings_dict(loaded)
                 return
-        # AnnotateScreen: takes a src folder directly
         if hasattr(widget, "_open_source"):
             widget._open_source(str(layout.src))
             return
-        # MakeMasksScreen: opens a folder directly
         if hasattr(widget, "_open_folder"):
             widget._open_folder(str(layout.src))
             return
@@ -3940,10 +3609,6 @@ class MainWindow(QMainWindow):
         mark = QLabel()
         mark.setAlignment(Qt.AlignHCenter)
         mark.setStyleSheet("background: transparent;")
-        # The PNG straight off disk, not `iconset.icon()`. That helper
-        # recolours an icon to the theme's ink so monochrome glyphs stay
-        # legible — correct for a toolbar symbol, wrong for a logo, which has
-        # its own colours and should look the same on every theme.
         try:
             import os
 
@@ -3978,9 +3643,6 @@ class MainWindow(QMainWindow):
               13, muted=True, gap=10)
         _line(f"Version {version}", 12, muted=True)
         _line(build, 11, muted=True, gap=16) if build else col.addSpacing(16)
-        # The license NAME is a legal identifier and stays English; the
-        # sentence around it does not. Kept as one placeholder so a language
-        # that puts the name elsewhere in the clause can move it.
         license_link = (
             '<a href="https://opensource.org/licenses/BSD-3-Clause">'
             'BSD 3-Clause License</a>')
@@ -4036,9 +3698,6 @@ class MainWindow(QMainWindow):
             self._refresh_app_action_visibility()
         except Exception:
             pass
-        # BEFORE the per-screen loop below, which reads `window_backdrop`
-        # and would otherwise reconcile every screen against the state the
-        # window had a moment ago.
         try:
             self._backdrop_the_dock_column()
         except Exception:
@@ -4050,10 +3709,6 @@ class MainWindow(QMainWindow):
                     refresh()
                 except Exception:
                     pass
-            # Preferences is where the window's backdrop is turned on and
-            # off, so it is where a cached screen's record of that backdrop
-            # stops being true. Reconciling here is the only thing that
-            # clears the flag on a screen the user is not looking at.
             try:
                 self._drop_a_redundant_screen_backdrop(screen)
             except Exception:
@@ -4094,7 +3749,6 @@ class MainWindow(QMainWindow):
             try:
                 action.setStatusTip(tr(self.DEMO_STATUS_TIP, app=app_key))
             except RuntimeError:
-                # A deleted action during shutdown must not stop the rest.
                 pass
 
     def _refresh_app_action_visibility(self) -> None:
@@ -4113,9 +3767,6 @@ class MainWindow(QMainWindow):
         self._install_startup_page()
         if old is not None:
             self._stack.removeWidget(old)
-            # close() before deleteLater() so the outgoing page drops its
-            # subscription to the run registry now, rather than staying a
-            # live receiver until the deferred delete is flushed.
             try:
                 old.close()
             except Exception:
@@ -4175,15 +3826,20 @@ class MainWindow(QMainWindow):
                 self, "Update available", msg) != QMessageBox.Yes:
             return
         try:
-            from spacr.updater import run_pip_upgrade
+            from spacr.updater import run_pip_upgrade  # noqa: F401
+            from spacr.install_cleanup import find_old_installs
         except Exception as exc:
             LOG.exception("Could not import the spaCR upgrade helper")
             QMessageBox.warning(
                 self, "Updates", f"Upgrade unavailable: {exc}")
             return
+        # find old spaCR files --> delete old spaCR files --> install new
+        # spaCR. Step 1 runs off the GUI thread; what it found is shown before
+        # anything is deleted, in _on_old_installs_found.
+        self._update_version = info.latest_release
         self.statusBar().showMessage(tr("Upgrading spaCR…"), 4000)
         self._start_update_worker(
-            "upgrade", run_pip_upgrade, self._on_upgrade_done)
+            "find", find_old_installs, self._on_old_installs_found)
 
     def _on_upgrade_done(self, result) -> None:
         """Report a completed package upgrade on the GUI thread.
@@ -4204,18 +3860,8 @@ class MainWindow(QMainWindow):
                 self, "Updates",
                 "Upgrade finished. Restart spaCR to use it.")
             return
-        # These installs launch from a desktop entry with Terminal=false, so
-        # "check the terminal for details" named something the user could not
-        # open, and the reason was written to a stream nobody was reading.
-        # Put the tail of it in the dialog instead.
         lines = [line for line in (output or "").splitlines() if line.strip()]
         detail = "\n".join(lines[-6:]) if lines else "No output was captured."
-        # AND THE ONE FAILURE THIS CAN ANSWER, IT ANSWERS. A venv built by
-        # `uv venv` has no pip, so an updater that reaches for pip fails
-        # before it starts -- and the fix for that cannot arrive through
-        # the updater. Here the application knows the exact command that
-        # would work, so it says it rather than leaving the user with an
-        # exit code.
         escape = _the_missing_pip_escape(output)
         if escape:
             detail += (
@@ -4225,6 +3871,166 @@ class MainWindow(QMainWindow):
         QMessageBox.warning(
             self, "Updates",
             f"pip returned exit code {return_code}.\n\n{detail}")
+
+    def _on_old_installs_found(self, records) -> None:
+        """Show what step 1 found, then run steps 2 and 3 in that order.
+
+        Installer-made copies are removed; environments the user made are
+        offered with tick boxes. When the running spaCR is itself an
+        installer-made copy it cannot delete itself, so a helper process
+        finishes the update after this window closes.
+
+        :param records: installations from
+            :func:`spacr.install_cleanup.find_old_installs`.
+        """
+        if self._closing:
+            LOG.debug("Discarding the old-install list during shutdown")
+            return
+        from spacr import install_cleanup, updater
+
+        records = list(records or ())
+        ticked = ()
+        if any(r.kind == "installer" or (r.kind == "environment" and not r.running)
+               for r in records):
+            ticked = self._confirm_old_installs(records)
+            if ticked is None:
+                return
+        version = getattr(self, "_update_version", None) or ""
+        if any(r.kind == "installer" and r.running for r in records):
+            plan = install_cleanup.start_update_helper(
+                records, version, ticked=ticked)
+            if not plan.get("command"):
+                QMessageBox.warning(
+                    self, "Updates",
+                    tr("Upgrade unavailable: {error}",
+                       error=self._removal_reason_text(
+                           str(plan.get("error")))))
+                return
+            QMessageBox.information(
+                self, "Updates",
+                tr("spaCR will close, remove the older copies, install "
+                   "{version} and start again.", version=version))
+            self.close()
+            return
+        self._start_update_worker(
+            "upgrade",
+            lambda: install_cleanup.run_update_sequence(
+                updater.run_pip_upgrade, records=records, ticked=ticked),
+            self._on_update_sequence_done)
+
+    def _confirm_old_installs(self, records):
+        """List the copies an update removes, with a tick box per environment.
+
+        :param records: installations from
+            :func:`spacr.install_cleanup.find_old_installs`.
+        :returns: the roots of the ticked environments, or ``None`` when the
+            user cancelled.
+        """
+        from PySide6.QtWidgets import (
+            QCheckBox, QDialog, QDialogButtonBox, QLabel, QVBoxLayout,
+        )
+
+        dialog = QDialog(self)
+        dialog.setObjectName("OldInstallsDialog")
+        dialog.setWindowTitle(tr("Remove older spaCR copies"))
+        layout = QVBoxLayout(dialog)
+        copies = [r for r in records if r.kind == "installer"]
+        yours = [r for r in records if r.kind == "environment" and not r.running]
+        if copies:
+            layout.addWidget(QLabel(tr(
+                "These older copies of spaCR will be removed before the new "
+                "version is installed:")))
+            for record in copies:
+                layout.addWidget(QLabel(
+                    f"{record.root}  ({record.version or '?'})"))
+        boxes = []
+        if yours:
+            layout.addWidget(QLabel(tr(
+                "Environments you made. Tick one to uninstall spaCR from it; "
+                "the environment itself is kept.")))
+            for record in yours:
+                box = QCheckBox(f"{record.root}  ({record.version or '?'})")
+                layout.addWidget(box)
+                boxes.append((record, box))
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText(tr("Remove and update"))
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        if dialog.exec() != QDialog.Accepted:
+            return None
+        return tuple(record.root for record, box in boxes if box.isChecked())
+
+    def _on_update_sequence_done(self, outcome) -> None:
+        """Report steps 2 and 3 of an in-app update on the GUI thread.
+
+        :param outcome: ``(reports, install_result)`` from
+            :func:`spacr.install_cleanup.run_update_sequence`;
+            ``install_result`` is ``None`` when nothing was installed.
+        """
+        if self._closing:
+            LOG.debug("Discarding an update result during shutdown")
+            return
+        reports, result = outcome
+        if result is None:
+            failed = [f"{item}: {self._removal_reason_text(why)}"
+                      for report in reports for item, why in report.failed]
+            QMessageBox.warning(
+                self, "Updates",
+                tr("The update stopped before installing, because an older "
+                   "copy of spaCR could not be removed:")
+                + "\n\n" + "\n".join(failed[:8]))
+            return
+        self._on_upgrade_done(result)
+
+    @staticmethod
+    def _removal_reason_text(why: str) -> str:
+        """Say why an old copy was not removed, in the interface language.
+
+        :mod:`spacr.install_cleanup` answers in English, because the
+        installers run it where no spaCR, and so no catalog, is installed.
+        The reasons it can give an in-app update are translated here, each
+        written out in full so the catalog builder finds it. Anything else --
+        an operating-system error, the last line pip printed -- is not
+        spaCR's wording and is shown as it came.
+
+        :param why: a reason from a
+            :class:`spacr.install_cleanup.RemovalReport`, or the error
+            :func:`spacr.install_cleanup.start_update_helper` returned.
+        :returns: the reason to show.
+        """
+        prefix = "needs administrator rights; run: "
+        if why.startswith(prefix):
+            return tr("needs administrator rights; run: {command}",
+                      command=why[len(prefix):])
+        reasons = {
+            "needs administrator rights; delete it as an administrator":
+                tr("needs administrator rights; delete it as an "
+                   "administrator"),
+            "in use or not permitted; close anything using it and try again":
+                tr("in use or not permitted; close anything using it and "
+                   "try again"),
+            "not permitted; delete this registry entry by hand":
+                tr("not permitted; delete this registry entry by hand"),
+            "no Python found in it; run pip uninstall spacr in that "
+            "environment":
+                tr("no Python found in it; run pip uninstall spacr in that "
+                   "environment"),
+            "refused: a shared folder, not a spaCR installation; remove "
+            "spaCR from it by hand":
+                tr("refused: a shared folder, not a spaCR installation; "
+                   "remove spaCR from it by hand"),
+            "refused: not recognisably a spaCR installation; delete it by "
+            "hand if it is one":
+                tr("refused: not recognisably a spaCR installation; delete "
+                   "it by hand if it is one"),
+            "no Python outside the installation could be found to finish "
+            "the update; run the new installer instead":
+                tr("no Python outside the installation could be found to "
+                   "finish the update; run the new installer instead"),
+        }
+        return reasons.get(why, why)
 
     def _on_update_worker_failed(self, operation: str, details: str) -> None:
         """Report an updater exception instead of losing it in a QThread."""
@@ -4238,7 +4044,6 @@ class MainWindow(QMainWindow):
         label = "Update check" if operation == "check" else "Upgrade"
         QMessageBox.warning(self, "Updates", f"{label} failed:\n{last}")
 
-    # -- shutdown ----------------------------------------------------------
     def closeEvent(self, event):
         """Cooperatively drain analysis and UI workers before destruction."""
         from .bridge import registry
@@ -4260,12 +4065,6 @@ class MainWindow(QMainWindow):
             event.ignore()
             self._closing = False
             return
-        # Closing a parent widget does not deliver a close event to its child
-        # widgets. AppScreen.closeEvent owns cleanup that cannot be left to
-        # Qt's child-destruction cascade, notably its parentless pyqtgraph
-        # menus and background job runners. Ask each owned screen to close
-        # while it is still intact, and honour a screen that defers shutdown
-        # because one of its workers has not reached a safe boundary.
         from .screens.app_screen import AppScreen
         seen_screens = set()
         for screen in list(getattr(self, "_screens", {}).values()):
@@ -4275,7 +4074,7 @@ class MainWindow(QMainWindow):
             try:
                 accepted = screen.close()
             except RuntimeError:
-                continue          # already deleted -- nothing left to drain
+                continue
             except Exception:                                # noqa: BLE001
                 LOG.exception("Could not close an owned application screen")
                 event.ignore()
@@ -4293,28 +4092,18 @@ class MainWindow(QMainWindow):
                 panel.shutdown()
             except Exception:
                 pass
-        # Help → "Check for updates…" runs its network call on a QThread
-        # parented to this window. Quitting while it's in flight destroys
-        # a live QThread, which is the same abort the console drain above
-        # exists to prevent. The updater's own socket timeouts are a few
-        # seconds, so the wait is bounded twice over.
         worker = getattr(self, "_update_worker", None)
         if worker is not None:
             try:
                 worker.wait(5000)
             except RuntimeError:
-                pass          # already deleted — nothing left to wait for
+                pass
         super().closeEvent(event)
-        # WITH quitOnLastWindowClosed OFF, THIS IS WHAT ENDS THE PROGRAM.
-        # Nothing else may: a figure window closing must not take the session
-        # with it, and until this closes the application stays up even with
-        # no window on screen.
         if event.isAccepted():
             app = QApplication.instance()
             if app is not None:
                 app.quit()
 
-    # -- the app-list drawer ----------------------------------------------
     def dock_mode(self) -> str:
         """The user's dock preference — ``auto`` / ``locked`` / ``hidden``.
 
@@ -4366,7 +4155,6 @@ class MainWindow(QMainWindow):
         try:
             handler(key, summary)
         except Exception:                                        # noqa: BLE001
-            # A hover handler must not take the window with it.
             import logging
             logging.getLogger(__name__).debug(
                 "could not write the hint for %s", key, exc_info=True)
@@ -4458,10 +4246,6 @@ class MainWindow(QMainWindow):
                     LOG.debug("a backdrop would not blank", exc_info=True)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not reach the backdrops", exc_info=True)
-        # The ground the backdrop was covering is the theme's own window
-        # colour, so nothing has to be painted -- uncovering it is enough.
-        # Keeping the two toggles agreeing is what stops Ctrl+T from
-        # appearing to do nothing while the background is blanked.
         act = getattr(self, "_act_backdrop", None)
         if act is not None:
             try:
@@ -4546,9 +4330,6 @@ class MainWindow(QMainWindow):
         if not key:
             return ""
         try:
-            # The record was written by whatever screen was open, under
-            # whatever key it had then; a module folded since is reopened
-            # on the host that took it over.
             key = self.open_module(key)
             screen = self._screens.get(key) if hasattr(self, "_screens") else None
             settings = state.get("settings")
@@ -4622,15 +4403,11 @@ class MainWindow(QMainWindow):
         """
         return
 
-    # -- navigation -------------------------------------------------------
     def _install_startup_page(self):
         """Instantiate the Home page and add it to the stack."""
         self._startup = make_home_page()
         self._startup.tile_clicked.connect(self._on_nav_selected)
         self._startup.update_check_requested.connect(self._check_for_updates)
-        # The hero's "All apps" button is the labelled twin of the edge
-        # reveal — a discoverable way in for anyone who never finds the
-        # hot strip, and the thing a screenshot can point at.
         try:
             self._startup._btn_all_apps.clicked.connect(self.toggle_app_drawer)
         except Exception:
@@ -4659,8 +4436,6 @@ class MainWindow(QMainWindow):
             return False
         if saver is None:
             return False
-        # HELD, or Python frees the only reference and the window closes the
-        # instant it opens.
         self._screensaver = saver
         saver.destroyed.connect(
             lambda *_a: setattr(self, "_screensaver", None))
@@ -4824,11 +4599,6 @@ class MainWindow(QMainWindow):
                     old._settings_model._organelle_preset_owned)
             except (AttributeError, TypeError):
                 old_preset_owned = {}
-        # BUILT BEFORE THE OLD ONE IS TAKEN AWAY. Removing it from the stack
-        # first drops the window to whatever is left showing -- Home -- so
-        # typing a channel value sent the user back to the start screen and
-        # then returned them, which is not a visibility toggle by any
-        # reading. The stack only ever changes once the replacement exists.
         previous_build_values = AppScreen.values_the_next_screen_is_built_for
         AppScreen.values_the_next_screen_is_built_for = dict(values or {})
         try:
@@ -4837,9 +4607,6 @@ class MainWindow(QMainWindow):
             LOG.exception("could not rebuild the %s screen", key)
             return
         finally:
-            # ALWAYS CLEARED. Every other module open must build from the
-            # module's own defaults, and a value left here would shape the
-            # next screen somebody opened for reasons they could not see.
             AppScreen.values_the_next_screen_is_built_for = previous_build_values
 
         try:
@@ -4859,9 +4626,6 @@ class MainWindow(QMainWindow):
         except Exception:                                    # noqa: BLE001
             LOG.exception("Could not retarget help on the %s screen", key)
 
-        # THE SHAPE IT WAS BUILT FOR, recorded before it is shown: the
-        # signals that fire as it settles would otherwise see a shape they
-        # have no record of and rebuild it again.
         try:
             fresh._form_shape_on_screen = fresh._form_shape()
         except Exception:                                    # noqa: BLE001
@@ -4870,19 +4634,6 @@ class MainWindow(QMainWindow):
             fresh._settings_model._organelle_preset_owned = old_preset_owned
         except AttributeError:
             pass
-        # THE LOADED PREVIEW IMAGE SURVIVES THE REBUILD.
-        #
-        # This rebuild carries the user's VALUES across and always has. It did
-        # not carry the live preview's loaded image, and the preview lives on
-        # the screen being replaced -- so typing a channel number, which is a
-        # shaping value and therefore rebuilds, silently emptied the preview.
-        # Reported as "the images are gone every time I put in a number for an
-        # object channel", and it made the preview unusable for exactly the
-        # task it exists for: setting the channels while watching the result.
-        #
-        # The IMAGE is carried, not the path. Re-reading from the path would
-        # be wrong for a dropped file that is not under `src` at all, and
-        # would put a disk read on the rebuild.
         _carry_preview_state(old, fresh)
 
         self._screens[key] = fresh
@@ -4893,15 +4644,7 @@ class MainWindow(QMainWindow):
         self._stack.setCurrentWidget(fresh)
         if old is not None:
             try:
-                # ``deleteLater`` alone bypasses ``AppScreen.closeEvent``.
-                # Closing first retires workers, workspace providers, figure
-                # resources and parentless pyqtgraph menus. The replacement
-                # was built first so the stack never flashes Home while the
-                # comparatively expensive form is constructed.
                 if old.close() is False:
-                    # A running worker may deliberately defer close. Keep
-                    # that live screen instead of destroying work in flight,
-                    # and retire the unused replacement cleanly.
                     self._stack.removeWidget(fresh)
                     fresh.setParent(None)
                     fresh.close()
@@ -4910,9 +4653,6 @@ class MainWindow(QMainWindow):
                     self._stack.setCurrentWidget(old)
                     old.register_workspace()
                     return
-                # The old screen and the replacement own the same stable
-                # workspace keys. Old's close withdrew them, so publish the
-                # replacement again after teardown.
                 fresh.register_workspace()
                 self._stack.removeWidget(old)
                 old.setParent(None)
@@ -4929,19 +4669,11 @@ class MainWindow(QMainWindow):
         """Navigate to app ``key``, lazily instantiating its screen on first use."""
         interaction_started = _timing.interval_started("navigation", key)
         if key == "__home__":
-            # Re-read the things that go stale while Home is off screen:
-            # the plate queue, the run journal and the disk/GPU figures.
-            # Cheap (a JSON read and three stat calls) and only on a
-            # deliberate return to Home, not on a timer.
             try:
                 self._startup.refresh()
             except Exception:
                 pass
             self._stack.setCurrentWidget(self._startup)
-            # Translated here, not left raw: the startup pass renders this
-            # label once, and re-applying the English source over it both
-            # shows the wrong word and opts the label out of every later
-            # retranslation.
             self._status_app_label.setText(tr("Home"))
             self.statusBar().showMessage(tr("Home"), 2000)
             _timing.watch_interactive(
@@ -4951,50 +4683,17 @@ class MainWindow(QMainWindow):
             )
             return
         if key in self._screens and self._screen_scale_is_stale(key):
-            # Built at a scale that no longer applies. Rebuilding here rather
-            # than at the moment the scale changed keeps the cost on the open
-            # the user is already waiting through, and it goes through the
-            # same path a shape change uses, which carries their values.
             self._rebuild_for_scale(key)
         if key not in self._screens:
-            # SOMETHING ON SCREEN BEFORE THE WORK STARTS. The build cannot
-            # move off the GUI thread -- Qt forbids making widgets anywhere
-            # else, and painting is the GUI thread's too, which is why the
-            # backdrop looked frozen while a module opened even though its
-            # renderer never stopped. What CAN change is that the user is
-            # looking at a module that says it is preparing, rather than at
-            # the old screen doing nothing.
-            #
-            # THE BUILD DOES NOT YIELD. This comment used to claim it
-            # "yields to the event loop on a 25 ms deadline, so this card
-            # animates while the widgets are made", and there is no such
-            # mechanism here: the `processEvents` in `_show_preparing` is
-            # a single paint BEFORE the work, and `_build_screen` then
-            # runs to completion. The card is drawn once and then sits
-            # still, which is better than the old screen sitting still
-            # but is not what was written. Corrected 2026-09-01 while
-            # measuring instruction 314, because a false comment is worse
-            # than no comment when someone is hunting a stall.
             card = self._show_preparing(key)
             try:
                 self._screens[key] = self._build_screen(key)
                 self._screen_scales[key] = _current_font_scale()
             finally:
                 self._hide_preparing(card)
-            # Every screen gets the same page treatment here, because this is
-            # the one place they all pass through. It cannot live in
-            # `AppScreen`: most screens are not AppScreens — Annotate, Align &
-            # Stitch, Format Converter, Import Project, Plate Queue, Batch
-            # Runner, Distributed Jobs, Database Browser, Make Masks, Model
-            # Compare, Model Zoo, Plate Viewer, Annotator Agreement, Training
-            # Runs, Classifier Evaluation, Run History and Report are plain
-            # QWidget trees, so they never got the backdrop or the surface
-            # clearing and sat as black slabs while the pipeline screens did
-            # not.
             try:
                 self._theme_screen(self._screens[key], key)
             except Exception:
-                # Decoration must never stop a screen from opening.
                 LOG.exception("Could not theme the %s screen", key)
             self._a_page_joined_the_stack(self._screens[key])
             self._stack.addWidget(self._screens[key])
@@ -5004,36 +4703,21 @@ class MainWindow(QMainWindow):
                 retranslate_widget_tree(self._screens[key])
             except Exception:
                 LOG.exception("Could not translate the %s screen", key)
-        # THE HELP GOES ON THE NAMES, for every screen and not only the
-        # ones built from settings rows. Here because this is the one place
-        # they all pass through, and after the translate above: that pass
-        # re-applies each setting's tooltip to whatever carries its key, so
-        # moving the help before it runs is undone a moment later.
         try:
             from .screens.settings_model import retarget_field_tooltips
 
             retarget_field_tooltips(self._screens[key])
         except Exception:
-            # Help in the wrong place is a blemish, never a reason for a
-            # module not to open.
             LOG.exception("Could not retarget help on the %s screen", key)
         self._stack.setCurrentWidget(self._screens[key])
-        # Constructor return is not readiness.  The event filter records only
-        # after this page and one of its enabled controls have both painted on
-        # an event-loop turn, which is the state a user can actually operate.
         _timing.watch_interactive(
             self._screens[key], "interactive module", key,
             started_at=interaction_started,
             budget_s=_timing.MODULE_BUDGET_S,
         )
-        # Move this app to the end of the visit list. Revisiting an app
-        # has to count as the most recent visit — otherwise "Add current
-        # plate" on the Queue screen picks up whichever app was OPENED
-        # last rather than the one that was on screen a moment ago.
         if key in self._visit_order:
             self._visit_order.remove(key)
         self._visit_order.append(key)
-        # Find nice display name
         name = tr(next((n for k, n, _d, _s in APPS if k == key), key))
         self._status_app_label.setText(name)
         self.statusBar().showMessage(tr("Opened {name}", name=name), 2000)
@@ -5085,9 +4769,6 @@ class MainWindow(QMainWindow):
         from .screens.app_screen import AppScreen, uses_ambient_background
         from .theme import clear_container_surfaces, ensure_widget_qss_applied
 
-        # A local stylesheet reaches this root and its descendants without
-        # making QApplication re-polish Home and every cached module.  The
-        # root is not in the stack yet, so these rules win the first paint.
         ensure_widget_qss_applied(root=screen)
 
         if isinstance(screen, AppScreen):
@@ -5122,49 +4803,16 @@ class MainWindow(QMainWindow):
             )
             if not get_ambient_enabled():
                 return
-            # THE INSTALL-SIDE HALF OF THE DEDUP, AND IT IS OFF WITH THE
-            # OTHER HALF. This declined to build a screen's own backdrop
-            # whenever the window had one, on the "one backdrop for the
-            # window" reasoning that `_drop_a_redundant_screen_backdrop`
-            # states at length -- and that whole argument is suspended,
-            # because the window's backdrop is NOT visible through the
-            # screens above it and the result was a black page. See
-            # instruction 381, and `ded192cc4` which turned off the retire
-            # side on 2026-09-07.
-            #
-            # LEAVING THIS ONE ON WOULD HAVE BEEN THE WORST OF BOTH: screens
-            # that never build a backdrop, deferring to a window backdrop
-            # nobody can see. `AppScreen` is unaffected either way -- it
-            # returns before this and installs its own -- so what this guard
-            # actually governed was the plain screens, which are the ones
-            # with no second chance.
-            #
-            # Both halves go back on together, with the pixel measurement
-            # 381 asks for.
-            # NOT WHILE A HEAVY IMPORT IS RUNNING, and this runs on the GUI
-            # thread as a module is being opened -- which is precisely when
-            # the preloader is holding the lock. `AppScreen` has taken this
-            # care since instruction 315; the screens that build their own
-            # had not, so under `spaceout` they froze where `spacr` did not.
             from .widgets.ambient import (install_ambient,
                                           _the_heavy_import_lock_is_free)
             if not _the_heavy_import_lock_is_free():
                 self._retry_screen_backdrop(screen, key)
                 return
-            # The spaceout fractal is installed by `install_ambient` itself
-            # (instruction 260), so this caller needs no branch: hooking the
-            # three call sites separately is what left the Home screen still
-            # showing the old artwork.
             install_ambient(
                 screen, None,
                 theme=get_ambient_theme(), palette=get_ambient_palette(),
                 backdrop=theme_background_path(resolve_effective_theme()))
         except Exception as error:
-            # The peek is a check, not a reservation: the preloader re-takes
-            # the lock between two imports, so the refusal can still arrive
-            # here. It means "not yet" and not "this machine cannot", and
-            # logging it as an exception would put a traceback in the console
-            # for an ordinary click made during startup.
             try:
                 from .widgets.ambient import _the_backdrop_wants_a_retry
             except Exception:                                # noqa: BLE001
@@ -5247,80 +4895,16 @@ class MainWindow(QMainWindow):
         near-black that looks exactly like the bug.
         """
         if self.window_backdrop() is None:
-            # NOT A BARE RETURN, WHICH IS WHAT IT WAS AND WHAT WAS WRONG.
-            # The flag is a claim about the window as it stands NOW, and it
-            # was only ever set, never cleared. So a screen that had once
-            # shared a window backdrop kept `page_fill` returning None after
-            # the animation was switched off in Preferences, and painted the
-            # flat `bg` slab instead of the page colour -- the black page,
-            # reported three times and caught again by
-            # `tests/qt/test_page_is_never_black.py` at every zoom with
-            # `ambient_enabled=False`.
             screen._uses_window_backdrop = False
             return
         own = getattr(screen, "_ambient", None)
         if own is None:
-            # LEFT ALONE, DELIBERATELY, AND IT WAS BRIEFLY NOT.
-            #
-            # For one day this branch set `_uses_window_backdrop = True` on
-            # the reasoning that a screen with no backdrop of its own must
-            # be deferring to the window's. That is false for the screen
-            # this matters most on: HomePage never builds one, so it had
-            # never deferred to anything -- it painted its page colour as
-            # the FLOOR beneath the window's animation. Setting the flag
-            # took that floor away, `page_fill` returned None, the page
-            # painted nothing, and `bg` showed through: a pure black home
-            # screen with the blobs theme on, reported within hours.
-            #
-            # The flag means "this screen gave its backdrop up", which only
-            # the code below can know. A screen that never had one is not
-            # in that state and must keep painting its page.
-            #
-            # BUT "HAS NO BACKDROP OF ITS OWN" AND "NEVER HAD ONE" ARE NOT
-            # THE SAME QUESTION, and reading them as one left a slab on
-            # screen. A screen that surrenders its animation below has
-            # `_ambient` None for the rest of its life, so it arrives here
-            # every time afterwards -- and the reconcile at the end of
-            # `refresh_theme` CLEARS the flag whenever the window has no
-            # backdrop, while nothing ever set it again. Switch the
-            # animation off in Preferences and on again, and every module
-            # already built goes on painting its flat page colour straight
-            # over the restored animation for the rest of the session, while
-            # a module opened after the toggle is correct. Measured
-            # offscreen, dark theme, 30 % page opacity, the settings column
-            # of a module that is open throughout:
-            #
-            #     the module is opened      1.00 page, 0.70 panels
-            #     the animation is off      0.00, one flat slab   (correct)
-            #     the animation is on again 0.00, one flat slab   (WRONG)
-            #     a module opened after     1.00 / 0.70           (correct)
-            #
-            # So the surrender is recorded durably below, and this branch
-            # reads that record rather than the widget. HomePage never
-            # surrenders anything, so it never carries the record and the
-            # floor it paints is untouched by any of this.
             if getattr(screen, "_surrendered_its_backdrop", False):
                 screen._uses_window_backdrop = True
                 self._stop_painting_over_the_window_backdrop(screen)
             return
-        # RECORDED BEFORE THE WIDGET GOES. `page_fill` returns a flat colour
-        # whenever `_ambient` is None, so a screen that merely lost its own
-        # backdrop would paint that colour straight over the window's
-        # animation -- the black slab, reported three times.
         screen._uses_window_backdrop = True
-        # AND RECORDED DURABLY, because the line above is a claim about the
-        # window as it stands now and gets cleared when the window's
-        # backdrop goes. This one is a claim about the SCREEN -- it gave its
-        # animation away and cannot paint a page under one again -- and it
-        # is what the branch above reads to tell this screen apart from a
-        # screen that never had a backdrop at all.
         screen._surrendered_its_backdrop = True
-        # RETIRED HERE, NOT BY THE SCREEN. `_discard_ambient` exists on
-        # HomePage alone -- AppScreen has no such method -- so delegating to
-        # it silently did nothing for module screens while still clearing
-        # `_ambient`, which left an orphaned widget animating with no
-        # reference to it. Stopping the timer is the part that matters: an
-        # unparented AmbientWidget awaiting deleteLater still ticks.
         try:
             from .widgets.ambient import AmbientWidget
 
@@ -5410,8 +4994,6 @@ class MainWindow(QMainWindow):
             from .theme import mark_as_a_sheet_target
             mark_as_a_sheet_target(page)
         except Exception:                                    # noqa: BLE001
-            # Marking must never stop a screen from opening; an unmarked
-            # page is repainted by the next theme change either way.
             LOG.exception("Could not mark a new page for the theme sheet")
 
     def stylesheet_roots(self):
@@ -5454,28 +5036,10 @@ class MainWindow(QMainWindow):
         roots.extend(kid for kid in central.findChildren(
             QWidget, options=Qt.FindDirectChildrenOnly) if kid is not stack)
 
-        # EVERY DIRECT CHILD OF THE STACK, not every indexed PAGE. The
-        # sidebar's `EdgeDrawer` is parented to the stack and is not one of
-        # its pages, so a loop over `stack.widget(i)` misses it and misses
-        # every dock row inside it -- found by the guard, which reported
-        # exactly one genuinely unsheeted widget out of 207 sampled and
-        # named its ancestry.
-        # A DIRECT CHILD IN NO LAYOUT CAN BE A WINDOW, and a sibling
-        # session was bitten by exactly that category today -- a `QDialog`
-        # parented to a panel is a direct child, is in no layout, and
-        # carries `Qt::Window`, so a sweep that re-parented such children
-        # would have swallowed a live dialog. Nothing is re-parented here:
-        # a dialog that lands in this list is merely SHEETED, which is
-        # what the event filter does to it anyway the moment it is shown.
-        # The double application is idempotent. Recorded because the
-        # category is the trap, not this use of it.
         current = stack.currentWidget()
         for page in stack.findChildren(QWidget,
                                        options=Qt.FindDirectChildrenOnly):
             mark_as_a_sheet_target(page)
-            # VISIBLE RATHER THAN CURRENT, for the same reason: the drawer
-            # is on screen beside the page, and "the one the stack would
-            # raise" is not the same question as "the one the user sees".
             if page is current or page.isVisible():
                 roots.append(page)
         return roots or [self]
@@ -5521,12 +5085,6 @@ class MainWindow(QMainWindow):
             if host is None:
                 return
             if not get_ambient_enabled():
-                # RETIRED HERE, NOT LEFT RUNNING. This used to be a bare
-                # `return`, so the method only ever built. Switching the
-                # animation off in Preferences calls `refresh_theme`, which
-                # calls this -- and the backdrop went on animating until the
-                # next launch, with every screen still deferring to it. The
-                # setting appeared to do nothing.
                 self._retire_the_dock_backdrop()
                 return
             if getattr(self, "_dock_backdrop", None) is not None:
@@ -5534,8 +5092,6 @@ class MainWindow(QMainWindow):
             from .widgets.ambient import (_the_heavy_import_lock_is_free,
                                           install_ambient)
             if not _the_heavy_import_lock_is_free():
-                # The preloader is importing torch. Same answer the screens
-                # give: come back rather than build a GL context beside it.
                 QTimer.singleShot(400, self._backdrop_the_dock_column)
                 return
             self._dock_backdrop = install_ambient(
@@ -5643,9 +5199,6 @@ class MainWindow(QMainWindow):
                       max(0, (self.height() - card.height()) // 2))
             card.raise_()
             card.show()
-            # ONE PAINT BEFORE THE WORK. Without this the card is created
-            # and the build starts in the same tick, so it is never drawn
-            # and the user sees the freeze it exists to replace.
             from PySide6.QtCore import QCoreApplication, QEventLoop
 
             QCoreApplication.processEvents(
@@ -5720,10 +5273,6 @@ class MainWindow(QMainWindow):
             from .screens.make_masks import MakeMasksScreen
             return MakeMasksScreen()
         if key == "train_cellpose":
-            # WRITTEN OUT RATHER THAN CALLING THE MODULE'S OWN FACTORY:
-            # tests/qt/test_all_module_smoke.py reads this method's
-            # bytecode for the `self._on_*` slots it wires, and a factory
-            # call hides them from it.
             from .screens.train_cellpose import CellposeWorkbenchScreen
             screen = CellposeWorkbenchScreen()
             screen.error_explain_requested.connect(self._on_explain_error)
@@ -5794,16 +5343,9 @@ class MainWindow(QMainWindow):
         was looking at when they hit "Add current plate" on the Queue
         screen. Raises when the active screen isn't a normal app."""
         widget = self._stack.currentWidget()
-        # Prefer the most-recently-viewed AppScreen — the Queue screen
-        # itself isn't one.
         from .screens.app_screen import AppScreen
         if isinstance(widget, AppScreen):
             return widget.app_key, dict(widget._settings_model.collect())
-        # Fall back to the last non-queue AppScreen the user visited.
-        # Walk the VISIT order, not `_screens` (creation) order: a user
-        # who opens Mask, then Measure, then goes back to Mask and hits
-        # "Add current plate" means Mask — creation order would hand
-        # them Measure's settings under Mask's nose.
         for key in reversed(self._visit_order):
             scr = self._screens.get(key)
             if isinstance(scr, AppScreen):
@@ -5844,10 +5386,6 @@ class MainWindow(QMainWindow):
         widget = self._screens.get(target_key)
         if widget is None:
             return
-        # A screen that is not settings-driven says what to do with a seed
-        # itself. The Database Browser has no settings model -- it takes a
-        # database path and a table -- and without this the navigation
-        # happened and the seed was silently dropped.
         seeder = getattr(widget, "apply_seed", None)
         if callable(seeder):
             try:
@@ -5870,10 +5408,6 @@ class MainWindow(QMainWindow):
                 LOG.warning(
                     "Could not seed %s.%s with %r",
                     target_key, key, value, exc_info=True)
-        # A folded module's pipeline GATE has no widget for the loop above
-        # to land in -- the masthead switch is its control -- so a seed
-        # that asks for tracking has to move the switch, exactly as an
-        # imported settings CSV does.
         sync = getattr(widget, "_sync_folded_switches", None)
         if callable(sync):
             sync(dict(seed))
@@ -5948,14 +5482,8 @@ def _use_open_sans(app, weight: str = "") -> str:
             weight = "regular"
 
     font = QFont("Open Sans")
-    # QFont.Light is 300 and Normal is 400. Asked for by weight rather than
-    # by family name: "Open Sans Light" is a family on some platforms and
-    # not on others, and the weight works on both.
     font.setWeight(QFont.Weight.Light if str(weight).lower() == "light"
                    else QFont.Weight.Normal)
-    # The size the platform chose is kept: the font-scale preference is
-    # applied on top of it later, and overriding it here would silently
-    # undo that.
     existing = app.font()
     if existing.pointSizeF() > 0:
         font.setPointSizeF(existing.pointSizeF())
@@ -6013,9 +5541,6 @@ def _install_crash_dump():
         handle = open(path, "a", buffering=1)
         handle.write(f"\n=== spaCR started (pid {os.getpid()}) ===\n")
         faulthandler.enable(file=handle, all_threads=True)
-        # Kept on the module so the handle cannot be garbage collected --
-        # faulthandler writes to the file descriptor, and a closed one is a
-        # crash inside the crash handler.
         globals()["_CRASH_DUMP_FILE"] = handle
         LOG.info("fatal-signal stacks will be written to %s", path)
         return path
@@ -6076,10 +5601,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
 
-    # BEFORE THE BACKDROP IS BUILT. Two unclean exits in a row is treated as
-    # a pattern, and the next start is made without the one thing spaCR asks
-    # a driver to do -- because the setting that would turn it off is behind
-    # the window that never appears.
     from .crash_recovery import (note_that_a_launch_began,
                                  should_start_without_the_backdrop,
                                  take_the_backdrop_out_of_this_launch)
@@ -6093,67 +5614,17 @@ def launch(argv: Optional[list[str]] = None) -> int:
             "after one clean run; `safespacr` starts with everything off.",
             _unclean)
 
-    # `--no-setup` and friends are taken out first, because the next line
-    # reads argv[0] as a module name and would look one of them up.
     from .setup_screen import take_the_setup_flags
 
     argv, told_to_skip_setup = take_the_setup_flags(argv)
 
-    # Support `spacr-qt <app>` to open directly into an app.
     initial_app = argv[0] if argv else None
 
-    # A FATAL SIGNAL MUST LEAVE A STACK BEHIND.
-    #
-    # Reported 2026-08-19 three times: a regression run closes [success] and
-    # the process is gone milliseconds later. The log ends mid-session with
-    # no shutdown lines, so it is not a clean exit; dmesg and coredumpctl
-    # have nothing; and Python prints nothing because the process dies below
-    # Python, in Qt or in a C extension. Three hypotheses were tested and
-    # eliminated against real sessions -- an off-thread plt.show(), pyplot
-    # building Qt canvases on the worker, and quitOnLastWindowClosed -- each
-    # costing a launch-and-reproduce cycle for the maintainer.
-    #
-    # faulthandler writes the Python stack of EVERY thread on SIGSEGV,
-    # SIGABRT, SIGBUS and SIGFPE. It costs nothing until one arrives, and the
-    # next occurrence then names the frame instead of the minute.
     _install_crash_dump()
 
-    # Enable high-DPI early.
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
     os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 
-    # PYPLOT MUST NEVER MAKE A Qt CANVAS. Set here, before any figure can
-    # exist, because switching the backend later CLOSES every open figure.
-    #
-    # A regression runs on a JobRunner worker and draws with pyplot. Under the
-    # `qtagg` backend every `plt.figure()` on that worker builds a
-    # FigureCanvasQTAgg -- a QObject whose thread affinity is the WORKER. The
-    # main thread then renders it, and Qt answers with "QBasicTimer::start:
-    # Timers cannot be started from another thread" followed, milliseconds
-    # after `run closed [success]`, by the process going away with no Python
-    # traceback. That is the reported "it just spontaneously quit", and the
-    # `Internal C++ object (FigureCanvasQTAgg) already deleted` errors in the
-    # log are the same object seen from the other side.
-    #
-    # `bridge` already asked for Agg with `force=False`, which does NOTHING
-    # once a backend is active -- and by the time a run starts, `qtagg` is.
-    #
-    # NOTHING IS LOST. The two places that genuinely want a Qt canvas
-    # (`figure_queue`, `umap_explorer`) import FigureCanvasQTAgg and build it
-    # themselves on the GUI thread, which works under any global backend.
-    #
-    # SAID IN THE ENVIRONMENT WHEN MATPLOTLIB IS NOT LOADED YET, which on a
-    # normal launch it is not: nothing imported up to this line has needed
-    # it. `matplotlib.use` can only speak to a matplotlib that exists, so
-    # calling it here used to import the whole package -- tens of
-    # milliseconds of a launch that has not yet drawn anything -- purely to
-    # set a string that MPLBACKEND sets for free, and that matplotlib reads
-    # for itself whenever it does load. Assigned rather than `setdefault`:
-    # the reason this exists is that a Qt canvas built off the GUI thread
-    # kills the process, so the choice is not the caller's to override.
-    #
-    # And when matplotlib IS already imported the environment is too late --
-    # the backend was read at its import -- so that case still forces it.
     try:
         if "matplotlib" in sys.modules:
             import matplotlib
@@ -6164,121 +5635,52 @@ def launch(argv: Optional[list[str]] = None) -> int:
     except Exception:                                    # noqa: BLE001
         pass
 
-    # EVERY DIALOG IS QT'S OWN, NOT THE DESKTOP'S. Instruction 151: a native
-    # dialog on this desktop is brokered through xdg-desktop-portal, and a
-    # brokered dialog is the tens-of-seconds stall reported as "changing the
-    # line width takes like 1 minute" -- the restyle itself measured at
-    # 0.000 s. The colour pickers were fixed one call site at a time; there
-    # are 117 QFileDialog calls across the widget package and five of them
-    # passed the option, so per-site fixing was never going to converge.
-    #
-    # SET BEFORE THE QApplication EXISTS, which is what Qt requires of this
-    # attribute -- after construction it is ignored, silently, which would
-    # look exactly like it had worked.
-    #
-    # The trade is real and worth stating: Qt's dialogs do not carry the
-    # desktop's bookmarks or its recent-files list. A file chooser that opens
-    # is better than a beautiful one that takes a minute, and a user who
-    # wants the native one can still set QT_QPA_PLATFORMTHEME.
     QApplication.setAttribute(Qt.AA_DontUseNativeDialogs, True)
 
-    # THE APPLICATION IS NAMED BEFORE IT EXISTS.
-    #
-    # On macOS the application menu -- the one beside the Apple logo, and the
-    # one Qt moves Preferences, Quit and About INTO -- is built while the
-    # Cocoa plugin comes up inside the QApplication constructor, from the
-    # application name and from the running bundle's CFBundleName. Naming the
-    # application on the line after that constructor is a name the menu never
-    # read: it stays "python", "spacr-qt" or "PySideApp" depending on how the
-    # launch happened, and the maintainer's report -- "preferences and quit
-    # are for some reason not in the spacr dropdown" -- is that menu being
-    # somewhere they had no reason to look.
-    #
-    # `applicationDisplayName` is set too. It was never set at all, and it is
-    # the name Qt shows to people rather than the one it keys settings on.
-    #
-    # Returns what actually took effect rather than what was asked for, so
-    # the launch log records the answer instead of the intention.
     from .menus import name_the_application
 
     _app_name, _app_display_name = name_the_application()
 
     app = QApplication(sys.argv[:1])
-    # NAME THE CALL THAT FREEZES THE INTERFACE, when asked to. A stalled GUI
-    # thread leaves no traceback: it is not an exception and not a fault, so
-    # `faulthandler` cannot see it and the log ends mid-sentence. The only
-    # thing that can name it is a sample of the main thread's stack taken
-    # WHILE it is stuck, from another thread.
-    #
-    # WHY IT IS HERE AND NOT IN A TOOL. `tools/watch_the_gui_thread.py` does
-    # exactly this and has to make the application itself to do it, which
-    # stopped working the day `launch` began constructing its own. Reaching
-    # in from outside was then tried two more ways and failed twice more:
-    # hosting `qt.run()` in another process makes Home time out at 30 s, and
-    # a `sitecustomize` on the benchmark worker's `PYTHONPATH` runs but its
-    # patched `QApplication` is never the one constructed. An environment
-    # flag read HERE is the one place that cannot miss.
-    #
-    # Measured on 2026-09-11: opening Measure is 13.3 s of which a single
-    # event-loop stall is 13.0 s, and `mask` and `regression` have the same
-    # shape -- so this is not a Measure question, it is how every module
-    # opens. See instruction 380.
     if os.environ.get("SPACR_WATCH_GUI_STALLS"):
         try:
             from .stall_watch import watch_this_application
             watch_this_application(app)
         except Exception:                                    # noqa: BLE001
             LOG.debug("Could not start the GUI stall watch", exc_info=True)
-    # NAME THE CALLER OF AN OFF-THREAD TIMER START, because Qt will not. Its
-    # own warning has no file, no function and no thread in it, and the event
-    # arrives during a real run and is followed by the process dying -- so
-    # there is no opportunity to switch instrumentation on afterwards.
     try:
         from .thread_guard import install as _install_thread_guard
         _install_thread_guard()
     except Exception:
         pass
-    # AND TAKE CYCLIC COLLECTION OFF THE WORKER THREADS. A collection runs on
-    # whichever thread allocated past a threshold, and it runs destructors
-    # there -- so a Cellpose pass in a preview worker would destroy some widget
-    # the GUI thread had abandoned, and Qt cannot stop that widget's timer from
-    # a foreign thread. See spacr.qt.gc_policy for the reproduction of the
-    # exact crash this prevents.
     try:
         from .gc_policy import install as _install_gc_policy
         _install_gc_policy(app)
     except Exception:
         pass
-    # Logged as MEASURED rather than as intended: a name that silently failed
-    # to take looks exactly like one that worked until somebody opens the
-    # menu on a Mac, and this line is what a bug report can be read against.
     LOG.info("application named %r (display %r); Qt reports %r / %r",
              _app_name, _app_display_name, app.applicationName(),
              app.applicationDisplayName())
-    # LAPTOP MODE, decided once and SAID. It is the fallback the laptop
-    # instruction calls the fallback -- reached after the optimisations, and
-    # it turns down what is decorative rather than removing what a module
-    # does. Nothing it touches is read by a pipeline, so a run computes the
-    # same answer either way; that is what makes deciding automatically
-    # acceptable. Overridable through SPACR_LAPTOP_MODE either way.
     try:
         from .laptop_mode import apply as _apply_laptop_mode, describe
-        LOG.info("%s", describe())
-        _laptop = _apply_laptop_mode()
+        from .preferences import get_performance_level as _level_now
+        # 286: THE LEVEL DECIDES, NOT THE MACHINE. `apply()` with no argument
+        # measures cores and memory, which overrode the level chosen in the
+        # selector -- a two-core Workstation lost its backdrop at every
+        # start. The measurement is still logged, as a reading, because "it
+        # looks different on my laptop" needs evidence.
+        _level = _level_now()
+        LOG.info("performance level %s; hardware reading, for diagnosis "
+                 "only: %s", _level, describe())
+        _laptop = _apply_laptop_mode(_level == "laptop")
         if _laptop["changed"]:
             LOG.info("laptop mode changed: %s", ", ".join(_laptop["changed"]))
     except Exception:                                    # pragma: no cover
         LOG.debug("could not decide laptop mode", exc_info=True)
-    # Linux shells resolve dock/switcher identity through the desktop-file
-    # id (Wayland does not use setWindowIcon for that surface).
     app.setDesktopFileName("io.github.olafssonlab.spacr")
     app.setWindowIcon(QIcon(os.path.join(
         iconset.RESOURCE_DIR, "app_icon.png")))
 
-    # Lift Qt's default 256 MB QImageReader allocation limit. Large multi-panel
-    # figures rendered at high DPI decode to well over 256 MB, and hitting the
-    # limit makes QPixmap loads fail (blank figures) and the UI hang. 0 = no
-    # limit; the figure queue still caps display resolution for sanity.
     try:
         from PySide6.QtGui import QImageReader
         QImageReader.setAllocationLimit(0)
@@ -6286,33 +5688,18 @@ def launch(argv: Optional[list[str]] = None) -> int:
         LOG.debug("This Qt build does not expose QImageReader allocation "
                   "limits", exc_info=True)
 
-    # Bundle Open Sans (Regular + Light + SemiBold) so the app renders
-    # the same on every OS regardless of what fonts the user has
-    # installed. Registered before applying the stylesheet so any
-    # `font-family: "Open Sans"` rule resolves.
     with _timing.span("fonts"):
         _load_bundled_fonts()
         _use_open_sans(app)
 
-    # Apply user preferences (theme + font scale) — falls back to the
-    # dark defaults on the first launch when nothing is stored yet.
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
-    # QT'S OWN WORDS. Copy, Paste, Select All, a file dialog's whole chrome
-    # and every message box's buttons come from Qt's catalogs, not from
-    # spaCR's, so they stay English until this is loaded. This one is not a
-    # dialog filter and stays here: it is read while the main window's own
-    # menus and buttons are built.
     from .i18n import install_qt_translations
     install_qt_translations(app)
 
-    # Real Python logging → rotating file + Qt signal so ConsolePanel
-    # can render records inline. Set it up before the launch breadcrumb and
-    # MainWindow construction so neither is lost.
     from .logging_util import setup_logging
     setup_logging()
 
-    # Every launch drops a timeline marker into the diagnostic log.
     import logging as _lg
     import sys as _sys
 
@@ -6322,61 +5709,16 @@ def launch(argv: Optional[list[str]] = None) -> int:
         _sys.version_info.major, _sys.version_info.minor,
         _sys.version_info.micro, current_log_file())
 
-    # THE APPLICATION OUTLIVES ITS WINDOWS UNTIL THE MAIN ONE CLOSES.
-    #
-    # Qt's default is quitOnLastWindowClosed=True: the moment the number of
-    # visible top-level windows reaches zero, the event loop stops and the
-    # process exits CLEANLY -- no traceback, no core dump, the log simply
-    # ends. That is exactly the evidence for the reported "i ran it again and
-    # it just spontaneously quit": two runs closed [success], the log stops
-    # mid-session, and neither dmesg nor coredumpctl recorded anything,
-    # because nothing crashed.
-    #
-    # A run makes and destroys top-level windows -- a figure canvas being
-    # rebuilt, a transient dialog, a progress window -- and any instant with
-    # none of them up while the main window is not counted takes the whole
-    # application with it.
-    #
-    # So the main window decides, and it is the only thing that does.
     app.setQuitOnLastWindowClosed(False)
 
-    # THE FIRST RUN ASKS ITS QUESTIONS BEFORE THERE IS AN APPLICATION TO
-    # ASK THEM OVER (instruction 221, reordered).
-    #
-    # It used to run after `win.show()` so that it had something to blur.
-    # That put a half-built main window -- wrong language, wrong theme,
-    # wrong font -- on screen for as long as the setup took, and then
-    # restyled it under the user while they were reading. The answers given
-    # here decide how the main window is BUILT, so they have to be given
-    # first. The screen carries its own backdrop and does not need a window
-    # behind it.
-    #
-    # A launch can decline: `--no-setup`, `SPACR_NO_SETUP=1`, or an
-    # offscreen platform plugin. See `setup_screen.skipped_on_purpose`.
     if not told_to_skip_setup:
         try:
-            # THE SLIDES, not the grouped form (instruction 234).
-            # `setup_dialog` is 221's version and stays: it is the fallback
-            # nothing currently uses, and deleting it would take its tests
-            # with it while the new presentation is still settling.
             from .widgets.setup_slides import open_setup_if_needed
 
             asked = open_setup_if_needed(None)
-            # An answer may have changed the language, the theme or the font
-            # scale, and the main window has not been built yet -- so it is
-            # built from the new values rather than restyled into them.
-            #
-            # ONLY WHEN THERE WERE ANSWERS. `open_setup_if_needed` returns
-            # None when the screen was not shown -- this profile has already
-            # answered, or nobody is there to -- which is every launch after
-            # the first, and re-applying preferences nothing changed is the
-            # whole theme resolved and set on the application twice.
             if asked is not None:
                 apply_preferences_to_app(app)
         except Exception:
-            # A setup screen is not worth a launch. Every question it asks
-            # has a working default, so a user who never sees it is exactly
-            # where a user who dismissed it would be.
             LOG.debug("could not open the setup screen", exc_info=True)
 
     _timing.mark("MainWindow")
@@ -6385,66 +5727,26 @@ def launch(argv: Optional[list[str]] = None) -> int:
     if os.environ.get("SPACR_BENCHMARK_JSON", "").strip():
         from .startup_benchmark import maybe_start as _maybe_start_benchmark
 
-        # This is an explicitly requested, unattended acceptance run.  An
-        # instrumentation setup error must fail the worker promptly instead
-        # of opening a GUI that can sit until the driver's outer timeout.
         benchmark_controller = _maybe_start_benchmark(app, win)
 
-    # Home is not ready because its constructor returned or because show()
-    # was called.  Install before show so no paint can escape the observer;
-    # the probe also requires a callback delivered after app.exec() begins
-    # and an enabled, visible control whose own paint event has completed.
     if win._stack.currentWidget() is win._startup:
         _timing.watch_interactive(
             win._startup, "interactive Home", "__home__",
             started_at=_timing.process_started_at(),
             budget_s=_timing.HOME_BUDGET_S,
         )
-    # Retain the optional controller with the window.  QObject parenting is
-    # sufficient for C++ lifetime, but the explicit Python reference avoids
-    # wrapper collection differences across the supported PySide releases.
     win._startup_benchmark_controller = benchmark_controller
-    # Opens at its own size rather than maximised. Maximising assumes a
-    # desktop: over X11 forwarding, VNC or a virtual framebuffer the
-    # "available geometry" is whatever the remote session claims, which is
-    # frequently one enormous virtual desktop or a 640x480 stub, and the
-    # window arrives unusable either way. The user can still maximise it,
-    # and the 1200x720 minimum this window declares is a sane opening size
-    # on a real display.
     _open_at_the_measured_width(win)
     win.show()
 
-    # AND ONLY NOW THE DIALOG FILTERS. See :data:`_DIALOG_FILTERS`: they are
-    # application-wide event filters that concern dialogs alone, so every
-    # event the main window's construction delivers used to run three Python
-    # callables that could not act on it. Installed here they are in place
-    # before the event loop -- which is before any dialog can be opened --
-    # and the window they cannot help build arrives 0.4 s sooner.
     install_the_dialog_filters(app)
 
-    # Hold Z, turn the wheel, and the text resizes under the pointer
-    # (instruction 378). Installed beside the dialog filters and for the same
-    # reason: it is application-wide, so it wants to exist before the event
-    # loop but not while the main window is still being built. Two integer
-    # comparisons per event when the key is up -- see `live_zoom`.
-    #
-    # GUARDED, LIKE THE FILTERS ABOVE IT. `install_the_dialog_filters` wraps
-    # each installer precisely so a broken application-wide filter costs its
-    # own feature and not the launch; this one was placed beside them and
-    # given none of that, so an exception here would have taken the whole
-    # application down before the window was shown -- to lose a font
-    # gesture.
     try:
         from .live_zoom import install_live_zoom
         install_live_zoom(app)
     except Exception:                                        # noqa: BLE001
         LOG.exception("the live zoom gesture could not be installed")
 
-    # Pre-warm the heavy imports that a module screen needs (spacr.gui_utils
-    # pulls torch + cv2 ≈ 3-4 s; spacr.settings ≈ 1 s) in a BACKGROUND thread
-    # while the user looks at the home screen. By the time they open a module
-    # these are cached, so the module snaps open instead of freezing on the
-    # first import. Importing modules (no Qt objects) off-thread is safe.
     def _prewarm():
         """Import the slow settings module off the GUI thread.
 
@@ -6456,27 +5758,18 @@ def launch(argv: Optional[list[str]] = None) -> int:
         """
         try:
             import importlib
-            # `spacr.qt.screens.settings_model` and `spacr.qt.imagery` were
-            # added 2026-09-09. They are not only a module screen's cost:
-            # the FIRST Preferences open in a session was measured at 902 ms
-            # against 30 ms for the second, with the animated backdrop
-            # frozen for the whole of it, and 474 ms of that 902 was
-            # settings_model alone (imagery 83, matplotlib.colors 48).
-            # Nobody reaches Preferences before the home screen exists, so
-            # this thread always wins the race it needs to win.
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
                         "spacr.qt.imagery"):
                 importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
-    threading.Thread(target=_prewarm, name="spacr-prewarm",
-                     daemon=True).start()
+    from .preferences import in_safe_mode
 
-    # aboutToQuit fires no matter how the app exits (window closed,
-    # Ctrl+C, SIGTERM, …). Belt-and-suspenders with MainWindow's
-    # closeEvent: ensure every ConsolePanel drains its AI thread
-    # before Qt starts destroying widgets.
+    if not in_safe_mode():
+        threading.Thread(target=_prewarm, name="spacr-prewarm",
+                         daemon=True).start()
+
     def _drain_ai():
         """Stop every job runner before Qt starts destroying widgets.
 
@@ -6484,14 +5777,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
         exits. See the comment below for why this covers every runner and
         not only the consoles.
         """
-        # EVERY JOB RUNNER, NOT ONLY THE CONSOLES. Qt aborts the process if a
-        # running QThread is destroyed, and each runner's own `closeEvent`
-        # covers a widget being CLOSED -- not the application quitting with a
-        # job in flight, where the widget is destroyed without ever closing.
-        # Measured 2026-08-19: spaCR died immediately after every successful
-        # regression, "run closed [success]" the last line in the log and
-        # nothing after it, because the Runs tab's announce had just started a
-        # results read on a worker.
         try:
             from .job_runner import shutdown_all
             shutdown_all()
@@ -6504,7 +5789,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
             except Exception:
                 LOG.debug("Could not shut down a console panel",
                           exc_info=True)
-        # Also kill any subprocess still tracked by a provider
         try:
             from . import ai as _ai
             for p in _ai.list_providers():
@@ -6515,17 +5799,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     _timing.mark("entering the event loop")
     _timing.watch_the_gui_thread(app)
-    # Unlike the mark above, this callback can run only after exec() has begun
-    # dispatching.  Readiness probes refuse to report before it arrives.
     from PySide6.QtCore import QTimer as _TimingQTimer
 
     _TimingQTimer.singleShot(0, _timing.event_loop_started)
     try:
         code = app.exec()
-        # A RETURN FROM `exec` IS A CLEAN SHUTDOWN, whatever the exit code:
-        # the event loop ran and ended, which a crash never does. Clearing
-        # the count here rather than on code == 0 means a run the user quit
-        # from an error dialog still counts as "it started fine".
         try:
             from .crash_recovery import note_a_clean_shutdown
 

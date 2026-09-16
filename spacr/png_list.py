@@ -132,9 +132,6 @@ def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
             f"got {object_type!r}") from exc
     effective_object_type = object_type
     if id_col not in df.columns:
-        # A png_list written for one crop mode carries only that mode's id
-        # column. Resolve the MODE with its column, because carrying nucleus
-        # labels forward as cells silently cuts a different object.
         alternatives = [
             (mode, candidate)
             for mode, candidate in PNG_LIST_ID_COLUMNS.items()
@@ -150,43 +147,21 @@ def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
     if id_col in df.columns:
         labels = df[id_col].map(_object_id_int)
     elif 'object_label' in df.columns:
-        # Not a png_list at all: a frame that already came off the object
-        # table (crop_rows_from_object_table) carries the integer label
-        # directly. Looking up a column that is not there would drop every row.
         labels = df['object_label'].map(_object_id_int)
     else:
         labels = pd.Series([None] * len(df), index=df.index)
 
     key_cols = ['plateID', 'rowID', 'columnID', 'fieldID']
     if 'path_name' in df.columns and df['path_name'].notna().any():
-        pass                    # the frame already names its merged array
+        pass
     elif all(c in df.columns for c in key_cols):
-        # png_list records where a crop was written, never which merged array
-        # produced it; the object table is the only place that link exists.
         fields = _merged_field_paths(db_path, effective_object_type)
         keys = list(zip(*(df[c] for c in key_cols)))
         df['path_name'] = [fields.get(k, (None, None))[0] for k in keys]
     else:
         df['path_name'] = None
     df['object_label'] = labels
-    # THE OBJECT THE CALLER ASKED FOR, not the column the labels came from.
-    # These are two different questions and answering both with
-    # `effective_object_type` broke the montage: `crops` reads this column
-    # PER ROW to choose the mask plane a crop is cut by
-    # (`_row_get(row, "object_type", ...)`), so a nucleus request whose
-    # png_list carries only `cell_id` came back saying "cell" and was cut
-    # from the cell plane. Choosing an object type then changed nothing on
-    # screen.
-    #
-    # The labels stay whatever column exists -- that is what the fallback
-    # above is for, and it is the honest answer to "which objects" when the
-    # png_list was written for one crop mode. The PLANE is the user's choice.
     df['object_type'] = object_type
-    # WHERE THE LABELS CAME FROM, recorded rather than folded into the line
-    # above. The two are different questions and one column cannot answer
-    # both: `object_type` is an INSTRUCTION the crop cutter obeys, and this
-    # is PROVENANCE. They differ exactly when a png_list written for one crop
-    # mode is read for another, which is the case worth being able to see.
     df['object_label_type'] = effective_object_type
 
     usable = df['object_label'].notna() & df['path_name'].notna()

@@ -2,7 +2,6 @@
 
 import os, gc, torch, time
 
-# CUDA, ROCm, Metal or XPU from one resolver -- see instruction 319.
 from . import accelerator
 import numpy as np
 import pandas as pd
@@ -10,10 +9,6 @@ from multiprocessing import Pool, cpu_count
 try:
     from IPython.display import display
 except Exception:
-    # IPython may be mid-init (partially imported by another
-    # thread) — use a no-op fallback so importing this module
-    # never blocks. spaCR only calls display() from notebook
-    # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
         """Discard display payloads when IPython's helper is unavailable."""
         pass
@@ -96,16 +91,19 @@ def _fill_holes_smaller_than(binary, area_threshold):
             binary, area_threshold=int(area_threshold))
 
 def merge_split_filter_masks(masks, intensity_images, settings, object_type, batch_filenames=None):
-    """Apply merge/split/filter operations directly to in-memory masks.
+    """Merge by perimeter and filter each in-memory field's objects.
 
     Skips work when no operation is enabled for ``object_type``; otherwise
     processes each FOV serially so progress reporting stays in order.
 
-    :param masks: 2D/3D ndarray or iterable of 2D masks (one per FOV).
-    :param intensity_images: Matching intensity arrays for scoring merges/splits.
+    :param masks: 2D/3D ndarray or iterable of masks (one per field).
+    :param intensity_images: Original own-channel arrays matching the masks,
+        required only when an intensity bound is enabled. For channel-last
+        batches the first channel must be the object's own channel.
     :param settings: Dict of pipeline settings; per-object-type suffixes control
-        which operations run (e.g. ``<type>_perimeter_fraction``,
-        ``<type>_intensity_merge``, ``<type>_min_area``).
+        perimeter merging, min/max area, border removal and min/max intensity.
+        Intensity bounds compare whole-object means in original image units;
+        equality is retained and 0 disables each bound independently.
     :param object_type: Label used to look up per-object settings (``'cell'``,
         ``'nucleus'``, ``'pathogen'``, ``'organelle'``).
     :param batch_filenames: Optional per-FOV filenames used only for logging.
@@ -113,24 +111,20 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
         list of filtered mask arrays (one per FOV).
     """
     import numpy as np
-    from .utils import print_progress, _process_single_fov_in_memory
+    from .utils import (print_progress, _process_single_fov_in_memory,
+                        _validated_intensity_bounds)
 
     pf = settings.get(f'{object_type}_perimeter_fraction', settings.get(f'{object_type}_perimiter_fraction', 0))
-    im = settings.get(f'{object_type}_intensity_merge', False)
-    isp = settings.get(f'{object_type}_intensity_split', False)
-    moa = settings.get(f'{object_type}_minimum_area_to_split', 0)
     mna = settings.get(f'{object_type}_min_area', 0)
     mxa = settings.get(f'{object_type}_max_area', 0)
     rb = settings.get(f'{object_type}_remove_border_objects', False)
-    # ONE ABSOLUTE THRESHOLD IN RAW IMAGE UNITS (391), replacing the method
-    # dropdown, the merge percentile and the two filter percentiles. There is
-    # no default: the right number depends on the acquisition, and a default
-    # would be wrong for every image that is not the one it was chosen on.
-    ith = settings.get(f'{object_type}_intensity_threshold', None)
+    minimum, maximum = _validated_intensity_bounds(
+        settings.get(f'{object_type}_min_intensity', 0),
+        settings.get(f'{object_type}_max_intensity', 0))
 
     needs_work = (
-        pf > 0 or im or isp or moa > 0 or mna > 0 or
-        (mxa and mxa > 0) or rb
+        pf > 0 or mna > 0 or (mxa and mxa > 0) or rb or
+        minimum > 0 or maximum > 0
     )
 
     if not needs_work:
@@ -141,9 +135,9 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
         return None
 
     print(f"merge_split_filter_masks({object_type}): "
-          f"perimeter_merge={pf > 0}(frac={pf}), intensity_merge={im}, "
-          f"split={isp}, min_area={mna}, max_area={mxa}, "
-          f"remove_border={rb}, intensity_threshold={ith}")
+          f"perimeter_merge={pf > 0}(frac={pf}), "
+          f"min_area={mna}, max_area={mxa}, remove_border={rb}, "
+          f"min_intensity={minimum}, max_intensity={maximum}")
 
     if isinstance(masks, np.ndarray):
         if masks.ndim == 2:
@@ -155,7 +149,9 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     else:
         mask_list = list(masks)
 
-    if isinstance(intensity_images, np.ndarray):
+    if intensity_images is None:
+        intensity_list = [None] * len(mask_list)
+    elif isinstance(intensity_images, np.ndarray):
         if intensity_images.ndim == 2:
             intensity_list = [intensity_images]
         elif intensity_images.ndim == 3:
@@ -196,16 +192,13 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
             mask=mask,
             intensity_img=intensity_img,
             intensity_channel=0,
-            do_split=isp,
             do_perimeter_merge=(pf > 0),
-            do_intensity_merge=(im and intensity_images is not None),
             perimeter_fraction=pf,
-            min_watershed_distance=settings.get(f'{object_type}_min_watershed_distance', 10),
-            minimum_area_to_split=moa,
-            intensity_threshold=ith,
             min_area=mna,
             max_area=mxa if mxa else 0,
             remove_border_objects=rb,
+            min_intensity=minimum,
+            max_intensity=maximum,
             progress_callback=_progress,
             fov_index=idx,
             total_fovs=total,
@@ -213,7 +206,6 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
         )
         return out_mask
 
-    # Always run serial so progress prints work
     filtered_masks = [
         _run_one(idx, mask, img)
         for idx, (mask, img) in enumerate(zip(mask_list, intensity_list))
@@ -253,8 +245,6 @@ def _run_seg_qc(src, settings, object_type):
             return None
 
         mask_folder = os.path.join(src, f'{object_type}_mask_stack')
-        # Same idiom as `count_loc` above: plate-level output lives one level up
-        # from the mask source, next to measurements/.
         dst = os.path.dirname(src) or src
         result = run_segmentation_qc(
             mask_folder,
@@ -265,8 +255,6 @@ def _run_seg_qc(src, settings, object_type):
             verbose=bool(settings.get('verbose', True)),
         )
     except Exception as exc:
-        # QC is a report, never a gate. A run that has just spent hours
-        # segmenting must not lose its masks to a scorecard bug.
         print(f"Segmentation QC skipped for {object_type}: {type(exc).__name__}: {exc}")
         return None
 
@@ -275,16 +263,6 @@ def _run_seg_qc(src, settings, object_type):
     return result
 
 
-# ====================================================================== #
-#  3D (Beta): z-stack plumbing
-# ====================================================================== #
-#
-# Everything below is inert unless the `z_stack` setting is on.
-# `_z_stack_plan` returns None in that case and every call site branches on
-# it, so a run that has not opted in executes not one line of z code and
-# produces byte-identical masks to a run from before these settings existed.
-# That property is the acceptance criterion and is asserted in
-# tests/test_zstack.py.
 
 def _z_stack_plan(settings):
     """Return the :class:`spacr.zstack.ZStackSpec` for this run, or None.
@@ -368,14 +346,11 @@ def _cellpose_z_segment_fn(model, eval_kwargs, stitch_threshold):
             return np.asarray(output[0])
 
         if stitch:
-            # One 2-D call per plane. Labels come back plane-local; zstack
-            # links them.
             planes = [array[z] for z in range(array.shape[0])]
             kwargs['batch_size'] = len(planes)
             output = model.eval(x=planes, **kwargs)
             return np.asarray(output[0])
 
-        # Projected 2-D plane: exactly the ordinary single-image call.
         output = model.eval(x=[array], **kwargs)
         return np.asarray(output[0][0])
 
@@ -397,9 +372,10 @@ def _segment_volumes_with_z(volumes, model, z_plan, eval_kwargs):
     :returns: ``(masks, results, intensity)`` — a list of label arrays, 2-D
         under ``'project'`` and 3-D otherwise; the matching
         :class:`spacr.zstack.ZStackResult` records; and, under ``'project'``
-        only, the projected ``(N, Y, X, C)`` intensity array that was actually
-        segmented, which is what the 2-D merge/split/filter step must score
-        against rather than the original volume.
+        only, the projected ``(N, Y, X, C)`` normalized model-input array.
+        These values are not raw intensity-filter units; absolute bounds use
+        original own-channel planes loaded separately by
+        :func:`_raw_filter_images`.
     """
     from .zstack import project, segment_3d
 
@@ -426,9 +402,6 @@ def _segment_volumes_with_z(volumes, model, z_plan, eval_kwargs):
 
     intensity = None
     if z_plan.mode == 'project' and volumes:
-        # The same projection segment_3d just made. The merge/split/filter
-        # step scores masks against intensities, so it must see the plane the
-        # masks were drawn on, not the volume it came from.
         intensity = np.stack([
             project(volume, mode=z_plan.projection, z_axis=z_axis)
             for volume in volumes
@@ -437,41 +410,6 @@ def _segment_volumes_with_z(volumes, model, z_plan, eval_kwargs):
     return masks, results, intensity
 
 
-# ====================================================================== #
-#  4D (Beta): the time axis on top of the z axis
-# ====================================================================== #
-#
-# The same contract as the 3D block above, one axis further out. Everything
-# here is inert unless the `t_stack` setting is on: `_t_stack_plan` returns
-# None then and every call site branches on it, so a run that has not opted in
-# executes not one line of 4-D code and produces byte-identical masks to a run
-# from before these settings existed. That property is the acceptance criterion
-# and is asserted in tests/test_object_tstack_wiring.py.
-#
-# What `t_stack` declares, exactly
-# --------------------------------
-# It reinterprets the **leading axis of the .npz batch as time** rather than as
-# a list of independent fields, and requires a z axis behind it -- a batch is
-# then one `(T, Z, Y, X, C)` acquisition instead of `N` separate
-# `(Z, Y, X, C)` fields. Which of the two leading axes is t and which is z is
-# never guessed; `zstack.plan_4d_from_settings` refuses to build a plan at all
-# until `t_axis_order` (or `t_axis`/`z_axis`) says, because reading one as the
-# other links objects down a z stack and reports them as motion.
-#
-# How far it gets today, stated plainly
-# -------------------------------------
-# `spacr.io._rename_and_organize_image_files` collapses z into one plane per
-# field while organising the raw files, so an ordinary run's batches are
-# `(N, Y, X, C)` and there is no z axis left by the time segmentation sees
-# them. `_require_t_axis` therefore stops such a run with
-# `TAxisNotPresentError` naming that as the cause, rather than segmenting the
-# projection frame by frame and reporting a 4-D result. Handed a genuine
-# `(T, Z, Y, X, C)` array through the Python API -- write the .npz yourself --
-# the path runs end to end into `zstack.segment_4d`.
-#
-# Linking across t (`zstack.track_4d`) is deliberately *not* wired here: its
-# call site is `spacr.timelapse`, not this module. `t_stack` drives
-# segmentation only, and says so.
 
 
 def _t_stack_plan(settings):
@@ -528,8 +466,6 @@ def _reconcile_z_and_t_plans(z_plan, t_plan, timelapse=False):
             f"segment every field twice and discard the first answer."
         )
 
-    # Only a plan that actually produces (Z, Y, X) volumes is a problem for
-    # them; a flat time series, or 'project', leaves the masks 2-D.
     if timelapse and t_plan.z_axis is not None and t_plan.z_mode != 'project':
         raise TrackerIsTwoDError(
             f"t_stack is on with z_segmentation_mode='{t_plan.z_mode}', which "
@@ -555,17 +491,16 @@ def _require_t_axis(stack, t_plan, path):
     calling the result 4-D is indistinguishable, after the fact, from a real
     4-D run. So it is a hard error naming both the cause and the way out.
 
-    ``t_stack`` reads the batch's leading axis as time, so what is missing from
-    an ordinary batch is the **z** axis: ``(N, Y, X, C)`` has four axes where a
-    4-D acquisition needs five.
+    ``t_stack`` reads time and z from the declared acquisition axes. What is
+    missing from an ordinary batch is the **z** axis: ``(N, Y, X, C)`` has
+    four axes where a 4-D acquisition needs five.
 
     A spec with ``z_axis=None`` describes a flat ``(T, Y, X, C)`` time series
     and needs only four, which is what an ordinary batch already is -- see
     :func:`spacr.zstack.segment_4d`, which makes one plain 2-D call per frame
-    for it. ``spacr.zstack.plan_4d_from_settings`` cannot build such a spec
-    from settings today, so this branch is reachable only through the Python
-    API; the settings-level path for a flat time series is the ``timelapse``
-    setting.
+    for it. ``t_axis_order='TYX'`` declares that flat case explicitly; the
+    legacy ``timelapse`` setting also supports flat time series without a
+    t-stack plan.
 
     :param stack: the ``(N, ...)`` array loaded from one ``.npz`` batch.
     :param t_plan: the active :class:`spacr.zstack.TStackSpec`.
@@ -611,9 +546,9 @@ def _segment_timepoints_with_t(acquisition, model, t_plan, eval_kwargs):
     :returns: ``(masks, result, intensity)`` — one label array per timepoint,
         2-D under ``'project'`` and 3-D otherwise; the
         :class:`spacr.zstack.TStackResult`; and, under ``'project'`` only, the
-        projected ``(T, Y, X, C)`` intensity array that was actually
-        segmented, which is what the 2-D merge/split/filter step must score
-        against rather than the original volumes.
+        projected ``(T, Y, X, C)`` normalized model-input array. These values
+        are not raw intensity-filter units; absolute bounds use original
+        own-channel planes loaded separately by :func:`_raw_filter_images`.
     """
     from .zstack import iter_volumes, project, segment_4d
 
@@ -626,14 +561,8 @@ def _segment_timepoints_with_t(acquisition, model, t_plan, eval_kwargs):
 
     intensity = None
     if t_plan.z_axis is None:
-        # A flat time series: there is no z to collapse, so there is no
-        # projected copy either and the caller scores against the batch it
-        # already has, exactly as the ordinary 2-D path does.
         pass
     elif t_plan.z_mode == 'project':
-        # The same projection segment_3d just made, one per timepoint. The
-        # merge/split/filter step scores masks against intensities, so it must
-        # see the plane the masks were drawn on, not the volume it came from.
         intensity = np.stack([
             project(volume, mode=t_plan.projection, z_axis=0)
             for volume in iter_volumes(acquisition, t_plan)
@@ -670,15 +599,68 @@ def _refuse_t_stack(settings, where):
     )
 
 
+def _raw_filter_images(src, filenames, model_inputs, masks, channel, *,
+                       z_axis=None, projection=None):
+    """Read original own-channel values on the canvas the model segmented.
+
+    Filenames are the surviving resume manifest, while the canvas comes
+    from the retained normalized batch, not the size of surviving fields.
+    Projected volumes reuse the model's projection, including its focus
+    plane choice. Whole-volume labels keep the complete original z axis.
+    """
+    from .zstack import _best_focus_index, project
+
+    if not (len(filenames) == len(model_inputs) == len(masks)):
+        raise ValueError("Raw intensity fields, model inputs and masks must align")
+    if channel is None:
+        raise ValueError("Intensity filtering requires an explicit own-channel index")
+    result = []
+    for filename, model_input, mask in zip(filenames, model_inputs, masks):
+        filename = str(filename)
+        if os.path.basename(filename) != filename:
+            raise ValueError("Raw intensity filenames must be field basenames")
+        raw = np.load(os.path.join(os.path.dirname(src), 'stack', filename))
+        canvas = np.shape(model_input)[:-1]
+        if raw.ndim == len(canvas) and int(channel) == 0:
+            plane = raw
+        elif raw.ndim == len(canvas) + 1 and 0 <= int(channel) < raw.shape[-1]:
+            plane = raw[..., int(channel)]
+        else:
+            raise ValueError(f"Raw intensity shape/channel mismatch for {filename}")
+        if any(actual > target for actual, target in zip(plane.shape, canvas)):
+            raise ValueError(f"Raw intensity field exceeds segmentation canvas: {filename}")
+        plane = np.pad(plane, [(0, target - actual)
+                              for actual, target in zip(plane.shape, canvas)])
+        if z_axis is not None:
+            plane = np.moveaxis(plane, z_axis, 0)
+            if np.ndim(mask) == plane.ndim - 1:
+                if plane.shape[0] == 1:
+                    plane = plane[0]
+                elif projection == 'best_focus':
+                    selected = np.moveaxis(model_input, z_axis, 0)
+                    plane = plane[_best_focus_index(selected)]
+                else:
+                    plane = project(plane, mode=projection, z_axis=0)
+        if plane.shape != np.shape(mask):
+            raise ValueError(f"Raw intensity plane must have the same shape as mask: {filename}")
+        result.append(plane)
+    return result
+
+
 def generate_cellpose_masks_sam(src, settings, object_type):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
 
     Loads the ``cpsam`` pretrained model — or, when
     ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint
     the user trained, that checkpoint — iterates over each pre-batched
-    ``.npz`` file, runs merge/split/filter on the resulting masks, optionally
-    tracks timelapse objects, saves per-image ``.npy`` masks, and records
-    per-object counts to the run's SQLite database.
+    ``.npz`` file, applies perimeter merging and area/border filtering to 2-D
+    masks, and optionally filters objects by their absolute mean intensity
+    in the original own-channel image. It then optionally tracks timelapse
+    objects, saves per-image ``.npy`` masks, and records per-object counts to
+    the run's SQLite database. Time-stack archives must contain one filename
+    per timepoint, regardless of the declared time-axis position; each raw
+    filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its
+    ``(Y, X, C)`` image for a flat ``TYX`` series.
 
     :param src: Directory containing the pre-batched ``.npz`` image stacks.
     :param settings: Pipeline settings dict; canonicalized via
@@ -698,6 +680,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output
     from .cancellation import checkpoint as cancellation_checkpoint
+    from dataclasses import replace
+    from .zstack import as_t_first
     
     gc.collect()
     if not torch.cuda.is_available():
@@ -713,11 +697,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
         display(settings_df)
         
     figuresize=10
-    # `timelapse` is no longer offered by the Mask module's settings panel —
-    # it belongs to the Timelapse module (spacr.core.preprocess_generate_masks_timelapse).
-    # It is still defaulted by set_default_settings_preprocess_generate_masks and
-    # still honoured here, so old settings CSVs and direct API calls keep working;
-    # .get() keeps a hand-built dict from raising instead of segmenting.
     timelapse = settings.get('timelapse', False)
 
     if timelapse:
@@ -734,20 +713,17 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     flow_threshold = settings[f'{object_type}_flow_threshold']
     object_settings = _get_object_settings(object_type, settings)
 
-    # None unless the user opted into 3D (Beta). Every branch below is guarded
-    # on it, so the 2-D path is untouched when it is None.
     z_plan = _z_stack_plan(settings)
 
-    # None unless the user opted into 4D (Beta). Raises here, before the model
-    # is loaded and the first field read, when the axis order is not settled --
-    # that answer cannot change later in the run.
     t_plan = _t_stack_plan(settings)
     z_plan = _reconcile_z_and_t_plans(z_plan, t_plan, timelapse=timelapse)
 
-    # The z mode that actually runs, whichever plan is driving. None means no
-    # z code runs at all and the masks are ordinary 2-D ones: either neither
-    # plan is set, or the 4-D plan describes a flat (T, Y, X) time series, for
-    # which segment_4d makes one plain 2-D call per frame and no z mode enters.
+    from .utils import _validated_intensity_bounds
+    intensity_bounds = _validated_intensity_bounds(
+        settings.get(f'{object_type}_min_intensity', 0),
+        settings.get(f'{object_type}_max_intensity', 0))
+    filter_by_raw_intensity = any(value > 0 for value in intensity_bounds)
+
     if t_plan is not None:
         beta_mode = None if t_plan.z_axis is None else t_plan.z_mode
     elif z_plan is not None:
@@ -755,23 +731,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     else:
         beta_mode = None
 
-    # THE cellpose_* KEYS HOLD DENSE STACK POSITIONS, NOT RAW CHANNELS.
-    # io.preprocess_img_data writes them as `seen[ch]` -- the position on the
-    # merged stack's channel axis, which is built in ROLE order (nucleus,
-    # cell, pathogen, organelle), deduplicated.
-    #
-    # This fallback used to copy the RAW channel across, which is a different
-    # number whenever the roles are not in ascending channel order. It fires
-    # more often than it looks: preprocess_img_data returns early once the
-    # raw images have been moved into src/orig (so on every re-run), and is
-    # skipped entirely when preprocess=False -- both documented workflows.
-    # With nucleus_channel=1 and cell_channel=0 the first run records
-    # nucleus->0, cell->1; the resumed run wrote nucleus->1, cell->0, and
-    # Cellpose segmented nuclei on the cell image and cells on the nucleus
-    # image with no warning.
-    #
-    # `organelle` is filled in too. It never was, so a resumed run with an
-    # organelle had no recorded position at all.
     from .utils import dense_mask_channel_positions
 
     _dense = dense_mask_channel_positions(settings)
@@ -785,10 +744,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             _raw = int(_raw)
         except (TypeError, ValueError):
             continue
-        # ``dense_mask_channel_positions`` walks this same role key before
-        # returning, with the same ``int`` coercion.  A numeric raw channel is
-        # therefore necessarily present; indexing directly keeps any future
-        # drift loud instead of silently leaving the alias unset.
         settings[f'cellpose_{_role}_channel'] = _dense[_raw]
 
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
@@ -800,25 +755,22 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     if settings['verbose']:
         print(channels)
 
-    # pretrained_model used to be the literal 'cpsam' here, so a checkpoint
-    # from spaCR's own Train Cellpose module was discarded and the stock
-    # weights ran instead — silently, on the pipeline's DEFAULT path.
-    # _resolve_cellpose_pretrained keeps 'cpsam' for the stock case and
-    # returns the checkpoint path when the user named one.
     model_name = object_settings['model_name']
     if object_type == 'pathogen' and settings.get('pathogen_model') is not None:
-        # LEGACY ONLY. `pathogen_model` was a second setting naming the same
-        # thing as `pathogen_model_name`, and two controls for one value is
-        # how a user sets one and wonders why the other wins. It is no longer
-        # OFFERED -- see _APP_HIDDEN_KEYS -- and is read here so a settings
-        # CSV written before it was retired still segments with the model it
-        # names rather than silently falling back to cpsam.
         model_name = settings['pathogen_model']
-    pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
-    model = cp_models.CellposeModel(
-        pretrained_model=pretrained,
-        **accelerator.cellpose_kwargs(),
-    )
+    # Items 404/405: DINOCell and SAMCell answer the same model.eval call and
+    # return Cellpose's (masks, flows, styles), so this is the only dispatch.
+    from ._segmentation_backends import _backend_name, _load_backend
+    segmentation_backend = _backend_name(
+        settings.get('segmentation_backend', 'cellpose'))
+    if segmentation_backend == 'cellpose':
+        pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
+        model = cp_models.CellposeModel(
+            pretrained_model=pretrained,
+            **accelerator.cellpose_kwargs(),
+        )
+    else:
+        model = _load_backend(segmentation_backend, z_plan=z_plan, t_plan=t_plan)
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
     
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
@@ -838,13 +790,30 @@ def generate_cellpose_masks_sam(src, settings, object_type):
         with np.load(path) as data:
             stack = data['data']
             filenames = data['filenames']
-            
-            for i, filename in enumerate(filenames):
-                output_path = os.path.join(output_folder, filename)
-                
-                if os.path.exists(output_path):
-                    print(f"File {filename} already exists in the output folder. Skipping...")
-                    continue
+
+        # Filename selection, resume and batching all operate on timepoints.
+        # Canonicalize each archive with the original acquisition plan, then
+        # give the segmenter a local plan for this view. Mutating t_plan here
+        # would interpret later ZTYX archives as if they were already TZYX.
+        archive_t_plan = t_plan
+        if t_plan is not None:
+            _require_t_axis(stack, t_plan, path)
+            stack = as_t_first(stack, t_plan)
+            if filenames.ndim != 1 or len(filenames) != stack.shape[0]:
+                raise ValueError(
+                    f"t_stack requires one filename per timepoint in "
+                    f"{os.path.basename(path)}: time axis has length "
+                    f"{stack.shape[0]}, filenames have shape {filenames.shape}")
+            archive_t_plan = replace(
+                t_plan, t_axis=0,
+                z_axis=1 if t_plan.z_axis is not None else None)
+        elif z_plan is not None:
+            _require_z_axis(stack, z_plan, path)
+
+        for filename in filenames:
+            output_path = os.path.join(output_folder, filename)
+            if os.path.exists(output_path):
+                print(f"File {filename} already exists in the output folder. Skipping...")
                 
         if timelapse:
             trackable_objects = ['cell','nucleus','pathogen']
@@ -856,41 +825,26 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 print(f'Changed batch_size:{batch_size} to {len(stack)}, data length:{len(stack)}')
                 settings['timelapse_batch_size'] = len(stack)
                 batch_size = len(stack)
-                if isinstance(timelapse_frame_limits, list):
-                    if len(timelapse_frame_limits) >= 2:
-                        stack = stack[timelapse_frame_limits[0]: timelapse_frame_limits[1], :, :, :].astype(stack.dtype)
-                        filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
-                        batch_size = len(stack)
-                        print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
-        
-        if t_plan is not None:
-            # Fail before the first timepoint rather than after: whether this
-            # array is 4-D cannot change later in the run.
-            _require_t_axis(stack, t_plan, path)
-        elif z_plan is not None:
-            # Fail before the first field rather than after: whether this
-            # array has a z axis cannot change later in the run.
-            _require_z_axis(stack, z_plan, path)
+            if isinstance(timelapse_frame_limits, list):
+                if len(timelapse_frame_limits) >= 2:
+                    stack = stack[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
+                    filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
+                    batch_size = len(stack)
+                    print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
+
+        if len(stack) == 0:
+            continue
 
         for i in range(0, stack.shape[0], batch_size):
             cancellation_checkpoint()
             mask_stack = []
             if z_plan is not None or t_plan is not None:
-                # (N, Z, Y, X, C) — or (T, Z, Y, X, C) under t_stack, where the
-                # leading axis is time: select channels off the trailing axis
-                # so the z axis is preserved.
                 batch = stack[i: i+batch_size][..., channels].astype(stack.dtype)
             elif stack.shape[3] == 1:
                 batch = stack[i: i+batch_size, :, :, [0]].astype(stack.dtype)
             else:
                 batch = stack[i: i+batch_size, :, :, channels].astype(stack.dtype)
 
-            # In the future drop the npz save file step, just keep it in memory and pass the batch directly to the model. This will save time and disk space. For now, keep it for backwards compatibility and to avoid issues with large batches that might not fit in memory.                
-            #if stack.shape[3] == 1:
-            #    batch = stack[i: i+batch_size, :, :, [0]].astype(stack.dtype)
-            #else:
-            #    subset = stack[i: i+batch_size, :, :, channels_to_extract].astype(stack.dtype)
-            #    batch = subset[:, :, :, channels]
 
             batch_filenames = filenames[i: i+batch_size].tolist()
 
@@ -919,12 +873,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     channel_axis=-1,
                     min_size=object_settings['min_size'],
                     progress=True,
-                    # Cellpose 4 still honours `diameter` in eval() — it rescales
-                    # the image by 30/diameter. Only diam_mean at construction is
-                    # ignored. This was hard-coded to None, so an explicitly-set
-                    # <obj>_diameter (and anything spacr.diameter proposes) never
-                    # reached Cellpose. The setting defaults to None, so None here
-                    # still means "let CPSAM work at native scale".
                     diameter=_eval_diameter(
                         settings.get(f'{object_type}_diameter'),
                         object_type),
@@ -935,10 +883,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
 
                 masks, flows, _, _, _ = parse_cellpose4_output(output)
             else:
-                # Same eval kwargs as the 2-D call above, minus the ones zstack
-                # sets per mode (x, batch_size, channel_axis, do_3D, anisotropy,
-                # z_axis). Shared by the 3-D and 4-D paths so the two cannot
-                # drive Cellpose differently.
                 z_eval_kwargs = dict(
                     batch_size=1,
                     normalize=False,
@@ -953,10 +897,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     resample=object_settings['resample'],
                 )
                 if t_plan is not None:
-                    # The whole batch is one acquisition, not a list of
-                    # independent fields: its leading axis is time.
                     masks, t_result, beta_intensity = _segment_timepoints_with_t(
-                        cp_batch, model, t_plan, z_eval_kwargs
+                        cp_batch, model, archive_t_plan, z_eval_kwargs
                     )
                     if settings['verbose']:
                         for note in t_result.notes:
@@ -975,14 +917,23 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                                 print(f"[3D] {filename}: {note}")
                 flows = None
 
-            if beta_mode is None or beta_mode == 'project':
-                # merge/split/filter reason in 2-D: they measure areas in px²
-                # and split objects with a 2-D watershed. Handing them a
-                # (Z, Y, X) volume would silently apply all of that per plane
-                # and tear the 3-D labels apart, so the 3-D modes skip them.
+            filter_images = batch if beta_mode is None else beta_intensity
+            if filter_by_raw_intensity:
+                filter_z_axis = (0 if archive_t_plan is not None and archive_t_plan.z_axis is not None
+                                 else (z_plan.z_axis or 0) if z_plan is not None
+                                 else None)
+                projection = (archive_t_plan.projection if archive_t_plan is not None
+                              else z_plan.projection if z_plan is not None else None)
+                filter_images = _raw_filter_images(
+                    src, batch_filenames, batch_list, masks,
+                    settings.get(f'{object_type}_channel'),
+                    z_axis=filter_z_axis, projection=projection)
+
+            if beta_mode is None or beta_mode == 'project' or all(
+                    np.ndim(mask) == 2 for mask in masks):
                 masks = merge_split_filter_masks(
                     masks=masks,
-                    intensity_images=batch if beta_mode is None else beta_intensity,
+                    intensity_images=filter_images,
                     settings=settings,
                     object_type=object_type,
                     batch_filenames=batch_filenames,
@@ -990,10 +941,16 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             else:
                 print(
                     f"merge_split_filter_masks({object_type}): skipped — the "
-                    f"merge/split/filter operations are 2-D only and would be "
+                    f"perimeter and area operations are 2-D only and would be "
                     f"applied per z plane, breaking the 3-D labels that "
                     f"z_segmentation_mode='{beta_mode}' just produced"
                 )
+                if filter_by_raw_intensity:
+                    from .utils import _filter_objects
+                    masks = [_filter_objects(
+                        np.asarray(mask).copy(), plane,
+                        min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1])
+                        for mask, plane in zip(masks, filter_images)]
             
             if timelapse:
                 if settings['plot']:
@@ -1029,9 +986,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                                                          max_objects_for_optimization=20000)
                     
                     if timelapse_mode == 'trackastra':
-                        # Trackastra takes the raw intensity stack as well as the
-                        # masks — it uses appearance, not just geometry — so hand
-                        # it the batch we already loaded rather than masks alone.
                         mask_stack = _trackastra_track_cells(
                             src=src,
                             name=name,
@@ -1047,10 +1001,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                             linking_mode=settings.get('trackastra_linking', 'greedy'))
 
                     elif timelapse_mode == 'ultrack':
-                        # Ultrack derives its own candidate objects from a
-                        # contour map built off these labels, and uses the raw
-                        # intensities for appearance features while linking, so
-                        # it gets the same two arrays trackastra does.
                         mask_stack = _ultrack_track_cells(
                             src=src,
                             name=name,
@@ -1092,10 +1042,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
                 mask_stack = _masks_to_masks_stack(masks)
         
-            # Legacy inline hook: the automated motility assay is now the
-            # standalone Motility Assay module (app key 'motility'), so the
-            # Mask GUI no longer exposes `motility_analysis`. The gate stays
-            # for settings CSVs and API callers that still set both flags.
             if timelapse and settings.get("motility_analysis", False):
                 from .timelapse import automated_motility_assay
                 _ = automated_motility_assay(settings)
@@ -1111,20 +1057,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             overall_average_count = np.mean(average_count) if len(average_count) > 0 else 0
             print(f'Found {overall_average_count} {object_type}/FOV. average size: {overall_average_size:.3f} px2')
 
-            # Plot and save inside the per-batch loop. Both blocks used to sit
-            # one level out, at the .npz level: an .npz holding more batches
-            # than `batch_size` therefore ran every batch but only ever wrote
-            # the last one's masks to disk (the earlier mask_stacks were
-            # rebound and lost), while an empty .npz never entered this loop at
-            # all and hit the save block with mask_stack unbound -> NameError.
             if not timelapse:
                 if settings['plot']:
                     if flows is None:
-                        # plot_cellpose4_output draws the per-image flow field
-                        # beside each mask; the z paths call eval once per volume
-                        # and do not collect one, and in the stitch/volumetric
-                        # modes the mask is a (Z, Y, X) volume it cannot render
-                        # beside a 2-D field either.
                         reason = (f"z_segmentation_mode='{beta_mode}'"
                                   if beta_mode else "the 4D path")
                         print(
@@ -1181,8 +1116,6 @@ def generate_cellpose_masks(src, settings, object_type):
     
     settings = set_default_settings_preprocess_generate_masks(settings)
 
-    # This generator has no 4-D path. Say so rather than returning 2-D masks
-    # to a user whose settings said 4-D.
     _refuse_t_stack(settings, 'object.generate_cellpose_masks')
 
     if settings['verbose']:
@@ -1191,11 +1124,6 @@ def generate_cellpose_masks(src, settings, object_type):
         display(settings_df)
         
     figuresize=10
-    # `timelapse` is no longer offered by the Mask module's settings panel —
-    # it belongs to the Timelapse module (spacr.core.preprocess_generate_masks_timelapse).
-    # It is still defaulted by set_default_settings_preprocess_generate_masks and
-    # still honoured here, so old settings CSVs and direct API calls keep working;
-    # .get() keeps a hand-built dict from raising instead of segmenting.
     timelapse = settings.get('timelapse', False)
 
     if timelapse:
@@ -1216,9 +1144,6 @@ def generate_cellpose_masks(src, settings, object_type):
     
     model_name = object_settings['model_name']
     
-    # The same fallback as generate_cellpose_masks_sam, and the same reason
-    # it has to go through the ROLE-order positions: these keys hold dense
-    # stack positions, not raw channel indices. See the longer note there.
     from .utils import dense_mask_channel_positions
 
     _dense = dense_mask_channel_positions(settings)
@@ -1232,16 +1157,8 @@ def generate_cellpose_masks(src, settings, object_type):
             _raw = int(_raw)
         except (TypeError, ValueError):
             continue
-        # The map was built from this same numeric role channel immediately
-        # above, so absence is impossible unless the two contracts drift.
         settings[f'cellpose_{_role}_channel'] = _dense[_raw]
 
-    # _get_cellpose_channels takes the settings dict and returns
-    # (channels_to_extract, cellpose_channels). It used to be called here with
-    # four positional arguments (src, nucleus, pathogen, cell) left over from an
-    # older signature, which raised TypeError on every single call — this whole
-    # generator was unreachable. Same call as generate_cellpose_masks_sam makes,
-    # so the two cannot pick different channels for the same settings.
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
 
     if settings['verbose']:
@@ -1259,7 +1176,6 @@ def generate_cellpose_masks(src, settings, object_type):
     
     model = _choose_model(model_name, device, object_type=object_type, restore_type=None, object_settings=object_settings)
 
-    #chans = [2, 1] if model_name == 'cyto2' else [0,0] if model_name == 'nucleus' else [2,0] if model_name == 'cyto' else [2, 0] if model_name == 'cyto3' else [2, 0]
     
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]    
     
@@ -1336,16 +1252,6 @@ def generate_cellpose_masks(src, settings, object_type):
                                 batch_size=batch_size,
                                 normalize=False,
                                 channel_axis=-1,
-                                # No channels=: Cellpose 4 logs "channels
-                                # deprecated in v4.0.1+" and never reads it, so
-                                # the pair configured nothing. The planes are
-                                # already chosen above by stack[..., channels],
-                                # which is what the remap was always for.
-                                # <obj>_min_area is documented as "passed to
-                                # Cellpose as min_size"; this generator never
-                                # passed it, so Cellpose used its own default of
-                                # 15 px and the setting did nothing here. The
-                                # SAM generator has always passed it.
                                 min_size=object_settings['min_size'],
                                 diameter=object_settings['diameter'],
                                 flow_threshold=flow_threshold,
@@ -1413,20 +1319,6 @@ def generate_cellpose_masks(src, settings, object_type):
                 _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
                 if object_settings['merge'] and not settings['filter']:
                     mask_stack = _filter_cp_masks(masks=masks,
-                                                # _filter_cp_masks iterates
-                                                # zip(masks, flows[0], batch),
-                                                # i.e. it wants the per-image
-                                                # flow list nested one deep.
-                                                # `flows` here is already that
-                                                # per-image list, so passing it
-                                                # bare made flows[0] the FIRST
-                                                # IMAGE's flow array and the zip
-                                                # ran over its rows: any batch
-                                                # with more fields than the
-                                                # images are tall silently lost
-                                                # the trailing masks, and every
-                                                # plot got a single pixel row
-                                                # where a flow image belonged.
                                                 flows=[flows],
                                                 filter_size=False,
                                                 filter_intensity=False,
@@ -1440,8 +1332,6 @@ def generate_cellpose_masks(src, settings, object_type):
 
                 if settings['filter']:
                     mask_stack = _filter_cp_masks(masks=masks,
-                                                # Nested one deep — see the
-                                                # merge branch above.
                                                 flows=[flows],
                                                 filter_size=object_settings['filter_size'],
                                                 filter_intensity=object_settings['filter_intensity'],
@@ -1455,18 +1345,8 @@ def generate_cellpose_masks(src, settings, object_type):
                     
                     _save_object_counts_to_database(mask_stack, object_type, batch_filenames, count_loc, added_string='_after_filtration')
                 elif not object_settings['merge']:
-                    # `elif not ...merge`, not a bare `else`: with merge on and
-                    # filter off the block above has already produced the
-                    # merged stack, and an unconditional else rebound
-                    # mask_stack to the raw Cellpose masks right after,
-                    # throwing the merge away. `merge_pathogens` was therefore
-                    # a no-op in this generator.
                     mask_stack = _masks_to_masks_stack(masks)
         
-            # Legacy inline hook: the automated motility assay is now the
-            # standalone Motility Assay module (app key 'motility'), so the
-            # Mask GUI no longer exposes `motility_analysis`. The gate stays
-            # for settings CSVs and API callers that still set both flags.
             if timelapse and settings.get("motility_analysis", False):
                 from .timelapse import automated_motility_assay
                 _ = automated_motility_assay(settings)
@@ -1482,10 +1362,6 @@ def generate_cellpose_masks(src, settings, object_type):
             overall_average_count = np.mean(average_count) if len(average_count) > 0 else 0
             print(f'Found {overall_average_count} {object_type}/FOV. average size: {overall_average_size:.3f} px2')
 
-            # Inside the per-batch loop, for the same reason as in
-            # generate_cellpose_masks_sam: at the .npz level only the last
-            # batch of a multi-batch file was ever written, and an empty .npz
-            # reached the save block with mask_stack unbound.
             if not timelapse:
                 if settings['plot']:
                     print(f"plotting")
@@ -1541,32 +1417,20 @@ def generate_organelle_masks_sam(src, settings, object_type):
     settings = organelle_settings_view(
         _set_organelle_defaults(settings), object_type)
 
-    # This generator has no 4-D path. Say so rather than returning 2-D masks
-    # to a user whose settings said 4-D.
+    from .utils import _validated_intensity_bounds
+    intensity_bounds = _validated_intensity_bounds(
+        settings.get('organelle_min_intensity', 0),
+        settings.get('organelle_max_intensity', 0))
+    filter_by_raw_intensity = any(value > 0 for value in intensity_bounds)
+    settings['organelle_remove_border_objects'] = bool(
+        settings.get('organelle_remove_border_objects', False)
+        or settings.get('organelle_remove_border', False))
+
     _refuse_t_stack(settings, 'object.generate_organelle_masks_sam')
 
     morphology = settings['organelle_morphology']
     method = settings['organelle_method']
 
-    # The merged .npz stack only contains the channels that map to ENABLED
-    # object types, densely re-indexed. Indexing it with the RAW
-    # organelle_channel (e.g. 3) blows up when fewer than 4 objects are
-    # active — "index 3 is out of bounds for axis 3 with size N".
-    #
-    # THE REMAP HAS TO MATCH HOW THE STACK WAS BUILT, and this used to
-    # compute `sorted({nucleus, cell, pathogen, organelle})` instead. The
-    # stack is built in ROLE order — io.preprocess_img_data walks nucleus,
-    # cell, pathogen, organelle and assigns `seen[ch] = len(mask_channels)`
-    # — so the two agree only when the roles happen to be in ascending
-    # channel order. With nucleus_channel=2, cell_channel=0,
-    # organelle_channel=1 the axis is [2, 0, 1], so raw channel 1 sits at
-    # position 2, while the sorted reading said position 1 — the CELL plane.
-    # Organelles were segmented on the cell image, on a FIRST run, silently.
-    #
-    # `cellpose_organelle_channel` wins when present because
-    # io.preprocess_img_data records the dense position it actually used. It
-    # is absent on a resumed run, which is why the fallback has to be right
-    # rather than merely present.
     from .utils import dense_mask_channel_positions
 
     _raw_organelle_channel = settings['organelle_channel']
@@ -1606,9 +1470,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
     average_counts = []
     time_ls = []
 
-    # ------------------------------------------------------------------ #
-    #  Load deep-learning model once (if needed)
-    # ------------------------------------------------------------------ #
     dl_model = None
     is_dl_method = method in ('cellpose', 'unet')
 
@@ -1625,14 +1486,8 @@ def generate_organelle_masks_sam(src, settings, object_type):
     elif method == 'unet':
         dl_model = _load_unet_model(settings)
 
-    # ------------------------------------------------------------------ #
-    #  Build a serialisable settings subset for worker processes
-    # ------------------------------------------------------------------ #
     classical_settings = _extract_classical_settings(settings)
 
-    # ------------------------------------------------------------------ #
-    #  Optionally load cell masks for per-cell masking
-    # ------------------------------------------------------------------ #
     cell_mask_folder = None
     if settings.get('organelle_mask_within_cells', False):
         candidate = os.path.join(os.path.dirname(src), 'cell_mask_stack')
@@ -1642,9 +1497,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
         else:
             print(f'Warning: organelle_mask_within_cells=True but no cell_mask_stack found at {candidate}')
 
-    # ------------------------------------------------------------------ #
-    #  Main loop over .npz stacks
-    # ------------------------------------------------------------------ #
     for file_index, path in enumerate(paths):
         cancellation_checkpoint()
         output_folder = os.path.join(os.path.dirname(path), f'{object_type}_mask_stack')
@@ -1654,12 +1506,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
             stack = data['data']
             filenames = data['filenames']
 
-        # A stack every field of which is already on disk is skipped in
-        # silence otherwise, and a silent skip is indistinguishable from a
-        # crash to whoever is watching the log. Before c305bd1b the whole
-        # stack was tested up front and said so; that check was replaced by
-        # the per-batch `_check_masks` filter, which validates a truncated
-        # `.npy` and is the better test -- but it took the sentence with it.
         fields_skipped = 0
         fields_attempted = 0
         for i in range(0, stack.shape[0], batch_size):
@@ -1677,9 +1523,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
                 continue
             fields_attempted += len(batch_filenames)
 
-            # ---------------------------------------------------------- #
-            #  Extract the organelle channel
-            # ---------------------------------------------------------- #
             if organelle_channel is not None:
                 if batch.ndim == 4:
                     img_batch = batch[:, :, :, organelle_channel].astype(np.float32)
@@ -1691,27 +1534,17 @@ def generate_organelle_masks_sam(src, settings, object_type):
                 else:
                     img_batch = batch.astype(np.float32)
 
-            # ---------------------------------------------------------- #
-            #  Per-cell masking: zero out pixels outside cells
-            # ---------------------------------------------------------- #
             if cell_mask_folder is not None:
                 img_batch = _apply_cell_mask(img_batch, batch_filenames, cell_mask_folder)
 
-            # ---------------------------------------------------------- #
-            #  Preprocessing: rolling ball and/or CLAHE
-            # ---------------------------------------------------------- #
             img_batch = _preprocess_batch(img_batch, settings)
 
-            # ---------------------------------------------------------- #
-            #  Segment
-            # ---------------------------------------------------------- #
             if method == 'cellpose':
                 masks = _segment_cellpose_sam(
                     img_batch, batch_filenames, dl_model, settings, object_type, output_folder)
             elif method == 'unet':
                 masks = _segment_unet(img_batch, dl_model, settings)
             else:
-                # CPU-bound classical methods — parallelise
                 masks = _segment_classical_parallel(
                     img_batch, classical_settings, n_jobs=n_jobs,
                 )
@@ -1719,21 +1552,21 @@ def generate_organelle_masks_sam(src, settings, object_type):
             if masks is None or len(masks) == 0:
                 continue
 
-            # ---------------------------------------------------------- #
-            #  Post-process: size filter, border removal
-            # ---------------------------------------------------------- #
-            mask_stack = _postprocess_masks(
-                masks,
-                min_size=settings['organelle_min_area'],
-                max_size=settings['organelle_max_area'],
-                remove_border=settings['organelle_remove_border'],
+            raw_images = None
+            if filter_by_raw_intensity:
+                inputs = [image if image.ndim == 3 else image[..., None]
+                          for image in batch]
+                raw_images = _raw_filter_images(
+                    src, batch_filenames, inputs, masks,
+                    settings['organelle_channel'])
+            mask_stack = merge_split_filter_masks(
+                masks, raw_images, settings, 'organelle', batch_filenames,
             )
 
             _save_object_counts_to_database(
                 mask_stack, object_type, batch_filenames, count_loc, added_string='',
             )
 
-            # Stats
             if not np.any(mask_stack):
                 avg_count, avg_size = 0, 0
             else:
@@ -1755,9 +1588,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
                 f'n_jobs={n_jobs if not is_dl_method else "GPU"}]'
             )
             
-            # ---------------------------------------------------------- #
-            #  Plot (if enabled)
-            # ---------------------------------------------------------- #
             if settings.get('plot', False):
                 plot_organelle_output(
                     img_batch[: len(mask_stack)],
@@ -1769,9 +1599,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
                     print_object_number=True,
                 )
 
-            # ---------------------------------------------------------- #
-            #  Save
-            # ---------------------------------------------------------- #
             if settings['save']:
                 for mask_idx, mask in enumerate(mask_stack):
                     out_path = os.path.join(output_folder, batch_filenames[mask_idx])
@@ -1833,28 +1660,21 @@ def _extract_classical_settings(settings):
     keys = [
         'organelle_morphology', 'organelle_method',
         'organelle_min_area', 'organelle_max_area',
-        # Spots
         'organelle_tophat_radius', 'organelle_watershed_spots',
         'organelle_log_min_sigma', 'organelle_log_max_sigma',
         'organelle_log_num_sigma', 'organelle_log_threshold',
         'organelle_dog_sigma_low', 'organelle_dog_sigma_high',
-        # Network
         'organelle_ridge_sigmas', 'organelle_ridge_filter',
         'organelle_skeletonize', 'organelle_network_threshold',
         'organelle_hysteresis_low', 'organelle_hysteresis_high',
-        # Irregular
         'organelle_adaptive_block_size', 'organelle_adaptive_offset',
         'organelle_morph_radius', 'organelle_fill_holes',
-        # Ring
         'organelle_ring_sigma_inner', 'organelle_ring_sigma_outer',
         'organelle_ring_min_prominence', 'organelle_ring_fill_method',
     ]
     return {k: settings[k] for k in keys if k in settings}
 
 
-# ====================================================================== #
-#  Preprocessing
-# ====================================================================== #
 
 def _preprocess_batch(img_batch, settings):
     """Apply optional rolling-ball and/or CLAHE preprocessing to an (N,H,W) batch."""
@@ -1905,9 +1725,6 @@ def _apply_cell_mask(img_batch, batch_filenames, cell_mask_folder):
     return out
 
 
-# ====================================================================== #
-#  Deep-learning model loaders
-# ====================================================================== #
 
 def _load_unet_model(settings):
     """Load a user-provided U-Net model from a .pt / .pth file."""
@@ -1923,9 +1740,6 @@ def _load_unet_model(settings):
     return model
 
 
-# ====================================================================== #
-#  Cellpose segmentation
-# ====================================================================== #
 
 def _segment_cellpose(batch, batch_filenames, model, settings, object_type, output_folder):
     """Run Cellpose on a batch and return a list of 2-D label arrays."""
@@ -1933,8 +1747,6 @@ def _segment_cellpose(batch, batch_filenames, model, settings, object_type, outp
     from .io import _check_masks
     from .spacr_cellpose import parse_cellpose4_output
 
-    # Remap raw object channels to their dense position in the
-    # compacted stack (same reasoning as generate_organelle_masks_sam).
     _extract = sorted({c for c in (settings.get('nucleus_channel'),
                                      settings.get('cell_channel'),
                                      settings.get('pathogen_channel'),
@@ -1975,8 +1787,6 @@ def _segment_cellpose(batch, batch_filenames, model, settings, object_type, outp
         batch_size=settings['batch_size'],
         normalize=False,
         channel_axis=-1,
-        # No channels=: Cellpose 4 never reads it, so [0, 1] configured
-        # nothing. cp_batch already holds the planes this call should see.
         diameter=settings['organelle_diameter'],
         flow_threshold=settings['organelle_flow_threshold'],
         cellprob_threshold=settings['organelle_cellprob_threshold'],
@@ -2052,9 +1862,6 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
     return masks
 
 
-# ====================================================================== #
-#  U-Net semantic segmentation (GPU — not parallelised)
-# ====================================================================== #
 
 def _segment_unet(img_batch, model, settings):
     """Run a user-provided U-Net for semantic segmentation of network organelles.
@@ -2098,9 +1905,6 @@ def _segment_unet(img_batch, model, settings):
     return masks
 
 
-# ====================================================================== #
-#  Classical segmentation — parallel dispatcher
-# ====================================================================== #
 
 def _segment_classical_parallel(img_batch, classical_settings, n_jobs=1):
     """Segment a batch using classical methods, sequential or via ``Pool``."""
@@ -2138,9 +1942,6 @@ def _segment_single_image(img, settings):
         raise ValueError(f"Unknown morphology: {morphology}")
 
 
-# ====================================================================== #
-#  SPOTS segmentation
-# ====================================================================== #
 
 def _segment_spots(img, method, settings):
     """Segment punctate/spot-like organelles via ``otsu``, ``adaptive``, ``log`` or ``dog``."""
@@ -2152,10 +1953,8 @@ def _segment_spots(img, method, settings):
     elif method == 'dog':
         return _spots_dog(img, settings, use_watershed)
 
-    # --- Pre-filter: white top-hat enhances bright spots on dark bg ---
     filtered = white_tophat(img, disk(tophat_radius))
 
-    # --- Threshold ---
     if method == 'otsu':
         thresh_val = threshold_otsu(filtered)
         binary = filtered > thresh_val
@@ -2167,12 +1966,10 @@ def _segment_spots(img, method, settings):
     else:
         raise ValueError(f"Unsupported spot method: {method}")
 
-    # --- Morphological cleanup ---
     binary = opening(binary, disk(1))
     binary = _remove_objects_smaller_than(
         binary, settings['organelle_min_area'])
 
-    # --- Watershed to split touching spots ---
     if use_watershed:
         labeled = _watershed_split(binary, filtered)
     else:
@@ -2248,9 +2045,6 @@ def _circle_coords(cy, cx, radius, shape):
     return rows, cols
 
 
-# ====================================================================== #
-#  NETWORK segmentation
-# ====================================================================== #
 
 def _segment_network(img, method, settings):
     """Segment filamentous/reticular organelles via ``otsu``, ``adaptive``, ``ridge`` or ``hysteresis``."""
@@ -2341,7 +2135,6 @@ def _network_hysteresis(img, settings):
 
     smooth = gaussian(img, sigma=1)
 
-    # Interpret values <1.0 as percentiles
     if low < 1.0:
         low = np.percentile(smooth, low * 100)
     if high < 1.0:
@@ -2362,9 +2155,6 @@ def _network_hysteresis(img, settings):
     return sk_label(binary)
 
 
-# ====================================================================== #
-#  IRREGULAR segmentation
-# ====================================================================== #
 
 def _segment_irregular(img, method, settings):
     """Segment irregular organelles (Golgi, ER cisternae, lysosomes) via ``otsu`` or ``adaptive``."""
@@ -2398,9 +2188,6 @@ def _segment_irregular(img, method, settings):
     return labeled
 
 
-# ====================================================================== #
-#  RING segmentation
-# ====================================================================== #
 
 def _segment_ring(img, method, settings):
     """Segment hollow/ring-shaped organelles by DoG edge enhancement + fill + shape filter.
@@ -2414,11 +2201,9 @@ def _segment_ring(img, method, settings):
     min_prominence = settings.get('organelle_ring_min_prominence', 0.1)
     fill_method = settings.get('organelle_ring_fill_method', 'flood')
 
-    # Step 1: Enhance ring structures using DoG (edge enhancement)
     img_norm = _normalize_01(img)
     enhanced = np.abs(difference_of_gaussians(img_norm, sigma_inner, sigma_outer))
 
-    # Step 2: Threshold the enhanced image
     if method == 'otsu':
         thresh_val = threshold_otsu(enhanced)
         binary_edges = enhanced > thresh_val
@@ -2443,12 +2228,10 @@ def _segment_ring(img, method, settings):
     else:
         raise ValueError(f"Unsupported ring method: {method}")
 
-    # Cleanup edges
     binary_edges = closing(binary_edges, disk(1))
     binary_edges = _remove_objects_smaller_than(
         binary_edges, max(settings['organelle_min_area'] // 4, 3))
 
-    # Step 3: Fill rings to get solid objects
     if fill_method == 'flood':
         filled = _fill_rings_flood(binary_edges)
     elif fill_method == 'convex':
@@ -2456,7 +2239,6 @@ def _segment_ring(img, method, settings):
     else:
         filled = _fill_rings_flood(binary_edges)
 
-    # Step 4: Remove objects that lack ring morphology
     labeled = sk_label(filled)
     labeled = _filter_non_rings(labeled, binary_edges, img_norm, min_prominence)
 
@@ -2529,9 +2311,6 @@ def _filter_non_rings(labeled, binary_edges, img_norm, min_prominence):
     return sk_label(output > 0)
 
 
-# ====================================================================== #
-#  Shared helpers
-# ====================================================================== #
 
 def _normalize_01(img):
     """Percentile-based normalisation to [0, 1]."""

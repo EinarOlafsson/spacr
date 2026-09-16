@@ -81,11 +81,6 @@ __all__ = ["APP_KEY", "CurveCanvas", "ProfilerScreen", "curve_points",
 #: The app key this screen is registered under.
 APP_KEY = "profiler"
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc
@@ -133,14 +128,9 @@ QLabel#ProfilerStatus[problem="true"] {{
 """
 
 
-# ``replace=True`` because this module owns the name: a reimport must
-# re-register the same block rather than raise and leave the screen unstyled.
 register_widget_qss("ProfilerPlot", _profiler_qss, replace=True)
 
 
-# ---------------------------------------------------------------------------
-# The curve, as a pure function
-# ---------------------------------------------------------------------------
 
 def curve_points(curve: Optional[Profile], width: int, height: int, *,
                  margin: int = 36) -> List[Tuple[float, float]]:
@@ -167,8 +157,6 @@ def curve_points(curve: Optional[Profile], width: int, height: int, *,
     if x_high == x_low:
         x_high = x_low + 1.0
     if y_high == y_low:
-        # A flat curve is a real answer ("this input does nothing"), and it
-        # must be drawn along the middle rather than divided by zero.
         y_low, y_high = y_low - 0.5, y_high + 0.5
     plot_width = max(1, width - 2 * margin)
     plot_height = max(1, height - 2 * margin)
@@ -262,9 +250,6 @@ class CurveCanvas(QWidget):
             painter.end()
 
 
-# ---------------------------------------------------------------------------
-# The screen
-# ---------------------------------------------------------------------------
 
 class ProfilerScreen(QWidget):
     """Sweep one input of a fitted model; hold the rest.
@@ -324,17 +309,11 @@ class ProfilerScreen(QWidget):
             self._set_status(
                 "Choose a regression results.csv — its coefficients are the "
                 "model.", problem=False)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "profiler")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction -----------------------------------------------------
 
     def _build_ui(self) -> None:
         """Picker, status strip, then the ranked inputs beside the plot."""
@@ -398,8 +377,6 @@ class ProfilerScreen(QWidget):
         self._inputs.setRootIsDecorated(False)
         self._inputs.setMinimumWidth(260)
         self._inputs.currentItemChanged.connect(self._on_input_selected)
-        # The plot half of this splitter has `ProfilerPlot` for a
-        # surface; the input tree is the other half and had none.
         mark_surface(self._inputs)
         splitter.addWidget(self._inputs)
 
@@ -444,7 +421,6 @@ class ProfilerScreen(QWidget):
         splitter.setStretchFactor(1, 3)
         outer.addWidget(splitter, 1)
 
-    # -- loading ----------------------------------------------------------
 
     def load_coefficients(self, path: str) -> None:
         """Read a coefficient table and profile the model it describes."""
@@ -513,11 +489,6 @@ class ProfilerScreen(QWidget):
         if model is None:
             self._set_status("The model could not be read.", problem=True)
             return
-        # A live fitted object carries its own link and applies it inside
-        # predict(); the combo would be a control that changes nothing, which
-        # is worse than no control. It is only meaningful for a model
-        # rebuilt from a coefficient table, where the link is genuinely
-        # unknown and has to be supplied.
         from ...profiler import FittedLinear
 
         rebuilt = isinstance(model, FittedLinear)
@@ -541,9 +512,6 @@ class ProfilerScreen(QWidget):
         if self._ranked:
             self._inputs.setCurrentItem(self._inputs.topLevelItem(0))
             return
-        # Two different nothings, and the difference is the fix: a model with
-        # only an intercept was never going to be profilable, while a design
-        # whose columns never vary is a design problem the user can solve.
         movable = [name for name in design.columns
                    if str(name).lower() not in ("intercept", "const")]
         reason = ("nothing to sweep: this model has only an intercept."
@@ -569,7 +537,6 @@ class ProfilerScreen(QWidget):
                    f"{record.prediction_high:.4g}.")
             self._inputs.addTopLevelItem(item)
 
-    # -- held values ------------------------------------------------------
 
     def _build_sliders(self) -> None:
         """One slider per held input, for the most influential few."""
@@ -655,7 +622,6 @@ class ProfilerScreen(QWidget):
         self._build_sliders()
         self._redraw()
 
-    # -- profiling --------------------------------------------------------
 
     def variable(self) -> str:
         """The input currently swept, or ``""``."""
@@ -728,7 +694,6 @@ class ProfilerScreen(QWidget):
         self._set_status(message, problem=False)
         self.profiled.emit(self._curve)
 
-    # -- slots ------------------------------------------------------------
 
     def _on_path_entered(self) -> None:
         """Load whatever was typed into the path box."""
@@ -755,7 +720,6 @@ class ProfilerScreen(QWidget):
             style.unpolish(self._status)
             style.polish(self._status)
 
-    # -- lifecycle --------------------------------------------------------
 
     def is_busy(self) -> bool:
         """True while a model is still being read."""
@@ -771,9 +735,6 @@ class ProfilerScreen(QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Registration
-# ---------------------------------------------------------------------------
 
 def make_profiler_screen(app_key: Optional[str] = None) -> QWidget:
     """Factory the registry calls to build this screen."""

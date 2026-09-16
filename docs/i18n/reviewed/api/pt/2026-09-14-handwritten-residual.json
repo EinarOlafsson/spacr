@@ -1,0 +1,20 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "The Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* workflow with *one* settings key-value mapping.",
+      "label": "spacr.batch#1",
+      "source": "The Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* pipeline with *one* settings dict.",
+      "source_sha256": "a53d080370abfc15197e6d99be77c1bfd8586e0b7819aa231a951b28ceb15da1",
+      "translation": "O Plate Queue (:mod:`spacr.qt.plate_queue`) encadeia *placas* através de *um* pipeline com *um* dicionário de configurações."
+    },
+    {
+      "context": "**Every job is validated when it is added, not when it executes.** Discovering at 3 a.m. that job 9's ``src`` is misspelled wastes the whole night. :func:`validate_queue` reports *all* problems at once and :func:`run_queue` refuses to start while any of them is an error.",
+      "label": "spacr.batch#5",
+      "source": "**Every job is validated when it is added, not when it runs.** Discovering at 3 a.m. that job 9's ``src`` is misspelled wastes the whole night. :func:`validate_queue` reports *all* problems at once and :func:`run_queue` refuses to start while any of them is an error.",
+      "source_sha256": "c3a8c407cecdabe7d5b8ca841f48504505151a61a50785b047ccda67cce48b99",
+      "translation": "**Cada tarefa é validada quando é adicionada, não quando é executada.** Descobrir às 3 da manhã que o ``src`` da tarefa 9 está escrito incorretamente desperdiça a noite inteira. :func:`validate_queue` relata *todos* os problemas de uma só vez e :func:`run_queue` recusa-se a iniciar enquanto algum deles for um erro."
+    }
+  ],
+  "schema": 1
+}

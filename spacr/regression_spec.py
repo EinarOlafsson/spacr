@@ -49,21 +49,6 @@ REGRESSION_TYPES = (
     'horseshoe',
     'group_lasso',
     'rra',
-    # THE ONE NONPARAMETRIC FAMILY THAT ANSWERS IN THIS CURRENCY.
-    #
-    # Instruction 254 sorts seven methods by what they can honestly report.
-    # `spline` belongs here: it fits OLS on a design whose COVARIATES carry
-    # a spline basis while every guide column is left alone, so one
-    # coefficient and one P value per guide survive and the volcano, the hit
-    # list and the attribution all read it unchanged.
-    #
-    # `isotonic` IS NOT HERE, and that is the same rule applied honestly.
-    # It needs an ORDERED SINGLE PREDICTOR and the guide design is unordered
-    # categories, so offering it in this menu would be the "method in the
-    # wrong category" that instruction says is worse than not offering it --
-    # a user picking it would get a coefficient table nobody should read.
-    # It is available against a covariate through
-    # `spacr.nonparametric_fits.isotonic_fit`, which is where it is true.
     'spline',
 )
 
@@ -134,8 +119,6 @@ UNSUPPORTED_REGRESSION_TYPES = {
 #:   here.
 REGRESSION_SETTINGS_USED = {
     'ols': ('cov_type',),
-    # `spline` fits OLS on a design whose COVARIATES carry a spline basis
-    # and whose guide columns are untouched, so it reads what ols reads.
     'spline': ('cov_type', 'spline_knots', 'spline_degree'),
     'wls': ('cov_type',),
     'rlm': ('huber_t',),
@@ -178,29 +161,14 @@ RUN_LEVEL_SETTINGS = ('lasso_n_boot', 'lasso_selection_threshold',
 #: re-fitting lasso -> ols would carry ``alpha`` across and raise the very
 #: error the reset exists to prevent.
 _MODEL_LEVEL_DEFAULTS = {
-    # 'auto' and None mean "no penalty chosen, cross-validate it", which is
-    # not a value an unpenalised model is being asked to honour, so they
-    # count as the default rather than as a request. Handled at the call
-    # site, which is the only place that knows `alpha` was spelled that way.
     'alpha': 1.0,
     'l1_ratio': 0.5,
     'cov_type': None,
     'quantile': 0.5,
     'hinge_threshold': None,
     'huber_t': 1.345,
-    # Spline OLS changes only the nuisance-covariate design. These defaults
-    # must live in the same table as every other policed estimator setting so
-    # a re-fit from spline to another family resets them instead of carrying
-    # settings the new family cannot read.
     'spline_knots': 4,
     'spline_degree': 3,
-    # Instruction 133's two new backends. Their defaults are the ones
-    # `spacr.group_lasso` and `spacr.rra` document for themselves, so a panel
-    # that posts the untouched widget posts the value the module would have
-    # used anyway and no other backend is refused because of it.
-    # 'auto' means "cross-validate it", the same way `alpha`'s 'auto' does,
-    # and it is what the panel posts. A number here would make the posted
-    # default a request every other backend then had to refuse.
     'group_lasso_lambda': 'auto',
     'rra_alpha': 0.25,
     'rra_permutations': 10000,
@@ -237,9 +205,6 @@ _RUN_LEVEL_DEFAULTS = {
 }
 
 
-# ---------------------------------------------------------------------------
-# WHO fits it (instruction 141). `regression_type` says WHAT is fitted.
-# ---------------------------------------------------------------------------
 
 #: The backend every existing result was produced with.
 #:
@@ -303,8 +268,6 @@ REGRESSION_BACKENDS = {
     'torch': {
         'label': 'torch (GPU)',
         'device': 'gpu',
-        # torch is already a hard dependency -- spacr.power_model fits with
-        # it -- so this backend adds no package, only a device requirement.
         'package': 'torch',
         'pip': 'pip install torch',
         'types': ('mixed',),
@@ -323,27 +286,12 @@ REGRESSION_BACKENDS = {
         'label': 'pymer4 / lme4 (CPU)',
         'device': 'cpu',
         'package': 'pymer4',
-        # THE PIP LINE STAYS SHORT because `backend_status` puts it inside
-        # a combo entry; what it does not say -- that the package alone is
-        # not enough -- is in `cost` below and in the box, which is on screen
-        # whether or not the popup is open.
         'pip': 'pip install pymer4  (plus R, rpy2, lme4)',
         'types': ('mixed',),
         'url': 'https://eshinjolly.com/pymer4/',
         'summary': ("The reference implementation for mixed models. Sparse "
                     "Cholesky over the nested structure rather than dense "
                     "algebra -- an algorithmic win, not a hardware one."),
-        # IT STILL NEEDS R, and the earlier note here saying otherwise was
-        # read off a metadata gap. pymer4 0.9.2's wheel declares NO
-        # dependencies at all -- `importlib.metadata.requires('pymer4')`
-        # returns None -- so `pip install --dry-run --report` truthfully said
-        # "adds one package, changes nothing" and that was mistaken for "needs
-        # no R". Installed and imported on 2026-08-18 it fails at
-        # `pymer4/io.py: import polars`, and every model module under it opens
-        # with `from rpy2.robjects.packages import importr`; its own README
-        # says "This is accomplished using rpy2 to interface between
-        # languages". So the maintainer's question -- can lme4 be had without
-        # installing or interfacing with R -- is answered NO on this version.
         'cost': ("Needs R, rpy2 and lme4 installed alongside it: measured "
                  "2026-08-18, pymer4 0.9.2 imports rpy2 in every model "
                  "module and polars in its loader, and declares neither, so "
@@ -361,17 +309,6 @@ REGRESSION_BACKENDS = {
         'url': 'https://docs.rapids.ai/api/cuml/stable/',
         'summary': ("RAPIDS' GPU ridge / lasso / elastic-net, near drop-in "
                     "for scikit-learn. Speeds the PENALISED families."),
-        # IT IS NOT ADDITIVE, MEASURED 2026-08-18 and this is the one that
-        # matters: `pip install --dry-run --report cuml-cu12` against this
-        # environment moves NUMPY 1.26.4 -> 2.2.6, downgrades numba
-        # 0.62.1 -> 0.61.2 and llvmlite 0.45.1 -> 0.44.0, and moves eight
-        # nvidia-cu12 runtime libraries torch is built against. The
-        # dependency table at the top of instruction 141 tested pymer4,
-        # gpytorch, numpyro, glum, linearmodels and pyfixest -- cuML was
-        # never among them, and "all six are purely additive" was read as
-        # covering it. The maintainer's condition was "first test if adding
-        # any of those dependencies causes any problems"; for this one the
-        # answer is yes, so it is not installed here.
         'cost': ("It has NO mixed model, so it does not touch that "
                  "bottleneck. And it is the one optional backend that is NOT "
                  "a safe install here: resolving cuml-cu12 against this "
@@ -393,11 +330,6 @@ REGRESSION_BACKENDS = {
                     "alternating projections instead of carrying them as "
                     "dummy columns, then solves the remaining normal "
                     "equations directly."),
-        # MEASURED 2026-08-18 on synthetic screens of the shape
-        # prepare_formula builds, against sm.OLS on the identical design.
-        # See `spacr.ml._fit_absorbed_least_squares` for the table and for
-        # why the win is the SOLVER rather than the 5% narrower design --
-        # pyfixest's own `feols` was measured too and is slower here.
         'cost': ("Measured on this machine: 1.4x at n=1830/p=736 (the "
                  "TSG101 shape), 5.9x at n=6000/p=2242 and 16.7x at "
                  "n=12000/p=4601, the ratio rising with screen size. "
@@ -415,11 +347,6 @@ REGRESSION_BACKENDS = {
         'device': 'cpu',
         'package': 'glum',
         'pip': "pip install 'spacr[glum]'",
-        # NOT probit AND NOT quasi_binomial, measured rather than dropped:
-        # glum 3.4 ships identity, log, logit, cloglog and Tweedie links and
-        # has NO probit, and it has no equivalent of statsmodels'
-        # scale='X2', which is the free dispersion that IS quasi-binomial.
-        # See `spacr.ml._GLUM_FAMILIES`.
         'types': ('glm', 'poisson', 'logit'),
         'url': 'https://glum.readthedocs.io/',
         'summary': ("Fast GLMs by IRLS over tabmat's column-typed design, "

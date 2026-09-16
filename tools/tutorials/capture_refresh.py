@@ -60,6 +60,7 @@ def main() -> int:
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
     parser.add_argument('--classify-overview', action='store_true', help='Record only native family choices and nested Classify navigation; never start a model')
     parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
+    parser.add_argument('--barcode-search-tour', action='store_true', help='Record the real barcode search, explicit Apply and a verified mapped-count run')
     parser.add_argument('--model-compare-api-introduction', action='store_true', help='Record only the real Model Compare route and field loading before a separately verified mask-comparison API example')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
@@ -72,6 +73,8 @@ def main() -> int:
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
+    if args.barcode_search_tour and (args.module != 'map_barcodes' or not args.download or not args.run):
+        parser.error('--barcode-search-tour requires map_barcodes with --download and --run')
     if args.model_compare_api_introduction and (args.module != 'model_compare' or args.run or args.download or args.preview):
         parser.error('--model-compare-api-introduction requires model_compare without run/download/preview')
     if args.model_zoo_inventory and (args.module != 'model_zoo' or args.run or args.download or args.preview):
@@ -197,6 +200,12 @@ def main() -> int:
         'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
         'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
             ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility', 'classifier_evaluation') else args.module)),
+        # XDG_CONFIG_HOME moves QSettings only. Chaining pins (a module's
+        # remembered `src`) live in XDG STATE storage, and without this a
+        # "fresh" Mask recording opened on whatever path a test last pinned
+        # in the real ~/.local/state/spacr/chaining/pins.json. One private
+        # state directory per recording, so no capture inherits another's.
+        'XDG_STATE_HOME': str(stage / 'state' / (args.capture_name or args.module)),
         'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
         'SPACR_LOG_DIR': str(stage / 'logs'),
         'MPLCONFIGDIR': str(stage / 'mpl'),
@@ -204,6 +213,10 @@ def main() -> int:
         'MKL_NUM_THREADS': '2', 'NUMEXPR_NUM_THREADS': '2',
     }.items():
         os.environ[key] = value
+    # An inherited explicit pin file would outrank XDG_STATE_HOME.
+    os.environ.pop('SPACR_CHAINING_PINS', None)
+    if (Path(os.environ['XDG_STATE_HOME']) / 'spacr' / 'chaining' / 'pins.json').exists():
+        raise RuntimeError('Use a new capture name: this recording already has remembered paths')
     if args.module == 'distributed_jobs':
         remote_state = stage / 'distributed_state' / (args.capture_name or args.module)
         remote_state.mkdir(parents=True, exist_ok=True)
@@ -721,6 +734,9 @@ def main() -> int:
                 write_json(captures / 'dataset.json', {
                     'image_count': len(images), 'images': [p.name for p in images],
                     'bytes': sum(p.stat().st_size for p in images)})
+        if args.barcode_search_tour:
+            from capture_barcode_search import record_search
+            record_search(app, screen, stage, captures, capture, settle, write_json, args.timeout)
         if args.measure_preview_controls:
             from capture_measure_controls import record_controls
             record_controls(app, window, screen, captures, capture, settle,
@@ -870,6 +886,38 @@ def main() -> int:
                 raise RuntimeError('Live preview is not visible after enabling Live: '
                                    f'checked={screen._preview_switch.isChecked()}, '
                                    f'card={screen._preview_card_attr}')
+            # Since the 2026-09-12 live_preview.py rewrite, opening Live no
+            # longer loads a field: the panel fills its set table from the
+            # first image the user chooses. Choose one the way a user does,
+            # through the genuine "Choose image…" dialog, and record it.
+            settle(3)
+            if getattr(panel, '_image', None) is None:
+                from PySide6.QtWidgets import QFileDialog
+                field = Path.home() / '.cache/spacr/example_data/plate1/plate1_E01_T0001F001L01A02Z01C01.tif'
+                if not field.is_file():
+                    raise RuntimeError(f'The downloaded example has no {field.name}')
+                chosen, attempts = [], []
+
+                def choose_field():
+                    dialogs = [w for w in app.topLevelWidgets()
+                               if isinstance(w, QFileDialog) and w.isVisible()]
+                    if len(dialogs) != 1:
+                        attempts.append(len(dialogs))
+                        if len(attempts) < 100:
+                            QTimer.singleShot(200, choose_field)
+                        return
+                    dialogs[0].selectFile(str(field))
+                    settle(0.5)
+                    capture('04a_choose_image')
+                    chosen.append(field.name)
+                    dialogs[0].accept()
+
+                QTimer.singleShot(300, choose_field)
+                QTest.mouseClick(panel._pick_btn, Qt.LeftButton)
+                if not chosen:
+                    raise RuntimeError('The Choose image dialog did not accept a field')
+                write_json(captures / 'preview_choice.json',
+                           {'route': 'Choose image…', 'field': chosen[0]})
             deadline = time.monotonic() + 90
             while getattr(panel, '_image', None) is None:
                 if time.monotonic() > deadline:
@@ -1240,6 +1288,12 @@ def main() -> int:
                 from capture_sequencing import inspect_mapping
                 write_json(captures / 'mapping_outputs.json',
                            inspect_mapping(Path(settings['src']), sequence_choice['run'], 10000))
+                if args.barcode_search_tour:
+                    from map_barcodes_data import verify_counts
+                    references = json.loads((captures / 'mapping_reference_selection.json').read_text())
+                    proof = verify_counts(Path(settings['src']) / (sequence_choice['run'] + '_paired'),
+                                          references, 10000)
+                    write_json(captures / 'scientific_acceptance.json', proof)
             if args.settings_tour and args.module == 'regression':
                 from capture_settings import record_results
                 record_results(screen, captures, capture, settle, write_json)

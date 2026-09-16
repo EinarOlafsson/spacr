@@ -177,12 +177,6 @@ else:
             )
             self.setRenderHint(QPainter.RenderHint.Antialiasing, True)
             self.setFrameShape(QFrame.Shape.NoFrame)
-            # TRANSPARENT, not CANVAS. This brush is the near-black rectangle
-            # reported on 2026-09-01, and it is set HERE -- clearing the
-            # scene's brush in the panel left this one painting over it, which
-            # is why the box stayed black through the first attempt. The
-            # viewport must stop filling itself as well, or Qt paints the
-            # palette colour underneath before either brush is consulted.
             self.setBackgroundBrush(QBrush(Qt.GlobalColor.transparent))
             self.viewport().setAutoFillBackground(False)
             self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
@@ -240,9 +234,6 @@ else:
             self._start_height = 0
             self.setCursor(Qt.SizeVerCursor)
             self.setFixedHeight(self.HEIGHT)
-            # Drawn here rather than by the app theme: FlowView renders
-            # standalone too, and must not need the Qt palette to have a
-            # visible edge.
             self.setStyleSheet(
                 "QFrame { background: transparent; border: none;"
                 f" border-bottom: 1px solid {_SPLIT_LINE}; }}"
@@ -343,17 +334,6 @@ else:
             super().__init__(parent)
             self.setObjectName("FlowViewPanel")
             self._embedded = bool(embedded)
-            # NO RIM, and the reason is worth keeping: the border here read
-            # `#FFFFFF1A`, which in a CSS file means white at 10% alpha
-            # (#RRGGBBAA) but in a QT STYLESHEET is parsed as #AARRGGBB --
-            # opaque rgb(255, 255, 26). That is the bright yellow rectangle
-            # around the inspector, reported on 2026-09-01 as "the yellow rim".
-            # The same literal in `export.py` is correct, because that one
-            # really is CSS and a browser really does read #RRGGBBAA.
-            #
-            # It is removed rather than corrected to a faint white, which is
-            # what was asked for: the panel sits inside a section that already
-            # draws the only box this needs.
             panel_surface = (
                 "background: transparent; border: none;"
                 if self._embedded
@@ -363,9 +343,6 @@ else:
             self.setStyleSheet(
                 f"#FlowViewPanel {{ {panel_surface} }}"
                 f"QLabel, QPlainTextEdit {{ color: {TEXT_PRIMARY}; }}"
-                # TRANSPARENT, ROUNDED, RIMLESS. The inspector was a black
-                # rectangle with the yellow border above; it now shows the
-                # page behind it like every other surface on the screen.
                 "QPlainTextEdit {"
                 " background: transparent; border: none;"
                 " border-radius: 8px; }"
@@ -407,16 +384,8 @@ else:
             outer.addWidget(self.sample_note)
 
             self.scene = QGraphicsScene(self)
-            # THE OTHER BLACK BOX. The scene painted CANVAS (#0E1216), which
-            # is a near-black rectangle sitting on top of whatever the screen
-            # behind it is showing. Transparent lets the page through, and the
-            # nodes carry their own fills so nothing becomes unreadable.
             self.scene.setBackgroundBrush(QBrush(Qt.GlobalColor.transparent))
             self.view = FlowGraphicsView(self.scene, self)
-            # THE SCENE BRUSH IS NOT ENOUGH. A QGraphicsView paints its own
-            # widget background and its viewport's before the scene is drawn,
-            # so clearing only the brush left the same near-black rectangle on
-            # screen. All three have to give way for the page to show through.
             self.view.setStyleSheet(
                 "QGraphicsView { background: transparent; border: none;"
                 " border-radius: 8px; }")
@@ -425,28 +394,13 @@ else:
             self.inspector = QPlainTextEdit(self)
             self.inspector.setReadOnly(True)
             self.inspector.setPlaceholderText("Select a stage to inspect its run details.")
-            # TALLER TO START, AND FREE TO GROW. 118 px showed about four
-            # lines, so every stage worth inspecting needed scrolling
-            # immediately. The splitter below gives it a real share of the
-            # height rather than the sliver a minimum alone would earn it.
             self.inspector.setMinimumHeight(self.INSPECTOR_MIN_HEIGHT)
             splitter = QSplitter(Qt.Orientation.Vertical, self)
             splitter.addWidget(self.view)
             splitter.addWidget(self.inspector)
-            # THE INSPECTOR GETS A REAL SHARE. At 4:1 it was a sliver that
-            # collapsed to its minimum the moment the graph had anything in
-            # it; the graph still leads, but the pane underneath is now a
-            # place text can actually be read, and the splitter handle stays
-            # so either can be given the whole height.
             splitter.setStretchFactor(0, 3)
             splitter.setStretchFactor(1, 2)
             splitter.setCollapsible(1, False)
-            # THE HANDLE HAS TO BE VISIBLE TO BE FOUND. A QSplitter draws
-            # nothing by default on this style, so the divider between the
-            # graph and the inspector was a 6 px band of nothing -- draggable,
-            # but only by somebody who already knew it was there. It is drawn
-            # as the same hairline the console's resize handle uses, so the
-            # two affordances on this screen do not look like two.
             splitter.setHandleWidth(_PanelHeightGrip.HEIGHT)
             splitter.setStyleSheet(
                 "QSplitter::handle:vertical {"
@@ -457,10 +411,6 @@ else:
             self._splitter = splitter
             outer.addWidget(splitter, 1)
 
-            # AND ONE BELOW THE TEXT BOX. The splitter divides the panel's own
-            # height between graph and inspector; this one changes how much
-            # height the panel has at all, so the pair reads as "the graph
-            # against the text" and "the two of them against the page".
             self._bottom_grip = _PanelHeightGrip(self)
             outer.addWidget(self._bottom_grip)
 

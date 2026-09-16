@@ -50,13 +50,6 @@
       "source": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Plate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",
       "context": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Laboratory microplate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",
       "translation": "El título se conserva tal como se escribió y solo se pasa a mayúsculas camino del botón, porque el catálogo de traducción está indexado por el nombre escrito: buscar un rótulo ya en mayúsculas no encuentra nada y deja la cabecera en inglés. El ``&`` de un nombre como \"Laboratory microplate Layout & Controls\" se escapa para mostrarlo, ya que de lo contrario un ``QToolButton`` lo leería como un mnemónico y se lo tragaría."
-    },
-    {
-      "label": "spacr.spacrops.stitch_cycle_wells#2",
-      "source_sha256": "43e2055f27b37bb3caa915733fa5684575c1b93adb7ae82e1a64fe15a181260e",
-      "source": "THE MOSAIC IS OPT-IN. Set ``write_mosaic`` (or its synonym ``mosaic``) to build one. It is off by default because assembling a mosaic raises when too few tiles overlapped to place any, and a plate that cannot be stitched should not become a plate that cannot be organised.",
-      "context": "The stitched image grid is opt-in. Set ``write_mosaic`` (or its synonym ``mosaic``) to build one. It is off by default because assembling a stitched image grid raises when too few microscope image fields overlapped to place any, and a plate that cannot be stitched should not become a plate that cannot be organised.",
-      "translation": "La cuadrícula de imágenes cosida es opcional. Establezca ``write_mosaic`` (o su sinónimo ``mosaic``) para construir una. Está desactivada de forma predeterminada porque montar una cuadrícula de imágenes cosida da error cuando muy pocos campos de imagen del microscopio se solapan como para colocar alguno, y una placa que no se puede coser no debería convertirse en una placa que no se puede organizar."
     }
   ]
 }

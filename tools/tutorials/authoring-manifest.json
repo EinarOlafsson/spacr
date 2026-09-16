@@ -244,8 +244,8 @@
     },
     {
       "path": "tools/render_all_voices.py",
-      "sha256": "422e2a2cca1155e4344f0aa4b362f6e733d1eb7dcbd3c0f3ae1b752b661206da",
-      "bytes": 29228
+      "sha256": "40a3ae411fed6407245c04d936673f83e9632263a4adaa0452e5adb0e33410ae",
+      "bytes": 29919
     },
     {
       "path": "tools/render_install_keyframes.py",
@@ -574,8 +574,8 @@
     },
     {
       "path": "web/app_v2.js",
-      "sha256": "47b9096f57156f6c569dd95f908683474bd5327fb00b56aa728024d6ad8de726",
-      "bytes": 88337
+      "sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+      "bytes": 88580
     },
     {
       "path": "web/catalog/captions_da.json",
@@ -1302,37 +1302,37 @@
     {
       "source": "catalog/lessons_es.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_es.json",
-      "published_sha256": "50cb8665b789297e5869511582a997c45bd3e3c6db266f17c0dcb073a47186b1"
+      "published_sha256": "03b3a40bd47e1b70589ba502459cb73544227649c22487cda03f4b7cfb1202b3"
     },
     {
       "source": "catalog/lessons_fr.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_fr.json",
-      "published_sha256": "47c5e766e58a2b3edb2a11a66064124666e6829bae76f4898fa7ee9332d3dfdb"
+      "published_sha256": "baba28a9d2ad6a4e2cc6ca858a90971c014bc128d293f78113e6f2c91c39ab0a"
     },
     {
       "source": "catalog/lessons_hi.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_hi.json",
-      "published_sha256": "b4e004a0d5e9113acc99a724970c19bf354e0dc82a55a30422504ae5a7411a0b"
+      "published_sha256": "3d306dbdb2ee2b6b7254130997e489f95351854ff381a1f9215769ba2b63c8c7"
     },
     {
       "source": "catalog/lessons_it.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_it.json",
-      "published_sha256": "3b7801784e02a25ff497bcdc52c22fbfdf6cac4edfe3cf2d085f57b4a5391198"
+      "published_sha256": "4aa3570bfd918da1635db347834cc6cf99a277aabbae2c3b7918b45bcd818761"
     },
     {
       "source": "catalog/lessons_ja.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_ja.json",
-      "published_sha256": "eb1d66aa98abffd8417dc4ddfb1001f224a3ebe813f33d3ea650d2f537e69862"
+      "published_sha256": "9218aa53b2247be0cafe7d8fede2368fac4b6f22db4db223ade8cddb2bedbdae"
     },
     {
       "source": "catalog/lessons_pt-BR.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_pt-BR.json",
-      "published_sha256": "b32adc10d2d577b18213e82108734cb4018fb10a85c7013867b9ea2fdfd14a58"
+      "published_sha256": "634d796d7f67819cc8769e06f08aac6f740d9d30b5b8fd96b64662f2071a904b"
     },
     {
       "source": "catalog/lessons_zh-CN.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_zh-CN.json",
-      "published_sha256": "c482702fd3803feeb271dd24a34876926efad5ea17684ea024921c930211ab06"
+      "published_sha256": "531a7c5608eabbda45dad49cf25ef3f1e7e44e8e54b19eadc467ba7675673e3e"
     },
     {
       "source": "web/catalog/captions_da.json",
@@ -1372,37 +1372,37 @@
     {
       "source": "web/catalog/lessons_es.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_es.json",
-      "published_sha256": "50cb8665b789297e5869511582a997c45bd3e3c6db266f17c0dcb073a47186b1"
+      "published_sha256": "03b3a40bd47e1b70589ba502459cb73544227649c22487cda03f4b7cfb1202b3"
     },
     {
       "source": "web/catalog/lessons_fr.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_fr.json",
-      "published_sha256": "47c5e766e58a2b3edb2a11a66064124666e6829bae76f4898fa7ee9332d3dfdb"
+      "published_sha256": "baba28a9d2ad6a4e2cc6ca858a90971c014bc128d293f78113e6f2c91c39ab0a"
     },
     {
       "source": "web/catalog/lessons_hi.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_hi.json",
-      "published_sha256": "b4e004a0d5e9113acc99a724970c19bf354e0dc82a55a30422504ae5a7411a0b"
+      "published_sha256": "3d306dbdb2ee2b6b7254130997e489f95351854ff381a1f9215769ba2b63c8c7"
     },
     {
       "source": "web/catalog/lessons_it.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_it.json",
-      "published_sha256": "3b7801784e02a25ff497bcdc52c22fbfdf6cac4edfe3cf2d085f57b4a5391198"
+      "published_sha256": "4aa3570bfd918da1635db347834cc6cf99a277aabbae2c3b7918b45bcd818761"
     },
     {
       "source": "web/catalog/lessons_ja.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_ja.json",
-      "published_sha256": "eb1d66aa98abffd8417dc4ddfb1001f224a3ebe813f33d3ea650d2f537e69862"
+      "published_sha256": "9218aa53b2247be0cafe7d8fede2368fac4b6f22db4db223ade8cddb2bedbdae"
     },
     {
       "source": "web/catalog/lessons_pt-BR.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_pt-BR.json",
-      "published_sha256": "b32adc10d2d577b18213e82108734cb4018fb10a85c7013867b9ea2fdfd14a58"
+      "published_sha256": "634d796d7f67819cc8769e06f08aac6f740d9d30b5b8fd96b64662f2071a904b"
     },
     {
       "source": "web/catalog/lessons_zh-CN.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_zh-CN.json",
-      "published_sha256": "c482702fd3803feeb271dd24a34876926efad5ea17684ea024921c930211ab06"
+      "published_sha256": "531a7c5608eabbda45dad49cf25ef3f1e7e44e8e54b19eadc467ba7675673e3e"
     },
     {
       "source": "web/index.html",

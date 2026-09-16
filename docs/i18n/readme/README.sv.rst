@@ -212,18 +212,23 @@ Den andra raden behövs bara när beroenden eller ingångspunkter ändras; Pytho
 Installera från källa (ljus)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Full klon: 427 MB. Kärnklon: 76 MB.
+Bidragsgivarna behöver historiken; för att bara köra spaCR, ta en av dessa, mätt 2026-09-15 med ``packaging/measure_clone_forms.sh``::
 
-::
+    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Hoppar över ``docs/``, ``tests/`` och Cellpose kontrollpunkter, arkiverade siffror och utökade översättningskataloger. Resultatet är en normal checkout.
-
-Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
-
-``packaging/source_install_excludes.txt`` listar varje överhoppad sökväg.
+Den fullständiga klonen laddar ner 5,8 GB för en checkout på 1186 MB. Att lägga till ``--filter=blob:none`` till den klonen sparar ingenting: kassan hämtar ändå klumparna.
 
 
 Kommandoradskommandon
@@ -241,6 +246,8 @@ Kommandoradskommandon
    spacr-repro RUN_DIR                        # replay a recorded run
    spacr-download --list                      # what example data exists
    spacr-download measure annotate            # fetch example sets by name
+   spacr-make-masks --folder DIR              # curate masks as a resumable queue
+   spacr-make-masks --folder DIR --order easy --limit 50
 
 Ange ``SPACR_LOG_LEVEL=DEBUG`` vid felsökning. Roterande loggar skrivs till ``~/.spacr/logs/spacr.log``.
 
@@ -485,8 +492,8 @@ spaCR skickar en katalog med utbildade modeller och hämtar dem på begäran. Ö
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -504,7 +511,7 @@ Varje figur ovan mäts på bilder modellen aldrig såg i träning.
 
 **F1** är de två kombinerade, och citeras eftersom var och en av dem är trivialt gamed - rapportera en omisskännlig plakett för nära perfekt precision, eller varje mörk blob för nära-perfect recall. Som du hellre skulle förlora beror på analysen, och räkning är vanligtvis bättre betjänas av over-calling: plaque-modellen accepterades med precision 0.858 med reclosure 0.811 under en tidigare runda på 0,939 och 0,631.
 
-**IoU**, intersection over union, is how much a predicted object and the real one overlap, divided by the area they cover together. It is the ruler the rest are read against, so a score means nothing without its threshold: "F1 0.867 at IoU 0.5" counts a vacuole as found when the two outlines agree over half their combined area.
+**IoU**, intersection over union, is how much a predicted object and the real one overlap, divided by the area they cover together. It is the ruler the rest are read against, so a score means nothing without its threshold: "F1 0.864 at IoU 0.5" counts a vacuole as found when the two outlines agree over half their combined area.
 
 **mAP50** och **mAP50-95** tillhör detektorn. Den första frågar om brunnarna hittades; den andra upprepar det över tio tröskelvärden från 0,5 till 0,95, så den frågar också hur tätt varje låda dras. Klyftan mellan dem är placering, inte detektion.
 

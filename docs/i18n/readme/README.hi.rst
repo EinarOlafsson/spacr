@@ -212,18 +212,23 @@ conda-forge से इंस्टॉलेशन
 स्रोत से स्थापित करें (प्रकाश)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-पूर्ण क्लोन: 427 एमबी. कोर क्लन: 76 एमबी।
+योगदानकर्ताओं को इतिहास की आवश्यकता है; केवल spaCR चलाने के लिए, इनमें से एक लें, ``packaging/measure_clone_forms.sh`` द्वारा मापा 2026-09-15::
 
-::
+    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-स्काइप ``docs/``, ``tests/`` , Cellpose चेक पॉइंट, संग्रहीत आंकड़े और विस्तारित अनुवाद कैटलॉग. परिणाम एक सामान्य चेकअप है.
-
-विकल्प: ``--dir``, ``--branch`` (डिफ़ॉल्ट ``main``), ``--with-tests``, [``--with-docs``,] ``--with-translations`` और [``--no-install``।
-
-``packaging/source_install_excludes.txt`` प्रत्येक पारित मार्ग को सूचीबद्ध करता है।
+पूर्ण क्लोन एक 1186 एमबी चेकअप के लिए 5.8 जीबी डाउनलोड करता है. ``--filter=blob:none`` जोड़ने से उस क्लोना में कुछ भी नहीं बचाता है: चेकआउट किसी भी तरह से ब्लोब को पकड़ता है.
 
 
 कमांड-लाइन प्रवेश बिंदु
@@ -241,6 +246,8 @@ conda-forge से इंस्टॉलेशन
    spacr-repro RUN_DIR                        # replay a recorded run
    spacr-download --list                      # what example data exists
    spacr-download measure annotate            # fetch example sets by name
+   spacr-make-masks --folder DIR              # curate masks as a resumable queue
+   spacr-make-masks --folder DIR --order easy --limit 50
 
 समस्या निवारण के समय ``SPACR_LOG_LEVEL=DEBUG`` सेट करें। रोटेटिंग लॉग ``~/.spacr/logs/spacr.log`` में लिखे जाते हैं।
 
@@ -485,8 +492,8 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -504,7 +511,7 @@ spaCR प्रशिक्षित मॉडलों का एक कैट�
 
 **F1** दोनों संयुक्त हैं, और यह उद्धृत किया जाता है क्योंकि प्रत्येक अकेले ट्रिविल रूप से खेला जाता है - निकट-पूर्ण सटीकता के लिए एक अविश्वसनीय प्लेक की रिपोर्ट करें, या करीब-पूर्ण पुनरावृत्ति के लिए प्रत्येक अंधेरे ब्लॉब. जो आप बेहतर खो देंगे, यह अनुमान पर निर्भर करता है, और गिनती आमतौर पर बेहतर है अति-कवाना द्वारा सेवा की जाती है: प्लेक्स मॉडल को 0.858 की परिभाषा में स्वीकार किया गया था और 0.811 को 0.939 और 0.631.
 
-**IoU**, यूनियन के माध्यम से पारगमन, यह है कि कितना एक अनुमानित वस्तु और वास्तविक एक ओवरपॉप, वे एक साथ कवर क्षेत्र द्वारा विभाजित है. यह नियंत्रक है कि बाकी के खिलाफ पढ़ा जाता है, इसलिए एक स्कोर इसका सीमा के बिना कुछ भी नहीं है: "F1 0.867 में IoU 0.5" एक वैक्यूल की गिनती करता है जैसा कि पाया जाता है जब दोनों आउटलिन अपने संयुक्त क्षेत्र के आधे से अधिक सहमत होते हैं।
+**IoU**, यूनियन के माध्यम से पारगमन, यह है कि कितना एक अनुमानित वस्तु और वास्तविक एक ओवरपॉप, वे एक साथ कवर क्षेत्र द्वारा विभाजित है. यह नियंत्रक है कि बाकी के खिलाफ पढ़ा जाता है, इसलिए एक स्कोर इसका सीमा के बिना कुछ भी नहीं है: "F1 0.864 में IoU 0.5" एक वैक्यूल की गिनती करता है जैसा कि पाया जाता है जब दोनों आउटलिन अपने संयुक्त क्षेत्र के आधे से अधिक सहमत होते हैं।
 
 **mAP50** और **map50-95** डिटेक्टर से संबंधित हैं. पहला पूछता है कि क्या बर्तन पाए गए हैं; दूसरा इसे 0.5 से 0.95 तक के दस सीमाओं के माध्यम से दोहराता है, इसलिए यह भी पूछा जाता है कि प्रत्येक बॉक्स को कितनी ठोस रूप से खींचा जाता है. उनके बीच का अंतर स्थान है, नहीं पहचान।
 

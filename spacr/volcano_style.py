@@ -18,20 +18,14 @@ import json
 import os
 from dataclasses import asdict, dataclass, field, fields
 
-# THE SHARED VOCABULARY (108 point 1). `FigureStyle` holds every field a
-# reader would recognise on any figure -- axes, type, grid, legend, page --
-# so a house style saved on a volcano can be applied to another figure that
-# shares those names, and "font size" is one setting in spaCR.
+from .style_base import FONT_FAMILY as _FONT_FAMILY
 from .style_base import SCALES as _SCALES
-from .style_base import SHARED_CHOICES, FigureStyle
+from .style_base import SHARED_CHOICES, FigureStyle, font_rc
 from typing import Any, Sequence
 
 import numpy as np
 import pandas as pd
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from .figures.style import figure_style, theme_target
 
 __all__ = [
@@ -82,7 +76,12 @@ COLORMAPS: dict[str, tuple[str, ...]] = {
                     "Paired", "Accent"),
 }
 
+#: Families the explorer offers, house face FIRST -- it is the default, and a
+#: value the combo does not carry is silently rewritten to its first entry by
+#: the control sync, which would have put every volcano back on "sans-serif"
+#: (and so on DejaVu Sans) the moment its style panel was opened.
 FONT_FAMILIES: tuple[str, ...] = (
+    _FONT_FAMILY,
     "sans-serif", "serif", "monospace", "DejaVu Sans", "DejaVu Serif",
     "DejaVu Sans Mono", "Arial", "Helvetica", "Times New Roman", "Courier New",
 )
@@ -110,7 +109,6 @@ class VolcanoStyle(FigureStyle):
     columns, the thresholds, the marks and the labelling.
     """
 
-    # ---- what is plotted -------------------------------------------------
     x_column: str = "standardized_marginal_effect"
     y_column: str = "adjusted_p_value"
     #: -log10 the y column. Off means "plot the value as it is", which is what
@@ -118,18 +116,12 @@ class VolcanoStyle(FigureStyle):
     y_neg_log10: bool = True
     label_column: str = "guide"
 
-    # ---- axes -------------------------------------------------------------
-    # `y_label`, `title`, the two scales, the two limits and the two inverts
-    # are INHERITED. Only the default LABEL is restated: a base class cannot
-    # know what this figure's x axis is, and the volcano's has been
-    # "Standardized marginal effect" since it was written.
     x_label: str = "Standardized marginal effect"
     #: Broken y axis: ``[(lo1, hi1), (lo2, hi2)]`` draws two stacked panels
     #: with a break, for a screen whose hits sit far above the null cloud.
     split_axis: bool = False
     split_y_lims: tuple[tuple[float, float], tuple[float, float]] | None = None
     split_height_ratio: float = 0.35
-    # ---- thresholds ------------------------------------------------------
     alpha: float = 0.05
     #: Effect-size cut. ``None`` draws none. ``threshold_multiplier`` scales
     #: whichever rule ``threshold_method`` names.
@@ -168,7 +160,6 @@ class VolcanoStyle(FigureStyle):
     show_effect_lines: bool = True
     show_zero_line: bool = True
 
-    # ---- marks -----------------------------------------------------------
     marker: str = "o"
     marker_size: float = 26.0
     significant_marker_size: float = 52.0
@@ -200,7 +191,6 @@ class VolcanoStyle(FigureStyle):
     #: ``guide`` that the results actually have.
     localization_column: str | None = None
 
-    # ---- lines -----------------------------------------------------------
     line_width: float = 1.0
     #: BLACK, because the volcano is read as a publication figure: the
     #: fold-change verticals and the significance horizontal are the two
@@ -211,7 +201,6 @@ class VolcanoStyle(FigureStyle):
     zero_line_color: str = "#000000"
     zero_line_width: float = 0.7
 
-    # ---- the ground and the ink ------------------------------------------
     #: What the INTERACTIVE explorer paints behind the plot.
     #:
     #: SEPARATE FROM ``background_color`` ON PURPOSE, and the separation is
@@ -236,19 +225,12 @@ class VolcanoStyle(FigureStyle):
     #: depends on what the process drew before it is not reproducible.
     axis_color: str = "#000000"
 
-    # ---- text: the SIZES are inherited (font_family, font_size,
-    # title_font_size, label_font_size, tick_font_size, font_weight). What is
-    # here is the labelling, which is a volcano's own question.
     #: Guides to annotate: ``{guide id: printed label}``.
     annotations: dict = field(default_factory=dict)
     #: Annotate everything called significant, in addition to `annotations`.
     annotate_significant: bool = False
 
-    # ---- frame: INHERITED in full (figure_width, figure_height, dpi, grid,
-    # grid_axis, grid_color, grid_width, hide_top_right_spines, legend,
-    # legend_location, background_color, transparent).
 
-    # ------------------------------------------------------------------ i/o
 
     def to_dict(self) -> dict:
         """Return every style field as a recursively copied plain mapping."""
@@ -327,16 +309,9 @@ def _resolve_effect_threshold(values: np.ndarray, style: VolcanoStyle,
                 f"null from; this screen has {controls.size}. Use 'mad' and "
                 f"read it as a rough spread, or set an explicit "
                 f"effect_threshold.")
-        # MAD rather than std: one control that went wrong should not widen
-        # the null it is supposed to define. 1.4826 makes it a consistent
-        # estimator of sigma under normality, the same scaling the 'mad'
-        # branch uses, so the two are directly comparable and the difference
-        # between them is exactly "did the hits inflate it".
         median = float(np.median(controls))
         mad = float(np.median(np.abs(controls - median)))
         if mad <= 0.0:
-            # Controls all identical -- degenerate, and a zero cut would mark
-            # every guide significant. Say so instead.
             raise ValueError(
                 "the control guides have zero spread, so no null can be "
                 "estimated from them. Check that control_column selects the "
@@ -351,10 +326,8 @@ def _resolve_effect_threshold(values: np.ndarray, style: VolcanoStyle,
     if method == "mad":
         median = float(np.median(finite))
         mad = float(np.median(np.abs(finite - median)))
-        # 1.4826 makes the MAD a consistent estimator of sigma under normality.
         return mad * 1.4826 * multiplier
     if method == "quantile":
-        # The multiplier is the quantile itself here, e.g. 0.99.
         quantile = min(max(multiplier, 0.5), 0.999999)
         return float(np.quantile(np.abs(finite), quantile))
     raise ValueError(
@@ -422,21 +395,16 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
     frame, x, y, raw_y, significant, effect_cut = _prepare(results, style)
 
     if figure is None:
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             figure = plt.figure(figsize=(style.figure_width, style.figure_height),
                                 dpi=style.dpi)
     else:
         figure.clear()
 
-    with mpl.rc_context({
-        "font.family": style.font_family,
-        "font.size": style.font_size,
-        "font.weight": style.font_weight,
-    }):
+    # `font_rc`, not a hand-written `font.family`: naming a family matplotlib
+    # has not been given the FILE for falls back to DejaVu Sans without
+    # failing, so the faces spaCR ships have to be registered first.
+    with mpl.rc_context(font_rc(style)):
         if style.split_axis and style.split_y_lims:
             lower, upper = style.split_y_lims
             ratio = max(min(float(style.split_height_ratio), 0.9), 0.1)
@@ -460,12 +428,6 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
         path = os.fspath(save_path)
         parent = os.path.dirname(os.path.abspath(path))
         os.makedirs(parent, exist_ok=True)
-        # 108 point 6, through the one writer -- and the style still wins
-        # where it has an opinion. THE EXTENSION IS THE CALLER'S: this is the
-        # headless renderer and its `save_path` is a filename someone chose,
-        # so `fmt` is taken from it rather than from the preference, which
-        # would rename the file under them. What it gains is the DPI rule,
-        # the TrueType embedding, and the repaint for paper.
         from .plot import save_figure
 
         suffix = os.path.splitext(path)[1].lstrip(".").lower() or None
@@ -483,7 +445,6 @@ def _colour_values(frame: pd.DataFrame, style: VolcanoStyle):
         return None
     column = frame[style.color_by]
     numeric = pd.to_numeric(column, errors="coerce")
-    # A column that is mostly unparseable is a category, whatever its dtype.
     if numeric.notna().mean() > 0.9:
         return numeric.to_numpy(float), False
     return column.astype(str).to_numpy(), True
@@ -560,8 +521,6 @@ def _draw_by_localization(panels, frame, x, y, places, style, shapes) -> None:
     """
     import matplotlib as mpl
 
-    # `dict.fromkeys` keeps the offered order and drops a repeat, so the same
-    # combination is drawn the same however it was ticked.
     wanted = list(dict.fromkeys(str(name) for name in style.localizations))
     cmap = mpl.colormaps[style.colormap]
     for axis in panels:
@@ -595,8 +554,6 @@ def _draw_points(panels, frame, x, y, significant, style):
         places = point_localizations(frame, style)
         if places is not None:
             _draw_by_localization(panels, frame, x, y, places, style, shapes)
-            # No mappable: a compartment is a category, and a colour bar over
-            # categories is a scale that reads as continuous when it is not.
             return None
     colours = _colour_values(frame, style)
 
@@ -651,7 +608,6 @@ def _scatter_by_shape(axis, frame, x, y, mask, style, shapes, *, color, size,
                      linewidth=style.marker_edge_width, label=label)
         return
     values = frame[style.shape_by].astype(str).to_numpy()
-    # When colour and shape encode the SAME column, "GRA · GRA" is noise.
     same_source = style.shape_by == style.color_by
     for name, code in shapes.items():
         combined = mask & (values == name)
@@ -719,9 +675,6 @@ def _annotate(panels, frame, x, y, significant, style):
                 visible = True
                 break
         if not visible and np.isfinite(point_y):
-            # A break has no data coordinate to draw on. Put the anchor on its
-            # nearest visible edge and move the text towards the panel's
-            # interior, or clipping erases the label while retaining its Text.
             edges = []
             for panel in panels:
                 bottom, top = panel.get_ylim()
@@ -832,13 +785,9 @@ def _finish_axes(figure, panels, style, mappable, ground=None):
         axis.tick_params(labelsize=style.tick_font_size)
 
     if len(panels) == 2:
-        # The break marks. Hide the shared edge, then draw the diagonal ticks.
         panels[0].spines["bottom"].set_visible(False)
         panels[1].spines["top"].set_visible(False)
         panels[0].tick_params(bottom=False, labelbottom=False)
-        # THE BREAK MARKS ARE AXIS FURNITURE, so they take the axis ink
-        # rather than a grey of their own: a black-axes volcano with two
-        # grey ticks at the break reads as a rendering fault.
         break_ink = str(style.axis_color or "").strip() or "#404040"
         kwargs = dict(marker=[(-1, -0.6), (1, 0.6)], markersize=7,
                       linestyle="none", color=break_ink, mec=break_ink,
@@ -868,11 +817,7 @@ def _finish_axes(figure, panels, style, mappable, ground=None):
         if ink:
             bar.ax.tick_params(colors=ink, labelsize=style.tick_font_size)
             bar.ax.yaxis.label.set_color(ink)
-    # LAST, so it reaches the legend and the colour bar the lines above
-    # have only just created.
     _paint_ink(figure, panels, style, ground)
-    # tight_layout cannot lay out a broken axis or a figure-level colorbar and
-    # warns instead of doing nothing, so it is only run when it applies.
     if not style.split_axis and not (mappable is not None and style.show_colorbar):
         figure.tight_layout()
 
@@ -957,11 +902,6 @@ def validate_style(results: pd.DataFrame, style: VolcanoStyle) -> dict:
             f"{style.threshold_method!r} must be one of 'value', 'std', "
             f"'mad', 'quantile' or 'control'.")
     elif method == "control" and "control_column" not in problems:
-        # The control rule is the one that can fail on DATA rather than on a
-        # typo -- too few controls, or controls with no spread -- so it is
-        # asked rather than guessed, and the resolver is the thing that
-        # knows. Attributed to `threshold_method`, because that is the
-        # control the reader chose and can take back.
         try:
             mask = None
             if style.control_column and style.control_column in columns:
@@ -972,8 +912,6 @@ def validate_style(results: pd.DataFrame, style: VolcanoStyle) -> dict:
         except ValueError as error:
             problems["threshold_method"] = str(error)
         except Exception:                                     # noqa: BLE001
-            # A fault that is not about this setting -- a missing x column,
-            # say -- is already reported against the setting it belongs to.
             pass
     order = [f.name for f in fields(VolcanoStyle)]
     return {name: problems[name] for name in order if name in problems}

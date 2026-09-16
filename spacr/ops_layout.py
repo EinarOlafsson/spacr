@@ -34,13 +34,6 @@ c+1" are not side by side. THE NEIGHBOUR IS AT THE SAME ABSOLUTE GRID
 ROW, which is why :meth:`WellLayout.position` returns absolute rows and
 :meth:`WellLayout.neighbours` looks them up directly.
 
-WHAT THIS REPLACES. `max_site_gap` and the windowed pair search in
-`spacr.spacrops`: 128 candidate pairs per tile, of which four could be
-real, giving 993 scored pairs and 994 QC overlays for one well. This
-module offers four candidates per tile and every one of the 24 tested is
-a real adjacency, so about 640 real edges are scored instead of 993
-mostly-imaginary ones.
-
 Typical use::
 
     from spacr.ops_layout import round_well_layout
@@ -96,28 +89,46 @@ class WellLayout:
     :ivar snake: whether the acquisition snakes -- odd columns collected
         bottom to top. Micro-Manager's HCS plugin does, which is why the
         reference implementation carries a `remap_snake` at all.
+    :ivar half_tile: half a tile's side, in grid units. A site is kept
+        when its whole tile lies inside the circle: at ``(dx, dy)`` from
+        the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2
+        <= radius**2``. Zero keeps every site whose centre is inside, which
+        is the rule every layout followed before this field existed.
+
+    The tile has to fit, not its centre. The centre rule holds the
+    333-field sequencing well and cannot produce the column heights the
+    1,281-field phenotype well was measured at, for any radius. With the
+    footprint term both come out as measured, and every column is centred
+    on the same row.
     """
 
     columns: int = MEASURED_WELL[0]
     radius: float = MEASURED_WELL[1]
     centre: Tuple[int, int] = (MEASURED_WELL[2], MEASURED_WELL[3])
     snake: bool = True
+    half_tile: float = 0.0
 
-    # -- the geometry --------------------------------------------------
     def span(self, column: int) -> Optional[Tuple[int, int]]:
         """``(first row, last row)`` of one column, or None if it is empty.
 
         :param column: the column index.
-        :returns: the inclusive absolute row range inside the circle.
+        :returns: the inclusive absolute row range of the sites whose whole
+            tile lies inside the circle -- see :attr:`half_tile`.
         """
         if not 0 <= column < self.columns:
             return None
-        dx = column - self.centre[0]
-        remainder = self.radius * self.radius - dx * dx
+        across = abs(column - self.centre[0]) + self.half_tile
+        remainder = self.radius * self.radius - across * across
         if remainder < 0:
             return None
-        half = math.floor(math.sqrt(remainder))
-        return self.centre[1] - half, self.centre[1] + half
+        # At a half tile of zero this is floor(sqrt(R^2 - dx^2)) to the bit:
+        # subtracting 0.0 moves no float, so the centre rule is unchanged.
+        reach = math.sqrt(remainder) - self.half_tile
+        if reach < 0:
+            return None
+        half = math.floor(reach)
+        origin = self.centre[1]
+        return origin - half, origin + half
 
     @property
     def heights(self) -> List[int]:
@@ -133,7 +144,6 @@ class WellLayout:
         """How many tiles the well holds."""
         return len(_index(self)[0])
 
-    # -- site index <-> grid position ----------------------------------
     def _walk(self) -> Iterator[Tuple[int, int]]:
         """Every ``(column, row)`` in acquisition order."""
         for column in range(self.columns):
@@ -174,7 +184,6 @@ class WellLayout:
         """
         return _index(self)[1].get((column, row))
 
-    # -- adjacency -----------------------------------------------------
     def neighbours(self, site: int) -> Dict[str, int]:
         """The sites physically adjacent to one site.
 
@@ -221,8 +230,6 @@ class WellLayout:
         seen: List[Tuple[int, int, str]] = []
         for place, site in index.items():
             column, row = place
-            # DOWN AND RIGHT ONLY, which is what makes each pair appear
-            # once AND puts the tiles in geometric order at the same time.
             for name in ("down", "right"):
                 dcol, drow = DIRECTIONS[name]
                 other = index.get((column + dcol, row + drow))
@@ -232,7 +239,6 @@ class WellLayout:
                 seen.append((site, other, axis))
         return sorted(seen)
 
-    # -- the reference model -------------------------------------------
     def micron_position(self, site: int,
                         pitch: float = TILE_PITCH_UM) -> Tuple[float, float]:
         """Where the reference implementation says a tile is, in microns.
@@ -268,43 +274,146 @@ def _index(layout: "WellLayout"):
     return places, {place: site for site, place in enumerate(places)}
 
 
+def _reach(radius: float, half_tile: float) -> int:
+    """How many columns either side of the centre hold a whole tile.
+
+    :param radius: the circle's radius, in pitches.
+    :param half_tile: half a tile's side, in pitches.
+    :returns: the largest ``|dx|`` at which a tile fits, or 0 when none
+        does.
+
+    At a half tile of zero this is ``floor(radius)`` to the bit, because
+    ``sqrt(r * r) == r`` in binary floating point -- which keeps the centre
+    rule's column count, and so its column indices, as they were.
+    """
+    remainder = radius * radius - half_tile * half_tile
+    if remainder < 0:
+        return 0
+    return max(0, math.floor(math.sqrt(remainder) - half_tile))
+
+
+def _candidate(radius: float, columns: Optional[int],
+               half_tile: float) -> WellLayout:
+    """The layout one radius gives, centred on its middle column.
+
+    :param radius: the circle's radius, in pitches.
+    :param columns: the column count when it is known, else None.
+    :param half_tile: half a tile's side, in pitches.
+    :returns: the layout, which may hold no field at all.
+    """
+    span = columns or 2 * _reach(radius, half_tile) + 1
+    return WellLayout(columns=span, radius=radius,
+                      centre=(span // 2, -(span // 2)), half_tile=half_tile)
+
+
+def _exact_radius(site_count: int, half_tile: float,
+                  above: float) -> Optional[float]:
+    """A radius inside the window that holds exactly ``site_count`` fields.
+
+    :param site_count: how many fields the acquisition holds.
+    :param half_tile: half a tile's side, in pitches.
+    :param above: a radius known to hold more than ``site_count``, which
+        bounds the fields worth looking at.
+    :returns: the middle of the window of radii holding exactly that many,
+        or None when there is no such window -- fields entering the circle
+        together, as a symmetric well's do in fours and eights.
+
+    Needed because the search steps the radius by 0.05, and with the
+    footprint term the radii holding one count can span a ten-thousandth
+    of a pitch (372 PART 14-L: 1,281 fields at a half tile of 0.5005). So
+    each grid position's own threshold ``hypot(|dx| + a, |dy| + a)`` is
+    listed and the window read off directly.
+
+    THE MIDDLE, NOT AN EDGE. Bisecting onto the edge was tried first and
+    found wells no circle holds: at a threshold, the float arithmetic for
+    ``(k, 0)`` and ``(0, k)`` can disagree in the last bit, and a radius
+    that close keeps two of four mirror-image fields -- a "23-field well".
+    A window narrower than float noise is refused for the same reason.
+    """
+    reach = int(math.ceil(above)) + 1
+    entering: Dict[float, int] = {}
+    for dx in range(reach + 1):
+        for dy in range(dx, reach + 1):
+            threshold = math.hypot(dx + half_tile, dy + half_tile)
+            if threshold > above:
+                continue
+            copies = 1 if dx == dy == 0 else 4 if dx == 0 or dx == dy else 8
+            entering[threshold] = entering.get(threshold, 0) + copies
+    ordered = sorted(entering)
+    held = 0
+    for index, threshold in enumerate(ordered):
+        held += entering[threshold]
+        if held > site_count or index + 1 == len(ordered):
+            return None
+        if held == site_count:
+            upper = ordered[index + 1]
+            if upper - threshold <= 1e-9 * max(1.0, upper):
+                return None
+            return (threshold + upper) / 2
+    return None
+
+
 def round_well_layout(site_count: int = 333,
-                      columns: Optional[int] = None) -> WellLayout:
+                      columns: Optional[int] = None,
+                      half_tile: float = 0.5857) -> WellLayout:
     """The layout whose circle holds exactly ``site_count`` fields.
 
-    The measured well is returned unchanged for 333, so the confirmed
-    model is never re-derived. For any other count the radius is searched
-    -- a well imaged at a different magnification or a different plate
-    format is the same circle with a different number of fields in it.
+    The measured well is returned unchanged whenever the search lands on
+    its 333 sites, so the confirmed model is never re-derived. For any
+    other count the radius is searched -- a well imaged at a different
+    magnification or a different plate format is the same circle with a
+    different number of fields in it.
 
     :param site_count: how many tiles the acquisition holds.
     :param columns: the column count, when it is known. Derived from the
         circle otherwise.
+    :param half_tile: half a tile's side in tile pitches -- the tile size
+        over twice the registered pitch. A field is kept when its whole
+        tile lies inside the circle; zero keeps it when its centre does.
+        The default is the phenotype acquisition's measured 0.5857. The
+        sequencing acquisition measured 0.5840, and every value strictly
+        between 0.5 and 2.0 gives both wells -- 333 and 1,281 fields -- the
+        column heights they were measured at.
     :returns: the layout.
     :raises ValueError: when no circle holds exactly that many fields,
         which is the honest answer -- a count that no round well produces
         means the acquisition is not one, and guessing the nearest would
-        place every tile slightly wrong.
+        place every tile slightly wrong. Also when ``half_tile`` is
+        negative or not a number.
+
+    For one half tile, the count fixes the fields. The number of fields
+    inside the circle only grows with the radius, so every radius that
+    holds exactly ``site_count`` holds the same ones. The radius the layout
+    carries is one of those, not a measurement.
     """
-    if site_count == 333 and columns in (None, MEASURED_WELL[0]):
-        return WellLayout()
     if site_count < 1:
         raise ValueError("a well holds at least one field")
-    # A circle of radius r spans 2r + 1 columns, so the radius is bounded
-    # by the count itself; step finely enough that no integer span is
-    # skipped between one radius and the next.
+    half_tile = float(half_tile)
+    if not half_tile >= 0.0:
+        raise ValueError(
+            f"a half tile of {half_tile} pitches is no footprint; it is half "
+            "the tile's side over the pitch, so zero or more")
+    measured = WellLayout()
     step = 0.05
     radius = 0.5
     while radius <= site_count:
-        width = 2 * math.floor(radius) + 1
-        span = columns or width
-        centre = (span // 2, -(span // 2))
-        candidate = WellLayout(columns=span, radius=radius, centre=centre)
-        if candidate.site_count == site_count:
+        candidate = _candidate(radius, columns, half_tile)
+        held = sum(candidate.heights)
+        if held > site_count:
+            inside = _exact_radius(site_count, half_tile, radius)
+            if inside is None:
+                break
+            candidate = _candidate(inside, columns, half_tile)
+            if sum(candidate.heights) != site_count:
+                break
+            held = site_count
+        if held == site_count:
+            if (site_count == measured.site_count
+                    and candidate.positions() == measured.positions()):
+                return measured
             return candidate
-        if candidate.site_count > site_count:
-            break
         radius += step
     raise ValueError(
-        f"no round well holds exactly {site_count} fields; the acquisition "
-        "is not a circle, so its layout has to be measured rather than fitted")
+        f"no round well holds exactly {site_count} fields at a half tile of "
+        f"{half_tile}; the acquisition is not a circle, so its layout has to "
+        "be measured rather than fitted")

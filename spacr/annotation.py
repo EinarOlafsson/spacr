@@ -107,18 +107,11 @@ def _keyed(frame, source_column: str, wanted: Sequence[Tuple[str, str]]):
     if not pairs or source_column not in frame.columns:
         return None
     out = frame[[source_column] + [src for src, _ in pairs]].copy()
-    # A SCRATCH NAME, not "gene_nr" directly: three of the five bundled
-    # tables already spell their key `gene_nr`, and writing the parsed key
-    # over the source column meant the very next line dropped it.
     out["_key"] = out[source_column].map(gene_number)
     out = out.loc[out["_key"].notna()]
     out = out.drop(columns=[source_column])
     out = out.rename(columns=dict(pairs))
     out = out.rename(columns={"_key": "gene_nr"})
-    # KEEP THE FIRST. The alternative -- letting duplicates through -- is a
-    # row-multiplying join, and the alternative to that -- averaging text
-    # columns -- is not defined. The tables that carry numbers are already
-    # collapsed on disk; what reaches here is a handful of split models.
     return out.drop_duplicates(subset="gene_nr", keep="first")
 
 
@@ -272,13 +265,6 @@ def annotate(frame, *, key_column: Optional[str] = None, quiet: bool = False):
                 print(f"Toxoplasma annotation: {label} is already on this "
                       f"table, so it was not joined again.")
             continue
-        # THE JOIN KEY IS RENAMED BEFORE THE MERGE, not dropped after it.
-        # Merging on a right column called "gene_nr" while the caller's own
-        # table already has one makes pandas suffix BOTH into gene_nr_x and
-        # gene_nr_y, so the drop below found no "gene_nr" and raised KeyError.
-        # That is not a rare table: "gene_nr" is the FIRST name _key_column
-        # looks for, so it is what spaCR's own annotated output is keyed on,
-        # and re-annotating a table this function had already written crashed.
         keyed = right[["gene_nr"] + new].rename(
             columns={"gene_nr": _JOIN_KEY})
         out = out.merge(keyed, how="left",
@@ -291,13 +277,6 @@ def annotate(frame, *, key_column: Optional[str] = None, quiet: bool = False):
     out = out.drop(columns=["_gene_nr"])
     if not quiet:
         if added:
-            # ANY ADDED COLUMN, NOT THE FIRST ONE. This read
-            # `out[added[0]]`, which is `gene_name` -- and a gene can be in
-            # every bundled table while having no NAME: `TGME49_200130` is
-            # one, and it carries a product description, an in-vivo fitness
-            # score and a UniProt accession. The line said "1 matched" of
-            # three rows when two had matched, which understates the join in
-            # exactly the direction that makes a reader distrust it.
             hit = int(out[added].notna().any(axis=1).sum()) if len(out) else 0
             print(f"Toxoplasma annotation: {len(added)} column(s) joined onto "
                   f"{matched} of {len(frame)} row(s) by gene number; "
@@ -364,9 +343,6 @@ __all__ = ["SOURCES", "annotate", "clear_cache", "columns", "gene_number",
            "supplementary"]
 
 
-# ---------------------------------------------------------------------------
-# Any organism, not only this one
-# ---------------------------------------------------------------------------
 
 #: Columns UniProt is asked for, and what the joined table calls them.
 #:
@@ -451,9 +427,6 @@ def annotate_from_uniprot(frame, source, *, cache_dir=None,
 
     if frame is None or not len(getattr(frame, "columns", ())):
         return frame, ""
-    # THE GENES THIS TABLE NAMES, so the query can ask for them rather than
-    # for a whole proteome. Read before the key column is resolved because
-    # the key finder is cheap and the fetch is not.
     asked = _uniprot_key_column(frame) if key_column is None else key_column
     genes = (frame[asked].astype(str).tolist()
              if asked and asked in frame.columns else None)
@@ -472,9 +445,6 @@ def annotate_from_uniprot(frame, source, *, cache_dir=None,
         return frame, "UniProt returned no usable columns."
     table = table[keep].copy()
 
-    # ONE ROW PER KEY. A gene name that appears on two entries -- an isoform
-    # pair, a duplicated locus -- would otherwise turn one coefficient into
-    # two rows, which is the failure this module was written to prevent.
     table["_key"] = _uniprot_keys(table.get("gene_name", ""))
     exploded = table.explode("_key").dropna(subset=["_key"])
     if "uniprot_accession" in table.columns:
@@ -486,7 +456,6 @@ def annotate_from_uniprot(frame, source, *, cache_dir=None,
 
     joined = frame.copy()
     joined["_key"] = joined[key].astype(str).str.strip().str.lower()
-    # Columns the caller already computed are theirs, not UniProt's.
     new = [c for c in keep if c not in frame.columns]
     if not new:
         return frame, ""

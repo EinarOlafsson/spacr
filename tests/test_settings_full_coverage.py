@@ -248,9 +248,6 @@ def test_get_timelapse_settings_is_the_mask_defaults_plus_the_flag():
     "set_default_umap_image_settings",
     "get_measure_crop_settings",
     "set_default_generate_barecode_mapping",
-    "set_default_stitch",
-    "set_default_multichannel",
-    "set_default_general",
     "get_automated_motility_assay_default_settings",
 ])
 def test_settings_none_is_the_same_as_an_empty_dict(fn_name):

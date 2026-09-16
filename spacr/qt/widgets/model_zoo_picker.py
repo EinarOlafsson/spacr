@@ -92,9 +92,9 @@ class _DownloadWorker(QObject):
         knob for a checksum that failed.
     """
 
-    progressed = Signal(int, int)      # bytes done, bytes total (0 = unknown)
-    finished = Signal(str)             # the installed path
-    failed = Signal(str)               # the message to show
+    progressed = Signal(int, int)
+    finished = Signal(str)
+    failed = Signal(str)
 
     def __init__(self, entry, folder: str, *, unverified: bool = False):
         """Hold what to fetch, where to put it, and whether to skip the checksum."""
@@ -114,9 +114,6 @@ class _DownloadWorker(QObject):
                 progress=lambda done, total: self.progressed.emit(
                     int(done), int(total or 0)))
         except Exception as exc:                            # noqa: BLE001
-            # The message matters more than the type: a ChecksumMismatch here
-            # means the bytes that arrived are not the model, which is the one
-            # download outcome a user must never be allowed to miss.
             self.failed.emit(str(exc))
         else:
             self.finished.emit(str(path))
@@ -244,14 +241,9 @@ class ModelZooPicker(QDialog):
 
         self.refresh()
         self._warm_the_community_catalogue()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). The folder field carried
-        # its own tooltip, which is precisely the shape this post-pass
-        # exists to move.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data ------------------------------------------------------------
 
     #: The stock Cellpose model, offered as a zoo row.
     #:
@@ -315,9 +307,6 @@ class ModelZooPicker(QDialog):
             entries = [self.STOCK_MODEL]
             entries += list(model_zoo.catalogue(remote=True, block=False))
         except Exception as exc:                            # noqa: BLE001
-            # A zoo that cannot be listed must not be a dialog that cannot be
-            # opened: the user may already have the model and only need to
-            # find it on disk -- and the stock row always works.
             self.status.setText(f"Could not read the model list: {exc}")
             entries = [self.STOCK_MODEL]
         if self._kinds:
@@ -346,10 +335,6 @@ class ModelZooPicker(QDialog):
     def _local_path(self, entry) -> Optional[str]:
         """Where this entry already is, or the name Cellpose resolves itself."""
         if getattr(entry, "source", "") == "stock":
-            # NOT A FILE, and deliberately not checked as one. Cellpose
-            # resolves "cpsam" by name; `_resolve_cellpose_pretrained` returns
-            # a stock name unchanged. Requiring a file here would grey out the
-            # one row that never needs downloading.
             return str(entry.path)
         return self._local_path_on_disk(entry)
 
@@ -374,7 +359,6 @@ class ModelZooPicker(QDialog):
         row = rows.pop()
         return self._entries[row] if 0 <= row < len(self._entries) else None
 
-    # -- actions ---------------------------------------------------------
 
     def _selection_changed(self) -> None:
         """Describe the selected model and enable the action that applies to it.
@@ -394,11 +378,6 @@ class ModelZooPicker(QDialog):
         elif local:
             self.status.setText(f"Ready: {local}")
         elif not getattr(entry, "sha256", ""):
-            # SAID BEFORE THE CLICK, not after it. fetch refuses an entry it
-            # cannot verify, so without this the button is enabled, pressing it
-            # fails, and the message explains a policy the user had no way to
-            # see. They can still choose to accept it -- that is the dialog
-            # below -- but it is a choice, made knowingly.
             self.status.setText(
                 "This model publishes no checksum, so a truncated or "
                 "substituted file could not be told from the real one. "
@@ -435,7 +414,7 @@ class ModelZooPicker(QDialog):
         import time
 
         self.progress.setVisible(True)
-        self.progress.setRange(0, 0)          # until the size is known
+        self.progress.setRange(0, 0)
         self.progress.setFormat("%p%")
         self.status.setText(f"Downloading {entry.name}…")
         self.download_button.setEnabled(False)
@@ -458,10 +437,6 @@ class ModelZooPicker(QDialog):
         self._started_at = time.monotonic()
         self._last_emit = 0.0
 
-        # OFF THE GUI THREAD. These files are 1.2 GB; fetched from the button
-        # handler the event loop stops for minutes, the bar cannot move, and
-        # the compositor offers to force-quit spaCR -- instruction 315's
-        # subject, reached through a dialog instead of a screen build.
         self._thread = QThread(self)
         self._worker = _DownloadWorker(entry, folder,
                                        unverified=unverified)
@@ -496,8 +471,6 @@ class ModelZooPicker(QDialog):
                 f"{_human_bytes_local(done)} of {_human_bytes_local(total)}  ·  "
                 f"{_human_rate(rate)}  ·  {_human_eta(remaining)}")
         else:
-            # No content-length: a bar with no end is honest, a percentage
-            # invented from an unknown total is not.
             self.progress.setRange(0, 0)
             self.status.setText(
                 f"{_human_bytes_local(done)}  ·  {_human_rate(rate)}  ·  "
@@ -512,11 +485,6 @@ class ModelZooPicker(QDialog):
             thread.wait(5000)
             self._thread = None
             self._worker = None
-        # REFRESH FIRST, THEN SAY WHAT HAPPENED. refresh() re-runs
-        # _selection_changed, which rewrites the status line from the selected
-        # entry -- so a message set before it is overwritten by the entry's own
-        # notes, and the failure the user most needs to see is the one that
-        # disappears.
         self.refresh()
         if outcome:
             self.status.setText(outcome)
@@ -530,9 +498,6 @@ class ModelZooPicker(QDialog):
         self._finish_download(f"Downloaded to {path}")
 
     def _on_download_failed(self, message: str) -> None:
-        # NAMED, not swallowed. fetch refuses an entry whose checksum does not
-        # match, and that refusal is the single most important message this
-        # dialog can carry: it means the bytes are not the model.
         """Report a failed download in a dialog as well as on the status line.
 
         Named rather than swallowed: the fetch refuses an entry whose checksum
@@ -575,9 +540,6 @@ class ModelZooPicker(QDialog):
         try:
             if thread.isRunning():
                 thread.quit()
-                # A bounded wait: an unbounded one turns "close the dialog"
-                # into "hang until the download finishes", which is the same
-                # freeze this thread was introduced to remove.
                 thread.wait(10000)
         except RuntimeError:
             pass

@@ -53,8 +53,8 @@ silent failures that produce a confident-looking queue full of nonsense,
 so :func:`probabilities_from_logits` branches on the shape and the tests
 pin both directions.
 
-**``margin`` and ``least_confidence`` are the same ranking on two
-classes.** For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``:
+``margin`` and ``least_confidence`` are the same ranking on two
+classes. For C = 2, ``1 − (p₁ − p₂) = 2·min(p, 1−p) = 2·(1 − max p)``:
 a linear transform, so identical order and identical ties. They are not
 two independent choices on a binary screen — they differ only from three
 classes up, where ``margin`` looks at the top *two* classes while
@@ -211,9 +211,6 @@ ROUND_TABLE = "annotation_rounds"
 ROUND_LOG_TABLE = "annotation_round_log"
 
 
-# ---------------------------------------------------------------------------
-# Array plumbing
-# ---------------------------------------------------------------------------
 
 def _to_numpy(values: Any) -> np.ndarray:
     """Return ``values`` as a float array, accepting torch tensors.
@@ -397,14 +394,6 @@ def as_probabilities(scores: Any) -> np.ndarray:
     return _coerce_probabilities(scores)[0]
 
 
-# ---------------------------------------------------------------------------
-# Uncertainty measures
-#
-# Every measure is oriented the SAME way: larger means less certain,
-# minimum at a one-hot row, maximum at the uniform row. That is what lets
-# rank_by_uncertainty treat them interchangeably, and it is why margin()
-# returns 1 − (p₁ − p₂) rather than the margin itself.
-# ---------------------------------------------------------------------------
 
 def least_confidence(probs: Any, normalize: bool = False) -> np.ndarray:
     """``1 − max_c p_c`` — how much probability mass is *not* on the winner.
@@ -557,7 +546,7 @@ def disagreement(prob_sets: Any, method: str = "variance") -> np.ndarray:
             f"shapes {sorted(shapes)}. Differing row counts mean the members "
             f"are not aligned and the comparison would be meaningless.")
 
-    stack = np.stack(coerced, axis=0)          # (M, N, C)
+    stack = np.stack(coerced, axis=0)
     bad = ~np.all(np.isfinite(stack), axis=(0, 2))
     if stack.shape[0] == 1:
         return np.where(bad, np.nan, np.zeros(stack.shape[1]))
@@ -569,7 +558,7 @@ def disagreement(prob_sets: Any, method: str = "variance") -> np.ndarray:
         h_mean = entropy(mean)
         h_each = np.stack([entropy(m) for m in coerced], axis=0)
         score = h_mean - np.nanmean(h_each, axis=0)
-        score = np.maximum(score, 0.0)         # MI is non-negative
+        score = np.maximum(score, 0.0)
     else:
         raise ValueError(
             f"Unknown disagreement method {method!r}; use 'variance' or 'bald'.")
@@ -661,9 +650,6 @@ def rank_by_uncertainty(probs: Any, measure: Any = DEFAULT_MEASURE,
     else:
         tie = np.random.default_rng(seed).permutation(n)
     finite = np.isfinite(values)
-    # Ascending sort on -score = descending sort on score; NaN -> +inf,
-    # so unusable rows land at the back instead of wherever NaN happens
-    # to compare.
     primary = np.where(finite, -values, np.inf)
     order = np.lexsort((tie, primary))
     if limit is not None:
@@ -671,9 +657,6 @@ def rank_by_uncertainty(probs: Any, measure: Any = DEFAULT_MEASURE,
     return order.astype(int)
 
 
-# ---------------------------------------------------------------------------
-# Live-model bridge — the only torch in this file, imported lazily
-# ---------------------------------------------------------------------------
 
 def predict_probabilities(model: Callable[[Any], Any], batches: Iterable[Any],
                           device: Any = None,
@@ -745,9 +728,6 @@ def predict_probabilities(model: Callable[[Any], Any], batches: Iterable[Any],
     return probabilities_from_logits(raw) if from_logits else as_probabilities(raw)
 
 
-# ---------------------------------------------------------------------------
-# Database
-# ---------------------------------------------------------------------------
 
 def _quote_ident(name: str) -> str:
     """Double-quote a SQL identifier (already schema-validated)."""
@@ -770,8 +750,6 @@ def _connect(db_path: str) -> sqlite3.Connection:
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
     if not os.path.isfile(path):
         raise FileNotFoundError(f"No such database: {path}")
-    # Shared helper: 30s busy timeout, not sqlite's 5s default,
-    # which Measure's concurrent writers routinely exceed (#15).
     from .database_concurrency import connect as _connect_database
 
     con = _connect_database(path, readonly=True)
@@ -818,13 +796,6 @@ def _resolve_pred_columns(pred_column: Any, columns: Sequence[str],
             raise ValueError("pred_column was an empty list.")
         return [str(c) for c in wanted]
 
-    # Multi-class columns first. ``al_prob_`` comes FIRST on purpose: it is
-    # written by :func:`retrain_round`, i.e. by a model trained on the labels
-    # made in this very annotation session, and it is therefore always
-    # fresher than whatever the last full Classify run left in ``pred``.
-    # Without this, round 2 of an active-learning loop re-ranks against the
-    # round-0 model and serves back the same crops — the loop looks closed
-    # and is not.
     for prefix in (ROUND_PRED_PREFIX, "pred_", "prob_", "score_"):
         numbered = sorted(
             (c for c in available
@@ -1026,9 +997,6 @@ def build_queue(db_path: str, annotation_column: str = "annotate",
         for c in div_cols:
             if c not in meta_cols:
                 meta_cols.append(c)
-        # How spread the queue is gets reported whatever the strategy — it
-        # is most informative when diversity is OFF, because that is where
-        # the collapse onto two wells shows up as a number.
         spread_cols = div_cols or [c for c in DIVERSITY_GROUPS["well"]
                                    if c in columns]
 
@@ -1194,9 +1162,6 @@ def queue_rows(queue: pd.DataFrame,
     return [(str(p), None) for p in queue[key].tolist()]
 
 
-# ---------------------------------------------------------------------------
-# Reporting
-# ---------------------------------------------------------------------------
 
 def _share(count: int, total: int) -> str:
     """``count`` as a percent of ``total``, or ``'—'`` when there is no total."""
@@ -1312,9 +1277,6 @@ def format_queue_summary(queue: pd.DataFrame) -> str:
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Annotation coverage — how many labels, of which class, from where
-# ---------------------------------------------------------------------------
 
 def _well_key(frame: pd.DataFrame, columns: Sequence[str]) -> pd.Series:
     """Readable ``plate/row/column`` key per row, or ``'(unknown)'``."""
@@ -1350,7 +1312,6 @@ def _concentration(counts: "pd.Series") -> Dict[str, Any]:
         "top_n": int(ordered.iloc[0]),
         "top_share": float(ordered.iloc[0]) / total,
         "hhi": hhi,
-        # 1/HHI: how many equally-sized groups the labels are "worth".
         "effective_groups": (1.0 / hhi) if hhi else 0.0,
     }
 
@@ -1375,8 +1336,8 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
     :param table: crop table (default ``png_list``).
     :param key: row key (default ``png_path``).
     :param image_type: substring filter on the key, matching the Annotate
-        screen's own filter. **Every count below it, ``n_rows`` included, is
-        over the crops that matched** — a denominator taken from the whole
+        screen's own filter. Every count below it, ``n_rows`` included, is
+        over the crops that matched — a denominator taken from the whole
         table would put the numerator and the denominator on two different
         populations. ``n_rows_unfiltered`` keeps the total, and a note says
         how many were excluded.
@@ -1415,10 +1376,6 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
         con.close()
 
     frame = pd.DataFrame(rows, columns=select)
-    # The denominator has to describe the SAME population as the numerator.
-    # Counting the rows before the filter printed "12 of 20 crops annotated"
-    # for a filtered population of 12 in which nothing was left to annotate.
-    # build_queue already gets this right; this says it the same way.
     n_unfiltered = len(frame)
     if image_type:
         keep = frame[key].astype(str).str.contains(str(image_type), regex=False)
@@ -1673,22 +1630,12 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         meta_columns.append("timeID")
 
     by_key: Dict[str, Tuple[str, Optional[int]]] = {}
-    # Keys in the spelling `selection.object_keys` actually emits, kept apart
-    # from the raw ones and consulted FIRST. Both are needed — a key composed
-    # before the escape existed is raw, a routed selection's is escaped — but
-    # they can collide across rows, since one field literally named 'f%5F1'
-    # spells its raw key the way a field named 'f_1' spells its escaped one.
-    # The escaped spelling is the authoritative one, so it wins; a single
-    # extra dict does that without a second pass over the crop table.
     by_escaped_key: Dict[str, Tuple[str, Optional[int]]] = {}
 
     def _register(target: Dict[str, Tuple[str, Optional[int]]],
                   composed: List[str], label: str, object_type: Optional[str],
                   entry: Tuple[str, Optional[int]]) -> None:
         """Register first-wins untyped and, when known, typed object keys."""
-        # Both spellings, so a caller working from either side resolves. The
-        # untyped one is first-wins on purpose: it is an under-specified
-        # name, and it named one of these crops before the type existed.
         target.setdefault("_".join(composed + [label]), entry)
         if object_type is not None:
             target.setdefault(
@@ -1704,11 +1651,6 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
             annotation = None if raw is None else int(raw)
         entry = (path, annotation)
 
-        # WHICH id column holds the label is the crop's object type:
-        # `filepaths_to_database` writes exactly one per row, the one for the
-        # crop mode it was called with. That is what lets a nucleus crop and a
-        # pathogen crop of the same label in the same field be told apart —
-        # they used to resolve to one key and the first row in the table won.
         stated = [(column, _object_label(row[index[column]]))
                   for column in id_columns]
         stated = [(column, value) for column, value in stated if value]
@@ -1718,9 +1660,6 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
             label = stated[0][1]
             object_type = PNG_ID_COLUMN_TYPES[stated[0][0]]
         elif stated:
-            # Two id columns filled is a row that does not say what it is.
-            # The old first-wins precedence still gives a label to key on;
-            # claiming a type from it would be a guess.
             label = stated[0][1]
         prcfo = (str(row[index["prcfo"]])
                  if "prcfo" in index and row[index["prcfo"]] is not None
@@ -1730,13 +1669,6 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
         if label and all(c in index for c in meta_columns):
             parts = [str(row[index[c]]) for c in meta_columns]
             _register(by_key, parts, label, object_type, entry)
-            # `selection._compose` percent-escapes a component that would
-            # otherwise smuggle the separator into the key, so a fieldID of
-            # 'f_1' reaches us as 'f%5F1' and a raw join misses it entirely.
-            # The guard keeps the common path — every plate whose ids are the
-            # ordinary ones — at one scan per component and no second key at
-            # all: `png_list` has a row per crop, so this runs millions of
-            # times on a real screen.
             if any(c in p for p in parts for c in KEY_ESCAPED_CHARACTERS):
                 _register(by_escaped_key,
                           [escape_key_component(p) for p in parts],
@@ -1758,9 +1690,6 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     for wanted_key in wanted:
         entry = _resolve(wanted_key)
         if entry is None:
-            # A typed key against a crop table that cannot say what its rows
-            # are. Dropping the type is the honest fallback: the row has not
-            # contradicted the key, it has said nothing.
             reduced = untyped_object_key(wanted_key)
             if reduced != wanted_key:
                 entry = _resolve(reduced)
@@ -1850,9 +1779,6 @@ def format_coverage_summary(coverage: pd.DataFrame) -> str:
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Round bookkeeping — the loop's memory
-# ---------------------------------------------------------------------------
 
 def _utc_now() -> str:
     """ISO-8601 UTC, to the second — the stamp every round row carries."""
@@ -2133,9 +2059,6 @@ def learning_curve(db_path: str,
     return frame[columns]
 
 
-# ---------------------------------------------------------------------------
-# The stopping rule
-# ---------------------------------------------------------------------------
 
 class StoppingVerdict:
     """Whether the last stretch of annotation bought anything measurable.
@@ -2191,9 +2114,9 @@ def should_stop(curve: pd.DataFrame, *, label_window: int = 50,
                 min_rounds: int = 2) -> StoppingVerdict:
     """Has the last ``label_window`` labels moved held-out accuracy at all?
 
-    The rule, in one line: **look back over whole rounds until at least
+    The rule, in one line: look back over whole rounds until at least
     ``label_window`` new labels have accumulated, and compare held-out
-    accuracy at the two ends. If it moved by less than ``min_gain``, stop.**
+    accuracy at the two ends. If it moved by less than ``min_gain``, stop.
 
     Why this rule and not another:
 
@@ -2245,7 +2168,6 @@ def should_stop(curve: pd.DataFrame, *, label_window: int = 50,
     noise = (float(np.sqrt(max(accuracy * (1.0 - accuracy), 0.0) / n_holdout))
              if n_holdout > 0 else None)
 
-    # Walk back until the window covers enough NEW labels.
     accumulated = 0
     index = len(usable) - 1
     while index > 0 and accumulated < int(label_window):
@@ -2338,9 +2260,6 @@ def format_learning_curve(curve: pd.DataFrame,
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Retraining a round: fit on the labels so far, re-score, re-rank
-# ---------------------------------------------------------------------------
 
 def holdout_report(y_true: Any, probs: Any,
                    classes: Optional[Sequence[Any]] = None) -> Dict[str, Any]:
@@ -2354,7 +2273,7 @@ def holdout_report(y_true: Any, probs: Any,
     ``accuracy = trace / total``, ``per_class[c] = M[c, c] / M[c, :].sum()``
     — so a reader can recompute the card rather than trust it.
 
-    **``n`` is the number of rows the matrix actually contains**, and the
+    ``n`` **is the number of rows the matrix actually contains**, and the
     supports sum to it. A row whose true class the head has no column for is
     counted as an error rather than dropped: the matrix grows to hold
     it, and the missing column stays empty because the head can never predict
@@ -2403,10 +2322,6 @@ def holdout_report(y_true: Any, probs: Any,
             f"{n_unscored} of {len(y_true)} held-out rows carry a negative "
             f"class id, which is not a class: they are excluded from every "
             f"number here, including n.")
-    # The matrix covers every class the TRUTH names, not only the ones the
-    # head can emit. A class outside the head's columns can never be
-    # predicted, so its row is all-error — which is the honest score, and the
-    # reason its column stays empty.
     truth_classes = (int(y_true[scorable].max()) + 1) if scorable.any() else 0
     n_classes = int(max(head_classes, truth_classes))
     if truth_classes > head_classes:
@@ -2425,9 +2340,6 @@ def holdout_report(y_true: Any, probs: Any,
                          np.diag(matrix) / np.maximum(row_sums, 1), 0.0)
     total = int(matrix.sum())
 
-    # Macro F1 straight off the matrix — no sklearn import on this path, and
-    # the number is then provably the same function of the matrix as the
-    # accuracy beside it.
     col_sums = matrix.sum(axis=0)
     diag = np.diag(matrix).astype(float)
     with np.errstate(divide="ignore", invalid="ignore"):
@@ -2443,8 +2355,6 @@ def holdout_report(y_true: Any, probs: Any,
              and len(classes) == n_classes
              else [f"class_{i}" for i in range(n_classes)])
     return {
-        # The matrix total, not len(y_true): every figure below is a function
-        # of the matrix, so n has to describe the same rows they do.
         "n": total,
         "n_unscored": n_unscored,
         "num_classes": n_classes,
@@ -2711,10 +2621,6 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         crops = crops[crops[key].astype(str).str.contains(
             str(image_type), regex=False)]
     crops = crops.set_index(key)
-    # A database measured with more than one crop_mode holds several rows per
-    # prcfo. A duplicated key here fans the feature join out, so the label
-    # vector and the feature matrix stop lining up row for row and the model
-    # is fitted against the wrong labels — silently, with a plausible score.
     crops = crops.loc[~crops.index.duplicated(keep="first")]
 
     if features is None:
@@ -2730,14 +2636,6 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     crops = crops.loc[shared]
     matrix = features.loc[shared]
 
-    # HUMAN ANSWERS ONLY, NOT THE MACHINE'S OWN GUESSES. `spacr.suggest`
-    # marks a proposal by adding `SUGGESTION_OFFSET` to the class it
-    # proposes, so a suggested 1 is stored as 11 in this very column. A bare
-    # `notna()` reads those as classes 11 and 12 and fits them as if a person
-    # had written them -- a model trained on its own previous output, whose
-    # card would not say so. The GUI guards both buttons; anything calling
-    # this function directly was not guarded at all, which is why the filter
-    # belongs HERE and not at each caller.
     labelled_mask = (
         crops[annotation_column].notna()
         & ~crops[annotation_column].map(_is_suggestion)
@@ -2749,22 +2647,12 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
             f"{int(min_labels)}). A model fitted on fewer will still emit a "
             f"confident-looking ranking, and it will be noise.")
 
-    # INDEX-BASED FROM HERE, not mask-based, because `synthetic_negatives`
-    # ADDS rows that carry no label in the column and `balance` DROPS rows
-    # that do. A boolean mask over `crops` can express neither.
     train_index = crops.index[labelled_mask.to_numpy()]
     raw_labels = list(crops.loc[train_index, annotation_column].to_numpy())
     class_values = sorted({_class_value(v) for v in raw_labels})
 
     synthetic_index: List[Any] = []
     if len(class_values) == 1 and synthetic_negatives:
-        # THE DELIBERATE LIE, ASKED FOR IN SO MANY WORDS: "if only one class
-        # randomly choose the same number of images as is annotated for the
-        # other class". A random draw from the unannotated pool is
-        # MOSTLY-negative, not negative, so what comes back is a RANKING and
-        # not a verdict -- and every caller is told so, in `notes` and on the
-        # model card, because a card that does not say the negatives were
-        # invented describes a model that does not exist.
         present = class_values[0]
         absent = _absent_binary_class(present)
         if absent is None:
@@ -2802,14 +2690,6 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
             f"one appears.")
 
     if str(balance).lower() == "downsample":
-        # DOWNSAMPLED, NOT WEIGHTED, AND THAT CHANGES THE ANSWER RATHER THAN
-        # THE COST. The default estimators already pass
-        # `class_weight="balanced"`, so "balanced" alone describes two
-        # different models -- which is why `notes` and the card say WHICH.
-        # The maintainer asked for the smaller class ("use the class with
-        # fewer"), and downsampling is also what leaves the returned
-        # probability directly readable as the confidence a suggestion sort
-        # depends on: a reweighted fit's probability is not.
         train_index, raw_labels, dropped = _downsample_to_smallest(
             train_index, raw_labels, int(seed))
         if dropped:
@@ -2836,10 +2716,6 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                       posinf=0.0, neginf=0.0)
 
     labelled_crops = crops.loc[train_index]
-    # Keep sklearn/scipy off the import-only queue-ranking path. Recent SciPy
-    # probes optional array backends while importing sklearn; that path must
-    # not run merely to rank an existing score column (and breaks a legitimate
-    # no-torch process where ``sys.modules['torch']`` is explicitly blocked).
     from .classifier_evaluation import (
         grouped_split as _shared_grouped_split,
         split_group_values as _shared_split_group_values,
@@ -3032,9 +2908,6 @@ def _build_round_model(model_type: str, seed: int, n_classes: int):
         from sklearn.linear_model import LogisticRegression
         from sklearn.pipeline import Pipeline
         from sklearn.preprocessing import StandardScaler
-        # Scaled, because measurement features span areas in the thousands
-        # and intensities in the fractions, and an unscaled linear model on
-        # that is a model of whichever column has the biggest units.
         return Pipeline([
             ("scale", StandardScaler()),
             ("model", LogisticRegression(max_iter=2000, random_state=seed,
@@ -3048,20 +2921,6 @@ def _build_round_model(model_type: str, seed: int, n_classes: int):
         from sklearn.ensemble import HistGradientBoostingClassifier
         return HistGradientBoostingClassifier(random_state=seed)
     if name in ("xgboost", "xgb"):
-        # OFFERED, NOT DEFAULTED, and it is an OPTIONAL dependency.
-        #
-        # The Suggest request named XGBoost, and `gradient_boosting` above
-        # is sklearn's implementation of the same gradient-boosted-trees
-        # method -- already installed, already understood by the round
-        # machinery. The maintainer asked for both: this one for anyone who
-        # wants XGBoost's own implementation or its hyperparameters, that
-        # one so the path still runs on a machine that has not installed a
-        # second boosting library.
-        #
-        # THE REFUSAL NAMES THE ALTERNATIVE, because "no module named
-        # xgboost" from inside a retrain round tells a user nothing about
-        # what to do next, and the honest answer is that they already have
-        # a gradient booster.
         try:
             from xgboost import XGBClassifier
         except ImportError as exc:
@@ -3074,13 +2933,9 @@ def _build_round_model(model_type: str, seed: int, n_classes: int):
             ) from exc
         return XGBClassifier(
             random_state=seed,
-            # The round encodes classes to 0..n-1 before fitting, so the
-            # objective follows the class count rather than being guessed.
             objective=("binary:logistic" if n_classes <= 2
                        else "multi:softprob"),
             eval_metric="logloss",
-            # NOT `use_label_encoder`, which xgboost removed; passing it
-            # warns on 1.x and raises on 2.x.
         )
     raise ValueError(
         f"Unknown model_type {model_type!r}; use 'logistic_regression', "
@@ -3174,16 +3029,6 @@ def _write_round_card(model_path: str, report: Dict[str, Any],
                     k: coverage_meta.get(k) for k in
                     ("by_class", "by_plate", "by_well", "by_round",
                      "concentration", "wells_annotated", "plates_annotated")},
-                # WHICH BALANCING, NOT MERELY THAT THERE WAS SOME. The
-                # default estimators already pass `class_weight="balanced"`,
-                # so a card saying "balanced" without saying how describes
-                # two different models -- a reweighted fit and a downsampled
-                # one do not have the same probabilities, and
-                # `spacr.suggest` sorts on those probabilities.
-                #
-                # `synthetic_negatives` is the more serious of the two: a
-                # card that does not say the negatives were invented
-                # describes a model that does not exist.
                 "balancing": dict(balancing),
             },
         )

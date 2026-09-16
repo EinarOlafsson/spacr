@@ -59,9 +59,6 @@ def candidate_roots(root: Optional[str]) -> Tuple[str, ...]:
         parent = os.path.dirname(here)
         if parent == here:
             break
-        # Climb unconditionally for the first step when the folder is a known
-        # sibling of `data/`; otherwise still climb, because a caller may hand
-        # us a screen root whose plates are one level down.
         here = parent
     return tuple(out)
 
@@ -77,8 +74,6 @@ def _suffixes(path: str) -> List[Tuple[str, ...]]:
     if len(parts) < 2:
         return []
     ordered: List[Tuple[str, ...]] = []
-    # Longest first: the more of the recorded structure that matches, the
-    # less chance the match is a coincidence.
     for start in range(len(parts) - 1):
         ordered.append(tuple(parts[start:]))
     ordered.sort(key=lambda s: (0 if s[0] == DATA_FOLDER else 1, -len(s)))
@@ -225,10 +220,6 @@ def reroot_column(frame, column: str, src_root: Optional[str]):
     unresolved = 0
     first_unresolved = ""
     prefix: Optional[Tuple[str, str]] = None
-    # Folders already searched and NOT found. Every crop of a well shares a
-    # folder, so without this a root that resolves nothing costs one full
-    # search per ROW -- measured at 8.2s over 60,816 rows against 0.6s when a
-    # prefix is found. With it, the same case costs one search per folder.
     unresolvable: set = set()
     out: List[object] = []
     moved = 0

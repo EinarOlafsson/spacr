@@ -437,11 +437,6 @@ def _coerce_plugin(value: Any) -> SpacrPlugin:
 
 def _installed_sources() -> Iterable[Tuple[str, Callable[[], Any]]]:
     """Yield named plugin loaders from installed entry points and the environment."""
-    # Importing the metadata machinery costs more than the rest of this
-    # dependency-light SDK. Keep the documented SPACR_DISABLE_PLUGINS path a
-    # true opt-out: _build_registry() returns before reaching this generator,
-    # so a headless CLI that disables plugins never imports or scans package
-    # metadata at all.
     from importlib import metadata
 
     try:

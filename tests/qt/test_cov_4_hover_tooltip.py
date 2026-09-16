@@ -15,7 +15,7 @@ pytest.importorskip("PySide6")
 
 import shiboken6
 from PySide6.QtCore import QEvent, QPoint, QRect, QSettings, Qt
-from PySide6.QtGui import QGuiApplication, QMouseEvent
+from PySide6.QtGui import QCursor, QGuiApplication, QMouseEvent
 from PySide6.QtCore import QPointF
 from PySide6.QtWidgets import QLabel
 
@@ -258,6 +258,12 @@ def test_the_popup_stays_while_the_cursor_is_still_on_the_anchor(tooltip,
     label = QLabel("Cell diameter")
     qtbot.addWidget(label)
     label.resize(80, 20)
+    # PUT THE CURSOR ON THE ANCHOR, which is the premise in the name. The
+    # cursor is process-global and no test here sets it, so this one passed
+    # on whatever position an earlier, unrelated test happened to leave
+    # behind: (10, 10) is inside this label and the assertion holds, (156,
+    # 352) is not and it does not.
+    QCursor.setPos(label.mapToGlobal(QPoint(10, 10)))
     tooltip._anchor = label
     monkeypatch.setattr(tooltip, "_pointer_is_on_me", lambda: False)
     hidden = []

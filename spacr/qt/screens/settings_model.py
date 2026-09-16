@@ -59,30 +59,17 @@ from ..widgets.file_list import FilePathListWidget, PairedFileTableWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
 from ...object_roles import ORGANELLE_ROLES, setting_label
-# EVERY SLOT A FILE MAY CARRY, not the four the schema segments today. A
-# layout that lists all of them costs nothing -- build_sections drops any
-# key the module's settings dict does not hold -- and a layout that lists
-# four puts slot five in the "Additional Settings" bucket nobody chose.
 from ...organelle_types import (ALL_ORGANELLE_ROLES,
                                 MAX_ORGANELLES as _MAX_ORGANELLES,
                                 NUMBER_OF_ORGANELLES,
                                 organelle_number, organelle_slot_label)
-# Pure data, and it imports nothing -- that is the whole point of the module
-# (see its docstring). The explainer box below reads it so that a backend
-# joining the no-p-value set changes what the box says about correction
-# without a second edit here.
 from ...regression_spec import NO_P_VALUE_TYPES
-# The one separator a spaCR key is built from, so the design scan below
-# splits gRNA names the way the pipeline does rather than on a literal '_'.
 from ...schema import KEY_SEPARATOR
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Settings resolvers per app_key
-# ---------------------------------------------------------------------------
 
 def timelapse_and_motility_keys() -> set:
     """Every setting key owned by the Timelapse / Motility Assay modules.
@@ -176,18 +163,6 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
                 f"{type(result).__name__}, expected dict"
             )
         return dict(result)
-    # Modules that shipped their own defaults through the `register_defaults`
-    # seam. Consulted after plugins and before the built-in dispatch below, so
-    # a registered module is served without editing this function -- which is
-    # the whole point of the seam, and without this line every
-    # `register_defaults` call in the codebase is inert.
-    #
-    # Import first, ask second. `register_defaults` runs at the module's own
-    # import, so the seam only answers for a module something has already
-    # imported -- and a pipeline module has no reason to be imported by the
-    # process that is merely drawing its settings panel. `register_app(...,
-    # defaults_module=...)` names it; this is what makes the panel appear
-    # instead of an empty form.
     _import_registered_defaults_module(app_key)
     from spacr.settings import defaults_for, has_registered_defaults
     if has_registered_defaults(app_key):
@@ -212,36 +187,17 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         set_analyze_replication_defaults,
     )
     if app_key == "mask":
-        # Timelapse tracking and the automated motility assay are first-class
-        # modules of their own now (app keys 'timelapse' / 'motility'), so the
-        # Mask module edits neither set of knobs. The keys are dropped from the
-        # *editable* dict only — preprocess_generate_masks re-applies
-        # set_default_settings_preprocess_generate_masks internally, so a Mask
-        # run still gets timelapse=False / motility_analysis=False, and a CSV
-        # driven straight through the API keeps working unchanged.
         s = set_default_settings_preprocess_generate_masks(settings={})
         for key in timelapse_and_motility_keys():
             s.pop(key, None)
         return s
     if app_key == "timelapse":
         s = get_timelapse_settings(settings={})
-        # The Timelapse module tracks objects; running the assay is what the
-        # Motility Assay module is for, so its inline gate isn't offered here.
         s.pop("motility_analysis", None)
-        # `timelapse` stays in the dict and stays True. It is not rendered
-        # as a control -- see the layout -- because this module is the
-        # timelapse one and a user turning it off here would be left with a
-        # screen of controls about a time dimension it was told to ignore.
-        # Forced rather than merely defaulted, so a settings CSV saved by
-        # an older build with `timelapse: False` cannot silently turn this
-        # module into a slower Mask Generation.
         s["timelapse"] = True
         return s
     if app_key == "motility":
         s = get_automated_motility_assay_default_settings(settings={})
-        # `motility_analysis` is the Mask-pipeline gate for the inline assay
-        # (spacr.object), not a knob of the assay itself — opening the
-        # Motility module *is* asking for the assay.
         s.pop("motility_analysis", None)
         return s
     if app_key == "measure":
@@ -260,10 +216,6 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         return settings
     if app_key == "umap":
         settings = set_default_umap_image_settings(settings={})
-        # The original controls describe one lab's c1/c2/c3 plate convention.
-        # Keep them as API-compatible backend defaults, but do not expose them
-        # in the general UMAP UI. ``exclude_rows`` replaces them with rules
-        # based on the columns and values in the user's own database.
         for key in (
             "col_to_compare", "pos", "neg", "mix",
             "embedding_by_controls", "exclude_conditions",
@@ -293,13 +245,10 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     if app_key == "analyze_plaques":
         return get_analyze_plaque_settings(settings={})
     if app_key in ("annotate", "make_masks"):
-        # These are interactive apps; return minimal placeholder.
         return {"src": "path to images"}
     return {"src": "path"}
 
 
-# Per-app category suppression. Keys not in a shown category fall into the
-# trailing "Other" section, so the setting stays reachable — only the tab goes.
 #: Settings a module keeps but never shows.
 #:
 #: Not the same as dropping the key. A dropped key is absent from the run's
@@ -312,135 +261,29 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
 #: the layouts exist to keep empty. This is the mechanism that actually
 #: hides one.
 _APP_HIDDEN_KEYS: Dict[str, set] = {
-    # `pathogen_model` named the same thing as `pathogen_model_name` --
-    # `object.py` reads the first as an override of the second -- and two
-    # controls for one value is how a user sets one and wonders why the other
-    # wins. Retired from the panel 2026-09-01 at the maintainer's request;
-    # `pathogen_model_name` is the one control, and it loads a checkpoint path
-    # exactly as the override did, because both go through
-    # `_resolve_cellpose_pretrained`.
-    #
-    # It stays in the settings dict, and object.py still reads it, so a
-    # settings CSV written before this keeps segmenting with the model it
-    # names instead of silently falling back to cpsam.
     "mask": {"pathogen_model"},
-    # This module IS the timelapse one. A user who turned this off would be
-    # left looking at a screen whose every remaining control is about a time
-    # dimension it had just been told to ignore -- and Mask Generation is
-    # right there for that. `resolve_default_settings` forces it True.
     "timelapse": {"timelapse"},
-    # `png_type` was one of two names for a path filter, and the one that
-    # pretended to name a file type. The Classify overhaul replaced it with
-    # `path_string` (the substring) and `file_type` (an actual extension).
-    #
-    # It stays in the settings dict because `spacr.crop_source` still reads
-    # it as a fallback, so a settings CSV written before the split keeps
-    # working. It is not OFFERED, because offering both halves of a
-    # superseded pair is how a user sets one and wonders why the other
-    # wins.
-    # AND THE SAME RULE FOR THE 230 SUPERSESSIONS. `crop_source`,
-    # `file_metadata` and `file_type` are what `image_source` and
-    # `load_path_regex` replaced, and `coordinate_columns` is DERIVED from
-    # `object_array` -- so none of the four is a control any more.
-    #
-    # They stay in the settings dict because the old readers still consult
-    # them as a fallback, which is what keeps a settings CSV written before
-    # the rename working. They are not OFFERED, for the reason `png_type`
-    # is not: offering both halves of a superseded pair is how a user sets
-    # one and wonders why the other wins.
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
         "class_metadata", "annotation_column",
-        # AND THE FOLDER NAMES (instruction 229, reported again 2026-08-21:
-        # "i asked you to remove class folder names and just use the classes
-        # given in the classes setting"). The first pass only made the class
-        # field OUTRANK it, which left a control on screen that could
-        # disagree with the classes above it and lose -- a control the user
-        # can change that changes nothing.
-        #
-        # It stays in the settings dict because dataset generation WRITES
-        # it: it records what actually went to disk, which is a different
-        # fact from what the user asked for.
         "class_folder_names",
     },
     "classify_merged": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
         "class_metadata", "annotation_column",
-        # AND THE FOLDER NAMES (instruction 229, reported again 2026-08-21:
-        # "i asked you to remove class folder names and just use the classes
-        # given in the classes setting"). The first pass only made the class
-        # field OUTRANK it, which left a control on screen that could
-        # disagree with the classes above it and lose -- a control the user
-        # can change that changes nothing.
-        #
-        # It stays in the settings dict because dataset generation WRITES
-        # it: it records what actually went to disk, which is a different
-        # fact from what the user asked for.
         "class_folder_names",
     },
-    # One action-strip GPU toggle drives both the main reducer and the search.
-    # The setting remains in _defaults and therefore in collect(); only the
-    # duplicate form control is hidden.
-    # `crop_source` reaches UMAP through the shared picture settings and is
-    # superseded there by `image_source` for the same reason as above.
     "umap": {"gpu", "crop_source"},
-    # WHAT "REGRESSION PLOTS" AND "RUNTIME & RELIABILITY" HELD, per
-    # instruction 135. The sections are deleted from the layout above; these
-    # keys keep their values and reach the run exactly as before, they are
-    # simply not asked about.
-    #
-    # Hidden and not dropped, deliberately, and each for its own reason:
-    #
-    #   regression_qc          `parameter_sweep` sets it False so a
-    #                          hundred-trial sweep does not pay ~5.8 s and
-    #                          ~19 figures per trial. Drop the key and the
-    #                          sweep has nothing to set. One analysis still
-    #                          gets the suite, because the default is True.
-    #   guide_permutation_plot hard True: the permutation run's only picture.
-    #   log_x, log_y           hard False.
-    #   x_lim, y_lims,         set ON the plot, where the axes being changed
-    #   split_axis_lims        are visible; a number typed before the figure
-    #                          exists is a guess.
-    #   strict_errors,         how the APPLICATION behaves on a failure, not
-    #   max_failure_rate,      how this regression is fitted. The same answer
-    #   verbose, random_seed,  on every module, so it is one answer in
-    #   on_error*              Preferences rather than eleven in the modules.
-    #
-    # Keys this module does not declare (`on_error`, `random_seed`, ...) are
-    # named anyway: hiding a key that is not there costs nothing, and the day
-    # a shared runtime default reaches this module it must not appear on the
-    # panel the instruction just cleared.
     "regression": {
-        # Programmatic export contract for ``perform_regression``.  A mapping
-        # or manifest path belongs in a script/CLI call, not in a scalar GUI
-        # field; keeping it in the defaults makes runs reproducible, while
-        # hiding it here prevents it falling into ``Additional Settings``.
         "regression_panel_manifest",
         "regression_qc", "guide_permutation_plot",
         "log_x", "log_y", "x_lim", "y_lims", "split_axis_lims",
         "strict_errors", "max_failure_rate", "on_error",
         "on_error_attempts", "on_error_backoff", "random_seed", "verbose",
-        # Regression derives this aggregate from the positive, negative, and
-        # mixed control-well settings, so it is not an independent GUI choice.
-        # The invasion assay keeps its own control under a name of its own
-        # since the 2026-09-09 split: `stain_baseline_wells` identifies wells
-        # without pre-permeabilisation stain, and this one is the list the
-        # analysis drops.
         "analysis_excluded_wells",
-        # SUPERSEDED BY `annotation_source`, and hidden here rather than in
-        # a second "regression" entry further up this dict -- which is where
-        # it was, and which a later key of the same name silently replaced.
-        # A dict literal keeps the last value, so `Toxoplasma` was declared
-        # hidden and then offered anyway, ungrouped, in the bucket the
-        # layouts exist to keep empty.
         "Toxoplasma",
-        # THE FOUR OBJECT-OUTLIER FILTERS. Each excludes objects by a
-        # robust z-score over a measurement, and this module joins the
-        # measurements to the scores AFTER the fit -- so at the moment they
-        # would run there is no column to take a deviation over. They are
-        # still read from a settings file; they are not offered.
         "cell_area_outlier_mads", "nucleus_area_outlier_mads",
         "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
     },
@@ -448,41 +291,10 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
 
 _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
     "classify": {"Cellpose"},
-    # Mask no longer owns tracking or the motility assay — those are the
-    # 'timelapse' and 'motility' modules. resolve_default_settings already
-    # drops the keys so nothing spills into "Other"; this entry is the
-    # declaration of intent and keeps the tabs gone even if a future default
-    # re-introduces one of the keys.
     "mask": {"Timelapse", "Motility (beta)", "Motility Advanced (beta)"},
-    # The Timelapse module tracks objects; the motility assay is its own
-    # module and its ~50 knobs would swamp the tracking settings.
     "timelapse": {"Motility (beta)", "Motility Advanced (beta)"},
 }
 
-# ---------------------------------------------------------------------------
-# A setting is visible when its object is in the run
-# ---------------------------------------------------------------------------
-#
-# WHY THIS IS A THIRD MECHANISM AND NOT ONE OF THE TWO ABOVE.
-#
-#   * ``spacr.settings.setting_dependencies`` GREYS a control and writes the
-#     reason beside it. That is right for a setting the run is about to
-#     decide for itself -- one row among a handful, where the note is the
-#     point. It is wrong here: an object a run does not segment takes forty
-#     rows with it, and forty greyed rows are not an explanation, they are
-#     the wall this exists to remove.
-#   * ``_APP_HIDDEN_KEYS`` builds no widget at all. It is decided once, per
-#     MODULE, before any value exists, and it is not reversible: with no
-#     widget the value falls back to ``_defaults``, so everything the user
-#     typed into a row is gone the moment the row is hidden. "Changing a
-#     channel back must bring the old answers back with it" is exactly the
-#     thing that mechanism cannot do.
-#
-# So the widget is built and kept in ``_widgets``, and its ROW is hidden.
-# HIDDEN, NOT DELETED: ``collect()`` walks ``_widgets``, so a hidden setting
-# is still read from its own widget, still carries what the user last typed
-# into it, and is still written to the settings file. A settings CSV cannot
-# lose a key because the panel was not showing it when Save was pressed.
 
 #: The keys that say whether an object is in the run at all.
 #:
@@ -537,9 +349,6 @@ _MORPHOLOGY_SETTINGS: Dict[str, frozenset] = {
     "ring": frozenset({
         "ring_sigma_inner", "ring_sigma_outer", "ring_min_prominence",
         "ring_fill_method",
-        # Ring accepts 'log' and reads the LoG sigmas when it is chosen. It
-        # does NOT read the DoG pair: its 'dog' path band-passes with
-        # `ring_sigma_inner`/`_outer` instead. See `_segment_ring`.
         "log_min_sigma", "log_max_sigma", "log_num_sigma", "log_threshold",
     }),
 }
@@ -748,10 +557,6 @@ def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
         role = object_of_setting(key)
         if role is None:
             continue
-        # CELL IS NEVER GATED. It is the object every other one is measured
-        # against, and instruction 300 explicitly superseded the earlier
-        # channel-following rule for this one family. Its plane may be empty,
-        # but the controls a fresh run needs must remain available.
         if role == "cell":
             continue
         is_slot = role not in CHANNELLED_OBJECTS
@@ -844,13 +649,85 @@ _CROP_SOURCE_OPTIONS = [
     ("merged", "stream images — cut from merged/"),
 ]
 
-# Options that are enumerations for one module but not necessarily for every
-# setting with the same generic key.  Keeping these app-scoped avoids turning
-# unrelated ``mode`` fields into sequencing controls.
+#: The SAME choice as :data:`_CROP_SOURCE_OPTIONS`, in the spelling training
+#: stores it under. LOAD IMAGES and STREAM IMAGES are the only two names for
+#: these two things anywhere in spaCR, and the sentences here are word-for-word
+#: the ones above so that a user reading the annotation panel and the training
+#: panel can see they are being asked one question.
+#:
+#: It had to exist as a SEPARATE table because the stored values differ and
+#: must not change: the viewers persist 'png'/'merged' and training persists
+#: 'load_images'/'stream_images' (`spacr.settings._canonical_image_source`
+#: rewrites every choice into that pair, and `settings.py` then copies
+#: `image_source` onto `crop_source`). Offering 'png' here would write a
+#: value that normaliser does not produce; offering 'load_images' in the
+#: viewer table would move the meaning of settings files already on disk.
+#: Both spellings resolve through `crop_source.CROP_SOURCE_ALIASES`.
+#:
+#: THE TRAINING PANEL HAD NO CONTROL FOR THIS AT ALL. `image_source` is not
+#: in `_APP_HIDDEN_KEYS`, so the Classify screens laid out a row for it -- as
+#: a FREE-TEXT box, because a key absent from this table gets whatever widget
+#: its default's type implies. That is the one panel the whole migration onto
+#: these two names was for, and it was the one panel where a user could type
+#: a fourth spelling. A typo, or a remembered 'pre_generated', reached
+#: `crop_source.CROP_SOURCE_ALIASES` and refused the run at the door.
+#:
+#: 'generate' is deliberately NOT offered. It is an ACTION -- it WRITES a
+#: crop set -- rather than one of the two sources, which is why it is not one
+#: of the two names; `crop_source.CROP_SOURCE_OPTIONS` still carries it for
+#: readers that need the third entry, and the training panel's own
+#: `generate_training_dataset` switch is where a user asks for the write.
+#:
+#: It is still ACCEPTED, and it SELECTS rather than being shown. A settings
+#: file carrying it opens on LOAD IMAGES, because that is what
+#: `settings._canonical_image_source` -- and therefore
+#: `settings.deep_spacr_defaults`, which rewrites `image_source` through it
+#: before any run -- turns it into. The panel showing the word the file
+#: holds while the run reads a different source is the disagreement
+#: `_image_source_the_panel_offers` exists to prevent, so 'generate' is
+#: treated here exactly as every other retired spelling is.
+_IMAGE_SOURCE_OPTIONS = [
+    ("load_images", "load images — crops already in data/"),
+    ("stream_images", "stream images — cut from merged/"),
+]
+
+
+def _image_source_the_panel_offers(value) -> str:
+    """Which of the two offered modes a stored ``image_source`` selects.
+
+    A combo whose stored value matches no item keeps that value as a new
+    first item (see ``_widget_for``), which is right for a free alphabet and
+    wrong for this one: a settings CSV carrying ``'on_demand'`` put a THIRD
+    entry, spelled in a retired vocabulary, in front of a user who is being
+    asked a two-way question. That is the two-name rule's failure in the one
+    panel the whole migration was for.
+
+    RESOLVED, NOT REFUSED, and resolved through the table the pipeline reads
+    -- `spacr.settings._canonical_image_source` -- so the panel and the run
+    cannot disagree about what an old file means. Every retired spelling
+    still loads; it just selects the mode it has always meant.
+
+    ``'auto'`` comes back from that function as itself, because
+    `crops.resolve_crop_source` still computes "what is available here". It
+    is NOT an answer a user is offered -- it is an action, not a source -- so here it
+    selects LOAD IMAGES -- rule A, the default is a named mode -- and rule
+    B's fallback is what keeps a project with no ``data/`` drawing: LOAD
+    IMAGES with nothing to load streams instead and says so. Anything else
+    unrecognised lands on LOAD IMAGES for the same reason the normaliser
+    does.
+    """
+    offered = [stored for stored, _label in _IMAGE_SOURCE_OPTIONS]
+    try:
+        from spacr.settings import _canonical_image_source
+        resolved = _canonical_image_source(value)
+    except Exception:                                            # noqa: BLE001
+        resolved = str(value or "").strip().lower()
+    return resolved if resolved in offered else offered[0]
+
+
 _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     "umap": {
         "reduction_method": ["umap", "tsne", "pca", "isomap", "spectral"],
-        # Replaced with the installed UMAP metric inventory in _widget_for.
         "metric": ["euclidean"],
         "pca_svd_solver": [
             "auto", "full", "covariance_eigh", "arpack", "randomized",
@@ -858,18 +735,11 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "isomap_path_method": ["auto", "FW", "D"],
         "spectral_affinity": ["nearest_neighbors", "rbf"],
         "clustering": ["dbscan", "kmeans"],
-        # 'auto' is retired FROM THE PANEL and not from the code
-        # (instruction 171): it answers "what is available here", which is not
-        # an answer to somebody asked which mode they want.
         "crop_source": _CROP_SOURCE_OPTIONS,
         "batch_correction": _BATCH_CORRECTION_OPTIONS,
         "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
     },
     "annotate": {
-        # The choice the annotation app has always had a SETTING for and
-        # never offered -- it shipped 'auto' and took the PNG folder whenever
-        # one existed. "in the annotation app how do i choose to stream images
-        # from database or dataset" (2026-08-19).
         "crop_source": _CROP_SOURCE_OPTIONS,
     },
     "ml_analyze": {
@@ -881,16 +751,8 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
         "independent_variable_layout": ["auto", "long", "wide"],
         "model_data_layout": ["long", "wide"],
-        # Filled from the modules that own each inventory in _widget_for, so
-        # a family added to spacr.ml or a correction added to
-        # spacr.multiple_testing appears here without a second edit.
         "regression_type": ["ols"],
         "multiple_testing_method": ["fdr_bh"],
-        # (value, label) pairs for the same reason `analysis_mode` has them
-        # below: this is the choice that decides whether the family box or
-        # the permutation section is the one that does anything, and 'auto'
-        # / 'parametric' / 'nonparametric' name a statistical stance rather
-        # than the consequence a reader is choosing between.
         "inference": [
             ("auto",
              "auto — take the simultaneous fit only if the design supports it"),
@@ -900,16 +762,6 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
              "nonparametric — test each term on its own by permutation; "
              "valid at any width"),
         ],
-        # Instruction 134, asked for on 2026-08-17: "analasys mode should be
-        # a dropdown". Two valid values and it was a FREE-TEXT box, so a typo
-        # in it survived until the run had read the whole database.
-        # `_resolve_regression_analysis_choices` is what maps `inference` onto
-        # this, and it accepts exactly these two.
-        #
-        # (value, label) PAIRS: the key is called 'guide_permutation' and the
-        # dropdown says what that IS, the same way 132's model box explains
-        # what it fits. The stored values are unchanged, so every settings
-        # file already written goes on meaning what it meant.
         "analysis_mode": [
             ("regression",
              "regression — fit every guide at once in the chosen model"),
@@ -918,45 +770,23 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
              "reshuffled within each plate"),
         ],
         "analysis_unit": ["well", "cell"],
-        # Exactly the branches process_scores implements; anything else
-        # reaches the pipeline and is silently ignored rather than applied.
         "agg_type": ["mean", "median", "quantile", None],
         "transform": [None, "log", "sqrt", "square", "beta"],
         "cov_type": [None, "HC0", "HC1", "HC2", "HC3"],
         "threshold_method": ["std", "var"],
-        # WHICH P THE SIGNIFICANCE LINE IS DRAWN ON. Two values and no third
-        # reading, so it is a closed alphabet rather than a box a user can
-        # type "adj" into. "adjusted" leads because it is the only one of the
-        # two that is evidence with hundreds of guides in the family.
         "p_threshold_kind": ["adjusted", "raw"],
     },
     "classify": {
         "evaluation_calibration": ["temperature", "none"],
+        "image_source": _IMAGE_SOURCE_OPTIONS,
     },
     "classify_merged": {
         "evaluation_calibration": ["temperature", "none"],
-        # A closed alphabet: there are two families and a typo in a free-text
-        # box would raise ClassifierFamilyError at run time, after the user
-        # had walked away.
-        #
-        # (value, label) PAIRS, asked for on 2026-09-02: "in classify in
-        # classifier family spell out computer vision and machine learning
-        # and change machine learning to Tabular Machine Learning and cv to
-        # Computer vision (Torch)". "cv" and "ml" are abbreviations of
-        # abbreviations -- a dropdown reading `cv` / `ml` asks the user to
-        # already know which of two whole disciplines this module means, and
-        # the distinction that matters is what each one READS: one is fed
-        # object crops through Torch, the other rows of measured features.
-        # The stored values are unchanged, so every settings file already
-        # written goes on meaning what it meant, and `spacr.classify`
-        # dispatches on the same two strings.
+        "image_source": _IMAGE_SOURCE_OPTIONS,
         "classifier_family": [
             ("cv", "Computer Vision (Torch)"),
             ("ml", "Tabular Machine Learning"),
         ],
-        # set_default_classify gives this screen all eight batch_* keys, so
-        # it corrects batches exactly like the other three — but it was the
-        # one app that listed no alphabet for them.
         "batch_correction": _BATCH_CORRECTION_OPTIONS,
         "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
     },
@@ -1011,10 +841,6 @@ CSV_COLUMN_SOURCES: Dict[str, Dict[str, _CsvColumnSource]] = {
         "dependent_variable": _CsvColumnSource(("score",), "response column"),
         "filter_column": _CsvColumnSource(("score", "count"),
                                           "filter column"),
-        # The count table's own header names, which were HARD-CODED and had
-        # no setting at all until instruction 135. They fail the same way
-        # `dependent_variable` did -- inside the merge, naming a column the
-        # file has not got -- and they earn the same button.
         "count_grna_column": _CsvColumnSource(("count",), "count column"),
         "count_value_column": _CsvColumnSource(("count",), "count column"),
     },
@@ -1031,10 +857,6 @@ def has_csv_column_picker(app_key: str, key: str) -> bool:
     return str(key or "") in CSV_COLUMN_SOURCES.get(str(app_key or ""), {})
 
 
-# Settings read by exactly one Image UMAP reducer.  The controls remain in the
-# form so switching methods preserves their values; only the inactive families
-# are greyed.  Shared controls (random_seed and, where applicable, metric) are
-# handled separately in _refresh_umap_reducer_enablement.
 _UMAP_REDUCER_SETTINGS: Dict[str, set] = {
     "umap": {"n_neighbors", "min_dist"},
     "tsne": {
@@ -1079,8 +901,6 @@ _REGRESSION_TOOLTIP_OVERRIDES = {
     ),
 }
 
-# Shared keys can have different meanings in individual modules. These
-# overrides are applied after the global tooltip registry is loaded.
 _APP_TOOLTIP_OVERRIDES = {
     "regression": _REGRESSION_TOOLTIP_OVERRIDES,
     "umap": _UMAP_TOOLTIP_OVERRIDES,
@@ -1097,10 +917,6 @@ except Exception:      # pragma: no cover - keeps the GUI importable
     _ALL_BASIS_SETTINGS = set()
 
 
-# App-specific category layouts. ``@Name`` expands the corresponding legacy
-# category; plain entries are individual setting keys. The backend settings
-# dictionaries remain unchanged — this controls only the order and grouping in
-# Qt, just like the Classify (CV) regroup below.
 _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "explain_cv": (
         ("Source & provenance", (
@@ -1182,17 +998,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Runtime", ("n_jobs", "verbose")),
     ),
     "ml_analyze": (
-        # Category names shared with Classify (CV) wherever the two do the
-        # same job -- "Labels & Classes", "Classifier & Validation",
-        # "Runtime & Reliability". The CV layout is built inline further
-        # down; the names are what has to match, not the mechanism.
         ("Labels & Classes", (
             "src", "dataset_mode",
-            # metadata basis
             "location_column", "positive_control_id", "negative_control_id",
-            # annotation basis
             "annotation_column",
-            # measurement basis
         )),
         ("Feature Preparation", (
             "channel_of_interest", "exclude", "nuclei_limit",
@@ -1212,10 +1021,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Feature Selection & Importance", (
             "prune_features", "top_features", "n_repeats",
         )),
-        # ("Output & Database", ("save_to_db",)) went with the setting on
-        # 2026-09-09 (357-Q4): `save_to_db` was read by nothing but its own
-        # defaults setter, and a heading whose only row is gone is a
-        # heading with nothing under it.
         ("Plots & Heatmaps", (
             "cmap", "heatmap_feature", "grouping", "min_max",
         )),
@@ -1224,21 +1029,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "mask": (
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
-            # HOW MANY ORGANELLE SLOTS, immediately before the switches of
-            # the slots it governs -- the relationship Measure states beside
-            # its mask dimensions, said here beside the channels.
-            #
-            # AND IN THE FIRST GROUP, WHICH IS WHAT MAKES IT REACHABLE. The
-            # settings strip opens on Essentials, and essentials are the
-            # module's first group plus `_APP_ESSENTIAL_EXTRAS`. The count
-            # leads the shared "Organelle" category as well
-            # (`settings.organelle_basic_settings`), and filed only there it
-            # was in neither list: a panel drawing twenty-six organelle
-            # channel boxes offered no way to say how many there were until
-            # the user found the All settings switch.
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
+            # 404/405: which model segments every object channel above.
+            "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
@@ -1261,23 +1056,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
         ("Organelle Segmentation", ("@Organelle",)),
-        # The advanced half is its own heading rather than being folded into
-        # the one above, so the six settings a biologist recognises are not
-        # buried under forty-eight detection parameters. Instruction 72.
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
-        # Instruction 73: the families that are one decision applied to
-        # several objects, grouped by what they do rather than by which
-        # object they do it to. All three nest under "Advanced settings",
-        # which is derived from the group they reference rather than
-        # restated here -- see `_shared_category_parents`.
-        #
-        # "(per object)", NOT "Image Preprocessing": the heading above is the
-        # whole-image one, and the category-help table is keyed on the
-        # heading text, so two headings spelled alike would share one blurb.
         ("Image Preprocessing (per object)",
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
-        ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
@@ -1300,34 +1082,13 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Mask & Channel Mapping", (
             "channels", "cell_mask_dim", "nucleus_mask_dim",
             "pathogen_mask_dim",
-            # HOW MANY SLOTS THERE ARE, before the slots themselves. It
-            # belongs to no slot, so nothing hides it, and unclaimed it
-            # landed in the bucket the layouts exist to keep empty.
             "number_of_organelles", "organelle_mask_dim",
             *(f"{role}_mask_dim" for role in ALL_ORGANELLE_ROLES[1:]),
-            # WHAT KIND OF ORGANELLE each slot holds. Measure needs it for
-            # the same reason mask does, and for one more: it decides
-            # whether "how many, and how spread out" is the phenotype or a
-            # segmentation artefact, which is what a measure run says out
-            # loud about its own organelle numbers. Beside the mask
-            # dimension because the two answer one question -- which plane,
-            # and what is on it.
             "organelle_type",
             *(f"{role}_type" for role in ALL_ORGANELLE_ROLES[1:]),
             "cytoplasm",
             "timelapse", "timelapse_objects",
         )),
-        # Illumination correction sits between the mapping and the features
-        # because that is where it runs: it rewrites the pixels every
-        # intensity feature below is then computed from. The Illumination
-        # screen spreads these across four tabs -- correction model, field
-        # sampling, QC, failure handling -- which is the right shape when
-        # estimating a field is the whole job. Inside Measure it is one
-        # decision with its details attached, so it is one section.
-        #
-        # `src` and `channels`, the other two keys the estimate reads, are
-        # not repeated here: Measure already offers them above, and the
-        # estimate deliberately reads the same fields the run measures.
         ("Illumination Correction", (
             "illumination_correction", "illumination_model",
             "illumination_estimator", "illumination_degree",
@@ -1337,37 +1098,13 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Measurement Features", (
             "save_measurements", "calculate_correlation",
-            # Instruction 71's two opt-in measurements. They were added to
-            # the measure defaults and to the shared "Measurements" category
-            # but NOT to this literal list, so the measure panel dropped
-            # them into the trailing "Additional Settings" bucket -- which is
-            # not a heading anyone chose, it is the absence of one. They
-            # extend calculate_correlation, so they sit beside it.
             "spatial_measurements",
-            # The radius the neighbourhood is counted in, immediately after
-            # the switch that turns it on: it is baked into the column name,
-            # so a screen has to pick one value and keep it.
             "spatial_neighbor_radius",
-            # Instruction 388's bystander split, and the note above applies
-            # to it word for word -- it was added to the measure defaults
-            # and to the shared "Measurements" category and landed in
-            # "Additional Settings" until it was listed HERE too. Beside
-            # the spatial pair because it answers the same kind of question
-            # about the same neighbourhood: that pair counts the neighbours,
-            # this one asks whether any of them is infected.
             "bystander_measurements", "bystander_reach_in_diameters",
             "manders_thresholds", "homogeneity", "homogeneity_distances",
             "radial_dist", "distance_gaussian_sigma",
-            # The spatial-distance block: how far every object is from
-            # every other, and from the intensity maxima inside it. Filed
-            # beside `radial_dist` because they answer the same kind of
-            # question, one object pair at a time instead of one radius.
             "object_distances", "object_distance_maxima",
             "object_distance_intensity",
-            # Not a segmentation control -- it decides which organelle summary
-            # TABLES a measure run writes, so it belongs with the other
-            # what-gets-measured settings rather than under the mask
-            # pipeline's Organelle Segmentation heading.
             "summarize_organelles_by",
         )),
         ("Object Filtering", (
@@ -1397,31 +1134,14 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "timelapse": (
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
-            # HOW MANY ORGANELLE SLOTS, immediately before the switches of
-            # the slots it governs -- the relationship Measure states beside
-            # its mask dimensions, said here beside the channels.
-            #
-            # AND IN THE FIRST GROUP, WHICH IS WHAT MAKES IT REACHABLE. The
-            # settings strip opens on Essentials, and essentials are the
-            # module's first group plus `_APP_ESSENTIAL_EXTRAS`. The count
-            # leads the shared "Organelle" category as well
-            # (`settings.organelle_basic_settings`), and filed only there it
-            # was in neither list: a panel drawing twenty-six organelle
-            # channel boxes offered no way to say how many there were until
-            # the user found the All settings switch.
             NUMBER_OF_ORGANELLES,
             "organelle_channel",
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
+            # 404/405: which model segments every object channel above.
+            "segmentation_backend",
             "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
-        # `timelapse` is not offered here. This module IS the timelapse
-        # one -- turning it off would leave a screen whose every remaining
-        # control is about a time dimension it had just been told to
-        # ignore, and there is no reason a user would want that rather
-        # than opening Mask Generation. It stays in the settings dict at
-        # True (see `_ALWAYS_ON`), so a run gets what it expects and a
-        # mask-settings CSV from before the split still round-trips.
         ("Acquisition & Axes", (
             "t_stack", "t_axis_order", "t_axis",
             "frame_interval_s", "z_stack", "z_segmentation_mode", "z_axis",
@@ -1443,23 +1163,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Nucleus Segmentation", ("@Nucleus",)),
         ("Pathogen Segmentation", ("@Pathogen",)),
         ("Organelle Segmentation", ("@Organelle",)),
-        # The advanced half is its own heading rather than being folded into
-        # the one above, so the six settings a biologist recognises are not
-        # buried under forty-eight detection parameters. Instruction 72.
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
-        # Instruction 73: the families that are one decision applied to
-        # several objects, grouped by what they do rather than by which
-        # object they do it to. All three nest under "Advanced settings",
-        # which is derived from the group they reference rather than
-        # restated here -- see `_shared_category_parents`.
-        #
-        # "(per object)", NOT "Image Preprocessing": the heading above is the
-        # whole-image one, and the category-help table is keyed on the
-        # heading text, so two headings spelled alike would share one blurb.
         ("Image Preprocessing (per object)",
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
-        ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
         ("Tracking Setup", (
             "timelapse_objects", "timelapse_frame_limits",
@@ -1541,46 +1248,16 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Runtime & Reliability", ("n_jobs",)),
     ),
     "regression": (
-        # `count_grna_column` and `count_value_column` are the count CSV's
-        # own header names, which were HARD-CODED until instruction 135.
-        # They belong beside the table they name: a user who has to say what
-        # their count file calls its guide column is looking at the count
-        # file, not at the model.
-        # ``src`` is the optional result root. It remains beside the input
-        # tables because its automatic value is derived from the first count
-        # table; see ``ml.resolve_regression_src``.
         ("Input Tables", ("paired_data", "metadata_files",
                           "count_grna_column", "count_value_column",
                           "independent_variable_layout",
                           "wide_predictor_columns", "src")),
-        # CONTROLS AND FILTERS ARE ONE QUESTION: which rows reach the model.
-        # Asked for on 2026-08-17 -- "merge quality & filters in here. change
-        # the settings categoty to Controlls & Filters". They were two
-        # sections with the response, the estimator and the hit-calling rules
-        # between them, so it was not obvious that seven separate settings
-        # each drop data.
-        # THE THREE CONTROL BLOCKS AND THE EXCLUSION LIVE HERE, not in the
-        # trailing "additional settings" they fell into for want of being
-        # named (2026-08-21). A settings key that no panel section claims
-        # lands in the catch-all, which is where a reader looks last.
-        #
-        # ORDER IS THE ASK: they follow `negative_control`, because they are
-        # about the same thing -- which wells and which guides are controls
-        # -- and the eye should not have to travel to collect them.
-        #
-        # `control_wells` IS GONE FROM THIS PANEL. It said "these wells are
-        # controls" without saying WHICH control, and the three settings
-        # below say that. Still read by the invasion-assay panel, which has
-        # its own meaning for it.
         ("Controls & Filters", (
             "positive_control_id", "negative_control_id",
             "positive_control_wells", "negative_control_wells",
             "mixed_control_wells", "exclude_grnas", "nontargeting_control_grnas",
             "filter_column", "filter_value",
             "min_cells_per_well", "min_observations_per_hit", "fraction_threshold",
-            # DIRECTLY UNDER THE NUMBER IT REPLACES. It says "measure this
-            # from the control wells instead", so it is only readable
-            # beside the number it is an alternative to.
             "calibrate_fraction_threshold",
             "normalise_fraction",
             "target_unique_count", "tolerance", "outlier_detection",
@@ -1591,128 +1268,35 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "batch_combat_mean_only", "batch_min_samples",
             "batch_missing_control",
         )),
-        # WHAT IS BEING MODELLED, before HOW. The response was previously
-        # interleaved with the estimator settings under "Model & Covariates",
-        # so the two questions a user actually asks in order -- what am I
-        # measuring, and how should it be tested -- were answered in one
-        # twelve-row block.
         ("Response", (
-            # `score_column` retired with instruction 135 A: it named the
-            # same measurement as `dependent_variable` and only offered a
-            # way to disagree with it.
             "dependent_variable", "invert_dependent_variable",
             "analysis_unit", "agg_type", "transform",
         )),
-        # `inference` leads because it decides whether "Estimator Tuning" or
-        # "Permutation Test" below is the section that does anything.
         ("Model & Inference", (
-            # `level` was in no section at all, so it fell into "Additional
-            # Settings" -- the bucket this layout exists to keep empty.
-            # Asked for on 2026-08-17: "level should be in model and
-            # inference not additional settings". It is not a plate-layout
-            # setting: it decides WHICH FITS RUN, and it is greyed out under
-            # regression_type='mixed', which nests guides in genes and
-            # therefore fits both levels at once. A control whose enabled
-            # state is decided by `regression_type` belongs beside it, not
-            # three sections away.
-            # WHICH MODEL, THEN WHO FITS IT, THEN AT WHICH LEVELS. Asked for
-            # on 2026-08-18: "regression backend should be in Model and
-            # inference right after regression type". `regression_type` says
-            # WHAT is fitted and `regression_backend` says WHO fits it -- the
-            # same mixed model through statsmodels or through torch on the
-            # GPU should give the same answer and not the same runtime -- so
-            # the two belong adjacent, and `level` follows them.
             "inference", "analysis_mode", "regression_type",
             "regression_backend", "level", "model_data_layout",
-            # WHERE THE FITTED LINE IS ANCHORED. Still part of WHAT is
-            # fitted rather than which terms are in it, so it reads with
-            # the four above: `intercept` chooses fitted, zero, control or
-            # value, and `intercept_value` is the number the last of those
-            # pins it at -- greyed for the other three.
             "intercept", "intercept_value",
-            # `model_plate_position` decides whether rowID and columnID are in
-            # the model at all; `random_row_column_effects` then decides fixed
-            # vs random for terms that ARE in. Adjacent because setting one
-            # without seeing the other is how they end up contradicting.
             "model_plate_position", "random_row_column_effects",
-            # SIGNIFICANCE MERGED IN, asked for on 2026-08-17: "significance
-            # nad hit calling is good but merge all of these settings into
-            # Model and inference". They are not a separate question -- which
-            # correction, at what level, above which effect size IS how the
-            # model's output is turned into a claim, and a user reading the
-            # model section had to scroll past three others to find out.
-            # `p_threshold_alpha` and `p_threshold_kind` are the line the
-            # plot draws significance at. The plot already had a raw/adjusted
-            # choice on its right-click menu and the RUN had no say in it, so
-            # the exported hit list and the picture could disagree about what
-            # "significant" meant. They sit with `fdr_alpha` because the three
-            # of them are one question: what counts as a hit.
             "multiple_testing_method", "fdr_alpha", "p_threshold_alpha",
             "p_threshold_kind", "threshold_method",
             "threshold_multiplier",
-            # THE FIELD, NOT THE BOOLEAN. `annotation_source` supersedes
-            # `Toxoplasma`: empty or 'toxoplasma' is the bundled tables
-            # exactly as the True case was, and any organism name, taxon id
-            # or accession is a UniProt lookup. The boolean stays in the
-            # settings dict, because every CSV in existence carries it and
-            # `_annotation_source` still reads it, but offering both halves
-            # of a superseded pair is how a user sets one and wonders why
-            # the other wins.
             "annotation_source",
         )),
-        # The estimator-specific knobs, added by the robust and regularised
-        # fits after this layout was first written. They landed in
-        # "Additional Settings" -- the bucket a layout exists to keep empty --
-        # because only the shared estimator settings above were named.
         ("Estimator Tuning", (
-            # `cov_type` moved here from Model & Inference on 2026-08-17 --
-            # "mooveCov type here". It is estimator-specific in exactly the
-            # way everything else in this section is: the penalised, robust
-            # and quantile fits have no such estimator and REFUSE it rather
-            # than quietly reporting ordinary errors under a robust label.
             "cov_type",
             "alpha", "l1_ratio", "quantile", "huber_t",
             "spline_knots", "spline_degree",
             "hinge_threshold", "hinge_n_boot", "lasso_n_boot",
             "lasso_selection_threshold",
-            # One knob per family, filed with the rest of them:
-            # `group_lasso_lambda` is the group lasso's penalty, and
-            # `rra_alpha`/`rra_permutations` are robust rank aggregation's
-            # cutoff and null size.
             "group_lasso_lambda", "rra_alpha", "rra_permutations",
         )),
-        # The permutation test's own settings, previously split across three
-        # sections: its block and nuisance columns sat under the model, its
-        # permutation count and seed under estimator tuning, and its support
-        # thresholds under hit calling. Nothing here is read unless inference
-        # resolves to the nonparametric test.
         ("Permutation Test", (
-            # FIRST: it says WHAT is measured, and everything after it says
-            # how the null is built and who is eligible -- answers to a
-            # question this setting asks. Absent from this list it fell to
-            # the trailing "Additional Settings", which is where a reader
-            # looks last.
             "grna_statistic",
             "guide_min_wells", "guide_primary_min_wells",
             "guide_permutations", "guide_permutation_seed",
             "guide_permutation_block", "guide_nuisance_columns",
             "guide_presence_threshold", "guide_permutation_batch_size",
         )),
-        # "REGRESSION PLOTS" AND "RUNTIME & RELIABILITY" ARE GONE, asked for
-        # on 2026-08-17: "Regression plot can be removed" and "Runtime and
-        # reliability should be removed and go to prefgerences/general".
-        #
-        # Neither was a question about the regression. The plot section asked
-        # a user to decide the axis scaling of a figure they had not seen yet
-        # -- `x_lim` and `y_lims` are set on the plot now -- and the runtime
-        # section asked how the whole application handles a failure, which is
-        # the same answer for every module and belongs in Preferences.
-        #
-        # The keys they held are not dropped, they are HIDDEN
-        # (`_APP_HIDDEN_KEYS`): dropping `regression_qc` would take
-        # `parameter_sweep`'s `settings.setdefault("regression_qc", False)`
-        # with it, and a hundred-trial sweep would pay ~5.8 s and ~19 figures
-        # per trial for diagnostics nobody opens.
     ),
     "activation": (
         ("Model & Data", (
@@ -1737,12 +1321,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     ),
     "recruitment": (
         ("Data source", ("src",)),
-        # THE THREE `*_mask_dim` ROWS ARE GONE, with the factory keys behind
-        # them. Instruction 364: `analyze_recruitment` never read them, so
-        # half this section did nothing while its hint warned that "a wrong
-        # index here measures the wrong compartment without complaining" --
-        # and their tooltips described `measure_crop`, which is where those
-        # keys are actually live.
         ("Channel Mapping", (
             "cell_chann_dim", "nucleus_chann_dim", "pathogen_chann_dim",
             "channel_dims", "channel_of_interest",
@@ -1781,15 +1359,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Runtime & Reliability", ("verbose",)),
     ),
-    # -- the three Cellpose-facing modules -------------------------------
-    #
-    # All three used to render the shared "Cellpose" category as one drop of
-    # ten to thirteen knobs. They are not one decision: the model you run,
-    # the thresholds that decide how much it finds, the geometry it sees and
-    # the background correction applied before it are four separate
-    # questions, asked at four different times. The groups below are the same
-    # four in all three modules so that moving between them is not a
-    # relearning exercise.
     "cellpose_masks": (
         ("Input & Channels", (
             "src", "channels", "grayscale", "invert", "normalize",
@@ -1848,11 +1417,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Barcode References", ("grna_csv", "row_csv", "column_csv")),
         ("Read Parsing", (
             "target_sequence", "regex", "offset_start", "window_length",
-            # How far a read may be from a listed barcode and still be
-            # called as it -- a parsing tolerance, filed with the rest of
-            # the parse. Left out of this layout it fell into "Additional
-            # Settings", which is not a heading anyone chose; it is the
-            # absence of one.
             "barcode_mismatches",
         )),
         ("Output & Storage", (
@@ -1891,11 +1455,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_qc", "illumination_on_missing",
         )),
     ),
-    # Power / Design draws its own screen, so these groups are never a
-    # settings form. They are still the layout of record: the settings diff,
-    # the run journal and `utils.pretty_print_settings` all group by
-    # category, and fifteen keys under one "Power analysis" heading make a
-    # design change unreadable in all three.
     "power": (
         ("Library Design", (
             "power_n_genes", "power_n_grnas_per_gene",
@@ -2060,20 +1619,9 @@ def _categories_from_spec(
         keys: List[str] = []
         for token in tokens:
             if token.startswith("@"):
-                # A group reference can only mean what the shared map says
-                # it means, so it is filtered by what is actually in there.
                 candidates = [key for key in source.get(token[1:], [])
                               if key in available]
             else:
-                # A literal key is the spec ASSERTING where that setting
-                # belongs, and it outranks the shared category map — which
-                # for Barcode QC and Illumination has never heard of their
-                # keys at all. Filtering literals by `available` sent all
-                # eleven of Barcode QC's checks to the trailing "Other"
-                # bucket, which is the exact thing the layout exists to
-                # prevent. Whether the key exists is decided at render time,
-                # where `build_sections` already drops any key that produced
-                # no widget.
                 candidates = [token]
             for key in candidates:
                 if key not in assigned:
@@ -2121,23 +1669,6 @@ def get_categories() -> Dict[str, List[str]]:
     return categories
 
 
-# ---------------------------------------------------------------------------
-# THE SETTINGS TREE. Instruction 73.
-# ---------------------------------------------------------------------------
-#
-# The panel used to group by OBJECT and nothing else, so `cell_min_size` and
-# `nucleus_min_size` -- one decision applied to two objects -- read as two
-# unrelated knobs filed under two headings. The request is a second axis:
-# group the advanced settings by WHAT THEY DO, then by which object they do
-# it to, under one "advanced settings" umbrella.
-#
-# That needs three levels, and the panel had one. `build_sections` returned
-# List[Tuple[str, List[Tuple[str, QWidget]]]] -- a header and its rows, no
-# third element and no recursion -- so a sub-sub-section could not be
-# expressed at all. Widening that return type is a contract change for every
-# module in the tool, which is why the section below is a TUPLE SUBCLASS: it
-# still IS the pair it always was, so nothing that unpacks or `dict()`s the
-# result has to change, and the tree hangs off attributes beside it.
 
 
 class SettingsSection(tuple):
@@ -2154,8 +1685,6 @@ class SettingsSection(tuple):
     so sections with identical titles remain distinguishable.
     """
 
-    # No `__slots__`: a variable-length tuple subclass cannot have one, and
-    # the four attributes below are what carries the tree.
 
     def __new__(cls, title, own_rows=(), children=()):
         """Build a section, flattening its children's rows into its own.
@@ -2307,7 +1836,7 @@ def _nest_sections(flat) -> List[SettingsSection]:
         if parent not in umbrellas:
             umbrellas[parent] = []
             order.append(parent)
-            out.append(parent)          # a placeholder, replaced below
+            out.append(parent)
         umbrellas[parent].append(section)
     return [SettingsSection(item, (), umbrellas[item])
             if isinstance(item, str) else item
@@ -2377,9 +1906,6 @@ def needs_curated_layout(app_key: str) -> bool:
     try:
         return len(resolve_default_settings(app_key)) > CURATION_THRESHOLD
     except Exception:
-        # An app whose defaults will not resolve has no settings panel to
-        # judge. Reporting "needs a layout" would fail the invariant test for
-        # a reason that has nothing to do with layouts.
         return False
 
 
@@ -2465,13 +1991,6 @@ def categories_for_app(
                 while key in keys:
                     keys.remove(key)
         result = {"Input mapping": list(input_keys), **result}
-    # Map Barcodes used to relocate `n_jobs` and `test` into "Sequencing"
-    # here, so the module would stop rendering an "Advanced" tab holding one
-    # setting and a "Model Training" tab holding another. That left thirteen
-    # unrelated keys in one "Sequencing" drop; `_APP_CATEGORY_SPECS` now
-    # names all five groups the module actually has, which places those two
-    # keys — and every other one — explicitly. The relocation is not deleted
-    # behaviour, it is superseded behaviour.
     if app_key == "umap":
         batch_correction = (
             "batch_correction", "batch_column", "batch_control_column",
@@ -2496,42 +2015,13 @@ def categories_for_app(
     if app_key in _APP_CATEGORY_SPECS:
         result = _categories_from_spec(result, _APP_CATEGORY_SPECS[app_key])
     if app_key in ("classify", "classify_merged"):
-        # NINE groups became SIX, named for what they hold rather than for
-        # the stage of a workflow. "Validation", "Evaluation Workbench" and
-        # "Monitoring & Runtime" were three headings for one question -- how
-        # do I know whether this worked -- and nobody looking for a
-        # cross-validation setting knew which of the three to open.
         ordered = {
             "Plate Sources & Workflow": [
                 "src", "experiment", "generate_training_dataset", "train",
                 "test", "generate_full_dataset", "apply_model_to_dataset",
                 "dataset", "model_path", "tar_path"],
 
-            # `classes` is the heart of this module: it is the only setting
-            # that says which objects the model is being taught to tell
-            # apart. `dataset_mode` sits above it because it decides which
-            # columns the Classes editor offers.
-            #
-            # `location_column`, `positive_control` and `negative_control` are
-            # NOT here: a control well is a class defined by a metadata
-            # column, which is exactly a row of the Classes dict, so three
-            # settings saying it a second way were three ways to disagree.
             "Labels & Classes": [
-                # `classes` is what each class MEANS; `class_folder_names`
-                # is where its crops are written. One key used to be both.
-                # `metadata_type_by` and `measurement_rules` are GONE, not
-                # hidden. The first named the column a class is defined by,
-                # which is the Classes editor's own column field; the second
-                # was a second vocabulary for "a class is a rule about a
-                # column", written as hand-edited JSON because it had no
-                # editor. Both were answers to a question `classes` now asks
-                # once.
-                # `annotation_column` and `class_metadata` are GONE from
-                # the panel (instruction 229): the Classes editor names the
-                # column each class is defined by and the value that
-                # defines it, so a box for either was a second place to say
-                # the same thing. Both are still WRITTEN, derived from
-                # `classes`, so every consumer downstream is unchanged.
                 "dataset_mode", "classes", "class_folder_names",
                 "metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value",
@@ -2555,19 +2045,11 @@ def categories_for_app(
                 "epochs", "optimizer_type", "learning_rate", "schedule",
                 "amsgrad", "loss_type", "class_balance", "label_smoothing",
                 "focal_gamma", "focal_alpha", "logit_adjust_tau",
-                # `gradient_accumulation` was here and is retired: the step
-                # count alone says whether to accumulate, and `steps = 1` IS
-                # the off position. A category naming a key with no type and
-                # no default draws nothing and hides the retirement.
                 "batch_size", "mixed_precision",
                 "gradient_accumulation_steps", "early_stopping_patience"],
 
             "Evaluation & Results": [
                 "cross_validation_enabled", "cross_validation_folds",
-                # The plate held back from fitting, beside the folds it is
-                # the alternative to. Left out of this layout it fell into
-                # "Additional Settings", which is not a heading anyone chose;
-                # it is the absence of one.
                 "cv_group_by", "holdout_plate", "nested_cv_inner_folds",
                 "score_threshold",
                 "classifier_evaluation", "evaluation_calibration",
@@ -2579,27 +2061,11 @@ def categories_for_app(
                 "max_failure_rate"],
         }
         if app_key == "classify_merged":
-            # The family switch is the TOP-LEVEL choice, not one setting
-            # among ninety, so it gets its own group at the top rather than
-            # sitting inside "Model Architecture". Greying tells the user a
-            # control is inactive; it does not tell them what they are
-            # DOING, and that is what the merged module has to make obvious.
             ordered["Model & Regularization"] = [
                 k for k in ordered["Model & Regularization"]
                 if k != "classifier_family"]
 
-            # The control wells are NOT added back. ML used to express the
-            # metadata basis through location_column plus two control values,
-            # and Classify (CV) through class_metadata; the Classes dict now
-            # says both, as rows naming a value of a metadata column. Three
-            # settings restating one thing were three ways for it to disagree
-            # with itself.
 
-            # The ML-only groups, appended to the CV ordering rather than
-            # duplicated: every CV key is already placed above, so this is
-            # exactly the difference between the two modules. Group names
-            # match Classify (ML)'s own, so a user moving between the three
-            # screens sees the same headings.
             ordered.update({
 
                 "Plate & Batch Correction": [
@@ -2607,9 +2073,6 @@ def categories_for_app(
                     "batch_control_column", "batch_control_values",
                     "batch_covariate_column", "batch_combat_mean_only",
                     "batch_min_samples", "batch_missing_control"],
-                # Preparing features, choosing a model and ranking features
-                # were three headings asking one question: which features the
-                # model uses. One heading, read top to bottom.
                 "Model & Features": [
                     "model_type_ml", "n_estimators", "test_size",
                     "cross_validation", "reg_alpha", "reg_lambda",
@@ -2618,29 +2081,15 @@ def categories_for_app(
                     "remove_low_variance_features", "min_cells_per_well",
                     "prune_features", "top_features", "n_repeats"],
             })
-            # The heatmap is not a machine-learning setting: it is how a
-            # result is shown, and the CV family wants it just as much. So it
-            # joins the shared evaluation group rather than being prefixed
-            # onto one family.
             ordered["Evaluation & Results"] = (
                 ordered["Evaluation & Results"]
                 + ["cmap", "heatmap_feature", "grouping", "min_max"])
 
         if app_key == "classify_merged":
-            # Rebuilt in order, because dict order IS the panel order: the
-            # family choice first, then the shared groups, then each
-            # family's own settings under a heading that names the family.
-            #
-            # The shared groups are deliberately NOT prefixed. "Labels &
-            # Classes" applies to both families, and prefixing it would
-            # imply it belonged to one.
             cv_family = "Computer Vision"
             ml_family = "Machine Learning"
             cv_groups = ("Images & Cropping", "Model & Regularization",
                          "Training & Loss")
-            # Feature preparation and feature importance were two headings
-            # asking one question -- which features the model uses -- and
-            # "Output & Database" was one setting under a heading of its own.
             ml_groups = ("Model & Features", "Plate & Batch Correction")
             shared_first = ("Plate Sources & Workflow", "Labels & Classes")
             shared_last = ("Evaluation & Results",)
@@ -2653,28 +2102,11 @@ def categories_for_app(
                 if name in ordered:
                     rebuilt[_family_heading(cv_family, name)] = ordered[name]
             for name in ml_groups:
-                # A rename of `label` to "Classifier & Validation" stood here,
-                # guarded on `name.startswith("ML Classifier")` so the heading
-                # would not read "Machine Learning - ML Classifier". No entry
-                # of `ml_groups` has been called that since the groups above
-                # were consolidated, so it could not run and was removed.
                 if name in ordered:
                     rebuilt[_family_heading(ml_family, name)] = ordered[name]
-            # Shared groups that come LAST -- evaluation applies to both
-            # families, so prefixing it onto one would be a lie about who it
-            # belongs to, and putting it first would bury the settings that
-            # decide what is being trained.
             for name in shared_last:
                 if name in ordered:
                     rebuilt[name] = ordered[name]
-            # A catch-all that copied any group the five tuples above do not
-            # name stood here, and it could not run either: `ordered` is the
-            # literal a hundred lines up plus this branch's own two additions,
-            # and the tuples enumerate every one of them. It was a net against
-            # that literal growing a group nobody added to a tuple -- so the
-            # invariant it was catching is asserted directly instead, by
-            # `test_the_merged_classifier_panel_loses_no_setting_to_the_rebuild`.
-            # A silent net that nobody has ever seen fire is not evidence.
             ordered = rebuilt
 
         moved = {key for keys in ordered.values() for key in keys}
@@ -2700,87 +2132,26 @@ def categories_for_app(
             if name == "Measurements":
                 reordered["Filter settings"] = list(filter_keys)
         result = reordered
-    # Last, so it catches a key wherever it ended up -- including the
-    # "Additional Settings" bucket, which is where a key goes precisely
-    # when no layout claimed it.
     return _drop_hidden_keys(app_key, result)
 
 
-# ---------------------------------------------------------------------------
-# Category help — one blurb per settings CATEGORY
-# ---------------------------------------------------------------------------
-#
-# A category is a collapsible header in a module's settings panel; the map
-# above decides which keys land under which header. These are the blurbs the
-# panel shows for the header itself, keyed by the title uppercased and
-# stripped, because that is what a rendered ``Section`` has in hand.
-#
-# They are deliberately NOT restatements of the heading. Someone reading
-# "Image Preprocessing" already knows the words; what they cannot tell is what
-# the group decides and whether today's problem lives inside it. Each entry
-# therefore says what the settings determine and when you would open them.
-#
-# ``CATEGORY_TOOLTIPS_BY_APP`` overrides this table for the handful of
-# headings that genuinely mean different things per module: "Cellpose" is a
-# training schedule under Train Cellpose and a set of inference thresholds
-# under Cellpose Masks, and "Runtime & Reliability" carries Timelapse's stage
-# toggles but only ``n_jobs`` under Motility.
-#
-# ``app_screen`` re-exports this as ``SECTION_HINTS`` for the tests and
-# integrations that already read it by that name.
 CATEGORY_TOOLTIPS: Dict[str, str] = {
-    # -- optical pooled screening, folded onto Align & Stitch --------------
-    # Nine headings, and each needs an entry here or the panel draws the
-    # generic fallback: a heading whose tooltip says nothing about the
-    # settings under it is worse than no tooltip, because the reader has
-    # already spent the hover.
     "OPS INPUT":
-        "Where the two acquisitions are read from and how they are laid "
-        "out on disk: the genotype folder, the phenotype folder, which "
-        "file extensions count, and what to do when a name collides or a "
-        "file is missing. Set these first; every other OPS group assumes "
-        "they are right.",
-    "OPS NAMING":
-        "How a filename is read back into well, site, channel and plane. "
-        "The regex and the axis letters are what turn a microscope's "
-        "naming scheme into coordinates, so a mosaic that comes out "
-        "scrambled is almost always wrong here rather than in stitching.",
-    "OPS STITCHING":
-        "Finding the overlap between neighbouring tiles: which feature "
-        "detector runs, how many features it looks for, and how far apart "
-        "two sites may be and still be treated as neighbours. Downsampling "
-        "trades registration accuracy for speed.",
-    "OPS STITCHING ADVANCED":
-        "The registration's own tolerances -- how many keypoints to keep, "
-        "how far a match may sit from the model before RANSAC rejects it, "
-        "and whether scale and rotation are allowed to vary at all. Leave "
-        "these alone unless a plate is failing to register.",
-    "OPS MOSAIC":
-        "Whether the stitched mosaic is built and written, whether every "
-        "channel is carried into it, and how confident a pair must be "
-        "before it is placed. This is the group that decides what actually "
-        "lands on disk.",
-    "OPS MOSAIC ADVANCED":
-        "Where the mosaic and its per-tile score table are written, in "
-        "which formats, and how far the preview is downsampled. Paths "
-        "only: nothing here changes the mosaic itself.",
+        "Where the sequencing tiles are read from and where the results are "
+        "written: the folder searched, subfolders included, for tiles named "
+        "by magnification, cycle, well, channels and site, and the folder "
+        "that receives measurements.db and a report for each well. Set "
+        "these first; every other OPS group assumes they are right.",
     "OPS ALIGNMENT":
-        "Placing the high-magnification phenotype images onto the "
-        "low-magnification genotype mosaic. The nucleus segmentation and "
-        "the outline it produces are what the two acquisitions are matched "
-        "on, so the model and diameter here decide whether they meet.",
-    "OPS QUALITY CONTROL":
-        "The figures the run leaves behind so a placement can be checked "
-        "afterwards, and how heavily the outlines are drawn on them. "
-        "Costs disk and a little time; it is what turns a bad alignment "
-        "from a mystery into a picture.",
+        "How the nuclei of each stitched well are segmented. Each read is "
+        "attributed to the nucleus it falls on or just beside, so the "
+        "Cellpose model and the diameter here decide which objects can "
+        "receive a barcode.",
     "OPS PERFORMANCE":
-        "How much of the machine the run may use: worker counts for the "
-        "stitch and the feature pass, an OpenCV thread cap, a memory "
-        "ceiling for cached features, and where the cache and temporary "
-        "files live. Nothing here changes the result, only what it costs.",
+        "How much of the machine the run may use: whether the graphics card "
+        "is used, and how many fields are decoded at once. Nothing here "
+        "changes the result, only what it costs.",
 
-    # -- shared headings from spacr.settings.categories --------------------
     "PATHS":
         "Where the module reads its images or tables from, plus any lookup "
         "file it needs alongside them. Set these when you point the module "
@@ -2820,15 +2191,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "ADVANCED SETTINGS":
         "The umbrella over the settings that are one decision applied to "
         "several objects — what is done to the pixels before segmentation, "
-        "which detected objects are kept, and how intensity decides "
-        "splitting and merging. Each group inside it is broken down per "
+        "which detected objects are kept by area, mean intensity in their "
+        "own channel and border filters, and whether touching labels are "
+        "merged by their shared perimeter. Each group is broken down per "
         "object, so the same choice for cells and for nuclei sits side by "
         "side instead of under two unrelated headings. Nothing here needs "
         "touching on a first run.",
-    # PER OBJECT, and the parenthetical is load-bearing: "IMAGE
-    # PREPROCESSING" is already this table's key for the whole-image step
-    # mask and timelapse render, and a second heading spelled the same way
-    # would silently serve that blurb instead of this one.
     "IMAGE PREPROCESSING (PER OBJECT)":
         "What is done to each object's own channel before anything is "
         "segmented — the background floor below which pixels are zeroed, "
@@ -2836,10 +2204,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "tops out, and, for organelles, rolling-ball flattening and CLAHE. "
         "The objects do not all offer the same steps, and each sub-heading "
         "shows exactly the ones its object has.",
-    # The workflow-ordered layouts render these under a longer title, and
-    # the tooltip table is keyed on the heading's EXACT text -- which is the
-    # trap the "Computer Vision — " prefix fell into and why instruction 73
-    # says to write the blurbs in the same change.
     "OBJECT FILTRATION (ALL OBJECTS)":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
@@ -2850,13 +2214,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
         "your measurements.",
-    "INTENSITY HANDLING (ALL OBJECTS)":
-        "How object intensity decides splitting, merging and inclusion, for "
-        "every object class in one place. The percentiles set the window "
-        "that intensities are read against; merge and split use intensity "
-        "to join objects the segmentation cut apart or separate ones it ran "
-        "together. Open this when the masks look right but the objects are "
-        "systematically over- or under-segmented.",
     "OBJECT FILTRATION":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
@@ -2867,13 +2224,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
         "your measurements.",
-    "INTENSITY HANDLING":
-        "How object intensity decides splitting, merging and inclusion, for "
-        "every object class in one place. The percentiles set the window "
-        "that intensities are read against; merge and split use intensity "
-        "to join objects the segmentation cut apart or separate ones it ran "
-        "together. Open this when the masks look right but the objects are "
-        "systematically over- or under-segmented.",
     "ORGANELLE ADVANCED":
         "The forty-eight detection parameters behind the organelle type: "
         "shape family and method, the background and contrast correction "
@@ -2978,13 +2328,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the model is fitted: epochs, learning rate, schedule, and which "
         "loss. Open it when training is unstable, stalls, or ignores the "
         "smaller class.",
-    # RESTORED. These two were deleted on 2026-08-12 as unreachable, on the
-    # strength of an app list that did not include `classify_merged` -- which
-    # renders BOTH of them. The list came from
-    # `test_every_qt_section_hint_names_a_real_category`, whose own comment
-    # says it has to be exhaustive rather than representative, and it was
-    # neither. The test now includes classify_merged, so deleting a live
-    # blurb on that evidence again fails instead of shipping.
     "CLASSIFIER":
         "Which family of classifier runs — a computer-vision network trained "
         "on the object images, or a tabular model trained on the measurements "
@@ -3063,10 +2406,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "features are selected and the filter windows applied to tracks. "
         "Only worth opening once the basic assay runs and the tracks look "
         "wrong in a specific way.",
-    # The Qt regression layout's own section names. The shared
-    # spacr.settings.categories names for the same six groups are the
-    # "REGRESSION: ..." entries below; both maps are rendered, so both need a
-    # curated blurb or the section shows the generic fallback.
     "RESPONSE":
         "What is being modelled: which score column (or columns — name "
         "several and each is fitted and corrected as its own family), "
@@ -3163,7 +2502,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The older area-bin approximation of replication state, kept so "
         "historical analyses still reproduce. New runs should use the "
         "direct parasite-per-vacuole counts instead.",
-    # -- Mask / Timelapse --------------------------------------------------
     "INPUT & METADATA":
         "The image folder, which channel holds which object, and how spaCR "
         "reads plate, well and field out of the file names. Nothing "
@@ -3247,7 +2585,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "or a plain distance/overlap linker — and the parameters belonging "
         "to whichever you pick. Switch backends when cells swap identities "
         "or tracks break at division.",
-    # -- Measure -----------------------------------------------------------
     "INPUT & EXPERIMENT":
         "The folder holding the masked images and the experiment name the "
         "measurements are filed under. Set once at the start of a "
@@ -3279,7 +2616,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The physical size of a voxel and the anisotropy between z and xy. "
         "Only these turn volumetric measurements from pixel counts into "
         "real units.",
-    # -- Motility ----------------------------------------------------------
     "OBJECTS & CHANNELS":
         "The measurement source, which tracked object the assay is about, "
         "and which channels carry the cell, nucleus and pathogen signal. "
@@ -3317,7 +2653,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Axis limits and the diagnostic graphs used to review track quality "
         "and the infection call. Look here first when the summary numbers "
         "are surprising.",
-    # -- Classify (CV) -----------------------------------------------------
     "PLATE SOURCES & WORKFLOW":
         "Which plates the classifier is built from, the experiment it is "
         "filed under, and which stages run — build the training set, train, "
@@ -3328,10 +2663,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "column or well metadata, the class names, and the measurement that "
         "defines them. Everything the model learns rests on this being the "
         "label you think it is.",
-    # -- Classify (ML) -----------------------------------------------------
-    # Named to match Classify (CV)'s group of the same purpose. The two
-    # modules did the same job under different words, which is what made a
-    # settings CSV non-portable between them.
     "LABELS & CLASSES":
         "What defines a class. Pick the training basis first — metadata "
         "(the wells named as positive and negative control), annotation (a "
@@ -3359,23 +2690,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Whether features are pruned before the final fit, and how repeated "
         "permutation importance is computed afterwards. These settings "
         "identify the measurements contributing to model decisions.",
-    # "OUTPUT & DATABASE" went with `save_to_db` on 2026-09-09 (357-Q4).
-    # Its whole subject was that one setting -- "whether model scores are
-    # written back into the measurements database" -- and nothing read it,
-    # so the hint described a choice the run did not offer.
     "PLOTS & HEATMAPS":
         "Which feature the heatmap shows, how wells are grouped, and the "
         "colour map and value range used to draw it. Presentation of the "
         "classifier's output; it does not change the fit.",
-    # -- Regression --------------------------------------------------------
     "INPUT TABLES":
         "The metadata, score and count tables the regression runs on. All "
         "three have to agree on well and gRNA naming — disagreement there "
         "is the usual cause of an empty result.",
-    # "CONTROLS & PLATE DESIGN", "QUALITY FILTERS" and "SIGNIFICANCE & HIT
-    # CALLING" were retired on 2026-08-17 with instruction 135: the first two
-    # merged into "CONTROLS & FILTERS" and the third into "MODEL &
-    # INFERENCE". Their hints merged with them rather than being dropped.
     "CONTROLS & FILTERS":
         "Which rows reach the model, and what they are measured against. The "
         "plate identifier, the positive and negative control wells, any row "
@@ -3384,16 +2706,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "outlier removal. The controls set the scale the effect sizes are "
         "reported on; each cutoff silently shrinks the dataset, so check the "
         "diagnostics after changing one.",
-    # "MODEL & COVARIATES", "HIT CALLING & OUTLIERS" and the flat "REGRESSION"
-    # heading were retired when the regression layout was split into Response
-    # / Model & Inference / Estimator Tuning / Permutation Test / Significance
-    # & Hit Calling / Quality Filters. Their replacements are above.
     "ADDITIONAL SETTINGS":
         "The remaining knobs belonging to individual regression families "
         "and plots — bootstrap counts, quantile and hinge parameters, "
         "solver tolerance and axis limits. Only the ones for the model you "
         "chose above have any effect.",
-    # -- Activation --------------------------------------------------------
     "MODEL & DATA":
         "The trained model, the dataset it is applied to, and the input "
         "channels, object type and image size it expects. These have to "
@@ -3419,7 +2736,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "OUTPUT & RUNTIME":
         "Whether maps are saved, whether the input order is shuffled, and "
         "the batch size and worker count used to generate them.",
-    # -- Replication -------------------------------------------------------
     "ASSAY INPUTS":
         "The measurements database, the parasite table inside it, and the "
         "compartment the parasites were measured in. The assay scores "
@@ -3440,19 +2756,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "ASSAY OUTPUT":
         "Whether the assay's results and figures are written, and the "
         "colour map used to draw them.",
-    # -- External Masks ----------------------------------------------------
     "INPUT MAPPING":
         "How externally generated images and label masks are found and "
         "paired — the input list, the project folder written to, recursion, "
         "plate and well layout, z handling and naming. Preview the mapping "
         "before writing anything; this is where a mismatched pairing is "
         "caught.",
-    # -- shared by the three Cellpose-facing modules -----------------------
-    #
-    # Mask, Cellpose Masks, Cellpose All and Train Cellpose ask the same four
-    # questions about a segmentation run in the same order. Naming the groups
-    # identically is the point: someone who learned them once should not have
-    # to relearn them in the next module.
     "INPUT & CHANNELS":
         "Image source, planes read by the module, and normalization or "
         "inversion applied before analysis. An empty result can indicate a "
@@ -3477,7 +2786,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "as empty and the signal-to-noise gate a field has to clear. Raise "
         "the floor when autofluorescence is being segmented as objects; "
         "lower it when genuinely dim cells disappear.",
-    # -- Train Cellpose ----------------------------------------------------
     "STARTING POINT":
         "What the training run begins from — a pretrained model fine-tuned "
         "on your data, or randomly initialised weights — and the name the "
@@ -3488,7 +2796,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "weight decay, batch size and augmentation. Reach for these when the "
         "loss stops falling early, or when the model memorises the training "
         "images instead of generalising.",
-    # -- Map Barcodes ------------------------------------------------------
     "SEQUENCING INPUT":
         "The read files and whether they are treated as a pair or a single "
         "direction. Everything downstream assumes this is right, and a "
@@ -3504,7 +2811,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "the regular expression around it, and where the match is expected "
         "to begin and end. Change these when the library was built with a "
         "different adapter layout.",
-    # -- Barcode QC --------------------------------------------------------
     "REFERENCE & COUNT TABLES":
         "The barcode references and the counts produced by a mapping run, "
         "which the checks below are computed from. Point them at the outputs "
@@ -3532,16 +2838,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Where the report is written and whether figures are drawn and kept. "
         "Leave saving off while you are still deciding which checks matter "
         "for this library.",
-    # Measure's single illumination heading. The Illumination screen's four
-    # tabs keep their own blurbs below; this one covers all of them, because
-    # under Measure they are one section.
     "ILLUMINATION CORRECTION":
         "Whether the microscope's uneven lighting is estimated from these "
         "fields and divided out before any intensity is measured, and how "
         "that estimate is made and checked. Turn it on when the same cell "
         "measures differently depending on where in the field it sat; "
         "leaving it off keeps that bias in every intensity feature.",
-    # -- Illumination ------------------------------------------------------
     "CORRECTION MODEL":
         "How the uneven lighting field is estimated and removed — the family "
         "of surface fitted, the estimator behind it, its flexibility, and "
@@ -3557,7 +2859,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "what happens when a plate has no usable estimate — skip it, or stop "
         "the run. Stopping is the safer choice the first time you correct an "
         "unfamiliar dataset.",
-    # -- AnnData Export ----------------------------------------------------
     "OUTPUT FILE":
         "Where the exported object is written and how it is shaped: one "
         "matrix or one per table, the numeric precision kept, and the "
@@ -3573,7 +2874,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "embedding inside the exported object, and recording it as a run "
         "artifact so later steps can find it. Both are off by default "
         "because both cost time.",
-    # -- Recruitment / Invasion -------------------------------------------
     "DATA SOURCE":
         "The measurements this module reads. One setting, and every group "
         "below assumes it is right — point it at the project folder a "
@@ -3595,7 +2895,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Which wells anchor the threshold, and how many objects a well or a "
         "plate must contribute before its number is believed. Raise the "
         "minimums when sparse wells produce implausibly extreme rates.",
-    # -- Regression --------------------------------------------------------
     "ESTIMATOR TUNING":
         "The knobs that belong to one estimator rather than to all of them — "
         "the elastic-net mixing ratio, the quantile being fitted, Huber's "
@@ -3621,13 +2920,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "EVIDENCE & OUTPUT":
         "Well-level bootstrap/permutation evidence, blinded gallery sampling, "
         "versioned database storage and exported artifacts.",
-    # -- Power / Design ----------------------------------------------------
-    #
-    # "Power analysis" is the single heading `spacr/qt/screens/power.py`
-    # registers all fifteen of its keys under, which is what the settings
-    # diff and the run journal group them by when the module's own screen is
-    # not involved. The five headings below are what the layout splits it
-    # into; this entry covers the undivided one.
     "POWER ANALYSIS":
         "Everything a screening design has to commit to before a plate is "
         "poured: library size and redundancy, how it is spread over plates "
@@ -3663,9 +2955,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
 #: Missing entries fall through to :data:`CATEGORY_TOOLTIPS`.
 CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
     "train_cellpose": {
-        # Train Cellpose fits weights; the other three run them. "Model"
-        # therefore names the thing being produced rather than the thing
-        # being picked, which is a different sentence.
         "OUTPUT & RUNTIME":
             "How much the training run prints as it goes. Turn it up when a "
             "fit is diverging and the loss curve alone does not say which "
@@ -3749,12 +3038,6 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "failed run.",
     },
     "recruitment": {
-        # CHANNELS ONLY, AND THE HEADING SAYS SO NOW. This category used to be
-        # "Mask & Channel Mapping" and to carry three `*_mask_dim` rows that
-        # `analyze_recruitment` never read -- instruction 364 measured zero
-        # reads against four each for their channel twins. The rows and their
-        # factory keys are gone, so both the heading and this blurb stop
-        # promising a mask index the module does not use.
         "CHANNEL MAPPING":
             "Which intensity channel holds each compartment, and which one "
             "the recruitment is measured on. These are indices into the "
@@ -3892,8 +3175,6 @@ def category_tooltip(
     :param language: optional language override; defaults to the UI language.
     """
     if not str(title or "").strip():
-        # An empty title has no fallback: "Settings that control ." is worse
-        # than nothing, and a caller passing "" wants silence.
         return ""
     text = _category_blurb(app_key, title)
     if not text:
@@ -4035,9 +3316,6 @@ def get_tooltips() -> Dict[str, str]:
     return tips
 
 
-# ---------------------------------------------------------------------------
-# API doc link per app
-# ---------------------------------------------------------------------------
 
 DOCS_API_BASE = "https://einarolafsson.github.io/spacr/api"
 
@@ -4089,50 +3367,19 @@ def _has_a_flow_section(key: str) -> bool:
     return key in SETTINGS_WITH_A_FLOW_SECTION
 
 _APP_API_MODULE = {
-    # Registered without a mapping, so their help had no API page to link to.
-    # The Volcano Explorer redraws a finished regression's coefficient table
-    # and the Parameter Sweep reads the trials of a search that already ran;
-    # each points at the module that produced what it is showing.
-    # The Cells tab -- which objects a dot on the volcano is most consistent
-    # with. Instruction 131; the answer is pure pandas in `cell_montage` and
-    # the tab only loads what it names.
     "cell_montage": "cell_montage",
     "feature_dict": "feature_dict",
-    # THE FOLDED MODULES. These three reached this table through
-    # ``register_app(..., api_module=...)`` -- the push half of the seam
-    # absorbed below -- so folding them into a host screen and dropping
-    # the row would take the API link out of the hover help on every one
-    # of their settings, and the folded page's help would point at the
-    # generated API index instead of at the module that does the work.
     "barcode_qc": "sequencing_qc",
     "explain_cv": "surrogate",
     "anndata_export": "anndata_export",
-    # Illumination reached this table from its own row too, and folded into
-    # Measure. Its module is the one that estimates the flat field, so the
-    # settings on the folded page point there rather than at the index.
     "illumination": "illumination",
     "volcano_explorer": "volcano_style",
-    # Image Scatter and PCA reached this table the same way, from their own
-    # rows. Both are folded onto Image UMAP now, and `unregister_app` takes a
-    # pushed entry back out with the row it came from -- so without these two
-    # lines the help on either screen falls back to the generated API index
-    # instead of the page that documents it.
     "image_scatter": "qt/screens/image_scatter",
     "pca": "qt/screens/pca",
-    # Curate the same way, from its own row into Make Masks. Its page is the
-    # brush rather than a settings form, so nothing asks for its link
-    # today; the line is here because the alternative is that the answer
-    # silently became the generated API index the first time anything did.
     "curate": "qt/screens/curate",
     "parameter_sweep": "parameter_sweep",
     "align": "align",
-    # OPS folds onto Align & Stitch and was never given a row, so the
-    # fold reference on the API homepage listed it as bare text and its
-    # settings' help pointed at the generated index. Its entry point is
-    # `spacr.spacrops.ops_preprocess` -- the same module `bridge` imports
-    # to run it -- and `spacrops` is a public module with a page of its
-    # own, so there was a page the whole time and nothing addressing it.
-    "ops": "spacrops",
+    "ops": "ops_engine",
     "convert": "convert",
     "foreign": "foreign",
     "queue": "qt/plate_queue",
@@ -4184,9 +3431,6 @@ def _absorb_registered_api_modules() -> None:
     generated API index rather than to its own page.
     """
     app = sys.modules.get("spacr.qt.app")
-    # `getattr(..., None)`: `spacr.qt.app` may be half-built when this
-    # runs, in which case nothing has registered yet and the push half of
-    # the seam delivers every row later.
     pull = getattr(app, "registered_metadata", None) if app else None
     if pull is None:
         return
@@ -4268,8 +3512,6 @@ def _mapped_api_target(key: str, app_key: str = "") -> tuple[str, str]:
     module, symbol, _exact = target
     if not module.startswith("spacr."):
         return ("", "")
-    # "spacr.batch_correction" -> "batch_correction"; nested packages keep
-    # their path so "spacr.qt.screens.x" would be "qt/screens/x".
     segment = module[len("spacr."):].replace(".", "/")
     return (segment, f"{module}.{symbol}" if symbol else "")
 
@@ -4357,14 +3599,6 @@ def api_docs_url(
     if plugin_app is not None and plugin_app.docs_url:
         return plugin_app.docs_url
     anchor = ""
-    # A HAND-WRITTEN TARGET IS A DECISION, and the flow fallback below must
-    # not quietly overrule it. Each of these three was checked by a person:
-    # a batch-correction setting lands on the module that IMPLEMENTS the
-    # correction rather than on whichever app displays it. Those modules
-    # have no per-setting anchor, so without this flag the fallback saw
-    # "module, no anchor" and sent all seven batch settings to the flow
-    # page -- which `test_defaults_and_gui_categories_expose_batch
-    # _correction` caught within the hour.
     chosen_by_hand = True
     if key.startswith("batch_") and key not in _BATCH_PREFIX_STRANGERS:
         module = "batch_correction"
@@ -4374,52 +3608,15 @@ def api_docs_url(
         module = "hyperparam"
     else:
         chosen_by_hand = False
-        # Instruction 336. Before this, every row fell through to the SCREEN's
-        # module, so a setting read twelve calls down still linked to the entry
-        # point the reader was already looking at. The generated map says where
-        # the value is actually read, from an AST walk rather than the panel it
-        # is drawn on. The hand-written cases above still win: they were
-        # checked by a person and this table is mechanical.
         module, anchor = _mapped_api_target(key, app_key)
         if not module:
             module = _APP_API_MODULE.get(app_key)
     if not key and not anchor:
-        # THE TILE'S OWN LINK. Six tiles share three module pages; this sends
-        # each to the entry point that answers for it. See `_APP_API_ANCHOR`.
         anchor = _module_level_anchor(app_key, module or "")
     if chosen_by_hand and module and not anchor and key:
-        # A CURATED MODULE CAN STILL HAVE A PRECISE ANCHOR. The three cases
-        # above choose the module a person decided the reader should land in
-        # -- and then left the anchor empty, so the link went to the top of
-        # that page. The consumer map often knows the symbol INSIDE that same
-        # module, and taking it keeps the decision while adding the part the
-        # hand-written table never carried.
-        #
-        # The KEY-ONLY map, not the per-module one, and the difference is why
-        # the obvious version of this found nothing: the per-module table is
-        # restricted to modules some app's help links to, and
-        # `batch_correction` is not one -- it implements a correction, it does
-        # not host a panel. Its row lives in the key-only map.
-        #
-        # Six of the eight batch settings gain
-        # `batch_correction.correction_kwargs` from this. The eight
-        # classifier-evaluation keys gain nothing and cannot: they are read in
-        # `deep_spacr`, so their curated module has no symbol to point at.
         anchor = _anchor_inside(key, module)
     if (module and not anchor and key and not chosen_by_hand
             and _has_a_flow_section(key)):
-        # A MODULE PAGE THAT MAY NOT MENTION THE SETTING. Instruction 383:
-        # "i tested the API link for Magnefication and got a page with no
-        # mention of magnefication". It was not a wrong module -- utils IS
-        # where magnification is read -- but the only consumer is private,
-        # so there is no anchor to aim at and the reader lands at the top
-        # of 4,000 lines. 245 of 796 links are in that position.
-        #
-        # The flow page names the setting, carries its help text and lists
-        # every function that reads it, private ones included, each linked
-        # on to its own API page. So it answers the question the reader
-        # pressed API to ask, and the module page is one click further on
-        # rather than lost.
         url = f"{DOCS_SITE_BASE}/settings_flow.html#{FLOW_ANCHOR}{key}"
     elif module:
         url = f"{DOCS_API_BASE}/spacr/{module}/index.html"
@@ -4430,8 +3627,6 @@ def api_docs_url(
     code = _language_code(language)
     if code == "en":
         return url
-    # The query has to precede the fragment or the browser keeps the anchor
-    # inside the query string and the page lands at the top.
     base, _, frag = url.partition("#")
     return f"{base}?lang={code}" + (f"#{frag}" if frag else "")
 
@@ -4459,9 +3654,6 @@ _UNIT_INTERVAL_PHRASES = (
 #: from the GUI at all.
 AUTO_OR_NUMBER_SETTINGS = ("alpha",)
 
-# These integer settings are undefined at zero and negative values. Limiting
-# the editor prevents the GUI from producing values rejected by the engine;
-# pre-flight validation still handles settings loaded from external files.
 POSITIVE_INTEGER_SETTINGS = frozenset({"guide_permutations"})
 
 #: What the minimum of such a spin box means, and what it shows.
@@ -4474,9 +3666,6 @@ def _auto_or_number_box(default):
     box.setDecimals(6)
     box.setRange(0.0, 1e6)
     box.setSingleStep(0.001)
-    # Qt shows the SPECIAL TEXT in place of the minimum, so 0.0 is the
-    # spelling of "auto" and the user reaches it by winding the box down --
-    # which is also where somebody hunting for a smaller penalty is heading.
     box.setSpecialValueText(AUTO_TEXT)
     _set_auto_or_number(box, default)
     return box
@@ -4542,19 +3731,10 @@ def _float_domain(key: str, default: float):
     try:
         from ... import settings as _settings
 
-        # `tooltips`, not `descriptions`: `descriptions` is keyed by APP, and
-        # `tooltips` is the per-setting text that states the domain.
         text = str(_settings.tooltips.get(key, "") or "").lower()
     except Exception:                                    # noqa: BLE001
         text = ""
     if any(phrase in text for phrase in _UNIT_INTERVAL_PHRASES):
-        # The setting says it lives in the unit interval. Hold the box to it:
-        # a probability the user cannot type is better than a run that dies
-        # forty seconds in having already written half a results folder.
-        # The floor is the smallest value the box can express, not 0: a
-        # setting whose own text says "between 0 and 1" is refused at 0 by
-        # the code that reads it, so a box that clamps a bad saved value to
-        # 0.0 has only moved the failure. With decimals=6 that floor is 1e-6.
         return 1e-6, 1.0, min(step, 0.01)
     return -1e12, 1e12, step
 
@@ -4584,7 +3764,7 @@ def _type_hint(key: str) -> str:
                 optional = True
                 continue
             parts.append(_TYPE_NAMES.get(x, getattr(x, "__name__", str(x))))
-        s = " or ".join(dict.fromkeys(parts))   # dedupe, keep order
+        s = " or ".join(dict.fromkeys(parts))
         if optional and s:
             s += " (optional)"
         return s
@@ -4601,7 +3781,7 @@ def _humanize(key: str) -> str:
 
 
 def _strip_type_prefix(text: str) -> str:
-    """Drop a leading ``(int) - `` / ``(bool) `` style prefix — the type is
+    """Drop a leading ``(int) -`` / ``(bool)`` style prefix — the type is
     rendered separately + authoritatively from expected_types."""
     import re
     return re.sub(r"^\s*\([^)]*\)\s*[-–:]?\s*", "", text or "").strip()
@@ -4641,13 +3821,6 @@ def language_resolved_once():
         _LANGUAGE_SCOPE = {}
         _TRANSLATION_MEMO = {}
     _LANGUAGE_SCOPE_DEPTH += 1
-    # AND THE OTHER HALF OF THE SAME LOOKUP. The dicts above memoise what
-    # THIS module resolves; `i18n.tr` has its own path to the preference
-    # store and was still reading it once per translated string inside a
-    # scope that existed to stop exactly that. Opening both here keeps one
-    # scope for callers to reason about. Imported inside the function for
-    # the reason everything i18n is: `preferences` imports i18n, so the
-    # cycle is broken by lateness.
     try:
         from ..i18n import ui_language_resolved_once
         ui_scope = ui_language_resolved_once()
@@ -4678,8 +3851,6 @@ def _language_code(language: Optional[str] = None) -> str:
         except KeyError:
             pass
         except TypeError:
-            # An unhashable argument cannot be cached; resolve it directly
-            # rather than refuse to answer.
             scope = None
 
     from ..i18n import current_language, normalize_language
@@ -4778,8 +3949,6 @@ def _translated_type_hint(key: str, language: Optional[str] = None) -> str:
 
     optional = source.endswith(" (optional)")
     core = source[:-11] if optional else source
-    # A slash is a language-neutral union separator.  Translating each atomic
-    # type avoids asking the catalog to enumerate every possible union.
     translated = " / ".join(tr(part, code) for part in core.split(" or "))
     if optional:
         translated = f"{translated} ({tr('optional', code)})"
@@ -4803,8 +3972,6 @@ def _translated_setting_name(
     from ..i18n import _ROWS, _TERM_ROWS, tr
 
     source = _humanize(key)
-    # The compact catalog is the hand-reviewed authority for exact terms.
-    # External generated labels extend it, but never override a correction.
     if source in _ROWS or source in _TERM_ROWS:
         resolved = tr(source, code)
     else:
@@ -4922,8 +4089,6 @@ class _ApiTooltipFilter(QObject):
     """Show rich setting help in the clickable sticky tooltip."""
 
     def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
-        # Re-render on entry so a Preferences language change cannot leave a
-        # sticky popup displaying an earlier language.
         """Show the API help popup instead of Qt's own tooltip.
 
         :param watched: the widget being hovered.
@@ -4943,8 +4108,6 @@ class _ApiTooltipFilter(QObject):
             from ..widgets.hover_tooltip import HoverTooltip
             HoverTooltip.instance().start_hide()
         elif event.type() == QEvent.ToolTip:
-            # Suppress the native tooltip: it disappears when the pointer moves
-            # toward its link, whereas HoverTooltip is intentionally clickable.
             return True
         return False
 
@@ -4965,24 +4128,6 @@ _NOTE_BACKUP_PROPERTY = "_spacr_help_before_note"
 _PENDING_NOTE_PROPERTY = "_spacr_greyed_reason"
 
 
-# ---------------------------------------------------------------------------
-# The Model & Inference explainer box (instruction 132)
-# ---------------------------------------------------------------------------
-#
-# "it is important for the user to know all of this."  A read-only box in the
-# Model & Inference section that states, for the CURRENT selection, the formula
-# that will be fitted and what it models.
-#
-# It is prose, not a tooltip, because the thing it has to say does not fit in
-# one: the default changed to `mixed`, and a mixed fit answers the gene
-# question WELL while giving up something the previous default appeared to
-# give -- a guide-level hit list. A user who takes the default and later goes
-# looking for their guide p-values is exactly who this box is for, so the cost
-# is a named section of it rather than a clause someone might not hover.
-#
-# THE TEXT IS BUILT BY A PURE FUNCTION so it can be asserted without a
-# QApplication, and so the formulas have one spelling in this file rather than
-# one per branch of a widget callback.
 
 #: The `level` choices offered when the backend is a fixed-effects one.
 #: `both` is the default: it fits the guide model and the gene model
@@ -5089,10 +4234,6 @@ _MODE_TITLES = {
     "elasticnet": "penalised least squares, L1 + L2",
     "hinge": "linear SVM on a binarised response",
     "horseshoe": "sparse Poisson GLM, horseshoe",
-    # Kept short on purpose: the header renders as "MODEL: <key> -- <title>"
-    # on ONE unwrapped line, and the box does not soft-wrap, so a title long
-    # enough to pass 54 characters puts the model's own name behind a
-    # horizontal scrollbar.
     "group_lasso": "guides grouped by gene",
     "rra": "MAGeCK alpha rank aggregation",
 }
@@ -5263,17 +4404,6 @@ _MODE_NOTES["probit"] = (
 )
 
 
-# ---------------------------------------------------------------------------
-# What the default costs (instruction 140)
-# ---------------------------------------------------------------------------
-#
-# Reported 2026-08-18: "im running the mixed model now and it is taking much
-# longer than before is that normal?" ... "it is still going, cpu at 100
-# percent". NOTHING WAS WRONG. MixedLM is an iterative REML optimisation and
-# it is single-threaded, so one core at 100% for an hour is exactly what a
-# healthy fit looks like -- and an hour of silence at 100% CPU is
-# indistinguishable from a hang. 132 made `mixed` the DEFAULT, which means
-# everybody pays this, so it belongs where the model is chosen.
 
 #: The measurement, as ``(genes, wells, ols seconds, mixed seconds)``.
 #:
@@ -5319,9 +4449,6 @@ def mixed_cost_note(language: Optional[str] = None) -> str:
     (small_genes, small_wells, small_ols, small_mixed), \
         (big_genes, big_wells, big_ols, big_mixed) = MIXED_COST_ANCHORS
     guides, _genes, wells = MIXED_COST_SCREEN
-    # EVERY NUMBER KEPT, half the words. Instruction 143 B: "do not shorten
-    # by deleting the numbers -- they are what makes the claim checkable.
-    # Shorten by removing what does not need re-reading."
     return _translated_ui_text(
         _MIXED_COST_NOTE_TEMPLATE,
         language,
@@ -5400,17 +4527,6 @@ def _well_keys(frame):
         if "plateID" in columns:
             plate = frame["plateID"].astype(str)
         else:
-            # NO PLATE COLUMN, SO THE WELLS OF THIS FILE ARE THIS FILE'S.
-            # It used to substitute the literal "plate1", which is the guess
-            # its own docstring forbids -- and it cost exactly what that
-            # sentence predicts: the example screen's four count files each
-            # name the same 384 row/column pairs, so the union across them
-            # was 384 for a 1,536-well screen. Off by the number of plates,
-            # stated confidently, on the first line of the console.
-            #
-            # `_FILE_PLATE` is filled by the caller with the file's position,
-            # which is the same rule `load_regression_input_pairs` uses when
-            # neither side declares a plate: the pair-row order.
             plate = str(frame.attrs.get(_FILE_PLATE, "plate1"))
         return (plate + KEY_SEPARATOR + frame["rowID"].astype(str)
                 + KEY_SEPARATOR + frame["columnID"].astype(str))
@@ -5468,18 +4584,6 @@ def regression_design_scan(settings) -> dict:
         out["note"] = "no count files in the settings"
         return out
 
-    # THE ONE READER (145), and this line is why. Reading raw, the count
-    # tables of the example screen -- which spell their keys `row_name` and
-    # `column_name` -- carried no column this scan recognises, so it reported
-    # "no 'prc', 'plate_row' or 'rowID'/'columnID' column, so wells were not
-    # counted" over 642,551 rows that name 1,536 wells perfectly well.
-    #
-    # A count of NOTHING, printed confidently, on a table that has the
-    # answer: exactly the failure instruction 145 exists to stop, and the
-    # first line of the console a user reads before a run.
-    #
-    # `report=None`, because a column-collision note belongs to the run and
-    # not to a sizing scan the user did not ask for.
     from ...tabular import read_table
 
     names, wells, unread = set(), set(), []
@@ -5492,8 +4596,6 @@ def regression_design_scan(settings) -> dict:
             continue
         out["files"] += 1
         out["rows"] += int(len(frame))
-        # ONE FILE IS ONE PLATE when the file does not say otherwise, which
-        # is `load_regression_input_pairs`' rule for the same question.
         frame.attrs[_FILE_PLATE] = f"plate{out['files']}"
         column = ("grna" if "grna" in frame.columns else
                   "grna_name" if "grna_name" in frame.columns else None)
@@ -5527,25 +4629,6 @@ def regression_design_scan(settings) -> dict:
     return out
 
 
-# ---------------------------------------------------------------------------
-# The box is TYPESET, not dumped (instruction 144)
-# ---------------------------------------------------------------------------
-#
-# 2026-08-18: "actually my main problem was it dosnt look great. i want you to
-# use markdown and colors for negative (CANNOT) and positive (MODEL, LEVEL,
-# ETC.) text. make the formula look better (write the math symbol version then
-# the code version if possible) short discriptions that contain the vital
-# information for the user and links to APIs for the different methods".
-#
-# 143 read the first report as "too long" and cut 2,438 characters to 892. The
-# content is settled; what was left is that nothing was EMPHASISED, so a
-# formula read exactly like a caveat.
-#
-# ONE SOURCE, TWO LAYOUTS. Everything below composes the SAME pieces the plain
-# renderer does -- `_MODE_TITLES`, `_MODE_NOTES`, `formula_for`,
-# `mixed_cost_note` -- so the two cannot say different things. Only the layout
-# is written twice, and the plain one stays because it is what a test can
-# assert on and what a headless caller can print.
 
 #: Mathematical notation shown for each model term.
 #:
@@ -5906,10 +4989,6 @@ def regression_model_explainer_html(regression_type: Any,
             tx(_REFUSAL_HEADING), ink, refusal=True,
         ))
         parts.append(_prose_html(tx(_MIXED_GUIDE_OUTPUT_NOTE), ink))
-        # 133 A. `mixed` takes its own branch above, so the flag every other
-        # backend gets from the shared path has to be added here too -- and
-        # missing it on the DEFAULT would have been the one place it mattered
-        # most.
         recommended_label = _ink(
             escape(tx("Recommended for CRISPR screens")),
             ink["success"],
@@ -5971,9 +5050,6 @@ def regression_model_explainer_html(regression_type: Any,
             tx("WHAT {model} DOES", model=key.upper()), ink,
         ))
         parts.append(_prose_html(tx(_MODE_NOTES[key]), ink))
-        # 133 A: say WHICH backends answer this question well, and WHY each.
-        # In `success`, the same colour "TWO MODELS, TWO TABLES" uses, because
-        # both are affirmations about the model rather than caveats about it.
         if key in RECOMMENDED_FOR_SCREENS:
             recommended_label = _ink(
                 escape(tx("Recommended for CRISPR screens")),
@@ -5983,7 +5059,6 @@ def regression_model_explainer_html(regression_type: Any,
             parts.append(
                 f'<p style="margin:6px 0 2px 0;">{recommended_label}'
                 f' — {escape(tx(RECOMMENDED_FOR_SCREENS[key]))}</p>')
-            # AND THE CAVEAT, because a badge without it reads as a promise.
             parts.append(
                 f'<p style="margin:2px 0 8px 0; color:{ink["fg_muted"]};">'
                 f'{escape(tx(INFORMATION_LIMIT_NOTE))}</p>')
@@ -6190,16 +5265,11 @@ def regression_model_explainer(regression_type: Any,
         return _translated_ui_text(source, language, **values)
 
     if _nonparametric_selected(inference, analysis_mode):
-        # THE SAME WORDS AS THE TYPESET BOX, from the one constant, so the
-        # plain renderer and the HTML one cannot describe different runs.
         return "\n\n".join(
             [tx("INFERENCE: nonparametric — guide permutation")]
             + [tx(line) for line in NONPARAMETRIC_NOTE])
 
     if key not in _MODE_NOTES:
-        # An unknown name is the pipeline's error to raise, with its own list
-        # of what it accepts. The box says it cannot describe the choice
-        # rather than inventing a formula for it.
         return (f"{tx('MODEL:')} {key}\n\n"
                 + _wrap_block(tx(_UNKNOWN_MODEL_NOTE)))
 
@@ -6219,17 +5289,9 @@ def regression_model_explainer(regression_type: Any,
         lines.append(tx("WHAT IS MODELLED"))
         lines.append(_wrap_block(tx(_MODE_NOTES["mixed"])))
         lines.append("")
-        # THE COST OF THE DEFAULT, in its own named section. This is the
-        # paragraph the box exists for, and the one section instruction 143
-        # left at full length: a user who takes the default and then goes
-        # looking for guide p-values reads it exactly once, but they cannot
-        # be told to go elsewhere for it.
         lines.append(tx(_REFUSAL_HEADING))
         lines.append(_wrap_block(tx(_MIXED_GUIDE_OUTPUT_NOTE)))
         lines.append("")
-        # WHAT IT COSTS, beside "what you do not get" and for the same
-        # reason: both are things a user can only find out by having already
-        # spent the afternoon. Instruction 140.
         lines.append(tx("Recommended for CRISPR screens").upper())
         lines.append(_wrap_block(tx(RECOMMENDED_FOR_SCREENS["mixed"])))
         lines.append(_wrap_block(tx(INFORMATION_LIMIT_NOTE)))
@@ -6254,9 +5316,6 @@ def regression_model_explainer(regression_type: Any,
             ""))
         lines.append("")
 
-        # ONE SENTENCE UNDER EACH FORMULA, and no blank line between them:
-        # the sentence says what a coefficient IS, which is the one thing a
-        # reader needs it for, and it belongs to the formula above it.
         if chosen in ("both", "grna"):
             lines.append(
                 f"{tx('FORMULA (guide fit)')}  ->  results_grna.csv"
@@ -6291,18 +5350,10 @@ def regression_model_explainer(regression_type: Any,
         lines.append("")
         lines.append(tx("MULTIPLE TESTING"))
         if key in NO_P_VALUE_TYPES:
-            # Saying "BH-corrected" under a backend that reports no p-value
-            # would contradict this box's own WHAT ... DOES paragraph two
-            # lines above it.
             source = (_NO_P_VALUE_BOTH_NOTE if chosen == "both"
                       else _NO_P_VALUE_SINGLE_NOTE)
             lines.append(_wrap_block(tx(source)))
         elif chosen == "both":
-            # ITS FIRST SENTENCE ONLY, per instruction 143. The four that
-            # followed said why pooling would be wrong and warned that a gene
-            # called by both fits is two tests of one hypothesis -- both true,
-            # both read once, and the second belongs beside the hit list where
-            # somebody is making the claim.
             lines.append(_wrap_block(
                 tx("Each fit is its OWN multiple-testing family and is "
                    "BH-corrected within itself.")))
@@ -6318,21 +5369,6 @@ def regression_model_explainer(regression_type: Any,
     return "\n".join(lines).rstrip() + "\n"
 
 
-# ---------------------------------------------------------------------------
-# The Permutation Test explainer box (instruction 135)
-# ---------------------------------------------------------------------------
-#
-# "Permutation test is good it just needs a text box at the top briefly
-# explaining what it does."  ONE PARAGRAPH, and shorter than the model box
-# above: the eight controls under it are already named for what they do, so
-# what is missing is only the sentence that says what the test IS.
-#
-# Written from `spacr.guide_permutation` rather than from the general
-# reputation of permutation tests, which is why it says "marginal" out loud.
-# The module's own docstring is explicit that it "does not claim to estimate a
-# simultaneous conditional coefficient for every guide", and a user who reads
-# "permutation test" as "the same fit, only distribution-free" would take a
-# marginal association for a conditional one.
 
 #: What the nonparametric branch actually runs, in one paragraph.
 #:
@@ -6343,13 +5379,6 @@ def regression_model_explainer(regression_type: Any,
 #: per-threshold family is the `for threshold in thresholds` loop that
 #: corrects each support level on its own.
 _PERMUTATION_NOTE = (
-    # BOTH THE PLAIN WORDS AND THE TERM. The longhand -- "one coefficient in
-    # a design holding every guide at once" -- is what a reader who does not
-    # know the vocabulary needs; "conditional coefficients" is what a reader
-    # who does will look for, and it is the phrase
-    # `guide_freedman_lane_test`'s own docstring uses when it says the test
-    # "does not claim to estimate a simultaneous conditional coefficient".
-    # Dropping the term left the distinction true but unsearchable.
     "Each guide is tested independently, as a marginal association rather "
     "than as one coefficient in a design holding every guide at once -- so "
     "these are marginal associations, not conditional coefficients. Its "
@@ -6553,33 +5582,45 @@ def _family_note(family: str) -> str:
             f"kept and still saved.")
 
 
+def _help_lives_on_the_label(control) -> bool:
+    """True when :func:`retarget_field_tooltips` moved this field's help away.
+
+    THE ONE FACT BOTH NOTE FUNCTIONS HAVE TO RESPECT. That pass ends with
+
+        field.setToolTip("")
+        field.setProperty("apiTooltipDisplayRole", "metadata")
+
+    and leaves `apiTooltipHtml` on the field as the SOURCE the label's copy
+    was made from -- not as a tooltip the field should be showing. A caller
+    that reads `apiTooltipHtml` and calls `setToolTip` with it puts the help
+    back on the editor, so the name stops being the hover target for that row.
+
+    Measured on regression and classify_merged before this existed: the
+    retarget moved 28 and 27 rows at screen-open, and two event-loop turns
+    later `_refresh_setting_dependencies` had put every one of them back, so
+    the help was on the field again on both screens.
+
+    :param control: the editor widget the note is about.
+    :returns: True when its help belongs to its name label now.
+    """
+    return str(control.property("apiTooltipDisplayRole") or "") == "metadata"
+
+
 def _apply_greyed_note(control, note: str) -> None:
     """Append a disabled-state note without replacing the setting help.
 
     Existing tooltip text and API-link properties remain intact so labels
     and fields expose the same documentation while the control is disabled.
     """
-    _clear_greyed_note(control)     # the reason may have changed; it is named
+    _clear_greyed_note(control)
     base = control.property("apiTooltipHtml") or control.toolTip()
     control.setProperty(_BASIS_NOTE_PROPERTY, True)
-    control.setToolTip(f"{base}<br><i>{note}</i>" if base else note)
-    # REMEMBERED ON THE CONTROL, because the label may not exist yet. The
-    # first greying pass runs while the panel is being built and the labels
-    # are decorated afterwards, so a note written only where a label would be
-    # is a note that never appears. Held here, it can be put on the label the
-    # moment there is one.
+    if not _help_lives_on_the_label(control):
+        control.setToolTip(f"{base}<br><i>{note}</i>" if base else note)
     control.setProperty(_PENDING_NOTE_PROPERTY, note)
     label = getattr(control, "_spacr_setting_label", None)
     if label is not None:
         label.setEnabled(False)
-        # ON THE LABEL, WHICH IS WHERE THE HELP ACTUALLY SHOWS. The editor is
-        # deliberately SILENT on hover -- decoration sets its display role to
-        # "metadata" and clears its tooltip so the panel does not show two
-        # tooltips for one setting -- so the note above went to a string
-        # nothing reads. EVERY greyed setting in spaCR was disabled WITHOUT
-        # saying why, which is the one thing instruction 106 asks of a greyed
-        # control, and it was invisible precisely because the reason was
-        # written where it could not be seen.
         _note_on_label(label, note)
 
 
@@ -6592,11 +5633,6 @@ def _note_on_label(label, note: str) -> None:
     """
     if label.property(_NOTE_BACKUP_PROPERTY) is None:
         base = str(label.property("apiTooltipHtml") or label.toolTip() or "")
-        # A note may already be BAKED IN: the label's help was composed from
-        # the control's tooltip at decoration time, and that tooltip carried
-        # the note from the build-time greying pass. Stripped by its exact
-        # text, which is known, rather than by a pattern -- guessing where
-        # help ends and a note begins is how a restore loses a sentence.
         base = _without_note(base, note)
         label.setProperty(_NOTE_BACKUP_PROPERTY, base)
     base = str(label.property(_NOTE_BACKUP_PROPERTY) or "")
@@ -6619,7 +5655,7 @@ def _clear_greyed_note(control) -> None:
         return
     control.setProperty(_BASIS_NOTE_PROPERTY, False)
     restored = control.property("apiTooltipHtml")
-    if restored:
+    if restored and not _help_lives_on_the_label(control):
         control.setToolTip(restored)
     pending = str(control.property(_PENDING_NOTE_PROPERTY) or "")
     control.setProperty(_PENDING_NOTE_PROPERTY, None)
@@ -6632,9 +5668,6 @@ def _clear_greyed_note(control) -> None:
             label.setToolTip(str(backup))
             label.setProperty(_NOTE_BACKUP_PROPERTY, None)
         elif pending:
-            # No backup because the note was applied before this label
-            # existed and was baked into its help by decoration. Removed by
-            # its own text.
             cleaned = _without_note(
                 str(label.property("apiTooltipHtml") or label.toolTip() or ""),
                 pending)
@@ -6656,14 +5689,7 @@ def attach_api_tooltip(
             or widget.property("apiTooltipDescriptionSource")
             or widget.property("apiTooltipDescription")
             or existing_tooltip)
-    # Keep an absent body absent: format_tooltip owns the localized generic
-    # fallback.  Synthesizing an English sentence here bypasses it.
     body = str(body or "")
-    # WHAT A SLOW FIT COSTS, SAID BEFORE IT IS CHOSEN. Instruction 273
-    # section 3: the measurement already exists, and it used to reach a user
-    # only after they had started the run -- printed by the console banner,
-    # which is after the decision. `mixed_cost_note` is the one source, so
-    # the box and the banner cannot say different numbers.
     if key == "regression_type":
         try:
             body = f"{body} {mixed_cost_note()}".strip()
@@ -6673,8 +5699,6 @@ def attach_api_tooltip(
     widget.setProperty("settingsAppKey", app_key)
     widget.setProperty("settingKey", key)
     widget.setProperty("apiTooltipDescriptionSource", body)
-    # Retain the old property as canonical English for integrations that read
-    # it, rather than replacing it with rendered/localized HTML.
     widget.setProperty("apiTooltipDescription", body)
     widget.setProperty("apiTooltipHtml", html)
     if widget.property("apiTooltipDisplayRole") is None:
@@ -6774,12 +5798,6 @@ def install_api_tooltips(
     for widget in owner.findChildren(QWidget):
         if widget.property("settingHelpLabel"):
             continue
-        # The dot this pass CREATES carries `settingKey` itself, so it is
-        # found by the sweep the next time it runs and decorated as though it
-        # were a setting — each one growing its own dot. That is what made the
-        # live-preview panel sprout duplicates every time the form was re-gated
-        # (switching Primary object from cell to nucleus).
-        # It is help, not a setting; skip it.
         if widget.property("apiTooltipDisplayRole") == "api-link":
             continue
         key = widget.property("settingKey")
@@ -6787,46 +5805,18 @@ def install_api_tooltips(
             mapped[widget] = str(key)
     descriptions = get_tooltips()
     for widget, key in mapped.items():
-        # Explicitly hidden controls are not settings in this popup. Decorating
-        # one would create a visible wrapper/dot with a hidden field at (0, 0),
-        # recreating the very kind of orphan overlay this helper should avoid.
         if widget.isHidden():
             continue
         html = attach_api_tooltip(
             widget, app_key, key, _descriptions=descriptions)
         label = _setting_label_for_field(owner, widget)
         if label is None and not _is_self_labelling(widget):
-            # A COMPOSITE FIELD IS NOT A SELF-LABELLING CONTROL, and treating
-            # it as one is what put the tooltip on the field.
-            #
-            # Reported repeatedly, and measured on the regression panel:
-            # THIRTY-THREE editors sit inside a composite -- a `_ScalarEdit`
-            # inside a `_CsvColumnField`, a line edit inside a chip field --
-            # and the composite was landing in the branch below, which
-            # installs the hover filter on the widget itself. Qt delivers
-            # `Enter` to a parent when the pointer crosses into any of its
-            # children, so hovering the FIELD fired the help.
-            #
-            # The branch below is right for a `QCheckBox`, which carries its
-            # own visible text and IS its own label. It is wrong for a
-            # container, which has no text and whose label is elsewhere or
-            # missing. Where there is no label to put the help on, the help
-            # goes nowhere -- a field that stays quiet is the requested
-            # behaviour, and a tooltip on the field is not a lesser version
-            # of it.
             widget.setProperty("apiTooltipHtml", "")
             widget.setProperty("apiTooltipDisplayRole", "metadata")
             widget.setToolTip("")
             widget.removeEventFilter(event_filter)
             continue
         if label is None:
-            # A one-widget form row (usually a Toggle/QCheckBox) carries its
-            # own visible label, so the hover help goes on its own text.
-            # Remove before installing. Qt keeps a LIST of filters and calls
-            # each installation separately, so decorating the same widget
-            # twice makes one hover emit two tooltips.
-            # `removeEventFilter` is a no-op when the filter is not
-            # installed, which makes this idempotent for free.
             widget.removeEventFilter(event_filter)
             widget.installEventFilter(event_filter)
             continue
@@ -6842,15 +5832,9 @@ def install_api_tooltips(
         label.setProperty("apiTooltipDisplayRole", "tooltip")
         label.setToolTip(html)
         label.setToolTipDuration(-1)
-        # Idempotent: this decoration pass runs again whenever the
-        # live-preview form is re-gated -- changing the primary object from
-        # cell to nucleus, for instance -- and a second installation on the
-        # same label duplicated every tooltip on the panel.
         label.removeEventFilter(event_filter)
         label.installEventFilter(event_filter)
 
-        # The editor itself remains quiet on hover. Keep its metadata so tests,
-        # integrations and a later re-parenting pass can still identify it.
         widget.setProperty("apiTooltipDisplayRole", "metadata")
         widget.setToolTip("")
         widget.removeEventFilter(event_filter)
@@ -6876,12 +5860,6 @@ def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:
     for child in candidate.findChildren(QWidget):
         if child.property("settingHelpLabel"):
             return child
-    # BEFORE THE HOST HAS EVER BEEN DECORATED there is no marked child to
-    # find, because `settingHelpLabel` is set by the decoration pass
-    # itself -- so the first pass over a freshly built form got the host
-    # back and treated the row as having no name at all. The first
-    # labelled child is the caption `add_row` put there, and taking it is
-    # as deterministic as the marked one: a host holds one caption.
     for child in candidate.findChildren(QLabel):
         if child.text().strip():
             return child
@@ -6900,11 +5878,6 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
             pass
 
     for form in owner.findChildren(QFormLayout):
-        # A form field is often a wrapper QWidget containing an editor and a
-        # Browse button (or two numeric editors). QFormLayout only knows the
-        # wrapper, so walk the editor's parent chain before concluding that it
-        # is a label-less combined control. Otherwise its hover help ends up
-        # on the editor instead of on the form label.
         candidate: Optional[QWidget] = field
         while isinstance(candidate, QWidget):
             label = _unwrap_setting_label(form.labelForField(candidate))
@@ -6915,8 +5888,6 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
                 break
             candidate = candidate.parentWidget()
 
-    # Hand-built search panels use compact grids rather than QFormLayout.
-    # Select the nearest widget to the field's left on the same row.
     for grid in owner.findChildren(QGridLayout):
         index = grid.indexOf(field)
         if index < 0:
@@ -6931,9 +5902,6 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
     return None
 
 
-# ---------------------------------------------------------------------------
-# Widget factory
-# ---------------------------------------------------------------------------
 
 class _ListEdit(QLineEdit):
     """A QLineEdit that round-trips a Python list via repr()."""
@@ -7121,11 +6089,8 @@ class _CsvColumnField(QWidget):
         row.setSpacing(4)
         row.addWidget(self.edit, 1)
         row.addWidget(self.button, 0)
-        # Typing goes to the box, not to the button, when the row is tabbed
-        # into or given focus programmatically.
         self.setFocusProxy(self.edit)
 
-    # -- the settings-widget contract ---------------------------------------
 
     def get_value(self) -> Optional[str]:
         """The column name currently typed or picked, or None if empty."""
@@ -7143,7 +6108,6 @@ class _CsvColumnField(QWidget):
         """Set the raw text -- the QLineEdit contract callers may still use."""
         self.edit.setText(value)
 
-    # -- the picker ---------------------------------------------------------
 
     def set_chooser(self, chooser) -> None:
         """Replace the modal chooser with ``chooser(choices, current)``."""
@@ -7167,10 +6131,6 @@ class _CsvColumnField(QWidget):
         from spacr import columns as columns_module
 
         paths = self.input_paths()
-        # ONE read, and it is the only one. `columns.describe` and
-        # `columns.resolve` would each re-read the headers to build the same
-        # list; the list is already here, so the near-miss below is computed
-        # from it rather than by asking the files a second time.
         choices = columns_module.available(paths)
         if not choices:
             self.report(columns_module.describe(
@@ -7222,30 +6182,6 @@ class _CsvColumnField(QWidget):
         self.value_changed.emit()
 
 
-# ---------------------------------------------------------------------------
-# List / list-of-list editor
-# ---------------------------------------------------------------------------
-#
-# A list setting used to be a text box holding a Python literal:
-#
-#     class_metadata   [['c1'], ['c2']]
-#     train_channels   ['r', 'g', 'b']
-#
-# which is both ugly and unforgiving -- a dropped bracket is a parse
-# failure with no diagnosis, and `_ListEdit.get_value` silently handed the
-# unparseable text through as a plain string. Worse, `_ListEdit` was never
-# reached: `gui_utils.convert_settings_dict_for_gui` stringifies every list
-# default before this module sees it (`('entry', None, str(value))`), so
-# `isinstance(default, list)` in `_widget_for` was always False and every
-# list setting got a `_ScalarEdit`. `collect()` then returned the raw text,
-# because `_coerce_to_expected_type` only ever handled bool/int/float. That
-# is how `class_metadata` reached `io.generate_training_dataset` as the
-# *string* "[['c1'], ['c2']]" and got iterated character by character.
-#
-# The widgets below replace the literal with removable chips -- one chip per
-# value, one row per inner list -- and hand `collect()` a real Python list.
-# The stored value is unchanged, so every settings CSV on disk still loads
-# and every consumer reads what it always did.
 
 #: Keys whose value may be a list of lists even when it is currently flat.
 #: Taken from the same list ``spacr.settings.check_settings`` parses with
@@ -7255,24 +6191,12 @@ NESTED_CAPABLE_KEYS = frozenset({
     "cell_plate_metadata", "class_metadata", "crop_mode", "dialate_png_ratios",
     "pathogen_plate_metadata", "png_dims", "png_size", "timelapse_frame_limits",
     "timelapse_objects", "treatment_plate_metadata",
-    # declared ``(list, list)`` in expected_types, the in-tree marker for
-    # "this can be a list of lists"
     "cell_loc", "pathogen_loc", "treatment_loc", "barcode_coordinates",
 })
 
-# Channel selections that contain more than one channel use the same
-# add/remove-chip editor as ``manders_thresholds``.  The legacy GUI converter
-# still labels the first three as curated combos, so keep this declaration
-# close to the list editor and let the real per-module default decide whether
-# the setting is actually a list.  Scalar selectors such as ``cell_channel``
-# and ``channel_of_interest`` are intentionally absent.
 CHANNEL_LIST_KEYS = frozenset({
     "channels", "channel_dims", "train_channels", "normalize_channels",
     "overlay_chans",
-    # png_dims is deliberately absent: it is superseded by
-    # png_channel_mapping, which has its own three-field R/G/B editor
-    # (widgets/channel_mapping.py). Leaving it here would have offered a
-    # chip list for a setting nothing renders.
 })
 
 
@@ -7318,23 +6242,13 @@ class _RegressionBackendField(QWidget):
             QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.combo.setMinimumContentsLength(12)
         for label in backend_choices():
-            # The LABEL is the stored value (spacr.settings.
-            # _resolve_regression_backend says why), and it is kept in
-            # userData rather than read back off the text: the text carries
-            # the refusal for a disabled entry and is therefore not the value.
             self.combo.addItem(label, userData=label)
 
         self.description = QTextBrowser(self)
         self.description.setObjectName("RegressionBackendBox")
         self.description.setReadOnly(True)
-        # CLICKABLE, which is the ask -- "linkt the the API for each". A
-        # QTextBrowser without this swallows the click and tries to navigate
-        # itself to a URL it cannot render.
         self.description.setOpenExternalLinks(True)
         self.description.setMaximumHeight(self.BOX_HEIGHT)
-        # Seven lines at the pane's default width, measured on the real
-        # screen: enough that the selected backend's paragraph and the first
-        # of the other seven are both on screen before anyone scrolls.
         self.description.setMinimumHeight(132)
         self.description.setSizePolicy(QSizePolicy.Preferred,
                                        QSizePolicy.Preferred)
@@ -7351,7 +6265,6 @@ class _RegressionBackendField(QWidget):
         self._install_availability_hooks()
         self.refresh()
 
-    # -- the settings-widget contract ---------------------------------------
 
     def get_value(self) -> Optional[str]:
         """The chosen backend, as the label the settings CSV stores."""
@@ -7387,7 +6300,6 @@ class _RegressionBackendField(QWidget):
         """Select by label -- the QComboBox contract callers may still use."""
         self.set_value(value)
 
-    # -- what is choosable, and what the box says ---------------------------
 
     @staticmethod
     def _normalise_type(value: Any) -> Optional[str]:
@@ -7428,10 +6340,6 @@ class _RegressionBackendField(QWidget):
                 if index >= self.combo.count():
                     break
                 label = str(status['label'])
-                # THE REFUSAL IS IN THE ENTRY'S OWN TEXT. A disabled row in a
-                # dropdown is grey and silent; Qt's item tooltip is shown only
-                # while the popup is open and only under the cursor, so on its
-                # own it is a reason a user can walk straight past.
                 self.combo.setItemText(
                     index,
                     label if status['enabled']
@@ -7447,12 +6355,6 @@ class _RegressionBackendField(QWidget):
                         item.setEnabled(True)
                         item.setFlags(item.flags() | Qt.ItemIsSelectable)
                 else:
-                    # NOT `setEnabled(False)` ALONE. Measured 2026-08-18: it
-                    # leaves `ItemIsSelectable` set, so Qt refuses to activate
-                    # the row from the popup but a model-level selection can
-                    # still land on it. `disable_combo_row` clears the flag
-                    # too, and keeps the tooltip -- which is what the hover
-                    # panel is hung off.
                     disable_combo_row(self.combo, index,
                                       tooltip=str(status['reason'] or ''))
         finally:
@@ -7464,11 +6366,6 @@ class _RegressionBackendField(QWidget):
         chosen = next((status for status in statuses
                        if status['label'] == current), None)
         if chosen is not None and not chosen['enabled']:
-            # THE SELECTION IS KEPT AND THE REFUSAL IS SHOWN. Re-pointing the
-            # setting at statsmodels here would be exactly the silent
-            # fallback instruction 141 C forbids -- and the sentence below is
-            # the one `spacr.ml._require_backend` will use if the run starts
-            # anyway, so the panel and the run say the same thing.
             html = ("<p><b>This run will be refused.</b><br>"
                     + escape(str(chosen['reason'])) + "</p>") + html
         self.description.setHtml(html)
@@ -7497,25 +6394,6 @@ class _RegressionBackendField(QWidget):
         self.refresh()
         self.value_changed.emit()
 
-    # -- the unavailable entries explain themselves (instruction 158) -------
-    #
-    # THE ROW STAYS DEAD and everything interactive lives in the hover panel.
-    # Three routes reach it and they are all here rather than in the panel,
-    # because the panel is shared with the Image UMAP and must not know what a
-    # regression backend is:
-    #
-    #   * hovering a greyed row in the OPEN popup, anchored on that row;
-    #   * hovering the CLOSED combo while the value it holds has gone
-    #     unavailable -- 141 C keeps a stale selection rather than silently
-    #     re-pointing it, so this is a state a user can sit in;
-    #   * Shift+F1 on the combo, which is the keyboard route. It has to be
-    #     explicit: the rows are disabled, so nothing about them is tabbable
-    #     and no help can be inherited from them.
-    #
-    # THE POPUP IS CLOSED THE MOMENT THE POINTER LEAVES IT. A QComboBox popup
-    # is a `Qt.Popup` with an active mouse grab, so with it still open the
-    # first click on the panel would be eaten by the grab -- the Install link
-    # would need two presses and the first would look like it did nothing.
 
     def availability_entries(self) -> List[dict]:
         """Every backend as the shared panel wants it, in panel order."""
@@ -7542,8 +6420,6 @@ class _RegressionBackendField(QWidget):
         try:
             view = combo.view()
         except RuntimeError:
-            # The combo's C++ half has gone. An event filter outlives the
-            # widget it watches, so this is teardown rather than never.
             return super().eventFilter(obj, event)
         viewport = view.viewport() if view is not None else None
         kind = event.type()
@@ -7551,7 +6427,6 @@ class _RegressionBackendField(QWidget):
             if kind == QEvent.MouseMove:
                 self._hover_popup_row(view, event)
             elif kind == QEvent.Leave:
-                # Leaving the popup is how the pointer travels to the panel.
                 self._release_popup()
         elif obj is combo:
             if kind == QEvent.KeyPress and self._is_help_key(event):
@@ -7576,8 +6451,6 @@ class _RegressionBackendField(QWidget):
         try:
             position = event.position().toPoint()
         except AttributeError:
-            # `position()` is Qt 6; `pos()` is the Qt 5 spelling. spaCR
-            # is installed against both.
             position = event.pos()
         index = view.indexAt(position)
         if not index.isValid():
@@ -7661,9 +6534,6 @@ class _RegressionBackendField(QWidget):
             self.refresh()
 
 
-# The chip strip's wrapping row now lives beside the other widgets, because
-# the regression results header needs the same thing. The private names stay
-# so nothing that imported them from here has to move.
 from ..widgets.flow import FlowHost as _FlowHost, FlowLayout as _FlowLayout
 
 
@@ -7684,7 +6554,7 @@ class _Chip(QFrame):
         """Build the pill: its text and the mark that removes it."""
         super().__init__(parent)
         from ..i18n import tr
-        from ..theme import apply_close_mark, font_px
+        from ..theme import apply_close_mark
         self.setObjectName("SettingChip")
         self._text = text
         row = QHBoxLayout(self)
@@ -7695,12 +6565,6 @@ class _Chip(QFrame):
         row.addWidget(label)
         close = QToolButton(self)
         close.setObjectName("SettingChipClose")
-        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
-        #
-        # THE VALUE IS A VALUE. Splicing it in first asks the catalog for
-        # "Remove Cell", "Remove cytoplasm" and one key per chip anyone ever
-        # types; the caption is looked up as a template and the value put in
-        # after, so the verb translates whatever the chip holds.
         apply_close_mark(close, tooltip=tr("Remove {value}", value=text))
         close.setFocusPolicy(Qt.NoFocus)
         close.clicked.connect(lambda: self.removed.emit(self))
@@ -7716,7 +6580,6 @@ class _Chip(QFrame):
             QLabel#SettingChipText {{
                 color: {colours['fg']};
                 background: transparent;
-                font-size: {font_px(12)}px;
             }}
             """
         )
@@ -7769,13 +6632,11 @@ class _ChipStrip(QWidget):
         self._drop = None
         if removable:
             self._drop = QToolButton(self)
-            # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
             apply_close_mark(self._drop, tooltip="Remove this group")
             self._drop.setFocusPolicy(Qt.NoFocus)
             self._drop.clicked.connect(lambda: self.emptied.emit(self))
             outer.addWidget(self._drop, 0, Qt.AlignTop)
 
-    # -- value -----------------------------------------------------------
     def values(self) -> List[str]:
         """The chip texts, in order, plus anything still uncommitted."""
         out = [chip.text() for chip in self._chips]
@@ -7793,7 +6654,6 @@ class _ChipStrip(QWidget):
             self._add_chip(str(value), notify=False)
         self.changed.emit()
 
-    # -- internals -------------------------------------------------------
     def _on_typed(self, text: str) -> None:
         """Commit on a comma so a pasted 'c1,c2,c3' becomes three chips."""
         if "," not in text:
@@ -7821,7 +6681,6 @@ class _ChipStrip(QWidget):
         """
         chip = _Chip(text, self._colours, self._host)
         chip.removed.connect(self._remove_chip)
-        # Keep the entry field last so it always trails the chips.
         self._flow.removeWidget(self._entry)
         self._flow.addWidget(chip)
         self._flow.addWidget(self._entry)
@@ -7882,7 +6741,6 @@ PATH_LIST_KEYS: Dict[str, str] = {
     "row_csv": "csv",
     "column_csv": "csv",
     "barcodes": "csv",
-    "grna": "csv",
 }
 
 
@@ -7896,7 +6754,6 @@ PATH_LIST_TITLES: Dict[str, str] = {
     "row_csv": "Choose the row barcode CSV",
     "column_csv": "Choose the column barcode CSV",
     "barcodes": "Choose the barcode CSV",
-    "grna": "Choose the gRNA CSV",
 }
 
 
@@ -7904,7 +6761,10 @@ PATH_LIST_TITLES: Dict[str, str] = {
 #:
 #: Every one of these is declared ``str`` in :mod:`spacr.settings` and is
 #: handed to ``pd.read_csv`` unchanged -- ``sequencing.map_sequences_to_names``
-#: for the three barcode references, the legacy helpers for the other two.
+#: for the three barcode references, the legacy helper for ``barcodes``.
+#: It was the legacy helpers for the other TWO until 2026-09-14, when `grna`
+#: was retired (364) -- it was declared only by
+#: ``get_map_barcodes_default_settings``, which nothing calls.
 #: Giving them the multi-file control made the panel COLLECT a one-element
 #: list, so merely opening the module and saving rewrote
 #: ``column_csv=/…/barcodes_column.csv`` to ``['/…/barcodes_column.csv']`` in
@@ -7913,7 +6773,7 @@ PATH_LIST_TITLES: Dict[str, str] = {
 #: user had never typed. The dialog and the drop target stay; the shape of the
 #: value goes back to what its consumer reads.
 PATH_LIST_SINGLE_KEYS: Tuple[str, ...] = (
-    "grna_csv", "row_csv", "column_csv", "barcodes", "grna",
+    "grna_csv", "row_csv", "column_csv", "barcodes",
 )
 
 
@@ -7934,22 +6794,6 @@ PATH_LIST_SINGLE_KEYS: Tuple[str, ...] = (
 #: whole class of confusion, which a text field cannot.
 FIXED_ALPHABETS: Dict[str, Tuple[Tuple[Any, str], ...]] = {
     "train_channels": (("r", "Red"), ("g", "Green"), ("b", "Blue")),
-    # WHAT THE MODEL IS ALLOWED TO LOOK AT (236 A2), asked for as "the user
-    # can train on channel_1 measurements only or morphological
-    # measurements or channel combinations, localization ... This should be
-    # straight forward and easy."
-    #
-    # `utils.filter_dataframe_features` has always taken a list,
-    # 'morphology' and a free-text fragment. The setting declared `int`, so
-    # a spin box was all the panel could draw and three of the four
-    # documented ways of choosing a feature space were unreachable. A
-    # multi-select says the whole question in one row: light one chip for
-    # one channel, two for the combination, Shape for morphology, none for
-    # every feature.
-    #
-    # LOCALISATION NEEDS NO CHIP. A colocalisation column names the two
-    # channels it measures and survives a request for either, so asking for
-    # channel 1 already brings channel 1's relationships with it.
     "channel_of_interest": ((0, "Ch 0"), (1, "Ch 1"), (2, "Ch 2"),
                             (3, "Ch 3"), ("morphology", "Shape")),
 }
@@ -7984,9 +6828,6 @@ QToolButton#SettingAlphabetChip:checked {{
 """
 
 
-# AT IMPORT TIME, so the failure is not a missing chip style -- it is
-# the module not importing, which takes down whatever imports it. Driven
-# in tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py.
 try:
     from ..theme import register_widget_qss as _register_widget_qss
     _register_widget_qss("SettingAlphabetChip", _alphabet_qss, replace=True)
@@ -8039,8 +6880,6 @@ class _AlphabetSelect(QWidget):
             button.setCheckable(True)
             button.setCursor(Qt.PointingHandCursor)
             button.setFocusPolicy(Qt.StrongFocus)
-            # The accessible name is the value, not the label: a screen
-            # reader user is choosing 'r', and "Red" is only the gloss.
             button.setAccessibleName(str(value))
             button.setProperty("alphabetValue", value)
             button.toggled.connect(self._on_toggled)
@@ -8050,7 +6889,6 @@ class _AlphabetSelect(QWidget):
 
         self.set_value(default)
 
-    # -- public contract -------------------------------------------------
     def get_value(self) -> List[Any]:
         """The checked values, always in alphabet order."""
         return [value for value, button in self._buttons if button.isChecked()]
@@ -8083,7 +6921,6 @@ class _AlphabetSelect(QWidget):
         """The legal values, in order. Public so tests need no internals."""
         return tuple(value for value, _label in self._choices)
 
-    # -- internals -------------------------------------------------------
     def _on_toggled(self, _checked: bool) -> None:
         """Announce that the selection changed."""
         self.changed.emit()
@@ -8098,7 +6935,6 @@ class _AlphabetSelect(QWidget):
             try:
                 parsed = ast.literal_eval(text)
             except (ValueError, SyntaxError):
-                # A bare "r,g" or "r g" from a hand-edited CSV.
                 parsed = [part for part in text.replace(",", " ").split()
                           if part]
             value = parsed
@@ -8143,12 +6979,7 @@ class _ListEditor(QWidget):
         :param parent: parent widget.
         """
         super().__init__(parent)
-        # font_px is used further down this method. Importing only
-        # active_palette here raised NameError out of build_sections(), and
-        # AppScreen turns that into "Failed to build settings for '<app>'" --
-        # so sixteen shipped modules, mask and measure and classify among
-        # them, opened with no settings form at all.
-        from ..theme import active_palette, font_px
+        from ..theme import active_palette
         self._colours = active_palette()
         self._key = key
         self._nested_capable = bool(nested_capable)
@@ -8174,14 +7005,13 @@ class _ListEditor(QWidget):
         self._footer.clicked.connect(self._on_footer)
         self._footer.setStyleSheet(
             f"QToolButton#SettingListFooter {{ color: {self._colours['accent']};"
-            f" background: transparent; border: none; font-size: {font_px(12)}px;"
+            " background: transparent; border: none;"
             f" padding: 0px; text-align: left; }}"
         )
         self._outer.addWidget(self._footer, 0, Qt.AlignLeft)
 
         self.set_value(default)
 
-    # -- public contract -------------------------------------------------
     def get_value(self) -> Any:
         """Return a real ``list`` (or list of lists); ``None`` when empty
         and the setting declares ``None`` as legal."""
@@ -8228,7 +7058,6 @@ class _ListEditor(QWidget):
         """Accept the legacy ``QLineEdit.setText`` API."""
         self.set_value(value)
 
-    # -- shape -----------------------------------------------------------
     def _rebuild(self, nested: bool, value) -> None:
         """Replace every strip, flat or grouped.
 
@@ -8237,8 +7066,6 @@ class _ListEditor(QWidget):
         and that would call ``_commit_entry`` on a half-deleted strip.
         """
         for strip in list(self._strips):
-            # editingFinished fires while a focused QLineEdit is being torn
-            # down, which would call _commit_entry on a half-deleted strip.
             strip._entry.blockSignals(True)
             self._rows.removeWidget(strip)
             strip.setParent(None)
@@ -8271,7 +7098,6 @@ class _ListEditor(QWidget):
         it rebuilds flat rather than leaving an editor with nothing in it.
         """
         if len(self._strips) <= 1:
-            # Removing the only group is how you go back to a flat list.
             self._rebuild(False, [])
             return
         self._strips.remove(strip)
@@ -8286,7 +7112,6 @@ class _ListEditor(QWidget):
         if self._nested:
             self._add_strip([])
             return
-        # Flat -> grouped: the values already typed become the first group.
         current = list(self._strips[0].values()) if self._strips else []
         self._rebuild(True, [current] if current else [[]])
 
@@ -8307,12 +7132,7 @@ class _ListEditor(QWidget):
         else:
             self._footer.setVisible(False)
 
-    # -- element handling ------------------------------------------------
     def _placeholder(self) -> str:
-        # Short enough to survive the narrow settings column without
-        # eliding -- the point of the placeholder is to say what KIND of
-        # value belongs here, and an elided "add a whole numb…" says less
-        # than "add number".
         """A short prompt naming the KIND of value this list takes."""
         if self._element_type is int:
             return "add number"
@@ -8369,8 +7189,6 @@ class _ListEditor(QWidget):
             try:
                 parsed = ast.literal_eval(text)
             except (ValueError, SyntaxError):
-                # Not a literal: treat it as a comma-separated list, which is
-                # what a user hand-editing a settings CSV most often means.
                 return [part.strip() for part in text.split(",") if part.strip()]
             if isinstance(parsed, (list, tuple)):
                 return list(parsed)
@@ -8425,8 +7243,6 @@ def list_shape_for(key: str, default: Any) -> Optional[Tuple[bool, bool, Any, An
     for item in items:
         flat.extend(item if isinstance(item, (list, tuple)) else [item])
     element_type = None
-    # bool first: bool is a subclass of int, and a list of flags is not a
-    # list of numbers.
     if flat and all(isinstance(v, str) for v in flat):
         element_type = str
     elif flat and all(isinstance(v, bool) for v in flat):
@@ -8472,33 +7288,9 @@ class SettingsWidgets:
         self._parent = parent
         #: Settings to build no widget for. See __init__'s docstring.
         self._skip_keys = frozenset(str(k) for k in (skip_keys or ()))
-        # EVERY SLOT THAT CAN BE NAMED, not the four the module ships. A
-        # control that was never built cannot be revealed, so a panel whose
-        # defaults stop at `number_of_organelles` slots can only ever render
-        # that many however the count is driven -- which is exactly why
-        # raising the count to seven went on drawing the same four. The extra
-        # keys arrive with the values they would have had and their rows are
-        # hidden by `refresh_object_visibility`, so what the count changes is
-        # which of them is ON SCREEN. `number_of_organelles` itself is left
-        # at the module's own number: this widens what can be shown, not what
-        # the panel opens showing.
         from spacr.settings import organelle_slots_beyond_the_count
 
         shipped = resolve_default_settings(app_key)
-        # ONLY THE SLOTS THE COUNT ASKS FOR. Building every nameable slot and
-        # hiding the surplus cost the Mask screen 1,551 widgets where a few
-        # hundred would do, and every one of them was constructed, laid out
-        # and walked by each pass over the form before being hidden again.
-        #
-        # `number_of_organelles` says how many a run has, and a run with none
-        # has none: the rows are built when the count is raised (see
-        # `grow_to_fit_the_organelle_count`), which is one deliberate change
-        # to one control rather than something that happens while typing.
-        # WHAT THE FORM IS BEING REBUILT FOR. A panel built from the
-        # module's shipped defaults can only ever show what a fresh run has;
-        # when the user types a nucleus channel or raises the organelle
-        # count, the form has to be built for the values ON SCREEN, not the
-        # ones the module ships. `current` is those values.
         current_values = {str(k): v for k, v in (current or {}).items()}
         deciding = dict(shipped)
         deciding.update(current_values)
@@ -8506,9 +7298,6 @@ class SettingsWidgets:
                                            organelle_count,
                                            organelle_role_of)
 
-        # A file written before the count existed still means what its slot
-        # keys say. Do not let the shipped count (now zero) shadow that
-        # inference when such a mapping builds a replacement form.
         current_names_slots = any(
             organelle_role_of(key) is not None for key in current_values)
         if (NUMBER_OF_ORGANELLES in current_values
@@ -8519,16 +7308,6 @@ class SettingsWidgets:
         self._slots_built_for = max(0, min(wanted, PANEL_ORGANELLE_SLOTS))
         self._defaults = organelle_slots_beyond_the_count(
             shipped, self._slots_built_for)
-        # AND THE SLOTS THE COUNT DOES NOT ASK FOR ARE NOT BUILT AT ALL,
-        # including the first one. Its keys are in the module's shipped
-        # defaults rather than invented by the panel, so trimming the
-        # invented ones left 54 `organelle_*` settings and their categories
-        # on a form whose count says zero -- which is the thing the count is
-        # supposed to decide.
-        # AND THE WIDGETS ARE BUILT HOLDING WHAT THE USER TYPED. `deciding`
-        # settles the form's SHAPE; without this the new form arrives at the
-        # module's defaults, so a second rebuild collects a nucleus channel
-        # of None and takes the nucleus settings away again.
         from spacr.settings import expected_types
 
         for key, value in current_values.items():
@@ -8540,18 +7319,10 @@ class SettingsWidgets:
             self._organelle_keys_beyond(self._slots_built_for,
                                         self._defaults)
         )
-        # WHICH KEYS THE PANEL INVENTED, and what it gave them. A settings
-        # file is not a panel: writing every slot that can be named into
-        # every CSV would bury the four a run uses. `collect` leaves these
-        # out again while they are above the count AND still hold exactly
-        # what was put here -- so a value that came from anywhere else, a
-        # user or a loaded file, is written out whatever the count is.
         self._slots_the_panel_added = {
             key: value for key, value in self._defaults.items()
             if key not in shipped and key not in current_values}
         self._widgets: Dict[str, QWidget] = {}
-        # What the object rule decided last, and the rows watching to see
-        # that it sticks. See `_guard_hidden_rows`.
         self._hidden_by_the_run: set = set()
         self._guarded_rows: Dict[int, str] = {}
         #: ``id(section) -> section`` for the slot headings this hid, so it
@@ -8612,42 +7383,13 @@ class SettingsWidgets:
 
         Anything in no category at all lands in a trailing "Other".
         """
-        # `spacr.settings_spec` -- a module that imports NOTHING, which is
-        # the entire point of it existing. This function used to be reached
-        # through a module that pulled IPython, matplotlib.pyplot, cv2 and
-        # huggingface_hub in behind it: 770 ms on the GUI thread, and the
-        # whole remaining cost of opening the first module. That module is
-        # gone now, but the rule it taught is not -- import the leaf, not
-        # the package that re-exports it. See spacr/settings_spec.py.
         from spacr.settings_spec import convert_settings_dict_for_gui
         variables = convert_settings_dict_for_gui(self._defaults)
 
-        # Materialize a widget per key; attach a rich HTML tooltip that ends
-        # with a compact information-icon link to the spaCR documentation.
-        # A hidden key gets no widget at all, which is what actually hides
-        # it: the trailing "Other" section below is built from
-        # `self._widgets`, so a key left out of every category still
-        # renders as long as a widget exists for it. The value stays in
-        # `self._defaults` and reaches the run unchanged.
         hidden_keys = set(_APP_HIDDEN_KEYS.get(self.app_key, frozenset()))
         hidden_keys.update(self._skip_keys)
-        # THE EVENT LOOP GETS A TURN EVERY SO OFTEN. A module screen builds
-        # about 1,500 widgets, which took 1.5 SECONDS OF SOLID GUI THREAD --
-        # measured as zero timer ticks for the whole build, which is what
-        # "the theme freezes when I click a module" is. Qt requires widgets
-        # on the GUI thread, so this cannot move; what it can do is stop
-        # holding the thread for the entire run.
-        #
-        # `processEvents` and not a chunked timer: the caller expects a built
-        # panel when this returns, and handing it a half-built one to be
-        # finished later would move the bug into every consumer.
         from PySide6.QtCore import QCoreApplication, QEventLoop
 
-        # BREATHING ON TIME, NOT ON COUNT. Every 60 widgets left a worst gap
-        # of 324 ms, because the widgets are not equally expensive and a
-        # fixed count breathes at the wrong moments. A deadline gives up the
-        # thread whenever this loop has held it too long, whatever it was
-        # building.
         import time as _time
 
         _BREATH = 0.025
@@ -8658,11 +7400,6 @@ class SettingsWidgets:
                     continue
                 if _time.perf_counter() >= next_breath:
                     next_breath = _time.perf_counter() + _BREATH
-                    # EXCLUDE user input. A half-built panel must not receive
-                    # a click that lands on a widget which is about to move,
-                    # so the backdrop repaints and the interface stays alive
-                    # while the pointer and keyboard wait the extra second
-                    # out.
                     QCoreApplication.processEvents(
                         QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
                 kind, options, default = meta
@@ -8681,16 +7418,8 @@ class SettingsWidgets:
             src_widget.editingFinished.connect(
                 self._refresh_contextual_widgets)
         elif isinstance(src_widget, DatabaseSetWidget):
-            # The same obligation through a different control: adding a plate
-            # changes which columns and which rows the dependent fields can
-            # offer, so the panel follows the SET as it is edited rather than
-            # only when the screen is built.
             src_widget.value_changed.connect(self._refresh_contextual_widgets)
 
-        # The training basis changes which controls matter, so the panel has
-        # to follow it as it is changed rather than only when the screen is
-        # built. A bound method, not a lambda: see INVARIANTS 4 for what a
-        # closure connected to a Qt signal costs.
         family_widget = self._widgets.get("classifier_family")
         if family_widget is not None:
             for signal_name in ("currentTextChanged", "currentIndexChanged",
@@ -8709,10 +7438,6 @@ class SettingsWidgets:
                     signal.connect(self._on_training_basis_changed)
                     break
 
-        # An entry greyed for one family is choosable for another, so the
-        # backend control has to follow `regression_type` rather than be
-        # judged once when the panel is built. Bound method, not a lambda:
-        # INVARIANTS 4.
         type_widget = self._widgets.get("regression_type")
         if (isinstance(self._widgets.get("regression_backend"),
                        _RegressionBackendField) and type_widget is not None):
@@ -8732,15 +7457,8 @@ class SettingsWidgets:
             affinity_widget.currentTextChanged.connect(
                 self._on_umap_reducer_changed)
 
-        # Every panel, not only the regression one it was built against.
-        # _rules_for_this_panel decides what applies here, and a panel with
-        # no gated setting connects nothing. See its docstring.
         self._connect_setting_dependency_signals()
 
-        # THE OBJECTS THIS RUN HAS. A channel that gains a number reveals
-        # its object's settings and losing it hides them again, and the type
-        # a slot is given decides which of that slot's detection settings are
-        # on screen at all. Bound method, not a lambda: INVARIANTS 4.
         self._connect_object_visibility_signals()
 
         self._refresh_contextual_widgets()
@@ -8748,11 +7466,8 @@ class SettingsWidgets:
         self._refresh_analysis_unit_lock()
         self._refresh_regression_backend()
 
-        # Bucket into sections.
         cats = categories_for_app(self.app_key, get_categories())
         used_keys = set()
-        # Categories that don't apply to a given app (e.g. the classify app
-        # trains a Torch model, not Cellpose — so it gets no Cellpose tab).
         hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
         split_by_object = set(_shared_category_parents())
         sections: List[SettingsSection] = []
@@ -8760,10 +7475,6 @@ class SettingsWidgets:
             if cat_name in hidden:
                 continue
             rows: List[Tuple[str, QWidget]] = []
-            # THE KEYS, ALONGSIDE THE ROWS. A row is `(label, widget)` and a
-            # label is a sentence for a human, so the object a row belongs to
-            # can only be read off the KEY -- the same confusion that put the
-            # plate map on nothing at all when a label was matched instead.
             row_keys: List[str] = []
             for k in keys:
                 if k in self._widgets and k not in used_keys:
@@ -8778,27 +7489,11 @@ class SettingsWidgets:
             else:
                 sections.append(SettingsSection(cat_name, rows))
 
-        # Trailing 'Other' for anything not in a category.
         remaining = [(self._label_for(k), self._widgets[k])
                      for k in self._widgets if k not in used_keys]
         if remaining:
             sections.append(SettingsSection("Other", remaining))
 
-        # ONCE THE SCREEN HAS LAID THE ROWS OUT. This hands the rows back and
-        # the screen builds each label and puts the pair into a QFormLayout
-        # afterwards -- so there is no ROW to hide yet, and hiding the field
-        # here and nothing else would leave its name behind on an empty row.
-        # Zero delay, so it lands on the next turn of the event loop, before
-        # the panel has been painted.
-        #
-        # OWNED BY THE PANEL'S OWN WIDGET. PySide 6.6 cannot bind a Python
-        # callable through QTimer.singleShot's receiver overload, so use a
-        # real single-shot timer instead. Its QObject parent cancels the pass
-        # when a screen is destroyed inside the same turn; delete it after a
-        # successful pass so a long-lived panel does not collect dead timers.
-        # Nothing is scheduled at all without a parent -- a SettingsWidgets
-        # built with no parent is being used for its values and has no rows
-        # to lay out.
         if self._parent is not None:
             timer = QTimer(self._parent)
             timer.setSingleShot(True)
@@ -8837,10 +7532,6 @@ class SettingsWidgets:
         for role in gated:
             switches = tuple(
                 key for key in object_switch_keys(role) if key in settings)
-            # A module that owns neither spelling does not own this gate.
-            # Treating a missing ``*_channel`` as an empty channel removed
-            # Measure's real ``*_mask_dim`` control and left no way to say a
-            # nucleus or pathogen mask exists.
             if not switches:
                 continue
             named = any(_names_a_plane(answers.get(key)) for key in switches)
@@ -8850,8 +7541,6 @@ class SettingsWidgets:
             for key in settings:
                 name = str(key)
                 if name in switches:
-                    # THE SWITCH ITSELF STAYS, or there is no way to say the
-                    # run has this object after all.
                     continue
                 if name.startswith(prefix):
                     absent.add(name)
@@ -8882,20 +7571,12 @@ class SettingsWidgets:
         for key in settings:
             name = str(key)
             if name == NUMBER_OF_ORGANELLES:
-                # THE CONTROL ITSELF ALWAYS STAYS, or a run with no
-                # organelles would have no way to ask for one.
                 continue
-            # Longest prefix first: `organelleb_` before `organelle_`.
             owner = max((p for p in every if name.startswith(p)),
                         key=len, default=None)
             if owner is not None and owner in drop:
                 beyond.add(name)
             elif count == 0 and "organelle" in name.lower():
-                # A SETTING ABOUT ORGANELLES IN GENERAL, which a slot prefix
-                # does not catch: `summarize_organelles_by` is one, and it
-                # kept "Organelle Segmentation (advanced)" on a form whose
-                # count said none. With no organelles there is nothing for
-                # it to be about.
                 beyond.add(name)
         return beyond
 
@@ -8943,19 +7624,6 @@ class SettingsWidgets:
         """Return the plain-text hint (description + docs URL) for a setting."""
         return plain_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
-    # ------------------------------------------------------------------
-    # Finding a setting among the many
-    # ------------------------------------------------------------------
-    #
-    # Mask alone renders 190 settings under thirteen collapsed headings.
-    # Someone who knows the knob exists still has to guess which heading
-    # somebody else filed it under, and someone who only knows what they want
-    # to change ("stop merging touching cells") has no entry point at all.
-    #
-    # So the haystack is deliberately wider than the key: the description is
-    # the only part of a setting written in the language a user thinks in.
-    # Searching "gpu" has to find `n_jobs`, and "touching" has to find
-    # `merge_edge_pathogen_cells`, and neither word is in either name.
 
     def search_text_for(self, key: str) -> str:
         """The lower-cased haystack one setting is matched against.
@@ -9013,9 +7681,6 @@ class SettingsWidgets:
         out: List[str] = []
         for key, widget in self._widgets.items():
             if key not in self._defaults:
-                # Rendered but not defaulted: there is nothing to differ
-                # from, so calling it modified would be an assertion the
-                # module never made.
                 continue
             try:
                 current = self._coerce_to_expected_type(
@@ -9089,16 +7754,6 @@ class SettingsWidgets:
         :returns: the control, or ``None`` when the kind has none.
         """
         parent = self._parent
-        # MORE THAN ONE DATABASE (instruction 109). A screen acquired as three
-        # plates is three project folders, and `generate_image_umap` has
-        # always taken a list of them -- the panel was the half that could
-        # only express one, so the comparison the user actually wants could
-        # not be asked for from the application at all. The control adds,
-        # removes, and SAYS WHAT THE MERGE WOULD COST before anything runs.
-        #
-        # `on_colour_by` writes into this panel's own `color_by` field, looked
-        # up when the box is ticked rather than captured now: the fields are
-        # built in one pass and `color_by` does not exist yet at this point.
         if self.app_key == "umap" and key == "src":
             return DatabaseSetWidget(
                 value=self._defaults.get(key, default),
@@ -9118,11 +7773,6 @@ class SettingsWidgets:
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
-        # Not scoped to one app: every module that crops object PNGs offers
-        # this key, and all of them mean the same thing by it.
-        # `classes` is a dict of name -> {column, value}, so it gets the
-        # editor that can populate it from a column rather than a text box the
-        # user has to type JSON into.
         if key == "classes":
             widget = ClassEditorWidget(
                 value=self._defaults.get(key, default),
@@ -9137,10 +7787,6 @@ class SettingsWidgets:
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
-        # A setting that names input files gets a file dialog and a drop
-        # target, not a box to type absolute paths into. Checked before the
-        # chip-editor and combo paths below, because several of these keys are
-        # declared ``list`` and would otherwise take the free-text route.
         if key in PATH_LIST_KEYS:
             return FilePathListWidget(
                 value=self._defaults.get(key, default),
@@ -9152,31 +7798,15 @@ class SettingsWidgets:
         if key == "paired_data":
             return PairedFileTableWidget(
                 value=self._defaults.get(key, default), parent=parent)
-        # A setting whose value NAMES A COLUMN of an input CSV gets the box
-        # plus a button that reads those CSVs' header row. Checked before the
-        # combo and chip paths below because these keys are declared `str`
-        # and would otherwise take the plain text box that made a typo
-        # indistinguishable from a name.
-        #
-        # The paths are read WHEN THE BUTTON IS PRESSED, not here: the user
-        # chooses their input files after this panel is built, so a list read
-        # at construction is always the empty one.
         source = CSV_COLUMN_SOURCES.get(self.app_key, {}).get(key)
         if source is not None:
             return _CsvColumnField(
                 key=key,
                 default=self._defaults.get(key, default),
-                # `partial`, not a lambda: the callable outlives this call
-                # and is read on a button press minutes later, so what it
-                # captures should be visible rather than implied.
                 paths=partial(self._input_csv_paths, source.roles),
                 what=source.what,
                 parent=parent,
             )
-        # WHO fits the model gets a control that can say why an option is
-        # not choosable and what each one is. A plain combo could only offer
-        # eight labels and be silent about all of it -- which is what it did
-        # until 2026-08-18. See _RegressionBackendField.
         if key == "regression_backend":
             return _RegressionBackendField(
                 default=self._defaults.get(key, default),
@@ -9187,29 +7817,7 @@ class SettingsWidgets:
         if key in app_options:
             kind = "combo"
             options = app_options[key]
-        # Two inventories are owned by the modules that implement them, so the
-        # dropdown cannot list a model spaCR cannot fit or omit a correction it
-        # can apply. Both imports are cheap: regression_families reads only
-        # regression_spec, which imports nothing, and multiple_testing imports
-        # only numpy at module scope.
         if key == "regression_type":
-            # THE SAME TABLE THE OTHER ROUTE READS -- see
-            # _regression_type_menu, which settings_spec's
-            # _regression_type_choices shares the family half of. Building a
-            # second list here out of the bare inventory is what let this
-            # panel show nineteen unlabelled names while the other route
-            # showed them grouped and explained.
-            #
-            # 'auto' is the readable spelling of the historical None, which
-            # ml.regression turns into check_distribution(response). It is
-            # normalised back to None in
-            # settings.get_perform_regression_default_settings, so the fit
-            # path is unchanged and old settings CSVs holding None still work.
-            #
-            # A bare string and a (value, label) pair may share this list --
-            # the combo builder below takes either -- and every entry here is
-            # a pair, so the stored value is what a settings CSV gets while
-            # the caption says which kind of fit it is and what it assumes.
             kind = "combo"
             options = _regression_type_menu()
         elif key == "multiple_testing_method":
@@ -9217,11 +7825,6 @@ class SettingsWidgets:
             kind = "combo"
             options = method_choices()
         if self.app_key == "umap" and key == "metric":
-            # One closed alphabet rather than a text field that accepts a
-            # typo and fails after the reducer starts.  Importing the constant
-            # does not import umap-learn (and therefore does not put a model
-            # load on the GUI thread); the runtime validator still consults
-            # the installed package.
             from spacr.hyperparam import UMAP_METRICS
             kind = "combo"
             options = list(UMAP_METRICS)
@@ -9230,10 +7833,6 @@ class SettingsWidgets:
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
-        # A closed alphabet gets a control that cannot express anything
-        # outside it. Checked BEFORE the chip-editor override below, because
-        # `train_channels` is in CHANNEL_LIST_KEYS and would otherwise take
-        # the free-text path that let 'x' through.
         if key in FIXED_ALPHABETS:
             return _AlphabetSelect(
                 key=key,
@@ -9241,19 +7840,6 @@ class SettingsWidgets:
                 choices=FIXED_ALPHABETS[key],
                 parent=parent,
             )
-        # 'Exclude' names measurement columns to drop from the feature set,
-        # and there is never a reason it should be exactly one -- but
-        # spacr.settings declares it (str, None), so list_shape_for
-        # (deliberately conservative, and reading only what is declared) sent
-        # it to a plain text box. One column per run, and the SQL button
-        # overwrote whatever was already there. It gets the same chip strip
-        # as Classify (CV)'s `classes`: type a name and it becomes a chip to
-        # the right, remove them one at a time, and the SQL button beside it
-        # (COLUMN_TABLES) hands back however many columns were selected.
-        # Consumers already take either shape -- utils.filter_dataframe_
-        # features and preprocess_data both wrap a bare str in a list -- so a
-        # settings CSV written before this still loads, and one written now
-        # still runs on the CLI.
         if key in EXCLUDE_LIST_KEYS:
             return _ListEditor(
                 key=key,
@@ -9264,10 +7850,6 @@ class SettingsWidgets:
                 container=list,
                 parent=parent,
             )
-        # Unlike enumerated strings, a list remains a list in every module.
-        # The legacy converter presents channel lists and timelapse objects as
-        # dropdowns of Python literals. Render them with the same chip editor
-        # as manders_thresholds so users can add/remove arbitrary values.
         actual_default = self._defaults.get(key, default)
         if key == "timelapse_objects" or (
             key in CHANNEL_LIST_KEYS
@@ -9279,59 +7861,31 @@ class SettingsWidgets:
             w.setChecked(bool(default))
             return w
         if kind == "combo":
-            # _ValueCombo, not QComboBox: some of these lists are
-            # (value, label) pairs, and on a plain combo `setCurrentText`
-            # takes the caption only -- so "choose ols" silently does nothing
-            # as soon as the caption stops being the value.
             w = _ValueCombo()
-            # Long inventories (notably UMAP's complete metric list) must not
-            # become the minimum width of the whole settings sidebar. The
-            # popup still shows every option; the closed control elides.
             w.setSizeAdjustPolicy(
                 QComboBox.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(12)
             for opt in (options or []):
-                # A (value, label) pair shows the LABEL and stores the VALUE.
-                # Instruction 171 wants "load images" and "stream images" in
-                # those words in every panel that offers the choice, while
-                # 'png' and 'merged' go on meaning what they meant to every
-                # settings file already written.
                 if isinstance(opt, tuple) and len(opt) == 2:
                     stored, shown = opt
                 else:
                     stored = opt
                     shown = "None" if opt is None else str(opt)
                 w.addItem(str(shown), userData=stored)
-            # Pre-select the value THIS module declares, not the one
-            # hard-coded in gui_utils.convert_settings_dict_for_gui's
-            # special_cases table. That table is one row per key for the whole
-            # app, so it shipped 'resnet50' as the model_type default to
-            # Classify (which sets 'maxvit_t') and to Activation Maps (which
-            # sets 'maxvit'), and '[0,1,2,3]' as the channels default to
-            # Cellpose Masks (which sets [0, 0]).
             if key in self._defaults:
                 default = self._defaults[key]
+            if key == "image_source":
+                default = _image_source_the_panel_offers(default)
             for i in range(w.count()):
                 if w.itemData(i) == default or w.itemText(i) == str(default):
                     w.setCurrentIndex(i)
                     break
             else:
-                # The default is not one of the curated options. Silently
-                # leaving index 0 selected substitutes a value the module
-                # never asked for -- the activation-map app defaults
-                # channels to [1, 2, 3] and the channel combo only lists
-                # '[0,1,2,3]', so every run started with a different channel
-                # set than the defaults declare. Offer the real default too.
                 if default is not None and str(default) != "":
                     w.insertItem(0, str(default), userData=default)
                     w.setCurrentIndex(0)
             return w
         if kind == "entry":
-            # A list setting gets the chip editor, not a text box holding a
-            # Python literal. The shape is decided from expected_types plus
-            # the REAL default (self._defaults), because
-            # convert_settings_dict_for_gui has already str()'d the value
-            # that arrives here as ``default``.
             shape = list_shape_for(key, self._defaults.get(key, default))
             if shape is not None:
                 nested_capable, allow_none, element_type, container = shape
@@ -9341,46 +7895,20 @@ class SettingsWidgets:
                                    allow_none=allow_none,
                                    element_type=element_type,
                                    container=container)
-            # BY NAME, BEFORE THE TYPE SNIFF. These settings take a number
-            # or the word "auto", and the shipped default happens to be a
-            # number -- so inferring from it built a control that could not
-            # express half of what the setting accepts.
             if key in AUTO_OR_NUMBER_SETTINGS:
                 return _auto_or_number_box(self._defaults.get(key, default))
-            # A PLANE THIS RUN MAY NOT HAVE, for the same reason and one step
-            # further: `cell_mask_dim` names a plane of the merged stack, and
-            # a screen with no nucleus has no nucleus plane. The control is
-            # otherwise chosen from the SHIPPED DEFAULT, so the three that
-            # ship a number -- cell 4, nucleus 5, pathogen 6 -- got a spin
-            # box, and a spin box has no empty state: the value could be
-            # changed but never CLEARED, and being made to name a plane for
-            # an object that is not in the run is being made to lie about it.
-            # The organelle slots ship None and have always had the box
-            # below; this is what makes the family agree.
             if _is_clearable_plane_setting(key):
                 w = _ScalarEdit()
                 w.set_value(self._defaults.get(key, default))
                 return w
-            # Choose widget by inferred type from the DEFAULT value
             if isinstance(default, bool):
                 w = Toggle()
                 w.setChecked(default)
                 return w
-            # THE DECLARED TYPE WINS over the default's Python type. A
-            # setting spacr.settings types as a float gets a float box even
-            # when the number it ships happens to be round -- otherwise the
-            # box silently refuses every value between the whole ones, and
-            # the setting most affected was the Cellpose flow threshold whose
-            # own tooltip names 0.4.
             if isinstance(default, int) and _permits_float(key):
                 default = float(default)
             if isinstance(default, int):
                 w = QSpinBox()
-                # Wide enough for the defaults the modules actually ship:
-                # the replication assay's max_area is 1e9, and a +/-1e6 range
-                # silently clamped it to 1e6 -- a thousand-fold change to the
-                # largest vacuole the assay will score, applied before the
-                # user touched anything.
                 minimum = (
                     1 if key in POSITIVE_INTEGER_SETTINGS
                     else -2_147_483_648
@@ -9400,7 +7928,6 @@ class SettingsWidgets:
                 w = _ListEdit()
                 w.set_value(default)
                 return w
-            # Fallback — string or None
             w = _ScalarEdit()
             w.set_value(default)
             return w
@@ -9447,12 +7974,6 @@ class SettingsWidgets:
                 except ValueError:
                     continue
             if typ in (list, tuple):
-                # The curated combos ('channels', 'crop_mode',
-                # 'train_channels', 'timelapse_objects', ...) offer their
-                # options as TEXT -- "['r','g','b']" -- so a list setting
-                # picked from a dropdown reached the pipeline as a string and
-                # got iterated character by character. The chip editor already
-                # returns a real list; this is the same repair for the combos.
                 try:
                     parsed = ast.literal_eval(text)
                 except (ValueError, SyntaxError):
@@ -9493,9 +8014,6 @@ class SettingsWidgets:
         for key, w in self._widgets.items():
             out[key] = self._canonical(
                 key, self._coerce_to_expected_type(key, self._read_widget(w)))
-        # Also carry over any defaults we didn't render (e.g. things not
-        # in the categories map that convert_settings_dict_for_gui also
-        # skipped).
         for k, v in self._defaults.items():
             out.setdefault(k, v)
         return self._organelle_slots_worth_keeping(out)
@@ -9676,18 +8194,12 @@ class SettingsWidgets:
             return
         unit = str(self._read_widget(control) or "well").strip().lower()
         required = requirements_for_unit(unit)
-        # EVERY SETTING ANY UNIT CONSTRAINS, so switching back to `well`
-        # releases what `cell` locked. Refreshing only the current unit's
-        # keys would leave a control greyed after the reason for it was
-        # withdrawn.
         try:
             from ...settings_advisor import UNIT_REQUIREMENTS
 
             owned = set().union(*(set(v) for v in UNIT_REQUIREMENTS.values()))
         except Exception:                                    # noqa: BLE001
             owned = set(required)
-        # WHAT THIS RULE ITSELF LOCKED LAST TIME. Only these are released,
-        # so a control greyed by another rule stays greyed.
         released = set(getattr(self, "_unit_locked", set()))
         note = (f"Fixed by analysis_unit={unit!r}: the run reads this value "
                 f"and no other, so it is shown rather than left editable. "
@@ -9697,30 +8209,13 @@ class SettingsWidgets:
             if widget is None:
                 continue
             if key in required:
-                # SET IT, THEN GREY IT. A greyed control still showing the
-                # old value tells the user the run will use that value, and
-                # it will not -- which is worse than an editable control
-                # that disagrees, because it looks settled.
-                # `set_value_for_key`, which is the one writer -- a second
-                # way of putting a value into a widget is a second set of
-                # type rules to keep in step. It re-enters this method only
-                # for `analysis_unit` itself, which is never a required key.
                 self.set_value_for_key(key, required[key])
                 widget.setEnabled(False)
                 _apply_greyed_note(widget, note)
             elif key in released:
-                # RELEASE ONLY WHAT THIS RULE GREYED. `analysis_mode` is also
-                # greyed by the inference rule -- it is set for you by
-                # inference='parametric' -- and a blanket setEnabled(True)
-                # here undid that, so the combo came back editable while
-                # something else was still deciding its value. Enabling a
-                # control another rule disabled is worse than leaving one
-                # greyed: the user changes it and the run ignores them.
                 widget.setEnabled(True)
                 _clear_greyed_note(widget)
         self._unit_locked = {k for k in required if k in self._widgets}
-        # WHATEVER ELSE HAD A SAY, AFTER. The other refreshers re-assert
-        # their own greying over anything this one just released.
         if hasattr(self, "_refresh_setting_dependencies"):
             try:
                 self._refresh_setting_dependencies()
@@ -9760,9 +8255,6 @@ class SettingsWidgets:
 
         metric = self._widgets.get("metric")
         if metric is not None:
-            # The projection may ignore this setting, but DBSCAN always reads
-            # it. Keep the shared metric editable instead of greying a control
-            # that can still change the result.
             metric.setEnabled(True)
             _clear_greyed_note(metric)
 
@@ -9788,9 +8280,6 @@ class SettingsWidgets:
             greyed = set(inapplicable_settings(family))
             owned = {k for keys in FAMILY_SETTINGS.values() for k in keys}
         except Exception:
-            # An unknown family is the pipeline's error to raise, loudly, at
-            # run time. Greying on a guess would hide the control the user
-            # needs to fix it.
             return
 
         for key, control in self._widgets.items():
@@ -9834,9 +8323,6 @@ class SettingsWidgets:
             basis = resolve_basis({"dataset_mode": self._read_widget(widget)})
             greyed = set(inapplicable_settings(basis))
         except Exception:
-            # An unrecognised basis is the pipeline's error to raise, loudly,
-            # at run time. Greying nothing is the safe response here --
-            # disabling controls on a guess would hide the one the user needs.
             return
 
         for key, control in self._widgets.items():
@@ -10021,8 +8507,6 @@ class SettingsWidgets:
                 sources.append((logical_index, os.fspath(path)))
         if not sources:
             return {'plate_count': None, 'has_plate_id': False}
-        # A very large single-plate file should not stall the GUI merely to
-        # grey one field. Leave it unknown; the run still validates it.
         if sum(os.path.getsize(path) for _, path in sources) > 5_000_000:
             return {'plate_count': None, 'has_plate_id': None}
         plates = set()
@@ -10041,8 +8525,6 @@ class SettingsWidgets:
                                   if str(name).casefold() in {
                                       'plateid', 'plate', 'plate_name'}), None)
                 if plate_key is None:
-                    # score_data[i] and count_data[i] describe the same plate;
-                    # their absent IDs therefore share one fallback identity.
                     plates.add(('source', logical_index))
                     continue
                 has_plate = True
@@ -10058,11 +8540,6 @@ class SettingsWidgets:
                 'has_plate_id': has_plate}
 
     def _refresh_setting_dependencies(self) -> None:
-        # THE ROWS FIRST, THEN WHICH OF THE ONES LEFT ON SCREEN ARE GREYED.
-        # This is the hook `apply_settings_dict` calls when it has finished
-        # pouring a settings file in, and a file that sets `cell_channel` has
-        # to bring the cell settings back on screen with it. A reason written
-        # beside a control on a hidden row is a reason nobody can read.
         """Re-apply the row visibility and then grey the rows that stay.
 
         Visibility goes first: this is the hook ``apply_settings_dict`` calls
@@ -10082,9 +8559,6 @@ class SettingsWidgets:
         if not dependencies:
             return
         current = self._current_dependency_settings()
-        # Only scanned when a rule on this panel can actually read it. It
-        # opens the loaded CSVs, and doing that on every combo change of a
-        # panel with no data-dependent rule is a stall for nothing.
         if any('paired_data' in rule.get('sources', ())
                or 'score_data' in rule.get('sources', ())
                or 'count_data' in rule.get('sources', ())
@@ -10127,14 +8601,6 @@ class SettingsWidgets:
         """
         if key not in self._DECIDED_BY_ANOTHER:
             return
-        # NOT WHILE A SETTINGS FILE IS BEING POURED IN. `apply_settings_dict`
-        # sets one widget at a time, so `inference` may still hold the old
-        # value when `analysis_mode` arrives -- and forcing then would
-        # overwrite the file's value from an inference that is about to
-        # change. Caught by loading a file carrying inference='auto' and
-        # analysis_mode='guide_permutation': the mode was clobbered to
-        # 'regression' before 'auto' had landed. The refresh that runs once
-        # the whole dict is applied does the right thing.
         if getattr(self, "_applying_settings", False):
             return
         try:
@@ -10151,9 +8617,6 @@ class SettingsWidgets:
         if callable(setter):
             setter(key, value)
 
-    # ------------------------------------------------------------------
-    # A setting is visible when its object is in the run
-    # ------------------------------------------------------------------
 
     def _object_visibility_keys(self) -> set:
         """The few settings the visibility rule reads.
@@ -10172,9 +8635,6 @@ class SettingsWidgets:
             if role is None:
                 continue
             wanted.update(object_switch_keys(role))
-            # The type narrows a slot, the diameter decides which way a
-            # size-split type narrows it, and the morphology is the answer
-            # for a slot left on 'custom'.
             wanted.update(f"{role}_{name}"
                           for name in ("type", "diameter", "morphology"))
         return wanted
@@ -10255,35 +8715,14 @@ class SettingsWidgets:
         screen that lays the rows out, and the screen that hands row
         visibility back after a filter.
         """
-        # NOT WHILE A SETTINGS FILE IS BEING POURED IN. `apply_settings_dict`
-        # sets one widget at a time, so a channel may already hold its new
-        # value while the type beside it still holds the old one; hiding rows
-        # against that half-applied panel would show a slot narrowed to the
-        # wrong morphology and then narrow it again. The bulk apply calls
-        # `_refresh_setting_dependencies` when it is finished, which is where
-        # this runs instead.
         if getattr(self, "_applying_settings", False):
             return
         try:
             current = self._object_visibility_settings()
             hidden = keys_hidden_by_their_object(self._widgets, current)
-            # BEFORE THE ROWS MOVE, so the guard installed below judges each
-            # row against the answer this pass is applying rather than the
-            # last one -- otherwise showing a row whose channel was just
-            # typed would look, to the guard, like something else putting a
-            # hidden row back.
-            # AND THE ROWS THE GRID SPEAKS FOR. Kept in a set of its own
-            # because this pass recomputes `hidden` from scratch every time:
-            # putting the grid's keys into `_hidden_by_the_run` would show
-            # them again on the next channel edit. Union, so a row hidden for
-            # either reason stays hidden.
             hidden = set(hidden) | set(
                 getattr(self, "_hidden_by_the_grid", ()) or ())
             self._hidden_by_the_run = set(hidden)
-            # BEFORE THE ROWS MOVE, for the other reason too: a row the screen
-            # left unbuilt because this rule hid it has to exist before the
-            # rule can show it, or `_set_row_visible` would put a bare field
-            # on screen in no layout at all.
             lay_out = getattr(self, "rows_are_laid_out_by", None)
             if lay_out is not None:
                 try:
@@ -10318,20 +8757,12 @@ class SettingsWidgets:
         them. ``id(section) -> (section, keys)``, because a ``Section`` is
         not hashable in a way that survives Qt taking it apart.
         """
-        # AN EMPTY ANSWER IS NOT CACHED. The first pass is scheduled from
-        # `build_sections`, and on a model built for its values rather than
-        # for a screen there are no sections to find at all -- caching that
-        # would answer "no headings" for the life of the panel.
         cached = getattr(self, "_slot_heading_cache", None)
         if cached:
             return cached
         cache: Dict[int, Tuple[Any, Tuple[str, ...]]] = {}
         if self._parent is None:
             return cache
-        # WHAT THE PANEL DECLARED, when it declared anything. The walk below
-        # recovers the same two facts from the rendered form, at the cost of a
-        # `findChildren` per heading; a panel that said what it was building
-        # has already answered. See :meth:`remember_section_rows`.
         declared = getattr(self, "_section_rows", None)
         if declared:
             for ident, (section, keys, has_children) in declared.items():
@@ -10404,23 +8835,15 @@ class SettingsWidgets:
                 and role not in active for role in roles)
             try:
                 if gone:
-                    # EVERY PASS, not only the first: the settings search
-                    # puts a heading back whenever its filter is released,
-                    # and a method that only hid one it had not hidden
-                    # before would hide it once and never again.
                     if not section.isHidden():
                         emptied[ident] = section
                         section.setVisible(False)
                         section.installEventFilter(self._object_row_guard)
                 elif ident in emptied:
                     del emptied[ident]
-                    # ONLY WHAT MATURITY WOULD ALSO SHOW. A heading this hid
-                    # may since have been hidden again as Alpha or Beta, and
-                    # putting a slot back must not overrule Preferences.
                     if maturity_is_visible(section.maturity()):
                         section.setVisible(True)
             except RuntimeError:
-                # The section went away with the screen that owned it.
                 emptied.pop(ident, None)
 
     def _guard_hidden_rows(self, hidden) -> None:
@@ -10456,10 +8879,6 @@ class SettingsWidgets:
             or id(widget) in getattr(self, "_headings_of_absent_slots", {}))
         if not contested:
             return
-        # NOTHING TO RE-ASSERT. The rule is applied once, when the panel is
-        # built; a row shown afterwards by the search releasing its filter is
-        # meant to stay shown. Re-queueing a pass here is what turned one
-        # keystroke into a walk of the whole form.
         return
 
     def _reassert_object_visibility(self) -> None:
@@ -10490,8 +8909,6 @@ class SettingsWidgets:
         from ..settings_search import _set_row_visible as set_row
 
         node = widget
-        # Three steps is the deepest the panel nests a field: field, the
-        # button holder, the section body that owns the form.
         for _ in range(3):
             parent = node.parentWidget()
             if parent is None:
@@ -10503,18 +8920,8 @@ class SettingsWidgets:
                     set_row(parent, node, visible)
                     return
             node = parent
-        # NOT UNTIL THE SCREEN HAS TAKEN THE WIDGET. `SettingsWidgets` is
-        # built with no parent by everything that wants the values rather
-        # than a form, and a parentless widget shown here would not be a row
-        # coming back -- it would be a window of its own, opened and painted
-        # on the next turn of the event loop, mid-construction and long after
-        # the panel that made it was finished with.
         if widget.parentWidget() is None:
             return
-        # There is a widget but no row yet: the screen builds the label and
-        # the form after `build_sections` hands the rows back. Hide the field
-        # so the panel is not a frame late; the scheduled pass takes the
-        # label once the row has one.
         widget.setVisible(visible)
         label = getattr(widget, "_spacr_setting_label", None)
         if label is not None:
@@ -10547,9 +8954,6 @@ class SettingsWidgets:
         roles = {role for role in roles
                  if role is not None and role not in CHANNELLED_OBJECTS}
         for role in roles:
-            # A rebuilt panel can arrive already holding a preset. Remember
-            # only recommendations its widgets still equal; differing values
-            # are explicit overrides and diameter must leave them alone.
             recommended = self._organelle_recommendations(role)
             owned = self._organelle_preset_owned.setdefault(role, {})
             for key, value in recommended.items():
@@ -10704,11 +9108,6 @@ class SettingsWidgets:
                 for key, value in recommended.items():
                     if key in supplied and settings.get(key) is not None:
                         continue
-                    # An imported slot may not name a channel yet, so its
-                    # dependent controls are deliberately absent. Preserve
-                    # the preset in the same off-form defaults that preserve
-                    # explicit imported values; activating the channel later
-                    # then builds the correct morphology and method.
                     if (self.set_value_for_key(key, value)
                             or self.set_hidden_value(key, value)):
                         owned[key] = value
@@ -10740,20 +9139,6 @@ class SettingsWidgets:
             return float(w.value())
         if isinstance(w, QComboBox):
             idx = w.currentIndex()
-            # EVERY item is added with userData=opt, including the Python None
-            # option (`addItem("None" if opt is None else str(opt),
-            # userData=opt)`). So currentData() returning None means the chosen
-            # option IS None -- not that the item carries no data. The old
-            # fallback to currentText() therefore handed back the STRING
-            # 'None', which is how every Qt run shipped strict_errors='None'
-            # and turned strict error handling silently ON, since
-            # errors.strict_errors() saw a non-None value and took
-            # bool('None') == True. cov_type and 'transform' reached
-            # statsmodels the same way.
-            #
-            # currentText() is still right for an EDITABLE combo showing
-            # something the user typed that is not in the list -- detected by
-            # the displayed text not matching the current item's text.
             if idx >= 0 and w.itemText(idx) == w.currentText():
                 return w.itemData(idx)
             return w.currentText()
@@ -10852,10 +9237,6 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
     setting whose help is on the field is a smaller defect than a setting
     with no help at all.
     """
-    # A disabled-reason tooltip is control state, not descriptive setting
-    # help.  It belongs on the disabled control by design (and is guarded by
-    # a dedicated test), so callers looking for label-paired *help* must not
-    # classify it as an ordinary field tooltip waiting to be moved.
     if field.property(DISABLED_REASON_TOOLTIP):
         return None
     parent = field.parentWidget()
@@ -10867,15 +9248,6 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
         return None
 
     def _named(widget) -> Optional[QWidget]:
-        # THE NAME MAY BE INSIDE A HOST. `Section.add_row` wraps the
-        # caption in a `SettingLabelWithInfo` whenever the row wants it
-        # right-aligned against its field, which is the settings form's
-        # normal shape -- so the layout hands back a plain `QWidget` and
-        # the `isinstance` below rejected it. Measured on Mask: 1,541 of
-        # 1,657 rows kept their help on the field for this reason alone,
-        # and 13 labels had it. `_unwrap_setting_label` is the existing
-        # answer to "what is the real label in there"; it returns the
-        # widget unchanged when there is no host to unwrap.
         """The real label inside a row, unwrapping a host if there is one.
 
         `Section.add_row` wraps the caption in a `SettingLabelWithInfo` whenever
@@ -10884,16 +9256,6 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
         it. Measured on Mask: 1,541 of 1,657 rows kept their help on the FIELD
         for this reason alone, and only 13 labels had it.
         """
-        # ALIVE FIRST. This walks layout items, and a layout can hand back an
-        # item whose widget has been deleted on the C++ side -- a row that
-        # rebuilt itself, a screen torn down while a queued `_on_arrival` was
-        # still pending. Touching that wrapper is a dangling pointer, and it
-        # does not raise: a full tests/qt sweep on 2026-09-08 SEGFAULTED here,
-        # taking the whole process with it, in
-        # `retarget_field_tooltips` <- `app_screen._translate` <-
-        # `_on_arrival`. A crash on screen arrival is the worst failure mode
-        # this form has, because it takes the application rather than the
-        # tooltip.
         if widget is None or not _widget_is_alive(widget):
             return None
         widget = _unwrap_setting_label(widget)
@@ -10903,14 +9265,7 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
             if not (isinstance(widget, QLabel) and widget.text().strip()):
                 return None
         except RuntimeError:
-            # Deleted between the check above and this line, which is a real
-            # ordering on a queued slot.
             return None
-        # A label with a pointing hand is this repository's convention for
-        # "this text is clickable" -- AiToggleLabel, _ClearFiguresLabel, the
-        # console's copy glyph. Such a label is a CONTROL sharing the row,
-        # not the name of the editor beside it, and its own tooltip explains
-        # itself rather than its neighbour.
         try:
             if widget.cursor().shape() == Qt.PointingHandCursor:
                 return None
@@ -10933,16 +9288,7 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
     if (isinstance(layout, QBoxLayout)
             and layout.direction() == QBoxLayout.LeftToRight
             and index > 0):
-        # The item IMMEDIATELY before it, and nothing further back. A row of
-        # several controls has labels belonging to each of them, and scanning
-        # backwards past an intervening control pairs an editor with the
-        # previous setting's name -- or, in the preview panels, with the
-        # "drop a folder here" placeholder that happens to sit first in the
-        # row.
         candidate_index = index - 1
-        # A stretching label is row status or a path placeholder, not the
-        # fixed caption of the editor after it.  Measure's preview path was
-        # otherwise paired with the adjacent maximum-set spin box.
         if layout.stretch(candidate_index) > 0:
             return None
         item = layout.itemAt(candidate_index)
@@ -10998,14 +9344,6 @@ def retarget_field_tooltips(root: QWidget) -> int:
     Tooltips stay on editors that have no sibling label, whose label already
     has different help, or that carry :data:`DISABLED_REASON_TOOLTIP`.
     """
-    # Hand-built settings panels used to stop at moving the native Qt tooltip
-    # string.  That kept editors quiet, but it left those panels outside the
-    # shared tooltip contract: a native platform tooltip cannot be entered,
-    # does not share HoverTooltip's single rounded surface, and may disappear
-    # while its text is being read.  Keep one filter alive on the owning root
-    # and route every successfully paired label through the same popup used by
-    # AppScreen.  `_ApiTooltipFilter` does not require API metadata; with a
-    # plain authored tooltip it simply displays `apiTooltipHtml` verbatim.
     event_filter = getattr(root, "_api_tooltip_filter", None)
     if event_filter is None:
         event_filter = _ApiTooltipFilter(root)
@@ -11027,10 +9365,6 @@ def retarget_field_tooltips(root: QWidget) -> int:
             continue
         existing = label.toolTip()
         if existing and existing != tip:
-            # Two settings cannot share one name, so this pairing is wrong.
-            # Leave the help where it is: clearing it here is how 80 settings
-            # ended up with no help anywhere, which is a worse defect than
-            # the one this pass exists to fix.
             continue
         key = str(field.property("settingKey") or "")
         app_key = str(field.property("settingsAppKey") or "")
@@ -11061,17 +9395,7 @@ def retarget_field_tooltips(root: QWidget) -> int:
             "apiTooltipDisplayRole",
             "tooltip" if app_key and key else "hover-help",
         )
-        # This widget now OWNS setting help. ``install_api_tooltips`` later
-        # discovers fields by ``settingKey``; without this mark it also
-        # rediscovers these labels as though they were editors. On a compact
-        # grid that second pass pairs each label with the label to its left,
-        # overwriting two UMAP help strings and leaving their real labels
-        # empty.
         label.setProperty("settingHelpLabel", True)
-        # THE LABEL HAS TO CARRY THE SETTING'S IDENTITY, or the language
-        # pass cannot refresh the help it now owns: `refresh_api_tooltips`
-        # skips any widget without both of these, so a translated caption
-        # would leave the old wording on the name.
         for prop in ("settingsAppKey", "settingKey",
                      "apiTooltipDescriptionSource", "apiTooltipDescription"):
             carried = field.property(prop)
@@ -11080,17 +9404,6 @@ def retarget_field_tooltips(root: QWidget) -> int:
         label.removeEventFilter(event_filter)
         label.installEventFilter(event_filter)
         field.setToolTip("")
-        # AND THE FIELD HAS TO BE MARKED QUIET, or the move is undone the
-        # next time anything refreshes.
-        #
-        # This is what made every previous attempt at this look fixed and
-        # then not be: the language pass runs on arrival -- a queued call,
-        # so it lands AFTER the panel is built -- walks every widget with a
-        # `settingKey`, and re-applies the html to whatever it finds. A
-        # field with no display role defaults to "tooltip" and was tipped
-        # straight back. "metadata" is the existing word for "this widget
-        # keeps the metadata but says nothing on hover", and
-        # `refresh_api_tooltips` already honours it.
         field.setProperty("apiTooltipDisplayRole", "metadata")
         field.removeEventFilter(event_filter)
         moved += 1

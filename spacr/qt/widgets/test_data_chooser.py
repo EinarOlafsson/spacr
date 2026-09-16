@@ -87,10 +87,6 @@ class TestDataChooser(QDialog):
         super().__init__(parent)
         self.setWindowTitle(tr("Load test data"))
         self.chosen = ""
-        # SET BEFORE THE PANE IS MEASURED, because the measurement asks how
-        # tall the longest description is AT A GIVEN WIDTH. Measuring at one
-        # width and displaying at another is what left the pane sized for a
-        # column it never had.
         self.setMinimumWidth(self.DIALOG_WIDTH)
         #: Whether a layout pass has given the pane a real width. Until one
         #: has, the pane reports the 100 px every freshly constructed widget
@@ -105,9 +101,6 @@ class TestDataChooser(QDialog):
             button = QPushButton(tr(label), self)
             button.setCursor(Qt.PointingHandCursor)
             button.setProperty("routeKey", key)
-            # The tooltip stays as well as the pane. The pane is the better
-            # surface, but a tooltip is what a user reaches for by habit and
-            # what the accessibility tree reads.
             button.setToolTip(description)
             button.installEventFilter(self)
             button.clicked.connect(
@@ -119,18 +112,6 @@ class TestDataChooser(QDialog):
         self._description = QLabel(self.RESTING_TEXT, self)
         self._description.setWordWrap(True)
         self._description.setObjectName("TestDataDescription")
-        # A HEIGHT THAT CANNOT CLIP, so the dialog does not resize under the
-        # pointer as the text changes length -- the buttons would move away
-        # from the cursor hovering them -- AND no description is cut off,
-        # which a fixed 110 px did to both routes.
-        #
-        # MEASURED, NOT CHOSEN. 110 fit whatever the descriptions said when
-        # it was written; both routes are two paragraphs now and overflowed
-        # it, and a larger font scale or a longer locale overflows any
-        # constant. `_size_the_description_pane` asks the font how tall the
-        # LONGEST of them is at the pane's own width, so the pane is stable
-        # under the pointer and stays right after a translation, a font-scale
-        # change, or a new route being added to ROUTES.
         self._size_the_description_pane()
         self._description.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         layout.addWidget(self._description)
@@ -142,10 +123,6 @@ class TestDataChooser(QDialog):
         closing.addWidget(close)
         layout.addLayout(closing)
 
-        # AS SMALL AS IT CAN BE WHILE FITTING THE TEXT. Without this the
-        # dialog opened at 509 px tall against a layout that wanted 271:
-        # nothing had asked it to be that size, and nothing had asked it not
-        # to be. `adjustSize` is the ask.
         self.adjustSize()
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
@@ -197,8 +174,6 @@ class TestDataChooser(QDialog):
                 int(Qt.TextWordWrap | Qt.AlignTop | Qt.AlignLeft),
                 text)
             tallest = max(tallest, box.height())
-        # A line of slack: boundingRect measures the ink, and a descender on
-        # the last line sits below the box it reports.
         tallest += metrics.lineSpacing()
         self._description.setMinimumHeight(tallest)
         self._description.setMaximumHeight(tallest)
@@ -234,8 +209,6 @@ class TestDataChooser(QDialog):
         this dialog, so this is reachable.
         """
         super().resizeEvent(event)
-        # A RESIZE IS THE PROOF a layout pass has happened, so from here the
-        # pane's own width is the real one and is what to measure against.
         self._laid_out = True
         self._size_the_description_pane()
 

@@ -59,8 +59,6 @@ def pick_colour(parent: Optional[QWidget] = None,
     else:
         start = QColor(str(initial))
     if not start.isValid():
-        # A stored preference can hold anything, including "auto" or "none",
-        # and QColorDialog on an invalid colour opens on transparent black.
         start = QColor("#ffffff")
     return QColorDialog.getColor(
         start, parent, title or "",

@@ -94,8 +94,6 @@ def _bytes(value: Any) -> str:
     except (TypeError, ValueError):
         return "—"
     units = ("B", "KiB", "MiB", "GiB", "TiB")
-    # The largest unit is left out of the loop and answered below: with it in,
-    # the loop always returns and the line after it can never run.
     for unit in units[:-1]:
         if abs(number) < 1024.0:
             return f"{number:.0f} {unit}" if unit == "B" else f"{number:.1f} {unit}"
@@ -121,8 +119,6 @@ def _tabs_qss(palette: dict, opacity) -> str:
     return page_tabs_qss(TABS_NAME, palette, opacity)
 
 
-# ``replace=True``: this module owns the name, so a reimport re-registers
-# rather than raising and leaving the tabs unstyled.
 register_widget_qss(TABS_NAME, _tabs_qss, replace=True)
 
 
@@ -158,8 +154,6 @@ class RunHistoryScreen(QWidget):
         self._record_by_id: Dict[str, Dict[str, Any]] = {}
         self._build_ui()
         self._set_status("Open this module to load the run journal.")
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "run_history")
 
@@ -223,15 +217,6 @@ class RunHistoryScreen(QWidget):
         self._table.setHorizontalHeaderLabels(_COLUMNS)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        # SEVERAL ROWS AT A TIME. Asked for on 2026-08-31: "the ability to
-        # select more than one run and right click and delete or open".
-        # Deleting runs one at a time is the operation nobody performs --
-        # what a full disk actually needs is forty of them gone at once.
-        #
-        # The detail panes below still describe ONE run (the current row),
-        # because "the settings of these six runs" is not a thing a form
-        # can show. Extending the selection changes what the ACTIONS
-        # operate on, not what is displayed.
         self._table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self._table.setContextMenuPolicy(Qt.CustomContextMenu)
         self._table.customContextMenuRequested.connect(self._show_row_menu)

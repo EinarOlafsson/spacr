@@ -44,11 +44,8 @@ __all__ = [
 ]
 
 
-# ``SPCR`` as a four-byte big-endian integer.  SQLite reserves
-# ``application_id`` for applications to identify their file format.
 SPACR_APPLICATION_ID = int.from_bytes(b"SPCR", "big")
 
-# Version 1 establishes canonical metadata/feature column spellings.
 CURRENT_SCHEMA_VERSION = 1
 
 
@@ -121,21 +118,6 @@ class MigrationReport:
         )
 
 
-# Legacy column spellings and their canonical spaCR names.  These are
-# *aliases*, not copies.  This module used to define its own narrower,
-# case-sensitive rename map and its own ``canonical_column_name`` alongside
-# ``spacr.schema``'s wider case-insensitive pair, and which one a caller got
-# depended on whether it had imported ``spacr.schema`` or ``spacr.utils``
-# (which re-exports from here).  The two disagreed on 11 aliases and on case,
-# so a database column named ``Row`` was canonicalised on one path and left
-# alone on the other -- and a half-canonicalised database produces a join that
-# quietly returns the wrong rows long before it produces an error.  There is
-# now one definition, in ``spacr.schema``; see its ``canonical_column_name``
-# docstring for what widened and why.
-#
-# ``spacr.schema`` is standard-library-only at module scope, so importing it
-# here preserves this module's promise that a measurement worker can import it
-# without pulling in pandas or any optional analysis dependency.
 DB_COLUMN_RENAMES = _schema.LEGACY_COLUMN_NAMES
 DB_COLUMN_RENAME_PATTERNS = _schema.LEGACY_COLUMN_PATTERNS
 canonical_column_name = _schema.canonical_column_name
@@ -170,22 +152,6 @@ def _rename_legacy_columns(
                 new = canonical_column_name(old)
                 if new == old:
                     continue
-                # SQLite compares identifiers case-insensitively, so the
-                # "target already exists, keep both" test has to fold case
-                # too.  A table holding `row` and `RowID` is a table that
-                # already has the canonical column -- with the old
-                # case-sensitive `new in columns` test this loop asked SQLite
-                # to rename `row` to `rowID`, SQLite answered "duplicate
-                # column name: RowID", and the OperationalError rolled back
-                # the whole migration.  A user whose database had that pair
-                # could not open it at all.
-                #
-                # `old` is excluded from the comparison because it is the
-                # column being renamed: without that, a pure respelling
-                # (`RowID` -> `rowID`, one column, same identifier as far as
-                # SQLite is concerned) would look like a collision with
-                # itself and never happen, leaving pandas readers with a
-                # frame that has no `rowID` column on a database that does.
                 others = {name.lower() for name in columns if name != old}
                 if new.lower() in others:
                     continue
@@ -418,13 +384,6 @@ def migrate_database(
     given = os.fspath(db_path)
     path = os.path.abspath(given)
     if not os.path.isfile(path):
-        # A TILDE THAT NOBODY EXPANDED IS THE COMMONEST WAY TO REACH HERE, and
-        # `FileNotFoundError: ~/x/measurements.db` is a message that reads as
-        # "your database is missing" when the database is fine and the PATH was
-        # never resolved. GitHub issue #108 is exactly this, from a macOS user
-        # whose settings carried `~`. This function's contract stays strict --
-        # see the docstring, and `ensure_database_schema` is where expansion
-        # belongs -- but it can at least name the real problem.
         if given.startswith("~"):
             raise FileNotFoundError(
                 f"{path} (from {given!r}) -- the '~' was never expanded, so "
@@ -485,16 +444,6 @@ def ensure_database_schema(
     explicit one-time migration path.
     """
 
-    # EXPANDED HERE, AND ONLY HERE. This is the function every reader calls
-    # to make a database usable, so it is the boundary a user-supplied path
-    # crosses -- and `os.path.abspath(os.path.expanduser(os.fspath(path)))` is
-    # already the idiom in `annotation.py` and `artifacts.py`. `database_schema`
-    # was the outlier, and GitHub issue #108 is what that cost: a macOS user
-    # whose settings carried `~` got FileNotFoundError from four frames down.
-    #
-    # `migrate_database` keeps its strict contract deliberately: it is the
-    # low-level operation, its docstring promises no expansion, and a caller
-    # that has already resolved a path should not have it resolved twice.
     db_path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
     report = migrate_database(
         db_path,

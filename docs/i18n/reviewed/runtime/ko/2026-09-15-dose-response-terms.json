@@ -1,0 +1,139 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "dose_response",
+      "source": "Fit four-parameter logistic curves and estimate EC50 with profile-likelihood intervals",
+      "source_sha256": "392d2a783141453819ed97fa9faf48bde087204660ceb2f0dfb4abdc51100bde",
+      "table": "module_summaries",
+      "translation": "4-모수 로지스틱 곡선을 피팅하고 프로파일 우도 구간으로 EC50 값을 추정"
+    },
+    {
+      "key": "A bell-shaped series is refused by default: it is not a 4PL, and the usual cause is cytotoxicity at the top dose. Ticking this fits it anyway and keeps the warning on the result.",
+      "source": "A bell-shaped series is refused by default: it is not a 4PL, and the usual cause is cytotoxicity at the top dose. Ticking this fits it anyway and keeps the warning on the result.",
+      "source_sha256": "fcb5ee955f8be89fc1ef3488740857a40925effb20647389dccc7b57e78101e4",
+      "table": "ui",
+      "translation": "종 모양 계열은 기본적으로 거부됩니다: 4PL 모델이 아니며, 흔한 원인은 최고 용량에서의 세포독성입니다. 이 옵션을 켜면 그래도 피팅하고 결과에 경고를 남깁니다."
+    },
+    {
+      "key": "A gene or compound column, or nothing",
+      "source": "A gene or compound column, or nothing",
+      "source_sha256": "4d5e2c306dca8b629e2981046b296a64f943bd08b902f891c97110adb66a114e",
+      "table": "ui",
+      "translation": "유전자 열 또는 화합물 열, 또는 선택 안 함"
+    },
+    {
+      "key": "A measurements.db, or a CSV of dose and response",
+      "source": "A measurements.db, or a CSV of dose and response",
+      "source_sha256": "cf06cb3d09268099dbc8163c77bd9b016d1d1b3fc082e956ee51700b8cabafce",
+      "table": "ui",
+      "translation": "measurements.db 또는 용량과 반응이 담긴 CSV"
+    },
+    {
+      "key": "Concentration",
+      "source": "Concentration",
+      "source_sha256": "c2cfec66629abd71488212efd5fbb8c6d88459318d65929dffc0e9d02ad26623",
+      "table": "ui",
+      "translation": "농도"
+    },
+    {
+      "key": "Cosmetic only — it never enters the arithmetic",
+      "source": "Cosmetic only — it never enters the arithmetic",
+      "source_sha256": "151ab31bfd4a1457a1f2233b765ab8760628544ff99ce073f3abc1bd16d6e1d1",
+      "table": "ui",
+      "translation": "표시용일 뿐 — 계산에는 전혀 쓰이지 않습니다"
+    },
+    {
+      "key": "Fit non-monotone data",
+      "source": "Fit non-monotone data",
+      "source_sha256": "c967f08351ad5a401396d06f26df8eb43163a07c9e5e1fbc25ec596824b27ec7",
+      "table": "ui",
+      "translation": "비단조 데이터 피팅"
+    },
+    {
+      "key": "Fits a four-parameter logistic model for each gene or compound using selected concentration and response columns. EC50 is estimated on a log10 scale, and profile-likelihood intervals are used by default. When the midpoint lies outside the tested dose range, the result is reported as a bound instead of an unsupported point estimate. Non-monotonic series are identified with their turning concentrations. Results include R² with an interpretive warning and a lack-of-fit test against pure error.",
+      "source": "Fits a four-parameter logistic model for each gene or compound using selected concentration and response columns. EC50 is estimated on a log10 scale, and profile-likelihood intervals are used by default. When the midpoint lies outside the tested dose range, the result is reported as a bound instead of an unsupported point estimate. Non-monotonic series are identified with their turning concentrations. Results include R² with an interpretive warning and a lack-of-fit test against pure error.",
+      "source_sha256": "c1c1f4eb439c980eb809767977a795ed1ea672a3d291ce755a42eba86bc279a6",
+      "table": "ui",
+      "translation": "선택한 농도 열과 반응 열을 사용해 유전자 또는 화합물마다 4-모수 로지스틱 모델을 피팅합니다. EC50 값은 log10 척도에서 추정하며, 기본적으로 프로파일 우도 구간을 사용합니다. 중간점이 시험한 용량 범위 밖에 있으면 근거 없는 점추정 대신 한계값으로 보고합니다. 비단조 계열은 방향이 바뀌는 농도와 함께 표시합니다. 결과에는 해석 경고가 붙은 R² 값과 순수 오차에 대한 적합결여 검정이 포함됩니다."
+    },
+    {
+      "key": "Interval",
+      "source": "Interval",
+      "source_sha256": "6f45b0005e3b7c18ecd474b906b61876b7bb18e969e89d8728187e4417c364f8",
+      "table": "ui",
+      "translation": "신뢰구간"
+    },
+    {
+      "key": "One curve per",
+      "source": "One curve per",
+      "source_sha256": "98096aea79897f774214254f8358c0bfc74a3202896c8b3e9d815fd76fc2cbf5",
+      "table": "ui",
+      "translation": "그룹별 곡선 하나"
+    },
+    {
+      "key": "Open a dose–response table",
+      "source": "Open a dose–response table",
+      "source_sha256": "5267f4ef25d140c32895e5c4e7e1be1713f48ee34273f640d60c94c42f2d36db",
+      "table": "ui",
+      "translation": "용량–반응 표 열기"
+    },
+    {
+      "key": "Pick a concentration column and a response column, then Fit.",
+      "source": "Pick a concentration column and a response column, then Fit.",
+      "source_sha256": "2f6fa18952f1ff15a84f90dfac248d973895fc55dbaccf1c6ff6bc2b552f453d",
+      "table": "ui",
+      "translation": "농도 열과 반응 열을 고른 다음 피팅하세요."
+    },
+    {
+      "key": "Profile likelihood (can decline to close)",
+      "source": "Profile likelihood (can decline to close)",
+      "source_sha256": "1275278ac5f967df352482437178496290e8a519b31c5a7db7bc906e959cb473",
+      "table": "ui",
+      "translation": "프로파일 우도 (구간이 닫히지 않을 수 있음)"
+    },
+    {
+      "key": "Response",
+      "source": "Response",
+      "source_sha256": "9061383b8e228ef3ac36ddc06d128d0fc5c93edf924cefb5a65392f6104798bd",
+      "table": "ui",
+      "translation": "반응"
+    },
+    {
+      "key": "The Wald interval is finite even when the data does not determine the EC50. The profile interval can report an open side, which is why it is the default.",
+      "source": "The Wald interval is finite even when the data does not determine the EC50. The profile interval can report an open side, which is why it is the default.",
+      "source_sha256": "9d0e898e53e602739874765f423e28eab333b562f16c35c2ca0c559e31cbda85",
+      "table": "ui",
+      "translation": "Wald 구간은 데이터로 EC50 값을 결정할 수 없을 때에도 유한합니다. 프로파일 구간은 한쪽이 열린 결과를 보고할 수 있으며, 그래서 기본값입니다."
+    },
+    {
+      "key": "The dose column. A concentration of 0 is read as a vehicle control: it is excluded from the fit and reported as a reference, never fed to log10.",
+      "source": "The dose column. A concentration of 0 is read as a vehicle control: it is excluded from the fit and reported as a reference, never fed to log10.",
+      "source_sha256": "61de1de9ccc3eda8c57732db4c6558ccab9ddca415ca968985f97d5dbc1bafc8",
+      "table": "ui",
+      "translation": "용량 열입니다. 농도 0은 비히클 대조군으로 간주되어 피팅에서 제외되고 기준값으로 보고되며, log10 변환에는 절대 전달되지 않습니다."
+    },
+    {
+      "key": "Wald (symmetric, always finite)",
+      "source": "Wald (symmetric, always finite)",
+      "source_sha256": "acd8ba75a16a7a97f0e3a06a5c29ebfc94f53cd037a52875ec43086827ad1687",
+      "table": "ui",
+      "translation": "Wald (대칭, 항상 유한)"
+    },
+    {
+      "key": "Which table of the database to fit",
+      "source": "Which table of the database to fit",
+      "source_sha256": "c03cf29fe9270ccb4bff28c8f241c39883b42bce54f4eb4a25ace13160ab2775",
+      "table": "ui",
+      "translation": "곡선을 피팅할 데이터베이스 테이블"
+    },
+    {
+      "key": "no table loaded",
+      "source": "no table loaded",
+      "source_sha256": "0c1159e0c4da66343343082163824984fd48276081b6ebf79ef2463a24c8c395",
+      "table": "ui",
+      "translation": "불러온 표 없음"
+    }
+  ],
+  "schema": 1
+}

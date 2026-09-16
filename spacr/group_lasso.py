@@ -136,9 +136,6 @@ def fit(X, y, labels, *, lam: float = 0.05, max_iterations: int = MAX_ITERATIONS
         x_mean, y_mean = np.zeros(X.shape[1]), 0.0
 
     _unique, blocks = _groups(labels)
-    # THE STEP SIZE PER BLOCK is 1 / L where L is the block's largest squared
-    # singular value -- the exact Lipschitz constant of that block's gradient,
-    # so the proximal step is a descent step without any line search.
     steps = []
     for block in blocks:
         sub = X[:, block]
@@ -155,8 +152,6 @@ def fit(X, y, labels, *, lam: float = 0.05, max_iterations: int = MAX_ITERATIONS
                 continue
             sub = X[:, block]
             current = beta[block]
-            # Add this block back before its own gradient step, which is what
-            # makes this coordinate descent rather than one global step.
             partial = residual + sub @ current
             gradient = sub.T @ partial / n
             updated = _soft_threshold_block(
@@ -294,13 +289,7 @@ def choose_lambda(X, y, labels, *, folds: int = PATH_FOLDS,
         usable = np.where(selects & np.isfinite(errors))[0]
         if usable.size:
             return float(candidates[usable[int(np.argmin(errors[usable]))]])
-        # NOTHING ON THE PATH SAID ANYTHING. Reach a further decade down
-        # rather than handing back a penalty already known to be empty.
         floor *= 0.01
-    # Even four decades below the ceiling selects nothing. The smallest
-    # penalty tried is the one with any chance, and the caller's own guard
-    # will refuse the fit if it still says nothing -- which is the honest
-    # outcome for a design with no group signal in it at all.
     return smallest
 
 

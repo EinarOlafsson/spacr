@@ -28,9 +28,6 @@ from .console_panel import ConsolePanel
 from .divider import Divider
 from .eliding import ElidingLabel, ElidingPushButton
 from .empty_state import EmptyState
-# Kept eager because it is a cheap, public widget. QSS registration is no
-# longer a reason to import a heavy widget at launch: the screen host scopes
-# any late registered block to the screen before its first paint.
 from .hover_tooltip import HoverTooltip
 from .info_link import InfoLink
 from .object_settings_grid import ObjectSettingsGrid, ObjectSettingsModel
@@ -72,7 +69,7 @@ def __getattr__(name):
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
     from importlib import import_module
     value = getattr(import_module(f".{module}", __name__), name)
-    globals()[name] = value      # cached; this runs once per name
+    globals()[name] = value
     return value
 
 

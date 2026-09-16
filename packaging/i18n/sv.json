@@ -11,6 +11,7 @@
   "downloading_python": "Hämtar den privata Python %s-miljön...",
   "downloading_uv": "Hämtar den fastställda versionen av uv-startprogrammet...",
   "dry_create": "SIMULERING: skulle skapa och validera %s",
+  "dry_remove_old": "SIMULERING: skulle först hitta och ta bort alla äldre spaCR-installationer",
   "dry_download": "SIMULERING: skulle hämta %s",
   "dry_launcher": "SIMULERING: skulle installera startprogrammet %s",
   "help_dry_run": "Visa den lösta planen utan att hämta något.",
@@ -34,7 +35,7 @@
   "no_sudo": "Kommandot sudo hittades inte. Installationen fortsätter utan de valfria Qt-biblioteken för Linux.",
   "nsis_application": "spaCR-skrivbordsprogram",
   "nsis_downloading": "Hämtar Python, Qt, PyTorch och spaCR. Det kan ta flera minuter.",
-  "nsis_failed": "Installationen av spaCR misslyckades med slutkoden %s. Den befintliga installationen bevarades, om någon fanns.",
+  "nsis_failed": "spaCR installerades inte (slutkod %s). En äldre spaCR kan redan ha tagits bort. Kör installationsprogrammet igen; install.log i installationsmappen visar vad som gick fel.",
   "nsis_gpu": "Automatisk maskinvaruacceleration (rekommenderas)",
   "nsis_launch": "Starta spaCR",
   "nsis_uninstall": "Avinstallera spaCR",
@@ -61,5 +62,6 @@
   "old_install_removed": "Den tidigare installationen togs bort.",
   "old_install_kept": "Behåller den. Miljön ersätts ändå; cacher och inställningar blir kvar.",
   "old_install_noninteractive": "Ingen terminal, så inget frågades. Miljön ersätts; cacher och inställningar blir kvar.",
-  "old_install_same": "Det är samma version som det här installationsprogrammet innehåller."
+  "old_install_same": "Det är samma version som det här installationsprogrammet innehåller.",
+  "old_copy_not_removed": "Installationen avbröts: en äldre spaCR kunde inte tas bort (se ovan). Stäng alla spaCR som körs och kör installationsprogrammet igen."
 }

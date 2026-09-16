@@ -489,12 +489,23 @@ class TestTheStreamingSettingsAreInertUntilStreamingIsChosen:
 
     def test_the_gate_reads_method_settings_rather_than_a_copy(self,
                                                               monkeypatch):
-        """A list in the settings module would drift from the streamer's."""
+        """A list in the settings module would drift from the streamer's.
+
+        PATCHED ON `_stream_selection`, WHICH IS NOW THE ONE DEFINITION.
+        `stream_dataset` re-exports it -- it needs pandas, and the settings
+        module must not import pandas to read a dictionary while a panel is
+        being laid out. The asserts below pin that the re-export is the SAME
+        OBJECT rather than a second copy, which is the property this test was
+        written to defend and the reason it is patched in one place.
+        """
         import spacr.settings as settings_module
         import spacr.stream_dataset as stream
+        import spacr._stream_selection as selection
+
+        assert stream.METHOD_SETTINGS is selection.METHOD_SETTINGS
 
         monkeypatch.setattr(
-            stream, "METHOD_SETTINGS",
+            selection, "METHOD_SETTINGS",
             {"column": ("bounding_box",), "array": ("object_array",)})
         monkeypatch.setattr(settings_module, "setting_dependencies", {})
         rules = settings_module.get_setting_dependencies()

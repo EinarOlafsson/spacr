@@ -80,13 +80,6 @@
       "translation": "클래스별 표본 수를 ``LongTensor`` 형식으로 반환하며 길이는 ``num_classes``입니다."
     },
     {
-      "label": "spacr.spacrops.spacrStitcher.stitch_pair#0",
-      "source_sha256": "2d423139139b7b5fdad90cb8970d5d649ada45ec3ba54441d886ba2bbff65101",
-      "source": "Estimate the B-to-A affine, score the overlap, and optionally write the stitched pair.",
-      "context": "Estimate the B-to-A affine, score the overlap, and optionally write the stitched pair.",
-      "translation": "B에서 A로의 아핀 변환을 추정하고 겹침을 평가하며, 선택적으로 스티칭된 쌍을 기록합니다."
-    },
-    {
       "label": "spacr.report.collect_report#8",
       "source_sha256": "7abc0d22783c71061132372f09132631b5fcee7ef1ffa8f5e8a7ffd8d19835aa",
       "source": "when ``run_dirs`` is None, scan ``~/.spacr/runs`` for runs whose ``src`` is this folder.",

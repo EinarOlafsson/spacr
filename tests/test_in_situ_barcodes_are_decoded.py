@@ -178,8 +178,13 @@ def test_the_crosstalk_correction_is_what_makes_it_work():
     values += rng.normal(60, 20, values.shape).astype(np.float32)
 
     truth = ["".join(ops_sbs.BASES[i] for i in row) for row in idx]
-    with_it, _ = ops_sbs.call_reads(values, compensate=True)
-    without, _ = ops_sbs.call_reads(values, compensate=False)
+    # normalise=False on both sides: this test is about what the unmixing
+    # adds to the RAW call, and the per-cycle normalisation that became the
+    # default in 372 PART 14-M would otherwise stand in for "without".
+    with_it, _ = ops_sbs.call_reads(values, compensate=True, normalise=False,
+                                    gpu=False)
+    without, _ = ops_sbs.call_reads(values, compensate=False, normalise=False,
+                                    gpu=False)
 
     good = sum(a == b for a, b in zip(with_it, truth))
     bad = sum(a == b for a, b in zip(without, truth))

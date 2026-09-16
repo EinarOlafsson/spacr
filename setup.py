@@ -90,10 +90,11 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 # keyring" in a stale docstring — which is precisely the difference a raw grep
 # has to be read for rather than counted.
 #
-# 9 distributions were imported and never declared, and are now declared. Five
-# are module-scope, unguarded imports, so the install was only ever working by
-# accident — they arrived transitively and would vanish the day the package
-# that dragged them in changed its own mind:
+# 9 distributions were imported and never declared. Eight are still declared;
+# the ninth outlived its own import and is gone again, which is recorded below
+# rather than quietly dropped. Five were module-scope, unguarded imports, so
+# the install was only ever working by accident — they arrived transitively and
+# would vanish the day the package that dragged them in changed its own mind:
 #     requests   spacr/utils.py:2 and spacr/gui_utils.py:1 (module scope).
 #                Arrived via huggingface-hub, which is exactly the package
 #                that drops requests for httpx at 1.0 — see the hub note.
@@ -101,10 +102,16 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 #                Arrived via scikit-learn.
 #     natsort    spacr/submodules.py:36 (module scope). Arrived via cellpose.
 #     patsy      spacr/ml.py:33 (module scope). Arrived via statsmodels.
-#     sympy      spacr/gui_elements.py:26 (module scope). Arrived via torch.
+#     sympy      WAS spacr/gui_elements.py:26 (module scope), via torch. That
+#                file left with the Tkinter interface and took the only import
+#                of sympy with it, so sympy is NO LONGER DECLARED — see the
+#                `sympy` REMOVED note further down. This line used to cite a
+#                file that has not existed for some time.
 # and four are function-local and already guarded, so they are declared for
-# honesty rather than to fix a break: nvidia-ml-py (imported as ``pynvml`` at
-# spacr/qt/widgets/home.py:729 and :743), win10toast (spacr/qt/notify.py:56,
+# honesty rather than to fix a break: nvidia-ml-py (imported as ``pynvml`` --
+# BOTH distributions install a module of that name -- inside
+# spacr/qt/widgets/home.py's `_nvml()`, one site as of 2026-09-14, not the two
+# this line used to cite), win10toast (spacr/qt/notify.py:56,
 # behind `if system == "Windows"`, so it carries the marker), and
 # catboost/lightgbm, which are alternative model backends behind a
 # `model_type=` string and live in the `boosting` extra — see the note there.
@@ -141,10 +148,12 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 # the floor moved to 4.0.7 rather than the contract test being loosened.
 #
 # Every constraint pin equals its declared floor exactly, unless the minimum
-# profile cannot install that combination -- coupled packages such as torch,
-# torchvision and sympy are the case that arises -- and then the constraints
-# file names the package and says why. A pin quietly sitting above its floor
-# leaves the floor the one bound in this file that nothing tests.
+# profile cannot install that combination -- torchvision pins torch to an
+# EXACT release, so the two move as a matched pair rather than each sitting on
+# its own floor, and umap-learn and tensorboard drag scikit-learn and protobuf
+# up -- and then the constraints file names the package and says why. A pin
+# quietly sitting above its floor leaves the floor the one bound in this file
+# that nothing tests.
 #
 # An upper bound is a MAJOR VERSION spaCR HAS NOT SEEN. It exists so a
 # breaking release cannot arrive silently between a user's `pip install` and
@@ -485,8 +494,7 @@ dependencies = [
     'numexpr>=2.8.4,<3.0',
     # Both bounds are weaker than they look. The real API floor is 4.0.0 —
     # spacr/plot.py:110 and :457 unpack `cv2.findContours` as a 2-tuple, which
-    # is the OpenCV 4 signature, and `cv2.SIFT_create` (4.4) is hasattr-guarded
-    # at spacr/spacrops.py:204. 4.9.0.80 is a *wheel* floor (first tag cut
+    # is the OpenCV 4 signature. 4.9.0.80 is a *wheel* floor (first tag cut
     # after cp312 support), not an API one. `<5.0` used to be dead text —
     # opencv-python-headless 4.12+ declares `numpy>=2`, so the old `numpy<2.0`
     # capped the resolve at 4.11.0.86 by itself. With numpy widened, 4.12+ is
@@ -632,7 +640,13 @@ dependencies = [
     # (`claude`, `codex`, `gemini`) and never handle an API key. Shipping a
     # credential-storage package for a code path that does not exist is
     # strictly worse than not shipping it.
-    'screeninfo>=0.8.1,<1.0',
+    # `screeninfo` REMOVED: zero imports. It answered one question -- how
+    # big is the monitor -- for the Tkinter interface, and that interface is
+    # gone; the Qt interface asks Qt instead. Nothing else in the graph
+    # brings it in, so every headless cluster install was carrying it for
+    # nothing. Verified by walking the AST of every file under spacr/, so
+    # function-local and `try:`-guarded imports counted too, and re-checked
+    # with a raw grep for the string form the way `umap-learn` needs.
     # KEPT despite zero imports: cellpose imports fastremap directly (as does
     # fill_voids underneath it), and spaCR's cellpose floor is `>=4.0`. It is
     # declared here so a cellpose that ever stops declaring it does not
@@ -663,10 +677,16 @@ dependencies = [
     # ADDED. `from natsort import natsorted` at spacr/submodules.py:36,
     # module scope. It was arriving via cellpose.
     'natsort>=8.0,<9.0',
-    # ADDED. `from sympy import root` at spacr/gui_elements.py:26, module
-    # scope. It was arriving via torch, which declares it for TorchDynamo —
-    # a dependency that has been proposed for removal upstream more than once.
-    'sympy>=1.12,<2.0',
+    # `sympy` REMOVED: zero imports. `from sympy import root` at
+    # spacr/gui_elements.py:26 was the only one spaCR ever had, and that file
+    # left with the Tkinter interface. torch declares sympy for TorchDynamo
+    # and installs it regardless, so dropping the declaration costs a user
+    # nothing — it stops spaCR declaring a bound that nothing exercises.
+    # mpmath IS NOT IN THE SAME POSITION and is declared above: the Mandelbrot
+    # backdrop imports it inside four functions in
+    # spacr/qt/widgets/fractal_mandelbrot.py, and it must not depend on sympy
+    # happening to bring it transitively — which, now that sympy is only a
+    # dependency-of-a-dependency, is a weaker guarantee than it was.
     # `wandb` REMOVED: zero imports. No experiment tracking is wired up; the
     # run journal (spacr/run_journal.py) is spaCR's own.
     # `openai` REMOVED: zero imports. The two textual hits are an npm
@@ -718,7 +738,7 @@ dependencies = [
     #'stardist>=0.9,<1.0'
 ]
 
-VERSION = "1.5.0.7"
+VERSION = "1.5.0.8"
 # The distribution is `spacr` (not `spacr-nightly`) so that
 # `pip install -e .` from a working copy replaces any prior PyPI
 # `spacr` install instead of coexisting with it — the coexistence
@@ -788,6 +808,24 @@ setup(
             # files it names are still there. No display needed, because
             # the question is usually asked about somebody else's run.
             'spacr-workspace=spacr.cli_workspace:main',
+            # spacr-make-masks --folder <dir> — the mask editor opened on a
+            # folder as a RESUMABLE QUEUE (ledger 396): --order decides what
+            # is offered first, --limit ends the session, and
+            # <dir>/curate_status.csv is what makes it resume, on either
+            # machine. Importing spacr.cli_make_masks pulls no Qt, so a
+            # missing folder and an unreadable layout are both refused with
+            # a sentence over SSH rather than with a Qt crash.
+            #
+            # DECLARED ONCE. It was declared twice on 2026-09-14 -- same name,
+            # same target, two comments -- and setuptools refuses a duplicate
+            # outright: "Duplicate element EntryPoint(name='spacr-make-masks'
+            # ...)" killed `get_requires_for_build_sdist`, so every packaging
+            # and wheel-install cell of compat-matrix went red on a build that
+            # never started. The reasoning from the second copy is kept here:
+            # the editor is mouse-driven, but choosing and ORDERING the work is
+            # not, and a curation session that cannot be pointed at a folder
+            # from a shell cannot be resumed on a second machine.
+            'spacr-make-masks=spacr.cli_make_masks:main',
             # spacr-run <module> --settings f — headless pipeline runner for
             # clusters: no Qt, no display. Importing spacr.cli pulls
             # neither torch nor matplotlib, so --help/--list answer instantly.
@@ -1031,6 +1069,24 @@ setup(
         # user's own environment, and pinning scanpy would drag in a second
         # copy of the leiden/igraph stack for a file spaCR only writes.
         'anndata': ['anndata>=0.10,<0.13'],
+        # `pip install spacr[dinocell]` / `spacr[samcell]` -- the optional
+        # segmentation backends behind `segmentation_backend` (items 404 and
+        # 405). Both are imported only inside spacr/_segmentation_backends.py,
+        # whose ImportError names these extras.
+        #
+        # KNOWN LIMITATION, read from the published metadata on 2026-09-14:
+        # dinocell 0.74 pins all 84 of its requirements to exact versions (a
+        # frozen environment rather than real bounds), among them
+        # huggingface_hub==1.7.1 against the core `huggingface-hub<1.0` cap
+        # above and numpy==2.4.3, which has no wheel before Python 3.11. So
+        # as published this extra cannot resolve alongside spaCR's core, and
+        # DINOCell needs its own environment until upstream loosens the pins.
+        # samcell 1.2.0 declares ordinary lower bounds and resolves normally.
+        #
+        # Neither is in `all`; tests/test_packaging_metadata.py pins what
+        # `all` aggregates.
+        'dinocell': ['dinocell>=0.74,<1.0'],
+        'samcell': ['samcell>=1.2,<2.0'],
         # `pip install spacr[napari]` — `spacr.napari_bridge`, which hands a
         # field's image and mask to napari, lets the user correct the mask
         # there, and writes the corrected labels back the way spaCR writes

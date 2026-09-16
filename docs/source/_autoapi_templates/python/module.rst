@@ -7,13 +7,14 @@
 
 .. py:module:: {{ obj.name }}
 
-      {% if obj.docstring %}
+      {% if obj.docstring and not obj.obj.get("spacr_helpers_only", false) %}
 .. autoapi-nested-parse::
 
    {{ obj.docstring|indent(3) }}
 
       {% endif %}
 
+      {% if not obj.obj.get("spacr_helpers_only", false) %}
       {% block submodules %}
          {% set visible_subpackages = obj.subpackages|selectattr("display")|list %}
          {% set visible_submodules = obj.submodules|selectattr("display")|list %}
@@ -166,6 +167,8 @@ Functions
             {% endif %}
          {% endif %}
       {% endblock %}
+      {% endif %}
+      {% include "python/nested_helpers.rst" %}
    {% else %}
 .. py:module:: {{ obj.name }}
 

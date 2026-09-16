@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
 from PIL import Image, ImageSequence
 
 from spacr.setting_animations import (
@@ -53,7 +54,9 @@ def test_registry_has_complete_unique_exact_key_mapping():
     # 134 -> 118 on 2026-09-12, and it is -16 rather than -8 because the
     # eight animations 391 removed each mapped TWO settings: the dim and
     # bright halves of the intensity-percentile band, at four roles.
-    assert len(by_setting) == 118
+    # 418 replaces eight merge/split animations (20 keys) with eight
+    # absolute mean-bound animations (8 keys): 86 animations, 106 keys.
+    assert len(by_setting) == 106
     assert len({animation.slug for animation in animations}) == 86
     assert animation_for_setting("merge_edge_pathogen_cells").slug == (
         "merge_edge_pathogen_cells"
@@ -70,7 +73,7 @@ def test_every_asset_is_square_animated_and_matches_manifest_hash():
     # `normalization_percentiles` spec when it was retired (357-Q4).
     # Nothing read it, so an animation offered under its name illustrated
     # a control the run does not have.
-    assert summary["setting_keys"] == 118
+    assert summary["setting_keys"] == 106
     assert summary["bytes"] > 0
 
     for animation in setting_animations():
@@ -86,15 +89,58 @@ def test_every_asset_is_square_animated_and_matches_manifest_hash():
             assert animation.unique_frames >= 4
 
 
+@pytest.mark.parametrize("slot", [2, 3, 27, 702])
+@pytest.mark.parametrize("suffix", [
+    "min_intensity", "max_intensity", "min_area", "remove_border_objects",
+])
+def test_numbered_organelle_slots_reuse_the_primary_animation(slot, suffix):
+    from spacr.organelle_types import organelle_role
+
+    primary = animation_for_setting(f"organelle_{suffix}")
+    assert primary is not None
+    assert animation_for_setting(f"{organelle_role(slot)}_{suffix}") is primary
+
+
+def test_an_exact_numbered_slot_mapping_takes_precedence(monkeypatch):
+    from spacr import setting_animations as registry
+
+    primary = animation_for_setting("organelle_min_intensity")
+    exact = animation_for_setting("cell_min_intensity")
+    assert primary is not None and exact is not None and exact is not primary
+    monkeypatch.setattr(registry, "animations_by_setting", lambda: {
+        "organelle_min_intensity": primary, "organelleb_min_intensity": exact,
+    })
+    assert registry.animation_for_setting("organelleb_min_intensity") is exact
+    assert registry.animation_for_setting("organellec_min_intensity") is primary
+
+
+@pytest.mark.parametrize("key", [
+    "organelleb_not_a_setting", "organelleb_min_intensity_percentile",
+    "organelleb_intensity_merge", "organelleb_intensity_split",
+    "organellea_min_intensity", "organelleaaa_min_intensity",
+    "ORGAnelleb_min_intensity", "organelleb_MIN_INTENSITY",
+])
+def test_slot_fallback_does_not_guess_unknown_or_retired_keys(key):
+    assert animation_for_setting(key) is None
+
+
 def test_mapped_keys_are_real_settings_or_explicit_align_controls():
     from spacr.settings import descriptions, expected_types, tooltips
 
     known = set(expected_types) | set(descriptions) | set(tooltips)
-    # `blend` was here until it was declared in `spacr.settings` with a
-    # type and a tooltip; see CUSTOM_ALIGN_CONTROLS in
-    # tests/test_setting_animations_page_is_generated.py.
-    custom_align_controls = {"overlap"}
+    # `blend` left this set when it was declared in `spacr.settings` with a
+    # type and a tooltip, and came back when d0717ea53 removed that
+    # declaration with the old OPS engine's settings; see
+    # CUSTOM_ALIGN_CONTROLS in tests/test_setting_animations_page_is_generated.py.
+    custom_align_controls = {"overlap", "blend"}
     assert set(animations_by_setting()) - known == custom_align_controls
+
+    # An exception is only honest while something reads the key: both are
+    # alignment controls of `spacr.align`, which the Align & Stitch screen
+    # drives.
+    from spacr.align import default_settings
+
+    assert custom_align_controls <= set(default_settings())
 
 
 def test_docs_gallery_has_one_stable_anchor_and_image_per_animation():

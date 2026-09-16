@@ -283,8 +283,6 @@ def _suggest_object(name: str) -> Optional[str]:
     :param name: filename or path whose stem and parent tokens are inspected.
     :returns: canonical object type, or ``None`` when no pattern matches.
     """
-    # Include parent folders: externally generated masks are commonly named
-    # ``cell_masks/fov001.tif`` rather than ``fov001_cell_mask.tif``.
     stem = cv._split_ext(str(name))[0]
     for object_type, pattern in _OBJECT_PATTERNS:
         if pattern.search(stem):
@@ -304,15 +302,10 @@ def _label_likelihood(path: Path) -> Tuple[bool, float, str]:
     if not (np.issubdtype(array.dtype, np.integer)
             or np.issubdtype(array.dtype, np.bool_)):
         return False, 0.0, f"{array.dtype} is not an integer label dtype"
-    # Cap the sample without changing its value distribution materially.
     stride = max(int(np.sqrt(array.size / 250_000)), 1)
     sampled = array[::stride, ::stride]
     values = np.unique(sampled)
     nonnegative = bool(values.size == 0 or values[0] >= 0)
-    # A normal 8-bit microscopy image often contains all 256 grey values,
-    # whereas a label image contains roughly one value per object. Permit
-    # large fields with many objects without calling ordinary 8-bit data a
-    # mask merely because its value range is bounded.
     compact = len(values) <= max(64, int(sampled.size * 0.002))
     background = bool(np.any(values == 0))
     likely = nonnegative and compact and background
@@ -506,8 +499,6 @@ def default_settings(settings: Optional[Mapping[str, Any]] = None
         "plate_naming": "index",
         "overwrite": False,
         "preview_only": False,
-        # Empty means all imported intensity channels. This avoids Measure's
-        # four-channel default being invalid for a one- or two-channel import.
         "channels": [],
         "png_dims": [],
         "experiment": "external_masks",
@@ -895,8 +886,6 @@ def register_settings(replace: bool = False) -> bool:
             "review automatic role and object-type detection first. Default "
             "False.",
     }
-    # A future shared importer may establish canonical prose first. Preserve
-    # it instead of making module import order decide which wording wins.
     tips = {key: value for key, value in tips.items()
             if key not in shared_tooltips}
     register_defaults(

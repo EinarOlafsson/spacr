@@ -40,6 +40,7 @@ from __future__ import annotations
 import pathlib
 import re
 import sys
+import types
 
 import pytest
 
@@ -180,7 +181,15 @@ def test_no_spacr_submodule_is_split_from_its_package():
         parent = sys.modules.get(parent_name)
         if parent is None or not hasattr(parent, leaf):
             continue
-        if getattr(parent, leaf) is not module:
+        attribute = getattr(parent, leaf)
+        # ONLY A MODULE CAN BE A SPLIT COPY. `spacr/flowview/__init__.py`
+        # does `from .export import export`, so the package attribute is
+        # the FUNCTION of that name -- a deliberate re-export, not a
+        # crippled second copy of the module -- and this check reported it
+        # whenever any flowview test had run earlier in the same worker.
+        if not isinstance(attribute, types.ModuleType):
+            continue
+        if attribute is not module:
             split.append(dotted)
     assert not split, (
         "these modules are a different object as a package attribute than "

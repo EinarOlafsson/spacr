@@ -1,0 +1,41 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "The Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* workflow with *one* settings key-value mapping.",
+      "label": "spacr.batch#1",
+      "source": "The Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* pipeline with *one* settings dict.",
+      "source_sha256": "a53d080370abfc15197e6d99be77c1bfd8586e0b7819aa231a951b28ceb15da1",
+      "translation": "Plate Queue (:mod:`spacr.qt.plate_queue`) 让 *多块板* 依次通过 *同一条* 流程，并共用 *同一份* 设置字典。"
+    },
+    {
+      "context": "an order that is not a permutation of rgb.",
+      "label": "spacr.crops.apply_display_order#5",
+      "source": "an order that is not a permutation of rgb.",
+      "source_sha256": "d8c9a5422594e668ab65d130ccbdb854c6382ef5051fe23049d7fd1515309a8d",
+      "translation": "不是 rgb 排列之一的顺序。"
+    },
+    {
+      "context": "THE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites the extension itself, which is why every matplotlib save has honoured the preference for months -- but pyqtgraph decides what it writes FROM THE NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a renderer that is handed ``volcano.pdf`` writes a PDF whatever the user chose. The name has to be settled before the export sees it, and settling it twice in two modules is how the two drift apart.",
+      "label": "spacr.plot.figure_path#1",
+      "source": "THE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites the extension itself, which is why every matplotlib save has honoured the preference for months -- but pyqtgraph decides what it writes FROM THE NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a renderer that is handed ``volcano.pdf`` writes a PDF whatever the user chose. The name has to be settled before the export sees it, and settling it twice in two modules is how the two drift apart.",
+      "source_sha256": "3373e8946963e49c0ba1254c2bac4ea5e94f29c0e8bbba043be6369c9fce8c58",
+      "translation": "非 MATPLOTLIB 渲染器唯一可以询问的地方。 ``save_figure`` 会自行改写扩展名，这就是为什么几个月来每一次 matplotlib 保存都遵循了这项偏好 -- 但 pyqtgraph 是根据文件名来决定写出什么的 ( ``FastPlot.export`` 按 ``.pdf`` / ``.svg`` / 其他情况分支 )，所以拿到 ``volcano.pdf`` 的渲染器无论用户选了什么都会写出 PDF。文件名必须在导出看到它之前就确定下来，而在两个模块里各确定一次，正是两者逐渐不一致的原因。"
+    },
+    {
+      "context": "Github is the exception, and deliberately. GitHub publishes the Octocat's path data for use as a link mark, so that one is the real thing rather than a circle with ears -- still a path, still recoloured per theme, still nothing added to the wheel.",
+      "label": "spacr.qt.widgets.provider_marks#5",
+      "source": "GITHUB IS THE EXCEPTION, and deliberately. GitHub publishes the Octocat's path data for use as a link mark, so that one is the real thing rather than a circle with ears -- still a path, still recoloured per theme, still nothing added to the wheel.",
+      "source_sha256": "ecb6e0e48b5eba3fd475114a91086f477d97de7359a421100b0d838e3e8eca0e",
+      "translation": "GITHUB 是例外，而且是有意为之。GitHub 公开了 Octocat 的路径数据，供用作链接标记，所以这一个是真正的标志，而不是一个带耳朵的圆 -- 它仍然是路径，仍然按主题重新着色，也仍然没有往安装包里加任何东西。"
+    },
+    {
+      "context": "the paths written, in the order html, pdf.",
+      "label": "spacr.report.build_report#5",
+      "source": "the paths written, in the order html, pdf.",
+      "source_sha256": "90b3d8a44321dff92f0b49f2d998138d4d43ae48868b8e92ad01754bfe6be435",
+      "translation": "写出的路径，顺序为 html、pdf。"
+    }
+  ],
+  "schema": 1
+}

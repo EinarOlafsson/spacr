@@ -449,8 +449,9 @@ def test_laptop_mode_says_what_it_turned_down(launched, monkeypatch, caplog):
     without it "it looks different on my laptop" has no evidence behind it.
     """
     from spacr.qt import laptop_mode
+    # `launch` passes the level's answer since 286, so the stand-in takes it.
     monkeypatch.setattr(laptop_mode, "apply",
-                        lambda: {"changed": ["backdrop", "shadows"]})
+                        lambda _on=None: {"changed": ["backdrop", "shadows"]})
 
     with caplog.at_level(logging.INFO, logger="spacr.qt.app"):
         assert app_mod.launch([]) == 0

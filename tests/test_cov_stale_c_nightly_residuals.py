@@ -57,8 +57,12 @@ def test_the_v2_sidecar_relies_on_the_early_empty_return():
     from spacr import pipeline_v2
 
     source = inspect.getsource(pipeline_v2.stream_masks_from_stack)
-    assert "if not stacks:\n        return stacks" in source
-    sidecar = source.index("# The empty case returned before Cellpose")
+    early_return = "if not stacks:\n        return stacks"
+    assert early_return in source
+    # ANCHORED ON THE EARLY RETURN ITSELF rather than on a comment that
+    # happened to sit after it. The region this test is about is "everything
+    # past the empty-list guard", and the guard is code.
+    sidecar = source.index(early_return) + len(early_return)
     assert "if stacks:" not in source[sidecar:]
     assert 'sidecar = stacks[0].path.parent / "channel_order.json"' \
         in source[sidecar:]

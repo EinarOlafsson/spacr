@@ -74,9 +74,6 @@ __all__ = [
     "write_run_summary",
 ]
 
-# ---------------------------------------------------------------------------
-# The contract
-# ---------------------------------------------------------------------------
 
 #: How a field was filled. Three states, because two are not enough: a
 #: permutation test does not FAIL to check equal variance, it declines to
@@ -182,10 +179,6 @@ LABELS: Dict[Tuple[str, str], str] = {
     ("call", "effect_size_cut"): "effect-size cut",
     ("call", "positive_rank"): "positive control rank",
     ("call", "positive_percentile"): "positive control percentile",
-    # THE FIELD KEY STAYS AND THE LABEL FOLLOWS THE SETTING. The key is
-    # this summary's own vocabulary and is read back by its tests; the
-    # label is what a user sees, and it must name the setting they typed
-    # -- `min_cells_per_well` since 364 renamed it.
     ("excluded", "min_cell_count"): "min_cells_per_well",
     ("excluded", "exclude_grnas"): "pre-fraction exclusions",
     ("excluded", "fraction_threshold"): "fraction_threshold",
@@ -215,9 +208,6 @@ COMPARISON_FIELDS: Dict[str, str] = {
     "multiple_testing_method": "multiple_testing_method",
     "fdr_alpha": "fdr_alpha",
     "fraction_threshold": "fraction_threshold",
-    # THE VALUE IS A FIELD NAME, NOT A SETTING NAME, and changing it named
-    # a field that does not exist. The label a user reads followed 364's
-    # rename; this mapping is the summary's internal wiring and did not.
     "min_cell_count": "min_cell_count",
     "n_wells": "n_wells",
     "n_guides": "n_guides",
@@ -255,9 +245,6 @@ _FALLBACK_SUMMARY_FILENAME = "model_summary.txt"
 _WIDTH = 88
 
 
-# ---------------------------------------------------------------------------
-# The field types
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -424,9 +411,6 @@ class RunSummary:
         return format_run_summary(self)
 
 
-# ---------------------------------------------------------------------------
-# Small formatting helpers
-# ---------------------------------------------------------------------------
 
 
 #: Column width the labels are padded to. MEASURED FROM :data:`LABELS`
@@ -544,9 +528,6 @@ def _one_value(frame, column):
     return values[0] if len(values) == 1 else None
 
 
-# ---------------------------------------------------------------------------
-# What kind of run is this
-# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -657,9 +638,6 @@ def _collect_metrics(model, coef_df, settings) -> Dict[str, Any]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# The identifiability warning, which stays at the top
-# ---------------------------------------------------------------------------
 
 #: What the run says when a fit is not identifiable, repeated here so it is
 #: the FIRST thing in the written summary.
@@ -702,9 +680,6 @@ def _warnings(run: "_Run") -> List[str]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Section builders. One per section of the contract.
-# ---------------------------------------------------------------------------
 
 
 def _fitted_section(run: "_Run") -> List[SummaryField]:
@@ -736,10 +711,6 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
     kind = _clean(run.regression_type) or _clean(
         _setting(settings, "regression_type"))
     if run.nonparametric:
-        # SAID, because the settings still carry one and a reader will
-        # otherwise believe it. The permutation path never reaches
-        # `regression_model`: it is a marginal test, so no family is fitted
-        # and the setting has no effect on the numbers below.
         add("regression_type",
             value=(f"none — the permutation path fits no model, so the "
                    f"regression_type in the settings ({kind}) was not read "
@@ -753,10 +724,6 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
             reason="this run recorded no regression_type, so the family it "
                    "fitted cannot be named from what it wrote")
 
-    # Report only hyperparameters the selected regression family reads. The
-    # shared family table also drives the disabled-setting rules and tooltip
-    # text, keeping the summary aligned with the interface and preventing an
-    # ignored value (such as alpha for OLS) from being presented as fitted.
     if run.nonparametric:
         add("hyperparameters",
             value="none — the permutation path fits no model, so there is no "
@@ -795,9 +762,6 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
         label = REGRESSION_BACKENDS.get(backend, {}).get("label", backend)
     except Exception:                                            # noqa: BLE001
         pass
-    # NOT "statsmodels (statsmodels (CPU))". The spec's label already
-    # CONTAINS the backend's name -- it is "pyfixest (CPU)", not "(CPU)" --
-    # so bracketing it after the name said everything twice.
     add("backend", value=label if label.startswith(backend) else
         (f"{backend} ({label})" if label != backend else backend))
 
@@ -824,9 +788,6 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
         else "none — one row per object, not per well")
     transform = _setting(settings, "transform")
     if transform is not None and str(transform).lower() == "beta":
-        # NAMED HERE, not left in the run log. The logit squeeze moves a
-        # well sitting at exactly 0 or 1, and a reader comparing the fitted
-        # response to their own column has to be told that happened.
         from .ml import BETA_SQUEEZE_NOTE
         add("transform", value=BETA_SQUEEZE_NOTE)
     else:
@@ -877,10 +838,6 @@ def _formula(run: "_Run") -> Dict[str, str]:
         level = str(_setting(run.settings, "level", "grna") or "grna")
         if level == "both":
             level = "grna"
-        # THE RESPONSE THE ESTIMATOR SAW, not the one the user typed.
-        # `transform='log'` fits `log_pred`, and a formula naming `pred`
-        # describes a fit nobody ran -- the statsmodels block below this one
-        # says `Dep. Variable: log_pred` in the same file.
         response = (_raw(getattr(inner, "endog_names", None))
                     or _clean(_setting(run.settings, "dependent_variable"))
                     or "y")
@@ -1439,9 +1396,6 @@ def _equal_variance(run: "_Run") -> Dict[str, str]:
     white = run.metrics.get("white_p")
     if bp is None and white is None:
         return {"reason": _no_residual_reason(run)}
-    # ONE VERDICT PER TEST. Reporting the smaller of the two under a single
-    # "REJECTED" is how a run where Breusch-Pagan says 0.645 and White says
-    # 0.045 comes to read as though both agreed.
     parts, rejected = [], False
     for name, value in (("Breusch-Pagan", bp), ("White", white)):
         if value is None:
@@ -1615,14 +1569,6 @@ def _multicollinearity(run: "_Run") -> Dict[str, str]:
         parts.append("VIF is not defined here: it is read off the standard "
                      "errors of a full-rank fit with an intercept, and this "
                      "fit is not one")
-    # THE BANDS ARE FOR THE SCALED NUMBER, AND ONLY FOR IT.
-    # `model.condition_number` is what statsmodels prints, and it is UNSCALED:
-    # it is dominated by the units of the columns, so a predictor measured in
-    # cells rather than thousands of cells moves it by 1000 with no change in
-    # the science. Belsley-Kuh-Welsch's 30 / 100 / 1000 apply to the
-    # column-scaled one. Reading the bands off the unscaled number reported
-    # "severe collinearity" for a full-rank design with a max VIF of 1.38 on
-    # the first real run of this module.
     scaled = None
     inner = getattr(run.model, "model", None)
     exog = getattr(inner, "exog", None) if inner is not None else None
@@ -1659,9 +1605,6 @@ def _multicollinearity(run: "_Run") -> Dict[str, str]:
     return {"value": "; ".join(parts)}
 
 
-# ---------------------------------------------------------------------------
-# The call
-# ---------------------------------------------------------------------------
 
 
 def _tested_mask(run: "_Run") -> Optional[np.ndarray]:
@@ -1928,9 +1871,6 @@ def _effect_size_cut(run: "_Run") -> Dict[str, str]:
                        "rule, so what width was required cannot be said")}
 
 
-# ---------------------------------------------------------------------------
-# What was excluded
-# ---------------------------------------------------------------------------
 
 #: Said once, for the three filters whose drop counts the run prints and does
 #: not record. NAMED rather than left as a blank, because "0 rows removed" and
@@ -1988,11 +1928,6 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
             value=f"wells with fewer than {minimum:,} objects were dropped "
                   f"before aggregation; {_NOT_RECORDED}")
 
-    # A KNOWN CONTAMINANT MUST LEAVE BEFORE THE FRACTION DENOMINATOR. Merely
-    # echoing the setting cannot establish that it matched anything, and a
-    # misspelling that removed zero rows is exactly the failure this audit is
-    # meant to expose. ``process_reads`` records both the resolved guide names
-    # and unmatched requests at the raw-count boundary, before well totals.
     requested = _setting(settings, "exclude_grnas")
     if not requested:
         add("exclude_grnas",
@@ -2032,12 +1967,6 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
             value="not set, so no gRNA row was dropped for a low well "
                   "fraction")
     else:
-        # RECORDED SINCE 2026-08-19. `ml.process_reads` takes a `record=` dict
-        # and accumulates what it dropped, per plate, into
-        # `settings['_regression_exclusions']` -- so this is a number now
-        # rather than an admission. The admission is kept for the runs that
-        # predate the recorder, because "0 removed" and "nobody counted" are
-        # opposite findings and must not be spelled the same way.
         dropped = _exclusion_count(settings, "fraction_threshold")
         outof = _exclusion_count(settings, "fraction_threshold_of")
         if dropped is None:
@@ -2045,8 +1974,6 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
                 value=f"gRNA rows below a well fraction of "
                       f"{float(fraction):g} were dropped; {_NOT_RECORDED}")
         elif outof:
-            # Report both counts and percentage because the percentage makes
-            # severe filtering directly comparable across datasets.
             retained = outof - dropped
             share = 100.0 * retained / outof if outof else 0.0
             flag = (
@@ -2064,8 +1991,6 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
             add("fraction_threshold",
                 value=f"{dropped:,} gRNA rows were below a well fraction of "
                       f"{float(fraction):g} and were dropped")
-    # Pairing counts are recorded at the score/count join and persist in the
-    # settings saved with the run.
     paired = _exclusion_count(settings, "wells_paired")
     if paired is None:
         add("missing_metadata",
@@ -2178,9 +2103,6 @@ def _below_effect_size(run: "_Run") -> Dict[str, str]:
                      f"being narrower than {abs(number):.4g}"}
 
 
-# ---------------------------------------------------------------------------
-# Assembly
-# ---------------------------------------------------------------------------
 
 _BUILDERS = {
     "fitted": _fitted_section,
@@ -2244,10 +2166,6 @@ def build_run_summary(*, model=None, settings=None, coef_df=None,
                 section.fields.append(SummaryField(
                     field_name, LABELS[(name, field_name)],
                     reason=note_error))
-        # THE BACKFILL IS THE CONTRACT'S LAST LINE OF DEFENCE. A builder that
-        # returns early, or a field added to CONTRACT and not yet to its
-        # builder, would otherwise ship a summary with a silent hole -- which
-        # is exactly the failure mode this item is about.
         present = {one.name for one in section.fields}
         for field_name in CONTRACT[name]:
             if field_name not in present:
@@ -2283,9 +2201,6 @@ def _recommendations(run: "_Run") -> List[Any]:
     they are the ones that were written down.
     """
     if run.nonparametric:
-        # A permutation run assumes none of this, and the sections above say
-        # so five times over. Recommending a fix for an assumption that was
-        # never made is how the section loses the reader.
         return []
     measured: Dict[str, Any] = dict(run.metrics)
     measured.update(run.diagnostics)
@@ -2295,9 +2210,6 @@ def _recommendations(run: "_Run") -> List[Any]:
 
         return list(recommend(measured, settings=run.settings))
     except Exception:                                            # noqa: BLE001
-        # A summary is worth more than its last section: a run that reached
-        # here has numbers worth reading, and losing them to a failure in the
-        # advice would be the wrong trade.
         return []
 
 
@@ -2354,9 +2266,6 @@ def _verbatim(run: "_Run") -> Tuple[Optional[str], str]:
     return text, "The statsmodels summary, unchanged:"
 
 
-# ---------------------------------------------------------------------------
-# Rendering
-# ---------------------------------------------------------------------------
 
 
 def _wrap(label: str, text: str) -> List[str]:
@@ -2443,7 +2352,6 @@ def format_run_summary(summary: RunSummary) -> str:
             lines.extend(textwrap.wrap(paragraph, width=_WIDTH) or [""])
         lines.append("")
 
-    # THE ANSWER FIRST, and every line of it quoted verbatim from below.
     top = headline(summary)
     if top:
         lines.append("THE ANSWER")
@@ -2462,8 +2370,6 @@ def format_run_summary(summary: RunSummary) -> str:
         for one in shown:
             lines.extend(_wrap(one.label, one.text))
         if deferred:
-            # ONE LINE WHERE NINE STOOD, naming them, with every word of the
-            # explanation still in the file under its own heading.
             names = ", ".join(one.label for one in deferred)
             lines.extend(_wrap(
                 "not applicable here",
@@ -2475,12 +2381,6 @@ def format_run_summary(summary: RunSummary) -> str:
     if postponed:
         lines.append("NOT APPLICABLE, AND WHY")
         lines.append("-" * len("NOT APPLICABLE, AND WHY"))
-        # ONE EXPLANATION PER REASON, NOT PER FIELD. Measured on the
-        # maintainer's own run: eleven deferred fields carry SIX distinct
-        # explanations, two of them printed three times each -- six paragraphs
-        # where two would do, and that repetition is most of what "not very
-        # accessable" was about. The fields sharing a reason are named
-        # together and the reason is given once.
         grouped: "OrderedDict[str, List[str]]" = OrderedDict()
         for _title, one in postponed:
             grouped.setdefault(str(one.text), []).append(one.label)
@@ -2489,9 +2389,6 @@ def format_run_summary(summary: RunSummary) -> str:
             if len(joined) <= _LABEL_WIDTH:
                 lines.extend(_wrap(joined, text))
                 continue
-            # A JOINED LABEL LONGER THAN THE COLUMN gets its own line, or the
-            # explanation is squeezed into whatever is left and comes out one
-            # word wide.
             lines.extend(textwrap.wrap(joined + ":", width=_WIDTH - 2,
                                        initial_indent="  ",
                                        subsequent_indent="  ") or [""])
@@ -2509,13 +2406,6 @@ def format_run_summary(summary: RunSummary) -> str:
         lines.append(summary.verbatim)
         lines.append("")
 
-    # LAST, BECAUSE IT IS WHAT TO DO NEXT. Everything above says what was
-    # found; this says what to change, and a reader who stops early has
-    # still read the findings.
-    #
-    # It is printed even when empty: an absent section reads as a bug, and
-    # "every check passed" is a result worth stating rather than implying by
-    # silence.
     try:
         from .run_recommendations import format_recommendations
 
@@ -2527,9 +2417,6 @@ def format_run_summary(summary: RunSummary) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-# ---------------------------------------------------------------------------
-# Writing it with the run
-# ---------------------------------------------------------------------------
 
 
 def _summary_filename() -> str:
@@ -2584,7 +2471,7 @@ def model_identity_line(regression_type, settings=None, model=None,
     if where:
         parts.append(f"backend: {where}")
 
-    class _Holder:                       # what _hyperparameter_report reads
+    class _Holder:
         """The minimum surface `_hyperparameter_report` reads, and no more.
 
         A stand-in rather than the real fitted object: the report wants a
@@ -2618,16 +2505,10 @@ def _hyperparameter_report(kind, settings, run) -> dict:
         return {"reason": "the family table could not be read, so the "
                           "hyperparameters this type uses cannot be listed"}
     wanted = sorted(REGRESSION_SETTINGS_USED.get(str(kind).lower(), ()))
-    # `cov_type` is not a hyperparameter of the fit -- it is how the standard
-    # errors are computed afterwards -- and it has its own line already.
     wanted = [name for name in wanted if name != "cov_type"]
     if not wanted:
         return {"value": f"none — {kind} reads no hyperparameter"}
 
-    # THE MODEL KNOWS. `_find_best_alpha` returns the fitted RidgeCV /
-    # LassoCV / ElasticNetCV itself, and those carry the alpha they chose as
-    # `alpha_` -- so the value that won is on the object the run already
-    # holds, and does not need recording separately.
     chosen = getattr(getattr(run, "model", None), "alpha_", None)
     try:
         chosen = None if chosen is None else float(chosen)
@@ -2686,10 +2567,6 @@ def write_run_summary(res_folder, *, model=None, settings=None, coef_df=None,
                                 res_folder=folder)
     path = os.path.join(folder, _summary_filename())
     if summary.verbatim is None and os.path.isfile(path):
-        # THE RUN'S OWN STATSMODELS TEXT, RECOVERED RATHER THAN LOST. It was
-        # written into this path minutes ago by `save_summary_to_file`, and a
-        # model that cannot render a second time (or was not handed over)
-        # would otherwise silently drop it on the way past.
         try:
             with open(path, "r", encoding="utf-8", errors="replace") as handle:
                 existing = handle.read().strip()

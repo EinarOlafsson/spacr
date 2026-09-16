@@ -53,9 +53,6 @@ def total_memory_gib() -> Optional[float]:
         size = os.sysconf("SC_PAGE_SIZE")
         return (pages * size) / (1024 ** 3)
     except (AttributeError, ValueError, OSError):
-        # os.sysconf is absent on Windows and refuses unknown names
-        # elsewhere. None means "could not be read", which every caller
-        # already treats as "do not decide laptop mode on memory".
         return None
 
 
@@ -202,7 +199,6 @@ def apply(on: Optional[bool] = None) -> Dict[str, object]:
         except Exception:                                # noqa: BLE001
             pass
     elif _suppressed_here:
-        # Only ever our own suppression -- see `_suppressed_here`.
         os.environ.pop(_NO_BACKDROP, None)
         _suppressed_here = False
         changed.append("ambient backdrop restored")

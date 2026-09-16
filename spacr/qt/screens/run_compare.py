@@ -62,11 +62,6 @@ APP_KEY = "run_compare"
 
 from ..app_catalog import declared_app, register_declared
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_INTRO = _ROW.intro
 APP_CLI_NOTE = _ROW.cli_note
@@ -113,10 +108,6 @@ QLabel#RunCompareVerdict[blocked="true"] {{
 """
 
 
-# ``replace=True`` because this module owns the name: a reimport (a test
-# that reloads it, a plugin that pulls it in twice) must re-register the
-# same block rather than raise on the duplicate and leave the screen
-# unstyled.
 register_widget_qss("RunCompareBanner", _banner_qss, replace=True)
 
 
@@ -158,12 +149,9 @@ class RunCompareScreen(QWidget):
             self._set_verdict(
                 "Choose a spaCR project folder to list the runs it recorded.",
                 blocked=False)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "run_compare")
 
-    # -- construction -----------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay the screen out: picker, banner, then the three tabs."""
@@ -248,7 +236,6 @@ class RunCompareScreen(QWidget):
         self._tabs.addTab(self._hits_tree, "Hits")
         outer.addWidget(self._tabs, 1)
 
-    # -- project + runs ---------------------------------------------------
 
     def load_project(self, project: str) -> List[RunRef]:
         """Fill both dropdowns with the runs ``project`` has registered.
@@ -296,9 +283,6 @@ class RunCompareScreen(QWidget):
                 combo.addItem(run.label, run.run_id)
             combo.blockSignals(False)
         if len(self._runs) >= 2:
-            # Newest as B, the one before it as A: the question is almost
-            # always "what did the run I just did do differently?", and
-            # that reads better as a change *into* the newest.
             self._a_combo.setCurrentIndex(1)
             self._b_combo.setCurrentIndex(0)
 
@@ -329,7 +313,6 @@ class RunCompareScreen(QWidget):
                 combo.setCurrentIndex(ids.index(run_id))
         self.compare()
 
-    # -- comparing --------------------------------------------------------
 
     def compare(self, *, force: Optional[bool] = None) -> Optional[RunComparison]:
         """Compare the two selected runs and redraw the three tables.
@@ -385,7 +368,6 @@ class RunCompareScreen(QWidget):
         if text:
             self.load_project(text)
 
-    # -- drawing ----------------------------------------------------------
 
     def _draw(self, comparison: RunComparison) -> None:
         """Redraw the banner and all three tabs."""
@@ -418,9 +400,6 @@ class RunCompareScreen(QWidget):
         self._verdict.setText(text)
         for widget in (self._banner, self._verdict):
             widget.setProperty("blocked", "true" if blocked else "false")
-            # A dynamic property only reaches the stylesheet after the
-            # widget is re-polished; without this the error border never
-            # appears until something else forces a restyle.
             widget.style().unpolish(widget)
             widget.style().polish(widget)
 
@@ -429,9 +408,6 @@ class RunCompareScreen(QWidget):
         return self._verdict.text()
 
 
-# ---------------------------------------------------------------------------
-# Table filling — module functions so they are testable without a screen
-# ---------------------------------------------------------------------------
 
 def _tree(columns: Tuple[str, ...]) -> QTreeWidget:
     """A grouped, read-only table carrying the shipped table styling."""
@@ -524,15 +500,11 @@ def _fill_hits(tree: QTreeWidget, comparison: RunComparison) -> None:
         for change in changes:
             move = ("—" if change.rank_delta is None
                     else f"{-change.rank_delta:+d}")
-            # No status column: the group heading already says what
-            # happened, and repeating it in every row is noise.
             header.addChild(tree_item([
                 change.key,
                 _number(change.a_rank), _number(change.b_rank), move,
                 _score(change.a_score), _score(change.b_score),
             ]))
-        # Held ranks are the boring group and the biggest; collapsed so
-        # the two that matter are what the tab opens on.
         header.setExpanded(label != "Held rank")
 
 
@@ -551,9 +523,6 @@ def _score(value: Optional[float]) -> str:
     return "—" if value is None else f"{value:.4g}"
 
 
-# ---------------------------------------------------------------------------
-# Registration
-# ---------------------------------------------------------------------------
 
 def make_run_compare_screen() -> "RunCompareScreen":
     """Construct the Run Compare screen for lazy registry loading."""

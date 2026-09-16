@@ -35,8 +35,6 @@ def _module(language: str) -> Optional[ModuleType]:
     try:
         return import_module(name)
     except ModuleNotFoundError as exc:
-        # A missing optional catalog is a safe English fallback.  Do not hide
-        # an import failure *inside* a catalog module, which is a real defect.
         if exc.name == name:
             return None
         raise
@@ -103,12 +101,6 @@ def setting_label(
     if canonical.get(lookup) != str(source):
         lookup = str(key)
     if canonical.get(lookup) != str(source):
-        # Slots above the four default organelles reuse the primary slot's
-        # reviewed translation.  Materialising all 26 otherwise copies the
-        # same 53 labels and tooltips 22 extra times into every language
-        # catalog.  Accept the alias only when both its key and its exact
-        # generated English label match; edited prose must still fall back to
-        # English instead of displaying a stale translation.
         default_limit = 4
         try:
             from spacr.organelle_types import (

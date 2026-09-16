@@ -211,9 +211,6 @@ class _SectionHeader(QFrame):
         row.setSpacing(6)
         self._chevron = QLabel("▾")
         self._chevron.setObjectName("FigureGridSectionChevron")
-        # A run heading is generated text -- a timestamp, or a trial's name --
-        # in whatever language was active when the run started. A later
-        # whole-window language switch must not try to reinterpret it.
         self._chevron.setProperty("i18nSkipText", True)
         self._chevron.setStyleSheet(_heading_style())
         row.addWidget(self._chevron)
@@ -260,8 +257,6 @@ class _SectionHeader(QFrame):
             view.toggle_section(self)
 
     def mouseReleaseEvent(self, event):         # noqa: N802 - Qt naming
-        # Release rather than press, so dragging off the bar cancels -- what
-        # every other clickable in the app does.
         """Fold or unfold this run's section on a click inside the bar.
 
         On RELEASE rather than press, so dragging off cancels -- what every
@@ -330,9 +325,6 @@ class _FigureCell(QFrame):
         self._fit_width = 0
         self.setFrameShape(QFrame.StyledPanel)
         self.setCursor(Qt.PointingHandCursor)
-        # "all gigures should be editable by right clicking" -- a tile is a
-        # figure, so the gesture has to work here too and not only on the one
-        # figure that happens to be open.
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._request_menu)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -341,26 +333,13 @@ class _FigureCell(QFrame):
         layout.setContentsMargins(4, 4, 4, 4)
         layout.setSpacing(2)
 
-        # A TILE DOES NOT PAINT ITS OWN GROUND. Reported as "on the grid (all
-        # figures) the graphs still have a black background": the figures are
-        # transparent and the frame behind them was not, so every tile was a
-        # slab. The frame stays for its border; only its fill goes.
         self.setAutoFillBackground(False)
         self.setStyleSheet("_FigureCell { background: transparent; }")
         self.setAttribute(Qt.WA_TranslucentBackground, True)
 
-        # IMPORTED HERE, NOT INSIDE `if letter:`. It was, and the caption
-        # block below uses it too -- so a panel with a title and NO letter
-        # raised UnboundLocalError and took the grid down with it. A letter
-        # is optional and a caption is optional, which makes the pairing
-        # "captioned but unlettered" an ordinary panel rather than an edge
-        # case.
         from ..theme import font_px
 
         if letter:
-            # UPPER-CASE PANEL LETTER, top left, bold -- asked for by name:
-            # "i asked you to make the all figures pannel publication style
-            # (with each panel having an uppercase letter) and be on a grid".
             tag = QLabel(letter.upper())
             tag.setStyleSheet(
                 f"font-weight: 700; font-size: {font_px(15)}px; "
@@ -372,11 +351,7 @@ class _FigureCell(QFrame):
         self._image.setAttribute(Qt.WA_TranslucentBackground, True)
         self._image.setStyleSheet("background: transparent;")
         self._image.setAlignment(Qt.AlignCenter)
-        # NOT setScaledContents: that is exactly the stretch this replaces.
-        # The pixmap is scaled with KeepAspectRatio when the cell is sized.
         self._image.setMinimumHeight(80)
-        # A grid dragged onto a denser screen keeps its cell widths, so no
-        # relayout arrives to refit the figures -- this is what does.
         follow_device_ratio(self._image, self._refit)
         layout.addWidget(self._image, 1)
 
@@ -407,9 +382,6 @@ class _FigureCell(QFrame):
             self._pixmap, self._image,
             QSize(width, int(width / max(self.aspect(), 0.05))))
         self._image.setPixmap(scaled)
-        # The height the cell reserves is what the picture OCCUPIES, not how
-        # many pixels it was drawn with -- those differ by the ratio, and a
-        # cell sized in device pixels is twice as tall as its picture.
         self._image.setFixedHeight(logical_size(scaled).height())
 
     def _refit(self) -> None:
@@ -427,8 +399,6 @@ class _FigureCell(QFrame):
         self.menu_requested.emit(self.index, self.mapToGlobal(point))
 
     def mousePressEvent(self, event):  # noqa: N802 - Qt naming
-        # A right-click opens the menu; it must not ALSO open the figure, or
-        # every attempt to restyle a tile navigates away from the grid first.
         """Open the figure on a left click; leave a right click to the menu.
 
         A right-click must not ALSO open the figure, or every attempt to restyle
@@ -580,10 +550,6 @@ class FigureGridView(QScrollArea):
                     self._live_menu(_key, position))
             rebuilt.append(cell)
         self._live = rebuilt
-        # BEFORE the relayout, not after: `_discard` is what takes a tile off
-        # the body, and a tile still parented to the body when the layout runs
-        # paints itself at its old geometry for the rest of the event-loop
-        # turn. That ordering is the fix, not the discarding.
         for cell in previous:
             self._discard(cell)
         self._relayout()
@@ -638,14 +604,8 @@ class FigureGridView(QScrollArea):
                            live_key=PINNED_KEY)
         cell.clicked.connect(
             lambda _index: self._live_activated(PINNED_KEY))
-        # "all gigures should be editable by right clicking" -- and this one
-        # is the only tile on the grid that is a real, live figure, so a
-        # right-click that did nothing here would be the gesture failing on
-        # the one tile where it can do the most.
         cell.menu_requested.connect(
             lambda _index, position: self._live_menu(PINNED_KEY, position))
-        # FIRST, whatever else is on the section. "always first" is what the
-        # name promises and what the caller relies on to find it.
         self._live = [cell] + others
         self._discard(previous)
         self._relayout()
@@ -668,7 +628,6 @@ class FigureGridView(QScrollArea):
             widget.setParent(None)
             widget.deleteLater()
         except RuntimeError:
-            # Already torn down by Qt -- the screen closed under us.
             pass
 
     def set_target_cell_width(self, pixels: int) -> None:
@@ -683,22 +642,8 @@ class FigureGridView(QScrollArea):
         while self._grid.count():
             item = self._grid.takeAt(0)
             widget = item.widget()
-            # The live tiles survive a clear: they are not the figures being
-            # replaced, and a run that streams new ones must not make the
-            # interactive graphs disappear. Compared by identity through a set
-            # of ids rather than `in self._live` -- `in` on a list of QWidgets
-            # goes through `__eq__`, which Qt does not define for widgets, so
-            # it degrades to identity anyway but at O(n) per tile on a grid
-            # that can hold a few hundred.
             if widget is not None and id(widget) not in live:
                 doomed.append(widget)
-        # THE LAYOUT IS NOT THE WHOLE GRID. A cell belonging to a FOLDED run is
-        # deliberately left out of the layout by `_relayout` (so the next run
-        # flows up under the folded heading instead of into a hole), which
-        # means walking the layout alone never reaches it -- it stays a child
-        # of the body while `_cells` is emptied out from under it, and the only
-        # reference to it is gone. Nothing on screen, but it is still there,
-        # and a sweep that folds its runs away leaks one per figure.
         seen = set(map(id, doomed))
         for cell in self._cells:
             if id(cell) not in live and id(cell) not in seen:
@@ -706,12 +651,6 @@ class FigureGridView(QScrollArea):
         for widget in doomed:
             self._discard(widget)
         self._cells = []
-        # The headings went out with the rest of the layout, so the list must
-        # go too -- otherwise _relayout reaches through a wrapper whose C++
-        # object has already been torn down and raises RuntimeError. The
-        # COLLAPSED SET deliberately survives: clearing is how the grid is
-        # rebuilt after every run, and a fold that came undone on each rebuild
-        # is the unusable sweep this exists to prevent.
         self._headers = []
 
     def set_figures(self, pixmaps, titles=None, sections=None) -> int:
@@ -747,7 +686,6 @@ class FigureGridView(QScrollArea):
         self._relayout()
         return len(self._cells)
 
-    # ------------------------------------------------------------- sections
 
     @staticmethod
     def _section_key(label, start):
@@ -761,7 +699,6 @@ class FigureGridView(QScrollArea):
         """
         return (str(label), int(start))
 
-    # -- instruction 180: what the grid contributes to a saved run ----------
 
     def workspace_state(self) -> dict:
         """How the grid is ARRANGED, not what is in it.
@@ -793,9 +730,6 @@ class FigureGridView(QScrollArea):
         width = state.get("cell_width")
         if width:
             try:
-                # Through the setter: it clamps and relayouts, and a raw
-                # `_target` would leave the grid drawn at the old width until
-                # something else happened to trigger a relayout.
                 self.set_target_cell_width(int(width))
                 applied = True
                 needs_relayout = False
@@ -853,7 +787,7 @@ class FigureGridView(QScrollArea):
             top = header.mapTo(self._body, header.rect().topLeft()).y()
             bar = self.verticalScrollBar()
         except RuntimeError:
-            return False        # header rebuilt between click and query
+            return False
         return abs(bar.value() - min(top, bar.maximum())) <= RAISED_TOLERANCE_PX
 
     def _scroll_section_to_top(self, key) -> bool:
@@ -896,22 +830,11 @@ class FigureGridView(QScrollArea):
             return False
         self._collapsed.discard(key)
         self._relayout()
-        # After layout, not during: the geometry this scroll needs does not
-        # exist until the cells just shown have been placed.
         QTimer.singleShot(0, lambda: self._scroll_section_to_top(key))
         return True
 
     def _relayout(self) -> None:
         """Place the cells, giving wide figures a double-width cell."""
-        # THE PREVIOUS HEADINGS ARE DESTROYED, NOT MERELY UNPARENTED FROM THE
-        # LAYOUT. `takeAt` removes the layout item and leaves the widget a
-        # visible child of the body at its old geometry, so every relayout --
-        # and a window resize is a relayout -- used to leave another copy of
-        # every run heading painted on the grid. Measured before the fix:
-        # three relayouts of a two-run grid left six headings. The pinned tile
-        # had the same bug for the same reason -- see :meth:`set_pinned`, which
-        # now shares this one's cleanup rather than re-deriving it a third
-        # time.
         for header in self._headers:
             self._discard(header)
         self._headers = []
@@ -922,18 +845,6 @@ class FigureGridView(QScrollArea):
         available = max(self.viewport().width() - 24, MIN_CELL_PX)
         unit = max(available // columns, MIN_CELL_PX // 2)
 
-        # A HEADING PER RUN, INCLUDING THE FIRST AND ONLY ONE.
-        #
-        # It used to appear only from the second run onwards, on the argument
-        # that the lettering restarting is what needs explaining and one run
-        # never restarts. That argument was about the LABEL and this control
-        # is also the fold: with one run there was no header, so there was
-        # nothing to click, and the maintainer reported the figures as "still
-        # not colapsable into runs" while the folding worked perfectly from
-        # the second run on.
-        #
-        # A heading over a single run costs one row and answers "which run is
-        # this" -- which the grid could not previously say at all.
         heading_at = {}
         for label, start, _count in self._sections:
             heading_at[start] = label
@@ -954,16 +865,10 @@ class FigureGridView(QScrollArea):
                 self._headers.append(header)
                 row, column = row + 1, 0
             if index in hidden:
-                # Left out of the layout AND hidden. Out of the layout so the
-                # next run flows up under the folded heading instead of into
-                # a hole; hidden because a widget removed from a layout keeps
-                # painting itself where it last was.
                 cell.setVisible(False)
                 continue
             cell.setVisible(True)
             span = min(cell_span(cell.aspect()), columns)
-            # A wide figure that will not fit in what is left of this row
-            # starts the next one, rather than being squeezed.
             if column + span > columns:
                 row, column = row + 1, 0
             self._grid.addWidget(cell, row, column, 1, span)
@@ -1011,9 +916,6 @@ class FigureGridView(QScrollArea):
         row, column = 1, 0
         for cell in self._live:
             if collapsed:
-                # Out of the layout AND hidden, for the reason the folded
-                # figures are: a widget merely removed from a layout goes on
-                # painting itself where it last was.
                 cell.setVisible(False)
                 continue
             cell.setVisible(True)

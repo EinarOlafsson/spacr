@@ -78,13 +78,12 @@ def triangle_descriptors(points: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
     for i, tri in enumerate(simplices):
         p0, p1, p2 = coords[tri]
-        # Side lengths, each labelled by the vertex OPPOSITE it.
         sides = np.array([
-            np.linalg.norm(p1 - p2),   # opposite vertex 0
-            np.linalg.norm(p0 - p2),   # opposite vertex 1
-            np.linalg.norm(p0 - p1),   # opposite vertex 2
+            np.linalg.norm(p1 - p2),
+            np.linalg.norm(p0 - p2),
+            np.linalg.norm(p0 - p1),
         ])
-        order = np.argsort(sides)      # shortest side first
+        order = np.argsort(sides)
         a, b, c = sides[order]
         if c <= 0:
             continue
@@ -118,13 +117,8 @@ def _similarity_from_pairs(src: np.ndarray, dst: np.ndarray):
     u, singular, vt = np.linalg.svd(covariance)
     correction = np.eye(2)
     if np.linalg.det(u @ vt) < 0:
-        # A reflection fits the points as well as a rotation but means the
-        # sample was flipped, which does not happen between two microscopes
-        # looking at the same well.
         correction[1, 1] = -1.0
     rotation = u @ correction @ vt
-    # Umeyama's closed form: the scale is the trace of the singular values
-    # (sign-corrected) over the source's variance about its own centroid.
     scale = float((singular * np.diag(correction)).sum()
                   / (variance / src.shape[0]))
     translation = dst_mean - scale * rotation @ src_mean
@@ -183,24 +177,11 @@ def align_by_triangles(source: np.ndarray, target: np.ndarray, *,
     if len(scales) < min_votes:
         return None
 
-    # The MEDIAN, not the mean: a handful of coincidental shape matches
-    # propose transforms that are arbitrarily wrong, and a mean would let one
-    # of them drag the answer.
     scale = float(np.median(scales))
     angle = float(np.median(angles))
     rotation = np.array([[np.cos(angle), -np.sin(angle)],
                          [np.sin(angle), np.cos(angle)]])
 
-    # THE TRANSLATION IS SOLVED LAST, FROM EVERY CORRESPONDENCE AT ONCE, and
-    # this is not a refinement -- it is the difference between working and
-    # not. A per-triangle translation is `dst_mean - scale * R @ src_mean`
-    # using THAT triangle's own noisy scale and rotation, and any error in
-    # them is multiplied by the distance from the origin, which across a
-    # 500 px field is large. Measured with 1.5 px of centroid jitter: taking
-    # the median of per-triangle translations gave (146, -54) where the truth
-    # was (137.5, -92.25) and the scale and angle were already correct to
-    # 0.3 %. Re-solving here against the consensus scale and rotation, over
-    # every matched vertex, removes that lever entirely.
     src_all = np.concatenate(matched_src, axis=0)
     dst_all = np.concatenate(matched_dst, axis=0)
     offsets = dst_all - (scale * (rotation @ src_all.T).T)
@@ -251,12 +232,7 @@ def match_cells(source: np.ndarray, target: np.ndarray, *,
     pairs = []
     for i, j in enumerate(forward):
         if backward[j] != i:
-            continue                      # not mutual: somebody else is closer
-        # MEASURED IN FULL PRECISION, NOT FROM THE SEARCH. The search
-        # returns float32 distances -- a card's native width -- and a pair
-        # sitting exactly on the threshold would then be kept or dropped
-        # according to which backend ran. The decision is re-made here on
-        # the coordinates themselves so it cannot be.
+            continue
         if np.linalg.norm(src[i] - dst[j]) > threshold:
             continue
         pairs.append((i, j))

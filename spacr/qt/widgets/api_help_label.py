@@ -57,7 +57,6 @@ class ApiHelpLabel(QLabel):
         self._full_description = str(text)
         self._refresh_help()
 
-    # -- painting as much as fits ------------------------------------------
 
     def setText(self, text: str) -> None:          # noqa: N802 (Qt casing)
         """Remember the whole sentence, then paint as much of it as fits."""
@@ -144,7 +143,6 @@ class ApiHelpLabel(QLabel):
         if shown != QLabel.text(self):
             QLabel.setText(self, shown)
 
-    # -- what the label speaks for -----------------------------------------
 
     def set_api_app_key(self, app_key: str) -> None:
         """Set the module whose API documentation is linked."""
@@ -153,7 +151,6 @@ class ApiHelpLabel(QLabel):
         self.setProperty("moduleApiAppKey", self._app_key or None)
         self._refresh_help()
 
-    # -- the link ----------------------------------------------------------
 
     def url(self) -> str:
         """Return the documentation URL in the current hover content."""
@@ -175,7 +172,6 @@ class ApiHelpLabel(QLabel):
         self._url_override = ""
         self._refresh_help()
 
-    # -- internals ---------------------------------------------------------
 
     def _compose_help(self) -> str:
         """Build the hover help, with the API link when there is one to make.
@@ -188,9 +184,6 @@ class ApiHelpLabel(QLabel):
         """
         description = self._description.strip()
         if not self._app_key:
-            # Nothing to link to. `format_tooltip` would fall back to the
-            # documentation index, which is a link that answers no question
-            # the reader asked.
             return escape(description)
 
         from ..screens.settings_model import format_tooltip
@@ -219,12 +212,8 @@ class ApiHelpLabel(QLabel):
         """
         html = self._compose_help()
         self.setProperty("apiTooltipHtml", html)
-        # Kept on the widget as well as in the popup: this string is what the
-        # accessibility tree reads out.
         self.setToolTip(html)
         self.setToolTipDuration(-1)
-        # The cursor is the affordance the dot used to be: it says there is
-        # something here to read before the popup appears.
         self.setCursor(Qt.WhatsThisCursor)
         self._install_help_filter()
 

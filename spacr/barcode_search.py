@@ -74,12 +74,15 @@ import numpy as np
 __all__ = [
     "AS_GIVEN",
     "REVERSE_COMPLEMENT",
+    "NUCLEOTIDE_ALPHABET",
     "PRESENT",
     "ABSENT",
     "INDETERMINATE",
     "ANCHOR_ROLE",
     "DEFAULT_SAMPLE_READS",
     "DEFAULT_CHUNK_READS",
+    "SearchThresholds",
+    "DEFAULT_THRESHOLDS",
     "MIN_ENRICHMENT",
     "MIN_USABLE_RATE",
     "MAX_OFFSET_SPAN",
@@ -121,33 +124,10 @@ DEFAULT_SAMPLE_READS = 20000
 #: How many reads each incremental step consumes from each file.
 DEFAULT_CHUNK_READS = 2000
 
-# THE THRESHOLDS, AND THE MEASUREMENTS THAT SET THEM.
-#
-# These were chosen against a real paired run whose two mates were measured
-# read by read, rather than picked for roundness.  On that run the tables that
-# were genuinely part of the library reached enrichments of nineteen, twenty
-# nine and several million over their own chance rates, while every table that
-# was truly absent sat between a fifth of its chance rate and one and a fraction
-# times it, the highest coincidence reaching one point zero two.  A cut at three
-# leaves the coincidence ceiling far below it and the weakest true signal far
-# above it, so neither side is close to the boundary.
 MIN_ENRICHMENT = 3.0
 
-# The same run also carried a small number of reads in the wrong orientation,
-# about one guide barcode in six hundred, which index hopping and chimeric
-# fragments produce in every pooled run.  Those hits are thousands of times
-# above chance and completely real, and mapping from them would still be
-# hopeless.  A barcode that belongs to the construct appears in most reads, so
-# a table found in under a tenth of them is reported honestly as enriched but
-# not usable rather than being offered as a source of settings.
 MIN_USABLE_RATE = 0.10
 
-# The narrowest run of offsets accounting for most of the hits was one to three
-# bases wide for every true finding, the width above one coming from guide
-# sequences of twenty or twenty one bases shifting everything downstream of them
-# by a base.  For the adapter that masqueraded as a column table the same
-# measurement needed forty five bases.  Six bases allows a construct with more
-# length variation than this one while still refusing anything adapter shaped.
 MAX_OFFSET_SPAN = 6
 #: The share of hits the narrowest offset window has to account for.
 OFFSET_WINDOW_COVERAGE = 0.80
@@ -157,6 +137,20 @@ MIN_READS_FOR_VERDICT = 500
 
 _Z = 1.96
 _COMPLEMENT = str.maketrans("ACGTNacgtn", "TGCANtgcan")
+#: The letters :func:`reverse_complement` can actually complement.
+#:
+#: Reverse-complementing is a statement about DNA. `_COMPLEMENT` maps the four
+#: bases and N; every other character comes back UNCHANGED, which is right for
+#: a READ -- an uncertain position should still be reversed rather than refuse
+#: the whole read -- and wrong for a REFERENCE TABLE. A table of peptide tags
+#: or amino-acid barcodes reverse-complements to itself reversed, which is not
+#: a sequence that means anything, and it would then be searched for and
+#: quietly not found.
+#:
+#: So the permissiveness stays where it belongs, in `reverse_complement`, and
+#: the refusal happens once, in :meth:`BarcodeTable.oriented`, which is the
+#: only place a reference is flipped.
+NUCLEOTIDE_ALPHABET = frozenset("ACGTNacgtn")
 _PREFIX_LENGTH = 8
 _ROLE_SETTING_KEYS = {"row": "row_csv", "column": "column_csv", "grna": "grna_csv"}
 #: Role name given to the anchor sequence when it is searched alongside tables.
@@ -257,7 +251,16 @@ class BarcodeTable:
         :param orientation: either the label for the stored orientation or the
             label for the reverse complemented one.
         :returns: a table whose sequences read in the requested orientation.
-        :raises ValueError: when the orientation label is not one of the two.
+        :raises ValueError: when the orientation label is not one of the two,
+            or when the table is not DNA and so cannot be complemented at all.
+
+        A NON-NUCLEOTIDE TABLE IS REFUSED RATHER THAN MANGLED. Peptide tags
+        and amino-acid barcodes pass through `reverse_complement` unchanged
+        -- it maps only the four bases and N -- so a flipped table would be
+        the same letters reversed, searched for, and never found. Saying no
+        is the honest answer; silently searching for a sequence that cannot
+        match reports "this reference is absent from the reads", which is a
+        conclusion about the data rather than about the request.
         """
         if orientation == AS_GIVEN:
             return self
@@ -265,6 +268,22 @@ class BarcodeTable:
             raise ValueError(
                 "orientation must be "
                 f"{AS_GIVEN!r} or {REVERSE_COMPLEMENT!r}; got {orientation!r}")
+        off_alphabet = sorted({
+            letter
+            for sequence in self.sequences
+            for letter in str(sequence)
+            if letter not in NUCLEOTIDE_ALPHABET
+        })
+        if off_alphabet:
+            shown = "".join(off_alphabet[:8])
+            raise ValueError(
+                f"{self.name!r} cannot be reverse complemented: its "
+                f"sequences contain {shown!r}, which is not DNA. Reverse "
+                f"complementing is defined for A, C, G, T and N; every other "
+                f"letter would come back unchanged and the flipped table "
+                f"would be searched for and never found. Store this "
+                f"reference in the orientation the reads are in, and search "
+                f"it with {AS_GIVEN!r}.")
         cached = self._derived.get("flipped")
         if cached is None:
             flipped = {
@@ -542,6 +561,14 @@ class _Matcher:
     """
 
     def __init__(self, table):
+        """Build the prefix index this matcher walks the read with.
+
+        The lengths are sorted and the prefix length clamped to the SHORTEST
+        barcode, because a prefix longer than the shortest sequence could
+        never match it -- and a table mixing lengths is the ordinary case.
+
+        :param table: the barcode table to index.
+        """
         self.table = table
         self.lengths = sorted({len(sequence) for sequence in table.sequences})
         self.shortest = self.lengths[0] if self.lengths else 0
@@ -591,6 +618,88 @@ class _Matcher:
                 return hits
             hits.append(found)
             position = found[0] + found[1]
+
+
+@dataclass(frozen=True)
+class SearchThresholds:
+    """The numbers a barcode search judges by, and what each one judges.
+
+    THESE WERE MODULE CONSTANTS. They were chosen against one screen's data,
+    which is exactly the kind of number that is right until someone runs a
+    different assay -- a shorter read, a smaller reference, a library where
+    10% of reads carrying the barcode is a good day rather than a failure.
+    The values here are those same numbers, so a caller who passes nothing
+    gets the behaviour that already existed; what changes is that the numbers
+    can now be said out loud by someone whose data disagrees with them.
+
+    Each field judges a DIFFERENT question, and they are asked in this order:
+    is the sample big enough to say anything, is the hit rate distinguishable
+    from coincidence, is it big enough to map from, and do the hits sit at one
+    place in the read. A verdict of INDETERMINATE names which question it was
+    that could not be answered.
+    """
+
+    #: Reads that must be seen before any verdict but INDETERMINATE is given.
+    #: This judges THE SAMPLE, not the data: below it, a real barcode and a
+    #: coincidence look the same, so the honest answer is "not yet".
+    min_reads_for_verdict: int = MIN_READS_FOR_VERDICT
+    #: How many times the coincidence rate the observed rate must clear.
+    #: This judges WHETHER THE TABLE IS THERE AT ALL. The comparison is made
+    #: against a Wilson interval, so a table only becomes ABSENT when even the
+    #: optimistic end of the interval falls short.
+    min_enrichment: float = MIN_ENRICHMENT
+    #: The share of reads that must carry a barcode for a mapping to be built.
+    #: This judges WHETHER THERE IS ENOUGH TO USE, which is a separate question
+    #: from whether it is there: index hopping leaves a trace that is clearly
+    #: above chance and still far too thin to map from.
+    min_usable_rate: float = MIN_USABLE_RATE
+    #: How many bases the hits may be spread across and still count as one
+    #: position. This judges WHETHER IT IS A BARCODE OR AN ADAPTER: a plate
+    #: barcode sits at a fixed offset, adapter-like sequence scatters.
+    max_offset_span: int = MAX_OFFSET_SPAN
+    #: The share of hits the narrowest offset window has to account for before
+    #: that window is called the barcode's position. This judges WHERE, and it
+    #: is what makes `max_offset_span` mean something -- a span measured over
+    #: every stray hit would never be narrow.
+    offset_window_coverage: float = OFFSET_WINDOW_COVERAGE
+
+    def __post_init__(self):
+        """Refuse thresholds that cannot decide anything.
+
+        A threshold out of range does not fail loudly at the point it is set;
+        it produces a report in which every table is PRESENT, or every table
+        is ABSENT, and the run looks like it worked. Checking here means the
+        complaint names the setting rather than the data.
+
+        :raises ValueError: when a threshold cannot produce a real verdict.
+        """
+        if self.min_reads_for_verdict < 1:
+            raise ValueError(
+                "min_reads_for_verdict must be at least 1; got "
+                f"{self.min_reads_for_verdict!r} -- a search that needs no "
+                "reads to reach a verdict reaches it from nothing")
+        if self.min_enrichment <= 1.0:
+            raise ValueError(
+                f"min_enrichment must be above 1.0; got {self.min_enrichment!r}"
+                " -- at or below 1.0 the coincidence rate itself clears the "
+                "bar and every table is reported PRESENT")
+        if not 0.0 < self.min_usable_rate <= 1.0:
+            raise ValueError(
+                "min_usable_rate is a share of reads and must be above 0.0 "
+                f"and at most 1.0; got {self.min_usable_rate!r}")
+        if self.max_offset_span < 1:
+            raise ValueError(
+                f"max_offset_span must be at least 1; got "
+                f"{self.max_offset_span!r} -- a barcode occupies at least one "
+                "base, so a span of 0 can never be met")
+        if not 0.0 < self.offset_window_coverage <= 1.0:
+            raise ValueError(
+                "offset_window_coverage is a share of hits and must be above "
+                f"0.0 and at most 1.0; got {self.offset_window_coverage!r}")
+
+
+#: The thresholds used when a caller does not supply any.
+DEFAULT_THRESHOLDS = SearchThresholds()
 
 
 @dataclass(frozen=True)
@@ -794,7 +903,18 @@ class BarcodeSearchReport:
 class _SearchState:
     """Running counts for one search, and the report built from them."""
 
-    def __init__(self, tables, file_labels):
+    def __init__(self, tables, file_labels, thresholds=None):
+        """Hold the tables and the per-file counters one search fills in.
+
+        A matcher is built per table AND per orientation up front, because
+        both orientations are tried for every read and rebuilding them per
+        read is the cost this class exists to avoid.
+
+        :param tables: the barcode tables being searched.
+        :param file_labels: the names the report gives the files, in order.
+        :param thresholds: the numbers to judge by, or None for the defaults.
+        """
+        self.thresholds = thresholds or DEFAULT_THRESHOLDS
         self.tables = tuple(tables)
         self.file_labels = tuple(file_labels)
         self.matchers = {
@@ -856,7 +976,7 @@ class _SearchState:
                         _build_finding(
                             table, label, orientation, reads,
                             self.hits[key], expected, self.offsets[key],
-                            self.names[key]))
+                            self.names[key], self.thresholds))
         mean_lengths = {}
         for label in self.file_labels:
             counts = self.lengths[label]
@@ -871,7 +991,8 @@ class _SearchState:
             complete=complete)
 
 
-def _build_finding(table, label, orientation, reads, hits, expected, offsets, names):
+def _build_finding(table, label, orientation, reads, hits, expected, offsets,
+                   names, thresholds=None):
     """Turn one set of running counts into a finding with a verdict.
 
     :param table: the reference table the counts belong to.
@@ -882,19 +1003,22 @@ def _build_finding(table, label, orientation, reads, hits, expected, offsets, na
     :param expected: the share of reads expected to hit by coincidence.
     :param offsets: how many hits started at each offset.
     :param names: how many hits each barcode of the table accounted for.
+    :param thresholds: the numbers to judge by, or None for the defaults.
     :returns: the finding.
     """
+    thresholds = thresholds or DEFAULT_THRESHOLDS
     observed = hits / reads if reads else 0.0
     if expected > 0.0:
         enrichment = observed / expected
     else:
         enrichment = math.inf if observed > 0.0 else 0.0
-    window_start, window_span = _narrowest_offset_window(offsets)
+    window_start, window_span = _narrowest_offset_window(
+        offsets, coverage=thresholds.offset_window_coverage)
     modal = offsets.most_common(1)[0][0] if offsets else None
     top_share = (names.most_common(1)[0][1] / hits) if hits and names else 0.0
     verdict, reason = _decide(
         reads, hits, observed, expected, enrichment, window_span,
-        len(names), table.size, top_share)
+        len(names), table.size, top_share, thresholds)
     return OrientationFinding(
         table=table.name,
         role=table.role,
@@ -919,7 +1043,7 @@ def _build_finding(table, label, orientation, reads, hits, expected, offsets, na
 
 
 def _decide(reads, hits, observed, expected, enrichment, span,
-            distinct_seen, table_size, top_share):
+            distinct_seen, table_size, top_share, thresholds=None):
     """Choose a verdict for one finding and say in a sentence why.
 
     The three questions are asked in order and each one can end the matter.
@@ -940,22 +1064,20 @@ def _decide(reads, hits, observed, expected, enrichment, span,
     :param distinct_seen: how many barcodes of the table were actually seen.
     :param table_size: how many barcodes the table holds.
     :param top_share: the share of hits the single commonest barcode took.
+    :param thresholds: the numbers to judge by, or None for the defaults.
     :returns: the verdict and the sentence explaining it.
     """
-    if reads < MIN_READS_FOR_VERDICT:
+    thresholds = thresholds or DEFAULT_THRESHOLDS
+    if reads < thresholds.min_reads_for_verdict:
         return INDETERMINATE, (
             f"only {reads} reads sampled so far, which is too few to separate "
             f"a real match from coincidence")
     if not hits:
-        # Deciding this by the ratio alone fails for a table whose coincidence
-        # rate rounds to nothing, such as a single long anchor sequence, because
-        # the bar the observation has to clear is then also nothing and no
-        # observation can fall below it.  Nothing matched, so nothing is there.
         return ABSENT, (
             f"not one of {reads} reads carried a barcode from this table in "
             f"this orientation")
     low, high = _wilson_interval(hits, reads)
-    threshold = expected * MIN_ENRICHMENT
+    threshold = expected * thresholds.min_enrichment
     if high < threshold:
         return ABSENT, (
             f"{observed * 100:.2f}% of reads matched against "
@@ -966,7 +1088,7 @@ def _decide(reads, hits, observed, expected, enrichment, span,
             f"{observed * 100:.2f}% of reads matched against "
             f"{expected * 100:.2f}% expected by chance, and the sample is not "
             f"yet large enough to tell those apart")
-    if high < MIN_USABLE_RATE:
+    if high < thresholds.min_usable_rate:
         rate = (
             "more than a thousand times" if enrichment >= 1000.0
             else f"{enrichment:.0f} times")
@@ -974,11 +1096,11 @@ def _decide(reads, hits, observed, expected, enrichment, span,
             f"clearly above chance at {rate} the coincidence rate, but only "
             f"{observed * 100:.2f}% of reads carry it, which is the level index "
             f"hopping produces and is too little to map from")
-    if low < MIN_USABLE_RATE:
+    if low < thresholds.min_usable_rate:
         return INDETERMINATE, (
             f"above chance, but at {observed * 100:.2f}% of reads it is not "
             f"yet clear whether enough reads carry it to map from")
-    if span > MAX_OFFSET_SPAN:
+    if span > thresholds.max_offset_span:
         return INDETERMINATE, (
             f"{observed * 100:.2f}% of reads matched, {enrichment:.1f} times "
             f"the coincidence rate, but the matches are scattered over "
@@ -1039,7 +1161,8 @@ def _default_label(path):
 
 
 def iter_barcode_search(fastq_files, tables, max_reads=DEFAULT_SAMPLE_READS,
-                        chunk_reads=DEFAULT_CHUNK_READS, anchor=None):
+                        chunk_reads=DEFAULT_CHUNK_READS, anchor=None,
+                        thresholds=None):
     """Search for barcodes a chunk at a time, reporting after every chunk.
 
     The interface shows this running, so the search hands back a complete report
@@ -1057,6 +1180,9 @@ def iter_barcode_search(fastq_files, tables, max_reads=DEFAULT_SAMPLE_READS,
     :param anchor: an optional fixed sequence, such as the one the mapping run
         anchors its window on, searched alongside the tables so that offsets can
         be expressed relative to it.
+    :param thresholds: a :class:`SearchThresholds` saying what counts as
+        present, absent and undecided, or None for the defaults. Every verdict
+        in every yielded report is judged by these.
     :yields: a report after each chunk, and one report when there is nothing to
         read.
     :raises ValueError: when no file was supplied or the budgets are not
@@ -1074,7 +1200,7 @@ def iter_barcode_search(fastq_files, tables, max_reads=DEFAULT_SAMPLE_READS,
                 name=ANCHOR_ROLE,
                 sequences={str(anchor).upper(): ANCHOR_ROLE},
                 role=ANCHOR_ROLE))
-    state = _SearchState(searched, labelled)
+    state = _SearchState(searched, labelled, thresholds)
     readers = {label: iter_fastq_reads(path) for label, path in labelled.items()}
     remaining = {label: max_reads for label in labelled}
     produced = False
@@ -1099,7 +1225,8 @@ def iter_barcode_search(fastq_files, tables, max_reads=DEFAULT_SAMPLE_READS,
 
 
 def search_barcodes(fastq_files, tables, max_reads=DEFAULT_SAMPLE_READS,
-                    chunk_reads=DEFAULT_CHUNK_READS, anchor=None):
+                    chunk_reads=DEFAULT_CHUNK_READS, anchor=None,
+                    thresholds=None):
     """Search a bounded sample of reads and return the finished report.
 
     This is the whole of :func:`iter_barcode_search` run to its end, for callers
@@ -1111,12 +1238,13 @@ def search_barcodes(fastq_files, tables, max_reads=DEFAULT_SAMPLE_READS,
     :param max_reads: how many reads to take from each file at most.
     :param chunk_reads: how many reads each step takes from each file.
     :param anchor: an optional fixed sequence searched alongside the tables.
+    :param thresholds: a :class:`SearchThresholds`, or None for the defaults.
     :returns: the report from the last chunk.
     """
     report = None
     for report in iter_barcode_search(
             fastq_files, tables, max_reads=max_reads,
-            chunk_reads=chunk_reads, anchor=anchor):
+            chunk_reads=chunk_reads, anchor=anchor, thresholds=thresholds):
         pass
     return report
 

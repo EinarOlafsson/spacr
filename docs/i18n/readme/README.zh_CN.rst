@@ -212,18 +212,23 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
 从源头安装(光)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-全克隆:427 MB 核心克隆:76 MB。
+捐助者需要历史;只需运行 spaCR,请采取其中一个,测量为 2026-09-15 以 ``packaging/measure_clone_forms.sh``。::
 
-::
+    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Skips ``docs/``、``tests/``、 Cellpose 检查点、存档数字和扩展翻译目录。
-
-Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
-
-``packaging/source_install_excludes.txt`` 列出每条路径。
+完整的克隆下载 5.8 GB 为 1186 MB 支票. 添加 ``--filter=blob:none`` 到该克隆节省了什么:支票随之抓住了泡沫。
 
 
 命令行入口
@@ -241,6 +246,8 @@ Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-
    spacr-repro RUN_DIR                        # replay a recorded run
    spacr-download --list                      # what example data exists
    spacr-download measure annotate            # fetch example sets by name
+   spacr-make-masks --folder DIR              # curate masks as a resumable queue
+   spacr-make-masks --folder DIR --order easy --limit 50
 
 排查问题时，请设置 ``SPACR_LOG_LEVEL=DEBUG``。轮转日志写入 ``~/.spacr/logs/spacr.log``。
 
@@ -485,8 +492,8 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -504,7 +511,7 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
 
 **F1**是两个结合,并被引用,因为每个单独是三重播放 - 报告一个不可错误的板,以接近完美的精度,或每个黑暗的泡沫,以靠近完美的回报. 你会更喜欢失去取决于估计,并计算通常更好地通过过呼:板模型被接受的精度 0.858 与回报 0.811 上一个之前的轮子在 0.939 和 0.631.
 
-**IoU**,跨越联盟,是多少一个预测的对象和真正的一个超越,分为它们覆盖的区域。 它是统治者,其余的被阅读对,所以一个分数意味着没有它的边界: “F1 0.867 在 IoU 0.5” 计算一个空白,如发现,当两个分线同意超过他们的组合区域的一半。
+**IoU**,跨越联盟,是多少一个预测的对象和真正的一个超越,分为它们覆盖的区域。 它是统治者,其余的被阅读对,所以一个分数意味着没有它的边界: “F1 0.864 在 IoU 0.5” 计算一个空白,如发现,当两个分线同意超过他们的组合区域的一半。
 
 **mAP50** 和 **mAP50-95** 属于探测器. 第一问孔是否被发现; 第二重复它在十个从 0.5 到 0.95 的边界,所以它也问每个盒子是多么紧紧地拖动。
 

@@ -257,12 +257,12 @@ TIME_KEY_COLUMNS = schema.TIME_COLUMN_ALIASES
 #: duplicated, which the consistency test named above turns into a failing
 #: test rather than silent data loss.
 MEASURE_OWNED_TABLES = frozenset({
-    'cell', 'cytoplasm',                       # _PARENT_OBJECT_TABLES
-    'nucleus', 'pathogen', *ORGANELLE_ROLES,   # _CHILD_OBJECT_TABLES
+    'cell', 'cytoplasm',
+    'nucleus', 'pathogen', *ORGANELLE_ROLES,
     'cell_organelle_summary', 'nucleus_organelle_summary',
     'pathogen_organelle_summary', 'cytoplasm_organelle_summary',
-    'png_list',                                # filepaths_to_database
-    'intensity_rescale',                       # measure provenance upsert
+    'png_list',
+    'intensity_rescale',
 })
 
 #: The provenance table :mod:`spacr.foreign` writes: one row per column
@@ -330,7 +330,6 @@ _NPY_MAGIC = b'\x93NUMPY'
 
 _TRUTHY = frozenset({'1', 'true', 'yes', 'on', 'y', 't'})
 
-# Reason codes recorded against a field in ResumeState.reasons.
 REASON_DONE = 'done'
 REASON_MISSING = 'missing'
 REASON_TRUNCATED = 'truncated'
@@ -361,9 +360,6 @@ class ResumeRefused(ConfigurationError):
     """
 
 
-# ---------------------------------------------------------------------------
-# Opt-in switch
-# ---------------------------------------------------------------------------
 
 def resume_enabled(settings: Any) -> bool:
     """True when the caller asked for a resume.
@@ -382,9 +378,6 @@ def resume_enabled(settings: Any) -> bool:
     return bool(value)
 
 
-# ---------------------------------------------------------------------------
-# Field identity
-# ---------------------------------------------------------------------------
 
 def field_identity(field: Any, timelapse: bool = False) -> Dict[str, str]:
     """Parse a merged-stack name into the well coordinates the database stores.
@@ -476,9 +469,6 @@ def _identity_tuple(identity: Mapping[str, str],
                  for c in columns)
 
 
-# ---------------------------------------------------------------------------
-# .npy validation — the difference between "the file is there" and "it finished"
-# ---------------------------------------------------------------------------
 
 def _descr_itemsize(descr: Any) -> Optional[int]:
     """Bytes per element for a simple numpy dtype string, else None.
@@ -603,14 +593,10 @@ def validate_merged_field(path: str,
     except OSError:
         return False, REASON_UNREADABLE
     except ValueError:
-        # Zero bytes is caught above; anything else here is a header that
-        # does not parse — a partial write, or not an array at all.
         return False, REASON_UNREADABLE
 
     expected = header['expected_bytes']
     if expected is None:
-        # Unverifiable dtype. Cannot prove the file is complete, so treat
-        # it as pending: re-measuring is safe, skipping garbage is not.
         return False, REASON_UNREADABLE
     if header['actual_bytes'] < expected:
         return False, REASON_TRUNCATED
@@ -698,7 +684,6 @@ def completed_fields_in_merged(src: str,
     else:
         stems = [os.path.splitext(os.path.basename(str(f)))[0] for f in fields]
 
-    # Pass 1: structural validity and plane counts.
     verdicts: Dict[str, Tuple[bool, str]] = {}
     planes: Dict[str, int] = {}
     for stem in stems:
@@ -712,10 +697,6 @@ def completed_fields_in_merged(src: str,
                 shape = ()
             planes[stem] = shape[-1] if shape else 0
 
-    # Pass 2: modal plane count, only when the caller gave no explicit
-    # floor and there is enough of a population to have a mode. A merged
-    # folder is written by one loop with one channel layout, so a field
-    # with fewer planes than its neighbours did not finish.
     if min_planes is None and len(planes) >= 3:
         counts: Dict[int, int] = {}
         for value in planes.values():
@@ -734,9 +715,6 @@ def completed_fields_in_merged(src: str,
     return done
 
 
-# ---------------------------------------------------------------------------
-# Database side
-# ---------------------------------------------------------------------------
 
 def _table_columns(conn: sqlite3.Connection, table: str) -> List[str]:
     """Column names of ``table``, or ``[]`` when it does not exist."""
@@ -767,36 +745,6 @@ def _list_tables(conn: sqlite3.Connection) -> List[str]:
     return [row[0] for row in rows]
 
 
-# ---------------------------------------------------------------------------
-# Owned by name is not owned in fact: which *rows* the measure stage wrote
-# ---------------------------------------------------------------------------
-#
-# ``cell`` is on the allow-list above, and in a project built by
-# ``foreign.run_import`` the rows in it are the import's: the importer
-# copies its own frame into the canonical table when nothing of anyone
-# else's is there, so that a purely-imported project is readable by every
-# spaCR tool. Nothing about the *table* tells the two apart, which is why
-# a table-scoped ownership claim was tried here and backed out — it took
-# the whole table with it, including fields the import never covered and
-# rows ``measure_crop`` wrote afterwards.
-#
-# The signal that is already in the tree, written by every version of the
-# importer that has ever existed, is ``foreign_columns``: one row per
-# column per table, naming exactly what that importer put there. The
-# table-scoped question ``foreign._importer_owns`` asks of it —"are this
-# table's columns a subset of what the importer recorded?"— has a
-# row-scoped twin, and that is what is used below:
-#
-#     a row is the importer's when every column it is non-NULL in is one
-#     the importer wrote into this table.
-#
-# A ``measure_crop`` row in a canonical table always carries at least its
-# own area and intensity columns, which the importer never wrote and never
-# recorded, so it fails that test; an imported row carries only metadata
-# and ``foreign_``-prefixed measurements, which it passes. The test is
-# evaluated per row in SQL, so a table can be half one and half the other
-# — which, until the append itself is fixed, is exactly what a project
-# that was imported and then measured contains.
 
 
 def _foreign_name_column(conn: sqlite3.Connection) -> Optional[str]:
@@ -1137,12 +1085,6 @@ def completed_fields_in_db(db_path: str,
                         select.append(candidate)
                         break
             quoted = ', '.join(f'"{c}"' for c in select)
-            # Rows a foreign import copied in are not evidence that measure
-            # ran. In a purely-imported project ``cell`` is the only field
-            # table and holds a row for every field, so counting them made
-            # ``measure_crop`` report the whole plate done, run nothing at
-            # all, and present the collaborator's numbers as spaCR's own
-            # output.
             clause = measure_rows_clause(conn, table)
             sql = f'SELECT DISTINCT {quoted} FROM "{table}"'
             if clause is not None:
@@ -1158,16 +1100,6 @@ def completed_fields_in_db(db_path: str,
                     values.append('')
                 seen.add(tuple(values))
             if clause is not None and not seen and _has_rows(conn, table):
-                # An import filled this table and measure has never written
-                # a row into it, so it is not one of "the tables this run
-                # writes" and must not make every field look partial. It
-                # rejoins the moment measure puts a row in it.
-                #
-                # ``_has_rows`` is the difference between "theirs" and
-                # "empty". An emptied table — one whose copy has been
-                # released back to spaCR — is an ordinary measure table
-                # with nothing in it yet, and every field must read as
-                # not-measured in it, exactly as for any other empty table.
                 continue
             present[table] = seen
         if not present:
@@ -1193,7 +1125,6 @@ def completed_fields_in_db(db_path: str,
                     partial[stem] = REASON_PARTIAL_DB
             return done
 
-        # No candidate list: answer in terms of the rows themselves.
         all_keys: Set[Tuple[str, ...]] = set()
         for seen in present.values():
             all_keys |= seen
@@ -1288,8 +1219,6 @@ def clear_field_rows(db_path: str,
     try:
         deleted = 0
         with transaction(conn):
-            # Pre-flight and deletes share one write transaction. No other
-            # writer can replace a checked table between validation and use.
             plans = []
             for table in tables:
                 keys = _key_columns_for(conn, table, identity)
@@ -1305,13 +1234,6 @@ def clear_field_rows(db_path: str,
                         f'of how this project was registered, and none of it can '
                         f'be recomputed from the database. Refusing.')
                 where = ' AND '.join(f'"{k}" = ?' for k in keys)
-                # ...and only the rows the measure stage itself wrote. The
-                # allow-list answers "could measure have written this
-                # table?"; this answers "did it write this row?", which in
-                # a project built by ``foreign.run_import`` is a different
-                # question — the rows in ``cell`` are the import's, under
-                # spaCR's own metadata columns, and clearing a pending
-                # field used to take them with it.
                 clause = measure_rows_clause(conn, table)
                 if clause is not None:
                     where = f'{where} AND {clause}'
@@ -1325,9 +1247,6 @@ def clear_field_rows(db_path: str,
         conn.close()
 
 
-# ---------------------------------------------------------------------------
-# The importer's convenience copy, when measure is about to supersede it
-# ---------------------------------------------------------------------------
 
 def _fields_matching(conn: sqlite3.Connection, table: str,
                      clause: str) -> Set[Tuple[str, ...]]:
@@ -1454,7 +1373,7 @@ def supersede_imported_copies(db_path: str,
                 continue
             importer_clause = importer_rows_clause(conn, table)
             if importer_clause is None:
-                continue                      # no import ever wrote here
+                continue
             imported = _fields_matching(conn, table, importer_clause)
             if not imported:
                 continue
@@ -1492,18 +1411,8 @@ def supersede_imported_copies(db_path: str,
                 f'half-released table is worse than an unreleased one.'))
             continue
         try:
-            # Imported here, not at module scope: ``spacr.foreign`` pulls in
-            # pandas, numpy and ``spacr.convert``, and this module is
-            # consulted at the top of ``measure_crop`` precisely so that a
-            # question answered by reading a sqlite table costs nothing.
-            # A project with no import never reaches this line.
             from .foreign import release_canonical_copy
         except Exception as exc:
-            # Everything, not ImportError alone: a module that fails to
-            # initialise raises whatever its own top level raised. Refuse,
-            # never delete blind — without the importer's verification that
-            # every row has a twin in foreign_<object> there is no way to
-            # know the removal is lossless.
             notes.append(
                 f'"{table}" holds {held} row(s) a foreign import copied '
                 f'there and spaCR is about to measure into the same table, '
@@ -1554,9 +1463,6 @@ def run_already_complete(db_path: str, name: Optional[str] = None) -> bool:
             and int(last.get('n_attempted', 0) or 0) > 0)
 
 
-# ---------------------------------------------------------------------------
-# Settings compatibility — a resume across different settings is not a resume
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class SettingsComparison:
@@ -1796,9 +1702,6 @@ def check_settings_compatible(recorded: Mapping[str, Any],
         f'output folder.')
 
 
-# ---------------------------------------------------------------------------
-# The plan
-# ---------------------------------------------------------------------------
 
 @dataclass
 class ResumeState:
@@ -1927,7 +1830,6 @@ def plan_resume(all_fields: Iterable[str],
     """
     stems = [os.path.splitext(os.path.basename(str(f)))[0]
              for f in all_fields]
-    # Preserve order, drop duplicates.
     ordered: List[str] = []
     seen: Set[str] = set()
     for stem in stems:
@@ -2032,9 +1934,6 @@ def format_resume(state: ResumeState, max_examples: int = 4) -> str:
     return '\n'.join(lines)
 
 
-# ---------------------------------------------------------------------------
-# The measure_crop entry point
-# ---------------------------------------------------------------------------
 
 def measurements_db_path(settings: Mapping[str, Any]) -> str:
     """Where ``measure_crop`` writes, derived exactly as it derives it.
@@ -2093,48 +1992,29 @@ def plan_measure_resume(settings: Any,
         all_files = sorted(f for f in os.listdir(src) if f.endswith('.npy'))
     all_fields = [os.path.splitext(f)[0] for f in all_files]
 
-    # 1. Settings guard. A recorded-settings table that does not exist
-    #    yet means nothing has been measured, so there is nothing to be
-    #    incompatible with.
     recorded = read_recorded_settings(db_path)
     if recorded:
         check_settings_compatible(recorded, dict(settings), source=db_path)
 
-    # 2. Which fields are physically usable.
     rejected: Dict[str, str] = {}
     usable = completed_fields_in_merged(src, min_planes=min_planes,
                                         reasons=rejected, fields=all_fields)
 
-    # 3. Which fields the database already has, in full.
     partial: Dict[str, str] = {}
     measured = completed_fields_in_db(db_path, tables=None, fields=usable,
                                       timelapse=timelapse, require_all=True,
                                       partial=partial)
 
     reasons: Dict[str, str] = {}
-    reasons.update(rejected)      # truncated / empty / too-few-planes
-    reasons.update(partial)       # rows in some tables but not all
+    reasons.update(rejected)
+    reasons.update(partial)
 
     state = plan_resume(all_fields, measured, reasons=reasons, enabled=True,
                         src=src, db_path=db_path)
 
-    # 4. Delete-before-insert. Every field about to be re-measured has any
-    #    rows it already left behind removed first, in one transaction per
-    #    field. Without this the resume silently doubles objects.
-    #
-    #    Only the fields that actually have rows are cleared. On a typical
-    #    resume that is one field — the one that was mid-flight when the
-    #    run died — and issuing a DELETE for the other ninety-nine would
-    #    mean ninety-nine full scans of a million-row table to delete
-    #    nothing. `require_all=False` is the "has rows anywhere" query.
     cleared = 0
     if os.path.isfile(db_path):
         tables = discover_field_tables(db_path)
-        # 3a. A foreign import's convenience copy in a canonical table is
-        #     superseded the moment spaCR measures the same fields into it.
-        #     Released here — before the deletes and long before the first
-        #     insert — because measure appends, and a table holding both
-        #     populations makes every per-well count the sum of two.
         if tables and state.pending:
             released, notes = supersede_imported_copies(
                 db_path, tables, state.pending, timelapse=timelapse)

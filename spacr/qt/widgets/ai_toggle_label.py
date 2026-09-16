@@ -84,8 +84,6 @@ class AiToggleLabel(QLabel):
             "subscription via the selected provider."
         )
         super().__init__(tr(source_text), parent)
-        # Retain canonical English sources so a runtime language switch never
-        # translates a translation and never loses the toggle's current state.
         self.setProperty("_spacr_i18n_text", source_text)
         self.setObjectName("AiToggleLabel")
         self.setCursor(Qt.PointingHandCursor)
@@ -93,14 +91,10 @@ class AiToggleLabel(QLabel):
         self.setToolTip(tr(source_tooltip))
         self._on = False
         self._restyling = False
-        # The logical text, always. `QLabel.text()` holds whatever fits
-        # right now, which may be elided; every caller that asks this
-        # widget what it says wants the full thing.
         self._full_text = tr(source_text)
         self._eliding = False
         self._refresh_style()
 
-    # -- live preference changes ---------------------------------------
     def changeEvent(self, event):
         """Re-style when the application sheet or palette is replaced.
 
@@ -113,10 +107,6 @@ class AiToggleLabel(QLabel):
         try:
             kind = event.type()
         except Exception:
-            # PySide6 raises when the C++ half of a wrapper is gone, and
-            # changeEvent is called during teardown as well as during a
-            # Preferences save. An unreadable event means "restyle
-            # nothing", not an exception out of a Qt callback.
             kind = None
         super().changeEvent(event)
         if kind in (QEvent.StyleChange, QEvent.PaletteChange,
@@ -124,7 +114,6 @@ class AiToggleLabel(QLabel):
                     QEvent.ApplicationFontChange):
             self._refresh_style()
 
-    # -- width -----------------------------------------------------------
     def minimumSizeHint(self) -> QSize:      # noqa: N802 (Qt naming)
         """Cap how much width this toggle can demand of its row.
 
@@ -178,28 +167,16 @@ class AiToggleLabel(QLabel):
         metrics = self.fontMetrics()
         shown = (full if metrics.horizontalAdvance(full) <= inner
                  else metrics.elidedText(full, Qt.ElideRight, inner))
-        # An elision that keeps no character of the label -- "" when the width
-        # cannot fit even the ellipsis, "…" when it barely can -- paints a
-        # blank toggle. The full text drawn slightly clipped is strictly
-        # better: it still says which control this is. Zoom lands here because
-        # the enlarged font gets measured against the width the layout granted
-        # the smaller one, one relayout behind. The long labels this eliding
-        # exists for keep plenty of characters at ELIDE_ABOVE_PX and are
-        # untouched by this guard.
         if not shown.strip("…. \t"):
             shown = full
         if shown == QLabel.text(self):
             return
-        # `setText` re-enters through the override above; the flag keeps it
-        # from mistaking the elided text for a new logical text and
-        # truncating the stored copy one character at a time.
         self._eliding = True
         try:
             QLabel.setText(self, shown)
         finally:
             self._eliding = False
 
-    # -- QCheckBox-compat API -----------------------------------------
     def isChecked(self) -> bool:
         """Return True when the AI toggle is currently ON."""
         return self._on
@@ -213,7 +190,6 @@ class AiToggleLabel(QLabel):
         self._refresh_style()
         self.toggled.emit(self._on)
 
-    # -- click ---------------------------------------------------------
     def mousePressEvent(self, event):
         """Flip the toggle on left-click; forward other buttons to Qt."""
         if event.button() == Qt.LeftButton:
@@ -223,15 +199,7 @@ class AiToggleLabel(QLabel):
             return
         super().mousePressEvent(event)
 
-    # -- style ---------------------------------------------------------
     def _refresh_style(self) -> None:
-        # Use the theme-invariant ``button_accent`` for the ON colour so
-        # the toggle looks identical in every theme. The OFF colour is
-        # the theme's own ``fg``, resolved HERE rather than imported:
-        # `active_palette()` reads the preference that is in force right
-        # now, so the label inks white on dark and near-black on light.
-        # It used to come from `theme.PALETTE`, which is frozen dark —
-        # white "AI" on the light theme's #fafafa page.
         """Re-ink and re-size the label for the current state, theme and zoom.
 
         The off colour is resolved from the palette in force right now rather
@@ -251,11 +219,6 @@ class AiToggleLabel(QLabel):
         palette = active_palette()
         on_color = palette["button_accent"]
         color = on_color if self._on else palette["fg"]
-        # Zoom reaches this through `font_px`, not through the application
-        # sheet: a per-widget `setStyleSheet` outranks it, so the literal
-        # `FONT_SIZE['body']` that used to be here pinned "Live" and "AI"
-        # at 13 px whatever the preference said. Padding scales with it or
-        # the hit target stops matching the glyphs.
         size = font_px("body")
         sheet = (
             f"QLabel#AiToggleLabel {{"
@@ -267,10 +230,6 @@ class AiToggleLabel(QLabel):
             f"  background: transparent;"
             f"}}"
         )
-        # `setStyleSheet` itself posts a StyleChange back to this widget, so
-        # `changeEvent` would call straight back in. Both guards matter: the
-        # flag stops the immediate recursion, the comparison stops a
-        # StyleChange storm when nothing about the answer has changed.
         if self._restyling or sheet == self.styleSheet():
             return
         self._restyling = True
@@ -278,9 +237,5 @@ class AiToggleLabel(QLabel):
             self.setStyleSheet(sheet)
         finally:
             self._restyling = False
-        # The new sheet moves both the font size and the padding, so the
-        # `sizeHint` the layout is holding is stale. Without this the widget
-        # keeps its old width and the elision below measures the bigger glyphs
-        # against it, hiding the text that the zoom just enlarged.
         self.updateGeometry()
         self._apply_elision()

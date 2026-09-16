@@ -114,11 +114,6 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-# Reused from the provenance diff rather than re-derived. ``values_equal`` is
-# the whole reason the diff is usable (structural comparison across the JSON /
-# CSV / live-dict round-trips a settings dict takes), and the renderers keep the
-# console output of the two features identical. They are private in
-# run_journal because they are not a public API; this is the same feature.
 from .run_journal import (
     _drift_names,
     _read_settings_csv,
@@ -127,9 +122,6 @@ from .run_journal import (
     values_equal,
 )
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from .figures.style import figure_style, theme_target
 
 __all__ = [
@@ -153,9 +145,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# On-disk layout constants
-# ---------------------------------------------------------------------------
 
 #: split name -> filename written by :func:`spacr.io._save_progress`.
 SPLIT_FILES: Dict[str, str] = {"train": "train.csv", "val": "validation.csv"}
@@ -232,9 +221,6 @@ def metric_direction(name: Any) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Dataclasses
-# ---------------------------------------------------------------------------
 
 @dataclass
 class TrainingRun:
@@ -493,9 +479,6 @@ class Comparison:
         return sorted({s.split for s in self.series})
 
 
-# ---------------------------------------------------------------------------
-# Reading one run
-# ---------------------------------------------------------------------------
 
 def _empty_curves() -> pd.DataFrame:
     """Return an empty curve frame with the required identity columns."""
@@ -572,14 +555,12 @@ def _read_curve_csv(path: Path) -> Tuple[Optional[pd.DataFrame], List[str]]:
         raw = pd.read_csv(path)
     except pd.errors.EmptyDataError:
         return pd.DataFrame(columns=["epoch"]), [f"{path.name} is empty (0 bytes)"]
-    except Exception as e:      # unreadable / malformed — say so, keep going
+    except Exception as e:
         return pd.DataFrame(columns=["epoch"]), [
             f"{path.name} could not be parsed ({type(e).__name__}: {e})"]
 
     df = _normalize_curve_columns(raw)
     if "epoch" not in df.columns:
-        # A log without an epoch column can still be ordered by row; say that
-        # the x axis is a row index rather than pretending it is an epoch.
         df.insert(0, "epoch", np.arange(1, len(df) + 1))
         if len(df):
             notes.append(f"{path.name} has no 'epoch' column — using row order")
@@ -626,13 +607,13 @@ def _is_outside_any_project(node: Path) -> bool:
         resolved = node.resolve()
     except OSError:
         return True
-    if resolved == resolved.parent:        # filesystem root
+    if resolved == resolved.parent:
         return True
     stops = {Path(tempfile.gettempdir()).resolve()}
     try:
         home = Path.home().resolve()
         stops.add(home)
-        stops.add(home.parent)             # /home, /Users
+        stops.add(home.parent)
     except (RuntimeError, OSError):
         pass
     return resolved in stops
@@ -705,13 +686,8 @@ def _load_settings(path: Path) -> Tuple[Dict[str, Any], str, List[str]]:
     for steps in range(1, _SETTINGS_SEARCH_DEPTH + 1):
         node, child = node.parent, node
         if _is_outside_any_project(node):
-            # Backstop: the climb has left anything that could be a spaCR
-            # project at all (root / home / the temp directory).
             break
         if not _owns_this_run(child, steps):
-            # An ancestor that cannot have written this run's snapshot. Keep
-            # climbing — <src> is still four or five steps up a training tree —
-            # but do not read what is in this one.
             continue
         sdir = node / "settings"
         if not sdir.is_dir():
@@ -746,7 +722,6 @@ def _run_shape_from_path(path: Path) -> Tuple[str, str]:
     m = re.match(r"^epochs_(\d+)$", path.name)
     if not m or len(path.parts) < 3:
         return "", ""
-    # <src>/model/<model_type>/<channels>/epochs_<N>
     return path.parts[-3], m.group(1)
 
 
@@ -776,7 +751,6 @@ def _pick_settings_file(cands: Sequence[Path], model_type: str,
     prefixed = [p for p in cands
                 if p.stem.startswith(("train_test_", "train_", "test_"))]
     pool = prefixed or list(cands)
-    # Deterministic and defensible: the most recently written one.
     return max(pool, key=lambda p: (p.stat().st_mtime, p.name))
 
 
@@ -916,9 +890,6 @@ def _final_metrics(run: TrainingRun) -> Dict[str, Any]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Discovery
-# ---------------------------------------------------------------------------
 
 def _looks_like_run(path: Path) -> bool:
     """True when ``path`` is plausibly a training ``dst``.
@@ -982,7 +953,7 @@ def find_runs(root: Any, max_depth: int = DEFAULT_SCAN_DEPTH,
             if child.name.startswith("."):
                 continue
             if _FOLD_RE.match(child.name) and _looks_like_run(node):
-                continue        # folds are loaded with their parent
+                continue
             stack.append((child, depth + 1))
 
     found.sort(key=lambda p: (-_folder_mtime(p), str(p)))
@@ -1015,16 +986,11 @@ def _unique_ids(paths: Sequence[Path]) -> Dict[str, str]:
         while rid in used and depth < len(p.parts):
             depth += 1
             rid = "/".join(p.parts[-depth:])
-        # The loop bottoms out at the full path, which no two runs share, so
-        # there is no further fallback to write.
         used.add(rid)
         out[str(p)] = rid
     return out
 
 
-# ---------------------------------------------------------------------------
-# Series construction
-# ---------------------------------------------------------------------------
 
 def _fold_sort_key(name: Any):
     """Sort ``fold_2`` before ``fold_10`` and a fold-less run first."""
@@ -1049,9 +1015,6 @@ def _series_from_run(run: TrainingRun, fold_mode: str) -> List[Series]:
         block = run.curves[run.curves["split"] == split]
         if block.empty:
             continue
-        # Derived from the rows actually present rather than from run.folds:
-        # a fold whose validation.csv is missing must not produce an empty
-        # validation series, and ``fold_10`` must sort after ``fold_2``.
         fold_names = sorted(set(block["fold"]), key=_fold_sort_key)
         if per_fold:
             for fold in fold_names:
@@ -1138,9 +1101,6 @@ def _ordered_metrics(series: Sequence[Series]) -> List[str]:
     return head + tail
 
 
-# ---------------------------------------------------------------------------
-# Settings diff — the run_journal bucketing, generalised to N runs
-# ---------------------------------------------------------------------------
 
 def is_env_key(key: Any, env_keys: Sequence[str] = ()) -> bool:
     """True when a settings key records the machine, not a modelling decision.
@@ -1257,9 +1217,6 @@ def _diff_manifest_env(runs: Sequence[TrainingRun]) -> List[Dict[str, Any]]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Comparison
-# ---------------------------------------------------------------------------
 
 #: Accepted values for ``compare_runs(folds=...)``.
 FOLD_MODES = ("per_fold", "mean", "both")
@@ -1298,9 +1255,6 @@ def compare_runs(runs: Sequence[TrainingRun], folds: str = "per_fold",
     )
 
 
-# ---------------------------------------------------------------------------
-# Plotting
-# ---------------------------------------------------------------------------
 
 #: train dashed, validation solid — the split is readable without the legend.
 _SPLIT_STYLE = {"train": "--", "val": "-"}
@@ -1347,10 +1301,6 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
     from matplotlib import pyplot as plt
 
     if ax is None:
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=figsize)
     else:
@@ -1431,9 +1381,6 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
     return fig
 
 
-# ---------------------------------------------------------------------------
-# Text report
-# ---------------------------------------------------------------------------
 
 def _fmt(value: float) -> str:
     """Four decimals, or ``nan`` — a metric that was not computed says so."""
@@ -1466,7 +1413,6 @@ def format_comparison(comparison: Comparison, metric: str = "accuracy",
     """
     lines: List[str] = ["Training run comparison"]
 
-    # -- runs --------------------------------------------------------------
     for run in comparison.runs:
         head = f"  {run.run_id}"
         shape = (f"{run.n_epochs} epochs" if run.has_curves else "no curves")
@@ -1480,7 +1426,6 @@ def format_comparison(comparison: Comparison, metric: str = "accuracy",
         for note in run.notes:
             lines.append(f"     ! {note}")
 
-    # -- curves ------------------------------------------------------------
     lines.append("")
     drawn = comparison.series_with(metric)
     if not drawn:
@@ -1528,7 +1473,6 @@ def format_comparison(comparison: Comparison, metric: str = "accuracy",
                          "estimate; 'last' is unbiased but may be past the "
                          "optimum. Both are shown for that reason.")
 
-    # -- settings ----------------------------------------------------------
     diff = comparison.settings_diff
     lines.append("")
     ids = diff.get("run_ids") or []

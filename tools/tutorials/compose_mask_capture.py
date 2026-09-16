@@ -15,22 +15,30 @@ from mask_preview_evidence import inspect
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
 
-def compose(stage=DEFAULT_STAGE):
+def compose(stage=DEFAULT_STAGE, preview_capture='mask', destination_name='mask_preview_and_explicit_overlay'):
     stage = Path(stage)
-    destination = stage / 'captures/mask_preview_and_explicit_overlay'
+    destination = stage / 'captures' / destination_name
     if destination.exists():
         raise FileExistsError('Preserve earlier compositions')
     native = stage / 'mask_fresh_v1/captures/mask_bounded_native'
     command = stage / 'captures/mask_explicit_overlay_command_opaque'
     viewer = stage / 'captures/mask_explicit_overlay_viewer_opaque'
-    old_preview = stage / 'captures/mask'
+    old_preview = stage / 'captures' / preview_capture
     preview = inspect(old_preview)
-    unchanged_implementation = {}
+    # The reuse rule: the live-preview code that produced these frames must be
+    # byte-identical to the checkout composing them. The 09-09 `captures/mask`
+    # keeps its original pin (04b23431f; its provenance names a757b8672). A new
+    # recording is pinned to the commit it recorded itself.
+    if preview_capture == 'mask':
+        recorded_commit = '04b23431ff2eecff4d5ee444a8486188ec05152c'
+    else:
+        recorded_commit = read(old_preview / 'provenance.json')['commit']
+    unchanged_implementation = {'preview_capture_commit': recorded_commit}
     for name in ['spacr/qt/widgets/live_preview.py', 'spacr/qt/widgets/preview_contract.py']:
-        prior = subprocess.check_output(['git', 'show', '04b23431ff2eecff4d5ee444a8486188ec05152c:' + name], cwd=REPO)
+        prior = subprocess.check_output(['git', 'show', recorded_commit + ':' + name], cwd=REPO)
         actual = (REPO / name).read_bytes()
         if prior != actual:
-            raise ValueError('The old live-preview implementation changed; re-record its controls')
+            raise ValueError('The live-preview implementation changed since the preview was recorded; re-record its controls')
         unchanged_implementation[name] = hashlib.sha256(actual).hexdigest()
     rejected = read(native / 'batch_acceptance.json')
     if rejected.get('accepted') is not False:
@@ -105,4 +113,12 @@ def compose(stage=DEFAULT_STAGE):
 
 
 if __name__ == '__main__':
-    compose()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--preview-capture', default='mask',
+                        help='Capture directory under <stage>/captures holding the live-preview frames and arrays')
+    parser.add_argument('--destination', default='mask_preview_and_explicit_overlay',
+                        help='New composed capture directory under <stage>/captures; never overwritten')
+    args = parser.parse_args()
+    compose(args.stage, args.preview_capture, args.destination)

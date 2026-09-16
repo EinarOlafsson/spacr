@@ -32,12 +32,6 @@ GROUPS: List[tuple] = [
 BLUR = 18.0
 
 
-# THE ARGUMENTS ARE DOCUMENTED ON `__init__`, ONCE. They were listed here
-# too, as a NumPy ``Parameters`` section, and AutoAPI runs with
-# ``class_content='both'``: the class docstring and ``__init__``'s are
-# concatenated before Napoleon sees them, the section became a field list,
-# and ``__init__``'s opening prose then ended it mid-way -- "Field list
-# ends without a blank line", which `sphinx-build -W` makes fatal.
 class SetupDialog(QDialog):
     """Collect optional first-run preferences."""
 
@@ -78,9 +72,6 @@ class SetupDialog(QDialog):
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok
                                    | QDialogButtonBox.Cancel)
-        # "Not now" rather than "Cancel": nothing is being cancelled, and a
-        # user who reads Cancel as "undo what I already have" will not press
-        # it even when it is the right button.
         buttons.button(QDialogButtonBox.Cancel).setText("Not now")
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
@@ -93,7 +84,6 @@ class SetupDialog(QDialog):
             self.card.raise_()
         self.resize(680, 560)
 
-    # ------------------------------------------------------------- the box
 
     def _build_groups(self, layout) -> None:
         """One form per group, from the model's own question list."""
@@ -104,9 +94,6 @@ class SetupDialog(QDialog):
         for heading, keys in GROUPS:
             here = [asked[k] for k in keys if k in asked]
             if not here:
-                # A GROUP WITH NOTHING IN IT IS NOT DRAWN. The provider
-                # question removes itself when no CLI is installed, and an
-                # empty "The assistant" heading would read as a bug.
                 continue
             label = QLabel(f"<b>{heading}</b>")
             layout.addWidget(label)
@@ -164,7 +151,6 @@ class SetupDialog(QDialog):
         mark_answered(current_version())
         super().reject()
 
-    # -------------------------------------------------------- the backdrop
 
     def _backdrop(self, parent) -> Optional[QWidget]:
         """A blurred still of what is behind, or ``None``.

@@ -85,11 +85,6 @@ APP_KEY = "pipeline_graph"
 
 from ..app_catalog import declared_app, register_declared
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc
@@ -149,15 +144,9 @@ QLabel#PipelineGraphVerdict[problem="true"] {{
 """
 
 
-# ``replace=True`` because this module owns the name: a reimport (a test that
-# reloads it, a plugin that pulls it in twice) must re-register the same block
-# rather than raise on the duplicate and leave the screen unstyled.
 register_widget_qss("PipelineGraphCanvasArea", _graph_qss, replace=True)
 
 
-# ---------------------------------------------------------------------------
-# Layout — a pure function, so the arrangement is testable without pixels
-# ---------------------------------------------------------------------------
 
 def layout_rects(graph: PipelineGraph) -> Dict[str, QRect]:
     """Place every node of ``graph`` on a grid: one column per layer.
@@ -191,9 +180,6 @@ def canvas_size(graph: PipelineGraph) -> Tuple[int, int]:
     return (int(right), int(bottom))
 
 
-# ---------------------------------------------------------------------------
-# The canvas
-# ---------------------------------------------------------------------------
 
 class GraphCanvas(QWidget):
     """Draws one :class:`~spacr.pipeline_graph.PipelineGraph`.
@@ -266,7 +252,6 @@ class GraphCanvas(QWidget):
         self.update()
         self.node_clicked.emit(self.selected)
 
-    # -- Qt ---------------------------------------------------------------
 
     def mousePressEvent(self, event) -> None:      # noqa: N802 - Qt override
         """Select whatever box was clicked."""
@@ -333,11 +318,6 @@ class GraphCanvas(QWidget):
                 continue
             node = self._graph.node(artifact_id)
             if node is None:
-                # A layer naming an artifact the graph does not hold. Nothing
-                # `build_graph` produces looks like this -- it builds the
-                # layers FROM the nodes -- but a graph handed in by a caller
-                # can, and a KeyError raised inside paintEvent is a window
-                # that will not redraw rather than one box missing.
                 continue
             fill, border = STATE_COLOURS.get(
                 node.state, STATE_COLOURS[STATE_CURRENT])
@@ -366,9 +346,6 @@ class GraphCanvas(QWidget):
                 node.state.upper() if node.state != STATE_CURRENT else "")
 
 
-# ---------------------------------------------------------------------------
-# The screen
-# ---------------------------------------------------------------------------
 
 class PipelineGraphScreen(QWidget):
     """Pick a project; see its provenance DAG with staleness marked.
@@ -409,12 +386,9 @@ class PipelineGraphScreen(QWidget):
             self._set_verdict(
                 "Choose a spaCR project folder to draw what it has produced.",
                 problem=False)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "pipeline_graph")
 
-    # -- construction -----------------------------------------------------
 
     def _build_ui(self) -> None:
         """Picker, verdict strip, then the canvas beside the detail pane."""
@@ -508,15 +482,12 @@ class PipelineGraphScreen(QWidget):
         self._details.setPlainText(
             "Click a box for the run that produced it, its settings digest, "
             "and what re-running it would invalidate.")
-        # The canvas half has `PipelineGraphCanvasArea` for a surface;
-        # the detail pane is the other half and is a page surface too.
         mark_surface(self._details)
         splitter.addWidget(self._details)
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 2)
         outer.addWidget(splitter, 1)
 
-    # -- loading ----------------------------------------------------------
 
     def load_project(self, project: str) -> None:
         """Build and draw the graph for ``project``, off the GUI thread.
@@ -545,10 +516,6 @@ class PipelineGraphScreen(QWidget):
         """Draw a freshly built graph. Runs on the GUI thread."""
         self._graph = graph
         if graph is None:
-            # The job delivered nothing. Saying so is the point: a screen
-            # that silently keeps the PREVIOUS project's graph on it after a
-            # failed read is showing one project's provenance under another
-            # project's name.
             self._set_verdict("The graph could not be built.", problem=True)
             return
         summary = stale_summary(graph)
@@ -575,7 +542,6 @@ class PipelineGraphScreen(QWidget):
                    if node.state in wanted}
         self._canvas.set_graph(self._graph, visible)
 
-    # -- details ----------------------------------------------------------
 
     def describe(self, artifact_id: str) -> str:
         """The detail block for one artifact, as plain text.
@@ -622,7 +588,6 @@ class PipelineGraphScreen(QWidget):
             lines.append("Nothing was derived from this.")
         return "\n".join(lines)
 
-    # -- slots ------------------------------------------------------------
 
     def _on_node_clicked(self, artifact_id: str) -> None:
         """Fill the detail pane for the clicked box."""
@@ -677,7 +642,6 @@ class PipelineGraphScreen(QWidget):
             style.unpolish(self._verdict)
             style.polish(self._verdict)
 
-    # -- lifecycle --------------------------------------------------------
 
     def is_busy(self) -> bool:
         """True while a graph is still being built."""
@@ -693,9 +657,6 @@ class PipelineGraphScreen(QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Registration
-# ---------------------------------------------------------------------------
 
 def make_pipeline_graph_screen(app_key: Optional[str] = None) -> QWidget:
     """Factory the registry calls to build this screen."""

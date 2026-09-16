@@ -114,9 +114,6 @@ NULL_MAX_ROWS = 20_000
 DEFAULT_TOP = 20
 
 
-# ---------------------------------------------------------------------------
-# The statistics, each over two 1-D arrays of finite values
-# ---------------------------------------------------------------------------
 
 def _ranks(values: np.ndarray) -> np.ndarray:
     """Average ranks, 1-based, ties sharing their mean rank.
@@ -128,9 +125,6 @@ def _ranks(values: np.ndarray) -> np.ndarray:
     ranked = np.empty(len(values), dtype=float)
     ranked[order] = np.arange(1, len(values) + 1, dtype=float)
     sorted_values = values[order]
-    # Average within each run of equal values. A tied pair contributes exactly
-    # half to the U statistic, which is what makes AUC 0.5 for two identical
-    # distributions rather than something that depends on the sort order.
     start = 0
     for stop in range(1, len(sorted_values) + 1):
         if stop == len(sorted_values) or sorted_values[stop] != sorted_values[start]:
@@ -208,8 +202,6 @@ def mutual_info_of(a: np.ndarray, b: np.ndarray, bins: int = 16) -> float:
     quantiles = np.linspace(0.0, 1.0, max(2, int(bins)) + 1)
     edges = np.unique(np.quantile(pooled, quantiles))
     if len(edges) < 3:
-        # Fewer than two distinct bins: the feature is (almost) constant, and
-        # a constant explains nothing.
         return 0.0
     counts = np.stack([np.histogram(a, bins=edges)[0],
                        np.histogram(b, bins=edges)[0]]).astype(float)
@@ -243,9 +235,6 @@ def _separation(statistic: str, a: np.ndarray, b: np.ndarray,
     return mutual_info_of(a, b, bins)
 
 
-# ---------------------------------------------------------------------------
-# The spec
-# ---------------------------------------------------------------------------
 
 def candidate_labels(frame: pd.DataFrame) -> Tuple[str, ...]:
     """Columns that could say which class an object is in.
@@ -433,9 +422,6 @@ class ExplorerSpec:
                 f"ranked by {STATISTIC_LABELS[self.statistic].split(' — ')[0]}")
 
 
-# ---------------------------------------------------------------------------
-# The result
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ClassSummary:
@@ -641,12 +627,7 @@ class ExplorerResult:
         return " · ".join(parts)
 
 
-# ---------------------------------------------------------------------------
-# Computing it
-# ---------------------------------------------------------------------------
 
-# Object identity, rather than a user-representable string, distinguishes a
-# missing class label from a real class whose name happens to be empty.
 _UNLABELLED = object()
 
 
@@ -676,9 +657,6 @@ def _class_levels(frame: pd.DataFrame, label: str) -> Tuple[np.ndarray,
             f"there is no column called {label!r} to split by; this table has "
             f"{len(frame.columns)} columns")
     raw = frame[label]
-    # Convert rows and level names through exactly the same path. Pandas'
-    # vectorised datetime astype omits midnight while str(Timestamp) includes
-    # it, causing a date column not to match its own advertised levels.
     text = np.asarray([
         _UNLABELLED if pd.isna(value) else str(value)
         for value in raw.to_numpy()
@@ -733,8 +711,6 @@ def _score_one(feature: str, values: np.ndarray, keys: np.ndarray,
     one-vs-rest scores would bury it.
     """
     best: Optional[Tuple[float, str, float, float, float, float]] = None
-    # Two classes need one comparison, not two: "a against b" and "b against
-    # a" are the same separation with the direction flipped.
     for level in (levels if len(levels) > 2 else levels[1:]):
         this = values[keys == level]
         rest = values[keys != level]
@@ -770,8 +746,6 @@ def _null_threshold(columns: Dict[str, np.ndarray], keys: np.ndarray,
     if not spec.n_permutations or not columns:
         return None
     rng = np.random.default_rng(spec.seed)
-    # Rows without a class enter no real score, so they cannot enter the null
-    # experiment that calibrates that score either.
     labelled = _labelled(keys)
     keys = keys[labelled]
     columns = {name: values[labelled] for name, values in columns.items()}
@@ -784,15 +758,6 @@ def _null_threshold(columns: Dict[str, np.ndarray], keys: np.ndarray,
     sampled = {name: values[take] for name, values in columns.items()}
     labels = keys[take]
     best: List[float] = []
-    # A SHUFFLE THAT MEASURED NOTHING IS NOT A SHUFFLE THAT MEASURED ZERO.
-    # `top` used to start at 0.0 and only ever be raised by a finite score, so
-    # a permutation in which every _separation came back NaN -- each candidate
-    # class empty once the finite mask was applied -- contributed a literal
-    # "chance reached zero" to the null distribution. On a sparsely measured
-    # table a sizeable fraction of the null could be those spurious zeros,
-    # which deflates the 95th percentile and makes above_null() list features
-    # that never beat chance. Starting at None and appending only a real
-    # measurement drops such a shuffle instead of scoring it.
     unmeasured = 0
     for _ in range(spec.n_permutations):
         shuffled = rng.permutation(labels)
@@ -811,7 +776,6 @@ def _null_threshold(columns: Dict[str, np.ndarray], keys: np.ndarray,
         else:
             best.append(top)
     if unmeasured:
-        # Say what the number cannot say: the null is thinner than asked for.
         notices.append(
             f"{unmeasured:,} of {spec.n_permutations:,} null shuffles measured "
             "no feature and were dropped rather than scored as zero")

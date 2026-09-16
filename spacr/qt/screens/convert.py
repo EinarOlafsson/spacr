@@ -199,8 +199,6 @@ class PlanTableModel(QAbstractTableModel):
         key = self._columns[index.column()][0]
         value = self._frame.iloc[index.row()][key]
         if key == "source" and role == Qt.DisplayRole:
-            # The full path is the tooltip; the cell shows enough to
-            # recognise the file without a 200-pixel column of prefix.
             return os.path.basename(str(value))
         return "" if value is None else str(value)
 
@@ -265,7 +263,6 @@ class ConvertScreen(QWidget):
             "written until you press Convert.")
         self._update_controls()
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the source row, the options, the destination and the plan table."""
@@ -290,7 +287,6 @@ class ConvertScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        # ── Source row ────────────────────────────────────────────────
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._src_edit = QLineEdit(self)
@@ -305,7 +301,6 @@ class ConvertScreen(QWidget):
         src_row.addWidget(self._btn_pick_src)
         outer.addLayout(src_row)
 
-        # ── Options row ───────────────────────────────────────────────
         opt_row = QHBoxLayout()
         opt_row.setSpacing(SPACING["sm"])
         self._layout_box = QComboBox(self)
@@ -334,7 +329,6 @@ class ConvertScreen(QWidget):
         opt_row.addWidget(self._resume)
         outer.addLayout(opt_row)
 
-        # ── Destination row ───────────────────────────────────────────
         dst_row = QHBoxLayout()
         dst_row.setSpacing(SPACING["sm"])
         self._dst_edit = QLineEdit(self)
@@ -355,12 +349,9 @@ class ConvertScreen(QWidget):
         dst_row.addWidget(self._btn_convert)
         outer.addLayout(dst_row)
 
-        # ── Preview table ─────────────────────────────────────────────
         self._model = PlanTableModel(self)
         self._table = QTableView(self)
         self._table.setModel(self._model)
-        # After setModel: the helper puts a sorting proxy over the plan
-        # model, which replaces the view's model and its selection model.
         install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -370,7 +361,6 @@ class ConvertScreen(QWidget):
         self._table.verticalHeader().setVisible(False)
         outer.addWidget(self._table, 1)
 
-        # ── Summary + progress + status ───────────────────────────────
         self._summary = QPlainTextEdit(self)
         self._summary.setReadOnly(True)
         self._summary.setMaximumHeight(140)
@@ -390,7 +380,6 @@ class ConvertScreen(QWidget):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
-    # -- inline reporting --------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Deliberately never a QMessageBox — a modal dialog
@@ -416,7 +405,6 @@ class ConvertScreen(QWidget):
         """
         self._summary.setPlainText(text or "")
 
-    # -- configuration -----------------------------------------------------
 
     def set_source(self, path: str) -> None:
         """Point the screen at a source folder without opening a dialog."""
@@ -501,7 +489,6 @@ class ConvertScreen(QWidget):
             self._set_status("Settings changed — press Preview again.")
         self._update_controls()
 
-    # -- pickers -----------------------------------------------------------
 
     def _pick_source(self) -> None:
         """Ask which folder holds the microscope files."""
@@ -515,7 +502,6 @@ class ConvertScreen(QWidget):
         if path:
             self.set_destination(path)
 
-    # -- preview -----------------------------------------------------------
 
     def preview(self) -> bool:
         """Scan the source and build the plan. Writes nothing.
@@ -598,7 +584,6 @@ class ConvertScreen(QWidget):
             return []
         return [str(v) for v in frame["target"].tolist()]
 
-    # -- convert -----------------------------------------------------------
 
     def run_convert(self) -> bool:
         """Convert the previewed plan into the destination folder.
@@ -664,7 +649,6 @@ class ConvertScreen(QWidget):
                 f"stamped incomplete.", error=True)
         self._update_controls()
 
-    # -- controls ----------------------------------------------------------
 
     def _update_controls(self) -> None:
         """Enable the form and the actions to match the run state and the plan.
@@ -685,7 +669,6 @@ class ConvertScreen(QWidget):
         """True when the Convert button is live."""
         return self._btn_convert.isEnabled()
 
-    # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None]) -> bool:
@@ -717,9 +700,6 @@ class ConvertScreen(QWidget):
 
         box: Dict[str, Any] = {}
         thread, worker = make_thread(partial(self._capture, fn), box)
-        # Strong references: PySide6 will not keep the worker alive through
-        # the started→run connection alone, and a QThread garbage-collected
-        # while still running takes the process down with it.
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
         self._pending.append((box, on_done))

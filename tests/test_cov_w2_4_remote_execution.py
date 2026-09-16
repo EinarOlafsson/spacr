@@ -98,13 +98,11 @@ def test_a_command_that_hangs_is_timed_out_and_named():
     assert sys.executable in str(caught.value)
 
 
-@pytest.mark.xfail(strict=True, reason="the message names the requested "
-                                       "timeout, not the one that was waited")
 def test_a_timeout_message_names_the_time_that_was_actually_waited():
-    """``timeout`` is floored at one second before the call, but the sentence
-    is formatted from the raw argument, so a 0.1 s request that waited a
-    whole second reports 0.1 s -- a number the user cannot reconcile with
-    the wall clock."""
+    """``timeout`` is floored at one second before the call, so the sentence
+    has to be formatted from the floored value: a 0.1 s request that waited a
+    whole second must not report 0.1 s -- a number the user cannot reconcile
+    with the wall clock."""
     with pytest.raises(RemoteExecutionError) as caught:
         rx._run_command(
             [sys.executable, "-c", "import time; time.sleep(30)"],

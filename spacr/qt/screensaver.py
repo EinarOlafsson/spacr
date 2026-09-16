@@ -32,10 +32,6 @@ class Screensaver(QWidget):
     """
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
-        # Qt.Window, and NOT parented into the layout: a child widget cannot
-        # go full screen on its own, and a Tool window loses focus to the
-        # main window the moment it appears -- which would make "any key"
-        # reach the wrong place.
         """Build the screensaver as its own full-screen window.
 
         A ``Qt.Window`` and deliberately not parented into the layout: a child
@@ -51,10 +47,6 @@ class Screensaver(QWidget):
         self.setWindowTitle("spaCR")
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
         self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, True)
-        # THE POINTER IS HIDDEN, which is what makes it read as a
-        # screensaver rather than as a window with nothing in it. It comes
-        # back with the cursor's own shape on close, because this widget is
-        # destroyed rather than restored.
         self.setCursor(Qt.CursorShape.BlankCursor)
 
         layout = QVBoxLayout(self)
@@ -101,11 +93,6 @@ class Screensaver(QWidget):
         painter.fillRect(self.rect(), QColor(0, 0, 0))
         painter.end()
 
-    # -- leaving -----------------------------------------------------------
-    #
-    # ANY key and ANY click, which is what was asked for. Every one of these
-    # is a deliberate act by somebody who wants their screen back, so none of
-    # them is worth distinguishing.
 
     def keyPressEvent(self, event) -> None:
         """Dismiss on any key.
@@ -155,8 +142,6 @@ def show_screensaver(parent: Optional[QWidget] = None) -> Optional[Screensaver]:
         saver.showFullScreen()
         saver.raise_()
         saver.activateWindow()
-        # FOCUS, EXPLICITLY. Without it the key that is meant to close this
-        # goes to whatever had focus before, and the screensaver stays up.
         saver.setFocus(Qt.FocusReason.OtherFocusReason)
         return saver
     except Exception:                                        # noqa: BLE001

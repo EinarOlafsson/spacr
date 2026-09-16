@@ -572,7 +572,7 @@ def test_reparenting_moves_the_window_watch(qtbot):
     widget = make_widget(qtbot)
     widget.show()
     qtbot.waitExposed(widget)
-    assert widget._watched is widget
+    assert widget._watched() is widget
 
     host = QWidget()
     qtbot.addWidget(host)
@@ -581,7 +581,7 @@ def test_reparenting_moves_the_window_watch(qtbot):
     host.resize(400, 300)
     host.show()
     qtbot.waitExposed(host)
-    assert widget._watched is host
+    assert widget._watched() is host
     assert widget.is_running()
 
     host.setWindowState(Qt.WindowMinimized)
@@ -752,6 +752,26 @@ def test_widget_takes_no_focus_and_no_mouse(qtbot):
     assert widget.testAttribute(Qt.WA_TransparentForMouseEvents)
     widget.setFocus()
     assert not widget.hasFocus()
+
+
+def test_a_focus_event_that_reaches_the_rain_is_refused(qtbot):
+    """``setFocus`` above proves nothing unless Qt delivers a FocusIn, and
+    it delivers none to an inactive offscreen window, so this one is sent.
+    Programmatic focus is refused too: the event is ignored and the focus
+    handed straight back."""
+    from PySide6.QtGui import QFocusEvent
+    from PySide6.QtWidgets import QApplication
+
+    widget = make_widget(qtbot)
+    handed_back = []
+    widget.clearFocus = lambda: handed_back.append(True)
+    event = QFocusEvent(QEvent.Type.FocusIn, Qt.FocusReason.OtherFocusReason)
+    event.accept()
+
+    QApplication.sendEvent(widget, event)
+
+    assert not event.isAccepted()
+    assert handed_back == [True]
 
 
 def test_widget_is_opaque_and_default_dimmed(qtbot):
@@ -1627,12 +1647,14 @@ def _press_popover_at(popover, global_pos):
 
 
 def _open_rain_in_a_window(qtbot):
+    """The host comes back too. The rain holds its window only weakly, so a
+    host nobody names is freed at once and takes the rain's button with it."""
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(400, 300)
     host.show()
     qtbot.waitExposed(host)
-    return install_dna_rain(host, None, seed=5)
+    return host, install_dna_rain(host, None, seed=5)
 
 
 def test_the_click_that_closes_the_popover_does_not_reopen_it(qtbot):
@@ -1641,7 +1663,7 @@ def test_the_click_that_closes_the_popover_does_not_reopen_it(qtbot):
     Without the guard that is open-close-open inside one click, and the
     popover looks like it will not close.
     """
-    rain = _open_rain_in_a_window(qtbot)
+    host, rain = _open_rain_in_a_window(qtbot)
     button = rain.settings_button
     button.setChecked(True)
     assert rain.settings_popover.isVisible()
@@ -1658,7 +1680,7 @@ def test_the_click_that_closes_the_popover_does_not_reopen_it(qtbot):
 
 def test_a_click_somewhere_else_does_not_arm_the_guard(qtbot):
     """Dismiss by clicking away, then click DNA — that must open it."""
-    rain = _open_rain_in_a_window(qtbot)
+    host, rain = _open_rain_in_a_window(qtbot)
     button = rain.settings_button
     button.setChecked(True)
 
@@ -1673,7 +1695,7 @@ def test_a_click_somewhere_else_does_not_arm_the_guard(qtbot):
 
 def test_a_deliberate_second_click_still_opens_it(qtbot):
     """A close the button asked for never arms the guard."""
-    rain = _open_rain_in_a_window(qtbot)
+    host, rain = _open_rain_in_a_window(qtbot)
     button = rain.settings_button
     button.setChecked(True)
     button.setChecked(False)
@@ -1684,7 +1706,7 @@ def test_a_deliberate_second_click_still_opens_it(qtbot):
 
 def test_a_press_inside_the_popover_is_not_a_close(qtbot):
     """Moving a slider must not look like the dismissing click."""
-    rain = _open_rain_in_a_window(qtbot)
+    host, rain = _open_rain_in_a_window(qtbot)
     popover = rain.settings_popover
     rain.settings_button.setChecked(True)
     _press_popover_at(popover, popover.mapToGlobal(popover.rect().center()))

@@ -1,0 +1,20 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "segmentation_backend",
+      "source": "Segmentation backend",
+      "source_sha256": "55d5430ab2ef3b4362493fe29d111b90f9aeea3e3161c05910d77a00677b752f",
+      "table": "setting_labels",
+      "translation": "분할 백엔드"
+    },
+    {
+      "key": "segmentation_backend",
+      "source": "Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs the model each object's model name selects. 'samcell' (trained partly on LIVECell) and 'dinocell' are optional 2-D models for live-cell and label-free images: they read only the object's own channel, ignore diameter and flow_threshold, and refuse z_stack and t_stack runs. 'samcell' needs pip install \"spacr[samcell]\"; 'dinocell' needs an environment of its own, because its release pins versions that conflict with spaCR's. Default 'cellpose'.",
+      "source_sha256": "bdfd3dc24bf67f0cdd940c47c6125fd418ff01c4f52e6eba56f92cd16f24b8bd",
+      "table": "setting_tooltips",
+      "translation": "세포, 핵, 병원체를 어떤 모델로 분할할지 정합니다. 서로 다른 모델의 마스크는 비교할 수 없습니다. 'cellpose' (기본값) 는 각 객체의 모델 이름이 고르는 모델을 실행합니다. 'samcell' (일부는 LIVECell 로 학습됨) 과 'dinocell' 은 생세포 및 무표지 이미지를 위한 선택적 2-D 모델입니다. 이 모델들은 객체 자신의 채널만 읽고, diameter 와 flow_threshold 를 무시하며, z_stack 및 t_stack 실행을 거부합니다. 'samcell' 에는 pip install \"spacr[samcell]\" 가 필요하고, 'dinocell' 은 공개된 배포판이 spaCR 와 충돌하는 버전을 고정하므로 별도의 환경이 필요합니다. 기본값 'cellpose'."
+    }
+  ],
+  "schema": 1
+}

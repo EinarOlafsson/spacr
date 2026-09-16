@@ -81,9 +81,6 @@ def _read_settings(run_dir: Path) -> Dict[str, Any]:
     return json.loads(settings_path.read_text())
 
 
-# ---------------------------------------------------------------------------
-# Entrypoint scaffolds — per pipeline app
-# ---------------------------------------------------------------------------
 
 _ENTRYPOINTS: Dict[str, str] = {
     "mask":     "from spacr.core import preprocess_generate_masks as _run",
@@ -169,9 +166,6 @@ def _summary_markdown(run_dir: Path,
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Main entrypoint
-# ---------------------------------------------------------------------------
 
 def export_run(run_dir: Any,
                  out_path: Optional[Any] = None) -> Path:
@@ -189,7 +183,7 @@ def export_run(run_dir: Any,
     if not run_dir.is_dir():
         raise FileNotFoundError(f"no such run folder: {run_dir}")
     manifest = _read_manifest(run_dir)
-    _read_settings(run_dir)  # Validate that the recorded settings exist and parse.
+    _read_settings(run_dir)
     app_key = manifest.get("app_key", "unknown")
 
     cells: List[Dict[str, Any]] = []

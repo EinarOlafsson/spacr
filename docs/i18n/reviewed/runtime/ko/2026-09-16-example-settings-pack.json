@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Semantic review of all seven new feature 317 runtime UI sources, derived from current canonical_sources()['ui'] minus en.UI_SOURCES. Preserves Live Preview, Run, CSV, console tags and placeholders; distinguishes settings actually applied to the form from accepted CSV keys, unknown/retired settings from settings on another form, and missing-pack defaults from successfully loaded settings.",
+    "limitations": "AI-assisted semantic review against exact current English sources and API contexts; not human native-speaker review or approval. Generated catalog publication is a separate step."
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+      "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+      "translation": "데모 데이터셋을 해당 설정과 함께 불러왔습니다. 한 시야를 보려면 Live Preview 버튼을, 플레이트를 처리하려면 Run 버튼을 누르세요."
+    },
+    {
+      "table": "ui",
+      "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+      "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+      "translation": "데모 데이터셋을 설정 팩 없이 불러왔으므로 기본 설정을 사용합니다. 한 시야를 보려면 Live Preview 버튼을, 플레이트를 처리하려면 Run 버튼을 누르세요."
+    },
+    {
+      "table": "ui",
+      "key": "[example] Dropped {count} unknown or retired settings: {keys}",
+      "source_sha256": "a2ce4d5c7bb78b45f367a059440d82df3e5549962aaa808f9ac4bfaff5ce07b3",
+      "source": "[example] Dropped {count} unknown or retired settings: {keys}",
+      "translation": "[example] 알 수 없거나 더 이상 지원되지 않는 설정 {count}개를 제외했습니다: {keys}"
+    },
+    {
+      "table": "ui",
+      "key": "[example] Ignored {count} settings available in this build but not on this form: {keys}",
+      "source_sha256": "66d523a5ef74556a60b5bc3448f94c9a062844c660bd4eab7ee8a514c11392cf",
+      "source": "[example] Ignored {count} settings available in this build but not on this form: {keys}",
+      "translation": "[example] 이 빌드에서 사용할 수 있지만 이 설정 폼에는 없는 설정 {count}개를 무시했습니다: {keys}"
+    },
+    {
+      "table": "ui",
+      "key": "[example] Renamed {count} settings: {renames}",
+      "source_sha256": "aea30a23c71e25ddd69e6dd66c10a40a318c9e3297773351a8f0e3deccf4c6eb",
+      "source": "[example] Renamed {count} settings: {renames}",
+      "translation": "[example] 설정 {count}개의 이름을 변경했습니다: {renames}"
+    },
+    {
+      "table": "ui",
+      "key": "[example] Skipped {count} unreadable CSV row(s).",
+      "source_sha256": "504869209ed558fba92660a57e4471891f90420636e6dad13fcb19b736c92e27",
+      "source": "[example] Skipped {count} unreadable CSV row(s).",
+      "translation": "[example] 읽을 수 없는 CSV 행 {count}개를 건너뛰었습니다."
+    },
+    {
+      "table": "ui",
+      "key": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted.",
+      "source_sha256": "bf3e16003a8ca5391dcf9cfb76d1539e18b7a19a554705d47ea00f6ee60b0f73",
+      "source": "[example] {applied} settings applied to the form from {name}; {accepted} CSV keys accepted.",
+      "translation": "[example] 설정 {applied}개를 {name}에서 가져와 폼에 적용했습니다. CSV의 키 {accepted}개를 받아들였습니다."
+    }
+  ]
+}

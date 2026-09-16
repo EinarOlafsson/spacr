@@ -3,11 +3,9 @@
 Both are the "there is nothing here" side of a decision the ordinary run
 never takes:
 
-* ``_process_single_fov_in_memory`` counts a field's objects as
-  ``len(np.unique(...)) - 1``, which is ``-1`` -- not ``0`` -- for a mask
-  array with no pixels in it. Such a field slips past the "empty mask,
-  skipping" return and arrives at the merge phase with no labels to merge,
-  where a second count sends it straight to the filter;
+* ``_process_single_fov_in_memory`` returns an empty label array before
+  attempting perimeter merges or measuring object means, including a
+  zero-sized array that cannot be passed to the union-find mapping;
 * ``plot_clusters`` recolours the legend it just asked for, and skips that
   work when the axes it was handed produced none, without dropping the axis
   labels that come after it.
@@ -25,53 +23,26 @@ from spacr import utils
 
 
 def _in_memory(mask, **overrides):
-    """Call ``_process_single_fov_in_memory`` with the pipeline's defaults.
-
-    The merge step takes ONE ABSOLUTE NUMBER now, ``intensity_threshold``: a
-    boundary mean in the image's own raw units, replacing the method-and-
-    percentile pair that measured each boundary against the dimmer of the two
-    objects it separated. ``None`` is the pipeline's default and merges
-    nothing. The split threshold likewise lost its ``area_multiplier``, so
-    ``minimum_area_to_split`` is the whole threshold in pixels.
-    """
+    """Call the shared field filter with perimeter merging enabled."""
     settings = dict(
-        intensity_img=None, intensity_channel=None, do_split=False,
-        do_perimeter_merge=True, do_intensity_merge=False,
-        perimeter_fraction=0.1, min_watershed_distance=10,
-        minimum_area_to_split=100, intensity_threshold=None,
+        intensity_img=None, intensity_channel=None,
+        do_perimeter_merge=True, perimeter_fraction=0.1,
         min_area=0, max_area=0, remove_border_objects=False)
     settings.update(overrides)
-    return utils._process_single_fov_in_memory(
-        mask, settings['intensity_img'], settings['intensity_channel'],
-        settings['do_split'], settings['do_perimeter_merge'],
-        settings['do_intensity_merge'], settings['perimeter_fraction'],
-        settings['min_watershed_distance'],
-        settings['minimum_area_to_split'], settings['intensity_threshold'],
-        settings['min_area'], settings['max_area'],
-        settings['remove_border_objects'])
+    return utils._process_single_fov_in_memory(mask, **settings)
 
 
 # ===========================================================================
 # a field whose array has no pixels at all
 # ===========================================================================
 
-def test_a_mask_array_with_no_pixels_reaches_the_filter_without_merging(capsys):
+def test_a_mask_array_with_no_pixels_returns_without_merging(capsys):
     """A zero-sized field is handed back as it came, and merges nothing.
 
-    The early return above the merge phase asks whether
-    ``len(np.unique(label_img)) - 1`` is zero. For a ``(0, 0)`` array the
-    unique list is empty, so that count is ``-1`` and the field carries on --
-    which is why the merge phase takes its own count of the labels present.
-    Without it the union-find would size its mapping from ``label_img.max()``
+    The positive-label count is zero for a ``(0, 0)`` array, so the early
+    return protects it from sizing the union-find mapping with ``label_img.max()``
     on an empty array, which numpy refuses (asserted below), and the field
-    would fail rather than come back empty.
-
-    THE GATE IS THE LABEL COUNT, NOT THE THRESHOLD, which is what keeps this
-    field safe now that the merge step takes an absolute intensity threshold
-    instead of a relative one. The count is taken before any threshold is
-    read, so an empty field skips the merge whatever the threshold says, and
-    the second call below holds that: the threshold is set, the intensity
-    merge is on, and the field still comes back untouched and silent.
+    comes back empty even when an intensity bound is enabled without an image.
     """
     empty = np.zeros((0, 0), np.uint16)
 
@@ -83,19 +54,11 @@ def test_a_mask_array_with_no_pixels_reaches_the_filter_without_merging(capsys):
     # changed object count for this field.
     assert "merge:" not in capsys.readouterr().out
 
-    # With the intensity merge switched on and an absolute threshold set, the
-    # field takes the same route. It has no labels, so it has no shared
-    # boundaries to measure, so the threshold is never consulted and no
-    # report is produced -- the boundary-range line the merge step prints
-    # would otherwise have to summarise a range over nothing.
-    with_threshold = _in_memory(empty,
-                                intensity_img=np.zeros((0, 0), np.float32),
-                                do_intensity_merge=True,
-                                intensity_threshold=250.0)
+    with_threshold = _in_memory(empty, min_intensity=250)
 
     assert with_threshold.shape == (0, 0)
     assert with_threshold.dtype == np.uint16
-    assert "Intensity merge" not in capsys.readouterr().out
+    assert "Intensity filter:" not in capsys.readouterr().out
 
     # And it is the label count, not luck, that kept it out: the union-find
     # the merge phase ends with cannot be built over an empty array.
@@ -107,7 +70,9 @@ def test_a_mask_array_with_no_pixels_reaches_the_filter_without_merging(capsys):
     touching[2:6, 2:6] = 1
     touching[2:6, 6:10] = 2
 
-    merged = _in_memory(touching)
+    merged = _in_memory(touching,
+                        intensity_img=np.full(touching.shape, 300),
+                        min_intensity=250)
 
     assert sorted(np.unique(merged).tolist()) == [0, 1]
     assert "merge: 2 → 1 objects" in capsys.readouterr().out

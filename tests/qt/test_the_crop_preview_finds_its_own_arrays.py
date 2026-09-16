@@ -109,10 +109,16 @@ def test_an_empty_folder_says_what_is_wrong(tmp_path):
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
-def panel(qapp):
+def panel(qtbot):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
 
-    return MeasurePreviewPanel(threaded=False)
+    made = MeasurePreviewPanel(threaded=False)
+    # REGISTERED, so pytest-qt closes and deletes it when the test ends. Left
+    # to Python, a parentless panel is destroyed by the cycle collector
+    # whenever it next runs, and on dispatch 35012948690 that collection, in
+    # another file on the same worker, segfaulted it.
+    qtbot.addWidget(made)
+    return made
 
 
 def test_a_src_setting_loads_a_field(panel, tmp_path, monkeypatch):
@@ -216,13 +222,29 @@ def test_the_declared_count_decides_how_many_slots_are_shown(
     assert _visible_organelle_rows(CropSettingsDialog(panel)) == expected
 
 
-def test_an_unset_count_shows_every_slot(panel):
-    """Better a field too many than one hidden that a run is using."""
-    from spacr.qt.widgets.measure_preview import CropSettingsDialog
-    from spacr.object_roles import ORGANELLE_ROLES
+def test_an_unset_count_offers_no_slot_at_all(panel):
+    """REPLACES `test_an_unset_count_shows_every_slot`, 2026-09-14.
 
-    assert (_visible_organelle_rows(CropSettingsDialog(panel))
-            == sorted(ORGANELLE_ROLES))
+    It required the dialog of a panel nobody had told a count to show all
+    702 slots -- "better a field too many than one hidden that a run is
+    using" -- and that reading is what made opening Measure build 2,117
+    controls and freeze the GUI for 12.9 seconds: `ALL_ROLES` carries 702
+    organelle slots because `MAX_ORGANELLES` is 702, and
+    `DEFAULT_NUMBER_OF_ORGANELLES` is ZERO.
+
+    The fear it encoded is answered somewhere better. A run that is using a
+    slot SAYS SO -- in `number_of_organelles`, or by carrying the slot's
+    keys, which `declared_organelle_roles` reads -- and `apply_settings`
+    builds a control for every slot either of those names. So no field a run
+    uses is hidden, and a run with no organelle is not asked 2,106 questions
+    about objects it does not have.
+    """
+    from spacr.qt.widgets.measure_preview import CropSettingsDialog
+
+    assert _visible_organelle_rows(CropSettingsDialog(panel)) == []
+    slots = [role for role in panel._mask_dims
+             if role.startswith("organelle")]
+    assert slots == [], f"{len(slots)} slot controls for a run with none"
 
 
 def test_lowering_then_raising_the_count_keeps_the_values(panel):

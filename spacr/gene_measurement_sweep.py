@@ -35,10 +35,6 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-# THE HOUSE STYLE, AT MODULE SCOPE. `figures.style` imports matplotlib only
-# inside its own functions, so naming it here costs nothing at import time --
-# which is why every `plt` in this file is still imported lazily and this is
-# not.
 from .figures.style import figure_style, theme_target
 
 __all__ = [
@@ -99,9 +95,6 @@ def measurement_columns(frame: pd.DataFrame) -> List[str]:
     identifiers = [c for c in numeric if not is_measurement(c)]
     if not identifiers:
         return named
-    # RANK ONCE, THEN ONE MATMUL -- not a correlation per pair. The pairwise
-    # version was 715 x 70 = 50,000 spearman calls and did not finish in two
-    # minutes, which is the very thing this module's docstring warns about.
     usable = [c for c in named
               if pd.to_numeric(frame[c], errors="coerce").nunique() >= 3]
     if not usable:
@@ -255,18 +248,11 @@ def gene_of_guide(guide: Any, prefix: Optional[str] = None) -> Optional[str]:
                 break
     parts = [p for p in text.split("_")]
     if stripped:
-        # THE ORGANISM IS ALREADY GONE, so the shape rule must not take a
-        # second component off. What is left is `<gene>_<guide>`, and a gene
-        # id that carries an underscore of its own -- `ROP18_kinase` -- keeps
-        # all of it. Applying the three-component rule here as well dropped
-        # the gene's first component and split its guides across two "genes".
         if len(parts) >= 2:
             gene = "_".join(parts[:-1]).strip()
         else:
             gene = parts[0].strip()
     elif len(parts) >= 3:
-        # `<organism>_<gene>_<guide>`: the gene is the middle component, and
-        # anything between it and the guide number belongs to it.
         gene = "_".join(parts[1:-1]).strip()
     else:
         gene = parts[0].strip()
@@ -369,9 +355,6 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
         if wanted == "gene":
             fractions = genes
         elif len(genes.columns):
-            # Suffixed so a gene and one of its guides cannot collide in the
-            # index -- `233460` the gene and `233460_1` the guide are
-            # different rows and a reader must be able to tell which is which.
             fractions = pd.concat(
                 [fractions, genes.rename(columns=lambda g: f"{g} (gene)")],
                 axis=1)
@@ -387,9 +370,6 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
 
     chosen = list(measurements) if measurements is not None \
         else measurement_columns(wells)
-    # NAMED EXCLUSIONS, applied after the automatic ones. A user who knows a
-    # column is wrong -- a stale plate id, a measurement they no longer
-    # trust -- should not have to enumerate the seven hundred that are fine.
     if drop_measurements:
         unwanted = {str(c) for c in drop_measurements}
         chosen = [c for c in chosen if str(c) not in unwanted]
@@ -400,9 +380,6 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     present = (fractions > 0).sum(axis=0)
     guides = [g for g in fractions.columns if int(present.get(g, 0)) >= min_wells]
 
-    # THE THREE GUIDE FILTERS, and each is recorded rather than silent: a
-    # sweep that quietly dropped a gene the user was looking for would send
-    # them hunting through the table for a row that was never computed.
     excluded: Dict[str, Tuple[str, ...]] = {}
     if drop_guides:
         unwanted = {str(g) for g in drop_guides}
@@ -448,31 +425,14 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     M /= (M.std(axis=0, keepdims=True) + 1e-12)
     F /= (F.std(axis=0, keepdims=True) + 1e-12)
 
-    # ONE MATMUL. Every guide against every measurement, as a correlation
-    # after the block means are gone.
     R = (F.T @ M) / max(n - n_blocks, 1)
     R = np.clip(np.nan_to_num(R), -0.999999, 0.999999)
 
-    # THE DEGREES OF FREEDOM ARE THE GUIDE'S, NOT THE SCREEN'S.
-    #
-    # A guide present in 7 of 1,366 wells has a fraction vector that is zero
-    # almost everywhere, and its correlation is carried by those 7 points.
-    # Using n - blocks - 1 for it reported p = 0.0 from seven wells, which is
-    # the most confident possible statement of almost nothing, and it sat at
-    # the top of the table.
-    #
-    # The participation ratio (sum x^2)^2 / sum x^4 is the effective number of
-    # wells actually carrying a predictor: it equals n for a dense one and
-    # collapses to the count of non-zero wells for a sparse one. Cheap -- two
-    # column sums -- and conservative in the direction that matters.
     sq = F * F
     n_eff = (sq.sum(axis=0) ** 2) / np.maximum((sq * sq).sum(axis=0), 1e-300)
     n_eff = np.clip(n_eff, 3.0, float(n))
     df_guide = np.maximum(n_eff - n_blocks - 1.0, 1.0)
     df = df_guide[:, None]
-    # Representation, reported rather than corrected for: the right response
-    # to a gene that is everywhere is to SEE that it is, not to have its
-    # numbers quietly adjusted.
     presence = (fractions[guides] > 0)
     share_of = np.round(
         fractions[guides].where(presence).median(axis=0).fillna(0.0).to_numpy(), 4)
@@ -482,13 +442,9 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     from scipy.stats import t as _t
     p = 2.0 * _t.sf(np.abs(t), df)
 
-    # NaN, NOT ZERO, when it was never computed. A column of 0.00 reads as
-    # "nothing here is circular", which is the most confident possible way to
-    # say nothing -- and it is what the panel displayed before this line.
     circular = np.full(len(chosen), np.nan)
     circularity_known = False
     if scores is not None:
-        # Ranked once and correlated as a matrix, for the same reason.
         s = pd.Series(np.asarray(list(scores), dtype=float), index=common).rank()
         block_m = wells[chosen].apply(pd.to_numeric, errors="coerce").rank()
         sv = s.fillna(s.mean()).to_numpy(dtype=float)
@@ -497,22 +453,12 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
         mv = mv - mv.mean(axis=0)
         denom = (np.linalg.norm(sv) * np.linalg.norm(mv, axis=0)) + 1e-12
         circular = np.abs((sv @ mv) / denom)
-        # A SCORE THAT JOINED TO NOTHING MUST NOT READ AS "NOT CIRCULAR".
-        # The score CSVs of a real screen carry `pplate1` where the
-        # measurement databases carry `plate1`, so an un-canonicalised join
-        # matches no well at all -- and the resulting all-NaN column was
-        # reported as "0 of 5,959 hits are circular", which is the most
-        # confident possible way to say nothing.
         overlap = int(pd.Series(np.asarray(list(scores), dtype=float),
                                 index=common).notna().sum())
         circularity_known = overlap >= 3 and bool(np.isfinite(circular).any())
         if not circularity_known:
             circular = np.full(len(chosen), np.nan)
 
-    # THE SUFFIX GOES FROM BOTH, or the table and the grid disagree about what
-    # a row is called and `plot_sweep` looks a gene up under a name only the
-    # table uses. It exists only to keep a gene and its guides apart while
-    # they are concatenated, and a gene id never equals a guide id anyway.
     effects = pd.DataFrame(
         R, index=[str(g).replace(" (gene)", "") for g in guides],
         columns=chosen)
@@ -525,13 +471,6 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
         "level": np.repeat(["gene" if str(g).endswith(" (gene)")
                             or wanted == "gene" else "guide"
                             for g in guides], len(chosen)),
-        # HOW MUCH OF THE SCREEN THIS GENE IS. Measured on the maintainer's
-        # own: 220950 sits in ALL 1,536 wells at a median fraction of 0.176 --
-        # 17.6% of every well -- while the median gene is in 73. With that
-        # many wells a partial correlation of 0.396 is overwhelming, and a
-        # 73-well gene needs a far larger effect to clear the same bar. So
-        # ranking by q ranks by REPRESENTATION as much as by biology, and a
-        # reader cannot see that unless it is on the row.
         "share": np.repeat(share_of, len(chosen)),
         "ubiquitous": np.repeat(ubiquity, len(chosen)),
         "control": np.repeat(
@@ -539,8 +478,6 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
             len(chosen)),
         "n_wells": np.repeat([int(present.get(g, 0)) for g in guides],
                              len(chosen)),
-        # What the P VALUE was actually computed on, which is not the same
-        # number and is the one a reader needs to judge it.
         "effective_wells": np.repeat(np.round(n_eff, 1), len(chosen)),
     })
     from .multiple_testing import adjust_p_values
@@ -557,9 +494,6 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
                        circularity_known=circularity_known)
 
 
-# --------------------------------------------------------------------------- #
-#  The picture
-# --------------------------------------------------------------------------- #
 
 class HOUSE:
     """Define spaCR's scientific-figure palette and sizing constants.
@@ -576,19 +510,19 @@ class HOUSE:
     interface while retaining consistent scientific data colors.
     """
 
-    GREY = "#B4B4B4"          # default data, non-significant
-    GREY_DARK = "#7F7F7F"     # secondary series, mean bars
-    BLUE = "#2E77BC"          # the primary highlight / the gene of interest
-    BLUE_LIGHT = "#7FB3E0"    # a second series beside the first
-    GREEN = "#2E7D4F"         # up
-    RUST = "#C4441C"          # down / the other highlight
-    CORAL = "#E8A88C"         # density and histogram fills
-    GOLD = "#E8C33A"          # third category
-    OCHRE = "#C87A28"         # fourth category
-    PURPLE = "#8B4A82"        # fifth category
-    NAVY = "#1F3F6E"          # sixth category / controls
-    SEQ = "Blues"             # single-hue ramp for a p-value or a score
-    DIVERGING = "RdBu_r"      # ONLY for a genuinely signed quantity
+    GREY = "#B4B4B4"
+    GREY_DARK = "#7F7F7F"
+    BLUE = "#2E77BC"
+    BLUE_LIGHT = "#7FB3E0"
+    GREEN = "#2E7D4F"
+    RUST = "#C4441C"
+    CORAL = "#E8A88C"
+    GOLD = "#E8C33A"
+    OCHRE = "#C87A28"
+    PURPLE = "#8B4A82"
+    NAVY = "#1F3F6E"
+    SEQ = "Blues"
+    DIVERGING = "RdBu_r"
 
     #: Family colours, assigned once and never re-mapped between panels --
     #: the rule Waldman Fig 3 keeps for strains across the weight curve, the
@@ -632,7 +566,7 @@ def _write(figure, path) -> None:
         from .figure_style import export_colour, saved_figure_appearance
 
         look = saved_figure_appearance()
-    except Exception:                        # style absent
+    except Exception:
         look = None
     if look is not None and getattr(look, "flip", False):
         ground = getattr(look, "ground", None)
@@ -643,13 +577,6 @@ def _write(figure, path) -> None:
             figure.patch.set_alpha(1.0)
             restore.append(lambda: (figure.patch.set_facecolor(before),
                                     figure.patch.set_alpha(alpha)))
-            # AND EACH AXES' OWN GROUND. The figure patch is the margin; the
-            # axes patch is the PAGE the data sits on, and on a heatmap it is
-            # very nearly the whole image. Flipping only the figure was
-            # invisible while rcParams were matplotlib's defaults -- the axes
-            # were already white -- and showed up the moment this module drew
-            # inside the house style, where the screen palette colours them
-            # dark. Measured: `plot_sweep` saved onto (141, 12, 37).
             for axes in figure.axes:
                 was = axes.get_facecolor()
                 was_alpha = axes.patch.get_alpha()
@@ -667,12 +594,6 @@ def _write(figure, path) -> None:
                 setter(replacement)
                 restore.append(lambda put=setter, old=current: put(old))
     try:
-        # NOT `plot.save_figure`, and deliberately (108 point 6). This
-        # function IS the export rule for the sweep's figures: it reads
-        # `saved_figure_appearance` itself and has already flipped the
-        # figure's ground, each axes' ground and every piece of chrome above.
-        # Routing it through the shared writer would apply the same repaint a
-        # second time, on artists this function is holding the undo for.
         figure.savefig(path, dpi=200, bbox_inches="tight",
                        facecolor=figure.get_facecolor())
     finally:
@@ -738,14 +659,11 @@ def _readable(figure, *axes) -> str:
         from .figures.style import resolve_ink, theme_target
 
         ink = resolve_ink(theme_target())
-    except Exception:                        # style absent
+    except Exception:
         pass
-    # TRANSPARENT, not a colour of our own: the page the figure lands on is
-    # the application's, and painting white behind it is what makes a dark
-    # theme look broken.
     try:
         figure.patch.set_alpha(0.0)
-    except Exception:                        # defensive
+    except Exception:
         pass
     for axis in axes:
         if axis is None:
@@ -771,7 +689,7 @@ def _readable(figure, *axes) -> str:
             if legend is not None:
                 for text in legend.get_texts():
                     text.set_color(ink)
-        except Exception:                    # defensive
+        except Exception:
             continue
     return ink
 
@@ -799,11 +717,6 @@ def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
     if not len(keep):
         return None
 
-    # ONE LEVEL PER PICTURE. At `level='both'` the table holds a gene row and
-    # a row for each of its guides, and drawn together they are the same
-    # effect counted several times -- a block of near-identical rows that
-    # reads as agreement between independent things. Genes by default,
-    # because that is the question the sweep is usually asked.
     drawn = str(level or "").strip().lower()
     if "level" in keep.columns and keep["level"].nunique() > 1:
         drawn = drawn or "gene"
@@ -821,18 +734,10 @@ def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
     if grid.empty:
         return None
 
-    # ORDERED SO NEIGHBOURS ARE ALIKE. A heatmap whose rows are in the order
-    # they happened to arrive hides every block structure in it; the
-    # measurements of one compartment belong together and a reader looking for
-    # "what kind of thing does this gene move" is looking for exactly that.
     grid = _order_like_neighbours(grid)
 
     height = max(3.0, 0.28 * len(grid.index) + 1.6)
     width = max(5.0, 0.34 * len(grid.columns) + 3.2)
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(width, height))
         limit = float(np.nanmax(np.abs(grid.to_numpy()))) or 1.0
@@ -964,10 +869,6 @@ def plot_effect_against_representation(
 
     passed = keep[keep["q"] < float(alpha)]
     if not len(passed):
-        # NOTHING, rather than every gene on a flat line at zero. That
-        # picture is not false -- no gene passed -- but it reads as a
-        # measured absence of effect when it is an absence of evidence, and
-        # the two are the thing this whole module tries to keep apart.
         return None
     per_gene = keep.groupby("guide").agg(
         weight=("effective_wells", "first"),
@@ -980,29 +881,16 @@ def plot_effect_against_representation(
     if not len(per_gene):
         return None
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(7.2, 5.0))
         controls = per_gene[per_gene["control"].astype(bool)]
         rest = per_gene[~per_gene["control"].astype(bool)]
-        # OPAQUE, NO EDGE. The skill: overplotting is handled by point size and
-        # by greying, not by alpha -- a translucent mark makes density and value
-        # the same channel.
         axes.scatter(rest["weight"], rest["hits"], s=9, color=HOUSE.GREY,
                      edgecolor="none", zorder=2)
         if len(controls):
-            # THE CONTROLS ARE THE OTHER HIGHLIGHT, opaque and small like every
-            # other mark. A hollow diamond at s=54 read as an annotation rather
-            # than as data.
             axes.scatter(controls["weight"], controls["hits"], s=22,
                          color=HOUSE.RUST, edgecolor="none", zorder=4)
 
-        # THE TREND, and only when there is something to fit. Two points make a
-        # line through themselves and say nothing; drawing it anyway would put a
-        # confident diagonal on a plot that has no evidence for one.
         if len(per_gene) >= 8 and per_gene["weight"].nunique() > 2:
             x = per_gene["weight"].to_numpy(dtype=float)
             y = per_gene["hits"].to_numpy(dtype=float)
@@ -1010,8 +898,6 @@ def plot_effect_against_representation(
             span = np.linspace(x.min(), x.max(), 50)
             axes.plot(span, slope * span + intercept, color=HOUSE.GREY_DARK,
                       linewidth=HOUSE.REFERENCE, linestyle=":", zorder=3)
-            # Named on the plot, because the number is the answer to the question
-            # and a reader should not have to eyeball the slope.
             rho = float(np.corrcoef(x, y)[0, 1]) if len(set(x)) > 1 else np.nan
             axes.set_title(
                 title or (f"hits vs representation — rho = {rho:.2f} "
@@ -1076,18 +962,10 @@ def plot_measurement_families(result: "SweepResult",
     families = [f for f, _ in MEASUREMENT_FAMILIES] + ["other"]
     families = [f for f in families if f in counts.columns]
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(
             figsize=(7.6, max(3.0, 0.34 * len(counts.index) + 1.4)))
         left = np.zeros(len(counts.index))
-        # FAMILY COLOURS ASSIGNED ONCE AND NEVER RE-MAPPED, the rule Waldman
-        # Fig 3 keeps for strains across three different panels. Here the
-        # categories genuinely ARE the data, which is the one case the skill
-        # allows a categorical palette.
         for family in families:
             values = counts[family].to_numpy(dtype=float)
             axes.barh(range(len(counts.index)), values, left=left, height=0.68,
@@ -1140,7 +1018,6 @@ def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
     if not len(table):
         return None
 
-    # A gene needs TWO guides to agree or disagree about anything.
     per_gene_guides = table.groupby("gene")["guide"].nunique()
     table = table[table["gene"].isin(
         per_gene_guides[per_gene_guides >= 2].index)]
@@ -1167,15 +1044,6 @@ def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
                                         pairs=("agree", "size"))
     summary = summary.sort_values("agreement", ascending=False).head(top)
 
-    # DOTS, NEVER A BAR. A gene has two to four guides, and the skill is
-    # explicit: "n = 2-8 replicates ... individual points with a horizontal
-    # line at the mean; NEVER a bar chart -- a bar for n = 3 is not done in
-    # these papers". The old bar hid exactly what this panel exists to show:
-    # whether the guides agree, or whether one of them carries the gene.
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(
             figsize=(6.4, max(2.8, 0.30 * len(summary.index) + 1.3)))
@@ -1183,14 +1051,10 @@ def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
         rng = np.random.default_rng(0)
         for row, gene in enumerate(summary.index):
             values = frame.loc[frame["gene"] == gene, "agree"].to_numpy(float)
-            # Jitter is deterministic: a figure that moves its points between two
-            # renders of the same data is a figure a reader cannot check.
             spread = rng.uniform(-0.13, 0.13, len(values))
             axes.scatter(values, np.full(len(values), row) + spread, s=13,
                          color=HOUSE.GREY, edgecolor="none", zorder=2)
             mean = float(np.mean(values))
-            # EVERYTHING GREY EXCEPT THE CLAIM: the mean is coloured only where
-            # it says something -- complete agreement, or a real split.
             colour = (HOUSE.BLUE if mean >= 0.99 else
                       HOUSE.RUST if mean < 0.6 else HOUSE.GREY_DARK)
             axes.plot([mean, mean], [row - 0.28, row + 0.28], color=colour,
@@ -1205,8 +1069,6 @@ def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
                      linestyle=":", zorder=1)
         axes.set_xlabel("share of a gene's guides agreeing on the sign")
         axes.set_ylabel("")
-        # A LEGEND AS COLOURED TEXT, no frame and no markers -- the Waldman
-        # Fig 3B/C idiom, which costs no space and needs no key to decode.
         axes.text(0.02, 0.02, "one point per measurement · line is the mean",
                   transform=axes.transAxes, fontsize=HOUSE.NOTE,
                   color=HOUSE.GREY_DARK, va="bottom")
@@ -1232,13 +1094,6 @@ def _one_level(table: pd.DataFrame, level: Optional[str]) -> str:
     return drawn if drawn else ""
 
 
-# --------------------------------------------------------------------------- #
-# The other six views                                                          #
-# --------------------------------------------------------------------------- #
-#
-# Ten ways of looking at one grid, each answering a question the others
-# cannot. The list is kept HERE rather than in a message, because the first
-# four were built from a conversation and the other six nearly were not.
 
 
 def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
@@ -1262,9 +1117,6 @@ def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
     drawn = _one_level(keep, level)
     if drawn:
         keep = keep[keep["level"] == drawn]
-    # COERCED, not assumed numeric: an empty frame built from a column list
-    # carries object dtype, and `np.isfinite` on that raises a TypeError
-    # rather than returning an empty mask.
     effect_values = pd.to_numeric(keep["effect"], errors="coerce")
     p_values = pd.to_numeric(keep["p"], errors="coerce")
     keep = keep[np.isfinite(effect_values) & np.isfinite(p_values)]
@@ -1274,15 +1126,6 @@ def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
     effect = keep["effect"].to_numpy(dtype=float)
     evidence = -np.log10(np.clip(keep["p"].to_numpy(dtype=float), 1e-300, 1.0))
 
-    # GREY / GREEN UP / RUST DOWN, the skill's volcano exactly. Colour is an
-    # ARGUMENT here: the grey is every pair tested and the coloured minority
-    # is the claim. Circularity is not a colour ramp over all of them any
-    # more -- a sequential ramp over 900 grey points is a texture, and it
-    # spent the one channel that could carry the finding.
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(6.2, 4.6))
         passed = (keep["q"] < float(alpha)).to_numpy()
@@ -1295,9 +1138,6 @@ def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
         axes.scatter(effect[down], evidence[down], s=5.0, color=HOUSE.RUST,
                      edgecolor="none", zorder=3)
 
-        # A CIRCULAR HIT IS RINGED, NOT RECOLOURED. It is still a hit; what the
-        # ring says is that the classifier already tracks that measurement, so it
-        # cannot corroborate anything derived from the classifier.
         if result.circularity_known:
             circular = passed & (
                 pd.to_numeric(keep["circularity"], errors="coerce").to_numpy()
@@ -1308,16 +1148,10 @@ def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
                              linewidth=0.7, zorder=4)
 
         if passed.any():
-            # The BH line falls where the correction actually landed, not at a
-            # nominal 0.05 -- drawing the nominal one puts the threshold in the
-            # wrong place on every corrected screen.
             cut = float(keep.loc[passed, "p"].max())
             axes.axhline(-np.log10(max(cut, 1e-300)), color=HOUSE.GREY_DARK,
                          linewidth=HOUSE.REFERENCE, linestyle=":", zorder=2)
 
-        # A HANDFUL LABELLED, not all of them: the skill labels "a handful of
-        # genes" on a volcano and nothing else, because a label on every hit is
-        # a wall of text with no claim in it.
         if passed.any():
             best = keep.loc[passed].nsmallest(6, "q")
             for _i, row in best.iterrows():
@@ -1369,20 +1203,12 @@ def plot_gene_profile(result: "SweepResult", gene: Any,
     if not len(mine):
         return None
     passed = mine[mine["q"] < float(alpha)]
-    # Fall back to the strongest effects when nothing cleared the
-    # correction: "this gene has no significant measurement" is worth
-    # SEEING, and an empty axis does not say it.
     shown = passed if len(passed) else mine
     shown = shown.reindex(
         shown["effect"].abs().sort_values(ascending=False).index).head(top)
     if not len(shown):
         return None
 
-    # GREY EXCEPT THE CLAIM. This drew every bar in a tab10 family colour,
-    # which spends the colour channel on a grouping the reader can already
-    # see in the labels and leaves nothing to say which effects are real.
-    # Significance is the claim here; family is context, and it goes on the
-    # tick labels.
     families = [measurement_family(m) for m in shown["measurement"]]
     passed_here = (shown["q"] < float(alpha)).to_numpy()
     signs = np.sign(shown["effect"].to_numpy(dtype=float))
@@ -1390,10 +1216,6 @@ def plot_gene_profile(result: "SweepResult", gene: Any,
         (HOUSE.GREEN if sign > 0 else HOUSE.RUST) if ok else HOUSE.GREY
         for ok, sign in zip(passed_here, signs)]
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(
             figsize=(7.0, max(3.0, 0.30 * len(shown) + 1.4)))
@@ -1464,10 +1286,6 @@ def plot_gene_similarity(result: "SweepResult", path: Optional[str] = None, *,
     frame = _order_like_neighbours(frame)
 
     size = max(3.6, 0.26 * len(frame.index) + 2.0)
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(size, size))
         image = axes.imshow(frame.to_numpy(), cmap="RdBu_r", vmin=-1.0, vmax=1.0)
@@ -1512,21 +1330,12 @@ def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
         return None
     total = int(keep["guide"].nunique())
 
-    # A BUBBLE PLOT, which is what the skill prescribes for "enrichment
-    # across ordered categories": size = count, fill = the evidence on a
-    # single-hue ramp, categories sorted by effect. The bar chart it replaces
-    # carried ONE number per measurement; this carries three in the same
-    # space -- how many genes move it, how strongly, and how sure.
     share = counts.to_numpy(dtype=float) / max(total, 1)
     strength = keep.groupby("measurement")["effect"].apply(
         lambda v: float(np.nanmedian(np.abs(v)))).reindex(counts.index)
     evidence = keep.groupby("measurement")["q"].min().reindex(counts.index)
     evidence = -np.log10(np.clip(evidence.to_numpy(dtype=float), 1e-300, 1.0))
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(
             figsize=(6.6, max(2.8, 0.28 * len(counts) + 1.4)))
@@ -1535,9 +1344,6 @@ def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
         dots = axes.scatter(strength.to_numpy(dtype=float), rows, s=sizes,
                             c=evidence, cmap=HOUSE.SEQ, edgecolor="none",
                             zorder=3)
-        # PROMISCUOUS MEASUREMENTS ARE RINGED, not recoloured: a measurement half
-        # the library moves is a plate effect wearing a measurement's name, and
-        # it will put a hit on every gene in the screen.
         loud = share >= 0.5
         if loud.any():
             axes.scatter(strength.to_numpy(dtype=float)[loud], rows[loud],
@@ -1581,9 +1387,6 @@ def plot_circularity(result: "SweepResult", path: Optional[str] = None, *,
     import matplotlib.pyplot as plt
 
     if not result.circularity_known:
-        # NOT AN EMPTY AXIS. The column is NaN, and a scatter of NaN is a
-        # blank panel that reads as "nothing is circular" -- which is the
-        # exact misreading this whole column exists to prevent.
         return None
 
     keep = result.survivors(alpha=alpha)
@@ -1594,10 +1397,6 @@ def plot_circularity(result: "SweepResult", path: Optional[str] = None, *,
     if not len(keep):
         return None
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(7.0, 5.0))
         circular = keep["circularity"].to_numpy(dtype=float)
@@ -1652,10 +1451,6 @@ def plot_calibration(result: "SweepResult", path: Optional[str] = None, *,
     observed = np.sort(np.clip(values, 1e-300, 1.0))
     expected = (np.arange(1, observed.size + 1) - 0.5) / observed.size
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(5.6, 5.4))
         axes.plot(-np.log10(expected), -np.log10(observed), ".", markersize=2.6,
@@ -1664,9 +1459,6 @@ def plot_calibration(result: "SweepResult", path: Optional[str] = None, *,
         axes.plot([0, edge], [0, edge], color=HOUSE.GREY_DARK,
                   linewidth=HOUSE.REFERENCE, linestyle=":", zorder=1)
 
-        # THE INFLATION FACTOR, named. A number beats an eyeballed slope, and
-        # this one has a standard meaning: lambda near 1 is calibrated, and
-        # well above it means something systematic is inflating every test.
         from scipy.stats import chi2
 
         median = float(np.median(observed))

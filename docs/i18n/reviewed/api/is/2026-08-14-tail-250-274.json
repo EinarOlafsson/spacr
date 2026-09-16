@@ -39,6 +39,8 @@
     {
       "context": "The Plate-processing list chains *plates* through *one* workflow. This screen is the other axis: arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — built, validated, saved to a file and run unattended.",
       "label": "spacr.qt.screens.batch#1",
+      "retired": "2026-09-13",
+      "retired_reason": "2026-09-13: the English sense expansion no longer renames a UI screen. This context said \"Plate-processing list\"; the screen is called Plate Queue and is now protected, so the reviewed translation renders a name the application does not have.",
       "source": "The Plate Queue chains *plates* through *one* pipeline. This screen is the other axis: arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — built, validated, saved to a file and run unattended.",
       "source_sha256": "f2fdd5045c550f29a4cd1e3b09d28445abeff55335541a736366d3fd78625fe5",
       "translation": "Diskvinnslu listinn keðjar *diskar* í gegnum *einn* vinnuflæði. Þessi skimun er hin ásinn: handahófskennd ``(module, settings)`` verkefni í hvaða röð sem er — ``Mask → Measure → Classify (CV) → Classify (ML)``, síðan sömu fjórar aftur með annarri þvermál, síðan Maski fimmta disksins — byggt, sannreynt, vistað í skrá og keyrt án eftirlits."
@@ -129,12 +131,12 @@
     },
     {
       "context": "the warnings *outside* the column mapping (unpaired masks, the join, z handling). They remain separate so :meth:`with_column_maps` can rebuild the mapping warnings without losing or duplicating them.",
-      "label": "spacr.foreign.ImportPlan#11",
+      "label": "spacr.foreign.ImportPlan#21",
+      "retired": true,
+      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence",
       "source": "the warnings that do *not* come from the column mapping (unpaired masks, the join, z handling). Kept apart so :meth:`with_column_maps` can rebuild the mapping's own warnings without losing them or duplicating them.",
       "source_sha256": "ef73f4b56443047fc67a036613d1271934a7b93e2eb30c9f5df752faa47046c7",
-      "translation": "viðvörunarnar *utan* dálkakortlagningarinnar (ósamsett grímur, samruni, z-meðhöndlun). Þær halda sér aðskildar svo :meth:`with_column_maps` geti endurbyggt viðvaranir kortlagningarinnar án þess að tapa þeim eða tvítekja þær.",
-      "retired": true,
-      "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence"
+      "translation": "viðvörunarnar *utan* dálkakortlagningarinnar (ósamsett grímur, samruni, z-meðhöndlun). Þær halda sér aðskildar svo :meth:`with_column_maps` geti endurbyggt viðvaranir kortlagningarinnar án þess að tapa þeim eða tvítekja þær."
     }
   ],
   "schema": 1

@@ -112,7 +112,6 @@ class FeatureExplorerPanel(QWidget):
         for statistic in STATISTICS:
             self._statistic.addItem(
                 STATISTIC_LABELS[statistic].split(" — ")[0], statistic)
-        # The blind spots, on screen rather than in a manual.
         self._statistic.setToolTip("\n\n".join(
             f"{STATISTIC_LABELS[s]}\ncannot see: {STATISTIC_FAILURE_MODES[s]}"
             for s in STATISTICS))
@@ -154,9 +153,6 @@ class FeatureExplorerPanel(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.currentCellChanged.connect(self._on_row_changed)
-        # `FeatureExplorerPanel` is transparent scaffolding by design
-        # (see the GraphBuilder block), so the ranking table is the page
-        # here; the distribution canvas beside it paints its own panel.
         mark_surface(self.table)
         body.addWidget(self.table)
 
@@ -164,9 +160,6 @@ class FeatureExplorerPanel(QWidget):
         holder = QVBoxLayout(self._figure_holder)
         holder.setContentsMargins(0, 0, 0, 0)
         from matplotlib.figure import Figure
-        # No `facecolor`: the canvas paints the page panel in its own
-        # `paintEvent` under a transparent figure patch, so a solid one here
-        # would put the opaque rectangle straight back.
         self._figure = Figure(figsize=(5.0, 6.0))
         self._canvas = _canvas_class()(self._figure)
         holder.addWidget(self._canvas, 1)
@@ -184,13 +177,9 @@ class FeatureExplorerPanel(QWidget):
         self._debounce.setSingleShot(True)
         self._debounce.setInterval(DEBOUNCE_MS)
         self._debounce.timeout.connect(self.rank_now)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
         """Point the panel at a table and offer its class columns."""
         self._frame = frame
@@ -269,7 +258,6 @@ class FeatureExplorerPanel(QWidget):
         """
         return self._summary.text()
 
-    # -- ranking ----------------------------------------------------------
     def _schedule(self, *_args) -> None:
         """Queue a re-rank after a control changed.
 

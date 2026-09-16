@@ -110,9 +110,6 @@ def _as_controls(values: Any) -> List[Any]:
             return [part.strip() for part in text.split(",") if part.strip()]
         return [text]
     if isinstance(values, Iterable):
-        # The same rule one level in: a LIST holding one comma-separated
-        # string is what a settings CSV round-trip produces, and it fails
-        # exactly the same way.
         out: List[Any] = []
         for value in values:
             if isinstance(value, str) and "," in value:
@@ -167,9 +164,6 @@ def _centroid_spread(values: pd.DataFrame, batch: pd.Series) -> Optional[float]:
         return None
 
 
-# ---------------------------------------------------------------------------
-# ComBat
-# ---------------------------------------------------------------------------
 
 #: Convergence threshold and iteration cap for the empirical-Bayes fixed point.
 #: Both match ``sva::ComBat``'s ``it.sol``; the cap is ours, because a fixed
@@ -432,7 +426,7 @@ def _combat(
     :raises ValueError: when batch and covariate are confounded, when a batch
         has fewer than two rows, or when the design is not identifiable.
     """
-    values = numeric.to_numpy(dtype=float).T  # (features, rows)
+    values = numeric.to_numpy(dtype=float).T
     n_features, n_rows = values.shape
 
     batch_design = np.column_stack(
@@ -488,10 +482,6 @@ def _combat(
 
     residual = values - (design @ coefficients).T
     var_pooled = np.einsum("ij,ij->i", residual, residual) / n_rows
-    # Relative, not `<= 0`. A column that is exactly constant comes out of
-    # `lstsq` with a residual around 1e-30 rather than 0, and dividing by its
-    # square root turns rounding noise into a feature with unit variance --
-    # a dead channel that arrives in the corrected table looking alive.
     scale_floor = _COMBAT_MIN_VAR * np.maximum(
         np.var(values, axis=1), np.mean(values ** 2, axis=1) + 1.0,
     )
@@ -648,10 +638,6 @@ def correct_batch_effects(
         )
     combat_covariate: Optional[pd.DataFrame] = None
     if normalized_method == "combat":
-        # Asked before anything is computed, and asked unconditionally: a
-        # single-batch frame short-circuits to a no-op below, and answering
-        # only for the runs that happen to have two plates would let the
-        # question go unasked in exactly the run that gets rerun on more data.
         if _is_no_covariate(covariate):
             pass
         elif covariate is None:
@@ -747,10 +733,6 @@ def correct_batch_effects(
         report.controls = int(control_mask.sum())
         pooled = numeric.loc[control_mask]
         if len(pooled) < min_samples:
-            # SAY WHAT IS ACTUALLY THERE. "matched nothing" with no sight of
-            # the column is a message that sends the user to the wrong place;
-            # the commonest cause is a control name that is not one of the
-            # values the column holds.
             try:
                 present = sorted({str(v) for v in control.dropna().unique()})
             except Exception:                                    # noqa: BLE001

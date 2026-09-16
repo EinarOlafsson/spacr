@@ -126,7 +126,9 @@
       "source_sha256": "c317e98b10f030cb637e567195d501607ce21e12f6b952afb2d363ca2597aef7",
       "source": "C-axis indices selected out of each assembled stack before it is handed to Cellpose — taken modulo the channel count and de-duplicated in order. It is NOT forwarded as Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a single plane, not a grayscale pair.",
       "context": "C-axis indices selected out of each assembled stack before it is handed to Cellpose — taken modulo the image data channel count and de-duplicated in order. It is NOT forwarded as Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a single image layer, not a grayscale pair.",
-      "translation": "在把每个已组装堆栈交给 Cellpose 之前，从中选择 C 轴索引——对图像数据通道数量取模，并按原顺序去重。该值不会作为 Cellpose 的 ``channels=`` 参数传递；因此 ``[0, 0]`` 得到的是单个图像层，而不是一对灰度层。"
+      "translation": "在把每个已组装堆栈交给 Cellpose 之前，从中选择 C 轴索引——对图像数据通道数量取模，并按原顺序去重。该值不会作为 Cellpose 的 ``channels=`` 参数传递；因此 ``[0, 0]`` 得到的是单个图像层，而不是一对灰度层。",
+      "retired": "2026-09-15",
+      "retired_reason": "Feature 418 expanded this channel-selection parameter block to document the first selected raw plane as the source for absolute mean-intensity filtering; the original reviewed block is no longer present verbatim. The original source, hash and translation are retained as evidence."
     },
     {
       "label": "spacr.plot.plot_cellpose4_output#0",

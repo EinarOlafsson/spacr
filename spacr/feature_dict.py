@@ -48,16 +48,6 @@ from typing import Any, Iterable
 from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 from .object_roles import ORGANELLE_ROLES
 
-# PANDAS IS NOT IMPORTED HERE. Everything above the export section is
-# strings and parsing: what a measured column is called, what it means and
-# which object it belongs to. Only `describe_database` and the export path
-# below build or read a DataFrame, and they import pandas themselves.
-#
-# The Feature Dictionary panel imports this module for those strings, and
-# that panel registers its app and its stylesheet block at launch -- so a
-# module-level pandas here was several hundred modules and a good fraction
-# of a second spent before the window drew, on behalf of a user who may
-# never open it.
 
 __all__ = [
     "CHANNEL_NONE",
@@ -97,9 +87,6 @@ __all__ = [
 ]
 
 
-# --------------------------------------------------------------------------
-# vocabulary
-# --------------------------------------------------------------------------
 
 #: Object types that can prefix a feature column. These are the entries of
 #: ``ls`` in :func:`spacr.measure._morphological_measurements` (measure.py:167)
@@ -267,9 +254,6 @@ class FeatureEntry:
         return asdict(self)
 
 
-# --------------------------------------------------------------------------
-# units
-# --------------------------------------------------------------------------
 
 #: The values :func:`spacr.measure.resolve_measurement_spacing` writes into the
 #: per-row ``measurement_units`` column, in the order they are reported:
@@ -401,19 +385,10 @@ _PX_3D_ONLY = ConditionalUnit(px=None, px_xy=_LENGTH_PX_XY, um=_LENGTH_UM)
 #: write it and there is nothing conditional about it.
 _PX_2D_ONLY = "px (pixels; 2-D only — a 3-D run does not write this column)"
 
-# Intensity is read from the merged stack, which _merge_file (io.py:2367)
-# builds from ``<src>/stack`` — the *raw* concatenated channel arrays. The
-# percentile-normalised copies produced by concatenate_and_normalize live in a
-# separate folder and are used for segmentation, not for measurement. The only
-# transformation measure.py applies is a dtype promotion to uint16 for arrays
-# that are neither uint8 nor uint16 (measure.py:914-917).
 _INTENSITY = (
     "native image intensity units of the merged stack (raw acquisition "
     "counts, typically uint16; not background-subtracted and not calibrated)"
 )
-# The sum is np.sum(region.intensity_image[region.image]) — a plain sum over
-# the object's elements with no spacing factor, so in 3-D it is intensity x
-# voxel count and NOT intensity x um^3, whatever the voxel size says.
 _INTENSITY_SUM_3D = (
     "native image intensity units summed over voxels (intensity x voxel "
     "count). NOT converted by the voxel size: measure.py sums the object's "
@@ -428,9 +403,6 @@ _DIMLESS = "dimensionless"
 _FRACTION = "fraction in [0, 1]"
 
 
-# --------------------------------------------------------------------------
-# curated definitions
-# --------------------------------------------------------------------------
 
 _RP = "skimage.measure.regionprops_table"
 
@@ -440,7 +412,6 @@ _RP = "skimage.measure.regionprops_table"
 #: ``percentile_<p>``; :func:`parse_column` matches the concrete name with a
 #: regex and formats the placeholder into the description.
 KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
-    # ---------------- morphology (measure.py:163-164, morphological_props)
     "area": PropertyInfo(
         "morphology",
         "Size of the object in its label mask: the pixel count in a 2-D run "
@@ -583,7 +554,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "compare a distance in z with a distance in xy as if the two were the "
         "same length.",
     ),
-    # ---------------- 3-D volumes (measure.py:_voxel_volume_columns)
     "volume_voxels": PropertyInfo(
         "morphology",
         "Number of voxels belonging to the object — its volume as a raw count, "
@@ -610,7 +580,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "volume_um3, because there is no physical size to convert with. The "
         "name matches spacr.zstack.volume_stats.",
     ),
-    # ---------------- shape moments (measure.py:56-80)
     "zernike_<i>": PropertyInfo(
         "moment",
         "Magnitude of Zernike moment number {i} of the object's binary shape. "
@@ -630,7 +599,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "a 3-D run writes no zernike_* columns at all rather than describing "
         "one arbitrary plane.",
     ),
-    # ---------------- intensity, from regionprops (measure.py:360)
     "mean_intensity": PropertyInfo(
         "intensity",
         "Mean pixel value of this channel over all pixels of the object.",
@@ -698,8 +666,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "encode where in the field of view the object sits. 2-D only; a 3-D "
         "run writes centroid_weighted_local_z / _y / _x instead.",
     ),
-    # ---------------- 3-D centroids, named by axis
-    # (measure.py:_CENTROID_AXES_3D / _rename_3d_centroids)
     "centroid_weighted_z": PropertyInfo(
         "moment",
         "Plane (z) coordinate of the intensity-weighted centroid of this "
@@ -761,7 +727,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "spacr.measure._rename_3d_centroids",
         "3-D only; the 2-D equivalent is centroid_weighted_local-1.",
     ),
-    # ---------------- extended intensity (measure.py:483-539)
     "integrated_intensity": PropertyInfo(
         "intensity",
         "Sum of this channel's pixel values over the object — total signal, "
@@ -918,7 +883,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "Emitted for p in 5, 10, 25, 75, 85, 95 (measure.py:534). There is no "
         "percentile_50 — the median is median_intensity.",
     ),
-    # ---------------- texture
     "homogeneity_distance_<d>": PropertyInfo(
         "texture",
         "Grey-level co-occurrence matrix homogeneity (inverse difference "
@@ -959,7 +923,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "OpenCV treats as an Nx1 image, so the old column is a second "
         "difference along raster order rather than a focus measure.",
     ),
-    # ---------------- colocalisation (measure.py:665-708)
     "Pearson_correlation": PropertyInfo(
         "correlation",
         "Pearson correlation coefficient between the two channels over the "
@@ -998,7 +961,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "Same caveats as M1_correlation_<t>; the two differ only in which "
         "channel's intensity is summed over the shared overlap mask.",
     ),
-    # ---------------- Manders (measure.py; unconditional since 2026-09-02)
     "manders_m1": PropertyInfo(
         "correlation",
         "Manders' M1: the fraction of the FIRST channel's above-background "
@@ -1039,7 +1001,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "per-object median + 3 * 1.4826 * MAD of each channel. 0.0, never "
         "NaN, when either channel has no above-background intensity.",
     ),
-    # ---------------- spatial context (measure.py, spatial_measurements)
     "neighbors_within_<r>": PropertyInfo(
         "spatial",
         "How many OTHER objects of the same kind have their centroid within "
@@ -1106,7 +1067,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "the object namespace refuses a non-numeric column, and any name "
         "carrying 'label' is folded into the merge key.",
     ),
-    # ---------------- infection neighbourhood (bystanders.py)
     "is_bystander": PropertyInfo(
         "spatial",
         "1 when this cell holds no pathogen but lies within the bystander "
@@ -1145,7 +1105,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "sit one spacing unit apart rather than at 0, because the labels "
         "are disjoint and the nearest infected pixel is one step away.",
     ),
-    # ---------------- object geometry (object_distances.py)
     "distance_to_own_boundary": PropertyInfo(
         "spatial",
         "Distance from this object's geometric centroid to its own nearest "
@@ -1278,7 +1237,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "summary is min or mean over the retained peaks. NaN when no peak "
         "was found; infinity when peaks exist but no {other} is present.",
     ),
-    # ---------------- periphery / outside rings (measure.py:561-603)
     "periphery_mean": PropertyInfo(
         "intensity",
         "Mean intensity of this channel along the object's own outer rim (the "
@@ -1301,10 +1259,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "spelling spell it periphery_{p}_percentile; "
         "spacr.utils.rename_columns_in_db renames them on first read.",
     ),
-    # Retained so that a column read out of a database that has not been
-    # migrated yet — an old file opened outside spaCR, a CSV exported by an
-    # older release — is still explained rather than reported as unknown. The
-    # description is the same measurement; only the spelling differs.
     "periphery_<p>_percentile": PropertyInfo(
         "intensity",
         "{p}th percentile of this channel's intensity along the object's own "
@@ -1363,7 +1317,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "the database is read. The ring is not masked against neighbouring "
         "objects. The values are identical; only the name differs.",
     ),
-    # ---------------- radial distribution (measure.py:438-449, 605-663)
     "rad_dist_channel_<c>_bin_<b>": PropertyInfo(
         "intensity",
         "Mean intensity of channel {c} in radial shell {b} of 6, measured by "
@@ -1389,7 +1342,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "are physical shells rather than voxel counts; the bin values "
         "themselves stay in intensity units either way.",
     ),
-    # ---------------- intensity-weighted distances (measure.py:733-796)
     "distance_to_nucleus": PropertyInfo(
         "morphology",
         "Distance from this channel's intensity-weighted centre of mass "
@@ -1421,7 +1373,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "the nearest pathogen may belong to a neighbouring cell. Sampled with "
         "the voxel spacing in 3-D.",
     ),
-    # ---------------- organelle summaries (measure.py:250-330, 1046-1062)
     "organelle_summary_organelle_count": PropertyInfo(
         "morphology",
         "Number of organelle objects assigned to this parent object.",
@@ -1528,7 +1479,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "0.0 when the parent has fewer than 2 organelles. Databases written "
         "before this spelling abbreviate the channel as ch{c}.",
     ),
-    # Legacy spellings, kept so an un-migrated database is still described.
     "organelle_summary_organelle_ch<c>_mean_intensity_per_<parent>": PropertyInfo(
         "intensity",
         "Mean over this {parent}'s organelles of each organelle's own mean "
@@ -1556,7 +1506,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "channel_<c> and spacr.utils.rename_columns_in_db renames the old form "
         "on first read.",
     ),
-    # ---------------- cytoskeleton (measure.py:82-147)
     "skeleton_length": PropertyInfo(
         "morphology",
         "Total pixel count of the morphological skeleton of the thresholded "
@@ -1581,11 +1530,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "_analyze_cytoskeleton is not called by measure_crop in this version, "
         "so this column is not produced by a standard run.",
     ),
-    # ---------------- pivoted_counts (mask stage, one row per FIELD)
-    # spacr.io._save_object_counts_to_database writes one object_counts row per
-    # (file, count_type) with count_type = f'{object_type}{added_string}';
-    # spacr.utils._pivot_counts_table then pivots count_type into columns, so
-    # each suffix below becomes '<object><suffix>' in pivoted_counts.
     "before_filtration": PropertyInfo(
         "meta",
         "How many objects of this type Cellpose found in the field BEFORE "
@@ -1628,9 +1572,6 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
 }
 
 
-# --------------------------------------------------------------------------
-# metadata columns
-# --------------------------------------------------------------------------
 
 _META_UTILS = "spacr.utils._merge_and_save_to_database"
 _META_WELLS = "spacr.utils._map_wells (parsed from the stack file name)"
@@ -2014,12 +1955,6 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         "spacr.utils.add_column_to_database (ALTER TABLE ... ADD COLUMN)",
         "Annotation column names are user-chosen; see 'test'.",
     ),
-    # ---------------- measurement provenance stamp
-    # spacr.measure.MEASUREMENT_STAMP_COLUMNS, written onto every row of every
-    # object table by spacr.utils._merge_and_save_to_database. These five are
-    # what makes the conditional units above resolvable: measure.py records the
-    # unit on the row instead of renaming <object>_area, so the columns below
-    # are the only thing that says which quantity that column holds.
     "measurement_ndim": PropertyInfo(
         "meta",
         "Number of spatial dimensions this row was measured in: 2 for a flat "
@@ -2088,9 +2023,6 @@ META_COLUMNS: dict[str, PropertyInfo] = {
     ),
 }
 
-# Per-object-type parent/child link columns produced by the morphology merge:
-# measure.py:183 (nucleus <- cell_to_nucleus), 194 (pathogen <- cell_to_pathogen)
-# and 208 (organelle <- _map_child_to_parent), all prefixed at measure.py:225.
 _LINK_COLUMNS: dict[str, PropertyInfo] = {
     "cell_id": PropertyInfo(
         "meta",
@@ -2171,17 +2103,6 @@ _LINK_COLUMNS: dict[str, PropertyInfo] = {
 }
 
 
-# --------------------------------------------------------------------------
-# scope — which objects a feature exists for, and how channels enter it
-# --------------------------------------------------------------------------
-#
-# A column name says which object it came from; it does not say which objects
-# the feature is written for AT ALL. `nucleus_periphery_mean` exists and
-# `cell_periphery_mean` does not, because `_intensity_measurements` guards the
-# periphery block with `if ls[j] in ('nucleus', 'pathogen', 'organelle')`
-# (measure.py:1207) — a fact nobody can read off the name, and the reason a
-# user searching for "the periphery of a cell" finds nothing and assumes the
-# dictionary is broken. Every entry below was read off the emitter.
 
 #: Every object type a per-object feature can be written for.
 _ALL_OBJECTS = OBJECT_TYPES
@@ -2445,13 +2366,6 @@ def _module_from_provenance(computed_by: str) -> str:
     return "unknown"
 
 
-# --------------------------------------------------------------------------
-# concepts — the words a user actually searches with
-# --------------------------------------------------------------------------
-#
-# Nobody types "equivalent_diameter_area". They type "size", or "how big",
-# or "shape". A dictionary that only matches the naming scheme is a
-# dictionary for people who already know the naming scheme.
 
 
 @dataclass(frozen=True)
@@ -2637,9 +2551,6 @@ def concept_of(word: str) -> str | None:
     return _CONCEPT_LOOKUP.get(str(word).strip().lower())
 
 
-# --------------------------------------------------------------------------
-# parsing
-# --------------------------------------------------------------------------
 
 _CHANNEL_RE = re.compile(r"^channel_(\d+)_")
 _OBJECT_ALTERNATION = "|".join(re.escape(role) for role in _OBJECT_TYPE_MATCH)
@@ -2664,27 +2575,18 @@ _ORG_SUMMARY_LEGACY_CH_RE = re.compile(
     r"(?P<parent>cell|nucleus|pathogen|cytoplasm)$"
 )
 _DEDUP_SUFFIX_RE = re.compile(r"^(?P<base>.+)_(?P<idx>\d+)$")
-# Current form written by spacr.utils._check_integrity. Unambiguous, so it is
-# matched BEFORE the legacy positional form above.
 _DUP_SUFFIX_RE = re.compile(r"^(?P<base>.+)__dup(?P<idx>\d+)$")
 
-# (regex, KNOWN_PROPERTIES key). Order matters only in that each regex is
-# anchored and mutually exclusive.
 _PARAMETERIZED: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"^zernike_(?P<i>\d+)$"), "zernike_<i>"),
     (re.compile(r"^percentile_(?P<p>\d+)$"), "percentile_<p>"),
     (re.compile(r"^homogeneity_distance_(?P<d>\d+)$"), "homogeneity_distance_<d>"),
     (re.compile(r"^periphery_percentile_(?P<p>\d+)$"), "periphery_percentile_<p>"),
     (re.compile(r"^outside_percentile_(?P<p>\d+)$"), "outside_percentile_<p>"),
-    # Pre-migration word order. Still matched so an un-migrated database is
-    # described; spacr.utils.rename_columns_in_db renames these on first read.
     (re.compile(r"^periphery_(?P<p>\d+)_percentile$"), "periphery_<p>_percentile"),
     (re.compile(r"^outside_(?P<p>\d+)_percentile$"), "outside_<p>_percentile"),
     (re.compile(r"^M1_correlation_(?P<t>\d+)$"), "M1_correlation_<t>"),
     (re.compile(r"^M2_correlation_(?P<t>\d+)$"), "M2_correlation_<t>"),
-    # The neighbourhood radius is part of the name, the same way the
-    # percentile is in percentile_<p>: two plates measured at different radii
-    # carry different columns rather than the same column meaning two things.
     (re.compile(r"^neighbors_within_(?P<r>\d+)$"), "neighbors_within_<r>"),
     (re.compile(
         rf"^centre_to_(?P<other>{_OBJECT_ALTERNATION})_surface$"),
@@ -2741,14 +2643,10 @@ def _entry(
     unit = info.unit
     basis: str | None = None
     if isinstance(unit, ConditionalUnit):
-        # Only a conditional unit is affected by the stamp, so a column whose
-        # unit is fixed never claims to have been resolved against one.
         basis = measurement_units
         unit = unit.resolve(measurement_units)
     scope = FEATURE_SCOPE.get(key) if key else None
     if scope is None:
-        # Metadata and link columns are not per-object features and have no
-        # scope row; their provenance string already names the writer.
         objects: tuple[str, ...] = ()
         channel_scope = (CHANNEL_PAIR if channel_2 is not None
                          else CHANNEL_SINGLE if channel is not None
@@ -2829,10 +2727,6 @@ def _parse_organelle_summary(name: str, measurement_units: str | None = None
     m = _ORG_SUMMARY_CH_RE.match(name)
     channel_token = "channel_<c>"
     if m is None:
-        # The pre-migration ch<c> spelling resolves to its own curated entry,
-        # which says so — reporting it under the canonical key would tell a
-        # user reading an old database that they are looking at a name their
-        # file does not contain.
         m = _ORG_SUMMARY_LEGACY_CH_RE.match(name)
         channel_token = "ch<c>"
     if m:
@@ -2960,53 +2854,24 @@ def parse_column(name: str, measurement_units: str | None = None
     if not isinstance(name, str):
         name = str(name)
 
-    # 1. exact metadata match wins over any structural interpretation, so that
-    #    e.g. cell_id is an identifier and not a 'cell' feature named 'id'.
     info = META_COLUMNS.get(name)
     if info is not None:
         return _entry(name, info, key=name, measurement_units=measurement_units)
 
-    # 1b. embedding dimensions (spacr/embeddings.py). BEFORE the object
-    #     prefix is looked for, because these carry no object prefix at all --
-    #     they are keyed to an object id rather than named for an object type,
-    #     and falling through to the structural parse would classify every one
-    #     of them as "unknown" and hide the whole family from the pickers.
     embedding = _parse_embedding(name)
     if embedding is not None:
         return embedding
 
-    # 1c. infection-neighbourhood columns (spacr/bystanders.py), for the same
-    #     reason as the embeddings above and with the same consequence if it
-    #     is skipped. `is_bystander`, `is_distal` and `distance_to_infected`
-    #     carry NO OBJECT PREFIX -- they are written onto the cell table by
-    #     `measure._with_bystanders` and named for what they say rather than
-    #     for the object they say it about -- so the structural parse at step
-    #     3 returns `object_type is None` and they come back as "unknown".
-    #
-    #     Measured before this branch existed: all three landed in
-    #     `family/unknown` with no object group at all, so the whole family
-    #     was invisible to `column_groups.classify` and therefore to every
-    #     picker, regression selection and hit call that groups by family.
-    #     Their `KNOWN_PROPERTIES` entries have said `"spatial"` since they
-    #     were written; nothing was reading them.
-    #
-    #     NOT A NEW FAMILY. `spatial` already covers this in its own words --
-    #     "where an object ... sits relative to ... other segmented object
-    #     types ... same-type neighbourhood and touching measurements" -- and
-    #     a sixth vocabulary for the same concept is the mistake 377 names.
     bystander = KNOWN_PROPERTIES.get(name) if name in _BYSTANDER_COLUMNS \
         else None
     if bystander is not None:
         return _entry(name, bystander, key=name, object_type="cell",
                       measurement_units=measurement_units)
 
-    # 2. per-parent organelle summaries, before the object prefix is stripped
-    #    (the prefix 'organelle_' would otherwise swallow the family name).
     summary = _parse_organelle_summary(name, measurement_units)
     if summary is not None:
         return summary
 
-    # 3. object prefix (measure.py:225 and measure.py:395)
     object_type: str | None = None
     rest = name
     for obj in _OBJECT_TYPE_MATCH:
@@ -3018,14 +2883,11 @@ def parse_column(name: str, measurement_units: str | None = None
     if object_type is None:
         return _unknown(name, None, None)
 
-    # 4. parent/child link columns, e.g. nucleus_cell_id, organelle_cell
     link = _LINK_COLUMNS.get(rest)
     if link is not None:
         return _entry(name, link, key=rest, object_type=object_type,
                       measurement_units=measurement_units)
 
-    # 5. radial distribution: the channel index sits AFTER the family token
-    #    (measure.py:444), so it needs its own rule.
     m = _RAD_DIST_RE.match(rest)
     if m:
         return _entry(
@@ -3038,7 +2900,6 @@ def parse_column(name: str, measurement_units: str | None = None
             measurement_units=measurement_units,
         )
 
-    # 6. up to two channel_<n> infixes (measure.py:395 and measure.py:429)
     channels: list[int] = []
     while True:
         m = _CHANNEL_RE.match(rest)
@@ -3050,10 +2911,6 @@ def parse_column(name: str, measurement_units: str | None = None
     channel = channels[0] if channels else None
     channel_2 = channels[1] if len(channels) > 1 else None
 
-    # 7. blur, whose emitted name carries the object/channel prefix twice:
-    #    measure.py:393 writes '<obj>_channel_<i>_blur' into the frame, then
-    #    measure.py:395 prefixes every non-label column with '<obj>_channel_<i>_'
-    #    again, so the stored column is '<obj>_channel_<i>_<obj>_channel_<i>_blur'.
     m = _DOUBLE_PREFIX_BLUR_RE.match(rest)
     if m:
         inner_obj, inner_ch = m.group("obj"), int(m.group("ch"))
@@ -3094,8 +2951,6 @@ def parse_column(name: str, measurement_units: str | None = None
                       channel=channel, channel_2=channel_2, params=params,
                       measurement_units=measurement_units)
 
-    # 8. a pandas merge suffix appended when object tables are joined
-    #    (spacr.io._read_and_join_tables uses suffixes=('', '_<entity>')).
     for obj in _OBJECT_TYPE_MATCH:
         if rest.endswith("_" + obj):
             trimmed = rest[: -(len(obj) + 1)]
@@ -3115,8 +2970,6 @@ def parse_column(name: str, measurement_units: str | None = None
                     measurement_units=measurement_units,
                 )
 
-    # 8b. Current spacr.utils._check_integrity suffixes a repeated column with
-    #     '__dup<n>'. Unambiguous, unlike the legacy positional form below.
     m = _DUP_SUFFIX_RE.match(rest)
     if m:
         resolved = _lookup_stat(m.group("base"))
@@ -3133,8 +2986,6 @@ def parse_column(name: str, measurement_units: str | None = None
                 measurement_units=measurement_units,
             )
 
-    # 9. Databases written before that change carry the positional index
-    #    instead, which produces names that look parameterised.
     m = _DEDUP_SUFFIX_RE.match(rest)
     if m:
         resolved = _lookup_stat(m.group("base"))
@@ -3215,9 +3066,6 @@ def coverage(columns: Iterable[str],
     return Coverage(total=total, explained=explained, unknown=tuple(unknown))
 
 
-# --------------------------------------------------------------------------
-# search
-# --------------------------------------------------------------------------
 
 #: Placeholder values used to render an example column name for a
 #: parameterised key. Real values, taken from what measure.py actually emits,
@@ -3335,8 +3183,6 @@ def _example_columns(key: str, kind: str) -> tuple[str, ...]:
     for placeholder, value in _EXAMPLE_PARAMS.items():
         stat = stat.replace(f"<{placeholder}>", value)
 
-    # The organelle summaries are written under their own prefix into their
-    # own tables and take no object prefix at all.
     if key.startswith("organelle_summary_"):
         return (stat,)
 
@@ -3344,8 +3190,6 @@ def _example_columns(key: str, kind: str) -> tuple[str, ...]:
     if scope is None or not scope.objects:
         return ()
     obj = scope.objects[0]
-    # rad_dist carries its own channel token after the family name, which is
-    # exactly why it needs its own parsing rule.
     if key.startswith("rad_dist_"):
         infix = ""
     elif scope.channels == CHANNEL_SINGLE:
@@ -3503,16 +3347,10 @@ def search_features(query: str,
 
     wanted_concept = concept_of(concept) if concept else None
     if concept and wanted_concept is None:
-        # An unknown concept filter must not silently widen to everything.
         return []
 
-    # A whole column name beats every text match: the user pasted the thing
-    # they are looking at.
     exact_key: str | None = None
     if raw:
-        # The RAW query, not the lower-cased one: the emitted names are
-        # case-sensitive (`M1_correlation_85`, `Pearson_correlation`) and
-        # lower-casing here made every colocalisation column unresolvable.
         entry = parse_column(raw)
         if entry.family != "unknown" and entry.key:
             exact_key = entry.key
@@ -3531,8 +3369,6 @@ def search_features(query: str,
 
     terms = _query_terms(text)
     if text and not terms and exact_key is None and not query_concepts:
-        # A stopword-only query carries no searchable meaning. Letting the raw
-        # substring rules below see it makes ``of`` match ``centre_offset``.
         return []
     hits: list[SearchHit] = []
     for doc in docs:
@@ -3564,27 +3400,15 @@ def search_features(query: str,
         matched_concepts = query_concepts & set(doc.concepts)
         if matched_concepts:
             score += 25.0 + len(matched_concepts)
-            # Within a concept, rank by that concept's own key order: each
-            # CONCEPTS entry lists its most characteristic feature first, so
-            # a search for "texture" leads with the GLCM homogeneity columns
-            # rather than with whichever intensity statistic happens to come
-            # first in KNOWN_PROPERTIES.
             score += max(_concept_rank(name, doc.key)
                          for name in matched_concepts)
             if whole_query_concept in matched_concepts:
                 score += 20.0
             reasons.append("concept: " + ", ".join(sorted(matched_concepts)))
-        # Only when the key itself did NOT match: a metadata doc's example
-        # column IS its key, so awarding both would score "voxel_size_z_um"
-        # twice for the word "size" and float it above the size features.
         if (text not in doc.key.lower()
                 and any(text in example.lower() for example in doc.examples)):
             score += 20.0
             reasons.append("example column matches")
-        # ALL the meaningful terms, not any of them. With "any", the query
-        # "zzzzz-not-a-feature" scored every entry in the dictionary, because
-        # `a` and `not` appear in all of them — a nonsense search came back
-        # with 137 confident results.
         hay = _haystack(doc)
         if all(term in hay for term in terms):
             score += 2.0 * len(terms)
@@ -3597,9 +3421,6 @@ def search_features(query: str,
     return hits[:limit] if limit else hits
 
 
-# --------------------------------------------------------------------------
-# database
-# --------------------------------------------------------------------------
 
 _FRAME_COLUMNS = [
     "table",
@@ -3614,8 +3435,6 @@ _FRAME_COLUMNS = [
     "measurement_units",
     "computed_by",
     "notes",
-    # Appended, never inserted: the exported CSV is a file people diff, and
-    # `measurement_units` is pinned to the slot right after `unit`.
     "key",
     "object_types",
     "channel_scope",
@@ -3693,10 +3512,6 @@ def _table_measurement_units(db_path: str | Path, table: str,
                     f"SELECT 1 FROM {quoted} LIMIT 1").fetchone()
                 if row is None:
                     return None, "no rows and no measurement_units column"
-                # Not a guess: before 3-D measurement existed a 3-D mask
-                # crashed the morphology pass outright, so an unstamped row
-                # cannot be anything but a 2-D pixel measurement. Same rule as
-                # spacr.utils._LEGACY_STAMP.
                 return _LEGACY_UNITS, (
                     "no measurement_units column — written before the stamp "
                     "existed, which can only be a 2-D pixel measurement")
@@ -3705,12 +3520,11 @@ def _table_measurement_units(db_path: str | Path, table: str,
                 for (value,) in conn.execute(
                     f"SELECT DISTINCT measurement_units FROM {quoted}")
             }
-    except sqlite3.Error as exc:  # unreadable table: describe it, do not fail
+    except sqlite3.Error as exc:
         return None, f"measurement_units unreadable ({exc.__class__.__name__})"
 
     if not found:
         return None, "measurement_units column present but the table is empty"
-    # A NULL stamp is the legacy 2-D/px row, exactly as spacr.utils reads it.
     resolved = {_LEGACY_UNITS if v is None else v for v in found}
     if len(resolved) == 1:
         units = resolved.pop()
@@ -3771,17 +3585,12 @@ def describe_database(db_path: str | Path, table: str | None = None,
     for col in _TUPLE_FRAME_COLUMNS:
         df[col] = [", ".join(v) if isinstance(v, (list, tuple)) else v
                    for v in df[col]]
-    # Pandas 3 infers ``str`` for text columns and exposes missing values from
-    # that dtype as ``nan``.  Keep the public contract for an unstamped unit:
-    # callers receive the Python ``None`` stored by ``FeatureEntry``.
     df["measurement_units"] = pd.Series(
         [None if pd.isna(value) else value
          for value in df["measurement_units"]],
         index=df.index,
         dtype=object,
     )
-    # Keep channel indices as integers-or-missing rather than letting pandas
-    # promote them to float and print "channel 0.0" in the exports.
     for col in ("channel", "channel_2"):
         df[col] = pd.array(
             [None if v is None or pd.isna(v) else int(v) for v in df[col]],
@@ -3790,9 +3599,6 @@ def describe_database(db_path: str | Path, table: str | None = None,
     return df
 
 
-# --------------------------------------------------------------------------
-# export
-# --------------------------------------------------------------------------
 
 def _is_missing(value: Any) -> bool:
     """True for None, NaN and pandas' NA sentinels."""
@@ -3816,7 +3622,6 @@ def _jsonable(value: Any) -> Any:
         return int(value)
     if isinstance(value, float):
         return float(value)
-    # numpy / pandas scalars
     item = getattr(value, "item", None)
     return item() if callable(item) else str(value)
 
@@ -3901,8 +3706,6 @@ def _markdown(df: Any, db_path: Path,
     lines.append("")
 
     order = {name: i for i, name in enumerate(OBJECT_TYPES)}
-    # Collapse every missing marker (None / NaN) onto a single None bucket, so
-    # the "no object" section is emitted exactly once.
     missing = df["object_type"].isna()
     seen: list[str | None] = df.loc[~missing, "object_type"].unique().tolist()
     if bool(missing.any()):

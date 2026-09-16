@@ -246,16 +246,6 @@ class AlignError(RuntimeError):
     """A tile could not be read, or a stitch could not be written."""
 
 
-# ---------------------------------------------------------------------------
-# Join keys — one definition, in spacr.schema
-#
-# These used to be eight hand-rolled lines, copied here because spacr.utils
-# imports torch and this module is on a GUI/thumbnail path. The copy did not
-# agree with the original: 'AA01' came back as ('AA01', 'AA01') here and as
-# ('error', 'error') there, so a stitched plate and a measured one disagreed
-# about what a 1536 well is called. spacr.schema is stdlib-only, so there is
-# no longer any reason to have a copy at all.
-# ---------------------------------------------------------------------------
 
 def _well_ids(well: str) -> Tuple[str, str]:
     """Return ``(rowID, columnID)`` in spaCR's ``r1`` / ``c1`` form.
@@ -270,10 +260,6 @@ def _well_ids(well: str) -> Tuple[str, str]:
     try:
         return schema.parse_well(well)
     except schema.WellParseError:
-        # A well with no column at all ('A', ''). The old copy passed those
-        # through into both slots; keeping that here means a stitch of an
-        # oddly-named folder still produces *a* key rather than raising in the
-        # middle of a GUI thumbnail.
         text = str(well)
         return text, text
 
@@ -300,9 +286,6 @@ def _join_keys(plate: str, well: str, field: int) -> Dict[str, str]:
     }
 
 
-# ---------------------------------------------------------------------------
-# Data model
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Tile:
@@ -628,9 +611,6 @@ def _human_bytes(n: Union[int, float]) -> str:
     return f'{value:.1f} TB'
 
 
-# ---------------------------------------------------------------------------
-# Header-only readers
-# ---------------------------------------------------------------------------
 
 def _npy_header(path: str) -> Tuple[Tuple[int, ...], np.dtype]:
     """Return ``(shape, dtype)`` of a ``.npy`` without reading its data.
@@ -698,9 +678,6 @@ def _channel_last(array):
     return array
 
 
-# ---------------------------------------------------------------------------
-# Windowed tile access
-# ---------------------------------------------------------------------------
 
 def _cast_window(block: np.ndarray, dtype: np.dtype, path: str) -> np.ndarray:
     """Cast tile pixels without integer wraparound.
@@ -758,8 +735,6 @@ class _TileReader:
             if suffix == '.npy':
                 shape, _dtype = _npy_header(path)
                 if len(shape) == 3 and not (shape[0] <= 8 and shape[0] < shape[-1]):
-                    # (H, W, C) — the merged-stack layout crops.MergedField
-                    # was written for.
                     self._fields.append(open_merged_field(path, use_cache=False))
                     self._sources.append(None)
                     continue
@@ -781,8 +756,6 @@ class _TileReader:
             self._handles.append(handle)
             return handle
         except (ValueError, MemoryError, OSError):
-            # Compressed / tiled TIFFs cannot be mapped. Reading one tile
-            # whole is bounded by the tile, never by the canvas.
             return tifffile.imread(path)
 
     @property
@@ -956,9 +929,6 @@ class _ReaderCache:
         self._order.clear()
 
 
-# ---------------------------------------------------------------------------
-# Scanning
-# ---------------------------------------------------------------------------
 
 def _parse_name(stem: str) -> Dict[str, Any]:
     """Pull plate / well / field / channel out of a filename stem.
@@ -1123,7 +1093,6 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
             f'align: no .npy/.tif tiles found in {src!r}. Point src at the '
             f'folder that holds the tiles, or pass an explicit list.')
 
-    # -- group files into sites -------------------------------------------
     sites: "Dict[Tuple[str, str, int], Dict[str, Any]]" = {}
     order_seen: List[Tuple[str, str, int]] = []
     for position, path in enumerate(paths):
@@ -1141,10 +1110,6 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
 
     keys = sorted(order_seen, key=lambda k: (sites[k]['first'],))
 
-    # The grid is laid out once per well when the caller groups by well, and
-    # once across the folder otherwise. `index` stays globally unique either
-    # way -- it keys the reader cache and names tiles in pair results -- so
-    # only the position WITHIN a grid is per group.
     if group_by_well:
         groups: "Dict[Tuple[str, str], List[Tuple[str, str, int]]]" = {}
         for key in keys:
@@ -1172,7 +1137,7 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
         try:
             raw_shape, dtype = _read_header(ref_path)
             height, width, inner = _normalise_shape(raw_shape, ref_path)
-        except Exception as exc:                     # unreadable header
+        except Exception as exc:
             error = f'{type(exc).__name__}: {exc}'
             height = width = inner = 0
             dtype = np.dtype('uint16')
@@ -1224,9 +1189,6 @@ def group_tiles(tiles: Sequence[Tile]) -> "Dict[Tuple[str, str], List[Tile]]":
     return out
 
 
-# ---------------------------------------------------------------------------
-# Pairwise registration
-# ---------------------------------------------------------------------------
 
 def _overlap_windows(tile_a: Tile, tile_b: Tile,
                      dy: float, dx: float) -> Optional[Tuple[Tuple[int, int, int, int],
@@ -1317,27 +1279,10 @@ def _register_pair(tile_a: Tile, tile_b: Tile,
             note='overlap is blank (zero variance) — phase correlation '
                  'would return a noise peak; kept at the nominal position')
 
-    # Zero-mean / unit-variance before the FFT. Removing DC is standard for
-    # phase correlation (the DC bin otherwise dominates the normalisation),
-    # and it keeps the |F|^2 products inside float32 — raw uint16 intensity
-    # over a 2048x205 strip overflows them.
     strip_a = _standardise(strip_a)
     strip_b = _standardise(strip_b)
 
     from skimage.registration import phase_cross_correlation
-    # Two normalisations, because neither is reliable alone.
-    #
-    # 'phase' whitens the spectrum, which is what makes phase correlation
-    # immune to illumination differences between fields — and also what
-    # makes it fail on smooth, low-texture images, where whitening
-    # amplifies quantisation noise until it outweighs the real signal. On
-    # a 64x50 strip of Gaussian-smoothed fluorescence it returns 0 px for
-    # a genuine 10 px offset. Plain cross-correlation gets that one right
-    # but is pulled around by intensity gradients.
-    #
-    # So both are tried and each candidate is *scored* on the pixels it
-    # implies; the better score wins. One extra FFT over a strip is a
-    # rounding error next to being wrong.
     candidates: List[Tuple[float, float]] = []
     for normalization in ('phase', None):
         try:
@@ -1359,8 +1304,6 @@ def _register_pair(tile_a: Tile, tile_b: Tile,
         if max_shift is not None and math.hypot(shift_y, shift_x) > float(max_shift):
             too_far.append((shift_y, shift_x))
             continue
-        # phase_cross_correlation returns the shift that maps the moving
-        # image onto the reference, so b's true position is nominal + it.
         score, scored_px = _score_shift(
             tile_a, tile_b, reader_a, reader_b,
             nominal_dy + shift_y, nominal_dx + shift_x,
@@ -1422,9 +1365,6 @@ def _score_shift(tile_a: Tile, tile_b: Tile, reader_a: _TileReader,
     return _ncc(strip_a, strip_b), int((ay1 - ay0) * (ax1 - ax0))
 
 
-# ---------------------------------------------------------------------------
-# The global solve
-# ---------------------------------------------------------------------------
 
 def solve_positions(n_tiles: int,
                     edges: Sequence[Tuple[int, int, float, float, float]],
@@ -1541,20 +1481,17 @@ def _sequential_positions(n_tiles: int,
     """
     nominal = np.asarray(nominal, dtype=np.float64).reshape(n_tiles, 2)
     positions = nominal.copy()
-    # incoming[k] = [(j, dy, dx)] meaning "p_k = p_j + (dy, dx)".
     incoming: Dict[int, List[Tuple[int, float, float]]] = {}
     for i, j, dy, dx, _w in edges:
         incoming.setdefault(int(j), []).append((int(i), float(dy), float(dx)))
         incoming.setdefault(int(i), []).append((int(j), -float(dy), -float(dx)))
     placed = {0}
     for k in range(1, n_tiles):
-        # The nearest already-placed tile in acquisition order: the
-        # predecessor a sequential stitcher would chain from.
         options = [(abs(k - j), j, dy, dx)
                    for j, dy, dx in incoming.get(k, ())
                    if j in placed]
         if not options:
-            placed.add(k)                # nothing to chain from; stage position
+            placed.add(k)
             continue
         _distance, source, dy, dx = min(options)
         positions[k, 0] = positions[source, 0] + dy
@@ -1563,9 +1500,6 @@ def _sequential_positions(n_tiles: int,
     return positions
 
 
-# ---------------------------------------------------------------------------
-# estimate_offsets
-# ---------------------------------------------------------------------------
 
 def estimate_offsets(tiles: Sequence[Tile],
                      *,
@@ -1648,7 +1582,6 @@ def estimate_offsets(tiles: Sequence[Tile],
             .format(len(tiles),
                     plan.unplaced[0][1] if plan.unplaced else 'no tiles given'))
 
-    # -- consistency ------------------------------------------------------
     dtypes = sorted({t.dtype for t in usable})
     if len(dtypes) > 1:
         plan.warnings.append(
@@ -1673,7 +1606,6 @@ def estimate_offsets(tiles: Sequence[Tile],
     if max_shift is None:
         max_shift = max(4.0, 0.25 * smallest)
 
-    # -- single tile ------------------------------------------------------
     if len(usable) == 1:
         only = usable[0]
         plan.placements = [Placement(
@@ -1689,7 +1621,6 @@ def estimate_offsets(tiles: Sequence[Tile],
             ledger.record_success(only.path, stage='align')
         return plan
 
-    # -- candidate pairs --------------------------------------------------
     candidates: List[Tuple[Tile, Tile]] = []
     for a_pos, tile_a in enumerate(usable):
         for tile_b in usable[a_pos + 1:]:
@@ -1729,7 +1660,6 @@ def estimate_offsets(tiles: Sequence[Tile],
             'placed by stage position alone. Check the grid, the order and '
             'the overlap fraction.')
 
-    # -- global solve -----------------------------------------------------
     slot = {tile.index: k for k, tile in enumerate(usable)}
     nominal = np.array([[t.nominal_y, t.nominal_x] for t in usable],
                        dtype=np.float64)
@@ -1831,7 +1761,6 @@ def _feather_width(plan: AlignPlan, tiles: Sequence[Tile]) -> int:
             continue
         (ay0, ay1, ax0, ax1), _ = windows
         span = min(ay1 - ay0, ax1 - ax0)
-        # _overlap_windows returns None unless both dimensions are positive.
         widths.append(int(span))
     smallest = min(min(t.height, t.width) for t in tiles)
     if not widths:
@@ -1846,9 +1775,6 @@ def _finalise_geometry(plan: AlignPlan) -> None:
     plan.origin = (spec.origin_y, spec.origin_x)
 
 
-# ---------------------------------------------------------------------------
-# Canvas geometry
-# ---------------------------------------------------------------------------
 
 def plan_canvas(placements: Sequence[Placement],
                 *, dtype: Optional[Any] = None,
@@ -1875,8 +1801,6 @@ def plan_canvas(placements: Sequence[Placement],
     left = min(p.x for p in placements)
     bottom = max(p.y + p.tile.height for p in placements)
     right = max(p.x + p.tile.width for p in placements)
-    # Snap away solver noise before flooring: a solved 0.0 that came back
-    # as -3e-13 would otherwise cost the canvas a whole row of padding.
     origin_y = math.floor(round(top, 6))
     origin_x = math.floor(round(left, 6))
     height = int(math.ceil(round(bottom - origin_y, 6)))
@@ -1890,9 +1814,6 @@ def plan_canvas(placements: Sequence[Placement],
                       origin_y=float(origin_y), origin_x=float(origin_x))
 
 
-# ---------------------------------------------------------------------------
-# Writing
-# ---------------------------------------------------------------------------
 
 def _band_bytes_per_row(spec: CanvasSpec) -> int:
     """Bytes of RAM one canvas row of band costs.
@@ -2165,7 +2086,6 @@ def write_stack(plan: AlignPlan, dst: Union[str, os.PathLike],
     ramp_width = int(feather) if feather is not None else int(plan.feather)
     out_dtype = np.dtype(spec.dtype)
 
-    # Integer canvas positions, plus the sub-pixel remainder.
     boxes: List[Tuple[Placement, int, int, float, float]] = []
     for placement in placements:
         cy, cx = spec.canvas_yx(placement.y, placement.x)
@@ -2260,14 +2180,11 @@ def write_stack(plan: AlignPlan, dst: Union[str, os.PathLike],
                 ledger.record_success(placement.tile.path, stage='write')
         try:
             ledger.stamp(out_path)
-        except Exception as exc:                     # stamping must not fail a run
+        except Exception as exc:
             result.warnings.append(f'could not stamp {out_path}: {exc}')
     return result
 
 
-# ---------------------------------------------------------------------------
-# The coordinates table
-# ---------------------------------------------------------------------------
 
 #: Columns of :data:`ALIGN_TABLE`, in order.
 ALIGN_COLUMNS: Tuple[str, ...] = (
@@ -2405,7 +2322,6 @@ def save_coordinates(plan: Union[AlignPlan, Iterable[AlignPlan]],
     frame = pd.DataFrame(rows, columns=list(ALIGN_COLUMNS))
 
     parent = os.path.dirname(os.path.abspath(os.fspath(db_path)))
-    # dirname(abspath(...)) is always an absolute, non-empty directory.
     os.makedirs(parent, exist_ok=True)
     connection = sqlite3.connect(str(db_path), timeout=30)
     try:
@@ -2468,9 +2384,6 @@ def read_coordinates(db_path: Union[str, os.PathLike],
     return frame
 
 
-# ---------------------------------------------------------------------------
-# Reporting
-# ---------------------------------------------------------------------------
 
 def format_plan(plan: AlignPlan, *, max_rows: int = 12) -> str:
     """Render a plan as the block a user should read before writing 800 MB.
@@ -2519,9 +2432,6 @@ def format_plan(plan: AlignPlan, *, max_rows: int = 12) -> str:
     return '\n'.join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Settings entry point
-# ---------------------------------------------------------------------------
 
 def default_settings(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
     """Return the settings :func:`align_folder` understands, with defaults.
@@ -2604,9 +2514,6 @@ def align_folder(settings: Optional[Mapping[str, Any]] = None,
     for key, members in sorted(groups.items()):
         plan = estimate_offsets(
             members,
-            # None, not 0: an unset setting must let the tiles' own channel
-            # stand, or align_folder defeats scan_tiles the same way the old
-            # estimate_offsets default did.
             reference_channel=(
                 None if resolved.get('reference_channel') is None
                 else int(resolved['reference_channel'])),

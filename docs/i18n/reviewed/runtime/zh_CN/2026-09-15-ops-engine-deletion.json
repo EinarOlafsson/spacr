@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "recursive",
+      "source_sha256": "ee370df5c2ad2897860a7bfec0d84b1ff30e698db8746220dc0810b406ab58b6",
+      "source": "Search inside subfolders of every input folder. Turn this off when only files directly inside each selected folder belong to the import. Default True.",
+      "translation": "同时在每个输入文件夹的子文件夹中搜索。如果只有直接位于每个所选文件夹中的文件属于本次导入，请关闭此项。默认值为 True。"
+    }
+  ]
+}

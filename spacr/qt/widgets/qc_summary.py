@@ -130,9 +130,6 @@ class Dashboard:
         return None
 
 
-# ---------------------------------------------------------------------------
-# Readers -- one per source. Each is cheap: listdir, stat, parse.
-# ---------------------------------------------------------------------------
 
 def _read_segmentation(src: Any, reader=None) -> QCCard:
     """Read the scorecards the mask run wrote. Never scores anything."""
@@ -146,7 +143,7 @@ def _read_segmentation(src: Any, reader=None) -> QCCard:
         if reader is None:
             from ...seg_qc import read_digest as reader
         digest = reader(src)
-    except Exception as exc:  # defensive
+    except Exception as exc:
         card.verdict = "error"
         card.headline = f"Could not read the segmentation scorecards: {exc}"
         return card
@@ -177,7 +174,7 @@ def _flag_explanations(scorecards: Sequence[Any]) -> List[str]:
     """
     try:
         from ...seg_qc import FLAG_GUIDANCE, explain_flag
-    except Exception:  # defensive
+    except Exception:
         return []
     seen: List[str] = []
     for scorecard in scorecards:
@@ -237,7 +234,7 @@ def _read_leakage(src: Any) -> QCCard:
     try:
         from ...classifier_evaluation import EVALUATION_FILES
         name = EVALUATION_FILES["leakage"]
-    except Exception:  # defensive
+    except Exception:
         name = "leakage.json"
     path, mtime = _newest_under(root, name)
     if not path:
@@ -330,7 +327,7 @@ def _read_units(src: Any) -> QCCard:
 
     try:
         from ...measurement_schema import MEASUREMENT_STAMP_COLUMNS
-    except Exception:  # defensive
+    except Exception:
         MEASUREMENT_STAMP_COLUMNS = ("measurement_ndim", "measurement_units")
 
     try:

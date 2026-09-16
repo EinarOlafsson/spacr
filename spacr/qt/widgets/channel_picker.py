@@ -90,8 +90,6 @@ class ChannelPicker(QWidget):
         layout.setSpacing(10)
         chosen = set(parse(value))
         for name in CHANNELS:
-            # `Toggle`, which subclasses the plain control: same behaviour,
-            # and the look every other boolean in spaCR has.
             box = Toggle(LABELS[name], self)
             box.setChecked(name in chosen)
             box.setStyleSheet(f"QCheckBox {{ color: {TINTS[name]}; }}")
@@ -112,13 +110,7 @@ class ChannelPicker(QWidget):
             it is not used.
         """
         if not self._allow_none and not self.value():
-            # PUT THE LAST ONE BACK rather than let the picture go blank.
-            # Blocked so this correction does not re-enter and does not
-            # announce a value the user never chose.
             box = self.sender()
-            # `Toggle`, which is what the boxes above are. Checked at all
-            # because `sender()` is typed as QObject and this runs from a
-            # signal.
             if isinstance(box, Toggle):
                 box.blockSignals(True)
                 box.setChecked(True)
@@ -140,8 +132,6 @@ class ChannelPicker(QWidget):
             box.blockSignals(False)
         self.changed.emit(self.value())
 
-    # The panel reads editors through duck-typed accessors; these are the two
-    # it looks for, so this widget drops into `_editor` without a special case.
     text = value
 
     def setText(self, value: Any) -> None:      # noqa: N802 - Qt naming

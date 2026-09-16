@@ -89,8 +89,6 @@ def well_fractions(counts: pd.DataFrame, *, threshold: float = 0.0,
     frame = counts.copy()
     frame[well_column] = _well_labels(counts, well_column)
     totals = frame.groupby(well_column)[count_column].transform("sum")
-    # A well with no reads at all has no shares to compute; it drops out here
-    # rather than becoming a column of NaN that reads as a measurement.
     frame = frame[totals > 0].copy()
     frame["fraction"] = frame[count_column] / totals[totals > 0]
     if threshold:
@@ -249,22 +247,11 @@ def sweep_fraction_threshold(counts: pd.DataFrame,
                 "reading": str(fit["reading"]),
             })
             if correction:
-                # AN AFFINE MAP OF THE IMAGING SIDE IS AN AFFINE MAP OF THE
-                # LINE. p_true = (p_obs - (1 - sp)) / (se + sp - 1), so the
-                # slope divides by the same denominator and nothing has to be
-                # refitted. The correction MOVES the estimate; it does not
-                # widen it, and it inflates the variance by the square.
                 row["corrected_slope"] = (row["slope"]
                                           / correction["denominator"])
                 row["variance_inflation"] = correction["variance_inflation"]
         rows.append(row)
 
-    # A CANDIDATE IS CHOSEN ON ITS DISAGREEMENT, so one whose disagreement
-    # could not be measured cannot be chosen -- and must not reach the
-    # comparison below either. NaN loses every ``<=`` it appears in, so a
-    # sweep whose fits reported no per-well pairs left ``min()`` an empty
-    # iterable and raised ValueError out of a function whose whole contract
-    # is to answer "no" in words.
     wide_enough = [row for row in rows
                    if "error" not in row
                    and row["wells"] >= int(minimum_wells)]
@@ -295,9 +282,6 @@ def sweep_fraction_threshold(counts: pd.DataFrame,
                 f"{best}), so there is nothing to choose between")
         return result
 
-    # THE SMALLEST THRESHOLD THAT MAKES THE TWO MEASUREMENTS AGREE. Once the
-    # spurious barcodes are gone a higher threshold changes nothing except how
-    # much real data it discards, so ties go to the least destructive answer.
     best = min(row["median_absolute_disagreement"] for row in usable)
     chosen = min(row["threshold"] for row in usable
                  if row["median_absolute_disagreement"] <= best + 1e-12)
@@ -369,10 +353,6 @@ def compare_normalisations(counts: pd.DataFrame,
     out["ratio"] = float(raw_slope) / float(scaled_slope)
     disagreements = {name: fits[name].get("median_absolute_disagreement")
                      for name in ("raw", "normalised")}
-    # FINITE, not merely present. A fit that reported no per-well pairs
-    # carries a NaN disagreement, and NaN loses every comparison ``min`` makes
-    # -- naming whichever definition happened to be first, as though the two
-    # had been measured and one had won.
     if all(value is not None and np.isfinite(value)
            for value in disagreements.values()):
         out["more_consistent"] = min(disagreements,

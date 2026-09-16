@@ -80,7 +80,7 @@
       "translation": "AI Console ræsir söluaðila kóðunar-umboðs CLI (claude / codex / gemini). Hvert CLI auðkennir sig með spjalláskrift notandans, ekki með mældri API lykli. Qt GUI notar ekki lengur API lykla."
     },
     {
-      "label": "spacr.openmp_guard.guarded_n_jobs#3",
+      "label": "spacr.openmp_guard.guarded_n_jobs#5",
       "source_sha256": "955fe4da06ce5e380ca87963c2f0baae34c31b9436ae45169282aea87f8153b8",
       "source": "The clamp is a per-thread ICV, so a joblib worker thread starts with the process default (10 here, not 1) and builds a team the region was supposed to prevent. Measured on this repository's own ``ml_analysis``: 19 threads parked in ``__kmp_launch_worker`` unguarded, still 10 with only the region clamp, and those 10 belong to Homebrew's libomp — xgboost's runtime, the one that crashed. Keeping joblib on the calling thread keeps the clamp meaningful.",
       "context": "The clamp is a per-independent execution path ICV, so a joblib background execution unit starts with the process default (10 here, not 1) and builds a team the region was supposed to prevent. Measured on this repository's own ``ml_analysis``: 19 independent execution paths parked in ``__kmp_launch_worker`` unguarded, still 10 with only the region clamp, and those 10 belong to Homebrew's libomp — xgboost's runtime, the one that crashed. Keeping joblib on the calling independent execution path keeps the clamp meaningful.",
@@ -179,7 +179,9 @@
       "source_sha256": "ea8b8bf7f8c98d348e62a40be1ba3f69711eeb356b1810376880a0b1a096fad4",
       "source": "**The ``cell_png`` leaf matches.** measure_crop appends ``f\"{crop_mode}_png/\"`` to the folder, so a real cell crop does live under ``cell_png/`` — which is what :func:`spacr.io.generate_training_dataset`'s ``png_path.str.contains(png_type)`` filter (``png_type='cell_png'``) needs to see. Crops written flat as ``data/crop_000.png``, the layout this replaced, were all filtered away and the run died on \"got 0 classes\".",
       "context": "**The ``cell_png`` leaf matches.** measure_crop appends ``f\"{crop_mode}_png/\"`` to the folder, so a real cell extracted image region does live under ``cell_png/`` — which is what :func:`spacr.io.generate_training_dataset`'s ``png_path.str.contains(png_type)`` filter (``png_type='cell_png'``) needs to see. Extracted image regions written flat as ``data/crop_000.png``, the layout this replaced, were all filtered away and the processing session died on \"got 0 classes\".",
-      "translation": "**Undirmappan ``cell_png`` passar.** measure_crop bætir ``f\"{crop_mode}_png/\"`` við möppuna, þannig að raunverulegt útdregið frumusvæði er undir ``cell_png/``. Það er það sem :func:`spacr.io.generate_training_dataset` þarf að sjá í síunni ``png_path.str.contains(png_type)`` þegar ``png_type='cell_png'``. Útdregin myndsvæði sem voru skrifuð beint sem ``data/crop_000.png`` í eldra útlitinu voru öll síuð frá og vinnslukeyrslan stöðvaðist með \"got 0 classes\"."
+      "translation": "**Undirmappan ``cell_png`` passar.** measure_crop bætir ``f\"{crop_mode}_png/\"`` við möppuna, þannig að raunverulegt útdregið frumusvæði er undir ``cell_png/``. Það er það sem :func:`spacr.io.generate_training_dataset` þarf að sjá í síunni ``png_path.str.contains(png_type)`` þegar ``png_type='cell_png'``. Útdregin myndsvæði sem voru skrifuð beint sem ``data/crop_000.png`` í eldra útlitinu voru öll síuð frá og vinnslukeyrslan stöðvaðist með \"got 0 classes\".",
+      "retired": "2026-09-15",
+      "retired_reason": "markup-only change from item 63; re-bound in 2026-09-15-rebound-63.json"
     }
   ]
 }

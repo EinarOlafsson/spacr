@@ -163,8 +163,6 @@ def is_curated(artifact: Any) -> bool:
     try:
         return bool(CurationLog.read(path).edits)
     except Exception:
-        # An unreadable ledger is a reason to be suspicious, not a reason to
-        # certify the data as raw.
         return True
 
 
@@ -256,7 +254,6 @@ class CurationLog:
         self.source = str(source)
         self._edits: List[CurationEdit] = []
 
-    # -- the ledger ---------------------------------------------------------
     @property
     def edits(self) -> Tuple[CurationEdit, ...]:
         """Everything recorded, oldest first."""
@@ -316,7 +313,6 @@ class CurationLog:
                 f"First {self._edits[0].when}, last {self._edits[-1].when}. "
                 f"This data has been curated by hand.")
 
-    # -- persistence --------------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
         """Return the versioned mapping written as the ledger JSON document."""
         return {"schema_version": 1, "artifact": self.artifact,
@@ -403,9 +399,6 @@ def _user() -> str:
         return ""
 
 
-# ---------------------------------------------------------------------------
-# Painting a mask
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class LabelEdit:
@@ -509,12 +502,6 @@ class MaskCuration:
             self.artifact, source="spacr-qt curation")
         self._strokes: List[List[LabelEdit]] = []
         self._open: Optional[List[LabelEdit]] = None
-        # Views that want to redraw when the LEDGER moves. The layer's own
-        # subscribers fire per dab, which is mid-stroke -- a panel listening
-        # only to those redraws before end_stroke has recorded anything, and
-        # so never shows the entry it is there to show. Bound methods only:
-        # a session outlives nothing here, but a lambda would keep a closed
-        # panel alive as a receiver.
         self._listeners: List[Any] = []
         #: The label the brush paints. 0 erases, which is what "delete this
         #: bit of the mask" means to a labels layer.
@@ -524,7 +511,6 @@ class MaskCuration:
         #: the same physical distance on an anisotropic stack.
         self.radius = 3.0
 
-    # -- who is watching ------------------------------------------------------
     def subscribe(self, fn) -> None:
         """Call ``fn(edit)`` whenever a correction is recorded.
 
@@ -568,12 +554,9 @@ class MaskCuration:
             try:
                 listener(edit)
             except Exception:
-                # One view's redraw must not take the correction with it --
-                # the edit has already happened to the data.
                 pass
         return edit
 
-    # -- strokes ------------------------------------------------------------
     def begin_stroke(self) -> None:
         """Start grouping paints into one undoable action."""
         if self._open is None:
@@ -618,7 +601,6 @@ class MaskCuration:
             replaced=sorted({int(v) for edit in edits
                              for v in np.unique(edit.before)}))
 
-    # -- painting -----------------------------------------------------------
     def paint(self, world: Mapping[str, float],
               label: Optional[int] = None,
               radius: Optional[float] = None) -> int:
@@ -660,8 +642,6 @@ class MaskCuration:
         if self._open is not None:
             self._open.append(edit)
         else:
-            # A bare dab is its own stroke, so it is undoable and recorded
-            # like any other.
             self._open = [edit]
             self.end_stroke()
         return changed
@@ -679,7 +659,6 @@ class MaskCuration:
         """
         return self.paint(world, label=0, radius=radius)
 
-    # -- undo ---------------------------------------------------------------
     def undo(self) -> Optional[CurationEdit]:
         """Take back the last stroke. ``None`` when there is nothing to undo.
 
@@ -691,9 +670,6 @@ class MaskCuration:
             return None
         stroke = self._strokes.pop()
         moved = 0
-        # Newest dab first: two dabs that overlapped must be reverted in the
-        # reverse of the order they were laid down, or the older one's
-        # "before" values overwrite the newer one's.
         for edit in reversed(stroke):
             moved += edit.revert(self.layer)
         painted, _radius = self._summarise(stroke)
@@ -711,7 +687,6 @@ class MaskCuration:
         """How many strokes are in the undo history."""
         return len(self._strokes)
 
-    # -- persistence --------------------------------------------------------
     def save_log(self, artifact: Optional[Any] = None) -> str:
         """Write the ledger beside the artefact. Returns the path.
 
@@ -766,9 +741,6 @@ class MaskCuration:
         return written
 
 
-# ---------------------------------------------------------------------------
-# Curating tracks
-# ---------------------------------------------------------------------------
 
 class TrackCuration:
     """Join, split and delete tracks by hand, on the record.
@@ -819,7 +791,6 @@ class TrackCuration:
         self.log = log if log is not None else CurationLog(
             self.artifact, source="spacr-qt curation")
 
-    # -- reading ------------------------------------------------------------
     @property
     def track_ids(self) -> List[Any]:
         """Every track id present, sorted."""
@@ -868,7 +839,6 @@ class TrackCuration:
         top = numeric.max()
         return int(top) + 1 if _pandas().notna(top) else 1
 
-    # -- consistency ---------------------------------------------------------
     def check(self) -> List[str]:
         """Everything wrong with the table right now, as sentences.
 
@@ -899,7 +869,6 @@ class TrackCuration:
                 f"no track {track_id!r} in this table; have "
                 f"{self.track_ids[:8]}...")
 
-    # -- operations ----------------------------------------------------------
     def join(self, first: Any, second: Any) -> CurationEdit:
         """Make ``second`` a continuation of ``first``.
 
@@ -1011,7 +980,6 @@ class TrackCuration:
             "delete", _plain(track_id), n_changed=removed,
             frames=[_plain(f) for f in frames])
 
-    # -- persistence ---------------------------------------------------------
     def save(self, path: Any) -> str:
         """Write the curated table AND its ledger. Returns the CSV path.
 

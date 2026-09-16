@@ -332,7 +332,7 @@
       "translation": "Bæði Delete og Cancel fara hér í gegn og HVORUGT sendir lokunaratburð — ``QDialog.done`` felur viðmótsstykkið — svo hér, en ekki í ``closeEvent``, verður niðurrif kvaðningarglugga að búa. Qt stöðvar ferlið umsvifalaust ef ``QThread`` sem er í gangi er eytt með eiganda sínum, og yfirferðin getur enn verið úti þegar notandinn hættir við."
     },
     {
-      "label": "spacr.qt.screens.experiment_design#3",
+      "label": "spacr.qt.screens.experiment_design#7",
       "source_sha256": "b169148e7c61b90495cdd0a9b666e6e3f5c613070e54dd7a27e92801cf9f90fb",
       "source": "ONE PLATE WIDGET WHERE THERE CAN BE ONE. The square, the constant it is pitched at and the row/column headers come from :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second time here; the two plates had already drifted apart once. What cannot be shared is the well itself, and the difference is real rather than historical: the picker's well is a checkable ``QPushButton`` whose checked state IS the selection and which paints itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a role, an edge mark, a name and a condition, painted by the theme through the properties below -- a plate map that says what each well holds rather than only whether it is chosen.",
       "context": "One laboratory microplate widget WHERE there can be one. The square, the constant it is pitched at and the row/column headers come from :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second time here; the two laboratory microplates had already drifted apart once. What cannot be shared is the well itself, and the difference is real rather than historical: the picker's well is a checkable ``QPushButton`` whose checked state IS the selection and which paints itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a role, an edge mark, a name and a condition, painted by the theme through the properties below -- a laboratory microplate map that says what each well holds rather than only whether it is chosen.",
@@ -624,13 +624,6 @@
       "source": "The live preview builds its model from the combo value. Including local zoo checkpoints here keeps that preview aligned with a selected run model; otherwise it would silently render stock cpsam while the user tuned diameter and thresholds for a different checkpoint.",
       "context": "The live preview builds its model from the combo value. Including local zoo checkpoints here keeps that preview aligned with a selected run model; otherwise it would silently render stock cpsam while the user tuned diameter and thresholds for a different checkpoint.",
       "translation": "Lifandi forskoðunin byggir líkan sitt úr gildi fellilistans. Að hafa staðbundna eftirlitspunkta úr safninu hér heldur þeirri forskoðun í takt við valið keyrslulíkan; annars myndi hún teikna hefðbundið cpsam í kyrrþey meðan notandinn stillti þvermál og þröskulda fyrir annan eftirlitspunkt."
-    },
-    {
-      "label": "spacr.spacrops.stitch_cycle_wells#1",
-      "source_sha256": "8f73b339608b45b5e9eeb813a4262071627ec8ad62489fee89931237242271a6",
-      "source": "Groups images by well from filename metadata, optionally moves or symlinks them into per-well folders, then runs :class:`spacrStitcher` on each well to produce pairwise CSVs, and -- when asked -- single- or multi-channel mosaics.",
-      "context": "Groups images by well from filename metadata, optionally moves or symlinks them into per-well folders, then runs :class:`spacrStitcher` on each well to produce pairwise CSVs, and -- when asked -- single- or multi-image data channel stitched image grids.",
-      "translation": "Flokkar myndir eftir brunnum út frá lýsigögnum í skráarnafni, færir þær eða tengir þær valfrjálst í möppur eftir brunnum, keyrir síðan :class:`spacrStitcher` á hvern brunn til að framleiða CSV fyrir pör, og -- sé þess óskað -- mósaík með einni eða mörgum rásum."
     },
     {
       "label": "spacr.sra.RunFile#1",

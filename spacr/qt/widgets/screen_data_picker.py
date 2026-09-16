@@ -68,8 +68,6 @@ class ScreenDataPicker(QDialog):
         self.setMinimumWidth(scaled_px(520))
         self._folder = folder
         self._kind = kind
-        # One lookup for the whole dialog. None means "could not tell", which
-        # is deliberately not the same as "nothing is published".
         from ...screen_data import published_archives
 
         self._published = published_archives()
@@ -80,14 +78,9 @@ class ScreenDataPicker(QDialog):
         outer.addWidget(advice)
 
         self._list = QListWidget(self)
-        # A tick and a highlight say the same thing, which is what makes the
-        # selection legible at a glance rather than only on close inspection.
         self._list.setSelectionMode(QListWidget.MultiSelection)
         for asset in SCREEN_ASSETS:
             if kind is not None and asset.kind != kind:
-                # Filtered rather than greyed: a Feature download that listed
-                # eight rows and refused four of them would be four chances to
-                # start a 30 GB transfer by mistake.
                 continue
             item = QListWidgetItem(self._text_for(asset))
             item.setData(Qt.UserRole, asset)
@@ -95,15 +88,9 @@ class ScreenDataPicker(QDialog):
             here = self._is_present(asset)
             item.setCheckState(Qt.Unchecked)
             if self._is_missing_upstream(asset):
-                # Disabled, because ticking it could only fail. Left visible
-                # so the set still reads as eight pieces with one not ready,
-                # rather than as a set that never had it.
                 item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                 item.setToolTip("Not published yet — nothing to download.")
             if here:
-                # ALREADY ON DISK. Left selectable rather than disabled: a
-                # re-download is how a truncated or edited copy gets repaired,
-                # and a row that cannot be ticked gives no way to do that.
                 item.setToolTip("Already downloaded. Tick it to fetch it "
                                 "again, which replaces the copy on disk.")
             self._list.addItem(item)
@@ -135,7 +122,6 @@ class ScreenDataPicker(QDialog):
         outer.addWidget(buttons)
         self._refresh_total()
 
-    # -- rows ---------------------------------------------------------------
 
     def _text_for(self, asset: ScreenAsset) -> str:
         """Compose one asset's row.

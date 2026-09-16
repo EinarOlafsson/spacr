@@ -78,11 +78,6 @@ def _read_cells(db_path: str, predictions_file: str,
     if png["_crop"].duplicated().any() or predictions["_crop"].duplicated().any():
         raise HitAttributionError(
             "crop basenames are not unique; export prcfo with predictions")
-    # Only the crop key and the score are taken across. A prediction file is
-    # free to spell its crop-path column "png_path" -- an export out of spaCR
-    # naturally does -- and merging the whole frame then collided with
-    # png_list's own png_path, suffixed both to _x/_y, and left the join below
-    # asking for a column that no longer existed.
     scores = png.merge(predictions[["_crop", score_column]], on="_crop",
                        how="inner", validate="one_to_one")
     return cells.merge(
@@ -92,13 +87,6 @@ def _read_cells(db_path: str, predictions_file: str,
 
 def _read_fractions(path: str) -> pd.DataFrame:
     """Read canonical fractions, deriving missing well keys from ``prc``."""
-    # THROUGH THE FUNNEL (145). Read raw, this required plateID/rowID/columnID
-    # and fell through to the `prc` split when the file spelled them
-    # row_name / column_name -- which the count CSVs on the maintainer's own
-    # screen do. With no `prc` either, it returned a frame MISSING THE KEYS
-    # and every join downstream matched nothing while raising nothing. That is
-    # 145's whole finding: a reader that does not canonicalise returns a
-    # number rather than an error.
     from .tabular import read_table
 
     frame = read_table(path)
@@ -238,8 +226,6 @@ def evaluate_blinded_reviews(reviews: pd.DataFrame,
         "n_reviewers": int(frame["reviewer_id"].astype(str).nunique()),
         "precision": float(precision_score(binary, predicted, zero_division=0)),
         "recall": float(recall_score(binary, predicted, zero_division=0)),
-        # Squared calibration error supports a soft human consensus (for
-        # example, one of two blinded reviewers calling the object positive).
         "brier_score": float(np.mean((consensus - probabilities) ** 2)),
         "roc_auc": (float(roc_auc_score(binary, probabilities))
                     if binary.nunique() == 2 else float("nan")),
@@ -430,8 +416,6 @@ def register_settings(replace: bool = False) -> bool:
         "hit_store_database": "(bool) - Store this attribution as a new versioned database run. Disabling it writes portable files only; neither choice overwrites hand annotations. Default True.",
         "dst": "(str) - Folder receiving versioned tables, manifests and figures. Default '' uses a module-specific folder beside the primary input, keeping different analyses separated.",
     }
-    # Shared settings keep the canonical cross-module help. Import order must
-    # not decide whether this app or Barcode QC owns ``dst``/``db_path``.
     tips = {key: value for key, value in tips.items()
             if key not in shared_tooltips}
     register_defaults(

@@ -170,8 +170,6 @@ def panel_canvas_class():
             self.setAttribute(Qt.WA_OpaquePaintEvent, False)
             self.setAttribute(Qt.WA_TranslucentBackground, True)
             make_transparent(self)
-            # The panel below is the surface now. Leaving the patch
-            # opaque would paint the old rectangle straight back over it.
             figure.patch.set_alpha(0.0)
 
         def paintEvent(self, event):  # noqa: N802 (Qt naming)
@@ -246,8 +244,6 @@ class TrainCompareScreen(QWidget):
         self._busy = False
         self._pending: Optional[tuple[Dict[str, Any],
                                       Callable[[Any], None]]] = None
-        # Ownership list for in-flight (QThread, worker) pairs — a QThread
-        # collected while still running takes the process down with it.
         self._jobs: List[tuple] = []
         self.last_error: str = ""
 
@@ -259,13 +255,9 @@ class TrainCompareScreen(QWidget):
             "Choose the folder your models were trained into (a dataset's "
             "model/ folder, or anything above it), then Scan.")
         self._update_controls()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the run list beside the plot, with the diff underneath."""
@@ -285,7 +277,6 @@ class TrainCompareScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        # ── Source row ────────────────────────────────────────────────
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
@@ -303,7 +294,6 @@ class TrainCompareScreen(QWidget):
         src_row.addWidget(self._btn_scan)
         outer.addLayout(src_row)
 
-        # ── Runs | plot + diff ────────────────────────────────────────
         split = QSplitter(Qt.Horizontal, self)
 
         left = QWidget(split)
@@ -352,8 +342,6 @@ class TrainCompareScreen(QWidget):
 
         right = QSplitter(Qt.Vertical, split)
 
-        # Matplotlib canvas — created here so the same figure is reused for
-        # every overlay rather than leaking one per click.
         from matplotlib.figure import Figure
         self._figure = Figure(
             figsize=(7.0, 4.2), tight_layout=True)
@@ -406,7 +394,6 @@ class TrainCompareScreen(QWidget):
         self._status.setTextInteractionFlags(Qt.TextSelectableByMouse)
         outer.addWidget(self._status)
 
-    # -- status ------------------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Never a QMessageBox — a modal hangs a headless run."""
@@ -435,7 +422,6 @@ class TrainCompareScreen(QWidget):
         """Description of the last clicked series."""
         return self._picked.text()
 
-    # -- scanning ----------------------------------------------------------
 
     def _pick_folder(self) -> None:
         """Ask for the folder the runs were written to."""
@@ -482,10 +468,6 @@ class TrainCompareScreen(QWidget):
         :param runs: the runs it returned.
         """
         next_runs = list(runs or [])
-        # Clear the old tree's curves before any visible state starts naming
-        # the new tree. If Qt rejects the redraw because its canvas has been
-        # deleted, no new run state has been installed and no old curve
-        # mapping survives behind it.
         self._clear_plot()
         self._runs = next_runs
         self._comparison = None
@@ -554,7 +536,6 @@ class TrainCompareScreen(QWidget):
             self._problems.setStyleSheet("")
             self._problems.setText("")
 
-    # -- introspection helpers (used by tests and by callers) -------------
 
     def root(self) -> str:
         """The folder being scanned for training runs.
@@ -684,7 +665,6 @@ class TrainCompareScreen(QWidget):
         mapping = getattr(self._figure, "spacr_series_by_label", {}) or {}
         return list(mapping)
 
-    # -- overlay -----------------------------------------------------------
 
     def _on_metric_changed(self, *_a) -> None:
         """Redraw the curves for a different metric."""
@@ -736,9 +716,6 @@ class TrainCompareScreen(QWidget):
     def _clear_plot(self) -> None:
         """Empty the curve plot."""
         self._figure.clear()
-        # `clear()` restores the rc facecolor AND its alpha, so the
-        # transparency `PanelCanvas` set has to be re-asserted or the
-        # first redraw paints the opaque rectangle straight back.
         self._figure.patch.set_alpha(0.0)
         self._figure.spacr_series_by_label = {}
         self._picked.setText("")
@@ -764,9 +741,6 @@ class TrainCompareScreen(QWidget):
         """Match the plot to the app palette so it doesn't glare."""
         fig = ax.figure
         fig.patch.set_alpha(0.0)
-        # The axes keep a fill — the plotting area is meant to read as a
-        # panel within the panel — but at the page opacity, so the slider
-        # reaches the plot too rather than stopping at its frame.
         ax.patch.set_facecolor(pal["surface_alt"])
         ax.patch.set_alpha(_page_alpha())
         for spine in ax.spines.values():
@@ -784,7 +758,6 @@ class TrainCompareScreen(QWidget):
             for text in legend.get_texts():
                 text.set_color(pal["fg"])
 
-    # -- diff table --------------------------------------------------------
 
     def _clear_diff(self) -> None:
         """Empty the settings diff, so a stale one is not read as current."""
@@ -814,7 +787,6 @@ class TrainCompareScreen(QWidget):
             return
 
         if diff.get("identical"):
-            # An empty table reads as a failure; say it in words instead.
             self._diff_summary.setText(
                 f"No differences — all {len(ids)} selected runs ran with "
                 f"identical settings.")
@@ -888,7 +860,6 @@ class TrainCompareScreen(QWidget):
             out.append(row)
         return out
 
-    # -- picking -----------------------------------------------------------
 
     def _on_pick(self, event) -> None:
         """Report which curve point the user clicked.
@@ -929,7 +900,6 @@ class TrainCompareScreen(QWidget):
         self.series_clicked.emit(series.label)
         return text
 
-    # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None]) -> bool:
@@ -960,11 +930,6 @@ class TrainCompareScreen(QWidget):
         self._jobs.append((thread, worker))
         self._pending = (box, on_done)
         worker.error.connect(self._on_worker_error_text)
-        # A bound QWidget receiver gives Qt enough thread affinity
-        # information to queue this callback onto the GUI thread. Connecting
-        # to a plain closure can execute it in the worker thread, where the
-        # calls below that mutate labels, tables and Matplotlib canvases are
-        # undefined behaviour.
         worker.finished.connect(self._on_job_settled)
         thread.finished.connect(self._retire_finished_jobs)
         self._busy = True

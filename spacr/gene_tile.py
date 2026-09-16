@@ -113,9 +113,6 @@ def uniprot_accessions() -> Dict[str, str]:
                 gene = str(row.get("gene_nr", "")).strip()
                 accession = str(row.get("uniprot", "")).strip()
                 if gene and accession:
-                    # Keyed on the bare number, and the file is written with
-                    # leading zeros preserved (039160), so both spellings
-                    # resolve.
                     out.setdefault(gene, accession)
                     out.setdefault(gene.lstrip("0") or gene, accession)
     except Exception:                                            # noqa: BLE001
@@ -151,9 +148,6 @@ _PRODUCT = "Product Description"
 _SYMBOL = "Gene Name or Symbol"
 
 
-# Canonical English used when a structured gene record is rendered in Qt.
-# These strings live in the headless data model rather than in literal Qt
-# calls, so the runtime catalog builder imports this inventory explicitly.
 _GENE_TILE_UI_SOURCES = frozenset({
     "non-targeting control",
     "{feature} (model covariate)",
@@ -228,9 +222,6 @@ _GENE_TILE_UI_SOURCES = frozenset({
 }) | frozenset(label for _column, label in METADATA_FIELDS)
 
 
-# ---------------------------------------------------------------------------
-# Small helpers
-# ---------------------------------------------------------------------------
 
 
 class _TranslatableText(str):
@@ -365,9 +356,6 @@ def uniprot_reference(accession: str, annotation=None):
             if text and text.lower() not in ("nan", "none", ""):
                 return (f"UniProt {text}",
                         UNIPROT_RECORD_URL.format(accession=text), True)
-    # THE BUNDLED MAPPING. Keyed on the gene NUMBER, so a full ToxoDB
-    # accession (`TGGT1_224750`) and a bare number (`224750`) both resolve --
-    # the tile is handed either depending on where the click came from.
     number = str(accession).strip()
     if "_" in number:
         number = number.rsplit("_", 1)[-1]
@@ -464,9 +452,6 @@ def _indexed(name: str, builder, frame: Optional[pd.DataFrame],
     return _INDEX_CACHE[key]
 
 
-# ---------------------------------------------------------------------------
-# The record
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Reference:
@@ -641,7 +626,6 @@ class GeneTile:
     unresolved: Tuple[str, ...] = ()
     notes: Tuple[str, ...] = ()
 
-    # -- identity ---------------------------------------------------------
 
     @property
     def resolved(self) -> bool:
@@ -710,7 +694,6 @@ class GeneTile:
                     out.append(reference)
         return tuple(out)
 
-    # -- rendering --------------------------------------------------------
 
     def sections(
         self,
@@ -813,9 +796,6 @@ class GeneTile:
             out.append((_label("protospacer", translator),
                         ((_label("sequence", translator), self.protospacer),)))
 
-        # A note already showing as the subtitle is not repeated: the tile
-        # would otherwise print its own headline twice, which reads as two
-        # different problems rather than one.
         rest = tuple(n for n in self.unresolved if n != self.subtitle)
         if rest:
             out.append((_label("what could not be resolved", translator),
@@ -881,9 +861,6 @@ class GeneTile:
         return "".join(parts)
 
 
-# ---------------------------------------------------------------------------
-# Resolution
-# ---------------------------------------------------------------------------
 
 def _parse(feature: Any) -> Tuple[str, str, str]:
     """Split a clicked string into ``(kind, gene, guide)``.
@@ -906,13 +883,6 @@ def _parse(feature: Any) -> Tuple[str, str, str]:
         guide = guide_of(text) or ""
         if not gene:
             return "unresolved", "", ""
-        # THE TERM SAYS WHICH IT IS, not the shape of the token inside it.
-        # `guide_of` returns the WHOLE bracketed token, so on a numeric screen
-        # a gene term's token has no underscore and guide == "" -- which is
-        # how "guide if there is a guide" happened to work. It stops working
-        # the moment the id itself contains an underscore:
-        # `gene_fraction:gene[TGGT1_231640]` is a GENE term whose token is
-        # `TGGT1_231640`, and it was reported as a guide of gene TGGT1.
         if "gene_fraction:gene[" in text or ":gene[" in text:
             return "gene", gene, ""
         return ("guide", gene, guide) if guide and guide != gene \
@@ -1081,9 +1051,6 @@ def _screen_numbers(results: Optional[pd.DataFrame], feature: str, gene: str,
             ))
         return out
 
-    # Deliberately not `results.copy()`: a click must not duplicate the whole
-    # coefficient table to read one row out of it. The feature column is taken
-    # as strings once and used as the index for every lookup below.
     frame = results
     terms = frame["feature"].astype(str)
     clicked = frame[(terms == feature).to_numpy()]
@@ -1210,7 +1177,6 @@ def gene_tile(feature: Any,
     numbers = _screen_numbers(results, text, gene, guide)
     unresolved.extend(numbers.pop("missing"))
 
-    # --- the control block, which is not a gene and must not pretend to be --
     is_control = (numbers["condition"].lower() == "control"
                   or (gene == CONTROL_GENE and kind in ("guide", "gene")))
     if kind == "nuisance":
@@ -1241,12 +1207,6 @@ def gene_tile(feature: Any,
                 "so the screen has a null to measure the real guides against.",
                 identifier=guide or gene,
             ))
-        # The control block is fitted as if it were one gene, so a "gene-level
-        # effect" and a sign agreement exist for it arithmetically. Neither
-        # means anything — there is no gene for the guides to agree ABOUT —
-        # and printing them would dress the null distribution up as a result.
-        # The sibling guides stay: they ARE that null, and seeing the other 23
-        # sit near zero is how a user reads one control that did not.
         numbers["gene_effect"] = float("nan")
         numbers["gene_p_value"] = float("nan")
         numbers["gene_q_value"] = float("nan")
@@ -1266,7 +1226,6 @@ def gene_tile(feature: Any,
                         unresolved=tuple(unresolved), notes=tuple(notes),
                         **numbers)
 
-    # --- which genes could this be? -----------------------------------------
     protospacer = ""
     genes: List[Tuple[str, str]] = []
     reported_accession = ""
@@ -1302,8 +1261,6 @@ def gene_tile(feature: Any,
     if not genes:
         genes = [(gene, reported_accession)]
     else:
-        # The gene the counts were attributed to leads, then the rest in a
-        # stable order, so two runs of the same click read the same.
         genes.sort(key=lambda item: (item[0] != gene, item[0]))
         if gene not in [g for g, _ in genes]:
             genes.insert(0, (gene, reported_accession))
@@ -1314,11 +1271,6 @@ def gene_tile(feature: Any,
                    metadata_named=metadata_named)
         for g, a in genes)
 
-    # A candidate nothing is known about, for an id that is not even shaped
-    # like a Toxoplasma gene, is not a gene record — it is the clicked string
-    # echoed back under a heading that says "identity". Drop it, so the tile
-    # says plainly that it resolved nothing instead of implying it resolved
-    # something empty.
     if not is_toxoplasma_gene_id(gene) and not any(
             c.annotation or c.accession or c.localisation for c in candidates):
         candidates = ()

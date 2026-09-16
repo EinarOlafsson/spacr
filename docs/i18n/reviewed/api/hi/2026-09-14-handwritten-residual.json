@@ -1,0 +1,13 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "THE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites the extension itself, which is why every matplotlib save has honoured the preference for months -- but pyqtgraph decides what it writes FROM THE NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a renderer that is handed ``volcano.pdf`` writes a PDF whatever the user chose. The name has to be settled before the export sees it, and settling it twice in two modules is how the two drift apart.",
+      "label": "spacr.plot.figure_path#1",
+      "source": "THE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites the extension itself, which is why every matplotlib save has honoured the preference for months -- but pyqtgraph decides what it writes FROM THE NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a renderer that is handed ``volcano.pdf`` writes a PDF whatever the user chose. The name has to be settled before the export sees it, and settling it twice in two modules is how the two drift apart.",
+      "source_sha256": "3373e8946963e49c0ba1254c2bac4ea5e94f29c0e8bbba043be6369c9fce8c58",
+      "translation": "वह एकमात्र जगह जहाँ कोई ग़ैर-MATPLOTLIB रेंडरर पूछ सकता है। ``save_figure`` एक्सटेंशन को स्वयं फिर से लिखता है, यही कारण है कि हर matplotlib सेव महीनों से इस वरीयता का पालन करता आया है -- लेकिन pyqtgraph यह तय करता है कि वह क्या लिखेगा नाम से (``FastPlot.export`` ``.pdf`` / ``.svg`` / अन्यथा पर शाखा बनाता है), इसलिए जिस रेंडरर को ``volcano.pdf`` सौंपा जाता है वह PDF लिखता है, उपयोगकर्ता ने चाहे जो भी चुना हो। नाम को एक्सपोर्ट के उसे देखने से पहले तय कर लेना होगा, और उसे दो मॉड्यूल में दो बार तय करना ही वह तरीका है जिससे दोनों एक-दूसरे से अलग हो जाते हैं।"
+    }
+  ],
+  "schema": 1
+}

@@ -118,7 +118,6 @@ def _quiet_vispy_logging() -> None:
 
         set_log_level("error")
     except Exception:                                        # noqa: BLE001
-        # vispy is optional; a machine without it has no backdrop to quiet.
         pass
 
 
@@ -151,32 +150,6 @@ def _install_quiet_qt_logging() -> None:
             QtMsgType.QtFatalMsg: "Qt fatal",
         }.get(mode, "Qt")
         print(f"{label}: {message}", file=stream)
-        # AND INTO THE LOG. This handler printed to stderr and nowhere else,
-        # so every Qt warning was visible to whoever was watching the terminal
-        # and invisible to everyone reading ~/.spacr/logs/spacr.log afterwards.
-        # That cost real time on 2026-08-19: "QBasicTimer::start: Timers cannot
-        # be started from another thread" arrives immediately before a crash on
-        # the maintainer's machine, and the log had ZERO occurrences of it --
-        # so the one line that mattered could only be obtained by asking them
-        # to copy it out of a terminal that the crash had already closed.
-        #
-        # A crash report is written from the log, not from a screen someone
-        # happened to be looking at.
-        # A THREAD-AFFINITY WARNING GETS A PYTHON STACK. `QBasicTimer::start`
-        # is called from Qt's own C++ internals, so the Python-level guard on
-        # QTimer.start never sees it -- but THIS handler runs in the emitting
-        # thread at the moment of the warning, so the stack here names the
-        # Python call that entered Qt.
-        #
-        # Only for this family. A stack on every Qt warning would bury the one
-        # that matters, which is the mistake the guard's own test exists to
-        # prevent.
-        # "STOPPED" BELONGS HERE TOO, and its absence cost a day. The
-        # started/created pair was matched; `killTimer` and `~QObject` say
-        # "cannot be STOPPED from another thread" and fell through with no
-        # stack -- which is the pair that precedes the cyclic-collector crash
-        # spacr.qt.gc_policy documents, so the one crash that most needed a
-        # Python stack was the one family that never got one.
         if "cannot be started from another thread" in (message or "") or \
                 "cannot be stopped from another thread" in (message or "") or \
                 "Cannot create children for a parent" in (message or ""):
@@ -203,7 +176,6 @@ def _install_quiet_qt_logging() -> None:
                      mode, logging.WARNING),
                 "%s: %s", label, message)
         except Exception:
-            # Never let logging a warning become a second failure.
             pass
 
     qInstallMessageHandler(handler)
@@ -260,9 +232,6 @@ def _quiet_library_warnings() -> None:
     import warnings
 
     for message, module in _LIBRARY_NOISE:
-        # A filters entry is (action, message_re, category, module_re, lineno)
-        # with the two patterns compiled, so `.pattern` recovers what was asked
-        # for and the comparison is against the request rather than the object.
         if any(action == "ignore" and category is UserWarning
                and getattr(msg_re, "pattern", None) == message
                and getattr(mod_re, "pattern", None) == module
@@ -325,13 +294,9 @@ def _missing_qt_extra(exc: ImportError) -> str | None:
         The top-level module name to name in the install hint, or ``None``
         when ``exc`` is unrelated to the Qt extra.
     """
-    # ModuleNotFoundError sets `.name` to the module that could not be found;
-    # a failed `from PySide6.QtCore import ...` sets it to `PySide6.QtCore`.
     root = (getattr(exc, "name", None) or "").split(".", 1)[0]
     if root in _QT_EXTRA_MODULES:
         return root
-    # Import hooks and hand-raised ImportErrors may leave `.name` unset, so
-    # fall back to the message text before giving up on the friendly path.
     text = str(exc)
     for module in sorted(_QT_EXTRA_MODULES):
         if module in text:
@@ -361,12 +326,12 @@ def _prefer_a_context_the_shaders_can_run_on() -> None:
     import os
 
     if os.environ.get("QT_QPA_PLATFORM"):
-        return                      # the caller chose; do not overrule them
+        return
     if not (os.environ.get("WAYLAND_DISPLAY")
             or os.environ.get("XDG_SESSION_TYPE", "").lower() == "wayland"):
-        return                      # not Wayland; the context is already fine
+        return
     if not os.environ.get("DISPLAY"):
-        return                      # no XWayland to ask for
+        return
     os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 
@@ -407,22 +372,15 @@ def run(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
 
-    # FIRST IN THE PUBLIC ENTRY POINT.  ``app`` imports PySide, and the
-    # registration pass below may import modules that own live hooks.  A
-    # clock begun inside ``launch()`` misses both and cannot claim
-    # process-to-interactive timing.  The timing module itself is stdlib-only
-    # while disabled; begin() is a single environment-guarded return.
     from . import timing as _timing
 
     _timing.begin()
 
-    # Before anything imports Qt, GTK or torch: the AT-SPI variable is only
-    # read while GTK loads, the Qt handler has to be in place before the
-    # first widget lays out text, and the warning filter has to be in place
-    # before the pipeline preloader reaches cellpose.
     _quiet_gtk_accessibility()
     _install_quiet_qt_logging()
-    _quiet_vispy_logging()
+    _preferences = sys.modules.get(f"{__name__}.preferences")
+    if _preferences is None or not _preferences.in_safe_mode():
+        _quiet_vispy_logging()
     _quiet_library_warnings()
 
     if len(argv) == 1 and argv[0] in _VERSION_FLAGS:
@@ -442,10 +400,25 @@ def run(argv: list[str] | None = None) -> int:
 
     register_self_registering_modules()
 
-    # Deliberately outside the `try`: an ImportError raised *during* a run —
-    # a screen lazily importing an optional reader, say — is a real failure
-    # and must not be reported as "Qt is not installed".
-    return launch(argv)
+    # 291, decided 2026-09-15: "Global in the app only". Every GUI console
+    # script reaches the window through this line -- spacr, spacr-qt,
+    # spacr-nightly, spacr-server, spaceout, spacr-make-masks and
+    # `python -m spacr` -- so this is where Open Sans becomes matplotlib's
+    # default, and a plain `Figure()` anywhere in the application draws in
+    # the face the interface uses. Held around `launch`, which is the life of
+    # the process; see `spacr.figure_font._open_sans_is_the_default`.
+    #
+    # NOT IN SAFE MODE. `safespacr` is the least spaCR that can still change
+    # a setting (296), and this imports matplotlib and registers eight font
+    # files before the first window.
+    preferences = sys.modules.get(f"{__name__}.preferences")
+    if preferences is not None and preferences.in_safe_mode():
+        return launch(argv)
+
+    from ..figure_font import _open_sans_is_the_default
+
+    with _open_sans_is_the_default():
+        return launch(argv)
 
 
 #: Modules that own an app and register it through
@@ -473,58 +446,19 @@ def run(argv: list[str] | None = None) -> int:
 #: reassess what is already in the registry.
 SELF_REGISTERING_MODULES = (
     "spacr.qt.widgets.feature_dictionary",
-    # Not an app of its own: it registers a screen FACTORY for every module
-    # that declares ports, so the generic AppScreen gains the auto-chaining /
-    # staleness / next-step strip without a line inside the shared screen.
     "spacr.qt.chaining",
-    # Also not an app: it decorates the Measure screen with the segmentation
-    # verdict seg_qc already computed and the Mask screen with the diameter
-    # estimator, by wrapping whatever factory is registered for those two
-    # keys. Listed AFTER chaining so the normal launch order composes onto
-    # chaining's screen rather than the other way round; both orders work.
     "spacr.qt.prerun",
     "spacr.qt.screens.run_compare",
     "spacr.qt.screens.investigate_hit",
-    # Three Explore screens built on the Graph Builder's spec engine. Each
-    # owns a tested, idempotent register() that fans its name, intro, CLI
-    # note, api_module and nine translations out of one register_app call.
-    # All that was ever missing was the row that runs it: the agent that
-    # wrote them could not add it while this file was being edited.
     "spacr.qt.screens.trellis",
     "spacr.qt.screens.gate_editor",
     "spacr.qt.screens.feature_explorer",
-    # Flags an object — or a whole well, which is the more common failure —
-    # as extreme by a robust rule, and writes a COLUMN rather than dropping a
-    # row. Safe to have on by default for exactly that reason: nothing it
-    # decides is destructive until the user acts on it.
     "spacr.qt.screens.outliers",
-    # Four-parameter logistic with a confidence interval on EC50 -- and a
-    # refusal wherever an EC50 would be a guess: an incomplete curve reports a
-    # one-sided bound instead of a number, and non-monotone data is not fitted
-    # at all. Filed under Design, with Power: an EC50 is fitted to choose the
-    # concentration the next experiment will use.
     "spacr.qt.screens.dose_response",
     "spacr.qt.screens.embeddings",
-    # A control's measured value plate by plate across a campaign, with limits
-    # estimated from a STATED baseline and applied forward, so a drift is
-    # visible before it has ruined the screen rather than after.
     "spacr.qt.screens.control_chart",
-    # Every project on disk in one table -- stage, size, last run, what is
-    # stale -- built entirely on `spacr.projects`, which is built on ports,
-    # artifacts, data_manager and chaining. A project the registry has never
-    # seen is listed too; that is the case it exists for.
     "spacr.qt.screens.project_browser",
-    # Not an app: it connects the pre-run cleanup to the run registry and
-    # performs whatever launch cleanup the chosen spaCR mode asks for. In
-    # Balanced — the default — both of those are a preference read and a
-    # return, so this row costs a user who never opens the Performance tab
-    # nothing at all.
     "spacr.qt.resource_cleanup",
-    # Not an app either: it corrects the maturity label on the modules whose
-    # evidence no longer matches "alpha". Listed LAST, after every module
-    # that registers an app of its own, because it can only reassess apps
-    # that are in the registry by the time it runs — a module registered
-    # after it would keep whatever stage it declared.
     "spacr.qt.maturity",
 )
 

@@ -189,7 +189,6 @@ def _anchor_setting_key(anchor: Optional[QWidget]) -> str:
     try:
         key = anchor.property("settingKey")
     except RuntimeError:
-        # The anchor's C++ half is gone; there is nothing to read.
         return ""
     return str(key) if key else ""
 
@@ -290,7 +289,6 @@ class _AnimationView(QLabel):
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._advance)
 
-    # ------------------------------------------------------------------
     def slug(self) -> str:
         """Slug of the animation currently loaded, or ``""``."""
         return self._slug
@@ -329,7 +327,6 @@ class _AnimationView(QLabel):
             self.clear_animation()
             return False
         if self._slug == animation.slug and self._frames:
-            # Same setting hovered again: keep playing rather than restart.
             self.play()
             return True
 
@@ -388,10 +385,7 @@ class _AnimationView(QLabel):
     #: loop for no visible gain.
     MIN_DELAY_MS = 20
 
-    # ------------------------------------------------------------------
     def _schedule(self) -> None:
-        # One delay per frame, guaranteed by `read_frames`; a still image has
-        # nothing to schedule.
         """Arm the timer for the current frame's own delay.
 
         Per-frame rather than one interval for all of them, because a GIF's
@@ -434,7 +428,6 @@ class HoverTooltip(QFrame):
     TEXT_WIDTH_STEPS = (ANIMATION_SIZE, 260, 300, 340, TEXT_WIDTH)
 
     def __init__(self):
-        # Popup window with tool-tip semantics but our own paint control.
         """Build the process-wide hover popup.
 
         A tool-tip window with our own painting: shown without activating, so it
@@ -463,16 +456,6 @@ class HoverTooltip(QFrame):
         )
         self._label.setWordWrap(True)
         self._label.setMaximumWidth(self.TEXT_WIDTH)
-        # Belt and braces with the layout's AlignTop below. If the label is
-        # ever stretched to the height of the animation, QLabel's default
-        # AlignVCenter would float the prose down to the middle of the square
-        # while the widget's top edge stayed put — top-aligned by geometry
-        # and centred to the eye, which is not what was asked for.
-        # JUSTIFIED. Asked for 2026-08-28. A tooltip is a paragraph of prose
-        # in a narrow fixed-width popup, which is where a ragged right edge
-        # is most visible: every line ends somewhere different and the block
-        # reads as an offcut rather than as a paragraph. Qt justifies rich
-        # text, and the popup is rich text already.
         self._label.setAlignment(Qt.AlignJustify | Qt.AlignTop)
         column.addWidget(self._label)
 
@@ -481,23 +464,6 @@ class HoverTooltip(QFrame):
         links_row = QHBoxLayout(self._links)
         links_row.setContentsMargins(0, 0, 0, 0)
         links_row.setSpacing(SPACING["sm"])
-        # The drawn text and the announced text are the same again, which
-        # they were not while the marks were drawn. The accessible names are
-        # set explicitly all the same: they were correct throughout and are
-        # what a screen reader has always said, so leaving them to be
-        # inferred from the label would be trading a guarantee for a
-        # coincidence.
-        #
-        # NO `setToolTip` ON EITHER WORD, reported 2026-09-03: "for some
-        # reason when i hover API links they get a tooltip themeselves upon
-        # hover. remove this." These two words live INSIDE this panel, and
-        # this panel is itself the tooltip -- so hovering one raised a
-        # second, native tooltip on top of the help the reader was already
-        # reading. The strings said nothing the words do not say.
-        #
-        # The `setAccessibleDescription` calls stay. A screen reader reads
-        # those, not the tooltip, so removing the popup costs a sighted
-        # reader nothing and costs a screen-reader user nothing either.
         self._api_link = _LinkWord(API_MARK, "HoverTooltipApiLink",
                                    self._links)
         self._api_link.setAccessibleName("API")
@@ -516,20 +482,12 @@ class HoverTooltip(QFrame):
         links_row.addWidget(self._animation_link)
         links_row.addStretch(1)
         column.addWidget(self._links)
-        # Holds the prose and the two words at the TOP of a column that is
-        # stretched to the height of the square beside it.
         column.addStretch(1)
 
         self._animation_view = _AnimationView(self.ANIMATION_SIZE, self)
         self._animation_view.hide()
         self._animation = None
         self._offered_animation = None
-        # The reveal, in two fields: which setting the reader pressed
-        # **Animation** on, and what they pressed it to. It applies to that
-        # setting and to nothing else, so hovering anything else falls back to
-        # the preference. A session-wide flag here is precisely the behaviour
-        # that was rejected — one press must not put every later hover back on
-        # the decode path.
         self._setting_key = ""
         self._toggled_key: Optional[str] = None
         self._toggled_to = False
@@ -539,8 +497,6 @@ class HoverTooltip(QFrame):
         lay.setContentsMargins(SPACING["sm"], SPACING["xs"],
                                 SPACING["sm"], SPACING["xs"])
         lay.setSpacing(SPACING["sm"])
-        # AlignTop on both, so the text starts level with the first frame
-        # instead of floating to the middle of a 220-pixel square.
         lay.addWidget(self._text_column, 0, Qt.AlignTop)
         lay.addWidget(self._animation_view, 0, Qt.AlignTop)
 
@@ -552,9 +508,6 @@ class HoverTooltip(QFrame):
 
     def _apply_theme(self) -> None:
         """Refresh the popup's inline style from the theme on screen."""
-        # This widget is a separate top-level window, so app-level QSS does
-        # not reliably reach it. It is also a singleton that survives a
-        # Preferences theme switch, hence this must be refreshed on show.
         palette = active_palette()
         self.setStyleSheet(
             f"QFrame#HoverTooltip {{"
@@ -562,21 +515,6 @@ class HoverTooltip(QFrame):
             f"  border: 1px solid {palette['border']};"
             f"  border-radius: 6px;"
             f"}}"
-            # The two layout containers paint NOTHING. Both are plain
-            # `QWidget`s, so without this they inherit the application sheet's
-            # blanket `QWidget { background-color: bg }` — and `bg` is the
-            # WINDOW colour, #000000 in the dark theme, not a surface. The
-            # result was a black slab covering all but a 6-pixel margin of the
-            # popup's own rounded grey: 20669 black pixels inside a #161719
-            # frame. `theme.clear_container_surfaces` exists for exactly this
-            # and could not help — it only tags ANONYMOUS widgets as
-            # scaffolding, and both of these are named.
-            #
-            # Transparent rather than re-filled with the frame's colour on
-            # purpose: one surface, one alpha. Painting the same grey twice is
-            # what left the System panel's meters unable to thin out when the
-            # page-opacity slider moved, because the two translucent layers
-            # composited into something darker than either.
             f"QWidget#HoverTooltipTextColumn,"
             f"QWidget#HoverTooltipLinks {{"
             f"  background: transparent;"
@@ -586,20 +524,9 @@ class HoverTooltip(QFrame):
             f"  font-size: {font_px('small')}px;"
             f"  background: transparent;"
             f"}}"
-            # Transparent, not black: the rounded corners are cut into the
-            # frames themselves, and a background painted by the sheet would
-            # square them off again.
             f"QLabel#SettingTooltipAnimation {{"
             f"  background: transparent;"
             f"}}"
-            # Two marks, two colours, no underline anywhere. Teal DOT for
-            # the API, purple SQUARE for the animation -- the colours the
-            # maintainer named, and the shapes carry the same distinction
-            # for a reader who cannot separate the colours.
-            #
-            # A LARGER FONT THAN THE PROSE: these glyphs are drawn at the
-            # label's font size, and at the popup's small size a circle
-            # reduces to a few pixels. They are targets as well as marks.
             f"QLabel#HoverTooltipApiLink {{"
             f"  color: {TEAL};"
             f"  font-size: {font_px('small') + 4}px;"
@@ -612,9 +539,6 @@ class HoverTooltip(QFrame):
             f"}}"
         )
 
-    # ------------------------------------------------------------------
-    # Singleton
-    # ------------------------------------------------------------------
     @classmethod
     def instance(cls) -> "HoverTooltip":
         """Return the process-wide singleton, creating it on first access."""
@@ -622,9 +546,6 @@ class HoverTooltip(QFrame):
             cls._INSTANCE = HoverTooltip()
         return cls._INSTANCE
 
-    # ------------------------------------------------------------------
-    # API
-    # ------------------------------------------------------------------
     def show_for(self, anchor: QWidget, html: str, animation=_DERIVE) -> None:
         """Show the tooltip beneath ``anchor`` with body ``html``.
 
@@ -643,9 +564,6 @@ class HoverTooltip(QFrame):
         self._apply_theme()
         self._anchor = anchor
         self._claim_anchor(anchor)
-        # Which setting this tooltip is for, which is what the reveal is
-        # scoped to. Read before `_set_animation`, because that is what asks
-        # `animations_shown()` whether this particular setting was pressed.
         self._setting_key = _anchor_setting_key(anchor)
         body, url = split_api_link(str(html))
         self._api_url = url
@@ -738,9 +656,6 @@ class HoverTooltip(QFrame):
         """The one setting a press has spoken for, or ``None`` — for tests."""
         return self._toggled_key
 
-    # ------------------------------------------------------------------
-    # The two words
-    # ------------------------------------------------------------------
     def open_api_documentation(self) -> None:
         """Open the documentation page the body's trailing link pointed at."""
         if not self._api_url:
@@ -757,9 +672,6 @@ class HoverTooltip(QFrame):
         turn animations on for the next one, and it cannot leave the
         preference unable to take effect.
         """
-        # Read BEFORE the key is claimed: afterwards `animations_shown` would
-        # answer with the state being written here rather than the one being
-        # inverted.
         wanted = not self.animations_shown()
         self._toggled_key = self._setting_key
         self._toggled_to = wanted
@@ -768,9 +680,6 @@ class HoverTooltip(QFrame):
         if self.isVisible() and self._anchor is not None:
             self._position_under(self._anchor)
 
-    # ------------------------------------------------------------------
-    # Animation
-    # ------------------------------------------------------------------
     def _resolve_animation(self, anchor: QWidget, animation):
         """Which animation this anchor HAS, shown or not.
 
@@ -804,34 +713,18 @@ class HoverTooltip(QFrame):
         self._offered_animation = animation
         revealed = self.animations_shown()
         if animation is not None and revealed:
-            # The only line in this class that reads a GIF, and it is reached
-            # only from a press or from the preference being on.
             showing = self._animation_view.load(animation)
         elif (animation is not None
                 and self._animation_view.slug() == animation.slug):
-            # Folded away while still on the same setting: pause, keep the
-            # finished pixmaps (~3.5 MB for one animation), so pressing again
-            # costs nothing. Bounded at one animation and never filled before
-            # a press -- moving to any other setting hits the branch below.
             self._animation_view.stop()
             showing = False
         else:
-            # Nothing to show, or not asked for: decode nothing and drop the
-            # previous setting's frames. This is the default path, and it is
-            # why a plain hover costs no decode and holds no pixmaps.
             self._animation_view.clear_animation()
             showing = False
         self._animation = animation if showing else None
         self._animation_view.setVisible(showing)
-        # Offered but hidden -> the word is the invitation. Showing -> the
-        # word folds it away again. Revealed but undecodable -> hide it: a
-        # word that visibly does nothing is worse than no word. No animation
-        # for this setting at all -> nothing to say.
         self._animation_link.setVisible(
             animation is not None and (showing or not revealed))
-        # Hidden, not merely empty: a zero-height row still costs the layout
-        # its spacing, which is exactly the slack a text-only popup was asked
-        # to lose.
         self._links.setVisible(
             self._api_link.isVisibleTo(self._links)
             or self._animation_link.isVisibleTo(self._links))
@@ -881,28 +774,17 @@ class HoverTooltip(QFrame):
         self._links.ensurePolished()
         self._unpin_text()
         if not with_animation:
-            # Nothing pinned: the layout takes the popup down to what the
-            # prose and the two words actually occupy.
             self._label.setMaximumWidth(self.TEXT_WIDTH)
             return
         width = self._fitting_text_width()
         self._label.setFixedWidth(width)
-        # QLabel's own size hint for wrapped rich text is derived from its
-        # preferred, not its actual, width; without this the popup opens tall
-        # enough for a couple of lines and clips the rest.
         prose = max(0, self._label.heightForWidth(width))
         needed = prose + SPACING["xs"] + self._links.sizeHint().height()
         self._label.setFixedHeight(prose)
         self._links.setFixedWidth(width)
         self._text_column.setFixedWidth(width)
-        # Exactly the height of the square. `max` only matters for prose too
-        # long to fit even at the widest step, where the alternative would be
-        # truncating the user's help text.
         self._text_column.setFixedHeight(max(self.ANIMATION_SIZE, needed))
 
-    # ------------------------------------------------------------------
-    # Placement
-    # ------------------------------------------------------------------
     def _position_under(self, anchor: Optional[QWidget]) -> None:
         """Dock the popup just below ``anchor``, clamped to its screen."""
         try:
@@ -918,7 +800,6 @@ class HoverTooltip(QFrame):
         x = min(max(geo.left(), below_left.x()), geo.right() - self.width())
         y = below_left.y() + 4
         if y + self.height() > geo.bottom():
-            # Not enough space below — flip above
             try:
                 top = anchor.mapToGlobal(anchor.rect().topLeft()).y()
             except (AttributeError, RuntimeError):
@@ -926,9 +807,6 @@ class HoverTooltip(QFrame):
             y = top - self.height() - 4
         self.move(x, y)
 
-    # ------------------------------------------------------------------
-    # The one-tooltip rule
-    # ------------------------------------------------------------------
     def _claim_anchor(self, anchor: Optional[QWidget]) -> None:
         """Take the anchor's tooltip duty away from Qt's own popup.
 
@@ -944,13 +822,9 @@ class HoverTooltip(QFrame):
             anchor.removeEventFilter(self._tooltip_suppressor)
             anchor.installEventFilter(self._tooltip_suppressor)
         except RuntimeError:
-            # The anchor's C++ half is gone; there is no tooltip to suppress.
             return
-        # A native tooltip already on screen — from the widget the pointer
-        # crossed on its way here — would otherwise sit over this one.
         QToolTip.hideText()
 
-    # ------------------------------------------------------------------
     def _pointer_is_on_me(self) -> bool:
         """Is the pointer over this popup, asked in a way every platform
         answers the same.
@@ -970,17 +844,6 @@ class HoverTooltip(QFrame):
         """
         from PySide6.QtGui import QCursor
 
-        # THE GEOMETRY DECIDES, and `underMouse()` is not consulted at all.
-        # It was, as a first answer with the geometry as a fallback, and that
-        # inherited exactly the unreliability it was added to work around:
-        # measured here, `underMouse()` reports True with the cursor
-        # demonstrably outside the popup's rectangle, and elsewhere it
-        # reports False with the pointer on it. A source that is wrong in
-        # both directions cannot improve an answer by being consulted first.
-        #
-        # `frameGeometry`, not `geometry`: the popup is frameless so they
-        # agree, and if a platform ever adds a frame the pointer is still on
-        # the popup when it is over that frame.
         try:
             return self.frameGeometry().contains(QCursor.pos())
         except (RuntimeError, TypeError):
@@ -999,14 +862,6 @@ class HoverTooltip(QFrame):
         """
         if self._pointer_is_on_me():
             return
-        # `self._anchor is not None` is not enough. The tooltip is a
-        # process-wide singleton holding a plain reference to a widget it does
-        # not own, and the hide is deferred by a timer -- so hovering a
-        # settings label and switching module inside the delay destroys the
-        # anchor's C++ object while this timer is still pending. The Python
-        # wrapper survives, so the None check passes, and underMouse() then
-        # raises RuntimeError('Internal C++ object already deleted') inside
-        # the Qt event loop, where there is nobody to catch it.
         anchor = self._anchor
         if anchor is not None:
             try:
@@ -1016,7 +871,6 @@ class HoverTooltip(QFrame):
                         anchor.mapFromGlobal(QCursor.pos())):
                     return
             except RuntimeError:
-                # The anchored widget is gone; nothing can be hovering it.
                 self._anchor = None
         self.hide()
 

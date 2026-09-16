@@ -1,0 +1,313 @@
+{
+  "language": "hi",
+  "schema": 1,
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Source-bound semantic translations for all 14 changed translatable feature 418 blocks in seven public API docstrings, plus material errors in reused paragraphs within those same docstrings. The changed literal-only role-setting example requires no translation. Existing valid reviewed translations are retained.",
+    "limitations": "AI-assisted semantic review against the current English docstrings and their exact translation contexts; not native-speaker human review or approval. Catalog publication is a separate step."
+  },
+  "records": [
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#0",
+      "source": "Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.",
+      "source_sha256": "0b7ffdbdf6731edb022b8e88c07b33c5fcb96b3443178f5c338469f4b1430a18",
+      "context": "Segment one object image data channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.",
+      "translation": "सभी ``.npz`` बैचों में, जो ``src`` के अंतर्गत हैं, Cellpose-SAM का उपयोग करके एक वस्तु के छवि चैनल का सेगमेंटेशन करें।"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#1",
+      "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
+      "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
+      "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
+      "translation": "पहले से प्रशिक्षित ``cpsam`` मॉडल लोड करता है; यदि ``<object_type>_model_name`` (या ``pathogen_model``) उपयोगकर्ता द्वारा प्रशिक्षित चेकपॉइंट का नाम देता है, तो उस चेकपॉइंट को लोड करता है। पहले से बैचों में बाँटी गई प्रत्येक ``.npz`` फ़ाइल पर क्रमशः काम करता है, 2-D मास्कों पर परिमाप-आधारित विलय तथा क्षेत्रफल/किनारे के आधार पर फ़िल्टरिंग लागू करता है, और वैकल्पिक रूप से वस्तुओं को उनके अपने चैनल की मूल छवि में निरपेक्ष औसत तीव्रता के आधार पर फ़िल्टर करता है। फिर वैकल्पिक रूप से टाइम-लैप्स छवियों में वस्तुओं को ट्रैक करता है, प्रत्येक छवि के लिए ``.npy`` मास्क सहेजता है, और वस्तु-प्रकार के अनुसार गिनती को रन के SQLite डेटाबेस में दर्ज करता है। टाइम-स्टैक आर्काइव में प्रत्येक समय-बिंदु के लिए एक फ़ाइलनाम होना चाहिए, चाहे घोषित समय-अक्ष की स्थिति कोई भी हो; मूल छवि का प्रत्येक फ़ाइलनाम उस समय-बिंदु के ``(Z, Y, X, C)`` आयतन या उसकी ``(Y, X, C)`` छवि को पहचानता है, यदि श्रृंखला समतल ``TYX`` हो।"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#2",
+      "source": "Directory containing the pre-batched ``.npz`` image stacks.",
+      "source_sha256": "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
+      "context": "Directory containing the pre-batched ``.npz`` image stacks.",
+      "translation": "पहले से बैचों में बाँटे गए ``.npz`` छवि स्टैक वाली निर्देशिका।"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#3",
+      "source": "Pipeline settings dict; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "source_sha256": "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
+      "context": "Workflow settings key-value mapping; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "translation": "प्रसंस्करण पाइपलाइन की सेटिंग्स का शब्दकोश; :func:`spacr.settings.set_default_settings_preprocess_generate_masks` के माध्यम से मानक रूप में बदला जाता है।"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#4",
+      "source": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
+      "source_sha256": "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
+      "context": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
+      "translation": "``'cell'``, ``'nucleus'``, ``'pathogen'`` या ``'organelle'``; चैनल/थ्रेशोल्ड की खोज और आउटपुट फ़ोल्डर का नाम निर्धारित करता है।"
+    },
+    {
+      "label": "spacr.object.merge_split_filter_masks#0",
+      "source": "Merge by perimeter and filter each in-memory field's objects.",
+      "source_sha256": "a952706f30f626d4d5e52c56d18f1275b1e188e2f439f39db0e99b17b4dbe4e6",
+      "context": "Merge by perimeter and filter each in-memory microscope field of view's objects.",
+      "translation": "परिमाप के आधार पर विलय करें और मेमोरी में मौजूद प्रत्येक दृश्य-क्षेत्र की वस्तुओं को फ़िल्टर करें।"
+    },
+    {
+      "label": "spacr.object.merge_split_filter_masks#1",
+      "source": "Skips work when no operation is enabled for ``object_type``; otherwise processes each FOV serially so progress reporting stays in order.",
+      "source_sha256": "79b17dfb950f1d5bd19183999c33259081659a92296bb9485e65dab737af5b7e",
+      "context": "Skips work when no operation is enabled for ``object_type``; otherwise processes each FOV (microscope field of view) serially so progress reporting stays in order.",
+      "translation": "यदि ``object_type`` के लिए कोई ऑपरेशन सक्षम नहीं है, तो कोई काम नहीं करता; अन्यथा प्रत्येक FOV (सूक्ष्मदर्शी दृश्य-क्षेत्र) को क्रमशः संसाधित करता है, ताकि प्रगति रिपोर्ट क्रम में रहे।"
+    },
+    {
+      "label": "spacr.object.merge_split_filter_masks#2",
+      "source": "2D/3D ndarray or iterable of masks (one per field).",
+      "source_sha256": "11db01e9d13e0c9e2e7d17ba867e64161b6031cc927a902a2dfc97183c04bae0",
+      "context": "2D/3D ndarray or iterable of masks (one per microscope field of view).",
+      "translation": "2D/3D ndarray या मास्कों का एक इटरेबल (प्रत्येक दृश्य-क्षेत्र के लिए एक मास्क)।"
+    },
+    {
+      "label": "spacr.object.merge_split_filter_masks#3",
+      "source": "Original own-channel arrays matching the masks, required only when an intensity bound is enabled. For channel-last batches the first channel must be the object's own channel.",
+      "source_sha256": "1eddc60d5f07dc9ca0d3076f4ab1cee7aaf22f0896c516f0400723421b5786c2",
+      "context": "Original own-image data channel arrays matching the masks, required only when an intensity bound is enabled. For image-channel-last batches the first image data channel must be the object's own image data channel.",
+      "translation": "मास्कों से मेल खाने वाली वस्तु के अपने चैनल की मूल ऐरे; केवल तभी आवश्यक हैं जब कोई तीव्रता सीमा सक्षम हो। जिन बैचों में चैनल-अक्ष अंतिम स्थान पर है, उनमें पहला चैनल वस्तु का अपना चैनल होना चाहिए।"
+    },
+    {
+      "label": "spacr.object.merge_split_filter_masks#4",
+      "source": "Dict of pipeline settings; per-object-type suffixes control perimeter merging, min/max area, border removal and min/max intensity. Intensity bounds compare whole-object means in original image units; equality is retained and 0 disables each bound independently.",
+      "source_sha256": "8160e9c6ff6a8d347711391b128d416f330368867c62fc005521dfa7a0791da0",
+      "context": "Key-value mapping of workflow settings; per-object-type suffixes control perimeter merging, min/max area, border removal and min/max intensity. Intensity bounds compare whole-object means in original image units; equality is retained and 0 disables each bound independently.",
+      "translation": "पाइपलाइन सेटिंग्स का शब्दकोश; प्रत्येक वस्तु-प्रकार के प्रत्यय परिमाप-आधारित विलय, न्यूनतम/अधिकतम क्षेत्रफल, किनारे को छूने वाली वस्तुओं को हटाने और न्यूनतम/अधिकतम तीव्रता को नियंत्रित करते हैं। तीव्रता की सीमाएँ पूरी वस्तु की औसत तीव्रता की तुलना मूल छवि की इकाइयों में करती हैं; सीमा के बराबर औसत वाली वस्तुएँ रखी जाती हैं और 0 प्रत्येक सीमा को दूसरे से स्वतंत्र रूप से बंद करता है।"
+    },
+    {
+      "label": "spacr.object.merge_split_filter_masks#6",
+      "source": "Optional per-FOV filenames used only for logging.",
+      "source_sha256": "d11177c36784708d14bc4dd90f4970d89051de35e4d3e82c8b92be43d489b83c",
+      "context": "Optional per-FOV (microscope field of view) filenames used only for logging.",
+      "translation": "प्रत्येक FOV (सूक्ष्मदर्शी दृश्य-क्षेत्र) के लिए वैकल्पिक फ़ाइलनाम, जिनका उपयोग केवल लॉग दर्ज करने के लिए होता है।"
+    },
+    {
+      "label": "spacr.object.merge_split_filter_masks#7",
+      "source": "Original ``masks`` unchanged when no operation is enabled, else a list of filtered mask arrays (one per FOV).",
+      "source_sha256": "6c6fd4a72affe445d767dfbc48a3a525a18808dd1426fd312f2db4e94807e3ad",
+      "context": "Original ``masks`` unchanged when no operation is enabled, else a list of filtered mask arrays (one per FOV (microscope field of view)).",
+      "translation": "यदि कोई ऑपरेशन सक्षम नहीं है, तो मूल ``masks`` बिना बदलाव के लौटाए जाते हैं; अन्यथा फ़िल्टर किए गए मास्क ऐरे की सूची लौटाई जाती है (प्रत्येक FOV के लिए एक)।"
+    },
+    {
+      "label": "spacr.object_roles.split_role_setting#1",
+      "source": "The inverse of :func:`role_setting`, and the reason a suffix rename can cost six lines instead of 3,522. Every role is a single word with no underscore, so partitioning on the FIRST one separates the role from the suffix without scanning the 702 organelle slots.",
+      "source_sha256": "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
+      "context": "The inverse of :func:`role_setting`, and the reason a suffix rename can cost six lines instead of 3,522. Every role is a single word with no underscore, so partitioning on the FIRST one separates the role from the suffix without scanning the 702 organelle slots.",
+      "translation": ":func:`role_setting` का उलटा ऑपरेशन; इसी कारण किसी प्रत्यय का नाम बदलने के लिए 3,522 पंक्तियों के बजाय छह पंक्तियाँ पर्याप्त हो सकती हैं। प्रत्येक भूमिका बिना अंडरस्कोर वाला एक ही शब्द है, इसलिए पहले अंडरस्कोर पर विभाजन करने से भूमिका और प्रत्यय अलग हो जाते हैं, बिना 702 कोशिकांग स्लॉटों को जाँचे।"
+    },
+    {
+      "label": "spacr.object_roles.split_role_setting#2",
+      "source": "NOT :func:`role_setting`'s validation: this accepts any role in ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than segmented and still declares ``cytoplasm_min_size``. Restricting to segmented roles here would silently skip it.",
+      "source_sha256": "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
+      "context": "NOT :func:`role_setting`'s validation: this accepts any role in ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than segmented and still declares ``cytoplasm_min_size``. Restricting to segmented roles here would silently skip it.",
+      "translation": "यह :func:`role_setting` वाला सत्यापन नहीं है: यह ``ALL_ROLES`` की किसी भी भूमिका को स्वीकार करता है, जिसमें ``cytoplasm`` भी शामिल है। इसे सेगमेंट करने के बजाय अन्य परिणामों से निकाला जाता है, फिर भी यह ``cytoplasm_min_size`` घोषित करता है। यहाँ केवल सेगमेंट की जाने वाली भूमिकाओं को स्वीकार करने पर यह बिना किसी सूचना के छूट जाएगा।"
+    },
+    {
+      "label": "spacr.object_roles.split_role_setting#3",
+      "source": "A BARE KEY IS NOT A ROLE KEY, and that matters: ``FT``, ``CP_prob``, ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their own right in the standalone apply/test-model submodules. A key with no underscore has no role, so it can never match a suffix rule.",
+      "source_sha256": "7d8b3572497febdb5b96e3db2ff6d0786b934287e514da06a8a14da72d33e16b",
+      "context": "A bare structured-data name is not a role structured-data name, and that matters: ``FT``, ``CP_prob``, ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their own right in the standalone apply/test-model submodules. A structured-data name with no underscore has no role, so it can never match a suffix rule.",
+      "translation": "बिना भूमिका-उपसर्ग वाली कुंजी भूमिका-कुंजी नहीं होती, और यह अंतर महत्वपूर्ण है: ``FT``, ``CP_prob``, ``Signal_to_noise`` और ``flow_threshold`` स्वतंत्र मॉडल लागू करने/परीक्षण करने वाले उप-मॉड्यूलों में अपने आप में सक्रिय सेटिंग्स हैं। जिस कुंजी में अंडरस्कोर नहीं है, उसकी कोई भूमिका नहीं होती, इसलिए वह कभी किसी प्रत्यय-नियम से मेल नहीं खा सकती।"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#3",
+      "source": "C-axis indices selected out of each assembled stack before it is handed to Cellpose — taken modulo the channel count and de-duplicated in order. It is NOT forwarded as Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a single plane, not a grayscale pair. The first selected channel is the object's own channel for absolute mean-intensity filtering.",
+      "source_sha256": "981286e57fbc8c1233dc6f0904dd716f2b532cf74a6f7b51603c94b908de41a4",
+      "context": "C-axis indices selected out of each assembled stack before it is handed to Cellpose — taken modulo the image data channel count and de-duplicated in order. It is NOT forwarded as Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a single image layer, not a grayscale pair. The first selected image data channel is the object's own image data channel for absolute mean-intensity filtering.",
+      "translation": "प्रत्येक संयोजित स्टैक को Cellpose को देने से पहले उसमें से चुने जाने वाले C-अक्ष के इंडेक्स; चैनल संख्या से मॉड्यूलो लेने के बाद, क्रम बनाए रखते हुए दोहराए गए इंडेक्स हटा दिए जाते हैं। यह Cellpose के ``channels=`` आर्ग्युमेंट के रूप में नहीं भेजा जाता; इसलिए ``[0, 0]`` से एक ही छवि-प्लेन मिलता है, ग्रेस्केल प्लेनों की जोड़ी नहीं। पहला चुना गया चैनल निरपेक्ष औसत तीव्रता के आधार पर फ़िल्टरिंग के लिए वस्तु का अपना चैनल है।"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#5",
+      "source": "how many field stacks to load into memory at once. Larger = faster but more RAM.",
+      "source_sha256": "82170a84e8b055cd9b4d5ac0c524f3602fbae48774a31d2b2e52eec705f03bf2",
+      "context": "how many field stacks to load into memory at once. Larger = faster but more RAM.",
+      "translation": "एक बार में मेमोरी में लोड किए जाने वाले दृश्य-क्षेत्र स्टैक की संख्या। अधिक संख्या का अर्थ है अधिक गति, लेकिन अधिक RAM की आवश्यकता।"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#6",
+      "source": "human name to record for the appended mask channel (default ``\"mask\"``).",
+      "source_sha256": "e98c1e9684be349aaebc43fad4ac56335f6e1c26af0c05721866b799477352af",
+      "context": "human name to record for the appended mask image data channel (default ``\"mask\"``).",
+      "translation": "जोड़े गए मास्क चैनल के लिए दर्ज किया जाने वाला मनुष्य-पठनीय नाम (डिफ़ॉल्ट ``\"mask\"``)।"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#7",
+      "source": "the intermediate batch is compressed to an NPZ under ``npz_dir`` on every batch regardless; this flag only decides whether that file and the scratch folder survive the run.",
+      "source_sha256": "d5a1ac80dceb2da05694d37fc60468aff2c4187d20b5abf256f14fa9d3d7e637",
+      "context": "the intermediate batch is compressed to an NPZ under ``npz_dir`` on every batch regardless; this flag only decides whether that file and the scratch folder survive the processing session.",
+      "translation": "इस फ़्लैग के मान से स्वतंत्र रूप से, प्रत्येक बैच के मध्यवर्ती डेटा को ``npz_dir`` में एक NPZ फ़ाइल में संपीड़ित किया जाता है; यह फ़्लैग केवल तय करता है कि रन समाप्त होने के बाद वह फ़ाइल और अस्थायी फ़ोल्डर रखे जाएँ या नहीं।"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#8",
+      "source": "where to write the (optional) intermediate NPZ files. Defaults to a scratch subfolder under the stack folder.",
+      "source_sha256": "b41e260f3f9259b4c111b9edc1db4cbbfc716f3ba8b4efc188ddb19a00cef301",
+      "context": "where to write the (optional) intermediate NPZ files. Defaults to a scratch subfolder under the stack folder.",
+      "translation": "वैकल्पिक मध्यवर्ती NPZ फ़ाइलों को लिखने का स्थान। डिफ़ॉल्ट रूप से स्टैक फ़ोल्डर के अंतर्गत एक अस्थायी उपफ़ोल्डर।"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#9",
+      "source": "optional :class:`spacr.illumination.SegmentationIlluminationSession`. Its corrector sees private selected-channel copies immediately before normalisation/Cellpose; persisted intensity planes and scratch NPZs remain raw, and completion is recorded only after the combined stack has been atomically replaced.",
+      "source_sha256": "f3740c4e162a81304f7dc17f9d11b87f18ca455db2f5e9346bfc2b3a93bddd2d",
+      "context": "optional :class:`spacr.illumination.SegmentationIlluminationSession`. Its corrector sees private selected-image data channel copies immediately before normalisation/Cellpose; persisted intensity image layers and scratch NPZs remain raw, and completion is recorded only after the combined stack has been atomically replaced.",
+      "translation": "वैकल्पिक :class:`spacr.illumination.SegmentationIlluminationSession`। इसका सुधारक सामान्यीकरण/Cellpose से ठीक पहले केवल चुने गए चैनलों की अलग निजी प्रतियों पर काम करता है; स्थायी रूप से सहेजे गए तीव्रता-प्लेन और अस्थायी NPZ फ़ाइलें मूल असंसाधित रूप में रहती हैं, और पूर्णता केवल संयुक्त स्टैक को एटॉमिक रूप से बदल दिए जाने के बाद दर्ज की जाती है।"
+    },
+    {
+      "label": "spacr.setting_animations.animation_for_setting#0",
+      "source": "Return the animation mapped to ``setting_key``, if one exists.",
+      "source_sha256": "3db85c5e924ce087a6663c48c046cbb50f4a5bc7372a49cdd0c2c922f7cae66c",
+      "context": "Return the animation mapped to ``setting_key``, if one exists.",
+      "translation": "यदि ``setting_key`` से संबद्ध कोई ऐनिमेशन मौजूद है, तो उसे लौटाएँ।"
+    },
+    {
+      "label": "spacr.setting_animations.animation_for_setting#1",
+      "source": "exact, case-sensitive settings key to look up.",
+      "source_sha256": "e5fdd39a4a4aabea0a4c4ed5c49c9727b38d1c04b01f3716adce027516684907",
+      "context": "exact, case-sensitive setting name to look up.",
+      "translation": "खोजी जाने वाली सटीक सेटिंग कुंजी; बड़े और छोटे अक्षरों में भेद किया जाता है।"
+    },
+    {
+      "label": "spacr.setting_animations.animation_for_setting#2",
+      "source": "Exact matches take precedence. A numbered organelle slot can reuse its primary slot's animation through the shared slot-name mapping; unknown settings and case variants still do not acquire unrelated help.",
+      "source_sha256": "87f000210b2b9695b91b538f0b4ae3b1d222b067f005dcfd787d86540c2e6579",
+      "context": "Exact matches take precedence. A numbered organelle slot can reuse its primary slot's animation through the shared slot-name mapping; unknown settings and case variants still do not acquire unrelated help.",
+      "translation": "सटीक मिलान को प्राथमिकता मिलती है। क्रमांकित कोशिकांग स्लॉट साझा स्लॉट-नाम मैपिंग के माध्यम से अपने प्राथमिक स्लॉट का ऐनिमेशन दोबारा उपयोग कर सकता है; अज्ञात सेटिंग्स और अक्षरों के बड़े/छोटे रूप में भिन्न नामों को फिर भी असंबंधित सहायता नहीं मिलती।"
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#0",
+      "source": "What ``key`` is called TODAY, following renames to the end.",
+      "source_sha256": "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
+      "context": "What ``key`` is called TODAY, following renames to the end.",
+      "translation": "नाम बदलने की पूरी शृंखला के अंत तक जाने के बाद ``key`` का वर्तमान नाम।"
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#1",
+      "source": "ONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's message and the Qt panel's load.",
+      "source_sha256": "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
+      "context": "One resolver for all three consumers -- the run's fold, the doctor's message and the Qt panel's load.",
+      "translation": "तीनों उपयोगकर्ताओं के लिए एक ही नाम-रिज़ॉल्वर: रन के समय सेटिंग्स का समेकन, doctor निदान उपकरण का संदेश, और Qt पैनल में लोड करना।"
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#2",
+      "source": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle key could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
+      "source_sha256": "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
+      "context": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle structured-data name could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
+      "translation": "पहले ये तीनों इस प्रश्न का अलग-अलग उत्तर देते थे। रन केवल नाम-परिवर्तन तालिका देखता था, doctor निदान उपकरण केवल हटाई गई सेटिंग्स की तालिका देखता था, और केवल Qt पैनल कोशिकांग प्रत्यय-नियम जानता था। इसलिए किसी जनरेट की गई कोशिकांग कुंजी को पैनल स्थानांतरित कर सकता था, जबकि उसी समय रन उसे अनदेखा कर देता था और निदान उपकरण उसका उल्लेख भी नहीं करता था।"
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#3",
+      "source": "A setting may have been renamed more than once. Older files need every hop resolved so their values reach the name the current run reads.",
+      "source_sha256": "509a6b36ae6e224372e0a0d743b88307807e051ef011b77589754aa0f9a303b1",
+      "context": "A setting may have been renamed more than once. Older files need every hop resolved so their values reach the name the current processing session reads.",
+      "translation": "किसी सेटिंग का नाम एक से अधिक बार बदला गया हो सकता है। पुरानी फ़ाइलों के लिए नाम-परिवर्तन की शृंखला का हर चरण हल करना आवश्यक है, ताकि उनके मान उस नाम तक पहुँचें जिसे वर्तमान रन पढ़ता है।"
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#4",
+      "source": "LIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old key is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` keys are live and must not be touched.",
+      "source_sha256": "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
+      "context": "Liveness is checked at the terminus only. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old structured-data name is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` structured-data names are live and must not be touched.",
+      "translation": "सेटिंग अभी सक्रिय है या नहीं, यह केवल शृंखला के अंतिम नाम पर जाँचा जाता है। हर चरण पर जाँच करने से वैध शृंखला का मध्यवर्ती नाम अस्वीकार हो जाएगा, क्योंकि मध्यवर्ती नाम परिभाषा के अनुसार अब सक्रिय नहीं होता। यदि पुरानी कुंजी स्वयं अभी सक्रिय है, तो उसका नाम बदलने से इनकार करना प्रत्यय-नियम को काम कर रही सेटिंग हटाने से रोकता है; सात ``_size`` कुंजियाँ सक्रिय हैं और उन्हें बदला नहीं जाना चाहिए।"
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#5",
+      "source": "the key a settings file carries.",
+      "source_sha256": "0f9789c9692c1250160dfe1c3963077634f30afaa6608ae73992bc4df768faa8",
+      "context": "the structured-data name a settings file carries.",
+      "translation": "सेटिंग्स फ़ाइल में मौजूद कुंजी।"
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#6",
+      "source": "a tuple of the names read today -- empty when ``key`` is current, withdrawn, unknown, or resolves through a cycle.",
+      "source_sha256": "49ffbaaa7cd54f6579b40ec6fe6e4b97a5e72a0e67c07242cf58f81554cb7468",
+      "context": "a tuple of the names read today -- empty when ``key`` is current, withdrawn, unknown, or resolves through a cycle.",
+      "translation": "वर्तमान में पढ़े जाने वाले नामों का टपल; यदि ``key`` वर्तमान नाम है, हटाया गया है, अज्ञात है, या नाम-समाधान में चक्र बनता है, तो टपल खाली होता है।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#0",
+      "source": "Merge by perimeter and filter labeled objects across a directory of masks.",
+      "source_sha256": "83cce54b84d3ab47e0e3091242bee45421968bea9dcd866e27995786ccaa6df9",
+      "context": "Merge by perimeter and filter labeled objects across a directory of masks.",
+      "translation": "मास्कों की निर्देशिका में लेबल की गई वस्तुओं को परिमाप के आधार पर मिलाएँ और फ़िल्टर करें।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#1",
+      "source": "Runs the shared in-memory merge/filter pipeline on each mask file in ``mask_src`` in parallel, overwriting each mask in place.",
+      "source_sha256": "1dc3f219ed30bb2fe07d4cf60e1cb904f6d95370a67362e3ba9ee37976bf2916",
+      "context": "Runs the shared in-memory merge/filter workflow on each mask file in ``mask_src`` in parallel, overwriting each mask in place.",
+      "translation": "``mask_src`` की प्रत्येक मास्क फ़ाइल पर साझा इन-मेमोरी विलय/फ़िल्टर पाइपलाइन समानांतर रूप से चलाता है और हर मास्क फ़ाइल को उसी स्थान पर ओवरराइट करता है।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#3",
+      "source": "directory of matched original intensity images, required when either intensity bound is enabled.",
+      "source_sha256": "591513859760a1e8543c1e33de075aa6532f5a4143acc6030751c4e03789e0b7",
+      "context": "directory of matched original intensity images, required when either intensity bound is enabled.",
+      "translation": "मेल खाने वाली मूल तीव्रता छवियों की निर्देशिका; दोनों में से कोई भी तीव्रता सीमा सक्षम होने पर आवश्यक है।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#4",
+      "source": "explicit channel-last index for multi-channel intensity images; unnecessary for single-channel planes.",
+      "source_sha256": "249975716e0e6d1c322a122228e086f73a7671b61cb67b3d9378d392c04cdaf7",
+      "context": "explicit image-channel-last index for multi-image data channel intensity images; unnecessary for single-image data channel image layers.",
+      "translation": "बहु-चैनल तीव्रता छवियों के लिए स्पष्ट चैनल इंडेक्स, जहाँ चैनल-अक्ष अंतिम स्थान पर है; एकल-चैनल प्लेन के लिए आवश्यक नहीं है।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#5",
+      "source": "minimum shared-boundary fraction for perimeter-based merging.",
+      "source_sha256": "71a3fdaeab1856e1919fdd4121a26d5759b81ceaa026ac34a992e960171153fe",
+      "context": "minimum shared-boundary fraction for perimeter-based merging.",
+      "translation": "परिमाप-आधारित विलय के लिए आवश्यक साझा सीमा का न्यूनतम अनुपात।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#6",
+      "source": "remove objects smaller than this (px); 0 disables.",
+      "source_sha256": "4fab960c72b0fa4104b426300af8100cf1cfd7483a8b62d4689cee050a327426",
+      "context": "remove objects smaller than this (px); 0 disables.",
+      "translation": "इससे कम क्षेत्रफल वाली वस्तुएँ हटाएँ (px); 0 इस फ़िल्टर को बंद करता है।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#7",
+      "source": "remove objects larger than this (px); 0 disables.",
+      "source_sha256": "bfe5d5389bb41da3cb82e48ead7cf4a78ecbbf05d57a1121ef499e148c36f473",
+      "context": "remove objects larger than this (px); 0 disables.",
+      "translation": "इससे अधिक क्षेत्रफल वाली वस्तुएँ हटाएँ (px); 0 इस फ़िल्टर को बंद करता है।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#8",
+      "source": "drop objects touching the image border.",
+      "source_sha256": "334bec03a8313e5d68e9c76477f645a40b7c773d1b211e79e97551b602ba5ead",
+      "context": "drop objects touching the image border.",
+      "translation": "छवि के किनारे को छूने वाली वस्तुएँ हटाएँ।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#9",
+      "source": "parallel worker count.",
+      "source_sha256": "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
+      "context": "parallel worker count.",
+      "translation": "समानांतर कार्यकर्ता प्रक्रियाओं की संख्या।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#10",
+      "source": "optional callback(fov_index, total, duration, op_name).",
+      "source_sha256": "bb45ff5a41caf6b310c9f90638229246e5d9b82b85f9f7de1ffdf5b168566d1c",
+      "context": "optional callback(fov_index, total, duration, op_name).",
+      "translation": "वैकल्पिक कॉलबैक फ़ंक्शन callback(fov_index, total, duration, op_name)।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#12",
+      "source": "remove objects whose own-channel mean is below this raw-image value; equality is kept and 0 disables the lower bound.",
+      "source_sha256": "b9b6fdca4d40fe363dcc9a01d788f4c79401bb7fd9b90dad869c785daa120fb3",
+      "context": "remove objects whose own-image data channel mean is below this raw-image value; equality is kept and 0 disables the lower bound.",
+      "translation": "जिन वस्तुओं के अपने चैनल की औसत तीव्रता इस मूल असंसाधित छवि मान से कम है, उन्हें हटाएँ; बराबर मान वाली वस्तुएँ रखी जाती हैं और 0 निचली सीमा को बंद करता है।"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#13",
+      "source": "remove objects whose own-channel mean is above this raw-image value; equality is kept and 0 disables the upper bound.",
+      "source_sha256": "9dc0c77c2cceb13a6e386cc617681eda36856541121f4c95f856e4f4ed56bb09",
+      "context": "remove objects whose own-image data channel mean is above this raw-image value; equality is kept and 0 disables the upper bound.",
+      "translation": "जिन वस्तुओं के अपने चैनल की औसत तीव्रता इस मूल असंसाधित छवि मान से अधिक है, उन्हें हटाएँ; बराबर मान वाली वस्तुएँ रखी जाती हैं और 0 ऊपरी सीमा को बंद करता है।"
+    }
+  ]
+}

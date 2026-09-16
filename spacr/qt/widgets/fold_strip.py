@@ -92,9 +92,6 @@ CHECKED_ALPHA = 0.30
 #: hosts, but it does not draw their buttons.
 FOLD_HOST_MODULES = (
     "spacr.qt.screens.make_masks",
-    # Import is here for a reason the others are not: Import Images never
-    # had a registry row, so this tuple is the ONLY route to its name, its
-    # sentence and its maturity.
     "spacr.qt.screens.foreign",
     "spacr.qt.screens.map_barcodes",
     "spacr.qt.screens.image_umap",
@@ -103,35 +100,6 @@ FOLD_HOST_MODULES = (
     "spacr.qt.screens.mask",
     "spacr.qt.screens.classify",
     "spacr.qt.screens.annotate",
-    # ALIGN & STITCH WAS HERE and is not any more. OPS was folded onto it
-    # -- stitching, over a plate acquired in sequencing cycles -- and moved
-    # to Mask Generation on 2026-09-09 at the user's request, taking the
-    # declaration with it. Align declares no `FOLDED_APPS` now, so it would
-    # contribute nothing to the walk; the entry is removed rather than left
-    # to read as a host that offers something.
-    # THE THREE LATE HOSTS, ADDED 2026-09-08. They were deliberately left out
-    # on the reasoning that they "fold modules that kept their rows, so the
-    # registry still answers for them and adding them here would change which
-    # host their folds are attributed to". The registry does still answer --
-    # but it answers what a KEY SAYS, not WHO HOSTS IT, and only this walk
-    # builds the second answer. So their folds were reachable from no host at
-    # all: `test_every_folded_module_really_is_folded_and_really_is_reachable`
-    # named control_chart, outliers and trellis, and they were offered by
-    # hosts nothing was looking at.
-    #
-    # The attribution worry does not arise for these keys. `found` is
-    # first-host-wins, so it only matters when two hosts declare the same key,
-    # and none of plate_view, trellis, layer_viewer, control_chart, outliers,
-    # lineage or tabulate is declared anywhere else.
-    #
-    # THIS TUPLE HAS NOW FALLEN BEHIND TWICE -- Align & Stitch above, these
-    # three here -- so the drift is caught in the parity suite rather than
-    # left for the next reader:
-    # `test_every_screen_that_declares_folded_apps_is_a_known_host` derives
-    # the set from the source and fails when they disagree. It is a test and
-    # not a runtime glob on purpose: this walk runs while the menu bar and
-    # dock are built, and the comment above is about keeping work off that
-    # path.
     "spacr.qt.screens.graph_builder",
     "spacr.qt.screens.qc_dashboard",
     "spacr.qt.screens.db_browser",
@@ -212,6 +180,32 @@ def fold_label(key: str) -> Tuple[str, str, str]:
     return _describe(key)
 
 
+#: `_host_declarations` answers, keyed by dotted module name.
+#:
+#: THE SOURCE OF A HOST CANNOT CHANGE WHILE THE APPLICATION RUNS, so parsing
+#: it twice can only ever produce the same answer twice. It was parsed a great
+#: deal more than twice: `folded_fallback` asks `folded_modules` per key, and
+#: `folded_modules` walks every host, so ONE Mask screen open ran `ast.parse`
+#: 73 times and spent 0.71 s of its 2.05 s doing it -- a third of the open,
+#: compiling Python nobody was going to execute.
+#:
+#: The cache lives HERE and deliberately not in `folded_modules`, whose answer
+#: depends on registration state and is meant to grow as modules register --
+#: and which two tests call twice, expecting the second answer to differ after
+#: they replace this function. Replacing it bypasses this cache, which is the
+#: behaviour those tests need.
+_HOST_DECLARATION_CACHE: dict = {}
+
+
+def _forget_host_declarations() -> None:
+    """Drop the parsed-source cache.
+
+    For a test that edits a host's source on disk mid-process, which the
+    application never does.
+    """
+    _HOST_DECLARATION_CACHE.clear()
+
+
 def _host_declarations(module_name: str):
     """``(folded keys, fallback table)`` read from a host's SOURCE.
 
@@ -229,11 +223,17 @@ def _host_declarations(module_name: str):
     import importlib.util
     import pathlib
 
+    if module_name in _HOST_DECLARATION_CACHE:
+        return _HOST_DECLARATION_CACHE[module_name]
+
     try:
         spec = importlib.util.find_spec(module_name)
         tree = ast.parse(
             pathlib.Path(spec.origin).read_text(encoding="utf-8"))
     except Exception:                                   # noqa: BLE001
+        # Cached too: a host that cannot be read cannot start being readable,
+        # and re-parsing to fail again costs the same as parsing to succeed.
+        _HOST_DECLARATION_CACHE[module_name] = None
         return None
 
     constants: dict = {}
@@ -302,6 +302,7 @@ def _host_declarations(module_name: str):
                 table[key] = ast.literal_eval(value_node)
             except Exception:                           # noqa: BLE001
                 continue
+    _HOST_DECLARATION_CACHE[module_name] = (members, table)
     return members, table
 
 
@@ -373,12 +374,6 @@ def folded_modules() -> dict:
     """
     hosts = []
     for module_name in FOLD_HOST_MODULES:
-        # READ, NOT IMPORTED. This runs while the menu bar and the dock are
-        # being built, and importing every fold host pulls their dependency
-        # trees into the process before Home has painted -- pandas and scipy
-        # arrived that way, through `make_masks`, `foreign` and the settings
-        # model. The packaged smoke test asserts Home crosses no
-        # operation-only import boundary and was failing on exactly this.
         declared = _host_declarations(module_name)
         if declared is None:
             continue
@@ -488,10 +483,6 @@ class FoldButton(QPushButton):
         self.app_key = key
         name, description, stage = _describe(key)
         self.setObjectName(BUTTON_NAME)
-        # The stage rides as a Qt property so the stylesheet can select on
-        # it -- QPushButton#FoldButton[stage="alpha"]:hover -- exactly as
-        # the tiles do. Setting it before the first polish means the first
-        # paint already has the right colour.
         self.setProperty("stage", stage)
         self.setFlat(True)
         if checkable:
@@ -502,20 +493,6 @@ class FoldButton(QPushButton):
         self.setIconSize(QSize(ICON_PX, ICON_PX))
         icon = None
         try:
-            # THROUGH `app._icon_for_app`, NOT `iconset.app_icon`.
-            # `iconset.app_icon` is told nothing about `_ICON_OVERRIDES`, so
-            # it resolves a key by filename alone -- and for every module
-            # that BORROWS another module's picture that is the wrong file.
-            # Reported 2026-09-02: the Cellpose Workbench button drew a
-            # DUMBBELL, because `train_cellpose.png` exists and is the
-            # training glyph, while the override sends that key to
-            # `cellpose_masks.png`, the white cell outline. The same was
-            # true of every other borrower: analyze_plaques, agreement,
-            # plate_view, model_compare and model_zoo.
-            #
-            # Imported inside the call because `spacr.qt.app` imports this
-            # module; at call time the cycle is closed and the lookup is a
-            # dict hit.
             from ..app import _icon_for_app
             icon = _icon_for_app(key)
         except Exception:
@@ -523,17 +500,8 @@ class FoldButton(QPushButton):
         if icon is not None and not icon.isNull():
             self.setIcon(icon)
         else:
-            # No icon shipped for this key: fall back to the initial
-            # rather than to an empty square the user cannot identify.
             self.setText(name[:1].upper())
-        # The name leads the tooltip because the button has no label; the
-        # description follows it as the sentence the tile carried.
         self.setToolTip(f"{name}\n{description}".strip())
-        # AND THE SAME PROPERTIES THE SIDEBAR CARRIES, so `module_hints`
-        # can divert this into the status bar instead of drawing it over
-        # the masthead. Canonical English sources, not the rendered
-        # tooltip, so a language switch retranslates rather than
-        # translating a translation.
         self.setProperty("moduleNameSource", name)
         self.setProperty("moduleSummarySource", description)
         self.setProperty("moduleTooltipStyle", "fold")
@@ -632,9 +600,6 @@ class FoldButton(QPushButton):
         self.setProperty("stage", stage)
         if self.isCheckable():
             self._install_checked_fill(stage)
-        # A property the stylesheet selects on is only read at polish, so
-        # a button already on screen keeps the old colour until it is
-        # polished again.
         self.style().unpolish(self)
         self.style().polish(self)
 
@@ -658,9 +623,6 @@ class FoldButton(QPushButton):
 
         hue = STAGE_HOVER.get(stage)
         if hue is None:
-            # A maturity the table has never heard of: leave the button
-            # with the shipped hover and pressed rules rather than
-            # inventing a colour that no tile lights up in.
             return
         self.setStyleSheet(
             f"QPushButton#{BUTTON_NAME}:checked {{\n"
@@ -720,15 +682,6 @@ class FoldStrip(QWidget):
         return None
 
 
-# ---------------------------------------------------------------------------
-# The other half of the icon: the settings the module left behind
-# ---------------------------------------------------------------------------
-#
-# A fold that becomes a BUTTON keeps its picture -- the button is the
-# picture. A fold that becomes SETTINGS CATEGORIES has no button and so
-# nowhere obvious to put it, and a group of settings that arrived from
-# somewhere else says nothing about where. The mark goes on the heading:
-# the same icon, beside the category name, on the host's own form.
 
 
 def mark_folded_sections(key: str, sections: Iterable[QWidget]

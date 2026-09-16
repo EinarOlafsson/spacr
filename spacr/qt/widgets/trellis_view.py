@@ -98,13 +98,9 @@ class TrellisCanvas(GraphCanvas):
             be told from everyone else's.
         """
         super().__init__(parent, link=link, source=source)
-        # After the base constructor, which builds the figure and subscribes
-        # to the link but does not render — so nothing reads these before
-        # they exist.
         self._trellis_spec = TrellisSpec()
         self._trellis: Optional[Trellis] = None
 
-    # -- the spec ---------------------------------------------------------
     @property
     def trellis_spec(self) -> TrellisSpec:
         """The grid this canvas is drawing.
@@ -122,8 +118,6 @@ class TrellisCanvas(GraphCanvas):
                          immediate: bool = True) -> None:
         """Replace the whole spec and redraw."""
         self._trellis_spec = spec
-        # The inherited helpers read `self._spec`; keeping the two in step is
-        # what lets every drawing method be reused unchanged.
         self._spec = spec.graph
         if self._frame is not None:
             self._kinds = spec.graph.kinds_for(self._frame)
@@ -145,7 +139,6 @@ class TrellisCanvas(GraphCanvas):
         """
         self.set_spec(self._spec.with_channel(channel, column))
 
-    # -- rendering --------------------------------------------------------
     def render_now(self) -> None:
         """Rebuild the grid from the frame, the spec, the filter and the
         selection."""
@@ -187,9 +180,6 @@ class TrellisCanvas(GraphCanvas):
         self._selected_mask = self._selection_mask(result.frame)
 
         nrows, ncols = result.shape
-        # `sharex`/`sharey` are deliberately off: every panel's limits are
-        # written from its own scale group below, which is stronger — and
-        # under a free or per-row mode, sharing would be wrong.
         axes = self._figure.subplots(nrows, ncols, squeeze=False,
                                      sharex=False, sharey=False)
         for panel in result.panels:
@@ -198,17 +188,12 @@ class TrellisCanvas(GraphCanvas):
             self._axes_at[id(ax)] = (panel.row, panel.col)
             self._overlays[(panel.row, panel.col)] = None
             if not panel.occupied:
-                # The remainder of a wrapped division. Not a panel with no
-                # data — there is no group here at all — so it is not drawn.
                 ax.set_visible(False)
                 continue
             self._style_axes(ax, palette)
             rows = panel.frame(result.frame)
             mask = (self._selected_mask[panel.index]
                     if self._selected_mask is not None else None)
-            # The inherited drawing helpers read `self._scales`; pointing it
-            # at this panel's group is what makes a free-scale histogram use
-            # this panel's bin edges rather than the grid's.
             previous, self._scales = self._scales, panel.scales
             try:
                 self._overlays[(panel.row, panel.col)] = self._draw_panel(
@@ -269,9 +254,6 @@ class TrellisCanvas(GraphCanvas):
         if is_left:
             ax.set_ylabel("count" if counts_on_y else (y_column or ""),
                           color=palette["fg_dim"], fontsize=9)
-        # Inner ticks are hidden only where the axis really is shared. A panel
-        # with its own limits prints its own numbers, or the layout is tidier
-        # than it is true.
         if spec.scale_x == SCALE_SHARED and not is_bottom:
             ax.tick_params(labelbottom=False)
         if spec.scale_y == SCALE_SHARED and not is_left:
@@ -303,7 +285,6 @@ class TrellisCanvas(GraphCanvas):
             parts.append(f"{int(self._selected_mask.sum()):,} highlighted")
         return " · ".join(p for p in parts if p)
 
-    # -- brushing ---------------------------------------------------------
     def brush(self, x0: float, y0: float, x1: float, y1: float, *,
               row: int = 0, col: int = 0,
               publish: bool = True) -> Optional[Selection]:
@@ -469,13 +450,9 @@ class TrellisPanelWidget(QWidget):
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
         splitter.setSizes([300, 900])
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
         """Point the panel at a new table.
 
@@ -514,7 +491,6 @@ class TrellisPanelWidget(QWidget):
         for zone in self._zones.values():
             zone.set_column(None)
 
-    # -- wiring -----------------------------------------------------------
     def _on_zone_changed(self, channel: str, column: str) -> None:
         """Set a channel to a newly dropped column and announce the spec.
 
@@ -555,19 +531,6 @@ class TrellisPanelWidget(QWidget):
             spec = self.canvas.trellis_spec
             for channel, zone in self._zones.items():
                 zone.set_column(spec.graph.column_for(channel))
-            # A CONTROL THAT CANNOT SHOW THE SPEC FALLS BACK, it does not keep
-            # the last thing it happened to be showing. Leaving the previous
-            # value made the picker disagree with the spec, and
-            # `_on_controls_changed` reads the PICKER -- so the next touch of
-            # any control silently rewrote the spec to whatever the shelf was
-            # displaying. Instruction 310 A51..A57, entry A56: a spec restored
-            # from a saved layout with kind "empty" left the picker reading
-            # "Histogram", and moving the Bins box turned the spec into a
-            # histogram without the user choosing one.
-            #
-            # Index 0 is the honest answer in both cases: "Automatic" for the
-            # plot kind, "shared" for a scale. Neither claims a specific kind
-            # the spec did not ask for.
             index = self._kind.findData(spec.graph.kind or "")
             self._kind.setCurrentIndex(index if index >= 0 else 0)
             self._bins.setValue(spec.graph.bins)

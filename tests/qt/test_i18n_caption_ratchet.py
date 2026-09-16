@@ -68,9 +68,17 @@ ROOT = Path(__file__).resolve().parents[2]
 # entire difference. Nothing was retired and nothing was reworded, which is
 # why the count and the digest move together this time rather than the
 # digest alone.
-COMPACT_CAPTION_COUNT = 209
+# 209 -> 208 on 2026-09-15, +0/-1, for item 286. Retired: "spaCR mode", the
+# caption first-run setup gave the performance selector -- the name of the
+# control 286 removed. Setup now captions it "Performance", as Preferences
+# does, and "Performance" was already on this surface, so nothing arrived.
+# PROVED BY SUBTRACTION with this test's own formula: today's set plus
+# "spaCR mode" gives e0b2c63f3e43a544..., the previous pin byte for byte.
+# Its `_ROWS` row stays; this test only requires a row per caption, not the
+# converse.
+COMPACT_CAPTION_COUNT = 208
 COMPACT_CAPTION_SHA256 = (
-    "e0b2c63f3e43a544cd50c22c7d9ee03e76437c4a41a5810d278b0443983c154e"
+    "4663f4f0872bf921d343da2b9909a56e6b8697ccb832936b011b144566b64eb2"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -195,17 +203,253 @@ COMPACT_CAPTION_SHA256 = (
 # Catalogs first, ratchet second, as ever: all nine locales carry all 18 new
 # UI rows and the `embeddings` summary as of 0f3c6dace, and "Embeddings" has
 # its nine `_ROWS` translations. Verified before these numbers were touched.
+# 2026-09-13. Moved after a RECORD-BY-RECORD REVIEW against 8e9bd0b84, the
+# commit each of these counts was last set at -- and that mattered: the counts
+# had been edited piecemeal, so `SETTING_LABELS` was last moved at b5f367f47
+# while `UI` was last moved at 8e9bd0b84, and differencing against the wrong
+# one manufactured a 15-row discrepancy that does not exist. Every count below
+# reproduces exactly at 8e9bd0b84.
+#
+#   SETTINGS      1073 -> 1055      35 removed, 17 added
+#   UI            2856 -> 2988       0 removed, 132 added
+#   CATEGORY_HELP, MODULE_SUMMARIES  unchanged
+#
+# ALL 35 REMOVALS ARE `WITHDRAWN_SETTING_SUFFIXES`, none unexplained: the
+# intensity band retired across seven roles -- `area_multiplier`,
+# `intensity_percentile`, `intensity_threshold_method`,
+# `min_intensity_percentile`, `max_intensity_percentile`. `object_roles.py`
+# carries the reason: the band "dropped its share of objects however bright
+# the field, which is a quota rather than a filter".
+#
+# THE 17 ADDITIONS ARE ITS REPLACEMENTS AND TWO FEATURES. Seven
+# `<role>_intensity_threshold` -- one absolute threshold where the withdrawn
+# pair chose between a mean and a percentile; four `organelle*_background` and
+# four `organelle*_signal_to_noise` from the organelle channel expansion;
+# `remove_background_organelle`; and `barcode_set` for Map Barcodes.
+#
+# ALL 132 UI ADDITIONS RESOLVE TO A SOURCE FILE IN `spacr/qt`, none orphaned.
+# 24 are Map Barcodes. The other 108 are spread over twenty files that each
+# define a `_set_status` wrapper, and they are new to this table only because
+# the extractor could not see through that wrapper until today -- the strings
+# themselves have been on screen all along. The heaviest are convert (11),
+# batch (10), foreign (10), model_zoo (9), hyperparam (9), db_browser (7).
+#
+# Nothing in this move is a caption whose origin is unknown, which is the
+# question this ratchet exists to force.
+#
+# MOVED 2026-09-14 for 364's `grna` retirement, and the interesting number is
+# the one that DID NOT move. Measured by set difference against the counts
+# above, not by accepting a new total:
+#
+#   SETTING_LABELS    1055 -> 1054   -1 / +0   the `grna` key
+#   SETTING_TOOLTIPS  1050 -> 1049   -1 / +0   the same key's tooltip
+#   UI                3291 -> 3291   -1 / +1   AND THIS IS NOT "NO CHANGE"
+#   CATEGORY_HELP, MODULE_SUMMARIES  unchanged
+#
+# THE UI ROW SWAPPED IDENTITY UNDER A CONSTANT TOTAL, which is the exact shape
+# this file exists to refuse to read off a total. Two things happened at once:
+#
+#   OUT: 'Choose the gRNA CSV', the `PATH_LIST_TITLES` file-chooser caption for
+#   `grna`. It went with the setting -- a dialog title for a control that is no
+#   longer drawn is a caption nine locales still carry and nobody can reach.
+#
+#   IN: 'gRNA'. This one arrives BECAUSE of the removal, not despite it.
+#   'gRNA' is in `build_i18n_catalogs._IDENTITY_TEXT`, and line 3867 does
+#   `ui_sources.update(_IDENTITY_TEXT - already_materialized)`. While `grna`
+#   was a setting whose English LABEL was 'gRNA', the term was materialised by
+#   `set(labels.values())` and therefore excluded from the UI sources. Retiring
+#   the setting un-materialises it, so the identity falls through to UI and
+#   every catalog needs a UI row for it. Without that row
+#   `test_runtime_catalogs_resolve_all_reviewed_false_friend_variants` raises
+#   KeyError: 'gRNA' and the standalone-identity test fails with it.
+#
+# So a NET ZERO here is a removal and an arrival, and the digest below moves
+# even though no count does. Catalogs first, ratchet second: all ten carry the
+# new 'gRNA' identity row and have lost the four `grna` rows and the chooser
+# caption before these numbers were touched.
+# MOVED 2026-09-15 for the 08:15 integration batch (wip/integ-0815), measured
+# by set difference against 8f4171fd9 -- the commit where every number in this
+# dict and the digest below still reproduce byte for byte -- not by accepting a
+# new total:
+#
+#   SETTING_LABELS    1054 -> 1055   +1 / -0   `segmentation_backend` (404/405)
+#   SETTING_TOOLTIPS  1049 -> 1050   +1 / -0   the same key's tooltip
+#   UI                3291 -> 3445   +154 / -0
+#   CATEGORY_HELP, MODULE_SUMMARIES  unchanged
+#
+# ALL 154 UI ADDITIONS ARE 394 (3d8a269f8), and none is a new string. 394 gave
+# the extractor keyed rules for captions passed through local helpers, so
+# these were on screen all along and read English in all nine locales. Every
+# one is already present at a83a0cfea, the merge of wip/63-394-source before
+# any other change of this batch, and neither setting row is. By the file
+# under spacr/qt that draws each one:
+#
+#   volcano_explorer 50, annotate 11, methods_export 9, fast_plots 9,
+#   prerun 8, preferences 6, annotation_strategy_panel 6,
+#   regression_results 6, hit_list 5, run_history 5, data_manager 4,
+#   map_barcodes 4, pipeline_graph 4, settings_search 4, gene_panel 4,
+#   percentile_pair 3, save_figure_dialog 3, app_screen 2, run_compare 2,
+#   formula_editor 2, hyperparam 1, make_masks 1, annotation_umap_tab 1,
+#   measurement_scan_panel 1, object_grid_binding 1, refit_dialog 1,
+#   sweep_runs 1
+#
+# Nothing left the table. The reverse check: removing these 156 identities
+# from the current set gives f576cb08... back exactly.
+#
+# Feature 418, measured against 0f21cbfb3's English catalog on 2026-09-15:
+# SETTING_LABELS 1003 -> 982 and SETTING_TOOLTIPS 998 -> 977, each +14/-35.
+# The exact role set is cell, nucleus, pathogen, organelle, organelleb,
+# organellec, organelled. Each loses minimum_area_to_split,
+# min_watershed_distance, intensity_threshold, intensity_merge, intensity_split;
+# each gains min_intensity and max_intensity. Numbered slots beyond these
+# seven catalogued roles still use the existing runtime registry expansion.
+#
+# CATEGORY_HELP 194 -> 193, +1/-2: INTENSITY HANDLING's explanation leaves,
+# and ADVANCED SETTINGS changes from intensity-driven splitting/merging to
+# area, own-channel mean intensity, border filtering and perimeter merging.
+# Each explanation is keyed by its full source, so the rewritten umbrella
+# contributes one arrival and one removal in both CATEGORY_HELP and UI.
+#
+# UI 3556 -> 3547, +3/-12: the same two old explanations leave and the new
+# umbrella arrives, alongside the new "Min intensity" and "Max intensity"
+# captions. The ten other removals are exactly "Intensity Handling (all objects)",
+# "Min object area", "Min distance", "Area multiplier", "Min intensity pct",
+# "Max intensity pct", "Intensity percentile", "Intensity threshold",
+# "Intensity merge", and "Intensity split". These dead helper captions
+# were frozen in the builder; COMPARTMENT_FIELDS now supplies current rows.
+# MODULE_SUMMARIES remains 68. Total identity delta: +32/-84.
+#
+# Fourteen existing tooltip identities also have new source text:
+# cell_max_area, pathogen_max_area, and each of the four catalogued organelle
+# slots' perimeter_fraction, remove_border and remove_border_objects. They
+# retain their keys and therefore do not change this identity fingerprint.
+# This is a measured source inventory, not verification of translations.
+# Catalog equality and locale-quality checks remain pending the catalog pass.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 1073,
-    "SETTING_TOOLTIPS": 1068,
+    # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
+    # DIFFERENCE of the identities against the tree before the deletion,
+    # and nothing else moved. 52 SETTING_LABELS and 52 SETTING_TOOLTIPS for
+    # the settings only the old engine read, and the six OPS category
+    # explanations it alone used, which count once under CATEGORY_HELP and
+    # once under UI. Nightly 17172faa8's identities minus those 116 digest
+    # to the fingerprint below.
+    # `recursive` keeps its row: its English now comes from
+    # spacr.external_masks, which reads it, so its identity is unchanged.
+    "SETTING_LABELS": 982,
+    "SETTING_TOOLTIPS": 977,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
     # tooltip says nothing about the settings under it, which costs the
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
-    "CATEGORY_HELP": 200,
-    "UI": 2856,
+    "CATEGORY_HELP": 193,
+    # 2,988 -> 3,291 on 2026-09-14, and reviewed record by record against
+    # 49c1189f7, where every count in this dict still reproduces exactly.
+    # +304 / -1, NOT a flat +303: the four other tables did not move at all,
+    # so the whole delta is UI and the single removal is the part a net figure
+    # would have hidden.
+    #
+    #   THE ONE REMOVAL is 'Plate queue' -- sentence case -- which became
+    #   'Plate Queue' when the nine _HELP_MODULES display names were
+    #   normalised to title case. The row did not leave the interface; it
+    #   changed spelling, and it appears among the 304 additions under its new
+    #   one. A net +303 reads as 303 arrivals and says nothing about a caption
+    #   silently losing its translation to a re-cased key.
+    #
+    #   THE 304 ADDITIONS are captions that were always on screen and never in
+    #   a catalog: 283 reached the extractor through fourteen runtime
+    #   registries an AST walk could only see as a variable, and 21 are the
+    #   regression-model menu, which `settings_model` DECLARED for exactly
+    #   this purpose and which nothing consumed -- so all 21 read English in
+    #   all nine locales.
+    #
+    # 3,291 -> 3,308 on 2026-09-15, +17/-0, and only UI moved: the live
+    # magnifier in Make Masks (407) -- its tool-row button, card title, the
+    # Classical/Cellpose and Clip/Replace choices ('Skip' is a compact row),
+    # 'Updating…', four status lines and six tooltips. Every one reaches the
+    # catalog through setText/setToolTip/addItem literals in make_masks.py,
+    # and each has a reviewed record in all nine languages except the name
+    # 'Cellpose'. Five status TEMPLATES with values filled in are not
+    # extracted at all; they are item 65's helper problem, not new rows.
+    #
+    # 3,308 -> 3,462 on 2026-09-15, +154/-0, when wip/integ-0815 was rebased
+    # onto nightly 2d530a813: the 154 rows 394's keyed extractor rules found
+    # (enumerated in the note over this dict) join the 17 above. The two sets
+    # are DISJOINT, so the count is the plain sum -- and it was MEASURED, not
+    # added: canonical_sources() on the rebased tree returns 3,462, so 394's
+    # rules found nothing more in the magnifier's new code.
+    #
+    # 3,462 -> 3,472 on 2026-09-15, +10/-0, only UI, for item 286: the five
+    # performance-level tooltips and the five hardware notes. The extractor
+    # iterated PERFORMANCE_NOTES and HARDWARE_NOTES as dicts, so it collected
+    # their keys ("laptop", ...) and never the prose; it now collects the
+    # values too (the keys stay, so no existing row leaves). Each of the ten
+    # has a reviewed record in all nine languages, and a plain rebuild changed
+    # no other row in any catalog.
+    # 3,472 -> 3,466 when the old OPS engine was deleted (372): its six category
+    # explanations, which also count under CATEGORY_HELP.
+    #
+    # 3,466 -> 3,484 on 2026-09-15, +21/-3, and only UI moved: the magnifier's
+    # border option and whole-image mode (407), rebased onto nightly
+    # df1216b3f. ARRIVING: the Exclude-objects-touching-the-box-border
+    # checkbox and its tooltip, the Segment row label with its choices 'Region
+    # under the mouse' and 'Whole image' and their tooltip, the new card
+    # subtitle, the reworded Size and Magnifier-button tooltips, and eleven
+    # status lines -- four of them TEMPLATES ({n}, {error}, {label}) that
+    # reach the extractor because they are written as tr("...", n=...) rather
+    # than as f-strings. LEAVING: the previous wordings of that subtitle and
+    # those two tooltips, which the whole-image mode made untrue. 'Cancel' is
+    # a compact row and is not counted here. MEASURED, not added:
+    # canonical_sources() on the rebased tree returns 3,484 = 3,466 + 21 - 3.
+    #
+    # 3,484 -> 3,505 on 2026-09-15, +21/-0, and only UI moved: 387's
+    # Dose-Response screen, rebased onto nightly 160380b8c. Eight of the grid's
+    # headers and status words (Group, Doses, CI low, CI high, Lack-of-fit p,
+    # fitted, unbounded, refused; Status was already a row) -- registered through
+    # _DOSE_RESPONSE_UI_SOURCES because they reach their widgets through a
+    # tuple and a dict), "all rows", "Fit curve", the Host response and
+    # Second compound pickers with their tooltips, "Bliss independence" and
+    # "Loewe additivity", and five status lines, four of them TEMPLATES
+    # ({name}, {reason}, {rows}, {columns}). Six carry reviewed records in all
+    # nine languages (2026-09-15-dose-response-host-readout.json and
+    # -combination.json); the other fifteen and the catalogs themselves wait
+    # for the pre-release catalog pass, so the English-catalog equality below
+    # stays red until it runs. MEASURED, not added: canonical_sources() on the
+    # rebased tree returns 3,505, and 3,484 on nightly 160380b8c.
+    #
+    # 3,505 -> 3,506 on 2026-09-15, +4/-3, for runtime pass A on nightly
+    # 5a9c4563a, which is also the catalog pass the note above waits for: the
+    # catalogs are regenerated with it, so the English-catalog equality below
+    # is green again. ARRIVING: OPS_TOGGLE_TOOLTIP, Mask Generation's OPS
+    # switch help, in no catalog until now because AppScreen passes it to
+    # AiToggleLabel by a name imported from `mask` (it joins the two toggles
+    # built the same way in _indirect_runtime_ui_sources), and the rewritten
+    # OPS INPUT / ALIGNMENT / PERFORMANCE explanations. LEAVING: those three
+    # explanations' mosaic-era wording, which described the deleted engine.
+    # The same three swap under CATEGORY_HELP, so its count stays 194; the
+    # other seven OPS strings rewritten with them are keyed by setting or
+    # module name and move no identity. MEASURED: canonical_sources() returns
+    # 3,506 = 3,505 + 4 - 3.
+    #
+    # 3,506 -> 3,527 on 2026-09-15, +21/-0, for runtime pass B on nightly
+    # 08a2c1719 (wip/api-pass-412-416-413): Make Masks' "Load test data…"
+    # tooltip and its five status strings (412) and the in-app update's
+    # fifteen dialog strings and removal reasons (416), each with a reviewed
+    # record in all nine locales. Nothing leaves. MEASURED:
+    # canonical_sources() returns 3,527 = 3,506 + 21.
+    # 3527 -> 3541 on 2026-09-15, +14/-0 by SET DIFFERENCE: the
+    # Dose-Response sources the work session added in 978092685 -- the
+    # two Z' plate verdicts (usable, refused), the pooled-EC50,
+    # selectivity-index and synergy-excess lines with their four
+    # refusal captions, the plates-disagree line, the axis words
+    # "concentration" and "response", and the whole-table note.
+    # 417: 3,541 -> 3,556, +20/-5 against a2ecc32b8's English manifest.
+    # Eighteen authored strings (12 settings/model rows and 6 drag rows)
+    # plus the product names DINOCell/SAMCell arrive; five old tooltips leave.
+    # Every new prose row has a reviewed record in each of the nine locales.
+    # The runtime pass preserved every pre-existing translated value.
+    "UI": 3547,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -226,8 +470,92 @@ EXTERNAL_SOURCE_COUNTS = {
 # Moved again on 2026-09-12 with the counts above: 21 record identities
 # change, 18 arriving and 3 leaving, enumerated in the note over
 # EXTERNAL_SOURCE_COUNTS.
+# Moved again on 2026-09-13 with the counts above: 184 record identities
+# change, 149 arriving and 35 leaving, every one classified in the note over
+# EXTERNAL_SOURCE_COUNTS.
+# Moved again on 2026-09-14 for `grna`, and THIS TIME THE DIGEST IS THE ONLY
+# WITNESS TO PART OF THE CHANGE. Four identities move: ('SETTING_LABELS',
+# 'grna') and ('SETTING_TOOLTIPS', 'grna') leave, ('UI', 'Choose the gRNA CSV')
+# leaves and ('UI', 'gRNA') arrives. The UI pair cancels in the count and does
+# not cancel here -- which is the point of pinning identities and not just
+# totals.
+# Moved again on 2026-09-15 with the UI count above, for the live magnifier
+# (407): 17 record identities change, 17 arriving and 0 leaving, all UI:
+#
+#   ('UI', 'Cellpose')        ('UI', 'Classical')      ('UI', 'Clip')
+#   ('UI', 'Replace')         ('UI', 'Magnifier')      ('UI', 'Live magnifier')
+#   ('UI', 'Updating…')
+#   ('UI', 'Magnifier off. The objects it added stay in the mask.')
+#   ('UI', 'Magnifier on: a click adds the objects outlined in the box; ...')
+#   ('UI', 'Magnifier: nothing to add — the box outlines no object, ...')
+#   ('UI', 'Segments the region under the mouse. A click adds the ...')
+#   ('UI', 'How many times larger than the canvas the box draws ...')
+#   ('UI', 'How readily an object is accepted. Raise it to take in ...')
+#   ('UI', 'Show a box under the mouse with the region around it ...')
+#   ('UI', 'Side of the square region the model segments, in image ...')
+#   ('UI', 'What a new object does where the mask already has an ...')
+#   ('UI', 'Which model segments the region in the box. Classical ...')
+#
+# PROVED, NOT ACCEPTED: the digest recomputed with this test's own formula
+# over today's identities MINUS those seventeen is
+# f576cb08f184154f97bb47c8e8fb2af1013f17efdb419a70ad825093710f0dcf, the
+# previous pin byte for byte, and so is the digest over the identities of the
+# committed en.py before the rebuild. Nothing else arrived and nothing left;
+# the fourteen label corrections that rode with these records changed
+# translations of existing rows, which are values, not identities.
+# Moved again on 2026-09-15 with the counts above: 156 identities arrive and
+# none leave -- 154 UI rows from 394 and ('SETTING_LABELS',
+# 'segmentation_backend') / ('SETTING_TOOLTIPS', 'segmentation_backend').
+# Moved again on 2026-09-15 by the rebase of wip/integ-0815 onto nightly
+# 2d530a813, which joins the two moves above: 173 identities arrive (the 17
+# magnifier rows and the 156 of this batch) and none leave. PROVED BY
+# SUBTRACTION with this test's own formula over the rebased tree's identities:
+#
+#   all identities                     ba2a0af05393208f...  (the pin below)
+#   minus the 17 magnifier rows        dba7b70df0f039c3...  this batch's pin
+#   minus the 156 of this batch        dacb857799ad804e...  nightly's pin
+#   minus both                         f576cb08f184154f...  the 8f4171fd9 pin
+# Moved again on 2026-09-15 for item 286, with the UI count above: 10
+# identities arrive and none leave, all UI -- the five performance-level
+# tooltips (PERFORMANCE_NOTES) and the five hardware notes (HARDWARE_NOTES).
+# PROVED BY SUBTRACTION with this test's own formula: today's identities
+# minus those ten give ba2a0af05393208f..., the previous pin byte for byte.
+# Moved again on 2026-09-15 when the old OPS engine was deleted (372): 116
+# identities leave and none arrive, the same set the counts above name.
+# PROVED BY SUBTRACTION the same way: nightly's identities (119746de...)
+# minus those 116 give this pin byte for byte.
+# Moved again on 2026-09-15 with the UI count above, for the magnifier's
+# border option and whole-image mode (407), rebased onto nightly df1216b3f:
+# 24 identities change, 21 arriving and 3 leaving, all UI, enumerated in the
+# note over EXTERNAL_SOURCE_COUNTS. PROVED BY SUBTRACTION with this test's own
+# formula over the rebased tree: today's identities (520f3df5...) minus the
+# 21 arrivals plus the 3 retired wordings give
+# 3bc7769a7d287175045d24611bbd962d16623d68f52ae9101aa59602d57669e3, the base's
+# pin byte for byte.
+# Moved again on 2026-09-15 with the UI count above, for 387's Dose-Response
+# screen, rebased onto nightly 160380b8c: 21 identities arrive and none leave,
+# all UI, named in the note over EXTERNAL_SOURCE_COUNTS. PROVED BY
+# SUBTRACTION with this test's own formula: today's identities minus those
+# 21 give 520f3df5..., the previous pin byte for byte.
+# Moved again on 2026-09-15 for runtime pass A on nightly 5a9c4563a, with the
+# UI count above: 13 identities change, 7 arriving (UI: the OPS toggle tooltip
+# and the three rewritten OPS category explanations; CATEGORY_HELP: the same
+# three) and 6 leaving (their mosaic-era wordings, under both tables). PROVED
+# BY SUBTRACTION with this test's own formula: today's identities
+# (6408b9e4...) minus the 7 arrivals plus the 6 leavers give
+# b334316a64fc5ca9f34d6f5b73836b704834d19f88734a962e2ede181d32bd54, the
+# previous pin byte for byte.
+# Moved again on 2026-09-15 for runtime pass B on nightly 08a2c1719, with the
+# UI count above: 21 identities arrive, all UI (412's six and 416's fifteen
+# captions), and none leave. PROVED BY SUBTRACTION with this test's own
+# formula: today's identities (01ae52fc...) minus those 21 give
+# 6408b9e46d4b7478430257a6f632bbb12ec43a279df807213c4433b8e37d6a72, the
+# previous pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "3b0e3b3ccf71ab1ec2eda6bd0194844223acde28587bcdffad428f9316e3a6e7"
+    # 418: 0f21cbfb3's English identities reproduce the previous pin exactly:
+    # b4d1896bbc1135f9f4098b3473ac4163d9cf36bf3d58c7447daeb652dacf725f.
+    # The +32/-84 identities named above give this current source digest.
+    "476736243fbfe6359464c3ce219efe4a66f17dbec4f596710050a29595b9a5ac"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

@@ -120,9 +120,6 @@ class SelectionError(Exception):
     """
 
 
-# ---------------------------------------------------------------------------
-# where things land
-# ---------------------------------------------------------------------------
 
 
 def default_destination() -> Path:
@@ -168,9 +165,6 @@ def screen_folder(dest, plate: int) -> Path:
     return Path(dest) / "screen" / f"plate{int(plate)}"
 
 
-# ---------------------------------------------------------------------------
-# the plan
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -240,11 +234,6 @@ def resolve_selection(what: Sequence[str] = (), *,
                 f"there is no plate {plate}; the screen has plates "
                 f"{', '.join(str(p) for p in PLATES)}")
 
-    # NAMING A SCREEN FILTER IS NAMING THE SCREEN, read from both ends.
-    # `--screen crops` on its own must not fall through to the default and
-    # download the examples instead, and `mask --screen crops` must not
-    # silently drop the filter -- both would give a user who typed the word
-    # "screen" the one thing they cannot have meant.
     take_screen = screen is not None or bool(plates)
 
     asked = [str(name).strip().lower() for name in what if str(name).strip()]
@@ -273,9 +262,6 @@ def resolve_selection(what: Sequence[str] = (), *,
                 if asset not in wanted_screen:
                     wanted_screen.append(asset)
 
-    # Listing order, not typing order: the sets read as a pipeline and the
-    # screen reads as a table, and neither should be shuffled by the order
-    # somebody happened to type two names in.
     wanted_examples.sort(key=EXAMPLE_SETS.index)
     return wanted_examples, wanted_screen
 
@@ -340,9 +326,6 @@ def pieces_to_fetch(plan: Sequence[Piece], *, force: bool = False
     return [piece for piece in plan if force or not piece.present]
 
 
-# ---------------------------------------------------------------------------
-# output
-# ---------------------------------------------------------------------------
 
 
 def _rows(pieces: Sequence[Piece], chosen: Sequence[str],
@@ -431,9 +414,6 @@ def screen_notice() -> str:
     ))
 
 
-# ---------------------------------------------------------------------------
-# room, and permission
-# ---------------------------------------------------------------------------
 
 
 def room_for(pieces: Sequence[Piece], dest) -> Optional[str]:
@@ -474,7 +454,7 @@ def _is_interactive() -> bool:
     """Whether there is somebody there to answer a question."""
     try:
         return bool(sys.stdin is not None and sys.stdin.isatty())
-    except (AttributeError, ValueError):        # a closed or exotic stdin
+    except (AttributeError, ValueError):
         return False
 
 
@@ -490,9 +470,6 @@ def _yes_at_the_prompt(question: str) -> bool:
     return answer.strip().lower() in ("y", "yes")
 
 
-# ---------------------------------------------------------------------------
-# doing it
-# ---------------------------------------------------------------------------
 
 
 def _progress(out) -> object:
@@ -548,14 +525,10 @@ def fetch_piece(piece: Piece, *, out=None, progress: bool = True) -> int:
     archive = download_archive(
         piece.repo, piece.archive, piece.folder,
         progress=_progress(out) if progress else None,
-        # A MEGABYTE, not the 32 KB the per-file demo pull uses: these are
-        # archives of gigabytes, and the small chunk buys nothing on a body
-        # that is never displayed as it arrives.
         chunk_size=1 << 20)
     members = extract_example_archive(archive, piece.folder)
     Path(archive).unlink(missing_ok=True)
     if piece.expands_npz:
-        # The .npz compression is a transport detail; Measure reads .npy.
         expand_measure_arrays(piece.folder / "merged")
     return members
 
@@ -593,11 +566,6 @@ def download(pieces: Sequence[Piece], *, out=None, err=None,
         try:
             members = fetch_piece(piece, out=out, progress=not quiet)
         except KeyboardInterrupt as exc:
-            # STOP, rather than skip to the next piece. Ctrl-C on the second
-            # of eight plates means all eight, not "abandon this 8 GB and
-            # start the next 8 GB". Nothing partial is kept: the archive is
-            # still a `.part` file, which `download_archive` removes on its
-            # way out.
             failures.append((piece, exc))
             print(f"\nerror: interrupted; {piece.name} was not downloaded.",
                   file=err)
@@ -615,11 +583,6 @@ def download(pieces: Sequence[Piece], *, out=None, err=None,
                   f"        ", file=out)
 
     for folder in touched:
-        # LAST, AND ONCE PER FOLDER. A measurements database stores absolute
-        # paths to its crops; the published copy stores them relative to the
-        # dataset root so it is portable. This is what turns them back into
-        # paths that open -- and it has to run after the crops are there, not
-        # between two pieces of the same plate.
         try:
             make_the_example_paths_absolute(folder)
         except Exception as exc:                              # noqa: BLE001
@@ -628,9 +591,6 @@ def download(pieces: Sequence[Piece], *, out=None, err=None,
     return finished, failures
 
 
-# ---------------------------------------------------------------------------
-# the command
-# ---------------------------------------------------------------------------
 
 
 def cmd_download(args: argparse.Namespace, *, out=None, err=None) -> int:
@@ -698,9 +658,6 @@ def cmd_download(args: argparse.Namespace, *, out=None, err=None) -> int:
     done, failures = download(queue, out=out, err=err, quiet=args.quiet)
     print(f"\nDownloaded {len(done)} of {len(queue)} piece(s), "
           f"about {human_size(total_size(done))}, into {dest}.", file=out)
-    # THE PATHS, NAMED. What a user does next is put one of these in `src`,
-    # and a summary that said only how many gigabytes arrived would leave
-    # them to work out where from the flags they typed.
     folders: List[Path] = []
     for piece in done:
         if piece.folder not in folders:

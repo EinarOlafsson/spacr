@@ -246,9 +246,6 @@ def fetch(folder=None, *, progress: Optional[Callable] = None,
     for entry in absent:
         got.append(_download(entry, where, progress, cancelled))
 
-    # REPORTED FOR THE REQUESTED KIND ONLY. Listing a path for a file that was
-    # never asked for -- and so may not be on disk -- would hand the caller a
-    # name it cannot open.
     by_kind: Dict[str, List[str]] = {"counts": [], "scores": []}
     for entry in wanted:
         by_kind[entry["kind"]].append(os.path.join(where, entry["name"]))

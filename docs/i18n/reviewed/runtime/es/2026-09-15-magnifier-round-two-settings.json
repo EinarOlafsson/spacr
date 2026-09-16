@@ -1,0 +1,90 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Classical mode wherever a region holds two clear populations.",
+      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Classical mode wherever a region holds two clear populations.",
+      "source_sha256": "0df64be98ac90ecee9625cefec6ba2a8bf4b9cfaafcf05719b9f286568c44f32",
+      "table": "ui",
+      "translation": "Un factor de corrección del umbral: el nivel de Otsu se multiplica por él antes de usarse. Por encima de 1 es más estricto, así que los objetos encogen y los tenues desaparecen; por debajo de 1 incluye píxeles más tenues; 1 es el propio nivel de Otsu. Lo usa Detectar Otsu, y también el modo Clásico de la Lupa en vivo allí donde una región contiene dos poblaciones bien separadas."
+    },
+    {
+      "key": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
+      "source": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
+      "source_sha256": "5953c8c31498297d04d4e07ec15f0d3b18adb968bec94f4e86cccb76d4d31893",
+      "table": "ui",
+      "translation": "Explore el zoo de modelos, descargue un modelo Cellpose y segmente con él. El modelo elegido allí se selecciona en la lista junto a este botón."
+    },
+    {
+      "key": "DINOCell appears in Mode once installed: pip install \"spacr[dinocell]\"",
+      "source": "DINOCell appears in Mode once installed: pip install \"spacr[dinocell]\"",
+      "source_sha256": "9512f92d6c53f6749dc48612c724c4744ad5d757945867d1651457099ac17a3e",
+      "table": "ui",
+      "translation": "DINOCell aparece en Mode una vez instalado: pip install \"spacr[dinocell]\""
+    },
+    {
+      "key": "How readily the Classical mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Cellpose-SAM settings instead, so this is greyed out while another mode is chosen.",
+      "source": "How readily the Classical mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Cellpose-SAM settings instead, so this is greyed out while another mode is chosen.",
+      "source_sha256": "703abbde8d818b23f68c86ddbc4ffd5a8f06f843841bfa8a1e6ff6b36e173352",
+      "table": "ui",
+      "translation": "Con qué facilidad el modo Clásico acepta un objeto. Súbala para incluir objetos más tenues o menos seguros, bájela para quedarse solo con los claros; 0 es el corte predeterminado. Los modelos leen sus umbrales de los ajustes de Cellpose-SAM, así que esto aparece atenuado mientras se elige otro modo."
+    },
+    {
+      "key": "Otsu threshold correction",
+      "source": "Otsu threshold correction",
+      "source_sha256": "57a71cdfcaf0a9c75df58b95b112f4610d1c128d5e9926e75b4069e14d29f18d",
+      "table": "ui",
+      "translation": "Corrección del umbral de Otsu"
+    },
+    {
+      "key": "SAMCell appears in Mode once installed: pip install \"spacr[samcell]\"",
+      "source": "SAMCell appears in Mode once installed: pip install \"spacr[samcell]\"",
+      "source_sha256": "20fadbd4c12b87070a0abc04f9e4744b83886433dec54b05b642b2f330e1ebe9",
+      "table": "ui",
+      "translation": "SAMCell aparece en Mode una vez instalado: pip install \"spacr[samcell]\""
+    },
+    {
+      "key": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
+      "source": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
+      "source_sha256": "7e3849bd96a50a540c32fa32ac80f26b8b5b12f80e564e92b057bc9af6947717",
+      "table": "ui",
+      "translation": "Lado del recuadro cuadrado, en píxeles de imagen, hasta la altura o la anchura de la imagen abierta. Con Región bajo el ratón es también la región que segmenta el modelo, así que hágalo más ancho que el objeto más grande que quiera añadir. Shift + rueda del ratón lo cambia mientras la lupa está activada."
+    },
+    {
+      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, DINOCell the cell probability, and Classical mode the Otsu threshold correction.",
+      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, DINOCell the cell probability, and Classical mode the Otsu threshold correction.",
+      "source_sha256": "5dc630e32acbc9d0f852ae9646eab4c0f4e48f682ee172bdfc0189ba510394af",
+      "table": "ui",
+      "translation": "La Lupa en vivo también lee estos ajustes: el modo Cellpose usa el modelo, ambos umbrales, el diámetro y la normalización; DINOCell, la probabilidad de célula; y el modo Clásico, la corrección del umbral de Otsu."
+    },
+    {
+      "key": "Threshold the image at Otsu's level, multiplied by the Otsu threshold correction under Cellpose-SAM, and label what is left, honouring the minimum area above.",
+      "source": "Threshold the image at Otsu's level, multiplied by the Otsu threshold correction under Cellpose-SAM, and label what is left, honouring the minimum area above.",
+      "source_sha256": "ec800dcb1c6d85e2fe62c9400aea428b72acdd51e1bb6c4e87b40fb76e79ae84",
+      "table": "ui",
+      "translation": "Umbraliza la imagen al nivel de Otsu, multiplicado por la corrección del umbral de Otsu de Cellpose-SAM, y etiqueta lo que queda, respetando el área mínima indicada arriba."
+    },
+    {
+      "key": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations and the Otsu threshold correction under Cellpose-SAM, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Cellpose-SAM, and is slow without a GPU. DINOCell and SAMCell are offered once installed; DINOCell reads the cell probability set under Cellpose-SAM, and SAMCell uses its own thresholds.",
+      "source": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations and the Otsu threshold correction under Cellpose-SAM, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Cellpose-SAM, and is slow without a GPU. DINOCell and SAMCell are offered once installed; DINOCell reads the cell probability set under Cellpose-SAM, and SAMCell uses its own thresholds.",
+      "source_sha256": "5432f89a6fec5fa7b67b89d19c117c352bffdc397b99dd9f1f1e8a4931175e55",
+      "table": "ui",
+      "translation": "Qué modelo segmenta la región del recuadro. Clásico umbraliza la región al nivel de Otsu y separa los objetos que se tocan con una divisoria de aguas; no necesita nada instalado, sigue el interruptor Brillante y la casilla Min area de Operaciones de objetos y la corrección del umbral de Otsu de Cellpose-SAM, y se ejecuta siempre que no se puede cargar un modelo. Cellpose usa el modelo, ambos umbrales, el diámetro y la normalización fijados en Cellpose-SAM, y es lento sin GPU. DINOCell y SAMCell se ofrecen una vez instalados; DINOCell lee la probabilidad de célula fijada en Cellpose-SAM y SAMCell usa sus propios umbrales."
+    },
+    {
+      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out until Model zoo… fetches it.",
+      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out until Model zoo… fetches it.",
+      "source_sha256": "4ce53388d126793bbf23be6d318e93d4bd4bb3b5d5bcf8e95436db32f10646b2",
+      "table": "ui",
+      "translation": "Qué pesos segmentan este campo y, en modo Cellpose, el recuadro de la Lupa en vivo. La lista es el Cellpose instalado en esta máquina y cada modelo Cellpose del zoo de modelos; un modelo del zoo que aún no se ha descargado aparece atenuado hasta que Model zoo… lo descarga."
+    },
+    {
+      "key": "{name} (not downloaded)",
+      "source": "{name} (not downloaded)",
+      "source_sha256": "cbd91332316192ec43faa12ca9dcbc7b8a185d00fb36ae3657b5ee86d8019493",
+      "table": "ui",
+      "translation": "{name} (sin descargar)"
+    }
+  ],
+  "schema": 1
+}

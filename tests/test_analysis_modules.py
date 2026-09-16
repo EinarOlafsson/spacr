@@ -1,7 +1,6 @@
 """
 Tests for the analysis modules: spacr.ml, spacr.plot (extended),
-spacr.submodules, spacr.spacrops, spacr.timelapse, spacr.deep_spacr,
-spacr.core.
+spacr.submodules, spacr.timelapse, spacr.deep_spacr, spacr.core.
 
 These modules are dominated by pipelines that need real data + GPU; here
 we exercise the pure/testable helpers plus verify every public entry
@@ -16,7 +15,6 @@ import pytest
 import spacr.ml as ML
 import spacr.plot as P
 import spacr.submodules as SUB
-import spacr.spacrops as OPS
 import spacr.timelapse as TL
 import spacr.deep_spacr as DS
 import spacr.core as CORE
@@ -170,19 +168,6 @@ def test_plot_generate_mask_random_cmap_matches_public_variant(synth_mask_2d):
 ])
 def test_submodules_entry_points_callable(name):
     assert callable(getattr(SUB, name, None)), f"submodules.{name} not callable"
-
-
-def test_spacrops_module_is_populated():
-    """spacrops houses screen-QC + normalization pipelines; verify at
-    least the main class + several helper functions are present."""
-    # Class-based entry points are expected here (FOVAlignAndCropper etc.).
-    public = [
-        name for name in dir(OPS)
-        if not name.startswith("_") and callable(getattr(OPS, name, None))
-    ]
-    assert len(public) >= 10, f"spacrops has only {len(public)} public callables"
-    # The batch alignment + cropping pipeline object should exist.
-    assert hasattr(OPS, "FOVAlignAndCropper")
 
 
 def test_timelapse_module_has_track_functions():

@@ -167,7 +167,6 @@ class CountingSession:
                 return layer.spacing
         return Spacing.isotropic(2, 1.0, units=stack.units)
 
-    # -- classes ---------------------------------------------------------
     @property
     def classes(self) -> Tuple[CountClass, ...]:
         """Every class being counted, in the order they were added."""
@@ -277,7 +276,6 @@ class CountingSession:
                 f'{list(self.class_names)}')
         return key
 
-    # -- counting --------------------------------------------------------
     def add(self, world: Mapping[str, float],
             name: Optional[str] = None) -> int:
         """Place a marker at a world point; returns its index in its layer.
@@ -383,7 +381,6 @@ class CountingSession:
                          if entry[1] not in names]
         return removed
 
-    # -- the tally -------------------------------------------------------
     def counts(self) -> Dict[str, int]:
         """``{class: how many markers}``, in class order."""
         return {entry.name: int(len(self._layers[entry.name].data))
@@ -421,7 +418,6 @@ class CountingSession:
         parts = [f'{name} {n} ({n / total:.0%})' for name, n in counts.items()]
         return ' · '.join(parts) + f' · {total} total'
 
-    # -- export ----------------------------------------------------------
     def to_frame(self):
         """One row per marker: class, world coordinates, units, field key.
 

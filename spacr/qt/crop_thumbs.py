@@ -58,9 +58,6 @@ DEFAULT_CAPACITY = 96
 DEFAULT_SIZE = 192
 
 
-# Weak registration makes every live thumbnail cache observable to the
-# process-wide budget without making the cleanup service the reason a closed
-# screen stays alive.
 _LIVE_CACHES: "weakref.WeakSet[CropThumbnails]" = weakref.WeakSet()
 
 
@@ -137,7 +134,6 @@ class CropThumbnails:
         if callable(install):
             install()
 
-    # -- keys ---------------------------------------------------------------
     def _key(self, path: str) -> Tuple[Any, ...]:
         """``(abspath, mtime_ns, size, px)`` — the identity of one decode.
 
@@ -154,7 +150,6 @@ class CropThumbnails:
             stamp = (0, 0)
         return (resolved, stamp[0], stamp[1], self.size)
 
-    # -- reading ------------------------------------------------------------
     def peek(self, path: str) -> Optional[QPixmap]:
         """The thumbnail if it is already decoded, else ``None``. Never blocks.
 
@@ -262,7 +257,6 @@ class CropThumbnails:
         self._bytes.pop(key, None)
         return existed
 
-    # -- housekeeping -------------------------------------------------------
     def prime(self, path: str) -> Optional[QPixmap]:
         """Decode ``path`` now so a later :meth:`peek` is instant.
 
@@ -326,9 +320,6 @@ def crop_paths_for_keys(db_path: str, keys) -> Dict[str, str]:
     out: Dict[str, str] = {}
 
     def resolve(batch) -> None:
-        # Never called with an empty batch: the caller has already refused
-        # an empty key list and a bisection of two or more keys cannot
-        # produce an empty half.
         """Resolve one batch of keys, bisecting when some are missing.
 
         Never called with an empty batch: the caller refuses an empty key list

@@ -82,7 +82,7 @@ METHODS: Dict[str, Tuple[Optional[object], str]] = {
 
 #: Spellings accepted for the same method, so an old settings CSV still loads.
 ALIASES = {
-    "standard_deveation": "std",     # spaCR's own historical misspelling
+    "standard_deveation": "std",
     "standard_deviation": "std",
     "variance": "var",
     "median_absolute_deviation": "mad",

@@ -7,6 +7,7 @@
   "install_root": "install root",
   "pytorch_backend": "PyTorch backend",
   "resolver_guards": "resolver guards",
+  "dry_remove_old": "DRY RUN: would find and remove every older spaCR installation first",
   "dry_download": "DRY RUN: would download %s",
   "dry_create": "DRY RUN: would create and validate %s",
   "dry_launcher": "DRY RUN: would install launcher %s",
@@ -54,12 +55,13 @@
   "nsis_gpu": "Automatic hardware acceleration (recommended)",
   "nsis_application": "spaCR desktop application",
   "nsis_downloading": "Downloading Python, Qt, PyTorch and spaCR. This can take several minutes.",
-  "nsis_failed": "spaCR installation failed with exit code %s. The existing installation, if any, was preserved.",
+  "nsis_failed": "spaCR was not installed (exit code %s). An older spaCR may already have been removed. Run this installer again; install.log in the installation folder says what failed.",
   "nsis_uninstall": "Uninstall spaCR",
   "old_install_found": "Found spaCR %s already installed at %s. This installer installs %s.",
   "old_install_remove": "Remove that installation completely before installing this one?",
   "old_install_removed": "Removed the previous installation.",
   "old_install_kept": "Keeping it. The environment is replaced either way; caches and settings stay.",
   "old_install_noninteractive": "Not a terminal, so nothing was asked. The environment is replaced; caches and settings stay.",
-  "old_install_same": "That is the same version this installer carries."
+  "old_install_same": "That is the same version this installer carries.",
+  "old_copy_not_removed": "Installation stopped: an older spaCR could not be removed (see above). Close any running spaCR and run the installer again."
 }

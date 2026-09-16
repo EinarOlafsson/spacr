@@ -2,8 +2,8 @@
 
 Instruction 364 found what an unregistered module costs: a setting absent from
 the shared tables is never validated, and that is how a checkbox came to ship
-the string ``'False'`` -- truthy, silently, for a whole release. `spacrops.py`
-carried sixty-three settings and not one of them was declared.
+the string ``'False'`` -- truthy, silently, for a whole release. The old OPS
+engine carried sixty-three settings and not one of them was declared.
 
 This is a RATCHET on that. It compares the declarations against the settings
 factory itself, so adding a setting without declaring it fails here rather
@@ -18,9 +18,8 @@ import pytest
 def declared():
     """The settings the factory produces, and what has been declared for them."""
     from spacr import ops_settings
-    from spacr.spacrops import get_preprocess_ops_settings
 
-    keys = set(get_preprocess_ops_settings({}))
+    keys = set(ops_settings.ops_defaults({}))
     categorised = {k for keys_ in ops_settings.OPS_CATEGORIES.values()
                    for k in keys_}
     return keys, ops_settings, categorised
@@ -29,7 +28,7 @@ def declared():
 def test_no_setting_is_untyped(declared):
     """An untyped setting cannot be validated, so a wrong value reaches a run.
 
-    A key may be typed HERE or already typed by another module -- `src` is
+    A key may be typed HERE or already typed by another module -- `plate` is
     shared, and `register_defaults` rightly refuses to let one module rewrite
     another's declaration. What matters is that nothing is untyped anywhere.
     """
@@ -64,10 +63,9 @@ def test_no_setting_is_uncategorised(declared):
     """A setting in no category does not appear in the panel at all.
 
     ASKED OF THE WHOLE MAP, not of OPS_CATEGORIES alone, and only here.
-    Five of these settings -- `src`, `plate`, `dry_run`, `score_threshold`,
-    `verbose` -- are shared with the rest of spaCR and keep their existing
-    homes under Paths, Plate Layout & Controls, Advanced and Evaluation
-    Reports. Repeating them under an OPS heading is not a display
+    One of these settings -- `plate` -- is shared with the rest of spaCR
+    and keeps its existing home under Plate Layout & Controls. Repeating
+    it under an OPS heading is not a display
     preference: Tk renders each copy and Qt drops all but the first, so a
     setting in two categories is either duplicated or invisible depending
     on which toolkit is drawing.

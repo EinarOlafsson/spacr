@@ -46,8 +46,13 @@ def test_every_propagated_key_is_one_measure_ships(panel):
     # when the run declares the slot, so comparing against a one-organelle
     # factory would call the panel's own organelleb controls unread when the
     # only thing missing is the count.
+    #
+    # `_slots_built` since 2026-09-14, when the panel stopped building a
+    # control per declared slot: `len(panel._mask_dims)` used to BE the slot
+    # count because every one of the 702 had a spin box, and it is now the
+    # fixed roles plus whatever the run asked for.
     known = set(get_measure_crop_settings(
-        {"number_of_organelles": len(panel._mask_dims)}))
+        {"number_of_organelles": panel._slots_built}))
     propagated = set(panel.settings_for_propagation())
 
     unread = sorted(propagated - known)
@@ -57,7 +62,14 @@ def test_every_propagated_key_is_one_measure_ships(panel):
 
 
 def test_the_organelle_size_floor_is_the_surviving_name(panel):
-    """The specific key that was discarded, named so a rename cannot lose it."""
+    """The specific key that was discarded, named so a rename cannot lose it.
+
+    THROUGH A DECLARED SLOT since 2026-09-14: the panel builds a control per
+    object the run HAS and the default organelle count is zero, so the key
+    under test is propagated by a run that asked for an organelle. The
+    spelling is the subject either way.
+    """
+    panel.apply_settings({"number_of_organelles": 1})
     propagated = panel.settings_for_propagation()
 
     assert "organelle_min_area" in propagated
@@ -96,28 +108,9 @@ _LIVE_PREVIEW_MODULES = (
 )
 
 
-# NOT RE-POINTED FOR 391 -- THE CODE WAS. This assertion is a subset
-# relation, not a pinned list, so there was no number here to move: it went
-# red because `spacr.qt.widgets.live_preview.COMPARTMENT_FIELDS` still
-# carried the relative scheme after the run stopped reading it. Measured on
-# 2026-09-12, against `get_timelapse_settings(number_of_organelles=4)` plus
-# the finetune and plaque factories:
-#
-#   BEFORE  67 propagated keys, 20 of them unread -- five suffixes
-#           (area_multiplier, intensity_threshold_method, intensity_percentile,
-#           min_intensity_percentile, max_intensity_percentile) across cell,
-#           nucleus, pathogen and organelle.
-#   AFTER   51 propagated keys, 0 unread. The twenty came out of
-#           COMPARTMENT_FIELDS and four went in -- `<role>_intensity_threshold`,
-#           which `spacr.object.merge_split_filter_masks` reads and the panel
-#           could not send at all.
-#
-# The missing threshold was the half this test could NOT see, because it
-# only looks for keys the run does not read and not for keys the run reads
-# and the preview never sends. It matters more than the twenty: the
-# "Intensity merge" toggle propagated on its own, and
-# `spacr.utils._merge_by_intensity` with no threshold beside it REFUSES to
-# merge. The preview said merging was on and the run merged nothing.
+# This subset relation has caught controls that survived their pipeline
+# settings being removed. It remains independent of the number of fields
+# offered, so deleting a retired feature does not weaken the check.
 def test_the_live_preview_propagates_nothing_unread(qtbot, qt_theme_applied):
     """Every tuned value has a module that reads it back."""
     import spacr.settings as settings_module
@@ -141,38 +134,20 @@ def test_the_live_preview_propagates_nothing_unread(qtbot, qt_theme_applied):
         f"tuning them changes nothing: {unread}")
 
 
-def test_the_live_preview_sends_the_threshold_its_merge_toggle_needs(
+def test_the_live_preview_sends_both_mean_bounds_for_every_area_filter(
         qtbot, qt_theme_applied):
-    """The other direction, which the ratchet above cannot see.
-
-    ``propagated - known`` finds a control writing a key nothing reads. It
-    cannot find the opposite: a key the run reads that the preview never
-    sends. That opposite is the worse of the two here, because
-    ``<role>_intensity_merge`` and ``<role>_intensity_threshold`` are read as
-    a PAIR -- ``spacr.utils._merge_by_intensity`` with the toggle on and no
-    threshold refuses to merge and prints the boundary intensities it found
-    instead. A preview that propagates only the toggle therefore promises
-    merging and delivers none of it, with no key out of place for the
-    ratchet above to catch.
-
-    Asserted per merge toggle the panel actually offers rather than against a
-    fixed list of roles, so an added compartment is covered the day it
-    appears.
-    """
+    """The subset ratchet cannot detect a required control that is missing."""
     from spacr.qt.screens.app_screen import AppScreen
 
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
     propagated = screen._live_preview.settings_for_propagation()
 
-    toggles = sorted(key for key in propagated
-                     if key.endswith("_intensity_merge"))
-    assert toggles, "no merge toggle is propagated at all"
-
-    orphaned = sorted(
-        key for key in toggles
-        if key.replace("_intensity_merge", "_intensity_threshold")
-        not in propagated)
-    assert not orphaned, (
-        "these merge toggles propagate with no absolute threshold beside "
-        f"them, so the run will refuse to merge: {orphaned}")
+    roles = {key.removesuffix("_min_area") for key in propagated
+             if key.endswith("_min_area")}
+    assert roles, "no object area filters are propagated"
+    for suffix in ("min_intensity", "max_intensity"):
+        intensity_roles = {key.removesuffix(f"_{suffix}") for key in propagated
+                           if key.endswith(f"_{suffix}")}
+        assert intensity_roles == roles, (
+            f"{suffix} does not cover the same objects as the area filters")

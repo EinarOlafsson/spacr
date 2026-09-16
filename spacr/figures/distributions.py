@@ -44,9 +44,6 @@ NEAR_SYMMETRIC = 0.5
 MODERATELY_SKEWED = 1.0
 
 
-# --------------------------------------------------------------------------- #
-#  Finding the columns
-# --------------------------------------------------------------------------- #
 
 def _column(frame, names) -> Optional[str]:
     """The first of ``names`` this frame has."""
@@ -114,9 +111,6 @@ def _bins(n: int) -> int:
     return int(np.clip(np.sqrt(max(n, 1)), 10, 60))
 
 
-# --------------------------------------------------------------------------- #
-#  The statistics, separately so they can be checked without drawing
-# --------------------------------------------------------------------------- #
 
 def gini(values) -> float:
     """The Gini coefficient of a non-negative sample.
@@ -169,15 +163,6 @@ def relative_representation(frame, fraction: str, well: str):
     """
     shares = np.asarray(frame[fraction], dtype="float64")
 
-    # THE WELL IS COUNTED OVER ITS USABLE SHARES, NOT OVER ITS ROWS. `size`
-    # counts a row whose share is NaN or inf; `sum` does not. A well holding
-    # one unknown share therefore divided its total by one guide too many, so
-    # every OTHER guide in that well came out over-represented -- silently,
-    # because the unknown row is dropped and the dropped-row count still looks
-    # right. Worse, a well holding one real guide and one unknown passed the
-    # two-guide guard and landed at exactly 2.0x: an artefact of pure
-    # arithmetic sitting on the "at least twice equal" cut the panel reports,
-    # which is the same failure single-guide wells are excluded to avoid.
     usable_share = np.where(np.isfinite(shares), shares, np.nan)
     per_well = frame[[well]].copy()
     per_well["_share"] = usable_share
@@ -214,7 +199,7 @@ def shape_of(values) -> dict:
         return {"n": int(array.size), "skew": float("nan"),
                 "excess_kurtosis": float("nan"), "verdict": "not measurable"}
     skew = float(stats.skew(array))
-    kurtosis = float(stats.kurtosis(array))       # already excess
+    kurtosis = float(stats.kurtosis(array))
     if abs(skew) < NEAR_SYMMETRIC:
         verdict = "near-symmetric"
     elif abs(skew) < MODERATELY_SKEWED:
@@ -222,9 +207,6 @@ def shape_of(values) -> dict:
     else:
         verdict = "strongly skewed"
     if abs(skew) < NEAR_SYMMETRIC and abs(kurtosis) >= MODERATELY_SKEWED:
-        # Symmetric and heavy-tailed is a real and different failure: a normal
-        # fitted to it has the right centre and the wrong tail probabilities,
-        # which is precisely what a p-value is computed from.
         verdict = "symmetric, heavy-tailed"
     if skew >= NEAR_SYMMETRIC:
         verdict += " right"
@@ -264,9 +246,6 @@ def one_value_per_well(frame, column: str, well: Optional[str]):
     return _finite(frame.groupby(well, observed=True)[column].first()), True
 
 
-# --------------------------------------------------------------------------- #
-#  The panels
-# --------------------------------------------------------------------------- #
 
 def _ratio_ticks(ax, values) -> None:
     """Powers of two labelled as MULTIPLIERS, not as exponents.
@@ -283,23 +262,11 @@ def _ratio_ticks(ax, values) -> None:
     high = int(np.ceil(np.log2(values.max())))
     exponents = list(range(low, high + 1))
     step = max(1, int(np.ceil(len(exponents) / 6)))
-    # THINNED ON e ≡ 0, never by slicing from the low end. Plain `[::step]`
-    # starts at whatever the smallest guide happened to be, and on this screen
-    # that dropped the tick at 1 -- leaving the reference line standing over
-    # an unlabelled position, on the one axis where 1 is the entire point.
     exponents = [e for e in exponents if e % step == 0]
     powers = np.array([2.0 ** e for e in exponents])
-    # SIGNIFICANT DIGITS, NOT FOUR DECIMAL PLACES. A fixed `.4f` is only
-    # honest down to 2^-6: 2^-9 printed as "0.002" (2.4% out), 2^-12 as
-    # "0.0002" (18% out), and 2^-15 rounded to "0.0000", which `.rstrip("0")`
-    # then turned into the label "0." -- twice over on a wide enough axis, so
-    # two different ticks read the same. Reachable from the raw view of any
-    # deeply sequenced library, where a guide's share of a well is 1e-4.
     labels = [f"{p:g}" if p >= 1 else f"{p:.3g}" for p in powers]
     ax.xaxis.set_major_locator(FixedLocator(powers))
     ax.xaxis.set_major_formatter(FixedFormatter(labels))
-    # The minor ticks of a log axis are the between-decade marks; on a base-2
-    # axis they land on top of the majors and thicken every tick.
     ax.xaxis.set_minor_locator(NullLocator())
 
 
@@ -358,10 +325,6 @@ def guide_fraction(ax, frame, *, well: Optional[str] = None,
                              f"histogram needs at least {MIN_VALUES}"),
                      needs=(fraction,))
 
-    # A library where every retained guide holds exactly the same share is
-    # degenerate but not impossible (a run that kept one guide per well and a
-    # caller who asked for the raw view). geomspace over a zero-width range
-    # returns identical edges, which matplotlib bins into nothing.
     low, high = float(values.min()), float(values.max())
     if high <= low:
         low, high = low / 2.0, high * 2.0
@@ -377,13 +340,6 @@ def guide_fraction(ax, frame, *, well: Optional[str] = None,
     spread = np.quantile(values, [0.1, 0.9])
     evenness = gini(values)
     over = float(np.mean(values >= 2.0))
-    # UPPER LEFT, because the reference line stands at 1 with its own rotated
-    # label and the distribution's right shoulder is under the upper right.
-    # The left is the thin end of a log-ratio histogram and is always free.
-    #
-    # The last two lines are only true of the relative view: on the raw axis
-    # there is no "equal" for a guide to be twice of, so saying "≥ 2× equal"
-    # there would attach a meaning the panel did not measure.
     note = (f"n = {values.size:,} guides\nGini = {evenness:.2f}\n"
             + (f"80% within {spread[0]:.2f}–{spread[1]:.2f}×\n"
                f"{over:.0%} at ≥ 2× equal" if relative else
@@ -403,10 +359,6 @@ def guide_fraction(ax, frame, *, well: Optional[str] = None,
                  f"representation and {over:.0%} of guides hold at least "
                  f"twice it")
     else:
-        # No well column: the shares of a 2-guide and a 15-guide well are
-        # pooled, so the spread below is evenness AND how many guides landed
-        # per well together. Said plainly rather than left for the reader to
-        # discover, because the same picture means much less here.
         built = (f"each as its raw share of its well, on a log2 axis. Wells "
                  f"retaining different numbers of guides are pooled, so this "
                  f"spread ({spread[0]:.3f}–{spread[1]:.3f} over the middle "
@@ -450,9 +402,6 @@ def response(ax, frame, *, column: Optional[str] = None,
         values, bins=bins or _bins(values.size), color=ROLES["fill"],
         edgecolor="none")
     stats_ = shape_of(values)
-    # The reference is the family that was FITTED. Drawing a normal over a
-    # Poisson or a beta fit would put a curve on the panel that no part of the
-    # model ever assumed, and a reader would take the mismatch for a finding.
     normal = bool(values.std(ddof=1) > 0 and family == "gaussian")
     if normal:
         _normal_reference(ax, values, edges)
@@ -461,10 +410,6 @@ def response(ax, frame, *, column: Optional[str] = None,
     ax.set_xlabel(name.replace("_", " "))
     ax.set_ylabel(unit)
 
-    # A transform is only worth having if it did something, and the pipeline
-    # names its transformed response after the raw one. When both are here,
-    # say what the transform bought -- it is the one number that tells the
-    # maintainer whether to keep it.
     before = ""
     raw = name[4:] if name.startswith("log_") else None
     if raw and raw in frame.columns:

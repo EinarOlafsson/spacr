@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "recursive",
+      "source_sha256": "ee370df5c2ad2897860a7bfec0d84b1ff30e698db8746220dc0810b406ab58b6",
+      "source": "Search inside subfolders of every input folder. Turn this off when only files directly inside each selected folder belong to the import. Default True.",
+      "translation": "Pesquisa também dentro das subpastas de cada pasta de entrada. Desative quando apenas os arquivos diretamente dentro de cada pasta selecionada fizerem parte da importação. Padrão True."
+    }
+  ]
+}

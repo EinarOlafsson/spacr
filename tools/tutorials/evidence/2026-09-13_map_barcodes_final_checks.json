@@ -1,0 +1,944 @@
+{
+  "lesson": "12_map_barcodes",
+  "scope": "Actual GUI search/mapping and separate supported two-barcode API",
+  "capture": {
+    "accepted": true,
+    "gui": {
+      "accepted": true,
+      "scope": "Exact saved barcode joins and count reconciliation",
+      "requested_pairs": 10000,
+      "extracted_rows": 8611,
+      "mapped_reads": 7657,
+      "count_rows": 4099,
+      "reference_sizes": {
+        "column": 24,
+        "row": 16,
+        "grna": 1377
+      },
+      "artifacts": {
+        "annotated_reads.h5": "d05ec949ff0c8825cdeafa274f50e68152b241c2092d055988935818310f13f1",
+        "unique_combinations.csv": "f8d6e3615b58cb824873338f252bc555389be4ba8bd9619ea2e9a2e1cfb3d709",
+        "qc.csv": "978b8a1d5ea198379c2e7416af2b02a0f966f526e544fae3f9c0e2d0753f3579"
+      },
+      "biological_validation_claimed": false
+    },
+    "api": {
+      "accepted": true,
+      "scope": "Recorded three-barcode GUI result and two-entry API set",
+      "gui": {
+        "accepted": true,
+        "scope": "Exact saved barcode joins and count reconciliation",
+        "requested_pairs": 10000,
+        "extracted_rows": 8611,
+        "mapped_reads": 7657,
+        "count_rows": 4099,
+        "reference_sizes": {
+          "column": 24,
+          "row": 16,
+          "grna": 1377
+        },
+        "artifacts": {
+          "annotated_reads.h5": "d05ec949ff0c8825cdeafa274f50e68152b241c2092d055988935818310f13f1",
+          "unique_combinations.csv": "f8d6e3615b58cb824873338f252bc555389be4ba8bd9619ea2e9a2e1cfb3d709",
+          "qc.csv": "978b8a1d5ea198379c2e7416af2b02a0f966f526e544fae3f9c0e2d0753f3579"
+        },
+        "biological_validation_claimed": false
+      },
+      "api_two_barcodes": {
+        "accepted": true,
+        "scope": "Exact saved barcode joins and count reconciliation",
+        "requested_pairs": 1000,
+        "extracted_rows": 869,
+        "mapped_reads": 793,
+        "count_rows": 535,
+        "reference_sizes": {
+          "column": 24,
+          "grna": 1377
+        },
+        "artifacts": {
+          "annotated_reads.h5": "8c40956e204b0355f0fa4846bb3f613d0bbad0736940235a6ad87d1e53c30005",
+          "unique_combinations.csv": "52c0ed175e4efbac042477f17fef338bf36ba0140f747094fb12c042ebb55ed6",
+          "qc.csv": "f8a2f2127ab661c6db9993c0af22fa0fd0c8b792c3a6c4e14881c2cd13eac545"
+        },
+        "biological_validation_claimed": false
+      },
+      "barcode_set": [
+        "column",
+        "grna"
+      ],
+      "input_hashes": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/map-refresh-kpub0w/example_data/sequencing/SRR33531217_1.fastq.gz": "8c7cc1f0c40beeff030d51eb59d523ffb95505b7ad81580ac12c5c8f796b1b6b",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/map-refresh-kpub0w/example_data/sequencing/SRR33531217_2.fastq.gz": "a878ca2f2210f04362758f5b3da684a1783f2f94eb3441d998ba86cf62fd2844",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/map-refresh-kpub0w/map_references/map_search_v2/primers_3_column_barecodes.csv": "417feffa96992838f76b25e6830cf6b3d3b16d0c0d8b8f72f6b8580e2adcc6f4",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/map-refresh-kpub0w/map_references/map_search_v2/primers_3_row_barecodes_RC.csv": "c876e1781bc227b72d13eb0316e3a4ffc9cfeb0b91169f771b1ca4068806db6b",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/map-refresh-kpub0w/map_references/map_search_v2/grna_barcodes_RC.csv": "f5fb505cec66c80b1442275d1483647c90bc6f4f99996c5b2d1bfcd01b24f418"
+      },
+      "inputs_unchanged": true,
+      "helper_sha256": "7d002871a6871707687a3fd063242856e8107d6fbbb15942a8f1d7e95332dfe3",
+      "gui_barcode_set_control_claimed": false,
+      "biological_validation_claimed": false,
+      "artifacts": {
+        "unique_combinations.csv": "52c0ed175e4efbac042477f17fef338bf36ba0140f747094fb12c042ebb55ed6",
+        "qc.csv": "f8a2f2127ab661c6db9993c0af22fa0fd0c8b792c3a6c4e14881c2cd13eac545",
+        "mapped_read_depth.png": "c03063ec007f7bc0a1b9709fb61550fe8873ae0f2f5e418d97c9c24826864cdb",
+        "annotated_reads.h5": "8c40956e204b0355f0fa4846bb3f613d0bbad0736940235a6ad87d1e53c30005"
+      }
+    },
+    "app_source_modified": false,
+    "published": false
+  },
+  "matrix": {
+    "lesson": "12_map_barcodes",
+    "passed": true,
+    "canonical_english_sha256": "fb39d2e0d47dadd275e617a1de465e547e44c298c7e1df9fd7efe98ae16edec3",
+    "scene_count": 13,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "73db3b4377beb98d423cd502c189a46b1de7b1c11a7a61d070158d86918fe62a"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "92b9a1bbe0539ee235c5cba23ed951c3a55a0ca1972752982b75f3aa8e9fa928"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "61d4b04497fbfa06b5afcdf53104fd69ac8a4f26527c49373a6afa704873517e"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "f32fe4a4f7fb04b882711c8edb610e498f21e05cfbd9cc0331ba89df148dd8cc"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "cb5fb4fa08b4247ae98ed2eb3adbfda68bf7106189ddfaf82c0a855846cbe6e0"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "498e56cc23f9bf9f91bb0f8de15a87bbb4b450775a336b83a51e5dda75d0f896"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "3206a006021c1bb2c5237281175a214d76df626d4f8a5620d8ce3c6837746d06"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "c481755928f04d2403125d4049ef0db18b1c4e2c98e7c2a64a8a9e30c26af501"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "cff84607939deeaae99e89508f0692918a10d72cfa5b486b264c25841e4b28a1"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "c45d204efacd92c3efdcdf0dfb9e2be5c1f7ce9affa15af5df35f6a3f09107ad"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "aae012b09747811548d2a3b3f83be76b465df2e5b880bb7a658742d9d1a0a673"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "9326e869a1894428d2ce5ace27b2acd63d08cbe8bac02f2d5d8dda406f7b0fde"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "6ced0f218ef3ec7fee3c4542ee4c014bc030dd2e42441f8e075f292a5b7cdc85"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "dc7dae129a027531ec51f30b33b53f4b423d9d3afc7e63f306d9c006accc0311"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "1760ea2012bb55aa76dd52ba25cb568ca681847b39df7e3881a56a37a8d2ba08"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "6723020e3b30037dff26f4535eb9352936a39c1900f65e320ec226a43a58121f"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "066a471af4c12f3dce0a9f8cbef2d0f3677aac330a8bf6900178c328b0a4832f"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "13a91d3310c40859387fdc27896f6c388b556122ae6a84a1fcc4414b94697396"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "925b33c6106299283af9d11b9e3b05de3275164159701f8535207c6f7b68d559"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "143b3b23d497a4853add9cd94e1bde7b78c5b30d3d2f4f49a2e98621576a21c3"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "97a0f3f83c1218580a498562386dd1c6ec28a272af54100f5b9885e7f678d4ac"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "31fbea09a94778bbc494d7656e4b6ed29424b0526d0237e148a5e3f95ceac359"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "9d3c81bc41a9716435d9ef09905be21718b52668011619121370338113f4dca9"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "6d8fb4d9eb4108ff13a682aae51fc6755f9f35791b00d919f50926d485352d25"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "e7f7f5e03a2d76345dc46d302e5871252713d425767edbfa3d05d1a67c0eb431"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "3cf366b99098d5ccf71c5081a9a4649f01c435c8e4b1b2d1965467bc423cf2bb"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "12a7915b4bd19f59440beda06279d55b71fb09d50b4fe1260b709888469cc705"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "e26dcb4c77805f377118b8346b8acc2d878e5b795acda9d561c526f0f4c70d16"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "70e9dbb6a6adb65fa9d69b4b40f270aac7410acf48e3118692d892d87454b15e"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "fc932887dca42de89e97050b4a0b3bb02f7bc7c54cd6f39d7cda68388e01e289"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "8e29ea79ead4d895c950181a935873340bb5c425ee7aebdbe2a9624659382eab"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "ad96ba8e05d397246cb210f93d4228ada3e63fe0af397c4fe0ba18afecfa5c9d"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "e604b0994b64aacaf02d4e0e72575023c339ec3af71cff1697746f3afa8e9b32"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "7330ea9992519f7a8a3b1fdab1750912b3036e3206aa8cec31860d2cbd4a8ac1"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "8b643f14eeb211f56cf34972ce691788062c9b4f956ccce410b65ffad30664fc"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "65063a2ff9af6c70cb68a9b8a75bd2735e4409f2e9784506b41eb4cd31eeb0e8"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "d076c6fc6db04b4407c7fbca290130e70973f56728aea5d909b04116ba5f3f16"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "a8567362cc10df96d888dd5f86bd15df730509c6362e78c8c75f7133628e029a"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "5ca2aab174ea554be2166e4c3ebaa8b17c7213492eafb9bed4e63d1df8557230"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "5869cbdfe87e3dffac95f8bb95c43088f149de6270a5a460ff147e26c0cb8f59"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "1b585cbead05e4d5cf87575c09de484dff8e91786d2a798fad20aed9518093c8"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "a61775caf986dabba0f46c09b3edd3a5fa716268d63e9add7d408ad6fe1eb3fe"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "ee12b9f057c3c1fa0fe0c0585fe8a15a0db2307e96ec2c520e9ef0cccd7dbbaa"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "ce672e575674487439086450a61db0c2d9e1c704e0d565ac076591d6372d059a"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "f29c0e9432df2f925b943e334fe3170b89bcc41e2684e8951716a3f18b3ea9ad"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "db55619ab62e63d5239749b9d36dc5e429be85b310af0068df30ac1a6188704d"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "ab59eda552525f2904683bb773a9a60860dec40492a7e31977cbbb924d3ba71a"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "c5f6e31c17cfe937b90d32a32f9a19478ce7e778f2bda99b8db526514911099d"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "1248c1cefa7070200eac9bf37b09050c2986ca4dab669bc94bcc96e59b9b82c2"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "15f04552d9e1578b803ec42b265e88660bad449aef8fd7d4c18545e65c521ccf"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "141c8c5c2baaac0c620a36e202a1e5349ce9961132b6359e10c91f3c295cfd8a"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "574d1f1d9d78c18dae262448bccead9085f537f4356093de5aece730351096e4"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "98ef205aa37bb2a60b60d041877334b24fc121c76a6c6e9781eee20e3c7b8169"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "de980cd54e9145ec657b5149da95424dadb5947b436fac14566cf9e9d530a5d0"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "31b2a18ad8b6e9d6bfd447d2893e70c7d5845257281ebe789a38f85387211c47"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "77c07f4cba9986b95c750dede20c1211ef7f92d256db9de6855ca9aedd549db2"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "01443a1af6efb613c2bfaf1e2a3baba4709ad8cdd011bcc2b77cca4a63519dbd"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "cc5ce5e5628970c6e32518d0f9878b721652983f0034fa6c014d0b825962df97"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "3fd86bd1bdca2605c8a96578b64a286ece94fb2f8a2d0c62f203ee569805210f"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "9543506b5b90ef7f1916bf648996de9ac5b2aa250625eeca442a98ea5112fc62"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "51ba748a1df20bf3b0e9873c7938385691f83b7017308042bfc45bbbc889cc43"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "6c5c19b7d1485ea7ac91962e23254b352f06cdf48ba994fef1be35b111571e66"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "9100ad46f6a4c130ce2a60d8d0d8b264e3b05b58ff20067c7810c9c65225cfa9"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "ea6ecdb932279f922093ab6fa0a1b631b1396f74f5531025af60c4eaa7a33efa"
+      }
+    ],
+    "master_sha256": "569299b115ef66e050a21724f8c4f019d0f82e805bc00d5d545aafb7d061ea76",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "6147"
+        }
+      ],
+      "format": {
+        "duration": "204.900000",
+        "size": "13536210"
+      }
+    },
+    "poster_sha256": "61feb4f0eb033ead542bfcccc516c4cc7787c96008a66d3ebd7c6338a7224f0d",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "candidate_manifest_sha256": "c7675ed8aa30380bd83aae090f80f39e48b5c1fdf6e114a42fbdecd1d14fc9c8",
+  "heart_timing_sha256": "070131a98b6180fc8e77fe0c08cb65ed4629a7b91e0b566655290ba99b6c352a",
+  "candidate_browser_case": {
+    "lesson": "12_map_barcodes",
+    "audio_sha256": "61d4b04497fbfa06b5afcdf53104fd69ac8a4f26527c49373a6afa704873517e",
+    "clocks": {
+      "audio": 25.935249,
+      "video": 25.775325,
+      "expected": 25.935249,
+      "width": 2560,
+      "height": 1440,
+      "error": null,
+      "requested_audio_time": 24.525000000000002
+    },
+    "chapter_text_matches_audio": true,
+    "native_caption_reloads": 2,
+    "sentence_cue_checks": [
+      {
+        "requested_audio_time": 0.94,
+        "text": "Open Map Barcodes from Home.",
+        "audio": 1.149842,
+        "video": 1.198048,
+        "cues": [
+          "Open Map Barcodes from Home."
+        ]
+      },
+      {
+        "requested_audio_time": 3.9525,
+        "text": "This module turns sequencing reads into named barcode counts.",
+        "audio": 4.146344,
+        "video": 4.132127,
+        "cues": [
+          "This module turns sequencing reads into named barcode counts."
+        ]
+      },
+      {
+        "requested_audio_time": 9.14,
+        "text": "Barcode QC is its nested quality-control workflow; its separate lesson remains available.",
+        "audio": 9.366903,
+        "video": 9.400307,
+        "cues": [
+          "Barcode QC is its nested quality-control workflow; its separate lesson remains available."
+        ]
+      },
+      {
+        "requested_audio_time": 14.91,
+        "text": "Choose Load test data and select both mates of the first archive run.",
+        "audio": 15.120084,
+        "video": 15.019537,
+        "cues": [
+          "Choose Load test data and select both mates of the first archive run."
+        ]
+      },
+      {
+        "requested_audio_time": 18.3325,
+        "text": "Limit each file to ten thousand reads.",
+        "audio": 18.527186,
+        "video": 18.569767,
+        "cues": [
+          "Limit each file to ten thousand reads."
+        ]
+      },
+      {
+        "requested_audio_time": 21.8125,
+        "text": "This downloads a real paired sample, not the entire sequencing archive.",
+        "audio": 22.043499,
+        "video": 21.958502,
+        "cues": [
+          "This downloads a real paired sample, not the entire sequencing archive."
+        ]
+      },
+      {
+        "requested_audio_time": 26.090000000000003,
+        "text": "Choose reference tables that belong to this library.",
+        "audio": 26.305295,
+        "video": 26.330187,
+        "cues": [
+          "Choose reference tables that belong to this library."
+        ]
+      },
+      {
+        "requested_audio_time": 31.17,
+        "text": "Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults.",
+        "audio": 31.391809,
+        "video": 31.282731,
+        "cues": [
+          "Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults."
+        ]
+      },
+      {
+        "requested_audio_time": 37.31,
+        "text": "We deliberately start with a window length of one hundred twenty to show the proposal changing it.",
+        "audio": 37.517205,
+        "video": 37.481126,
+        "cues": [
+          "We deliberately start with a window length of one hundred twenty to show the proposal changing it."
+        ]
+      },
+      {
+        "requested_audio_time": 41.657500000000006,
+        "text": "Open Find barcodes and start the search.",
+        "audio": 41.883242,
+        "video": 41.907179,
+        "cues": [
+          "Open Find barcodes and start the search."
+        ]
+      },
+      {
+        "requested_audio_time": 45.517500000000005,
+        "text": "Counts update while real reads are sampled in both mates and both orientations.",
+        "audio": 45.729817,
+        "video": 45.669725,
+        "cues": [
+          "Counts update while real reads are sampled in both mates and both orientations."
+        ]
+      },
+      {
+        "requested_audio_time": 49.845000000000006,
+        "text": "The form remains unchanged during this live refinement.",
+        "audio": 50.065481,
+        "video": 50.099956,
+        "cues": [
+          "The form remains unchanged during this live refinement."
+        ]
+      },
+      {
+        "requested_audio_time": 54.66750000000001,
+        "text": "Compare Observed with By chance, then inspect the orientation, offset and verdict.",
+        "audio": 54.879618,
+        "video": 54.794297,
+        "cues": [
+          "Compare Observed with By chance, then inspect the orientation, offset and verdict."
+        ]
+      },
+      {
+        "requested_audio_time": 58.96000000000001,
+        "text": "A match rate alone does not establish a barcode.",
+        "audio": 59.178837,
+        "video": 59.188913,
+        "cues": [
+          "A match rate alone does not establish a barcode."
+        ]
+      },
+      {
+        "requested_audio_time": 65.1975,
+        "text": "Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything.",
+        "audio": 65.402472,
+        "video": 65.269732,
+        "cues": [
+          "Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything."
+        ]
+      },
+      {
+        "requested_audio_time": 71.64,
+        "text": "The read viewer shows one actual read per row.",
+        "audio": 71.860875,
+        "video": 71.754515,
+        "cues": [
+          "The read viewer shows one actual read per row."
+        ]
+      },
+      {
+        "requested_audio_time": 75.1975,
+        "text": "The legend identifies the column, guide, row and anchor colours.",
+        "audio": 75.426193,
+        "video": 75.440003,
+        "cues": [
+          "The legend identifies the column, guide, row and anchor colours."
+        ]
+      },
+      {
+        "requested_audio_time": 81.2975,
+        "text": "Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct.",
+        "audio": 81.534953,
+        "video": 81.387489,
+        "cues": [
+          "Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct."
+        ]
+      },
+      {
+        "requested_audio_time": 86.41749999999999,
+        "text": "Review the proposal.",
+        "audio": 86.641911,
+        "video": 86.589809,
+        "cues": [
+          "Review the proposal."
+        ]
+      },
+      {
+        "requested_audio_time": 89.145,
+        "text": "This sample places the extraction window at eighty-nine bases.",
+        "audio": 89.382663,
+        "video": 89.247497,
+        "cues": [
+          "This sample places the extraction window at eighty-nine bases."
+        ]
+      },
+      {
+        "requested_audio_time": 93.285,
+        "text": "Only pressing Apply these settings writes the proposed change into the form.",
+        "audio": 93.510593,
+        "video": 93.491998,
+        "cues": [
+          "Only pressing Apply these settings writes the proposed change into the form."
+        ]
+      },
+      {
+        "requested_audio_time": 97.91749999999999,
+        "text": "Automatic discovery is not automatic permission to replace your settings.",
+        "audio": 98.15182,
+        "video": 98.010398,
+        "cues": [
+          "Automatic discovery is not automatic permission to replace your settings."
+        ]
+      },
+      {
+        "requested_audio_time": 103.05749999999999,
+        "text": "The notes also require reverse-complemented row and guide references.",
+        "audio": 103.281483,
+        "video": 103.230881,
+        "cues": [
+          "The notes also require reverse-complemented row and guide references."
+        ]
+      },
+      {
+        "requested_audio_time": 106.41999999999999,
+        "text": "Apply does not create those files.",
+        "audio": 106.651779,
+        "video": 106.500416,
+        "cues": [
+          "Apply does not create those files."
+        ]
+      },
+      {
+        "requested_audio_time": 111.15499999999999,
+        "text": "Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored.",
+        "audio": 111.374195,
+        "video": 111.332528,
+        "cues": [
+          "Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored."
+        ]
+      },
+      {
+        "requested_audio_time": 118.30499999999998,
+        "text": "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled.",
+        "audio": 118.53168,
+        "video": 118.50599,
+        "cues": [
+          "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled."
+        ]
+      },
+      {
+        "requested_audio_time": 122.33499999999998,
+        "text": "Keep missing assignments missing.",
+        "audio": 122.549081,
+        "video": 122.441397,
+        "cues": [
+          "Keep missing assignments missing."
+        ]
+      },
+      {
+        "requested_audio_time": 125.58749999999998,
+        "text": "This mapping workflow uses the CPU; a GPU is not required.",
+        "audio": 125.810831,
+        "video": 125.818587,
+        "cues": [
+          "This mapping workflow uses the CPU; a GPU is not required."
+        ]
+      },
+      {
+        "requested_audio_time": 133.565,
+        "text": "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows.",
+        "audio": 133.801515,
+        "video": 133.801239,
+        "cues": [
+          "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows."
+        ]
+      },
+      {
+        "requested_audio_time": 140.6325,
+        "text": "Unmatched and ambiguous references remain unassigned.",
+        "audio": 140.855622,
+        "video": 140.899235,
+        "cues": [
+          "Unmatched and ambiguous references remain unassigned."
+        ]
+      },
+      {
+        "requested_audio_time": 144.89499999999998,
+        "text": "Completion is checked against saved files, not just the console's finished message.",
+        "audio": 145.126958,
+        "video": 145.05288,
+        "cues": [
+          "Completion is checked against saved files, not just the console's finished message."
+        ]
+      },
+      {
+        "requested_audio_time": 151.2425,
+        "text": "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor.",
+        "audio": 151.461328,
+        "video": 151.430771,
+        "cues": [
+          "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor."
+        ]
+      },
+      {
+        "requested_audio_time": 157.64,
+        "text": "Here a real second calculation selects only column and guide on one thousand paired reads.",
+        "audio": 157.868647,
+        "video": 157.883114,
+        "cues": [
+          "Here a real second calculation selects only column and guide on one thousand paired reads."
+        ]
+      },
+      {
+        "requested_audio_time": 162.0675,
+        "text": "Every entry needs a matching named pattern group.",
+        "audio": 162.304379,
+        "video": 162.193317,
+        "cues": [
+          "Every entry needs a matching named pattern group."
+        ]
+      },
+      {
+        "requested_audio_time": 165.8475,
+        "text": "Omitting row identity produces counts by column and guide, not by well.",
+        "audio": 166.092251,
+        "video": 166.087197,
+        "cues": [
+          "Omitting row identity produces counts by column and guide, not by well."
+        ]
+      },
+      {
+        "requested_audio_time": 171.44750000000002,
+        "text": "This Python verification figure displays read depth from the saved three-barcode GUI run.",
+        "audio": 171.679122,
+        "video": 171.654344,
+        "cues": [
+          "This Python verification figure displays read depth from the saved three-barcode GUI run."
+        ]
+      },
+      {
+        "requested_audio_time": 177.09000000000003,
+        "text": "Every count was independently reconciled with the annotated reads and reference names.",
+        "audio": 177.309741,
+        "video": 177.367683,
+        "cues": [
+          "Every count was independently reconciled with the annotated reads and reference names."
+        ]
+      },
+      {
+        "requested_audio_time": 184.07000000000002,
+        "text": "Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression.",
+        "audio": 184.300233,
+        "video": 184.172721,
+        "cues": [
+          "Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression."
+        ]
+      },
+      {
+        "requested_audio_time": 191.22250000000003,
+        "text": "The spaCR AI controls can help explain a run when you configure a provider.",
+        "audio": 191.458696,
+        "video": 191.437593,
+        "cues": [
+          "The spaCR AI controls can help explain a run when you configure a provider."
+        ]
+      },
+      {
+        "requested_audio_time": 196.06000000000006,
+        "text": "This recording shows an unsent question and contains no AI response.",
+        "audio": 196.285292,
+        "video": 196.152597,
+        "cues": [
+          "This recording shows an unsent question and contains no AI response."
+        ]
+      },
+      {
+        "requested_audio_time": 201.42750000000007,
+        "text": "Check reference identity, orientation, warnings and saved counts yourself before scaling up.",
+        "audio": 201.659805,
+        "video": 201.587536,
+        "cues": [
+          "Check reference identity, orientation, warnings and saved counts yourself before scaling up."
+        ]
+      }
+    ],
+    "passed": true
+  },
+  "english_read_depth_phoneme_checks": [
+    {
+      "voice": "af_aoede",
+      "audio_sha256": "73db3b4377beb98d423cd502c189a46b1de7b1c11a7a61d070158d86918fe62a",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "af_bella",
+      "audio_sha256": "92b9a1bbe0539ee235c5cba23ed951c3a55a0ca1972752982b75f3aa8e9fa928",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "af_heart",
+      "audio_sha256": "61d4b04497fbfa06b5afcdf53104fd69ac8a4f26527c49373a6afa704873517e",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "af_jessica",
+      "audio_sha256": "f32fe4a4f7fb04b882711c8edb610e498f21e05cfbd9cc0331ba89df148dd8cc",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "af_river",
+      "audio_sha256": "cb5fb4fa08b4247ae98ed2eb3adbfda68bf7106189ddfaf82c0a855846cbe6e0",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "af_sarah",
+      "audio_sha256": "498e56cc23f9bf9f91bb0f8de15a87bbb4b450775a336b83a51e5dda75d0f896",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "af_sky",
+      "audio_sha256": "3206a006021c1bb2c5237281175a214d76df626d4f8a5620d8ce3c6837746d06",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "am_adam",
+      "audio_sha256": "c481755928f04d2403125d4049ef0db18b1c4e2c98e7c2a64a8a9e30c26af501",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "am_echo",
+      "audio_sha256": "cff84607939deeaae99e89508f0692918a10d72cfa5b486b264c25841e4b28a1",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "am_eric",
+      "audio_sha256": "c45d204efacd92c3efdcdf0dfb9e2be5c1f7ce9affa15af5df35f6a3f09107ad",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "am_fenrir",
+      "audio_sha256": "aae012b09747811548d2a3b3f83be76b465df2e5b880bb7a658742d9d1a0a673",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "am_liam",
+      "audio_sha256": "9326e869a1894428d2ce5ace27b2acd63d08cbe8bac02f2d5d8dda406f7b0fde",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "am_michael",
+      "audio_sha256": "6ced0f218ef3ec7fee3c4542ee4c014bc030dd2e42441f8e075f292a5b7cdc85",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "am_onyx",
+      "audio_sha256": "dc7dae129a027531ec51f30b33b53f4b423d9d3afc7e63f306d9c006accc0311",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "am_puck",
+      "audio_sha256": "1760ea2012bb55aa76dd52ba25cb568ca681847b39df7e3881a56a37a8d2ba08",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "am_santa",
+      "audio_sha256": "6723020e3b30037dff26f4535eb9352936a39c1900f65e320ec226a43a58121f",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+    },
+    {
+      "voice": "bf_alice",
+      "audio_sha256": "066a471af4c12f3dce0a9f8cbef2d0f3677aac330a8bf6900178c328b0a4832f",
+      "phonemes": "ðˌɪs pˈIθn vˌɛɹɪfɪkˈAʃᵊn fˈɪɡə dɪsplˈAz ɹˈid dˈɛpθ fɹɒm ðə sˈAvd θɹˌiːbˈɑːkQd ɡˈuːi ɹˈʌn."
+    },
+    {
+      "voice": "bf_emma",
+      "audio_sha256": "13a91d3310c40859387fdc27896f6c388b556122ae6a84a1fcc4414b94697396",
+      "phonemes": "ðˌɪs pˈIθn vˌɛɹɪfɪkˈAʃᵊn fˈɪɡə dɪsplˈAz ɹˈid dˈɛpθ fɹɒm ðə sˈAvd θɹˌiːbˈɑːkQd ɡˈuːi ɹˈʌn."
+    },
+    {
+      "voice": "bf_isabella",
+      "audio_sha256": "925b33c6106299283af9d11b9e3b05de3275164159701f8535207c6f7b68d559",
+      "phonemes": "ðˌɪs pˈIθn vˌɛɹɪfɪkˈAʃᵊn fˈɪɡə dɪsplˈAz ɹˈid dˈɛpθ fɹɒm ðə sˈAvd θɹˌiːbˈɑːkQd ɡˈuːi ɹˈʌn."
+    },
+    {
+      "voice": "bf_lily",
+      "audio_sha256": "143b3b23d497a4853add9cd94e1bde7b78c5b30d3d2f4f49a2e98621576a21c3",
+      "phonemes": "ðˌɪs pˈIθn vˌɛɹɪfɪkˈAʃᵊn fˈɪɡə dɪsplˈAz ɹˈid dˈɛpθ fɹɒm ðə sˈAvd θɹˌiːbˈɑːkQd ɡˈuːi ɹˈʌn."
+    },
+    {
+      "voice": "bm_daniel",
+      "audio_sha256": "97a0f3f83c1218580a498562386dd1c6ec28a272af54100f5b9885e7f678d4ac",
+      "phonemes": "ðˌɪs pˈIθn vˌɛɹɪfɪkˈAʃᵊn fˈɪɡə dɪsplˈAz ɹˈid dˈɛpθ fɹɒm ðə sˈAvd θɹˌiːbˈɑːkQd ɡˈuːi ɹˈʌn."
+    },
+    {
+      "voice": "bm_fable",
+      "audio_sha256": "31fbea09a94778bbc494d7656e4b6ed29424b0526d0237e148a5e3f95ceac359",
+      "phonemes": "ðˌɪs pˈIθn vˌɛɹɪfɪkˈAʃᵊn fˈɪɡə dɪsplˈAz ɹˈid dˈɛpθ fɹɒm ðə sˈAvd θɹˌiːbˈɑːkQd ɡˈuːi ɹˈʌn."
+    },
+    {
+      "voice": "bm_george",
+      "audio_sha256": "9d3c81bc41a9716435d9ef09905be21718b52668011619121370338113f4dca9",
+      "phonemes": "ðˌɪs pˈIθn vˌɛɹɪfɪkˈAʃᵊn fˈɪɡə dɪsplˈAz ɹˈid dˈɛpθ fɹɒm ðə sˈAvd θɹˌiːbˈɑːkQd ɡˈuːi ɹˈʌn."
+    },
+    {
+      "voice": "bm_lewis",
+      "audio_sha256": "6d8fb4d9eb4108ff13a682aae51fc6755f9f35791b00d919f50926d485352d25",
+      "phonemes": "ðˌɪs pˈIθn vˌɛɹɪfɪkˈAʃᵊn fˈɪɡə dɪsplˈAz ɹˈid dˈɛpθ fɹɒm ðə sˈAvd θɹˌiːbˈɑːkQd ɡˈuːi ɹˈʌn."
+    }
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false
+}

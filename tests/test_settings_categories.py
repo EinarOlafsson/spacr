@@ -169,6 +169,17 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: legitimately dropping out of the category map is distinguishable from one
 #: that fell out by accident -- which is the whole point of this file.
 KEYS_RETIRED = frozenset({
+    # Feature 418 removes post-segmentation watershed splitting and merging
+    # by boundary intensity. Mean-intensity bounds are new controls, not
+    # replacement names for any value held by these retired settings.
+    "cell_minimum_area_to_split", "cell_min_watershed_distance",
+    "cell_intensity_threshold", "cell_intensity_merge", "cell_intensity_split",
+    "nucleus_minimum_area_to_split", "nucleus_min_watershed_distance",
+    "nucleus_intensity_threshold", "nucleus_intensity_merge", "nucleus_intensity_split",
+    "pathogen_minimum_area_to_split", "pathogen_min_watershed_distance",
+    "pathogen_intensity_threshold", "pathogen_intensity_merge", "pathogen_intensity_split",
+    "organelle_minimum_area_to_split", "organelle_min_watershed_distance",
+    "organelle_intensity_threshold", "organelle_intensity_merge", "organelle_intensity_split",
     # RENAMED to `nontargeting_control_grnas` on 2026-09-10, instruction
     # 364, and the last of the seven. `controls` is a common word doing
     # four jobs -- a figure panel key, a sweep payload field, a dependency
@@ -304,10 +315,36 @@ KEYS_RETIRED = frozenset({
     #                        itself from `diameter`.
     "compartments", "compression", "split_axis_lims",
     "upscale", "upscale_factor",
+    # RETIRED outright on 2026-09-14, instruction 364, approved by the
+    # maintainer on 2026-09-09 with the rest of the retirement group. `grna`
+    # was DECLARED ONLY BY `get_map_barcodes_default_settings`, which nothing
+    # under `spacr/` calls, and its own tooltip said so in as many words:
+    # "it exists only in get_map_barcodes_default_settings, which no pipeline
+    # calls, so changing it has no effect on any run".
+    # `settings['grna']` and `settings.get('grna')` appear nowhere.
+    # The live equivalent is `grna_csv`, read by `generate_barecode_mapping`.
+    #
+    # IT IS HERE AND NOT IN A RENAME LIST because nothing replaces it for a
+    # user: `grna_csv` was always the key that worked, so an old settings CSV
+    # naming `grna` was never doing anything and `validate.RETIRED_SETTINGS`
+    # maps it to "" -- withdrawn, no replacement -- rather than pointing at a
+    # key the user was probably already setting.
+    #
+    # NOT `barcodes`, its sibling in the same dead factory and approved in the
+    # same breath. That one is HELD: a reviewed zh_CN translation is pinned to
+    # its tooltip in docs/i18n/reviewed/runtime/, so retiring it withdraws a
+    # reviewed record and is a translation decision, not a deletion.
+    "grna",
 })
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # Feature 418: absolute object-mean intensity bounds in each own channel.
+    # Numbered organelle slots use the existing dynamic registry expansion.
+    "cell_min_intensity", "cell_max_intensity",
+    "nucleus_min_intensity", "nucleus_max_intensity",
+    "pathogen_min_intensity", "pathogen_max_intensity",
+    "organelle_min_intensity", "organelle_max_intensity",
     # 364, 2026-09-12: three organelle preprocessing settings that
     # `spacr/io.py` had READ since the per-channel loop was written and
     # nothing declared, so organelle was the only object channel whose
@@ -330,25 +367,19 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "bystander_measurements",
     "bystander_reach_in_diameters",
     # ---- optical pooled screening, folded onto Align & Stitch ----------
-    # All 57 arrive together from `spacr.ops_settings.OPS_CATEGORIES` and
-    # are declared as one block rather than reasoned about one at a time:
-    # they are a whole module's settings, not a regrouping of existing
-    # ones, and every one of them is new to the map.
+    # They arrived together from `spacr.ops_settings.OPS_CATEGORIES`
+    # and were declared as one block rather than reasoned about one at a
+    # time: they were a whole module's settings, not a regrouping of
+    # existing ones. When the old OPS engine was deleted (372) the
+    # 53 only it read left the map with it; these 5 and
+    # `ops_gpu` below are what `spacr.ops_engine.run_ops` reads.
     #
-    # `src`, `plate`, `dry_run`, `score_threshold` and `verbose` are NOT
-    # here, and that is the point of the list. OPS shares those five with
-    # the rest of spaCR and they keep their existing homes; listing a
+    # `plate` is NOT here, and that is the point of the list. OPS shares it
+    # with the rest of spaCR and it keeps its existing home; listing a
     # setting under two headings is not a display preference, because Tk
     # renders each copy and Qt drops all but the first.
-    "all_scores", "allow_rotation", "allow_scale", "arr_axes", "blend",
-    "blur_sigma", "canny", "cellpose_diameter", "cellpose_model",
-    "channel_index", "channel_indices", "collision", "detector",
-    "dilate_ksize", "do_multichannel", "do_nuc_stitch", "do_organize",
-    "downsample", "dst_root", "exts", "feature_cache_dir",
-    "feature_cache_mode", "genotype_source", "line_thickness",
-    "max_keypoints", "max_ram_features", "max_site_gap", "meta_regex",
-    "mip", "mosaic", "mosaic_csv_out", "mosaic_min_score", "mosaic_out",
-    "n_workers", "n_workers_features", "nfeatures", "on_missing",
+    "cellpose_diameter", "cellpose_model", "dst_root", "genotype_source",
+    "n_workers",
     # `ops_gpu` arrived after the other 57, on 2026-09-09: OPS shipped with
     # no hardware control at all, and both its GPU-capable steps -- the tile
     # registration's FFTs and the Cellpose outlines -- were deciding for
@@ -366,12 +397,6 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # fitting. One key meant both, with different defaults and no way to
     # set one without setting the other.
     "stain_baseline_wells", "analysis_excluded_wells",
-    "opencv_threads", "out_png", "out_tif", "outline_alpha",
-    "outline_source", "pair_batch_size", "phenotype_source",
-    "preview_downsample", "ransac_thresh_px", "recursive",
-    "relative_scale", "save_qc", "save_stitched_default",
-    "squeeze_singleton", "stitch", "stream_csv", "t_index", "tmp_dir",
-    "well_group", "write_mosaic", "z_index",
 
     # ---- the plaque assay's models and its physical ruler --------------
     # `plaque_model` selects the segmenter, so it sits with `custom_model`
@@ -667,6 +692,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # organelle setting that belongs to no slot and it leads the heading
     # whose size it decides.
     "number_of_organelles",
+    # ---- 2026-09-15, items 404/405 ------------------------------------
+    # A NEW SETTING, not a regrouping: `segmentation_backend` picks what
+    # `generate_cellpose_masks_sam` builds -- 'cellpose' (default),
+    # 'dinocell' or 'samcell'. It sits in General beside the per-object
+    # channel and mask-dimension keys it applies to, rather than under
+    # Cell/Nucleus/Pathogen, because one value serves all three objects.
+    "segmentation_backend",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -974,8 +1006,8 @@ def test_the_one_visible_choice_is_in_the_basic_heading():
 #: `cell_min_size` are one decision, not two.
 #:
 #: Read off `CATEGORY_PARENTS` rather than listed again: that table is what
-#: says which headings are advanced families, and a third one was added the
-#: moment the per-object preprocessing group existed.
+#: says which headings are advanced families, including the shared object
+#: filters and per-object image preprocessing.
 ADVANCED_FAMILY_HEADINGS = tuple(S.CATEGORY_PARENTS)
 
 
@@ -1314,13 +1346,12 @@ def _rendered_sections(app_key):
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
-            # The three advanced families, in the order the layout writes
+            # The two advanced families, in the order the layout writes
             # them. They nest under one "Advanced settings" umbrella in
             # `build_sections`; this mirror is the FLAT category map, which
             # is where they are declared.
             "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
-            "Intensity Handling (all objects)",
             "Quality Control", "Volumetric Processing (Beta)",
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
             "Output & Storage", "Runtime & Reliability",
@@ -1346,13 +1377,12 @@ def _rendered_sections(app_key):
                 "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
-            # The three advanced families, in the order the layout writes
+            # The two advanced families, in the order the layout writes
             # them. They nest under one "Advanced settings" umbrella in
             # `build_sections`; this mirror is the FLAT category map, which
             # is where they are declared.
             "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
-            "Intensity Handling (all objects)",
             "Quality Control", "Tracking Setup", "Tracking Backends",
             "Visualization & Diagnostics", "Output & Storage",
             "Runtime & Reliability",

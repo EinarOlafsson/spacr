@@ -149,8 +149,6 @@ def what_to_drop(entries, now: float, idle_minutes: Optional[float] = None,
     kept = [row for row in rows if row[0] not in set(doomed)]
     total = sum(size for _key, size, _used in kept)
     if total > float(ceiling_mb):
-        # Least recently used first, which is the one least likely to be
-        # wanted next.
         for key, size, _used in sorted(kept, key=lambda row: row[2]):
             if total <= float(ceiling_mb):
                 break

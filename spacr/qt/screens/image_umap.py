@@ -34,12 +34,6 @@ HOST_KEY = "umap"
 #: block -- which is the order a user narrows a table in.
 FOLDED_APPS: Tuple[str, ...] = ("image_scatter", "pca")
 
-# What each of those two said as a TILE -- the name, the sentence and the
-# maturity colour a button has to go on carrying once the row is dropped --
-# lives in `spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, because
-# `map_barcodes.fold_description` is what `install_fold_strip` restates
-# these buttons through, and that is the only table it reads. A second copy
-# stood here and nothing consulted it.
 
 #: Where a measurements database sits relative to a project folder, best
 #: first. Written out here rather than imported because the one existing

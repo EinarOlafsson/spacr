@@ -10,6 +10,27 @@ Assembles three things that already exist into one surface:
 * :mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells
   in the UMAP and on the plate map, and a lasso there highlights them here.
 
+**What it is for.** Exploring a measurement table without plotting code,
+usually after Measure or Classify: drag columns onto the chart and it
+redraws as each one lands.
+
+**What it needs.** One table of a ``measurements.db`` or a CSV or TSV file,
+chosen with Load table. The object tables and ``png_list`` are offered first;
+every other table in the database stays available.
+
+**What it produces.** A chart with six drop zones: x, y, colour, size, facet
+row and facet column. Only x and y decide the chart type -- one continuous
+column gives a histogram, one categorical column a bar chart of counts, two
+continuous columns a scatter plot, one of each a box plot and two categorical
+columns a heatmap of counts -- and violin and line plots are explicit choices.
+A brushed rectangle becomes the shared selection, highlighted in the UMAP and
+on the plate map.
+
+**What to do next.** Press Open selection in Annotate to see the brushed
+objects as image crops, narrow every view with the Local Data Filter beside
+the chart, or move to Gate Editor when a population should become a named
+gate that can be saved and re-applied.
+
 The screen goes into the app registry through
 :func:`spacr.qt.app.register_app` rather than through a row in the table
 inside ``app.py``, and its styling goes through
@@ -176,19 +197,9 @@ class GraphBuilderScreen(QWidget):
         """
         super().__init__(parent)
         self.setObjectName("GraphBuilderScreen")
-        # ITS OWN REGISTRY KEY. Screens that build themselves rather
-        # than being the generic `AppScreen` had no `app_key`, and
-        # `install_folds_on` dispatches on exactly that -- so this screen
-        # could declare folds (it does, below) and never be handed them.
-        # Every other consumer of `app_key` reads it the same way the
-        # generic screen sets it, so naming it here is the screen
-        # answering a question it always could.
         self.app_key = "graph_builder"
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
-        # Every table read goes through here, so it never runs on the GUI
-        # thread and always shows up in the run registry (and so in the
-        # background-activity spinner).
         self._jobs = JobRunner(self, threaded=threaded, app_key="graph_builder")
         self._jobs.job_failed.connect(self._on_load_failed)
 
@@ -240,14 +251,6 @@ class GraphBuilderScreen(QWidget):
         body.addWidget(self.builder)
 
         self.filters = DataFilterPanel(self, link=link)
-        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
-        # settings column eating the figure beside it, and 320 px is the
-        # right answer at 100 %% -- and only there. The glyphs inside it
-        # double at 200 %% and the box did not, which is the same defect
-        # instruction 350 already fixed on UsageBar's fixed 48 px caption
-        # column. Measured on Control Charts: the column's own sizeHint
-        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
-        # cap that stayed 330 in all three.
         from ..preferences import scaled_px
         self.filters.setMaximumWidth(scaled_px(320))
         body.addWidget(self.filters)
@@ -256,17 +259,11 @@ class GraphBuilderScreen(QWidget):
         outer.addWidget(body, 1)
 
         self.builder.canvas.rendered.connect(self._on_rendered)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "graph_builder")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data -----------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Plot ``frame``. The one call a host needs."""
         self._frame = frame
@@ -312,14 +309,7 @@ class GraphBuilderScreen(QWidget):
         load it belongs to has been superseded.
         """
         self._path = path
-        # A second load supersedes the first. Without this, switching table
-        # twice in quick succession delivers the frames in whatever order the
-        # reads happen to finish, and the picker ends up disagreeing with the
-        # panel below it.
         self._jobs.cancel()
-        # The table can only be named here when the caller already knew it --
-        # the picker, or a drop that asked. Otherwise the worker is the first
-        # thing that can find out, so the label says it a moment later.
         self._source.setText(
             f"loading {os.path.basename(path)}"
             + (f" · {table}" if table else "") + "…")
@@ -359,10 +349,6 @@ class GraphBuilderScreen(QWidget):
         checks the generation ``cancel`` bumped before it calls this -- which
         is why the failure branch may safely name ``self._path``.
         """
-        # Blocked, because `addItems` moves the current index and
-        # `currentTextChanged` is wired to `_on_table_picked` -- unblocked
-        # this populates the picker by starting another load of the table it
-        # has just loaded.
         self._table_picker.blockSignals(True)
         self._table_picker.clear()
         self._table_picker.addItems(loaded.names)
@@ -413,7 +399,6 @@ class GraphBuilderScreen(QWidget):
         if self._path and name:
             self.load_path(self._path, table=name)
 
-    # -- selection routing ------------------------------------------------
     def _on_rendered(self, _data) -> None:
         """Enable the Annotate hand-off once something is brushed.
 
@@ -448,10 +433,6 @@ class GraphBuilderScreen(QWidget):
             self._source.setText(f"could not open those objects: {exc}")
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        # Abandon an in-flight read rather than let it outlive the
-        # screen: Qt aborts the process if a running QThread is
-        # destroyed, and a worker that delivers into a closed widget
-        # is a use-after-free.
         """Stop background work and unlink before going away.
 
         :param event: the Qt close event.
@@ -466,11 +447,6 @@ def make_graph_builder_screen(app_key: Optional[str] = None) -> QWidget:
     return GraphBuilderScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc
@@ -514,9 +490,6 @@ def register() -> bool:
     return register_declared(__name__) is not None
 
 
-# ---------------------------------------------------------------------------
-# Folded modules
-# ---------------------------------------------------------------------------
 
 HOST_KEY = "graph_builder"
 
@@ -536,10 +509,6 @@ FOLDED_APPS: Tuple[str, ...] = ('plate_view', 'trellis')
 
 def _build_plate_view(host_window: Optional[QWidget] = None) -> QWidget:
     """Plate View, as the window builds it."""
-    # IMPORTED HERE, like `install_fold_strip` below. This module was
-    # calling `build_registered_screen` without importing it at all, so
-    # both folded modules raised NameError the moment their button was
-    # pressed -- reported from the Measure console.
     from .map_barcodes import build_registered_screen
 
     return build_registered_screen("plate_view", host_window)

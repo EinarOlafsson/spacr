@@ -4,7 +4,6 @@ import os, re, sqlite3, torch, torchvision, random, shutil, cv2, tarfile, glob, 
 
 import numpy as np
 
-# np.trapz was removed in numpy 2.0; np.trapezoid is the replacement.
 _trapezoid = getattr(np, 'trapezoid', None) or np.trapz
 import pandas as pd
 from contextlib import contextmanager, nullcontext
@@ -60,8 +59,6 @@ class _DeferredModule:
         return f"<deferred module {self.__dict__['_name']!r} ({state})>"
 
 
-# Only _get_cellpose_model reads this proxy. Database, plotting and embedding
-# callers of utils.py no longer import Cellpose (and its model stack) at all.
 cp_models = _DeferredModule('cellpose.models')
 
 from skimage import morphology
@@ -71,7 +68,7 @@ from skimage.transform import resize as resizescikit
 from skimage.morphology import dilation
 try:
     from skimage.morphology import footprint_rectangle
-except ImportError:  # scikit-image 0.22-0.24
+except ImportError:
     from skimage.morphology import square as _legacy_square
 
     def _square_footprint(size):
@@ -109,17 +106,10 @@ from statsmodels.stats.multitest import multipletests
 from itertools import combinations
 from functools import reduce
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib only
-# inside its own functions, so naming it here costs nothing at
-# import time.
 from .figures.style import figure_style, theme_target
 try:
     from IPython.display import display
 except Exception:
-    # IPython may be mid-init (partially imported by another
-    # thread) — use a no-op fallback so importing this module
-    # never blocks. spaCR only calls display() from notebook
-    # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
         """Do nothing: IPython is unavailable, so there is nowhere to display to.
 
@@ -228,7 +218,6 @@ def _run_random_state(default=None):
     from .runctx import random_state
     return random_state(default)
 
-#from spacr import __file__ as spacr_path
 spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
 
 #: Import roots spaCR refuses to let an optional dependency drag in.
@@ -337,10 +326,6 @@ class _LazyModule:
         name = self.__dict__['_name']
         root = name.split('.', 1)[0]
 
-        # ``sys.modules[root] = None`` is Python's explicit "this import is
-        # unavailable" sentinel. Respect it before inspecting distribution
-        # metadata: an explicitly blocked import is absent for this process,
-        # even if an old distribution happens to be present on disk.
         import sys as _sys
         if root in _sys.modules and _sys.modules[root] is None:
             self.__dict__['_module'] = None
@@ -355,9 +340,6 @@ class _LazyModule:
             try:
                 current = _distribution_version(distribution)
             except Exception:
-                # Let the real import below provide Python's normal missing
-                # package error; this check is specifically about an installed
-                # but unsupported version.
                 current = None
             if current is not None:
                 current_release = _release_version(current)
@@ -386,10 +368,6 @@ class _LazyModule:
                 try:
                     module = import_module(name)
                 except Exception:
-                    # An import can fail after populating several package
-                    # children. Remove only entries created by this attempt;
-                    # leaving them behind can turn the next attempt into a
-                    # different, misleading failure.
                     self.__dict__['_module'] = None
                     for key in tuple(_sys.modules):
                         if ((key == root or key.startswith(root + '.'))
@@ -460,9 +438,6 @@ from skimage.feature import peak_local_max
 from joblib import Parallel, delayed
 import tifffile
 
-# The one definition of what a spaCR database key is. Imported at module
-# scope rather than lazily because every key built in this file goes through
-# it and it costs nothing: schema.py is stdlib-only by design.
 from . import schema, tabular
 from .tiff_io import write_tiff
 
@@ -582,17 +557,6 @@ def _compute_shared_boundaries(label_img):
     return shared
 
 
-def _get_boundary_coords(label_img, la, lb):
-    """Get pixel coordinates along the shared boundary between two labels."""
-    coords = []
-    for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-        shifted = np.roll(np.roll(label_img, dy, axis=0), dx, axis=1)
-        mask = ((label_img == la) & (shifted == lb)) | ((label_img == lb) & (shifted == la))
-        ys, xs = np.where(mask)
-        coords.extend(zip(ys, xs))
-    return coords
-
-
 def _merge_by_perimeter(label_img, perimeter_fraction, parent):
     """Mark label pairs for merging based on shared perimeter fraction."""
     perimeters = _compute_label_perimeters(label_img)
@@ -604,135 +568,6 @@ def _merge_by_perimeter(label_img, perimeter_fraction, parent):
         smaller_perim = min(perim_a, perim_b)
         if shared_px / smaller_perim >= perimeter_fraction:
             _union_find_merge(parent, la, lb)
-
-
-def _merge_by_intensity(label_img, intensity_img, parent,
-                        intensity_threshold=None):
-    """Merge touching labels whose shared boundary is brighter than a
-    threshold, i.e. where there is no real edge between them.
-
-    AN ABSOLUTE THRESHOLD, IN THE IMAGE'S OWN INTENSITY UNITS -- the numbers
-    in the TIFF, the ones a pixel inspector shows. This replaced a pair of
-    RELATIVE schemes (the mean of the dimmer object, or a percentile of it),
-    and the reason is that neither was a number a user could read off an
-    image and type in: they could only be tuned by trial, because the
-    reference moved with whatever else happened to be in the field.
-
-    ITS KNOWN COST, accepted deliberately: a threshold in raw counts does NOT
-    carry between acquisitions taken at different exposure or gain. That is
-    the price of a number that can be read off an image, and the setting's
-    tooltip says so rather than letting a user assume it travels.
-
-    :param intensity_threshold: boundary mean at or above which a pair is
-        merged, in raw image units. ``None`` merges nothing and says so --
-        there is no safe default, because the right number depends on the
-        acquisition.
-    :returns: a one-line report of what happened, for the caller to print.
-    """
-    shared = _compute_shared_boundaries(label_img)
-
-    # EVERY BOUNDARY IS MEASURED EVEN WHEN NONE WILL MERGE, because the
-    # report is the point: a threshold that matches nothing has to be able to
-    # say what the boundaries actually were, or the user has no way to pick a
-    # better number except by guessing again.
-    boundaries = {}
-    for (la, lb), _ in shared.items():
-        coords = _get_boundary_coords(label_img, la, lb)
-        if not coords:
-            continue
-        ys, xs = zip(*coords)
-        boundaries[(la, lb)] = float(np.mean(intensity_img[ys, xs]))
-
-    if not boundaries:
-        return "  Intensity merge: no touching objects, nothing to merge"
-
-    values = list(boundaries.values())
-    low, high = min(values), max(values)
-
-    if intensity_threshold is None:
-        return (f"  Intensity merge: REFUSED -- no intensity threshold set. "
-                f"Shared boundaries in this field run {low:.1f} to {high:.1f} "
-                f"in raw units; set the threshold within that range to merge "
-                f"anything.")
-
-    merged = 0
-    for (la, lb), boundary_intensity in boundaries.items():
-        if boundary_intensity >= intensity_threshold:
-            _union_find_merge(parent, la, lb)
-            merged += 1
-
-    # IT MUST BE ABLE TO REFUSE, AND SAY WHICH REFUSAL IT IS. A threshold
-    # above everything merges nothing and one below everything merges the
-    # field into one object; both were silent before, and both look like the
-    # setting having no effect rather than having far too much.
-    if merged == 0:
-        return (f"  Intensity merge: threshold {intensity_threshold:g} is ABOVE "
-                f"every shared boundary in this field (brightest {high:.1f}), "
-                f"so nothing was merged. Lower it to merge anything.")
-    if merged == len(boundaries):
-        return (f"  Intensity merge: threshold {intensity_threshold:g} is at or "
-                f"BELOW every shared boundary (dimmest {low:.1f}), so all "
-                f"{merged} touching pairs merged. Raise it to merge less.")
-    return (f"  Intensity merge: {merged}/{len(boundaries)} touching pairs "
-            f"merged at threshold {intensity_threshold:g} "
-            f"(boundaries {low:.1f} to {high:.1f})")
-
-
-def _split_by_watershed(label_img, min_watershed_distance=10,
-                        minimum_area_to_split=100):
-    """Split labels larger than an absolute area, by distance-transform
-    watershed seeded at local maxima.
-
-    THE THRESHOLD IS ABSOLUTE NOW, AND THAT IS A BEHAVIOUR CHANGE. It used to
-    be ``max(area_multiplier * median_area, min_object_area)`` -- a multiple of
-    the median object area in whatever field happened to be under the lens.
-    That moved with the field: the same object was split in a dish of small
-    cells and kept in a dish of large ones, and no number the user typed could
-    pin it down. Removing ``area_multiplier`` removes the median term, so the
-    threshold is the area the user asked for and nothing else.
-
-    :param min_watershed_distance: minimum pixel separation between seeds.
-    :param minimum_area_to_split: objects at or below this area are never
-        split. Absolute, in pixels.
-    """
-    labels_present = np.unique(label_img)
-    labels_present = labels_present[labels_present > 0]
-    if len(labels_present) == 0:
-        return label_img
-
-    areas = ndimage.sum(np.ones_like(label_img), label_img, labels_present)
-    area_map = dict(zip(labels_present.astype(int), areas.astype(int)))
-    threshold = minimum_area_to_split
-    min_distance = min_watershed_distance
-
-    output = label_img.copy()
-    next_label = int(label_img.max()) + 1
-
-    for lbl, area in area_map.items():
-        if area <= threshold:
-            continue
-
-        obj_mask = (label_img == lbl)
-        dist = ndimage.distance_transform_edt(obj_mask)
-
-        local_max_coords = peak_local_max(dist, min_distance=min_distance,
-                                          labels=obj_mask.astype(int))
-        if len(local_max_coords) <= 1:
-            continue
-
-        seeds = np.zeros_like(label_img, dtype=np.int32)
-        for i, (y, x) in enumerate(local_max_coords, start=1):
-            seeds[y, x] = i
-
-        ws = watershed(-dist, markers=seeds, mask=obj_mask)
-
-        ws_labels = np.unique(ws)
-        ws_labels = ws_labels[ws_labels > 0]
-        for wl in ws_labels:
-            output[ws == wl] = next_label
-            next_label += 1
-
-    return output
 
 
 def _relabel_sequential(label_img):
@@ -756,32 +591,53 @@ def _apply_union_find(label_img, parent):
     merged = mapping[label_img]
     return _relabel_sequential(merged.astype(np.uint16))
     
-def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
-                    remove_border=False):
-    """Remove objects by area and border contact.
+def _validated_intensity_bounds(minimum, maximum):
+    """Coerce saved bounds without treating nonfinite or negative values as off."""
+    message = "Intensity bounds must be finite nonnegative numbers"
+    try:
+        bounds = tuple(0.0 if value is None else float(value)
+                       for value in (minimum, maximum))
+    except (TypeError, ValueError) as error:
+        raise ValueError(message) from error
+    if any(not np.isfinite(value) or value < 0 for value in bounds):
+        raise ValueError(message)
+    return bounds
 
-    THE INTENSITY-PERCENTILE BAND WAS REMOVED IN 391. ``intensity_img`` is
-    kept in the signature because callers pass it positionally and it costs
-    nothing; nothing here reads it any more.
+
+def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
+                    remove_border=False, *, min_intensity=0, max_intensity=0):
+    """Remove objects by area, absolute mean intensity and border contact.
+
+    Intensity bounds use the object's own-channel plane, in the units of
+    that plane. The caller must supply the original pixel values, not a
+    display-normalized image. Unlike the percentile quota removed in 391,
+    these bounds can retain every object or remove every object in a field.
 
     Parameters
     ----------
     label_img : ndarray (uint16)
         Label image.
-    intensity_img : ndarray (float32) or None
-        Accepted and unused; see the note above.
+    intensity_img : ndarray or None
+        Own-channel intensity plane, with exactly the label image's shape.
+        Required only when an intensity bound is enabled and objects exist.
     min_area : int
         Remove objects with area < min_area. 0 = disabled.
     max_area : int
         Remove objects with area > max_area. 0 = disabled.
     remove_border : bool
         Remove objects touching any image edge.
+    min_intensity, max_intensity : float
+        Remove objects whose mean is below/above the respective bound.
+        Equality is retained; 0 disables that side. Object means must be
+        finite; nonfinite background pixels do not contribute to a mean.
 
     Returns
     -------
     ndarray (uint16)
         Filtered and relabelled image.
     """
+    min_intensity, max_intensity = _validated_intensity_bounds(
+        min_intensity, max_intensity)
     labels_present = np.unique(label_img)
     labels_present = labels_present[labels_present > 0]
 
@@ -790,12 +646,10 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
 
     remove = set()
     
-    # Pre-compute areas
     areas = {}
     for lbl in labels_present:
         areas[int(lbl)] = int(np.sum(label_img == lbl))
 
-    # Area filter
     removed_by_area = 0
     if min_area > 0:
         for lbl, area in areas.items():
@@ -811,33 +665,37 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
         print(f"  Area filter: removed {removed_by_area}/{len(labels_present)} objects "
               f"(min_area={min_area}, max_area={max_area})")
 
-    # Border filter
+    if min_intensity > 0 or max_intensity > 0:
+        if intensity_img is None or np.shape(intensity_img) != label_img.shape:
+            raise ValueError("An intensity plane with the same shape as the mask is required")
+        means = ndi.mean(np.asarray(intensity_img, dtype=np.float64),
+                         labels=label_img, index=labels_present)
+        if not np.all(np.isfinite(means)):
+            raise ValueError("Intensity filtering requires finite object mean intensities")
+        rejected = np.zeros(len(labels_present), dtype=bool)
+        if min_intensity > 0:
+            rejected |= means < min_intensity
+        if max_intensity > 0:
+            rejected |= means > max_intensity
+        intensity_labels = set(labels_present[rejected].tolist())
+        additional = len(intensity_labels - remove)
+        remove.update(intensity_labels)
+        if additional:
+            print(f"  Intensity filter: removed {additional} additional objects "
+                  f"(min_intensity={min_intensity}, max_intensity={max_intensity})")
+
     if remove_border:
-        h, w = label_img.shape
         border_labels = set()
-        border_labels.update(np.unique(label_img[0, :]).tolist())
-        border_labels.update(np.unique(label_img[-1, :]).tolist())
-        border_labels.update(np.unique(label_img[:, 0]).tolist())
-        border_labels.update(np.unique(label_img[:, -1]).tolist())
+        for axis in range(label_img.ndim):
+            border_labels.update(np.unique(label_img.take(0, axis=axis)).tolist())
+            border_labels.update(np.unique(label_img.take(-1, axis=axis)).tolist())
         border_labels.discard(0)
         new_border = border_labels - remove
         remove.update(border_labels)
         if len(new_border) > 0:
             print(f"  Border filter: removed {len(new_border)} additional objects")
 
-    # THE INTENSITY-PERCENTILE BAND IS GONE (391), and it was worse than
-    # merely relative. It dropped objects outside a quantile band of the
-    # FIELD'S OWN distribution, so it always removed roughly its share however
-    # bright the field: a 0/99 setting dropped the brightest object in every
-    # field whatever its intensity, and with two objects in a field it dropped
-    # one of them unconditionally. A filter that cannot decline to fire is not
-    # a filter, it is a quota.
-    #
-    # Nothing replaces it here. Area and border remain, and intensity is now
-    # the merge step's business, where an absolute threshold in raw units can
-    # say what it matched and what it did not.
 
-    # Apply removal
     total_removed = len(remove)
     total_original = len(labels_present)
     if remove:
@@ -845,48 +703,45 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
         label_img[mask] = 0
     
     result = _relabel_sequential(label_img)
-    remaining_count = len(np.unique(result)) - 1  # exclude 0
+    remaining_count = len(np.unique(result[result > 0]))
     print(f"  Filter summary: {total_original} objects → {remaining_count} objects ({total_removed} removed)")
     
     return result
 
-def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
-                                  do_split, do_perimeter_merge, do_intensity_merge,
-                                  perimeter_fraction, min_watershed_distance,
-                                  minimum_area_to_split, intensity_threshold,
-                                  min_area, max_area, remove_border_objects,
-                                  progress_callback=None, fov_index=0, total_fovs=0, op_name=''):
-    """Process one field of view in memory: split → merge → filter."""
+def _process_single_fov_in_memory(mask, intensity_img=None, intensity_channel=None,
+                                  do_perimeter_merge=False, perimeter_fraction=0.5,
+                                  min_area=0, max_area=0, remove_border_objects=False,
+                                  progress_callback=None, fov_index=0, total_fovs=0,
+                                  op_name='', *, min_intensity=0, max_intensity=0):
+    """Copy one label field, merge by perimeter, then apply shared object filters.
+
+    Intensity input is an original own-channel plane or an explicitly
+    indexed channel-last array. Its dtype is preserved until the shared
+    filter accumulates object means in float64; layout is never guessed.
+    """
 
     start = time.time()
 
     if mask is None:
         return None
 
+    min_intensity, max_intensity = _validated_intensity_bounds(
+        min_intensity, max_intensity)
     label_img = np.asarray(mask).astype(np.uint16).copy()
     
-    n_before = len(np.unique(label_img)) - 1
+    n_before = len(np.unique(label_img[label_img > 0]))
     if n_before == 0:
         print(f"  FOV {fov_index}: empty mask, skipping")
         return label_img
 
     intensity_img_use = None
-    if do_intensity_merge and intensity_img is not None:
-        intensity_img_use = _select_intensity_channel(intensity_img, intensity_channel)
+    if (min_intensity > 0 or max_intensity > 0) and intensity_img is not None:
+        intensity_img_use = np.asarray(intensity_img)
+        if intensity_img_use.ndim == label_img.ndim + 1:
+            if intensity_channel is None:
+                raise ValueError("An explicit own-channel index is required for intensity filtering")
+            intensity_img_use = intensity_img_use[..., intensity_channel]
 
-    # --- Split phase ---
-    if do_split:
-        label_img = _split_by_watershed(
-            label_img,
-            min_watershed_distance=min_watershed_distance,
-            minimum_area_to_split=minimum_area_to_split,
-        )
-        label_img = _relabel_sequential(label_img)
-        n_after_split = len(np.unique(label_img)) - 1
-        if n_after_split != n_before:
-            print(f"  FOV {fov_index} split: {n_before} → {n_after_split} objects")
-
-    # --- Merge phase ---
     all_labels = np.unique(label_img)
     all_labels = all_labels[all_labels > 0]
 
@@ -897,26 +752,19 @@ def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
         if do_perimeter_merge:
             _merge_by_perimeter(label_img, perimeter_fraction, parent)
 
-        if do_intensity_merge and intensity_img_use is not None:
-            print(_merge_by_intensity(
-                label_img,
-                intensity_img_use,
-                parent,
-                intensity_threshold=intensity_threshold,
-            ))
-
         label_img = _apply_union_find(label_img, parent)
-        n_after_merge = len(np.unique(label_img)) - 1
+        n_after_merge = len(np.unique(label_img[label_img > 0]))
         if n_after_merge != n_before_merge:
             print(f"  FOV {fov_index} merge: {n_before_merge} → {n_after_merge} objects")
 
-    # --- Filter phase ---
     label_img = _filter_objects(
         label_img,
         intensity_img_use,
         min_area=min_area,
         max_area=max_area,
         remove_border=remove_border_objects,
+        min_intensity=min_intensity,
+        max_intensity=max_intensity,
     )
 
     duration = time.time() - start
@@ -926,36 +774,31 @@ def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
     return label_img
     
 def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None,
-                        perimeter_fraction=0.5, intensity_merge=False, intensity_split=False,
-                        min_watershed_distance=10, minimum_area_to_split=100,
-                        intensity_threshold=None,
+                        perimeter_fraction=0.5,
                         min_area=0, max_area=0, remove_border_objects=False,
-                        n_jobs=1, progress_callback=None, op_name=''):
-    """Split, merge, and filter labeled objects across a directory of masks.
+                        n_jobs=1, progress_callback=None, op_name='', *,
+                        min_intensity=0, max_intensity=0):
+    """Merge by perimeter and filter labeled objects across a directory of masks.
 
-    Runs the split -> merge -> filter pipeline on each mask file in
+    Runs the shared in-memory merge/filter pipeline on each mask file in
     ``mask_src`` in parallel, overwriting each mask in place.
 
     :param mask_src: directory containing mask .tif/.tiff/.npy files.
-    :param intensity_img_src: directory of matched intensity images, or ``None``.
-    :param intensity_channel: channel index to pull from multi-channel intensity images.
+    :param intensity_img_src: directory of matched original intensity images,
+        required when either intensity bound is enabled.
+    :param intensity_channel: explicit channel-last index for multi-channel
+        intensity images; unnecessary for single-channel planes.
     :param perimeter_fraction: minimum shared-boundary fraction for perimeter-based merging.
-    :param intensity_merge: enable boundary-intensity-based merging.
-    :param intensity_split: enable watershed splitting of oversized objects.
-    :param min_watershed_distance: minimum pixel distance between watershed seeds.
-    :param minimum_area_to_split: objects at or below this area are never split.
-        ABSOLUTE, in pixels: 391 removed the ``area_multiplier * median_area``
-        term, so the threshold no longer moves with whatever else is in the field.
-    :param intensity_threshold: boundary mean at or above which two touching
-        objects merge, in RAW IMAGE UNITS. ``None`` merges nothing and says so.
-        It does not carry between acquisitions at different exposure or gain --
-        that is the price of a number that can be read off an image.
     :param min_area: remove objects smaller than this (px); 0 disables.
     :param max_area: remove objects larger than this (px); 0 disables.
     :param remove_border_objects: drop objects touching the image border.
     :param n_jobs: parallel worker count.
     :param progress_callback: optional callback(fov_index, total, duration, op_name).
     :param op_name: label passed to the progress callback.
+    :param min_intensity: remove objects whose own-channel mean is below this
+        raw-image value; equality is kept and 0 disables the lower bound.
+    :param max_intensity: remove objects whose own-channel mean is above this
+        raw-image value; equality is kept and 0 disables the upper bound.
     :returns: None.
     """
     valid_ext = ('.tif', '.tiff', '.npy')
@@ -965,8 +808,8 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
         return
 
     do_perimeter_merge = perimeter_fraction > 0
-    do_intensity_merge = intensity_merge and intensity_img_src is not None
-    do_split = intensity_split
+    min_intensity, max_intensity = _validated_intensity_bounds(
+        min_intensity, max_intensity)
 
     mask_paths = [os.path.join(mask_src, f) for f in mask_files]
     if intensity_img_src is not None:
@@ -979,67 +822,38 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
     Parallel(n_jobs=n_jobs)(
         delayed(_process_single_fov)(
             mp, ip, intensity_channel,
-            do_split, do_perimeter_merge, do_intensity_merge,
-            perimeter_fraction, min_watershed_distance,
-            minimum_area_to_split, intensity_threshold,
+            do_perimeter_merge, perimeter_fraction,
             min_area, max_area, remove_border_objects,
             progress_callback, idx, total, op_name,
+            min_intensity=min_intensity, max_intensity=max_intensity,
         )
         for idx, (mp, ip) in enumerate(zip(mask_paths, intensity_paths))
     )
 
 def _process_single_fov(mask_path, intensity_path, intensity_channel,
-                        do_split, do_perimeter_merge, do_intensity_merge,
-                        perimeter_fraction, min_watershed_distance,
-                        minimum_area_to_split, intensity_threshold,
+                        do_perimeter_merge, perimeter_fraction,
                         min_area, max_area, remove_border_objects,
-                        progress_callback=None, fov_index=0, total_fovs=0, op_name=''):
-    """Process one field of view: split → merge → filter."""
-    import time
+                        progress_callback=None, fov_index=0, total_fovs=0, op_name='', *,
+                        min_intensity=0, max_intensity=0):
+    """Load one field and save the result of the same filter used in memory."""
     start = time.time()
-    
     label_img = _load_image(mask_path)
     if label_img is None:
         return
-    label_img = label_img.astype(np.uint16)
-
     intensity_img = None
-    if do_intensity_merge and intensity_path is not None:
-        raw = _load_image(intensity_path)
-        if raw is not None:
-            intensity_img = _select_intensity_channel(raw, intensity_channel)
-
-    if do_split:
-        label_img = _split_by_watershed(
-            label_img,
-            min_watershed_distance=min_watershed_distance,
-            minimum_area_to_split=minimum_area_to_split,
-        )
-        label_img = _relabel_sequential(label_img)
-
-    all_labels = np.unique(label_img)
-    all_labels = all_labels[all_labels > 0]
-    if len(all_labels) > 0:
-        parent = {int(l): int(l) for l in all_labels}
-
-        if do_perimeter_merge:
-            _merge_by_perimeter(label_img, perimeter_fraction, parent)
-
-        if do_intensity_merge and intensity_img is not None:
-            print(_merge_by_intensity(label_img, intensity_img, parent,
-                                      intensity_threshold=intensity_threshold))
-
-        label_img = _apply_union_find(label_img, parent)
-
-    label_img = _filter_objects(label_img, intensity_img,
-                                min_area=min_area, max_area=max_area,
-                                remove_border=remove_border_objects)
-
-    _save_image(mask_path, label_img)
-    
-    duration = time.time() - start
+    min_intensity, max_intensity = _validated_intensity_bounds(
+        min_intensity, max_intensity)
+    if (min_intensity > 0 or max_intensity > 0) and intensity_path is not None:
+        intensity_img = _load_image(intensity_path)
+    filtered = _process_single_fov_in_memory(
+        label_img, intensity_img, intensity_channel,
+        do_perimeter_merge, perimeter_fraction, min_area, max_area,
+        remove_border_objects, None, fov_index, total_fovs, op_name,
+        min_intensity=min_intensity, max_intensity=max_intensity,
+    )
+    _save_image(mask_path, filtered)
     if progress_callback:
-        progress_callback(fov_index, total_fovs, duration, op_name)
+        progress_callback(fov_index, total_fovs, time.time() - start, op_name)
 
 def _organelle_diagnostic(img, morphology, method, settings):
     """
@@ -1079,7 +893,6 @@ def _organelle_diagnostic(img, morphology, method, settings):
                              max_sigma=settings.get('organelle_log_max_sigma', 10),
                              num_sigma=settings.get('organelle_log_num_sigma', 10),
                              threshold=settings.get('organelle_log_threshold', 0.01))
-            # Draw blob circles on the normalised image
             diag_img = img_norm.copy()
             for y, x, sigma in blobs:
                 rr, cc = np.ogrid[-int(sigma*2):int(sigma*2)+1, -int(sigma*2):int(sigma*2)+1]
@@ -1104,7 +917,6 @@ def _organelle_diagnostic(img, morphology, method, settings):
             return diag_img, f'DoG detections ({len(blobs)} blobs)'
 
         else:
-            # otsu / adaptive: show top-hat filtered image
             radius = settings.get('organelle_tophat_radius', 5)
             filtered = white_tophat(img, disk(radius))
             return filtered, f'Top-hat filtered (r={radius})'
@@ -1133,7 +945,6 @@ def _organelle_diagnostic(img, morphology, method, settings):
             return binary.astype(np.float64), f'Hysteresis (low={low}, high={high})'
 
         else:
-            # otsu / adaptive: show Gaussian smoothed
             smooth = gaussian(img, sigma=1)
             return smooth, 'Gaussian smoothed (σ=1)'
 
@@ -1168,7 +979,7 @@ def debug(enabled=True, logger_name = None):
             if not enabled:
                 return func(*args, **kwargs)
 
-            old_level = log.level  # may be logging.NOTSET
+            old_level = log.level
             try:
                 log.setLevel(logging.DEBUG)
                 log.debug(">>> Entering %s", func.__name__)
@@ -1207,10 +1018,6 @@ PNG_OBJECT_ID_COLUMNS = {
     'nucleus': 'nucleus_id',
     'pathogen': 'pathogen_id',
     'cytoplasm': 'cytoplasm_id',
-    # 'organelle' was missing, and _map_wells_png always returns an object id,
-    # so `columns` came out one short of `parts` and filepaths_to_database
-    # raised "Columns must be same length as key" -- AFTER the organelle PNGs
-    # were on disk but before any of them was registered in png_list.
     **{role: f'{role}_id' for role in schema.ORGANELLE_ROLES},
 }
 
@@ -1260,10 +1067,6 @@ def object_label_from_png_id(values):
     series = values if isinstance(values, pd.Series) else pd.Series(values)
     if series.empty:
         return pd.Series([], dtype=float, index=series.index)
-    # map, not a vectorised .str: the column's dtype is whatever SQLite and
-    # pandas agreed on for the values that happen to be in it, and the point
-    # is to accept all of them. The index is preserved so a caller can line
-    # the result back up with the rows it came from.
     return series.map(_one_object_label).astype(float)
 
 
@@ -1281,7 +1084,7 @@ def _one_object_label(value):
     if value is None:
         return np.nan
     if isinstance(value, bool):
-        return np.nan           # True is not object 1
+        return np.nan
     if isinstance(value, (int, np.integer)):
         return float(value)
     if isinstance(value, (float, np.floating)):
@@ -1311,27 +1114,15 @@ def filepaths_to_database(img_paths, settings, source_folder, crop_mode):
     columns = ['plateID', 'rowID', 'columnID', 'fieldID']
 
     if settings['timelapse']:
-        # 'timeID', not 'time_id'. _merge_and_save_to_database writes 'timeID'
-        # onto every object table, so the old spelling gave one database two
-        # names for one concept: _split_data raised KeyError('timeID') on
-        # png_list and silently skipped building prcft, and any join between
-        # png_list and the cell table on time matched nothing. Databases
-        # already carrying 'time_id' are repaired in place on first read by
-        # rename_columns_in_db.
         columns = columns + ['timeID']
 
     columns = columns + ['prcfo']
 
-    # Same column set as before, from the single mapping the readers use.
     if crop_mode in PNG_OBJECT_ID_COLUMNS:
         columns = columns + [PNG_OBJECT_ID_COLUMNS[crop_mode]]
 
     png_df[columns] = parts
 
-    # Same per-field write as the measurement tables, so it gets the same
-    # treatment: a locked database is retried rather than dropping this
-    # field's crop rows, and a differing column set widens the table instead
-    # of refusing the whole frame. Both used to be swallowed by a print.
     _append_to_measurements_db(
         f'{source_folder}/measurements/measurements.db', 'png_list', png_df,
         required=False)
@@ -1384,7 +1175,6 @@ def activation_correlations_to_database(df, img_paths, source_folder, settings):
     columns = ['plateID', 'rowID', 'columnID', 'fieldID', 'prcfo', 'object']
     png_df[columns] = parts
 
-    # Align both DataFrames by file_name
     png_df.set_index('file_name', inplace=True)
     df.set_index('file_name', inplace=True)
 
@@ -1415,7 +1205,6 @@ def calculate_activation_correlations(inputs, activation_maps, file_names, mande
     :returns: DataFrame with one row per image and one column per channel-pair statistic.
     """
     
-    # Ensure tensors are detached and moved to CPU before converting to numpy
     if manders_thresholds is None:
         manders_thresholds = [15, 50, 75]
     inputs = inputs.detach().cpu()
@@ -1424,19 +1213,15 @@ def calculate_activation_correlations(inputs, activation_maps, file_names, mande
     batch_size, in_channels, height, width = inputs.shape
     
     if activation_maps.dim() == 3:
-        # If activation maps have no channels, add a dummy channel dimension
-        activation_maps = activation_maps.unsqueeze(1)  # Now shape is (batch_size, 1, height, width)
+        activation_maps = activation_maps.unsqueeze(1)
     
     _, act_channels, act_height, act_width = activation_maps.shape
 
-    # Ensure that the inputs and activation maps are the same size
     if (height != act_height) or (width != act_width):
         activation_maps = torch.nn.functional.interpolate(activation_maps, size=(height, width), mode='bilinear')
 
-    # Dictionary to collect correlation results
     correlations_dict = {'file_name': []}
 
-    # Initialize correlation columns based on input channels and activation map channels
     for in_c in range(in_channels):
         for act_c in range(act_channels):
             correlations_dict[f'channel_{in_c}_activation_{act_c}_pearsons'] = []
@@ -1444,47 +1229,35 @@ def calculate_activation_correlations(inputs, activation_maps, file_names, mande
                 correlations_dict[f'channel_{in_c}_activation_{act_c}_{threshold}_M1'] = []
                 correlations_dict[f'channel_{in_c}_activation_{act_c}_{threshold}_M2'] = []
 
-    # Loop over the batch
     for b in range(batch_size):
-        input_img = inputs[b]  # Input image channels (C, H, W)
-        activation_map = activation_maps[b]  # Activation map channels (C, H, W)
+        input_img = inputs[b]
+        activation_map = activation_maps[b]
 
-        # Add the file name to the current row
         correlations_dict['file_name'].append(file_names[b])
 
-        # Calculate correlations for each channel pair
         for in_c in range(in_channels):
-            input_raw = input_img[in_c].flatten().numpy()  # Flatten the input image channel
+            input_raw = input_img[in_c].flatten().numpy()
 
             for act_c in range(act_channels):
-                activation_raw = activation_map[act_c].flatten().numpy()  # Flatten the activation map channel
+                activation_raw = activation_map[act_c].flatten().numpy()
 
-                # Mask the two vectors JOINTLY. Filtering each independently
-                # dropped different positions from each, so the surviving
-                # elements no longer described the same pixels — pearsonr was
-                # correlating misaligned data (or raising on length mismatch).
                 finite = np.isfinite(input_raw) & np.isfinite(activation_raw)
                 input_channel = input_raw[finite]
                 activation_channel = activation_raw[finite]
 
-                # Check if there are valid (non-empty) arrays left to calculate the Pearson correlation
                 if input_channel.size > 0 and activation_channel.size > 0:
                     pearson_corr, _ = pearsonr(input_channel, activation_channel)
                 else:
-                    pearson_corr = np.nan  # Assign NaN if there are no valid data points
+                    pearson_corr = np.nan
                 correlations_dict[f'channel_{in_c}_activation_{act_c}_pearsons'].append(pearson_corr)
 
-                # Compute Manders correlations for each threshold
                 for threshold in manders_thresholds:
-                    # Get the top percentile pixels based on intensity in both channels
                     if input_channel.size > 0 and activation_channel.size > 0:
                         input_threshold = np.percentile(input_channel, threshold)
                         activation_threshold = np.percentile(activation_channel, threshold)
 
-                        # Mask the pixels above the threshold
                         mask = (input_channel >= input_threshold) & (activation_channel >= activation_threshold)
 
-                        # If we have enough pixels, calculate Manders correlation
                         if np.sum(mask) > 0:
                             manders_corr_M1 = np.sum(input_channel[mask] * activation_channel[mask]) / np.sum(input_channel[mask] ** 2)
                             manders_corr_M2 = np.sum(activation_channel[mask] * input_channel[mask]) / np.sum(activation_channel[mask] ** 2)
@@ -1495,11 +1268,9 @@ def calculate_activation_correlations(inputs, activation_maps, file_names, mande
                         manders_corr_M1 = np.nan
                         manders_corr_M2 = np.nan
 
-                    # Store the Manders correlation for this threshold
                     correlations_dict[f'channel_{in_c}_activation_{act_c}_{threshold}_M1'].append(manders_corr_M1)
                     correlations_dict[f'channel_{in_c}_activation_{act_c}_{threshold}_M2'].append(manders_corr_M2)
 
-    # Convert the dictionary to a DataFrame
     df_correlations = pd.DataFrame(correlations_dict)
 
     return df_correlations
@@ -1545,16 +1316,11 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     See Also:
         :func:`save_settings` — inverse operation.
     """
-    # ONE READER. A settings CSV is key/value so the vocabulary is a no-op
-    # on it, but the `~` and `$VAR` expansion is not: a settings file carried
-    # between machines routinely holds one, and it used to be a
-    # FileNotFoundError naming a path the user can see is right.
     df = tabular.read_table(csv_file_path, report=None)
 
     if show:
         display(df)
 
-    # Ensure the columns exist, in either of the two spellings spacr writes.
     if setting_key not in df.columns or setting_value not in df.columns:
         if 'Key' in df.columns and 'Value' in df.columns:
             setting_key, setting_value = 'Key', 'Value'
@@ -1567,46 +1333,35 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
 
     def parse_value(value):
         """Parse the string value into the appropriate Python data type."""
-        # Handle empty values
         if pd.isna(value) or value == '':
             return None
 
-        # Anything pandas already typed (int/float/bool from a numeric CSV
-        # column) is returned as-is. The string-only logic below calls
-        # value.startswith(...) unconditionally, which raised AttributeError
-        # on every non-str cell.
         if not isinstance(value, str):
             return value
 
-        # Handle boolean values
         if value == 'True':
             return True
         if value == 'False':
             return False
 
-        # Handle lists, tuples, dictionaries, and other literals
-        if value.startswith(('(', '[', '{')):  # If it starts with (, [ or {, use ast.literal_eval
+        if value.startswith(('(', '[', '{')):
             try:
                 parsed_value = ast.literal_eval(value)
-                # If parsed_value is a dict, recursively parse its values
                 if isinstance(parsed_value, dict):
                     parsed_value = {k: parse_value(v) for k, v in parsed_value.items()}
                 return parsed_value
             except (ValueError, SyntaxError):
-                pass  # If there's an error, return the value as-is
+                pass
         
-        # Handle numeric values (integers and floats)
         try:
             if '.' in value:
-                return float(value)  # If it contains a dot, convert to float
-            return int(value)  # Otherwise, convert to integer
+                return float(value)
+            return int(value)
         except ValueError:
-            pass  # If it's not a valid number, return the value as-is
+            pass
 
-        # Return the original value if no other type matched
         return value
 
-    # Convert the DataFrame to a dictionary, with parsing of each value
     result_dict = {key: parse_value(value) for key, value in zip(df[setting_key], df[setting_value])}
 
     return result_dict
@@ -1787,10 +1542,6 @@ def save_settings(settings, name='settings', show=False):
         pretty_print_settings(settings_2, title=name.replace('_', ' ').title())
 
     settings_csv = os.path.join(src,'settings',f'{name}.csv')
-    # Persisting settings is a best-effort side effect — it must never crash the
-    # pipeline. A src that is missing / read-only / owned by another user
-    # (e.g. a settings CSV carried over from another machine) would otherwise
-    # raise PermissionError/OSError from makedirs and abort the whole run.
     try:
         os.makedirs(os.path.join(src,'settings'), exist_ok=True)
         print(f"Saving settings to {settings_csv}")
@@ -1907,7 +1658,7 @@ def reset_mp():
     if system == 'Windows':
         if current_method != 'spawn':
             set_start_method('spawn', force=True)
-    elif system in ('Linux', 'Darwin'):  # Darwin is macOS
+    elif system in ('Linux', 'Darwin'):
         if current_method != 'fork':
             set_start_method('fork', force=True)
 
@@ -1940,20 +1691,17 @@ def close_multiprocessing_processes():
     current_pid = os.getpid()
     for proc in psutil.process_iter(['pid', 'cmdline']):
         try:
-            # Skip the current process
             if proc.info['pid'] == current_pid:
                 continue
             
-            # Check if the process is a multiprocessing process
             if is_multiprocessing_process(proc):
                 proc.terminate()
-                proc.wait(timeout=5)  # Wait up to 5 seconds for the process to terminate
+                proc.wait(timeout=5)
                 print(f"Terminated process {proc.info['pid']}")
         
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess) as e:
             print(f"Failed to terminate process {proc.info['pid']}: {e}")
 
-    # Close file descriptors
     close_file_descriptors()
 
 def check_mask_folder(src, mask_fldr, resume=False):
@@ -1997,13 +1745,9 @@ def smooth_hull_lines(cluster_data):
     :returns: tuple ``(x, y)`` of spline-interpolated hull coordinates (100 samples).
     """
     hull = ConvexHull(cluster_data)
-    # Extract vertices of the hull
     vertices = hull.points[hull.vertices]
-    # Close the loop
     vertices = np.vstack([vertices, vertices[0, :]])
-    # Parameterize the vertices
     tck, u = splprep(vertices.T, u=None, s=0.0)
-    # Evaluate spline at new parameter values
     new_points = splev(np.linspace(0, 1, 100), tck)
     return new_points[0], new_points[1]
 
@@ -2044,41 +1788,26 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
     def process_dim(mask_dim):
         """Return a dilated outline image of the labeled mask at ``image[..., mask_dim]``."""
         mask = np.take(image, mask_dim, axis=-1)
-        outline = np.zeros_like(mask, dtype=np.uint8)  # Use uint8 for contour detection efficiency
+        outline = np.zeros_like(mask, dtype=np.uint8)
 
-        # Find and draw contours
         for j in np.unique(mask):
             if j == 0:
-                continue  # Skip background
+                continue
             contours = find_contours(mask == j, 0.5)
-            # Convert contours for OpenCV format and draw directly to optimize
             cv_contours = [np.flip(contour.astype(int), axis=1) for contour in contours]
             cv2.drawContours(outline, cv_contours, -1, color=255, thickness=outline_thickness) 
 
         return dilation(outline, _square_footprint(outline_thickness))
 
-    # Drawn on the CALLING thread, deliberately. This used to run in a
-    # ThreadPoolExecutor, which aborted the whole process -- SIGABRT, core
-    # dumped, no traceback -- once Qt and Tk had both been initialised earlier
-    # in the same session. cv2 and skimage's contour code are not safe to call
-    # off the main thread with two GUI toolkits resident, and there is nothing
-    # to catch: the process is simply gone, taking every result with it.
-    #
-    # Giving the pool up cost nothing. There are at most three mask dimensions
-    # (cell, nucleus, pathogen) and find_contours holds the GIL throughout, so
-    # the threads were buying 3-5% -- measured on 3x60 objects at 1024px
-    # (1257 ms serial vs 1222 ms threaded) and 3x200 at 2048px (17.3 s vs
-    # 16.5 s). A 1.03x speedup is not worth a core dump.
     outlines = [process_dim(mask_dim) for mask_dim in mask_dims]
 
-    # Overlay outlines onto the RGB image
     for i, outline in enumerate(outlines):
         color = np.array(outline_colors[i % len(outline_colors)])
         for j in np.unique(outline):
             if j == 0:
-                continue  # Skip background
+                continue
             mask = outline == j
-            overlayed_image[mask] = color  # Direct assignment with broadcasting
+            overlayed_image[mask] = color
 
     return overlayed_image, outlines, image
 
@@ -2124,17 +1853,12 @@ def _get_cellpose_batch_size():
         memory cannot be inspected.
     """
     try:
-        # Check if CUDA is available
         if torch.cuda.is_available():
             device_properties = torch.cuda.get_device_properties(0)
-            vram_gb = device_properties.total_memory / (1024**3)  # Convert bytes to gigabytes
+            vram_gb = device_properties.total_memory / (1024**3)
         else:
             print("CUDA is not available. Please check your installation and GPU.")
             return 8
-        # The bounds must form an exhaustive ladder: the previous
-        # `> 8 and < 12` style left 8.0/12.0/24.0 GB unmatched, so batch_size
-        # was never assigned and the print below raised UnboundLocalError,
-        # which the bare except silently turned into a batch size of 8.
         if vram_gb < 8:
             batch_size = 8
         elif vram_gb < 12:
@@ -2183,9 +1907,6 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
                 except Exception:
                     plate = os.path.basename(src)
 
-                # Undo zero padding so '001' and '1' are one key. _int_or_token
-                # keeps a token it cannot read instead of substituting '0':
-                # every unreadable well used to collapse onto well '0'.
                 well = match.group('wellID')
                 if well[0].isdigit():
                     well = _int_or_token(well)
@@ -2243,12 +1964,10 @@ def mask_object_count(mask):
 
 def _update_database_with_merged_info(db_path, df, table='png_list', columns=None):
     """Merge extra columns from ``df`` into ``table`` on ``prcfo`` and rewrite the table."""
-    # Connect to the SQLite database
     if columns is None:
         columns = ['pathogen', 'treatment', 'host_cells', 'condition', 'prcfo']
     conn = sqlite3.connect(db_path, timeout=30)
 
-    # Read the existing table into a DataFrame
     try:
         existing_df = tabular.read_database(
             db_path, [table], report=None, migrate=False)[0]
@@ -2262,18 +1981,12 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
         try:
             df['prcfo'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str) + '_o' + df['object_label'].astype(int).astype(str)
         except Exception:
-            # cell_id is the FALLBACK. Previously this second try ran
-            # unconditionally at the same indentation, so a successful
-            # object_label build was immediately overwritten — and when
-            # cell_id was absent the exception was merely printed, leaving
-            # prcfo built from the wrong column or missing entirely.
             print('Merging on cell failed, trying with cell_id')
             try:
                 df['prcfo'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str) + '_' + df['fieldID'].astype(str) + '_o' + df['cell_id'].astype(int).astype(str)
             except Exception as e:
                 print(e)
         
-    # Merge the existing DataFrame with the new info based on the 'prcfo' column
     try:
         merged_df = pd.merge(
             existing_df,
@@ -2286,7 +1999,6 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
         conn.close()
         raise
     
-    # Drop the existing table and replace it with the updated DataFrame
     try:
         conn.execute(f"DROP TABLE IF EXISTS {table}")
         merged_df.to_sql(table, conn, index=False)
@@ -2334,21 +2046,13 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
 
     if isinstance(compartments, list):
         if len(compartments) > 1:
-            # Two or more compartments: rank on the ratio between the first two.
             df['new_measurement'] = (_compartment_column(compartments[0])
                                      / _compartment_column(compartments[1]))
         elif len(compartments) == 1:
-            # A single named compartment has no ratio partner, so rank on its
-            # own measurement. This branch used to be missing entirely: a
-            # one-element list satisfied the isinstance check, failed the
-            # len > 1 check and skipped the else, so 'new_measurement' was
-            # never created and _filter_closest_to_stat raised KeyError below.
             df['new_measurement'] = _compartment_column(compartments[0])
         else:
             df['new_measurement'] = df['cell_area']
     else:
-        # Unrecognised input (a bare string, None, anything else): fall back to
-        # a generic ranking rather than guessing which compartment was meant.
         df['new_measurement'] = df['cell_area']
     dfs = {condition: df_group for condition, df_group in df.groupby('condition')}
     conditions = df['condition'].dropna().unique().tolist()
@@ -2361,20 +2065,14 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
         os.makedirs(src, exist_ok=True)
         _save_figure(fig=fig, src=src, text=condition)
         for channel in channel_indices:
-            # Pass the single-channel list inline. Rebinding channel_indices
-            # here mutated the list being iterated over AND the value used by
-            # every later condition, so only the first channel was ever
-            # rendered per-channel after the first condition.
             fig = _plot_images_on_grid(png_paths_by_condition, [channel], um_per_pixel, scale_bar_length_um, fontsize, show_filename, channel_names, plot)
             _save_figure(fig, src, text=f'channel_{channel}_{condition}')
             plt.close()
             
-# Adjusted mapping function to infer type from location identifiers
 def _map_values(row, values, locs):
     """Look up the value assigned to the row/column identifier in ``row``."""
     if locs:
         value_dict = {loc: value for value, loc_list in zip(values, locs) for loc in loc_list}
-        # Determine if we're dealing with row or column based on first location identifier
         type_ = 'rowID' if locs[0][0][0] == 'r' else 'columnID'
         return value_dict.get(row[type_], None)
     return values[0] if values else None
@@ -2431,7 +2129,6 @@ def normalize_to_dtype(array, p1=2, p2=98, percentile_list=None, new_dtype=None)
             img_min = percentiles[0]
             img_max = percentiles[1]
 
-        # Normalize to the range (0, 1) for visualization
         img = rescale_intensity(img, in_range=(img_min, img_max), out_range=out_range)
         new_stack[:, :, i] = img
     return new_stack
@@ -2480,22 +2177,10 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids,
         fldr += "single_nucleus/" if cell_nucleus_ids.size == 1 else "multiple_nucleus/" if cell_nucleus_ids.size > 1 else "no_nucleus/"
         fldr += "single_pathogen/" if cell_pathogen_ids.size == 1 else "multiple_pathogens/" if cell_pathogen_ids.size > 1 else "uninfected/"
     elif crop_mode in schema.ORGANELLE_ROLES:
-        # The final token is the CROPPED organelle label, not its parent cell.
-        # png_list stores it in ``<role>_id`` and joins it to that role's
-        # object table. The legacy implementation wrote the cell label here,
-        # so an organelle crop could be keyed to an unrelated organelle that
-        # happened to reuse the same integer label.
         img_name = f"{file_name}_{object_id_str}.png"
         fldr += "single_nucleus/" if cell_nucleus_ids.size == 1 else "multiple_nucleus/" if cell_nucleus_ids.size > 1 else "no_nucleus/"
         fldr += "single_pathogen/" if cell_pathogen_ids.size == 1 else "multiple_pathogens/" if cell_pathogen_ids.size > 1 else "uninfected/"
     else:
-        # Every caller reaches cv2.imwrite(os.path.join(fldr, img_name), ...).
-        # 'organelle' is a declared crop_mode -- settings.py lists it,
-        # validate.py allows it and measure.py has a branch for its mask --
-        # but it had no branch HERE, so img_name stayed "" and OpenCV died
-        # with "could not find a writer for the specified extension", taking
-        # the whole field down after the measurements were already written.
-        # An empty name is never something to hand to a file writer.
         raise ValueError(
             f"_generate_names has no naming rule for crop_mode={crop_mode!r}. "
             f"Known crop modes: {', '.join(schema.ALL_ROLES)}.")
@@ -2504,8 +2189,6 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids,
     well = parts[1] 
     
     if timelapse:
-        #print("file_name:", file_name)
-        #print("parts:", parts)
         timeID = parts[2]
         metadata = f'{plate}_{well}_{timeID}'
     else:
@@ -2519,20 +2202,16 @@ def _find_bounding_box(crop_mask, _id, buffer=10):
     """Return a mask with the padded bounding box of ``_id`` filled with ``_id``."""
     object_indices = np.where(crop_mask == _id)
 
-    # Determine the bounding box coordinates
     y_min, y_max = object_indices[0].min(), object_indices[0].max()
     x_min, x_max = object_indices[1].min(), object_indices[1].max()
 
-    # Add buffer to the bounding box coordinates
     y_min = max(y_min - buffer, 0)
     y_max = min(y_max + buffer, crop_mask.shape[0] - 1)
     x_min = max(x_min - buffer, 0)
     x_max = min(x_max + buffer, crop_mask.shape[1] - 1)
 
-    # Create a new mask with the same dimensions as crop_mask
     new_mask = np.zeros_like(crop_mask)
 
-    # Fill in the bounding box area with the _id
     new_mask[y_min:y_max+1, x_min:x_max+1] = _id
 
     return new_mask
@@ -2702,10 +2381,6 @@ def _field_key_predicate(frame, key_columns, alias):
         tuple(row) for row in frame[list(key_columns)].astype(str).itertuples(
             index=False, name=None)))
     if not keys:
-        # An empty frame identifies no field, so it must match no row. The
-        # alternative -- ``()``, an empty OR -- is not valid SQL, and a
-        # predicate that fails to parse in a delete is a worse answer than one
-        # that selects nothing.
         return '0', []
     group = '(' + ' AND '.join(
         f'{alias}."{c}" = ?' for c in key_columns) + ')'
@@ -2846,12 +2521,12 @@ def _release_imported_rows_once(db_path, table, frame, timelapse=False):
             return 0
         importer_clause = _resume.importer_rows_clause(conn, table)
         if importer_clause is None:
-            return 0                      # no import ever wrote into this table
+            return 0
         total = int(conn.execute(
             f'SELECT COUNT(*) FROM "{table}" AS {alias} '
             f'WHERE {importer_clause}').fetchone()[0])
         if not total:
-            return 0                      # claimed once, already handed back
+            return 0
         have = {row[1] for row in conn.execute(f'PRAGMA table_info("{table}")')}
         absent = [c for c in schema.FIELD_KEY_COLUMNS if c not in have]
         if absent:
@@ -2869,7 +2544,7 @@ def _release_imported_rows_once(db_path, table, frame, timelapse=False):
             f'WHERE {importer_clause} AND {key_predicate}',
             tuple(params)).fetchone()[0])
         if not held:
-            return 0                      # their rows are for other fields
+            return 0
         field = str(frame['prcf'].iloc[0]) if 'prcf' in frame.columns else '?'
         if timelapse:
             raise ImportedCopyNotReleased(
@@ -2910,8 +2585,6 @@ def _release_imported_rows_once(db_path, table, frame, timelapse=False):
     finally:
         conn.close()
 
-    # Only now, and only for a table that really holds their copy of this
-    # field, is a write connection opened at all.
     writer = connect(db_path, timeout=DB_WRITE_TIMEOUT)
     try:
         with transaction(writer, mode='IMMEDIATE', attempts=6,
@@ -2950,10 +2623,6 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
         if len(morph_df) == 0:
             return
         if len(intensity_df) == 0 and table_type not in _ORGANELLE_SUMMARY_TABLES:
-            # An object table with morphology but no intensity means the two
-            # measurement passes disagreed about which objects exist. Silently
-            # writing nothing lost a whole field's worth of objects with no
-            # trace, so say it out loud.
             print(f"Warning: {table_type} has {len(morph_df)} morphology rows but an "
                   f"empty intensity frame for {file_name}; nothing written to the "
                   f"{table_type} table for this field.")
@@ -2986,21 +2655,16 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
         else:
             merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
-        cols = merged_df.columns.tolist()  # get the list of all columns
-        # Check if all columns in column_list are in cols
+        cols = merged_df.columns.tolist()
         missing_columns = [col for col in column_list if col not in cols]
         if missing_columns == ['cell_id']:
-            # A child table measured without a cell mask genuinely has no
-            # parent to link to. Since the fix in measure._intensity_measurements
-            # the link no longer depends on radial_dist, so reaching here means
-            # cell_mask_dim was None.
             column_list = ['object_label'] + _META
             missing_columns = []
         if missing_columns:
             raise ValueError(f"Columns missing in DataFrame: {missing_columns}")
         for i, col in enumerate(column_list):
             cols.insert(i, cols.pop(cols.index(col)))
-        merged_df = merged_df[cols]  # rearrange the columns
+        merged_df = merged_df[cols]
         if table_type in schema.CANONICAL_OBJECT_TABLES:
             merged_df = schema.validate_object_table_frame(
                 merged_df,
@@ -3010,11 +2674,6 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
         db_path = f'{source_folder}/measurements/measurements.db'
         _assert_measurement_units_compatible(db_path, table_type, stamp)
         if table_type in schema.CANONICAL_OBJECT_TABLES:
-            # F34. A foreign import copies its rows into the canonical
-            # table when the destination is empty; appending beside them
-            # makes every downstream count the sum of two populations. The
-            # copy for this field is handed back first, or nothing is
-            # written -- both before the insert, never after.
             _release_imported_rows_for_field(
                 db_path, table_type, merged_df, timelapse=timelapse)
         _append_to_measurements_db(db_path, table_type, merged_df)
@@ -3043,7 +2702,7 @@ def _widen_table_for(conn, table, frame):
     :returns: the list of column names added.
     """
     have = {row[1] for row in conn.execute(f'PRAGMA table_info("{table}")')}
-    if not have:                      # table does not exist yet; to_sql creates it
+    if not have:
         return []
     added = []
     for col in frame.columns:
@@ -3052,10 +2711,7 @@ def _widen_table_for(conn, table, frame):
         try:
             conn.execute(f'ALTER TABLE "{table}" ADD COLUMN "{col}"')
         except sqlite3.OperationalError as e:
-            # Another worker widened the table for the same column between the
             # PRAGMA above and this ALTER. Its column is indistinguishable from
-            # the one we were about to add, so this is success, not failure --
-            # and letting it escape would have cost the caller its whole frame.
             if 'duplicate column name' not in str(e).lower():
                 raise
             continue
@@ -3092,7 +2748,6 @@ def _sqlite_value(value):
     if isinstance(missing, (bool, np.bool_)) and bool(missing):
         return None
     if isinstance(value, pd.Timedelta):
-        # Match pandas.to_sql: timedelta64 values are stored as nanoseconds.
         return int(value.value)
     if isinstance(value, pd.Timestamp):
         return value.to_pydatetime()
@@ -3129,9 +2784,6 @@ def _insert_frame(conn, table, frame):
     values_by_column = []
     for _name, series in frame.items():
         if series.dtype.kind == 'm':
-            # pandas writes numpy-backed timedeltas in their native unit, but
-            # normalises Arrow-backed durations to nanoseconds.  Preserve both
-            # behaviours, including numpy's iNaT sentinel for missing values.
             if isinstance(series.dtype, getattr(pd, 'ArrowDtype', ())):
                 values = series.to_numpy(dtype='timedelta64[ns]').view('i8')
             else:
@@ -3181,8 +2833,6 @@ def _append_frame(conn, table, frame):
             message = str(e).lower()
             if 'no such table' in message:
                 try:
-                    # Schema only. Rows are written exactly once by the direct
-                    # INSERT on the next pass.
                     frame.iloc[:0].to_sql(
                         table, conn, if_exists='append', index=False)
                 except sqlite3.OperationalError as create_error:
@@ -3190,10 +2840,6 @@ def _append_frame(conn, table, frame):
                         raise
                     last = create_error
                 continue
-            # Widen ONLY when the append actually complains about a column.
-            # Probing PRAGMA table_info on every write cost a round trip per
-            # field per table and is pure waste on the overwhelmingly common
-            # path where the schema already matches.
             if 'has no column named' not in message:
                 raise
             added = _widen_table_for(conn, table, frame)
@@ -3256,10 +2902,6 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
             return
         except sqlite3.OperationalError as e:
             if 'locked' not in str(e).lower():
-                # Not contention - an unopenable path, a read-only file. That
-                # is a setup problem, and the pre-existing contract is to
-                # report it and let the run continue; spacr.errors decides
-                # whether a run that lost a table is complete.
                 print(f"SQLite error writing {table}: {e}")
                 return
             if attempt == DB_WRITE_ATTEMPTS:
@@ -3445,11 +3087,6 @@ def _check_integrity(df):
     df.columns = renamed
     label_cols = [col for col in df.columns if 'label' in col]
     if len(df) and not label_cols:
-        # object_label is read from label_list[0]; with no label column that
-        # list is empty and the old code died on IndexError with no indication
-        # of what was wrong. A measurement frame always carries one, and
-        # _merge_and_save_to_database merges the two frames on object_label,
-        # so arriving here without one means the wrong frame was passed.
         raise ValueError(
             "_check_integrity: no column containing 'label' in a frame of "
             f"{len(df)} rows, so object_label cannot be derived. "
@@ -3468,39 +3105,34 @@ def _get_percentiles(array, p1=2, p2=98):
     for v in range(nimg):
         img = np.squeeze(array[:, :, v])
         non_zero_img = img[img > 0]
-        if non_zero_img.size > 0: # check if there are non-zero values
-            img_min = np.percentile(non_zero_img, p1)  # change percentile from 0.02 to 2
-            img_max = np.percentile(non_zero_img, p2)  # change percentile from 0.98 to 98
+        if non_zero_img.size > 0:
+            img_min = np.percentile(non_zero_img, p1)
+            img_max = np.percentile(non_zero_img, p2)
             percentiles.append([img_min, img_max])
-        else:  # if there are no non-zero values, just use the image as it is
-            img_min = np.percentile(img, p1)  # change percentile from 0.02 to 2
-            img_max = np.percentile(img, p2)  # change percentile from 0.98 to 98
+        else:
+            img_min = np.percentile(img, p1)
+            img_max = np.percentile(img, p2)
             percentiles.append([img_min, img_max])
     return percentiles
 
 def _crop_center(img, cell_mask, new_width, new_height):
     """Crop ``img`` to ``new_width`` x ``new_height`` centered on the mask centroid."""
-    # Convert all non-zero values in mask to 1
     cell_mask[cell_mask != 0] = 1
-    mask_3d = np.repeat(cell_mask[:, :, np.newaxis], img.shape[2], axis=2).astype(img.dtype) # Create 3D mask
-    img = np.multiply(img, mask_3d).astype(img.dtype) # Multiply image with mask to set pixel values outside of the mask to 0
-    centroid = np.round(ndi.center_of_mass(cell_mask)).astype(int) # Compute centroid of the mask
+    mask_3d = np.repeat(cell_mask[:, :, np.newaxis], img.shape[2], axis=2).astype(img.dtype)
+    img = np.multiply(img, mask_3d).astype(img.dtype)
+    centroid = np.round(ndi.center_of_mass(cell_mask)).astype(int)
     
-    # Pad the image and mask to ensure the crop will not go out of bounds
     pad_width = max(new_width, new_height)
     img = np.pad(img, ((pad_width, pad_width), (pad_width, pad_width), (0, 0)), mode='constant')
     cell_mask = np.pad(cell_mask, ((pad_width, pad_width), (pad_width, pad_width)), mode='constant')
     
-    # Update centroid coordinates due to padding
     centroid += pad_width
     
-    # Compute bounding box
     start_y = max(0, centroid[0] - new_height // 2)
     end_y = min(start_y + new_height, img.shape[0])
     start_x = max(0, centroid[1] - new_width // 2)
     end_x = min(start_x + new_width, img.shape[1])
     
-    # Crop to bounding box
     img = img[start_y:end_y, start_x:end_x, :]
     return img
     
@@ -3532,9 +3164,6 @@ def _get_diam(mag, obj):
     elif obj == 'pathogen':
         diameter = mag
     else:
-        # Guard against unsupported object types — previously this fell
-        # through to ``int(diameter)`` with ``diameter`` unbound, raising a
-        # confusing UnboundLocalError instead of a clear message.
         raise ValueError(
             f"_get_diam: unsupported object type '{obj}'. "
             f"Expected one of: cell, cell_large, nucleus, pathogen."
@@ -3562,9 +3191,6 @@ def _get_object_settings(object_type, settings):
     object_settings['merge'] = False
     object_settings['resample'] = True
     object_settings['remove_border_objects'] = False
-    # 'cpsam' unless the user pointed at their own checkpoint; a pre-SAM name
-    # left in an old settings file is mapped forward here, once, rather than
-    # carried into segmentation as if it still chose different weights.
     from .settings import normalize_cellpose_model_name
     object_settings['model_name'] = normalize_cellpose_model_name(
         settings.get(f'{object_type}_model_name'),
@@ -3606,26 +3232,18 @@ def _pivot_counts_table(db_path):
     """
     def _read_table_to_dataframe(db_path, table_name='object_counts'):
         """Return the given SQLite table as a DataFrame."""
-        # Connect to the SQLite database
         return tabular.read_database(
             db_path, [table_name], report=None, migrate=False)[0]
 
     def _pivot_dataframe(df):
         """Pivot count-type rows into one column per object type, NaNs filled with 0."""
-        # Pivot the DataFrame
         pivoted_df = df.pivot(index='file_name', columns='count_type', values='object_count').reset_index()
-        # Because the pivot operation can introduce NaN values for missing data,
-        # you might want to fill those NaNs with a default value, like 0
         pivoted_df = pivoted_df.fillna(0)
         return pivoted_df
 
-    # Read the original 'object_counts' table
     df = _read_table_to_dataframe(db_path, 'object_counts')
-    # Pivot the DataFrame to have one row per filename and a column for each object type
     pivoted_df = _pivot_dataframe(df)
-    # Reconnect to the SQLite database to overwrite the 'object_counts' table with the pivoted DataFrame
     conn = sqlite3.connect(db_path, timeout=30)
-    # When overwriting, ensure that you drop the existing table or use if_exists='replace' to overwrite it
     pivoted_df.to_sql('pivoted_counts', conn, if_exists='replace', index=False)
     conn.close()
     
@@ -3739,42 +3357,28 @@ def annotate_conditions(df, cells=None, cell_loc=None, pathogens=None, pathogen_
     def _map_or_default(column_name, values, loc, df):
         """Assign or map ``values`` into ``column_name`` based on optional row/column ``loc``."""
         if isinstance(values, str) and loc is None:
-            # If a single string is provided and loc is None, assign the value to all rows
             df[column_name] = values  
     
         elif isinstance(values, list) and loc is None:
-            # If a list of values is provided but no loc, assign the first value to all rows
             df[column_name] = values[0]
     
         elif values is not None and loc is not None:
-            # Perform location-based mapping
             value_dict = {val: key for key, loc_list in zip(values, loc) for val in loc_list}
-            # Start with NaN, but in an object column: the labels written below
-            # are strings, and `df[column_name] = np.nan` produced a float64
-            # column, so every .loc assignment was an incompatible-dtype set.
-            # pandas 2.x warns and silently upcasts; pandas 3.0 raises.
             df[column_name] = pd.Series(np.nan, index=df.index, dtype=object)
             for val, key in value_dict.items():
                 loc_type = _get_type(val)
                 if loc_type:
                     df.loc[df[loc_type] == val, column_name] = key
 
-    # Handle cells, pathogens, and treatments using the consolidated logic
     _map_or_default('host_cells', cells, cell_loc, df)
     _map_or_default('pathogen', pathogens, pathogen_loc, df)
     _map_or_default('treatment', treatments, treatment_loc, df)
 
-    # Normalise any None left by the mapping above to np.nan, so the
-    # pd.notna() filter that builds 'condition' treats both the same.
-    # Plain reassignment, not chained inplace: under pandas copy-on-write
-    # (the 3.0 default) df[col].fillna(..., inplace=True) mutates a temporary
-    # and is a silent no-op.
     if pathogens is not None:
         df['pathogen'] = df['pathogen'].where(df['pathogen'].notna(), np.nan)
     if treatments is not None:
         df['treatment'] = df['treatment'].where(df['treatment'].notna(), np.nan)
 
-    # Create the 'condition' column by excluding any NaN values, safely checking if 'host_cells', 'pathogen', and 'treatment' exist
     df['condition'] = df.apply(
         lambda x: '_'.join([str(v) for v in [x.get('host_cells'), x.get('pathogen'), x.get('treatment')] if pd.notna(v)]), 
         axis=1
@@ -3788,14 +3392,6 @@ def _split_data(df, group_by, object_type):
 
     df = df.copy()
 
-    # Ensure 'prcft' column exists if a timepoint column is present.
-    #
-    # This used to hard-code 'timeID' inside a bare try/except, so on the
-    # png_list table — which was written with 'time_id' — it printed
-    # "Exception 'timeID'" and silently produced no prcft at all. Asking which
-    # spelling is present makes the difference between "this is not a timelapse
-    # run" (nothing to build, no message) and a real failure (which now
-    # propagates instead of being printed and forgotten).
     time_col = _time_column(df.columns)
     if time_col is not None and all(
             c in df.columns for c in ('plateID', 'rowID', 'columnID', 'fieldID')):
@@ -3807,21 +3403,6 @@ def _split_data(df, group_by, object_type):
             df[time_col].astype(str)
         )
 
-    # Ensure 'prcf' column exists.
-    #
-    # The timepoint belongs in it. `_map_wells(timelapse=True)` — the writer
-    # that put prcf into the database in the first place — builds
-    # plate_row_column_field_TIME, and this rebuild used to drop that last
-    # component, overwriting the database's own key with a coarser one. Since
-    # prcfo is derived from prcf immediately below and is what callers group
-    # on, every object was then collapsed across all of its timepoints: a
-    # 2-field x 3-frame x 2-cell run came out of _read_and_merge_data as 4 rows
-    # with the three frames averaged together, and the caller's own
-    # time-carrying prcfo (io._read_and_merge_data assigns one from the
-    # database's prcf) was silently replaced on the way in. A timepoint column
-    # is written only by a timelapse run, so keying on it when it is present is
-    # the same condition as prcft above and leaves non-timelapse frames byte
-    # for byte as they were.
     try:
         prcf = (
             df['plateID'].astype(str) + '_' +
@@ -3835,40 +3416,17 @@ def _split_data(df, group_by, object_type):
     except Exception as e:
         print('Exception', e)
 
-    # Create the 'prcfo' column
     df['prcfo'] = df['prcf'].astype(str) + '_' + df[object_type].astype(str)
     df = df.set_index(group_by, inplace=False)
 
-    # Split the DataFrame into numeric and non-numeric parts
     df_numeric = df.select_dtypes(include=np.number)
     df_non_numeric = df.select_dtypes(exclude=np.number)
 
-    # HOW EACH COLUMN COMBINES, from the one place that decides it.
-    #
-    # This used to be a second, independent implementation: a `sum_keywords`
-    # substring match, everything else averaged. It disagreed with
-    # `merge_tables` on three kinds of column, and each disagreement produced
-    # a number rather than an error --
-    #
-    #   `object_label`     averaged. Three pathogens labelled 1, 2 and 3 came
-    #                      back as 2.0: a label for an object that need not
-    #                      exist, indistinguishable from a measurement.
-    #   `count_*`          averaged. Counts add; a cell with 2 and 3 of
-    #                      something has 5 of it, not 2.5.
-    #   `total_*`,         averaged. Something already integrated over an
-    #   `integrated_*`     object is a total, and totals add.
-    #
-    # AREAS SUM, LENGTHS DO NOT, which is the rule those keywords got right:
-    # four pathogens occupy the sum of their areas, but two nuclei each 10
-    # units long are not one nucleus 20 units long. `aggregation_for` holds
-    # that rule now, matching on word boundaries rather than substrings, so
-    # the two readers cannot drift apart again.
     from .merge_tables import aggregation_for
 
     agg_dict = {column: aggregation_for(column)
                 for column in df_numeric.columns}
 
-    # Apply custom aggregation
     if len(agg_dict) > 0 and not df_numeric.empty:
         grouped_numeric = df_numeric.groupby(df_numeric.index).agg(agg_dict)
     else:
@@ -3921,16 +3479,6 @@ def _calculate_recruitment(df, channel):
     for chan in channels:
         df[f'{object_type}_slope_channel_{chan}'] = 1
 
-    #for chan in channels:
-    #    df[f'nucleus_coordinates_{chan}'] = df[[f'nucleus_channel_{chan}_centroid_weighted_local-0', f'nucleus_channel_{chan}_centroid_weighted_local-1']].values.tolist()
-    #    df[f'pathogen_coordinates_{chan}'] = df[[f'pathogen_channel_{chan}_centroid_weighted_local-0', f'pathogen_channel_{chan}_centroid_weighted_local-1']].values.tolist()
-    #    df[f'cell_coordinates_{chan}'] = df[[f'cell_channel_{chan}_centroid_weighted_local-0', f'cell_channel_{chan}_centroid_weighted_local-1']].values.tolist()
-    #    df[f'cytoplasm_coordinates_{chan}'] = df[[f'cytoplasm_channel_{chan}_centroid_weighted_local-0', f'cytoplasm_channel_{chan}_centroid_weighted_local-1']].values.tolist()
-    # 
-    #    df[f'pathogen_cell_distance_channel_{chan}'] = df.apply(lambda row: np.sqrt((row[f'pathogen_coordinates_{chan}'][0] - row[f'cell_coordinates_{chan}'][0])**2 + 
-    #                                                  (row[f'pathogen_coordinates_{chan}'][1] - row[f'cell_coordinates_{chan}'][1])**2), axis=1)
-    #    df[f'nucleus_cell_distance_channel_{chan}'] = df.apply(lambda row: np.sqrt((row[f'nucleus_coordinates_{chan}'][0] - row[f'cell_coordinates_{chan}'][0])**2 + 
-    #                                                  (row[f'nucleus_coordinates_{chan}'][1] - row[f'cell_coordinates_{chan}'][1])**2), axis=1)
     return df
     
 def _group_by_well(df):
@@ -3947,7 +3495,6 @@ def _group_by_well(df):
     numeric_cols = df._get_numeric_data().columns
     non_numeric_cols = df.select_dtypes(include=['object']).columns
 
-    # Apply mean function to numeric columns and first to non-numeric
     aggregations = {
         **{col: 'mean' for col in numeric_cols},
         **{col: 'first' for col in non_numeric_cols},
@@ -3957,9 +3504,6 @@ def _group_by_well(df):
     ).agg(aggregations)
     return df_grouped
 
-###################################################
-#  Classify
-###################################################
 
 class Cache:
     """LRU cache with a fixed maximum size.
@@ -4041,7 +3585,6 @@ class SelfAttention(nn.Module):
         output = self.attention(Q, K, V)
         return output
 
-# Early Fusion Block
 class EarlyFusion(nn.Module):
     """1x1 convolution that fuses input channels down to 64 feature maps.
 
@@ -4060,7 +3603,6 @@ class EarlyFusion(nn.Module):
         x = self.conv1(x)
         return x
 
-# Spatial Attention Mechanism
 class SpatialAttention(nn.Module):
     """Spatial attention gate that reweights features by pooled channel statistics.
 
@@ -4083,7 +3625,6 @@ class SpatialAttention(nn.Module):
         x = self.conv1(x)
         return self.sigmoid(x)
     
-# Multi-Scale Block with Attention
 class MultiScaleBlockWithAttention(nn.Module):
     """Dilated conv block followed by a 1x1 attention convolution.
 
@@ -4112,7 +3653,6 @@ class MultiScaleBlockWithAttention(nn.Module):
         """
         return self.custom_forward(x)
 
-# Final Classifier
 class CustomCellClassifier(nn.Module):
     """Small classifier stacking :class:`EarlyFusion` and a multi-scale attention block.
 
@@ -4131,7 +3671,6 @@ class CustomCellClassifier(nn.Module):
 
         self.fc1 = nn.Linear(64, num_classes)
         self.use_checkpoint = use_checkpoint
-        # Explicitly require gradients for all parameters
         for param in self.parameters():
             param.requires_grad = True
 
@@ -4174,9 +3713,9 @@ class TorchModel(nn.Module):
         pretrained: bool = True,
         dropout_rate: Optional[float] = None,
         use_checkpoint: bool = False,
-        num_classes: int = 2,      # >=2 => multiclass head; ==1 => binary head (BCE)
-        multilabel: bool = False,  # kept for external loss/metrics decisions
-        image_size: int = 224,     # actual training resolution (ViT/inception need it)
+        num_classes: int = 2,
+        multilabel: bool = False,
+        image_size: int = 224,
     ):
         """Build the backbone, strip its head, and attach the spaCR linear classifier.
 
@@ -4202,34 +3741,24 @@ class TorchModel(nn.Module):
         self.image_size = int(image_size) if image_size else 224
         self.use_dropout = (dropout_rate is not None)
 
-        # 1) Initialize backbone
         self.base_model = self._init_base_model(pretrained=bool(pretrained))
 
-        # 2) Special-case: keep all but last linear block for MaxViT-T
         if self.model_name == "maxvit_t" and hasattr(self.base_model, "classifier"):
-            # remove final Linear only (keep preceding norm/dropout/etc.)
             seq = list(self.base_model.classifier.children())
             if len(seq) > 0:
                 self.base_model.classifier = nn.Sequential(*seq[:-1])
 
-        # 3) If a custom dropout rate is provided, push it into any existing Dropout modules
         if dropout_rate is not None:
             self._apply_dropout_rate(self.base_model, float(dropout_rate))
 
-        # 4) Remove the original classification head so we can infer feature dim
         self._remove_head_for_features()
 
-        # 5) Infer flattened feature dimension with a dummy forward
         self.num_ftrs = self._infer_feature_dim()
 
-        # 6) Build spaCR head (optional dropout + linear classifier)
         if self.use_dropout:
             self.dropout = nn.Dropout(float(dropout_rate))
         self.spacr_classifier = nn.Linear(self.num_ftrs, self.num_classes)
 
-    # ------------------------------------------------------------------ #
-    # Backbone init / head removal / feature dim
-    # ------------------------------------------------------------------ #
     def _get_weight_choice(self):
         """
         Return the DEFAULT weights enum if available (newer torchvision),
@@ -4260,10 +3789,8 @@ class TorchModel(nn.Module):
 
         weights = self._get_weight_choice()
         if weights is not None:
-            # Newer API
             return fn(weights=weights if pretrained else None)
         else:
-            # Older API fallback
             return fn(pretrained=pretrained)
 
     def _apply_dropout_rate(self, module: nn.Module, p: float):
@@ -4281,30 +3808,25 @@ class TorchModel(nn.Module):
         Normalize a wide swath of TorchVision classification heads to Identity.
         Also disable auxiliary logits where present (Inception/GoogLeNet).
         """
-        # Some models (Inception/GoogLeNet) expose aux heads
         if hasattr(self.base_model, "aux_logits"):
             self.base_model.aux_logits = False
 
-        # Common conv backbones
-        if hasattr(self.base_model, "fc"):           # ResNet/RegNet/ResNeXt/GoogLeNet/Inception
+        if hasattr(self.base_model, "fc"):
             self.base_model.fc = nn.Identity()
             return
-        if hasattr(self.base_model, "classifier"):   # DenseNet/MobileNet/EfficientNet/ConvNeXt/SqueezeNet/MNASNet/MaxViT
-            # MaxViT handled earlier; here we blank the whole thing
+        if hasattr(self.base_model, "classifier"):
             if self.model_name != "maxvit_t":
                 self.base_model.classifier = nn.Identity()
             return
-        if hasattr(self.base_model, "_fc"):          # Older EfficientNet
+        if hasattr(self.base_model, "_fc"):
             self.base_model._fc = nn.Identity()
             return
-        # Vision Transformers
-        if hasattr(self.base_model, "heads"):        # ViT (torchvision)
+        if hasattr(self.base_model, "heads"):
             self.base_model.heads = nn.Identity()
             return
-        if hasattr(self.base_model, "head"):         # Swin
+        if hasattr(self.base_model, "head"):
             self.base_model.head = nn.Identity()
             return
-        # If none matched, we’ll still try to forward and flatten later.
 
     def _infer_feature_dim(self) -> int:
         """
@@ -4315,8 +3837,7 @@ class TorchModel(nn.Module):
         s = int(getattr(self, "image_size", 224)) or 224
         with torch.no_grad():
             x = torch.zeros(1, 3, s, s)
-            out = self._run_backbone_raw(x)  # raw backbone call (unwrapped)
-        # Flatten if spatial
+            out = self._run_backbone_raw(x)
         if isinstance(out, torch.Tensor) and out.ndim > 2:
             out = torch.flatten(out, 1)
         if not isinstance(out, torch.Tensor) or out.ndim != 2:
@@ -4325,9 +3846,6 @@ class TorchModel(nn.Module):
             )
         return int(out.size(1))
 
-    # ------------------------------------------------------------------ #
-    # Forward plumbing
-    # ------------------------------------------------------------------ #
     def _run_backbone_raw(self, x: torch.Tensor) -> torch.Tensor:
         """
         Call the underlying backbone and unwrap common container outputs.
@@ -4342,15 +3860,11 @@ class TorchModel(nn.Module):
             if self.use_checkpoint else forward_fn(x)
         )
 
-        # Unwrap common container types
-        # Inception* returns namedtuple with .logits (if aux disabled we still may get a container)
         if hasattr(out, "logits"):
             out = out.logits
         elif isinstance(out, (tuple, list)):
-            # e.g., some models return (logits, aux) even when aux disabled; take primary
             out = out[0]
         elif isinstance(out, dict):
-            # Detection/segmentation heads return dicts — not supported in this wrapper
             raise RuntimeError(
                 "Selected backbone returned a dict (likely detection/segmentation). "
                 "Use an image-classification backbone."
@@ -4368,7 +3882,6 @@ class TorchModel(nn.Module):
         :returns: the features, two-dimensional.
         """
         out = self._run_backbone_raw(x)
-        # Ensure 2D features (N, F)
         if isinstance(out, torch.Tensor) and out.ndim > 2:
             out = torch.flatten(out, 1)
         return out
@@ -4381,7 +3894,7 @@ class TorchModel(nn.Module):
         feats = self._run_backbone(x)
         if self.use_dropout:
             feats = self.dropout(feats)
-        logits = self.spacr_classifier(feats)  # (N, num_classes)
+        logits = self.spacr_classifier(feats)
         return logits
 
 class TorchModel_v2(nn.Module):
@@ -4401,8 +3914,8 @@ class TorchModel_v2(nn.Module):
         pretrained: bool = True,
         dropout_rate: float = None,
         use_checkpoint: bool = False,
-        num_classes: int = 2,          # arbitrary classes (>=2 => multiclass; 1 => binary head)
-        multilabel: bool = False       # kept for external loss/metrics decisions (not used internally)
+        num_classes: int = 2,
+        multilabel: bool = False
     ):
         """Build the backbone, strip its head, and attach the spaCR classifier."""
         super().__init__()
@@ -4415,28 +3928,20 @@ class TorchModel_v2(nn.Module):
         self.num_classes = int(num_classes)
         self.multilabel = bool(multilabel)
 
-        # 1) init backbone
         self.base_model = self._init_base_model(pretrained)
 
-        # 2) special-case: keep all but the last linear block for maxvit_t
         if self.model_name == "maxvit_t" and hasattr(self.base_model, "classifier"):
             self.base_model.classifier = nn.Sequential(
                 *list(self.base_model.classifier.children())[:-1]
             )
 
-        # 3) apply custom dropout rate to any existing dropout modules in backbone
         if dropout_rate is not None:
             self._apply_dropout_rate(self.base_model, float(dropout_rate))
 
-        # 4) discover feature dim
         self.num_ftrs = self._infer_feature_dim()
 
-        # 5) add spaCR head
         self._init_spacr_classifier(dropout_rate)
 
-    # --------------------------------------------------------------------- #
-    # Helpers
-    # --------------------------------------------------------------------- #
     def _apply_dropout_rate(self, module: nn.Module, p: float):
         """Set ``p`` on every dropout layer inside ``module``.
 
@@ -4460,14 +3965,11 @@ class TorchModel_v2(nn.Module):
 
         weights = self._get_weight_choice()
         if weights is not None:
-            # Newer torchvision API: weights=enum or None
             return fn(weights=weights if pretrained else None)
         else:
-            # Older API fallback: pretrained=bool
             return fn(pretrained=bool(pretrained))
 
     def _get_weight_choice(self):
-        # Return DEFAULT weights enum if available; else None
         """The torchvision ``DEFAULT`` weights enum for this model, or ``None``.
 
         ``None`` means torchvision ships no pretrained weights under that name, in
@@ -4479,7 +3981,6 @@ class TorchModel_v2(nn.Module):
         return None
 
     def _remove_head_for_features(self):
-        # Remove final classifier so backbone returns features
         """Replace the classifier head with identity so the backbone returns features.
 
         ``maxvit_t`` IS EXCLUDED: its classifier holds the pooling the forward
@@ -4502,7 +4003,6 @@ class TorchModel_v2(nn.Module):
         self.base_model.eval()
         with torch.no_grad():
             out = self.base_model(torch.randn(1, 3, 224, 224))
-        # If backbone returns spatial map, flatten to (N, C*)
         if out.ndim > 2:
             out = torch.flatten(out, 1)
         return int(out.size(1))
@@ -4518,11 +4018,7 @@ class TorchModel_v2(nn.Module):
             self.dropout = nn.Dropout(float(dropout_rate))
         self.spacr_classifier = nn.Linear(self.num_ftrs, self.num_classes)
 
-    # --------------------------------------------------------------------- #
-    # Forward
-    # --------------------------------------------------------------------- #
     def _run_backbone(self, x: torch.Tensor) -> torch.Tensor:
-        # Wrap for checkpoint (expects a function)
         """Run the backbone, through gradient checkpointing when enabled.
 
         Checkpointing recomputes activations in the backward pass instead of
@@ -4539,12 +4035,11 @@ class TorchModel_v2(nn.Module):
         :param x: input image batch for the configured TorchVision backbone.
         """
         feats = self._run_backbone(x)
-        # Ensure 2D features (N, F)
         if feats.ndim > 2:
             feats = torch.flatten(feats, 1)
         if self.use_dropout:
             feats = self.dropout(feats)
-        logits = self.spacr_classifier(feats)  # (N, C) where C==num_classes
+        logits = self.spacr_classifier(feats)
         return logits
 
 class FocalLossWithLogits(nn.Module):
@@ -4574,27 +4069,23 @@ class FocalLossWithLogits(nn.Module):
         :param logits: unnormalized binary, multiclass, or multilabel scores.
         :param target: labels shaped for the corresponding logits branch.
         """
-        # Binary / multilabel (BCE-style)
         if logits.ndim == 1 or logits.size(-1) == 1 or (
             logits.ndim == 2 and target.ndim == 2 and target.size(1) == logits.size(1)
         ):
             logits = logits.view_as(target)
             bce = F.binary_cross_entropy_with_logits(logits, target, reduction="none")
             p = torch.sigmoid(logits)
-            pt = target * p + (1 - target) * (1 - p)  # pt = p if y=1 else (1-p)
+            pt = target * p + (1 - target) * (1 - p)
             loss = (self.alpha * (1 - pt).pow(self.gamma) * bce)
         else:
-            # Multiclass CE-style: logits (N,C), target (N,) long
             if target.dtype != torch.long:
                 target = target.long()
-            logp = F.log_softmax(logits, dim=1)              # (N,C)
-            p = torch.exp(logp)                              # (N,C)
-            # gather the prob of the true class
-            pt = p.gather(1, target.unsqueeze(1)).squeeze(1)  # (N,)
-            ce = F.nll_loss(logp, target, reduction="none")   # per-sample CE
+            logp = F.log_softmax(logits, dim=1)
+            p = torch.exp(logp)
+            pt = p.gather(1, target.unsqueeze(1)).squeeze(1)
+            ce = F.nll_loss(logp, target, reduction="none")
             if isinstance(self.alpha, torch.Tensor):
-                # class-wise alpha
-                alpha = self.alpha.to(logits.device)[target]   # (N,)
+                alpha = self.alpha.to(logits.device)[target]
             else:
                 alpha = float(self.alpha)
             loss = alpha * (1 - pt).pow(self.gamma) * ce
@@ -4755,23 +4246,6 @@ def compute_irm_penalty(losses, dummy_w, device):
         irm_penalty += (g1.dot(g2))**2
     return irm_penalty
 
-#def print_model_summary(base_model, channels, height, width):
-#    """
-#    Prints the summary of a given base model.
-#
-#    Args:
-#        base_model (torch.nn.Module): The base model to print the summary of.
-#        channels (int): The number of input channels.
-#        height (int): The height of the input.
-#        width (int): The width of the input.
-#
-#    Returns:
-#        None
-#    """
-#    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-#    base_model.to(device)
-#    summary(base_model, (channels, height, width))
-#    return
 
 def _list_torchvision_model_names() -> set[str]:
     """Every torchvision classification FACTORY, and nothing else.
@@ -4794,8 +4268,6 @@ def _list_torchvision_model_names() -> set[str]:
         names = set()
     if names:
         return names
-    # Older torchvision: the factories are lower_snake_case and the classes
-    # and weights enums are not.
     return {
         name for name, value in tv_models.__dict__.items()
         if not name.startswith("_") and callable(value)
@@ -4855,29 +4327,21 @@ def choose_model(model_type: str,
             f"model_type={model_type!r} names no classification backbone "
             f"torchvision provides.{suggestion}")
 
-    # NOT `end="\r"`. A carriage return with no newline leaves the cursor at
-    # the start of THIS line, so whatever is printed next overwrites it --
-    # and in a captured log the two run together as
-    # "use_checkpoint: FalsePASS". The banner is one line of its own.
     print(
         f"Model parameters: Architecture: {model_type} "
         f"init_weights: {init_weights} dropout_rate: {dropout_rate} "
         f"use_checkpoint: {use_checkpoint}", flush=True
     )
 
-    # --- CUSTOM BRANCH -------------------------------------------------------
     if model_type == "custom":
         raise NotImplementedError(
             "Model type 'custom' selected but no CustomCellClassifier is wired. "
             "Provide your implementation or use a TorchVision backbone."
         )
 
-    # --- TORCHVISION CLASSIFICATION (via your TorchModel wrapper) ------------
     head_dim = max(1, int(num_classes))
-    # Use the real training resolution so ViT/Swin/inception (which are
-    # resolution-sensitive) infer the right feature dim + pass the sanity check.
     img_size = int(height) if height else 224
-    base_model = TorchModel(  # relies on your wrapper class being available in this module
+    base_model = TorchModel(
         model_name=model_type,
         pretrained=bool(init_weights),
         dropout_rate=(dropout_rate if (dropout_rate and dropout_rate > 0) else None),
@@ -4886,11 +4350,9 @@ def choose_model(model_type: str,
         image_size=img_size,
     )
 
-    # Forward sanity-check to ensure classification logits shape
     try:
         base_model.eval()
         with torch.no_grad():
-            # Keep 3 channels for sanity-check; most pretrained backbones expect 3
             dummy = torch.randn(1, 3, img_size, img_size)
             z = base_model(dummy)
             if isinstance(z, dict):
@@ -4900,9 +4362,6 @@ def choose_model(model_type: str,
                     f"Expected logits of shape (1,{head_dim}); got {type(z)} / {getattr(z, 'shape', None)}"
                 )
     except Exception as error:                               # noqa: BLE001
-        # ALSO RAISES. A backbone that builds and does not produce logits is
-        # a broken model, not a missing one, and returning None sent it down
-        # the same silent path as a misspelled name.
         raise ValueError(
             f"model_type={model_type!r} built, but its forward pass does not "
             f"produce {head_dim} logit(s) at {img_size}x{img_size}: {error}"
@@ -4930,7 +4389,6 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
     :param reduction: one of ``'mean'``, ``'sum'``, ``'none'``.
     :returns: scalar loss tensor (or per-sample tensor when ``reduction='none'``).
     """
-    # --- helpers -------------------------------------------------------------
     def _focal_bce_with_logits(logits, y, alpha=1.0, gamma=2.0, reduction="mean"):
         """Return focal binary cross-entropy for ``logits`` and targets ``y``."""
         p = torch.sigmoid(logits)
@@ -4956,26 +4414,21 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
             return loss.sum()
         return loss
 
-    # --- normalize shapes ----------------------------------------------------
     if output.ndim == 1:
-        output = output.unsqueeze(1)  # (N,) -> (N,1)
+        output = output.unsqueeze(1)
     N, C = output.shape[0], output.shape[1]
 
-    # --- binary (C=1) --------------------------------------------------------
     if C == 1:
         target = target.float().view(N, 1)
         if prefer_focal:
             return _focal_bce_with_logits(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
         return F.binary_cross_entropy_with_logits(output, target, reduction=reduction)
 
-    # --- multiclass vs multilabel -------------------------------------------
     if target.dtype == torch.long and target.ndim == 1:
-        # Multiclass single-label with class indices (N,)
         if prefer_focal:
             return _focal_cross_entropy(output, target, alpha=alpha, gamma=gamma, reduction=reduction)
         return F.cross_entropy(output, target, reduction=reduction)
 
-    # Multilabel (assume float/one-hot), ensure (N,C)
     if target.ndim == 1:
         target = torch.nn.functional.one_hot(target.long(), num_classes=C).float()
     else:
@@ -5025,8 +4478,6 @@ def pick_best_model(src):
                 training = payload.get("training_state") or {}
                 epoch = int(training.get("epoch") or 0)
         except Exception:
-            # A broken candidate ranks last; loading the selected artifact will
-            # still report the actual corruption rather than hiding it.
             pass
         match = pattern.search(os.path.basename(x))
         if match and not np.isfinite(accuracy):
@@ -5061,9 +4512,6 @@ def save_file_lists(dst, data_set, ls):
     :returns: None.
     """
     df = pd.DataFrame(ls, columns=[data_set])
-    # canonicalise=False: the single column is NAMED by the caller's
-    # `data_set`, so the vocabulary would be renaming an identifier the
-    # caller chose rather than a metadata column somebody spelled loosely.
     tabular.write_table(df, f'{dst}/{data_set}.csv', canonicalise=False)
     return
 
@@ -5079,26 +4527,20 @@ def augment_single_image(args):
         raise ValueError(f"Could not read image: {img_path}")
     filename = os.path.basename(img_path).split('.')[0]
 
-    # Original Image
     write_image_rgb(os.path.join(dst, f"{filename}_original.png"), img)
     
-    # 90 degree rotation
     img_rot_90 = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
     write_image_rgb(os.path.join(dst, f"{filename}_rot_90.png"), img_rot_90)
     
-    # 180 degree rotation
     img_rot_180 = cv2.rotate(img, cv2.ROTATE_180)
     write_image_rgb(os.path.join(dst, f"{filename}_rot_180.png"), img_rot_180)
 
-    # 270 degree rotation
     img_rot_270 = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
     write_image_rgb(os.path.join(dst, f"{filename}_rot_270.png"), img_rot_270)
 
-    # Horizontal Flip
     img_flip_hor = cv2.flip(img, 1)
     write_image_rgb(os.path.join(dst, f"{filename}_flip_hor.png"), img_flip_hor)
 
-    # Vertical Flip
     img_flip_ver = cv2.flip(img, 0)
     write_image_rgb(os.path.join(dst, f"{filename}_flip_ver.png"), img_flip_ver)
 
@@ -5165,17 +4607,11 @@ def suggest_training_changes(
 
     def _normalize_cols(df):
         """Return ``df`` with normalized, aliased, first-occurrence columns."""
-        # Lowercase and strip; map common variants
         m = {c: c.strip().lower() for c in df.columns}
         df = df.rename(columns=m)
 
-        # FIX: drop duplicate columns — keeps the first occurrence
-        # This happens when _save_progress appends with headers repeatedly,
-        # or when the same metric appears under multiple names that alias
-        # to the same canonical name after normalization
         df = df.loc[:, ~df.columns.duplicated(keep='first')]
 
-        # accepted aliases
         aliases = {
             "accuracy": ["acc", "accuracy", "train_acc", "val_acc"],
             "loss": ["loss", "train_loss", "val_loss"],
@@ -5190,8 +4626,6 @@ def suggest_training_changes(
                     name_map[o] = canon
         df = df.rename(columns=name_map)
 
-        # FIX: deduplicate again after aliasing — two different original names
-        # (e.g. "acc" and "accuracy") can both map to "accuracy"
         df = df.loc[:, ~df.columns.duplicated(keep='first')]
 
         return df
@@ -5201,7 +4635,6 @@ def suggest_training_changes(
         if len(y) < 2 or np.allclose(y, y[0]):
             return 0.0
         x = np.arange(len(y), dtype=float)
-        # robust to NaNs: drop them
         mask = np.isfinite(y)
         if mask.sum() < 2:
             return 0.0
@@ -5213,7 +4646,6 @@ def suggest_training_changes(
         s = np.asarray(series, dtype=float)
         return s[-min(k, len(s)):] if len(s) else np.array([])
 
-    # --- locate CSVs ---
     train_csv = train_csv or _find_csv(dst, "train")
     val_csv = val_csv or _find_csv(dst, "val")
     out = {"summary": {}, "flags": [], "suggestions": []}
@@ -5233,18 +4665,12 @@ def suggest_training_changes(
     tr = _normalize_cols(tr)
     va = _normalize_cols(va)
 
-    # Required columns (soft-fail if absent)
     for col in ("epoch", "loss"):
         if col not in tr.columns or col not in va.columns:
             out["flags"].append(f"missing_required_col:{col}")
             out["suggestions"].append(f"Progress CSVs lack '{col}'. Ensure _save_progress writes epoch and loss.")
             return out
 
-    # --- core scalars ---
-    # idxmin returns an index LABEL; .loc on a duplicated or non-RangeIndex
-    # then returns a Series rather than a scalar (which is why _scalar exists
-    # to paper over it) and best_epoch could come from the wrong row. Use the
-    # positional argmin with .iloc so the row is unambiguous.
     best_pos = int(va["loss"].argmin())
     best_val_loss = _scalar(va["loss"].iloc[best_pos])
 
@@ -5263,31 +4689,25 @@ def suggest_training_changes(
     if "f1_macro" in va.columns:
         final["val_f1_macro"] = _scalar(va["f1_macro"].iloc[-1])
 
-    # --- trends on last_k ---
     tr_last = _last_seq(tr["loss"], last_k)
     va_last = _last_seq(va["loss"], last_k)
     slope_tr = _poly_slope(tr_last)
     slope_va = _poly_slope(va_last)
 
-    # noise/instability
     val_mean = float(np.nanmean(va_last)) if len(va_last) else np.nan
     val_std = float(np.nanstd(va_last)) if len(va_last) else np.nan
     unstable = (len(va_last) >= max(5, last_k//2)) and np.isfinite(val_mean) and (val_std > noisy_var_ratio * max(val_mean, 1e-8))
 
-    # generalization gap (accuracy)
     gen_gap = None
     if "accuracy" in tr.columns and "accuracy" in va.columns:
         gen_gap = _scalar(tr["accuracy"].iloc[-1]) - _scalar(va["accuracy"].iloc[-1])
 
-    # macro-F1 NaN detection (common when a split has a single label)
     f1_nan_train = "f1_macro" in tr.columns and np.isnan(tr["f1_macro"]).mean() > 0.2
     f1_nan_val = "f1_macro" in va.columns and np.isnan(va["f1_macro"]).mean() > 0.2
 
-    # improvement since best
     since_best = int(tr.shape[0] - (best_pos + 1))
     val_loss_delta_from_best = float(va["loss"].iloc[-1] - best_val_loss)
 
-    # --- summary ---
     out["summary"].update(
         dict(
             best_epoch=best_epoch,
@@ -5302,16 +4722,12 @@ def suggest_training_changes(
         )
     )
 
-    # --- heuristics to suggest changes ---
     E = len(tr)
 
-    # 1) Too early to judge
     if E < min_epochs:
         out["flags"].append("few_epochs")
         out["suggestions"].append(f"Only {E} epochs logged (<{min_epochs}). Consider training longer or using a warmer LR schedule.")
-        # Still continue to surface other obvious issues below.
 
-    # 2) Plateau (no meaningful val loss improvement recently)
     if len(va_last) >= max(5, last_k//2) and abs(slope_va) < plateau_eps:
         out["flags"].append("val_plateau")
         out["suggestions"].extend([
@@ -5320,7 +4736,6 @@ def suggest_training_changes(
             "If capacity may be limiting, consider a larger backbone or unfreezing more layers after a warmup.",
         ])
 
-    # 3) Overfitting (train improving, val degrading, or large accuracy gap)
     overfit_like = False
     if slope_tr < -plateau_eps and slope_va > plateau_eps:
         overfit_like = True
@@ -5335,7 +4750,6 @@ def suggest_training_changes(
             "Consider smaller head or freeze more backbone layers for longer warmup.",
         ])
 
-    # 4) Underfitting (both losses high; train acc low and no decreasing trend)
     train_acc_low = ("accuracy" in tr.columns and final.get("train_accuracy", 0.0) < 0.70)
     losses_not_decreasing = (slope_tr > -plateau_eps and slope_va > -plateau_eps)
     if train_acc_low and losses_not_decreasing:
@@ -5346,7 +4760,6 @@ def suggest_training_changes(
             "Verify labels and channel order/normalization; large label noise or wrong preprocessing can cap accuracy.",
         ])
 
-    # 5) Unstable training (high variance in recent val loss)
     if unstable:
         out["flags"].append("unstable_training")
         out["suggestions"].extend([
@@ -5354,7 +4767,6 @@ def suggest_training_changes(
             "Ensure deterministic preprocessing and consistent image normalization.",
         ])
 
-    # 6) F1 NaNs (often single-class in split/batch or metric bug)
     if f1_nan_train or f1_nan_val:
         out["flags"].append("f1_nan_detected")
         out["suggestions"].extend([
@@ -5362,7 +4774,6 @@ def suggest_training_changes(
             "If highly imbalanced, prefer class weights or focal loss (you already use focal—verify label distribution).",
         ])
 
-    # 7) Regressed after best
     if since_best >= max(5, last_k//2) and val_loss_delta_from_best > plateau_eps:
         out["flags"].append("past_best_regression")
         out["suggestions"].extend([
@@ -5370,7 +4781,6 @@ def suggest_training_changes(
             "Also try ReduceLROnPlateau triggered on val loss.",
         ])
 
-    # 8) If accuracy present but macro-F1 << accuracy -> imbalance hint
     if ("accuracy" in va.columns and "f1_macro" in va.columns
         and np.isfinite(final.get("val_accuracy", np.nan))
         and np.isfinite(final.get("val_f1_macro", np.nan))
@@ -5381,7 +4791,6 @@ def suggest_training_changes(
             "Track per-class metrics/confusion matrices to verify rare classes.",
         ])
 
-    # De-duplicate while preserving order. ``dict`` preserves insertion order.
     out["suggestions"] = list(dict.fromkeys(out["suggestions"]))
 
     return out
@@ -5392,7 +4801,6 @@ def _infer_indices(target: torch.Tensor, num_classes: int) -> torch.Tensor:
         return target.view(-1)
     if target.ndim == 2 and target.size(1) == num_classes:
         return target.argmax(dim=1).long()
-    # binary float → {0,1}
     return (target.view(-1) > 0.5).long()
 
 def estimate_class_counts(loader, num_classes: int, src=None, classes=None) -> torch.Tensor:
@@ -5408,19 +4816,16 @@ def estimate_class_counts(loader, num_classes: int, src=None, classes=None) -> t
     :returns: ``LongTensor`` of per-class counts.
     """
 
-    # -- fast path: count files on disk instead of loading images --
     if src is not None and classes is not None:
         counts = torch.zeros(num_classes, dtype=torch.long)
         for i, cls in enumerate(classes):
             cls_dir = os.path.join(src, cls)
             if os.path.isdir(cls_dir):
-                # count only files, skip subdirectories
                 n = sum(1 for f in os.listdir(cls_dir) if os.path.isfile(os.path.join(cls_dir, f)))
                 counts[i] = n
         print(f"Class counts (from folders): {dict(zip(classes, counts.tolist()))}")
         return counts
 
-    # -- slow fallback: iterate the DataLoader (original behavior) --
     print("Warning: counting classes by iterating DataLoader (slow on NAS). "
           "Pass src and classes to avoid this.")
     counts = torch.zeros(num_classes, dtype=torch.long)
@@ -5462,15 +4867,12 @@ def build_loss(loss_type: str = "ce",
     """
     lt = (loss_type or "ce").lower()
 
-    # -------- helpers (scoped) --------
     def _infer_indices(target: torch.Tensor, C: int) -> torch.Tensor:
         """Return class indices from an index vector or 2-D target matrix."""
-        # Accept indices (N,) or one-hot (N,C); return indices (N,)
         if target.ndim == 2:
             return target.argmax(dim=1).long()
         return target.long().view(-1)
 
-    # Priors/weights from counts if provided
     class_weights = None
     logit_adjust = None
     if class_counts is not None:
@@ -5479,15 +4881,9 @@ def build_loss(loss_type: str = "ce",
         priors = counts / counts.sum()
         inv = 1.0 / priors
         class_weights = (inv / inv.mean()).to(dtype=torch.float)
-        # Menon et al. 2020: logit adjustment
         if logit_adjust_tau > 0:
-            # Menon et al. 2020 train-time adjustment is +tau*log(prior),
-            # applied as `logits + adjust` below. The negated form is the
-            # POST-HOC inference correction; used during training it pushes
-            # the model the wrong way and compounds the class imbalance.
             logit_adjust = (float(logit_adjust_tau) * priors.log()).to(dtype=torch.float)
 
-    # ----- binary focal BCE -----
     def _focal_bce(logits, y, alpha, gamma):
         """Return mean focal binary cross-entropy for ``logits`` and ``y``."""
         p = torch.sigmoid(logits)
@@ -5498,7 +4894,6 @@ def build_loss(loss_type: str = "ce",
             w = w * (alpha * y + (1 - alpha) * (1 - y))
         return (w * ce).mean()
 
-    # ----- multiclass focal-CE -----
     def _focal_ce(logits, y_idx, alpha, gamma):
         """Return mean focal cross-entropy for logits and class indices."""
         log_p = F.log_softmax(logits, dim=1)
@@ -5516,7 +4911,6 @@ def build_loss(loss_type: str = "ce",
             loss = -w * log_p_t
         return loss.mean()
 
-    # ----- Asymmetric Loss (multilabel-style one-vs-all) -----
     def _asl(logits, y, gpos, gneg, clip):
         """Return mean asymmetric multilabel loss for logits and targets."""
         x_sigmoid = torch.sigmoid(logits)
@@ -5529,7 +4923,6 @@ def build_loss(loss_type: str = "ce",
         one_sided = (1 - pt).pow(gpos * y + gneg * (1 - y))
         return -(one_sided * loss).mean()
 
-    # Auto heuristic
     def _auto_choice() -> str:
         """Return the default loss name from class count and imbalance."""
         if num_classes >= 2:
@@ -5544,7 +4937,6 @@ def build_loss(loss_type: str = "ce",
     if lt == "auto":
         lt = _auto_choice()
 
-    # -------- binary (num_classes == 1) --------
     if num_classes == 1:
         if lt in ("bce", "binary_cross_entropy_with_logits"):
             def loss_fn(logits, target):
@@ -5560,7 +4952,6 @@ def build_loss(loss_type: str = "ce",
             raise ValueError(f"loss_type '{loss_type}' not valid for binary (num_classes=1)")
         return loss_fn
 
-    # -------- multiclass (num_classes >= 2) --------
     if lt in ("ce", "cross_entropy"):
         def loss_fn(logits, target):
             """Closure: compute the selected per-batch loss from ``(logits, target)``."""
@@ -5602,7 +4993,6 @@ def build_loss(loss_type: str = "ce",
     elif lt in ("asl", "asymmetric_loss"):
         def loss_fn(logits, target):
             """Closure: compute the selected per-batch loss from ``(logits, target)``."""
-            # expect one-hot/float (N,C) or indices (N,)
             if target.ndim == 1:
                 y = F.one_hot(target.long(), num_classes=num_classes).float()
             else:
@@ -5723,9 +5113,6 @@ def annotate_predictions(csv_loc):
         else:
             return ''
 
-    # Keep the semantic distinction between an explicitly empty condition
-    # (``""``) and an unknown one (``None``).  Pandas 3 can otherwise infer
-    # a nullable string column and normalise the latter to ``nan``.
     df['cond'] = pd.Series(
         (assign_condition(row) for _, row in df.iterrows()),
         index=df.index,
@@ -5759,9 +5146,7 @@ def add_images_to_tar(paths_chunk, tar_path, total_images):
                 tar.add(img_path, arcname=arcname)
                 with lock:
                     counter.value += 1
-                    if counter.value % 10 == 0:  # Print every 100 updates
-                        #progress = (counter.value / total_images) * 100
-                        #print(f"Progress: {counter.value}/{total_images} ({progress:.2f}%)", end='\r', file=sys.stdout, flush=True)
+                    if counter.value % 10 == 0:
                         print_progress(counter.value, total_images, n_jobs=1, time_ls=None, batch_size=None, operation_type="generating .tar dataset")
             except FileNotFoundError:
                 print(f"File not found: {img_path}")
@@ -5778,9 +5163,6 @@ def generate_fraction_map(df, gene_column, min_frequency=0.0):
     genes = df[gene_column].unique().tolist()
     wells = df['prc'].unique().tolist()
     print(len(genes),len(wells))
-    # An explicit float dtype prevents pandas from creating an object frame
-    # and then silently downcasting it in fillna(), behaviour that is
-    # deprecated and will change in a future pandas release.
     independent_variables = pd.DataFrame(
         np.nan, columns=genes, index=wells, dtype=float)
     for index, row in df.iterrows():
@@ -5791,17 +5173,10 @@ def generate_fraction_map(df, gene_column, min_frequency=0.0):
     independent_variables = independent_variables.dropna(axis=1, how='all')
     independent_variables = independent_variables.dropna(axis=0, how='all')
     independent_variables['sum'] = independent_variables.sum(axis=1)
-    #sums = independent_variables['sum'].unique().tolist()
-    #print(sums)
-    #independent_variables = independent_variables[(independent_variables['sum'] == 0.0) | (independent_variables['sum'] == 1.0)]
     independent_variables = independent_variables.fillna(0.0)
     independent_variables = independent_variables.drop(columns=[col for col in independent_variables.columns if independent_variables[col].max() < min_frequency])
     independent_variables = independent_variables.drop('sum', axis=1)
     independent_variables.index.name = 'prc'
-    # NOTE: previously this unconditionally wrote the result to a hardcoded
-    # developer-machine path ('/mnt/data/CellVoyager/.../iv.csv'), which raised
-    # for any other environment. Removed — callers persist the returned frame
-    # themselves if they need it.
     return independent_variables
 
 def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
@@ -5812,7 +5187,6 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
     :param phenotyp_col: name of the phenotype column.
     :returns: DataFrame with columns ``Mutant``, ``OddsRatio``, ``PValue``, ``AdjustedPValue``.
     """
-    # Binning based on phenotype score (e.g., above 0.8 as high)
     df['high_phenotype'] = df[phenotyp_col] < threshold
 
     results = []
@@ -5820,29 +5194,22 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
     mutants = [item for item in mutants if item not in ['count_prc','mean_pathogen_area']]
     print(f'fishers df')
     display(df)
-    # Perform Fisher's exact test for each mutant
     for mutant in mutants:
         contingency_table = pd.crosstab(df[mutant] > 0, df['high_phenotype'])
-        if contingency_table.shape == (2, 2):  # Check for 2x2 shape
+        if contingency_table.shape == (2, 2):
             odds_ratio, p_value = fisher_exact(contingency_table)
             results.append((mutant, odds_ratio, p_value))
         else:
-            # Optionally handle non-2x2 tables (e.g., append NaN or other placeholders)
             results.append((mutant, float('nan'), float('nan')))
     
-    # Convert results to DataFrame for easier handling
     results_df = pd.DataFrame(results, columns=['Mutant', 'OddsRatio', 'PValue'])
-    # Remove rows with undefined odds ratios or p-values
     filtered_results_df = results_df.dropna(
         subset=['OddsRatio', 'PValue']).copy()
     
     pvalues = filtered_results_df['PValue'].values
 
-    # Check if pvalues array is empty
     if len(pvalues) > 0:
-        # Apply Benjamini-Hochberg correction
         adjusted_pvalues = multipletests(pvalues, method='fdr_bh')[1]
-        # Add adjusted p-values back to the dataframe
         filtered_results_df.loc[:, 'AdjustedPValue'] = adjusted_pvalues
     else:
         print("No p-values to adjust. Check your data filtering steps.")
@@ -5855,41 +5222,30 @@ def model_metrics(model):
     :param model: fitted statsmodels regression result.
     :returns: None.
     """
-    # Calculate additional metrics
     rmse = np.sqrt(model.mse_resid)
     mae = np.mean(np.abs(model.resid))
     durbin_w_value = durbin_watson(model.resid)
 
-    # Display the additional metrics
     print("\nAdditional Metrics:")
     print(f"Root Mean Squared Error (RMSE): {rmse}")
     print(f"Mean Absolute Error (MAE): {mae}")
     print(f"Durbin-Watson: {durbin_w_value}")
 
-    # Residual Plots
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         fig, ax = plt.subplots(2, 2, figsize=(15, 12))
 
-        # Residual vs. Fitted
         ax[0, 0].scatter(model.fittedvalues, model.resid, edgecolors = 'k', facecolors = 'none')
         ax[0, 0].set_title('Residuals vs Fitted')
         ax[0, 0].set_xlabel('Fitted values')
         ax[0, 0].set_ylabel('Residuals')
 
-        # Histogram
         sns.histplot(model.resid, kde=True, ax=ax[0, 1])
         ax[0, 1].set_title('Histogram of Residuals')
         ax[0, 1].set_xlabel('Residuals')
 
-        # QQ Plot
         sm.qqplot(model.resid, fit=True, line='45', ax=ax[1, 0])
         ax[1, 0].set_title('QQ Plot')
 
-        # Scale-Location
         standardized_resid = model.get_influence().resid_studentized_internal
         ax[1, 1].scatter(model.fittedvalues, np.sqrt(np.abs(standardized_resid)), edgecolors = 'k', facecolors = 'none')
         ax[1, 1].set_title('Scale-Location')
@@ -5923,23 +5279,19 @@ def lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso'):
     :param reg_type: ``'lasso'`` or ``'ridge'``.
     :returns: DataFrame with ``Feature`` and ``Coefficient`` columns.
     """
-    # Separate predictors and response
     X = merged_df[['gene', 'grna', 'plateID', 'rowID', 'columnID']]
     y = merged_df['pred']
 
-    # One-hot encode the categorical predictors
-    encoder = OneHotEncoder(drop='first')  # drop one category to avoid the dummy variable trap
+    encoder = OneHotEncoder(drop='first')
     X_encoded = encoder.fit_transform(X).toarray()
     feature_names = encoder.get_feature_names_out(input_features=X.columns)
     
     reg_type = str(reg_type).strip().lower()
     if reg_type == 'ridge':
-        # Fit ridge regression
         ridge = Ridge(alpha=alpha_value)
         ridge.fit(X_encoded, y)
         coeff_dict = dict(zip(feature_names, ridge.coef_))
     elif reg_type == 'lasso':
-        # Fit Lasso regression
         lasso = Lasso(alpha=alpha_value)
         lasso.fit(X_encoded, y)
         coeff_dict = dict(zip(feature_names, lasso.coef_))
@@ -5959,16 +5311,10 @@ def MLR(merged_df, refine_model):
     """
     from .plot import _reg_v_plot
     
-    # Main effects must stay in the formula. With only the interaction term,
-    # patsy full-rank-codes the second factor as grna[<level>] (no "T."), so
-    # the "[T." filter used to pull out max effects below matched nothing and
-    # the returned effects were empty.
     model = smf.ols("pred ~ gene + grna + gene:grna + plate + row + column", merged_df).fit()
-    # Display model metrics and summary
     model_metrics(model)
 
     if refine_model:
-        # Filter outliers
         std_resid = model.get_influence().resid_studentized_internal
         outliers_resid = np.where(np.abs(std_resid) > 3)[0]
         (c, p) = model.get_influence().cooks_distance
@@ -5978,7 +5324,6 @@ def MLR(merged_df, refine_model):
 
         display(merged_df_filtered)
 
-        # Refit the model with filtered data
         model = smf.ols("pred ~ gene + grna + gene:grna + row + column", merged_df_filtered).fit()
         print("Number of outliers detected by standardized residuals:", len(outliers_resid))
         print("Number of outliers detected by Cook's distance:", len(outliers_cooks))
@@ -5986,7 +5331,6 @@ def MLR(merged_df, refine_model):
         model_metrics(model)
         print(model.summary())
 
-    # Extract interaction coefficients and determine the maximum effect size
     interaction_coeffs = {key: val for key, val in model.params.items() if "gene[T." in key and ":grna[T." in key}
     interaction_pvalues = {key: val for key, val in model.pvalues.items() if "gene[T." in key and ":grna[T." in key}
 
@@ -6022,8 +5366,6 @@ def get_files_from_dir(dir_path, file_extension="*"):
         are excluded by ``glob`` semantics. Default ``'*'`` returns every
         non-hidden entry, directories included.
     """
-    # ``glob`` is imported as the module here (see glob.glob usage elsewhere),
-    # so it must be called as glob.glob — a bare glob(...) raised TypeError.
     return glob.glob(os.path.join(dir_path, file_extension))
 
 def create_circular_mask(h, w, center=None, radius=None):
@@ -6035,9 +5377,9 @@ def create_circular_mask(h, w, center=None, radius=None):
     :param radius: circle radius; defaults to the largest circle fitting inside.
     :returns: boolean ndarray where ``True`` marks pixels within ``radius``.
     """
-    if center is None:  # use the middle of the image
+    if center is None:
         center = (int(w/2), int(h/2))
-    if radius is None:  # use the smallest distance between the center and image walls
+    if radius is None:
         radius = min(center[0], center[1], w-center[0], h-center[1])
 
     Y, X = np.ogrid[:h, :w]
@@ -6061,14 +5403,12 @@ def apply_mask(image, output_value=0):
         result -- passing ``np.nan`` to a ``uint16`` image returns a float array,
         not a masked integer one. Default ``0``.
     """
-    h, w = image.shape[:2]  # Assuming image is grayscale or RGB
+    h, w = image.shape[:2]
     mask = create_circular_mask(h, w)
     
-    # If the image has more than one channel, repeat the mask for each channel
     if len(image.shape) > 2:
         mask = np.repeat(mask[:, :, np.newaxis], image.shape[2], axis=2)
     
-    # Apply the mask - set pixels outside of the mask to output_value
     masked_image = np.where(mask, image, output_value)
     return masked_image
     
@@ -6099,11 +5439,6 @@ def invert_image(image):
             f"invert_image needs an integer dtype to know what to invert "
             f"against; got {image.dtype}. Rescale to uint8/uint16 first.")
     info = np.iinfo(image.dtype)
-    # min + max: the dtype ceiling for an unsigned image (0 + 255), and -1 for
-    # a signed one, so the reflection maps [min, max] onto itself either way.
-    # The pivot always fits the dtype (it IS max when unsigned, -1 when
-    # signed), so subtracting in the image's own dtype is exact -- and avoids
-    # the uint64 promotion to float64 that a Python int operand would cause.
     pivot = np.asarray(info.min + info.max, dtype=image.dtype)
     inverted_image = pivot - image
     return inverted_image.astype(image.dtype, copy=False)
@@ -6184,7 +5519,6 @@ def resize_labels_back(labels, orig_dims):
         raise ValueError("The length of labels and orig_dims must match.")
 
     for label, dims in zip(labels, orig_dims):
-        # Ensure dims is a tuple of two integers (width, height)
         if not isinstance(dims, tuple) or len(dims) != 2:
             raise ValueError("Each element in orig_dims must be a tuple of two integers representing the original dimensions (width, height)")
 
@@ -6221,7 +5555,7 @@ def match_masks(true_masks, pred_masks, iou_threshold):
     :returns: list of ``(true_mask, pred_mask)`` matched pairs.
     """
     matches = []
-    matched_true_masks_indices = set()  # Use set to store indices of matched true masks
+    matched_true_masks_indices = set()
 
     for pred_mask in pred_masks:
         for true_mask_index, true_mask in enumerate(true_masks):
@@ -6229,8 +5563,8 @@ def match_masks(true_masks, pred_masks, iou_threshold):
                 iou = calculate_iou(true_mask, pred_mask)
                 if iou >= iou_threshold:
                     matches.append((true_mask, pred_mask))
-                    matched_true_masks_indices.add(true_mask_index)  # Store the index of the matched true mask
-                    break  # Move on to the next predicted mask
+                    matched_true_masks_indices.add(true_mask_index)
+                    break
     return matches
     
 def compute_average_precision(matches, num_true_masks, num_pred_masks):
@@ -6273,7 +5607,6 @@ def pad_to_same_shape(mask1, mask2):
         mask is padded independently, so the larger one along a given axis is
         returned untouched on that axis.
     """
-    # Find the shape differences
     shape_diff = np.array([max(mask1.shape[0], mask2.shape[0]) - mask1.shape[0], 
                            max(mask1.shape[1], mask2.shape[1]) - mask1.shape[1]])
     pad_mask1 = ((0, shape_diff[0]), (0, shape_diff[1]))
@@ -6308,12 +5641,10 @@ def compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds):
     for iou_threshold in iou_thresholds:
         matches = match_masks(true_masks, pred_masks, iou_threshold)
         precision, recall = compute_average_precision(matches, len(true_masks), len(pred_masks))
-        # Check that precision and recall are within the range [0, 1]
         if not 0 <= precision <= 1 or not 0 <= recall <= 1:
             raise ValueError(f'Precision or recall out of bounds. Precision: {precision}, Recall: {recall}')
         precision_recall_pairs.append((precision, recall))
 
-    # Sort by recall values
     precision_recall_pairs = sorted(precision_recall_pairs, key=lambda x: x[1])
     sorted_precisions = [p[0] for p in precision_recall_pairs]
     sorted_recalls = [p[1] for p in precision_recall_pairs]
@@ -6371,19 +5702,15 @@ def dice_coefficient(mask1, mask2):
         agree. Two empty masks return ``1.0`` here (defined as perfect
         agreement) rather than ``nan``.
     """
-    # Convert to binary masks
     mask1 = np.where(mask1 > 0, 1, 0)
     mask2 = np.where(mask2 > 0, 1, 0)
 
-    # Calculate intersection and total
     intersection = np.sum(mask1 & mask2)
     total = np.sum(mask1) + np.sum(mask2)
     
-    # Handle the case where both masks are empty
     if total == 0:
         return 1.0
     
-    # Return the Dice coefficient
     return 2.0 * intersection / total
 
 def extract_boundaries(mask, dilation_radius=1):
@@ -6420,18 +5747,14 @@ def boundary_f1_score(mask_true, mask_pred, dilation_radius=1):
         boundaries, so scores rise for every model and stop being comparable
         across different radii. Default ``1``.
     """
-    # Assume extract_boundaries is defined to extract object boundaries with given dilation_radius
     boundary_true = extract_boundaries(mask_true, dilation_radius)
     boundary_pred = extract_boundaries(mask_pred, dilation_radius)
     
-    # Calculate intersection of boundaries
     intersection = np.logical_and(boundary_true, boundary_pred)
     
-    # Calculate precision and recall for boundary detection
     precision = np.sum(intersection) / (np.sum(boundary_pred) + 1e-6)
     recall = np.sum(intersection) / (np.sum(boundary_true) + 1e-6)
     
-    # Calculate F1 score as harmonic mean of precision and recall
     f1 = 2 * (precision * recall) / (precision + recall + 1e-6)
     
     return f1
@@ -6457,10 +5780,6 @@ def _remove_noninfected(stack, cell_dim, nucleus_dim, pathogen_dim):
     for cell_label in np.unique(cell_mask)[1:]:
         cell_region = cell_mask == cell_label
         labels_in_cell = np.unique(pathogen_mask[cell_region])
-        # Count actual pathogens, not uniques. `len(...) <= 1` assumed a
-        # background pixel was always present inside the cell, so a cell
-        # completely filled by its pathogen yielded [pid] (len 1) and was
-        # deleted as "uninfected" — exactly backwards.
         labels_in_cell = labels_in_cell[labels_in_cell != 0]
         if len(labels_in_cell) == 0:
             cell_mask[cell_region] = 0
@@ -6477,26 +5796,16 @@ def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
         cell_mask = stack[:, :, cell_dim]
     else:
         return stack
-    # A DIM OF None IS np.newaxis, NOT A MISSING CHANNEL. `stack[:, :, None]`
-    # does not raise: it returns the WHOLE STACK with an axis inserted, so
-    # `nucleus_mask` became every channel at once and zeroing a nucleus label
-    # zeroed every object that happened to share the number. Measured on an
-    # 8x8 stack: a cell labelled 5, nowhere near the pathogen, was erased in
-    # full when nucleus_dim was None.
     if pathogen_dim is None:
-        return stack                       # nothing to remove
+        return stack
     pathogen_mask = stack[:, :, pathogen_dim]
     nucleus_mask = None if nucleus_dim is None else stack[:, :, nucleus_dim]
     pathogen_labels = np.unique(pathogen_mask)[1:]
     for pathogen_label in pathogen_labels:
         pathogen_region = pathogen_mask == pathogen_label
         cell_in_pathogen_region = np.unique(cell_mask[pathogen_region])
-        cell_in_pathogen_region = cell_in_pathogen_region[cell_in_pathogen_region != 0]  # Exclude background
+        cell_in_pathogen_region = cell_in_pathogen_region[cell_in_pathogen_region != 0]
         if len(cell_in_pathogen_region) == 0:
-            # Resolve the nucleus through the pathogen's FOOTPRINT. The old
-            # `nucleus_mask == pathogen_label` reused a pathogen label id as a
-            # nucleus label id — independent label spaces — so it deleted an
-            # arbitrary unrelated nucleus that merely shared the number.
             pathogen_mask[pathogen_region] = 0
             if nucleus_mask is not None:
                 nuclei_in_pathogen = np.unique(nucleus_mask[pathogen_region])
@@ -6512,8 +5821,6 @@ def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
 
 def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_dim, object_dim):
     """Zero out cells containing more than one object in ``object_dim``."""
-    # See `_remove_outside_objects`: a dim of None is np.newaxis and silently
-    # widens the view to the whole stack instead of raising.
     if mask_dim is None or object_dim is None:
         return stack
     cell_mask = stack[:, :, mask_dim]
@@ -6524,19 +5831,11 @@ def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_d
     for cell_label in np.unique(cell_mask)[1:]:
         cell_region = cell_mask == cell_label
         labels_in_cell = np.unique(object_mask[cell_region])
-        # Strip background before counting. `> 2` and the `[1:]` slice both
-        # assumed a background pixel inside every cell, so a cell fully
-        # covered by two objects read as len 2 and was kept, and the slice
-        # then skipped a real object instead of the 0.
         labels_in_cell = labels_in_cell[labels_in_cell != 0]
         if len(labels_in_cell) > 1:
             cell_mask[cell_region] = 0
             if nucleus_mask is not None:
                 nucleus_mask[cell_region] = 0
-            # Resolve the pathogens through the cell FOOTPRINT. labels_in_cell
-            # are object_dim label ids, and nucleus/pathogen masks are labeled
-            # independently from 1 — reusing them as pathogen ids deletes
-            # unrelated pathogens whenever object_dim is not the pathogen dim.
             if pathogen_mask is not None:
                 pathogens_in_cell = np.unique(pathogen_mask[cell_region])
                 pathogens_in_cell = pathogens_in_cell[pathogens_in_cell != 0]
@@ -6560,27 +5859,23 @@ def merge_touching_objects(mask, threshold=0.25):
     """
     perimeters = {}
     labels = np.unique(mask)
-    # Calculating perimeter of each object
     for label in labels:
-        if label != 0:  # Ignore background
+        if label != 0:
             edges = morphology.erosion(mask == label) ^ (mask == label)
             perimeters[label] = np.sum(edges)
-    # Detect touching objects and find the shared boundary
     shared_perimeters = {}
     dilated = morphology.dilation(mask > 0)
     for label in labels:
-        if label != 0:  # Ignore background
-            # Find the objects that this object is touching
+        if label != 0:
             dilated_label = morphology.dilation(mask == label)
             touching_labels = np.unique(mask[dilated & (dilated_label != 0) & (mask != 0)])
             for touching_label in touching_labels:
-                if touching_label != label:  # Exclude the object itself
+                if touching_label != label:
                     shared_boundary = dilated_label & morphology.dilation(mask == touching_label)
                     shared_perimeters[(label, touching_label)] = np.sum(shared_boundary)
-    # Merge objects if more than 25% of their boundary is touching
     for (label1, label2), shared_perimeter in shared_perimeters.items():
         if shared_perimeter > threshold * min(perimeters[label1], perimeters[label2]):
-            mask[mask == label2] = label1  # Merge label2 into label1
+            mask[mask == label2] = label1
     return mask
     
 def remove_intensity_objects(image, mask, intensity_threshold, mode):
@@ -6592,14 +5887,11 @@ def remove_intensity_objects(image, mask, intensity_threshold, mode):
     :param mode: ``'low'`` removes below-threshold objects, ``'high'`` removes above.
     :returns: filtered label mask.
     """
-    # Calculate the mean intensity of each object in the original image
     props = regionprops_table(mask, image, properties=('label', 'mean_intensity'))
-    # Find the labels of the objects with mean intensity below the threshold
     if mode == 'low':
         labels_to_remove = props['label'][props['mean_intensity'] < intensity_threshold]
     if mode == 'high':
         labels_to_remove = props['label'][props['mean_intensity'] > intensity_threshold]
-    # Remove these objects from the mask
     mask[np.isin(mask, labels_to_remove)] = 0
     return mask
     
@@ -6616,65 +5908,49 @@ def _filter_closest_to_stat(df, column, n_rows, use_median=False):
     
 def _find_similar_sized_images(file_list):
     """Return the largest group of image paths sharing the same cropped size/aspect ratio."""
-    # Dictionary to hold image sizes and their paths
     size_to_paths = defaultdict(list)
-    # Iterate over image paths to get their dimensions
     for path in file_list:
         img = read_image_rgb(path, cv2.IMREAD_UNCHANGED)
         if img is not None:
-            # Find indices where the image is not padded (non-zero)
-            if img.ndim == 3:  # Color image
+            if img.ndim == 3:
                 mask = np.any(img != 0, axis=2)
-            else:  # Grayscale image
+            else:
                 mask = img != 0
-            # Find the bounding box of non-zero regions
             coords = np.argwhere(mask)
-            if coords.size == 0:  # Skip images that are completely padded
+            if coords.size == 0:
                 continue
             y0, x0 = coords.min(axis=0)
-            y1, x1 = coords.max(axis=0) + 1  # Add 1 because slice end index is exclusive
-            # Crop the image to remove padding
+            y1, x1 = coords.max(axis=0) + 1
             cropped_img = img[y0:y1, x0:x1]
-            # Get dimensions of the cropped image
             height, width = cropped_img.shape[:2]
             aspect_ratio = width / height
-            size_key = (width, height, round(aspect_ratio, 2))  # Group by width, height, and aspect ratio
+            size_key = (width, height, round(aspect_ratio, 2))
             size_to_paths[size_key].append(path)
-    # Find the largest group of images with the most similar size and shape
     largest_group = max(size_to_paths.values(), key=len)
     return largest_group
     
 def _relabel_parent_with_child_labels(parent_mask, child_mask):
     """Relabel parent objects to match their overlapping child labels."""
-    # Label parent mask to identify unique objects
     parent_labels = label(parent_mask, background=0)
-    # Use the original child mask labels directly, without relabeling
     child_labels = child_mask
 
-    # Create a new parent mask for updated labels
     parent_mask_new = np.zeros_like(parent_mask)
 
-    # Directly relabel parent cells based on overlapping child labels
-    unique_child_labels = np.unique(child_labels)[1:]  # Skip background
+    unique_child_labels = np.unique(child_labels)[1:]
     for child_label in unique_child_labels:
         child_area_mask = (child_labels == child_label)
         overlapping_parent_label = np.unique(parent_labels[child_area_mask])
 
-        # Since each parent is assumed to overlap with exactly one nucleus,
-        # directly set the parent label to the child label where overlap occurs
         for parent_label in overlapping_parent_label:
-            if parent_label != 0:  # Skip background
+            if parent_label != 0:
                 parent_mask_new[parent_labels == parent_label] = child_label
 
-    # For cells containing multiple nucleus, standardize all nucleus to the first label
-    # This will be done only if needed, as per your condition
-    for parent_label in np.unique(parent_mask_new)[1:]:  # Skip background
+    for parent_label in np.unique(parent_mask_new)[1:]:
         parent_area_mask = (parent_mask_new == parent_label)
         child_labels_in_parent = np.unique(child_mask[parent_area_mask])
-        child_labels_in_parent = child_labels_in_parent[child_labels_in_parent != 0]  # Exclude background
+        child_labels_in_parent = child_labels_in_parent[child_labels_in_parent != 0]
 
         if len(child_labels_in_parent) > 1:
-            # Standardize to the first child label within this parent
             first_child_label = child_labels_in_parent[0]
             for child_label in child_labels_in_parent:
                 child_mask[child_mask == child_label] = first_child_label
@@ -6683,13 +5959,11 @@ def _relabel_parent_with_child_labels(parent_mask, child_mask):
     
 def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=True):
     """Drop cells missing required companion objects and clear other masks outside kept cells."""
-    # Remove cells with no nucleus or cytoplasm (or pathogen)
-    filtered_cells = np.zeros_like(cell_mask) # Initialize a new mask to store the filtered cells.
-    for cell_label in np.unique(cell_mask): # Iterate over all cell labels in the cell mask.
-        if cell_label == 0: # Skip background
+    filtered_cells = np.zeros_like(cell_mask)
+    for cell_label in np.unique(cell_mask):
+        if cell_label == 0:
             continue
-        cell_region = cell_mask == cell_label # Get a mask for the current cell.
-        # Check existence of nucleus, cytoplasm and pathogen in the current cell.
+        cell_region = cell_mask == cell_label
         has_nucleus = np.any(nucleus_mask[cell_region])
         has_cytoplasm = np.any(cytoplasm_mask[cell_region])
         has_pathogen = np.any(pathogen_mask[cell_region])
@@ -6699,7 +5973,6 @@ def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uni
         else:
             if has_nucleus and has_cytoplasm and has_pathogen:
                 filtered_cells[cell_region] = cell_label
-    # Remove objects outside of cells
     nucleus_mask = nucleus_mask * (filtered_cells > 0)
     pathogen_mask = pathogen_mask * (filtered_cells > 0)
     cytoplasm_mask = cytoplasm_mask * (filtered_cells > 0)
@@ -6750,7 +6023,6 @@ def _filter_object(mask, min_value, max_value=None):
         too_big = count > max_value
     else:
         too_big = np.zeros_like(too_small)
-    # Label 0 is the background and is never an object.
     remove = np.where(too_small | too_big)[0]
     remove = remove[remove != 0]
     mask[np.isin(mask, remove)] = 0
@@ -6794,10 +6066,8 @@ def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, 
                 kmeans = KMeans(n_clusters=2, random_state=0).fit(mean_intensities)
                 centroids = kmeans.cluster_centers_
             
-                # Calculate the Euclidean distance between the two centroids
                 dist_between_centroids = distance.euclidean(centroids[0], centroids[1])
                 
-                # Set a threshold for the minimum distance to consider clusters distinct
                 distance_threshold = 0.25 
                 
                 if dist_between_centroids > distance_threshold:
@@ -6886,10 +6156,6 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
     elif metadata_type == 'custom':
         regex = f"({custom_regex}).{img_format}"
     else:
-        # NAME THE VOCABULARY. Falling through left `regex` unbound, so an
-        # unrecognised metadata_type raised "cannot access local variable
-        # 'regex'" from inside this function -- an error that names an
-        # implementation detail and not the setting the user got wrong.
         raise ValueError(
             f"metadata_type={metadata_type!r} is not one of 'cellvoyager', "
             f"'cq1', 'auto' or 'custom'. Choose one of those, or use "
@@ -6914,7 +6180,7 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     :returns: the test folder.
     """
     if timelapse:
-        test_images = 1  # Use only 1 set for timelapse to ensure full sequence inclusion
+        test_images = 1
     
     test_folder_path = os.path.join(src, 'test')
     os.makedirs(test_folder_path, exist_ok=True)
@@ -6935,19 +6201,15 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
         set_identifier = (plate, well, field)
         images_by_set[set_identifier].append(filename)
     
-    # Prepare for random selection
     set_identifiers = list(images_by_set.keys())
     if random_test:
         random.seed(42)
-    random.shuffle(set_identifiers)  # Randomize the order
+    random.shuffle(set_identifiers)
     
-    # Select a subset based on the test_images count
     selected_sets = set_identifiers[:test_images]
 
-    # Print information about the number of sets used
     print(f'Using {len(selected_sets)} random image set(s) for test model')
 
-    # Copy files for selected sets to the test folder
     for set_identifier in selected_sets:
         for filename in images_by_set[set_identifier]:
             shutil.copy(os.path.join(src, filename), test_folder_path)
@@ -6990,8 +6252,6 @@ def _installed_cellpose_models():
     try:
         return tuple(getattr(cp_models, "MODEL_NAMES", ()) or ())
     except Exception:
-        # A deferred import that fails must not stop a run choosing a model;
-        # the caller's fallback is the pre-4.2 behaviour.
         return ()
 
 
@@ -7068,19 +6328,6 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
 
     name = str(model_name).strip() if model_name else ''
 
-    # A model the INSTALLED Cellpose actually ships is returned as itself.
-    #
-    # This used to stop at `cpsam`, because Cellpose 4.0 had exactly one stock
-    # model. 4.2 ships four -- cpsam_v2 (its new default), cpdino,
-    # cpdino-vitb, cpsam -- and `settings.cellpose_model_choices` reads that
-    # list from the API, so a dropdown offers them the moment a user upgrades.
-    # Everything below then treated them as UNKNOWN and substituted cpsam:
-    # the menu offered a model the pipeline quietly refused to load, and the
-    # run SUCCEEDED with weights nobody asked for, which is the worst shape
-    # this bug could take.
-    #
-    # Asked of the installed library rather than hard-coded, so a 4.3 that
-    # adds a fifth needs no release here.
     if name and name in _installed_cellpose_models():
         if name != CPSAM_MODEL:
             _report_cellpose_once(
@@ -7089,7 +6336,6 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
         return name
 
     if name and name not in LEGACY_CELLPOSE_MODELS and name != CPSAM_MODEL:
-        # Anything that is not a known model name is meant to be a checkpoint.
         if os.path.isfile(name):
             _report_cellpose_once(
                 ('checkpoint', name, object_type),
@@ -7138,8 +6384,6 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
 
     from .accelerator import cellpose_kwargs
 
-    # device= from the caller still wins; only the flags it cannot know
-    # about (gpu, and the dtype the device can hold) come from here.
     kwargs = cellpose_kwargs()
     if device is not None:
         kwargs["device"] = device
@@ -7158,11 +6402,11 @@ class SelectChannels:
         """Return ``img`` with unselected RGB channels zeroed."""
         img = img.clone()
         if 1 not in self.channels:
-            img[0, :, :] = 0  # Zero out the red channel
+            img[0, :, :] = 0
         if 2 not in self.channels:
-            img[1, :, :] = 0  # Zero out the green channel
+            img[1, :, :] = 0
         if 3 not in self.channels:
-            img[2, :, :] = 0  # Zero out the blue channel
+            img[2, :, :] = 0
         return img
 
 def _activation_map_to_2d(activation_map):
@@ -7204,10 +6448,8 @@ class SaliencyMapGenerator:
         self.model.eval()
         X.requires_grad_()
 
-        # Forward pass
         scores = self.model(X).squeeze()
 
-        # For binary classification, target scores can be the single output
         target_scores = scores * (2 * y - 1)
 
         self.model.zero_grad()
@@ -7224,14 +6466,6 @@ class SaliencyMapGenerator:
         self.model.eval()
         X.requires_grad_()
 
-        # Branch on the UN-squeezed logits. `(scores > 0).long()` is only a
-        # class label for a single-logit head; for a (B, C>1) head it is a
-        # per-logit boolean MASK, which then indexed as if it were a class and
-        # raised "a Tensor with 2 elements cannot be converted to Scalar" for
-        # every model train_test_model produces with the default two classes.
-        # argmax must be taken on the LOGITS, not on the mask: logits
-        # (-0.5, -0.2) mask to (0, 0), whose argmax is 0 while the true class
-        # is 1.
         raw = self.model(X)
         if raw.ndim > 1 and raw.shape[-1] > 1:
             predictions = raw.argmax(dim=-1).long()
@@ -7242,7 +6476,6 @@ class SaliencyMapGenerator:
             predictions = (scores > 0).long()
             target_scores = scores * (2 * predictions - 1)
 
-        # Compute saliency maps
         self.model.zero_grad()
         target_scores.backward(torch.ones_like(target_scores))
 
@@ -7282,19 +6515,9 @@ class SaliencyMapGenerator:
         """
         N = X.shape[0]
         rows = (N + 7) // 8
-        # squeeze=False keeps axs 2-D; without it matplotlib collapses a
-        # single-row grid to 1-D and the axs[i // 8, i % 8] index below
-        # raised IndexError for every batch of 8 or fewer images.
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
 
-            # An incomplete last row must be absent, not seven empty framed
-            # panels beside the final sample. Used panels stay off too because
-            # an image grid has no meaningful ticks or spines.
             for ax in axs.flat:
                 ax.axis('off')
 
@@ -7302,10 +6525,6 @@ class SaliencyMapGenerator:
                 ax = axs[i // 8, i % 8]
                 saliency_map = _activation_map_to_2d(saliency[i].cpu().numpy())
 
-                # The MAP is always drawn. It used to be inside `if overlay`, so
-                # overlay=False produced a grid of bare class labels on empty
-                # axes -- no input, no map, nothing. overlay now means what its
-                # name says: draw the input UNDER the map, or the map alone.
                 if overlay:
                     img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
                     if normalize:
@@ -7315,7 +6534,6 @@ class SaliencyMapGenerator:
                 else:
                     ax.imshow(saliency_map, cmap='jet')
 
-                # Add class label in the top-left corner
                 ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
                         bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
                 ax.axis('off')
@@ -7330,7 +6548,7 @@ class SaliencyMapGenerator:
         """
         img_normalized = np.zeros_like(img)
 
-        for c in range(img.shape[2]):  # Iterate over each channel
+        for c in range(img.shape[2]):
             low = np.percentile(img[:, :, c], lower_percentile)
             high = np.percentile(img[:, :, c], upper_percentile)
             img_normalized[:, :, c] = np.clip((img[:, :, c] - low) / (high - low), 0, 1)
@@ -7353,18 +6571,15 @@ class GradCAMGenerator:
         self.gradients = None
         self.activations = None
 
-        # Hook the target layer
         self.target_layer_module = self.get_layer(self.model, self.target_layer)
         self.hook_layers()
 
     def hook_layers(self):
         """Register forward/backward hooks that capture activations and gradients."""
-        # Forward hook to get activations
         def forward_hook(module, input, output):
             """Forward hook: cache the target layer's output activations."""
             self.activations = output
 
-        # Backward hook to get gradients
         def backward_hook(module, grad_input, grad_output):
             """Backward hook: cache the gradient flowing into the target layer's output."""
             self.gradients = grad_output[0]
@@ -7378,7 +6593,6 @@ class GradCAMGenerator:
         :param model: root model from which attribute traversal starts.
         :param target_layer: dot-separated submodule attribute path.
         """
-        # Recursively find the layer specified in target_layer
         modules = target_layer.split('.')
         layer = model
         for module in modules:
@@ -7393,24 +6607,16 @@ class GradCAMGenerator:
         """
         X.requires_grad_()
 
-        # Forward pass
         scores = self.model(X).squeeze()
 
-        # Perform backward pass
         target_scores = scores * (2 * y - 1)
         self.model.zero_grad()
         target_scores.backward(torch.ones_like(target_scores))
 
-        # Compute GradCAM
         pooled_gradients = torch.mean(self.gradients, dim=[0, 2, 3])
         for i in range(self.activations.size(1)):
             self.activations[:, i, :, :] *= pooled_gradients[i]
 
-        # keepdim keeps the map 4-D (N, 1, H, W) even when the target layer's
-        # spatial dims have collapsed to 1x1 on small inputs; squeeze() plus
-        # two unsqueeze(0) calls produced a 2-D tensor that F.interpolate
-        # rejects with "Input and output must have the same number of
-        # spatial dimensions".
         gradcam = torch.mean(self.activations, dim=1, keepdim=True)
         gradcam = F.relu(gradcam)
         gradcam = F.interpolate(gradcam, size=X.shape[2:], mode='bilinear')
@@ -7432,17 +6638,12 @@ class GradCAMGenerator:
         self.model.eval()
         X.requires_grad_()
 
-        # See compute_saliency_and_predictions: `(scores > 0).long()` is a
-        # class label only for a single-logit head. For a (B, C>1) head it is a
-        # per-logit mask, so predictions[i] below was a C-element tensor rather
-        # than a scalar class index.
         raw = self.model(X)
         if raw.ndim > 1 and raw.shape[-1] > 1:
             predictions = raw.argmax(dim=-1).long()
         else:
             predictions = (raw.squeeze() > 0).long()
 
-        # Compute gradcam maps
         gradcam_maps = []
         for i in range(X.size(0)):
             gradcam_map = self.compute_gradcam_maps(X[i].unsqueeze(0), predictions[i])
@@ -7479,12 +6680,6 @@ class GradCAMGenerator:
         """
         N = X.shape[0]
         rows = (N + 7) // 8
-        # See SaliencyMapGenerator.plot_activation_grid — squeeze=False is
-        # required so the 2-D index below works for a single-row grid.
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
 
@@ -7495,8 +6690,6 @@ class GradCAMGenerator:
                 ax = axs[i // 8, i % 8]
                 gradcam_map = _activation_map_to_2d(gradcam[i].cpu().numpy())
 
-                # Same contract as the saliency twin: the map always draws, and
-                # overlay decides whether the input is drawn beneath it.
                 if overlay:
                     img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
                     if normalize:
@@ -7506,10 +6699,7 @@ class GradCAMGenerator:
                 else:
                     ax.imshow(gradcam_map, cmap='jet')
 
-                #ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
-                #ax.imshow(gradcam_map, cmap='jet', alpha=0.5)  # Overlay the gradcam map
 
-                # Add class label in the top-left corner
                 ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
                         bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
                 ax.axis('off')
@@ -7524,7 +6714,7 @@ class GradCAMGenerator:
         """
         img_normalized = np.zeros_like(img)
 
-        for c in range(img.shape[2]):  # Iterate over each channel
+        for c in range(img.shape[2]):
             low = np.percentile(img[:, :, c], lower_percentile)
             high = np.percentile(img[:, :, c], upper_percentile)
             img_normalized[:, :, c] = np.clip((img[:, :, c] - low) / (high - low), 0, 1)
@@ -7595,31 +6785,23 @@ def class_visualization(target_y, model_path, dtype, img_size=224, channels=None
         img_tensor = img_tensor.clamp(0, 1)
         return img_tensor.squeeze().permute(1, 2, 0).cpu().numpy()
     
-    # Assuming these are defined somewhere in your codebase
     SQUEEZENET_MEAN = [0.485, 0.456, 0.406]
     SQUEEZENET_STD = [0.229, 0.224, 0.225]
     
-    # weights_only=False is the pre-torch-2.6 default this call site was
-    # written against; these checkpoints are whole nn.Module pickles.
     model = torch.load(model_path, weights_only=False)
     
-    # A CUDA tensor TYPE, which only CUDA has. Every other backend
-    # takes a plain float tensor and is moved with .to(device).
     from .accelerator import is_cuda
 
     dtype = torch.cuda.FloatTensor if is_cuda() else torch.FloatTensor
     len_chans = len(channels)
     model.type(dtype)
 
-    # Randomly initialize the image as a PyTorch Tensor, and make it requires gradient.
     img = torch.randn(1, len_chans, img_size, img_size).mul_(1.0).type(dtype).requires_grad_()
 
     for t in range(num_iterations):
-        # Randomly jitter the image a bit; this gives slightly nicer results
         ox, oy = random.randint(0, max_jitter), random.randint(0, max_jitter)
         img.data.copy_(jitter(img.data, ox, oy))
 
-        # Forward pass
         score = model(img)
         
         if target_y == 0:
@@ -7627,21 +6809,16 @@ def class_visualization(target_y, model_path, dtype, img_size=224, channels=None
         else:
             target_score = score
 
-        # Add regularization
         target_score = target_score - l2_reg * torch.norm(img)
 
-        # Backward pass
         target_score.backward()
 
-        # Gradient ascent step
         with torch.no_grad():
             img += learning_rate * img.grad / torch.norm(img.grad)
             img.grad.zero_()
 
-        # Undo the random jitter
         img.data.copy_(jitter(img.data, -ox, -oy))
 
-        # As regularizer, clamp and periodically blur the image
         for c in range(3):
             lo = float(-SQUEEZENET_MEAN[c] / SQUEEZENET_STD[c])
             hi = float((1.0 - SQUEEZENET_MEAN[c]) / SQUEEZENET_STD[c])
@@ -7649,7 +6826,6 @@ def class_visualization(target_y, model_path, dtype, img_size=224, channels=None
         if t % blur_every == 0:
             blur_image(img.data, sigma=0.5)
         
-        # Periodically show the image
         if t == 0 or (t + 1) % show_every == 0 or t == num_iterations - 1:
             plt.imshow(deprocess(img.data.clone().cpu()))
             class_name = class_names[target_y]
@@ -7744,9 +6920,6 @@ class GradCAM:
             cam += w * target[i, :, :]
 
         cam = np.maximum(cam, 0)
-        # np.atleast_2d guards the case where the target layer's spatial dims
-        # have collapsed to 1x1 (small inputs): cam would otherwise be 0-d and
-        # cv2.resize rejects it.
         cam = cv2.resize(np.atleast_2d(cam), (x.size(2), x.size(3)))
         cam = cam - np.min(cam)
         peak = np.max(cam)
@@ -7802,8 +6975,6 @@ def show_cam_on_image(img, mask):
             "normalized")
     low, high = float(mask.min()), float(mask.max())
     if low < 0.0 or high > 1.0:
-        # Clipping keeps hot pixels hot. The warning is what makes the
-        # normalization the caller skipped visible.
         warnings.warn(
             f"activation map spans [{low:g}, {high:g}]; show_cam_on_image "
             f"expects [0, 1] and is clipping to it. Normalize the CAM to "
@@ -7816,9 +6987,6 @@ def show_cam_on_image(img, mask):
     cam = heatmap + img
     peak = float(np.max(cam))
     if not peak > 0:
-        # Unreachable for an image in [0, 1]: jet maps even a zero mask to
-        # BGR (128, 0, 0), so the blend always has a positive pixel. Getting
-        # here means the image was negative enough to cancel the heatmap out.
         raise ValueError(
             f"the heatmap blend peaks at {peak:g}, so there is nothing to "
             f"normalize against; show_cam_on_image needs an image scaled to "
@@ -7838,7 +7006,6 @@ def recommend_target_layers(model):
     for name, module in model.named_modules():
         if isinstance(module, torch.nn.Conv2d):
             target_layers.append(name)
-    # Choose the last conv layer as the recommended target layer
     if target_layers:
         return [target_layers[-1]], target_layers
     else:
@@ -7868,7 +7035,6 @@ class IntegratedGradients:
         
         assert baseline.shape == input_tensor.shape
 
-        # Scale input and compute gradients
         scaled_inputs = [(baseline + (float(i) / num_steps) * (input_tensor - baseline)).requires_grad_(True) for i in range(0, num_steps + 1)]
         grads = []
         for scaled_input in scaled_inputs:
@@ -8030,10 +7196,6 @@ def reduction_and_clustering(
                     "t-SNE perplexity must be greater than 0 and smaller "
                     f"than the {len(values)} input rows; got "
                     f"{requested_perplexity}.")
-            # A row limit can leave fewer rows than the saved/default
-            # perplexity. Use the largest valid neighbourhood rather than
-            # failing after data loading; retain the requested setting in the
-            # settings file and report the adjustment in verbose mode.
             perplexity = min(requested_perplexity, float(len(values) - 1))
             if verbose and perplexity != requested_perplexity:
                 print(f'Adjusted t-SNE perplexity from '
@@ -8047,8 +7209,6 @@ def reduction_and_clustering(
                 max_iter=int(options.get('max_iter', 1000)), metric=metric,
                 init='random', verbose=int(bool(verbose)), random_state=seed,
             )
-            # sklearn accepts n_jobs; cuML releases differ, so do not forward
-            # that CPU-only tuning argument to a requested GPU constructor.
             if not prefer_gpu:
                 kwargs['n_jobs'] = n_jobs
             from .gpu_reduce import make_reducer
@@ -8125,9 +7285,6 @@ def reduction_and_clustering(
     elif clustering == 'kmeans':
         clustering_model = KMeans(n_clusters=min_samples, random_state=_run_random_state(42))
     else:
-        # Without this the name stays unbound and the next line dies with a
-        # bare UnboundLocalError. search_reduction_and_clustering already
-        # raises this; the two are now consistent.
         raise ValueError(f"Unsupported clustering method: {clustering}. Supported methods are 'dbscan' and 'kmeans'")
 
     clustering_model.fit(embedding)
@@ -8195,14 +7352,8 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
     :param outline_width: hull line width in points, floored at ``0.1``. Default ``1.0``.
     :returns: matplotlib ``Figure``.
     """
-    # `setup_plot` pushes the theme's colours into matplotlib's
-    # process-wide rcParams so the panels it builds match the GUI. Scoped
-    # to this figure: a UMAP drawn on the dark theme used to leave every
-    # later figure of the session with white-on-white text once the user
-    # moved to a screen that draws on paper.
     with plt.rc_context():
         unique_labels = np.unique(labels)
-        #num_clusters = len(unique_labels[unique_labels != 0])
         colors, label_to_color_index = assign_colors(unique_labels, colors)
         cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
         fig, ax = setup_plot(
@@ -8216,9 +7367,6 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
         if not image_paths is None and plot_images:
             plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
         if interactive_payload is not None:
-            # The Qt bridge recognises this attribute and keeps the underlying
-            # points/image/database identities instead of flattening the result
-            # into a PNG-only gallery entry.
             fig._spacr_umap_payload = interactive_payload
         plt.show()
         return fig
@@ -8324,12 +7472,6 @@ def setup_plot(figuresize, black_background, theme_colors=None):
         'ytick.color': colors['foreground'],
         'axes.labelcolor': colors['foreground'],
     }):
-        # NOT `figure_style` HERE, DELIBERATELY. `setup_plot` exists to draw
-        # in the GUI THEME's colours, and the context above is already
-        # applying them. A house-style context nested inside would win --
-        # the inner rc_context is the one in force -- and hand back a figure
-        # painted for print on a dark screen, which is the exact failure
-        # `theme_target` exists to prevent.
         fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
     _style_plot_axes(fig, ax, colors)
     return fig, ax
@@ -8370,9 +7512,6 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
     for cluster_label, color, center in zip(unique_labels, colors, cluster_centers):
         cluster_data = embedding[labels == cluster_label]
         marker_color = fixed_color or color
-        # A ConvexHull needs >=3 non-collinear points; with too few or
-        # collinear points (common for tiny/degenerate clusters) Qhull raises.
-        # Skip the outline in that case rather than crashing the whole plot.
         if smooth_lines:
             if cluster_data.shape[0] > 2:
                 try:
@@ -8495,11 +7634,6 @@ def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoo
     :param verbose: accepted and ignored; any value at all is tolerated.
     :returns: None.
     """
-    # NOT zip(np.unique(labels), colors). The colour was never read, so the
-    # only thing that zip contributed was a LENGTH -- and because np.unique
-    # counts the -1 noise label, a palette sized to the real clusters was one
-    # short and THE LAST CLUSTER WAS SILENTLY NOT PLOTTED. The palette does
-    # not get to decide how many clusters are drawn.
     for cluster_label in np.unique(labels):
         if cluster_label == -1:
             continue
@@ -8531,9 +7665,6 @@ def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
         Default ``True``.
     :returns: None.
     """
-    # remove_canvas() inspects PIL's ``img.mode``, so it must run BEFORE the
-    # array conversion — converting first made remove_image_canvas=True raise
-    # AttributeError: 'numpy.ndarray' object has no attribute 'mode'.
     if remove_image_canvas:
         img = remove_canvas(img)
     else:
@@ -8597,8 +7728,6 @@ def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figures
     cluster_images = {label: [] for label in unique_labels if label != -1}
     cluster_indices = {label: np.where(labels == label)[0] for label in unique_labels if label != -1}
     for cluster_label, indices in cluster_indices.items():
-        # No -1 guard needed: the comprehension above already excludes the
-        # DBSCAN noise label, so this loop never sees it.
         if len(indices) > image_nr:
             indices = random.sample(list(indices), image_nr)
         for index in indices:
@@ -8636,20 +7765,16 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
     :returns: the Matplotlib ``Figure``, which is also passed to ``plt.show``.
     """
     num_clusters = len(cluster_images)
-    max_figsize = 200  # Set a maximum figure size
+    max_figsize = 200
     if figuresize * num_clusters > max_figsize:
         figuresize = max_figsize / num_clusters
 
     plot_colors = _plot_theme_colors(black_background, theme_colors)
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         grid_fig, grid_axes = plt.subplots(1, num_clusters, figsize=(figuresize * num_clusters, figuresize), gridspec_kw={'wspace': 0.2, 'hspace': 0})
         grid_fig.patch.set_facecolor(plot_colors['background'])
         if num_clusters == 1:
-            grid_axes = [grid_axes]  # Ensure grid_axes is always iterable
+            grid_axes = [grid_axes]
         cluster_labels = list(cluster_images.keys())
 
         def cluster_color(cluster_label):
@@ -8669,11 +7794,6 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
             image_size = 0.9 / grid_size
             whitespace = (1 - grid_size * image_size) / (grid_size + 1)
 
-            # Both branches WRAP. A string label is positioned, an integer label
-            # indexes the palette directly -- and DBSCAN numbers its clusters
-            # 0..k-1, so a run with more clusters than colours used to die here
-            # with a bare "list index out of range" from colors[cluster_label].
-            # Reusing a colour is a worse figure; crashing is a lost run.
             if isinstance(cluster_label, str) and verbose:
                 print(
                     f'Lable: {cluster_label} '
@@ -8693,11 +7813,10 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
                 ax_img.set_aspect('equal')
                 ax_img.set_facecolor(color[:3])
     
-        # Add cluster labels beside the UMAP plot
-        spacing_factor = 0.5  # Adjust this value to control the spacing between labels
+        spacing_factor = 0.5
         for i, cluster_label in enumerate(cluster_labels):
             color = cluster_color(cluster_label)
-            label_y = 1 - (i + 1) * (spacing_factor / num_clusters)  # Adjust y position for each label
+            label_y = 1 - (i + 1) * (spacing_factor / num_clusters)
             grid_fig.text(
                 1.05, label_y, f'Cluster {cluster_label}',
                 verticalalignment='center', fontsize=figuresize,
@@ -8716,7 +7835,6 @@ def generate_path_list_from_db(db_path, file_metadata):
     """
     all_paths = []
 
-    # Connect to the database and retrieve the image paths
     print(f"Reading DataBase: {db_path}")
     try:
         with sqlite3.connect(db_path, timeout=30) as conn:
@@ -8724,16 +7842,13 @@ def generate_path_list_from_db(db_path, file_metadata):
 
             if file_metadata:
                 if isinstance(file_metadata, str):
-                    # If file_metadata is a single string
                     cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{file_metadata}%",))
                 elif isinstance(file_metadata, list):
-                    # If file_metadata is a list of strings
                     query = "SELECT png_path FROM png_list WHERE " + " OR ".join(
                         ["png_path LIKE ?" for _ in file_metadata])
                     params = [f"%{meta}%" for meta in file_metadata]
                     cursor.execute(query, params)
             else:
-                # If file_metadata is None or empty
                 cursor.execute("SELECT png_path FROM png_list")
 
             while True:
@@ -8856,9 +7971,6 @@ def measure_test_mode(settings):
     """
     if settings['test_mode']:
         if not os.path.basename(settings['src']) == 'test':
-            # isfile: os.listdir also returns subdirectories, and shutil.copy
-            # on one raises IsADirectoryError -- one stray folder under
-            # merged/ took the whole run down.
             all_files = [f for f in os.listdir(settings['src'])
                          if os.path.isfile(os.path.join(settings['src'], f))]
             n_test = min(int(settings['test_nr']), len(all_files))
@@ -9010,10 +8122,6 @@ def preprocess_data(
         [exclude] if isinstance(exclude, str) else (exclude or ())
     )
     allow_unknown = not bool(filter_by or column_list)
-    # Measurement values inserted into SQLite as numeric text make pandas use
-    # object dtype for the whole column. Normalize only losslessly numeric
-    # declared features before the strict schema boundary; malformed text still
-    # raises an actionable ModelFeatureSchemaError.
     df = schema.coerce_model_feature_types(
         df,
         extra_features=explicit_features,
@@ -9027,7 +8135,6 @@ def preprocess_data(
         allow_unknown=allow_unknown,
     )
 
-    # Apply filtering based on the `filter_by` parameter
     if filter_by is not None:
         if not _feature_filter_matches(available_features, filter_by):
             choices = _available_feature_filters(available_features)
@@ -9042,9 +8149,6 @@ def preprocess_data(
     if column_list:
         df = df[column_list]
     
-    # Select declared measurements. Numeric provenance such as object_label,
-    # measurement_ndim and voxel sizes must never enter an embedding merely
-    # because pandas gave it a numeric dtype.
     numeric_data = schema.model_feature_frame(
         df,
         extra_features=explicit_features,
@@ -9052,15 +8156,8 @@ def preprocess_data(
         allow_unknown=allow_unknown,
     )
 
-    # The unfiltered UMAP/statistics path does not pass through
-    # ``filter_dataframe_features``.  Give it the same missing-measurement
-    # contract before transformations or estimators see an all-NaN feature.
-    # Resolve every non-finite representation, not only pandas NA. A feature
-    # frame containing only +/- infinity has no ``isna`` bit set but is just
-    # as unfit for correlation filters and estimators as one containing NaN.
     numeric_data = _resolve_missing_model_features(numeric_data)
     
-    # Check if numeric_data is empty
     if numeric_data.empty:
         if filter_by is not None:
             raise ValueError(
@@ -9074,14 +8171,12 @@ def preprocess_data(
             "tables and excluded features."
         )
     
-    # Remove highly correlated columns
     if not remove_highly_correlated is False:
         if isinstance(remove_highly_correlated, float):
             numeric_data = remove_highly_correlated_columns(numeric_data, remove_highly_correlated)
         else:
             numeric_data = remove_highly_correlated_columns(numeric_data, 0.95)
     
-    # Apply log transformation
     if log_data:
         numeric_data = np.log(numeric_data + 1e-6)
 
@@ -9111,10 +8206,8 @@ def preprocess_data(
         for note in correction_report.warnings:
             print(f"Warning: batch correction: {note}")
     
-    # Fill NaN values with the column mean
     numeric_data = numeric_data.fillna(numeric_data.mean())
     
-    # Scale the numeric data
     scaler = StandardScaler(copy=True, with_mean=True, with_std=True)
     numeric_data = scaler.fit_transform(numeric_data)
     
@@ -9150,10 +8243,8 @@ def remove_highly_correlated_columns(df, threshold=0.95, verbose=False):
     numerical_cols = df.select_dtypes(include=[np.number])
     corr_matrix = numerical_cols.corr().abs()
     
-    # Upper triangle of the correlation matrix
     upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
     
-    # Find columns with correlation greater than the threshold
     to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
     
     if verbose:
@@ -9242,10 +8333,6 @@ def _resolve_missing_model_features(df):
     :param df: numeric model-feature frame.
     :returns: a frame with no missing values.
     """
-    # Ratios measured over an empty compartment legitimately reach the model
-    # table as +/- infinity. Pandas does not classify those values as missing,
-    # and scikit-learn's scalers refuse them, so normalize them into the same
-    # explicit missing-value contract before deciding which columns survive.
     df = df.replace([np.inf, -np.inf], np.nan)
     missing = df.isna()
     all_missing = missing.all(axis=0)
@@ -9264,8 +8351,6 @@ def _resolve_missing_model_features(df):
         df = df.copy()
         df[partial_columns] = df[partial_columns].fillna(medians)
 
-    # Keep the long-standing diagnostic text stable for callers and logs,
-    # while spelling out that only wholly absent columns are removed now.
     print(
         f"Dropped {len(all_missing_columns)} columns with NaN values "
         "(all values were missing)"
@@ -9302,15 +8387,6 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
             "Requested feature exclusions are not present in the input "
             f"table: {missing_exclusions}. Available columns: "
             f"{sorted(map(str, df.columns))}.")
-    # Repair before the strict boundary judges. A measurement that is NULL in
-    # every row of the database -- mode_intensity in anything measured before
-    # the SciPy shim, skew/kurtosis wherever every object is uniform -- reaches
-    # here as an OBJECT column of None, because pandas types an all-NULL result
-    # set from its rows and never asks SQLite what it declared. model_feature_
-    # columns then refused it, naming one column, and the run stopped on data
-    # that has nothing wrong with it. See schema.coerce_model_feature_types:
-    # numeric text is recovered loudly, unreadable text still refuses, and it
-    # refuses with every offending column named at once.
     df = schema.coerce_model_feature_types(df, exclude=excluded_features)
     declared_features = schema.model_feature_columns(
         df, exclude=excluded_features)
@@ -9330,19 +8406,6 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
         
     df = df[declared_features].copy()
     
-    # WHICH FEATURES THE MODEL SEES, from one setting that takes every
-    # shape a user can mean by it -- a channel, several channels,
-    # 'morphology', a column-name fragment, or a mixture. See
-    # `feature_selection`, which is where the four doors into this question
-    # (the panel's chip strip, a settings CSV, a script, and the default)
-    # are made to agree.
-    #
-    # THE UNION, not the intersection: [1, 'morphology'] is channel 1's
-    # intensities AND the shapes, which is the combination the request asked
-    # to be straightforward. And colocalisation belongs to both channels it
-    # measures, so asking for channel 1 keeps
-    # `cell_channel_1_channel_2_pearsons` -- which is how "localization" is
-    # reachable without a setting of its own.
     selection = feature_selection(channel_of_interest)
     if selection is not None:
         keep = feature_columns(df.columns, selection)
@@ -9351,11 +8414,6 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
         if verbose:
             print(f"Removed columns: {columns_to_drop}")
 
-    # Resolve missingness before variance and correlation filtering.  An
-    # all-missing feature then disappears explicitly; a one-value feature
-    # becomes constant after imputation and the ordinary variance rule drops
-    # it.  Running those filters first lets pandas' pairwise NaN rules make a
-    # different accidental decision for each missingness pattern.
     df = _resolve_missing_model_features(df)
 
     if remove_low_variance_features:
@@ -9375,7 +8433,6 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
 
     return filtered_df, features
 
-# Create a function to check if images overlap
 def check_overlap(current_position, other_positions, threshold):
     """Return ``True`` if ``current_position`` is within ``threshold`` of any point in ``other_positions``.
 
@@ -9401,7 +8458,6 @@ def check_overlap(current_position, other_positions, threshold):
             return True
     return False
 
-# Define a function to try random positions around a given point
 def find_non_overlapping_position(x, y, image_positions, threshold, max_attempts=100):
     """Return a nearby ``(x, y)`` jittered position that does not collide with ``image_positions``.
 
@@ -9412,7 +8468,7 @@ def find_non_overlapping_position(x, y, image_positions, threshold, max_attempts
     :param max_attempts: retry budget before giving up.
     :returns: ``(x, y)`` tuple; original position if no non-overlapping spot is found.
     """
-    offset_range = 10  # Adjust the range for random offsets
+    offset_range = 10
     attempts = 0
     while attempts < max_attempts:
         random_offset_x = random.uniform(-offset_range, offset_range)
@@ -9422,7 +8478,7 @@ def find_non_overlapping_position(x, y, image_positions, threshold, max_attempts
         if not check_overlap((new_x, new_y), image_positions, threshold):
             return new_x, new_y
         attempts += 1
-    return x, y  # Return the original position if no suitable position found
+    return x, y
 
 def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method, verbose, reduction_param=None, embedding=None, n_jobs=-1):
     """Variant of :func:`reduction_and_clustering` accepting extra reducer kwargs via ``reduction_param``.
@@ -9516,7 +8572,7 @@ def extract_features(image_paths, resnet=resnet50):
     """
     model = resnet(pretrained=True)
     model = model.eval()
-    model = torch.nn.Sequential(*list(model.children())[:-1])  # Remove the last classification layer
+    model = torch.nn.Sequential(*list(model.children())[:-1])
 
     features = []
     for image_path in image_paths:
@@ -9547,7 +8603,7 @@ def check_normality(series):
     """
     k2, p = stats.normaltest(series)
     alpha = 0.05
-    if p < alpha:  # null hypothesis: x comes from a normal distribution
+    if p < alpha:
         return False
     return True
 
@@ -9616,12 +8672,6 @@ def perform_statistical_tests(all_df, cluster_col='cluster'):
             for label in np.unique(all_df[cluster_col])
         ]
         is_normal = check_normality(all_df[feature])
-        # A clustering algorithm is allowed to find one population. Neither
-        # ANOVA nor Kruskal-Wallis is defined for fewer than two groups, but
-        # that must not turn an otherwise valid embedding into an exception.
-        # Keep the feature in its normality-selected result table and mark the
-        # unavailable statistic explicitly; ``combine_results`` then retains
-        # the feature importance and its stable one-row schema.
         if len(groups) < 2:
             result = (feature, np.nan, np.nan)
             (anova_results if is_normal else kruskal_results).append(result)
@@ -9705,8 +8755,6 @@ def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndar
     """
     out = adj_cell_mask.copy()
 
-    # ----------------------------------------------------------------- #
-    # 1 — Identify which cell IDs contain a nucleus
     nuc_labels = np.unique(nuclei_mask[nuclei_mask > 0])
 
     cells_with_nuc = set()
@@ -9714,17 +8762,13 @@ def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndar
         labels, counts = np.unique(adj_cell_mask[nuclei_mask == nuc_id],
                                    return_counts=True)
 
-        # drop background (label 0) from *both* arrays
         keep = labels > 0
         labels = labels[keep]
         counts = counts[keep]
 
-        if labels.size:                     # at least one non-zero overlap
+        if labels.size:
             cells_with_nuc.add(labels[np.argmax(counts)])
 
-    # ----------------------------------------------------------------- #
-    # 2 — Build an adjacency map between neighbouring cell IDs
-    # ----------------------------------------------------------------- #
     boundaries = find_boundaries(adj_cell_mask, mode="thick")
     adj_map = defaultdict(set)
 
@@ -9742,14 +8786,10 @@ def _merge_cells_without_nucleus(adj_cell_mask: np.ndarray, nuclei_mask: np.ndar
                     if dst != 0 and dst != src:
                         adj_map[src].add(dst)
 
-    # ----------------------------------------------------------------- #
-    # 3 — Relabel nucleus-free cells that touch nucleus-bearing neighbours
-    # ----------------------------------------------------------------- #
     cells_no_nuc = set(np.unique(adj_cell_mask)) - {0} - cells_with_nuc
     for cell_id in cells_no_nuc:
         neighbours = adj_map.get(cell_id, set()) & cells_with_nuc
         if neighbours:
-            # Choose the first nucleus-bearing neighbour deterministically
             target = sorted(neighbours)[0]
             out[out == cell_id] = target
 
@@ -9763,45 +8803,38 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
     num_parasites = np.max(labeled_parasites)
     num_nuclei = np.max(labeled_nuclei)
 
-    # Merge cells based on parasite overlap
     for parasite_id in range(1, num_parasites + 1):
         current_parasite_mask = labeled_parasites == parasite_id
         overlapping_cell_labels = np.unique(labeled_cells[current_parasite_mask])
         overlapping_cell_labels = overlapping_cell_labels[overlapping_cell_labels != 0]
         if len(overlapping_cell_labels) > 1:
             
-            # Calculate the overlap percentages
             overlap_percentages = [
                 np.sum(current_parasite_mask & (labeled_cells == cell_label)) / np.sum(current_parasite_mask) * 100
                 for cell_label in overlapping_cell_labels
             ]
-            # Merge cells if overlap percentage is above the threshold
             for cell_label, overlap_percentage in zip(overlapping_cell_labels, overlap_percentages):
                 if overlap_percentage > overlap_threshold:
                     first_label = overlapping_cell_labels[0]
                     for other_label in overlapping_cell_labels[1:]:
                         cell_mask[cell_mask == other_label] = first_label
 
-    # Merge cells based on nucleus overlap
     for nucleus_id in range(1, num_nuclei + 1):
         current_nucleus_mask = labeled_nuclei == nucleus_id
         overlapping_cell_labels = np.unique(labeled_cells[current_nucleus_mask])
         overlapping_cell_labels = overlapping_cell_labels[overlapping_cell_labels != 0]
         if len(overlapping_cell_labels) > 1:
             
-            # Calculate the overlap percentages
             overlap_percentages = [
                 np.sum(current_nucleus_mask & (labeled_cells == cell_label)) / np.sum(current_nucleus_mask) * 100
                 for cell_label in overlapping_cell_labels
             ]
-            # Merge cells if overlap percentage is above the threshold for each cell
             if all(overlap_percentage > overlap_threshold for overlap_percentage in overlap_percentages):
                 first_label = overlapping_cell_labels[0]
                 for other_label in overlapping_cell_labels[1:]:
                     cell_mask[cell_mask == other_label] = first_label
 
-    # Check for cells without nuclei and merge based on shared perimeter
-    labeled_cells = label(cell_mask)  # Re-label after merging based on overlap
+    labeled_cells = label(cell_mask)
     cell_regions = regionprops(labeled_cells)
     for region in cell_regions:
         cell_label = region.label
@@ -9811,29 +8844,24 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
 
         if len(overlapping_nuclei) == 0:
             
-            # Cell does not overlap with any nucleus
             perimeter = region.perimeter
             
-            # Dilate the cell to find neighbors
             dilated_cell = binary_dilation(
                 cell_mask_binary, structure=_square_footprint(3))
             neighbor_cells = np.unique(labeled_cells[dilated_cell])
             neighbor_cells = neighbor_cells[(neighbor_cells != 0) & (neighbor_cells != cell_label)]
             
-            # Calculate shared border length with neighboring cells
             shared_borders = [
                 np.sum((labeled_cells == neighbor_label) & dilated_cell) for neighbor_label in neighbor_cells
             ]
             shared_border_percentages = [shared_border / perimeter * 100 for shared_border in shared_borders]
             
-            # Merge with the neighbor cell with the largest shared border percentage above the threshold
             if shared_borders:
                 max_shared_border_index = np.argmax(shared_border_percentages)
                 max_shared_border_percentage = shared_border_percentages[max_shared_border_index]
                 if max_shared_border_percentage > perimeter_threshold:
                     cell_mask[labeled_cells == cell_label] = neighbor_cells[max_shared_border_index]
     
-    # Relabel the merged cell mask
     relabeled_cell_mask, _ = label(cell_mask, return_num=True)
     return relabeled_cell_mask.astype(np.uint16)
 
@@ -9949,7 +8977,7 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
     def read_files_in_batches(folder, batch_size=50):
         """Yield sorted lists of ``.npy`` filenames from ``folder`` in chunks of ``batch_size``."""
         files = [f for f in os.listdir(folder) if f.endswith('.npy')]
-        files.sort()  # Sort to ensure matching order
+        files.sort()
         for i in range(0, len(files), batch_size):
             yield files[i:i + batch_size]
 
@@ -9968,10 +8996,6 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
     def remove_objects_not_in_largest_cluster(mask, labels, largest_cluster_label):
         """Return ``mask`` with all labeled regions removed except those in ``largest_cluster_label``."""
         cleaned_mask = np.zeros_like(mask)
-        # `labels` is the per-file slice of the KMeans label array, ordered by
-        # regionprops enumeration — NOT indexed by label value. Sparse or
-        # non-contiguous labels made `labels[region.label - 1]` read the wrong
-        # cluster (or run off the end of the slice).
         for idx, region in enumerate(measure.regionprops(mask)):
             if labels[idx] == largest_cluster_label:
                 cleaned_mask[mask == region.label] = region.label
@@ -9990,7 +9014,6 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
     
     all_properties = []
 
-    # Step 1: Accumulate properties over all files
     for batch in read_files_in_batches(mask_folder, batch_size):
         mask_files = [os.path.join(mask_folder, file) for file in batch]
         image_files = [os.path.join(image_folder, file) for file in batch]
@@ -10000,19 +9023,15 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
         
         for i, mask in enumerate(masks):
             image = images[i]
-            # Measure morphology and intensity
             properties = measure_morphology_and_intensity(mask, image)
             all_properties.extend(properties)
 
-    # Step 2: Perform clustering on accumulated properties
     kmeans = cluster_objects(all_properties, n_clusters)
     labels = kmeans.labels_
 
     if plot:
-        # Step 3: Plot clusters using PCA
         plot_clusters(all_properties, labels)
 
-    # Step 4: Remove objects not in the largest cluster and overwrite files in batches
     label_index = 0
     for batch in read_files_in_batches(mask_folder, batch_size):
         mask_files = [os.path.join(mask_folder, file) for file in batch]
@@ -10021,9 +9040,6 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
         for i, mask in enumerate(masks):
             batch_properties = measure_morphology_and_intensity(mask, mask)
             if not batch_properties:
-                # Object-free field of view: np.bincount([]).argmax() raises
-                # "attempt to get argmax of an empty sequence". There is
-                # nothing to cluster, so leave the mask on disk untouched.
                 continue
             batch_labels = labels[label_index:label_index + len(batch_properties)]
             largest_cluster_label = np.bincount(batch_labels).argmax()
@@ -10039,38 +9055,22 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     :param name: suffix appended to the output filename.
     :returns: merged DataFrame (also written to ``<results_file><name>.csv``).
     """
-    # Read the CSV files into dataframes
     df_results = tabular.read_table(results_file, report=None)
-    # canonicalise=False: this is a third-party gene annotation file whose
-    # header is the vendor's ('Gene ID'), not spaCR metadata, and renaming a
-    # column of it would break the merge two lines below.
     df_metadata = tabular.read_table(metadata_file, canonicalise=False,
                                      report=None)
     
     def extract_and_clean_gene(feature):
         """Return the gene ID parsed from a ``feature`` string like ``C(gene)[T.<id>_...]``, or ``None``."""
-        # Extract the part between '[' and ']'
         match = re.search(r'\[(.*?)\]', feature)
         if match:
             gene = match.group(1)
-            # Remove 'T.' if present
             gene = re.sub(r'^T\.', '', gene)
-            # Remove everything after and including '_'
             gene = gene.split('_')[0]
             return gene
         return None
 
-    # Apply the function to the feature column
     df_results['gene'] = df_results['feature'].apply(extract_and_clean_gene)
     
-    # The identifier column is DETECTED, not assumed.
-    #
-    # 'Gene ID' is the header of the bundled toxoplasma_metadata.csv, and
-    # hard-coding it meant any other annotation table died on
-    # `KeyError: 'Gene ID'` -- a message naming a column the user's file does
-    # not have and never claimed to, after the whole regression had already
-    # run. A gRNA barcode export keyed on 'name' (TGGT1_225160_2) carries
-    # exactly the same identifier in exactly the same shape.
     identifier_column = next(
         (column for column in ('Gene ID', 'gene_id', 'GeneID', 'gene', 'name',
                                'grna', 'grna_name')
@@ -10086,24 +9086,9 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     df_metadata['gene'] = df_metadata[identifier_column].astype(str).apply(
         lambda value: value.split('_')[1] if '_' in value else None)
     
-    # Drop rows where gene extraction failed
-    #df_results = df_results.dropna(subset=['gene'])
     
-    # Metadata rows whose ID had no parsable gene must not act as a join key:
-    # pandas treats NaN keys as equal, so every unparsable result row (e.g.
-    # 'Intercept') would otherwise fan out against every unparsable metadata
-    # row.
     df_metadata = df_metadata.dropna(subset=['gene'])
 
-    # One annotation row per gene, enforced rather than assumed. Curated
-    # exports list a gene once per transcript/isoform -- the bundled
-    # 'toxoplasma_metadata.csv' repeats 30 Gene IDs two to four times, each
-    # copy carrying a different protein length and GO term set. Joined as-is
-    # those genes came back two to four times in the regression results, and
-    # every downstream consumer (volcano plots, the significant-hit tables,
-    # toxo.py) counted each copy as an independent hit. The result must stay
-    # one row per regression feature, so the metadata is collapsed to the
-    # first row per gene and the collapse is reported rather than hidden.
     duplicated_genes = df_metadata['gene'].duplicated(keep=False)
     if duplicated_genes.any():
         collapsed = sorted(df_metadata.loc[duplicated_genes, 'gene'].unique())
@@ -10116,16 +9101,12 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
         )
         df_metadata = df_metadata.drop_duplicates(subset=['gene'], keep='first')
 
-    # many_to_one: many regression terms can name one gene (one row per gRNA in
-    # the per-gRNA results), but each gene gets one annotation row.
     merged_df = pd.merge(df_results, df_metadata, on='gene', how='left',
                          validate='many_to_one')
     
-    # Generate the new file name
     base, ext = os.path.splitext(results_file)
     new_file = f"{base}{name}{ext}"
     
-    # Save the merged dataframe to the new file
     tabular.write_table(merged_df, new_file)
     
     return merged_df
@@ -10137,34 +9118,14 @@ def process_vision_results(df, threshold=0.5):
     :param threshold: cutoff used to derive ``cv_predictions``.
     :returns: enriched DataFrame with ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``prc``, ``cv_predictions``.
     """
-    # `_map_wells_png`, NOT `_map_wells`. These paths are CROPS --
-    # `plate1_E01_18_1_250.png`, which is plate_well_field_time_object -- and
-    # `_map_wells` parses a FIELD stem, which is three parts or four with a
-    # timepoint. Five parts is neither, so it raised for every row and
-    # returned its 'error' tuple, and an entire inference run came out with
-    # plateID/rowID/columnID/fieldID = 'error' and prc = 'error_error_error'.
-    #
-    # Which means the scores could not be joined back to a well: no per-well
-    # aggregate, no regression on a CV model's output, and the only sign was
-    # a screenful of "Error processing filename" that the run scrolled past
-    # while reporting success. The crop parser has always existed beside it.
     mapped_values = df['path'].apply(lambda x: _map_wells_png(x))
     
     df['plateID'] = mapped_values.apply(lambda x: x[0])
     df['rowID'] = mapped_values.apply(lambda x: x[1])
     df['columnID'] = mapped_values.apply(lambda x: x[2])
     df['fieldID'] = mapped_values.apply(lambda x: x[3])
-    # The object id is the LAST component of the crop name, not the fourth:
-    # a timelapse crop is plate_well_field_time_object, so [3] is the
-    # TIMEPOINT. Splitting from the right is correct for both layouts.
     df['object'] = (df['path'].str.rsplit('/', n=1).str[-1]
                     .str.split('.').str[0].str.rsplit('_', n=1).str[-1])
-    # ONE COMPOSER. A bare `plateID + '_' + rowID + '_' + columnID` is
-    # correct only while no plate id contains the separator or a `%`, and the
-    # regression path composes the SAME key through `schema.compose_prc`,
-    # which escapes both. A plate called `exp1_plate2` therefore produced two
-    # different strings for one well and the join between them matched
-    # nothing.
     df['prc'] = schema.compose_prc_column(df)
     df['cv_predictions'] = (df['pred'] >= threshold).astype(int)
 
@@ -10210,11 +9171,6 @@ def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
         permutation_fig, feature_importance_fig, shap_fig, plate_heatmap, settings, ml_features)``.
     :raises ValueError: if ``channel_of_interest`` has an unsupported type.
     """
-    # NAMED FROM THE CANONICAL SELECTION, so two spellings of one feature
-    # space -- `1` and `[1]`, `'1,2'` and `[1, 2]` -- write to one folder.
-    # It used to raise on a free-text filter that `filter_dataframe_features`
-    # has always accepted, so `channel_of_interest='mean_intensity'` filtered
-    # the features and then died on the way to naming the folder.
     feature_string = feature_folder_name(channel_of_interest)
 
     res_fldr = os.path.join(src, 'results', model_type, feature_string)
@@ -10252,17 +9208,14 @@ def augment_image(image):
     """
     augmented_images = []
 
-    # Convert PIL image to numpy array if necessary
     if isinstance(image, Image.Image):
         image = np.array(image)
     
-    # Handle grayscale images
     if len(image.shape) == 2:
         image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
 
-    # Rotations and reflections
     transformations = [
-        None,  # Original
+        None,
         cv2.ROTATE_90_CLOCKWISE,
         cv2.ROTATE_180,
         cv2.ROTATE_90_COUNTERCLOCKWISE
@@ -10275,11 +9228,9 @@ def augment_image(image):
             rotated = image
         augmented_images.append(rotated)
 
-        # Reflections
         flipped = cv2.flip(rotated, 1)
         augmented_images.append(flipped)
 
-    # Convert numpy arrays back to PIL images
     augmented_images = [Image.fromarray(img) for img in augmented_images]
     
     return augmented_images
@@ -10297,22 +9248,18 @@ def augment_dataset(dataset, is_grayscale=False):
     for img, label, filename in dataset:
         augmented_images = []
 
-        # Ensure the image is a tensor
         if not isinstance(img, torch.Tensor):
             raise TypeError(f"Expected torch.Tensor, got {type(img)}")
 
-        # Rotations and reflections
         angles = [0, 90, 180, 270]
 
         for angle in angles:
             rotated = torchvision.transforms.functional.rotate(img, angle)
             augmented_images.append(rotated)
 
-            # Reflections
             flipped = torchvision.transforms.functional.hflip(rotated)
             augmented_images.append(flipped)
 
-        # Add augmented images to the dataset
         for aug_img in augmented_images:
             augmented_dataset.append((aug_img, label, filename))
 
@@ -10336,32 +9283,24 @@ def convert_and_relabel_masks(folder_path):
     
     for file in files:
         file_path = os.path.join(folder_path, file)
-        # Load the mask
         mask = np.load(file_path)
-        #print(mask.shape)
-        #print(mask.dtype)
-        # Check the current dtype
         if mask.dtype != np.int64:
             print(f"Skipping {file} as it is not int64.")
             continue
         
-        # Relabel the mask to ensure unique labels within uint16 range
         unique_labels = np.unique(mask)
         if unique_labels.max() > 65535:
             print(f"Warning: The mask in {file} contains values that exceed the uint16 range and will be relabeled.")
 
         relabeled_mask = measure.label(mask, background=0)
         
-        # Check that relabeling worked correctly
         unique_relabeled = np.unique(relabeled_mask)
         if unique_relabeled.max() > 65535:
             print(f"Error: Relabeling failed for {file} as it still contains values that exceed the uint16 range.")
             continue
         
-        # Convert to uint16
         relabeled_mask = relabeled_mask.astype(np.uint16)
         
-        # Save the converted mask
         np.save(file_path, relabeled_mask)
         
         print(f"Converted {file} and saved as uint16_{file}")
@@ -10396,7 +9335,6 @@ def count_reads_in_fastq(fastq_file):
     return count // 4
 
 
-# Function to determine the CUDA version
 def get_cuda_version():
     """Return the installed CUDA toolkit version as a digit-only string, or ``None``.
 
@@ -10429,7 +9367,6 @@ def prepare_batch_for_segmentation(batch):
     if batch.dtype != np.float32:
         batch = batch.astype(np.float32)
 
-    # Normalize each image in the batch
     for i in range(batch.shape[0]):
         if batch[i].max() > 1:
             batch[i] = batch[i] / batch[i].max()
@@ -10456,7 +9393,6 @@ def check_index(df, elements=5, split_char='_'):
             print(idx)
         raise ValueError(f"Found {len(problematic_indices)} problematic indices that do not split into {elements} parts.")
     
-# Define the mapping function
 def map_condition(col_value, neg='c1', pos='c2', mix='c3'):
     """Map a column-ID value to one of ``'neg'``, ``'pos'``, ``'mix'``, or ``'screen'``.
 
@@ -10488,49 +9424,43 @@ def download_models(repo_id="einarolafsson/models", retries=5, delay=5):
     Returns:
         str: The local path to the downloaded models.
     """
-    # Construct the path to the `resources/models` directory in the installed `spacr` package
     package_dir = os.path.dirname(spacr_path)
     local_dir = os.path.join(package_dir, 'resources', 'models')
 
-    # Create the local directory if it doesn't exist
     if not os.path.exists(local_dir):
         os.makedirs(local_dir)
     elif len(os.listdir(local_dir)) > 0:
-        #print(f"Models already downloaded to: {local_dir}")
         return local_dir
 
     attempt = 0
     while attempt < retries:
         try:
-            # List all files in the repo
             files = list_repo_files(repo_id, repo_type="dataset")
-            print(f"Files in repository: {files}")  # Debugging print to check file list
+            print(f"Files in repository: {files}")
 
-            # Download each file
             for file_name in files:
                 for download_attempt in range(retries):
                     try:
                         url = f"https://huggingface.co/datasets/{repo_id}/resolve/main/{file_name}?download=true"
-                        print(f"Downloading file from: {url}")  # Debugging
+                        print(f"Downloading file from: {url}")
 
                         response = requests.get(url, stream=True)
-                        print(f"HTTP response status: {response.status_code}")  # Debugging
+                        print(f"HTTP response status: {response.status_code}")
                         response.raise_for_status()
 
-                        # Save the file locally
                         local_file_path = os.path.join(local_dir, os.path.basename(file_name))
                         with open(local_file_path, 'wb') as file:
                             for chunk in response.iter_content(chunk_size=8192):
                                 file.write(chunk)
                         print(f"Downloaded model file: {file_name} to {local_file_path}")
-                        break  # Exit the retry loop if successful
+                        break
                     except (requests.HTTPError, requests.Timeout) as e:
                         print(f"Error downloading {file_name}: {e}. Retrying in {delay} seconds...")
                         time.sleep(delay)
                 else:
                     raise Exception(f"Failed to download {file_name} after multiple attempts.")
 
-            return local_dir  # Return the directory where models are saved
+            return local_dir
 
         except (requests.HTTPError, requests.Timeout) as e:
             print(f"Error downloading files: {e}. Retrying in {delay} seconds...")
@@ -10555,13 +9485,9 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     :param cell_mask: labeled cell mask copied into the cytoplasm result.
     """
     
-    # Make sure the nucleus and cell masks are numpy arrays
     nucleus_mask = np.array(nucleus_mask)
     cell_mask = np.array(cell_mask)
     
-    # Generate cytoplasm mask: everything inside the cell that is not nucleus.
-    # NOTE: this used to read np.logical_or(nucleus_mask != 0) — logical_or
-    # needs TWO operands, so the function raised TypeError on every call.
     cytoplasm_mask = np.where(nucleus_mask != 0, 0, cell_mask)
 
     return cytoplasm_mask
@@ -10584,26 +9510,18 @@ def add_column_to_database(settings):
         None
     """
 
-    # Read the DataFrame from the provided CSV path
     df = tabular.read_table(settings['csv_path'], report=None)
 
-    # Replace 0 values with 2 in the update column
     if (df[settings['update_column']] == 0).any():
         print("Replacing all 0 values with 2 in the update column.")
-        # Plain reassignment, not chained inplace: under pandas copy-on-write
-        # (the 3.0 default) the inplace form mutates a temporary and is a
-        # silent no-op.
         df[settings['update_column']] = df[settings['update_column']].replace(0, 2)
 
-    # Connect to the SQLite database
     conn = sqlite3.connect(settings['db_path'], timeout=30)
     cursor = conn.cursor()
 
-    # Get the existing columns in the database table
     cursor.execute(f"PRAGMA table_info({settings['table_name']})")
     columns_in_db = [col[1] for col in cursor.fetchall()]
 
-    # Add a suffix if the update column already exists in the database
     if settings['update_column'] in columns_in_db:
         suffix = 1
         new_column_name = f"{settings['update_column']}_{suffix}"
@@ -10614,20 +9532,16 @@ def add_column_to_database(settings):
     else:
         new_column_name = settings['update_column']
 
-    # Add the new column with INTEGER type to the database table
     cursor.execute(f"ALTER TABLE {settings['table_name']} ADD COLUMN {new_column_name} INTEGER")
     print(f"Added new column '{new_column_name}' to the table '{settings['table_name']}'.")
 
-    # Iterate over the DataFrame and update the new column in the database
     for index, row in df.iterrows():
         value_to_update = row[settings['update_column']]
         match_value = row[settings['match_column']]
 
-        # Handle NaN values by converting them to None (SQLite equivalent of NULL)
         if pd.isna(value_to_update):
             value_to_update = None
 
-        # Prepare and execute the SQL update query
         query = f"""
             UPDATE {settings['table_name']}
             SET {new_column_name} = ?
@@ -10635,7 +9549,6 @@ def add_column_to_database(settings):
         """
         cursor.execute(query, (value_to_update, match_value))
 
-    # Commit the transaction and close the connection
     conn.commit()
     conn.close()
 
@@ -10651,27 +9564,21 @@ def fill_holes_in_mask(mask):
     Returns:
         np.ndarray: A mask with holes filled and original labels preserved.
     """
-    # Ensure the mask is integer-labeled
     labeled_mask, num_features = ndimage.label(mask)
 
-    # Create an empty mask to store the result
     filled_mask = np.zeros_like(labeled_mask)
 
-    # Fill holes for each labeled object independently
     for i in range(1, num_features + 1):
-        # Create a binary mask for the current object
         object_mask = (labeled_mask == i)
 
-        # Fill holes within this object
         filled_object = binary_fill_holes(object_mask)
 
-        # Assign the original label back to the filled object
         filled_mask[filled_object] = i
 
     return filled_mask
 
 def correct_metadata_column_names(df):
-    """Renamed legacy metadata columns. **Defined in :mod:`spacr.schema`.**
+    """Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.
 
     Re-exported here because every existing caller imports it from `utils`,
     and moved there because importing this module costs torch, torchvision
@@ -10704,9 +9611,6 @@ def control_filelist(folder, mode='columnID', values=None):
         filtered_files = [file for file in files if file.split('_')[1][:1] in values]
     return filtered_files
     
-# These names remain public from ``spacr.utils`` for compatibility, while the
-# authoritative definitions live beside the versioned migration that uses
-# them.
 from .database_schema import (
     DB_COLUMN_RENAMES,
     DB_COLUMN_RENAME_PATTERNS as _DB_COLUMN_RENAME_PATTERNS,
@@ -10786,11 +9690,6 @@ def rename_columns_in_db(db_path):
     for table, old, new in metadata:
         print(f"Renamed `{table}`.`{old}` → `{new}`")
     if features:
-        # A measurements table carries one of these per object type, per
-        # channel and per percentile — several hundred on a four-channel run —
-        # so a line each would bury everything else the read prints. One line
-        # per table with an example says the same thing; the full list is the
-        # return value.
         by_table = {}
         for table, old, new in features:
             by_table.setdefault(table, []).append((old, new))
@@ -10830,7 +9729,6 @@ def group_feature_class(df, feature_groups=None, name='compartment'):
     :param name: Name of the column added to ``df``. Default ``'compartment'``.
     :returns: ``df`` with the new group column populated.
     """
-    # Function to determine compartment based on multiple matches
     if feature_groups is None:
         feature_groups = ['cell', 'cytoplasm', 'nucleus', 'pathogen']
     def find_feature_class(feature, compartments):
@@ -10843,9 +9741,6 @@ def group_feature_class(df, feature_groups=None, name='compartment'):
         else:
             return None
         
-    # Preserve unmatched features as real ``None`` values.  Pandas 3 may
-    # otherwise infer a nullable string dtype and expose those entries as
-    # ``nan``, which changes the public result even though ``isna`` agrees.
     df[name] = pd.Series(
         (find_feature_class(feature, feature_groups)
          for feature in df['feature']),
@@ -10854,8 +9749,6 @@ def group_feature_class(df, feature_groups=None, name='compartment'):
     )
     
     if name == 'channel':
-        # See add_column_to_database: chained inplace is a no-op under
-        # pandas copy-on-write.
         df['channel'] = df['channel'].fillna('morphology')
     
     return df
@@ -10901,7 +9794,6 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
         stack_files = set()
         if os.path.isdir(stack):
             stack_files = {f for f in os.listdir(stack) if f.endswith('.npy')}
-        # Only safe to delete stack/+masks/ if every field of view was merged.
         if stack_files and not stack_files.issubset(merged_files):
             missing = len(stack_files - merged_files)
             if verbose:
@@ -10912,7 +9804,6 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
                 if os.path.isdir(folder):
                     shutil.rmtree(folder, ignore_errors=True)
                     deleted.append(folder)
-            # Numeric per-channel folders (1, 2, 3, …) if any survived.
             for d in os.listdir(src):
                 p = os.path.join(src, d)
                 if os.path.isdir(p) and d.isdigit():
@@ -10955,9 +9846,6 @@ def delete_intermedeate_files(settings):
     
     paths = [path_stack, path_norm_chan_stack, path_1, path_2, path_3, path_4, path_5, path_6, path_7, path_8, path_9, path_10]
     
-    # Validate the inputs BEFORE the completeness guard. These checks used to
-    # be nested inside it, so a missing src or missing orig/ backup reported
-    # nothing at all whenever the guard happened to be closed.
     if 'src' not in settings:
         print("No 'src' key in settings dictionary.")
         return
@@ -10968,11 +9856,6 @@ def delete_intermedeate_files(settings):
         print(f"{path_orig} does not exist.")
         return
 
-    # Only drop the intermediates once merged/ is at least as populated as
-    # stack/, i.e. every field made it through. Count FILES, not characters:
-    # the old `len(merged_stack) == len(path_stack)` compared len(src)+7
-    # against len(src)+6 — always off by one, so the guard never opened and
-    # this function silently deleted nothing.
     merged_len = len(os.listdir(merged_stack)) if os.path.isdir(merged_stack) else 0
     stack_len = len(os.listdir(path_stack)) if os.path.isdir(path_stack) else 0
     if stack_len == 0 or merged_len < stack_len:
@@ -11013,13 +9896,10 @@ def filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, low
         None. The filtered frame is written to ``output_csv``, shown with
         ``display`` for notebook users, and the destination is printed.
     """
-    # Read the input CSV file into a DataFrame
     df = tabular.read_table(input_csv, report=None)
 
-    # Filter rows based on the thresholds
     filtered_df = df[(df[column_name] > upper_threshold) | (df[column_name] < lower_threshold)]
 
-    # Save the filtered DataFrame to a new CSV file
     tabular.write_table(filtered_df, output_csv)
     display(filtered_df)
 
@@ -11035,16 +9915,13 @@ def extract_tar_bz2_files(folder_path):
     if not os.path.isdir(folder_path):
         raise ValueError(f"The provided path '{folder_path}' is not a valid folder.")
     
-    # Iterate over files in the folder
     for file_name in os.listdir(folder_path):
         if file_name.endswith('.tar.bz2'):
             file_path = os.path.join(folder_path, file_name)
             extract_folder = os.path.join(folder_path, os.path.splitext(os.path.splitext(file_name)[0])[0])
             
-            # Create the subfolder for extraction if it doesn't exist
             os.makedirs(extract_folder, exist_ok=True)
             
-            # Extract the tar.bz2 file
             try:
                 with tarfile.open(file_path, 'r:bz2') as tar:
                     tar.extractall(path=extract_folder, filter='data')
@@ -11071,20 +9948,16 @@ def calculate_shortest_distance(df, object1, object2):
     :param object2: prefix of the second object's measurement columns.
     """
 
-    # Compute centroid-to-centroid Euclidean distance
     centroid_distance = np.sqrt(
         (df[f'{object1}_channel_0_centroid_weighted-0'] - df[f'{object2}_channel_0_centroid_weighted-0'])**2 +
         (df[f'{object1}_channel_0_centroid_weighted-1'] - df[f'{object2}_channel_0_centroid_weighted-1'])**2
     )
 
-    # Estimate object radii using Feret diameters
     object1_radius = df[f'{object1}_feret_diameter_max'] / 2
     object2_radius = df[f'{object2}_feret_diameter_max'] / 2
 
-    # Compute shortest edge-to-edge distance
     shortest_distance = centroid_distance - (object1_radius + object2_radius)
 
-    # Ensure distances are non-negative (overlapping objects should have distance 0)
     df[f'{object1}_{object2}_shortest_distance'] = np.maximum(shortest_distance, 0)
 
     return df
@@ -11101,18 +9974,15 @@ def format_path_for_system(path):
     """
     system = platform.system()
     
-    # Convert Windows-style paths to Unix-style (Linux/macOS)
-    if system in ["Linux", "Darwin"]:  # Darwin is macOS
+    if system in ["Linux", "Darwin"]:
         formatted_path = path.replace("\\", "/")
     
-    # Convert Unix-style paths to Windows-style
     elif system == "Windows":
         formatted_path = path.replace("/", "\\")
     
     else:
         raise ValueError(f"Unsupported OS: {system}")
     
-    # Normalize path to ensure consistency
     new_path = os.path.normpath(formatted_path)
     if os.path.exists(new_path):
         print(f"Found path: {new_path}")
@@ -11134,18 +10004,17 @@ def normalize_src_path(src):
                      otherwise a single string.
     """
     if isinstance(src, list):
-        return src  # Already a list, return as-is
+        return src
 
     if isinstance(src, str):
         try:
-            # Check if it is a string representation of a list
             evaluated_src = ast.literal_eval(src)
             if isinstance(evaluated_src, list) and all(isinstance(item, str) for item in evaluated_src):
-                return evaluated_src  # Convert to real list
+                return evaluated_src
         except (SyntaxError, ValueError):
-            pass  # Not a valid list, treat as a string
+            pass
 
-        return src  # Return as a string if not a list
+        return src
 
     raise ValueError(f"Invalid type for 'src': {type(src).__name__}, expected str or list")
 
@@ -11164,38 +10033,20 @@ def generate_image_path_map(root_folder, valid_extensions=("tif", "tiff", "png",
     image_path_map = {}
 
     for dirpath, dirnames, filenames in os.walk(root_folder):
-        # NEVER RE-CONSOLIDATE OUR OWN OUTPUT. `consolidated` is created
-        # INSIDE the folder being walked, so a second run over the same
-        # `src` finds the copies from the first one and makes copies of
-        # those, prefixed again -- doubling the plate on every run and
-        # producing `consolidated_plate1_A01_f1_c1.tif`. Pruning the walk
-        # is what makes the operation repeatable.
         dirnames[:] = [name for name in dirnames if name != "consolidated"]
         for file in filenames:
             ext = file.lower().split('.')[-1]
             if ext in valid_extensions:
-                # Get relative path of the image from root_folder
                 relative_path = os.path.relpath(dirpath, root_folder)
 
-                # Construct new filename: Embed folder hierarchy into the name.
-                #
-                # `os.path.relpath(root, root)` is `'.'`, NOT `''`, so an image
-                # sitting directly in `src` used to be renamed `._name.tif`.
-                # That is a hidden file on Unix and the AppleDouble
-                # resource-fork convention on macOS, and `spacr.io` skips
-                # anything beginning with a dot -- so consolidating a flat
-                # folder made every image in it silently disappear from the
-                # run rather than failing.
                 if relative_path == os.curdir:
                     folder_parts = []
                 else:
                     folder_parts = relative_path.split(os.sep)
                 folder_info = "_".join(folder_parts)
 
-                # Generate new filename
                 new_filename = f"{folder_info}_{file}" if folder_info else file
 
-                # Store in dictionary (original path -> new path)
                 original_path = os.path.join(dirpath, file)
                 new_path = os.path.join(root_folder, new_filename)
                 image_path_map[original_path] = new_path
@@ -11213,7 +10064,7 @@ def copy_images_to_consolidated(image_path_map, root_folder):
     """
     
     consolidated_folder = os.path.join(root_folder, "consolidated")
-    os.makedirs(consolidated_folder, exist_ok=True)  # Ensure 'consolidated' folder exists
+    os.makedirs(consolidated_folder, exist_ok=True)
     files_processed = 0
     files_to_process = len(image_path_map)
     time_ls= []
@@ -11221,10 +10072,10 @@ def copy_images_to_consolidated(image_path_map, root_folder):
     for original_path, new_path in image_path_map.items():
         
         start = time.time()
-        new_filename = os.path.basename(new_path)  # Extract only the new filename
-        new_file_path = os.path.join(consolidated_folder, new_filename)  # Place in 'consolidated' folder
+        new_filename = os.path.basename(new_path)
+        new_file_path = os.path.join(consolidated_folder, new_filename)
         
-        shutil.copy2(original_path, new_file_path)  # Copy file with metadata preserved
+        shutil.copy2(original_path, new_file_path)
         
         files_processed += 1
         stop = time.time()
@@ -11232,7 +10083,6 @@ def copy_images_to_consolidated(image_path_map, root_folder):
         time_ls.append(duration)
         
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'Consolidating images')
-        #print(f"Copied: {original_path} -> {new_file_path}")
         
 def correct_metadata(df):
     """Normalize a metadata DataFrame to the canonical spaCR names and plate ids.
@@ -11309,9 +10159,6 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
     Returns:
         pd.DataFrame: A DataFrame with outliers removed.
     """
-    # A negative threshold inverts the band: under 'iqr' it makes the keep
-    # interval empty, so every group with a nonzero IQR loses ALL its rows and
-    # the caller gets a near-empty frame with no error. Refuse it.
     if threshold < 0:
         raise ValueError(
             f"threshold must be >= 0, not {threshold!r}: a negative value "
@@ -11328,11 +10175,6 @@ def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1
     elif method == 'zscore':
         mean = grouped.transform('mean')
         std = grouped.transform('std')
-        # A single-row group has std NaN, and NaN comparisons are False, so
-        # 'zscore' used to DELETE every singleton while 'iqr' kept it (its
-        # quartiles collapse onto the value). One row cannot be an outlier
-        # within its own group under either definition; the two methods now
-        # agree instead of disagreeing on the smallest groups.
         keep = (df[value_col] - mean).abs() <= threshold * std
         keep = keep | std.isna()
     else:

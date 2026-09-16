@@ -25,7 +25,13 @@ SETTING_HELPERS = [
     ("get_default_test_cellpose_model_settings", {"src", "model_path", "save"}),
     ("get_default_apply_cellpose_model_settings", {"src", "model_path", "save"}),
     ("default_settings_analyze_percent_positive", {"src", "tables"}),
-    ("get_map_barcodes_default_settings", {"src", "grna", "barcodes"}),
+    # `grna` was in this set until 2026-09-14, when instruction 364
+    # retired it: this factory was its only declaration and nothing
+    # under `spacr/` calls this factory, so the key was read by no
+    # pipeline. The live equivalent is `grna_csv`. `barcodes` stays --
+    # it is approved for the same retirement but HELD by a reviewed
+    # zh_CN translation pinned to its tooltip.
+    ("get_map_barcodes_default_settings", {"src", "barcodes"}),
     ("get_train_cellpose_default_settings", {"model_name", "model_type"}),
     ("set_generate_dataset_defaults", {"src", "experiment"}),
     ("get_check_cellpose_models_default_settings", {"batch_size", "CP_prob"}),

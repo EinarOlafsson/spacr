@@ -175,16 +175,22 @@ def test_filter_objects_remove_border():
     assert len(set(np.unique(out)) - {0}) == 1
 
 
-def test_filter_objects_intensity_percentile():
+def test_filter_objects_absolute_intensity_bounds():
     m = np.zeros((16, 16), dtype=np.uint16)
     m[2:6, 2:6] = 1
     m[10:14, 10:14] = 2
     intensity = np.zeros((16, 16), dtype=np.float32)
     intensity[2:6, 2:6] = 10.0     # dim object
     intensity[10:14, 10:14] = 100.0  # bright object
-    out = U._filter_objects(m, intensity_img=intensity,
-                            )
-    assert 0 in np.unique(out)
+    lower = U._filter_objects(m.copy(), intensity_img=intensity,
+                              min_intensity=50)
+    upper = U._filter_objects(m.copy(), intensity_img=intensity,
+                              max_intensity=50)
+    np.testing.assert_array_equal(lower, (m == 2).astype(np.uint16))
+    np.testing.assert_array_equal(upper, (m == 1).astype(np.uint16))
+    np.testing.assert_array_equal(
+        U._filter_objects(m.copy(), intensity_img=intensity,
+                           min_intensity=10, max_intensity=100), m)
 
 
 def test_filter_objects_empty():
@@ -259,12 +265,10 @@ def test_compute_label_perimeters():
     assert 1 in per and 2 in per and per[1] > 0
 
 
-def test_compute_shared_boundaries_and_coords():
+def test_compute_shared_boundaries():
     m = _adjacent_labels()
     shared = U._compute_shared_boundaries(m)
     assert (1, 2) in shared and shared[(1, 2)] > 0
-    coords = U._get_boundary_coords(m, 1, 2)
-    assert len(coords) > 0
 
 
 def test_merge_by_perimeter():
@@ -273,42 +277,6 @@ def test_merge_by_perimeter():
     U._merge_by_perimeter(m, perimeter_fraction=0.01, parent=parent)
     # low threshold → the two touching labels get merged
     assert U._union_find_root(parent, 1) == U._union_find_root(parent, 2)
-
-
-def test_merge_by_intensity():
-    m = _adjacent_labels()
-    intensity = np.ones((16, 16), dtype=np.float32)   # uniform → boundary>=ref
-    parent = {1: 1, 2: 2}
-    said = U._merge_by_intensity(m, intensity, parent, intensity_threshold=0.0)
-    assert U._union_find_root(parent, 1) == U._union_find_root(parent, 2)
-    assert "BELOW every shared boundary" in said, said
-
-    # AND THE OTHER SIDE. This used to be "the percentile method path", which
-    # also merged; with an absolute threshold above every boundary the right
-    # answer is that NOTHING merges and the function says so. Asserting a
-    # merge here would have passed only because the old relative rule could
-    # not decline.
-    parent2 = {1: 1, 2: 2}
-    refused = U._merge_by_intensity(m, intensity, parent2, intensity_threshold=1e9)
-    assert U._union_find_root(parent2, 1) != U._union_find_root(parent2, 2)
-    assert "ABOVE every shared boundary" in refused, refused
-
-
-def test_split_by_watershed():
-    # a dumbbell: two blobs joined by a thin neck → one big object to split
-    m = np.zeros((40, 80), dtype=np.int32)
-    yy, xx = np.ogrid[:40, :80]
-    m[(xx - 20) ** 2 + (yy - 20) ** 2 < 150] = 1
-    m[(xx - 60) ** 2 + (yy - 20) ** 2 < 150] = 1
-    m[18:22, 20:60] = 1   # neck
-    out = U._split_by_watershed(m, min_watershed_distance=5,
-                                minimum_area_to_split=10)
-    assert out.max() >= 1
-
-
-def test_split_by_watershed_empty():
-    empty = np.zeros((8, 8), dtype=np.int32)
-    assert np.array_equal(U._split_by_watershed(empty), empty)
 
 
 # ---------------------------------------------------------------------------

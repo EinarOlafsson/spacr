@@ -64,21 +64,6 @@ def test_a_filler_never_overwrites_a_value_the_user_set(name):
         f"{name} overwrote {key!r}, which the user had already set")
 
 
-def test_set_default_general_works_with_no_argument():
-    """Documented as optional: a new dict is created when None is passed."""
-    out = S.set_default_general()
-    assert isinstance(out, dict)
-    assert out
-
-
-def test_set_default_general_fills_in_place_when_given_a_dict():
-    given = {"src": "/screens/plate1"}
-    out = S.set_default_general(given)
-
-    assert out["src"] == "/screens/plate1"
-    assert len(out) > 1
-
-
 # --------------------------------------------------------------------------- #
 #  _set_organelle_defaults -- the multi-organelle fan-out
 # --------------------------------------------------------------------------- #

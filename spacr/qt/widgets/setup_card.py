@@ -123,12 +123,6 @@ class SetupCard(QWidget):
         #: dialog is reopened.
         self._phase = 0.0
         self._radius = int(radius)
-        # THE THREE THAT ARE A MATTER OF TASTE come from the preference
-        # store unless the caller names one. How long the run is, how hard
-        # it chases, and whether it is centred on the pointer or trails
-        # behind it are all things to look at and decide about, so they are
-        # settings rather than constants -- and a caller that wants a
-        # particular look for a particular card can still say so.
         self._arc = int(arc) if arc is not None else self._preferred_arc()
         self._lag = float(lag) if lag is not None else None
         self._align = str(align or "").strip().lower()
@@ -153,14 +147,11 @@ class SetupCard(QWidget):
         #: ``(key, span)`` for the lit fraction last worked out.
         self._span_cache = None
         self._timer = QTimer(self)
-        self._timer.setInterval(16)             # ~60fps
+        self._timer.setInterval(16)
         self._timer.timeout.connect(self._tick)
-        # MOUSE TRACKING, or `mouseMoveEvent` only fires while a button is
-        # held -- which is never, on a card the user is only reading.
         self.setMouseTracking(True)
         self.setAttribute(Qt.WA_Hover, True)
 
-    # ------------------------------------------------------------------
     def nearest_corner(self, point: QPointF) -> int:
         """Index into :data:`CORNERS` of the corner nearest ``point``.
 
@@ -183,7 +174,6 @@ class SetupCard(QWidget):
         """The corner the accent is currently on."""
         return CORNERS[self._corner]
 
-    # ------------------------------------------------------------------
     def mouseMoveEvent(self, event):            # noqa: N802 - Qt naming
         """Track the pointer so the rim can chase it.
 
@@ -193,8 +183,6 @@ class SetupCard(QWidget):
         super().mouseMoveEvent(event)
 
     def event(self, event):
-        # A hover move arrives even when the widget has no mouse grab, which
-        # is the ordinary case here.
         """Handle the events Qt gives no named handler for.
 
         :param event: the Qt event.
@@ -220,7 +208,6 @@ class SetupCard(QWidget):
         """
         self.flow_towards(QPointF(position))
 
-    # ------------------------------------------------------------------
     def paintEvent(self, event):                # noqa: N802 - Qt naming
         """Draw the card and its animated rim.
 
@@ -229,12 +216,9 @@ class SetupCard(QWidget):
         try:
             self._paint()
         except Exception:
-            # Decoration is never load-bearing: an unpainted card is still a
-            # card with working controls on it.
             pass
         super().paintEvent(event)
 
-    # ---------------------------------------------------- where it flows to
 
     def perimeter_position(self, point: QPointF):
         """Where on the rim ``point`` is, as a fraction clockwise from 0.
@@ -269,24 +253,20 @@ class SetupCard(QWidget):
         if abs(dx) < 1e-9 and abs(dy) < 1e-9:
             return None
 
-        # Scale the ray until it touches whichever pair of sides it reaches
-        # first. The larger of the two normalised components decides.
         span = max(abs(dx) / half_w, abs(dy) / half_h)
         x = half_w + dx / span
         y = half_h + dy / span
-        # Rounding can leave it a hair outside; the run below assumes it is
-        # on the boundary.
         x = min(max(x, 0.0), width)
         y = min(max(y, 0.0), height)
 
         total = 2.0 * (width + height)
-        if y <= 1e-6:                       # top edge, left to right
+        if y <= 1e-6:
             run = x
-        elif x >= width - 1e-6:             # right edge, down
+        elif x >= width - 1e-6:
             run = width + y
-        elif y >= height - 1e-6:            # bottom edge, right to left
+        elif y >= height - 1e-6:
             run = width + height + (width - x)
-        else:                               # left edge, up
+        else:
             run = 2.0 * width + height + (height - y)
         return (run / total) % 1.0
 
@@ -514,42 +494,23 @@ class SetupCard(QWidget):
 
     def _tick(self) -> None:
         """One frame: run the laps down, else ease towards the pointer."""
-        # The animation clock advances whatever else happens, so a pulse
-        # keeps its rhythm through a circuit and across a slide change.
         self._phase += self._timer.interval() / 1000.0
         if self._laps:
             step = 0.03 if self._laps > 0 else -0.03
             self._at += step
             self._laps -= step
-            # A LAP ENDS EXACTLY, not approximately: floating error across
-            # thirty-odd frames would otherwise leave the accent a little
-            # further round after every circuit, and after ten slides it
-            # would be somewhere the pointer never put it.
             if abs(self._laps) < 0.031:
-                # THE REMAINDER IS TRAVELLED, not undone: `_laps` is what is
-                # still owed, so the last partial step ADDS it. Subtracting
-                # left the accent 2% short of home on every circuit, which
-                # after ten slides is a fifth of the way round from where
-                # the pointer last put it.
                 self._at = round(self._at + self._laps, 6)
                 self._laps = 0.0
         else:
-            # WHERE THE POINTER IS NOW, read fresh every frame. See
-            # `_aim_at_the_cursor`: events cannot carry a pointer that is
-            # outside the window, and this accent is meant to follow one.
             self._aim_at_the_cursor()
             gap = ((self._towards - self._at + 0.5) % 1.0) - 0.5
             if abs(gap) < 0.002:
                 if self._at == self._towards and not self.animates():
-                    # ARRIVED AND NOTHING MOVED. The timer keeps running --
-                    # it is what notices the cursor moving again -- but a
-                    # repaint of a card that has not changed is sixty
-                    # needless composites a second over a live backdrop.
-                    # A pulsing or spectral rim DOES change, so it paints.
                     return
                 self._at = self._towards
             else:
-                self._at += gap * self.ease()  # ease, not jump: water
+                self._at += gap * self.ease()
         self._corner = int((self.position + 0.125) % 1.0 * 4) % 4
         self.update()
 
@@ -564,55 +525,24 @@ class SetupCard(QWidget):
 
         palette = active_palette()
         painter = QPainter(self)
-        # THE FRAME OPENS HERE and everything the run is drawn with is read
-        # inside it. See :meth:`_held`.
         self._frame = {}
         try:
             painter.setRenderHint(QPainter.Antialiasing, True)
             rect = QRectF(self.rect()).adjusted(1.0, 1.0, -1.0, -1.0)
 
             body = QColor(palette.get("surface", palette["bg"]))
-            body.setAlpha(216)          # translucent: the blobs show through
+            body.setAlpha(216)
             painter.setPen(Qt.NoPen)
             painter.setBrush(body)
-            # THE BODY COVERS THE WHOLE CARD, not the inset the rim is
-            # stroked on. Inset by a pixel it left a gap to whatever sits
-            # behind -- a hairline along the straight edges, but half again
-            # as wide across the diagonal of each corner, where the drifting
-            # backdrop showed through as a blue crescent on every rounded
-            # part. The rim still strokes the inset rect, so its width has
-            # somewhere to sit.
             painter.drawRoundedRect(QRectF(self.rect()),
                                     self._radius, self._radius)
 
-            # THE RESTING RIM IS DARK GREY, not a faint white. It was the
-            # foreground ink at alpha 38, which on a dark theme is a pale
-            # line round the card and competes with the accent travelling
-            # along it -- the lit part should be the only bright part.
-            # `border` is the palette's own dark grey, and on a light
-            # theme it is the grey that reads against white.
             edge = QColor(palette.get("border", palette["fg"]))
             edge.setAlpha(235)
             painter.setBrush(Qt.NoBrush)
             painter.setPen(QPen(edge, 1.0))
             painter.drawRoundedRect(rect, self._radius, self._radius)
 
-            # THE ACCENT, a run of rim centred on `position`, FADING AT
-            # BOTH ENDS.
-            #
-            # DRAWN AS SEGMENTS OF THE ROUNDED PATH ITSELF rather than as
-            # the four hand-built corner paths below. A continuous position
-            # cannot be expressed as one of four corners, and
-            # `QPainterPathStroker` would give the outline of the stroke
-            # rather than a segment of it -- so the segments come from
-            # `QPainterPath.pointAtPercent` along the whole rim, which is
-            # the one thing Qt measures in arc length for us.
-            #
-            # SEGMENT BY SEGMENT, because a QPen carries ONE colour: a run
-            # that fades has to be many short strokes, each with its own
-            # alpha and its own width. Twenty-four of them is below the
-            # threshold at which the joins are visible and well inside the
-            # frame budget at 60 fps.
             self._paint_accent(painter, QColor(palette["accent"]), rect)
         finally:
             self._frame = None
@@ -654,9 +584,6 @@ class SetupCard(QWidget):
         key = (self._radius, self._arc)
         cached = self._span_cache
         if cached is None or cached[0] != key:
-            # The reference rim is a constant of the radius, so building
-            # and measuring it belongs once per length rather than once
-            # per frame.
             rim = QPainterPath()
             rim.addRoundedRect(QRectF(0.0, 0.0, *REFERENCE_CARD),
                                self._radius, self._radius)
@@ -689,8 +616,6 @@ class SetupCard(QWidget):
             ramp = along / peak
         else:
             ramp = (1.0 - along) / max(1e-6, 1.0 - peak)
-        # Squared, so the fall is gentle near the peak and quick at the ends
-        # -- the shape a wake has.
         return max(0.0, min(1.0, ramp ** (1.0 + self.FADE)))
 
     def accent_start(self, span: float) -> float:
@@ -759,8 +684,6 @@ class SetupCard(QWidget):
         turn = self._phase / max(0.1, self.period())
         hue = (float(along) + turn) % 1.0
         spectral = QColor()
-        # SATURATION AND VALUE FROM THE ACCENT, so a rainbow on a pale
-        # theme is not the same searing colour as one on a dark theme.
         spectral.setHsvF(hue, min(1.0, accent.saturationF() + 0.25),
                          max(accent.valueF(), 0.85))
         return spectral
@@ -776,11 +699,6 @@ class SetupCard(QWidget):
             dressing = self._dressing()
             return float(dressing[1]()) / 360.0 if dressing else 0.0
 
-        # ONE DRIFT FOR THE WHOLE RUN. It is a function of the animation
-        # clock, which does not advance while a frame is being drawn, so
-        # asking per segment returned the same number at the cost of a
-        # call -- and a run whose ends had drifted differently from each
-        # other would be a fault, not a feature.
         drift = self._held("drift", read)
         return ((float(along) * SPACEOUT_RIM_SPREAD
                  + self._phase / SPACEOUT_RIM_PERIOD + drift) % 1.0)
@@ -807,17 +725,7 @@ class SetupCard(QWidget):
         rim, rim_px = self._rim(rect)
         span = self.accent_span(rect)
         start = self.accent_start(span)
-        # THE PULSE IS ONE VALUE FOR THE FRAME. It is read off the
-        # animation clock, which does not advance while the frame is being
-        # drawn, so asking per segment gave the same answer every time --
-        # and a run that pulsed along its own length would be a fault.
         pulse = self.beat()
-        # ONE STEP PER `STEP_PX` OF RIM, not a fixed count. At 24 segments a
-        # run this long was 23 px a step: the alpha moved in visible jumps
-        # and every corner was cut into four straight chords, which is the
-        # "chunky" of the 2026-08-22 report. The count now follows the
-        # length being drawn, so it stays smooth on a card of any size and
-        # costs nothing on a small one.
         run_px = max(1.0, span * rim_px)
         steps = int(min(self.MAX_STEPS,
                         max(24.0, run_px / self.STEP_PX)))
@@ -829,20 +737,9 @@ class SetupCard(QWidget):
             point = rim.pointAtPercent((start + span * along) % 1.0)
             alpha = self.accent_alpha(along)
             if alpha > 0.004 or previous_alpha > 0.004:
-                # THE MIDPOINT ALPHA, so a segment is the shade of the rim
-                # it covers rather than of the end it stops at -- which is
-                # what leaves a visible edge between one segment and the
-                # next at the faint end.
                 middle = (alpha + previous_alpha) / 2.0
                 ink = self.ink_at((along + previous_along) / 2.0, colour)
                 ink.setAlpha(int(round(235 * middle * pulse)))
-                # THE WIDTH TAPERS WITH THE ALPHA. A constant-width stroke
-                # fading to nothing still shows its full thickness where it
-                # is faint, which reads as a smear; a taper reads as a wake.
-                #
-                # ROUND CAPS AND JOINS: a round cap on a 5 px segment
-                # overlaps its neighbour by half a width, so the joins fill
-                # instead of leaving the pale notch a flat cap leaves.
                 pen = QPen(ink, 1.2 + 2.2 * middle, Qt.SolidLine,
                            Qt.RoundCap, Qt.RoundJoin)
                 painter.setPen(pen)

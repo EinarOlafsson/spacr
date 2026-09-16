@@ -1,0 +1,13 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "key": "Controls",
+      "source": "Controls",
+      "source_sha256": "799c269135742a36ae48dddf3a69c47c7d2a428a34e351f6da93ae6490101b47",
+      "table": "ui",
+      "translation": "Controles"
+    }
+  ],
+  "schema": 1
+}

@@ -29,7 +29,7 @@ ambiguity rather than resolving it silently, and never lose provenance.
 TWO SCREENS, AND A COLLISION THAT IS NOT ONE
 --------------------------------------------
 There is also a case where the first bullet above is *backwards*. Two
-screens that share a guide library both have ``plate1``..``plate4``, and there
+screens that share a guide library both have ``plate1..plate4``, and there
 they are not two plates claiming one identity -- they are two *different*
 plates whose identity was only ever partly written down. The missing part is
 the screen.
@@ -491,8 +491,6 @@ def column_kinds(path: str, table: str) -> Dict[str, str]:
                 kind = answer
                 break
         else:
-            # SQLite's fifth rule: anything else declared is NUMERIC. Nothing
-            # declared at all stays unknown.
             if declared.strip():
                 kind = "numeric"
         out[str(row[1])] = kind
@@ -551,9 +549,6 @@ def _plates(path: str, table: str, plate_column: Optional[str]) -> List[str]:
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         rows = db.execute(
             f'SELECT DISTINCT "{plate_column}" FROM "{table}"').fetchall()
-    # Normalised, so the PLAN names a plate the same way the DATA will after
-    # `normalise_plate_ids`. A plan that says `pplate1` while the frame says
-    # `plate1` would make the collision check compare two vocabularies.
     return sorted({canonical_plate_id(row[0])
                    for row in rows if row[0] is not None})
 
@@ -627,8 +622,6 @@ def describe_merge(paths: Sequence[str], table: str, *,
     """
     assigned = _resolve_screens(paths, screens)
     summaries: List[SourceSummary] = []
-    # Named for the whole set at once -- see :func:`source_labels` for why a
-    # per-path rule gave every plate of a screen the same useless name.
     labels = list(source_labels(paths))
     for path, screen, label in zip(paths, assigned, labels):
         columns = _table_columns(path, table)
@@ -661,10 +654,6 @@ def describe_merge(paths: Sequence[str], table: str, *,
         for column in sorted(everything - common)
     }
 
-    # THE CHECK THAT CHANGED. Keyed on (screen, plate), not on plate: two
-    # screens each owning a plate1 are two identities, and calling that a
-    # clash makes stacking two screens impossible. A plate repeated inside one
-    # screen is the original error and is untouched.
     seen: Dict[Tuple[str, str], List[str]] = {}
     plate_screens: Dict[str, List[str]] = {}
     for source in summaries:
@@ -688,19 +677,6 @@ def describe_merge(paths: Sequence[str], table: str, *,
                      colliding, colliding_identities, shared)
 
 
-# --------------------------------------------------------------------------- #
-#  What the user decided, written down
-# --------------------------------------------------------------------------- #
-#
-# Instruction 109: "Two databases that both contain a plate called plate1 do
-# NOT silently merge those plates. The user is TOLD, and what they choose is
-# RECORDED."
-#
-# Telling them is the refusal and the plan. RECORDING is this: a merge that a
-# user resolved by hand -- by dropping one of two colliding databases, say --
-# leaves no trace in the result, and six months later the frame cannot say
-# which of the two plate1s it is. One appended JSON line per merge, in one
-# place, is the smallest thing that answers that question afterwards.
 
 
 @dataclass(frozen=True)
@@ -925,35 +901,18 @@ def read_merged(paths: Sequence[str],
     total = int(rows_total) if rows_total is not None else (
         int(rows_done) + plan.total_rows)
     for source in plan.sources:
-        # BETWEEN SOURCES, NOT INSIDE ONE. A source is read by a single
-        # `read_sql_query`; interrupting that would leave a partial frame
-        # this function has no honest way to return, and the point of a
-        # cancel is that nothing half-made survives it.
         if cancelled is not None and cancelled():
             raise MergeCancelled(
                 f"stopped while reading {table} — {done:,} of {total:,} rows "
                 f"had been read and none of them were kept.")
         if progress is not None:
             progress(f"reading {table} from {source.label}", done, total)
-        # ONE READER. `tabular.read_database` is the door every spaCR read
-        # goes through, and it is what applies the vocabulary: canonical
-        # names, ONE column per metadata key (a `well` beside a `wellID` is
-        # collapsed and the disagreement counted), and the `pplate1` plate
-        # repair before anything keys on it. Case-folded, so it cannot
-        # produce a frame SQLite will refuse.
-        #
-        # read_only, because a merge reads the user's measurement databases
-        # and must not be able to write to one; migrate=False follows from
-        # that and is what this call has always done.
         frame = tabular.read_database(
             source.path, [source.table],
             report=report, warn=report,
             migrate=False, read_only=True,
             limit=int(limit_per_source) if limit_per_source else None,
         )[0]
-        # BEFORE the column filter, so a screen stored in only one source is
-        # not intersected away, and so an explicitly named screen reaches
-        # every row whether the database had the column or not.
         frame = schema.add_screen_column(
             frame, source.screen, overwrite=source.screen is not None)
         if keep is not None:
@@ -974,18 +933,9 @@ def read_merged(paths: Sequence[str],
             progress(f"read {table} from {source.label}", done, total)
 
     merged = pd.concat(frames, ignore_index=True, sort=False)
-    # HOW FAR THIS CALL GOT, carried on the frame so a caller stacking several
-    # tables can continue the count without re-deriving it from row lengths
-    # that the column filter may already have changed.
     merged.attrs["rows_done"] = done
-    # The set a caller is about to analyse, and the set they are not. Carried
-    # on the frame so it cannot be separated from the data it describes.
     merged.attrs["dropped_columns"] = dropped
     merged.attrs["screens"] = plan.screens
-    # THE ANTI-POOLING EVIDENCE, carried with the data. Pooling two plates
-    # that share a name is the one failure here with no symptom, so the counts
-    # that would expose it travel on the frame rather than being recomputable
-    # only by going back to the files.
     merged.attrs["source_rows"] = dict(source_rows)
     merged.attrs["labels"] = tuple(source.label for source in plan.sources)
     if dropped and report is not None:
@@ -1019,13 +969,6 @@ def _collision_message(plan: MergePlan) -> str:
     detail = "; ".join(
         f"{plate!r} in {', '.join(labels)}"
         for plate, labels in sorted(plan.colliding_plates.items()))
-    # NO 'qualify' IN THIS SENTENCE. It is still available to a caller who
-    # wants the plate id rewritten, and it is still the wrong thing to put in
-    # front of a user: `plate1` becoming `runA-plate1` makes the keys unique
-    # and hides which experiment a plate belongs to INSIDE its own id, where
-    # it can no longer be blocked on, tested for or coloured by. This message
-    # is what the Gate Editor and the Image UMAP show, so it names the
-    # resolutions that keep the experiment analysable.
     return (
         "the same plate id appears in more than one database, so merging "
         "would compute every per-well number over two experiments at "

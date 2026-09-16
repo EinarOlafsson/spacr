@@ -94,6 +94,7 @@ class EmbeddingsScreen(QWidget):
         self.setObjectName("EmbeddingsScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._result = None
+        self._scale_record: dict = {}
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
 
@@ -122,23 +123,8 @@ class EmbeddingsScreen(QWidget):
         controls.addWidget(QLabel("Channels:", self))
         self._policy = QComboBox(self)
         self._policy.setObjectName("EmbeddingsPolicyPicker")
-        # THE COST IS IN THE CAPTION, not only the tooltip. 386 asks for this
-        # choice to be explicit; a user who cannot see what it costs will
-        # pick whichever is first and never revisit it.
-        # SHORT ENOUGH TO TRANSLATE. These are runtime catalog rows, and the
-        # machine translator returns long clause-heavy English unchanged --
-        # the earlier five-line tooltip failed the zh_CN gate outright. One
-        # idea per sentence, which a tooltip wants anyway.
-        # The PASS COUNT stays in the caption: 386 asks for the cost to be
-        # visible where the choice is made, and a test pins it.
         self._policy.addItem("Per channel (one pass per stain)", "per_channel")
         self._policy.addItem("Project to three (one pass)", "project")
-        # VERIFIED AGAINST THE zh_CN MODEL BEFORE BEING WRITTEN. The M2M
-        # checkpoint returns a string UNCHANGED -- not an error -- when
-        # "channel" and "stain" appear in the same row, and the catalog audit
-        # then reports it as "remains exact English". Six variants were run
-        # through `_translate_batches` to find that; this wording avoids the
-        # pair and comes back as Chinese. See instruction 394.
         self._policy.setToolTip(
             "Encoding runs separately for every stain and names it in the "
             "column. Projection mixes them into three and is faster.")
@@ -174,11 +160,6 @@ class EmbeddingsScreen(QWidget):
         controls.addWidget(self._run)
         outer.addLayout(controls)
 
-        # install_sorting + table_item, like every other view in the app.
-        # A preview of eight dimensions is exactly the table someone sorts --
-        # "which objects score highest on dimension 3" is the only question
-        # a raw embedding column can answer by eye -- and Qt's default sort
-        # is lexicographic, so -0.0412 would rank above 0.9031.
         self._table = install_sorting(QTableWidget(0, 0, self))
         self._table.setObjectName("EmbeddingsPreviewTable")
         self._table.setAlternatingRowColors(True)
@@ -196,16 +177,10 @@ class EmbeddingsScreen(QWidget):
         outer.addWidget(self._status)
 
         self._fill_backbones()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into: a tooltip that only appears over the control
-        # is one the user meets after they have already decided what to put
-        # in it. One post-pass rather than a convention every hand-built row
-        # has to remember -- the same call `live_preview.py` ends with.
         from .settings_model import retarget_field_tooltips
 
         retarget_field_tooltips(self)
 
-    # -- inputs -----------------------------------------------------------
 
     def _fill_backbones(self) -> None:
         """Offer the engine's default first, and never an empty list."""
@@ -239,12 +214,12 @@ class EmbeddingsScreen(QWidget):
                 f"{crops.shape}. spacr.crops produces this stack, and "
                 f"spacr.embeddings.embed_array expects channels last.")
         self._crops = crops
+        self._scale_record = {}
         self._source.setText(
             label or f"{crops.shape[0]} objects x {crops.shape[-1]} channels")
         self._run.setEnabled(True)
         self._run.setToolTip("Encode every object")
 
-    # -- the run ----------------------------------------------------------
 
     def spec(self):
         """The :class:`spacr.embeddings.EmbeddingSpec` the controls describe."""
@@ -263,6 +238,7 @@ class EmbeddingsScreen(QWidget):
             self._status.setText("Load crops first.")
             return
         spec = self.spec()
+        record = self._scale_record
         self._status.setText(f"Embedding {crops.shape[0]} objects…")
 
         def work():
@@ -272,20 +248,15 @@ class EmbeddingsScreen(QWidget):
             opens this screen should not pay for it, and a user who does
             should pay for it once, here, rather than at launch.
             """
-            from ...embeddings import embed_array
+            from ...embeddings import _embed_plate
 
-            return embed_array(crops, spec)
+            return _embed_plate(crops, spec, record=record)
 
         self._jobs.submit(work, self._on_embedded)
 
     def _on_embedded(self, result) -> None:
         """Fill the preview and say which encoder produced it."""
         self._result = result
-        # `EmbeddingResult` carries the matrix and the names separately and
-        # offers `to_frame(object_ids)`. The screen has no object ids -- it
-        # was handed a crop stack, not a table -- so it builds the frame from
-        # the two directly rather than inventing ids that would then look
-        # like a join key.
         frame = pd.DataFrame(np.asarray(result.values),
                              columns=list(result.columns))
         self._frame = frame
@@ -308,23 +279,6 @@ class EmbeddingsScreen(QWidget):
         """
         columns = list(frame.columns)[:PREVIEW_DIMENSIONS]
         rows = min(len(frame), 50)
-        # SORTING OFF ACROSS THE FILL, which is what every other table in
-        # the app does (project_browser.py:427, run_history.py:447) and what
-        # this one was missing.
-        #
-        # The table is sorted, and with a sort active every `setItem` into
-        # the sorted column does a sorted RE-INSERTION -- it moves the row it
-        # was just handed. The loop then writes that row's remaining columns
-        # at an index now holding a different object, so one line ends up
-        # carrying dimensions from two objects, and a cell from the PREVIOUS
-        # run survives where nothing was written. Nothing on screen says so.
-        #
-        # `_SortState` does try to suspend itself during a fill, but only on
-        # `rowsInserted`/`rowsRemoved`, and a second Embed always repeats the
-        # shape -- rows is `min(len(frame), 50)` over the same crops, columns
-        # are capped at PREVIEW_DIMENSIONS -- so those never fire. Clearing
-        # first is not enough either, measured: the sort is re-applied as the
-        # rows go back in. Turning sorting off is the only thing that holds.
         self._table.setSortingEnabled(False)
         try:
             self._table.setRowCount(0)
@@ -333,9 +287,6 @@ class EmbeddingsScreen(QWidget):
             self._table.setRowCount(rows)
             for row in range(rows):
                 for index, column in enumerate(columns):
-                    # The displayed text is rounded to four places; the SORT
-                    # KEY is the float, so two dimensions that both print
-                    # -0.0000 still order by what they actually are.
                     value = float(frame.iloc[row][column])
                     item = table_item(f"{value:.4f}", key=value)
                     item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -348,7 +299,6 @@ class EmbeddingsScreen(QWidget):
         self._status.setText(str(message))
         LOG.warning("embedding failed: %s", message)
 
-    # -- lifecycle --------------------------------------------------------
 
     def is_busy(self) -> bool:
         """Whether a run is in flight."""
@@ -373,9 +323,6 @@ def make_embeddings_screen(app_key: Optional[str] = None) -> QWidget:
     return EmbeddingsScreen()
 
 
-# The row is declared in `spacr.qt.app_catalog`, read back here rather than
-# restated, so the name, the blurb and the nine translations have one
-# spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

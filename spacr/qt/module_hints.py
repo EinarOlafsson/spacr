@@ -71,7 +71,7 @@ def module_hint_text(widget: QWidget) -> str:
     try:
         summary = widget.property(SUMMARY_PROPERTY)
         name = widget.property(NAME_PROPERTY)
-    except RuntimeError:                    # the C++ half has gone
+    except RuntimeError:
         return ""
     summary = str(summary or "").strip()
     name = str(name or "").strip()
@@ -80,9 +80,6 @@ def module_hint_text(widget: QWidget) -> str:
     line = f"{name} — {summary}" if name else summary
     if len(line) <= MAX_HINT_CHARS:
         return line
-    # Cut on a word so the tail is not half a word, and mark it so the
-    # reader knows there is more rather than thinking the sentence ends
-    # oddly.
     cut = line[:MAX_HINT_CHARS].rsplit(" ", 1)[0].rstrip(" ,;:—-")
     return f"{cut}…"
 
@@ -110,7 +107,7 @@ class _ModuleHints(QObject):
         """
         try:
             key = str(widget.property(KEY_PROPERTY) or "")
-        except RuntimeError:                    # the C++ half has gone
+        except RuntimeError:
             return False
         if not key or key == "__home__":
             return False
@@ -159,15 +156,8 @@ class _ModuleHints(QObject):
         if not text:
             return False
         landed = self._show(watched)
-        # AN ICON-ONLY BUTTON KEEPS ITS POPUP. The description still goes
-        # to the status bar -- that is what was asked for -- but the
-        # popup is not suppressed, because a button with no label has
-        # nothing else to identify it with.
         if not self._shows_its_own_name(watched):
             return False
-        # SUPPRESSED ONLY IF IT LANDED SOMEWHERE. A window with no status
-        # bar would otherwise lose the description entirely, which is
-        # worse than the popup this replaces.
         return landed
 
 

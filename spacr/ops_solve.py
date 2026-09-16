@@ -54,8 +54,6 @@ def solve_placements(edges: Dict[Tuple[int, int], Tuple[float, float]],
     count = len(order)
     if not count:
         return {}
-    # Components first, so each gets exactly one pin. Without that the
-    # normal equations are singular for every component after the first.
     parent = list(range(count))
 
     def find(node: int) -> int:

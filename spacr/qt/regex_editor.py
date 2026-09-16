@@ -116,9 +116,6 @@ class RegexEditorDialog(QDialog):
         """
         super().__init__(parent)
         self.setWindowTitle("spaCR — Regex editor")
-        # SCALED. 760x520 was measured at font scale 1.0; the prose inside
-        # it is not, so at 2x the dialog stayed the same size while every
-        # line in it doubled.
         from .preferences import scaled_px
 
         self.setMinimumSize(scaled_px(760), scaled_px(520))
@@ -137,18 +134,10 @@ class RegexEditorDialog(QDialog):
         )
         intro.setTextFormat(Qt.RichText)
         intro.setWordWrap(True)
-        # (Preferred, Minimum), WHICH IS THE HOUSE RULE `prerun._label`
-        # writes down: with Qt's default Preferred height a parent is free
-        # to hand a word-wrapped label LESS than its heightForWidth, and the
-        # last lines are silently clipped. Measured before this: this label
-        # wrapped to 54 px and was given 36 at font scale 1.0, and to 180 px
-        # in 88 at 2.0 -- so the sentence naming `chanID`, which is the one
-        # thing the dialog exists to explain, was the part cut off.
         _let_it_have_its_height(intro)
         self._intro = intro
         outer.addWidget(intro)
 
-        # ─── Regex input row ────────────────────────────────────────
         row = QHBoxLayout()
         self._regex_input = QLineEdit()
         mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
@@ -163,12 +152,6 @@ class RegexEditorDialog(QDialog):
         self._auto_btn.clicked.connect(self._on_auto_detect)
         row.addWidget(self._auto_btn)
 
-        # THE WORKBENCH (137 A, C, D). This dialog previews the MATCH; the
-        # workbench previews the IMPORT -- one row per file with the name it
-        # would get, a dropdown saying what each group means, and the folder
-        # tree it would produce, with the unmatched files named. Two windows
-        # because they answer two questions, and this one is what a drop
-        # opens.
         self._workbench_btn = QPushButton("Work it out from the files…")
         self._workbench_btn.setToolTip(
             "Drop the images in, name what each group means, and see the "
@@ -179,7 +162,6 @@ class RegexEditorDialog(QDialog):
         wrap = QWidget(); wrap.setLayout(row)
         outer.addWidget(wrap)
 
-        # ─── Preset dropdown ────────────────────────────────────────
         preset_row = QHBoxLayout()
         preset_row.addWidget(QLabel("Or start from a preset:"))
         self._preset_combo = QComboBox()
@@ -192,14 +174,9 @@ class RegexEditorDialog(QDialog):
         prewrap = QWidget(); prewrap.setLayout(preset_row)
         outer.addWidget(prewrap)
 
-        # ─── Warnings + preview ──────────────────────────────────────
         self._warnings_lbl = QLabel("")
         self._warnings_lbl.setTextFormat(Qt.RichText)
         self._warnings_lbl.setWordWrap(True)
-        # The same rule, and it matters more here: this label holds the
-        # warnings that say WHY a regex will not work, and it grows with
-        # however many there are. Clipped, it shows the first and hides the
-        # rest.
         _let_it_have_its_height(self._warnings_lbl)
         outer.addWidget(self._warnings_lbl)
 
@@ -209,7 +186,6 @@ class RegexEditorDialog(QDialog):
         self._preview.setFont(mono)
         outer.addWidget(self._preview, 1)
 
-        # ─── Buttons ─────────────────────────────────────────────────
         buttons = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel
         )
@@ -217,15 +193,12 @@ class RegexEditorDialog(QDialog):
         buttons.rejected.connect(self.reject)
         outer.addWidget(buttons)
 
-        # ─── Initial state ───────────────────────────────────────────
         if initial_regex:
             self._regex_input.setText(initial_regex)
         else:
             self._on_auto_detect()
 
-    # -- reactive updates ------------------------------------------------
     def _on_regex_changed(self, text: str) -> None:
-        # Match the dropdown to the current text if it matches a preset
         """Follow the typed pattern with the preset box and the preview.
 
         The box is set to the matching preset, or to ``(custom)`` when the text
@@ -242,7 +215,6 @@ class RegexEditorDialog(QDialog):
                 self._preset_combo.blockSignals(False)
                 break
         else:
-            # Custom
             self._preset_combo.blockSignals(True)
             self._preset_combo.setCurrentIndex(
                 self._preset_combo.count() - 1
@@ -293,11 +265,6 @@ class RegexEditorDialog(QDialog):
                     f"{len(self._samples)} sampled filenames.\n")
         else:
             note = "[auto] no regex could be inferred from the sample."
-        # Rebuild the table explicitly rather than relying on setText to
-        # emit textChanged: QLineEdit stays silent when the text is
-        # unchanged, so clicking "Auto detect" a second time used to
-        # stack another status line onto a stale preview, and the
-        # no-pattern branch left the warnings label blank entirely.
         self._refresh_preview()
         self._preview.appendPlainText(note)
 
@@ -346,16 +313,7 @@ class RegexEditorDialog(QDialog):
             if chosen:
                 self._regex_input.setText(chosen)
 
-    # -- accept ---------------------------------------------------------
     def _on_save(self) -> None:
-        # TRIMMED FOR `_get_regex`, which appends the extension itself. What
-        # this box holds matches WHOLE FILENAMES -- the preview above is
-        # matched against them -- and `auto_detect_regex` returns a pattern
-        # ending `\.(?:tif|tiff|png|jpg|jpeg)$`. Saved verbatim into
-        # `custom_regex` that became `(...$)..tif`: an anchor with characters
-        # after it, which can never match. Measured through the real path on
-        # eight cellvoyager names: 0 of 8, with no error anywhere and the
-        # pattern in the box looking exactly right.
         """Trim the pattern for ``get_regex`` and accept.
 
         The box matches whole filenames, so auto-detect's pattern ends with an

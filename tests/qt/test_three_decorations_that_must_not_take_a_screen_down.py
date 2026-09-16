@@ -139,7 +139,7 @@ def test_a_theme_that_cannot_be_read_gives_the_literal_back(monkeypatch):
 
     from spacr.qt.widgets.loading_screen import _role
 
-    def _explode():
+    def _explode(*args, **kwargs):
         raise RuntimeError("the theme is not resolved yet")
 
     monkeypatch.setattr(theme, "palette_for", _explode)
@@ -153,7 +153,8 @@ def test_a_readable_theme_is_preferred_over_the_literal(monkeypatch):
 
     from spacr.qt.widgets.loading_screen import _role
 
-    monkeypatch.setattr(theme, "palette_for", lambda: {"bg": "#ABCDEF"})
+    monkeypatch.setattr(theme, "palette_for",
+                        lambda *a, **k: {"bg": "#ABCDEF"})
 
     assert _role("bg", "#101114") == "#ABCDEF"
 
@@ -165,7 +166,7 @@ def test_a_role_the_theme_does_not_know_falls_back_too(monkeypatch):
 
     from spacr.qt.widgets.loading_screen import _role
 
-    monkeypatch.setattr(theme, "palette_for", lambda: {"bg": ""})
+    monkeypatch.setattr(theme, "palette_for", lambda *a, **k: {"bg": ""})
 
     assert _role("bg", "#101114") == "#101114"
     assert _role("no_such_role", "#101114") == "#101114"

@@ -116,9 +116,6 @@ def _shortcuts() -> Dict[str, str]:
             for i, k in enumerate(common.all_keys()[:9])}
 
 
-# ---------------------------------------------------------------------------
-# 01 — the control
-# ---------------------------------------------------------------------------
 
 def _patch_startup_determinism() -> None:
     """Freeze the live values the shipped Home screen reads.
@@ -147,12 +144,9 @@ def _patch_startup_determinism() -> None:
     into a bare ``except`` and freeze nothing without saying so.
     """
     from spacr.qt.widgets import home as H
-    # Staticmethods: assign plain functions, not lambdas taking self.
     H.SystemPanel.gpu_util = staticmethod(lambda: "41%")
     H.SystemPanel.gpu_vram = staticmethod(lambda: "14.9 / 24 GB")
     H.SystemPanel.disk_used = staticmethod(lambda: "68%")
-    # An empty queue is what a fresh install shows, and it is the only
-    # queue state that does not depend on the reviewer's ~/.spacr.
     H.QueuedPanel.queue_items = lambda self: []
     try:
         import spacr.run_journal as J
@@ -180,10 +174,6 @@ def _patch_startup_determinism() -> None:
             "the shipped ones rather than a re-assembly.",
     adds="Nothing.",
     removes="Nothing.",
-    # Do not re-add "the last apps are cut off with no way to scroll to
-    # them". That was true of the pre-QScrollArea Sidebar and is now
-    # contradicted by finding 1 in VARIANTS.md, three paragraphs above
-    # where this text lands — one artefact cannot say both.
     argument="It is the thing every other variant has to beat, and it "
             "shows its problem at 1440x900 without anyone having to "
             f"argue for it: the sidebar's {common.n_apps()} items + "
@@ -199,10 +189,6 @@ def _patch_startup_determinism() -> None:
 def v01(ctx: Ctx) -> QWidget:
     """Build the shipped Home screen as the comparison baseline."""
     _patch_startup_determinism()
-    # make_home_page() rather than HomePage(...): the grouping, the
-    # stages, the notes and the icon provider are four arguments that
-    # have to agree, and a baseline that assembles its own HomePage is a
-    # render of a page that does not ship.
     from spacr.qt.app import make_home_page
     page = Page(ctx, margins=(0, 0, 0, 0), spacing=0)
     page.add_rail(real_sidebar(ctx))
@@ -210,9 +196,6 @@ def v01(ctx: Ctx) -> QWidget:
     return page.finish(status="Ready")
 
 
-# ---------------------------------------------------------------------------
-# 02
-# ---------------------------------------------------------------------------
 
 @variant(
     "stages-grid", "Workflow stages, wrapping tile grid",
@@ -231,11 +214,6 @@ def v02(ctx: Ctx) -> QWidget:
     """Arrange every app in wrapping grids grouped by workflow stage."""
     page = Page(ctx, margins=MARGINS)
     page.body.addWidget(hero(ctx, compact=True))
-    # Seven columns are the measured compromise for this fixed canvas.
-    # Six columns create extra rows; eight make the tiles too narrow for
-    # current app names. The layout audit below records any resulting
-    # wrapping or elision against the current registry rather than against
-    # a historical app count.
     for title, keys in CATS_STAGE5:
         page.body.addWidget(cat_header(ctx, title, note=f"{len(keys)} apps"))
         page.body.addWidget(htile_grid(ctx, keys, cols=7, width=190,
@@ -244,9 +222,6 @@ def v02(ctx: Ctx) -> QWidget:
     return page.finish(footer=hint_bar(ctx))
 
 
-# ---------------------------------------------------------------------------
-# 03
-# ---------------------------------------------------------------------------
 
 @variant(
     "three-broad", "Three broad categories",
@@ -272,9 +247,6 @@ def v03(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 04
-# ---------------------------------------------------------------------------
 
 @variant(
     "eight-narrow", "Eight narrow categories, as panels",
@@ -319,9 +291,6 @@ def v04(ctx: Ctx) -> QWidget:
     return page.finish(footer=hint_bar(ctx))
 
 
-# ---------------------------------------------------------------------------
-# 05
-# ---------------------------------------------------------------------------
 
 @variant(
     "flat-search", "No categories at all — flat searchable grid",
@@ -366,9 +335,6 @@ def v05(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 06
-# ---------------------------------------------------------------------------
 
 @variant(
     "search-only", "Search-first — the grid is what you get after you type",
@@ -425,9 +391,6 @@ def v06(ctx: Ctx) -> QWidget:
     return page.finish(status="Type to search · Esc to clear")
 
 
-# ---------------------------------------------------------------------------
-# 07
-# ---------------------------------------------------------------------------
 
 @variant(
     "rail-and-pane", "Category rail on the left, content pane on the right",
@@ -462,9 +425,6 @@ def v07(ctx: Ctx) -> QWidget:
     return page.finish(status="Segment")
 
 
-# ---------------------------------------------------------------------------
-# 08
-# ---------------------------------------------------------------------------
 
 @variant(
     "tabs", "Tabs, one per stage",
@@ -501,9 +461,6 @@ def v08(ctx: Ctx) -> QWidget:
     return page.finish(status="Segment")
 
 
-# ---------------------------------------------------------------------------
-# 09
-# ---------------------------------------------------------------------------
 
 @variant(
     "start-a-run", "One prominent 'start a run' path",
@@ -548,9 +505,6 @@ def v09(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 10
-# ---------------------------------------------------------------------------
 
 @variant(
     "resume-first", "Resume the last run, then everything else",
@@ -595,9 +549,6 @@ def v10(ctx: Ctx) -> QWidget:
     return page.finish(status="Last run: Measure · plate_07 · 18 min ago")
 
 
-# ---------------------------------------------------------------------------
-# 11
-# ---------------------------------------------------------------------------
 
 @variant(
     "quick-start", "Guided quick-start for a first-time user",
@@ -644,9 +595,6 @@ def v11(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 12
-# ---------------------------------------------------------------------------
 
 @variant(
     "pinned-first", "Pinned favourites first, then three categories",
@@ -690,9 +638,6 @@ def v12(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 13
-# ---------------------------------------------------------------------------
 
 @variant(
     "dense-two-column", "Dense two-column list, current sections",
@@ -733,9 +678,6 @@ def v13(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 14
-# ---------------------------------------------------------------------------
 
 @variant(
     "by-frequency", "Ordered by how often you actually use it",
@@ -778,9 +720,6 @@ def v14(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 15
-# ---------------------------------------------------------------------------
 
 @variant(
     "pipeline-flow", "The pipeline, drawn as a pipeline",
@@ -834,9 +773,6 @@ def v15(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 16
-# ---------------------------------------------------------------------------
 
 @variant(
     "status-first", "Project status first, then the pipeline",
@@ -885,9 +821,6 @@ def v16(ctx: Ctx) -> QWidget:
     return page.finish(status=f"Project: {MOCK['project']}")
 
 
-# ---------------------------------------------------------------------------
-# 17
-# ---------------------------------------------------------------------------
 
 @variant(
     "split-apps-aside", "Apps left, everything-about-your-machine right",
@@ -927,9 +860,6 @@ def v17(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 18
-# ---------------------------------------------------------------------------
 
 #: Every app that is not on the core pipeline — the ones variant 18 puts
 #: behind its one door. The list is derived so module folds and additions
@@ -981,9 +911,6 @@ def v18(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 19
-# ---------------------------------------------------------------------------
 
 @variant(
     "by-question", "Categories named as the question you arrived with",
@@ -1023,9 +950,6 @@ def v19(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 20
-# ---------------------------------------------------------------------------
 
 @variant(
     "whats-new", "What changed in this version, above the apps",
@@ -1040,22 +964,6 @@ def v19(ctx: Ctx) -> QWidget:
             "four bullets is a cheap rent to charge it.")
 def v20(ctx: Ctx) -> QWidget:
     """Place concise release highlights above the current-section app grid."""
-    # The rent went up. This variant spends its vertical budget on the
-    # release panel and pays for it with `cats_current()` — one caption
-    # plus one grid per LIVE section — so a section costs a caption AND a
-    # full tile row even when it holds one app. The spacing below is the
-    # measured fit for the current registry on the 900 px canvas.
-    #
-    # Paid out of tile height and inter-block spacing rather than by
-    # dropping the panel, which is the only thing this variant is for, or
-    # by cutting the captions, which is how it replaces the tabs. Widening
-    # the grid was measured and refused: at nine columns the row count
-    # does fall by one, but the tile falls to 146 px with it, and v02's
-    # note already records that a name elides below 166.
-    #
-    # The smaller icon also returns width to the label. Growth within a
-    # partially filled row is cheap; another section costs a caption and a
-    # complete row and must be measured again.
     page = Page(ctx, margins=MARGINS, spacing=9)
     top, row = transparent(horizontal=True, spacing=16)
     frame, col = panel(ctx, margins=(18, 11, 18, 11), spacing=6)
@@ -1092,9 +1000,6 @@ def v20(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 21
-# ---------------------------------------------------------------------------
 
 @variant(
     "dashboard-first", "Dashboard across the top, apps beneath",
@@ -1143,9 +1048,6 @@ def v21(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 22
-# ---------------------------------------------------------------------------
 
 @variant(
     "a-to-z", "A-to-Z index",
@@ -1191,9 +1093,6 @@ def v22(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 23
-# ---------------------------------------------------------------------------
 
 @variant(
     "illustrated-tiles", "Large illustrated tiles, five stage bands",
@@ -1220,9 +1119,6 @@ def v23(ctx: Ctx) -> QWidget:
     return page.finish(footer=hint_bar(ctx))
 
 
-# ---------------------------------------------------------------------------
-# 24
-# ---------------------------------------------------------------------------
 
 @variant(
     "command-palette", "Keyboard-first command palette",
@@ -1272,9 +1168,6 @@ def v24(ctx: Ctx) -> QWidget:
     return page.finish(status=f"{common.n_apps()} commands")
 
 
-# ---------------------------------------------------------------------------
-# 25
-# ---------------------------------------------------------------------------
 
 @variant(
     "project-home", "Home is the project, navigation is the sidebar",
@@ -1314,9 +1207,6 @@ def v25(ctx: Ctx) -> QWidget:
     return page.finish(status=f"Project: {MOCK['project']}")
 
 
-# ---------------------------------------------------------------------------
-# 26
-# ---------------------------------------------------------------------------
 
 @variant(
     "pins-recent-accordion", "Pins, recents, and everything else collapsed",
@@ -1346,8 +1236,6 @@ def v26(ctx: Ctx) -> QWidget:
     page.body.addWidget(recent_runs_strip(ctx, count=3, card_width=336))
     page.body.addWidget(cat_header(ctx, "All apps"))
     for i, (title, keys) in enumerate(cats_current()):
-        # QToolButton reads a lone "&" as a mnemonic and swallows it
-        # ("Data & batch runs" renders as "Data _batch runs").
         sec = Section(f"{title.replace('&', '&&')}  ({len(keys)})")
         sec.add_widget(dense_list(ctx, keys, width=CONTENT_W - 60,
                                   name_width=150))
@@ -1358,9 +1246,6 @@ def v26(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 27
-# ---------------------------------------------------------------------------
 
 @variant(
     "accordion-eight", "Eight accordions, one open",
@@ -1393,9 +1278,6 @@ def v27(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 28
-# ---------------------------------------------------------------------------
 
 @variant(
     "grid-no-chrome", "Nothing but the grid",
@@ -1423,9 +1305,6 @@ def v28(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 29
-# ---------------------------------------------------------------------------
 
 @variant(
     "intent-wizard", "Four intents on the left, their apps on the right",
@@ -1480,9 +1359,6 @@ def v29(ctx: Ctx) -> QWidget:
     return page.finish()
 
 
-# ---------------------------------------------------------------------------
-# 30
-# ---------------------------------------------------------------------------
 
 @variant(
     "kitchen-sink", "Everything at once (the reference for 'too much')",

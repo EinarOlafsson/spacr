@@ -68,6 +68,24 @@ def _builder():
         sys.path.remove(tools)
 
 
+def _runtime_builder():
+    """Import the RUNTIME builder -- a different module from :func:`_builder`.
+
+    The two lanes have separate builders and separate authorities for what a
+    source is: `build_documentation_i18n` splits docstrings into blocks, while
+    `build_i18n_catalogs.canonical_sources()` names the runtime tables. Using
+    the API builder for a runtime lookup is the mistake this separate accessor
+    exists to make hard.
+    """
+    tools = str(REPO / "tools")
+    sys.path.insert(0, tools)
+    try:
+        import build_i18n_catalogs as module
+        return module
+    finally:
+        sys.path.remove(tools)
+
+
 def resolve(label: str) -> str:
     """The English source block a label names, split the builder's way.
 
@@ -109,22 +127,37 @@ def record(label: str, translation: str) -> dict:
 def runtime_source(table: str, key: str) -> str:
     """The English runtime string a (table, key) names.
 
+    RESOLVED THROUGH ``canonical_sources()``, which is the same authority
+    ``reviewed_runtime_translations`` reads when it validates the record this
+    writes. Resolving through the generated ``en.py`` instead does not work
+    and fails confusingly: records spell the table ``ui``, the catalog module
+    calls it ``UI_SOURCES``, so ``getattr(module, table.upper())`` raised "no
+    table 'UI'" for the 384 existing ``ui`` records' own table name. Two
+    spellings of one table is the kind of drift that makes a tool look broken
+    when the evidence is fine.
+
+    ``ui`` and ``categories`` arrive as SEQUENCES, not mappings: a static Qt
+    caption has no key separate from itself, so the row IS its own English
+    source and ``key`` is returned unchanged once membership is confirmed.
+
     :param table: the catalog table, lower case as the records spell it --
-        ``setting_tooltips``, ``setting_labels``, and so on.
+        ``ui``, ``setting_tooltips``, ``setting_labels``, ``categories``,
+        ``module_summaries``, ``installer``.
     :param key: the row within it.
     :returns: the English source string.
     :raises SystemExit: when either does not exist.
     """
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("_en", RUNTIME_CATALOG)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    mapping = getattr(module, table.upper(), None)
-    if mapping is None:
-        raise SystemExit(f"no table {table.upper()!r} in {RUNTIME_CATALOG}")
-    if key not in mapping:
-        raise SystemExit(f"no key {key!r} in {table.upper()}")
-    return mapping[key]
+    sources = _runtime_builder().canonical_sources()
+    table_source = sources.get(table)
+    if table_source is None:
+        raise SystemExit(
+            f"no table {table!r}; known tables: {', '.join(sorted(sources))}"
+        )
+    if key not in table_source:
+        raise SystemExit(f"no key {key!r} in {table}")
+    if isinstance(table_source, dict):
+        return str(table_source[key])
+    return key
 
 
 def runtime_record(table: str, key: str, translation: str) -> dict:

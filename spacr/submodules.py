@@ -69,10 +69,6 @@ import pandas as pd
 import numpy as np
 import torch
 
-# THE ONE READER (145). `spacr.tabular` imports pandas and nothing else, so
-# naming it at module scope costs nothing -- and a local import in each of
-# the eight functions that read a table here would be eight places for the
-# next one to be forgotten.
 from .tabular import read_table
 
 from skimage.measure import regionprops, label
@@ -89,10 +85,6 @@ from cellpose.metrics import average_precision
 try:
     from IPython.display import display
 except Exception:
-    # IPython may be mid-init (partially imported by another
-    # thread) — use a no-op fallback so importing this module
-    # never blocks. spaCR only calls display() from notebook
-    # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
         """Do nothing: IPython is unavailable, so there is nowhere to display to.
 
@@ -123,7 +115,7 @@ from . import schema
 from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
                             reference_line, resolve_ink, rotate_ticks,
                             theme_target)
-from .plot import save_figure  # every kept figure goes through the format/DPI preference
+from .plot import save_figure
 
 #: The categorical vocabulary for a plot whose categories genuinely ARE the
 #: data -- one line per measured column, one bar per class. Taken from the
@@ -341,18 +333,6 @@ def train_cellpose(settings):
     mask_src = os.path.join(settings['src'], 'train', 'masks')
     target_size = settings['target_size']
 
-    # `_cyto_` was a Cellpose-3 leftover: it named the cyto model this
-    # function used to fine-tune. It fine-tunes 'cpsam' (below) and has done
-    # since the Cellpose 4 port, so the old infix stamped 'cyto' onto a
-    # CPSAM checkpoint and a user reading the filename was told the wrong
-    # architecture. New checkpoints say cpsam.
-    #
-    # Names written before this change keep working: nothing parses the
-    # infix. spacr.model_zoo recognises a Cellpose checkpoint by its
-    # ``.CP_model`` / ``.CPmodel`` SUFFIX (model_zoo.CELLPOSE_SUFFIXES) or by
-    # the folder it sits in, and _resolve_cellpose_pretrained loads any
-    # existing path as given -- so `foo_cyto_e500_X1120_Y1120.CP_model` on
-    # disk still resolves, still loads, and still versions.
     model_name = f"{settings['model_name']}_cpsam_e{settings['n_epochs']}_X{target_size}_Y{target_size}.CP_model"
     model_save_path = os.path.join(settings['src'], 'models', 'cellpose_model')
     os.makedirs(model_save_path, exist_ok=True)
@@ -363,13 +343,10 @@ def train_cellpose(settings):
         gpu=_cellpose_use_gpu(), pretrained_model='cpsam'
     )
 
-    #train_image_files = sorted([os.path.join(img_src, f) for f in os.listdir(img_src) if f.endswith('.tif')])
-    #train_label_files = sorted([os.path.join(mask_src, f) for f in os.listdir(mask_src) if f.endswith('.tif')])
     
     image_filenames = set(f for f in os.listdir(img_src) if f.endswith('.tif'))
     label_filenames = set(f for f in os.listdir(mask_src) if f.endswith('.tif'))
 
-    # Only keep files that are present in both folders
     matched_filenames = sorted(image_filenames & label_filenames)
 
     train_image_files = [os.path.join(img_src, f) for f in matched_filenames]
@@ -380,18 +357,6 @@ def train_cellpose(settings):
     n_aug = 8 if settings['augment'] else 1
     max_base_images = len(train_dataset) // n_aug if settings['augment'] else len(train_dataset)
 
-    # EVERY annotated field is training data. ``batch_size`` is the
-    # optimizer's minibatch size and is passed straight to train_seg below —
-    # it is not, and never was meant to be, a cap on the dataset.
-    #
-    # This used to read ``n_base = min(settings['batch_size'], max_base_images)``
-    # followed by ``unique_base_indices[:n_base]``, so a user who annotated
-    # 300 fields and left ``batch_size`` at its default of 8 trained on 8
-    # images (2.7% of their work) and was told nothing.
-    #
-    # ``max_train_images`` is an opt-in ceiling for machines that cannot hold
-    # the whole set in RAM (the images are materialised as float32 arrays
-    # before train_seg sees them). Unset/None means "use everything".
     max_train_images = settings.get('max_train_images')
     if max_train_images is not None and int(max_train_images) > 0:
         n_base = min(int(max_train_images), max_base_images)
@@ -414,9 +379,6 @@ def train_cellpose(settings):
             images.append(img)
             labels.append(lbl)
     try:
-        # Preview a handful only: plot_cellpose_batch lays out one column per
-        # image at 4 inches each, so handing it a full 300-image training set
-        # asks matplotlib for a 100-foot-wide figure.
         plot_cellpose_batch(images[:_TRAIN_PREVIEW_N], labels[:_TRAIN_PREVIEW_N])
     except Exception:
         print(f"could not print batch images")
@@ -425,9 +387,6 @@ def train_cellpose(settings):
           f"images (augment={bool(settings['augment'])}, x{n_aug}) for "
           f"{settings['n_epochs']} epochs, minibatch {settings['batch_size']}")
 
-    # Cellpose 4.x (SAM era) dropped the ``channels`` kwarg from
-    # train_seg — models are channel-agnostic now and take a
-    # ``channel_axis`` instead (None = greyscale / already-stacked).
     train_cp.train_seg(model.net,
                        train_data=images,
                        train_labels=labels,
@@ -470,18 +429,11 @@ def test_cellpose_model(settings):
         :param flow: Cellpose flow field.
         """
         from . plot import generate_mask_random_cmap
-        # THE STYLE OPENS BEFORE THE FIGURE EXISTS: rcParams reach an artist
-        # when it is CREATED, so a context entered after plt.subplots leaves
-        # the titles and the ground at whatever the session's globals are.
         with figure_style(theme_target()):
             fig, axs = plt.subplots(1, 5, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
             cmap_lbl = generate_mask_random_cmap(lbl)
             cmap_pred = generate_mask_random_cmap(pred)
 
-            # Greyscale per channel, the label maps in their random colours
-            # because a mask's colours are identities and not a quantity, and
-            # the column name as the header -- the micrograph row the style
-            # describes.
             axs[0].imshow(img, cmap='gray')
             axs[0].set_title('Image')
             axs[0].axis('off')
@@ -503,8 +455,6 @@ def test_cellpose_model(settings):
             axs[4].axis('off')
 
             save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
-            # Saved inside the context: savefig.transparent and
-            # savefig.facecolor are read at write time.
             save_path = save_figure(fig, save_path,
                                     bbox_inches='tight')
             plt.show()
@@ -524,7 +474,6 @@ def test_cellpose_model(settings):
     image_filenames = set(f for f in os.listdir(test_image_folder) if f.endswith('.tif'))
     label_filenames = set(f for f in os.listdir(test_label_folder) if f.endswith('.tif'))
 
-    # Only keep files that are present in both folders
     matched_filenames = sorted(image_filenames & label_filenames)
 
     test_image_files = [os.path.join(test_image_folder, f) for f in matched_filenames]
@@ -542,11 +491,6 @@ def test_cellpose_model(settings):
     scores = []
     names = []
     time_ls = []
-    # These per-image metric lists used to be re-initialised INSIDE the
-    # batch loop, while names/scores accumulated across batches — so the
-    # df_results build below raised "All arrays must be of the same
-    # length" as soon as there was more than one batch. They belong here,
-    # next to names/scores, so every image contributes exactly one row.
     n_objects_true_ls = []
     n_objects_pred_ls = []
     mean_area_true_ls = []
@@ -554,9 +498,6 @@ def test_cellpose_model(settings):
     tp_ls, fp_ls, fn_ls = [], [], []
     precision_ls, recall_ls, f1_ls, accuracy_ls = [], [], [], []
 
-    # test_image_folder is a path STRING (os.path.join), so len() of it
-    # measured the number of characters in the path, not the number of
-    # images — the progress line reported a nonsense total.
     files_to_process = len(test_image_files)
 
     for i in range(0, len(test_dataset), batch_size):
@@ -564,10 +505,6 @@ def test_cellpose_model(settings):
         batch = [test_dataset[j] for j in range(i, min(i + batch_size, len(test_dataset)))]
         images, labels = zip(*batch)
 
-        # Cellpose 4.x dropped ``interp`` and ``tile`` from eval; the
-        # tiling behaviour is now controlled by ``tile_overlap`` alone. It
-        # dropped ``channels`` too -- it logs "channels deprecated in
-        # v4.0.1+" and never reads the value, so [0, 0] configured nothing.
         masks_pred, flows, _ = model.eval(x=list(images),
                                           normalize=False,
                                           diameter=30,
@@ -581,10 +518,6 @@ def test_cellpose_model(settings):
                                           tile_overlap=0.2)
 
         for j, (img, lbl, pred, flow) in enumerate(zip(images, labels, masks_pred, flows)):
-            # Cellpose 4 returns one AJI value per mask as a 1-D ndarray;
-            # older releases returned a scalar. Normalise both contracts
-            # without averaging across images (this loop records one row per
-            # image).
             aji = np.asarray(
                 aggregated_jaccard_index([lbl], [pred]),
                 dtype=float,
@@ -594,17 +527,14 @@ def test_cellpose_model(settings):
             scores.append(score)
             names.append(fname)
 
-            # Label masks
             lbl_lab = label(lbl)
             pred_lab = label(pred)
 
-            # Count objects
             n_true = lbl_lab.max()
             n_pred = pred_lab.max()
             n_objects_true_ls.append(n_true)
             n_objects_pred_ls.append(n_pred)
 
-            # Mean object size (area)
             area_true = [p.area for p in regionprops(lbl_lab)]
             area_pred = [p.area for p in regionprops(pred_lab)]
 
@@ -613,14 +543,12 @@ def test_cellpose_model(settings):
             mean_area_true_ls.append(mean_area_true)
             mean_area_pred_ls.append(mean_area_pred)
             
-            # Compute object-level TP, FP, FN
             ap, tp, fp, fn = average_precision([lbl], [pred], threshold=[0.5])
             tp, fp, fn = int(tp[0, 0]), int(fp[0, 0]), int(fn[0, 0])
             tp_ls.append(tp)
             fp_ls.append(fp)
             fn_ls.append(fn)
 
-            # Precision, Recall, F1, Accuracy
             prec = tp / (tp + fp) if (tp + fp) > 0 else 0
             rec = tp / (tp + fn) if (tp + fn) > 0 else 0
             f1 = 2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0
@@ -631,18 +559,11 @@ def test_cellpose_model(settings):
             f1_ls.append(f1)
             accuracy_ls.append(acc)
 
-            # This block used to be duplicated verbatim, so every
-            # diagnostic figure was rendered and savefig'd twice to the
-            # same cellpose_result_{i+j:03d}.png path.
             if settings['save']:
                 plot_cellpose_resilts(i, j, results_dir, img, lbl, pred, flow)
 
         stop = time.time()
         duration = stop-start
-        # i already steps by batch_size, i.e. it IS the dataset index of
-        # the first image of this batch — (i+1)*batch_size overshot the
-        # number of images actually processed on every batch after the
-        # first. min() clamps the final, partial batch.
         files_processed = min(i + batch_size, len(test_dataset))
         time_ls.append(duration)
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=batch_size, operation_type="test custom cellpose model")
@@ -766,10 +687,6 @@ def apply_cellpose_model(settings):
         X = list(images)
         
         print(settings['CP_probability'])
-        # Cellpose 4.x dropped ``interp`` and ``tile`` from eval; the
-        # tiling behaviour is now controlled by ``tile_overlap`` alone. It
-        # dropped ``channels`` too -- it logs "channels deprecated in
-        # v4.0.1+" and never reads the value, so [0, 0] configured nothing.
         masks_pred, flows, _ = model.eval(x=list(images),
                                           normalize=False,
                                           diameter=30,
@@ -811,12 +728,6 @@ def apply_cellpose_model(settings):
         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=None, batch_size=batch_size, operation_type="apply custom cellpose model")
 
 
-        # Write after each batch. The columns must be declared: when a
-        # batch finds no objects (blank field, aggressive CP_probability,
-        # or circularize=True zeroing every peripheral object)
-        # `measurements` is still [] and pd.DataFrame([]) has NO columns,
-        # so the groupby below died with KeyError('image') and left
-        # measurements.csv as a bare newline that pd.read_csv rejects.
         df_measurements = pd.DataFrame(measurements, columns=['image', 'object_id', 'area'])
         df_measurements.to_csv(os.path.join(results_dir, 'measurements.csv'), index=False)
         print("Saved object counts and areas to measurements.csv")
@@ -839,9 +750,6 @@ def plot_cellpose_batch(images, labels):
 
     cmap_lbl = generate_mask_random_cmap(labels)
     batch_size = len(images)
-    # squeeze=False keeps axs 2-D for every batch size; with the default
-    # squeeze=True a single-image batch collapsed to a 1-D array and the
-    # axs[0, i] indexing below raised IndexError.
     with figure_style(theme_target()):
         fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8), squeeze=False)
         for i in range(batch_size):
@@ -878,19 +786,7 @@ def analyze_percent_positive(settings):
         :param csv_loc: path to a CSV containing a ``Renamed TIFF`` column.
         :returns: :class:`pandas.DataFrame` with parsed ``plateID`` and ``well`` columns.
         """
-        # Load and extract metadata, THROUGH THE ONE READER (145): the
-        # plate and well columns are exactly what canonicalisation is for,
-        # and a file spelling them `Plate` / `Well` read back here as
-        # columns nothing downstream looks for.
         df = read_table(csv_loc)
-        # A renamed TIFF is '<plate>_<well>_<vendor token>.tif' (the
-        # convert_to_yokogawa contract). Taking the plate and the well from the
-        # FRONT was wrong in two ways that both end in a silently empty join:
-        # a plate id containing an underscore made the second token the plate's
-        # own tail rather than the well, and '.str.replace(".tif")' matched the
-        # substring anywhere in the name and missed '.tiff' entirely. Read the
-        # stem right to left instead — the vendor token never contains '_', so
-        # whatever is left over is the plate.
         stems = df['Renamed TIFF'].map(
             lambda name: os.path.splitext(os.path.basename(str(name)))[0])
         parts = stems.map(lambda stem: stem.rsplit(schema.KEY_SEPARATOR, 2))
@@ -919,20 +815,13 @@ def analyze_percent_positive(settings):
         df['well'] = parts.map(lambda p: p[1])
         df['plate_well'] = df['plateID'] + '_' + df['well']
 
-        # Retain one row per plate_well
         df_2 = df.drop_duplicates(subset='plate_well').copy()
 
-        # Translate well to row and column. Through spacr.schema, so that a
-        # lowercase well, a 1536-plate row ('AA01') and a separator-bearing
-        # one ('A-01') get the same rowID here as they do in measurements.db.
-        # The hand-rolled version used string.ascii_uppercase.index, which
-        # raised ValueError on all three and took the whole CSV with it.
         wells = df_2['well'].map(lambda w: schema.parse_well(w))
         df_2['rowID'] = wells.map(lambda rc: rc[0])
         df_2['column_name'] = wells.map(lambda rc: rc[1])
 
-        # Optional: add prcf ID (plate_row_column_field)
-        df_2['fieldID'] = schema.field_id(1)  # default or extract from filename if needed
+        df_2['fieldID'] = schema.field_id(1)
         df_2['prc'] = 'p' + df_2['plateID'].str.extract(r'(\d+)')[0] + '_' + df_2['rowID'] + '_' + df_2['column_name']
 
         return df_2
@@ -948,13 +837,10 @@ def analyze_percent_positive(settings):
         :param annotation_col: name of the new annotation column. Default ``'annotation'``.
         :returns: tuple ``(df, summary_df)`` with the annotated rows and a per-(condition, well) counts/fractions table.
         """
-        # Annotate
         df[annotation_col] = np.where(df[value_col] > threshold, 'above', 'below')
 
-        # Count per condition and well
         count_df = df.groupby([condition_col, well_col, annotation_col]).size().unstack(fill_value=0)
 
-        # Calculate total and fractions
         count_df['total'] = count_df.sum(axis=1)
         count_df['fraction_above'] = count_df.get('above', 0) / count_df['total']
         count_df['fraction_below'] = count_df.get('below', 0) / count_df['total']
@@ -978,15 +864,6 @@ def analyze_percent_positive(settings):
     well_col = 'prc'
     
     df, count_df = annotate_and_summarize(df, settings['value_col'], condition_col, well_col, settings['threshold'], annotation_col='annotation')
-    # 'prc' is plate_row_column, so it comes apart from the RIGHT: the plate is
-    # whatever is left once the row and the column have been taken off. The
-    # positional str.split('_') here assumed a plate with no underscore in it.
-    # Anything else raised the opaque "ValueError: Columns must be same length
-    # as key", which names neither the key nor the row that produced it; and a
-    # frame holding one SHORT key among good ones got that row's column_name
-    # filled with None, which merges to nothing without a word. schema has
-    # parse_prcf/parse_prcfo but no parse_prc; the rsplit below is the same
-    # right-to-left reading (see 'needs follow-up in spacr/schema.py').
     prc_parts = count_df['prc'].astype(str).map(
         lambda prc: prc.rsplit(schema.KEY_SEPARATOR, 2))
     short = prc_parts.map(len) < 3
@@ -1006,23 +883,8 @@ def analyze_percent_positive(settings):
     csv_out_loc = os.path.join(settings['src'], 'result.csv')
     translate_df = translate_well_in_df(csv_loc)
     
-    # many_to_many, and it genuinely is: the key deliberately omits the plate.
-    # count_df's plateID comes out of the measurements 'prc' while
-    # translate_df's is the plate written into the file name, and the two use
-    # different spellings ('plate1' vs the 'p1' this function rebuilds), so
-    # they cannot be joined on. That leaves one row per (row, column) per
-    # PLATE on both sides, and every plate's wells therefore match every other
-    # plate's. On a single-plate run — what analyze_percent_positive is
-    # written for — this is one-to-one; on a multi-plate rename_log it fans
-    # out, which is why 'plateID_y' is carried into the result below so the
-    # reader can see which plate each row came from.
     merged = pd.merge(count_df, translate_df, on=['rowID', 'column_name'], how='inner', validate='many_to_many')
 
-    # 'plateID_y' is the plate parsed from rename_log.csv's 'Renamed TIFF'.
-    # This used to read 'plate_y', a leftover from before the
-    # plate -> plateID rename: neither frame carries a 'plate' column any
-    # more, so pandas never synthesises a 'plate_y' suffix and the
-    # selection always raised KeyError "['plate_y'] not in index".
     merged = merged[['plateID_y', 'well', 'plate_well','fieldID','rowID','column_name','prc_x','Original File','Renamed TIFF','above','below','fraction_above','fraction_below']]
     merged[[f'part{i}' for i in range(merged['Original File'].str.count('_').max() + 1)]] = merged['Original File'].str.split('_', expand=True)
     merged.to_csv(csv_out_loc, index=False)
@@ -1091,11 +953,6 @@ def analyze_recruitment(settings):
         src_orig = settings['src']
         settings['src'] = os.path.dirname(settings['src'])
         if settings['src'].endswith('/measurements'):
-            # The db already lives in the canonical <plate>/measurements/
-            # folder, so src must go one more level up to the plate. The
-            # old code only skipped the move here and left src pointing at
-            # the measurements folder, which made the read below build
-            # <plate>/measurements/measurements/measurements.db.
             settings['src'] = os.path.dirname(settings['src'])
         else:
             src_mes = os.path.join(settings['src'], 'measurements')
@@ -1152,12 +1009,6 @@ def analyze_recruitment(settings):
                 for idx, file in enumerate(os.listdir(merged_path)):
                     file_path = os.path.join(merged_path,file)
                     if idx <= settings['plot_nr']:
-                        # `normalize=True` used to be passed here. There is
-                        # no such parameter: every call raised TypeError, the
-                        # bare except below swallowed it, and this branch has
-                        # been printing a failure instead of drawing a single
-                        # overlay. Percentile normalisation is what it wanted
-                        # and `percentiles` is how it is asked for.
                         plot_image_mask_overlay(file_path,
                                                 settings['channel_dims'],
                                                 settings['cell_chann_dim'],
@@ -1333,7 +1184,21 @@ class ModelZooMissing(FileNotFoundError):
     """A named model is not where it should be."""
 
 
-def _resolve_plaque_model(settings):
+def _requested_plaque_model(settings):
+    """What ``plaque_model`` asks for, with the run's default applied.
+
+    Separate from :func:`_resolve_plaque_model` so a caller that has to NAME
+    the request when it cannot be resolved -- the live preview, stating a
+    fallback -- reads the same default rather than restating it.
+
+    :param settings: the plaque settings dict.
+    :returns: a path, a :mod:`spacr.model_zoo` key, or ``'bundled'``, which is
+        also what an unset or empty value means.
+    """
+    return str(settings.get('plaque_model') or 'bundled')
+
+
+def _resolve_plaque_model(settings, fetch=True):
     """The Cellpose checkpoint the plaque analysis should segment with.
 
     Three sources, in priority order, because they answer different questions:
@@ -1357,31 +1222,30 @@ def _resolve_plaque_model(settings):
     someone who did not notice them.
 
     :param settings: the plaque settings dict.
+    :param fetch: download what is not here -- the bundled pack through
+        :func:`spacr.utils.download_models`, a zoo key through
+        :func:`spacr.model_zoo.fetch`. ``False`` is for a caller that must
+        not start a download, which is the live preview: a 1.2 GB fetch from
+        a preview refresh is the surprise item 333 forbids. It takes only
+        what is already on this machine and raises :class:`ModelZooMissing`
+        for the rest, so the preview answers with THIS resolver rather than
+        with a copy of its rules.
     :returns: a filesystem path to a Cellpose checkpoint.
     """
     from .utils import download_models
 
-    requested = str(settings.get('plaque_model') or 'bundled')
+    requested = _requested_plaque_model(settings)
 
     if os.path.isfile(requested):
         return requested
 
     if requested == 'bundled':
-        # NO 'cp' SUBFOLDER. This path carried one for as long as the plaque
-        # module has existed, and nothing lives there: `download_models`
-        # writes to `resources/models` and returns that, and no `cp` directory
-        # is created anywhere. So the DEFAULT plaque model resolved to a file
-        # that does not exist.
-        #
-        # It went unnoticed because the tests around it assert the suffix
-        # (`.endswith('.CP_model')`) rather than that the file is there -- a
-        # path is a string until something opens it, and the thing that opens
-        # it is Cellpose, several steps later.
-        local_dir = download_models()
+        local_dir = download_models() if fetch else None
         package_dir = os.path.dirname(__file__)
         for candidate in (
-                os.path.join(str(local_dir or ''),
-                             'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model'),
+                os.path.join(str(local_dir),
+                             'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')
+                if local_dir else '',
                 os.path.join(package_dir, 'resources', 'models',
                              'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')):
             if candidate and os.path.isfile(candidate):
@@ -1400,6 +1264,15 @@ def _resolve_plaque_model(settings):
             f"string 'bundled', nor a model_zoo key. Known keys: "
             f"{sorted(e.key for e in model_zoo.catalogue(remote=True))}")
     dest = os.path.join(os.path.expanduser('~'), '.spacr', 'models')
+    if not fetch:
+        for candidate in (str(getattr(entry, 'path', '') or ''),
+                          os.path.join(dest, str(getattr(entry, 'name', '')
+                                                 or ''))):
+            if candidate and os.path.isfile(candidate):
+                return candidate
+        raise ModelZooMissing(
+            f"plaque_model={requested!r} is not on this machine yet (looked "
+            f"in {dest}); running the plaque analysis downloads it.")
     os.makedirs(dest, exist_ok=True)
     return str(model_zoo.fetch(entry, dest))
 
@@ -1438,7 +1311,6 @@ def analyze_plaques(settings):
     from .spacr_cellpose import identify_masks_finetune
     from .settings import get_analyze_plaque_settings
     from .utils import save_settings, download_models
-    #from spacr import __file__ as spacr_path
     spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
 
     model_path = _resolve_plaque_model(settings)
@@ -1448,11 +1320,6 @@ def analyze_plaques(settings):
     settings = get_analyze_plaque_settings(settings)
     save_settings(settings, name='analyze_plaques', show=True)
 
-    # WELL DETECTION FIRST, when the images hold more than one well. This
-    # rewrites `src` to the folder of per-well crops, so everything below --
-    # segmentation, counting, the results rows -- is per WELL rather than per
-    # image. With detection off, src is unchanged and the old one-field-per-
-    # image behaviour is exactly what runs.
     if settings.get('well_detection'):
         settings['src'] = split_wells(settings)
 
@@ -1482,13 +1349,6 @@ def analyze_plaques(settings):
             average_size = np.mean(sizes) if sizes else 0
             std_dev_size = np.std(sizes) if sizes else 0
 
-            # THE WELL IS THE RULER. A pixel area is a property of the
-            # microscope; the same plaque at two magnifications gives two
-            # numbers, and pooling them compares optics rather than biology.
-            # The well is a manufactured object of known size present in the
-            # image, so dividing by its measured diameter puts every area into
-            # mm^2 and makes plates from different scopes comparable -- which
-            # is the whole reason the detector runs.
             scale = _plaque_scale_for(filename, settings)
             px_per_mm = scale.px_per_mm if scale else None
             well_px = scale.well_diameter_px if scale else None
@@ -1510,12 +1370,10 @@ def analyze_plaques(settings):
                 details_data.append({'file': filename, 'plaque_size': size,
                                      'plaque_size_mm2': mm2(size)})
     
-    # Convert lists to pandas DataFrames
     summary_df = pd.DataFrame(summary_data)
     details_df = pd.DataFrame(details_data)
     stats_df = pd.DataFrame(stats_data)
     
-    # Save DataFrames to a SQLite database
     db_name = os.path.join(folder, 'plaques_analysis.db')
     conn = sqlite3.connect(db_name, timeout=30)
     
@@ -1540,36 +1398,22 @@ def count_phenotypes(settings):
     if not settings['src'].endswith('/measurements/measurements.db'):
         settings['src'] = os.path.join(settings['src'], 'measurements/measurements.db')
 
-    # _read_db's signature is (db_loc, tables) and it returns a LIST of
-    # DataFrames (one per requested table) — the previous call used a
-    # non-existent `loc=` kwarg and treated the result as a single
-    # DataFrame, so count_phenotypes crashed for every caller.
     df = _read_db(settings['src'], tables=['png_list'])[0]
 
     unique_values_count = df[settings['annotation_column']].nunique(dropna=True)
     print(f"Unique values in {settings['annotation_column']} (excluding NaN): {unique_values_count}")
 
-    # Count unique values in 'value' column, grouped by 'plateID', 'rowID', 'columnID'
     grouped_unique_count = df.groupby(['plateID', 'rowID', 'columnID'])[settings['annotation_column']].nunique(dropna=True).reset_index(name='unique_count')
     display(grouped_unique_count)
 
-    # Group by plate, row, and column, then count the occurrences of each unique value
     grouped_counts = df.groupby(['plateID', 'rowID', 'columnID', 'value']).size().reset_index(name='count')
 
-    # Pivot the DataFrame so that unique values are columns and their counts are in the rows
     pivot_df = grouped_counts.pivot_table(index=['plateID', 'rowID', 'columnID'], columns='value', values='count', fill_value=0)
 
-    # Flatten the multi-level columns
     pivot_df.columns = [f"value_{int(col)}" for col in pivot_df.columns]
 
-    # Reset the index so that plate, row, and column form a combined index
     pivot_df.index = pivot_df.index.map(lambda x: f"{x[0]}_{x[1]}_{x[2]}")
 
-    # Save the pivoted counts next to the measurements database. The
-    # previous revision first did os.makedirs(os.path.join('src',
-    # 'results')) — a hard-coded RELATIVE path whose value was discarded
-    # on the very next line, so its only effect was littering the
-    # caller's cwd with a stray ./src/results directory.
     output_dir = os.path.dirname(settings['src'])
     output_path = os.path.join(output_dir, 'phenotype_counts.csv')
 
@@ -1606,10 +1450,6 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
     if y_columns is None:
         y_columns = ['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction']
     if save_paths is None:
-        # save_paths is declared with a None default but was indexed
-        # unconditionally below, so the documented minimal call raised
-        # TypeError. plot_line already treats save_path=None as
-        # "don't save", so normalise to the two-element form here.
         save_paths = [None, None]
     def calculate_well_score_fractions(df, class_columns='cv_predictions'):
         """Aggregate per-object classifier predictions into per-well class fractions.
@@ -1629,18 +1469,9 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
                        .unstack(fill_value=0)
                        .reset_index()
                        .rename(columns={0: 'class_0', 1: 'class_1'}))
-        # unstack(fill_value=0) only materialises columns for class labels
-        # that occur SOMEWHERE in the frame, so a scores table where every
-        # object got the same call yields just one class column and the
-        # fractions below raised KeyError. Backfill (never reindex — that
-        # would drop unexpected label columns that pass through today).
         for _cls in ('class_0', 'class_1'):
             if _cls not in well_counts.columns:
                 well_counts[_cls] = 0
-        # one_to_one: both sides are groupby reductions of the same frame over
-        # the same four columns (well_counts adds the class only to unstack it
-        # back into columns), so each well appears exactly once in each and the
-        # fractions below divide row-aligned counts.
         summary_df = pd.merge(prc_summary, well_counts, on=['plateID', 'rowID', 'columnID', 'prc'], how='left', validate='one_to_one')
         summary_df['class_0_fraction'] = summary_df['class_0'] / summary_df['total_rows']
         summary_df['class_1_fraction'] = summary_df['class_1'] / summary_df['total_rows']
@@ -1682,13 +1513,11 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
 
         sns_palette = _set_theme(theme)
 
-        # Sort the DataFrame based on the x_column
         df = df.loc[natsorted(df.index, key=lambda x: df.loc[x, x_column])]
 
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=figsize)
 
-            # Handle multiple y-columns, each as a separate line
             if isinstance(y_columns, list):
                 for idx, y_col in enumerate(y_columns):
                     sns.lineplot(
@@ -1696,42 +1525,29 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
                         color=sns_palette[idx % len(sns_palette)], linewidth=1
                     )
             elif group_column:
-                # One hue per group, from the fixed palette and no longer
-                # than the number of groups -- seaborn raises when a palette
-                # is longer than the hue levels it is given.
                 sns.lineplot(
                     data=df, x=x_column, y=y_columns, hue=group_column, ax=ax,
                     palette=sns_palette[:df[group_column].nunique()],
                     linewidth=2
                 )
             else:
-                # A single series is the claim by default.
                 sns.lineplot(
                     data=df, x=x_column, y=y_columns, ax=ax,
                     color=sns_palette[0], linewidth=2
                 )
 
-            # Set axis labels and title
             ax.set_xlabel(xlabel if xlabel else x_column)
             ax.set_ylabel(ylabel if ylabel else 'Value')
             ax.set_title(title if title else 'Line Plot')
 
-            # Remove top and right spines
             sns.despine(ax=ax)
 
-            # Ensure legend only appears when needed and place it to the
-            # right. The frame comes off -- the style draws no boxes -- but
-            # the 'Legend' title stays, because
-            # tests/test_cov_submodules_reads_vs_scores.py reads it back as
-            # the marker that this figure is the line plot and not the
-            # scatter beside it.
             if group_column or isinstance(y_columns, list):
                 ax.legend(title='Legend', loc='center left',
                           bbox_to_anchor=(1, 0.5), frameon=False)
 
             plt.tight_layout()
 
-            # Save the plot if a save path is provided
             if save_path:
                 save_path = save_figure(fig, save_path,
                                         bbox_inches='tight')
@@ -1748,7 +1564,6 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
         :param grna2: denominator gRNA.
         :returns: dataframe with one ratio value per ``prc``.
         """
-        # Filter relevant grna_names within each prc and group them
         grouped = df[df['grna_name'].isin([grna1, grna2])] \
             .groupby(['prc', 'grna_name']) \
             .agg({'fraction': 'sum', 'count': 'sum'}) \
@@ -1782,10 +1597,6 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
             raise ValueError("Cannot find plate, row or column in df.columns")
         grouped_df = df.groupby('prc')[count_column].sum().reset_index()
         grouped_df = grouped_df.rename(columns={count_column: 'total_counts'})
-        # many_to_one: one gRNA row per well on the left, one well total on the
-        # right. The fraction below is count/total, so a duplicated well total
-        # would repeat every gRNA of that well and make the fractions sum to
-        # more than 1 without changing any single value.
         df = pd.merge(df, grouped_df, on='prc', validate='many_to_one')
         df['fraction'] = df['count'] / df['total_counts']
         return df
@@ -1804,13 +1615,6 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
                     reads_df_temp = reads_df_temp.rename(columns={'column': 'columnID'})
                 if 'column_name' in reads_df_temp.columns:
                     reads_df_temp = reads_df_temp.rename(columns={'column_name': 'columnID'})
-                # The reads-side row fixup used to test for 'row' but
-                # rename 'row_name', a pandas no-op, so neither legacy
-                # spelling was ever repaired. The "canonical not already
-                # present" guard mirrors utils' alias table and is
-                # load-bearing: without it a frame carrying both spellings
-                # ends up with two 'rowID' columns and dies later with
-                # "cannot reindex on an axis with duplicate labels".
                 if 'row' in reads_df_temp.columns and 'rowID' not in reads_df_temp.columns:
                     reads_df_temp = reads_df_temp.rename(columns={'row': 'rowID'})
                 if 'row_name' in reads_df_temp.columns and 'rowID' not in reads_df_temp.columns:
@@ -1825,10 +1629,6 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
             scores_df = pd.concat(scores_ls, axis=0)
             print(f"Reads: {len(reads_df)} Scores: {len(scores_df)}")
         else:
-            # This branch used to only print: control then fell through to
-            # calculate_well_read_fraction(reads_df) with reads_df never
-            # bound, so the validation message was followed by a confusing
-            # UnboundLocalError. Raise so the branch actually terminates.
             raise ValueError("reads_csv and scores_csv must contain the same number of elements if reads_csv is a list")
     else:
         reads_df = read_table(reads_csv)
@@ -1843,29 +1643,12 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
     scores_col_df = scores_df[scores_df[column]==value]
     
     reads_col_df = calculate_grna_fraction_ratio(reads_col_df, grna1=pc_grna, grna2=nc_grna)
-    # one_to_one: both sides have been reduced to one row per well —
-    # calculate_grna_fraction_ratio unstacks a groupby(['prc','grna_name']) and
-    # calculate_well_score_fractions groups on the well columns — and each
-    # point plotted below is one well, so neither side may contribute two.
     df = pd.merge(reads_col_df, scores_col_df, on='prc', validate='one_to_one')
 
     df_emp = pd.DataFrame([(key, val[0], val[1], val[0] / (val[0] + val[1]), val[1] / (val[0] + val[1])) for key, val in empirical_dict.items()],columns=['key', 'value1', 'value2', 'pc_fraction', 'nc_fraction'])
 
-    # many_to_one: df holds one row per well and empirical_dict is keyed by ROW
-    # (the mixing ratio that row was seeded with), so every well in a row picks
-    # up the same expected fraction. Built from a dict, the right side is
-    # unique by construction; the left is not, and must not be — a row has as
-    # many wells as the plate has columns kept by the `column`/`value` filter.
     df = pd.merge(df, df_emp, left_on='rowID', right_on='key', validate='many_to_one')
     
-    # `if any in y_columns not in df.columns` was a chained comparison,
-    # i.e. `(any in y_columns) and (y_columns not in df.columns)`, which
-    # is False for every realistic input — the guard was dead and an
-    # unknown y column reached seaborn as a cryptic ValueError instead.
-    # plot_line's else-branch also accepts a scalar column name and a bare
-    # y *vector* (Series/array), so only list/tuple/str forms name columns
-    # — iterating a Series here would test its VALUES against df.columns
-    # and bail out on a perfectly good call.
     if isinstance(y_columns, str):
         _y_cols = [y_columns]
     elif isinstance(y_columns, (list, tuple)):
@@ -1950,25 +1733,21 @@ def interpret_vision_model(settings=None):
             compartments = ['cell', 'nucleus', 'pathogen', 'cytoplasm']
         comparison_dict = {}
 
-        # Get columns by compartment
         compartment_columns = {comp: [col for col in df.columns if col.startswith(comp)] for comp in compartments}
 
         for comp0, comp0_columns in compartment_columns.items():
             for comp0_col in comp0_columns:
                 related_cols = []
-                base_col_name = comp0_col.replace(comp0, '')  # Base feature name without compartment prefix
+                base_col_name = comp0_col.replace(comp0, '')
 
-                # Look for matching columns in other compartments
                 for prefix, prefix_columns in compartment_columns.items():
-                    if prefix == comp0:  # Skip same-compartment comparisons
+                    if prefix == comp0:
                         continue
-                    # Check if related column exists in other compartment
                     related_col = prefix + base_col_name
                     if related_col in df.columns:
                         related_cols.append(related_col)
-                        new_col_name = f"{prefix}_{comp0}{base_col_name}"  # Format: prefix_comp0_base
+                        new_col_name = f"{prefix}_{comp0}{base_col_name}"
 
-                        # Calculate ratio and handle infinite or NaN values
                         ratio = (
                             pd.to_numeric(df[related_col], errors='coerce')
                             / pd.to_numeric(df[comp0_col], errors='coerce')
@@ -1976,16 +1755,13 @@ def interpret_vision_model(settings=None):
                         df[new_col_name] = ratio.replace(
                             [np.inf, -np.inf], np.nan).fillna(0.0)
 
-                # Generate all-to-all comparisons
                 if related_cols:
                     comparison_dict[comp0_col] = related_cols
                     for i, rel_col_1 in enumerate(related_cols):
                         for rel_col_2 in related_cols[i + 1:]:
-                            # Create a new column name for each pairwise comparison
                             comp1, comp2 = rel_col_1.split('_')[0], rel_col_2.split('_')[0]
                             new_col_name_all = f"{comp1}_{comp2}{base_col_name}"
 
-                            # Calculate pairwise ratio and handle infinite or NaN values
                             ratio = (
                                 pd.to_numeric(df[rel_col_1], errors='coerce')
                                 / pd.to_numeric(df[rel_col_2], errors='coerce')
@@ -2006,12 +1782,6 @@ def interpret_vision_model(settings=None):
         """
         if feature_groups is None:
             feature_groups = ['cell', 'cytoplasm', 'nucleus', 'pathogen']
-        # spacr settings identify channels by integer id ([0, 1, 2, 3]),
-        # but the feature columns spell them 'channel_<n>'. The groups are
-        # fed straight to re.search below, which raises "first argument
-        # must be string or compiled pattern" on an int, so the documented
-        # channels=[0,1,2,3] crashed. String groups are left untouched
-        # (they are deliberately treated as regex patterns).
         feature_groups = [g if isinstance(g, str) else f'channel_{g}'
                           for g in feature_groups]
         def find_feature_class(feature, compartments):
@@ -2029,7 +1799,6 @@ def interpret_vision_model(settings=None):
         if name == 'channel':
             df['channel'] = df['channel'].fillna('morphology')
 
-        # Create new DataFrame with summed importance for each compartment and channel
         importance_sum = df.groupby(name)['importance'].sum().reset_index(name=f'{name}_importance_sum')
         
         if include_all:
@@ -2042,7 +1811,6 @@ def interpret_vision_model(settings=None):
 
         return importance_sum
 
-    # Function to create radar plot for individual and combined values
     def create_extended_radar_plot(values, labels, title):
         """Render a polar radar plot of ``values`` against ``labels``.
 
@@ -2050,15 +1818,12 @@ def interpret_vision_model(settings=None):
         :param labels: axis labels.
         :param title: plot title.
         """
-        values = list(values) + [values[0]]  # Close the loop for radar chart
+        values = list(values) + [values[0]]
         angles = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
         angles += angles[:1]
 
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
-            # One series, so it is the claim and takes the highlight; the fill
-            # is the same hue at the one alpha the published figures use under
-            # a curve.
             ax.plot(angles, values, linewidth=1.2, linestyle='solid',
                     color=ROLES['highlight'])
             ax.fill(angles, values, alpha=0.25, color=ROLES['highlight'])
@@ -2075,13 +1840,11 @@ def interpret_vision_model(settings=None):
         :param feature_name: measurement feature key, e.g. ``"cell_ch0_mean"``.
         :returns: two-tuple ``(compartment, channel)`` — either may be ``None``.
         """
-        # Identify compartment as the first part before an underscore
         compartment = feature_name.split('_')[0]
         
         if compartment == 'cells':
             compartment = 'cell'
 
-        # Identify channels based on substring presence
         channels = []
         if 'channel_0' in feature_name:
             channels.append('channel_0')
@@ -2092,11 +1855,10 @@ def interpret_vision_model(settings=None):
         if 'channel_3' in feature_name:
             channels.append('channel_3')
 
-        # If multiple channels are found, join them with a '+'
         if channels:
             channel = ' + '.join(channels)
         else:
-            channel = 'morphology'  # Use 'morphology' if no channel identifier is found
+            channel = 'morphology'
 
         return (compartment, channel)
 
@@ -2119,7 +1881,6 @@ def interpret_vision_model(settings=None):
         print(f"Expanded dataframe to {len(df.columns)} columns with relative features")
         scores_df = read_table(settings['scores'])
 
-        # Clean and align columns for merging
         df['object_label'] = df['object_label'].str.replace('o', '')
 
         if 'rowID' not in scores_df.columns:
@@ -2129,11 +1890,6 @@ def interpret_vision_model(settings=None):
                 scores_df['rowID'] = scores_df['row_name']
 
         if 'columnID' not in scores_df.columns:
-            # Ordered so the more specific 'column_name' wins, mirroring the
-            # row branch above where 'row_name' wins over 'row'. The old
-            # order let a junk 'column' column override a good
-            # 'column_name'; that was invisible while the merge below still
-            # keyed on 'column_name', but now silently merges to zero rows.
             if 'column' in scores_df.columns:
                 scores_df['columnID'] = scores_df['column']
             if 'column_name' in scores_df.columns:
@@ -2142,67 +1898,18 @@ def interpret_vision_model(settings=None):
         if 'object_label' not in scores_df.columns:
             scores_df['object_label'] = scores_df['object']
 
-        # Remove the 'o' prefix from 'object_label' in df, ensuring it is a string type
         df['object_label'] = df['object_label'].str.replace('o', '').astype(str)
 
-        # Ensure 'object_label' in scores_df is also a string
         scores_df['object_label'] = scores_df['object'].astype(str)
 
-        # The merge below used to key on the legacy 'column_name', but
-        # io._read_and_merge_data normalises every spelling to 'columnID'
-        # before it returns, so the merge raised KeyError
-        # "['column_name'] not in index" against any real measurements.db.
-        # Key on 'columnID' (matching the alias fixup above and the
-        # spacr.ml twin) while still accepting the legacy spelling, which
-        # older CSVs and hand-built frames in the wild still carry.
         if 'columnID' not in df.columns and 'column_name' in df.columns:
             df['columnID'] = df['column_name']
 
-        # Ensure all join columns have the same data type in both DataFrames
         df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']] = df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']].astype(str)
         scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']] = scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']].astype(str)
 
-        # Select only the necessary columns from scores_df for merging
         scores_df = scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label', settings['score_column']]]
 
-        # Now merge DataFrames. one_to_one, because both sides are one row per
-        # SCORED CROP and this key is that crop's identity:
-        #
-        # * ``_read_and_merge_data`` groups every object table on ``prcfo`` and
-        #   joins them on that index under ``validate='one_to_one'``, so ``df``
-        #   is one row per ``prcfo`` — i.e. one row per object per field.
-        # * the scores CSV is written per crop PNG by ``apply_model_to_tar`` /
-        #   ``utils.process_vision_results``, which is the same one row per
-        #   object per field.
-        #
-        # An earlier comment here claimed many_to_one was right because "the
-        # scores CSV holds one score per object", so a timelapse database could
-        # legitimately match every frame of an object to its single score. That
-        # is wrong in both halves. A timelapse crop is
-        # ``plate_well_field_time_object`` and gets its own row in the scores
-        # CSV, so on a timelapse the RIGHT side repeats exactly as much as the
-        # left does — many_to_one does not tolerate the timelapse, it crashes
-        # on it with pandas' "Merge keys are not unique in right dataset",
-        # which names neither the timepoint nor the file. And a score that
-        # arrived per frame is not a per-object score to spread over frames.
-        #
-        # The key here carries no timepoint, and this legacy copy has no way to
-        # add one (the newer explainer in spacr.ml does: it appends the
-        # timepoint column to the key and raises TimelapseKeyMismatch when only
-        # one side has it). So on a timelapse both sides repeat, the join would
-        # be a frames x frames fan-out per object, and one_to_one is what
-        # refuses it. It also refuses the two cases many_to_one let through
-        # silently: a measurements frame duplicated on the key, and a timelapse
-        # database scored by a non-timelapse run — where every frame would
-        # inherit one score and each object would enter the forest once per
-        # frame.
-        #
-        # _merge_with_cardinality keeps pandas as the thing that detects the
-        # duplicate and reports it as a MergeCardinalityError naming the side,
-        # the key and the offending values. What it cannot know is WHY, so the
-        # timelapse — the one cause that is a property of the database rather
-        # than of a bad file — is named here when the frame actually has a
-        # timepoint column.
         try:
             merged_df = _merge_with_cardinality(
                 df,
@@ -2227,9 +1934,6 @@ def interpret_vision_model(settings=None):
                 f"frames apart and would train on a frames-by-frames "
                 f"fan-out.") from error
 
-        # Select measurements by schema role, not every numeric column.
-        # Object labels and acquisition provenance are numeric in many
-        # databases but must never be learned by the classifier.
         X = schema.model_feature_frame(
             merged_df,
             exclude=[settings['score_column']],
@@ -2242,15 +1946,6 @@ def interpret_vision_model(settings=None):
     
     output = {}
     
-    # Step 1: Feature Importance using Random Forest
-    # The outer guard used to read `feature_importance or feature_importance`
-    # — the same key OR'd with itself — so the forest was never fitted
-    # unless feature importance was explicitly requested. Permutation
-    # importance then hit UnboundLocalError on `model`, and SHAP on
-    # `feature_importance_df`, even though the docstring documents the
-    # three explainers as independent toggles. The forest and the
-    # importance frame are shared by all three; only the reporting,
-    # grouping and output writes belong to feature_importance itself.
     if settings['feature_importance'] or settings['permutation_importance'] or settings['shap']:
         model = RandomForestClassifier(random_state=42, n_jobs=settings['n_jobs'])
         model.fit(X, y)
@@ -2263,10 +1958,6 @@ def interpret_vision_model(settings=None):
             print(f"Feature Importance ...")
             top_feature_importance_df = feature_importance_df.head(settings['top_features'])
 
-            # Plot Feature Importance. ONE SERIES, SO IT IS GREY: the
-            # ranking is the claim and the bars carry it by length, so
-            # matplotlib's default saturated blue was decoration on every bar
-            # at once.
             with figure_style(theme_target()):
                 plt.figure(figsize=(10, 6))
                 plt.barh(top_feature_importance_df['feature'],
@@ -2285,7 +1976,6 @@ def interpret_vision_model(settings=None):
             output['feature_importance_compartment'] = fi_compartment_df
             output['feature_importance_channel'] = fi_channel_df
 
-    # Step 2: Permutation Importance
     if settings['permutation_importance']:
         print(f"Permutation Importance ...")
         perm_importance = permutation_importance(model, X, y, n_repeats=10, random_state=42, n_jobs=settings['n_jobs'])
@@ -2293,7 +1983,6 @@ def interpret_vision_model(settings=None):
         perm_importance_df = perm_importance_df.sort_values(by='importance', ascending=False)
         top_perm_importance_df = perm_importance_df.head(settings['top_features'])
 
-        # Plot Permutation Importance
         with figure_style(theme_target()):
             plt.figure(figsize=(10, 6))
             plt.barh(top_perm_importance_df['feature'],
@@ -2307,42 +1996,30 @@ def interpret_vision_model(settings=None):
             
         output['permutation_importance'] = perm_importance_df
     
-    # Step 3: SHAP Analysis
     if settings['shap']:
         import shap
 
         print(f"SHAP Analysis ...")
 
-        # Select top N features based on Random Forest importance and fit the model on these features only
         top_features = feature_importance_df.head(settings['top_features'])['feature']
         X_top = X[top_features]
 
-        # Refit the model on this subset of features
         model = RandomForestClassifier(random_state=42, n_jobs=settings['n_jobs'])
         model.fit(X_top, y)
 
-        # Sample a smaller subset of rows to speed up SHAP
         if settings['shap_sample']:
-            # int(len/100) floors to 0 for any experiment with fewer than
-            # 100 objects, which handed shap an empty background AND an
-            # empty matrix to explain -> IndexError. Clamp to at least one
-            # row; for >=100 objects the clamp is a no-op.
             sample = max(1, min(int(len(X_top) / 100), len(X_top)))
             X_sample = X_top.sample(sample, random_state=42)
         else:
             X_sample = X_top
 
-        # Initialize SHAP explainer with the same subset of features
         explainer = shap.Explainer(model.predict, X_sample)
         shap_values = explainer(X_sample, max_evals=1500)
 
-        # Plot SHAP summary for the selected sample and top features
         shap.summary_plot(shap_values, X_sample, max_display=settings['top_features'])
 
-        # Convert SHAP values to a DataFrame for easier manipulation
         shap_df = pd.DataFrame(shap_values.values, columns=X_sample.columns)
         
-        # Apply the function to create MultiIndex columns with compartment and channel
         shap_df.columns = pd.MultiIndex.from_tuples(
             [extract_compartment_channel(feat) for feat in shap_df.columns], 
             names=['compartment', 'channel']
@@ -2361,7 +2038,6 @@ def interpret_vision_model(settings=None):
     return output
 
 
-# Backward compatibility for the misspelling published in earlier releases.
 interperate_vision_model = interpret_vision_model
 
 
@@ -2429,16 +2105,8 @@ def analyze_endodyogeny(settings):
         bins = [min_volume_bin * (2 ** i) for i in range(n_edges)]
         bins = sorted(set(bins))
 
-        # Python/NumPy versions can evaluate the vectorised ``area ** 1.5``
-        # one ULP below the mathematically identical scalar bin edge.  Treat
-        # only machine-precision neighbours as the same boundary; otherwise
-        # an object exactly on a doubling edge changes bins across supported
-        # Python versions.
         edge_rtol = 1e-12
 
-        # Ensure the last edge exceeds the data maximum so nothing is clipped.
-        # ``isclose`` matters when vectorised and scalar exponentiation land
-        # on opposite sides of the same representable edge.
         if bins[-1] <= max_volume or np.isclose(
                 bins[-1], max_volume, rtol=edge_rtol, atol=0.0):
             bins.append(bins[-1] * 2)
@@ -2449,9 +2117,6 @@ def analyze_endodyogeny(settings):
             print('Volume bins:', bins)
             print('Volume bin labels:', bin_labels)
 
-        # Snap numerical neighbours to the authoritative scalar edges before
-        # the left-closed cut.  Keep the reported volume untouched; this copy
-        # exists only to make boundary membership reproducible.
         cut_values = df[volume_column].copy()
         for edge in bins:
             on_edge = np.isclose(
@@ -2461,7 +2126,6 @@ def analyze_endodyogeny(settings):
             if np.any(on_edge):
                 cut_values.loc[on_edge] = edge
 
-        # Cut into bins; values outside the range become NaN
         df[bin_column] = pd.cut(
             cut_values, bins=bins, labels=bin_labels, right=False
         )
@@ -2469,28 +2133,23 @@ def analyze_endodyogeny(settings):
             cut_values, bins=bins, labels=range(1, len(bins)), right=False
         )
 
-        # Coerce to float so NaN is preserved (int would raise)
         df['bin_index'] = pd.to_numeric(df['bin_index'], errors='coerce')
 
-        # Drop rows that fell outside all bins
         before = len(df)
         df = df.dropna(subset=['bin_index']).copy()
         if verbose and len(df) < before:
             print(f"Dropped {before - len(df)} rows outside volume bin range")
         df['bin_index'] = df['bin_index'].astype(int)
 
-        # Cap at max_bins
         if max_bins is not None and max_bins < len(bin_labels):
             df.loc[df['bin_index'] > max_bins, 'bin_index'] = max_bins
             capped_labels = bin_labels[:max_bins - 1] + [f">{bins[max_bins - 1]:.2f}"]
         else:
             capped_labels = bin_labels
 
-        # Build the authoritative ordered mapping and apply it
         index_to_label = {i + 1: label for i, label in enumerate(capped_labels)}
         df[bin_column] = df['bin_index'].map(index_to_label)
 
-        # Convert to an ordered categorical so order is never ambiguous
         ordered_categories = [index_to_label[k] for k in sorted(index_to_label.keys())]
         df[bin_column] = pd.Categorical(
             df[bin_column], categories=ordered_categories, ordered=True
@@ -2501,7 +2160,6 @@ def analyze_endodyogeny(settings):
 
         return df, ordered_categories
 
-    # ------------------------------------------------------------------
     settings = set_analyze_endodyogeny_defaults(settings)
     save_settings(settings, name='analyze_endodyogeny', show=True)
     output = {}
@@ -2524,9 +2182,6 @@ def analyze_endodyogeny(settings):
     )
 
     area_column = f"{settings['compartment']}_area"
-    # Local, not settings['min_area_bin']: the um scaling below is an internal
-    # unit change, and writing it back would mutate the caller's dict (and make
-    # a second call with the same dict scale the threshold twice).
     min_area_bin = settings['min_area_bin']
 
     if settings['um_per_px'] is not None:
@@ -2553,9 +2208,6 @@ def analyze_endodyogeny(settings):
         )
         settings['group_column'] = 'new_condition'
 
-    # This guard used to sit AFTER the dropna below. pandas' dropna raises
-    # a bare KeyError for exactly the condition tested here, so the
-    # informative "Available columns" message was unreachable dead code.
     if settings['group_column'] not in df.columns:
         available = ', '.join(df.columns.tolist())
         raise KeyError(
@@ -2579,8 +2231,6 @@ def analyze_endodyogeny(settings):
 
     bin_column = f"{settings['compartment']}_volume_bin"
 
-    # Remove categories that have zero observations across the entire dataset
-    # so the contingency table passed to chi2_contingency has no all-zero columns
     df[bin_column] = df[bin_column].cat.remove_unused_categories()
     ordered_bin_labels = df[bin_column].cat.categories.tolist()
 
@@ -2590,7 +2240,6 @@ def analyze_endodyogeny(settings):
         level=settings['level'], cmap=settings['cmap']
     )
 
-    # Use the authoritative ordered list (no sorting, no dtype check needed)
     legend_labels = [
         f"{i}: {label}" for i, label in enumerate(ordered_bin_labels, start=1)
     ]
@@ -2621,9 +2270,6 @@ def analyze_endodyogeny(settings):
     return output
 
 
-# ===========================================================================
-# The field key both object assays are built on
-# ===========================================================================
 
 def _compose_field_keys(df, time_column, source):
     """Compose one ``prcf`` per row of ``df`` through :mod:`spacr.schema`.
@@ -2666,11 +2312,6 @@ def _compose_field_keys(df, time_column, source):
             try:
                 composed[identity] = schema.compose_prcf(*identity)
             except schema.SchemaError as error:
-                # None marks "already tried, already recorded": a failing
-                # identity must not be re-composed once per row it appears on,
-                # and the raise below needs one entry per distinct identity to
-                # count. compose_prcf never returns None, so the sentinel
-                # cannot collide with a real key.
                 composed[identity] = None
                 failures[identity] = error
         keys.append(composed[identity])
@@ -2743,23 +2384,9 @@ def _ensure_field_key(df, source='the parasite table', verbose=False):
 
     time_column = _time_column(df.columns)
 
-    # Nothing to build and nothing to repair: a table that already carries a
-    # prcf and has no time axis is returned untouched, without composing a
-    # key it does not need. Composition can raise (see below), and it must
-    # only be able to do so for a frame this function is actually keying.
     if 'prcf' in df.columns and time_column is None:
         return df
 
-    # Composed through schema, not concatenated, so the key it builds is one
-    # schema.parse_prcf can read back. Concatenation could not promise that:
-    # the timepoint went in exactly as the column stored it, and a table whose
-    # timeID is the integer 1 rather than 't1' produced 'plate1_r1_c1_f1_1' --
-    # a key whose last element parse_prcf sees as a broken FIELD id, so every
-    # reader of that key raised instead of finding the timepoint. compose_prcf
-    # normalises each element ('1' -> 't1') and is a no-op on the canonical
-    # form utils._map_wells writes, which is what is already in the database.
-    # It raises on a plate id containing '_' -- deliberately, because such a
-    # prcf cannot be split back into its parts by anything downstream.
     keyed = _compose_field_keys(df, time_column, source)
 
     if 'prcf' not in df.columns:
@@ -2770,11 +2397,6 @@ def _ensure_field_key(df, source='the parasite table', verbose=False):
             print(f"Built prcf for {source} as {built}.")
         return df
 
-    # Either spelling of the time-blind key marks a stale row: the composed one
-    # for a table written by today's writers, the concatenated one for a table
-    # written by an older spacr (or by a foreign importer whose row ids are not
-    # canonical, where the two differ). The legacy spelling is only ever
-    # compared against, never written.
     blind = _compose_field_keys(df, None, source)
     legacy_blind = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
                     + '_' + df['columnID'].astype(str) + '_'
@@ -2786,16 +2408,10 @@ def _ensure_field_key(df, source='the parasite table', verbose=False):
               f"{source}: the table carries '{time_column}' but its prcf named "
               f"only plate/row/column/field, which merges every timepoint of a "
               f"field into one observation. The timepoint has been appended.")
-        # .to_numpy(): assign positionally. `keyed` shares df's index, but a
-        # frame whose index carries repeated labels would make .loc align on
-        # the label and write the wrong rows.
         df.loc[stale, 'prcf'] = keyed[stale].to_numpy()
     return df
 
 
-# ===========================================================================
-# Replication assay (Toxoplasma endodyogeny) — parasites per vacuole
-# ===========================================================================
 
 def _set_analyze_replication_defaults(settings):
     """Fallback defaults for :func:`analyze_replication`.
@@ -3031,7 +2647,6 @@ def _assign_vacuole_ids(df, compartment='pathogen', vacuole_key='auto',
         )
         return df, vacuole_key, None
 
-    # -- spatial ----------------------------------------------------------
     if centroid_columns is None:
         raise KeyError(
             f"vacuole_key='spatial' needs centroid columns for "
@@ -3058,8 +2673,6 @@ def _assign_vacuole_ids(df, compartment='pathogen', vacuole_key='auto',
                                         criterion='distance')
         elif finite.sum() == 1:
             clusters[finite] = 1
-        # Objects with a non-finite centroid cannot be clustered; each becomes
-        # its own vacuole rather than silently joining cluster 0 together.
         next_id = clusters.max() + 1 if len(clusters) else 1
         for position in np.flatnonzero(~finite):
             clusters[position] = next_id
@@ -3124,8 +2737,6 @@ def _replication_well_distribution(vacuoles, group_column, buckets,
             suffix = bucket_columns[bucket]
             count = int((subset['replication_bucket'] == bucket).sum()) if n_vacuoles else 0
             row[f'n_{suffix}'] = count
-            # No vacuoles is a real, reportable state (an uninfected well), not
-            # a divide-by-zero: every fraction is 0.0 and n_vacuoles says why.
             row[f'frac_{suffix}'] = (count / n_vacuoles) if n_vacuoles else 0.0
 
         row['non_power_of_two_fraction'] = row['frac_non_power_of_two']
@@ -3288,23 +2899,15 @@ def _replication_compare_conditions(vacuoles, group_column, buckets,
             if np.all(left_ladder == left_ladder[0]) and np.all(
                 right_ladder == left_ladder[0]
             ):
-                # SciPy 1.17 reports NaN when the pooled ranked outcome has
-                # zero variance. The two distributions are exactly identical,
-                # so the defined no-difference result is U=n1*n2/2, p=1.
                 statistic = len(left_ladder) * len(right_ladder) / 2.0
                 p_value = 1.0
             else:
                 statistic, p_value = mannwhitneyu(
                     left_ladder, right_ladder, alternative='two-sided')
-            # Rank-biserial correlation: +1 means every vacuole in group1 is
-            # further along the ladder than every vacuole in group2.
             rank_biserial = 2.0 * statistic / (len(left_ladder) * len(right_ladder)) - 1.0
         else:
             statistic, p_value, rank_biserial = np.nan, np.nan, np.nan
 
-        # Dropping the buckets neither group occupies is what keeps scipy from
-        # rejecting the table over an all-zero column; every group has at
-        # least one vacuole, so no row can be empty.
         pair_counts = counts.loc[[group1, group2]]
         pair_counts = pair_counts.loc[:, pair_counts.sum(axis=0) > 0]
         chi2, chi2_p, _, _ = chi2_contingency(pair_counts.to_numpy())
@@ -3506,10 +3109,6 @@ def analyze_replication(settings):
     from .io import _read_db
     from . import settings as settings_module
 
-    # spacr.settings owns every pipeline's defaults and wins wherever it
-    # defines one; the local copy runs afterwards purely as a gap-filler, so
-    # the assay is callable before the GUI knobs are registered. Both use
-    # setdefault, so running settings.py first makes its values authoritative.
     apply_defaults = getattr(settings_module, 'set_analyze_replication_defaults',
                              None)
     if apply_defaults is not None:
@@ -3524,18 +3123,11 @@ def analyze_replication(settings):
     parasite_table = settings['parasite_table']
     buckets = _replication_bucket_order(settings['max_parasites_per_vacuole'])
 
-    # ---- read one row per segmented parasite ----------------------------
-    # Deliberately NOT _read_and_merge_data: that helper collapses the
-    # pathogen table onto the host cell (prcfo is built from cell_id), which
-    # destroys the per-vacuole identity this assay is built on.
     parasite_frames, cell_frames = [], []
     for index, source in enumerate(settings['src']):
         location = os.path.join(source, 'measurements/measurements.db')
         frame = _read_db(location, [parasite_table])[0]
         if settings['change_plate']:
-            # prcf carries the ORIGINAL plate name and is what the vacuole id
-            # is built from, so relabelling plateID alone would let two plates
-            # that share a well/field/cell collapse into one vacuole.
             frame['plateID'] = f'plate{index + 1}'
             frame = frame.drop(columns=['prcf'], errors='ignore')
         parasite_frames.append(frame)
@@ -3557,15 +3149,11 @@ def analyze_replication(settings):
                 f"Table '{parasite_table}' has no '{column}' column; it does "
                 f"not look like a spacr measurements table."
             )
-    # The timepoint is part of this key on a timelapse; see _ensure_field_key.
-    # Every vacuole id below is built from prcf, so a time-blind one merges the
-    # same host cell across all of its frames into a single vacuole.
     df = _ensure_field_key(df, source=f"table '{parasite_table}'",
                            verbose=settings['verbose'])
     df['prc'] = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
                  + '_' + df['columnID'].astype(str))
 
-    # ---- object filters --------------------------------------------------
     area_column = f'{compartment}_area'
     if area_column in df.columns:
         if settings['min_parasite_area']:
@@ -3574,8 +3162,6 @@ def analyze_replication(settings):
             df = df[df[area_column] <= settings['max_parasite_area']]
 
     if 'cell_id' in df.columns:
-        # 0 / NaN means the object overlapped no host cell — an extracellular
-        # parasite, which has no vacuole and cannot enter a replication count.
         host = pd.to_numeric(df['cell_id'], errors='coerce')
         if settings['require_host_cell']:
             df = df[host.notna() & (host != 0)]
@@ -3613,7 +3199,6 @@ def analyze_replication(settings):
             f"treatment_plate_metadata well maps."
         )
 
-    # ---- vacuole assignment ---------------------------------------------
     df, vacuole_key_used, link_distance = _assign_vacuole_ids(
         df,
         compartment=compartment,
@@ -3661,7 +3246,6 @@ def analyze_replication(settings):
         np.nan
     )
 
-    # ---- wells that hold host cells but no vacuoles ----------------------
     seed_wells = None
     if cell_frames:
         cells = pd.concat(cell_frames, axis=0, ignore_index=True)
@@ -3695,7 +3279,6 @@ def analyze_replication(settings):
         vacuoles, group_column, buckets, verbose=settings['verbose']
     )
 
-    # ---- figures ---------------------------------------------------------
     prc_column = 'plateID' if settings['level'] == 'plate' else 'prc'
 
     _, _, well_fig = _replication_stacked_bars(
@@ -3748,17 +3331,12 @@ def analyze_replication(settings):
                   f"{', '.join(map(str, flagged))}")
 
     plt.show()
-    # The figures stay usable (savefig works on a closed figure); closing them
-    # keeps a batch run over many plates from accumulating open figures.
     plt.close(well_fig)
     plt.close(group_fig)
 
     return output
 
 
-# ===========================================================================
-# Invasion assay (Toxoplasma) — two-colour outside/inside stain
-# ===========================================================================
 
 def _set_analyze_invasion_defaults(settings):
     """Fallback defaults for :func:`analyze_invasion`.
@@ -3812,16 +3390,6 @@ def _set_analyze_invasion_defaults(settings):
     return settings
 
 
-# Per-object statistics of the outside-stain channel, in the naming
-# :func:`spacr.measure._intensity_measurements` actually writes.
-#
-# Careful with the word "outside": measure.py's ``<object>_channel_<n>_outside_*``
-# columns are the intensity of a five-pixel ring *outside the object's own
-# mask* (:func:`spacr.measure._outside_intensity`) in whatever channel is
-# named. They are a local background estimate, and they have nothing to do
-# with the outside/inside *stain* of this assay. The assay's outside stain is
-# a channel, selected with ``outside_channel``; the statistics below read the
-# parasite's own pixels in that channel.
 _INVASION_STATISTIC_TEMPLATES = {
     'periphery_95': '{compartment}_channel_{channel}_periphery_percentile_95',
     'periphery_85': '{compartment}_channel_{channel}_periphery_percentile_85',
@@ -3834,8 +3402,6 @@ _INVASION_STATISTIC_TEMPLATES = {
     'integrated': '{compartment}_channel_{channel}_integrated_intensity',
 }
 
-# Resolution order for intensity_statistic='auto'. The order is the argument
-# in :func:`_resolve_invasion_intensity_column`.
 _INVASION_STATISTIC_AUTO_ORDER = ('periphery_95', 'percentile_95', 'mean')
 _INVASION_LEGACY_STATISTIC_TEMPLATES = {
     'periphery_95': '{compartment}_channel_{channel}_periphery_95_percentile',
@@ -3975,9 +3541,6 @@ def _resolve_invasion_background_column(df, compartment, channel,
     if background in (None, False, 'none', 'None', ''):
         return None
     if background == 'auto':
-        # Measurement columns are canonicalised on database read. Keep the
-        # legacy spelling as a fallback for direct DataFrame callers and old
-        # databases that have not passed through that normalisation yet.
         for suffix in (
             'outside_percentile_50',
             'outside_50_percentile',
@@ -4031,8 +3594,6 @@ def _bimodality_coefficient(values, min_objects=30):
     if values.size < max(4, int(min_objects)):
         return float('nan')
     if np.ptp(values) == 0:
-        # One value repeated is one population, but skew/kurtosis are 0/0
-        # there; say "no evidence of two populations" explicitly.
         return 0.0
     g1 = float(skew(values, bias=True))
     g2 = float(kurtosis(values, fisher=True, bias=True))
@@ -4114,10 +3675,6 @@ def _invasion_threshold(values, method='otsu'):
         return float('nan')
     try:
         threshold = float(functions[method](values))
-    # Depending on NumPy/skimage versions an unrepresentable histogram range
-    # is rejected as ValueError, overflows during bin construction, or reaches
-    # the final integer-bin lookup as IndexError.  All three mean the sample
-    # cannot support a threshold; none should abort the rest of the well.
     except (ValueError, RuntimeError, FloatingPointError,
             OverflowError, IndexError):
         return float('nan')
@@ -4276,8 +3833,6 @@ def _invasion_field_thresholds(df, value_column, settings, control_thresholds):
         else:
             threshold, source = automatic, automatic_source
 
-        # A control-derived cut is the honest negative distribution, so it is
-        # what an automatic cut should be judged against when it exists.
         reference = control if np.isfinite(control) else automatic
 
         low, high = _invasion_threshold_span(
@@ -4339,18 +3894,7 @@ def _invasion_classify(df, fields, value_column, extracellular_class):
     columns = ['prcf', 'threshold', 'threshold_source', 'threshold_low',
                'threshold_high', 'automatic_threshold', 'reference_threshold',
                'bimodality_coefficient']
-    # The contract is many_to_one: many parasites per field, one threshold row
-    # per field. It is enforced by _report_fan_out below rather than by
-    # validate='many_to_one', deliberately — pandas would raise its generic
-    # MergeError *before* the check ran, and io's helper says which assay
-    # failed, how many rows went in and came out, and what to do about the
-    # duplicated table. The left side is emphatically NOT unique: one row per
-    # parasite is the whole point of this frame.
     merged = df.merge(fields[columns], on='prcf', how='left')
-    # ``fields`` comes out of a groupby on prcf so it holds one row per key and
-    # this join cannot grow. Checked anyway: if a caller ever hands in a field
-    # table assembled some other way, a duplicated prcf would silently
-    # duplicate every parasite and inflate n_total.
     _report_fan_out(df, merged, ['prcf'], left_name='parasite',
                     right_name='the field threshold table')
     df = merged
@@ -4376,8 +3920,6 @@ def _invasion_classify(df, fields, value_column, extracellular_class):
     df['invasion_class'] = pd.Categorical(
         df['invasion_class'],
         categories=_INVASION_CLASSES + ['unclassified'], ordered=False)
-    # The two sensitivity columns exist so a reader can see how much of the
-    # reported efficiency is the threshold rather than the biology.
     df['is_outside_low_threshold'] = np.where(usable, outside_low, np.nan)
     df['is_outside_high_threshold'] = np.where(usable, outside_high, np.nan)
     return df
@@ -4411,8 +3953,8 @@ def _invasion_well_table(parasites, fields, group_column, settings,
                          seed_wells=None):
     """Summarize invasion per well, with the denominator and the QC in the same row.
 
-    Invasion efficiency is a proportion and it is quoted here **with
-    ``n_total``**, because 90% from ten parasites and 90% from four thousand
+    Invasion efficiency is a proportion and it is quoted here **with**
+    ``n_total``, because 90% from ten parasites and 90% from four thousand
     are not the same result and nothing downstream can tell them apart from
     the ratio alone. Four QC columns say when the ratio should not be quoted
     at all:
@@ -4514,9 +4056,6 @@ def _invasion_well_table(parasites, fields, group_column, settings,
         else:
             row['n_fields_unimodal'] = 0
 
-        # Only the upward move counts. Raising the threshold turns attached
-        # into invaded and inflates the efficiency; lowering it can only do
-        # the opposite, which is the direction that never invents a result.
         inflation = (row['invasion_efficiency_high_threshold']
                      - row['invasion_efficiency'])
         row['invasion_efficiency_inflation'] = inflation
@@ -4760,9 +4299,6 @@ def _invasion_stacked_bars(settings, parasites, group_column, prc_column,
                              observed=True).size().unstack(fill_value=0)
 
     if counts.size == 0:
-        # Nothing was classifiable anywhere — no threshold existed. Say that
-        # on the axes rather than dying inside pandas' bar plot, because the
-        # unclassified count in the well table is the real answer here.
         with figure_style(theme_target()):
             fig, axes = plt.subplots(figsize=(12, 8))
             axes.text(0.5, 0.5, 'No parasite could be classified:\nno usable '
@@ -4832,12 +4368,6 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
     :param cmap: Matplotlib colormap the histogram bars are drawn from.
     :returns: matplotlib Figure.
     """
-    # THE HISTOGRAM FILL IS FURNITURE, NOT A CLAIM: it is the same
-    # distribution in every panel, so it takes the style's one fill colour and
-    # `cmap` is only consulted when a caller has deliberately asked for
-    # something else. It used to be the middle of viridis -- a saturated green
-    # against which the crimson threshold line was the only louder thing on
-    # the panel.
     if cmap in (None, 'viridis'):
         face = ROLES['fill']
     else:
@@ -4872,17 +4402,11 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
                 row = row.iloc[0]
             threshold = float(row['threshold_median'])
             reference = float(row['reference_threshold_median'])
-            # THE APPLIED THRESHOLD IS THE CLAIM AND THE REFERENCE IS A
-            # REFERENCE. They were crimson at 1.5 and steelblue at 1.2, two
-            # equally loud lines, so the panel did not say which one the
-            # classification actually used.
             if np.isfinite(threshold):
                 axis.axvline(threshold, color=ROLES['highlight'], linewidth=1.2,
                              label=f"threshold ({row['threshold_source']})")
             if np.isfinite(reference) and reference != threshold:
                 reference_line(axis, x=reference)
-                # A proxy handle, so the grey dashed reference is named in the
-                # legend without being drawn twice.
                 axis.plot([], [], color=ROLES['reference'], linestyle=(0, (4, 3)),
                           linewidth=0.6, label='reference')
             coefficient = float(row['bimodality_coefficient'])
@@ -5022,10 +4546,6 @@ def analyze_invasion(settings):
     from .io import _read_db
     from . import settings as settings_module
 
-    # spacr.settings owns every pipeline's defaults and wins wherever it
-    # defines one; the local copy runs afterwards purely as a gap-filler, so
-    # the assay is callable before the GUI knobs are registered. Both use
-    # setdefault, so running settings.py first makes its values authoritative.
     apply_defaults = getattr(settings_module, 'set_analyze_invasion_defaults',
                              None)
     if apply_defaults is not None:
@@ -5047,19 +4567,11 @@ def analyze_invasion(settings):
             f"got {settings['extracellular_class']!r}."
         )
 
-    # ---- read one row per segmented parasite ----------------------------
-    # Deliberately NOT _read_and_merge_data: that helper collapses the
-    # pathogen table onto the host cell (prcfo is built from cell_id), which
-    # would sum several parasites' outside-stain intensities into one row and
-    # destroy the per-parasite call this assay exists to make.
     parasite_frames, cell_frames = [], []
     for index, source in enumerate(settings['src']):
         location = os.path.join(source, 'measurements/measurements.db')
         frame = _read_db(location, [parasite_table])[0]
         if settings['change_plate']:
-            # prcf carries the ORIGINAL plate name and is what the per-field
-            # threshold is keyed on, so relabelling plateID alone would let
-            # two plates that share a well/field pool their fields.
             frame['plateID'] = f'plate{index + 1}'
             frame = frame.drop(columns=['prcf'], errors='ignore')
         parasite_frames.append(frame)
@@ -5081,15 +4593,11 @@ def analyze_invasion(settings):
                 f"Table '{parasite_table}' has no '{column}' column; it does "
                 f"not look like a spacr measurements table."
             )
-    # The timepoint is part of this key on a timelapse; see _ensure_field_key.
-    # One outside-stain threshold is computed per prcf, so a time-blind one
-    # cuts every frame of a field on a single number.
     df = _ensure_field_key(df, source=f"table '{parasite_table}'",
                            verbose=settings['verbose'])
     df['prc'] = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
                  + '_' + df['columnID'].astype(str))
 
-    # ---- object filters --------------------------------------------------
     area_column = f'{compartment}_area'
     if area_column in df.columns:
         if settings['min_parasite_area']:
@@ -5115,7 +4623,6 @@ def analyze_invasion(settings):
             f"Check min_parasite_area / max_parasite_area / min_total_intensity."
         )
 
-    # ---- the outside-channel signal --------------------------------------
     value_column, statistic_name = _resolve_invasion_intensity_column(
         df, compartment, settings['outside_channel'],
         settings['intensity_statistic'], verbose=settings['verbose'])
@@ -5133,11 +4640,6 @@ def analyze_invasion(settings):
     df['outside_intensity'] = (df['outside_intensity_raw']
                                - df['outside_background'])
 
-    # ---- staining controls ----------------------------------------------
-    # Split them off before conditions are annotated: a no-primary or
-    # no-permeabilisation control is a staining control, not an experimental
-    # condition, so it has no entry in the well maps and must not appear in
-    # any efficiency.
     control_mask = _invasion_control_mask(df, settings['stain_baseline_wells'])
     controls = df[control_mask].copy()
     df = df[~control_mask].copy()
@@ -5178,14 +4680,11 @@ def analyze_invasion(settings):
             "against."
         )
 
-    # ---- host cell -------------------------------------------------------
     if 'cell_id' in df.columns:
         host = pd.to_numeric(df['cell_id'], errors='coerce')
         df['cell_id'] = host.fillna(0).astype(int)
         df['no_host_cell'] = (~host.notna()) | (host == 0)
     else:
-        # No cell mask at all: nothing is known about host association, so
-        # nothing is forced and the stain decides every call.
         df['no_host_cell'] = False
     if settings['extracellular_class'] == 'exclude':
         df = df[~df['no_host_cell']].copy()
@@ -5195,7 +4694,6 @@ def analyze_invasion(settings):
                 "of them overlap a host cell."
             )
 
-    # ---- conditions ------------------------------------------------------
     df = annotate_conditions(
         df=df,
         cells=settings['cell_types'],
@@ -5218,7 +4716,6 @@ def analyze_invasion(settings):
             f"treatment_plate_metadata well maps."
         )
 
-    # ---- thresholds and classification -----------------------------------
     fields = _invasion_field_thresholds(df, 'outside_intensity', settings,
                                         control_thresholds)
     parasites = _invasion_classify(df, fields, 'outside_intensity',
@@ -5227,16 +4724,7 @@ def analyze_invasion(settings):
     field_classes = parasites.groupby('prcf', sort=False)['invasion_class']
     field_counts = field_classes.value_counts().unstack(fill_value=0)
     for name in _INVASION_CLASSES:
-        # Categorical value_counts currently emits every declared class, and
-        # ``get`` retains the defensive zero for a future plain-string input
-        # without adding a branch that the categorical path cannot take.
         field_counts[name] = field_counts.get(name, 0)
-    # one_to_one: `fields` is one row per prcf (built by a groupby in
-    # _invasion_field_thresholds) and field_counts is a value_counts over the
-    # same key unstacked into columns, so it is too. This is the row the
-    # invasion efficiency is computed on and reported per field, so a second
-    # row for a field would report that field twice with the same numbers and
-    # weight it double in every per-well and per-group mean below.
     fields = fields.merge(
         field_counts[_INVASION_CLASSES].rename(
             columns={'attached': 'n_attached', 'invaded': 'n_invaded'}
@@ -5251,7 +4739,6 @@ def analyze_invasion(settings):
     field_group = parasites.groupby('prcf', sort=False)[group_column].first()
     fields[group_column] = fields['prcf'].map(field_group)
 
-    # ---- wells that hold host cells but no parasites ----------------------
     seed_wells = None
     if cell_frames:
         cells = pd.concat(cell_frames, axis=0, ignore_index=True)
@@ -5279,7 +4766,6 @@ def analyze_invasion(settings):
     comparisons = _invasion_compare_conditions(wells, group_column,
                                                verbose=settings['verbose'])
 
-    # ---- figures ---------------------------------------------------------
     prc_column = 'plateID' if settings['level'] == 'plate' else 'prc'
     scored = parasites[parasites['invasion_class'].astype(str)
                        != 'unclassified'].copy()
@@ -5358,8 +4844,6 @@ def analyze_invasion(settings):
             print(flagged.to_string(index=False))
 
     plt.show()
-    # The figures stay usable (savefig works on a closed figure); closing them
-    # keeps a batch run over many plates from accumulating open figures.
     for figure in (well_fig, group_fig, threshold_fig):
         plt.close(figure)
 
@@ -5388,7 +4872,6 @@ def analyze_class_proportion(settings):
     save_settings(settings, name='analyze_class_proportion', show=True)
     output = {}
 
-    # Process data
     if not isinstance(settings['src'], list):
         settings['src'] = [settings['src']]
     
@@ -5423,22 +4906,6 @@ def analyze_class_proportion(settings):
         for col in df.columns:
             print(col)
     
-    # NaN -> class 0, and SAY SO. The fill is a deliberate choice, pinned by
-    # tests/test_cov_submodules_class_proportion.py: an object the classifier
-    # did not call counts as the negative class rather than vanishing from
-    # the contingency table.
-    #
-    # It is the right answer when the column is a CLASSIFIER OUTPUT, where
-    # every object was scored and NaN means "below threshold". It is the
-    # wrong answer when the column is an ANNOTATION, where NaN means "nobody
-    # looked": annotate 500 of 40,000 cells as classes 1 and 2 and the other
-    # 39,500 arrive as a class-0 majority that decides the chi-squared on its
-    # own.
-    #
-    # Not flipped here, because that would break the case it is right for.
-    # Reported instead, so the second case stops being silent -- a user who
-    # reads "39500 of 40000 objects have no value" knows at once which
-    # situation they are in.
     _missing = int(df[settings['class_column']].isna().sum())
     if _missing:
         print(f"{_missing} of {len(df)} objects have no value in "
@@ -5449,7 +4916,6 @@ def analyze_class_proportion(settings):
     df[settings['class_column']] = df[settings['class_column']].fillna(0)
     output['data'] = df
 
-    # Perform chi-squared test and plot
     results_df, pairwise_results, fig = plot_proportion_stacked_bars(settings, df, settings['group_column'], bin_column=settings['class_column'], level=settings['level'])
     
     output['chi_squared'] = results_df
@@ -5479,7 +4945,6 @@ def analyze_class_proportion(settings):
     
     plt.show()
     
-    # Perform normality, variance, and statistical tests
     is_normal, normality_results = perform_normality_tests(df, settings['group_column'], [settings['class_column']])
     variance_stat, variance_p = perform_levene_test(df, settings['group_column'], settings['class_column'])
 
@@ -5495,7 +4960,6 @@ def analyze_class_proportion(settings):
         df, settings['group_column'], settings['class_column'], is_normal=is_normal
     )
 
-    # Save additional results
     if settings['save']:
         pd.DataFrame(normality_results).to_csv(os.path.join(output_dir, 'normality_results.csv'), index=False)
         pd.DataFrame([variance_results]).to_csv(os.path.join(output_dir, 'variance_results.csv'), index=False)
@@ -5540,10 +5004,6 @@ def generate_score_heatmap(settings):
             ``plateID_rowID_columnID``.
         """
         
-        # `read_table` canonicalises, so every spelling of the column
-        # arrives here as `columnID`. There used to be an `elif 'column'`
-        # fallback under this; it was unreachable rather than load-bearing,
-        # and an unreachable branch is one no test can ever justify.
         df = read_table(csv)
         if 'columnID' in df.columns:
             df = df[df['columnID']==column]
@@ -5575,34 +5035,15 @@ def generate_score_heatmap(settings):
         """
         if control_sgrnas is None:
             control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']
-        # 145, AND IT IS THE FIX FOR THE NOTE BELOW: canonicalisation is
-        # what makes the two spellings one, so the half-finished rename
-        # cannot bite again.
         df = read_table(csv)
-        # This helper was left half-way through the column_name -> columnID
-        # rename: it grouped by 'columnID' but filtered and merged on
-        # 'column_name', a key the grouped frame can never carry, so every
-        # call died with KeyError('column_name'). Key on 'columnID' like
-        # every sibling helper here, accepting the legacy spelling that
-        # older reads CSVs still use.
         if 'columnID' not in df.columns and 'column_name' in df.columns:
             df = df.rename(columns={'column_name': 'columnID'})
         df = df[df['columnID']==column]
-        # `plate` is a plate NUMBER, not a column name, so `plate not in
-        # df.columns` was always True and the CSV's own plateID was always
-        # overwritten -- stamping the literal "plateNone" when plate is None.
-        # The prc keys then matched nothing downstream and the heatmap came
-        # back empty with no error. Guard the way both sibling helpers do.
         if plate is not None:
             df['plateID'] = f"plate{plate}"
         df = df[df['grna_name'].str.match(f'^{control_sgrnas[0]}$|^{control_sgrnas[1]}$')]
         grouped_df = df.groupby(['plateID', 'rowID', 'columnID'])['count'].sum().reset_index()
         grouped_df = grouped_df.rename(columns={'count': 'total_count'})
-        # many_to_one: the left side is one row per control sgRNA per well, the
-        # right side that well's total. 'fraction' below is count/total, so a
-        # duplicated total would repeat each sgRNA row and the fractions of a
-        # well would no longer sum to 1 — with every individual value still
-        # looking perfectly reasonable.
         merged_df = pd.merge(df, grouped_df, on=['plateID', 'rowID', 'columnID'], validate='many_to_one')
         merged_df['fraction'] = merged_df['count'] / merged_df['total_count']
         merged_df['prc'] = merged_df['plateID'].astype(str) + '_' + merged_df['rowID'].astype(str) + '_' + merged_df['columnID'].astype(str)
@@ -5616,32 +5057,21 @@ def generate_score_heatmap(settings):
         :param cmap: matplotlib/seaborn colormap. Default ``'coolwarm'``.
         :returns: the matplotlib Figure.
         """
-        # Copy first: this assignment used to mutate the CALLER's frame,
-        # so the temporary sort column survived in merged_df (the drop
-        # below only affects the local slice) and leaked into the returned
-        # frame, the saved *_data.csv and the MAE table as a bogus channel.
         df = df.copy()
 
-        # Extract row number and convert to integer for sorting
         df['row_num'] = df['rowID'].str.extract(r'(\d+)').astype(int)
 
-        # Filter and sort by plate, row, and column
         df = df[df['columnID'] == column]
         df = df.sort_values(by=['plateID', 'row_num', 'columnID'])
 
-        # Drop temporary 'row_num' column after sorting
         df = df.drop('row_num', axis=1)
 
-        # Create a new column combining plate, row, and column for the index
         df['plate_row_col'] = df['plateID'] + '-' + df['rowID'] + '-' + df['columnID']
 
-        # Set 'plate_row_col' as the index
         df.set_index('plate_row_col', inplace=True)
 
-        # Extract only numeric data for the heatmap
         heatmap_data = df.select_dtypes(include=[float, int])
 
-        # Plot heatmap with square boxes and no annotations
         with figure_style(theme_target(), frame='box'):
             fig = plt.figure(figsize=(12, 8))
             axis = sns.heatmap(
@@ -5655,8 +5085,6 @@ def generate_score_heatmap(settings):
             plt.title("Heatmap of Prediction Scores for All Channels")
             plt.xlabel("Channels")
             plt.ylabel("Plate-Row-Column")
-            # Long channel names rotate 45 and anchor right, as every
-            # categorical axis in the style does.
             rotate_ticks(axis, 45)
             _style_colour_bar(fig)
             plt.tight_layout()
@@ -5688,70 +5116,55 @@ def generate_score_heatmap(settings):
             raises ``KeyError``. Default ``'c3'``.
         :returns: the outer-joined well-by-channel frame with a ``prc`` key.
         """
-        # Ensure `folders` is a list
         if isinstance(folders, str):
             folders = [folders]
 
-        ls = []  # Initialize ls to store found CSV file paths
+        ls = []
 
-        # Iterate over the provided folders
         for folder in folders:
-            sub_folders = os.listdir(folder)  # Get sub-folder list
-            for sub_folder in sub_folders:  # Iterate through sub-folders
-                path = os.path.join(folder, sub_folder)  # Join the full path
+            sub_folders = os.listdir(folder)
+            for sub_folder in sub_folders:
+                path = os.path.join(folder, sub_folder)
 
-                if os.path.isdir(path):  # Check if it’s a directory
-                    csv = os.path.join(path, csv_name)  # Join path to the CSV file
-                    if os.path.exists(csv):  # If CSV exists, add to list
+                if os.path.isdir(path):
+                    csv = os.path.join(path, csv_name)
+                    if os.path.exists(csv):
                         ls.append(csv)
                     else:
                         print(f'No such file: {csv}')
 
-        # Initialize combined DataFrame
         combined_df = None
         print(f'Found {len(ls)} CSV files')
 
-        # Loop through all collected CSV files and process them
         for csv_file in ls:
-            df = read_table(csv_file)   # 145: canonical column names
+            df = read_table(csv_file)
             df = df[df['columnID']==column]
             if not plate is None:
                 df['plateID'] = f"plate{plate}"
-            # Group the data by 'plateID', 'rowID', and 'columnID'
             grouped_df = df.groupby(['plateID', 'rowID', 'columnID'])[data_column].mean().reset_index()
-            # Use the CSV filename to create a new column name
             folder_name = os.path.dirname(csv_file).replace(".csv", "")
             new_column_name = os.path.basename(f"{folder_name}_{data_column}")
             print(new_column_name)
             grouped_df = grouped_df.rename(columns={data_column: new_column_name})
 
-            # Merge into the combined DataFrame
             if combined_df is None:
                 combined_df = grouped_df
             else:
-                # one_to_one: each folder contributes a groupby mean, one row
-                # per well, and the accumulator stays one row per well because
-                # every merge into it is one_to_one. This frame is a well x
-                # channel matrix -- the heatmap plots it as one -- so a second
-                # row for a well would draw that well twice.
                 combined_df = pd.merge(combined_df, grouped_df, on=['plateID', 'rowID', 'columnID'], how='outer', validate='one_to_one')
         combined_df['prc'] = combined_df['plateID'].astype(str) + '_' + combined_df['rowID'].astype(str) + '_' + combined_df['columnID'].astype(str)
         return combined_df
     
     def calculate_mae(df):
         """Return the per-channel, per-row MAE between predictions and the ``fraction`` column."""
-        # Extract numeric columns excluding 'fraction' and 'prc'
         channels = df.drop(columns=['fraction', 'prc']).select_dtypes(include=[float, int])
 
         mae_data = []
 
-        # Compute MAE for each channel with 'fraction' for all rows
         for column in channels.columns:
             for index, row in df.iterrows():
                 mae = mean_absolute_error([row['fraction']], [row[column]])
                 mae_data.append({'Channel': column, 'MAE': mae, 'Row': row['prc']})
 
-        # Convert the list of dictionaries to a DataFrame
         mae_df = pd.DataFrame(mae_data)
         return mae_df
 
@@ -5759,27 +5172,12 @@ def generate_score_heatmap(settings):
     df = calculate_fraction_mixed_condition(settings['csv'], settings['plateID'], settings['columnID'], settings['control_sgrnas'])
     df = df[df['grna_name']==settings['fraction_grna']]
     fraction_df = df[['fraction', 'prc']]
-    # many_to_one on both joins below. The right sides are groupby reductions
-    # (one row per well) and that is the half that must hold: a well appearing
-    # twice in the score matrix or the CV table would repeat that well in the
-    # heatmap and count it twice in the MAE. The LEFT side is not asserted
-    # unique on purpose — fraction_df is the reads CSV filtered to one gRNA and
-    # a CSV that lists that gRNA twice for a well (two sequencing runs, say)
-    # is a legitimate input here; it stays two rows, visibly, instead of
-    # turning the whole call into a MergeError.
     merged_df = pd.merge(fraction_df, result_df, on=['prc'], validate='many_to_one')
     cv_df = group_cv_score(settings['cv_csv'], settings['plateID'], settings['columnID'], settings['data_column_cv'])
     cv_df = cv_df[[settings['data_column_cv'], 'prc']]
     merged_df = pd.merge(merged_df, cv_df, on=['prc'], validate='many_to_one')
     
     fig = plot_multi_channel_heatmap(merged_df, settings['columnID'], settings['cmap'])
-    # The guard used to test for 'row_number' while the helper adds
-    # 'row_num', so it never fired for the column it meant to drop and
-    # would KeyError on a frame that genuinely carries a 'row_number'
-    # data column. With the copy in the helper this is now a no-op kept
-    # as cheap defence. The matching mae_df guard was deleted: calculate_mae
-    # only ever emits Channel/MAE/Row, so it was dead and, if it had ever
-    # fired, would have dropped a differently-named column.
     if 'row_num' in merged_df.columns:
         merged_df = merged_df.drop('row_num', axis=1)
     mae_df = calculate_mae(merged_df)
@@ -5805,24 +5203,15 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
 
     def _analyze_and_visualize_grna_correlation(df, grna_list, save_folder, save=False):
         """Return and plot the pivoted per-well gRNA fraction correlation matrix."""
-        # Filter the DataFrame to include only rows with gRNAs in the list
         filtered_df = df[df['grna'].isin(grna_list)]
 
-        # Pivot the data to create a prc-by-gRNA matrix, using fractions as values
         pivot_df = filtered_df.pivot_table(index='prc', columns='grna', values='fraction', aggfunc='sum').fillna(0)
 
-        # Compute the correlation matrix
         correlation_matrix = pivot_df.corr()
         
         if save:
-            # Save the correlation matrix
             correlation_matrix.to_csv(os.path.join(save_folder, 'correlation_matrix.csv'))
         
-        # Visualize the correlation matrix as a heatmap. A CORRELATION IS
-        # SIGNED, which is the one case the style allows a diverging map for,
-        # so coolwarm stays and is centred on zero -- it was not, so an
-        # all-positive matrix came out red end to end and looked like a
-        # finding.
         with figure_style(theme_target(), frame='box'):
             fig = plt.figure(figsize=(10, 8))
             axis = sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm',
@@ -5845,34 +5234,21 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
 
     def _compute_effect_sizes(correlation_matrix, grna_dict, save_folder, save=False):
         """Return per-gRNA effect sizes propagated from anchor gRNAs via the correlation matrix."""
-        # Ensure the matrix is symmetric and normalize values to 0-1
         corr_matrix = correlation_matrix.copy()
         corr_matrix = (corr_matrix - corr_matrix.min().min()) / (corr_matrix.max().max() - corr_matrix.min().min())
 
-        # Initialize the effect sizes with dtype float
         effect_sizes = pd.Series(0.0, index=corr_matrix.index)
 
-        # Set the effect sizes for the specified gRNAs
         for grna, size in grna_dict.items():
             effect_sizes[grna] = size
 
-        # Propagate the effect sizes
         for grna in corr_matrix.index:
             if grna not in grna_dict:
-                # Weighted sum of correlations with the fixed gRNAs
                 effect_sizes[grna] = np.dot(corr_matrix.loc[grna], effect_sizes) / np.sum(corr_matrix.loc[grna])
         
         if save:
-            # Save the effect sizes
             effect_sizes.to_csv(os.path.join(save_folder, 'effect_sizes.csv'))
 
-        # Visualization. GREY BARS, AND THE ANCHORS COLOURED: `hue` was the
-        # gRNA name and `palette='viridis'` gave every bar its own hue, so a
-        # 40-guide panel was a 40-colour ramp that encoded nothing the x axis
-        # did not already say. The gRNAs whose effect was FIXED by
-        # `grna_dict` -- the anchors the rest were propagated from -- are the
-        # ones a reader has to be able to pick out, so those are the coloured
-        # minority.
         with figure_style(theme_target()):
             fig = plt.figure(figsize=(10, 6))
             anchors = set(grna_dict)
@@ -5882,10 +5258,6 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
                 hue=effect_sizes.index,
                 palette=[ROLES['highlight'] if name in anchors
                          else ROLES['data'] for name in effect_sizes.index],
-                # saturation=1: seaborn desaturates a bar fill to 0.75 by
-                # default, so the palette's #2E77BC reached the canvas as
-                # #4076AA. A fixed hue that arrives as a different hue is not
-                # a fixed hue.
                 saturation=1,
                 legend=False,
             )
@@ -5905,13 +5277,10 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
 
         return effect_sizes
     
-    # Ensure the save folder exists
     save_folder = os.path.join(os.path.dirname(csv_file), 'post_regression_analysis_results')
     os.makedirs(save_folder, exist_ok=True)
     
-    # Load the data
     df = pd.read_csv(csv_file)
     
-    # Perform analysis
     correlation_matrix = _analyze_and_visualize_grna_correlation(df, grna_list, save_folder, save)
     _compute_effect_sizes(correlation_matrix, grna_dict, save_folder, save)

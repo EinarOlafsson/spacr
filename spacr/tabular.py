@@ -42,7 +42,7 @@ exact header.
 
 The guards that moved here rather than being left behind
 --------------------------------------------------------
-* **A ``~`` path is expanded, once, for every reader** -- GitHub issue #108,
+* A ``~`` path is expanded, once, for every reader -- GitHub issue #108,
   where a ``src`` beginning with ``~`` was resolved against the working
   directory and refused with ``FileNotFoundError: ~<DB>``. ``$HOME`` and
   ``%USERPROFILE%`` too: a settings CSV carried between machines routinely
@@ -320,8 +320,6 @@ def _connect(db: Any, *, migrate: bool, read_only: bool = False):
         from .database_schema import ensure_database_schema
         ensure_database_schema(path)
     if read_only:
-        # Keep read-only table loads on the same URI escaping, busy-timeout,
-        # query-only and connection policy as every other database reader.
         from .database_concurrency import connect
         return connect(path, readonly=True)
     return sqlite3.connect(path, timeout=30)

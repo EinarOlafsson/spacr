@@ -197,32 +197,52 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1]
+        shard: [0, 1, 2]
     uses: ./.github/workflows/_pytest-suite.yml
     with:
-      suite_name: Qt shard ${{ matrix.shard }} of 2
+      suite_name: Qt shard ${{ matrix.shard }} of 3
       python_version: "3.12"
       extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "qt and not slow and not heavy and not gpu and not network and not nas and not gui"
-      # 120 -> 180, and it is SHARD 0 that needs it. The two shards are not
-      # the same size: `run_serial_tail` below is true for shard 0 only, so
-      # it runs the whole serial tail after its parallel half. On dispatch
-      # 34639565357 shard 1 finished and reported its failures while shard 0
-      # was killed by this budget -- and a killed job reports as "cancelled",
-      # which is indistinguishable from a superseded push until you look at
-      # the duration. Qt is blocking, so that was a required check that could
-      # not pass.
+      # 120 -> 180, for the shard that also runs the serial tail. The shards
+      # are not the same size: `run_serial_tail` below is true for one shard
+      # only, so that shard runs the whole serial tail after its parallel
+      # part. On dispatch 34639565357, when shard 0 of 2 carried the tail,
+      # shard 1 finished and reported its failures while shard 0 was killed by
+      # this budget -- and a killed job reports as "cancelled", which is
+      # indistinguishable from a superseded push until you look at the
+      # duration. Qt is blocking, so that was a required check that could not
+      # pass.
       timeout_minutes: 180
       xdist_workers: 4
       file_shard_index: ${{ matrix.shard }}
-      file_shard_count: 2
-      run_serial_tail: ${{ matrix.shard == 0 }}
+      # THREE SHARDS, NOT TWO (items 43 and 288, 2026-09-15). The MEMORY lines
+      # of dispatched run 35012948690 (nightly 783a8d2f3) put Qt shard 0 of 2
+      # at used=14,939 MiB of the runner's 15,989 at 97% of the shard, 1,050
+      # MiB available and 2,035 of 3,071 MiB swapped; it finished, but shard 0
+      # had lost its runner at 83% and at 96% earlier that day. Shard 1 peaked
+      # near 10 GB, and shard 0's command peaked at 15,091 MiB PSS locally.
+      # Each of the four long-lived workers grows over its shard, so a third
+      # shard cuts the tests per worker, and with it the peak, by a third.
+      file_shard_count: 3
+      # The serial tail runs after the four workers exit, so it costs time,
+      # not peak memory, and it goes to the lightest shard. Shard 0 of 2's
+      # per-file times from run 35012948690, rebucketed three ways: 4,045,
+      # 4,854 and 3,372 worker-seconds for shards 0, 1 and 2.
+      run_serial_tail: ${{ matrix.shard == 2 }}
       # A wedged Qt test used the whole 120 minutes and printed nothing: the
       # shard reached 99%, then sat in silence until the runner killed it, so
       # the log named neither the test nor a stack. Twenty minutes is far more
       # than any test here needs and leaves the shard time to finish and
       # report, which turns a lost job into one named failure.
       per_test_timeout_seconds: 1200
+      # MEMORY, SAMPLED INTO THE LIVE LOG. Shard 0 lost its runner outright
+      # twice on 2026-09-15 ("The runner has received a shutdown signal" at
+      # [83%] after 71 min and at [96%] after 89 min; item 43), and a lost
+      # runner uploads nothing and cannot log that it ran out of memory. One
+      # MEMORY line every 30 seconds says whether memory was running out
+      # before the next one is lost.
+      memory_telemetry_seconds: 30
 
   gpu:
     name: GPU
@@ -353,7 +373,12 @@ jobs:
           retention-days: 3
 
   coverage-combine:
-    name: Coverage / every shipped module at 100%
+    # Item 288, maintainer decision 2026-09-15: the release gate is a
+    # per-module coverage RATCHET against tools/coverage_baseline.json -- no
+    # shipped module loses coverage and no new module arrives below 100%.
+    # 100% per module remains the goal, and the report lists every module
+    # that is not there yet. CI never rewrites the baseline.
+    name: Coverage / no module loses coverage
     if: always()
     needs: coverage-shards
     runs-on: ubuntu-24.04
@@ -385,20 +410,49 @@ jobs:
           SPACR_COVERAGE_COMBINED: ${{ runner.temp }}/spacr-coverage-combined
           SPACR_COVERAGE_INPUT: ${{ runner.temp }}/spacr-coverage-input
           SPACR_COVERAGE_REPORT: ${{ runner.temp }}/spacr-coverage-report
+          # Must equal the coverage-shards matrix length and --shard-count;
+          # tests/test_module_coverage_ratchet.py asserts all three agree.
+          SPACR_COVERAGE_SHARD_COUNT: "12"
         run: |
           mkdir -p -- "$SPACR_COVERAGE_COMBINED" "$SPACR_COVERAGE_REPORT"
+          # A shard with no data would lower coverage without naming why, so
+          # a missing shard is a red job here rather than a ratchet surprise.
+          missing=0
+          for ((shard = 0; shard < SPACR_COVERAGE_SHARD_COUNT; shard++)); do
+            printf -v name '.coverage.shard-%02d.batch-' "$shard"
+            if ! compgen -G "$SPACR_COVERAGE_INPUT/$name*" > /dev/null; then
+              echo "::error::coverage shard $shard produced no coverage data"
+              missing=1
+            fi
+          done
+          test "$missing" -eq 0
           python -m coverage combine --keep "$SPACR_COVERAGE_INPUT"
           python -m coverage json --pretty-print \
             -o "$SPACR_COVERAGE_REPORT/coverage.json"
 
-      - name: Enforce the per-module 100% ratchet
+      # A CRASH IS NOT A REGRESSION. A coverage worker killed by a signal
+      # never writes its data, so every module it exercised reads as less
+      # covered than it is: on dispatch 34989909231 two segfaulted workers
+      # became thirteen "regressions", pivot_spec.py among them at 24
+      # uncovered statements from 100%. tools/run_coverage_batches.py
+      # re-runs a lost worker's files serially and writes what it recovered
+      # into each shard's integrity record. --shard-integrity reads those
+      # records; a loss that was not recovered fails as an INCOMPLETE
+      # MEASUREMENT (exit 3) with the counts it may have raised marked
+      # UNCONFIRMED. It still fails, and says why. --shard-count must equal
+      # the matrix length.
+      - name: Gate on the per-module coverage ratchet baseline
         env:
+          SPACR_COVERAGE_INPUT: ${{ runner.temp }}/spacr-coverage-input
           SPACR_COVERAGE_REPORT: ${{ runner.temp }}/spacr-coverage-report
         run: |
           python tools/verify_module_coverage.py \
             --coverage-json "$SPACR_COVERAGE_REPORT/coverage.json" \
             --root . \
-            --expected-file-count 528 \
+            --expected-file-count 572 \
+            --baseline tools/coverage_baseline.json \
+            --shard-integrity "$SPACR_COVERAGE_INPUT" \
+            --shard-count 12 \
             --json-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.json" \
             --text-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.txt"
 
@@ -446,6 +500,7 @@ jobs:
           python -m pip install \
             "ruff>=0.9,<1" \
             "mypy>=1.11,<2" \
+            "types-PyYAML>=6,<7" \
             "xenon>=0.9,<1"
 
       - name: Enforce repository and maintained-code quality gates

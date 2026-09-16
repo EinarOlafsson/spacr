@@ -1,6 +1,6 @@
 """Image, dataset, and SQLite input/output helpers used across spaCR."""
 
-import readlif.reader  # `import readlif` alone does not bind the submodule
+import readlif.reader
 import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging, warnings
 import numpy as np
 import pandas as pd
@@ -12,10 +12,6 @@ from matplotlib.animation import FuncAnimation
 try:
     from IPython.display import display
 except Exception:
-    # IPython may be mid-init (partially imported by another
-    # thread) — use a no-op fallback so importing this module
-    # never blocks. spaCR only calls display() from notebook
-    # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
         """Do nothing: IPython is unavailable, so there is nowhere to display to.
 
@@ -44,38 +40,22 @@ import seaborn as sns
 from nd2reader import ND2Reader
 from torchvision import transforms
 
-# Backward-compatible injection point used by tests and advanced callers.
-# ``None`` means "load the optional reader on first CZI conversion".
 pyczi = None
 
-# Fail-loud accounting. Every per-file skip below is recorded on a RunLedger
-# so a batch that lost 40 of 384 files says so at the end and stamps the
-# artifact it produced, instead of writing a silently-short result.
 from .errors import RunLedger
 from .image_colors import read_image_rgb
 from .tiff_io import write_tiff
 
 LOG = logging.getLogger(__name__)
 
-# One definition of what a well is called. spacr.convert imports nothing
-# heavier than spacr.schema, so this costs nothing here, and it is the reason
-# the two Yokogawa converters below can name a well on a 1536-well plate:
-# they used to carry three hand-written copies of "ABCDEFGHIJKLMNOP" and
-# range(1, 25), which stop at P24.
 from . import convert as _cv
 from . import crop_source as _crop_source
 from .object_roles import CHILD_ROLES, ORGANELLE_ROLES, join_how
-# RE-EXPORTED, NOT DEFINED HERE ANY MORE. These need pandas and sqlite3 and
-# nothing else, and every caller that imported them from this module paid
-# torch + torchvision + cv2 for the privilege. See spacr.png_list.
 from .png_list import (PNG_LIST_ID_COLUMNS, _merged_field_paths,
                        _object_id_int, crop_rows_from_png_list)
 from .crops import MERGED_LAYOUT_SIDECAR
 from .merge_tables import reconcile_duplicates
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from .figures.style import figure_style, theme_target
 
 
@@ -187,37 +167,12 @@ def migrate_unescaped_plate_names(src, dry_run=False):
                 if suffix.lower() not in FIELD_STEM_SUFFIXES:
                     continue
                 parts = stem.split(KEY_SEPARATOR)
-                # Three fixed tail tokens -- well, field, time -- so anything
-                # beyond four components is a plate holding a raw separator.
-                # Testing THAT rather than "does escaping change the name" is
-                # what makes a second run a no-op: escaping is not idempotent,
-                # because a literal percent is escaped first, and
-                # `exp%5F1_A01_1_1` would become `exp%255F1_A01_1_1`. A
-                # migration that corrupts on its second run is worse than one
-                # that never ran.
                 if len(parts) <= 4:
                     continue
                 try:
-                    # timelapse=True is the writer's grammar, not the run's
-                    # setting: three fixed tail tokens either way.
                     safe = escape_field_stem_plate(stem, timelapse=True)
                 except KeyParseError:
-                    # Not a field stem. A folder can hold a sidecar or a
-                    # hand-dropped array, and renaming one on a guess is how a
-                    # migration loses a file.
                     continue
-                # NO `safe == stem` GUARD. Reaching it needs a stem with
-                # more than four components that escaping leaves
-                # unchanged, and there is no such stem: more than four
-                # components means the plate holds a separator, and
-                # escaping a separator always changes the string. Checked
-                # against 20,000 random plate names as well as argued --
-                # every one changed.
-                #
-                # The idempotency the comment above is about comes from
-                # the `len(parts) <= 4` test, not from this one: a stem
-                # that has already been migrated has four components and
-                # never reaches here at all.
                 planned.append((os.path.join(base, name),
                                 os.path.join(base, safe + suffix)))
 
@@ -267,7 +222,6 @@ def process_non_tif_non_2D_images(folder):
         folder's contents.
     """
 
-    # Helper function to save grayscale images
     def save_grayscale_images(image, base_name, folder, dtype, channel=None, z=None, t=None):
         """Save grayscale images with appropriate suffix based on channel, z, and t, preserving bit depth.
 
@@ -287,8 +241,6 @@ def process_non_tif_non_2D_images(folder):
         :param z: 1-based Z index appended as ``_Z``; ``None`` omits it.
         :param t: 1-based time index appended as ``_T``; ``None`` omits it.
         """
-        # Every splitter call supplies its 1-based channel index; keeping a
-        # channel-less arm here only made two planes able to share a name.
         suffix = f"_C{channel}"
         if z is not None:
             suffix += f"_Z{z}"
@@ -298,7 +250,6 @@ def process_non_tif_non_2D_images(folder):
         output_filename = os.path.join(folder, f"{base_name}{suffix}.tif")
         write_tiff(output_filename, image.astype(dtype))
 
-    # Function to handle splitting of multi-dimensional images into grayscale channels
     def split_channels(image, folder, base_name, dtype):
         """Splits the image into channels and handles 3D, 4D, and 5D image cases.
 
@@ -315,28 +266,23 @@ def process_non_tif_non_2D_images(folder):
             should be the source image's own dtype to keep its bit depth.
         """
         if image.ndim == 2:
-            # Grayscale image, already processed separately
             return
         
         elif image.ndim == 3:
-            # 3D image: (height, width, channels)
             for c in range(image.shape[2]):
                 save_grayscale_images(image[..., c], base_name, folder, dtype, channel=c+1)
         
         elif image.ndim == 4:
-            # 4D image: (height, width, channels, Z-dimension)
             for z in range(image.shape[3]):
                 for c in range(image.shape[2]):
                     save_grayscale_images(image[..., c, z], base_name, folder, dtype, channel=c+1, z=z+1)
         
         elif image.ndim == 5:
-            # 5D image: (height, width, channels, Z-dimension, Time)
             for t in range(image.shape[4]):
                 for z in range(image.shape[3]):
                     for c in range(image.shape[2]):
                         save_grayscale_images(image[..., c, z, t], base_name, folder, dtype, channel=c+1, z=z+1, t=t+1)
 
-    # Function to load images in various formats
     def load_image(file_path):
         """Loads image from various formats and returns it as a numpy array along with its dtype.
 
@@ -353,11 +299,6 @@ def process_non_tif_non_2D_images(folder):
             return image, image.dtype
         
         elif ext in ['.png', '.jpg', '.jpeg']:
-            # Return a numpy dtype like every sibling branch. Returning PIL's
-            # mode string here fed image.astype('RGB') -> TypeError (swallowed,
-            # so multi-channel PNG/JPEG were silently dropped), and astype('L')
-            # -> uint64, inflating 8-bit greyscale 8x despite the
-            # "bit depth is preserved" contract.
             image = np.array(Image.open(file_path))
             return image, image.dtype
         
@@ -374,7 +315,6 @@ def process_non_tif_non_2D_images(folder):
         else:
             raise ValueError(f"Unsupported file extension: {ext}")
 
-    # Function to check if an image is grayscale and save it as a TIFF if it isn't already
     def convert_grayscale_to_tiff(image, filename, folder, dtype):
         """Convert grayscale images that are not in TIFF format to TIFF, preserving bit depth.
 
@@ -393,10 +333,8 @@ def process_non_tif_non_2D_images(folder):
         write_tiff(output_filename, image.astype(dtype))
         print(f"Converted grayscale image {filename} to TIFF with bit depth {dtype}.")
 
-    # Supported formats
     supported_formats = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.czi', '.nd2']
     
-    # Loop through all files in the folder
     ledger = RunLedger('process_non_tif_non_2D_images')
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
@@ -406,10 +344,8 @@ def process_non_tif_non_2D_images(folder):
             print(f"Processing {filename}")
             with ledger.item(filename, stage='split_channels',
                              echo=f"Error processing {filename}"):
-                # Load the image and its dtype
                 image, dtype = load_image(file_path)
 
-                # If the image is grayscale (2D), convert it to TIFF if it's not already in TIFF format
                 if image.ndim == 2:
                     if ext not in ['.tif', '.tiff']:
                         convert_grayscale_to_tiff(image, filename, folder, dtype)
@@ -417,18 +353,13 @@ def process_non_tif_non_2D_images(folder):
                         print(f"Image {filename} is already grayscale and in TIFF format, skipping.")
                     continue
 
-                # Otherwise, split channels and save images
                 base_name = os.path.splitext(filename)[0]
                 split_channels(image, folder, base_name, dtype)
 
-    # Last thing on screen, so a partial conversion cannot scroll past.
     ledger.finalize()
     return ledger
 
 def _load_images_and_labels(image_files, label_files, invert=False):
-    # Cellpose 4 no longer exposes submodules as attributes of the package
-    # root. Import the IO boundary explicitly, and only when this Cellpose
-    # dataset helper is used.
     """Load a Cellpose training set, keeping each name beside its pixels.
 
     THE NAMES ARE BUILT BESIDE THE PIXELS, one append each. They used to be
@@ -452,19 +383,6 @@ def _load_images_and_labels(image_files, label_files, invert=False):
     from cellpose import io as cellpose_io
     from .utils import invert_image
     
-    # THE NAMES ARE BUILT BESIDE THE PIXELS, one append each, never
-    # separately. They used to be `sorted(basename(f) for f in image_files)`
-    # while `images` was filled in the CALLER's order, and the caller shuffles:
-    # `spacr_cellpose.py:169` and `:296` do `random.shuffle(all_image_files)`
-    # before calling here. `identify_masks_finetune` then writes each mask as
-    # `os.path.join(dst, image_names[file_index])` over `enumerate(images)`, so
-    # every mask landed under a DIFFERENT image's filename -- a whole plate of
-    # segmentations silently attributed to the wrong wells.
-    #
-    # Sorting was only half of it. Each loop below `continue`s past a file that
-    # will not read, which shortened `images` while the precomputed name list
-    # kept every entry, so one unreadable file misnamed every mask after it
-    # even when the input was already in order.
     images = []
     labels = []
     image_names = []
@@ -558,7 +476,6 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
     from .utils import invert_image
     from skimage.transform import resize as resizescikit
 
-    # Ensure percentiles are valid
     if isinstance(percentiles, list) and len(percentiles) == 2:
         try:
             percentiles = [int(percentiles[0]), int(percentiles[1])]
@@ -584,7 +501,6 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
     else:
         label_names, label_dir = [], None
 
-    # Load, normalize, and resize images
     for i, img_file in enumerate(image_files):
         image = cellpose_io.imread(img_file)
         orig_dims.append((image.shape[0], image.shape[1]))
@@ -592,7 +508,6 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
         if invert:
             image = invert_image(image)
 
-        # Select specific channels if needed
         if channels is not None and image.ndim == 3:
             image = image[..., channels]
 
@@ -602,27 +517,23 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
         if image.ndim < 3:
             image = np.expand_dims(image, axis=-1)
 
-        # Calculate percentiles if not provided
         if percentiles is None:
             for c in range(image.shape[-1]):
                 p1 = np.percentile(image[..., c], lower_percentile)
                 percentiles_1[c].append(p1)
 
-                # Ensure `signal_thresholds` and `p` are floats for comparison
                 for percentile in [98, 99, 99.9, 99.99, 99.999]:
                     p = np.percentile(image[..., c], percentile)
                     if float(p) > signal_thresholds:
                         percentiles_99[c].append(p)
                         break
 
-        # Resize image if required
         if target_height and target_width:
             image_shape = (target_height, target_width) if image.ndim == 2 else (target_height, target_width, image.shape[-1])
             image = resizescikit(image, image_shape, preserve_range=True, anti_aliasing=True).astype(image.dtype)
 
         images.append(image)
 
-    # Calculate average percentiles if needed
     if percentiles is None:
         avg_p1 = [np.mean(p) for p in percentiles_1]
         avg_p99 = [np.mean(p) if p else avg_p1[i] for i, p in enumerate(percentiles_99)]
@@ -643,7 +554,6 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
             for img in images
         ]
 
-    # Load and resize labels if provided
     if label_files is not None:
         labels = [resizescikit(cellpose_io.imread(lbl_file),
                                (target_height, target_width) if target_height and target_width else orig_dims[i], 
@@ -672,9 +582,6 @@ class CombineLoaders:
     def __init__(self, train_loaders):
         """Store loaders and initialise per-loader iterators."""
         self.train_loaders = train_loaders
-        # Carry the ORIGINAL loader index alongside each iterator: the list is
-        # shuffled and pruned as loaders empty, so a positional index would not
-        # identify which loader a batch came from.
         self.loader_iters = [(i, iter(loader))
                              for i, loader in enumerate(train_loaders)]
 
@@ -690,16 +597,10 @@ class CombineLoaders:
                 try:
                     batch = next(loader_iter)
                 except StopIteration:
-                    # Exhausted: it sits at a position before `pos` and is
-                    # dropped below. Do NOT pop here — mutating the list while
-                    # enumerating it skips the entry that shifts into the freed
-                    # slot, which silently discarded still-live loaders and
-                    # truncated the combined stream.
                     continue
                 if pos:
                     self.loader_iters = self.loader_iters[pos:]
                 return idx, batch
-            # Every remaining loader raised StopIteration on this pass.
             self.loader_iters = []
         raise StopIteration
 
@@ -753,10 +654,6 @@ class NoClassDataset(Dataset):
         self.transform = transform
         self.shuffle = shuffle
         self.load_to_memory = load_to_memory
-        # Hidden files are not images. A crop folder carries a
-        # `.spacr_crop_format.json` sidecar (spacr.crops), and a folder that
-        # has been near a Mac or Windows carries .DS_Store / Thumbs.db; every
-        # one of them used to be handed to Image.open as a sample.
         self.filenames = [
             os.path.join(data_dir, f)
             for f in os.listdir(data_dir)
@@ -837,31 +734,14 @@ class spacrDataset(Dataset):
         else:
             for class_name in self.classes:
                 class_path = os.path.join(data_dir, class_name)
-                # A class folder that was never created is a real condition,
-                # not a crash: generate_training_dataset only makes a folder
-                # for a class it actually selected rows for. Skip it so the
-                # empty-dataset guard below can report every class at once,
-                # rather than dying on os.listdir of the first missing one.
                 if not os.path.isdir(class_path):
                     continue
-                # Hidden files are not samples: a class folder written by
-                # generate_dataset_from_lists carries the crop-format sidecar
-                # `.spacr_crop_format.json`, and any folder that has been near
-                # a Mac carries .DS_Store. Both used to reach Image.open.
                 class_files = [os.path.join(class_path, f) for f in os.listdir(class_path)
                                if os.path.isfile(os.path.join(class_path, f))
                                and not f.startswith('.')]
                 self.filenames.extend(class_files)
                 self.labels.extend([self.classes.index(class_name)] * len(class_files))
         
-        # An empty dataset must say so HERE, where the directory and the class
-        # names are still in hand. Left to run on, shuffle_dataset() does
-        # `zip(*[])` and dies with "not enough values to unpack (expected 2,
-        # got 0)" -- which tells the user nothing about which folder was empty
-        # or which classes were looked for. This is reachable whenever
-        # generate_training_dataset selects no rows: a class_metadata value
-        # that matches nothing, an annotation column with no positives, or a
-        # filter that removed everything.
         if not self.filenames:
             looked = []
             for class_name in self.classes:
@@ -886,9 +766,6 @@ class spacrDataset(Dataset):
             self.shuffle_dataset()
 
         if self.pin_memory:
-            # PIL decoding is I/O-heavy and releases the GIL. Threads avoid
-            # forking a live Qt/PyTorch process (unsafe and warned against by
-            # Python 3.13) while still overlapping disk reads and decoding.
             workers = min(len(self.filenames), 32)
             with ThreadPoolExecutor(
                 max_workers=workers,
@@ -910,9 +787,6 @@ class spacrDataset(Dataset):
             is what makes every sample the same shape for the transform.
         :returns: A ``PIL.Image.Image`` in mode ``RGB``.
         """
-        # Force decoding while the file is open, then detach the returned
-        # image.  Leaving PIL's lazy decoder/file handle alive in a background
-        # prefetch thread can race interpreter/loader cleanup.
         with Image.open(img_path) as source:
             return ImageOps.exif_transpose(source).convert('RGB').copy()
 
@@ -963,14 +837,6 @@ class spacrDataLoader(DataLoader):
         """Initialise the underlying DataLoader and the preload queue."""
         super().__init__(*args, **kwargs)
         self.preload_batches = preload_batches
-        # NOTE: the preloader used to run in a multiprocessing.Process writing
-        # into a multiprocessing.Queue, and __next__ stopped as soon as
-        # `not process.is_alive() and queue.empty()`. Both are unreliable: an
-        # mp.Queue can still have data in flight after the child exits, and the
-        # child only ever advanced its OWN copy of the iterator. The loader
-        # therefore silently yielded a truncated stream (0 of 4 batches in
-        # testing). A daemon THREAD shares the iterator, needs no pickling, and
-        # a sentinel gives an unambiguous end-of-stream signal.
         self.batch_queue = queue.Queue(maxsize=max(1, preload_batches))
         self.thread = None
         self.current_batch_index = 0
@@ -1003,15 +869,9 @@ class spacrDataLoader(DataLoader):
                     except queue.Full:
                         continue
         except Exception as e:
-            # Hand the failure to the consumer instead of swallowing it: a
-            # collate/decode error used to look identical to "dataset is
-            # empty", which silently trains a model on no data.
             self._error = e
             LOG.exception("spaCR data preloader failed")
         finally:
-            # On normal exhaustion the consumer needs a sentinel. During
-            # cleanup it is deliberately omitted: a full bounded queue must
-            # never strand the producer while the owner is joining it.
             while not stop_signal.is_set():
                 try:
                     q.put(self._sentinel, timeout=0.1)
@@ -1038,11 +898,6 @@ class spacrDataLoader(DataLoader):
         Safe to call more than once (``list(iter(dl))`` calls it twice): any
         in-flight producer is stopped first, so the stream is never doubled.
         """
-        # ``list(iter(loader))`` calls ``iter`` twice: once explicitly and
-        # once inside ``list``. Iterators must return themselves without
-        # restarting while active, otherwise the abandoned first producer can
-        # decode/pin batches that are never yielded and the stream does twice
-        # the work. A fresh pass still starts after exhaustion or cleanup.
         if self._iteration_active:
             return self
         self.cleanup()
@@ -1090,8 +945,6 @@ class spacrDataLoader(DataLoader):
             stop_signal.set()
         thread = getattr(self, 'thread', None)
         if thread is not None and thread.is_alive():
-            # Drain repeatedly while joining: the producer may finish a decode
-            # after the first drain and briefly refill the bounded queue.
             deadline = time.monotonic() + 5
             while thread.is_alive() and time.monotonic() < deadline:
                 try:
@@ -1135,7 +988,6 @@ class TarImageDataset(Dataset):
         self.transform = transform
         self.crop_format = None
 
-        # Open the tar file just to build the list of members
         from . import crops
         with tarfile.open(self.tar_path, 'r') as f:
             self.members = []
@@ -1190,7 +1042,6 @@ def load_images_from_paths(images_by_key):
     ledger.finalize()
     return images_dict
 
-#@log_function_call 
 def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True):
     """
     Convert z-stack images to maximum intensity projection (MIP) images and
@@ -1201,7 +1052,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     re-reading those folders to merge them (which duplicated the pixel data on
     disk), this builds an in-memory dict ``{fov_filename: {channel: mip}}`` and
     concatenates the channels of each FOV into one ``stack/<fov>.npy``. The
-    merge order and MIP maths are identical to the old folder+``_merge_file``
+    merge order and MIP maths are identical to the old folder+\\ ``_merge_file``
     path, so the produced stacks are byte-for-byte the same.
 
     Args:
@@ -1230,84 +1081,34 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     if not os.path.exists(stack_path) or (os.path.isdir(stack_path) and len(os.listdir(stack_path)) == 0):
         all_filenames = [filename for filename in os.listdir(src) if any(filename.endswith(ext) for ext in img_format)]
         print(f'All files: {len(all_filenames)} in {src}')
-        all_filenames = [f for f in all_filenames if not f.startswith('.')] #Exclude hidden files
+        all_filenames = [f for f in all_filenames if not f.startswith('.')]
         time_ls = []
         image_paths_by_key = _extract_filename_metadata(all_filenames, src, regular_expression, metadata_type)
-        # Convert dictionary keys to a list for batching
         batching_keys = list(image_paths_by_key.keys())
         print(f'All unique FOV: {len(image_paths_by_key)} in {src}')
 
-        # fov_channels[output_filename][channel] = MIP array. We collect every
-        # channel's MIP into this dict and only write the concatenated stack
-        # once a FOV has been fully assembled (below).
         fov_channels = {}
         for idx in range(0, len(image_paths_by_key), batch_size):
             start = time.time()
 
-            # Select batch keys and create a subset of the dictionary for this batch
             batch_keys = batching_keys[idx:idx+batch_size]
             batch_images_by_key = {key: image_paths_by_key[key] for key in batch_keys}
             images_by_key = load_images_from_paths(batch_images_by_key)
 
-            # Process each batch of images
             for i, (key, images) in enumerate(images_by_key.items()):
 
                 plate, well, field, channel, timeID, sliceID = key
 
-                # load_images_from_paths deliberately skips unreadable files, so
-                # this list can be empty. np.stack([]) below used to raise and
-                # abort the whole ingest before stack/ was written, discarding
-                # every healthy FOV in the plate because of one corrupt raw.
                 if not images:
                     print(f"Warning: no readable images for {key}, skipping")
                     files_processed += 1
                     continue
 
-                # One FOV file per TIMEPOINT, timelapse or not. The timelapse
-                # branch used to drop the timeID and name every frame of a
-                # field `<plate>_<well>_<field>.tif`, which had two effects,
-                # both silent:
-                #
-                #   * the `np.maximum` combine below then folded all N frames
-                #     into one max projection, so the movie was destroyed
-                #     before anything downstream saw it, and
-                #   * `_generate_time_lists` — which both
-                #     `_concatenate_channel` and `concatenate_and_normalize`
-                #     group on — skips any name with fewer than four
-                #     underscore-separated parts, so it returned [] for the
-                #     whole plate. No `*_norm_timelapse.npz` was written, no
-                #     masks were generated, and `preprocess_generate_masks`
-                #     died much later in `_pivot_counts_table` on
-                #     "no such table: object_counts".
-                #
-                # The non-timelapse spelling is exactly what
-                # `_generate_time_lists` parses (plate_well_field_time), so
-                # there is nothing for the timelapse branch to spell
-                # differently.
-                #
-                # The plate is escaped because it is FREE TEXT: it comes from
-                # a regex group or, more often, from `os.path.basename(src)` —
-                # a folder name, which very often holds an underscore. A plate
-                # folder called `exp_1` used to produce `exp_1_A01_1_1.npy`,
-                # five separator-delimited components for a four-component
-                # grammar, and `utils._map_wells` returned the string 'error'
-                # in all five slots: the plate could not be measured at all.
-                # `escape_field_stem_plate` writes `exp%5F1_A01_1_1`, which
-                # `schema.parse_field_stem` reads back as plate `exp_1`
-                # character for character.
                 output_filename = _escaped_field_stem(
                     plate, well, field, timeID) + '.tif'
 
                 mip = np.max(np.stack(images), axis=0)
                 channels_seen.add(channel)
-                # Combine, do not overwrite. The grouping key built in
-                # utils._extract_filename_metadata includes sliceID, so with
-                # cellvoyager/cq1 metadata every z-plane arrives as its OWN key
-                # and this assignment let each plane replace the last: a
-                # 21-plane stack silently became one arbitrarily chosen plane,
-                # decided by os.listdir order, with no warning and no log line.
-                # (Under metadata_type='auto' the regex has no sliceID group,
-                # so every plane is already in `images` and this is a no-op.)
                 _chans = fov_channels.setdefault(output_filename, {})
                 _prev = _chans.get(channel)
                 _chans[channel] = mip if _prev is None else np.maximum(_prev, mip)
@@ -1321,8 +1122,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
 
             images_by_key.clear()
 
-        # Assemble each FOV's channels into a single stacked .npy, using the same
-        # sorted-channel order the old folder-based _merge_channels used.
         os.makedirs(stack_path, exist_ok=True)
         sorted_channels = sorted(channels_seen)
         for output_filename, chan_mips in fov_channels.items():
@@ -1344,8 +1143,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                 print(f"No valid channels to merge for file {output_filename}")
         fov_channels.clear()
 
-        # Handle the raw input images: keep a backup copy under orig/ only when
-        # requested, otherwise delete them (the pixels now live in stack/).
         if save_original_images:
             newpath = os.path.join(src, 'orig')
             os.makedirs(newpath, exist_ok=True)
@@ -1378,11 +1175,9 @@ def _merge_file(chan_dirs, stack_dir, file_name):
     Returns:
         None
     """
-    # Construct new file path
     file_root, file_ext = os.path.splitext(file_name)
     new_file = os.path.join(stack_dir, file_root + '.npy')
     
-    # Check if the new file exists and create the stack directory if it doesn't
     if not os.path.exists(new_file):
         os.makedirs(stack_dir, exist_ok=True)
         channels = []
@@ -1394,8 +1189,8 @@ def _merge_file(chan_dirs, stack_dir, file_name):
                 continue
             chan = np.expand_dims(img, axis=2)
             channels.append(chan)
-            del img  # Explicitly delete the reference to the image to free up memory
-            if i % 10 == 0:  # Periodically suggest garbage collection
+            del img
+            if i % 10 == 0:
                 gc.collect()
 
         if channels:
@@ -1430,15 +1225,13 @@ def _generate_time_lists(file_list):
                 try:
                     timepoint = int(parts[3].split('.')[0])
                 except ValueError:
-                    continue  # Skip file on conversion error
+                    continue
                 key = (plate, well, field)
                 file_dict[key].append((timepoint, filename))
             else:
-                continue  # Skip file if not correctly formatted
+                continue
 
-    # Sort each list by timepoint, but keep them grouped
     sorted_grouped_filenames = [sorted(files, key=lambda x: x[0]) for files in file_dict.values()]
-    # Extract just the filenames from each group
     sorted_file_lists = [[filename for _, filename in group] for group in sorted_grouped_filenames]
 
     return sorted_file_lists
@@ -1489,9 +1282,6 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                         chanID = metadata.group('chanID')
                         timeID = metadata.group('timeID')
 
-                        # Undo zero padding, but keep a token that holds no
-                        # integer rather than turning it into '0' — see
-                        # utils._int_or_token.
                         if wellID[0].isdigit():
                             wellID = _int_or_token(wellID)
                         if fieldID[0].isdigit():
@@ -1504,13 +1294,8 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                         if metadata_type =='cq1':
                             orig_wellID = wellID
                             wellID = _convert_cq1_well_id(wellID)
-                            print(f'Converted Well ID: {orig_wellID} to {wellID}')#, end='\r', flush=True)
+                            print(f'Converted Well ID: {orig_wellID} to {wellID}')
 
-                        # Same escape as _rename_and_organize_image_files, and
-                        # for the same reason: plateID falls back to the source
-                        # FOLDER NAME when the regex has no plateID group, and
-                        # a folder called `exp_1` puts a fifth component into a
-                        # four-component name that nothing downstream can split.
                         newname = _escaped_field_stem(
                             plateID, wellID, fieldID,
                             timeID if timelapse else '') + ext
@@ -1522,7 +1307,6 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                             newpath.mkdir(exist_ok=True)
                             shutil.copy(file, move)
 
-        # Move original images to a new directory
         valid_exts = ['.tif', '.png']
         newpath = os.path.join(src_path, 'orig')
         os.makedirs(newpath, exist_ok=True)
@@ -1533,10 +1317,6 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                     print(f'WARNING: A file with the same name already exists at location {move}')
                 else:
                     shutil.move(os.path.join(src, filename), move)
-    # Files whose metadata could not be parsed never reach a channel folder;
-    # without this the plate silently continues with fewer fields.
-    # Returns None, as it always has — callers treat this as a side-effecting
-    # sorter and one existing caller asserts on the None.
     ledger.finalize()
     return
 
@@ -1551,12 +1331,10 @@ def _merge_channels(src, plot=False):
     stack_dir = os.path.join(src, 'stack')
     print(f'generated stack dir at {stack_dir}')
     
-    #allowed_names = ['01', '02', '03', '04', '00', '1', '2', '3', '4', '0']
     
     string_list = [str(i) for i in range(101)]+[f"{i:02d}" for i in range(10)]
     allowed_names = sorted(string_list, key=lambda x: int(x))
     
-    # List directories that match the allowed names
     chan_dirs = [d for d in os.listdir(src) if os.path.isdir(os.path.join(src, d)) and d in allowed_names]
     chan_dirs.sort()
     
@@ -1565,16 +1343,6 @@ def _merge_channels(src, plot=False):
     print(f'List of folders in src: {chan_dirs}. Single channel folders.')
 
     if not chan_dirs:
-        # No per-channel sub-folders, which is the NORMAL layout now:
-        # _rename_and_organize_image_files builds stack/ straight from an
-        # in-memory {fov: {channel: mip}} dict and never creates them. This
-        # function is the older two-step path, kept for folders that still
-        # have them.
-        #
-        # Returning lets preprocess_img_data fall through to the branch that
-        # builds stack/ directly. Indexing chan_dirs[0] instead raised
-        # IndexError from inside a stage whose message named the plate, so a
-        # perfectly ordinary folder read as a corrupt one.
         print(f'No single-channel folders in {src}; stack/ will be built '
               f'directly from the source images.')
         return 0
@@ -1582,7 +1350,6 @@ def _merge_channels(src, plot=False):
     first_dir_path = os.path.join(src, chan_dirs[0])
     dir_files = os.listdir(first_dir_path)
 
-    # Create the 'stack' directory if it doesn't exist
     if not os.path.exists(stack_dir):
         os.makedirs(stack_dir, exist_ok=True)
     print(f'Generated folder with merged arrays: {stack_dir}')
@@ -1630,11 +1397,6 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
         try:
             time_stack_path_lists = _generate_time_lists(os.listdir(src))
             for i, time_stack_list in enumerate(time_stack_path_lists):
-                # `start` used to be bound only in the non-timelapse branch, so
-                # this branch raised UnboundLocalError on its first group and
-                # the except below reported it as a filename-metadata problem
-                # while silently writing nothing. Time per group, to match the
-                # group-based files_processed/files_to_process below.
                 start = time.time()
                 stack_region = []
                 filenames_region = []
@@ -1652,8 +1414,6 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                 duration = stop - start
                 time_ls.append(duration)
                 files_processed = i+1
-                # A count, not the list-of-lists: print_progress normalises a
-                # list via len(set(...)), which raises on unhashable lists.
                 files_to_process = len(time_stack_path_lists)
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type="Concatinating")
                 stack = np.stack(stack_region)
@@ -1672,7 +1432,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
         if randomize:
             random.shuffle(paths)
         nr_files = len(paths)
-        batch_index = 0  # Added this to name the output files
+        batch_index = 0
         stack_ls = []
         filenames_batch = []
         for i, path in enumerate(paths):
@@ -1680,7 +1440,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
             array = np.load(path)
             array = np.take(array, channels, axis=2)
             stack_ls.append(array)
-            filenames_batch.append(os.path.basename(path))  # store the filename
+            filenames_batch.append(os.path.basename(path))
             stop = time.time()
             duration = stop - start
             time_ls.append(duration)
@@ -1703,10 +1463,10 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                     stack = np.stack(stack_ls)
                 save_loc = os.path.join(channel_stack_loc, f'stack_{batch_index}.npz')
                 np.savez(save_loc, data=stack, filenames=filenames_batch)
-                batch_index += 1  # increment this after each batch is saved
-                del stack  # delete to free memory
-                stack_ls = []  # empty the list for the next batch
-                filenames_batch = []  # empty the filenames list for the next batch
+                batch_index += 1
+                del stack
+                stack_ls = []
+                filenames_batch = []
                 padded_stack_ls = []
     print(f'All files concatenated and saved to:{channel_stack_loc}')
     return channel_stack_loc
@@ -1726,21 +1486,13 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     """
     from .utils import print_progress
 
-    # Channel indices may arrive as strings (e.g. from a settings CSV);
-    # coerce so ``stack[:, :, :, channel]`` indexing works.
     channels = [int(c) for c in channels]
 
     normalized_stack = np.zeros_like(stack, dtype=np.float32)
 
-    #for channel in range(stack.shape[-1]):
     time_ls = []
     for i, channel in enumerate(channels):
         start = time.time()
-        # Default normalisation params for any channel that isn't one
-        # of the recognised object channels (e.g. an organelle channel,
-        # or an intensity-only channel measured but not segmented).
-        # Without these defaults a channel matching NONE of the object
-        # types below raised UnboundLocalError: 'background'.
         background = settings.get('background', 100)
         signal_threshold = settings.get('Signal_to_noise', 10) * background
         remove_background = settings.get('remove_background', False)
@@ -1760,8 +1512,6 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
             signal_threshold = settings['pathogen_signal_to_noise']*settings['pathogen_background']
             remove_background = settings['remove_background_pathogen']
 
-        # Organelle channel — use organelle-specific settings when
-        # present, otherwise the generic defaults above.
         if settings.get('organelle_channel') is not None and channel == settings['organelle_channel']:
             background = settings.get('organelle_background', background)
             signal_threshold = settings.get(
@@ -1774,15 +1524,12 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
 
         print(f'Processing channel {channel}: background={background}, signal_threshold={signal_threshold}, remove_background={remove_background}')
 
-        # Step 3: Remove background if required
         if remove_background:
             single_channel[single_channel < background] = 0
 
-        # Step 4: Calculate global lower percentile for the channel
         non_zero_single_channel = single_channel[single_channel != 0]
         global_lower = np.percentile(non_zero_single_channel, settings['lower_percentile'])
 
-        # Step 5: Calculate global upper percentile for the channel
         global_upper = None
         for upper_p in np.linspace(98, 99.5, num=16):
             upper_value = np.percentile(non_zero_single_channel, upper_p)
@@ -1791,11 +1538,10 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
                 break
 
         if global_upper is None:
-            global_upper = np.percentile(non_zero_single_channel, 99.5)  # Fallback in case no upper percentile met the threshold
+            global_upper = np.percentile(non_zero_single_channel, 99.5)
 
         print(f'Channel {channel}: global_lower={global_lower}, global_upper={global_upper}, Signal-to-noise={global_upper / global_lower}')
 
-        # Step 6: Normalize each array from global_lower to global_upper between 0 and 1
         for array_index in range(single_channel.shape[0]):
             arr_2d = single_channel[array_index, :, :]
             arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
@@ -2002,10 +1748,6 @@ def _concatenate_and_normalize_impl(
     :returns: Path to the directory where normalised arrays were saved.
     :raises ValueError: if ``settings`` is not supplied.
     """
-    # `settings = {}` used to be substituted here, but the very next reads are
-    # settings['timelapse'] / ['randomize'] / ['batch_size'], so the empty dict
-    # could only ever produce a cryptic KeyError from deep inside the function
-    # (after masks/ had already been created). Say what is actually wrong.
     if settings is None:
         raise ValueError(
             "concatenate_and_normalize requires a settings dict (it reads "
@@ -2015,11 +1757,6 @@ def _concatenate_and_normalize_impl(
     from .utils import print_progress
     from .plot import plot_arrays
 
-    # Coerce channel indices to int up-front so both the per-batch
-    # normalisation and the ``normalized_stack[..., channels]`` slice work
-    # even when channels came through as strings ('0', '1', ...).
-    # Drop Nones first: an unused object channel is passed as None, and
-    # coercing before the (later) None filter made int(None) raise TypeError.
     channels = [int(c) for c in channels if c is not None]
 
     """
@@ -2051,8 +1788,6 @@ def _concatenate_and_normalize_impl(
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
     os.makedirs(output_fldr, exist_ok=True)
     archive_output_fldr = archive_output_fldr or output_fldr
-    # Every FOV that fails to load is dropped from the normalised stacks.
-    # Nothing downstream can tell, so account for it here.
     ledger = RunLedger('concatenate_and_normalize')
     intended_fields = []
 
@@ -2113,9 +1848,6 @@ def _concatenate_and_normalize_impl(
                 else:
                     _save_npz_atomic(save_loc, **arrays)
                 
-                # Only plot when the user asked for it: an interactive
-                # matplotlib backend makes plt.show() block, which would hang
-                # the whole pipeline in a script/terminal run.
                 if i == 0 and settings.get('plot'):
                     plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
                 
@@ -2125,9 +1857,6 @@ def _concatenate_and_normalize_impl(
             print(f"Error processing files, make sure filenames metadata is structured plate_well_field_time.npy")
             print(f"Error: {e}")
             if illumination_session is not None:
-                # A partially corrected timelapse cannot be presented as a
-                # successful raw/off run. Let the run policy record the real
-                # failure and leave provenance incomplete for resume.
                 raise
     else:
         for file in os.listdir(src):
@@ -2147,11 +1876,6 @@ def _concatenate_and_normalize_impl(
         files_processed = 0
         for i, path in enumerate(paths):
             start = time.time()
-            # An unreadable file must skip only its own accumulation. The old
-            # `continue` also jumped past the batch-flush check below, so a bad
-            # file in the final position discarded every good image already
-            # collected in that batch (and elsewhere merged two batches into
-            # one, silently changing the per-batch normalisation grouping).
             with ledger.item(path, stage='load_npy',
                              echo=f"Error loading file {path}"):
                 array = np.load(path)
@@ -2164,8 +1888,6 @@ def _concatenate_and_normalize_impl(
                 files_to_process = nr_files
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
 
-            # `stack_ls and` guards the case where every file in a batch failed:
-            # np.stack([]) would raise.
             if stack_ls and ((i + 1) % settings['batch_size'] == 0 or i + 1 == nr_files):
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
@@ -2194,17 +1916,12 @@ def _concatenate_and_normalize_impl(
 
                 save_loc = os.path.join(
                     archive_output_fldr, f'stack_{batch_index}_norm.npz')
-                # Lossless-compressed so the on-disk normalised batch is much
-                # smaller (np.load reads it transparently); it's deleted with
-                # masks/ after merged/ is built unless keep_intermediate is set.
                 arrays = dict(data=normalized_stack,
                               filenames=filenames_batch)
                 if illumination_session is None:
                     np.savez_compressed(save_loc, **arrays)
                 else:
                     _save_npz_atomic(save_loc, **arrays)
-                # Gated on settings['plot'] — see the timelapse branch above:
-                # an interactive backend blocks the pipeline on plt.show().
                 if batch_index == 0 and settings.get('plot'):
                     print(f"plotting: {save_loc}")
                     plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
@@ -2225,18 +1942,12 @@ def _concatenate_and_normalize_impl(
                 f'missing={missing}, unexpected={extra}')
         _publish_v1_normalized_archives(
             archive_output_fldr, output_fldr)
-        # Invalidate downstream products BEFORE provenance becomes complete.
-        # A crash after finish must never leave a complete correction record
-        # beside masks/merged fields drawn from the superseded pixels.
         _invalidate_v1_segmentation_outputs(os.path.dirname(src))
         settings['resume'] = False
         for field_id in staged_fields:
             illumination_session.mark_completed(field_id)
         illumination_session.finish(intended_fields)
     print(f'All files concatenated and normalized. Saved to: {output_fldr}')
-    # Emitted last so a partially-loaded stack cannot scroll off the top of
-    # a 400-line progress log. No stamp: output_fldr is masks/, which the
-    # segmentation step globs, and a stray sidecar there is not worth the risk.
     ledger.finalize()
     return output_fldr
 
@@ -2261,9 +1972,6 @@ def concatenate_and_normalize(
 
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
     os.makedirs(output_fldr, exist_ok=True)
-    # Cellpose enumerates every top-level NPZ in masks/. Build elsewhere so a
-    # failure cannot expose a mixed old/new set, and let TemporaryDirectory's
-    # context guarantee cleanup on every exception path.
     with tempfile.TemporaryDirectory(
             prefix='.spacr_v1_npz_', dir=os.path.dirname(output_fldr)
             ) as staging_dir:
@@ -2284,14 +1992,11 @@ def _get_lists_for_normalization(settings):
         tuple: A tuple containing three lists - backgrounds, signal_to_noise, and signal_thresholds.
     """
 
-    # Initialize the lists
     backgrounds = []
     signal_to_noise = []
     signal_thresholds = []
     remove_background = []
 
-    # Iterate through the channels and append the corresponding values if the channel is not None
-    # for ch in settings['channels']:
     for ch in [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel']]:
         if not ch is None:
             if ch == settings['nucleus_channel']:
@@ -2378,9 +2083,6 @@ def _normalize_stack(src, backgrounds=None, remove_backgrounds=None, lower_perce
             if remove_background:
                 single_channel[single_channel < background] = 0
 
-            # Choose an upper percentile whose global signal clears the
-            # requested threshold. An all-zero channel has no percentile;
-            # leave it untouched and let every frame take the zero-SNR path.
             non_zero_single_channel = single_channel[single_channel != 0]
             upper_p = 98.0
             if non_zero_single_channel.size:
@@ -2390,15 +2092,9 @@ def _normalize_stack(src, backgrounds=None, remove_backgrounds=None, lower_perce
                     if global_upper >= signal_threshold:
                         break
             
-            # Normalize the pixels in each image to the global percentiles and then dtype.
             arr_2d_normalized = np.zeros_like(single_channel, dtype=single_channel.dtype)
             signal_to_noise_ratio_ls = []
             time_ls = []
-            # Seeded because the per-frame progress print below formats these
-            # unconditionally while they are only assigned for frames that have
-            # non-zero pixels: a blank FIRST frame used to abort the whole run
-            # with UnboundLocalError, and a later blank frame reported the
-            # previous frame's percentiles.
             lower = upper = 0.0
             for array_index in range(single_channel.shape[0]):
                 start = time.time()
@@ -2424,12 +2120,6 @@ def _normalize_stack(src, backgrounds=None, remove_backgrounds=None, lower_perce
                 average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
                 print(f'channels:{chan_index}/{stack.shape[-1] - 1}, arrays:{array_index + 1}/{single_channel.shape[0]}, Signal:{upper:.1f}, noise:{lower:.1f}, Signal-to-noise:{average_stnr:.1f}, Time/channel:{average_time:.2f}sec')
 
-                #stop = time.time()
-                #duration = stop - start
-                #time_ls.append(duration)
-                #files_processed = file_index + 1
-                #files_to_process = len(paths)
-                #print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Normalizing")
                 
             normalized_stack[:, :, :, channel] = arr_2d_normalized
         
@@ -2482,12 +2172,6 @@ def _normalize_timelapse(src, lower_percentile=2, save_dtype=np.float32):
 
                 print(f'channels:{chan_index+1}/{stack.shape[-1]}, arrays:{array_index+1}/{single_channel.shape[0]}', end='\r')
 
-                #stop = time.time()
-                #duration = stop - start
-                #time_ls.append(duration)
-                #files_processed = file_index+1
-                #files_to_process = len(paths)
-                #print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Normalizing")
 
         save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
         np.savez(save_loc, data=normalized_stack, filenames=filenames)
@@ -2511,7 +2195,6 @@ def _create_movies_from_npy_per_channel(src, fps=10):
     master_path = os.path.dirname(src)
     save_path = os.path.join(master_path,'movies')
     os.makedirs(save_path, exist_ok=True)
-    # Organize files by plate, well, field
     files = [f for f in os.listdir(src) if f.endswith('.npy')]
     organized_files = {}
     for f in files:
@@ -2525,32 +2208,15 @@ def _create_movies_from_npy_per_channel(src, fps=10):
     for key, file_list in organized_files.items():
         plate, well, field = key
         file_list.sort(key=lambda x: x[0])
-        # Every group is created by appending one file, so it is non-empty.
-        # Unpacking that invariant directly avoids an impossible zero-iteration
-        # arm in a loop whose only purpose was to build these two collections.
         _times, paths = zip(*file_list)
         arrays = np.stack(tuple(map(np.load, paths)), axis=0)
         filenames = list(map(os.path.basename, paths))
-        # `paths` follows the time-sorted file_list above.
-        # np.stack retains the former leading time dimension.
-        # Names remain basenames for the movie overlay.
-        # Loading failures still propagate exactly as they did in the loop.
-        # A group can therefore never reach np.stack with no arrays.
-        # NOTE: this loop must stay INSIDE the per-(plate, well, field) loop.
-        # When it was dedented, `arrays` was unbound if no filename matched
-        # the regex (UnboundLocalError) and only the LAST field ever got a
-        # movie — every other field was silently dropped.
         for channel in range(arrays.shape[-1]):
-            # Extract the current channel for all time points
             channel_arrays = arrays[..., channel]
-            # Flatten the channel data to compute global percentiles
             channel_data_flat = channel_arrays.reshape(-1)
             p1, p99 = np.percentile(channel_data_flat, [1, 99])
-            # Normalize and rescale each array in the channel
             normalized_channel_arrays = [(np.clip((arr - p1) / (p99 - p1), 0, 1) * 255).astype(np.uint8) for arr in channel_arrays]
-            # Convert the list of 2D arrays into a list of 3D arrays with a single channel
             normalized_channel_arrays_3d = [arr[..., np.newaxis] for arr in normalized_channel_arrays]
-            # Save as movie for the current channel
             channel_save_path = os.path.join(save_path, f'{plate}_{well}_{field}_channel_{channel}.mp4')
             _npz_to_movie(normalized_channel_arrays_3d, filenames, channel_save_path, fps)
 
@@ -2560,20 +2226,14 @@ def delete_empty_subdirectories(folder_path):
     :param folder_path: Root directory to scan.
     :returns: None
     """
-    # Check each item in the specified folder
     for dirpath, dirnames, filenames in os.walk(folder_path, topdown=False):
-        # os.walk is used with topdown=False to start from the innermost directories and work upwards.
         for dirname in dirnames:
-            # Construct the full path to the subdirectory
             full_dir_path = os.path.join(dirpath, dirname)
-            # Try to remove the directory and catch any error (like if the directory is not empty)
             try:
                 os.rmdir(full_dir_path)
                 print(f"Deleted empty directory: {full_dir_path}")
             except OSError:
                 continue
-                # An error occurred, likely because the directory is not empty
-                #print(f"Skipping non-empty directory: {full_dir_path}")
 
 def select_fields(names, fields):
     """Keep only the ``names`` whose field is in ``fields``.
@@ -2693,9 +2353,7 @@ def preprocess_img_data(settings):
     files = os.listdir(src)
     valid_ext = ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp', 'nd2', 'czi', 'lif']
     extensions = [file.split('.')[-1].lower() for file in files]
-    # Filter only valid extensions
     valid_extensions = [ext for ext in extensions if ext in valid_ext]
-    # Determine most common valid extension
     img_format = None
     if valid_extensions:
         extension_counts = Counter(valid_extensions)
@@ -2732,7 +2390,6 @@ def preprocess_img_data(settings):
                 )
             return settings, src
 
-    #mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel'], settings['organelle_channel']]
     
     from .object_roles import ORGANELLE_ROLES
     mask_channel_keys = (
@@ -2741,10 +2398,6 @@ def preprocess_img_data(settings):
     )
     mask_channels_raw = [settings.get(key) for key in mask_channel_keys]
     
-    # Deduplicate while tracking positions. Coerce to int: channel indices
-    # loaded from a settings CSV (or passed from the GUI) can arrive as
-    # strings like '0', which then blow up array indexing downstream
-    # (stack[:, :, :, '0'] -> IndexError).
     seen = {}
     mask_channels = []
     for ch in mask_channels_raw:
@@ -2760,8 +2413,7 @@ def preprocess_img_data(settings):
     
     from .settings import set_default_settings_preprocess_img_data
     from .utils import _get_regex, _run_test_mode
-    from .plot import plot_arrays   # used below; import here so the plot step
-                                    # doesn't raise NameError under try/except
+    from .plot import plot_arrays
     settings = set_default_settings_preprocess_img_data(settings)
 
     regex = _get_regex(settings['metadata_type'], img_format, settings['custom_regex'])
@@ -2788,37 +2440,17 @@ def preprocess_img_data(settings):
    
     if not os.path.exists(stack_path):
         try:
-            # No `img_format is not None` guard. _merge_channels is the older
-            # path and only produces stack/ when the folder has per-channel
-            # sub-directories; the modern ingest has none, so with
-            # img_format=None nothing built stack/ at all and the run died in
-            # concatenate_and_normalize on a missing directory, two functions
-            # away from the cause. _rename_and_organize_image_files is the
-            # only thing that can create it here, so it runs whenever stack/
-            # is still absent.
             img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
-            # Builds the stack/ arrays directly from an in-memory channel dict
-            # (no per-channel sub-folders) and returns the channel count.
             nr_channel_folders = _rename_and_organize_image_files(
                 src, regex, settings['batch_size'], settings['metadata_type'], img_format,
                 timelapse=settings['timelapse'],
                 save_original_images=settings.get('save_original_images', True))
 
-            #Make sure no batches will be of only one image
-            # This counted len(stack_path) — the number of CHARACTERS in the
-            # path string, which always ends in 'stack' — so the check fired
-            # (or stayed silent) purely because of how long src happened to
-            # be. Count the .npy stacks that concatenate_and_normalize will
-            # actually batch over instead.
             all_imgs = len([f for f in os.listdir(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
             batch_size = int(settings.get('batch_size') or 0)
             full_batches = all_imgs // batch_size if batch_size else 0
             last_batch_size = all_imgs % batch_size if batch_size else 0
 
-            # Report, don't raise: the stack is already written by this
-            # point so aborting cannot fix the batching, it only skipped the
-            # channel-count fix-up, the movies, the plot and the MIP below —
-            # silently corrupting the output of an otherwise fine run.
             if last_batch_size == 1:
                 if full_batches == 0:
                     print(f"Warning: Only one batch of size 1 detected (all images: {all_imgs}). Adjust the batch size.")
@@ -2847,18 +2479,6 @@ def preprocess_img_data(settings):
                if os.path.isdir(stack_path) else [])
     stacked = select_fields(stacked, settings.get('fields'))
     if not stacked:
-        # Emptiness, not absence: _rename_and_organize_image_files creates
-        # stack/ before it has anything to put in it, so a folder with no
-        # matching images leaves a real but empty directory. Checking only
-        # that the path exists let the run continue to completion and write
-        # an empty measurement set, which is worse than stopping — it looks
-        # like a result.
-        #
-        # Say what is wrong here, where src is known, rather than letting
-        # os.listdir fail on a path the user never named. The usual cause is
-        # src pointing at a folder of PLATES rather than at a plate: the
-        # images are one level down, so nothing matched and nothing was
-        # organised.
         entries = []
         try:
             entries = sorted(os.listdir(src))
@@ -2900,15 +2520,10 @@ def preprocess_img_data(settings):
         ch = settings.get(key)
         if ch is None:
             continue
-        # `seen` is keyed on int(ch) (see the dedup loop above), so looking the
-        # raw value up meant a string channel index ('0') never matched and no
-        # cellpose_* key was written — leaving the objects to be segmented on
-        # the wrong plane, silently. Uncoercible values are dropped as before.
         try:
             ch = int(ch)
         except (TypeError, ValueError):
             continue
-        # The same keys and coercion populated `seen` above, so this key exists.
         settings[f"cellpose_{key}"] = seen[ch]
             
     return settings, src
@@ -2956,11 +2571,9 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
             """
             return not os.path.isfile(os.path.join(output_folder, filename))
 
-    # True means this field must be generated.
     existing_files_mask = [
         needs_processing(filename) for filename in batch_filenames]
 
-    # Use the mask to filter the batch and batch_filenames
     filtered_batch = [b for b, exists in zip(batch, existing_files_mask) if exists]
     filtered_filenames = [f for f, exists in zip(batch_filenames, existing_files_mask) if exists]
 
@@ -2997,13 +2610,11 @@ def _get_avg_object_size(masks):
             else:
                 print(f"Warning: Mask {idx} has invalid dimension: {mask.ndim}")
 
-    # Average number of objects per image
     if per_image_counts:
         avg_num_objects_per_image = sum(per_image_counts) / len(per_image_counts)
     else:
         avg_num_objects_per_image = 0
 
-    # Average object size over all objects
     if all_areas:
         avg_object_size = sum(all_areas) / len(all_areas)
     else:
@@ -3031,9 +2642,6 @@ def _save_figure(fig, src, text, dpi=None, i=1, all_folders=1):
     os.makedirs(save_folder, exist_ok=True)
     fig_name = f'{obj_type}_{name}_{text}.pdf'        
     save_location = os.path.join(save_folder, fig_name)
-    # Imported here, not at module scope: `spacr.plot` pulls in torch,
-    # cv2, seaborn, statsmodels and pingouin, and this module is on the
-    # cold measure-worker spawn path. See tests/test_measure_spawn.py.
     from .plot import save_figure
     save_location = save_figure(fig, save_location, dpi=dpi,
                                 bbox_inches='tight')
@@ -3304,7 +2912,7 @@ def _read_and_join_tables(db_path, table_names=None,
     conn.close()
     if 'png_list' in dataframes:
         png_raw = dataframes['png_list']
-        id_column = PNG_OBJECT_ID_COLUMNS['cell']          # 'cell_id'
+        id_column = PNG_OBJECT_ID_COLUMNS['cell']
         if id_column not in png_raw.columns:
             present = [c for c in png_raw.columns
                        if c in PNG_CROP_MODE_BY_ID_COLUMN]
@@ -3328,10 +2936,6 @@ def _read_and_join_tables(db_path, table_names=None,
         labels = object_label_from_png_id(png_list_df[id_column])
         usable = labels.notna()
         if not usable.all():
-            # Two different reasons, reported separately because they call for
-            # two different actions: NULL means "this row is another crop
-            # mode's" and is expected in a multi-mode database, while a token
-            # that is not a number means the crop's own name could not be read.
             raw = png_list_df[id_column]
             other_mode = int((raw.isna() & ~usable).sum())
             unreadable = raw[~usable & raw.notna()]
@@ -3357,10 +2961,6 @@ def _read_and_join_tables(db_path, table_names=None,
             cell_time = _time_column(dataframes['cell'].columns)
             if png_time is not None and cell_time is not None:
                 if png_time != cell_time:
-                    # The two tables spell one concept two ways. Align the copy
-                    # of png_list, never the object table: the object table's
-                    # column survives into the result and renaming it there
-                    # would change the schema the caller gets back.
                     png_list_df = png_list_df.rename(columns={png_time: cell_time})
                 join_cols = join_cols + [cell_time]
             elif png_time is not None or cell_time is not None:
@@ -3384,13 +2984,6 @@ def _read_and_join_tables(db_path, table_names=None,
                 left_name='cell',
                 right_name='png_list',
             )
-            # THE INNER JOIN'S LOSS IS SAID OUT LOUD. png_list joins inner --
-            # a cell with no attributable crop cannot be classified,
-            # annotated or displayed -- but "your population just shrank" is
-            # not something a reader should have to infer from a row count.
-            # Crops whose id is 'omulti'/'onone'/'error' are dropped during
-            # the id migration above, which reports itself; the CELLS they
-            # would have matched disappear here, which did not.
             _lost_png = _before_png - len(merged)
             if _lost_png > 0:
                 print(f"png_list: {_lost_png} of {_before_png} measured "
@@ -3401,19 +2994,9 @@ def _read_and_join_tables(db_path, table_names=None,
         else:
             print("Cell table not found in database tables.")
             return png_list_df
-    # From the registry, not a literal: ORGANELLE was missing from both
-    # of these loops, so asking for it returned a frame with no
-    # organelle columns and no message. Naming the child roles once is
-    # what lets a second organelle reach every reader (instruction 76).
     for entity in CHILD_ROLES:
         if entity in dataframes:
             if 'cell_id' not in dataframes[entity].columns:
-                # A child table measured with cell_mask_dim=None has no parent
-                # link at all -- _merge_and_save_to_database drops 'cell_id'
-                # from its key columns in exactly that case, deliberately. The
-                # roll-up onto the cell is then not merely empty, it is
-                # undefined, and this used to be a bare KeyError('cell_id')
-                # naming neither the table nor the setting behind it.
                 print(f"{entity} was measured without a cell mask, so its rows "
                       f"carry no cell_id and cannot be rolled up onto the cell "
                       f"table; {entity} features are left out of the join. "
@@ -3446,10 +3029,6 @@ def _read_and_join_tables(db_path, table_names=None,
             joined_df = reconcile_duplicates(
                 joined_df, '_cytoplasm', left_name='cell',
                 right_name='cytoplasm', on_conflict=duplicate_column_policy)
-    # From the registry, not a literal: ORGANELLE was missing from both
-    # of these loops, so asking for it returned a frame with no
-    # organelle columns and no message. Naming the child roles once is
-    # what lets a second organelle reach every reader (instruction 76).
     for entity in CHILD_ROLES:
         if entity in dataframes:
             joined_df = _merge_with_cardinality(
@@ -3467,15 +3046,6 @@ def _read_and_join_tables(db_path, table_names=None,
                 joined_df = reconcile_duplicates(
                     joined_df, f'_{entity}', left_name='cell',
                     right_name=entity, on_conflict=duplicate_column_policy)
-    # EVERY PLATE ID COMES BACK IN ONE SPELLING. A screen written by an
-    # older run stamps its plate `pplate1` and everything computed since
-    # stamps it `plate1`, so the two never join: an ML run over 60,816 real
-    # cells scored every one of them and wrote none back, reporting that its
-    # own database "probably comes from a different experiment".
-    #
-    # `schema.normalise_plate_columns` is the one rule, and it is applied on
-    # READ -- nothing on disk is rewritten, so an old database keeps working
-    # and a re-read of it produces the same keys as a fresh run.
     from . import schema as _schema
 
     joined_df = _schema.normalise_plate_columns(joined_df)
@@ -3590,18 +3160,11 @@ def _save_settings_to_db(settings, stage=None):
     run_id = uuid.uuid4().hex
     stamped = _utcnow()
 
-    # Convert the settings dictionary into a DataFrame
     settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
-    # Convert all values in the 'setting_value' column to strings
     settings_df['setting_value'] = settings_df['setting_value'].apply(str)
-    # (No display here — save_settings already renders the settings table via
-    # pretty_print_settings; displaying again produced the double print.)
-    # Determine the directory path
     src = os.path.dirname(settings['src'])
     directory = f'{src}/measurements'
-    # Create the directory if it doesn't exist
     os.makedirs(directory, exist_ok=True)
-    # Database connection and saving the settings DataFrame
     conn = sqlite3.connect(f'{directory}/measurements.db', timeout=5)
     try:
         from .database_schema import migrate_connection
@@ -3615,10 +3178,6 @@ def _save_settings_to_db(settings, stage=None):
             'setting_key TEXT, setting_value TEXT)')
         insert = (f'INSERT INTO "{SETTINGS_HISTORY_TABLE}" '
                   f'({", ".join(SETTINGS_HISTORY_COLUMNS)}) VALUES (?,?,?,?,?)')
-        # Migrate what is already on disk before it is replaced. A database
-        # written before the history table existed carries exactly one
-        # snapshot, in `settings`; without this it would be the one run that
-        # still gets forgotten.
         if not _settings_history_rows(conn):
             try:
                 previous = conn.execute(
@@ -3633,25 +3192,11 @@ def _save_settings_to_db(settings, stage=None):
                                   for key, value
                                   in zip(settings_df['setting_key'],
                                          settings_df['setting_value'])])
-        settings_df.to_sql(SETTINGS_TABLE, conn, if_exists='replace', index=False)  # Replace the table if it already exists
+        settings_df.to_sql(SETTINGS_TABLE, conn, if_exists='replace', index=False)
         conn.commit()
     finally:
-        # Closed on every path: an open connection holds the lock, and this
-        # runs immediately before measure_crop's workers start writing.
         conn.close()
 
-# A tracked-mask movie is sized from the mask, not from a constant.
-#
-# It used to open ``plt.subplots(figsize=(50, 50))`` and write the animation at
-# ``dpi=80``, so every frame was 50 x 80 = 4000 px on a side whatever the field
-# was: 64 MB of RGBA per frame for a mask that is usually a few hundred pixels
-# across. Measured on a 128 x 128 mask, five frames took 8 s and came out
-# 4000 x 4000. The movie is written whenever ``save`` is true on any of the
-# three tracking backends and a real timelapse is tens to hundreds of frames,
-# so the cost was paid on every tracking run and grew with the run's length
-# rather than with the field's size. It is also why the three ``if plot or
-# save:`` call sites in spacr.timelapse had no test that let them run: writing
-# one real movie cost seconds and hundreds of megabytes.
 MASK_MOVIE_DPI = 100
 MASK_MOVIE_MIN_PX = 320
 MASK_MOVIE_MAX_PX = 1024
@@ -3685,9 +3230,6 @@ def _mask_movie_frame_geometry(masks, *, dpi=MASK_MOVIE_DPI,
     :raises ValueError: when there is no mask to measure, which would otherwise
         surface as an unreadable empty GIF.
     """
-    # `shape[:2]` is not enough on its own: a corrupt or one-dimensional array
-    # gives a one-tuple, and unpacking it would raise a ValueError about
-    # iterables rather than about the movie.
     shapes = [np.asarray(mask).shape[:2] for mask in masks]
     shapes = [(int(shape[0]), int(shape[1])) for shape in shapes
               if len(shape) == 2 and shape[0] > 0 and shape[1] > 0]
@@ -3755,21 +3297,14 @@ def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
     geometry = _mask_movie_frame_geometry(masks)
     band = geometry['band']
 
-    # Set the face color for the figure to black
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=geometry['figsize'], facecolor='black')
-        ax.set_facecolor('black')  # Set the axes background color to black
-        ax.axis('off')  # Turn off the axis
-        # Leave the two bands the captions are drawn into; at top=1 the frame
-        # counter was rendered above the canvas and never reached the file.
+        ax.set_facecolor('black')
+        ax.axis('off')
         plt.subplots_adjust(left=0, right=1, top=1 - band, bottom=band,
                             wspace=0, hspace=0)
 
-        filename_text_obj = None  # Initialize a variable to keep track of the text object
+        filename_text_obj = None
         frame_text_obj = None
 
         def _update(frame):
@@ -3782,31 +3317,28 @@ def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
             Returns:
             None
             """
-            nonlocal filename_text_obj, frame_text_obj  # Reference the nonlocal variables to update them
+            nonlocal filename_text_obj, frame_text_obj
             if filename_text_obj is not None:
-                filename_text_obj.remove()  # Remove the previous text object if it exists
+                filename_text_obj.remove()
             if frame_text_obj is not None:
                 frame_text_obj.remove()
 
-            ax.clear()  # Clear the axis to draw the new frame
-            ax.axis('off')  # Ensure axis is still off after clearing
+            ax.clear()
+            ax.axis('off')
             current_mask = masks[frame]
             ax.imshow(current_mask, cmap=cmap, norm=norm)
             frame_text_obj = fig.text(0.5, 1 - band / 2, f'Frame: {frame}',
                                       ha='center', va='center',
                                       fontsize=geometry['title_pt'], color='white')
 
-            # Add the filename as text on the figure
-            filename_text = filenames[frame]  # Get the filename corresponding to the current frame
-            filename_text_obj = fig.text(0.5, band / 2, filename_text, ha='center', va='center', fontsize=geometry['caption_pt'], color='white')  # Adjust text position, size, and color as needed
+            filename_text = filenames[frame]
+            filename_text_obj = fig.text(0.5, band / 2, filename_text, ha='center', va='center', fontsize=geometry['caption_pt'], color='white')
 
-            # Annotate each object with its label number from the mask
             for label_value in np.unique(current_mask):
-                if label_value == 0: continue  # Skip background
+                if label_value == 0: continue
                 y, x = np.mean(np.where(current_mask == label_value), axis=1)
                 ax.text(x, y, str(label_value), color='white', fontsize=geometry['label_pt'], ha='center', va='center')
 
-            # Overlay tracks
             if tracks_df is not None:
                 for track in tracks_df['track_id'].unique():
                     _track = tracks_df[tracks_df['track_id'] == track]
@@ -3840,7 +3372,6 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
     def _count_objects(mask):
         """Count unique objects in a mask, assuming 0 is the background."""
         unique, counts = np.unique(mask, return_counts=True)
-        # Assuming 0 is the background label, remove it from the count
         if unique[0] == 0:
             return len(unique) - 1
         return len(unique)
@@ -3850,10 +3381,8 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
         object_count = _count_objects(mask)
         count_type = f"{object_type}{added_string}"
 
-        # Append a tuple of (file_name, count_type, object_count) to the records list
         records.append((file_name, count_type, object_count))
 
-    # Connect to the database
     from .database_concurrency import connect as _connect_database
 
     conn = _connect_database(db_path)
@@ -3862,7 +3391,6 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
         migrate_connection(conn, path=os.path.abspath(db_path))
         cursor = conn.cursor()
 
-        # Create the table if it doesn't exist
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS object_counts (
             file_name TEXT,
@@ -3872,7 +3400,6 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
         )
         ''')
 
-        # Batch insert or update the object counts
         cursor.executemany('''
         INSERT INTO object_counts (file_name, count_type, object_count)
         VALUES (?, ?, ?)
@@ -3895,9 +3422,6 @@ def _create_database(db_path):
 
         conn = _connect_database(db_path)
     except sqlite3.Error as error:
-        # Preserve the historical helper contract: an unusable destination is
-        # reported to the caller's console without taking down a processing
-        # run. Schema compatibility errors below remain explicit.
         print(error)
         return
     try:
@@ -3965,14 +3489,10 @@ def _save_array_atomic(output_path, array):
     """
     directory = os.path.dirname(output_path) or '.'
     os.makedirs(directory, exist_ok=True)
-    # Same directory as the destination: os.replace is only atomic within
-    # one filesystem, and /tmp is routinely a different one.
     fd, tmp_path = tempfile.mkstemp(prefix='.spacr_tmp_', suffix='.npy',
                                     dir=directory)
     os.close(fd)
     try:
-        # allow_pickle stays at numpy's default (False) — these are plain
-        # numeric stacks and a pickled payload here would be a bug.
         with open(tmp_path, 'wb') as handle:
             np.save(handle, array)
             handle.flush()
@@ -4034,12 +3554,6 @@ def _load_and_concatenate_arrays(
     folder_paths = [os.path.join(src+'/stack')]
     mask_roles = []
 
-    # THE MASK FOLDERS THAT EXIST, LISTED ONCE. The check below runs per
-    # role, and 326 took `ORGANELLE_ROLES` from four to 702 -- so the
-    # `os.path.exists` it used to do became 700-odd stat calls against one
-    # directory on every merge, to answer a question one listing answers for
-    # all of them. Missing directory is the ordinary case for a run that
-    # segmented nothing, and is an empty set rather than an error.
     try:
         _mask_stacks = set(os.listdir(os.path.join(src, 'masks')))
     except OSError:
@@ -4080,10 +3594,6 @@ def _load_and_concatenate_arrays(
     time_ls = []
     layout_written = False
 
-    # A resume may skip every array, so validate the existing manifest before
-    # deciding what is complete. Reusing arrays under a different role layout
-    # is worse than redoing work: all planes still exist, but their biological
-    # names have changed and measurement would return plausible wrong values.
     reference_npy = next(
         (name for name in reference_files if name.endswith('.npy')), None)
     if reference_npy is not None:
@@ -4120,10 +3630,6 @@ def _load_and_concatenate_arrays(
                     f'{intended_layout!r}. Start a non-resume merge into a '
                     'clean destination so every field uses one layout.')
 
-    # Opt-in resume: skip fields whose merged stack is already there AND
-    # verified complete. Reported before any work starts, so a resume that
-    # rejects three truncated leftovers says so rather than quietly
-    # re-merging them.
     already_done = set()
     if resume:
         candidates = [os.path.splitext(f)[0] for f in reference_files
@@ -4135,34 +3641,21 @@ def _load_and_concatenate_arrays(
                                         reasons=rejected, enabled=True,
                                         src=output_folder)))
 
-    # Iterate through each file in the reference folder
     for idx, filename in enumerate(reference_files):
         start = time.time()
         stack_ls = []
-        # `and not already done` rather than a `continue`, so a skipped field
-        # still advances the progress bar instead of the counter jumping.
         if filename.endswith('.npy') and os.path.splitext(filename)[0] not in already_done:
             count += 1
 
-            # Check if this file exists in all the other specified folders.
-            # Masks may be .tif (new, compressed) or legacy .npy — resolve both.
             exists_in_all_folders = all(
                 _mask_variant_path(folder, filename) is not None
                 for folder in folder_paths)
 
             if exists_in_all_folders:
-                # Load and potentially modify the array from the reference folder
                 ref_array_path = os.path.join(reference_folder, filename)
                 concatenated_array = np.load(ref_array_path)
 
                 if channels is not None:
-                    # axis=-1, not axis=2. The channel axis is the LAST one,
-                    # and it happens to be axis 2 only for a 2-D (Y, X, C)
-                    # field. On a z-stack -- (Z, Y, X, C) -- axis 2 is X, so
-                    # asking for channels [0, 1] returned a two-pixel-wide
-                    # image with every channel still attached, which then
-                    # merged, measured and produced numbers. The two spellings
-                    # are identical for 2-D, so the ordinary path is unchanged.
                     concatenated_array = np.take(concatenated_array, channels, axis=-1)
 
                 if not layout_written:
@@ -4199,19 +3692,11 @@ def _load_and_concatenate_arrays(
                         raise
                     layout_written = True
 
-                # Add the array from the reference folder to 'stack_ls'
                 stack_ls.append(concatenated_array)
 
-                # For each of the other folders, load the mask (tif or npy).
                 for folder in folder_paths[1:]:
                     array_path = _mask_variant_path(folder, filename)
                     array = _load_array_any(array_path)
-                    # A mask carries the image's spatial axes and no channel
-                    # axis, so it needs one appended -- whether that is
-                    # (Y, X) -> (Y, X, 1) or (Z, Y, X) -> (Z, Y, X, 1).
-                    # Testing `ndim == 2` covered only the first, and a 3-D
-                    # mask reached np.concatenate one axis short of the image
-                    # it belongs to.
                     if array.ndim in (2, concatenated_array.ndim - 1):
                         array = np.expand_dims(array, axis=-1)
                     stack_ls.append(array)
@@ -4220,22 +3705,16 @@ def _load_and_concatenate_arrays(
                 stack_ls = [np.expand_dims(arr, axis=-1) if arr.ndim == 2 else arr for arr in stack_ls]
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
-                    #max_dims = np.max(np.array(list(unique_shapes)), axis=0)
-                    # Determine the maximum length of tuples in unique_shapes
                     max_tuple_length = max(len(shape) for shape in unique_shapes)
-                    # Pad shorter tuples with zeros to make them all the same length
                     padded_shapes = [shape + (0,) * (max_tuple_length - len(shape)) for shape in unique_shapes]
-                    # Now create a NumPy array and find the maximum dimensions
                     max_dims = np.max(np.array(padded_shapes), axis=0)
                     print(f'Warning: arrays with multiple shapes found. Padding arrays to max X,Y dimentions {max_dims}')
-                    #print(f'Warning: arrays with multiple shapes found. Padding arrays to max X,Y dimentions {max_dims}', end='\r', flush=True)
                     padded_stack_ls = []
                     for arr in stack_ls:
                         pad_width = [(0, max_dim - dim) for max_dim, dim in zip(max_dims, arr.shape[:-1])]
                         pad_width.append((0, 0))
                         padded_arr = np.pad(arr, pad_width)
                         padded_stack_ls.append(padded_arr)
-                    # Concatenate the padded arrays along the channel dimension (last dimension)
                     stack = np.concatenate(padded_stack_ls, axis=-1)
 
                 else:
@@ -4304,19 +3783,12 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
         """
         pdf_path = os.path.join(path, f'{column}.pdf')
 
-        # Create subplots
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, axes = plt.subplots(1, 2, figsize=(20, 10), sharey=True)
 
-            # Plotting
             sns.lineplot(ax=axes[0], x='epoch', y=column, data=train_df, marker='o', color='red')
             sns.lineplot(ax=axes[1], x='epoch', y=column, data=val_df, marker='o', color='blue')
 
-            # Set titles and labels
             axes[0].set_title(f'Train {column} vs. Epoch', fontsize=20)
             axes[0].set_xlabel('Epoch', fontsize=16)
             axes[0].set_ylabel(column, fontsize=16)
@@ -4334,22 +3806,15 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
             else:
                 plt.show()
 
-    # Read the CSVs into DataFrames
     train_df = pd.read_csv(train_file_path, index_col=0)
     val_df = pd.read_csv(val_file_path, index_col=0)
 
-    # Get the folder path for saving plots
     fldr_1 = os.path.dirname(train_file_path)
     
-    # `sns.set` writes a whole seaborn theme into matplotlib's
-    # process-wide rcParams. Scoped, so reading the model stats does not
-    # restyle every figure the session draws afterwards.
     with plt.rc_context():
         if save:
-            # Setting the style
             sns.set(style="whitegrid")
     
-        # Plot and save the results
         _plot_and_save(train_df, val_df, column='accuracy', save=save, path=fldr_1)
         _plot_and_save(train_df, val_df, column='neg_accuracy', save=save, path=fldr_1)
         _plot_and_save(train_df, val_df, column='pos_accuracy', save=save, path=fldr_1)
@@ -4407,8 +3872,6 @@ def _save_model(model, model_type, results_dict, dst, epoch, epochs,
         print(f"Saved new best model at epoch {epoch} "
               f"(validation accuracy {acc:.4f}): {saved_best}")
 
-    # ``True`` preserves the historical default thresholds; ``False`` disables
-    # archival snapshots while best/last checkpoints remain available.
     if intermedeate_save is True or intermedeate_save is None:
         thresholds = [0.99, 0.98, 0.95, 0.94]
     elif intermedeate_save is False:
@@ -4417,9 +3880,6 @@ def _save_model(model, model_type, results_dict, dst, epoch, epochs,
         thresholds = sorted(
             {float(value) for value in intermedeate_save}, reverse=True)
 
-    # Archive only improving epochs. The old implementation wrote another
-    # file every epoch above a threshold and encoded the threshold (95.0)
-    # instead of the measured accuracy (for example 97.63).
     saved_archive = None
     if is_best is not False and np.isfinite(acc):
         crossed = next((value for value in thresholds if acc >= value), None)
@@ -4465,25 +3925,21 @@ def _save_progress(dst, train_df, validation_df):
         if not os.path.exists(file_path):
             with open(file_path, 'w') as f:
                 df.to_csv(f, index=True, header=True)
-                f.flush()  # Ensure data is written to the file system
+                f.flush()
         else:
             with open(file_path, 'a') as f:
                 df.to_csv(f, index=True, header=False)
                 f.flush()
                 
-    # Save accuracy, loss, PRAUC
     os.makedirs(dst, exist_ok=True)
     results_path_train = os.path.join(dst, 'train.csv')
     results_path_validation = os.path.join(dst, 'validation.csv')
 
-    # Save training data
     _save_df_to_csv(results_path_train, train_df)
 
-    # Save validation data if available
     if validation_df is not None:
         _save_df_to_csv(results_path_validation, validation_df)
 
-        # Call read_plot_model_stats after ensuring the files are saved
         read_plot_model_stats(results_path_train, results_path_validation, save=True)
 
     return
@@ -4533,21 +3989,6 @@ def _read_db(db_loc, tables):
 
     from .database_schema import ensure_database_schema
 
-    # A `~` PATH IS EXPANDED HERE, once, for every reader.
-    #
-    # GitHub issue #108 (auto-filed 2026-08-17, macOS): a `src` beginning
-    # with `~` produced `~/.../measurements/measurements.db`, which
-    # `ensure_database_schema` -> `migrate_database` resolved against the
-    # WORKING DIRECTORY and then refused with `FileNotFoundError: ~<DB>`.
-    #
-    # It is fixed here rather than in `migrate_database`, whose docstring
-    # states the non-expansion as a deliberate contract ("made absolute but
-    # not tilde-expanded"), and rather than at each of the ~99 sites that
-    # build a measurements path by string concatenation. This is the funnel
-    # they all pass through.
-    #
-    # expandvars too: a settings CSV carried between machines routinely holds
-    # $HOME or %USERPROFILE%, and the failure is identical.
     if isinstance(db_loc, (str, os.PathLike)):
         db_loc = os.path.expanduser(os.path.expandvars(os.fspath(db_loc)))
     from .utils import correct_metadata
@@ -4559,40 +4000,16 @@ def _read_db(db_loc, tables):
         return '"' + name.replace('"', '""') + '"'
 
     tables = [tables] if isinstance(tables, str) else list(tables)
-    # Validate the caller's identifiers before a schema migration walks every
-    # table in the database. This keeps the public read API's error stable even
-    # when a malformed table happens to exist in SQLite.
     for table in tables:
         _quote_identifier(table)
 
-    # A DATABASE NOBODY CAN WRITE TO IS STILL A DATABASE THAT CAN BE READ.
-    #
-    # GitHub issue #115 (SMB mounts): `ensure_database_schema` renames legacy
-    # columns and stamps the schema version, so calling it before every read
-    # meant that reading a PRE-MIGRATION database from a read-only source --
-    # an SMB share mounted read-only, a colleague's archived plate, a dataset
-    # on a read-only volume -- died with `OperationalError: attempt to write a
-    # readonly database`. The error named the write, not the reason, and the
-    # read was never the thing that needed writing.
-    #
-    # Migration is not required in order to READ. `correct_metadata` below
-    # canonicalises the frame -- `plate`/`row`/`col` to `plateID`/`rowID`/
-    # `columnID` and the rest -- so a legacy table is readable exactly as a
-    # current one is; the migration exists to make that permanent, not to
-    # make it possible. So when the database cannot be written, it is skipped
-    # and the file is opened read-only, which also stops SQLite trying to
-    # place a journal beside it.
-    #
-    # BOTH the file and its DIRECTORY are checked: SQLite writes its journal
-    # into the directory, so a writable file in a read-only directory is not
-    # a writable database.
     directory = os.path.dirname(os.path.abspath(db_loc)) or "."
     writable = (os.access(db_loc, os.W_OK) and os.access(directory, os.W_OK))
     if writable:
         ensure_database_schema(db_loc)
 
     dfs = []
-    chunksize = 100_000  # internal safety setting; adjust if needed
+    chunksize = 100_000
 
     if writable:
         connect_to = db_loc
@@ -4602,7 +4019,6 @@ def _read_db(db_loc, tables):
         connect_kwargs = {"uri": True}
 
     with sqlite3.connect(connect_to, timeout=30, **connect_kwargs) as conn:
-        # Optional but useful: fail early if a table name is wrong
         existing_tables = {
             row[0]
             for row in conn.execute(
@@ -4620,13 +4036,11 @@ def _read_db(db_loc, tables):
             quoted_table = _quote_identifier(table)
             query = f"SELECT * FROM {quoted_table}"
 
-            # Read in chunks to reduce peak memory during SQL -> pandas conversion
             chunks = []
             for chunk in pd.read_sql_query(query, conn, chunksize=chunksize):
                 chunks.append(chunk)
 
             if len(chunks) == 0:
-                # Empty table: preserve columns
                 df = pd.read_sql_query(f"SELECT * FROM {quoted_table} LIMIT 0", conn)
             elif len(chunks) == 1:
                 df = chunks[0]
@@ -4639,7 +4053,6 @@ def _read_db(db_loc, tables):
             df = correct_metadata(df)
             dfs.append(df)
 
-            # Drop local reference before next loop iteration
             del df
             gc.collect()
 
@@ -4822,35 +4235,6 @@ def _read_and_merge_data(
         if dfs:
             frame = pd.concat(dfs, axis=0)
 
-            # THE KEY HALF THAT COMES FROM THE DATABASE IS MADE TEXT HERE.
-            #
-            # Every object role below spells its per-object key the same way,
-            # `prcf + '_' + <parent id>`, and the parent id has just been
-            # rewritten with `.astype(str)` one line above the concatenation.
-            # `prcf` is whatever dtype the read inferred, and that is only the
-            # same dtype when the table had rows to infer from. A table with
-            # none comes back with every column at `object`, because there is
-            # nothing in it to look at, while the parent id beside it is a
-            # genuine string column -- and under pandas' string dtype the two
-            # cannot be added at all: `operation 'radd' not supported for
-            # dtype 'str' with dtype 'object'`, raised out of pyarrow from a
-            # line whose job is to spell a key. Older pandas concatenated the
-            # same pair silently, which is why this went unseen.
-            #
-            # An object table with no rows is not a contrived case: a plate on
-            # which a role segmented nothing anywhere produces one, and so
-            # does any caller reading a table that was created but never
-            # written. Such a read is supposed to fail further down, on the
-            # location columns it really is missing, rather than here on a
-            # dtype.
-            #
-            # Only an `object` column is touched. A `prcf` that is genuinely
-            # numeric is left alone so that it still fails loudly at the
-            # concatenation, as it does today, instead of being turned into
-            # digits that key nothing. Coercing the text case is the same rule
-            # `utils._split_data` already applies when it rebuilds `prcf` from
-            # the four location columns, so the key spelled on the way in
-            # matches the one spelled on the way out.
             if 'prcf' in frame.columns and is_object_dtype(frame['prcf']):
                 frame['prcf'] = frame['prcf'].astype(str)
 
@@ -5025,22 +4409,6 @@ def _read_and_merge_data(
 
     metadata = metadata.assign(prc=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'])
 
-    # `prcfo` -- the per-OBJECT key -- has to exist before the well count,
-    # because the count is of objects and `metadata_key` alone does not
-    # identify one. `object_label` is assigned by the segmenter per FIELD and
-    # restarts at 1 in each, so `nunique()` over a well counted distinct LABEL
-    # VALUES: a 9-field well holding 360 cells reported roughly 40, the size
-    # of its largest field.
-    #
-    # That number is not cosmetic. `cells_per_well` is documented as the
-    # minimum a well must contribute and is used to drop under-populated
-    # wells, so a threshold of 100 discarded every well on a plate that
-    # averaged 360 cells -- and the wells it kept were the ones with the most
-    # crowded single field, which is the opposite of the intent.
-    # _split_data always rebuilds `prcf` from the four location components and
-    # returns it in metadata, even when an input carried a numeric prcf column.
-    # Every object role also consumes prcf before this point, so a fallback
-    # without it was both unreachable and (for timelapse) missing the time key.
     metadata = metadata.assign(
         prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
 
@@ -5091,29 +4459,23 @@ def convert_numpy_to_tiff(folder_path, limit=None):
     :param limit: If set, stop after processing this many files.
     :returns: None
     """
-    # Create the subdirectory 'tiff' within the specified folder if it doesn't already exist
     tiff_subdir = os.path.join(folder_path, 'tiff')
     os.makedirs(tiff_subdir, exist_ok=True)
 
     files = os.listdir(folder_path)
 
-    # Iterate over all files in the folder
     for i, filename in enumerate(files):
         if limit is not None and i >= limit:
             break
         if not filename.endswith('.npy'):
             continue
 
-        # Construct the full file path
         file_path = os.path.join(folder_path, filename)
-        # Load the numpy file
         numpy_array = np.load(file_path)
         
-        # Construct the output TIFF file path
         tiff_filename = os.path.splitext(filename)[0] + '.tif'
         tiff_file_path = os.path.join(tiff_subdir, tiff_filename)
         
-        # Save the numpy array as a TIFF file
         write_tiff(tiff_file_path, numpy_array)
         
         print(f"Converted {filename} to {tiff_filename} and saved in 'tiff' subdirectory.")
@@ -5170,7 +4532,7 @@ def generate_cellpose_train_test(src, test_split=0.1):
             new_mask_path = os.path.join(dst_mask, filename)            
             shutil.copy(img_path, new_img_path)
             shutil.copy(mask_path, new_mask_path)
-            print(f'Copied {idx+1}/{len(ls)} images to {_type} set')#, end='\r', flush=True)
+            print(f'Copied {idx+1}/{len(ls)} images to {_type} set')
 
 #: How a mate is spelled in a FASTQ filename, mapped to the key spaCR uses.
 #:
@@ -5209,8 +4571,6 @@ def parse_gz_files(folder_path):
         stem = gz_file[:-len('.fastq.gz')]
         parts = stem.split('_')
         if len(parts) < 2:
-            # No separator, so there is no mate to read off the name. A
-            # single-ended file still deserves to be seen.
             samples_dict.setdefault(stem, {})['R1'] = os.path.join(
                 folder_path, gz_file)
             continue
@@ -5218,9 +4578,6 @@ def parse_gz_files(folder_path):
         sample_name = '_'.join(parts[:-1])
         mate = _MATE_SPELLINGS.get(parts[-1].strip().lower())
         if mate is None:
-            # Illumina's full form is `<sample>_S1_L001_R1_001.fastq.gz`, so
-            # the mate is not always last. Look for it anywhere in the name
-            # before giving up on the file.
             for position, token in enumerate(parts):
                 candidate = _MATE_SPELLINGS.get(token.strip().lower())
                 if candidate is not None and position > 0:
@@ -5239,35 +4596,6 @@ def parse_gz_files(folder_path):
     return samples_dict
 
 
-# ===========================================================================
-# On-demand crops
-#
-# :mod:`spacr.crops` cuts a single object straight out of ``merged/*.npy`` --
-# the array already holds both the intensity planes and the integer label-mask
-# planes, so the crop the PNG folder holds can be reproduced on demand,
-# pixel for pixel, without the folder existing. Until now only the Qt Annotate
-# screen was wired to it; the image UMAP and the Classify dataset builders
-# still required a pre-generated folder, which costs disk, has to be
-# regenerated whenever a crop setting changes, and goes stale silently.
-#
-# Everything below is the seam those consumers use. It is deliberately
-# **additive**: ``crop_source='png'`` (and ``'auto'`` on any project that has
-# a crop folder) behaves exactly as before, byte for byte.
-#
-# Two rules hold everywhere in this section:
-#
-#   1. A crop is only ever produced by :mod:`spacr.crops`. On-demand crops go
-#      through ``CropSource.get`` -> ``crops.png_view``; crops read back off
-#      disk go through ``crops.read_crop_png``. Neither path re-implements the
-#      channel handling, and neither goes around the format versioning added
-#      in 341f446.
-#   2. Any folder of crop PNGs spaCR *writes* is stamped with the crop-format
-#      sidecar before it is filled -- with the current (RGB) format when the
-#      crops were cut here, and with the SOURCE folder's format when they were
-#      byte-copied out of one. An unmarked folder means legacy, so leaving a
-#      freshly written folder unmarked is the one mistake that silently
-#      reverses everything downstream.
-# ===========================================================================
 
 #: Object types that can be cut on demand.
 #: Crop order, which differs from the hook order on purpose. Membership is
@@ -5427,12 +4755,6 @@ def open_crop_source(settings, src=None, object_type=None, verbose=True):
     try:
         source = crops.resolve_crop_source(request, object_type=object_type)
     except crops.CropError as exc:
-        # LOUD, NOT SILENT. This printed only under `verbose`, and every
-        # shipped caller passes verbose=False, so an unusable crop_source
-        # returned None without a word -- and the caller then fell back to
-        # the pre-generated PNGs. A user who asked for on-demand crops got a
-        # classifier trained on different data than they requested, with
-        # nothing in the log to say so.
         print(f"crop_source={choice!r}: {exc}")
         return None
     if verbose:
@@ -5475,7 +4797,6 @@ class LazyCropPNG:
         self.name = name
         self._buf = None
 
-    # -- production --------------------------------------------------------
     def array(self):
         """Return the crop as an ``(H, W, 3)`` uint8 RGB array."""
         return self.source.get(self.row)
@@ -5502,10 +4823,6 @@ class LazyCropPNG:
             try:
                 Image.fromarray(self.array()).save(buf, format='PNG')
             except Exception:
-                # A crop PNG that spacr.crops cannot decode still has bytes on
-                # disk. Hand those over rather than losing the thumbnail: this
-                # is a display path, and a file that is merely unusual should
-                # not take the whole figure down.
                 raw = self._raw_bytes()
                 if raw is None:
                     raise
@@ -5514,7 +4831,6 @@ class LazyCropPNG:
             self._buf = buf
         return self._buf
 
-    # -- the file protocol PIL needs ---------------------------------------
     def read(self, size=-1):
         """Read up to ``size`` bytes of the PNG.
 
@@ -5779,9 +5095,6 @@ def mark_crop_output_folder(folder, fmt=None, source_folder=None,
     try:
         return crops.write_crop_folder_marker(folder, fmt=int(fmt), **extra)
     except Exception as exc:
-        # Loud, never silent: the consequence of a missing marker is that the
-        # crops read back reversed. But failing a whole training run over a
-        # 300-byte sidecar helps nobody.
         print(f"Warning: could not stamp the crop format on {folder}: {exc}")
         return None
 
@@ -5878,16 +5191,12 @@ def generate_dataset(settings=None):
                 all_paths.extend(refs)
                 continue
             paths = generate_path_list_from_db(db_path, file_metadata=settings['file_metadata'])
-            # generate_path_list_from_db returns None when the query fails
-            # (a database with no png_list, say). correct_paths then died on
-            # an unbound local three frames away instead of saying so.
             if not paths:
                 print(f"No png_list rows selected from {db_path}.")
                 continue
-            paths = correct_paths(paths, src)  # <- capture corrected paths
+            paths = correct_paths(paths, src)
             all_paths.extend(paths)
 
-        # --- sampling (guard against k > N) ---
         if isinstance(settings['sample'], int) and settings['sample']:
             k = min(int(settings['sample']), len(all_paths))
             selected_paths = random.sample(all_paths, k) if k else []
@@ -5908,12 +5217,8 @@ def generate_dataset(settings=None):
     if total_images == 0:
         raise RuntimeError("No images selected; nothing to tar.")
 
-    # ensure destination exists
-    # A non-empty src list sets dst on its first iteration; an empty list is
-    # refused by the no-images check above before destination creation.
     os.makedirs(dst, exist_ok=True)
 
-    # Combine the temporary tar files into a final tar
     date_name = datetime.date.today().strftime('%y%m%d')
     if len(settings['src']) > 1:
         date_name = f"{date_name}_combined"
@@ -5927,11 +5232,6 @@ def generate_dataset(settings=None):
         tar_name = os.path.join(dst, tar_name_2)
 
     if n_on_demand:
-        # On-demand crops are cut here, in this process: a CropSource holds
-        # memory-mapped merged arrays and a per-field label index, and neither
-        # survives a fork usefully -- every worker would re-open and re-index
-        # every field it touched. The reads are the cost either way, so the
-        # pool buys nothing and the bookkeeping is simpler without it.
         written, skipped = _write_crop_tar(selected_paths, tar_name, settings)
         if written == 0:
             raise RuntimeError(
@@ -5944,12 +5244,9 @@ def generate_dataset(settings=None):
         print(f"\nSaved {written} images to {tar_name}")
         return tar_name
 
-    # Create a temp folder in dst
     temp_dir = os.path.join(dst, "temp_tars")
     os.makedirs(temp_dir, exist_ok=True)
 
-    # Chunking the data
-    # cap workers by total images so we don't spawn useless pools
     num_procs = max(1, min(max(2, cpu_count() - 2), total_images))
     chunk_size = total_images // num_procs
     remainder = total_images % num_procs
@@ -5965,7 +5262,6 @@ def generate_dataset(settings=None):
 
     print(f"Generating temporary tar files in {dst}")
 
-    # Initialize shared counter and lock
     counter = Value('i', 0)
     lock = Lock()
 
@@ -5988,12 +5284,7 @@ def generate_dataset(settings=None):
                         written += 1
             os.remove(temp_tar_path)
 
-    # Delete the temp folder
     shutil.rmtree(temp_dir)
-    # `written`, not `total_images`: add_images_to_tar swallows a missing file
-    # with a print, so a tar built against a crop folder that has been deleted
-    # or moved used to be announced as "Saved 48 images" while holding none,
-    # and the run only failed later, inside inference, on an empty dataset.
     if written == 0:
         raise RuntimeError(
             f"No image could be written to {tar_name}: none of the "
@@ -6123,9 +5414,6 @@ def _write_crop_tar(items, tar_name, settings=None):
                 if skipped <= 5:
                     print(f"Could not read crop {item!r}: {exc}")
                 continue
-            # Two crops sharing a basename would overwrite each other inside
-            # the archive, which is exactly the collision spacr.predictions
-            # documents. Make the second one distinct instead of losing it.
             if name in used:
                 stem, ext = os.path.splitext(name)
                 name = f"{stem}__{i}{ext}"
@@ -6140,22 +5428,6 @@ def _write_crop_tar(items, tar_name, settings=None):
                                operation_type="generating .tar dataset")
     return written, skipped
 
-# ---------------------------------------------------------------------------
-# Class-imbalance handling and cross-validation splitting
-#
-# Both live here because both change *how the training data is split and
-# weighted* — the one place that decision is made is generate_loaders.
-#
-# Two rules are load-bearing and are enforced by tests:
-#   1. A WeightedRandomSampler is only ever attached to the TRAIN loader.
-#      Resampling validation or test data changes the class prior the metrics
-#      are measured against, so a "balanced" accuracy would no longer describe
-#      the real screen.
-#   2. Cross-validation folds are group-aware by default. Crops taken from the
-#      same well (or field, or plate) share illumination, focus, seeding
-#      density and edge effects; splitting them across folds lets the model
-#      recognise the well rather than the phenotype and inflates every score.
-# ---------------------------------------------------------------------------
 
 #: Accepted values for the ``class_balance`` setting.
 CLASS_BALANCE_MODES = ('none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss')
@@ -6326,8 +5598,6 @@ def expected_sampled_fractions(counts, mode):
     if mode not in ('weighted_sampler', 'sqrt_weighted_sampler'):
         return [(c / total) if total else 0.0 for c in counts]
     per_class = class_sampling_weights(counts, mode)
-    # every sample of class c carries weight per_class[c]; class c therefore
-    # attracts n_c * per_class[c] of the total probability mass.
     mass = [n * w for n, w in zip(counts, per_class)]
     s = sum(mass)
     return [m / s for m in mass] if s > 0 else mass
@@ -6380,8 +5650,6 @@ def format_class_balance_report(summary, class_balance='none', split_name='train
     ratio = summary['imbalance_ratio']
     ratio_txt = 'inf' if ratio == float('inf') else f"{ratio:.2f}"
     lines = [f"--- Class balance ({split_name}, n={summary['n']}) ---"]
-    # Only the train split is ever resampled, so only it can show moved
-    # frequencies; showing them for validation/test would be a lie.
     effective = class_balance if split_name == 'train' else 'none'
     expected = expected_sampled_fractions(counts, effective)
     for name, count, frac, exp in zip(summary['classes'], counts,
@@ -6505,9 +5773,6 @@ def make_cv_folds(labels, n_splits, groups=None, seed=0):
     fold_of = np.empty(n, dtype=int)
 
     if groups is None:
-        # Plain stratified k-fold: deal each class round-robin into the folds,
-        # starting at a per-class offset so fold 0 does not collect the
-        # remainder of every class.
         for c in range(n_classes):
             idx = np.flatnonzero(labels == c)
             if idx.size == 0:
@@ -6523,17 +5788,11 @@ def make_cv_folds(labels, n_splits, groups=None, seed=0):
                 f"cannot build {k} group-aware folds from {uniq.size} distinct "
                 f"group(s); lower cross_validation_folds or group at a finer "
                 f"level (e.g. cv_group_by='field')")
-        # Per-group class histogram, then greedy assignment largest-first.
         hist = {g: np.zeros(n_classes, dtype=float) for g in uniq}
         members = {g: np.flatnonzero(groups == g) for g in uniq}
         for g in uniq:
             for c in labels[members[g]]:
                 hist[g][c] += 1.0
-        # Largest group first — the big blocks have to land while the folds
-        # are still empty enough to take them — but shuffle before the (stable)
-        # sort so equally large groups arrive in a seed-dependent order. Sorting
-        # on the group name instead, as this used to, made the grouped branch
-        # ignore ``seed`` entirely and hand back one fixed partition.
         order = sorted(rng.permutation(uniq), key=lambda g: -hist[g].sum())
 
         class_totals = np.bincount(labels, minlength=n_classes).astype(float)
@@ -6541,16 +5800,10 @@ def make_cv_folds(labels, n_splits, groups=None, seed=0):
         fold_class = np.zeros((k, n_classes), dtype=float)
         fold_size = np.zeros(k, dtype=float)
         for g in order:
-            # Folds the cost cannot separate are genuinely interchangeable, so
-            # let the seed choose between them rather than always fold 0.
             fold_rank = rng.permutation(k)
             best_f, best_cost = None, None
             for f in range(k):
                 fold_class[f] += hist[g]
-                # Spread of each class across folds, as a fraction of that
-                # class's total; lower is a more even stratification. Rounded
-                # so that folds differing only by float summation order tie
-                # honestly and the seed, not the noise, separates them.
                 cost = round(
                     float(np.mean(np.std(fold_class / class_totals, axis=0))), 12)
                 fold_class[f] -= hist[g]
@@ -6653,8 +5906,6 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
         ))) if len(total_distribution) else 0.0
         return size_cost + class_cost, len(validation)
 
-    # Folds the score cannot separate are interchangeable holdouts, so the seed
-    # picks between them instead of the first one always winning.
     tie_break = np.random.default_rng(seed).permutation(len(candidates))
     train_idx, val_idx = min(
         enumerate(candidates),
@@ -6791,9 +6042,6 @@ def _classification_data_dir(src, mode, classes):
     """
     data_dir = os.path.join(src, mode)
 
-    # Clear, actionable error when the train/test split hasn't been generated
-    # yet — the most common Train-CV mistake is pointing src at the plate folder
-    # before the annotated crops were split into train/ and test/.
     if not os.path.isdir(data_dir):
         raise FileNotFoundError(
             f"No '{mode}/' folder found at: {data_dir}\n"
@@ -6804,10 +6052,6 @@ def _classification_data_dir(src, mode, classes):
             f"train/ and test/ (each with class subfolders, e.g. 1/ and 2/)."
         )
 
-    # FIX: raise an error instead of just printing when class folders are missing
-    # WHY: the original printed a warning but continued execution, silently
-    #      training on a broken/incomplete dataset — this masks data problems
-    #      that look like model performance problems
     missing = [c for c in classes if not os.path.isdir(os.path.join(data_dir, c))]
     if missing:
         available = sorted([d for d in os.listdir(data_dir)
@@ -6824,12 +6068,6 @@ def _classification_transform(image_size, channel_idx, normalize):
     """Compose the resize / channel-select / normalise transform for crops."""
     from .utils import SelectChannels
 
-    # FIX: match normalization mean/std tuple length to the actual number of
-    #      selected channels, not a hardcoded 3
-    # WHY: if you select only 1 channel (e.g. channels=['g']), the original
-    #      Normalize(mean=(0.5,0.5,0.5), std=(0.5,0.5,0.5)) will crash or
-    #      silently produce wrong values because the tensor has 1 channel but
-    #      normalize expects 3
     n_ch = len(channel_idx)
     norm_transforms = (
         [transforms.Normalize(mean=(0.5,) * n_ch, std=(0.5,) * n_ch)]
@@ -6839,7 +6077,7 @@ def _classification_transform(image_size, channel_idx, normalize):
         transforms.ToTensor(),
         transforms.CenterCrop(size=(image_size, image_size)),
         SelectChannels(channel_idx),
-        *norm_transforms,  # FIX: uses channel-count-aware normalization
+        *norm_transforms,
     ])
 
 
@@ -6930,9 +6168,6 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
                                      class_balance=class_balance,
                                      split_name='train', verbose=True)
 
-    # ``0`` is PyTorch's documented in-process mode and is important for GUI
-    # stability: forcing a minimum of four workers ignored the setting and
-    # created multiprocessing queues/sockets even when callers disabled them.
     num_workers = max(0, int(n_jobs)) if n_jobs is not None else 0
     use_persistent = num_workers > 0
 
@@ -6951,8 +6186,6 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
             shuffle=(sampler is None), sampler=sampler,
             num_workers=num_workers, pin_memory=pin_memory,
             persistent_workers=use_persistent)
-        # The validation loader is never sampled and never shuffled: its job is
-        # to measure the model against the real class prior.
         val_loader = DataLoader(
             val_dataset, batch_size=batch_size, shuffle=False,
             num_workers=num_workers, pin_memory=pin_memory,
@@ -6968,8 +6201,6 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
         'labels': labels,
         'folds': folds,
         'classes': list(classes),
-        # In-memory only: nested CV reuses the decoded dataset definition and
-        # creates Subsets without walking the image tree a second time.
         'dataset': data,
     }
     return fold_loaders, info
@@ -7037,9 +6268,6 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     data = spacrDataset(data_dir, classes, transform=transform,
                         shuffle=True, pin_memory=pin_memory)
 
-    # Honour an explicit zero so callers can keep dataset reads in-process.
-    # A forced four-worker minimum made worker teardown unavoidable and could
-    # deadlock applications that already own GUI or database threads.
     num_workers = max(0, int(n_jobs)) if n_jobs is not None else 0
     use_persistent = num_workers > 0
 
@@ -7067,15 +6295,11 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
             train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
             print(f'Data after augmentation: Train: {len(train_dataset)}')
 
-        # Skew is measured on the labels the model will actually see, after the
-        # split and after augmentation, and reported on every run.
         report_class_balance(dataset_labels(train_dataset), classes=classes,
                              class_balance=class_balance, split_name='train')
         report_class_balance(dataset_labels(val_dataset), classes=classes,
                              class_balance='none', split_name='validation')
 
-        # A sampler and shuffle=True are mutually exclusive in DataLoader; the
-        # sampler already draws in random order.
         sampler, _ = make_class_balance_sampler(
             dataset_labels(train_dataset), class_balance)
 
@@ -7084,19 +6308,13 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                                    shuffle=(sampler is None),
                                    sampler=sampler,
                                    generator=generator,
-                                   num_workers=num_workers,  # FIX: was hardcoded to 1
+                                   num_workers=num_workers,
                                    pin_memory=pin_memory,
                                    persistent_workers=use_persistent)
 
-        # FIX: don't shuffle the validation DataLoader
-        # WHY: shuffling validation data wastes time and has zero benefit —
-        #      evaluation metrics are computed over the entire set regardless of order
-        # The validation loader also never receives the sampler: resampling it
-        # would change the class prior the reported metrics are measured
-        # against, so a "balanced" accuracy would stop describing the screen.
         val_loaders = DataLoader(val_dataset, batch_size=batch_size,
-                                 shuffle=False,  # FIX: was True
-                                 num_workers=num_workers,  # FIX: was hardcoded to 1
+                                 shuffle=False,
+                                 num_workers=num_workers,
                                  pin_memory=pin_memory,
                                  persistent_workers=use_persistent)
         train_fig = None
@@ -7104,7 +6322,6 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
 
     else:
         split_name = 'train' if mode == 'train' else 'test'
-        # Held-out test data is reported but never resampled.
         effective_balance = class_balance if split_name == 'train' else 'none'
         report_class_balance(dataset_labels(data), classes=classes,
                              class_balance=effective_balance,
@@ -7116,7 +6333,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         train_loaders = DataLoader(data, batch_size=batch_size,
                                    shuffle=(sampler is None),
                                    sampler=sampler,
-                                   num_workers=num_workers,  # FIX: was hardcoded to 1
+                                   num_workers=num_workers,
                                    pin_memory=pin_memory,
                                    persistent_workers=use_persistent)
         val_loaders = []
@@ -7190,20 +6407,13 @@ def generate_training_dataset(settings):
     from .utils import save_settings
     from .settings import set_generate_training_dataset_defaults
 
-    # --- defaults & toggles --------------------------------------------------
     settings = set_generate_training_dataset_defaults(settings)
     balance_to_smallest = bool(settings.get('balance_to_smallest', True))
-    # `path_string` is the current name -- a substring that has to appear in
-    # the crop's path, which is what this always was. `png_type` is still
-    # accepted because it is in every settings CSV written before the rename,
-    # and because this function is called directly as well as through
-    # classify(), which is where the alias would otherwise be applied.
     png_type = settings.get('path_string') or settings.get('png_type', 'cell_png')
     tables = settings.get('tables') or ['cell', 'nucleus', 'pathogen', 'cytoplasm']
     write_rand_col = bool(settings.get('write_random_annotation_column', False))
     rng = random.Random(int(settings.get('random_seed', 42)))
 
-    # Limits for merge helper
     if 'nucleus' not in tables:
         settings['nuclei_limit'] = False
     if 'pathogen' not in tables:
@@ -7211,11 +6421,9 @@ def generate_training_dataset(settings):
 
     save_settings(settings, 'cv_dataset', show=True)
 
-    # Normalize src to list
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
 
-    # --- helpers -------------------------------------------------------------
     def _ensure_unique_dir(dst_base):
         """``dst_base``, or the first ``dst_base_N`` that does not exist yet.
 
@@ -7232,7 +6440,6 @@ def generate_training_dataset(settings):
             j = 1
             while os.path.exists(f"{base}_{j}"):
                 j += 1
-            # Search is intentionally unbounded: every occupied suffix is real.
             dst = f"{base}_{j}"
             print(f'Creating new directory for training: {dst}')
         return dst
@@ -7260,10 +6467,6 @@ def generate_training_dataset(settings):
             png_df = pd.DataFrame()
         if len(png_df):
             return png_df
-        # No png_list means no PNG folder was ever written. The objects are
-        # still in the measurement table, with the same well metadata the
-        # metadata rules select on, so fall back to those rather than
-        # returning "0 classes" for a project that has everything it needs.
         print(f"No 'png_list' rows in {db_path}; falling back to the "
               f"'{object_type}' measurement table for the crop list.")
         return crop_rows_from_object_table(db_path, object_type)
@@ -7300,8 +6503,6 @@ def generate_training_dataset(settings):
         rerooted = reroot_crop_path(p, src_root)
         if rerooted != p:
             return rerooted
-        # A relative path has no recorded root to rebuild from; it is already
-        # written relative to the screen, so join it and let the copy report.
         if not os.path.isabs(p):
             return os.path.join(src_root, p.lstrip('/'))
         return p
@@ -7381,12 +6582,8 @@ def generate_training_dataset(settings):
         Returns (names, lists) aligned.
         """
         names, lists = [], []
-        # The annotation dispatcher rejects an empty column list before this
-        # helper is called, keeping the user-facing error at that boundary.
 
-        # Work with numeric-ish annotations 1/2; accept strings that can be cast to int.
         df = png_df.copy()
-        # We only care about png_path, the crop handle and the annotation cols
         keep_cols = ['png_path'] + (
             [CROP_REF_COLUMN] if CROP_REF_COLUMN in df.columns else []
         ) + [c for c in ann_cols if c in df.columns]
@@ -7397,20 +6594,16 @@ def generate_training_dataset(settings):
                 print(f"Warning: annotation column '{col}' not in png_list; skipping.")
                 continue
 
-            # Identify annotated values present (castable to int)
             col_series = df[col].dropna()
             try:
                 vals = sorted(set(col_series.astype(int).tolist()))
             except Exception:
-                # Non-numeric labels -> keep as-is
                 vals = sorted(set(col_series.tolist()))
 
-            # Optional filter: {col: [allowed_values]}
             if ann_vals_filter and col in ann_vals_filter:
                 allow = set(ann_vals_filter[col])
                 vals = [v for v in vals if v in allow]
 
-            # Collect classes for each observed value
             distinct_vals = []
             for v in vals:
                 cls_name = f"{col}_{v}"
@@ -7419,12 +6612,10 @@ def generate_training_dataset(settings):
                 names.append(cls_name)
                 lists.append(sel)
 
-            # If only one annotated value (typical 1-only column), create <col>_random
             if len(distinct_vals) == 1:
                 v, pos_paths = distinct_vals[0]
                 pos_n = len(pos_paths)
 
-                # Unannotated = rows where column is NULL/NaN
                 unann_paths = _class_items(df[df[col].isna()])
                 if not unann_paths:
                     print(f"Column '{col}': no unannotated rows available for <{col}_random>; skipping random class.")
@@ -7434,17 +6625,14 @@ def generate_training_dataset(settings):
                     print(f"Column '{col}': only one value present but it has 0 rows; skipping random class.")
                     continue
 
-                # Sample negatives
                 if len(unann_paths) >= pos_n:
                     rand_paths = rng.sample(unann_paths, pos_n)
                 else:
-                    # Not enough; sample all unannotated (and we’ll balance later anyway)
                     rand_paths = unann_paths
 
                 names.append(f"{col}_random")
                 lists.append(rand_paths)
 
-                # Optionally persist a new column in DB and mark sampled as 1
                 if write_rand_col and db_path:
                     rand_col = f"{col}_random"
                     qcol = rand_col.replace('"', '""')
@@ -7456,10 +6644,6 @@ def generate_training_dataset(settings):
                             cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{qcol}" INTEGER')
                             conn.commit()
 
-                        # write 1 for sampled paths; NULL elsewhere (default).
-                        # An on-demand handle carries the png_path its row
-                        # named, so the column is written the same way
-                        # whichever source produced the pixels.
                         for p in rand_paths:
                             png_path = (p.row.get('png_path')
                                         if isinstance(p, LazyCropPNG) else p)
@@ -7473,18 +6657,13 @@ def generate_training_dataset(settings):
 
         return names, lists
 
-    # --- main assembly across sources ---------------------------------------
     class_path_list = None
     class_names = None
-    # A multi-plate run writes one combined dataset beside the first plate.
-    # Previously ``dst_final`` was overwritten on every iteration, so the
-    # advertised ``training_all`` destination was abandoned and the combined
-    # files unexpectedly landed below the final plate.
     first_src = settings['src'][0]
     dst_final = _ensure_unique_dir(os.path.join(
         first_src, 'datasets',
         'training_all' if len(settings['src']) > 1 else 'training'))
-    crop_db_path = None  # last measurements.db, for the crop-format lookup
+    crop_db_path = None
     selection_context = []
 
     for i, src in enumerate(settings['src']):
@@ -7493,18 +6672,12 @@ def generate_training_dataset(settings):
         object_type = crop_object_type(png_type)
         png_df = _load_png_table(db_path, object_type)
 
-        # Fix/normalize paths under this src
         fixed_paths = [ _fix_path_under_src(src, p) for p in png_df['png_path'] ]
         png_df['png_path'] = fixed_paths
 
-        # Filter by image type if requested
         if png_type:
             png_df = png_df[png_df['png_path'].astype(str).str.contains(png_type, na=False)]
 
-        # Where the pixels come from. 'png' (and 'auto' with a crop folder
-        # present) leaves every list below holding plain paths, which
-        # generate_dataset_from_lists copies exactly as it always has. Only
-        # the merged source replaces them with on-demand handles.
         source = open_crop_source(settings, src, object_type=object_type)
         if source is not None and getattr(source, 'kind', 'png') == 'merged':
             rows = crop_rows_from_png_list(db_path, png_df, object_type)
@@ -7514,10 +6687,6 @@ def generate_training_dataset(settings):
             png_df = rows
         crop_db_path = db_path if os.path.isfile(db_path) else None
 
-        # THROUGH `resolve_basis`, so a settings file naming the retired
-        # 'measurement' basis is MIGRATED here rather than raising -- which
-        # is the promise `RETIRED_BASES` makes, and it is only kept if every
-        # reader goes through the resolver instead of reading the key.
         from .training_basis import resolve_basis
 
         mode = resolve_basis(settings)
@@ -7545,12 +6714,6 @@ def generate_training_dataset(settings):
             else:
                 class_meta = settings.get('class_metadata') or []
                 if isinstance(class_meta, str):
-                    # A settings CSV stores the repr, and a caller that hands
-                    # the string straight through used to be iterated one
-                    # CHARACTER at a time -- "[['c1'], ['c2']]" became
-                    # seventeen classes named '[', '[', "'", 'c', ... The Qt
-                    # panel now collects a real list; this covers the CSV and
-                    # CLI paths that do not go through it.
                     import ast as _ast
                     try:
                         parsed = _ast.literal_eval(class_meta.strip())
@@ -7564,21 +6727,6 @@ def generate_training_dataset(settings):
                     raise ValueError(
                         "metadata dataset mode requires at least one "
                         "class_metadata value.")
-                # The column the class_metadata values are matched against is
-                # the one the user named in 'metadata_type_by'. It used to be
-                # hard-coded to 'condition' -- a column no spaCR writer puts
-                # in png_list unless annotate_conditions has been run -- so a
-                # run configured with metadata_type_by='columnID' selected on
-                # a column it was never pointed at, and the guard below
-                # printed "got 0 classes" and then indexed the missing column
-                # anyway, turning a diagnosable misconfiguration into a bare
-                # KeyError several frames down.
-                # NOW READ OFF `classes`, which already names the column
-                # each class is defined by -- `metadata_type_by` was a second
-                # place to say the same thing, and two places to say it is
-                # two places to say it differently. A settings file that
-                # still carries the old key is honoured, so an old CSV runs
-                # unchanged.
                 meta_col = _class_column(settings)
                 if meta_col not in png_df.columns:
                     raise ValueError(
@@ -7589,21 +6737,12 @@ def generate_training_dataset(settings):
                         f"or 'rowID'), or switch 'dataset_mode' to "
                         f"'annotation'."
                     )
-                # Compare as text: png_list holds 'c1'/'r1' strings but a
-                # fallback to the object table can hand back a numeric column,
-                # and class_metadata is whatever the settings CSV parsed to.
                 meta_values = png_df[meta_col].astype(str)
                 selection_context.append(
                     f"{src}: available {meta_col} values are "
                     f"{sorted(meta_values.dropna().unique().tolist())}"
                 )
                 for cm in class_meta:
-                    # One class per entry. An entry may be a single value
-                    # ('c1') or a group of values (['c1','c2']) that share one
-                    # label -- the list-of-lists form the GUI defaults to and
-                    # every settings CSV on disk already carries. It used to be
-                    # str()'d whole, so ['c1'] was matched as the literal text
-                    # "['c1']" and selected nothing.
                     if isinstance(cm, (list, tuple, set)):
                         wanted = [str(v) for v in cm]
                     else:
@@ -7614,42 +6753,30 @@ def generate_training_dataset(settings):
                     this_lists.append(_class_items(sel))
 
         else:
-            # resolve_basis has already reduced the vocabulary to metadata or
-            # annotation and raises TrainingBasisError for everything else.
-            # The retired measurement spelling is migrated to annotation.
-            # Consequently this arm is exhaustive, not a fallback guess.
-            # Keeping another unknown-mode exception here duplicated a rule.
-            # Worse, that exception could never name an input that reached it.
-            # The resolver's tested error remains the single refusal surface.
-            # Old settings files therefore still migrate before dispatch.
             ann_cols = settings.get('annotation_columns')
             if not ann_cols:
-                # backward compatibility
                 ann_cols = [settings.get('annotation_column')]
             ann_cols = [c for c in (ann_cols or []) if c]
             if not ann_cols:
                 raise ValueError(
                     "annotation dataset mode requires at least one "
                     "annotation_columns entry (or annotation_column).")
-            ann_vals = settings.get('annotation_values')  # optional dict {col:[values]}
+            ann_vals = settings.get('annotation_values')
 
             this_names, this_lists = _annotation_classes_from_columns(
                 png_df, ann_cols, ann_vals_filter=ann_vals, db_path=db_path
             )
 
-        # Initialize global collectors (keep class order of first source)
         if class_path_list is None:
             class_path_list = [[] for _ in range(len(this_lists))]
             class_names = this_names[:]
 
-        # Warn on mismatch; align by index
         if this_names != class_names:
             print("Warning: class name/order mismatch across sources; aligning by index. "
                   "Make sure your rules are identical for all 'src' roots.")
         for idx in range(min(len(class_path_list), len(this_lists))):
             class_path_list[idx].extend(this_lists[idx])
 
-    # Nothing to do?
     if not class_path_list or sum(len(x) for x in class_path_list) == 0:
         details = "\n".join(f"  {line}" for line in selection_context)
         raise ValueError(
@@ -7660,10 +6787,6 @@ def generate_training_dataset(settings):
             + (f"\n{details}" if details else "")
         )
 
-    # Never balance a populated class down to zero merely because another
-    # requested label does not occur. Besides discarding valid crops, the old
-    # behavior wrote a plausible-looking but empty train/test tree and failed
-    # much later in the DataLoader.
     empty_classes = [
         name for name, items in zip(class_names or [], class_path_list)
         if not items
@@ -7682,10 +6805,8 @@ def generate_training_dataset(settings):
             + (f"\n{details}" if details else "")
         )
 
-    # Balance to smallest (optional)
     class_path_list = _balance_lists(class_path_list)
 
-    # Write out
     from .io import generate_dataset_from_lists
     final_names = class_names or [f"class_{i}" for i in range(len(class_path_list))]
     print(f"class_path_list: {len(class_path_list)} classes")
@@ -7700,11 +6821,6 @@ def generate_training_dataset(settings):
         group_by=settings.get('cv_group_by', 'well'),
     )
 
-    # Expose the actual disk classes for downstream training. This is
-    # `class_folder_names`, NOT `classes`: what went to disk is a set of
-    # FOLDER names, while `classes` is the definition of what each class
-    # MEANS (name -> {column, value}). Overwriting the definitions with the
-    # folder listing discarded the columns and values the user had set.
     from .classify_classes import _record_generated_folder_names
     _record_generated_folder_names(settings, final_names)
     settings['nr_classes'] = len(final_names)
@@ -7712,9 +6828,6 @@ def generate_training_dataset(settings):
     try:
         save_settings(settings, 'cv_dataset', show=False)
     except Exception as exc:
-        # The dataset is already on disk, so this must not undo it — but the
-        # snapshot beside it is how the split gets reproduced, and losing it
-        # in silence leaves a training set nobody can rebuild.
         LOG.warning("the cv_dataset settings snapshot was not written (%s); "
                     "the dataset in %s cannot be reproduced from disk.",
                     exc, train_class_dir)
@@ -7763,11 +6876,9 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
     """
     all_paths = []
 
-    # Connect to the database and retrieve the image paths and annotations
     print(f'Reading DataBase: {db_path}')
     with sqlite3.connect(db_path, timeout=30) as conn:
         cursor = conn.cursor()
-        # Retrieve all paths and annotations from the database
         query = f"SELECT png_path, {annotation_column} FROM png_list"
         cursor.execute(query)
         
@@ -7780,32 +6891,26 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
 
     print('Total paths retrieved:', len(all_paths))
     
-    # Filter paths based on annotated_classes
     class_paths = []
     for class_ in annotated_classes:
         class_paths_temp = [path for path, annotation in all_paths if annotation == class_]
         class_paths.append(class_paths_temp)
         print(f'Found {len(class_paths_temp)} images in class {class_}')
         
-    # If only one class is provided, create an alternative list by sampling paths from all_paths that are not in the annotated class
     if len(annotated_classes) == 1:
         target_class = annotated_classes[0]
         count_target_class = len(class_paths[0])
         print(f'Annotated class: {target_class} with {count_target_class} images')
         
-        # Filter all_paths to exclude paths that belong to the target class
         alt_class_paths = [path for path, annotation in all_paths if annotation != target_class]
         print('Alternative paths available:', len(alt_class_paths))
         
-        # Sample the same number of images for both classes
         balanced_count = min(count_target_class, len(alt_class_paths))
         print(f'Sampling {balanced_count} images for each class')
 
-        # Resample target class to match the smaller size
         sampled_target_class_paths = random.sample(class_paths[0], balanced_count)
         sampled_alt_class_paths = random.sample(alt_class_paths, balanced_count)
         
-        # Update class paths
         class_paths[0] = sampled_target_class_paths
         class_paths.append(sampled_alt_class_paths)
 
@@ -7866,11 +6971,9 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
         class_metadata = ['c1','c2']
     all_paths = []
 
-    # Connect to the database and retrieve the image paths and annotations
     print(f'Reading DataBase: {db_path}')
     with sqlite3.connect(db_path, timeout=30) as conn:
         cursor = conn.cursor()
-        # Retrieve all paths and annotations from the database
         query = f"SELECT png_path, {annotation_column}, rowID, columnID FROM png_list"
         cursor.execute(query)
         
@@ -7883,7 +6986,6 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
 
     print('Total paths retrieved:', len(all_paths))
     
-    # Filter all_paths by metadata_type_by and class_metadata
     filtered_paths = []
     metadata_index = {'rowID': 2, 'columnID': 3}.get(metadata_type_by, None)
     if metadata_index is None:
@@ -7894,35 +6996,28 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
             filtered_paths.append(row)
 
     print('Total filtered paths:', len(filtered_paths))
-    #all_paths = filtered_paths
     all_paths = [(row[0], row[1]) for row in filtered_paths]
     
-    # Filter paths based on annotated_classes
     class_paths = []
     for class_ in annotated_classes:
         class_paths_temp = [path for path, annotation in all_paths if annotation == class_]
         class_paths.append(class_paths_temp)
         print(f'Found {len(class_paths_temp)} images in class {class_}')
         
-    # If only one class is provided, create an alternative list by sampling paths from all_paths that are not in the annotated class
     if len(annotated_classes) == 1:
         target_class = annotated_classes[0]
         count_target_class = len(class_paths[0])
         print(f'Annotated class: {target_class} with {count_target_class} images')
         
-        # Filter all_paths to exclude paths that belong to the target class
         alt_class_paths = [path for path, annotation in all_paths if annotation != target_class]
         print('Alternative paths available:', len(alt_class_paths))
         
-        # Sample the same number of images for both classes
         balanced_count = min(count_target_class, len(alt_class_paths))
         print(f'Sampling {balanced_count} images for each class')
 
-        # Resample target class to match the smaller size
         sampled_target_class_paths = random.sample(class_paths[0], balanced_count)
         sampled_alt_class_paths = random.sample(alt_class_paths, balanced_count)
         
-        # Update class paths
         class_paths[0] = sampled_target_class_paths
         class_paths.append(sampled_alt_class_paths)
 
@@ -8005,7 +7100,6 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
     :raises ValueError: if ``len(class_data) != len(classes)``.
     """
     from .utils import print_progress
-    # Make sure that the length of class_data matches the length of classes
     if len(class_data) != len(classes):
         raise ValueError("class_data and classes must have the same length.")
 
@@ -8014,13 +7108,6 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
     time_ls = []
     failed = 0
 
-    # Stamp BEFORE the first crop lands, for the reason
-    # spacr.crops.stamp_crop_folder gives: a run killed part-way through
-    # leaves a marked tree holding fewer crops, never an unmarked tree of
-    # corrected ones. The marker goes at the dataset root and describes the
-    # whole split -- not inside train/<class>/, because the class folders are
-    # enumerated as "the classes" and as "the samples", and a sidecar there
-    # would be counted as one of each.
     every_item = [item for data in class_data for item in data]
     fmt = _crop_format_of_items(every_item, db_path=db_path)
     if every_item and fmt is None:
@@ -8069,17 +7156,6 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
                     else grouped_splits[class_index][1]
                 )
                 destination.append(item)
-            # grouped_split accepts only candidates whose train and test sides
-            # both contain every supplied class, or raises before returning.
-            # Rechecking each class here duplicated that invariant after the
-            # split had already been accepted and could never reject a result.
-            # The grouped-split contract is pinned by its own negative test.
-            # That test deliberately supplies classes confined to one group.
-            # It observes the upstream, actionable refusal rather than this
-            # former second copy of the same rule.
-            # The accepted split can therefore be persisted directly.
-            # Every non-empty class has members on both sides by construction.
-            # Empty requested classes are handled below as explicit folders.
             print(split_report.summary())
             os.makedirs(dst, exist_ok=True)
             with open(os.path.join(dst, '.spacr_split.json'), 'w') as handle:
@@ -8087,27 +7163,17 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
                           sort_keys=True)
 
     for class_index, (cls, data) in enumerate(zip(classes, class_data)):
-        # Create directories
         train_class_dir = os.path.join(dst, f'train/{cls}')
         test_class_dir = os.path.join(dst, f'test/{cls}')
         os.makedirs(train_class_dir, exist_ok=True)
         os.makedirs(test_class_dir, exist_ok=True)
 
-        # Split the data
         print('data',len(data), test_split)
         if not data:
-            # sklearn answers an empty class with "With n_samples=0,
-            # test_size=0.25 ... the resulting train set will be empty", which
-            # names the splitter's parameters rather than the rule that
-            # selected nothing. Say which class, keep the folder so the class
-            # list still matches the tree, and let the summary below flag it.
             print(f"Class {cls!r} selected no crops; its folders are empty.")
             continue
-        # Any non-empty class contributed to flat_items, which constructed
-        # grouped_splits above; the empty-class continue is the only bypass.
         train_data, test_data = grouped_splits[class_index]
 
-        # Write train files
         for item in train_data:
             start = time.time()
             try:
@@ -8121,7 +7187,6 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
             print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Train dataset")
             processed_files += 1
 
-        # Write test files
         for item in test_data:
             start = time.time()
             try:
@@ -8135,7 +7200,6 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
             print_progress(processed_files, total_files, n_jobs=1, time_ls=None, batch_size=None, operation_type="Copying files for Test dataset")
             processed_files += 1
 
-    # Print summary. The sidecar is not a crop, so it is not counted.
     empty = []
     for cls in classes:
         train_class_dir = os.path.join(dst, f'train/{cls}')
@@ -8147,11 +7211,6 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
             empty.append(cls)
 
     if failed:
-        # A crop that cannot be written used to take the whole run down with a
-        # bare FileNotFoundError from shutil.copy, naming one file and not the
-        # scale of the problem. Say how many, and finish the split -- unless
-        # nothing landed at all, which is not a partial result but a broken
-        # input, and training on it would just be training on nothing.
         print(f"Warning: {failed} of {total_files} crops could not be written "
               f"into {dst}.")
         if failed == total_files:
@@ -8228,7 +7287,6 @@ def convert_separate_files_to_yokogawa(folder, regex):
     used_wells = set()
     region_to_well = {}
 
-    # Group files by (plateID, wellID, fieldID, timeID, chanID)
     for file in sorted(os.listdir(folder)):
         match = pattern.match(file)
         if not match:
@@ -8237,13 +7295,11 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
         meta = match.groupdict()
 
-        # Mandatory metadata
         if 'wellID' not in meta or meta['wellID'] is None:
             print(f"Skipping {file}: missing mandatory wellID.")
             continue
         wellID = meta['wellID']
 
-        # Optional metadata with defaults
         plateID = meta.get('plateID', '1') or '1'
         fieldID = meta.get('fieldID', '1') or '1'
         timeID = int(meta.get('timeID', 1) or 1)
@@ -8255,10 +7311,6 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
         files_by_region.setdefault(region_key, []).append((file, sliceID))
 
-    # -- well assignment, before a single file is written ------------------
-    # A well is a well, not a field: keyed on (plateID, wellID) so the two
-    # fields of one well do not become two wells, which is what keying on
-    # (plateID, wellID, fieldID) did.
     source_wells = sorted({region[:2] for region in files_by_region},
                           key=lambda pair: (_cv.natural_key(pair[0]),
                                             _cv.natural_key(pair[1])))
@@ -8266,8 +7318,6 @@ def convert_separate_files_to_yokogawa(folder, regex):
         sorted({plate_key for plate_key, _ in source_wells},
                key=_cv.natural_key), start=1)}
 
-    # Pass 1: every source well that is a real address keeps it. Sized to the
-    # plate the addresses actually need — a folder holding AA13 is a 1536.
     canonical_wells = {}
     for plate_key, well_key in source_wells:
         canonical = _cv.normalise_well(well_key)
@@ -8278,11 +7328,10 @@ def convert_separate_files_to_yokogawa(folder, regex):
     for key, canonical in canonical_wells.items():
         name = f'{plate_tokens[key[0]]}_{canonical}'
         if name in used_wells:
-            continue        # two source names for one address; pass 2 splits them
+            continue
         region_to_well[key] = name
         used_wells.add(name)
 
-    # Pass 2: the rest, deterministically, skipping everything pass 1 claimed.
     for key in source_wells:
         if key in region_to_well:
             continue
@@ -8290,12 +7339,10 @@ def convert_separate_files_to_yokogawa(folder, regex):
         print(f"Well {key[1]!r} is not a plate address; converted as "
               f"{region_to_well[key]} (see {os.path.basename(csv_path)}).")
 
-    # Process files per region
     for region, file_list in files_by_region.items():
         assigned_well = region_to_well[region[:2]]
         plateID, wellID, fieldID, timeID, chanID = region
 
-        # Check if multiple slices exist and are meaningful
         slice_ids = [sid for _, sid in file_list if sid is not None]
         unique_slices = set(slice_ids)
 
@@ -8304,7 +7351,6 @@ def convert_separate_files_to_yokogawa(folder, regex):
             img = tifffile.imread(os.path.join(folder, filename))
             images.append(img)
 
-        # Perform MIP only if multiple unique slices are present
         if len(unique_slices) > 1:
             img_to_save = np.max(np.stack(images), axis=0)
         else:
@@ -8316,7 +7362,6 @@ def convert_separate_files_to_yokogawa(folder, regex):
         new_filepath = os.path.join(folder, new_filename)
         write_tiff(new_filepath, img_to_save.astype(dtype))
 
-        # Log original filenames involved in MIP or single file rename
         original_files = ";".join(f[0] for f in file_list)
         rename_log.append({"Original File(s)": original_files, "Renamed TIFF": new_filename})
 
@@ -8334,7 +7379,7 @@ def convert_to_yokogawa(folder):
     A file that cannot be read is skipped so the rest of the folder
     still converts — but the skip is recorded on a
     :class:`spacr.errors.RunLedger`, printed as a loud summary at the
-    end, and **stamped into a sibling ``rename_log.run_status.json``**.
+    end, and **stamped into a sibling** ``rename_log.run_status.json``.
     That sidecar is what lets a later reader (or
     :func:`spacr.errors.run_is_complete`) tell that the converted
     folder is missing inputs, instead of quietly analysing a subset.
@@ -8367,17 +7412,8 @@ def convert_to_yokogawa(folder):
         path = os.path.join(folder, file)
         ext = file.lower().split('.')[-1]
 
-        # os.listdir contributes each filename once, so this file receives one
-        # well and every channel/time extracted inside this iteration reuses it.
-        # The former filename dictionary was queried before its sole write, so
-        # the lookup was always absent and its reuse arm was unreachable.
-        # Reuse happens inside this iteration through the local `well` value.
-        # Sorted traversal keeps assignments stable between identical runs.
-        # Each distinct source file still receives one distinct synthetic well.
-        # All planes extracted from that source retain that same assignment.
         well = _get_next_well(used_wells)
 
-        ### **Process Nikon ND2 Files**
         if ext == 'nd2':
             with ledger.item(file, stage='nd2',
                              echo=f"Error processing ND2 file {file}"):
@@ -8393,11 +7429,6 @@ def convert_to_yokogawa(folder):
                     for f_idx in fields:
                         for c_idx, channel in enumerate(channels):
                             try:
-                                # np.max is a dispatcher, not a ufunc, so
-                                # np.max.reduce raised AttributeError before a
-                                # single frame was read: every ND2 silently
-                                # produced no TIFF (and the IndexError handler
-                                # below was dead code). np.maximum is the ufunc.
                                 mip_image = np.maximum.reduce([
                                     nd2.get_frame_2D(t=t_idx, v=f_idx, z=z_idx, c=c_idx)
                                     for z_idx in z_levels
@@ -8417,9 +7448,6 @@ def convert_to_yokogawa(folder):
                                                    "z": z_levels})
 
                             except IndexError as frame_err:
-                                # A dropped frame silently shrinks the FOV set —
-                                # record it as its own item so the summary shows
-                                # how much of the ND2 never made it to disk.
                                 ledger.record_failure(
                                     f"{file}:T{t_idx}F{f_idx}C{c_idx}",
                                     stage='nd2_frame', exc=frame_err)
@@ -8428,44 +7456,34 @@ def convert_to_yokogawa(folder):
         elif ext == 'czi':
             with ledger.item(file, stage='czi',
                              echo=f"Error processing CZI file {file}"):
-                # Open the CZI in streaming mode
                 czi_reader = pyczi or _load_pylibczi()
                 with czi_reader.open_czi(path) as czidoc:
 
-                    # 1) Global dimension ranges
                     bbox    = czidoc.total_bounding_box
                     _, tlen = bbox.get('T', (0,1))
                     _, clen = bbox.get('C', (0,1))
                     _, zlen = bbox.get('Z', (0,1))
 
-                    # 2) Scene → list of scene indices
                     scenes_bb = czidoc.scenes_bounding_rectangle
                     scenes    = sorted(scenes_bb.keys()) if scenes_bb else [None]
 
-                    # 3) Output folder (same as .czi)
                     folder = os.path.dirname(path)
 
-                    # 4) Loop scene × time × channel × Z
                     for scene in scenes:
-                        # *** assign a unique well for this scene ***
                         scene_well = _get_next_well(used_wells)
 
-                        # Field index = scene+1 (or 1 if no scene)
                         F_idx = scene + 1 if scene is not None else 1
-                        # Scene index for “A”
                         A_idx = scene + 1 if scene is not None else 1
 
                         for t in range(tlen):
                             for c in range(clen):
                                 for z in range(zlen):
-                                    # Read exactly one 2D plane
                                     arr = czidoc.read(
                                         plane={'T': t, 'C': c, 'Z': z},
                                         scene=scene
                                     )
                                     plane = np.squeeze(arr)
 
-                                    # Build Yokogawa‐style filename:
                                     fn = (
                                         f"{scene_well}_"
                                         f"T{t+1:04d}"
@@ -8477,14 +7495,12 @@ def convert_to_yokogawa(folder):
                                     )
                                     outpath = os.path.join(folder, fn)
 
-                                    # Write with lossless compression
                                     write_tiff(
                                         outpath,
                                         plane.astype(plane.dtype),
                                         compression='zlib'
                                     )
 
-                                    # Log it
                                     rename_log.append({
                                         "Original File": file,
                                         "Renamed TIFF": fn,
@@ -8497,25 +7513,14 @@ def convert_to_yokogawa(folder):
                                         "well": scene_well
                                     })
 
-        ### **Process Leica LIF Files**
         elif ext == 'lif':
             with ledger.item(file, stage='lif',
                              echo=f"Error processing LIF file {file}"):
-                # readlif's ACTUAL surface, checked against the installed
-                # 0.6.5. This block used to call `readlif.Reader`,
-                # `getIterImage` and `getFrame` -- an older camelCase API
-                # that no longer exists, so every LIF import died with
-                # AttributeError on the first line and the whole format
-                # was unusable.
                 lif_file = readlif.reader.LifFile(path)
 
                 for image_idx, image in enumerate(lif_file.get_iter_image()):
                     timepoints = range(getattr(image.dims, 't', 1))
                     z_levels = range(getattr(image.dims, 'z', 1))
-                    # CHANNELS ARE NOT IN `dims`. Dims is
-                    # namedtuple("Dims", "x y z t m"), so `dims.c` never
-                    # existed and the old getattr default silently pinned
-                    # every LIF to a single channel.
                     channels = range(getattr(image, 'channels', 1) or 1)
 
                     for t_idx in timepoints:
@@ -8540,7 +7545,6 @@ def convert_to_yokogawa(folder):
                                 write_tiff(filepath, mip_image.astype(dtype))
                                 rename_log.append({"Original File": file, "Renamed TIFF": filename})
 
-        ### **Process Standard Image Files (TIFF, PNG, JPEG, BMP)**
         elif ext in ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp'] and not file.startswith("plate"):
             with ledger.item(file, stage='tiff',
                              echo=f"Error processing standard image file {file}"):
@@ -8548,10 +7552,8 @@ def convert_to_yokogawa(folder):
                     images = tif.asarray()
                     ndim = images.ndim
 
-                    # Defaults
                     t_dim = c_dim = 1
 
-                    # Determine dimensions more explicitly
                     if ndim == 2:
                         mip_image = images
                         filename = f"{well}_T0001F001L01C01.tif"
@@ -8560,7 +7562,7 @@ def convert_to_yokogawa(folder):
                         continue
 
                     elif ndim == 3:
-                        if images.shape[0] <= 4:  # Likely channels
+                        if images.shape[0] <= 4:
                             c_dim = images.shape[0]
                             for c in range(c_dim):
                                 mip_image = images[c, :, :]
@@ -8568,7 +7570,7 @@ def convert_to_yokogawa(folder):
                                 write_tiff(
                                     os.path.join(folder, filename), mip_image)
                                 rename_log.append({"Original File": file, "Renamed TIFF": filename})
-                        else:  # Z-stack
+                        else:
                             mip_image = np.max(images, axis=0)
                             filename = f"{well}_T0001F001L01C01.tif"
                             write_tiff(
@@ -8576,15 +7578,6 @@ def convert_to_yokogawa(folder):
                             rename_log.append({"Original File": file, "Renamed TIFF": filename})
 
                     elif ndim == 4:
-                        # The two leading axes are t and z, in an order the
-                        # SHAPE cannot reveal. This used to assume TZYX
-                        # unconditionally, so a genuine (Z, T, Y, X) file had
-                        # every z-plane written out as a "timepoint" and every
-                        # projection taken over TIME rather than over z - wrong
-                        # data under a confident filename, with nothing saying
-                        # so. tifffile records the real order; ask it, and when
-                        # the file does not declare one, say which way it was
-                        # read and what that means if it is wrong.
                         try:
                             axes = (tif.series[0].axes or '').upper()
                         except Exception:
@@ -8610,11 +7603,8 @@ def convert_to_yokogawa(folder):
                     else:
                         raise ValueError(f"Unsupported TIFF dimensions: {images.shape}")
 
-    # Save rename log as CSV
     pd.DataFrame(rename_log).to_csv(csv_path, index=False)
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")
-    # Stamp the artifact, then say so last. rename_log.csv on its own cannot
-    # tell you that three of the ten inputs never converted; the sidecar can.
     ledger.finalize(artifact=csv_path)
     return ledger
 
@@ -8741,37 +7731,14 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
     for pairs in datasets:
         dataset_len = len(pairs)
 
-        # --- Step 1: Sample or augment ---
         sampled_pairs = []
         if dataset_len >= target_size:
             sampled_pairs = random.sample(pairs, target_size)
         else:
             sampled_pairs = pairs.copy()
-            # A folder is shorter than target_size only when augmentation is
-            # enabled: without it target_size is the minimum folder size.
-            # EXACTLY `needed` augmented pairs keep every folder balanced.
-            # The branch therefore already proves augmentation was requested.
-            # With augmentation off, target_size is min(len(folder)), so every
-            # folder takes the sampled branch above and this arm is impossible.
-            # Tests exercise unequal folders with augmentation both off and on.
-            # Off samples every folder down to the smallest observed count.
-            # On grows every shorter folder to the largest observed count.
-            # Removing the duplicate inner flag leaves those outputs unchanged.
-            # It also makes the invariant visible at the target-size decision.
-            # No synthetic augmentation is performed unless the outer sizing
-            # rule selected the maximum, which only augment_data=True can do.
-            # The number added remains exactly target_size - dataset_len.
-            # Original pairs retain their explicit no-augmentation tag below.
-            # Generated pairs cycle distinct transform combinations first.
-            # Only after exhausting those combinations may one repeat.
-            # Sampling order remains randomized with the same random module.
-            # Train/test shuffling and indexing are untouched after this block.
-            # Thus this simplification removes only an unreachable false arm.
             needed = target_size - dataset_len
             aug_methods = get_augmentations()
 
-            # Every distinct (pair, augmentation) combination, so a pair is
-            # re-augmented differently before any combination repeats.
             combos = [(img_path, msk_path, aug)
                       for aug in aug_methods
                       for (img_path, msk_path) in pairs]
@@ -8782,13 +7749,11 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
                 pool.extend(round_)
             sampled_pairs.extend(pool[:needed])
 
-        # Add "no augmentation" tag to original files
         augmented_sampled = [
             (tup[0], tup[1], None) if len(tup) == 2 else tup
             for tup in sampled_pairs
         ]
 
-        # --- Step 2: Split into train/test ---
         random.shuffle(augmented_sampled)
         split_idx = int(train_fraction * len(augmented_sampled))
         split_sets = {
@@ -8811,7 +7776,6 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
 
     print(f"Total files to process: {len(instructions)}")
 
-    # --- Step 3: Process with multiprocessing ---
     print("Processing images with multiprocessing...")
     
     if n_jobs is None:

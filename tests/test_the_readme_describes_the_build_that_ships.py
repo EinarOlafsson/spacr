@@ -170,13 +170,19 @@ class TestTheReadmeGrid:
 
 
 class TestTheGeneratedDocsGrid:
-    def test_it_agrees_with_the_readme(self):
+    def test_it_agrees_with_the_readme(self, registry):
         """Both grids draw the TILED apps, so both must draw the same set.
 
         The two files are written by one pass of
         `packaging/generate_readme_visuals.py`, so a disagreement here
         means the generator was not re-run after the registry changed --
         which is the failure this whole module exists to catch.
+
+        It asks for the `registry` fixture for the same reason its siblings
+        do: `embeddings` only gets its APPS row once
+        `register_self_registering_modules()` has run. Without the fixture the
+        test passed only when a sibling had registered first, and failed on
+        its own ("extra=['embeddings']").
         """
         from spacr.qt.app import tiled_apps
 

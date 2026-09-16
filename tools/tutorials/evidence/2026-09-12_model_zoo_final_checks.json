@@ -378,15 +378,15 @@
     "human_listening_review": false,
     "published": false
   },
-  "candidate_manifest_sha256": "e96da7917abed42c29cfb547f85acae0f39b6340742167e44acc1002b01ec7a3",
+  "candidate_manifest_sha256": "62aa93f4f9fd41d7eca86a8ef12cef10594f16da38c15b3b817915fcfbabab29",
   "heart_timing_sha256": "aefc92430862b0c59c7adb250709ec62c0a0f487a3f1bcd2e546270efd0d3511",
   "candidate_browser_case": {
     "lesson": "22_model_zoo",
     "audio_sha256": "3499f88f3840dbc6094abe738d8190264c92fa75a96b11b9de39afd9902b4037",
     "clocks": {
-      "audio": 31.19622,
-      "video": 31.061375,
-      "expected": 31.19537651008956,
+      "audio": 31.210093,
+      "video": 31.081827,
+      "expected": 31.20924913498849,
       "width": 2560,
       "height": 1440,
       "error": null,
@@ -398,8 +398,8 @@
       {
         "requested_audio_time": 1.6975,
         "text": "Model Zoo is the model library inside Make Masks.",
-        "audio": 1.932926,
-        "video": 1.932752,
+        "audio": 1.931914,
+        "video": 1.939701,
         "cues": [
           "Model Zoo is the model library inside Make Masks."
         ]
@@ -407,8 +407,8 @@
       {
         "requested_audio_time": 5.23,
         "text": "Open the host module, then use its Model Zoo control.",
-        "audio": 5.44979,
-        "video": 5.375178,
+        "audio": 5.448916,
+        "video": 5.376252,
         "cues": [
           "Open the host module, then use its Model Zoo control."
         ]
@@ -416,8 +416,8 @@
       {
         "requested_audio_time": 10.49,
         "text": "This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark.",
-        "audio": 10.715207,
-        "video": 10.705125,
+        "audio": 10.714239,
+        "video": 10.692866,
         "cues": [
           "This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark."
         ]
@@ -425,8 +425,8 @@
       {
         "requested_audio_time": 16.805,
         "text": "The table brings published entries and locally discovered files into one view.",
-        "audio": 17.014946,
-        "video": 17.018513,
+        "audio": 17.01348,
+        "video": 17.015005,
         "cues": [
           "The table brings published entries and locally discovered files into one view."
         ]
@@ -434,8 +434,8 @@
       {
         "requested_audio_time": 20.697499999999998,
         "text": "Read the model kind and source columns together.",
-        "audio": 20.915568,
-        "video": 20.806239,
+        "audio": 20.912414,
+        "video": 20.823107,
         "cues": [
           "Read the model kind and source columns together."
         ]
@@ -443,8 +443,8 @@
       {
         "requested_audio_time": 25.744999999999997,
         "text": "A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment.",
-        "audio": 25.954573,
-        "video": 25.945966,
+        "audio": 25.950334,
+        "video": 25.950933,
         "cues": [
           "A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment."
         ]
@@ -452,8 +452,8 @@
       {
         "requested_audio_time": 32.555,
         "text": "Enter your existing model directory and press Scan, or choose a folder with the adjacent button.",
-        "audio": 32.77156,
-        "video": 32.798046,
+        "audio": 32.768215,
+        "video": 32.800506,
         "cues": [
           "Enter your existing model directory and press Scan, or choose a folder with the adjacent button."
         ]
@@ -461,8 +461,8 @@
       {
         "requested_audio_time": 36.522499999999994,
         "text": "Here we scan the real Cellpose cache.",
-        "audio": 36.724323,
-        "video": 36.658998,
+        "audio": 36.720163,
+        "video": 36.651605,
         "cues": [
           "Here we scan the real Cellpose cache."
         ]
@@ -470,8 +470,8 @@
       {
         "requested_audio_time": 38.3675,
         "text": "Use your own path.",
-        "audio": 38.576656,
-        "video": 38.458478,
+        "audio": 38.573747,
+        "video": 38.46551,
         "cues": [
           "Use your own path."
         ]
@@ -479,8 +479,8 @@
       {
         "requested_audio_time": 41.8625,
         "text": "Scanning discovers files and metadata; it does not train a model or run segmentation.",
-        "audio": 42.068016,
-        "video": 42.077601,
+        "audio": 42.086872,
+        "video": 42.075796,
         "cues": [
           "Scanning discovers files and metadata; it does not train a model or run segmentation."
         ]
@@ -488,8 +488,8 @@
       {
         "requested_audio_time": 46.09,
         "text": "This scan displays eight entries.",
-        "audio": 46.324903,
-        "video": 46.343395,
+        "audio": 46.321776,
+        "video": 46.34255,
         "cues": [
           "This scan displays eight entries."
         ]
@@ -497,8 +497,8 @@
       {
         "requested_audio_time": 49.0175,
         "text": "Some are published remote models and others are local checkpoints.",
-        "audio": 49.238721,
-        "video": 49.163255,
+        "audio": 49.236836,
+        "video": 49.1909,
         "cues": [
           "Some are published remote models and others are local checkpoints."
         ]
@@ -506,8 +506,8 @@
       {
         "requested_audio_time": 52.64,
         "text": "The count describes this machine, not a required setup.",
-        "audio": 52.874611,
-        "video": 52.721685,
+        "audio": 52.851989,
+        "video": 52.731301,
         "cues": [
           "The count describes this machine, not a required setup."
         ]
@@ -515,8 +515,8 @@
       {
         "requested_audio_time": 58.010000000000005,
         "text": "Select the exact file you intend to use instead of assuming that similar model names identify the same weights.",
-        "audio": 58.231537,
-        "video": 58.160718,
+        "audio": 58.230816,
+        "video": 58.169888,
         "cues": [
           "Select the exact file you intend to use instead of assuming that similar model names identify the same weights."
         ]
@@ -524,8 +524,8 @@
       {
         "requested_audio_time": 65.055,
         "text": "The selected local checkpoint has no published checksum or recorded training provenance in this view.",
-        "audio": 65.262904,
-        "video": 65.234177,
+        "audio": 65.282923,
+        "video": 65.243858,
         "cues": [
           "The selected local checkpoint has no published checksum or recorded training provenance in this view."
         ]
@@ -533,8 +533,8 @@
       {
         "requested_audio_time": 68.87,
         "text": "Unknown means unknown.",
-        "audio": 69.088796,
-        "video": 68.953235,
+        "audio": 69.087687,
+        "video": 68.970467,
         "cues": [
           "Unknown means unknown."
         ]
@@ -542,8 +542,8 @@
       {
         "requested_audio_time": 71.1875,
         "text": "Its name is not evidence of its training dataset.",
-        "audio": 71.413479,
-        "video": 71.438014,
+        "audio": 71.41416,
+        "video": 71.436146,
         "cues": [
           "Its name is not evidence of its training dataset."
         ]
@@ -551,8 +551,8 @@
       {
         "requested_audio_time": 76.83000000000001,
         "text": "Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs.",
-        "audio": 77.041085,
-        "video": 76.920354,
+        "audio": 77.043047,
+        "video": 76.929348,
         "cues": [
           "Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs."
         ]
@@ -560,8 +560,8 @@
       {
         "requested_audio_time": 83.5575,
         "text": "The download area controls where an available remote model is saved.",
-        "audio": 83.783735,
-        "video": 83.70733,
+        "audio": 83.777541,
+        "video": 83.704754,
         "cues": [
           "The download area controls where an available remote model is saved."
         ]
@@ -569,8 +569,8 @@
       {
         "requested_audio_time": 89.555,
         "text": "It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads.",
-        "audio": 89.768658,
-        "video": 89.756706,
+        "audio": 89.790051,
+        "video": 89.760654,
         "cues": [
           "It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads."
         ]
@@ -578,8 +578,8 @@
       {
         "requested_audio_time": 94.88,
         "text": "This local selection is not downloaded again.",
-        "audio": 95.101197,
-        "video": 94.928524,
+        "audio": 95.103027,
+        "video": 94.959949,
         "cues": [
           "This local selection is not downloaded again."
         ]
@@ -587,8 +587,8 @@
       {
         "requested_audio_time": 98.29249999999999,
         "text": "The Plaque lesson shows an actual model download and preview.",
-        "audio": 98.500169,
-        "video": 98.485515,
+        "audio": 98.524368,
+        "video": 98.489943,
         "cues": [
           "The Plaque lesson shows an actual model download and preview."
         ]
@@ -596,8 +596,8 @@
       {
         "requested_audio_time": 102.7425,
         "text": "The lower area is for testing fields and comparing selected models.",
-        "audio": 102.962332,
-        "video": 102.808704,
+        "audio": 102.965862,
+        "video": 102.822395,
         "cues": [
           "The lower area is for testing fields and comparing selected models."
         ]
@@ -605,8 +605,8 @@
       {
         "requested_audio_time": 106.345,
         "text": "Those jobs are separate from scanning the library.",
-        "audio": 106.55282,
-        "video": 106.546996,
+        "audio": 106.575983,
+        "video": 106.54911,
         "cues": [
           "Those jobs are separate from scanning the library."
         ]
@@ -614,8 +614,8 @@
       {
         "requested_audio_time": 110.45249999999999,
         "text": "The current Cellpose argument mismatch prevents us from claiming a successful benchmark here.",
-        "audio": 110.669646,
-        "video": 110.544172,
+        "audio": 110.670785,
+        "video": 110.546983,
         "cues": [
           "The current Cellpose argument mismatch prevents us from claiming a successful benchmark here."
         ]
@@ -623,8 +623,8 @@
       {
         "requested_audio_time": 114.44749999999999,
         "text": "No masks or test scores are fabricated.",
-        "audio": 114.674569,
-        "video": 114.655957,
+        "audio": 114.674766,
+        "video": 114.658254,
         "cues": [
           "No masks or test scores are fabricated."
         ]
@@ -632,8 +632,8 @@
       {
         "requested_audio_time": 119.295,
         "text": "Keep representative validation images separate from training examples when evaluating a repaired workflow.",
-        "audio": 119.531657,
-        "video": 119.365952,
+        "audio": 119.509871,
+        "video": 119.370865,
         "cues": [
           "Keep representative validation images separate from training examples when evaluating a repaired workflow."
         ]

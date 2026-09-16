@@ -62,7 +62,7 @@ Two confidence intervals, and why the default is the slow one
 Both are offered on ``log10_ec50`` and both back-transform:
 
 * :data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit``
-  returns, with a **t quantile on ``n - 4`` degrees of freedom**. Not a
+  returns, with a t quantile on ``n - 4`` degrees of freedom. Not a
   normal quantile: eight concentrations with no replicates leaves 4 df, where
   ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width
   of the published interval, which is not cosmetic.
@@ -217,9 +217,6 @@ class DoseResponseError(ValueError):
     """
 
 
-# ---------------------------------------------------------------------------
-# Policies
-# ---------------------------------------------------------------------------
 
 #: Profile-likelihood interval on ``log10_ec50``. The default; it is the one
 #: that can decline to close. See the module docstring.
@@ -350,9 +347,6 @@ def four_parameter_logistic(x, bottom, top, log10_ec50, hill):
     return bottom + (top - bottom) / (1.0 + 10.0 ** exponent)
 
 
-# ---------------------------------------------------------------------------
-# Monotonicity
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class MonotonicityCheck:
@@ -467,9 +461,6 @@ def monotonicity(doses: Sequence[float], responses: Sequence[float], *,
         is_monotone=bool(reversal < threshold))
 
 
-# ---------------------------------------------------------------------------
-# The spec
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class DoseResponseSpec:
@@ -548,7 +539,6 @@ class DoseResponseSpec:
                 f"in (0, 1], not {self.max_reversal}")
         object.__setattr__(self, "max_reversal", reversal)
 
-    # -- edits ------------------------------------------------------------
     def with_columns(self, concentration: str, response: str,
                      group: Optional[str] = None) -> "DoseResponseSpec":
         """A copy pointed at different columns."""
@@ -563,7 +553,6 @@ class DoseResponseSpec:
         """A copy that says the concentrations are in ``unit``."""
         return replace(self, unit=unit)
 
-    # -- serialisation ----------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
         """A plain dict, for JSON or a settings file."""
         return {
@@ -611,9 +600,6 @@ class DoseResponseSpec:
                 f"on log10(EC50) · direction {self.direction}")
 
 
-# ---------------------------------------------------------------------------
-# The result
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class DoseResponseResult:
@@ -714,7 +700,6 @@ class DoseResponseResult:
     optimizer_notes: Tuple[str, ...] = ()
     notes: Tuple[str, ...] = ()
 
-    # -- shape -------------------------------------------------------------
     @property
     def parameters(self) -> Tuple[float, float, float, float]:
         """``(bottom, top, log10_ec50, hill)`` — the vector the model takes."""
@@ -745,15 +730,6 @@ class DoseResponseResult:
         if self.ec50_low is None or self.ec50_high is None:
             return None
         if self.ec50_low <= 0:
-            # A bound from `fit_dose_response` IS positive -- both ends
-            # are back-transformed out of log space. But this dataclass
-            # is public, frozen and validates nothing, so one
-            # `dataclasses.replace` away is a bound of zero, and the
-            # alternative to declining is a division that yields `inf`
-            # and a panel reporting "within a factor of inf".
-            #
-            # `<= 0` rather than `== 0`: a negative bound would otherwise
-            # take the square root of a negative number.
             return None
         return float(np.sqrt(self.ec50_high / self.ec50_low))
 
@@ -765,7 +741,6 @@ class DoseResponseResult:
         """Whether the curve barely bends across the tested range."""
         return bool(abs(self.hill) <= SHALLOW_HILL)
 
-    # -- prediction --------------------------------------------------------
     def predict(self, x) -> np.ndarray:
         """The fitted response at ``x``."""
         return four_parameter_logistic(x, *self.parameters)
@@ -783,7 +758,6 @@ class DoseResponseResult:
         grid = np.logspace(low, high, max(2, int(points)))
         return grid, self.predict(grid)
 
-    # -- frames ------------------------------------------------------------
     def points_frame(self) -> pd.DataFrame:
         """The fitted observations with their fitted values and residuals."""
         fitted = self.predict(self.dose)
@@ -852,7 +826,6 @@ class DoseResponseResult:
             "note": ("" if self.ec50_bounded else self.bound_statement()),
         }
 
-    # -- saying it in words ------------------------------------------------
     def _dose(self, value: Optional[float]) -> str:
         """Render one dose for the report, with its unit.
 
@@ -1024,9 +997,6 @@ class DoseResponseResult:
         return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Many curves at once
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class GroupFit:
@@ -1153,9 +1123,6 @@ class DoseResponseSet:
         return "\n".join(lines).rstrip() + "\n"
 
 
-# ---------------------------------------------------------------------------
-# The computation
-# ---------------------------------------------------------------------------
 
 def _back_transform(log10_value: Optional[float]) -> Optional[float]:
     """``10 ** x`` as a concentration, without an overflow on the way.
@@ -1496,13 +1463,6 @@ def _profile_bound(log_dose: np.ndarray, response: np.ndarray,
             return None
         reach *= 2.0
     else:
-        # THE WALK NEVER ARRIVED. Sixty doublings covers `step * 2**59`,
-        # which is not the same as "any finite limit" -- a step small
-        # enough against a large enough limit exhausts the loop, and an
-        # infinite limit exhausts it outright.
-        #
-        # Either way the answer is the same one the limit case gives:
-        # this experiment does not bound the EC50 on that side.
         return None
     while abs(outside - inside) > PROFILE_TOLERANCE:
         middle = 0.5 * (inside + outside)
@@ -1693,14 +1653,6 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
     else:
         log_ci = wald_log_ci
 
-    # One reach for both methods. The profile stops walking at
-    # PROFILE_REACH decades past the tested range and calls that side open;
-    # the Wald formula has no such stopping rule and will happily return
-    # 10 ** 400 as an upper bound on a parameter the data does not identify.
-    # Applying the same limit to both is what makes the two methods
-    # comparable: past a factor of 10**PROFILE_REACH beyond the highest dose
-    # tested, "the interval ends here" and "the interval does not close" are
-    # the same statement about the experiment.
     reach = (log_min - PROFILE_REACH, log_max + PROFILE_REACH)
     log_ci = (log_ci[0] if log_ci[0] is not None and log_ci[0] >= reach[0]
               else None,
@@ -1728,9 +1680,6 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
     ec50_low = _back_transform(log_ci[0])
     ec50_high = _back_transform(log_ci[1])
     if not bounded:
-        # An interval around a midpoint the data does not locate is a picture
-        # of the model, not of the experiment. It is dropped with the point
-        # estimate rather than drawn.
         ec50_low = ec50_high = None
         log_ci = (None, None)
 
@@ -1813,9 +1762,6 @@ def fit_frame(frame: pd.DataFrame,
     return DoseResponseSet(fits=tuple(fits), spec=spec)
 
 
-# ---------------------------------------------------------------------------
-# Column suggestions — the only seam that reaches into the Qt tree
-# ---------------------------------------------------------------------------
 
 def _kinds(frame: pd.DataFrame) -> Mapping[str, str]:
     """The Local Data Filter's column classification, by name.
@@ -2001,10 +1947,6 @@ def selectivity_index(pathogen: Optional[DoseResponseResult],
 
     log10_index = float(host.log10_ec50) - float(pathogen.log10_ec50)
 
-    # ONE-SIDED RATHER THAN DROPPED. Interval arithmetic on whichever ends
-    # survive: the smallest possible index divides the host's lower bound by
-    # the parasite's upper one, and vice versa. Conservative, and it is the
-    # only form available when a fit is open on one side.
     def _ratio(numerator, denominator):
         """One end of the interval, or ``None`` when that end is open.
 
@@ -2060,9 +2002,6 @@ def selectivity_index(pathogen: Optional[DoseResponseResult],
         confidence=level, note="")
 
 
-# ---------------------------------------------------------------------------
-# Two-compound checkerboards: Bliss and Loewe
-# ---------------------------------------------------------------------------
 
 #: Bliss independence. Expects the two agents to act on independent targets,
 #: so their surviving fractions multiply.
@@ -2165,13 +2104,6 @@ def _effect_curve(result: DoseResponseResult) -> Callable[[np.ndarray], np.ndarr
         if not np.isfinite(span) or span == 0:
             return np.zeros_like(safe, dtype=float)
         fraction = (value - bottom) / span
-        # THE HILL SIGN CARRIES THE DIRECTION, and the two cases are not
-        # symmetric. A negative Hill is inhibition: the response FALLS with
-        # dose, so at a high dose `fraction` approaches 0 while the affected
-        # fraction approaches 1, and the affected fraction is its complement.
-        # A positive Hill is activation, where `fraction` already IS the
-        # affected fraction and inverting it would report every activator as
-        # its own antagonist.
         affected = (1.0 - fraction) if hill < 0 else fraction
         return np.clip(affected, 0.0, 1.0)
 
@@ -2371,11 +2303,6 @@ def loewe_surface(dose_a, dose_b, response, *,
     with np.errstate(invalid="ignore", divide="ignore"):
         index = np.where(da > 0, grid_a / da, np.nan) + \
                 np.where(db > 0, grid_b / db, np.nan)
-    # THE UNTREATED WELL IS NOT INFINITELY SYNERGISTIC. With both doses at
-    # zero the index is 0 and the excess reads +1.0, the strongest possible
-    # synergy, from the one well where nothing was combined. Measured on a
-    # simulated board it was the maximum of the whole surface. Loewe is
-    # undefined without a combination, so that cell is NaN.
     index = np.where((grid_a > 0) | (grid_b > 0), index, np.nan)
     excess = 1.0 - index
     note = ("cells where the observed effect lies outside a single agent's "
@@ -2405,9 +2332,6 @@ def _dose_for_effect(result: DoseResponseResult,
     return np.where((e > 0) & (e < 1), dose, np.nan)
 
 
-# ---------------------------------------------------------------------------
-# The plate: normalisation to its controls, and the Z' it already has
-# ---------------------------------------------------------------------------
 
 #: Leave the response column alone. The default, because a table that is
 #: already percent inhibition must not be normalised twice.
@@ -2801,9 +2725,6 @@ def plate_reports(frame: pd.DataFrame, spec: PlateSpec, *,
     return reports
 
 
-# ---------------------------------------------------------------------------
-# Replicate plates: one EC50, with plate as a random effect
-# ---------------------------------------------------------------------------
 
 #: Above this share of the spread being real rather than sampling noise, a
 #: pooled EC50 is refused. I-squared is the fraction of the between-plate
@@ -2983,14 +2904,12 @@ def pool_across_plates(fits: Mapping[str, DoseResponseResult], *,
     effects = np.asarray([value for _, value, _ in usable], dtype=float)
     variances = np.asarray([se ** 2 for _, _, se in usable], dtype=float)
 
-    # Stage one: fixed-effect weights, only to measure the disagreement.
     fixed_w = 1.0 / variances
     fixed_mean = float(np.sum(fixed_w * effects) / np.sum(fixed_w))
     q = float(np.sum(fixed_w * (effects - fixed_mean) ** 2))
     dof = len(usable) - 1
     q_p = float(stats.chi2.sf(q, dof)) if dof > 0 else float("nan")
 
-    # DerSimonian--Laird: the spread the plates' own uncertainty cannot explain.
     c = float(np.sum(fixed_w) - np.sum(fixed_w ** 2) / np.sum(fixed_w))
     tau_squared = max(0.0, (q - dof) / c) if c > 0 else 0.0
     tau = float(np.sqrt(tau_squared))

@@ -237,8 +237,14 @@ def test_the_strip_reserves_a_fixed_height_so_run_stop_never_moves(qtbot):
     screen = _make_screen(qtbot, "mask")
     strip = _strip(screen)
     strip.ensurePolished()
-    expected = strip.fontMetrics().lineSpacing() * CATEGORY_STRIP_LINES
-    assert strip.height() == expected
+    # THE CONTRACT IS THE FIXED HEIGHT, NOT THE FORMULA. This used to
+    # recompute `lineSpacing() * CATEGORY_STRIP_LINES` here, which made the
+    # test a copy of the implementation: both were wrong together on every
+    # font whose leading is negative, and neither could catch the other.
+    # Ask for the two properties the strip actually exists to provide.
+    assert strip.height() >= strip.heightForWidth(strip.width()), (
+        "the reserved strip is shorter than the text it has to hold, so the "
+        "last line is clipped")
     before = strip.height()
     screen.show_category_hint("Organelle Segmentation")   # the longest blurb
     assert strip.height() == before

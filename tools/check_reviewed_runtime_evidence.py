@@ -119,7 +119,7 @@ def _languages(argv) -> list:
                   if path.is_dir())
 
 
-def main(argv=None) -> int:
+def _report(argv=None) -> int:
     """Print every loose reviewed runtime record; return 1 if there are any."""
     argv = list(sys.argv[1:] if argv is None else argv)
 
@@ -158,9 +158,8 @@ def main(argv=None) -> int:
     # `_REVIEWED_RUNTIME_LOADING` is the loader's OWN guard for exactly this
     # cycle -- `_reviewed_translation` returns the static answer and stops
     # when the language is in it -- so this borrows the mechanism rather than
-    # inventing one. Held for the whole run and never discarded: this is a
-    # one-shot script, and there is no point at which it wants the loader to
-    # start raising again.
+    # inventing one. Held for the whole run, and given back by `main` when the
+    # run ends: see there.
     runtime._REVIEWED_RUNTIME_LOADING.update(languages)
 
     for language in languages:
@@ -274,6 +273,34 @@ def main(argv=None) -> int:
         return 0
     print(f"{reported} of {checked} reviewed runtime records need attention")
     return 1
+
+
+def main(argv=None) -> int:
+    """Report stale reviewed runtime evidence; see `_report`.
+
+    THE GUARD IS GIVEN BACK WHEN THE REPORT ENDS. The report holds the
+    loader's `_REVIEWED_RUNTIME_LOADING` guard so it cannot re-enter
+    `reviewed_runtime_translations`, and it used to hold it forever because a
+    one-shot script never needs it back. A caller in the same process does:
+    while a language is in the guard, `_reviewed_translation` answers without
+    reading any reviewed record, so every later build or test in that process
+    silently ignored review evidence. Measured 2026-09-15: running this file's
+    tests first made test_a_committed_row_outranks_the_translation_cache fail
+    4 of 4 reviewed-record cases, and each passed alone.
+
+    :param argv: optional language codes; all languages on disk when empty.
+    :returns: 0 when every record is current, 1 otherwise.
+    """
+    loaded = sys.modules.get("build_i18n_catalogs")
+    held = set(loaded._REVIEWED_RUNTIME_LOADING) if loaded is not None else set()
+    try:
+        return _report(argv)
+    finally:
+        # `_report` imports the builder only when it gets past the options,
+        # so there may be nothing to give back.
+        runtime = sys.modules.get("build_i18n_catalogs")
+        if runtime is not None:
+            runtime._REVIEWED_RUNTIME_LOADING.intersection_update(held)
 
 
 if __name__ == "__main__":

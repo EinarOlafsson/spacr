@@ -13,10 +13,23 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
-import pandas as pd
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# PANDAS IS IMPORTED WHERE IT IS USED, not here. Only `read_the_counts` and
+# `read_the_response` touch it, and both READ A TABLE -- work that happens
+# when the user asks for advice, never while a screen is being built. At
+# module level it cost ~200 ms on the main thread during a screen open,
+# because this module is reachable from the settings panel and an import is
+# paid by whoever arrives first. Every annotation that names it is already a
+# string, so nothing needs the name at definition time.
+#
+# Both functions already import their other helpers locally, so this joins a
+# pattern rather than starting one.
 
 #: How many object rows the response is read from before the sample is
 #: declared capped. Large enough that a proportion's range, boundedness and
@@ -117,7 +130,6 @@ class Reading:
     capped: bool = False
     trouble: Tuple[str, ...] = ()
 
-    # ---- what only a finished fit knows (instruction 226) ----------------
     #: The run folder these came from, or "". NAMED, because advice derived
     #: from a fit whose settings have since changed is advice about a
     #: different screen, and the reader has to be able to disbelieve it.
@@ -158,9 +170,6 @@ class Reading:
                 f"table is larger than the {ROW_CAP:,}-row sample this reads")
 
 
-# ---------------------------------------------------------------------------
-# Reading
-# ---------------------------------------------------------------------------
 
 def _columns_of(path: str, *, canonical: bool = False) -> Tuple[str, ...]:
     """The header of a table, without reading a row of it.
@@ -222,6 +231,8 @@ def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
 
     :param paths: count-table paths to read together as one screen design.
     """
+    import pandas as pd
+
     from .cell_montage import fractions_from_counts
     from .control_names import common_prefix
     from .gene_measurement_sweep import gene_of_guide
@@ -246,15 +257,9 @@ def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
     out["plates"] = int(_plate_of(wells).nunique())
     out["wells"] = int(wells.nunique())
     out["guides"] = int(guides.nunique())
-    # r1/c1 out of `plate1_r1_c1`, so a one-row or one-column screen can be
-    # recognised -- `model_plate_position` has nothing to model on one of
-    # either.
     parts = wells.str.split("_")
     out["rows"] = int(parts.str[1].nunique()) if parts.str.len().min() > 1 else 0
     out["columns"] = int(parts.str[2].nunique()) if parts.str.len().min() > 2 else 0
-    # THE FRACTION DISTRIBUTION ITSELF, not only its shape. It was computed
-    # here and thrown away, and it is the only thing that can say whether a
-    # `fraction_threshold` keeps a library or deletes it.
     try:
         share = pd.to_numeric(frame["fraction"], errors="coerce")
         share = share[share.notna() & (share > 0)]
@@ -263,8 +268,6 @@ def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
             out["fraction_q90"] = float(share.quantile(0.90))
             out["guides_per_well"] = float(
                 frame.groupby("prc")["grna"].nunique().median())
-            # What the usual default would cost THIS screen, which is the
-            # number a user can act on.
             out["kept_at_two_percent"] = float((share >= 0.02).mean())
         else:
             out["trouble"].append(_NO_USABLE_FRACTIONS)
@@ -274,10 +277,6 @@ def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
     per_guide = frame.groupby("grna")["prc"].nunique()
     out["wells_per_guide"] = float(per_guide.median()) if len(per_guide) else None
 
-    # THE GENE OF A GUIDE THROUGH THE ONE READER (145/184). `gene_of_guide`
-    # measures the organism prefix itself rather than assuming `TGGT1_`, so a
-    # Plasmodium or a human library is not pooled into one gene; the prefix
-    # is measured here too, for the note this reading carries.
     prefix = common_prefix([str(g) for g in guides.unique()])
     genes = pd.Series([gene_of_guide(g, prefix=prefix) or "" for g in guides],
                       index=frame.index).astype(str)
@@ -313,6 +312,8 @@ def read_the_response(paths: Sequence[str], dependent_variable: str = "",
         Measured response properties and any non-fatal problems in
         ``"trouble"``.
     """
+    import pandas as pd
+
     from .tabular import read_table
 
     out: Dict[str, Any] = {"trouble": []}
@@ -350,11 +351,6 @@ def read_the_response(paths: Sequence[str], dependent_variable: str = "",
         if taken >= row_cap:
             out["capped"] = True
             break
-        # EACH FILE'S OWN HEADER. Taking the columns off the FIRST file and
-        # asking every other file for them is how plates 2, 3 and 4 of the
-        # reference screen were dropped: plate 1 carries `col` and the others
-        # do not, so `usecols` raised on each of them and the response was
-        # measured from one plate while the reading said four.
         here = _columns_of(path)
         if wanted not in here:
             out["trouble"].append(
@@ -362,9 +358,6 @@ def read_the_response(paths: Sequence[str], dependent_variable: str = "",
             continue
         keys = [c for c in naming if c in here]
         try:
-            # THE ONE READER (145), with `usecols` and `nrows` passed
-            # through: `read_table` forwards its kwargs to pandas, so the
-            # cap this module needs costs nothing to keep.
             piece = read_table(path, usecols=[wanted] + keys,
                                nrows=row_cap - taken, report=None)
         except Exception as exc:                             # noqa: BLE001
@@ -379,9 +372,6 @@ def read_the_response(paths: Sequence[str], dependent_variable: str = "",
     if not frames:
         return out
 
-    # THE COLUMNS DIFFER BETWEEN PLATES, so the concatenation is on the
-    # union and a key missing from one file is NaN there rather than an
-    # error. `_well_key` picks whichever spelling is complete.
     frame = pd.concat(frames, ignore_index=True) if len(frames) > 1 \
         else frames[0]
     values = pd.to_numeric(frame[wanted], errors="coerce").dropna()
@@ -389,10 +379,6 @@ def read_the_response(paths: Sequence[str], dependent_variable: str = "",
         out["trouble"].append(f"{wanted!r} holds no number in the sample")
         return out
 
-    # THE WELL IS THE UNIT THE FIT SEES. A per-object response is aggregated
-    # to wells before the model touches it, so the family question is about
-    # the WELL means -- and the object-level spread, which is much wider, is
-    # not the distribution being modelled.
     where = _well_key(frame)
     if where is not None:
         per_well = values.groupby(where.loc[values.index]).mean()
@@ -440,9 +426,6 @@ def read_the_screen(counts: Sequence[str] = (), scores: Sequence[str] = (),
     return Reading(**{k: v for k, v in got.items() if k in fields})
 
 
-# ---------------------------------------------------------------------------
-# The questions the data cannot answer
-# ---------------------------------------------------------------------------
 
 #: Questions whose answers cannot be inferred reliably from the input tables.
 #: The first captures the expected hit rate, a prior supplied by the user
@@ -519,9 +502,6 @@ def questions_for(reading: Reading) -> Tuple[Question, ...]:
     return tuple(out)
 
 
-# ---------------------------------------------------------------------------
-# The advice
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Advice:
@@ -584,8 +564,6 @@ def _family_and_transform(reading: Reading, chosen: List[Choice],
             f"the well response {reading.response!r} is 0 or 1 and nothing "
             f"else{where}, which is a binomial mean"))
     elif reading.inside_unit:
-        # `check_distribution`'s own answer, and the reason names the number
-        # it turns on rather than repeating the recommendation.
         chosen.append(Choice(
             "regression_type", "beta",
             f"the well response is strictly inside (0, 1) — {span} — so it "
@@ -618,9 +596,6 @@ def _family_and_transform(reading: Reading, chosen: List[Choice],
             if reading.normal_p is not None else
             f"the well response is unbounded — {span}{where}"))
 
-    # THE TRANSFORM IS PART OF THE SAME DECISION. Every bounded family above
-    # carries its own link, so a transform on top of it is the double one 182
-    # exists to prevent.
     family = next(c.value for c in chosen if c.key == "regression_type")
     if family in ("logit", "beta", "quasi_binomial", "glm"):
         chosen.append(Choice(
@@ -695,18 +670,11 @@ def _plate(reading: Reading, chosen: List[Choice],
             f"there is {reading.plates} plate, and a batch correction needs "
             f"at least two batches to estimate anything"))
     else:
-        # PER-PLATE CENTRING, which needs nothing but the plate. It removes
-        # the plate's own mean and estimates NOTHING from the residuals, so
-        # there is no design for it to mistake signal for noise against.
         chosen.append(Choice(
             "batch_correction", "center",
             f"{reading.plates} plates, so plate is a batch the response "
             f"carries; per-plate centring removes it without estimating "
             f"anything from the residuals"))
-        # `control_center` IS THE BETTER ONE AND IS NOT PROPOSED, because it
-        # centres each plate on its CONTROL WELLS -- values in a column --
-        # and which wells those are is not in the count or score tables.
-        # Naming it here is the difference between a default and a ceiling.
         undecided.append(Undecided(
             "batch_control_values",
             "left alone. `batch_correction='control_center'` is the stronger "
@@ -715,18 +683,6 @@ def _plate(reading: Reading, chosen: List[Choice],
             "them, and that is not in these tables. Set batch_control_column "
             "and batch_control_values and it becomes available."))
 
-    # NOT ComBat, AND THAT IS A DECISION (196). ComBat estimates the plate
-    # effect from whatever the design does not explain, and it REFUSES to run
-    # until the caller says which biology to protect from that -- correctly,
-    # because in a pooled screen the biology is the per-well GUIDE
-    # COMPOSITION, which is continuous and is not a categorical covariate
-    # column. There is nothing honest to pass, so proposing ComBat means
-    # proposing a run that either refuses or removes the effects being
-    # looked for.
-    #
-    # This module used to propose it anyway, with no covariate. The proposal
-    # was accepted, the run was pressed, and it failed on the refusal --
-    # which is the whole reason 196 exists.
     if reading.plates > 1:
         undecided.append(Undecided(
             "batch_covariate_column",
@@ -791,9 +747,6 @@ def _significance(reading: Reading, answers: Dict[str, Any],
             "correction's strictness is argued from"))
     else:
         share = max(float(rate), 0.0) / 1000.0
-        # A LOW PRIOR MAKES EVERY DISCOVERY MORE LIKELY TO BE FALSE at the
-        # same alpha, which is the whole argument for moving it: at 5 real
-        # hits in 1,000, a 0.1 FDR is a list that is mostly noise.
         alpha = 0.05 if share >= 0.10 else (0.01 if share <= 0.01 else 0.05)
         if cost == "precision":
             alpha = min(alpha, 0.01)
@@ -887,8 +840,6 @@ def _thresholds(reading: Reading, chosen: List[Choice],
             "fraction_threshold",
             reason))
     elif kept is not None and kept < 0.5:
-        # A tenth of the typical share: low enough to keep the library,
-        # which is the failure that matters, and still above nothing.
         proposal = float(f"{median / 10.0:.1g}")
         chosen.append(Choice(
             "fraction_threshold", proposal,
@@ -907,7 +858,6 @@ def _thresholds(reading: Reading, chosen: List[Choice],
             if kept is not None else
             "the usual default, with nothing here arguing against it"))
 
-    # MIN N -- how many observations a hit must rest on.
     per_guide = reading.wells_per_guide
     if per_guide is None:
         undecided.append(Undecided(
@@ -964,9 +914,6 @@ def _aggregation(reading: Reading, chosen: List[Choice],
             f"uses every cell rather than only the middle one"))
 
 
-# ---------------------------------------------------------------------------
-# 226: what only a finished run knows
-# ---------------------------------------------------------------------------
 
 #: The keys the QC numbers file may use for each thing the advisor reads.
 #: SEVERAL SPELLINGS PER ROW, because the panels name their own statistics
@@ -1155,12 +1102,8 @@ def advise(reading: Reading,
     _inference(reading, chosen, undecided)
     _significance(reading, answers, chosen, undecided)
     _controls(reading, answers, chosen, undecided)
-    # Add evidence thresholds and the aggregation unit after the model family,
-    # transform, and batch method have been selected.
     _thresholds(reading, chosen, undecided)
     _aggregation(reading, chosen, undecided)
-    # Completed-run diagnostics are applied last because they can supersede
-    # recommendations inferred from input structure alone.
     _from_the_run(reading, chosen, undecided)
     if reading.run_note:
         undecided.append(Undecided("last run", reading.run_note))
@@ -1196,9 +1139,6 @@ def advise_the_screen(counts: Sequence[str] = (), scores: Sequence[str] = (),
     return advise(reading, answers)
 
 
-# ---------------------------------------------------------------------------
-# 196 B: a proposal that the run would refuse is not a proposal
-# ---------------------------------------------------------------------------
 
 def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
     """Return reasons a regression settings mapping cannot be run.
@@ -1221,7 +1161,6 @@ def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
     said: List[str] = []
     got = dict(settings or {})
 
-    # 1. ComBat without a covariate. The one that was actually hit.
     if str(got.get("batch_correction") or "").lower() == "combat":
         from .batch_correction import NO_COVARIATE
 
@@ -1234,16 +1173,12 @@ def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
                 f"condition/treatment column, or set it to {NO_COVARIATE!r} "
                 "to state that there is nothing to preserve.")
 
-    # 2. `control_center` with nothing to centre on.
     if str(got.get("batch_correction") or "").lower() == "control_center":
         if not got.get("batch_control_column"):
             said.append(
                 "batch_correction='control_center' requires "
                 "batch_control_column and at least one batch_control_value.")
 
-    # 3. A setting the chosen estimator cannot read. `perform_regression`
-    #    REFUSES these rather than ignoring them, so a number left on the
-    #    panel from another model stops the run.
     kind = str(got.get("regression_type") or "").lower()
     try:
         from .regression_spec import REGRESSION_SETTINGS_USED
@@ -1255,11 +1190,6 @@ def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
     except Exception:                                        # noqa: BLE001
         pass
 
-    # 4. THE PERMUTATION TEST CANNOT SEE OBJECTS. Hit live on 2026-08-21: a
-    #    run reached "permuting the guides" thirty-one seconds in -- after
-    #    the filters, the plots and two saved CSVs -- and only then raised.
-    #    The incompatibility is knowable from the settings alone and had no
-    #    business waiting for the data.
     mode = str(got.get("analysis_mode") or "").lower()
     unit = str(got.get("analysis_unit") or "").lower()
     if mode == "guide_permutation" and unit == "cell":
@@ -1271,10 +1201,6 @@ def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
             "'mean'), or choose analysis_mode='regression', which can model "
             "objects.")
 
-    # 5. THE SAME COMBINATION REACHED THROUGH `inference`, which is the door
-    #    a user actually walks through: 'nonparametric' SELECTS
-    #    guide_permutation, so the refusal has to recognise it under both
-    #    names or it fires for the setting nobody typed.
     if (str(got.get("inference") or "").lower() in ("nonparametric",
                                                     "permutation")
             and unit == "cell" and mode != "regression"):
@@ -1286,10 +1212,6 @@ def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
                 "agg_type, or inference='parametric' to fit a model that can "
                 "read objects.")
 
-    # 6. AN AGGREGATION THAT WILL NOT BE READ. `analysis_unit='cell'` keeps
-    #    every object, so an `agg_type` set beside it is a control the user
-    #    changed and the run ignored -- which is how somebody concludes the
-    #    setting does nothing.
     if unit == "cell" and got.get("agg_type"):
         said.append(
             f"analysis_unit='cell' keeps one row per object, so "
@@ -1307,11 +1229,8 @@ def refusals(settings: Mapping[str, Any]) -> Tuple[str, ...]:
 #: other and not an absence of one.
 UNIT_REQUIREMENTS: Dict[str, Dict[str, Any]] = {
     "cell": {
-        # The permutation test works well by well; only the model can read
-        # objects.
         "analysis_mode": "regression",
         "inference": "parametric",
-        # One row per object already: there is nothing to aggregate.
         "agg_type": None,
     },
     "well": {},
@@ -1364,8 +1283,6 @@ def advise_that_runs(reading: Reading,
     if not said:
         return advice
 
-    # WHICH SETTING TO WITHDRAW. Named from the sentence rather than guessed:
-    # every refusal above quotes the key it is about.
     chosen, withdrawn = [], list(advice.undecided)
     for choice in advice.chosen:
         blamed = [s for s in said if choice.key in s]

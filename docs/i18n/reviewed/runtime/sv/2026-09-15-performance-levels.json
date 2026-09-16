@@ -1,0 +1,76 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "64 GB or more, and yours alone",
+      "source": "64 GB or more, and yours alone",
+      "source_sha256": "40136f527608ebcce11b510065c6903527523183d348c49e8d3efecfe47b35b3",
+      "table": "ui",
+      "translation": "64 GB eller mer, och bara din"
+    },
+    {
+      "key": "8 GB or less, or running on battery",
+      "source": "8 GB or less, or running on battery",
+      "source_sha256": "98322e2f98a1573b2b14fbd8e0c3d36eb37594868572ef3997f89bb11253a4e7",
+      "table": "ui",
+      "translation": "8 GB eller mindre, eller på batteri"
+    },
+    {
+      "key": "For a machine with 64 GB or more that is yours alone. spaCR keeps the most: the most editable figures, and by default cached data for 60 minutes unused and up to 16384 MB. Nothing is cleared at launch or before a run. Uses the most memory of any level, by design.",
+      "source": "For a machine with 64 GB or more that is yours alone. spaCR keeps the most: the most editable figures, and by default cached data for 60 minutes unused and up to 16384 MB. Nothing is cleared at launch or before a run. Uses the most memory of any level, by design.",
+      "source_sha256": "58f887f610a48b0f33946a1fc96bfdacedd4572c6b04b00fab268ff9cd8c8488",
+      "table": "ui",
+      "translation": "För en dator med 64 GB eller mer som bara du använder. spaCR behåller mest: flest redigerbara figurer och som standard cachade data i 60 minuter utan användning och upp till 16384 MB. Ingenting töms vid start eller före en körning. Använder avsiktligt mest minne av alla nivåer."
+    },
+    {
+      "key": "For a machine with 8 GB of memory or less, or one running on battery. spaCR keeps the least: no animated backdrop, the fewest editable figures, and by default cached data is dropped after 2 minutes unused or above 256 MB. Caches are also cleared at launch and before every run, so going back to a figure is slower.",
+      "source": "For a machine with 8 GB of memory or less, or one running on battery. spaCR keeps the least: no animated backdrop, the fewest editable figures, and by default cached data is dropped after 2 minutes unused or above 256 MB. Caches are also cleared at launch and before every run, so going back to a figure is slower.",
+      "source_sha256": "444b647788d9abab31efc95922d4b5c2210df5ec8294d52a0bc2dc278e2a3b1d",
+      "table": "ui",
+      "translation": "För en dator med 8 GB minne eller mindre, eller en som går på batteri. spaCR behåller minst: ingen animerad bakgrund, färst redigerbara figurer, och som standard släpps cachade data som legat oanvända i 2 minuter eller som överstiger 256 MB. Cacher töms också vid start och före varje körning, så det tar längre tid att gå tillbaka till en figur."
+    },
+    {
+      "key": "For a machine with other work on it. spaCR clears its caches and unused GPU memory once, at launch, leaves your visual settings alone, and by default drops cached data after 10 minutes unused or above 1024 MB.",
+      "source": "For a machine with other work on it. spaCR clears its caches and unused GPU memory once, at launch, leaves your visual settings alone, and by default drops cached data after 10 minutes unused or above 1024 MB.",
+      "source_sha256": "8076998594904e2e93566a693df61789c02e5333245dfc2b2038fd065a5a9575",
+      "table": "ui",
+      "translation": "För en dator som även används till annat arbete. spaCR tömmer sina cacher och oanvänt GPU-minne en gång, vid start, låter dina visuella inställningar vara och släpper som standard cachade data som legat oanvända i 10 minuter eller som överstiger 1024 MB."
+    },
+    {
+      "key": "For a shared machine you do not want spaCR to crowd. spaCR clears its caches, unused GPU memory and idle threads at launch and before every run, turns every visual setting to its minimum, and by default drops cached data after 5 minutes unused or above 512 MB.",
+      "source": "For a shared machine you do not want spaCR to crowd. spaCR clears its caches, unused GPU memory and idle threads at launch and before every run, turns every visual setting to its minimum, and by default drops cached data after 5 minutes unused or above 512 MB.",
+      "source_sha256": "96159c6b2979fa59789400db935fc10986e857387150d729cd430b24b2b8c962",
+      "table": "ui",
+      "translation": "För en delad dator där du inte vill att spaCR tar för stor plats. spaCR tömmer sina cacher, oanvänt GPU-minne och vilande trådar vid start och före varje körning, sänker varje visuell inställning till sitt minimum och släpper som standard cachade data som legat oanvända i 5 minuter eller som överstiger 512 MB."
+    },
+    {
+      "key": "For an ordinary desktop with 16 GB or more. Nothing is cleared at launch or before a run, recent figures and images stay ready so going back is instant, and by default cached data is dropped after 15 minutes unused or above 2048 MB.",
+      "source": "For an ordinary desktop with 16 GB or more. Nothing is cleared at launch or before a run, recent figures and images stay ready so going back is instant, and by default cached data is dropped after 15 minutes unused or above 2048 MB.",
+      "source_sha256": "7e20bf58836a8766db0bb33154d1c2b4e9ac641c7f0d8d0dc4043a44b8e89ff6",
+      "table": "ui",
+      "translation": "För en vanlig stationär dator med 16 GB eller mer. Ingenting töms vid start eller före en körning, de senaste figurerna och bilderna hålls redo så att du kan gå tillbaka direkt, och som standard släpps cachade data som legat oanvända i 15 minuter eller som överstiger 2048 MB."
+    },
+    {
+      "key": "a machine with other work on it",
+      "source": "a machine with other work on it",
+      "source_sha256": "daecc42ef5873d594d75dc5610ccdcbe39574b0f697b75010f446eb92e97895d",
+      "table": "ui",
+      "translation": "en dator som även används till annat arbete"
+    },
+    {
+      "key": "a shared machine you do not want spaCR to crowd",
+      "source": "a shared machine you do not want spaCR to crowd",
+      "source_sha256": "692fa89d6c1fc363c5eaa16c83d80f23567c804213989c11f22448a95c0abba0",
+      "table": "ui",
+      "translation": "en delad dator där du inte vill att spaCR tar för stor plats"
+    },
+    {
+      "key": "an ordinary desktop, 16 GB or more",
+      "source": "an ordinary desktop, 16 GB or more",
+      "source_sha256": "4ff093e38243be7e34ac78a2e1814ce628f56ae2e318a69d01489418e7348324",
+      "table": "ui",
+      "translation": "en vanlig stationär dator, 16 GB eller mer"
+    }
+  ],
+  "schema": 1
+}

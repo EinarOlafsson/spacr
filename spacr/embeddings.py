@@ -43,8 +43,9 @@ from __future__ import annotations
 import hashlib
 import logging
 import os
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
+from dataclasses import dataclass, replace
+from typing import (Any, Callable, Dict, List, Mapping, MutableMapping,
+                    Optional, Sequence, Tuple)
 
 import numpy as np
 
@@ -99,10 +100,16 @@ class EmbeddingSpec:
         means every channel the array has.
     :param batch_size: crops per forward pass.
     :param device: torch device string, or ``None`` to choose one.
-    :param normalize: divide each channel by its own 99th percentile before
-        encoding. Microscopy dynamic range varies by orders of magnitude
-        between stains, and an encoder trained on photographs will otherwise
-        see one channel as noise.
+    :param normalize: divide each channel by a fixed scale before encoding,
+        clipped to [0, 1]. Microscopy dynamic range varies by orders of
+        magnitude between stains, and an encoder trained on photographs will
+        otherwise see one channel as noise.
+    :param channel_scale: that scale, one value per encoded channel in
+        encoding order -- normally each channel's 99th percentile over a
+        random sample of the plate. The same numbers for every crop mean an
+        object's embedding does not depend on which crops share its batch.
+        ``None`` lets :func:`embed_array` estimate it from the crops it is
+        given.
     """
 
     backbone: str = DEFAULT_BACKBONE
@@ -111,14 +118,30 @@ class EmbeddingSpec:
     batch_size: int = 64
     device: Optional[str] = None
     normalize: bool = True
+    channel_scale: Optional[Tuple[float, ...]] = None
 
     def __post_init__(self) -> None:
+        """Reject a specification that could not produce a matrix.
+
+        The check is made where the spec is built rather than where it is
+        used, because one spec encodes every crop of a run: an unknown
+        channel policy or a batch size below one is a typing mistake, and
+        discovering it after the images are loaded wastes the load.
+
+        :raises EmbeddingError: when ``channel_policy`` is not one of
+            :data:`CHANNEL_POLICIES`, ``batch_size`` is below one, or
+            ``channel_scale`` is set without ``normalize``, holds a negative
+            or non-finite value, or does not give one value per channel in
+            ``channels``.
+        """
         if self.channel_policy not in CHANNEL_POLICIES:
             raise EmbeddingError(
                 f"unknown channel policy {self.channel_policy!r}; "
                 f"expected one of {', '.join(CHANNEL_POLICIES)}")
         if self.batch_size < 1:
             raise EmbeddingError("batch_size must be at least 1")
+        if self.channel_scale is not None:
+            _check_channel_scale(self)
 
     def fingerprint(self) -> str:
         """A short digest of everything that changes the numbers.
@@ -127,11 +150,51 @@ class EmbeddingSpec:
         A scorecard can quote it, and a cached matrix can be invalidated by
         it rather than by a timestamp.
         """
-        payload = "|".join((
+        fields = [
             self.backbone, self.channel_policy,
             "" if self.channels is None else ",".join(map(str, self.channels)),
-            str(self.normalize)))
+            str(self.normalize)]
+        if self.channel_scale is not None:
+            fields.append(",".join(repr(v) for v in self.channel_scale))
+        payload = "|".join(fields)
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+
+def _check_channel_scale(spec: "EmbeddingSpec") -> None:
+    """Coerce ``spec.channel_scale`` to a tuple of floats and refuse a bad one.
+
+    Coerced because a scale read back from a run's JSON record is a list, and
+    a frozen spec must stay hashable. The scale reaches
+    :meth:`EmbeddingSpec.fingerprint` only when set, so an unscaled spec keeps
+    the fingerprint it had before 410 and matrices cached under it stay
+    named. Zero is allowed: it is what the
+    estimate gives a channel that is blank across the plate, and it scales
+    that channel to zeros rather than dividing by it.
+    """
+    try:
+        scale = tuple(float(v) for v in spec.channel_scale)
+    except (TypeError, ValueError) as exc:
+        raise EmbeddingError(
+            f"channel_scale must be numbers, one per encoded channel; got "
+            f"{spec.channel_scale!r}") from exc
+    object.__setattr__(spec, "channel_scale", scale)
+    if not spec.normalize:
+        raise EmbeddingError(
+            "channel_scale is only applied when normalize is True; drop the "
+            "scale or turn normalize on")
+    if not all(np.isfinite(v) and v >= 0 for v in scale):
+        raise EmbeddingError(
+            f"channel_scale values must be finite and not negative; got "
+            f"{scale}")
+    if spec.channels is not None and len(scale) != len(spec.channels):
+        raise EmbeddingError(_scale_length_message(len(scale),
+                                                   len(spec.channels)))
+
+
+def _scale_length_message(n_scale: int, n_channels: int) -> str:
+    """The one sentence both length checks give."""
+    return (f"channel_scale has {n_scale} value(s) for {n_channels} encoded "
+            "channel(s); give one per encoded channel, in encoding order")
 
 
 @dataclass(frozen=True)
@@ -221,7 +284,12 @@ def _prepare(crops: np.ndarray, spec: EmbeddingSpec
             f"got an array with {array.ndim} dimensions")
     if array.shape[0] == 0:
         raise EmbeddingError("no crops to embed")
-    available = array.shape[3]
+    channels = _encoded_channels(array.shape[3], spec)
+    return array.astype(np.float32, copy=False), channels
+
+
+def _encoded_channels(available: int, spec: EmbeddingSpec) -> Tuple[int, ...]:
+    """The channel indices ``spec`` encodes from crops with ``available``."""
     channels = (tuple(range(available)) if spec.channels is None
                 else tuple(spec.channels))
     for channel in channels:
@@ -234,23 +302,174 @@ def _prepare(crops: np.ndarray, spec: EmbeddingSpec
             f"{len(channels)} channels cannot be projected onto three "
             "without choosing which to drop; name three in "
             "EmbeddingSpec.channels, or use the per-channel policy")
-    return array.astype(np.float32, copy=False), channels
+    if (spec.channel_scale is not None
+            and len(spec.channel_scale) != len(channels)):
+        raise EmbeddingError(_scale_length_message(len(spec.channel_scale),
+                                                   len(channels)))
+    return channels
 
 
-def _scaled(plane: np.ndarray, normalize: bool) -> np.ndarray:
-    """One channel, scaled into roughly [0, 1] by its own 99th percentile."""
-    if not normalize:
+def _scaled(plane: np.ndarray, scale: Optional[float]) -> np.ndarray:
+    """One channel divided by a FIXED scale and clipped to [0, 1].
+
+    ``None`` means the spec does not normalise and the plane passes through.
+    The scale is never derived from ``plane`` here: ``plane`` is a whole
+    batch, and deriving it here is what made a crop's input depend on its
+    batch-mates (410).
+    """
+    if scale is None:
         return plane
-    top = float(np.percentile(plane, 99)) if plane.size else 0.0
+    top = float(scale)
     if not np.isfinite(top) or top <= 0:
         return np.zeros_like(plane)
     return np.clip(plane / top, 0.0, 1.0)
+
+
+#: How a plate's scale is estimated: this percentile of every pixel in a
+#: random sample of this many crops, drawn with this seed, read this many
+#: crops at a time. 2,048 is what the 395 harness used on plate1.
+_SCALE_PERCENTILE = 99.0
+_SCALE_SAMPLE_SIZE = 2048
+_SCALE_SEED = 0
+_SCALE_READ_BATCH = 256
+
+
+def _estimate_channel_scale(crops: Any,
+                            channels: Optional[Sequence[int]] = None, *,
+                            sample_size: int = _SCALE_SAMPLE_SIZE,
+                            seed: int = _SCALE_SEED,
+                            read_batch: int = _SCALE_READ_BATCH
+                            ) -> Tuple[float, ...]:
+    """One scale per channel for a plate: the 99th percentile of a sample.
+
+    ``crops`` is anything shaped ``(n, height, width, channels)`` that can be
+    indexed by a sorted integer array -- an ndarray, a memmap, an HDF5
+    dataset -- and it is read ``read_batch`` crops at a time, so a plate that
+    does not fit in memory can still be sampled. ``sample_size`` crops are
+    drawn without replacement by ``numpy.random.default_rng(seed)``; a plate
+    no larger than the sample is used whole, which makes the estimate exactly
+    the whole-plate percentile (and, for such a stack, exactly the number
+    ``embed_array`` used before 410).
+
+    Memory is the sample's pixels once per channel, float32 -- 2,048 crops of
+    96x96 is ~75 MB a channel.
+
+    :returns: one float per channel, in ``channels`` order (every channel
+        when ``None``). A channel with no positive, finite percentile -- blank
+        across the sample -- gets ``0.0``, which scales it to zeros.
+    """
+    shape = tuple(getattr(crops, "shape", ()))
+    if len(shape) != 4:
+        raise EmbeddingError(
+            "crops must be (n, height, width, channels) to estimate a scale; "
+            f"got shape {shape}")
+    n, height, width, available = (int(v) for v in shape)
+    if n == 0:
+        raise EmbeddingError("no crops to estimate a scale from")
+    if sample_size < 1 or read_batch < 1:
+        raise EmbeddingError("sample_size and read_batch must be at least 1")
+    channels = (tuple(range(available)) if channels is None
+                else tuple(int(c) for c in channels))
+    for channel in channels:
+        if not 0 <= channel < available:
+            raise EmbeddingError(
+                f"channel {channel} is not in the crops, which have "
+                f"{available}")
+
+    size = min(n, sample_size)
+    picked = np.sort(np.random.default_rng(seed).choice(n, size=size,
+                                                        replace=False))
+    per_crop = height * width
+    buffers = [np.empty(size * per_crop, dtype=np.float32) for _ in channels]
+    filled = 0
+    for start in range(0, size, read_batch):
+        index = picked[start:start + read_batch]
+        chunk = np.asarray(crops[index], dtype=np.float32)
+        if chunk.shape != (index.size, height, width, available):
+            raise EmbeddingError(
+                f"reading {index.size} crops returned shape {chunk.shape}, "
+                f"not {(index.size, height, width, available)}")
+        stop = filled + index.size * per_crop
+        for buffer, channel in zip(buffers, channels):
+            buffer[filled:stop] = chunk[..., channel].ravel()
+        filled = stop
+
+    scale = []
+    for buffer in buffers:
+        top = float(np.percentile(buffer, _SCALE_PERCENTILE,
+                                  overwrite_input=True))
+        scale.append(top if np.isfinite(top) and top > 0 else 0.0)
+    return tuple(scale)
+
+
+def _embed_plate(crops: Any, spec: Optional[EmbeddingSpec] = None, *,
+                 encoder: Optional[Callable[[np.ndarray], np.ndarray]] = None,
+                 record: Optional[MutableMapping[str, Any]] = None,
+                 sample_size: int = _SCALE_SAMPLE_SIZE,
+                 seed: int = _SCALE_SEED,
+                 read_batch: int = _SCALE_READ_BATCH) -> EmbeddingResult:
+    """Embed one plate's crops under one fixed scale per channel (410).
+
+    The scale is estimated ONCE per run, from a random sample of the plate and
+    for every channel it has, and written into ``record`` -- the run's own
+    JSON-serialisable record, which the caller keeps beside the matrix:
+
+        record["channel_scale"]        {"0": 85.0, "1": 79.0, "2": 198.0}
+        record["channel_scale_sample"] {"percentile", "size", "seed", "n_crops"}
+
+    A ``record`` that already holds a scale is reused as it stands, so a rerun
+    -- another backbone, another batch size, a subset of the channels, the
+    crops in another order -- sees the same numbers without estimating again.
+    One that lacks a channel this run encodes is refused: it was recorded for
+    a different plate, and topping it up from a new sample would mix two.
+
+    A spec that already carries ``channel_scale``, or does not normalise, is
+    passed through untouched and ``record`` is not written.
+    """
+    spec = spec or EmbeddingSpec()
+    if spec.normalize and spec.channel_scale is None:
+        shape = tuple(getattr(crops, "shape", ()))
+        if len(shape) != 4:
+            raise EmbeddingError(
+                "crops must be (n, height, width, channels); "
+                f"got shape {shape}")
+        channels = _encoded_channels(int(shape[3]), spec)
+        recorded = None if record is None else record.get("channel_scale")
+        if recorded is None:
+            everything = _estimate_channel_scale(
+                crops, None, sample_size=sample_size, seed=seed,
+                read_batch=read_batch)
+            recorded = {str(c): v for c, v in enumerate(everything)}
+            if record is not None:
+                record["channel_scale"] = recorded
+                record["channel_scale_sample"] = {
+                    "percentile": _SCALE_PERCENTILE,
+                    "size": int(min(int(shape[0]), sample_size)),
+                    "seed": int(seed),
+                    "n_crops": int(shape[0]),
+                }
+        missing = [c for c in channels if str(c) not in recorded]
+        if missing:
+            raise EmbeddingError(
+                f"the run's record holds a channel_scale for channels "
+                f"{sorted(recorded, key=int)} but this run also encodes "
+                f"{missing}; that record was made for a different plate")
+        spec = replace(spec, channel_scale=tuple(
+            recorded[str(c)] for c in channels))
+    return embed_array(crops, spec, encoder=encoder)
 
 
 def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
                 encoder: Optional[Callable[[np.ndarray], np.ndarray]] = None
                 ) -> EmbeddingResult:
     """Embed a stack of crops.
+
+    Every crop is divided by the same per-channel scale,
+    ``spec.channel_scale``, so a crop's embedding does not depend on the other
+    crops in ``crops``. When the spec carries none, one is estimated from a
+    random sample of ``crops`` -- the stack is treated as the whole plate --
+    and a warning is logged. To embed one plate in several calls, pass the
+    same scale to each: the returned ``spec`` carries it.
 
     :param crops: ``(n, height, width, channels)``, the shape
         :mod:`spacr.crops` already produces.
@@ -266,10 +485,21 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
     """
     spec = spec or EmbeddingSpec()
     array, channels = _prepare(crops, spec)
+    if spec.normalize and spec.channel_scale is None:
+        scale = _estimate_channel_scale(array, channels)
+        LOG.warning(
+            "embed_array was given no channel_scale, so these %d crops were "
+            "treated as the whole plate and scaled by %s. Crops embedded in "
+            "another call are scaled alike only when that call is given the "
+            "same channel_scale -- pass on the returned spec.",
+            array.shape[0], scale)
+        spec = replace(spec, channel_scale=scale)
+    scales: Tuple[Optional[float], ...] = (
+        spec.channel_scale if spec.normalize else (None,) * len(channels))
     run = encoder if encoder is not None else _timm_encoder(spec)
 
     if spec.channel_policy == CHANNEL_PROJECT:
-        planes = [_scaled(array[..., c], spec.normalize) for c in channels]
+        planes = [_scaled(array[..., c], s) for c, s in zip(channels, scales)]
         while len(planes) < 3:
             planes.append(np.zeros_like(planes[0]))
         stack = np.stack(planes[:3], axis=-1)
@@ -277,8 +507,8 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
         per_channel = values.shape[1]
     else:
         blocks = []
-        for channel in channels:
-            plane = _scaled(array[..., channel], spec.normalize)
+        for channel, scale in zip(channels, scales):
+            plane = _scaled(array[..., channel], scale)
             stack = np.repeat(plane[..., None], 3, axis=-1)
             blocks.append(np.asarray(run(stack), dtype=np.float32))
         widths = {block.shape[1] for block in blocks}
@@ -335,9 +565,6 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     return run
 
 
-# ---------------------------------------------------------------------------
-# The zoo entry: what produced these numbers, and can it be reproduced
-# ---------------------------------------------------------------------------
 
 #: Key prefix for an encoder's model-zoo entry. Distinct from a checkpoint's
 #: filename-derived key because an encoder has no file of spaCR's own -- it is

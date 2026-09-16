@@ -606,7 +606,7 @@
       "section": "Core",
       "description": "Brug de faktiske eksempeldata, sammenlign areal og diameter live, kør to felter med Plot slået til, og eksporter et manglende overlay gennem et tydeligt Python-trin.",
       "objectives": [
-        "Find Mask på Home og de indlejrede Live-, Time- og 3D-kontroller.",
+        "Find Mask på Home og de indlejrede Live-, Time-, 3D- og OPS-kontroller.",
         "Kontrollér metadata og kanalidentiteter før segmentering.",
         "Skeln mellem et reversibelt filter og en ny modelkørsel.",
         "Undersøg de faktiske resultater, bevar advarslen, og eksporter begge arrays eksplicit.",
@@ -615,14 +615,15 @@
       "example_files": [
         "Mask_overlay_API_workaround.zip"
       ],
-      "prerequisite": "Brug det rigtige Mask-download, og bevar kanalidentiteter og filnavnsmetadata. Den bevarede preview-kode i live_preview.py og preview_contract.py er byteidentisk med den optagne version. Gemte masker reproducerer uafhængigt 51→25→51 ved minimumsareal 5642 og 42 efter diameter 30→60. Den nye batch med to felter er et andet eksempel, ikke en direkte tællesammenligning: Plot=True, test_images=2, batch_size=2, n_jobs=2, diametre 30/30/15 og alle flowgrænser 0.4. Arkivværdien 100 slår flowfiltrering fra og anbefales ikke som standard. Den indbyggede overlay-løkke fejler STADIG på .spacr_plane_layout.json: ét af to overlays mangler trods Finished. Slet ikke layoutet, og aktivér ikke pickle. Hjælperen kalder spacr.plot.plot_image_mask_overlay kun på almindelige .npy-filer; fire intensitetsplaner og celle/kerne/patogen på 4/5/6 kræves. Den gemmer PNG med uigennemsigtig baggrund i en ny mappe uden at ændre arrays eller reparere GUI'en. Kildehashene matcher kørselsjournalen. Endelige antal: 25/19/8 og 52/50/58; første felts patogen-QC advarer near_empty_field. Celle-QC ligger før maskejustering. 95,424,864 kanal-RGB-værdier og 7,952,072 kombinerede forgrundspixel er kontrolleret uafhængigt, ikke biologisk nøjagtighed. Tidligere fejl og transparente plotforsøg bevares, men kaldes ikke komplette. Ingen AI-anmodning, træning, videnskabelig godkendelse eller publicering. API: spacr.core.preprocess_generate_masks og spacr.plot.plot_image_mask_overlay. OPS er uprøvet og undervises ikke her.",
+      "prerequisite": "Brug det rigtige Mask-download, og bevar kanalidentiteter og filnavnsmetadata. Live-preview er optaget på 1.5.0.7 med eksemplets medfølgende indstillinger på en ny kopi og genbruges kun, så længe live_preview.py og preview_contract.py er byteidentiske med den optagelse. Gemte masker reproducerer uafhængigt 105→52→105 ved minimumsareal 510 og 36 efter diameter 30→60. Den nye batch med to felter er et andet eksempel, ikke en direkte tællesammenligning: Plot=True, test_images=2, batch_size=2, n_jobs=2, diametre 30/30/15 og alle flowgrænser 0.4. Arkivværdien 100 slår flowfiltrering fra og anbefales ikke som standard. Den indbyggede overlay-løkke fejler STADIG på .spacr_plane_layout.json: ét af to overlays mangler trods Finished. Slet ikke layoutet, og aktivér ikke pickle. Hjælperen kalder spacr.plot.plot_image_mask_overlay kun på almindelige .npy-filer; fire intensitetsplaner og celle/kerne/patogen på 4/5/6 kræves. Den gemmer PNG med uigennemsigtig baggrund i en ny mappe uden at ændre arrays eller reparere GUI'en. Kildehashene matcher kørselsjournalen. Endelige antal: 25/19/8 og 52/50/58; første felts patogen-QC advarer near_empty_field. Celle-QC ligger før maskejustering. 95,424,864 kanal-RGB-værdier og 7,952,072 kombinerede forgrundspixel er kontrolleret uafhængigt, ikke biologisk nøjagtighed. Tidligere fejl og transparente plotforsøg bevares, men kaldes ikke komplette. Ingen AI-anmodning, træning, videnskabelig godkendelse eller publicering. API: spacr.core.preprocess_generate_masks og spacr.plot.plot_image_mask_overlay. OPS er en separat side, der åbnes fra handlingsrækken i Mask, og har sin egen vejledning; denne lektion kører det ikke.",
       "scenes": [
         {
           "visual": "native_01_module",
-          "narration": "Åbn Mask fra Home. Det er et hovedmodul; Live, Time og tredimensionelle indstillinger findes indeni. Time har sin egen linkede vejledning under Mask i afsnittet med undermoduler. Her viser vi et todimensionelt eksempel, live-sammenligninger og en omvej til plotting, ikke automatisk valideret segmentering.",
+          "narration": "Åbn Mask fra Home. Det er et hovedmodul; dets handlingsrække rummer kontakterne Live, Time, tredimensionel og OPS. Time og OPS har hver deres linkede vejledning under Mask i afsnittet med undermoduler. Her viser vi et todimensionelt eksempel, live-sammenligninger og en omvej til plotting, ikke automatisk valideret segmentering.",
           "related_lessons": [
             "05_home",
-            "17_timelapse"
+            "17_timelapse",
+            "76_ops"
           ],
           "hold_after": 0.7
         },
@@ -638,7 +639,7 @@
         },
         {
           "visual": "preview_04_live_image",
-          "narration": "Slå Live til, og vælg et felt. Preview sammenligner billedet med de foreslåede masker før en større kørsel. Den bevarede optagelse bruger et andet felt end batchens to felter senere. Et vist preview-antal kan ikke direkte sammenlignes med en batchtotal.",
+          "narration": "Slå Live til, og vælg et felt. Preview sammenligner billedet med de foreslåede masker før en større kørsel. Denne preview bruger et andet felt end batchens to felter senere. Et vist preview-antal kan ikke direkte sammenlignes med en batchtotal.",
           "hold_after": 0.7
         },
         {
@@ -648,17 +649,17 @@
         },
         {
           "visual": "preview_09_filters_after",
-          "narration": "Udgangspunktet har 51 cellelabels. Hæves minimumsarealet til 5642 pixel, er 25 labels synlige. Det er et reversibelt filter på det eksisterende resultat: råmasken er uændret, og modellen køres ikke igen. Grænsen demonstrerer kontrollen og er ikke en optimal biologisk tærskel.",
+          "narration": "Udgangspunktet har 105 cellelabels. Hæves minimumsarealet til 510 pixel, er 52 labels synlige. Det er et reversibelt filter på det eksisterende resultat: råmasken er uændret, og modellen køres ikke igen. Grænsen demonstrerer kontrollen og er ikke en optimal biologisk tærskel.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_10_filters_restored",
-          "narration": "Gendan den oprindelige arealgrænse, og alle 51 labels kommer tilbage. Undersøg, hvilke objekter der forsvinder og hvorfor, før et filter vælges. Små objekter kan være reelle eller segmenteringsfejl; fjernelse afgør ikke spørgsmålet. Hold råresultat og valgte filterværdier særskilt identificerbare.",
+          "narration": "Gendan den oprindelige arealgrænse, og alle 105 labels kommer tilbage. Undersøg, hvilke objekter der forsvinder og hvorfor, før et filter vælges. Små objekter kan være reelle eller segmenteringsfejl; fjernelse afgør ikke spørgsmålet. Hold råresultat og valgte filterværdier særskilt identificerbare.",
           "hold_after": 0.7
         },
         {
           "visual": "preview_12_model_result",
-          "narration": "At ændre diameter fra 30 til 60 pixel og køre igen sammenligner en modelparameter, ikke kun et visningsfilter. Det giver 42 labels i det optagne felt. Sammenlign grænser med billedet, ikke kun antal. Færre labels beviser ikke en bedre model, og indstillingerne er ikke universelle anbefalinger.",
+          "narration": "At ændre diameter fra 30 til 60 pixel og køre igen sammenligner en modelparameter, ikke kun et visningsfilter. Det giver 36 labels i det optagne felt. Sammenlign grænser med billedet, ikke kun antal. Færre labels beviser ikke en bedre model, og indstillingerne er ikke universelle anbefalinger.",
           "hold_after": 0.7
         },
         {
@@ -1339,17 +1340,96 @@
     },
     {
       "id": "12_map_barcodes",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne vejledning er endnu ikke tilgængelig. Se de andre vejledninger imens.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 12,
-      "app_key": "map_barcodes",
+      "slug": "map_barcodes",
+      "title": "Map Barcodes: livesøgning, kontrollerede referencer og faktiske optællinger",
       "series": 1,
-      "section": "Core",
-      "slug": "map_barcodes"
+      "app_key": "map_barcodes",
+      "section": "Hovedmoduler",
+      "description": "Hent et begrænset, virkeligt sekventeringsudsnit, undersøg livesøgningen, anvend et forslag udtrykkeligt, og kontrollér optællingerne. Se et sæt med to stregkodetyper via det aktuelle Python-API.",
+      "objectives": [
+        "Finde referencetabeller og orienteringer understøttet af faktiske læsninger.",
+        "Skelne søgeforslag fra anvendte indstillinger og korrekt orienterede referencefiler.",
+        "Undersøge gemte optællinger og bruge et udtrykkeligt sæt uden opdigtede ekstra stregkoder."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly med stregkodesøgning. Optagelsen bruger SRR33531217 og vedligeholderens tilsvarende primers_3-kolonne- og rækketabeller samt guidereferencer, ikke de ældre medfølgende tabeller. Skaf referencer, der passer til dit bibliotek, før kortlægningen.",
+      "scenes": [
+        {
+          "visual": "gui_01_module",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc"
+          ],
+          "narration": "Åbn Map Barcodes fra Home. Modulet omdanner sekventeringslæsninger til optællinger af navngivne stregkoder. Barcode QC er det underordnede kvalitetskontrolmodul; dets separate vejledning er stadig tilgængelig."
+        },
+        {
+          "visual": "gui_02_archive_bounded_choice",
+          "hold_after": 0.7,
+          "narration": "Vælg Load test data og begge filer i læseparret fra arkivets første kørsel. Begræns hver fil til 10.000 læsninger. Så hentes et faktisk parret udsnit, ikke hele sekventeringsarkivet."
+        },
+        {
+          "visual": "gui_04_reference_tables",
+          "hold_after": 0.7,
+          "narration": "Vælg referencetabeller, der hører til dette bibliotek. Her bruger vi de rigtige primers_3-kolonne- og rækketabeller samt guidetabellen frem for de gamle standardtabeller. Vi starter bevidst med en vindueslængde på 120 baser for at vise ændringen i forslaget."
+        },
+        {
+          "visual": "gui_06_live_search_progress",
+          "hold_after": 0.7,
+          "narration": "Åbn Find barcodes, og start søgningen. Optællingerne opdateres, mens faktiske læsninger fra begge filer undersøges i begge orienteringer. Indstillingsformularen ændres ikke under denne løbende forfining."
+        },
+        {
+          "visual": "gui_07_search_verdicts",
+          "hold_after": 0.7,
+          "narration": "Sammenlign Observed med By chance, og undersøg orientering, position og vurdering. En træfrate alene fastslår ikke en stregkode. Træfpositionernes koncentration og de forskellige observerede referencer indgår også; læs forklaringerne, før du anvender noget."
+        },
+        {
+          "visual": "gui_08_coloured_reads",
+          "hold_after": 0.7,
+          "narration": "Læsevisningen viser én faktisk læsning pr. række. Signaturforklaringen angiver farverne for kolonne, guide, række og ankersekvens. Farvede træf hjælper med at undersøge evidensen, men et enkelt træf beviser ikke, at referencetabellen er korrekt."
+        },
+        {
+          "visual": "gui_09_proposed_settings",
+          "hold_after": 0.7,
+          "narration": "Gennemgå forslaget. Dette udsnit giver et ekstraktionsvindue på 89 baser. Kun et tryk på Apply these settings skriver ændringen i formularen. Automatisk registrering giver ikke automatisk lov til at erstatte dine indstillinger."
+        },
+        {
+          "visual": "gui_11_oriented_reference_copies",
+          "hold_after": 0.7,
+          "narration": "Noterne kræver også reverskomplementerede referencer for rækker og guider. Apply opretter ikke disse filer. Vælg separat kontrollerede reverskomplementerede kopier, som bevarer alle oprindelige stregkodenavne; behold kolonnetabellen i dens oprindelige orientering."
+        },
+        {
+          "visual": "gui_20_batch_settings",
+          "hold_after": 0.7,
+          "narration": "Behandl det hentede par med to arbejdsprocesser, blokke på 1.000 og lagring af annoterede læsninger slået til. Lad manglende tildelinger forblive manglende. Denne kortlægning bruger CPU; GPU er ikke nødvendig."
+        },
+        {
+          "visual": "gui_23_batch_finished",
+          "hold_after": 0.7,
+          "narration": "Den faktiske kørsel udtrak 8.611 vinduer og tildelte 7.657 læsninger til 4.099 optællingsrækker. Referencer uden træf eller med tvetydighed forbliver utildelte. Afslutningen kontrolleres mod gemte filer, ikke kun konsollens færdigmelding."
+        },
+        {
+          "visual": "api_01_actual_two_barcode_api",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "narration": "Det aktuelle Python-API accepterer stregkodesæt af vilkårlig størrelse, men formularen har ingen editor til sådanne sæt. En anden faktisk beregning vælger kun kolonne og guide fra 1.000 læsepar. Hver post kræver en tilsvarende navngiven gruppe i mønstret. Uden rækkeidentitet er optællingerne pr. kolonne og guide, ikke pr. brønd."
+        },
+        {
+          "visual": "api_02_real_count_figure",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc",
+            "13_regression"
+          ],
+          "narration": "Denne kontrolfigur i Python viser læsedybden fra den gemte GUI-kørsel med tre stregkodetyper. Hver optælling er kontrolleret uafhængigt mod annoterede læsninger og referencenavne. Uens dybde er en observation til kvalitetskontrol, ikke en biologisk effekt; undersøg Barcode QC før efterfølgende Regression."
+        },
+        {
+          "visual": "gui_30_ai_unsent_question",
+          "hold_after": 0.7,
+          "narration": "spaCR AI kan hjælpe med at forklare en kørsel, når du har konfigureret en udbyder. Optagelsen viser et spørgsmål, der ikke er sendt, og indeholder intet AI-svar. Kontrollér selv referenceidentitet, orientering, advarsler og gemte optællinger, før du skalerer op."
+        }
+      ]
     },
     {
       "id": "13_regression",
@@ -4444,8 +4524,8 @@
       "number": 33,
       "app_key": "plate_view",
       "series": 4,
-      "section": "Results and quality control",
       "slug": "plate_viewer",
+      "section": "Results and quality control",
       "host_app_key": "graph_builder"
     },
     {
@@ -4479,8 +4559,8 @@
       "number": 34,
       "app_key": "db_browser",
       "series": 4,
-      "section": "Data",
-      "slug": "database"
+      "slug": "database",
+      "section": "Data"
     },
     {
       "id": "35_converter",
@@ -9565,8 +9645,8 @@
       "number": 71,
       "app_key": "investigate_hit",
       "series": 5,
-      "section": "Results and quality control",
       "slug": "investigate_hit",
+      "section": "Results and quality control",
       "host_app_key": "regression"
     },
     {

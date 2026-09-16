@@ -122,7 +122,7 @@ def _who(value: Optional[str]) -> str:
         return str(value).strip()
     try:
         name = getpass.getuser().strip()
-    except Exception:  # a platform account lookup failure is not an error here
+    except Exception:
         name = ""
     return name or "unknown"
 
@@ -135,8 +135,6 @@ def _read_record(path: Path) -> Dict[str, Any]:
         with path.open("r", encoding="utf-8") as handle:
             value = json.load(handle)
     except (OSError, json.JSONDecodeError) as exc:
-        # A damaged old ledger must not make restoration impossible.  Keep
-        # the fact that it was damaged in the replacement audit record.
         return {"prior_record_error": f"{type(exc).__name__}: {exc}"}
     return value if isinstance(value, dict) else {
         "prior_record_error": "the previous sidecar was not a JSON object"}
@@ -179,12 +177,6 @@ def _move_without_overwrite(source: Path, destination: Path) -> None:
         raise QuarantineError(f"refusing to move symlink {source}")
     if not source.is_file():
         raise FileNotFoundError(source)
-    # A plain POSIX rename silently REPLACES a destination created between
-    # the check above and the syscall.  Link-then-unlink is the stdlib's
-    # atomic no-replace move for sibling regular files: link fails when the
-    # name already exists and both names address the same bytes until the
-    # source is removed.  The bounded copy fallback covers filesystems that
-    # do not support hard links while keeping O_EXCL's no-overwrite promise.
     try:
         os.link(source, destination, follow_symlinks=False)
     except OSError as exc:

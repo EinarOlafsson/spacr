@@ -1,0 +1,363 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "Advisory only — nothing here changes a setting until you press Use.",
+      "source": "Advisory only — nothing here changes a setting until you press Use.",
+      "source_sha256": "60d63c71a85338a87fec2f0e2c2a39cad379d229117c7c461a7d61c8cde14e04",
+      "table": "ui",
+      "translation": "À titre indicatif seulement — rien ici ne modifie un réglage tant que vous n'appuyez pas sur Utiliser."
+    },
+    {
+      "key": "Advisory only — this never stops Measure from running.",
+      "source": "Advisory only — this never stops Measure from running.",
+      "source_sha256": "fd24cb67a6e395d7727a58e0203580ae3cccabaeb50c439fb7fd12ef54d5001c",
+      "table": "ui",
+      "translation": "À titre indicatif seulement — cela n'empêche jamais Measure de s'exécuter."
+    },
+    {
+      "key": "Background of an exported figure ('none' leaves the page showing through)",
+      "source": "Background of an exported figure ('none' leaves the page showing through)",
+      "source_sha256": "81be1d0355fbf3296682dd73939525860a4957a6cb261c4a9bd8821227e7ae94",
+      "table": "ui",
+      "translation": "Arrière-plan d'une figure exportée ('none' laisse voir la page en dessous)"
+    },
+    {
+      "key": "Background on screen ('none' shows the page through)",
+      "source": "Background on screen ('none' shows the page through)",
+      "source_sha256": "b013b043858f7f5aca7094a3107c45dfa7a8c83707af1c0c66590298adce56ae",
+      "table": "ui",
+      "translation": "Arrière-plan à l'écran ('none' laisse voir la page en dessous)"
+    },
+    {
+      "key": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source_sha256": "6e87588f0d1532cecbad8dfe8bf788361b7cc6bf7c50eb354c37245946aff269",
+      "table": "ui",
+      "translation": "Cellpose 4 remet chaque image à l'échelle par 30/diamètre avant de segmenter, donc un diamètre faux d'un facteur deux fait sortir vos objets de la taille à laquelle cpsam travaille. Ceci lit quelques champs de vos propres données et les mesure — Cellpose n'est pas chargé."
+    },
+    {
+      "key": "Colour of the axis lines, the ticks and the text",
+      "source": "Colour of the axis lines, the ticks and the text",
+      "source_sha256": "3154a8539a5461fe51d2d8fbeb264030ef555282ddeec63cf41531ca7f8809bc",
+      "table": "ui",
+      "translation": "Couleur des lignes d'axe, des graduations et du texte"
+    },
+    {
+      "key": "Column holding point names",
+      "source": "Column holding point names",
+      "source_sha256": "a40e916b1f2ec6d84f3a995d78302fbd93d78c8cd23cad13ca2f41cc04685b8c",
+      "table": "ui",
+      "translation": "Colonne contenant les noms des points"
+    },
+    {
+      "key": "Distance cut",
+      "source": "Distance cut",
+      "source_sha256": "9cbd6a9efc80024bfd885651647f0e6824f48a2985a2e389105bad6e2ec0cefa",
+      "table": "ui",
+      "translation": "Seuil de distance"
+    },
+    {
+      "key": "Drafting…",
+      "source": "Drafting…",
+      "source_sha256": "bafe3bfa6db69fc878ee68858880fcbb984032c0ffbf7267fa464731dc5d5017",
+      "table": "ui",
+      "translation": "Rédaction du brouillon…"
+    },
+    {
+      "key": "Draw the significance line",
+      "source": "Draw the significance line",
+      "source_sha256": "5622f63f2e57a67d38ca97715652772b5bc31d11a2ae5a41a69b78b0b157660f",
+      "table": "ui",
+      "translation": "Tracer la ligne de significativité"
+    },
+    {
+      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+      "table": "ui",
+      "translation": "Chaque ligne du fichier : les courbes tracées, les lignes de référence, les bordures des axes et les graduations. Les nombres à côté des graduations sont du texte et suivent la couleur du texte."
+    },
+    {
+      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+      "table": "ui",
+      "translation": "Tout le texte du fichier : le titre, les étiquettes des axes, les nombres à côté des graduations et la légende."
+    },
+    {
+      "key": "Figure height (in)",
+      "source": "Figure height (in)",
+      "source_sha256": "e4c10c7b9116b4d5511a19b579fbd88e384f4e442d3080d27458940cd72501ce",
+      "table": "ui",
+      "translation": "Hauteur de la figure (po)"
+    },
+    {
+      "key": "Figure width (in)",
+      "source": "Figure width (in)",
+      "source_sha256": "98db45d5b3ffe4e965a952f9104a241fac590beefbafb9b75d385bd220fe20eb",
+      "table": "ui",
+      "translation": "Largeur de la figure (po)"
+    },
+    {
+      "key": "Hide top/right spines",
+      "source": "Hide top/right spines",
+      "source_sha256": "de6084fb71d9fcfb93f085d186b4e71dadcb30034656ecff839b857508e904e8",
+      "table": "ui",
+      "translation": "Masquer les bordures haut/droite"
+    },
+    {
+      "key": "How fast the animation moves, against the speed each one was designed at. It applies to every kind of motion in the chosen animation at once, and changing it never makes what is already on screen jump.",
+      "source": "How fast the animation moves, against the speed each one was designed at. It applies to every kind of motion in the chosen animation at once, and changing it never makes what is already on screen jump.",
+      "source_sha256": "3b0e0fb078df0e0ec979171334e971324f5e70d89edb26b6ad05c9ff4df24397",
+      "table": "ui",
+      "translation": "La vitesse de l'animation, par rapport à la vitesse pour laquelle chacune a été conçue. Elle s'applique à la fois à tous les types de mouvement de l'animation choisie, et la modifier ne fait jamais sauter ce qui est déjà à l'écran."
+    },
+    {
+      "key": "How large the moving elements are: blob width, curtain height, the spacing between ripples, star size, cell diameter. Scaled against each animation's own range, so one setting means the same thing in all of them.",
+      "source": "How large the moving elements are: blob width, curtain height, the spacing between ripples, star size, cell diameter. Scaled against each animation's own range, so one setting means the same thing in all of them.",
+      "source_sha256": "331a2b9d5ffe68f003627876e5f729a755b28000021727b5f5709ef66521b481",
+      "table": "ui",
+      "translation": "La taille des éléments en mouvement : largeur des taches, hauteur des rideaux, espacement entre les ondulations, taille des étoiles, diamètre des cellules. Mise à l'échelle selon la plage propre à chaque animation, si bien qu'un même réglage signifie la même chose dans toutes."
+    },
+    {
+      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
+      "table": "ui",
+      "translation": "Le nombre d'éléments : taches, rideaux d'aurore, sources d'ondulations, étoiles, disques de bokeh, cellules. La densité et le détail partagent un même budget de coût, donc demander le maximum des deux réduit la densité plutôt que de sauter des images."
+    },
+    {
+      "key": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
+      "source": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
+      "source_sha256": "0f5cf9774f5be9f62e5f91817baaa8005779eb4f31b5d6b876f103d51f0da7bd",
+      "table": "ui",
+      "translation": "Le niveau de détail avec lequel l'animation est dessinée. C'est ce réglage qui décide si elle paraît pixélisée : il fixe en combien de pixels l'image est calculée avant d'être étirée pour remplir la page. Coûte environ le carré de sa valeur — 200 % représente quatre fois plus de travail — alors baissez-le sur une machine occupée."
+    },
+    {
+      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
+      "table": "ui",
+      "translation": "Le degré de flou de l'animation, en plus du niveau de détail avec lequel elle a été dessinée. 0 % la laisse aussi nette que le permet le réglage de détail ; 100 % correspond à la douceur avec laquelle les animations étaient livrées auparavant. Contrairement au détail, ce réglage ne coûte presque rien — et les deux ensemble permettent un arrière-plan doux sans effet de blocs."
+    },
+    {
+      "key": "How the effect-size cut is derived",
+      "source": "How the effect-size cut is derived",
+      "source_sha256": "4bc0c7bdaa4b5b47e36e7f5617080a119bfe9c1e6dc339f17ad1f20e0136ddf8",
+      "table": "ui",
+      "translation": "Mode de calcul du seuil de taille d'effet"
+    },
+    {
+      "key": "Input, output, and model hashes",
+      "source": "Input, output, and model hashes",
+      "source_sha256": "dddd80e200004a4bf171964c442f23e20ffac54d3a4125d97cef8bb32220762c",
+      "table": "ui",
+      "translation": "Hachages des entrées, des sorties et du modèle"
+    },
+    {
+      "key": "Label every hit",
+      "source": "Label every hit",
+      "source_sha256": "99f06185746fcc9952567d57a516cee864eb79e3a53b7cbcf52ed5a2b1185218",
+      "table": "ui",
+      "translation": "Étiqueter chaque résultat significatif"
+    },
+    {
+      "key": "No coefficient in this screen carries a TAGM/LOPIT localisation, so there is nothing to colour by.",
+      "source": "No coefficient in this screen carries a TAGM/LOPIT localisation, so there is nothing to colour by.",
+      "source_sha256": "1480fb4dfe545fd04ec1c92b8c10495a2d8d7e95409ffd25c62527b9671b5e04",
+      "table": "ui",
+      "translation": "Aucun coefficient de ce criblage ne porte de localisation TAGM/LOPIT, il n'y a donc rien selon quoi colorer."
+    },
+    {
+      "key": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source_sha256": "b753e3f49f93c425540881613863bfc06105ba4320659660a43f010cb1c4ae9a",
+      "table": "ui",
+      "translation": "Rien n'a été transmis au panneau des résultats, il n'y a donc aucun dossier à parcourir. Utilisez « Charger les résultats… »."
+    },
+    {
+      "key": "Pick a method and press Embed and score. Nothing is computed until then.",
+      "source": "Pick a method and press Embed and score. Nothing is computed until then.",
+      "source_sha256": "a708b7b25759d42c91aa3935d7ad7c4f4e8b214e9f54cdcb91df38f1a0e0720c",
+      "table": "ui",
+      "translation": "Choisissez une méthode et appuyez sur Intégrer et noter. Rien n'est calculé avant cela."
+    },
+    {
+      "key": "Plot title",
+      "source": "Plot title",
+      "source_sha256": "f6a53f9aac380bcfa5959194c803f6cc9ed46feeb6069a51f77377c7d5f1a194",
+      "table": "ui",
+      "translation": "Titre du graphique"
+    },
+    {
+      "key": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source_sha256": "a5038f58402ee32decf4d04419420346cbcec24d0494ee02fe1a85ee49b1bb9a",
+      "table": "ui",
+      "translation": "Faites d'abord pointer src vers un dossier de plaque — il n'y a encore rien à mesurer."
+    },
+    {
+      "key": "Raster export dpi",
+      "source": "Raster export dpi",
+      "source_sha256": "c5cb277e3b5e511de9514424f9e1e21f275c500406467fb99443cdfb95e3ea6d",
+      "table": "ui",
+      "translation": "Résolution d'export matriciel (dpi)"
+    },
+    {
+      "key": "Reading the run…",
+      "source": "Reading the run…",
+      "source_sha256": "ad507ced0123b1c23ae6fd0ae80845da1ca4e321e8a8e3434407bf17e85f4267",
+      "table": "ui",
+      "translation": "Lecture de l'exécution…"
+    },
+    {
+      "key": "Run summary and performance",
+      "source": "Run summary and performance",
+      "source_sha256": "312c7afc47d755db526b8bfa576e7489de08b4342127489596775d9f8b66cd31",
+      "table": "ui",
+      "translation": "Résumé et performances de l'exécution"
+    },
+    {
+      "key": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source_sha256": "7b72a7998b51633858ecc01e775e950e4431e3fed398d723885e9d9b21b9001d",
+      "table": "ui",
+      "translation": "Échantillonner les lectures d'un échantillon et mesurer chaque table de référence par rapport à elles, dans les deux orientations et pour les deux lectures appariées."
+    },
+    {
+      "key": "Saved — this is the last page.",
+      "source": "Saved — this is the last page.",
+      "source_sha256": "a1b6aca5ab7db03637a3ab5232685b8cc2ee59a65e74156b79a289d1bf3d2628",
+      "table": "ui",
+      "translation": "Enregistré — c'est la dernière page."
+    },
+    {
+      "key": "Select one hit to investigate.",
+      "source": "Select one hit to investigate.",
+      "source_sha256": "8789976bd40e76de89fbe64277aa770ba3726664e635fa6d66509c5f8092de3d",
+      "table": "ui",
+      "translation": "Sélectionnez un résultat significatif à examiner."
+    },
+    {
+      "key": "Significance level",
+      "source": "Significance level",
+      "source_sha256": "4551b4c8f9dde6969602dd274808e3de229b1bd3b1081d6f38ab075c9a355850",
+      "table": "ui",
+      "translation": "Seuil de significativité"
+    },
+    {
+      "key": "Stop the search. What it has measured so far stays on screen, and nothing is proposed from a search that was interrupted.",
+      "source": "Stop the search. What it has measured so far stays on screen, and nothing is proposed from a search that was interrupted.",
+      "source_sha256": "77957637a0af1b966e395959d06af86266bd9aa7275f2fa8a26bcae743bc0267",
+      "table": "ui",
+      "translation": "Arrêter la recherche. Ce qu'elle a mesuré jusqu'ici reste à l'écran, et rien n'est proposé à partir d'une recherche interrompue."
+    },
+    {
+      "key": "The draft could not be produced.",
+      "source": "The draft could not be produced.",
+      "source_sha256": "eb6f80f3bf8799db3ab5e28260133bd945e359fa49a0febd8fa4f64bc2f125f1",
+      "table": "ui",
+      "translation": "Le brouillon n'a pas pu être produit."
+    },
+    {
+      "key": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source_sha256": "39ab4725bc6dd7ca9d4160cdcb908f858280a21e835dfa0a60bb551754f21ae2",
+      "table": "ui",
+      "translation": "Le gène n'a pas pu être résolu, il n'y a donc rien à rechercher. Le graphique n'est pas affecté."
+    },
+    {
+      "key": "The hit list could not be built.",
+      "source": "The hit list could not be built.",
+      "source_sha256": "f9ebbf34bc90347a2dff394c762d2c5108d64ccf835fb00d2bfc810dc7110817",
+      "table": "ui",
+      "translation": "La liste des résultats significatifs n'a pas pu être créée."
+    },
+    {
+      "key": "The page behind the figure. Transparent takes whatever the figure is placed on, which is what a slide usually wants.",
+      "source": "The page behind the figure. Transparent takes whatever the figure is placed on, which is what a slide usually wants.",
+      "source_sha256": "1521526b9bceb69f540d036fdf758841f4407d2a02fda7fed25e25743a3a9ae4",
+      "table": "ui",
+      "translation": "La page derrière la figure. Transparent reprend ce sur quoi la figure est posée, ce qui convient généralement à une diapositive."
+    },
+    {
+      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
+      "table": "ui",
+      "translation": "Le percentile ramené au noir. Augmentez-le pour écraser davantage le fond ; 0 conserve le pixel le plus sombre."
+    },
+    {
+      "key": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source_sha256": "0549c47361f20d04a96ba1830cb2ae082be3246b95b3720a9b391b0b0c30ed6f",
+      "table": "ui",
+      "translation": "Le percentile ramené au blanc. Baissez-le pour plus de contraste, au prix d'un écrêtage des pixels les plus clairs ; 100 n'en écrête aucun."
+    },
+    {
+      "key": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source_sha256": "30f39b338f5a50c00c3469016332c6de396d98463ccf94f67b4eac198474cfcb",
+      "table": "ui",
+      "translation": "L'exécution est terminée, mais ses paramètres ne désignent aucun dossier de sortie -- src, count_data et score_data sont tous vides -- il n'y a donc nulle part où chercher une table de résultats. Utilisez « Charger les résultats… » pour en indiquer une."
+    },
+    {
+      "key": "There is no settings store to save a default into.",
+      "source": "There is no settings store to save a default into.",
+      "source_sha256": "e83f38e6acd6977813d4df0d8cfd2cca5dc5f3f630bbeeae0c7e81231dc1ce5d",
+      "table": "ui",
+      "translation": "Il n'existe aucun stockage de paramètres dans lequel enregistrer une valeur par défaut."
+    },
+    {
+      "key": "Transparent background on export",
+      "source": "Transparent background on export",
+      "source_sha256": "b4a022a5b695d85f00e6cb8c58378079eba95e17bcb2a92bba814319b0203340",
+      "table": "ui",
+      "translation": "Arrière-plan transparent à l'exportation"
+    },
+    {
+      "key": "Undone.",
+      "source": "Undone.",
+      "source_sha256": "dc16676623c41e87659bac36a19b91addf09b622f19f304194119211e57757e4",
+      "table": "ui",
+      "translation": "Annulé."
+    },
+    {
+      "key": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source_sha256": "13f3ac5383c22d164b4775777e127bc35f6e80bb46307445eb24bf72041e2827",
+      "table": "ui",
+      "translation": "Ce que spaCR sait du gène apparaît ici — produit, topologie, compartiment, criblages de fitness et expression par stade."
+    },
+    {
+      "key": "Where the y axis is split (set by ticking the split above)",
+      "source": "Where the y axis is split (set by ticking the split above)",
+      "source_sha256": "b1adfed681bb62c98df4c4ceac468dbacd751a92c51ebca802a5994760e45094",
+      "table": "ui",
+      "translation": "Endroit où l'axe des y est coupé (défini en cochant la coupure ci-dessus)"
+    },
+    {
+      "key": "Y axis title (blank = automatic)",
+      "source": "Y axis title (blank = automatic)",
+      "source_sha256": "cb688aef6e724460dd143df42b9fea708b25329a4a9d0e2d9ef6d14a44dde6ab",
+      "table": "ui",
+      "translation": "Titre de l'axe Y (vide = automatique)"
+    },
+    {
+      "key": "parses — load a table to see the values",
+      "source": "parses — load a table to see the values",
+      "source_sha256": "b8cd1d8b08fc02674074f302125203f4b8f1c3e9e2c360fb3400ada468a8f92a",
+      "table": "ui",
+      "translation": "analyse réussie — chargez une table pour voir les valeurs"
+    },
+    {
+      "key": "−log₁₀ the y column",
+      "source": "−log₁₀ the y column",
+      "source_sha256": "ee48af3f5f608bc8e495de22280f2eebabf16e3c3e7d52f946b7d1fba0493ed0",
+      "table": "ui",
+      "translation": "−log₁₀ de la colonne y"
+    }
+  ],
+  "schema": 1
+}

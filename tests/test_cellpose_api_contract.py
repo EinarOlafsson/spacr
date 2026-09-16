@@ -92,7 +92,7 @@ def test_cellpose_4_ships_no_Cellpose_wrapper_and_no_SizeModel():
     ``models.Cellpose`` was the wrapper that ran a ``SizeModel`` to estimate
     diameters and then delegated to ``CellposeModel``. Cellpose 4 has one
     architecture and neither class exists, so any code still reaching for them
-    raises ``AttributeError`` — which is what ``spacr.spacrops`` did on every
+    raises ``AttributeError`` — which is what the old OPS stitcher did on every
     real run while its mock happily provided a fake ``models.Cellpose``.
     """
     from cellpose import models
@@ -227,7 +227,6 @@ def test_cellpose_eval_returns_three_values():
 #: fourteen doubles above it were.
 PARTIAL_SIGNATURE_RATCHET = {
     ("test_cellpose4_model_story.py", "_M"): 3,
-    ("test_cellpose4_spacrops_submodules.py", "_FakeCellposeModel"): 1,
     ("test_coverage_fill_cellpose_gpu_funcs.py", "_FakeModel"): 1,
     ("test_coverage_fill_cellpose_gpu_funcs.py", "_BadEvalModel"): 1,
     ("test_coverage_fill_pipeline_v2.py", "_FakeModel"): 1,

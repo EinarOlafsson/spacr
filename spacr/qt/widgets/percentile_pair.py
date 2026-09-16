@@ -98,18 +98,10 @@ class PercentilePair(QWidget):
             layout.addWidget(field)
         layout.addStretch(1)
 
-        # THE ORDER IS ENFORCED BY THE CONTROLS, not checked on the way out.
-        # A window whose low end is above its high end has no meaning, and a
-        # panel that lets one be entered has to decide later what the user
-        # meant.
         self._low.setMaximum(self._high.value())
         self._high.setMinimum(self._low.value())
         self._low.valueChanged.connect(self._on_low)
         self._high.valueChanged.connect(self._on_high)
-        # HOVER HELP BELONGS TO THE SETTING'S NAME, never to the box
-        # you type in. Built here on the field, it is moved onto the
-        # label as the last step, so every panel in the application
-        # explains itself the same way.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
@@ -118,17 +110,12 @@ class PercentilePair(QWidget):
         spin = QDoubleSpinBox(self)
         spin.setDecimals(DECIMALS)
         spin.setRange(0.0, 100.0)
-        # A STEP THAT MATCHES THE NUMBERS. Left at Qt's default of 1.0 a
-        # wheel tick on 99.5 lands on 100.5, which the range then clamps --
-        # so the control appears to ignore the gesture.
         spin.setSingleStep(0.5)
         spin.setValue(float(start))
         spin.setAccessibleName(name)
         spin.setToolTip(why)
         return spin
 
-    # ------------------------------------------------------------- keeping
-    #  the two ends in order
 
     def _on_low(self, value: float) -> None:
         """Raise the high box's floor to the new low, and announce the window.
@@ -149,7 +136,6 @@ class PercentilePair(QWidget):
         self._low.setMaximum(float(value))
         self.changed.emit(self.value())
 
-    # -------------------------------------------------------------- value
 
     def value(self) -> List[Any]:
         """The window as ``[low, high]``, in the form settings files hold."""
@@ -166,9 +152,6 @@ class PercentilePair(QWidget):
         low, high = percentile_pair(value, DEFAULT_PERCENTILES)
         for field in (self._low, self._high):
             field.blockSignals(True)
-        # THE BOUNDS ARE OPENED BEFORE THE VALUES ARE SET. Each field's
-        # range is pinned to the other's value, so setting a whole new
-        # window in place clamps whichever end moves first.
         self._low.setMaximum(100.0)
         self._high.setMinimum(0.0)
         self._low.setValue(float(low))
@@ -187,9 +170,6 @@ class PercentilePair(QWidget):
         """The field holding the high end."""
         return self._high
 
-    # The picture dialog reads unfamiliar editors through `text()`/`setText`,
-    # so the pair answers those too rather than needing a special case in
-    # every reader.
     def text(self) -> str:
         """The window as ``"low, high"``, for readers that want text."""
         low, high = self.value()

@@ -20,11 +20,6 @@ MODULE_SUMMARIES = {
     **MODULE_SUMMARIES_OTHER,
 }
 
-# Hand-reviewed prose is still source-coupled data.  These hashes bind each
-# reviewed row to the exact English summary it was reviewed against, just as
-# the generated external catalogs do.  A changed app description therefore
-# falls through to the current hashed external catalog (or safe English),
-# instead of silently displaying an obsolete but fluent translation.
 REVIEWED_SOURCE_HASHES = {
     "activation": "a167170eb9e27e10d7c5700d252eb44479f6ccd9b78e835863e91754a5547a3d",
     "agreement": "b38ac3b980a7dea533aa8344ced708bb68a1fc849539cc4619cdcc8e61ac2021",
@@ -38,13 +33,6 @@ REVIEWED_SOURCE_HASHES = {
     "db_browser": "863aea17872fc9936587ae8f447ee4f4f0b4c39a835b6b7b3f3beb100642d0f1",
     "distributed_jobs": "af29f8dde164cdad47acd90526c375baa194dea7d0e52c122d47a856280b18dc",
     "external_masks": "a3a7fb7a1a041e68b61fba5b5a688a82056306b35304d525179b4a8105dab099",
-    # REBOUND 2026-09-06. The English gained "or adopting masks made
-    # elsewhere" when the import screen landed, and the nine reviewed rows
-    # were rewritten with it -- all nine name that clause -- but this hash
-    # was not. A stale hash here does not show an obsolete translation, it
-    # shows NO reviewed translation: the row falls through to the generated
-    # catalog. So nine current, correct summaries were being suppressed by
-    # the mechanism meant to suppress obsolete ones.
     "foreign": "9df3c545054e3fadfdf3fa1e193c30fd139ede278791bb8d2c3540687d2697aa",
     "invasion": "d0091f7df6a00aa4f706d6f0f85c9c970f8b926d99a1253379cf86b584d23c78",
     "map_barcodes": "17871b5accd848e33df1ee24fc94265a24fd5b3a55fbc0b42a8189fe9474871f",
@@ -94,9 +82,6 @@ def module_summary(
             return translated
     except (ImportError, AttributeError):
         pass
-    # Plugins may ship exact translations in their manifest.  Do not apply
-    # conservative term substitution to a scientific paragraph: either the
-    # plugin supplies the whole sentence or it stays canonical English.
     return _exact_translation(str(english), code) or str(english)
 
 

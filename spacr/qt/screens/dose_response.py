@@ -37,6 +37,8 @@ inline so a test drives the same path the shipped screen does.
 """
 from __future__ import annotations
 
+from dataclasses import replace
+
 import logging
 import os
 from typing import List, Optional
@@ -63,6 +65,13 @@ from ..widgets.graph_builder import (_canvas_class, _page_surface_axes,
 from ..widgets.graph_spec import CATEGORICAL, column_kinds
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
+from ..i18n import set_translatable_text, tr
+from ..widgets.dose_response import (PERCENT_COLUMN, PlateSpec,
+                                     normalise_to_controls, pool_frame,
+                                     selectivity_index, SYNERGY_BLISS,
+                                     SYNERGY_LOEWE, bliss_surface,
+                                     checkerboard_from_frame,
+                                     fit_dose_response, loewe_surface)
 
 LOG = logging.getLogger("spacr.qt.screens.dose_response")
 
@@ -108,6 +117,195 @@ from ..app_catalog import declared_app, register_declared
 #: fitted until the user presses Fit.
 _CONCENTRATION_HINTS = ("conc", "dose", "µm", "um", "nm", "mm", "molar")
 
+#: What the plate and control pickers call "not chosen". An existing caption,
+#: so the Plates row adds nothing a translator has not already seen.
+_NO_COLUMN = "(none)"
+
+#: The picker entries whose caption follows the language. Every other entry
+#: is a column name or a control level, which is data and never translated.
+_SENTINELS = (NO_GROUP, _NO_COLUMN)
+
+#: Substrings that make a control-column level the first guess for each
+#: control. A convenience, like `_CONCENTRATION_HINTS`: nothing is normalised
+#: until a plate and a control column have both been chosen.
+_POSITIVE_HINTS = ("pos", "kill", "max")
+_NEGATIVE_HINTS = ("neg", "vehicle", "dmso", "mock")
+
+
+def _fit_with_plates(frame, spec, plate_spec, plate_column=None,
+                     host_column=None, second_dose=None,
+                     synergy_model=SYNERGY_BLISS):
+    """Fit ``frame``, normalising and pooling across plates as asked.
+
+    :param frame: the loaded table.
+    :param spec: the fit the pickers describe.
+    :param plate_spec: which plate and control columns to normalise by, or
+        ``None`` to fit the raw response exactly as before.
+    :param plate_column: the replicate column to pool each group across, or
+        ``None`` for no pooling. It does not need controls: every plate is
+        fitted on its own scale, so an EC50 is comparable across plates even
+        when their raw signals are not.
+    :param host_column: a second readout from the same wells -- host-cell
+        count, viability -- or ``None``. Each group is fitted on it too, and
+        its host EC50 divided by the response EC50 is the selectivity index.
+    :param second_dose: a second compound's dose column, for a checkerboard,
+        or ``None``. With one, the curves, pooling and host readout use only
+        the wells where it is zero, and each group's combination wells are
+        scored against ``synergy_model``.
+    :param synergy_model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.
+    :returns: ``(result set, plate reports, pooled fits, selectivity,
+        synergy)``. The
+        reports are empty when nothing was normalised; the pooled fits map
+        each group to its :class:`~spacr.qt.widgets.dose_response.PooledFit`,
+        or to the engine's sentence when pooling was refused; selectivity
+        maps each group to its
+        :class:`~spacr.qt.widgets.dose_response.SelectivityIndex`; synergy
+        maps each group to its interaction surface, or to the engine's
+        sentence when the table is not a checkerboard it can score.
+
+    RAW RESPONSES ARE NOT COMPARABLE ACROSS PLATES, which is the engine's
+    argument for normalising and the screen's for offering it: two plates read
+    on different days differ in absolute signal by more than most compounds
+    move it. Each plate is scaled by its own controls, so positive reads 100
+    and negative reads 0, and a plate without a usable pair is left out of the
+    fit and says why instead of being scaled by someone else's controls.
+    """
+    reports = ()
+    fitted_frame, fitted_spec = frame, spec
+    if plate_spec is not None:
+        fitted_frame, reports = normalise_to_controls(
+            frame, plate_spec, response=spec.response)
+        fitted_spec = replace(spec, response=PERCENT_COLUMN)
+    # THE CURVES ARE THE FIRST COMPOUND ALONE when a second one is named.
+    # Combination wells are not a dose series of either agent, and fitting them
+    # into one would describe neither; the synergy surface is where they count.
+    single = _alone(fitted_frame, second_dose)
+    result = fit_frame(single, fitted_spec)
+    pooled = (_pool_each_group(single, fitted_spec, plate_column)
+              if plate_column else {})
+    selectivity = {}
+    if host_column:
+        # THE HOST READOUT IS FITTED RAW, on the table as loaded. Plate
+        # normalisation scales the RESPONSE by that response's own controls;
+        # a host readout has different controls, or none, and an EC50 does not
+        # need them -- it is a concentration, not a percentage.
+        host = fit_frame(_alone(frame, second_dose),
+                         replace(spec, response=host_column))
+        for fit in result:
+            host_fit = host.get(fit.group)
+            selectivity[fit.group] = selectivity_index(
+                fit.result, None if host_fit is None else host_fit.result)
+    synergy = (_score_each_group(fitted_frame, fitted_spec, second_dose,
+                                 synergy_model)
+               if second_dose else {})
+    return result, reports, pooled, selectivity, synergy
+
+
+def _alone(frame, column):
+    """The rows where ``column`` is zero, or every row when there is none.
+
+    :param frame: the table.
+    :param column: a second compound's dose column, or ``None``.
+    :returns: the single-agent rows of the first compound, vehicles included.
+    """
+    if not column:
+        return frame
+    return frame[pd.to_numeric(frame[column], errors="coerce") == 0]
+
+
+def _score_each_group(frame, spec, second_dose, model):
+    """One interaction surface per group of a two-compound checkerboard.
+
+    :param frame: the table -- normalised, when it was.
+    :param spec: the grid's spec; its concentration is the first compound.
+    :param second_dose: the second compound's dose column.
+    :param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.
+    :returns: group -> surface, or group -> the refusal sentence.
+
+    BOTH MODELS PREDICT THE COMBINATION FROM THE SINGLE AGENTS, so each
+    compound's alone-axis is fitted first from the board's own wells, and a
+    board missing either axis is refused with the engine's reason rather than
+    scored against itself.
+    """
+    if spec.group is None:
+        levels = [("", frame)]
+    else:
+        levels = [(str(level), rows) for level, rows in
+                  frame.groupby(frame[spec.group].astype(str), sort=False)]
+    one_curve = replace(spec, group=None)
+    surface_for = loewe_surface if model == SYNERGY_LOEWE else bliss_surface
+    scored = {}
+    for level, rows in levels:
+        try:
+            board = checkerboard_from_frame(
+                rows, dose_a=spec.concentration, dose_b=second_dose,
+                response=spec.response)
+            fit_a = fit_dose_response(*board.a_alone, one_curve,
+                                      group=f"{spec.concentration} alone")
+            fit_b = fit_dose_response(*board.b_alone, one_curve,
+                                      group=f"{second_dose} alone")
+            scored[level] = surface_for(board.dose_a, board.dose_b,
+                                        board.response, fit_a=fit_a,
+                                        fit_b=fit_b)
+        except DoseResponseError as refusal:
+            scored[level] = str(refusal)
+    return scored
+
+
+def _excess_grid(surface):
+    """The surface itself, as rows of text: first compound down, second across.
+
+    :param surface: an interaction surface.
+    :returns: one header line and one line per dose of the first compound.
+
+    THE SURFACE IS THE RESULT AND A SINGLE INDEX IS NOT, which is the engine's
+    own argument: synergy that lives at one corner of the board and
+    antagonism at another average to nothing in one number.
+    """
+    width = 8
+    head = " " * width + "".join(f"{_format(dose):>{width}}"
+                                 for dose in surface.dose_b)
+    rows = [head]
+    for i, dose in enumerate(surface.dose_a):
+        cells = "".join(
+            f"{value:>+{width}.2f}" if np.isfinite(value) else f"{'—':>{width}}"
+            for value in surface.excess[i])
+        rows.append(f"{_format(dose):>{width}}{cells}")
+    return rows
+
+
+def _pool_each_group(frame, spec, plate):
+    """One pooled EC50 per group, with plate as a random effect.
+
+    :param frame: the table the grid was fitted on -- normalised, when it was.
+    :param spec: the grid's spec; each group is pooled as one curve.
+    :param plate: the replicate column.
+    :returns: group -> pooled fit, or group -> the refusal sentence.
+
+    `pool_frame` fits every row of a plate as ONE curve, so a table holding
+    several compounds is split by group first; pooling the whole plate would
+    average a dozen compounds into one meaningless EC50. A group seen on a
+    single plate is not pooled at all: one plate is one fit, already in the
+    grid, and a "pooled" number over one replicate would claim a
+    reproducibility nobody measured.
+    """
+    if spec.group is None:
+        levels = [("", frame)]
+    else:
+        levels = [(str(level), rows) for level, rows in
+                  frame.groupby(frame[spec.group].astype(str), sort=False)]
+    one_curve = replace(spec, group=None)
+    pooled = {}
+    for level, rows in levels:
+        if rows[plate].astype(str).nunique() < 2:
+            continue
+        try:
+            pooled[level] = pool_frame(rows, one_curve, plate=plate)
+        except DoseResponseError as refusal:
+            pooled[level] = str(refusal)
+    return pooled
+
+
 #: How a status reads in the grid. The engine's words, spelled for a human.
 _STATUS_LABELS = {
     STATUS_FITTED: "fitted",
@@ -115,13 +313,20 @@ _STATUS_LABELS = {
     STATUS_REFUSED: "refused",
 }
 
+#: Captions this screen shows through a variable, so the runtime catalog
+#: generator cannot find them at a literal call site and imports this set
+#: instead -- the same arrangement as `_GENE_TILE_UI_SOURCES`. Without it the
+#: results-grid headers and the status words were in no catalog at all, and
+#: every language showed them in English. "n", "EC50", "Hill" and "R²" are
+#: symbols rather than words and are left out on purpose; `tr` passes them
+#: through unchanged.
+_DOSE_RESPONSE_UI_SOURCES = frozenset({
+    NO_GROUP,
+    "Group", "Status", "Doses", "CI low", "CI high", "Lack-of-fit p",
+    "fitted", "unbounded", "refused",
+})
 
-# SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
-# Tools / Assays, and SECTION_DESIGN / SECTION_EXPLORE / SECTION_RESULTS are
-# still declared but are no longer in SECTION_ORDER. Every screen below now
-# files under Data. The docstrings keep their original reasoning because it
-# still says what each screen IS -- and they are published, translated API
-# prose, so editing them invalidates reviewed translations in nine languages.
+
 
 def _format(value) -> str:
     """One cell of the results grid, as text.
@@ -159,6 +364,18 @@ class DoseResponseScreen(QWidget):
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
         self._set: Optional[DoseResponseSet] = None
+        #: What each plate's controls said on the last normalised fit, in the
+        #: order the plates appear. Empty when the fit read the raw response.
+        self._plate_reports = ()
+        #: Group -> pooled fit (or the refusal sentence) from the last fit
+        #: that had a plate column. Empty when nothing was pooled.
+        self._pooled = {}
+        #: Group -> selectivity index from the last fit that had a host
+        #: readout. Empty when none was chosen.
+        self._selectivity = {}
+        #: Group -> interaction surface (or the refusal sentence) from the
+        #: last fit that named a second compound. Empty when none was.
+        self._synergy = {}
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
 
@@ -187,6 +404,7 @@ class DoseResponseScreen(QWidget):
         self._table_picker.setObjectName("DoseResponseTablePicker")
         self._table_picker.setToolTip("Which table of the database to fit")
         self._table_picker.setVisible(False)
+        self._table_picker.setProperty("i18nSkipItems", True)
         self._table_picker.currentTextChanged.connect(self._on_table_picked)
         head.addWidget(self._table_picker)
 
@@ -250,7 +468,11 @@ class DoseResponseScreen(QWidget):
             "this fits it anyway and keeps the warning on the result.")
         controls.addWidget(self.force_check)
 
-        self.fit_button = QPushButton("Fit", self)
+        # "FIT CURVE", NOT "FIT". The bare word is also zoom-to-fit in the
+        # ortho view, comparison grid and layer viewer, and a reviewed
+        # translation is keyed by its English source, so one string could
+        # never be translated right for both meanings.
+        self.fit_button = QPushButton("Fit curve", self)
         self.fit_button.setObjectName("PrimaryButton")
         self.fit_button.clicked.connect(self.fit)
         self.fit_button.setEnabled(False)
@@ -258,13 +480,82 @@ class DoseResponseScreen(QWidget):
         controls.addStretch(1)
         outer.addLayout(controls)
 
+        # THE PLATES ROW. Every caption on it already exists elsewhere in the
+        # application, so it adds no string a translator has not seen. Both
+        # column pickers start at "(none)", which keeps the default fit
+        # exactly the raw-response fit it always was.
+        plates = QHBoxLayout()
+        plates.setContentsMargins(0, 0, 0, 0)
+        plates.setSpacing(SPACING["sm"])
+        plates.addWidget(QLabel("Plate", self))
+        self.plate_picker = QComboBox(self)
+        self.plate_picker.setObjectName("DoseResponsePlate")
+        plates.addWidget(self.plate_picker)
+        plates.addWidget(QLabel("Controls", self))
+        self.control_picker = QComboBox(self)
+        self.control_picker.setObjectName("DoseResponseControl")
+        self.control_picker.currentIndexChanged.connect(
+            lambda _index: self._on_control_picked(
+                (self.control_picker.currentData() or self.control_picker.currentText())))
+        plates.addWidget(self.control_picker)
+        plates.addWidget(QLabel("Positive control wells", self))
+        self.positive_picker = QComboBox(self)
+        self.positive_picker.setObjectName("DoseResponsePositive")
+        plates.addWidget(self.positive_picker)
+        plates.addWidget(QLabel("Negative control wells", self))
+        self.negative_picker = QComboBox(self)
+        self.negative_picker.setObjectName("DoseResponseNegative")
+        plates.addWidget(self.negative_picker)
+        plates.addStretch(1)
+        outer.addLayout(plates)
+
+        # THE HOST READOUT. A second column from the same wells; with it, each
+        # group's host EC50 over its response EC50 is the selectivity index --
+        # the number that decides whether an anti-parasitic compound is worth
+        # anything, because killing the parasite at 1 uM means nothing if the
+        # host monolayer dies at 1.2.
+        hosts = QHBoxLayout()
+        hosts.setContentsMargins(0, 0, 0, 0)
+        hosts.setSpacing(SPACING["sm"])
+        hosts.addWidget(QLabel("Host response", self))
+        self.host_picker = QComboBox(self)
+        self.host_picker.setObjectName("DoseResponseHost")
+        self.host_picker.setToolTip(
+            "A second readout from the same wells, such as the host-cell "
+            "count. Each group's host EC50 divided by its response EC50 is "
+            "the selectivity index.")
+        hosts.addWidget(self.host_picker)
+        hosts.addStretch(1)
+        outer.addLayout(hosts)
+
+        # THE SECOND COMPOUND. Naming its dose column turns the table into a
+        # checkerboard: the curves use the first compound alone, and the
+        # combination wells are scored against Bliss or Loewe.
+        combos = QHBoxLayout()
+        combos.setContentsMargins(0, 0, 0, 0)
+        combos.setSpacing(SPACING["sm"])
+        combos.addWidget(QLabel("Second compound", self))
+        self.second_dose_picker = QComboBox(self)
+        self.second_dose_picker.setObjectName("DoseResponseSecondDose")
+        self.second_dose_picker.setToolTip(
+            "A second dose column, for a two-compound checkerboard. The "
+            "curves then use only the wells without it, and each group's "
+            "combination wells are scored against the chosen model.")
+        combos.addWidget(self.second_dose_picker)
+        combos.addWidget(QLabel("Model", self))
+        self.synergy_picker = QComboBox(self)
+        self.synergy_picker.setObjectName("DoseResponseSynergyModel")
+        self.synergy_picker.addItem("Bliss independence", SYNERGY_BLISS)
+        self.synergy_picker.addItem("Loewe additivity", SYNERGY_LOEWE)
+        combos.addWidget(self.synergy_picker)
+        combos.addStretch(1)
+        outer.addLayout(combos)
+
         body = QSplitter(Qt.Horizontal, self)
         body.setChildrenCollapsible(False)
 
         from matplotlib.figure import Figure
         palette = active_palette()
-        # No `facecolor`: the canvas paints the page panel in its own
-        # `paintEvent` under a transparent figure patch.
         self._figure = Figure(figsize=(6.5, 4.6))
         self.canvas = _canvas_class()(self._figure)
         self.canvas.setObjectName("DoseResponseCanvas")
@@ -276,7 +567,7 @@ class DoseResponseScreen(QWidget):
         install_sorting(self.table)
         self.table.setObjectName("DoseResponseTable")
         self.table.setHorizontalHeaderLabels(
-            [header for _key, header in TABLE_COLUMNS])
+            [tr(header) for _key, header in TABLE_COLUMNS])
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -290,9 +581,6 @@ class DoseResponseScreen(QWidget):
         self.report.setPlaceholderText(
             "Pick a concentration column and a response column, then Fit.")
         side.addWidget(self.report)
-        # The two halves of the side splitter are the page on this
-        # screen; the curve canvas beside them paints its own panel in
-        # `paintEvent`, and these two had nothing.
         mark_surface(self.table, self.report)
         side.setStretchFactor(0, 1)
         side.setStretchFactor(1, 1)
@@ -301,17 +589,11 @@ class DoseResponseScreen(QWidget):
         body.setStretchFactor(0, 3)
         body.setStretchFactor(1, 2)
         outer.addWidget(body, 1)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "dose_response")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data --------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Offer ``frame``'s columns and wait to be told which ones to fit.
 
@@ -331,18 +613,32 @@ class DoseResponseScreen(QWidget):
                      prefer=_CONCENTRATION_HINTS)
         self._refill(self.response_picker, responses)
         self._refill(self.group_picker, [NO_GROUP] + groups)
+        self._refill(self.plate_picker,
+                     [_NO_COLUMN] + [str(name) for name in frame.columns])
+        self._refill(self.control_picker, [_NO_COLUMN] + groups)
+        self._on_control_picked((self.control_picker.currentData() or self.control_picker.currentText()))
+        self._refill(self.host_picker, [_NO_COLUMN] + list(responses))
+        self._refill(self.second_dose_picker, [_NO_COLUMN] + list(doses))
+        self._plate_reports = ()
+        self._pooled = {}
+        self._selectivity = {}
+        self._synergy = {}
         self.fit_button.setEnabled(bool(doses and responses))
         self.table.setRowCount(0)
         self.report.setPlainText("")
         self._draw(None)
         if not doses:
-            self.report.setPlainText(
+            self.report.setPlainText(tr(
                 "No column of this table has at least four distinct positive "
                 "values, so none of them can be a dilution series. A "
                 "dose–response needs the concentration itself, not a log "
-                "dose and not a plate coordinate.")
-        self._source.setText(
-            label or f"{len(frame):,} rows × {len(frame.columns)} columns")
+                "dose and not a plate coordinate."))
+        if label:
+            self._source.setText(label)
+        else:
+            set_translatable_text(
+                self._source, "{rows} rows × {columns} columns",
+                rows=f"{len(frame):,}", columns=len(frame.columns))
 
     @staticmethod
     def _refill(picker: QComboBox, values, prefer=()) -> None:
@@ -353,20 +649,167 @@ class DoseResponseScreen(QWidget):
         than that — the screen refuses to guess hard enough to fit anything
         without being asked, because a curve through the wrong pair of columns
         is worse than an empty axis.
+
+        Every entry carries its value as item data, and handlers read
+        ``currentData()``. The language pass rewrites a dropdown's item text by
+        exact catalog match, so a column called ``gene`` or an untouched
+        "(none)" read back as text reached the fit translated -- "gène" and
+        "(Aucune)" on a French screen, neither of which the table has. Only
+        the sentinels in ``_SENTINELS`` are offered to that pass; a column name
+        is recorded as an empty source, which it leaves alone. An entry
+        added without data is read by its caption, as before.
         """
         options = list(values)
-        previous = picker.currentText()
+        previous = picker.currentData() or picker.currentText()
         picker.blockSignals(True)
         picker.clear()
-        picker.addItems(options)
+        for value in options:
+            picker.addItem(tr(value) if value in _SENTINELS else value, value)
+        picker._spacr_i18n_item_sources = [
+            value if value in _SENTINELS else "" for value in options]
         if previous and previous in options:
-            picker.setCurrentText(previous)
+            picker.setCurrentIndex(options.index(previous))
         elif prefer:
-            for name in options:
+            for index, name in enumerate(options):
                 if any(hint in str(name).lower() for hint in prefer):
-                    picker.setCurrentText(name)
+                    picker.setCurrentIndex(index)
                     break
         picker.blockSignals(False)
+
+    def _on_control_picked(self, name: str) -> None:
+        """Offer the chosen control column's levels as the two controls.
+
+        :param name: the control column, or "(none)".
+        """
+        levels = []
+        frame = self._frame
+        if frame is not None and name not in ("", _NO_COLUMN) \
+                and name in frame.columns:
+            levels = sorted({str(value) for value in frame[name].dropna()})
+        self._refill(self.positive_picker, levels, prefer=_POSITIVE_HINTS)
+        self._refill(self.negative_picker, levels, prefer=_NEGATIVE_HINTS)
+
+    def _plate_spec(self) -> Optional[PlateSpec]:
+        """The plate normalisation the pickers describe, or ``None``.
+
+        :returns: ``None`` while either column picker reads "(none)".
+        :raises DoseResponseError: when the columns are chosen but a control
+            level is not, with the engine's sentence saying which.
+        """
+        plate = (self.plate_picker.currentData() or self.plate_picker.currentText())
+        control = (self.control_picker.currentData() or self.control_picker.currentText())
+        if plate in ("", _NO_COLUMN) or control in ("", _NO_COLUMN):
+            return None
+        positive = (self.positive_picker.currentData() or self.positive_picker.currentText())
+        negative = (self.negative_picker.currentData() or self.negative_picker.currentText())
+        return PlateSpec(plate=plate, control=control,
+                         positive=(positive,) if positive else (),
+                         negative=(negative,) if negative else ())
+
+    def _with_plates(self, text: str) -> str:
+        """Prefix ``text`` with plate verdicts, pooled EC50s and selectivity.
+
+        Both lead because they decide what the curve below them means: a
+        refused plate is not in the fit, and a pooled EC50 is the number a
+        reader should quote when there are replicates -- they should meet both
+        before a single plate's curve.
+
+        :param text: the report the pane would otherwise show.
+        :returns: the report, with plate and pooled lines first when there are
+            any.
+        """
+        lines = []
+        for report in self._plate_reports:
+            row = report.summary_row()
+            zprime = row["zprime"]
+            shown = "—" if zprime is None or not np.isfinite(zprime) \
+                else f"{zprime:.2f}"
+            if report.usable:
+                line = tr("{plate}: usable, Z′ {zprime}",
+                          plate=row["plate"], zprime=shown)
+            else:
+                line = tr("{plate}: refused, Z′ {zprime}",
+                          plate=row["plate"], zprime=shown)
+            if not report.usable and row["note"]:
+                line += f" — {row['note']}"
+            lines.append(line)
+        if lines and self._pooled:
+            lines.append("")
+        for group, pooled in self._pooled.items():
+            name = group or tr("all rows")
+            if isinstance(pooled, str):
+                lines.append(tr("{name}: not pooled — {reason}",
+                                name=name, reason=pooled))
+                continue
+            row = pooled.summary_row()
+            if row["status"] != STATUS_FITTED:
+                lines.append(tr("{name}: not pooled — {reason}",
+                                name=name, reason=row["note"]))
+                continue
+            i_squared = row["i_squared"]
+            spread = "—" if not np.isfinite(i_squared) else f"{i_squared:.0%}"
+            unit = f" {row['unit']}" if row["unit"] else ""
+            line = tr("{name}: pooled EC50 {ec50}{unit} ({low}–{high}) across "
+                      "{used} of {plates} plates, I² {spread}",
+                      name=name, ec50=_format(row["ec50"]), unit=unit,
+                      low=_format(row["ec50_low"]),
+                      high=_format(row["ec50_high"]),
+                      used=row["n_used"], plates=row["n_plates"],
+                      spread=spread)
+            if not pooled.reproducible:
+                line = tr("{line}, plates disagree", line=line)
+            if row["note"]:
+                line += f" — {row['note']}"
+            lines.append(line)
+        if lines and self._selectivity:
+            lines.append("")
+        for group, index in self._selectivity.items():
+            name = group or tr("all rows")
+            row = index.summary_row()
+            if row["status"] == STATUS_REFUSED:
+                lines.append(tr("{name}: no selectivity index — {reason}",
+                                name=name, reason=row["note"]))
+                continue
+            line = tr("{name}: selectivity index {index} ({low}–{high}), "
+                      "host EC50 {host} over response EC50 {response}",
+                      name=name, index=_format(row["selectivity_index"]),
+                      low=_format(row["si_low"]), high=_format(row["si_high"]),
+                      host=_format(row["host_ec50"]),
+                      response=_format(row["pathogen_ec50"]))
+            if row["note"]:
+                line += f" — {row['note']}"
+            lines.append(line)
+        for group, surface in self._synergy.items():
+            if lines and lines[-1] != "":
+                lines.append("")
+            name = group or tr("all rows")
+            if isinstance(surface, str):
+                lines.append(tr("{name}: no synergy surface — {reason}",
+                                name=name, reason=surface))
+                continue
+            summary = surface.summary()
+            model = "Bliss" if surface.model == SYNERGY_BLISS else "Loewe"
+            note = f" — {summary['note']}" if summary.get("note") else ""
+            if not summary["n_cells"]:
+                lines.append(tr("{name}: no combination well could be scored "
+                                "against {model}", name=name, model=model)
+                             + note)
+                continue
+            lines.append(tr(
+                "{name}: {model} excess over {cells} combination wells, max "
+                "{max} at {dose_a} + {dose_b}, min {min}; {synergistic} "
+                "synergistic, {antagonistic} antagonistic",
+                name=name, model=model, cells=summary["n_cells"],
+                max=f"{summary['max_excess']:+.2f}",
+                dose_a=_format(summary["max_at_dose_a"]),
+                dose_b=_format(summary["max_at_dose_b"]),
+                min=f"{summary['min_excess']:+.2f}",
+                synergistic=summary["synergistic_cells"],
+                antagonistic=summary["antagonistic_cells"]) + note)
+            lines.extend(_excess_grid(surface))
+        if not lines:
+            return text
+        return "\n".join(lines) + "\n\n" + text
 
     def choose_table(self) -> None:
         """Ask for a file and load it."""
@@ -392,8 +835,9 @@ class DoseResponseScreen(QWidget):
                 names = table_names(path)
             except Exception as exc:
                 LOG.info("could not list tables in %s", path, exc_info=True)
-                self._source.setText(
-                    f"could not read {os.path.basename(path)}: {exc}")
+                set_translatable_text(
+                    self._source, "could not read {name}: {reason}",
+                    name=os.path.basename(path), reason=exc)
                 return
         self._table_picker.blockSignals(True)
         self._table_picker.clear()
@@ -404,9 +848,9 @@ class DoseResponseScreen(QWidget):
         self._table_picker.blockSignals(False)
         chosen = table or (self._table_picker.currentText() or None)
         self._jobs.cancel()
-        self._source.setText(
-            f"loading {os.path.basename(path)}"
-            + (f" · {chosen}" if chosen else "") + "…")
+        set_translatable_text(
+            self._source, "loading {name}…",
+            name=os.path.basename(path) + (f" · {chosen}" if chosen else ""))
         self._jobs.submit(
             lambda p=path, t=chosen: (t, read_table(p, t)),
             self._on_frame_loaded)
@@ -416,10 +860,11 @@ class DoseResponseScreen(QWidget):
         chosen, frame = payload
         path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
-        self.set_frame(
-            frame,
-            label=f"{os.path.basename(path)}{suffix} · {len(frame):,} rows "
-                  f"× {len(frame.columns)} columns")
+        self.set_frame(frame)
+        set_translatable_text(
+            self._source, "{name} · {rows} rows × {columns} columns",
+            name=f"{os.path.basename(path)}{suffix}",
+            rows=f"{len(frame):,}", columns=len(frame.columns))
 
     def _on_table_picked(self, name: str) -> None:
         """Reload the current database at a newly chosen table.
@@ -436,13 +881,12 @@ class DoseResponseScreen(QWidget):
         self._source.setText(message)
         self.report.setPlainText(message)
 
-    # -- fitting -----------------------------------------------------------
     def spec(self) -> DoseResponseSpec:
         """The spec the controls currently describe."""
-        group = self.group_picker.currentText()
+        group = (self.group_picker.currentData() or self.group_picker.currentText())
         return DoseResponseSpec(
-            concentration=self.concentration_picker.currentText(),
-            response=self.response_picker.currentText(),
+            concentration=(self.concentration_picker.currentData() or self.concentration_picker.currentText()),
+            response=(self.response_picker.currentData() or self.response_picker.currentText()),
             group=None if group in ("", NO_GROUP) else group,
             ci_method=self.ci_picker.currentData() or CI_PROFILE,
             unit=self.unit_edit.text().strip(),
@@ -454,16 +898,45 @@ class DoseResponseScreen(QWidget):
             return
         try:
             spec = self.spec()
+            plate_spec = self._plate_spec()
+            plate_column = (self.plate_picker.currentData() or self.plate_picker.currentText())
+            plate_column = (None if plate_column in ("", _NO_COLUMN)
+                            else plate_column)
+            host_column = (self.host_picker.currentData() or self.host_picker.currentText())
+            host_column = (None if host_column in ("", _NO_COLUMN)
+                           else host_column)
+            second_dose = (self.second_dose_picker.currentData() or self.second_dose_picker.currentText())
+            second_dose = (None if second_dose in ("", _NO_COLUMN)
+                           else second_dose)
+            synergy_model = self.synergy_picker.currentData() or SYNERGY_BLISS
         except DoseResponseError as exc:
             self.report.setPlainText(str(exc))
             return
         frame = self._frame
         self._jobs.cancel()
         self.report.setPlainText("fitting…")
-        self._jobs.submit(lambda: fit_frame(frame, spec), self._on_fitted)
+        self._jobs.submit(
+            lambda: _fit_with_plates(frame, spec, plate_spec, plate_column,
+                                     host_column, second_dose,
+                                     synergy_model),
+            self._on_fitted)
 
-    def _on_fitted(self, result: DoseResponseSet) -> None:
-        """Fill the grid from the engine's table. GUI thread only."""
+    def _on_fitted(self, result) -> None:
+        """Fill the grid from the engine's table. GUI thread only.
+
+        :param result: the fit, or ``(fit, plate reports, pooled fits,
+            selectivity, synergy)`` as the fitting job hands it back.
+        """
+        reports, pooled, selectivity, synergy = (), {}, {}, {}
+        if isinstance(result, tuple):
+            result, reports, *rest = result
+            pooled = rest[0] if rest else {}
+            selectivity = rest[1] if len(rest) > 1 else {}
+            synergy = rest[2] if len(rest) > 2 else {}
+        self._plate_reports = tuple(reports)
+        self._pooled = dict(pooled)
+        self._selectivity = dict(selectivity)
+        self._synergy = dict(synergy)
         self._set = result
         rows = result.table()
         self.table.setRowCount(len(rows))
@@ -473,27 +946,24 @@ class DoseResponseScreen(QWidget):
             for column, (key, _header) in enumerate(TABLE_COLUMNS):
                 value = record[key]
                 if key == "status":
-                    value = _STATUS_LABELS.get(status, status)
+                    value = tr(_STATUS_LABELS.get(status, status))
                 if key == "group" and not str(value):
-                    value = "all rows"
+                    value = tr("all rows")
                 text = _format(value)
                 if key == "note" and len(text) > NOTE_WIDTH:
-                    # The refusal messages are paragraphs by design; the grid
-                    # shows the first sentence and the tooltip has all of it.
                     text = text[:NOTE_WIDTH].rstrip() + "…"
                 item = table_item(text)
                 if status != STATUS_FITTED:
                     item.setToolTip(str(record["note"]))
                 if column == 0:
-                    # Which fit this row is, so a sorted table still draws
-                    # the curve the user clicked.
                     item.setData(Qt.UserRole, row)
                 self.table.setItem(row, column, item)
         self.table.resizeColumnsToContents()
         if len(rows):
+            self.table.clearSelection()
             self.table.selectRow(0)
         else:
-            self.report.setPlainText(result.report())
+            self.report.setPlainText(self._with_plates(result.report()))
             self._draw(None)
 
     def _on_row_selected(self) -> None:
@@ -507,8 +977,6 @@ class DoseResponseScreen(QWidget):
         if not rows or self._set is None:
             return
         item = self.table.item(sorted(rows)[0], 0)
-        # The fit index the row was built from, not the row number: the
-        # table sorts, and the top row is not always the first curve.
         fit = None if item is None else item.data(Qt.UserRole)
         self.show_group(sorted(rows)[0] if fit is None else int(fit))
 
@@ -518,13 +986,13 @@ class DoseResponseScreen(QWidget):
             return
         fit = self._set.fits[index]
         if fit.result is not None:
-            self.report.setPlainText(fit.result.report())
+            self.report.setPlainText(self._with_plates(fit.result.report()))
         else:
-            self.report.setPlainText(
-                f"{fit.group or 'all rows'}: REFUSED\n\n{fit.error}")
+            self.report.setPlainText(self._with_plates(
+                tr("{name}: REFUSED", name=fit.group or tr("all rows"))
+                + f"\n\n{fit.error}"))
         self._draw(index)
 
-    # -- drawing -----------------------------------------------------------
     def _draw(self, selected: Optional[int]) -> None:
         """Points, curves, and the selected group's EC50 with its interval.
 
@@ -537,7 +1005,6 @@ class DoseResponseScreen(QWidget):
         """
         palette = active_palette()
         self._figure.clear()
-        # `clear()` restores the rc facecolor and its alpha with it.
         self._figure.patch.set_alpha(0.0)
         axes = self._figure.add_subplot(111)
         _page_surface_axes(axes, palette)
@@ -551,9 +1018,10 @@ class DoseResponseScreen(QWidget):
         axes.tick_params(colors=palette["fg_muted"], labelsize=8, length=3)
 
         if self._set is None or not self._set.results():
-            axes.set_xlabel("concentration", color=palette["fg_muted"],
+            axes.set_xlabel(tr("concentration"), color=palette["fg_muted"],
                             fontsize=9)
-            axes.set_ylabel("response", color=palette["fg_muted"], fontsize=9)
+            axes.set_ylabel(tr("response"), color=palette["fg_muted"],
+                            fontsize=9)
             self.canvas.draw_idle()
             return
 
@@ -567,7 +1035,7 @@ class DoseResponseScreen(QWidget):
             focused = (selected is None or index == selected)
             axes.plot(result.dose, result.response, "o", color=colour,
                       markersize=4, alpha=0.9 if focused else 0.25,
-                      label=(fit.group or "all rows"))
+                      label=(fit.group or tr("all rows")))
             x, y = result.curve()
             axes.plot(x, y, "-", color=colour, linewidth=1.8 if focused else 0.9,
                       alpha=1.0 if focused else 0.3)
@@ -576,20 +1044,15 @@ class DoseResponseScreen(QWidget):
         if selected is not None and 0 <= selected < len(self._set.fits):
             chosen = self._set.fits[selected].result
             if chosen is not None:
-                # The axis belongs to the measurements. An interval on a
-                # poorly determined midpoint can span twenty decades, and
-                # letting it set the limits would shrink the actual data to a
-                # single pixel — so the range is taken before the marker is
-                # drawn and put back afterwards.
                 limits = axes.get_xlim()
                 self._draw_ec50(axes, chosen, colours[selected % len(colours)],
                                 palette)
                 axes.set_xlim(limits)
 
         unit = f" ({spec.unit})" if spec.unit else ""
-        axes.set_xlabel(f"{spec.concentration or 'concentration'}{unit}",
+        axes.set_xlabel(f"{spec.concentration or tr('concentration')}{unit}",
                         color=palette["fg_muted"], fontsize=9)
-        axes.set_ylabel(spec.response or "response",
+        axes.set_ylabel(spec.response or tr("response"),
                         color=palette["fg_muted"], fontsize=9)
         if len(self._set.results()) > 1:
             legend = axes.legend(fontsize=7, frameon=False, loc="best")
@@ -626,7 +1089,6 @@ class DoseResponseScreen(QWidget):
                       xytext=(-4 if symbol == ">" else 4, 0),
                       textcoords="offset points")
 
-    # -- lifecycle ---------------------------------------------------------
     def result_set(self) -> Optional[DoseResponseSet]:
         """The last fit, or ``None``. What a test and an exporter both read."""
         return self._set
@@ -640,8 +1102,6 @@ class DoseResponseScreen(QWidget):
         return self._jobs.is_busy()
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        # Abandon an in-flight fit rather than let it outlive the screen: Qt
-        # aborts the process if a running QThread is destroyed.
         """Stop background work and unlink before going away.
 
         :param event: the Qt close event.
@@ -658,11 +1118,6 @@ def make_dose_response_screen(app_key: Optional[str] = None) -> QWidget:
     return DoseResponseScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

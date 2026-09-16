@@ -27,8 +27,12 @@ builder = importlib.import_module("build_documentation_i18n")
 # (BarcodeTable.__post_init__, BarcodeEntry.__post_init__, and BarcodeSet's
 # __post_init__, __iter__ and __len__) returns 1a6e99e4..., the previous pin,
 # byte for byte. The 16 constant attributes did not move at all.
+# Moved 2026-09-15 for `spacr.barcode_search.SearchThresholds.__post_init__`
+# and proved by subtraction on top of origin/nightly df1216b3f: the digest recomputed
+# without that one dunder returns 8b07b969..., the previous pin, byte for
+# byte. The 16 constant attributes did not move.
 _NEW_VISIBLE_DIGEST = (
-    "d81f8f00a973ac81bfa30726a2e2c866deb531750cf5d841a70eafd055f7303b"
+    "4e86990016ff3da1965fac60fddaa0b69bfba73b3e880283194093b3fc70dbbf"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -187,7 +191,19 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Admissions rather than leaks, by 368's rule: a documented dunder on a
     # public class is rendered surface, and a `__post_init__` that validates
     # is a contract a reader meets on the API page or nowhere.
-    assert len(dunders) == 208
+    # 2026-09-14: +2, item 368's docstring sweep. The two are
+    # spacr.embeddings.EmbeddingSpec.__post_init__ and
+    # spacr.ops_store.Readiness.__bool__ -- both dunders that already
+    # EXISTED and were undocumented; documenting them is what admits them
+    # to the rendered surface. Set-differenced against origin/nightly:
+    # +2 / -0, and those are the two.
+    # 2026-09-15: 210 -> 211, ONE entry,
+    # `spacr.barcode_search.SearchThresholds.__post_init__` -- the validator
+    # that refuses a min_enrichment of 1.0, which would report every table
+    # PRESENT. A `__post_init__` that raises is a contract and belongs on the
+    # page, so this is an admission. Set-differenced against
+    # origin/nightly df1216b3f: +1 / -0.
+    assert len(dunders) == 211
     assert len(assignments) == 16
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
@@ -1065,7 +1081,46 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # protected literals and the gates REFUSED them. Those stay English on
     # purpose: English prose on an API page is a gap, and corrupted Icelandic
     # that looks like a translation is worse.
-    expected = 10_478
+    # 10,478 -> 10,531 (+53, two new modules) and then -> 10,533 (+2, two
+    # dunders documented). Both by set difference; see the accounting in
+    # test_docstring_correctness and above.
+    # 10,533 -> 10,534 on 2026-09-15, +1/-0 by set difference:
+    # `spacr.graph_types.mark_to_start_on` (293), the one public function its
+    # batch adds; the `spacr.ml` sibling went private before the catalogs were
+    # built. The surface with that key dropped is 10,533, the previous value.
+    # The nine catalogs were rebuilt with a reviewed record for it in every
+    # language BEFORE this number was touched, and the API audit passes at
+    # `languages=9 symbols=10534`.
+    # 10,534 -> 10,541 on 2026-09-15 (372 PART 14-M), +7/-0 by set
+    # difference against nightly 3f27b926a: spacr.ops_engine (a new module)
+    # and spacr.ops_engine.run_ops, spacr.ops_cycles.AlignedField and
+    # align_field, spacr.ops_sbs.attribute_reads and
+    # assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. The
+    # same seven took 10,533 to 10,540 before the rebase. Their blocks, and
+    # the reworded ones of the OPS symbols they joined, carry hand-written
+    # reviewed records in every locale
+    # (docs/i18n/reviewed/api/<lang>/2026-09-15-ops-switch.json).
+    # 10,541 -> 10,521 on 2026-09-15, +0/-20 by set difference against
+    # the switch commit: the old OPS engine was deleted, taking the 17 symbols of
+    # the old engine's module and the three stitcher defaults in `spacr.settings`
+    # (`set_default_stitch`, `set_default_multichannel`,
+    # `set_default_general`) that nothing called.
+    # 10,521 -> 10,523 on 2026-09-15, +2 / -0 by set difference against
+    # origin/nightly df1216b3f: `spacr.barcode_search.SearchThresholds` and its
+    # `__post_init__`. THE NINE CATALOGS HAVE NOT BEEN REGENERATED FOR THESE
+    # TWO. That is a recorded debt for the pre-release catalog rebuild, which
+    # the home session owns; test_documentation_i18n names the two missing
+    # symbols until it runs.
+    # 10,523 -> 10,539 on 2026-09-15, +16/-0 by set difference against
+    # nightly dca970671: spacr.qt.make_masks_demo and its seven public
+    # functions (412), spacr.install_cleanup with InstallRecord,
+    # RemovalReport, RemovalReport.ok, find_old_installs, remove_install,
+    # run_update_sequence and start_update_helper (416). The surface with
+    # those sixteen keys dropped is 10,523, the previous value. The nine
+    # catalogs were repaired with reviewed records for every one of their
+    # blocks BEFORE this number was touched
+    # (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
+    expected = 10_539
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1098,7 +1153,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstring as well. The nine catalogs were regenerated against this
     # inventory before the number was touched, which is the order this
     # file's own message asks for.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_478
+    # 10,533 -> 10,534 on 2026-09-15 with `expected` above, for the same one
+    # symbol; the aliases are still zero, so the two stay equal.
+    # 10,534 -> 10,541 with `expected` above, for 372's seven.
+    # 10,541 -> 10,521 with `expected` above, for the same twenty.
+    # 10,521 -> 10,523 with `expected` above, for the same two.
+    # 10,523 -> 10,539 with `expected` above, for 412's and 416's sixteen.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_539
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1139,6 +1200,20 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
         # so the two are told separately and this frozenset is the
         # hand-maintained mirror of what the site actually drops.
         "spacr.qt._layout_policy",
+        # ADDED 2026-09-15 with items 404/405: the DINOCell/SAMCell seam,
+        # whose header comment became a module docstring. Measured with
+        # `_is_rendered_autoapi_entry` neutralised, both halves in one run,
+        # against 8f4171fd9: pre-filter 10,751 -> 10,752, post-filter
+        # 10,533 unchanged, boundary 218 -> 219 -- and the one new filtered
+        # entry is the key `spacr._segmentation_backends` itself. Every
+        # other bucket reports its old count, so the `10_696 - len(docs)`
+        # pin below does not move.
+        "spacr._segmentation_backends",
+        # 2026-09-15: the pandas-free data modules behind outlier_filter and
+        # stream_dataset. Private, re-exported, and never rendered.
+        "spacr._outlier_criteria",
+        "spacr._stream_selection",
+        "spacr.qt._magnifier_drag",
     }
     assert builder.AUTOAPI_NON_RENDERED_SYMBOLS == {
         "spacr.qt.run_without_setup",
@@ -1159,6 +1234,11 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     )
     assert "spacr.qt.__main__" not in docs
     assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
+    assert not any(
+        key == "spacr._segmentation_backends"
+        or key.startswith("spacr._segmentation_backends.")
+        for key in docs
+    )
     assert "spacr.qt.run_without_setup" not in docs
 
     # RE-MEASURED 2026-09-08, the same way: 10,450 -> 10,455 pre-filter
@@ -1295,7 +1375,112 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # and the only way to know it is the shape this one has is to measure
     # both halves -- the opposite-direction case looks identical from either
     # half alone, which the `layout_policy` note above records.
-    assert 10_696 - len(docs) == 218
+    # 218 -> 165 on 2026-09-14. The autoapi total is UNCHANGED at 10,696;
+    # what moved is the documented set, +53, so the excluded boundary shrinks
+    # by exactly that. A boundary that had grown instead would mean new
+    # symbols arriving OUTSIDE the documented surface, which is a different
+    # event and the one this subtraction exists to separate.
+    # 2026-09-14: +2, item 368's docstring sweep. The two are
+    # spacr.embeddings.EmbeddingSpec.__post_init__ and
+    # spacr.ops_store.Readiness.__bool__ -- both dunders that already
+    # EXISTED and were undocumented; documenting them is what admits them
+    # to the rendered surface. Set-differenced against origin/nightly:
+    # +2 / -0, and those are the two.
+    # The autoapi total is unchanged at 10,696, so the excluded boundary
+    # shrinks by exactly the 2 newly documented.
+    # RE-MEASURED 2026-09-15 for `mark_to_start_on`, AND THE LEFT-HAND CONSTANT
+    # HAD COME APART AGAIN. Both 2026-09-14 entries above say the autoapi total
+    # stayed at 10,696. It did not: those +53 and +2 are RENDERED symbols, so
+    # they grew the pre-filter inventory exactly as much as the documented one,
+    # and the boundary never moved. That is the accumulator failure the
+    # 2026-09-11 note above names, repeated. Both halves in one run with
+    # `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,752   (10,751 = 10,696 + 55 without the new symbol)
+    #     post-filter  10,534   (10,533 without it)
+    #     boundary        218   (218 without it)
+    #
+    # and every bucket the 2026-09-11 list prints still reports its count,
+    # 116 + 59 + 16 + 16 + 5 + 4 + 1 + 1 = 218, with nothing unbucketed and no
+    # post-filter key absent from the pre-filter run. So the constant is the
+    # measured pre-filter total again and the difference is the boundary
+    # again. Just as strict as before: it still pins `len(docs)` to exactly one
+    # value, now 10,534. With the new symbol subtracted the old form holds:
+    # 10,696 - 10,533 = 163, the previous pin.
+    # RE-MEASURED 2026-09-15 on the rebase of local nightly onto the work
+    # session's batch (5fce82971), because each parent moved a different half
+    # and neither pin describes the join. The side branch's
+    # `10_752 - len(docs) == 218` was measured without
+    # `spacr._segmentation_backends`; local nightly's 404/405 note above
+    # measured that key against a surface without `mark_to_start_on`, and
+    # left the stale `10_696` form in place because the difference still
+    # held. Both halves in one run with `_is_rendered_autoapi_entry`
+    # neutralised:
+    #
+    #     pre-filter   10,753
+    #     post-filter  10,534
+    #     boundary        219
+    #
+    # 116 + 59 + 16 + 16 + 5 + 1 + 4 + 1 + 1 = 219: the buckets the
+    # 2026-09-11 list prints, plus the one key `spacr._segmentation_backends`,
+    # nothing unbucketed and no post-filter key absent from the pre-filter
+    # run. PROVED BY SUBTRACTION FROM BOTH PARENTS, on the same run:
+    #
+    #     minus `spacr._segmentation_backends`   10,752 - 10,534 = 218
+    #         the side branch's pin, byte for byte
+    #     minus `mark_to_start_on`               10,752 - 10,533 = 219
+    #         local nightly's measurement (pre 10,752, post 10,533)
+    #     minus both                             10,751 - 10,533 = 218
+    #         b740c741d, the fork point
+    #
+    # It still pins `len(docs)` to exactly one value, 10,534, so nothing is
+    # loosened: the left-hand constant is the measured pre-filter total again
+    # and the difference is the measured boundary again.
+    # RE-MEASURED 2026-09-15 for 372's seven arrivals on nightly 3f27b926a,
+    # both halves in one run with `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,753 -> 10,760
+    #     post-filter  10,534 -> 10,541
+    #     boundary        219 -> 219
+    #
+    # The pre-filter key sets differ by exactly the seven post-filter
+    # arrivals, so every one is rendered and no bucket moved; the
+    # left-hand constant is the measured pre-filter total again.
+    # RE-MEASURED 2026-09-15 when the old OPS engine was deleted, both halves
+    # in one run with `_is_rendered_autoapi_entry` neutralised: pre-filter
+    # 10,760 -> 10,740 and post-filter 10,541 -> 10,521, and the twenty keys
+    # that left the pre-filter set are exactly the twenty that left the
+    # surface, so the boundary stays 219.
+    # 10,740 -> 10,746 on 2026-09-15, BOTH halves re-measured in one run on
+    # top of origin/nightly df1216b3f with `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,740 -> 10,746
+    #     post-filter  10,521 -> 10,523
+    #     boundary        219 -> 223
+    #
+    # THE BOUNDARY MOVED, and by the two pandas-free data modules made
+    # private and added to AUTOAPI_NON_RENDERED_MODULES --
+    #
+    #     spacr._stream_selection (module, coordinate_column,
+    #                              settings_for_method: 3 entries)
+    #     spacr._outlier_criteria (module: 1 entry)
+    #
+    # -- four entries. The surface side gained the two `SearchThresholds`
+    # entries. So 4 crossed to the filtered side and 2 were rendered: +6
+    # pre-filter, +2 post-filter, the case where the halves move by
+    # different amounts and only measuring both can tell.
+    # RE-MEASURED 2026-09-15 for 412's and 416's sixteen arrivals, both
+    # halves in one run with `_is_rendered_autoapi_entry` neutralised:
+    # pre-filter 10,746 -> 10,762 and post-filter 10,523 -> 10,539. The
+    # pre-filter key set gained exactly the sixteen post-filter arrivals
+    # (dropping them returns 10,746 and 10,523), so every one is rendered
+    # and the boundary stays 223.
+    # 417 adds one private module document, not a rendered API: before the
+    # mirror correction, pre=10,763 and post=10,540; after it, pre=10,763
+    # and post=10,539. The new boundary entry is exactly _magnifier_drag.
+    # A real Sphinx fixture checks the absence of its page and inventory key,
+    # alongside a visible positive control, in test_the_magnifier_drag_module_is_private.
+    assert 10_763 - len(docs) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

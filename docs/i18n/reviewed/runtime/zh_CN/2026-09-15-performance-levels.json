@@ -1,0 +1,76 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "64 GB or more, and yours alone",
+      "source": "64 GB or more, and yours alone",
+      "source_sha256": "40136f527608ebcce11b510065c6903527523183d348c49e8d3efecfe47b35b3",
+      "table": "ui",
+      "translation": "64 GB 或更多，且仅供你自己使用"
+    },
+    {
+      "key": "8 GB or less, or running on battery",
+      "source": "8 GB or less, or running on battery",
+      "source_sha256": "98322e2f98a1573b2b14fbd8e0c3d36eb37594868572ef3997f89bb11253a4e7",
+      "table": "ui",
+      "translation": "8 GB 或更少，或使用电池供电"
+    },
+    {
+      "key": "For a machine with 64 GB or more that is yours alone. spaCR keeps the most: the most editable figures, and by default cached data for 60 minutes unused and up to 16384 MB. Nothing is cleared at launch or before a run. Uses the most memory of any level, by design.",
+      "source": "For a machine with 64 GB or more that is yours alone. spaCR keeps the most: the most editable figures, and by default cached data for 60 minutes unused and up to 16384 MB. Nothing is cleared at launch or before a run. Uses the most memory of any level, by design.",
+      "source_sha256": "58f887f610a48b0f33946a1fc96bfdacedd4572c6b04b00fab268ff9cd8c8488",
+      "table": "ui",
+      "translation": "适用于内存为 64 GB 或更多、仅供你自己使用的计算机。spaCR 保留的内容最多：可编辑图表最多，默认情况下缓存数据可闲置 60 分钟、最多占用 16384 MB。启动时和运行前不清空任何内容。按设计，这是所有级别中占用内存最多的一级。"
+    },
+    {
+      "key": "For a machine with 8 GB of memory or less, or one running on battery. spaCR keeps the least: no animated backdrop, the fewest editable figures, and by default cached data is dropped after 2 minutes unused or above 256 MB. Caches are also cleared at launch and before every run, so going back to a figure is slower.",
+      "source": "For a machine with 8 GB of memory or less, or one running on battery. spaCR keeps the least: no animated backdrop, the fewest editable figures, and by default cached data is dropped after 2 minutes unused or above 256 MB. Caches are also cleared at launch and before every run, so going back to a figure is slower.",
+      "source_sha256": "444b647788d9abab31efc95922d4b5c2210df5ec8294d52a0bc2dc278e2a3b1d",
+      "table": "ui",
+      "translation": "适用于内存为 8 GB 或更少、或使用电池供电的计算机。spaCR 保留的内容最少：不绘制动画背景，可编辑图表最少，默认情况下缓存数据闲置 2 分钟或超过 256 MB 即被丢弃。启动时和每次运行前也会清空缓存，因此返回某个图表会更慢。"
+    },
+    {
+      "key": "For a machine with other work on it. spaCR clears its caches and unused GPU memory once, at launch, leaves your visual settings alone, and by default drops cached data after 10 minutes unused or above 1024 MB.",
+      "source": "For a machine with other work on it. spaCR clears its caches and unused GPU memory once, at launch, leaves your visual settings alone, and by default drops cached data after 10 minutes unused or above 1024 MB.",
+      "source_sha256": "8076998594904e2e93566a693df61789c02e5333245dfc2b2038fd065a5a9575",
+      "table": "ui",
+      "translation": "适用于还在运行其他工作的计算机。spaCR 仅在启动时清空一次自身缓存和未使用的 GPU 内存，不改动你的视觉设置，并且默认在缓存数据闲置 10 分钟或超过 1024 MB 时将其丢弃。"
+    },
+    {
+      "key": "For a shared machine you do not want spaCR to crowd. spaCR clears its caches, unused GPU memory and idle threads at launch and before every run, turns every visual setting to its minimum, and by default drops cached data after 5 minutes unused or above 512 MB.",
+      "source": "For a shared machine you do not want spaCR to crowd. spaCR clears its caches, unused GPU memory and idle threads at launch and before every run, turns every visual setting to its minimum, and by default drops cached data after 5 minutes unused or above 512 MB.",
+      "source_sha256": "96159c6b2979fa59789400db935fc10986e857387150d729cd430b24b2b8c962",
+      "table": "ui",
+      "translation": "适用于你不希望 spaCR 占用过多资源的共享计算机。spaCR 在启动时和每次运行前清空自身缓存、未使用的 GPU 内存和空闲线程，将每项视觉设置降到最低，并且默认在缓存数据闲置 5 分钟或超过 512 MB 时将其丢弃。"
+    },
+    {
+      "key": "For an ordinary desktop with 16 GB or more. Nothing is cleared at launch or before a run, recent figures and images stay ready so going back is instant, and by default cached data is dropped after 15 minutes unused or above 2048 MB.",
+      "source": "For an ordinary desktop with 16 GB or more. Nothing is cleared at launch or before a run, recent figures and images stay ready so going back is instant, and by default cached data is dropped after 15 minutes unused or above 2048 MB.",
+      "source_sha256": "7e20bf58836a8766db0bb33154d1c2b4e9ac641c7f0d8d0dc4043a44b8e89ff6",
+      "table": "ui",
+      "translation": "适用于内存为 16 GB 或更多的普通台式机。启动时和运行前不清空任何内容，最近的图表和图像保持就绪，返回时即刻可用，默认情况下缓存数据闲置 15 分钟或超过 2048 MB 即被丢弃。"
+    },
+    {
+      "key": "a machine with other work on it",
+      "source": "a machine with other work on it",
+      "source_sha256": "daecc42ef5873d594d75dc5610ccdcbe39574b0f697b75010f446eb92e97895d",
+      "table": "ui",
+      "translation": "还在运行其他工作的计算机"
+    },
+    {
+      "key": "a shared machine you do not want spaCR to crowd",
+      "source": "a shared machine you do not want spaCR to crowd",
+      "source_sha256": "692fa89d6c1fc363c5eaa16c83d80f23567c804213989c11f22448a95c0abba0",
+      "table": "ui",
+      "translation": "你不希望 spaCR 占用过多资源的共享计算机"
+    },
+    {
+      "key": "an ordinary desktop, 16 GB or more",
+      "source": "an ordinary desktop, 16 GB or more",
+      "source_sha256": "4ff093e38243be7e34ac78a2e1814ce628f56ae2e318a69d01489418e7348324",
+      "table": "ui",
+      "translation": "普通台式机，16 GB 或更多"
+    }
+  ],
+  "schema": 1
+}

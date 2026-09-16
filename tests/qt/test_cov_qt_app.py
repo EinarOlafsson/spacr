@@ -2532,7 +2532,30 @@ def launched(qapp, qtbot, monkeypatch, tmp_path):
         return new[0]
 
     state["window"] = _window
-    yield state
+    try:
+        yield state
+    finally:
+        # CLOSE WHAT `launch` OPENED. The real `exec()` returns only once the
+        # window is closed; `_AppShim.exec` returns at once, so a test that
+        # does not close the window by hand leaves it SHOWN, and a shown
+        # window's backdrop keeps its `spacr-ambient-shade` thread running
+        # for the rest of the worker. Every user in another module leaked
+        # this way; 49a88481a put one in the same CI batch as
+        # test_no_backdrop_thread_outlives_a_test.py, whose counts then read
+        # 4 == 1 (three launches' threads plus its own) whenever xdist gave
+        # both files one worker. Closed the way the tests that close by hand
+        # do; hidden if the close is refused, since hiding is what stops the
+        # backdrop. Windows a test already closed are left alone.
+        for window in [w for w in qapp.topLevelWidgets()
+                       if w not in state["before"]
+                       and isinstance(w, MainWindow) and w.isVisible()]:
+            try:
+                _close_owned_screens(window)
+                window.close()
+            except Exception:                                # noqa: BLE001
+                pass
+            if window.isVisible():
+                window.hide()
 
 
 def test_launch_opens_the_requested_app(launched, qtbot):

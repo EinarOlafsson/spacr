@@ -208,9 +208,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# constants
-# ---------------------------------------------------------------------------
 
 #: What an unrecoverable provenance field says. Never ``''``: a blank cell in a
 #: provenance table reads as "no constraints", which is the opposite of "we do
@@ -307,11 +304,6 @@ CATALOGUE_CACHE_SECONDS = 3600
 #: succeed. An entry without a hash is not a conservative entry; it is one
 #: nobody can install.
 BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
-    # THE THREE BELOW PUBLISH REAL CHECKSUMS, and live in MODEL repos rather
-    # than the dataset repo above -- hence `repo_type`. Being verifiable is
-    # the difference between an entry `fetch` installs and one it refuses, so
-    # a new entry without a sha256 should be treated as unfinished rather
-    # than as following the precedent set by the first entry.
     {
         "key": "toxoplasma_pv_v1",
         "name": "cpsam_v2_toxo_r2",
@@ -322,28 +314,34 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "sha256":
             "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
         "display_name": "Toxoplasma PV v1",
-        # THE README TABLE READS THESE THREE, and nothing else.
-        # `trained_on` and `notes` stay full length because the Model Zoo
-        # screen and instruction 370's scorecard are where the detail
-        # belongs; the README table was carrying all of it and became
-        # unreadable. Asked 2026-09-02: "just state the model name and
-        # architecture, training dataset (staining + number of images from
-        # n datasets), and performance on hold out data compared to stock".
         "architecture": "Cellpose-SAM (cpsam_v2)",
-        "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset",
-        "versus_stock": "F1 0.867 against 0.713 for stock cpsam, at IoU 0.5",
+        # ROUND 2, CORRECTED 2026-09-15 (item 370). Until then this row
+        # quoted ROUND 1 -- 115 images, 104 train / 11 test, F1 0.867 --
+        # while the sha256 above has always been round 2's checkpoint. Every
+        # figure below is from round 2's own run: round2.log for the split and
+        # the stock baseline, round2_vs_round1.csv for the scores.
+        "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 229 images "
+                   "from 2 datasets, 104 round-1 and 125 newly curated",
+        "versus_stock": "F1 0.864 against 0.713 for stock cpsam on 11 "
+                        "held-out in-house wells, at IoU 0.5; literature "
+                        "hold-out pending",
         "trained_on": (
             "Toxoplasma tachyzoite parasitophorous vacuoles stained with goat "
             "anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the "
-            "PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base "
-            "cpsam_v2"
+            "PV lumen. Round 2: 229 training images (round 1's 104 plus 125 "
+            "newly curated RH and ME49 fields), 100 epochs, base cpsam_v2"
         ),
         "trained_by": "einarolafsson",
         "notes": (
-            "F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 "
+            "F1 0.864 at IoU 0.5 against 0.713 for stock cpsam on the 11 "
+            "wells round 1 also held out (round 1 scored 0.867); AJI 0.809 "
             "against 0.426",
             "accuracy falls sharply above IoU 0.8 -- suited to counting and "
             "area rather than precise morphometry",
+            "the held-out literature scorecard is pending a stock-seeded "
+            "re-curation; on the current literature set, whose truth leans "
+            "toward this model's lineage, it ties stock Cellpose-SAM on "
+            "detection (F1 0.403 against 0.400)",
         ),
     },
     {
@@ -357,20 +355,8 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
         "display_name": "Toxoplasma Plaque v1",
         "architecture": "Cellpose-SAM (cpsam)",
-        # FROM THE TRAINING RECORD, `models/cpsam_seg_r3/model.db` in the
-        # plaque_assay_model project: 184 rows in `training_set`, by source
-        # nas_patrick 68 + nas_bigbean 27 (95 in-house) and lit_pmc_staged
-        # 67 + lit_curate_single 22 (89 literature, counted as one dataset).
         "dataset": "crystal violet plaque wells; 184 wells from 3 datasets, "
                    "95 in-house and 89 literature",
-        # THE LITERATURE FIGURE IS 0.806, NOT 0.834, and this row published
-        # the wrong one until 2026-09-02. The project corrected it on
-        # 2026-08-09 and its own model.db names the old value
-        # `literature_generalisation_SINGLESPLIT_optimistic`: 0.834 came
-        # from ONE 19-well split and turned out to be the best of three
-        # folds. The cross-validated mean is 0.806 with an SD of 0.020
-        # (per fold 0.795 / 0.789 / 0.834). The in-domain 0.856 is
-        # confirmed -- an independent harness reproduced 0.855.
         "versus_stock": "F1 0.856 in-domain; 0.806 on literature "
                         "(3-fold cross-validated, SD 0.020)",
         "trained_on": (
@@ -381,13 +367,6 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "notes": (
             "F1 0.856 in-domain and 0.806 on the literature set (3-fold "
             "cross-validated, SD 0.020), against 0.718 for round 1",
-            # "down to" / "up to" rather than "->" BECAUSE THIS PROSE IS
-            # PUBLISHED. It is printed into the README's model zoo table and
-            # from there into all nine localized READMEs, and
-            # test_localized_readme_inline_markup_is_balanced_and_tight
-            # forbids ">" in those files -- it is looking for HTML that has
-            # leaked through a translation model, and an ASCII arrow reads as
-            # exactly that. It also translates better as words.
             "round 3 trades precision (0.939 down to 0.858) for recall "
             "(0.631 up to 0.811) on the literature set, which is the right "
             "direction for a counting assay",
@@ -404,19 +383,8 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
         "display_name": "Toxoplasma Plaque Well Detector v1",
         "architecture": "YOLO11n",
-        # FROM `data/detector_v3` and the v3 training record: 441 training
-        # images (289 wells + 152 background) and 121 validation (83 + 38).
-        # The background half is not padding -- v2 was trained on positives
-        # only and fired on histology, chest X-rays, logos and Venn
-        # diagrams, so the negatives are the reason v3 is the published
-        # model.
         "dataset": "whole-plate and multi-well crystal violet images; 562 "
                    "images from 1 dataset, 190 of them with no well in them",
-        # No stock model detects wells, so this is the hold-out score and
-        # not a comparison. mAP50-95 is 0.886 from the final training epoch
-        # in `runs/well_detector_v3/results.csv`; a separate val run in
-        # model.db reports 0.892, and the two are the same measurement
-        # taken twice rather than a disagreement worth publishing.
         "versus_stock": "mAP50 0.993, mAP50-95 0.886, precision and recall "
                         "both 0.987",
         "trained_on": (
@@ -475,9 +443,6 @@ _TORCH_MAGICS = (b"PK\x03\x04", b"\x80")
 _VERSION_RE = re.compile(r"^(?P<base>.+)_v(?P<n>\d+)$")
 
 
-# ---------------------------------------------------------------------------
-# errors
-# ---------------------------------------------------------------------------
 
 class ModelZooError(Exception):
     """Base class for every refusal in this module."""
@@ -499,9 +464,6 @@ class IncomparableBenchmarks(ModelZooError):
     """Benchmarks from different field sets cannot be ranked against each other."""
 
 
-# ---------------------------------------------------------------------------
-# the entry
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ModelEntry:
@@ -563,8 +525,6 @@ class ModelEntry:
     settings_path: str = ""
 
     def __post_init__(self):
-        # A blank provenance field reads as "no constraints"; it has to say
-        # "unknown" out loud instead. object.__setattr__ because frozen.
         """Fill in the provenance fields and validate the kind.
 
         A blank ``trained_on`` or ``trained_by`` reads as "no constraints", so
@@ -725,17 +685,12 @@ def _human_bytes(size: Any) -> str:
     for unit in ("B", "KB", "MB", "GB"):
         if n < 1024:
             return f"{n:.0f} {unit}" if unit == "B" else f"{n:.1f} {unit}"
-        # GB is the display ceiling.  Let its last pass finish naturally so
-        # values larger than a terabyte reach the reachable fallback below.
         if unit == "GB":
             continue
         n /= 1024.0
     return f"{n:.1f} GB"
 
 
-# ---------------------------------------------------------------------------
-# checksums
-# ---------------------------------------------------------------------------
 
 def sha256_file(path: Any, chunk_size: int = 1 << 20) -> str:
     """Hex SHA-256 of a file, read in chunks so a 2 GB checkpoint is not RAM.
@@ -790,9 +745,6 @@ def verify(entry: ModelEntry, expected: Optional[str] = None) -> bool:
     return sha256_file(entry.path) == want
 
 
-# ---------------------------------------------------------------------------
-# recognising a model file
-# ---------------------------------------------------------------------------
 
 def _looks_like_checkpoint(path: Path) -> bool:
     """True when the first bytes are a torch save (zip or legacy pickle)."""
@@ -828,9 +780,6 @@ def classify_kind(path: Any) -> Optional[str]:
     """
     p = Path(path)
     low = p.name.lower()
-    # Only the two nearest folders, not every ancestor: a classifier under
-    # ``/data/models/screen1/run/`` is still a classifier, and matching any
-    # ancestor called "models" would silently relabel a whole tree.
     near = {p.parent.name.lower(), p.parent.parent.name.lower()}
     in_cellpose_dir = bool(near & set(CELLPOSE_DIR_NAMES))
 
@@ -918,9 +867,6 @@ def _torch_loader(path: str) -> Any:
     return torch.load(path, map_location="cpu", weights_only=False)
 
 
-# ---------------------------------------------------------------------------
-# provenance
-# ---------------------------------------------------------------------------
 
 def _read_key_value_csv(path: Path) -> Dict[str, Any]:
     """Read a ``Key,Value`` settings CSV the way the run diff reads one.
@@ -1017,9 +963,6 @@ def _who(settings: Mapping[str, Any]) -> str:
     return UNKNOWN
 
 
-# ---------------------------------------------------------------------------
-# building entries from files
-# ---------------------------------------------------------------------------
 
 def _version_of(name: str) -> str:
     """The zoo's version number for a filename (see :func:`versioned_path`)."""
@@ -1183,9 +1126,6 @@ def _runs_under(root: Path) -> Dict[str, Any]:
         return {}
 
 
-# ---------------------------------------------------------------------------
-# discovery
-# ---------------------------------------------------------------------------
 
 def package_model_root() -> Path:
     """``<spacr>/resources/models`` — where the bundled pack lives.
@@ -1320,9 +1260,6 @@ def _as_paths(roots: Any) -> List[Path]:
     return [Path(r) for r in roots]
 
 
-# ---------------------------------------------------------------------------
-# the catalogue
-# ---------------------------------------------------------------------------
 
 def hf_uri(repo_id: str, filename: str, repo_type: str = "dataset") -> str:
     """The download URL for a file in a Hugging Face repo.
@@ -1491,19 +1428,11 @@ def shared_catalogue(uri: Optional[str] = None, *,
 
     target = uri or REMOTE_CATALOGUE_URI
     now = time.time()
-    # THE STAMP, NOT THE CONTENTS, decides freshness. Keying on `entries`
-    # meant an empty answer -- which is what an unreachable or unpublished
-    # catalogue gives -- was never cached, so the failure was retried by every
-    # caller forever.
     if (not force and float(_SHARED_CATALOGUE_CACHE["fetched_at"]) > 0
             and now - float(_SHARED_CATALOGUE_CACHE["fetched_at"])
             < CATALOGUE_CACHE_SECONDS):
         return tuple(_SHARED_CATALOGUE_CACHE["entries"])
 
-    # The default is decided here rather than in the signature, because what
-    # it should be depends on WHERE the call is: waiting is right in a CLI
-    # and in a worker, and is the defect this parameter exists for on the
-    # GUI thread.
     wait = (not _on_the_qt_gui_thread()) if block is None else bool(block)
     if not wait:
         _refresh_shared_catalogue_in_background(uri, timeout)
@@ -1515,16 +1444,6 @@ def shared_catalogue(uri: Optional[str] = None, *,
         with urllib.request.urlopen(target, timeout=timeout) as response:
             payload = json.loads(response.read().decode("utf-8"))
     except Exception as exc:                                # noqa: BLE001
-        # STAMP THE FAILURE, or the cache never suppresses anything. The
-        # freshness check below reads `entries`, which stays empty when the
-        # fetch fails -- so every caller re-fetched, and with the catalogue
-        # not yet published that is one 404 per settings panel built. It was
-        # reported as four identical lines in thirty seconds.
-        #
-        # DEBUG after the first, too. An unpublished or unreachable catalogue
-        # is the expected state for anyone who has not contributed a model,
-        # and telling them about it repeatedly at INFO makes spaCR look broken
-        # for a feature they are not using.
         _SHARED_CATALOGUE_CACHE["fetched_at"] = now
         first = not _SHARED_CATALOGUE_CACHE.get("warned")
         _SHARED_CATALOGUE_CACHE["warned"] = True
@@ -1724,18 +1643,10 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
                 if (entry.key, entry.name) not in have:
                     entries.append(entry)
                     have.add((entry.key, entry.name))
-        # The community catalogue, LAST, so a key declared here or by a local
-        # file always wins over the shared one. That ordering is the safety
-        # property: a shared catalogue is edited by people other than the user
-        # running the code, and it must not be able to redefine a model spaCR
-        # ships or one the lab pinned in its own file. It can only ADD.
         for entry in shared_catalogue(block=block):
             if (entry.key, entry.name) not in have:
                 entries.append(entry)
                 have.add((entry.key, entry.name))
-    # Retired models are dropped LAST, after every source has contributed, so
-    # a retirement holds however the entry arrived -- bundled, local discovery
-    # of the shipped file, a lab catalogue, or a plugin.
     entries = [e for e in entries if e.name not in RETIRED_MODEL_NAMES]
     if include_plugins:
         try:
@@ -1794,8 +1705,6 @@ def resolve(key_or_path: Any,
     if os.path.isfile(text):
         return entry_from_file(text)
     if os.sep in text or text.startswith("~"):
-        # It was written as a path, so "no entry called that" would be the
-        # wrong complaint: the user pointed at a file and the file is not there.
         raise ModelUnreadable(
             f"no such model file: {text} — and nothing in the zoo is called "
             f"that either")
@@ -1816,9 +1725,6 @@ def resolve(key_or_path: Any,
                 f"that is not registered)"))
 
 
-# ---------------------------------------------------------------------------
-# fetching
-# ---------------------------------------------------------------------------
 
 def versioned_path(dest: Any, filename: str) -> Path:
     """The first free destination for ``filename`` in ``dest``.
@@ -2020,8 +1926,6 @@ def fetch(entry: ModelEntry, dest: Any,
                 f"published it.")
         return _claim(temp, folder, entry.name)
     except BaseException:
-        # Every failure path leaves the destination untouched: no partial file
-        # at a real model name, ever.
         try:
             handle.close()
         except Exception:
@@ -2128,9 +2032,6 @@ def _bulk_downloader() -> Callable[..., str]:
     return download_models
 
 
-# ---------------------------------------------------------------------------
-# benchmarking — "test on 3 fields"
-# ---------------------------------------------------------------------------
 
 @dataclass
 class FieldBenchmark:
@@ -2381,7 +2282,6 @@ def benchmark(entry: ModelEntry, images: Optional[Sequence[Any]] = None,
             f"{entry.name} does not record what it was trained on, so a good "
             f"score here says it works on these fields and nothing more.")
 
-    # Fail on the file, not on a state-dict key three frames inside torch.
     if entry.path:
         inspect_checkpoint(entry.path)
 
@@ -2411,8 +2311,6 @@ def benchmark(entry: ModelEntry, images: Optional[Sequence[Any]] = None,
     masks = [mc._as_labels(m) for m in produced]
 
     _tick("Scoring masks…", 1)
-    # mc._score is spacr.seg_qc.score_masks over the whole set at once, which
-    # is what gives the plate-relative flags something to compare against.
     scores = mc._score(masks, names, object_type) if qc else [None] * len(fields)
 
     rows = [
@@ -2496,9 +2394,6 @@ def compare_entries(entry_a: ModelEntry, entry_b: ModelEntry,
         **kwargs)
 
 
-# ---------------------------------------------------------------------------
-# ranking — the part that refuses
-# ---------------------------------------------------------------------------
 
 def group_by_fieldset(results: Sequence[BenchmarkResult]
                       ) -> Dict[str, List[BenchmarkResult]]:
@@ -2528,8 +2423,6 @@ def _rank_value(result: BenchmarkResult, key: str) -> Tuple:
     """
     if key == "qc":
         score = result.qc_score
-        # nan sorts last rather than first: a model nobody scored is not the
-        # best model.
         return (-(score if score == score else -1.0), result.seconds,
                 result.entry.name)
     if key == "seconds":
@@ -2586,9 +2479,6 @@ def rank_groups(results: Sequence[BenchmarkResult],
             for fieldset, members in group_by_fieldset(results).items()}
 
 
-# ---------------------------------------------------------------------------
-# reporting
-# ---------------------------------------------------------------------------
 
 def _render_table(rows: Sequence[Sequence[str]],
                   header: Sequence[str]) -> List[str]:

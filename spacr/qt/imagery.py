@@ -81,9 +81,6 @@ from .space import (
     MAX_DIM, MIN_DIM, _clampi, cache_dir, screen_size,
 )
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 
 #: Bumped whenever the rendering below changes output, so a cache written
 #: by an older spaCR is not reused for a different-looking wallpaper.
@@ -143,20 +140,6 @@ USER_DIR_NAME = "themes"
 ENV_MASTER_DIR = "SPACR_THEME_IMAGES"
 
 
-# ---------------------------------------------------------------------------
-# The registry
-# ---------------------------------------------------------------------------
-# ``source``      original filename, for :func:`build_masters`
-# ``file``        the shipped, cropped, dimmed master
-# ``theme``       which theme's palette this wallpaper is judged against
-# ``source_crop`` (x0, y0, x1, y1) fractions kept from the original —
-#                 this is where burned-in annotation is removed
-# ``focus``       vertical centre of the aspect crop, as a fraction
-# ``title``       shown in Preferences
-# ``annotation``  measured bounds of burned-in annotation in the
-#                 original, when it has any. ``source_crop`` must not
-#                 intersect it; the test suite checks that arithmetic
-#                 rather than trusting the comment.
 MASTERS: Dict[str, dict] = {
     "microtubules": {
         "source": "cell.png",
@@ -170,9 +153,6 @@ MASTERS: Dict[str, dict] = {
         "source": "cell_2.png",
         "file": "filopodia.jpg",
         "theme": "cell",
-        # Bottom 10 % dropped: that is where the burned-in "5 um" scale
-        # bar sits. The 3 % trim on the other three edges removes the
-        # frame's darker border rows.
         "source_crop": (0.03, 0.025, 0.97, 0.90),
         "focus": 0.50,
         "title": "Cytoskeleton",
@@ -211,9 +191,6 @@ def title_for(key: str) -> str:
     return entry["title"] if entry else str(key)
 
 
-# ---------------------------------------------------------------------------
-# Decode accounting — the performance claim, made assertable
-# ---------------------------------------------------------------------------
 
 _DECODES = 0
 
@@ -236,9 +213,6 @@ def reset_decode_count() -> None:
     _DECODES = 0
 
 
-# ---------------------------------------------------------------------------
-# Locating masters
-# ---------------------------------------------------------------------------
 
 def user_dir() -> Path:
     """Directory where a user may drop replacement masters."""
@@ -278,9 +252,6 @@ def available_keys() -> Tuple[str, ...]:
     return tuple(k for k in MASTERS if master_path(k) is not None)
 
 
-# ---------------------------------------------------------------------------
-# Colour maths — WCAG luminance over numpy arrays
-# ---------------------------------------------------------------------------
 
 def _srgb_to_linear_lut() -> np.ndarray:
     """Build the 256-entry sRGB-to-linear lookup table.
@@ -420,9 +391,6 @@ def dim(arr: np.ndarray, factor: float) -> np.ndarray:
     return _dim_lut(factor)[arr]
 
 
-# ---------------------------------------------------------------------------
-# Cropping
-# ---------------------------------------------------------------------------
 
 def rects_overlap(a: Tuple[float, float, float, float],
                   b: Tuple[float, float, float, float]) -> bool:
@@ -504,9 +472,6 @@ def cover_box(src_w: int, src_h: int, out_w: int, out_h: int,
     return (left, top, left + box_w, top + box_h)
 
 
-# ---------------------------------------------------------------------------
-# Decoding
-# ---------------------------------------------------------------------------
 
 def _open_master(path: Path, hint: Optional[Tuple[int, int]] = None):
     """Decode a master into a PIL RGB image. **The only decode site.**
@@ -518,21 +483,18 @@ def _open_master(path: Path, hint: Optional[Tuple[int, int]] = None):
     """
     global _DECODES
     from PIL import Image
-    Image.MAX_IMAGE_PIXELS = None       # these are legitimately huge
+    Image.MAX_IMAGE_PIXELS = None
     with Image.open(path) as handle:
         if hint is not None:
             try:
                 handle.draft("RGB", (max(1, hint[0]), max(1, hint[1])))
             except Exception:
-                pass                    # PNG has no draft mode; fine
+                pass
         image = handle.convert("RGB")
     _DECODES += 1
     return image
 
 
-# ---------------------------------------------------------------------------
-# Rendering a background for one screen size
-# ---------------------------------------------------------------------------
 
 def _probe(image, long_edge: int = 480) -> np.ndarray:
     """A box-averaged thumbnail of ``image``, for measurement only.
@@ -588,9 +550,6 @@ def render(key: str, width: int, height: int):
     return Image.fromarray(dim(arr, factor))
 
 
-# ---------------------------------------------------------------------------
-# Disk cache — same directory and contract as the generated sky
-# ---------------------------------------------------------------------------
 
 def cache_name(key: str, width: int, height: int) -> str:
     """Return the versioned cache filename for a photographic background."""
@@ -656,11 +615,6 @@ def background_path(key: str, width: int = 0, height: int = 0,
     """
     try:
         if width <= 0 or height <= 0:
-            # `screen_size` is what applies the MIN_BACKGROUND floor —
-            # the stylesheet centres the image without repeating it, so
-            # a background narrower than the window would letterbox into
-            # bands of flat colour. An explicit size is honoured as
-            # given, which is what makes this testable at small sizes.
             width, height = screen_size()
         width = _clampi(width, MIN_DIM[0], MAX_DIM[0])
         height = _clampi(height, MIN_DIM[1], MAX_DIM[1])
@@ -693,9 +647,6 @@ def clear_cache() -> int:
     return removed
 
 
-# ---------------------------------------------------------------------------
-# Measured legibility
-# ---------------------------------------------------------------------------
 
 def master_array(key: str) -> Optional[np.ndarray]:
     """The shipped master as a uint8 (h, w, 3) array, or ``None``.
@@ -758,9 +709,6 @@ def legibility(key: str) -> Optional[dict]:
     return legibility_of(arr, MASTERS[key]["theme"], key=key)
 
 
-# ---------------------------------------------------------------------------
-# Build-time: originals -> shipped masters
-# ---------------------------------------------------------------------------
 
 def solve_image_file(path, theme: str, fmt: str = "JPEG") -> bool:
     """Exposure-solve an image file *in place*. ``True`` when it is legible.
@@ -781,7 +729,7 @@ def solve_image_file(path, theme: str, fmt: str = "JPEG") -> bool:
     try:
         from PIL import Image
         path = Path(path)
-        Image.MAX_IMAGE_PIXELS = None       # NASA masters are huge
+        Image.MAX_IMAGE_PIXELS = None
         with Image.open(path) as handle:
             image = handle.convert("RGB")
         try:
@@ -831,9 +779,6 @@ def build_master(key: str, src_dir, dst_dir) -> Optional[Path]:
     box = cover_box(image.width, image.height, out_w, out_h,
                     focus=entry["focus"])
     box_w, box_h = box[2] - box[0], box[3] - box[1]
-    # Never upscale here. ``cell.png`` is only 2048 px wide, and
-    # inventing pixels at build time would bake a soft image into the
-    # wheel for every user including the ones whose screen is 1920.
     scale = min(1.0, out_w / box_w, out_h / box_h)
     image = image.resize((max(1, int(round(box_w * scale))),
                           max(1, int(round(box_h * scale)))),

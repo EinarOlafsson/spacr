@@ -42,9 +42,6 @@ DEFAULT_VOICE = (
 )
 
 
-# ---------------------------------------------------------------------------
-# Step — the atomic unit of a tutorial
-# ---------------------------------------------------------------------------
 
 @dataclass
 class Step:
@@ -92,9 +89,6 @@ class Step:
     show_pointer: bool = False
 
 
-# ---------------------------------------------------------------------------
-# Narrator — Piper wrapper
-# ---------------------------------------------------------------------------
 
 class Narrator:
     """Synthesize step narration WAVs using Piper.
@@ -157,9 +151,6 @@ def _wav_duration(path: Path) -> float:
         return w.getnframes() / float(w.getframerate())
 
 
-# ---------------------------------------------------------------------------
-# Cursor overlay
-# ---------------------------------------------------------------------------
 
 def _draw_cursor_on(pixmap, pos_xy: Tuple[int, int]) -> None:
     """Paint the small solid magenta click point at absolute ``(x, y)``."""
@@ -224,9 +215,6 @@ def _draw_spotlight_on(
     painter.end()
 
 
-# ---------------------------------------------------------------------------
-# Recorder — captures the MainWindow at FRAME_RATE
-# ---------------------------------------------------------------------------
 
 class Recorder:
     """Build video frames from app screenshot keyframes.
@@ -269,26 +257,12 @@ class Recorder:
         from PySide6.QtGui import QPixmap
 
         self.window.repaint()
-        # A VIDEO FRAME IS MEASURED IN FILE PIXELS, not screen ones, so this
-        # is the one picture in the application that does NOT go through
-        # `hidpi.scaled_for`: the recording must come out the same size on
-        # every machine.
-        #
-        # `grab()` does come back carrying the window's device pixel ratio,
-        # and a pixmap that says it is dense draws at a fraction of its size
-        # on the plain canvas below -- a quarter-size picture in the corner
-        # of every frame on a retina display. Declaring the grab plain
-        # before scaling keeps the extra pixels a HiDPI window really has
-        # (they make the downscale sharper) and drops the claim that would
-        # halve the frame.
         pm = self.window.grab()
         pm.setDevicePixelRatio(1.0)
         pm = pm.scaled(
             self.size[0], self.size[1],
             Qt.KeepAspectRatio, Qt.SmoothTransformation,
         )
-        # If the grab is smaller than the target frame (e.g. window
-        # smaller than VIDEO_SIZE), centre it on a black canvas
         if pm.size().width() != self.size[0] or pm.size().height() != self.size[1]:
             canvas = QPixmap(self.size[0], self.size[1])
             canvas.fill(Qt.black)
@@ -319,7 +293,6 @@ class Recorder:
 
         if refresh_base or self._base_frame is None:
             self.refresh_base()
-        # Overlay painters mutate their pixmap, so copy the clean keyframe.
         pm = QPixmap(self._base_frame)
         if highlight_rect and dim_background:
             _draw_spotlight_on(pm, highlight_rect)
@@ -336,9 +309,6 @@ class Recorder:
         return path
 
 
-# ---------------------------------------------------------------------------
-# Director — orchestrates the whole render
-# ---------------------------------------------------------------------------
 
 @dataclass
 class RenderResult:
@@ -389,7 +359,6 @@ class Director:
         self._audio_wavs: List[Tuple[float, Path, str]] = []
         self._recorder: Optional[Recorder] = None
 
-    # -- narration pre-render ------------------------------------------------
     def _prerender_audio(self) -> float:
         """Synth all step narrations up front so we know their durations
         before we start capturing frames. Returns total audio duration."""
@@ -403,7 +372,6 @@ class Director:
                   len(self._audio_wavs), total)
         return total
 
-    # -- step frame budgets --------------------------------------------------
     def _frames_for(self, step_idx: int) -> int:
         """Return how many frames one step needs.
 
@@ -415,7 +383,6 @@ class Director:
         hold = self.steps[step_idx].hold_ms / 1000.0
         return max(1, math.ceil((dur + hold) * self.fps))
 
-    # -- capture loop --------------------------------------------------------
     def _run_capture(self) -> None:
         """Play every step through the window and record the frames.
 
@@ -428,7 +395,6 @@ class Director:
         from PySide6.QtWidgets import QApplication
         app = QApplication.instance()
 
-        # Force window to VIDEO_SIZE for consistent frames
         self.window.resize(VIDEO_SIZE[0], VIDEO_SIZE[1])
         self.window.show()
         for _ in range(6):
@@ -438,7 +404,6 @@ class Director:
                                     fps=self.fps, size=VIDEO_SIZE)
         self._recorder.refresh_base()
 
-        # Start cursor at bottom-right (out of the way)
         self._recorder.cursor_pos = (
             VIDEO_SIZE[0] - 40, VIDEO_SIZE[1] - 40
         )
@@ -448,7 +413,6 @@ class Director:
                       step.narration[:60])
             budget = self._frames_for(i)
 
-            # Cursor animation (if target set)
             target_pos = self._resolve_target(step)
             highlight_rect = self._resolve_highlight_rect(step)
 
@@ -462,19 +426,15 @@ class Director:
                                        highlight_rect=highlight_rect,
                                        dim_background=step.dim_background)
 
-            # Fire action (if any)
             if step.action is not None:
                 try:
                     step.action()
-                    # Let queued layout/paint work settle, then capture one
-                    # new visual keyframe for the changed UI state.
                     for _ in range(3):
                         app.processEvents()
                     self._recorder.refresh_base()
                 except Exception as e:
                     LOG.exception("step action failed: %s", e)
 
-            # Fill remaining frames, letting the UI catch up between grabs
             for _ in range(budget - move_frames):
                 app.processEvents()
                 self._recorder.snap(
@@ -543,14 +503,9 @@ class Director:
             else:
                 global_pt = widget.mapToGlobal(QPoint(*offset))
             win_pt = self.window.mapFromGlobal(global_pt)
-            # Scale window coords to VIDEO_SIZE (they should already match
-            # since we resized, but be defensive)
             sx, sy = self._scale_factors()
             return (win_pt.x() * sx, win_pt.y() * sy)
         except Exception:
-            # Never let a stale target abort a render — but never let it
-            # pass unnoticed either. A silent None here is exactly how a
-            # tutorial ends up pointing at nothing.
             LOG.warning("tutorial step target did not resolve (%r): %s",
                           step.narration[:60], widget, exc_info=True)
             return None
@@ -600,7 +555,6 @@ class Director:
         start = self._recorder.cursor_pos
         for i in range(frames):
             t = (i + 1) / frames
-            # Smooth ease-in-out
             eased = 0.5 * (1 - math.cos(math.pi * t))
             pos = (
                 start[0] + (target[0] - start[0]) * eased,
@@ -612,12 +566,9 @@ class Director:
                                   dim_background=dim_background,
                                   show_pointer=True)
 
-    # -- audio + video mux ---------------------------------------------------
     def _concat_audio(self) -> Path:
         """Concatenate all step WAVs (with hold-ms silences) into one WAV."""
         concat_list = self._workdir / "audio_concat.txt"
-        # Use ffmpeg's concat demuxer. Build a list file with a silent
-        # WAV inserted after each step for hold_ms.
         lines: List[str] = []
         for i, (dur, wav, _text) in enumerate(self._audio_wavs):
             lines.append(f"file '{wav.absolute()}'")
@@ -637,7 +588,6 @@ class Director:
         return audio_out
 
     def _make_silence(self, path: Path, seconds: float) -> None:
-        # Match Piper's sample rate (22050) + mono + 16-bit
         """Write a silent audio file.
 
         :param path: where to write it.
@@ -689,7 +639,6 @@ class Director:
             )
         return mp4
 
-    # -- SRT sidecar ---------------------------------------------------------
     def _write_srt(self, name: str) -> Path:
         """Write the subtitle track matching the narration.
 
@@ -711,7 +660,6 @@ class Director:
                 t = end + self.steps[i].hold_ms / 1000.0
         return srt
 
-    # -- main entry point ----------------------------------------------------
     def render(self, name: str) -> RenderResult:
         """Run the full narrate → capture → mux pipeline for this director.
 
@@ -728,9 +676,6 @@ class Director:
             frames=self._recorder.frame_idx,
             duration_s=total_audio,
         )
-        # Cleanup scratch dir. A render that succeeded must not fail
-        # because its temp dir could not be removed — but say so, or the
-        # frames quietly pile up in /tmp for the rest of the session.
         try:
             shutil.rmtree(self._workdir)
         except Exception as e:
@@ -754,9 +699,6 @@ def _srt_ts(seconds: float) -> str:
     return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
 
-# ---------------------------------------------------------------------------
-# High-level entry point
-# ---------------------------------------------------------------------------
 
 def render_tutorial(app_key: str, out_dir: Optional[Path] = None,
                      voice_model: Optional[Path] = None,
@@ -769,9 +711,6 @@ def render_tutorial(app_key: str, out_dir: Optional[Path] = None,
     from ..app import MainWindow
     from .scripts import AVAILABLE_TUTORIALS, build_steps
 
-    # Validate before booting: MainWindow takes ~10 s to construct, and
-    # a typo should not cost that before it is reported. build_steps
-    # stays the authority — this only front-runs it.
     if app_key not in AVAILABLE_TUTORIALS:
         raise ValueError(f"unknown tutorial: {app_key}. "
                            f"Choose from {AVAILABLE_TUTORIALS}")

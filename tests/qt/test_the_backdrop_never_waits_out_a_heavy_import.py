@@ -476,12 +476,29 @@ class TestTheMeasurementIsRecorded:
 
     def test_the_numbers_that_justify_the_bound_are_written_down(self):
         """The before/after is the evidence, and a bound with no measured
-        cost beside it is a magic number the next reader will change."""
-        source = inspect.getsource(
-            __import__("spacr.qt.widgets.fractal_travel",
-                       fromlist=["_"]))
-        assert "2,130 ms" in source or "2130 ms" in source
-        assert "priority inversion" in source
+        cost beside it is a magic number the next reader will change.
+
+        WHY, NOT WHAT, so there is no behaviour to point at: the bound's
+        size is already driven by
+        ``TestTheWaitIsBounded.test_the_bound_is_short_enough_to_be_invisible``
+        and what is held here is the measurement that says why it is that
+        size. The prose left the module when every non-directive comment
+        under ``spacr/`` moved to ``docs/notes/<module path>.md``, so the
+        contract is pinned where it now lives.
+        """
+        from pathlib import Path
+
+        from spacr.qt.widgets import fractal_travel
+
+        notes = (Path(fractal_travel.__file__).resolve().parents[3]
+                 / "docs" / "notes" / "spacr" / "qt" / "widgets"
+                 / "fractal_travel.md")
+        assert notes.is_file(), (
+            f"the module's notes are missing, so the measurement behind the "
+            f"bound is recorded nowhere: {notes}")
+        recorded = notes.read_text(encoding="utf-8")
+        assert "2,130 ms" in recorded or "2130 ms" in recorded
+        assert "priority inversion" in recorded
 
 
 class TestHomesOwnHandler:

@@ -89,13 +89,6 @@
       "translation": "keyrsluauðkenni sem er notað sem skráarheiti annálsins."
     },
     {
-      "label": "spacr.spacrops.spacrStitcher.set_meta_regex#1",
-      "source": "string or compiled regex with well, site, channel, and magnification groups.",
-      "context": "string or compiled regex with well, site, channel, and magnification groups.",
-      "source_sha256": "feadf4ac30dae81b4edf9481459d712595bbfc6afb0afc6f095c1cbe3cc2c6f5",
-      "translation": "strengur eða þýdd regluleg segð með hópum fyrir brunn, myndsvæði, rás og stækkun."
-    },
-    {
       "label": "spacr.sudoku.constrain_to_fractions#1",
       "source": "graph-propagated cell-by-guide evidence matrix.",
       "context": "graph-propagated cell-by-guide evidence matrix.",

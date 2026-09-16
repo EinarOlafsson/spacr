@@ -163,9 +163,6 @@ def inapplicable_settings(source: str) -> Tuple[str, ...]:
         for s in keys if s not in mine))
 
 
-# ---------------------------------------------------------------------------
-# Pre-generated: two filters that used to be one confused setting
-# ---------------------------------------------------------------------------
 
 def normalise_extension(file_type: Any) -> str:
     """The extension ``file_type`` names, without its dot and lower-cased.
@@ -180,8 +177,6 @@ def normalise_extension(file_type: Any) -> str:
     text = str(file_type or "").strip().lower().lstrip(".")
     if not text:
         return ""
-    # Tolerated because it is what every old settings CSV holds: the old value
-    # was `<object>_png`, whose extension is the part after the underscore.
     if "_" in text:
         text = text.rsplit("_", 1)[-1]
     if text not in IMAGE_FILE_TYPES:
@@ -220,9 +215,6 @@ def select_crops(paths: Iterable[str], settings: Mapping[str, Any]
                             file_type=settings.get("file_type"))]
 
 
-# ---------------------------------------------------------------------------
-# On demand: cutting from merged
-# ---------------------------------------------------------------------------
 
 def _as_indices(value, what: str) -> List[int]:
     """Normalize one plane selection to integer indices.
@@ -489,12 +481,6 @@ def validate(settings: Mapping[str, Any]) -> str:
             raise CropSourceError(
                 "objects taken from a database can only be cut as bounding "
                 "boxes: a coordinate has no outline to mask against")
-        # ONE COLUMN OR TWO, because there are two ways a database says where
-        # an object is and both are in use. One column NAMES THE OBJECT --
-        # `cell_id` -- and the mask plane supplies its extent; two give a
-        # centroid's row and column, and the box is cut around it. Demanding
-        # two refused spaCR's own derived value, which is the single
-        # identifier column `stream_dataset.coordinate_column` produces.
         if not settings.get("image_size"):
             raise CropSourceError(
                 "image_size is what decides how big a coordinate-centred crop "

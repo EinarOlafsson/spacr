@@ -75,7 +75,8 @@ def test_an_apply_that_raises_is_survived_too(launched, monkeypatch):
     called = []
     monkeypatch.setattr(laptop_mode, "describe", lambda: "a description")
 
-    def refuse():
+    # `launch` passes the level's answer since 286, so the stand-in takes it.
+    def refuse(_on=None):
         called.append("apply")
         raise OSError("cannot write the power governor")
 
@@ -94,7 +95,7 @@ def test_a_laptop_mode_that_changed_something_says_what(launched,
     lines: list = []
     monkeypatch.setattr(laptop_mode, "describe", lambda: "on battery")
     monkeypatch.setattr(laptop_mode, "apply",
-                        lambda: seen.append(1) or {
+                        lambda _on=None: seen.append(1) or {
                             "changed": ["threads", "backdrop"]})
     monkeypatch.setattr(app_mod.LOG, "info",
                         lambda msg, *a, **k: lines.append(
@@ -112,7 +113,8 @@ def test_a_laptop_mode_that_changed_nothing_stays_quiet(launched,
 
     lines: list = []
     monkeypatch.setattr(laptop_mode, "describe", lambda: "on mains")
-    monkeypatch.setattr(laptop_mode, "apply", lambda: {"changed": []})
+    monkeypatch.setattr(laptop_mode, "apply",
+                        lambda _on=None: {"changed": []})
     monkeypatch.setattr(app_mod.LOG, "info",
                         lambda msg, *a, **k: lines.append(msg % a if a
                                                           else msg))

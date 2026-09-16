@@ -139,7 +139,6 @@ def published_archives(repo: str = SCREEN_REPO, *, timeout: float = 8.0):
         names = HfApi().list_repo_files(repo, repo_type="dataset",
                                         timeout=timeout)
     except TypeError:
-        # Older huggingface_hub has no timeout on this call.
         try:
             from huggingface_hub import HfApi
 

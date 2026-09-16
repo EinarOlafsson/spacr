@@ -59,7 +59,15 @@ GIFS = ROOT / "spacr" / "resources" / "setting_animations" / "gifs"
 # the animation documents, now a real setting a run can carry. A key that has
 # become live must leave this set, or the exception goes on excusing a key
 # that no longer needs excusing and stops describing anything.
-CUSTOM_ALIGN_CONTROLS = {"overlap"}
+#
+# A pair again since d0717ea53 (372: the old OPS engine is deleted), which
+# took `blend`'s declaration out of `spacr.settings` with the old engine's
+# stitch settings -- "only Align & Stitch's own screen reads it". That screen
+# and `spacr.align.default_settings` still read it, so the animation
+# documents a live control; the same move that makes a key live in reverse
+# puts it back here. tests/test_setting_animations.py checks both keys are
+# still read by `spacr.align`.
+CUSTOM_ALIGN_CONTROLS = {"overlap", "blend"}
 
 FIX_IT = (
     "The page is generated. Edit tools/generate_setting_animations.py, then "
@@ -138,7 +146,8 @@ def test_no_animation_documents_a_setting_the_shipped_manifest_does_not_carry():
     # 134 -> 118 on 2026-09-12, and it is -16 rather than -8 because the
     # eight animations 391 removed each mapped TWO settings: the dim and
     # bright halves of the intensity-percentile band, at four roles.
-    assert sum(len(keys) for keys in specs.values()) == 118
+    # 418 replaces 20 retired merge/split keys with eight mean-bound keys.
+    assert sum(len(keys) for keys in specs.values()) == 106
 
 
 def test_the_gallery_names_only_settings_spacr_actually_has():

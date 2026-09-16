@@ -1,0 +1,802 @@
+"""Item 417, the magnifier's second round: its settings and its models.
+
+The maintainer's words, after using item 407's magnifier: the box size's
+maximum of 512 "should be able to be as high as the image is high/wide";
+"holding shift and scrolling should increase or decrease the size setting";
+the settings categories fold "like in the core applications"; with Cellpose
+on, "all the cellpose models in the model zoo" and "the model zoo button";
+the flow and cell-probability thresholds, and Otsu's threshold correction,
+set in the EXISTING Cellpose-SAM category, are what the magnifier's detection
+uses; and "other computer vision models like a live YOLO or DINOCell".
+
+The canvas geometry and the coded-field stub are item 407's, imported from
+its test module, so a pixel here means what it means there.
+"""
+from __future__ import annotations
+
+from pathlib import Path
+
+import imageio.v2 as imageio
+import numpy as np
+import pytest
+from PySide6.QtCore import QPoint, QPointF, Qt
+from PySide6.QtGui import QWheelEvent
+
+from spacr.qt.screens import make_masks as mm
+from tests.qt.test_the_live_magnifier_segments_under_the_mouse import (
+    CANVAS_H,
+    CANVAS_W,
+    IMG_N,
+    PIXMAP_N,
+    SIZE,
+    CodedStub,
+    canvas_xy,
+    coded_field,
+    fields,  # noqa: F401 - a fixture, used by name
+    hover,
+    screen,  # noqa: F401 - a fixture, used by name
+    switch_on,
+    wait_for_result,
+)
+
+
+def shift_wheel(screen, img_x, img_y, delta=120, *, modifiers=Qt.ShiftModifier,
+                sideways=False):
+    """Turn the wheel one notch over image pixel (img_x, img_y)."""
+    pos = QPointF(*canvas_xy(img_x, img_y))
+    angle = QPoint(delta, 0) if sideways else QPoint(0, delta)
+    screen._canvas.wheelEvent(QWheelEvent(
+        pos, pos, QPoint(0, 0), angle, Qt.NoButton, modifiers,
+        Qt.NoScrollPhase, False))
+
+
+# ---------------------------------------------------------------------------
+# 1. The box can be as large as the image
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def wide_then_square(tmp_path: Path) -> Path:
+    """Two fields: 40 x 700 (wider than the old 512 cap), then 64 x 64."""
+    folder = tmp_path / "shapes"
+    folder.mkdir()
+    imageio.imwrite(folder / "a_wide.tif", np.ones((40, 700), np.uint16))
+    imageio.imwrite(folder / "b_square.tif", coded_field())
+    return folder
+
+
+def test_the_size_reaches_the_open_images_longer_side_and_stops_there(
+        qtbot, qt_theme_applied, wide_then_square):
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        size, magnifier = made._mag_size, made._magnifier
+        assert (size.minimum(), size.maximum()) == mm._MAGNIFIER_SIZE_RANGE, (
+            "with no field open the range is the old one")
+
+        assert made._open_folder(str(wide_then_square))
+        assert made._canvas.image.shape == (40, 700)
+        assert (size.minimum(), size.maximum()) == (32, 700)
+        size.setValue(700)
+        assert size.value() == 700 and magnifier.size == 700, (
+            "past the old 512 cap, up to the field's own width")
+        size.setValue(5000)
+        assert size.value() == 700 and magnifier.size == 700
+        magnifier.set_size(9999)
+        assert magnifier.size == 700, "the magnifier clamps on its own too"
+
+        made._on_next()
+        qtbot.waitUntil(lambda: made._canvas.image is not None
+                        and made._canvas.image.shape == (IMG_N, IMG_N),
+                        timeout=5_000)
+        assert size.maximum() == IMG_N, "the range follows the field that opened"
+        assert size.value() == IMG_N and magnifier.size == IMG_N, (
+            "a size past the new field's side is clamped to it")
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_the_range_is_never_empty_on_a_field_smaller_than_the_floor():
+    assert mm._magnifier_size_range((20, 12)) == (20, 20)
+    assert mm._magnifier_size_range((1, 1)) == (1, 1)
+    assert mm._magnifier_size_range((300, 2000, 3)) == (32, 2000)
+    assert mm._magnifier_size_range(None) == mm._MAGNIFIER_SIZE_RANGE
+
+
+# ---------------------------------------------------------------------------
+# 8. Shift + wheel changes the size, never the view
+# ---------------------------------------------------------------------------
+
+def test_shift_wheel_changes_the_size_and_stops_at_the_images_size(
+        qtbot, screen):
+    switch_on(screen, CodedStub({}))
+    hover(screen, 30, 30)
+    magnifier = screen._magnifier
+    zoom = magnifier.zoom
+    assert magnifier.size == SIZE == 32
+
+    shift_wheel(screen, 30, 30, 120)
+    grown = magnifier.size
+    assert grown > SIZE
+    assert screen._mag_size.value() == grown, "the Size box follows the wheel"
+    assert magnifier.zoom == zoom, "Shift + wheel is not the magnifier's zoom"
+    assert not screen._canvas.is_zoomed(), "and it is not the view's zoom"
+
+    for _ in range(40):
+        shift_wheel(screen, 30, 30, 120)
+    assert magnifier.size == IMG_N == screen._mag_size.value(), (
+        "it stops at the image's own size")
+    assert not screen._canvas.is_zoomed()
+
+    shift_wheel(screen, 30, 30, -120)
+    assert magnifier.size < IMG_N
+    for _ in range(40):
+        shift_wheel(screen, 30, 30, -120)
+    assert magnifier.size == 32 == screen._mag_size.value(), (
+        "and at the bottom of the range the other way")
+
+
+def test_a_sideways_shift_notch_counts_and_plain_wheel_is_unchanged(
+        qtbot, screen):
+    """Some platforms send Shift + wheel as a horizontal scroll."""
+    switch_on(screen, CodedStub({}))
+    hover(screen, 30, 30)
+    magnifier = screen._magnifier
+
+    shift_wheel(screen, 30, 30, 120, sideways=True)
+    assert magnifier.size > SIZE
+
+    size, zoom = magnifier.size, magnifier.zoom
+    shift_wheel(screen, 30, 30, 120, modifiers=Qt.NoModifier)
+    assert magnifier.size == size, "a plain notch leaves the size alone"
+    assert magnifier.zoom > zoom, "and still zooms the box, as in item 407"
+
+    screen._btn_magnifier.setChecked(False)
+    shift_wheel(screen, 30, 30, 120)
+    assert magnifier.size == size
+    assert screen._canvas.is_zoomed(), (
+        "with the magnifier off the wheel is the view's, Shift or not")
+
+
+def test_a_shift_wheel_step_is_proportional_and_at_least_a_pixel(
+        qtbot, screen):
+    magnifier = screen._magnifier
+    screen._canvas.zoom_speed = 1.5
+    magnifier.set_size(40)
+    assert magnifier.wheel_size(True) == 60
+    assert magnifier.wheel_size(False) == 32
+    screen._canvas.zoom_speed = 1.001
+    assert magnifier.wheel_size(True) == 33, "never a notch that does nothing"
+
+
+# ---------------------------------------------------------------------------
+# 2. Every settings category folds like a core application's
+# ---------------------------------------------------------------------------
+
+CATEGORIES = ("Brush", "Magic wand", "Display", "Auto-filter objects",
+              "Object operations", "Cellpose-SAM", "Live magnifier")
+
+
+def _categories(made):
+    from spacr.qt.widgets.section import Section
+
+    found = [w for w in made._settings_scroll.findChildren(Section)
+             if w.parentWidget() is not None
+             and not isinstance(w.parentWidget().parentWidget(), Section)]
+    return {title: section for title, section in made._settings_categories
+            if section in found}
+
+
+def test_every_category_is_the_core_applications_folding_section(
+        qtbot, qt_theme_applied):
+    """The same widget, header and card a core module's settings use."""
+    from spacr.qt.widgets import Card
+    from spacr.qt.widgets.section import Section
+
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        categories = _categories(made)
+        assert tuple(categories) == CATEGORIES
+        assert not made._settings_scroll.findChildren(Card), (
+            "no unfoldable card is left on the panel")
+        owners = {
+            "Brush": made._brush_slider, "Magic wand": made._wand_pct,
+            "Display": made._norm_hi, "Auto-filter objects":
+                made._filter_min_area,
+            "Object operations": made._btn_otsu,
+            "Cellpose-SAM": made._cp_flow, "Live magnifier": made._mag_size,
+        }
+        for title, section in categories.items():
+            assert type(section) is Section
+            assert section.objectName() == "SectionCard"
+            assert section.header().objectName() == "SectionHeader"
+            assert section.header().text() == title.upper()
+            assert section.is_expanded(), f"{title} starts open"
+            assert section.isAncestorOf(owners[title])
+            assert owners[title].isVisibleTo(made._settings_scroll)
+
+            section.header().click()
+            assert not section.is_expanded()
+            assert not owners[title].isVisibleTo(made._settings_scroll), (
+                f"folding {title} hides what is in it")
+            section.header().click()
+            assert section.is_expanded()
+            assert owners[title].isVisibleTo(made._settings_scroll)
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_what_is_folded_is_remembered_for_the_next_visit(
+        qtbot, qt_theme_applied):
+    first = mm.MakeMasksScreen()
+    qtbot.addWidget(first)
+    try:
+        cats = _categories(first)
+        cats["Magic wand"].header().click()
+        cats["Live magnifier"].header().click()
+    finally:
+        first._magnifier.close()
+        first.close_folded()
+
+    second = mm.MakeMasksScreen()
+    qtbot.addWidget(second)
+    try:
+        cats = _categories(second)
+        shut = {title for title, section in cats.items()
+                if not section.is_expanded()}
+        assert shut == {"Magic wand", "Live magnifier"}
+        assert not second._wand_pct.isVisibleTo(second._settings_scroll)
+
+        cats["Magic wand"].set_expanded(True)
+    finally:
+        second._magnifier.close()
+        second.close_folded()
+
+    third = mm.MakeMasksScreen()
+    qtbot.addWidget(third)
+    try:
+        shut = {title for title, section in _categories(third).items()
+                if not section.is_expanded()}
+        assert shut == {"Live magnifier"}, "unfolding is remembered as well"
+    finally:
+        third._magnifier.close()
+        third.close_folded()
+
+
+# ---------------------------------------------------------------------------
+# 3. The model zoo's Cellpose models, and the Model zoo button
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def a_zoo(tmp_path, monkeypatch):
+    """A zoo with a local Cellpose model, a downloaded remote one, a remote
+    one not downloaded, and a detector that Cellpose cannot load."""
+    from spacr import model_zoo
+    from spacr.model_zoo import ModelEntry
+    from spacr.qt.widgets import model_zoo_picker
+
+    downloads = tmp_path / "downloads"
+    downloads.mkdir()
+    local = tmp_path / "lab_cells_v2.CP_model"
+    local.write_bytes(b"weights")
+    (downloads / "cpsam_plaque_r3").write_bytes(b"weights")
+    entries = [
+        ModelEntry(key="lab_cells_v2", name=local.name, kind="cellpose",
+                   source="local", path=str(local)),
+        ModelEntry(key="toxoplasma_plaque_v1", name="cpsam_plaque_r3",
+                   kind="cellpose", source="remote"),
+        ModelEntry(key="toxoplasma_pv_v1", name="cpsam_v2_toxo_r2",
+                   kind="cellpose", source="remote"),
+        ModelEntry(key="toxoplasma_well_detector_v1",
+                   name="yolo_welldetect_v3.pt", kind="detector",
+                   source="remote"),
+    ]
+    asked = []
+
+    def catalogue(**kwargs):
+        asked.append(kwargs)
+        return list(entries)
+
+    monkeypatch.setattr(model_zoo, "catalogue", catalogue)
+    monkeypatch.setattr(model_zoo_picker, "remembered_model_dir",
+                        lambda: str(downloads))
+    return {"local": str(local), "downloaded":
+            str(downloads / "cpsam_plaque_r3"), "asked": asked,
+            "downloads": downloads}
+
+
+def _rows(combo):
+    return [(combo.itemText(i), combo.itemData(i),
+             combo.model().item(i).isEnabled()) for i in range(combo.count())]
+
+
+def test_the_model_list_is_cpsam_and_every_cellpose_model_in_the_zoo(
+        qtbot, qt_theme_applied, a_zoo):
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        rows = _rows(made._cp_model)
+        assert rows[0] == ("cpsam", "cpsam", True), "stock cpsam first"
+        assert ("lab_cells_v2", a_zoo["local"], True) in rows
+        assert ("toxoplasma_plaque_v1", a_zoo["downloaded"], True) in rows, (
+            "a zoo model downloaded into the picker's folder is selectable")
+        assert ("toxoplasma_pv_v1 (not downloaded)", None, False) in rows, (
+            "one not downloaded is listed, greyed out, with no path to load")
+        assert not any("yolo" in text or "well_detector" in text
+                       for text, _data, _on in rows), (
+            "the zoo's YOLO detector is not a Cellpose model")
+        assert all(call.get("block") is False for call in a_zoo["asked"]), (
+            "building the screen never waits on the network")
+        assert made._cp_model.currentData() == "cpsam"
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_the_model_zoo_button_opens_the_cellpose_zoo_and_selects_the_pick(
+        qtbot, qt_theme_applied, a_zoo, monkeypatch):
+    from spacr.qt.widgets import model_zoo_picker
+
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        button = made._cp_model_zoo_btn
+        assert button.text() == "Model zoo…"
+        row = made._cp_model.parentWidget()
+        assert button.parentWidget() is row, "the button sits beside the list"
+        assert row.layout().indexOf(made._cp_model) == 0
+        assert row.layout().indexOf(button) == 1
+
+        opened = []
+        # The picker downloads the model the combo showed greyed out.
+        fetched = a_zoo["downloads"] / "cpsam_v2_toxo_r2"
+
+        def choose(parent=None, kinds=None):
+            opened.append((parent, kinds))
+            fetched.write_bytes(b"weights")
+            return str(fetched)
+
+        monkeypatch.setattr(model_zoo_picker, "choose_model", choose)
+        button.click()
+        assert opened == [(made, ("cellpose",))]
+        assert made._cp_model.currentData() == str(fetched)
+        assert made._cp_model.currentText() == "toxoplasma_pv_v1"
+        assert ("toxoplasma_pv_v1 (not downloaded)", None, False) not in _rows(
+            made._cp_model), "the greyed-out row became the downloaded model"
+        assert made._magnifier_context()["model_name"] == str(fetched)
+
+        elsewhere = a_zoo["downloads"].parent / "picked_elsewhere.CP_model"
+        elsewhere.write_bytes(b"weights")
+        monkeypatch.setattr(model_zoo_picker, "choose_model",
+                            lambda parent=None, kinds=None: str(elsewhere))
+        button.click()
+        assert made._cp_model.currentData() == str(elsewhere)
+        assert made._cp_model.currentText() == "picked_elsewhere.CP_model"
+
+        monkeypatch.setattr(model_zoo_picker, "choose_model",
+                            lambda parent=None, kinds=None: None)
+        button.click()
+        assert made._cp_model.currentData() == str(elsewhere), (
+            "cancelling the picker changes nothing")
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_a_zoo_that_cannot_be_read_leaves_the_installed_cellpose(
+        qtbot, qt_theme_applied, monkeypatch):
+    from spacr import model_zoo
+
+    def broken(**_kwargs):
+        raise OSError("the zoo is on a disk that went away")
+
+    monkeypatch.setattr(model_zoo, "catalogue", broken)
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        assert made._cp_model.findData("cpsam") >= 0
+        assert not any(made._cp_model.itemData(i, mm._ZOO_ROLE)
+                       for i in range(made._cp_model.count()))
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+# ---------------------------------------------------------------------------
+# 4 and 9. The Cellpose-SAM category is what the magnifier's detection uses
+# ---------------------------------------------------------------------------
+
+class _Spy:
+    """Stands in for :func:`make_masks.cellpose_detect`, with its signature."""
+
+    def __init__(self):
+        self.calls = []
+
+    def __call__(self, image, model, *, diameter=0, normalize=True,
+                 flow_threshold=mm.FLOW_THRESHOLD,
+                 cellprob_threshold=mm.CELLPROB_THRESHOLD, min_size=0):
+        self.calls.append((np.array(image, copy=True), model, dict(
+            diameter=diameter, normalize=normalize,
+            flow_threshold=flow_threshold,
+            cellprob_threshold=cellprob_threshold, min_size=min_size)))
+        return np.zeros(np.asarray(image).shape[:2], np.int32), None, None
+
+
+def test_the_spy_has_cellpose_detects_own_signature():
+    import inspect
+
+    real = inspect.signature(mm.cellpose_detect)
+    spy = inspect.signature(_Spy.__call__)
+    assert list(real.parameters) == list(spy.parameters)[1:]
+    for name, parameter in real.parameters.items():
+        assert spy.parameters[name].default == parameter.default
+        assert spy.parameters[name].kind == parameter.kind
+
+
+def _cellpose_on(screen):
+    index = screen._mag_mode.findData("cellpose")
+    if index >= 0:
+        screen._mag_mode.setCurrentIndex(index)
+    else:                   # no Cellpose on this machine: the mode, not the box
+        screen._on_magnifier_mode("cellpose")
+    assert screen._magnifier.mode == "cellpose"
+
+
+def test_the_cellpose_sam_values_are_exactly_what_the_detection_is_passed(
+        qtbot, screen, monkeypatch, tmp_path):
+    """One source of truth: the category's boxes reach the model call as set.
+
+    The box, the whole-image run and Cellpose-SAM detect are spied on in
+    turn, and all three are handed the same numbers.
+    """
+    from spacr.qt.widgets import model_zoo_picker
+
+    checkpoint = tmp_path / "fine_tuned.CP_model"
+    checkpoint.write_bytes(b"weights")
+    monkeypatch.setattr(model_zoo_picker, "choose_model",
+                        lambda parent=None, kinds=None: str(checkpoint))
+    screen._cp_model_zoo_btn.click()
+    model = object()
+    screen._cp_loaded[str(checkpoint)] = model
+    spy = _Spy()
+    monkeypatch.setattr(mm, "cellpose_detect", spy)
+
+    for control, value in ((screen._cp_flow, 0.85),
+                           (screen._cp_cellprob, -2.5),
+                           (screen._cp_diameter, 37)):
+        assert control.value() != value
+        control.setValue(value)
+    screen._cp_normalize.setChecked(False)
+    screen._min_area.setValue(5)
+    screen._mag_sensitivity.setValue(3.0)
+    wanted = dict(diameter=37, normalize=False, flow_threshold=0.85,
+                  cellprob_threshold=-2.5, min_size=5)
+
+    _cellpose_on(screen)
+    assert not screen._mag_sensitivity.isEnabled(), (
+        "Sensitivity is the classical mode's, so it is greyed out")
+    screen._btn_magnifier.setChecked(True)
+    hover(screen, 30, 30)
+    wait_for_result(qtbot, screen)
+    crop, used, kwargs = spy.calls[-1]
+    assert used is model, "the model chosen in the category"
+    assert kwargs == wanted
+    np.testing.assert_array_equal(crop, screen._canvas.image[14:46, 14:46])
+
+    screen._mag_scope.setCurrentIndex(screen._mag_scope.findData("image"))
+    qtbot.waitUntil(lambda: screen._magnifier._image_result is not None,
+                    timeout=10_000)
+    whole, used, kwargs = spy.calls[-1]
+    assert used is model and kwargs == wanted
+    np.testing.assert_array_equal(whole, screen._canvas.image)
+
+    before = len(spy.calls)
+    screen._cp_flow.setValue(1.2)
+    assert screen._magnifier._image_result is None, (
+        "a threshold changed in the category discards the whole-image objects")
+    qtbot.waitUntil(lambda: screen._magnifier._image_result is not None,
+                    timeout=10_000)
+    assert len(spy.calls) == before + 1
+    assert spy.calls[-1][2] == dict(wanted, flow_threshold=1.2)
+
+    screen._mag_scope.setCurrentIndex(screen._mag_scope.findData("region"))
+    screen.run_cellpose()
+    image, used, kwargs = spy.calls[-1]
+    assert used is model
+    assert kwargs == dict(wanted, flow_threshold=1.2), (
+        "Cellpose-SAM detect is handed the very same values")
+    np.testing.assert_array_equal(image, screen._canvas.image)
+
+
+def test_the_thresholds_live_in_the_cellpose_sam_category(screen):
+    categories = dict(screen._settings_categories)
+    cellpose = categories["Cellpose-SAM"]
+    for control in (screen._cp_model, screen._cp_model_zoo_btn,
+                    screen._cp_flow, screen._cp_cellprob,
+                    screen._cp_diameter, screen._cp_normalize,
+                    screen._otsu_correction):
+        assert cellpose.isAncestorOf(control)
+    assert screen._cp_flow.value() == pytest.approx(mm.FLOW_THRESHOLD)
+    assert screen._cp_cellprob.value() == pytest.approx(mm.CELLPROB_THRESHOLD)
+    # Cellpose's own GUI offers -6..6 and 0..3; both fit inside these.
+    assert screen._cp_cellprob.minimum() <= -6 and screen._cp_cellprob.maximum() >= 6
+    assert screen._cp_flow.minimum() == 0 and screen._cp_flow.maximum() >= 3
+    assert not categories["Live magnifier"].isAncestorOf(screen._cp_flow), (
+        "no second set of thresholds on the magnifier's own category")
+
+
+def test_a_ledger_entry_names_the_settings_the_objects_were_found_with(
+        qtbot, screen):
+    switch_on(screen, CodedStub({7: (20, 20, 26, 25)}))
+    screen._cp_flow.setValue(0.6)
+    screen._cp_cellprob.setValue(1.5)
+    screen._otsu_correction.setValue(1.25)
+    hover(screen, 30, 30)
+    wait_for_result(qtbot, screen)
+    from tests.qt.test_the_live_magnifier_segments_under_the_mouse import click
+
+    click(screen, 30, 30)
+    detail = screen._log.edits[-1].detail
+    assert detail["flow_threshold"] == pytest.approx(0.6)
+    assert detail["cellprob_threshold"] == pytest.approx(1.5)
+    assert detail["otsu_correction"] == pytest.approx(1.25)
+    assert detail["model"] == "cpsam"
+
+
+# ---------------------------------------------------------------------------
+# 7. Otsu's threshold correction
+# ---------------------------------------------------------------------------
+
+def soft_blobs(n: int = IMG_N) -> np.ndarray:
+    """Three disks with a 5 px ramp at the rim, so the cut sets their size.
+
+    Plateau disks, not Gaussian blobs, because the classical mode only cuts
+    at Otsu's level where a region is two clear populations. Measured before
+    this was written: Gaussian blobs (sigma 5) fall short of that, are cut at
+    the noise floor, and no correction moves them; these disks score 0.868
+    on the whole field and 0.863 in the 32 px box round (16, 16), against the
+    0.8 needed, and the rim ramp is what a correction moves the cut across.
+    """
+    rng = np.random.default_rng(5)
+    yy, xx = np.mgrid[0:n, 0:n]
+    img = np.full((n, n), 1000.0)
+    for cy, cx in ((16, 16), (16, 46), (46, 30)):
+        radius = np.hypot(yy - cy, xx - cx)
+        img += 3000.0 * np.clip((9.0 - radius) / 5.0, 0.0, 1.0)
+    img += rng.normal(0, 40, img.shape)
+    return np.clip(img, 0, 65535).astype(np.uint16)
+
+
+def test_the_correction_moves_the_classical_cut_and_1_is_otsu_itself():
+    from spacr.qt import mask_engine as engine
+
+    field = soft_blobs()
+    plain = engine._classical_region_labels(field, min_area=10)
+    same = engine._classical_region_labels(field, min_area=10, correction=1.0)
+    strict = engine._classical_region_labels(field, min_area=10,
+                                             correction=1.4)
+    loose = engine._classical_region_labels(field, min_area=10,
+                                            correction=0.7)
+    np.testing.assert_array_equal(plain, same)
+    assert plain.max() == strict.max() == loose.max() == 3
+    assert (strict > 0).sum() < (plain > 0).sum() < (loose > 0).sum()
+
+
+def test_the_correction_moves_otsu_detect_on_either_side(monkeypatch):
+    from spacr.qt import mask_engine as engine
+
+    field = soft_blobs()
+    np.testing.assert_array_equal(
+        engine._otsu_instances(field, min_area=4),
+        engine.otsu_instances(field, min_area=4))
+    area = {c: int((engine._otsu_instances(field, min_area=4,
+                                           correction=c) > 0).sum())
+            for c in (0.8, 1.0, 1.2)}
+    assert area[1.2] < area[1.0] < area[0.8]
+
+    dark = (5000 - field.astype(np.int32)).astype(np.uint16)
+    np.testing.assert_array_equal(
+        engine._otsu_instances(dark, bright=False, min_area=4),
+        engine.otsu_instances(dark, bright=False, min_area=4))
+    dark_area = {c: int((engine._otsu_instances(
+        dark, bright=False, min_area=4, correction=c) > 0).sum())
+        for c in (0.8, 1.0, 1.2)}
+    assert dark_area[1.2] < dark_area[1.0] < dark_area[0.8], (
+        "above 1 is stricter for dark objects too")
+
+    with pytest.raises(ValueError, match="greater than 0"):
+        engine._otsu_instances(field, correction=0)
+    with pytest.raises(ValueError, match="empty"):
+        engine._otsu_instances(np.zeros((0, 0), np.uint16), correction=1.5)
+
+
+@pytest.fixture
+def blob_screen(qtbot, qt_theme_applied, tmp_path):
+    folder = tmp_path / "blobs"
+    folder.mkdir()
+    imageio.imwrite(folder / "a.tif", soft_blobs())
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    assert made._open_folder(str(folder))
+    made._canvas.resize(CANVAS_W, CANVAS_H)
+    made._canvas.refresh()
+    assert made._canvas.pixmap().width() == PIXMAP_N
+    made._min_area.setValue(4)
+    made._mag_size.setValue(SIZE)
+    yield made
+    made._magnifier.close()
+    made.close_folded()
+
+
+def test_the_correction_set_in_the_category_changes_the_otsu_detect_mask(
+        blob_screen):
+    made = blob_screen
+    made._combine_mode.setCurrentIndex(made._combine_mode.findData("replace"))
+    made._on_detect_otsu()
+    at_one = made._canvas.mask.copy()
+    assert made._log.edits[-1].detail["otsu_correction"] == 1.0
+
+    made._otsu_correction.setValue(1.3)
+    made._on_detect_otsu()
+    corrected = made._canvas.mask.copy()
+    assert made._log.edits[-1].detail["otsu_correction"] == pytest.approx(1.3)
+    assert 0 < (corrected > 0).sum() < (at_one > 0).sum()
+
+
+def test_the_correction_set_in_the_category_changes_the_magnifiers_objects(
+        qtbot, blob_screen):
+    """The real classical mode, no stub: the box's objects shrink."""
+    made = blob_screen
+    magnifier = made._magnifier
+    made._btn_magnifier.setChecked(True)
+    assert magnifier.mode == "classical"
+    hover(made, 16, 16)
+    wait_for_result(qtbot, made)
+    at_one = int((magnifier._shown.labels > 0).sum())
+    assert at_one > 0
+    assert magnifier._shown.request.otsu_correction == 1.0
+
+    made._otsu_correction.setValue(1.3)
+    qtbot.waitUntil(lambda: magnifier._shown is not None
+                    and magnifier._shown.request.otsu_correction == 1.3
+                    and not magnifier.updating(), timeout=10_000)
+    corrected = int((magnifier._shown.labels > 0).sum())
+    assert 0 < corrected < at_one
+
+
+# ---------------------------------------------------------------------------
+# 10. DINOCell and SAMCell as magnifier detectors
+# ---------------------------------------------------------------------------
+
+def _modes(made):
+    return [made._mag_mode.itemData(i) for i in range(made._mag_mode.count())]
+
+
+def test_dinocell_and_samcell_are_offered_where_installed(
+        qtbot, qt_theme_applied, monkeypatch):
+    present = {"cellpose", "dinocell", "samcell"}
+    monkeypatch.setattr(mm, "find_spec",
+                        lambda name: object() if name in present else None)
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        assert _modes(made) == ["classical", "cellpose", "dinocell", "samcell"]
+        assert [made._mag_mode.itemText(i) for i in range(4)][2:] == [
+            "DINOCell", "SAMCell"]
+        assert all(note.isHidden()
+                   for note in made._mag_install_notes.values())
+        made._mag_mode.setCurrentIndex(made._mag_mode.findData("samcell"))
+        assert made._magnifier.mode == "samcell"
+        assert not made._mag_sensitivity.isEnabled()
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_where_not_installed_the_panel_says_how_to_install_them(
+        qtbot, qt_theme_applied, monkeypatch):
+    monkeypatch.setattr(mm, "find_spec",
+                        lambda name: object() if name == "cellpose" else None)
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        assert _modes(made) == ["classical", "cellpose"]
+        notes = made._mag_install_notes
+        assert not notes["dinocell"].isHidden()
+        assert not notes["samcell"].isHidden()
+        assert 'pip install "spacr[dinocell]"' in notes["dinocell"].text()
+        assert 'pip install "spacr[samcell]"' in notes["samcell"].text()
+        magnifier_category = dict(made._settings_categories)["Live magnifier"]
+        assert magnifier_category.isAncestorOf(notes["dinocell"])
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def _stub_backend_class(backends):
+    """A real ``_PlaneBackend`` subclass that labels one known rectangle."""
+    class StubPlane(backends._PlaneBackend):
+        built = []
+
+        def __init__(self, device=None, **options):
+            super().__init__(device="cpu")
+            type(self).built.append(dict(options, device=device))
+            self.seen = []
+
+        def _segment_plane(self, image, cellprob_threshold=None):
+            self.seen.append((image.dtype, image.shape, cellprob_threshold))
+            labels = np.zeros(image.shape, np.int32)
+            labels[4:10, 5:12] = 3
+            return labels, [image, None, None, None]
+
+    return StubPlane
+
+
+def test_the_stand_in_backend_keeps_the_real_backends_signatures():
+    import inspect
+
+    from spacr import _segmentation_backends as backends
+
+    stub = _stub_backend_class(backends)
+    for real in (backends._DinoCellBackend, backends._SamCellBackend):
+        assert (list(inspect.signature(real._segment_plane).parameters)
+                == list(inspect.signature(stub._segment_plane).parameters))
+        assert "device" in inspect.signature(real.__init__).parameters
+    assert stub.eval is backends._PlaneBackend.eval, (
+        "the batch call is the real one, not the stand-in's")
+
+
+@pytest.mark.parametrize("mode", ["dinocell", "samcell"])
+def test_a_backend_segments_the_box_through_the_real_backend_seam(
+        qtbot, screen, monkeypatch, mode):
+    """The real _load_backend, the real eval and the real cellpose_detect."""
+    from spacr import _segmentation_backends as backends
+    from tests.qt.test_the_live_magnifier_segments_under_the_mouse import click
+
+    stub = _stub_backend_class(backends)
+    monkeypatch.setitem(backends._BACKEND_CLASSES, mode, stub)
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    screen._cp_cellprob.setValue(-1.5)
+    screen._on_magnifier_mode(mode)
+    screen._btn_magnifier.setChecked(True)
+
+    hover(screen, 30, 30)
+    wait_for_result(qtbot, screen)
+    shown = screen._magnifier._shown
+    assert shown.mode == mode and shown.note == ""
+    hover(screen, 31, 30)
+    wait_for_result(qtbot, screen)
+    assert len(stub.built) == 1, "the model is built once, not per move"
+    model = mm._BACKEND_MODELS[mode]
+    dtype, shape, cellprob = model.seen[0]
+    assert dtype == np.uint8 and shape == (32, 32)
+    assert cellprob == -1.5, "the Cellpose-SAM cell probability reaches it"
+
+    click(screen, 31, 30)
+    expected = np.zeros((IMG_N, IMG_N), bool)
+    box = screen._magnifier._shown.request.box
+    expected[box[1] + 4:box[1] + 10, box[0] + 5:box[0] + 12] = True
+    np.testing.assert_array_equal(screen._canvas.mask > 0, expected)
+    assert screen._log.edits[-1].detail["mode"] == mode
+
+
+@pytest.mark.parametrize("mode, extra", [("dinocell", "spacr[dinocell]"),
+                                         ("samcell", "spacr[samcell]")])
+def test_a_backend_that_is_not_installed_falls_back_and_says_how_to_install(
+        qtbot, screen, monkeypatch, mode, extra):
+    import sys
+
+    monkeypatch.setitem(sys.modules, mode, None)
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    screen._on_magnifier_mode(mode)
+    screen._btn_magnifier.setChecked(True)
+    hover(screen, 30, 30)
+    wait_for_result(qtbot, screen)
+    assert screen._magnifier._shown.mode == "classical"
+    status = screen._status_label.text()
+    assert f"{mode} could not run" in status
+    assert f'pip install "{extra}"' in status
+    assert mode not in mm._BACKEND_MODELS, "a failed build is not kept"
+    assert screen._magnifier.build_request().mode == "classical"

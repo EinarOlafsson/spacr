@@ -69,9 +69,6 @@ class ScanRefused(ValueError):
     """The scan would not have meant what its output claimed."""
 
 
-# --------------------------------------------------------------------------- #
-#  Results
-# --------------------------------------------------------------------------- #
 
 @dataclass(frozen=True)
 class MeasurementEffect:
@@ -235,9 +232,6 @@ class ScanResult:
         return "\n".join(lines)
 
 
-# --------------------------------------------------------------------------- #
-#  The two statistics that are not in multiple_testing
-# --------------------------------------------------------------------------- #
 
 def simes_p_value(p_values) -> float:
     """Simes' global-null P value for one family of tests.
@@ -260,8 +254,6 @@ def simes_p_value(p_values) -> float:
         return float('nan')
     ordered = np.sort(values)
     ranks = np.arange(1, ordered.size + 1, dtype=float)
-    # No cap is needed: the last term is m * p_(m) / m == p_(m) <= 1, so the
-    # minimum is never above 1 and a clip here would be code no input reaches.
     return float(np.min(ordered * ordered.size / ranks))
 
 
@@ -290,20 +282,12 @@ def effective_number_of_tests(matrix) -> float:
     import pandas as pd
 
     correlation = pd.DataFrame(data).corr().to_numpy()
-    # Drop a column on its OWN diagonal, not on whether its row is clean. A
-    # column with no variance has an undefined correlation with everything,
-    # and testing the row would throw away every column it touches -- which
-    # is every column -- for one constant neighbour.
     keep = np.isfinite(np.diag(correlation))
     correlation = correlation[np.ix_(keep, keep)]
     if correlation.size == 0:
         return float('nan')
     if correlation.shape[0] == 1:
         return 1.0
-    # Two columns can still have no wells in common (pandas correlates
-    # pairwise-complete), leaving a NaN between two perfectly good columns.
-    # Read that as uncorrelated: it counts them as separate tests, which is
-    # the conservative direction for a correction.
     correlation = np.nan_to_num(correlation, nan=0.0)
     eigenvalues = np.abs(np.linalg.eigvalsh(correlation))
     total = float(sum((1.0 if value >= 1.0 else 0.0)
@@ -312,9 +296,6 @@ def effective_number_of_tests(matrix) -> float:
     return max(1.0, min(total, float(correlation.shape[0])))
 
 
-# --------------------------------------------------------------------------- #
-#  The design
-# --------------------------------------------------------------------------- #
 
 def _measurement_columns(frame, gene_column: str,
                          guide_column: Optional[str]) -> Tuple[str, ...]:
@@ -396,9 +377,6 @@ def _build_design(frame, gene_column: str, block_columns: Sequence[str],
             f"every value of {gene_column!r} is a control, so there is no "
             f"gene left to measure an effect for.")
     if len(terms) == len(levels):
-        # No controls named, or none of the named ones are in this frame.
-        # The first level becomes the baseline -- an arbitrary choice, which
-        # is exactly why naming the controls matters.
         terms = levels[1:]
     gene_block = np.column_stack([(genes == term).astype(float)
                                   for term in terms])
@@ -435,9 +413,6 @@ def _fit_columns(design: np.ndarray, responses: np.ndarray,
             np.sqrt(sigma2), df)
 
 
-# --------------------------------------------------------------------------- #
-#  The scan
-# --------------------------------------------------------------------------- #
 
 def scan_measurements(frame,
                       *,
@@ -496,20 +471,11 @@ def scan_measurements(frame,
 
     usable = frame[frame[gene_column].notna()].reset_index(drop=True)
 
-    # DROP THE GENES NOTHING CORROBORATES, AND SAY WHICH.
-    #
-    # Named rather than quietly filtered: a gene missing from the result with
-    # no explanation reads as a gene with no effect, which is the opposite of
-    # what happened to it.
     genes_dropped: Dict[str, int] = {}
     if min_wells_per_gene > 1 and len(usable):
         per_gene = usable[gene_column].astype(str).value_counts()
         thin = per_gene[per_gene < int(min_wells_per_gene)]
         controls = {str(gene) for gene in control_genes}
-        # A control is the BASELINE, not a candidate. Dropping it for being
-        # thin would silently move the baseline to whichever gene sorted
-        # first, and every effect in the table would then be measured from
-        # somewhere the caller did not choose.
         thin = thin[[gene for gene in thin.index if gene not in controls]]
         if len(thin):
             genes_dropped = {str(g): int(n) for g, n in thin.items()}
@@ -546,10 +512,6 @@ def scan_measurements(frame,
     for name in candidates:
         column = pd.to_numeric(usable[name], errors='coerce').to_numpy(float)
         present = np.isfinite(column)
-        # Only the "there is nothing here at all" case is decided here.
-        # Whether the wells that ARE present can carry the design is
-        # _fit_columns' question, because it is the one that knows the rank
-        # of the sub-design after the empty gene levels have dropped out.
         if present.sum() < 3:
             skipped[name] = 'too few wells with a value'
             continue
@@ -564,8 +526,6 @@ def scan_measurements(frame,
                           across_scan_method, float(alpha), float('nan'),
                           genes_dropped)
 
-    # Group by which wells are present, so the common case -- every
-    # measurement complete -- costs one matrix factorisation, not hundreds.
     groups: Dict[bytes, list] = {}
     for name, column, present in kept:
         groups.setdefault(present.tobytes(), []).append((name, column, present))
@@ -586,13 +546,6 @@ def scan_measurements(frame,
         for index, (name, column, _present) in enumerate(members):
             beta = betas[:, index]
             error = errors[:, index]
-            # A residual of essentially nothing is not a huge effect, it is a
-            # column the design already IS -- a per-well aggregate that turns
-            # out to be the guide assignment, say. Dividing by it gives an
-            # effect size of 1e8 that sits at the top of the table for ever
-            # and is not a measurement of anything. Judged RELATIVE to the
-            # response's own spread, because "small" has no absolute meaning
-            # for a measurement whose units the scan does not know.
             scale = float(np.nanstd(column[present]))
             estimable = residual_sd[index] > 1e-8 * max(scale, 1e-300)
             with np.errstate(divide='ignore', invalid='ignore'):

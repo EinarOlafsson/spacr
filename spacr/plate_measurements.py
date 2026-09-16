@@ -63,11 +63,6 @@ from typing import (Any, Callable, Dict, List, Mapping, Optional, Sequence,
 import pandas as pd
 
 from . import merge_tables as mt
-# The structural constants are imported by value; AGGREGATION_RULES and
-# DEFAULT_AGGREGATION are read through `mt.` at CALL time, deliberately. They
-# are the maintainer's living decision about what each measurement means, and
-# a module that snapshots them at import is a module that can disagree with
-# them.
 from .merge_tables import (IDENTITY, OBJECT_COLUMN, OBJECT_TABLES, PNG_TABLE,
                            MergePolicy, aggregation_plan, mergeable_tables,
                            roll_up)
@@ -339,8 +334,6 @@ def _rows(attachments: Any) -> List[PlateDatabase]:
             if isinstance(entry, PlateDatabase):
                 pairs.append((entry.plate, entry.path))
             elif isinstance(entry, Mapping):
-                # The input table's own row shape, so a caller can pass
-                # `PairedFileTableWidget.get_value()` straight through.
                 pairs.append((entry.get("plate") or "",
                               entry.get("database") or entry.get("path") or ""))
             else:
@@ -446,20 +439,6 @@ def default_aggregated_columns(
     return tuple(named)
 
 
-# --------------------------------------------------------------------------- #
-#  Instruction 154 C: a "no rule matched" bucket is not one bucket
-# --------------------------------------------------------------------------- #
-#
-# The panel used to report 85 columns as "matched no aggregation rule and
-# would take the default (mean)", and two of them were `file_name` and
-# `path_name`. A mean of a path is not merely unhelpful, it is impossible --
-# and it is not what happens: `aggregation_plan` asks the DTYPE first, so a
-# text column takes `TEXT_AGGREGATION` (first) whatever its name. The list was
-# right about which columns no NAME rule matched and wrong about what would
-# be done to them.
-#
-# So the bucket is split by kind before it is reported, and the text half gets
-# the treatment instruction 79 asks for rather than a silent `first`.
 
 
 #: What a text identifier gets when its value is the same for every child of
@@ -733,10 +712,6 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
         policy = replace(policy, primary=str(anchor).strip().lower())
     anchor_table = policy.primary
     if not is_one_row_per_cell(anchor_table):
-        # A nucleus carries its parent in `cell_id` and a pathogen carries its
-        # own identity in `object_label`. Anchoring on a many-per-cell table
-        # would join one to the other and match a cell id against a pathogen
-        # label -- a join on a coincidence, which returns rows.
         raise MergeRefused(
             f"{anchor_table!r} cannot be the anchor: every other object table "
             f"is keyed to the CELL, so anchoring on a many-per-cell table "
@@ -759,16 +734,9 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
     refused_identifiers: Dict[str, Tuple[str, ...]] = {}
     for table in chosen:
         plan = describe_merge(paths, table, screens=labels)
-        # `on_collision` is deliberately left at 'refuse'. 'qualify' rewrites
-        # plate1 to `<label>-plate1`, which makes the keys unique by hiding
-        # the screen inside the plate id and stops it being analysable
-        # (instruction 122). Two screens sharing a plate id do not reach this
-        # branch at all once `screens=` is passed.
         frame = read_merged(paths, table, plan=plan, columns=columns,
                             screens=labels,
                             report=_prefixed_report(report, table))
-        # What the read cost, from the read itself: `columns='union'` drops
-        # nothing, and the plan's own list would say otherwise.
         dropped = tuple(frame.attrs.get("dropped_columns", ()))
 
         if table == anchor_table:
@@ -782,9 +750,6 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
 
         link = anchor_column(table)
         if link not in frame.columns:
-            # Measured without a parent mask: the roll-up is not empty, it is
-            # UNDEFINED. Named and skipped, exactly as `merge_tables` does --
-            # one unlinkable table must not cost the user the others.
             note = (f"carries no {link}, so its rows cannot be matched to a "
                     f"{anchor_table}; re-run Measure with the parent mask set")
             LOG.info("%s %s", table, note)
@@ -797,9 +762,6 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
                         if column in frame.columns]
                      + [link])
         if is_one_row_per_cell(table):
-            # One row per cell already: aggregating it is not wrong so much as
-            # meaningless, and it would put the table's own measurements
-            # through the sum/mean rules meant for a GROUP of children.
             skip = set(keys) | {"prcf", "prcfo"}
             rolled = frame.rename(columns={
                 column: (column if str(column).startswith(f"{table}_")
@@ -807,14 +769,8 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
                 for column in frame.columns if column not in skip})
             plan_for_table: Dict[str, str] = {}
         else:
-            # What the panel shows and what actually happens, from the same
-            # function, so they cannot disagree.
             plan_for_table = aggregation_plan(frame, overrides=policy.overrides,
                                               skip=keys)
-            # REFUSED, NOT PICKED. A text identifier that differs across the
-            # children being combined is a genuine ambiguity (instruction 79
-            # item 2): `first` would put one of two file names on the cell and
-            # the merged row would claim a provenance the data cannot support.
             ambiguous = ambiguous_identifiers(frame, keys,
                                               plan=plan_for_table,
                                               overrides=policy.overrides)
@@ -834,9 +790,6 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
 
         on = [column for column in list(keys[:-1]) + [OBJECT_COLUMN]
               if column in merged.columns and column in rolled.columns]
-        # One dtype policy for join keys, not two: `_align_keys` is where
-        # spaCR decided that a plate called `1` read as an integer from one
-        # table and a string from another is the same plate.
         mt._align_keys(merged, rolled, on)
         how = policy.how_for(table)
         before = len(merged)
@@ -856,8 +809,6 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
     merged = mt._apply_na_policy(merged, policy)
     result = PlateMerge(frame=merged, anchor=anchor_table,
                         attachments=attached, tables=tuple(records))
-    # Carried on the frame so they cannot be separated from the data they
-    # describe -- the same reason `read_merged` does it.
     merged.attrs["anchor"] = anchor_table
     merged.attrs["tables"] = tuple(record.table for record in records)
     merged.attrs["dropped_columns"] = result.dropped_columns

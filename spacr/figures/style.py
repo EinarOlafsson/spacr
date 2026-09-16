@@ -31,13 +31,13 @@ TRANSPARENT = "none"
 class Palette:
     """Fixed data colors shared by all house-style figure panels."""
 
-    GREY = "#B4B4B4"          # default data, non-significant, comparisons
-    GREY_DARK = "#7F7F7F"     # secondary series, mean bars
-    BLUE = "#2E77BC"          # the primary highlight / the gene of interest
-    BLUE_LIGHT = "#7FB3E0"    # a second strain
-    GREEN = "#2E7D4F"         # wild type, upregulated
-    RUST = "#C4441C"          # downregulated, the other highlight
-    CORAL = "#E8A88C"         # density and histogram fills
+    GREY = "#B4B4B4"
+    GREY_DARK = "#7F7F7F"
+    BLUE = "#2E77BC"
+    BLUE_LIGHT = "#7FB3E0"
+    GREEN = "#2E7D4F"
+    RUST = "#C4441C"
+    CORAL = "#E8A88C"
     GOLD = "#E8C33A"
     OCHRE = "#C87A28"
     PURPLE = "#8B4A82"
@@ -51,21 +51,21 @@ class Palette:
 #: What each role means in a spaCR regression figure, fixed once so a colour
 #: cannot drift between panels. This is the whole of the colour vocabulary.
 ROLES = {
-    "data": Palette.GREY,             # every guide that is not the point
-    "up": Palette.GREEN,              # positive effect, called
-    "down": Palette.RUST,             # negative effect, called
-    "highlight": Palette.BLUE,        # the selected gene
+    "data": Palette.GREY,
+    "up": Palette.GREEN,
+    "down": Palette.RUST,
+    "highlight": Palette.BLUE,
     "control_negative": Palette.GREY_DARK,
     "control_positive": Palette.PURPLE,
-    "fill": Palette.CORAL,            # histogram and density fills
-    "reference": Palette.GREY_DARK,   # thresholds, limits, 1:1 lines
+    "fill": Palette.CORAL,
+    "reference": Palette.GREY_DARK,
 }
 
 #: Absolute type sizes that reproduce the published hierarchy at 300 dpi.
 #: Centralising them prevents individual panels from drifting apart.
 TYPE_SCALE = {
     "tick": 6.2,
-    "label": 7.0,        # the 1.0x reference
+    "label": 7.0,
     "annotation": 6.0,
     "panel_letter": 13.0,
     "legend": 5.6,
@@ -218,9 +218,6 @@ def user_overrides(kind: Optional[str] = None) -> dict:
         per_graph = get_figure_style_per_graph()
     except Exception:                                          # noqa: BLE001
         return {}
-    # Both stores are EMPTY until the user changes something -- they hold the
-    # deltas, not the defaults, on purpose -- so this is the common case and
-    # it costs nothing.
     if not general and not per_graph:
         return {}
     try:
@@ -261,9 +258,6 @@ def rc(target: str = "screen", *, frame: str = "L",
         for it can be applied on top. See :func:`user_overrides`.
     """
     box = frame == "box"
-    # Read each control ONCE. `picked_*` is None while that half follows the
-    # theme, and it is also the flag that decides whether the choice outranks
-    # the house-style panel's own colours further down.
     picked_ink = ink or chosen_ink()
     picked_line = line or chosen_line_ink()
     colour = resolve_ink(target, picked_ink)
@@ -276,13 +270,6 @@ def rc(target: str = "screen", *, frame: str = "L",
         "figure.dpi": 120,
         "savefig.dpi": 300,
         "font.family": "sans-serif",
-        # OPEN SANS SHIPS WITH spaCR, so it is always there to resolve.
-        # Naming "Helvetica" first meant a Linux machine without it fell
-        # silently back to DejaVu Sans, and figures came out in a different
-        # face from the interface around them -- and in a different face on
-        # each contributor's machine. `use_open_sans_for_figures` registers
-        # the bundled files with the font manager, which is what makes the
-        # name resolve at all; the rest of the list stays as a fallback.
         "font.sans-serif": [_FIGURE_FAMILY, "Helvetica", "Arial",
                             "DejaVu Sans"],
         "font.size": TYPE_SCALE["tick"],
@@ -293,15 +280,9 @@ def rc(target: str = "screen", *, frame: str = "L",
         "axes.edgecolor": line_colour,
         "axes.labelcolor": colour,
         "axes.linewidth": WEIGHTS["spine"],
-        # NO GRIDLINES. EVER. The published figures have none, and a grid is
-        # the fastest way to make a panel look like a spreadsheet.
         "axes.grid": False,
         "axes.spines.top": box,
         "axes.spines.right": box,
-        # THE MARK IS A LINE, THE LABEL IS TEXT. `xtick.color` is the little
-        # dash beside the axis; `xtick.labelcolor` is the number printed next
-        # to it. Matplotlib's default for the second is "inherit", so both
-        # are named here or the two can never be told apart.
         "xtick.color": line_colour, "ytick.color": line_colour,
         "xtick.labelcolor": colour, "ytick.labelcolor": colour,
         "text.color": colour,
@@ -322,15 +303,7 @@ def rc(target: str = "screen", *, frame: str = "L",
         "lines.linewidth": WEIGHTS["data"],
         "patch.linewidth": WEIGHTS["spine"],
     }
-    # LAST, so the user wins. Everything above is the published look; this is
-    # the handful of settings they went into Preferences and changed.
     params.update(user_overrides(kind))
-    # LATER STILL, and only for a colour the user actually named. The two
-    # figure-colour controls are the dedicated ones for these roles, so they
-    # outrank the graph-style panel's general `foreground` — which resolves
-    # to `xtick.color` and would otherwise repaint the tick marks the line
-    # control was just told to own. Nothing is written here while both halves
-    # follow the theme, so an untouched store keeps the house style exactly.
     if picked_ink:
         params.update(dict.fromkeys(TEXT_KEYS, colour))
     if picked_ink or picked_line:
@@ -382,14 +355,9 @@ def theme_target() -> str:
     except Exception:
         return "screen"
     text = str(background).strip().lower()
-    # A white or very light ground means the figure is destined for paper,
-    # whatever the GUI theme is doing.
     return "print" if text in ("white", "#ffffff", "#fff") else "screen"
 
 
-# --------------------------------------------------------------------------- #
-#  The small vocabulary every panel shares
-# --------------------------------------------------------------------------- #
 
 def panel_letter(ax, letter: str, dx: float = -0.16, dy: float = 1.06) -> None:
     """A bold upper-case letter at the panel's top left. No period.

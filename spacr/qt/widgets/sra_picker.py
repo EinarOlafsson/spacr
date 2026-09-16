@@ -89,12 +89,6 @@ class _FetchWorker(QThread):
             error = "cancelled"
         except Exception as exc:                  # noqa: BLE001
             error = str(exc)
-        # `emit_safely`, because this is the LAST line of a QThread::run
-        # override. A fetch can outlive the dialog that started it -- that
-        # is most of why it is on a thread -- and emitting into a
-        # destroyed receiver raises RuntimeError, which leaving `run`
-        # turns into an abort of the whole application rather than a
-        # traceback. The progress emit above is already inside the try.
         emit_safely(self.finished_all, written, error)
 
 
@@ -121,11 +115,6 @@ class SraPicker(QDialog):
         """
         super().__init__(parent)
         self.setWindowTitle(tr("Load test data"))
-        # SCALED, NOT RAW. 520 is a width measured at font scale 1.0, and the
-        # text inside it is not: at 2x the label "Reads from each file:"
-        # needs 253 px and had 177, and the German estimate line needed 522
-        # in 511. A pixel constant that does not follow the font is a
-        # constant that is only right for one user.
         from ..preferences import scaled_px
 
         self.setMinimumWidth(scaled_px(self.DIALOG_WIDTH))
@@ -148,9 +137,6 @@ class SraPicker(QDialog):
         limit_row = QHBoxLayout()
         limit_row.addWidget(QLabel(tr("Reads from each file:"), self))
         self._reads = QSpinBox(self)
-        # A MILLION IS NOT THE CEILING the data has; it is the ceiling this
-        # control offers, because past it the download stops being a sample
-        # and the "whole file" tick is the honest way to ask for everything.
         self._reads.setRange(1_000, 100_000_000)
         self._reads.setSingleStep(10_000)
         self._reads.setGroupSeparatorShown(True)
@@ -191,14 +177,8 @@ class SraPicker(QDialog):
         else:
             self._show(self._files)
 
-        # AS SMALL AS THE CONTENT NEEDS, once the list has been filled --
-        # after, because the runs are what decide how tall it wants to be.
-        # Asked for on 2026-09-02 about the sibling dialog and applied here
-        # for the same reason: a window that opens taller than its contents
-        # is a window the user has to fix before reading it.
         self.adjustSize()
 
-    # -- listing -------------------------------------------------------
     def _load_the_listing(self) -> None:
         """Ask ENA what the project holds. A failure is said, not raised."""
         try:
@@ -213,11 +193,6 @@ class SraPicker(QDialog):
         self._show(self._files)
 
     def _show(self, files) -> None:
-        # SIGNALS OFF WHILE POPULATING. setCheckState emits itemChanged, which
-        # recomputes the estimate -- and it fires while the item being built
-        # has no RunFile attached yet, so the estimate reads a None. Set the
-        # data first as well: belt and braces, because the order inside a Qt
-        # item constructor is not this file's to guarantee.
         """Fill the run list, everything ticked.
 
         Signals are blocked while populating: ``setCheckState`` emits
@@ -253,7 +228,6 @@ class SraPicker(QDialog):
         """The limit, or ``None`` for the whole file."""
         return None if self._whole.isChecked() else int(self._reads.value())
 
-    # -- estimate ------------------------------------------------------
     def _on_whole_toggled(self, on: bool) -> None:
         """Enable the read limit only when the whole file is not being taken.
 
@@ -280,7 +254,6 @@ class SraPicker(QDialog):
             "{count} files, about {size} to download.",
             count=len(chosen), size=_human(size)))
 
-    # -- fetching ------------------------------------------------------
     def _start(self) -> None:
         """Start fetching the ticked runs."""
         chosen = self.chosen_files()

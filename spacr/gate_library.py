@@ -125,8 +125,6 @@ def save(project: str, name: str, payload: Any) -> str:
     except (TypeError, ValueError) as exc:
         raise GateLibraryError(
             f"that gating strategy cannot be saved: {exc}") from exc
-    # Written whole and then moved, so an interrupted save leaves the previous
-    # strategy intact rather than a truncated file the library still lists.
     temporary = target + ".part"
     try:
         with open(temporary, "w", encoding="utf-8") as handle:

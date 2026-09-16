@@ -72,8 +72,6 @@ def sweep_inputs(cells, counts, *, score_column: str = "pred", scores=None):
     if score_column in frame.columns:
         found = frame.groupby("prc", observed=True)[score_column].mean()
     elif scores is not None and len(scores):
-        # The scores live in the run's own score CSVs, not in the measurement
-        # tables -- and THEY say `pplate1` where the databases say `plate1`.
         offered = normalise_plate_ids(pd.DataFrame(scores).copy())
         if "prc" not in offered.columns and "plateID" in offered.columns:
             offered["prc"] = [schema.compose_prc(p, r, c) for p, r, c in
@@ -151,10 +149,6 @@ class SweepPanel(QWidget):
         self.run_button.clicked.connect(self.start)
         row.addWidget(self.run_button)
 
-        # THE HELP GOES ON A NAME, so there has to be one. This combo had
-        # no label at all, which is why its tooltip sat on the field:
-        # `retarget_field_tooltips` pairs a field with a sibling label and
-        # correctly leaves a field that has none alone (113).
         self._level_label = QLabel("rank by")
         row.addWidget(self._level_label)
         self.level = QComboBox()
@@ -168,10 +162,6 @@ class SweepPanel(QWidget):
             "gene effect.")
         row.addWidget(self.level)
 
-        # WHICH PICTURE. The heatmap answers "what moved"; it cannot answer
-        # "is this gene just over-represented", "what KIND of thing does it
-        # move" or "do its own guides agree", and those are the questions
-        # that decide whether a hit is worth following up.
         self._picture_label = QLabel("picture")
         row.addWidget(self._picture_label)
         self.picture = QComboBox()
@@ -185,13 +175,6 @@ class SweepPanel(QWidget):
             "profiles, similarity, or agreement among a gene's guides.")
         row.addWidget(self.picture)
 
-        # WHAT TO LEAVE OUT, on its own row. Asked for 2026-08-19: "there
-        # should be the option to remove columns befor the sweep and remove
-        # specific genes or guides and to remove over represented guides".
-        # Three separate controls because they are three different
-        # judgements -- a column you do not trust, a gene you already know
-        # about, and a guide whose breadth is doing the work its biology is
-        # being credited with.
         leave_out = QHBoxLayout()
         leave_out.addWidget(QLabel("leave out — measurements"))
         self.drop_columns = QLineEdit()
@@ -249,12 +232,6 @@ class SweepPanel(QWidget):
         row.addWidget(self.hide_circular)
 
         row.addStretch(1)
-        # SHOW THE PICTURE. The chooser and the ten views existed with no way
-        # to look at any of them -- `figure()` was reachable only through
-        # Save, so the answer to "i ran a measurement sweep how do i see the
-        # graphs?" was "you write them to disk and open them yourself". A
-        # picture nobody can look at is the same defect as a setter nobody
-        # calls.
         self.show_button = QPushButton("Show picture")
         self.show_button.setToolTip(
             "Draw the chosen view of this sweep in its own window.")
@@ -282,22 +259,10 @@ class SweepPanel(QWidget):
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         layout.addWidget(self.table, 1)
 
-        # HOVER HELP BELONGS ON THE SETTING'S NAME (instruction 113): a
-        # tooltip on the control fires while the user is using it, which is
-        # the one moment they did not ask for it.
-        #
-        # AT THE END OF `__init__`, which is the whole contract -- this call
-        # was at the end of `_refill`, so the panel's help moved only once a
-        # sweep had been loaded, and a user reading the controls BEFORE
-        # running anything (which is when a control's help is worth having)
-        # got the tooltip over the field they were typing into. The
-        # cross-screen audit found it as two QLineEdits on this panel and
-        # nowhere else, because every other screen calls it where it says to.
         from ..screens.settings_model import retarget_field_tooltips
 
         retarget_field_tooltips(self)
 
-    # ------------------------------------------------------------- running
 
     def start(self, *_args) -> bool:
         """Run the sweep. Returns whether one was started."""
@@ -320,9 +285,6 @@ class SweepPanel(QWidget):
 
         self.run_button.setEnabled(False)
         self.status.setText("Sweeping…")
-        # THE WORKER TOUCHES NO WIDGET. It returns the result object and the
-        # GUI thread does the rest -- which is the rule a regression broke
-        # today by building Qt widgets on its own worker.
         scores = None
         if self._scores_provider is not None:
             try:
@@ -380,15 +342,11 @@ class SweepPanel(QWidget):
         self.run_button.setEnabled(True)
         self.status.setText(f"The sweep did not finish: {message}")
 
-    # -------------------------------------------------------------- the view
 
     def rows(self) -> pd.DataFrame:
         """What the table is showing, as a frame."""
         if self._result is None:
             return pd.DataFrame()
-        # A CIRCULARITY BAR THE RESULT CANNOT HONOUR IS REFUSED, not silently
-        # applied to a column of NaN -- which returns nothing and looks like
-        # an answer.
         bar = 0.15 if (self.hide_circular.isChecked()
                        and self._result.circularity_known) else 1.0
         return self._result.survivors(alpha=float(self.alpha.value()),
@@ -451,7 +409,7 @@ class SweepPanel(QWidget):
         """
         rows = {index.row() for index in self.table.selectedIndexes()}
         if rows:
-            item = self.table.item(sorted(rows)[0], 1)   # the gene column
+            item = self.table.item(sorted(rows)[0], 1)
             if item is not None and item.text().strip():
                 return item.text().strip()
         if self._result is None or not len(self._result.table):
@@ -495,9 +453,6 @@ class SweepPanel(QWidget):
         alpha = float(self.alpha.value())
         bar = 0.15 if (self.hide_circular.isChecked()
                        and self._result.circularity_known) else 1.0
-        # The picture follows the level the panel is showing, so a "both"
-        # sweep does not draw a gene and its own guides as if they were
-        # independent agreement.
         chosen = str(self.level.currentData() or "gene")
         level = None if chosen == "guide" else "gene"
 
@@ -516,11 +471,6 @@ class SweepPanel(QWidget):
             return plot_circularity(self._result, path=path, alpha=alpha,
                                     level=level)
         if wanted == "profile":
-            # THE ONE VIEW THAT NEEDS A SUBJECT. The row the user selected in
-            # the table is the gene they are asking about; with nothing
-            # selected the strongest survivor is the honest default, and it
-            # is named in the title so nobody mistakes it for a choice they
-            # made.
             gene = self.selected_gene()
             if gene is None:
                 return None
@@ -533,10 +483,6 @@ class SweepPanel(QWidget):
             return plot_measurement_families(
                 self._result, path=path, alpha=alpha, level=level)
         if wanted == "concordance":
-            # NOT given `level`: this picture IS the guide comparison, and
-            # passing the panel's gene default would leave it nothing to
-            # compare. It says so by drawing nothing when the sweep was run
-            # at gene level.
             return plot_guide_concordance(self._result, path=path,
                                           alpha=alpha)
         return plot_sweep(self._result, path=path, alpha=alpha,
@@ -565,8 +511,6 @@ class SweepPanel(QWidget):
             self.status.setText(f"That picture could not be drawn: {exc}")
             return None
         if figure is None:
-            # NOTHING TO DRAW IS AN ANSWER, and it is said here rather than
-            # by opening an empty window -- which reads as a broken button.
             self.status.setText(
                 f"Nothing to draw for “{label}” at q < "
                 f"{float(self.alpha.value()):g}. "
@@ -583,8 +527,6 @@ class SweepPanel(QWidget):
         layout.addWidget(canvas)
         dialog.resize(1000, 720)
         dialog.show()
-        # KEPT, or Python collects the dialog the moment this returns and the
-        # window vanishes as it appears.
         self._pictures.append(dialog)
         return dialog
 

@@ -212,18 +212,23 @@ Die zweite Zeile wird nur benötigt, wenn Abhängigkeiten oder Eingabepunkte ge�
 Installieren aus der Quelle (Licht)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Vollständiger Klon: 427 MB. Kernklon: 76 MB.
+Beitragende benötigen die Geschichte; um nur spaCR laufen, nehmen Sie eine dieser, gemessen 2026-09-15 durch ``packaging/measure_clone_forms.sh``::
 
-::
+    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Skips ``docs/``, ``tests/``, Cellpose Checkpoints, archivierte Figuren und die erweiterten Übersetzungskataloge. Das Ergebnis ist eine normale Kasse.
-
-Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
-
-``packaging/source_install_excludes.txt`` listet jeden übersprungenen Pfad auf.
+Der vollständige Klon lädt 5.8 GB für eine 1186 MB Kasse herunter. Das Hinzufügen von ``--filter=blob:none`` zu diesem Klon spart nichts: die Kasse holt sowieso die Blobs.
 
 
 Befehle für die Kommandozeile
@@ -241,6 +246,8 @@ Befehle für die Kommandozeile
    spacr-repro RUN_DIR                        # replay a recorded run
    spacr-download --list                      # what example data exists
    spacr-download measure annotate            # fetch example sets by name
+   spacr-make-masks --folder DIR              # curate masks as a resumable queue
+   spacr-make-masks --folder DIR --order easy --limit 50
 
 Setzen Sie bei der Fehlerbehebung ``SPACR_LOG_LEVEL=DEBUG``. Rotierende Protokolle werden in ``~/.spacr/logs/spacr.log`` geschrieben.
 
@@ -485,8 +492,8 @@ spaCR liefert einen Katalog von ausgebildeten Modellen und holt sie auf Anfrage 
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -504,7 +511,7 @@ Jede Abbildung oben wird auf Bildern gemessen, die das Modell im Training nie ge
 
 **F1** ist die Kombination der beiden, und wird zitiert, weil jeder einzelne trivial gespielt wird -- berichten Sie eine unverwechselbare Plaque für nahezu perfekte Präzision, oder jeder dunkle Blob für nahezu perfekten Rückruf. Was Sie lieber verlieren würden, hängt vom Assay ab, und Zählen wird in der Regel besser durch Überrufen bedient: Das Plaque-Modell wurde mit Präzision 0.858 mit Rückruf 0.811 in einer früheren Runde bei 0.939 und 0.631 akzeptiert.
 
-**IoU**, Schnittpunkt über der Vereinigung, ist, wie viel ein vorhergesagtes Objekt und das reale überlappen, geteilt durch den Bereich, den sie zusammen decken. Es ist der Herrscher, gegen den der Rest gelesen wird, also bedeutet eine Partitur nichts ohne seine Schwelle: "F1 0.867 bei IoU 0,5" zählt eine Vakuole, wie gefunden, wenn die beiden Umrisse über die Hälfte ihrer kombinierten Fläche vereinbaren.
+**IoU**, Schnittpunkt über der Vereinigung, ist, wie viel ein vorhergesagtes Objekt und das reale überlappen, geteilt durch den Bereich, den sie zusammen decken. Es ist der Herrscher, gegen den der Rest gelesen wird, also bedeutet eine Partitur nichts ohne seine Schwelle: "F1 0.864 bei IoU 0,5" zählt eine Vakuole, wie gefunden, wenn die beiden Umrisse über die Hälfte ihrer kombinierten Fläche vereinbaren.
 
 **mAP50** und **mAPI50-95** gehören zum Detektor. Der erste fragt, ob die Wells gefunden wurden; der zweite wiederholt sie über zehn Schwellen von 0,5 bis 0,95, so dass er auch fragt, wie eng jede Box gezeichnet wird.
 

@@ -54,9 +54,6 @@ def _settings():
     return QSettings(_ORG, _APP)
 
 
-# ---------------------------------------------------------------------------
-# State
-# ---------------------------------------------------------------------------
 
 def was_tour_shown() -> bool:
     """Return True iff the user has completed or dismissed the tour."""
@@ -76,9 +73,6 @@ def reset_tour_state() -> None:
     _settings().remove(_KEY_TOUR_SEEN)
 
 
-# ---------------------------------------------------------------------------
-# Tour steps
-# ---------------------------------------------------------------------------
 
 @dataclass
 class TourStep:
@@ -205,9 +199,6 @@ def find_menu(window: QMainWindow, title: str) -> Optional[QWidget]:
 _find_menu = find_menu
 
 
-# ---------------------------------------------------------------------------
-# Overlay widget
-# ---------------------------------------------------------------------------
 
 class _TourOverlay(QWidget):
     """Translucent overlay + step card. Owns the tour lifecycle."""
@@ -230,13 +221,14 @@ class _TourOverlay(QWidget):
         self._idx = 0
         self._on_finish = on_finish
 
-        # Full-window frameless overlay
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setGeometry(window.rect())
-        self.setStyleSheet("background: transparent;")
+        from .theme import mark_as_a_sheet_target
+        self.setObjectName("TourOverlay")
+        self.setStyleSheet("QWidget#TourOverlay { background: transparent; }")
+        mark_as_a_sheet_target(self)
         self.raise_()
 
-        # Step card
         self._card = QWidget(self)
         self._card.setObjectName("TourCard")
         self._card.setStyleSheet(
@@ -254,35 +246,23 @@ class _TourOverlay(QWidget):
         col.setSpacing(8)
 
         from .i18n import tr
-        from .theme import font_px
-        # THE STEP COUNTER IS COMPOSED FROM A TEMPLATE, so the catalog is
-        # asked for a key that exists rather than for the numbers baked in.
         self._step_lbl = QLabel(tr("Step {n} / {total}", n=1,
                                    total=len(steps)))
-        self._step_lbl.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif;"
-            f"font-weight: 600; font-size: {font_px(10)}px;"
-            "letter-spacing: 2px; color: #4A9EFF;"
-        )
+        self._step_lbl.setObjectName("TourStep")
+        self._step_lbl.setStyleSheet("color: #4A9EFF;")
         col.addWidget(self._step_lbl)
 
         self._title_lbl = QLabel(tr(steps[0].title))
-        self._title_lbl.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif;"
-            f"font-weight: 400; font-size: {font_px(20)}px; color: #e5e5e5;"
-        )
+        self._title_lbl.setObjectName("TourTitle")
+        self._title_lbl.setStyleSheet("color: #e5e5e5;")
         col.addWidget(self._title_lbl)
 
         self._body_lbl = QLabel(tr(steps[0].body))
+        self._body_lbl.setObjectName("TourBody")
         self._body_lbl.setWordWrap(True)
-        self._body_lbl.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif;"
-            f"font-weight: 300; font-size: {font_px(13)}px;"
-            "color: #a1a6ad;"
-        )
+        self._body_lbl.setStyleSheet("color: #a1a6ad;")
         col.addWidget(self._body_lbl)
 
-        # Buttons
         btn_row = QWidget()
         from PySide6.QtWidgets import QHBoxLayout
         row = QHBoxLayout(btn_row)
@@ -306,7 +286,6 @@ class _TourOverlay(QWidget):
         self._card.show()
         window.installEventFilter(self)
 
-    # -- painting -----------------------------------------------------
     def paintEvent(self, event) -> None:
         """Dim the window and cut a lit ring around this step's target.
 
@@ -320,10 +299,8 @@ class _TourOverlay(QWidget):
         """
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
-        # Dim overlay
         p.fillRect(self.rect(), QColor(0, 0, 0, 170))
 
-        # Cut a hole around the highlighted widget, if any
         highlight_fn = self._steps[self._idx].highlight
         if highlight_fn is not None:
             try:
@@ -331,14 +308,11 @@ class _TourOverlay(QWidget):
                 if target is not None:
                     rect = _widget_rect_in_window(target, self._window)
                     if rect is not None:
-                        # Draw a bright ring around it
                         p.setBrush(Qt.transparent)
                         pen = QPen(QColor("#4A9EFF"), 3)
                         p.setPen(pen)
                         expanded = rect.adjusted(-4, -4, 4, 4)
                         p.drawRoundedRect(expanded, 6, 6)
-                        # Clear the dimming inside the ring so users
-                        # see the widget in its natural colour.
                         p.setCompositionMode(
                             QPainter.CompositionMode_Clear)
                         p.fillRect(rect, Qt.transparent)
@@ -354,7 +328,6 @@ class _TourOverlay(QWidget):
         self._update_card_position()
 
     def _update_card_position(self) -> None:
-        # Bottom-centre
         """Keep the card bottom-centre as the overlay resizes."""
         w = self.width()
         h = self.height()
@@ -364,7 +337,6 @@ class _TourOverlay(QWidget):
             (w - cw) // 2, h - ch - 60, cw, ch,
         )
 
-    # -- events -------------------------------------------------------
     def eventFilter(self, obj, event):
         """Follow the window's size, so the overlay always covers it.
 
@@ -373,8 +345,13 @@ class _TourOverlay(QWidget):
         :returns: whatever the base filter returns -- the resize is observed,
             never consumed.
         """
-        if obj is self._window and event.type() == QEvent.Resize:
-            self.setGeometry(self._window.rect())
+        # getattr: the overlay and its window are a reference cycle, so the
+        # collector can clear this wrapper before the window's destructor
+        # reaches the filter.
+        window = getattr(self, "_window", None)
+        if window is not None and obj is window \
+                and event.type() == QEvent.Resize:
+            self.setGeometry(window.rect())
         return super().eventFilter(obj, event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
@@ -390,7 +367,6 @@ class _TourOverlay(QWidget):
             return
         super().keyPressEvent(event)
 
-    # -- lifecycle ----------------------------------------------------
     def _next(self) -> None:
         """Advance one step, finishing when the last one is past."""
         self._idx += 1
@@ -486,9 +462,6 @@ def _primary_btn_qss() -> str:
     )
 
 
-# ---------------------------------------------------------------------------
-# Public entry point
-# ---------------------------------------------------------------------------
 
 def maybe_show_tour(window: QMainWindow,
                       force: bool = False) -> Optional[_TourOverlay]:

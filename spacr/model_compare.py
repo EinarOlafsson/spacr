@@ -184,9 +184,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# constants
-# ---------------------------------------------------------------------------
 
 #: IoU at which two objects are called the same object. 0.5 is the COCO /
 #: Cellpose convention and the point above which the assignment is unique.
@@ -255,9 +252,6 @@ HONOURED_EVAL_ARGUMENTS: Tuple[str, ...] = (
 )
 
 
-# ---------------------------------------------------------------------------
-# model configuration
-# ---------------------------------------------------------------------------
 
 @dataclass
 class ModelConfig:
@@ -470,9 +464,6 @@ def compare_configs(config_a: ModelConfig,
     }
 
 
-# ---------------------------------------------------------------------------
-# results
-# ---------------------------------------------------------------------------
 
 @dataclass
 class SegComparison:
@@ -577,7 +568,6 @@ class ComparisonReport:
     images: List[np.ndarray] = _dc_field(default_factory=list)
     object_type: str = "object"
 
-    # -- aggregates --------------------------------------------------------
 
     @property
     def fields(self) -> List[str]:
@@ -756,9 +746,6 @@ def _fmt(value: Any, pct: bool = False) -> str:
     return f"{v * 100:.0f}%" if pct else f"{v:.3f}"
 
 
-# ---------------------------------------------------------------------------
-# the metric layer: label arrays in, numbers out
-# ---------------------------------------------------------------------------
 
 def object_overlap(mask_a: Any, mask_b: Any) -> Dict[str, Any]:
     """Contingency between the objects of two label images.
@@ -788,7 +775,6 @@ def object_overlap(mask_a: Any, mask_b: Any) -> Dict[str, Any]:
     table = np.bincount(index_a * n_cols + index_b,
                         minlength=n_rows * n_cols).reshape(n_rows, n_cols)
 
-    # Drop the background row/column, keeping the marginals of what is left.
     row0 = 1 if (n_rows and values_a[0] == 0) else 0
     col0 = 1 if (n_cols and values_b[0] == 0) else 0
     labels_a = values_a[row0:]
@@ -834,7 +820,6 @@ def adjusted_rand_index(mask_a: Any, mask_b: Any) -> float:
     parts = object_overlap(mask_a, mask_b)
     n = parts['union_foreground']
     if not parts['areas_a'].size and not parts['areas_b'].size:
-        # Both masks empty: the two models made the same statement.
         return 1.0
     if n < 2:
         return float("nan")
@@ -847,8 +832,6 @@ def adjusted_rand_index(mask_a: Any, mask_b: Any) -> float:
     expected = sum_a * sum_b / total
     maximum = 0.5 * (sum_a + sum_b)
     if maximum == expected:
-        # Both partitions are structureless (every object one pixel): there is
-        # nothing to agree or disagree about, so this is agreement.
         return 1.0
     return (index - expected) / (maximum - expected)
 
@@ -958,7 +941,6 @@ def _split_merge(parts: Mapping[str, Any],
     labels_b = [int(l) for l in parts['labels_b']]
     areas_a = parts['areas_a'].astype(np.float64)[:, None]
     areas_b = parts['areas_b'].astype(np.float64)[None, :]
-    # in_a[i, j]: the share of B object j that lies inside A object i.
     with np.errstate(divide='ignore', invalid='ignore'):
         in_a = np.where(areas_b > 0, overlap / areas_b, 0.0)
         in_b = np.where(areas_a > 0, overlap / areas_a, 0.0)
@@ -1029,16 +1011,12 @@ def compare_masks(mask_a: Any, mask_b: Any,
     events = _split_merge(parts, matches, containment)
     unmatched_a = set(matched['unmatched_a'])
     unmatched_b = set(matched['unmatched_b'])
-    # An object left over by the assignment is only a genuine difference when
-    # no split or merge already accounts for it: the pieces of a shattered A
-    # object are not new detections, and the A object they came from is not a
-    # missed one.
     explained_a = events['split_parents'] | events['merged_children']
     explained_b = events['fragment_children'] | events['merge_parents']
 
     total = n_a + n_b
     if total == 0:
-        matched_fraction = 1.0          # both empty: trivially in agreement
+        matched_fraction = 1.0
     else:
         matched_fraction = 2.0 * n_matched / total
 
@@ -1093,9 +1071,6 @@ def _compose_note(row: SegComparison) -> str:
     return "; ".join(bits) + "."
 
 
-# ---------------------------------------------------------------------------
-# the segmentation backend
-# ---------------------------------------------------------------------------
 
 def segment_with_cellpose(images: Sequence[np.ndarray],
                           config: ModelConfig) -> List[np.ndarray]:
@@ -1129,9 +1104,6 @@ def segment_with_cellpose(images: Sequence[np.ndarray],
     return [np.asarray(m).astype(np.int32) for m in masks]
 
 
-# ---------------------------------------------------------------------------
-# loading fields to compare
-# ---------------------------------------------------------------------------
 
 #: Image extensions :func:`load_fields` will read from a folder.
 FIELD_EXTENSIONS = ('.tif', '.tiff', '.png', '.npy', '.npz')
@@ -1176,18 +1148,9 @@ def load_fields(source: Any, n_fields: int = DEFAULT_N_FIELDS,
             continue
         path = os.path.join(folder, filename)
         try:
-            # Only the read is forgiven: one corrupt field must not cost the
-            # comparison the other two. A bad ``channel`` is a caller error and
-            # is raised below, outside the guard, so it cannot be swallowed and
-            # re-reported as "this folder has no images in it".
             read = list(_read_field_file(path, filename,
                                          n_fields - len(images)))
         except Exception as exc:
-            # Say which one. The comparison is then computed and drawn over
-            # fewer fields than the user asked for, and neither the figure
-            # nor the report carries "2 of 3" anywhere — so without this the
-            # only evidence that a field was dropped is that the caller
-            # counts the images and notices.
             LOG.warning("model comparison is skipping %s: it could not be "
                         "read (%s)", filename, exc)
             continue
@@ -1238,9 +1201,6 @@ def _select_channel(array: np.ndarray, channel: Optional[int]) -> np.ndarray:
     return array[..., index]
 
 
-# ---------------------------------------------------------------------------
-# orchestration
-# ---------------------------------------------------------------------------
 
 def compare_models(images: Sequence[np.ndarray],
                    model_a: Any,
@@ -1287,8 +1247,6 @@ def compare_models(images: Sequence[np.ndarray],
     config_a = ModelConfig.from_mapping(model_a)
     config_b = ModelConfig.from_mapping(model_b)
     if config_a.name == config_b.name:
-        # Two sides called the same thing make every message ambiguous. Copies,
-        # so renaming them never reaches back into the caller's own objects.
         import dataclasses
 
         config_a = dataclasses.replace(config_a, name=f"{config_a.name} (A)")
@@ -1377,9 +1335,6 @@ def _score(masks: Sequence[np.ndarray], names: Sequence[str],
     return [by_name.get(name) for name in names]
 
 
-# ---------------------------------------------------------------------------
-# reporting
-# ---------------------------------------------------------------------------
 
 _ROW_COLUMNS = (
     ("field", lambda c: c.field),

@@ -147,9 +147,6 @@ class _SemanticButtonFilter(QObject):
     """Tag buttons globally and preserve Run's fill until work completes."""
 
     def classify(self, button: QPushButton) -> None:
-        # A queued event can outlive the C++ widget while a signal connection
-        # still retains its Python wrapper.  Every operation below crosses
-        # into Qt, so reject that wrapper at the single entry boundary.
         """Give one button its semantic role, if its C++ half is still there.
 
         A queued event can outlive the widget while a signal connection still
@@ -169,21 +166,11 @@ class _SemanticButtonFilter(QObject):
         try:
             self._classify_live(button)
         except RuntimeError:
-            # Qt 6.6 can delete a dialog button re-entrantly while
-            # ``parentWidget()`` delivers another construction event.  Keep
-            # real RuntimeErrors visible, but a wrapper that became invalid
-            # during that call has no remaining state to classify.
             if alive(button):
                 raise
 
     def _classify_live(self, button: QPushButton) -> None:
         """Apply the semantic role after the entry liveness check."""
-        # spaCR's dialog buttons are text, not text-plus-glyph. Qt's platform
-        # styles put a standard icon on the standard roles — a cross on
-        # Cancel and Close, a downward arrow on Save — which reads as system
-        # chrome dropped into the app's own type. Stripped here rather than at
-        # each call site, because this filter already sees every button in
-        # every dialog, including ones built after startup.
         if (isinstance(button.parentWidget(), QDialogButtonBox)
                 and not button.icon().isNull()):
             button.setIcon(QIcon())
@@ -231,9 +218,6 @@ class _SemanticButtonFilter(QObject):
         say the action is unavailable rather than in progress.
         """
         try:
-            # Disabled Run/Stop buttons conventionally mean their asynchronous
-            # worker is still starting or stopping. Keep the solid operation
-            # fill until the owning screen re-enables/clears the button.
             running = (
                 _normalise(button.text()).startswith(("run", "stop"))
                 and not button.isEnabled()
@@ -241,7 +225,6 @@ class _SemanticButtonFilter(QObject):
             if not running:
                 set_button_busy(button, False)
         except RuntimeError:
-            # Close can delete its dialog before this queued callback runs.
             pass
 
     def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
@@ -277,9 +260,6 @@ def install_button_roles(app=None) -> None:
         return
     event_filter = getattr(app, _FILTER_ATTRIBUTE, None)
     if event_filter is None:
-        # QApplication is always a QObject in production. Keeping the parent
-        # optional also supports lightweight application adapters used by
-        # embedding hosts and tests; the attribute below retains the filter.
         parent = app if isinstance(app, QObject) else None
         event_filter = _SemanticButtonFilter(parent)
         app.installEventFilter(event_filter)

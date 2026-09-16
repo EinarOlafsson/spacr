@@ -46,18 +46,35 @@ def copy_checked(source, target, records, root, expected=None):
                     'sha256': actual, 'bytes': target.stat().st_size})
 
 
-def write_catalogs(stage, web, *, model_promotions=()):
+def restore_localized_section(lesson, english, published, published_english):
+    """Recover an existing localized heading, never alter reviewed lesson prose.
+
+    Older private staging copied English headings over translations. The current
+    published catalogs retain their localized category names. Only an actual
+    English duplicate is eligible; a newly reviewed locale heading wins.
+    """
+    current, translated = lesson.get('section'), published.get('section')
+    if (current and current == english.get('section') and translated
+            and translated != published_english.get('section')):
+        lesson['section'] = translated
+
+
+def write_catalogs(stage, web, *, model_promotions=(), barcode_promotion=False):
     """Derive parent metadata from today's GUI without altering lesson scenes."""
     catalogs = {}
     for filename in CATALOGS:
         language = filename.split('_', 1)[1].removesuffix('.json')
         catalogs[filename] = release_catalog(read(stage / 'catalog' / filename), language,
-                                             recording_stage=stage, model_promotions=model_promotions)
+                                             recording_stage=stage, model_promotions=model_promotions,
+                                             barcode_promotion=barcode_promotion)
     nav = navigation(catalogs['lessons_en.json'])
     if nav['missing_tutorials']:
         raise ValueError(f"Unaccounted tutorial routes: {nav['missing_tutorials']}")
     english_by_id = {lesson['id']: deepcopy(lesson) for lesson in catalogs['lessons_en.json']['lessons']}
+    published_root = REPO / 'docs/source/_extra/tutorials/catalog'
+    published_english = {row['id']: row for row in read(published_root / 'lessons_en.json')['lessons']}
     for filename, catalog in catalogs.items():
+        published = {row['id']: row for row in read(published_root / filename)['lessons']}
         for lesson in catalog['lessons']:
             # Historical held translations predate app_key metadata. Routing
             # is language-independent; do not copy their old omissions.
@@ -82,6 +99,9 @@ def write_catalogs(stage, web, *, model_promotions=()):
                     lesson.pop(field, None)
             if not lesson.get('section') and 'section' in canonical:
                 lesson['section'] = canonical['section']
+            if filename != 'lessons_en.json':
+                restore_localized_section(lesson, canonical, published.get(lesson['id'], {}),
+                                          published_english.get(lesson['id'], {}))
             route = nav['routes'].get(lesson['id'], {})
             if route.get('kind') == 'submodule':
                 lesson['host_app_key'] = route['host_app_key']
@@ -134,7 +154,7 @@ def refresh_candidate_player(root):
     write(root / 'release-manifest.json', report)
 
 
-def build(stage=DEFAULT_STAGE, *, baseline=None, model_promotions=()):
+def build(stage=DEFAULT_STAGE, *, baseline=None, model_promotions=(), barcode_promotion=False):
     stage = Path(stage).resolve()
     # Revalidate current sources before creating any release copies.
     from model_promotion import MODELS, require_recorded_model
@@ -144,9 +164,14 @@ def build(stage=DEFAULT_STAGE, *, baseline=None, model_promotions=()):
     english = read(stage / 'catalog/lessons_en.json')['lessons']
     for identity in sorted(model_promotions):
         require_recorded_model(stage, 'en', next(item for item in english if item['id'] == identity))
-    proof = verify(stage, set(HELD) - model_promotions, baseline=baseline)
+    promoted = set(model_promotions)
+    if barcode_promotion:
+        from barcode_promotion import IDENTITY, require_recorded_map
+        require_recorded_map(stage, 'en', next(item for item in english if item['id'] == IDENTITY))
+        promoted.add(IDENTITY)
+    proof = verify(stage, set(HELD) - promoted, baseline=baseline)
     ready_ids = {item['lesson'] for item in proof['lessons']}
-    expected_ready = 71 + (EMBEDDINGS in ready_ids) + (OPS in ready_ids) + len(model_promotions)
+    expected_ready = 71 + (EMBEDDINGS in ready_ids) + (OPS in ready_ids) + len(promoted)
     if proof['checked_lessons'] != expected_ready or proof['checked_tracks'] != expected_ready * 50:
         raise ValueError('The approved ready/tutorial partition changed')
     root = Path(tempfile.mkdtemp(prefix='release-candidate-', dir=stage))
@@ -172,7 +197,7 @@ def build(stage=DEFAULT_STAGE, *, baseline=None, model_promotions=()):
     (web / 'index.html').write_text(index)
     records[:] = [r for r in records if r['path'] != 'web/index.html']
 
-    write_catalogs(stage, web, model_promotions=model_promotions)
+    write_catalogs(stage, web, model_promotions=model_promotions, barcode_promotion=barcode_promotion)
     voices = voice_matrix(stage.parent / 'tools/render_all_voices.py')
     web_checks = []
     for result in proof['lessons']:

@@ -63,13 +63,6 @@ AGGREGATIONS: Tuple[str, ...] = (SUM, MIN, MAX, MEAN, MEDIAN, FIRST)
 #: question. `min_intensity` is the clearest -- a mean of four minima is not
 #: the minimum of anything.
 AGGREGATION_RULES: Tuple[Tuple[str, str], ...] = (
-    # Identity first, because it must beat every rule below it. A label is a
-    # NAME, not a quantity: averaging the three pathogen labels 1, 2 and 3 in
-    # a cell produces `object_label_pathogen` = 2.0, which looks like a
-    # measurement, plots like one, and can be handed to a model as a feature
-    # -- while naming an object that may not exist. The parent already learns
-    # how many children it had from the count column, so the label is carried
-    # only so a row can be traced back, and it is carried verbatim.
     (r"(^|_)(object_label|label|id|cell_id|nucleus_id|pathogen_id|"
      r"organelle_id|cytoplasm_id|parent_id|prcfo|prcf|prc)(_|$)", FIRST),
     (r"(^|_)(count|n_objects|number)(_|$)", SUM),
@@ -77,18 +70,10 @@ AGGREGATION_RULES: Tuple[Tuple[str, str], ...] = (
     (r"(^|_)max(imum)?(_|$)", MAX),
     (r"(^|_)median(_|$)", MEDIAN),
     (r"(^|_)(mean|average|avg)(_|$)", MEAN),
-    # Extent: four objects' AREAS add up. Their LENGTHS do not -- two nuclei
-    # each 10 units long are not one nucleus 20 units long, so an axis
-    # length, a perimeter and an equivalent diameter are shape descriptors of
-    # an individual object and the parent gets the typical one. Volume adds
-    # for the same reason area does. (Maintainer's call, 2026-08-11.)
     (r"(^|_)(area|volume|convex_area|filled_area)(_|$)", SUM),
     (r"(^|_)(perimeter|length|width|height|diameter|"
      r"equivalent_diameter|major_axis_length|minor_axis_length)(_|$)", MEAN),
-    # Anything already integrated over an object is a total.
     (r"(^|_)(integrated|total|sum|integral)(_|$)", SUM),
-    # Spread and shape are properties of each object; the parent gets the
-    # typical one.
     (r"(^|_)(std|stdev|var|variance|mad|iqr|percentile|quantile|"
      r"skew|kurtosis|entropy)(_|$)", MEAN),
     (r"(^|_)(eccentricity|solidity|extent|circularity|roundness|"
@@ -341,23 +326,8 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
     grouped = child.groupby(list(keys), dropna=False)
 
     out = grouped.agg(plan)
-    # The count is the one measurement the child table does not carry and the
-    # parent almost always wants: "how many pathogens are in this cell".
     out["count"] = grouped.size()
 
-    # HOW MANY CHILDREN ACTUALLY CONTRIBUTED, which is not always `count`.
-    #
-    # pandas skips NaN in every aggregation and says nothing. A cell with
-    # three pathogens, one of whose area could not be measured, reports
-    # `pathogen_area` as the sum of TWO while `pathogen_count` says three --
-    # measured: areas [10, NaN, 30] give 40.0 with a count of 3. The sum is
-    # not wrong so much as answering a question nobody asked, and the two
-    # columns disagree with nothing to reveal it.
-    #
-    # `measured` is the smallest number of non-null values behind any
-    # measurement in the row. `measured < count` is the flag: some child
-    # contributed nothing to at least one column. Downstream can test it,
-    # and the log below names the columns so a user does not have to.
     measured_columns = [c for c in plan
                         if plan[c] != FIRST and c in child.columns]
     if measured_columns:
@@ -380,11 +350,6 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
 
     out = out.reset_index()
 
-    # Measure already writes its columns prefixed -- the nucleus table holds
-    # `nucleus_area`, not `area` -- so prefixing unconditionally would hand
-    # the user `nucleus_nucleus_area` for a measurement they know by another
-    # name. Prefix only what needs it, matching the one-row-per-cell branch
-    # in `merge_tables` so a column has ONE name whichever way it was joined.
     renamed = {c: f"{name}_{c}" for c in out.columns
                if c not in keys and not str(c).startswith(f"{name}_")}
     return out.rename(columns=renamed)
@@ -472,8 +437,6 @@ def _columns_agree(left: pd.Series, right: pd.Series) -> pd.Series:
     both_missing = left.isna() | right.isna()
     if (pd.api.types.is_numeric_dtype(left)
             and pd.api.types.is_numeric_dtype(right)):
-        # Two tables can reach the same number by different arithmetic, so
-        # float noise is not a conflict; a real disagreement is never 1e-9.
         same = pd.Series(
             np.isclose(pd.to_numeric(left, errors="coerce"),
                        pd.to_numeric(right, errors="coerce"),
@@ -520,15 +483,13 @@ def reconcile_duplicates(frame: pd.DataFrame, suffix: str, *,
     for right_col in [c for c in frame.columns if str(c).endswith(suffix)]:
         left_col = str(right_col)[: -len(suffix)]
         if left_col not in frame.columns:
-            continue        # a genuinely new column that happens to end so
+            continue
         agree = _columns_agree(frame[left_col], frame[right_col])
         if bool(agree.all()):
             drop.append(right_col)
             continue
         if left_col not in MUST_AGREE and not _shares_a_label_space(
                 left_col, left_name, right_name):
-            # Two measurements that happen to share a name. They describe
-            # different objects, so they differ by design and both are kept.
             continue
         disagreeing = frame.index[~agree]
         where = (frame.loc[disagreeing, key].astype(str).tolist()[:5]
@@ -577,9 +538,6 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
 
     wanted = [t for t in dict.fromkeys([policy.primary, *tables])
               if t in available]
-    # png_list holds one row per CROP, not per object, and its object key is
-    # text. It is merged like any child -- the keys are reconciled below --
-    # but it has no measurements to aggregate, so it contributes its paths.
     if PNG_TABLE in tables and PNG_TABLE not in wanted and PNG_TABLE in available:
         wanted.append(PNG_TABLE)
 
@@ -601,34 +559,13 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
         if table == PNG_TABLE:
             merged = _merge_crops(merged, child, keys)
             continue
-        # THE ANCHOR HAS TWO NAMES. cell and cytoplasm carry it as
-        # `object_label` -- a cytoplasm is the cell minus its interior
-        # objects, so its own label IS the cell's -- while nucleus, pathogen,
-        # organelle and png_list carry the parent's label in `cell_id`.
-        #
-        # This assumed `cell_id` for every non-primary table, so CYTOPLASM WAS
-        # SILENTLY DROPPED: it logged a line about an unlinkable table and
-        # returned a frame with no cytoplasm columns at all.
-        #
-        # One row per cell also means no roll-up. Aggregating a table that
-        # already has one row per cell is not wrong so much as meaningless,
-        # and it would put the cytoplasm's own measurements through the
-        # sum/mean rules meant for a group of children.
         anchor = anchor_column(table) if table in ANCHOR_COLUMN else PARENT_LINK
         if anchor not in child.columns:
-            # Measured without a parent mask: the roll-up is not empty, it is
-            # UNDEFINED. Named and skipped, exactly as io.py does -- one
-            # unlinkable table must not cost the user the others.
             LOG.info("%s carries no %s, so it cannot be joined onto %s; "
                      "leaving it out", table, anchor, policy.primary)
             continue
 
         if is_one_row_per_cell(table):
-            # Prefixed like the primary table above, with two exceptions that
-            # would otherwise produce nonsense: the join keys keep their
-            # names, and a column that ALREADY carries the table's name is
-            # left alone -- `cytoplasm_area` must not become
-            # `cytoplasm_cytoplasm_area`.
             skip = set(_keys_in(child)) | {anchor, "prcf", "prcfo"}
             rolled = child.rename(
                 columns={c: (c if c.startswith(f"{table}_") else f"{table}_{c}")
@@ -643,19 +580,10 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
                      policy.primary)
             continue
         _align_keys(merged, rolled, on)
-        # `how="left"` used to be hard-coded here, so this reader and
-        # `io._read_and_join_tables` -- which has always called `join_how` --
-        # disagreed about which objects exist. Two readers of the same tables
-        # giving different populations is the defect instruction 77 item (c)
-        # fixed for `_merge_grouped`; this was the same bug in the third
-        # reader. See `MergePolicy.how_for` for what decides it.
         how = policy.how_for(table)
         before = len(merged)
         merged = merged.merge(rolled, on=on, how=how)
         if how == "inner" and len(merged) < before:
-            # Never silent. An inner join is a filter, and a filter that
-            # removes a third of the population without saying so is how a
-            # result gets reported for a subgroup nobody chose.
             LOG.info(
                 "%s joined %s: %d of %d %s objects had no %s row and were "
                 "removed (consolidate_on_cell=%s, keep_uninfected=%s)",
@@ -716,35 +644,12 @@ def _apply_na_policy(frame: pd.DataFrame, policy: MergePolicy) -> pd.DataFrame:
         return frame.fillna({c: 0 for c in frame.columns
                              if pd.api.types.is_numeric_dtype(frame[c])})
     if policy.na == "drop":
-        # DROPPED FOR HAVING NO CHILD, not for having an unmeasurable one.
-        #
-        # This used to drop on every column with an underscore in its name --
-        # i.e. every measurement the child contributed. Measured on three
-        # cells: one with a pathogen and a good correlation, one WITH A
-        # PATHOGEN whose correlation came back NaN, and one with no pathogen
-        # at all. Only the first survived. The second has a pathogen; it is a
-        # unit of analysis; its area and count are real numbers. It was
-        # removed from the denominator because one correlation could not be
-        # computed -- and a correlation is NaN whenever a channel is flat
-        # inside the object, which is common and says nothing about whether
-        # the object exists.
-        #
-        # The count is the column that answers "does this cell have one",
-        # which is the question this policy is documented to ask. Roll-up
-        # counts are NaN exactly when the child table contributed no row, so
-        # they are the correct and only subset.
         if not counts:
-            # Nothing was rolled up, so there is no childlessness to test.
-            # Dropping on the measurements here would silently narrow the
-            # population on a merge that has no children in it at all.
             return frame.reset_index(drop=True)
         return frame.dropna(subset=counts, how="any").reset_index(drop=True)
     return frame
 
 
-# ---------------------------------------------------------------------------
-# Dimensional reduction -- what xD means
-# ---------------------------------------------------------------------------
 
 #: Reductions offered in xD mode.
 REDUCTIONS: Tuple[str, ...] = ("pca", "umap", "tsne")
@@ -801,15 +706,6 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
 
     data = frame[chosen].apply(pd.to_numeric, errors="coerce")
 
-    # DROPPING every row with any missing value does not work on a real
-    # measurement table. With 60 columns at 2% missing each, two rows in three
-    # are lost; with the several hundred columns spaCR actually writes, none
-    # survive -- which is why xD looked like it had never been implemented.
-    #
-    # So: drop the columns that are mostly empty, then fill what is left with
-    # the column median. A median fill moves an object to the middle of an
-    # axis it had no value on, which is the least it can be moved; discarding
-    # the object instead loses every measurement it DID have.
     coverage = data.notna().mean()
     keep = [c for c in chosen if coverage.get(c, 0.0) >= min_coverage]
     dropped = [c for c in chosen if c not in keep]
@@ -825,7 +721,6 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
 
     data = data[keep]
     usable = data.fillna(data.median(numeric_only=True))
-    # A column that is entirely NaN has no median; it cannot contribute.
     usable = usable.dropna(axis=1, how="any")
     if usable.shape[1] < 2:
         raise ReductionError(
@@ -851,16 +746,10 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
         reduced = model.fit_transform(values)
         names = [f"PC{i + 1}" for i in range(reduced.shape[1])]
         out = pd.DataFrame(reduced, index=usable.index, columns=names)
-        # Explained variance is the only honest label for a PC axis: "PC1"
-        # alone says nothing about whether it is the data or the noise.
         out.attrs["explained_variance"] = list(
             getattr(model, "explained_variance_ratio_", []))
     elif method == "umap":
         try:
-            # spacr.utils' lazy loader, not a bare `import umap`: the
-            # package's __init__ reaches umap.parametric_umap -> tensorflow,
-            # and spaCR's standing rule is that nothing drags TF in. The
-            # loader imports umap.umap_ with the TF-backed roots blocked.
             from .utils import umap
             _ = umap.UMAP
         except Exception as exc:
@@ -876,9 +765,6 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
                            columns=[f"UMAP{i + 1}" for i in range(components)])
     else:
         from sklearn.manifold import TSNE
-        # sklearn RAISES when perplexity >= n_samples, so a perfectly
-        # reasonable default becomes a failed projection the moment the
-        # selection is small. Clamped rather than passed through.
         bounded = max(5.0, min(float(perplexity), (len(values) - 1) / 3.0))
         reduced = TSNE(n_components=min(components, 3), perplexity=bounded,
                        random_state=seed).fit_transform(values)
@@ -886,32 +772,9 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
                            columns=[f"tSNE{i + 1}"
                                     for i in range(reduced.shape[1])])
 
-    # Reindexed to the WHOLE frame: objects that could not be projected keep
-    # their row and get NaN, so the components can be added to the table
-    # without silently dropping rows out from under every other column.
     return out.reindex(frame.index)
 
 
-# ---------------------------------------------------------------------------
-# Diagnostics: is the projection about what the user thinks it is about?
-# ---------------------------------------------------------------------------
-#
-# Both of these come from starplast, which built the same picker for a
-# different table and learned two things worth not re-learning:
-#
-#   * a group can be named as an input and contribute almost nothing --
-#     starplast caught one carrying 1.1% -- and nobody notices, because a
-#     projection always produces a picture;
-#   * a projection can separate objects on WHETHER THEY WERE MEASURED rather
-#     than on what was measured, and that reads as a phenotype.
-#
-# The second matters more in spaCR than it did there. A cell with no pathogen
-# has NaN for every pathogen measurement, and `reduce_dimensions` median-fills
-# rather than dropping the row -- deliberately, because dropping loses every
-# measurement the object DID have. But a median fill puts all the uninfected
-# cells at the same point on those axes, so an embedding can split infected
-# from uninfected on missingness alone. That split is real, reproducible, and
-# not a phenotype.
 
 def group_variance_share(frame: pd.DataFrame,
                          groups: Dict[str, Sequence[str]], *,

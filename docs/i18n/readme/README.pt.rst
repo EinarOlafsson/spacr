@@ -212,18 +212,23 @@ A segunda linha só é necessária quando as dependências ou os pontos de entra
 Instalar a partir da fonte (luz)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Clone completo: 427 MB. Clone principal: 76 MB.
+Os colaboradores precisam do histórico; para executar apenas spaCR, pegue um destes, medido 2026-09-15 por  ``packaging/measure_clone_forms.sh``::
 
-::
+    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Ignora os pontos de verificação ``docs/``,  ``tests/``,Cellpose, figuras arquivadas e os catálogos de tradução estendidos. O resultado é um checkout normal.
-
-Opções: ``--dir``,  ``--branch`` (padrão  ``main``), ``--with-tests``,``--with-docs``, -``--with-translations``,-``--no-install``.
-
-``packaging/source_install_excludes.txt`` lista todos os caminhos ignorados.
+O clone completo baixa 5,8 GB para um checkout de 1186 MB. Adicionar ``--filter=blob:none`` a esse clone não salva nada: o checkout busca os blobs de qualquer maneira.
 
 
 Comandos de linha de comando
@@ -241,6 +246,8 @@ Comandos de linha de comando
    spacr-repro RUN_DIR                        # replay a recorded run
    spacr-download --list                      # what example data exists
    spacr-download measure annotate            # fetch example sets by name
+   spacr-make-masks --folder DIR              # curate masks as a resumable queue
+   spacr-make-masks --folder DIR --order easy --limit 50
 
 Defina ``SPACR_LOG_LEVEL=DEBUG`` durante a solução de problemas. Os logs rotativos são gravados em ``~/.spacr/logs/spacr.log``.
 
@@ -485,8 +492,8 @@ spaCR envia um catálogo de modelos treinados e os busca sob demanda. Abra  **Mo
      - Hold-out performance
    * - ``toxoplasma_pv_v1``
        (Cellpose-SAM (cpsam_v2))
-     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
-     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated
+     - F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
    * - ``toxoplasma_plaque_v1``
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
@@ -504,7 +511,7 @@ Cada figura acima é medida em imagens que o modelo nunca viu no treinamento.
 
 **F1** é os dois combinados, e é citado porque cada um é trivialmente disputado -- reporte uma placa inconfundível para precisão quase perfeita, ou cada bolha escura para recall quase perfeito. O que você preferiria perder depende do ensaio, e a contagem é geralmente melhor servida por over-calling: o modelo de placa foi aceito com precisão 0,858 com recall 0,811 ao longo de uma rodada anterior em 0,939 e 0,631.
 
-**IoU**, interseção sobre união, é o quanto um objeto previsto e o real se sobrepõem, dividido pela área que cobrem juntos. É a régua contra a qual o resto é lido, então uma pontuação não significa nada sem seu limite: "F1 0,867 em IoU 0,5" conta um vácuo como encontrado quando os dois contornos concordam com mais da metade de sua área combinada.
+**IoU**, interseção sobre união, é o quanto um objeto previsto e o real se sobrepõem, dividido pela área que cobrem juntos. É a régua contra a qual o resto é lido, então uma pontuação não significa nada sem seu limite: "F1 0,864 em IoU 0,5" conta um vácuo como encontrado quando os dois contornos concordam com mais da metade de sua área combinada.
 
 **mAP50** e **mAP50-95** pertencem ao detector. O primeiro pergunta se os poços foram encontrados; o segundo repete através de dez limiares de 0,5 a 0,95, por isso também pergunta com que força cada caixa é desenhada. A lacuna entre eles é a colocação, não a detecção.
 

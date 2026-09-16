@@ -904,11 +904,15 @@ class TestHoverHints:
         scr.show()
         qtbot.wait(1)
 
-        expected_height = (
-            scr._hint_strip.fontMetrics().lineSpacing() * HINT_STRIP_LINES
-        )
-        assert scr._hint_strip.minimumHeight() == expected_height
-        assert scr._hint_strip.maximumHeight() == expected_height
+        # Pinned to the contract rather than to the arithmetic: the strip
+        # is fixed (minimum == maximum, so Run/Stop cannot move) and tall
+        # enough for its own text (so the last line is not clipped). The
+        # formula this used to duplicate under-reserved on 450 of 1,120
+        # font/size combinations.
+        reserved = scr._hint_strip.minimumHeight()
+        assert scr._hint_strip.maximumHeight() == reserved
+        assert reserved >= scr._hint_strip.heightForWidth(
+            scr._hint_strip.width())
         before = (scr._btn_run.pos(), scr._btn_stop.pos())
 
         scr._hint_strip.setText(

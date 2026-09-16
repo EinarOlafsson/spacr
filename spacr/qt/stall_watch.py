@@ -111,13 +111,18 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
     timer = QTimer(app)
     timer.timeout.connect(tick)
     timer.start(100)
-    # KEPT ON THE APPLICATION as well as parented to it: a local would be
-    # collected the moment this function returns, and a collected QTimer
-    # stops, which would leave the watcher reporting one endless stall.
+    previous = getattr(app, "_spacr_stall_timer", None)
+    if previous is not None:
+        try:
+            previous.stop()
+        except Exception:                                    # noqa: BLE001
+            pass
     app._spacr_stall_timer = timer
 
     _write(f"\n=== watching the GUI thread (pid {os.getpid()}), "
            f"stall > {limit}s ===\n")
+
+    stopping = threading.Event()
 
     def watch() -> None:
         """Sample the GUI thread through each stall and summarise it.
@@ -135,22 +140,16 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
         running appears in one.
         """
         reported_for = -1
-        while True:
-            time.sleep(POLL_SECONDS)
+        while not stopping.is_set():
+            stopping.wait(POLL_SECONDS)
+            if stopping.is_set():
+                break
             stalled = time.monotonic() - beat["at"]
             if stalled < limit:
-                # THE STALL IS OVER, so its summary is due now rather than
-                # when the next one starts. Waiting for the next one loses
-                # the last stall of every session, which is the only stall a
-                # process that wedges and dies ever has.
                 if samples:
                     _flush_samples()
                 continue
             if beat["n"] == reported_for:
-                # SAME STALL, ANOTHER SAMPLE. The first crossing writes the
-                # full stack; every later one only counts a frame, so a
-                # thirteen-second freeze is one readable report rather than
-                # fifty identical ones.
                 frame = sys._current_frames().get(main_thread.ident)
                 if frame is not None:
                     samples.append(_where(frame))
@@ -227,5 +226,6 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
 
     thread = threading.Thread(target=watch_and_flush, daemon=True,
                               name="spacr-gui-stall-watch")
+    thread.stop = stopping.set
     thread.start()
     return thread

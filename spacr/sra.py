@@ -148,9 +148,6 @@ def runs_for(accession: str = DEFAULT_BIOPROJECT, *, timeout: float = 30.0,
                 size = int(sizes[mate - 1]) if mate - 1 < len(sizes) else 0
             except ValueError:
                 size = 0
-            # The portal returns a bare host/path. HTTPS rather than FTP:
-            # FTP is blocked on many institutional networks and is the reason
-            # a "download failed" here would be unexplainable.
             files.append(RunFile(
                 run=cell("run_accession"), library=cell("library_name"),
                 url=url if url.startswith("http") else f"https://{url}",
@@ -192,9 +189,6 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
     written_lines = 0
     fetched = 0
 
-    # A PARTIAL FILE IS WORSE THAN NO FILE: it looks like a finished download
-    # to everything that lists the folder. Written beside the target and moved
-    # only on success.
     part = target.with_suffix(target.suffix + ".part")
     try:
         with _read_url(run_file.url, timeout, opener) as response, \
@@ -219,8 +213,6 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
                     progress(written_lines // LINES_PER_READ, fetched)
                 if wanted_lines is not None and written_lines >= wanted_lines:
                     break
-            # The tail, only when the whole file was asked for -- a truncated
-            # request must not end on half a record.
             if wanted_lines is None and pending:
                 out.write(pending)
         part.replace(target)

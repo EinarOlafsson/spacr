@@ -23,10 +23,8 @@ from types import MappingProxyType
 from typing import Any, Dict, Optional, Tuple
 
 __all__ = [
-    # errors
     'SchemaError', 'WellParseError', 'KeyParseError',
     'ObjectTableSchemaError',
-    # key names
     'PLATE_KEY', 'ROW_KEY', 'COLUMN_KEY', 'FIELD_KEY', 'OBJECT_KEY',
     'TIME_KEY',
     'CHANNEL_KEY', 'SLICE_KEY', 'OBJECT_LABEL_KEY', 'OBJECT_TYPE_KEY',
@@ -41,22 +39,17 @@ __all__ = [
     'is_object_type',
     'LEGACY_COLUMN_NAMES', 'LEGACY_COLUMN_PATTERNS', 'TIME_COLUMN_ALIASES',
     'canonical_column_name', 'canonical_rename_plan',
-    # scalars
     'parse_int_token', 'row_index_from_letters', 'letters_from_row_index',
     'row_id', 'column_id', 'field_id', 'time_id', 'object_id',
     'row_index', 'column_index', 'field_index', 'time_index', 'object_index',
     'strip_prefix',
-    # wells
     'parse_well', 'well_id', 'is_positional_well', 'is_positional_pair',
     'is_row_column_pair',
-    # identities
     'FieldID', 'ObjectID',
     'compose_prc', 'compose_prcf', 'compose_prcfo', 'compose_prc_column',
     'parse_prcf', 'parse_prcfo',
     'parse_field_stem', 'parse_object_stem',
-    # plate formats
     'PLATE_FORMATS', 'plate_format_for', 'is_within_plate_format',
-    # tables
     'PARENT_OBJECT_TABLES', 'CHILD_OBJECT_TABLES', 'OBJECT_TABLES',
     'ORGANELLE_SUMMARY_TABLES', 'CROP_TABLES', 'FIELD_PROVENANCE_TABLES',
     'MEASUREMENT_TABLES',
@@ -68,18 +61,13 @@ __all__ = [
     'canonical_plate_id', 'normalise_plate_columns', 'PLATE_BEARING_COLUMNS',
     'ColumnCollision', 'comparable_key_value', 'comparable_key_values',
     'resolve_metadata_collisions', 'canonicalise_frame',
-    # pandas
     'add_identity_columns', 'canonicalise_columns',
     'validate_object_table_frame', 'coerce_model_feature_types',
     'model_feature_columns', 'model_feature_frame',
-    # legacy
     'legacy_well_ids', 'legacy_map_wells', 'legacy_safe_int_convert',
 ]
 
 
-# ---------------------------------------------------------------------------
-# Errors
-# ---------------------------------------------------------------------------
 
 class SchemaError(ValueError):
     """Base for every failure to build or read a spaCR key.
@@ -105,9 +93,6 @@ class ModelFeatureSchemaError(SchemaError):
     """A declared model feature cannot be represented as numeric input."""
 
 
-# ---------------------------------------------------------------------------
-# The canonical key names
-# ---------------------------------------------------------------------------
 
 #: The plate. Free-form text — it is the plate folder's name — but it may not
 #: contain :data:`KEY_SEPARATOR`, because ``prcf`` is separator-joined.
@@ -416,12 +401,6 @@ LEGACY_COLUMN_NAMES: Dict[str, str] = {
     'well':         WELL_KEY,
     'well_name':    WELL_KEY,
     'well_id':      WELL_KEY,
-    # Only unambiguous object-identifier spellings are accepted. A bare
-    # `object` column is not included because in a measurement
-    # table it as often means the object TYPE -- cell, nucleus, pathogen --
-    # as the object's number, and renaming that into an identifier would
-    # corrupt the join it lands in rather than merely mislabel a column.
-    # That is the same trap the docstring above records for `c`.
     'object_id':     OBJECT_KEY,
     'objectid':      OBJECT_KEY,
     'object_number': OBJECT_KEY,
@@ -461,10 +440,6 @@ TIME_COLUMN_ALIASES: Tuple[str, ...] = (TIME_KEY, 'time_id')
 #: lower case, and folding case here would let a user column such as
 #: ``Outside_5_Percentile`` be rewritten out from under them.
 LEGACY_COLUMN_PATTERNS: Tuple[Tuple[Any, str], ...] = (
-    # ``..._periphery_25_percentile`` -> ``..._periphery_percentile_25``.
-    # ``head`` is non-greedy and ``ring`` therefore binds to the *last*
-    # periphery/outside token, so a feature whose prefix happens to contain
-    # 'outside' does not capture the rewrite.
     (
         re.compile(
             r'^(?P<head>.*?)(?P<ring>periphery|outside)_'
@@ -472,9 +447,6 @@ LEGACY_COLUMN_PATTERNS: Tuple[Tuple[Any, str], ...] = (
         ),
         r'\g<head>\g<ring>_percentile_\g<p>',
     ),
-    # ``organelle_summary_organelle_ch0_...`` -> ``..._channel_0_...``. The
-    # anchor is the full ``organelle_summary_organelle_ch`` prefix so a user
-    # feature that merely contains ``ch`` followed by a digit is untouched.
     (
         re.compile(
             r'^organelle_summary_organelle_ch'
@@ -588,11 +560,6 @@ def canonical_column_name(name: Any) -> str:
             'cell_area'
     """
     text = str(name)
-    # Metadata before features: the alias table is a closed vocabulary of
-    # short names, none of which can also match a feature pattern (both
-    # patterns are anchored and require a trailing '_<digits>_percentile' or
-    # a leading 'organelle_summary_'), so the order is a cost decision, not a
-    # precedence one -- a metadata column is answered without touching a regex.
     alias = _FOLDED_ALIASES.get(fold_column_name(text))
     if alias is not None:
         return alias
@@ -603,9 +570,6 @@ def canonical_column_name(name: Any) -> str:
     return text
 
 
-# ---------------------------------------------------------------------------
-# Scalars
-# ---------------------------------------------------------------------------
 
 #: An integer wearing a vendor prefix: ``s1``, ``T0001``, ``F003``, ``Z01``.
 #: One or two leading ASCII letters, then digits, then nothing.
@@ -662,13 +626,10 @@ def parse_int_token(token: Any, *, allow_prefix: bool = True) -> Optional[int]:
     if token is None:
         return None
     if isinstance(token, bool):
-        # bool is an int subclass; a True field id is a caller bug, not a 1.
         return None
     if isinstance(token, int):
         return int(token)
     if isinstance(token, float):
-        # NaN and inf hold no integer. int(nan) raises, int(2.7) truncates
-        # silently, so neither is acceptable without a check.
         if token != token or token in (float('inf'), float('-inf')):
             return None
         if float(token).is_integer():
@@ -709,9 +670,6 @@ def row_index_from_letters(letters: Any) -> Optional[int]:
         purely alphabetic or is empty.
     """
     if not isinstance(letters, str):
-        # str(None) is 'None', which is four perfectly good row letters and
-        # would come back as row 256573. Anything that is not already text
-        # is not a row label.
         return None
     text = letters.strip().upper()
     if not text:
@@ -813,9 +771,6 @@ def _prefixed_id(kind: str, token: Any, *, strict: bool) -> str:
 
     text = '' if token is None else str(token).strip()
     if not text:
-        # Tier 3: nothing to key on. This is the one case that must raise —
-        # an empty id is not an identity, and every row carrying it would
-        # merge with every other row that also failed to parse.
         raise KeyParseError(
             f'cannot build a {kind} from {token!r}: it is empty. An empty '
             f'{kind} is not an identity, and every row keyed on it would '
@@ -826,8 +781,6 @@ def _prefixed_id(kind: str, token: Any, *, strict: bool) -> str:
             f'Accepted spellings are a bare integer ("3", "003") or an '
             f'integer behind a one- or two-letter vendor prefix ("s3", '
             f'"F003", "T0003").')
-    # Tier 2: keep the token. Distinct per input, visibly not a number, and
-    # still a usable join key — the run continues without inventing a 0.
     return f'{prefix}{_sanitise_token(text)}'
 
 
@@ -846,7 +799,6 @@ def row_id(row: Any, *, strict: bool = False) -> str:
     if isinstance(row, str):
         letters = row.strip()
         if _ROW_ONLY.match(letters) and not _PREFIXED_INT.match(letters):
-            # _ROW_ONLY admits precisely the strings the decoder accepts.
             return f'r{row_index_from_letters(letters)}'
     return _prefixed_id(ROW_KEY, row, strict=strict)
 
@@ -921,7 +873,6 @@ def screen_id(screen: Any = None) -> str:
     if screen is None:
         return DEFAULT_SCREEN
     if isinstance(screen, float) and screen != screen:
-        # NaN — what pandas puts in a column a source did not fill in.
         return DEFAULT_SCREEN
     text = str(screen).strip()
     return text or DEFAULT_SCREEN
@@ -1031,10 +982,6 @@ def split_object_id(token: Any, *, require_prefix: bool = True
     if lowered.startswith(OBJECT_PREFIX) and len(text) > len(OBJECT_PREFIX):
         return (None, text[len(OBJECT_PREFIX):])
     if not require_prefix and text[:1].isdigit():
-        # A bare label: '7'. Untyped, and the only reading that does not
-        # invent a type it was never given. Guarded on a leading digit so an
-        # unrecognised token ('x7') is still not an object id — see
-        # :func:`object_type_prefix` on why the vocabulary is closed.
         return (None, text)
     return (None, '')
 
@@ -1091,10 +1038,6 @@ def object_id(label: Any, *, object_type: Any = None,
                 f'integer.')
         body = _sanitise_token(body)
     composed = f'{prefix}{body}'
-    # Prove the round trip rather than trusting the vocabulary. The one case
-    # this catches in practice: an untyped id whose preserved label starts
-    # with a declared type's remainder, e.g. label 'rganelle7' composing to
-    # 'organelle7', which reads back as an organelle.
     read_type, read_label = split_object_id(composed)
     if read_label != body or (read_type or None) != (
             None if prefix == OBJECT_PREFIX else prefix):
@@ -1176,9 +1119,6 @@ def object_index(value: Any) -> Optional[int]:
     return parse_int_token(label, allow_prefix=False)
 
 
-# ---------------------------------------------------------------------------
-# Wells
-# ---------------------------------------------------------------------------
 
 def is_positional_well(well: Any) -> bool:
     """True when ``well`` is a bare number rather than ``<letters><digits>``.
@@ -1248,9 +1188,6 @@ def is_row_column_pair(row: Any, column: Any) -> bool:
     if not row_text or not column_text:
         return False
     if is_positional_pair(row_text, column_text):
-        # parse_well puts an unrecognisable well into both slots verbatim, so
-        # an equal unprefixed pair is that passthrough and not a deeper key's
-        # tail (a field never equals the column it sits in).
         return True
     if row_text[:1].lower() == KEY_PREFIXES[ROW_KEY]:
         row_ok = row_index(row_text) is not None
@@ -1299,9 +1236,6 @@ def parse_well(well: Any, *, strict: bool = False) -> Tuple[str, str]:
 
     match = _WELL.match(text)
     if match:
-        # _WELL's first group is [A-Za-z]{1,3}, so row_index_from_letters
-        # cannot fail here; no defensive branch, because an unreachable one
-        # could never be tested and would only ever be wrong.
         return (f'r{row_index_from_letters(match.group(1))}',
                 f'c{int(match.group(2))}')
 
@@ -1316,8 +1250,6 @@ def parse_well(well: Any, *, strict: bool = False) -> Tuple[str, str]:
             f'well {well!r} is not <letters><digits>. Under strict parsing a '
             f'bare well number is refused, because whether "12" means row 1 '
             f'column 2 or the twelfth well is not knowable.')
-    # Legacy passthrough: every existing implementation does this, and
-    # databases on disk carry rowID == columnID == the raw well.
     return text, text
 
 
@@ -1346,9 +1278,6 @@ def well_id(row: Any, column: Any) -> str:
     return f'{letters_from_row_index(r_index)}{c_index:02d}'
 
 
-# ---------------------------------------------------------------------------
-# Plate formats
-# ---------------------------------------------------------------------------
 
 #: ``n_wells -> (n_rows, n_columns)`` for the standard SBS plate formats.
 PLATE_FORMATS: Dict[int, Tuple[int, int]] = {
@@ -1406,9 +1335,6 @@ def is_within_plate_format(row: Any, column: Any, n_wells: int) -> bool:
     return 1 <= r_index <= n_rows and 1 <= c_index <= n_columns
 
 
-# ---------------------------------------------------------------------------
-# Identities
-# ---------------------------------------------------------------------------
 
 def _check_plate(plate: Any) -> str:
     """Return a normalized non-empty plate identifier or raise by name."""
@@ -1705,12 +1631,6 @@ def parse_prcf(text: Any) -> FieldID:
             f'{text!r} is not a prcf: expected at least '
             f'plate_row_column_field, got {len(parts)} part(s).')
     time_key = None
-    # The composer deliberately preserves a non-numeric time token (``xy``
-    # becomes ``txy``) so an imperfect instrument export still has a stable
-    # join key. Detect the optional time component by grammar, not by whether
-    # its payload happens to be numeric: a trailing t-component immediately
-    # after an f-component can only be the timepoint in
-    # plate_row_column_field[_time].
     if (parts[-2][:1].lower() == 'f'
             and parts[-1][:1].lower() == 't'):
         time_key = parts.pop()
@@ -1724,9 +1644,6 @@ def parse_prcf(text: Any) -> FieldID:
         raise KeyParseError(
             f'{text!r} is not a prcf: {field_key!r} is not a field id.')
     if not row_key.strip() or not column_key.strip():
-        # An empty component is not a missing token, it is a token every
-        # field of the plate shares: join on it and they all merge. This is
-        # the same refusal ``ml._split_prc`` makes, for the same reason.
         raise KeyParseError(
             f'{text!r} is not a prcf: its row is {row_key!r} and its column '
             f'is {column_key!r}, and an empty one identifies no well — every '
@@ -1783,9 +1700,6 @@ def parse_prcfo(text: Any) -> ObjectID:
     return field.with_object(object_label, object_type=object_type)
 
 
-# ---------------------------------------------------------------------------
-# Filenames
-# ---------------------------------------------------------------------------
 
 def escape_field_stem_plate(name: Any, *, timelapse: bool = False) -> str:
     """Escape the plate component of a merged-stack field stem.
@@ -1921,9 +1835,6 @@ def parse_object_stem(name: Any, *, timelapse: bool = False,
     return field.with_object(parts[-1])
 
 
-# ---------------------------------------------------------------------------
-# The tables spaCR owns
-# ---------------------------------------------------------------------------
 
 #: Object tables whose rows are top-level objects with no parent link.
 PARENT_OBJECT_TABLES: Tuple[str, ...] = ('cell', 'cytoplasm')
@@ -2052,11 +1963,6 @@ class ObjectTableSchema:
     @property
     def identifier_columns(self) -> Tuple[str, ...]:
         """Prefixed link/label columns emitted by morphology measurement."""
-        # measure._morphological_measurements prefixes the child mapping before
-        # _check_integrity runs. These look like ordinary feature names but
-        # are identifiers: feature_dict._LINK_COLUMNS documents the same
-        # distinction. They may use object dtype after DataFrame.explode()
-        # even though every non-null value denotes an integer label.
         return (
             f'{self.object_type}_{self.object_type}',
             f'{self.object_type}_cell_id',
@@ -2147,8 +2053,6 @@ def is_provenance_column(name: Any) -> bool:
     if parse_column(text).family == 'meta':
         return True
 
-    # Joined object tables suffix overlapping columns. The suffix does not
-    # turn measurement_ndim_nucleus or object_label_pathogen into features.
     suffixes = tuple(f'_{obj}' for obj in OBJECT_TYPES) + ('_x', '_y')
     for suffix in suffixes:
         if text.endswith(suffix):
@@ -2209,11 +2113,6 @@ def _non_numeric_feature_error(problems) -> 'ModelFeatureSchemaError':
     """
     import pandas as pd
 
-    # pandas 3 infers ordinary Python text as StringDtype (displayed as
-    # ``str``) where earlier versions inferred ``object``.  The diagnostic is
-    # a user-facing description of the same text-storage problem, so keep its
-    # established wording stable without flattening categorical or other
-    # extension dtypes that carry materially different information.
     def diagnostic_dtype(dtype) -> str:
         """Return stable user-facing text for a pandas feature dtype.
 
@@ -2248,7 +2147,7 @@ def coerce_model_feature_types(
 ):
     """Repair the two representations of a numeric measurement pandas fumbles.
 
-    **A column with no values at all comes back as ``object``.** This is the
+    **A column with no values at all comes back as** ``object``. This is the
     common one and it is not a data problem: ``pandas.read_sql`` builds the
     frame from the rows it gets, so a column that is ``NULL`` in every row
     arrives as a column of ``None`` and pandas types that ``object`` -- even
@@ -2319,13 +2218,8 @@ def coerce_model_feature_types(
             continue
 
         if _all_missing(series):
-            # No value was read, so no value can be misread. float64 NaN is
-            # the same fact in a dtype the model boundary accepts.
             numeric = series.astype('float64')
         else:
-            # Empty strings in SQLite measurement tables represent the same
-            # missing value as NULL. Preserve that distinction before
-            # conversion.
             normalized = series.replace(r'^\s*$', pd.NA, regex=True)
             numeric = pd.to_numeric(normalized, errors='coerce')
             invalid = normalized.notna() & numeric.isna()
@@ -2423,7 +2317,6 @@ def model_feature_columns(
 
         series = frame[column]
         if is_bool_dtype(series.dtype):
-            # pandas/numpy numeric selectors historically omitted bools.
             continue
         if not is_numeric_dtype(series.dtype):
             if ignore_non_numeric:
@@ -2488,9 +2381,6 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
     return base + (OBJECT_LABEL_KEY,)
 
 
-# ---------------------------------------------------------------------------
-# pandas
-# ---------------------------------------------------------------------------
 
 def canonical_rename_plan(columns, requested=None):
     """``{old: canonical}`` for the columns that can safely be renamed.
@@ -2545,10 +2435,10 @@ def add_screen_column(df, screen: Any = None, *, overwrite: bool = False):
     * **The frame has no screen column.** It gains one, holding ``screen`` or
       :data:`DEFAULT_SCREEN`. That is a single-screen project, which is every
       project written before and it must keep working.
-    * **The frame has one, and ``screen`` is ``None``.** Its labels are kept.
+    * The frame has one, and ``screen`` is ``None``. Its labels are kept.
       Relabelling a frame that already knows which experiment it came from
       would move rows between screens with nothing on screen to say so.
-    * **The frame has one and ``screen`` was given.** The caller is looking at
+    * The frame has one and ``screen`` was given. The caller is looking at
       the files and has said which screen this is, so it wins — but only
       because they said so. ``overwrite=False`` (the default) still fills
       *blank* values only; pass ``overwrite=True`` to restamp every row.
@@ -2646,9 +2536,6 @@ def compose_prc_column(df, columns=None):
             + KEY_SEPARATOR + df[column].astype(str))
 
 
-# ---------------------------------------------------------------------------
-# One vocabulary: the collision rule, and the plate-value repair
-# ---------------------------------------------------------------------------
 
 #: A doubled plate prefix, the one *value* repair every reader owes a frame.
 _DOUBLED_PLATE_PREFIX = re.compile(r'^pp')
@@ -2701,11 +2588,6 @@ def normalise_plate_columns(frame):
         if column not in frame.columns:
             continue
         values = frame[column]
-        # A plate id stored as a number cannot carry a "pp" prefix, so there
-        # is nothing to do. pandas 3 infers ordinary Python text as
-        # StringDtype rather than object; both are text-bearing inputs, while
-        # categorical and other extension dtypes retain their old no-op
-        # behaviour.
         dtype = getattr(values, 'dtype', None)
         if not (
                 is_object_dtype(dtype)
@@ -2965,11 +2847,6 @@ def validate_object_table_frame(
     contract = object_table_schema(table)
     out = canonicalise_columns(frame)
 
-    # Every object-table writer crosses this boundary.  Resolve unfamiliar
-    # metadata here so modules do not each grow a slightly different rename
-    # prompt.  The import stays lazy to preserve schema's lightweight import
-    # contract and the headless default raises immediately rather than
-    # opening a dialog.
     unresolved = [
         column for column in contract.required_columns
         if column not in out.columns
@@ -3220,13 +3097,6 @@ def add_identity_columns(df, source: str = 'file_name', *,
     return out
 
 
-# ---------------------------------------------------------------------------
-# Bug-compatible copies of what is on disk today
-# ---------------------------------------------------------------------------
-#
-# These exist so a migration can be done one call site at a time with a test
-# pinning exactly what changed, and so that a reader of an old database can
-# reproduce the key it was written with. They are not for new code.
 
 def legacy_safe_int_convert(value: Any, default: Any = 0) -> Any:
     """``utils._safe_int_convert`` exactly, including the ``0`` default.
@@ -3293,20 +3163,6 @@ def legacy_map_wells(file_name: Any, timelapse: bool = False) -> Tuple[str, ...]
     return plate, row, column, field, prcf
 
 
-# ---------------------------------------------------------------------------
-# Moved here from spacr.utils on 2026-08-19.
-#
-# THE FUNCTION NEVER NEEDED ANYTHING utils IMPORTS. It delegates to
-# `canonicalise_frame` below and touches pandas, and that is all -- but
-# `spacr/utils.py` imports torch, torchvision and cv2 on its line 3, so
-# `from .utils import correct_metadata_column_names` cost 4,336 modules and
-# 6.7 SECONDS. The Cells tab paid it to show nine PNGs, which is why the
-# montage felt slow beside the annotation app: "in the annotation app images
-# load almost instintaniously while in the regression cell montage it takes
-# way longer".
-#
-# `spacr.utils` re-exports it, so every existing caller is unchanged.
-# ---------------------------------------------------------------------------
 
 
 def correct_metadata_column_names(df):

@@ -1,8 +1,7 @@
-"""Twelve more single decisions, across nine modules.
+"""Ten more single decisions, across eight modules.
 
-Two optional-dependency guards, a graph with no node to root at, a move
-that would be a no-op, four presence checks and a plot legend with
-nothing to name.
+Two optional-dependency guards, four presence checks and a plot legend
+with nothing to name.
 """
 from __future__ import annotations
 
@@ -47,66 +46,6 @@ class TestTheOptionalEmbedders:
         for marker in ("def _search_umap(", "def _search_tsne("):
             body = source[source.index(marker):]
             assert " is None:" not in body[:500]
-
-
-class TestTheMosaicRoot:
-
-    def test_the_best_connected_tile_becomes_the_root(self):
-        adjacency = {"a": ["b"], "b": ["a", "c"], "c": ["b"]}
-        nodes = list(adjacency)
-
-        root = max(nodes, key=lambda p: len(adjacency[p])) if nodes else None
-
-        assert root == "b"
-
-    def test_a_mosaic_with_no_tiles_has_no_root_and_no_transforms(self):
-        """The early empty-node answer makes a later root guard redundant.
-
-        Every pair can fail to register -- a plate whose tiles do not
-        overlap -- leaving no node to root the BFS at. Returning empty
-        transforms is right: ``T3[None]`` would be a key nothing reads,
-        and the caller then places every tile at its nominal position.
-        """
-        nodes = []
-
-        root = max(nodes, key=len) if nodes else None
-        assert root is None
-
-        from spacr import spacrops as S
-
-        source = _source(S)
-        assert "if not nodes:" in source
-        assert "return {}, []" in source
-        assert "if root is None:" not in source
-        assert "if nodes else None" not in source
-
-
-class TestMovingAFileOntoItself:
-
-    def test_the_post_stitch_destination_is_a_deeper_directory(self):
-        """The post-stitch move always adds the non-empty well component.
-
-        The first organizer stage leaves the tile under ``dst/well``; the
-        post-stitch stage moves it under ``dst/well/well``. The filename gate
-        refuses an empty well, so these paths cannot be equal.
-        """
-        source = os.path.join("dst", "A1", "tile.tif")
-        target = os.path.join("dst", "A1", "A1", "tile.tif")
-        assert os.path.abspath(source) != os.path.abspath(target)
-
-        from spacr import spacrops as S
-
-        text = _source(S)
-        assert "if os.path.abspath(sp) != os.path.abspath(rp):" not in text
-        assert "shutil.move(sp, rp)" in text
-
-    def test_the_added_well_component_cannot_be_empty(self):
-        """Pin the parser premise that keeps source and target distinct."""
-        from spacr import spacrops as S
-
-        text = inspect.getsource(S.stitch_cycle_wells)
-        assert "not m.group(well_group)" in text
-        assert "well = (m.group(well_group) or \"\").upper()" in text
 
 
 class TestTheInvasionClassColumns:

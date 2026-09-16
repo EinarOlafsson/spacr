@@ -3,8 +3,8 @@
 Focuses on the input-normalisation branches that decide how ``masks`` and
 ``intensity_images`` are unpacked into per-FOV lists, in particular the
 4-D (N, H, W, C) intensity layout that ``generate_cellpose_masks_sam``
-actually passes in (it hands over the raw ``batch``), and the guard that
-rejects any other rank.
+passes in with the object's original channel first, and the guards that
+reject unsupported ranks and mismatched field counts.
 
 Everything here is pure numpy on tiny 64x64 fields - no cellpose, no torch
 device work, no disk IO.
@@ -50,54 +50,18 @@ def _surviving_labels(out_mask):
     return {lbl for lbl, (y, x) in _PROBES.items() if out_mask[y, x] != 0}
 
 
-# --- a touching pair, for the boundary-intensity merge ---------------------
-#
-# WHY THE DISJOINT BOXES ABOVE CAN NO LONGER SHOW INTENSITY DOING ANYTHING.
-# The absolute-intensity change left exactly one intensity-driven operation
-# in this pipeline, and it is the merge: it measures the MEAN ALONG A SHARED
-# BOUNDARY and joins the two labels when that mean reaches the threshold.
-# Nothing drops an object for being dim any more.  Three boxes that do not
-# touch have no shared boundary to measure, so they come back untouched at
-# every threshold -- measured, not assumed; the guard below pins it.
-#
-# These two labels are the two halves of one block, so there is exactly one
-# boundary, it runs down the middle of the block, and the mean along it is
-# simply the value the block carries.
-_SEAM_BLOCK = (slice(20, 40), slice(20, 40))
-_SEAM_BRIGHT = 900.0      # boundary mean 900 >= 500 -> the pair merges
-_SEAM_DIM = 100.0         # boundary mean 100 <  500 -> the pair stays apart
-_SEAM_THRESHOLD = 500.0   # strictly between the two, in raw image units
-
-#: The merge switch plus the threshold it needs; the switch is what trips
-#: ``needs_work``, the threshold only parameterises it.
-_MERGE_ON = {
-    "cell_intensity_merge": True,
-    "cell_intensity_threshold": _SEAM_THRESHOLD,
+_MEAN_BOUNDS = {
+    "cell_min_intensity": 50.25,
+    "cell_max_intensity": 90.5,
 }
 
 
-def _touching_pair_mask(shape=(64, 64)):
-    """One 20x20 block cut down the middle into labels 1 and 2."""
-    m = np.zeros(shape, dtype=np.int32)
-    m[20:40, 20:30] = 1
-    m[20:40, 30:40] = 2
-    return m
-
-
-def _seam_plane(value, shape=(64, 64)):
-    """Flat ``value`` across the whole block, 0 outside.
-
-    The shared boundary is interior to the block, so the boundary mean the
-    merge measures is exactly ``value``.
-    """
-    img = np.zeros(shape, dtype=np.float32)
-    img[_SEAM_BLOCK] = value
-    return img
-
-
-def _n_objects(out_mask):
-    """Object count of a label image, background excluded."""
-    return len(np.unique(out_mask)) - 1
+def _expected_mask(kept):
+    """Independent full label image for an explicit set of surviving boxes."""
+    expected = np.zeros((64, 64), dtype=np.uint16)
+    for new_label, original_label in enumerate(kept, 1):
+        expected[_BOXES[original_label]] = new_label
+    return expected
 
 
 @pytest.fixture(autouse=True)
@@ -112,37 +76,19 @@ def _no_figures():
 # ---------------------------------------------------------------------------
 
 def test_merge_split_filter_masks_accepts_4d_channel_last_intensity():
-    """A 4-D (N, H, W, C) intensity stack is split per-FOV and channel 0 is used.
-
-    Channel 0 and channel 1 carry *opposite* seam brightness, so the fate of
-    the touching pair proves which channel was read: against the absolute
-    threshold 500, a seam of 900 merges the pair into one object and a seam
-    of 100 leaves two.  The two FOVs disagree, so a shared verdict would mean
-    they were not judged independently.
-
-    RE-POINTED, AND HERE IS THE ARITHMETIC.  This used to set
-    ``cell_min_intensity_percentile=50`` on three disjoint boxes and watch the
-    dimmest disappear.  That threshold was the MEDIAN OF THE THREE OBJECT
-    MEANS in this very field, so the filter removed one of three however
-    bright the field was -- it could not decline to fire.  The replacement is
-    an absolute threshold in raw image units and it belongs to the MERGE,
-    which judges the mean along a shared boundary.  On disjoint boxes it
-    therefore does nothing at any value (10/50/90 with thresholds from 5 to
-    1000 all leave three objects), so the fixture had to grow a boundary for
-    the threshold to have something to measure.
-    """
+    """Each FOV uses channel 0's raw means and keeps equality at both bounds."""
     from spacr.object import merge_split_filter_masks
 
-    masks = np.stack([_touching_pair_mask(), _touching_pair_mask()])   # (2, 64, 64)
-
-    # FOV 0 -> bright seam on channel 0 (dim on channel 1).
-    fov0 = np.stack([_seam_plane(_SEAM_BRIGHT), _seam_plane(_SEAM_DIM)], axis=-1)
-    # FOV 1 -> orderings swapped again.
-    fov1 = np.stack([_seam_plane(_SEAM_DIM), _seam_plane(_SEAM_BRIGHT)], axis=-1)
-    intensity = np.stack([fov0, fov1])                                # (2, 64, 64, 2)
+    masks = np.stack([_three_box_mask(), _three_box_mask()])
+    first = _intensity_plane({1: 10.25, 2: 50.25, 3: 90.5})
+    second = _intensity_plane({1: 80.5, 2: 120.25, 3: 20.5})
+    # The other channel would give the opposite field's surviving labels.
+    fov0 = np.stack([first, second], axis=-1)
+    fov1 = np.stack([second, first], axis=-1)
+    intensity = np.stack([fov0, fov1])
     assert intensity.ndim == 4
 
-    out = merge_split_filter_masks(masks, intensity, dict(_MERGE_ON), "cell")
+    out = merge_split_filter_masks(masks, intensity, dict(_MEAN_BOUNDS), "cell")
 
     assert isinstance(out, list)
     assert len(out) == 2, "one output mask per FOV of the 4-D intensity stack"
@@ -150,43 +96,50 @@ def test_merge_split_filter_masks_accepts_4d_channel_last_intensity():
         assert arr.shape == (64, 64)
         assert arr.dtype == np.uint16
 
-    # Channel 0 drove the merge in each FOV, independently.
-    assert _n_objects(out[0]) == 1, "FOV0: seam 900 >= 500 on channel 0 -> merged"
-    assert _n_objects(out[1]) == 2, "FOV1: seam 100 < 500 on channel 0 -> kept apart"
-
-    # Sequentially relabelled from 1 either way.
-    assert np.unique(out[0]).tolist() == [0, 1]
-    assert np.unique(out[1]).tolist() == [0, 1, 2]
+    np.testing.assert_array_equal(out[0], _expected_mask((2, 3)))
+    np.testing.assert_array_equal(out[1], _expected_mask((1,)))
+    np.testing.assert_array_equal(masks[0], _three_box_mask())
+    np.testing.assert_array_equal(masks[1], _three_box_mask())
 
 
 def test_merge_split_filter_masks_4d_single_fov_matches_3d_equivalent():
-    """(1, H, W, C) and (1, H, W) intensity stacks give the identical result.
-
-    Guards the 4-D branch against silently selecting the wrong axis: the
-    channel-last stack whose channel 0 equals the 3-D plane must reach the
-    same verdict on the same pair.  Channel 1 is not merely garbage, it is a
-    plane that would reach the OPPOSITE verdict, so reading it instead could
-    not go unnoticed.
-
-    RE-POINTED for the same reason as the test above: the percentile band it
-    used to drive was removed, and the absolute threshold that replaced it
-    measures a shared boundary, which disjoint boxes do not have.
-    """
+    """(1, H, W, C) and (1, H, W) give the same independently expected labels."""
     from spacr.object import merge_split_filter_masks
 
-    masks = _touching_pair_mask()[None, ...]                           # (1, 64, 64)
-    plane = _seam_plane(_SEAM_BRIGHT)
-    settings = dict(_MERGE_ON)
+    masks = _three_box_mask()[None, ...]
+    plane = _intensity_plane({1: 10.25, 2: 50.25, 3: 90.5})
+    settings = dict(_MEAN_BOUNDS)
 
     out_3d = merge_split_filter_masks(masks, plane[None, ...], settings, "cell")
-    # Channel 0 == plane (merges); channel 1 is a dim seam (would not merge).
-    stack_4d = np.stack([plane, _seam_plane(_SEAM_DIM)], axis=-1)[None, ...]
+    other = _intensity_plane({1: 80.5, 2: 120.25, 3: 20.5})
+    stack_4d = np.stack([plane, other], axis=-1)[None, ...]
     assert stack_4d.shape == (1, 64, 64, 2)
     out_4d = merge_split_filter_masks(masks, stack_4d, settings, "cell")
 
     assert len(out_3d) == len(out_4d) == 1
     np.testing.assert_array_equal(out_4d[0], out_3d[0])
-    assert _n_objects(out_4d[0]) == 1, "channel 0 seam 900 >= 500 -> merged"
+    np.testing.assert_array_equal(out_4d[0], _expected_mask((2, 3)))
+
+
+def test_merge_split_filter_masks_channel_last_layout_does_not_depend_on_channel_count():
+    """A large channel axis remains the explicit last axis."""
+    from spacr.object import merge_split_filter_masks
+
+    masks = _three_box_mask()[None, ...]
+    intensity = np.zeros((1, 64, 64, 16), dtype=np.float64)
+    intensity[0, ..., 0] = _intensity_plane({1: 10.25, 2: 50.25, 3: 90.5})
+    out = merge_split_filter_masks(masks, intensity, dict(_MEAN_BOUNDS), "cell")
+    np.testing.assert_array_equal(out[0], _expected_mask((2, 3)))
+
+
+def test_merge_split_filter_masks_does_not_guess_channel_first_layout():
+    """A channel-first field is refused rather than silently reinterpreted."""
+    from spacr.object import merge_split_filter_masks
+
+    masks = _three_box_mask()[None, ...]
+    intensity = np.zeros((1, 2, 64, 64), dtype=np.float64)
+    with pytest.raises(ValueError, match="same shape as the mask"):
+        merge_split_filter_masks(masks, intensity, dict(_MEAN_BOUNDS), "cell")
 
 
 def test_merge_split_filter_masks_4d_length_must_match_masks():
@@ -244,14 +197,11 @@ def test_merge_split_filter_masks_noop_returns_same_object_identity():
     masks = _three_box_mask()
     settings = {
         "cell_perimeter_fraction": 0,
-        "cell_intensity_merge": False,
-        "cell_intensity_split": False,
-        "cell_min_split_area": 0,
         "cell_min_area": 0,
         "cell_max_area": 0,
         "cell_remove_border_objects": False,
-        "cell_min_intensity_percentile": 0,
-        "cell_max_intensity_percentile": 100,
+        "cell_min_intensity": 0,
+        "cell_max_intensity": 0,
     }
     out = merge_split_filter_masks(masks, None, settings, "cell")
     assert out is masks
@@ -298,28 +248,44 @@ def test_merge_split_filter_masks_intensity_percentile_band_stays_gone():
         "no object is dropped for being the dimmest of its field"
 
 
-def test_merge_split_filter_masks_absolute_threshold_needs_the_merge_switch():
-    """``intensity_threshold`` alone is a no-op; the merge switch enables it.
-
-    The replacement setting is not an operation of its own -- it is the
-    boundary mean at which the merge joins two touching labels -- so with the
-    merge off it has nothing to parameterise and correctly leaves the caller's
-    array alone.  This is the documented contract: the setting reads "Ignored
-    unless cell_intensity_merge is True".  With the merge on, that same number
-    decides the pair.
-    """
+@pytest.mark.parametrize("settings,kept", [
+    ({"cell_min_intensity": 50.25}, (2, 3)),
+    ({"cell_max_intensity": 50.25}, (1, 2)),
+    ({"cell_min_intensity": 91}, ()),
+    ({"cell_max_intensity": 100}, (1, 2, 3)),
+])
+def test_each_mean_bound_enables_filtering_without_other_operations(settings, kept):
+    """Either bound is sufficient; absolute limits can retain all or none."""
     from spacr.object import merge_split_filter_masks
 
-    masks = _touching_pair_mask()
-    bright = _seam_plane(_SEAM_BRIGHT)
-
-    out = merge_split_filter_masks(
-        masks, bright, {"cell_intensity_threshold": _SEAM_THRESHOLD}, "cell")
-    assert out is masks, "a threshold with the merge off has nothing to do"
-
-    out = merge_split_filter_masks(masks, bright, dict(_MERGE_ON), "cell")
+    masks = _three_box_mask()
+    intensity = _intensity_plane({1: 10.25, 2: 50.25, 3: 90.5})
+    out = merge_split_filter_masks(masks, intensity, settings, "cell")
     assert isinstance(out, list) and len(out) == 1
-    assert _n_objects(out[0]) == 1, "seam 900 >= threshold 500 -> merged"
+    np.testing.assert_array_equal(out[0], _expected_mask(kept))
+
+
+def test_area_and_border_filters_do_not_require_an_intensity_image():
+    """Disabled mean bounds permit None while every other filter still runs."""
+    from spacr.object import merge_split_filter_masks
+
+    masks = _three_box_mask()
+    masks[0:5, 20:25] = 4            # 25 px: rejected only by border contact
+    masks[25:27, 25:27] = 5          # 4 px: below the area floor
+    masks[30:41, 30:41] = 6          # 121 px: above the area ceiling
+    out = merge_split_filter_masks(
+        masks, None, {"cell_min_area": 10, "cell_max_area": 100,
+                      "cell_remove_border_objects": True,
+                      "cell_min_intensity": 0, "cell_max_intensity": 0}, "cell")
+    np.testing.assert_array_equal(out[0], _expected_mask((1, 2, 3)))
+
+
+def test_enabled_mean_bounds_require_the_intensity_image():
+    from spacr.object import merge_split_filter_masks
+
+    with pytest.raises(ValueError, match="same shape as the mask"):
+        merge_split_filter_masks(
+            _three_box_mask(), None, dict(_MEAN_BOUNDS), "cell")
 
 
 def test_merge_split_filter_masks_honours_misspelled_perimiter_key():
@@ -334,16 +300,14 @@ def test_merge_split_filter_masks_honours_misspelled_perimiter_key():
     m = np.zeros((64, 64), dtype=np.int32)
     m[20:40, 20:30] = 1
     m[20:40, 30:40] = 2
-    intensity = np.zeros((64, 64), dtype=np.float32)
-
     merged = merge_split_filter_masks(
-        m.copy(), intensity, {"cell_perimiter_fraction": 0.1}, "cell")
+        m.copy(), None, {"cell_perimiter_fraction": 0.1}, "cell")
     assert len(np.unique(merged[0])) - 1 == 1, "the two halves merged"
 
     # Sanity: without the key nothing merges (needs_work driven by min_area=1,
     # which removes nothing since both objects are 200 px).
     untouched = merge_split_filter_masks(
-        m.copy(), intensity, {"cell_min_area": 1}, "cell")
+        m.copy(), None, {"cell_min_area": 1}, "cell")
     assert len(np.unique(untouched[0])) - 1 == 2
 
 
@@ -374,28 +338,35 @@ def test_merge_split_filter_masks_uses_object_type_prefix():
     assert out2[0].max() == 0
 
 
-def test_merge_split_filter_masks_list_inputs_and_batch_filenames():
-    """List-of-2D inputs are accepted and processed one FOV at a time.
-
-    The two FOVs carry seams on opposite sides of the absolute threshold, so a
-    shared verdict would mean the list was not walked per-FOV.
-
-    RE-POINTED off ``cell_min_intensity_percentile``, which no longer exists;
-    the surviving intensity operation is the boundary merge, and it needs
-    objects that touch.
-    """
+def test_merge_split_filter_masks_list_inputs_and_batch_filenames(monkeypatch):
+    """List inputs preserve field order and report progress once per field."""
     from spacr.object import merge_split_filter_masks
+    import spacr.utils as utils
 
-    masks = [_touching_pair_mask(), _touching_pair_mask()]
-    intensity = [_seam_plane(_SEAM_BRIGHT), _seam_plane(_SEAM_DIM)]
+    progress = []
+
+    def capture_progress(current, total, **kwargs):
+        progress.append((current, total, dict(kwargs, time_ls=list(kwargs["time_ls"]))))
+
+    monkeypatch.setattr(utils, "print_progress", capture_progress)
+    masks = [_three_box_mask(), _three_box_mask()]
+    intensity = [_intensity_plane({1: 10.25, 2: 50.25, 3: 90.5}),
+                 _intensity_plane({1: 80.5, 2: 120.25, 3: 20.5})]
     out = merge_split_filter_masks(
-        masks, intensity, dict(_MERGE_ON), "cell",
+        masks, intensity, dict(_MEAN_BOUNDS), "cell",
         batch_filenames=["fov_a.npy", "fov_b.npy"],
     )
     assert len(out) == 2
-    assert _n_objects(out[0]) == 1, "fov_a: seam 900 >= 500 -> merged"
-    assert _n_objects(out[1]) == 2, "fov_b: seam 100 < 500 -> kept apart"
+    np.testing.assert_array_equal(out[0], _expected_mask((2, 3)))
+    np.testing.assert_array_equal(out[1], _expected_mask((1,)))
     assert len(masks) == 2
+    assert [(current, total) for current, total, _ in progress] == [(1, 2), (2, 2)]
+    for index, (_, _, kwargs) in enumerate(progress, 1):
+        assert kwargs["n_jobs"] == 1
+        assert kwargs["batch_size"] is None
+        assert kwargs["operation_type"] == "merge_cell"
+        assert len(kwargs["time_ls"]) == index
+        assert all(duration >= 0 for duration in kwargs["time_ls"])
 
 
 def test_merge_split_filter_masks_rejects_bad_mask_ndim():

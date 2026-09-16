@@ -6,9 +6,33 @@ it, and the shape becomes a :class:`spacr.selection.DataFilter` clause that
 every open view honours — the UMAP, the plate map, the crop grid, the Graph
 Builder, Small Multiples.
 
+**What it is for.** Selecting a population by its measurements once Measure
+has run: the cells above an intensity threshold, or one cluster in a
+two-feature scatter. Gates can sit inside other gates, and each shows its
+object count and its percentage of both its parent gate and the whole table.
+
+**What it needs.** A measurement table: one table of a ``measurements.db``,
+where the object tables are offered first, or a CSV or TSV file. Several
+databases can be loaded as one table; plate identifiers that collide between
+them are reported rather than silently pooled. Database tables are read as a
+sample set by ``sample_fraction`` and capped by ``max_points``, both in the
+Gate Editor settings.
+
+**What it produces.** Threshold, rectangle, oval, polygon and wand gates on
+one or two measurements, box, cylinder and prism gates in the 3D view, and
+combinations of other gates. Publishing a gate narrows every linked view to
+that population. The gating strategy saves to and loads from a JSON file
+(``gates.json`` by default) so that the next plate is gated the same way;
+Export writes each gate as a column of the ``filters`` table in the
+measurements database, and the graph saves as PNG or PDF.
+
+**What to do next.** Look at the gated population in the views that follow
+the shared filter, such as Image UMAP, Graph Builder and the crop grid, and
+load the saved gating strategy on the next plate.
+
 Assembles:
 
-* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the three
+* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — the canvas, the gate
   tools and the hierarchy with its percentages;
 * :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data
   Filter, which the gate composes *onto* rather than replacing;
@@ -244,8 +268,6 @@ class GateEditorScreen(QWidget):
         self._load_gates.clicked.connect(self.choose_load_gates)
         head.addWidget(self._load_gates)
 
-        # Beside the gate buttons, because a filter set is the same kind of
-        # decision: which rows this analysis is about.
         self._save_filters = QPushButton("Save filters…", self)
         self._save_filters.setToolTip(
             "Write the current filter set to a file, so the same rows can "
@@ -287,15 +309,8 @@ class GateEditorScreen(QWidget):
         self._save_graph.clicked.connect(self.save_graph)
         head.addWidget(self._save_graph)
 
-        # The Settings button lives on the gates panel's tool row, left of
-        # Cluster, where the rest of the gating controls are. Two buttons
-        # opening one window is one too many.
         outer.addLayout(head)
 
-        # The DATABASE working set, one removable chip per source. Same idiom
-        # as the table chips below it, because it is the same idea: a
-        # combination the user assembled, which has to be visible and has to
-        # be editable a member at a time (instruction 109, point 1).
         self._db_chips = QHBoxLayout()
         self._db_chips.setContentsMargins(0, 0, 0, 0)
         self._db_chips.setSpacing(SPACING["xs"])
@@ -306,7 +321,6 @@ class GateEditorScreen(QWidget):
         self._db_chips.addStretch(1)
         outer.addLayout(self._db_chips)
 
-        # The working set, one removable chip per table.
         self._chips = QHBoxLayout()
         self._chips.setContentsMargins(0, 0, 0, 0)
         self._chips.setSpacing(SPACING["xs"])
@@ -329,9 +343,6 @@ class GateEditorScreen(QWidget):
             "threshold gate is drawn on.")
         self._y.currentTextChanged.connect(self._on_axes_changed)
         axes.addWidget(self._y, 1)
-        # Z, shown only in 3D/xD. Hidden rather than absent in 2D: the third
-        # measurement is remembered while the user works in 2D, so switching
-        # back does not lose it.
         self._z_label = QLabel("Z", self)
         axes.addWidget(self._z_label)
         self._z = QComboBox(self)
@@ -346,12 +357,6 @@ class GateEditorScreen(QWidget):
         outer.addLayout(axes)
 
         body = QSplitter(Qt.Horizontal, self)
-        # Collapsible, deliberately. The console carries a width floor
-        # (CONSOLE_MIN_WIDTH), so with collapsing DISABLED the splitter
-        # would be forced to hand it 320px on every screen -- and the
-        # console is meant to start out of the way. Allowing collapse gives
-        # it two honest states, hidden or readable, instead of the third
-        # one the user actually met: open but too narrow to read.
         body.setChildrenCollapsible(True)
         self.gates = GateEditorPanel(self, link=link)
         self.gates.gates_changed.connect(self._on_gates_changed)
@@ -368,16 +373,6 @@ class GateEditorScreen(QWidget):
             "Ask a question about the table you are gating without leaving "
             "the screen.")
 
-        # ONE section, not two tabs. Filter and Columns were separate tabs
-        # inside a QTabWidget capped at 340px, and a panel whose content
-        # needs more than that had nowhere to put it -- which is what read
-        # as elements overlapping. They are also the same job: both narrow
-        # what the scatter shows, so hiding one behind the other meant
-        # neither could be checked while using the other.
-        #
-        # A scroll area rather than a taller widget: the content is
-        # unbounded (a table can have hundreds of columns) and the panel is
-        # not, so something has to scroll or something has to clip.
         side_body = QWidget(self)
         side_column = QVBoxLayout(side_body)
         side_column.setContentsMargins(0, 0, 0, 0)
@@ -399,19 +394,6 @@ class GateEditorScreen(QWidget):
         filter_scroll.setWidgetResizable(True)
         filter_scroll.viewport().setAutoFillBackground(False)
 
-        # FILTER AND SEARCH AS TABS, which is the last item of instruction 31.
-        #
-        # The search is a thing you ITERATE ON -- change a parameter, look,
-        # change it again -- and it lived behind a modal, so looking meant
-        # closing the dialog and reopening it to change anything. Beside the
-        # filter it is one click away and the plot stays visible while it is
-        # adjusted.
-        #
-        # Filter and COLUMNS are NOT the pair that becomes tabs, and they were
-        # deliberately merged into one page earlier: they are the same job --
-        # both narrow what the scatter shows -- so hiding one behind the other
-        # meant neither could be checked while using the other. Search is a
-        # different job, which is what makes it a different tab.
         self.side_tabs = QTabWidget(self)
         self.side_tabs.setObjectName(SIDE_TABS_NAME)
         self.side_tabs.addTab(filter_scroll, "Filter")
@@ -423,16 +405,10 @@ class GateEditorScreen(QWidget):
         search_scroll.setWidgetResizable(True)
         search_scroll.viewport().setAutoFillBackground(False)
         self.side_tabs.addTab(search_scroll, "Search")
-        # The tab strip's QSS is registered at import -- see `_side_tabs_qss`.
-        # It used to be registered from here, against a name the theme has
-        # never exported, so it never was.
 
         side = self.side_tabs
         side.setSizePolicy(QSizePolicy.Policy.Preferred,
                            QSizePolicy.Policy.Expanding)
-        # The width is the SPLITTER's to decide now. A hard maximum is what
-        # made the cap unescapable: the user could not widen the column even
-        # when the content plainly needed it.
         side.setMinimumWidth(260)
         try:
             from ..theme import make_transparent
@@ -442,26 +418,17 @@ class GateEditorScreen(QWidget):
 
         body.addWidget(side)
 
-        # The console goes in the splitter too, so the user decides how much
-        # room a transcript deserves. Collapsed by default: it is a thing you
-        # reach for, not a thing you look past.
         body.addWidget(self.console)
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
         body.setStretchFactor(2, 0)
         body.setSizes([700, 260, 0])
         outer.addWidget(body, 1)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "gate_editor")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Point the screen at a table to gate.
 
@@ -555,11 +522,7 @@ class GateEditorScreen(QWidget):
         self._source.setText(self._source.text().split(" · gates")[0]
                              + f" · gates: {len(self.gates.gates)}")
 
-    # -- loading ----------------------------------------------------------
     def choose_table(self) -> None:
-        # getOpenFileNames, plural: a screen acquired as three plates is three
-        # databases, and comparing them used to mean three sessions
-        # (instruction 109). One file behaves exactly as it did before.
         """Ask which table in the project to gate."""
         paths, _ = QFileDialog.getOpenFileNames(
             self, "Open one or more measurement tables", "",
@@ -603,20 +566,11 @@ class GateEditorScreen(QWidget):
             self._source.setText("no table to merge in the chosen files")
             return
 
-        # The plan first and on its own, because it is the thing that has to
-        # survive a refusal: a merge that is refused still has to be able to
-        # say WHICH plates clashed and in which databases, and that answer
-        # comes from the plan rather than from the read that refused.
         plan = None
         try:
             plan = describe_merge(paths, chosen)
             frame = read_merged(paths, chosen, plan=plan)
         except MergeRefused as exc:
-            # REFUSED, AND WRITTEN DOWN. The refusal is the screen telling the
-            # user; the record is what makes the decision they then take --
-            # dropping one of the two databases, usually -- answerable six
-            # months later, when the surviving frame can no longer say which
-            # plate1 it is.
             self._source.setText(str(exc))
             LOG.info("merge refused for %s: %s", paths, exc)
             self._record_merge(plan, "refused", str(exc),
@@ -629,10 +583,6 @@ class GateEditorScreen(QWidget):
 
         self._merge_plan = plan
         self._paths = paths
-        # The table pickers follow the merge. Without this a multi-database
-        # session had no table working set at all: the picker was never
-        # filled, so nucleus could not be added to a merged frame, and a
-        # later reload would have read only the FIRST database.
         self._table_picker.blockSignals(True)
         self._table_picker.clear()
         self._table_picker.addItems(names)
@@ -681,17 +631,12 @@ class GateEditorScreen(QWidget):
             self._merge_decision = decision
             record_decision(decision)
         except Exception:
-            # An audit line must never be the reason a screen fails to load.
             LOG.info("could not record the merge decision", exc_info=True)
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Read a CSV or one table of a measurement database, off the GUI
         thread."""
         self._path = path
-        # One database is a working set of one, not a different mode. Keeping
-        # the two in one list is what lets `_reload_working_set` stay a single
-        # code path -- and what stopped a merged session silently reloading
-        # only its first database when a table was added to it.
         if self._paths != [path]:
             self._paths = [path]
             self._rebuild_database_chips()
@@ -718,10 +663,6 @@ class GateEditorScreen(QWidget):
             + (f" · {chosen}" if chosen else "") + "…")
         self._table = chosen
         if chosen and chosen not in self._tables:
-            # A table the working set does not have means a NEW database or a
-            # deliberate switch, so the set restarts. A table it already has
-            # means a reload -- a settings change, say -- and the set has to
-            # survive it, or every sampling change silently unmerges.
             self._tables = [chosen]
             self._rebuild_chips()
         fraction = self._settings.sample_fraction
@@ -756,8 +697,6 @@ class GateEditorScreen(QWidget):
         chosen, frame = payload
         path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
-        # WHAT THE FRAME ACTUALLY IS. Naming one file after a merge of three
-        # would be the screen saying something untrue about the numbers on it.
         head = (f"{len(self._paths)} databases" if len(self._paths) > 1
                 else os.path.basename(path))
         self.set_frame(
@@ -765,9 +704,7 @@ class GateEditorScreen(QWidget):
             label=f"{head}{suffix} · {len(frame):,} rows "
                   f"× {len(frame.columns)} columns")
 
-    # -- settings ---------------------------------------------------------
 
-    # -- context menu ------------------------------------------------------
     def _install_graph_context_menu(self) -> None:
         """Right-click the plot for the things you can do to it.
 
@@ -784,11 +721,6 @@ class GateEditorScreen(QWidget):
             return
         canvas.setContextMenuPolicy(Qt.CustomContextMenu)
         canvas.customContextMenuRequested.connect(self._show_graph_menu)
-        # Cutoffs are re-applied after EVERY render, because a render is what
-        # undoes them: the limits are computed from the data each time, and a
-        # render happens on every gate edit. Riding the canvas's own
-        # `rendered` signal is what makes a cutoff a state of the view rather
-        # than a gesture that survives until the next click.
         canvas.rendered.connect(self._narrow_to_cutoffs)
 
     def graph_menu_items(self):
@@ -814,7 +746,7 @@ class GateEditorScreen(QWidget):
              draw_first),
             ("Copy image to clipboard", has_figure,
              self._copy_graph_to_clipboard, draw_first),
-            (None, True, None, ""),                       # separator
+            (None, True, None, ""),
             ("Reset view", hasattr(canvas, "reset_view"),
              getattr(canvas, "reset_view", None),
              "" if hasattr(canvas, "reset_view") else "Not available here."),
@@ -824,7 +756,6 @@ class GateEditorScreen(QWidget):
         ]
         return items
 
-    # -- the axis gesture --------------------------------------------------
     def axis_column(self, axis: str) -> str:
         """The measurement drawn on ``"x"`` or ``"y"``, or ``""``."""
         box = {"x": self._x, "y": self._y}.get(str(axis))
@@ -905,10 +836,6 @@ class GateEditorScreen(QWidget):
         field = f"{axis}_scale"
         if not hasattr(self._settings, field):
             return
-        # `log_x` / `log_y` are the retired spelling of the same choice, and
-        # `scale_for` prefers the scale only while the scale is linear. Left
-        # set, an old log flag would put the axis back on log the moment the
-        # menu chose linear.
         self.apply_settings(self._settings.replaced(
             **{field: scale, f"log_{axis}": False}))
         self._show_settings_dialog_scale(axis, scale)
@@ -1060,8 +987,6 @@ class GateEditorScreen(QWidget):
                 continue
             action = menu.addAction(label)
             action.setEnabled(bool(enabled))
-            # A greyed row with no reason is a dead end that looks like a
-            # bug, so disabled items say why.
             if why:
                 action.setToolTip(why)
             if callback is not None and enabled:
@@ -1157,7 +1082,6 @@ class GateEditorScreen(QWidget):
         if on:
             error = self.reduce_to_components()
             if error:
-                # The button claimed something that did not happen.
                 self.gates.set_projection_active(False)
                 self.apply_settings(
                     self._settings.replaced(xd_projection=False))
@@ -1182,7 +1106,6 @@ class GateEditorScreen(QWidget):
         self.gates.apply_settings(settings)
         self.search.apply_settings(settings)
         if previous.costs_a_reload(settings) and self._path:
-            # Through the working set, so a reload keeps every merged table.
             if len(self._tables) > 1:
                 self._reload_working_set()
             else:
@@ -1212,8 +1135,6 @@ class GateEditorScreen(QWidget):
             return "Load a table first."
         numeric = [c for c in plottable_columns(frame)
                    if not str(c).startswith(("PC", "UMAP", "tSNE"))]
-        # Nothing picked means every numeric column -- what xD did before
-        # there was a picker, so an existing session is unchanged.
         groups = getattr(self._settings, "reduction_groups", None) or {}
         explicit = getattr(self._settings, "reduction_columns", ()) or ()
         columns = resolve(numeric, groups, explicit=explicit) \
@@ -1356,7 +1277,6 @@ class GateEditorScreen(QWidget):
         """
         return self._settings
 
-    # -- export -----------------------------------------------------------
 
     def save_graph(self, path: str = "") -> str:
         """Write the current graph to a PNG or PDF.
@@ -1409,10 +1329,6 @@ class GateEditorScreen(QWidget):
         if not target.suffix:
             target = target.with_suffix(default_ext)
 
-        # `render_figure_to_png` writes the PNG and, in PDF mode, a vector
-        # PDF beside it. Asking it for a .png next to the chosen .pdf is how
-        # the vector file gets made, so point it at the sibling and hand
-        # back whichever one the user asked for.
         from ..widgets.figure_queue import render_figure_to_png
         png_path = target.with_suffix(".png")
         try:
@@ -1532,8 +1448,6 @@ class GateEditorScreen(QWidget):
                             for value, count in counts.head(6).items())
         path = self._path or ""
         if not path or path.lower().endswith((".csv", ".tsv", ".txt")):
-            # Still useful without a database: the counts are the answer, and
-            # refusing outright would hide them.
             self._source.setText(f"{mode} annotation — {summary} "
                                  f"(not written: this table came from a file)")
             return
@@ -1628,7 +1542,6 @@ class GateEditorScreen(QWidget):
             chip.removed.connect(self.remove_table)
             self._chips.insertWidget(index, chip)
 
-    # -- the database working set (instruction 109) ------------------------
     def database_labels(self) -> List[str]:
         """The name each loaded database carries in the provenance column.
 
@@ -1811,8 +1724,6 @@ class GateEditorScreen(QWidget):
         """
         return self._jobs.is_busy()
 
-    # -- the strategy -----------------------------------------------------
-    # -- filter sets, saved the way gates already are -------------------
 
     def choose_save_filters(self) -> None:
         """Ask where to save the current filters."""
@@ -1913,11 +1824,6 @@ def make_gate_editor_screen(app_key: Optional[str] = None) -> QWidget:
     return GateEditorScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

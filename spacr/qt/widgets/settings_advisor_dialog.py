@@ -51,9 +51,6 @@ _ADVISOR_CHROME_SOURCES = (
     "Apply",
 )
 
-# Exact presentation strings assembled from the headless question records are
-# not visible to the Qt literal extractor. Export them as one deterministic
-# private inventory for the runtime-catalog builder and its coverage tests.
 _SETTINGS_ADVISOR_UI_SOURCES = tuple(dict.fromkeys((
     *_ADVISOR_CHROME_SOURCES,
     *(question.prompt for question in QUESTIONS),
@@ -107,9 +104,6 @@ class QuestionsPage(QWidget):
             widget = self._field_for(question)
             self._fields[question.key] = widget
             form.addRow(QLabel(question.prompt, self), widget)
-            # WHY IT MATTERS, UNDER THE QUESTION. A user who cannot see what
-            # an answer buys cannot answer it well, and the alternative is a
-            # number typed to make the dialog go away.
             form.addRow("", _muted(question.why_it_matters, self))
         outer.addLayout(form)
         outer.addStretch(1)
@@ -220,9 +214,6 @@ class ProposalPage(QWidget):
         self.table.setRowCount(len(advice.chosen))
         for row, choice in enumerate(advice.chosen):
             was = current.get(choice.key, "—")
-            # UNCHANGED IS SAID, NOT HIDDEN. A proposal that listed only the
-            # differences would read as "everything else is wrong", when
-            # most of a tuned panel is usually already right.
             same = _same(was, choice.value)
             cells = (choice.key, _text(was, language),
                      _text(choice.value, language)
@@ -329,7 +320,6 @@ class SettingsAdvisorDialog(QDialog):
         row.addWidget(self.buttons)
         outer.addLayout(row)
 
-    # ------------------------------------------------------------- the pages
 
     def show_the_questions(self) -> None:
         """Return to the question page without discarding current answers."""
@@ -340,11 +330,6 @@ class SettingsAdvisorDialog(QDialog):
 
     def show_the_proposal(self) -> Advice:
         """Compute the advice from the answers and show it."""
-        # THE CHECKED ROUTE (196). A proposal the run would refuse is not a
-        # proposal, and this window's whole promise is that these are the
-        # settings for the user's data -- so what it shows has been asked of
-        # the validators that would stop the run, not just of the
-        # canonicaliser that fills defaults.
         self._advice = advise_that_runs(self._reading,
                                         self.questions.answers())
         self.proposal.show_the_proposal(self._advice, self._current)
@@ -354,7 +339,6 @@ class SettingsAdvisorDialog(QDialog):
         self.apply.setVisible(True)
         return self._advice
 
-    # ------------------------------------------------------------ the result
 
     def advice(self) -> Optional[Advice]:
         """Return the most recently displayed proposal, if any."""

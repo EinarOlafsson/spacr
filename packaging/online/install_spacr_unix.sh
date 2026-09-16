@@ -14,6 +14,19 @@ SPACR_INSTALLER_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "$SPACR_INSTALLER_DIR/generated/installer_messages.sh"
 # @SPACR_INSTALLER_MESSAGES_END@
 
+# Where this script lives. The macOS package's first-launch helper runs it from
+# the package's own support folder.
+SPACR_SOURCE_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+# @SPACR_CLEANUP_MODULE_BEGIN@
+# spacr/install_cleanup.py finds and removes older spaCR installations. A
+# rendered standalone installer carries the module itself between these
+# markers; run from a checkout, the script copies it from the source tree.
+spacr_write_cleanup_module() {
+    cp "$SPACR_SOURCE_DIR/../../spacr/install_cleanup.py" "$1"
+}
+# @SPACR_CLEANUP_MODULE_END@
+
 UV_VERSION="0.11.32"
 PYTHON_VERSION="3.12"
 DEFAULT_SPACR_VERSION="@SPACR_VERSION@"
@@ -262,55 +275,8 @@ printf '  %s: %s\n' "$(spacr_say pytorch_backend)" "$TORCH_BACKEND"
 printf '  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies.\n'
 printf '  %s: %s\n' "$(spacr_say resolver_guards)" "${RESOLVER_GUARDS[*]}"
 
-# WHAT IS ALREADY THERE, SAID OUT LOUD BEFORE ANYTHING IS WRITTEN.
-#
-# A machine can carry two spaCRs -- this private environment, and one the user
-# installed themselves into a conda or venv environment -- and neither can see
-# the other. When they
-# disagree, a reinstall looks like it did nothing: the app keeps launching its
-# own venv at the old version while `pip show spacr` reports the new one, and
-# there is no message anywhere naming both. That cost a maintainer an evening
-# on 2026-09-10, so the installer now says which version it FOUND and which it
-# is ABOUT TO INSTALL, in one line, before it touches anything.
-#
-# INSTALLER ONLY, NEVER THE UPDATER. The in-app upgrade path goes through
-# `spacr.updater.upgrade_command` and never runs this script, so an update
-# stays silent as the maintainer asked. `-t 0` keeps it out of the way of an
-# unattended run, and a dry run says nothing at all.
-existing_spacr_version() {
-    local python="$1/venv/bin/python"
-    [[ -x "$python" ]] || return 1
-    "$python" -c 'import importlib.metadata as m; print(m.version("spacr"))' \
-        2>/dev/null
-}
-
-if [[ "$DRY_RUN" != "1" ]]; then
-    FOUND_VERSION="$(existing_spacr_version "$INSTALL_ROOT" || true)"
-    if [[ -n "$FOUND_VERSION" ]]; then
-        printf '\n'
-        spacr_say old_install_found \
-            "$FOUND_VERSION" "$INSTALL_ROOT" "$PACKAGE_SPEC"
-        if [[ "$FOUND_VERSION" == "$DEFAULT_SPACR_VERSION" ]]; then
-            spacr_say old_install_same
-        fi
-        if [[ -t 0 ]]; then
-            if ask_yes_no "$(spacr_say old_install_remove)"; then
-                # The venv, the private Python and the download cache. Not
-                # the install log or the profile: they are the record of what
-                # happened here and a fresh install rewrites them anyway.
-                rm -rf "$VENV_DIR" "$PYTHON_DIR" "$CACHE_DIR"
-                spacr_say old_install_removed
-            else
-                spacr_say old_install_kept
-            fi
-        else
-            spacr_say old_install_noninteractive
-        fi
-        printf '\n'
-    fi
-fi
-
 if [[ "$DRY_RUN" == "1" ]]; then
+    spacr_say dry_remove_old
     spacr_say dry_download "$UV_INSTALL_URL"
     spacr_say dry_create "$VENV_DIR"
     if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
@@ -384,17 +350,18 @@ install_linux_system_dependencies() {
     fi
 }
 
-mkdir -p "$BOOTSTRAP_DIR" "$PYTHON_DIR" "$CACHE_DIR"
+mkdir -p "$INSTALL_ROOT"
 INSTALL_LOG="$INSTALL_ROOT/install.log"
 touch "$INSTALL_LOG"
 exec > >(tee -a "$INSTALL_LOG") 2>&1
 spacr_say detailed_log "$INSTALL_LOG"
 install_linux_system_dependencies
-installer_tmp="$(mktemp "${TMPDIR:-/tmp}/spacr-uv-installer.XXXXXX")"
+work_dir="$(mktemp -d "${TMPDIR:-/tmp}/spacr-install.XXXXXX")"
+installer_tmp="$work_dir/uv-installer.sh"
 stage_venv="$INSTALL_ROOT/.venv-staging-$$"
 stage_profile="$INSTALL_ROOT/.install-profile-staging-$$.json"
 cleanup() {
-    rm -f "$installer_tmp"
+    rm -rf "$work_dir"
     rm -f "$stage_profile"
     if [[ -d "$stage_venv" ]]; then
         rm -rf "$stage_venv"
@@ -402,22 +369,66 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# find old spaCR files --> delete old spaCR files --> install new spaCR.
+#
+# uv and a private Python are fetched into a temporary folder first, outside
+# every installation: a failed download stops the install here, before
+# anything old is deleted, and the Python that runs the removal is not one of
+# the files it removes. The finder and remover are spacr/install_cleanup.py,
+# the same module the in-app update uses, so a layout added for one is never
+# missed by the other. It never runs an old version's own uninstaller, keeps
+# preferences and user data, and lists environments the user made without
+# touching them.
 spacr_say downloading_uv
 curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
     --retry 3 --retry-all-errors \
     "$UV_INSTALL_URL" --output "$installer_tmp"
-UV_UNMANAGED_INSTALL="$BOOTSTRAP_DIR" UV_NO_MODIFY_PATH=1 \
+UV_UNMANAGED_INSTALL="$work_dir/bootstrap" UV_NO_MODIFY_PATH=1 \
     sh "$installer_tmp"
-if [[ ! -x "$UV_BIN" ]]; then
-    spacr_say uv_missing "$UV_BIN" >&2
+work_uv="$work_dir/bootstrap/uv"
+if [[ ! -x "$work_uv" ]]; then
+    spacr_say uv_missing "$work_uv" >&2
     exit 5
 fi
 
-export UV_PYTHON_INSTALL_DIR="$PYTHON_DIR"
-export UV_CACHE_DIR="$CACHE_DIR"
 export UV_SYSTEM_CERTS=true
+export UV_PYTHON_CACHE_DIR="$work_dir/python-downloads"
 
 spacr_say downloading_python "$PYTHON_VERSION"
+UV_PYTHON_INSTALL_DIR="$work_dir/python" UV_CACHE_DIR="$work_dir/cache" \
+    "$work_uv" python install "$PYTHON_VERSION" --managed-python --no-bin
+cleanup_python="$(UV_PYTHON_INSTALL_DIR="$work_dir/python" \
+    "$work_uv" python find "$PYTHON_VERSION" --managed-python)"
+cleanup_module="$work_dir/install_cleanup.py"
+spacr_write_cleanup_module "$cleanup_module"
+
+# The log of this install, and the lock of the macOS first-launch helper, are
+# not old files.
+cleanup_args=(remove --keep "$INSTALL_LOG" --keep "$INSTALL_ROOT/.installing")
+if [[ "$PLATFORM" == "macos" && -f "$SPACR_SOURCE_DIR/install-for-user.sh" ]]; then
+    # Run by the package's first-launch helper: the package has just put the
+    # new application bundle, its command link and this folder in place.
+    cleanup_args+=(--keep "$SPACR_SOURCE_DIR" --keep "/Applications/spaCR.app"
+                   --keep "/usr/local/bin/spacr")
+fi
+if [[ "$(id -u)" -ne 0 && -t 0 ]] && command -v sudo >/dev/null 2>&1; then
+    # A terminal install may ask for a password to remove the Debian package.
+    cleanup_args+=(--sudo)
+fi
+if [[ -n "${SPACR_CLEANUP_ROOT:-}" ]]; then
+    cleanup_args+=(--root "$SPACR_CLEANUP_ROOT")
+fi
+if ! "$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"; then
+    spacr_say old_copy_not_removed >&2
+    exit 6
+fi
+
+mkdir -p "$BOOTSTRAP_DIR" "$PYTHON_DIR" "$CACHE_DIR"
+mv "$work_uv" "$UV_BIN"
+
+export UV_PYTHON_INSTALL_DIR="$PYTHON_DIR"
+export UV_CACHE_DIR="$CACHE_DIR"
+
 "$UV_BIN" python install "$PYTHON_VERSION" --managed-python --no-bin
 
 spacr_say creating_environment

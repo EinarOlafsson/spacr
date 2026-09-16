@@ -19,6 +19,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from spacr import classifier_evaluation as ce
+
 from spacr import regression_annotation as ra
 
 
@@ -224,16 +226,45 @@ def test_a_score_that_is_missing_or_flat_defines_no_phenotype():
     assert "cut on" in source and np.isfinite(threshold)
 
 
-def test_a_holdout_that_swallows_the_chosen_wells_says_so():
+def test_a_holdout_that_swallows_the_chosen_wells_says_so(monkeypatch):
     """The hold-out wells are drawn before the strategy chooses anything. If
     the draw takes the only well the user named, there is nothing left to
     select from, and the run must say which setting to change instead of
-    selecting zero cells and reporting on them."""
+    selecting zero cells and reporting on them.
+
+    THE SWALLOWING IS FORCED, NOT DRAWN. This used to rely on ``seed=0``
+    happening to produce a hold-out containing ``r1_c1``, which made the
+    test a hostage to scikit-learn's fold enumeration order: on 1.9 the
+    draw takes r1_c1 and the guard fires, on 1.6 it takes r1_c3 and r2_c2
+    instead and the test failed with DID NOT RAISE -- which is what turned
+    the minimum-dependencies job red. ``grouped_split`` already accepts
+    ``hold_out_groups`` for exactly this, so the real splitter still runs
+    and still builds a real report; only the question asked of it is
+    pinned.
+    """
     frame = _screen()
+    real_split = ce.grouped_split
+
+    def swallow_the_named_well(*args, **kwargs):
+        # The group identifiers are composite -- plate, row and column
+        # joined by a separator -- so the one well this test names is found
+        # in the data rather than spelled out here. Exactly r1_c1: holding
+        # out the whole of row 1 would also trip the guard, but for a
+        # broader reason than the one under test.
+        groups = [str(g) for g in np.asarray(args[0], dtype=object)]
+        named = sorted({g for g in groups if g.split("\x1f")[-2:] == ["r1", "c1"]})
+        assert len(named) == 1, (
+            f"expected exactly one group for well r1_c1, got {named} "
+            f"from {sorted(set(groups))}")
+        kwargs["hold_out_groups"] = named
+        return real_split(*args, **kwargs)
+
+    monkeypatch.setattr(ce, "grouped_split", swallow_the_named_well)
     with pytest.raises(ra.AnnotationStrategyError,
                        match="fewer than two cells left"):
         ra.prepare(_request(frame, wells=["r1_c1"], seed=0),
                    ra.TOP_SCORE_RANDOM)
+    monkeypatch.undo()
     kept = ra.prepare(_request(frame, wells=["r1_c1"], seed=1),
                       ra.TOP_SCORE_RANDOM)
     assert kept.chosen.size == 8

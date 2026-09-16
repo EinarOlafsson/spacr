@@ -105,9 +105,6 @@ SCALE_LABELS: Dict[str, str] = {
 MAX_WRAP = 12
 
 
-# ---------------------------------------------------------------------------
-# The spec
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class TrellisSpec:
@@ -160,7 +157,6 @@ class TrellisSpec:
                 f"{MAX_WRAP} panels wide")
         object.__setattr__(self, "wrap", wrap)
 
-    # -- the inner spec, reachable without reaching through --------------
     @property
     def x(self) -> Optional[str]:
         """Forwarded from the wrapped graph spec.
@@ -239,7 +235,6 @@ class TrellisSpec:
         """Both axes shared — the state in which the grid is comparable."""
         return self.scale_x == SCALE_SHARED and self.scale_y == SCALE_SHARED
 
-    # -- edits ------------------------------------------------------------
     def with_graph(self, graph: GraphSpec) -> "TrellisSpec":
         """A copy wrapping a different graph spec.
 
@@ -290,7 +285,6 @@ class TrellisSpec:
         """
         return replace(self, wrap=int(wrap))
 
-    # -- serialisation ----------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
         """This spec as plain data, graph included.
 
@@ -349,9 +343,6 @@ class TrellisSpec:
         return " · ".join(parts)
 
 
-# ---------------------------------------------------------------------------
-# The layout
-# ---------------------------------------------------------------------------
 
 def wrap_positions(count: int, wrap: int) -> Tuple[Tuple[int, int], ...]:
     """Grid positions for ``count`` levels laid out ``wrap`` panels wide.
@@ -461,7 +452,6 @@ class Trellis:
     data: RenderData
     notice: str = ""
 
-    # -- reading the grid --------------------------------------------------
     @property
     def n_panels(self) -> int:
         """Rows × columns — **including** empty panels and blank slots."""
@@ -519,7 +509,6 @@ class Trellis:
         """
         return tuple(p for p in self.panels if p.is_low_n)
 
-    # -- the honesty line --------------------------------------------------
     def axes_are_comparable(self) -> bool:
         """Whether a difference between two panels is a difference in the data."""
         return self.spec.shares_everything
@@ -567,9 +556,6 @@ class Trellis:
         return keep
 
 
-# ---------------------------------------------------------------------------
-# Computing it
-# ---------------------------------------------------------------------------
 
 def _panel_top(frame: pd.DataFrame, spec: GraphSpec, panel: TrellisPanel,
                kind: str, x_edges) -> float:
@@ -677,8 +663,6 @@ def trellis(frame: pd.DataFrame, spec: Optional[TrellisSpec] = None, *,
     placed = _place(grid, spec, notices)
     panels_shape, seats = placed
 
-    # Scales. Colour and size come from the whole grid, always — see the module
-    # docstring. Only the two positional axes take the mode.
     shared = _scales_for_group(data.frame, graph, kinds, seats)
     x_groups, x_keys = _groups(spec.scale_x, seats)
     y_groups, y_keys = _groups(spec.scale_y, seats)
@@ -701,10 +685,6 @@ def trellis(frame: pd.DataFrame, spec: Optional[TrellisSpec] = None, *,
 
     kind = graph.resolved_kind(kinds)
     if kind in (HISTOGRAM, BAR):
-        # The count axis is the y axis, so it shares along the *y* groups —
-        # but each panel's bars are counted with its own x group's edges.
-        # Sharing the value axis of an aggregate is the same rule as sharing a
-        # data axis; forgetting it is the usual way a faceted histogram lies.
         tops = [_panel_top(data.frame, graph, panel, kind, panel.scales.x_edges)
                 for panel in panels]
         for key, positions in y_groups.items():

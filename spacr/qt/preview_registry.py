@@ -1,13 +1,14 @@
 """Which modules get a Live Preview, and how one is attached from outside.
 
-Four modules have a preview — Mask, Measure, Timelapse, Motility — and each
-one costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two
-attribute names in a null-out block, and a row in a toggle table two hundred
-lines further down. The fifth would cost the same, which is why there has
-never been a fifth: the modules that would most obviously benefit from one
-are the two whose entire job is "did the mask come out right" — Cellpose
-Masks and Plaque Assay — and neither was worth touching the shared screen
-for.
+Four modules have a preview: Mask, Measure, Timelapse and Motility. Each one
+costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two attribute
+names in a null-out block, and a row in a toggle table two hundred lines
+further down.
+
+A fifth would cost the same, which is why there has never been one. The two
+modules that would benefit most are the ones whose entire job is "did the mask
+come out right", Cellpose Masks and Plaque Assay, and neither was worth
+touching the shared screen for.
 
 This module is the seam that makes the fifth free. A module declares a
 preview here; the strip above the settings form grows a toggle for it; the
@@ -85,17 +86,6 @@ PREVIEWS: Dict[str, PreviewSpec] = {
         builder="spacr.qt.widgets.motility_preview:"
                 "build_motility_preview_card",
         title="Track preview", owned_by_screen=True),
-    # -- attached through this seam ---------------------------------------
-    #
-    # Both of these run Cellpose over one field and are judged entirely by
-    # whether the mask came out right, which is exactly the question the
-    # Mask panel answers. Their settings even share its names — the panel
-    # reads `diameter`, `flow_threshold` and `CP_prob` straight out of the
-    # dict, which is what makes reuse honest rather than approximate.
-    #
-    # The reverse direction does need translating: the panel speaks Mask's
-    # per-compartment names, and `cell_diameter` means nothing to a module
-    # that has one object type and calls it `diameter`.
     "cellpose_masks": PreviewSpec(
         builder="spacr.qt.screens.app_screen:_build_live_preview_card",
         tooltip="Segment one sampled field with these settings before "
@@ -105,6 +95,9 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             "cell_flow_threshold": "flow_threshold",
             "cell_cellprob_threshold": "CP_prob",
             "model_name": "model_name",
+            # The run loads `custom_model` over `model_name` when it is set;
+            # the panel writes it back only if it was (333).
+            "custom_model": "custom_model",
             "normalize": "normalize",
         }),
     "analyze_plaques": PreviewSpec(
@@ -115,6 +108,10 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             "cell_diameter": "diameter",
             "cell_flow_threshold": "flow_threshold",
             "cell_cellprob_threshold": "CP_prob",
+            # The plaque run segments with `plaque_model`, never
+            # `model_name`; the panel writes it only for a checkpoint the
+            # user picked (333).
+            "plaque_model": "plaque_model",
         }),
 }
 
@@ -336,8 +333,6 @@ def _attach(screen: QWidget, app_key: str,
     if bar is not None and hasattr(bar, "add_trailing_widget"):
         bar.add_trailing_widget(toggle)
     else:
-        # No strip on this screen — put the toggle above the card so the
-        # preview is still reachable rather than permanently hidden.
         toggle.setParent(screen)
         _insert_above_actions(screen, toggle)
     return host

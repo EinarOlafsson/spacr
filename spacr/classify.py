@@ -1,5 +1,34 @@
 """One Classify entry point over both classifier families.
 
+**What it is for.** Classify is the fourth step of the pipeline, after Mask,
+Measure and Annotate. It learns the classes a screen is scored on and
+predicts them for every object. ``classifier_family`` chooses how: ``cv``
+trains an image model on object crops through
+:func:`spacr.deep_spacr.deep_spacr`, and ``ml`` fits a classical model such as
+XGBoost, LightGBM or a random forest on measured features through
+:func:`spacr.ml.generate_ml_scores`.
+
+**What it needs.** A project that has been through Mask and Measure, so that
+``measurements/measurements.db`` and its object crops exist, and a definition
+of the classes. ``dataset_mode`` sets that definition for both families:
+``metadata`` takes classes from plate metadata such as the positive and
+negative control wells, and ``annotation`` takes them from an annotation
+column of ``png_list``, as written by Annotate. The CV family reads crops from
+PNG files or cuts them from the ``merged`` arrays, as ``crop_source`` selects.
+
+**What it produces.** A CV run writes model checkpoints,
+``DL_model_settings.csv``, a dataset tar, a ``top_examples/`` folder with the
+most confident crops of each class and an evaluation bundle with the held-out
+performance and ``leakage.json``, and merges each object's predicted class and
+probability into ``png_list``. An ML run writes per-object predictions,
+feature-importance and permutation tables and a plate heatmap to
+``results/`` beside the measurements database.
+
+**What to do next.** Check the held-out performance, and the leakage verdict
+on the QC screen, before trusting the predictions. Then take per-well scores
+into Regression, which pairs them with the guide counts from Map Barcodes to
+estimate which guides and genes explain the phenotype.
+
 Classify (CV) trains a Torch model on object crops. Classify (ML) fits a
 gradient-boosted model on measured features. They answer the same question --
 *which class is this object* -- and until now they were two modules that
@@ -26,10 +55,6 @@ from typing import Any, Dict, Mapping, Tuple
 #: The two classifier families, in the order the settings panel offers them.
 CLASSIFIER_FAMILIES: Tuple[str, ...] = ("cv", "ml")
 
-# Keep this list beside the family dispatcher: it is the boundary at which a
-# merged settings payload becomes an ML run.  Rejecting a CV backbone here is
-# both cheaper and more accurate than letting it survive database loading and
-# fail deep inside ``ml_analysis``.
 ML_MODEL_TYPES: Tuple[str, ...] = (
     "xgboost", "lightgbm", "catboost", "random_forest", "extra_trees",
     "gradient_boosting", "logistic_regression", "svm", "mlp",
@@ -49,10 +74,6 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
         "model_type", "custom_model_path", "image_size",
         "train_channels", "epochs", "optimizer_type", "schedule", "loss_type",
         "dropout_rate", "init_weights", "amsgrad", "weight_decay",
-        # `gradient_accumulation` retired 2026-09-09 (364): the step count
-        # alone says whether to accumulate, and `steps = 1` IS the off
-        # position. A greying table naming a key that no longer exists
-        # greys nothing.
         "gradient_accumulation_steps",
         "early_stopping_patience", "augment", "pin_memory", "use_checkpoint",
         "resume_checkpoint", "tensorboard", "focal_gamma", "focal_alpha",
@@ -198,23 +219,11 @@ def classify(settings: Mapping[str, Any]) -> Any:
     from .classify_classes import normalize_settings as normalize_classes
     from .training_basis import normalize_settings
 
-    # Two translations, both idempotent and both in one place: the shared
-    # vocabulary (names) and the class definition (what the names select).
-    # Anything downstream reads the current shape only.
-    # Resolve family-owned values before shared-vocabulary normalization.
-    # ``training_basis.normalize_settings`` deliberately treats
-    # model_type_ml as a legacy alias for model_type.  A merged payload has
-    # both keys, though, and the CV value wins that generic alias operation.
-    # Capturing the ML value here prevents maxvit_t (or any other CV
-    # backbone) from being sent to the classical estimator pipeline.
     family = resolve_family(settings)
     ml_model_type = (
         resolve_ml_model_type(settings) if family == "ml" else None
     )
 
-    # FlowView is optional observability.  Its complete setup boundary is
-    # failure-isolated so neither a renderer fault nor malformed trace state
-    # can replace a pipeline result or exception.
     try:
         _begin_flowview_run(settings)
     except Exception:
@@ -223,18 +232,11 @@ def classify(settings: Mapping[str, Any]) -> Any:
     resolved = dict(normalize_classes(normalize_settings(settings)))
 
     if family == "cv":
-        # Refuse a crop source that cannot produce images BEFORE training
-        # starts. Discovering that extract_channels was never set after an
-        # hour of dataset building is a worse failure than one at the door,
-        # and the message names the setting to change.
         from .crop_source import validate as validate_crops
         validate_crops(resolved)
 
     if family == "ml":
         from .ml import generate_ml_scores
-        # The ML pipeline reads only its family-owned spelling.  Assignment,
-        # rather than setdefault, is intentional: ``model_type`` may contain
-        # the simultaneously visible CV choice in a merged settings file.
         resolved["model_type_ml"] = ml_model_type
         if "test_split" in resolved:
             resolved.setdefault("test_size", resolved["test_split"])

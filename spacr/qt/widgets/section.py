@@ -100,16 +100,9 @@ def module_mark(key: str):
 
     try:
         has_art = iconset.bundled_icon_path(key) is not None
-        # The glyph table is the second place a key can have a mark of
-        # its own. Read defensively: without it this degrades to "bundled
-        # artwork only", which is still a real mark rather than a guess.
         glyphs = getattr(iconset, "_NAME_TO_GLYPH", {}) or {}
         if not has_art and key not in glyphs:
             return None
-        # See the note in `fold_strip.py`: `iconset.app_icon` knows
-        # nothing of `_ICON_OVERRIDES`, so a module that borrows
-        # another's picture gets the wrong file. This heading marks a
-        # folded module's settings and must match its button.
         from ..app import _icon_for_app
         mark = _icon_for_app(key)
     except Exception:                                   # noqa: BLE001
@@ -167,27 +160,10 @@ class Section(QFrame):
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(0)
 
-        # Header
         self._header = QToolButton(self)
         self._header.setObjectName("SectionHeader")
-        # A QToolButton reads '&' as a mnemonic marker, so the categories
-        # named "Plate Layout & Controls" and "Embedding & Clustering"
-        # rendered as "PLATE LAYOUT _CONTROLS" -- the ampersand swallowed and
-        # the following letter underlined as an accelerator that goes
-        # nowhere. Section headers are not keyboard shortcuts, so the '&' is
-        # escaped for display. `title()` still answers with the real text.
-        #
-        # THE CATALOG IS KEYED ON THE WRITTEN CATEGORY NAME, so the source is
-        # kept as the caller wrote it and uppercased only on the way to the
-        # button. Looking up a caption that has already been uppercased finds
-        # nothing and leaves the header in English.
         self._title_source = str(title)
         self._title = self._title_source.upper()
-        # The caption is composed -- the category, and for beta or alpha a
-        # maturity badge -- so the generic language pass would ask for the
-        # finished line as one key and never find it. Keep that pass off the
-        # button and rebuild the caption from the translated parts whenever
-        # the language changes.
         self._header.setProperty("i18nSkipText", True)
         self._header.retranslate_dynamic_content = self._refresh_header_text
         self._refresh_header_text()
@@ -196,31 +172,15 @@ class Section(QFrame):
         self._header.setCheckable(True)
         self._header.setChecked(False)
         self._header.setCursor(Qt.PointingHandCursor)
-        # NO POPUP OVER A CATEGORY. The blurb is already shown in the strip
-        # under the actions row whenever a header is hovered, so Qt's own
-        # tooltip put the same words in a second place -- a tall window that
-        # follows the pointer and covers the settings underneath the one
-        # being read. The TEXT stays on the widget: assistive technology
-        # reads `toolTip()`, and so do the checks that assert a category
-        # explains itself. Only the popup is refused.
         self._header.installEventFilter(self)
         self._header.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._sync_header_minimum()
         self._header.clicked.connect(self._on_toggle)
         outer.addWidget(self._header)
 
-        # Body
         self._body = QWidget(self)
         self._body.setObjectName("SectionBody")
         self._form = QFormLayout(self._body)
-        # SET EXPLICITLY, because the default is the STYLE's answer and not
-        # every style answers the same way. Issue 115 reported "field and
-        # setting do not expand with container" on macOS. Measured: with
-        # Fusion, a 1,178 px section gives its QLineEdit 1,115 px; under a
-        # style whose SH_FormLayoutFieldGrowthPolicy is FieldsStayAtSizeHint
-        # -- hostile, but a valid Qt answer, and the shape the reporter's
-        # platform style chose -- the same section gives the field 108 px.
-        # Naming the policy here takes the decision away from the platform.
         self._form.setFieldGrowthPolicy(
             QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self._form.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -236,9 +196,6 @@ class Section(QFrame):
         if expanded:
             self.set_expanded(True)
 
-    # ------------------------------------------------------------------
-    # API
-    # ------------------------------------------------------------------
     def add_row(
         self,
         label: Union[str, QWidget],
@@ -303,19 +260,6 @@ class Section(QFrame):
         if isinstance(label, QWidget):
             label_row.addWidget(label)
         else:
-            # AN ELIDING LABEL, NOT A BARE ONE, and the difference only shows
-            # in a translation. The label column is as wide as its widest
-            # label's hint, and every settings label in it elides -- so the
-            # column is capped, and a plain QLabel wider than the cap is cut
-            # off mid-glyph rather than shortened. Measured on Regression in
-            # German: "Herunterladen" wants 83 px, the column grants 58, and
-            # English "Download" needs 57 and fits exactly, which is why it
-            # was invisible until the sweep of instruction 350 ran in a
-            # second locale.
-            #
-            # `ElidingLabel.sizeHint` still asks for the FULL width, so where
-            # the column can afford it nothing is elided at all; the tooltip
-            # carries the whole word for when it cannot.
             from .eliding import ElidingLabel
 
             text = str(label)
@@ -323,11 +267,6 @@ class Section(QFrame):
             prose.setToolTip(text)
             label_row.addWidget(prose)
         if at_top:
-            # `insertRow(0, ...)`, the same mechanism :meth:`add_prose`
-            # uses. Asked for on 2026-09-02 for Regression's Input Tables:
-            # "the input tables sould start with download buttons not end
-            # wit them" -- a row of buttons that fills the fields below it
-            # reads as a footer when it sits under them.
             self._form.insertRow(0, form_label, widget)
         else:
             self._form.addRow(form_label, widget)
@@ -434,9 +373,6 @@ class Section(QFrame):
             row = QHBoxLayout(self._header)
             row.setContentsMargins(0, 0, SPACING["md"], 0)
             row.setSpacing(0)
-            # The heading's own text is painted by the button, under this
-            # layout; the stretch keeps the mark off it and against the
-            # trailing edge.
             row.addStretch(1)
         return row
 
@@ -515,12 +451,6 @@ class Section(QFrame):
         text = tr(self._title_source, language).upper()
         if self._maturity != "stable":
             stage = tr(STAGE_LABEL[self._maturity], language).upper()
-            # Category names historically carried their own ``(BETA)`` or
-            # were simply named ``Beta``. Maturity styling then appended a
-            # second ``· BETA`` badge, producing ``BETA · BETA``. Keep the
-            # original title for configuration lookups, but render one badge.
-            # Both spellings are stripped: a translated caption can still
-            # carry the English badge if the catalog left that word alone.
             for badge in dict.fromkeys(
                     (stage, STAGE_LABEL[self._maturity].upper())):
                 text = re.sub(
@@ -544,7 +474,10 @@ class Section(QFrame):
         :param event: the event.
         :returns: True to stop a tooltip from being shown.
         """
-        if watched is self._header:
+        # getattr, not attribute access: Qt can deliver an event to this
+        # filter while __init__ is still building the header, and on CI
+        # that raised AttributeError inside the event loop.
+        if watched is getattr(self, "_header", None):
             if event.type() == QEvent.ToolTip:
                 return True
             if event.type() in (QEvent.FontChange, QEvent.StyleChange,
@@ -621,16 +554,10 @@ class Section(QFrame):
         """
         wanted = max(SECTION_HEADER_MIN_PX,
                      self._header.sizeHint().height())
-        # Guarded: `setMinimumHeight` invalidates the layout, and this runs
-        # from inside style and font delivery, where an unconditional write
-        # would post a layout request on every polish.
         if self._header.minimumHeight() != wanted:
             self._header.setMinimumHeight(wanted)
 
     def _refresh_tooltip(self) -> None:
-        # Stable is the normal case, so preserve existing curated tooltips
-        # byte-for-byte. Beta/alpha need the caution text because their colour
-        # carries information the old tooltip did not.
         """Rebuild the header tooltip, adding the caution text off stable.
 
         Stable is the normal case and keeps its curated tooltip byte for byte;
@@ -645,7 +572,6 @@ class Section(QFrame):
         parts = [part for part in (self._hint, note) if part]
         self._header.setToolTip("\n\n".join(parts))
 
-    # ------------------------------------------------------------------
     def _pre_resolve_the_scrollbar(self, scroll) -> None:
         """Decide the scrollbar BEFORE the body moves, not during.
 
@@ -706,8 +632,6 @@ class Section(QFrame):
 
         scroll = scroll_host(self)
         if scroll is None:
-            # A section outside a scroll area -- a dialog, a test. Nothing to
-            # confine, and nothing that could flicker past the section.
             self._body.setVisible(self._expanded)
             self.toggled.emit(self._expanded)
             return
@@ -732,10 +656,6 @@ class Section(QFrame):
                         QApplication.sendPostedEvents(
                             None, QEvent.LayoutRequest)
                 finally:
-                    # Restored while updates are still off, so putting the
-                    # policy back cannot itself be a visible step. The layout
-                    # has settled by now, so `AsNeeded` reaches the same
-                    # answer the pre-resolution did.
                     if saved_policy is not None:
                         scroll.setVerticalScrollBarPolicy(saved_policy)
                     scroll.setUpdatesEnabled(True)

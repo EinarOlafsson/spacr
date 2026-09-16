@@ -158,9 +158,6 @@ QLabel#HitListSummary[problem="true"] {{
 """
 
 
-# ``replace=True`` because this module owns the name: a reimport (a test that
-# reloads it, a plugin that pulls it in twice) must re-register the same block
-# rather than raise on the duplicate and leave the screen unstyled.
 register_widget_qss("HitListFilters", _hit_list_qss, replace=True)
 
 
@@ -217,17 +214,11 @@ class HitListScreen(QWidget):
             self._set_summary(
                 "Choose a regression results folder — the one holding "
                 "results_gene.csv.", problem=False)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "hit_list")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction -----------------------------------------------------
 
     def _build_ui(self) -> None:
         """Picker, filter bar, summary strip, then the table."""
@@ -277,11 +268,6 @@ class HitListScreen(QWidget):
         self._q_spin.setRange(0.0, 1.0)
         self._q_spin.setDecimals(3)
         self._q_spin.setSingleStep(0.01)
-        # Opens at 1.0 — the whole ranked list — rather than at the FDR. The
-        # ranking is the deliverable; the cut is the user's decision, and a
-        # screen that silently opens pre-filtered hides both the controls
-        # (whose position IS the QC) and the near-misses a reader wants to
-        # see. The summary strip still reports how many clear the FDR.
         self._q_spin.setValue(1.0)
         self._q_spin.setToolTip(
             "Benjamini-Hochberg FDR ceiling. 1.0, the default, shows every "
@@ -376,14 +362,10 @@ class HitListScreen(QWidget):
         self._table.setHeaderLabels(list(COLUMNS))
         self._table.setRootIsDecorated(False)
         self._table.setAlternatingRowColors(True)
-        # The list arrives ranked, and a third click on a header brings that
-        # ranking back -- so sorting costs the default order nothing.
         install_sorting(self._table)
         header = self._table.header()
         header.setStretchLastSection(True)
         header.setSectionResizeMode(2, QHeaderView.Stretch)
-        # The hit list IS the page below the filter bar. The bar is the
-        # only panel on this screen and the tree does not sit on it.
         mark_surface(self._table)
         outer.addWidget(self._table, 1)
 
@@ -392,7 +374,6 @@ class HitListScreen(QWidget):
         self._legend.setWordWrap(True)
         outer.addWidget(self._legend)
 
-    # -- loading ----------------------------------------------------------
 
     def load_folder(self, folder: str) -> None:
         """Build the hit list for ``folder``, off the GUI thread."""
@@ -435,16 +416,11 @@ class HitListScreen(QWidget):
         """Take a freshly built list. Runs on the GUI thread."""
         self._all = hit_list
         if hit_list is None:
-            # THE WORKER FAILED. This runs on the GUI thread from a
-            # finished signal, so an AttributeError here surfaces as an
-            # unhandled exception in the Qt event loop and leaves the
-            # screen showing the last list it had.
             self._set_summary("The hit list could not be built.", problem=True)
             return
         self.hits_loaded.emit(hit_list)
         self._apply_filters()
 
-    # -- filtering --------------------------------------------------------
 
     def current_filters(self) -> Dict[str, Any]:
         """The filter arguments the controls currently spell out.
@@ -459,9 +435,6 @@ class HitListScreen(QWidget):
             arguments["max_q"] = float(self._q_spin.value())
         if self._q_spin.value() < 1.0 and self._all is not None and \
                 self._all.ranking == "selection-frequency":
-            # The same dial means the opposite thing for a backend that ranks
-            # by selection frequency: there is no q-value to be under, and a
-            # threshold of 0.6 is a floor on how often the guide was chosen.
             arguments["min_selection"] = float(self._q_spin.value())
         if self._effect_spin.value() > 0.0:
             arguments["min_effect"] = float(self._effect_spin.value())
@@ -523,7 +496,6 @@ class HitListScreen(QWidget):
                     for flag in hit.flags))
             self._table.addTopLevelItem(item)
 
-    # -- export -----------------------------------------------------------
 
     def export(self, path: str, fmt: str = "csv") -> str:
         """Write the list as the filters currently stand.
@@ -565,10 +537,6 @@ class HitListScreen(QWidget):
         if path:
             self.export(path, fmt)
 
-    # MODAL IS A REASON NOT TO OPEN ONE IN A TEST, not a reason to leave
-    # these untested: everything that matters happens after the dialog
-    # returns. Driven by stubbing the Qt static, in
-    # tests/qt/test_the_modal_slots_do_what_the_dialog_returns.py.
     def _on_export_csv(self) -> None:
         """Ask where to write the hit list and export it as CSV."""
         self._ask_and_export("csv", "Export hit list", "CSV (*.csv)")
@@ -607,7 +575,6 @@ class HitListScreen(QWidget):
             "phenotype": "",
         })
 
-    # -- slots ------------------------------------------------------------
 
     def _on_folder_entered(self) -> None:
         """Load whatever was typed into the folder box."""
@@ -642,7 +609,6 @@ class HitListScreen(QWidget):
             style.unpolish(self._summary)
             style.polish(self._summary)
 
-    # -- lifecycle --------------------------------------------------------
 
     def is_busy(self) -> bool:
         """True while a hit list is still being built."""
@@ -671,9 +637,6 @@ def _number(value: Any) -> str:
     return f"{number:.4g}"
 
 
-# ---------------------------------------------------------------------------
-# Construction
-# ---------------------------------------------------------------------------
 
 def connect_investigation(screen, host) -> bool:
     """Connect a hit list's investigation request to its host workbench.
@@ -706,19 +669,3 @@ def make_hit_list_screen(app_key: Optional[str] = None, host=None) -> QWidget:
     return screen
 
 
-# NO REGISTRY ROW. The hit list is not a tile: it arrives as the **Hits
-# tab** on Regression's results panel, loaded with the run whose
-# coefficients are on screen, and as a button on that masthead which raises
-# the tab -- :data:`spacr.qt.screens.regression.FOLDED_APPS` and
-# :class:`spacr.qt.screens.regression.HitsOpener`. A tile would have been a
-# second front door onto the same table, opening it empty and asking the
-# user to find the results folder the host already knows.
-#
-# Everything the row used to fan out has a home that outlives it: the
-# button's name, sentence and alpha maturity colour in
-# :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, the API link in
-# ``settings_model._APP_API_MODULE``, the headless answer in
-# :data:`spacr.cli.INTERACTIVE_ONLY`, and the nine translated names in the
-# shipped i18n catalogs. The strings above stay because they are this
-# module's own description, and because those homes are asserted against
-# them.

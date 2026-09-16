@@ -110,14 +110,9 @@ QPushButton#DataManagerDelete:disabled {{
 """
 
 
-# ``replace=True`` because this module owns the name: a reimport must
-# re-register the same block rather than raise and leave the screen unstyled.
 register_widget_qss("DataManager", _data_manager_qss, replace=True)
 
 
-# ---------------------------------------------------------------------------
-# The confirmation
-# ---------------------------------------------------------------------------
 
 class ConfirmDeleteDialog(QDialog):
     """The last thing between a plan and an irreversible deletion.
@@ -205,8 +200,6 @@ class ConfirmDeleteDialog(QDialog):
         self.listing = QPlainTextEdit(self)
         self.listing.setObjectName("DataManagerFileList")
         self.listing.setReadOnly(True)
-        # The heading only. `describe()` walks the project, and this is the
-        # GUI thread.
         self.listing.setPlainText(
             f"{self._heading()}\n\nFiles:\n{self.READING}")
         outer.addWidget(self.listing, 1)
@@ -214,7 +207,6 @@ class ConfirmDeleteDialog(QDialog):
         self.acknowledged = Toggle(
             "I have read the list above and want these files deleted", self)
         self.acknowledged.setObjectName("DataManagerAcknowledge")
-        # Nobody can have read a list that is not on screen yet.
         self.acknowledged.setEnabled(False)
         outer.addWidget(self.acknowledged)
 
@@ -229,8 +221,6 @@ class ConfirmDeleteDialog(QDialog):
         self.acknowledged.toggled.connect(self._on_acknowledged)
         outer.addWidget(self.buttons)
         self.resize(760, 560)
-        # Last, because its completion handler touches every widget above
-        # and, unthreaded, it runs before this line returns.
         self._start_the_file_list(threaded)
 
     def describe(self) -> str:
@@ -276,7 +266,6 @@ class ConfirmDeleteDialog(QDialog):
                          f"cover all of them.")
         return "\n".join(lines)
 
-    # -- the file list, off the GUI thread ---------------------------------
 
     def _start_the_file_list(self, threaded: bool) -> None:
         """Enumerate the files behind the dialog instead of in front of it.
@@ -295,8 +284,6 @@ class ConfirmDeleteDialog(QDialog):
         :param threaded: False to walk inline, for tests.
         """
         if not self.plan.candidates:
-            # Nothing to walk. `file_list` returns an empty tuple without
-            # touching the disk, and a thread costs more than the answer.
             self._show_the_files(((), False))
             return
 
@@ -330,8 +317,6 @@ class ConfirmDeleteDialog(QDialog):
         :param message: the worker's one-line message.
         """
         if self._runner is None:
-            # The dialog has already let go of the walk; this is a failure
-            # arriving after the shutdown that abandoned it.
             return
         self.listing.setPlainText(
             f"{self._heading()}\n\nFiles:\n"
@@ -368,9 +353,6 @@ class ConfirmDeleteDialog(QDialog):
             try:
                 runner.shutdown(self.TEARDOWN_GRACE_MS)
             except RuntimeError:
-                # The runner's C++ half has gone with the dialog. The
-                # threads are still drained by `job_runner.shutdown_all`
-                # on the way out of the application.
                 pass
 
     def done(self, result: int) -> None:
@@ -406,9 +388,6 @@ class ConfirmDeleteDialog(QDialog):
         self.buttons.button(QDialogButtonBox.Ok).setEnabled(bool(checked))
 
 
-# ---------------------------------------------------------------------------
-# The screen
-# ---------------------------------------------------------------------------
 
 class DataManagerScreen(QWidget):
     """Disk usage, pruning and archiving for one project.
@@ -469,12 +448,9 @@ class DataManagerScreen(QWidget):
         self._update_controls()
         if self._root:
             self.scan()
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "data_manager")
 
-    # -- construction -----------------------------------------------------
 
     def _build_head(self) -> QHBoxLayout:
         """Build the project row and the refresh control."""
@@ -669,7 +645,6 @@ class DataManagerScreen(QWidget):
         layout.addWidget(note)
         return page
 
-    # -- project ----------------------------------------------------------
 
     @property
     def project(self) -> str:
@@ -726,8 +701,6 @@ class DataManagerScreen(QWidget):
         """
         if not remembered:
             return os.path.expanduser("~")
-        # `exists(want_dir=True)`, not `isdir()`, only so the default can be
-        # chosen per path; the question and the cache key are identical.
         if path_probe.exists(remembered, want_dir=True,
                              default=remembered in self._picked_dirs):
             return remembered
@@ -752,8 +725,6 @@ class DataManagerScreen(QWidget):
         chosen = QFileDialog.getExistingDirectory(
             self, "Choose a spaCR project", self._dialog_start(self._root))
         if chosen:
-            # The dialog has just proved this folder is there, so record it
-            # rather than have the cache learn it again.
             self._remember_picked(chosen)
             self.set_project(chosen)
 
@@ -769,9 +740,6 @@ class DataManagerScreen(QWidget):
 
     def choose_destination(self) -> None:
         """Ask where an archive should go."""
-        # Same reasoning as choose_project, and the same two calls: the last
-        # destination is a hint about where to open, never a reason to wait
-        # on a filesystem.
         chosen = QFileDialog.getExistingDirectory(
             self, "Archive this project into",
             self._dialog_start(self._destination))
@@ -795,7 +763,6 @@ class DataManagerScreen(QWidget):
         self.total_label.setText("—")
         self.freed_label.setText("No plan yet.")
 
-    # -- jobs -------------------------------------------------------------
 
     def _run(self, fn, on_done) -> bool:
         """Run ``fn`` off the GUI thread and hand the result to ``on_done``.
@@ -840,9 +807,6 @@ class DataManagerScreen(QWidget):
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box, journal=False)
-        # Strong references: PySide6 will not keep the worker alive through
-        # the started→run connection alone, and a QThread garbage-collected
-        # while still running takes the process down with it.
         self._jobs.append((thread, worker))
         self._pending = (box, on_done)
         worker.error.connect(self._on_worker_error_text)
@@ -920,16 +884,6 @@ class DataManagerScreen(QWidget):
             style.polish(self.note_label)
 
     def _update_controls(self) -> None:
-        # self._root is whatever folder the user picked or dropped, and this
-        # runs on construction, on every checkbox change and on every job
-        # settle. A bare os.path.isdir here was therefore a stat on the GUI
-        # thread with a user-supplied path: measured 2026-09-04, one on a
-        # sleeping /nas_mnt autofs share had not returned after twenty
-        # seconds, and a stalled event loop is a freeze with no traceback.
-        # Optimistic while the probe is out -- everything these controls
-        # start hands the real question to a worker, which reports a bad root
-        # through _on_job_error -- and _follow_path_probes greys them once the
-        # answer lands.
         """Enable the actions for whatever root is set.
 
         The root is a user-supplied path and this runs on construction, on every
@@ -982,27 +936,16 @@ class DataManagerScreen(QWidget):
                 `_update_controls` reads it back from the cache along with
                 everything else it depends on.
             """
-            # `getattr`, not `self._root`, and for the reason spelled out in
-            # `spacr.qt.dnd._DropzoneFilter.eventFilter`: PySide6 CLEARS the
-            # Python wrapper's __dict__ when the C++ widget goes, so a plain
-            # attribute read on a dead screen raises AttributeError rather
-            # than the RuntimeError this guard is named for -- and it raises
-            # it inside the Qt event loop, where no caller can catch it.
             try:
                 if getattr(self, "_root", None) != path:
                     return
                 self._update_controls()
             except RuntimeError:
-                # The screen has gone; the signal outlived it. The enable
-                # pass touches widgets, so this is where that lands.
                 pass
 
-        # Held on the instance because the connection alone does not keep a
-        # plain closure alive.
         self._path_probe_redraw = redraw
         path_probe.probes.answered.connect(redraw)
 
-    # -- scanning ---------------------------------------------------------
 
     def selected_kinds(self) -> List[str]:
         """The kinds the prune tab is currently asking about."""
@@ -1020,12 +963,6 @@ class DataManagerScreen(QWidget):
     def scan(self) -> bool:
         """Measure the project. Off the GUI thread unless ``threaded=False``."""
         root = self._root
-        # A guard against no project at all, not an authority on this one:
-        # dm.scan_project runs in the worker and is what genuinely fails on a
-        # root that is not there. exists(want_dir=True) rather than
-        # path_probe.isdir because isdir answers False for a path nobody has
-        # probed yet, which would refuse the very first scan of a folder the
-        # user just chose.
         if not root or not path_probe.exists(root, want_dir=True,
                                              default=True):
             self._note("Choose a project folder first.", warn=True)
@@ -1084,14 +1021,12 @@ class DataManagerScreen(QWidget):
                 dm.human_bytes(row.registered_bytes),
                 dm.human_bytes(row.unregistered_bytes), note))
 
-    # -- pruning ----------------------------------------------------------
 
     def plan_prune(self) -> bool:
         """Work out what could be deleted. Deletes nothing."""
         root = self._root
         kinds = self.selected_kinds()
         usage = self._usage
-        # Same guard, same reasoning as scan(): never a stat on this thread.
         if not root or not path_probe.exists(root, want_dir=True,
                                              default=True):
             self._note("Choose a project folder first.", warn=True)
@@ -1138,9 +1073,6 @@ class DataManagerScreen(QWidget):
         plan = self._plan
         if plan is None or not plan.candidates:
             return False
-        # The screen's own threading, so a test that drives this screen
-        # synchronously gets a dialog whose file list is already filled in
-        # rather than one that is still reading the disk.
         dialog = ConfirmDeleteDialog(plan, self, threaded=self._threaded)
         if dialog.exec() != QDialog.Accepted:
             self._note("Nothing was deleted.")
@@ -1174,7 +1106,6 @@ class DataManagerScreen(QWidget):
                    f"be made again.")
         self.scan()
 
-    # -- archiving --------------------------------------------------------
 
     def plan_archive(self) -> bool:
         """Work out what an archive would move. Moves nothing."""
@@ -1234,7 +1165,6 @@ class DataManagerScreen(QWidget):
                    f"{result.ledger_path}.")
         self.scan()
 
-    # -- tables -----------------------------------------------------------
 
     @staticmethod
     def _append(table: QTableWidget, values) -> int:
@@ -1259,8 +1189,6 @@ class DataManagerScreen(QWidget):
             try:
                 path_probe.probes.answered.disconnect(redraw)
             except (RuntimeError, TypeError):
-                # Already gone. A screen that refused to close over its own
-                # housekeeping would be the worse defect.
                 pass
             self._path_probe_redraw = None
         for thread, _worker in list(self._jobs):
@@ -1268,9 +1196,6 @@ class DataManagerScreen(QWidget):
                 thread.quit()
                 thread.wait(2000)
             except RuntimeError:
-                # The thread's C++ half has already gone. A close handler
-                # that let this out would leave the screen half-closed,
-                # and the job list below is cleared either way.
                 pass
         self._jobs.clear()
         super().closeEvent(event)

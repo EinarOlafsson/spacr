@@ -108,8 +108,6 @@ def held(path: Any) -> Optional[pd.DataFrame]:
     try:
         return _OFFERED.get(key_for(path))
     except TypeError:
-        # A caller that passed something with no path at all asked nothing of
-        # this module; it gets the same answer as a path nobody offered.
         return None
 
 
@@ -215,9 +213,6 @@ def stage(frame: pd.DataFrame, folder: Any, stem: str, *,
         os.replace(temporary_path, path)
         temporary_path = None
     except BaseException:
-        # A failed stage did not publish the durable half of this contract.
-        # Roll back this offer exactly: a failed replacement must not erase a
-        # producer's pre-existing, successfully published handoff.
         if temporary_path is not None:
             try:
                 os.unlink(temporary_path)
