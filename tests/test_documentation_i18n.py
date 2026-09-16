@@ -807,6 +807,137 @@ def test_api_repair_keeps_a_source_bound_reviewed_false_friend(
     assert repaired == {"spacr.example": target}
 
 
+def _integration_review_record(language, label):
+    """Read one actual source-bound record from the item-406 incident."""
+    path = (ROOT / "docs" / "i18n" / "reviewed" / "api" / language
+            / "2026-09-15-integration-review.json")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return next(record for record in payload["records"]
+                if record["label"] == label and not record.get("retired"))
+
+
+@pytest.mark.parametrize("catalog_state", ["missing", "current"])
+@pytest.mark.parametrize("language,label,rewrite_passes", [
+    pytest.param("pt", "spacr.qt.widgets.outlier_model#27", False,
+                 id="portuguese-rewrite-rejected"),
+    pytest.param("de", "spacr.schema.add_screen_column#3", True,
+                 id="german-rewrite-still-passes"),
+])
+def test_api_repair_publishes_reviewed_target_verbatim_after_contextual_rewrite(
+    tmp_path, monkeypatch, capsys, catalog_state, language, label, rewrite_passes,
+):
+    """An accepted review is neither rewritten nor replaced with English.
+
+    The Portuguese review's ``poço fora`` becomes ``bem fora`` and fails
+    the semantic gate. The German review is changed but still passes: an
+    unresolved-count assertion alone would miss that regression entirely.
+    Both targets come from the actual source-bound integration reviews.
+    """
+    import argparse
+
+    import build_documentation_i18n as builder
+
+    record = _integration_review_record(language, label)
+    source, target = record["source"], record["translation"]
+    context = builder._api_translation_source(source)
+    assert record["context"] == context
+    key = label.rpartition("#")[0]
+    docs = {key: source}
+    reviewed = tmp_path / "reviewed"
+    language_dir = reviewed / language
+    language_dir.mkdir(parents=True)
+    # The fixture contains just the incident paragraph, so its index is zero;
+    # its actual English, source hash, context and reviewed target are intact.
+    evidence_path = language_dir / "incident.json"
+    evidence_path.write_text(json.dumps({
+        "schema": 1, "language": language,
+        "records": [{**record, "label": f"{key}#0"}],
+    }), encoding="utf-8")
+    evidence_bytes = evidence_path.read_bytes()
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+
+    assert builder.reviewed_api_block_translations(docs, language) == {source: target}
+    rewritten = builder._contextualize(target, language, source)
+    assert rewritten != target
+    assert all(builder._reviewed_api_block_valid(text, rewritten, language)
+               for text in (source, context)) is rewrite_passes
+    if not rewrite_passes:
+        assert "scientific-well-as-adverb" in builder._semantic_false_friends(
+            source, rewritten, language,
+        )
+    if catalog_state == "current":
+        builder.write_language(docs, language, {key: target})
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("accepted reviewed evidence must not be decoded")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    repaired = builder.repair_api_translations(
+        docs, language, tmp_path / "models", argparse.Namespace(),
+    )
+    assert repaired == {key: target}
+    assert "unresolved=0" in capsys.readouterr().out
+    builder.write_language(docs, language, repaired)
+    published = json.loads((api_dir / f"{language}.json").read_text(encoding="utf-8"))
+    assert published["symbols"][key]["text"] == target
+    assert published["symbols"][key]["source_sha256"] == record["source_sha256"]
+    assert evidence_path.read_bytes() == evidence_bytes
+
+
+@pytest.mark.parametrize("catalog_state", ["missing", "current"])
+def test_api_repair_still_contextualizes_unreviewed_targets(
+    tmp_path, monkeypatch, capsys, catalog_state,
+):
+    """The verbatim exemption belongs to accepted evidence, not all targets."""
+    import argparse
+
+    import build_documentation_i18n as builder
+
+    language = "de"
+    record = _integration_review_record(language, "spacr.schema.add_screen_column#3")
+    source, target = record["source"], record["translation"]
+    key = "spacr.example"
+    docs = {key: source}
+    context = builder._api_translation_source(source)
+    rewritten = builder._contextualize(target, language, source)
+    assert rewritten != target
+    assert all(builder._api_block_valid(text, rewritten, language)
+               for text in (source, context))
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    # Deliberately omit the source-bound evidence. The same words in a
+    # catalog or decoder checkpoint do not acquire reviewed provenance.
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", tmp_path / "no_reviews")
+    if catalog_state == "current":
+        builder.write_language(docs, language, {key: target})
+    model_root = tmp_path / "models"
+    cache_dir = model_root / ".spacr_translation_cache"
+    cache_dir.mkdir(parents=True)
+    cache_path = cache_dir / f"{language}.json"
+    cache_path.write_text(json.dumps({
+        f"{builder.API_BLOCK_CACHE_NAMESPACE}\0{context}": target,
+    }), encoding="utf-8")
+    cache_bytes = cache_path.read_bytes()
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("valid catalog/cache candidates must avoid decoding")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    repaired = builder.repair_api_translations(
+        docs, language, model_root, argparse.Namespace(),
+    )
+    assert repaired == {key: rewritten}
+    assert "unresolved=0" in capsys.readouterr().out
+    builder.write_language(docs, language, repaired)
+    published = json.loads((api_dir / f"{language}.json").read_text(encoding="utf-8"))
+    assert published["symbols"][key]["text"] == rewritten
+    assert cache_path.read_bytes() == cache_bytes
+
+
 def test_api_audit_prefers_exact_source_bound_review_to_contextual_rewrite():
     import build_documentation_i18n as builder
 

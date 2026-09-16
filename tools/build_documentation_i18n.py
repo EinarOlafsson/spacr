@@ -6233,14 +6233,17 @@ def repair_api_translations(
         for index in pending_indexes:
             source_block = source_blocks[index]
             contextual_source = _api_translation_source(source_block)
-            candidate = _contextualize(
-                reviewed_blocks.get(
-                    source_block,
+            if source_block in reviewed_sources:
+                # The loader already bound this exact target to its source
+                # and context. Contextualizing it again can silently rewrite
+                # accepted review or turn it into an English fallback.
+                candidate = reviewed_blocks[source_block]
+            else:
+                candidate = _contextualize(
                     generated.get(source_block, source_block),
-                ),
-                language,
-                source_block,
-            )
+                    language,
+                    source_block,
+                )
             # A failed contextual decode must not become an apparently valid
             # translation merely because its English fallback differs from
             # the original wording.  Validate both semantic contracts: the

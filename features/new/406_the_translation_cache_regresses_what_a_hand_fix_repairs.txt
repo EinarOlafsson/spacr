@@ -551,3 +551,28 @@ is applied, or be validated without `_contextualize`, the exemption
 `_api_contextual_repair_required` already gives an exact reviewed value.
 Until then, after any `--repair-api-blocks`, check every reviewed record word
 for word, not only the unresolved count.
+
+2026-09-15 -- REVIEWED REPAIR TARGETS NOW LEAVE THE CLOSING LOOP VERBATIM
+------------------------------------------------------------------------
+
+Codex reproduced both outcomes above with the actual source-bound Portuguese
+outlier_model#27 and German add_screen_column#3 records. Six cases cover
+missing/current catalogs and unreviewed positive controls. Before the fix:
+three failed and three passed; the failures were English replacing the
+Portuguese review and a gate-passing German rewrite replacing its review.
+
+The closing pending-block loop now takes accepted reviewed targets verbatim.
+Unreviewed candidates still pass through contextualization, and both source
+and contextual validation remain required. Neither the cache nor evidence
+files are rewritten by this change. Tests forbid model decoding and assert
+the exact text actually written to the output catalog.
+
+After the fix, all six cases pass within test_documentation_i18n.py: 146
+passed, with one separate artifact-freshness failure listing exactly the
+seven public docstrings currently being changed for item 418. That artifact
+requires 418's catalog regeneration, not a weaker freshness test.
+
+This is a checkpoint, not completion of item 406: the ordinary-build
+historical paragraph-reuse gap above remains open. Runtime cache precedence
+and reviewed API repair are now fixed; ordinary API builds still need the
+same proof-bound history preservation already available in repair mode.
