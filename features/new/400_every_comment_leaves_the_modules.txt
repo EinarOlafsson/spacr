@@ -170,3 +170,48 @@ VERIFIED BEFORE THE PUSH, through `run_pytest_batches.py` with CI's own
 invocation: 7 failures, every one of which fails identically on UNSTRIPPED
 nightly or is a load artefact. Zero caused by the strip.
 
+
+--------------------------------------------------------------------------------
+THE "DONE" ABOVE IS WRONG -- REOPENED 2026-09-16 BY MEASUREMENT
+--------------------------------------------------------------------------------
+
+The maintainer looked at setup.py, saw it was full of comments, and asked
+whether this was ever done. It was not, and the status above overstates what
+landed. Measured on nightly today, with `tokenize`, counting COMMENT tokens
+rather than lines that start with `#`:
+
+  * spacr/ holds 17,101 comments, not the "71 # lines, all inside string
+    literals" claimed above.
+  * The strip commit d0334c103 IS an ancestor of nightly, so it landed -- but
+    the big Qt files were never stripped by it. spacr/qt/widgets/ambient.py
+    had 797 comments AT THAT COMMIT and has 802 now; preferences.py had 473
+    then and 515 now. This is not drift from later work; those files were
+    never touched.
+  * setup.py was never in scope at all: 1,156 of its 1,378 lines were
+    comments. It is stripped now, in this commit, and its notes are at
+    docs/notes/setup.md.
+
+WHY THE PACKAGE-WIDE RUN WAS REVERTED TODAY, AND WHAT THE TOOL MUST LEARN
+
+Running `tools/extract_source_notes.py spacr --execute` removes comments that
+are INSTRUCTIONS TO THE GATES, not prose:
+
+    -def changeEvent(self, event) -> None:            # noqa: N802
+    -from ..fractal_defaults import (GPU_ONLY_PATTERNS,  # noqa: E402
+    -raise AssertionError(                            # pragma: no cover
+    -from . import illumination as _illumination  # noqa: E402,F401
+
+Five such comments went in one run, and ruff then reported 1,460 errors. The
+AST-equality check cannot catch this: removing `# noqa` does not change the
+AST, it changes what ruff, mypy and coverage.py do with the file. A stripped
+`# pragma: no cover` silently moves the coverage ratchet.
+
+SO, BEFORE THIS ITEM IS RUN AGAIN: the classifier must treat any comment
+matching `noqa`, `pragma`, `type: ignore`, `isort:`, `fmt: off/on`, or
+`coding:` as UNTOUCHABLE -- never moved to notes, never stripped, whatever
+the prose classifier thinks of it. Add a test that feeds each of those
+through the tool and asserts the line survives, then re-run per-directory
+with `ruff check` and the coverage ratchet after each directory rather than
+once at the end.
+
+The package-wide run was reverted in full today; only setup.py is kept.
