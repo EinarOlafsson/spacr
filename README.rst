@@ -45,7 +45,7 @@
 .. |Release date| image:: https://anaconda.org/conda-forge/spacr/badges/latest_release_date.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge latest_release_date
-.. |PyPI Downloads| image:: https://static.pepy.tech/personalized-badge/spacr?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads
+.. |PyPI Downloads| image:: https://static.pepy.tech/personalized-badge/spacr?period=total&units=INTERNATIONAL_SYSTEM&left_color=GRAY&right_color=GREEN&left_text=downloads
    :target: https://pepy.tech/projects/spacr
    :alt: PyPI Downloads
 .. |Platforms| image:: https://img.shields.io/badge/Platforms-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey
