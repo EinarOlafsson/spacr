@@ -1,101 +1,154 @@
 ================================================================================
-TIMEFLOWS: A LIGHT-MICROSCOPY cpsam_v2 AND A TIME DIMENSION FOR TRACKING
+TIMEFLOWS: A TEMPORAL CELLPOSE FOR THE TIMELAPSE SUBMODULE
 ================================================================================
 
-Status:    NOT STARTED. Filed 2026-09-18. Two halves: the first is ordinary
-           work, the second is research.
+Status:    NOT STARTED, but DECIDED. Filed 2026-09-18, rewritten the same day
+           once two things were confirmed: the training data exists, and its
+           objects CARRY THE SAME LABEL ACROSS FRAMES. That is the link, and it
+           is the fact the whole project depends on.
+
+Decision:  Fork Cellpose and add a third output: flows through TIME. The
+           z-as-time idea is dropped -- it is not in this file any more,
+           because time is neither isotropic nor reversible and a model told a
+           moving cell is a tilted 3D object learns the wrong thing.
 
 --------------------------------------------------------------------------------
-THE PLAN AS GIVEN
+WHAT THE MODEL IS
 --------------------------------------------------------------------------------
 
-  (i)  Train a cpsam_v2 model to segment objects in LIGHT MICROSCOPY images.
-       Fine-tune on several light-microscopy datasets first, then fine-tune
-       again on the timelapse dataset.
+One model with three heads:
 
-  (ii) Resolve objects over time. Three routes were raised:
+  1. OBJECTS.      Is this pixel foreground. (Cellpose already does this.)
+  2. SPACE FLOWS.  The 2D vector field that splits touching objects.
+                   (Cellpose already does this.)
+  3. TIME FLOWS.   For each pixel of an object in frame t, a vector pointing at
+                   where that same object's centre is in frame t+1. Following
+                   it gives the object the same label in both frames.
 
-       A. Feed the model 3D with TIME in the z slot.
-       B. Take the model's 2D output plus timestamps and stitch tracks
-          afterwards.
-       C. THE ONE WANTED. Copy the Cellpose-SAM source and add a trainable
-          mechanism that predicts "flows" BETWEEN timepoints, so one model:
-            1. detects objects,
-            2. predicts the 2D flows that split touching objects, and
-            3. predicts TIME flows that label an object consistently across
-               frames.
-
---------------------------------------------------------------------------------
-IS IT PLAUSIBLE? YES, AND C IS THE INTERESTING ONE
---------------------------------------------------------------------------------
-
-Part (i) is routine and should be done first regardless: it is the same
-cross-channel fine-tuning pipeline already in this project, pointed at a new
-dataset. Two-stage fine-tuning (broad light microscopy, then the timelapse) is
-the right order -- the second stage is small and would overfit alone.
-
-Part (ii)C is plausible because it is the SAME TRICK CELLPOSE ALREADY PLAYS,
-applied to another axis. Cellpose does not predict object labels; it predicts a
-vector field pointing at an object's centre, and objects fall out of following
-those vectors. A field pointing from a cell at frame t to the same cell's
-centre at frame t+1 is the same kind of object, and it inherits the same
-property that makes flows work: it is dense, local, and defined everywhere,
-so it trains with a plain regression loss and needs no assignment step in the
-loss function. Divisions, which break every tracker, become two frames whose
-vectors point back to one parent -- representable, where a one-to-one matcher
-has to special-case it.
-
-Route A is the cheapest thing to try and should be tried first as a baseline,
-but it is a WEAK baseline by construction: a z-stack is isotropic-ish and
-reversible, while time is neither, and the model would be told a moving cell
-is a tilted 3D object. Expect it to work on slow, dense timelapses and fail on
-fast ones.
-
-Route B is what every existing tracker does and is the honest fallback. If the
-timeflow model cannot beat a good 2D segmentation plus an overlap or Hungarian
-matcher, it is not worth the source fork.
+Head 3 is plausible for exactly the reason head 2 works. Cellpose never
+predicts labels; it predicts a dense local field and lets the labels fall out
+of following it. A field is defined at every pixel, trains with a plain
+regression loss, and needs no assignment step inside the loss -- which is what
+makes it trainable at all. A division is two frames' worth of vectors pointing
+back at one parent: representable, where a one-to-one matcher has to
+special-case it.
 
 --------------------------------------------------------------------------------
-WHAT MAKES IT HARD -- READ BEFORE STARTING
+THE PLAN, IN ORDER
 --------------------------------------------------------------------------------
 
-  - TRAINING DATA. 2D flows are computed from masks for free. Time flows need
-    masks that are LINKED across frames -- the same cell carrying the same id
-    in frame t and t+1. That is the expensive part of tracking datasets and
-    the reason tracking benchmarks are small. Check what the timelapse dataset
-    actually has before writing any model code. If the links are not there,
-    this project is a curation project first.
-  - FORKING CELLPOSE. The trainer here already does AST surgery on train_seg
-    rather than editing the installed package, precisely to avoid owning a
-    fork. A new output head and a new loss term is past what that can carry:
-    this one needs a real fork, and a fork has to be maintained against
-    upstream Cellpose releases forever.
-  - FRAME SPACING. A flow field learnt at one interval encodes a displacement
-    in pixels per frame. A dataset imaged every 30 s and one imaged every
-    10 min are different problems, and the model must either be told the
-    interval or be trained across enough of them to be robust.
-  - DIVISION AND DEATH. Cells appear, divide and vanish. The field has to say
-    "no successor" somewhere, which means a validity channel, not just
-    vectors.
-  - EVALUATION. Segmentation F1 will not tell you whether tracking improved.
-    This needs tracking metrics (TRA/DET from the Cell Tracking Challenge, or
-    MOTA-style counts of id switches), and they should be in place BEFORE the
-    model, or there is no way to tell route C from route B.
+STEP 0 -- SEGMENTATION FIRST, AND IT IS USEFUL ALONE.
+    Fine-tune cpsam_v2 on the light-microscopy datasets, then again on the
+    timelapse frames. Two stages in that order: the timelapse set is small and
+    would overfit on its own. This produces a usable model before any of the
+    research below, and it is the backbone everything else is built on.
+
+STEP 1 -- CHECK THE TRAINING DATA BEFORE WRITING MODEL CODE.
+    The labels are said to be consistent across frames. Verify it, because
+    every later result rests on it:
+      - Is a label ever REUSED after its object leaves or dies? A recycled id
+        teaches the model to point at an unrelated cell. This is the most
+        common defect in tracking annotation and the easiest to miss.
+      - Are divisions annotated as two new ids, or does one child inherit the
+        parent's? Both conventions exist; the loss has to know which.
+      - What is the frame interval, and is it constant within and across
+        datasets?
+      - Distribution of per-frame displacement in pixels. This sets whether
+        the task is easy (displacement much smaller than object size) or hard,
+        and it decides the receptive field the head needs.
+    Write this as a QC script that produces a table, not as a one-off look.
+
+STEP 2 -- BASELINE AND METRICS, BEFORE THE FORK.
+    Build the plain stitcher -- segment each frame, link by mask overlap or
+    Hungarian matching on IoU -- and the tracking metrics: TRA/DET from the
+    Cell Tracking Challenge, plus a count of identity switches. This number is
+    what the fork has to beat. Without it there is no way to tell whether the
+    third head earned its complexity, and the temptation will be to declare it
+    did.
+
+STEP 3 -- THE FORK.
+    The trainer here deliberately avoids owning a fork: it does checked AST
+    surgery on train_seg so the installed Cellpose is never edited. A new
+    output channel and a new loss term is past what that can carry. So: a real
+    fork, pinned to one upstream Cellpose version, with the diff kept as small
+    as it can be -- a head, a loss term, a dataloader that yields PAIRS of
+    frames, and nothing else touched. Record the upstream commit it forked
+    from in the model's provenance, the way run_config.json already records
+    versions.
+
+STEP 4 -- WHAT THE TIME HEAD PREDICTS, CONCRETELY.
+    Two extra channels of vector, plus a third scalar the plan as given did
+    not include and needs:
+      - dx, dy: toward the object's centre in frame t+1.
+      - HAS SUCCESSOR: a validity channel. Cells die, leave the field of view,
+        and the last frame has no t+1 at all. Without this the model is
+        trained to invent a successor for every object, and at inference every
+        disappearance becomes a wrong link. Supervise the vectors ONLY where
+        this channel is true.
+    Condition on the frame interval, or train across a range of intervals,
+    because a displacement field silently encodes pixels-per-frame and a
+    dataset imaged every 30 s and one every 10 min are different problems.
+
+STEP 5 -- TRAINING.
+    - The dataloader yields frame PAIRS, and every augmentation must be applied
+      IDENTICALLY to both frames of a pair. A flip applied to t and not t+1
+      teaches the model a displacement that never happened. This is the single
+      easiest way to get a model that trains beautifully and tracks nothing.
+    - Curriculum: start from the step 0 weights, freeze the backbone, train the
+      new head alone, then unfreeze at a low learning rate. The segmentation
+      ability is already paid for and should not be spent re-learning.
+    - Sample pairs across the displacement distribution from step 1, not
+      uniformly over frames, or the model sees mostly easy, nearly-static
+      pairs.
+
+STEP 6 -- THE SCRAMBLE TEST, AS THE TRAINING LOOP'S OWN CHECK.
+    Hold out a set. Scramble the object labels in frame t+1. Let the model
+    relabel t+1 by following its time flows from t. Score the concordance
+    between the recovered labels and the true ones.
+    This is a good test and it belongs in the loop, reported per epoch beside
+    the losses, the way the segmentation scores already are. Two refinements
+    so it does not flatter the model:
+      - Report it STRATIFIED by displacement and by local object density. A
+        sparse, slow field is relabelled correctly by almost anything, and an
+        unstratified average is dominated by those easy cases.
+      - It measures LINKING GIVEN PERFECT SEGMENTATION, because the true masks
+        are handed to it. Report the end-to-end number too -- the model's own
+        segmentation, linked by its own flows, scored with the step 2 tracking
+        metrics. The gap between the two says whether the remaining errors are
+        tracking errors or segmentation errors, which decides what to work on
+        next.
+    Add the obvious controls: a scramble test on a model with an untrained
+    time head should score at chance, and one where t+1 is a copy of t should
+    score near perfect. If either does not, the harness is wrong, not the
+    model.
+
+STEP 7 -- INFERENCE AND THE SUBMODULE.
+    Link frame to frame, then resolve tracks over the whole movie: divisions
+    become parent/child edges, gaps are bridged or not, and the result is
+    written to the measurements database with a track id alongside the object
+    id, so downstream measurement and regression see tracks as first-class.
+    Decide early whether a track id is stable across a re-run -- it must be, or
+    no analysis built on it is reproducible.
 
 --------------------------------------------------------------------------------
-THE ORDER I WOULD DO IT IN
+HOW IT COULD STILL FAIL, HONESTLY
 --------------------------------------------------------------------------------
 
-  1. Fine-tune cpsam_v2 on the light-microscopy datasets. Useful on its own.
-  2. Fine-tune again on the timelapse frames. Still useful on its own.
-  3. Build the tracking metrics and route B, the stitcher. This is the number
-     everything else has to beat.
-  4. Try route A as a cheap sanity check.
-  5. Only then fork for route C, and only if 3 and 4 leave a real gap.
+  - If per-frame displacement is routinely larger than an object, the vector
+    has to point further than the receptive field can see, and the field
+    becomes ambiguous where several identical cells are candidates. Step 1
+    tells you this before any code is written.
+  - If the annotation reuses labels, the model learns to link unrelated cells
+    and the scramble test will not catch it -- the scrambled truth is wrong in
+    the same way.
+  - If the plain stitcher from step 2 is already at the accuracy the biology
+    needs, the fork is a maintenance burden for no gain. That is a real
+    possible outcome and should be accepted if it happens.
 
 --------------------------------------------------------------------------------
 WHY IT IS FILED RATHER THAN BUILT
 --------------------------------------------------------------------------------
 
-Requested 2026-09-18 as a list item, with an explicit request for an opinion
-on whether it is plausible. The opinion is above.
+Requested 2026-09-18 as a list item. Steps 0 to 2 are ordinary work and could
+start immediately; step 3 onward is research with a real chance of not paying
+off, which is why the baseline in step 2 comes first.
