@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QDialog, QDialogButtonBox,
                                QFileDialog, QHBoxLayout, QHeaderView, QLabel,
                                QLineEdit, QMessageBox, QProgressBar,
                                QComboBox, QPushButton, QTableWidget,
+                               QTextBrowser,
                                QVBoxLayout, QWidget)
 
 from .sortable_table import install_sorting, table_item
@@ -210,13 +211,17 @@ class ModelZooPicker(QDialog):
         self.table.itemSelectionChanged.connect(self._selection_changed)
         layout.addWidget(self.table, 1)
 
+        # The scorecard sits between the list and the controls, at a fixed
+        # height: a box that grew and shrank with the selected model would
+        # move the Download button under the pointer between clicks.
+        self.card = QTextBrowser(self)
+        self.card.setOpenExternalLinks(True)
+        self.card.setFixedHeight(200)
+        layout.addWidget(self.card)
+
         folder_row = QHBoxLayout()
         folder_row.addWidget(QLabel("Save to:"))
         self.folder_edit = QLineEdit(remembered_model_dir(), self)
-        self.folder_edit.setToolTip(
-            "Where downloaded checkpoints are written. These are large — the "
-            "Toxoplasma models are about 1.2 GB each — so a shared drive is "
-            "often the right answer on a workstation.")
         folder_row.addWidget(self.folder_edit, 1)
         browse = QPushButton("Browse…", self)
         browse.clicked.connect(self._browse)
@@ -505,18 +510,42 @@ class ModelZooPicker(QDialog):
         local = self._local_path(entry) if entry else None
         self.use_button.setEnabled(bool(local))
         self.download_button.setEnabled(bool(entry) and not local)
-        if entry is None:
-            self.status.setText("")
-        elif local:
-            self.status.setText(f"Ready: {local}")
-        elif not getattr(entry, "sha256", ""):
+        self._show_card(entry)
+        if entry is not None and not getattr(entry, "sha256", ""):
             self.status.setText(
                 "This model publishes no checksum, so a truncated or "
                 "substituted file could not be told from the real one. "
                 "Downloading it will ask you to accept that.")
         else:
-            note = "; ".join(getattr(entry, "notes", ()) or ())
-            self.status.setText(note or "Not downloaded yet.")
+            self.status.setText("")
+
+    def _show_card(self, entry) -> None:
+        """The selected model's scorecard, and a link to its full page.
+
+        The table replaces the sentence that used to sit here. A sentence
+        cannot be compared between two models; a table can, and it is the same
+        table the Hugging Face card prints.
+        """
+        from ... import model_zoo
+
+        if entry is None:
+            self.card.setHtml("")
+            return
+        html = model_zoo.scorecard_html(entry)
+        if not html:
+            # The stock model is a SimpleNamespace, not a ModelEntry, so it has
+            # no describe(); fall back to what any entry-shaped object has.
+            describe = getattr(entry, "describe", None)
+            if callable(describe):
+                html = f"<p>{describe()}</p>"
+            else:
+                name = getattr(entry, "display_name", "") or getattr(entry, "name", "")
+                html = (f"<p><b>{name}</b></p>"
+                        f"<p>{getattr(entry, 'trained_on', '') or ''}</p>")
+        url = getattr(entry, "model_card_url", "")
+        if url:
+            html += f'<p><a href="{url}">{url}</a></p>'
+        self.card.setHtml(html)
 
     def _browse(self) -> None:
         """Ask where downloaded checkpoints should live, and remember the answer."""
