@@ -23,6 +23,7 @@ users learn not to open.
 from __future__ import annotations
 
 import os
+import threading
 from types import SimpleNamespace
 from typing import List, Optional
 
@@ -307,6 +308,17 @@ class ModelZooPicker(QDialog):
         self._catalogue_job.submit(
             lambda: model_zoo.shared_catalogue(block=True),
             lambda _entries: self.refresh())
+
+        # Fill the bioimage.io cache on the same background pass, so the
+        # listing has its rows without catalogue() ever making a network call.
+        def _warm_bioimageio():
+            try:
+                from ... import model_zoo
+                model_zoo.bioimageio_entries(allow_network=True)
+            except Exception:                                # noqa: BLE001
+                pass
+
+        threading.Thread(target=_warm_bioimageio, daemon=True).start()
 
     def refresh(self) -> None:
         """Reload the catalogue and redraw the table.

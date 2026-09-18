@@ -1769,36 +1769,39 @@ def stock_cellpose_entries() -> List["ModelEntry"]:
 
 
 #: bioimage.io's published collection.
-BIOIMAGEIO_COLLECTION = ("https://uk1s3.embassy.ebi.ac.uk/public-datasets/"
-                         "bioimage.io/collection.json")
+BIOIMAGEIO_COLLECTION = ("https://hypha.aicell.io/bioimage-io/artifacts/"
+                         "bioimage.io/children?limit=1000&pagination=false")
+
+#: What spaCR's Cellpose can actually load. The test is COMPATIBILITY, not the
+#: word "cellpose": spaCR runs Cellpose 4, so the SAM and DINO backbones load
+#: and cyto3 and earlier do not -- they carry the same "cellpose" tag, load,
+#: and then produce nonsense. The older collection.json does not list these
+#: models at all, which is why reading it found nothing.
+BIOIMAGEIO_COMPATIBLE = ("cellpose sam", "cpsam", "cellposedino",
+                         "cellpose dino", "cpdino")
 
 #: How long a fetched collection is trusted before it is fetched again.
 BIOIMAGEIO_CACHE_HOURS = 24
 
 
-def _looks_like_cellpose_sam(record: Mapping[str, Any]) -> bool:
-    """Whether a bioimage.io record is a Cellpose-SAM checkpoint.
+def _looks_like_cellpose_sam(manifest: Mapping[str, Any]) -> bool:
+    """Whether a bioimage.io manifest is loadable by the Cellpose spaCR runs.
 
-    STRICTLY. spaCR loads these as drop-in replacements for cpsam, and only a
-    Cellpose-SAM checkpoint works that way: a cyto3 or a ResNet model carries
-    the same "cellpose" tag, loads, and then produces nonsense. So the test is
-    the architecture named explicitly, not the word "cellpose" appearing
-    somewhere. Listing nothing is the correct answer when nothing qualifies.
+    STRICTLY. spaCR loads these as drop-in replacements, and only the Cellpose
+    4 backbones work that way: a cyto3 or a ResNet model carries the same
+    "cellpose" tag, loads, and then produces nonsense.
     """
-    if str(record.get("type") or "") != "model":
+    if str(manifest.get("type") or "") != "model":
         return False
-    haystack = " ".join(str(record.get(k) or "") for k in
-                        ("name", "description", "id")).lower()
-    haystack += " " + " ".join(str(t).lower() for t in
-                               (record.get("tags") or ()))
-    normalised = haystack.replace("-", " ").replace("_", " ")
-    return ("cpsam" in normalised
-            or "cellpose sam" in normalised
-            or "cellposesam" in normalised)
+    parts = [str(manifest.get("name") or ""), str(manifest.get("description") or "")]
+    parts += [str(t) for t in (manifest.get("tags") or ())]
+    text = " ".join(parts).lower().replace("-", " ").replace("_", " ")
+    return any(key in text for key in BIOIMAGEIO_COMPATIBLE)
 
 
 def bioimageio_entries(timeout: float = 5.0,
-                       url: Optional[str] = None) -> List["ModelEntry"]:
+                       url: Optional[str] = None,
+                       allow_network: bool = False) -> List["ModelEntry"]:
     """Cellpose-SAM models published on bioimage.io, or an empty list.
 
     Best effort and never raises: no network, a slow mirror or a changed
@@ -1810,7 +1813,7 @@ def bioimageio_entries(timeout: float = 5.0,
     import time as _time
     import urllib.request
 
-    cache = Path.home() / ".spacr" / "bioimageio_collection.json"
+    cache = Path.home() / ".spacr" / "bioimageio_children.json"
     payload = None
     try:
         fresh = (cache.is_file() and
@@ -1820,6 +1823,11 @@ def bioimageio_entries(timeout: float = 5.0,
             payload = _json.loads(cache.read_text())
     except Exception:                                        # noqa: BLE001
         payload = None
+    if payload is None and not allow_network:
+        # Cache only. catalogue() must not touch the network -- it is called on
+        # offline paths and from the GUI thread -- so the fetch happens in the
+        # background warm-up and this reads what that left behind.
+        return []
     if payload is None:
         try:
             with urllib.request.urlopen(url or BIOIMAGEIO_COLLECTION,
@@ -1830,24 +1838,31 @@ def bioimageio_entries(timeout: float = 5.0,
         except Exception:                                    # noqa: BLE001
             return []
 
-    records = payload.get("collection") or payload.get("entries") or []
+    items = payload if isinstance(payload, list) else payload.get("items", [])
     out = []
-    for record in records:
-        if not isinstance(record, Mapping) or not _looks_like_cellpose_sam(record):
+    for item in items:
+        if not isinstance(item, Mapping):
             continue
-        rid = str(record.get("id") or "")
-        name = str(record.get("nickname") or rid or record.get("name") or "")
-        if not name:
+        manifest = item.get("manifest") or {}
+        if not isinstance(manifest, Mapping) or not _looks_like_cellpose_sam(manifest):
             continue
+        alias = str(item.get("alias") or "")
+        if not alias:
+            continue
+        # Named after the model, not its bioimage.io alias: a row reading
+        # "idealistic-eagle" tells the reader nothing.
+        title = str(manifest.get("name") or alias)
+        slug = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_") or alias
+        authors = ", ".join(
+            str(a.get("name")) for a in (manifest.get("authors") or ())
+            if isinstance(a, Mapping))
         out.append(ModelEntry(
-            key=_key_for(Path(name)), name=name, path="", kind="cellpose",
-            source="bioimage.io", uri=f"https://bioimage.io/#/?id={rid}",
+            key=slug, name=alias, path="", kind="cellpose",
+            source="bioimage.io",
+            uri=f"https://bioimage.io/#/artifacts/{alias}",
             sha256="", size_bytes=0,
-            trained_on=str(record.get("description") or "")[:300]
-                       or "See the bioimage.io page.",
-            trained_by=", ".join(
-                str(a.get("name")) for a in (record.get("authors") or ())
-                if isinstance(a, Mapping)) or "bioimage.io"))
+            trained_on=f"{title} — {manifest.get('description') or ''}"[:300],
+            trained_by=authors or "bioimage.io"))
     return out
 
 
@@ -1866,8 +1881,8 @@ INSTALLABLE_BACKENDS = {
 def installable_backend_entries() -> List["ModelEntry"]:
     """Segmentation backends spaCR can install, whether or not they are here.
 
-    A backend absent from the zoo teaches nobody that it exists. These rows
-    say what they are and whether they are installed; installing one runs pip
+    A backend absent from the zoo teaches nobody that it exists. These rows say
+    what they are and whether they are installed; installing one runs pip
     against this environment, so the GUI asks before it does.
     """
     import importlib.util
