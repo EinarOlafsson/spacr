@@ -1766,6 +1766,89 @@ def stock_cellpose_entries() -> List["ModelEntry"]:
     return out
 
 
+#: bioimage.io's published collection.
+BIOIMAGEIO_COLLECTION = ("https://uk1s3.embassy.ebi.ac.uk/public-datasets/"
+                         "bioimage.io/collection.json")
+
+#: How long a fetched collection is trusted before it is fetched again.
+BIOIMAGEIO_CACHE_HOURS = 24
+
+
+def _looks_like_cellpose_sam(record: Mapping[str, Any]) -> bool:
+    """Whether a bioimage.io record is a Cellpose-SAM checkpoint.
+
+    STRICTLY. spaCR loads these as drop-in replacements for cpsam, and only a
+    Cellpose-SAM checkpoint works that way: a cyto3 or a ResNet model carries
+    the same "cellpose" tag, loads, and then produces nonsense. So the test is
+    the architecture named explicitly, not the word "cellpose" appearing
+    somewhere. Listing nothing is the correct answer when nothing qualifies.
+    """
+    if str(record.get("type") or "") != "model":
+        return False
+    haystack = " ".join(str(record.get(k) or "") for k in
+                        ("name", "description", "id")).lower()
+    haystack += " " + " ".join(str(t).lower() for t in
+                               (record.get("tags") or ()))
+    normalised = haystack.replace("-", " ").replace("_", " ")
+    return ("cpsam" in normalised
+            or "cellpose sam" in normalised
+            or "cellposesam" in normalised)
+
+
+def bioimageio_entries(timeout: float = 5.0,
+                       url: Optional[str] = None) -> List["ModelEntry"]:
+    """Cellpose-SAM models published on bioimage.io, or an empty list.
+
+    Best effort and never raises: no network, a slow mirror or a changed
+    schema all mean "no extra rows", never a zoo that fails to open. The
+    response is cached so opening the dialog repeatedly is not repeatedly a
+    network call.
+    """
+    import json as _json
+    import time as _time
+    import urllib.request
+
+    cache = Path.home() / ".spacr" / "bioimageio_collection.json"
+    payload = None
+    try:
+        fresh = (cache.is_file() and
+                 _time.time() - cache.stat().st_mtime
+                 < BIOIMAGEIO_CACHE_HOURS * 3600)
+        if fresh:
+            payload = _json.loads(cache.read_text())
+    except Exception:                                        # noqa: BLE001
+        payload = None
+    if payload is None:
+        try:
+            with urllib.request.urlopen(url or BIOIMAGEIO_COLLECTION,
+                                        timeout=timeout) as response:
+                payload = _json.loads(response.read().decode("utf-8"))
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(_json.dumps(payload))
+        except Exception:                                    # noqa: BLE001
+            return []
+
+    records = payload.get("collection") or payload.get("entries") or []
+    out = []
+    for record in records:
+        if not isinstance(record, Mapping) or not _looks_like_cellpose_sam(record):
+            continue
+        rid = str(record.get("id") or "")
+        name = str(record.get("nickname") or rid or record.get("name") or "")
+        if not name:
+            continue
+        out.append(ModelEntry(
+            key=_key_for(Path(name)), name=name, path="", kind="cellpose",
+            source="bioimage.io", uri=f"https://bioimage.io/#/?id={rid}",
+            sha256="", size_bytes=0,
+            trained_on=str(record.get("description") or "")[:300]
+                       or "See the bioimage.io page.",
+            trained_by=", ".join(
+                str(a.get("name")) for a in (record.get("authors") or ())
+                if isinstance(a, Mapping)) or "bioimage.io"))
+    return out
+
+
 def catalogue(include_bundled: bool = True, remote: bool = True,
               catalogue_path: Any = None,
               include_plugins: bool = True,
@@ -1804,6 +1887,8 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
             entries.extend(discover_local(root, max_depth=2))
 
     entries.extend(stock_cellpose_entries())
+    if remote:
+        entries.extend(bioimageio_entries())
     if remote:
         have = {(e.key, e.name) for e in entries}
         for record in BUNDLED_REMOTE_MODELS:

@@ -318,11 +318,11 @@ class ModelZooPicker(QDialog):
 
         try:
             entries = [self.STOCK_MODEL]
-            # The catalogue now lists the Cellpose stock models itself, so drop
-            # the copy of the one this dialog always guarantees -- otherwise the
-            # cpsam row offers v2 twice.
-            entries += [e for e in model_zoo.catalogue(remote=True, block=False)
-                        if getattr(e, "name", "") != self.STOCK_MODEL.name]
+            # The catalogue lists the Cellpose stock models too. Duplicates
+            # are collapsed per version label by group_entries, which catches
+            # the stock row whose key and name disagree -- name "cpsam", key
+            # "cpsam_v2" -- where a name comparison here did not.
+            entries += list(model_zoo.catalogue(remote=True, block=False))
         except Exception as exc:                            # noqa: BLE001
             self.status.setText(f"Could not read the model list: {exc}")
             entries = [self.STOCK_MODEL]
