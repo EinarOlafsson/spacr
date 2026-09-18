@@ -28,7 +28,9 @@ SHARE_REPO = "einarolafsson/user-models"
 #: a contributor needs no Hugging Face account of their own. See
 #: tools/model_upload_space/. Empty until it is deployed; set
 #: SPACR_MODEL_UPLOAD_URL to point spaCR at one.
-CENTRAL_ENDPOINT = os.environ.get("SPACR_MODEL_UPLOAD_URL", "").strip()
+CENTRAL_ENDPOINT = os.environ.get(
+    "SPACR_MODEL_UPLOAD_URL",
+    "https://einarolafsson-spacr-model-upload.hf.space").strip()
 
 
 def central_upload(path: str, fields: Dict[str, Any]) -> str:
@@ -52,7 +54,10 @@ def central_upload(path: str, fields: Dict[str, Any]) -> str:
         str(fields.get("trained_on") or ""),
         json.dumps(fields),
         str(fields.get("contact") or ""),
-        api_name="/predict")
+        # Named after the function on the Space, not "/predict": Gradio
+        # names an endpoint after the callable it wraps, and calling
+        # "/predict" returns a 500.
+        api_name="/upload")
     text = str(reply)
     if text.startswith("error:"):
         raise RuntimeError(text[6:].strip())
