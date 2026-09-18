@@ -169,7 +169,9 @@ def group_entries(entries) -> list:
     for stem, pairs in groups.items():
         pairs.sort(key=lambda pl: _version_sort_key(pl[0]), reverse=True)
         out.append((stem, pairs))
-    out.sort(key=lambda g: g[0])
+    # Insertion order, not alphabetical: the caller's order is meaningful --
+    # the picker puts the stock model first, and a listing that reordered it
+    # would move the row the user reaches for most.
     return out
 
 
@@ -298,6 +300,19 @@ def compose_labels(image: Optional[np.ndarray], mask: Any,
 
 
 def _tooltip_for(entry) -> str:
+    """The scorecard table when the entry publishes one, else the prose.
+
+    Hovering used to give a paragraph, so comparing two models meant reading
+    two paragraphs to find two numbers. This is the same table the model card
+    prints, so the GUI and Hugging Face say the same thing in the same shape.
+    """
+    table = zoo.scorecard_html(entry)
+    if table:
+        return table
+    return _tooltip_prose(entry)
+
+
+def _tooltip_prose(entry) -> str:
     """`describe()`, led by the few numbers that decide a choice.
 
     The tooltip is the scorecard's smallest surface, so it leads with the

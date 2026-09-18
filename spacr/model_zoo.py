@@ -313,6 +313,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
+        "metrics": {'n_train': '229', 'train_objects': 'not recorded', 'n_test': '11 wells', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.8640', 'aji': '0.8090', 'dice': 'not recorded', 'stock_f1': '0.7130', 'stock_aji': '0.4260', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '100 / 100'},
         "display_name": "Toxoplasma PV v1",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         # ROUND 2, CORRECTED 2026-09-15 (item 370). Until then this row
@@ -353,6 +354,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
+        "metrics": {'n_train': '184 wells', 'train_objects': 'not recorded', 'n_test': 'per fold', 'test_objects': 'not recorded', 'cv': '3-fold', 'f1': '0.8560 in-domain / 0.8060 literature', 'aji': 'not recorded', 'dice': 'not recorded', 'stock_f1': 'not recorded', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
         "display_name": "Toxoplasma Plaque v1",
         "architecture": "Cellpose-SAM (cpsam)",
         "dataset": "crystal violet plaque wells; 184 wells from 3 datasets, "
@@ -381,6 +383,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
+        "metrics": {'n_train': '562 images', 'train_objects': 'not recorded', 'n_test': 'held-out split', 'test_objects': 'not recorded', 'cv': 'no', 'f1': 'mAP50 0.9930', 'aji': 'mAP50-95 0.8860', 'dice': 'P/R 0.9870', 'stock_f1': 'not recorded', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '150 / 150'},
         "display_name": "Toxoplasma Plaque Well Detector v1",
         "architecture": "YOLO11n",
         "dataset": "whole-plate and multi-well crystal violet images; 562 "
@@ -409,6 +412,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab",
+        "metrics": {'n_train': '2567', 'train_objects': 'not recorded', 'n_test': '463', 'test_objects': '6116', 'cv': 'no', 'f1': '0.6058', 'aji': '0.4939', 'dice': '0.6096', 'stock_f1': '0.0215', 'stock_aji': '0.0080', 'stock_dice': '0.0201', 'train_loss': '0.0075', 'val_loss': '0.0100', 'best_epoch': '100 / 100'},
         "display_name": "Toxoplasma from Cell Mask (cross-channel)",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "Toxoplasma PV masks predicted from the HOST CELL MASK channel "
@@ -442,6 +446,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f",
+        "metrics": {'n_train': '556', 'train_objects': 'not recorded', 'n_test': '619 pairs', 'test_objects': 'not recorded', 'cv': '5-fold', 'f1': '0.8170 ± 0.036', 'aji': '0.7144 ± 0.107', 'dice': '0.8024 ± 0.118', 'stock_f1': '0.7130', 'stock_aji': '0.4260', 'stock_dice': 'not recorded', 'train_loss': '0.0476', 'val_loss': 'not recorded', 'best_epoch': '100 / 100'},
         "display_name": "Toxoplasma PV v2 (round 5)",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated "
@@ -475,6 +480,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                "weights/nuclei_from_cellmask_best",
         "sha256":
             "2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47",
+        "metrics": {'n_train': 'not recorded', 'train_objects': 'not recorded', 'n_test': '453', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.8881', 'aji': '0.7916', 'dice': '0.8774', 'stock_f1': 'not recorded', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
         "display_name": "Cross-channel nuclei-from-cellmask",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "nuclei predicted from the HOST CELL MASK channel alone; "
@@ -2622,6 +2628,48 @@ _ZOO_COLUMNS = (
     ("trained on", lambda e: _shorten(e.trained_on, 46)),
     ("trained by", lambda e: _shorten(e.trained_by, 22)),
 )
+
+
+SCORECARD_ROWS = (
+    ("train", "n_train"), ("train obj.", "train_objects"),
+    ("test", "n_test"), ("test obj.", "test_objects"), ("CV", "cv"),
+    ("F1 @ IoU 0.5", "f1"), ("AJI", "aji"), ("Dice", "dice"),
+    ("final train loss", "train_loss"), ("final val loss", "val_loss"),
+    ("best epoch", "best_epoch"),
+)
+
+
+def scorecard_html(entry) -> str:
+    """The model's scorecard as an HTML table, for a tooltip.
+
+    A paragraph of prose is what a tooltip used to show, and a reader
+    comparing two models had to parse two paragraphs to find two numbers.
+    The same table the model card prints answers that at a glance. Falls back
+    to the prose when an entry publishes no metrics, because an empty table is
+    worse than a sentence.
+    """
+    metrics = dict(getattr(entry, "metrics", None) or {})
+    name = getattr(entry, "display_name", "") or entry.name
+    if not metrics:
+        return ""
+    def cell(value):
+        return value if str(value).strip() else "not recorded"
+    rows = []
+    for label, key in SCORECARD_ROWS:
+        stock = metrics.get(f"stock_{key}", "") if key in ("f1", "aji", "dice") else ""
+        rows.append(
+            f"<tr><td>{label}</td>"
+            f"<td align='right'><b>{cell(metrics.get(key, ''))}</b></td>"
+            f"<td align='right'>{cell(stock) if stock or key in ('f1','aji','dice') else ''}</td></tr>")
+    trained = getattr(entry, "trained_on", "") or ""
+    card = getattr(entry, "model_card_url", "")
+    return (f"<p><b>{name}</b></p>"
+            "<table cellspacing='0' cellpadding='3'>"
+            "<tr><th align='left'></th><th align='right'>this model</th>"
+            "<th align='right'>stock</th></tr>"
+            + "".join(rows) + "</table>"
+            + (f"<p>{trained[:200]}</p>" if trained else "")
+            + (f"<p>{card}</p>" if card else ""))
 
 
 def format_zoo(entries: Sequence[ModelEntry]) -> str:

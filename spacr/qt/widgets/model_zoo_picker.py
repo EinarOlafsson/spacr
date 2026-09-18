@@ -30,7 +30,7 @@ from PySide6.QtCore import QObject, Qt, QThread, Signal
 from PySide6.QtWidgets import (QAbstractItemView, QDialog, QDialogButtonBox,
                                QFileDialog, QHBoxLayout, QHeaderView, QLabel,
                                QLineEdit, QMessageBox, QProgressBar,
-                               QPushButton, QTableWidget,
+                               QComboBox, QPushButton, QTableWidget,
                                QVBoxLayout, QWidget)
 
 from .sortable_table import install_sorting, table_item
@@ -41,7 +41,7 @@ DEFAULT_MODEL_DIR = os.path.join(os.path.expanduser("~"), ".spacr", "models")
 #: QSettings key remembering the chosen folder.
 _DIR_SETTING = "model_zoo/download_dir"
 
-_COLUMNS = ("Model", "Kind", "Trained on", "Status")
+_COLUMNS = ("Model", "Kind", "Trained on", "Status", "Version")
 
 
 def remembered_model_dir() -> str:
@@ -196,6 +196,9 @@ class ModelZooPicker(QDialog):
         blurb.setWordWrap(True)
         layout.addWidget(blurb)
 
+        self._groups: list = []
+        self._chosen: dict = {}
+        self._rebuilding = False
         self.table = QTableWidget(0, len(_COLUMNS), self)
         install_sorting(self.table)
         self.table.setHorizontalHeaderLabels(_COLUMNS)
@@ -218,6 +221,11 @@ class ModelZooPicker(QDialog):
         browse = QPushButton("Browse…", self)
         browse.clicked.connect(self._browse)
         folder_row.addWidget(browse)
+        add = QPushButton("Add…", self)
+        add.setToolTip("List a model file you already have, and optionally "
+                       "share it on Hugging Face so others can use it.")
+        add.clicked.connect(self._add_model)
+        folder_row.addWidget(add)
         layout.addLayout(folder_row)
 
         self.progress = QProgressBar(self)
@@ -313,24 +321,145 @@ class ModelZooPicker(QDialog):
             entries = [e for e in entries if e.kind in self._kinds]
         self._entries = entries
 
-        self.table.setRowCount(len(entries))
-        for row, entry in enumerate(entries):
-            local = self._local_path(entry)
-            cells = (
-                getattr(entry, "key", "") or entry.name,
-                entry.kind,
-                (entry.trained_on or "")[:160],
-                "on this machine" if local else "not downloaded",
-            )
-            for column, text in enumerate(cells):
-                item = table_item(str(text))
-                if column == 3 and local:
-                    item.setToolTip(local)
-                self.table.setItem(row, column, item)
+        self._rebuild(entries)
+
+    def _rebuild(self, entries) -> None:
+        """Redraw the table from this list of entries.
+
+        Split out of :meth:`refresh` so a caller -- a test, mainly -- can list
+        entries of its own choosing without going through the catalogue.
+        """
+        from ..screens.model_zoo import group_entries
+
+        self._entries = list(entries)
+
+        # Tear the old rows down FIRST. A combo box from the previous refresh
+        # is still wired to _version_picked, and setRowCount destroying it can
+        # emit currentIndexChanged against groups that no longer exist.
+        self._rebuilding = True
+        self.table.clearContents()
+        self.table.setRowCount(0)
+        self._groups = group_entries(entries)
+        self._chosen = {stem: 0 for stem, _ in self._groups}
+
+        self.table.setRowCount(len(self._groups))
+        for row, (stem, pairs) in enumerate(self._groups):
+            combo = QComboBox(self.table)
+            combo.addItems([label for label, _ in pairs])
+            combo.setCurrentIndex(0)
+            combo.currentIndexChanged.connect(
+                lambda index, r=row: self._version_picked(r, index))
+            self.table.setCellWidget(row, 4, combo)
+            self._fill_row(row)
+        self._rebuilding = False
         self.table.resizeColumnsToContents()
         self.table.horizontalHeader().setSectionResizeMode(
             2, QHeaderView.Stretch)
         self._selection_changed()
+
+    def _fill_row(self, row: int) -> None:
+        """Write a row's cells for the version it currently shows."""
+        stem, pairs = self._groups[row]
+        entry = pairs[self._chosen[stem]][1]
+        local = self._local_path(entry)
+        cells = (
+            stem,
+            entry.kind,
+            (entry.trained_on or "")[:160],
+            "on this machine" if local else "not downloaded",
+        )
+        from ... import model_zoo
+
+        tip = model_zoo.scorecard_html(entry)
+        for column, text in enumerate(cells):
+            item = table_item(str(text))
+            if tip:
+                item.setToolTip(tip)
+            elif column == 3 and local:
+                item.setToolTip(local)
+            self.table.setItem(row, column, item)
+
+    def _version_picked(self, row: int, index: int) -> None:
+        """A different version was chosen: this row now means another model.
+
+        The status cell has to be rewritten too -- v1 may be on this machine
+        while v2 is not, and a stale "on this machine" would send the user to
+        a file that is not there.
+        """
+        if self._rebuilding or not (0 <= row < len(self._groups)):
+            return
+        stem, pairs = self._groups[row]
+        self._chosen[stem] = max(0, min(int(index), len(pairs) - 1))
+        self._fill_row(row)
+        self._selection_changed()
+
+    def _add_model(self) -> None:
+        """List a checkpoint the user already has, then offer to share it.
+
+        The model is usable immediately whether or not it is ever uploaded --
+        listing and sharing are separate steps, because most users adding a
+        model want to USE it, not publish it.
+        """
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+        from ... import model_zoo
+
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Add a model", self.folder_edit.text().strip() or "",
+            "Models (*.pth *.pt *.CP_model *.safetensors);;All files (*)")
+        if not path:
+            return
+        try:
+            entry = model_zoo.entry_from_file(path)
+        except Exception as exc:                            # noqa: BLE001
+            self.status.setText(f"Not a model this can read: {exc}")
+            return
+        self._rebuild(list(self._entries) + [entry])
+        self.status.setText(f"Listed {os.path.basename(path)}. It is usable now.")
+
+        if QMessageBox.question(
+                self, "Share this model?",
+                "Share this model on Hugging Face so other spaCR users can "
+                "download it?\n\nYou will be asked for the numbers that go in "
+                "its scorecard. Uploading uses YOUR Hugging Face login.",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No) != QMessageBox.Yes:
+            return
+        self._share_model(path)
+
+    def _share_model(self, path: str) -> None:
+        """Collect the scorecard and upload, using the uploader's own token."""
+        from PySide6.QtWidgets import QMessageBox
+
+        from . import model_share
+        from .model_share_dialog import ShareDialog
+
+        token = model_share.find_token()
+        if not token:
+            QMessageBox.information(
+                self, "Hugging Face login needed",
+                "No Hugging Face token was found, so nothing was uploaded.\n\n"
+                "Run `huggingface-cli login`, or set HF_TOKEN, and press Add "
+                "again. spaCR does not ship a token of its own: one that could "
+                "upload could also delete, and it would be readable by anyone "
+                "who installs spaCR.")
+            return
+        dialog = ShareDialog(os.path.basename(path), self)
+        if not dialog.exec():
+            return
+        self.status.setText("Uploading to Hugging Face…")
+        try:
+            url = model_share.share(path, dialog.values(), token)
+        except Exception as exc:                            # noqa: BLE001
+            QMessageBox.warning(
+                self, "Upload failed",
+                f"{exc}\n\nIf this says you may not write there, ask the owner "
+                f"of {model_share.SHARE_REPO} for write access, or it will be "
+                "published under your own account instead.")
+            self.status.setText("Upload failed.")
+            return
+        self.status.setText(f"Shared: {url}")
+        QMessageBox.information(self, "Shared", f"Uploaded to\n{url}")
 
     def _local_path(self, entry) -> Optional[str]:
         """Where this entry already is, or the name Cellpose resolves itself."""
@@ -357,7 +486,10 @@ class ModelZooPicker(QDialog):
         if len(rows) != 1:
             return None
         row = rows.pop()
-        return self._entries[row] if 0 <= row < len(self._entries) else None
+        if not (0 <= row < len(self._groups)):
+            return None
+        stem, pairs = self._groups[row]
+        return pairs[self._chosen[stem]][1]
 
 
     def _selection_changed(self) -> None:

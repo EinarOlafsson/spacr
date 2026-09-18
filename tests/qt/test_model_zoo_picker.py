@@ -188,35 +188,40 @@ def test_the_download_folder_is_shown_before_anything_is_fetched(picker,
 
 
 def _unverified_row(picker):
-    """A row that publishes no checksum AND is not already on disk.
+    """A row whose chosen version publishes no checksum and is not on disk.
 
     Both halves matter. An entry already present takes the "Ready" branch and
-    never reaches the checksum warning -- which is right, there is nothing to
-    download -- so a test that ignored that would assert the warning against a
-    row that correctly does not show it.
-    """
-    for row, entry in enumerate(picker._entries):
-        if not getattr(entry, "sha256", "") and picker._local_path(entry) is None:
-            return row
-    # SYNTHETIC, not skipped. The only unverifiable entry was the retired
-    # toxo_plaque_cyto, so after the retirement these three tests skipped --
-    # and a skipped test is a guard that has quietly stopped guarding. The
-    # confirmation path is still live for any future entry published without a
-    # hash, which is exactly when it will matter and exactly when nobody will
-    # remember it exists. So the case is constructed rather than found.
-    from copy import copy
+    never reaches the checksum warning.
 
-    donor = copy(picker._entries[0])
-    object.__setattr__(donor, "sha256", "")
-    object.__setattr__(donor, "path", "")
-    object.__setattr__(donor, "name", "a_model_with_no_checksum.CP_model")
-    picker._entries.append(donor)
-    picker.table.setRowCount(len(picker._entries))
-    from PySide6.QtWidgets import QTableWidgetItem
-    for column, text in enumerate((donor.name, donor.kind, "", "not downloaded")):
-        picker.table.setItem(len(picker._entries) - 1, column,
-                             QTableWidgetItem(str(text)))
-    return len(picker._entries) - 1
+    A row is a model FAMILY now, so an unverifiable entry may be a version the
+    row is not showing: search every version and switch the row's combo box to
+    it. And if the catalogue publishes a checksum for everything -- which is
+    the goal, and is true today -- list one that does not, rather than letting
+    this test pass or fail on what the catalogue happens to hold.
+    """
+    for row, (_stem, pairs) in enumerate(picker._groups):
+        for index, (_label, entry) in enumerate(pairs):
+            if getattr(entry, "sha256", ""):
+                continue
+            if picker._local_path(entry) is not None:
+                continue
+            combo = picker.table.cellWidget(row, 4)
+            if combo is not None:
+                combo.setCurrentIndex(index)
+            return row
+
+    from spacr import model_zoo as zoo
+
+    unverified = zoo.ModelEntry(
+        key="unchecksummed_v1", name="unchecksummed.CP_model", path="",
+        kind="cellpose", source="catalogue",
+        uri="https://example.invalid/unchecksummed.CP_model",
+        sha256="", size_bytes=1024)
+    picker._rebuild(list(picker._entries) + [unverified])
+    for row, (stem, _pairs) in enumerate(picker._groups):
+        if stem == "unchecksummed":
+            return row
+    raise AssertionError("could not list a model that publishes no checksum")
 
 
 def test_an_unverifiable_model_says_so_before_the_click(picker):
