@@ -1,0 +1,75 @@
+================================================================================
+A DOCKER IMAGE FOR spaCR
+================================================================================
+
+Status:    NOT STARTED. Filed 2026-09-18. The request was "add a docker for
+           spaCR if it makes sense to do so", so the first section is the
+           answer to that question rather than a plan.
+
+--------------------------------------------------------------------------------
+DOES IT MAKE SENSE? YES FOR THE PIPELINE, PARTLY FOR THE GUI
+--------------------------------------------------------------------------------
+
+WORTH DOING. The headless half of spaCR is exactly what containers are for:
+
+  - The install is heavy and version-sensitive -- torch, CUDA, cellpose,
+    PyQt6, and now optional SAMCell and DINOCell backends that each pin their
+    own torch. "It works on my machine" is a real cost here, and the install
+    is the single most common thing to go wrong for a new user.
+  - A reviewer re-running an analysis a year from now needs the environment,
+    not just the code. An image tagged with the spaCR version is a far better
+    answer than a requirements file.
+  - Cluster and cloud runs want an image, not a conda environment.
+
+LESS CLEARLY WORTH DOING. The GUI. spaCR is a Qt desktop application, and a
+containerised Qt app needs the host's display socket passed in (X11 or
+Wayland), which works on Linux, is awkward on macOS, and is a support burden
+out of proportion to the benefit. The GUI is not the part users struggle to
+install -- the CUDA stack is.
+
+SO: build the image for the CLI and the pipeline, treat GUI-in-a-container as
+a documented extra for Linux users who want it, and do not promise it works
+everywhere.
+
+--------------------------------------------------------------------------------
+SHAPE
+--------------------------------------------------------------------------------
+
+  - Base on an official CUDA runtime image matching the torch build, not on a
+    bare python image with pip-installed CUDA wheels of unknown provenance.
+  - Two tags at least: one CPU-only (small, works anywhere, for testing and
+    for the measure/regression half that does not need a GPU) and one CUDA.
+  - Models are NOT baked in. A cpsam checkpoint is ~1.2 GB and the Model Zoo
+    exists to fetch them; baking them makes the image enormous and stale. Mount
+    a models directory instead, and let the zoo's download folder point at it.
+  - Data is mounted, never copied in.
+  - Run as a non-root user with a matching UID, or every output file the
+    container writes will be owned by root on the host. This is the single
+    most common complaint about scientific Docker images.
+  - Build it in CI on a tag, publish to a registry, and test that `spacr
+    --version` and one small pipeline run work in the built image before it is
+    pushed.
+
+--------------------------------------------------------------------------------
+OPEN QUESTIONS -- ANSWER BEFORE BUILDING
+--------------------------------------------------------------------------------
+
+  - Which CUDA version is the floor? The box this was written on runs CUDA 13
+    with torch 2.13; the image has to serve users on older drivers, and the
+    driver is on the HOST and cannot be containerised away.
+  - Do the optional backends (SAMCell, DINOCell) go in the image, or stay an
+    install step inside a running container? They conflict on torch, which is
+    an argument for separate tags rather than one image with everything.
+  - Where does the measurements database live -- mounted, or in a volume?
+  - Is the image published to Docker Hub, GHCR, or both, and who owns the
+    namespace?
+  - Does conda-forge packaging (already done) cover enough of this need that
+    the image is only worth it for cluster users?
+
+--------------------------------------------------------------------------------
+WHY IT IS FILED RATHER THAN BUILT
+--------------------------------------------------------------------------------
+
+Requested 2026-09-18 as a list item. Building it means picking a CUDA floor
+and standing up a CI job that builds and tests a multi-gigabyte image, which
+is a decision about what spaCR supports rather than an afternoon's work.
