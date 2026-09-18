@@ -1,0 +1,101 @@
+================================================================================
+TIMEFLOWS: A LIGHT-MICROSCOPY cpsam_v2 AND A TIME DIMENSION FOR TRACKING
+================================================================================
+
+Status:    NOT STARTED. Filed 2026-09-18. Two halves: the first is ordinary
+           work, the second is research.
+
+--------------------------------------------------------------------------------
+THE PLAN AS GIVEN
+--------------------------------------------------------------------------------
+
+  (i)  Train a cpsam_v2 model to segment objects in LIGHT MICROSCOPY images.
+       Fine-tune on several light-microscopy datasets first, then fine-tune
+       again on the timelapse dataset.
+
+  (ii) Resolve objects over time. Three routes were raised:
+
+       A. Feed the model 3D with TIME in the z slot.
+       B. Take the model's 2D output plus timestamps and stitch tracks
+          afterwards.
+       C. THE ONE WANTED. Copy the Cellpose-SAM source and add a trainable
+          mechanism that predicts "flows" BETWEEN timepoints, so one model:
+            1. detects objects,
+            2. predicts the 2D flows that split touching objects, and
+            3. predicts TIME flows that label an object consistently across
+               frames.
+
+--------------------------------------------------------------------------------
+IS IT PLAUSIBLE? YES, AND C IS THE INTERESTING ONE
+--------------------------------------------------------------------------------
+
+Part (i) is routine and should be done first regardless: it is the same
+cross-channel fine-tuning pipeline already in this project, pointed at a new
+dataset. Two-stage fine-tuning (broad light microscopy, then the timelapse) is
+the right order -- the second stage is small and would overfit alone.
+
+Part (ii)C is plausible because it is the SAME TRICK CELLPOSE ALREADY PLAYS,
+applied to another axis. Cellpose does not predict object labels; it predicts a
+vector field pointing at an object's centre, and objects fall out of following
+those vectors. A field pointing from a cell at frame t to the same cell's
+centre at frame t+1 is the same kind of object, and it inherits the same
+property that makes flows work: it is dense, local, and defined everywhere,
+so it trains with a plain regression loss and needs no assignment step in the
+loss function. Divisions, which break every tracker, become two frames whose
+vectors point back to one parent -- representable, where a one-to-one matcher
+has to special-case it.
+
+Route A is the cheapest thing to try and should be tried first as a baseline,
+but it is a WEAK baseline by construction: a z-stack is isotropic-ish and
+reversible, while time is neither, and the model would be told a moving cell
+is a tilted 3D object. Expect it to work on slow, dense timelapses and fail on
+fast ones.
+
+Route B is what every existing tracker does and is the honest fallback. If the
+timeflow model cannot beat a good 2D segmentation plus an overlap or Hungarian
+matcher, it is not worth the source fork.
+
+--------------------------------------------------------------------------------
+WHAT MAKES IT HARD -- READ BEFORE STARTING
+--------------------------------------------------------------------------------
+
+  - TRAINING DATA. 2D flows are computed from masks for free. Time flows need
+    masks that are LINKED across frames -- the same cell carrying the same id
+    in frame t and t+1. That is the expensive part of tracking datasets and
+    the reason tracking benchmarks are small. Check what the timelapse dataset
+    actually has before writing any model code. If the links are not there,
+    this project is a curation project first.
+  - FORKING CELLPOSE. The trainer here already does AST surgery on train_seg
+    rather than editing the installed package, precisely to avoid owning a
+    fork. A new output head and a new loss term is past what that can carry:
+    this one needs a real fork, and a fork has to be maintained against
+    upstream Cellpose releases forever.
+  - FRAME SPACING. A flow field learnt at one interval encodes a displacement
+    in pixels per frame. A dataset imaged every 30 s and one imaged every
+    10 min are different problems, and the model must either be told the
+    interval or be trained across enough of them to be robust.
+  - DIVISION AND DEATH. Cells appear, divide and vanish. The field has to say
+    "no successor" somewhere, which means a validity channel, not just
+    vectors.
+  - EVALUATION. Segmentation F1 will not tell you whether tracking improved.
+    This needs tracking metrics (TRA/DET from the Cell Tracking Challenge, or
+    MOTA-style counts of id switches), and they should be in place BEFORE the
+    model, or there is no way to tell route C from route B.
+
+--------------------------------------------------------------------------------
+THE ORDER I WOULD DO IT IN
+--------------------------------------------------------------------------------
+
+  1. Fine-tune cpsam_v2 on the light-microscopy datasets. Useful on its own.
+  2. Fine-tune again on the timelapse frames. Still useful on its own.
+  3. Build the tracking metrics and route B, the stitcher. This is the number
+     everything else has to beat.
+  4. Try route A as a cheap sanity check.
+  5. Only then fork for route C, and only if 3 and 4 leave a real gap.
+
+--------------------------------------------------------------------------------
+WHY IT IS FILED RATHER THAN BUILT
+--------------------------------------------------------------------------------
+
+Requested 2026-09-18 as a list item, with an explicit request for an opinion
+on whether it is plausible. The opinion is above.
