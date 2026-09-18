@@ -90,6 +90,7 @@ from PySide6.QtCore import (
     Signal,
 )
 from PySide6.QtGui import (
+    QBrush,
     QColor,
     QCursor,
     QImage,
@@ -5099,10 +5100,20 @@ class MakeMasksScreen(QWidget):
         self._mag_mode.addItem("Classical", "classical")
         if installed("cellpose"):
             self._mag_mode.addItem("Cellpose", "cellpose")
-        if installed(_MAGNIFIER_BACKENDS["dinocell"]):
-            self._mag_mode.addItem("DINOCell", "dinocell")
-        if installed(_MAGNIFIER_BACKENDS["samcell"]):
-            self._mag_mode.addItem("SAMCell", "samcell")
+        # DINOCell and SAMCell are ALWAYS listed, greyed when not installed.
+        # A model absent from the box teaches nobody it exists; a greyed row
+        # that offers to install itself does.
+        self._mag_uninstalled = set()
+        for mode, label in (("dinocell", "DINOCell"), ("samcell", "SAMCell")):
+            self._mag_mode.addItem(label, mode)
+            if not installed(_MAGNIFIER_BACKENDS[mode]):
+                self._mag_uninstalled.add(mode)
+                index = self._mag_mode.findData(mode)
+                self._mag_mode.setItemData(
+                    index, QBrush(QColor(128, 128, 128)), Qt.ForegroundRole)
+                self._mag_mode.setItemData(
+                    index, f"{label} is not installed. Choosing it offers to "
+                    "install it.", Qt.ToolTipRole)
         self._mag_mode.setToolTip(
             "Which model segments the region in the box. Classical thresholds "
             "the region at Otsu's level and splits touching objects with a "
@@ -5117,23 +5128,15 @@ class MakeMasksScreen(QWidget):
         self._mag_mode.currentIndexChanged.connect(
             lambda _index: self._on_magnifier_mode(
                 self._mag_mode.currentData()))
+        # The install offer hangs off `activated`, which fires only when a
+        # PERSON picks a row -- not when code calls setCurrentIndex. A modal
+        # that opened on a programmatic change would fire during restore.
+        self._mag_mode.activated.connect(self._on_magnifier_mode_activated)
         form.addRow("Mode", self._mag_mode)
 
-        #: ``mode -> the sentence saying how to install it``, shown only for a
-        #: backend that is not installed, so a missing model is explained on
-        #: the panel rather than simply absent from the Mode box.
-        self._mag_install_notes = {
-            "dinocell": QLabel('DINOCell appears in Mode once installed: '
-                               'pip install "spacr[dinocell]"'),
-            "samcell": QLabel('SAMCell appears in Mode once installed: '
-                              'pip install "spacr[samcell]"'),
-        }
-        for mode, note in self._mag_install_notes.items():
-            note.setObjectName("CardSubtitle")
-            note.setWordWrap(True)
-            note.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            note.setVisible(self._mag_mode.findData(mode) < 0)
-            form.addRow(note)
+        #: Kept empty: the install sentence used to live on the panel, and
+        #: now the greyed Mode row offers the install itself.
+        self._mag_install_notes = {}
 
         self._mag_scope = QComboBox()
         self._mag_scope.addItem("Region under the mouse", "region")
@@ -5295,9 +5298,103 @@ class MakeMasksScreen(QWidget):
         }
 
     def _on_magnifier_mode(self, mode) -> None:
-        """Choose the magnifier's model; Sensitivity is the classical mode's."""
+        """Choose the magnifier's model; Sensitivity is the classical mode's.
+
+        A mode whose package is missing offers to install it. Cancelling puts
+        the box back where it was, so a curious click cannot leave the
+        magnifier pointed at a model that cannot load.
+        """
         self._mag_sensitivity.setEnabled(mode == "classical")
         self._magnifier.set_mode(mode)
+
+    def _on_magnifier_mode_activated(self, index: int) -> None:
+        """A person chose this mode: offer the install if it is missing.
+
+        Cancelling puts the box back where it was, so a curious click cannot
+        leave the magnifier pointed at a model that cannot load.
+        """
+        mode = self._mag_mode.itemData(index)
+        if mode not in getattr(self, "_mag_uninstalled", ()):
+            return
+        if self._offer_backend_install(mode):
+            return
+        previous = self._mag_mode.findData(
+            getattr(self._magnifier, "mode", None) or "classical")
+        self._mag_mode.setCurrentIndex(max(previous, 0))
+
+    #: ``mode -> (label, the pip extra that provides it)``.
+    _MAGNIFIER_EXTRAS = {"dinocell": ("DINOCell", "spacr[dinocell]"),
+                         "samcell": ("SAMCell", "spacr[samcell]")}
+
+    def _offer_backend_install(self, mode) -> bool:
+        """Ask, warn, and install. ``True`` when the backend is usable after.
+
+        The warning is not a formality. This runs pip against the environment
+        spaCR is running in: these backends bring their own torch pin, the
+        install can take minutes on a slow link, and a package that replaces
+        torch underneath a running process is exactly how an application stops
+        starting. The user is told that before they agree, not after.
+        """
+        import subprocess
+        import sys
+
+        from PySide6.QtWidgets import QApplication, QMessageBox
+
+        label, extra = self._MAGNIFIER_EXTRAS[mode]
+        answer = QMessageBox.warning(
+            self, f"Install {label}?",
+            f"{label} is not installed.\n\n"
+            f"Installing it runs:\n    pip install \"{extra}\"\n\n"
+            "into the environment spaCR is running in. It downloads a large "
+            "package and may change the installed version of torch, which can "
+            "affect Cellpose and, in the worst case, stop spaCR starting. It "
+            "can take several minutes and the window will not respond while "
+            "it runs.\n\nInstall it now?",
+            QMessageBox.Yes | QMessageBox.Cancel, QMessageBox.Cancel)
+        if answer != QMessageBox.Yes:
+            return False
+
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            done = subprocess.run(
+                [sys.executable, "-m", "pip", "install", extra],
+                capture_output=True, text=True)
+        except Exception as exc:                            # noqa: BLE001
+            QApplication.restoreOverrideCursor()
+            QMessageBox.warning(self, "Install failed", str(exc))
+            return False
+        QApplication.restoreOverrideCursor()
+
+        if done.returncode != 0:
+            tail = (done.stderr or done.stdout or "").strip().splitlines()
+            QMessageBox.warning(
+                self, "Install failed",
+                f"pip exited {done.returncode}.\n\n"
+                + "\n".join(tail[-8:] or ["No output."]))
+            return False
+
+        # Usable now, or only after a restart? Say which, rather than leaving
+        # the user to guess why the mode still does nothing.
+        import importlib
+
+        try:
+            importlib.import_module(_MAGNIFIER_BACKENDS[mode])
+            usable = True
+        except Exception:                                    # noqa: BLE001
+            usable = False
+        self._mag_uninstalled.discard(mode)
+        index = self._mag_mode.findData(mode)
+        self._mag_mode.setItemData(index, None, Qt.ForegroundRole)
+        self._mag_mode.setItemData(index, None, Qt.ToolTipRole)
+        if usable:
+            QMessageBox.information(self, "Installed",
+                                    f"{label} is installed and ready.")
+        else:
+            QMessageBox.information(
+                self, "Installed — restart needed",
+                f"{label} was installed, but it cannot be loaded into this "
+                "running process. Restart spaCR to use it.")
+        return usable
 
     def _on_magnifier_scope(self, scope) -> None:
         """Segment the region under the mouse or the whole image.

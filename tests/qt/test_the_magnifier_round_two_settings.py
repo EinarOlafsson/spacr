@@ -695,21 +695,37 @@ def test_dinocell_and_samcell_are_offered_where_installed(
         made.close_folded()
 
 
-def test_where_not_installed_the_panel_says_how_to_install_them(
+def test_where_not_installed_the_modes_are_greyed_and_offer_to_install(
         qtbot, qt_theme_applied, monkeypatch):
+    """A model absent from the box teaches nobody that it exists.
+
+    So both are always listed, greyed when their package is missing, and
+    choosing one offers the install. Cancelling must leave the magnifier where
+    it was -- a curious click cannot point it at a model that cannot load.
+    """
+    from PySide6.QtCore import Qt
+
     monkeypatch.setattr(mm, "find_spec",
                         lambda name: object() if name == "cellpose" else None)
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["classical", "cellpose"]
-        notes = made._mag_install_notes
-        assert not notes["dinocell"].isHidden()
-        assert not notes["samcell"].isHidden()
-        assert 'pip install "spacr[dinocell]"' in notes["dinocell"].text()
-        assert 'pip install "spacr[samcell]"' in notes["samcell"].text()
-        magnifier_category = dict(made._settings_categories)["Live magnifier"]
-        assert magnifier_category.isAncestorOf(notes["dinocell"])
+        assert _modes(made) == ["classical", "cellpose", "dinocell", "samcell"]
+        assert made._mag_uninstalled == {"dinocell", "samcell"}
+        for mode in ("dinocell", "samcell"):
+            index = made._mag_mode.findData(mode)
+            assert made._mag_mode.itemData(index, Qt.ForegroundRole) is not None
+            assert "not installed" in made._mag_mode.itemData(
+                index, Qt.ToolTipRole)
+
+        offered = []
+        monkeypatch.setattr(type(made), "_offer_backend_install",
+                            lambda self, mode: offered.append(mode) or False)
+        made._mag_mode.setCurrentIndex(made._mag_mode.findData("classical"))
+        made._on_magnifier_mode_activated(made._mag_mode.findData("samcell"))
+        assert offered == ["samcell"], "choosing a missing model did not offer it"
+        assert made._mag_mode.currentData() == "classical", (
+            "cancelling the install left the box on a model that cannot load")
     finally:
         made._magnifier.close()
         made.close_folded()
