@@ -52,7 +52,8 @@ print("[startup] env names containing TOKEN:",
       sorted(k for k in os.environ if "TOKEN" in k.upper()), flush=True)
 print("[startup] upload repo:", os.environ.get("UPLOAD_REPO", "(default)"),
       flush=True)
-MAX_BYTES = 2_500_000_000          # a cpsam checkpoint is ~1.2 GB
+MAX_BYTES = 30_000_000_000         # a cpsam checkpoint is ~1.2 GB; a
+                                   # training-data tarball may be ~25 GB
 ALLOWED_SUFFIXES = (".pth", ".pt", ".safetensors", ".CP_model")
 RATE = {}                          # ip -> [timestamps]
 RATE_LIMIT, RATE_WINDOW = 3, 3600  # uploads per IP per hour
@@ -91,7 +92,8 @@ def _rate_ok(who):
     return True
 
 
-def upload(file, name, kind, trained_on, scorecard_json, contact, request: gr.Request):
+def upload(file, name, kind, trained_on, scorecard_json, contact,
+           train_data=None, request: gr.Request = None):
     """Validate, then commit to staging. Returns a message for the client."""
     if not TOKEN:
         return "error: this endpoint is not configured (no token)."
@@ -122,7 +124,20 @@ def upload(file, name, kind, trained_on, scorecard_json, contact, request: gr.Re
         return "error: the scorecard is not valid JSON."
 
     folder = f"staging/{_slug(name)}-{sha[:8]}"
+
+    # Optional training data, as one tarball beside the checkpoint. A model
+    # whose data came with it can be retrained and checked; one without it can
+    # only be believed.
+    train_name = None
+    if train_data is not None:
+        train_path = train_data if isinstance(train_data, str) else train_data.name
+        train_size = os.path.getsize(train_path)
+        if train_size > MAX_BYTES:
+            return f"error: training data is {train_size} bytes, over {MAX_BYTES}."
+        train_name = "train_data" + ("".join(
+            x for x in [".tar.gz"] if str(train_path).endswith(".tar.gz")) or ".tar")
     meta = dict(name=name, kind=kind or "cellpose", trained_on=trained_on,
+                train_data=train_name,
                 sha256=sha, size_bytes=size, contact=contact or "",
                 uploaded=time.strftime("%Y-%m-%d %H:%M:%S"),
                 uploaded_by_ip_hash=hashlib.sha256(who.encode()).hexdigest()[:16],
@@ -131,6 +146,10 @@ def upload(file, name, kind, trained_on, scorecard_json, contact, request: gr.Re
         api.upload_file(path_or_fileobj=path,
                         path_in_repo=f"{folder}/{os.path.basename(path)}",
                         repo_id=UPLOAD_REPO, repo_type="model")
+        if train_name:
+            api.upload_file(path_or_fileobj=train_path,
+                            path_in_repo=f"{folder}/{train_name}",
+                            repo_id=UPLOAD_REPO, repo_type="model")
         api.upload_file(path_or_fileobj=json.dumps(meta, indent=2).encode(),
                         path_in_repo=f"{folder}/submission.json",
                         repo_id=UPLOAD_REPO, repo_type="model")
@@ -146,7 +165,8 @@ demo = gr.Interface(
             gr.Textbox(label="kind", value="cellpose"),
             gr.Textbox(label="trained on"),
             gr.Textbox(label="scorecard (JSON)", value="{}"),
-            gr.Textbox(label="contact (optional)")],
+            gr.Textbox(label="contact (optional)"),
+            gr.File(label="training data (tar, optional)")],
     outputs=gr.Textbox(label="result"),
     title="spaCR model upload",
     description=("Publishes a model to the shared spaCR collection. "

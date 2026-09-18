@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import os
 import re
+from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 #: Where shared models go when the uploader may write there.
@@ -31,6 +32,39 @@ SHARE_REPO = "einarolafsson/user-models"
 CENTRAL_ENDPOINT = os.environ.get(
     "SPACR_MODEL_UPLOAD_URL",
     "https://einarolafsson-spacr-model-upload.hf.space").strip()
+
+
+#: About how much training data the endpoint accepts, packed.
+MAX_TRAIN_BYTES = 25_000_000_000
+
+
+def pack_training_data(folder: str, out_dir: Optional[str] = None) -> str:
+    """Pack a training-data folder into ONE uncompressed tar. Returns its path.
+
+    Uncompressed on purpose: microscopy TIFFs are already poorly compressible
+    and gzipping tens of gigabytes costs far more time than it saves bytes.
+    Raises if the result would be larger than the endpoint accepts, BEFORE the
+    upload is attempted, so a user does not wait out a transfer that was never
+    going to be accepted.
+    """
+    import tarfile
+    import tempfile
+
+    source = Path(folder)
+    if not source.is_dir():
+        raise RuntimeError(f"{folder} is not a folder")
+    total = sum(f.stat().st_size for f in source.rglob("*") if f.is_file())
+    if total > MAX_TRAIN_BYTES:
+        raise RuntimeError(
+            f"that folder holds {total / 1e9:.1f} GB, and the limit is about "
+            f"{MAX_TRAIN_BYTES / 1e9:.0f} GB")
+    handle = tempfile.NamedTemporaryFile(
+        suffix=".tar", delete=False,
+        dir=out_dir or tempfile.gettempdir())
+    handle.close()
+    with tarfile.open(handle.name, "w") as tar:
+        tar.add(str(source), arcname=source.name)
+    return handle.name
 
 
 #: The scorecard, in the order the model cards print it.
@@ -89,12 +123,34 @@ def central_upload(path: str, fields: Dict[str, Any]) -> str:
         headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
     uploaded = json.loads(urllib.request.urlopen(request, timeout=600).read())
 
+    train_handle = None
+    train_dir = str(fields.get("train_data_dir") or "")
+    if train_dir:
+        tarball = pack_training_data(train_dir)
+        boundary = uuid.uuid4().hex
+        with open(tarball, "rb") as handle:
+            blob = handle.read()
+        body = (f"--{boundary}\r\nContent-Disposition: form-data; name=\"files\"; "
+                f"filename=\"{_os.path.basename(tarball)}\"\r\n"
+                "Content-Type: application/octet-stream\r\n\r\n").encode()
+        body += blob + f"\r\n--{boundary}--\r\n".encode()
+        request = urllib.request.Request(
+            base + "/gradio_api/upload", data=body,
+            headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
+        sent = json.loads(urllib.request.urlopen(request, timeout=7200).read())
+        train_handle = {"path": sent[0], "meta": {"_type": "gradio.FileData"}}
+        try:
+            _os.unlink(tarball)
+        except OSError:
+            pass
+
     call = dict(data=[{"path": uploaded[0], "meta": {"_type": "gradio.FileData"}},
                       str(fields.get("display_name") or ""),
                       str(fields.get("kind") or "cellpose"),
                       str(fields.get("trained_on") or ""),
                       json.dumps(fields),
-                      str(fields.get("contact") or "")])
+                      str(fields.get("contact") or ""),
+                      train_handle])
     request = urllib.request.Request(
         base + "/gradio_api/call/upload", data=json.dumps(call).encode(),
         headers={"Content-Type": "application/json"})
