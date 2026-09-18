@@ -73,11 +73,14 @@ def test_the_model_zoo_returns_the_model_the_row_shows(qtbot, qapp):
 
     shown = table.item(0, 0).text()
     chosen = screen.selected_entries()
-    assert chosen and chosen[0].name == shown, (
+    from spacr.qt.screens.model_zoo import _stem_version
+    # The model column is the version-collapsed KEY family, not the filename.
+    assert chosen and _stem_version(chosen[0])[0] == shown, (
         f"row 0 shows {shown} but the screen returned "
         f"{chosen[0].name if chosen else None}")
 
 
+@pytest.mark.skip(reason="The Model Zoo table no longer has a size column: it was collapsed to model/kind/trained on/status/version, one row per model family with the version as a picker. Nothing on this screen now prints a byte count, so there is no unit-vs-bytes sort to guard here.")
 def test_a_size_column_sorts_on_bytes_not_on_the_unit_printed(qtbot, qapp):
     """"900 KB" reads as 900 and would sit above "12 MB"."""
     from spacr.qt.screens import model_zoo as zoo_screen

@@ -65,6 +65,7 @@ Design notes:
 from __future__ import annotations
 
 import os
+import re
 from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
@@ -73,6 +74,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QComboBox,
     QFileDialog,
     QGroupBox,
     QHBoxLayout,
@@ -121,8 +123,59 @@ COLOUR_OBJECT = (46, 196, 182)
 #: Where a downloaded model goes unless the user says otherwise.
 DEFAULT_DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), ".spacr", "models")
 
-_ZOO_HEADERS = ("model", "kind", "source", "v", "size", "checksum",
-                "trained on", "trained by")
+_ZOO_HEADERS = ("model", "kind", "trained on", "status", "version")
+
+
+def _stem_version(entry) -> tuple:
+    """Split a zoo key into the model family and its version label.
+
+    ``toxoplasma_pv_v2`` -> ``("toxoplasma_pv", "v2")``; a key with no version
+    suffix falls back to the entry's own version number, so the bundled
+    ``cpsam`` at version 2 still reads ``v2``.
+    """
+    key = str(getattr(entry, "key", "") or getattr(entry, "name", ""))
+    m = re.search(r"_v(\d+)$", key)
+    if m:
+        return key[:m.start()], f"v{m.group(1)}"
+    return key, f"v{getattr(entry, 'version', '') or 1}"
+
+
+def _status_of(entry) -> str:
+    """One word for whether this version is usable right now."""
+    path = str(getattr(entry, "path", "") or "")
+    if path and os.path.isfile(path):
+        state = "installed"
+    elif str(getattr(entry, "source", "")) == "bundled":
+        state = "bundled"
+    else:
+        state = "available"
+    if str(getattr(entry, "checksum_state", "")) == "none":
+        state += " (unverified)"
+    return state
+
+
+def group_entries(entries) -> list:
+    """Collapse a listing to one row per model family, newest version first.
+
+    The zoo used to show one row per checkpoint, so a model with three
+    versions pushed two unrelated models off the screen. Grouping makes the
+    row a MODEL and the version a choice within it.
+    """
+    groups: dict = {}
+    for entry in entries:
+        stem, label = _stem_version(entry)
+        groups.setdefault(stem, []).append((label, entry))
+    out = []
+    for stem, pairs in groups.items():
+        pairs.sort(key=lambda pl: _version_sort_key(pl[0]), reverse=True)
+        out.append((stem, pairs))
+    out.sort(key=lambda g: g[0])
+    return out
+
+
+def _version_sort_key(label: str):
+    m = re.search(r"(\d+)", str(label))
+    return int(m.group(1)) if m else 0
 
 _BENCH_HEADERS = ("field", "objects", "seg_qc", "flags")
 
@@ -311,6 +364,8 @@ class ModelZooScreen(QWidget):
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._entries: List[zoo.ModelEntry] = []
+        self._groups: List[tuple] = []
+        self._chosen: dict = {}
         self._result: Optional[zoo.BenchmarkResult] = None
         self._images: List[np.ndarray] = []
         self._field_names: List[str] = []
@@ -534,43 +589,72 @@ class ModelZooScreen(QWidget):
         return list(self._entries)
 
     def set_entries(self, entries) -> None:
-        """Replace the listing (used by the scan, and directly by tests)."""
+        """Replace the listing (used by the scan, and directly by tests).
+
+        One row per model family. The version column is a combo box, so a
+        model with several versions is one row the user opens rather than
+        several rows they have to tell apart by suffix.
+        """
         self._entries = list(entries)
+        self._groups = group_entries(self._entries)
+        self._chosen = {stem: 0 for stem, _ in self._groups}
         table = self._table
         table.blockSignals(True)
-        table.setRowCount(len(self._entries))
-        for r, entry in enumerate(self._entries):
-            cells = (
-                entry.name,
-                entry.kind,
-                entry.source,
-                entry.version,
-                zoo._human_bytes(entry.size_bytes),
-                entry.checksum_state,
-                entry.trained_on,
-                entry.trained_by,
-            )
-            for c, text in enumerate(cells):
-                item = _cell(str(text),
-                             key=entry.size_bytes if c == 4 else None)
-                if c == 0:
-                    item.setData(Qt.UserRole, r)
-                if c == 6 and not entry.provenance_known:
-                    item.setForeground(_brush(active_palette()["warning"]))
-                if c == 5 and entry.checksum_state == "none":
-                    item.setForeground(_brush(active_palette()["warning"]))
-                item.setToolTip(_tooltip_for(entry))
-                table.setItem(r, c, item)
+        table.setRowCount(len(self._groups))
+        for r, (stem, pairs) in enumerate(self._groups):
+            combo = QComboBox(table)
+            combo.addItems([label for label, _ in pairs])
+            combo.setCurrentIndex(0)
+            combo.currentIndexChanged.connect(
+                lambda idx, row=r: self._version_picked(row, idx))
+            table.setCellWidget(r, 4, combo)
+            self._fill_row(r)
         table.blockSignals(False)
         table.resizeColumnsToContents()
         self.models_listed.emit(len(self._entries))
         self._update_controls()
 
+    def _fill_row(self, row: int) -> None:
+        """Write the non-version cells for the version currently chosen."""
+        stem, pairs = self._groups[row]
+        entry = pairs[self._chosen[stem]][1]
+        table = self._table
+        cells = (stem, entry.kind, entry.trained_on, _status_of(entry))
+        for c, text in enumerate(cells):
+            item = _cell(str(text))
+            if c == 0:
+                item.setData(Qt.UserRole, row)
+            if c == 2 and not entry.provenance_known:
+                item.setForeground(_brush(active_palette()["warning"]))
+            if c == 3 and "unverified" in str(text):
+                item.setForeground(_brush(active_palette()["warning"]))
+            item.setToolTip(_tooltip_for(entry))
+            table.setItem(row, c, item)
+
+    def _version_picked(self, row: int, index: int) -> None:
+        """The user chose a version: that row now means a different model."""
+        if not (0 <= row < len(self._groups)):
+            return
+        stem, pairs = self._groups[row]
+        self._chosen[stem] = max(0, min(int(index), len(pairs) - 1))
+        self._fill_row(row)
+        self._update_controls()
+
+    def chosen_entry(self, row: int):
+        """The entry a row currently stands for, honouring its version pick."""
+        stem, pairs = self._groups[row]
+        return pairs[self._chosen[stem]][1]
+
     def rows(self) -> List[List[str]]:
         """The listing as plain strings."""
-        return [[(self._table.item(r, c).text() if self._table.item(r, c)
-                  else "")
-                 for c in range(self._table.columnCount())]
+        def text(r, c):
+            item = self._table.item(r, c)
+            if item is not None:
+                return item.text()
+            widget = self._table.cellWidget(r, c)
+            return widget.currentText() if isinstance(widget, QComboBox) else ""
+
+        return [[text(r, c) for c in range(self._table.columnCount())]
                 for r in range(self._table.rowCount())]
 
     def scan(self, folder: Optional[str] = None,
@@ -660,8 +744,8 @@ class ModelZooScreen(QWidget):
             index = None if item is None else item.data(Qt.UserRole)
             if index is None:
                 index = row
-            if 0 <= int(index) < len(self._entries):
-                out.append(self._entries[int(index)])
+            if 0 <= int(index) < len(self._groups):
+                out.append(self.chosen_entry(int(index)))
         return out
 
     def select(self, *rows: int) -> None:

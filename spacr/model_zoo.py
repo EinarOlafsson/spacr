@@ -400,6 +400,103 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "microscopes",
         ),
     },
+    {
+        "key": "toxoplasma_from_cellmask_v1",
+        "name": "toxoplasma_from_cellmask_pv",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-from-cellmask-cpsam",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab",
+        "display_name": "Toxoplasma from Cell Mask (cross-channel)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "Toxoplasma PV masks predicted from the HOST CELL MASK channel "
+                   "alone; 2567 training and 463 held-out fields, split by well, "
+                   "hosts HFF/HeLa/THP1",
+        "versus_stock": "F1 0.606 against 0.021 for stock cpsam_v2 on 463 "
+                        "well-grouped held-out fields, at IoU 0.5",
+        "trained_on": (
+            "cross-channel: given the host cell image, predicts where the "
+            "Toxoplasma parasitophorous vacuoles are, with no parasite stain. "
+            "100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are "
+            "PV-regenerated masks"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's "
+            "0.021/0.008/0.020 -- stock cannot do this task at all",
+            "per host: HeLa 0.711, HFF 0.557, THP1 0.465; THP1 is the weak case",
+            "the held-out split selects the checkpoint, so it is validation data "
+            "rather than an independent test set",
+            "accuracy falls above IoU 0.8 -- suited to counting, occupancy and "
+            "area rather than precise morphometry",
+        ),
+    },
+    {
+        "key": "toxoplasma_pv_v2",
+        "name": "cpsam_v2_toxo_r5",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r5",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f",
+        "display_name": "Toxoplasma PV v2 (round 5)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated "
+                   "images accumulated over five rounds",
+        "versus_stock": "F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 "
+                        "pairs; ~0.86 against 0.713 for stock on the 11 in-house "
+                        "held-out wells",
+        "trained_on": (
+            "Toxoplasma tachyzoite parasitophorous vacuoles stained with goat "
+            "anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV "
+            "lumen (RH and ME49). Round 5: 556 images, 100 epochs, base cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "supersedes toxoplasma_pv_v1 (round 2, 229 images): more than twice "
+            "the training data and cross-validated rather than single-split",
+            "5-fold CV over 619 pairs: F1 0.817 (SD 0.036), AJI 0.714, Dice 0.802",
+            "per-dataset variance is real -- F1 ranges ~0.74 to ~0.93 by screen",
+            "accuracy falls above IoU 0.8 -- suited to counting and area rather "
+            "than precise morphometry",
+        ),
+    },
+    {
+        "key": "nuclei_from_cellmask_v1",
+        "name": "nuclei_from_cellmask_best",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/cross-channel-nuclei-from-cellmask-cpsam",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "cross-channel-nuclei-from-cellmask-cpsam/resolve/main/"
+               "weights/nuclei_from_cellmask_best",
+        "sha256":
+            "2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47",
+        "display_name": "Cross-channel nuclei-from-cellmask",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "nuclei predicted from the HOST CELL MASK channel alone; "
+                   "453 well-grouped held-out fields, hosts HFF/HeLa/THP1",
+        "versus_stock": "F1 0.888 against 0.201 for stock cpsam_v2 on "
+                        "453 well-grouped held-out fields, at IoU 0.5",
+        "trained_on": (
+            "cross-channel: given the cell image, predicts where the nuclei "
+            "are, with no nuclear stain -- which frees the DAPI/Hoechst "
+            "channel for another marker. 100 epochs, base cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "F1 0.888, AJI 0.792, Dice 0.877 at IoU 0.5 against stock "
+            "cpsam_v2's 0.201/0.286/0.449",
+            "per host: HFF 0.932, HeLa 0.860, THP1 0.861",
+            "the held-out split selects the checkpoint, so it is validation "
+            "data rather than an independent test set",
+            "predicts nuclei from cell morphology -- expect degraded accuracy "
+            "on unusual or highly confluent morphologies",
+        ),
+    },
 )
 
 #: Models that are no longer OFFERED, by filename.
@@ -636,6 +733,27 @@ class ModelEntry:
                         f"{'s' if len(self.notes) > 1 else ''}")
         return " · ".join(bits)
 
+    @property
+    def model_card_url(self) -> str:
+        """The Hugging Face page for this model, derived from its download uri.
+
+        A checksum and a metrics table are not enough on their own: the reader
+        wants the page that says what the model was trained on and shows its
+        training curves. Derived rather than declared, so every Hugging Face
+        entry has one without a per-entry field to forget.
+        """
+        uri = str(self.uri or "")
+        marker = "huggingface.co/"
+        if marker not in uri:
+            return ""
+        rest = uri.split(marker, 1)[1]
+        parts = [p for p in rest.split("/") if p]
+        if len(parts) >= 2 and parts[0] == "datasets":
+            parts = parts[1:]
+        if len(parts) < 2:
+            return ""
+        return f"https://huggingface.co/{parts[0]}/{parts[1]}"
+
     def describe(self) -> str:
         """The multi-line provenance card shown next to a selected model."""
         lines = [
@@ -649,6 +767,9 @@ class ModelEntry:
                      f"({self.checksum_state})")
         lines.append(f"  trained on {self.trained_on}")
         lines.append(f"  trained by {self.trained_by}")
+        card = self.model_card_url
+        if card:
+            lines.append(f"  model card {card}")
         if self.settings_path:
             lines.append(f"  provenance {self.settings_path}")
         for name, value in sorted(self.metrics.items()):
