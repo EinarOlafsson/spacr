@@ -447,6 +447,22 @@ class ModelZooPicker(QDialog):
         from . import model_share
         from .model_share_dialog import ShareDialog
 
+        dialog_fields = None
+        if model_share.CENTRAL_ENDPOINT:
+            dialog = ShareDialog(os.path.basename(path), self)
+            if not dialog.exec():
+                return
+            dialog_fields = dialog.values()
+            self.status.setText("Uploading to the shared collection…")
+            try:
+                reply = model_share.central_upload(path, dialog_fields)
+            except Exception as exc:                        # noqa: BLE001
+                self.status.setText(f"Shared upload failed: {exc}")
+            else:
+                self.status.setText(reply)
+                QMessageBox.information(self, "Submitted", reply)
+                return
+
         token = model_share.find_token()
         if not token:
             QMessageBox.information(
@@ -457,12 +473,14 @@ class ModelZooPicker(QDialog):
                 "upload could also delete, and it would be readable by anyone "
                 "who installs spaCR.")
             return
-        dialog = ShareDialog(os.path.basename(path), self)
-        if not dialog.exec():
-            return
+        if dialog_fields is None:
+            dialog = ShareDialog(os.path.basename(path), self)
+            if not dialog.exec():
+                return
+            dialog_fields = dialog.values()
         self.status.setText("Uploading to Hugging Face…")
         try:
-            url = model_share.share(path, dialog.values(), token)
+            url = model_share.share(path, dialog_fields, token)
         except Exception as exc:                            # noqa: BLE001
             QMessageBox.warning(
                 self, "Upload failed",

@@ -24,6 +24,40 @@ from typing import Any, Dict, Optional, Tuple
 #: Where shared models go when the uploader may write there.
 SHARE_REPO = "einarolafsson/user-models"
 
+#: The central upload endpoint: a Hugging Face Space that holds the token, so
+#: a contributor needs no Hugging Face account of their own. See
+#: tools/model_upload_space/. Empty until it is deployed; set
+#: SPACR_MODEL_UPLOAD_URL to point spaCR at one.
+CENTRAL_ENDPOINT = os.environ.get("SPACR_MODEL_UPLOAD_URL", "").strip()
+
+
+def central_upload(path: str, fields: Dict[str, Any]) -> str:
+    """Publish through the central endpoint. Returns its reply.
+
+    The endpoint owns the credentials; nothing secret is needed here, and
+    nothing secret ships in spaCR. Raises if it is not configured or not
+    reachable, and the caller falls back to the uploader's own token.
+    """
+    import json
+
+    if not CENTRAL_ENDPOINT:
+        raise RuntimeError("no central upload endpoint is configured")
+    from gradio_client import Client, handle_file
+
+    client = Client(CENTRAL_ENDPOINT)
+    reply = client.predict(
+        handle_file(path),
+        str(fields.get("display_name") or ""),
+        str(fields.get("kind") or "cellpose"),
+        str(fields.get("trained_on") or ""),
+        json.dumps(fields),
+        str(fields.get("contact") or ""),
+        api_name="/predict")
+    text = str(reply)
+    if text.startswith("error:"):
+        raise RuntimeError(text[6:].strip())
+    return text
+
 #: The scorecard, in the order the model cards print it.
 SHARE_FIELDS: Tuple[Tuple[str, str, str], ...] = (
     ("display_name", "Model name", ""),
