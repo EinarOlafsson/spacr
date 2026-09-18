@@ -124,5 +124,19 @@ demo = gr.Interface(
                  "Model Zoo."),
 )
 
-if __name__ == "__main__":
-    demo.launch()
+# Launched at import time and blocking. Two things bite here: the Space image
+# force-installs its OWN gradio, so requirements.txt must not pin one (a pin
+# fails the build with ResolutionImpossible); and SSR mode returns from
+# launch() and lets the process exit, which shows up as RUNTIME_ERROR with
+# "Stopping Node.js server" in the log.
+demo.queue()
+demo.launch(server_name="0.0.0.0", server_port=7860, ssr_mode=False,
+            prevent_thread_lock=True)
+
+# Block explicitly. launch() returns on this Gradio, and a Space whose process
+# exits right after "Running on local URL" is reported as RUNTIME_ERROR.
+try:
+    demo.block_thread()
+except Exception:                                            # noqa: BLE001
+    import threading
+    threading.Event().wait()

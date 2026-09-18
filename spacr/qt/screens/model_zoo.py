@@ -471,6 +471,9 @@ class ModelZooScreen(QWidget):
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
+        # A click on an uninstalled backend offers to install it, the same as
+        # the Make Masks Mode box and the Model Zoo button.
+        self._table.itemClicked.connect(self._row_clicked)
         outer.addWidget(self._table, 1)
 
         self._detail = QPlainTextEdit(self)
@@ -669,6 +672,21 @@ class ModelZooScreen(QWidget):
         """The entry a row currently stands for, honouring its version pick."""
         stem, pairs = self._groups[row]
         return pairs[self._chosen[stem]][1]
+
+    def _row_clicked(self, _item) -> None:
+        """Offer to install an uninstalled backend the user clicked."""
+        chosen = self.selected_entries()
+        if len(chosen) != 1:
+            return
+        entry = chosen[0]
+        if getattr(entry, "kind", "") != "backend":
+            return
+        if getattr(entry, "source", "") == "installed":
+            return
+        from ..widgets.model_zoo_picker import install_backend_package
+
+        if install_backend_package(self, entry):
+            self.scan("", include_catalogue=True)
 
     def rows(self) -> List[List[str]]:
         """The listing as plain strings."""

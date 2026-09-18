@@ -162,6 +162,57 @@ def _human_eta(seconds: float) -> str:
     return f"{int(seconds // 3600)}h {int((seconds % 3600) // 60)}m left"
 
 
+def install_backend_package(parent, entry) -> bool:
+    """Warn, then pip install a segmentation backend. True when it succeeded.
+
+    Shared by the Model Zoo screen, the Model Zoo button and the Make Masks
+    Mode box, so the three places that can start this install say the same
+    thing about what it risks.
+
+    The warning is not a formality: this runs pip against the environment
+    spaCR is running in, these backends bring their own torch pin, and a
+    package that replaces torch underneath a running process is how an
+    application stops starting.
+    """
+    import subprocess
+    import sys
+
+    extra = str(getattr(entry, "uri", "")).split("pip:", 1)[-1]
+    label = getattr(entry, "name", extra)
+    if QMessageBox.warning(
+            parent, f"Install {label}?",
+            f"{label} is a package, not a checkpoint.\n\nInstalling it runs:"
+            f"\n    pip install \"{extra}\"\n\ninto the environment spaCR is "
+            "running in. It downloads a large package and may change the "
+            "installed version of torch, which can affect Cellpose and, in the "
+            "worst case, stop spaCR starting. It can take several minutes and "
+            "the window will not respond while it runs.\n\nInstall it now?",
+            QMessageBox.Yes | QMessageBox.Cancel,
+            QMessageBox.Cancel) != QMessageBox.Yes:
+        return False
+    QApplication.setOverrideCursor(Qt.WaitCursor)
+    try:
+        done = subprocess.run([sys.executable, "-m", "pip", "install", extra],
+                              capture_output=True, text=True)
+    except Exception as exc:                                 # noqa: BLE001
+        QApplication.restoreOverrideCursor()
+        QMessageBox.warning(parent, "Install failed", str(exc))
+        return False
+    QApplication.restoreOverrideCursor()
+    if done.returncode != 0:
+        tail = (done.stderr or done.stdout or "").strip().splitlines()
+        QMessageBox.warning(parent, "Install failed",
+                            f"pip exited {done.returncode}.\n\n"
+                            + "\n".join(tail[-8:] or ["No output."]))
+        return False
+    QMessageBox.information(
+        parent, "Installed",
+        f"{label} was installed and is selected. It is available as a "
+        "segmentation mode in Make Masks; restart spaCR if it does not appear "
+        "straight away.")
+    return True
+
+
 class ModelZooPicker(QDialog):
     """Pick a model from the zoo; returns a local path.
 
@@ -210,6 +261,10 @@ class ModelZooPicker(QDialog):
         self.table.horizontalHeader().setSectionResizeMode(
             2, QHeaderView.Stretch)
         self.table.itemSelectionChanged.connect(self._selection_changed)
+        # A CLICK offers the install, the same as the Make Masks Mode box.
+        # itemClicked fires only for a person, so restoring a selection in
+        # code never opens a modal.
+        self.table.itemClicked.connect(self._row_clicked)
         layout.addWidget(self.table, 1)
 
         # The scorecard sits between the list and the controls, at a fixed
@@ -504,56 +559,29 @@ class ModelZooPicker(QDialog):
         self.status.setText(f"Shared: {url}")
         QMessageBox.information(self, "Shared", f"Uploaded to\n{url}")
 
+    def _row_clicked(self, item) -> None:
+        """Clicking an uninstalled backend offers to install it."""
+        entry = self.selected_entry()
+        if entry is None or getattr(entry, "kind", "") != "backend":
+            return
+        if getattr(entry, "source", "") == "installed":
+            return
+        self._install_backend(entry)
+
     def _install_backend(self, entry) -> None:
-        """Install a segmentation backend package, with the warning first.
-
-        These rows are packages, not checkpoints. Installing one runs pip
-        against the environment spaCR is running in, which can change torch
-        underneath a running process -- so the user is told before they agree,
-        not after.
-        """
-        import subprocess
-        import sys
-
-        from ... import model_zoo
-
-        extra = str(getattr(entry, "uri", "")).split("pip:", 1)[-1]
-        label = getattr(entry, "name", extra)
-        if QMessageBox.warning(
-                self, f"Install {label}?",
-                f"{label} is a package, not a checkpoint.\n\nInstalling it "
-                f"runs:\n    pip install \"{extra}\"\n\ninto the environment "
-                "spaCR is running in. It downloads a large package and may "
-                "change the installed version of torch, which can affect "
-                "Cellpose and, in the worst case, stop spaCR starting. It can "
-                "take several minutes and this window will not respond while "
-                "it runs.\n\nInstall it now?",
-                QMessageBox.Yes | QMessageBox.Cancel,
-                QMessageBox.Cancel) != QMessageBox.Yes:
-            return
+        """Install a backend, then leave its row selected."""
+        label = getattr(entry, "name", "")
         self.status.setText(f"Installing {label}…")
-        QApplication.setOverrideCursor(Qt.WaitCursor)
-        try:
-            done = subprocess.run([sys.executable, "-m", "pip", "install", extra],
-                                  capture_output=True, text=True)
-        except Exception as exc:                            # noqa: BLE001
-            QApplication.restoreOverrideCursor()
-            QMessageBox.warning(self, "Install failed", str(exc))
-            self.status.setText("Install failed.")
+        if not install_backend_package(self, entry):
+            self.status.setText("")
             return
-        QApplication.restoreOverrideCursor()
-        if done.returncode != 0:
-            tail = (done.stderr or done.stdout or "").strip().splitlines()
-            QMessageBox.warning(self, "Install failed",
-                                f"pip exited {done.returncode}.\n\n"
-                                + "\n".join(tail[-8:] or ["No output."]))
-            self.status.setText("Install failed.")
-            return
-        QMessageBox.information(
-            self, "Installed",
-            f"{label} was installed. Restart spaCR if it does not appear "
-            "as a segmentation mode straight away.")
         self.refresh()
+        # Leave the row the user just installed selected, so "install it and
+        # use it" is one action rather than install-then-hunt-for-the-row.
+        for row, (stem, pairs) in enumerate(self._groups):
+            if any(getattr(e, "name", "") == label for _l, e in pairs):
+                self.table.selectRow(row)
+                break
 
     def _local_path(self, entry) -> Optional[str]:
         """Where this entry already is, or the name Cellpose resolves itself."""
