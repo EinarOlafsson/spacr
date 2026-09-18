@@ -1901,6 +1901,91 @@ def installable_backend_entries() -> List["ModelEntry"]:
     return out
 
 
+#: Where spaCR's Add button puts community submissions.
+COMMUNITY_REPO = "einarolafsson/user-models"
+
+#: Submissions live under this prefix until somebody promotes them.
+COMMUNITY_PREFIX = "staging/"
+
+#: The one-line warning that must travel with every community row.
+COMMUNITY_WARNING = (
+    "Community upload — NOT vetted. Anyone can submit through spaCR's Add "
+    "button; nobody has checked what this file is, what it was trained on, or "
+    "whether its reported scores are real.")
+
+
+def community_entries(allow_network: bool = False,
+                      repo: str = COMMUNITY_REPO) -> List["ModelEntry"]:
+    """Unvetted models uploaded by spaCR users, or an empty list.
+
+    These are shown only when the user asks for them, because an unreviewed
+    checkpoint sitting beside a measured one invites the reader to treat them
+    alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes
+    from the uploader's own submission record -- it proves the file has not
+    changed since it was uploaded, NOT that it is any good.
+
+    Cache-first for the same reason as the bioimage.io listing: catalogue()
+    must not reach the network.
+    """
+    import json as _json
+    import time as _time
+
+    cache = Path.home() / ".spacr" / "community_models.json"
+    records = None
+    try:
+        if (cache.is_file() and _time.time() - cache.stat().st_mtime < 6 * 3600):
+            records = _json.loads(cache.read_text())
+    except Exception:                                        # noqa: BLE001
+        records = None
+    if records is None and not allow_network:
+        return []
+    if records is None:
+        try:
+            from huggingface_hub import HfApi, hf_hub_download
+
+            api = HfApi()
+            files = [f for f in api.list_repo_files(repo)
+                     if f.startswith(COMMUNITY_PREFIX)]
+            folders = sorted({f.split("/")[1] for f in files if "/" in f[8:]})
+            records = []
+            for folder in folders:
+                meta = {}
+                sub = f"{COMMUNITY_PREFIX}{folder}/submission.json"
+                if sub in files:
+                    try:
+                        meta = _json.loads(Path(hf_hub_download(repo, sub)).read_text())
+                    except Exception:                        # noqa: BLE001
+                        meta = {}
+                weights = [f for f in files
+                           if f.startswith(f"{COMMUNITY_PREFIX}{folder}/")
+                           and not f.endswith(".json")]
+                if not weights:
+                    continue
+                records.append(dict(folder=folder, path=weights[0], meta=meta))
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(_json.dumps(records))
+        except Exception:                                    # noqa: BLE001
+            return []
+
+    out = []
+    for record in records:
+        meta = record.get("meta") or {}
+        folder = str(record.get("folder") or "")
+        remote_path = str(record.get("path") or "")
+        title = str(meta.get("name") or folder)
+        out.append(ModelEntry(
+            key=f"community_{folder}".replace("-", "_"),
+            name=remote_path.rsplit("/", 1)[-1], path="",
+            kind=str(meta.get("kind") or "cellpose"), source="community",
+            uri=(f"https://huggingface.co/{repo}/resolve/main/{remote_path}"),
+            sha256=str(meta.get("sha256") or ""),
+            size_bytes=int(meta.get("size_bytes") or 0),
+            trained_on=f"{title} — {meta.get('trained_on') or 'not stated'}. "
+                       + COMMUNITY_WARNING,
+            trained_by=str(meta.get("contact") or "a spaCR user")))
+    return out
+
+
 def catalogue(include_bundled: bool = True, remote: bool = True,
               catalogue_path: Any = None,
               include_plugins: bool = True,

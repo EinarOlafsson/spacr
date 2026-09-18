@@ -28,7 +28,8 @@ from types import SimpleNamespace
 from typing import List, Optional
 
 from PySide6.QtCore import QObject, Qt, QThread, Signal
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QDialog, QDialogButtonBox,
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QDialog,
+                               QDialogButtonBox,
                                QFileDialog, QHBoxLayout, QHeaderView, QLabel,
                                QLineEdit, QMessageBox, QProgressBar,
                                QComboBox, QPushButton, QTableWidget,
@@ -267,6 +268,19 @@ class ModelZooPicker(QDialog):
         self.table.itemClicked.connect(self._row_clicked)
         layout.addWidget(self.table, 1)
 
+        # Off by default, and it stays off until the user reads what it
+        # means: an unvetted checkpoint sitting beside a measured one invites
+        # the reader to treat them alike.
+        self.community_toggle = QCheckBox(
+            "Show community uploads (not vetted)", self)
+        self.community_toggle.setChecked(False)
+        self.community_toggle.setToolTip(
+            "Models uploaded by other spaCR users through the Add button. "
+            "Nobody has checked what they are, what they were trained on, or "
+            "whether their reported scores are real.")
+        self.community_toggle.toggled.connect(self._community_toggled)
+        layout.addWidget(self.community_toggle)
+
         # The scorecard sits between the list and the controls, at a fixed
         # height: a box that grew and shrank with the selected model would
         # move the Download button under the pointer between clicks.
@@ -390,6 +404,8 @@ class ModelZooPicker(QDialog):
             # the stock row whose key and name disagree -- name "cpsam", key
             # "cpsam_v2" -- where a name comparison here did not.
             entries += list(model_zoo.catalogue(remote=True, block=False))
+            if self.community_toggle.isChecked():
+                entries += list(model_zoo.community_entries())
         except Exception as exc:                            # noqa: BLE001
             self.status.setText(f"Could not read the model list: {exc}")
             entries = [self.STOCK_MODEL]
@@ -559,6 +575,49 @@ class ModelZooPicker(QDialog):
         self.status.setText(f"Shared: {url}")
         QMessageBox.information(self, "Shared", f"Uploaded to\n{url}")
 
+    def _community_toggled(self, checked: bool) -> None:
+        """Turning this on says plainly what these models are not.
+
+        Confirmed rather than merely labelled, and only the first time: the
+        difference between a reviewed model and an unreviewed one is not
+        visible in a table, so it has to be said in words once.
+        """
+        if not checked:
+            self.refresh()
+            return
+        if not getattr(self, "_community_warned", False):
+            if QMessageBox.warning(
+                    self, "Community uploads are not vetted",
+                    "These models are uploaded by other spaCR users through "
+                    "the Add button.\n\nNobody has checked what they are, "
+                    "what they were trained on, or whether the numbers they "
+                    "report are real. Their checksums prove only that a file "
+                    "has not changed since it was uploaded -- not that it is "
+                    "any good, and not that it is safe to trust with your "
+                    "data.\n\nShow them anyway?",
+                    QMessageBox.Yes | QMessageBox.Cancel,
+                    QMessageBox.Cancel) != QMessageBox.Yes:
+                self.community_toggle.blockSignals(True)
+                self.community_toggle.setChecked(False)
+                self.community_toggle.blockSignals(False)
+                return
+            self._community_warned = True
+
+        self.status.setText("Fetching community uploads…")
+
+        def _warm():
+            try:
+                from ... import model_zoo
+                model_zoo.community_entries(allow_network=True)
+            except Exception:                                # noqa: BLE001
+                pass
+
+        thread = threading.Thread(target=_warm, daemon=True)
+        thread.start()
+        thread.join(timeout=20)
+        self.refresh()
+        self.status.setText("")
+
     def _row_clicked(self, item) -> None:
         """Clicking an uninstalled backend offers to install it."""
         entry = self.selected_entry()
@@ -659,6 +718,11 @@ class ModelZooPicker(QDialog):
                 name = getattr(entry, "display_name", "") or getattr(entry, "name", "")
                 html = (f"<p><b>{name}</b></p>"
                         f"<p>{getattr(entry, 'trained_on', '') or ''}</p>")
+        if getattr(entry, "source", "") == "community":
+            from ... import model_zoo as _zoo
+
+            html += (f"<p><b style='color:#b45309'>{_zoo.COMMUNITY_WARNING}"
+                     "</b></p>")
         if getattr(entry, "kind", "") == "backend":
             state = ("installed" if getattr(entry, "source", "") == "installed"
                      else "not installed — press Download to install it")
