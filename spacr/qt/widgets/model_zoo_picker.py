@@ -318,7 +318,11 @@ class ModelZooPicker(QDialog):
 
         try:
             entries = [self.STOCK_MODEL]
-            entries += list(model_zoo.catalogue(remote=True, block=False))
+            # The catalogue now lists the Cellpose stock models itself, so drop
+            # the copy of the one this dialog always guarantees -- otherwise the
+            # cpsam row offers v2 twice.
+            entries += [e for e in model_zoo.catalogue(remote=True, block=False)
+                        if getattr(e, "name", "") != self.STOCK_MODEL.name]
         except Exception as exc:                            # noqa: BLE001
             self.status.setText(f"Could not read the model list: {exc}")
             entries = [self.STOCK_MODEL]

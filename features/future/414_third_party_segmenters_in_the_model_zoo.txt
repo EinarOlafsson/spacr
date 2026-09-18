@@ -1,0 +1,81 @@
+================================================================================
+DINOCELL AND SAMCELL IN THE MODEL ZOO, INSTALLED ON CLICK
+================================================================================
+
+Status:    NOT STARTED. Filed 2026-09-18. The Cellpose half of the same request
+           IS done and is not part of this file: the zoo now lists every model
+           the installed Cellpose can fetch (cpsam, cpsam_v2, cpdino,
+           cpdino-vitb) beside the spaCR fine-tunes.
+
+Shape:     DINOcell and SAMcell appear in the Model Zoo and the Model Zoo
+           button whether or not they are installed. Clicking one that is not
+           installed installs it and makes it usable, without the user leaving
+           the GUI.
+
+--------------------------------------------------------------------------------
+WHAT IT IS FOR
+--------------------------------------------------------------------------------
+
+The zoo should answer "what can I segment this with", not "what is already on
+this machine". A segmenter the user has never heard of is worth listing exactly
+because they have never heard of it; a row that says "not installed -- click to
+install" teaches them it exists.
+
+--------------------------------------------------------------------------------
+WHAT MAKES THIS DIFFERENT FROM A DOWNLOAD
+--------------------------------------------------------------------------------
+
+Every zoo row today downloads a FILE. These two are PACKAGES: installing one
+runs pip, can pull a different torch, and can break the environment spaCR is
+running in. That is the whole risk, and it is why this is filed rather than
+bolted onto the download button.
+
+  - pip install into the running interpreter does not take effect reliably
+    without a restart, and a half-installed dependency set can leave spaCR
+    unable to start. Decide whether install means "pip into this environment",
+    "pip into an isolated venv spaCR shells out to", or "tell the user the
+    command and let them run it".
+  - A torch version conflict is the likely failure, not a rare one. Cellpose,
+    DINOcell and SAMcell each pin their own.
+  - The install must be cancellable and must report progress; pip on a slow
+    link with no output is indistinguishable from a hang.
+  - After a successful install the row has to become usable WITHOUT a restart,
+    or say plainly that a restart is needed. Silently doing nothing is the
+    failure users will report as "the button does nothing".
+
+--------------------------------------------------------------------------------
+WHAT THE ROWS NEED
+--------------------------------------------------------------------------------
+
+Status becomes a three-state, not two: installed / available to install / not
+installable here (wrong Python, wrong platform, no network). The scorecard
+table applies as it does to any other model -- if these projects publish
+numbers, quote them WITH their source; if they do not, the cells read
+"not recorded" rather than being filled in from a README's marketing.
+
+The adapter matters as much as the install: each package has its own calling
+convention, so spaCR needs a segmentation backend per package before a row can
+claim the model is usable. See spacr/_segmentation_backends.py.
+
+--------------------------------------------------------------------------------
+OPEN QUESTIONS -- ANSWER BEFORE BUILDING
+--------------------------------------------------------------------------------
+
+  - Which distribution of each project is canonical -- PyPI, conda-forge, or a
+    GitHub checkout? Pinned to which version?
+  - Install into the live environment, or an isolated one spaCR calls out to?
+    The isolated answer is safer and is more work.
+  - What happens on a machine with no network, or where the user cannot write
+    to site-packages?
+  - Does an install that breaks the environment have an undo?
+  - Do these projects' licences allow spaCR to offer them this way?
+
+--------------------------------------------------------------------------------
+WHY IT IS FILED RATHER THAN BUILT
+--------------------------------------------------------------------------------
+
+Requested 2026-09-18 alongside the Cellpose listing. The Cellpose part was a
+listing change and was done immediately. This part runs a package manager
+against the environment the application is running in, which is not something
+to add at the end of a session -- the failure mode is a spaCR that will not
+start, reported as "the model zoo broke my install".

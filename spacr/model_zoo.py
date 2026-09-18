@@ -1720,6 +1720,52 @@ def load_catalogue_file(path: Any) -> List[ModelEntry]:
     return out
 
 
+#: What each Cellpose stock model is, for the zoo listing. Cellpose publishes
+#: names, not descriptions, and a row reading only "cpdino" tells nobody
+#: whether it applies to their images.
+STOCK_CELLPOSE_NOTES = {
+    "cpsam": ("Cellpose-SAM v1, the original SAM-based generalist. Superseded "
+              "by cpsam_v2 but kept for reproducing older runs."),
+    "cpsam_v2": ("Cellpose-SAM v2, the current Cellpose generalist and the "
+                 "base every spaCR fine-tune here starts from."),
+    "cpdino": "Cellpose-DINO, a DINO-backbone generalist.",
+    "cpdino-vitb": "Cellpose-DINO with the larger ViT-B backbone.",
+}
+
+
+def stock_cellpose_entries() -> List["ModelEntry"]:
+    """Every model the installed Cellpose can fetch for itself.
+
+    These are not spaCR's files and carry no checksum of ours: Cellpose
+    downloads and verifies them, and the name IS the path -- passing "cpsam"
+    to Cellpose resolves it. They are listed so that the zoo answers "what can
+    I segment with" rather than "what has Einar trained", which is the
+    question a new user actually has.
+    """
+    # Deliberately does NOT import cellpose: importing this module must stay
+    # free of torch and cellpose (there is a test for it, and the GUI lists
+    # models long before anything segments). If cellpose is already loaded its
+    # own list is authoritative; otherwise the names above are the fallback.
+    import sys
+
+    loaded = sys.modules.get("cellpose.models")
+    names = list(getattr(loaded, "MODEL_NAMES", ()) or ()) if loaded else []
+    names = names or list(STOCK_CELLPOSE_NOTES)
+    home = Path.home() / ".cellpose" / "models"
+    out = []
+    for name in names:
+        local = home / name
+        out.append(ModelEntry(
+            key=_key_for(Path(name)), name=name,
+            path=str(local) if local.is_file() else name,
+            kind="cellpose", source="stock", uri="", sha256="",
+            size_bytes=local.stat().st_size if local.is_file() else 0,
+            trained_on=STOCK_CELLPOSE_NOTES.get(
+                name, "Cellpose stock model; see the Cellpose documentation."),
+            trained_by="Cellpose"))
+    return out
+
+
 def catalogue(include_bundled: bool = True, remote: bool = True,
               catalogue_path: Any = None,
               include_plugins: bool = True,
@@ -1757,6 +1803,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
         if root.is_dir():
             entries.extend(discover_local(root, max_depth=2))
 
+    entries.extend(stock_cellpose_entries())
     if remote:
         have = {(e.key, e.name) for e in entries}
         for record in BUNDLED_REMOTE_MODELS:
