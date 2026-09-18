@@ -39,7 +39,19 @@ import gradio as gr
 from huggingface_hub import HfApi
 
 UPLOAD_REPO = os.environ.get("UPLOAD_REPO", "einarolafsson/user-models")
-TOKEN = os.environ.get("HF_TOKEN")
+#: Read several names. HF_TOKEN is what the deploy notes ask for, but Spaces
+#: reserve some names and inject others, so a secret can be set correctly and
+#: still not arrive under the name you chose. Falling back costs nothing and
+#: turns a silent misconfiguration into a working endpoint.
+TOKEN_NAMES = ("HF_TOKEN", "SPACR_UPLOAD_TOKEN", "HUGGING_FACE_HUB_TOKEN",
+               "HUGGINGFACEHUB_API_TOKEN", "HF_ACCESS_TOKEN")
+TOKEN = next((os.environ[n] for n in TOKEN_NAMES if os.environ.get(n)), None)
+print("[startup] token names present:",
+      [n for n in TOKEN_NAMES if os.environ.get(n)], flush=True)
+print("[startup] env names containing TOKEN:",
+      sorted(k for k in os.environ if "TOKEN" in k.upper()), flush=True)
+print("[startup] upload repo:", os.environ.get("UPLOAD_REPO", "(default)"),
+      flush=True)
 MAX_BYTES = 2_500_000_000          # a cpsam checkpoint is ~1.2 GB
 ALLOWED_SUFFIXES = (".pth", ".pt", ".safetensors", ".CP_model")
 RATE = {}                          # ip -> [timestamps]
