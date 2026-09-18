@@ -58,7 +58,15 @@ def test_only_cellpose_models_are_offered_when_that_is_asked_for(picker):
     """A pathogen-model field offering a detector would be offering something
     that cannot be loaded."""
     assert picker._entries, "nothing to check"
-    assert {e.kind for e in picker._entries} == {"cellpose"}
+    # Installable backends are listed too -- a backend nobody can see is a
+    # backend nobody installs -- but they are packages, not checkpoints, so
+    # Use stays refused for them and Download installs instead.
+    assert {e.kind for e in picker._entries} <= {"cellpose", "backend"}
+    assert "cellpose" in {e.kind for e in picker._entries}
+    for entry in picker._entries:
+        if entry.kind == "backend":
+            assert picker._local_path(entry) is None, (
+                "a backend must never look like a usable checkpoint path")
 
 
 def test_use_is_refused_until_the_file_is_actually_on_disk(picker):
@@ -201,6 +209,11 @@ def _unverified_row(picker):
     """
     for row, (_stem, pairs) in enumerate(picker._groups):
         for index, (_label, entry) in enumerate(pairs):
+            # Backends publish no checksum either, but they are packages
+            # installed with pip, not downloads -- a different button and a
+            # different warning.
+            if getattr(entry, "kind", "") == "backend":
+                continue
             if getattr(entry, "sha256", ""):
                 continue
             if picker._local_path(entry) is not None:

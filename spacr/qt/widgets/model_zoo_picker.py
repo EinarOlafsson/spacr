@@ -27,7 +27,7 @@ from types import SimpleNamespace
 from typing import List, Optional
 
 from PySide6.QtCore import QObject, Qt, QThread, Signal
-from PySide6.QtWidgets import (QAbstractItemView, QDialog, QDialogButtonBox,
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QDialog, QDialogButtonBox,
                                QFileDialog, QHBoxLayout, QHeaderView, QLabel,
                                QLineEdit, QMessageBox, QProgressBar,
                                QComboBox, QPushButton, QTableWidget,
@@ -327,7 +327,11 @@ class ModelZooPicker(QDialog):
             self.status.setText(f"Could not read the model list: {exc}")
             entries = [self.STOCK_MODEL]
         if self._kinds:
-            entries = [e for e in entries if e.kind in self._kinds]
+            # Installable backends survive the kind filter: they are listed so
+            # a user learns they exist, which is the whole point of showing a
+            # thing that is not installed.
+            entries = [e for e in entries
+                       if e.kind in self._kinds or e.kind == "backend"]
         self._entries = entries
 
         self._rebuild(entries)
@@ -470,6 +474,57 @@ class ModelZooPicker(QDialog):
         self.status.setText(f"Shared: {url}")
         QMessageBox.information(self, "Shared", f"Uploaded to\n{url}")
 
+    def _install_backend(self, entry) -> None:
+        """Install a segmentation backend package, with the warning first.
+
+        These rows are packages, not checkpoints. Installing one runs pip
+        against the environment spaCR is running in, which can change torch
+        underneath a running process -- so the user is told before they agree,
+        not after.
+        """
+        import subprocess
+        import sys
+
+        from ... import model_zoo
+
+        extra = str(getattr(entry, "uri", "")).split("pip:", 1)[-1]
+        label = getattr(entry, "name", extra)
+        if QMessageBox.warning(
+                self, f"Install {label}?",
+                f"{label} is a package, not a checkpoint.\n\nInstalling it "
+                f"runs:\n    pip install \"{extra}\"\n\ninto the environment "
+                "spaCR is running in. It downloads a large package and may "
+                "change the installed version of torch, which can affect "
+                "Cellpose and, in the worst case, stop spaCR starting. It can "
+                "take several minutes and this window will not respond while "
+                "it runs.\n\nInstall it now?",
+                QMessageBox.Yes | QMessageBox.Cancel,
+                QMessageBox.Cancel) != QMessageBox.Yes:
+            return
+        self.status.setText(f"Installing {label}…")
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            done = subprocess.run([sys.executable, "-m", "pip", "install", extra],
+                                  capture_output=True, text=True)
+        except Exception as exc:                            # noqa: BLE001
+            QApplication.restoreOverrideCursor()
+            QMessageBox.warning(self, "Install failed", str(exc))
+            self.status.setText("Install failed.")
+            return
+        QApplication.restoreOverrideCursor()
+        if done.returncode != 0:
+            tail = (done.stderr or done.stdout or "").strip().splitlines()
+            QMessageBox.warning(self, "Install failed",
+                                f"pip exited {done.returncode}.\n\n"
+                                + "\n".join(tail[-8:] or ["No output."]))
+            self.status.setText("Install failed.")
+            return
+        QMessageBox.information(
+            self, "Installed",
+            f"{label} was installed. Restart spaCR if it does not appear "
+            "as a segmentation mode straight away.")
+        self.refresh()
+
     def _local_path(self, entry) -> Optional[str]:
         """Where this entry already is, or the name Cellpose resolves itself."""
         if getattr(entry, "source", "") == "stock":
@@ -546,6 +601,10 @@ class ModelZooPicker(QDialog):
                 name = getattr(entry, "display_name", "") or getattr(entry, "name", "")
                 html = (f"<p><b>{name}</b></p>"
                         f"<p>{getattr(entry, 'trained_on', '') or ''}</p>")
+        if getattr(entry, "kind", "") == "backend":
+            state = ("installed" if getattr(entry, "source", "") == "installed"
+                     else "not installed — press Download to install it")
+            html += f"<p><i>Segmentation backend: {state}.</i></p>"
         url = getattr(entry, "model_card_url", "")
         if url:
             html += f'<p><a href="{url}">{url}</a></p>'
@@ -567,6 +626,9 @@ class ModelZooPicker(QDialog):
 
         entry = self.selected_entry()
         if entry is None:
+            return
+        if getattr(entry, "kind", "") == "backend":
+            self._install_backend(entry)
             return
         folder = self.folder_edit.text().strip() or DEFAULT_MODEL_DIR
         try:

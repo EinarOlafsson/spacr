@@ -222,7 +222,9 @@ UNKNOWN = "unknown"
 #: tuple and raises on anything else, so an entry naming a kind that is not
 #: here fails at construction rather than being quietly filed as a Cellpose
 #: model and handed to CellposeModel later.
-KINDS = ("cellpose", "classifier", "detector", "encoder")
+KINDS = ("cellpose", "classifier", "detector", "encoder", "backend")
+#: "backend" is not a checkpoint: it is a segmentation PACKAGE the zoo
+#: lists so a user learns it exists and can install it from inside spaCR.
 
 #: ``encoder`` is 386's kind: a self-supervised backbone that produces an
 #: EMBEDDING rather than a mask or a label. It belongs in the zoo for the
@@ -1849,6 +1851,41 @@ def bioimageio_entries(timeout: float = 5.0,
     return out
 
 
+#: ``name -> (label, pip extra, import name, what it is)``. These are
+#: PACKAGES, not checkpoints: the zoo lists them so a user learns they exist.
+INSTALLABLE_BACKENDS = {
+    "samcell": ("SAMCell", "spacr[samcell]", "samcell",
+                "SAMCell segmentation backend. A package, not a checkpoint: "
+                "listed here so it can be installed from inside spaCR."),
+    "dinocell": ("DINOCell", "spacr[dinocell]", "dinocell",
+                 "DINOCell segmentation backend. A package, not a checkpoint: "
+                 "listed here so it can be installed from inside spaCR."),
+}
+
+
+def installable_backend_entries() -> List["ModelEntry"]:
+    """Segmentation backends spaCR can install, whether or not they are here.
+
+    A backend absent from the zoo teaches nobody that it exists. These rows
+    say what they are and whether they are installed; installing one runs pip
+    against this environment, so the GUI asks before it does.
+    """
+    import importlib.util
+
+    out = []
+    for name, (label, extra, module, blurb) in INSTALLABLE_BACKENDS.items():
+        try:
+            present = importlib.util.find_spec(module) is not None
+        except Exception:                                    # noqa: BLE001
+            present = False
+        out.append(ModelEntry(
+            key=f"{name}_v1", name=label, path=module if present else "",
+            kind="backend", source="installed" if present else "installable",
+            uri=f"pip:{extra}", sha256="", size_bytes=0,
+            trained_on=blurb, trained_by=label))
+    return out
+
+
 def catalogue(include_bundled: bool = True, remote: bool = True,
               catalogue_path: Any = None,
               include_plugins: bool = True,
@@ -1887,6 +1924,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
             entries.extend(discover_local(root, max_depth=2))
 
     entries.extend(stock_cellpose_entries())
+    entries.extend(installable_backend_entries())
     if remote:
         entries.extend(bioimageio_entries())
     if remote:
