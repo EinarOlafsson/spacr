@@ -14,7 +14,9 @@ and never leaves the server. spaCR POSTs a file and its scorecard; this
 validates the request and commits it. A contributor needs no account.
 
 DEPLOYING
-  1. Create a Space (Gradio SDK, CPU basic is enough).
+  1. Create a Space with the Gradio SDK. On a free account that means
+     ZeroGPU, which is fine -- see the _zero_gpu_probe note below. CPU basic
+     needs a PRO subscription and is not required.
   2. Add a secret named HF_TOKEN: a FINE-GRAINED token with write access to
      UPLOAD_REPO and nothing else. Not an account-wide write token -- if this
      Space is ever compromised, the blast radius should be one repository.
@@ -44,6 +46,22 @@ RATE = {}                          # ip -> [timestamps]
 RATE_LIMIT, RATE_WINDOW = 3, 3600  # uploads per IP per hour
 
 api = HfApi(token=TOKEN)
+
+# ZeroGPU refuses to start a Space with no @spaces.GPU function ("No
+# @spaces.GPU function detected during startup"), and a free-tier Gradio Space
+# is ZeroGPU unless the account has PRO. This endpoint needs no GPU at all --
+# it hashes a file and makes an HTTPS call -- so this exists purely to satisfy
+# that check. It is never called, and it costs nothing: ZeroGPU attaches a GPU
+# only while a decorated function is actually running.
+try:
+    import spaces
+
+    @spaces.GPU(duration=1)
+    def _zero_gpu_probe():
+        """Present so ZeroGPU will start this Space. Deliberately unused."""
+        return "ok"
+except Exception:                                            # noqa: BLE001
+    pass
 
 
 def _slug(text):
