@@ -36,54 +36,58 @@ CENTRAL_ENDPOINT = os.environ.get(
 def central_upload(path: str, fields: Dict[str, Any]) -> str:
     """Publish through the central endpoint. Returns its reply.
 
-    The endpoint owns the credentials; nothing secret is needed here, and
-    nothing secret ships in spaCR. Raises if it is not configured or not
-    reachable, and the caller falls back to the uploader's own token.
+    Speaks the Gradio HTTP API directly with urllib rather than through
+    gradio_client, because that package is not a spaCR dependency: when it was
+    missing this raised, the caller fell back to the uploader's own token, and
+    the model went somewhere nobody was looking for it. A publish path that
+    depends on an optional import is a publish path that silently does
+    something else.
     """
     import json
+    import os as _os
+    import time
+    import urllib.request
+    import uuid
 
     if not CENTRAL_ENDPOINT:
         raise RuntimeError("no central upload endpoint is configured")
-    from gradio_client import Client, handle_file
+    base = CENTRAL_ENDPOINT.rstrip("/")
 
-    client = Client(CENTRAL_ENDPOINT)
-    reply = client.predict(
-        handle_file(path),
-        str(fields.get("display_name") or ""),
-        str(fields.get("kind") or "cellpose"),
-        str(fields.get("trained_on") or ""),
-        json.dumps(fields),
-        str(fields.get("contact") or ""),
-        # Named after the function on the Space, not "/predict": Gradio
-        # names an endpoint after the callable it wraps, and calling
-        # "/predict" returns a 500.
-        api_name="/upload")
-    text = str(reply)
-    if text.startswith("error:"):
-        raise RuntimeError(text[6:].strip())
-    return text
+    boundary = uuid.uuid4().hex
+    with open(path, "rb") as handle:
+        payload = handle.read()
+    body = (f"--{boundary}\r\nContent-Disposition: form-data; name=\"files\"; "
+            f"filename=\"{_os.path.basename(path)}\"\r\n"
+            "Content-Type: application/octet-stream\r\n\r\n").encode()
+    body += payload + f"\r\n--{boundary}--\r\n".encode()
+    request = urllib.request.Request(
+        base + "/gradio_api/upload", data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
+    uploaded = json.loads(urllib.request.urlopen(request, timeout=600).read())
 
-#: The scorecard, in the order the model cards print it.
-SHARE_FIELDS: Tuple[Tuple[str, str, str], ...] = (
-    ("display_name", "Model name", ""),
-    ("kind", "Kind (cellpose / classifier / detector)", "cellpose"),
-    ("trained_on", "Trained on (what images, what objects)", ""),
-    ("n_train", "Train (images)", ""),
-    ("train_objects", "Train obj. (objects)", ""),
-    ("n_test", "Test (held-out images)", ""),
-    ("test_objects", "Test obj. (held-out objects)", ""),
-    ("cv", "CV (e.g. 'no' or '5-fold')", "no"),
-    ("f1", "F1 @ IoU 0.5", ""),
-    ("aji", "AJI", ""),
-    ("dice", "Dice", ""),
-    ("stock_f1", "Stock model F1 @ IoU 0.5", ""),
-    ("stock_aji", "Stock model AJI", ""),
-    ("stock_dice", "Stock model Dice", ""),
-    ("train_loss", "Final train loss", ""),
-    ("val_loss", "Final validation loss", ""),
-    ("best_epoch", "Best epoch / total", ""),
-    ("notes", "Anything a reader should know (limitations)", ""),
-)
+    call = dict(data=[{"path": uploaded[0], "meta": {"_type": "gradio.FileData"}},
+                      str(fields.get("display_name") or ""),
+                      str(fields.get("kind") or "cellpose"),
+                      str(fields.get("trained_on") or ""),
+                      json.dumps(fields),
+                      str(fields.get("contact") or "")])
+    request = urllib.request.Request(
+        base + "/gradio_api/call/upload", data=json.dumps(call).encode(),
+        headers={"Content-Type": "application/json"})
+    event = json.loads(urllib.request.urlopen(request, timeout=120).read())["event_id"]
+
+    deadline = time.time() + 600
+    while time.time() < deadline:
+        with urllib.request.urlopen(
+                base + f"/gradio_api/call/upload/{event}", timeout=120) as reply:
+            text = reply.read().decode("utf-8", "replace")
+        if "event: complete" in text:
+            answer = json.loads(text.rsplit("data:", 1)[1].strip())[0]
+            if str(answer).startswith("error:"):
+                raise RuntimeError(str(answer)[6:].strip())
+            return str(answer)
+        time.sleep(3)
+    raise RuntimeError("the upload endpoint did not answer in time")
 
 
 def slugify(text: str) -> str:
@@ -203,7 +207,9 @@ def share(path: str, fields: Dict[str, Any], token: str) -> str:
     if not repo_id:
         raise RuntimeError("Could not work out where to publish: check the token.")
     filename = os.path.basename(path)
-    folder = slugify(fields.get("display_name") or filename)
+    # Into staging/ as well: unvetted is unvetted however it arrived, and
+    # the community listing looks in exactly one place.
+    folder = "staging/" + slugify(fields.get("display_name") or filename)
     digest = model_zoo.sha256_file(path)
     api.create_repo(repo_id, repo_type="model", exist_ok=True)
     api.upload_file(path_or_fileobj=path, path_in_repo=f"{folder}/{filename}",

@@ -1933,7 +1933,11 @@ def community_entries(allow_network: bool = False,
     cache = Path.home() / ".spacr" / "community_models.json"
     records = None
     try:
-        if (cache.is_file() and _time.time() - cache.stat().st_mtime < 6 * 3600):
+        # allow_network means the user just asked to see these, so the cache is
+        # skipped: a cached empty list from before the first submission would
+        # otherwise hide it for hours, which is exactly how this was found.
+        if (not allow_network and cache.is_file()
+                and _time.time() - cache.stat().st_mtime < 6 * 3600):
             records = _json.loads(cache.read_text())
     except Exception:                                        # noqa: BLE001
         records = None
@@ -1956,9 +1960,14 @@ def community_entries(allow_network: bool = False,
                         meta = _json.loads(Path(hf_hub_download(repo, sub)).read_text())
                     except Exception:                        # noqa: BLE001
                         meta = {}
-                weights = [f for f in files
-                           if f.startswith(f"{COMMUNITY_PREFIX}{folder}/")
-                           and not f.endswith(".json")]
+                # The checkpoint, not the README beside it: match on the
+                # extensions a model actually has, or a folder with a README
+                # listed first offers the README as the download.
+                inside = [f for f in files
+                          if f.startswith(f"{COMMUNITY_PREFIX}{folder}/")]
+                weights = [f for f in inside
+                           if f.endswith((".pth", ".pt", ".safetensors",
+                                          ".CP_model"))]
                 if not weights:
                     continue
                 records.append(dict(folder=folder, path=weights[0], meta=meta))
