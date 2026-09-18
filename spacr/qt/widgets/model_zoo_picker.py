@@ -515,9 +515,11 @@ class ModelZooPicker(QDialog):
 
         if QMessageBox.question(
                 self, "Share this model?",
-                "Share this model on Hugging Face so other spaCR users can "
-                "download it?\n\nYou will be asked for the numbers that go in "
-                "its scorecard. Uploading uses YOUR Hugging Face login.",
+                "Share this model so other spaCR users can download it?\n\n"
+                "You will be asked for the numbers that go in its scorecard. "
+                "It is uploaded to the shared spaCR collection, where it is "
+                "held for review before it appears in the Model Zoo -- you do "
+                "not need a Hugging Face account.",
                 QMessageBox.Yes | QMessageBox.No,
                 QMessageBox.No) != QMessageBox.Yes:
             return

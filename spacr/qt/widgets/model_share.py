@@ -33,6 +33,30 @@ CENTRAL_ENDPOINT = os.environ.get(
     "https://einarolafsson-spacr-model-upload.hf.space").strip()
 
 
+#: The scorecard, in the order the model cards print it.
+SHARE_FIELDS: Tuple[Tuple[str, str, str], ...] = (
+    ("display_name", "Model name", ""),
+    ("kind", "Kind (cellpose / classifier / detector)", "cellpose"),
+    ("trained_on", "Trained on (what images, what objects)", ""),
+    ("n_train", "Train (images)", ""),
+    ("train_objects", "Train obj. (objects)", ""),
+    ("n_test", "Test (held-out images)", ""),
+    ("test_objects", "Test obj. (held-out objects)", ""),
+    ("cv", "CV (e.g. 'no' or '5-fold')", "no"),
+    ("f1", "F1 @ IoU 0.5", ""),
+    ("aji", "AJI", ""),
+    ("dice", "Dice", ""),
+    ("stock_f1", "Stock model F1 @ IoU 0.5", ""),
+    ("stock_aji", "Stock model AJI", ""),
+    ("stock_dice", "Stock model Dice", ""),
+    ("train_loss", "Final train loss", ""),
+    ("val_loss", "Final validation loss", ""),
+    ("best_epoch", "Best epoch / total", ""),
+    ("contact", "Contact (optional)", ""),
+    ("notes", "Anything a reader should know (limitations)", ""),
+)
+
+
 def central_upload(path: str, fields: Dict[str, Any]) -> str:
     """Publish through the central endpoint. Returns its reply.
 
