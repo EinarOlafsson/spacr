@@ -1,0 +1,99 @@
+================================================================================
+SOUND EFFECTS, BACKGROUND MUSIC, AND THE RESONANCE THEME
+================================================================================
+
+Status:    NOT STARTED. Filed 2026-09-18 with the instruction to add it to the
+           list, not to implement it.
+
+Shape:     A Sound tab in Preferences, LAST tab, everything OFF BY DEFAULT.
+           Interface feedback sounds, start/stop sounds for a run, optional
+           background music, and a theme whose background is driven by whatever
+           is playing.
+
+--------------------------------------------------------------------------------
+WHAT IT IS
+--------------------------------------------------------------------------------
+
+1. INTERFACE FEEDBACK.
+   A small sound on click and on hover, in the spirit of the iPhone click:
+   short, quiet, unobtrusive, felt more than heard. The point is confirmation
+   that a control registered, not decoration.
+
+2. RUN SOUNDS.
+   A distinct sound when a run STARTS and another when it STOPS. These earn
+   their place: a spaCR run is long, the user is usually in another window, and
+   an audible "it finished" is the one sound in this list with a real job. The
+   stop sound should differ for finished-successfully and stopped-with-an-error
+   -- a user who hears "done" and finds a traceback will not trust the sound
+   again.
+
+3. BACKGROUND MUSIC.
+   A separate option from the feedback sounds, with its own switch: someone who
+   wants click feedback while working in silence must not get music too.
+   Preferably a link to Spotify rather than bundled audio -- spaCR should not
+   ship music it does not have the rights to, and a link is also the only way
+   the user hears what they actually like.
+
+4. THE RESONANCE THEME.
+   A new theme whose background is a visualised FLOOR with particles on it. The
+   particles flow, gather into shapes and bounce in response to the sound's
+   resonance -- amplitude and pitch -- like a digital Chladni plate. Chladni
+   figures are the right reference: real resonance patterns on a vibrating
+   plate are exactly particles settling at the nodes, so the physical analogy
+   gives a principled rule for where particles should go rather than an
+   arbitrary one.
+
+--------------------------------------------------------------------------------
+THE PART THAT DECIDES WHETHER THIS IS ANY GOOD
+--------------------------------------------------------------------------------
+
+EVERYTHING OFF BY DEFAULT, AND IT MUST STAY THAT WAY. A scientific tool that
+makes noise the first time it is opened, in a shared office or during a talk,
+is a tool people learn to distrust. Off is the default, and the tab is last
+because it is the least important thing in Preferences.
+
+HOVER SOUNDS ARE THE RISKY ONE. A sound on every hover, on a dense settings
+panel, becomes a stream of clicks as the pointer crosses the window. If it is
+built: debounce it hard, only on interactive controls, never on a control that
+is disabled, and give it its own switch separate from click feedback so it can
+be turned off alone.
+
+AUDIO MUST NOT TOUCH THE RUN. Sound belongs on the GUI thread's own timeline
+and must never block, delay or fail a pipeline. A missing audio device, a
+busy PulseAudio, or no sound stack at all -- headless, a cluster, SSH -- must
+degrade to silence without a warning dialog and without an exception.
+
+THE VISUALISER NEEDS A FRAME BUDGET. A particle field reacting to audio is a
+per-frame loop competing with a GUI that is already doing image work on the
+same machine, sometimes while the GPU is training. It needs a hard cap, a
+setting to reduce or disable it, and it must yield: if frames are being
+dropped, the visualiser is what gets cheaper, not the image canvas.
+
+--------------------------------------------------------------------------------
+OPEN QUESTIONS -- ANSWER BEFORE BUILDING
+--------------------------------------------------------------------------------
+
+  - What plays the sound? Qt Multimedia is already available but pulls in more
+    platform dependency; a tiny WAV player is enough for feedback clicks and
+    would avoid it.
+  - Spotify: a plain link that opens the app in a browser is trivial. Anything
+    more -- knowing what is playing, controlling it, reading the audio for the
+    visualiser -- needs the Spotify Web API, an OAuth login, and a developer
+    app registration. Decide which of those two products this is, because the
+    gap between them is large.
+  - What feeds the visualiser? Spotify does NOT give you the audio stream, so
+    reacting to what is actually playing means capturing the system output
+    (a loopback device), which is platform-specific and often needs setup. The
+    honest alternatives are: react to spaCR's OWN sounds only, or run the
+    visualiser from a local audio file the user chooses.
+  - Where do the sounds come from, and under what licence? Same problem as the
+    music, at a smaller scale.
+  - Does the Resonance theme have to work with no audio at all? It should --
+    a beautiful idle state that responds when sound arrives is better than a
+    dead background when it does not.
+
+--------------------------------------------------------------------------------
+WHY IT IS FILED RATHER THAN BUILT
+--------------------------------------------------------------------------------
+
+Requested 2026-09-18 as a list item, explicitly not to be implemented.
