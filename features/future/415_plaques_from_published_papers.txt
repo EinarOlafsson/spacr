@@ -1,0 +1,103 @@
+================================================================================
+PLAQUE ASSAYS FROM PUBLISHED PAPERS: DOI OR PDF IN, MEASURED PLAQUES OUT
+================================================================================
+
+Status:    NOT STARTED. Filed 2026-09-18 with the instruction not to implement
+           it. Nothing below has been built or prototyped.
+
+Shape:     The plaque module takes a DOI, a PMID or a PDF. It finds the figures,
+           finds the plaque images inside them with the trained YOLO detector,
+           segments and measures the plaques, works out WHAT CONDITION each
+           plaque image shows, and writes the lot to the database.
+
+--------------------------------------------------------------------------------
+THE PIPELINE
+--------------------------------------------------------------------------------
+
+  1. INPUT: a DOI, a PMID, or a PDF the user already has.
+
+  2. FETCH. Given a DOI or PMID, search the European database -- the same one
+     that was scraped to build the plaque model's training set, so the
+     retrieval path already exists in this project and should be reused rather
+     than written again.
+
+  3. FIND THE PLAQUE IMAGES. Run the trained YOLO detector over the downloaded
+     files. It was trained to locate wells in plate images; here it is being
+     asked to find plaque images inside FIGURES, which is a related but not
+     identical problem -- see the open questions.
+
+  4. MEASURE. Segment and measure the plaques in each detected image, and save
+     to the database, the same measurements the plaque module already produces
+     for images from a microscope.
+
+  5. ATTRIBUTE THE CONDITION. Below. This is the part that makes the output
+     worth anything: a plaque area with no condition attached is a number
+     nobody can use.
+
+--------------------------------------------------------------------------------
+ATTRIBUTING THE CONDITION -- TWO STRATEGIES, ALWAYS BOTH
+--------------------------------------------------------------------------------
+
+Both are ALWAYS applied, not one as a fallback for the other failing. Two
+independent readings that agree is evidence; one reading is a guess.
+
+  STRATEGY 1 -- TEXT AROUND THE IMAGE.
+      Detect the text immediately around each plaque image -- the label above,
+      beside or beneath it -- and annotate the image with it. This is the
+      direct route: most figures label the panel with the condition.
+
+  STRATEGY 2 -- PANEL LAYOUT PLUS FIGURE LEGEND.
+      Detect which panel each plaque image sits in, and where each image sits
+      RELATIVE TO THE OTHERS. Then read the figure legend and attribute each
+      image from the panel letter, its position, and what the legend says about
+      that panel. This is how a human reads a figure whose panels are labelled
+      only A, B, C.
+
+  WHEN BOTH FAIL.
+      Annotate each plaque by the DOCUMENT it came from and its position
+      relative to the other plaques in that document. That is weak, and it
+      must be recorded AS weak: a row whose condition came from this route must
+      be distinguishable in the database from one that was read off a label,
+      or the whole dataset inherits the uncertainty of its worst rows.
+
+--------------------------------------------------------------------------------
+NOTE -- THE MODELS THIS DEPENDS ON ARE ABOUT TO CHANGE
+--------------------------------------------------------------------------------
+
+Many more images have been curated for a new training round of BOTH the YOLO
+detector and the plaque segmentation model, and the plaque model is to move to
+a cpsam_v2 backbone. That is expected in the near future.
+
+So this module should not hard-code a checkpoint. It should ask the model zoo
+for the current plaque detector and the current plaque segmenter, so the
+retrain lands here without a code change -- and so a result can record WHICH
+model version produced it, which matters more here than usual, because these
+measurements come from other people's published figures.
+
+--------------------------------------------------------------------------------
+OPEN QUESTIONS -- ANSWER BEFORE BUILDING
+--------------------------------------------------------------------------------
+
+  - The YOLO detector finds WELLS in plate photographs. Finding plaque images
+    inside a published figure is a different distribution -- cropped, rescaled,
+    JPEG-compressed, often greyscale. Does it transfer, or does it need its own
+    training round? Measure this before building on it.
+  - Scale. A plaque area in pixels is meaningless across papers with different
+    magnifications and no scale bar. Is a scale bar detected, is a well
+    diameter used as the ruler the way the plate pipeline does, or are only
+    RATIOS within one figure reported?
+  - Licensing and redistribution: which of these papers may have their figures
+    downloaded, stored and republished as crops in a database?
+  - What happens when the two strategies DISAGREE? Recording both with a
+    conflict flag is more useful than silently preferring one.
+  - PDF text extraction is unreliable on scanned and vector-mixed figures. Is
+    OCR in scope, and which engine?
+  - Deduplication: the same figure appears in a preprint and the published
+    version, and the same plaque should not be counted twice.
+
+--------------------------------------------------------------------------------
+WHY IT IS FILED RATHER THAN BUILT
+--------------------------------------------------------------------------------
+
+Requested 2026-09-18 with the instruction to add it to the list and not
+implement it.
