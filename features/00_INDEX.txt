@@ -2,7 +2,7 @@
 spaCR FEATURES -- NEW, AND FUTURE
 ================================================================================
 
-Regenerated 2026-09-16 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-09-19 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/future/*.txt
@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-406 in features/new, 11 in features/future. NEITHER LIST BLOCKS A RELEASE.
+409 in features/new, 16 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -54,14 +54,8 @@ FUTURE FEATURES
   387  WHAT DOSE-RESPONSE STILL CANNOT SAY: SELECTIVITY, SYNERGY, AND THE PLATE
        387_what_the_dose_response_module_still_cannot_say.txt
 
-  395  MEASURE AN ENCODER THAT WAS TRAINED ON CELLS, BECAUSE THE ONE THAT LOST WAS
-       395_measure_an_encoder_that_was_trained_on_cells.txt
-
   396  MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
        396_make_masks_should_curate_a_queue_not_one_field.txt
-
-  403  MAP BARCODES IS GENERAL BEYOND THREE NAMED REFERENCES
-       403_map_barcodes_is_general_beyond_three_named_references.txt
 
   404  DINOCELL AS A SEGMENTATION BACKEND
        404_dinocell_as_a_segmentation_backend.txt
@@ -74,6 +68,27 @@ FUTURE FEATURES
 
   411  API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO CODEX
        411_api_pages_and_translations_for_nested_helpers.txt
+
+  421  CAPTURE MEASUREMENTS FROM HAND-DRAWN MASKS IN MAKE MASKS
+       421_capture_measurements_from_hand_drawn_masks.txt
+
+  422  A SEARCH FIELD BESIDE THE HELP DROPDOWN
+       422_a_search_field_beside_the_help_dropdown.txt
+
+  423  DINOCELL AND SAMCELL IN THE MODEL ZOO, INSTALLED ON CLICK
+       423_third_party_segmenters_in_the_model_zoo.txt
+
+  424  PLAQUE ASSAYS FROM PUBLISHED PAPERS: DOI OR PDF IN, MEASURED PLAQUES OUT
+       424_plaques_from_published_papers.txt
+
+  425  A DOCKER IMAGE FOR spaCR
+       425_a_docker_image_for_spacr.txt
+
+  426  TIMEFLOWS: A TEMPORAL CELLPOSE FOR THE TIMELAPSE SUBMODULE
+       426_timeflows_a_temporal_cellpose_for_timelapse.txt
+
+  427  SOUND EFFECTS, BACKGROUND MUSIC, AND THE RESONANCE THEME
+       427_sound_effects_and_the_resonance_theme.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -466,12 +481,14 @@ NEW FEATURES
   392  THE REGRESSION TABLE SHOULD NOT NEED THE PLATE NAME IN THE FILENAME
   393  A TEST PINS GENERATED PNG BYTES, SO THE BUILD TOOL'S VERSION IS PART OF THE
   394  PROSE THAT CANNOT BE TRANSLATED IS ONLY FOUND AFTER A 65-MINUTE BUILD, AND
+  395  MEASURE AN ENCODER THAT WAS TRAINED ON CELLS, BECAUSE THE ONE THAT LOST WAS
   397  SEVENTY-SEVEN API ROWS NAME A SETTING THAT DOES NOT EXIST
   398  ELEVEN STALE LEDGER FILES SIT OUTSIDE THE INDEX
   399  MAP BARCODES SEARCHES FOR BARCODES, SETS ITS OWN SETTINGS, AND COLOURS READS
   400  EVERY COMMENT LEAVES THE MODULES AND THE REASONS MOVE TO docs/notes
   401  CUDA IS PROTECTED AND METAL IS NOT, SO ONE GPU BACKEND SURVIVES TRANSLATION
   402  Status:    FIXED 2026-09-14. `tests/conftest.py` carries an autouse fixture
+  403  MAP BARCODES IS GENERAL BEYOND THREE NAMED REFERENCES
   406  THE TRANSLATION CACHE OUTLIVES A HAND FIX, AND A PLAIN BUILD PUTS THE BAD ROW
   408  A TOOLTIP POPUP TURNS THE SETTINGS COLUMN AND THE AI CHAT BOX BLACK UNTIL THE
   409  THE REAL-WINDOW THEME SWEEP IS ONE WIDGET AWAY FROM GOING RED AGAIN
@@ -485,3 +502,4 @@ NEW FEATURES
   418  MASK FILTERS OBJECTS BY MIN AND MAX INTENSITY; THE SPLIT AND MERGE SETTINGS GO
   419  MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
   420  THE SETUP SCREEN INSTALLS THE AI PROVIDER IT OFFERS, INSTEAD OF PRINTING A LINK
+  429  A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE
