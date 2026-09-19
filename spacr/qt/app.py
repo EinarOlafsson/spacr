@@ -3668,14 +3668,45 @@ class MainWindow(QMainWindow):
 
     def _open_preferences(self):
         """Open the Preferences dialog (theme, font size, colour-blind)."""
+        self.show_preferences_on()
+
+    def show_preferences_on(self, tab: str = "", label: str = "") -> bool:
+        """Open Preferences, on a named tab, with a named row marked.
+
+        The route the Help search field takes for a preference result: the
+        dialog carries nine tabs and a result that opened it on whichever
+        one it happened to start with has answered half the question.
+
+        Found by OBJECT NAME rather than by tab index or caption. An index
+        moves whenever a tab is added, and a caption is translated -- a
+        Korean interface would have matched nothing. Every page sets its own
+        ``PreferencesTab*`` name, and ``tools/build_help_search_index.py``
+        reads those same names out of this dialog's source, so the two ends
+        of the hand-off are the same string by construction.
+
+        :param tab: the page's object name, e.g. ``"PreferencesTabTheme"``;
+            ``""`` opens the dialog as it opens from the menu.
+        :param label: the row caption to mark; ``""`` marks nothing.
+        :returns: True when the named tab was found and shown.
+        """
         try:
             from .preferences import PreferencesDialog
         except Exception as e:
             self.statusBar().showMessage(
                 f"Preferences unavailable: {e}", 5000)
-            return
-        PreferencesDialog(self).exec()
+            return False
+        dialog = PreferencesDialog(self)
+        found = False
+        if tab:
+            try:
+                from .preferences_navigation import show_tab
+
+                found = show_tab(dialog, tab, label)
+            except Exception:
+                LOG.exception("could not open Preferences on %r", tab)
+        dialog.exec()
         self.refresh_theme()
+        return found
 
     def refresh_theme(self) -> None:
         """Rebuild everything preferences cannot update through QSS alone.

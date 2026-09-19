@@ -7,6 +7,7 @@ the whole app is usable without a mouse:
     Ctrl+H        Go home
     Ctrl+1..9     Switch to the Nth app in the sidebar
     Ctrl+K        Open the command palette
+    Ctrl+Shift+H  Search spaCR from the field beside the Help menu
     F1  / ?       Show the shortcuts cheat sheet
     Ctrl+P        Open Preferences
     Ctrl+/        Open the AI Console
@@ -92,6 +93,7 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Z + scroll",   "Resize the interface text",
                  "Background"),
     ShortcutSpec("F11",          "Full screen",            "Actions"),
+    ShortcutSpec("Ctrl+Shift+H", "Search spaCR from the Help bar", "Help"),
     ShortcutSpec("F1",           "Show this cheat sheet",  "Help"),
     ShortcutSpec("?",            "Show this cheat sheet",  "Help")
 ]
@@ -266,6 +268,7 @@ def install(window: QMainWindow) -> None:
             lambda: _jump_to_the_newest_line(window))
     _watch_the_stack_for_consoles(window)
     _bind(window, "Ctrl+F", lambda: _focus_settings_search(window))
+    _bind(window, "Ctrl+Shift+H", lambda: _focus_help_search(window))
     _bind(window, "Ctrl+Shift+R", lambda: _open_recipes(window))
     _bind(window, "F1",     lambda: show_cheat_sheet(window))
     _bind(window, "?",      lambda: _help_key(window))
@@ -296,6 +299,11 @@ def _install_window_hooks(window: QMainWindow) -> None:
     except Exception:
         LOG.debug("Could not install the settings search hooks",
                   exc_info=True)
+    try:
+        from .help_search import install_window_hooks as _help_search_hooks
+        _help_search_hooks(window)
+    except Exception:
+        LOG.debug("Could not install the help search field", exc_info=True)
     try:
         from .recipes import install_window_hooks as _recipe_hooks
         _recipe_hooks(window)
@@ -713,6 +721,22 @@ def _focus_settings_search(window: QMainWindow) -> None:
         bar._input.selectAll()
     except Exception:
         LOG.debug("could not focus the settings search box", exc_info=True)
+
+
+def _focus_help_search(window: QMainWindow) -> None:
+    """Put the caret in the search box beside the Help menu.
+
+    Ctrl+F already means "find a setting on THIS module", so the field that
+    searches the whole program needs its own key rather than a second
+    meaning for that one: a key that does two things depending on what is
+    on screen is a key nobody trusts.
+    """
+    try:
+        from .help_search import focus_field
+
+        focus_field(window)
+    except Exception:
+        LOG.debug("could not focus the help search box", exc_info=True)
 
 
 def _open_recipes(window: QMainWindow) -> None:

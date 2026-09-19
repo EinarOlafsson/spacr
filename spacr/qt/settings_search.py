@@ -76,6 +76,11 @@ DISCLOSURE_NAME = "SettingsSearchDisclosure"
 #: page — see `_bar_qss`.
 PANE_NAME = "SettingsSearchPane"
 
+#: How long a row revealed from the Help search box stays outlined. Long
+#: enough to find with the eye after the page has settled, short enough that
+#: the form is not left permanently marked up.
+_MARK_MS = 4000
+
 #: Where the per-module Essentials/All choice is remembered.
 _QSETTINGS_ORG = "spacr"
 _QSETTINGS_APP = "qt"
@@ -295,6 +300,110 @@ class SettingsSearchBar(QWidget):
     def indexed_keys(self) -> List[str]:
         """Every setting key the strip can show or hide."""
         return list(self._index)
+
+    def section_of(self, key: str) -> Optional[QWidget]:
+        """The section widget holding ``key``'s row, or ``None``.
+
+        :param key: a setting key.
+        :returns: the collapsible section, or ``None`` when this module does
+            not render that setting.
+        """
+        row = self._index.get(str(key))
+        return row[0] if row else None
+
+    def reveal(self, key: str) -> bool:
+        """Show one setting with every other category shut.
+
+        WHAT INSTRUCTION 422 ASKS FOR, and it is deliberately NOT the search
+        filter. Typing the key into the box above would hide every other
+        setting as well, so a user who arrived from the Help search and then
+        wanted to look at the neighbouring rows would first have to work out
+        what had happened to the form. Revealing instead leaves the module
+        whole and only decides which heading is open.
+
+        Nothing is rebuilt and no value is read or written: the row was
+        already on the form, and this shows its section and scrolls to it.
+        That is what makes arriving here from a search safe for a half-typed
+        value -- the same property the filter has, for the same reason.
+
+        :param key: the setting to reveal.
+        :returns: True when the module renders ``key`` and it was revealed.
+        """
+        row = self._index.get(str(key))
+        if row is None:
+            return False
+        section, field = row
+        self._input.clear()
+        self._modified.setChecked(False)
+        if self._level != ALL:
+            self.set_level(ALL)
+        self.apply()
+        for other in self._sections:
+            if not hasattr(other, "set_expanded"):
+                continue
+            try:
+                other.set_expanded(other is section)
+            except Exception:
+                LOG.debug("could not collapse a section", exc_info=True)
+        self._restore_expanded = None
+        _set_row_visible(section, field, True)
+        section.setVisible(True)
+        self._revealed = str(key)
+        self._mark(field)
+        QTimer.singleShot(0, lambda: self._scroll_to(field))
+        return True
+
+    def revealed_key(self) -> str:
+        """The setting :meth:`reveal` last showed, or ``""``."""
+        return getattr(self, "_revealed", "")
+
+    def _mark(self, field: QWidget) -> None:
+        """Outline ``field`` for a few seconds so the eye finds it.
+
+        A STATIC MARK, not a flash: anything that moves has to answer to the
+        Animation preferences and to the reduced-motion equivalents, and a
+        border that simply appears and then goes away needs neither and is
+        not lost on anybody who turned motion off.
+
+        The previous stylesheet is put back rather than cleared, so a field
+        that carried one of its own -- a validation warning, say -- still
+        carries it afterwards.
+
+        :param field: the field widget to outline.
+        """
+        previous = field.styleSheet()
+        field.setProperty("spacrRevealed", True)
+        field.setStyleSheet(
+            previous + "\nQWidget { border: 1px solid palette(highlight); }")
+
+        def _unmark() -> None:
+            """Put the field back the way it was found."""
+            try:
+                field.setProperty("spacrRevealed", False)
+                field.setStyleSheet(previous)
+            except RuntimeError:
+                LOG.debug("the marked row went away before the mark did")
+
+        QTimer.singleShot(_MARK_MS, _unmark)
+
+    def _scroll_to(self, field: QWidget) -> None:
+        """Bring ``field`` into view and put the caret in it.
+
+        Deferred by one event-loop turn from :meth:`reveal`, because a
+        section that has just been expanded has no geometry yet and
+        ``ensureWidgetVisible`` on a widget with none scrolls to the top of
+        the form -- which looks exactly like the failure this is here to
+        prevent.
+
+        :param field: the field widget to show.
+        """
+        try:
+            scroll = self._screen.findChild(QScrollArea)
+            if scroll is not None:
+                scroll.ensureWidgetVisible(field, 0, 40)
+            field.setFocus(Qt.ShortcutFocusReason)
+        except RuntimeError:
+            LOG.debug("the row went away before it could be shown")
 
     def add_trailing_widget(self, widget: QWidget) -> None:
         """Add ``widget`` to the right-hand end of the control row.
