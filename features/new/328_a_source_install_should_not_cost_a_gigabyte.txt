@@ -320,6 +320,19 @@ is digits only: edit `source` and `translation` in the nine
 2026-09-19-install-from-source.json files, recompute `source_sha256`, and
 apply the same digits to the nine READMEs.
 
+WHAT "EVERY BLOCK" DOES NOT COVER (added on review, same day): the light
+section's per-form costs and limits -- "540 MB downloaded, 69 s", "No
+history, so no git log, no git blame and no git bisect", "81 MB on disk,
+39 s", "no docs, tests, tools or example data" -- are `#` comments INSIDE
+the literal block, and the builder copies literal blocks verbatim. So in
+all nine translated READMEs those sentences are English (checked: the
+"# One commit instead of every version" line is present once in each).
+DONE MEANS' "The limitations named, in one sentence each" is met in the
+English README; a reader of the German one sees the limitations in English
+inside the code block. Closing that means moving the limits out of the
+comments into a prose paragraph in README.rst (which then gets reviewed
+records like the rest), not translating shell comments.
+
 LEFT, NOT THIS ITEM'S:
   * The maintainer's 2026-09-16 badge edits to README.rst (six new badges,
     |Tests| dropped from the row, |Qt| retargeted) are not in the nine
