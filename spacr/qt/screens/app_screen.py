@@ -6348,11 +6348,32 @@ class AppScreen(QWidget):
             enabled = False
         self._btn_file_issue.setVisible(enabled)
         self._btn_file_issue.setEnabled(enabled)
-        files_itself = bool(enabled) and self._reporting_is_set_to_always()
-        self._report_files_itself = files_itself
+        always = bool(enabled) and self._reporting_is_set_to_always()
+        agreed = always and self._the_terms_allow_automatic_filing()
+        self._report_files_itself = agreed
+        self._report_awaits_the_terms = always and not agreed
         self._report_waits_for_a_click = (
-            bool(enabled) and not files_itself
+            bool(enabled) and not always
             and self._reporting_is_not_set_to_never())
+
+    @staticmethod
+    def _the_terms_allow_automatic_filing() -> bool:
+        """Whether this profile has accepted the terms that allow it.
+
+        Automatic filing rests on Section 5.6 of the terms of use. A profile
+        can reach a failed run without accepting that version: a launch with
+        ``--no-setup`` or ``SPACR_NO_SETUP``, an offscreen server, or a user
+        who closed the terms slide. Until it accepts, nothing is filed
+        automatically.
+
+        :returns: ``False`` when the current terms have not been accepted,
+            or when that cannot be read.
+        """
+        try:
+            from ..terms import needs_agreement
+            return not needs_agreement()
+        except Exception:                                    # noqa: BLE001
+            return False
 
     @staticmethod
     def _reporting_is_set_to_always() -> bool:
@@ -6412,18 +6433,29 @@ class AppScreen(QWidget):
         """Do what issue reporting is set to do, now that the run has ended.
 
         With 'always' the report is filed automatically
-        (:meth:`_file_the_report_automatically`). With 'ask' the console says
-        that nothing was sent (:meth:`_say_the_report_was_not_sent`). Both
-        pending decisions are dropped either way, so a stopped run does not
-        carry one over to the next failure.
+        (:meth:`_file_the_report_automatically`), once the profile has
+        accepted the terms that allow it. Before that, the console says
+        nothing was sent and why. With 'ask' the console says that nothing
+        was sent (:meth:`_say_the_report_was_not_sent`). Every pending
+        decision is dropped either way, so a stopped run does not carry one
+        over to the next failure.
 
         :param failed: whether the run that just ended failed.
         """
         files_itself = getattr(self, "_report_files_itself", False)
+        awaits_the_terms = getattr(self, "_report_awaits_the_terms", False)
         self._report_files_itself = False
+        self._report_awaits_the_terms = False
         if failed and files_itself:
             self._report_waits_for_a_click = False
             self._file_the_report_automatically()
+            return
+        if failed and awaits_the_terms:
+            self._report_waits_for_a_click = False
+            self._console.append_notice(
+                "[issue] Nothing was sent to GitHub. Automatic filing starts "
+                "once you accept the terms of use (Help → Set spaCR up "
+                "again…). To send this report now, press File as issue.\n")
             return
         self._say_the_report_was_not_sent(failed=failed)
 
@@ -6462,7 +6494,8 @@ class AppScreen(QWidget):
 
         The maintainer's decision of 2026-09-19: "Do real auto-filing, and
         make this the default". Consent is Section 5.6 of the terms of use,
-        which a profile accepts before setup completes.
+        and :meth:`_settle_the_report` calls this only for a profile that has
+        accepted them (:meth:`_the_terms_allow_automatic_filing`).
 
         The report is the one "File as issue" would open, built by the same
         :func:`~spacr.qt.ai.issue_report.build_report`, and it is sent with

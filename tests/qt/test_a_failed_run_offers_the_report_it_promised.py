@@ -560,6 +560,9 @@ class TestTheLineIsSaidOnlyWhenItIsTrue:
         """'always' files the report itself (2026-09-19), so saying nothing
         was sent would be false. The filing is
         test_the_report_files_itself.py's subject; here it is stubbed."""
+        from spacr.qt import terms
+
+        terms.record_agreement()
         filed = []
         monkeypatch.setattr(type(screen), "_file_the_report_automatically",
                             lambda self: filed.append(self._last_error_text))

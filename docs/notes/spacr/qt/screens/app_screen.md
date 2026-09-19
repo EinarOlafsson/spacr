@@ -4162,3 +4162,13 @@ Filing happens in `_on_finished`, through `_settle_the_report`, not in `_on_pipe
 `_REPORTS_BEING_FILED` is module-level because two screens can fail on one crash before the first report has come back from GitHub. The ledger in `ai.settings` is written only when GitHub answers.
 
 The report is built on the background runner, not on the GUI thread. `build_report` copies the log tail to a file, and `file_without_review` can run `gh auth token`. Only the form snapshot and the AI analysis are read on the GUI thread, because they are widget state.
+
+## AppScreen._the_terms_allow_automatic_filing
+
+### added 2026-09-19 (autofile-default)
+
+```python
+return not needs_agreement()
+```
+
+The maintainer tied automatic filing to the agreement: "add the user agreeing to this in the user agreement, if set to always". 'always' is the default, and the default applies to profiles that have never seen the agreement. A launch with `--no-setup` or `SPACR_NO_SETUP`, or under the offscreen platform (`setup_screen.skipped_on_purpose`), never shows the slides. A user can close the terms slide without accepting ("spaCR will present the terms again at the next startup"). A profile that accepted 4.1 accepted terms saying nothing is sent automatically. None of these has agreed, so none files automatically: the console says nothing was sent, and that filing starts once the terms are accepted. "File as issue" still works for them, through the preview.

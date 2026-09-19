@@ -11,6 +11,8 @@ These tests hold the decision down:
 
 * a profile that never chose files automatically, and one that chose keeps
   its choice;
+* nothing is filed automatically until the profile has accepted terms 4.2,
+  whose Section 5.6 is the consent;
 * the report filed is the one "File as issue" would build, with the
   redaction its preview applies by default, and with this computer's login
   and host names removed;
@@ -461,11 +463,12 @@ def mask_screen(qtbot, monkeypatch, tmp_path, machine):
     """A Mask screen on a profile that never chose, whose Run fails.
 
     Both issue-reporting preferences are REMOVED, so what runs is the
-    default. The AI is not asked: routing errors through it is switched
-    off, so the report cannot wait on a provider.
+    default. The terms of use are accepted, as the setup slide records them.
+    The AI is not asked: routing errors through it is switched off, so the
+    report cannot wait on a provider.
     """
     from spacr import run_journal
-    from spacr.qt import preferences
+    from spacr.qt import preferences, terms
     from spacr.qt.ai import settings as ai_settings
     from spacr.qt.ai.issue_preview import IssuePreviewDialog
     from spacr.qt.screens import app_screen
@@ -475,6 +478,7 @@ def mask_screen(qtbot, monkeypatch, tmp_path, machine):
     monkeypatch.setattr(run_journal, "runs_root", lambda: runs)
     preferences._settings().remove(preferences._KEY_ISSUE_PROMPT)
     ai_settings._settings().remove(ai_settings._KEY_AUTO_ISSUE)
+    terms.record_agreement(terms.TERMS_VERSION)
     ai_settings.set_route_errors_through_ai(False)
     monkeypatch.setattr(app_screen, "resolve_pipeline_entry",
                         lambda key: _failing_entry(machine))
@@ -599,6 +603,29 @@ class TestAFailedRunFilesItself:
 
         assert github.requests == []
         assert "[issue] Filing" not in text
+
+    @pytest.mark.parametrize("accepted", ["", "4.1"])
+    def test_nothing_is_filed_before_the_terms_are_accepted(
+            self, qtbot, monkeypatch, signed_in, mask_screen, accepted):
+        """Consent is Section 5.6. A profile launched with --no-setup, on a
+        server, or that closed the terms slide has not given it, and neither
+        has one that accepted 4.1, which said nothing was sent."""
+        from spacr.qt import terms
+
+        github = FakeGitHub()
+        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
+        terms._settings().setValue(terms._KEY_VERSION, accepted)
+
+        text = _run_and_wait_for(qtbot, mask_screen,
+                                 "Automatic filing starts once you accept")
+
+        assert github.requests == []
+        assert "[issue] Filing" not in text
+        failed = text.index("✗ Failed")
+        said = text.index("[issue] Nothing was sent to GitHub.")
+        assert text[failed:said].count("\n") == 1
+        assert "Set spaCR up again" in text[said:]
+        assert mask_screen._btn_file_issue.isEnabled()
 
     def test_reporting_switched_off_files_nothing(
             self, qtbot, monkeypatch, signed_in, mask_screen):
