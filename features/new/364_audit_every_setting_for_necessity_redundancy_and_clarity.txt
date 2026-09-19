@@ -2,40 +2,34 @@
 EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
 ================================================================================
 
-Status:    OPEN, corrected 2026-09-19 -- see the last section. All three
-           things the maintainer approved on 2026-09-02 are BUILT and tested
-           -- the retired _size pair, the four renames, and the per-object
-           table (this header called the table unbuilt for two days after
-           it landed; corrected 2026-09-05). The legacy-migration hole the
-           2026-09-05 check found in the renames is CLOSED by 15fa72737
-           (2026-09-12).
-           RETIREMENTS approved 2026-09-09. DONE: `grna` (2026-09-14), the
-           three recruitment `*_mask_dim` (79edbf12f, 2026-09-03 -- this
-           line called them unstarted until 2026-09-19; importing an OLD
-           recruitment file that names `nucleus_mask_dim` or
-           `pathogen_mask_dim` rebuilt the screen without end until the
-           fix that landed with this correction, see the last section),
-           and the two `prefs/space_*` (accessors 61c896555 on 2026-09-09;
-           an older store's values are removed on the first theme read
-           from the nightly build this correction landed in, 2026-09-19,
-           and a released build clears them only once it carries that
-           change). HELD: `barcodes`
-           and `Toxoplasma`. Each has a human-reviewed zh_CN tooltip
-           translation that retiring the setting would withdraw -- the
-           2026-09-14 and 2026-09-19 sections. BLOCKED: `img_size` ->
-           `image_size`. `image_size` is already a live setting with a
-           different meaning (model-input crop, default 224). This needs
-           the maintainer's choice; the 2026-09-19 section lists the
-           options.
-           THE io.py ORGANELLE-SLOT QUESTION IS DECIDED AND BUILT,
-           2026-09-19: "Yes, all slots". io.py's preprocessing now gives
-           every enabled slot its own `<slot>_background` and
-           `<slot>_signal_to_noise` (the last section). Left from it: slots
-           2 onward have no declared `remove_background_<slot>` switch,
-           which needs a name the maintainer accepts. The
-           2026-09-04 note's "two proposals waiting on the maintainer"
-           was not re-checked against the 2026-09-09 approval. Proposals
-           are in features/data/364_*_settings_audit_*.txt.
+Status:    OPEN, 2026-09-19 -- about 92% done; the last sections say what
+           is left and why. Everything the maintainer approved is BUILT:
+           the 2026-09-02 group (the retired _size pair, the four renames,
+           the per-object table) and all three 2026-09-09 groups -- the
+           silent-divergence fixes, the eleven renames (2026-09-10) and
+           every retirement. The retirements finished on 2026-09-19, when
+           he decided the last three: `barcodes` and `Toxoplasma` RETIRED,
+           their two reviewed zh_CN tooltip records withdrawn and recorded
+           as withdrawn, and `img_size` RENAMED to `crop_size`, kept
+           distinct from the model's `image_size`. `grna` (2026-09-14),
+           the three recruitment `*_mask_dim` and the two `prefs/space_*`
+           were done before (the 2026-09-19 sections). The migration is
+           15fa72737's (2026-09-12); an old file run through `spacr-run`
+           lost its renamed values to the defaults, and then `validate`
+           stopped naming what had moved, until 2026-09-19 (the last
+           sections).
+           THE io.py ORGANELLE-SLOT QUESTION IS DECIDED AND BUILT BY
+           ANOTHER UNIT, 2026-09-19: "Yes, all slots", so io.py's
+           preprocessing gives every enabled slot its own
+           `<slot>_background` and `<slot>_signal_to_noise`. Left from it:
+           slots 2 onward have no declared `remove_background_<slot>`
+           switch, which needs a name the maintainer accepts.
+           LEFT ON THIS ITEM: the motility proposal to retire
+           `infection_pca_n_clusters` (2026-09-04) was never in an approved
+           group and waits on the maintainer, with the two parked motility
+           renames. The nine-language translations of the strings changed
+           here are owed to the consolidated catalog pass. Proposals are in
+           features/data/364_*_settings_audit_*.txt.
 Requested: 2026-09-02, verbatim -- "look through each moduals settings and
            evaluate if any settings are unnecessary, redundant or are not
            intuitive. then propose to remove settings that are unnecessary,
@@ -2715,3 +2709,219 @@ LEFT, recorded rather than built:
 i18n OWED to the consolidated pass: the docstrings of
 spacr.io.preprocess_img_data and spacr.crops.reconcile_merged_mask_dims. No
 setting label, tooltip or UI caption changed.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE MAINTAINER DECIDED THE LAST THREE. BOTH RETIREMENTS AND THE
+              RENAME ARE BUILT, AND THE MIGRATION HAD A HOLE THE CLI FELL IN
+--------------------------------------------------------------------------------
+
+Decided: asked through the question prompt today, verbatim.
+
+  Toxoplasma and barcodes   "Retire both" -- old settings files keep loading
+                            through the existing migration (15fa72737's
+                            mechanism); the two human-reviewed zh_CN tooltip
+                            records are WITHDRAWN AND RECORDED AS WITHDRAWN.
+  img_size                  "crop_size" -- rename img_size -> crop_size.
+                            `image_size` already exists and means the model's
+                            input size; they are different quantities and stay
+                            distinct. Old files migrate with a message.
+
+The io.py organelle-slot question is decided too, and ANOTHER UNIT BUILT IT
+-- the section above, which landed on nightly while this one was in review.
+Nothing in this section touches io.py.
+
+WHAT `Toxoplasma` COST, AND WHY IT IS A FOLD RATHER THAN A RENAME. The value
+is a boolean and the survivor is a NAME, so a plain move would put `True` in
+a field that expects an organism. `settings._fold_toxoplasma` is the
+migration and `SEMANTIC_FOLDS` declares the exemption, beside
+`gradient_accumulation`: a name already in `annotation_source` wins, as it did
+before; otherwise true means 'toxoplasma' and false means '', no annotation.
+Both spellings fold -- `Toxoplasma` and the older `toxo` -- and the new one
+wins when a file carries both.
+
+  READERS. `ml._annotation_source` now folds a COPY of whatever dict it is
+  handed, so a caller that hands ml.py a raw, unfolded dict gets the same
+  answer the factory would give it; the five cases the old
+  `_toxoplasma_is_on` covered are asserted unchanged.
+  `ml._toxoplasma_is_on` keeps its name and changes its question: it gates
+  the Toxoplasma-only figures (the hyperLOPIT volcano, the GT1/ME49
+  phenotype and expression reports), and it now asks whether the ANNOTATION
+  resolves to the bundled Toxoplasma tables. Before today it read the switch,
+  which defaulted ON, so a run annotated with 'human' still drew them.
+
+  THE ONE BEHAVIOUR THAT CHANGES, and it is not in the survey. A blank
+  `annotation_source` with NO switch in the file used to mean the bundled
+  tables, because the factory defaulted the switch to true and the reader
+  fell back to it. A blank field is now the only way to say "no annotation",
+  so such a file annotates nothing. A file saved from the panel carries both
+  keys and is unaffected. The upside is the reason to accept it: the switch
+  was hidden on the regression panel (`_APP_HIDDEN_KEYS`), so a panel user
+  had NO WAY to turn annotation off at all.
+
+  A STRING 'False' IS OFF. The code this replaces used `bool()` on the raw
+  value in two places, and `bool('False')` is True.
+
+`barcodes` IS A PLAIN WITHDRAWAL, like `grna` before it: declared only by
+`get_map_barcodes_default_settings`, which nothing calls, so no run ever read
+it. It keeps its place in a loaded dict so the pre-flight can name it, and
+the pre-flight says the value has no effect. Out of `expected_types`,
+`tooltips`, the "Paths" category and the Qt panel's `PATH_LIST_KEYS`,
+`PATH_LIST_TITLES` and `PATH_LIST_SINGLE_KEYS`.
+
+`img_size` -> `crop_size`, NOT `image_size`, and the collision the 2026-09-19
+section above recorded is the reason. The two quantities stay apart:
+`image_size` is the model's input crop (default 224, read by training and
+inference) and `crop_size` is how many pixels each cell is DRAWN at (default
+200). `crop_size` is typed in `expected_types`, so the rename has a live
+terminus and `RENAMED_SETTINGS`/`RETIRED_SETTINGS` carry the pair.
+
+  THE ANNOTATE SCREEN WAS THE COLLISION MADE VISIBLE. Its crop-size spin box
+  was wired to `image_size` for its tooltip -- "Side length in pixels of the
+  center crop taken from each object PNG before model input ... Default 224"
+  -- on a field that opens at 200, and its example-settings importer read
+  `image_size` as its own spelling of the crop size. Both now say
+  `crop_size`, and `image_size` is NOT accepted there. Measured consequence,
+  from the example dataset's own `annotate_settings.csv` as downloaded
+  (`image_size,224` beside `img_size,200`): the example opens at 200 rather
+  than at the model's 224. The form's label reads "Crop size (px)".
+
+  THE SAVED PICTURE SETTINGS of the Cells tab are migrated too, by
+  `picture_settings.drop_retired`, which now MOVES a renamed key instead of
+  only dropping retired ones and asks `surviving_setting_name` rather than
+  keeping a second table. It is called where a saved blob is read -- the
+  montage's `apply_workspace_state` and the picture-settings window -- which
+  it claimed to be and was not: nothing in the package called it.
+
+THE MIGRATION HAD A HOLE, FOUND BY TESTING THE DECISION RATHER THAN THE CODE.
+`spacr-run <module> --settings old.csv` lost every renamed value:
+
+    min_cell_count,50   resolved to   min_cells_per_well = 100   (the default)
+
+`cli.resolve_settings` layers the module's DEFAULTS first and the file on top,
+and the fold resolves a collision with "the NEW name wins where both are
+present" -- right for one file, wrong for a file layered on defaults that have
+already filled in the new name. The fold even said "this settings file names
+both" about a file that named one. It applies to all ten rename entries and
+the six role-family rules, not to anything retired today; the GUI never had it,
+because it translates a dict before it meets a form. Fixed in
+`cli._under_todays_names`, which migrates the FILE before it meets the
+defaults and names each key that moved with the pre-flight's own sentence --
+the pre-flight runs next and can only see the new name. `batch.resolve_job_
+settings`, which says it layers "exactly as spacr-run layers them", gets the
+same call.
+
+THE TWO REVIEWED zh_CN RECORDS ARE WITHDRAWN AND SAY SO. The runtime store
+has no `retired` field -- the loader validates the field set exactly, so a
+record carrying one is INVALID rather than retired, and the reporter says to
+delete it. The repo's way of not deleting one in silence is the file-level
+`review_notes` the ko and zh_CN stores already use, so each record left
+`records` and its file gained a note naming the date, the maintainer's
+decision, the source hash and the reviewed translation verbatim:
+
+    docs/i18n/reviewed/runtime/zh_CN/2026-08-14-tail-000-020.json        barcodes
+    docs/i18n/reviewed/runtime/zh_CN/2026-08-26-post-fallback-residuals.json
+                                                                        Toxoplasma
+
+zh_CN's reviewed runtime count falls by two. REVIEW_SCOPE's table was NOT
+re-derived, and that is measured rather than skipped: the loader refuses to
+run today over 19 stale records that belong to other work (18 magnifier
+captions in eight locales, one `sv` "checksum"), so a regeneration would fail
+on the first language. The consolidated catalog pass regenerates it.
+
+WHAT MOVED
+
+  spacr/settings.py         `_fold_toxoplasma`, `SEMANTIC_FOLD_MEANINGS`
+                            (what the doctor says each fold does with the old
+                            value), `RENAMED_SETTINGS` gains img_size ->
+                            crop_size, the annotate factory folds before it
+                            fills, the type/tooltip/category tables lose the
+                            two retired keys, and the fold's own line stops
+                            claiming "until now the value was ignored" --
+                            true of the renames 15fa72737 repaired, false of
+                            every rename since.
+  spacr/validate.py         RETIRED_SETTINGS gains barcodes, Toxoplasma, toxo
+                            and img_size; a semantic fold gets its own
+                            sentence; the rename advice stops saying the value
+                            is ignored.
+  spacr/ml.py               the two readers above; `TOXOPLASMA_KEYS` is gone.
+  spacr/parameter_sweep.py, spacr/qt/screens/parameter_sweep.py
+                            three `Toxoplasma: False` become
+                            `annotation_source: ""`.
+  spacr/picture_settings.py, spacr/qt/widgets/cell_montage_view.py,
+  spacr/qt/widgets/picture_settings_dialog.py, spacr/qt/screens/annotate.py
+                            crop_size, and the saved blobs migrated.
+  spacr/qt/screens/app_screen.py
+                            the Qt import folds the switch: the form has no
+                            widget for it, so without this an imported file
+                            saying `Toxoplasma=False` left the annotation
+                            field on its default.
+  spacr/cli.py, spacr/batch.py   the hole above.
+  generated                 settings_flow.rst + settings_flow_index.py,
+                            setting_api_targets.py + setting_consumers.json,
+                            Notebooks/06_regression.ipynb, and the ten
+                            catalogs edited row by row (en regenerated with
+                            --sources-only; the nine translated files lost the
+                            retired rows and had the img_size TOOLTIP re-keyed
+                            to crop_size, same text, same hash).
+
+TESTS, 4G cap (8G for the Qt harness), one process at a time, `spacr` imported
+from the worktree.
+  * NEW, one file per key, each starting from a file rather than a dict:
+    test_an_old_file_naming_toxoplasma_still_decides_the_annotation.py (17),
+    test_an_old_file_naming_barcodes_still_loads.py (5),
+    test_an_old_file_naming_img_size_keeps_its_crop_size.py (11),
+    test_an_old_settings_file_keeps_its_values_through_spacr_run.py (11),
+    tests/qt/test_the_last_364_retirements_load_in_the_window.py (6) -- the
+    last drives Import settings on a real Regression screen in a MainWindow,
+    the Cells tab restoring a saved run, the picture-settings window and the
+    Annotate settings window.
+  * MUTATED, each restored afterwards: no fold in the Qt import (3 fail), no
+    migration on restore (1), none in the picture window (1), the annotate
+    tooltip back on image_size (1), the annotate factory not folding (3), the
+    regression factory not folding (12), ml reading the field alone (1), the
+    doctor treating a fold as a rename (1), 'False' read as on (1), no fold
+    before the defaults in the CLI (8), the CLI message silenced (1).
+  * GREEN: the settings, validate, doctor, sweep, picture, CLI, batch and
+    notebook suites -- 1,565 passed in one run and 624 in the CLI/doctor
+    re-run after `cli.py` changed; the Qt annotate/cells/import suites 352
+    passed.
+  * RED, AND EVERY ONE OF THEM MEASURED AGAINST THE SAME TREE WITHOUT THIS
+    CHANGE (92ea1ba00, a second worktree):
+    - tests/qt/test_external_i18n_catalogs.py, FOUR tests, all one cause:
+      `crop_size` has no row in the nine translated catalogs. That is the
+      i18n debt this change owes and the consolidated pass pays; the English
+      catalog has the row.
+    - the i18n suite is 30 red on 92ea1ba00 and 34 red here: the four above
+      and no others.
+    - test_the_two_settings_tables_agree.py::test_a_settings_change_has_not_
+      stranded_reviewed_translations, from the 19 stale records above, none
+      of them this unit's -- with this change the reporter no longer lists
+      `Toxoplasma` or `barcodes`.
+    - test_notebook_settings.py, from three notebooks (01, 01b, 14) that are
+      stale on nightly for other reasons; 06 is regenerated here.
+
+i18n OWED to the consolidated pass, each listed in the unit's report:
+  SETTING_LABELS  'Crop size' (new; nine locales)
+  SETTING_TOOLTIPS  annotation_source (empty now means NO annotation),
+                    edge_thickness (names crop_size), x_lim (stops naming
+                    "toxo mode")
+  UI  the Annotate window's "Crop size (px)" and the picture row "crop size"
+      are not catalogued sources today, so nothing is owed for them.
+  API docstrings  spacr.settings.set_annotate_default_settings and
+                  spacr.picture_settings.drop_retired changed; measured by
+                  diffing `public_docstrings()` against 92ea1ba00, which also
+                  says nothing else public was added or removed.
+The caption ratchet in tests/qt/test_i18n_caption_ratchet.py is NOT moved: it
+is already red on nightly against the live sources, so a partial move would
+pin a number nobody can reproduce. This change's identity delta, for whoever
+moves it: SETTING_LABELS -3/+1 (Toxoplasma, barcodes, img_size out, crop_size
+in), SETTING_TOOLTIPS -3/+1 (the same, img_size re-keyed), UI -1 ('Choose the
+barcode CSV').
+
+LEFT ON 364: the io.py organelle-slot loop is decided AND BUILT by another
+unit -- the section above it, which landed on nightly while this one was in
+review -- leaving only a name for the per-slot `remove_background_<slot>`
+switch. What is left on this item is the motility proposal
+`infection_pca_n_clusters` (2026-09-04, never in an approved group -- it is a
+live setting whose own tooltip says it does nothing), the two parked motility
+renames, and the translations above.

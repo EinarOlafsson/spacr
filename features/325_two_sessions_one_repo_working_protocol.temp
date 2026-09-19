@@ -8167,3 +8167,32 @@ see them at their next pull (each item's file gets them verbatim too):
 
 Concurrency: Einar raised this run's cap to 8 agents total. GPU jobs are run
 by me, one at a time, only after the GPU has been idle 20 minutes.
+
+--------------------------------------------------------------------------------
+2026-09-19 — HOME: 364 EDITS MORE CODEX-LANE FILES THAN spacr/settings.py, AND TWO TUTORIAL CAPTIONS MOVE
+--------------------------------------------------------------------------------
+
+Einar decided 364's last three today: `barcodes` and `Toxoplasma` retire
+("Retire both", their reviewed zh_CN tooltip records withdrawn and recorded
+as withdrawn), and `img_size` becomes `crop_size` ("crop_size"), kept apart
+from the model's `image_size`. settings.py was approved by name. The same
+change also has to edit these Codex-lane files, narrowly, nothing
+reformatted:
+  spacr/validate.py         RETIRED_SETTINGS entries; the doctor's sentence
+                            for a semantic fold and for a rename
+  spacr/ml.py               `_annotation_source` / `_toxoplasma_is_on` read
+                            `annotation_source` through the new fold;
+                            `TOXOPLASMA_KEYS` is gone
+  spacr/parameter_sweep.py  two `setdefault("Toxoplasma", False)` become
+                            `setdefault("annotation_source", "")`
+  spacr/picture_settings.py `img_size` -> `crop_size`; `drop_retired` moves a
+                            renamed key instead of dropping it
+  spacr/cli.py              `resolve_settings` folds the FILE before it meets
+                            the defaults (an old file lost every renamed
+                            value to the default -- measured, see 364)
+  tests/ (non-Qt)           the tests naming the three keys, and three new
+                            old-file tests
+FOR CODEX'S TUTORIALS: two visible captions change. The Annotate settings
+window's "Image size (px)" reads "Crop size (px)", and the Cells tab's
+picture-settings row "img size" reads "crop size". No other panel row
+changes: `Toxoplasma` was hidden and `barcodes` was on no panel.
