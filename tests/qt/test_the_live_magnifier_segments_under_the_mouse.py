@@ -561,12 +561,17 @@ def test_the_screen_offers_and_runs_classical_with_no_model(
         qtbot, qt_theme_applied, tmp_path, monkeypatch):
     """No Cellpose: Classical is the only mode that runs, and a click adds.
 
-    DINOCell and SAMCell stay listed, greyed, since c60d48e35 (item 419
+    Every optional backend stays listed, greyed, since c60d48e35 (item 419
     point 3): a model absent from the box teaches nobody it exists. This
     test still said Mode offers "only Classical" and had been red on nightly
-    since that commit.
+    since that commit. Item 423 added the four Cellpose 3 models to that
+    list, so the list is read from _MAGNIFIER_BACKENDS rather than typed
+    out again.
     """
+    from spacr import _segmentation_backends as backends
+
     monkeypatch.setattr(mm, "find_spec", lambda name: None)
+    monkeypatch.setattr(backends, "_importable", lambda module: False)
     folder = tmp_path / "blobs"
     folder.mkdir()
     imageio.imwrite(folder / "a.tif", blob_field())
@@ -580,8 +585,8 @@ def test_the_screen_offers_and_runs_classical_with_no_model(
         made._mag_size.setValue(SIZE)
         assert [made._mag_mode.itemData(i)
                 for i in range(made._mag_mode.count())] == [
-            "classical", "dinocell", "samcell"]
-        assert made._mag_uninstalled == {"dinocell", "samcell"}
+            "classical", *mm._MAGNIFIER_BACKENDS]
+        assert made._mag_uninstalled == set(mm._MAGNIFIER_BACKENDS)
         assert made._mag_mode.currentData() == "classical"
         made._btn_magnifier.setChecked(True)
         hover(made, 30, 44)

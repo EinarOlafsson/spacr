@@ -5921,9 +5921,7 @@ class MakeMasksScreen(QWidget):
             if needs == backend:
                 self._mag_uninstalled.discard(other)
         self._grey_uninstalled_modes()
-        index = self._mag_mode.findData(mode)
-        if index >= 0:
-            self._mag_mode.setCurrentIndex(index)
+        self._mag_mode.setCurrentIndex(self._mag_mode.findData(mode))
         self._status_label.setText(tr(
             "{name} is installed and selected.", name=label))
         return True

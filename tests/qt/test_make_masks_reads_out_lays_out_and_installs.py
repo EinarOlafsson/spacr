@@ -29,15 +29,17 @@ from pathlib import Path
 import imageio.v2 as imageio
 import numpy as np
 import pytest
-from PySide6.QtCore import QEvent, QPointF, Qt, QTimer
+from PySide6.QtCore import QEvent, QPointF, Qt
 from PySide6.QtGui import QMouseEvent
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QApplication
 
 from spacr.qt import mask_engine as engine
 from spacr.qt.screens import make_masks as mm
 from tests.qt.test_model_install_runs_off_the_gui_thread import (
     _choose,
+    _fake_backend_install,
     _fake_pip,
+    no_backend_environments,  # noqa: F401 - a fixture, used by name
     no_backends,  # noqa: F401 - a fixture, used by name
 )
 from tests.qt.test_the_live_magnifier_segments_under_the_mouse import (
@@ -316,13 +318,26 @@ def test_the_toggle_still_gives_the_image_the_settings_width(screen, qtbot):
 
 # ---------------------------------------------------------------------------
 # 3. Models that are not installed: greyed, and installed by a click
+#
+# The maintainer asked on 2026-09-16 for a greyed row that installs itself
+# "in the spacr environment"; on 2026-09-19, answering item 423, he said
+# where instead: "Isolated env per backend!". So the Mode box still greys
+# what is missing and still installs it when it is chosen, but through the
+# Model Zoo's own dialog, into ~/.spacr/backends/<name>, and spaCR's own
+# environment is not changed. The dialog itself -- its progress, its Cancel,
+# and the event loop still running while pip does -- is driven in
+# tests/qt/test_a_backend_installs_into_its_own_environment.py; here the
+# Mode box's end of it is what is pressed.
+#
+# spacr.qt.model_install.PackageInstall is unchanged and still installs the
+# Mask settings' segmentation_backend dropdown; that surface is item 419's
+# and is tested in tests/qt/test_model_install_runs_off_the_gui_thread.py.
 # ---------------------------------------------------------------------------
 
-def test_a_missing_backend_installs_in_the_background_and_is_selected(
-        qtbot, qt_theme_applied, monkeypatch, no_backends):
-    monkeypatch.setattr(QMessageBox, "warning",
-                        staticmethod(lambda *a, **k: QMessageBox.Yes))
-    started = _fake_pip(monkeypatch, installs="samcell", present=no_backends)
+def test_a_missing_backend_installs_into_its_own_environment_and_is_selected(
+        qtbot, qt_theme_applied, monkeypatch, no_backends,
+        no_backend_environments):
+    asked = _fake_backend_install(monkeypatch)
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
@@ -332,46 +347,56 @@ def test_a_missing_backend_installs_in_the_background_and_is_selected(
         assert box.model().item(row).isEnabled(), "greyed must stay choosable"
 
         _choose(box, "samcell")
-        assert started == ["spacr[samcell]"]
-        assert box.currentData() == "classical", (
-            "the box rested on a model that is not installed yet")
-        assert not made._mag_install_bar.isHidden()
 
-        ticks = []
-        timer = QTimer()
-        timer.timeout.connect(lambda: ticks.append(1))
-        timer.start(20)
-        qtbot.waitUntil(lambda: made._mag_install_job is None, timeout=15_000)
-        timer.stop()
-        assert len(ticks) >= 5, "the event loop stood still during the install"
-
+        assert asked == ["samcell"], "the Model Zoo's installer was not used"
         assert "samcell" not in made._mag_uninstalled
-        assert box.currentData() == "samcell"
-        assert made._magnifier.mode == "samcell"
-        assert box.itemData(box.findData("samcell"), Qt.ForegroundRole) is None
+        assert box.currentData() == "samcell", (
+            "an install that succeeded did not select the row")
+        assert box.itemData(box.findData("samcell"),
+                            Qt.ForegroundRole) is None
         assert box.itemData(box.findData("dinocell"),
-                            Qt.ForegroundRole) is not None
-        assert made._mag_install_bar.isHidden()
+                            Qt.ForegroundRole) is not None, (
+            "installing one backend un-greyed another")
         assert "SAMCell is installed" in made._status_label.text()
     finally:
         made._magnifier.close()
         made.close_folded()
 
 
-def test_a_failed_install_says_why_and_leaves_the_box_working(
-        qtbot, qt_theme_applied, monkeypatch, no_backends):
-    monkeypatch.setattr(QMessageBox, "warning",
-                        staticmethod(lambda *a, **k: QMessageBox.Yes))
-    _fake_pip(monkeypatch, code=3, delay=0.1)
+def test_installing_cellpose3_lights_all_four_of_its_models(
+        qtbot, qt_theme_applied, monkeypatch, no_backends,
+        no_backend_environments):
+    """One environment carries all four models, so one install lights them."""
+    asked = _fake_backend_install(monkeypatch)
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        _choose(made._mag_mode, "cellpose3:cyto2")
+        assert asked == ["cellpose3"]
+        for mode in ("cellpose3:cyto3", "cellpose3:cyto2",
+                     "cellpose3:cyto", "cellpose3:nuclei"):
+            assert mode not in made._mag_uninstalled, mode
+        assert "samcell" in made._mag_uninstalled
+        assert made._mag_mode.currentData() == "cellpose3:cyto2"
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_an_install_that_did_not_happen_leaves_the_box_working(
+        qtbot, qt_theme_applied, monkeypatch, no_backends,
+        no_backend_environments):
+    """Cancelled, refused or failed -- all of them are the dialog saying no."""
+    asked = _fake_backend_install(monkeypatch, answer=False)
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
         _choose(made._mag_mode, "dinocell")
-        qtbot.waitUntil(lambda: made._mag_install_job is None, timeout=15_000)
+        assert asked == ["dinocell"]
         assert "dinocell" in made._mag_uninstalled
         assert made._mag_mode.currentData() == "classical"
-        assert "pip exited 3" in made._status_label.text()
-        assert made._mag_install_bar.isHidden()
+        assert made._mag_mode.itemData(made._mag_mode.findData("dinocell"),
+                                       Qt.ForegroundRole) is not None
         _choose(made._mag_mode, "classical")
         assert made._magnifier.mode == "classical"
     finally:
@@ -380,14 +405,14 @@ def test_a_failed_install_says_why_and_leaves_the_box_working(
 
 
 def test_a_missing_mode_never_reaches_the_magnifier(
-        qtbot, qt_theme_applied, monkeypatch, no_backends):
+        qtbot, qt_theme_applied, monkeypatch, no_backends,
+        no_backend_environments):
     """From Cellpose, a click on a missing SAMCell goes back to Cellpose.
 
     The box changes its row before ``activated`` fires; the magnifier must
     not be handed SAMCell in between, or it starts a load that can only fail.
     """
-    monkeypatch.setattr(QMessageBox, "warning",
-                        staticmethod(lambda *a, **k: QMessageBox.Cancel))
+    _fake_backend_install(monkeypatch, answer=False)
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     seen = []
@@ -405,17 +430,22 @@ def test_a_missing_mode_never_reaches_the_magnifier(
         made.close_folded()
 
 
-def test_refusing_the_install_runs_nothing(
-        qtbot, qt_theme_applied, monkeypatch, no_backends):
-    monkeypatch.setattr(QMessageBox, "warning",
-                        staticmethod(lambda *a, **k: QMessageBox.Cancel))
+def test_nothing_in_the_mode_box_runs_pip_against_spacrs_own_environment(
+        qtbot, qt_theme_applied, monkeypatch, no_backends,
+        no_backend_environments):
+    """The maintainer's 2026-09-19 answer, held down where it was broken.
+
+    Choosing a greyed row used to run `pip install "spacr[<backend>]"`
+    against the interpreter spaCR is running in.
+    """
     started = _fake_pip(monkeypatch)
+    _fake_backend_install(monkeypatch, answer=False)
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        _choose(made._mag_mode, "samcell")
-        assert started == [] and made._mag_install_job is None
-        assert made._mag_mode.currentData() == "classical"
+        for mode in ("samcell", "dinocell", "cellpose3:cyto3"):
+            _choose(made._mag_mode, mode)
+        assert started == [], f"pip was run against spaCR's own environment: {started}"
     finally:
         made._magnifier.close()
         made.close_folded()

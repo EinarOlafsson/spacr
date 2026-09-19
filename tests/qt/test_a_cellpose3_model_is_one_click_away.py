@@ -32,8 +32,7 @@ import pytest
 
 import spacr._segmentation_backends as SB
 from spacr.qt.widgets import model_zoo_picker as mzp
-from spacr.qt.widgets.object_settings_grid import (MODEL_QUESTION,
-                                                   ObjectSettingsGrid)
+from spacr.qt.widgets.object_settings_grid import MODEL_QUESTION, ObjectSettingsGrid
 
 CELLPOSE3_MODELS = ("cyto3", "cyto2", "cyto", "nuclei")
 

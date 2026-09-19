@@ -875,13 +875,19 @@ def test_the_mode_box_re_reads_the_backends_when_a_mode_is_chosen(
         assert made._mag_mode.itemData(index, Qt.ForegroundRole) is not None
         assert made._mag_mode.currentData() == "classical"
 
-        monkeypatch.setattr(type(made), "_offer_backend_install",
-                            lambda self, mode: offered.append(mode) or True)
+        from spacr.qt.widgets import model_zoo_picker
+
+        monkeypatch.undo()
+        monkeypatch.setattr(mm, "_backend_ready", lambda mode: here["ready"])
+        monkeypatch.setattr(model_zoo_picker, "install_backend",
+                            lambda parent, name: offered.append(name) or True)
         made._mag_mode.setCurrentIndex(index)
         made._on_magnifier_mode_activated(index)
-        assert offered == ["cellpose3:cyto3", "cellpose3:cyto3"]
+        assert offered == ["cellpose3:cyto3", "cellpose3"]
         assert made._mag_mode.currentData() == "cellpose3:cyto3", (
-            "an install that succeeded still put the box back")
+            "an install that succeeded did not select the row")
+        assert made._mag_uninstalled == {"dinocell", "samcell"}, (
+            "one environment carries all four Cellpose 3 models")
 
         here["ready"] = True
         made._on_magnifier_mode_activated(index)

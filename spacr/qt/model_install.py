@@ -448,9 +448,26 @@ class SegmentationBackendCombo(QComboBox):
         self.activated.connect(self._on_activated)
 
     def missing(self) -> List[str]:
-        """The backends listed but not installed, by name."""
-        return [name for name, module in self._modules.items()
-                if not is_importable(module)]
+        """The backends listed but not installed, by name.
+
+        Installed means "can segment now", which since item 423 is either an
+        environment of its own under ``~/.spacr/backends`` or -- the older
+        arrangement, still honoured -- the package importable in spaCR's own
+        environment. :func:`spacr._segmentation_backends._backend_state`
+        answers both with file checks and no import, so this stays cheap
+        enough to ask while the box is being built.
+        """
+        from .. import _segmentation_backends as backends
+
+        out = []
+        for name in self._modules:
+            try:
+                ready = backends._backend_state(name).ready
+            except (KeyError, OSError, ValueError):
+                ready = is_importable(self._modules[name])
+            if not ready:
+                out.append(name)
+        return out
 
     def refresh_installed(self) -> None:
         """Grey the backends that are not installed, and only those."""
@@ -510,44 +527,30 @@ class SegmentationBackendCombo(QComboBox):
         return 0
 
     def offer_install(self, name: str) -> bool:
-        """Ask, then install backend ``name`` in the background.
+        """Install backend ``name`` into an environment of its own.
+
+        THE DESTINATION CHANGED, NOT THE GESTURE. This box was asked for on
+        2026-09-16 -- a greyed row that installs itself when it is chosen --
+        and it ran ``pip install "spacr[<backend>]"`` against the environment
+        spaCR is running in. On 2026-09-19, answering item 423, the
+        maintainer said "Isolated env per backend!", so the install goes
+        through the Model Zoo's own dialog instead: off the GUI thread, with
+        progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's
+        own environment is never changed.
 
         :param name: a backend name.
-        :returns: True when an install was started.
+        :returns: True when the backend can segment afterwards.
         """
-        from .i18n import tr
+        from .widgets import model_zoo_picker
 
         row = backend_row(name)
         if row is None:
             return False
-        _name, label, requirement, _module = row
-        if self.job is not None and self.job.is_running():
-            QMessageBox.information(
-                self, tr("Install {name}", name=label),
-                tr("Another install is still running. Wait for it to "
-                   "finish."))
-            return False
-        if not confirm_backend_install(self, label, requirement):
-            return False
-        self._installing = name
-        self._help = self.toolTip()
-        self.job = PackageInstall(requirement)
-        self.job.finished.connect(self._on_install_finished)
-        self.setEnabled(False)
-        self.setToolTip(tr("Installing {name}…", name=label))
-        return self.job.start() or False
-
-    def _on_install_finished(self, worked: bool, message: str) -> None:
-        """Select the new backend, or say why it could not be installed."""
-        from .i18n import tr
-
-        name, self._installing = self._installing, None
-        self.setEnabled(True)
-        self.setToolTip(self._help)
+        worked = bool(model_zoo_picker.install_backend(self, name))
+        self._installing = None
         self.refresh_installed()
         index = self.findData(name)
         if worked and index >= 0 and name not in self.missing():
             self.setCurrentIndex(index)
-        elif not worked and message != "cancelled":
-            QMessageBox.warning(self, tr("Install failed"), message)
-        self.install_finished.emit(bool(worked), str(message))
+        self.install_finished.emit(worked, "")
+        return worked

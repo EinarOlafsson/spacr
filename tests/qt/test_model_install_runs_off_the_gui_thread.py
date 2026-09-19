@@ -6,6 +6,14 @@ environment. [...] these models should also be available in the mask modual
 in the same way, that is grayed out untill clicked, which installs them and
 makes them accessable to loade."
 
+WHERE IT INSTALLS CHANGED ON 2026-09-19, answering item 423: "Isolated env
+per backend!". The gesture is the same -- a greyed row that installs itself
+when it is chosen -- but the install goes through the Model Zoo's own
+dialog, into ``~/.spacr/backends/<name>``, and spaCR's own environment is
+never changed. :class:`spacr.qt.model_install.PackageInstall` is still the
+off-the-GUI-thread pip runner and is still tested here on its own terms; it
+is what a checkpoint download and any future pip install use.
+
 :class:`spacr.qt.model_install.SegmentationBackendCombo` is the Mask
 module's segmentation_backend control; these tests build the Mask
 settings form, choose rows the way a click does, and run a real child process
@@ -62,36 +70,75 @@ def _choose(box, data):
     box.activated.emit(index)
 
 
+@pytest.fixture
+def no_backend_environments(monkeypatch):
+    """No backend has an environment of its own, and none is importable.
+
+    tests/qt/conftest.py already points SPACR_BACKENDS_DIR at a fresh folder.
+    SAMCell may still be importable in the developer's own environment -- an
+    older spaCR pip-installed it there, a state item 423 still honours and
+    reads as installed -- and these tests are about a backend that is NOT
+    here.
+    """
+    from spacr import _segmentation_backends as backends
+
+    monkeypatch.setattr(backends, "_importable", lambda module: False)
+
+
+def _fake_backend_install(monkeypatch, answer=True, installs=None,
+                          present=None):
+    """Stand in for the Model Zoo's install dialog.
+
+    :param answer: what the dialog reports -- installed, or not.
+    :param installs: a module name the install makes importable.
+    :param present: the set ``installs`` is added to.
+    :returns: the list of backends the dialog was opened for.
+    """
+    from spacr.qt.widgets import model_zoo_picker
+
+    asked = []
+
+    def install(parent, name):
+        asked.append(name)
+        if answer and installs and present is not None:
+            present.add(installs)
+        return answer
+
+    monkeypatch.setattr(model_zoo_picker, "install_backend", install)
+    return asked
+
+
 def test_the_mask_module_lists_every_backend_and_installs_on_click(
-        qtbot, qt_theme_applied, monkeypatch, no_backends):
+        qtbot, qt_theme_applied, monkeypatch, no_backends,
+        no_backend_environments):
     """"these models should also be available in the mask modual"."""
     from PySide6.QtWidgets import QWidget
 
+    from spacr import _segmentation_backends as backends
     from spacr.qt.screens.settings_model import SettingsWidgets
 
-    monkeypatch.setattr(QMessageBox, "warning",
-                        staticmethod(lambda *a, **k: QMessageBox.Yes))
-    _fake_pip(monkeypatch, installs="dinocell", present=no_backends)
+    installed = set()
+    monkeypatch.setattr(backends, "_importable",
+                        lambda module: module in installed)
+    asked = _fake_backend_install(monkeypatch, installs="dinocell",
+                                  present=installed)
     holder = QWidget()
     qtbot.addWidget(holder)
     form = SettingsWidgets("mask", holder)
     form.build_sections()
     box = form._widgets["segmentation_backend"]
     assert isinstance(box, model_install.SegmentationBackendCombo)
-    assert [box.itemData(i) for i in range(box.count())] == [
-        "cellpose", "samcell", "dinocell"] or [
-        box.itemData(i) for i in range(box.count())] == [
-        "cellpose", "dinocell", "samcell"]
+    assert box.itemData(0) == "cellpose"
+    assert {box.itemData(i) for i in range(box.count())} == {
+        "cellpose", "cellpose3", "dinocell", "samcell"}
     assert form.collect()["segmentation_backend"] == "cellpose"
-    for name in ("dinocell", "samcell"):
+    for name in ("cellpose3", "dinocell", "samcell"):
         row = box.findData(name)
         assert box.itemData(row, Qt.ForegroundRole) is not None
         assert "not installed" in box.itemData(row, Qt.ToolTipRole)
 
     _choose(box, "dinocell")
-    assert box.currentData() == "cellpose", "it rested on a missing backend"
-    qtbot.waitUntil(lambda: box.job is not None and not box.job.is_running()
-                    and box.isEnabled(), timeout=15_000)
+    assert asked == ["dinocell"], "the Model Zoo's installer was not used"
     assert box.currentData() == "dinocell"
     assert form.collect()["segmentation_backend"] == "dinocell"
     assert box.itemData(box.findData("dinocell"), Qt.ForegroundRole) is None
@@ -102,12 +149,54 @@ def test_the_mask_module_lists_every_backend_and_installs_on_click(
         "a saved settings file naming a missing backend must still load")
 
 
-def test_a_refused_install_goes_back_to_the_backend_that_was_chosen(
+def test_nothing_in_the_backend_box_runs_pip_against_spacrs_own_environment(
+        qtbot, qt_theme_applied, monkeypatch, no_backends,
+        no_backend_environments):
+    """The maintainer's 2026-09-19 answer, held down where it was broken.
+
+    Choosing a greyed row used to run `pip install "spacr[<backend>]"`
+    against the interpreter spaCR is running in.
+    """
+    started = _fake_pip(monkeypatch)
+    _fake_backend_install(monkeypatch, answer=False)
+    box = model_install.SegmentationBackendCombo()
+    qtbot.addWidget(box)
+    for name in ("samcell", "dinocell", "cellpose3"):
+        _choose(box, name)
+    assert started == [], f"pip was run against spaCR's own environment: {started}"
+
+
+def test_a_backend_whose_state_cannot_be_read_falls_back_to_importing_it(
         qtbot, qt_theme_applied, monkeypatch, no_backends):
+    """The state is a few file checks, but the folder can be unreadable.
+
+    A backend spaCR cannot ask about is still installed when its package
+    imports -- the older arrangement item 423 keeps honouring -- so the row
+    is not greyed on a question that could not be asked.
+    """
+    from spacr import _segmentation_backends as backends
+
+    def _broken(name, root=None):
+        raise OSError("the backends folder is unreadable")
+
+    monkeypatch.setattr(backends, "_backend_state", _broken)
+    monkeypatch.setattr(model_install, "is_importable",
+                        lambda module: module == "samcell")
+    box = model_install.SegmentationBackendCombo()
+    qtbot.addWidget(box)
+    assert "samcell" not in box.missing()
+    assert "dinocell" in box.missing()
+
+
+def test_a_refused_install_goes_back_to_the_backend_that_was_chosen(
+        qtbot, qt_theme_applied, monkeypatch, no_backends,
+        no_backend_environments):
     """On SAMCell, a click on a missing DINOCell returns to SAMCell."""
-    monkeypatch.setattr(QMessageBox, "warning",
-                        staticmethod(lambda *a, **k: QMessageBox.Cancel))
-    no_backends.add("samcell")
+    from spacr import _segmentation_backends as backends
+
+    monkeypatch.setattr(backends, "_importable",
+                        lambda module: module == "samcell")
+    _fake_backend_install(monkeypatch, answer=False)
     box = model_install.SegmentationBackendCombo(default="samcell")
     qtbot.addWidget(box)
     assert box.currentData() == "samcell"
@@ -117,23 +206,30 @@ def test_a_refused_install_goes_back_to_the_backend_that_was_chosen(
 
 
 def test_an_install_outlives_the_widget_that_started_it(
-        qtbot, qt_theme_applied, monkeypatch, no_backends):
-    """A settings form is rebuilt; the pip it started must not be killed."""
-    monkeypatch.setattr(QMessageBox, "warning",
-                        staticmethod(lambda *a, **k: QMessageBox.Yes))
+        qtbot, qt_theme_applied, monkeypatch):
+    """A widget is rebuilt or closed; the pip it started must not be killed.
+
+    The backend box no longer starts one -- it opens the Model Zoo's dialog,
+    which owns its own job -- so the property is held down on
+    :class:`PackageInstall` itself, which is what any pip started from a
+    widget still uses.
+    """
     _fake_pip(monkeypatch, delay=0.8)
-    box = model_install.SegmentationBackendCombo()
-    _choose(box, "samcell")
-    job = box.job
-    assert job is not None and job.is_running()
-    box.deleteLater()
-    del box
-    QApplication.processEvents()
     ended = []
-    job.finished.connect(lambda worked, _m: ended.append(worked))
+
+    def start_and_forget():
+        """Start one and drop every reference to it, as a rebuilt form does."""
+        job = model_install.PackageInstall("spacr[samcell]")
+        job.finished.connect(lambda worked, _m: ended.append(worked))
+        assert job.start()
+        assert job.is_running() and job in model_install._RUNNING
+        return id(job)
+
+    ident = start_and_forget()
+    QApplication.processEvents()
     qtbot.waitUntil(lambda: bool(ended), timeout=15_000)
-    assert ended == [True], "the install was killed with its widget"
-    assert job not in model_install._RUNNING
+    assert ended == [True], "the install died with the widget that started it"
+    assert not [job for job in model_install._RUNNING if id(job) == ident]
 
 
 def test_a_failed_pip_reports_its_exit_code_and_its_last_lines(

@@ -33,3 +33,32 @@
   not installed still selects it (greyed): the run then fails with the
   backend's own ImportError naming the extra, which is more honest than
   silently switching to Cellpose.
+
+## Where a backend installs changed (item 423, 2026-09-19)
+
+- This module was written to the maintainer's 2026-09-16 words, "install
+  them in the spacr environment". On 2026-09-19, answering item 423's open
+  questions, he said instead: "Isolated env per backend! But with the
+  addition of adding cellpose 3 and its cyto, nucleus, and cyto2 and cyto3
+  models." So `SegmentationBackendCombo.offer_install` now opens the Model
+  Zoo's own install dialog, which builds the backend a venv of its own under
+  `~/.spacr/backends/<name>` off the GUI thread, with progress and Cancel,
+  and never changes spaCR's own environment. The gesture the maintainer
+  asked for on 2026-09-16 -- a greyed row that installs itself when it is
+  chosen -- is unchanged.
+- It was not only a preference. Item 423 changed
+  `model_zoo.INSTALLABLE_BACKENDS`'s second field from a pip extra
+  (`spacr[samcell]`) to `backend:samcell`, the zoo's own URI for "installs
+  as an environment", so `backend_row(name)[2]` is no longer something pip
+  can be handed. Keeping the old route would have run
+  `pip install "backend:samcell"`.
+- `missing()` therefore asks `_segmentation_backends._backend_state(name)`
+  rather than importing: a backend is installed when it has an environment
+  of its own OR when its package imports here, which is what an older spaCR
+  left behind and what item 423 still honours. A state that cannot be read
+  falls back to the import, so an unreadable folder does not grey a row that
+  works.
+- `PackageInstall` is unchanged and is still the off-the-GUI-thread pip
+  runner. Nothing in the segmentation-backend rows uses it now; it stays
+  because it is the tested way to run a pip from a widget, and
+  `CheckpointDownload` beside it is what the zoo's downloads use.
