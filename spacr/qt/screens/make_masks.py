@@ -1782,6 +1782,24 @@ _MAGNIFIER_BACKENDS = {
 #: move; a backend that fails to build is not kept, so it is tried again.
 _BACKEND_MODELS: dict = {}
 
+#: ``mode -> the environment folder the cached model was built against``, for
+#: the modes whose backend really had one. See :func:`_backend_model`.
+_BACKEND_MODEL_ENVS: dict = {}
+
+
+def _state_ready(backend: str) -> bool:
+    """Whether ``backend``'s environment is here and can segment now.
+
+    File checks only -- no import, no subprocess -- so the Mode box can ask
+    while it is built and a cached model can be checked before it is used.
+    """
+    from ... import _segmentation_backends
+
+    try:
+        return _segmentation_backends._backend_state(backend).ready
+    except (OSError, ValueError):
+        return False
+
 
 def _backend_model(name: str):
     """The backend model a magnifier mode names, built once.
@@ -1790,33 +1808,54 @@ def _backend_model(name: str):
     loader the mask pipeline's ``segmentation_backend`` setting uses. A
     ``cellpose3:<model>`` mode loads that Cellpose 3 model.
 
+    A CACHED MODEL IS CHECKED AGAINST THE FOLDER IT WAS BUILT FROM.
+    Uninstalling the backend from the Model Zoo while Make Masks is open left
+    this dictionary holding a model whose environment had been deleted;
+    asking it to segment then tried to start a Python that is no longer
+    there, and the magnifier reported a missing file instead of a missing
+    backend. The folder, and not the backend's state, because a model built
+    without one -- a stand-in, or a backend that lives in spaCR's own
+    environment -- was never on disk to lose.
+
     :raises ImportError: naming the Model Zoo, when the backend is missing.
     """
     with _CELLPOSE_LOCK:
-        model = _BACKEND_MODELS.get(name)
-        if model is None:
-            from ... import _segmentation_backends
+        from ... import _segmentation_backends
 
-            backend, _colon, model_name = str(name).partition(":")
+        backend, _colon, model_name = str(name).partition(":")
+        model = _BACKEND_MODELS.get(name)
+        env = _BACKEND_MODEL_ENVS.get(name)
+        if model is not None and env and not os.path.isdir(env):
+            _BACKEND_MODELS.pop(name, None)
+            _BACKEND_MODEL_ENVS.pop(name, None)
+            model = None
+        if model is None:
             model = _segmentation_backends._load_backend(
                 backend, model_name=model_name or None)
             _BACKEND_MODELS[name] = model
+            _BACKEND_MODEL_ENVS[name] = _model_env(backend)
         return model
 
 
-def _backend_ready(mode: str) -> bool:
-    """Whether the backend a magnifier mode needs can segment now.
+def _model_env(backend: str) -> str:
+    """The folder a model of ``backend`` was just built from, or ``''``.
 
-    File checks only -- no import, no subprocess -- so the Mode box can ask
-    while it is built.
+    Empty for a backend that is not installed in one of its own -- a
+    stand-in, or one an older spaCR put in spaCR's own environment -- which
+    is a model :func:`_backend_model` must not go on to drop.
     """
     from ... import _segmentation_backends
 
-    backend = _MAGNIFIER_BACKENDS[mode][0]
     try:
-        return _segmentation_backends._backend_state(backend).ready
+        state = _segmentation_backends._backend_state(backend)
     except (OSError, ValueError):
-        return False
+        return ""
+    return state.env if state.ready and not state.in_process else ""
+
+
+def _backend_ready(mode: str) -> bool:
+    """Whether the backend a magnifier mode needs can segment now."""
+    return _state_ready(_MAGNIFIER_BACKENDS[mode][0])
 
 
 def _backend_segmenter(request: _MagnifierRequest, load_model=None):
@@ -5577,9 +5616,7 @@ class MakeMasksScreen(QWidget):
         self._mag_uninstalled = set()
         for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
             self._mag_mode.addItem(label, mode)
-            if not _backend_ready(mode):
-                self._mag_uninstalled.add(mode)
-        self._grey_uninstalled_modes()
+        self._resync_magnifier_modes()
         self._mag_mode.setToolTip(
             "Which model segments the region in the box. Classical thresholds "
             "the region at Otsu's level and splits touching objects with a "
@@ -5820,6 +5857,7 @@ class MakeMasksScreen(QWidget):
         cannot segment anything; a finished install selects it.
         """
         mode = self._mag_mode.itemData(index)
+        self._resync_magnifier_modes()
         if mode not in getattr(self, "_mag_uninstalled", ()):
             return
         previous = self._mag_mode.findData(
@@ -5828,6 +5866,29 @@ class MakeMasksScreen(QWidget):
             previous = self._mag_mode.findData("classical")
         self._mag_mode.setCurrentIndex(max(previous, 0))
         self._offer_backend_install(mode)
+
+    def _resync_magnifier_modes(self) -> None:
+        """Re-read where each backend stands and redraw the Mode box.
+
+        THE BOX USED TO LEARN THIS ONCE, WHEN THE SCREEN WAS BUILT. Uninstall
+        Cellpose 3 from the Model Zoo with Make Masks still open and its four
+        modes stayed un-greyed and out of ``_mag_uninstalled``, so choosing
+        one offered no install and went straight to a backend that was no
+        longer there. Installing one from the Model Zoo screen left the
+        reverse: four greyed modes and an install dialog that returned at
+        once.
+
+        File checks only (:func:`_state_ready`), so it is cheap enough to run
+        on every choice, which is the moment it has to be right. The drawing
+        is :meth:`_grey_uninstalled_modes`, item 419's, so there is one
+        description of what a greyed row looks like and it stays translated.
+        """
+        for mode in _MAGNIFIER_BACKENDS:
+            if _backend_ready(mode):
+                self._mag_uninstalled.discard(mode)
+            else:
+                self._mag_uninstalled.add(mode)
+        self._grey_uninstalled_modes()
 
     def _offer_backend_install(self, mode) -> bool:
         """Install the backend ``mode`` needs, into an environment of its own.

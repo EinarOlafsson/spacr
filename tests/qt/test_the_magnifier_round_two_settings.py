@@ -14,6 +14,7 @@ its test module, so a pixel here means what it means there.
 """
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import imageio.v2 as imageio
@@ -793,6 +794,106 @@ def test_a_cellpose3_mode_loads_its_own_model_once(monkeypatch):
                      ("dinocell", {"model_name": None})]
 
 
+def test_a_cached_model_whose_environment_was_deleted_is_not_reused(
+        tmp_path, monkeypatch):
+    """Uninstall Cellpose 3 from the Model Zoo with Make Masks still open.
+
+    The mode box's cache held the model for the life of the process, so the
+    next hover asked it to segment, it started ``<env>/bin/python``, and the
+    magnifier reported a missing FILE rather than a missing backend. The
+    folder the model was built from is remembered and checked instead.
+    """
+    from spacr import _segmentation_backends as backends
+
+    env = tmp_path / "backend-environments" / "cellpose3"
+    python = Path(backends._env_python(str(env)))
+    python.parent.mkdir(parents=True)
+    python.write_text("")
+    backends._write_marker(str(env), {"backend": "cellpose3"})
+
+    built = []
+    monkeypatch.setattr(backends, "_load_backend",
+                        lambda name, **kw: built.append(name) or object())
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    monkeypatch.setattr(mm, "_BACKEND_MODEL_ENVS", {})
+
+    first = mm._backend_model("cellpose3:cyto3")
+    assert mm._BACKEND_MODEL_ENVS["cellpose3:cyto3"] == str(env)
+    assert mm._backend_model("cellpose3:cyto3") is first, "rebuilt for nothing"
+
+    shutil.rmtree(str(env))
+    second = mm._backend_model("cellpose3:cyto3")
+    assert second is not first, "a deleted environment's model was reused"
+    assert built == ["cellpose3", "cellpose3"]
+
+
+def test_a_model_built_without_an_environment_of_its_own_is_kept(monkeypatch):
+    """A stand-in, or a backend an older spaCR put in spaCR's own
+    environment, was never a folder to lose -- and must not be dropped."""
+    from spacr import _segmentation_backends as backends
+
+    monkeypatch.setattr(backends, "_load_backend", lambda name, **kw: object())
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    monkeypatch.setattr(mm, "_BACKEND_MODEL_ENVS", {})
+
+    first = mm._backend_model("samcell")
+    assert mm._BACKEND_MODEL_ENVS["samcell"] == ""
+    assert mm._backend_model("samcell") is first
+
+
+def test_the_mode_box_re_reads_the_backends_when_a_mode_is_chosen(
+        qtbot, qt_theme_applied, monkeypatch):
+    """The box used to learn this once, when the screen was built.
+
+    Uninstalling Cellpose 3 from the Model Zoo with Make Masks open left its
+    four modes un-greyed and out of ``_mag_uninstalled``, so choosing one
+    offered no install and went to a backend that was gone. Installing one
+    from the Model Zoo screen left the reverse: four greyed modes and an
+    install dialog that returned at once.
+    """
+    from PySide6.QtCore import Qt
+
+    here = {"ready": True}
+    monkeypatch.setattr(mm, "_backend_ready", lambda mode: here["ready"])
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        assert made._mag_uninstalled == set()
+
+        here["ready"] = False
+        offered = []
+        monkeypatch.setattr(type(made), "_offer_backend_install",
+                            lambda self, mode: offered.append(mode) or False)
+        made._mag_mode.setCurrentIndex(made._mag_mode.findData("classical"))
+        made._on_magnifier_mode_activated(
+            made._mag_mode.findData("cellpose3:cyto3"))
+
+        assert offered == ["cellpose3:cyto3"], (
+            "a backend uninstalled while this screen was open was still used")
+        assert made._mag_uninstalled == set(_BACKEND_MODES)
+        index = made._mag_mode.findData("cellpose3:cyto3")
+        assert made._mag_mode.itemData(index, Qt.ForegroundRole) is not None
+        assert made._mag_mode.currentData() == "classical"
+
+        monkeypatch.setattr(type(made), "_offer_backend_install",
+                            lambda self, mode: offered.append(mode) or True)
+        made._mag_mode.setCurrentIndex(index)
+        made._on_magnifier_mode_activated(index)
+        assert offered == ["cellpose3:cyto3", "cellpose3:cyto3"]
+        assert made._mag_mode.currentData() == "cellpose3:cyto3", (
+            "an install that succeeded still put the box back")
+
+        here["ready"] = True
+        made._on_magnifier_mode_activated(index)
+        assert len(offered) == 2, (
+            "an install was offered for a backend that is already here")
+        assert made._mag_uninstalled == set()
+        assert made._mag_mode.itemData(index, Qt.ForegroundRole) is None
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
 def test_a_mode_is_ready_when_its_backend_environment_is(tmp_path,
                                                         monkeypatch):
     from spacr import _segmentation_backends as backends
@@ -810,6 +911,8 @@ def test_a_mode_is_ready_when_its_backend_environment_is(tmp_path,
 
     monkeypatch.setattr(backends, "_backend_state", _broken)
     assert not mm._backend_ready("samcell")
+    assert mm._model_env("samcell") == "", (
+        "a backend whose state cannot be read has no folder to watch")
 
 
 def _stub_backend_class(backends):
