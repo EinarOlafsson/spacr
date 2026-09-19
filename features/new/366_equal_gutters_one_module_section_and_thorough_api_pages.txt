@@ -2,15 +2,16 @@
 EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
 ================================================================================
 
-Status:    PARTLY DONE, corrected 2026-09-13. This said "not started".
-           The note at the foot records the Codex-owned 366b subset CLOSED --
-           `STILL_OWED` empty, `tests/test_every_module_lands_on_prose.py`
-           green at 82121ce1e -- and says 366 itself "remains open for its
-           README editorial work and any final rendered-page review in the
-           other session's lane". So: the measurable half is done, the
-           editorial half is open and is NOT this session's to take.
-           Originally filed 2026-09-02. Follows 362, which made the grid
-           one size and six a row.
+Status:    PARTLY DONE, 2026-09-19. Gutters, API landing pages and the
+           README's module prose are done; the nine translated READMEs now
+           follow the maintainer's 2026-09-16 removal of the Make Masks
+           section and carry a reviewed grid caption. LEFT: the Embeddings
+           landing page, blocked because nothing calls
+           EmbeddingsScreen.set_crops (no in-GUI crop loader exists), and
+           the maintainer's confirmation that removing the section was
+           meant, since it reverses his 2026-09-15 "Keep it". See the last
+           dated section. Originally filed 2026-09-02. Follows 362, which
+           made the grid one size and six a row.
 Requested: 2026-09-02 -- "in the readme make the modual tiles the same size
            and on a grid where the distance to the mogule above, below left
            and right is the same. also in the readme make masks gets its own
@@ -486,3 +487,90 @@ the English Make Masks paragraph in seven translated READMEs, and the literal
 Asked with the question tool: remove the Make Masks paragraph from the README
 now that its API page carries all of it? Answer: "Keep it". Make Masks keeps
 its own README section; nothing further is owed on the README half of 366.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE PARAGRAPH TO TRANSLATE WAS GONE; THE NINE READMEs NOW FOLLOW
+--------------------------------------------------------------------------------
+
+Branch home/readme-translations; the third commit there, after 328's and
+the dead-link fix.
+
+WHAT THIS ITEM SAID WAS LEFT, AND WHAT THE CODE SAID. The 2026-09-15 note
+left "the English Make Masks paragraph in seven translated READMEs", and the
+unit given today was to translate it. It could not be: the English paragraph
+no longer exists. The maintainer removed the whole section -- heading and
+paragraph, 11 lines -- from README.rst in 2db12a301 on 2026-09-16, one of his
+"anaconda badges" edits and the only one that touched anything but badges.
+That is the day after his "Keep it" above. The two answers disagree, and the
+later one is his own edit to the file, so it is what the nine READMEs now
+follow. IF THE REMOVAL WAS NOT MEANT, the section comes back in README.rst
+and this commit's README hunks and test changes are the ones to revert; the
+2026-09-15 reviewed wording of the heading is kept (retired, not deleted).
+
+Measured before deciding: on origin/nightly three tests had been red since
+that edit for exactly this reason -- test_make_masks_is_the_only_module_
+with_a_section_of_its_own and test_the_readme_names_every_make_masks_tool
+(the English section they required was gone) and test_post_merge_readme_
+gap_ledger_is_source_bound_and_truthful (its live "Make Masks" heading
+record bound to nothing) -- plus test_localized_readme_inline_markup_is_
+balanced_and_tight, because nine READMEs still carried the section's
+twenty ``**`` markers and the English did not.
+
+DONE:
+  * The nine READMEs lose the stale section, through the builder's own
+    --rebuild-readme path (see 328's 2026-09-19 note for how it was run
+    without a model). The grid caption -- English in zh_CN and ko, and
+    "Jedes Modul spaCR Schiffe" ("every module spaCR ships" as in boats) in
+    German, "sjö" (seven) pipeline modules in Icelandic -- and the "See the
+    feature guide for each tool" pointer that the removal left directly
+    under it are reviewed in all nine:
+    docs/i18n/reviewed/readme/<lang>/2026-09-19-module-grid.json, 18
+    records. Technically reviewed, not native-speaker read. Korean's
+    pointer had never rendered as a link (its `_ touched a particle); it
+    does now: Korean docutils warnings 19 -> 18.
+  * The gap ledger's "make-masks-heading" record is retired with the
+    reason, as its retirement_note prescribes; the ledger test is 12/4.
+  * test_make_masks_is_the_only_module_with_a_section_of_its_own is now
+    test_no_module_but_make_masks_has_a_section_of_its_own: the half of
+    the request both answers agree on (no OTHER module gets a section),
+    and the Make Masks prose check only if the section is there.
+    test_the_readme_names_every_make_masks_tool is now test_every_make_
+    masks_tool_is_named_where_the_readme_sends_the_reader: the README must
+    keep its feature-guide link "for each tool", and docs/source/
+    features.rst must name all nine. Each was mutation-checked: a
+    "Regression" heading, and "Recrop" taken out of the guide, fail them.
+  * NEW: test_localized_readmes_have_as_many_sections_as_the_english_one,
+    so a section the English drops is named as such instead of surfacing
+    as unbalanced markup. It is also the precondition
+    localize_internal_references needs; nine READMEs had 35 headings
+    against 34 until today.
+
+MEASURED: all nine READMEs render under docutils with every new literal,
+link and emphasis intact; the README contract the audit applies (literal,
+role and link-target multisets) matches English in all nine; test_readme_
+presentation, test_the_readme_describes_the_build_that_ships,
+test_the_light_install_numbers_are_honest, test_conda_publication_docs,
+test_the_language_picker_is_a_dropdown and test_every_module_lands_on_prose:
+153 passed, 1 failed -- test_the_readme_lists_every_published_model_with_
+its_limits, the model-zoo table, red on origin/nightly before this and
+another lane's. test_documentation_i18n -k readme/reviewed: 13 failed
+against 15 on origin/nightly, the two above fixed, none new.
+
+STILL OPEN UNDER 366:
+  * The Embeddings landing page, unchanged: nothing in spacr/ calls
+    EmbeddingsScreen.set_crops (re-checked today; the only hit is its
+    definition at spacr/qt/screens/embeddings.py:195), so a "what it needs"
+    paragraph would describe a crop loader that does not exist. Not built
+    here, deliberately.
+  * The maintainer's confirmation of the 2026-09-16 removal, above.
+  * "See the feature guide for each tool." now follows the grid caption,
+    where "each tool" reads as "each module". Left as he left it.
+
+FOUND, NOT FIXED (tools/ or other lanes):
+  * All nine READMEs link `review scope <docs/i18n/REVIEW_SCOPE_2026-09-
+    04.md>`_, dead from docs/i18n/readme/. The builder rewrites only
+    docs/i18n/TRANSLATION_MODELS.md, and the URL test checks only ./ and
+    ../ targets, so nothing notices.
+  * 45 README blocks remain the model's draft in all nine languages; the
+    "Other resources" list under the grid is one (Icelandic calls the
+    feature guide "Leikstjóri", a film director).

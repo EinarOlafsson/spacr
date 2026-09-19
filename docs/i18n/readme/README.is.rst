@@ -416,15 +416,9 @@ Quantitative readouts for biological assays.
 
 .. spacr-workflow-end
 
-Hver mólur spaCR skipar, í orði heimaskæran listar þá: sjö pipeline mólus fyrst, þá allt annað. Veldu skál til að opna API síðu þessara mólusa.
+Allar einingar sem fylgja spaCR, í sömu röð og á upphafsskjánum: fyrst sex einingar aðalvinnuflæðisins, síðan allt annað. Veldu reit til að opna API-síðu einingarinnar.
 
-
-Make Masks
-~~~~~~~~~~
-
-Make Masks birtast undir **Tools** fyrir höndilega korrigeringu af sviði maskar; másthead hans opnar Cellpose vinnuflokk. Nín tól: **Brush**, **Erase**,**Erasa objekt**, #**Wand +**, [**Wan −**, "**Draw**, '**Divide**,'**Zoom** og '**Recrop**.
-
-Sjá `Leikstjóri <../../source/features.rst>`_ fyrir hvert tól.
+Hvert verkfæri er útskýrt í `eiginleikahandbókinni <../../source/features.rst>`_.
 
 Öll aðrar auðlindir
 ~~~~~~~~~~~~~~~~~~~

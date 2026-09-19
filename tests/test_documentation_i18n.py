@@ -2032,9 +2032,13 @@ def test_post_merge_readme_gap_ledger_is_source_bound_and_truthful():
     #
     # Decided by the maintainer on 2026-09-02, offered against archiving them
     # to a second file and against deleting them outright.
+    #
+    # 11/5 -> 12/4 on 2026-09-19: the "Make Masks" heading record, retired
+    # the same way after the maintainer took that section out of README.rst
+    # in 2db12a301 on 2026-09-16.
     retired = [r for r in records if r.get("retired")]
     live = [r for r in records if not r.get("retired")]
-    assert len(retired) == 11 and len(live) == 5
+    assert len(retired) == 12 and len(live) == 4
     assert all(r.get("retired_reason") for r in retired), (
         "a retired record must say WHY, or the next reader cannot tell a "
         "deliberate retirement from a record that was quietly broken")
@@ -4091,6 +4095,33 @@ def test_reviewed_readme_headings_match_the_canonical_source_and_locales():
                 ROOT / "docs" / "i18n" / "readme" / f"README.{language}.rst"
             ).read_text(encoding="utf-8")
             assert heading in localized, (source, language, heading)
+
+
+def test_localized_readmes_have_as_many_sections_as_the_english_one():
+    """A section the English README drops has to leave the nine as well.
+
+    The maintainer removed the Make Masks section from README.rst on
+    2026-09-16 (2db12a301). All nine translations kept it, in English, for
+    three days, and the only test that went red did so by counting ``**``
+    markers -- a symptom, reported as unbalanced markup.
+
+    Counting headings names the fault itself. It is also the precondition
+    ``readme_i18n.localize_internal_references`` depends on: it pairs
+    headings by position and silently leaves every reference unlocalized
+    when the counts differ.
+    """
+    from readme_i18n import _HEADING
+
+    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    expected = [m.group("title") for m in _HEADING.finditer(canonical)]
+    for path in sorted((ROOT / "docs" / "i18n" / "readme").glob(
+            "README.*.rst")):
+        titles = [m.group("title") for m in _HEADING.finditer(
+            path.read_text(encoding="utf-8"))]
+        assert len(titles) == len(expected), (
+            f"{path.name} has {len(titles)} sections and README.rst "
+            f"{len(expected)}; English titles still in it: "
+            f"{sorted(set(titles) & set(expected) - {'spaCR'})}")
 
 
 def test_localized_readmes_keep_reviewed_semantic_and_typographic_fixes():

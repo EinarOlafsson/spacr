@@ -68,7 +68,9 @@
         "ko": "reviewed",
         "pt": "reviewed",
         "zh_CN": "reviewed"
-      }
+      },
+      "retired": "2026-09-19",
+      "retired_reason": "the Make Masks section was removed from README.rst by the maintainer in 2db12a301 on 2026-09-16, a commit that removed nothing else; the heading survives only inside the tile's alt text, which is not a heading. The review below stands for the heading it was given and is retired rather than withdrawn"
     },
     {
       "label": "make-masks-tools",

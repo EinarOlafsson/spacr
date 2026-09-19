@@ -416,15 +416,9 @@ Quantitative readouts for biological assays.
 
 .. spacr-workflow-end
 
-Every module spaCR ships, in the order the home screen lists them: the six pipeline modules first, then everything else. Select a tile to open that module's API page.
+spaCR에 포함된 모든 모듈을 홈 화면에 나열되는 순서대로 보여 줍니다. 먼저 여섯 개의 파이프라인 모듈, 그다음 나머지 모듈입니다. 타일을 선택하면 해당 모듈의 API 페이지가 열립니다.
 
-
-Make Masks
-~~~~~~~~~~
-
-Make Masks appears under **Tools** for manual correction of segmentation masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from a closed outline, Divide separates a merged object along a drawn line, Recrop turns one object in a crowded field into its own field.
-
-각 도구에 대한 `가이드 가이드 <../../source/features.rst>`_를 참조하십시오.
+각 도구에 대한 설명은 `기능 가이드 <../../source/features.rst>`_ 문서를 참조하십시오.
 
 다른 자원
 ~~~~~~~~~~~~~~~

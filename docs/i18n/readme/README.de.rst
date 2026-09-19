@@ -416,15 +416,9 @@ Quantitative readouts for biological assays.
 
 .. spacr-workflow-end
 
-Jedes Modul spaCR Schiffe, in der Reihenfolge, die der Home-Bildschirm listet sie: die sechs Pipeline-Module zuerst, dann alles andere. Wählen Sie eine Kachel, um das Modul API Seite öffnen.
+Alle Module, die spaCR mitbringt, in der Reihenfolge des Startbildschirms: zuerst die sechs Pipeline-Module, dann alle übrigen. Wählen Sie eine Kachel, um die API-Seite des Moduls zu öffnen.
 
-
-Make Masks
-~~~~~~~~~~
-
-Make Masks appears under **Tools** for manual correction of segmentation masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from a closed outline, Divide separates a merged object along a drawn line, Recrop turns one object in a crowded field into its own field.
-
-Siehe `Feature-Führung <../../source/features.rst>`_ für jedes Werkzeug.
+Einzelheiten zu jedem Werkzeug stehen im `Funktionsleitfaden <../../source/features.rst>`_.
 
 Sonstige Mittel
 ~~~~~~~~~~~~~~~
