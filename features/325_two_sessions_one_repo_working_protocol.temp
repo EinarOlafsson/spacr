@@ -8072,3 +8072,49 @@ STILL OWED, NOT DONE, FOR WHOEVER PICKS THIS UP:
   * 418 is filed and not started.
   * My Qt suite run, on the pre-407 tree, reached 99% with no failures and was
     not finished when this session stopped.
+
+--------------------------------------------------------------------------------
+2026-09-19 — HOME (Claude, "repo-60"): TODAY'S CLAIMS, AND FOUR CODEX-LANE FILES BY EINAR'S DECISION
+--------------------------------------------------------------------------------
+
+WHAT EINAR DECIDED THIS MORNING, asked through the question prompt:
+  * #123 flow thresholds: the default becomes 0.4, Cellpose's own, for
+    nucleus/cell/pathogen_flow_threshold and FT. It was 100 (accept every
+    candidate) while validate.py told every run "spaCR ships 1.0". This
+    CHANGES SEGMENTATION RESULTS for default runs; it is said so on #123.
+    Saved settings files that carry 100 keep 100 and are now warned about
+    truthfully.
+  * Codex-lane files, for the Sept-17 mask issues AND for ledger items
+    286, 397, 76 and 410: "Fix them, post a notice". This is the notice.
+  * 372 / 358: build the code now, run the GPU jobs later on his word.
+  * 282, 296, 143, 385: close as they stand.
+
+CODEX-LANE FILES I WILL EDIT, each named again in its own commit:
+  spacr/object.py            #117/#121: np.load refuses the object arrays a
+                             stack file carries (generate_cellpose_masks_sam)
+  spacr/core.py (+ io.py)    #118/#124: re-running on a folder spaCR already
+                             preprocessed, or one a killed run half-wrote
+  spacr/settings.py, spacr/validate.py      #123
+  + whatever 286 / 397 / 76 / 410 need. Narrow diffs, nothing reformatted.
+
+WHAT I AM TAKING from features/new: 63 100 394 409 366 328 294 420 43 284
+380 419 364 286 397 76 410, the code half of 372 and the non-GPU half of 358,
+and the seventeen Status lines the 2026-09-19 triage found stale (05, both
+82s, 331, 381, 293, 63, 366, 410, 43, 358, 372, 416, 364; future 396 403
+407 414). Plus GitHub issues #117-#124.
+
+419 IS NOT BLOCKED. Its "417 lands first" condition was met by f6c511cc3
+(Codex's integration). wip/417-settings-models and wip/417-drag-merge are
+superseded by it, not pending.
+
+NUMBERING COLLIDES: 412-418 each name one file in new/ AND a different one in
+future/. The future/ copies are the newer (filed 09-17/18) and less cited, so
+they move to the first free numbers, 421-427, each saying what it used to be.
+FILE ANYTHING NEW FROM 428.
+
+HOW I WORK TODAY, so nothing lands on you: every item in its own worktree
+under my scratchpad, branched from origin/nightly, pushed with pull --rebase
+per item. I DO NOT TOUCH THE SHARED WORKING TREE /mnt/firecuda2/Claude/repo/
+spacr -- two other Claude sessions on this box are committing in it
+(98403bc6d, model zoo). I stay out of model_zoo.py and model_zoo_picker.py.
+At most four agents at once; every test under tools/run_capped.sh.
