@@ -595,6 +595,10 @@ annotation_source
 
 (str) - Which organism's annotation to join onto the regression results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, which need no network and are the default. Any other organism name or NCBI taxon id -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- pulls that organism's entries from UniProt, and a single accession such as P04637 retrieves that entry. The result is cached beside the outputs, so a rerun needs no network. A name spaCR does not recognise leaves the results unannotated and says which names were close. Leave it empty for no annotation. Default 'toxoplasma'.
 
+| ``_under_todays_names``
+|     ``_fold_toxoplasma`` **-- reads it**
+|         ``isinstance(...)  [UNRESOLVED]``
+|     ``set(...)  [UNRESOLVED]``
 | ``_trial_settings`` **-- reads it**
 | :py:func:`~spacr.parameter_sweep.settings_for_trial` **-- reads it**
 | :py:func:`~spacr.qt.screens.app_screen.apply_settings_dict`
@@ -5071,6 +5075,9 @@ gradient_accumulation_steps
 
 (int) - How many batches are summed per optimizer step when gradient_accumulation is on; the loss is divided by this value so gradient magnitude stays comparable. Effective batch size = batch_size x this. Raise it (4-16) to emulate a larger batch on limited VRAM, at the cost of fewer weight updates per epoch. Ignored when gradient_accumulation is False. Default 4.
 
+| ``_under_todays_names``
+|     ``_fold_gradient_accumulation`` **-- reads it**
+|     ``set(...)  [UNRESOLVED]``
 | ``_fit_one`` **-- reads it**
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.train_test_model` **-- reads it**
