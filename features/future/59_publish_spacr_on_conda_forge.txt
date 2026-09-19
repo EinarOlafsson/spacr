@@ -7,6 +7,15 @@ Status:    DONE. spaCR IS ON CONDA-FORGE AND HAS BEEN SINCE 2026-08-27.
            `conda install -c conda-forge spacr` works today and the package
            tracks PyPI without anybody doing anything.
 
+           2026-09-19: the in-repo mirror recipe now names 1.5.0.8. Its
+           sha256 was checked two ways, and the two agree. The third way,
+           the feedstock's own recipe, has no 1.5.0.8 to compare against
+           yet. The feedstock, which is what conda-forge builds from, still
+           serves 1.5.0.7. The autotick bot saw 1.5.0.8 on 2026-09-17 and
+           holds it QUEUED, one of 813 queued updates, with no attempt and
+           no error recorded. Nobody needs to act. See 2026-09-19 at the
+           foot.
+
            THIS FILE SPENT THREE DAYS DESCRIBING A SUBMISSION THAT HAD
            ALREADY BEEN MADE. The status block below is preserved verbatim
            because being wrong in a specific way is the useful part of it; its
@@ -228,3 +237,86 @@ ONE `gh api` CALL CLOSED IT. Every remaining item in this folder that says
 "blocked on the maintainer" deserves the same thirty seconds before it is
 described as blocked again.
 
+
+--------------------------------------------------------------------------------
+2026-09-19 — THE MIRROR NAMES 1.5.0.8, AND THE FEEDSTOCK IS WAITING IN THE
+             BOT'S QUEUE, NOT STUCK
+--------------------------------------------------------------------------------
+
+THE SAME DEFECT AS 2026-09-14, ONE RELEASE LATER. setup.py, _version.py and
+CITATION.cff say 1.5.0.8. `conda-forge/recipe/recipe.yaml` said 1.5.0.7, so
+`test_the_conda_recipe_names_the_version_this_repo_ships` was red on nightly
+again. `packaging/release.py bump` still does not touch the mirror, and that
+is the whole mechanism.
+
+FIXED: the mirror names 1.5.0.8 with sha256
+273f87f6c62400f642d169d329c7a4a6745c2511c5217a441339ba8495ffe17b. Only the
+version and the hash changed.
+
+THE SHA, AND HOW MANY WAYS IT WAS CHECKED:
+
+  1. DOWNLOADED AND HASHED. The file was fetched through the recipe's own URL,
+     https://pypi.org/packages/source/s/spacr/spacr-1.5.0.8.tar.gz. It is
+     42,799,154 bytes and its sha256 is 273f87f6...ffe17b. Its PKG-INFO says
+     Name: spacr, Version: 1.5.0.8, and `spacr-1.5.0.8/LICENSE` is in the
+     tarball, which `license_file` needs.
+  2. PyPI's JSON (https://pypi.org/pypi/spacr/1.5.0.8/json) gives the sdist
+     digest 273f87f6...ffe17b, the same size, uploaded
+     2026-09-16T13:35:13Z.
+  3. THE FEEDSTOCK'S RECIPE COULD NOT BE THE THIRD CHECK. It still says
+     1.5.0.7, with sha256 709b8e50..., which is the value this mirror just
+     replaced. So the check was two ways, not three. The next person to touch
+     this can compare against the feedstock once the bot has bumped it.
+
+`tests/test_packaging_metadata.py`: 50 passed, 2 failed. The recipe test is
+green now. The two reds are not the recipe and are not fixed here:
+
+  * test_the_citation_version_doi_is_the_one_for_the_version_it_claims.
+    CITATION.cff says 1.5.0.8 but still carries 1.5.0.7's version DOI,
+    10.5281/zenodo.22726094. Zenodo's own API, read on 2026-09-19, lists
+    v1.5.0.8 as 10.5281/zenodo.22797833, published 2026-09-16. That is the
+    value the file owes.
+  * test_the_torchcam_python_313_limit_is_written_down. setup.py no longer
+    contains the `numpy<2.0.0` sentence this test looks for.
+
+WHY THE BOT HAS NOT OPENED A 1.5.0.8 PULL REQUEST. Read-only, from the
+feedstock and from the bot's public data (conda-forge/conda-forge-bot-data,
+reached through its old name regro/cf-graph-countyfair). Nothing was opened
+or commented on anywhere.
+
+    gh api repos/conda-forge/spacr-feedstock/pulls?state=all
+        #2  [bot-automerge] spacr v1.5.0.7   opened 2026-09-13 15:51, merged
+        #1  [bot-automerge] spacr v1.5.0.6   opened 2026-09-10 18:50, merged
+        no third pull request; no issues; one branch, main
+    gh api repos/conda-forge/spacr-feedstock/commits
+        newest is 5c1b51177, 2026-09-13, "[bot-automerge] spacr v1.5.0.7 (#2)"
+
+    version_pr_info/8/1/0/5/2/spacr.json
+        {"bad": false, "new_version": "1.5.0.8",
+         "new_version_attempts": {}, "new_version_errors": {}}
+        last written 2026-09-17T20:24:55Z (commit b5da7c132)
+    status/version_status.v2.json
+        queued["spacr"] = "1.5.0.8"   (813 queued, 349 errored; spacr is
+                                       not among the errors)
+
+So the bot found 1.5.0.8 about 31 hours after the upload. It has not tried
+to open the pull request, and it has recorded no failure. It is waiting in a
+queue of 813. The earlier releases show how long this usually takes:
+
+    release   on PyPI              seen by the bot     PR opened
+    1.5.0.6   09-10 17:16Z         09-10 18:01Z        09-10 18:50Z
+    1.5.0.7   09-12 12:40Z         09-12 23:11Z        09-13 15:51Z
+    1.5.0.8   09-16 13:35Z         09-17 20:24Z        none by 09-19 16:03Z
+
+Slower than before, but nothing is wrong with the feedstock or the recipe.
+Nobody needs to act unless it is still queued or starts to show under
+errors. If it does, `new_version_errors` in the file above will say why,
+before anyone has to guess. Asking the bot to retry is an outward-facing
+action on conda-forge, so it is the maintainer's call and was not taken here.
+
+The mirror and the feedstock still differ in substance, as 2026-09-14 said.
+The feedstock carries tensorboard-2.20.patch, its own entry points,
+pytorch/torchvision/numba/llvmlite pins, and a `python_min` host pin. One
+more difference is new here: the sdist's Requires-Python is <3.16, while
+both recipes say <3.15. That is recorded, not changed. The mirror's pins are
+not what conda-forge builds.
