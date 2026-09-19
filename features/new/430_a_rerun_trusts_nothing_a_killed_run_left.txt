@@ -3,12 +3,13 @@ A RE-RUN TRUSTS NOTHING A KILLED RUN LEFT: MASK RESUMES A PLATE IT ALREADY
 PROCESSED, AND CHECKS EVERY STACK AND ARCHIVE BEFORE IT REUSES THEM
 ================================================================================
 
-Status:    DONE IN CODE 2026-09-19, committed locally on
-           home/rerun-processed-folder, not pushed: a reviewer reads it
-           first. GitHub #118 and #124 are to be closed when it lands. 16
-           new tests fail on origin/nightly with the two issues' own
-           symptoms and pass with the change. A run with the real
-           Cellpose-SAM model on CPU finishes on both states; see the trailing
+Status:    DONE IN CODE 2026-09-19, REVIEWED, REVIEW'S DEFECTS FIXED,
+           rebased onto origin/nightly; committed on
+           home/rerun-processed-folder and NOT PUSHED. Landing it on nightly
+           and posting the #118 / #124 notices wait for the maintainer's
+           go-ahead (see the last trailing note). 23 tests; the review's
+           probes pass. A run with the real Cellpose-SAM model on CPU
+           finished on both issue states before review; see the trailing
            notes.
 Requested: GitHub #118 and #124, both filed 2026-09-17 by jak18015, spaCR
            1.5.0.8, Mask module. #118 is auto-filed:
@@ -29,9 +30,10 @@ Requested: GitHub #118 and #124, both filed 2026-09-17 by jak18015, spaCR
            On 2026-09-19 the maintainer decided that the Codex-lane fixes for
            the Sept-17 mask issues go ahead ("Fix them, post a notice").
            Section 5 of features/325_two_sessions_one_repo_working_protocol.temp
-           records it and names spacr/core.py (+ io.py) for #118/#124. Only
-           spacr/io.py, which is in the Claude lane, needed a change.
-Owner:     home (Claude), unit rerun-processed-folder.
+           records it and names spacr/core.py (+ io.py) for #118/#124. The
+           fix is in spacr/io.py; after review spacr/core.py gained one call,
+           the archive check on the preprocess-off path.
+Owner:     home, unit rerun-processed-folder.
 
 --------------------------------------------------------------------------------
 WHAT THE STATE WAS (origin/nightly 5b9207b21)
@@ -73,7 +75,7 @@ spacr/io.py::preprocess_img_data, the preprocessing half of Mask:
     test finds the folder holding only an empty stack/.
 
 --------------------------------------------------------------------------------
-WHAT CHANGED (spacr/io.py only)
+WHAT CHANGED (spacr/io.py; after review also one call in spacr/core.py)
 --------------------------------------------------------------------------------
 
   1. Atomic writes. _replace_atomically writes into a hidden sibling named
@@ -218,3 +220,72 @@ Left:
   * The Codex-lane follow-ups under DELIBERATELY NOT DONE: adjust_cell_masks
     rewrites masks in place with np.save, and _run_test_mode ignores raw
     images in the plate folder when orig/ exists.
+
+--------------------------------------------------------------------------------
+2026-09-19 — REVIEWED; THE REVIEW'S DEFECTS FIXED; REBASED; NOT PUSHED
+--------------------------------------------------------------------------------
+
+The review returned FLAWED with three should-fix defects and six nits. All
+three should-fix defects were right on the code and are fixed in the commit
+titled "430 after review: ...". So are five of the nits. The sixth, the
+issue comment, is redrafted, not posted.
+
+Should-fix, each confirmed with the reviewer's probe before and after:
+  * preprocess=False on the #124 state still raised BadZipFile. core handed
+    masks/*.npz to the segmenter unchecked on that path. spacr/core.py now
+    calls io._check_archives_without_preprocessing before segmenting. It
+    sets a damaged archive aside and stops with an error that names it. It
+    does NOT rebuild the archive, because preprocess off means the user
+    says the normalised arrays exist. The error says what turning
+    preprocess on rebuilds the fields from: stack/, the raw images, or
+    nothing, with the way out for each. Probe: "FileNotFoundError 1
+    normalised archive(s) ... (stack_2_norm.npz) ... preprocess is off".
+  * _merge_channels, the channel-folder layout, merged only into an empty
+    stack/. It now merges the fields stack/ lacks. It runs whenever channel
+    folders exist, and from the masks/ shortcut too. A damaged stack that
+    nothing can rebuild is a RunLedger failure (RUN INCOMPLETE) on every
+    run until it is resolved, not one log line. The same holds for an
+    archive an earlier run set aside when there is no stack/ to rebuild it
+    from. Probe: 4 of 4 fields in stack/ and in the archives, where it was 2.
+  * Rebased onto origin/nightly past item 429. Every new listing goes
+    through _listdir_visible. _listdir_visible's docstring and 429's note
+    now say the temporaries end in .partial.
+
+Nits fixed: stack/ and masks/ files are written with the umask's mode
+(0664 here), not mkstemp's 0600. Unreadable images with matching names stay
+in the plate folder. The "nothing to rebuild from" error now points at a
+copy of the raw images, not at starting over from them. The public
+docstring paragraph matches what happens. "Owner" no longer names anything
+but the lane.
+
+Measured on the branch rebased onto origin/nightly 337feca27 (428, 429,
+431, 432 and 434 in it):
+  * tests/test_a_rerun_trusts_nothing_a_killed_run_left.py: 23 passed.
+    Of the 7 new tests, 5 fail on the pre-review commit, the 2 sidecar tests
+    fail with the helpers' listings put back to os.listdir, and the
+    unreadable-images test fails with the old move condition.
+  * 54 test files, this one, 429's and 428's included, plus the index and
+    ledger checks: 1665 passed, 1 skipped (dinocell is not installed). They
+    cover the io/core coverage files, resume, the zstack and
+    segmentation-backend tests, the demo pipelines and pipeline_e2e.
+  * 5 documentation/i18n files: 37 failed, the same 37 that fail on
+    origin/nightly 337feca27 extracted with git archive.
+  * features/00_INDEX.txt regenerated with 430 in it; --check passes.
+  * The real Cellpose-SAM model was NOT run again after review. The new
+    paths all run before segmentation. They are driven through
+    spacr.core.preprocess_generate_masks with a stand-in model, and
+    preprocessing is real.
+
+LEFT:
+  * THE LANDING. The unit's instructions say to push to nightly and then
+    comment on and close #118 and #124. The only request relayed from the
+    maintainer for this run was about the pathogen channel in the Mask live
+    settings, which is item 431, not this one. So the push and the public
+    GitHub notices wait for his go-ahead. The branch is rebased and tested.
+    The notices are redrafted: the #124 one now says that adjust_cell_masks
+    still rewrites masks in place, and that *_mask_stack files are checked
+    only when resume is on.
+  * The nine API catalogs owe the preprocess_img_data paragraph.
+  * The Codex-lane follow-ups above, unchanged: adjust_cell_masks rewrites
+    masks in place with np.save, and _run_test_mode ignores raw images in
+    the plate folder when orig/ exists.
