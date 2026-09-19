@@ -1,6 +1,8 @@
 ================================================================================
 THE LOCAL SPACR CHECKOUT IS MISSING A GIT OBJECT, SO IT CAN NO LONGER FETCH
 ================================================================================
+Filed as 421 and moved to 432 on 2026-09-19; renumbered 434 the same day because
+432 is the error-reporter item (reserved with 428-433 in 325's 2026-09-19 notice).
 
 Status:    not started
 Requested: 2026-09-19 — "Your local spaCR repo is damaged. Add an item to new
