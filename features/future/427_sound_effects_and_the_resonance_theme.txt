@@ -4,8 +4,14 @@ SOUND EFFECTS, BACKGROUND MUSIC, AND THE RESONANCE THEME
 
 Filed as 418 on 2026-09-18; renumbered 2026-09-19 because 418 also names features/new/418_mask_filters_objects_by_min_and_max_intensity.txt.
 
-Status:    NOT STARTED. Filed 2026-09-18 with the instruction to add it to the
-           list, not to implement it.
+Status:    IN PROGRESS -- PART A OF THREE BUILT 2026-09-19, parts B and C
+           not started. Built: the sound engine (spacr/qt/sound.py), the
+           synthesiser and its cache (spacr/qt/sound_synth.py), the Sound tab
+           in Preferences (spacr/qt/sound_preferences.py) and ONE reference
+           sound set, "Orbit", melodic space house in A minor. Not built: the
+           music beds from a local audio file and the Resonance visualiser
+           (part B), and the ten themes (part C). Everything is off by
+           default. See the 2026-09-19 note at the end.
 
 Shape:     A Sound tab in Preferences, LAST tab, everything OFF BY DEFAULT.
            Interface feedback sounds, start/stop sounds for a run, optional
@@ -32,9 +38,9 @@ WHAT IT IS
 3. BACKGROUND MUSIC.
    A separate option from the feedback sounds, with its own switch: someone who
    wants click feedback while working in silence must not get music too.
-   Preferably a link to Spotify rather than bundled audio -- spaCR should not
-   ship music it does not have the rights to, and a link is also the only way
-   the user hears what they actually like.
+   Decided 2026-09-19: no streaming service and no bundled recordings. The
+   music is a looping bed SYNTHESIZED by spaCR in the theme's key (so nothing
+   carries a licence question), or a local audio file the user picks.
 
 4. THE RESONANCE THEME.
    A new theme whose background is a visualised FLOOR with particles on it. The
@@ -75,27 +81,146 @@ dropped, the visualiser is what gets cheaper, not the image canvas.
 OPEN QUESTIONS -- ANSWER BEFORE BUILDING
 --------------------------------------------------------------------------------
 
-  - What plays the sound? Qt Multimedia is already available but pulls in more
-    platform dependency; a tiny WAV player is enough for feedback clicks and
-    would avoid it.
-  - Spotify: a plain link that opens the app in a browser is trivial. Anything
-    more -- knowing what is playing, controlling it, reading the audio for the
-    visualiser -- needs the Spotify Web API, an OAuth login, and a developer
-    app registration. Decide which of those two products this is, because the
-    gap between them is large.
-  - What feeds the visualiser? Spotify does NOT give you the audio stream, so
-    reacting to what is actually playing means capturing the system output
-    (a loopback device), which is platform-specific and often needs setup. The
-    honest alternatives are: react to spaCR's OWN sounds only, or run the
-    visualiser from a local audio file the user chooses.
-  - Where do the sounds come from, and under what licence? Same problem as the
-    music, at a smaller scale.
-  - Does the Resonance theme have to work with no audio at all? It should --
-    a beautiful idle state that responds when sound arrives is better than a
-    dead background when it does not.
+  ALL ANSWERED 2026-09-19 -- see "Decided:" at the end. In short:
+
+  - What plays the sound? Qt Multimedia's QSoundEffect, on its own thread,
+    falling back to silence when Qt Multimedia or a device is missing.
+  - Where do the sounds come from? Synthesized in code with numpy, so there
+    is no licence question at all.
+  - What feeds the visualiser? spaCR's own sounds, or a local audio file the
+    user picks (part B).
+  - Does the Resonance theme have to work with no audio at all? Yes: it
+    idles beautifully in silence (part B).
 
 --------------------------------------------------------------------------------
 WHY IT IS FILED RATHER THAN BUILT
 --------------------------------------------------------------------------------
 
 Requested 2026-09-18 as a list item, explicitly not to be implemented.
+
+--------------------------------------------------------------------------------
+Decided: 2026-09-19, by the maintainer, through the question prompt
+--------------------------------------------------------------------------------
+
+  "Ok build as recomended. But skip the Spotify link and integration
+  entirely, instead I want you to make 10 themes for spacr that should all
+  try and capture a space house theme vibe. Artists I like include worakls,
+  NTO, rivière monk, BIRRD."
+
+  and, separately: "The theme should sound like melodic space house".
+
+The recommendation accepted: off by default; click, hover and run-finished
+sounds SYNTHESIZED IN CODE (no licence question), played with Qt's
+QSoundEffect, falling back to silence; the visualiser reacts to spaCR's own
+sounds or a local audio file the user picks, and idles beautifully in
+silence. No streaming service anywhere. Split into three parts: A the sound
+engine, the Sound tab and one reference sound set; B the music beds and the
+Resonance visualiser; C the ten themes.
+
+--------------------------------------------------------------------------------
+2026-09-19 — PART A BUILT: THE ENGINE, THE SOUND TAB, AND "ORBIT"
+--------------------------------------------------------------------------------
+
+WHAT EXISTS NOW
+
+  spacr/qt/sound_synth.py       Qt-free. A SoundTheme (key, scale, tempo,
+                                progression, timbre numbers) renders every
+                                sound with numpy/scipy into 48 kHz 16-bit
+                                stereo WAVs under ~/.spacr/sounds/<key>-<hash>
+                                (SPACR_SOUND_CACHE moves it). The hash covers
+                                SYNTH_VERSION and every theme field, so a
+                                stale file can never answer; older folders of
+                                the same set are removed.
+  spacr/qt/sound.py             The engine. Nothing is imported, built or
+                                installed while sound is off. When on: a
+                                QThread "spacr-sound" owns every QSoundEffect
+                                and does every render; the GUI thread only
+                                emits queued requests. An application-wide
+                                input filter exists only while click or hover
+                                is wanted. Run sounds come through
+                                notify.announce_pipeline_finished, i.e.
+                                AppScreen._on_finished.
+  spacr/qt/sound_preferences.py The Sound tab, LAST in Preferences (after the
+                                launcher-only Fractal tab too): Play sounds
+                                (off), Volume (50 %), Sound set, and a switch
+                                plus a Preview button for Click (on), Hover
+                                (off), Run finished (on), Run failed (on) and
+                                Music bed (off). Everything but the master is
+                                greyed while the master is off.
+  spacr/qt/preferences.py       get/set_sound_enabled, _volume, _theme,
+                                _event_enabled, sound_bed_rests; the page is
+                                built, saved and reset with the dialog;
+                                apply_preferences_to_app hands off to the
+                                engine only once sound has been switched on.
+
+THE REFERENCE SET, "ORBIT" -- melodic space house in A minor, 122 BPM.
+Warm pads of five detuned PolyBLEP saws (+-16 cents) through a 4th-order
+low-pass at 1.1 kHz that breathes to 2.2 kHz; plucks built from harmonics
+that die faster the higher they are; a dotted-eighth ping-pong delay whose
+repeats darken; a sine sub with a touch of second harmonic; a synthetic
+3.2 s darkening reverb. Measured on the samples
+(tests/qt/test_the_sounds_are_melodic_space_house.py):
+
+  click x4   A4 C5 E5 B4 plucks, -12 dBFS peak, echo 0.369 s later (a
+             dotted eighth at 122 BPM), 1.3 s with its tail
+  hover x4   E5 G5 A5 C6, muted and shorter, -20 dBFS peak, no echo
+  finished   16ths climbing the VII triad (G B D) two octaves, a whole tone
+             up onto A5 with A4 under it, the pad swelling from G into
+             Am(add9) (+5.4 dB), a sub entering on the resolution; 4.9 s
+  failed     slower eighths falling E5 D5 C5 A4 over a closed Dm7 that never
+             resolves, spectral centroid 256 Hz against the finished
+             sound's 409; 4.8 s
+  bed        8 bars Am7-Fmaj7-Cmaj7-G7, pumping pads, an eighth-note arp
+             with dotted-eighth delay, root sub; 15.74 s, loops with no
+             seam (jump 0.013 at the join, p99 sample step 0.025), -13 dBFS
+             peak, and played at 0.6 of the other sounds' level
+
+MEASURED, WITH THE SANDBOX RULES (offscreen, private HOME, volume 0)
+
+  * Sound off: launch never imports spacr.qt.sound (26 ms cold) or Qt
+    Multimedia; apply_sound_preferences reads one setting (36 us).
+  * Save with sound switched on: 406-416 ms, against 400-410 ms with it left
+    off -- the engine adds under 10 ms.
+  * A GUI STALL FOUND AND FIXED. The first QSoundEffect built on the audio
+    thread still stopped the GUI thread for 180-320 ms. Listing the devices
+    first (QMediaDevices.defaultAudioOutput) on the audio thread did the
+    same 185-201 ms connection with the GUI thread's worst gap at 5.2-8.3
+    ms. The first probe of this had reported 10.3 ms because it excluded the
+    tick before the work started; the notes record how.
+  * Through the real dialog: first ever enable (scipy import + render on the
+    audio thread) worst GUI gap 34-52 ms, ready after 1.3-1.8 s; every later
+    start 5.3 ms (the tick itself), ready after 0.26 s.
+  * With no sound server at all (PULSE_SERVER=unix:/nonexistent): every
+    effect loads with Status.Error, no exception, no dialog, silence. Qt
+    prints its own "playback of this format is not supported" line.
+  * The input filter costs 0.97-1.00 us per delivered event while installed.
+  * A SEGFAULT FOUND AND FIXED while writing the tests: deleteLater on the
+    filter, then Python collecting the engine before the event loop ran,
+    crashed in ~QObject at the next sendPostedEvents. Children are now never
+    deleteLater'd; see docs/notes/spacr/qt/sound.md.
+
+TESTS: tests/qt/test_the_sounds_are_melodic_space_house.py (38),
+tests/qt/test_sound_is_silent_until_asked.py (41),
+tests/qt/test_the_sound_tab_is_last_and_off.py (12), and the Sound tab added
+to tests/qt/test_preferences_tabs.py. The audio sink is faked throughout.
+Every absence the tests assert was mutation-checked: removing the rule turns
+its test red, except two redundant early-outs that are documented as such.
+The last dialog test switches sound on with the mouse, presses Save, and
+hears the click from a button in another window.
+
+WHAT IS LEFT
+
+  * Part B: the music beds proper (more than the one reference loop, a
+    local audio file the user picks) and the Resonance visualiser.
+  * Part C: the ten melodic-space-house themes, which slot into
+    sound_synth.SOUND_THEMES; the Sound set combo already lists whatever is
+    there.
+  * Translations are owed for every new caption and tooltip on the Sound
+    tab and every new public docstring; the consolidated i18n pass will
+    carry them. SoundTheme labels and descriptions reach tr() as attributes,
+    so the extractor needs a rule for SOUND_THEMES before part C's ten
+    descriptions can be translated.
+  * Not heard by a person yet. The numbers say what was asked for; whether
+    it sounds like Worakls or like a test tone is the maintainer's ear.
+  * The frozen bundle will now pick up Qt Multimedia and its FFmpeg
+    libraries through the import in _make_effect; its size was not measured.
