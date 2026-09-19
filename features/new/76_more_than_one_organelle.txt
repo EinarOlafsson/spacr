@@ -2,7 +2,15 @@
 MORE THAN ONE ORGANELLE: organelle, organelle_1, organelle_2, ...
 ================================================================================
 
-Status:    DONE 2026-09-19. The last open point -- External Masks named
+Status:    DONE 2026-09-19. Later that day io.py's preprocessing, the last
+           code that reached organelle slot one only, was made to give
+           every slot its own background floor and signal-to-noise anchor,
+           and two slots were proven end to end from raw TIFFs to
+           measurements.db with the right parent cells ("IO.PY REACHES
+           EVERY SLOT" at the foot). Still open, recorded there: folder-only
+           names, laser-line numbers, and a per-slot background-removal
+           switch for slots 2 onward.
+           The last open point -- External Masks named
            Organelle 2-4 by four hand-written filename patterns -- is
            closed, with two defects found while proving it on a real
            run; the 2026-09-19 note at the foot has the measurements.
@@ -577,3 +585,39 @@ STILL OPEN, recorded rather than fixed:
     before this item. The Mask type box then lists 488 slots, fewer than the
     705 types it listed before this item, but the type is still wrong until
     re-typed.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- IO.PY REACHES EVERY SLOT, AND TWO SLOTS ARE PROVEN FROM RAW
+TIFFS TO THE DATABASE
+--------------------------------------------------------------------------------
+
+Decided: asked through the question prompt on 2026-09-19 whether io.py's
+preprocessing should loop over every organelle slot (item 364's open design
+question), the maintainer answered "Yes, all slots".
+
+The full account is in item 364's section of the same date. In short:
+
+  * BEFORE: a two-organelle plate (raw TIFFs, Cellpose stubbed for cell and
+    nucleus only) ran through Mask and Measure on origin/nightly 92ea1ba00.
+    organelleb already reached measurements.db, with every row's cell_id
+    naming the cell that contains it. What did not reach slot 2 was io.py's
+    normalisation: organelleb_background and organelleb_signal_to_noise
+    were ignored for the generic pair.
+  * CHANGED: spacr.io._normalize_img_batch loops over every enabled slot.
+    spacr.crops.reconcile_merged_mask_dims no longer sends Measure a
+    None mask_dim for each of the 700 slots a two-organelle run lacks
+    (settings rows 2,170 -> 70). spacr.io.CROP_SHAPE_KEYS and
+    spacr.crops.resolve_crop_source forward every slot's mask plane.
+  * PROVEN: tests/test_every_organelle_slot_is_preprocessed_and_measured.py
+    runs raw TIFFs with two organelle channels through Mask and Measure
+    once, and checks that both slots reach the database, that every object's
+    cell_id is the cell painted around it, and that the relationships table
+    links both slots to cells. 9 tests; 5 fail on the old io.py and
+    crops.py, and the 4 that pass there are the parts that already worked.
+
+STILL OPEN, in addition to the folder-only names and laser-line numbers
+above: slots 2 onward have no declared remove_background_<slot> switch, so
+from the interface their channel keeps the generic remove_background
+(False). Declaring one per slot needs a name the maintainer accepts; item
+364 lists the two candidates. Mask's overlay plots draw the first slot
+only, which is display rather than measurement.

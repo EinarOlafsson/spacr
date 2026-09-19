@@ -884,13 +884,19 @@ background = settings.get('background', 100)
 
 Default normalisation params for any channel that isn't one of the recognised object channels (e.g. an organelle channel, or an intensity-only channel measured but not segmented). Without these defaults a channel matching NONE of the object types below raised UnboundLocalError: 'background'.
 
-### lines 1763-1764
+### the organelle-slot loop
 
 ```python
-if settings.get('organelle_channel') is not None and channel == settings['organelle_channel']:
+for role, role_channel in organelle_slot_channels:
 ```
 
-Organelle channel — use organelle-specific settings when present, otherwise the generic defaults above.
+Every organelle slot the run enables takes its own `<slot>_background`, `<slot>_signal_to_noise` and `remove_background_<slot>` when present, otherwise the generic defaults above. This used to be one branch for `organelle_channel` alone.
+
+2026-09-19, items 364 and 76. The maintainer was asked whether this branch should become a loop over every slot and answered "Yes, all slots". Measured before the change, with raw TIFFs through `preprocess_generate_masks`: `organelleb_background=400` and `organelleb_signal_to_noise=3` printed `Processing channel 3: background=100, signal_threshold=1000`, the generic pair. After it the same run prints `background=400, signal_threshold=1200`. With the shipped defaults nothing moves, because every slot's defaults (100 and 10) are the generic fallbacks.
+
+The slots and their channels are read once per call, before the channel loop, because `enabled_organelle_roles` walks all 702 slots.
+
+`remove_background_<slot>` is declared for the first slot only (`remove_background_organelle`, in the Mask factory's generic block). Slots 2 onward have a declared floor and anchor but no declared switch, so from the interface their channel keeps the generic `remove_background` (False), as it did before. The loop reads the switch under the name the first slot uses, so a settings file that writes `remove_background_organelleb` is honoured. Declaring it for every slot is a new setting per slot, with a type, a tooltip, a category and a translation each. That needs the maintainer to accept the name, and is recorded in item 364.
 
 ### line 1777  _(unsure)_
 

@@ -38,8 +38,9 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [MergedCropSource.spec_for](#mergedcropsourcespec_for) (1 entry)
 - [MergedCropSource.get_many](#mergedcropsourceget_many) (1 entry)
 - [_has_png_folder](#_has_png_folder) (1 entry)
-- [resolve_crop_source](#resolve_crop_source) (6 entries)
+- [resolve_crop_source](#resolve_crop_source) (7 entries)
 - [apply_display_order](#apply_display_order) (1 entry)
+- [reconcile_merged_mask_dims](#reconcile_merged_mask_dims) (1 entry)
 
 ## Module level
 
@@ -747,6 +748,14 @@ reason = (f"{LOAD_IMAGES_LABEL} was asked for and there is no "
 
 Asked for by name, and `data/` is not there. The other route is, so it draws -- and says that it is not what was asked for.
 
+### Every segmented role's mask plane can be overridden
+
+```python
+*(f"{role}_mask_dim" for role in SEGMENTED_ROLES)):
+```
+
+2026-09-19. This list, and `spacr.io.CROP_SHAPE_KEYS` that feeds it, named `organelle_mask_dim` and no other slot. A run could not say where Organelle 2's plane was, and an on-demand crop of `organelleb` then depended on the saved snapshot naming it (`KeyError: 'organelleb'` when it did not). Both now name every slot.
+
 ## apply_display_order
 
 ### lines 3940-3942
@@ -756,3 +765,17 @@ return image
 ```
 
 A greyscale or two-plane crop has no three slots to permute. Left alone rather than refused: the order is a display preference and a single-channel image is not wrong, it simply has nothing to reorder.
+
+## reconcile_merged_mask_dims
+
+### An organelle slot neither side names is left out
+
+```python
+if (expected is None and key not in settings
+        and role in ORGANELLE_ROLES):
+    continue
+```
+
+2026-09-19, items 364 and 76. The loop used to set `<role>_mask_dim` for every segmented role, which is 702 organelle slots, `None` for each one the manifest does not record. `get_measure_crop_settings` counts a slot as declared when any of its keys is present, even as `None`, so a two-organelle run reached Measure declaring 702 slots, and the factory filled `<slot>_min_area` and `<slot>_type` for each. Measured with raw TIFFs through Mask and Measure: `measurements.db`'s `settings` table held 2,170 rows, 2,100 of them for the 700 slots the run never had, and `measure_crop_settings.csv` had the same rows. It now holds 70.
+
+The cell, nucleus and pathogen keys are still always set. A manifest without a pathogen has to switch off Measure's default `pathogen_mask_dim` of 6, or plane 6 is measured as pathogens. A slot `settings` carries is still set to the manifest's answer, so an explicit slot the manifest lacks is still refused as a conflict.

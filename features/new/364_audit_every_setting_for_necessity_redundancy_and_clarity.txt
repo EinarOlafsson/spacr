@@ -27,9 +27,12 @@ Status:    OPEN, corrected 2026-09-19 -- see the last section. All three
            different meaning (model-input crop, default 224). This needs
            the maintainer's choice; the 2026-09-19 section lists the
            options.
-           ALSO OPEN: one DESIGN question for the maintainer. io.py's
-           preprocessing reaches organelle slot one only, so slots b
-           onward are declared and never read (2026-09-13 section). The
+           THE io.py ORGANELLE-SLOT QUESTION IS DECIDED AND BUILT,
+           2026-09-19: "Yes, all slots". io.py's preprocessing now gives
+           every enabled slot its own `<slot>_background` and
+           `<slot>_signal_to_noise` (the last section). Left from it: slots
+           2 onward have no declared `remove_background_<slot>` switch,
+           which needs a name the maintainer accepts. The
            2026-09-04 note's "two proposals waiting on the maintainer"
            was not re-checked against the 2026-09-09 approval. Proposals
            are in features/data/364_*_settings_audit_*.txt.
@@ -2552,3 +2555,129 @@ LEFT for 364: unchanged from the section above. `barcodes` and `Toxoplasma`
 are held, `img_size` is blocked on the maintainer's choice, and the io.py
 organelle-slot question is open. The three recruitment `*_mask_dim` are
 done now, including an old file imported in the real app.
+
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE io.py ORGANELLE-SLOT QUESTION: DECIDED, AND BUILT
+--------------------------------------------------------------------------------
+
+Decided: asked through the question prompt on 2026-09-19 whether io.py's
+preprocessing should loop over every organelle slot, the maintainer
+answered "Yes, all slots".
+
+WHAT WAS TRUE ON origin/nightly 92ea1ba00, measured before building. A plate
+of raw TIFFs (nucleus, cell and two organelle channels, two wells) was run
+through preprocess_generate_masks with the Cellpose pass stubbed for cell and
+nucleus only, then measure_crop on merged/. Preprocessing, both organelle
+segmentations, the merge and Measure were the real ones.
+
+  * A SECOND SLOT ALREADY REACHED THE DATABASE. organelleb was segmented,
+    merged at plane 7, recorded in .spacr_plane_layout.json and measured
+    into its own table, and every row's cell_id named the cell that contains
+    it. The premise this unit was handed -- "a second organelle is segmented
+    but never reaches the measurements" -- did not hold on this tree. Item
+    76's 2026-08-14 work had already done that.
+  * io.py's _normalize_img_batch was the one place that reached slot one
+    only, as the 2026-09-13 section said. With organelleb_background=400
+    and organelleb_signal_to_noise=3 the log read "Processing channel 3:
+    background=100, signal_threshold=1000", the generic pair.
+  * FOUND ON THE WAY, in what feeds measure_crop.
+    spacr.crops.reconcile_merged_mask_dims set <slot>_mask_dim for all 702
+    slots, None for the 700 the run did not have. get_measure_crop_settings
+    then counted 702 declared slots and filled <slot>_min_area and
+    <slot>_type for each. The run's settings table held 2,170 rows, 2,100 of
+    them for slots the run never had, and measure_crop_settings.csv the same.
+  * ALSO FOUND: spacr.io.CROP_SHAPE_KEYS and the matching list inside
+    spacr.crops.resolve_crop_source named organelle_mask_dim and no other
+    slot. A run could not tell an on-demand crop where Organelle 2's plane
+    is (KeyError: 'organelleb' when the saved snapshot did not name it).
+
+WHAT CHANGED
+  spacr/io.py     _normalize_img_batch loops over every enabled slot. Each
+                  reads <slot>_background, <slot>_signal_to_noise and
+                  remove_background_<slot> where present, the generic pair
+                  otherwise; the slots are resolved once per call.
+                  CROP_SHAPE_KEYS names every slot's mask plane. The
+                  preprocess_img_data docstring says both.
+  spacr/crops.py  reconcile_merged_mask_dims leaves out a slot that neither
+                  the manifest nor the settings name. Cell, nucleus and
+                  pathogen are still always set, so a manifest without a
+                  pathogen still switches off Measure's default plane 6.
+                  resolve_crop_source forwards every segmented role's mask
+                  plane. Codex lane, under the 2026-09-19 notice in 325 that
+                  covers item 76.
+  Reasons: docs/notes/spacr/io.md (_normalize_img_batch) and
+  docs/notes/spacr/crops.md (reconcile_merged_mask_dims,
+  resolve_crop_source).
+  docs/setting_consumers.json and spacr/qt/screens/setting_api_targets.py
+                  regenerated with tools/build_setting_consumer_map.py. On
+                  the old code they regenerate byte-identical (766 targets).
+                  Now 772: organelleb/c/d_background and _signal_to_noise
+                  have a reader for the first time, spacr.io. The map also
+                  records the loop's f-string reads against red_, green_,
+                  blue_, total_ and outside_channel and black_background,
+                  because its dynamic matcher takes any key ending in
+                  _channel or _background. Those are ranked below literal
+                  reads and moved no API target.
+
+MEASURED AFTER, the same probe: "Processing channel 3: background=400,
+signal_threshold=1200". The settings table holds 70 rows, six of them
+organelle-slot rows (mask_dim, min_area and type for organelle and
+organelleb). With the shipped defaults no channel is normalised differently,
+because every slot's defaults (100 and 10) equal the generic fallbacks.
+
+TESTS, 4G cap, spacr imported from the worktree:
+  * NEW tests/test_every_organelle_slot_is_preprocessed_and_measured.py, 9
+    tests, 7 s. With both files from origin/nightly, 5 fail: the three
+    normalisation tests, the on-demand crop and the settings count. With
+    only the old io.py, the three normalisation tests and the crop test
+    fail. With only the old crops.py, the settings count and the crop test
+    fail. The other four pass on the old code too: both slots reaching the
+    database with the containing cell as parent, the relationships table,
+    and a disabled slot changing nothing. They are the end-to-end check this
+    unit asked for, not proof of this change, because the second slot
+    already got there.
+  * The 19 files that touch the changed functions (test_multiple_organelles,
+    test_crops, test_crop_source_wiring, test_cov_io_normalize,
+    test_measure_organelle_planes, test_core_mask_orchestration, ...): 508
+    passed, 2 skipped.
+  * test_golden_pipeline, test_external_masks,
+    test_a_fifth_organelle_mask_imports_into_its_own_slot, test_db_contract,
+    test_the_organelle_type_reaches_measure,
+    test_organelle_raw_intensity_filtering, test_mask_run_intensity_bounds,
+    test_a_comment_leaves_but_the_code_does_not: 4,506 passed.
+  * tests/qt/test_live_preview_remove_background.py: 9 passed.
+  * test_setting_api_links_point_at_the_consumer,
+    test_a_settings_api_link_lands_on_the_setting,
+    test_the_rows_expected_types_cannot_see_are_pinned,
+    test_mask_intensity_settings_contract: 27 passed, 2 skipped.
+  * Ledger checks (test_a_ledger_file_does_not_contradict_itself, the
+    staler-twin check, test_instruction_index): 447 passed.
+  * test_docstring_correctness: 4 failed, the same 4 as on 92ea1ba00 with
+    this change swapped out.
+
+LEFT, recorded rather than built:
+  * Slots 2 onward have a declared floor and anchor but no declared
+    remove_background_<slot> switch. The loop reads the switch under the
+    first slot's naming, so a settings file that writes
+    remove_background_organelleb is honoured, but no form shows it and
+    nothing types or documents it. From the interface those channels keep
+    the generic remove_background, False, as before. Declaring it is a new
+    setting for each of 701 slots, with a type, a tooltip, a category and
+    nine translations, and it needs a name the maintainer accepts:
+    remove_background_organelleb follows the first slot's key,
+    organelleb_remove_background the prefix every other slot setting uses.
+  * Mask's overlay plots (plot_image_mask_overlay, spacr/plot.py) draw the
+    first slot only. That is display, not measurement.
+  * core.py hands adjust_cell_masks the first slot's folder only. That is
+    inert: _merge_cells_based_on_parasite_overlap never reads the organelle
+    mask it is given.
+  * The generated English tooltip of organelleb_background says "the floor
+    that remove_background_organelle 2 clips to zero", naming a setting
+    that does not exist. It is written from the first slot's tooltip with
+    the word "organelle" numbered. It should be rewritten when the per-slot
+    switch gets its name.
+
+i18n OWED to the consolidated pass: the docstrings of
+spacr.io.preprocess_img_data and spacr.crops.reconcile_merged_mask_dims. No
+setting label, tooltip or UI caption changed.

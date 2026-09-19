@@ -50,7 +50,8 @@ LOG = logging.getLogger(__name__)
 
 from . import convert as _cv
 from . import crop_source as _crop_source
-from .object_roles import CHILD_ROLES, ORGANELLE_ROLES, join_how
+from .object_roles import (CHILD_ROLES, ORGANELLE_ROLES,
+                           enabled_organelle_roles, join_how)
 from .png_list import (PNG_LIST_ID_COLUMNS, _merged_field_paths,
                        _object_id_int, crop_rows_from_png_list)
 from .crops import MERGED_LAYOUT_SIDECAR
@@ -1599,6 +1600,16 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     """
     Normalize the stack of images.
 
+    Each channel takes the background floor, signal-to-noise anchor and
+    background-removal switch of the object whose ``<object>_channel`` names
+    it: the nucleus, the cell, the pathogen, or any organelle slot the run
+    enables (``organelle``, ``organelleb``, ...). A slot reads
+    ``<slot>_background``, ``<slot>_signal_to_noise`` and
+    ``remove_background_<slot>``. A channel no object names keeps the generic
+    ``background``, ``Signal_to_noise`` and ``remove_background``, and so does
+    any of the three a slot does not carry. When two objects name the same
+    channel, the later one in that order wins.
+
     Args:
         stack (numpy.ndarray): The stack of images to normalize.
         lower_percentile (int): Lower percentile value for normalization.
@@ -1613,6 +1624,10 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     channels = [int(c) for c in channels]
 
     normalized_stack = np.zeros_like(stack, dtype=np.float32)
+
+    organelle_slot_channels = [
+        (role, settings.get(f'{role}_channel'))
+        for role in enabled_organelle_roles(settings)]
 
     time_ls = []
     for i, channel in enumerate(channels):
@@ -1636,13 +1651,15 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
             signal_threshold = settings['pathogen_signal_to_noise']*settings['pathogen_background']
             remove_background = settings['remove_background_pathogen']
 
-        if settings.get('organelle_channel') is not None and channel == settings['organelle_channel']:
-            background = settings.get('organelle_background', background)
+        for role, role_channel in organelle_slot_channels:
+            if channel != role_channel:
+                continue
+            background = settings.get(f'{role}_background', background)
             signal_threshold = settings.get(
-                'organelle_signal_to_noise',
+                f'{role}_signal_to_noise',
                 settings.get('Signal_to_noise', 10)) * background
             remove_background = settings.get(
-                'remove_background_organelle', remove_background)
+                f'remove_background_{role}', remove_background)
 
         single_channel = stack[:, :, :, channel]
 
@@ -3087,8 +3104,10 @@ def preprocess_img_data(settings):
         - z-stacks are max-projected per field and channel during
           ``_rename_and_organize_image_files``, before anything reaches
           ``stack/``, so no setting gates it.
-        - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` and
-          the ``*_background`` cutoffs.
+        - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` /
+          ``_organelle`` and each object's ``*_background`` and
+          ``*_signal_to_noise`` values. Every organelle slot the run
+          enables uses its own pair, e.g. ``organelleb_background``.
         - ``normalize``, ``lower_percentile``, ``save_dtype``.
         - ``batch_size``, ``randomize``, ``test_mode``, ``test_images``,
           ``plot``, ``cmap``, ``figuresize``.
@@ -5421,7 +5440,8 @@ def crop_object_type(png_type, default='cell'):
 CROP_SHAPE_KEYS = ('png_dims', 'png_size', 'normalize', 'normalize_by',
                    'crop_mode', 'use_bounding_box', 'dialate_pngs',
                    'dialate_png_ratios', 'cell_mask_dim', 'nucleus_mask_dim',
-                   'pathogen_mask_dim', 'organelle_mask_dim')
+                   'pathogen_mask_dim', 'organelle_mask_dim',
+                   *(f'{role}_mask_dim' for role in ORGANELLE_ROLES[1:]))
 
 
 def _crop_shape_overrides(settings):

@@ -261,6 +261,12 @@ def reconcile_merged_mask_dims(
     replaced automatically; a non-``None`` value the caller explicitly
     supplied must agree or the run stops before measuring a wrong plane.
     Legacy folders without a manifest return an unchanged copy.
+
+    Every organelle slot the manifest records gets its plane, and every
+    slot ``settings`` carries is set to the manifest's answer. A slot that
+    neither names is left out of the copy rather than set to ``None``.
+    The cell, nucleus and pathogen keys are always set, so a plane the
+    manifest does not record is switched off.
     """
     out = dict(settings)
     layout = read_merged_plane_layout(merged_folder)
@@ -272,6 +278,9 @@ def reconcile_merged_mask_dims(
         key = f'{role}_mask_dim'
         requested = settings.get(key)
         expected = dims.get(role)
+        if (expected is None and key not in settings
+                and role in ORGANELLE_ROLES):
+            continue
         if key in explicit and requested is not None:
             try:
                 requested_dim = int(requested)
@@ -3470,8 +3479,7 @@ def resolve_crop_source(
     merged_settings = dict(saved)
     for key in ("png_dims", "png_size", "normalize", "normalize_by", "crop_mode",
                 "use_bounding_box", "dialate_pngs", "dialate_png_ratios",
-                "cell_mask_dim", "nucleus_mask_dim", "pathogen_mask_dim",
-                "organelle_mask_dim"):
+                *(f"{role}_mask_dim" for role in SEGMENTED_ROLES)):
         if key in settings:
             merged_settings[key] = settings[key]
     spec = crop_spec_from_settings(merged_settings, object_type=object_type)
