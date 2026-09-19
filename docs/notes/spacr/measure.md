@@ -42,7 +42,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [save_and_add_image_to_grid](#save_and_add_image_to_grid) (3 entries)
 - [img_list_to_grid](#img_list_to_grid) (5 entries)
 - [_per_crop_mode](#_per_crop_mode) (1 entry)
-- [_measure_crop_core](#_measure_crop_core) (42 entries)
+- [_measure_crop_core](#_measure_crop_core) (43 entries)
 - [_record_organelle_caveats](#_record_organelle_caveats) (1 entry)
 - [measure_crop](#measure_crop) (23 entries)
 - [measure_crop.job_callback](#measure_cropjob_callback) (2 entries)
@@ -1240,6 +1240,14 @@ channel_arrays=channel_arrays)))
 ```
 
 THE INTENSITY IMAGES, for the distance families that need them: local maxima and the intensity-centre offset. Optional, so a caller that only wants geometry passes nothing and pays for nothing.
+
+### lines 3043-3044
+
+```python
+if frame.empty:
+```
+
+A parent mask with no objects left in this field -- every cell under `cell_min_size`, say -- makes `_summarize_organelles_per_parent` return a frame with NO COLUMNS, not a frame with no rows. One enabled slot passes that frame straight to `_merge_and_save_to_database`, which writes nothing for an empty frame. Two or more slots merged those frames on `label`, which an empty frame does not have, so the field raised `KeyError: 'label'` and was reported as failed (measured 2026-09-19 through External Masks with the default 8000 px cell filter; item 76). Skipping the empty frames makes two slots behave as one does. The frames are all empty or none are: every slot is summarised over the same parent labels.
 
 ### lines 3593-3596
 

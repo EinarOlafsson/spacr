@@ -23,7 +23,47 @@ from ...external_masks import (
     ROLES,
     detect_inputs,
 )
+from ...object_roles import ORGANELLE_ROLES, organelle_index, organelle_label
 from .sortable_table import install_sorting, table_item
+
+_ORGANELLE_ROLE_SET = frozenset(ORGANELLE_ROLES)
+
+
+def _object_caption(object_type: Any) -> str:
+    """What a mask type is called on screen.
+
+    An organelle slot reads as a number -- ``Organelle 2`` -- never as the
+    lettered role it is stored under (``organelleb``), the same caption the
+    Import Project screen and the settings forms give it. The fixed types
+    read as before: ``Cell``, ``Nucleus``, ``Pathogen``.
+
+    :param object_type: a role from :data:`spacr.external_masks.OBJECT_TYPES`.
+    :returns: the caption for that role.
+    """
+    name = str(object_type)
+    if name in _ORGANELLE_ROLE_SET:
+        return organelle_label(name)
+    return name.title()
+
+
+def _offered_object_types(groups: Iterable[InputGroup]) -> List[str]:
+    """The mask types the Mask type box lists, for these groups.
+
+    The fixed types, then organelle slots 1 through N, where N is the larger
+    of the highest slot any group already uses and the number of groups --
+    one organelle slot per group is the most a set of groups can fill, so
+    every assignment stays reachable without listing all
+    :data:`spacr.object_roles.ORGANELLE_ROLES`.
+
+    :param groups: the input groups the table shows.
+    :returns: role names in the order the box lists them.
+    """
+    groups = list(groups)
+    highest = max((organelle_index(group.object_type) for group in groups
+                   if group.object_type in _ORGANELLE_ROLE_SET), default=0)
+    count = min(max(highest, len(groups), 1), len(ORGANELLE_ROLES))
+    fixed = [role for role in OBJECT_TYPES if role not in _ORGANELLE_ROLE_SET]
+    return fixed + list(ORGANELLE_ROLES[:count])
 
 
 class ExternalMaskInputWidget(QWidget):
@@ -213,9 +253,11 @@ class ExternalMaskInputWidget(QWidget):
         click, and the per-row combo boxes have to write back to the right one.
 
         The object-type box is enabled only for a group being used as a mask --
-        an intensity image has no object type to name.
+        an intensity image has no object type to name. It lists
+        :func:`_offered_object_types`, captioned by :func:`_object_caption`.
         """
         self._table.setRowCount(len(self._groups))
+        offered = _offered_object_types(self._groups)
         for row, group in enumerate(self._groups):
             source = group.root
             if len(group.paths) == 1:
@@ -224,9 +266,10 @@ class ExternalMaskInputWidget(QWidget):
             source_item.setData(Qt.UserRole, row)
             source_item.setToolTip("\n".join(group.paths[:20]))
             self._table.setItem(row, 0, source_item)
+            named = (_object_caption(group.object_type)
+                     if group.object_type else "unassigned")
             detected = (
-                f"mask · {group.object_type or 'unassigned'}"
-                if group.role == "mask" else group.role
+                f"mask · {named}" if group.role == "mask" else group.role
             )
             detected_item = table_item(detected)
             detected_item.setToolTip(group.reason)
@@ -243,8 +286,8 @@ class ExternalMaskInputWidget(QWidget):
 
             object_box = QComboBox(self._table)
             object_box.addItem("Choose…", None)
-            for object_type in OBJECT_TYPES:
-                object_box.addItem(object_type.title(), object_type)
+            for object_type in offered:
+                object_box.addItem(_object_caption(object_type), object_type)
             index = object_box.findData(group.object_type)
             object_box.setCurrentIndex(max(index, 0))
             object_box.setEnabled(group.role == "mask")

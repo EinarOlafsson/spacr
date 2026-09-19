@@ -3040,6 +3040,8 @@ def _measure_crop_core(index, time_ls, file, settings):
                     frame = _summarize_organelles_per_parent(
                         current_mask, parent_mask, channel_arrays,
                         parent_name=parent_name, spacing=spacing)
+                    if frame.empty:
+                        continue
                     frame = frame.rename(columns={
                         column: (
                             f'organelle_summary_{role}_'

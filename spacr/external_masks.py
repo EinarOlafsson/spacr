@@ -59,6 +59,7 @@ class _LazyConvert:
 cv = _LazyConvert()
 from . import crops
 from .errors import ConfigurationError
+from .object_roles import ORGANELLE_ROLES
 
 
 SUPPORTED_SUFFIXES = (
@@ -72,13 +73,18 @@ _MASK_WORDS = re.compile(
     r"(?i)(?:^|[_\-. ])(?:mask|masks|label|labels|labelled|labeled|"
     r"instance|instances|seg|segmentation|outline)(?:$|[_\-. ])"
 )
+_ORGANELLE_PATTERN = re.compile(
+    r"(?i)(?:^|[_\-. ])"
+    r"(?:organelle(?:[_\-. ]?(?P<number>\d+)|(?P<letters>[a-z]+))?"
+    r"|organell|mitochondria|mitochondrion)"
+    r"(?=$|[_\-. ])"
+)
+_ORGANELLE_ROLE_SET = frozenset(ORGANELLE_ROLES)
+_ORGANELLE_PLURAL = "organelles"
 _OBJECT_PATTERNS = (
     ("nucleus", re.compile(r"(?i)(?:^|[_\-. ])(?:nucleus|nuclei|nuclear|nuc)(?:$|[_\-. ])")),
     ("pathogen", re.compile(r"(?i)(?:^|[_\-. ])(?:pathogen|parasite|bacteria|bacterial)(?:$|[_\-. ])")),
-    ("organelled", re.compile(r"(?i)(?:^|[_\-. ])organelle(?:[_\-. ]?4|d)(?:$|[_\-. ])")),
-    ("organellec", re.compile(r"(?i)(?:^|[_\-. ])organelle(?:[_\-. ]?3|c)(?:$|[_\-. ])")),
-    ("organelleb", re.compile(r"(?i)(?:^|[_\-. ])organelle(?:[_\-. ]?2|b)(?:$|[_\-. ])")),
-    ("organelle", re.compile(r"(?i)(?:^|[_\-. ])(?:organelle|organell|mitochondria|mitochondrion)(?:$|[_\-. ])")),
+    ("organelle", _ORGANELLE_PATTERN),
     ("cell", re.compile(r"(?i)(?:^|[_\-. ])(?:cell|cells|wholecell|cytoplasm)(?:$|[_\-. ])")),
 )
 
@@ -285,8 +291,48 @@ def _suggest_object(name: str) -> Optional[str]:
     """
     stem = cv._split_ext(str(name))[0]
     for object_type, pattern in _OBJECT_PATTERNS:
-        if pattern.search(stem):
+        if pattern is _ORGANELLE_PATTERN:
+            slot = _suggest_organelle_slot(stem)
+            if slot is not None:
+                return slot
+        elif pattern.search(stem):
             return object_type
+    return None
+
+
+def _suggest_organelle_slot(stem: str) -> Optional[str]:
+    """Name the organelle slot a filename token spells, for every slot.
+
+    A bare ``organelle`` (or ``organell``, ``mitochondria``,
+    ``mitochondrion``) is slot 1. A number after it, with or without one
+    separator -- ``organelle_5``, ``organelle 12``, ``organelle5`` -- is the
+    slot as the user counts it, so ``organelle_5`` is ``organellee``. A
+    letter suffix is the role spelling spaCR itself writes, so a folder such
+    as ``organellee_mask_stack`` imports back into its own slot.
+
+    Every slot of :data:`spacr.object_roles.ORGANELLE_ROLES` is reachable,
+    rather than the first four a fixed table of patterns listed. A numbered
+    token that names no slot -- ``organelle_0``, ``organelle_2024`` -- and the
+    English plural ``organelles`` propose nothing, because neither says which
+    slot is meant; the object type stays editable in the import table.
+
+    :param stem: filename stem, optionally with parent-folder tokens.
+    :returns: an organelle role, or ``None`` when no token names a slot.
+    """
+    for match in _ORGANELLE_PATTERN.finditer(stem):
+        number = match.group("number")
+        letters = match.group("letters")
+        if number is not None:
+            index = int(number)
+            if 1 <= index <= len(ORGANELLE_ROLES):
+                return ORGANELLE_ROLES[index - 1]
+            continue
+        if letters is not None:
+            role = f"organelle{letters.lower()}"
+            if role in _ORGANELLE_ROLE_SET and role != _ORGANELLE_PLURAL:
+                return role
+            continue
+        return ORGANELLE_ROLES[0]
     return None
 
 
@@ -426,9 +472,13 @@ def _pair_masks(image_plan: cv.ConversionPlan,
             continue
         object_type = group.object_type
         if object_type not in OBJECT_TYPES:
+            fixed = [role for role in OBJECT_TYPES
+                     if role not in _ORGANELLE_ROLE_SET]
             errors.append(
                 f"{group.key}: choose whether these masks are "
-                f"{', '.join(OBJECT_TYPES)}.")
+                f"{', '.join(fixed)} or an organelle slot "
+                f"({ORGANELLE_ROLES[0]}, {ORGANELLE_ROLES[1]}, "
+                f"{ORGANELLE_ROLES[2]}, …).")
             continue
         matched = by_type.setdefault(object_type, {})
         for source in _scan_group(group, layout=layout):
@@ -443,6 +493,11 @@ def _pair_masks(image_plan: cv.ConversionPlan,
             ):
                 normalised = re.sub(
                     rf"(?i)(?:^|[_\-. ]){re.escape(token)}$",
+                    "", normalised).strip("_-. ")
+            if object_type in _ORGANELLE_ROLE_SET:
+                slot = ORGANELLE_ROLES.index(object_type) + 1
+                normalised = re.sub(
+                    rf"(?i)(?:^|[_\-. ])organelle[_\-. ]?0*{slot}$",
                     "", normalised).strip("_-. ")
             candidates = [
                 ((source.plate, source.well, field), "exact"),

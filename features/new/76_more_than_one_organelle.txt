@@ -2,7 +2,12 @@
 MORE THAN ONE ORGANELLE: organelle, organelle_1, organelle_2, ...
 ================================================================================
 
-Status:    SUBSTANTIALLY BUILT, corrected 2026-09-13. This line said "not
+Status:    DONE 2026-09-19. The last open point -- External Masks named
+           Organelle 2-4 by four hand-written filename patterns -- is
+           closed, with two defects found while proving it on a real
+           run; the 2026-09-19 note at the foot has the measurements.
+           Earlier status text follows unchanged, as the record.
+           SUBSTANTIALLY BUILT, corrected 2026-09-13. This line said "not
            started" for a month while the note at the foot of this file
            described a registry of 702 organelle slots and seven rewritten
            vocabularies. Verified 2026-09-13: `ALL_ROLES` carries 706 roles,
@@ -415,3 +420,86 @@ rather than changed here, because both alter what a reporting tool prints:
 Neither is on the measure path and neither affects what is written to the
 database; both mean an organelle measurement is invisible to a tool that
 reports on every other object type.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE LAST 3%: EXTERNAL MASKS NOW SEES EVERY SLOT, AND TWO SLOTS
+NO LONGER FAIL A FIELD THAT ONE SLOT MEASURES
+--------------------------------------------------------------------------------
+
+Picked up on the maintainer's "Fix them, post a notice" for the Codex-lane
+files (325, 2026-09-19). The open point was the note above: external_masks.py
+lines 78-81 hard-coded four regexes. Driven the way a user hits it -- folders
+cell_masks/, organelle_1_masks/, organelle_5_masks/ (and organelle_12_masks/)
+next to images/, through detect_inputs and plan_external_masks, then the real
+Measure -- it was worse than "a fifth slot is not recognised":
+
+  1. ORGANELLE 5 WAS PROPOSED AS ORGANELLE 1. The primary slot's pattern is
+     `organelle` followed by a separator, so `organelle_5`, `organelle_12`,
+     `organelle_20` and `organelle_0` all matched slot 1. Two mask folders
+     became two groups both typed `organelle`.
+  2. NO NUMBERED FILE PAIRED. The pairing normaliser strips `mask` and the
+     role name (`organelleb`) from a mask filename to find its intensity
+     field, but never the numbered spelling the detector accepts, so
+     `fov001_organelle_1_mask.tif` (slot 1 included) stayed
+     `fov001_organelle_1` and the plan refused: "organelle: 1 intensity
+     field(s) have no matching mask".
+  3. FOUND ON THE REAL RUN, IN measure.py: with two organelle slots enabled,
+     a field whose parents are all filtered away (every cell under the
+     default cell_min_size of 8000 px) raised `KeyError: 'label'` and was
+     reported as a failed field. Each slot's per-parent summary of an empty
+     parent mask is a frame with NO COLUMNS; one slot hands that to the
+     writer, which writes nothing, but two were merged on `label`. With one
+     slot the same field simply wrote no rows.
+  4. THE WIDGET SHOWED LETTERS, against the maintainer's 2026-09-02 "i dont
+     want to see organelle a b c d anywhere": the Mask type box listed all
+     705 object types captioned `Organelleb` ... `Organellezz`, and Detected
+     as printed `mask · organellee`.
+  5. The refusal for an unassigned mask group listed all 705 names, 9,122
+     characters.
+
+WHAT CHANGED
+  spacr/external_masks.py  one generated organelle matcher replaces the four
+      patterns: a bare token is slot 1, a number is the slot as the user
+      counts it (1..702), a letter suffix is spaCR's own role spelling
+      (`organellee_mask_stack` imports back into slot 5). `organelle_0`,
+      `organelle_703`, dates and the plural `organelles` propose NOTHING
+      rather than slot 1 -- they do not say which slot, and the type stays
+      editable. The pairing normaliser also strips `organelle[_-. ]?N` for
+      slot N. The unassigned refusal names the fixed types and "an organelle
+      slot (organelle, organelleb, organellec, …)".
+  spacr/measure.py  an empty per-parent summary frame is skipped before the
+      merge (reason in docs/notes/spacr/measure.md).
+  spacr/qt/widgets/external_mask_inputs.py  slots are captioned
+      `Organelle N` (the helper Import Project and the settings forms
+      use), and the box lists slots 1..max(highest slot in use, number of
+      groups) instead of all 702. Detected as uses the same captions, so a
+      cell row now reads `mask · Cell` where it read `mask · cell`.
+
+MEASURED, real Measure, CPU, 96x96 fields: cell + Organelle 1 + Organelle 5
+imported and measured into one database -- tables organelle (2 rows, 36 px
+each) and organellee (3 rows: 64, 100, 36 px, the areas drawn) and a
+cell_organelle_summary. With cell_min_size left at 8000 the two-slot run now
+ends exactly as the one-slot run does (no rows; the importer says so) instead
+of the KeyError. Every new test was run against the unfixed code and failed:
+  tests/test_a_fifth_organelle_mask_imports_into_its_own_slot.py (22)
+  tests/test_multiple_organelles.py::
+      test_two_slots_and_no_surviving_parent_is_not_a_failed_field
+  tests/qt/test_the_external_mask_table_numbers_its_organelles.py (3)
+Unchanged and green: test_external_masks, test_cov_w2_1/w2_4 external masks,
+the Qt external-mask-inputs cover tests, test_golden_pipeline (68),
+test_measure_organelle_planes, test_organelle_slots_are_not_a_fixed_four.
+
+FOUND, NOT FIXED, because each changes detection for every object type and
+not only organelles:
+  * a path boundary is `[_-. ]`, not `/`: adding a PROJECT folder whose
+    subfolders are cell_masks/, organelle_2_masks/ proposes nothing for any
+    of them (`proj/cell_masks/f.tif` -> None). Only a folder added directly
+    is recognised by its own name.
+  * the pairing normaliser strips `nuclei` and `parasite` but not the other
+    words the detector accepts (`nuc`, `nuclear`, `bacteria`, `cells`,
+    `mitochondria`), so `fov001_mitochondria_mask.tif` is detected as
+    Organelle 1 and then does not pair.
+
+The criterion "no object type is spelled as a literal in more than one
+place" stays as the 2026-08-26 note left it: true of organelles, deliberately
+not of the fixed four, whose order is load-bearing where each one lives.

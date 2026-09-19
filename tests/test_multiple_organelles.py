@@ -356,3 +356,54 @@ def test_the_slot_count_is_exactly_what_was_asked_for():
                  and key.startswith("organelle")]
         assert len(slots) == count, (
             f"asked for {count} organelles and got {len(slots)} slots")
+
+
+def test_two_slots_and_no_surviving_parent_is_not_a_failed_field(
+        tmp_path, monkeypatch):
+    """A field whose parents are all filtered away writes nothing, cleanly.
+
+    Measured 2026-09-19 through External Masks with the default
+    ``cell_min_size`` of 8000 px: with ONE organelle slot the field wrote no
+    rows and finished; with TWO it raised ``KeyError: 'label'`` from the
+    per-parent summary merge, because each slot's summary of an empty parent
+    mask is a frame with no columns at all, and the field was reported as a
+    failure. Two slots must behave as one does.
+    """
+    import spacr.measure as measure
+    from spacr.settings import get_measure_crop_settings
+
+    merged = tmp_path / "merged"
+    (tmp_path / "measurements").mkdir()
+    merged.mkdir()
+    filename = "plate1_A01_1.npy"
+    np.save(merged / filename, _two_organelle_field())
+    monkeypatch.setattr(
+        measure, "_load_zernike_moments",
+        lambda: (_ for _ in ()).throw(ImportError("disabled")))
+    monkeypatch.setattr(measure, "_ZERNIKE_AVAILABLE", None)
+    settings = get_measure_crop_settings({
+        "src": str(merged), "channels": [0, 1],
+        "cell_mask_dim": 2, "nucleus_mask_dim": 3,
+        "cell_min_size": 10_000, "nucleus_min_size": 0,
+        "pathogen_min_size": 0,
+        "pathogen_mask_dim": None, "organelle_mask_dim": 5,
+        "organelleb_mask_dim": 6, "cytoplasm": False,
+        "save_measurements": True, "save_png": False,
+        "save_arrays": False, "plot": False, "radial_dist": False,
+        "homogeneity": False, "calculate_correlation": False,
+        "distance_gaussian_sigma": 0,
+        "summarize_organelles_by": "cell", "verbose": False,
+    })
+    result = measure._measure_crop_core(0, [], filename, settings)
+    assert not isinstance(result[2], int), (
+        "the field was reported as failed; the per-parent summary merge "
+        "raised on two empty slot summaries")
+    db = tmp_path / "measurements" / "measurements.db"
+    if db.exists():
+        with sqlite3.connect(db) as con:
+            tables = {row[0] for row in con.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")}
+            if "cell_organelle_summary" in tables:
+                assert con.execute(
+                    "SELECT COUNT(*) FROM cell_organelle_summary"
+                ).fetchone()[0] == 0
