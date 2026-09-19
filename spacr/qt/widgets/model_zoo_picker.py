@@ -27,8 +27,8 @@ import threading
 from types import SimpleNamespace
 from typing import List, Optional
 
-from PySide6.QtCore import QObject, Qt, QThread, Signal
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QDialog,
+from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal
+from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QDialog,
                                QDialogButtonBox,
                                QFileDialog, QHBoxLayout, QHeaderView, QLabel,
                                QLineEdit, QMessageBox, QProgressBar,
@@ -163,55 +163,302 @@ def _human_eta(seconds: float) -> str:
     return f"{int(seconds // 3600)}h {int((seconds % 3600) // 60)}m left"
 
 
-def install_backend_package(parent, entry) -> bool:
-    """Warn, then pip install a segmentation backend. True when it succeeded.
+class _BackendJob(QObject):
+    """Install or uninstall one backend off the GUI thread.
+
+    Emits numbers and text only; :class:`BackendInstallDialog` draws.
+
+    :param job: ``job(progress=..., cancel=...)`` returning the backend's
+        state afterwards.
+    :param cancel: the :class:`threading.Event` Cancel sets.
+    """
+
+    progressed = Signal(int, int, str)
+    succeeded = Signal(object)
+    failed = Signal(str)
+    cancelled = Signal()
+
+    def __init__(self, job, cancel):
+        """Hold the job and the event that stops it."""
+        super().__init__()
+        self._job = job
+        self._cancel = cancel
+
+    def run(self) -> None:
+        """Run the job, reporting as it goes."""
+        from ... import _segmentation_backends as backends
+
+        try:
+            state = self._job(
+                progress=lambda step, steps, text: self.progressed.emit(
+                    int(step), int(steps), str(text)),
+                cancel=self._cancel)
+        except (backends._InstallCancelled, backends._BackendCancelled):
+            self.cancelled.emit()
+        except Exception as exc:                            # noqa: BLE001
+            self.failed.emit(str(exc) or type(exc).__name__)
+        else:
+            self.succeeded.emit(state)
+
+
+class BackendInstallDialog(QDialog):
+    """Install, or uninstall, one segmentation backend, with progress and
+    Cancel.
+
+    WHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an
+    environment of its own under ``~/.spacr/backends``; spaCR's own
+    environment is never touched, so nothing here can stop spaCR starting.
+    The dialog says where it goes, what it downloads, how large it is and
+    under what licence before Install is pressed.
+
+    THE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for
+    minutes -- runs on a worker thread; the dialog shows which step it is on
+    and pip's latest line, and Cancel stops pip and everything it started
+    and removes the half-built environment. A failure shows the failing
+    command's own output, verbatim.
+
+    :param name: the backend, e.g. ``'cellpose3'``.
+    :param parent: the widget that opened it.
+    :param uninstall: remove the backend's environment instead.
+    :param job: ``job(progress=..., cancel=...)``; the real install or
+        uninstall when None. Tests pass their own.
+    """
+
+    def __init__(self, name: str, parent: Optional[QWidget] = None, *,
+                 uninstall: bool = False, job=None):
+        """Describe the backend and wait for the button."""
+        super().__init__(parent)
+        from ... import _segmentation_backends as backends
+        from ..preferences import scaled_px
+
+        spec = backends._spec(name)
+        self._name = spec.name
+        self._label = spec.label
+        self._uninstall = bool(uninstall)
+        self._cancel = threading.Event()
+        self._thread = None
+        self._worker = None
+        self._close_when_done = False
+        self.state = None
+        self.installed = False
+        self.removed = False
+        if job is None:
+            if self._uninstall:
+                def job(progress=None, cancel=None, _name=spec.name):
+                    """Remove the environment; there is nothing to cancel."""
+                    return backends._uninstall_backend(_name)
+            else:
+                def job(progress=None, cancel=None, _name=spec.name):
+                    """Build the environment and install into it."""
+                    return backends._install_backend(
+                        _name, progress=progress, cancel=cancel)
+        self._job = job
+
+        state = backends._backend_state(spec.name)
+        verb = "Uninstall" if self._uninstall else "Install"
+        self.setWindowTitle(f"{verb} {spec.label}")
+        self.setMinimumWidth(scaled_px(560))
+        layout = QVBoxLayout(self)
+
+        if self._uninstall:
+            text = (f"Uninstalling {spec.label} deletes its environment, "
+                    f"{state.env}, and everything downloaded into it. "
+                    "spaCR's own environment is not touched, and you can "
+                    "install it again at any time.")
+        else:
+            packages = ", ".join(spec.torch + spec.requirements)
+            text = (f"{spec.blurb}\n\nIt installs into an environment of its "
+                    f"own, {state.env}, and spaCR's own environment is not "
+                    f"changed. pip downloads {packages} from PyPI: about "
+                    f"{spec.size_gb:.0f} GB with a CPU PyTorch, several more "
+                    "with a CUDA one. It can take several minutes; the "
+                    "window keeps responding, and Cancel stops it and "
+                    f"removes what it built.\n\nLicence: {spec.licence_note}")
+        self.blurb = QLabel(text, self)
+        self.blurb.setWordWrap(True)
+        self.blurb.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        layout.addWidget(self.blurb)
+
+        self.reason = QLabel("", self)
+        self.reason.setWordWrap(True)
+        self.reason.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        layout.addWidget(self.reason)
+
+        self.progress = QProgressBar(self)
+        self.progress.setVisible(False)
+        layout.addWidget(self.progress)
+
+        self.status = QLabel("", self)
+        self.status.setWordWrap(True)
+        self.status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        layout.addWidget(self.status)
+
+        from PySide6.QtWidgets import QPlainTextEdit
+
+        self.details = QPlainTextEdit(self)
+        self.details.setReadOnly(True)
+        self.details.setVisible(False)
+        self.details.setMinimumHeight(scaled_px(160))
+        layout.addWidget(self.details, 1)
+
+        buttons = QDialogButtonBox(self)
+        self.start_button = buttons.addButton(verb, QDialogButtonBox.AcceptRole)
+        self.start_button.clicked.connect(self.start)
+        self.cancel_button = buttons.addButton(QDialogButtonBox.Cancel)
+        self.cancel_button.clicked.connect(self.reject)
+        layout.addWidget(buttons)
+
+        blocked = (not self._uninstall
+                   and state.state == backends._UNAVAILABLE)
+        if blocked:
+            self.reason.setText(f"Not installable here: {state.reason}")
+            if not state.reason.startswith("no network"):
+                self.start_button.setEnabled(False)
+            else:
+                self.start_button.setText("Try anyway")
+        elif not self._uninstall and state.state == backends._INSTALLING:
+            self.reason.setText(f"{spec.label} is {state.reason}")
+            self.start_button.setEnabled(False)
+
+    @property
+    def running(self) -> bool:
+        """Whether the install or uninstall is in progress."""
+        return self._thread is not None
+
+    def start(self) -> None:
+        """Start the job on a worker thread."""
+        if self.running:
+            return
+        self._cancel.clear()
+        self.details.setVisible(False)
+        self.details.setPlainText("")
+        self.reason.setText("")
+        self.progress.setVisible(True)
+        self.progress.setRange(0, 0)
+        self.start_button.setEnabled(False)
+        self.cancel_button.setEnabled(not self._uninstall)
+        self.status.setText("Removing…" if self._uninstall else "Starting…")
+        self._thread = QThread(self)
+        self._worker = _BackendJob(self._job, self._cancel)
+        self._worker.moveToThread(self._thread)
+        self._thread.started.connect(self._worker.run)
+        self._worker.progressed.connect(self._on_progress)
+        self._worker.succeeded.connect(self._on_succeeded)
+        self._worker.failed.connect(self._on_failed)
+        self._worker.cancelled.connect(self._on_cancelled)
+        self._thread.start()
+
+    def _on_progress(self, step: int, steps: int, text: str) -> None:
+        """Show which step it is on, and the latest line it printed."""
+        if steps > 1:
+            self.progress.setRange(0, steps)
+            self.progress.setValue(max(0, min(step, steps)))
+            self.progress.setFormat(f"step {min(step + 1, steps)} of {steps}")
+        self.status.setText(text[:300])
+
+    def _join(self) -> None:
+        """Retire the worker thread."""
+        thread = self._thread
+        if thread is not None:
+            thread.quit()
+            thread.wait(10000)
+        self._thread = None
+        self._worker = None
+        self.progress.setVisible(False)
+
+    def _on_succeeded(self, state) -> None:
+        """Done: say so and close."""
+        self._join()
+        self.state = state
+        self.installed = bool(getattr(state, "ready", False))
+        self.removed = self._uninstall
+        self.status.setText(
+            f"{self._label} was uninstalled." if self._uninstall
+            else f"{self._label} is installed and ready.")
+        self.accept()
+
+    def _on_failed(self, message: str) -> None:
+        """Show the failure verbatim and offer to try again."""
+        self._join()
+        self.status.setText(
+            f"{'Uninstalling' if self._uninstall else 'Installing'} "
+            f"{self._label} failed. Nothing was left half-built.")
+        self.details.setPlainText(message)
+        self.details.setVisible(True)
+        self.start_button.setText("Try again")
+        self.start_button.setEnabled(True)
+        self.cancel_button.setEnabled(True)
+        self.cancel_button.setText("Close")
+        if self._close_when_done:
+            super().reject()
+
+    def _on_cancelled(self) -> None:
+        """Cancelled: the half-built environment is already gone."""
+        self._join()
+        self.status.setText("Cancelled. Nothing was left behind.")
+        self.start_button.setEnabled(True)
+        self.cancel_button.setEnabled(True)
+        self.cancel_button.setText("Close")
+        if self._close_when_done:
+            super().reject()
+
+    def reject(self) -> None:
+        """Cancel a running install; close once it has stopped."""
+        if self.running:
+            if self._uninstall:
+                return
+            self._close_when_done = True
+            self._cancel.set()
+            self.cancel_button.setEnabled(False)
+            self.status.setText("Cancelling…")
+            return
+        super().reject()
+
+    def closeEvent(self, event):                            # noqa: N802
+        """Closing the window is Cancel; it never leaves a thread behind."""
+        if self.running:
+            self.reject()
+            event.ignore()
+            return
+        super().closeEvent(event)
+
+
+def install_backend(parent, name: str) -> bool:
+    """Open the install dialog for one backend. True when it is ready after.
 
     Shared by the Model Zoo screen, the Model Zoo button and the Make Masks
-    Mode box, so the three places that can start this install say the same
-    thing about what it risks.
+    Mode box, so the three places that can start an install say the same
+    thing about it and run the same install.
 
-    The warning is not a formality: this runs pip against the environment
-    spaCR is running in, these backends bring their own torch pin, and a
-    package that replaces torch underneath a running process is how an
-    application stops starting.
+    :param parent: the widget asking.
+    :param name: the backend.
     """
-    import subprocess
-    import sys
+    dialog = BackendInstallDialog(name, parent)
+    dialog.exec()
+    return dialog.installed
 
-    extra = str(getattr(entry, "uri", "")).split("pip:", 1)[-1]
-    label = getattr(entry, "name", extra)
-    if QMessageBox.warning(
-            parent, f"Install {label}?",
-            f"{label} is a package, not a checkpoint.\n\nInstalling it runs:"
-            f"\n    pip install \"{extra}\"\n\ninto the environment spaCR is "
-            "running in. It downloads a large package and may change the "
-            "installed version of torch, which can affect Cellpose and, in the "
-            "worst case, stop spaCR starting. It can take several minutes and "
-            "the window will not respond while it runs.\n\nInstall it now?",
-            QMessageBox.Yes | QMessageBox.Cancel,
-            QMessageBox.Cancel) != QMessageBox.Yes:
-        return False
-    QApplication.setOverrideCursor(Qt.WaitCursor)
-    try:
-        done = subprocess.run([sys.executable, "-m", "pip", "install", extra],
-                              capture_output=True, text=True)
-    except Exception as exc:                                 # noqa: BLE001
-        QApplication.restoreOverrideCursor()
-        QMessageBox.warning(parent, "Install failed", str(exc))
-        return False
-    QApplication.restoreOverrideCursor()
-    if done.returncode != 0:
-        tail = (done.stderr or done.stdout or "").strip().splitlines()
-        QMessageBox.warning(parent, "Install failed",
-                            f"pip exited {done.returncode}.\n\n"
-                            + "\n".join(tail[-8:] or ["No output."]))
-        return False
-    QMessageBox.information(
-        parent, "Installed",
-        f"{label} was installed and is selected. It is available as a "
-        "segmentation mode in Make Masks; restart spaCR if it does not appear "
-        "straight away.")
-    return True
+
+def uninstall_backend(parent, name: str) -> bool:
+    """Open the uninstall dialog for one backend. True when it was removed.
+
+    :param parent: the widget asking.
+    :param name: the backend.
+    """
+    dialog = BackendInstallDialog(name, parent, uninstall=True)
+    dialog.exec()
+    return dialog.removed
+
+
+def install_backend_package(parent, entry) -> bool:
+    """Install the backend a zoo row needs. True when it is ready after.
+
+    :param parent: the widget asking.
+    :param entry: a ``backend`` row, or a ``cellpose3`` model row.
+    """
+    from ... import model_zoo
+
+    name = model_zoo._backend_for(entry)
+    return bool(name) and install_backend(parent, name)
 
 
 class ModelZooPicker(QDialog):
@@ -315,6 +562,12 @@ class ModelZooPicker(QDialog):
         self.download_button = buttons.addButton(
             "Download", QDialogButtonBox.ActionRole)
         self.download_button.clicked.connect(self._download_selected)
+        self.uninstall_button = buttons.addButton(
+            "Uninstall", QDialogButtonBox.ActionRole)
+        self.uninstall_button.setToolTip(
+            "Delete the selected backend's environment and everything "
+            "downloaded into it. spaCR's own environment is not touched.")
+        self.uninstall_button.clicked.connect(self._uninstall_selected)
         self.use_button = buttons.addButton("Use this model",
                                             QDialogButtonBox.AcceptRole)
         buttons.addButton(QDialogButtonBox.Cancel)
@@ -324,6 +577,7 @@ class ModelZooPicker(QDialog):
 
         self.refresh()
         self._warm_the_community_catalogue()
+        self._probe_backends()
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
@@ -388,6 +642,42 @@ class ModelZooPicker(QDialog):
                 pass
 
         threading.Thread(target=_warm_bioimageio, daemon=True).start()
+
+    def _probe_backends(self) -> None:
+        """Check the network for the backends that are not installed, off
+        the GUI thread, and redraw their rows if it is not there.
+
+        A row that says "not installable here: no network" BEFORE the click
+        is the point; without this the reason arrived only after the user
+        had pressed Install. The thread touches no widget: it records what
+        it found in :mod:`spacr._segmentation_backends`, and a timer owned
+        by this dialog notices and redraws.
+        """
+        from ... import _segmentation_backends as backends
+
+        found: dict = {}
+        done = threading.Event()
+
+        def _probe():
+            try:
+                found.update(backends._probe_blockers())
+            finally:
+                done.set()
+
+        timer = QTimer(self)
+
+        def _landed():
+            if not done.is_set():
+                return
+            timer.stop()
+            if found:
+                self.refresh()
+
+        self._probe_timer = timer
+        timer.setInterval(250)
+        timer.timeout.connect(_landed)
+        timer.start()
+        threading.Thread(target=_probe, daemon=True).start()
 
     def refresh(self) -> None:
         """Reload the catalogue and redraw the table.
@@ -462,17 +752,20 @@ class ModelZooPicker(QDialog):
             stem,
             entry.kind,
             (entry.trained_on or "")[:160],
-            "on this machine" if local else "not downloaded",
+            _status_text(entry, local),
         )
         from ... import model_zoo
 
         tip = model_zoo.scorecard_html(entry)
+        notes = tuple(getattr(entry, "notes", ()) or ())
         for column, text in enumerate(cells):
             item = table_item(str(text))
             if tip:
                 item.setToolTip(tip)
             elif column == 3 and local:
                 item.setToolTip(local)
+            elif column == 3 and notes:
+                item.setToolTip(notes[0])
             self.table.setItem(row, column, item)
 
     def _version_picked(self, row: int, index: int) -> None:
@@ -621,22 +914,21 @@ class ModelZooPicker(QDialog):
         self.status.setText("")
 
     def _row_clicked(self, item) -> None:
-        """Clicking an uninstalled backend offers to install it."""
+        """Clicking an uninstalled backend, or a Cellpose 3 model whose
+        backend is not installed, offers the install."""
         entry = self.selected_entry()
-        if entry is None or getattr(entry, "kind", "") != "backend":
-            return
-        if getattr(entry, "source", "") == "installed":
-            return
-        self._install_backend(entry)
+        if entry is not None and _needs_install(entry):
+            self._install_backend(entry)
 
     def _install_backend(self, entry) -> None:
         """Install a backend, then leave its row selected."""
         label = getattr(entry, "name", "")
         self.status.setText(f"Installing {label}…")
-        if not install_backend_package(self, entry):
+        installed = install_backend_package(self, entry)
+        self.refresh()
+        if not installed:
             self.status.setText("")
             return
-        self.refresh()
         # Leave the row the user just installed selected, so "install it and
         # use it" is one action rather than install-then-hunt-for-the-row.
         for row, (stem, pairs) in enumerate(self._groups):
@@ -686,10 +978,17 @@ class ModelZooPicker(QDialog):
         """
         entry = self.selected_entry()
         local = self._local_path(entry) if entry else None
-        self.use_button.setEnabled(bool(local))
-        self.download_button.setEnabled(bool(entry) and not local)
+        installs = entry is not None and _needs_install(entry)
+        backend_row = getattr(entry, "kind", "") == "backend"
+        self.use_button.setEnabled(bool(local) and not backend_row)
+        self.download_button.setText("Install" if installs else "Download")
+        self.download_button.setEnabled(
+            bool(entry) and not local and not backend_row or installs)
+        self.uninstall_button.setEnabled(_removable(entry))
         self._show_card(entry)
-        if entry is not None and not getattr(entry, "sha256", ""):
+        if installs or backend_row:
+            self.status.setText("")
+        elif entry is not None and not getattr(entry, "sha256", ""):
             self.status.setText(
                 "This model publishes no checksum, so a truncated or "
                 "substituted file could not be told from the real one. "
@@ -726,9 +1025,9 @@ class ModelZooPicker(QDialog):
             html += (f"<p><b style='color:#b45309'>{_zoo.COMMUNITY_WARNING}"
                      "</b></p>")
         if getattr(entry, "kind", "") == "backend":
-            state = ("installed" if getattr(entry, "source", "") == "installed"
-                     else "not installed — press Download to install it")
-            html += f"<p><i>Segmentation backend: {state}.</i></p>"
+            html += _backend_card(entry)
+        elif getattr(entry, "kind", "") == "cellpose3":
+            html += _cellpose3_card(entry)
         url = getattr(entry, "model_card_url", "")
         if url:
             html += f'<p><a href="{url}">{url}</a></p>'
@@ -751,7 +1050,7 @@ class ModelZooPicker(QDialog):
         entry = self.selected_entry()
         if entry is None:
             return
-        if getattr(entry, "kind", "") == "backend":
+        if _needs_install(entry) or getattr(entry, "kind", "") == "backend":
             self._install_backend(entry)
             return
         folder = self.folder_edit.text().strip() or DEFAULT_MODEL_DIR
@@ -797,6 +1096,17 @@ class ModelZooPicker(QDialog):
         self._worker.finished.connect(self._on_download_finished)
         self._worker.failed.connect(self._on_download_failed)
         self._thread.start()
+
+    def _uninstall_selected(self) -> None:
+        """Remove the selected backend's environment, after asking."""
+        from ... import model_zoo
+
+        entry = self.selected_entry()
+        if not _removable(entry):
+            return
+        if uninstall_backend(self, model_zoo._backend_for(entry)):
+            self.refresh()
+            self.status.setText(f"{entry.name} was uninstalled.")
 
     def _on_progress(self, done: int, total: int) -> None:
         """Draw percent, speed and time remaining.
@@ -910,6 +1220,88 @@ class ModelZooPicker(QDialog):
     def chosen_path(self) -> Optional[str]:
         """The path the user accepted, or ``None`` if they cancelled."""
         return self._chosen_path
+
+
+#: What a backend row's Status cell says, by state.
+_BACKEND_STATUS = {
+    "installed": "installed",
+    "installable": "not installed — click to install",
+    "installing": "installing…",
+    "not installable here": "not installable here",
+}
+
+
+def _status_text(entry, local) -> str:
+    """The Status cell: on this machine or not, and for a backend, its state.
+
+    :param entry: the row's entry.
+    :param local: where it is on this machine, or a falsy value.
+    """
+    kind = getattr(entry, "kind", "")
+    source = getattr(entry, "source", "")
+    if kind == "backend":
+        return _BACKEND_STATUS.get(source, source)
+    if kind == "cellpose3" and source == "stock" and not local:
+        return "needs the Cellpose 3 backend"
+    return "on this machine" if local else "not downloaded"
+
+
+def _needs_install(entry) -> bool:
+    """Whether choosing this row should offer a backend install first.
+
+    True for a backend that is not installed, and for a Cellpose 3 model of
+    the backend's own while the backend is not installed. A bioimage.io
+    Cellpose 3 checkpoint downloads like any other model; the card says what
+    it needs to run.
+    """
+    kind = getattr(entry, "kind", "")
+    if kind == "backend":
+        return getattr(entry, "source", "") not in ("installed", "installing")
+    return (kind == "cellpose3" and getattr(entry, "source", "") == "stock"
+            and not getattr(entry, "path", ""))
+
+
+def _removable(entry) -> bool:
+    """Whether the Uninstall button applies: a backend installed in an
+    environment of its own. One an older spaCR installed into spaCR's own
+    environment is not spaCR's to remove."""
+    return (entry is not None and getattr(entry, "kind", "") == "backend"
+            and getattr(entry, "source", "") == "installed"
+            and bool(getattr(entry, "path", "")))
+
+
+def _backend_card(entry) -> str:
+    """A backend row's card: its state and why, and its licence."""
+    import html as _html
+
+    notes = [str(n) for n in (getattr(entry, "notes", ()) or ())]
+    state = notes[0] if notes else str(getattr(entry, "source", ""))
+    out = f"<p><i>Segmentation backend — {_html.escape(state)}</i></p>"
+    licence = getattr(entry, "licence", "")
+    if len(notes) > 1:
+        out += f"<p>Licence: {_html.escape(notes[1])}</p>"
+    elif licence:
+        out += f"<p>Licence: {_html.escape(licence)}</p>"
+    return out
+
+
+def _cellpose3_card(entry) -> str:
+    """A Cellpose 3 model's card: whether the backend is here, and the
+    licence the model was published under."""
+    import html as _html
+
+    from ... import _segmentation_backends as backends
+
+    ready = backends._backend_state("cellpose3").ready
+    out = ("<p><i>Runs through the Cellpose 3 backend, which is "
+           + ("installed" if ready else
+              "not installed — press Install to install it")
+           + ". Set segmentation_backend to cellpose3 to segment with it."
+           "</i></p>")
+    licence = getattr(entry, "licence", "")
+    if licence:
+        out += f"<p>Licence: {_html.escape(licence)}</p>"
+    return out
 
 
 def choose_model(parent: Optional[QWidget] = None,

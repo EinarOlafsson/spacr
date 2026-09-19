@@ -8,7 +8,8 @@ no leading-underscore module, and everything below is underscore-private, so
 this docstring carries the design without adding a page that would need
 translating.
 
-Items 404 (DINOCell) and 405 (SAMCell), built as ONE seam rather than two.
+Items 404 (DINOCell), 405 (SAMCell) and 423 (Cellpose 3, and one environment
+per backend), built as ONE seam rather than three.
 `generate_cellpose_masks_sam` builds a model and calls
 `model.eval(x=batch_list, ...)`; every backend here answers that same call
 with the `(masks, flows, styles)` triple Cellpose 4 returns, so the lines
@@ -17,25 +18,68 @@ object-count database, saving and segmentation QC -- run unchanged. The only
 dispatch is at model construction, and segmentation_backend='cellpose' (or
 the key absent) never reaches this module's loaders at all.
 
+WHERE A BACKEND RUNS. Maintainer's decision, 2026-09-19: "Isolated env per
+backend! But with the addition of adding cellpose 3 and its cyto, nucleus,
+and cyto2 and cyto3 models." Each optional backend is installed into an
+environment of its own under ``~/.spacr/backends/<name>`` (or
+``$SPACR_BACKENDS_DIR/<name>``), and spaCR calls it out of process. spaCR's
+own environment is never modified: DINOCell pins exact versions of torch,
+numpy and Cellpose 4 that conflict with spaCR's, and Cellpose 3 cannot share
+a process with the Cellpose 4 spaCR runs at all.
+
+THIS FILE IS ALSO THE WORKER. Inside a backend environment spaCR runs
+``<env python> -I _segmentation_backends.py --serve <name>``. At module scope
+this file imports only the standard library and numpy, which every backend
+environment has, so the adapters below run there without spaCR installed.
+``-I`` keeps the script's own folder -- spaCR's package directory, whose
+``io.py`` and friends would shadow the standard library -- off ``sys.path``.
+
+WHY VENV AND NOT CONDA. ``venv`` is in the standard library on Linux, macOS
+and Windows, needs no conda on the machine, and builds an environment in
+seconds; pip then fills it from PyPI, where all three projects publish. Its
+one limit is that the environment's Python is a Python already on the
+computer: spaCR's own when it is in the range a backend's pins install on,
+otherwise a ``python3.X`` on PATH (or ``py -3.X`` on Windows). When there is
+none, the row says so -- "not installable here" with the reason -- rather
+than half-building something.
+
+THE PROTOCOL, version :data:`_PROTOCOL`: one JSON object per line in each
+direction over the worker's stdin and stdout. The worker moves its own
+stdout to stderr before loading anything, so a library that prints cannot
+corrupt a reply. Images and masks travel as ``.npy`` files in a temporary
+folder, never inside the JSON. Requests: ``hello`` (versions and device),
+``segment`` and ``shutdown``. A failure comes back as the exception's type,
+message and traceback, and spaCR raises it with the message VERBATIM.
+
 HOW EACH BACKEND BECOMES A MASK
 
-* DINOCell (`pip install "spacr[dinocell]"`) predicts Cellpose-style flows:
-  (dx, dy, cell probability). Masks come from
-  `cellpose.dynamics.compute_masks`, called with the constants DINOCell's
-  own `DINOFlowsSlidingWindowPipeline.run` uses (250 iterations, flow-error
-  check off, minimum size 15, maximum size fraction 0.4). Its probability is
-  a sigmoid output, so spaCR's `<object>_cellprob_threshold` -- a Cellpose
-  logit -- is applied through the logistic function: the default 0 is
-  DINOCell's own 0.5.
-* SAMCell (`pip install "spacr[samcell]"`) is SAM ViT-B fine-tuned to
-  predict a cell distance map. Masks come from SAMCell's own
-  `SlidingWindowPipeline.cells_from_dist_map` (contour centroids as seeds,
-  watershed inside the fill threshold), with its default thresholds.
+* Cellpose 3 (``cellpose==3.1.1.3``) runs its own ``cyto``, ``cyto2``,
+  ``cyto3`` or ``nuclei`` model through ``models.Cellpose``, which estimates
+  the diameter with Cellpose's size model when none is given, or a
+  Cellpose-format checkpoint file -- a bioimage.io download, say -- through
+  ``models.CellposeModel``. An object whose batch carries a second channel
+  (a cell with its nucleus) is segmented as ``channels=[1, 2]``.
+* DINOCell predicts Cellpose-style flows: (dx, dy, cell probability). Masks
+  come from `cellpose.dynamics.compute_masks`, called with the constants
+  DINOCell's own `DINOFlowsSlidingWindowPipeline.run` uses (250 iterations,
+  flow-error check off, minimum size 15, maximum size fraction 0.4). Its
+  probability is a sigmoid output, so spaCR's `<object>_cellprob_threshold`
+  -- a Cellpose logit -- is applied through the logistic function: the
+  default 0 is DINOCell's own 0.5.
+* SAMCell is SAM ViT-B fine-tuned to predict a cell distance map. Masks come
+  from SAMCell's own `SlidingWindowPipeline.cells_from_dist_map` (contour
+  centroids as seeds, watershed inside the fill threshold), with its default
+  thresholds.
 
-Both are single-channel 2-D models. Each reads the object's own channel (the
-first in the batch, as `_get_cellpose_channels` orders them), stretched to
-8 bits because both packages quantise their input to uint8 before CLAHE.
-z-stack and t-stack runs are refused rather than flattened.
+DINOCell and SAMCell are single-channel 2-D models: each reads the object's
+own channel (the first in the batch, as `_get_cellpose_channels` orders
+them), stretched to 8 bits because both packages quantise their input to
+uint8 before CLAHE. z-stack and t-stack runs are refused for every backend
+here rather than flattened.
+
+A DINOCell or SAMCell that an older spaCR pip-installed INTO spaCR's own
+environment still works, in process, exactly as before; a backend
+environment wins when both exist.
 
 Nothing here imports torch, cellpose, transformers or either package at
 module scope (item 282); tests/test_perf_guard.py holds the launch path to
@@ -43,17 +87,84 @@ that.
 """
 from __future__ import annotations
 
+import atexit
+import collections
+import json
+import logging
 import math
 import os
+import queue
+import re
+import shutil
+import signal
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+from dataclasses import dataclass, field
 
 import numpy as np
 
+LOG = logging.getLogger(__name__)
+
 _CELLPOSE = "cellpose"
+_CELLPOSE3 = "cellpose3"
 _DINOCELL = "dinocell"
 _SAMCELL = "samcell"
 
 #: Every value ``segmentation_backend`` accepts, the default first.
-_BACKEND_NAMES = (_CELLPOSE, _DINOCELL, _SAMCELL)
+_BACKEND_NAMES = (_CELLPOSE, _CELLPOSE3, _DINOCELL, _SAMCELL)
+
+#: The models the Cellpose 3 backend names, as Cellpose 3 names them.
+_CELLPOSE3_MODELS = ("cyto3", "cyto2", "cyto", "nuclei")
+
+#: The request/response protocol between spaCR and a backend worker.
+_PROTOCOL = 1
+
+#: Written into a backend environment LAST; an environment without it is an
+#: install that did not finish.
+_MARKER = "spacr-backend.json"
+
+#: Environment variable naming the folder backend environments live in.
+_ROOT_ENV = "SPACR_BACKENDS_DIR"
+
+#: Environment variable naming the PyTorch wheel index for backend installs;
+#: ``pypi`` means PyPI's own torch.
+_TORCH_INDEX_ENV = "SPACR_BACKEND_TORCH_INDEX"
+
+#: PyTorch's wheel indexes, one folder per build (``cpu``, ``cu124``, ...).
+_TORCH_WHEELS = "https://download.pytorch.org/whl/"
+
+#: spaCR's device override, honoured by the workers too.
+_DEVICE_ENV = "SPACR_DEVICE"
+
+_INSTALLED = "installed"
+_INSTALLABLE = "installable"
+_INSTALLING = "installing"
+_UNAVAILABLE = "not installable here"
+
+#: Every state a backend row can be in.
+_STATES = (_INSTALLED, _INSTALLABLE, _INSTALLING, _UNAVAILABLE)
+
+#: How long a failed network or interpreter probe keeps a row unavailable.
+_PROBE_SECONDS = 600.0
+
+#: A worker nobody has asked anything for this long is shut down; the next
+#: request starts it again.
+_IDLE_SECONDS = 600.0
+
+#: Variables that would send pip, or the backend's Python, somewhere other
+#: than the backend's own environment.
+_STRIPPED_VARIABLES = (
+    "PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "PYTHONUSERBASE",
+    "PIP_USER", "PIP_TARGET", "PIP_PREFIX", "PIP_ROOT",
+    "PIP_REQUIRE_VIRTUALENV", "__PYVENV_LAUNCHER__",
+)
+
+#: What a candidate interpreter must be able to do to build an environment.
+_INTERPRETER_CHECK = (
+    "import sys, venv, ensurepip; print('%d.%d' % sys.version_info[:2])")
 
 #: DINOCell's inference constants, copied from ``dinocell.main.segment`` and
 #: ``DINOFlowsSlidingWindowPipeline.run`` (dinocell 0.74).
@@ -70,9 +181,186 @@ _SAMCELL_CROP = 256
 _SAMCELL_RELEASE = (
     "https://github.com/saahilsanganeriya/SAMCell/releases/download/v1/")
 _SAMCELL_WEIGHTS = {
-    "generalist": "samcell-generalist.pt",   # LIVECell + Cellpose cytoplasm
-    "cyto": "samcell-cyto.pt",               # Cellpose cytoplasm only
+    "generalist": "samcell-generalist.pt",
+    "cyto": "samcell-cyto.pt",
 }
+
+
+@dataclass(frozen=True)
+class _BackendSpec:
+    """What one optional backend installs, and what installing it needs.
+
+    :param name: the ``segmentation_backend`` value.
+    :param label: what a person reads.
+    :param module: the package's import name.
+    :param probe: the modules the self-test imports -- the ones the adapter
+        imports, so an environment missing a dependency fails during the
+        install rather than on the first field.
+    :param distribution: the pip distribution whose version is recorded.
+    :param requirements: what pip installs, pinned to the release this
+        adapter was written against.
+    :param torch: PyTorch requirements installed first, from the wheel index
+        that matches spaCR's own PyTorch build.
+    :param python: the lowest and highest ``(major, minor)`` the pins install
+        on.
+    :param platforms: ``sys.platform`` prefixes the backend runs on.
+    :param licence: the SPDX identifier of the package's licence.
+    :param licence_note: the licence in a sentence, with where the weights
+        come from and under what terms.
+    :param homepage: the project's page.
+    :param size_gb: roughly the disk a CPU install takes; a CUDA build of
+        PyTorch takes several gigabytes more.
+    :param in_process: whether a copy an older spaCR installed into spaCR's
+        own environment is still used.
+    :param models: the named models the backend offers.
+    :param blurb: one sentence for the zoo row.
+    """
+
+    name: str
+    label: str
+    module: str
+    probe: tuple
+    distribution: str
+    requirements: tuple
+    torch: tuple
+    python: tuple
+    platforms: tuple = ("linux", "darwin", "win32")
+    licence: str = ""
+    licence_note: str = ""
+    homepage: str = ""
+    size_gb: float = 2.0
+    in_process: bool = False
+    models: tuple = ()
+    blurb: str = ""
+
+
+#: Every optional backend. The versions are the ones each adapter was
+#: written and tested against; the licences were read from each release's
+#: own LICENSE file and PyPI record on 2026-09-19. ``packaging`` is in
+#: Cellpose 3's list because fastremap 1.20, which Cellpose 3 needs, imports
+#: it without declaring it: measured on the first real install, 2026-09-19.
+_SPECS = {
+    _CELLPOSE3: _BackendSpec(
+        name=_CELLPOSE3, label="Cellpose 3", module="cellpose",
+        probe=("cellpose.models",), distribution="cellpose",
+        requirements=("cellpose==3.1.1.3", "packaging"),
+        torch=("torch",), python=((3, 9), (3, 12)),
+        licence="BSD-3-Clause",
+        licence_note=(
+            "Cellpose 3.1.1.3 is BSD-3-Clause (Copyright 2020 Howard Hughes "
+            "Medical Institute). Cellpose downloads its cyto, cyto2, cyto3 "
+            "and nuclei weights from cellpose.org itself, into the "
+            "backend's own folder."),
+        homepage="https://github.com/MouseLand/cellpose", size_gb=2.0,
+        models=_CELLPOSE3_MODELS,
+        blurb=(
+            "Cellpose 3 with its cyto3, cyto2, cyto and nuclei models, and "
+            "any Cellpose-format model added from bioimage.io. It runs in "
+            "an environment of its own, so spaCR's Cellpose 4 is "
+            "untouched.")),
+    _DINOCELL: _BackendSpec(
+        name=_DINOCELL, label="DINOCell", module="dinocell",
+        probe=("dinocell.main", "dinocell.model", "dinocell.pipeline",
+               "cellpose.dynamics", "cv2"),
+        distribution="dinocell", requirements=("dinocell==0.74",),
+        torch=("torch==2.10.0", "torchvision==0.25.0"),
+        python=((3, 11), (3, 14)), licence="MIT",
+        licence_note=(
+            "DINOCell 0.74 is MIT (Copyright 2026 Kaden Stillwagon); its "
+            "weights, KadenStillwagon/DINOCell on Hugging Face, are MIT "
+            "too."),
+        homepage="https://github.com/kadenstillwagon/DINOCell", size_gb=3.0,
+        in_process=True,
+        blurb=(
+            "DINOCell, a DINOv2 model that predicts Cellpose-style flows, "
+            "for live-cell and label-free images. It pins its own torch, "
+            "numpy and Cellpose, so it runs in an environment of its own.")),
+    _SAMCELL: _BackendSpec(
+        name=_SAMCELL, label="SAMCell", module="samcell",
+        probe=("samcell.model", "samcell.pipeline"),
+        distribution="samcell", requirements=("samcell==1.2.0",),
+        torch=("torch",), python=((3, 9), (3, 14)), licence="MIT",
+        licence_note=(
+            "SAMCell 1.2.0 is MIT (Copyright 2025 Saahil Sanganeriya). It "
+            "fine-tunes facebook/sam-vit-base, which is Apache-2.0, and its "
+            "checkpoints come from the project's GitHub release."),
+        homepage="https://github.com/saahilsanganeriya/SAMCell", size_gb=3.0,
+        in_process=True,
+        blurb=(
+            "SAMCell, SAM ViT-B fine-tuned to predict a cell distance map, "
+            "trained partly on LIVECell. It runs in an environment of its "
+            "own.")),
+}
+
+
+class _InstallFailed(RuntimeError):
+    """An install step failed; the message carries its output verbatim."""
+
+
+class _InstallBlocked(_InstallFailed):
+    """This computer cannot install the backend; the message says why."""
+
+
+class _InstallCancelled(RuntimeError):
+    """The person pressed Cancel. Nothing was left behind."""
+
+
+class _BackendError(RuntimeError):
+    """A backend's own failure, raised in spaCR with its message verbatim.
+
+    :param message: what happened, beginning with the backend's name.
+    :param remote_type: the exception's class name inside the worker.
+    :param remote_traceback: its traceback there, for a bug report.
+    """
+
+    def __init__(self, message, remote_type="", remote_traceback=""):
+        """Keep the worker's exception type and traceback beside the message."""
+        super().__init__(message)
+        self.remote_type = remote_type
+        self.remote_traceback = remote_traceback
+
+
+class _BackendCancelled(RuntimeError):
+    """A request was abandoned mid-flight; its worker was stopped."""
+
+
+@dataclass(frozen=True)
+class _BackendState:
+    """Where one optional backend stands on this computer.
+
+    :param name: the backend.
+    :param state: one of :data:`_STATES`.
+    :param reason: why, in a sentence -- where it is installed, what is
+        installing it, or what stops it being installed here.
+    :param env: its environment's folder, whether or not it exists.
+    :param record: what the install recorded -- versions, device, interpreter.
+    :param in_process: installed inside spaCR's own environment by an older
+        spaCR, which this spaCR still uses but never removes.
+    """
+
+    name: str
+    state: str
+    reason: str = ""
+    env: str = ""
+    record: dict = field(default_factory=dict)
+    in_process: bool = False
+
+    @property
+    def ready(self):
+        """Whether it can segment now."""
+        return self.state == _INSTALLED
+
+
+def _spec(name):
+    """The spec for an optional backend.
+
+    :raises ValueError: for Cellpose 4 or a name spaCR has no backend for.
+    """
+    backend = _backend_name(name)
+    if backend not in _SPECS:
+        raise ValueError(
+            f"{backend!r} is spaCR's own Cellpose, not an optional backend")
+    return _SPECS[backend]
 
 
 def _backend_name(value):
@@ -95,11 +383,1137 @@ def _backend_name(value):
     return name
 
 
+def _cellpose3_model(model_name=None, object_type=None):
+    """The Cellpose 3 model an object's model setting selects.
+
+    A Cellpose 3 name, or a checkpoint file, is used as it is. A blank, or
+    the NAME of a model of another Cellpose -- spaCR's default ``cpsam`` --
+    means the Cellpose 3 model for the object: ``nuclei`` for nuclei,
+    ``cyto3`` for everything else. A PATH that is not there is refused:
+    Cellpose 3 itself would quietly run cyto3 in its place.
+
+    :param model_name: the object's ``<object>_model_name`` setting.
+    :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'``, ...
+    :returns: a model name or an absolute path.
+    :raises FileNotFoundError: for a path that names no file.
+    """
+    name = str(model_name or "").strip()
+    if name in _CELLPOSE3_MODELS:
+        return name
+    path = os.path.expanduser(name)
+    if name and os.path.isfile(path):
+        return os.path.abspath(path)
+    if name and (os.sep in name or "/" in name or os.path.splitext(name)[1]):
+        raise FileNotFoundError(
+            f"no Cellpose 3 model at {name!r}: the file is not there. Name "
+            f"one of {', '.join(_CELLPOSE3_MODELS)}, or the path of a "
+            f"Cellpose 3 checkpoint.")
+    return "nuclei" if object_type == "nucleus" else "cyto3"
+
+
+def _backends_root(root=None):
+    """The folder backend environments live in.
+
+    :param root: an explicit folder, which wins.
+    :returns: ``$SPACR_BACKENDS_DIR`` when set, else ``~/.spacr/backends``.
+    """
+    if root:
+        return os.path.abspath(os.path.expanduser(str(root)))
+    configured = os.environ.get(_ROOT_ENV, "").strip()
+    if configured:
+        return os.path.abspath(os.path.expanduser(configured))
+    return os.path.join(os.path.expanduser("~"), ".spacr", "backends")
+
+
+def _env_python(env, windows=None):
+    """The Python inside a backend environment.
+
+    :param env: the environment's folder.
+    :param windows: lay it out for Windows; the running system when None.
+    """
+    windows = (os.name == "nt") if windows is None else windows
+    if windows:
+        return os.path.join(env, "Scripts", "python.exe")
+    return os.path.join(env, "bin", "python")
+
+
+def _worker_path():
+    """This file, which is what a backend environment runs; None when the
+    running spaCR has no source file to hand it (a frozen build)."""
+    path = os.path.abspath(__file__)
+    if path.endswith(".py") and os.path.isfile(path):
+        return path
+    return None
+
+
+def _importable(module):
+    """Whether ``module`` imports in spaCR's own environment, without
+    importing it."""
+    from importlib.util import find_spec
+
+    try:
+        return find_spec(module) is not None
+    except (ImportError, ValueError):
+        return False
+
+
+def _pid_alive(pid):
+    """Whether a process id is running on this computer."""
+    if pid == os.getpid():
+        return True
+    try:
+        import psutil
+    except ImportError:
+        psutil = None
+    if psutil is not None:
+        return bool(psutil.pid_exists(pid))
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except OSError:
+        return True
+    return True
+
+
+def _lock_path(root, name):
+    """The file that says an install is running."""
+    return os.path.join(root, f"{name}.lock")
+
+
+def _read_lock(root, name):
+    """The running install's lock, or None when there is none or it is stale.
+
+    A lock written on another computer (a home folder shared over the
+    network) cannot be checked, so it is believed.
+    """
+    import socket
+
+    try:
+        with open(_lock_path(root, name), encoding="utf-8") as handle:
+            lock = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(lock, dict):
+        return None
+    if lock.get("host") and lock.get("host") != socket.gethostname():
+        return lock
+    try:
+        pid = int(lock.get("pid"))
+    except (TypeError, ValueError):
+        return None
+    return lock if _pid_alive(pid) else None
+
+
+def _acquire_lock(root, name):
+    """Claim the install of ``name``, or refuse because one is running.
+
+    :raises _InstallBlocked: when the folder cannot be written.
+    :raises _InstallFailed: when another install holds the lock.
+    """
+    import socket
+
+    try:
+        os.makedirs(root, exist_ok=True)
+    except OSError as exc:
+        raise _InstallBlocked(
+            f"spaCR cannot create {root}, where backend environments are "
+            f"kept: {exc}") from exc
+    path = _lock_path(root, name)
+    if os.path.exists(path):
+        if _read_lock(root, name) is not None:
+            raise _InstallFailed(
+                f"{_spec(name).label} is already being installed; its lock "
+                f"is {path}.")
+        os.remove(path)
+    try:
+        handle = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError as exc:
+        raise _InstallFailed(
+            f"{_spec(name).label} is already being installed; its lock is "
+            f"{path}.") from exc
+    except OSError as exc:
+        raise _InstallBlocked(
+            f"spaCR cannot write to {root}, where backend environments are "
+            f"kept: {exc}") from exc
+    with os.fdopen(handle, "w", encoding="utf-8") as stream:
+        json.dump({"pid": os.getpid(), "host": socket.gethostname(),
+                   "started": time.strftime("%Y-%m-%d %H:%M:%S")}, stream)
+
+
+def _release_lock(root, name):
+    """Drop the install lock; a lock already gone is fine."""
+    try:
+        os.remove(_lock_path(root, name))
+    except OSError:
+        pass
+
+
+def _read_marker(env):
+    """The finished install's record, or None."""
+    try:
+        with open(os.path.join(env, _MARKER), encoding="utf-8") as handle:
+            record = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    return record if isinstance(record, dict) else None
+
+
+def _write_marker(env, record):
+    """Write the install record atomically, so a half-written one is never
+    read as a finished install."""
+    path = os.path.join(env, _MARKER)
+    temporary = path + ".tmp"
+    with open(temporary, "w", encoding="utf-8") as handle:
+        json.dump(record, handle, indent=2, sort_keys=True)
+    os.replace(temporary, path)
+
+
+#: ``name -> interpreters`` found for it, once per process.
+_CANDIDATES = {}
+
+#: ``name -> (reason, time)`` from the last failed probe.
+_PROBED = {}
+
+
+def _interpreter_candidates(spec, *, executable=None, version=None,
+                            frozen=None, which=None, windows=None):
+    """Interpreters that could build ``spec``'s environment, best first.
+
+    spaCR's own Python when it is in range, then ``python3.X`` on PATH (or
+    the ``py -3.X`` launcher on Windows), newest first. Nothing is RUN here:
+    the install's preflight checks each candidate off the GUI thread.
+
+    :returns: a list of argv tuples.
+    """
+    lo, hi = spec.python
+    version = tuple(sys.version_info[:2]) if version is None else tuple(version)
+    frozen = bool(getattr(sys, "frozen", False)) if frozen is None else frozen
+    which = shutil.which if which is None else which
+    windows = (os.name == "nt") if windows is None else windows
+    found = []
+    if not frozen and lo <= version <= hi:
+        found.append((executable or sys.executable,))
+    for minor in range(hi[1], lo[1] - 1, -1):
+        if windows:
+            launcher = which("py")
+            if launcher:
+                found.append((launcher, f"-3.{minor}"))
+        else:
+            path = which(f"python3.{minor}")
+            if path:
+                found.append((path,))
+    unique = []
+    for candidate in found:
+        if candidate not in unique:
+            unique.append(candidate)
+    return unique
+
+
+def _candidates(spec):
+    """:func:`_interpreter_candidates`, looked up once per process."""
+    if spec.name not in _CANDIDATES:
+        _CANDIDATES[spec.name] = _interpreter_candidates(spec)
+    return _CANDIDATES[spec.name]
+
+
+def _versions(pair):
+    """``(3, 12)`` as ``3.12``."""
+    return f"{pair[0]}.{pair[1]}"
+
+
+def _nearest_existing(path):
+    """``path``, or the closest folder above it that exists."""
+    path = os.path.abspath(path)
+    while not os.path.exists(path):
+        parent = os.path.dirname(path)
+        if parent == path:
+            break
+        path = parent
+    return path
+
+
+def _static_blocker(spec, root, candidates):
+    """What stops ``spec`` being installed here, from facts that need no
+    network and no subprocess; ``''`` when nothing does."""
+    if not any(sys.platform.startswith(p) for p in spec.platforms):
+        return f"{spec.label} does not run on {sys.platform}."
+    if _worker_path() is None:
+        return ("this spaCR build ships no Python source for a backend "
+                "worker to run.")
+    if not candidates:
+        lo, hi = (_versions(p) for p in spec.python)
+        return (f"{spec.label} needs Python {lo} to {hi}. spaCR runs "
+                f"Python {_versions(sys.version_info[:2])}, and no Python "
+                f"{lo} to {hi} was found on this computer to build its "
+                f"environment with.")
+    where = _nearest_existing(root)
+    if not os.access(where, os.W_OK | os.X_OK):
+        return (f"spaCR cannot write to {where}, where backend environments "
+                f"are kept. Set {_ROOT_ENV} to a folder it can write.")
+    return ""
+
+
+def _backend_state(name, root=None):
+    """Where ``name`` stands: installed, installable, installing or not
+    installable here, and why.
+
+    Cheap enough for the GUI thread: a few file checks under the backends
+    folder, and no network and no subprocess. A network or interpreter
+    problem found by an earlier probe (:func:`_probe_blockers`, or an install
+    that stopped in its preflight) is reported for :data:`_PROBE_SECONDS`.
+
+    :param name: an optional backend.
+    :param root: the backends folder; see :func:`_backends_root`.
+    :returns: a :class:`_BackendState`.
+    """
+    spec = _spec(name)
+    root = _backends_root(root)
+    env = os.path.join(root, spec.name)
+    lock = _read_lock(root, spec.name)
+    if lock is not None:
+        return _BackendState(
+            spec.name, _INSTALLING,
+            f"being installed since {lock.get('started', '?')} by process "
+            f"{lock.get('pid', '?')}.", env)
+    record = _read_marker(env)
+    if record is not None and os.path.exists(_env_python(env)):
+        return _BackendState(
+            spec.name, _INSTALLED, f"in its own environment, {env}.", env,
+            record)
+    if spec.in_process and _importable(spec.module):
+        return _BackendState(
+            spec.name, _INSTALLED,
+            f"inside spaCR's own environment, where an older spaCR "
+            f"installed it; it runs inside spaCR. `pip uninstall "
+            f"{spec.distribution}` removes it from there.", env,
+            in_process=True)
+    blocker = _static_blocker(spec, root, _candidates(spec))
+    if blocker:
+        return _BackendState(spec.name, _UNAVAILABLE, blocker, env)
+    probed = _PROBED.get(spec.name)
+    if probed is not None and time.time() - probed[1] < _PROBE_SECONDS:
+        return _BackendState(spec.name, _UNAVAILABLE, probed[0], env)
+    if record is not None:
+        reason = (f"its environment at {env} lost its Python; installing "
+                  f"builds it again.")
+    elif os.path.isdir(env):
+        reason = ("an earlier install did not finish; installing starts "
+                  "again from the beginning.")
+    else:
+        reason = (f"installs into an environment of its own, {env}, and "
+                  f"leaves spaCR's own environment alone.")
+    return _BackendState(spec.name, _INSTALLABLE, reason, env)
+
+
+def _not_installed_message(name, state=None):
+    """The ImportError text for a backend that cannot segment yet."""
+    spec = _spec(name)
+    state = state or _backend_state(spec.name)
+    return (
+        f"{spec.label} is not installed ({state.state}: {state.reason}) "
+        f"Install it from the Model Zoo, which builds it an environment of "
+        f"its own under {state.env} and leaves spaCR's own environment "
+        f"alone, or segment with segmentation_backend='cellpose'.")
+
+
+def _probe_network(timeout=5.0, opener=None):
+    """``''`` when pip's index answers, else the reason it did not.
+
+    Any HTTP answer counts, a 403 or 404 included: the question is whether
+    the index is reachable, and proxies set in the environment are honoured
+    the way pip honours them.
+    """
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+
+    url = (os.environ.get("PIP_INDEX_URL", "").strip()
+           or "https://pypi.org/simple/pip/")
+    host = urllib.parse.urlsplit(url).hostname or url
+    opener = urllib.request.urlopen if opener is None else opener
+    try:
+        with opener(urllib.request.Request(url, method="HEAD"),
+                    timeout=timeout):
+            return ""
+    except urllib.error.HTTPError:
+        return ""
+    except Exception as exc:                                 # noqa: BLE001
+        return f"no network: pip's index at {host} could not be reached ({exc})."
+
+
+def _probe_blockers(names=None, root=None, probe=None):
+    """Check the network for every backend that could be installed.
+
+    For a background thread: rows then say "not installable here: no
+    network" BEFORE the click rather than after it.
+
+    :param names: the backends to check; every optional one when None.
+    :param root: the backends folder.
+    :param probe: the network check, for tests.
+    :returns: ``{name: reason}`` for each backend the network blocks.
+    """
+    names = list(_SPECS) if names is None else [_spec(n).name for n in names]
+    waiting = [n for n in names
+               if _backend_state(n, root).state in (_INSTALLABLE, _UNAVAILABLE)]
+    if not waiting:
+        return {}
+    problem = (probe or _probe_network)()
+    blocked = {}
+    for name in waiting:
+        if problem:
+            _PROBED[name] = (problem, time.time())
+            blocked[name] = problem
+        elif name in _PROBED and _PROBED[name][0].startswith("no network"):
+            del _PROBED[name]
+    return blocked
+
+
+def _torch_index_url(version=None):
+    """The PyTorch wheel index that matches spaCR's own PyTorch build.
+
+    A backend on a CUDA machine wants a CUDA torch, and one on a CPU-only
+    install should not download three gigabytes of CUDA libraries, so the
+    backend gets the same kind of PyTorch spaCR has: ``2.5.1+cu124`` means
+    the ``cu124`` index, ``+cpu`` the ``cpu`` one, and a plain version (PyPI's
+    own build) means PyPI. ``$SPACR_BACKEND_TORCH_INDEX`` overrides it, and
+    ``pypi`` there means PyPI.
+
+    :param version: spaCR's torch version; read from its metadata when None.
+    :returns: an index URL, or None for PyPI.
+    """
+    configured = os.environ.get(_TORCH_INDEX_ENV, "").strip()
+    if configured:
+        return None if configured.lower() in ("pypi", "default") else configured
+    if version is None:
+        from importlib.metadata import PackageNotFoundError
+        from importlib.metadata import version as _version
+
+        try:
+            version = _version("torch")
+        except PackageNotFoundError:
+            return None
+    local = str(version).partition("+")[2].strip().lower()
+    if re.fullmatch(r"cpu|cu\d+|rocm[\d.]+|xpu", local):
+        return _TORCH_WHEELS + local
+    return None
+
+
+@dataclass(frozen=True)
+class _Step:
+    """One command of an install.
+
+    :param label: what the progress line says.
+    :param argv: the command.
+    :param selftest: whether its last line is the worker's hello.
+    """
+
+    label: str
+    argv: tuple
+    selftest: bool = False
+
+
+def _install_plan(spec, env, interpreter, torch_index=None, worker=None):
+    """The commands that build ``spec``'s environment, in order.
+
+    Every pip here is the ENVIRONMENT'S pip, run as ``<env python> -m pip``;
+    nothing is ever run against spaCR's own interpreter except ``-m venv``,
+    which only reads it.
+
+    :param spec: the backend.
+    :param env: the environment's folder.
+    :param interpreter: the argv of the Python that builds it.
+    :param torch_index: a PyTorch wheel index, or None for PyPI.
+    :param worker: this file's path, for the self-test.
+    :returns: a list of :class:`_Step`.
+    """
+    python = _env_python(env)
+    pip = (python, "-m", "pip", "install", "--disable-pip-version-check",
+           "--no-input", "--progress-bar", "off")
+    steps = [_Step("Create the environment",
+                   tuple(interpreter) + ("-m", "venv", env))]
+    if spec.torch:
+        index = ("--index-url", torch_index) if torch_index else ()
+        steps.append(_Step("Install PyTorch", pip + tuple(spec.torch) + index))
+    steps.append(_Step(f"Install {spec.label}",
+                       pip + tuple(spec.requirements)))
+    steps.append(_Step(
+        "Check it loads",
+        (python, "-I", worker or _worker_path(), "--selftest", spec.name),
+        selftest=True))
+    return steps
+
+
+def _clean_env(env):
+    """The environment variables a backend's commands run with.
+
+    Anything that would point pip or Python somewhere else is removed, the
+    user's own site-packages is switched off, and the environment's scripts
+    come first on PATH.
+    """
+    environ = {k: v for k, v in os.environ.items()
+               if k not in _STRIPPED_VARIABLES}
+    environ.update(PYTHONNOUSERSITE="1", PYTHONUNBUFFERED="1",
+                   PYTHONIOENCODING="utf-8", VIRTUAL_ENV=env,
+                   PIP_DISABLE_PIP_VERSION_CHECK="1", PIP_NO_INPUT="1")
+    scripts = os.path.dirname(_env_python(env))
+    environ["PATH"] = scripts + os.pathsep + environ.get("PATH", "")
+    return environ
+
+
+def _worker_env(name, env):
+    """:func:`_clean_env`, and Cellpose 3's weights kept inside its own
+    environment, so uninstalling removes them too."""
+    environ = _clean_env(env)
+    if name == _CELLPOSE3:
+        environ["CELLPOSE_LOCAL_MODELS_PATH"] = os.path.join(env, "models")
+    return environ
+
+
+def _detached(windows=None):
+    """Popen arguments that give a child its own process group, so Cancel
+    can stop it and everything it started.
+
+    :param windows: for Windows; the running system when None.
+    """
+    windows = (os.name == "nt") if windows is None else windows
+    if windows:
+        return {"creationflags": getattr(subprocess, "CREATE_NEW_PROCESS_GROUP",
+                                         0)
+                | getattr(subprocess, "CREATE_NO_WINDOW", 0)}
+    return {"start_new_session": True}
+
+
+def _kill_tree(proc, grace=5.0, windows=None):
+    """Stop a child and everything it started; gently, then not.
+
+    :param windows: for Windows; the running system when None.
+    """
+    windows = (os.name == "nt") if windows is None else windows
+    if proc.poll() is not None:
+        return
+    try:
+        if windows:
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)],
+                           capture_output=True, timeout=30)
+        else:
+            os.killpg(proc.pid, signal.SIGTERM)
+    except (OSError, subprocess.SubprocessError):
+        pass
+    try:
+        proc.wait(timeout=grace)
+        return
+    except subprocess.TimeoutExpired:
+        pass
+    try:
+        if windows:
+            proc.kill()
+        else:
+            os.killpg(proc.pid, signal.SIGKILL)
+    except OSError:
+        pass
+    proc.wait(timeout=grace)
+
+
+def _pump(stream, sink, done=None):
+    """Copy ``stream``'s lines into ``sink`` until it ends, then ``done``."""
+    try:
+        for line in stream:
+            sink(line)
+    except (OSError, ValueError):
+        pass
+    if done is not None:
+        done()
+
+
+def _run_step(argv, *, env=None, cwd=None, on_line=None, cancel=None,
+              popen=None, poll=0.1):
+    """Run one install command, streaming its output, until it ends or
+    ``cancel`` is set.
+
+    :param argv: the command.
+    :param env: its environment variables.
+    :param cwd: its working folder.
+    :param on_line: called with every line it prints, stdout and stderr
+        together, as it prints it.
+    :param cancel: a :class:`threading.Event`; setting it stops the command
+        and everything it started.
+    :param popen: :class:`subprocess.Popen`, or a stand-in for tests.
+    :param poll: seconds between checks of ``cancel``.
+    :returns: ``(exit code, the last 400 lines)``.
+    :raises _InstallCancelled: when cancelled.
+    """
+    proc = (popen or subprocess.Popen)(
+        list(argv), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT, env=env, cwd=cwd, text=True,
+        encoding="utf-8", errors="replace", bufsize=1, **_detached())
+    lines = queue.Queue()
+    finished = threading.Event()
+    reader = threading.Thread(
+        target=_pump, args=(proc.stdout, lines.put, finished.set), daemon=True)
+    reader.start()
+    tail = collections.deque(maxlen=400)
+
+    def _drain():
+        while True:
+            try:
+                line = lines.get_nowait()
+            except queue.Empty:
+                return
+            text = line.rstrip("\r\n")
+            tail.append(text)
+            if on_line is not None:
+                on_line(text)
+
+    while True:
+        if cancel is not None and cancel.is_set():
+            _kill_tree(proc)
+            reader.join(timeout=5)
+            raise _InstallCancelled("the install was cancelled")
+        _drain()
+        if finished.is_set():
+            try:
+                code = proc.wait(timeout=poll)
+            except subprocess.TimeoutExpired:
+                continue
+            break
+        finished.wait(timeout=poll)
+    reader.join(timeout=5)
+    _drain()
+    return code, list(tail)
+
+
+def _quote(argv):
+    """A command as a person would type it."""
+    import shlex
+
+    return " ".join(shlex.quote(str(a)) for a in argv)
+
+
+def _last_reply(lines):
+    """The last JSON object among a command's output lines, or None."""
+    for line in reversed(list(lines)):
+        text = line.strip()
+        if text.startswith("{"):
+            try:
+                return json.loads(text)
+            except ValueError:
+                continue
+    return None
+
+
+def _remove_tree(path, root):
+    """Delete a backend environment, and refuse to delete anything else.
+
+    :raises RuntimeError: for a path that is not directly inside ``root``, or
+        that is the environment spaCR itself runs in.
+    """
+    path = os.path.abspath(path)
+    root = os.path.abspath(root)
+    running = {os.path.abspath(p) for p in (sys.prefix, sys.base_prefix,
+                                            sys.exec_prefix)}
+    if os.path.dirname(path) != root or path in running:
+        raise RuntimeError(
+            f"refusing to delete {path}: it is not a backend environment "
+            f"under {root}")
+    if not os.path.lexists(path):
+        return
+
+    def _retry(function, target, *_error):
+        """Windows marks some files read-only; make them writable and retry."""
+        import stat
+
+        os.chmod(target, stat.S_IWRITE)
+        function(target)
+
+    if sys.version_info >= (3, 12):
+        shutil.rmtree(path, onexc=_retry)
+    else:
+        shutil.rmtree(path, onerror=_retry)
+
+
+def _preflight(spec, root, *, run=None, probe=None):
+    """Check this computer can build ``spec``'s environment; pick its Python.
+
+    Writable folder, free disk, a reachable package index, and a Python in
+    range that has ``venv`` and ``ensurepip`` -- in that order, so the first
+    thing wrong is the thing reported. Runs off the GUI thread.
+
+    :returns: the argv of the Python to build it with.
+    :raises _InstallBlocked: saying what is wrong.
+    """
+    probe_file = os.path.join(root, f".{spec.name}.write-test")
+    try:
+        with open(probe_file, "w", encoding="utf-8") as handle:
+            handle.write("spaCR")
+        os.remove(probe_file)
+    except OSError as exc:
+        raise _InstallBlocked(
+            f"spaCR cannot write to {root}, where backend environments are "
+            f"kept: {exc}") from exc
+    free = shutil.disk_usage(root).free
+    if free < spec.size_gb * 2 ** 30:
+        raise _InstallBlocked(
+            f"{spec.label} needs about {spec.size_gb:.0f} GB free in {root}; "
+            f"{free / 2 ** 30:.1f} GB is.")
+    problem = (probe or _probe_network)()
+    if problem:
+        _PROBED[spec.name] = (problem, time.time())
+        raise _InstallBlocked(problem)
+    run = subprocess.run if run is None else run
+    lo, hi = spec.python
+    tried = []
+    for candidate in _candidates(spec):
+        shown = " ".join(candidate)
+        try:
+            done = run(list(candidate) + ["-c", _INTERPRETER_CHECK],
+                       capture_output=True, text=True, timeout=120)
+        except (OSError, subprocess.SubprocessError) as exc:
+            tried.append(f"{shown}: {exc}")
+            continue
+        if done.returncode != 0:
+            said = (done.stderr or done.stdout or "").strip().splitlines()
+            last = said[-1] if said else f"exit code {done.returncode}"
+            if "ensurepip" in last or "venv" in last:
+                last += (" (on Debian and Ubuntu the python3-venv package "
+                         "provides it)")
+            tried.append(f"{shown}: {last}")
+            continue
+        try:
+            got = tuple(int(p) for p in done.stdout.split()[-1].split("."))
+        except (IndexError, ValueError):
+            tried.append(f"{shown}: did not say its version")
+            continue
+        if lo <= got <= hi:
+            return tuple(candidate)
+        tried.append(f"{shown} is Python {_versions(got)}")
+    reason = (f"no Python {_versions(lo)} to {_versions(hi)} that can build "
+              f"an environment was found")
+    if tried:
+        reason += ": " + "; ".join(tried)
+    reason += "."
+    _PROBED[spec.name] = (reason, time.time())
+    raise _InstallBlocked(reason)
+
+
+def _install_backend(name, *, root=None, progress=None, cancel=None,
+                     torch_index=None, runner=None, preflight=None,
+                     worker=None):
+    """Build ``name``'s environment and install it there. Off the GUI thread.
+
+    The environment is marked finished only after its self-test has loaded
+    the package, so a failed or cancelled install leaves no environment that
+    looks usable -- the folder is removed, the row goes back to
+    "installable", and spaCR's own environment is never touched either way.
+    The whole output goes to ``<root>/<name>.log``, which stays behind for a
+    bug report.
+
+    :param name: the backend.
+    :param root: the backends folder.
+    :param progress: ``progress(step, steps, text)``, called as it goes.
+    :param cancel: a :class:`threading.Event` that stops it.
+    :param torch_index: the PyTorch wheel index; :func:`_torch_index_url`
+        when None, PyPI when ``''``.
+    :param runner: :func:`_run_step`, or a stand-in for tests.
+    :param preflight: :func:`_preflight`, or a stand-in for tests.
+    :param worker: the worker's path, for tests.
+    :returns: the :class:`_BackendState` afterwards.
+    :raises _InstallBlocked: when this computer cannot install it.
+    :raises _InstallFailed: when a step failed, with its output.
+    :raises _InstallCancelled: when cancelled.
+    """
+    spec = _spec(name)
+    root = _backends_root(root)
+    env = os.path.join(root, spec.name)
+    state = _backend_state(spec.name, root)
+    if state.state == _INSTALLED:
+        return state
+    report = progress or (lambda step, steps, text: None)
+    report(0, 1, "Checking this computer can install it")
+    _acquire_lock(root, spec.name)
+    log_path = os.path.join(root, f"{spec.name}.log")
+    try:
+        interpreter = (preflight or _preflight)(spec, root)
+        _PROBED.pop(spec.name, None)
+        if os.path.lexists(env):
+            _remove_tree(env, root)
+        index = _torch_index_url() if torch_index is None else (torch_index or None)
+        steps = _install_plan(spec, env, interpreter, torch_index=index,
+                              worker=worker)
+        hello = None
+        with open(log_path, "w", encoding="utf-8") as log:
+            for number, step in enumerate(steps):
+                report(number, len(steps), step.label)
+                log.write(f"$ {_quote(step.argv)}\n")
+                log.flush()
+
+                def _line(text, _number=number, _label=step.label):
+                    log.write(text + "\n")
+                    report(_number, len(steps), f"{_label}: {text}")
+
+                code, tail = (runner or _run_step)(
+                    step.argv, env=_worker_env(spec.name, env), cwd=root,
+                    on_line=_line, cancel=cancel)
+                if code != 0:
+                    shown = "\n".join(tail[-40:]) or "(it printed nothing)"
+                    raise _InstallFailed(
+                        f"{step.label} failed: `{_quote(step.argv)}` exited "
+                        f"with code {code}.\n\n{shown}\n\nThe whole log is "
+                        f"{log_path}.")
+                if step.selftest:
+                    hello = _last_reply(tail)
+        if not hello or not hello.get("ok"):
+            error = (hello or {}).get("error") or {}
+            raise _InstallFailed(
+                f"The environment was built, but {spec.label} does not load "
+                f"in it: {error.get('type', '')} {error.get('message', '')}"
+                f"\n\n{error.get('traceback', '')}\nThe whole log is "
+                f"{log_path}.")
+        _write_marker(env, {
+            "backend": spec.name, "protocol": _PROTOCOL,
+            "requirements": list(spec.requirements),
+            "torch": list(spec.torch), "torch_index": index or "",
+            "interpreter": list(interpreter),
+            "python": hello.get("python", ""),
+            "packages": hello.get("packages", {}),
+            "device": hello.get("device", ""),
+            "licence": spec.licence,
+            "installed": time.strftime("%Y-%m-%d %H:%M:%S"),
+        })
+        report(len(steps), len(steps), f"{spec.label} is installed")
+    except BaseException:
+        if os.path.lexists(env):
+            try:
+                _remove_tree(env, root)
+            except (OSError, RuntimeError):
+                LOG.warning("could not remove the unfinished %s", env,
+                            exc_info=True)
+        raise
+    finally:
+        _release_lock(root, spec.name)
+    return _backend_state(spec.name, root)
+
+
+def _uninstall_backend(name, root=None):
+    """Remove ``name``'s environment, and everything it downloaded into it.
+
+    :returns: the :class:`_BackendState` afterwards.
+    :raises RuntimeError: while it is being installed, or when it lives in
+        spaCR's own environment, which spaCR never changes.
+    """
+    spec = _spec(name)
+    root = _backends_root(root)
+    state = _backend_state(spec.name, root)
+    if state.state == _INSTALLING:
+        raise RuntimeError(
+            f"{spec.label} is {state.reason} Cancel that install first.")
+    if state.in_process and not os.path.isdir(state.env):
+        raise RuntimeError(
+            f"{spec.label} is installed {state.reason}")
+    _shutdown_workers(spec.name)
+    _remove_tree(state.env, root)
+    _PROBED.pop(spec.name, None)
+    return _backend_state(spec.name, root)
+
+
+def _plain(value):
+    """A request parameter as a JSON value."""
+    if isinstance(value, (bool, str)) or value is None:
+        return value
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, (int, float)):
+        return value
+    return float(value)
+
+
+class _WorkerProcess:
+    """One backend worker: a Python in the backend's environment, serving
+    requests over a pipe.
+
+    :param name: the backend.
+    :param env: its environment.
+    :param popen: :class:`subprocess.Popen`, or a stand-in for tests.
+    :param worker: the worker script; this file when None.
+    """
+
+    def __init__(self, name, env, *, popen=None, worker=None):
+        """Start the worker and ask it hello, which loads the package."""
+        spec = _spec(name)
+        self.name = spec.name
+        self.label = spec.label
+        self.env = env
+        self.last_used = time.monotonic()
+        self._replies = queue.Queue()
+        self._stderr = collections.deque(maxlen=200)
+        self._lock = threading.Lock()
+        self._next_id = 0
+        self._proc = (popen or subprocess.Popen)(
+            [_env_python(env), "-I", worker or _worker_path(), "--serve",
+             spec.name],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, cwd=env, env=_worker_env(spec.name, env),
+            text=True, encoding="utf-8", errors="replace", bufsize=1,
+            **_detached())
+        threading.Thread(
+            target=_pump, args=(self._proc.stdout, self._replies.put,
+                                lambda: self._replies.put(None)),
+            daemon=True).start()
+        threading.Thread(
+            target=_pump, args=(self._proc.stderr, self._said), daemon=True
+        ).start()
+        try:
+            self.hello = self.request("hello")
+        except BaseException:
+            self.kill()
+            raise
+
+    def _said(self, line):
+        """Keep the worker's own output for an error message."""
+        text = line.rstrip("\r\n")
+        self._stderr.append(text)
+        LOG.debug("%s: %s", self.name, text)
+
+    @property
+    def alive(self):
+        """Whether the worker is still running."""
+        return self._proc.poll() is None
+
+    @property
+    def busy(self):
+        """Whether a request is in flight."""
+        return self._lock.locked()
+
+    def _stopped(self):
+        """The error for a worker that went away, with its last words."""
+        try:
+            code = self._proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            code = None
+        tail = "\n".join(list(self._stderr)[-40:]) or "(it printed nothing)"
+        return _BackendError(
+            f"The {self.label} backend stopped (exit code {code}). Its last "
+            f"output:\n{tail}")
+
+    def request(self, op, *, should_cancel=None, **payload):
+        """Send one request and wait for its reply.
+
+        :param op: ``hello``, ``segment`` or ``shutdown``.
+        :param should_cancel: polled while waiting; True stops the worker.
+        :param payload: the request's other fields.
+        :returns: the reply.
+        :raises _BackendError: with the backend's own message, verbatim.
+        :raises _BackendCancelled: when ``should_cancel`` said so.
+        """
+        with self._lock:
+            self._next_id += 1
+            ident = self._next_id
+            message = dict(payload, protocol=_PROTOCOL, id=ident, op=op)
+            try:
+                self._proc.stdin.write(json.dumps(message) + "\n")
+                self._proc.stdin.flush()
+            except (OSError, ValueError):
+                raise self._stopped() from None
+            while True:
+                try:
+                    line = self._replies.get(timeout=0.2)
+                except queue.Empty:
+                    if should_cancel is not None and should_cancel():
+                        self.kill()
+                        raise _BackendCancelled(
+                            f"the {self.label} request was cancelled") from None
+                    continue
+                if line is None:
+                    raise self._stopped()
+                try:
+                    reply = json.loads(line)
+                except ValueError:
+                    raise _BackendError(
+                        f"The {self.label} backend answered with something "
+                        f"that is not a reply: {line.strip()[:500]}") from None
+                if not isinstance(reply, dict) or reply.get("id") != ident:
+                    continue
+                self.last_used = time.monotonic()
+                if reply.get("protocol") != _PROTOCOL:
+                    raise _BackendError(
+                        f"The {self.label} backend speaks protocol "
+                        f"{reply.get('protocol')!r} and spaCR speaks "
+                        f"{_PROTOCOL}. Reinstall it from the Model Zoo.")
+                if not reply.get("ok"):
+                    error = reply.get("error") or {}
+                    kind = error.get("type") or "an error"
+                    raise _BackendError(
+                        f"{self.label} raised {kind}: "
+                        f"{error.get('message', '')}", error.get("type", ""),
+                        error.get("traceback", ""))
+                return reply
+
+    def kill(self):
+        """Stop the worker now, mid-request if need be."""
+        _kill_tree(self._proc)
+
+    def close(self, timeout=5.0):
+        """Ask the worker to finish, and stop it if it does not."""
+        if self._proc.poll() is None:
+            try:
+                self._proc.stdin.write(json.dumps(
+                    {"protocol": _PROTOCOL, "id": 0, "op": "shutdown"}) + "\n")
+                self._proc.stdin.flush()
+            except (OSError, ValueError):
+                pass
+            try:
+                self._proc.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                self.kill()
+        try:
+            self._proc.stdin.close()
+        except (OSError, ValueError):
+            pass
+
+
+#: ``name -> _WorkerProcess``: one worker per backend, shared by everything
+#: in this process that segments with it.
+_WORKERS = {}
+_WORKERS_LOCK = threading.Lock()
+_REAPER = []
+
+
+def _worker_for(name, env, factory=None):
+    """The running worker for ``name``, started (or restarted) on demand."""
+    with _WORKERS_LOCK:
+        worker = _WORKERS.get(name)
+        if worker is not None and (not worker.alive or worker.env != env):
+            worker.close()
+            worker = None
+        if worker is None:
+            worker = (factory or _WorkerProcess)(name, env)
+            _WORKERS[name] = worker
+        if not _REAPER:
+            reaper = threading.Thread(target=_reap_forever, daemon=True)
+            _REAPER.append(reaper)
+            reaper.start()
+        return worker
+
+
+def _reap_idle(now=None, idle=_IDLE_SECONDS):
+    """Shut down workers that are dead or have been idle for ``idle``
+    seconds; the memory a loaded model holds is given back."""
+    now = time.monotonic() if now is None else now
+    with _WORKERS_LOCK:
+        for name, worker in list(_WORKERS.items()):
+            if worker.alive and (worker.busy or now - worker.last_used < idle):
+                continue
+            worker.close()
+            del _WORKERS[name]
+
+
+def _reap_forever(interval=30.0, rounds=None):
+    """:func:`_reap_idle` every ``interval`` seconds, on a daemon thread."""
+    count = 0
+    while rounds is None or count < rounds:
+        time.sleep(interval)
+        _reap_idle()
+        count += 1
+
+
+def _shutdown_workers(name=None):
+    """Close ``name``'s worker, or every worker when None."""
+    with _WORKERS_LOCK:
+        for key in [k for k in _WORKERS if name is None or k == name]:
+            _WORKERS.pop(key).close()
+
+
+atexit.register(_shutdown_workers)
+
+
+class _RemoteBackend:
+    """A backend in its own environment, answering ``CellposeModel.eval``.
+
+    The images go to the worker as ``.npy`` files; the masks, and whatever
+    flows the backend has, come back the same way.
+
+    :param name: the backend.
+    :param model: the model it runs -- a Cellpose 3 name or a checkpoint
+        path; ``''`` for backends with one model.
+    :param device: ``'cpu'``, ``'cuda'``, ... or None for ``$SPACR_DEVICE``,
+        and failing that the worker's own best guess.
+    :param root: the backends folder.
+    :param options: passed to the backend (``weights_path``, ``variant``).
+    :param worker_for: :func:`_worker_for`, or a stand-in for tests.
+    :raises ImportError: when its environment is not installed.
+    """
+
+    def __init__(self, name, *, model="", device=None, root=None,
+                 options=None, worker_for=None):
+        """Check the environment is there and remember what to run."""
+        spec = _spec(name)
+        state = _backend_state(spec.name, root)
+        if state.state != _INSTALLED or state.in_process:
+            raise ImportError(_not_installed_message(spec.name, state))
+        self.name = spec.name
+        self.label = spec.label
+        self.model = str(model or "")
+        self.env = state.env
+        self.device = (str(device) if device is not None
+                       else os.environ.get(_DEVICE_ENV, "").strip() or "auto")
+        self.options = dict(options or {})
+        self._worker_for = worker_for or _worker_for
+        self.note = (f"in its own environment, {self.env}"
+                     + (f"; model {self.model}" if self.model else ""))
+
+    def eval(self, x, batch_size=None, channel_axis=-1, normalize=True,
+             diameter=None, flow_threshold=None, cellprob_threshold=0.0,
+             min_size=None, resample=None, progress=None, should_cancel=None,
+             **cellpose_only):
+        """Segment each image of a batch in the backend's worker.
+
+        :param x: a 2-D image, or a list of ``(H, W)`` / ``(H, W, C)``
+            images.
+        :param should_cancel: polled while the worker runs; True stops it.
+        :param cellpose_only: other Cellpose arguments, accepted so the call
+            site is the same as Cellpose's.
+        :returns: ``(masks, flows, None)`` with one entry per image.
+        :raises _BackendError: with the backend's own message.
+        """
+        images = ([x] if isinstance(x, np.ndarray) and x.ndim == 2
+                  else list(x))
+        params = {"channel_axis": channel_axis, "normalize": normalize,
+                  "diameter": diameter, "flow_threshold": flow_threshold,
+                  "cellprob_threshold": cellprob_threshold,
+                  "min_size": min_size, "resample": resample}
+        params = {k: _plain(v) for k, v in params.items() if v is not None}
+        worker = self._worker_for(self.name, self.env)
+        scratch = tempfile.mkdtemp(prefix="spacr-backend-")
+        try:
+            inputs = []
+            for index, image in enumerate(images):
+                path = os.path.join(scratch, f"image_{index}.npy")
+                np.save(path, np.asarray(image), allow_pickle=False)
+                inputs.append(path)
+            reply = worker.request(
+                "segment", should_cancel=should_cancel, model=self.model,
+                device=self.device, inputs=inputs, outputs=scratch,
+                params=params, options=self.options)
+            masks, flows = [], []
+            for item in reply.get("outputs") or ():
+                masks.append(np.load(item["mask"], allow_pickle=False))
+                flows.append([None if p is None
+                              else np.load(p, allow_pickle=False)
+                              for p in item.get("flows") or ()])
+        finally:
+            shutil.rmtree(scratch, ignore_errors=True)
+        if len(masks) != len(images):
+            raise _BackendError(
+                f"The {self.label} backend returned {len(masks)} masks for "
+                f"{len(images)} images.")
+        return masks, flows, None
+
+
 def _import_dinocell():
     """Import DINOCell's model, pipeline factory and weight resolver.
 
     :returns: ``(DINOCell, get_pipeline, get_weights_path)``.
-    :raises ImportError: naming the extra that installs it.
+    :raises ImportError: saying where DINOCell is installed from.
     """
     try:
         from dinocell.main import get_weights_path
@@ -107,14 +1521,12 @@ def _import_dinocell():
         from dinocell.pipeline import get_pipeline
     except (ImportError, OSError) as exc:
         raise ImportError(
-            "DINOCell segmentation requires the optional dinocell package. "
-            "Install it with `pip install \"spacr[dinocell]\"`, or segment "
-            "with segmentation_backend='cellpose'. NOTE: dinocell pins exact "
-            "versions of its own dependencies (torch and cellpose among them), "
-            "so pip may want to replace packages spaCR already has; if it "
-            "reports a conflict, install it into a separate environment. "
-            f"Cellpose segmentation is unaffected. The import failed with: "
-            f"{exc}"
+            "DINOCell is not installed. Install it from the Model Zoo, which "
+            "builds it an environment of its own and leaves spaCR's own "
+            "environment alone -- DINOCell pins exact versions of torch, "
+            "numpy and Cellpose that conflict with spaCR's -- or segment "
+            "with segmentation_backend='cellpose'. Cellpose segmentation is "
+            f"unaffected. The import failed with: {exc}"
         ) from exc
     return DINOCell, get_pipeline, get_weights_path
 
@@ -123,16 +1535,17 @@ def _import_samcell():
     """Import SAMCell's model wrapper and sliding-window pipeline.
 
     :returns: ``(FinetunedSAM, SlidingWindowPipeline)``.
-    :raises ImportError: naming the extra that installs it.
+    :raises ImportError: saying where SAMCell is installed from.
     """
     try:
         from samcell.model import FinetunedSAM
         from samcell.pipeline import SlidingWindowPipeline
     except (ImportError, OSError) as exc:
         raise ImportError(
-            "SAMCell segmentation requires the optional samcell package. "
-            "Install it with `pip install \"spacr[samcell]\"`, or segment "
-            "with segmentation_backend='cellpose'. Cellpose segmentation is "
+            "SAMCell is not installed. Install it from the Model Zoo, which "
+            "builds it an environment of its own and leaves spaCR's own "
+            "environment alone, or segment with "
+            "segmentation_backend='cellpose'. Cellpose segmentation is "
             f"unaffected. The import failed with: {exc}"
         ) from exc
     return FinetunedSAM, SlidingWindowPipeline
@@ -216,14 +1629,18 @@ def _as_label_image(labels):
     """Sequential labels in the dtype Cellpose returns (``uint16``, or
     ``uint32`` past 65,535 objects).
 
+    Relabelled with numpy alone, in the order of the original ids -- what
+    ``skimage.segmentation.relabel_sequential`` does -- because the Cellpose
+    3 environment has no scikit-image.
+
     :param labels: 2-D integer label image, background 0.
     :returns: relabelled array.
     """
     arr = np.asarray(labels)
     if arr.size and arr.max() > 0:
-        from skimage.segmentation import relabel_sequential
-
-        arr = relabel_sequential(arr.astype(np.int64, copy=False))[0]
+        values, inverse = np.unique(arr.astype(np.int64, copy=False),
+                                    return_inverse=True)
+        arr = inverse.reshape(arr.shape) + (0 if values[0] == 0 else 1)
     dtype = np.uint16 if arr.max(initial=0) < 2 ** 16 else np.uint32
     return arr.astype(dtype, copy=False)
 
@@ -350,8 +1767,9 @@ class _DinoCellBackend(_PlaneBackend):
     def _segment_plane(self, image, cellprob_threshold=None):
         """Predict flows, then label them with Cellpose's dynamics.
 
-        A plane narrower than one tile is upscaled (aspect ratio kept) and the
-        labels are resampled back to the plane's own shape.
+        A plane narrower than one tile is upscaled (aspect ratio kept, where
+        DINOCell's own ``_resize`` would make it square) and the labels are
+        resampled back to the plane's own shape.
         """
         import cv2
         from cellpose.dynamics import compute_masks
@@ -360,8 +1778,6 @@ class _DinoCellBackend(_PlaneBackend):
         height, width = image.shape
         scale = _DINOCELL_CROP / min(height, width)
         if scale > 1:
-            # DINOCell's own `_resize` upsamples small images to the crop too,
-            # but to a square; this keeps the aspect ratio.
             size = (max(_DINOCELL_CROP, math.ceil(width * scale)),
                     max(_DINOCELL_CROP, math.ceil(height * scale)))
             work = cv2.resize(image, size, interpolation=cv2.INTER_CUBIC)
@@ -427,30 +1843,286 @@ class _SamCellBackend(_PlaneBackend):
             model, self.device, crop_size=_SAMCELL_CROP)
 
     def _segment_plane(self, image, cellprob_threshold=None):
-        """Predict SAMCell's distance map and label it with its own watershed."""
-        # `predict_on_full_img` raises on failure. `run` would not: it logs
-        # and returns an all-zero label image, which here would be saved as
-        # a field with no cells.
+        """Predict SAMCell's distance map and label it with its own watershed.
+
+        ``predict_on_full_img`` raises on failure; ``run`` would log and
+        return an all-zero label image, which would be saved as a field with
+        no cells.
+        """
         dist_map = self._pipeline.predict_on_full_img(image)
         labels = self._pipeline.cells_from_dist_map(dist_map)
         return labels, [dist_map, None, dist_map, None]
 
 
-#: Backend name -> class. Tests replace entries with stubs.
+class _Cellpose3Adapter:
+    """Cellpose 3, inside its own environment, answering the same ``eval``.
+
+    :param model: a Cellpose 3 model name, or a Cellpose-format checkpoint.
+    :param device: a torch device name.
+    :raises FileNotFoundError: for a model that is neither. Measured on
+        cellpose 3.1.1.3, 2026-09-19: handed a path that does not exist,
+        ``CellposeModel`` logs a warning and segments with cyto3.
+    """
+
+    name = _CELLPOSE3
+
+    def __init__(self, model="cyto3", device="cpu"):
+        """Load the model; a named one brings Cellpose's size model with it."""
+        import torch
+        from cellpose import models
+
+        self.model = model
+        where = torch.device(device)
+        gpu = where.type != "cpu"
+        if model in _CELLPOSE3_MODELS:
+            self._model = models.Cellpose(gpu=gpu, model_type=model,
+                                          device=where)
+            self._sized = True
+        elif os.path.isfile(model):
+            self._model = models.CellposeModel(gpu=gpu, pretrained_model=model,
+                                               device=where)
+            self._sized = False
+        else:
+            raise FileNotFoundError(
+                f"no Cellpose 3 model called {model!r}: it is not one of "
+                f"{', '.join(_CELLPOSE3_MODELS)}, and no file is there. "
+                f"Cellpose 3 would have run cyto3 in its place without a "
+                f"word.")
+
+    def eval(self, x, channel_axis=-1, diameter=None, normalize=True,
+             flow_threshold=0.4, cellprob_threshold=0.0, min_size=15,
+             resample=True, **unused):
+        """Segment each image; a second channel is the nucleus channel.
+
+        A diameter of 0 or None lets a named model's size model estimate it,
+        and leaves a checkpoint at the diameter it was trained at.
+
+        :returns: ``(masks, flows, None)``; each flows entry is Cellpose's
+            ``[RGB flow, dP, cell probability, None]``.
+        """
+        masks, flows = [], []
+        for image in x:
+            image = np.asarray(image)
+            channels, axis = [0, 0], None
+            if image.ndim == 3:
+                axis = -1 if channel_axis is None else channel_axis
+                if image.shape[axis] >= 2:
+                    channels = [1, 2]
+                else:
+                    image, axis = np.take(image, 0, axis=axis), None
+            elif image.ndim != 2:
+                raise ValueError(
+                    f"the Cellpose 3 backend segments 2-D images; got an "
+                    f"array of shape {image.shape}")
+            size = float(diameter) if diameter else (0.0 if self._sized
+                                                     else None)
+            output = self._model.eval(
+                image, channels=channels, channel_axis=axis, diameter=size,
+                normalize=normalize, flow_threshold=flow_threshold,
+                cellprob_threshold=cellprob_threshold, min_size=min_size,
+                resample=resample)
+            parts = list(output[1])[:3]
+            masks.append(_as_label_image(output[0]))
+            flows.append(parts + [None] * (4 - len(parts)))
+        return masks, flows, None
+
+
+#: Backend name -> in-process class. Tests replace entries with stubs.
 _BACKEND_CLASSES = {_DINOCELL: _DinoCellBackend, _SAMCELL: _SamCellBackend}
 
 
-def _load_backend(name, *, device=None, z_plan=None, t_plan=None, **options):
+def _worker_device(requested=None):
+    """The device a worker runs on: the one asked for, else CUDA, else
+    Apple's Metal, else the CPU."""
+    import torch
+
+    wanted = str(requested or "auto").strip().lower()
+    if wanted not in ("", "auto"):
+        return wanted
+    if torch.cuda.is_available():
+        return "cuda"
+    metal = getattr(getattr(torch, "backends", None), "mps", None)
+    if metal is not None and metal.is_available():
+        return "mps"
+    return "cpu"
+
+
+def _worker_hello(name):
+    """What a worker says about itself: versions, device, models.
+
+    Importing the package is the point -- an environment whose package does
+    not load fails here, during the install's self-test, rather than on the
+    first field.
+    """
+    from importlib import import_module
+    from importlib.metadata import PackageNotFoundError, version
+
+    spec = _spec(name)
+    for module in spec.probe:
+        import_module(module)
+    packages = {}
+    for distribution in (spec.distribution, "torch", "numpy"):
+        try:
+            packages[distribution] = version(distribution)
+        except PackageNotFoundError:
+            packages[distribution] = ""
+    return {"backend": spec.name,
+            "python": "%d.%d.%d" % tuple(sys.version_info[:3]),
+            "packages": packages, "device": _worker_device(),
+            "models": list(spec.models)}
+
+
+def _worker_adapter(name, model, device, options):
+    """The object a worker segments with."""
+    if name == _CELLPOSE3:
+        return _Cellpose3Adapter(model or "cyto3", device)
+    return _BACKEND_CLASSES[name](device=device, **options)
+
+
+def _worker_segment(name, request, adapters):
+    """Segment the request's images and write the masks beside them.
+
+    Adapters are kept by ``(model, device, options)``, so the model loads
+    once per worker and not once per request.
+    """
+    device = _worker_device(request.get("device"))
+    model = str(request.get("model") or "")
+    options = dict(request.get("options") or {})
+    key = (model, device, json.dumps(options, sort_keys=True))
+    adapter = adapters.get(key)
+    if adapter is None:
+        adapter = _worker_adapter(name, model, device, options)
+        adapters[key] = adapter
+    images = [np.load(path, allow_pickle=False)
+              for path in request.get("inputs") or ()]
+    started = time.monotonic()
+    masks, flows, _styles = adapter.eval(images,
+                                         **dict(request.get("params") or {}))
+    folder = request["outputs"]
+    outputs = []
+    for index, mask in enumerate(masks):
+        mask_path = os.path.join(folder, f"mask_{index}.npy")
+        np.save(mask_path, np.asarray(mask), allow_pickle=False)
+        entry = list(flows[index] if flows and index < len(flows) else ())
+        saved = []
+        for part in range(4):
+            value = entry[part] if part < len(entry) else None
+            if isinstance(value, np.ndarray):
+                path = os.path.join(folder, f"flow_{index}_{part}.npy")
+                np.save(path, value, allow_pickle=False)
+                saved.append(path)
+            else:
+                saved.append(None)
+        outputs.append({"mask": mask_path, "flows": saved})
+    return {"outputs": outputs, "device": device,
+            "seconds": round(time.monotonic() - started, 3)}
+
+
+def _handle(name, request, adapters):
+    """Answer one request; every failure becomes an error reply, never a
+    dead worker."""
+    ident = request.get("id") if isinstance(request, dict) else None
+    try:
+        if not isinstance(request, dict):
+            raise ValueError("a request is one JSON object per line")
+        if request.get("protocol") != _PROTOCOL:
+            raise ValueError(
+                f"spaCR sent protocol {request.get('protocol')!r}; this "
+                f"worker speaks {_PROTOCOL}. Reinstall the backend from the "
+                f"Model Zoo.")
+        op = request.get("op")
+        if op == "hello":
+            body = _worker_hello(name)
+        elif op == "segment":
+            body = _worker_segment(name, request, adapters)
+        elif op == "shutdown":
+            body = {}
+        else:
+            raise ValueError(f"unknown request {op!r}")
+    except Exception as exc:                                 # noqa: BLE001
+        import traceback
+
+        return {"protocol": _PROTOCOL, "id": ident, "ok": False,
+                "error": {"type": type(exc).__name__, "message": str(exc),
+                          "traceback": traceback.format_exc()}}
+    body.update(protocol=_PROTOCOL, id=ident, ok=True)
+    return body
+
+
+def _serve(name, stdin, stdout):
+    """Answer requests from ``stdin`` on ``stdout`` until shutdown or EOF."""
+    adapters = {}
+    for line in stdin:
+        text = line.strip()
+        if not text:
+            continue
+        try:
+            request = json.loads(text)
+        except ValueError:
+            request = text
+        reply = _handle(name, request, adapters)
+        stdout.write(json.dumps(reply) + "\n")
+        stdout.flush()
+        if isinstance(request, dict) and request.get("op") == "shutdown":
+            break
+    return 0
+
+
+def _protocol_channel():
+    """A private copy of stdout for replies; stdout itself then goes to
+    stderr, so a library that prints cannot corrupt a reply."""
+    sys.stdout.flush()
+    channel = os.dup(1)
+    os.dup2(2, 1)
+    sys.stdout = sys.stderr
+    return os.fdopen(channel, "w", encoding="utf-8", buffering=1)
+
+
+def _worker_main(argv=None, stdin=None, stdout=None):
+    """The worker's command line: ``--serve <name>`` or ``--selftest <name>``.
+
+    :returns: the exit code.
+    """
+    args = list(sys.argv[1:] if argv is None else argv)
+    if (len(args) != 2 or args[0] not in ("--serve", "--selftest")
+            or args[1] not in _SPECS):
+        sys.stderr.write("usage: python -I _segmentation_backends.py "
+                         "--serve|--selftest <backend>\n")
+        return 2
+    mode, name = args
+    if mode == "--selftest":
+        reply = _handle(name, {"protocol": _PROTOCOL, "id": 0, "op": "hello"},
+                        {})
+        out = sys.stdout if stdout is None else stdout
+        out.write(json.dumps(reply) + "\n")
+        out.flush()
+        return 0 if reply["ok"] else 1
+    return _serve(name, sys.stdin if stdin is None else stdin,
+                  _protocol_channel() if stdout is None else stdout)
+
+
+def _load_backend(name, *, device=None, z_plan=None, t_plan=None,
+                  model_name=None, object_type=None, root=None, **options):
     """Build the model object ``generate_cellpose_masks_sam`` calls ``eval`` on.
+
+    A backend installed in its own environment is used there, through
+    :class:`_RemoteBackend`. Otherwise DINOCell and SAMCell are built in
+    process, which works only when an older spaCR installed them into
+    spaCR's own environment and raises an ImportError naming the Model Zoo
+    when it did not; Cellpose 3 never runs in process.
 
     :param name: a non-Cellpose value of ``segmentation_backend``.
     :param device: torch device; the resolved accelerator when None.
     :param z_plan: the run's z-stack plan; must be None.
     :param t_plan: the run's t-stack plan; must be None.
+    :param model_name: the object's model setting; see
+        :func:`_cellpose3_model`. Used by Cellpose 3 only.
+    :param object_type: the object being segmented.
+    :param root: the backends folder.
     :param options: passed to the backend (``weights_path``, ``variant``).
-    :returns: a :class:`_PlaneBackend`.
+    :returns: an object with Cellpose's ``eval``.
     :raises ValueError: for Cellpose, an unknown name, or a 3-D/4-D run.
-    :raises ImportError: when the backend's package is not installed.
+    :raises ImportError: when the backend is not installed.
     """
     backend = _backend_name(name)
     if backend == _CELLPOSE:
@@ -463,9 +2135,21 @@ def _load_backend(name, *, device=None, z_plan=None, t_plan=None, **options):
             f"and this run has z_stack or t_stack on. Use "
             f"segmentation_backend='cellpose' for 3-D and 4-D runs, or turn "
             f"z_stack and t_stack off.")
-    cls = _BACKEND_CLASSES[backend]
-    model = cls(device=device, **options)
+    state = _backend_state(backend, root)
+    if state.ready and not state.in_process:
+        model = _RemoteBackend(
+            backend, device=device, root=root, options=options,
+            model=(_cellpose3_model(model_name, object_type)
+                   if backend == _CELLPOSE3 else ""))
+    elif backend == _CELLPOSE3:
+        raise ImportError(_not_installed_message(backend, state))
+    else:
+        model = _BACKEND_CLASSES[backend](device=device, **options)
     note = getattr(model, "note", "")
     print(f"Segmentation backend: {backend}"
           + (f" -- {note}." if note else "."))
     return model
+
+
+if __name__ == "__main__":
+    sys.exit(_worker_main())

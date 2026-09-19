@@ -1437,9 +1437,12 @@ def _get_object_settings(object_type, settings):
     object_settings['merge'] = False
     object_settings['resample'] = True
     object_settings['remove_border_objects'] = False
-    object_settings['model_name'] = normalize_cellpose_model_name(
-        settings.get(f'{object_type}_model_name'),
-        object_type=object_type, key=f'{object_type}_model_name')
+    if str(settings.get('segmentation_backend') or '').strip().lower() == 'cellpose3':
+        object_settings['model_name'] = settings.get(f'{object_type}_model_name')
+    else:
+        object_settings['model_name'] = normalize_cellpose_model_name(
+            settings.get(f'{object_type}_model_name'),
+            object_type=object_type, key=f'{object_type}_model_name')
 
     if object_type == 'cell':
         object_settings['min_size'] = settings['cell_min_area']
@@ -4034,7 +4037,7 @@ tooltips = {
     "cell_model_name": "(str) - Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted but resolve to cpsam because Cellpose 4 no longer ships those models. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
     "nucleus_model_name": "(str) - Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. The legacy values 'nuclei' and 'nucleus' are accepted for compatibility and mapped to 'cpsam' because Cellpose 4 removed the pre-SAM models. Configure nucleus_diameter to control scale; of the three parameters that previously distinguished models, only diameter remains operational (eval rescales by 30/diameter), while model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Default 'cpsam'.",
     "pathogen_model_name": "(str) - Which weights segment pathogens. 'cpsam' or a path to your own Train Cellpose checkpoint. The bundled toxo_pv_lumen / toxo_cyto checkpoints were Cellpose-3 CPnet and cannot load into CPSAM's transformer, so they are mapped to 'cpsam' and reported. The older 'pathogen_model' key still overrides this one when set. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
-    "segmentation_backend": "(str) - Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs the model each object's model name selects. 'samcell' (trained partly on LIVECell) and 'dinocell' are optional 2-D models for live-cell and label-free images: they read only the object's own channel, ignore diameter and flow_threshold, and refuse z_stack and t_stack runs. 'samcell' needs pip install \"spacr[samcell]\"; 'dinocell' needs an environment of its own, because its release pins versions that conflict with spaCR's. Default 'cellpose'.",
+    "segmentation_backend": "(str) - Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs each object's model name. 'cellpose3' runs Cellpose 3 with an object's cyto3, cyto2, cyto or nuclei model name, or a Cellpose 3 checkpoint's path; other names mean nuclei for nuclei and cyto3 otherwise. 'samcell' and 'dinocell' are 2-D models for live-cell and label-free images that read only the object's channel. Every backend but 'cellpose' installs from the Model Zoo into its own environment and refuses z_stack and t_stack runs. Default 'cellpose'.",
     "cell_diameter": "(int or None) - Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM; leave it None to segment at native scale. Set it when cells are much larger or smaller than ~30 px and segmentation produces fragmented or merged masks. spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
     "nucleus_diameter": "(int or None) - Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.",
     "pathogen_diameter": "(int or None) - Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",

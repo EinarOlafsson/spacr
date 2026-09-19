@@ -154,6 +154,8 @@ from typing import (
 
 import numpy as np
 
+from ._segmentation_backends import _SPECS as _BACKEND_SPECS
+
 LOG = logging.getLogger(__name__)
 
 __all__ = [
@@ -222,7 +224,13 @@ UNKNOWN = "unknown"
 #: tuple and raises on anything else, so an entry naming a kind that is not
 #: here fails at construction rather than being quietly filed as a Cellpose
 #: model and handed to CellposeModel later.
-KINDS = ("cellpose", "classifier", "detector", "encoder", "backend")
+#:
+#: ``cellpose3`` is a model that runs through the Cellpose 3 backend -- its
+#: cyto3, cyto2, cyto and nuclei models, and Cellpose-format checkpoints from
+#: bioimage.io. It is a kind of its own because spaCR's Cellpose 4 loads such
+#: a checkpoint without complaint and then segments nonsense with it.
+KINDS = ("cellpose", "classifier", "detector", "encoder", "backend",
+         "cellpose3")
 #: "backend" is not a checkpoint: it is a segmentation PACKAGE the zoo
 #: lists so a user learns it exists and can install it from inside spaCR.
 
@@ -645,6 +653,9 @@ class ModelEntry:
         not verified, and says so.
     :param settings_path: where the provenance came from, for the reader who
         wants to go and look at it.
+    :param licence: the licence the model or package is published under, as
+        its publisher states it (an SPDX identifier where there is one), or
+        ``''`` when none is recorded.
     """
 
     key: str
@@ -662,6 +673,7 @@ class ModelEntry:
     notes: Tuple[str, ...] = ()
     verified: bool = False
     settings_path: str = ""
+    licence: str = ""
 
     def __post_init__(self):
         """Fill in the provenance fields and validate the kind.
@@ -809,6 +821,8 @@ class ModelEntry:
                      f"({self.checksum_state})")
         lines.append(f"  trained on {self.trained_on}")
         lines.append(f"  trained by {self.trained_by}")
+        if self.licence:
+            lines.append(f"  licence    {self.licence}")
         card = self.model_card_url
         if card:
             lines.append(f"  model card {card}")
@@ -1486,6 +1500,7 @@ def _entry_from_mapping(data: Mapping[str, Any],
         trained_by=data.get("trained_by") or UNKNOWN,
         metrics=dict(data.get("metrics") or {}),
         notes=notes,
+        licence=str(data.get("licence") or data.get("license") or ""),
     )
 
 
@@ -1836,7 +1851,13 @@ def _looks_like_cellpose_sam(manifest: Mapping[str, Any]) -> bool:
 def bioimageio_entries(timeout: float = 5.0,
                        url: Optional[str] = None,
                        allow_network: bool = False) -> List["ModelEntry"]:
-    """Cellpose-SAM models published on bioimage.io, or an empty list.
+    """Cellpose models published on bioimage.io, or an empty list.
+
+    Two kinds of row. A Cellpose-SAM or Cellpose-DINO model, which spaCR's
+    own Cellpose 4 loads, is a ``cellpose`` row pointing at its bioimage.io
+    page. A Cellpose 3-format checkpoint is a ``cellpose3`` row that
+    downloads the weights file itself, checked against the SHA-256 the
+    manifest publishes, for the Cellpose 3 backend to run.
 
     Best effort and never raises: no network, a slow mirror or a changed
     schema all mean "no extra rows", never a zoo that fails to open. The
@@ -1878,7 +1899,10 @@ def bioimageio_entries(timeout: float = 5.0,
         if not isinstance(item, Mapping):
             continue
         manifest = item.get("manifest") or {}
-        if not isinstance(manifest, Mapping) or not _looks_like_cellpose_sam(manifest):
+        if not isinstance(manifest, Mapping):
+            continue
+        cellpose3 = _cellpose3_weights(manifest)
+        if cellpose3 is None and not _looks_like_cellpose_sam(manifest):
             continue
         alias = str(item.get("alias") or "")
         if not alias:
@@ -1890,6 +1914,10 @@ def bioimageio_entries(timeout: float = 5.0,
         authors = ", ".join(
             str(a.get("name")) for a in (manifest.get("authors") or ())
             if isinstance(a, Mapping))
+        if cellpose3 is not None:
+            out.append(_cellpose3_download_entry(
+                alias, slug, title, manifest, authors, *cellpose3))
+            continue
         out.append(ModelEntry(
             key=slug, name=alias, path="", kind="cellpose",
             source="bioimage.io",
@@ -1900,38 +1928,154 @@ def bioimageio_entries(timeout: float = 5.0,
     return out
 
 
-#: ``name -> (label, pip extra, import name, what it is)``. These are
-#: PACKAGES, not checkpoints: the zoo lists them so a user learns they exist.
+#: The architectures a Cellpose 3-format bioimage.io model names.
+#: ``CellPoseWrapper`` wraps a Cellpose 3 checkpoint and ``CPnetBioImageIO``
+#: is Cellpose's own export of one; either way the ``pytorch_state_dict``
+#: weights ARE the checkpoint, which Cellpose 3's ``CellposeModel`` loads.
+_BIOIMAGEIO_CELLPOSE3_ARCHITECTURES = ("CellPoseWrapper", "CPnetBioImageIO")
+
+#: Where bioimage.io serves an artifact's files.
+_BIOIMAGEIO_FILES = ("https://hypha.aicell.io/bioimage-io/artifacts/{alias}/"
+                     "files/{name}")
+
+#: What a Cellpose 3-format row says about how to use it.
+_CELLPOSE3_USE = (
+    "runs through the Cellpose 3 backend: install that from this list, set "
+    "segmentation_backend to cellpose3, and put this model's path in the "
+    "object's model setting")
+
+
+def _cellpose3_weights(manifest: Mapping[str, Any]) -> Optional[Tuple[str, str]]:
+    """The Cellpose 3 checkpoint a bioimage.io manifest publishes.
+
+    Only the two architectures in :data:`_BIOIMAGEIO_CELLPOSE3_ARCHITECTURES`
+    count -- the word "cellpose" in a tag does not, and a Cellpose-SAM model
+    is the Cellpose 4 kind, listed as such.
+
+    :returns: ``(source, sha256)`` of the weights file, or None.
+    """
+    if str(manifest.get("type") or "") != "model":
+        return None
+    if _looks_like_cellpose_sam(manifest):
+        return None
+    weights = manifest.get("weights")
+    state = weights.get("pytorch_state_dict") if isinstance(weights, Mapping) else None
+    if not isinstance(state, Mapping):
+        return None
+    architecture = state.get("architecture")
+    called = (str(architecture.get("callable") or "")
+              if isinstance(architecture, Mapping) else "")
+    source = str(state.get("source") or "").strip()
+    if called not in _BIOIMAGEIO_CELLPOSE3_ARCHITECTURES or not source:
+        return None
+    return source, str(state.get("sha256") or "").strip().lower()
+
+
+def _cellpose3_download_entry(alias: str, slug: str, title: str,
+                              manifest: Mapping[str, Any], authors: str,
+                              source: str, sha256: str) -> "ModelEntry":
+    """A bioimage.io Cellpose 3 checkpoint as a row that downloads it.
+
+    The weights file is fetched from bioimage.io itself and checked against
+    the SHA-256 its manifest publishes, like any other zoo download, and the
+    licence the uploader chose travels with the row.
+    """
+    if source.startswith(("http://", "https://")):
+        uri = source
+    else:
+        uri = _BIOIMAGEIO_FILES.format(alias=alias, name=source)
+    suffix = Path(source).suffix if Path(source).suffix in (".pth", ".pt") else ".pth"
+    return ModelEntry(
+        key=f"bioimageio_{slug}", name=f"{slug}{suffix}", path="",
+        kind="cellpose3", source="bioimage.io", uri=uri, sha256=sha256,
+        trained_on=f"{title} — {manifest.get('description') or ''}"[:300],
+        trained_by=authors or "bioimage.io",
+        licence=str(manifest.get("license") or ""),
+        notes=(f"bioimage.io model {alias}; {_CELLPOSE3_USE}",))
+
+
+#: What each Cellpose 3 model is, for its zoo row.
+_CELLPOSE3_NOTES = {
+    "cyto3": "Cellpose 3's generalist whole-cell model.",
+    "cyto2": "Cellpose 2's whole-cell model.",
+    "cyto": "The original Cellpose whole-cell model.",
+    "nuclei": "Cellpose's nucleus model.",
+}
+
+
+def _cellpose3_model_entries() -> List["ModelEntry"]:
+    """The Cellpose 3 backend's own models, listed whether or not it is here.
+
+    The name IS the path, as for the Cellpose 4 stock models: ``cyto3`` in
+    an object's model setting, with segmentation_backend set to cellpose3,
+    is what runs it. Until the backend is installed the row has no path and
+    says what it needs.
+    """
+    from ._segmentation_backends import _CELLPOSE3, _SPECS, _backend_state
+
+    spec = _SPECS[_CELLPOSE3]
+    ready = _backend_state(_CELLPOSE3).ready
+    out = []
+    for model in spec.models:
+        out.append(ModelEntry(
+            key=f"cellpose3_{model}", name=model, kind="cellpose3",
+            source="stock", path=model if ready else "",
+            uri=f"backend:{_CELLPOSE3}", sha256="", size_bytes=0,
+            trained_on=(f"{_CELLPOSE3_NOTES.get(model, '')} Runs through the "
+                        f"Cellpose 3 backend.").strip(),
+            trained_by="Cellpose", licence=spec.licence,
+            notes=() if ready else (
+                "needs the Cellpose 3 backend, which installs from this "
+                "list into an environment of its own",)))
+    return out
+
+
+def _backend_for(entry: Any) -> str:
+    """The optional segmentation backend a zoo row needs, or ``''``.
+
+    A backend row names itself in its ``backend:<name>`` uri; every
+    ``cellpose3`` model needs the Cellpose 3 backend.
+    """
+    uri = str(getattr(entry, "uri", "") or "")
+    if uri.startswith("backend:"):
+        return uri.split(":", 1)[1]
+    if getattr(entry, "kind", "") == "cellpose3":
+        return "cellpose3"
+    return ""
+
+
+#: ``name -> (label, install uri, import name, what it is)`` for every
+#: optional segmentation backend. These are PACKAGES, not checkpoints: the zoo
+#: lists them so a user learns they exist, and each installs into an
+#: environment of its own, never into spaCR's.
 INSTALLABLE_BACKENDS = {
-    "samcell": ("SAMCell", "spacr[samcell]", "samcell",
-                "SAMCell segmentation backend. A package, not a checkpoint: "
-                "listed here so it can be installed from inside spaCR."),
-    "dinocell": ("DINOCell", "spacr[dinocell]", "dinocell",
-                 "DINOCell segmentation backend. A package, not a checkpoint: "
-                 "listed here so it can be installed from inside spaCR."),
+    _name: (_spec.label, f"backend:{_name}", _spec.module, _spec.blurb)
+    for _name, _spec in _BACKEND_SPECS.items()
 }
 
 
 def installable_backend_entries() -> List["ModelEntry"]:
-    """Segmentation backends spaCR can install, whether or not they are here.
+    """Every optional segmentation backend, in whatever state it is here.
 
-    A backend absent from the zoo teaches nobody that it exists. These rows say
-    what they are and whether they are installed; installing one runs pip
-    against this environment, so the GUI asks before it does.
+    A backend absent from the zoo teaches nobody that it exists, so each one
+    is listed, and its ``source`` says where it stands -- ``installed``,
+    ``installable``, ``installing`` or ``not installable here`` -- with the
+    reason as its first note and its licence on the row. Installing one
+    builds it an environment of its own under ``~/.spacr/backends`` and
+    leaves spaCR's own environment alone.
     """
-    import importlib.util
+    from ._segmentation_backends import _backend_state
 
     out = []
-    for name, (label, extra, module, blurb) in INSTALLABLE_BACKENDS.items():
-        try:
-            present = importlib.util.find_spec(module) is not None
-        except Exception:                                    # noqa: BLE001
-            present = False
+    for name, spec in _BACKEND_SPECS.items():
+        state = _backend_state(name)
         out.append(ModelEntry(
-            key=f"{name}_v1", name=label, path=module if present else "",
-            kind="backend", source="installed" if present else "installable",
-            uri=f"pip:{extra}", sha256="", size_bytes=0,
-            trained_on=blurb, trained_by=label))
+            key=f"{name}_v1", name=spec.label,
+            path=state.env if state.ready and not state.in_process else "",
+            kind="backend", source=state.state, uri=f"backend:{name}",
+            sha256="", size_bytes=0, trained_on=spec.blurb,
+            trained_by=spec.label, licence=spec.licence,
+            notes=(f"{state.state}: {state.reason}", spec.licence_note)))
     return out
 
 
@@ -2068,6 +2212,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
 
     entries.extend(stock_cellpose_entries())
     entries.extend(installable_backend_entries())
+    entries.extend(_cellpose3_model_entries())
     if remote:
         entries.extend(bioimageio_entries())
     if remote:

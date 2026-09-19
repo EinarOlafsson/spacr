@@ -141,8 +141,18 @@ def _stem_version(entry) -> tuple:
 
 
 def _status_of(entry) -> str:
-    """One word for whether this version is usable right now."""
+    """One word for whether this version is usable right now.
+
+    A segmentation backend says its own state -- installed, installable,
+    installing or not installable here -- and a Cellpose 3 model of the
+    backend's own says whether that backend is here to run it.
+    """
+    kind = str(getattr(entry, "kind", ""))
+    if kind == "backend":
+        return str(getattr(entry, "source", ""))
     path = str(getattr(entry, "path", "") or "")
+    if kind == "cellpose3" and str(getattr(entry, "source", "")) == "stock":
+        return "usable" if path else "needs the Cellpose 3 backend"
     if path and os.path.isfile(path):
         state = "installed"
     elif str(getattr(entry, "source", "")) == "bundled":
@@ -502,11 +512,17 @@ class ModelZooScreen(QWidget):
         self._btn_download.clicked.connect(self.download_selected)
         self._btn_cancel = QPushButton("Cancel", download)
         self._btn_cancel.clicked.connect(self.cancel_download)
+        self._btn_uninstall = QPushButton("Uninstall", download)
+        self._btn_uninstall.setToolTip(
+            "Delete the selected backend's environment and everything "
+            "downloaded into it. spaCR's own environment is not touched.")
+        self._btn_uninstall.clicked.connect(self.uninstall_selected)
         row.addWidget(QLabel("to", download))
         row.addWidget(self._dest_edit, 1)
         row.addWidget(self._btn_pick_dest)
         row.addWidget(self._btn_download)
         row.addWidget(self._btn_cancel)
+        row.addWidget(self._btn_uninstall)
         dl.addLayout(row)
 
         self._allow_unverified = Toggle(
@@ -674,19 +690,41 @@ class ModelZooScreen(QWidget):
         return pairs[self._chosen[stem]][1]
 
     def _row_clicked(self, _item) -> None:
-        """Offer to install an uninstalled backend the user clicked."""
+        """Offer to install an uninstalled backend the user clicked, or the
+        backend a Cellpose 3 model needs."""
+        from ..widgets.model_zoo_picker import _needs_install
+
         chosen = self.selected_entries()
-        if len(chosen) != 1:
-            return
-        entry = chosen[0]
-        if getattr(entry, "kind", "") != "backend":
-            return
-        if getattr(entry, "source", "") == "installed":
-            return
+        if len(chosen) == 1 and _needs_install(chosen[0]):
+            self._install_backend_for(chosen[0])
+
+    def _install_backend_for(self, entry) -> bool:
+        """Install the backend ``entry`` needs, then list again.
+
+        :returns: whether it is ready afterwards.
+        """
         from ..widgets.model_zoo_picker import install_backend_package
 
-        if install_backend_package(self, entry):
+        ready = install_backend_package(self, entry)
+        self.scan("", include_catalogue=True)
+        return ready
+
+    def uninstall_selected(self) -> bool:
+        """Remove the selected backend's environment, after asking.
+
+        :returns: whether it was removed.
+        """
+        from ... import model_zoo
+        from ..widgets.model_zoo_picker import _removable, uninstall_backend
+
+        chosen = self.selected_entries()
+        if len(chosen) != 1 or not _removable(chosen[0]):
+            return False
+        removed = uninstall_backend(self, model_zoo._backend_for(chosen[0]))
+        if removed:
             self.scan("", include_catalogue=True)
+            self._set_status(f"{chosen[0].name} was uninstalled.")
+        return removed
 
     def rows(self) -> List[List[str]]:
         """The listing as plain strings."""
@@ -849,6 +887,10 @@ class ModelZooScreen(QWidget):
                 else "Select a model to download.", error=True)
             return False
         entry = chosen[0]
+        from ..widgets.model_zoo_picker import _needs_install
+
+        if _needs_install(entry) or entry.kind == "backend":
+            return self._install_backend_for(entry)
         if entry.exists:
             self._set_status(
                 f"{entry.name} is already here: {entry.path}", error=True)
@@ -1368,8 +1410,16 @@ class ModelZooScreen(QWidget):
         self._btn_pick_dest.setEnabled(not busy)
         self._btn_pick_fields.setEnabled(not busy)
         self._fields_box.setEnabled(not busy)
+        from ..widgets.model_zoo_picker import _needs_install, _removable
+
+        installs = one and _needs_install(chosen[0])
+        self._btn_download.setText("Install" if installs else "Download")
         self._btn_download.setEnabled(
-            not busy and one and bool(chosen[0].uri) and not chosen[0].exists)
+            not busy and one and (installs or (
+                bool(chosen[0].uri) and not chosen[0].exists
+                and chosen[0].kind != "backend")))
+        self._btn_uninstall.setEnabled(
+            not busy and one and _removable(chosen[0]))
         self._btn_cancel.setEnabled(busy)
         self._btn_test.setEnabled(
             not busy and one and bool(self._images) and chosen[0].exists)

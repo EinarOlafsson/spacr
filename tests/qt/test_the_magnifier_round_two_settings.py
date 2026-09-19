@@ -673,8 +673,14 @@ def test_the_correction_set_in_the_category_changes_the_magnifiers_objects(
 
 
 # ---------------------------------------------------------------------------
-# 10. DINOCell and SAMCell as magnifier detectors
+# 10. Cellpose 3, DINOCell and SAMCell as magnifier detectors
 # ---------------------------------------------------------------------------
+
+#: Every backend mode, in the order the Mode box lists them (item 423 added
+#: the four Cellpose 3 models ahead of DINOCell and SAMCell).
+_BACKEND_MODES = ["cellpose3:cyto3", "cellpose3:cyto2", "cellpose3:cyto",
+                  "cellpose3:nuclei", "dinocell", "samcell"]
+
 
 def _modes(made):
     return [made._mag_mode.itemData(i) for i in range(made._mag_mode.count())]
@@ -682,15 +688,17 @@ def _modes(made):
 
 def test_dinocell_and_samcell_are_offered_where_installed(
         qtbot, qt_theme_applied, monkeypatch):
-    present = {"cellpose", "dinocell", "samcell"}
     monkeypatch.setattr(mm, "find_spec",
-                        lambda name: object() if name in present else None)
+                        lambda name: object() if name == "cellpose" else None)
+    monkeypatch.setattr(mm, "_backend_ready", lambda mode: True)
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["classical", "cellpose", "dinocell", "samcell"]
-        assert [made._mag_mode.itemText(i) for i in range(4)][2:] == [
-            "DINOCell", "SAMCell"]
+        assert _modes(made) == ["classical", "cellpose", *_BACKEND_MODES]
+        assert [made._mag_mode.itemText(i) for i in range(8)][2:] == [
+            "Cellpose 3 · cyto3", "Cellpose 3 · cyto2", "Cellpose 3 · cyto",
+            "Cellpose 3 · nuclei", "DINOCell", "SAMCell"]
+        assert made._mag_uninstalled == set()
         assert all(note.isHidden()
                    for note in made._mag_install_notes.values())
         made._mag_mode.setCurrentIndex(made._mag_mode.findData("samcell"))
@@ -713,12 +721,13 @@ def test_where_not_installed_the_modes_are_greyed_and_offer_to_install(
 
     monkeypatch.setattr(mm, "find_spec",
                         lambda name: object() if name == "cellpose" else None)
+    monkeypatch.setattr(mm, "_backend_ready", lambda mode: False)
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["classical", "cellpose", "dinocell", "samcell"]
-        assert made._mag_uninstalled == {"dinocell", "samcell"}
-        for mode in ("dinocell", "samcell"):
+        assert _modes(made) == ["classical", "cellpose", *_BACKEND_MODES]
+        assert made._mag_uninstalled == set(_BACKEND_MODES)
+        for mode in _BACKEND_MODES:
             index = made._mag_mode.findData(mode)
             assert made._mag_mode.itemData(index, Qt.ForegroundRole) is not None
             assert "not installed" in made._mag_mode.itemData(
@@ -735,6 +744,72 @@ def test_where_not_installed_the_modes_are_greyed_and_offer_to_install(
     finally:
         made._magnifier.close()
         made.close_folded()
+
+
+def test_installing_cellpose3_from_the_mode_box_lights_all_four_models(
+        qtbot, qt_theme_applied, monkeypatch):
+    """Item 423: the install goes through the Model Zoo's own dialog -- off
+    the GUI thread, into an environment of its own -- and one install makes
+    every Cellpose 3 model usable, not only the one that was chosen."""
+    from PySide6.QtCore import Qt
+
+    from spacr.qt.widgets import model_zoo_picker
+
+    monkeypatch.setattr(mm, "_backend_ready", lambda mode: False)
+    answers = iter([False, True])
+    asked = []
+    monkeypatch.setattr(model_zoo_picker, "install_backend",
+                        lambda parent, name: asked.append(name)
+                        or next(answers))
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        assert made._offer_backend_install("cellpose3:cyto2") is False
+        assert made._mag_uninstalled == set(_BACKEND_MODES)
+        assert made._offer_backend_install("cellpose3:cyto2") is True
+        assert asked == ["cellpose3", "cellpose3"]
+        assert made._mag_uninstalled == {"dinocell", "samcell"}
+        for mode in _BACKEND_MODES[:4]:
+            index = made._mag_mode.findData(mode)
+            assert made._mag_mode.itemData(index, Qt.ForegroundRole) is None
+        index = made._mag_mode.findData("samcell")
+        assert made._mag_mode.itemData(index, Qt.ForegroundRole) is not None
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_a_cellpose3_mode_loads_its_own_model_once(monkeypatch):
+    from spacr import _segmentation_backends as backends
+
+    built = []
+    monkeypatch.setattr(backends, "_load_backend",
+                        lambda name, **kw: built.append((name, kw)) or object())
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    first = mm._backend_model("cellpose3:nuclei")
+    assert mm._backend_model("cellpose3:nuclei") is first
+    mm._backend_model("dinocell")
+    assert built == [("cellpose3", {"model_name": "nuclei"}),
+                     ("dinocell", {"model_name": None})]
+
+
+def test_a_mode_is_ready_when_its_backend_environment_is(tmp_path,
+                                                        monkeypatch):
+    from spacr import _segmentation_backends as backends
+
+    assert not mm._backend_ready("cellpose3:cyto3")
+    env = tmp_path / "backend-environments" / "cellpose3"
+    python = Path(backends._env_python(str(env)))
+    python.parent.mkdir(parents=True)
+    python.write_text("")
+    backends._write_marker(str(env), {"backend": "cellpose3"})
+    assert mm._backend_ready("cellpose3:cyto")
+
+    def _broken(name):
+        raise OSError("the home folder went away")
+
+    monkeypatch.setattr(backends, "_backend_state", _broken)
+    assert not mm._backend_ready("samcell")
 
 
 def _stub_backend_class(backends):
@@ -804,10 +879,9 @@ def test_a_backend_segments_the_box_through_the_real_backend_seam(
     assert screen._log.edits[-1].detail["mode"] == mode
 
 
-@pytest.mark.parametrize("mode, extra", [("dinocell", "spacr[dinocell]"),
-                                         ("samcell", "spacr[samcell]")])
+@pytest.mark.parametrize("mode", ["dinocell", "samcell"])
 def test_a_backend_that_is_not_installed_falls_back_and_says_how_to_install(
-        qtbot, screen, monkeypatch, mode, extra):
+        qtbot, screen, monkeypatch, mode):
     import sys
 
     monkeypatch.setitem(sys.modules, mode, None)
@@ -819,6 +893,6 @@ def test_a_backend_that_is_not_installed_falls_back_and_says_how_to_install(
     assert screen._magnifier._shown.mode == "classical"
     status = screen._status_label.text()
     assert f"{mode} could not run" in status
-    assert f'pip install "{extra}"' in status
+    assert "Install it from the Model Zoo" in status
     assert mode not in mm._BACKEND_MODELS, "a failed build is not kept"
     assert screen._magnifier.build_request().mode == "classical"

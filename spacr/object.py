@@ -771,7 +771,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             **accelerator.cellpose_kwargs(),
         )
     else:
-        model = _load_backend(segmentation_backend, z_plan=z_plan, t_plan=t_plan)
+        model = _load_backend(segmentation_backend, z_plan=z_plan,
+                              t_plan=t_plan, model_name=model_name,
+                              object_type=object_type)
     paths = [os.path.join(src, file) for file in _listdir_visible(src) if file.endswith('.npz')]
     
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'

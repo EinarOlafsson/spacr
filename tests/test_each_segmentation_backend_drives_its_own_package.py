@@ -15,7 +15,8 @@ mistake there would first surface on a user's machine:
    resampled back to its own size;
 5. SAMCell's distance map becoming labels through its own pipeline, and a
    failed prediction raising rather than saving an empty field;
-6. a package that is installed but fails to load still naming its extra.
+6. a package that is installed but fails to load still naming the Model
+   Zoo, where it installs into an environment of its own (item 423).
 
 Each package is replaced in ``sys.modules`` by stand-in modules that record
 what spaCR built and called. Cellpose's ``compute_masks`` and torch's
@@ -35,6 +36,13 @@ import numpy as np
 import pytest
 
 import spacr._segmentation_backends as SB
+
+
+@pytest.fixture(autouse=True)
+def _no_backend_environments(tmp_path, monkeypatch):
+    """Item 423: a backend environment under the real ``~/.spacr/backends``
+    would take these runs out of process; every test here sees none."""
+    monkeypatch.setenv(SB._ROOT_ENV, str(tmp_path / "backends"))
 
 
 def _drop_modules(monkeypatch, name):
@@ -495,7 +503,7 @@ def test_a_failed_samcell_prediction_stops_the_run_instead_of_saving_an_empty_fi
 # ===========================================================================
 
 @pytest.mark.parametrize("name", ["dinocell", "samcell"])
-def test_a_package_that_fails_to_load_names_its_extra_like_a_missing_one(
+def test_a_package_that_fails_to_load_names_the_model_zoo_like_a_missing_one(
         monkeypatch, name):
     """A package can be installed and still fail to import: a shared library
     that will not load raises OSError, not ImportError. The user needs the
@@ -515,7 +523,7 @@ def test_a_package_that_fails_to_load_names_its_extra_like_a_missing_one(
         SB._load_backend(name, device="cpu")
 
     message = str(exc.value)
-    assert f'`pip install "spacr[{name}]"`' in message
+    assert "Install it from the Model Zoo" in message
     assert "segmentation_backend='cellpose'" in message
     assert f"lib{name}.so: cannot open shared object file" in message
     assert isinstance(exc.value.__cause__, OSError)

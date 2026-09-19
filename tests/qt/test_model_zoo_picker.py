@@ -28,9 +28,16 @@ def _row_needing_download(picker):
     is on disk for everyone. Selecting by INDEX made three tests assert the
     not-downloaded behaviour against a downloaded model, and they failed --
     correctly. Select by state instead.
+
+    By TABLE ROW, which is a model family, and never a segmentation backend
+    (item 423): this used to walk ``picker._entries`` and hand back an entry
+    index as a row number, which named the right row only while no family
+    had two versions -- the day the Cellpose 3 backend row arrived, it named
+    a backend, whose Download installs rather than downloads.
     """
-    for row, entry in enumerate(picker._entries):
-        if picker._local_path(entry) is None:
+    for row, (stem, pairs) in enumerate(picker._groups):
+        entry = pairs[picker._chosen[stem]][1]
+        if entry.kind != "backend" and picker._local_path(entry) is None:
             return row
     pytest.skip("every offered model is already present")
 

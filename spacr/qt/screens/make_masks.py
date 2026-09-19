@@ -1761,11 +1761,21 @@ def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
 
 
 #: The optional models the magnifier runs through
-#: :mod:`spacr._segmentation_backends` (items 404 and 405): ``mode -> the
-#: package that must be installed``. The Mode box always lists both, greys
-#: one whose package is missing, and installs it when it is chosen (item
-#: 419, point 3).
-_MAGNIFIER_BACKENDS = {"dinocell": "dinocell", "samcell": "samcell"}
+#: :mod:`spacr._segmentation_backends` (items 404, 405, 419 point 3 and
+#: 423): ``mode -> (backend, the label the Mode box shows)``. A Cellpose 3
+#: mode names its model after the colon. Each is always listed, greyed until
+#: its backend is installed, and choosing a greyed one offers the install --
+#: into an environment of its own, which is the maintainer's 2026-09-19
+#: answer for item 423 and replaces the pip-into-spaCR's-own-environment
+#: route item 419 built.
+_MAGNIFIER_BACKENDS = {
+    "cellpose3:cyto3": ("cellpose3", "Cellpose 3 · cyto3"),
+    "cellpose3:cyto2": ("cellpose3", "Cellpose 3 · cyto2"),
+    "cellpose3:cyto": ("cellpose3", "Cellpose 3 · cyto"),
+    "cellpose3:nuclei": ("cellpose3", "Cellpose 3 · nuclei"),
+    "dinocell": ("dinocell", "DINOCell"),
+    "samcell": ("samcell", "SAMCell"),
+}
 
 #: Loaded DINOCell and SAMCell models, by backend name, for the life of the
 #: process. Building one loads a ViT checkpoint, and the box asks on every
@@ -1774,31 +1784,52 @@ _BACKEND_MODELS: dict = {}
 
 
 def _backend_model(name: str):
-    """The DINOCell or SAMCell model called ``name``, built once.
+    """The backend model a magnifier mode names, built once.
 
     Built by :func:`spacr._segmentation_backends._load_backend`, the same
-    loader the mask pipeline's ``segmentation_backend`` setting uses.
+    loader the mask pipeline's ``segmentation_backend`` setting uses. A
+    ``cellpose3:<model>`` mode loads that Cellpose 3 model.
 
-    :raises ImportError: naming the pip extra, when the package is missing.
+    :raises ImportError: naming the Model Zoo, when the backend is missing.
     """
     with _CELLPOSE_LOCK:
         model = _BACKEND_MODELS.get(name)
         if model is None:
             from ... import _segmentation_backends
 
-            model = _segmentation_backends._load_backend(name)
+            backend, _colon, model_name = str(name).partition(":")
+            model = _segmentation_backends._load_backend(
+                backend, model_name=model_name or None)
             _BACKEND_MODELS[name] = model
         return model
 
 
+def _backend_ready(mode: str) -> bool:
+    """Whether the backend a magnifier mode needs can segment now.
+
+    File checks only -- no import, no subprocess -- so the Mode box can ask
+    while it is built.
+    """
+    from ... import _segmentation_backends
+
+    backend = _MAGNIFIER_BACKENDS[mode][0]
+    try:
+        return _segmentation_backends._backend_state(backend).ready
+    except (OSError, ValueError):
+        return False
+
+
 def _backend_segmenter(request: _MagnifierRequest, load_model=None):
-    """Segment the region with DINOCell or SAMCell (item 417, part 10).
+    """Segment the region with Cellpose 3, DINOCell or SAMCell (items 417
+    and 423).
 
     A backend answers ``CellposeModel.eval``'s own call, so the region goes
     through :func:`cellpose_detect` with the Cellpose-SAM settings exactly as
-    Cellpose's does: DINOCell reads the cell-probability threshold (through
-    the logistic function, so 0 is its own 0.5) and SAMCell uses its own
-    thresholds. ``load_model`` is the CELLPOSE loader and is not used: a
+    Cellpose's does: Cellpose 3 reads both thresholds and the diameter (0
+    lets its size model estimate it), DINOCell reads the cell-probability
+    threshold (through the logistic function, so 0 is its own 0.5) and
+    SAMCell uses its own thresholds. Each runs in its own environment, out
+    of process. ``load_model`` is the CELLPOSE loader and is not used: a
     backend name handed to it would load stock cpsam without a word.
     """
     with _CELLPOSE_LOCK:
@@ -1821,8 +1852,7 @@ def _backend_segmenter(request: _MagnifierRequest, load_model=None):
 _MAGNIFIER_SEGMENTERS = {
     "classical": _classical_segmenter,
     "cellpose": _cellpose_segmenter,
-    "dinocell": _backend_segmenter,
-    "samcell": _backend_segmenter,
+    **{mode: _backend_segmenter for mode in _MAGNIFIER_BACKENDS},
 }
 
 
@@ -5545,9 +5575,9 @@ class MakeMasksScreen(QWidget):
         if installed("cellpose"):
             self._mag_mode.addItem("Cellpose", "cellpose")
         self._mag_uninstalled = set()
-        for mode, label in (("dinocell", "DINOCell"), ("samcell", "SAMCell")):
+        for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
             self._mag_mode.addItem(label, mode)
-            if not installed(_MAGNIFIER_BACKENDS[mode]):
+            if not _backend_ready(mode):
                 self._mag_uninstalled.add(mode)
         self._grey_uninstalled_modes()
         self._mag_mode.setToolTip(
@@ -5558,10 +5588,12 @@ class MakeMasksScreen(QWidget):
             "threshold correction under Cellpose-SAM, and runs whenever a "
             "model cannot be loaded. Cellpose uses the model, both thresholds, "
             "the diameter and the normalization set under Cellpose-SAM, and "
-            "is slow without a GPU. DINOCell and SAMCell are always listed "
-            "and greyed until installed, and choosing one offers to install "
-            "it; DINOCell reads the cell probability set under Cellpose-SAM, "
-            "and SAMCell uses its own thresholds.")
+            "is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), "
+            "DINOCell and SAMCell are always listed and greyed until "
+            "installed, and choosing one offers to install it into an "
+            "environment of its own; Cellpose 3 reads both thresholds and "
+            "the diameter set under Cellpose-SAM, DINOCell reads the cell "
+            "probability, and SAMCell uses its own thresholds.")
         self._mag_mode.currentIndexChanged.connect(self._on_mode_row_changed)
         self._mag_mode.activated.connect(self._on_magnifier_mode_activated)
         form.addRow("Mode", self._mag_mode)
@@ -5569,21 +5601,6 @@ class MakeMasksScreen(QWidget):
         #: Kept empty: the install sentence used to live on the panel, and
         #: now the greyed Mode row offers the install itself.
         self._mag_install_notes = {}
-        #: The backend install running now, if one is.
-        self._mag_install_job = None
-        self._mag_install_mode = None
-        install_row = QHBoxLayout()
-        self._mag_install_bar = QProgressBar()
-        self._mag_install_bar.setRange(0, 0)
-        self._mag_install_bar.setTextVisible(False)
-        self._mag_install_bar.hide()
-        self._mag_install_label = QLabel()
-        self._mag_install_label.setObjectName("CardSubtitle")
-        self._mag_install_label.setWordWrap(True)
-        self._mag_install_label.hide()
-        install_row.addWidget(self._mag_install_bar, 1)
-        form.addRow(install_row)
-        form.addRow(self._mag_install_label)
 
         self._mag_scope = QComboBox()
         self._mag_scope.addItem("Region under the mouse", "region")
@@ -5813,92 +5830,42 @@ class MakeMasksScreen(QWidget):
         self._offer_backend_install(mode)
 
     def _offer_backend_install(self, mode) -> bool:
-        """Ask, warn, and install the backend for ``mode`` in the background.
+        """Install the backend ``mode`` needs, into an environment of its own.
 
-        The warning is not a formality: this runs pip against the environment
-        spaCR is running in, these backends bring their own torch pin, and a
-        package that replaces torch underneath a running process is how an
-        application stops starting. The install runs as a child process
-        (:class:`spacr.qt.model_install.PackageInstall`), so the window keeps
-        responding; a bar and pip's latest line show under Mode while it
-        runs.
+        Item 419 point 3 asked for a greyed row that installs itself when it
+        is chosen; the maintainer's answer of 2026-09-19 for item 423 says
+        WHERE it installs -- "Isolated env per backend!" -- so this goes
+        through the Model Zoo's own install dialog: off the GUI thread, with
+        progress and Cancel, into ~/.spacr/backends/<name>, and spaCR's own
+        environment is never touched. It replaces the route through
+        :class:`spacr.qt.model_install.PackageInstall`, which ran
+        `pip install "spacr[<backend>]"` against the environment spaCR is
+        running in; that module is unchanged and still serves the Mask
+        settings' backend dropdown.
 
-        :param mode: ``'dinocell'`` or ``'samcell'``.
-        :returns: True when an install was started.
+        Every mode of that backend -- all four Cellpose 3 models at once --
+        stops being greyed when it lands, and the row that was chosen is
+        selected, which is what item 419's background install did at its end.
+
+        :param mode: a key of :data:`_MAGNIFIER_BACKENDS`.
+        :returns: True when the backend can segment afterwards.
         """
         from ..i18n import tr
-        from ..model_install import (PackageInstall, backend_row,
-                                     confirm_backend_install)
+        from ..widgets import model_zoo_picker
 
-        row = backend_row(mode)
-        if row is None:
+        backend, label = _MAGNIFIER_BACKENDS[mode]
+        if not model_zoo_picker.install_backend(self, backend):
             return False
-        _name, label, requirement, _module = row
-        running = self._mag_install_job
-        if running is not None and running.is_running():
-            self._status_label.setText(tr(
-                "An install is already running; wait for it to finish."))
-            return False
-        if not confirm_backend_install(self, label, requirement):
-            return False
-        job = PackageInstall(requirement)
-        self._mag_install_job, self._mag_install_mode = job, mode
-        job.progressed.connect(self._on_backend_install_output)
-        job.finished.connect(self._on_backend_installed)
-        self._mag_install_bar.show()
-        self._mag_install_label.setText(tr(
-            "Installing {name}: pip install \"{requirement}\"",
-            name=label, requirement=requirement))
-        self._mag_install_label.show()
-        self._status_label.setText(tr(
-            "Installing {name} in the background.", name=label))
-        return job.start()
-
-    def _on_backend_install_output(self, line: str) -> None:
-        """Show pip's latest line under the progress bar."""
-        self._mag_install_label.setText(str(line))
-
-    def _on_backend_installed(self, worked: bool, message: str) -> None:
-        """Select the installed backend, or say why the install failed.
-
-        Whether the package can be found is asked again rather than assumed:
-        pip can exit 0 and still leave nothing importable, and a row is only
-        un-greyed for a backend that is really there. One that is found may
-        still fail to load in this process when the install replaced a
-        package spaCR had already imported; the magnifier then falls back to
-        Classical with the backend's own message, and the line here says a
-        restart is the cure.
-        """
-        from ..i18n import tr
-        from ..model_install import backend_row
-
-        mode, self._mag_install_mode = self._mag_install_mode, None
-        self._mag_install_job = None
-        self._mag_install_bar.hide()
-        self._mag_install_label.hide()
-        row = backend_row(mode) if mode else None
-        label = row[1] if row else str(mode)
-        if not worked:
-            if message != "cancelled":
-                self._warn(tr("{name} was not installed", name=label),
-                           message)
-            return
-        try:
-            present = find_spec(_MAGNIFIER_BACKENDS[mode]) is not None
-        except (ImportError, ValueError):
-            present = False
-        if not present:
-            self._status_label.setText(tr(
-                "pip finished, but {name} cannot be found. Restart spaCR and "
-                "try again.", name=label))
-            return
-        self._mag_uninstalled.discard(mode)
+        for other, (needs, _label) in _MAGNIFIER_BACKENDS.items():
+            if needs == backend:
+                self._mag_uninstalled.discard(other)
         self._grey_uninstalled_modes()
-        self._mag_mode.setCurrentIndex(self._mag_mode.findData(mode))
+        index = self._mag_mode.findData(mode)
+        if index >= 0:
+            self._mag_mode.setCurrentIndex(index)
         self._status_label.setText(tr(
-            "{name} is installed and selected. If it does not load, restart "
-            "spaCR: the install may have changed packages this window "
-            "already uses.", name=label))
+            "{name} is installed and selected.", name=label))
+        return True
 
     def _on_magnifier_scope(self, scope) -> None:
         """Segment the region under the mouse or the whole image.
