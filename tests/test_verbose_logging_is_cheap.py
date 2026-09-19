@@ -117,16 +117,25 @@ def test_the_hook_is_cheap_when_verbose_is_off():
         f"tracing cost {traced:.4f}s against {plain:.4f}s untraced")
 
 
-def test_verbose_is_off_by_default():
-    """Measured: 3.05 s to Home with it off, 65.28 s with it on.
+def test_verbose_is_on_by_default():
+    """The maintainer asked for it on 2026-08-28, once it was cheap.
 
-    It was briefly the default -- a trail that exists before the bug is
-    genuinely worth having. Twenty times the startup is not something to
-    give a user who did not ask for it.
+    It was off because of 3.05 s to Home against 65.28 s. That was the
+    function tracer, and the preference stopped installing it on
+    2026-08-30. The whole-application benchmark of 2026-09-19 opened all 45
+    modules in a cold and a warm process per arm: Home in 4.00 / 4.07 s
+    cold with verbose on against 4.04 / 4.18 s off, and the slowest module
+    in 7.08-7.26 s against 7.02-7.54 s. Both are inside the 5 s and 10 s
+    budgets of the startup item, and inside the spread between two runs of
+    one arm.
+
+    What keeps it cheap is held by
+    `test_gui_verbose_never_installs_an_interpreter_profile_hook`. If that
+    test ever has to change, this default has to be measured again.
     """
     from spacr.qt import preferences
 
-    assert preferences.DEFAULT_VERBOSE_LOGGING is False
+    assert preferences.DEFAULT_VERBOSE_LOGGING is True
 
     class _Empty:
         def value(self, key, default=None, type=None):
@@ -141,7 +150,7 @@ def test_verbose_is_off_by_default():
     real = preferences.QSettings
     preferences.QSettings = lambda *a, **k: _Empty()
     try:
-        assert preferences.get_verbose_logging() is False
+        assert preferences.get_verbose_logging() is True
     finally:
         preferences.QSettings = real
 

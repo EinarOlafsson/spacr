@@ -3899,24 +3899,32 @@ def set_log_levels(file_levels, console_levels) -> tuple:
     return files, console
 
 
-#: Verbose diagnostic logging is OFF unless the user turns it on.
+#: Verbose diagnostic logging is ON unless the user turns it off.
 #:
-#: IT WAS BRIEFLY THE DEFAULT, and the measurement that reversed that is
-#: worth keeping: on this machine, offscreen, reaching a usable Home screen
-#: took 3.05 s with verbose off and 65.28 s with it on -- and the Mask
-#: module had still not finished opening when the run was cut short.
+#: It was off because of a measurement taken on 2026-08-28: offscreen, a
+#: usable Home took 3.05 s with verbose off and 65.28 s with it on. That cost
+#: was the interpreter-wide function tracer, which the preference installed
+#: then. It stopped installing it on 2026-08-30, so the preference now raises
+#: log levels and adds no work to an ordinary call.
 #:
-#: The tracer fires on every call and every return in the process, and
-#: startup is where a Python application makes the most calls it will ever
-#: make. Excluding the paint path and halving the line length (297) took the
-#: cost from unusable to merely large; neither makes twenty times the
-#: startup acceptable as something a user did not ask for.
+#: Re-measured on 2026-09-19 with ``tools/spacr_startup_benchmark.py``'s
+#: workers, offscreen. Every one of the 45 registered modules was opened, in
+#: a cold and a warm process per arm, and the arms were run off, on, on, off:
 #:
-#: A trail that exists before the bug is genuinely worth having, which is
-#: why this was tried. Making it affordable means not tracing every call --
-#: sampling, or tracing only the module a run is in -- and until that exists
-#: the honest default is off.
-DEFAULT_VERBOSE_LOGGING = False
+#:     Home, cold       on 4.00 / 4.07 s     off 4.04 / 4.18 s    budget 5 s
+#:     Home, warm       on 2.07 / 1.95 s     off 2.01 / 1.92 s
+#:     slowest module   on 7.08-7.26 s       off 7.02-7.54 s      budget 10 s
+#:     peak RSS         on 1,165-1,177 MB    off 1,164-1,174 MB
+#:
+#: Every difference is inside the spread between two runs of the same arm.
+#: The 500 ms event-loop stall ceiling is breached by both arms alike, and
+#: verbose logging does not move it.
+#:
+#: The tracer is still there for developers, as
+#: :func:`spacr.logging_util.enable_function_trace`, and it is not cheap:
+#: with it installed, Home took 7.4 s and the next screen did not open
+#: within the benchmark's 10 s hang guard.
+DEFAULT_VERBOSE_LOGGING = True
 
 #: Process-tree accounting is cheap enough to leave on.  It samples once a
 #: second and installs no Python profile hook.
@@ -3935,8 +3943,8 @@ def get_verbose_logging() -> bool:
     was reviewed. Changing it discards a human translation, so it is left
     exactly as it was and anything new goes below.
 
-    Defaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is off: verbose
-    tracing costs about twenty times the startup, measured.
+    Defaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is on. Opening every
+    module took the same time with it on as with it off, measured.
     """
     raw = _settings().value(_KEY_VERBOSE_LOG, DEFAULT_VERBOSE_LOGGING)
     if isinstance(raw, str):

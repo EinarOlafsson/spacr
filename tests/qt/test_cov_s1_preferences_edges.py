@@ -195,7 +195,12 @@ def test_a_boolean_written_as_a_word_still_reads_as_a_boolean(store):
 def test_a_log_level_list_and_a_trailing_comma_both_read(store):
     """QSettings splits a comma-separated INI value into a list on some
     platforms and hands back the raw string on others; both spellings, and a
-    stray separator in either, name the same levels."""
+    stray separator in either, name the same levels.
+
+    Verbose is switched off first. It is on by default since 2026-09-19,
+    and while it is on the read adds DEBUG, which is a different rule from
+    the parsing this test is about."""
+    store.setValue(prefs._KEY_VERBOSE_LOG, False)
     store.setValue(prefs._KEY_LOG_FILE_LEVELS, ["INFO", "WARNING"])
     assert prefs.get_log_file_levels() == prefs._parse_levels(
         "INFO,WARNING", ())

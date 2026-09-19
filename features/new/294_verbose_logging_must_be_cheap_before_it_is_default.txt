@@ -1,9 +1,12 @@
 294 — Verbose logging must be cheap before it can be the default
 
-Status:    PARTLY, verified 2026-09-15 against the code: the three "cheap"
-           bullets and the tooltip are done; left: a whole-app measurement with
-           verbose on, then flipping DEFAULT_VERBOSE_LOGGING (still False,
-           preferences.py:3672). See the dated sections below.
+Status:    DONE 2026-09-19. The whole application was measured with verbose
+           on against 284's budgets and it costs nothing a benchmark can see;
+           the tooltip states the measured figures; DEFAULT_VERBOSE_LOGGING is
+           True. Two defects found on the way are NOT fixed and are recorded
+           in the 2026-09-19 note at the end: the startup resets the `spacr`
+           logger to INFO after the preference raised it, and a Preferences
+           Save stores verbose's DEBUG as the user's own level choice.
 
 Asked 2026-08-28: "verbose logging should be on by default".
 
@@ -142,3 +145,140 @@ test_verbose_tracing_is_cheap_enough_to_leave_on.py -- 5 passed.
 LEFT: measure the app with verbose on against 284's budgets; then, if it fits,
 flip the default. The tooltip's 3 s / 65 s predates the realpath cache
 (fe5a7cfea, 2026-09-14), so that measurement also refreshes its numbers.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- MEASURED ACROSS THE WHOLE APP; THE DEFAULT IS ON. TWO DEFECTS LEFT.
+--------------------------------------------------------------------------------
+
+THE PREMISE WAS OLDER THAN THIS FILE SAID. The 2026-09-15 note says the
+tooltip's 3 s / 65 s "predates the realpath cache". It predates more than
+that. Commit e22f46c69 (2026-08-30, "Keep verbose logging off the global
+profiler") took `enable_function_trace` out of `apply_verbose_logging`, and
+nothing in spacr/ has installed the profile hook since -- `git grep
+"enable_function_trace("` finds only its definition and the tests.
+`@log_call` decorates no function in the package. So the preference now
+raises logger levels and adds no work to an ordinary call, and the 65 s,
+the "156 bytes per traced call" and "Records every spaCR function entered
+and left" all described a tracer the switch no longer turns on. The
+realpath cache (fe5a7cfea) sped up a hook that only tests and developers
+install.
+
+THE MEASUREMENT. `tools/spacr_startup_benchmark.py`'s own `_run_worker`,
+driven from a scratch script so the isolated HOME could carry a
+`[prefs] verbose_logging=` line; offscreen; under run_capped.sh 8G; one app
+instance at a time; `spacr.qt.__file__` asserted inside the worktree by the
+worker itself. Cold + warm process per arm, all 45 registered modules
+opened, arms run off, on, on, off, load average 1.2-3.9 on 32 cores:
+
+    Home, cold          on 4.00 / 4.07 s      off 4.04 / 4.18 s    budget 5 s
+    Home, warm          on 2.07 / 1.95 s      off 2.01 / 1.92 s
+    slowest module      on 7.08-7.26 s        off 7.02-7.54 s      budget 10 s
+      (regression in every run; mask 4.1-4.3 s, classify_merged 3.6-3.9 s)
+    over the budgets    0 of 47 states (Home, Preferences, 45 modules) in
+                        every run, both arms
+    stall violations    15 / 15 / 16 / 15 on  15 / 15 / 16 / 14 off
+    peak RSS            1,165-1,177 MB on     1,164-1,174 MB off
+
+Every difference is inside the spread between two runs of one arm. The
+500 ms stall ceiling is breached equally by both arms; it is 284's open work
+and verbose does not move it. THE PREFERENCE TOOK EFFECT: the day log holds
+20 DEBUG lines with it on and 0 with it off.
+
+Three more arms, for what the numbers above do NOT cover:
+
+  * `spacr` held at DEBUG after startup (see defect 1): Home 4.12 / 2.02 s,
+    slowest 7.34 / 7.40 s, the same 20 DEBUG lines. The sweep emits no
+    non-Qt DEBUG, so this bounds the fix's cost at nothing on this path; a
+    pipeline run was not measured.
+  * THE TRACER installed by hand at the point the old preference installed
+    it: Home 7.39 / 7.38 s (over the 5 s budget), then the Preferences open
+    did not finish inside the benchmark's 10 s hang guard -- the main thread
+    was waiting on an import lock held by the preloader thread's traced
+    import. ~21 MB of trace in 8 s, rotated at 5 MB. With the tracer, Home
+    went from 65 s on 2026-08-28 to 7.4 s today. The realpath cache is one
+    of the changes in between, not the only one, and 7.4 s is still not a
+    default.
+  * THE FLIPPED DEFAULT, fresh HOME with no verbose key at all: Home 3.83 /
+    1.74 s, slowest 7.34 / 7.27 s, 0 over budget, 15 / 15 stall violations,
+    20 DEBUG lines. That is the default reaching a user who never opened
+    Preferences.
+
+WHAT CHANGED, in two commits so the second can be taken or dropped alone:
+
+  1. The tooltip says what the switch does and what it costs, measured, and
+     that it does not trace every function call. Driven in the real dialog:
+     hovering the Diagnostics label puts it in the hint strip
+     (tests/qt/test_the_verbose_row_says_what_it_costs.py, which fails on the
+     old text). The docstrings of get_log_file_levels,
+     function_trace_enabled, enable_function_trace and resource_log's module
+     docstring stopped saying the preference installs the tracer.
+  2. DEFAULT_VERBOSE_LOGGING = True, its `#:` note rewritten with the table
+     above, and the two tests that pinned False now pin True
+     (test_verbose_logging_is_cheap::test_verbose_is_on_by_default,
+     test_batch_b_theme_logger::test_defaults_on). Two more assumed the
+     default without saying so, and now switch verbose off first:
+     test_cov_s1_preferences_edges' log-level parsing test and
+     test_the_preferences_helpers_no_test_named's subset-on-read test. The
+     read adds DEBUG while verbose is on, and neither is about that rule.
+     Safe mode still forces verbose off (`_SAFE_OVERRIDES`), unchanged.
+
+LEFT -- TWO DEFECTS, BOTH PRE-EXISTING, BOTH MADE COMMONER BY THE FLIP:
+
+  1. THE STARTUP UNDOES THE PREFERENCE FOR THE `spacr` LOGGER. `launch()`
+     calls `apply_preferences_to_app(app)` and THEN `setup_logging()`
+     (spacr/qt/app.py, "from .logging_util import setup_logging"), and the
+     package `setup_logging` sets `spacr` to INFO and the master file's
+     filter to INFO and above. Probed with the real functions in that order,
+     verbose stored on:
+
+         after apply_preferences_to_app   spacr DEBUG  spacr.io DEBUG
+         after setup_logging              spacr INFO   spacr.io INFO
+                                          (spacr.qt and its children DEBUG)
+         after apply_preferences_to_app   spacr DEBUG  spacr.io DEBUG
+         again, which is what Save runs
+
+     So until the first Save, DEBUG from every non-Qt module is dropped at
+     the logger, and a user's own Logging-tab choice is overridden the same
+     way whether or not verbose is on. The likely fix is to call
+     `setup_logging()` before `apply_preferences_to_app(app)`, so the
+     preferences land last. docs/notes/spacr/qt/preferences.md already says
+     the per-level switches "have to be the one that lands last"; at startup
+     they are not. Not done here: it is a startup-order change with its own
+     tests to write, and it is not a cost.
+
+  2. A SAVE STORES VERBOSE'S DEBUG AS THE USER'S OWN LEVEL. The Logging tab
+     builds its switches from `get_log_file_levels()`, which ORs DEBUG in
+     while verbose is on, and Save writes the switches back. Driven through
+     the real dialog, default flipped, fresh store:
+
+         fresh start                   stored levels None   verbose True
+         Save, nothing touched         stored "DEBUG,INFO,WARNING,ERROR,CRITICAL"
+         untick verbose, Save          stored the same      verbose False
+                                       effective file levels still include
+                                       DEBUG; `spacr` logger still DEBUG
+
+     get_log_file_levels' docstring promises "DEBUG goes away again when
+     they turn verbose off"; after any Save made with verbose on, it does
+     not. With the default on, that is every user who presses Save. The cost
+     measured above is nil either way, so the harm is a switch that stops
+     doing half of what it says. A fix has to decide what an untouched DEBUG
+     switch means while verbose is on -- the stored bit, not the displayed
+     one, is the likely answer -- and that is a UI decision, so it is
+     recorded rather than made.
+
+TESTS, one file at a time under run_capped.sh 4G, offscreen, on the flipped
+tree: 35 files covering verbose, logging, the level policy, Preferences and
+launch() -- among them test_verbose_logging_is_cheap (12),
+test_batch_b_theme_logger (13), test_cov_qt_app (124),
+test_qt_worker_teardown (23), test_preferences (57), test_preferences_tabs
+(45), test_safespacr_gets_in (13) -- all green after the two test fixes
+above. NOT run: the whole suite, which this machine's rules forbid. The risk
+it would catch is a later test inheriting DEBUG loggers from an earlier
+launch() in the same worker, because the default now raises them; nothing
+seen in any file run here.
+
+EXPECTED RED UNTIL THE CATALOG PASS: tests/qt/test_i18n_caption_ratchet.py
+now lists the new tooltip among the captions without a source hash. It had
+the same 3 failures on the base commit (5643621f1), for other captions.
+test_i18n_coverage_audit and test_external_i18n_catalogs fail identically on
+the base commit and on this branch.

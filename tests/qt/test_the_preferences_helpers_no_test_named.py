@@ -115,8 +115,14 @@ def test_the_subset_is_enforced_on_READ_not_only_on_write(own_config):
     The stored console levels are written straight into QSettings, going
     ROUND the writer -- which is the situation being tested: a value the
     writer never saw, because a different build put it there.
+
+    Verbose is switched off first. It is on by default since 2026-09-19,
+    and while it is on the file levels gain DEBUG on read, so a stored
+    console DEBUG is then legitimately inside them.
     """
     import logging
+
+    own_config.set_verbose_logging(False)
 
     # NAMES GO IN, NUMBERS COME OUT: the store holds "INFO,WARNING" and the
     # readers hand back level numbers, so the writer takes numbers and the
