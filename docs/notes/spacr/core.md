@@ -163,6 +163,14 @@ print(f"Error: Tried to convert image files and image file name metadata with re
 
 Category B: no file was renamed, so every step below would operate on an empty/unrecognised folder. Historically this printed and returned None, which reads exactly like success.
 
+### line 399, 2026-09-19, GitHub #124
+
+```python
+_check_archives_without_preprocessing(src)
+```
+
+With `preprocess` off, nothing below checked `masks/*.npz` before the segmenter opened them, so the #124 state (an archive a killed run cut short) still ended in `zipfile.BadZipFile` on this path after `spacr.io` learned to check them on the `preprocess` path. The check sets a damaged archive aside and stops with an error naming it, rather than normalising it again, because `preprocess` off is the user saying the normalised arrays already exist; the error says to turn `preprocess` on, which rebuilds the fields from `stack/`. It runs before the illumination resume below, whose `_normalized_npz_field_ids` opens every archive too. Reasons in `docs/notes/spacr/io.md`, "A re-run trusts nothing a killed run left".
+
 ### lines 409-411
 
 ```python

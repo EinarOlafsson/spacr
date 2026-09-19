@@ -1227,7 +1227,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     stacked = _stack_field_stems(stack_path)
     if save_original_images:
         to_move = []
-        if pending_keys or wanted <= stacked:
+        if wanted & stacked:
             to_move = [filename for filename in _listdir_visible(src)
                        if os.path.splitext(filename)[1] in img_format]
         if to_move:
@@ -1410,24 +1410,44 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
     ledger.finalize()
     return
 
+def _channel_folders(src):
+    """Name the single-channel folders (``0`` to ``100``, or ``00`` to ``09``) directly in ``src``.
+
+    :param src: the plate folder.
+    :returns: the folder names, sorted as strings.
+    """
+    string_list = [str(i) for i in range(101)]+[f"{i:02d}" for i in range(10)]
+    try:
+        names = _listdir_visible(src)
+    except OSError:
+        return []
+    return sorted(d for d in names
+                  if os.path.isdir(os.path.join(src, d)) and d in string_list)
+
+
 def _merge_channels(src, plot=False):
     """
     Merge the channels in the given source directory and save the merged files in a 'stack' directory without using multiprocessing.
+
+    Only the fields ``stack/`` lacks are merged, so a run killed while
+    writing ``stack/`` is finished on the next run, and a stack set aside as
+    damaged is merged again from the channel folders. When ``stack/`` holds
+    fields but none is named like a file in the channel folders, it was
+    written under another naming scheme and nothing is added to it.
+
+    :param src: the plate folder holding the channel folders.
+    :param plot: plot the stacks afterwards.
+    :returns: the number of channel folders; 0 when there are none.
     """
 
     from .plot import plot_arrays
     from .utils import print_progress
-    
+
     stack_dir = os.path.join(src, 'stack')
     print(f'generated stack dir at {stack_dir}')
-    
-    
-    string_list = [str(i) for i in range(101)]+[f"{i:02d}" for i in range(10)]
-    allowed_names = sorted(string_list, key=lambda x: int(x))
-    
-    chan_dirs = [d for d in _listdir_visible(src) if os.path.isdir(os.path.join(src, d)) and d in allowed_names]
-    chan_dirs.sort()
-    
+
+    chan_dirs = _channel_folders(src)
+
     num_matching_folders = len(chan_dirs)
 
     print(f'List of folders in src: {chan_dirs}. Single channel folders.')
@@ -1444,14 +1464,28 @@ def _merge_channels(src, plot=False):
         os.makedirs(stack_dir, exist_ok=True)
     print(f'Generated folder with merged arrays: {stack_dir}')
 
-    if _is_dir_empty(stack_dir):
+    wanted = {os.path.splitext(name)[0]: name for name in dir_files
+              if os.path.isfile(os.path.join(first_dir_path, name))}
+    existing = _stack_field_stems(stack_dir)
+    if existing and wanted and not existing & set(wanted):
+        print(f'stack/ already holds {len(existing)} field(s), and none is '
+              f'named like a file in the channel folders (for example '
+              f'{sorted(wanted)[0]}.npy); it was written under another '
+              f'naming scheme, so nothing is added to it.')
+        pending = []
+    else:
+        pending = [name for stem, name in wanted.items()
+                   if stem not in existing]
+        if existing and pending:
+            print(f'Resuming: stack/ holds {len(existing & set(wanted))} of '
+                  f'{len(wanted)} field(s); merging the other {len(pending)} '
+                  f'from the channel folders.')
+    if pending:
         time_ls = []
-        files_to_process = len(dir_files)
-        for i, file_name in enumerate(dir_files):
+        files_to_process = len(pending)
+        for i, file_name in enumerate(pending):
             start_time = time.time()
-            full_file_path = os.path.join(first_dir_path, file_name)
-            if os.path.isfile(full_file_path):
-                _merge_file([os.path.join(src, d) for d in chan_dirs], stack_dir, file_name)
+            _merge_file([os.path.join(src, d) for d in chan_dirs], stack_dir, file_name)
             stop_time = time.time()
             duration = stop_time - start_time
             time_ls.append(duration)
@@ -1659,6 +1693,11 @@ def _replace_atomically(output_path, write, prefix='.spacr_tmp_'):
     listing that selects ``*.npy`` or ``*.npz`` ever picks it up, and
     :func:`_sweep_partial_writes` removes it on a later run.
 
+    The sibling is created with :func:`open` in exclusive mode, so it gets
+    the permissions the process's umask gives any new file, as
+    :func:`numpy.save` onto the final name did, rather than the owner-only
+    mode of :func:`tempfile.mkstemp`.
+
     :param output_path: final path.
     :param write: callable that receives the open binary handle of the
         sibling and writes the complete content to it.
@@ -1668,10 +1707,16 @@ def _replace_atomically(output_path, write, prefix='.spacr_tmp_'):
     output_path = os.fspath(output_path)
     directory = os.path.dirname(output_path) or '.'
     os.makedirs(directory, exist_ok=True)
-    fd, temporary = tempfile.mkstemp(
-        prefix=prefix, suffix=_PARTIAL_SUFFIX, dir=directory)
+    while True:
+        temporary = os.path.join(
+            directory, f'{prefix}{os.urandom(8).hex()}{_PARTIAL_SUFFIX}')
+        try:
+            opened = open(temporary, 'xb')
+        except FileExistsError:
+            continue
+        break
     try:
-        with os.fdopen(fd, 'wb') as handle:
+        with opened as handle:
             write(handle)
             handle.flush()
             os.fsync(handle.fileno())
@@ -2587,6 +2632,154 @@ def _set_aside_damaged_stacks(stack_path):
     return damaged
 
 
+def _set_aside_names(folder, extension):
+    """Name the files in ``folder`` that were set aside as damaged, by the name they had.
+
+    :param folder: a ``stack/`` or ``masks/`` folder; a missing one holds none.
+    :param extension: ``'.npy'`` or ``'.npz'``.
+    :returns: the original names (``<name>.damaged`` and
+        ``<name>.damaged.<n>`` both give ``<name>``), sorted and de-duplicated.
+    """
+    pattern = re.compile(
+        r'(.+' + re.escape(extension) + r')' + re.escape(_DAMAGED_SUFFIX)
+        + r'(\.\d+)?$')
+    try:
+        names = _listdir_visible(folder)
+    except OSError:
+        return []
+    return sorted({match.group(1) for match in map(pattern.match, names)
+                   if match})
+
+
+def _report_unrebuilt_stacks(stack_path, src):
+    """Report the field stacks that were set aside as damaged and never built again.
+
+    Such a field has a ``stack/<name>.damaged`` and no ``stack/<name>``, so it
+    gets no normalised archive, no masks and no ``merged/`` array. Each one is
+    recorded as a failure, so the run ends on ``RUN INCOMPLETE`` instead of
+    finishing with the field missing, and it is reported again on every run
+    until its raw images are back or the ``.damaged`` file is deleted.
+
+    :param stack_path: the ``stack/`` folder.
+    :param src: the plate folder, named in the message.
+    :returns: the names of the stacks that are still missing.
+    """
+    missing = [name for name in _set_aside_names(stack_path, '.npy')
+               if not os.path.exists(os.path.join(stack_path, name))]
+    if not missing:
+        return []
+    print(f'{len(missing)} damaged field stack(s) could not be built again, '
+          f'because no raw image left in {src}, its orig/ or its channel '
+          f'folders builds a field of that name: {_name_list(missing)}. Those '
+          f'fields get no masks and no merged/ array. Put their raw images '
+          f'back and run again to build them, or delete the <name>.damaged '
+          f'file(s) in {stack_path} to go on without them.')
+    ledger = RunLedger('field_stacks')
+    for name in missing:
+        ledger.record_failure(
+            os.path.join(stack_path, name), stage='rebuild_damaged_stack',
+            exc=(f'set aside as {name}{_DAMAGED_SUFFIX} because it was '
+                 f'damaged, and not built again: no raw image left builds '
+                 f'this field'))
+    ledger.finalize()
+    return missing
+
+
+def _check_normalized_archives(masks_path):
+    """Check every ``masks/*.npz`` before it is reused, and set the damaged ones aside.
+
+    :param masks_path: the ``masks/`` folder.
+    :returns: dict with ``archives`` (the names checked), ``damaged``
+        (``(name, reason)`` for each renamed to ``<name>.damaged``),
+        ``earlier`` (archives an earlier run set aside), ``unlisted`` (whole
+        archives that list their fields as an object array), ``covered``
+        (the field stems the whole archives list) and ``planes`` (the
+        channel counts of the whole archives).
+    """
+    _sweep_partial_writes(masks_path)
+    earlier = _set_aside_names(masks_path, '.npz')
+    archives = sorted(name for name in _listdir_visible(masks_path)
+                      if name.endswith('.npz'))
+    damaged, unlisted, covered, plane_counts = [], [], set(), set()
+    for name in archives:
+        ok, reason, fields, planes = _inspect_normalized_archive(
+            os.path.join(masks_path, name))
+        if not ok:
+            _set_aside(os.path.join(masks_path, name))
+            damaged.append((name, reason))
+            continue
+        plane_counts.add(planes)
+        if fields is None:
+            unlisted.append(name)
+        else:
+            covered.update(fields)
+    if archives:
+        print(f'Checked {len(archives)} normalised archive(s) in {masks_path}: '
+              f'{len(archives) - len(damaged)} whole, {len(damaged)} damaged.')
+    if damaged:
+        print(f'Set aside as <name>.damaged: '
+              f'{_name_list(f"{name} ({reason})" for name, reason in damaged)}')
+    if earlier:
+        print(f'{masks_path} also holds {len(earlier)} archive(s) an earlier '
+              f'run set aside as damaged: {_name_list(earlier)}.')
+    return {'archives': archives, 'damaged': damaged, 'earlier': earlier,
+            'unlisted': unlisted, 'covered': covered, 'planes': plane_counts}
+
+
+def _check_archives_without_preprocessing(src):
+    """Check ``masks/*.npz`` before a run with ``preprocess`` off segments them.
+
+    With ``preprocess`` off nothing normalises the plate again, so an
+    archive a killed run cut short is not rebuilt. It is set aside as
+    ``<name>.damaged`` like any other, and the run stops with an error that
+    names it and says what to do, rather than with the
+    :class:`zipfile.BadZipFile` the segmenter would raise on it. Fields of
+    ``stack/`` that no whole archive lists are reported, not normalised.
+
+    :param src: the plate folder holding ``masks/``.
+    :returns: the names of the whole archives.
+    :raises FileNotFoundError: when an archive is damaged.
+    """
+    masks_path = os.path.join(src, 'masks')
+    stack_path = os.path.join(src, 'stack')
+    checked = _check_normalized_archives(masks_path)
+    damaged = checked['damaged']
+    if damaged:
+        stack_fields = _stack_field_stems(stack_path)
+        raw = (_raw_image_names(src) or
+               _raw_image_names(os.path.join(src, 'orig')) or
+               _channel_folders(src))
+        if stack_fields:
+            way_out = (f' Turn preprocess on and run again: the fields they '
+                       f'held are normalised again from {stack_path}, into '
+                       f'new archives.')
+        elif raw:
+            way_out = (' Turn preprocess on and run again: the fields they '
+                       'held are built again from the raw images and '
+                       'normalised into new archives.')
+        else:
+            way_out = (f' Neither stack/ nor the raw images are left to build '
+                       f'them again from. Point src at a copy of the plate\'s '
+                       f'raw images, or move the <name>.damaged file(s) out of '
+                       f'{masks_path} and run again to segment only the '
+                       f'fields the whole archives hold.')
+        raise FileNotFoundError(
+            f'{len(damaged)} normalised archive(s) in {masks_path} were '
+            f'damaged by an earlier run '
+            f'({_name_list(name for name, _ in damaged)}) and have been set '
+            f'aside as <name>.damaged. preprocess is off, so they are not '
+            f'built again.{way_out}')
+    if not checked['unlisted']:
+        missing = _stack_field_stems(stack_path) - checked['covered']
+        if missing and checked['archives']:
+            print(f'{len(missing)} field(s) in stack/ are in no archive in '
+                  f'{masks_path}: {_name_list(sorted(missing))}. preprocess '
+                  f'is off, so they are not normalised and get no masks; '
+                  f'turn preprocess on to add them.')
+    return [name for name in checked['archives']
+            if name not in dict(damaged)]
+
+
 def _next_archive_index(masks_path):
     """Return the first ``n`` that no ``stack_<n>_norm.npz`` in ``masks_path`` uses.
 
@@ -2638,10 +2831,13 @@ def _resume_normalized_archives(settings, src, mask_channels):
     it does, each ``stack/*.npy`` (:func:`_npy_is_whole`) and each
     ``masks/*.npz`` (:func:`_inspect_normalized_archive`) is checked, and a
     damaged file is renamed to ``<name>.damaged`` and reported by name. A
-    field stack that is missing is built again from ``orig/`` when the raw
-    images are there. The fields of ``stack/`` that no whole archive lists --
-    those of a damaged archive, and those a killed run never reached -- are
-    normalised again, into new archives numbered after the existing ones.
+    field stack that is missing is built again from the raw images in the
+    plate folder or ``orig/``, or from its channel folders, when they are
+    there; one that cannot be is recorded as a failure
+    (:func:`_report_unrebuilt_stacks`). The fields of ``stack/`` that no
+    whole archive lists -- those of a damaged archive, and those a killed run
+    never reached -- are normalised again, into new archives numbered after
+    the existing ones.
 
     :param settings: the preprocessing settings; not modified.
     :param src: the plate folder holding ``masks/`` and ``stack/``.
@@ -2650,55 +2846,37 @@ def _resume_normalized_archives(settings, src, mask_channels):
         ``stack/`` and preprocessing can be skipped. False when fields are
         missing from an illumination-corrected or timelapse set, which has
         to be rebuilt whole from ``stack/``.
-    :raises FileNotFoundError: when an archive is damaged and ``stack/`` holds
-        no field to rebuild it from.
+    :raises FileNotFoundError: when ``masks/`` holds an archive set aside as
+        damaged, by this run or an earlier one, and ``stack/`` holds no field
+        to rebuild it from.
     """
     stack_path = os.path.join(src, 'stack')
     masks_path = os.path.join(src, 'masks')
-    damaged_stacks = _set_aside_damaged_stacks(stack_path)
+    _set_aside_damaged_stacks(stack_path)
     try:
         _rebuild_stacks_from_raw(settings, src)
+        if _channel_folders(src):
+            _merge_channels(src, plot=False)
     except Exception as exc:
         print(f'Could not build missing field stacks from the raw images: '
               f'{type(exc).__name__}: {exc}')
-    unrebuilt = [name for name, _ in damaged_stacks
-                 if not os.path.exists(os.path.join(stack_path, name))]
-    if unrebuilt:
-        print(f'{len(unrebuilt)} damaged field stack(s) could not be built '
-              f'again, because no raw image for them is left in {src} or its '
-              f'orig/: {_name_list(unrebuilt)}. Those fields get no merged/ '
-              f'array.')
-    _sweep_partial_writes(masks_path)
-    archives = sorted(name for name in _listdir_visible(masks_path)
-                      if name.endswith('.npz'))
-    damaged, unlisted, covered, plane_counts = [], [], set(), set()
-    for name in archives:
-        ok, reason, fields, planes = _inspect_normalized_archive(
-            os.path.join(masks_path, name))
-        if not ok:
-            _set_aside(os.path.join(masks_path, name))
-            damaged.append((name, reason))
-            continue
-        plane_counts.add(planes)
-        if fields is None:
-            unlisted.append(name)
-        else:
-            covered.update(fields)
-    if archives:
-        print(f'Checked {len(archives)} normalised archive(s) in {masks_path}: '
-              f'{len(archives) - len(damaged)} whole, {len(damaged)} damaged.')
-    if damaged:
-        print(f'Set aside as <name>.damaged: '
-              f'{_name_list(f"{name} ({reason})" for name, reason in damaged)}')
+    _report_unrebuilt_stacks(stack_path, src)
+    checked = _check_normalized_archives(masks_path)
+    damaged = checked['damaged']
+    set_aside = sorted({name for name, _ in damaged} | set(checked['earlier']))
+    unlisted, covered = checked['unlisted'], checked['covered']
+    plane_counts = checked['planes']
     stack_fields = _stack_field_stems(stack_path)
-    if damaged and not stack_fields:
+    if set_aside and not stack_fields:
         raise FileNotFoundError(
-            f'{len(damaged)} normalised archive(s) in {masks_path} were '
-            f'damaged by an earlier run '
-            f'({_name_list(name for name, _ in damaged)}) and have been set '
-            f'aside as <name>.damaged, and {stack_path} holds no field '
-            f'stacks to rebuild them from. Move masks/ out of {src} and run '
-            f'again so preprocessing starts over from the raw images.')
+            f'{len(set_aside)} normalised archive(s) in {masks_path} were '
+            f'damaged by an earlier run ({_name_list(set_aside)}) '
+            f'and are set aside as <name>.damaged, and neither {stack_path} '
+            f'nor the raw images in {src} or its orig/ are left to build '
+            f'their fields again from. Point src at a copy of the plate\'s '
+            f'raw images to preprocess it again, or move the <name>.damaged '
+            f'file(s) out of {masks_path} and run again to segment only the '
+            f'fields the whole archives hold.')
     if unlisted:
         print(f'{len(unlisted)} archive(s) list their fields as an object '
               f'array, which is not read without unpickling '
@@ -2859,7 +3037,9 @@ def _no_stacks_error(src, requested_src, regex, metadata_type):
         hint += (f' None of the image files in {subject} or its orig/ could '
                  f'be read as a field: spaCR reads files ending in '
                  f'{", ".join(_RAW_IMAGE_SUFFIXES)} whose names match the '
-                 f'pattern for metadata_type={metadata_type!r}: {regex}')
+                 f'pattern for metadata_type={metadata_type!r}: {regex}. A '
+                 f'file whose name matches and that still gave no field '
+                 f'could not be opened; the log above names each one.')
     elif not summary and subdirs:
         hint += (f" It holds no images but does hold sub-folders "
                  f"({', '.join(subdirs)}) — if those are plates, point "
@@ -2885,10 +3065,14 @@ def preprocess_img_data(settings):
     ``orig/`` are read from there, and only the fields ``stack/`` lacks are
     built. Every ``stack/*.npy`` and ``masks/*.npz`` an earlier run left is
     checked before it is reused: a file cut short is renamed to
-    ``<name>.damaged``, named in the log, and built again from the raw
-    images or ``stack/``. When there is nothing to build from, the error
-    says what the folder does hold. In ``test_mode`` a plate whose raw
-    images are gone is sampled from its ``stack/`` instead.
+    ``<name>.damaged``, named in the log, and built again, a field stack
+    from the raw images or channel folders and an archive from ``stack/``.
+    A field stack with nothing left to build it from is recorded as a
+    failure, so the run ends incomplete instead of quietly short of that
+    field, and an archive with nothing left to build it from stops the run
+    with an error that names it. When no field can be built at all, the
+    error says what the folder does hold. In ``test_mode`` a plate whose
+    raw images are gone is sampled from its ``stack/`` instead.
 
     :param settings: Preprocessing settings dict, canonicalized via
         :func:`spacr.settings.set_default_settings_preprocess_img_data`.
@@ -3038,7 +3222,7 @@ def preprocess_img_data(settings):
     stack_path = os.path.join(src, 'stack')
     _set_aside_damaged_stacks(stack_path)
     if img_format == None:
-        if not os.path.exists(stack_path):
+        if not os.path.exists(stack_path) or _channel_folders(src):
             _merge_channels(src, plot=False)   
    
     resuming = os.path.exists(stack_path)
@@ -3086,6 +3270,7 @@ def preprocess_img_data(settings):
         except Exception as e:
             print(f"Error: {e}")
 
+    _report_unrebuilt_stacks(stack_path, src)
     stacked = ([f for f in _listdir_visible(stack_path) if f.endswith('.npy')]
                if os.path.isdir(stack_path) else [])
     stacked = select_fields(stacked, settings.get('fields'))

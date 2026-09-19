@@ -60,13 +60,15 @@ def _preprocess(src, **over):
 
 
 def _stack_names(folder):
-    return sorted(p.name for p in Path(folder).glob("*.npy"))
+    return sorted(p.name for p in Path(folder).glob("*.npy")
+                  if not p.name.startswith("."))
 
 
 def _archive_fields(masks):
     """Load every archive the way the segmenter does and list its fields."""
     fields = []
-    for path in sorted(Path(masks).glob("*.npz")):
+    for path in sorted(p for p in Path(masks).glob("*.npz")
+                       if not p.name.startswith(".")):
         with np.load(path) as data:
             assert data["data"].shape[0] == len(data["filenames"])
             fields.extend(str(name) for name in data["filenames"])
@@ -313,8 +315,19 @@ def test_a_damaged_archive_with_nothing_to_rebuild_from_is_an_error(plate):
 
     message = str(excinfo.value)
     assert "stack_2_norm.npz" in message
-    assert "holds no field stacks to rebuild them from" in message
+    assert "are left to build their fields again from" in message
+    assert "Point src at a copy of the plate's raw images" in message
     assert (masks / "stack_2_norm.npz.damaged").exists()
+
+    with pytest.raises(FileNotFoundError) as again:
+        _preprocess(plate)
+    assert "stack_2_norm.npz" in str(again.value), (
+        "a second run went on without the fields of the archive the first "
+        "one set aside, having said so only once")
+
+    (masks / "stack_2_norm.npz.damaged").rename(plate / "set_aside.bin")
+    _preprocess(plate)
+    assert len(_archive_fields(masks)) == 2
 
 
 def test_a_damaged_stack_beside_whole_archives_is_built_again_from_orig(
@@ -434,6 +447,197 @@ def test_issue_118_the_mask_run_in_test_mode_finishes(plate, fake_cellpose,
     assert len(fields) == 1
     assert _stack_names(test / "merged") == fields
     assert len(_stack_names(plate / "stack")) == 4
+
+
+# ---------------------------------------------------------------------------
+# after review: the paths the first version of the fix did not reach
+# ---------------------------------------------------------------------------
+
+_RUN = dict(masks=True, save=True, adjust_cells=False, keep_intermediate=True,
+            keep_original_images=True, n_jobs=1, cell_diameter=40,
+            nucleus_diameter=20, magnification=20)
+
+
+def test_issue_124_with_preprocess_off_stops_on_the_damaged_archive(
+        plate, fake_cellpose):
+    """preprocess off is the setting for "the normalized arrays already
+    exist". core handed masks/*.npz to the segmenter unchecked there, so the
+    #124 state still ended in zipfile.BadZipFile. It now stops on an error
+    that names the archive, and turning preprocess on, as that error says,
+    finishes the plate."""
+    from spacr.core import preprocess_generate_masks
+
+    masks = _killed_during_normalisation(plate)
+
+    with pytest.raises(FileNotFoundError) as excinfo:
+        preprocess_generate_masks(_settings(plate, preprocess=False, **_RUN))
+
+    message = str(excinfo.value)
+    assert "stack_2_norm.npz" in message
+    assert "preprocess is off" in message
+    assert "Turn preprocess on and run again" in message
+    assert (masks / "stack_2_norm.npz.damaged").exists()
+    assert not (masks / "cell_mask_stack").exists() or not _stack_names(
+        masks / "cell_mask_stack")
+
+    preprocess_generate_masks(_settings(plate, preprocess=True, **_RUN))
+
+    fields = _stack_names(plate / "stack")
+    assert _stack_names(plate / "merged") == fields
+
+
+def _channel_folder_plate(root):
+    """A plate laid out as one folder per channel, four fields in each."""
+    import tifffile
+
+    src = root / "chan_plate"
+    rng = np.random.default_rng(0)
+    for channel in ("1", "2"):
+        (src / channel).mkdir(parents=True)
+        for i in range(4):
+            tifffile.imwrite(src / channel / f"plate_A0{i + 1}_1_1.tif",
+                             rng.integers(0, 4000, (32, 32), dtype=np.uint16))
+    return src
+
+
+def test_a_channel_folder_plate_killed_while_stacking_is_finished(
+        tmp_path, capsys):
+    """The organiser's sibling, _merge_channels, merged only into an empty
+    stack/: a plate killed while stacking kept the part it had written, and
+    a stack set aside as damaged was never merged again, although the
+    channel folders still held its images. Both layouts of the rerun are
+    covered: with masks/ gone, and with masks/ whole beside it."""
+    src = _channel_folder_plate(tmp_path)
+    _preprocess(src)
+    stack = src / "stack"
+    names = _stack_names(stack)
+    assert len(names) == 4
+    whole = np.load(stack / names[1])
+    shutil.rmtree(src / "masks")
+    written = (stack / names[1]).read_bytes()
+    (stack / names[1]).write_bytes(written[: len(written) // 3])
+    (stack / names[3]).unlink()
+    capsys.readouterr()
+
+    _preprocess(src)
+
+    assert _stack_names(stack) == names
+    np.testing.assert_array_equal(np.load(stack / names[1]), whole)
+    assert (stack / (names[1] + ".damaged")).exists()
+    assert "merging the other 2 from the channel folders" in (
+        capsys.readouterr().out)
+    assert _archive_fields(src / "masks") == names
+
+    third = np.load(stack / names[2])
+    written = (stack / names[2]).read_bytes()
+    (stack / names[2]).write_bytes(written[: len(written) // 4])
+
+    _preprocess(src)
+
+    np.testing.assert_array_equal(np.load(stack / names[2]), third)
+    assert (stack / (names[2] + ".damaged")).exists()
+    out = capsys.readouterr().out
+    assert "Found existing masks folder. Skipping preprocessing" in out
+    assert "could not be built again" not in out
+
+
+def test_a_damaged_stack_with_no_raw_images_left_is_a_recorded_failure(
+        plate, capsys):
+    """save_original_images off: the raw images are gone once stack/ is
+    written. A stack cut short cannot come back, and the run used to go on
+    a field short, saying only that it had set one aside. It is now a
+    failure the run ends on, and says so again on the next run."""
+    _preprocess(plate, save_original_images=False)
+    shutil.rmtree(plate / "masks")
+    stack = plate / "stack"
+    names = _stack_names(stack)
+    written = (stack / names[0]).read_bytes()
+    (stack / names[0]).write_bytes(written[: len(written) // 2])
+    capsys.readouterr()
+
+    _preprocess(plate)
+
+    out = capsys.readouterr().out
+    assert "1 damaged field stack(s) could not be built again" in out
+    assert names[0] in out
+    assert "RUN INCOMPLETE" in out
+    assert _archive_fields(plate / "masks") == names[1:]
+
+    _preprocess(plate)
+
+    out = capsys.readouterr().out
+    assert "could not be built again" in out and "RUN INCOMPLETE" in out
+
+
+def test_macos_sidecars_are_not_taken_for_damaged_files(plate, capsys):
+    """A plate on a Mac external drive has a ._ sidecar beside every file
+    (item 429). The checks here list stack/ and masks/ too, and must not
+    report a sidecar as a damaged stack or archive, nor rename it."""
+    appledouble = b"\x00\x05\x16\x07" + b"\0" * 60
+    masks = _killed_during_normalisation(plate)
+    stack = plate / "stack"
+    (masks / "._stack_0_norm.npz").write_bytes(appledouble)
+    (stack / ("._" + _stack_names(stack)[0])).write_bytes(appledouble)
+    capsys.readouterr()
+
+    _preprocess(plate)
+
+    out = capsys.readouterr().out
+    assert "._" not in out
+    assert (masks / "._stack_0_norm.npz").exists()
+    assert not [p for p in masks.iterdir() if p.name.startswith("._")
+                and p.name.endswith(".damaged")]
+    assert _archive_fields(masks) == _stack_names(stack)
+
+
+def test_a_sidecar_beside_whole_archives_and_no_stack_is_no_error(plate):
+    appledouble = b"\x00\x05\x16\x07" + b"\0" * 60
+    _preprocess(plate)
+    fields = _archive_fields(plate / "masks")
+    (plate / "masks" / "._stack_0_norm.npz").write_bytes(appledouble)
+    shutil.rmtree(plate / "stack")
+    shutil.rmtree(plate / "orig")
+
+    _preprocess(plate)
+
+    assert _archive_fields(plate / "masks") == fields
+
+
+def test_images_that_match_the_pattern_but_cannot_be_read_stay_put(tmp_path):
+    """Names that match, contents no reader opens: no field was read, so the
+    images must not be moved into orig/, after which the error called the
+    folder one spaCR had already processed."""
+    folder = tmp_path / "plate"
+    folder.mkdir()
+    names = sorted(f"plate1_A0{well}_T0001F00{field}L01A01Z01C0{channel}.tif"
+                   for well in (1, 2) for field in (1, 2) for channel in (1, 2))
+    for name in names:
+        (folder / name).write_bytes(b"not a tiff")
+
+    with pytest.raises(FileNotFoundError) as excinfo:
+        _preprocess(folder, save_original_images=True)
+
+    assert sorted(p.name for p in folder.iterdir()) == names
+    message = str(excinfo.value)
+    assert "spaCR found 8 image file(s)" in message
+    assert "already processed" not in message
+    assert "could not be opened" in message
+
+
+def test_stacks_and_archives_get_the_mode_any_new_file_gets(plate):
+    """numpy.save onto the final name gave the umask's mode (0644 under
+    umask 022); tempfile.mkstemp would give 0600, which a shared cluster
+    file system then keeps from the rest of the group."""
+    old = os.umask(0o022)
+    try:
+        _preprocess(plate)
+    finally:
+        os.umask(old)
+    written = [*(plate / "stack").glob("*.npy"),
+               *(plate / "masks").glob("*.npz")]
+    assert written
+    for path in written:
+        assert path.stat().st_mode & 0o777 == 0o644, path
 
 
 # ---------------------------------------------------------------------------

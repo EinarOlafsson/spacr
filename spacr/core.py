@@ -226,7 +226,8 @@ def preprocess_generate_masks(settings):
                          generate_cellpose_masks_sam)
     from .io import (preprocess_img_data, _load_and_concatenate_arrays,
                      _normalized_npz_field_ids, convert_to_yokogawa,
-                     convert_separate_files_to_yokogawa, _listdir_visible)
+                     convert_separate_files_to_yokogawa, _listdir_visible,
+                     _check_archives_without_preprocessing)
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, reset_cellpose_model_reports
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
@@ -393,6 +394,9 @@ def preprocess_generate_masks(settings):
                     if settings['masks']:
                         mask_src = os.path.join(src, 'masks')
                         os.makedirs(mask_src, exist_ok=True)
+
+                        if not settings['preprocess']:
+                            _check_archives_without_preprocessing(src)
 
                         if (not settings['preprocess'] and
                                 settings.get('illumination_correction', False)):
