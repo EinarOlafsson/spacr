@@ -1377,6 +1377,14 @@ then fix by cause:
 135,800 EVENTS PER OPEN BECOMES 93,000, AND THE STALL TOTAL HALVES
 --------------------------------------------------------------------------------
 
+Decided: NO DECISION IS ON RECORD FOR THIS PASS, and no maintainer answer
+specific to 380 reached it. It works to this item's own request of
+2026-09-07, quoted verbatim in the header above, and to its last clause in
+particular -- nothing here makes spaCR faster by making it do less. The two
+levers that would need an answer (sheeting popups later, and a smaller or
+already-parented per-screen sheet) are described at the end of this note
+and left untaken.
+
 The 2026-09-11 note ends with three things to do in order. This is the
 first two of them, and the first one turned out to be about STYLE rather
 than about events: most of the 135,800 events a module open delivers are

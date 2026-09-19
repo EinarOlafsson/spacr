@@ -615,6 +615,14 @@ wrappers over the private module, so no caller moved.
 2026-09-19 -- THE STALL IS HALVED. WHAT WAS PAID FOR TWICE, AND WHAT IS LEFT.
 --------------------------------------------------------------------------------
 
+Decided: NO DECISION IS ON RECORD FOR THIS PASS, and no maintainer answer
+specific to 284 reached it. The standing request it works to is the one
+this item was filed under on 2026-08-27 and the sister item 380 quotes
+verbatim from 2026-09-07 -- "optimized for smoothness and speed (on all
+platforms) while not compromising functionality". Nothing below is quoted
+as the maintainer's words, and the one lever that WOULD need his answer is
+named at the end of this note rather than taken.
+
 The 2026-09-15 close-out left this item open on the 500 ms event-loop stall
 ceiling alone and said the rest was "the screen build". It is the screen
 build, and half of it was the same screen being styled over and over before

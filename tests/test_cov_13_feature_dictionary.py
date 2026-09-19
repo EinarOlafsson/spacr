@@ -200,12 +200,19 @@ def test_a_liveness_check_that_itself_fails_treats_the_object_as_live(monkeypatc
     assert fd._still_alive(object()) is True
 
 
-def test_an_event_that_dies_between_the_two_checks_is_ignored(qapp):
-    """The wrapper passed the liveness check and died before it was read.
+def test_an_event_that_dies_before_its_type_is_read_is_ignored(qapp):
+    """The wrapper's C++ half goes while the filter is reading its type.
 
     This is the race the filter's seatbelt exists for: it runs for every event
     in the process, including ones whose C++ half is being freed as it looks.
     Reading ``type()`` on that is the segfault; catching it is a no-op.
+
+    NAMED FOR THE ORDER THAT EXISTS, 2026-09-19. This test was
+    ``..._dies_between_the_two_checks_is_ignored`` when the filter asked
+    whether both halves were alive and then read the type. There is one
+    liveness check point now and it comes second, so the death this covers
+    is at the type read and before any check, not between two of them. The
+    outcome it asserts is unchanged.
     """
     class _DyingEvent:
         def type(self):

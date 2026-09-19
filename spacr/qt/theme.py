@@ -3408,6 +3408,11 @@ def _forget_window_stylesheets(app=None) -> int:
     `HomePage inlines #000000 (dark bg)` under the light, cell and glass
     themes, in company and never alone.
 
+    A WIDGET WHOSE SHEET WAS STILL OWED is cleared of the debt here too --
+    the mark, the digest and the rule it was holding -- and its own rule is
+    put on, which is what it would have been wearing had no window sheet
+    ever existed. It is NOT counted: no sheet was ever on it to remove.
+
     :returns: the number of windows a sheet was removed from.
     """
     app = app or QApplication.instance()
@@ -3432,7 +3437,6 @@ def _forget_window_stylesheets(app=None) -> int:
                 own = str(widget.property(_WINDOW_OWN_SHEET) or "")
                 widget.setProperty(_WINDOW_OWN_SHEET, None)
                 widget.setStyleSheet(preserve_widget_qss_overlay(widget, own))
-                removed += 1
                 continue
             if widget.property(_WINDOW_SHEET_SERIAL) is None:
                 continue
