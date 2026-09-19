@@ -1,0 +1,261 @@
+================================================================================
+A SEARCH FIELD BESIDE THE HELP DROPDOWN
+================================================================================
+
+Filed as 413 on 2026-09-18; renumbered 2026-09-19 because 413 also names features/new/413_the_font_zoom_floor_is_ten_percent.txt.
+
+Status:    BUILT 2026-09-19, after the maintainer answered every open question
+           below and asked for it. All five result behaviours work and are
+           driven by tests that type into the real field. NOT DONE: values are
+           not searched (v1, as decided), and the nine-language catalogs owe
+           rows for the field's new captions -- a consolidated pass runs at
+           the end of the day's work. See the 2026-09-19 note at the end.
+
+Shape:     A search box beside the Help dropdown. The user types the name of a
+           module, a function, a setting or a preference and gets a list of
+           clickable results. What a result DOES when clicked depends on what
+           kind of thing it is -- that is the whole feature.
+
+--------------------------------------------------------------------------------
+WHAT IT IS FOR
+--------------------------------------------------------------------------------
+
+spaCR has a large surface: modules, functions, hundreds of settings across
+collapsible categories, and a preferences tab. A user who knows the NAME of the
+thing they want has no way to get to it. They currently have to know which
+module owns a setting and which category it sits under, which is knowledge the
+GUI should supply rather than demand.
+
+--------------------------------------------------------------------------------
+RESULT KINDS AND WHAT A CLICK DOES
+--------------------------------------------------------------------------------
+
+The list is mixed: one query can return several kinds at once, and each kind
+has its own click behaviour.
+
+  API REFERENCE ENTRY
+      Opens the API entry in a browser.
+
+  MODULE
+      Opens that module in the GUI.
+
+  SETTING
+      This is the interesting one, and it returns TWO kinds of result for the
+      same query:
+        - a link to the API entry of each function that takes that setting, and
+        - an item that opens each module which exposes that setting.
+      When it opens a module, it should open with ALL setting categories
+      COLLAPSED EXCEPT the category containing the setting searched for, with
+      that setting visible. Dumping the user into a fully expanded settings
+      panel and leaving them to find the row is the failure mode this exists to
+      prevent.
+
+  PREFERENCE
+      Opens the Preferences tab, scrolled or focused to the preference searched
+      for.
+
+  "AND SO ON"
+      The specification explicitly leaves the list open. Whatever else is
+      addressable by name should be reachable the same way. Adding a kind
+      should mean registering a provider, not editing a switch statement.
+
+--------------------------------------------------------------------------------
+THE PART THAT WILL DECIDE WHETHER THIS IS GOOD
+--------------------------------------------------------------------------------
+
+The index. Every kind above needs a name-to-destination map, and a map that is
+hand-maintained will drift the first time a setting is renamed, at which point
+the search box sends users to the wrong place -- worse than not having it,
+because a search result is believed.
+
+So the index should be GENERATED from what already exists: the settings spec,
+the module registry, the API doc build, the preferences schema. If a setting
+cannot be found by search, that should be a fact about the generator, not about
+whether somebody remembered to add a row.
+
+--------------------------------------------------------------------------------
+OPEN QUESTIONS -- ANSWER BEFORE BUILDING
+--------------------------------------------------------------------------------
+
+  - Is matching exact, prefix, fuzzy, or full-text over descriptions too? A
+    user who does not know the exact name is the user who needs this most.
+  - One setting can appear in several modules. Does the result list show one
+    row per module, or one row that then asks which?
+  - What happens when the API reference is not reachable -- offline, or an
+    older build whose docs are not published? A dead link is worse than a
+    result that says the page is not available locally.
+  - Does opening a module discard unsaved settings in the module currently
+    open? A search box that silently loses work will be used once.
+  - Does the search box also search values -- a user looking for the module
+    where `cell_diameter` is 30 rather than for the setting itself?
+
+--------------------------------------------------------------------------------
+WHY IT IS FILED RATHER THAN BUILT
+--------------------------------------------------------------------------------
+
+Requested 2026-09-18 with the instruction to add it to the list and push, not
+to implement it.
+
+--------------------------------------------------------------------------------
+2026-09-19 — BUILT, AND THE INDEX IS GENERATED FROM FOUR REGISTRIES
+--------------------------------------------------------------------------------
+
+Decided: the maintainer answered all five open questions above on 2026-09-19,
+in these words: "Build as recommended" — fuzzy matching over names AND
+descriptions; one result row per module where a setting appears; offline, show
+the local docstring and say the web page isn't reachable (no dead links);
+opening a result never discards the current module's settings (they stay in
+memory — verify that is true and make it true if not); values are not searched
+in v1. A result opens its module with only the matching category expanded and
+the setting highlighted; API entries open the right API page; preferences open
+the right Preferences tab. Keyboard: focus shortcut, arrows, Enter, Esc.
+
+WHERE IT IS. The field is the first widget in the menu bar's top-right corner
+strip — the strip that follows the last menu, which is Help, and which already
+holds the minimise, full-screen and close marks because this window has no
+title bar. Ctrl+Shift+H focuses it. Ctrl+F was not reused: it already means
+"find a setting on THIS module", and a key that means two things depending on
+what is on screen is a key nobody trusts.
+
+WHAT IS IN THE INDEX, AND WHERE EACH ROW COMES FROM. Measured 2026-09-19:
+
+    kind         rows     read from
+    module         39     spacr.qt.app.APPS, filtered by app_is_visible
+    setting       767     resolve_default_settings + categories_for_app
+                          per module, described by get_tooltips
+    preference    121     the REAL Preferences dialog, built once by the
+                          generator in a sandboxed child process
+    api        10,326     the API manifest the published pages are built
+                          from (docs/source/_static/i18n/api/en.json)
+    total      11,253     built in 0.8–1.1 s on a worker thread
+
+Nothing is typed by hand. `tools/build_help_search_index.py` writes
+`spacr/qt/help_api_index.py` and has a `--check` mode that fails when it is
+stale.
+
+THE PREFERENCES HALF WAS BUILT TWICE AND THE FIRST WAY IS WORTH RECORDING. An
+AST walk of `preferences.py` — the obvious answer, since the dialog has no
+schema — found 60 of the 121 rows the dialog actually renders. It missed every
+row whose caption is a variable (`Starfield direction`), every row a loop
+builds from a table (the four Performance budget buttons), and every row
+inside a nested panel with a form of its own (40 rows on the Figures tab
+alone). It also emitted a row captioned `First graph — {shape}`, which is a
+template and not a caption. Building the dialog and reading the rows off it
+answers all of that by construction.
+
+AND A FINISHED PREFERENCES DIALOG HAS NO TOOLTIPS AT ALL. `explain_every_row`
+moves a row's sentence onto its label and
+`_everything_explains_itself_in_the_strip` then moves every remaining one into
+the hint bar, deliberately, so a control explains itself once. Reading the
+built dialog therefore found a description for 0 of 121 rows. The generator
+wraps that sweep and keeps a copy on the way past: 121 of 121 now.
+
+THE RANKING, and the two measurements behind it. An exact name beats a word of
+the name beats a prefix beats a substring beats a fuzzy subsequence beats a
+description hit. A description hit that outranked a name hit buried
+`cell_diameter` under the twenty settings whose help text mentions it. The
+fuzzy band needed a ceiling: without one, `clldiam` matched
+`spacr.qt.folder_metadata.save_filename_map` — every letter, in order, spread
+over forty characters — and ranked it above `cell_diameter`. The span is now
+capped at three times the term and matched against the last dotted component
+only. A per-kind cap of 8 keeps the list mixed: 10,326 API symbols against 39
+modules is otherwise an API list with the occasional module in it.
+
+REVEAL, NOT FILTER. Opening a setting result collapses every category except
+the one holding the row, scrolls to it and outlines it for four seconds.
+Measured on Mask: 1 section open, 21 collapsed, and all 190 settings still on
+the form. Typing the key into the per-module search strip instead — which
+already collapses what does not match — was rejected: it HIDES the
+neighbouring rows, so a user who arrived from a search and then wanted to look
+around has to work out what happened to the panel. The mark is a static border
+rather than anything that moves, so it owes nothing to the Animation
+preferences and is not lost on a reader who turned motion off.
+
+NO DEAD LINKS. `_DocsReach` has three states, and `"unknown"` is treated as
+"do not claim the link works": the offline view opens with its **Open the web
+page** button disabled, and the button becomes live if the probe then says the
+site is there. The probe is a daemon thread started only when an API result is
+actually opened — spaCR does not reach the network because somebody typed. The
+offline docstring is read from the source with `ast`, not by importing the
+module, so the offline path does not drag the scientific stack into the
+process; a subprocess test asserts `spacr.core` is not in `sys.modules`
+afterwards.
+
+SETTINGS SURVIVE, AND ALWAYS DID. The maintainer asked for this to be verified
+and made true if it was not. It was already true: `_on_nav_selected` keeps
+every screen it has built in `self._screens` and switches the stack rather
+than rebuilding, and the only path that replaces a screen is
+`_rebuild_for_scale`, which answers a font-scale change and not a navigation.
+Nothing had to change; the behaviour is now pinned by a test that types 77
+into Mask's `cell_diameter`, opens Measure from the search field, comes back
+and reads 77.
+
+TESTS. 28, all passing, in two files:
+  tests/qt/test_the_help_search_field_lands_where_it_says.py   16
+  tests/test_the_help_index_is_generated_not_typed.py          12
+Every GUI test drives the real control — it types into the box and then asks
+the WINDOW what happened. Among them: the field is beside Help and in front of
+the window marks; `cell_min_size` returns one row per module that shows it;
+Return opens the module with exactly one category open; the API result opens
+the right URL when the docs answer and the local docstring when they do not;
+Ctrl+Shift+H, Down, Up, Return and Esc alone get there; and every indexed
+preference is a row the built dialog really has, which is the drift guard the
+instruction's central worry asks for.
+
+NOT DONE, honestly:
+  - VALUES ARE NOT SEARCHED. Decided, v1.
+  - The nine-language catalogs owe rows for this field's captions; see
+    i18n_owed in the handover. The caption ratchet is red for these sources
+    and only these, which is expected until the consolidated pass.
+  - A result for a preference on the Fractal tab lands on Preferences but not
+    on that tab when the fractal backdrop is off, because the tab is only
+    built when it is on. `show_preferences_on` returns False and the dialog
+    opens normally; it does not mislead, but it does not finish the journey.
+  - The API summaries are the first paragraph of a docstring cut at 140
+    characters, so a word that only appears later in a docstring does not
+    match. Widening that means shipping more than 1.3 MB of generated index.
+
+WHAT THE CATALOGS OWE, precisely. Nothing here was regenerated: a consolidated
+nine-language pass runs at the end of the day's work, and this is the list it
+needs.
+
+  UI captions, spacr/qt/help_search.py:
+    "Search spaCR…"                 (the field's placeholder)
+    "Search spaCR"                  (its accessible name)
+    "Find a module, a setting, a preference or an API entry by name or by
+     what it does. Opening a result never discards the settings you have
+     already typed."                (its tooltip)
+    "Building the index…"
+    "Nothing called “{query}”."
+    "Opened {name}"                 (already a catalog row, from app.py)
+    "Could not open {name}."
+    "Could not open {url}"
+    "Opened {name} in the browser"
+    "{key} in {where}"
+    "{key} is not on this module's form."
+    "{name} in {where}"
+    "Open the web page"
+    "No description is stored for this entry."
+    "This is the copy on this machine. The published page is reachable —
+     open it for the rendered version."
+    "The published documentation is not reachable from here, so this is the
+     description stored with the code on this machine."
+    "This is the description stored with the code on this machine. Checking
+     whether the published page is reachable…"
+
+  Shortcut map, spacr/qt/shortcuts.py:
+    "Search spaCR from the Help bar"
+
+  API docstrings: 43 new public symbols across spacr/qt/help_search.py,
+  spacr/qt/help_index.py, spacr/qt/preferences_navigation.py and the
+  generated spacr/qt/help_api_index.py, plus four on existing classes —
+  MainWindow.show_preferences_on, SettingsSearchBar.reveal,
+  SettingsSearchBar.revealed_key and SettingsSearchBar.section_of.
+
+THE CAPTION RATCHET IS RED, AND WAS ALREADY. Measured on the same eleven-file
+selection at HEAD (c610e6ece) and with this work: 23 failed, 399 passed, the
+SAME 23 both times, so this adds no failure. The four
+`test_i18n_caption_ratchet` tests and the nine-language
+`test_the_chrome_captions_have_catalog_rows` tests were red at HEAD over
+item 420's landed captions; "Search spaCR from the Help bar" now joins that
+same unreferenced-source list and nothing else does.
