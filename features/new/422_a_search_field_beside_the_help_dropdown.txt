@@ -123,11 +123,17 @@ WHAT IS IN THE INDEX, AND WHERE EACH ROW COMES FROM. Measured 2026-09-19:
     module         39     spacr.qt.app.APPS, filtered by app_is_visible
     setting       767     resolve_default_settings + categories_for_app
                           per module, described by get_tooltips
-    preference    121     the REAL Preferences dialog, built once by the
-                          generator in a sandboxed child process
+    preference    116     the REAL Preferences dialog, built once by the
+                          generator in a sandboxed child process. The
+                          generated table holds 129; the 13 Fractal rows are
+                          offered only while that backdrop is on, because
+                          that is the only time the tab exists. It was 121
+                          before rebasing onto nightly picked up item 427's
+                          Sound page.
     api        10,326     the API manifest the published pages are built
                           from (docs/source/_static/i18n/api/en.json)
-    total      11,253     built in 0.8–1.1 s on a worker thread
+    total      11,248     built in 0.8–1.1 s on a worker thread, and 11,261
+                          with the fractal backdrop on
 
 Nothing is typed by hand. `tools/build_help_search_index.py` writes
 `spacr/qt/help_api_index.py` and has a `--check` mode that fails when it is
@@ -190,8 +196,8 @@ Nothing had to change; the behaviour is now pinned by a test that types 77
 into Mask's `cell_diameter`, opens Measure from the search field, comes back
 and reads 77.
 
-TESTS. 28, all passing, in two files:
-  tests/qt/test_the_help_search_field_lands_where_it_says.py   16
+TESTS. 29, all passing, in two files:
+  tests/qt/test_the_help_search_field_lands_where_it_says.py   17
   tests/test_the_help_index_is_generated_not_typed.py          12
 Every GUI test drives the real control — it types into the box and then asks
 the WINDOW what happened. Among them: the field is beside Help and in front of
@@ -207,10 +213,11 @@ NOT DONE, honestly:
   - The nine-language catalogs owe rows for this field's captions; see
     i18n_owed in the handover. The caption ratchet is red for these sources
     and only these, which is expected until the consolidated pass.
-  - A result for a preference on the Fractal tab lands on Preferences but not
-    on that tab when the fractal backdrop is off, because the tab is only
-    built when it is on. `show_preferences_on` returns False and the dialog
-    opens normally; it does not mislead, but it does not finish the journey.
+  - A Fractal preference cannot be found at all while that backdrop is off.
+    That is the deliberate choice over the alternative -- offering a row that
+    opens Preferences and then cannot find its own tab -- but it does mean
+    search cannot tell a user that the setting exists somewhere behind a
+    switch. `_CONDITIONAL_TABS` in help_index.py is where that is decided.
   - The API summaries are the first paragraph of a docstring cut at 140
     characters, so a word that only appears later in a docstring does not
     match. Widening that means shipping more than 1.3 MB of generated index.
@@ -253,8 +260,12 @@ needs.
   SettingsSearchBar.revealed_key and SettingsSearchBar.section_of.
 
 THE CAPTION RATCHET IS RED, AND WAS ALREADY. Measured on the same eleven-file
-selection at HEAD (c610e6ece) and with this work: 23 failed, 399 passed, the
-SAME 23 both times, so this adds no failure. The four
+selection at HEAD and with this work: 23 failed and 399 passed at HEAD, the
+SAME 23 here, so this adds no failure. Measured twice — once at c610e6ece,
+and again after rebasing onto 1bba18b3c, where a twelfth file
+(test_every_widget_wears_the_current_theme) was added and passed 14/14: the
+results list is a CHILD of the window rather than a Qt.Popup, so it wears the
+window's sheet like everything else. The four
 `test_i18n_caption_ratchet` tests and the nine-language
 `test_the_chrome_captions_have_catalog_rows` tests were red at HEAD over
 item 420's landed captions; "Search spaCR from the Help bar" now joins that

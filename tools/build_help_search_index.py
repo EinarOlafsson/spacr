@@ -254,7 +254,7 @@ def _collect_preference_rows() -> List[Tuple[str, str, str, str]]:
     Runs in the CHILD process. The fractal backdrop is switched on first --
     process-locally, through :func:`spacr.qt.theme.enable_spaceout`, which
     saves nothing -- because the Fractal tab is built only when it is on and
-    those twelve preferences are as searchable as any other.
+    those thirteen preferences are as searchable as any other while it is on.
 
     :returns: ``(label, tab title, tab object name, tooltip)`` per row.
     """
