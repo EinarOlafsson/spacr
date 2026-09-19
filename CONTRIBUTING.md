@@ -160,8 +160,9 @@ fifteen seconds, on the text the model actually receives.
 the other docstring tests. The first two rules cannot be checked from the
 English. Sentence length and identifier density were both measured, and
 neither can flag the blocks that failed without also flagging thousands of
-blocks that pass. **A
-green check is not a green build.** Some failures come from word combinations
+blocks that pass.
+
+**A green check is not a green build.** Some failures come from word combinations
 or vocabulary that a model declines in one language. Only the build finds
 those. When a block fails there, read the model's output for that language
 before you rewrite the English.
