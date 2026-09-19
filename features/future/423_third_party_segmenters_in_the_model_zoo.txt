@@ -183,6 +183,11 @@ models and bioimage.io's":
     mean nuclei for nuclei and cyto3 otherwise); settings._get_object_settings
     no longer maps those names to cpsam under Cellpose 3. The magnifier has
     four Cellpose 3 modes.
+  - A second commit: the Model Zoo screen's "Test on fields" and "Compare
+    the two selected" segment a cellpose3 row in the Cellpose 3 backend.
+    Both went through spaCR's Cellpose 4, which loads a Cellpose 3
+    checkpoint and segments nonsense with it, and both buttons were enabled
+    for a downloaded bioimage.io checkpoint.
 
 Measured, in a sandboxed HOME on the CPU, Cellpose 3 from PyPI (the numbers
 are in docs/notes/spacr/_segmentation_backends.md): cold install 258.7 s and
@@ -208,7 +213,7 @@ that does not exist logs a warning and runs cyto3; that is now refused.
 Tests: tests/test_backends_live_in_their_own_environment.py (106, with a
 faked environment -- a real venv whose own site-packages hold stand-in torch
 and cellpose), tests/test_the_zoo_lists_every_backend_and_cellpose3_model.py
-(18), tests/qt/test_a_backend_installs_into_its_own_environment.py (24), and
+(20), tests/qt/test_a_backend_installs_into_its_own_environment.py (24), and
 the existing backend and magnifier tests moved to the new design. The
 module is at 100% line and branch coverage under its three test files.
 
