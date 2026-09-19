@@ -1,0 +1,227 @@
+================================================================================
+A FAILED RUN SAYS WHERE ITS REPORT AND ITS AI EXPLANATION WENT
+================================================================================
+
+Status:    done 2026-09-19 on the local branch home/error-reporter, not yet
+           reviewed or landed. Two defects fixed: an AI provider that
+           exits non-zero is now reported as failed, and the reply keeps its
+           "spaCR AI" heading. Automatic GitHub filing is deliberately off,
+           and the console now says so under "✗ Failed". Open: the inert
+           'always' choice (see DELIBERATELY NOT DONE), and the translations
+           for the three new English captions.
+Requested: GitHub #117, second half, opened 2026-09-17 by jak18015 (Apple
+           M4, macOS 26.7, spaCR 1.5.0.8): "when running test mode, the mask
+           generation failed and did not automatically submit a github issue
+           even though that feature is turned on and did not prompt AI help
+           on the issue even though that feature is turned on." And, at the
+           end of the report: "This did not trigger AI github submission or
+           AI help which it should because it was on."
+           Taken on by the 2026-09-19 run as unit error-reporter. The first
+           half of #117 (the np.load crash) is item 429.
+Owner:     Home. Files: spacr/qt/ai/providers.py, spacr/qt/ai/worker.py,
+           spacr/qt/widgets/console_panel.py, spacr/qt/screens/app_screen.py,
+           spacr/qt/widgets/ai_chat_panel.py.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The console the user pasted into #117 shows what happened. Everything below
+is either in that paste or was reproduced headless on 2026-09-19.
+
+THE AI WAS ASKED. The paste contains
+
+    === spaCR user ===
+    An error occurred — asking spaCR AI to explain it. ...
+    === spaCR AI ===
+    (nothing)
+    === spaCR output  —  mask  —  preprocess_generate_masks ===
+    ...run closed [failed]...
+    ✗ Failed — see traceback above
+    Failed to authenticate: OAuth session expired and could not be refreshed
+
+so the route fired. Test mode, the retry policy and macOS were all ruled
+out. The crash left `runctx._give_up` by `raise exc`, reached
+`bridge.PipelineWorker.run`'s `except Exception`, and was emitted on
+`worker.error` like any other failure (bridge.py, the `self.error.emit(tb)`
+after `LOG.exception("Pipeline worker failed")`). `_on_pipeline_error` then
+called `open_error_flow`. Nothing on this path reads `test_mode`, and
+there is no fingerprint dedupe before the AI flow.
+
+WHAT WENT WRONG IS THE PROVIDER'S ANSWER. The `claude` CLI's sign-in had
+expired. It printed the expired-session line and exited.
+`providers._stream_process` never read the exit status, so the worker
+emitted `finished(True, "Failed to authenticate: ...")`. The console took
+that as the reply:
+  * No "[AI error]" line, and nothing telling the user to sign in again.
+  * `_ai_error_explanation` was set to that line. `ai_explanation_of` gave
+    it to the bug reporter, and issues #118 and #121, filed from the same
+    machine 11 and 26 minutes later with "File as issue", each carry
+    "Failed to authenticate: OAuth session expired and could not be
+    refreshed" under "spaCR AI's analysis of this error".
+  * The reply sat under "spaCR output", not "spaCR AI". The error flow
+    draws the heading and the reply block at once. The run's closing
+    lines (workspace, macro, "run closed", "✗ Failed") came before the
+    CLI's first line. `_on_chunk` then opened a new reply block with no
+    heading, so the "spaCR AI" heading stayed empty. Read top to bottom,
+    that looks like the AI was never asked.
+
+MEASURED, 2026-09-19: Claude Code 2.1.274 in an empty HOME. `claude -p
+"say hi"` prints `Not logged in · Please run /login`, exit status 1. The
+expired-OAuth wording in #117 needs an expired session, which could not be
+produced here, so its exit status is NOT measured. The fix does not depend
+on the wording.
+
+NO ISSUE WAS FILED BECAUSE NONE EVER IS WITHOUT A CLICK. That is deliberate.
+Until 807ba9e0a (2026-08-14, "installer: make acceleration and consent
+explicit", instruction 45), `_on_pipeline_error` called `_on_file_issue`
+itself when the setting was on. That commit removed the call: reports go
+to the PUBLIC tracker, and each one stops at an editable preview until
+Send is pressed (instruction 45's 2026-08-10 decision section). The test
+`test_opt_in_reveals_button_but_never_auto_submits_on_crash` in
+tests/qt/test_cov_app_screen.py pins it. What was missing was any word of
+it where the user looks. The only sign was "File as issue" appearing in
+the button row under the console. The AI Settings caption also still
+described the pre-August flow: a "File as GitHub issue" button that
+"opens your browser", and "one-click issue filing from the error dialog".
+There is no error dialog.
+
+REPRODUCED HEADLESS BEFORE THE FIX with a probe
+(scratchpad probe432/repro.py, not committed). It uses the real Mask
+AppScreen and its `_on_run`, with a pipeline entry that raises the #117
+ValueError through `run.policy.attempts_for(...)` and `_give_up`. Both
+preferences are on, AI is active with the Claude provider, and `claude`
+is a script that prints the #117 line and exits 1. The console came out in
+the paste's shape: an empty "spaCR AI" heading, then "✗ Failed" and the
+sign-in line under "spaCR output". Also: the button was enabled, 0 reports
+were submitted, 0 previews were opened, and `ai_explanation_of(tb)`
+returned the sign-in line.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The user switched on two features and saw neither work, at the moment
+something had just broken. Two public issues now carry a sign-in error
+presented as an AI diagnosis. Anyone triaging them reads that section first.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+1. spacr/qt/ai/providers.py: a CLI that exits non-zero raises the new
+   `ProviderFailed(RuntimeError)` after its last line has streamed. The
+   message quotes the last three non-blank lines (at most 400 characters)
+   and, when the provider is known, its `login_command`, which is
+   `claude setup-token` for Claude, as in the Providers dialog. Cancel,
+   `terminate_all_streams` and the reader's own escalation mark the Popen
+   before they signal it, and a marked child is never reported as failing.
+   That matters on Windows, where `terminate` exits the child with 1.
+   `manuscript.generate_sections` already catches exceptions from
+   `stream_chat` and falls back with "The <provider> provider failed: ...".
+   It now gets that fallback, not "the reply carried neither heading".
+2. spacr/qt/ai/worker.py: an exception that arrives after Cancel reports
+   "Cancelled.", not the exception.
+3. spacr/qt/widgets/console_panel.py `_on_chunk`: a recreated reply block
+   opens its own "spaCR AI" heading. An uninterrupted reply still has one.
+4. spacr/qt/screens/app_screen.py: when the report action is on and
+   reporting is not set to 'never', `_on_finished` writes directly under
+   "✗ Failed":
+       [issue] Nothing was sent to GitHub. Reports are public, so spaCR
+       files one only when you press File as issue and then Send report.
+   It is said once per failure. A stopped run drops it.
+5. spacr/qt/widgets/ai_chat_panel.py: the AI Settings caption and toggle
+   now describe the flow as it is, including "Nothing is sent
+   automatically".
+
+AFTER, same probe, fake CLI:
+
+    === spaCR output  —  mask  —  preprocess_generate_masks ===
+    ✗ Failed — see traceback above
+    [issue] Nothing was sent to GitHub. Reports are public, so spaCR files
+    one only when you press File as issue and then Send report.
+    === spaCR AI ===
+    Failed to authenticate: OAuth session expired and could not be refreshed
+    === spaCR output  —  mask  —  preprocess_generate_masks ===
+    [AI error] ProviderFailed: claude stopped with exit status 1: Failed to
+    authenticate: OAuth session expired and could not be refreshed. If it
+    says you are signed out, sign in again by running `claude setup-token`
+    in a terminal, then ask again
+    ...
+    AI explanation the reporter would attach: ''
+
+The same probe was run against the REAL `claude` binary in an empty HOME,
+with 'always' mode. It gave the same shape with "Not logged in · Please run
+/login" and exit status 1.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    cd <worktree> && QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G \
+      python -m pytest -q -p no:randomly -p no:cacheprovider \
+      tests/qt/test_a_failed_run_offers_the_report_it_promised.py
+
+21 passed. The file drives the #117 path end to end: the Mask screen's
+Run, a pipeline failing through `_give_up`, and a provider child process
+that really exits 1. It then presses "File as issue" and checks that the
+report it builds carries no sign-in line. Each of the five changes was
+reverted on its own, and each time at least one test went red: heading 2,
+notice 2, provider raise 8, the stop mark 2, worker 1, caption 1.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+* Filing automatically. The maintainer's consent decision (instruction 45)
+  forbids it. The console now says so; nothing more was changed.
+* THE 'always' CHOICE IS INERT, AND IT IS A PROMISE. First-run setup
+  (spacr/qt/setup_screen.py `questions()`, "One-click issue filing")
+  offers ask / never / always. Item 56 defined 'always' as "file without
+  prompting". Since 807ba9e0a nothing reads it: `_on_file_issue` checks
+  only for 'never', so 'always' behaves exactly like 'ask'. A user who
+  picked 'always' was told spaCR would file without asking. The new
+  console line now tells them at the failure that it did not. Whether
+  'always' should open the preview by itself when a run fails (still no
+  send without the click) or be removed from the choices is the
+  maintainer's decision. Removing it also touches the setup slides, the
+  catalogs and the `_issue_prompt_does_not_block` fixture in
+  tests/qt/conftest.py, which sets 'always' for every Qt test.
+* Every filed body opens "Auto-filed from the spaCR AI Console" even
+  though a click filed it, which is every time now (issue_report.py
+  `build_report`). Not changed here: the same line carries the
+  fingerprint that `github_auth.find_issue_by_fingerprint` searches issue
+  bodies for, so rewording it is a change to the dedupe as well.
+* A FINDING, not fixed: the tooltip for `route_errors_through_ai` in
+  spacr/settings.py says "Default False". The getter
+  `spacr.qt.ai.settings.get_route_errors_through_ai` defaults to True.
+* The annotate screen's console (`note_console_error`) gets no "nothing
+  was sent" line. It reveals its button on a console error, not on a
+  failed run, and #117 did not reach it.
+
+--------------------------------------------------------------------------------
+2026-09-19 — done on home/error-reporter, what was measured, what is left
+--------------------------------------------------------------------------------
+
+Measured: the pre-fix console reproduced the shape of #117's paste.
+The real `claude` 2.1.274 exits 1 when signed out. 21/21 in the new test
+file, and every fix was mutation-checked against it. Existing files, all
+green: test_ai_providers_offline, test_cov_wf_qt_ai_providers,
+test_cov_r8_ai_provider_reaping, test_the_console_keeps_the_ai_error_analysis,
+test_ai_console, test_ai_chat_panel_offline, test_ai_shutdown,
+test_no_ai_stream_outlives_its_owner, test_the_issue_preview_can_diagnose,
+test_ai_stress (200 passed); the console panel, issue report/preview and AI
+settings files (216 passed); test_cov_app_screen (150 passed).
+
+Red because of this change, expected until the consolidated translation
+pass: test_i18n_caption_ratchet.py::
+test_custom_widgets_and_indirect_registries_enter_one_i18n_layer, on the
+new toggle caption 'Enable — show File as issue when a run fails'. The
+same i18n files had 25 reds on origin/nightly before this change; with it
+there are 26, and the only new one is that test.
+
+Left: the translations for the three captions, which the consolidated
+pass will do. The 'always' decision above. The route-errors tooltip
+default. features/00_INDEX.txt was not regenerated. It was already stale
+on origin/nightly (429 missing, seven duplicate numbers), and the index
+tests were red before this change.

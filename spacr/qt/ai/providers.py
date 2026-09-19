@@ -90,6 +90,7 @@ class ChatProvider(ABC):
         proc = self._current_proc
         if proc is None:
             return
+        _mark_stopped_by_spacr(proc)
         try:
             proc.terminate()
             try:
@@ -115,6 +116,62 @@ _NOISE_LINE_PREFIXES = (
     "Permission allow rule",
     "Permission ask rule",
 )
+
+
+#: How many of a failed CLI's last output lines :class:`ProviderFailed` quotes.
+_FAILURE_TAIL_LINES = 3
+
+#: The longest quotation of a failed CLI's output, in characters.
+_FAILURE_TAIL_CHARS = 400
+
+
+class ProviderFailed(RuntimeError):
+    """A provider CLI exited with a non-zero status, so what it printed is an
+    error message and not an answer.
+
+    The three vendor CLIs report a failure the way any command-line tool does:
+    a line on stdout or stderr, then a non-zero exit. A signed-out ``claude``
+    prints ``Not logged in · Please run /login`` and exits 1. In GitHub #117
+    an expired one printed ``Failed to authenticate: OAuth session expired
+    and could not be refreshed``. Streamed as if it were a reply, that line
+    was shown as spaCR AI's answer to a crash, and it was filed into GitHub
+    issues as "spaCR AI's analysis of this error".
+
+    :param cli: the executable that failed, for the message.
+    :param exit_status: its exit status.
+    :param output_tail: the last lines it printed, already stripped.
+    :param login_command: the command that signs in to this provider, or
+        ``""`` when the caller did not say which provider this was.
+    :ivar exit_status: the exit status, for a caller that needs the number.
+    :ivar output_tail: the quoted output, for a caller that needs the text.
+    """
+
+    def __init__(self, cli: str, exit_status: int, output_tail: str,
+                 login_command: str = ""):
+        """Build the message a user reads after ``[AI error]``."""
+        self.exit_status = exit_status
+        self.output_tail = output_tail
+        said = f": {output_tail}" if output_tail else " and printed nothing"
+        message = f"{cli} stopped with exit status {exit_status}{said}"
+        if login_command:
+            message += (
+                f". If it says you are signed out, sign in again by running "
+                f"`{login_command}` in a terminal, then ask again")
+        super().__init__(message)
+
+
+def _failure_tail(lines: List[str]) -> str:
+    """Join the last non-blank lines a CLI printed into one short quotation.
+
+    :param lines: the lines, in the order they were printed.
+    :returns: at most :data:`_FAILURE_TAIL_LINES` lines joined by a space and
+        cut to :data:`_FAILURE_TAIL_CHARS`, or ``""`` when every line was blank.
+    """
+    kept = [line.strip() for line in lines if line.strip()]
+    text = " ".join(kept[-_FAILURE_TAIL_LINES:])
+    if len(text) > _FAILURE_TAIL_CHARS:
+        text = text[:_FAILURE_TAIL_CHARS - 1].rstrip() + "…"
+    return text
 
 
 #: Every provider subprocess currently being read, newest last.
@@ -146,8 +203,35 @@ def _process_has_exited(proc: subprocess.Popen) -> bool:
         return False
 
 
+def _mark_stopped_by_spacr(proc: subprocess.Popen) -> None:
+    """Record on ``proc`` that spaCR itself asked it to stop.
+
+    A child ended by Cancel, by quitting, or by the reader's own cleanup exits
+    with a status that is not zero -- a negative signal number on POSIX, and
+    ``1`` on Windows, where ``terminate`` is ``TerminateProcess(handle, 1)``.
+    That status is spaCR's doing, not the CLI reporting a failure, and
+    :func:`_stream_process` must not quote it back as one.
+
+    :param proc: the child about to be signalled.
+    """
+    try:
+        proc._spacr_stopped_it = True
+    except Exception:                                      # noqa: BLE001
+        pass
+
+
+def _was_stopped_by_spacr(proc: subprocess.Popen) -> bool:
+    """Whether :func:`_mark_stopped_by_spacr` was called on ``proc``.
+
+    :param proc: the child.
+    :returns: ``True`` only for a child spaCR signalled.
+    """
+    return getattr(proc, "_spacr_stopped_it", False) is True
+
+
 def _kill_and_reap(proc: subprocess.Popen) -> bool:
     """Kill ``proc``, then bounded-wait to reap it; report confirmed exit."""
+    _mark_stopped_by_spacr(proc)
     try:
         proc.kill()
     except Exception:                                      # noqa: BLE001
@@ -170,6 +254,7 @@ def _terminate_and_reap(
     """
     if not known_running and _process_has_exited(proc):
         return False, True
+    _mark_stopped_by_spacr(proc)
     try:
         proc.terminate()
     except Exception:                                      # noqa: BLE001
@@ -218,6 +303,24 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
     When ``provider`` is supplied, its process reference is registered so
     :meth:`ChatProvider.cancel_stream` can terminate a blocked read. This also
     prevents the worker thread from outliving its Python owner during exit.
+
+    A CLI that ends with a non-zero exit status failed, and what it printed
+    was its error message. Every line has already been yielded by then, so
+    the failure is raised after the last one, as :class:`ProviderFailed`. A
+    child spaCR stopped itself -- Cancel, quitting, or this function's own
+    cleanup after a child that would not exit -- is not a failure, whatever
+    status it ends with.
+
+    :param argv: the command line to run.
+    :param stdin_text: text written to the child's stdin, or ``None`` for no
+        stdin pipe.
+    :param env_extra: variables layered over a copy of ``os.environ``.
+    :param provider: the provider this stream belongs to, or ``None``.
+    :returns: an iterator over the child's output lines, noise dropped.
+    :raises RuntimeError: when ``argv[0]`` cannot be run at all.
+    :raises ProviderFailed: when the child exits on its own with a non-zero
+        status; the message quotes its last lines and, with ``provider``,
+        names the command that signs in again.
     """
     env = os.environ.copy()
     if env_extra:
@@ -241,6 +344,8 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
         provider._current_proc = proc
     _LIVE_STREAMS.append(proc)
 
+    printed: List[str] = []
+    exit_status = None
     try:
         if stdin_text is not None and proc.stdin is not None:
             try:
@@ -252,6 +357,9 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
         for line in proc.stdout:
             if any(line.startswith(prefix) for prefix in _NOISE_LINE_PREFIXES):
                 continue
+            if line.strip():
+                printed.append(line)
+                del printed[:-_FAILURE_TAIL_LINES]
             yield line
     finally:
         try:
@@ -260,7 +368,7 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
             pass
         finished = False
         try:
-            proc.wait(timeout=_PROCESS_EXIT_TIMEOUT)
+            exit_status = proc.wait(timeout=_PROCESS_EXIT_TIMEOUT)
             finished = True
         except Exception:                                  # noqa: BLE001
             _requested, finished = _terminate_and_reap(
@@ -269,6 +377,13 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
             provider._current_proc = None
         if finished:
             _discard_stream(proc)
+
+    if (isinstance(exit_status, int) and exit_status != 0
+            and not _was_stopped_by_spacr(proc)):
+        raise ProviderFailed(
+            os.path.basename(str(argv[0])) if argv else "the AI CLI",
+            exit_status, _failure_tail(printed),
+            login_command=getattr(provider, "login_command", "") or "")
 
 
 def _format_conversation(messages: List[Dict], system: str = "") -> str:

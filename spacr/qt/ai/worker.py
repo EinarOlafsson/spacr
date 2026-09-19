@@ -67,7 +67,17 @@ class StreamWorker(QObject):
             pass
 
     def run(self) -> None:
-        """Consume the provider stream, emitting stage/chunk/finished signals."""
+        """Consume the provider stream, emitting stage/chunk/finished signals.
+
+        ``finished`` carries ``(True, the whole reply)`` only when the stream
+        ended on its own and the provider did not report a failure. A provider
+        that failed -- :class:`~spacr.qt.ai.providers.ProviderFailed` for a CLI
+        that exited non-zero, or any other exception -- gives
+        ``(False, "<type>: <message>")``, and whatever it printed before
+        failing is not an answer. A stream that was cancelled gives
+        ``(False, "Cancelled.")`` even when ending the child made the
+        provider raise, because the user asked for the stop.
+        """
         buf: List[str] = []
         try:
             self.stage_changed.emit("connecting")
@@ -86,6 +96,9 @@ class StreamWorker(QObject):
             else:
                 self.finished.emit(True, "".join(buf))
         except BaseException as e:
+            if self._cancelled:
+                self.finished.emit(False, "Cancelled.")
+                return
             tb = traceback.format_exc()
             try:
                 print(f"[AI worker] error: {tb}", file=sys.__stderr__, flush=True)

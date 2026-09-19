@@ -6312,7 +6312,14 @@ class AppScreen(QWidget):
         self.remote_submit_requested.emit(self.app_key, settings)
 
     def _on_pipeline_error(self, tb: str):
-        """Capture the traceback and either show it raw or route it through AI."""
+        """Capture the traceback and either show it raw or route it through AI.
+
+        With the report action switched on, "File as issue" is revealed and
+        :meth:`_on_finished` says, under the failure line, that nothing was
+        sent. The report itself is never filed from here: a crash is not
+        consent to publish it, and every report stops at an editable preview
+        and a click on Send.
+        """
         self._last_error_text = tb
 
         routed = False
@@ -6335,6 +6342,47 @@ class AppScreen(QWidget):
             enabled = False
         self._btn_file_issue.setVisible(enabled)
         self._btn_file_issue.setEnabled(enabled)
+        self._report_waits_for_a_click = bool(
+            enabled) and self._reporting_is_not_set_to_never()
+
+    @staticmethod
+    def _reporting_is_not_set_to_never() -> bool:
+        """Whether "File as issue" would open a report if it were pressed.
+
+        :returns: ``False`` when issue reporting is set to 'never' in
+            Preferences, since the button then refuses to file, and ``False``
+            when the preference cannot be read.
+        """
+        try:
+            from ..preferences import (ISSUE_PROMPT_NEVER,
+                                       get_issue_prompt_mode)
+            return get_issue_prompt_mode() != ISSUE_PROMPT_NEVER
+        except Exception:                                    # noqa: BLE001
+            return False
+
+    def _say_the_report_was_not_sent(self, failed: bool = True) -> None:
+        """Say under a failed run that no report went to GitHub, and how to send one.
+
+        Issue 117: a user with "Report errors as GitHub issues" on watched a
+        run fail and expected an issue to have been filed. None was, by
+        design: since instruction 45 (2026-08-14) a report goes to the PUBLIC
+        tracker only after a click on that specific report. The console never
+        said so, and the button that files it had appeared in the row under
+        the console with nothing pointing to it. This line goes where the user
+        looks when a run fails, directly under "✗ Failed".
+
+        :param failed: whether the run that just ended failed. The pending
+            line is dropped either way, so a stopped run does not carry it
+            over to the next one.
+        """
+        waiting = getattr(self, "_report_waits_for_a_click", False)
+        self._report_waits_for_a_click = False
+        if not (failed and waiting):
+            return
+        self._console.append_notice(
+            "[issue] Nothing was sent to GitHub. Reports are public, so spaCR "
+            "files one only when you press File as issue and then Send "
+            "report.\n")
 
     def _on_lp_switch(self, on: bool) -> None:
         """Compatibility route for callers that still name Mask's LP switch."""
@@ -6905,6 +6953,7 @@ class AppScreen(QWidget):
             self._console.append_notice(
                 "✓ Finished\n" if ok else
                 "✗ Failed — see traceback above\n")
+        self._say_the_report_was_not_sent(failed=not ok and not cancelled)
         if (ok and not cancelled and getattr(self, "_results_panel", None)
                 and not getattr(self, "_results_loaded_in_memory", False)):
             try:

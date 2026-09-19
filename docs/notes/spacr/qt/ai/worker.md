@@ -9,6 +9,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 
 - [StreamWorker.run](#streamworkerrun) (2 entries)
 - [make_stream_thread](#make_stream_thread) (2 entries)
+- [StreamWorker.run, 2026-09-19](#streamworkerrun-2026-09-19) (1 entry)
 
 ## StreamWorker.run
 
@@ -45,3 +46,11 @@ thread.finished.connect(thread.deleteLater, Qt.QueuedConnection)
 ```
 
 The QThread is GUI-affine, so its deferred delete is flushed by the GUI thread's own loop. That one is safe, and it is the only one.
+
+## StreamWorker.run, 2026-09-19
+
+```python
+if self._cancelled:
+```
+
+A reader whose child was ended can raise before its first chunk, for example on a closed pipe. When the user pressed Cancel, `finished` says `Cancelled.` rather than quoting that exception as the provider's failure. `_stream_process` already declines to raise for a child spaCR stopped (see `providers.md`, 2026-09-19); this covers any other exception a provider raises on the way out.

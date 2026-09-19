@@ -1956,11 +1956,20 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         The block is recreated if it went away -- the error flow writes through
         its own path and can clear it mid-stream.
 
+        A RECREATED BLOCK GETS ITS "spaCR AI" HEADING BACK. When a run fails,
+        the error flow opens the heading and its reply block at once, and the
+        run then writes its closing lines -- the manifest, "run closed",
+        "✗ Failed" -- under "spaCR output" before the provider's first line
+        arrives. Without a new heading the whole reply sat under "spaCR output",
+        in the AI's colour, and the "spaCR AI" heading above it stayed empty:
+        issue 117's console, which read as "the AI was never asked".
+
         :param chunk: the text just received.
         """
         self._ai_buf.append(chunk)
         if self._current_stdout is None or self._last_entry_kind != "ai":
             ai_color = ai_color_for_provider(self._current_provider_name)
+            self.begin_topic(tr("spaCR AI"), accent=ai_color)
             self._current_stdout = _StdoutBlock(text_color=ai_color)
             self._insert_entry(self._current_stdout)
             self._last_entry_kind = "ai"

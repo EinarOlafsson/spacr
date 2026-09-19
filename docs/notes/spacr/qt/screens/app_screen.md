@@ -83,7 +83,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [AppScreen._on_run](#appscreen_on_run) (14 entries)
 - [AppScreen._announce_the_fit](#appscreen_announce_the_fit) (2 entries)
 - [AppScreen._on_copy_console](#appscreen_on_copy_console) (1 entry)
-- [AppScreen._on_pipeline_error](#appscreen_on_pipeline_error) (2 entries)
+- [AppScreen._on_pipeline_error](#appscreen_on_pipeline_error) (3 entries)
 - [AppScreen._on_lp_switch](#appscreen_on_lp_switch) (2 entries)
 - [AppScreen._on_hyperparam_switch](#appscreen_on_hyperparam_switch) (1 entry)
 - [AppScreen._on_sweep_switch](#appscreen_on_sweep_switch) (1 entry)
@@ -3189,6 +3189,18 @@ try:
 ```
 
 File-as-issue button becomes visible only when the user has opted in via AI Settings — otherwise it stays hidden so the actions row doesn't grow noise for people who don't use it.
+
+### 2026-09-19: the failure says the report was not sent
+
+```python
+self._report_waits_for_a_click = bool(
+```
+
+GitHub #117: with "Report errors as GitHub issues" on, a user watched a Mask run fail and expected an issue to have been filed, and none was. That is deliberate. Until 807ba9e0a (2026-08-14, instruction 45) this method did file on its own: it called `_on_file_issue` as soon as the crash arrived. The consent work removed that, because the destination is the PUBLIC tracker, and a report now goes out only after the user presses Send in the editable preview. What was missing was any word of this in the console. The only sign was the "File as issue" button appearing in the row under it.
+
+So `_on_finished` now writes one line directly under "✗ Failed": `[issue] Nothing was sent to GitHub. Reports are public, so spaCR files one only when you press File as issue and then Send report.` It is written once per failure, only when the button is on offer, and not when reporting is set to 'never', since the button then refuses to file. A run that was stopped drops the pending line, so it cannot turn up under the next failure.
+
+Left as found and recorded in features/new/432: `ISSUE_PROMPT_ALWAYS` is still one of the first-run "One-click issue filing" choices, and since 807ba9e0a nothing reads it. 'always' and 'ask' behave the same. Whether 'always' should open the preview by itself when a run fails, or be removed, is the maintainer's call.
 
 ## AppScreen._on_lp_switch
 

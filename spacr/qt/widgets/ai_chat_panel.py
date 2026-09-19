@@ -212,17 +212,18 @@ class _ProvidersDialog(QDialog):
 
         auto_label = QLabel(
             "<b>Report errors as GitHub issues</b><br>"
-            "<span style='color:gray;'>Adds a \"File as GitHub issue\" "
-            "button to the Explain-error flow. Clicking it opens your "
-            "browser at a pre-filled issue on the spaCR repo — you "
-            "review the payload and hit Submit yourself.</span>"
+            "<span style='color:gray;'>When a run fails, a \"File as "
+            "issue\" button appears under the console. Nothing is sent "
+            "automatically: the report opens in a preview you can edit, "
+            "and goes to the public spaCR repository only when you press "
+            "Send report.</span>"
         )
         auto_label.setTextFormat(Qt.RichText)
         col.addWidget(auto_label)
 
         from .toggle import Toggle
         self._auto_issue_chk = Toggle(
-            "Enable — one-click issue filing from the error dialog"
+            "Enable — show File as issue when a run fails"
         )
         self._auto_issue_chk.setChecked(ai_settings.get_auto_file_issues())
         self._auto_issue_chk.stateChanged.connect(self._on_auto_issue_changed)

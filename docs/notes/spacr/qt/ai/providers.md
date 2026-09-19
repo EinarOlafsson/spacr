@@ -13,6 +13,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_stream_process](#_stream_process) (2 entries)
 - [ClaudeCliProvider](#claudecliprovider) (1 entry)
 - [GeminiCliProvider.stream_chat](#geminicliproviderstream_chat) (1 entry)
+- [_stream_process and ProviderFailed, 2026-09-19](#_stream_process-and-providerfailed-2026-09-19) (1 entry)
 
 ## ChatProvider
 
@@ -115,3 +116,17 @@ args = ai_settings.provider_args(self.name)
 ```
 
 SPEED_MAP uses --model; translate to -m for the gemini CLI
+
+## _stream_process and ProviderFailed, 2026-09-19
+
+```python
+if (isinstance(exit_status, int) and exit_status != 0
+```
+
+A provider CLI that exits non-zero has failed, and the line it printed is its error message, not an answer. Before this, `_stream_process` never looked at the exit status, so the worker reported success with that line as the reply. GitHub #117 (jak18015, macOS, 1.5.0.8) is the case: `claude` printed `Failed to authenticate: OAuth session expired and could not be refreshed` and exited, and the console showed it as spaCR AI's answer, with no `[AI error]` and no hint to sign in again. The console kept it as the explanation of the crash, so `ai_explanation_of` handed it to the bug reporter, and issues #118 and #121 were filed with that line under "spaCR AI's analysis of this error".
+
+Measured 2026-09-19 with Claude Code 2.1.274 in an empty HOME: `claude -p "say hi"` prints `Not logged in · Please run /login` and exits 1. The expired-session message in #117 needs an expired session, which could not be produced here, so its exit status is not measured. The check depends only on the status, never on the wording.
+
+The lines are still streamed as they arrive, because a long answer has to show while it is written. The failure is raised after the last line, once the child has been reaped. The message quotes the last three non-blank lines, cut to 400 characters. When a provider is given, it also names that provider's `login_command`. The command is the one the Providers dialog already shows, so the two places agree.
+
+A child that spaCR itself ended does not count as failing. Cancel, quitting through `terminate_all_streams`, and this function's own escalation all mark the Popen before they signal it. The status such a child exits with is spaCR's doing. On POSIX it is a negative signal number. On Windows it is 1, because `Popen.terminate` is `TerminateProcess(handle, 1)`, so it looks exactly like a CLI reporting a failure. The mark is the only way to tell the two apart.

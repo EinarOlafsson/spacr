@@ -46,7 +46,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [ConsolePanel._prune_retired](#consolepanel_prune_retired) (1 entry)
 - [ConsolePanel.shutdown](#consolepanelshutdown) (2 entries)
 - [ConsolePanel._on_stage](#consolepanel_on_stage) (1 entry)
-- [ConsolePanel._on_chunk](#consolepanel_on_chunk) (1 entry)
+- [ConsolePanel._on_chunk](#consolepanel_on_chunk) (2 entries)
 - [ConsolePanel._on_stream_finished](#consolepanel_on_stream_finished) (5 entries)
 - [ConsolePanel.ai_explanation_of](#consolepanelai_explanation_of) (2 entries)
 - [ConsolePanel.open_error_flow](#consolepanelopen_error_flow) (3 entries)
@@ -842,6 +842,14 @@ if self._current_stdout is None or self._last_entry_kind != "ai":
 ```
 
 Stream into the provider-coloured AI block created in _send_to_ai. Guard in case it was cleared (open_error_flow uses its own path).
+
+### 2026-09-19
+
+```python
+self.begin_topic(tr("spaCR AI"), accent=ai_color)
+```
+
+A recreated reply block opens its own "spaCR AI" heading. When a run fails, the error flow draws the heading and an empty reply block straight away. The run then writes its closing lines -- workspace, macro, "run closed [failed]", "✗ Failed" -- under "spaCR output", and those arrive before the provider's first line. The reply block was then recreated with no heading, so the reply sat under "spaCR output" in the AI's colour and the "spaCR AI" heading above stayed empty. That is the console GitHub #117 pasted, and it read as "the AI was never asked". `begin_topic` does not repeat a heading that is already the current one, so an uninterrupted reply still has exactly one.
 
 ## ConsolePanel._on_stream_finished
 
