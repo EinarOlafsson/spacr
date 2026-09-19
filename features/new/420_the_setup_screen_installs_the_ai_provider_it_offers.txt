@@ -2,7 +2,10 @@
 THE SETUP SCREEN INSTALLS THE AI PROVIDER IT OFFERS, INSTEAD OF PRINTING A LINK
 ================================================================================
 
-Status:    OPEN, filed 2026-09-16. Not started.
+Status:    BUILT ON LINUX 2026-09-19, branch home/420-setup-installs, local
+           commits awaiting review, not landed. Windows and macOS commands
+           are data from the vendors' docs, UNVERIFIED on those hosts. No
+           real install was run anywhere; see the 2026-09-19 note at the end.
 Requested: 2026-09-16, by the maintainer, in these words:
 
            "in the startup spacr when the use clicks an AI provider there
@@ -135,3 +138,89 @@ DONE WHEN
   * The account button opens GitHub's sign-up page.
   * A user who declines any step is left with a working screen and the command
     still visible.
+
+--------------------------------------------------------------------------------
+2026-09-19 — BUILT ON LINUX; WINDOWS AND MACOS UNVERIFIED
+--------------------------------------------------------------------------------
+
+WHAT WAS DONE
+
+  * One definition. spacr/qt/ai/providers.py now holds INSTALL_METHODS: per
+    tool (claude, codex, gemini, gh) and per OS (linux, darwin, win32), the
+    ordered ways of installing it, each with the programs it needs. Each
+    provider's install_hint is BUILT from those rows (the Linux/macOS hints
+    are unchanged character for character; the Windows hint shows only the
+    first row, because cmd has no `#` comment). The Install button runs the
+    first row whose programs are on PATH -- so the button and the hint cannot
+    drift apart. UNVERIFIED_PLATFORMS = ("darwin", "win32") says so in code.
+  * The GitHub CLI got the same interface, not a second one: CommandLineTool
+    is the shared base (is_installed, install_methods, install_hint,
+    login_command, status_command, check_signed_in); ChatProvider and the new
+    GitHubCli both derive from it; providers.github_cli() returns it.
+  * spacr/qt/ai/cli_install.py (Qt-free) runs a row: no stdin, a scratch
+    working folder, its own process group; `curl | bash` under
+    `bash -o pipefail` so a failed download fails; output streamed line by
+    line (split on \r too); Cancel and a 20-minute limit via a watcher
+    thread; the verdict is a kind -- installed, cancelled, timed out, no
+    network, refused, permission, not found, not started, not automatic,
+    failed. Afterwards it looks for the CLI in the folders installers use
+    (~/.local/bin, the conda env, Homebrew, npm's global bin) and the GUI
+    thread adds that folder to PATH, so the mark turns READY with no restart.
+  * spacr/qt/widgets/cli_setup_panel.py shows it: the command (always visible,
+    with Copy), a busy bar, the installer's latest line, Cancel, then Try
+    again / Open the page / the next step. The install runs on a JobRunner
+    worker thread, never on the GUI thread. After a successful install it
+    starts the sign-in and asks the tool's status command every 3 s (off the
+    GUI thread) until it says yes, giving up after 10 minutes with a message.
+  * The setup screen: the prompt a not-ready provider already opened now has
+    Install (default) beside Open the page / Copy / Later, and shows "Install
+    runs: <command>" before anything runs. With no usable row it names the
+    missing program ("npm (Node.js) or Homebrew") and keeps the page and the
+    command. The GitHub mark with no `gh` opens the same kind of prompt;
+    after install it goes straight into spaCR's existing in-app
+    `gh auth login` flow, and a `gh` that exits non-zero ends the wait with
+    a message. "Create a GitHub account" beside the mark opens
+    https://github.com/signup and hides once a token is found. Closing the
+    screen stops a running installer.
+
+WHAT WAS MEASURED (this machine, 2026-09-19)
+
+  * `claude auth status` exits 1 in an empty HOME, 0 signed in. `gh auth
+    status` exits 1 with an empty GH_CONFIG_DIR, 0 signed in. `gh auth
+    token` still answered 0 with a fake HOME and GH_CONFIG_DIR -- it reads
+    the system keyring -- so it is not a signed-out probe under a fake
+    config. `codex login status` was NOT run (no codex here); it is from
+    Codex's docs.
+  * The real screen, offscreen, with stand-in installers on PATH (a shell
+    `npm` that writes a `codex` into ~/.local/bin of a temporary HOME, and a
+    shell `conda` that prints conda's HTTP 000 CONNECTION FAILED): GPT went
+    not installed -> prompt showing `npm install -g @openai/codex` ->
+    installing (latest line shown while it ran) -> signing in (`codex login`
+    handed to the terminal launcher) -> READY, and the mark turned READY
+    without a restart. The GitHub row went prompt -> installing -> "could
+    not reach its download server ... press Try again", command still shown.
+  * Tests press the buttons with the process faked, and two use real
+    processes (shell scripts in tmp_path): one full GPT install to READY on
+    the real worker thread, and one that checks Cancel kills the child of a
+    `bash` pipeline too. cli_install.py and cli_setup_panel.py are at 100%
+    statements and branches from the two new test files.
+
+WHAT IS LEFT
+
+  * Windows and macOS: every row for those hosts is unverified. In
+    particular the Windows `cmd /c "..."` line handed to Popen as a string,
+    CREATE_NO_WINDOW, `taskkill /T` for Cancel, and the winget and npm.cmd
+    rows need one run on a Windows machine; `brew install` rows need macOS.
+  * No real install was run on any machine, by instruction. The Claude
+    installer, npm, conda and Homebrew were never actually invoked.
+  * On a stock Linux, Node from the distribution puts npm's global folder
+    under /usr, so `npm install -g` fails with EACCES; the panel says to run
+    `npm config set prefix ~/.local` and try again, but does not do it.
+  * Linux has no root-free official `gh` installer: without Homebrew or
+    conda the prompt sends the user to cli.github.com.
+  * ChatProvider.is_logged_in is still "installed", so a mark reads READY
+    as soon as the CLI exists even before sign-in; the panel's status
+    polling is what follows the sign-in. Making the marks use the status
+    commands would put a process per mark on the GUI thread.
+  * Translations: every new caption is English until the consolidated
+    catalog pass (listed in the unit's i18n_owed).
