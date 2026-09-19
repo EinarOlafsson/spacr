@@ -399,6 +399,13 @@ WHAT CHANGED
    defaults to True. It says "Default True". A test compares the stated
    default with the getter's for route_errors_through_ai, auto_file_issues
    and console_aware.
+5b. Nothing is filed automatically until the profile has accepted terms
+   4.2 (`AppScreen._the_terms_allow_automatic_filing`). 'always' is the
+   default, and a default reaches profiles that never saw the agreement:
+   `--no-setup`, `SPACR_NO_SETUP`, offscreen servers, a closed terms slide,
+   a profile that accepted 4.1. The console says, under "✗ Failed", that
+   nothing was sent and that filing starts once the terms are accepted.
+   Added after the first commit on this branch, as a separate commit.
 6. An AI error is never attached. The automatic path takes the analysis
    from `ai_explanation_of`, like the manual one, so a provider that failed
    leaves none (this file's fix). The report is filed at `_on_finished`,
@@ -431,7 +438,8 @@ maintainer did not make explicitly. It is one branch in
 `file_without_review` if he wants the browser back.
 
 MEASURED
-  * tests/qt/test_the_report_files_itself.py, new: 38 passed. It drives a
+  * tests/qt/test_the_report_files_itself.py, new: 40 passed (38, plus
+    the terms gate for a profile with no acceptance and one with 4.1). It drives a
     Mask Run that fails, on a profile with both preferences REMOVED, with
     the network faked at `github_auth._HTTP_OPEN`, the sign-in at
     `resolve_token`, and HOME in a temporary folder.
@@ -439,7 +447,7 @@ MEASURED
     7, default switch 8, identity redaction 3, closing tags 1, fingerprint
     1, ledger 1, in-flight 1, browser fallback 2, 'always' not filing 5,
     raw report posted 1, open-issue search 2, tooltip 1, terms version 1,
-    unreadable->always 1. "Remember unsent reports" survived, as an
+    unreadable->always 1, terms gate removed 2. "Remember unsent reports" survived, as an
     equivalent mutant: the URL stored is empty and reads as not filed. The
     test now checks the behaviour instead: signed out, then signed in, the
     next failure files.
@@ -462,7 +470,9 @@ MEASURED
     catalog. Expected until the consolidated translation pass.
   * Offscreen probe outside pytest, HOME and XDG_* in a fresh scratch
     folder, network faked: a fresh profile reads mode 'always', switch on,
-    terms 4.2 needed. The "When something breaks" slide shows 'always' and
+    terms 4.2 needed. With setup dismissed and the terms not accepted, a
+    failing Run sent nothing and said why. With the terms scrolled to the
+    end, the switch ticked and setup finished, the record read 4.2. The "When something breaks" slide shows 'always' and
     the new blurb. The terms page shows 5.5 to 5.7. A Mask Run that fails
     files one issue. The second identical failure says "reported from this
     computer before" and sends nothing. The posted body leaks neither the
