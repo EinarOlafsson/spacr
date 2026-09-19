@@ -366,29 +366,63 @@ def test_easy_order_announces_its_fallback_rather_than_reordering_silently(
 
 
 # ---------------------------------------------------------------------------
-# The layouts the editor cannot edit in place
+# Every layout reaches the editor
 # ---------------------------------------------------------------------------
+#
+# Until 2026-09-19 the sibling and seg layouts were read, printed and then
+# refused with exit 2, and item 370 had to re-lay a queue out as nested to
+# curate it. The editor now edits both in place;
+# tests/qt/test_the_editor_edits_every_queue_layout_in_place.py is what it
+# does with them.
 
-def test_the_sibling_layout_is_refused_with_what_it_would_have_done_wrong(
-        sibling, capsys, handed):
-    """Opening it on ``images/`` would orphan every draft mask in ``masks/``."""
-    assert cli_make_masks.main(["--folder", str(sibling)]) == 2
-    captured = capsys.readouterr()
-    assert not handed
-    assert "3 bundles" in captured.out, "the queue itself was still read"
-    assert str(sibling / "images" / "masks") in captured.err
-    assert "--dry-run" in captured.err
+def test_the_sibling_layout_reaches_the_editor(sibling, capsys, handed):
+    """The masks folder the editor is given is the one beside ``images/``."""
+    assert cli_make_masks.main(
+        ["--folder", str(sibling), "--order", "name"]) == 0
+    queue, = handed
+    assert queue.layout.kind == "sibling"
+    assert queue.layout.images_dir == sibling / "images"
+    assert queue.layout.masks_dir == sibling / "masks"
+    assert [item.stem for item in queue.items] == ["s_0", "s_1", "s_2"]
+    assert capsys.readouterr().err == ""
 
 
-def test_the_seg_layout_is_refused_but_still_reads_as_a_queue(seg, capsys,
-                                                              handed):
-    """A Cellpose bundle is a queue spaCR can read and this editor cannot open."""
-    assert cli_make_masks.main(["--folder", str(seg)]) == 2
-    assert not handed
-    assert "_seg.npy" in capsys.readouterr().err
+def test_the_seg_layout_reaches_the_editor(seg, capsys, handed):
+    """A folder of Cellpose bundles opens as its bundles."""
+    assert cli_make_masks.main(["--folder", str(seg), "--order", "name"]) == 0
+    queue, = handed
+    assert queue.layout.kind == "seg"
+    assert [item.bundle.name for item in queue.items] == [
+        "b_0_seg.npy", "b_1_seg.npy"]
+    assert capsys.readouterr().err == ""
 
-    assert cli_make_masks.main(["--folder", str(seg), "--dry-run"]) == 0
-    assert "b_0" in capsys.readouterr().out
+
+def test_the_refusal_is_gone_rather_than_unreachable():
+    """Nothing is left that a later change could route a layout back into."""
+    assert not hasattr(cli_make_masks, "editor_refusal")
+    assert "editor_refusal" not in cli_make_masks.__all__
+
+
+def test_prob_without_scores_is_explicit_about_where_it_looked(nested, capsys,
+                                                               handed):
+    """Both places are named, and the queue the editor gets carries it too."""
+    assert cli_make_masks.main(
+        ["--folder", str(nested), "--order", "prob"]) == 0
+    out = capsys.readouterr().out
+    queue, = handed
+    assert "instead of prob" in out
+    assert str(nested / "curate_scores.csv") in out
+    assert str(nested.parent / "nested_scores.csv") in out
+    assert queue.notices and "instead of prob" in queue.notices[0]
+
+
+def test_the_help_says_where_prob_reads_its_scores():
+    """``--help`` used to call prob "least certain first"; it is most likely."""
+    text = " ".join(cli_make_masks.build_parser().format_help().split())
+    assert "least certain" not in text
+    assert "prob: most likely first" in text
+    assert "curate_scores.csv" in text
+    assert "_scores.csv beside it" in text
 
 
 # ---------------------------------------------------------------------------

@@ -33,26 +33,24 @@ The session summary, in the ledger's own terms::
 so a curator sees what they are resuming into, and sees it in the shell they
 started from rather than only in a window.
 
-One layout opens the editor, three open the queue
--------------------------------------------------
+All three layouts open the editor
+---------------------------------
 
-:func:`spacr.curation_queue.detect_layout` reads three layouts. The editor
-edits ONE of them: Make Masks reads a draft from ``<folder>/masks/<stem>.tif``
-and writes the curated mask back to the same place, which is the ``nested``
-layout and nothing else. So a ``sibling`` or ``seg`` folder is summarised,
-ordered and listed by ``--dry-run`` — and the editor is refused, by name,
-with what it would have done wrong. Opening a sibling set on its ``images``
-folder would read and write ``images/masks``, silently orphaning every draft
-mask the set already has; that is worse than a refusal, and it is the failure
-mode the ledger's "loaded as empty" warning is about.
+:func:`spacr.curation_queue.detect_layout` reads three layouts, and the
+editor edits each where it lies: a ``nested`` folder's masks in
+``<folder>/masks``, a ``sibling`` set's in the ``masks/`` beside its
+``images/`` -- never ``images/masks``, which would orphan every draft the set
+already has -- and a ``seg`` folder's ``_seg.npy`` bundles written back into
+themselves. :mod:`spacr.qt.mask_engine` says why in place is sound and no
+convert step is needed.
 
 Exit codes::
 
     0   the editor ran, or --dry-run printed the queue, or there was
         nothing left to curate
     1   the Qt interface could not start
-    2   bad arguments, a folder that is not there, a folder holding no
-        recognisable layout, or a layout the editor cannot edit in place
+    2   bad arguments, a folder that is not there, or a folder holding no
+        recognisable layout
 """
 from __future__ import annotations
 
@@ -64,10 +62,10 @@ from typing import List, Optional, Sequence
 
 from .curation_queue import (
     DEFAULT_ORDER,
-    LAYOUT_NESTED,
-    LAYOUT_SEG,
-    LAYOUT_SIBLING,
+    EXTERNAL_SCORES_SUFFIX,
+    EXTERNAL_STATUS_SUFFIX,
     ORDERS,
+    SCORES_FILENAME,
     STATUS_FILENAME,
     CurationQueue,
     CurationQueueError,
@@ -82,7 +80,6 @@ __all__ = [
     "has_display",
     "hand_over",
     "take_handover",
-    "editor_refusal",
     "open_editor",
     "main",
 ]
@@ -121,9 +118,10 @@ def build_parser() -> argparse.ArgumentParser:
         prog="spacr-make-masks",
         description="Open Make Masks on a folder as a resumable curation "
                     "queue.",
-        epilog=f"Progress is kept in <folder>/{STATUS_FILENAME}: done and "
-               f"skip stay distinct, so a field that cannot be curated is "
-               f"not offered again, and the record syncs with the images.")
+        epilog=f"Progress is kept in <folder>/{STATUS_FILENAME}, or in the "
+               f"<folder>{EXTERNAL_STATUS_SUFFIX} beside it that the external "
+               f"curation tool wrote: done and skip stay distinct, so a field "
+               f"that cannot be curated is not offered again.")
     parser.add_argument(
         "--folder", required=True, metavar="DIR",
         help="the folder to curate. Accepted layouts: images with a masks/ "
@@ -132,9 +130,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--order", choices=list(ORDERS), default=DEFAULT_ORDER,
         help=f"what to offer first (default: {DEFAULT_ORDER}). easy: "
-             f"populated drafts before empty ones. prob: least certain "
-             f"first. value: the fields worth a curator's judgement. name: "
-             f"by stem, ignoring everything else.")
+             f"populated drafts before empty ones, most likely first. prob: "
+             f"most likely first. value: the fields worth a curator's "
+             f"judgement. name: by stem, ignoring everything else. easy and "
+             f"prob read <folder>/{SCORES_FILENAME}, or "
+             f"<folder>{EXTERNAL_SCORES_SUFFIX} beside it (a stem column and "
+             f"a prob column); without either they sort by value and say "
+             f"so.")
     parser.add_argument(
         "--limit", type=int, default=None, metavar="N",
         help="end the session after N fields. Applied AFTER ordering, so it "
@@ -169,43 +171,6 @@ def take_handover() -> Optional[CurationQueue]:
     global _HANDOVER
     queue, _HANDOVER = _HANDOVER, None
     return queue
-
-
-def editor_refusal(queue: CurationQueue) -> str:
-    """Say why the editor will not open this layout in place.
-
-    :param queue: the queue that was built, in a layout Make Masks cannot
-        edit.
-    :returns: the refusal, naming what the editor would have read and
-        written, and what still works on this folder.
-    """
-    folder = queue.folder
-    if queue.layout.kind == LAYOUT_SIBLING:
-        specific = (
-            f"  Make Masks reads a draft from <folder>/masks/<stem>.tif and "
-            f"writes the curated mask back there. Opened on {folder}/images "
-            f"it would read and write {folder}/images/masks — not the "
-            f"{folder}/masks this set already has — so every draft in it "
-            f"would be ignored and every save would land somewhere new.\n"
-            f"  To edit this set now, give the editor the nested layout: a "
-            f"folder of images with masks/ beneath it.")
-    elif queue.layout.kind == LAYOUT_SEG:
-        specific = (
-            "  Make Masks edits image files and TIFF masks. A Cellpose "
-            "*_seg.npy bundle carries its image and its labels inside one "
-            "pickle, which this editor does not open.\n"
-            "  To edit these now, write each bundle out as an image with "
-            "its mask in masks/ beneath it.")
-    else:                                                # pragma: no cover
-        specific = (
-            "  Make Masks edits the nested layout: images with masks/ "
-            "beneath them.")
-    return (f"{queue.layout.kind} layout at {folder}: spaCR can read this "
-            f"queue but cannot yet edit it in place.\n"
-            f"{specific}\n"
-            f"  The queue itself works on this folder: 'spacr-make-masks "
-            f"--folder {folder} --dry-run' prints it, in order, with no "
-            f"display.")
 
 
 def _session_lines(queue: CurationQueue) -> List[str]:
@@ -310,18 +275,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if not queue.items:
         print(f"nothing to open: every field in {queue.folder} already has a "
-              f"state in {STATUS_FILENAME}. Delete a row from that file to "
-              f"offer its field again.")
+              f"state in {queue.layout.status_path}. Delete a row from that "
+              f"file to offer its field again.")
         return EXIT_OK
 
     if args.dry_run:
         for line in _session_lines(queue):
             print(line)
         return EXIT_OK
-
-    if queue.layout.kind != LAYOUT_NESTED:
-        print(editor_refusal(queue), file=sys.stderr)
-        return EXIT_USAGE
 
     return open_editor(queue)
 

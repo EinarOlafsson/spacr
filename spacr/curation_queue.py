@@ -27,7 +27,9 @@ empty. So all three are accepted and the one in front of us is detected::
     seg       <folder>/*_seg.npy       (Cellpose pickles, the external tool)
 
 Accepting all three is safer than picking a winner. An existing curation
-set opens unconverted, so nothing has to be moved before work can start.
+set opens unconverted, so nothing has to be moved before work can start --
+and the EDITOR takes all three too, reading and saving each where it lies
+(:mod:`spacr.qt.mask_engine` says how).
 
 A guess is not accepted. A folder that matches none of the three, or that
 matches two of them, raises :class:`LayoutError`. The alternative would be an
@@ -48,7 +50,10 @@ rather than beside it, so it syncs with the images and a session resumes on
 the other machine. A row about a stem that is not in this folder is kept on
 rewrite for exactly that reason: the curator may be resuming somewhere the
 rest of the set has not arrived yet, and dropping those rows would hand back
-work already done.
+work already done. A folder with no record of its own but with the external
+tool's ``<parent>/<name>_status.csv`` beside it resumes from that one and
+writes back to it (:func:`status_path`), so a set curated half in each tool
+keeps one record.
 
 Ordering
 --------
@@ -112,6 +117,8 @@ __all__ = [
     "STATUS_FIELDS",
     "STATUS_FILENAME",
     "SCORES_FILENAME",
+    "EXTERNAL_STATUS_SUFFIX",
+    "EXTERNAL_SCORES_SUFFIX",
     "DRAFTS_FILENAME",
     "IMAGE_EXTS",
     "SEG_SUFFIX",
@@ -119,7 +126,9 @@ __all__ = [
     "MIN_DIAMETER_FOR_VALUE",
     "detect_layout",
     "discover_items",
+    "external_record",
     "status_path",
+    "scores_path",
     "read_status",
     "write_status",
     "record_state",
@@ -167,6 +176,17 @@ STATUS_FILENAME = "curate_status.csv"
 
 #: Optional per-stem probabilities, read by the ``prob`` and ``easy`` orders.
 SCORES_FILENAME = "curate_scores.csv"
+
+#: How the external curation tool names a queue's resume record: a SIBLING
+#: of the queue folder, ``<parent>/<name>_status.csv``. Read, and written
+#: back, when the folder has no :data:`STATUS_FILENAME` of its own -- see
+#: :func:`status_path`.
+EXTERNAL_STATUS_SUFFIX = "_status.csv"
+
+#: How the external curation tool names a queue's scores file:
+#: ``<parent>/<name>_scores.csv``, with a ``plaque_prob`` column. Read when
+#: the folder has no :data:`SCORES_FILENAME`; see :func:`scores_path`.
+EXTERNAL_SCORES_SUFFIX = "_scores.csv"
 
 #: Cache of draft object counts, so ``easy`` does not reread every draft at
 #: every launch. Counts drive ordering only: a stale one mis-sorts a field,
@@ -386,6 +406,11 @@ class CurationQueue:
         of probabilities.
     :ivar limit: the cap that was applied, or ``None``.
     :ivar summary: counts over the WHOLE folder, not over this session.
+    :ivar notices: what the ordering could not do as asked -- a ``prob`` or
+        ``easy`` order with no scores file, or with fields the scores file
+        does not name. Printed when the queue is built and shown by the
+        editor with it, because an ordering that quietly became another one
+        is the failure this module is most careful about.
     """
 
     layout: QueueLayout
@@ -395,6 +420,7 @@ class CurationQueue:
     effective_order: str
     limit: Optional[int]
     summary: QueueSummary
+    notices: Tuple[str, ...] = ()
 
     @property
     def folder(self) -> Path:
@@ -406,14 +432,20 @@ class CurationQueue:
         """:returns: every field in the folder, reviewed ones included."""
         return self.layout.items
 
-    def describe(self) -> str:
-        """:returns: a printable line naming the layout, order and counts."""
+    @property
+    def order_phrase(self) -> str:
+        """:returns: ``sorted by <order>``, naming the order that was asked
+            for too whenever it is not the one that was used."""
         order = self.effective_order
         if order != self.order:
             order = f"{order} (asked for {self.order})"
+        return f"sorted by {order}"
+
+    def describe(self) -> str:
+        """:returns: a printable line naming the layout, order and counts."""
         return (f"{self.layout.kind} layout at {self.folder}: "
                 f"{self.summary.describe()}; {len(self.items)} this session, "
-                f"sorted by {order}")
+                f"{self.order_phrase}")
 
 
 # ---------------------------------------------------------------------------
@@ -625,13 +657,81 @@ def discover_items(folder: PathLike) -> Tuple[QueueItem, ...]:
 # The resume record
 # ---------------------------------------------------------------------------
 
-def status_path(folder: PathLike) -> Path:
-    """:param folder: the queue folder.
+def external_record(folder: PathLike, suffix: str) -> Path:
+    """Where the external curation tool keeps one of a queue's files.
 
-    :returns: ``<folder>/curate_status.csv``, inside the queue folder so it
-        travels with the images when the set is synced between machines.
+    :param folder: the queue folder.
+    :param suffix: :data:`EXTERNAL_STATUS_SUFFIX` or
+        :data:`EXTERNAL_SCORES_SUFFIX`.
+    :returns: ``<parent>/<name><suffix>``, beside the queue folder rather
+        than in it. The folder is made absolute first, without touching the
+        disk, so ``.`` has a name to put in front of the suffix.
     """
-    return Path(folder) / STATUS_FILENAME
+    folder = Path(os.path.abspath(os.fspath(folder)))
+    return folder.parent / f"{folder.name}{suffix}"
+
+
+def _has_columns(path: Path, *groups: Sequence[str]) -> bool:
+    """Whether a CSV's header holds one column from each group.
+
+    :param path: the CSV.
+    :param groups: sequences of acceptable column names.
+    :returns: ``False`` for a file that cannot be read as CSV at all.
+    """
+    try:
+        with open(path, newline="", encoding="utf-8") as handle:
+            header = next(csv.reader(handle), [])
+    except (OSError, UnicodeDecodeError, csv.Error):
+        return False
+    names = {name.strip() for name in header}
+    return all(any(name in names for name in group) for group in groups)
+
+
+def status_path(folder: PathLike) -> Path:
+    """Where this queue's resume record is read from and written to.
+
+    ``<folder>/curate_status.csv``, inside the queue folder so it travels
+    with the images when the set is synced between machines -- UNLESS the
+    folder has none and the external curation tool's record,
+    ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and
+    ``state`` columns. That record is then THE record, read and written
+    back in place: the sets that tool curated keep their progress there and
+    nothing inside the folder, and starting a second file would reopen
+    every field already done or skipped as undone while the other tool went
+    on reading the first.
+
+    :param folder: the queue folder.
+    :returns: the path of the resume record, which need not exist yet.
+    """
+    inside = Path(folder) / STATUS_FILENAME
+    if inside.is_file():
+        return inside
+    beside = external_record(folder, EXTERNAL_STATUS_SUFFIX)
+    if beside.is_file() and _has_columns(beside, ("stem",), ("state",)):
+        return beside
+    return inside
+
+
+def scores_path(folder: PathLike) -> Optional[Path]:
+    """Where this queue's probabilities are read from, if anywhere.
+
+    ``<folder>/curate_scores.csv`` first; failing that, the external
+    curation tool's ``<parent>/<name>_scores.csv`` when its header has a
+    ``stem`` column and a probability column, which is how the plaque
+    project's scores are written. A file beside the folder that does not
+    look like scores is not a scores file and is passed over rather than
+    allowed to stop the session.
+
+    :param folder: the queue folder.
+    :returns: the scores file, or ``None`` when there is none.
+    """
+    inside = Path(folder) / SCORES_FILENAME
+    if inside.is_file():
+        return inside
+    beside = external_record(folder, EXTERNAL_SCORES_SUFFIX)
+    if beside.is_file() and _has_columns(beside, ("stem",), PROB_COLUMNS):
+        return beside
+    return None
 
 
 def is_reviewed(state: Optional[str]) -> bool:
@@ -959,18 +1059,19 @@ def value_key(item: QueueItem,
 # ---------------------------------------------------------------------------
 
 def load_probabilities(folder: PathLike) -> Dict[str, float]:
-    """Read ``curate_scores.csv``, when there is one.
+    """Read the queue's scores file, when there is one.
 
     :param folder: the queue folder.
-    :returns: ``{stem: probability}``, and ``{}`` when the file is absent —
-        which is what makes ``prob`` and ``easy`` fall back, loudly.
-    :raises CurationQueueError: when the file is present but has no stem
-        column or no recognised probability column. A scores file that
-        exists and cannot be used is a mistake worth stopping for; a
-        missing one is an ordinary state.
+    :returns: ``{stem: probability}``, and ``{}`` when there is no scores
+        file (see :func:`scores_path`) -- which is what makes ``prob`` and
+        ``easy`` fall back, loudly.
+    :raises CurationQueueError: when ``curate_scores.csv`` is present but
+        has no stem column or no recognised probability column. A scores
+        file that exists and cannot be used is a mistake worth stopping for;
+        a missing one is an ordinary state.
     """
-    path = Path(folder) / SCORES_FILENAME
-    if not path.is_file():
+    path = scores_path(folder)
+    if path is None:
         return {}
     with open(path, newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
@@ -1193,6 +1294,14 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
     ``--limit 20`` means the twenty most worthwhile fields still to do, not
     the first twenty found.
 
+    Probabilities are read only for the orders that use them, so ``name``
+    and ``value`` read no scores file at all. For ``prob`` and ``easy`` the
+    absence of scores is never silent: no scores file falls back to
+    ``value`` and says so, naming both places it looked; a scores file that
+    leaves some waiting fields unscored says how many; and where the scores
+    came from is printed. The two warnings are kept on the queue as
+    :attr:`CurationQueue.notices` for the editor to show.
+
     :param folder: the queue folder.
     :param order: one of :data:`ORDERS`; :data:`DEFAULT_ORDER` by default.
     :param limit: how many fields this session offers, or ``None`` for all.
@@ -1220,21 +1329,42 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
     layout = detect_layout(folder)
     status = read_status(layout.folder)
     summary = summarize(layout.items, status)
+    record = status_path(layout.folder)
+    if record.parent != Path(layout.folder):
+        say(f"resuming from {record}, the record the external curation tool "
+            f"keeps beside the folder; progress is written back there")
 
     waiting = (list(layout.items) if include_reviewed
                else pending_items(layout.items, status))
 
-    # Resolved ONLY for the orders that use them, so `name` and `value`
-    # read no scores file and call no probability loader at all.
+    notices: List[str] = []
     probabilities: Optional[Mapping[str, float]] = None
+    source: Optional[Path] = None
     if order in ("prob", "easy"):
         probabilities = _resolve(probs, None)
         if probabilities is None:
+            source = scores_path(layout.folder)
             probabilities = load_probabilities(layout.folder)
-    effective, notice = resolve_order(order, probabilities or {},
-                                      Path(layout.folder) / SCORES_FILENAME)
+    hint = (f"looked for {Path(layout.folder) / SCORES_FILENAME} and "
+            f"{external_record(layout.folder, EXTERNAL_SCORES_SUFFIX)}; "
+            f"either needs a stem column and one of "
+            f"{', '.join(PROB_COLUMNS)}")
+    effective, notice = resolve_order(order, probabilities or {}, hint)
     if notice is not None:
+        notices.append(notice)
         say(notice)
+    elif effective in ("prob", "easy"):
+        if source is not None:
+            say(f"probabilities from {source}")
+        unscored = [item.stem for item in waiting
+                    if item.stem not in (probabilities or {})]
+        if unscored:
+            where = source if source is not None else "the scores given"
+            notice = (f"! {len(unscored)} of {len(waiting)} field(s) have no "
+                      f"probability in {where}; {effective} order ranks them "
+                      f"below every scored field")
+            notices.append(notice)
+            say(notice)
 
     counted = _resolve(counts, None)
     if counted is None and effective == "easy":
@@ -1249,4 +1379,4 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
 
     return CurationQueue(layout=layout, items=tuple(ordered), status=status,
                          order=order, effective_order=effective, limit=limit,
-                         summary=summary)
+                         summary=summary, notices=tuple(notices))

@@ -15,18 +15,50 @@ sidecar, consistent with :mod:`spacr.napari_bridge` and
 :mod:`spacr.qt.curation_tool`. The sidecar allows
 :func:`spacr.curation.is_curated` to distinguish manually edited masks from
 pipeline-generated masks.
+
+Where a field's mask lives
+--------------------------
+
+The editor opens all three layouts :mod:`spacr.curation_queue` reads, and
+edits each one in place rather than converting it:
+
+``nested``
+    ``<folder>/<image>`` with the mask at ``<folder>/masks/<stem>.tif``. The
+    default, and what every function below does when told nothing else.
+``sibling``
+    ``<root>/images/<image>`` with the mask at ``<root>/masks/<stem>.tif``.
+    The editor opens ``<root>/images`` and passes ``masks_dir=<root>/masks``;
+    without it the mask would be read from and written to
+    ``<root>/images/masks``, a folder the set does not have.
+``seg``
+    ``<folder>/<stem>_seg.npy``, a Cellpose bundle holding the image and the
+    labels in one pickled dict. The editor's file list names the bundles
+    themselves, and a name ending in :data:`SEG_SUFFIX` is read and written
+    as a bundle by :func:`load_image_and_mask`, :func:`save_mask`,
+    :func:`write_recrop` and :func:`retire_recropped_original`.
+
+In place is sound for both, which is why there is no convert step. A sibling
+set differs from a nested one only in where its masks folder is, so passing
+that folder is the whole change. A bundle is rewritten with every key it
+already had kept, ``masks`` replaced, and the two keys derived from the
+masks -- ``outlines`` and ``ismanual`` -- brought up to date with it (see
+:func:`save_seg_bundle`); that is what the external curation tool did to the
+same files, less its stale outlines. A convert step would have been a second
+copy of every field, and the curator would have had to remember which copy
+was the truth.
 """
 from __future__ import annotations
 
 import json
 import os
 from collections import deque
-from typing import List, NamedTuple, Optional, Tuple
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 import imageio.v2 as imageio
 import numpy as np
 
 from ..curation import LOG_SUFFIX, CurationLog
+from ..curation_queue import SEG_SUFFIX
 from ..tiff_io import write_tiff
 
 
@@ -68,20 +100,55 @@ def list_images(folder: str) -> List[str]:
     )
 
 
-def load_image_and_mask(folder: str, filename: str) -> Tuple[np.ndarray, np.ndarray]:
-    """Load an image and its accompanying mask (from `folder/masks/`).
+def is_seg_bundle(filename) -> bool:
+    """Whether ``filename`` names a Cellpose ``_seg.npy`` bundle.
 
-    - Multi-channel images are collapsed to grayscale via BT.601 weights.
-    - Missing masks are created as zeros of the image shape.
-    - Images are returned as uint16; masks preserve uint8/uint16 label IDs.
-    - A mask saved by :func:`save_mask` is found even when the source image
-      had a non-TIFF extension.
-
-    :raises ValueError: for unsupported dimensions or an image/mask shape
-        mismatch.
+    :param filename: a file name or path.
+    :returns: ``True`` when it ends in :data:`SEG_SUFFIX`, which is how a
+        ``seg`` queue's fields are named in the editor's file list.
     """
-    image_path = os.path.join(folder, filename)
-    image = imageio.imread(image_path)
+    return os.path.basename(str(filename)).endswith(SEG_SUFFIX)
+
+
+def field_stem(filename) -> str:
+    """The stem a field is known by in ``curate_status.csv``.
+
+    ``os.path.splitext`` gives ``well_A1_seg`` for ``well_A1_seg.npy``, and
+    the queue calls that field ``well_A1``; a status row written under the
+    first name would never take the field out of the queue.
+
+    :param filename: an image file name, or a ``_seg.npy`` bundle name.
+    :returns: the file name without its extension, or without
+        :data:`SEG_SUFFIX` for a bundle.
+    """
+    name = os.path.basename(str(filename))
+    if name.endswith(SEG_SUFFIX):
+        return name[:-len(SEG_SUFFIX)]
+    return os.path.splitext(name)[0]
+
+
+def masks_folder(folder: str, masks_dir: Optional[str] = None) -> str:
+    """Where the masks of the images in ``folder`` are kept.
+
+    :param folder: the folder the editor opened.
+    :param masks_dir: the masks folder, when it is not beneath ``folder`` --
+        the ``sibling`` layout's ``<root>/masks`` beside ``<root>/images``.
+    :returns: ``masks_dir`` when given, else ``<folder>/masks``.
+    """
+    if masks_dir:
+        return os.fspath(masks_dir)
+    return os.path.join(folder, "masks")
+
+
+def _as_field_image(image: np.ndarray, image_path: str) -> np.ndarray:
+    """Check one decoded image and bring it to the editor's uint16 grey.
+
+    :param image: the decoded pixels.
+    :param image_path: where they came from, for the messages.
+    :returns: a 2-D uint16 image.
+    :raises ValueError: for an unsupported shape or channel count, or
+        non-finite or negative intensities.
+    """
     if image.ndim == 3:
         if image.shape[2] == 1:
             image = np.squeeze(image, axis=-1)
@@ -113,8 +180,76 @@ def load_image_and_mask(folder: str, filename: str) -> Tuple[np.ndarray, np.ndar
         if max_val <= 0:
             max_val = 1.0
         image = (image / max_val * 65535.0).astype(np.uint16)
+    return image
 
-    mask_dir = os.path.join(folder, "masks")
+
+def _as_field_mask(mask: np.ndarray, shape, mask_path: str,
+                   filename: str) -> np.ndarray:
+    """Check one decoded label image against the image it belongs to.
+
+    :param mask: the decoded labels.
+    :param shape: the 2-D shape of the image they label.
+    :param mask_path: where they came from, for the messages.
+    :param filename: the field's name, for the shape-mismatch message.
+    :returns: the labels as uint8 or uint16, whichever holds the largest id.
+    :raises ValueError: for a mask that is not 2-D, does not match the
+        image, holds non-integer or negative labels, or needs more than 16
+        bits.
+    """
+    if mask.ndim == 3 and mask.shape[-1] == 1:
+        mask = np.squeeze(mask, axis=-1)
+    if mask.ndim != 2:
+        raise ValueError(
+            f"Unsupported mask shape {mask.shape} in {mask_path}; "
+            "expected a 2-D label image."
+        )
+    if mask.shape != tuple(shape):
+        raise ValueError(
+            f"Mask shape {mask.shape} does not match image shape "
+            f"{tuple(shape)} for {filename}."
+        )
+    if not np.issubdtype(mask.dtype, np.integer):
+        if not np.all(np.isfinite(mask)):
+            raise ValueError(f"Mask contains non-finite values: {mask_path}")
+        if np.any(mask < 0) or np.any(mask != np.floor(mask)):
+            raise ValueError(
+                f"Mask must contain non-negative integer labels: {mask_path}"
+            )
+    maximum = int(mask.max()) if mask.size else 0
+    if maximum > np.iinfo(np.uint16).max:
+        raise ValueError(
+            f"Mask label {maximum} exceeds uint16 capacity: {mask_path}"
+        )
+    return mask.astype(np.uint8 if maximum <= 255 else np.uint16)
+
+
+def load_image_and_mask(folder: str, filename: str,
+                        masks_dir: Optional[str] = None
+                        ) -> Tuple[np.ndarray, np.ndarray]:
+    """Load an image and its accompanying mask.
+
+    - Multi-channel images are collapsed to grayscale via BT.601 weights.
+    - Missing masks are created as zeros of the image shape.
+    - Images are returned as uint16; masks preserve uint8/uint16 label IDs.
+    - A mask saved by :func:`save_mask` is found even when the source image
+      had a non-TIFF extension.
+    - A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is
+      read by :func:`load_seg_bundle` instead.
+
+    :param folder: the folder holding the image, or the bundle.
+    :param filename: the image, or the ``_seg.npy`` bundle, to load.
+    :param masks_dir: where the masks are, when not in ``<folder>/masks``;
+        see :func:`masks_folder`.
+    :returns: ``(image, mask)``.
+    :raises ValueError: for unsupported dimensions or an image/mask shape
+        mismatch.
+    """
+    if is_seg_bundle(filename):
+        return load_seg_bundle(os.path.join(folder, filename))
+    image_path = os.path.join(folder, filename)
+    image = _as_field_image(imageio.imread(image_path), image_path)
+
+    mask_dir = masks_folder(folder, masks_dir)
     stem = os.path.splitext(filename)[0]
     candidates = [
         os.path.join(mask_dir, filename),
@@ -123,48 +258,209 @@ def load_image_and_mask(folder: str, filename: str) -> Tuple[np.ndarray, np.ndar
     ]
     mask_path = next((path for path in candidates if os.path.isfile(path)), "")
     if mask_path:
-        mask = imageio.imread(mask_path)
-        if mask.ndim == 3 and mask.shape[-1] == 1:
-            mask = np.squeeze(mask, axis=-1)
-        if mask.ndim != 2:
-            raise ValueError(
-                f"Unsupported mask shape {mask.shape} in {mask_path}; "
-                "expected a 2-D label image."
-            )
-        if mask.shape != image.shape:
-            raise ValueError(
-                f"Mask shape {mask.shape} does not match image shape "
-                f"{image.shape} for {filename}."
-            )
-        if not np.issubdtype(mask.dtype, np.integer):
-            if not np.all(np.isfinite(mask)):
-                raise ValueError(f"Mask contains non-finite values: {mask_path}")
-            if np.any(mask < 0) or np.any(mask != np.floor(mask)):
-                raise ValueError(
-                    f"Mask must contain non-negative integer labels: {mask_path}"
-                )
-        maximum = int(mask.max()) if mask.size else 0
-        if maximum > np.iinfo(np.uint16).max:
-            raise ValueError(
-                f"Mask label {maximum} exceeds uint16 capacity: {mask_path}"
-            )
-        mask = mask.astype(np.uint8 if maximum <= 255 else np.uint16)
+        mask = _as_field_mask(imageio.imread(mask_path), image.shape,
+                              mask_path, filename)
     else:
         mask = np.zeros(image.shape[:2], dtype=np.uint8)
     return image, mask
 
 
-def mask_save_path(folder: str, filename: str) -> str:
+def read_seg_bundle(path: str) -> Dict:
+    """Read a Cellpose ``_seg.npy`` bundle as the dict it holds.
+
+    A bundle is a pickle, and unpickling runs whatever the file says, so a
+    bundle is only ever read from a queue folder the curator chose -- the
+    same trust the external curation tool and Cellpose itself extend to it.
+
+    :param path: the bundle.
+    :returns: the bundle's dict, with every key it was written with.
+    :raises ValueError: when the file does not hold a dict with a ``masks``
+        entry.
+    """
+    loaded = np.load(path, allow_pickle=True)
+    try:
+        payload = loaded.item()
+    except (AttributeError, ValueError):
+        payload = None
+    if not isinstance(payload, dict) or "masks" not in payload:
+        raise ValueError(
+            f"{path} is not a Cellpose _seg.npy bundle: expected a dict "
+            f"holding 'masks'.")
+    return payload
+
+
+def _bundle_image(path: str, payload: Dict, shape) -> Tuple[np.ndarray, str]:
+    """Find the pixels a bundle's labels were drawn on.
+
+    In the order the external curation tool used:
+
+    1. the original the bundle names in ``source_image``, looked for BY
+       NAME beside the bundle and used only when its shape matches the
+       labels. The stored path itself is never touched: it is absolute and
+       from whichever machine staged the set, and a stat on another
+       machine's mount can hang the thread that asked;
+    2. the ``img`` the bundle carries;
+    3. an image of the bundle's own stem beside it, the display copy the
+       external tool writes next to each bundle.
+
+    :param path: the bundle.
+    :param payload: its dict, from :func:`read_seg_bundle`.
+    :param shape: the shape of its labels.
+    :returns: ``(pixels, where they came from)``.
+    :raises ValueError: when none of the three exists.
+    """
+    folder = os.path.dirname(path)
+    source = payload.get("source_image")
+    if source:
+        original = os.path.join(folder, os.path.basename(str(source)))
+        if os.path.isfile(original):
+            try:
+                pixels = np.asarray(imageio.imread(original))
+            except Exception:
+                pixels = None
+            if pixels is not None and pixels.shape[:2] == tuple(shape)[:2]:
+                return pixels, original
+    embedded = payload.get("img")
+    if embedded is not None:
+        pixels = np.asarray(embedded)
+        if (pixels.ndim == 3 and pixels.shape[1:] == tuple(shape)[:2]
+                and pixels.shape[:2] != tuple(shape)[:2]):
+            pixels = np.moveaxis(pixels, 0, -1)
+        return pixels, path
+    stem = field_stem(path)
+    for ext in IMAGE_EXTS:
+        beside = os.path.join(folder, stem + ext)
+        if os.path.isfile(beside):
+            return np.asarray(imageio.imread(beside)), beside
+    raise ValueError(
+        f"{path} carries no image ('img') and there is no {stem}.<ext> beside "
+        f"it, so there is nothing to draw its labels on.")
+
+
+def load_seg_bundle(path: str) -> Tuple[np.ndarray, np.ndarray]:
+    """Load a Cellpose bundle as the editor's ``(image, mask)`` pair.
+
+    :param path: the ``_seg.npy`` bundle.
+    :returns: ``(image, mask)``, checked and converted exactly as
+        :func:`load_image_and_mask` converts a TIFF pair.
+    :raises ValueError: for a file that is not a bundle, a bundle with no
+        image to show, or labels that do not fit the image.
+    """
+    payload = read_seg_bundle(path)
+    labels = np.asarray(payload["masks"])
+    pixels, source = _bundle_image(path, payload, labels.shape)
+    image = _as_field_image(pixels, source)
+    return image, _as_field_mask(labels, image.shape, path,
+                                 os.path.basename(path))
+
+
+def seg_outlines(labels: np.ndarray, like) -> np.ndarray:
+    """The ``outlines`` entry of a bundle, redrawn for ``labels``.
+
+    A pixel is on an outline when it belongs to an object and one of its four
+    neighbours does not belong to the same one. ``like`` is the entry the
+    bundle had: an entry holding only 0 and 1 gets a 0/1 outline back, and
+    one holding ids gets each outline pixel's id, which is what Cellpose's
+    own ``masks_flows_to_seg`` writes. An entry of all zeros says nothing
+    about its form and gets ids, Cellpose's default.
+
+    :param labels: the labels being saved.
+    :param like: the bundle's previous ``outlines``, for its form and type.
+    :returns: the new outlines, the shape of ``labels``.
+    """
+    labels = np.asarray(labels)
+    old = np.asarray(like)
+    padded = np.pad(labels, 1, mode="edge")
+    height, width = labels.shape
+    edge = np.zeros(labels.shape, dtype=bool)
+    for dy, dx in ((0, 1), (2, 1), (1, 0), (1, 2)):
+        edge |= padded[dy:dy + height, dx:dx + width] != labels
+    edge &= labels > 0
+    peak = float(np.max(old)) if old.size else 0.0
+    binary = old.dtype == bool or 0.0 < peak <= 1.0
+    if binary:
+        return edge.astype(old.dtype)
+    outlined = np.where(edge, labels, 0)
+    if np.issubdtype(old.dtype, np.integer) and \
+            int(labels.max(initial=0)) <= np.iinfo(old.dtype).max:
+        return outlined.astype(old.dtype)
+    return outlined.astype(labels.dtype)
+
+
+def _write_bundle(path: str, payload: Dict) -> None:
+    """Write a bundle's dict so that a crash leaves the old file whole.
+
+    Written beside the target under a dot-name the queue does not list,
+    then renamed over it. ``np.save`` is given a handle rather than a path
+    because, given a path, it appends ``.npy`` to one that does not end in
+    it.
+
+    :param path: the bundle to write.
+    :param payload: the dict to put in it.
+    """
+    folder, name = os.path.split(path)
+    temporary = os.path.join(folder, f".{name}.tmp")
+    with open(temporary, "wb") as handle:
+        np.save(handle, payload, allow_pickle=True)
+    os.replace(temporary, path)
+
+
+def save_seg_bundle(path: str, mask: np.ndarray) -> str:
+    """Write edited labels back into the bundle they came from.
+
+    Every key the bundle already had is kept -- ``img``, ``flows``,
+    ``filename``, ``source_image``, ``diameter``, and any other -- and
+    ``masks`` is replaced by :func:`canonical_labels` of ``mask``. Two keys
+    are DERIVED from the masks and would describe the old ones if left:
+
+    * ``outlines`` is redrawn by :func:`seg_outlines`;
+    * ``ismanual``, one flag per object, is resized to the new largest id:
+      an id the bundle already flagged keeps its flag, and an id beyond the
+      old list was drawn in this editor, so it is flagged manual.
+
+    :param path: the ``_seg.npy`` bundle.
+    :param mask: the edited labels.
+    :returns: ``path``.
+    :raises ValueError: when ``path`` is not a bundle.
+    """
+    payload = read_seg_bundle(path)
+    labels = canonical_labels(mask)
+    payload["masks"] = labels
+    outlines = payload.get("outlines")
+    if outlines is not None and np.shape(outlines) == labels.shape:
+        payload["outlines"] = seg_outlines(labels, outlines)
+    manual = payload.get("ismanual")
+    if manual is not None and np.ndim(manual) == 1:
+        old = np.asarray(manual, dtype=bool)
+        count = int(labels.max(initial=0))
+        flags = np.ones(count, dtype=bool)
+        keep = min(count, old.size)
+        flags[:keep] = old[:keep]
+        payload["ismanual"] = flags
+    _write_bundle(path, payload)
+    return path
+
+
+def mask_save_path(folder: str, filename: str,
+                   masks_dir: Optional[str] = None) -> str:
     """Where this field's mask is written -- and where its ledger sits.
 
     :func:`load_image_and_mask` will accept a mask under the image's own
     extension, but everything :func:`save_mask` writes lands on
-    ``<folder>/masks/<stem>.tif``. The ledger is keyed on the file that was
+    ``<masks folder>/<stem>.tif``. The ledger is keyed on the file that was
     actually written, so both have to agree on one name; ask here rather
     than rebuilding it at each call site.
+
+    :param folder: the folder the editor opened.
+    :param filename: the field's image, or its ``_seg.npy`` bundle.
+    :param masks_dir: where the masks are, when not in ``<folder>/masks``.
+    :returns: the mask's path; for a bundle, the bundle itself, which is
+        where its labels are written back.
     """
+    if is_seg_bundle(filename):
+        return os.path.join(folder, os.path.basename(str(filename)))
     stem = os.path.splitext(filename)[0]
-    return os.path.join(folder, "masks", stem + ".tif")
+    return os.path.join(masks_folder(folder, masks_dir), stem + ".tif")
 
 
 def canonical_labels(mask: np.ndarray) -> np.ndarray:
@@ -218,16 +514,20 @@ def canonical_labels(mask: np.ndarray) -> np.ndarray:
 
 
 def save_mask(folder: str, filename: str, mask: np.ndarray,
-              log: Optional[CurationLog] = None) -> str:
+              log: Optional[CurationLog] = None,
+              masks_dir: Optional[str] = None) -> str:
     """Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.
 
     Object ids are preserved -- see :func:`canonical_labels` for what that
-    costs and why the alternative is worse.
+    costs and why the alternative is worse. A ``_seg.npy`` bundle is written
+    back into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the
+    TIFF to the sibling layout's masks folder.
 
     :param folder: field directory under which the ``masks`` directory is
         created.
     :param filename: source image name; its extension is discarded and its
-        stem becomes the TIFF mask name.
+        stem becomes the TIFF mask name. A name ending in
+        :data:`SEG_SUFFIX` is the bundle to write into.
     :param mask: label image to canonicalise and write. Existing multi-label
         object identifiers are retained where possible.
     :param log: the session's :class:`spacr.curation.CurationLog` for this
@@ -240,10 +540,15 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
         edits writes no sidecar: a session that opened the editor and
         painted nothing has not curated anything, and a ledger that exists
         for every mask ever opened answers no question.
+    :param masks_dir: where the masks are, when not in ``<folder>/masks``.
+    :returns: the path written.
     """
-    save_path = mask_save_path(folder, filename)
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    write_tiff(save_path, canonical_labels(mask))
+    save_path = mask_save_path(folder, filename, masks_dir)
+    if is_seg_bundle(filename):
+        save_seg_bundle(save_path, mask)
+    else:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        write_tiff(save_path, canonical_labels(mask))
     if log is not None and len(log):
         if not log.artifact:
             log.artifact = save_path
@@ -1289,29 +1594,41 @@ def _recrop_base(filename: str) -> str:
     A recrop of a recrop is named after the ORIGINAL field, not after its
     parent: ``well_A1__r00`` recropped again yields ``well_A1__r03``, never
     ``well_A1__r00__r00``. Nesting would make the name grow with every pass
-    while saying nothing more than the manifest already records.
+    while saying nothing more than the manifest already records. A bundle's
+    ``_seg`` is not part of its name: ``well_A1_seg.npy`` yields
+    ``well_A1__r00_seg.npy``.
     """
-    stem = os.path.splitext(os.path.basename(str(filename)))[0]
-    return stem.split(RECROP_INFIX)[0]
+    return field_stem(filename).split(RECROP_INFIX)[0]
 
 
-def recrop_child_name(folder: str, filename: str, ext: str = ".tif") -> str:
+def recrop_child_name(folder: str, filename: str, ext: str = ".tif",
+                      masks_dir: Optional[str] = None) -> str:
     """Return the next unused ``<field>__rNN`` filename.
 
     Names are checked against the image queue, mask directory, and recrop
     archive to prevent overwriting output from an earlier editing session.
+
+    :param folder: the folder the editor opened.
+    :param filename: the field being cut.
+    :param ext: the child image's extension. Ignored for a bundle, whose
+        child is a bundle too, ``<field>__rNN_seg.npy``, because a TIFF
+        written into a folder of bundles would make it two layouts at once.
+    :param masks_dir: where the masks are, when not in ``<folder>/masks``.
+    :returns: the child's file name.
     """
     base = _recrop_base(filename)
     archive = os.path.join(folder, RECROP_ARCHIVE_DIRNAME)
+    masks = masks_folder(folder, masks_dir)
     index = 0
     while True:
         stem = f"{base}{RECROP_INFIX}{index:02d}"
-        taken = [os.path.join(folder, "masks", stem + ".tif"),
+        taken = [os.path.join(masks, stem + ".tif"),
                  os.path.join(archive, "masks", stem + ".tif")]
         taken += [os.path.join(d, stem + e)
-                  for d in (folder, archive) for e in IMAGE_EXTS]
+                  for d in (folder, archive)
+                  for e in IMAGE_EXTS + (SEG_SUFFIX,)]
         if not any(os.path.exists(path) for path in taken):
-            return stem + ext
+            return stem + (SEG_SUFFIX if is_seg_bundle(filename) else ext)
         index += 1
 
 
@@ -1333,7 +1650,8 @@ class Recrop(NamedTuple):
 
 
 def write_recrop(folder: str, filename: str, image: np.ndarray,
-                 mask: np.ndarray, box) -> "Recrop":
+                 mask: np.ndarray, box,
+                 masks_dir: Optional[str] = None) -> "Recrop":
     """Write a recropped field, mask, and curation record.
 
     The image is stored as an unscaled uint16 TIFF beside the source images,
@@ -1341,21 +1659,36 @@ def write_recrop(folder: str, filename: str, image: np.ndarray,
     record distinguishes deliberately removed boundary objects from missed
     segmentation objects.
 
+    A field cut from a ``_seg.npy`` bundle becomes a bundle of its own,
+    holding ``img``, ``masks``, empty ``flows`` and a ``filename`` naming the
+    parent and the box -- the form the external curation tool gave its
+    recrops, so either tool can open the other's.
+
     :param folder: Image-queue directory.
     :param filename: Source image filename.
     :param image: Source microscopy image.
     :param mask: Label image aligned with ``image``.
     :param box: Coordinates returned by :func:`recrop_box`.
+    :param masks_dir: where the masks are, when not in ``<folder>/masks``.
     :returns: Filename and retained-object count for the new field.
     """
     x0, y0, x1, y1 = (int(v) for v in box[:4])
     sub_image, sub_mask = cut_recrop(image, mask, (x0, y0, x1, y1))
-    child = recrop_child_name(folder, filename)
+    child = recrop_child_name(folder, filename, masks_dir=masks_dir)
     image_path = os.path.join(folder, child)
-    mask_path = mask_save_path(folder, child)
-    os.makedirs(os.path.dirname(mask_path), exist_ok=True)
-    write_tiff(image_path, np.asarray(sub_image).astype(np.uint16))
-    write_tiff(mask_path, sub_mask)
+    mask_path = mask_save_path(folder, child, masks_dir)
+    if is_seg_bundle(child):
+        _write_bundle(image_path, {
+            "img": np.asarray(sub_image).astype(np.uint16),
+            "masks": sub_mask,
+            "flows": [None, None, None],
+            "filename": (f"recrop of {field_stem(filename)} "
+                         f"[{x0}:{x1},{y0}:{y1}]"),
+        })
+    else:
+        os.makedirs(os.path.dirname(mask_path), exist_ok=True)
+        write_tiff(image_path, np.asarray(sub_image).astype(np.uint16))
+        write_tiff(mask_path, sub_mask)
     log = CurationLog(mask_path, source=CURATION_SOURCE)
     log.append(RECROP_KIND, child,
                n_changed=int(np.count_nonzero(sub_mask)),
@@ -1373,31 +1706,44 @@ def recrop_archive_dir(folder: str) -> str:
 
 
 def retire_recropped_original(folder: str, filename: str, *,
-                              children=(), boxes=()) -> dict:
+                              children=(), boxes=(),
+                              masks_dir: Optional[str] = None) -> dict:
     """Archive a source field after recropped children have been created.
 
     The source image, mask, and curation ledger are moved to
     ``<folder>/recropped_originals`` and recorded in :data:`RECROP_MANIFEST`.
     This removes the multi-object source from the training queue without
-    deleting it.
+    deleting it. A bundle goes with its ledger and with any display image of
+    its stem beside it, as the external curation tool moved its ``.png``.
 
     :param folder: Image-queue directory.
     :param filename: Source image filename.
     :param children: Filenames created from the source field.
     :param boxes: Crop boxes corresponding to ``children``.
+    :param masks_dir: where the masks are, when not in ``<folder>/masks``.
     :returns: Manifest record, including the original and archived paths.
     """
     archive = recrop_archive_dir(folder)
-    mask_path = mask_save_path(folder, filename)
-    moves = [
-        (os.path.join(folder, filename),
-         os.path.join(archive, os.path.basename(filename))),
-        (mask_path, os.path.join(archive, "masks",
-                                 os.path.basename(mask_path))),
-        (mask_path + LOG_SUFFIX,
-         os.path.join(archive, "masks",
-                      os.path.basename(mask_path) + LOG_SUFFIX)),
-    ]
+    name = os.path.basename(str(filename))
+    if is_seg_bundle(filename):
+        bundle = os.path.join(folder, name)
+        moves = [(bundle, os.path.join(archive, name)),
+                 (bundle + LOG_SUFFIX,
+                  os.path.join(archive, name + LOG_SUFFIX))]
+        moves += [(os.path.join(folder, field_stem(name) + ext),
+                   os.path.join(archive, field_stem(name) + ext))
+                  for ext in IMAGE_EXTS]
+    else:
+        mask_path = mask_save_path(folder, filename, masks_dir)
+        moves = [
+            (os.path.join(folder, filename),
+             os.path.join(archive, name)),
+            (mask_path, os.path.join(archive, "masks",
+                                     os.path.basename(mask_path))),
+            (mask_path + LOG_SUFFIX,
+             os.path.join(archive, "masks",
+                          os.path.basename(mask_path) + LOG_SUFFIX)),
+        ]
     moved = []
     for source, target in moves:
         if not os.path.exists(source):

@@ -644,3 +644,139 @@ def test_the_queue_module_carries_no_qt_and_no_numpy_into_the_process():
 
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == "loaded=easy heavy="
+
+
+# ---------------------------------------------------------------------------
+# The external tool's files beside the folder, and scores that are missing
+# ---------------------------------------------------------------------------
+#
+# Added 2026-09-19 with the editor learning the sibling and seg layouts. The
+# external curation tool keeps a queue's progress and scores BESIDE the
+# folder, as <parent>/<name>_status.csv and <parent>/<name>_scores.csv, and
+# the seg sets it curated have no record inside. Measured that day on
+# round3_queue: 373 done and 29 skip beside it, nothing inside -- so a session
+# that looked only inside would have offered all 402 again.
+
+def _beside(folder: Path, suffix: str, text: str) -> Path:
+    """Write the external tool's ``<parent>/<name><suffix>``."""
+    path = folder.parent / f"{folder.name}{suffix}"
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def test_a_folder_with_only_the_external_record_resumes_from_it(tmp_path,
+                                                                capsys):
+    """The external tool's done and skip hold, and a save goes back there."""
+    folder = _seg_layout(tmp_path, {"aaa": 2, "bbb": 3, "ccc": 1})
+    beside = _beside(folder, "_status.csv",
+                     "stem,state,n_objects,updated\n"
+                     "aaa,done,2,2026-08-24T10:07:45\n"
+                     "bbb,skip,,2026-08-24T10:09:50\n")
+
+    queue = build_queue(folder, order="name", cache_counts=False)
+
+    assert _stems(queue.items) == ["ccc"]
+    assert (queue.summary.done, queue.summary.skip) == (1, 1)
+    assert queue.layout.status_path == beside
+    assert str(beside) in capsys.readouterr().out, "the adoption was silent"
+
+    mark_state(folder, "ccc", "done", n_objects=1)
+
+    assert not (folder / STATUS_FILENAME).exists(), (
+        "a second record was started inside the folder")
+    written = beside.read_text(encoding="utf-8")
+    assert "aaa,done" in written and "bbb,skip" in written
+    assert "ccc,done" in written
+
+
+def test_the_folders_own_record_wins_over_the_one_beside_it(tmp_path):
+    """Once a folder has its own record, the external one is not read."""
+    folder = _nested_layout(tmp_path, {"aaa": 1, "bbb": 1})
+    write_status(folder, {"aaa": StatusRow("aaa", "done", 1, "2026-09-19")})
+    _beside(folder, "_status.csv",
+            "stem,state,n_objects,updated\nbbb,done,1,2026-09-01\n")
+
+    queue = build_queue(folder, order="name", cache_counts=False)
+
+    assert _stems(queue.items) == ["bbb"]
+    assert queue.layout.status_path == folder / STATUS_FILENAME
+
+
+def test_a_file_beside_the_folder_that_is_no_status_record_is_ignored(tmp_path):
+    """Only a ``stem``/``state`` header makes a sibling CSV a resume record."""
+    folder = _nested_layout(tmp_path, {"aaa": 1})
+    _beside(folder, "_status.csv", "well,colour\nA1,red\n")
+
+    queue = build_queue(folder, order="name", cache_counts=False)
+
+    assert _stems(queue.items) == ["aaa"]
+    assert queue.layout.status_path == folder / STATUS_FILENAME
+
+
+def test_the_external_scores_file_orders_prob_and_is_named(tmp_path, capsys):
+    """``plaque_prob`` beside the folder is what the plaque project writes."""
+    folder = _seg_layout(tmp_path, {"aaa": 2, "bbb": 3})
+    beside = _beside(folder, "_scores.csv",
+                     "stem,plaque_prob\naaa,0.2\nbbb,0.9\n")
+
+    queue = build_queue(folder, order="prob", cache_counts=False)
+
+    assert queue.effective_order == "prob"
+    assert _stems(queue.items) == ["bbb", "aaa"]
+    assert f"probabilities from {beside}" in capsys.readouterr().out
+    assert queue.notices == ()
+
+
+def test_a_csv_beside_the_folder_with_no_probability_is_passed_over(tmp_path,
+                                                                   capsys):
+    """Not a scores file, so not a reason to stop: the fallback says so."""
+    folder = _seg_layout(tmp_path, {"aaa": 2})
+    _beside(folder, "_scores.csv", "stem,area\naaa,5\n")
+
+    queue = build_queue(folder, order="prob", cache_counts=False)
+
+    assert queue.effective_order == "value"
+    assert "instead of prob" in capsys.readouterr().out
+
+
+def test_no_scores_names_both_places_it_looked_and_is_kept_on_the_queue(
+        tmp_path, capsys):
+    """The absence is explicit: where it looked, and what the file needs."""
+    folder = _nested_layout(tmp_path, {"aaa": (2, 10), "bbb": (5, 36)})
+
+    queue = build_queue(folder, order="easy", cache_counts=False)
+
+    printed = capsys.readouterr().out
+    assert str(folder / SCORES_FILENAME) in printed
+    assert str(tmp_path / "nested_scores.csv") in printed
+    assert "plaque_prob" in printed, "the notice does not say what columns"
+    assert len(queue.notices) == 1
+    assert queue.notices[0] in printed
+    assert "instead of easy" in queue.notices[0]
+    assert queue.order_phrase == "sorted by value (asked for easy)"
+
+
+def test_fields_the_scores_file_does_not_name_are_counted_aloud(tmp_path,
+                                                                capsys):
+    """A partial scores file used to rank the rest last without a word."""
+    folder = _nested_layout(tmp_path, {"aaa": 1, "bbb": 1, "ccc": 1})
+    _scores(folder, {"bbb": 0.5})
+
+    queue = build_queue(folder, order="prob", cache_counts=False)
+
+    printed = capsys.readouterr().out
+    assert queue.effective_order == "prob"
+    assert _stems(queue.items)[0] == "bbb"
+    assert "2 of 3 field(s) have no probability" in printed
+    assert len(queue.notices) == 1 and "2 of 3" in queue.notices[0]
+
+
+def test_a_fully_scored_queue_carries_no_notice(tmp_path, capsys):
+    """The notices have to mean something, so a clean queue has none."""
+    folder = _nested_layout(tmp_path, {"aaa": 1, "bbb": 1})
+    _scores(folder, {"aaa": 0.1, "bbb": 0.5})
+
+    queue = build_queue(folder, order="prob", cache_counts=False)
+
+    assert queue.notices == ()
+    assert "!" not in capsys.readouterr().out

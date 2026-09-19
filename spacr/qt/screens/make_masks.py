@@ -354,7 +354,8 @@ _SETTINGS_LAYOUT_KEY = "make_masks/settings"
 class _MaskLoadWorker(QThread):
     """Decode one image/mask pair without blocking Qt's main thread."""
 
-    def __init__(self, folder: str, filename: str, token: int, parent=None):
+    def __init__(self, folder: str, filename: str, token: int, parent=None,
+                 layout: Optional[dict] = None):
         """Load one image and its mask off the GUI thread.
 
         :param folder: the folder holding the pair.
@@ -364,6 +365,9 @@ class _MaskLoadWorker(QThread):
             navigated away from is discarded rather than drawn over the
             image now on screen.
         :param parent: parent object.
+        :param layout: extra keywords for
+            :func:`spacr.qt.mask_engine.load_image_and_mask` -- the sibling
+            layout's ``masks_dir`` -- or ``None`` for the nested layout.
 
         The result and the original exception are both kept as attributes
         rather than raised, because a thread that raises loses the traceback
@@ -373,6 +377,7 @@ class _MaskLoadWorker(QThread):
         self.folder = folder
         self.filename = filename
         self.token = token
+        self.layout = dict(layout or {})
         self.result = None
         self.error: Optional[Exception] = None
 
@@ -380,7 +385,7 @@ class _MaskLoadWorker(QThread):
         """Load the pair, retaining either the result or original exception."""
         try:
             self.result = engine.load_image_and_mask(
-                self.folder, self.filename
+                self.folder, self.filename, **self.layout
             )
         except Exception as exc:
             self.error = exc
@@ -3198,6 +3203,11 @@ class MakeMasksScreen(QWidget):
         #: :meth:`open_queue`; what makes a save reach
         #: ``curate_status.csv``.
         self._queue = None
+        #: The masks folder of a sibling-layout session, which is beside the
+        #: images rather than beneath them; ``None`` means ``<folder>/masks``.
+        #: Set with the folder by :meth:`_open_folder`, so no field of one
+        #: set is ever read or saved against another set's masks.
+        self._masks_dir: Optional[str] = None
         self._current_index: int = 0
         self._history = engine.MaskHistory(capacity=25)
         #: The ledger for the field on screen, seeded from any sidecar
@@ -3268,34 +3278,62 @@ class MakeMasksScreen(QWidget):
 
         The session decides WHICH fields and in WHAT ORDER -- reviewed ones
         already dropped, ``--limit`` already applied -- and this screen shows
-        them. Only the nested layout is opened: this editor reads a draft
-        from ``<folder>/masks/<stem>.tif`` and saves back to the same place,
-        so a sibling or ``_seg.npy`` set would be read and written somewhere
-        other than where its masks are. ``spacr-make-masks`` refuses those
-        before Qt is imported; this is the second half of the same refusal,
-        for anything that reaches the screen another way.
+        them. All three layouts are edited where they lie:
+
+        * ``nested`` opens the queue folder, masks in ``<folder>/masks``;
+        * ``sibling`` opens ``<folder>/images`` and reads and saves the
+          masks in ``<folder>/masks`` beside it, never ``images/masks``;
+        * ``seg`` opens the queue folder with the ``_seg.npy`` bundles as
+          its fields, each saved back into itself.
+
+        What the session had to say about its ordering -- a ``prob`` or
+        ``easy`` order that fell back for want of scores -- is put on screen
+        with it, not only in the terminal that started it.
 
         :param queue: a :class:`spacr.curation_queue.CurationQueue`.
         :returns: whether the editor is now on that session.
         """
-        from ...curation_queue import LAYOUT_NESTED
+        from ...curation_queue import LAYOUT_NESTED, LAYOUT_SEG, LAYOUT_SIBLING
 
-        if getattr(queue.layout, "kind", None) != LAYOUT_NESTED:
-            LOG.warning("Make Masks edits the nested layout; %s is %s",
-                        queue.folder, getattr(queue.layout, "kind", "unknown"))
+        layout = queue.layout
+        kind = getattr(layout, "kind", None)
+        masks_dir: Optional[str] = None
+        if kind == LAYOUT_SEG:
+            folder = str(layout.folder)
+            files = [item.bundle.name for item in queue.items
+                     if item.bundle is not None]
+        elif kind in (LAYOUT_NESTED, LAYOUT_SIBLING):
+            folder = str(layout.images_dir)
+            files = [item.image.name for item in queue.items
+                     if item.image is not None]
+            if kind == LAYOUT_SIBLING:
+                masks_dir = str(layout.masks_dir)
+        else:
+            LOG.warning("Make Masks cannot edit the %s layout of %s",
+                        kind, queue.folder)
             return False
-        files = [item.image.name for item in queue.items
-                 if item.image is not None]
         if not files:
             LOG.info("%s has nothing left to curate", queue.folder)
             return False
-        if not self._open_folder(str(queue.folder), files=files):
+        if not self._open_folder(folder, files=files, masks_dir=masks_dir):
             return False
         self._queue = queue
+        notices = tuple(getattr(queue, "notices", ()) or ())
         self._src_label.setText(
-            f"{queue.folder}  --  {len(files)} to curate this session")
-        self._status_label.setText(queue.describe())
+            f"{queue.folder}  --  {len(files)} to curate this session, "
+            f"{queue.order_phrase}")
+        self._status_label.setText("  ".join((queue.describe(),) + notices))
         return True
+
+    def _layout_kwargs(self) -> dict:
+        """What every mask read and write passes for this folder's layout.
+
+        Empty for the nested layout, so those calls are exactly what they
+        were before a sibling set could be opened.
+
+        :returns: ``{"masks_dir": ...}`` for a sibling session, else ``{}``.
+        """
+        return {"masks_dir": self._masks_dir} if self._masks_dir else {}
 
     def _note_curated(self, filename: str,
                       n_objects: Optional[int] = None) -> None:
@@ -3314,7 +3352,7 @@ class MakeMasksScreen(QWidget):
             return
         from ...curation_queue import mark_state
 
-        stem = os.path.splitext(filename)[0]
+        stem = engine.field_stem(filename)
         folder = self._queue.folder
         try:
             mark_state(folder, stem, "done", n_objects=n_objects)
@@ -3638,7 +3676,14 @@ class MakeMasksScreen(QWidget):
         about the wrong copy.
         """
         filename = self._image_files[self._current_index]
-        mask_path = engine.mask_save_path(self._folder, filename)
+        if engine.is_seg_bundle(filename):
+            self._status_label.setText(
+                f"{filename} holds its image and mask inside one Cellpose "
+                f"bundle; this module opens image and mask files, so it was "
+                f"not pointed at it.")
+            return {}
+        mask_path = engine.mask_save_path(self._folder, filename,
+                                          **self._layout_kwargs())
         seeded = {"mask": mask_path}
         screen._mask_edit.setText(mask_path)
         if key == "napari_bridge":
@@ -3668,12 +3713,26 @@ class MakeMasksScreen(QWidget):
         whatever that tab holds — the checkpoint the Train tab produced if
         there is one, and the stock model otherwise.
 
-        :returns: whether a run was started. A folder that is not open, and a
-            confirmation that is declined, both answer ``False``.
+        The Apply half writes one mask per image into ``<src>/masks``, which
+        is the nested layout's masks folder and nobody else's: in a sibling
+        session it would be ``images/masks``, beside the set's real masks
+        rather than in them, and a folder of ``_seg.npy`` bundles has no
+        images for it to read. Both are refused, in the status line.
+
+        :returns: whether a run was started. A folder that is not open, a
+            session whose masks are not in ``<folder>/masks``, and a
+            confirmation that is declined, all answer ``False``.
         """
         if not self._folder or not self._image_files:
             self._status_label.setText(
                 "Open a folder of images before masking it.")
+            return False
+        if self._masks_dir or any(engine.is_seg_bundle(name)
+                                  for name in self._image_files):
+            self._status_label.setText(
+                f"Mask the whole folder writes its masks into "
+                f"{os.path.join(self._folder, 'masks')}, and this set keeps "
+                f"its masks somewhere else, so it was not started.")
             return False
         count = len(self._image_files)
         if not self._confirm(
@@ -5625,7 +5684,8 @@ class MakeMasksScreen(QWidget):
         self._open_folder(d)
 
     def _open_folder(self, folder: str,
-                     files: Optional[List[str]] = None) -> bool:
+                     files: Optional[List[str]] = None,
+                     masks_dir: Optional[str] = None) -> bool:
         """List the folder's images and load the first.
 
         :param folder: the folder to open.
@@ -5635,6 +5695,9 @@ class MakeMasksScreen(QWidget):
             means. A session built by ``spacr-make-masks`` passes its own
             list, because the queue has already dropped what is reviewed and
             sorted what is left.
+        :param masks_dir: the masks folder when it is not ``<folder>/masks``
+            -- a sibling session's. Set BEFORE the first field loads, so the
+            first draft shown is the set's own.
         :returns: whether a folder was opened. ``False`` means there was
             nothing in it to edit, which the user has been told about.
         """
@@ -5643,6 +5706,7 @@ class MakeMasksScreen(QWidget):
             self._warn("No images", f"Found no image files in: {folder}")
             return False
         self._queue = None
+        self._masks_dir = masks_dir
         self._folder = folder
         self._image_files = files
         self._current_index = 0
@@ -5701,7 +5765,8 @@ class MakeMasksScreen(QWidget):
         self._loading = True
         self._status_label.setText(f"Loading {filename}…")
         self._sync_button_states()
-        worker = _MaskLoadWorker(folder, filename, token, self)
+        worker = _MaskLoadWorker(folder, filename, token, self,
+                                 layout=self._layout_kwargs())
         self._load_worker = worker
         worker.finished.connect(self._on_background_load_finished)
         worker.start()
@@ -5759,7 +5824,8 @@ class MakeMasksScreen(QWidget):
     def _load_pair(self, folder: str, filename: str, token: int) -> None:
         """Decode and apply a small pair synchronously."""
         try:
-            image, mask = engine.load_image_and_mask(folder, filename)
+            image, mask = engine.load_image_and_mask(
+                folder, filename, **self._layout_kwargs())
         except Exception as exc:
             self._handle_load_failure(exc)
             return
@@ -5812,7 +5878,8 @@ class MakeMasksScreen(QWidget):
         names a source keeps it: the tool that made each edit is recorded on
         the edit, not on the file.
         """
-        artifact = engine.mask_save_path(self._folder, filename)
+        artifact = engine.mask_save_path(self._folder, filename,
+                                         **self._layout_kwargs())
         try:
             log = CurationLog.read_beside(artifact)
         except Exception as exc:
@@ -5852,12 +5919,12 @@ class MakeMasksScreen(QWidget):
         try:
             written = engine.write_recrop(
                 self._folder, filename, self._canvas.image,
-                self._canvas.mask, box)
+                self._canvas.mask, box, **self._layout_kwargs())
         except Exception as exc:
             self._warn("Recrop failed", str(exc))
             return None
 
-        name = os.path.splitext(written.name)[0]
+        name = engine.field_stem(written.name)
         self._canvas.recrop_boxes.append((*box, name))
         self._canvas.update()
         self._image_files.insert(
@@ -5893,13 +5960,14 @@ class MakeMasksScreen(QWidget):
         if self._canvas.mask is not None:
             try:
                 engine.save_mask(self._folder, filename, self._canvas.mask,
-                                  log=self._log)
+                                  log=self._log, **self._layout_kwargs())
             except Exception as exc:
                 LOG.warning("Could not save %s before retiring it: %s",
                             filename, exc)
         try:
             engine.retire_recropped_original(
-                self._folder, filename, children=children, boxes=boxes)
+                self._folder, filename, children=children, boxes=boxes,
+                **self._layout_kwargs())
         except Exception as exc:
             self._warn("Recrop failed", str(exc))
             return False
@@ -5952,6 +6020,7 @@ class MakeMasksScreen(QWidget):
                 self._image_files[self._current_index],
                 self._canvas.mask,
                 log=self._log,
+                **self._layout_kwargs(),
             )
         except Exception as e:
             self._warn("Save failed", str(e))
