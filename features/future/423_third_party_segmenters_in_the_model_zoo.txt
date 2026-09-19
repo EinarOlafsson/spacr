@@ -323,3 +323,43 @@ SAMCell have never been installed for real; Windows and macOS are handled
 by construction and never run; the scorecard cells for the three backends;
 segmentation_backend is still a text box, not a dropdown; and the i18n
 catalogs are owed to the consolidated pass. Stays in features/future/.
+
+--------------------------------------------------------------------------------
+2026-09-19 (later still) — LANDING OVER ITEM 419's INSTALLER
+--------------------------------------------------------------------------------
+
+Decided: "Isolated env per backend!" -- the maintainer, 2026-09-19.
+
+Rebasing to land, this branch met item 419 point 3, pushed to nightly the
+same afternoon (dd5cb5522, 83953a598), which had answered the maintainer's
+OLDER words of 2026-09-16 -- "clickable to install them in the spacr
+environment" -- with spacr/qt/model_install.py: a QProcess pip runner and a
+SegmentationBackendCombo for the Mask module's segmentation_backend, which
+this item's note above still listed as "a text box, not a dropdown". So the
+dropdown is done, by that item, and that part of the Left list is closed.
+
+The two items agreed on everything except where a backend installs, and on
+that they could not both stand: this item changed
+model_zoo.INSTALLABLE_BACKENDS's second field from a pip extra
+("spacr[samcell]") to "backend:samcell", so 419's backend_row requirement
+stopped being something pip can be handed and its route would have run
+`pip install "backend:samcell"`. The maintainer's newer and more specific
+answer decides it, so both controls -- the Mask backend dropdown and Make
+Masks' magnifier Mode box -- now open the Model Zoo's install dialog and
+install into an environment of their own. 419's UI shape is kept whole:
+every backend listed, the missing greyed with its translated tooltip
+(_grey_uninstalled_modes), the box put back rather than resting on a
+backend that cannot load, and the row selected once the install lands.
+PackageInstall and CheckpointDownload are untouched.
+
+Seven of 419's install tests were rewritten to drive the dialog, and two
+new ones assert that neither control runs pip against spaCR's own
+environment. Everything is recorded in
+features/325_two_sessions_one_repo_working_protocol.temp §5 and in 419's
+own file, so the session that built it can reverse this if the maintainer
+prefers.
+
+What this did NOT do: spacr/qt/model_install.py's PackageInstall is now
+used by nothing in the backend rows. It is kept, tested, and named in 419's
+note as the way to run a pip from a widget; deciding whether spaCR still
+needs one belongs to that item.

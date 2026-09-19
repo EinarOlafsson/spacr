@@ -387,3 +387,46 @@ WHAT IS LEFT
   * Not done: a real pip install of DINOCell or SAMCell (it would change this
     environment's torch); a visual check in the real app on a real display.
 
+
+--------------------------------------------------------------------------------
+2026-09-19 (later) — POINT 3 STILL STANDS; WHERE IT INSTALLS CHANGED (ITEM 423)
+--------------------------------------------------------------------------------
+
+Decided: "Isolated env per backend! But with the addition of adding cellpose
+3 and its cyto, nucleus, and cyto2 and cyto3 models. The cellpose 3 backend
+will allow more models from the biomass.io to be added to the model zoo."
+-- the maintainer, 2026-09-19, answering item 423's open questions, three
+days after this item's "install them in the spacr environment".
+
+The gesture point 3 asked for is unchanged and is still here: every backend
+listed whether or not it is installed, the missing ones greyed with a
+tooltip, choosing one installs it and selects it, and neither the Mode box
+nor the Mask backend dropdown ever rests on a backend that cannot load.
+What changed is the destination. Both now open the Model Zoo's install
+dialog, which builds a venv under ~/.spacr/backends/<name> off the GUI
+thread with progress and Cancel; spaCR's own environment is never changed.
+
+It was not a matter of taste. Item 423 changed
+model_zoo.INSTALLABLE_BACKENDS's second field from a pip extra
+("spacr[samcell]") to "backend:samcell" -- the zoo's own URI for "installs
+as an environment of its own" -- so model_install.backend_row's requirement
+stopped being something pip can be handed. The two routes could not both
+stand, and leaving this one would have run `pip install "backend:samcell"`.
+
+Unchanged in spacr/qt/model_install.py: PackageInstall, CheckpointDownload,
+_RUNNING, can_install_packages, confirm_backend_install, and the whole
+QProcess/off-the-GUI-thread argument this item made, which is what the Model
+Zoo dialog's own job now honours as well. Two methods of
+SegmentationBackendCombo changed: offer_install (opens the dialog) and
+missing (asks _backend_state, so an environment of its own counts as
+installed and so does a package an older spaCR left in spaCR's own). The
+seven install tests in tests/qt/test_model_install_runs_off_the_gui_thread.py
+and tests/qt/test_make_masks_reads_out_lays_out_and_installs.py now drive
+the dialog, and two of them assert that neither control runs pip against
+spaCR's own environment.
+
+Also: the Mask backend dropdown gained a fourth row, Cellpose 3, because it
+reads INSTALLABLE_BACKENDS and item 423 added that backend. Point 3's own
+list of backends is not otherwise changed.
+
+Noted in features/325_two_sessions_one_repo_working_protocol.temp §5.

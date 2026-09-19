@@ -8245,3 +8245,71 @@ kinds=("cellpose",), so those rows were listed by no button until the
 `<object>_model_name` openers were changed to ("cellpose", "cellpose3").
 A picker built with no kinds -- which is what a test builds -- lists them
 either way, so a test that builds one proves nothing about the buttons.
+
+--------------------------------------------------------------------------------
+2026-09-19 (later still) — HOME (Claude, 423 lander): I CHANGED ITEM 419's
+                           INSTALLER, AND HERE IS EVERY LINE OF IT
+--------------------------------------------------------------------------------
+
+To whoever is landing item 419 in spacr/qt/screens/make_masks.py and
+spacr/qt/model_install.py: I rebased item 423 onto dd5cb5522 and 83953a598
+and could not keep both installers. Read this before your next rebase.
+
+WHY THEY COULD NOT BOTH STAND. Item 423 changes
+model_zoo.INSTALLABLE_BACKENDS's second field from a pip extra
+("spacr[samcell]") to "backend:samcell" -- the zoo's URI meaning "installs
+as an environment of its own". Your model_install.backend_row hands that
+field to PackageInstall as a pip requirement, so on nightly-with-423 your
+Mask backend dropdown and your Mode box would have run
+`pip install "backend:samcell"`. That is a break, not a preference.
+
+WHAT DECIDED IT. Your quote is the maintainer on 2026-09-16: "clickable to
+install them in the spacr environment". Mine is the maintainer on
+2026-09-19, answering item 423's open questions: "Isolated env per backend!
+But with the addition of adding cellpose 3 and its cyto, nucleus, and cyto2
+and cyto3 models." Newer, and specifically about where.
+
+WHAT I CHANGED, and nothing else:
+  spacr/qt/model_install.py
+      SegmentationBackendCombo.offer_install -- opens the Model Zoo's
+      install dialog instead of starting a PackageInstall, then refreshes
+      and selects.
+      SegmentationBackendCombo.missing -- asks
+      _segmentation_backends._backend_state instead of importing, so an
+      environment of its own counts as installed AND a package an older
+      spaCR left in spaCR's own environment still does. An unreadable state
+      falls back to the import.
+      PackageInstall, CheckpointDownload, _RUNNING, can_install_packages,
+      confirm_backend_install, pip_command, UNINSTALLED_GREY, the QProcess
+      argument and the _RUNNING argument: untouched.
+  spacr/qt/screens/make_masks.py
+      _offer_backend_install -- the same, for the magnifier's Mode box.
+      _resync_magnifier_modes -- new; recomputes the greyed set from the
+      backends' state when a mode is chosen, and hands the DRAWING to your
+      _grey_uninstalled_modes, so there is one description of a greyed row
+      and it stays translated. Your _on_mode_row_changed, your fallback-row
+      rule and your activated/currentIndexChanged split are kept as they
+      are.
+      The magnifier's install bar and label (_mag_install_bar,
+      _mag_install_label, _mag_install_job, _mag_install_mode) are gone: the
+      Model Zoo dialog carries its own progress and Cancel.
+  tests/qt/test_model_install_runs_off_the_gui_thread.py (3 rewritten, 2 new)
+  tests/qt/test_make_masks_reads_out_lays_out_and_installs.py (4 rewritten,
+      1 new)
+  tests/qt/test_the_live_magnifier_segments_under_the_mouse.py (one mode
+      list now read from _MAGNIFIER_BACKENDS rather than naming two
+      backends, because 423 adds four Cellpose 3 modes)
+
+Two new tests say the thing plainly:
+test_nothing_in_the_mode_box_runs_pip_against_spacrs_own_environment and
+test_nothing_in_the_backend_box_runs_pip_against_spacrs_own_environment.
+test_an_install_outlives_the_widget_that_started_it now holds that property
+on PackageInstall itself, which is whose property it is.
+
+WHAT IS LEFT FOR YOU. PackageInstall is used by nothing in the backend rows
+now. I did not delete it: it is yours, it is tested, and whether spaCR
+still needs a pip runner is your item's call. Your Mask backend dropdown
+also gained a fourth row, Cellpose 3, because it reads INSTALLABLE_BACKENDS.
+
+If the maintainer prefers your route, reverse mine: the whole change is one
+commit and both ledgers name it. I would rather be told than guess.
