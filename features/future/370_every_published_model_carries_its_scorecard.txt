@@ -3,7 +3,16 @@ EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
 HELD-OUT SET, IN THE TOOLTIP, ON HUGGING FACE, AND IN THE API
 ================================================================================
 
-Status:    THE MEASUREMENT HALF IS BUILT -- `spacr/scorecard.py`, by the
+Status:    2026-09-19: BOTH HOLD-OUT QUEUES ARE PREPARED AND WAITING FOR THE
+           CURATOR, who is the maintainer -- "I'll curate; prep it" (today,
+           the question tool). The two commands, how long they should take,
+           what done looks like, how a field is skipped and what happens
+           afterwards are in the LAST SECTION OF THIS FILE, headed
+           "2026-09-19 -- READY FOR CURATION". Read that section before
+           anything below it; the rest of this Status is older and still
+           true. Nothing is curated and nothing is published.
+
+           THE MEASUREMENT HALF IS BUILT -- `spacr/scorecard.py`, by the
            work session, some time after this file's 2026-09-02 audit. It
            covers Dice, IoU, boundary F1, AUPRC, splits/merges, classifier
            scoring, the held-out-set loader and the CSV writer. THE BODY OF
@@ -1030,3 +1039,215 @@ What changed on the card, all worded as the zoo row is:
                229 images from 2 datasets, 104 round-1 and 125 newly curated.
 Unchanged: YAML metadata (it has no model-index), license, title, usage, the
 per-IoU table, the round-1-vs-round-2 table's numbers, and Limitations.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- READY FOR CURATION
+--------------------------------------------------------------------------------
+
+THE TWO COMMANDS. One session of 15; the same command resumes where it stopped.
+Add --dry-run first to see the session without opening anything. Over SSH,
+prefix the display: env XDG_RUNTIME_DIR=/run/user/1000 QT_QPA_PLATFORM=xcb.
+
+  PV -- 43 phase-contrast literature fields, stock Cellpose-SAM seeds.
+    Q=/mnt/wd4tb/af3/projects/toxoplasma_pv_model/curation/pv_literature_stock_queue_2026-09-15
+    ~/anaconda3/envs/spacr/bin/spacr-make-masks --folder $Q --order name --limit 15
+
+  PLAQUE -- 105 literature plaque-assay figures, vanilla cpsam seeds.
+    Q=/mnt/wd4tb/af3/projects/automated_plaque_assay/curation/plaque_literature_vanilla_queue_2026-09-14
+    ~/anaconda3/envs/spacr/bin/spacr-make-masks --folder $Q --order name --limit 15
+
+  --order name keeps each paper, and so the four same-field clusters, together.
+  DO NOT RECROP: the freeze refuses a field whose image has changed. Draw from
+  the image, not from the seed's shape. These are HOLD-OUT labels: never train
+  on them.
+
+HOW LONG IT SHOULD TAKE
+
+  The tool's own cost is small and was measured today, offscreen, on this
+  machine, by driving the editor over byte-identical copies of both queues:
+
+    PV       first field on screen 0.76 s; every later field under 0.05 s to
+             open and under 0.12 s to save. A 15-field session is about 2
+             seconds of tool time; peak RSS 363 MB.
+    PLAQUE   first figure 1.8 s; a later figure 1.2 s or less to open; a save
+             is 0.2 s typically and 5.1 s on the worst figure here (2571 x
+             2371, 382 objects). A 15-figure session is about 25 seconds of
+             tool time; peak RSS 1.1 GB.
+
+  So the clock is the drawing, not the program. Three sessions of 15 cover the
+  PV set, seven cover the plaque set. THE REST IS ARITHMETIC AND NOT A
+  MEASUREMENT: nobody has timed a curator on these sets. At three minutes a
+  field the PV set is about two hours and the plaque set about five; the plaque
+  figures carry 4,792 seed objects against the PV set's 1,212, so the plaque
+  set is the heavier of the two per field as well as the longer.
+
+  A FIRST MEASUREMENT OF THE PLAQUE QUEUE WAS WRONG AND IS RETRACTED HERE.
+  It reported about two minutes per figure. Its probe waited on a predicate
+  that could not become true, so it was timing its own deadline; a second,
+  instrumented probe that separates the button press from the wait gave the
+  numbers above, and two consecutive runs of it agree to within 0.1 s per
+  field. The wrong number is recorded because it is exactly the kind that gets
+  published: it was plausible, it was about somebody else's work, and only a
+  second instrument caught it.
+
+WHAT DONE LOOKS LIKE
+
+    ~/anaconda3/envs/spacr/bin/spacr-make-masks --folder $Q --order name --dry-run
+
+  prints "43 bundles, 43 done, 0 skip, 0 remaining" (105 for the plaque set)
+  and then "nothing to open: every field ... already has a state in
+  <folder>/curate_status.csv". curate_status.csv holds one row per field, each
+  done or skip. That line is also the gate on both gpu_queue jobs below.
+
+SKIP: THE EDITOR CANNOT RECORD IT, AND BOTH READMES ASKED FOR IT ANYWAY
+
+  curate_status.csv has three reviewed states -- done, skip, recropped -- and
+  Make Masks writes exactly one of them. spacr/qt/screens/make_masks.py's
+  _note_curated marks done on every save and there is no control anywhere in
+  the editor that writes skip; grep for mark_state in spacr/ and the editor
+  has one caller. Both HOLDOUT_README.txt files, written 2026-09-15, tell the
+  curator to "mark an uncuratable field skip", so the queues shipped an
+  instruction that could not be followed. A skip_field.py was put in each
+  queue today:
+
+    ~/anaconda3/envs/spacr/bin/python $Q/skip_field.py --list
+    ~/anaconda3/envs/spacr/bin/python $Q/skip_field.py <stem or file name>
+    ~/anaconda3/envs/spacr/bin/python $Q/skip_field.py --clear <stem>
+
+  It calls the same spacr.curation_queue.mark_state the editor calls, against
+  the same file, and refuses a name that is not a field of that queue. Run it
+  BETWEEN fields, from a second terminal: the editor and the script both read
+  curate_status.csv, change a row and write it back, so a write that lands
+  between the other's read and write is lost. The mask on disk is never at
+  risk either way. A skip does not shrink the session already open -- that list
+  was built when the editor started -- it takes the field out of the next one.
+
+  The editor's missing skip control is a defect of item 396, not of these
+  queues, and is filed there.
+
+WHAT HAPPENS AFTER -- FREEZE + CHECKSUM, THEN THE GPU RE-SCORE
+
+  PV       $Q/rescore/rescore_stock_truth.py freeze | gpu | report, which has
+           existed since 2026-09-15 and was proved then by reproducing the
+           2026-09-14 scorecard CSVs byte-identically from the old truth.
+  PLAQUE   $Q/rescore/freeze_plaque_truth.py, then
+           $Q/rescore/score_plaque_truth.py verify | gpu | report. Both were
+           written today: the plaque queue had no rescore folder at all, so
+           "the GPU re-score" had no command behind it.
+
+  Both freezes refuse until every field is done, and refuse a field whose image
+  is no longer byte-identical to the one that was seeded and hashed --
+  --allow-skip drops skipped fields and records which ones in the manifest.
+  Both write a manifest with a sha256 per truth mask, checked with
+  spacr.scorecard.load_holdout and verify_holdout, so a published number can be
+  checked by somebody else. The GPU stages re-hash every checkpoint before
+  loading it and refuse on a mismatch.
+
+  The two GPU jobs are queued and marked WAITS FOR CURATION:
+    scratchpad/gpu_queue/370-curation-prep-1.md    the PV re-score
+    scratchpad/gpu_queue/370-curation-prep-2.md    the plaque scorecard
+  Each begins with the dry-run line above as its gate, and neither should be
+  started before that line reads 0 remaining.
+
+WHAT WAS VERIFIED TODAY, AND HOW
+
+  Not by reading the code. The editor was driven headless (QT_QPA_PLATFORM=
+  offscreen, HOME and the three XDG directories pointed at a scratch
+  directory) over byte-identical copies of both queues, through the same path
+  spacr-make-masks uses -- build_queue, hand_over, MakeMasksScreen taking the
+  handover -- and the real Save mask and Next image buttons were pressed.
+
+    OPENS      PV 43 bundles, 43 remaining, nested layout; plaque 105 and 105.
+               The first field lands and its seed is on the canvas.
+    RECORDS    pressing Save wrote masks/<stem>.tif and a done row with the
+      DONE     object count (90 and 132 on the first two PV fields; 4 and 1 on
+               the first two plaque figures). curate_status.csv did not exist
+               before the first save.
+    RECORDS    a skip row written through the queue module is honoured: the
+      SKIP     field is not offered again and the summary counts it as skip.
+    RESUMES    a second session built on the same folder read "2 done, 1 skip,
+               40 remaining" (PV) and "2 done, 1 skip, 102 remaining"
+               (plaque), offered neither the saved nor the skipped fields, and
+               opened on the next one.
+    PLAQUE     a png or jpg figure is read in its own format and its curated
+      FORMATS  mask is written to masks/<stem>.tif, which is where the queue
+               looks for it.
+    A NO-EDIT  opening a field and saving it unchanged round-trips the seed
+      SAVE     EXACTLY: same shape, same dtype, same labels, array-equal on
+               four fields across both sets. The TIFF bytes differ (it is
+               re-encoded), the pixels do not. So "open it, look, save" is a
+               legitimate way to mark a seed correct.
+
+  The real queues were hashed before and after all of this: 137 files (PV) and
+  218 (plaque), 0 changed. Everything was driven on copies.
+
+WHAT WAS ADDED TO THE QUEUES TODAY, AND WHAT WAS NOT
+
+  Added, and recorded in each queue's provenance/prep_2026-09-19.json with a
+  digest per file:
+
+    both     skip_field.py, and a dated block appended to HOLDOUT_README.txt.
+    plaque   provenance/vanilla_seed_masks/ -- the 105 untouched vanilla cpsam
+             seeds, each verified against the seed_mask_sha256 in
+             queue_provenance.json before it was copied.
+    plaque   rescore/freeze_plaque_truth.py and rescore/score_plaque_truth.py.
+
+  THE PLAQUE SEEDS WERE ONE SAVE FROM BEING LOST. The editor overwrites
+  masks/<stem>.tif on the first save, and until today that folder was the only
+  copy of the vanilla seeds anywhere: the session scratchpad they were built in
+  is gone, and data/plaque_literature/masks holds DIFFERENT masks (checked by
+  hash on two stems). The PV queue has had provenance/stock_seed_masks/ since
+  it was built and the plaque queue had no equivalent. Without that copy the
+  first curated save would have destroyed the seeds, and the lean of the truth
+  toward vanilla -- which this item requires be published beside the scorecard
+  -- could never have been measured afterwards.
+
+  Not added, and deliberately: no image, no mask and no existing record was
+  changed. The prep script re-hashes every image and mask after it runs and
+  stops if one moved; it reported 86 and 210 files unchanged on the test copies
+  and the same on the real queues. queue_provenance.json is an as-built record
+  and was left alone, including its now-stale sentence that Make Masks "refuses
+  images/ + masks/ by name" -- item 396 has since taught the editor all three
+  layouts, which is what makes these queues openable where they lie.
+
+  NO GROUND TRUTH WAS DRAWN, SEEDED OR ALTERED BY THIS SESSION, and no truth
+  was taken from any model under test. The PV seeds are stock Cellpose-SAM and
+  the plaque seeds are vanilla cpsam, both from the earlier sessions, both
+  still pinned by checksum.
+
+  What the seeds being the baseline means, and it must be published with the
+  table: where a curator KEEPS a seed outline, the truth leans toward the
+  baseline column, not toward the fine-tuned model. That is the conservative
+  direction, and it is still a lean. freeze records its size per field --
+  stock_seed_vs_truth for the PV set, plaque_seed_vs_truth.csv for the plaque
+  set, with kept_seed_unchanged per row -- and the outline metrics (Dice, IoU,
+  boundary F1, area error) are the ones exposed to it.
+
+WHAT THE NEW PLAQUE SCRIPTS WERE PROVED ON, SINCE THEY CANNOT BE PROVED ON
+TRUTH THAT DOES NOT EXIST YET
+
+  * freeze REFUSES an uncurated queue -- 98 undecided of 105 -- and writes
+    nothing.
+  * on a copy of the queue marked fully done with the seeds standing in as the
+    truth, freeze produced 105 fields and 4,792 objects, which is the object
+    count recorded when the seeds were drafted on 2026-09-14; verify_holdout
+    returned problems=[]; and seed-against-truth F1 was exactly 1.000 on every
+    field, the identity a run must give when truth and seed are the same array.
+  * score_plaque_truth.py verify re-hashed cpsam_plaque_r3 to
+    eeecd2d6cd5cbb4d..., the sha256 the model-zoo row publishes for
+    toxoplasma_plaque_v1, and ~/.cellpose/models/cpsam to e1440429eb384f95...,
+    the seed the queue records. It refuses with a sentence when the manifest or
+    a previous stage is missing.
+  * The GPU stage has not been run. It needs curated truth.
+
+STILL OPEN AFTER THIS
+
+  The curation itself, both sets. Then: the four same-field clusters in the PV
+  set (it counts 197 objects twice unless they are dropped), where each frozen
+  set is placed, and the publish to Hugging Face beside the models, which is
+  the maintainer's call and his credential. The editor's missing skip control
+  belongs to 396.
+
+Decided: 2026-09-19, the maintainer, asked with the question tool whether he
+would curate these two hold-out sets or have them curated -- "I'll curate;
+prep it". He curates; this session prepared, and drew no truth.
