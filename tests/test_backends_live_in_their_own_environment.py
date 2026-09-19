@@ -252,9 +252,9 @@ def test_the_pid_check_uses_psutil_or_signal_zero(monkeypatch):
 
     monkeypatch.setattr("builtins.__import__", _no_psutil)
     calls = []
+    answers = iter([None, ProcessLookupError(), PermissionError()])
 
-    def _kill(pid, sig, answers=iter([None, ProcessLookupError(),
-                                      PermissionError()])):
+    def _kill(pid, sig):
         calls.append(pid)
         answer = next(answers)
         if answer is not None:
@@ -1547,8 +1547,10 @@ def test_under_cellpose3_an_objects_model_name_is_read_as_it_was_written(
     """``cyto2`` means Cellpose 3's cyto2 under the Cellpose 3 backend. Under
     spaCR's Cellpose it is a retired spelling of cpsam, mapped with a notice;
     under Cellpose 3 that notice would be false, so it is not given."""
-    from spacr.settings import (_get_object_settings,
-                                set_default_settings_preprocess_generate_masks)
+    from spacr.settings import (
+        _get_object_settings,
+        set_default_settings_preprocess_generate_masks,
+    )
 
     settings = set_default_settings_preprocess_generate_masks(
         {"src": "/nowhere", "segmentation_backend": "Cellpose3",
