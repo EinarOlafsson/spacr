@@ -43,14 +43,21 @@ for has to first work out what happened to the form — and the strip's box
 holding a query they did not type is the least discoverable state in the
 module.
 
-`SettingsSearchBar.reveal(key)` instead clears the filter, switches to All
-settings, collapses every section except the one holding the row, scrolls to
-it and outlines it for four seconds. Nothing is rebuilt and no value is read
-or written, which is the same property the filter has and for the same
-reason: the row was already on the form.
+`SettingsSearchBar.reveal(key)` instead clears the filter, collapses every
+section except the one holding the row, scrolls to it and outlines it for four
+seconds. Nothing is rebuilt and no value is read or written, which is the same
+property the filter has and for the same reason: the row was already on the
+form.
 
 Measured on Mask: 22 sections, 1 open, 21 collapsed, and 190 settings still on
 the form.
+
+**And the disclosure level is raised only when it has to be.** Switching to
+All settings unconditionally works and also rewrites the module's remembered
+Essentials/All choice every time anyone looks something up — a setting the
+user chose, changed as a side effect. So the filter is cleared first and the
+level is raised only if the row is still off the form afterwards, which is
+exactly the case where Essentials is what was hiding it.
 
 ## The mark is static on purpose
 

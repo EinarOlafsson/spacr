@@ -326,6 +326,14 @@ class SettingsSearchBar(QWidget):
         That is what makes arriving here from a search safe for a half-typed
         value -- the same property the filter has, for the same reason.
 
+        THE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE. Switching to
+        All settings unconditionally would work, and it would also rewrite
+        this module's remembered Essentials/All choice every time anybody
+        arrived here -- a setting the user chose, changed as a side effect of
+        looking something up. So the filter is cleared first and the level is
+        raised only when the row is still not on the form afterwards, which
+        is exactly the case where Essentials is what is hiding it.
+
         :param key: the setting to reveal.
         :returns: True when the module renders ``key`` and it was revealed.
         """
@@ -335,9 +343,10 @@ class SettingsSearchBar(QWidget):
         section, field = row
         self._input.clear()
         self._modified.setChecked(False)
-        if self._level != ALL:
-            self.set_level(ALL)
         self.apply()
+        if not _row_is_visible(section, field) and self._level != ALL:
+            self.set_level(ALL)
+            self.apply()
         for other in self._sections:
             if not hasattr(other, "set_expanded"):
                 continue

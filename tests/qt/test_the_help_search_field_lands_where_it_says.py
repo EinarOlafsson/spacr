@@ -398,3 +398,33 @@ def test_the_shortcut_is_bound_and_is_not_one_of_the_others():
     assert keys.count("Ctrl+Shift+H") == 1
     assert "Ctrl+Shift+H" in [s.keys for s in installed()]
     assert keys.count("Ctrl+F") == 1
+
+
+def test_arriving_here_does_not_rewrite_the_essentials_choice(qtbot, window):
+    """A lookup must not quietly change a preference the user set.
+
+    The module remembers whether it opens on Essentials or on All settings.
+    Revealing a row that Essentials already shows leaves that choice alone;
+    only a row Essentials is HIDING is worth raising the level for, and then
+    the strip says so on screen.
+    """
+    from spacr.qt.help_search import reveal_setting
+    from spacr.qt.settings_search import ALL, ESSENTIALS
+
+    assert reveal_setting(window, "mask", "cell_diameter")
+    bar = window._screens["mask"]._settings_search
+    essential = set(bar._model.essential_keys())
+    shown = [k for k in bar.indexed_keys() if k in essential]
+    hidden = [k for k in bar.indexed_keys() if k not in essential]
+    assert shown and hidden
+
+    bar.set_level(ESSENTIALS)
+    assert reveal_setting(window, "mask", shown[0])
+    qtbot.wait(20)
+    assert bar.level() == ESSENTIALS, shown[0]
+    assert bar.revealed_key() == shown[0]
+
+    assert reveal_setting(window, "mask", hidden[0])
+    qtbot.wait(20)
+    assert bar.level() == ALL, hidden[0]
+    assert hidden[0] in bar.visible_keys()

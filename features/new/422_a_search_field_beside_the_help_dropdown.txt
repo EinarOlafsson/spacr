@@ -259,3 +259,13 @@ SAME 23 both times, so this adds no failure. The four
 `test_the_chrome_captions_have_catalog_rows` tests were red at HEAD over
 item 420's landed captions; "Search spaCR from the Help bar" now joins that
 same unreferenced-source list and nothing else does.
+
+ONE LATE NARROWING, worth recording because the first version was wrong in a
+quiet way. `reveal` switched the module to All settings unconditionally, which
+works — and also rewrites the module's remembered Essentials/All choice every
+time anybody looks a setting up, changing something the user chose as a side
+effect of a lookup. It now clears the filter first and raises the level only
+when the row is STILL off the form, which is exactly the case where Essentials
+is what was hiding it. Pinned by
+test_arriving_here_does_not_rewrite_the_essentials_choice, which reveals an
+essential key and a non-essential one and reads the level after each.
