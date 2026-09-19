@@ -1,0 +1,220 @@
+================================================================================
+A RE-RUN TRUSTS NOTHING A KILLED RUN LEFT: MASK RESUMES A PLATE IT ALREADY
+PROCESSED, AND CHECKS EVERY STACK AND ARCHIVE BEFORE IT REUSES THEM
+================================================================================
+
+Status:    DONE IN CODE 2026-09-19, committed locally on
+           home/rerun-processed-folder, not pushed: a reviewer reads it
+           first. GitHub #118 and #124 are to be closed when it lands. 16
+           new tests fail on origin/nightly with the two issues' own
+           symptoms and pass with the change. A run with the real
+           Cellpose-SAM model on CPU finishes on both states; see the trailing
+           notes.
+Requested: GitHub #118 and #124, both filed 2026-09-17 by jak18015, spaCR
+           1.5.0.8, Mask module. #118 is auto-filed:
+
+             "FileNotFoundError: No image stacks were produced from <PATH>
+             spaCR found 0 image file(s) directly in that folder. It holds no
+             images but does hold sub-folders (orig, stack) — if those are
+             plates, point src at one of them rather than at their parent."
+
+           #124, in the reporter's words:
+
+             "During the run, it died from a zipfile.BadZipFile: File is not a
+             zip file error, which was caused by an incomplete mask npz file
+             (stack_4_norm.npz) from a previous run. If it is evident there
+             was a previous run attempted, these files should be checked for
+             being good before proceeding assuming they are"
+
+           On 2026-09-19 the maintainer decided that the Codex-lane fixes for
+           the Sept-17 mask issues go ahead ("Fix them, post a notice").
+           Section 5 of features/325_two_sessions_one_repo_working_protocol.temp
+           records it and names spacr/core.py (+ io.py) for #118/#124. Only
+           spacr/io.py, which is in the Claude lane, needed a change.
+Owner:     home (Claude), unit rerun-processed-folder.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS (origin/nightly 5b9207b21)
+--------------------------------------------------------------------------------
+
+spacr/io.py::preprocess_img_data, the preprocessing half of Mask:
+
+  * A plate folder with no images directly in it and a masks/ folder
+    skipped preprocessing and handed masks/*.npz to the segmenter
+    unchecked. An archive a killed run cut short raised zipfile.BadZipFile
+    in generate_cellpose_masks_sam. That is #124. The fields of archives
+    that were never written were skipped without a word.
+  * The normalised archives were written with np.savez_compressed straight
+    onto their final names. Only the illumination-corrected path was
+    atomic, so a kill left a truncated archive under the final name. That
+    is the root of #124. So were the stack/*.npy writes in
+    _rename_and_organize_image_files and _merge_file, and the np.savez
+    writes in _concatenate_channel, _normalize_stack and
+    _normalize_timelapse.
+  * _rename_and_organize_image_files moves the raw images into orig/. A
+    re-run on that folder whose stack/ was gone (cleanup removes it once
+    merged/ is complete) found no images, and the error called spaCR's own
+    orig/ and stack/ possible plates. It also ran only when stack/ was
+    missing or empty, so a run killed while writing stack/ was "resumed"
+    from the part it had written, and the rest of the plate was never
+    stacked.
+  * #118 ran with test_mode on and test_images 1. Test mode copies raw
+    images. On a plate whose raw images were gone (save_original_images
+    off deletes them once stack/ is written) it copied none. The organiser
+    then ran on the empty test/ folder, created test/orig and test/stack,
+    and the error named those two. tests/test_a_rerun_trusts_nothing_a_
+    killed_run_left.py::test_issue_118_test_mode_on_a_plate_whose_raw_
+    images_are_gone reproduces #118's exact message on origin/nightly.
+  * Test mode on a plate with masks/ took the masks/ shortcut and
+    segmented the whole plate.
+  * When no image matched the filename pattern, the organiser still made
+    stack/. With save_original_images off it then DELETED every image; with
+    it on it moved them into orig/. On origin/nightly the pattern-mismatch
+    test finds the folder holding only an empty stack/.
+
+--------------------------------------------------------------------------------
+WHAT CHANGED (spacr/io.py only)
+--------------------------------------------------------------------------------
+
+  1. Atomic writes. _replace_atomically writes into a hidden sibling named
+     .spacr_tmp_* / .spacr_npz_* ... .partial, flushes and fsyncs it, then
+     os.replaces it into place. _save_array_atomic, _save_npz_atomic and a
+     new _savez_atomic use it. Every stack/*.npy and archive write listed
+     above goes through them. The sibling ends in .partial, not .npy or
+     .npz, so a sibling left by a SIGKILL is never listed as a field.
+     _sweep_partial_writes removes such siblings from stack/ and masks/.
+     spacr/checkpoint.py was read, not touched. Its _atomic_json is the
+     same pattern for JSON.
+  2. Checks before reuse. _set_aside_damaged_stacks checks each
+     stack/*.npy by header and length (resume.validate_merged_field, with a
+     memory-map fallback). _inspect_normalized_archive opens each
+     masks/*.npz's zip directory, checks each member's extent, reads the
+     data.npy header and reads filenames.npy, and never inflates pixels. A
+     damaged file is renamed to <name>.damaged, and the log says how many
+     and which, with the reason for each.
+  3. Rebuild, not just skip. _resume_normalized_archives runs the masks/
+     shortcut:
+       - it builds a missing or damaged stack again from orig/ when the raw
+         images are there (_rebuild_stacks_from_raw);
+       - it normalises the stack/ fields that no whole archive lists into
+         new archives numbered after the old ones (only_fields and
+         first_batch_index on _concatenate_and_normalize_impl);
+       - an illumination-corrected or timelapse set with a gap is rebuilt
+         whole from stack/, because it is published, or named, as a set;
+       - nothing is added to a set made with a different number of
+         channels than these settings select; the log says so;
+       - a damaged archive with neither stack/ nor raw images to rebuild
+         from is a FileNotFoundError that names the file.
+  4. A processed folder resumes. _rename_and_organize_image_files reads raw
+     images from src and src/orig/ and builds only the fields stack/ lacks.
+     If stack/ holds fields but none of their names is one these images make
+     (an older spaCR, or channel folders), it adds nothing, so nothing is
+     doubled. When it read no field it creates, moves and deletes nothing.
+     A deletion with save_original_images off removes only an image whose
+     field has a stack.
+  5. Test mode. It never takes the plate's masks/ shortcut. On a plate with
+     no raw images left it copies a sample of the plate's whole stack/*.npy
+     into test/stack/ (_sample_stacks_for_test_mode, seed 42 as
+     _run_test_mode uses).
+  6. The error, when nothing can be built (_no_stacks_error), keeps its
+     first sentence and then says which case it is: a folder spaCR already
+     processed, with what each output folder holds and what that leaves; a
+     test mode that found nothing to sample; or image files that match no
+     filename pattern, with the pattern. The plates hint is kept for a
+     folder that holds only sub-folders.
+
+The reasons are in docs/notes/spacr/io.md, section "A re-run trusts nothing a
+killed run left".
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  cd <worktree> && tools/run_capped.sh 4G python -m pytest -q -p no:randomly \
+      tests/test_a_rerun_trusts_nothing_a_killed_run_left.py
+
+  16 passed. On origin/nightly 5b9207b21, with only this test file copied
+  into a detached worktree, all 16 fail, with the issues' own symptoms:
+    - #118's exact message, both from preprocess_img_data and through
+      spacr.core.preprocess_generate_masks in test mode;
+    - BadZipFile, both from preprocess_img_data and through
+      spacr.core.preprocess_generate_masks;
+    - the truncated stack_0_norm.npz a SIGKILL left under its final name;
+    - the images a pattern mismatch deleted.
+  One of them, test_a_stack_named_by_another_scheme_is_not_doubled, fails
+  there only on the message it expects. It guards the new fill-in logic
+  against doubling a stack/ named under another scheme, a thing
+  origin/nightly could not do.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+  * masks/<object>_mask_stack/*.npy and merged/*.npy are not checked here.
+    They were already written atomically, and resume=True already checks
+    them (_check_masks, completed_fields_in_merged).
+  * The adjust_cell_masks rewrites in spacr/utils.py (np.save over an
+    existing mask, utils.py:8903, 9047, 9304) are still not atomic. That is
+    the Codex lane, and the 2026-09-19 notice does not name utils.py. A kill
+    there can truncate a mask that was whole.
+  * _run_test_mode (utils.py) still samples only orig/ when orig/ exists,
+    even if the plate folder also holds raw images. That is the same lane.
+  * A damaged archive's pixels cannot be recovered; its fields are rebuilt
+    from stack/. Archives that list their fields as an object array
+    (#117/#121, item 429) are taken as whole, and gaps are not computed for
+    them, because reading those names means unpickling.
+  * The feature index (features/00_INDEX.txt) is not regenerated here.
+    tools/build_instruction_index.py --check was already failing on
+    origin/nightly for the 412-418 duplicate numbers that 325 says move to
+    421-427. Rebuild it once 428-433 have all landed.
+
+--------------------------------------------------------------------------------
+2026-09-19 — DONE IN CODE, COMMITTED LOCALLY AS 1aa5d9a3e, NOT PUSHED
+--------------------------------------------------------------------------------
+
+Committed on home/rerun-processed-folder, based on origin/nightly 5b9207b21.
+A reviewer reads it before it lands; #118 and #124 close when it does.
+
+Measured:
+  * tests/test_a_rerun_trusts_nothing_a_killed_run_left.py: 16 passed. With
+    only this file copied into a detached worktree at 5b9207b21, 16 failed.
+  * 31 test files, this one included, run on the committed code: 1030
+    passed. They cover the preprocess entry, the r3/r5/r6/r7/r9 io coverage
+    files, io, resume, crop_format, core_branches, core_mask_orchestration,
+    the object and illumination files, and the ledger check.
+  * A second group of 12 files (the Cellpose, zstack, segmentation-backend
+    and demo-pipeline tests): 420 passed, 1 skipped (dinocell is not
+    installed). That run came before the last change, the channel-count
+    guard, which touches only _resume_normalized_archives.
+  * The real Cellpose-SAM model on CPU (CUDA hidden; GPU runs wait for the
+    maintainer), driven through spacr.core.preprocess_generate_masks as the
+    Mask module drives it. The plate was 2 wells x 2 fields x 2 channels at
+    256x256, with 6 blobs drawn per field.
+      - #124 state: masks/stack_2 cut in half, stack_3 deleted. The re-run
+        set stack_2 aside as "not a complete zip archive" and wrote
+        stack_3/stack_4 for the 2 missing fields. That re-run was itself
+        killed after 20 minutes, by the timeout on the command, with 4/4
+        cell masks and 2/4 nucleus masks written. The next run found 4
+        whole archives, segmented only the 2 missing nuclei, and finished in
+        870 s: merged/ holds all 4 fields, 6 cells and 6 nuclei in each.
+      - #118 state: raw images deleted (save_original_images off), masks/
+        removed, test_mode on, test_images 1. Test mode copied 1 of the 4
+        field stacks into test/stack and finished in 490 s: test/merged
+        holds that field, with 6 cells and 6 nuclei.
+
+Not caused by this change, and failing identically on 5b9207b21:
+  * tests/test_real_data_image_modules.py::test_module_measure_crop_writes_
+    measurements_db: "measurements.db has no cell table".
+  * tests/test_instruction_index.py, 3 tests: the index is stale for the
+    412-418 duplicate numbers.
+
+Left:
+  * The nine API catalogs owe a translation of the new paragraph in
+    spacr.io.preprocess_img_data's docstring. They wait for the
+    consolidated translation pass. The documentation audit will flag
+    that symbol's source hash until then.
+  * features/00_INDEX.txt is to be rebuilt once 428-433 and the 421-427
+    renumbering have landed.
+  * The Codex-lane follow-ups under DELIBERATELY NOT DONE: adjust_cell_masks
+    rewrites masks in place with np.save, and _run_test_mode ignores raw
+    images in the plate folder when orig/ exists.
