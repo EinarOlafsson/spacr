@@ -2,7 +2,14 @@
 LIBRARIES LOAD WHEN CALLED, AND THE USER SETS THE MEMORY BUDGET
 ================================================================================
 
-Status:    PARTLY DONE, corrected 2026-09-13. "NOT STARTED" was wrong:
+Status:    CLOSED 2026-09-19 BY THE MAINTAINER'S DECISION. The one thing
+           still owed below, an opinion on the design, was put to him through
+           the question prompt on 2026-09-19. His answer: "the 'MEASURED, AND
+           IT DECIDES THE SHAPE' section stands as the design opinion". The
+           work itself was already done (the 2026-09-15 note at the foot).
+           Nothing is owed. The history of this line follows.
+
+           WAS: PARTLY DONE, corrected 2026-09-13. "NOT STARTED" was wrong:
            the file carries "DONE 2026-08-28." with the lazy-import result
            asserted through `sys.modules` rather than timed.
 
@@ -158,3 +165,34 @@ SESSION SHOULD QUIETLY CLOSE -- an opinion nobody asked for is worth nothing,
 and one written to empty a checklist is worth less. It stays open and stays
 named.
 
+
+--------------------------------------------------------------------------------
+2026-09-19 — CLOSED: THE MEASURED SECTION IS THE OPINION
+--------------------------------------------------------------------------------
+
+The note above kept this open for one thing, and said a session should not
+close it by writing an opinion nobody asked for. So it was asked. Put to the
+maintainer through the question prompt on 2026-09-19, the answer was: "the
+'MEASURED, AND IT DECIDES THE SHAPE' section stands as the design opinion".
+The quoted wording is the answer as the session that asked recorded it
+and relayed it to this one; the prompt itself is not in the repository.
+
+What that section commits the design to, so a reader does not have to
+re-derive it:
+
+  * A Python library cannot be unloaded. `import torch` cost 477 MB and
+    deleting it from sys.modules returned 0 MB, with 63 .so regions still
+    mapped. No setting is named as if it could.
+  * "Load when called" means DEFERRING the import to first use, and that is
+    what shipped: a session that never opens a deep-learning module never
+    imports torch, asserted through `sys.modules`.
+  * What CAN be returned is caches, model weights and GPU memory, so those
+    are what the idle timeout and the cache ceiling govern, and the headroom
+    floor comes first because it decides when the other two apply.
+
+Checked again today that the mechanism the opinion describes is the one in
+the tree: `sweep_memory_budget` is at spacr/qt/resource_cleanup.py:619, and
+`install_budget_sweep` appears in seven modules (crops.py,
+qt/annotate_engine.py, qt/crop_thumbs.py, qt/resource_cleanup.py,
+qt/widgets/figure_queue.py, qt/widgets/timelapse_movie.py,
+qt/widgets/timelapse_preview.py). No test was run for this note.

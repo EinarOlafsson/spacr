@@ -2,10 +2,16 @@
 PLATE POSITION IS OPT IN, AND THE MODEL BOX IS SHORTER
 ================================================================================
 
-Status:    PARTLY, verified 2026-09-15 against the code: all five HOW TO KNOW
-           checks hold (settings.py:2541 default off, ml.py:1118 refusal, box
-           854 chars); left: section A's release note. See the dated sections
-           below.
+Status:    DONE 2026-09-19. The last thing owed, section A's release note,
+           is written at the foot of this file ("RELEASE NOTE FOR THE NEXT
+           RELEASE BODY"), which is where the maintainer decided on
+           2026-09-19, through the question prompt, that it should go. The
+           repository has no changelog, so pasting it into the next GitHub
+           release body is his step when he cuts that release.
+           (Was: PARTLY, verified 2026-09-15 against the code: all five HOW TO
+           KNOW checks hold (settings.py:2541 default off, ml.py:1118
+           refusal, box 854 chars); left: section A's release note. See the
+           dated sections below.)
 Requested: 2026-08-18 --
 
   "is rowID + columnID always run? this should be an opt in"
@@ -187,3 +193,82 @@ has a position effect.
 Found, outside scope: `prepare_formula`'s own keyword default is still True
 (ml.py:1053), so a direct API caller who skips the settings factory keeps
 plate position in the model.
+
+--------------------------------------------------------------------------------
+2026-09-19 — RELEASE NOTE FOR THE NEXT RELEASE BODY
+--------------------------------------------------------------------------------
+
+Section A asked for a plain release note: "coefficients move on any screen
+that HAS a plate-position effect. Say so plainly rather than letting a user
+discover it by re-running an old screen." The maintainer decided on
+2026-09-19, through the question prompt, that the paragraph is written here
+for the next release body. It is below, to be pasted as it stands. (That
+decision reached this session from the session that asked; the prompt itself
+is not in the repository.)
+
+WHY "SINCE 1.5.0.5" AND NOT "IN THIS RELEASE". The change shipped in 1.5.0.5
+and no release body has said so. Checked today: `git show <tag>:spacr/settings.py`
+has no model_plate_position at v1.5.0.4 and has
+`setdefault('model_plate_position', False)` at v1.5.0.5 and v1.5.0.8;
+v1.5.0.4's `prepare_formula` ended `+ rowID + columnID` with no way to drop
+them; `gh release view v1.5.0.8` does not mention plate position, and the
+2026-09-15 note above found the same for 1.5.0.5 to 1.5.0.7.
+
+---- paste from here ----
+
+Regression: plate position is no longer in the model unless you ask for it.
+
+Up to and including 1.5.0.4, every regression fitted rowID and columnID,
+either as fixed terms or, with Random row column effects on, as variance
+components, and there was no way to leave them out. Since 1.5.0.5 a setting
+decides: Model plate position (model_plate_position), which is OFF by
+default. With it off, plateID, rowID and columnID are not in the model at
+all.
+
+This changes answers. Re-running a screen that has a plate-position effect
+with default settings moves its coefficients, standard errors and hit list.
+On the 610-well reference screen the 35 position terms were jointly
+significant (p = 6.7e-23); leaving them out raised the residual standard
+deviation by 7.2% and changed the hit list. On a screen with no such
+effect, including them raised standard errors by 1.6%.
+
+To fit plate position, turn Model plate position on. It now fits plateID as
+well as rowID and columnID, so the formula is not identical to 1.5.0.4's.
+Random row column effects needs Model plate position on too; with it off the
+run is refused with a message saying which to change. A settings file saved
+before 1.5.0.5 with random effects on meets this, because the new setting
+defaults off. The model box on the Regression screen shows the formula that
+is fitted and which of the three states (out, fixed, random) is in force.
+
+---- to here ----
+
+WHAT THE PARAGRAPH DOES NOT SAY, deliberately: that `spacr.ml.prepare_formula`
+called directly, without the settings factory, still defaults
+model_plate_position=True (ml.py:1053), as do several internal
+`settings.get('model_plate_position', True)` reads (ml.py:4125, 6300, 7485;
+regression_summary.py:808, 850, 1332). The pipeline always goes through the
+factory (settings.py:2671, default False), so a user of the GUI or of the
+settings-driven API gets OFF. A script that calls prepare_formula itself gets
+ON. That inconsistency is the 2026-09-15 "found, outside scope" line above,
+and it is not a release-note claim until someone decides which default is
+right.
+
+Every figure in the paragraph is from this file's 2026-08-20 note and the
+setting's own description (settings.py:4231, "p = 6.7e-23"); the labels are
+SETTING_LABELS in spacr/qt/i18n_catalogs/en.py ("Model plate position",
+"Random row column effects"). Nothing was re-fitted for this note.
+
+THE TWO SENTENCES ABOUT OLD SETTINGS WERE RUN, NOT READ, from this worktree
+(`spacr.__file__` printed inside it):
+
+    get_perform_regression_default_settings(
+        {'random_row_column_effects': True, 'regression_type': 'mixed'})
+        -> model_plate_position False
+    ml._reconcile_random_row_column_effects(<that>)     (called at ml.py:6889)
+        -> ValueError: "random_row_column_effects=True fits rowID and
+           columnID as variance components, and model_plate_position=False
+           takes them out of the model entirely ..."
+    prepare_formula('y', model_plate_position=True)
+        -> y ~ fraction:grna + plateID + rowID + columnID
+    prepare_formula('y', model_plate_position=False)
+        -> y ~ fraction:grna

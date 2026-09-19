@@ -1,11 +1,17 @@
 296 — `safespacr` starts the bare minimum
 
-Status:    AUDITED 2026-09-15; both preferences.py gaps CLOSED the same
+Status:    DONE 2026-09-19, CLOSED BY THE MAINTAINER'S DECISION on the one
+           verdict that was PARTLY (the default theme and fonts still load).
+           Put to him through the question prompt on 2026-09-19, his answer:
+           "Safe mode keeps the default theme and fonts".
+           So "plain widgets, default font" is met as decided, and every
+           other verdict was already MET (2026-09-15, below).
+           (Was: AUDITED 2026-09-15; both preferences.py gaps CLOSED the same
            day (see the last section). The item's own verification runs
            for real and passes, and a safe-mode Save now keeps every
            preference the user did not touch. One verdict stays PARTLY by
            design rather than by defect: safe mode still loads the default
-           theme stylesheet and bundled fonts, not unstyled Qt widgets.
+           theme stylesheet and bundled fonts, not unstyled Qt widgets.)
 
 Asked 2026-08-28, while spaCR was crashing on launch: "there should be a start
 spacr in safe mode triggered by safespacr that turns everything it can off and
@@ -225,6 +231,40 @@ VERDICTS NOW
 * Plain widgets, default font, no theme animation -- PARTLY, unchanged: the
   default theme stylesheet and bundled fonts load. Not a preference fault
   (nothing stored is read for them), and not asked for in this round.
+* Must not load the same preferences path as a normal start -- MET.
+* Reads settings, lets the user change and RE-SAVE them, exits -- MET.
+* Verification -- MET.
+
+
+2026-09-19 — CLOSED: SAFE MODE KEEPS THE DEFAULT THEME AND FONTS
+
+The last verdict above read "PARTLY, unchanged: the default theme stylesheet
+and bundled fonts load ... not asked for in this round". It was asked this
+round. Put to the maintainer through the question prompt on 2026-09-19, the
+answer was: "Safe mode keeps the default theme and fonts".
+The quoted wording is the answer as the session that asked recorded it
+and relayed it to this one; the prompt itself is not in the repository.
+
+WHY THAT IS NOT A HOLE IN SAFE MODE, as this file already recorded: the
+default theme and fonts are not read from any stored preference, because
+safe mode answers every preference read with its default
+(`preferences.enable_safe_mode`). A broken saved theme or font scale
+therefore cannot reach a safe-mode start; what loads is the built-in default,
+which is what the maintainer chose to keep.
+
+Checked in the tree today: spacr/qt/safespacr.py `main` calls
+`enable_safe_mode()`, sets SPACR_NO_GL and SPACR_NO_BACKDROP, and hands over
+to `spacr.qt.run` with `--no-setup`, so the ordinary theme path runs on
+default values. Nothing was changed in code and no test was run for this
+note.
+
+VERDICTS, FINAL
+* No animated backdrop, no fractal, no OpenGL of any kind -- MET.
+* No preloading, no background import thread -- MET.
+* No verbose tracing (294) -- MET.
+* No GPU probe, no CUDA import -- MET.
+* Plain widgets, default font, no theme animation -- MET AS DECIDED: the
+  default theme and bundled fonts stay; no theme animation.
 * Must not load the same preferences path as a normal start -- MET.
 * Reads settings, lets the user change and RE-SAVE them, exits -- MET.
 * Verification -- MET.

@@ -2,7 +2,17 @@
 THE BACKDROP KEEPS MOVING WHILE PREFERENCES OR HELP IS OPEN
 ================================================================================
 
-Status:    FOUND AND FIXED 2026-09-09 by the other session. The gate is
+Status:    CLOSED 2026-09-19 BY THE MAINTAINER'S DECISION. The one thing
+           left, his own check on his NVIDIA/compositing 4K display, was put
+           to him through the question prompt on 2026-09-19. His answer:
+           "closed now; reopen if the backdrop freezes under a dialog on his
+           4K display". So the item is closed without that check, and the
+           2026-09-10 note at the foot says what to measure if it reopens.
+           Nothing in code is owed (re-verified 2026-09-19: grep finds
+           `a_popup_is_on_screen` only in popup_state.py:28 and
+           fractal_travel.py:119, :2189). The history of this line follows.
+
+           WAS: FOUND AND FIXED 2026-09-09 by the other session. The gate is
            `a_popup_is_on_screen()`, the first line of
            `AmbientWidget._on_tick` -- an explicit, deliberate hold added to
            stop dock flicker, and not one of this file's candidates. See the
@@ -463,3 +473,28 @@ keeps moving while Preferences is up. If it does, the report is about the
 covered part and the answer is "that is the window manager, and it is
 correct". If the whole thing stops, that is a driver-level buffer-swap
 policy and the fix is in the GL canvas, not in any gate in this package.
+
+--------------------------------------------------------------------------------
+2026-09-19 — CLOSED BY THE MAINTAINER; REOPEN ON A FREEZE ON HIS 4K DISPLAY
+--------------------------------------------------------------------------------
+
+The note above ends on a question for the maintainer: on his NVIDIA driver,
+compositing desktop and 4K screen, does the UNCOVERED part of the backdrop
+keep moving while Preferences is up? Put to him through the question prompt
+on 2026-09-19, his answer was: "closed now; reopen if the backdrop freezes
+under a dialog on his 4K display".
+The quoted wording is the answer as the session that asked recorded it
+and relayed it to this one; the prompt itself is not in the repository.
+
+So this closes without that check, on his decision, and nothing was measured
+for it. The condition to reopen is his: the backdrop freezing under a dialog
+on that display. If it does, the note above says which of two answers it is
+-- only the covered part stopping is the window manager and correct; the
+whole backdrop stopping is a buffer-swap policy in the driver, fixed in the GL
+canvas and not in any gate in this package.
+
+Re-checked today that the code fix still stands: `a_popup_is_on_screen`
+appears only at spacr/qt/widgets/popup_state.py:28 (its definition) and
+spacr/qt/widgets/fractal_travel.py:119 and :2189 (the fractal GPU path, which
+keeps the hold on purpose); spacr/qt/widgets/ambient.py does not call it.
+The Status line quoted fractal_travel.py:2163; the line is 2189 today.
