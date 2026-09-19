@@ -1156,7 +1156,20 @@ Colour-blind mode
 verbose_check = Toggle(tr("Enable verbose logging"))
 ```
 
-Verbose logging — one toggle, wired at Save time. When on, spaCR + third-party libs (cellpose, torch, PIL, matplotlib) dial their loggers to DEBUG/INFO and every record echoes into the active ConsolePanel. Aimed at bug reports.
+Verbose logging — one toggle, wired at Save time. When on, spaCR's loggers go to DEBUG and `cellpose` to INFO, and the log files keep DEBUG. torch, PIL and matplotlib are left alone. The console still shows only the levels switched on for it on the Logging tab. Aimed at bug reports. Corrected 2026-09-19: this note used to say every record echoes into the ConsolePanel and that torch, PIL and matplotlib are dialled up, and the code does neither.
+
+THE DEBUG FILE SWITCH FOLLOWS THIS TOGGLE (2026-09-19, item 294). While verbose is ticked, the Logging tab's DEBUG "Log file" switch is held on and disabled, because verbose writes DEBUG whatever it says. Save stores the user's own DEBUG choice, remembered from before verbose held it, and never the held value. Unticking verbose hands the switch back with that choice.
+
+Before this, the tab was built from `get_log_file_levels()`, which adds DEBUG while verbose is on, and Save wrote every switch back through `set_log_levels`. With verbose on by default, that meant:
+
+    fresh store, open Preferences, untick verbose, Save
+    stored log_file_levels   "DEBUG,INFO,WARNING,ERROR,CRITICAL"
+    get_verbose_logging()    False
+    spacr, spacr.io          still DEBUG
+
+So the switch could not be turned off from its own default, and every Save made with verbose on wrote DEBUG into the user's stored levels, where it could no longer be told apart from a DEBUG the user chose. `get_log_file_levels`' docstring had promised both that DEBUG is not stored and that it "goes away again when they turn verbose off".
+
+`set_log_levels` clamps the console against the levels the files actually keep, verbose's DEBUG included, and applies those to the live handlers. Without that, a console DEBUG switch ticked while verbose is on would be dropped at Save, because the stored file levels no longer carry DEBUG.
 
 ### lines 5637-5640
 

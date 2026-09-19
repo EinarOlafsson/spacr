@@ -3,10 +3,13 @@
 Status:    DONE 2026-09-19. The whole application was measured with verbose
            on against 284's budgets and it costs nothing a benchmark can see;
            the tooltip states the measured figures; DEFAULT_VERBOSE_LOGGING is
-           True. Two defects found on the way are NOT fixed and are recorded
-           in the 2026-09-19 note at the end: the startup resets the `spacr`
-           logger to INFO after the preference raised it, and a Preferences
-           Save stores verbose's DEBUG as the user's own level choice.
+           True. The two defects the first 2026-09-19 note left open are
+           FIXED in the same landing (second 2026-09-19 note): launch() now
+           runs setup_logging before the preferences, and the Logging tab
+           holds the DEBUG file switch while verbose is on and stores the
+           user's own choice. Left: the translation pass for the changed
+           strings, and one pre-existing finding recorded at the end
+           (is_verbose() is True in every GUI session, verbose or not).
 
 Asked 2026-08-28: "verbose logging should be on by default".
 
@@ -282,3 +285,133 @@ now lists the new tooltip among the captions without a source hash. It had
 the same 3 failures on the base commit (5643621f1), for other captions.
 test_i18n_coverage_audit and test_external_i18n_catalogs fail identically on
 the base commit and on this branch.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- REVIEW: BOTH DEFECTS FIXED BEFORE THE FLIP LANDS
+--------------------------------------------------------------------------------
+
+The review of the two commits above held the flip back until both defects
+were fixed. Its argument: defect 2 is not "Save, then later untick". It
+happens on the very first untick-and-Save. And every Save made while verbose
+is on writes DEBUG into the user's stored levels, where a later fix could no
+longer tell it apart from a DEBUG the user chose. So both are fixed in the
+same landing as the flip.
+
+DEFECT 1, THE LAUNCH ORDER. Reproduced through `launch()` itself rather than
+by calling the two functions in order. The probe runs the real launch() in a
+fresh process and HOME. It emits records once the event loop is running,
+quits, and reads the log files. Before, verbose on by default, no Save:
+
+    spacr, spacr.io      INFO       (the preference had set DEBUG)
+    cellpose             WARNING    (the tooltip says it reports its model)
+    master log filter    CRITICAL, ERROR, INFO, WARNING
+    spacr.io DEBUG       in no log file
+
+`launch()` now calls `setup_logging()` BEFORE `apply_preferences_to_app(app)`,
+so the package defaults go in first and the preferences land on top. After:
+
+    spacr, spacr.io      DEBUG
+    cellpose             INFO
+    master log filter    DEBUG, INFO, WARNING, ERROR, CRITICAL
+    spacr.io DEBUG       in spacr.log, spacr-debug.log, spacr-YYYYMMDD.log
+    cellpose INFO        in spacr.log and spacr-info.log
+
+With verbose off and the user's own file levels INFO,WARNING, the master
+filter is now INFO,WARNING from launch. Before, it was INFO and above whatever
+the Logging tab said. This part was wrong whether or not verbose was on.
+
+`apply_verbose_logging(False)` now also puts `cellpose` back to WARNING. It
+used to leave cellpose at INFO for the rest of the session once verbose had
+been on.
+
+DEFECT 2, THE SAVE. The Logging tab's DEBUG "Log file" switch is held on, and
+disabled, while the verbose toggle is ticked, because verbose writes DEBUG
+whatever the switch says. Save stores the user's own DEBUG choice, which is
+remembered from before verbose held the switch, never the held value.
+Unticking verbose gives the switch back with that choice. The switch's hint
+says why it is held. `set_log_levels` now clamps the console against the
+levels the files actually keep, and applies those levels to the live
+handlers. Without that, a console DEBUG ticked under verbose would be
+dropped at Save, because the stored file levels no longer carry DEBUG.
+Driven through the real dialog and the real Save button:
+
+    fresh store, untick verbose, Save
+      before  stored "DEBUG,INFO,WARNING,ERROR,CRITICAL"  spacr DEBUG
+      after   stored "INFO,WARNING,ERROR,CRITICAL"        spacr INFO,
+              cellpose WARNING
+    fresh store, Save with nothing touched
+      after   stored "INFO,WARNING,ERROR,CRITICAL"; files keep DEBUG while
+              verbose is on
+    stored DEBUG the user chose, Save with verbose on, then untick verbose
+      after   DEBUG kept both times; the switch comes back ticked
+    verbose on, tick the console DEBUG switch, Save
+      after   stored console includes DEBUG; the console shows DEBUG
+
+tests/qt/test_verbose_logging_can_be_turned_off_and_reaches_the_log.py (new,
+8 tests). The two launch tests run the real launch() in a subprocess, about
+3 s each. 6 of the 8 fail on the tree before this fix (checked on a
+`git archive` of the previous HEAD). The two that pass there guard against
+this fix dropping a user's own DEBUG or a console DEBUG.
+
+THE REVIEW'S NITS:
+  * docs/notes/spacr/qt/preferences.md still said verbose dials up torch,
+    PIL and matplotlib and echoes every record to the console. Corrected.
+    So was spacr/qt/verbose_logger.py's module docstring.
+  * The tooltip's "It costs no time you can see" generalised from opening
+    screens to everything. It now says "Starting spaCR and opening its
+    screens took no longer with this on", and "Pipeline runs were not
+    timed".
+  * "The flip can be dropped alone" no longer holds: the fixes land with it.
+  * "log_call now runs by default": it already did, before the flip. See the
+    finding below. bridge.py's docstring ("an entry-and-return trace in the
+    console", "zero cost when verbose is off") is left as it is. It is wrong
+    for the same pre-existing reason, and fixing it belongs with that
+    finding.
+
+FOUND, NOT FIXED, NOT CAUSED BY THIS ITEM: `verbose_logger.is_verbose()` is
+True in every GUI session, whether verbose is on or not. It reads the
+console forwarder's handler level. `apply_console_levels`, which every
+`apply_level_policy` reaches, sets that level to DEBUG so that the level-set
+filter decides instead. Measured through launch() with verbose stored off:
+is_verbose() True. So the `log_call` wrappers on about 20 pipeline entry
+points (bridge.py `resolve_pipeline_entry`) and `log_button_press` have done
+their repr() work in every session since the per-level switches landed. The
+records go to `spacr.trace`, which is at INFO with verbose off, so they are
+built and dropped. The cost is one truncated repr per pipeline start or
+button press, which is small, but the "zero cost when verbose is off" claims
+are false. The fix is to make is_verbose() read the verbose preference's own
+state rather than the handler level. It is not done here: it changes what
+two test files pin ("is_verbose follows the handler level"), and it is not
+needed for the default this item asked for.
+
+ALSO NOT DONE, pre-existing: Reset to defaults does not reset the Logging
+tab's switches.
+
+TESTS for this round, one file at a time, run_capped.sh 4G, offscreen,
+spacr.__file__ asserted inside the worktree:
+test_verbose_logging_can_be_turned_off_and_reaches_the_log (8),
+test_verbose_logging_is_cheap (12), test_the_verbose_row_says_what_it_costs
+(1), test_batch_b_theme_logger (13), test_cov_s1_preferences_edges (39),
+test_the_preferences_helpers_no_test_named (14), test_cov_3_qt_preferences
+(53), test_cov_3_qt_preferences_dialog (9), test_cov_wf_qt_verbose_logger
+(5), test_cov_w3_8_verbose_logger (32), test_cov_r8_verbose_logger_attachment
+(7), qt/test_logging (5), test_logging_util (9), test_cov_w2_6_logging_util
+(16), test_cov_w2_5_qt_logging_util (8), test_performance_logging_preference
+(3), test_a_qt_warning_reaches_the_console_once (4),
+test_zz_the_console_forwarder_keeps_its_de_duplication (1 + 1 skipped),
+test_verbose_tracing_is_cheap_enough_to_leave_on (4), test_batch_f_diagnostics
+(12), test_cov_qt_app (124), test_preferences (57), test_preferences_tabs (45),
+test_preferences_reset (6), test_prefs (4), test_cov_r5_preferences (34),
+test_cov_r6_preferences (4), test_cov_r8_preferences_dialog_pins (7),
+test_cov_4_prefs (6), test_preferences_explains_in_its_own_strip (6),
+test_every_preference_says_what_it_is (4),
+test_the_launch_does_not_import_what_it_cannot_use (6),
+test_maturity_visibility_preferences (10), test_safespacr_gets_in (13),
+test_qt_worker_teardown (23), test_a_comment_leaves_but_the_code_does_not
+(41), test_prose_that_reaches_a_catalog_can_be_translated (13),
+test_a_helper_does_not_hide_a_caption_from_the_catalog (4),
+test_i18n_reviewed_ui (3), test_perf_guard (5),
+test_preferences_repolish_budget (3): all pass.
+test_i18n_caption_ratchet: the same 3 failures as before. It now also lists
+the new DEBUG switch hint among the captions without a source hash, which is
+expected until the translation pass. NOT run: the whole suite.

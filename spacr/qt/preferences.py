@@ -3857,13 +3857,27 @@ def get_log_file_levels() -> frozenset:
     of levels is left exactly as they set it, and DEBUG goes away again
     when they turn verbose off.
     """
-    import logging as _logging
+    return _with_verbose_debug(_chosen_log_file_levels())
 
+
+def _chosen_log_file_levels() -> frozenset:
+    """The file levels the user switched on, without verbose's DEBUG.
+
+    :returns: the stored switch set, or the defaults when none is stored.
+    """
     from ..logging_util import DEFAULT_FILE_LEVELS
-    levels = _parse_levels(_settings().value(_KEY_LOG_FILE_LEVELS, None),
-                           DEFAULT_FILE_LEVELS)
+    return frozenset(_parse_levels(
+        _settings().value(_KEY_LOG_FILE_LEVELS, None), DEFAULT_FILE_LEVELS))
+
+
+def _with_verbose_debug(levels) -> frozenset:
+    """Add DEBUG to ``levels`` while verbose logging is on.
+
+    :param levels: a set of file levels as the user chose them.
+    :returns: the levels the log files actually keep.
+    """
     if get_verbose_logging():
-        levels = frozenset(levels) | {_logging.DEBUG}
+        return frozenset(levels) | {logging.DEBUG}
     return frozenset(levels)
 
 
@@ -3887,15 +3901,21 @@ def set_log_levels(file_levels, console_levels) -> tuple:
     :returns: ``(file_levels, console_levels)`` as actually stored, which
         is not necessarily what was asked for -- a console level whose file
         level is off is dropped rather than saved and silently ignored.
+
+    ``file_levels`` is the user's own choice, and it is stored as given.
+    While verbose logging is on, the log files keep DEBUG as well, so a
+    console DEBUG switch is kept and the live handlers are given DEBUG. The
+    DEBUG that verbose adds is not written into the stored file levels.
     """
     from ..logging_util import (apply_level_policy, clamp_console_to_file,
                                 normalise_levels)
     files = normalise_levels(file_levels)
-    console = clamp_console_to_file(console_levels, files)
+    kept = _with_verbose_debug(files)
+    console = clamp_console_to_file(console_levels, kept)
     settings = _settings()
     settings.setValue(_KEY_LOG_FILE_LEVELS, _level_names(files))
     settings.setValue(_KEY_LOG_CONSOLE_LEVELS, _level_names(console))
-    apply_level_policy(files, console)
+    apply_level_policy(kept, console)
     return files, console
 
 
@@ -4778,6 +4798,21 @@ class PreferencesDialog:
         for _level in log_level_toggles:
             _sync_console_enabled(_level)
 
+        _debug_file_toggle = log_level_toggles[logging.DEBUG][0]
+        _debug_file_toggle.setToolTip(
+            "While verbose logging is on (Modules tab), DEBUG is always "
+            "written to the log files, so this switch stays on. Turn "
+            "verbose logging off to choose it yourself. Your own choice "
+            "is kept for when you do.")
+        _chosen_debug = [logging.DEBUG in _chosen_log_file_levels()]
+
+        def _remember_the_debug_choice(checked) -> None:
+            """Record the DEBUG file switch only while the user holds it."""
+            if _debug_file_toggle.isEnabled():
+                _chosen_debug[0] = bool(checked)
+
+        _debug_file_toggle.toggled.connect(_remember_the_debug_choice)
+
         language_combo = QComboBox()
         language_combo.setObjectName("LanguagePreference")
         for label, key in language_choices():
@@ -5340,12 +5375,13 @@ class PreferencesDialog:
             "It also lets cellpose report which model it loaded, and it "
             "records which buttons you pressed. That trail is what makes a "
             "bug report worth reading.\n\n"
-            "It costs no time you can see. This was measured on one "
+            "Starting spaCR and opening its screens took no longer with "
+            "this on. This was measured on one "
             "workstation by opening every module, once with this on and "
             "once with it off. Home was ready in "
             "about 4 seconds after a cold start both ways. "
             "The slowest module opened in "
-            "about 7 seconds both ways.\n\n"
+            "about 7 seconds both ways. Pipeline runs were not timed.\n\n"
             "The Console still shows only the levels you switch on for it "
             "on the Logging tab. This switch "
             "does not trace every function call. "
@@ -5354,6 +5390,24 @@ class PreferencesDialog:
         )
         verbose_check.setChecked(get_verbose_logging())
         modules.addRow(tr("Diagnostics"), verbose_check)
+
+        def _debug_follows_verbose(on) -> None:
+            """Hold the DEBUG file switch on while verbose is on.
+
+            Verbose adds DEBUG to the log files whatever the switch says,
+            so the switch shows that and cannot be changed. When verbose
+            goes off, the switch is given back with the user's own choice.
+            """
+            if on:
+                _debug_file_toggle.setEnabled(False)
+                _debug_file_toggle.setChecked(True)
+            elif not _debug_file_toggle.isEnabled():
+                _debug_file_toggle.setEnabled(True)
+                _debug_file_toggle.setChecked(_chosen_debug[0])
+            _sync_console_enabled(logging.DEBUG)
+
+        verbose_check.toggled.connect(_debug_follows_verbose)
+        _debug_follows_verbose(verbose_check.isChecked())
 
         performance_log_combo = QComboBox()
         performance_log_combo.setObjectName("PerformanceLogging")
@@ -6232,9 +6286,12 @@ class PreferencesDialog:
             set_verbose_logging(verbose_check.isChecked())
             set_performance_logging(performance_log_combo.currentData())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
+            verbose_holds_debug = verbose_check.isChecked()
             set_log_levels(
                 [level for level, (file_t, _c) in log_level_toggles.items()
-                 if file_t.isChecked()],
+                 if (_chosen_debug[0]
+                     if file_t is _debug_file_toggle and verbose_holds_debug
+                     else file_t.isChecked())],
                 [level for level, (_f, console_t) in log_level_toggles.items()
                  if console_t.isChecked()],
             )

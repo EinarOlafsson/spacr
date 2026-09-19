@@ -1,10 +1,10 @@
 """
 Verbose diagnostic logger for the Qt GUI.
 
-When the user flips the "Verbose logging" preference on, spaCR's Python
-loggers are dialled up to DEBUG and every log record is echoed into
-whatever ConsolePanel is active. That gives the user a very chatty
-stream in the same place they're already looking, which is exactly
+When the "Verbose logging" preference is on, spaCR's Python loggers are
+dialled up to DEBUG and the log files keep those records. The active
+ConsolePanel shows only the levels switched on for the console on the
+Logging tab of Preferences. That puts a detailed trail on disk, which is
 what you want when triaging a bug report.
 
 The handler is a lazy module-level singleton so multiple
@@ -440,6 +440,9 @@ def apply_verbose_logging(on: bool) -> None:
     and cheap — safe to call on every dialog save. Also ensures the
     rotating file handler is attached so bug reports always have a
     trail on disk regardless of verbose state.
+
+    The ``cellpose`` logger goes to INFO while verbose is on, so it can
+    say which model it loaded, and back to WARNING when verbose is off.
     """
     handler = _ensure_handler()
     file_handler = _ensure_file_handler()
@@ -449,8 +452,8 @@ def apply_verbose_logging(on: bool) -> None:
         file_handler.setLevel(level)
     for name in _ATTACHED_LOGGERS:
         logging.getLogger(name).setLevel(level)
-    if on:
-        logging.getLogger("cellpose").setLevel(logging.INFO)
+    logging.getLogger("cellpose").setLevel(
+        logging.INFO if on else logging.WARNING)
 
 
 

@@ -5692,13 +5692,13 @@ def launch(argv: Optional[list[str]] = None) -> int:
         _load_bundled_fonts()
         _use_open_sans(app)
 
+    from .logging_util import setup_logging
+    setup_logging()
+
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
     from .i18n import install_qt_translations
     install_qt_translations(app)
-
-    from .logging_util import setup_logging
-    setup_logging()
 
     import logging as _lg
     import sys as _sys
