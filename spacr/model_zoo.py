@@ -505,6 +505,40 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "on unusual or highly confluent morphologies",
         ),
     },
+    {
+        "key": "toxoplasma_from_hoechst_v1",
+        "name": "toxoplasma_from_hoechst_pv",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-from-hoechst-cpsam",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96",
+        "display_name": "Toxoplasma from Hoechst (cross-channel)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "Toxoplasma PV masks predicted from the HOECHST channel alone; "
+                   "2567 training and 463 held-out fields, split by well, "
+                   "hosts HFF/HeLa/THP1",
+        "versus_stock": "F1 0.569 against 0.002 for stock cpsam_v2 on "
+                        "463 well-grouped held-out fields, at IoU 0.5",
+        "trained_on": (
+            "cross-channel: given the Hoechst/nuclear image, predicts where the "
+            "Toxoplasma parasitophorous vacuoles are, with no parasite stain. "
+            "100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are "
+            "PV-regenerated masks"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against "
+            "stock cpsam_v2's 0.002/0.006/0.016",
+            "the Hoechst route is harder than the cell-mask route -- compare "
+            "toxoplasma_from_cellmask_v1",
+            "the held-out split selects the checkpoint, so it is validation data "
+            "rather than an independent test set",
+            "accuracy falls above IoU 0.8 -- suited to counting, occupancy and "
+            "area rather than precise morphometry",
+        ),
+    },
 )
 
 #: Models that are no longer OFFERED, by filename.
