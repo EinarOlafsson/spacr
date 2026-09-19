@@ -397,3 +397,40 @@ LEFT, honestly
     the folder even on --dry-run; 3-D labels and images that do not have
     1, 3 or 4 channels are refused per field. The catalogs still owe
     translations for the changed docstrings and sentences.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- FOUND FROM 370: THE EDITOR CANNOT WRITE THE STATE THIS ITEM ASKED
+FOR, AND THE FIRST REAL CURATION SET SHIPPED AN INSTRUCTION THAT NEEDS IT
+--------------------------------------------------------------------------------
+
+This item's own brief is "a resumable status file beside the images, with done
+and skip as distinct states. Skip is not a lesser done: it records 'this one
+cannot be curated', and losing that distinction means the same unusable field
+is offered again every session."
+
+BOTH STATES EXIST IN THE MODEL AND ONLY ONE CAN BE WRITTEN FROM THE TOOL.
+`spacr/curation_queue.py` reads, counts and honours `done`, `skip` and
+`recropped`, and `mark_state` writes any of them. The editor has exactly one
+caller -- `spacr/qt/screens/make_masks.py::_note_curated`, which writes `done`
+on every save. Grep `mark_state` across `spacr/`: one editor call site, one
+state. There is no control, shortcut or menu item anywhere in Make Masks that
+records a skip, so a curator who moves off the external tool cannot say "this
+one cannot be curated" at all. The reader was built for three states and the
+writer ships one.
+
+HOW IT WAS FOUND, WHICH IS WHY IT MATTERS. Item 370's two hold-out queues were
+prepared for curation on 2026-09-19 and both of their HOLDOUT_README.txt files
+-- written 2026-09-15, before this landed -- end with "mark an uncuratable
+field skip". Following those instructions with `spacr-make-masks` is not
+possible. A `skip_field.py` was put in each queue as the interim answer; it
+calls `spacr.curation_queue.mark_state` against the same file the editor
+writes, and it has to be run from a second terminal, between fields, because
+the editor and the script both read the whole file, change one row and write it
+back.
+
+WHAT IT WOULD TAKE, if this is picked up: a control beside Save mask that
+records `skip` and advances, and the same three-state vocabulary in the status
+line. Two things to be careful of, both already visible here: it is a new
+user-facing string, so the nine catalogs owe it; and the read-modify-write in
+`mark_state` is the only writer today, so a control added in the editor and a
+script run beside it can still lose each other's row.
