@@ -13,7 +13,7 @@ Status:    DONE 2026-09-15; corrected, and moved from features/future/ to
            (tests/qt/test_the_barcode_search_follows_the_form.py). The
            closing STATUS paragraph at the foot says the same. Not built, on
            purpose: the five threshold knobs in the settings panel, which
-           were an agent's proposal and not a request.
+           were proposed during the work and never requested.
            (Was: FUTURE, filed 2026-09-14. Not blocking. Asked for directly:
            "is there an item to make map barcodes more generalizable?"
            There was not -- this is it. WIDENED 2026-09-15 at the

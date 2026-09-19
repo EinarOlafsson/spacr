@@ -4,9 +4,11 @@ LIBRARIES LOAD WHEN CALLED, AND THE USER SETS THE MEMORY BUDGET
 
 Status:    CLOSED 2026-09-19 BY THE MAINTAINER'S DECISION. The one thing
            still owed below, an opinion on the design, was put to him through
-           the question prompt on 2026-09-19. His answer: "the 'MEASURED, AND
-           IT DECIDES THE SHAPE' section stands as the design opinion". The
-           work itself was already done (the 2026-09-15 note at the foot).
+           the question prompt on 2026-09-19. He chose the option relayed
+           as "the 'MEASURED, AND IT DECIDES THE SHAPE' section stands as the
+           design opinion" (relayed wording, not his own words; see the
+           2026-09-19 note at the foot). The work itself was already done
+           (the 2026-09-15 note at the foot).
            Nothing is owed. The history of this line follows.
 
            WAS: PARTLY DONE, corrected 2026-09-13. "NOT STARTED" was wrong:

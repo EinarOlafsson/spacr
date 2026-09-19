@@ -2,8 +2,10 @@
 
 Status:    DONE 2026-09-19, CLOSED BY THE MAINTAINER'S DECISION on the one
            verdict that was PARTLY (the default theme and fonts still load).
-           Put to him through the question prompt on 2026-09-19, his answer:
-           "Safe mode keeps the default theme and fonts".
+           Put to him through the question prompt on 2026-09-19, he chose
+           the option relayed as "Safe mode keeps the default theme and
+           fonts" (relayed wording, not his own words; see the 2026-09-19
+           note at the foot).
            So "plain widgets, default font" is met as decided, and every
            other verdict was already MET (2026-09-15, below).
            (Was: AUDITED 2026-09-15; both preferences.py gaps CLOSED the same

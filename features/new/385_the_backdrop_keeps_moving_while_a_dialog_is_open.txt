@@ -4,10 +4,12 @@ THE BACKDROP KEEPS MOVING WHILE PREFERENCES OR HELP IS OPEN
 
 Status:    CLOSED 2026-09-19 BY THE MAINTAINER'S DECISION. The one thing
            left, his own check on his NVIDIA/compositing 4K display, was put
-           to him through the question prompt on 2026-09-19. His answer:
-           "closed now; reopen if the backdrop freezes under a dialog on his
-           4K display". So the item is closed without that check, and the
-           2026-09-10 note at the foot says what to measure if it reopens.
+           to him through the question prompt on 2026-09-19. He chose the
+           option relayed as "closed now; reopen if the backdrop freezes
+           under a dialog on his 4K display" (relayed wording, not his own
+           words; see the 2026-09-19 note at the foot). So the item is
+           closed without that check, and the 2026-09-10 note at the foot
+           says what to measure if it reopens.
            Nothing in code is owed (re-verified 2026-09-19: grep finds
            `a_popup_is_on_screen` only in popup_state.py:28 and
            fractal_travel.py:119, :2189). The history of this line follows.
@@ -481,8 +483,8 @@ policy and the fix is in the GL canvas, not in any gate in this package.
 The note above ends on a question for the maintainer: on his NVIDIA driver,
 compositing desktop and 4K screen, does the UNCOVERED part of the backdrop
 keep moving while Preferences is up? Put to him through the question prompt
-on 2026-09-19, his answer was: "closed now; reopen if the backdrop freezes
-under a dialog on his 4K display".
+on 2026-09-19, the option he chose was recorded as: "closed now; reopen if
+the backdrop freezes under a dialog on his 4K display".
 The quoted wording is the answer as the session that asked recorded it
 and relayed it to this one; the prompt itself is not in the repository.
 
