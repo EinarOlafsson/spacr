@@ -1606,9 +1606,12 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     enables (``organelle``, ``organelleb``, ...). A slot reads
     ``<slot>_background``, ``<slot>_signal_to_noise`` and
     ``remove_background_<slot>``. A channel no object names keeps the generic
-    ``background``, ``Signal_to_noise`` and ``remove_background``, and so does
-    any of the three a slot does not carry. When two objects name the same
-    channel, the later one in that order wins.
+    ``background``, ``Signal_to_noise`` and ``remove_background``. The three
+    are read one by one, so one a slot does not carry, or carries empty, keeps
+    the value the channel already had, and when two objects name the same
+    channel the later one in that order wins each value it carries. A slot
+    sharing a channel with the nucleus, the cell or the pathogen therefore
+    normalises it by the slot's floor and anchor.
 
     Args:
         stack (numpy.ndarray): The stack of images to normalize.
@@ -1654,12 +1657,16 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
         for role, role_channel in organelle_slot_channels:
             if channel != role_channel:
                 continue
-            background = settings.get(f'{role}_background', background)
-            signal_threshold = settings.get(
-                f'{role}_signal_to_noise',
-                settings.get('Signal_to_noise', 10)) * background
-            remove_background = settings.get(
-                f'remove_background_{role}', remove_background)
+            role_background = settings.get(f'{role}_background')
+            if role_background is not None:
+                background = role_background
+            role_signal_to_noise = settings.get(f'{role}_signal_to_noise')
+            if role_signal_to_noise is None:
+                role_signal_to_noise = settings.get('Signal_to_noise', 10)
+            signal_threshold = role_signal_to_noise * background
+            role_remove_background = settings.get(f'remove_background_{role}')
+            if role_remove_background is not None:
+                remove_background = role_remove_background
 
         single_channel = stack[:, :, :, channel]
 

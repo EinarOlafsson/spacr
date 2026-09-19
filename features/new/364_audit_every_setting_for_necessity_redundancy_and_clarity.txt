@@ -2596,7 +2596,14 @@ WHAT CHANGED
   spacr/io.py     _normalize_img_batch loops over every enabled slot. Each
                   reads <slot>_background, <slot>_signal_to_noise and
                   remove_background_<slot> where present, the generic pair
-                  otherwise; the slots are resolved once per call.
+                  otherwise; the slots are resolved once per call. A value
+                  present but empty counts as absent (corrected on review:
+                  the first pass let it win the fallback, and a run with an
+                  empty organelleb_background died on "TypeError:
+                  unsupported operand type(s) for *: 'NoneType' and
+                  'NoneType'" where the same settings ran before; the first
+                  slot carried the same hazard on origin/nightly and is
+                  covered now too). A floor of 0 is still a floor.
                   CROP_SHAPE_KEYS names every slot's mask plane. The
                   preprocess_img_data docstring says both.
   spacr/crops.py  reconcile_merged_mask_dims leaves out a slot that neither
@@ -2623,20 +2630,47 @@ WHAT CHANGED
 MEASURED AFTER, the same probe: "Processing channel 3: background=400,
 signal_threshold=1200". The settings table holds 70 rows, six of them
 organelle-slot rows (mask_dim, min_area and type for organelle and
-organelleb). With the shipped defaults no channel is normalised differently,
-because every slot's defaults (100 and 10) equal the generic fallbacks.
+organelleb).
+
+With the shipped defaults, a channel only one object names is normalised
+exactly as before, because every slot's defaults (100 and 10) equal the
+generic fallbacks. A channel two objects name is not, and the first pass of
+this note said otherwise ("no channel is normalised differently"), which was
+wrong. The slot loop runs after the nucleus, cell and pathogen branches, so a
+slot sharing one of their channels now takes the slot's values. Measured:
+pathogen_channel=2 at 200 and 20 with organelleb_channel=2 at the factory
+values prints "background=200, signal_threshold=4000" before and
+"background=100, signal_threshold=1000" after. That is the decision, and the
+order the first slot has always had, but it belongs in the record. Corrected
+on review, here and in docs/notes/spacr/io.md, and the loop's docstring now
+says which object wins a shared channel.
+
+The three values are read one by one, so a slot wins each it carries and
+leaves the rest alone. Found while writing the test for the paragraph above:
+on a shared channel with remove_background_pathogen on, the channel takes the
+slot's floor and anchor and keeps the pathogen's switch, because no slot past
+the first declares a switch. The first slot behaves the same way and always
+has. The test asserts that rather than the whole-channel takeover the first
+draft of it assumed.
 
 TESTS, 4G cap, spacr imported from the worktree:
-  * NEW tests/test_every_organelle_slot_is_preprocessed_and_measured.py, 9
-    tests, 7 s. With both files from origin/nightly, 5 fail: the three
-    normalisation tests, the on-demand crop and the settings count. With
-    only the old io.py, the three normalisation tests and the crop test
-    fail. With only the old crops.py, the settings count and the crop test
-    fail. The other four pass on the old code too: both slots reaching the
-    database with the containing cell as parent, the relationships table,
-    and a disabled slot changing nothing. They are the end-to-end check this
+  * NEW tests/test_every_organelle_slot_is_preprocessed_and_measured.py, 13
+    tests. With both files from origin/nightly, 5 of the original 9 fail:
+    the three normalisation tests, the on-demand crop and the settings
+    count. With only the old io.py, the three normalisation tests and the
+    crop test fail. With only the old crops.py, the settings count and the
+    crop test fail. Four passed on the old code too, and the first pass of
+    this note called all four end-to-end checks. Three of them are: both
+    slots reaching the database with the containing cell as parent, and the
+    relationships frame linking both. They are the end-to-end check this
     unit asked for, not proof of this change, because the second slot
-    already got there.
+    already got there. The fourth, that a slot the run does not enable
+    changes nothing, is a unit-level normalisation test.
+    Four more were added on review, pinning what a slot's channel takes
+    when its own value is missing or shared: a slot sharing the pathogen's
+    channel normalises by the slot's values, an empty slot value falls back
+    instead of stopping the run (for the first slot as well as the later
+    ones), and a floor of 0 stays a floor.
   * The 19 files that touch the changed functions (test_multiple_organelles,
     test_crops, test_crop_source_wiring, test_cov_io_normalize,
     test_measure_organelle_planes, test_core_mask_orchestration, ...): 508

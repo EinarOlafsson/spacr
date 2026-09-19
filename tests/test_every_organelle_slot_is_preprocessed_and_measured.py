@@ -105,6 +105,80 @@ class TestASecondSlotIsNormalisedWithItsOwnValues:
         np.testing.assert_array_equal(as_twentieth[..., 4], as_first[..., 4])
 
 
+class TestWhatASlotTakesWhenItsOwnValueIsMissingOrShared:
+    """Which of the three values a slot's channel ends up with.
+
+    Added on review of the first pass, which recorded that "with the shipped
+    defaults no channel is normalised differently". That holds only while
+    every object has a channel to itself, and the first pass read a present
+    but empty slot value as a value.
+    """
+
+    def test_a_slot_sharing_the_pathogens_channel_wins_what_it_carries(self):
+        """Read last, a slot wins each value it carries, as the first did.
+
+        The floor and the anchor become the slot's. The switch does not: no
+        slot past the first declares ``remove_background_<slot>``, so the one
+        the pathogen turned on stays on for that channel.
+
+        Measured on the worktree: pathogen channel 2 at 200/20 sharing a
+        channel with ``organelleb`` at the factory's 100/10 normalises at
+        100/1000, where a pathogen holding that channel alone uses 200/4000.
+        """
+        stack = _ramp_stack()
+        slot = {"organelle_channel": 3, "organelleb_channel": 4,
+                "organelleb_background": 100,
+                "organelleb_signal_to_noise": 10}
+        pathogen = {"pathogen_channel": 4, "pathogen_background": 300,
+                    "pathogen_signal_to_noise": 2,
+                    "remove_background_pathogen": True}
+        shared = _normalise({**pathogen, **slot}, stack)
+        pathogen_alone = _normalise({**pathogen, "organelle_channel": 3},
+                                    stack)
+        slots_values_switch_left_on = _normalise(
+            {**slot, "remove_background_organelleb": True}, stack)
+        np.testing.assert_array_equal(
+            shared[..., 4], slots_values_switch_left_on[..., 4])
+        assert not np.array_equal(shared[..., 4], pathogen_alone[..., 4])
+
+    def test_a_slot_value_left_empty_reads_as_one_the_slot_does_not_carry(
+            self):
+        """An empty box in the panel falls back; it does not stop the run.
+
+        The first pass read ``settings.get(key, fallback)``, so a key present
+        and empty won, and the run died on ``None * None``.
+        """
+        stack = _ramp_stack()
+        generic = _normalise({"organelle_channel": 3}, stack)
+        empty = _normalise(
+            {"organelle_channel": 3, "organelleb_channel": 4,
+             "organelleb_background": None,
+             "organelleb_signal_to_noise": None,
+             "remove_background_organelleb": None}, stack)
+        np.testing.assert_array_equal(empty[..., 4], generic[..., 4])
+
+    def test_the_first_slots_empty_value_falls_back_too(self):
+        """The same hazard the first slot carried on origin/nightly."""
+        stack = _ramp_stack()
+        generic = _normalise({}, stack)
+        empty = _normalise(
+            {"organelle_channel": 4, "organelle_background": None}, stack)
+        np.testing.assert_array_equal(empty[..., 4], generic[..., 4])
+
+    def test_a_floor_of_zero_is_a_value_and_not_an_absence(self):
+        """Zero is a floor a user can mean, so it must not read as empty."""
+        stack = _ramp_stack()
+        below = stack[0, :, :, 4] < 100
+        zero_floor = _normalise(
+            {"organelle_channel": 4, "organelle_background": 0,
+             "remove_background_organelle": True}, stack)
+        generic_floor = _normalise(
+            {"organelle_channel": 4, "remove_background_organelle": True},
+            stack)
+        assert np.any(zero_floor[0][below, 4] > 0)
+        assert np.all(generic_floor[0][below, 4] == 0)
+
+
 def test_a_crop_cut_on_demand_takes_a_second_slots_plane_from_the_run(
         tmp_path):
     """``open_crop_source`` forwards every slot's mask plane, not the first's.
@@ -275,8 +349,16 @@ def test_each_slot_reaches_the_database_with_its_containing_cell(
     assert measured == expected
 
 
-def test_the_relationships_table_links_both_slots_to_their_cells(
+def test_the_relationships_frame_links_both_slots_to_their_cells(
         two_organelle_plate):
+    """Both slots' objects resolve to a parent cell after Measure.
+
+    This builds the frame from the finished database. The stored
+    ``relationships`` table is not checked because it is not written: Mask
+    calls ``write_relationships`` before Measure has made the object tables,
+    and prints a warning. That is older than these slots and true of every
+    object type; item 76 records it.
+    """
     from spacr.filters import build_relationships_frame
 
     db = two_organelle_plate / "measurements" / "measurements.db"

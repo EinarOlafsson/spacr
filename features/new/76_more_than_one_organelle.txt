@@ -8,8 +8,9 @@ Status:    DONE 2026-09-19. Later that day io.py's preprocessing, the last
            and two slots were proven end to end from raw TIFFs to
            measurements.db with the right parent cells ("IO.PY REACHES
            EVERY SLOT" at the foot). Still open, recorded there: folder-only
-           names, laser-line numbers, and a per-slot background-removal
-           switch for slots 2 onward.
+           names, laser-line numbers, a per-slot background-removal switch
+           for slots 2 onward, and, found on review and older than this
+           item, the stored relationships table that no stage writes.
            The last open point -- External Masks named
            Organelle 2-4 by four hand-written filename patterns -- is
            closed, with two defects found while proving it on a real
@@ -611,9 +612,14 @@ The full account is in item 364's section of the same date. In short:
   * PROVEN: tests/test_every_organelle_slot_is_preprocessed_and_measured.py
     runs raw TIFFs with two organelle channels through Mask and Measure
     once, and checks that both slots reach the database, that every object's
-    cell_id is the cell painted around it, and that the relationships table
-    links both slots to cells. 9 tests; 5 fail on the old io.py and
-    crops.py, and the 4 that pass there are the parts that already worked.
+    cell_id is the cell painted around it, and that the relationships frame
+    built from that database links both slots to cells. 13 tests. Of the
+    original 9, five fail on the old io.py and crops.py; of the four that
+    pass there, three are the end-to-end checks, which already worked, and
+    one is a unit-level test that a slot the run does not enable changes
+    nothing (the first pass of this note called all four end to end). Four
+    were added on review, over what a slot's channel takes when its own
+    value is missing or shared with another object.
 
 STILL OPEN, in addition to the folder-only names and laser-line numbers
 above: slots 2 onward have no declared remove_background_<slot> switch, so
@@ -621,3 +627,16 @@ from the interface their channel keeps the generic remove_background
 (False). Declaring one per slot needs a name the maintainer accepts; item
 364 lists the two candidates. Mask's overlay plots draw the first slot
 only, which is display rather than measurement.
+
+FOUND ON REVIEW, older than this item and outside it, so recorded and not
+fixed: the stored relationships TABLE is never written for any slot. Mask
+calls write_relationships at the end of its run (spacr/core.py, after
+ledger.stamp), which is before Measure has created the object tables it
+reads, so the end-to-end run above prints "WARNING: could not write the
+relationships table for .../measurements.db: FilterError: this database has
+no object table to build relationships from" and carries on. The parent
+links themselves are sound: the per-object cell_id columns are written by
+Measure and are asserted above, and build_relationships_frame called after
+Measure returns both slots' links. What is missing is the persisted table,
+for every object type, not only the organelle slots. Whoever picks this up
+should decide whether Measure writes it at its end or Mask stops trying.
