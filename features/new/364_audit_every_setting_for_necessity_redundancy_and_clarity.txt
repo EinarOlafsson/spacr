@@ -2,28 +2,31 @@
 EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
 ================================================================================
 
-Status:    OPEN, BUT NOT FOR THE REASON THIS LINE USED TO GIVE. All three
+Status:    OPEN, corrected 2026-09-19 -- see the last section. All three
            things the maintainer approved on 2026-09-02 are BUILT and tested
            -- the retired _size pair, the four renames, and the per-object
-           table. This header went on claiming the table was unbuilt for two
-           days after the body of this file recorded it landing; corrected
-           2026-09-05, see the last section for the evidence.
-           What keeps 364 open is the tail: the organelle preprocessing gap,
-           two proposals waiting on the maintainer, and the legacy-migration
-           hole the 2026-09-05 check found in the renames. Proposals are in
-           features/data/364_mask_and_measure_settings_audit_2026-09-02.txt.
-           RETIREMENTS, 2026-09-14: `grna` is DONE -- removed from
-           settings.py (type entry, category list, tooltip and the
-           setdefault in get_map_barcodes_default_settings at :2178),
-           recorded in validate.RETIRED_SETTINGS as `"grna": ""`, dropped
-           from settings_model's PATH_LIST_KEYS / PATH_LIST_TITLES /
-           PATH_LIST_SINGLE_KEYS, and out of all ten catalogs. `barcodes`
-           is the only one of the approved retirements deliberately HELD,
-           and the hold is a reviewed zh_CN tooltip translation, not a
-           doubt about the setting -- see the 2026-09-14 section at the
-           end of this file. The other approved retirements (`Toxoplasma`,
-           the three `*_mask_dim`, the two `prefs/space_*`, `img_size`)
-           are still unstarted.
+           table (this header called the table unbuilt for two days after
+           it landed; corrected 2026-09-05). The legacy-migration hole the
+           2026-09-05 check found in the renames is CLOSED by 15fa72737
+           (2026-09-12).
+           RETIREMENTS approved 2026-09-09. DONE: `grna` (2026-09-14), the
+           three recruitment `*_mask_dim` (79edbf12f, 2026-09-03 -- this
+           line called them unstarted until 2026-09-19), and the two
+           `prefs/space_*` (accessors 61c896555 on 2026-09-09; the stored
+           values have been cleared since 2026-09-19). HELD: `barcodes`
+           and `Toxoplasma`. Each has a human-reviewed zh_CN tooltip
+           translation that retiring the setting would withdraw -- the
+           2026-09-14 and 2026-09-19 sections. BLOCKED: `img_size` ->
+           `image_size`. `image_size` is already a live setting with a
+           different meaning (model-input crop, default 224). This needs
+           the maintainer's choice; the 2026-09-19 section lists the
+           options.
+           ALSO OPEN: one DESIGN question for the maintainer. io.py's
+           preprocessing reaches organelle slot one only, so slots b
+           onward are declared and never read (2026-09-13 section). The
+           2026-09-04 note's "two proposals waiting on the maintainer"
+           was not re-checked against the 2026-09-09 approval. Proposals
+           are in features/data/364_*_settings_audit_*.txt.
 Requested: 2026-09-02, verbatim -- "look through each moduals settings and
            evaluate if any settings are unnecessary, redundant or are not
            intuitive. then propose to remove settings that are unnecessary,
@@ -34,7 +37,8 @@ Requested: 2026-09-02, verbatim -- "look through each moduals settings and
            the mask and measure moduals. after you are done with the moduals
            go on to the preferences in spaCR and spaceout."
 Owner:     spacr/settings.py, spacr/validate.py (RETIRED_SETTINGS),
-           spacr/qt/screens/preferences.py, spacr/qt/spaceout.py.
+           spacr/qt/preferences.py (not screens/, corrected 2026-09-19),
+           spacr/qt/spaceout.py.
 
 PROPOSE, DO NOT DELETE. The maintainer asked to be shown proposals. Each
 phase produces a TABLE for review, and nothing is removed or renamed until
@@ -2268,3 +2272,181 @@ test_dead_settings, test_settings, test_a_renamed_setting_keeps_old_files_workin
 test_a_settings_pack_survives_a_rename, test_i18n_reference_sources,
 test_regression_workbench -- 370 passed; the Qt settings-model and file-list
 suites 239 passed. Every changed assertion was mutated and watched fail first.
+
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE SEVEN "UNSTARTED" RETIREMENTS: FIVE HAD LANDED (THE TWO
+              PREFERENCE KEYS LEFT THEIR STORED VALUES BEHIND), AND THE
+              OTHER TWO CANNOT GO AS APPROVED
+--------------------------------------------------------------------------------
+
+Taken as unit 364-retirements, branch `home/364-retirements`, committed
+locally (f5e2a73d7 for the store, c85b37e73 for the recruitment tests) and
+not pushed. Local hashes change if the branch is rebased on landing. The Status line said `Toxoplasma`, the three
+`*_mask_dim`, the two `prefs/space_*` and `img_size` were "still unstarted".
+Checked against the code on origin/nightly 7a93e51ff before building anything
+(HANDOFF 0a):
+
+  cell/nucleus/pathogen_mask_dim   DONE 2026-09-03 in 79edbf12f, "Recruitment
+                                   stops offering three settings it never
+                                   reads": both the factory and the form.
+                                   Deliberately NOT in RETIRED_SETTINGS,
+                                   because Measure still reads all three.
+                                   This file's own 2026-09-03 section says
+                                   the change WAITS. The commit that closed it
+                                   the same night never came back to say so.
+  prefs/space_variant, space_seed  ACCESSORS DONE 2026-09-09 in 61c896555.
+                                   The stored VALUES were not handled: the key
+                                   names were kept "so a stored value can
+                                   still be recognised and cleared", and no
+                                   line in the package read or removed either
+                                   key. The module docstring still said
+                                   "Legacy Space accessors remain" and listed
+                                   `space_seed` as retained.
+  Toxoplasma                       NOT STARTED. HELD, see below.
+  img_size -> image_size           NOT STARTED. BLOCKED BY A NAME COLLISION,
+                                   see below.
+
+WHAT WAS BUILT
+
+  spacr/qt/preferences.py   `_forget_the_space_theme_keys`, called from
+                            `get_theme`. It removes both keys from a store
+                            the first time the theme is read. It runs once
+                            per store file per process, writes only when a
+                            key was there, and skips safe mode, which reads
+                            nothing it was given. The module docstring and
+                            the note on `_KEY_SPACE_*` now say what is true.
+                            This follows the preference store's own
+                            migration pattern (`_migrate_ambient_motion`,
+                            `get_performance_level`). It is not a second copy
+                            of 15fa72737: that fold rewrites PIPELINE settings
+                            dicts and never sees the QSettings store.
+  docs/notes/spacr/qt/      a dated correction under the note that said "the
+    preferences.md          variant accessors below stay".
+  tests/qt/test_an_old_store_loses_the_retired_space_keys.py -- 7 tests.
+                            Each key has its own test that writes an old
+                            store and reads the theme. One test goes through
+                            `apply_preferences_to_app`, the call `launch`
+                            makes. Against the unfixed module 4 of the 7 fail:
+                            the two per-key tests, the old-Space-store test
+                            and the launch test. The other three are guards
+                            that hold either way (key names, clean store not
+                            rewritten, safe mode).
+  tests/qt/test_an_old_recruitment_file_with_mask_dims_still_loads.py
+                            11 tests, one set per key. An old recruitment
+                            CSV imported on the real Recruitment screen
+                            applies its other values. The old mask plane
+                            reaches neither a hidden form value nor
+                            `collect()`. The doctor says nothing about it,
+                            because it is a live Measure key. Today's factory
+                            does not write it. With `cell_mask_dim` put back
+                            in the factory, 2 of the 11 fail.
+
+TOXOPLASMA IS HELD, FOR THE SAME REASON AS `barcodes`. Its tooltip carries a
+human-reviewed zh_CN translation:
+
+    docs/i18n/reviewed/runtime/zh_CN/2026-08-26-post-fallback-residuals.json
+    records[10]   ("setting_tooltips", "Toxoplasma")
+
+`tools/check_reviewed_runtime_evidence.py zh_CN` does not flag it as STALE
+or HASH today, so the record is live. Retiring the setting deletes that
+record, which is the exact reason `barcodes` was held on 2026-09-14. If the
+maintainer lifts the hold, the two should go in one commit, and the zh_CN
+count in REVIEW_SCOPE falls by two. That table should say so.
+
+  THE SURVEY IS DONE, so whoever takes it does not have to repeat it:
+  * It is a SEMANTIC fold, not a rename. It belongs in
+    `settings.SEMANTIC_FOLDS` beside `gradient_accumulation`, with its own
+    fold function. `RETIRED_SETTINGS` gains both `Toxoplasma` and `toxo`.
+    `ml._annotation_source` defines the meaning to keep: a non-blank
+    `annotation_source` wins. Otherwise a true `Toxoplasma` (or `toxo`) means
+    'toxoplasma', and false means '' -- NO annotation. The regression audit
+    named that last case as the one that must survive.
+  * The form already hides it. `Toxoplasma` is in
+    `_APP_HIDDEN_KEYS['regression']` (settings_model.py:286), so no visible
+    row is removed.
+  * Writers: settings.py:2744-2749 (the regression factory's `toxo` fold and
+    its default), parameter_sweep.py:825 and :1446
+    (`setdefault("Toxoplasma", False)`, which becomes
+    `setdefault("annotation_source", "")`), and
+    qt/screens/parameter_sweep.py:364. Readers: ml.py `TOXOPLASMA_KEYS`,
+    `_toxoplasma_is_on` and `_annotation_source`. Tables: the type at
+    settings.py:3384, the tooltip at :4595, setting_api_targets.py:19 and
+    :798, and settings_flow_index.py:18 (generated). Tests that name the key
+    as a setting: 7 in test_any_organism_can_annotate_the_results.py, 6 in
+    test_analysis_mode_is_a_dropdown.py, 3 in
+    test_the_regression_settings_fit_on_one_page.py, 2 in
+    test_translation_correctness.py and 1 in test_settings_categories.py.
+
+IMG_SIZE -> IMAGE_SIZE CANNOT BE BUILT AS APPROVED. This one is a question
+for the maintainer, not a hold. The proposal (annotate audit, Finding 3)
+called the two "one question" and looked only at Annotate. But `image_size`
+is ALREADY a live setting, and it means something else:
+
+    settings.py:3184   "image_size": int
+    settings.py:4140   "Side length in pixels of the center crop taken from
+                        each object PNG before model input ... must match the
+                        crop size used to generate the dataset. Default 224."
+    set by set_default_train_test_model, deep_spacr_defaults,
+    get_train_test_model_settings and
+    get_default_generate_activation_map_settings; read by deep_spacr,
+    hyperparam, model_zoo and crop_source.
+
+Annotate's `img_size` is how many pixels each cell is DRAWN at, default 200
+(settings.py:5634, tooltip :3897). The Cells tab uses the same key
+(picture_settings.py:29/155/309, cell_montage_view.py:474/2728). The
+picture dialog shows `tooltips.get(key)` (picture_settings_dialog.py:293).
+So folding `img_size` into `image_size` would put the model-input tooltip,
+"Default 224", on a display control whose default is 200. That is one key
+with two meanings and one tooltip -- the kind of defect this item exists to
+remove. `RENAMED_SETTINGS` is also global, so the fold would fire on every
+settings file, not only Annotate's.
+
+The user-visible half of the finding is ALREADY FIXED. 620692473 (2026-09-02)
+taught the Annotate screen's importer to accept `img_size` as well
+(`_ALSO_SPELT`), so a file made from spaCR's defaults now fills in the crop
+size. Only the naming is left, and there are three honest choices:
+(a) keep `img_size` and close this retirement as withdrawn;
+(b) rename it to a name nothing else uses, e.g. `display_size`, which is a
+    new rename to approve;
+(c) fold it into `image_size` anyway and give that key per-app tooltips.
+    The picture dialog does not support per-app tooltips today.
+
+THE REMAINING DESIGN QUESTION, recorded here and not built: `io.py`'s
+preprocessing loop handles nucleus, cell, pathogen and `organelle_channel`
+only. The 701 organelle slots after the first are declared with a
+background floor and a signal-to-noise anchor that nothing reads (see the
+2026-09-13 section). Whether that branch should become a loop over resolved
+object roles changes the preprocessing path. That is the maintainer's call.
+
+TESTS, run in the worktree under the 4G cap, one process at a time. The
+worktree's own `spacr/__init__.py` was confirmed as the imported copy.
+  * the two new files: 18 passed.
+  * the new file plus test_space_theme, test_cov_r8_preferences_theme_choice,
+    test_photo_themes, test_cov_r6_preferences, test_cov_s1_preferences_edges,
+    test_cov_r9_preferences_space_theme, test_the_space_theme and
+    test_space_theme_edges: 348 passed.
+  * the other files that fake or sandbox the store and read the theme
+    (test_cov_3_qt_preferences_dialog, test_cov_3_qt_preferences,
+    test_glass_theme, test_the_theme_token_round_trips, test_preferences,
+    test_preferences_reset, test_settings_column_never_black): 170 passed.
+  * both ledger checks, with this file edited: passed.
+  * ALREADY RED ON 7a93e51ff, and identical with and without this change:
+    - 5 surface ratchets in test_docstring_correctness.py and
+      test_api_i18n_extractor.py. The surface is 10,560 against a pin of
+      10,539, from other work. The assertion messages are byte-identical
+      between the two trees.
+    - test_the_two_settings_tables_agree.py::test_a_settings_change_has_
+      not_stranded_reviewed_translations. The reporter finds 2 STALE zh_CN
+      records in 2026-09-15-magnifier-round-two-settings.json (the DINOCell
+      and SAMCell install captions), neither of them this item's.
+    - 33 in test_documentation_i18n.py (34 failed with the stranded-records
+      test above; the failing set is identical on both trees, compared
+      by name). The hash check there,
+      test_documentation_api_catalog_inventory_and_hashes_are_current,
+      was already red. So this run cannot show whether the two changed
+      docstrings would have turned it red by themselves.
+
+i18n OWED to the consolidated pass: the module docstring of
+`spacr.qt.preferences` (its `theme` / `space_seed` bullets) and the
+docstring of `get_theme`. No setting label, tooltip or UI caption changed.
