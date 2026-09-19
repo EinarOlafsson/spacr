@@ -3112,7 +3112,7 @@ Not `allow_pickle=True`: measured, it turns the ValueError into `UnpicklingError
 
 It surfaced there because the platform is the one that makes sidecars and the Mask path re-lists its own output folders four times (`stack/`, `masks/`, each `*_mask_stack/`, `merged/`). The raw-image listing in `_rename_and_organize_image_files` already skipped dot-files; nothing after it did. `concatenate_and_normalize` met the sidecar first, but its per-item ledger only logged it ("RUN INCOMPLETE - 1 of 2 items failed"). `generate_cellpose_masks_sam` has no ledger around its load, so it raised. The first commit touched 37 listing sites in 20 functions in `io.py`, `object.py`, `core.py`, `utils.py` and `plot.py`, and `tests/test_a_stack_file_spacr_wrote_is_one_it_can_read.py` fails if one of those functions calls `os.listdir` directly again. It did not reach every listing on the Mask path; the entry below names the ones review found after it. `seg_qc._iter_masks` and `illumination._merged_files` (reached when segmentation illumination correction is on) filter inline, because `seg_qc` is tested to import no torch and this module imports it at load.
 
-Every dot-file is left out, not just `._`: the atomic writers here name their temporaries `.spacr_tmp_*.npy` and `.spacr_npz_*.npz`, and a run killed mid-write leaves one behind with a data ending. Order is `os.listdir` order, unchanged, so batching and the seeded shuffle see the same sequence they did before.
+Every dot-file is left out, not just `._`: the atomic writers here name their temporaries `.spacr_tmp_*.npy` and `.spacr_npz_*.npz`, and a run killed mid-write leaves one behind with a data ending. Since item 430 (GitHub #118/#124, same day) the temporaries end in `.partial` instead, so a new run no longer leaves one with a data ending; folders written by earlier versions can still hold them. Order is `os.listdir` order, unchanged, so batching and the seeded shuffle see the same sequence they did before.
 
 ### 2026-09-19, after review: the listings the first commit missed
 
@@ -3130,3 +3130,47 @@ Review found three more Mask-path listings that still read sidecars, and a fourt
 The last three filter inline rather than through this helper, because `spacr.io` imports torch at module level: `validate` is tested to import no torch, and `_v1_v2_bridge` and `FilenameMapper.discover` run without it today.
 
 STILL BARE, and not on the Mask path: `measure.py` lists `merged/` for Measure, and so does `resume.completed_fields_in_merged` when it is called without `fields` (Measure's resume plan). On such a drive Measure reports a spurious "RUN INCOMPLETE ... 1 of 2 failed" for the sidecar. `stream_dataset` (training data) lists `merged/` bare too. They are recorded in `features/new/429_a_stack_file_spacr_wrote_is_one_it_can_read.txt`.
+
+## A re-run trusts nothing a killed run left (2026-09-19, GitHub #118 and #124)
+
+Added with ledger item 430. These are the reasons behind `_replace_atomically`, `_set_aside_damaged_stacks`, `_inspect_normalized_archive`, `_resume_normalized_archives`, `_rebuild_stacks_from_raw`, `_sample_stacks_for_test_mode` and `_no_stacks_error`, and behind the changes to `_rename_and_organize_image_files` and `preprocess_img_data`.
+
+### Why every stack and archive goes through `_replace_atomically`
+
+`np.save(path)` and `np.savez_compressed(path)` open the final name and write into it, so a run killed part-way leaves a file that starts right and ends early. #124 was one of these: `masks/stack_4_norm.npz` was cut short, and the next run reused it and died with `zipfile.BadZipFile`. The only writer that was already atomic was the illumination path. Measured with a real SIGKILL on origin/nightly (`test_a_run_killed_while_writing_an_archive_leaves_no_archive`): the kill left the partial write under the final name, `masks/stack_0_norm.npz`. With the change, `masks/` holds only a `.partial` sibling, and no `*.npz`.
+
+The sibling's name ends in `.partial`, not `.npy` or `.npz`. The old helpers used `suffix='.npy'` and `suffix='.npz'`, and every consumer lists fields with `name.endswith('.npy')` / `'.npz'`, so a sibling left by a SIGKILL (no `except` runs) would have been read as a field. The prefixes `.spacr_tmp_` and `.spacr_npz_` are kept because tests find leftovers by them.
+
+The sibling has to be written through an open handle. Given a path, `numpy.savez` appends `.npz` to a name that does not end in it.
+
+### Why damaged files are renamed rather than deleted
+
+`<name>.damaged` drops out of every listing that selects `.npy` or `.npz`, so nothing downstream reads it, and the user can still see exactly which files were bad. The run's log names each one with its reason, and `cleanup_pipeline_folders` removes them with the rest of `stack/` and `masks/`.
+
+### Why the checks are cheap
+
+A stack file is judged by its header and its length (`spacr.resume.validate_merged_field`): a file shorter than its declared shape needs was cut short. That is one small read per field, where `np.load` would read the whole array. An archive is judged by opening its zip directory, which `numpy.savez_compressed` writes last and a truncated file therefore lacks, by checking that each member's recorded extent fits in the file, by reading the header of `data.npy`, and by reading `filenames.npy`. Pixel data is never inflated. `ZipFile.testzip()` would check every CRC, but it inflates every member, gigabytes per archive on a real plate.
+
+`#124`'s reporter suggested `np.load(mmap_mode='r')` on each `stack/*.npy`. The header-and-length check fails on the same files and reads less. The memory map is still used when the header check cannot size the dtype.
+
+### Why the missing fields are normalised into NEW archives
+
+A damaged archive cannot say which fields it held, but the whole archives can. Every field of `stack/` that no whole archive lists is normalised again, into `stack_<n>_norm.npz` numbered after the highest number already used, damaged ones included. Numbering them after the old ones means no whole archive is overwritten. Normalisation is per batch, and the batch was chosen at random (`randomize`) in the first place, so a new batch of the missing fields is as valid as any other batch. The masks already made from the whole archives stay: `_check_masks` skips any field that already has a mask.
+
+No archive is added to a set whose `data` holds a different number of channels than the current settings select. That happens when the channels were changed between the runs, and the segmenter indexes every archive by the same channel positions. The log says so and names the way out: move `masks/` aside and run again.
+
+Two sets are rebuilt whole instead. An illumination-corrected set is published and recorded as one set (`_publish_v1_normalized_archives`). A timelapse archive is named after its group, so writing part of a group again would replace the archive that holds the rest.
+
+### Why `orig/` is read, and when `stack/` is not filled in
+
+`_rename_and_organize_image_files` moves the raw images into `orig/` once the stacks are written. So on a second run the plate folder holds no images, and when `stack/` was gone (the end-of-run cleanup removes it once `merged/` is complete) the organiser found nothing. #118's message then read spaCR's own `orig/` and `stack/` as plates. Measured on origin/nightly: `test_a_rerun_on_a_finished_plate_builds_its_stacks_again_from_orig` fails with `... sub-folders (merged, orig, stack) — if those are plates, point src at one of them`.
+
+Fields are identified by stem, and some folders were written under another scheme: before `_escaped_field_stem`, or by `_merge_channels`, whose non-timelapse stems end in `_`. If none of the stems in `stack/` is one these raw images make, nothing is added. Filling in would put every field of the plate in `stack/` twice.
+
+### Why nothing is moved or deleted when no field was read
+
+On origin/nightly, with `save_original_images` off, images that matched no filename pattern were deleted after zero stacks were written (`test_a_pattern_that_matches_nothing_leaves_the_images_alone` found the folder holding only an empty `stack/`). With it on, they were moved into `orig/` beside an empty `stack/`, the state #118's message then misread. Now a deletion removes only an image whose field has a stack, and a run that read no field creates, moves and deletes nothing.
+
+### Why test mode no longer takes the existing `masks/` shortcut, and samples `stack/`
+
+Test mode writes into `test/`. Taking the plate's own `masks/` shortcut meant a test-mode run segmented the whole plate. #118 ran with `test_mode=True, test_images=1` on a plate whose raw images were gone (`save_original_images` off deletes them once `stack/` is written). Test mode copies raw images, found none, and ran the organiser on an empty `test/`. That created `test/orig` and `test/stack`, and the error named them. On origin/nightly `test_issue_118_test_mode_on_a_plate_whose_raw_images_are_gone` reproduces #118's exact message. Now a sample of the plate's whole `stack/*.npy` is copied into `test/stack/`, with the seed `_run_test_mode` uses.

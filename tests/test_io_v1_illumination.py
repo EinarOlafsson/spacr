@@ -285,7 +285,7 @@ def test_atomic_npz_replace_preserves_previous_file_and_cleans_temp(
         IO._save_npz_atomic(output, data=np.ones((2, 2)))
 
     assert output.read_bytes() == b"previous complete archive"
-    assert not list(tmp_path.glob(".spacr_npz_*.npz"))
+    assert not list(tmp_path.glob(".spacr_npz_*"))
 
 
 def test_v1_archive_set_publication_rolls_back_both_sides(

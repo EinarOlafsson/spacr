@@ -1042,6 +1042,40 @@ def load_images_from_paths(images_by_key):
     ledger.finalize()
     return images_dict
 
+_RAW_IMAGE_SUFFIXES = ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2',
+                       '.czi', '.lif')
+
+def _raw_image_names(folder, img_format=_RAW_IMAGE_SUFFIXES):
+    """Name the raw images directly in ``folder``, hidden files excluded.
+
+    :param folder: the folder to list. One that is missing or unreadable
+        holds none.
+    :param img_format: accepted endings, matched case-sensitively, which is
+        how :func:`_rename_and_organize_image_files` has always matched them.
+    :returns: the file names, sorted.
+    """
+    if isinstance(img_format, str):
+        img_format = [img_format]
+    try:
+        names = _listdir_visible(folder)
+    except OSError:
+        return []
+    return sorted(name for name in names
+                  if any(name.endswith(ext) for ext in img_format))
+
+
+def _stack_field_stems(stack_path):
+    """Return the field stems that have a ``.npy`` in ``stack_path``.
+
+    :param stack_path: a ``stack/`` folder; a missing one holds no fields.
+    :returns: set of file names without the ``.npy`` extension.
+    """
+    if not os.path.isdir(stack_path):
+        return set()
+    return {os.path.splitext(name)[0] for name in _listdir_visible(stack_path)
+            if name.endswith('.npy')}
+
+
 def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True):
     """
     Convert z-stack images to maximum intensity projection (MIP) images and
@@ -1055,6 +1089,20 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     merge order and MIP maths are identical to the old folder+\\ ``_merge_file``
     path, so the produced stacks are byte-for-byte the same.
 
+    Raw images are read from ``src`` and from ``src/orig/``, where an earlier
+    run set them aside, and a field that already has a ``stack/<fov>.npy`` is
+    not built again. So a second run on a folder spaCR has already
+    preprocessed finishes what the first left undone instead of finding
+    nothing: the fields a killed run never wrote are built, and a
+    ``stack/`` that was emptied is built again from ``orig/``. When
+    ``stack/`` holds fields but none of them is named like a field these
+    images make, it was written under another naming scheme (an older spaCR,
+    or channel folders) and nothing is added to it.
+
+    Every stack is written atomically, so a killed run leaves no truncated
+    ``.npy`` behind. When no image yields a field at all, nothing is created,
+    moved or deleted.
+
     Args:
         src (str): The source directory containing the z-stack images.
         regex (str): The regular expression pattern used to match the filenames of the z-stack images.
@@ -1063,7 +1111,9 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
         save_original_images (bool, optional): When True (default) the raw input
             images are moved aside into ``src/orig/`` for safekeeping. When
             False they are deleted after the stack is written, so the pixel data
-            lives only in ``stack/`` (no duplication). Defaults to True.
+            lives only in ``stack/`` (no duplication); only an image whose field
+            now has a stack is deleted, and ``orig/`` is never touched.
+            Defaults to True.
 
     Returns:
         int: the number of distinct channels found (0 when nothing was processed).
@@ -1076,89 +1126,130 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
 
     regular_expression = re.compile(regex)
     stack_path = os.path.join(src, 'stack')
+    orig_path = os.path.join(src, 'orig')
     files_processed = 0
     channels_seen = set()
-    if not os.path.exists(stack_path) or (os.path.isdir(stack_path) and len(_listdir_visible(stack_path)) == 0):
-        all_filenames = [filename for filename in _listdir_visible(src) if any(filename.endswith(ext) for ext in img_format)]
-        print(f'All files: {len(all_filenames)} in {src}')
-        time_ls = []
-        image_paths_by_key = _extract_filename_metadata(all_filenames, src, regular_expression, metadata_type)
-        batching_keys = list(image_paths_by_key.keys())
-        print(f'All unique FOV: {len(image_paths_by_key)} in {src}')
 
-        fov_channels = {}
-        for idx in range(0, len(image_paths_by_key), batch_size):
-            start = time.time()
+    src_filenames = _raw_image_names(src, img_format)
+    image_paths_by_key = defaultdict(list)
+    for folder, names in ((src, src_filenames),
+                          (orig_path, _raw_image_names(orig_path, img_format))):
+        if folder != src and not names:
+            continue
+        print(f'All files: {len(names)} in {folder}')
+        parsed = _extract_filename_metadata(names, folder, regular_expression, metadata_type)
+        for key, paths in parsed.items():
+            if folder != src and 'plateID' not in regular_expression.groupindex:
+                key = (os.path.basename(src),) + tuple(key[1:])
+            image_paths_by_key[key].extend(paths)
+    print(f'All unique FOV: {len(image_paths_by_key)} in {src}')
+    if not image_paths_by_key:
+        return 0
 
-            batch_keys = batching_keys[idx:idx+batch_size]
-            batch_images_by_key = {key: image_paths_by_key[key] for key in batch_keys}
-            images_by_key = load_images_from_paths(batch_images_by_key)
+    stem_of = {key: _escaped_field_stem(key[0], key[1], key[2], key[4])
+               for key in image_paths_by_key}
+    wanted = set(stem_of.values())
+    existing = _stack_field_stems(stack_path)
+    if existing and not existing & wanted:
+        print(f'stack/ already holds {len(existing)} field(s), and none is '
+              f'named like a field these images make (for example '
+              f'{sorted(wanted)[0]}.npy); it was written under another naming '
+              f'scheme, so nothing is added to it.')
+        pending_keys = []
+    else:
+        pending_keys = [key for key in image_paths_by_key
+                        if stem_of[key] not in existing]
+        if existing and pending_keys:
+            print(f'Resuming: stack/ holds {len(existing & wanted)} of '
+                  f'{len(wanted)} field(s); building the other '
+                  f'{len(wanted - existing)}.')
+    for key in image_paths_by_key:
+        if stem_of[key] in existing:
+            channels_seen.add(key[3])
 
-            for i, (key, images) in enumerate(images_by_key.items()):
+    time_ls = []
+    files_to_process = sum(len(image_paths_by_key[key]) for key in pending_keys)
+    fov_channels = {}
+    for idx in range(0, len(pending_keys), batch_size):
+        start = time.time()
 
-                plate, well, field, channel, timeID, sliceID = key
+        batch_keys = pending_keys[idx:idx+batch_size]
+        batch_images_by_key = {key: image_paths_by_key[key] for key in batch_keys}
+        images_by_key = load_images_from_paths(batch_images_by_key)
 
-                if not images:
-                    print(f"Warning: no readable images for {key}, skipping")
-                    files_processed += 1
-                    continue
+        for i, (key, images) in enumerate(images_by_key.items()):
 
-                output_filename = _escaped_field_stem(
-                    plate, well, field, timeID) + '.tif'
+            plate, well, field, channel, timeID, sliceID = key
 
-                mip = np.max(np.stack(images), axis=0)
-                channels_seen.add(channel)
-                _chans = fov_channels.setdefault(output_filename, {})
-                _prev = _chans.get(channel)
-                _chans[channel] = mip if _prev is None else np.maximum(_prev, mip)
-
+            if not images:
+                print(f"Warning: no readable images for {key}, skipping")
                 files_processed += 1
-                stop = time.time()
-                duration = stop - start
-                time_ls.append(duration)
-                files_to_process = len(all_filenames)
-                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
-
-            images_by_key.clear()
-
-        os.makedirs(stack_path, exist_ok=True)
-        sorted_channels = sorted(channels_seen)
-        for output_filename, chan_mips in fov_channels.items():
-            file_root = os.path.splitext(output_filename)[0]
-            new_file = os.path.join(stack_path, file_root + '.npy')
-            if os.path.exists(new_file):
-                print(f'WARNING: A file with the same name already exists at location {new_file}')
                 continue
-            planes = []
-            for channel in sorted_channels:
-                mip = chan_mips.get(channel)
-                if mip is None:
-                    print(f"Warning: FOV {output_filename} is missing channel {channel}")
-                    continue
-                planes.append(np.expand_dims(mip, axis=2))
-            if planes:
-                np.save(new_file, np.concatenate(planes, axis=2))
-            else:
-                print(f"No valid channels to merge for file {output_filename}")
-        fov_channels.clear()
 
-        if save_original_images:
-            newpath = os.path.join(src, 'orig')
-            os.makedirs(newpath, exist_ok=True)
-            for filename in _listdir_visible(src):
-                if os.path.splitext(filename)[1] in img_format:
-                    move = os.path.join(newpath, filename)
-                    if os.path.exists(move):
-                        print(f'WARNING: A file with the same name already exists at location {move}')
-                    else:
-                        shutil.move(os.path.join(src, filename), move)
+            output_filename = stem_of[key] + '.tif'
+
+            mip = np.max(np.stack(images), axis=0)
+            channels_seen.add(channel)
+            _chans = fov_channels.setdefault(output_filename, {})
+            _prev = _chans.get(channel)
+            _chans[channel] = mip if _prev is None else np.maximum(_prev, mip)
+
+            files_processed += 1
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type='Preprocessing filenames')
+
+        images_by_key.clear()
+
+    if fov_channels:
+        os.makedirs(stack_path, exist_ok=True)
+    sorted_channels = sorted(channels_seen)
+    for output_filename, chan_mips in fov_channels.items():
+        file_root = os.path.splitext(output_filename)[0]
+        new_file = os.path.join(stack_path, file_root + '.npy')
+        if os.path.exists(new_file):
+            print(f'WARNING: A file with the same name already exists at location {new_file}')
+            continue
+        planes = []
+        for channel in sorted_channels:
+            mip = chan_mips.get(channel)
+            if mip is None:
+                print(f"Warning: FOV {output_filename} is missing channel {channel}")
+                continue
+            planes.append(np.expand_dims(mip, axis=2))
+        if planes:
+            _save_array_atomic(new_file, np.concatenate(planes, axis=2))
         else:
-            for filename in _listdir_visible(src):
-                if os.path.splitext(filename)[1] in img_format:
-                    try:
-                        os.remove(os.path.join(src, filename))
-                    except OSError as e:
-                        print(f"Warning: could not delete original image {filename}: {e}")
+            print(f"No valid channels to merge for file {output_filename}")
+    fov_channels.clear()
+
+    stacked = _stack_field_stems(stack_path)
+    if save_original_images:
+        to_move = []
+        if pending_keys or wanted <= stacked:
+            to_move = [filename for filename in _listdir_visible(src)
+                       if os.path.splitext(filename)[1] in img_format]
+        if to_move:
+            os.makedirs(orig_path, exist_ok=True)
+        for filename in to_move:
+            move = os.path.join(orig_path, filename)
+            if os.path.exists(move):
+                print(f'WARNING: A file with the same name already exists at location {move}')
+            else:
+                shutil.move(os.path.join(src, filename), move)
+    else:
+        in_a_stack = {path for key, paths in image_paths_by_key.items()
+                      if stem_of[key] in stacked for path in paths}
+        for filename in _listdir_visible(src):
+            if os.path.splitext(filename)[1] in img_format:
+                path = os.path.join(src, filename)
+                if path not in in_a_stack:
+                    continue
+                try:
+                    os.remove(path)
+                except OSError as e:
+                    print(f"Warning: could not delete original image {filename}: {e}")
     files_processed = 0
     return len(channels_seen)
 
@@ -1194,7 +1285,7 @@ def _merge_file(chan_dirs, stack_dir, file_name):
 
         if channels:
             stack = np.concatenate(channels, axis=2)
-            np.save(new_file, stack)
+            _save_array_atomic(new_file, stack)
         else:
             print(f"No valid channels to merge for file {file_name}")
 
@@ -1417,7 +1508,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=batch_size, operation_type="Concatinating")
                 stack = np.stack(stack_region)
                 save_loc = os.path.join(channel_stack_loc, f'{name}.npz')
-                np.savez(save_loc, data=stack, filenames=filenames_region)
+                _savez_atomic(save_loc, data=stack, filenames=filenames_region)
                 print(save_loc)
                 del stack
         except Exception as e:
@@ -1461,7 +1552,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
                 else:
                     stack = np.stack(stack_ls)
                 save_loc = os.path.join(channel_stack_loc, f'stack_{batch_index}.npz')
-                np.savez(save_loc, data=stack, filenames=filenames_batch)
+                _savez_atomic(save_loc, data=stack, filenames=filenames_batch)
                 batch_index += 1
                 del stack
                 stack_ls = []
@@ -1555,21 +1646,34 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
 
     return normalized_stack.astype(save_dtype)
 
-def _save_npz_atomic(output_path, **arrays):
-    """Write a compressed NumPy archive by atomically replacing its path.
+_PARTIAL_SUFFIX = '.partial'
+_DAMAGED_SUFFIX = '.damaged'
 
-    :param output_path: final ``.npz`` path.
-    :param arrays: named arrays passed to :func:`numpy.savez_compressed`.
-    :returns: ``output_path`` after the durable replacement.
+
+def _replace_atomically(output_path, write, prefix='.spacr_tmp_'):
+    """Write a file through a hidden sibling and rename it into place.
+
+    A process killed while ``write`` runs leaves the sibling behind and the
+    final name untouched: either absent or still holding the previous
+    complete file. The sibling is named ``<prefix><random>.partial``, so no
+    listing that selects ``*.npy`` or ``*.npz`` ever picks it up, and
+    :func:`_sweep_partial_writes` removes it on a later run.
+
+    :param output_path: final path.
+    :param write: callable that receives the open binary handle of the
+        sibling and writes the complete content to it.
+    :param prefix: leading part of the sibling's name.
+    :returns: ``output_path`` after the flushed sibling has replaced it.
     """
+    output_path = os.fspath(output_path)
     directory = os.path.dirname(output_path) or '.'
     os.makedirs(directory, exist_ok=True)
     fd, temporary = tempfile.mkstemp(
-        prefix='.spacr_npz_', suffix='.npz', dir=directory)
-    os.close(fd)
+        prefix=prefix, suffix=_PARTIAL_SUFFIX, dir=directory)
     try:
-        np.savez_compressed(temporary, **arrays)
-        with open(temporary, 'rb') as handle:
+        with os.fdopen(fd, 'wb') as handle:
+            write(handle)
+            handle.flush()
             os.fsync(handle.fileno())
         os.replace(temporary, output_path)
     except BaseException:
@@ -1579,6 +1683,30 @@ def _save_npz_atomic(output_path, **arrays):
             pass
         raise
     return output_path
+
+
+def _save_npz_atomic(output_path, **arrays):
+    """Write a compressed NumPy archive by atomically replacing its path.
+
+    :param output_path: final ``.npz`` path.
+    :param arrays: named arrays passed to :func:`numpy.savez_compressed`.
+    :returns: ``output_path`` after the durable replacement.
+    """
+    return _replace_atomically(
+        output_path, lambda handle: np.savez_compressed(handle, **arrays),
+        prefix='.spacr_npz_')
+
+
+def _savez_atomic(output_path, **arrays):
+    """Write an uncompressed NumPy archive by atomically replacing its path.
+
+    :param output_path: final ``.npz`` path.
+    :param arrays: named arrays passed to :func:`numpy.savez`.
+    :returns: ``output_path`` after the durable replacement.
+    """
+    return _replace_atomically(
+        output_path, lambda handle: np.savez(handle, **arrays),
+        prefix='.spacr_npz_')
 
 
 def _normalized_npz_field_ids(src):
@@ -1729,7 +1857,8 @@ def _correct_v1_segmentation_batch(
 
 def _concatenate_and_normalize_impl(
         src, channels, save_dtype=np.float32, settings=None,
-        illumination_session=None, archive_output_fldr=None):
+        illumination_session=None, archive_output_fldr=None,
+        only_fields=None, first_batch_index=0):
     """Concatenate per-file channel arrays and normalise them into a single stack.
 
     :param src: Directory containing per-FOV ``.npy`` channel arrays.
@@ -1744,6 +1873,12 @@ def _concatenate_and_normalize_impl(
     :param illumination_session: optional segmentation-only illumination
         session. It corrects private copies of the selected channels before
         normalisation and records completion only after each NPZ is durable.
+    :param only_fields: when given, the field stems to normalise; every other
+        ``.npy`` in ``src`` is left out. Used, without a timelapse, to rebuild
+        only the fields a damaged or missing archive held.
+    :param first_batch_index: number of the first ``stack_<n>_norm.npz``
+        written, so archives added next to a previous run's do not replace
+        them.
     :returns: Path to the directory where normalised arrays were saved.
     :raises ValueError: if ``settings`` is not supplied.
     """
@@ -1842,10 +1977,7 @@ def _concatenate_and_normalize_impl(
                     archive_output_fldr, f'{name}_norm_timelapse.npz')
                 arrays = dict(data=normalized_stack,
                               filenames=filenames_region)
-                if illumination_session is None:
-                    np.savez_compressed(save_loc, **arrays)
-                else:
-                    _save_npz_atomic(save_loc, **arrays)
+                _save_npz_atomic(save_loc, **arrays)
                 
                 if i == 0 and settings.get('plot'):
                     plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
@@ -1860,6 +1992,9 @@ def _concatenate_and_normalize_impl(
     else:
         for file in _listdir_visible(src):
             if file.endswith('.npy'):
+                if (only_fields is not None and
+                        os.path.splitext(file)[0] not in only_fields):
+                    continue
                 path = os.path.join(src, file)
                 paths.append(path)
         if settings['randomize']:
@@ -1868,7 +2003,7 @@ def _concatenate_and_normalize_impl(
             os.path.splitext(os.path.basename(path))[0] for path in paths
         ]
         nr_files = len(paths)
-        batch_index = 0
+        batch_index = first_batch_index
         stack_ls = []
         filenames_batch = []
         time_ls = []
@@ -1917,10 +2052,7 @@ def _concatenate_and_normalize_impl(
                     archive_output_fldr, f'stack_{batch_index}_norm.npz')
                 arrays = dict(data=normalized_stack,
                               filenames=filenames_batch)
-                if illumination_session is None:
-                    np.savez_compressed(save_loc, **arrays)
-                else:
-                    _save_npz_atomic(save_loc, **arrays)
+                _save_npz_atomic(save_loc, **arrays)
                 if batch_index == 0 and settings.get('plot'):
                     print(f"plotting: {save_loc}")
                     plot_arrays(save_loc, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=False)
@@ -2123,7 +2255,7 @@ def _normalize_stack(src, backgrounds=None, remove_backgrounds=None, lower_perce
             normalized_stack[:, :, :, channel] = arr_2d_normalized
         
         save_loc = os.path.join(output_fldr, f'{name}_norm_stack.npz')
-        np.savez(save_loc, data=normalized_stack.astype(save_dtype), filenames=filenames)
+        _savez_atomic(save_loc, data=normalized_stack.astype(save_dtype), filenames=filenames)
         del normalized_stack, single_channel, arr_2d_normalized, stack, filenames
         gc.collect()
     
@@ -2173,7 +2305,7 @@ def _normalize_timelapse(src, lower_percentile=2, save_dtype=np.float32):
 
 
         save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
-        np.savez(save_loc, data=normalized_stack, filenames=filenames)
+        _savez_atomic(save_loc, data=normalized_stack, filenames=filenames)
 
         del normalized_stack, stack, filenames
         gc.collect()
@@ -2293,6 +2425,450 @@ def select_fields(names, fields):
     return kept
 
 
+def _name_list(names, limit=8):
+    """Join names for a message, saying how many were left out.
+
+    :param names: the names, in the order to show them.
+    :param limit: how many to show.
+    :returns: the joined names, ending in ``and <n> more`` when cut short.
+    """
+    names = list(names)
+    shown = ', '.join(names[:limit])
+    if len(names) > limit:
+        shown += f' and {len(names) - limit} more'
+    return shown
+
+
+def _sweep_partial_writes(folder):
+    """Remove the siblings of atomic writes that were killed before their rename.
+
+    :param folder: a ``stack/`` or ``masks/`` folder; a missing one is skipped.
+    :returns: the names removed, sorted.
+    """
+    if not os.path.isdir(folder):
+        return []
+    removed = []
+    for name in sorted(os.listdir(folder)):
+        if not (name.startswith(('.spacr_tmp_', '.spacr_npz_'))
+                and name.endswith(_PARTIAL_SUFFIX)):
+            continue
+        try:
+            os.remove(os.path.join(folder, name))
+        except OSError:
+            continue
+        removed.append(name)
+    if removed:
+        print(f'Removed {len(removed)} unfinished write(s) a killed run left '
+              f'in {folder}: {_name_list(removed)}')
+    return removed
+
+
+def _set_aside(path):
+    """Rename a damaged file so no listing of ``.npy`` or ``.npz`` files picks it up.
+
+    :param path: the damaged file.
+    :returns: its new path, ``<path>.damaged`` or, when that name is taken,
+        ``<path>.damaged.<n>``.
+    """
+    target = path + _DAMAGED_SUFFIX
+    counter = 1
+    while os.path.exists(target):
+        target = f'{path}{_DAMAGED_SUFFIX}.{counter}'
+        counter += 1
+    os.replace(path, target)
+    return target
+
+
+def _npy_is_whole(path):
+    """Decide, without reading its pixels, whether a ``.npy`` was written to the end.
+
+    The header is parsed and the file's length compared with the length its
+    declared shape needs (:func:`spacr.resume.validate_merged_field`). A dtype
+    that comparison cannot size is memory-mapped instead, which fails in the
+    same way on a short file.
+
+    :param path: the ``.npy`` file.
+    :returns: ``(ok, reason)``; ``reason`` is ``'done'`` when ``ok``, otherwise
+        ``'empty'``, ``'truncated'`` or ``'unreadable'``.
+    """
+    from .resume import REASON_DONE, REASON_UNREADABLE, validate_merged_field
+    ok, reason = validate_merged_field(path)
+    if ok or reason != REASON_UNREADABLE:
+        return ok, reason
+    try:
+        mapped = np.load(path, mmap_mode='r', allow_pickle=False)
+    except Exception:
+        return False, reason
+    del mapped
+    return True, REASON_DONE
+
+
+def _inspect_normalized_archive(path):
+    """Decide whether a normalised ``.npz`` archive is whole, without inflating its pixels.
+
+    ``numpy.savez_compressed`` writes the zip directory last, so an archive
+    cut short by a killed run has none and does not open. Beyond that, every
+    member's recorded extent has to fit inside the file, ``data.npy`` has to
+    begin with a readable array header, and ``filenames.npy``, which is
+    small, is read.
+
+    :param path: the ``.npz`` archive.
+    :returns: ``(ok, reason, fields, planes)``. ``reason`` is ``'done'`` when
+        ``ok``. ``fields`` is the tuple of field stems the archive lists, or
+        ``None`` when it is damaged or lists them as an object array, which is
+        not read without unpickling. ``planes`` is the length of the last axis
+        of ``data``, or ``None`` when it is damaged.
+    """
+    import zipfile
+    import zlib
+    from numpy.lib import format as npy_format
+
+    try:
+        size = os.path.getsize(path)
+    except OSError as exc:
+        return False, f'unreadable ({exc})', None, None
+    if size == 0:
+        return False, 'empty: the write never started', None, None
+    try:
+        with zipfile.ZipFile(path) as archive:
+            members = {info.filename: info for info in archive.infolist()}
+            for required in ('data.npy', 'filenames.npy'):
+                if required not in members:
+                    return False, f'holds no {required}', None, None
+            for info in members.values():
+                if info.header_offset + info.compress_size > size:
+                    return (False, 'truncated: a member runs past the end of '
+                            'the file', None, None)
+            with archive.open('data.npy') as member:
+                if npy_format.read_magic(member) == (1, 0):
+                    shape = npy_format.read_array_header_1_0(member)[0]
+                else:
+                    shape = npy_format.read_array_header_2_0(member)[0]
+            planes = int(shape[-1]) if shape else None
+            with archive.open('filenames.npy') as member:
+                try:
+                    names = npy_format.read_array(member, allow_pickle=False)
+                except ValueError as exc:
+                    if 'allow_pickle' not in str(exc):
+                        raise
+                    return True, 'done', None, planes
+    except zipfile.BadZipFile as exc:
+        return False, f'not a complete zip archive ({exc})', None, None
+    except (OSError, ValueError, EOFError, KeyError, zlib.error) as exc:
+        return (False, f'unreadable ({type(exc).__name__}: {exc})', None,
+                None)
+    fields = tuple(os.path.splitext(os.path.basename(str(name)))[0]
+                   for name in np.asarray(names).reshape(-1))
+    return True, 'done', fields, planes
+
+
+def _set_aside_damaged_stacks(stack_path):
+    """Check every ``stack/*.npy`` before it is reused, and set the damaged ones aside.
+
+    :param stack_path: the ``stack/`` folder; a missing one is skipped.
+    :returns: ``(name, reason)`` for each file renamed to ``<name>.damaged``.
+    """
+    if not os.path.isdir(stack_path):
+        return []
+    _sweep_partial_writes(stack_path)
+    names = sorted(name for name in _listdir_visible(stack_path)
+                   if name.endswith('.npy'))
+    damaged = []
+    for name in names:
+        path = os.path.join(stack_path, name)
+        ok, reason = _npy_is_whole(path)
+        if not ok:
+            _set_aside(path)
+            damaged.append((name, reason))
+    if damaged:
+        print(f'Checked {len(names)} field stack(s) in {stack_path}: '
+              f'{len(damaged)} damaged, set aside as <name>.damaged: '
+              f'{_name_list(f"{name} ({reason})" for name, reason in damaged)}')
+    return damaged
+
+
+def _next_archive_index(masks_path):
+    """Return the first ``n`` that no ``stack_<n>_norm.npz`` in ``masks_path`` uses.
+
+    :param masks_path: the ``masks/`` folder. Archives already set aside as
+        damaged count as using their number.
+    :returns: one more than the highest number in use, or 0.
+    """
+    used = [-1]
+    for name in _listdir_visible(masks_path):
+        match = re.match(r'stack_(\d+)_norm\.npz', name)
+        if match:
+            used.append(int(match.group(1)))
+    return max(used) + 1
+
+
+def _rebuild_stacks_from_raw(settings, src):
+    """Build the field stacks ``stack/`` lacks, from raw images ``orig/`` still holds.
+
+    :param settings: the preprocessing settings. ``metadata_type``,
+        ``custom_regex``, ``batch_size``, ``timelapse`` and
+        ``save_original_images`` are read; nothing is written to them.
+    :param src: the plate folder.
+    :returns: the number of stacks built; 0 when there are no raw images.
+    """
+    from .utils import _get_regex
+
+    raw = (_raw_image_names(src) or
+           _raw_image_names(os.path.join(src, 'orig')))
+    if not raw:
+        return 0
+    image_format = Counter(
+        name.rsplit('.', 1)[-1].lower() for name in raw).most_common(1)[0][0]
+    metadata_type = settings.get('metadata_type', 'cellvoyager')
+    regex = _get_regex(metadata_type, image_format,
+                       settings.get('custom_regex'))
+    stack_path = os.path.join(src, 'stack')
+    before = len(_stack_field_stems(stack_path))
+    _rename_and_organize_image_files(
+        src, regex, int(settings.get('batch_size') or 50), metadata_type,
+        list(_RAW_IMAGE_SUFFIXES), timelapse=settings.get('timelapse', False),
+        save_original_images=settings.get('save_original_images', True))
+    return len(_stack_field_stems(stack_path)) - before
+
+
+def _resume_normalized_archives(settings, src, mask_channels):
+    """Check the archives an earlier run left in ``masks/`` before they are reused.
+
+    A plate folder that already holds ``masks/`` skips preprocessing. Before
+    it does, each ``stack/*.npy`` (:func:`_npy_is_whole`) and each
+    ``masks/*.npz`` (:func:`_inspect_normalized_archive`) is checked, and a
+    damaged file is renamed to ``<name>.damaged`` and reported by name. A
+    field stack that is missing is built again from ``orig/`` when the raw
+    images are there. The fields of ``stack/`` that no whole archive lists --
+    those of a damaged archive, and those a killed run never reached -- are
+    normalised again, into new archives numbered after the existing ones.
+
+    :param settings: the preprocessing settings; not modified.
+    :param src: the plate folder holding ``masks/`` and ``stack/``.
+    :param mask_channels: the channel indices the archives keep.
+    :returns: True when ``masks/`` holds a whole archive for every field in
+        ``stack/`` and preprocessing can be skipped. False when fields are
+        missing from an illumination-corrected or timelapse set, which has
+        to be rebuilt whole from ``stack/``.
+    :raises FileNotFoundError: when an archive is damaged and ``stack/`` holds
+        no field to rebuild it from.
+    """
+    stack_path = os.path.join(src, 'stack')
+    masks_path = os.path.join(src, 'masks')
+    damaged_stacks = _set_aside_damaged_stacks(stack_path)
+    try:
+        _rebuild_stacks_from_raw(settings, src)
+    except Exception as exc:
+        print(f'Could not build missing field stacks from the raw images: '
+              f'{type(exc).__name__}: {exc}')
+    unrebuilt = [name for name, _ in damaged_stacks
+                 if not os.path.exists(os.path.join(stack_path, name))]
+    if unrebuilt:
+        print(f'{len(unrebuilt)} damaged field stack(s) could not be built '
+              f'again, because no raw image for them is left in {src} or its '
+              f'orig/: {_name_list(unrebuilt)}. Those fields get no merged/ '
+              f'array.')
+    _sweep_partial_writes(masks_path)
+    archives = sorted(name for name in _listdir_visible(masks_path)
+                      if name.endswith('.npz'))
+    damaged, unlisted, covered, plane_counts = [], [], set(), set()
+    for name in archives:
+        ok, reason, fields, planes = _inspect_normalized_archive(
+            os.path.join(masks_path, name))
+        if not ok:
+            _set_aside(os.path.join(masks_path, name))
+            damaged.append((name, reason))
+            continue
+        plane_counts.add(planes)
+        if fields is None:
+            unlisted.append(name)
+        else:
+            covered.update(fields)
+    if archives:
+        print(f'Checked {len(archives)} normalised archive(s) in {masks_path}: '
+              f'{len(archives) - len(damaged)} whole, {len(damaged)} damaged.')
+    if damaged:
+        print(f'Set aside as <name>.damaged: '
+              f'{_name_list(f"{name} ({reason})" for name, reason in damaged)}')
+    stack_fields = _stack_field_stems(stack_path)
+    if damaged and not stack_fields:
+        raise FileNotFoundError(
+            f'{len(damaged)} normalised archive(s) in {masks_path} were '
+            f'damaged by an earlier run '
+            f'({_name_list(name for name, _ in damaged)}) and have been set '
+            f'aside as <name>.damaged, and {stack_path} holds no field '
+            f'stacks to rebuild them from. Move masks/ out of {src} and run '
+            f'again so preprocessing starts over from the raw images.')
+    if unlisted:
+        print(f'{len(unlisted)} archive(s) list their fields as an object '
+              f'array, which is not read without unpickling '
+              f'({_name_list(unlisted)}), so which fields are missing is not '
+              f'known and none is rebuilt.')
+        return True
+    missing = stack_fields - covered
+    if not missing:
+        return True
+    if (settings.get('illumination_correction', False) or
+            settings.get('timelapse', False)):
+        print(f'{len(missing)} field(s) in stack/ are in no whole archive; '
+              f'this archive set is rebuilt whole from stack/.')
+        return False
+    if plane_counts and plane_counts != {len(mask_channels)}:
+        print(f'{len(missing)} field(s) in stack/ are in no whole archive, '
+              f'but the archives in masks/ hold '
+              f'{_name_list(str(n) for n in sorted(plane_counts, key=str))} '
+              f'channel(s) and these settings select {len(mask_channels)}, '
+              f'so none is added to them. Move masks/ out of {src} and run '
+              f'again to normalise the whole plate with these channels.')
+        return True
+    from .settings import set_default_settings_preprocess_img_data
+    norm_settings = set_default_settings_preprocess_img_data(dict(settings))
+    first = _next_archive_index(masks_path)
+    before = set(_listdir_visible(masks_path))
+    print(f'{len(missing)} field(s) in stack/ are in no whole archive; '
+          f'normalising them again, into new archives from '
+          f'stack_{first}_norm.npz on.')
+    _concatenate_and_normalize_impl(
+        stack_path, mask_channels, save_dtype=np.float32,
+        settings=norm_settings, only_fields=missing,
+        first_batch_index=first)
+    written = sorted(name for name in set(_listdir_visible(masks_path)) - before
+                     if name.endswith('.npz'))
+    print(f'Wrote {len(written)} archive(s) for those fields: '
+          f'{_name_list(written)}')
+    return True
+
+
+def _sample_stacks_for_test_mode(source, test_folder, test_images,
+                                 random_test=True):
+    """Give test mode fields to work on when a plate's raw images are gone.
+
+    Test mode copies raw images, and a plate an earlier run preprocessed may
+    hold none: ``save_original_images`` off deletes them once ``stack/`` is
+    written. Its ``stack/`` still holds a stack per field, and a sample of
+    those is copied into ``test_folder/stack/`` instead.
+
+    :param source: the plate folder the user chose.
+    :param test_folder: the ``test/`` folder test mode works in.
+    :param test_images: how many fields to copy.
+    :param random_test: pick them at random, with the seed test mode uses,
+        rather than taking the first in name order.
+    :returns: the names copied; empty when ``source/stack/`` holds no whole
+        field stack.
+    """
+    stack_path = os.path.join(source, 'stack')
+    names = sorted(name for name in _stack_field_stems(stack_path)
+                   if _npy_is_whole(os.path.join(stack_path, name + '.npy'))[0])
+    if not names:
+        return []
+    if random_test:
+        random.Random(42).shuffle(names)
+    chosen = names[:max(int(test_images or 1), 1)]
+    destination = os.path.join(test_folder, 'stack')
+    for name in chosen:
+        with open(os.path.join(stack_path, name + '.npy'), 'rb') as original:
+            _replace_atomically(
+                os.path.join(destination, name + '.npy'),
+                lambda handle: shutil.copyfileobj(original, handle))
+    print(f'Test mode: {source} holds no raw images, so {len(chosen)} of the '
+          f'{len(names)} field stack(s) in its stack/ were copied into '
+          f'{destination}.')
+    return [name + '.npy' for name in chosen]
+
+
+def _describe_processed_folder(folder):
+    """Say what an earlier spaCR run left in ``folder``.
+
+    :param folder: a plate folder.
+    :returns: ``(summary, advice)``. ``summary`` lists each output folder
+        found there with what it holds, and is ``''`` when there is no
+        ``orig/``, ``stack/``, ``channel_stack/``, ``masks/`` or ``merged/``.
+        ``advice`` says what that leaves a new run to start from, or is
+        ``''``.
+    """
+    def count(name, suffixes):
+        """Count the files in ``folder/name`` ending in ``suffixes``."""
+        try:
+            entries = _listdir_visible(os.path.join(folder, name))
+        except OSError:
+            return None
+        return sum(1 for entry in entries if entry.endswith(suffixes))
+
+    held = {
+        'orig': (count('orig', _RAW_IMAGE_SUFFIXES), 'raw image(s)'),
+        'stack': (count('stack', ('.npy',)), 'field stack(s)'),
+        'channel_stack': (count('channel_stack', ('.npz',)), 'archive(s)'),
+        'masks': (count('masks', ('.npz',)), 'normalised archive(s)'),
+        'merged': (count('merged', ('.npy',)), 'merged field(s)'),
+    }
+    parts = [f'{name}/ holds {number} {noun}'
+             for name, (number, noun) in held.items() if number is not None]
+    if not parts:
+        return '', ''
+    if os.path.isfile(os.path.join(folder, 'measurements', 'measurements.db')):
+        parts.append('measurements/ holds measurements.db')
+    advice = ''
+    if not held['orig'][0] and not held['stack'][0]:
+        if held['merged'][0]:
+            advice = (' Its raw images and field stacks were removed when that '
+                      'run finished (keep_original_images and keep_intermediate '
+                      'were off), so nothing is left here to preprocess; the '
+                      'results are in merged/ and measurements/. To segment it '
+                      'again, point src at a copy of the raw images.')
+        else:
+            advice = (' Neither orig/ nor stack/ holds anything a new run can '
+                      'start from. Point src at the folder that holds the raw '
+                      'images.')
+    return '; '.join(parts), advice
+
+
+def _no_stacks_error(src, requested_src, regex, metadata_type):
+    """Build the error for a run that produced no field stack, naming the likely cause.
+
+    :param src: the folder preprocessing ran in; ``test/`` in test mode.
+    :param requested_src: the folder the user chose.
+    :param regex: the filename pattern the images were matched against.
+    :param metadata_type: the naming convention that pattern came from.
+    :returns: a :class:`FileNotFoundError` to raise.
+    """
+    entries = []
+    try:
+        entries = sorted(_listdir_visible(src))
+    except OSError:
+        pass
+    images = [name for name in entries
+              if name.lower().endswith(_RAW_IMAGE_SUFFIXES)]
+    subject = requested_src or src
+    hint = ''
+    if subject != src:
+        hint = (f' Test mode copies a sample of the raw images in {subject} '
+                f'(or in its orig/) into {src}, and found none it could use.')
+        try:
+            entries = sorted(_listdir_visible(subject))
+        except OSError:
+            entries = []
+    subdirs = [name for name in entries
+               if os.path.isdir(os.path.join(subject, name))][:6]
+    subject_images = [name for name in entries
+                      if name.lower().endswith(_RAW_IMAGE_SUFFIXES)]
+    summary, advice = _describe_processed_folder(subject)
+    if summary:
+        hint += (f' {subject} is a folder spaCR has already processed, not a '
+                 f'folder of plates: {summary}.{advice}')
+    if subject_images or _raw_image_names(os.path.join(subject, 'orig')):
+        hint += (f' None of the image files in {subject} or its orig/ could '
+                 f'be read as a field: spaCR reads files ending in '
+                 f'{", ".join(_RAW_IMAGE_SUFFIXES)} whose names match the '
+                 f'pattern for metadata_type={metadata_type!r}: {regex}')
+    elif not summary and subdirs:
+        hint += (f" It holds no images but does hold sub-folders "
+                 f"({', '.join(subdirs)}) — if those are plates, point "
+                 f"src at one of them rather than at their parent.")
+    return FileNotFoundError(
+        f"No image stacks were produced from {src}. spaCR found "
+        f"{len(images)} image file(s) directly in that folder.{hint}")
+
+
 def preprocess_img_data(settings):
     """Convert raw microscopy images into normalized, channel-merged ``.npy`` stacks ready for mask generation.
 
@@ -2303,6 +2879,16 @@ def preprocess_img_data(settings):
     folders into stacked ``.npy`` arrays with optional background
     subtraction and percentile normalization, and (in ``test_mode``)
     emits example plots.
+
+    Running it again on a plate folder it has already processed resumes
+    rather than starting over. Raw images an earlier run moved into
+    ``orig/`` are read from there, and only the fields ``stack/`` lacks are
+    built. Every ``stack/*.npy`` and ``masks/*.npz`` an earlier run left is
+    checked before it is reused: a file cut short is renamed to
+    ``<name>.damaged``, named in the log, and built again from the raw
+    images or ``stack/``. When there is nothing to build from, the error
+    says what the folder does hold. In ``test_mode`` a plate whose raw
+    images are gone is sampled from its ``stack/`` instead.
 
     :param settings: Preprocessing settings dict, canonicalized via
         :func:`spacr.settings.set_default_settings_preprocess_img_data`.
@@ -2345,9 +2931,30 @@ def preprocess_img_data(settings):
         wrapper that calls this then generates masks.
     """
     src = settings['src']
+    requested_src = src
     
     if len(_listdir_visible(src)) < 100:
         delete_empty_subdirectories(src)
+    
+    from .object_roles import ORGANELLE_ROLES
+    mask_channel_keys = (
+        'nucleus_channel', 'cell_channel', 'pathogen_channel',
+        *(f'{role}_channel' for role in ORGANELLE_ROLES),
+    )
+    mask_channels_raw = [settings.get(key) for key in mask_channel_keys]
+    
+    seen = {}
+    mask_channels = []
+    for ch in mask_channels_raw:
+        if ch is None:
+            continue
+        try:
+            ch = int(ch)
+        except (TypeError, ValueError):
+            continue
+        if ch not in seen:
+            seen[ch] = len(mask_channels)
+            mask_channels.append(ch)
     
     files = _listdir_visible(src)
     valid_ext = ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp', 'nd2', 'czi', 'lif']
@@ -2370,7 +2977,12 @@ def preprocess_img_data(settings):
             print('Found existing stack folder.')
         if os.path.exists(os.path.join(src,'channel_stack')):
             print('Found existing channel_stack folder.')
-        if os.path.exists(os.path.join(src,'masks')):
+        if (os.path.exists(os.path.join(src, 'masks')) and
+                settings.get('test_mode', False)):
+            print('Found existing masks folder; test mode works on a sample '
+                  'in test/ and does not reuse it.')
+        elif (os.path.exists(os.path.join(src, 'masks')) and
+                _resume_normalized_archives(settings, src, mask_channels)):
             print('Found existing masks folder. Skipping preprocessing')
             if (settings.get('illumination_correction', False) and
                     settings.get('masks', True)):
@@ -2389,33 +3001,19 @@ def preprocess_img_data(settings):
                 )
             return settings, src
 
-    
-    from .object_roles import ORGANELLE_ROLES
-    mask_channel_keys = (
-        'nucleus_channel', 'cell_channel', 'pathogen_channel',
-        *(f'{role}_channel' for role in ORGANELLE_ROLES),
-    )
-    mask_channels_raw = [settings.get(key) for key in mask_channel_keys]
-    
-    seen = {}
-    mask_channels = []
-    for ch in mask_channels_raw:
-        if ch is None:
-            continue
-        try:
-            ch = int(ch)
-        except (TypeError, ValueError):
-            continue
-        if ch not in seen:
-            seen[ch] = len(mask_channels)
-            mask_channels.append(ch)
-    
     from .settings import set_default_settings_preprocess_img_data
     from .utils import _get_regex, _run_test_mode
     from .plot import plot_arrays
     settings = set_default_settings_preprocess_img_data(settings)
 
-    regex = _get_regex(settings['metadata_type'], img_format, settings['custom_regex'])
+    regex_format = img_format
+    if regex_format is None:
+        set_aside = _raw_image_names(os.path.join(src, 'orig'))
+        if set_aside:
+            regex_format = Counter(
+                name.rsplit('.', 1)[-1].lower() for name in set_aside
+            ).most_common(1)[0][0]
+    regex = _get_regex(settings['metadata_type'], regex_format, settings['custom_regex'])
     
     if settings['test_mode']:
         print(f"Running spacr in test mode")
@@ -2431,13 +3029,23 @@ def preprocess_img_data(settings):
 
         src = _run_test_mode(settings['src'], regex, settings['timelapse'], settings['test_images'], settings['random_test'])
         settings['src'] = src
+        if (not settings['timelapse'] and not _raw_image_names(src) and
+                not _stack_field_stems(os.path.join(src, 'stack'))):
+            _sample_stacks_for_test_mode(
+                requested_src, src, settings['test_images'],
+                settings['random_test'])
     
     stack_path = os.path.join(src, 'stack')
+    _set_aside_damaged_stacks(stack_path)
     if img_format == None:
         if not os.path.exists(stack_path):
             _merge_channels(src, plot=False)   
    
-    if not os.path.exists(stack_path):
+    resuming = os.path.exists(stack_path)
+    raw_waiting = bool(_raw_image_names(src) or
+                       _raw_image_names(os.path.join(src, 'orig')))
+    if not resuming or raw_waiting:
+        stacks_before = len(_stack_field_stems(stack_path))
         try:
             img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
             nr_channel_folders = _rename_and_organize_image_files(
@@ -2446,29 +3054,33 @@ def preprocess_img_data(settings):
                 save_original_images=settings.get('save_original_images', True))
 
             all_imgs = len([f for f in _listdir_visible(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
-            batch_size = int(settings.get('batch_size') or 0)
-            full_batches = all_imgs // batch_size if batch_size else 0
-            last_batch_size = all_imgs % batch_size if batch_size else 0
+            if resuming and all_imgs == stacks_before:
+                print(f'Nothing was added to stack/; resuming from the '
+                      f'{all_imgs} field stack(s) it holds.')
+            else:
+                batch_size = int(settings.get('batch_size') or 0)
+                full_batches = all_imgs // batch_size if batch_size else 0
+                last_batch_size = all_imgs % batch_size if batch_size else 0
 
-            if last_batch_size == 1:
-                if full_batches == 0:
-                    print(f"Warning: Only one batch of size 1 detected (all images: {all_imgs}). Adjust the batch size.")
-                else:
-                    print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
-                    print("Warning: Last batch of size 1 detected. Adjust the batch size.")
+                if last_batch_size == 1:
+                    if full_batches == 0:
+                        print(f"Warning: Only one batch of size 1 detected (all images: {all_imgs}). Adjust the batch size.")
+                    else:
+                        print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
+                        print("Warning: Last batch of size 1 detected. Adjust the batch size.")
 
-            if len(settings['channels']) != nr_channel_folders:
-                print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
-                new_channels = list(range(nr_channel_folders))
-                print(f"Changing channels from {settings['channels']} to {new_channels}")
-                settings['channels'] = new_channels
+                if nr_channel_folders and len(settings['channels']) != nr_channel_folders:
+                    print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
+                    new_channels = list(range(nr_channel_folders))
+                    print(f"Changing channels from {settings['channels']} to {new_channels}")
+                    settings['channels'] = new_channels
 
-            if settings['timelapse']:
-                _create_movies_from_npy_per_channel(stack_path, fps=settings['fps'])
+                if settings['timelapse']:
+                    _create_movies_from_npy_per_channel(stack_path, fps=settings['fps'])
 
-            if settings['plot']:
-                print(f"plotting {settings['nr']} images from {src}/stack")
-                plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
+                if settings['plot']:
+                    print(f"plotting {settings['nr']} images from {src}/stack")
+                    plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
 
 
         except Exception as e:
@@ -2478,25 +3090,8 @@ def preprocess_img_data(settings):
                if os.path.isdir(stack_path) else [])
     stacked = select_fields(stacked, settings.get('fields'))
     if not stacked:
-        entries = []
-        try:
-            entries = sorted(_listdir_visible(src))
-        except OSError:
-            pass
-        subdirs = [d for d in entries
-                   if os.path.isdir(os.path.join(src, d))][:6]
-        images = [f for f in entries
-                  if f.lower().endswith(('.tif', '.tiff', '.png', '.jpg',
-                                         '.jpeg', '.bmp', '.nd2', '.czi',
-                                         '.lif'))]
-        hint = ""
-        if not images and subdirs:
-            hint = (f" It holds no images but does hold sub-folders "
-                    f"({', '.join(subdirs)}) — if those are plates, point "
-                    f"src at one of them rather than at their parent.")
-        raise FileNotFoundError(
-            f"No image stacks were produced from {src}. spaCR found "
-            f"{len(images)} image file(s) directly in that folder.{hint}")
+        raise _no_stacks_error(src, requested_src, regex,
+                               settings['metadata_type'])
 
     illumination_session = None
     if (settings.get('illumination_correction', False) and
@@ -3475,10 +4070,11 @@ def _listdir_visible(folder):
     not arrays: the AppleDouble ``._<name>`` sidecar macOS writes beside a
     file on a volume that cannot store extended attributes natively (exFAT,
     FAT, many SMB shares), and the ``.spacr_tmp_*.npy`` / ``.spacr_npz_*.npz``
-    temporaries :func:`_save_array_atomic` and :func:`_save_npz_atomic`
-    leave behind when a run is killed mid-write. :func:`numpy.load` reads a
-    sidecar as a pickle and refuses it, and reads a temporary as a truncated
-    array. spaCR never names a field with a leading dot.
+    temporaries that spaCR versions before the ``.partial`` naming of
+    :func:`_replace_atomically` left behind when a run was killed mid-write.
+    :func:`numpy.load` reads a sidecar as a pickle and refuses it, and reads
+    such a temporary as a truncated array. spaCR never names a field with a
+    leading dot.
 
     :param folder: the directory to list.
     :returns: the entry names, in :func:`os.listdir` order, without the
@@ -3502,30 +4098,17 @@ def _save_array_atomic(output_path, array):
     Writing to a sibling temporary file and then ``os.replace``-ing it
     into position makes the destination atomic within the filesystem: it
     is either the previous content or the complete new array, never a
-    prefix of it. The temp file is removed if anything goes wrong.
+    prefix of it. The temp file is removed if anything goes wrong, and one
+    left by a killed process ends in ``.partial``, not ``.npy``, so no
+    listing of fields mistakes it for one (see :func:`_replace_atomically`).
 
     :param output_path: final ``.npy`` path.
     :param array: array to write.
     :returns: ``output_path``.
     """
-    directory = os.path.dirname(output_path) or '.'
-    os.makedirs(directory, exist_ok=True)
-    fd, tmp_path = tempfile.mkstemp(prefix='.spacr_tmp_', suffix='.npy',
-                                    dir=directory)
-    os.close(fd)
-    try:
-        with open(tmp_path, 'wb') as handle:
-            np.save(handle, array)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(tmp_path, output_path)
-    except BaseException:
-        try:
-            os.remove(tmp_path)
-        except OSError:
-            pass
-        raise
-    return output_path
+    return _replace_atomically(
+        output_path, lambda handle: np.save(handle, array),
+        prefix='.spacr_tmp_')
 
 
 def _load_array_any(path):
