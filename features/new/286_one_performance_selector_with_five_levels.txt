@@ -290,7 +290,7 @@ really left, checked against the code rather than this file:
    settings or results" -- the claims PERFORMANCE_NOTES makes and a test
    holds to the budget. catalog/lessons_en.json is regenerated (4 lines:
    narration and speech_text, twice; a regeneration before the edit
-   changed nothing). NOT touched: the eight localized lessons_*.json and
+   changed nothing). NOT touched: the seven localized lessons_*.json and
    the captions, which carry translations of the old sentence (owed to the
    tutorial translation pass), and web/catalog + web/lesson_catalog.js,
    which must keep matching the audio already recorded until 04/05 are
