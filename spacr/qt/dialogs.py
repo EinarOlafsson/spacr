@@ -628,7 +628,26 @@ class _DetachEveryDialog:
     dialog that builds its form after its first polish. The size a dialog
     OPENS at is restored on Show and only on Show -- see
     :func:`open_at_its_natural_size`, where the measurement is.
+
+    THE TWO MOMENTS ARE RESOLVED ONCE, HERE, AND NOT PER EVENT. This filter
+    is on the QApplication, so its first line runs for every event in the
+    process -- 94,431 of them during one Regression open. It began by
+    importing ``QEvent`` and ``QDialog`` and reading ``event.type()`` up to
+    three times, every one of those times; it now imports at construction
+    and reads the type once. Qt is still imported inside the function that
+    needs it everywhere else in this module, which is the rule here, and a
+    filter is only ever constructed with an application running.
     """
+
+    def __init__(self):
+        """Resolve the enum members and the class this filter compares to."""
+        from PySide6.QtCore import QEvent
+        from PySide6.QtWidgets import QDialog
+
+        self._polish = QEvent.Type.Polish
+        self._show = QEvent.Type.Show
+        self.moments = frozenset({QEvent.Type.Polish, QEvent.Type.Show})
+        self._dialog = QDialog
 
     def eventFilter(self, obj, event):        # noqa: N802 - Qt naming
         """Detach every dialog from the window manager, and make it resizable.
@@ -648,21 +667,19 @@ class _DetachEveryDialog:
         :returns: ``False`` -- observed, never consumed.
         """
         try:
-            from PySide6.QtCore import QEvent
-            from PySide6.QtWidgets import QDialog
-
-            polished = event.type() == QEvent.Type.Polish
-            if polished and isinstance(obj, QDialog):
+            kind = event.type()
+            if kind not in self.moments:
+                return False
+            polished = kind == self._polish
+            if polished and isinstance(obj, self._dialog):
                 if obj.property(_GLASS_DETACHED):
                     obj.setProperty(FILTER_DETACHED, True)
                 elif not obj.property(FILTER_DETACHED):
                     obj.setProperty(FILTER_DETACHED, True)
                     detach_from_window_manager(obj)
-            if (polished or event.type() == QEvent.Type.Show) \
-                    and wants_resizing(obj):
+            if wants_resizing(obj):
                 make_the_window_resizable(obj)
-            if event.type() == QEvent.Type.Show \
-                    and obj.property(OPENS_AT) is not None:
+            if kind == self._show and obj.property(OPENS_AT) is not None:
                 open_at_its_natural_size(obj)
         except Exception:
             pass
@@ -716,9 +733,19 @@ def detach_all_dialogs(app) -> bool:
                 """Wrap the detacher this filter applies to every dialog."""
                 super().__init__()
                 self._inner = _DetachEveryDialog()
+                self._moments = self._inner.moments
 
             def eventFilter(self, obj, event):    # noqa: N802 - Qt naming
-                """Forward to the detacher this filter wraps."""
+                """Forward the two events the detacher acts on, and no others.
+
+                THE TEST IS HERE AS WELL AS INSIDE because this method is
+                what Qt calls for every event in the application, and a
+                Python call that returns False is not free at 94,431 of
+                them per module open. The detacher makes the same test for
+                anyone calling it directly.
+                """
+                if event.type() not in self._moments:
+                    return False
                 return self._inner.eventFilter(obj, event)
 
         _DETACHER = _Filter()

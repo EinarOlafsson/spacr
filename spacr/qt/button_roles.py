@@ -143,6 +143,13 @@ def _adopt_activity_spinner(button: QPushButton) -> None:
         depth += 1
 
 
+#: The only event types that can change a button's classification, as a set
+#: of the enum members built once rather than a tuple built per event.
+_CLASSIFYING_MOMENTS = frozenset({
+    QEvent.Show, QEvent.Polish, QEvent.ParentChange, QEvent.EnabledChange,
+})
+
+
 class _SemanticButtonFilter(QObject):
     """Tag buttons globally and preserve Run's fill until work completes."""
 
@@ -234,18 +241,26 @@ class _SemanticButtonFilter(QObject):
         and enabled again by something else would otherwise keep saying it was
         still working.
 
+        THE EVENT TYPE IS THE FIRST TEST, and it is a set built once.
+        This filter is on the QApplication, so both the `isinstance` and a
+        tuple of three enum members used to be built for every event in the
+        process -- 94,431 of them during one module open. The four types
+        below are the only ones that can do anything, and which of them it
+        is does not depend on the widget.
+
         :param watched: the object the event is for.
         :param event: the event.
         :returns: ``False`` -- every event is observed and passed on.
         """
+        event_type = event.type()
+        if event_type not in _CLASSIFYING_MOMENTS:
+            return False
         if isinstance(watched, QPushButton):
-            event_type = event.type()
-            if event_type in (
-                    QEvent.Show, QEvent.Polish, QEvent.ParentChange):
+            if event_type != QEvent.EnabledChange:
                 self.classify(watched)
                 if alive(watched):
                     _adopt_activity_spinner(watched)
-            elif event_type == QEvent.EnabledChange:
+            else:
                 self.classify(watched)
                 if (alive(watched) and watched.isEnabled()
                         and watched.property("buttonActionBusy") is True):

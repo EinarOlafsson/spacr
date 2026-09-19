@@ -216,8 +216,17 @@ def test_an_event_that_dies_between_the_two_checks_is_ignored(qapp):
     assert filt.eventFilter(object(), _DyingEvent()) is False
 
 
-def test_a_dead_object_is_refused_before_its_event_is_read(qapp):
-    """``None`` for either half is refused without touching the other."""
+def test_a_dead_half_of_either_kind_is_refused(qapp):
+    """``None`` for either half is refused, whichever is read first.
+
+    THE ORDER CHANGED, 2026-09-19, and this is the test that says the
+    outcome did not. The filter used to ask whether both halves were alive
+    before it read the event type; it now reads the type first and asks
+    afterwards, because both questions ran for every event in the process
+    and only a context menu can do anything. A missing event answers
+    ``False`` through ``AttributeError`` instead of through the liveness
+    check, and a missing object answers ``False`` as it always did.
+    """
     filt = fd.FeatureHelpFilter()
 
     assert filt.eventFilter(object(), None) is False
