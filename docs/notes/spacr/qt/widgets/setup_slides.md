@@ -905,3 +905,17 @@ if not should_open() and not needs_agreement():
 ```
 
 UNACCEPTED TERMS ARE THEIR OWN REASON TO ASK. Dismissing the screen marks the questions answered -- they all have defaults -- but a licence is not answered by a default, so terms that were never accepted, or accepted at an older version, bring the screen back.
+
+## The Install button and the GitHub account button, 2026-09-19 (item 420)
+
+```python
+act_install = (box.addButton(_say("Install"),
+```
+
+"in the startup spacr when the use clicks an AI provider there should be an aditional button, install which automatically downloads and installs the chosen ai provider and asks the user for the needed information and sets up the AI provider" and "same for the github cli, add that to and a button that links to generating a github account" (maintainer, 2026-09-16).
+
+The prompt that already opened for a provider that is not set up gets Install, and the GitHub mark with no `gh` now opens the same kind of prompt instead of going straight to cli.github.com. NOTHING RUNS UNTIL INSTALL IS PRESSED, and the prompt shows the exact command first. The install runs in the `CliSetupPanel` under the marks (or under the GitHub row); when it finishes, the provider's sign-in starts -- in a terminal for the AI CLIs, in spaCR's own `gh auth login` flow for GitHub -- and the panel asks the tool's status command every 3 s until it says yes. When no install row can run here, the prompt names the missing program and keeps the page and the command.
+
+`_github_sign_in_ended` replaces the bare refresh on `gh`'s `finished`: a non-zero exit while the panel is waiting is a sign-in that was cancelled or expired, and the panel says so instead of waiting out its ten minutes.
+
+"Create a GitHub account" opens https://github.com/signup and is hidden once a token is found.
