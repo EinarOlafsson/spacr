@@ -3338,22 +3338,41 @@ class AppScreen(QWidget):
             "path yourself. "
             "API: spacr.qt.widgets.model_zoo_picker.choose_model.")
         button.clicked.connect(
-            lambda *_, f=widget: self._choose_a_model_for(f))
+            lambda *_, f=widget, k=key: self._choose_a_model_for(f, k))
         row.addWidget(button)
         holder._spacr_field = widget
         return holder
 
-    def _choose_a_model_for(self, field) -> None:
+    @staticmethod
+    def _model_kinds_for(key: str) -> tuple:
+        """Which zoo kinds this model field can actually load.
+
+        ``kinds`` is a rule rather than a parameter: the zoo also carries the
+        YOLO well detector, and offering that in a Cellpose field would offer
+        something no segmenter can load -- a choice that fails at segmentation
+        time, long after the click that caused it.
+
+        A ``*_model_name`` field gets ``cellpose3`` as well. Those are the
+        settings :func:`spacr.settings._get_object_settings` reads BY NAME
+        when ``segmentation_backend`` is ``'cellpose3'``, so cyto3, cyto2,
+        cyto, nuclei and any bioimage.io Cellpose 3 checkpoint are real
+        choices there. ``plaque_model`` and ``custom_model`` are not: those
+        screens load the checkpoint with spaCR's own Cellpose 4, in spaCR's
+        own process, and a Cellpose 3 name would fail there.
+        """
+        return (("cellpose", "cellpose3") if str(key).endswith("_model_name")
+                else ("cellpose",))
+
+    def _choose_a_model_for(self, field, key: str = "") -> None:
         """Open the picker and write the chosen path into ``field``.
 
-        ``kinds`` is restricted to Cellpose checkpoints: the zoo also carries
-        the YOLO well detector, and offering that here would offer something
-        ``CellposeModel`` cannot load -- a choice that fails at segmentation
-        time, long after the click that caused it.
+        :param field: the widget the chosen value is written into.
+        :param key: the setting the field stands for, which decides what the
+            picker offers -- see :meth:`_model_kinds_for`.
         """
         from ..widgets.model_zoo_picker import choose_model
 
-        path = choose_model(self, kinds=("cellpose",))
+        path = choose_model(self, kinds=self._model_kinds_for(key))
         if not path:
             return
         if hasattr(field, "set_value"):
