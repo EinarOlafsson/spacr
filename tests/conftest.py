@@ -574,6 +574,36 @@ def _no_provider_stream_outlives_a_test():
         pass
 
 
+@pytest.fixture(autouse=True)
+def _no_test_runs_a_real_installer(monkeypatch):
+    """Refuse to start a vendor installer from any test.
+
+    Item 420 made Install the DEFAULT button of the prompt a provider that
+    is not set up opens, and that button runs ``curl ... | bash`` or
+    ``npm install -g`` on the machine running the tests. A test that
+    answers the prompt by pressing its first accept button -- the way
+    ``answer_the_dialog`` in test_the_setup_screen_signs_you_in.py does --
+    would install a real CLI the moment its stand-in provider gained
+    install rows. Every process an install starts goes through
+    ``spacr.qt.ai.cli_install._spawn``, so that is refused here; a test
+    that means to run a real process (a shell script in ``tmp_path``)
+    sets ``_spawn`` itself, which replaces this.
+    """
+    try:
+        from spacr.qt.ai import cli_install
+    except Exception:                                            # noqa: BLE001
+        yield
+        return
+
+    def refuse(command, *_args, **_kwargs):
+        raise AssertionError(
+            f"a test was about to run a real installer: {command!r}. "
+            f"Replace spacr.qt.ai.cli_install._spawn in the test.")
+
+    monkeypatch.setattr(cli_install, "_spawn", refuse)
+    yield
+
+
 #: Sandbox for everything the app keeps under `~/.spacr`. Session-wide and
 #: created once, like the QSettings one above.
 _DOT_SPACR_SANDBOX = Path(

@@ -210,16 +210,32 @@ def launch_command(method: InstallMethod,
         pipefail -c`` and the command, so a failed download in ``curl ... |
         bash`` is a failed install rather than an empty script run
         successfully; otherwise the command split into a program, looked up
-        on ``PATH``, and its arguments.
+        on ``PATH``, and its arguments (:func:`split_command`).
     """
     if method.runner == "cmd" and platform_family(platform) == "win32":
         return method.shown
     if method.runner == "shell":
         return [shutil.which("bash") or "bash", "-o", "pipefail", "-c",
                 method.command]
-    argv = shlex.split(method.command)
+    argv = split_command(method.command, platform)
     argv[0] = shutil.which(argv[0]) or argv[0]
     return argv
+
+
+def split_command(command: str, platform: str) -> List[str]:
+    """Split a command as typed into a program and its arguments.
+
+    :param command: the command, with any path that holds a space quoted
+        the way :func:`spacr.qt.ai.providers.quote_path` quotes it.
+    :param platform: a ``sys.platform`` value.
+    :returns: the words. On Windows a backslash is part of a path, not an
+        escape, and a double-quoted word loses its quotes.
+    """
+    if platform_family(platform) != "win32":
+        return shlex.split(command)
+    words = shlex.split(command, posix=False)
+    return [word[1:-1] if len(word) > 1 and word[0] == word[-1] == '"'
+            else word for word in words]
 
 
 def _start_options(platform: str) -> dict:
@@ -251,18 +267,30 @@ def clean_line(raw: bytes) -> str:
 def stop_process(proc: Any, platform: str) -> None:
     """End an installer and everything it started.
 
-    :param proc: the running installer.
+    On POSIX the installer's group is signalled even when the installer
+    itself has already exited: a program it started can still hold its
+    output open, and the install does not end until that program does.
+    The installer's own process is left alone once it has exited.
+
+    :param proc: the installer, running or exited.
     :param platform: a ``sys.platform`` value.
     """
-    if proc.poll() is not None:
-        return
+    exited = proc.poll() is not None
     if platform_family(platform) == "win32":
+        if exited:
+            return
         try:
             _spawn(["taskkill", "/T", "/F", "/PID", str(proc.pid)],
                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                    stderr=subprocess.DEVNULL)
         except OSError:
             proc.kill()
+        return
+    if exited:
+        try:
+            _signal_group(proc.pid, signal.SIGTERM)
+        except (OSError, TypeError):
+            pass
         return
     try:
         _signal_group(proc.pid, signal.SIGTERM)
@@ -277,6 +305,21 @@ def stop_process(proc: Any, platform: str) -> None:
             proc.kill()
 
 
+def _kill_group(proc: Any, platform: str) -> None:
+    """Kill what is left of an installer's group after it was asked to stop.
+
+    :param proc: the installer, running or exited.
+    :param platform: a ``sys.platform`` value; nothing is done on Windows,
+        where :func:`stop_process` already ended the whole tree by force.
+    """
+    if platform_family(platform) == "win32":
+        return
+    try:
+        _signal_group(proc.pid, signal.SIGKILL)
+    except (OSError, TypeError):
+        pass
+
+
 def _watch(proc: Any, stop: Optional[threading.Event], deadline: float,
            finished: threading.Event, fired: List[str], platform: str) -> None:
     """Stop ``proc`` when Cancel is pressed or the time limit passes.
@@ -287,7 +330,10 @@ def _watch(proc: Any, stop: Optional[threading.Event], deadline: float,
     :param proc: the running installer.
     :param stop: set by Cancel, or ``None``.
     :param deadline: the ``time.monotonic()`` value past which it is hung.
-    :param finished: set once the installer has exited, to end this watch.
+    :param finished: set once the installer's output has closed and it has
+        exited, to end this watch. When it is still not set
+        :data:`STOP_GRACE_S` after the stop, whatever is left of the
+        installer's group is killed.
     :param fired: receives :data:`CANCELLED` or :data:`TIMED_OUT` when this
         watch is what stopped the installer.
     :param platform: a ``sys.platform`` value.
@@ -300,6 +346,8 @@ def _watch(proc: Any, stop: Optional[threading.Event], deadline: float,
         else:
             continue
         stop_process(proc, platform)
+        if not finished.wait(STOP_GRACE_S):
+            _kill_group(proc, platform)
         return
 
 
@@ -360,7 +408,10 @@ def run_install(plan: InstallPlan,
     :param stop: set it to stop the installer.
     :param timeout_s: seconds after which the installer is stopped as hung.
     :returns: the outcome; :data:`INSTALLED` only when the CLI is found
-        afterwards, with ``location`` saying where.
+        afterwards, with ``location`` saying where. An installer that exited
+        0 as Cancel or the time limit reached it is :data:`INSTALLED` when
+        the CLI is there, because the install finished; otherwise it is
+        :data:`CANCELLED` or :data:`TIMED_OUT`.
     """
     if plan.method is None:
         return InstallOutcome(NOT_AUTOMATIC)
@@ -401,12 +452,14 @@ def run_install(plan: InstallPlan,
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
     tail = quote_tail(kept)
-    if fired:
-        return InstallOutcome(fired[0], None, tail)
     if exit_status != 0:
+        if fired:
+            return InstallOutcome(fired[0], None, tail)
         return InstallOutcome(classify(exit_status, kept, plan.method),
                               exit_status, tail)
     location = locate(plan.tool, plan.platform)
+    if fired and not location:
+        return InstallOutcome(fired[0], None, tail)
     return InstallOutcome(INSTALLED if location else NOT_FOUND, 0, tail,
                           location)
 

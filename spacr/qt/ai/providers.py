@@ -33,6 +33,7 @@ from __future__ import annotations
 import sys as _sys
 
 import os
+import shlex
 import shutil
 import subprocess
 from abc import ABC, abstractmethod
@@ -80,8 +81,44 @@ _CLAUDE_WINDOWS = (
 )
 _CODEX_NPM = InstallMethod(("npm",), "npm install -g @openai/codex")
 _GEMINI_NPM = InstallMethod(("npm",), "npm install -g @google/gemini-cli")
-_GH_CONDA = InstallMethod(("conda",),
-                          "conda install --yes gh --channel conda-forge")
+
+
+def quote_path(path: str, platform: str) -> str:
+    """A path as it is typed in a command on ``platform``.
+
+    :param path: the path.
+    :param platform: a ``sys.platform`` value.
+    :returns: on Windows the path in double quotes when it holds a space,
+        else unchanged; elsewhere quoted for a POSIX shell.
+    """
+    path = str(path)
+    if str(platform).startswith("win"):
+        return f'"{path}"' if any(ch.isspace() for ch in path) else path
+    return shlex.quote(path)
+
+
+def gh_conda_row(prefix: str, platform: str) -> InstallMethod:
+    """The row that installs the GitHub CLI with conda.
+
+    :param prefix: spaCR's own environment, ``sys.prefix``.
+    :param platform: a ``sys.platform`` value, for quoting ``prefix``.
+    :returns: when ``prefix`` is a conda environment, a command that names
+        it with ``--prefix`` and adds ``gh`` with ``--freeze-installed``,
+        so the command on screen says which environment changes and conda
+        does not update the packages spaCR runs on; otherwise conda's plain
+        command, which installs into whichever environment conda treats as
+        active.
+    """
+    if os.path.isdir(os.path.join(str(prefix), "conda-meta")):
+        return InstallMethod(
+            ("conda",),
+            f"conda install --yes --prefix {quote_path(prefix, platform)}"
+            f" --freeze-installed gh --channel conda-forge")
+    return InstallMethod(("conda",),
+                         "conda install --yes gh --channel conda-forge")
+
+
+_GH_CONDA = gh_conda_row(_sys.prefix, _sys.platform)
 _GH_POSIX = (InstallMethod(("brew",), "brew install gh"), _GH_CONDA)
 _CODEX_POSIX = (_CODEX_NPM, InstallMethod(("brew",), "brew install codex"))
 _GEMINI_POSIX = (_GEMINI_NPM,

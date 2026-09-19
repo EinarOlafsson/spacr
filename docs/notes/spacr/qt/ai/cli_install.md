@@ -29,3 +29,14 @@ A THREAD OF ITS OWN, because the thread running the install is blocked in `read1
 ## locate and put_on_path
 
 Claude's native installer puts `claude` in `~/.local/bin`. A spaCR started from a desktop icon often has a `PATH` without that folder, so the install would succeed and the mark would still say "not installed" until a restart. `locate` looks in the folders installers use, and `put_on_path` adds the one it found to this process's `PATH` -- on the GUI thread, because changing the environment while another thread reads it is not safe.
+
+## stop_process, _kill_group and the verdict after a stop, 2026-09-19 (review of item 420)
+
+```python
+if not finished.wait(STOP_GRACE_S):
+    _kill_group(proc, platform)
+```
+
+A CHILD CAN HOLD THE OUTPUT AFTER THE INSTALLER HAS GONE. `stop_process` used to return as soon as the installer itself had exited. A program it started in the background keeps the stdout pipe open, so `read1` went on waiting, and Cancel and the 20-minute limit did nothing at all. Now the group is signalled even when the installer has exited (POSIX: a process group's ID is not handed to a new process while the group has a member, so this reaches the leftover child and nothing else; an empty group raises and is ignored). If the output has still not closed `STOP_GRACE_S` after the stop, `_watch` kills what is left of the group. `tests/test_an_installer_runs_the_command_it_shows.py` has a real `bash` that starts `sleep 30 &` and exits at once; Cancel now ends the `sleep` within the grace period, where before it took the whole sleep. On Windows `taskkill /T` cannot reach a child whose parent has already exited, so this case is still open there (unverified, like the rest of Windows).
+
+AN INSTALL THAT FINISHED IS NOT A CANCELLED ONE. When Cancel or the time limit fires as the installer exits 0 on its own, the verdict follows what is on disk: the CLI found means `INSTALLED`, otherwise `CANCELLED` or `TIMED_OUT`. A real installer ended by SIGTERM exits non-zero and stays `CANCELLED`.

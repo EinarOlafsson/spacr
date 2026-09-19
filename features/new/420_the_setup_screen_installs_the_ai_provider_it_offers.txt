@@ -2,10 +2,12 @@
 THE SETUP SCREEN INSTALLS THE AI PROVIDER IT OFFERS, INSTEAD OF PRINTING A LINK
 ================================================================================
 
-Status:    BUILT ON LINUX 2026-09-19, branch home/420-setup-installs, local
-           commits awaiting review, not landed. Windows and macOS commands
-           are data from the vendors' docs, UNVERIFIED on those hosts. No
-           real install was run anywhere; see the 2026-09-19 note at the end.
+Status:    BUILT ON LINUX AND LANDED ON NIGHTLY 2026-09-19, after review.
+           NOT DONE: the AI CLIs' sign-in still runs in a terminal window
+           spaCR opens, so the first DONE WHEN ("no terminal used") is met
+           for the GitHub CLI only. Windows and macOS commands are data from
+           the vendors' docs, UNVERIFIED on those hosts. No real install was
+           run anywhere. See the two 2026-09-19 notes at the end.
 Requested: 2026-09-16, by the maintainer, in these words:
 
            "in the startup spacr when the use clicks an AI provider there
@@ -181,7 +183,7 @@ WHAT WAS DONE
     `gh auth login` flow, and a `gh` that exits non-zero ends the wait with
     a message. "Create a GitHub account" beside the mark opens
     https://github.com/signup and hides once a token is found. Closing the
-    screen stops a running installer.
+    screen while an installer runs asks first (see the review note below).
 
 WHAT WAS MEASURED (this machine, 2026-09-19)
 
@@ -222,5 +224,66 @@ WHAT IS LEFT
     as soon as the CLI exists even before sign-in; the panel's status
     polling is what follows the sign-in. Making the marks use the status
     commands would put a process per mark on the GUI thread.
+  * THE FIRST DONE WHEN IS NOT MET FOR THE AI PROVIDERS. It asks for
+    "installed, logged in and marked READY, with no terminal used". The
+    install needs no terminal, but after it the Claude, GPT and Gemini
+    sign-ins (`claude auth login`, `codex login`, `gemini`) are handed to
+    a terminal window spaCR opens (_sign_in_to_provider ->
+    _run_in_a_terminal), and the measurement above says so for GPT. Only
+    the GitHub CLI signs in inside spaCR. Driving the AI sign-ins as a
+    QProcess, the way `gh auth login` is driven, was not tried: whether
+    each CLI signs in without a terminal cannot be checked here without
+    signing in to a real account.
   * Translations: every new caption is English until the consolidated
     catalog pass (listed in the unit's i18n_owed).
+
+--------------------------------------------------------------------------------
+2026-09-19 — REVIEW FIXES, LANDED ON NIGHTLY; ONE DONE WHEN STILL UNMET
+--------------------------------------------------------------------------------
+
+Decided: no new question about this item was put to the maintainer. The
+build follows his two requests of 2026-09-16, quoted above, and keeps
+`claude auth login` as Claude's sign-in (item 432, checked against the
+installed CLI).
+
+The review found the core mechanism sound and two things to fix before
+landing, plus six smaller points. What was done about each:
+
+  * Closing the screen mid-install threw the install away without a word
+    (should-fix). Measured by review with a sleeping stand-in `npm`: Start
+    spaCR closed the dialog, SIGTERMed the installer and recorded the
+    screen as done. Now accept and reject ask first: "Keep installing"
+    (the default, and Escape) leaves the screen open; "Stop it and close"
+    stops it, the panel says it was cancelled, and the screen closes.
+    Tests press both, from accept and from reject.
+  * This ledger did not admit the unmet "no terminal used" (should-fix).
+    It does now: Status and WHAT IS LEFT. It was recorded, not met; see
+    WHAT IS LEFT for why.
+  * Cancel could not reach a child left holding the installer's output.
+    The group is now signalled even after the installer has exited, and
+    killed if the output is still open after the grace period. A real
+    `bash` that starts `sleep 30 &` and exits is cancelled in well under a
+    second; before, the wait lasted the whole sleep. A Cancel that races an
+    install that finished is reported as installed when the CLI is there.
+  * The conda row installed into whatever environment was active, which is
+    `base` when spaCR starts from an icon, and then could not find `gh`.
+    It now names spaCR's own environment with `--prefix` and adds `gh`
+    with `--freeze-installed`. Both options were checked with
+    `conda install --help`; the command was not run.
+  * "it needs {needs}, and none was found" showed when a row could run but
+    the panel was gone, and any failure to start was blamed on "another
+    install". Both are keyed on the real reason now.
+  * The mark tooltip for a provider that is not installed now says
+    choosing it offers the install.
+  * The GitHub row asks whether `gh` is there through
+    GitHubCli.is_installed(), the question the panel asks, and the
+    duplicate re-read after an install is gone. The token read itself
+    (github_auth.auth_source, `gh auth token` on the GUI thread) is as it
+    was before item 420: it also knows GITHUB_TOKEN and a stored token,
+    which the GitHub CLI's status check does not, so it was not replaced.
+  * tests/conftest.py now refuses cli_install._spawn in every test, so a
+    test that presses the prompt's default button cannot start a real
+    installer; tests/test_no_test_runs_a_real_installer.py checks it.
+
+Left: everything in WHAT IS LEFT above. Windows, macOS, a real install and
+the AI sign-ins without a terminal are the open parts.

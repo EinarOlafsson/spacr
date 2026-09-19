@@ -8,7 +8,7 @@ same for the GitHub CLI. These tests are about the mechanism,
 
 NOTHING IS INSTALLED BY THIS FILE. Every test that is not explicitly about a
 real process runs with ``cli_install._spawn`` replaced, and the autouse guard
-below fails any test that reaches the real one by accident. The two
+below fails any test that reaches the real one by accident. The three
 real-process tests run a shell script written into ``tmp_path``.
 """
 from __future__ import annotations
@@ -252,6 +252,52 @@ def test_a_program_row_is_split_and_looked_up(monkeypatch):
     assert cli_install.launch_command(CURL, "linux")[0] == "bash"
 
 
+def test_the_conda_row_names_spacrs_own_environment(tmp_path, monkeypatch):
+    """Review of 420, 2026-09-19: conda installed into whatever was active.
+
+    With no ``--prefix`` conda picked the environment itself -- base, when
+    spaCR was started without activating one -- and ``locate`` then could
+    not find the ``gh`` it had just installed. The row now names spaCR's
+    own environment on screen and adds ``gh`` without updating the rest.
+    """
+    env = tmp_path / "my envs" / "spacr"
+    (env / "conda-meta").mkdir(parents=True)
+    row = providers.gh_conda_row(str(env), "linux")
+    assert row.needs == ("conda",)
+    assert row.command == (f"conda install --yes --prefix '{env}' "
+                           f"--freeze-installed gh --channel conda-forge")
+    monkeypatch.setattr(cli_install.shutil, "which",
+                        which_from({"conda": "/opt/conda/bin/conda"}))
+    assert cli_install.launch_command(row, "linux") == [
+        "/opt/conda/bin/conda", "install", "--yes", "--prefix", str(env),
+        "--freeze-installed", "gh", "--channel", "conda-forge"]
+
+
+def test_outside_a_conda_environment_the_conda_row_is_condas_own(tmp_path):
+    row = providers.gh_conda_row(str(tmp_path), "linux")
+    assert row.command == "conda install --yes gh --channel conda-forge"
+
+
+def test_a_windows_environment_path_survives_the_split(monkeypatch):
+    prefix = r"C:\Users\John Doe\miniconda3\envs\spacr"
+    monkeypatch.setattr(providers.os.path, "isdir", lambda path: True)
+    row = providers.gh_conda_row(prefix, "win32")
+    assert f'--prefix "{prefix}" ' in row.command
+    monkeypatch.setattr(cli_install.shutil, "which", which_from({}))
+    assert cli_install.launch_command(row, "win32")[:5] == [
+        "conda", "install", "--yes", "--prefix", prefix]
+    plain = r"C:\envs\spacr"
+    assert providers.quote_path(plain, "win32") == plain
+    assert cli_install.split_command(
+        f"conda install --prefix {plain} gh", "win32")[3] == plain
+
+
+def test_this_system_installs_gh_into_spacrs_own_environment():
+    rows = [row for row in github_cli().install_methods
+            if row.needs == ("conda",)]
+    assert rows == [providers.gh_conda_row(sys.prefix, sys.platform)]
+
+
 def test_the_windows_row_runs_as_the_line_it_shows(monkeypatch):
     monkeypatch.setattr(cli_install.shutil, "which", which_from({}))
     row = install_methods_for("claude", "win32")[0]
@@ -387,11 +433,99 @@ def test_an_installer_that_never_finishes_is_stopped(monkeypatch):
 # --------------------------------------------------------------- stopping it
 
 
-def test_a_process_that_has_exited_is_left_alone(monkeypatch):
+def test_an_exited_installer_still_has_its_group_stopped(monkeypatch):
+    """A program the installer started may still hold its output open.
+
+    Review of 420 (2026-09-19): stop_process returned early when the
+    installer itself had exited, so Cancel and the time limit could not
+    reach a child that was keeping the pipe open, and the install hung.
+    """
+    sent = []
     process = FakeProcess()
     process.returncode = 0
+    monkeypatch.setattr(cli_install, "_signal_group",
+                        lambda pid, sig: sent.append((pid, sig)))
+    cli_install.stop_process(process, "linux")
+    assert sent == [(process.pid, signal.SIGTERM)]
+    assert process.signals == [], "the reaped installer is not signalled"
+
+
+def test_an_exited_installer_with_no_group_left_is_left_alone(monkeypatch):
+    def gone(_pid, _sig):
+        raise ProcessLookupError("no such process group")
+
+    process = FakeProcess()
+    process.returncode = 0
+    monkeypatch.setattr(cli_install, "_signal_group", gone)
     cli_install.stop_process(process, "linux")
     assert process.signals == []
+    monkeypatch.setattr(cli_install, "_signal_group", None)
+    cli_install.stop_process(process, "linux")
+    assert process.signals == []
+
+
+def test_an_exited_installer_on_windows_is_left_alone(monkeypatch):
+    process = FakeProcess()
+    process.returncode = 0
+    cli_install.stop_process(process, "win32")
+    assert process.signals == []
+
+
+def test_what_is_left_of_a_group_is_killed(monkeypatch):
+    sent = []
+    process = FakeProcess()
+    monkeypatch.setattr(cli_install, "_signal_group",
+                        lambda pid, sig: sent.append(sig))
+    cli_install._kill_group(process, "linux")
+    cli_install._kill_group(process, "win32")
+    assert sent == [signal.SIGKILL]
+
+    def gone(_pid, _sig):
+        raise ProcessLookupError("no such process group")
+
+    monkeypatch.setattr(cli_install, "_signal_group", gone)
+    cli_install._kill_group(process, "linux")
+    assert process.signals == []
+
+
+def test_cancel_kills_a_child_that_keeps_the_output_open(monkeypatch):
+    """The installer has exited; something it started holds the pipe."""
+    gate = threading.Event()
+    process = FakeProcess([b"started\n"], status=0, gate=gate)
+    process.returncode = 0
+    sent = []
+
+    def signal_group(pid, sig):
+        sent.append(sig)
+        if sig == signal.SIGKILL:
+            gate.set()
+
+    monkeypatch.setattr(cli_install, "_signal_group", signal_group)
+    monkeypatch.setattr(cli_install, "WATCH_INTERVAL_S", 0.01)
+    monkeypatch.setattr(cli_install, "STOP_GRACE_S", 0.05)
+    stop = threading.Event()
+    stop.set()
+    outcome, lines, *_ = run_with(monkeypatch, process, stop=stop)
+    assert sent == [signal.SIGTERM, signal.SIGKILL]
+    assert outcome.kind == cli_install.CANCELLED
+    assert lines == ["started"]
+
+
+def test_an_install_that_finishes_as_cancel_is_pressed_is_installed(
+        monkeypatch):
+    """Cancel racing a normal exit: the install is done, so it says so."""
+    gate = threading.Event()
+    process = FakeProcess([b"done\n"], status=0, gate=gate)
+    monkeypatch.setattr(cli_install, "_signal_group",
+                        lambda pid, sig: gate.set())
+    monkeypatch.setattr(cli_install, "WATCH_INTERVAL_S", 0.01)
+    found = {"curl": "/usr/bin/curl", "bash": "/usr/bin/bash",
+             "fakecli": "/usr/bin/fakecli"}
+    stop = threading.Event()
+    stop.set()
+    outcome, *_ = run_with(monkeypatch, process, found=found, stop=stop)
+    assert outcome.kind == cli_install.INSTALLED
+    assert outcome.location == "/usr/bin/fakecli"
 
 
 def test_a_group_that_ignores_sigterm_is_killed(monkeypatch):
@@ -629,3 +763,42 @@ def test_cancel_ends_every_process_the_installer_started(monkeypatch,
     else:
         os.kill(child, signal.SIGKILL)
         pytest.fail("the installer's child outlived Cancel")
+
+
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="POSIX groups")
+def test_cancel_ends_a_child_left_holding_the_output(monkeypatch, tmp_path):
+    """The installer exits at once; the `sleep` it left keeps the pipe open.
+
+    Before the review fix of 2026-09-19 this took the full sleep: Cancel
+    found the installer gone and did nothing, and `read1` waited for the
+    `sleep` to close its end of the pipe.
+    """
+    monkeypatch.setattr(cli_install, "_spawn", subprocess.Popen)
+    monkeypatch.setattr(cli_install, "_signal_group", os.killpg)
+    monkeypatch.setattr(cli_install, "likely_folders",
+                        lambda platform=None: [])
+    pid_file = tmp_path / "child.pid"
+    row = InstallMethod(("bash",),
+                        f"sleep 30 & echo $! > '{pid_file}'; echo started",
+                        "shell")
+    plan = cli_install.plan_install(Tool([row]), platform=sys.platform)
+    stop = threading.Event()
+
+    def on_output(_line):
+        time.sleep(0.5)
+        stop.set()
+
+    began = time.monotonic()
+    outcome = cli_install.run_install(plan, on_output, stop)
+    assert time.monotonic() - began < 10
+    assert outcome.kind == cli_install.CANCELLED
+    child = int(pid_file.read_text())
+    for _ in range(50):
+        try:
+            os.kill(child, 0)
+        except ProcessLookupError:
+            break
+        time.sleep(0.05)
+    else:
+        os.kill(child, signal.SIGKILL)
+        pytest.fail("the child holding the output outlived Cancel")

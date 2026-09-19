@@ -246,6 +246,14 @@ class CliSetupPanel(QWidget):
         """The tool's name as the user reads it."""
         return str(getattr(self._tool, "label", "") or "")
 
+    def tool_label(self) -> str:
+        """The name of the tool this panel is installing or signing in to.
+
+        :returns: its label, such as ``"Claude"``, or ``""`` before the
+            panel has been given a tool.
+        """
+        return self._label()
+
     def _show(self, state: str, message: str) -> None:
         """Enter ``state``: say ``message`` and show the controls it needs.
 
@@ -506,8 +514,14 @@ class CliSetupPanel(QWidget):
         """Stop the installer and the sign-in watch, and retire the thread.
 
         Called when the screen closes: an installer left running with no
-        Cancel button on screen is one the user can no longer stop.
+        Cancel button on screen is one the user can no longer stop. The
+        worker's own answer is dropped once the thread is retired, so an
+        install that was running is shown as cancelled here, and the panel
+        no longer counts as busy.
         """
         self._stop.set()
         self._stop_watching()
         self._runner.shutdown(SHUTDOWN_WAIT_MS)
+        if self.state == INSTALLING:
+            self._show(FAILED, self._explain(
+                cli_install.InstallOutcome(cli_install.CANCELLED)))

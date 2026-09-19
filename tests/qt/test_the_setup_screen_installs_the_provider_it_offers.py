@@ -379,8 +379,12 @@ def test_a_second_install_waits_for_the_first(slides, qtbot, present, press,
     gate.set()
 
 
-def test_closing_the_screen_stops_the_installer(slides, qtbot, present,
-                                                press, spawned, monkeypatch):
+def _start_a_long_install(slides, qtbot, present, press, spawned,
+                          monkeypatch):
+    """Press Install on Claude with an installer that runs until stopped.
+
+    :returns: the signals the installer's group was sent, as they arrive.
+    """
     present.update(curl="/usr/bin/curl", bash="/usr/bin/bash")
     gate = threading.Event()
     installer = FakeInstaller([b"Downloading\n"], gate=gate)
@@ -394,11 +398,87 @@ def test_closing_the_screen_stops_the_installer(slides, qtbot, present,
     _click(qtbot, holder._buttons["claude"])
     qtbot.waitUntil(lambda: slides._ai_setup.latest.text() == "Downloading",
                     timeout=WAIT_MS)
+    return sent
 
-    slides.reject()
 
+@pytest.mark.parametrize("leave", ["reject", "accept"])
+def test_closing_the_screen_mid_install_asks_and_can_keep_it_running(
+        slides, qtbot, present, press, spawned, monkeypatch, leave):
+    """Review of 420, 2026-09-19: Start spaCR stopped the install silently.
+
+    Pressing Install, then Next to the end and Start spaCR (accept), or
+    Escape (reject), used to close the screen and SIGTERM the installer
+    with nothing on screen to say so. Now the user is asked, and keeping
+    it running is the default.
+    """
+    sent = _start_a_long_install(slides, qtbot, present, press, spawned,
+                                 monkeypatch)
+    answered = []
+    monkeypatch.setattr("spacr.qt.setup_screen.mark_answered",
+                        lambda version: answered.append(version))
+
+    seen = press("Keep installing")
+    getattr(slides, leave)()
+
+    assert "Claude" in seen["text"]
+    assert "Stop it and close" in seen["buttons"]
+    assert slides.isVisible(), "the screen closed over a running install"
+    assert sent == [], "the installer was stopped anyway"
+    assert slides._ai_setup.state == INSTALLING
+    assert answered == [], "the screen was recorded as done"
+
+    press("Stop it and close")
+    getattr(slides, leave)()
+
+    assert not slides.isVisible()
     assert sent == [signal.SIGTERM]
     assert slides._ai_setup._runner.active_jobs() == 0
+    assert slides._ai_setup.state == FAILED
+    assert "cancelled" in slides._ai_setup.message.text().lower()
+    assert len(answered) == 1
+
+
+def test_keeping_the_install_is_the_default_and_what_escape_does(
+        slides, qtbot, present, spawned, monkeypatch, press):
+    _start_a_long_install(slides, qtbot, present, press, spawned,
+                          monkeypatch)
+    seen = {}
+
+    def exec_(box):
+        seen["default"] = box.defaultButton().text()
+        seen["escape"] = box.escapeButton().text()
+        seen["title"] = box.windowTitle()
+        return 0
+
+    monkeypatch.setattr(QMessageBox, "exec", exec_)
+    monkeypatch.setattr(QMessageBox, "clickedButton",
+                        lambda box: box.escapeButton())
+
+    assert slides._may_close() is False
+    assert seen == {"default": "Keep installing",
+                    "escape": "Keep installing",
+                    "title": "An install is still running"}
+
+
+def test_with_nothing_installing_the_screen_closes_without_asking(
+        slides, press):
+    seen = press("Keep installing")
+    slides.reject()
+    assert not slides.isVisible()
+    assert "buttons" not in seen, "it asked with nothing running"
+
+
+def test_a_github_install_is_named_when_closing(slides, press):
+    slides._refresh_github()
+    slides._gh_setup._tool = providers.github_cli()
+    slides._gh_setup.state = INSTALLING
+    try:
+        assert slides._running_installs() == ["GitHub CLI"]
+        seen = press("Keep installing")
+        assert slides._may_close() is False
+        assert "GitHub CLI" in seen["text"]
+    finally:
+        slides._gh_setup.state = IDLE
 
 
 def test_signing_in_to_an_installed_provider_is_watched_to_the_end(
@@ -476,12 +556,12 @@ def test_the_github_cli_installs_and_goes_straight_to_its_sign_in(
     _click(qtbot, slides._gh_mark)
 
     tool = providers.github_cli()
-    assert "conda install --yes gh --channel conda-forge" in \
-        seen["informative"]
+    row = providers.gh_conda_row(sys.prefix, sys.platform)
+    assert row.command in seen["informative"]
     qtbot.waitUntil(lambda: panel.state == READY, timeout=WAIT_MS)
-    assert spawned.calls[0]["command"] == [
-        "/opt/conda/bin/conda", "install", "--yes", "gh", "--channel",
-        "conda-forge"]
+    assert spawned.calls[0]["command"] == (
+        ["/opt/conda/bin/conda"]
+        + cli_install.split_command(row.command, sys.platform)[1:])
     assert started == [True]
     assert slides._gh_action == "login", "the row re-read the installed CLI"
     assert tool.label in panel.message.text()
@@ -610,6 +690,60 @@ def test_a_panel_that_will_not_stop_does_not_stop_the_screen(slides,
 
     monkeypatch.setattr(slides._ai_setup, "shutdown", refuse)
     slides._stop_the_installs()
+
+
+def test_a_mark_that_is_not_installed_says_choosing_it_offers_the_install(
+        slides):
+    holder = _assistant(slides)
+    tip = holder._buttons["claude"].toolTip()
+    assert holder._buttons["claude"].status == ProviderMark.NOT_INSTALLED
+    assert "offers to install" in tip
+    slides._refresh_provider_marks(holder)
+    assert holder._buttons["claude"].toolTip() == tip
+    assert "starts the sign-in" in SetupSlides._mark_tip(
+        "GPT", ProviderMark.SIGNED_OUT)
+    assert "offers" not in SetupSlides._mark_tip("GPT",
+                                                  ProviderMark.SIGNED_OUT)
+    assert SetupSlides._mark_tip("GPT", ProviderMark.READY) == (
+        "Use GPT. You are signed in.")
+
+
+def test_a_runnable_row_is_not_reported_as_a_missing_program(slides, press,
+                                                             present):
+    """With curl and bash present, nothing is missing even without a panel."""
+    from shiboken6 import delete
+
+    present.update(curl="/usr/bin/curl", bash="/usr/bin/bash")
+    delete(slides._ai_setup)
+    seen = press("Later")
+    slides._start_provider_login("claude")
+    assert "Install" not in seen["buttons"]
+    assert "none was found" not in seen["informative"]
+    assert providers.get_provider("claude").install_hint in \
+        seen["informative"]
+
+
+def test_an_install_that_did_not_start_is_not_blamed_on_another(
+        slides, press, present, monkeypatch):
+    present.update(curl="/usr/bin/curl", bash="/usr/bin/bash")
+    monkeypatch.setattr(slides, "_install_provider",
+                        lambda provider, code: False)
+    press("Install")
+    note = slides._start_provider_login("claude")
+    assert "still running" not in note
+    assert note == (f"{providers.get_provider('claude').label} is not set "
+                    f"up yet.")
+
+
+def test_with_its_panel_gone_the_github_prompt_shows_the_command_only(
+        slides, press, present):
+    present.update(brew="/opt/homebrew/bin/brew")
+    del slides._gh_setup
+    seen = press("Later")
+    assert slides._offer_github_install() is False
+    assert "Install" not in seen["buttons"]
+    assert "none was found" not in seen["informative"]
+    assert "brew install gh" in seen["informative"]
 
 
 def test_a_sign_in_ending_after_the_screen_is_gone_touches_nothing(
