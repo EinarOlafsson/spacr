@@ -3,14 +3,14 @@ A RE-RUN TRUSTS NOTHING A KILLED RUN LEFT: MASK RESUMES A PLATE IT ALREADY
 PROCESSED, AND CHECKS EVERY STACK AND ARCHIVE BEFORE IT REUSES THEM
 ================================================================================
 
-Status:    DONE IN CODE 2026-09-19, REVIEWED, REVIEW'S DEFECTS FIXED,
-           rebased onto origin/nightly; committed on
-           home/rerun-processed-folder and NOT PUSHED. Landing it on nightly
-           and posting the #118 / #124 notices wait for the maintainer's
-           go-ahead (see the last trailing note). 23 tests; the review's
-           probes pass. A run with the real Cellpose-SAM model on CPU
-           finished on both issue states before review; see the trailing
-           notes.
+Status:    DONE 2026-09-19, on nightly. Reviewed, and the review's three
+           should-fix defects fixed. Landed and #118 / #124 answered by the
+           orchestrating session, which holds the maintainer's go-ahead
+           first-hand ("Fix them, post a notice", asked through the question
+           prompt that morning). 23 tests; a real Cellpose-SAM run on CPU
+           finished on both issue states. Still owed: the nine-language API
+           catalogs for the new preprocess_img_data paragraph, which the
+           day's consolidated translation pass takes.
 Requested: GitHub #118 and #124, both filed 2026-09-17 by jak18015, spaCR
            1.5.0.8, Mask module. #118 is auto-filed:
 
@@ -289,3 +289,12 @@ LEFT:
   * The Codex-lane follow-ups above, unchanged: adjust_cell_masks rewrites
     masks in place with np.save, and _run_test_mode ignores raw images in
     the plate folder when orig/ exists.
+
+
+--------------------------------------------------------------------------------
+2026-09-19 — LANDED
+--------------------------------------------------------------------------------
+
+The land stage held the push and the issue replies because it could not see
+the maintainer's approval itself. The orchestrating session had it first-hand
+and landed the branch as it stood, re-tested after the rebase.
