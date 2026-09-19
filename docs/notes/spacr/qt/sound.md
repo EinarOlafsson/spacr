@@ -48,12 +48,33 @@ order. With that in place, measured through the real Preferences dialog
 | | worst GUI gap | ready after |
 |---|---|---|
 | first ever: `scipy.signal` imported and the set rendered on the audio thread | 34-52 ms | 1.3-1.8 s |
-| every later start: files already cached | 5.3 ms (the tick itself) | 0.26 s |
+| first switch-on in a FRESH PROCESS, files already rendered | 30.0, 30.2, 31.6 and 9.5 ms in four runs | 0.22-0.32 s |
+| a later switch-on in the SAME process | 5.4 ms, which is the tick itself | 3 ms |
+
+THE MIDDLE ROW WAS WRONG AND IS THE ONE THAT MATTERS, corrected 2026-09-19
+after review. It read "every later start: 5.3 ms (the tick itself), 0.26 s",
+and 5.3 ms is real -- for a SECOND switch-on inside one process, where the
+sound server is already connected. The case a user actually meets, launching
+spaCR with sound already on, is the middle row: about 30 ms, once per
+process, landing +192 to +282 ms in, which is the moment the audio thread's
+first `QMediaDevices.defaultAudioOutput()` returns. Listing the devices
+first moved that call OFF the GUI thread and took the gap from 180-320 ms to
+about 30; it did not take it to zero, and writing 5.3 ms in this row claimed
+it had. Measured four times in fresh interpreters against the same warm
+cache, sandboxed `HOME`/`XDG_*`/`SPACR_SOUND_CACHE`, offscreen, volume 0,
+5 ms ticks, the tick before the work started included.
 
 What remains of the first-ever gap is synthesis sharing the interpreter
 lock with the GUI thread, once per set per machine. Pressing Save with sound
 switched on took 406-416 ms against 400-410 ms with it left off: the engine
 and its thread add under 10 ms to Save.
+
+MEASURING THIS THROUGH THE PREFERENCES DIALOG DOES NOT WORK and cost an
+afternoon. `Save` runs ~390-460 ms of unrelated preference work
+synchronously, with no event-loop tick anywhere inside it, so the one gap
+in the window is Save's own; the audio thread's connection happens
+underneath it and never shows. The rows above therefore drive
+`apply_sound_preferences` directly, which is the same call Save makes.
 
 ## Why effects are deleted at once and never with `deleteLater`
 
@@ -119,9 +140,53 @@ thing spaCR has to a reduced-motion preference. A Preview plays it for
 `PREVIEW_BED_MS` and fades it out over `FADE_MS` in twelve steps; closing
 Preferences ends any preview and, if sound is off, lets go of the device.
 
+THE FADE THAT ENDS A PREVIEW USED TO END THE BED ITSELF, found in review
+2026-09-19. For a user who already had the music bed switched on, pressing
+Preview stopped their bed for as long as Preferences stayed open: the last
+step of the fade calls `stop()`, and nothing afterwards knew the settings
+still wanted it playing. The worker cannot know that -- it has the gain it
+was handed and no settings -- so the last fade step emits `bed_faded` and
+the engine answers it with `stop_preview()`, which is the same "put the
+stored settings back on the bed" it already ran when the dialog closed.
+
+## Why a control can ask not to click
+
+`SILENT_PRESS_PROPERTY` (`"spacrSilentPress"`) is a Qt dynamic property the
+filter reads on a left press on something pressable, after the `isEnabled`
+check and nowhere else, so it costs nothing on the events the filter
+already ignores. The Sound tab's Preview buttons carry it: a Preview press
+is the user asking to hear ONE sound, and the app-wide filter answering the
+same press with a click plays two -- for the Click row's own Preview, the
+same pluck twice, 20 ms apart. Found in review 2026-09-19.
+
+`spacr/qt/sound_preferences.py` sets the property by its literal name
+rather than importing this module, because building the Sound tab must not
+import the sound engine for somebody who has sound switched off. Nothing
+pins the two spellings against each other directly; what pins them is
+`test_a_preview_press_is_not_also_a_click`, which drives the real dialog
+with sound on and hears what comes out.
+
 ## A run the user stopped is silent
 
 `announce_run_end("cancelled")` plays nothing: the user who pressed Stop
 knows. Success and failure have different figures (see
 `spacr/qt/sound_synth.py`) because "a user who hears 'done' and finds a
 traceback will not trust the sound again" (427, as filed).
+
+## Who is allowed to import this module
+
+"Nothing exists while sound is off" is a promise about the IMPORT, not only
+about the engine, and `spacr/qt/notify.py` was quietly breaking it: its
+`announce_pipeline_finished` did `from .sound import announce_run_end`
+unconditionally, so the first run that ended in any session imported this
+module and `sound_synth` on the GUI thread -- 20.4 ms in a warm app -- for
+a user who had never asked for sound. Found in review 2026-09-19.
+
+Both callers outside Preferences now ask `sys.modules` first, the way
+`preferences.apply_preferences_to_app` already did: `notify` before the run
+sound, and `sound_preferences.SoundPage` before ending a preview. The guard
+loses nothing, because an unimported module means no engine, and without an
+engine `announce_run_end` and `stop_sound_preview` both return at once --
+the engine is only ever built by `apply_sound_preferences`, which runs at
+launch and after every Save. `test_a_finishing_run_does_not_import_the_engine_to_stay_silent`
+ends two runs in a fresh interpreter and then reads `sys.modules`.

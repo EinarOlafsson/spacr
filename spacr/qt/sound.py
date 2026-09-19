@@ -70,6 +70,7 @@ __all__ = [
     "HOVER_COOLDOWN_S",
     "HOVER_SETTLE_MS",
     "InputSoundFilter",
+    "SILENT_PRESS_PROPERTY",
     "SoundEngine",
     "SoundSettings",
     "announce_run_end",
@@ -103,6 +104,13 @@ HOVER_AFTER_CLICK_S = 0.30
 #: A press that reaches the filter twice (a child ignoring it, its parent
 #: taking it) is one click, not two.
 CLICK_REPEAT_S = 0.035
+
+#: A Qt dynamic property. A control that carries it set to True makes no
+#: click sound when it is pressed. Preferences sets it on the Sound tab's
+#: Preview buttons: a Preview is the user asking to hear ONE sound, and
+#: answering the press with a click as well plays two -- twice the same
+#: pluck, for the Click row's own Preview.
+SILENT_PRESS_PROPERTY = "spacrSilentPress"
 
 #: The music bed plays at this fraction of the other sounds' level: it is
 #: under somebody's work, never over it.
@@ -260,6 +268,11 @@ class _AudioWorker(QObject):
     #: device that exists but refuses the format still reads True here: the
     #: effect then reports an error status and plays nothing.
     prepared = Signal(str, bool)
+
+    #: A Preview of the music bed has finished fading out. The worker knows
+    #: only that it faded something; the engine is the one that knows what
+    #: the stored settings want playing afterwards.
+    bed_faded = Signal()
 
     def __init__(self, effect_factory: Optional[Callable] = None,
                  cache_root: Optional[Path] = None) -> None:
@@ -437,7 +450,12 @@ class _AudioWorker(QObject):
 
     @Slot()
     def _fade_step(self) -> None:
-        """Lower the bed one step; stop it after the last."""
+        """Lower the bed one step; stop it after the last.
+
+        The last step announces itself with :attr:`bed_faded`, because a
+        Preview that ends must not leave a music bed the settings ask for
+        silent until the dialog closes.
+        """
         effect = self._effects.get(BED)
         if effect is None:
             return
@@ -445,6 +463,7 @@ class _AudioWorker(QObject):
         if self._fade_steps_left <= 0:
             self._quietly(effect.stop)
             self._bed_playing = False
+            self.bed_faded.emit()
             return
         self._quietly(effect.setVolume,
                       self._fade_from * self._fade_steps_left / FADE_STEPS)
@@ -542,6 +561,7 @@ class InputSoundFilter(QObject):
         )
 
         self._engine = engine
+        self._silent = SILENT_PRESS_PROPERTY
         self._pressable = (QAbstractButton, QComboBox, QTabBar,
                            QAbstractSlider, QMenuBar)
         self._hoverable = (QAbstractButton, QComboBox, QTabBar)
@@ -555,6 +575,11 @@ class InputSoundFilter(QObject):
     def eventFilter(self, watched, event) -> bool:    # noqa: N802 - Qt naming
         """Tell the engine about presses and hovers; never consume anything.
 
+        A control carrying :data:`SILENT_PRESS_PROPERTY` is pressed without
+        a click sound. The property is read only for a left press on
+        something pressable, so it costs nothing on the events the filter
+        already ignores.
+
         :param watched: the object the event is for.
         :param event: the event.
         :returns: always False, so every event continues as it would have.
@@ -566,7 +591,8 @@ class InputSoundFilter(QObject):
             if kind == self._press:
                 if (isinstance(watched, self._pressable)
                         and event.button() == self._left_button
-                        and watched.isEnabled()):
+                        and watched.isEnabled()
+                        and not watched.property(self._silent)):
                     self._engine._pressed()
             elif kind == self._release:
                 if (isinstance(watched, self._menu)
@@ -633,6 +659,7 @@ class SoundEngine(QObject):
         self._ask_preview_bed.connect(self._worker.preview_bed)
         self._ask_release.connect(self._worker.release)
         self._worker.prepared.connect(self._on_prepared)
+        self._worker.bed_faded.connect(self._on_bed_faded)
         if self._thread is not None:
             self._thread.start()
 
@@ -677,6 +704,11 @@ class SoundEngine(QObject):
         """Record whether the device could be used, and pass it on."""
         self.available = bool(available)
         self.prepared.emit(theme_key, bool(available))
+
+    @Slot()
+    def _on_bed_faded(self) -> None:
+        """A bed Preview ended: put the stored settings back on the bed."""
+        self.stop_preview()
 
     def apply(self, settings: SoundSettings) -> None:
         """Follow ``settings``: filter, loaded sounds and music bed.

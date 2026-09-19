@@ -150,6 +150,14 @@ class SoundPage:
     def _event_row(self, event: str, name: str):
         """One event's switch and its Preview button, in a row widget.
 
+        The Preview button carries ``spacrSilentPress``
+        (:data:`spacr.qt.sound.SILENT_PRESS_PROPERTY`), so pressing it makes
+        no click sound of its own: a Preview is the user asking to hear one
+        sound, and the Click row's Preview would otherwise play the same
+        pluck twice. The name is written out rather than imported because
+        building this page must not pull the sound engine in for somebody
+        who has sound switched off.
+
         :param event: the event the row controls.
         :param name: object name of the switch; the button is
             ``<name>Preview``.
@@ -166,6 +174,7 @@ class SoundPage:
         toggle.setChecked(prefs.get_sound_event_enabled(event))
         preview = QPushButton(tr("Preview"))
         preview.setObjectName(f"{name}Preview")
+        preview.setProperty("spacrSilentPress", True)
         preview.setToolTip(tr("Play this sound once at the volume above."))
         preview.clicked.connect(
             lambda _checked=False, which=event: self._preview(which))
@@ -180,11 +189,36 @@ class SoundPage:
         return row
 
     def _follow_the_master(self, on: bool) -> None:
-        """Every other control on the page is live only while sound is on."""
+        """Every other control on the page is live only while sound is on.
+
+        Switching the master off also ends any preview still playing.
+        Greying the Preview buttons stops the user starting another one and
+        does nothing about the nine seconds of music bed already running,
+        which is the one sound on this page long enough to outlive the
+        switch that started it.
+        """
         for widget in ([self.volume, self.theme]
                        + list(self.events.values())
                        + list(self.previews.values())):
             widget.setEnabled(bool(on))
+        if not on:
+            self._end_any_preview()
+
+    @staticmethod
+    def _end_any_preview() -> None:
+        """End a preview, without loading the engine to find there is none.
+
+        Nothing can be playing unless something has already imported
+        :mod:`spacr.qt.sound`, so an unloaded module is the answer rather
+        than a reason to load it: this page is built every time anybody
+        opens Preferences, sound or no sound.
+        """
+        import sys
+
+        if sys.modules.get(f"{__package__}.sound") is None:
+            return
+        from .sound import stop_sound_preview
+        stop_sound_preview()
 
     def _preview(self, event: str) -> bool:
         """Play ``event`` with the page's own, unsaved, set and volume."""
@@ -196,8 +230,7 @@ class SoundPage:
 
     def _closed(self, *_result) -> None:
         """The dialog closed: no preview outlives it."""
-        from .sound import stop_sound_preview
-        stop_sound_preview()
+        self._end_any_preview()
 
     def save(self) -> None:
         """Write every control on the page to the preference store."""

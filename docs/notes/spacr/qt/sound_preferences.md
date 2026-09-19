@@ -36,3 +36,30 @@ in the same dialog; before that the button is greyed and the engine is
 never built (`test_preview_is_dead_while_sound_is_off`). A preview uses the
 page's own, unsaved, volume and set, so the user can hear a choice before
 committing to it; Cancel still writes nothing.
+
+GREYING THE BUTTONS IS NOT THE SAME AS STOPPING THE SOUND, found in review
+2026-09-19. `_follow_the_master(False)` disabled the rows and left a music
+bed preview -- nine seconds of it -- playing on under a switch that now
+said sound was off. Every other sound on this page is over before the user
+can reach the switch; the bed is the one that outlives it. So switching the
+master off also calls `_end_any_preview`, which is what closing the dialog
+already did.
+
+`_end_any_preview` asks `sys.modules` before importing `spacr.qt.sound`,
+because this page is built every single time anybody opens Preferences,
+sound or no sound, and an unimported engine is an engine with nothing
+playing. `_follow_the_master` runs once during `__init__` with the stored
+value, which for a fresh install is off -- so without the guard, merely
+opening Preferences would import the sound engine.
+
+## Why the Preview buttons say `spacrSilentPress`
+
+With sound saved on, the app-wide input filter hears every press in the
+application, this dialog included. A Preview press would therefore answer
+with a click sound AND the sound being previewed; on the Click row those
+are the same pluck, twice. The buttons carry
+`spacr.qt.sound.SILENT_PRESS_PROPERTY` so the filter passes over them. The
+name is spelled out here rather than imported, for the reason above, and
+`test_a_preview_press_is_not_also_a_click` is what stops the two spellings
+drifting apart: it drives the real dialog with sound on, presses Preview,
+and then presses the switch beside it to show the filter is still awake.

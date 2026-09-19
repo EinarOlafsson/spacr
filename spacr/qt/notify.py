@@ -20,6 +20,7 @@ import logging
 import platform
 import shutil
 import subprocess
+import sys
 from typing import Optional
 
 LOG = logging.getLogger("spacr.qt.notify")
@@ -102,13 +103,22 @@ def announce_pipeline_finished(app_key: str, status: str,
     Called from the Qt runtime when a pipeline worker emits its
     finished signal.
 
+    The run sound is asked for only when :mod:`spacr.qt.sound` is already
+    loaded, which it is exactly when sound has been switched on: the engine
+    is built by ``apply_sound_preferences`` at launch and after every Save,
+    and without an engine :func:`spacr.qt.sound.announce_run_end` is a
+    no-op anyway. Importing it here unconditionally cost 20.4 ms on the GUI
+    thread at the first run that ended, for a user who had never asked for
+    sound.
+
     :param app_key: id of the pipeline app (``"mask"`` / …).
     :param status: ``"success"`` / ``"failed"`` / ``"cancelled"``.
     :param elapsed_s: wall-clock seconds the run took.
     """
     try:
-        from .sound import announce_run_end
-        announce_run_end(status)
+        if sys.modules.get(f"{__package__}.sound") is not None:
+            from .sound import announce_run_end
+            announce_run_end(status)
     except Exception as e:
         LOG.debug("run sound failed: %s", e)
     icon = "✓" if status == "success" else "⚠"

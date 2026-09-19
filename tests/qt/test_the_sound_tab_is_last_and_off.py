@@ -33,6 +33,7 @@ class _Effect:
         self.log = log
         self.name = ""
         self.volume = None
+        self.playing = False
 
     def setSource(self, url):                  # noqa: N802 - Qt naming
         from pathlib import Path
@@ -45,10 +46,22 @@ class _Effect:
         pass
 
     def play(self):
+        self.playing = True
         self.log.append(self.name)
 
     def stop(self):
-        pass
+        self.playing = False
+
+
+class _Heard(list):
+    """The sounds played, in order, and every effect that played one.
+
+    A list, so a test still reads `heard == ["click-0"]`; `effects` is for
+    the two tests that ask whether something is STILL playing, which a log
+    of what started cannot answer.
+    """
+
+    effects: list = []
 
 
 @pytest.fixture
@@ -61,11 +74,17 @@ def heard(monkeypatch, tmp_path, qapp):
     monkeypatch.setattr(prefs, "_settings",
                         lambda: QSettings(path, QSettings.IniFormat))
     monkeypatch.setenv(CACHE_ENV, str(tmp_path / "sounds"))
-    log = []
+    log = _Heard()
+    log.effects = []
+
+    def make(_parent):
+        effect = _Effect(log)
+        log.effects.append(effect)
+        return effect
 
     def create(app):
         engine = snd.SoundEngine(None, threaded=False,
-                                 effect_factory=lambda _p: _Effect(log),
+                                 effect_factory=make,
                                  cache_root=tmp_path / "sounds")
         snd._ENGINE = engine
         return engine
@@ -73,6 +92,19 @@ def heard(monkeypatch, tmp_path, qapp):
     monkeypatch.setattr(snd, "_create_engine", create)
     yield log
     snd.shutdown_sound()
+
+
+def _open_preferences(qtbot):
+    """A second Preferences dialog, opened after sound is already on."""
+    from spacr.qt.preferences import PreferencesDialog
+
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    dlg.resize(900, 700)
+    dlg.show()
+    qtbot.waitExposed(dlg)
+    _show_sound_tab(dlg)
+    return dlg
 
 
 @pytest.fixture
@@ -208,6 +240,57 @@ def test_preview_is_dead_while_sound_is_off(dialog, heard, qtbot):
     qtbot.mouseClick(button, Qt.MouseButton.LeftButton)
     assert heard == []
     assert snd.sound_engine() is None
+
+
+def test_a_preview_press_is_not_also_a_click(heard, qtbot, qt_theme_applied):
+    """A user who already has sound on opens Preferences to try a Preview.
+
+    The app-wide filter hears the press, so without the Preview button's
+    `spacrSilentPress` the Click row answers a press with its own pluck AND
+    the previewed one: the same sound twice. The switch beside it still
+    clicks, which is what says the filter is alive and the property is
+    doing the work.
+    """
+    from spacr.qt import preferences as prefs
+    from spacr.qt.preferences import apply_preferences_to_app
+
+    prefs.set_sound_enabled(True)
+    apply_preferences_to_app()
+    engine = snd.sound_engine()
+    assert engine is not None and engine.filter_installed
+
+    dlg = _open_preferences(qtbot)
+    heard.clear()
+    qtbot.mouseClick(dlg.findChild(QPushButton, "SoundClickPreview"),
+                     Qt.MouseButton.LeftButton)
+    assert heard == ["click-0"]
+    heard.clear()
+    _press(qtbot, dlg.findChild(QWidget, "SoundHover"))
+    assert heard == ["click-1"], "an ordinary control still clicks"
+
+
+def test_switching_the_master_off_ends_a_preview(heard, qtbot,
+                                                 qt_theme_applied):
+    """Greying the Preview buttons does nothing about the nine seconds of
+    music bed already playing, which is the one sound on this page long
+    enough to outlive the switch that started it."""
+    from spacr.qt import preferences as prefs
+    from spacr.qt.preferences import apply_preferences_to_app
+
+    prefs.set_sound_enabled(True)
+    apply_preferences_to_app()
+
+    dlg = _open_preferences(qtbot)
+    master = dlg.findChild(QWidget, "SoundEnabled")
+    assert master.isChecked()
+    qtbot.mouseClick(dlg.findChild(QPushButton, "SoundMusicBedPreview"),
+                     Qt.MouseButton.LeftButton)
+    bed = [e for e in heard.effects if e.name == "bed"][0]
+    assert bed.playing
+
+    _press(qtbot, master)
+    assert not master.isChecked()
+    assert not bed.playing
 
 
 def test_a_saved_switch_is_heard_in_another_window(dialog, heard, qtbot):

@@ -234,6 +234,37 @@ class TestNothingExistsWhileOff:
     def test_the_run_sound_hook_is_silent_without_an_engine(self):
         assert snd.announce_run_end("success") is False
 
+    def test_a_finishing_run_does_not_import_the_engine_to_stay_silent(
+            self, tmp_path):
+        """`announce_pipeline_finished` runs at the end of every run, and
+        the module it reaches for costs 20.4 ms to import on the GUI
+        thread. For a user with sound off there is nothing at the other end
+        of it: the engine is built by `apply_sound_preferences`, so an
+        unimported module IS the answer. A fresh interpreter, because this
+        one imported `spacr.qt.sound` at the top of this file."""
+        script = (
+            "import sys\n"
+            "import spacr\n"
+            f"assert spacr.__file__.startswith({str(ROOT)!r}), spacr.__file__\n"
+            "from PySide6.QtWidgets import QApplication\n"
+            "app = QApplication([])\n"
+            "from spacr.qt import notify\n"
+            "notify.notify = lambda *a, **k: True\n"
+            "notify.notify_tray = lambda *a, **k: True\n"
+            "notify.announce_pipeline_finished('mask', 'success', 3.0)\n"
+            "notify.announce_pipeline_finished('mask', 'failed', 3.0)\n"
+            "assert 'spacr.qt.sound' not in sys.modules, 'imported while off'\n"
+            "assert 'PySide6.QtMultimedia' not in sys.modules\n"
+            "print('SILENT')\n")
+        env = dict(os.environ, HOME=str(tmp_path), QT_QPA_PLATFORM="offscreen",
+                   XDG_CONFIG_HOME=str(tmp_path / "config"),
+                   XDG_DATA_HOME=str(tmp_path / "data"),
+                   SPACR_SOUND_CACHE=str(tmp_path / "sounds"))
+        done = subprocess.run([sys.executable, "-c", script], cwd=str(ROOT),
+                              env=env, capture_output=True, text=True,
+                              timeout=120)
+        assert "SILENT" in done.stdout, done.stdout + done.stderr
+
 
 class TestClicks:
 
@@ -269,6 +300,20 @@ class TestClicks:
     def test_a_slider_press_clicks(self, make_engine, sink, window, qtbot):
         make_engine(enabled=True)
         qtbot.mouseClick(window.slider, Qt.MouseButton.LeftButton)
+        assert _plays(sink) == ["click-0"]
+
+    def test_a_control_marked_silent_is_pressed_without_a_click(
+            self, make_engine, sink, window, qtbot):
+        """`SILENT_PRESS_PROPERTY` is how the Sound tab's Preview buttons
+        stay out of the way: pressing Preview asks for ONE sound, and the
+        Click row's own Preview would otherwise play the same pluck twice.
+        The button beside it still clicks, so this is the property working
+        and not the filter falling over."""
+        make_engine(enabled=True)
+        window.buttons[0].setProperty(snd.SILENT_PRESS_PROPERTY, True)
+        qtbot.mouseClick(window.buttons[0], Qt.MouseButton.LeftButton)
+        assert _plays(sink) == []
+        qtbot.mouseClick(window.buttons[1], Qt.MouseButton.LeftButton)
         assert _plays(sink) == ["click-0"]
 
     def test_click_switched_off_is_silent(self, make_engine, sink, window,
@@ -463,6 +508,30 @@ class TestTheMusicBed:
         qtbot.waitUntil(lambda: not bed.playing, timeout=5000)
         assert sink.log[-1] == ("stop", "bed")
         assert bed.volume < start, "it stopped without fading"
+
+    def test_a_preview_hands_the_stored_bed_back_when_it_ends(
+            self, make_engine, sink, qtbot, monkeypatch):
+        """A user who already has the bed on presses Preview. The preview
+        fades out -- and the bed the settings ask for has to come back. It
+        used to stay silent until Preferences was closed, because the fade
+        that ends a preview and the stop that ends the bed were the same
+        stop."""
+        monkeypatch.setattr(snd, "PREVIEW_BED_MS", 20)
+        monkeypatch.setattr(snd, "FADE_MS", 60)
+        engine = make_engine(enabled=True, bed=True, volume=1.0)
+        bed = [e for e in sink.effects if e.name == "bed"][0]
+        stored = snd.perceived_gain(1.0) * snd.BED_LEVEL
+        assert bed.playing and bed.volume == pytest.approx(stored)
+
+        engine.preview("bed", "orbit", 0.2)
+        assert bed.volume < stored, "the preview took the dialog's volume"
+        qtbot.waitUntil(lambda: bed.volume == pytest.approx(stored),
+                        timeout=5000)
+        assert bed.playing and bed.loops == snd.LOOP_FOREVER
+        assert sink.log[-2:] == [
+            ("stop", "bed"),
+            ("play", "bed", pytest.approx(stored), snd.LOOP_FOREVER)], (
+            "the preview has to end before the stored bed starts again")
 
     def test_closing_preferences_ends_a_preview(self, make_engine, sink,
                                                 monkeypatch):

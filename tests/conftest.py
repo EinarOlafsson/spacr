@@ -403,6 +403,19 @@ def pytest_configure(config):
     # file from `_isolated_chaining_pin_store`.
     os.environ[_PIN_STATE_ENV] = str(_PIN_SANDBOX / "session" / "pins.json")
 
+    # And rendering a sound set must not fill the real `~/.spacr/sounds`
+    # with WAVs. The three sound test files each point the cache somewhere
+    # of their own and none of them has ever written there -- but the
+    # fallback in `sound_synth.sound_cache_root` is `Path.home()`, so the
+    # first test that builds a SoundEngine without saying where would, and
+    # the sandbox in `_isolated_dot_spacr_store` covers the run journal and
+    # the plate queue only. An environment variable rather than a
+    # monkeypatched resolver: `sound_cache_root` re-reads it on every call,
+    # it survives a run that is killed before any teardown, and it reaches
+    # the subprocess in `test_sound_is_silent_until_asked`, which a patched
+    # attribute would not.
+    os.environ[_SOUND_CACHE_ENV] = str(_DOT_SPACR_SANDBOX / "sounds")
+
     global _QSETTINGS_ACTIVE
     if _qsettings_module() is None:
         return
@@ -609,6 +622,10 @@ def _no_test_runs_a_real_installer(monkeypatch):
 _DOT_SPACR_SANDBOX = Path(
     tempfile.mkdtemp(prefix="spacr-dot-spacr-")).resolve()
 _atexit.register(_shutil.rmtree, str(_DOT_SPACR_SANDBOX), True)
+
+#: `spacr.qt.sound_synth.CACHE_ENV`, spelled out so `pytest_configure` can
+#: set it without importing spacr before collection.
+_SOUND_CACHE_ENV = "SPACR_SOUND_CACHE"
 
 
 @pytest.fixture(autouse=True)
