@@ -263,10 +263,10 @@
           "speech_text": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install dot log remains in the private spacer installation directory."
         },
         {
-          "narration": "Preferences has one Performance level selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes caching, worker limits, cleanup, and animation detail, but not scientific settings or results.",
+          "narration": "Preferences has one Performance selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes how much spaCR keeps cached and for how long, when it clears memory and idle threads, and whether the animated backdrop runs, but not scientific settings or results.",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Preferences has one Performance level selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes caching, worker limits, cleanup, and animation detail, but not scientific settings or results."
+          "speech_text": "Preferences has one Performance selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes how much spacer keeps cached and for how long, when it clears memory and idle threads, and whether the animated backdrop runs, but not scientific settings or results."
         },
         {
           "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required.",
@@ -311,10 +311,10 @@
           "speech_text": "The Core band follows the workflow order: Mask, Measure, Annotate, [Classify](/klˈæsəfI/), Map Barcodes, and Regression. Hover over a tile to display its module description and its Alpha, Beta, or Stable maturity color. Preferences can hide Alpha or Beta modules from Home and navigation; Stable modules remain visible."
         },
         {
-          "narration": "Preferences has one Performance level selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes caching, worker limits, cleanup, and animation detail, but not scientific settings or results.",
+          "narration": "Preferences has one Performance selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes how much spaCR keeps cached and for how long, when it clears memory and idle threads, and whether the animated backdrop runs, but not scientific settings or results.",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Preferences has one Performance level selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes caching, worker limits, cleanup, and animation detail, but not scientific settings or results."
+          "speech_text": "Preferences has one Performance selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes how much spacer keeps cached and for how long, when it clears memory and idle threads, and whether the animated backdrop runs, but not scientific settings or results."
         },
         {
           "narration": "Select a module tile to open its settings screen. The module name and description at the top confirm which workflow is active.",

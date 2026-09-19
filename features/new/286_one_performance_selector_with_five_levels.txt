@@ -2,11 +2,19 @@
 ONE PERFORMANCE SELECTOR WITH FIVE LEVELS
 ================================================================================
 
-Status:    OPEN, filed 2026-08-27; AUDITED 2026-09-15 on wip/286-audit.
-           Bullets 1-5 MET. Bullet 6 PARTLY: names and tooltips translated
-           in all nine languages, but no migration message exists to
-           translate (maintainer decision below). Bullet 7 NOT MET:
-           tutorials, Codex's lane. HIGH PRIORITY performance configuration.
+Status:    CODE DONE 2026-09-19; ONE PIECE LEFT, AND IT IS MEDIA: lessons
+           04 (installers) and 05 (Home) are to be RE-RECORDED from the
+           corrected narration, and those two narration lines translated
+           for the tutorial locales -- the tutorial lane (48, 83, 358).
+           Bullets 1-6 MET (6 closed by the maintainer's "No notice"
+           decision, 2026-09-15). Bullet 7's code half is fixed: the Home
+           capture could not run (it looked up a note the dialog named after
+           the removed control), and the narration named the control wrongly
+           and promised "worker limits". See the 2026-09-19 note at the foot.
+           The audit below cites wip/286-audit hashes; that branch is gone
+           and its commits are in nightly under new hashes (same patches:
+           0b9ce9e03=984305663, cbc624113=49a88481a, f8efd070d=e1172328e,
+           272230162=0256e013d).
 Owner:     spacr/qt/preferences.py, startup resource policy, cache policy,
            ambient quality, setup screen, translations, tutorials and tests.
 Follows:   282 and 284. Supersedes the separate Laptop mode selector.
@@ -245,3 +253,62 @@ remains, and belongs to the tutorial lane.
 Found on landing: test_every_legacy_pair_migrates_and_the_obsolete_keys_go
 [balanced-] failed once in a 14-file serial run of the landed commits' tests
 and passes alone (28 passed) -- order-dependent, under investigation.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- WHAT WAS REALLY LEFT: THE HOME CAPTURE COULD NOT RUN, THE
+NARRATION PROMISED WHAT NO LEVEL DOES, AND THE FLAKE WAS ALREADY FIXED
+--------------------------------------------------------------------------------
+
+Taken under the maintainer's "Fix them, post a notice" for the Codex-lane
+files (325, 2026-09-19). The triage said bullet 6 was closed and the Status
+pointed at a branch that no longer exists; both true (see Status). What was
+really left, checked against the code rather than this file:
+
+1. THE HOME CAPTURE RAISED. capture_all_modules.py looks the selector's
+   note up as QLabel "PerformanceLevelNote"; the dialog named it
+   "SpacrModeNote", after the "spaCR mode" control the five-level selector
+   replaced. Driven for real -- capture_all_modules.py --only 05_home
+   --force, offscreen, against this tree -- it failed with
+   "RuntimeError('Performance level selector or explanation is not
+   visible')". The dialog now names the label PerformanceLevelNote (nothing
+   else in the tree used the old name except two tests, which follow it),
+   and the same capture completes: 01_module, 02_performance_4k and
+   03_mask_open keyframes at 3840x2160, with the performance region framing
+   the Performance selector and its note. The keyframes were not committed.
+   tests/qt/test_the_tutorial_capture_finds_the_performance_selector.py
+   reads the names out of the capture script and holds the real dialog to
+   them; 2 of its 3 tests fail with the old name.
+
+2. THE NARRATION. tools/tutorials/authoring/tools/build_full_catalog.py,
+   scenes "performance" of lessons 04 and 05, said "one Performance level
+   selector" (the control is captioned "Performance" in Preferences and in
+   setup) and that a level "changes caching, worker limits, cleanup, and
+   animation detail". No level sets a worker count; the cleanups at the low
+   levels clear idle threads. It now says the selector "changes how much
+   spaCR keeps cached and for how long, when it clears memory and idle
+   threads, and whether the animated backdrop runs, but not scientific
+   settings or results" -- the claims PERFORMANCE_NOTES makes and a test
+   holds to the budget. catalog/lessons_en.json is regenerated (4 lines:
+   narration and speech_text, twice; a regeneration before the edit
+   changed nothing). NOT touched: the eight localized lessons_*.json and
+   the captions, which carry translations of the old sentence (owed to the
+   tutorial translation pass), and web/catalog + web/lesson_catalog.js,
+   which must keep matching the audio already recorded until 04/05 are
+   re-recorded and published.
+
+3. THE ORDER-DEPENDENT FAILURE this file left "under investigation" was
+   found and fixed on 2026-09-15 by 2b5a512bf ("a budget sweep one test
+   installs no longer ticks inside the next": resource_cleanup's 5 s sweep
+   timer outlived the test that installed it) with 3ec545f7a and
+   7d44a1e6e. Re-checked today: the fifteen performance-level, Preferences,
+   laptop-mode and budget-sweep test files in ONE serial process, 215
+   passed.
+
+NOT PART OF THIS ITEM and still open, as recorded above: the confident
+mistranslations on the Performance tab ("Cache ceiling" as cockroaches in
+Swedish, and the rest) and formula._REJECTED's messages never being
+extracted for translation.
+
+LEFT: re-record lessons 04 and 05 from the corrected lessons_en.json,
+translate the two narration lines, then republish the web catalog. That is
+tutorial-lane media work and is the whole of what keeps bullet 7 open.

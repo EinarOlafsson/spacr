@@ -5662,7 +5662,7 @@ class PreferencesDialog:
         performance.addRow(tr("Performance"), mode_combo)
 
         mode_note_label = QLabel()
-        mode_note_label.setObjectName("SpacrModeNote")
+        mode_note_label.setObjectName("PerformanceLevelNote")
         mode_note_label.setWordWrap(True)
         performance.addRow("", mode_note_label)
 
