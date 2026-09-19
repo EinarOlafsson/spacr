@@ -1,0 +1,181 @@
+================================================================================
+A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE
+================================================================================
+
+Status:    DONE 2026-09-19 for the Mask path, committed locally on
+           home/npload-object-arrays and awaiting review (not pushed).
+           Measure's own listing of merged/ still reads the sidecar and
+           reports a false "RUN INCOMPLETE"; that is owed, see the end.
+Requested: GitHub #121 (auto-filed from the spaCR AI Console) and #117, both
+           opened 2026-09-17 by jak18015 (Jacob Kellermeier). spaCR 1.5.0.8,
+           macOS 26.7 on an Apple M4, plate on /Volumes/jk-ummi:
+
+             File "spacr/object.py", line 790, in generate_cellpose_masks_sam
+               with np.load(path) as data:
+             ValueError: This file contains pickled (object) data. If you
+             trust the file you can load it unsafely using the
+             `allow_pickle=` keyword argument or `pickle.load()`.
+
+           Taken on by the 2026-09-19 run as unit npload-object-arrays. The
+           maintainer approved Codex-lane edits for the 2026-09-17 mask
+           issues that morning (features/325..., the 2026-09-19 HOME notice).
+Owner:     Home (Claude). Files: spacr/io.py, spacr/object.py, spacr/core.py,
+           spacr/utils.py, spacr/plot.py, spacr/seg_qc.py,
+           spacr/illumination.py.
+
+WHAT THE FILE WAS
+-----------------
+
+Not an object array. The #117 log names it one stage before the crash:
+
+    [concatenate_and_normalize] FAILED .../test/stack/._test_N06_5_1.npy
+    (stage load_npy): ValueError: This file contains pickled (object) data.
+
+`._test_N06_5_1.npy` is an AppleDouble sidecar. macOS writes `._<name>`
+beside a file that carries extended attributes when the volume cannot store
+them natively: exFAT, FAT and many SMB shares, which is what /Volumes/jk-ummi
+is. The sidecar keeps the ending of the file it shadows. np.load reads any
+file that is neither .npy magic nor a zip as a pickle, and with
+allow_pickle=False it refuses with exactly this message. The file that
+crashed object.py:790 was `masks/._stack_0_norm.npz`, the sidecar of the
+normalised archive: the log shows the cell pass finish the real archive
+("Found 134.0 cell/FOV") and then fail.
+
+WHO WROTE IT: macOS, beside the files spaCR wrote on that volume. The log
+shows it for stack/ (above), implies it for masks/ (below), and shows it for
+the test-mode copies: "All files: 8" in test/ for four
+tiffs, and four "WARNING: A file with the same name already exists at
+location .../orig/._W0318F0005T0001Z000C1.tif" lines, where moving each tiff
+into orig/ had already carried its sidecar along.
+
+MEASURED, 2026-09-19, numpy 2.5.2 in the spacr env:
+  * what concatenate_and_normalize writes loads with allow_pickle=False:
+    data is float32, filenames is a <U array. Masks are written as uint16 by
+    _save_array_atomic. Nothing in the Mask path writes an object array.
+  * np.load on a 4096-byte AppleDouble header: the #121 ValueError, word for
+    word.
+  * np.load(..., allow_pickle=True) on it: UnpicklingError "Failed to
+    interpret file ... as a pickle".
+
+DECISION ON allow_pickle: none, not even for spaCR's own files. It would not
+have fixed this (it trades one error for another), and it would let any file
+dropped into a plate folder run code when spaCR lists the folder. Convert on
+read is not needed either: the files 1.5.0.8 wrote are plain arrays and load
+unchanged. The writer was never at fault; the readers were.
+
+WHY THIS PATH AND THIS PLATFORM: only macOS makes sidecars, only on such
+volumes, and the Mask path re-lists its own output folders four times
+(stack/, masks/, each *_mask_stack/, merged/) with
+`os.listdir(...) if name.endswith('.npy'/'.npz')`. The raw-image listing in
+io._rename_and_organize_image_files already skipped dot-files, which is why
+the raw tiffs' sidecars never failed; nothing after it did.
+concatenate_and_normalize met the sidecar first but loads inside a per-item
+RunLedger, so it only logged "RUN INCOMPLETE - 1 of 2 items failed".
+generate_cellpose_masks_sam loads with no ledger around it, so it raised and
+on_error=stop ended the run.
+
+WHAT CHANGED
+------------
+
+spacr/io.py gains `_listdir_visible(folder)`: os.listdir without names that
+start with a dot, in os.listdir order. Every dot-file, not only `._`: the
+atomic writers name their temporaries `.spacr_tmp_*.npy` and
+`.spacr_npz_*.npz`, and a killed run leaves one behind with a data ending.
+spaCR never names a field with a leading dot.
+
+37 listing sites in 20 functions go through it or filter inline:
+
+  io.py      _rename_and_organize_image_files (the old inline filter goes;
+             the orig/ move and delete loops skip sidecars, which ends the
+             "already exists" warnings), _merge_channels,
+             _normalized_npz_field_ids, _publish_v1_normalized_archives,
+             _concatenate_and_normalize_impl (both branches),
+             _create_movies_from_npy_per_channel, preprocess_img_data (its
+             "Found N tif files" count no longer includes sidecars),
+             _load_and_concatenate_arrays
+  object.py  generate_cellpose_masks_sam (the #121 line),
+             generate_cellpose_masks, generate_organelle_masks_sam
+  core.py    _overlay_candidates, the test-mode examples_to_plot count
+  utils.py   check_mask_folder, _run_test_mode, adjust_cell_masks (would
+             have been the next crash: the reporter runs all three objects
+             with adjust_cells on), cleanup_pipeline_folders
+  plot.py    plot_arrays (test mode samples stack/ at random; with one field
+             and one sidecar it was a coin toss between the field and an
+             "Error:" line)
+  seg_qc.py  _iter_masks, inline because seg_qc is tested to import no
+             torch and spacr.io imports it. Measured on the old code: one
+             good mask plus its sidecar scored "FAIL - 1 of 2 fields failed
+             (50%): fix the segmentation before running Measure".
+  illumination.py  _merged_files, inline for the same import reason.
+             Reached from the Mask run when segmentation illumination
+             correction is on; the old code grouped the sidecars as a plate
+             of their own, named ".", and would have loaded them.
+
+Reasons are in docs/notes/spacr/io.md (_listdir_visible), with pointers in
+object.md and seg_qc.md. No public docstring changed, so nothing is owed to
+the catalogs.
+
+THE REPORTER'S PROPOSAL, on #121: a module that replaces os.listdir,
+os.scandir and shutil.rmtree for the whole process. Not taken: it changes
+what every library in the process sees (Cellpose, torch, matplotlib), and it
+had to special-case rmtree because rmtree cannot empty a directory whose
+entries it is not shown. Filtering at spaCR's own listings leaves everything
+else alone, and each of the 20 functions is pinned by a test.
+
+HOW IT IS PROVEN
+----------------
+
+tests/test_a_stack_file_spacr_wrote_is_one_it_can_read.py, 28 tests:
+  * premise (pass before and after): the archive holds no object array; a
+    sidecar gives the #121 message; allow_pickle=True gives UnpicklingError.
+  * the user's run: a `macos_volume` fixture makes a tmp folder behave like
+    the reporter's drive (a sidecar beside every file opened for writing, a
+    rename carries it along, a delete removes it), a fake Cellpose draws two
+    objects per field, and preprocess_generate_masks runs in test mode on a
+    CQ1 plate named like #117's with the reporter's settings (channels
+    [0,1,2,3], cell 3 / nucleus 0 / pathogen 2, one test image set,
+    adjust_cells, seg_qc report). The emulated volume put sidecars in
+    stack/, masks/, all three *_mask_stack/ and merged/. Before the fix it
+    failed exactly as #117 did: "RUN INCOMPLETE - 1 of 2 items failed" on
+    stack/._test_N06_6_1.npy, then object.py:790, ValueError, run stopped.
+    After: "Successfully completed run", one merged field of 4+3 planes,
+    three masks, QC scored one field per object.
+  * focused: generate_cellpose_masks_sam past masks/._stack_0_norm.npz;
+    concatenate_and_normalize past stack/._x.npy; seg_qc and illumination.
+  * a guard: none of the 18 mask-path functions that use the helper calls
+    os.listdir directly.
+
+Before the fix, 24 of the first 27 tests failed and the 3 premise tests
+passed; the illumination test, written after, failed before its own fix
+(the sidecars came back as a plate named "."). On the final tree all 28
+pass, and the 38 existing test files over the touched functions, run in ten
+groups under tools/run_capped.sh, give 874 passed and 0 failed.
+
+2026-09-19 — Built, measured and committed as above on
+home/npload-object-arrays. The six reds in test_docstring_correctness.py,
+test_every_callable_in_the_package_is_documented.py and
+test_nested_functions_are_documented.py are baseline: identical counts with
+this change reverted (8710/8698, 10560/10539, 2296/2279), and the three
+undocumented-function reds name only model_zoo and qt files this unit did
+not touch. The one callable this change adds, io._listdir_visible, is
+private and documented.
+
+STILL OWED:
+  * Measure. measure.py:3442 lists merged/ bare. Measured with a merged/
+    from the emulated run: measure_crop does not crash, but prints "spaCR
+    RUN INCOMPLETE - measure_crop, failed: 1 (50.0%)" with the same pickled
+    message and marks its artifacts incomplete. resume.py:1992
+    (plan_measure_resume) lists the same folder for planning. Both are
+    one-token changes to _listdir_visible; measure.py is outside today's
+    approved files, so it waits for the maintainer.
+  * Not touched, not on the Mask path: dead private helpers
+    io._concatenate_channel, io._normalize_stack, io._normalize_timelapse,
+    io._move_to_chan_folder (no callers), and utils.merge_split_objects,
+    utils.process_masks, utils.convert_and_relabel_masks (no caller in the
+    Mask run).
+  * Five np.load(..., allow_pickle=True) remain on uint16 mask files spaCR
+    writes itself: utils.process_mask_file_adjust_cell (four loads) and
+    io._load_array_any (one). They never needed it; dropping it is a hardening
+    change, left for a separate decision.
+  * #117 also reports that the auto-filed issue and the AI help did not
+    trigger. That is the error-reporter unit (432), not this one.

@@ -1078,10 +1078,9 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     stack_path = os.path.join(src, 'stack')
     files_processed = 0
     channels_seen = set()
-    if not os.path.exists(stack_path) or (os.path.isdir(stack_path) and len(os.listdir(stack_path)) == 0):
-        all_filenames = [filename for filename in os.listdir(src) if any(filename.endswith(ext) for ext in img_format)]
+    if not os.path.exists(stack_path) or (os.path.isdir(stack_path) and len(_listdir_visible(stack_path)) == 0):
+        all_filenames = [filename for filename in _listdir_visible(src) if any(filename.endswith(ext) for ext in img_format)]
         print(f'All files: {len(all_filenames)} in {src}')
-        all_filenames = [f for f in all_filenames if not f.startswith('.')]
         time_ls = []
         image_paths_by_key = _extract_filename_metadata(all_filenames, src, regular_expression, metadata_type)
         batching_keys = list(image_paths_by_key.keys())
@@ -1146,7 +1145,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
         if save_original_images:
             newpath = os.path.join(src, 'orig')
             os.makedirs(newpath, exist_ok=True)
-            for filename in os.listdir(src):
+            for filename in _listdir_visible(src):
                 if os.path.splitext(filename)[1] in img_format:
                     move = os.path.join(newpath, filename)
                     if os.path.exists(move):
@@ -1154,7 +1153,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                     else:
                         shutil.move(os.path.join(src, filename), move)
         else:
-            for filename in os.listdir(src):
+            for filename in _listdir_visible(src):
                 if os.path.splitext(filename)[1] in img_format:
                     try:
                         os.remove(os.path.join(src, filename))
@@ -1335,7 +1334,7 @@ def _merge_channels(src, plot=False):
     string_list = [str(i) for i in range(101)]+[f"{i:02d}" for i in range(10)]
     allowed_names = sorted(string_list, key=lambda x: int(x))
     
-    chan_dirs = [d for d in os.listdir(src) if os.path.isdir(os.path.join(src, d)) and d in allowed_names]
+    chan_dirs = [d for d in _listdir_visible(src) if os.path.isdir(os.path.join(src, d)) and d in allowed_names]
     chan_dirs.sort()
     
     num_matching_folders = len(chan_dirs)
@@ -1348,7 +1347,7 @@ def _merge_channels(src, plot=False):
         return 0
 
     first_dir_path = os.path.join(src, chan_dirs[0])
-    dir_files = os.listdir(first_dir_path)
+    dir_files = _listdir_visible(first_dir_path)
 
     if not os.path.exists(stack_dir):
         os.makedirs(stack_dir, exist_ok=True)
@@ -1591,7 +1590,7 @@ def _normalized_npz_field_ids(src):
     :raises ValueError: when an archive has no ``filenames`` manifest.
     """
     archives = sorted(
-        os.path.join(src, name) for name in os.listdir(src)
+        os.path.join(src, name) for name in _listdir_visible(src)
         if name.endswith('.npz'))
     if not archives:
         raise FileNotFoundError(
@@ -1623,11 +1622,11 @@ def _publish_v1_normalized_archives(staging_dir, output_dir):
     caller can accept a partially published set as corrected.
     """
     staged = sorted(
-        name for name in os.listdir(staging_dir) if name.endswith('.npz'))
+        name for name in _listdir_visible(staging_dir) if name.endswith('.npz'))
     if not staged:
         raise ValueError('cannot publish an empty V1 normalized archive set')
     previous = sorted(
-        name for name in os.listdir(output_dir) if name.endswith('.npz'))
+        name for name in _listdir_visible(output_dir) if name.endswith('.npz'))
     backup_dir = tempfile.mkdtemp(
         prefix='.spacr_previous_v1_npz_', dir=os.path.dirname(output_dir))
     moved_previous = []
@@ -1794,7 +1793,7 @@ def _concatenate_and_normalize_impl(
     if settings['timelapse']:
         try:
             source_npy_names = sorted(
-                name for name in os.listdir(src) if name.endswith('.npy'))
+                name for name in _listdir_visible(src) if name.endswith('.npy'))
             time_stack_path_lists = _generate_time_lists(source_npy_names)
             grouped_names = sorted(
                 filename for group in time_stack_path_lists
@@ -1859,7 +1858,7 @@ def _concatenate_and_normalize_impl(
             if illumination_session is not None:
                 raise
     else:
-        for file in os.listdir(src):
+        for file in _listdir_visible(src):
             if file.endswith('.npy'):
                 path = os.path.join(src, file)
                 paths.append(path)
@@ -2195,7 +2194,7 @@ def _create_movies_from_npy_per_channel(src, fps=10):
     master_path = os.path.dirname(src)
     save_path = os.path.join(master_path,'movies')
     os.makedirs(save_path, exist_ok=True)
-    files = [f for f in os.listdir(src) if f.endswith('.npy')]
+    files = [f for f in _listdir_visible(src) if f.endswith('.npy')]
     organized_files = {}
     for f in files:
         match = re.match(r'(\w+)_(\w+)_(\w+)_(\d+)\.npy', f)
@@ -2347,10 +2346,10 @@ def preprocess_img_data(settings):
     """
     src = settings['src']
     
-    if len(os.listdir(src)) < 100:
+    if len(_listdir_visible(src)) < 100:
         delete_empty_subdirectories(src)
     
-    files = os.listdir(src)
+    files = _listdir_visible(src)
     valid_ext = ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp', 'nd2', 'czi', 'lif']
     extensions = [file.split('.')[-1].lower() for file in files]
     valid_extensions = [ext for ext in extensions if ext in valid_ext]
@@ -2446,7 +2445,7 @@ def preprocess_img_data(settings):
                 timelapse=settings['timelapse'],
                 save_original_images=settings.get('save_original_images', True))
 
-            all_imgs = len([f for f in os.listdir(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
+            all_imgs = len([f for f in _listdir_visible(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
             batch_size = int(settings.get('batch_size') or 0)
             full_batches = all_imgs // batch_size if batch_size else 0
             last_batch_size = all_imgs % batch_size if batch_size else 0
@@ -2475,13 +2474,13 @@ def preprocess_img_data(settings):
         except Exception as e:
             print(f"Error: {e}")
 
-    stacked = ([f for f in os.listdir(stack_path) if f.endswith('.npy')]
+    stacked = ([f for f in _listdir_visible(stack_path) if f.endswith('.npy')]
                if os.path.isdir(stack_path) else [])
     stacked = select_fields(stacked, settings.get('fields'))
     if not stacked:
         entries = []
         try:
-            entries = sorted(os.listdir(src))
+            entries = sorted(_listdir_visible(src))
         except OSError:
             pass
         subdirs = [d for d in entries
@@ -3467,6 +3466,28 @@ def _mask_variant_path(folder, ref_filename):
     return None
 
 
+def _listdir_visible(folder):
+    """List ``folder`` like :func:`os.listdir`, leaving out every name that starts with a dot.
+
+    The folders the Mask pipeline writes and re-reads (``stack/``,
+    ``masks/``, ``masks/<object>_mask_stack/``, ``merged/``, ``test/``)
+    can hold two kinds of dot-file that end in ``.npy`` or ``.npz`` and are
+    not arrays: the AppleDouble ``._<name>`` sidecar macOS writes beside a
+    file on a volume that cannot store extended attributes natively (exFAT,
+    FAT, many SMB shares), and the ``.spacr_tmp_*.npy`` / ``.spacr_npz_*.npz``
+    temporaries :func:`_save_array_atomic` and :func:`_save_npz_atomic`
+    leave behind when a run is killed mid-write. :func:`numpy.load` reads a
+    sidecar as a pickle and refuses it, and reads a temporary as a truncated
+    array. spaCR never names a field with a leading dot.
+
+    :param folder: the directory to list.
+    :returns: the entry names, in :func:`os.listdir` order, without the
+        dot-files.
+    :raises OSError: whatever :func:`os.listdir` raises for ``folder``.
+    """
+    return [name for name in os.listdir(folder) if not name.startswith('.')]
+
+
 def _save_array_atomic(output_path, array):
     """Write ``array`` to ``output_path`` as ``.npy`` atomically.
 
@@ -3555,7 +3576,7 @@ def _load_and_concatenate_arrays(
     mask_roles = []
 
     try:
-        _mask_stacks = set(os.listdir(os.path.join(src, 'masks')))
+        _mask_stacks = set(_listdir_visible(os.path.join(src, 'masks')))
     except OSError:
         _mask_stacks = set()
 
@@ -3589,7 +3610,7 @@ def _load_and_concatenate_arrays(
     os.makedirs(output_folder, exist_ok=True)
 
     count=0
-    reference_files = os.listdir(reference_folder)
+    reference_files = _listdir_visible(reference_folder)
     all_imgs = len(reference_files)
     time_ls = []
     layout_written = False

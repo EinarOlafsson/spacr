@@ -487,7 +487,11 @@ def _source_folders(src) -> Tuple[str, ...]:
 
 
 def _merged_files(src) -> Dict[str, list]:
-    """Map plate key -> sorted list of merged ``.npy`` paths under ``src``."""
+    """Map plate key -> sorted list of merged ``.npy`` paths under ``src``.
+
+    Names starting with a dot are left out: a macOS ``._<field>.npy``
+    AppleDouble sidecar keeps the ``.npy`` ending and is not an array.
+    """
     grouped: Dict[str, list] = {}
     for folder in _source_folders(src):
         if not os.path.isdir(folder):
@@ -496,7 +500,7 @@ def _merged_files(src) -> Dict[str, list]:
                 f"{folder!r}, which is not a folder. Point it at the merged "
                 f"field folder measure_crop reads (settings['src']).")
         for name in sorted(os.listdir(folder)):
-            if name.endswith('.npy'):
+            if name.endswith('.npy') and not name.startswith('.'):
                 grouped.setdefault(plate_of_field(name), []).append(
                     os.path.join(folder, name))
     return grouped

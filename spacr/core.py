@@ -147,9 +147,12 @@ def _overlay_candidates(merged_src):
     example count already counts, so the count and the list agree.
 
     :param merged_src: the ``merged`` folder of a plate.
-    :returns: the ``.npy`` file names in that folder, in directory order.
+    :returns: the ``.npy`` file names in that folder, in directory order,
+        without dot-files such as a macOS ``._`` sidecar.
     """
-    return [name for name in os.listdir(merged_src) if name.endswith('.npy')]
+    from .io import _listdir_visible
+
+    return [name for name in _listdir_visible(merged_src) if name.endswith('.npy')]
 
 
 def preprocess_generate_masks(settings):
@@ -223,7 +226,7 @@ def preprocess_generate_masks(settings):
                          generate_cellpose_masks_sam)
     from .io import (preprocess_img_data, _load_and_concatenate_arrays,
                      _normalized_npz_field_ids, convert_to_yokogawa,
-                     convert_separate_files_to_yokogawa)
+                     convert_separate_files_to_yokogawa, _listdir_visible)
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, reset_cellpose_model_reports
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
@@ -511,7 +514,7 @@ def preprocess_generate_masks(settings):
                                 if settings['test_mode'] == True:
                                     merged_dir = os.path.join(src, 'merged')
                                     settings['examples_to_plot'] = len(
-                                        [f for f in os.listdir(merged_dir)
+                                        [f for f in _listdir_visible(merged_dir)
                                          if f.endswith('.npy')]
                                     ) if os.path.isdir(merged_dir) else 0
 

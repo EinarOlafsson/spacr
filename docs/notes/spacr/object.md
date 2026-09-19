@@ -616,3 +616,7 @@ labeled = sk_label(filled)
 ```
 
 Step 4: Remove objects that lack ring morphology
+
+## generate_cellpose_masks_sam, 2026-09-19
+
+The `np.load(path)` that GitHub #121 and #117 report ("This file contains pickled (object) data") was handed a macOS AppleDouble sidecar, `masks/._stack_0_norm.npz`, not an archive spaCR wrote. The three `.npz` listings in this module (`generate_cellpose_masks_sam`, `generate_cellpose_masks`, `generate_organelle_masks_sam`) go through `spacr.io._listdir_visible`; the measurement and the reasons are in `docs/notes/spacr/io.md` under `_listdir_visible`.

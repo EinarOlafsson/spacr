@@ -794,7 +794,8 @@ def _iter_masks(source: Any):
     if isinstance(source, (str, os.PathLike)):
         path = os.fspath(source)
         if os.path.isdir(path):
-            names = sorted(f for f in os.listdir(path) if f.lower().endswith(".npy"))
+            names = sorted(f for f in os.listdir(path)
+                           if f.lower().endswith(".npy") and not f.startswith("."))
             for name in names:
                 full = os.path.join(path, name)
                 yield name[:-4], (lambda p=full: np.load(p, allow_pickle=False))

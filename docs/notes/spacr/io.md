@@ -88,6 +88,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [convert_separate_files_to_yokogawa](#convert_separate_files_to_yokogawa) (10 entries)
 - [convert_to_yokogawa](#convert_to_yokogawa) (22 entries)
 - [prepare_cellpose_dataset](#prepare_cellpose_dataset) (3 entries)
+- [_listdir_visible](#_listdir_visible) (1 entry)
 
 ## Module level
 
@@ -3096,3 +3097,19 @@ augmented_sampled = [
 ```
 
 Add "no augmentation" tag to original files
+
+## _listdir_visible
+
+### 2026-09-19, GitHub #121 and #117
+
+```python
+return [name for name in os.listdir(folder) if not name.startswith('.')]
+```
+
+A Mask run on an Apple M4, plate on `/Volumes/jk-ummi`, died in `generate_cellpose_masks_sam` with numpy's "This file contains pickled (object) data". Nothing spaCR writes into `masks/` is pickled: the normalised archive holds `data` (float32) and `filenames` (a `<U` array), and it loads with `allow_pickle=False`. The #117 log names the file that failed one stage earlier, `stack/._test_N06_5_1.npy`. It is an AppleDouble sidecar. macOS writes `._<name>` beside a file that carries extended attributes when the volume cannot store them natively (exFAT, FAT, many SMB shares). The sidecar keeps the ending of the file it shadows, so every `os.listdir(...) if name.endswith('.npz')` took it for data. `np.load` reads any file that is neither `.npy` magic nor a zip as a pickle, which is why the message says "pickled".
+
+Not `allow_pickle=True`: measured, it turns the ValueError into `UnpicklingError: Failed to interpret file ... as a pickle`, and it would let a file dropped into the folder run code at load. Not convert-on-read either: the files spaCR wrote in 1.5.0.8 were never object arrays and load unchanged. The fix is at the listing.
+
+It surfaced there because the platform is the one that makes sidecars and the Mask path re-lists its own output folders four times (`stack/`, `masks/`, each `*_mask_stack/`, `merged/`). The raw-image listing in `_rename_and_organize_image_files` already skipped dot-files; nothing after it did. `concatenate_and_normalize` met the sidecar first, but its per-item ledger only logged it ("RUN INCOMPLETE - 1 of 2 items failed"). `generate_cellpose_masks_sam` has no ledger around its load, so it raised. The fix touched 37 listing sites in 20 functions: every listing the Mask run reaches in `io.py`, `object.py`, `core.py`, `utils.py` and `plot.py` goes through this helper, and `tests/test_a_stack_file_spacr_wrote_is_one_it_can_read.py` fails if one of them calls `os.listdir` directly again. `seg_qc._iter_masks` and `illumination._merged_files` (reached when segmentation illumination correction is on) filter inline, because `seg_qc` is tested to import no torch and this module imports it at load.
+
+Every dot-file is left out, not just `._`: the atomic writers here name their temporaries `.spacr_tmp_*.npy` and `.spacr_npz_*.npz`, and a run killed mid-write leaves one behind with a data ending. Order is `os.listdir` order, unchanged, so batching and the seeded shuffle see the same sequence they did before.

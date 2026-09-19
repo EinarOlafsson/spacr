@@ -1714,6 +1714,8 @@ def check_mask_folder(src, mask_fldr, resume=False):
     :returns: ``True`` when the mask folder is missing or has fewer valid
         ``.npy`` files than the stack folder.
     """
+    from .io import _listdir_visible
+
     mask_folder = os.path.join(src,'masks',mask_fldr)
     stack_folder = os.path.join(src,'stack')
 
@@ -1722,7 +1724,7 @@ def check_mask_folder(src, mask_fldr, resume=False):
     
     mask_paths = [
         os.path.join(mask_folder, file)
-        for file in os.listdir(mask_folder) if file.endswith('.npy')
+        for file in _listdir_visible(mask_folder) if file.endswith('.npy')
     ]
     if resume:
         from .resume import validate_merged_field
@@ -1730,7 +1732,7 @@ def check_mask_folder(src, mask_fldr, resume=False):
             1 for path in mask_paths if validate_merged_field(path)[0])
     else:
         mask_count = len(mask_paths)
-    stack_count = sum(1 for file in os.listdir(stack_folder) if file.endswith('.npy'))
+    stack_count = sum(1 for file in _listdir_visible(stack_folder) if file.endswith('.npy'))
     
     if mask_count == stack_count:
         print(f'All masks have been generated for {mask_fldr}')
@@ -6179,6 +6181,8 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     :param random_test: sample at random rather than taking the first.
     :returns: the test folder.
     """
+    from .io import _listdir_visible
+
     if timelapse:
         test_images = 1
     
@@ -6189,7 +6193,7 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     if os.path.exists(os.path.join(src, 'orig')):
         src = os.path.join(src, 'orig')
         
-    all_filenames = [filename for filename in os.listdir(src) if regular_expression.match(filename)]
+    all_filenames = [filename for filename in _listdir_visible(src) if regular_expression.match(filename)]
     print(f'Found {len(all_filenames)} files')
     images_by_set = defaultdict(list)
 
@@ -8919,15 +8923,17 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     :returns: None.
     :raises ValueError: if the three folders contain different numbers of files.
     """
-    parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
-    cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
-    nuclei_files = sorted([f for f in os.listdir(nuclei_folder) if f.endswith('.npy')])
+    from .io import _listdir_visible
+
+    parasite_files = sorted([f for f in _listdir_visible(parasite_folder) if f.endswith('.npy')])
+    cell_files = sorted([f for f in _listdir_visible(cell_folder) if f.endswith('.npy')])
+    nuclei_files = sorted([f for f in _listdir_visible(nuclei_folder) if f.endswith('.npy')])
 
     if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
         raise ValueError("The number of files in the folders do not match.")
 
     if organelle_folder is not None and os.path.exists(organelle_folder):
-        organelle_files = sorted([f for f in os.listdir(organelle_folder) if f.endswith('.npy')])
+        organelle_files = sorted([f for f in _listdir_visible(organelle_folder) if f.endswith('.npy')])
         if len(organelle_files) != len(parasite_files):
             print(f'Warning: organelle mask count ({len(organelle_files)}) does not match other masks ({len(parasite_files)}). Organelle masks will be loaded per-file where available.')
     else:
@@ -9773,6 +9779,7 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
     """
     import os
     import shutil
+    from .io import _listdir_visible
 
     merged = os.path.join(src, 'merged')
     stack = os.path.join(src, 'stack')
@@ -9784,7 +9791,7 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
         if verbose:
             print("cleanup skipped: no merged/ folder — nothing removed")
         return deleted
-    merged_files = {f for f in os.listdir(merged) if f.endswith('.npy')}
+    merged_files = {f for f in _listdir_visible(merged) if f.endswith('.npy')}
     if not merged_files:
         if verbose:
             print("cleanup skipped: merged/ is empty — keeping intermediates")
@@ -9793,7 +9800,7 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
     if not keep_intermediate:
         stack_files = set()
         if os.path.isdir(stack):
-            stack_files = {f for f in os.listdir(stack) if f.endswith('.npy')}
+            stack_files = {f for f in _listdir_visible(stack) if f.endswith('.npy')}
         if stack_files and not stack_files.issubset(merged_files):
             missing = len(stack_files - merged_files)
             if verbose:
@@ -9804,7 +9811,7 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
                 if os.path.isdir(folder):
                     shutil.rmtree(folder, ignore_errors=True)
                     deleted.append(folder)
-            for d in os.listdir(src):
+            for d in _listdir_visible(src):
                 p = os.path.join(src, d)
                 if os.path.isdir(p) and d.isdigit():
                     shutil.rmtree(p, ignore_errors=True)
