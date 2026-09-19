@@ -361,6 +361,10 @@ def sibling_sources(path, suffixes: Sequence[str],
                     directories: bool = False) -> List[Path]:
     """List every comparable source sitting beside ``path``.
 
+    Names that start with a dot are left out, as a Mask run leaves them out:
+    on exFAT, FAT and many network shares macOS writes a ``._<name>`` sidecar
+    beside every file, with the same ending and no image in it.
+
     :param path: the currently-loaded file (or folder).
     :param suffixes: lower-case suffixes that count as a source.
     :param directories: when True, list sibling *folders* instead of files —
@@ -377,6 +381,8 @@ def sibling_sources(path, suffixes: Sequence[str],
         return [target] if target.exists() else []
     out: List[Path] = []
     for entry in entries:
+        if entry.name.startswith("."):
+            continue
         if directories:
             if entry.is_dir():
                 out.append(entry)
@@ -565,7 +571,9 @@ def enumerate_image_sets(directory, suffixes: Sequence[str],
     :func:`~spacr.utils._get_regex`. Names the regex understands are grouped by
     ``(plateID, wellID, fieldID)``; names it does not become one set each, so
     an ad-hoc folder of ``a.tif``/``b.tif`` still lists exactly as it always
-    did.
+    did. Names that start with a dot are skipped, as a run skips them: the
+    ``._<name>`` sidecars macOS writes on exFAT and network volumes end in
+    ``.tif`` too and hold no image.
 
     :param directory: folder to enumerate.
     :param suffixes: lower-case suffixes that count as a source.
@@ -591,7 +599,7 @@ def enumerate_image_sets(directory, suffixes: Sequence[str],
             for entry in entries:
                 name = entry.name
                 lowered = name.lower()
-                if not lowered.endswith(wanted):
+                if name.startswith(".") or not lowered.endswith(wanted):
                     continue
                 try:
                     if not entry.is_file():

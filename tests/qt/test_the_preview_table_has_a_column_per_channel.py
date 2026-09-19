@@ -196,3 +196,122 @@ def test_choosing_the_naming_after_loading_regroups_the_table(
 
     assert _headers(panel) == ["ch 01", "ch 02", "ch 03", "ch 04"]
     assert panel._set_table.rowCount() == 12
+
+
+def test_a_regrouping_read_under_a_naming_since_changed_is_dropped(
+        qtbot, tmp_path, monkeypatch):
+    """A job that lands inside the next 400 ms wait is not adopted.
+
+    Found in review: the naming changes again before the screen's timer asks
+    for the next regrouping, and the first job finishes in between. Adopting
+    it cached the grouping under the old naming, and the selectors refreshed
+    under the new one then read the folder again on the GUI thread.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widgets import preview_controls
+
+    folder = _cellvoyager_folder(tmp_path)
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    screen.resize(1400, 900)
+    screen.show()
+    screen._on_preview_switch(True)
+    model = screen._settings_model
+    naming = model._widgets["metadata_type"]
+    naming.setCurrentIndex(naming.findText("cellvoyager"))
+    model._widgets["src"].setText(str(folder))
+    panel = screen._live_preview
+    qtbot.waitUntil(lambda: _headers(panel)[:1] == ["ch 01"], timeout=10000)
+    qtbot.waitUntil(lambda: not panel._image_loaders, timeout=10000)
+    QApplication.processEvents()
+
+    jobs = []
+    monkeypatch.setattr(panel._load_jobs, "submit",
+                        lambda work, done=None: jobs.append((work, done)))
+    naming.setCurrentIndex(naming.findText("cq1"))
+    screen._live_naming_timer.stop()
+    assert panel.regroup_the_folder()
+    work, done = jobs[-1]
+    found = work()
+
+    naming.setCurrentIndex(naming.findText("cellvoyager"))
+    screen._live_naming_timer.stop()
+    scans = []
+    real = preview_controls.enumerate_image_sets
+
+    def counted(*args, **kwargs):
+        """Record a folder read on the GUI thread, then do it."""
+        scans.append(args)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(preview_controls, "enumerate_image_sets", counted)
+    done(found)
+
+    assert scans == [], "the stale grouping was adopted and the folder re-read"
+    assert _headers(panel) == ["ch 01", "ch 02", "ch 03", "ch 04"]
+
+
+def _with_macos_sidecars(folder):
+    """Put a ``._`` sidecar beside every file, as macOS does on exFAT.
+
+    The #117 log from the same reporter names ``stack/._test_N06_5_1.npy``,
+    so his drive writes them. A sidecar is AppleDouble data under the
+    image's own name and ending, not an image.
+    """
+    for path in sorted(folder.iterdir()):
+        (folder / f"._{path.name}").write_bytes(
+            b"\x00\x05\x16\x07\x00\x02\x00\x00" + b"\x00" * 74)
+    return folder
+
+
+def test_the_listing_helpers_skip_macos_sidecars(tmp_path):
+    """First image, image sets and siblings name real images only."""
+    from spacr.qt.widgets.live_preview import (
+        SUPPORTED_SUFFIXES, first_supported_image)
+    from spacr.qt.widgets.preview_controls import (
+        enumerate_image_sets, sibling_sources)
+
+    folder = _with_macos_sidecars(_cellvoyager_folder(tmp_path, fields=2))
+
+    first = first_supported_image(folder)
+    assert first is not None and not first.name.startswith("."), first
+    sets, channels = enumerate_image_sets(
+        folder, SUPPORTED_SUFFIXES, "cellvoyager", None)
+    names = [name for image_set in sets
+             for name in image_set.channels.values()]
+    assert len(sets) == 2
+    assert not [name for name in names if name.startswith(".")]
+    assert sorted(channels) == ["01", "02", "03"]
+    siblings = sibling_sources(first, SUPPORTED_SUFFIXES)
+    assert siblings and not [p for p in siblings if p.name.startswith(".")]
+
+
+def test_a_folder_on_an_exfat_drive_previews_its_images(qtbot, tmp_path):
+    """Setting ``src`` to a folder with sidecars shows the images, no more."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    folder = _with_macos_sidecars(_cellvoyager_folder(tmp_path, fields=3))
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    screen.resize(1400, 900)
+    screen.show()
+    screen._on_preview_switch(True)
+    model = screen._settings_model
+    naming = model._widgets["metadata_type"]
+    naming.setCurrentIndex(naming.findText("cellvoyager"))
+    model._widgets["src"].setText(str(folder))
+    panel = screen._live_preview
+    qtbot.waitUntil(lambda: panel._set_table.columnCount() > 0,
+                    timeout=10000)
+    qtbot.waitUntil(lambda: not panel._image_loaders, timeout=10000)
+
+    assert panel._image is not None, "the preview opened a sidecar"
+    assert not panel._image_path.name.startswith(".")
+    assert _headers(panel) == ["ch 01", "ch 02", "ch 03"]
+    table = panel._set_table
+    assert table.rowCount() == 3
+    labels = [table.verticalHeaderItem(row).text()
+              for row in range(table.rowCount())]
+    assert not [label for label in labels if "._" in label], labels

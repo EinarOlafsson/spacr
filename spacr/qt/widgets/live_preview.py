@@ -633,7 +633,9 @@ def first_supported_image(source: Path) -> Optional[Path]:
 
     Direct image files are returned unchanged. Directory traversal stops as
     soon as the first sorted match is found instead of materialising and
-    sorting every image in a potentially enormous plate.
+    sorting every image in a potentially enormous plate. Files whose names
+    start with a dot are skipped: ``._<name>.tif``, the sidecar macOS writes
+    on exFAT and network volumes, sorts before every image and holds none.
 
     :param source: image path or directory to inspect.
     :returns: the first supported image, or ``None``.
@@ -650,6 +652,8 @@ def first_supported_image(source: Path) -> Optional[Path]:
             followlinks=False):
         dirs.sort(key=str.casefold)
         for name in sorted(files, key=str.casefold):
+            if name.startswith("."):
+                continue
             if Path(name).suffix.lower() in SUPPORTED_SUFFIXES:
                 return Path(folder) / name
     if walk_errors:
@@ -2201,6 +2205,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                               custom, found) -> None:
         """Show a regrouping, unless a newer one or another folder won.
 
+        A grouping read under a naming the form no longer holds is dropped
+        too. The screen asks for the next one 400 ms after the naming
+        changes, and a job that finishes inside that wait would otherwise be
+        adopted, and the selectors refreshed under the new naming would then
+        read the folder again on the GUI thread.
+
         :param token: which :meth:`regroup_the_folder` call produced it.
         :param folder: the folder that was grouped.
         :param meta: the naming dialect it was grouped by.
@@ -2211,6 +2221,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if token != getattr(self, "_regroup_token", 0):
             return
         if self._image_path is None or Path(self._image_path).parent != folder:
+            return
+        if tuple(self._regex_config()) != (meta, custom):
             return
         sets, channels = found
         self._sampler.adopt(folder, sets, channels,

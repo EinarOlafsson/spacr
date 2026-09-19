@@ -2,13 +2,15 @@
 MASK SETTINGS FOLLOW THE CHANNELS THE USER SETS -- FORM, LIVE SETTINGS, TABLE
 ================================================================================
 
-Status:    DONE 2026-09-19 on branch home/mask-settings-ui, local commits, not
-           pushed. All three reports reproduced headless by driving the
-           widgets, fixed, and held by 17 tests that press the controls; each
-           test was run against the unfixed modules and failed there. OWED:
-           the consolidated i18n pass for the docstrings listed below, one
-           look on a real macOS machine, and the reporter's confirmation on
-           #119 and #120.
+Status:    DONE 2026-09-19, on nightly. All three reports were reproduced
+           headless by driving the widgets and fixed. Review found the same
+           #120 defect in Timelapse, fixed the same way, plus three smaller
+           things (see the second trailing note). 24 tests press the controls.
+           Each was run against the code without its fix and failed there,
+           except one Timelapse case, noted below.
+           OWED: the consolidated i18n pass for the docstrings listed in the
+           unit's result, one look on a real macOS machine, and the reporter's
+           confirmation on #119 and #120.
 Requested: 2026-09-19, by the maintainer, in these words:
 
              "in mask generation live settings , with per object settings on
@@ -110,9 +112,9 @@ spacr/qt/screens/app_screen.py
     regroup the preview table after 400 ms.
 spacr/qt/screens/settings_model.py
   * `SettingsWidgets.essential_keys()` adds each `<Object> Segmentation`
-    category for every object whose channel names a plane (Mask only; the
-    module-level `essential_keys()` and the walkthrough's count are
-    unchanged).
+    category for every object whose channel names a plane (Mask, and
+    Timelapse since review; the module-level `essential_keys()` and the
+    walkthrough's count are unchanged).
   * `refresh_object_visibility()` records `_hidden_by_their_object` and
     calls `rows_are_filtered_by` at the end.
   * `_hide_the_headings_of_slots_the_run_lacks()` covers nucleus and
@@ -185,7 +187,8 @@ DELIBERATELY NOT DONE
     them. Not asked, and it changes what a run segments; worth its own item.
   * macOS AppleDouble files ("._name.tif") match the cellvoyager pattern
     with plate "._name" and would add rows that fail to load. Not seen in
-    the report and not measured on a Mac; recorded only.
+    the report and not measured on a Mac; recorded only. SUPERSEDED the
+    same day: fixed after review, see the second trailing note.
 
 --------------------------------------------------------------------------------
 2026-09-19 -- trailing note
@@ -209,5 +212,69 @@ another session), and tests/test_documentation_i18n.py's inventory ratchet
 (10560 on the base against 10539; this change adds one public symbol,
 regroup_the_folder, making 10561). The docstrings this change adds or edits
 are owed to the consolidated i18n pass; they are listed in the unit's
-result. features/00_INDEX.txt is generated and was not regenerated here, so
-that parallel units do not collide on it.
+result. features/00_INDEX.txt was regenerated with
+tools/build_instruction_index.py in the #119 commit ("The live preview put
+every image under one "ch" column and dropped channels the sample missed").
+This note first said it was not regenerated, which was wrong, and was
+corrected in review. At landing, nightly's own regeneration was taken and
+the tool run again, and --check then passed.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- second trailing note: review, and what it changed
+--------------------------------------------------------------------------------
+
+A review of the three commits found one should-fix defect in the code, one
+false sentence in this file, and three nits. All five are dealt with.
+
+  * TIMELAPSE HAD #120 TOO (should-fix). Timelapse is the only other
+    module with `<Object> Segmentation` categories (checked across every
+    module in _APP_CATEGORY_SPECS). It opens at Essentials too, and typing 2
+    into pathogen_channel and pressing Return added nothing to the visible
+    keys and left Pathogen Segmentation hidden. Reproduced on the branch
+    head before fixing. `_APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT` now has
+    a timelapse entry. The reported-steps test and the clearing test run on
+    both modules. Without the entry, 2 of the 3 Timelapse cases fail. The
+    third, clearing at All settings, tests the heading rule this branch
+    added, which is not specific to a module, so it passes either way.
+  * THIS FILE SAID 00_INDEX WAS NOT REGENERATED (should-fix). It was, in
+    the #119 commit. Corrected above.
+  * SECTIONS REOPENED (nit, fixed). Every object pass re-applied the
+    search, and under Essentials that opened every kept section, so
+    shutting them and changing metadata_type opened all four again. The
+    screen's two re-applications (after the object rule, and after laying
+    out rows) now call SettingsSearchBar.apply(reopen=False). A shut section
+    stays shut, and a section the call brings back, such as Pathogen
+    Segmentation after a channel commit, still opens. A change to the query,
+    Modified or the level opens everything it keeps, as before.
+    test_a_section_the_user_shut_stays_shut fails without it (it lists the
+    four sections that reopened).
+  * A STALE REGROUPING (nit, fixed). A regrouping job that finished inside
+    the next 400 ms debounce was adopted under the old naming, and the
+    selectors then re-read the folder on the GUI thread. It is now dropped
+    when the form's naming is no longer the one it was read under.
+    test_a_regrouping_read_under_a_naming_since_changed_is_dropped counts
+    GUI-thread reads: 1 without the check, 0 with it.
+  * THE #119 CLOSING COMMENT OVERCLAIMED (nit, fixed in the comment). Plane
+    columns appear only when no file name carries a channel, the image is
+    channel-last, and it has 2 to 9 planes. A (C, H, W) TIFF still shows one
+    "image" column. The regroup waits 400 ms. The posted comment says so.
+
+Also done, not from the review: macOS "._" SIDECARS ARE SKIPPED BY THE
+PREVIEW. 429 landed on nightly while this was in review, and its evidence
+changes the "recorded only" above. The same reporter's #117 log names
+stack/._test_N06_5_1.npy, so his drive writes an AppleDouble sidecar beside
+every file, and 429 made the Mask run skip dot-files. The preview did not.
+`first_supported_image` sorts `._x.tif` before every image, so on such a
+folder the preview opened a sidecar first. Measured on a synthetic
+cellvoyager folder with a sidecar beside each file: tifffile raised "not a
+TIFF file", and the table never filled (a 10 s wait timed out). Under
+cellvoyager naming, `enumerate_image_sets` read 3 fields plus their
+sidecars as 6 rows (plate "._plateA"), and under cq1 as 18 unreadable
+one-file sets. That is a plausible fuller account of what #119 describes on
+his drive. `first_supported_image`, `enumerate_image_sets` and
+`sibling_sources` now skip names that start with a dot, the same rule 429
+applies to the run. Two tests, both failing on the unfixed modules.
+
+Left, unchanged from the first note: a look on a real Mac, the reporter's
+confirmation, and the narrowing search that hides a heading with only
+sub-headings (needs its own number).

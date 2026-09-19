@@ -1635,3 +1635,23 @@ lambda: enumerate_image_sets(folder, SUPPORTED_SUFFIXES,
 The grouping is decided when a folder loads, with the `metadata_type` and `custom_regex` the Mask form held at that moment. Loading a cellvoyager folder while the form said `cq1` and then choosing `cellvoyager` left all 92 files under one column; nothing re-read the folder until another image load missed the sampler's cache. The screen now calls this 400 ms after either setting changes (`AppScreen._wire_live_preview_naming`). The enumeration reads file names only and runs through the panel's `JobRunner`, and `adopt` files it under the dialect's cache key, so `_refresh_source_selectors` finds it rather than scanning the plate again on the GUI thread.
 
 Seen and not changed: `load_source_payload` still enumerates on the worker with the DEFAULT dialect, so a folder opened under any other naming is scanned a second time on the GUI thread by `_refresh_source_selectors`. The result is right; only the cost is paid twice.
+
+## LivePreviewPanel._adopt_the_regrouping
+
+### added 2026-09-19 (431, from review)
+
+```python
+if tuple(self._regex_config()) != (meta, custom):
+```
+
+Found in review of 431. The token bumps only when the next regrouping is asked for, and the screen asks 400 ms after the naming changes. If the naming changes again and the running job finishes inside that wait, the token still matches, so the grouping read under the old naming was adopted. `_refresh_source_selectors` then read the NEW naming off the form, missed the sampler's cache and re-read the whole folder on the GUI thread, which is the cost the off-thread regroup exists to avoid. Arrow-keying through the `metadata_type` combo on a large plate does exactly that. A grouping whose naming is no longer the form's is now dropped, and the regrouping the timer asks for replaces it. Held by `test_a_regrouping_read_under_a_naming_since_changed_is_dropped`, which counts GUI-thread folder reads and fails without the check.
+
+## first_supported_image
+
+### added 2026-09-19 (431, #119)
+
+```python
+if name.startswith("."):
+```
+
+`._<name>.tif` sorts before every image under `str.casefold`, because `.` sorts before letters and digits. On a folder with macOS sidecars the preview's first file was therefore a sidecar. Measured on a synthetic cellvoyager folder with a sidecar beside each file: tifffile raised "not a TIFF file: header=b'\x00\x05\x16\x07'", no image loaded, and the table never filled. See the note on `enumerate_image_sets` in `preview_controls.md`. Held by `test_a_folder_on_an_exfat_drive_previews_its_images` and `test_the_listing_helpers_skip_macos_sidecars`.
