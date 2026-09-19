@@ -3,15 +3,22 @@ PROSE THAT CANNOT BE TRANSLATED IS ONLY FOUND AFTER A 65-MINUTE BUILD, AND
 THE HOUSE STYLE IS WHAT PRODUCES IT
 ================================================================================
 
-Status:    THE LOCAL CHECK EXISTS AND NOW READS THE RIGHT STRING, 2026-09-12.
-           It DECIDES cause 1 and REPORTS cause 2 from a registry; cause 3 is
-           not a signal of its own, it is which English every signal reads,
-           and that half is now fixed. `tools/check_translatable_prose.py`
-           plus `tests/test_prose_that_reaches_a_catalog_can_be_translated.py`
-           and `tests/test_check_translatable_prose.py`: 38,368 blocks in
-           ~15 s, 0 flagged, 4 of 4 recovered real failures named, 394
-           registry advisories that never gate. Filed 2026-09-11 after the
-           same failure cost four rebuild cycles in one evening.
+Status:    DONE 2026-09-19, AS FAR AS A SOURCE CHECK CAN REACH. All three
+           items of WHAT TO DO are in the tree. (1) and (2) have been there
+           since 2026-09-12: `tools/check_translatable_prose.py`, run by
+           `tests/test_prose_that_reaches_a_catalog_can_be_translated.py` and
+           `tests/test_check_translatable_prose.py`. It DECIDES cause 1, a
+           bare label as the subject, and it REPORTS cause 2 from a registry.
+           It reads the expansion the model actually receives. Re-run on
+           2026-09-19: 39,051 blocks in 15.4 s, 0 flagged, 4 of 4
+           calibration failures named, 395 advisories that never gate.
+           (3), the author-facing shape note, is now the section "Prose that
+           reaches a translation catalog" in CONTRIBUTING.md. The second
+           HOW TO KNOW criterion, a clean build after the test passes,
+           cannot be promised by any source check: the causes the model
+           produces stay out of reach, and both the tool and the note say
+           so. Filed 2026-09-11 after the same failure cost four rebuild
+           cycles in one evening.
 Owner:     unassigned. `tools/build_i18n_catalogs.py` holds the gates,
            `tools/build_documentation_i18n.py` the API half.
 
@@ -805,3 +812,44 @@ It does not fix them -- each helper needs its own extractor rule because the
 template's argument position differs, and guessing writes runtime values into
 the catalog -- but the number can no longer grow unnoticed, which is the
 property this item exists to provide for the OTHER failure mode.
+
+--------------------------------------------------------------------------------
+2026-09-19 — ITEM 3 WRITTEN: THE SHAPE NOTE IS IN CONTRIBUTING.md
+--------------------------------------------------------------------------------
+
+WHAT WAS ADDED. CONTRIBUTING.md has a new section, "Prose that reaches a
+translation catalog". It sits between "Docstrings and settings" and "The
+instruction ledger", which is where a contributor writing a docstring will
+read it. It gives the three rules from WHAT TO DO item 3 and one example of
+each, taken from this file rather than invented:
+
+  * one idea per sentence in catalog text. It is framed as splitting, not
+    cutting, because DELIBERATELY NOT PROPOSED keeps the house style;
+  * a verb around every identifier. The example is ops_store's old
+    pseudo-table and the sentence that replaced it;
+  * no instruction number or phase label as the subject. The examples are
+    three of the four calibration blocks, "372 states the contract:",
+    "B2: run a segmenter ..." and "C4 samples ...". The note says where the
+    reference belongs instead: the commit message or the ledger file.
+
+It also says which rule is checked. Only the third is, by
+`tools/check_translatable_prose.py`, in about fifteen seconds. The note gives
+the reason the first two are not checked, which is the measurement recorded
+here: length and density cannot flag the failures without flagging thousands
+of passing blocks. It carries the sentence this file insists on, "A green
+check is not a green build", and it tells an author to read the model's
+output before rewriting the English, which is the lesson the four refuted
+theories above teach.
+
+MEASURED THE SAME DAY, so that the note's claims match the tool as it runs
+now:
+
+    python tools/check_translatable_prose.py
+    blocks examined 39,051   flagged 0   advisories 395
+    calibration 4/4 named    15.37 s wall, 75 MB peak
+
+The corpus has grown from the 38,368 blocks in the 2026-09-12 notes to
+39,051, and nothing is flagged.
+
+NOT DONE: nothing in this item's scope is left. CONTRIBUTING.md is not
+translated and not in any catalog, so this note owes no translation.
