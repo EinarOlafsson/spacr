@@ -186,7 +186,8 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [remove_outliers_by_group](#remove_outliers_by_group) (2 entries)
 - [generate_image_path_map, 2026-09-19](#generate_image_path_map-2026-09-19) (1 entry)
 - [measure_test_mode, 2026-09-19](#measure_test_mode-2026-09-19) (1 entry)
-- [process_mask_file_adjust_cell, 2026-09-19](#process_mask_file_adjust_cell-2026-09-19) (1 entry)
+- [process_mask_file_adjust_cell, 2026-09-19](#process_mask_file_adjust_cell-2026-09-19) (2 entries)
+- [check_mask_folder, 2026-09-19](#check_mask_folder-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -5037,3 +5038,18 @@ cell_mask = np.load(cell_path, allow_pickle=False)
 ```
 
 The four loads (pathogen, cell, nucleus, organelle) passed `allow_pickle=True` since July 2025. Every writer of these files saves `mask.astype(np.uint16)` and did then, so the flag loaded nothing a plain load would not, and it made loading a mask run whatever a pickled `.npy` in the folder named: measured, an object array whose pickle calls `os.mkdir` created its directory when `adjust_cells` read it. Item 429 decided against `allow_pickle` for the normalised archives for the same reason. Pinned by `tests/test_spacr_masks_load_without_unpickling.py`.
+
+```python
+_save_array_atomic(cell_path, merged_cell_mask)
+```
+
+`adjust_cells` rewrites `masks/cell_mask_stack/<field>.npy` over the mask Cellpose wrote. `np.save` onto that name truncated it first and then wrote, so a run killed during the write (SIGKILL, OOM, a full disk) left a short file under the final name; before `check_mask_folder` checked masks with `resume` off, the next run took it for done. The write now goes through `spacr.io._save_array_atomic`, item 430's `_replace_atomically`: the adjusted mask is written into a hidden `.partial` sibling, flushed, and renamed over the old one, so a kill leaves the previous whole mask. Measured with `np.save` made to die half-way through the write: the old code left the first half of the file under the final name (`validate_merged_field`: truncated), the new one leaves the original bytes and no sibling. Pinned by `tests/test_a_mask_is_checked_before_it_is_reused.py`.
+
+## check_mask_folder, 2026-09-19
+
+```python
+mask_count = sum(
+    1 for path in mask_paths if validate_merged_field(path)[0])
+```
+
+With `resume` off, every `.npy` in the mask folder was counted, so a mask a killed run left empty or truncated made the count equal the stack count, the log said "All masks have been generated", segmentation was skipped, and the merge died on the short file (`ValueError: Failed to read all data for array ... (file seems not fully written?)`). Item 430 had left this: only `resume` on checked. The check reads each header and compares the file's length with it (`spacr.resume.validate_merged_field`), which costs one small read per mask, so it now runs whether or not `resume` is set. `resume` is still accepted, because callers pass it. `spacr.io._check_masks` makes the same change per field and names each damaged mask in the log as it queues it again.

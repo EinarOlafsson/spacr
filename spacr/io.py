@@ -3315,40 +3315,33 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
         batch (list): List of masks.
         batch_filenames (list): List of filenames corresponding to the masks.
         output_folder (str): Path to the output folder.
-        resume (bool): Validate existing ``.npy`` files before skipping them.
-            A truncated field is returned for processing instead.
+        resume (bool): Accepted for the callers that pass it. Existing
+            ``.npy`` files are validated before they are skipped whether or
+            not it is set, and a damaged one is returned for processing.
 
     Returns:
         tuple: A tuple containing the filtered batch (numpy array) and the filtered filenames (list).
     """
-    if resume:
-        from .resume import validate_merged_field
+    from .resume import validate_merged_field
 
-        def needs_processing(filename):
-            """Report whether a field still has to be generated (resume mode).
+    def needs_processing(filename):
+        """Report whether a field still has to be generated.
 
-            Args:
-                filename (str): Name relative to the enclosing
-                    ``output_folder``, not a full path — it is joined onto
-                    that folder here. Unlike the non-resume variant, an
-                    existing file is also opened and validated, so a
-                    truncated ``.npy`` left behind by a killed run counts as
-                    missing and is regenerated.
-            """
-            path = os.path.join(output_folder, filename)
-            return not os.path.isfile(path) or not validate_merged_field(path)[0]
-    else:
-        def needs_processing(filename):
-            """Report whether a field still has to be generated.
-
-            Args:
-                filename (str): Name relative to the enclosing
-                    ``output_folder``, not a full path. Only existence is
-                    checked, so a zero-byte or truncated file counts as done
-                    and is skipped; pass ``resume=True`` to have its contents
-                    validated instead.
-            """
-            return not os.path.isfile(os.path.join(output_folder, filename))
+        Args:
+            filename (str): Name relative to the enclosing
+                ``output_folder``, not a full path — it is joined onto that
+                folder here. An existing file is validated by its header and
+                length, so an empty or truncated ``.npy`` left behind by a
+                killed run counts as missing, is named in the log, and is
+                generated again.
+        """
+        path = os.path.join(output_folder, filename)
+        if not os.path.isfile(path):
+            return True
+        ok, reason = validate_merged_field(path)
+        if not ok:
+            print(f"{path} is damaged ({reason}); generating it again.")
+        return not ok
 
     existing_files_mask = [
         needs_processing(filename) for filename in batch_filenames]

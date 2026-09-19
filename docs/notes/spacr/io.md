@@ -90,6 +90,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [prepare_cellpose_dataset](#prepare_cellpose_dataset) (3 entries)
 - [_listdir_visible](#_listdir_visible) (2 entries)
 - [_load_array_any, 2026-09-19](#_load_array_any-2026-09-19) (1 entry)
+- [_check_masks, 2026-09-19](#_check_masks-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -3209,3 +3210,11 @@ return np.load(path, allow_pickle=False)
 ```
 
 `_load_array_any` reads every non-reference mask into `merged/`. It passed `allow_pickle=True` since October 2024, when every mask writer already saved `mask.astype(np.uint16)`, so the flag loaded nothing a plain load would not and let a pickled `.npy` in a mask folder run code when the merge read it. See `docs/notes/spacr/utils.md`, `process_mask_file_adjust_cell, 2026-09-19`.
+
+## _check_masks, 2026-09-19
+
+```python
+ok, reason = validate_merged_field(path)
+```
+
+`_check_masks` used to skip any mask file that existed unless `resume` was on, so a mask a killed run left truncated was reused and merged. It now validates every existing mask by header and length, prints `<path> is damaged (<reason>); generating it again.`, and returns it for segmenting; the new mask replaces it through `_save_array_atomic`. `resume` is still accepted. See `docs/notes/spacr/utils.md`, `check_mask_folder, 2026-09-19`, for the folder-level count that decides whether segmentation runs at all.

@@ -124,7 +124,7 @@ def test_concatenate_channel_writes_npz(tmp_path, rng):
 def test_check_masks_filters_existing(tmp_path):
     from spacr.io import _check_masks
     out = tmp_path / "out"; out.mkdir()
-    (out / "a.npy").write_bytes(b"x")
+    np.save(out / "a.npy", np.zeros((4, 4), np.uint16))
     batch = [np.zeros((4, 4), np.uint16), np.ones((4, 4), np.uint16)]
     names = ["a.npy", "b.npy"]
     kept, kept_names = _check_masks(batch, names, str(out))[:2]

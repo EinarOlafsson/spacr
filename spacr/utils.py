@@ -1709,12 +1709,14 @@ def check_mask_folder(src, mask_fldr, resume=False):
 
     :param src: experiment root containing ``masks/`` and ``stack/`` subfolders.
     :param mask_fldr: subfolder name under ``masks/``.
-    :param resume: when True, count only structurally complete mask arrays.
-        Empty/truncated arrays left by an interrupted older run are re-queued.
+    :param resume: accepted for the callers that pass it. Only structurally
+        complete mask arrays are counted whether or not it is set, so an
+        empty or truncated array left by an interrupted run is re-queued.
     :returns: ``True`` when the mask folder is missing or has fewer valid
         ``.npy`` files than the stack folder.
     """
     from .io import _listdir_visible
+    from .resume import validate_merged_field
 
     mask_folder = os.path.join(src,'masks',mask_fldr)
     stack_folder = os.path.join(src,'stack')
@@ -1726,12 +1728,8 @@ def check_mask_folder(src, mask_fldr, resume=False):
         os.path.join(mask_folder, file)
         for file in _listdir_visible(mask_folder) if file.endswith('.npy')
     ]
-    if resume:
-        from .resume import validate_merged_field
-        mask_count = sum(
-            1 for path in mask_paths if validate_merged_field(path)[0])
-    else:
-        mask_count = len(mask_paths)
+    mask_count = sum(
+        1 for path in mask_paths if validate_merged_field(path)[0])
     stack_count = sum(1 for file in _listdir_visible(stack_folder) if file.endswith('.npy'))
     
     if mask_count == stack_count:
@@ -8876,7 +8874,10 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
 
     :param file_name: mask file name (must exist in all folders).
     :param parasite_folder: folder of parasite masks.
-    :param cell_folder: folder of cell masks (overwritten in place).
+    :param cell_folder: folder of cell masks (overwritten in place). The
+        adjusted mask replaces the old one atomically, so a run killed
+        during the write leaves the previous whole mask, never a truncated
+        one.
     :param nuclei_folder: folder of nuclei masks.
     :param organelle_folder: optional folder of organelle masks.
     :param overlap_threshold: fractional overlap threshold used by the merger.
@@ -8907,7 +8908,9 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
 
     merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold, perimeter_threshold)
 
-    np.save(cell_path, merged_cell_mask)
+    from .io import _save_array_atomic
+
+    _save_array_atomic(cell_path, merged_cell_mask)
 
     end = time.perf_counter()
     return end - start

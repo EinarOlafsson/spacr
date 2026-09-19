@@ -331,11 +331,12 @@ def test_check_mask_folder(tmp_path):
     # equal counts → False
     (tmp_path / "stack").mkdir()
     (tmp_path / "masks" / "cell").mkdir(parents=True)
+    # whole arrays: an empty mask is not counted (2026-09-19)
     for d in ("stack", "masks/cell"):
-        (tmp_path / d / "a.npy").write_bytes(b"")
+        np.save(tmp_path / d / "a.npy", np.zeros((4, 4), np.uint16))
     assert U.check_mask_folder(str(tmp_path), "cell") is False
     # fewer masks than stacks → True
-    (tmp_path / "stack" / "b.npy").write_bytes(b"")
+    np.save(tmp_path / "stack" / "b.npy", np.zeros((4, 4), np.uint16))
     assert U.check_mask_folder(str(tmp_path), "cell") is True
 
 
