@@ -16,6 +16,7 @@ Pretrained models for spaCR, hosted on HuggingFace. Pass a downloaded weight fil
 | Toxoplasma PV from cell-mask channel | v1 | cpsam_v2 | F1 0.606 vs stock 0.022 | [toxoplasma-from-cellmask-cpsam](https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam) | [dataset](https://huggingface.co/datasets/einarolafsson/cross-channel-toxoplasma-from-cellmask) |
 | Toxoplasma PV segmentation | r2 | cpsam_v2 | F1 0.864 (11 anchor wells) | [toxoplasma-pv-segmentation-cpsam](https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam) | — |
 | Toxoplasma PV segmentation | r5 | cpsam_v2 | CV F1 0.817 | [toxoplasma-pv-segmentation-cpsam-r5](https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5) | — |
+| Toxoplasma PV segmentation | r6 | cpsam_v2 | test F1 0.8602 vs stock 0.7648; CV F1 0.8168 | [toxoplasma-pv-segmentation-cpsam-r6](https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6) | [dataset](https://huggingface.co/datasets/einarolafsson/toxoplasma-pv-segmentation-dataset) |
 
 ```python
 from huggingface_hub import hf_hub_download
