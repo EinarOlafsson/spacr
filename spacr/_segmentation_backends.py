@@ -1379,7 +1379,19 @@ _REAPER = []
 
 
 def _worker_for(name, env, factory=None):
-    """The running worker for ``name``, started (or restarted) on demand."""
+    """The running worker for ``name``, started (or restarted) on demand.
+
+    HANDING A WORKER OUT COUNTS AS USING IT. ``last_used`` used to move only
+    when a reply arrived, and ``busy`` only while a request is in flight, so
+    between this function releasing the lock and the caller's first write
+    there was a moment where a worker idle for :data:`_IDLE_SECONDS` was
+    neither busy nor recently used -- and :func:`_reap_idle`, which runs on
+    its own thread, could shut it down in that moment. The write then failed
+    and was reported as "the backend stopped (exit code 0)". A mask run with
+    more than ten minutes between batches is exactly the run that hits it.
+    Stamping it here, under the lock, means the worker this call returns
+    cannot be reaped out from under its caller.
+    """
     with _WORKERS_LOCK:
         worker = _WORKERS.get(name)
         if worker is not None and (not worker.alive or worker.env != env):
@@ -1388,6 +1400,7 @@ def _worker_for(name, env, factory=None):
         if worker is None:
             worker = (factory or _WorkerProcess)(name, env)
             _WORKERS[name] = worker
+        worker.last_used = time.monotonic()
         if not _REAPER:
             reaper = threading.Thread(target=_reap_forever, daemon=True)
             _REAPER.append(reaper)

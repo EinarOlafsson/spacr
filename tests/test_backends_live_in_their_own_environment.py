@@ -1355,6 +1355,7 @@ def test_the_pool_restarts_a_dead_or_moved_worker_and_reaps_idle_ones(
     time.sleep(0.05)
     assert len(SB._REAPER) == 1 and started == [1]
 
+    third.last_used = 0.0
     SB._WORKERS.update(busy=_Worker(busy=True), fresh=_Worker(used=100.0),
                        idle=_Worker(used=0.0), dead=_Worker(alive=False,
                                                             used=100.0))
@@ -1365,6 +1366,36 @@ def test_the_pool_restarts_a_dead_or_moved_worker_and_reaps_idle_ones(
     assert set(SB._WORKERS) == {"busy"}
     SB._shutdown_workers()
     assert SB._WORKERS == {}
+
+
+def test_a_worker_just_handed_out_cannot_be_reaped_under_its_caller(
+        monkeypatch):
+    """The race that made a long run fail instead of restarting.
+
+    ``last_used`` moved only when a REPLY arrived and ``busy`` is only true
+    while a request is in flight, so a worker that had sat idle past the
+    reaper's threshold was, in the instant between ``_worker_for`` releasing
+    the lock and the caller's first write, neither busy nor recently used.
+    The reaper runs on its own thread and could close it there; the write
+    then raised and surfaced as "the backend stopped (exit code 0)".
+    Ten minutes between batches of one mask run is enough to reach it.
+    """
+    monkeypatch.setattr(SB, "_WORKERS", {})
+    monkeypatch.setattr(SB, "_REAPER", [1])
+    stale = _Worker(used=0.0)
+    SB._WORKERS["cellpose3"] = stale
+
+    handed_out = SB._worker_for("cellpose3", "E",
+                                factory=lambda n, e: _Worker(e))
+
+    assert handed_out is stale, "a live worker was replaced"
+    SB._reap_idle(now=stale.last_used + SB._IDLE_SECONDS - 1)
+    assert SB._WORKERS.get("cellpose3") is stale, "reaped after being handed out"
+    assert stale.closed == 0
+
+    SB._reap_idle(now=stale.last_used + SB._IDLE_SECONDS + 1)
+    assert "cellpose3" not in SB._WORKERS, "an idle worker is still reaped"
+    assert stale.closed == 1
 
 
 def test_the_reaper_reaps_on_its_own_schedule(monkeypatch):
