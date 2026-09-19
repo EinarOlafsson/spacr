@@ -197,6 +197,7 @@ class SettingsSearchBar(QWidget):
         self._restore_expanded: Optional[Dict[int, bool]] = None
         self._level = disclosure_for(self._app_key)
         self._grid_section_counted: Optional[QWidget] = None
+        self._sections_kept: Optional[set] = None
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, 4)
@@ -312,7 +313,7 @@ class SettingsSearchBar(QWidget):
         read rather than recomputing it."""
         return self._count.text()
 
-    def apply(self) -> None:
+    def apply(self, reopen: bool = True) -> None:
         """Recompute which rows and sections are shown.
 
         Called on every change to the query, the Modified filter or the
@@ -325,6 +326,12 @@ class SettingsSearchBar(QWidget):
         section is counted by the settings it answers for instead, so under
         Essentials the table stays on screen while it holds the channels,
         which the flat form no longer shows while the table is on.
+
+        :param reopen: while the filter narrows, open every section it
+            keeps. The screen passes ``False`` when it re-applies the filter
+            after the object rule or after laying out rows: a section the
+            user shut then stays shut, and only a section this call brings
+            back onto the form is opened.
         """
         model = self._model
         if model is None or not self._index:
@@ -396,7 +403,7 @@ class SettingsSearchBar(QWidget):
 
         narrowing = bool(query) or self._modified.isChecked() \
             or (self._level == ESSENTIALS and bool(essentials))
-        self._apply_section_state(shown_per_section, narrowing)
+        self._apply_section_state(shown_per_section, narrowing, reopen)
         self._count.setText(
             self._compose_count(len(wanted), total, len(essentials)))
 
@@ -508,7 +515,7 @@ class SettingsSearchBar(QWidget):
                     self._index[key] = (section, field)
 
     def _apply_section_state(self, shown: Dict[int, int],
-                             narrowing: bool) -> None:
+                             narrowing: bool, reopen: bool = True) -> None:
         """Hide emptied sections; open the surviving ones while narrowing.
 
         A filter that leaves every section collapsed has told the user how
@@ -516,12 +523,20 @@ class SettingsSearchBar(QWidget):
         not filtering. So a narrowing view expands what it kept — and
         remembers what was open beforehand, so releasing the filter restores
         the form the user had rather than one it invented.
+
+        :param shown: how many rows each section keeps, by ``id()``.
+        :param narrowing: whether a query, Modified or Essentials narrows.
+        :param reopen: open every kept section; ``False`` opens only the
+            sections the previous call did not keep.
         """
         if narrowing and self._restore_expanded is None:
             self._restore_expanded = {
                 id(s): bool(s.is_expanded()) for s in self._sections
                 if hasattr(s, "is_expanded")
             }
+        kept_before = self._sections_kept
+        self._sections_kept = {
+            id(s) for s in self._sections if shown.get(id(s), 0) > 0}
         for section in self._sections:
             count = shown.get(id(section), 0)
             visible = count > 0
@@ -531,7 +546,8 @@ class SettingsSearchBar(QWidget):
             if not hasattr(section, "set_expanded"):
                 continue
             if narrowing:
-                if visible:
+                if visible and (reopen or kept_before is None
+                                or id(section) not in kept_before):
                     section.set_expanded(True)
             elif self._restore_expanded is not None:
                 section.set_expanded(

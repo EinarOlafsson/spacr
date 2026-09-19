@@ -2771,14 +2771,16 @@ class AppScreen(QWidget):
         rows the level excludes back on the form and left the new object's
         segmentation heading off it. Re-entry is refused: applying the
         filter can lay out a waiting row, and laying one out runs the object
-        rule again.
+        rule again. The filter is applied without reopening sections, so a
+        section the user shut stays shut when an unrelated setting such as
+        ``metadata_type`` runs the object rule.
         """
         bar = getattr(self, "_settings_search", None)
         if bar is None or getattr(self, "_refiltering_settings", False):
             return
         self._refiltering_settings = True
         try:
-            bar.apply()
+            bar.apply(reopen=False)
         except RuntimeError:
             LOG.debug("the settings search is gone", exc_info=True)
         except Exception:                                    # noqa: BLE001
@@ -2962,7 +2964,7 @@ class AppScreen(QWidget):
             return
         try:
             bar._build_index()
-            bar.apply()
+            bar.apply(reopen=False)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not re-index the settings search", exc_info=True)
 

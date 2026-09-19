@@ -807,7 +807,7 @@ class TestTheRowsMoved:
         indexed = []
         screen._settings_search = types.SimpleNamespace(
             _build_index=lambda: indexed.append("index"),
-            apply=lambda: indexed.append("apply"))
+            apply=lambda reopen=True: indexed.append("apply"))
 
         screen._the_rows_moved(judge_them=True)
 
@@ -825,7 +825,7 @@ class TestTheRowsMoved:
         indexed = []
         screen._settings_search = types.SimpleNamespace(
             _build_index=lambda: indexed.append("index"),
-            apply=lambda: indexed.append("apply"))
+            apply=lambda reopen=True: indexed.append("apply"))
 
         screen._the_rows_moved(judge_them=False)
 
@@ -877,7 +877,7 @@ class TestTheRowsMoved:
         caplog.set_level(logging.DEBUG, logger=aps.LOG.name)
         screen._settings_sections = []
         screen._settings_search = types.SimpleNamespace(
-            _build_index=refusing, apply=lambda: None)
+            _build_index=refusing, apply=lambda reopen=True: None)
 
         screen._the_rows_moved(judge_them=False)
 

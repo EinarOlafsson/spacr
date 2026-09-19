@@ -2949,6 +2949,14 @@ GitHub issue #120 (jak18015, 1.5.0.8, macOS): "when defining a channel number fo
 
 Now each of the four `<Object> Segmentation` categories joins Essentials for every object whose channel names a plane -- read from the widgets on each call, so a channel typed after the form opened counts. Cell included: its rows are never hidden by the object rule, but a cell channel is still the user saying "segment cells". The module-level `essential_keys()`, which the walkthrough counts as "the settings this module cannot run without", is unchanged; only the screen's model method adds these. Cost on Mask: 0.4 ms per call, against 7 ms for the static part it sits beside.
 
+### changed 2026-09-19 (431, from review): Timelapse
+
+```python
+"timelapse": ("@Cell Segmentation", "@Nucleus Segmentation",
+```
+
+Found in review of the Mask fix. Timelapse is the only other module with `<Object> Segmentation` categories (checked across every module in `_APP_CATEGORY_SPECS`). It has the same channel switches and also opens at Essentials, and it had the same defect: typing 2 into `pathogen_channel` and pressing Enter added nothing to the visible keys and left Pathogen Segmentation hidden, while All settings showed it. Timelapse now has the same four entries. As on Mask, "Organelle Segmentation (advanced)" is left out. `test_a_pathogen_channel_brings_pathogen_segmentation_into_essentials` and `test_clearing_the_channel_takes_the_heading_away` run on both modules, and the Timelapse cases fail without this entry.
+
 ## SettingsWidgets.refresh_object_visibility
 
 ### added 2026-09-19 (431)

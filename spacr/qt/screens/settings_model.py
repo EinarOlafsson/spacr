@@ -1550,6 +1550,8 @@ _APP_ESSENTIAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
 _APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT: Dict[str, Tuple[str, ...]] = {
     "mask": ("@Cell Segmentation", "@Nucleus Segmentation",
              "@Pathogen Segmentation", "@Organelle Segmentation"),
+    "timelapse": ("@Cell Segmentation", "@Nucleus Segmentation",
+                  "@Pathogen Segmentation", "@Organelle Segmentation"),
 }
 
 
@@ -7705,10 +7707,10 @@ class SettingsWidgets:
         a layout but skipped by ``convert_settings_dict_for_gui`` cannot make
         the disclosure control promise a row that is not there.
 
-        On Mask, each object's segmentation settings are added for every
-        object whose channel names a plane, so setting a pathogen channel
-        brings the Pathogen Segmentation rows into Essentials as well as into
-        All settings. See :meth:`_essentials_that_follow_their_object`.
+        On Mask and Timelapse, each object's segmentation settings are added
+        for every object whose channel names a plane, so setting a pathogen
+        channel brings the Pathogen Segmentation rows into Essentials as well
+        as into All settings. See :meth:`_essentials_that_follow_their_object`.
         """
         keys = [key for key in essential_keys(self.app_key)
                 if key in self._widgets]
@@ -7718,8 +7720,9 @@ class SettingsWidgets:
     def _essentials_that_follow_their_object(self) -> List[str]:
         """The segmentation settings of every object this run segments.
 
-        Read from ``_APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT``: for Mask the
-        four ``<Object> Segmentation`` categories. A key joins when its
+        Read from ``_APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT``: for Mask and
+        Timelapse, the two modules that segment, the four
+        ``<Object> Segmentation`` categories. A key joins when its
         object's channel names a plane, read from the widgets now rather
         than at build, so a channel typed after the form opened counts. A key
         the object rule cannot place, such as ``adjust_cells``, goes with the

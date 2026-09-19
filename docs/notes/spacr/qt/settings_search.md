@@ -213,3 +213,14 @@ With the per-object table on, the flat rows it answers for -- every object's cha
 The table can be mounted or taken down by Preferences after this strip was built, so the section is looked up on every `apply()` and the strip's list of sections is kept in step: a section taken down is dropped before it can be touched, which matters because it is deleted with `deleteLater()` and would raise on the next `setVisible`.
 
 Seen and not changed, measured 2026-09-19 on a built Mask screen under All settings: a section with no rows of its own and only sub-headings counts zero, so any narrowing hides it with everything under it. Searching "remove border objects" reports one match, `cell_remove_border_objects`, whose row is visible on its form -- while "Object Filtration (all objects)" and the "Advanced settings" umbrella above it are both hidden, so nothing is on screen. A count rolled up from each sub-heading to the headings above it would fix it; it is recorded in 431 rather than fixed there, because it is the search's own defect and not the channels'.
+
+## SettingsSearchBar.apply
+
+### added 2026-09-19 (431, from review)
+
+```python
+if visible and (reopen or kept_before is None
+                or id(section) not in kept_before):
+```
+
+431 made the screen re-apply this filter after every pass of the object rule, and under Essentials every call counts as narrowing, which opens every kept section. Measured in review on a fresh Mask screen: shut every section, change `metadata_type` (a dependency source, so it runs the object rule), and all four sections opened again. On the branch base they stayed shut. The screen's two re-applications, after the object rule (`AppScreen._refilter_the_settings_search`) and after laying out rows that arrived late (`AppScreen._the_rows_moved`), now pass `reopen=False`. A section the user shut then stays shut, and a section that call brings back onto the form, such as Pathogen Segmentation after a pathogen channel is committed, is still opened, because it is not in the set the previous call kept. A change to the query, the Modified switch or the level still opens everything it keeps, as before. The previous call's kept sections are recorded instead of read from `isHidden()`, because the object rule shows and hides headings itself before this runs. Held by `test_a_section_the_user_shut_stays_shut`.
