@@ -6,13 +6,14 @@ Status:    done 2026-09-19, landed on nightly (4e533737f, efa9dabb6): an AI
            provider that exits non-zero is reported as failed, the reply
            keeps its "spaCR AI" heading, the sign-in hint names
            `claude auth login`, and with 'ask' the console says under
-           "✗ Failed" that nothing was sent. FOLLOW-UP THE SAME DAY, on the
-           branch home/autofile-default, committed and NOT landed: the
-           maintainer decided that 'always' files automatically and is the
-           default (last trailing note). 'always' now files a redacted report
-           with no preview, once per crash, and the terms of use (4.2,
-           Section 5.6) say so. Open: landing that branch, and the
-           translations the last note lists.
+           "✗ Failed" that nothing was sent. FOLLOW-UP THE SAME DAY, ALSO
+           LANDED on nightly (495d02acc, d1f773607, 3bbb6679c, dd4ff195a,
+           and after review e173b9624, 1095a78c7): the maintainer decided
+           that 'always' files automatically and is the default (last two
+           trailing notes). 'always' now files a redacted report with no
+           preview, once per crash, only after terms 4.2 are accepted, and
+           the terms of use (Section 5.6) say so. Open: the translations the
+           last two notes list, and the items under LEFT there.
 Requested: GitHub #117, second half, opened 2026-09-17 by jak18015 (Apple
            M4, macOS 26.7, spaCR 1.5.0.8): "when running test mode, the mask
            generation failed and did not automatically submit a github issue
@@ -336,7 +337,8 @@ if set to always." (Relayed to this unit through the orchestrating session.
 It is not in a commit or on GitHub.)
 
 Branch home/autofile-default, off origin/nightly 411700dc6. Committed
-locally, NOT pushed.
+locally, NOT pushed at the time of writing; landed the same day as
+495d02acc, d1f773607, 3bbb6679c and dd4ff195a after the review pass below.
 
 WHAT CHANGED
 
@@ -611,3 +613,14 @@ LEFT, after this pass
     which now works.
   * The tail of the last component of an unquoted spaced path, as measured
     in 1.
+
+LANDED. The review fixes are e173b9624 and 1095a78c7, pushed to nightly on
+2026-09-19 on top of 495d02acc, d1f773607, 3bbb6679c and dd4ff195a. The
+rebase onto c610e6ece (396) was clean, features/00_INDEX.txt regenerated
+unchanged, and the key tests were re-run on the rebased tree: the unit's
+file and the annotate console file with the report path, 10 files, 333
+passed; app screen coverage, the comment rule, the index and the two ledger
+tests, 678 passed; annotate, setup, terms and packaging, 259 passed with
+the two long-standing packaging reds (torchcam's python-3.13 limit and the
+CITATION DOI, in setup.py and CITATION.cff, which this branch never
+touched).
