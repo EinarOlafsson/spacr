@@ -1,0 +1,228 @@
+"""The Sound tab of Preferences: every switch off until somebody asks.
+
+Built into the dialog by :class:`spacr.qt.preferences.PreferencesDialog`
+as its LAST tab -- it is the least important thing in Preferences -- and
+kept in its own module so the dialog only has to create the page, save it
+and reset it.
+
+Every event has its own switch and a Preview button beside it. The
+switches, the volume, the sound set and the Previews are all disabled while
+the master switch is off, so nothing on this page can make a sound until
+the user has turned sound on; a Preview is the user asking to hear one.
+
+Every caption is a literal at the line that shows it, rather than a row in
+a table handed to a helper: the translation extractor reads literals at
+the calls it knows, and a caption routed through a helper's parameter is a
+caption it never sees (``tests/test_a_helper_does_not_hide_a_caption_from_the_catalog.py``).
+"""
+from __future__ import annotations
+
+from typing import Dict
+
+__all__ = ["SOUND_PAGE_EVENTS", "SoundPage"]
+
+#: The events the page offers, in the order it lists them: the two interface
+#: sounds, the two run sounds, then the music bed.
+SOUND_PAGE_EVENTS = ("click", "hover", "run_finished", "run_failed", "bed")
+
+
+class SoundPage:
+    """The Sound tab's controls, and the two things the dialog asks of them.
+
+    :param form: the tab's form layout, from the dialog's ``_page``.
+    :param dialog: the Preferences dialog; closing it ends any preview.
+    """
+
+    def __init__(self, form, dialog) -> None:
+        """Build every row, reading the stored values."""
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QSlider, QWidget
+
+        from . import preferences as prefs
+        from .i18n import tr
+        from .sound_synth import SOUND_THEMES
+        from .widgets.toggle import Toggle
+
+        self._dialog = dialog
+        self.events: Dict[str, object] = {}
+        self.previews: Dict[str, object] = {}
+
+        help_label = QLabel(tr(
+            "Everything here is off until you switch sound on. The sounds "
+            "are made by spaCR on this computer, nothing is recorded or "
+            "downloaded, and they play on a thread of their own, so a "
+            "missing or busy audio device only ever means silence."))
+        help_label.setWordWrap(True)
+        help_label.setObjectName("SoundTabHelp")
+        form.addRow(help_label)
+
+        self.enabled = Toggle()
+        self.enabled.setObjectName("SoundEnabled")
+        self.enabled.setToolTip(
+            "Off by default. While it is off spaCR loads no audio library "
+            "and plays nothing at all. On, spaCR plays the sounds switched "
+            "on below through your computer's default audio output.")
+        self.enabled.setChecked(prefs.get_sound_enabled())
+        form.addRow(tr("Play sounds"), self.enabled)
+
+        self.volume = QSlider(Qt.Orientation.Horizontal)
+        self.volume.setObjectName("SoundVolume")
+        self.volume.setRange(0, 100)
+        self.volume.setSingleStep(5)
+        self.volume.setPageStep(10)
+        self.volume.setValue(int(round(prefs.get_sound_volume() * 100)))
+        volume_value = QLabel()
+        volume_value.setObjectName("SoundVolumeValue")
+        self.volume.valueChanged.connect(
+            lambda value: volume_value.setText(f"{int(value)}%"))
+        volume_value.setText(f"{self.volume.value()}%")
+        volume_row = QWidget()
+        volume_layout = QHBoxLayout(volume_row)
+        volume_layout.setContentsMargins(0, 0, 0, 0)
+        volume_layout.addWidget(self.volume, 1)
+        volume_layout.addWidget(volume_value)
+        volume_row.setToolTip(
+            "How loud every spaCR sound is, from silent to full. The music "
+            "bed always plays quieter than the other sounds.")
+        form.addRow(tr("Volume"), volume_row)
+
+        self.theme = QComboBox()
+        self.theme.setObjectName("SoundTheme")
+        for key, theme in SOUND_THEMES.items():
+            self.theme.addItem(tr(theme.label), key)
+            self.theme.setItemData(self.theme.count() - 1,
+                                   tr(theme.description),
+                                   Qt.ItemDataRole.ToolTipRole)
+        self.theme.setCurrentIndex(
+            max(0, self.theme.findData(prefs.get_sound_theme())))
+        self.theme.setToolTip(
+            "Which set of sounds plays. A set is synthesized on this "
+            "computer the first time it is needed and kept under "
+            "~/.spacr/sounds, so it costs nothing until it is used.")
+        form.addRow(tr("Sound set"), self.theme)
+
+        row = self._event_row("click", "SoundClick")
+        row.setToolTip(
+            "A short, quiet pluck in the sound set's key when you press a "
+            "button, a switch, a tab, a list or a slider: confirmation that "
+            "the press registered, felt more than heard.")
+        form.addRow(tr("Click"), row)
+
+        row = self._event_row("hover", "SoundHover")
+        row.setToolTip(
+            "An even quieter pluck when the pointer rests on an enabled "
+            "control. It waits for the pointer to settle and then stays "
+            "silent for a moment, so moving across a panel never turns into "
+            "a stream of sounds. Off until you switch it on here.")
+        form.addRow(tr("Hover"), row)
+
+        row = self._event_row("run_finished", "SoundRunFinished")
+        row.setToolTip(
+            "A rising arpeggio that resolves onto the key's home note when a "
+            "module's run finishes successfully, for when spaCR is in "
+            "another window.")
+        form.addRow(tr("Run finished"), row)
+
+        row = self._event_row("run_failed", "SoundRunFailed")
+        row.setToolTip(
+            "A slower falling figure when a run stops with an error, so a "
+            "finished run and a failed one never sound alike. A run you "
+            "stop yourself is silent.")
+        form.addRow(tr("Run failed"), row)
+
+        row = self._event_row("bed", "SoundMusicBed")
+        row.setToolTip(
+            "A quiet looping piece in the sound set's key: pads, a plucked "
+            "arpeggio with a dotted-eighth echo and a soft sub. Separate "
+            "from the other sounds, so you can have feedback without music. "
+            "It rests at the Laptop and Extra Performance levels.")
+        self.previews["bed"].setToolTip(tr(
+            "Play a few seconds of the music bed at the volume above."))
+        form.addRow(tr("Music bed"), row)
+
+        self.enabled.toggled.connect(self._follow_the_master)
+        self._follow_the_master(self.enabled.isChecked())
+        try:
+            dialog.finished.connect(self._closed)
+        except (AttributeError, RuntimeError, TypeError):
+            pass
+
+    def _event_row(self, event: str, name: str):
+        """One event's switch and its Preview button, in a row widget.
+
+        :param event: the event the row controls.
+        :param name: object name of the switch; the button is
+            ``<name>Preview``.
+        :returns: the row widget, for the caller to caption and explain.
+        """
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+        from . import preferences as prefs
+        from .i18n import tr
+        from .widgets.toggle import Toggle
+
+        toggle = Toggle()
+        toggle.setObjectName(name)
+        toggle.setChecked(prefs.get_sound_event_enabled(event))
+        preview = QPushButton(tr("Preview"))
+        preview.setObjectName(f"{name}Preview")
+        preview.setToolTip(tr("Play this sound once at the volume above."))
+        preview.clicked.connect(
+            lambda _checked=False, which=event: self._preview(which))
+        row = QWidget()
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(toggle)
+        layout.addStretch(1)
+        layout.addWidget(preview)
+        self.events[event] = toggle
+        self.previews[event] = preview
+        return row
+
+    def _follow_the_master(self, on: bool) -> None:
+        """Every other control on the page is live only while sound is on."""
+        for widget in ([self.volume, self.theme]
+                       + list(self.events.values())
+                       + list(self.previews.values())):
+            widget.setEnabled(bool(on))
+
+    def _preview(self, event: str) -> bool:
+        """Play ``event`` with the page's own, unsaved, set and volume."""
+        if not self.enabled.isChecked():
+            return False
+        from .sound import preview_sound
+        return preview_sound(event, str(self.theme.currentData() or ""),
+                             self.volume.value() / 100.0)
+
+    def _closed(self, *_result) -> None:
+        """The dialog closed: no preview outlives it."""
+        from .sound import stop_sound_preview
+        stop_sound_preview()
+
+    def save(self) -> None:
+        """Write every control on the page to the preference store."""
+        from . import preferences as prefs
+
+        prefs.set_sound_enabled(self.enabled.isChecked())
+        prefs.set_sound_volume(self.volume.value() / 100.0)
+        key = self.theme.currentData()
+        if key:
+            prefs.set_sound_theme(str(key))
+        for event, toggle in self.events.items():
+            prefs.set_sound_event_enabled(event, toggle.isChecked())
+
+    def reset(self) -> None:
+        """Show what a fresh install has.
+
+        Called while the dialog has swapped in its empty defaults store, so
+        every getter answers with its default.
+        """
+        from . import preferences as prefs
+
+        self.enabled.setChecked(prefs.get_sound_enabled())
+        self.volume.setValue(int(round(prefs.get_sound_volume() * 100)))
+        self.theme.setCurrentIndex(
+            max(0, self.theme.findData(prefs.get_sound_theme())))
+        for event, toggle in self.events.items():
+            toggle.setChecked(prefs.get_sound_event_enabled(event))
+        self._follow_the_master(self.enabled.isChecked())

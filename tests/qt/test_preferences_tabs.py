@@ -83,13 +83,32 @@ CONTROLS = {
     # moved with it rather than being left unreachable.
     "AiProvider": "AI",
     "AiProvidersButton": "AI",
+    # The Sound tab arrived on 2026-09-19 (item 427), LAST and off by
+    # default: "the tab is last because it is the least important thing in
+    # Preferences". A master switch, a volume, a sound set, and one switch
+    # and one Preview per event.
+    "SoundTabHelp": "Sound",
+    "SoundEnabled": "Sound",
+    "SoundVolume": "Sound",
+    "SoundTheme": "Sound",
+    "SoundClick": "Sound",
+    "SoundClickPreview": "Sound",
+    "SoundHover": "Sound",
+    "SoundHoverPreview": "Sound",
+    "SoundRunFinished": "Sound",
+    "SoundRunFinishedPreview": "Sound",
+    "SoundRunFailed": "Sound",
+    "SoundRunFailedPreview": "Sound",
+    "SoundMusicBed": "Sound",
+    "SoundMusicBedPreview": "Sound",
 }
 
 #: Tab order, not just tab membership: General must stay first (see below),
 #: and the rest are ordered by how often a user goes looking for them.
-#: "Logging" was appended on 2026-08-05 by f1183805.
+#: "Logging" was appended on 2026-08-05 by f1183805, and "Sound" on
+#: 2026-09-19 by item 427 -- last, and it must stay last.
 EXPECTED_TABS = ("General", "Appearance", "Theme", "Animation", "Performance",
-                 "Modules", "Figures", "Logging", "AI")
+                 "Modules", "Figures", "Logging", "AI", "Sound")
 
 
 @pytest.fixture(autouse=True)

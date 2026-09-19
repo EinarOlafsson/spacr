@@ -106,6 +106,11 @@ def announce_pipeline_finished(app_key: str, status: str,
     :param status: ``"success"`` / ``"failed"`` / ``"cancelled"``.
     :param elapsed_s: wall-clock seconds the run took.
     """
+    try:
+        from .sound import announce_run_end
+        announce_run_end(status)
+    except Exception as e:
+        LOG.debug("run sound failed: %s", e)
     icon = "✓" if status == "success" else "⚠"
     title = f"{icon} spaCR — {app_key} {status}"
     body = f"Finished in {elapsed_s:.1f}s."

@@ -4278,6 +4278,15 @@ def apply_preferences_to_app(app=None) -> None:
     apply_ambient_preferences(app)
 
     try:
+        import sys as _sys
+        if (_sys.modules.get(__package__ + ".sound") is not None
+                or get_sound_enabled()):
+            from .sound import apply_sound_preferences
+            apply_sound_preferences(app)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not apply the sound preferences", exc_info=True)
+
+    try:
         from .widgets.console_panel import ConsolePanel
         for widget in app.allWidgets():
             if isinstance(widget, ConsolePanel):
@@ -6199,6 +6208,9 @@ class PreferencesDialog:
         quit_button.clicked.connect(lambda: _quit_spacr(dlg))
         performance.addRow(tr("Application"), quit_button)
 
+        from .sound_preferences import SoundPage
+        sound_page = SoundPage(_page("Sound", "PreferencesTabSound"), dlg)
+
         outer.addWidget(tabs)
 
 
@@ -6292,6 +6304,7 @@ class PreferencesDialog:
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
+                sound_page.reset()
             finally:
                 _settings = original
 
@@ -6420,6 +6433,7 @@ class PreferencesDialog:
             _save_budget_for_level(mode_combo.currentData(),
                                    idle_spin.value(), cache_spin.value(),
                                    headroom_spin.value())
+            sound_page.save()
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()
@@ -7071,3 +7085,154 @@ def set_news_height(px: int) -> int:
     settings.setValue(_KEY_NEWS_HEIGHT, value)
     settings.sync()
     return value
+
+
+#: Sound (427). Every key is off, or quiet, on a fresh install: a scientific
+#: tool that makes noise the first time it is opened, in a shared office or
+#: during a talk, is a tool people learn to distrust.
+_KEY_SOUND_ENABLED = "sound/enabled"
+_KEY_SOUND_VOLUME = "sound/volume"
+_KEY_SOUND_THEME = "sound/theme"
+_KEY_SOUND_EVENT = "sound/event/{}"
+
+#: The master switch. Nothing is imported, constructed or played while off.
+DEFAULT_SOUND_ENABLED = False
+
+#: Master volume as a fraction of the slider, 0 to 1.
+DEFAULT_SOUND_VOLUME = 0.5
+
+#: Each event's own switch, as a fresh install has it. They only matter once
+#: the master switch is on; hover and the music bed stay off even then,
+#: because each is the one a user should have to ask for by name.
+SOUND_EVENT_DEFAULTS = {
+    "click": True,
+    "hover": False,
+    "run_finished": True,
+    "run_failed": True,
+    "bed": False,
+}
+
+#: Performance levels at which the music bed rests. They are the two that
+#: switch the animated backdrop off, and a loop playing for hours is the
+#: audio equivalent of one.
+SOUND_BED_RESTS_AT = ("laptop", "extra_performance")
+
+
+def get_sound_enabled() -> bool:
+    """Whether spaCR plays any sound at all. Default ``False``.
+
+    :returns: the stored master switch.
+    """
+    return _as_bool(_settings().value(_KEY_SOUND_ENABLED,
+                                      DEFAULT_SOUND_ENABLED),
+                    DEFAULT_SOUND_ENABLED)
+
+
+def set_sound_enabled(on: bool) -> None:
+    """Persist the master sound switch.
+
+    :param on: play sounds when True.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_SOUND_ENABLED, bool(on))
+    settings.sync()
+
+
+def get_sound_volume() -> float:
+    """The master volume, 0 to 1, clamped on read.
+
+    :returns: the stored fraction, or :data:`DEFAULT_SOUND_VOLUME` when the
+        store holds something that is not a number.
+    """
+    try:
+        value = float(_settings().value(_KEY_SOUND_VOLUME,
+                                        DEFAULT_SOUND_VOLUME))
+    except (TypeError, ValueError):
+        return DEFAULT_SOUND_VOLUME
+    if value != value:
+        return DEFAULT_SOUND_VOLUME
+    return min(1.0, max(0.0, value))
+
+
+def set_sound_volume(fraction: float) -> float:
+    """Persist the master volume.
+
+    :param fraction: 0 to 1; values outside are clamped.
+    :returns: the value stored.
+    """
+    try:
+        value = min(1.0, max(0.0, float(fraction)))
+    except (TypeError, ValueError):
+        value = DEFAULT_SOUND_VOLUME
+    settings = _settings()
+    settings.setValue(_KEY_SOUND_VOLUME, value)
+    settings.sync()
+    return value
+
+
+def _sound_theme_keys() -> tuple:
+    """Every sound set that can be chosen, by key."""
+    from .sound_synth import SOUND_THEMES
+    return tuple(SOUND_THEMES)
+
+
+def get_sound_theme() -> str:
+    """Which sound set plays, validated against the sets that exist.
+
+    :returns: a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`; a stored
+        key that no longer exists reads as the default set.
+    """
+    from .sound_synth import DEFAULT_THEME
+    raw = str(_settings().value(_KEY_SOUND_THEME, DEFAULT_THEME) or "")
+    return raw if raw in _sound_theme_keys() else DEFAULT_THEME
+
+
+def set_sound_theme(key: str) -> None:
+    """Persist the chosen sound set.
+
+    :param key: a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`.
+    :raises ValueError: for a key no sound set has.
+    """
+    if key not in _sound_theme_keys():
+        raise ValueError(f"unknown sound set {key!r}. "
+                         f"Choose from {_sound_theme_keys()}.")
+    settings = _settings()
+    settings.setValue(_KEY_SOUND_THEME, str(key))
+    settings.sync()
+
+
+def get_sound_event_enabled(event: str) -> bool:
+    """Whether one event's sound is switched on, apart from the master.
+
+    :param event: a key of :data:`SOUND_EVENT_DEFAULTS`.
+    :returns: the stored switch.
+    :raises KeyError: for an event spaCR has no sound for.
+    """
+    default = SOUND_EVENT_DEFAULTS[event]
+    return _as_bool(_settings().value(_KEY_SOUND_EVENT.format(event), default),
+                    default)
+
+
+def set_sound_event_enabled(event: str, on: bool) -> None:
+    """Persist one event's switch.
+
+    :param event: a key of :data:`SOUND_EVENT_DEFAULTS`.
+    :param on: play that event's sound when the master switch is on.
+    :raises KeyError: for an event spaCR has no sound for.
+    """
+    if event not in SOUND_EVENT_DEFAULTS:
+        raise KeyError(event)
+    settings = _settings()
+    settings.setValue(_KEY_SOUND_EVENT.format(event), bool(on))
+    settings.sync()
+
+
+def sound_bed_rests() -> bool:
+    """Whether the current performance level silences the music bed.
+
+    :returns: True at the levels named in :data:`SOUND_BED_RESTS_AT`.
+    """
+    try:
+        return get_performance_level() in SOUND_BED_RESTS_AT
+    except Exception:                                        # noqa: BLE001
+        return False
