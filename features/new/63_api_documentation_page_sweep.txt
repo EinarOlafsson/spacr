@@ -2,23 +2,22 @@
 MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
 ================================================================================
 
-Status:    THE BUILD IS AT 0 ERRORS AND 0 WARNINGS FROM AN EMPTY TREE, AND
-           THE REFERENCE NO LONGER ADVERTISES A MODULE THE HOME SCREEN HAS
-           STOPPED REGISTERING. The two rendering defects this file left
-           open -- the broken definition list in `spacr/object_distances.py`
-           and the `shape` cross-reference in
-           `spacr/qt/widgets/fast_plots.py` -- are repaired in the source and
-           stayed repaired: two rebuilds from an empty `docs/_build` and
-           `docs/source/api` report 912 HTML pages, 448 module pages and
-           nothing else. The short underlines and duplicate object
-           descriptions are still gone, and a deleted module still reaches
-           neither the page nor the localization payload. What is new is the
-           SEVENTEEN FOLDED APPLICATIONS: the workflow grid included by both
-           the landing page and the API index still drew a tile for each of
-           them, and three narrative pages either sent a reader to a section
-           that no longer holds a screen or never said where it opens. Both
-           are corrected below. Two things remain, neither is a rendering
-           fault, and both live outside `docs/`; they are named at the end.
+Status:    DONE IN THE SOURCE 2026-09-19; THE RENDERED BUILD WAS NOT RE-RUN
+           THAT DAY. Every criterion below held at the 2026-08-26 re-audit
+           except "no unrendered markup", and that one is now at zero where
+           it is measured: the docutils detector in
+           `tests/test_docstring_inline_markup_renders.py` reads every
+           docstring under `spacr/`, excludes no file, leaves nothing as is,
+           and finds no fault. The last one, in
+           `spacr/qt/widgets/measure_preview.py`, was repaired on 2026-09-19.
+           The two items this header used to name outside `docs/` have been
+           resolved by other work: the workflow grid is generated from Home's
+           own layout, and its tile and registry assertions pass, and the two
+           orphaned reviewed records (`explain_cv`, `anndata_nan_policy`)
+           quote the English the catalog holds today. That second point was
+           checked by reading the records, not by running the audit. Still
+           owed: one fresh sphinx build with the rendered-text scan, to show
+           that the published pages agree with the detector.
 Requested: 2026-08-08 — "do a sweep of the API page and make sure everything looks as professions and clean and informative and usefull as you can make it"
 
 --------------------------------------------------------------------------------
@@ -1049,3 +1048,48 @@ forty files -- unnesting the markup, or dropping the emphasis around it -- and
 forty files of concurrent territory is a coordinator's call, not an auditor's.
 The detector above is the whole specification of the job, and it belongs in
 tests/ once the count is zero.
+
+--------------------------------------------------------------------------------
+2026-09-19 — THE LAST NESTED-MARKUP FAULT IS REPAIRED AND THE TEST EXCLUDES
+             NOTHING
+--------------------------------------------------------------------------------
+
+The 2026-09-14 sweep left one fault behind, in a file another session was
+editing at the time. Running the detector from
+`tests/test_docstring_inline_markup_renders.py` over the whole tree today
+found exactly that one and nothing else:
+
+    spacr/qt/widgets/measure_preview.py:885
+    MeasurePreviewPanel._build_slot_controls [bad-literal-edge]
+    "Bring the controls for organelle slots 1..``count`` into existence."
+
+A literal glued to the `..` before it is not opened by reST, so docutils
+renders the backticks themselves:
+
+    before  <p>... slots 1..``count`` into existence.</p>
+    after   <p>... slots 1 to <tt class="docutils literal">count</tt> ...</p>
+
+That is docutils' `publish_parts` on the old and new line. The summary now
+reads "slots 1 to ``count``". Only the markup and one word changed.
+
+`EXCLUDED_FILES` is now empty. Six of its seven files were already clean,
+because the detector found nothing in them before the edit, and
+`REMAINING_FAULTS` went from 1 to 0. Putting the old line back makes both
+`test_no_fault_outside_the_named_files` and
+`test_the_remaining_count_does_not_rise` fail and name the line. With the
+repair, all three tests pass.
+
+Measured by reading the tree, not by building it: the two "outside
+`docs/`" items under WHAT IS OPEN, AND WHY IT IS NOT CLOSED HERE have been
+resolved elsewhere.
+`tests/test_readme_presentation.py` passes 13 of 15, including the
+registry and tile assertions. Its two reds are unrelated to this file: the
+model zoo README table lags the registration of `toxoplasma_from_hoechst_v1`,
+and Make Masks' README section is missing. The reviewed `explain_cv` and
+`anndata_nan_policy` records quote the English that
+`spacr/qt/i18n_catalogs/en.py` holds today.
+
+NOT DONE: a fresh `sphinx -E` build with the rendered-text scan from
+2026-08-26. The detector parses each docstring with docutils, just as the
+build does, but the check that this file's criterion names is the one run on
+the published page.

@@ -882,7 +882,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._crop_settings_dialog = None
 
     def _build_slot_controls(self, count) -> None:
-        """Bring the controls for organelle slots 1..``count`` into existence.
+        """Bring the controls for organelle slots 1 to ``count`` into existence.
 
         THE SLOTS ARE BUILT HERE AND NOWHERE ELSE, which is what keeps
         opening Measure from constructing 2,117 controls for a run that
