@@ -559,7 +559,13 @@ def test_sensitivity_moves_the_classical_cut_the_way_its_name_says():
 
 def test_the_screen_offers_and_runs_classical_with_no_model(
         qtbot, qt_theme_applied, tmp_path, monkeypatch):
-    """No Cellpose: Mode offers only Classical, and a click still adds."""
+    """No Cellpose: Classical is the only mode that runs, and a click adds.
+
+    DINOCell and SAMCell stay listed, greyed, since c60d48e35 (item 419
+    point 3): a model absent from the box teaches nobody it exists. This
+    test still said Mode offers "only Classical" and had been red on nightly
+    since that commit.
+    """
     monkeypatch.setattr(mm, "find_spec", lambda name: None)
     folder = tmp_path / "blobs"
     folder.mkdir()
@@ -573,7 +579,10 @@ def test_the_screen_offers_and_runs_classical_with_no_model(
         made._min_area.setValue(20)
         made._mag_size.setValue(SIZE)
         assert [made._mag_mode.itemData(i)
-                for i in range(made._mag_mode.count())] == ["classical"]
+                for i in range(made._mag_mode.count())] == [
+            "classical", "dinocell", "samcell"]
+        assert made._mag_uninstalled == {"dinocell", "samcell"}
+        assert made._mag_mode.currentData() == "classical"
         made._btn_magnifier.setChecked(True)
         hover(made, 30, 44)
         wait_for_result(qtbot, made)

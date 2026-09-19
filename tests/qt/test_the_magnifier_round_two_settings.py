@@ -322,8 +322,14 @@ def test_the_model_list_is_cpsam_and_every_cellpose_model_in_the_zoo(
         assert ("lab_cells_v2", a_zoo["local"], True) in rows
         assert ("toxoplasma_plaque_v1", a_zoo["downloaded"], True) in rows, (
             "a zoo model downloaded into the picker's folder is selectable")
-        assert ("toxoplasma_pv_v1 (not downloaded)", None, False) in rows, (
-            "one not downloaded is listed, greyed out, with no path to load")
+        assert ("toxoplasma_pv_v1 (not downloaded)", None, True) in rows, (
+            "one not downloaded is listed, with no path to load, and can be "
+            "chosen -- choosing it downloads it (item 419 point 3)")
+        pending = made._cp_model.findText("toxoplasma_pv_v1 (not downloaded)")
+        assert made._cp_model.itemData(pending, Qt.ForegroundRole) is not None, (
+            "and it is greyed")
+        assert made._cp_model.itemData(
+            pending, mm._ZOO_PENDING_ROLE).key == "toxoplasma_pv_v1"
         assert not any("yolo" in text or "well_detector" in text
                        for text, _data, _on in rows), (
             "the zoo's YOLO detector is not a Cellpose model")

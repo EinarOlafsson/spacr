@@ -2,7 +2,9 @@
 MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
 ================================================================================
 
-Status:    OPEN, filed 2026-09-16. Not started.
+Status:    OPEN, filed 2026-09-16. Points 1-3 built 2026-09-19 on branch
+           home/419-part-a (not pushed, awaiting review); points 4-9 not
+           started. See the 2026-09-19 note at the end.
 Requested: 2026-09-16, by the maintainer, in these words, numbered as he wrote
            them:
 
@@ -252,3 +254,136 @@ WHAT TO BUILD
 ORDERING: 9b's caption sits in the category 417 populates and point 5 renames,
 so it lands with or after that rename, in one catalog pass -- "Invert" and the
 warning are translated strings in nine languages, like the rest.
+
+--------------------------------------------------------------------------------
+2026-09-19 — POINTS 1-3 BUILT (PART A OF THREE), BRANCH home/419-part-a
+--------------------------------------------------------------------------------
+
+Cut from nightly 5c829ee3e. 417 had landed (f6c511cc3), so the ordering
+condition above was met. Points 4-9 are parts B and C and are untouched.
+
+WHAT WAS ALREADY THERE, READ BEFORE BUILDING
+
+  * c60d48e35 (2026-09-18) had already made the Live magnifier's Mode box
+    list DINOCell and SAMCell always, greyed when missing, and removed the
+    two "pip install" sentences under the Live magnifier. Its install ran
+    `subprocess.run` ON THE GUI THREAD ("the window will not respond while it
+    runs") and carried '#' comments. d1ee35065 / 2d6d8ec10 had made the Model
+    zoo picker list both backends and install on click, the same blocking
+    way (spacr/qt/widgets/model_zoo_picker.py, another session's file).
+  * A zoo Cellpose model not downloaded was a DISABLED row in the Cellpose
+    Model box: listed, but not clickable at all.
+  * tests/qt/test_the_live_magnifier_segments_under_the_mouse.py::
+    test_the_screen_offers_and_runs_classical_with_no_model was RED ON
+    NIGHTLY since c60d48e35 (it still said Mode offers "only Classical");
+    measured on a clean origin/nightly worktree. Updated to the contract.
+
+POINT 1 -- THE READOUT
+
+  * The image's top-left corner shows, for the pixel under the mouse, its
+    position and raw intensity, and over an object its id, area in pixels
+    and mean intensity. Painted on a translucent plate over everything else,
+    magnifier included; gone when the mouse leaves.
+  * The numbers are the filter's own: mask_engine.ObjectLookup gives the id
+    canonical_labels gives (so a brush piece split off an object reads under
+    the id the filter will use) and the mean regionprops computes, equal to
+    the last bit. Driven through the Filter button: a minimum intensity set
+    to the mean the readout shows keeps the object, 0.01 more removes it,
+    and the ledger names the id the readout showed.
+  * canonical_labels now labels each id inside its bounding box. Same output
+    (60 random masks against the old algorithm), 3.1 s -> 64 ms on a
+    2048 x 2048 field of 400 objects, which is what made a readout per mouse
+    move possible; filter_objects and save_mask got the same speed-up.
+  * While a button is held the readout reports only the pixel; after an
+    edit it re-reads itself without the mouse moving.
+  * Caveat, recorded in docs/notes: the mean is shown to the filter box's two
+    decimals, so a bound typed within 0.005 of a mean whose third decimal is
+    not zero can land either side of it.
+
+POINT 2 -- THE LAYOUT
+
+  * Settings are the left pane, the Mask / Cell probability / Flows views the
+    right; SETTINGS_GAP = 12 px between them (the splitter handle, so the gap
+    is also the drag handle). The Settings toggle still gives the image the
+    width back.
+  * The masthead sentence "Correct a mask by hand: ..." and its hover help
+    are gone (HEADER_DESCRIPTION removed). That hover help was the
+    masthead's API link; the setting labels keep theirs.
+  * Settings sits directly right of Magnifier; later toolbar actions go
+    before the pair; the row is left-aligned.
+
+POINT 3 -- MODELS NOT INSTALLED ARE GREY AND INSTALL ON A CLICK
+
+  * New spacr/qt/model_install.py: PackageInstall (pip as a QProcess, output
+    streamed, never blocks) and CheckpointDownload (model_zoo.install on a
+    worker thread). Both keep themselves alive until they end, so a widget
+    rebuilt or closed mid-install cannot kill pip half way.
+  * Make Masks Mode box: the blocking installer is replaced. Choosing a
+    greyed DINOCell/SAMCell puts the box back, asks, runs pip in the
+    background with a busy bar and pip's latest line under Mode, and selects
+    the backend when it is found afterwards. A failure says why (pip's tail)
+    and leaves the box working.
+  * Make Masks Model box: a zoo model not downloaded is greyed but choosable;
+    choosing it asks, downloads it verified into the picker's folder with a
+    progress bar, and selects it. The box never rests on such a row (the
+    keyboard/wheel path is caught too), so the model name the magnifier and
+    Cellpose-SAM detect read cannot silently fall back to cpsam.
+  * Mask module: segmentation_backend was a free-text box. It is now
+    SegmentationBackendCombo -- Cellpose, DINOCell, SAMCell, the missing ones
+    greyed, install on click, the setting's own values stored -- wired into
+    SettingsWidgets._widget_for.
+  * Uses only public model_zoo functions (INSTALLABLE_BACKENDS, install,
+    catalogue via the existing helper). model_zoo.py and the picker were not
+    edited.
+
+EVIDENCE
+
+  * 36 new tests, all passing, in three files:
+    tests/qt/test_make_masks_reads_out_lays_out_and_installs.py (24: mouse
+    moves on the canvas, the Filter button, a rendered grab of the corner, a
+    shown and laid-out screen measured in pixels, a real child process
+    standing in for pip with a timer proving the event loop ran during it, a
+    real file:// zoo download checked against its digest),
+    tests/qt/test_model_install_runs_off_the_gui_thread.py (6: the Mask
+    module's settings form built, chosen from and read back; pip failures;
+    an install outliving the widget that started it) and
+    tests/test_mask_engine_object_lookup.py (6, no display: the lookup equals
+    regionprops to the bit, a bound at the mean keeps the object and the
+    next float removes it, canonical_labels equals the old algorithm on 60
+    random masks).
+  * The 28 Make Masks / magnifier / mask_engine test files (the 26 under
+    tests/qt named for them, test_cov_r6_screens_forms_and_masks.py and
+    tests/test_cov_2_mask_engine.py), one process each, offscreen:
+    all pass except (a) test_make_masks_settings_explain_themselves.py's
+    exact-catalog-row test, red only because two tooltips changed (below),
+    and (b) test_the_make_masks_segmentation_workbench.py, whose 33 tests
+    pass and whose process then segfaults in pytest-qt's event processing --
+    ALSO ON A CLEAN origin/nightly worktree (f6757b4f8), 4 runs of 5 there,
+    so not introduced here; recorded, not diagnosed.
+  * The i18n / docstring / API-extractor / module-coverage files fail the
+    same test ids on this branch and on clean nightly (compared id by id);
+    this branch adds rows those gates will want (below), and moves the
+    module-coverage denominator from 575 to 576 against a pin of 572 that
+    nightly already misses.
+  * An offscreen render of the screen with a field open and the mouse on an
+    object shows all three points (settings left, gap, readout, toggle).
+
+WHAT IS LEFT
+
+  * Catalogs: the new and changed strings (readout lines, install/download
+    messages, two reworded tooltips, the Mask backend rows) wait for the
+    consolidated translation pass; the exact-row and caption-ratchet tests
+    are red on them until it runs. New public API: mask_engine.PixelReadout,
+    ObjectLookup, and the spacr.qt.model_install module.
+  * The Model zoo picker (model_zoo_picker.install_backend_package) still
+    installs on the GUI thread. Moving it onto model_install.PackageInstall
+    is a change for that file's owner.
+  * model_zoo: an entry whose file name ends in _v1 is filed without the
+    suffix (versioned_path), and both the picker and Make Masks look for
+    folder/entry.name, so such a model never shows as downloaded after a
+    restart. No current zoo name ends that way; Make Masks remembers the
+    real path for the session. A lookup of where an entry was installed
+    belongs in model_zoo.
+  * Not done: a real pip install of DINOCell or SAMCell (it would change this
+    environment's torch); a visual check in the real app on a real display.
+

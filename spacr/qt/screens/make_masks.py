@@ -86,6 +86,7 @@ from PySide6.QtCore import (
     QRect,
     QRectF,
     QThread,
+    QTimer,
     Qt,
     Signal,
 )
@@ -144,11 +145,12 @@ LOG = logging.getLogger("spacr.qt.make_masks")
 #: The registry key this screen answers to.
 APP_KEY = "make_masks"
 
-#: The masthead, matching the registry row so the page and the tile that
-#: opens it say the same thing.
+#: The masthead's name, matching the registry row so the page and the tile
+#: that opens it say the same thing. The masthead carries no one-line
+#: description beside it: the maintainer asked for that sentence to go
+#: (item 419), so the name, the instruction under it and the fold strip are
+#: the whole row.
 HEADER_TITLE = "Make Masks"
-HEADER_DESCRIPTION = (
-    "Correct a mask by hand: brush, flood fill, relabel, fill, remove small")
 HEADER_INSTRUCTION = (
     "Open a folder of images, correct each mask, and save it back.")
 
@@ -345,6 +347,10 @@ PERCENTILE_DECIMALS = 6
 #: that never dragged the splitter.
 SETTINGS_WIDTH = 380
 
+#: Pixels between the settings, on the left, and the image: the splitter's
+#: handle, so the gap is also where the settings are dragged wider.
+SETTINGS_GAP = 12
+
 #: Where the settings panel's folded categories are remembered, as the titles
 #: folded away -- :func:`spacr.qt.preferences.get_section_layout` keyed by
 #: this name.
@@ -428,6 +434,15 @@ class _MaskCanvas(QLabel):
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
         super().__init__(parent)
+        #: What the corner readout says about the pixel under the mouse, or
+        #: None while the mouse is off the image (item 419, point 1).
+        self.readout: Optional[engine.PixelReadout] = None
+        self._lookup: Optional[engine.ObjectLookup] = None
+        self._lookup_mask: Optional[np.ndarray] = None
+        self._lookup_image: Optional[np.ndarray] = None
+        self._lookup_dirty = True
+        self._readout_pos: Optional[QPointF] = None
+        self._readout_queued = False
         self.image: Optional[np.ndarray] = None
         self.mask: Optional[np.ndarray] = None
         self.mode: str = MODE_NONE
@@ -507,6 +522,8 @@ class _MaskCanvas(QLabel):
         self.mask = mask
         self._gesture_points = []
         self.recrop_boxes = []
+        self._lookup = self._lookup_mask = self._lookup_image = None
+        self.readout = None
         if self.magnifier is not None:
             self.magnifier.forget()
         self.reset_zoom(silent=True)
@@ -539,7 +556,13 @@ class _MaskCanvas(QLabel):
         self.refresh()
 
     def refresh(self) -> None:
-        """Recompose image + mask overlay and repaint the canvas pixmap."""
+        """Recompose image + mask overlay and repaint the canvas pixmap.
+
+        Every edit ends in a refresh, so the corner readout is re-read after
+        one: an object just erased must stop being reported under the mouse.
+        """
+        self._lookup_dirty = True
+        self._schedule_readout()
         if self.image is None or self.mask is None:
             return
         img = engine.normalize_uint16(self.image, self.norm_lo, self.norm_hi)
@@ -769,6 +792,11 @@ class _MaskCanvas(QLabel):
         super().paintEvent(event)
         self._paint_recrop_boxes()
         self._paint_magnifier()
+        self._paint_drag()
+        self._paint_readout()
+
+    def _paint_drag(self) -> None:
+        """Draw the outline, cut or rectangle being dragged, if there is one."""
         if self.mode in (MODE_DRAW, MODE_DIVIDE):
             self._paint_gesture()
             return
@@ -783,6 +811,155 @@ class _MaskCanvas(QLabel):
         painter.setPen(pen)
         rect = QRect(self._zoom_drag_start, self._zoom_drag_end).normalized()
         painter.drawRect(rect)
+        painter.end()
+
+    def _object_lookup(self) -> Optional[engine.ObjectLookup]:
+        """The objects of the mask on screen, rebuilt only when it changed.
+
+        A refresh marks the lookup stale, and a stale one is compared with a
+        copy of the mask it was built from before it is rebuilt: a zoom or a
+        pan refreshes without changing a label, and rebuilding for those
+        would cost a 2048 px field tens of milliseconds per wheel notch.
+
+        :returns: the lookup, or ``None`` with no field open.
+        """
+        if self.mask is None or self.image is None:
+            return None
+        lookup = self._lookup
+        if lookup is not None and self._lookup_image is self.image and (
+                not self._lookup_dirty
+                or (self._lookup_mask.shape == self.mask.shape
+                    and np.array_equal(self._lookup_mask, self.mask))):
+            self._lookup_dirty = False
+            return lookup
+        try:
+            lookup = engine.ObjectLookup(self.mask, self.image)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the readout could not measure the mask", exc_info=True)
+            return None
+        self._lookup = lookup
+        self._lookup_mask = np.array(self.mask, copy=True)
+        self._lookup_image = self.image
+        self._lookup_dirty = False
+        return lookup
+
+    def update_readout(self, pos=None, *, measure: bool = True):
+        """Point the corner readout at the widget position ``pos``.
+
+        :param pos: where the mouse is, in widget coordinates, or ``None``
+            when it has left the canvas.
+        :param measure: also report the object under the pixel. False while
+            a button is held, because a brush stroke changes the mask on every
+            move and the object is re-read when the stroke ends.
+        :returns: the readout now shown, or ``None``.
+        """
+        self._readout_pos = None if pos is None else QPointF(pos)
+        readout = None
+        spot = (None if pos is None or self.image is None
+                else self._canvas_to_image(pos.x(), pos.y()))
+        if spot is not None:
+            lookup = self._object_lookup() if measure else None
+            if lookup is not None:
+                readout = lookup.at(*spot)
+            else:
+                value = np.asarray(self.image[spot[1], spot[0]],
+                                   dtype=np.float32)
+                readout = engine.PixelReadout(spot[0], spot[1],
+                                              float(value.mean()))
+        if readout != self.readout:
+            before = self.readout_rect()
+            self.readout = readout
+            for rect in (before, self.readout_rect()):
+                if rect is not None:
+                    self.update(rect.adjusted(-2, -2, 2, 2))
+        return readout
+
+    def _schedule_readout(self) -> None:
+        """Re-read the readout once the current event has been handled.
+
+        The canvas is the timer's context object, so a canvas deleted before
+        the timer fires cancels it rather than being called after it has gone.
+        """
+        if self._readout_pos is None or self._readout_queued:
+            return
+        self._readout_queued = True
+        QTimer.singleShot(0, self, self._reread_readout)
+
+    def _reread_readout(self) -> None:
+        """Measure the pixel the mouse is resting on again, after an edit."""
+        self._readout_queued = False
+        if self._readout_pos is None or QApplication.mouseButtons() \
+                != Qt.NoButton:
+            return
+        self.update_readout(self._readout_pos)
+
+    def readout_text(self) -> str:
+        """The corner readout as it is painted, or ``""`` when there is none.
+
+        The first line is the pixel -- its position and raw intensity -- and
+        the second, over an object, is that object's id, area and mean
+        intensity, in the units and to the decimals the filter's own boxes
+        use, so a value read here can be typed there.
+        """
+        from ..i18n import tr
+
+        readout = self.readout
+        if readout is None:
+            return ""
+        lines = [tr("x {x}, y {y}   intensity {value}", x=readout.x,
+                    y=readout.y, value=_readout_number(readout.intensity))]
+        if readout.label:
+            lines.append(tr(
+                "Object {label}   area {area} px   mean intensity {mean}",
+                label=readout.label, area=readout.area,
+                mean=_readout_number(readout.mean_intensity, decimals=2)))
+        return "\n".join(lines)
+
+    def readout_rect(self) -> Optional[QRect]:
+        """Where the readout is painted: the top-left corner of the image.
+
+        :returns: the box in widget coordinates, or ``None`` when there is
+            nothing to show.
+        """
+        text = self.readout_text()
+        rendered = self.pixmap()
+        if not text or rendered is None or rendered.isNull():
+            return None
+        shown = logical_size(rendered)
+        left = max(0, (self.width() - shown.width()) // 2)
+        top = max(0, (self.height() - shown.height()) // 2)
+        margin = SPACING["xs"]
+        metrics = self.fontMetrics()
+        bounds = metrics.boundingRect(QRect(0, 0, 10_000, 10_000),
+                                      int(Qt.AlignLeft | Qt.AlignTop), text)
+        return QRect(left + margin, top + margin,
+                     bounds.width() + 2 * SPACING["sm"],
+                     bounds.height() + 2 * SPACING["xs"])
+
+    def _paint_readout(self) -> None:
+        """Paint the readout in the image's top-left corner, over everything.
+
+        On a translucent plate of the page colour, so it reads over a bright
+        field and a dark one alike.
+        """
+        rect = self.readout_rect()
+        if rect is None:
+            return
+        palette = active_palette()
+        plate = QColor(palette["bg"])
+        plate.setAlpha(215)
+        painter = QPainter(self)
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(plate)
+            painter.drawRoundedRect(QRectF(rect), 4, 4)
+            painter.setPen(QPen(QColor(palette["fg"])))
+            painter.drawText(
+                rect.adjusted(SPACING["sm"], SPACING["xs"], 0, 0),
+                int(Qt.AlignLeft | Qt.AlignTop), self.readout_text())
+        finally:
+            painter.end()
 
     def _paint_magnifier(self) -> None:
         """Draw the live magnifier's box, when there is one to draw."""
@@ -997,9 +1174,11 @@ class _MaskCanvas(QLabel):
         self.refresh()
 
     def mouseMoveEvent(self, event):
-        """Extend a sweep, a pan, a brush/erase stroke, or a zoom drag."""
+        """Move the readout; extend a sweep, a pan, a stroke or a zoom drag."""
         if self.mask is None:
             return
+        self.update_readout(event.position(),
+                            measure=event.buttons() == Qt.NoButton)
         if self._sweeping and event.buttons() & Qt.RightButton:
             self._sweep_delete_at(
                 self._canvas_to_image(event.position().x(),
@@ -1050,7 +1229,12 @@ class _MaskCanvas(QLabel):
             self.refresh()
 
     def mouseReleaseEvent(self, event):
-        """Close a sweep or pan, commit a zoom rect, or finalize a stroke."""
+        """Close a sweep or pan, commit a zoom rect, or finalize a stroke.
+
+        The readout is re-measured once the release has been handled, since a
+        held button kept it to the pixel while the mask was changing.
+        """
+        self._schedule_readout()
         if event.button() == Qt.RightButton and self._sweeping:
             self._sweeping = False
             labels, self._sweep_labels = self._sweep_labels, []
@@ -1160,7 +1344,8 @@ class _MaskCanvas(QLabel):
         self.refresh()
 
     def leaveEvent(self, event):
-        """Put the magnifier's box away when the mouse leaves the canvas."""
+        """Put the magnifier's box and the readout away as the mouse leaves."""
+        self.update_readout(None)
         if self.magnifier is not None and self.magnifier.enabled:
             self.magnifier.hover(None)
             self.update()
@@ -1195,6 +1380,25 @@ FLOW_RESTING_TEXT = (
     "Run Cellpose-SAM to see the cell-probability map\n"
     "and the flow field for this field."
 )
+
+
+def _readout_number(value, decimals: int = 0) -> str:
+    """A number as the corner readout writes it.
+
+    A whole number, which every pixel of an integer image is, is written
+    without a decimal point; anything else to ``decimals`` places, which for
+    a mean is the two the filter's intensity boxes take.
+
+    :param value: the number, or ``None``.
+    :param decimals: places for a number that is not whole.
+    :returns: the text.
+    """
+    if value is None:
+        return ""
+    value = float(value)
+    if value.is_integer():
+        return str(int(value))
+    return f"{value:.{max(1, int(decimals))}f}"
 
 
 def stretch_to_uint8(array: np.ndarray,
@@ -1296,13 +1500,19 @@ def cellpose_intermediates(flows) -> tuple:
 #: The item-data role marking a Model box row that came from the model zoo.
 _ZOO_ROLE = int(Qt.UserRole) + 17
 
+#: Item-data role holding the zoo entry of a Model row that is listed but not
+#: downloaded. Such a row stores no path, so it can never be what a detect
+#: run loads; choosing it starts the download instead.
+_ZOO_PENDING_ROLE = int(Qt.UserRole) + 18
+
 
 def _zoo_cellpose_models() -> List[tuple]:
-    """``(key, path or None)`` for every Cellpose model the model zoo lists.
+    """``(key, path or None, entry)`` for every Cellpose model in the zoo.
 
     ``path`` is where the model is on this machine -- the entry's own path,
     or its file in the folder the Model zoo picker downloads into -- and None
-    for one not downloaded. Read without waiting on the network (the
+    for one not downloaded. ``entry`` is the zoo's own record, which is what
+    a download starts from. Read without waiting on the network (the
     community rows come from the zoo's cache), and never raises: a zoo that
     cannot be read leaves the Model box with the Cellpose installed here.
     """
@@ -1323,7 +1533,7 @@ def _zoo_cellpose_models() -> List[tuple]:
         if not (path and os.path.isfile(path)):
             candidate = os.path.join(folder, str(entry.name))
             path = candidate if os.path.isfile(candidate) else ""
-        found.append((str(entry.key or entry.name), path or None))
+        found.append((str(entry.key or entry.name), path or None, entry))
     return found
 
 
@@ -1552,8 +1762,9 @@ def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
 
 #: The optional models the magnifier runs through
 #: :mod:`spacr._segmentation_backends` (items 404 and 405): ``mode -> the
-#: package that must be installed``. The Mode box offers each only where its
-#: package is found, and says how to install the ones that are not.
+#: package that must be installed``. The Mode box always lists both, greys
+#: one whose package is missing, and installs it when it is chosen (item
+#: 419, point 3).
 _MAGNIFIER_BACKENDS = {"dinocell": "dinocell", "samcell": "samcell"}
 
 #: Loaded DINOCell and SAMCell models, by backend name, for the life of the
@@ -3396,7 +3607,6 @@ class MakeMasksScreen(QWidget):
 
         self._header = ModuleHeader(
             HEADER_TITLE,
-            description=HEADER_DESCRIPTION,
             instruction=HEADER_INSTRUCTION,
             app_key=APP_KEY,
         )
@@ -3432,6 +3642,7 @@ class MakeMasksScreen(QWidget):
 
         self._body_splitter = QSplitter(Qt.Horizontal)
         self._body_splitter.setChildrenCollapsible(False)
+        self._body_splitter.setHandleWidth(SETTINGS_GAP)
         self._canvas = _MaskCanvas()
         self._canvas.stroke_started.connect(self._on_stroke_started)
         self._canvas.stroke_finished.connect(self._on_stroke_finished)
@@ -3448,7 +3659,7 @@ class MakeMasksScreen(QWidget):
         self._drag_base = self._drag_shown = None
         self._magnifier.status.connect(
             lambda text: self._status_label.setText(text))
-        self._body_splitter.addWidget(self._build_view_tabs())
+        self._view_tabs = self._build_view_tabs()
 
         self._settings_scroll = QScrollArea()
         self._settings_scroll.setWidgetResizable(True)
@@ -3464,9 +3675,10 @@ class MakeMasksScreen(QWidget):
                         self._min_area.valueChanged):
             changed.connect(self._on_magnifier_context_changed)
         self._body_splitter.addWidget(self._settings_scroll)
-        self._body_splitter.setStretchFactor(0, 3)
-        self._body_splitter.setStretchFactor(1, 1)
-        self._body_splitter.setSizes([900, SETTINGS_WIDTH])
+        self._body_splitter.addWidget(self._view_tabs)
+        self._body_splitter.setStretchFactor(0, 1)
+        self._body_splitter.setStretchFactor(1, 3)
+        self._body_splitter.setSizes([SETTINGS_WIDTH, 900])
         self._body_stack.addWidget(self._body_splitter)
         self._body_stack.setCurrentWidget(self._empty_state)
         self._body_stack.currentChanged.connect(self._sync_tool_row_visibility)
@@ -3852,9 +4064,11 @@ class MakeMasksScreen(QWidget):
         method. Actions that are not modes come in through
         :meth:`add_toolbar_action` and land in the same row.
 
-        The row ends with the settings toggle, which is checkable because
-        it reports a state rather than firing an action: it stays lit for
-        as long as the settings are on screen.
+        The row ends with the Magnifier and, directly right of it, the
+        settings toggle, which is checkable because it reports a state
+        rather than firing an action: it stays lit for as long as the
+        settings are on screen. A stretch after the toggle keeps the row
+        against the left edge, above the settings it hides.
         """
         bar = QWidget()
         bar.setObjectName("MakeMasksToolRow")
@@ -3906,8 +4120,6 @@ class MakeMasksScreen(QWidget):
         self._btn_redo.clicked.connect(self._on_redo)
         row.addWidget(self._btn_redo)
 
-        row.addStretch(1)
-
         self._btn_settings = QPushButton("Settings")
         self._btn_settings.setIcon(iconset.icon("settings"))
         self._btn_settings.setCheckable(True)
@@ -3920,6 +4132,7 @@ class MakeMasksScreen(QWidget):
         self._btn_settings.setChecked(True)
         self._btn_settings.toggled.connect(self._on_toggle_settings)
         row.addWidget(self._btn_settings)
+        row.addStretch(1)
 
         scroller = QScrollArea()
         scroller.setObjectName("MakeMasksToolScroll")
@@ -3937,14 +4150,18 @@ class MakeMasksScreen(QWidget):
     def add_toolbar_action(self, button: QPushButton) -> QPushButton:
         """Insert a non-mode action into the editor toolbar.
 
-        The button is placed with the other actions, immediately before the
-        stretch that keeps the Settings toggle aligned to the far edge.
+        The button is placed with the other actions, before the Magnifier and
+        the settings toggle, so that pair stays together at the end of the
+        row whatever is added after them.
 
         :param button: Action button to insert.
         :returns: The same button.
         """
         row = self._tool_row_layout
-        row.insertWidget(max(row.indexOf(self._btn_settings) - 1, 0), button)
+        anchor = getattr(self, "_btn_magnifier", None)
+        if anchor is None or row.indexOf(anchor) < 0:
+            anchor = self._btn_settings
+        row.insertWidget(row.indexOf(anchor), button)
         return button
 
     def _sync_tool_row_visibility(self, *_args) -> None:
@@ -3969,18 +4186,19 @@ class MakeMasksScreen(QWidget):
         rather than leaving a gap where the panel was. The width the
         panel had is remembered while it is away, so a second press puts
         it back where the user last dragged it instead of at the default.
+        The settings are the splitter's first pane, left of the image.
         """
         splitter = self._body_splitter
         if not shown:
             sizes = splitter.sizes()
-            if len(sizes) > 1 and sizes[1] > 0:
-                self._settings_width = sizes[1]
+            if len(sizes) > 1 and sizes[0] > 0:
+                self._settings_width = sizes[0]
         self._settings_scroll.setVisible(shown)
         if shown:
             sizes = splitter.sizes()
             total = sum(sizes) or (900 + SETTINGS_WIDTH)
             side = max(min(self._settings_width, total - 1), 1)
-            splitter.setSizes([total - side, side])
+            splitter.setSizes([side, total - side])
 
     def _build_tools_panel(self) -> QWidget:
         """Build the tool column: mode, brush, wand and mask operations.
@@ -4859,12 +5077,25 @@ class MakeMasksScreen(QWidget):
         self._cp_model = QComboBox()
         for name in cellpose_model_choices():
             self._cp_model.addItem(name, name)
+        #: The zoo download running now, if one is.
+        self._cp_download = None
+        #: ``zoo key -> path`` of the models downloaded from this box this
+        #: session. The zoo files a download under the first free versioned
+        #: name, which is not always the entry's own name -- a name ending in
+        #: ``_v1`` lands without it -- so the path the download reported is
+        #: what says the model is here.
+        self._cp_fetched: dict = {}
+        self._cp_last_model = 0
         self._fill_zoo_models()
+        self._cp_last_model = self._cp_model.currentIndex()
+        self._cp_model.currentIndexChanged.connect(self._keep_model_loadable)
+        self._cp_model.activated.connect(self._on_model_activated)
         self._cp_model.setToolTip(
             "Which weights segment this field, and the Live magnifier's box "
             "in Cellpose mode. The list is the Cellpose installed on this "
             "machine and every Cellpose model in the model zoo; a zoo model "
-            "not downloaded yet is greyed out until Model zoo… fetches it.")
+            "not downloaded yet is greyed out, and choosing it downloads it "
+            "and selects it.")
         model_row = QWidget()
         model_row_layout = QHBoxLayout(model_row)
         model_row_layout.setContentsMargins(0, 0, 0, 0)
@@ -4879,6 +5110,10 @@ class MakeMasksScreen(QWidget):
             lambda _checked=False: self._choose_cellpose_model_from_zoo())
         model_row_layout.addWidget(self._cp_model_zoo_btn)
         form.addRow("Model", model_row)
+        self._cp_download_bar = QProgressBar()
+        self._cp_download_bar.setTextVisible(True)
+        self._cp_download_bar.hide()
+        form.addRow(self._cp_download_bar)
 
         self._cp_cellprob = QDoubleSpinBox()
         self._cp_cellprob.setDecimals(2)
@@ -4999,13 +5234,16 @@ class MakeMasksScreen(QWidget):
 
         A model on this machine is listed by its zoo key and carries its path,
         which is what :func:`load_cellpose_model` loads. One that is not
-        downloaded is listed greyed out, with no path: a combo box is not
-        where a gigabyte download should start, and Model zoo… is. Called
-        again after the picker closes, the zoo rows are rebuilt -- so a model
-        just downloaded becomes selectable -- and the model chosen stays
-        chosen, without a change signal when it did not change.
+        downloaded is listed greyed, carrying no path and its zoo entry under
+        :data:`_ZOO_PENDING_ROLE`: choosing it downloads it
+        (:meth:`_on_model_activated`) rather than selecting it, so the box
+        never rests on a model there is nothing to load for. Called again
+        after the picker closes or a download ends, the zoo rows are rebuilt
+        -- so a model just downloaded becomes selectable -- and the model
+        chosen stays chosen, without a change signal when it did not change.
         """
         from ..i18n import tr
+        from ..model_install import UNINSTALLED_GREY
 
         combo = self._cp_model
         chosen = combo.currentData()
@@ -5014,7 +5252,10 @@ class MakeMasksScreen(QWidget):
             for index in reversed(range(combo.count())):
                 if combo.itemData(index, _ZOO_ROLE):
                     combo.removeItem(index)
-            for key, path in _zoo_cellpose_models():
+            for key, path, entry in _zoo_cellpose_models():
+                fetched = self._cp_fetched.get(key)
+                if not path and fetched and os.path.isfile(fetched):
+                    path = fetched
                 if path and combo.findData(path) >= 0:
                     continue
                 if path:
@@ -5022,14 +5263,131 @@ class MakeMasksScreen(QWidget):
                     combo.setItemData(combo.count() - 1, path, Qt.ToolTipRole)
                 else:
                     combo.addItem(tr("{name} (not downloaded)", name=key))
-                    combo.model().item(combo.count() - 1).setEnabled(False)
+                    row = combo.count() - 1
+                    combo.setItemData(row, entry, _ZOO_PENDING_ROLE)
+                    combo.setItemData(row, QBrush(UNINSTALLED_GREY),
+                                      Qt.ForegroundRole)
+                    combo.setItemData(row, tr(
+                        "{name} is not downloaded. Choosing it downloads it "
+                        "from the model zoo and selects it.", name=key),
+                        Qt.ToolTipRole)
                 combo.setItemData(combo.count() - 1, True, _ZOO_ROLE)
             index = combo.findData(chosen) if chosen is not None else -1
             combo.setCurrentIndex(max(index, 0))
         finally:
             combo.blockSignals(False)
+        self._cp_last_model = combo.currentIndex()
         if combo.currentData() != chosen:
             combo.currentIndexChanged.emit(combo.currentIndex())
+
+    def _keep_model_loadable(self, index: int) -> None:
+        """Never let the Model box rest on a model that is not downloaded.
+
+        A click is handled by :meth:`_on_model_activated`; this catches the
+        other ways a row becomes current -- the keyboard, the wheel -- and
+        puts the box back on the last model that can be loaded.
+        """
+        combo = self._cp_model
+        if index >= 0 and combo.itemData(index, _ZOO_PENDING_ROLE) is not None:
+            back = self._cp_last_model
+            if back == index or not 0 <= back < combo.count():
+                back = 0
+            combo.setCurrentIndex(back)
+            return
+        self._cp_last_model = index
+
+    def _on_model_activated(self, index: int) -> None:
+        """A person chose a Model row: download it if it is not here yet."""
+        entry = self._cp_model.itemData(index, _ZOO_PENDING_ROLE)
+        if entry is not None:
+            self.download_zoo_model(entry)
+
+    def download_zoo_model(self, entry) -> bool:
+        """Ask, then download a zoo Cellpose model and select it when it lands.
+
+        The download goes through :func:`spacr.model_zoo.install` on a worker
+        thread (:class:`spacr.qt.model_install.CheckpointDownload`), into the
+        folder the Model zoo picker uses, so either route finds the file the
+        other fetched. The bar under the Model row shows the bytes as they
+        arrive, and the screen stays usable. A model that publishes no
+        checksum is downloaded only after the user has been told spaCR
+        cannot then check it.
+
+        :param entry: the zoo's record of the model.
+        :returns: True when a download was started.
+        """
+        from ..i18n import tr
+        from ..model_install import CheckpointDownload, human_bytes
+        from ..widgets.model_zoo_picker import remembered_model_dir
+
+        name = str(getattr(entry, "key", "") or getattr(entry, "name", ""))
+        running = self._cp_download
+        if running is not None and running.is_running():
+            self._status_label.setText(tr(
+                "A model is already downloading; wait for it to finish."))
+            return False
+        folder = remembered_model_dir()
+        size = human_bytes(getattr(entry, "size_bytes", 0))
+        unverified = not str(getattr(entry, "sha256", "") or "")
+        text = tr("Download {name}{size} into {folder}?", name=name,
+                  size=f" ({size})" if size else "", folder=folder)
+        if unverified:
+            text += "\n\n" + tr(
+                "This model publishes no checksum, so spaCR cannot tell a "
+                "truncated or substituted file from the real one.")
+        if not self._confirm(tr("Download {name}?", name=name), text):
+            return False
+        try:
+            os.makedirs(folder, exist_ok=True)
+        except OSError as exc:
+            self._warn(tr("Download failed"), str(exc))
+            return False
+        job = CheckpointDownload(entry, folder, unverified=unverified)
+        self._cp_download = job
+        job.progressed.connect(self._on_model_download_progress)
+        job.finished.connect(self._on_model_downloaded)
+        self._cp_download_bar.setRange(0, 0)
+        self._cp_download_bar.setFormat(tr("Downloading {name}…", name=name))
+        self._cp_download_bar.show()
+        self._status_label.setText(tr(
+            "Downloading {name} in the background.", name=name))
+        return job.start()
+
+    def _on_model_download_progress(self, done: int, total: int) -> None:
+        """Move the download bar; a server that sent no size keeps it busy."""
+        bar = self._cp_download_bar
+        if total > 0:
+            bar.setRange(0, 1000)
+            bar.setValue(int(1000 * min(done, total) / total))
+
+    def _on_model_downloaded(self, worked: bool, message: str) -> None:
+        """Select the model just downloaded, or say why it did not arrive."""
+        from ..i18n import tr
+
+        job, self._cp_download = self._cp_download, None
+        self._cp_download_bar.hide()
+        name = str(getattr(getattr(job, "entry", None), "key", "") or "")
+        if not worked:
+            if message != "cancelled":
+                self._warn(tr("Download failed"), message)
+            return
+        if name:
+            self._cp_fetched[name] = message
+        self._fill_zoo_models()
+        combo = self._cp_model
+        target = os.path.realpath(message)
+        index = next((row for row in range(combo.count())
+                      if isinstance(combo.itemData(row), str)
+                      and os.path.realpath(combo.itemData(row)) == target),
+                     -1)
+        if index < 0:
+            combo.addItem(name or os.path.basename(message) or message,
+                          message)
+            index = combo.count() - 1
+            combo.setItemData(index, message, Qt.ToolTipRole)
+        combo.setCurrentIndex(index)
+        self._status_label.setText(tr(
+            "{name} is downloaded and selected.", name=name or message))
 
     def _choose_cellpose_model_from_zoo(self) -> Optional[str]:
         """Open the model zoo on its Cellpose models and select what is picked.
@@ -5186,20 +5544,12 @@ class MakeMasksScreen(QWidget):
         self._mag_mode.addItem("Classical", "classical")
         if installed("cellpose"):
             self._mag_mode.addItem("Cellpose", "cellpose")
-        # DINOCell and SAMCell are ALWAYS listed, greyed when not installed.
-        # A model absent from the box teaches nobody it exists; a greyed row
-        # that offers to install itself does.
         self._mag_uninstalled = set()
         for mode, label in (("dinocell", "DINOCell"), ("samcell", "SAMCell")):
             self._mag_mode.addItem(label, mode)
             if not installed(_MAGNIFIER_BACKENDS[mode]):
                 self._mag_uninstalled.add(mode)
-                index = self._mag_mode.findData(mode)
-                self._mag_mode.setItemData(
-                    index, QBrush(QColor(128, 128, 128)), Qt.ForegroundRole)
-                self._mag_mode.setItemData(
-                    index, f"{label} is not installed. Choosing it offers to "
-                    "install it.", Qt.ToolTipRole)
+        self._grey_uninstalled_modes()
         self._mag_mode.setToolTip(
             "Which model segments the region in the box. Classical thresholds "
             "the region at Otsu's level and splits touching objects with a "
@@ -5208,21 +5558,32 @@ class MakeMasksScreen(QWidget):
             "threshold correction under Cellpose-SAM, and runs whenever a "
             "model cannot be loaded. Cellpose uses the model, both thresholds, "
             "the diameter and the normalization set under Cellpose-SAM, and "
-            "is slow without a GPU. DINOCell and SAMCell are offered once "
-            "installed; DINOCell reads the cell probability set under "
-            "Cellpose-SAM, and SAMCell uses its own thresholds.")
-        self._mag_mode.currentIndexChanged.connect(
-            lambda _index: self._on_magnifier_mode(
-                self._mag_mode.currentData()))
-        # The install offer hangs off `activated`, which fires only when a
-        # PERSON picks a row -- not when code calls setCurrentIndex. A modal
-        # that opened on a programmatic change would fire during restore.
+            "is slow without a GPU. DINOCell and SAMCell are always listed "
+            "and greyed until installed, and choosing one offers to install "
+            "it; DINOCell reads the cell probability set under Cellpose-SAM, "
+            "and SAMCell uses its own thresholds.")
+        self._mag_mode.currentIndexChanged.connect(self._on_mode_row_changed)
         self._mag_mode.activated.connect(self._on_magnifier_mode_activated)
         form.addRow("Mode", self._mag_mode)
 
         #: Kept empty: the install sentence used to live on the panel, and
         #: now the greyed Mode row offers the install itself.
         self._mag_install_notes = {}
+        #: The backend install running now, if one is.
+        self._mag_install_job = None
+        self._mag_install_mode = None
+        install_row = QHBoxLayout()
+        self._mag_install_bar = QProgressBar()
+        self._mag_install_bar.setRange(0, 0)
+        self._mag_install_bar.setTextVisible(False)
+        self._mag_install_bar.hide()
+        self._mag_install_label = QLabel()
+        self._mag_install_label.setObjectName("CardSubtitle")
+        self._mag_install_label.setWordWrap(True)
+        self._mag_install_label.hide()
+        install_row.addWidget(self._mag_install_bar, 1)
+        form.addRow(install_row)
+        form.addRow(self._mag_install_label)
 
         self._mag_scope = QComboBox()
         self._mag_scope.addItem("Region under the mouse", "region")
@@ -5338,7 +5699,8 @@ class MakeMasksScreen(QWidget):
             "clicked — one undo step per click. While it is on, the mouse "
             "wheel changes the box's zoom rather than the view's.")
         self._btn_magnifier.toggled.connect(self._on_toggle_magnifier)
-        self.add_toolbar_action(self._btn_magnifier)
+        row = self._tool_row_layout
+        row.insertWidget(row.indexOf(self._btn_settings), self._btn_magnifier)
         return card
 
     def _build_magnifier_save_mode(self, form: QFormLayout) -> None:
@@ -5384,103 +5746,159 @@ class MakeMasksScreen(QWidget):
         }
 
     def _on_magnifier_mode(self, mode) -> None:
-        """Choose the magnifier's model; Sensitivity is the classical mode's.
-
-        A mode whose package is missing offers to install it. Cancelling puts
-        the box back where it was, so a curious click cannot leave the
-        magnifier pointed at a model that cannot load.
-        """
+        """Choose the magnifier's model; Sensitivity is the classical mode's."""
         self._mag_sensitivity.setEnabled(mode == "classical")
         self._magnifier.set_mode(mode)
+
+    def _on_mode_row_changed(self, _index: int) -> None:
+        """The Mode box's row changed: hand the mode on, if it can run.
+
+        A row whose package is missing never reaches the magnifier: the box
+        is put back on the mode the magnifier is running, and
+        :meth:`_on_magnifier_mode_activated`, which fires next for a click,
+        offers the install. Handing the mode over for the moment between the
+        two would start a model load that can only fail.
+        """
+        mode = self._mag_mode.currentData()
+        if mode in getattr(self, "_mag_uninstalled", ()):
+            running = self._mag_mode.findData(
+                getattr(self._magnifier, "mode", None) or "classical")
+            self._mag_mode.setCurrentIndex(
+                running if running >= 0
+                else self._mag_mode.findData("classical"))
+            return
+        self._on_magnifier_mode(mode)
+
+    def _grey_uninstalled_modes(self) -> None:
+        """Grey the Mode rows whose package is missing, and only those.
+
+        A model absent from the box teaches nobody it exists; a greyed row
+        that offers to install itself does. Greying is a colour and a
+        tooltip, not a disabled row, because a disabled row cannot be
+        chosen and choosing it is how the install is asked for.
+        """
+        from ..i18n import tr
+        from ..model_install import UNINSTALLED_GREY
+
+        box = self._mag_mode
+        for index in range(box.count()):
+            mode = box.itemData(index)
+            if mode in self._mag_uninstalled:
+                box.setItemData(index, QBrush(UNINSTALLED_GREY),
+                                Qt.ForegroundRole)
+                box.setItemData(index, tr(
+                    "{name} is not installed. Choosing it offers to install "
+                    "it.", name=box.itemText(index)), Qt.ToolTipRole)
+            elif mode in _MAGNIFIER_BACKENDS:
+                box.setItemData(index, None, Qt.ForegroundRole)
+                box.setItemData(index, None, Qt.ToolTipRole)
 
     def _on_magnifier_mode_activated(self, index: int) -> None:
         """A person chose this mode: offer the install if it is missing.
 
-        Cancelling puts the box back where it was, so a curious click cannot
-        leave the magnifier pointed at a model that cannot load.
+        The offer hangs off ``activated``, which fires only when a person
+        picks a row -- not when code calls ``setCurrentIndex`` -- so no
+        question opens while settings are being restored. The box goes back
+        to the mode it was on at once, because a model that is not installed
+        cannot segment anything; a finished install selects it.
         """
         mode = self._mag_mode.itemData(index)
         if mode not in getattr(self, "_mag_uninstalled", ()):
             return
-        if self._offer_backend_install(mode):
-            return
         previous = self._mag_mode.findData(
             getattr(self._magnifier, "mode", None) or "classical")
+        if previous < 0 or previous == index:
+            previous = self._mag_mode.findData("classical")
         self._mag_mode.setCurrentIndex(max(previous, 0))
-
-    #: ``mode -> (label, the pip extra that provides it)``.
-    _MAGNIFIER_EXTRAS = {"dinocell": ("DINOCell", "spacr[dinocell]"),
-                         "samcell": ("SAMCell", "spacr[samcell]")}
+        self._offer_backend_install(mode)
 
     def _offer_backend_install(self, mode) -> bool:
-        """Ask, warn, and install. ``True`` when the backend is usable after.
+        """Ask, warn, and install the backend for ``mode`` in the background.
 
-        The warning is not a formality. This runs pip against the environment
-        spaCR is running in: these backends bring their own torch pin, the
-        install can take minutes on a slow link, and a package that replaces
-        torch underneath a running process is exactly how an application stops
-        starting. The user is told that before they agree, not after.
+        The warning is not a formality: this runs pip against the environment
+        spaCR is running in, these backends bring their own torch pin, and a
+        package that replaces torch underneath a running process is how an
+        application stops starting. The install runs as a child process
+        (:class:`spacr.qt.model_install.PackageInstall`), so the window keeps
+        responding; a bar and pip's latest line show under Mode while it
+        runs.
+
+        :param mode: ``'dinocell'`` or ``'samcell'``.
+        :returns: True when an install was started.
         """
-        import subprocess
-        import sys
+        from ..i18n import tr
+        from ..model_install import (PackageInstall, backend_row,
+                                     confirm_backend_install)
 
-        from PySide6.QtWidgets import QApplication, QMessageBox
-
-        label, extra = self._MAGNIFIER_EXTRAS[mode]
-        answer = QMessageBox.warning(
-            self, f"Install {label}?",
-            f"{label} is not installed.\n\n"
-            f"Installing it runs:\n    pip install \"{extra}\"\n\n"
-            "into the environment spaCR is running in. It downloads a large "
-            "package and may change the installed version of torch, which can "
-            "affect Cellpose and, in the worst case, stop spaCR starting. It "
-            "can take several minutes and the window will not respond while "
-            "it runs.\n\nInstall it now?",
-            QMessageBox.Yes | QMessageBox.Cancel, QMessageBox.Cancel)
-        if answer != QMessageBox.Yes:
+        row = backend_row(mode)
+        if row is None:
             return False
+        _name, label, requirement, _module = row
+        running = self._mag_install_job
+        if running is not None and running.is_running():
+            self._status_label.setText(tr(
+                "An install is already running; wait for it to finish."))
+            return False
+        if not confirm_backend_install(self, label, requirement):
+            return False
+        job = PackageInstall(requirement)
+        self._mag_install_job, self._mag_install_mode = job, mode
+        job.progressed.connect(self._on_backend_install_output)
+        job.finished.connect(self._on_backend_installed)
+        self._mag_install_bar.show()
+        self._mag_install_label.setText(tr(
+            "Installing {name}: pip install \"{requirement}\"",
+            name=label, requirement=requirement))
+        self._mag_install_label.show()
+        self._status_label.setText(tr(
+            "Installing {name} in the background.", name=label))
+        return job.start()
 
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+    def _on_backend_install_output(self, line: str) -> None:
+        """Show pip's latest line under the progress bar."""
+        self._mag_install_label.setText(str(line))
+
+    def _on_backend_installed(self, worked: bool, message: str) -> None:
+        """Select the installed backend, or say why the install failed.
+
+        Whether the package can be found is asked again rather than assumed:
+        pip can exit 0 and still leave nothing importable, and a row is only
+        un-greyed for a backend that is really there. One that is found may
+        still fail to load in this process when the install replaced a
+        package spaCR had already imported; the magnifier then falls back to
+        Classical with the backend's own message, and the line here says a
+        restart is the cure.
+        """
+        from ..i18n import tr
+        from ..model_install import backend_row
+
+        mode, self._mag_install_mode = self._mag_install_mode, None
+        self._mag_install_job = None
+        self._mag_install_bar.hide()
+        self._mag_install_label.hide()
+        row = backend_row(mode) if mode else None
+        label = row[1] if row else str(mode)
+        if not worked:
+            if message != "cancelled":
+                self._warn(tr("{name} was not installed", name=label),
+                           message)
+            return
         try:
-            done = subprocess.run(
-                [sys.executable, "-m", "pip", "install", extra],
-                capture_output=True, text=True)
-        except Exception as exc:                            # noqa: BLE001
-            QApplication.restoreOverrideCursor()
-            QMessageBox.warning(self, "Install failed", str(exc))
-            return False
-        QApplication.restoreOverrideCursor()
-
-        if done.returncode != 0:
-            tail = (done.stderr or done.stdout or "").strip().splitlines()
-            QMessageBox.warning(
-                self, "Install failed",
-                f"pip exited {done.returncode}.\n\n"
-                + "\n".join(tail[-8:] or ["No output."]))
-            return False
-
-        # Usable now, or only after a restart? Say which, rather than leaving
-        # the user to guess why the mode still does nothing.
-        import importlib
-
-        try:
-            importlib.import_module(_MAGNIFIER_BACKENDS[mode])
-            usable = True
-        except Exception:                                    # noqa: BLE001
-            usable = False
+            present = find_spec(_MAGNIFIER_BACKENDS[mode]) is not None
+        except (ImportError, ValueError):
+            present = False
+        if not present:
+            self._status_label.setText(tr(
+                "pip finished, but {name} cannot be found. Restart spaCR and "
+                "try again.", name=label))
+            return
         self._mag_uninstalled.discard(mode)
-        index = self._mag_mode.findData(mode)
-        self._mag_mode.setItemData(index, None, Qt.ForegroundRole)
-        self._mag_mode.setItemData(index, None, Qt.ToolTipRole)
-        if usable:
-            QMessageBox.information(self, "Installed",
-                                    f"{label} is installed and ready.")
-        else:
-            QMessageBox.information(
-                self, "Installed — restart needed",
-                f"{label} was installed, but it cannot be loaded into this "
-                "running process. Restart spaCR to use it.")
-        return usable
+        self._grey_uninstalled_modes()
+        self._mag_mode.setCurrentIndex(self._mag_mode.findData(mode))
+        self._status_label.setText(tr(
+            "{name} is installed and selected. If it does not load, restart "
+            "spaCR: the install may have changed packages this window "
+            "already uses.", name=label))
 
     def _on_magnifier_scope(self, scope) -> None:
         """Segment the region under the mouse or the whole image.
@@ -5832,10 +6250,15 @@ class MakeMasksScreen(QWidget):
 
         Any folded module still open goes with it: each one is a window of
         its own, and several of them own worker threads and viewers that must
-        be told to stop rather than be collected out from under Qt.
+        be told to stop rather than be collected out from under Qt. A model
+        download is cancelled; a backend install is left to finish, because
+        ``pip`` stopped half way can leave the environment broken.
         """
         from ..bridge import drain_thread
 
+        download, self._cp_download = self._cp_download, None
+        if download is not None:
+            download.cancel()
         self._magnifier.close()
         self.close_folded()
         self._pending_load = None

@@ -172,11 +172,11 @@ def test_a_settings_fold_never_remembers_a_zero_width(qtbot, qt_theme_applied):
     try:
         screen.resize(900, 600)
         laid_out = screen._body_splitter.sizes()
-        assert len(laid_out) > 1 and laid_out[1] > 0
+        assert len(laid_out) > 1 and laid_out[0] > 0
 
         screen._on_toggle_settings(False)
         remembered = screen._settings_width
-        assert remembered == laid_out[1]
+        assert remembered == laid_out[0], "the settings are the left pane"
         assert screen._settings_scroll.isHidden() is True
 
         screen._on_toggle_settings(True)

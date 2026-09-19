@@ -499,38 +499,23 @@ def test_fold_description_falls_back_only_when_the_row_is_gone(monkeypatch):
     assert fold_description("model_zoo") == FOLD_FALLBACK["model_zoo"]
 
 
-def test_the_masthead_carries_the_module_name_and_its_api_link(screen, qtbot):
+def test_the_masthead_carries_the_module_name_and_no_sentence(screen, qtbot):
     """The strip sits on the module's own masthead, not on a bare title.
 
-    The API link is on the masthead too — inside the description's hover
-    help rather than on a dot beside it, so the row is a name, a sentence
-    and the fold strip, and nothing else.
+    Item 419: the maintainer asked for the one-line description beside the
+    name -- "Correct a mask by hand: ...", elided, with its hover help -- to
+    go, so the row is the name, the instruction under it and the fold strip.
+    No information dot comes back in its place.
     """
-    from PySide6.QtCore import QEvent
-    from PySide6.QtWidgets import QApplication
-
-    from spacr.qt.screens.settings_model import api_docs_url
-    from spacr.qt.widgets.hover_tooltip import HoverTooltip
     from spacr.qt.widgets.info_link import InfoLink
 
     assert screen._header.title_label.text() == mm.HEADER_TITLE
-    assert screen._header.description_label.text() == mm.HEADER_DESCRIPTION
+    assert screen._header.description_label is None
+    assert screen._header.api_help is None
+    assert not hasattr(mm, "HEADER_DESCRIPTION")
     assert screen._folds.parent() is screen._header
     assert not screen._header.findChildren(InfoLink), (
         "the masthead grew an information dot back")
-
-    screen.show()
-    qtbot.waitExposed(screen)
-    help_label = screen._header.api_help
-    assert help_label is not None
-    tooltip = HoverTooltip.instance()
-    QApplication.sendEvent(help_label, QEvent(QEvent.Type.Enter))
-    try:
-        assert tooltip.isVisible()
-        assert mm.HEADER_DESCRIPTION in tooltip._label.text()
-        assert tooltip.api_url() == api_docs_url(mm.APP_KEY)
-    finally:
-        QApplication.sendEvent(help_label, QEvent(QEvent.Type.Leave))
 
 
 # ---------------------------------------------------------------------------

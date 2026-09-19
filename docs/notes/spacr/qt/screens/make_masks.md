@@ -14,6 +14,67 @@
   is safe. A missing queue is a programming error; catching its AttributeError
   here would incorrectly report it as a record-write failure.
 
+## Item 419, points 1-3 (2026-09-19)
+
+- `_MaskCanvas.update_readout` / `readout_text` / `_paint_readout`: the
+  readout in the image's top-left corner. It is fixed in the corner and its
+  CONTENT follows the mouse, which is what "in the top left corner" asked
+  for; a label that followed the cursor would sit on the object being read.
+  The numbers come from `mask_engine.ObjectLookup`, which measures exactly as
+  `filter_objects` does (canonical id, pixel count, float32 mean over the
+  object's pixels in raster order), so a bound typed from the readout
+  predicts the filter. The mean is written to the two decimals the filter's
+  intensity boxes take; a bound within 0.005 of a mean whose third decimal is
+  not zero can land either side of it, because the box rounds what is typed.
+- `_MaskCanvas._object_lookup`: a refresh marks the lookup stale, and a stale
+  lookup is compared with a copy of the mask it was built from before it is
+  rebuilt. Zoom, pan and resize all refresh without changing a label, and a
+  rebuild costs tens of milliseconds on a 2048 px field (measured: 65-90 ms
+  at 2048 x 2048 with 400 objects; 15 ms at 1024 x 1024 with 200), where the
+  comparison costs about 2 ms.
+- `_MaskCanvas.mouseMoveEvent`: while a button is held the readout reports
+  only the pixel. A brush stroke changes the mask on every move, and
+  re-measuring each time would put a lookup rebuild on every mouse event of
+  the stroke. `mouseReleaseEvent` and `refresh` queue a re-read for when the
+  button is up, so an object erased under a resting mouse stops being
+  reported without the mouse moving.
+- `MakeMasksScreen._build_ui`: the settings are the splitter's FIRST pane and
+  the views the second. `SETTINGS_GAP` is the splitter handle's width, so the
+  gap the maintainer asked for is also where the pane is dragged wider.
+  `_on_toggle_settings` reads and writes index 0 accordingly.
+- `MakeMasksScreen._build_ui`: the masthead has no description. That sentence
+  was also the masthead's only route to the API page (its hover help); the
+  maintainer asked for it to go, and every setting's label still links its
+  own API entry.
+- `MakeMasksScreen._build_tool_row` / `add_toolbar_action`: the Magnifier is
+  inserted directly before Settings, and later actions are inserted before
+  the Magnifier, so the pair stays adjacent whatever is added; the stretch is
+  after Settings, which keeps the row against the left edge above the
+  settings it toggles.
+- `MakeMasksScreen._offer_backend_install`: replaced the synchronous
+  `subprocess.run` of c60d48e35, which froze the window for the whole pip run
+  ("the window will not respond while it runs"). The install is now
+  `model_install.PackageInstall`, a QProcess watched from the event loop,
+  with a busy bar and pip's latest line under Mode. The box goes back to the
+  mode it was on when a missing row is chosen, and a finished install selects
+  the new mode. Whether the package can be found is asked again after pip
+  exits 0, because pip can succeed and leave nothing importable.
+- `MakeMasksScreen._fill_zoo_models` / `_keep_model_loadable` /
+  `_on_model_activated` / `download_zoo_model`: a zoo Cellpose model not on
+  this machine was a DISABLED row, which cannot be chosen at all. It is now a
+  greyed row that stores no path; `activated` (a click) starts the download,
+  and `_keep_model_loadable` puts the box back if the keyboard or the wheel
+  lands on such a row, so `_magnifier_context()["model_name"]` never falls
+  back to cpsam behind the user's back.
+- `_cp_fetched`: `model_zoo.fetch` files a download under
+  `versioned_path(folder, entry.name)`, which strips a trailing `_v1`
+  (`foo_v1.cp_model` lands as `foo.cp_model`). `_zoo_cellpose_models` looks
+  for `folder/entry.name`, as the picker's `_local_path_on_disk` does, so a
+  zoo name ending in `_v1` never shows as downloaded after a restart. None of
+  today's zoo names end that way; the session map covers the rest of the
+  session, and the lasting fix belongs in `model_zoo` (a lookup of where an
+  entry was installed), which this item does not own.
+
 Prose lifted out of `spacr/qt/screens/make_masks.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 

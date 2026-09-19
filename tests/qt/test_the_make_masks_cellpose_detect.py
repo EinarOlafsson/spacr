@@ -268,7 +268,9 @@ def test_the_two_intermediates_are_tabs_beside_the_mask(screen):
     """The panes sit on the canvas's own tab strip, resting until a run."""
     from PySide6.QtWidgets import QTabWidget
 
-    tabs = screen._body_splitter.widget(0)
+    tabs = screen._view_tabs
+    assert screen._body_splitter.indexOf(tabs) == 1, (
+        "the views are right of the settings (item 419)")
 
     assert isinstance(tabs, QTabWidget)
     assert [tabs.tabText(i) for i in range(tabs.count())] == [
