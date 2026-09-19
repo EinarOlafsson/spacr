@@ -19,6 +19,7 @@ import os
 from pathlib import Path
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 
 import spacr._segmentation_backends as SB
@@ -220,3 +221,77 @@ def test_the_real_listing_carries_the_real_licences():
     assert specs["samcell"].licence == "MIT"
     assert "Apache-2.0" in specs["samcell"].licence_note
     assert os.path.basename(specs["cellpose3"].homepage) == "cellpose"
+
+
+class _StubCellpose3:
+    """What ``_load_backend('cellpose3', ...)`` returns, recording its use."""
+
+    built = []
+
+    def __init__(self, model_name):
+        self.model_name = model_name
+        self.calls = []
+        type(self).built.append(self)
+
+    def eval(self, images, **kwargs):
+        self.calls.append((len(images), kwargs))
+        return [np.ones(np.shape(i)[:2], np.int32) for i in images], [], None
+
+
+def _checkpoint(tmp_path, name="bioimage_cyto3.pth"):
+    path = tmp_path / name
+    path.write_bytes(b"PK\x03\x04" + b"\x00" * 64)
+    return path
+
+
+@pytest.fixture
+def stub_cellpose3(monkeypatch):
+    _StubCellpose3.built = []
+
+    def _load(name, model_name=None, **kwargs):
+        assert name == "cellpose3"
+        return _StubCellpose3(model_name)
+
+    monkeypatch.setattr(SB, "_load_backend", _load)
+    return _StubCellpose3
+
+
+def test_a_cellpose3_model_is_benchmarked_by_cellpose3_not_cellpose4(
+        tmp_path, monkeypatch, stub_cellpose3):
+    """spaCR's Cellpose 4 would load the checkpoint and segment nonsense."""
+    mc = zoo._model_compare()
+
+    def _never(images, config):
+        raise AssertionError("a Cellpose 3 model reached Cellpose 4")
+
+    monkeypatch.setattr(mc, "segment_with_cellpose", _never)
+    path = _checkpoint(tmp_path)
+    entry = zoo.ModelEntry(key="bioimageio_cyto3", name=path.name,
+                           kind="cellpose3", path=str(path))
+    result = zoo.benchmark(entry, images=[np.zeros((8, 8), np.float32)] * 2,
+                           qc=False)
+    assert [row.n_objects for row in result.rows] == [1, 1]
+    [built] = stub_cellpose3.built
+    assert built.model_name == str(path)
+    count, kwargs = built.calls[0]
+    assert count == 2 and "diameter" in kwargs
+
+
+def test_a_comparison_runs_each_side_where_it_belongs(tmp_path, monkeypatch,
+                                                      stub_cellpose3):
+    mc = zoo._model_compare()
+    cellpose4 = []
+
+    def _cellpose4(images, config):
+        cellpose4.append(config.model)
+        return [np.ones(np.shape(i)[:2], np.int32) for i in images]
+
+    monkeypatch.setattr(mc, "segment_with_cellpose", _cellpose4)
+    ours = zoo.ModelEntry(key="mine", name="mine.CP_model",
+                          path=str(_checkpoint(tmp_path, "mine.CP_model")))
+    theirs = zoo.ModelEntry(key="bio", name="bio.pth", kind="cellpose3",
+                            path=str(_checkpoint(tmp_path, "bio.pth")))
+    zoo.compare_entries(ours, theirs, images=[np.zeros((8, 8), np.float32)],
+                        field_names=["f"])
+    assert cellpose4 == [ours.path]
+    assert [s.model_name for s in stub_cellpose3.built] == [theirs.path]

@@ -2885,7 +2885,8 @@ def benchmark(entry: ModelEntry, images: Optional[Sequence[Any]] = None,
             progress(message, done, total_steps)
 
     _tick(f"Segmenting {len(fields)} field(s) with {entry.name}…", 0)
-    run = segment_fn if segment_fn is not None else mc.segment_with_cellpose
+    run = segment_fn if segment_fn is not None else _default_segmenter(
+        [entry], mc)
     started = time.perf_counter()
     produced = list(run(fields, config))
     seconds = time.perf_counter() - started
@@ -2924,6 +2925,49 @@ def benchmark(entry: ModelEntry, images: Optional[Sequence[Any]] = None,
         images=fields if keep_images else [],
         object_type=object_type,
     )
+
+
+def _cellpose3_segment(model: str, images: Sequence[Any],
+                       config: Any) -> List[np.ndarray]:
+    """Segment ``images`` with a Cellpose 3 model, in the Cellpose 3 backend.
+
+    spaCR's Cellpose 4 loads a Cellpose 3 checkpoint without complaint and
+    then segments nonsense with it, so a ``cellpose3`` row is never handed
+    to it: the benchmark and the A/B comparison run it where Mask generation
+    does, in the Cellpose 3 environment, with the config's eval settings.
+
+    :param model: a Cellpose 3 model name or checkpoint path.
+    :param images: the fields.
+    :param config: the :class:`spacr.model_compare.ModelConfig` for the side.
+    :returns: one integer label image per field.
+    :raises ImportError: when the Cellpose 3 backend is not installed.
+    """
+    from ._segmentation_backends import _load_backend
+
+    backend = _load_backend("cellpose3", model_name=model)
+    masks, _flows, _styles = backend.eval(
+        [np.asarray(image, dtype=np.float32) for image in images],
+        **config.eval_kwargs())
+    return [np.asarray(mask).astype(np.int32) for mask in masks]
+
+
+def _default_segmenter(entries: Sequence[ModelEntry], mc: Any) -> Callable:
+    """``fn(images, config) -> masks`` that runs each entry where it belongs.
+
+    A ``cellpose3`` entry goes to the Cellpose 3 backend, told apart by the
+    model its config names; everything else to spaCR's own Cellpose,
+    exactly as before.
+    """
+    cellpose3 = {str(e.path or e.name) for e in entries
+                 if e.kind == "cellpose3"}
+
+    def _segment(images, config):
+        model = str(getattr(config, "model", "") or "")
+        if model in cellpose3:
+            return _cellpose3_segment(model, images, config)
+        return mc.segment_with_cellpose(images, config)
+
+    return _segment
 
 
 def _fieldset_label(names: Sequence[str], source: Any) -> str:
@@ -2971,6 +3015,7 @@ def compare_entries(entry_a: ModelEntry, entry_b: ModelEntry,
     for entry in (entry_a, entry_b):
         if entry.path:
             inspect_checkpoint(entry.path)
+    kwargs.setdefault("segment_fn", _default_segmenter([entry_a, entry_b], mc))
     return mc.compare_models(
         images,
         config_for(entry_a, settings_a),
