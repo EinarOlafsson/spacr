@@ -100,6 +100,33 @@ with it; the magnifier asks on every mouse move, so the model loads once.
 A worker idle for ten minutes is shut down, giving back the memory the model
 holds, and the next request starts it again; so does a worker that died.
 
+HANDING A WORKER OUT COUNTS AS USING IT. `last_used` used to move only when
+a reply arrived, and `busy` is only true while a request is in flight, so
+between `_worker_for` releasing its lock and the caller's first write there
+was an instant in which a worker idle past the threshold was neither. The
+reaper runs on its own thread and could close it exactly there; the write
+then raised and the user was told "the backend stopped (exit code 0)". A
+mask run with more than ten minutes between batches is the run that reaches
+it. `_worker_for` stamps `last_used` under the lock instead.
+
+A caller that CACHES the model, as Make Masks' Mode box does, has the other
+half of this problem: the environment can be uninstalled from the Model Zoo
+while the model object is still held. `make_masks._backend_model` remembers
+the folder each model was built from and drops the model when that folder
+is gone, so the next request says the backend is missing rather than that a
+file is.
+
+## On a CUDA PyTorch
+
+Measured 2026-09-19 in a sandboxed HOME on this machine's GPU
+(gpu_queue/423-isolated-backends-1.md). The environment built with
+`cellpose==3.1.1.3`, `torch` 2.14.0 and numpy 2.0.2 and reported device
+`cuda`; the install took 2079 s, which is the CUDA wheel download and not
+the GPU. `generate_cellpose_masks_sam` with
+`segmentation_backend='cellpose3'` and `cell_model_name='cyto3'` found 64
+of 64 discs in a 1024 x 1024 field in 21.4 s, the worker reporting device
+`cuda`. Uninstalling afterwards removed the folder. Nothing was trained.
+
 ## SAMCell's checkpoints
 
 `generalist` was trained on LIVECell and the Cellpose cytoplasm set; `cyto`

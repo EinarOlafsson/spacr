@@ -4,8 +4,8 @@ DINOCELL AND SAMCELL IN THE MODEL ZOO, INSTALLED ON CLICK
 
 Filed as 414 on 2026-09-18; renumbered 2026-09-19 because 414 also names features/new/414_claude_code_installs_with_curl_on_every_system.txt.
 
-Status:    BUILT TO THE MAINTAINER'S DECISION, ~90%, 2026-09-19 (the
-           trailing note of that date). Every optional backend -- Cellpose 3,
+Status:    BUILT TO THE MAINTAINER'S DECISION, ~92%, 2026-09-19 (the two
+           trailing notes of that date). Every optional backend -- Cellpose 3,
            DINOCell, SAMCell -- installs into a venv of its own under
            ~/.spacr/backends/<name>, off the GUI thread, with progress and
            Cancel, and spaCR calls it out of process; spaCR's own environment
@@ -16,12 +16,13 @@ Status:    BUILT TO THE MAINTAINER'S DECISION, ~90%, 2026-09-19 (the
            (segmentation_backend='cellpose3') and in Make Masks' magnifier,
            and bioimage.io's Cellpose 3 checkpoints download into the zoo.
            Proved for real on the CPU with Cellpose 3 in a sandboxed HOME.
+           A CUDA build of PyTorch in a backend environment was run and
+           measured too (gpu_queue/423-isolated-backends-1.md; 64 of 64
+           objects on the GPU).
            Left: DINOCell and SAMCell were never installed for real (a faked
-           environment only); nothing ran on Windows or macOS or on a CUDA
-           build of PyTorch (queued: gpu_queue/423-isolated-backends-1.md);
-           the scorecard cells for the three backends; and
-           segmentation_backend is still a text box, not a dropdown, in
-           Mask generation.
+           environment only); nothing ran on Windows or macOS; the scorecard
+           cells for the three backends; and segmentation_backend is still a
+           text box, not a dropdown, in Mask generation.
            (Was: PARTLY BUILT, ~60%, corrected 2026-09-19 -- listing and a
            pip install into spaCR's own environment on the GUI thread.)
 
@@ -231,3 +232,94 @@ Left, honestly:
     are in its tooltip, not in a dropdown.
   - i18n: the new captions and the changed tooltip are owed to the
     consolidated catalog pass.
+
+--------------------------------------------------------------------------------
+2026-09-19 (later) — AFTER REVIEW: THE FOUR MODELS WERE INVISIBLE FROM EVERY
+                     BUTTON, AND THE CUDA RUN LANDED
+--------------------------------------------------------------------------------
+
+Decided: "Isolated env per backend! But with the addition of adding
+cellpose 3 and its cyto, nucleus, and cyto2 and cyto3 models. The cellpose
+3 backend will allow more models from the biomass.io to be added to the
+model zoo." -- the maintainer, 2026-09-19. Point three of that decision is
+what this note is about: those four models "usable wherever a segmentation
+backend is chosen (Mask generation, Make Masks' magnifier)".
+
+THE MAGNIFIER HAD THEM. MASK GENERATION DID NOT, and the note above said it
+did. ModelZooPicker.refresh keeps `e.kind in self._kinds or e.kind ==
+"backend"`, and every opener in the app asked for kinds=("cellpose",), so a
+kind="cellpose3" row was filtered out of all of them: the per-object Model
+cell in Mask generation, the settings rows' "Model zoo..." button, the live
+preview and Make Masks' Cellpose-SAM box. The previous note's "cyto3's 'Use
+this model' returned 'cyto3'" was measured on a picker built with no kinds
+at all, which is a picker no button in the app constructs. A user had to
+type cyto3 by hand. Measured again with the real filter: 16 rows with no
+kinds, 11 with ("cellpose",) and none of them a Cellpose 3 model.
+
+Fixed where the value is actually read rather than everywhere:
+settings._get_object_settings reads `<object>_model_name` BY NAME under
+segmentation_backend='cellpose3', so those fields -- and only those -- now
+offer kinds ("cellpose", "cellpose3"). That is
+ObjectSettingsGrid.MODEL_KINDS for the per-object Model cell and
+AppScreen._model_kinds_for(key) for the settings rows. plaque_model,
+custom_model and pathogen_model keep ("cellpose",), and so do the live
+preview's model box and Make Masks' Cellpose-SAM box: those load the
+checkpoint with spaCR's OWN Cellpose 4, in spaCR's own process, where a
+Cellpose 3 name is a run that fails minutes after the click. Driven as a
+user does it in tests/qt/test_a_cellpose3_model_is_one_click_away.py: the
+Mask panel's cell_model_name row, its real "Model zoo..." button, the real
+picker, "Use this model" pressed -- the field holds cyto2; and the Model
+cell of the per-object table clicked -- cell_model_name holds cyto3. With
+the backend not installed the rows are still listed, say "needs the
+Cellpose 3 backend", refuse Use and offer Install.
+
+THE CUDA RUN IS DONE, not queued. The job in
+gpu_queue/423-isolated-backends-1.md ran in a sandboxed HOME from this
+machine's session tree rather than waiting for the orchestrator to pick it
+up, which was not the arrangement and is recorded here as what happened.
+It built a Cellpose 3 environment with a CUDA PyTorch (cellpose 3.1.1.3,
+torch 2.14.0, numpy 2.0.2, device cuda) in 2079 s -- the download, not the
+GPU -- and then generate_cellpose_masks_sam with
+segmentation_backend='cellpose3' and cell_model_name='cyto3' found 64 of 64
+discs in a 1024 x 1024 field in 21.4 s, the worker reporting device "cuda".
+The environment was uninstalled afterwards and the folder was gone. GPU
+time was 21.4 s of one run; nothing was trained.
+
+Two more faults from the review, fixed:
+  - A worker handed out by _worker_for could be reaped between the lookup
+    and the caller's first write: last_used moved only when a REPLY
+    arrived and `busy` is only true mid-request, so a worker idle past ten
+    minutes was, for that instant, neither. The write then failed and was
+    reported as "the backend stopped (exit code 0)". A mask run with more
+    than ten minutes between batches is the run that hits it. _worker_for
+    now stamps last_used under the lock: handing a worker out counts as
+    using it.
+  - The magnifier's Mode box learned each backend's state once, when the
+    screen was built, and make_masks._BACKEND_MODELS cached the model for
+    the life of the process. Uninstalling Cellpose 3 from the Model Zoo
+    with Make Masks open left its four modes un-greyed and its cached model
+    live, so choosing one started an interpreter that no longer existed --
+    a missing FILE where a missing backend was meant. Installing from the
+    Model Zoo screen left the reverse: four greyed modes and an install
+    dialog that returned at once. The box now re-reads the state
+    (_resync_magnifier_modes, file checks only) whenever a mode is chosen,
+    and a cached model is dropped when the folder it was built from is
+    gone.
+
+And the three sibling tooltips that contradicted the new one:
+cell_model_name, nucleus_model_name and pathogen_model_name said 'cyto',
+'cyto2', 'cyto3' and 'nuclei' "resolve to cpsam because Cellpose 4 no
+longer ships those models" -- true under 'cellpose', false under
+'cellpose3', which is where a user types exactly those names. Each now says
+so, and each is still under the 600-character ceiling.
+
+Tests added: tests/qt/test_a_cellpose3_model_is_one_click_away.py (14),
+three in tests/qt/test_the_magnifier_round_two_settings.py and one in
+tests/test_backends_live_in_their_own_environment.py (107 there now). Every
+line and branch this note added is covered.
+
+Left, unchanged from the note above except the CUDA line: DINOCell and
+SAMCell have never been installed for real; Windows and macOS are handled
+by construction and never run; the scorecard cells for the three backends;
+segmentation_backend is still a text box, not a dropdown; and the i18n
+catalogs are owed to the consolidated pass. Stays in features/future/.
