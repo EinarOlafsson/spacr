@@ -10,7 +10,11 @@ Status:    DONE 2026-09-19, on nightly. Reviewed, and the review's three
            prompt that morning). 23 tests; a real Cellpose-SAM run on CPU
            finished on both issue states. Still owed: the nine-language API
            catalogs for the new preprocess_img_data paragraph, which the
-           day's consolidated translation pass takes.
+           day's consolidated translation pass takes. Of the Codex-lane
+           follow-ups, the atomic adjust_cell_masks write and the
+           *_mask_stack check with resume off are done in code on
+           home/correctness-followups, local and NOT yet pushed (last
+           note); _run_test_mode ignoring raw images beside orig/ is owed.
 Requested: GitHub #118 and #124, both filed 2026-09-17 by jak18015, spaCR
            1.5.0.8, Mask module. #118 is auto-filed:
 
@@ -298,3 +302,42 @@ LEFT:
 The land stage held the push and the issue replies because it could not see
 the maintainer's approval itself. The orchestrating session had it first-hand
 and landed the branch as it stood, re-tested after the rebase.
+
+
+--------------------------------------------------------------------------------
+2026-09-19 — TWO CODEX-LANE FOLLOW-UPS DONE IN UNIT correctness-followups
+--------------------------------------------------------------------------------
+
+Committed locally on home/correctness-followups (based on nightly
+92ea1ba00), in the commit "Adjusting cells rewrites a mask atomically, and
+a mask a killed run cut short is segmented again with resume off". Not
+pushed: a reviewer reads it first.
+
+Decided: the maintainer's standing rule, as the day's run relayed it to
+this unit: "Fix bugs and logic that lead to erroneous or misleading
+results." The run's task approved spacr/utils.py and io.py for it.
+
+  * utils.process_mask_file_adjust_cell writes the adjusted cell mask
+    through io._save_array_atomic. Measured on the base with np.save made
+    to die half-way: the cell mask was left truncated under its final
+    name. Now the previous whole mask stays and no sibling is left.
+  * utils.check_mask_folder and io._check_masks validate every existing
+    *_mask_stack/*.npy by header and length whether or not resume is on,
+    and _check_masks names each damaged mask as it queues it again.
+    Measured on the base: a Mask re-run with resume off after one cell
+    mask was cut in half said "All masks have been generated" and died in
+    the merge ("Failed to read all data for array ... (file seems not
+    fully written?)"). Now it segments that field again and merged/
+    holds all 4 fields.
+
+5 tests in tests/test_a_mask_is_checked_before_it_is_reused.py, all 5 fail
+on the base. Five existing tests that used zero-byte or garbage files as
+"existing masks" now write whole masks.
+
+Left: _run_test_mode still samples only orig/ when orig/ exists, even if
+the plate folder also holds raw images. process_masks and
+convert_and_relabel_masks (utils.py) also rewrite masks in place with
+np.save; neither has a caller in the package, so they were not changed.
+Rerunning adjust_cells on masks it already adjusted re-adjusts them on
+every run (the check above does not tell adjusted from raw); not measured
+here.

@@ -6,9 +6,10 @@ Status:    DONE 2026-09-19 for the Mask path: v1, metadata_type 'auto'
            (both Yokogawa conversions), consolidate, pipeline_style 'v2'
            and the preflight. Landed on nightly after review, which found
            those last four still reading sidecars (see the 2026-09-19
-           review note at the end). NOT DONE for Measure: measure.py and
-           resume.completed_fields_in_merged still list merged/ bare and
-           report a false "RUN INCOMPLETE"; that is owed, see the end.
+           review note). The owed follow-ups -- Measure, its resume and
+           test mode, the streamed dataset, the silent regex fallback and
+           allow_pickle -- are done in code on home/correctness-followups,
+           committed locally and NOT yet reviewed or pushed (last note).
 Requested: GitHub #121 (auto-filed from the spaCR AI Console) and #117, both
            opened 2026-09-17 by jak18015 (Jacob Kellermeier). spaCR 1.5.0.8,
            macOS 26.7 on an Apple M4, plate on /Volumes/jk-ummi:
@@ -259,3 +260,50 @@ STILL OWED after this note, replacing the list above where they differ:
     This commit removes the sidecar cause. The fallback is a design
     decision for the maintainer.
   * The allow_pickle hardening above is still open.
+
+2026-09-19 — THE OWED ITEMS, DONE IN UNIT correctness-followups. Committed
+locally on home/correctness-followups (based on nightly 92ea1ba00), four
+commits, not pushed: a reviewer reads them first.
+
+Decided: the maintainer's standing rule, as the day's run relayed it to
+this unit: "Fix bugs and logic that lead to erroneous or misleading
+results." The run's task named each item below and the choice for the
+fallback ("refuse with a precise error, or fall back only on the
+specific, provably-safe condition"). No word from the maintainer on the
+fallback reached this unit first-hand.
+
+  * Measure (commit "Measure, its resume and test mode, and the streamed
+    dataset no longer take a macOS ._ sidecar for a field").
+    measure_crop and generate_cellpose_train_set list through
+    io._listdir_visible; resume.py (completed_fields_in_merged,
+    plan_measure_resume), stream_dataset.py (selection_from_arrays,
+    _stack_for) and utils.measure_test_mode leave dot-files out inline.
+    Measured on the base: measure_crop logged "RUN INCOMPLETE - 1 of 2
+    items failed (50.0%)" for one field and its sidecar; the resume
+    planned "._plate1_A01_F001" and re-queued it every time; test mode
+    copied the sidecar and .spacr_plane_layout.json with the field. 8
+    tests, all 8 fail on the base.
+  * The silent fallback (commit "A Mask run whose regex conversion fails
+    now stops instead of renumbering the plate's wells"). No
+    provably-safe condition exists: convert_to_yokogawa never keeps the
+    wells a name carries. The run now refuses with an error naming the
+    file; the converter says which file stopped it and how many converted
+    files it had written. Measured on the base: B03/C07 became
+    plate1_A01..A08, then "all input arrays must have the same shape". 6
+    tests, 5 fail on the base.
+  * allow_pickle (commit "spaCR's own mask loads no longer unpickle ...").
+    The five loads are plain loads now. Measured on the base: a pickled
+    .npy in a mask folder ran code (os.mkdir) when adjust_cells or the
+    merge read it. 8 tests, the 5 that plant the pickle fail on the base.
+
+Owed still: the consolidated translation pass for the changed public
+docstrings (convert_separate_files_to_yokogawa's new :raises:,
+completed_fields_in_merged's :param fields:, the spacr.resume module
+usage example, process_mask_file_adjust_cell). Found and not fixed:
+stream_dataset._stack_for falls back to a prefix match, so a stem whose
+own field is missing resolves to another field that starts with it
+(plate1_A01_1 -> plate1_A01_10.npy), and the empty stem resolves to the
+first field; both would cut crops from the wrong field
+(docs/notes/spacr/stream_dataset.md). external_masks._save_npy names its
+temporary "<field>.npy.tmp-<pid>.npy", which a killed import leaves in
+masks/ and merged/ with a field's ending.
