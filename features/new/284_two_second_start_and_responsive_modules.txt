@@ -2,7 +2,17 @@
 HIGH PRIORITY: TWO-SECOND STARTUP AND RESPONSIVE MODULE LOADING
 ================================================================================
 
-Status:    OPEN, filed 2026-08-27. HIGH PRIORITY.
+Status:    OPEN ON THE 500 ms STALL CEILING AND NOTHING ELSE, filed
+           2026-08-27. HIGH PRIORITY. The 5 s and 10 s budgets have been met
+           since 2026-09-15, with the worst module at 4.2 s under load. The
+           ceiling is breached by 13 of the 47 measured intervals, against
+           16 on origin/nightly this morning:
+           2026-09-19 halved the stall -- 30,089 ms of over-ceiling stall
+           across 45 modules to 15,182 ms, Regression 6.6 s to 3.7 s, Mask
+           3.7 s to 1.9 s -- by paying a screen's stylesheet once instead of
+           four times and by making five application-wide event filters test
+           the event type before doing anything. The last note says what is
+           left and which of the remaining levers needs a decision.
 Owner:     spacr/qt startup, application registration, module factories,
            optional-dependency boundaries, preload policy, and timing.
 Depends:   282 for lazy loading and memory budgets, which the 2026-09-14
@@ -599,3 +609,131 @@ a contract translated into nine languages. `outlier_filter` and
 `stream_dataset` still re-export every name, and
 `stream_dataset.coordinate_column` / `.settings_for_method` remain public
 wrappers over the private module, so no caller moved.
+
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE STALL IS HALVED. WHAT WAS PAID FOR TWICE, AND WHAT IS LEFT.
+--------------------------------------------------------------------------------
+
+The 2026-09-15 close-out left this item open on the 500 ms event-loop stall
+ceiling alone and said the rest was "the screen build". It is the screen
+build, and half of it was the same screen being styled over and over before
+anybody could see it.
+
+WHAT WAS MEASURED FIRST, because the earlier notes name a cost and not a
+mechanism. `QWidget.setStyleSheet` was wrapped for the length of one module
+open, driven through `tools/spacr_startup_benchmark.py`'s own in-process
+controller so the numbers come from the path this item closes against.
+One Regression open, 1,385 widgets on the screen:
+
+    _sync_page_palette, inside AppScreen.__init__       668 ms
+    MainWindow._theme_screen, the late widget blocks    829 ms
+    QStackedWidget.addWidget -- Qt repolishes a whole
+      subtree whose root carries a sheet, so this one
+      is not a setStyleSheet call and costs the same
+      (2,771 StyleChange events, as many as the others)
+    the page's Show, setting the identical text again   806 ms
+
+FOUR REPOLISHES OF EVERY WIDGET ON THE SCREEN, AND ONLY THE LAST IS SEEN.
+The same shape on Mask (three of the four at ~500 ms each) and on every
+module with a settings panel. Counted rather than timed, because a count is
+what a loaded machine cannot move: one Regression open delivered 139,963
+events, of which 97,000 were PaletteChange, FontChange, StyleChange and
+DynamicPropertyChange -- the repolishes themselves, multiplied by the ten
+application-wide filters every one of them is handed to.
+
+TWO CHANGES LANDED, both on branch `home/284-380-perf`:
+
+  1. THE SHEET IS OWED AND PAID ONCE. A widget that is parentless, unshown
+     and uncreated -- the same test the 2026-09-14 Polish skip uses -- has
+     its own rule written down instead of applied and is marked as a sheet
+     target; `ensure_widget_qss_applied` adds its blocks to that debt
+     instead of restyling for them; `_sheet_one_window` pays it in one
+     assignment at the page's first Polish or Show, which is where the
+     design already sheeted it. The reparent into the stack then costs
+     nothing: Qt does not restyle a widget with no sheet joining a parent
+     with no sheet.
+
+  2. FIVE APPLICATION-WIDE FILTERS NOW ASK THE CHEAP QUESTION FIRST. The
+     dialog detacher imported QEvent and QDialog from PySide6 on every
+     event in the process and read `event.type()` up to three times; the
+     feature-help filter ran two liveness checks before it looked at the
+     type (284 profiled that pair at 839,906 calls in one Mask open);
+     glass and button_roles rebuilt a tuple of enum members per event.
+     None of them changed which events they act on.
+
+MEASURED AFTER, paired runs of `tools/spacr_startup_benchmark.py --offscreen
+--runs 1 --record-only`, alternating trees on one machine at load ~3, two
+runs per arm, against `origin/nightly` at `3f925f684`. Worst event-loop
+stall per module, in ms:
+
+    module            3f925f684        + sheeting   + filters
+    regression          6632 6621      4517 4548    3680 4013
+    mask                3664 3794      2311 2285    1920 2028
+    classify_merged     3463 3540      2112 2175    1693 1735
+    umap                2528 2504      1537 1541    1208 1301
+    measure             2086 2176      1147 1225     961  984
+    external_masks      1752 1805       969  947     742  818
+    analyze_plaques     1488 1416      1116 1052     863  937
+    recruitment         1330 1314       765  763     570  605
+    invasion            1132 1107       662  664     526  535
+    replication          972  975       553  573     468  489
+    __preferences__     1226 1237      1240 1305    1062 1014
+    __home__             229  238       230  232     231  254
+
+    modules over the 500 ms ceiling      16      17      13
+    total of those stalls, ms        30,089  20,880  15,182
+
+Home is the control and does not move: nothing here reaches a screen that
+is already on show. `annotate` and `replication` come under the ceiling;
+`__preferences__` is not a module and is listed because the driver measures
+it.
+
+BEHAVIOUR IS THE SAME, AND IT IS CHECKED RATHER THAN ARGUED. All 45 module
+screens were opened on both trees and every widget fingerprinted -- class,
+objectName, geometry, eight palette roles, font family/size/weight/italic,
+visibility, size hints, autoFillBackground, WA_StyledBackground -- plus the
+screen root's entire stylesheet text. 44 screens match row for row.
+Regression differs in 7 rows and every one is invisible: six are the scroll
+arrows a QTabBar hides inside tab bars that have never been shown, whose
+geometry it recomputes at the show it hides them for, and the seventh is a
+widget inside a hidden scroll area that matches as soon as it is revealed.
+
+`tests/qt/test_a_module_screen_is_sheeted_once_before_it_is_seen.py` is the
+ratchet: the screen root receives ONE StyleChange before its first paint,
+where it received four. It fails 4 == 1 on origin/nightly.
+
+WHAT IS STILL OWED, and the first two are the same two as before:
+
+  * THE 500 ms CEILING IS STILL BREACHED, by 13 of 47 measured intervals.
+    Regression is 3.7 s, Mask 1.9 s, Classify 1.7 s. Halved is not met.
+  * peak resident memory still has no threshold, and `MODULE_BUDGET = 20.0`
+    in `tests/qt/test_opening_things_does_not_hang.py` is still a hang
+    detector. Both stay deliberate: a gate at tonight's numbers bakes in
+    what is left.
+  * THE CLEAN-MACHINE CLOSE-OUT AND THE macOS/WINDOWS NUMBERS. Everything
+    above was taken offscreen on Linux while another session ran test
+    batches, so the absolutes are ceilings; the deltas are paired and the
+    counts are load-proof.
+
+WHAT THE NEXT LEVER IS, AND WHY IT IS NOT IN THIS BRANCH. After these two
+changes, one Regression open spends its remaining style time here:
+
+    sheeting ~500 popups at their Polish (the page's plots
+      bring 351 parentless QMenus, pyqtgraph's ViewBoxMenu
+      and its submenus among them)                          ~825 ms
+    the one legitimate sheeting of the page itself          ~640 ms
+    reparenting the settings form when the search strip is
+      installed at first show (settings_search.install)     ~250 ms
+
+The first needs a DESIGN DECISION and it contradicts a contract the
+2026-09-14 work wrote down on purpose: `_SheetsEveryWindowThatAppears`
+covers menus and tooltips at their `Polish`, and
+`tests/qt/test_a_widget_mid_construction_is_not_a_window.py::
+test_a_menu_is_still_sheeted_before_it_can_be_shown` pins it. A popup could
+instead be sheeted from `QMenu.aboutToShow`, which Qt emits before it
+measures the menu, so the geometry would be unchanged -- but a QComboBox's
+popup container is a QFrame with no such signal, and a parented popup
+inheriting its page's sheet instead of carrying its own would let the
+page's registered blocks reach inside menus, which is a different picture.
+Whoever takes it should decide between those two and say which.

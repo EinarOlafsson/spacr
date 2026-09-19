@@ -10,6 +10,14 @@ Status:    THE HARNESS EXISTS AND IS CALIBRATED, 2026-09-09; THE THEME
            preference save repolishing every widget in every hidden
            screen -- went 10.2 s -> 3.1 s -> 1.7 s in two steps, both
            recorded below. Filed 2026-09-07.
+           AREA 3 IS HALF DONE AND MEASURED, 2026-09-19: the events a module
+           open delivers are counted and named, most of them were repolishes
+           the application asked for twice, and paying a screen's stylesheet
+           once plus five cheaper event filters took the total over-ceiling
+           stall across 45 modules from 30,089 ms to 15,182 ms and the events
+           per Regression open from 139,963 to 92,829. Areas 1, 2 and 5 stand
+           where 2026-09-09 to 2026-09-11 left them; "on all platforms" is
+           still unanswered -- every number in this file is Linux, offscreen.
 Requested: 2026-09-07, verbatim -- "do an in depth performance sweep to check
            and fix any performance defects in starting spacr, running the
            themes, or starting the moduals and handelling the widgets and
@@ -1362,3 +1370,110 @@ then fix by cause:
      nothing.
   3. `live_zoom` IS 22.2 % ON ITS OWN and is the one to read first.
 
+
+
+--------------------------------------------------------------------------------
+2026-09-19 -- AREA 3, THE EVENT COUNT ATTACKED AND THE CHAIN MADE CHEAPER:
+135,800 EVENTS PER OPEN BECOMES 93,000, AND THE STALL TOTAL HALVES
+--------------------------------------------------------------------------------
+
+The 2026-09-11 note ends with three things to do in order. This is the
+first two of them, and the first one turned out to be about STYLE rather
+than about events: most of the 135,800 events a module open delivers are
+the application asking Qt to repolish the same widgets again.
+
+1. WHICH EVENTS THEY ARE, WHICH NOBODY HAD ASKED. Counted with a filter
+installed for the length of one open, keyed by type and by receiver class:
+
+    Regression, origin/nightly at 3f925f684, 139,963 events
+        PaletteChange           34,374
+        FontChange              27,340
+        StyleChange             17,771
+        DynamicPropertyChange   17,168     = 97,000 of the 140,000
+        everything else         43,310
+
+    Mask, 72,996 events, the same four making 42,000 of them.
+
+A widget that is repolished sends PaletteChange, FontChange and
+StyleChange; the sheet's own bookkeeping sets four dynamic properties per
+sheeted root. So the event count IS the repolish count, and the way to
+halve one is to halve the other.
+
+2. WHERE THE REPOLISHES CAME FROM. The same counting filter, recording the
+spaCR call site of each event, then `QWidget.setStyleSheet` wrapped to time
+each assignment and count the subtree under it. One Regression open styled
+its 1,385-widget screen FOUR times before its first paint -- inside
+`AppScreen.__init__`, again for the late widget blocks, again because Qt
+repolishes a sheeted subtree when it is reparented into the stack, and a
+fourth time with byte-identical text at the page's Show. Item 284 carries
+the table and the fix; both are on branch `home/284-380-perf`.
+
+3. THEN THE CHAIN, which is this file's own step 2. Five of the ten
+application-wide filters were doing work before they knew the event was
+theirs -- the dialog detacher imported QEvent and QDialog from PySide6 on
+every event in the process, the feature-help filter ran two liveness checks
+before reading the type, glass and button_roles rebuilt a tuple of enum
+members per event, and the i18n dialog filter looked its constant up
+through two attributes. All five now test the type first, from a set built
+once. cProfile of one Regression open before that: 956,294 `QEvent.type()`
+calls and 958,602 enum constructions under them, the detacher alone 1.148 s
+cumulative.
+
+    `live_zoom`, which this file names as 22.2% on its own, IS NOT TOUCHED
+    HERE: its filter is already four comparisons and an early return, and
+    its icon handling belongs to another unit.
+
+MEASURED, paired `tools/spacr_startup_benchmark.py --offscreen --runs 1
+--record-only` runs alternating between trees, two per arm, load ~3:
+
+    worst event-loop stall (ms)  3f925f684  + sheeting   + filters
+    regression                    6632       4517         3680
+    mask                          3664       2311         1920
+    classify_merged               3463       2112         1693
+    umap                          2528       1537         1208
+    measure                       2086       1147          961
+    __home__                       229        230          231
+
+    modules over the 500 ms ceiling    16      17           13
+    total of those stalls (ms)     30,089  20,880       15,182
+
+    events per open: Regression 139,963 -> 92,829, Mask 72,996 -> 43,344
+
+AREA 4 GETS THE SAME MONEY WITHOUT BEING MEASURED AGAIN. The filter chain
+is a tax on every keystroke, scroll and hover, and the five fast paths cut
+what each of those pays; the 2026-09-09 baseline measures typing at 0.06 ms
+and scrolling at 0.01 ms, so there was nothing there to see and this does
+not claim any.
+
+WHAT IS LEFT IN AREA 3, in size order, with the decision each one needs:
+
+  1. ~825 ms of a Regression open still sheets ~500 POPUPS at their
+     `Polish` -- 351 parentless QMenus, pyqtgraph's ViewBoxMenu and its
+     submenus, and about 50 QComboBox popup containers -- each parsing the
+     whole ~73 KB sheet for a menu that may never be opened. NEEDS A
+     DESIGN DECISION: sheeting a QMenu from `aboutToShow` (which Qt emits
+     before it measures the menu, so nothing moves) leaves the QFrame
+     popup containers with no equivalent signal, and letting a parented
+     popup inherit its page's sheet instead changes QSS precedence inside
+     menus. It also contradicts a contract 2026-09-14 wrote down on
+     purpose and pinned in
+     `test_a_menu_is_still_sheeted_before_it_can_be_shown`.
+  2. ~640 ms is the one legitimate sheeting of the page. Cheaper only by
+     making the per-screen sheet smaller or by building screens already
+     parented -- both design decisions.
+  3. ~250 ms is `settings_search.install` reparenting the whole settings
+     form into its new container at first show, after the page has been
+     sheeted. Installing the strip BEFORE the page is shown would make the
+     move free, but the splitter sizes it restores are read pre-layout
+     then, which this file's own WATCH list warns about.
+
+AND THE INSTRUMENTS, so the next person does not rebuild them. Everything
+above was taken by driving `spacr.qt.run(["--no-setup"])` in a child
+process with `SPACR_BENCHMARK_JSON` set -- the benchmark's own controller,
+so the readiness and stall numbers are the ones this item closes against --
+with three probes wrapped around it: a counting event filter (types,
+receiver classes, and the spaCR frame that caused each event), a wrapper on
+`QWidget.setStyleSheet` that records caller, subtree size and duration, and
+a per-widget fingerprint of all 45 screens for the equivalence check in
+284. `SPACR_WATCH_GUI_STALLS=1` composes with all of it and names what the
+thread was doing.
