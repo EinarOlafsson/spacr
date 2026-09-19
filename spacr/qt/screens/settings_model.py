@@ -7884,6 +7884,10 @@ class SettingsWidgets:
                 regression_type=self._defaults.get("regression_type"),
                 parent=parent,
             )
+        if key == "segmentation_backend":
+            from ..model_install import SegmentationBackendCombo
+            return SegmentationBackendCombo(
+                default=self._defaults.get(key, default), parent=parent)
         app_options = _APP_COMBO_OPTIONS.get(self.app_key, {})
         if key in app_options:
             kind = "combo"
