@@ -3009,6 +3009,13 @@ _WINDOW_SHEET_BASE_DIGEST = "_spacr_window_stylesheet_base_digest"
 #: test artefact.
 _WINDOW_OWN_SHEET = "_spacr_window_own_stylesheet"
 
+#: Set on a widget whose sheet is owed and not yet paid: its own rule was
+#: given while it was still being built, so the sheet waits for the widget's
+#: first `Polish` as a page or its first `Show`. See
+#: :func:`_the_sheet_can_wait_for_the_show`. Cleared by
+#: :func:`_sheet_one_window` the moment the sheet lands.
+_WINDOW_SHEET_WAITS = "_spacr_window_stylesheet_waits_for_its_show"
+
 #: The one filter instance, kept off the QApplication's children so it is
 #: not collected.
 _WINDOW_SHEET_FILTER = None
@@ -3264,9 +3271,72 @@ def _sheet_one_window(window) -> bool:
         window.setProperty(_WINDOW_SHEET_DIGEST, _sheet_digest(text))
         window.setProperty(_WINDOW_SHEET_BASE_LEN, len(sheet))
         window.setProperty(_WINDOW_SHEET_BASE_DIGEST, _sheet_digest(sheet))
+        if window.property(_WINDOW_SHEET_WAITS):
+            window.setProperty(_WINDOW_SHEET_WAITS, None)
     except (AttributeError, RuntimeError):
         return False
     return True
+
+
+def _the_sheet_can_wait_for_the_show(widget) -> bool:
+    """Can ``widget``'s sheet be put on at its first show instead of now?
+
+    A MODULE SCREEN WAS SHEETED FOUR TIMES BEFORE IT WAS FIRST PAINTED, and
+    each time Qt repolished every widget it had. Counted on one Regression
+    open (1,385 widgets), by wrapping ``QWidget.setStyleSheet``:
+
+        1. ``AppScreen._sync_page_palette``, still inside ``__init__``,
+           put the whole sheet on the parentless screen          668 ms
+        2. ``MainWindow._theme_screen`` appended the late blocks    829 ms
+        3. ``QStackedWidget.addWidget`` reparented a widget that
+           now carried a sheet, which Qt answers with a repolish
+           of the whole subtree (not a ``setStyleSheet``; counted
+           as 2,771 ``StyleChange`` events, the same as the others)
+        4. the page's ``Show`` put on the same text again           806 ms
+
+    Only the fourth is ever seen. The page is sheeted on its ``Show``
+    anyway -- it is a sheet target, and that is the design
+    :func:`mark_as_a_sheet_target` documents -- so the first two can be
+    written down instead of applied, and the third then costs nothing,
+    because a widget with no sheet joining a parent with no sheet is not
+    restyled by Qt at all.
+
+    THE SAME TEST AS THE ``Polish`` SKIP, for the same reason:
+    :func:`_a_window_for_want_of_a_parent` is what says a widget is still
+    being built and is neither shown nor anyone's child, so nothing can
+    render it yet. And only when a window sheet is in force -- without one
+    there is no ``Show`` that would pay the debt, so the rule is applied at
+    once exactly as before.
+
+    :param widget: the widget about to be given a sheet.
+    :returns: ``True`` to write the sheet down and apply it at the show.
+    """
+    app = QApplication.instance()
+    if app is None or getattr(app, _WINDOW_SHEET_ATTRIBUTE, None) is None:
+        return False
+    try:
+        return _a_window_for_want_of_a_parent(widget)
+    except (AttributeError, RuntimeError):
+        return False
+
+
+def _the_sheet_is_waiting(widget) -> bool:
+    """Is ``widget`` a page whose sheet has been written down and not applied?
+
+    :param widget: the root :func:`ensure_widget_qss_applied` was given.
+    :returns: ``True`` while the sheet the widget is owed has not landed
+        and nothing can see the widget, so a late block can join the debt
+        instead of costing a repolish of its own.
+    """
+    app = QApplication.instance()
+    if app is None or getattr(app, _WINDOW_SHEET_ATTRIBUTE, None) is None:
+        return False
+    try:
+        return bool(widget.property(_WINDOW_SHEET_WAITS)
+                    and widget.property(_SHEET_TARGET)
+                    and not widget.isVisible())
+    except (AttributeError, RuntimeError):
+        return False
 
 
 def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
@@ -3288,6 +3358,12 @@ def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
     preserve, which is every caller that never opted into spaCR styling and
     every test that does not apply a theme.
 
+    A WIDGET STILL BEING BUILT IS NOT SHEETED HERE. It is marked as a sheet
+    target and sheeted on its first ``Polish`` as a page or its first
+    ``Show``, which is before its first paint; see
+    :func:`_the_sheet_can_wait_for_the_show` for why, and for the three
+    repolishes of a whole module screen that saves.
+
     :param widget: the widget whose own rules are being replaced.
     :param rule: the QSS the widget owns, or ``""`` to own none.
     """
@@ -3295,6 +3371,12 @@ def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
     try:
         widget.setProperty(_WINDOW_OWN_SHEET, rule)
         widget.setProperty(_WINDOW_SHEET_SERIAL, None)
+        if _the_sheet_can_wait_for_the_show(widget):
+            widget.setProperty(_WINDOW_SHEET_DIGEST,
+                               _sheet_digest(widget.styleSheet()))
+            widget.setProperty(_WINDOW_SHEET_WAITS, True)
+            mark_as_a_sheet_target(widget)
+            return
         if _sheet_one_window(widget):
             return
         widget.setStyleSheet(preserve_widget_qss_overlay(widget, rule))
@@ -3344,6 +3426,14 @@ def _forget_window_stylesheets(app=None) -> int:
         candidates = []
     for widget in candidates:
         try:
+            if widget.property(_WINDOW_SHEET_WAITS):
+                widget.setProperty(_WINDOW_SHEET_WAITS, None)
+                widget.setProperty(_WINDOW_SHEET_DIGEST, None)
+                own = str(widget.property(_WINDOW_OWN_SHEET) or "")
+                widget.setProperty(_WINDOW_OWN_SHEET, None)
+                widget.setStyleSheet(preserve_widget_qss_overlay(widget, own))
+                removed += 1
+                continue
             if widget.property(_WINDOW_SHEET_SERIAL) is None:
                 continue
             for stamp in (_WINDOW_SHEET_SERIAL, _WINDOW_SHEET_DIGEST,
@@ -3540,6 +3630,14 @@ def ensure_widget_qss_applied(*names: str, root=None) -> bool:
     is the exact defect this function was written for, reintroduced by the
     change that made the window the sheet's owner.
 
+    A ROOT WHOSE SHEET IS STILL OWED KEEPS THE BLOCKS AND IS NOT RESTYLED.
+    A module screen built after the theme is in force carries no sheet
+    until its first show, and :func:`_sheet_one_window` puts this suffix on
+    the end of the sheet it applies then. Applying it here as well would
+    repolish the whole screen once for the suffix and again when Qt
+    reparents it into the stack -- 829 ms and about as much again on a
+    Regression open, for a screen nobody could see yet.
+
     :returns: ``True`` only when ``root.setStyleSheet`` was called.
     """
     if root is None:
@@ -3573,6 +3671,8 @@ def ensure_widget_qss_applied(*names: str, root=None) -> bool:
         desired = base + suffix
         setattr(root, _LOCAL_WIDGET_QSS_ATTRIBUTE, suffix)
         if desired == current:
+            return False
+        if _the_sheet_is_waiting(root):
             return False
         root.setStyleSheet(desired)
     except (AttributeError, RuntimeError):
