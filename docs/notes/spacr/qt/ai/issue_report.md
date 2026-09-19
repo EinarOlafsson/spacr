@@ -215,3 +215,38 @@ where = "/".join(parts[-2:]) if parts else match.group("path")
 The fingerprint hashed each frame's whole path after `~` substitution. So the same crash had a different fingerprint on every machine whose conda environment, Python minor version, install prefix or path separator differed. The open-issue search could therefore only find a duplicate from the same computer, and `find_issue_by_fingerprint` was cross-machine dedupe in name only. Two components (`spacr/core.py`) are enough to tell modules apart, and the whole stack plus the exception type is hashed, so two crashes that share a module name in one frame still differ.
 
 This changes every fingerprint whose frames had more than two components, which is all real ones. An issue opened before 2026-09-19 will not be found by a client after it. The search covers open issues only, and those are few.
+
+### changed again 2026-09-19, after review (a path can contain a space)
+
+```python
+_BARE_PATH_RE = re.compile(
+```
+
+The rule stopped a path at the first whitespace, so any path with a space in it was only partly replaced and the rest was published. Measured on the branch before this change, with `HOME` in a scratch folder:
+
+| in | out |
+|---|---|
+| `src = 'C:\Users\anna\OneDrive - Karolinska Institutet\Screens\Patient 042'` | `src = '<PATH> - Karolinska Institutet\Screens\Patient 042'` |
+| `src = '~/My Data/TB screen 2026/plate 1'` | `src = '<PATH> Data/TB screen 2026/plate 1'` |
+| `Permission denied: '/mnt/lab share/Smith lab/raw'` | `'<PATH> share/Smith lab/raw'` |
+| `\\LAB-NAS\screens\plate 1` | untouched: nothing here started at `\\` |
+
+Spaced paths are the normal case on the two operating systems most users are on: `/Volumes/<name with spaces>` on macOS, `OneDrive - <institution>` and `Program Files` on Windows, and any share named after a lab. With 'always' there is no preview between the crash and the public tracker, and Section 5.5 of the terms accepted in this same change tells the user that file and folder names are replaced.
+
+Three rules now, in order. A traceback's `File "..."` field, whatever is inside it. A quoted value that STARTS with a path root, taken to its closing quote or to the end of the line -- everything that quotes a path quotes the whole of it (`repr` of a settings value, the file name in an `OSError`, the backticked log path), and the end-of-line branch is for the title, which `build_report` cuts to 80 characters and can therefore hand over an opening quote whose closing one was cut off. Then unquoted paths, where a component may contain spaces PROVIDED a separator follows it: only the separator proves the space is inside the path rather than after it.
+
+What that deliberately leaves is the tail of the LAST component of an unquoted path -- `\\LAB-NAS\screens\plate 1` still ends `<PATH> 1`. Taking it would mean eating the sentence after every path, which turns `opening /mnt/data/x.tif failed` into `<PATH>` and makes the report useless. Quoted paths have no such limit, and the title and every settings value are quoted.
+
+The quoted rule requires the root directly after the quote, so an apostrophe in prose cannot pair with a later one and swallow the words between them.
+
+### changed 2026-09-19, after review (a machine named after a word)
+
+```python
+_GENERIC_NAMES = frozenset({
+```
+
+`redact_identity` replaces any login or host name of three characters or more wherever it is not surrounded by `[A-Za-z0-9]`, so `_` and `-` are boundaries. On a machine called `gpu` that rewrote `use_gpu = True` in the settings block to `use_<HOST> = True`, and since `sanitize_path` runs before `_traceback_hash`, a substitution on a non-indented line moved the fingerprint on that machine alone -- the opposite of what `_frame_key` was added to fix.
+
+Widening the boundary to include `_` was the wrong fix: it would leave a real login name in `/data/<name>_backup`. The word list is the right one. A host called `gpu`, `server`, `desktop` or `nas` identifies nobody, which is the same reason `root` and `localhost` are already there.
+
+Two neighbours fixed with it: a name that is all digits is dropped (an IP-shaped host contributes the label `192`, which would otherwise be replaced wherever it stood, `line 192, in run` included), and a name that is both the login and the host name -- a workstation named after its user -- is listed once as the login name instead of twice with the host entry winning.

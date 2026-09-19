@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import io
 import json
+import time
 import urllib.error
 
 import pytest
@@ -203,6 +204,64 @@ class TestTheDefault:
         assert "public spaCR GitHub repository" in blurb
         assert "Nothing is ever sent" not in blurb
 
+    def test_a_profile_that_only_ever_dismissed_setup_gets_the_default(
+            self, fresh):
+        """THE DECISION HAS TO REACH THE INSTALLED BASE.
+
+        `SetupSlides.accept()` and `reject()` both apply their answers, and
+        `issue_prompt` has been one of them since 6c57da8d6 (1.5.0.5), so
+        every profile that so much as opened first-run setup has 'ask'
+        written into it by the default of the day. Read as a choice, the new
+        default would have reached new profiles only -- and the reporter of
+        issue #117, on 1.5.0.8, would still file nothing after upgrading.
+        """
+        preferences, _ai = fresh
+        store = preferences._settings()
+        store.setValue(preferences._KEY_ISSUE_PROMPT, "ask")
+        store.remove(preferences._KEY_ISSUE_PROMPT_CHOSEN)
+
+        assert preferences.get_issue_prompt_mode() == "always"
+
+    def test_an_ask_this_build_wrote_is_an_answer_and_is_kept(self, fresh):
+        """The other half of it: once a build that marks the choice has
+        written 'ask', 'ask' is what the user meant."""
+        preferences, _ai = fresh
+
+        preferences.set_issue_prompt_mode("ask")
+
+        assert preferences._settings().contains(
+            preferences._KEY_ISSUE_PROMPT_CHOSEN)
+        assert preferences.get_issue_prompt_mode() == "ask"
+
+    @pytest.mark.parametrize("stored", ["never", "always"])
+    def test_an_older_profile_that_said_never_or_always_is_left_alone(
+            self, fresh, stored):
+        """Neither was ever written on a user's behalf: the old default was
+        'ask', so both took an answer."""
+        preferences, _ai = fresh
+        store = preferences._settings()
+        store.setValue(preferences._KEY_ISSUE_PROMPT, stored)
+        store.remove(preferences._KEY_ISSUE_PROMPT_CHOSEN)
+
+        assert preferences.get_issue_prompt_mode() == stored
+
+    def test_an_upgraded_profile_sees_always_on_the_slide(self, fresh, qtbot):
+        """It is shown before it is acted on: the terms go from 4.1 to 4.2,
+        so this slide is in front of the user again, showing what the
+        profile will now do, with the switch to change it on the same page.
+        """
+        from spacr.qt.widgets.setup_slides import SetupSlides
+
+        preferences, _ai = fresh
+        store = preferences._settings()
+        store.setValue(preferences._KEY_ISSUE_PROMPT, "ask")
+        store.remove(preferences._KEY_ISSUE_PROMPT_CHOSEN)
+
+        slides = SetupSlides()
+        qtbot.addWidget(slides)
+
+        assert slides._editors["issue_prompt"].currentData() == "always"
+
     def test_the_installer_s_explicit_answers_are_kept(self, fresh):
         """The desktop installer asks, and says a report is sent only on
         Send. Its answers are explicit choices, so they are kept."""
@@ -235,6 +294,48 @@ class TestTheRedaction:
 
         assert text == "owner <USER> at <HOST>, jakobks and xjakobk"
 
+    def test_a_machine_named_after_a_word_does_not_rewrite_the_report(
+            self, monkeypatch):
+        """A host called `gpu` turned `use_gpu = True` in the settings block
+        into `use_<HOST> = True`, because `_` is a word boundary here. The
+        name says nothing about who the user is, so it stays."""
+        monkeypatch.setenv("HOME", "/home/bio")
+        monkeypatch.setattr("getpass.getuser", lambda: "bio")
+        monkeypatch.setattr("socket.gethostname", lambda: "gpu")
+        monkeypatch.setattr("platform.node", lambda: "gpu")
+
+        assert issue_report._identity_words() == []
+        assert issue_report.redact_identity(
+            "use_gpu = True, bio-replicate 2") == (
+            "use_gpu = True, bio-replicate 2")
+
+    def test_a_dotted_address_is_not_a_name(self, monkeypatch):
+        """`192.168.0.10` contributes the label `192`, which would then be
+        replaced wherever it stood -- including inside a traceback line the
+        fingerprint is taken over."""
+        monkeypatch.setenv("HOME", "/home/anna")
+        monkeypatch.setattr("socket.gethostname", lambda: "192.168.0.10")
+        monkeypatch.setattr("platform.node", lambda: "192.168.0.10")
+        monkeypatch.setattr("getpass.getuser", lambda: "anna")
+
+        names = dict(issue_report._identity_words())
+
+        assert "192" not in names
+        assert issue_report.redact_identity(
+            "line 192, in run") == "line 192, in run"
+
+    def test_a_workstation_named_after_its_user_is_one_name(self,
+                                                            monkeypatch):
+        """Login and host the same string: the host entry won, so the login
+        name was reported as <HOST>."""
+        monkeypatch.setenv("HOME", "/home/annali")
+        monkeypatch.setattr("getpass.getuser", lambda: "annali")
+        monkeypatch.setattr("socket.gethostname", lambda: "annali")
+        monkeypatch.setattr("platform.node", lambda: "annali")
+
+        assert issue_report._identity_words() == [
+            ("annali", issue_report.USER_PLACEHOLDER)]
+
     def test_generic_and_short_names_stay(self, monkeypatch):
         monkeypatch.setattr("getpass.getuser", lambda: "root")
         monkeypatch.setattr("socket.gethostname", lambda: "localhost")
@@ -263,6 +364,67 @@ class TestTheRedaction:
             assert mark in text, mark
         assert public["fingerprint"] == report["fingerprint"]
         assert f"`{report['fingerprint']}`" in public["body"]
+
+    @pytest.mark.parametrize("line,leaks", [
+        ("src = '/Volumes/Lab Drive/Patient 042/plate A.tif'",
+         ("Lab Drive", "Patient 042", "plate A.tif")),
+        (r"src = 'C:\Users\anna\OneDrive - Karolinska Institutet\Screens'",
+         ("Karolinska", "Screens", "anna")),
+        ("PermissionError: [Errno 13] Permission denied: "
+         "'/mnt/lab share/Smith lab/raw'",
+         ("lab share", "Smith lab")),
+        ("opening C:\\Program Files\\spaCR bin\\plate 1\\img.tif failed",
+         ("Program Files", "spaCR bin", "plate 1")),
+        (r"could not reach \\LAB-NAS\screens\plate 1\img.tif",
+         ("LAB-NAS", "screens", "img.tif")),
+        ("[auto ab12cd] [mask] FileNotFoundError: [Errno 2] No such file "
+         "or directory: '/Volumes/Lab Drive/Patient 042/plate A.t",
+         ("Lab Drive", "Patient 042")),
+    ])
+    def test_a_path_with_spaces_is_replaced_whole(self, line, leaks):
+        """A PATH CAN CONTAIN A SPACE, and stopping at the first whitespace
+        published the rest of it: '/Volumes/Lab Drive/Patient 042' came out
+        as '<PATH> Drive/Patient 042'. macOS volumes, Windows 'OneDrive -
+        <institution>' and any lab share are the normal case, not the odd
+        one, and with 'always' nobody sees the report before it is public.
+        The last case is the title, which build_report cuts to 80
+        characters -- so the opening quote can be there with its closing one
+        cut off."""
+        stripped = issue_report.strip_report_paths(
+            issue_report.sanitize_path(line))
+
+        for leak in leaks:
+            assert leak not in stripped, f"{leak!r} survived in {stripped!r}"
+        assert "<PATH>" in stripped
+
+    def test_what_is_around_a_path_is_still_readable(self):
+        """Over-redaction has a cost too: a report whose sentences have been
+        eaten is a report nobody can act on. Only the path goes."""
+        cases = {
+            "opening /mnt/data/x.tif failed": "opening <PATH> failed",
+            "</summary> and </details> stay": "</summary> and </details> stay",
+            "3 / 4 of the wells and/or the plate":
+                "3 / 4 of the wells and/or the plate",
+            "raise ValueError('mask failed')":
+                "raise ValueError('mask failed')",
+            "the well is 'plate 1' here": "the well is 'plate 1' here",
+        }
+        for line, expected in cases.items():
+            assert issue_report.strip_report_paths(line) == expected, line
+
+    def test_a_spaced_path_in_the_settings_is_not_published(self, machine):
+        """The settings block is `key = repr(value)`, so every path in it is
+        quoted -- and a quoted path is taken whole."""
+        report = issue_report.build_report(
+            _traceback(machine), active_app="mask",
+            settings={"src": "/Volumes/Lab Drive/Patient 042",
+                      "dst": r"C:\Users\anna\OneDrive - KI\Screens\plate 1"})
+
+        text = "\n".join(issue_report.public_report(report).values())
+
+        for leak in ("Lab Drive", "Patient 042", "OneDrive", "Screens",
+                     "plate 1", "anna"):
+            assert leak not in text, leak
 
     def test_the_log_stays_on_this_computer_and_is_redacted(self, machine):
         issue_report.build_report(_traceback(machine), include_log_tail=True)
@@ -639,6 +801,65 @@ class TestAFailedRunFilesItself:
 
         assert github.requests == []
         assert "[issue]" not in text
+
+    def test_a_run_on_a_folder_with_spaces_publishes_none_of_it(
+            self, qtbot, monkeypatch, signed_in, mask_screen):
+        """The whole way a user hits it: Run on a macOS volume whose name
+        has a space in it, no preview, and what reaches github.com carries
+        neither the volume, the patient folder nor the file."""
+        from spacr.qt.screens import app_screen
+
+        github = FakeGitHub()
+        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
+
+        def entry(_key):
+            def preprocess_generate_masks(settings):
+                raise FileNotFoundError(
+                    2, "No such file or directory",
+                    "/Volumes/Lab Drive/Patient 042/plate A.tif")
+            return preprocess_generate_masks
+
+        monkeypatch.setattr(app_screen, "resolve_pipeline_entry", entry)
+
+        mask_screen._on_run(override={"src": "/Volumes/Lab Drive/Patient 042",
+                                      "test_mode": True,
+                                      "hash_inputs": False})
+        qtbot.waitUntil(
+            lambda: "[issue] Filed on" in mask_screen._console.as_text(),
+            timeout=30000)
+        qtbot.waitUntil(lambda: not mask_screen._jobs.is_busy(), timeout=30000)
+
+        [created] = github.posted("/repos/EinarOlafsson/spacr/issues")
+        posted = created["title"] + "\n" + created["body"]
+        for leak in ("Lab Drive", "Patient 042", "plate A.tif", "Volumes"):
+            assert leak not in posted, f"{leak!r} was published: {posted!r}"
+        assert "FileNotFoundError" in created["title"]
+
+    def test_a_report_that_never_came_back_does_not_block_the_next_one(
+            self, qtbot, monkeypatch, signed_in, mask_screen):
+        """The runner hands nothing to `on_done` when the screen that
+        started the job was closed or cancelled, so the fingerprint stayed
+        in the in-flight record and every later failure with that traceback,
+        in any screen, said "being reported already" and filed nothing."""
+        from spacr.qt.screens import app_screen
+
+        github = FakeGitHub()
+        monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
+        tb = _traceback("/home/" + USER)
+        fingerprint = issue_report.fingerprint_of(tb)
+        app_screen._REPORTS_BEING_FILED[fingerprint] = (
+            time.monotonic() - app_screen.REPORT_IN_FLIGHT_SECONDS - 1)
+        mask_screen._last_error_text = tb
+
+        mask_screen._file_the_report_automatically()
+        qtbot.waitUntil(
+            lambda: "[issue] Filed on" in mask_screen._console.as_text(),
+            timeout=30000)
+        qtbot.waitUntil(lambda: not mask_screen._jobs.is_busy(), timeout=30000)
+
+        assert "being reported already" not in mask_screen._console.as_text()
+        assert len(github.posted("/repos/EinarOlafsson/spacr/issues")) == 1
+        assert fingerprint not in app_screen._REPORTS_BEING_FILED
 
     def test_two_failures_before_github_answers_file_once(
             self, qtbot, monkeypatch, signed_in, mask_screen):

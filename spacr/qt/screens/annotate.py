@@ -2566,6 +2566,8 @@ class AnnotateScreen(QWidget):
         self._closing = False
         self._settings_dialog: Optional[_SettingsDialog] = None
         self._total_jobs = JobRunner(self, app_key="annotate count")
+        self._report_jobs = JobRunner(self, app_key="annotate report",
+                                      user_visible=False)
         self._resize_timer = QTimer(self)
         self._resize_timer.setSingleShot(True)
         self._resize_timer.setInterval(150)
@@ -3256,33 +3258,98 @@ class AnnotateScreen(QWidget):
     def _on_file_issue(self) -> None:
         """Open a pre-filled GitHub issue for what the console is holding.
 
+        THE CALL WAS WRONG AND THE BUTTON HAD NEVER FILED ANYTHING.
+        ``file_issue(self, {"screen": "annotate"}, body)`` handed the screen
+        where the traceback goes, a dict where the app id goes and the
+        console text where the settings go, so the first thing the reporter
+        did was ``sanitize_path(<AnnotateScreen>)`` and the user got
+        ``Could not file the issue: 'AnnotateScreen' object has no attribute
+        'replace'``. The ``except TypeError`` around it caught a signature
+        mismatch that Python never raised: every argument was positional and
+        the arity was right. It went unnoticed because the button was hidden
+        behind an opt-in that shipped off; `auto_file_issues` now defaults on
+        and this button is part of the default experience.
+
         The console text is read here, on the GUI thread, because reading a
         widget is the one part that must happen here. Everything after it --
         resolving a token through ``gh auth token`` and POSTing to
         api.github.com -- is what the module screens measured at up to 28
-        seconds on a bad network, so it is handed to the shared reporter rather
-        than run inline.
+        seconds on a bad network, so it goes to this screen's reporting
+        runner rather than running inline.
+
+        The preview is shown whatever the reporting mode is, because the
+        button's own tooltip promises it ("You review it before submitting")
+        and because a press is already the affirmative act that 'always'
+        exists to avoid asking for. 'never' files nothing and says so.
         """
         try:
             body = self._console.copy_all()
         except Exception:                                    # noqa: BLE001
             body = ""
+        if not str(body).strip():
+            self._console.append_notice(
+                "There is nothing in the console to report.\n")
+            return
         try:
-            from ..ai.issue_report import file_issue
+            from PySide6.QtWidgets import QDialog
+
+            from ..ai.issue_preview import IssuePreviewDialog
+            from ..ai.issue_report import build_report, submit_report
+            from ..preferences import (ISSUE_PROMPT_NEVER,
+                                       get_issue_prompt_mode,
+                                       get_share_diagnostic_logs)
         except Exception as exc:                             # noqa: BLE001
             self._console.append_notice(
                 "Issue reporting is unavailable: {detail}\n", detail=exc)
             return
         try:
-            file_issue(self, {"screen": "annotate"}, body)
-        except TypeError:
-            LOG.debug("file_issue signature mismatch", exc_info=True)
-            self._console.append_notice(
-                "Could not open the issue form; the console text is copied "
-                "instead.\n")
+            if get_issue_prompt_mode() == ISSUE_PROMPT_NEVER:
+                self._console.append_notice(
+                    "Not filing a report: issue reporting is set to 'never' "
+                    "in Preferences.\n")
+                return
+            report = build_report(
+                body, active_app="annotate",
+                include_log_tail=bool(get_share_diagnostic_logs()))
+            preview = IssuePreviewDialog(report, self, console=self._console,
+                                         traceback_text=body)
+            if preview.exec() != QDialog.Accepted:
+                self._console.append_notice(
+                    "The report was not sent.\n")
+                return
+            approved = preview.approved_report()
         except Exception as exc:                             # noqa: BLE001
             self._console.append_notice(
                 "Could not file the issue: {detail}\n", detail=exc)
+            return
+
+        def _send():
+            """Post the approved report. Off the GUI thread; never raises."""
+            try:
+                return {"url": submit_report(approved)}
+            except Exception as exc:      # noqa: BLE001 - reported, not hidden
+                return {"error": f"{type(exc).__name__}: {exc}"}
+
+        self._console.append_notice("Sending the approved report to GitHub…\n")
+        if not self._report_jobs.submit(_send, self._on_issue_filed):
+            self._console.append_notice(
+                "Could not file the issue: the reporter would not start.\n")
+
+    def _on_issue_filed(self, outcome: dict) -> None:
+        """Say where the console's report went, or why it did not. GUI thread.
+
+        :param outcome: ``{"url": ...}`` or ``{"error": ...}`` from the
+            worker, which returns its failure as data because an ``except``
+            around the caller can no longer see it.
+        """
+        error = (outcome or {}).get("error")
+        if error:
+            self._console.append_notice(
+                "Could not file the issue: {detail}\n", detail=error)
+            return
+        self._console.append_notice(
+            "The report was sent: {url}\n",
+            url=str((outcome or {}).get("url") or "")[:200])
 
     def _set_console_switch_text(self, expanded: bool,
                                  language: Optional[str] = None) -> None:
@@ -5337,6 +5404,7 @@ class AnnotateScreen(QWidget):
         self._pending_page_load = None
         self._flush_pending()
         self._total_jobs.shutdown()
+        self._report_jobs.shutdown()
         retrain = self._retrain_worker
         if retrain is not None:
             retrain.requestInterruption()

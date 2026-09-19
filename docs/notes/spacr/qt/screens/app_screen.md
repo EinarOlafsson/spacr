@@ -4172,3 +4172,13 @@ return not needs_agreement()
 ```
 
 The maintainer tied automatic filing to the agreement: "add the user agreeing to this in the user agreement, if set to always". 'always' is the default, and the default applies to profiles that have never seen the agreement. A launch with `--no-setup` or `SPACR_NO_SETUP`, or under the offscreen platform (`setup_screen.skipped_on_purpose`), never shows the slides. A user can close the terms slide without accepting ("spaCR will present the terms again at the next startup"). A profile that accepted 4.1 accepted terms saying nothing is sent automatically. None of these has agreed, so none files automatically: the console says nothing was sent, and that filing starts once the terms are accepted. "File as issue" still works for them, through the preview.
+
+### changed 2026-09-19, after review (a report that never comes back)
+
+```python
+_REPORTS_BEING_FILED: dict = {}
+```
+
+The in-flight record was a set, and only `_on_report_filed_automatically` took anything out of it. `JobRunner` drops a result -- never calls `on_done` -- when `cancel()` has bumped the generation or the worker reports not-ok, which is what closing a screen does to a report in flight. The fingerprint then stayed in a module-level set for the rest of the process, and every later failure with that traceback, in any screen, printed "[issue] This error is being reported already" and filed nothing. The `submit() == False` fallback covered only a submit the runner refused outright.
+
+It now records when each report started and treats anything older than `REPORT_IN_FLIGHT_SECONDS` as gone. Two minutes: `gh auth token` is capped at 8 s and each API call at 20 s, so a report that has not come back inside that is not coming back, and the cost of being wrong is one duplicate search that finds the open issue and comments on it.

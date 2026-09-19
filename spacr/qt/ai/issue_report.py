@@ -100,11 +100,22 @@ USER_PLACEHOLDER = "<USER>"
 HOST_PLACEHOLDER = "<HOST>"
 
 #: Login and host names that identify nobody, and are left in place.
+#:
+#: The second group is the one a lab machine is actually called, and it is
+#: here for a second reason: every one of these words also occurs inside
+#: ordinary report text. A machine named ``gpu`` turned ``use_gpu = True``
+#: in the settings block into ``use_<HOST> = True``, because ``_`` is a word
+#: boundary to :func:`redact_identity`. Keeping the name in is the honest
+#: trade — it says nothing about who the user is, and the alternative is a
+#: report that rewrites words it was never meant to touch.
 _GENERIC_NAMES = frozenset({
     "root", "user", "users", "admin", "administrator", "runner", "ubuntu",
     "jovyan", "vagrant", "guest", "test", "spacr", "python", "home",
     "localhost", "localdomain", "local", "default", "docker", "codespace",
     "codespaces",
+    "gpu", "cpu", "bio", "lab", "data", "server", "desktop", "laptop",
+    "workstation", "node", "host", "main", "dev", "build", "linux", "mac",
+    "windows", "win", "imaging", "microscope", "compute", "cluster", "nas",
 })
 
 
@@ -115,8 +126,14 @@ def _identity_words() -> List[tuple]:
     the home folder. The host name comes from :func:`socket.gethostname` and
     :func:`platform.node`, both in full and as their first dotted label.
     Both calls read local state and do not touch the network. Names shorter
-    than three characters, and the generic names in :data:`_GENERIC_NAMES`,
-    are left out.
+    than three characters, names that are all digits (the first label of a
+    dotted-quad address is not a name, and ``192`` would otherwise be
+    replaced wherever it stood), and the generic names in
+    :data:`_GENERIC_NAMES` are left out.
+
+    A name that is both the login and the host name — which is what a
+    workstation named after its user gives — is listed once, as the login
+    name, rather than twice with the host entry winning.
 
     :returns: ``[(name, placeholder)]``, longest name first, so a host name
         that contains the login name is replaced whole.
@@ -143,12 +160,14 @@ def _identity_words() -> List[tuple]:
     except Exception:                                        # noqa: BLE001
         pass
     hosts |= {name.split(".", 1)[0] for name in list(hosts) if name}
+    users = {str(name or "").strip() for name in users}
+    hosts = {str(name or "").strip() for name in hosts} - users
     words = []
     for names, placeholder in ((hosts, HOST_PLACEHOLDER),
                                (users, USER_PLACEHOLDER)):
         for name in names:
-            name = str(name or "").strip()
-            if len(name) < 3 or name.lower() in _GENERIC_NAMES:
+            if (len(name) < 3 or name.isdigit()
+                    or name.lower() in _GENERIC_NAMES):
                 continue
             words.append((name, placeholder))
     words.sort(key=lambda pair: len(pair[0]), reverse=True)
@@ -225,24 +244,71 @@ def sanitize_traceback(tb: str) -> str:
     return sanitize_path(tb or "")
 
 
+#: Where a path can begin: a drive letter, a UNC or scheme-relative pair of
+#: separators, a home-relative ``~/``, or a bare root slash.
+_PATH_ROOT = r"(?:[A-Za-z]:[\\/]|[\\/]{2}|~[\\/]|/)"
+
+#: One path component: anything up to the next separator, quote or space.
+_PATH_SEG = r"[^\s'\"`\\/]+"
+
+#: A traceback's ``File "..."`` field, whatever the file is called.
+_FILE_FIELD_RE = re.compile(r'(?m)(\bFile\s+)["\'][^"\']+["\']')
+
+#: A quoted value that IS a path, to its closing quote or the end of the
+#: line. Everything that quotes a path quotes the whole of it: ``repr`` of a
+#: settings value, the file name in an :class:`OSError` message, the log
+#: copy's backticked path. The end-of-line branch is for the title, which
+#: :func:`build_report` cuts to 80 characters and so can carry an opening
+#: quote whose closing one was cut off.
+_QUOTED_PATH_RE = re.compile(
+    r"(?m)(?P<q>['\"`])" + _PATH_ROOT + r"[^'\"`\n]*(?P<end>(?P=q)|$)"
+)
+
+#: An unquoted path. A component may contain spaces when a separator
+#: follows it, which is what makes ``/Volumes/Lab Drive/x`` and
+#: ``C:\Program Files\spaCR\x`` one token rather than three.
+_BARE_PATH_RE = re.compile(
+    r"(?<![\w~<])" + _PATH_ROOT + r"(?=[^\s'\"`\\/])"
+    r"(?:" + _PATH_SEG + r"(?:[ \t]" + _PATH_SEG + r")*[\\/])*"
+    r"(?:" + _PATH_SEG + r")?"
+)
+
+
 def strip_report_paths(text: str) -> str:
     """Remove file/folder names from an already sanitised report.
 
     The ordinary sanitizer abbreviates the home directory so a traceback is
     still useful. Public reports default to the stricter form: traceback file
-    fields and remaining absolute path-like tokens become ``<PATH>``. The
-    preview lets the user restore the useful names before sending.
+    fields, quoted path values and remaining absolute path-like tokens become
+    ``<PATH>``. The preview lets the user restore the useful names before
+    sending; with issue reporting set to 'always' there is no preview, so
+    what this leaves behind is what gets published.
+
+    A PATH CAN CONTAIN A SPACE, and the rule that stopped one at the first
+    whitespace published the rest of it. ``/Volumes/Lab Drive/Patient 042``
+    came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive
+    - Karolinska Institutet\\Screens`` kept the institution and the
+    screen — the two operating systems whose own folders have spaces in
+    them. A UNC path was not a path at all: nothing here started at
+    ``\\\\``. What is left is the tail of the LAST component of an unquoted
+    path, since only a separator can prove that a space is inside the path
+    rather than after it; a quoted path is taken whole, and the title and
+    every ``repr``-ed settings value are quoted.
 
     A slash straight after ``<`` starts a closing tag, not a path. The
     report's collapsible sections end in ``</summary>`` and ``</details>``,
     and issue #121 was filed with both turned into ``<<PATH>``, so every
     section after the first one stayed open.
+
+    :param text: a report title or body, already through
+        :func:`sanitize_path`.
+    :returns: the same text with path-shaped tokens replaced by ``<PATH>``.
     """
     value = str(text or "")
-    value = re.sub(r'(?m)(\bFile\s+)["\'][^"\']+["\']', r'\1"<PATH>"', value)
-    value = re.sub(r"(?<![\w~<])(?:[A-Za-z]:[\\/]|/)[^\s'\"`]+", "<PATH>",
-                   value)
-    value = re.sub(r"(?<!\w)~[/\\][^\s'\"`]+", "<PATH>", value)
+    value = _FILE_FIELD_RE.sub(r'\1"<PATH>"', value)
+    value = _QUOTED_PATH_RE.sub(
+        lambda m: f"{m.group('q')}<PATH>{m.group('end')}", value)
+    value = _BARE_PATH_RE.sub("<PATH>", value)
     return value
 
 

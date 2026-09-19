@@ -16,6 +16,7 @@ import re
 import os
 import shutil
 import sys
+import time
 from functools import partial
 from html import escape
 from typing import Callable, Optional
@@ -102,11 +103,38 @@ def _append_example_pack_report(console, report, applied: int) -> None:
 #: per-organelle model fields generated when a run has more than one.
 _ORGANELLE_MODEL_KEY = re.compile(r"^organelle[a-z]?_model_name$")
 
-#: Fingerprints whose automatic report is being filed right now.
+#: Fingerprints whose automatic report is being filed right now, each with
+#: the monotonic clock reading it started at.
 #:
 #: Shared by every screen, because two screens can fail on the same crash
 #: before the first report has come back from GitHub.
-_REPORTS_BEING_FILED: set = set()
+#:
+#: TIMED, BECAUSE A DROPPED RESULT NEVER CLEARS ITS ENTRY. The runner hands
+#: nothing to `on_done` when `cancel()` has bumped the generation or the
+#: worker reports not-ok, which is what a closed screen does to a report in
+#: flight. A bare set kept that fingerprint for the rest of the process, and
+#: every later failure with the same traceback -- in any screen -- said "This
+#: error is being reported already" and filed nothing.
+_REPORTS_BEING_FILED: dict = {}
+
+#: How long a report is allowed to be in flight before another failure may
+#: file it again. `gh auth token` is capped at 8 s and each API call at 20 s,
+#: so a report that has not come back inside two minutes is not coming back.
+REPORT_IN_FLIGHT_SECONDS = 120.0
+
+
+def _a_report_is_in_flight(fingerprint: str) -> bool:
+    """Whether this fingerprint is being filed right now, dropping stale ones.
+
+    :param fingerprint: the traceback fingerprint to look for.
+    :returns: ``True`` only while a report started less than
+        :data:`REPORT_IN_FLIGHT_SECONDS` ago is outstanding.
+    """
+    now = time.monotonic()
+    for key, started in list(_REPORTS_BEING_FILED.items()):
+        if now - started >= REPORT_IN_FLIGHT_SECONDS:
+            _REPORTS_BEING_FILED.pop(key, None)
+    return fingerprint in _REPORTS_BEING_FILED
 
 
 #: Object name the settings column carries, and what the block below keys
@@ -6526,7 +6554,7 @@ class AppScreen(QWidget):
                 "[issue] This error was reported from this computer before, "
                 "so it was not filed again: {url}\n", url=known)
             return
-        if fingerprint in _REPORTS_BEING_FILED:
+        if _a_report_is_in_flight(fingerprint):
             self._console.append_notice(
                 "[issue] This error is being reported already.\n")
             return
@@ -6541,7 +6569,7 @@ class AppScreen(QWidget):
             keep_log = False
         settings_snapshot = self._settings_snapshot()
         app_key = self.app_key
-        _REPORTS_BEING_FILED.add(fingerprint)
+        _REPORTS_BEING_FILED[fingerprint] = time.monotonic()
 
         def _file():
             """Build, redact and post the report. Off the GUI thread."""
@@ -6561,7 +6589,7 @@ class AppScreen(QWidget):
             "spaCR GitHub repository, because issue reporting is set to "
             "'always'…\n")
         if not self._jobs.submit(_file, self._on_report_filed_automatically):
-            _REPORTS_BEING_FILED.discard(fingerprint)
+            _REPORTS_BEING_FILED.pop(fingerprint, None)
 
     def _on_report_filed_automatically(self, outcome: dict) -> None:
         """Say where the automatic report went, or why it did not. GUI thread.
@@ -6579,7 +6607,7 @@ class AppScreen(QWidget):
 
         outcome = dict(outcome or {})
         fingerprint = str(outcome.get("fingerprint", "") or "")
-        _REPORTS_BEING_FILED.discard(fingerprint)
+        _REPORTS_BEING_FILED.pop(fingerprint, None)
         status = outcome.get("status")
         url = str(outcome.get("url", "") or "")
         if status in (issue_report.FILED, issue_report.SEEN_AGAIN):

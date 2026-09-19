@@ -1702,3 +1702,17 @@ continue
 Help that will not move is a blemish, never a reason for
 
 Preferences not to open.
+
+## get_issue_prompt_mode
+
+### changed 2026-09-19, after review (whose 'ask' is it?)
+
+```python
+_KEY_ISSUE_PROMPT_CHOSEN = "ai/issue_prompt_chosen"
+```
+
+"'always' is the default for anyone who has not chosen" was true only of a profile with nothing stored, and almost no installed profile is in that state. `SetupSlides.accept()` AND `reject()` both call `setup_screen.apply(self.answers())`, and `issue_prompt` has been one of those answers since 6c57da8d6 (2026-08-21, shipped in 1.5.0.5 through 1.5.0.8). So every user who so much as opened first-run setup -- including one who dismissed it at the first slide -- has `'ask'` written into their profile by the default of the day, and reading that back as "an explicit earlier choice" left the maintainer's decision reaching new profiles only. The reporter of issue #117 was on 1.5.0.8 and would still have filed nothing after upgrading.
+
+So `set_issue_prompt_mode` now writes a marker beside the value, and a stored `'ask'` WITHOUT that marker reads as the current default. `'never'` and `'always'` are returned as they stand whether marked or not: the superseded default was `'ask'`, so neither of those was ever written on a user's behalf. Every writer -- the setup slides, the Preferences dialog, the AI Console and the installer's consent page -- goes through the setter, so from here on an 'ask' in the store is an answer somebody gave.
+
+Nothing is filed on the strength of this alone. The terms go from 4.1 to 4.2 in the same change, so the profile is asked again, `AppScreen._the_terms_allow_automatic_filing` files nothing until 4.2 is accepted, and the slide that carries the setting is on the page the user accepts them from -- showing 'always', with the switch to change it, before any run can fail.

@@ -2011,3 +2011,17 @@ worker.requestInterruption()
 ```
 
 Cellpose/PyTorch can stay in native inference for a long time, and letting QWidget destruction continue in that window is the intermittent SIGSEGV/abort — so this waits too, and for the same reason as the retrain worker it waits a bounded time and parks what will not stop. A page that is still decoding must not be able to hold the window open forever.
+
+## AnnotateScreen._on_file_issue
+
+### fixed 2026-09-19, after review (the button had never filed anything)
+
+```python
+file_issue(self, {"screen": "annotate"}, body)
+```
+
+`file_issue(traceback_text, active_app, settings)` -- so that call passed the screen as the traceback, a dict as the app id and the console text as the settings, and the first thing the reporter did was `sanitize_path(<AnnotateScreen>)`. The user got `Could not file the issue: 'AnnotateScreen' object has no attribute 'replace'`. The `except TypeError` wrapped around it was guarding against a signature mismatch Python never raises here: every argument was positional and the arity was right.
+
+It survived because the button is hidden behind `get_auto_file_issues()`, which shipped OFF. That default is now ON, so this button is part of the default experience, and `tests/qt/test_annotate_console_can_be_copied_and_reported.py` presses it.
+
+It now builds the report from the console text with `active_app="annotate"`, shows the same `IssuePreviewDialog` the module screens show -- the button's own tooltip promises "You review it before submitting", and a press is already the affirmative act that 'always' exists to avoid asking for -- and posts from its own `JobRunner`. Not from `_total_jobs`: that one is cancelled whenever a count is restarted, and a cancelled generation is a result the runner drops. Posting stays off the GUI thread for the reason the module screens measured: up to 28 s of frozen window between `gh auth token` and `api.github.com`.

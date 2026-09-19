@@ -3496,12 +3496,34 @@ ISSUE_PROMPT_MODES = (ISSUE_PROMPT_ASK, ISSUE_PROMPT_NEVER,
                       ISSUE_PROMPT_ALWAYS)
 _KEY_ISSUE_PROMPT = "ai/issue_prompt"
 
+#: Written beside the mode by :func:`set_issue_prompt_mode`, so a value
+#: stored by a build that knew the three modes apart can be told from one an
+#: older build wrote on the user's behalf.
+#:
+#: IT IS NOT DECORATION, AND WITHOUT IT THE DECISION BELOW REACHED ALMOST
+#: NOBODY. `SetupSlides.accept()` and `reject()` both call
+#: `setup_screen.apply(self.answers())`, and `issue_prompt` has been one of
+#: those answers since 6c57da8d6 (2026-08-21, shipped in 1.5.0.5). So every
+#: profile that ever opened first-run setup — including one dismissed at the
+#: first slide — has `'ask'` written into it, chosen by the default of the
+#: day rather than by the user. Read as "an explicit earlier choice", the
+#: new default would have applied to brand-new profiles only, and the
+#: reporter of issue #117 would still have been on 'ask' after upgrading.
+_KEY_ISSUE_PROMPT_CHOSEN = "ai/issue_prompt_chosen"
+
+#: The default before 2026-09-19, and so the value an unmarked profile
+#: holds when nobody chose it. 'never' and 'always' are never written by
+#: accident: both took an answer, so both are kept as they stand.
+_SUPERSEDED_ISSUE_PROMPT_MODE = ISSUE_PROMPT_ASK
+
 #: The mode of a profile that has never chosen one.
 #:
 #: The maintainer's decision of 2026-09-19: "Do real auto-filing, and make
 #: this the default, and add the user agreeing to this in the user
 #: agreement, if set to always." The agreement is Section 5.6 of
-#: :data:`spacr.qt.terms.TERMS`. A stored choice is kept.
+#: :data:`spacr.qt.terms.TERMS`, which every profile is asked to accept
+#: again (4.1 -> 4.2) and which nothing is filed without. A stored choice is
+#: kept.
 DEFAULT_ISSUE_PROMPT_MODE = ISSUE_PROMPT_ALWAYS
 
 
@@ -3548,20 +3570,35 @@ def get_issue_prompt_mode() -> str:
 
     :returns: one of :data:`ISSUE_PROMPT_MODES`.
         :data:`DEFAULT_ISSUE_PROMPT_MODE` (``'always'``) when nothing is
-        stored. A stored choice is returned as it is. A stored value that is
-        not recognised reads as ``'ask'``: it was somebody's choice, even if
-        this build cannot read it, so it must neither silence the reporter
-        nor start publishing without a preview.
+        stored, and also when the only thing stored is the superseded
+        default ``'ask'`` written by a build that did not mark what the user
+        had chosen (:data:`_KEY_ISSUE_PROMPT_CHOSEN`). A choice this build or
+        a later one wrote is returned as it stands, 'ask' included. A stored
+        value that is not recognised reads as ``'ask'``: it was somebody's
+        choice, even if this build cannot read it, so it must neither
+        silence the reporter nor start publishing without a preview.
     """
     store = _settings()
     if not store.contains(_KEY_ISSUE_PROMPT):
         return DEFAULT_ISSUE_PROMPT_MODE
     value = str(store.value(_KEY_ISSUE_PROMPT, ISSUE_PROMPT_ASK) or "")
-    return value if value in ISSUE_PROMPT_MODES else ISSUE_PROMPT_ASK
+    if value not in ISSUE_PROMPT_MODES:
+        return ISSUE_PROMPT_ASK
+    if (value == _SUPERSEDED_ISSUE_PROMPT_MODE
+            and not store.contains(_KEY_ISSUE_PROMPT_CHOSEN)):
+        return DEFAULT_ISSUE_PROMPT_MODE
+    return value
 
 
 def set_issue_prompt_mode(mode: str) -> None:
-    """Persist the auto-issue behaviour.
+    """Persist the auto-issue behaviour, and that it was chosen.
+
+    The marker is what makes a later 'ask' stick: from here on, 'ask' in the
+    store is an answer somebody gave, not the default of the day written
+    into every profile that opened first-run setup. Every writer goes
+    through this function — the setup slides, the Preferences dialog, the
+    AI Console and the installer's consent page — so all four count as
+    choosing.
 
     :param mode: one of :data:`ISSUE_PROMPT_MODES`.
     :raises ValueError: for anything else. Silently storing an unknown mode
@@ -3572,7 +3609,9 @@ def set_issue_prompt_mode(mode: str) -> None:
         raise ValueError(
             f"issue prompt mode {mode!r} is not one of "
             f"{list(ISSUE_PROMPT_MODES)}.")
-    _settings().setValue(_KEY_ISSUE_PROMPT, mode)
+    store = _settings()
+    store.setValue(_KEY_ISSUE_PROMPT, mode)
+    store.setValue(_KEY_ISSUE_PROMPT_CHOSEN, True)
 
 
 
