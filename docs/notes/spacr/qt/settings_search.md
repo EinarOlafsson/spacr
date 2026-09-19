@@ -199,3 +199,17 @@ try:
 ```
 
 AT IMPORT TIME, so the failure is not a missing background it is the module not importing, which takes down whatever imports it. Driven in tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py.
+
+## SettingsSearchBar._grid_section
+
+### added 2026-09-19 (431)
+
+```python
+shown_per_section[id(grid_section)] = len(in_the_grid)
+```
+
+With the per-object table on, the flat rows it answers for -- every object's channel among them -- are hidden, and the table's section has no form rows for this strip to count. Under Essentials every section with nothing counted is hidden, so the table went too: measured on a built Mask screen with the preference on, no channel could be set anywhere on the form. The section is now counted by the keys the table answers for, filtered exactly as rows are (query, Modified, level) and less the keys whose object the run lacks.
+
+The table can be mounted or taken down by Preferences after this strip was built, so the section is looked up on every `apply()` and the strip's list of sections is kept in step: a section taken down is dropped before it can be touched, which matters because it is deleted with `deleteLater()` and would raise on the next `setVisible`.
+
+Seen and not changed, measured 2026-09-19 on a built Mask screen under All settings: a section with no rows of its own and only sub-headings counts zero, so any narrowing hides it with everything under it. Searching "remove border objects" reports one match, `cell_remove_border_objects`, whose row is visible on its form -- while "Object Filtration (all objects)" and the "Advanced settings" umbrella above it are both hidden, so nothing is on screen. A count rolled up from each sub-heading to the headings above it would fix it; it is recorded in 431 rather than fixed there, because it is the search's own defect and not the channels'.

@@ -1547,6 +1547,11 @@ _APP_ESSENTIAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
     "external_masks": ("channels", "experiment"),
 }
 
+_APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT: Dict[str, Tuple[str, ...]] = {
+    "mask": ("@Cell Segmentation", "@Nucleus Segmentation",
+             "@Pathogen Segmentation", "@Organelle Segmentation"),
+}
+
 
 def _expand_layout_tokens(
     source: Dict[str, List[str]],
@@ -7341,6 +7346,8 @@ class SettingsWidgets:
         #: is on the form; only the screen can BUILD one. Left ``None`` on a
         #: model built for its values rather than for a screen.
         self.rows_are_laid_out_by = None
+        self.rows_are_filtered_by = None
+        self._hidden_by_their_object: set = set()
         self._tooltips = get_tooltips()
         self._data_context: Dict[str, Any] = {'plate_count': None}
         self._tooltips.update(_APP_TOOLTIP_OVERRIDES.get(app_key, {}))
@@ -7697,9 +7704,69 @@ class SettingsWidgets:
         Filtered to keys that actually produced a widget, so a key named in
         a layout but skipped by ``convert_settings_dict_for_gui`` cannot make
         the disclosure control promise a row that is not there.
+
+        On Mask, each object's segmentation settings are added for every
+        object whose channel names a plane, so setting a pathogen channel
+        brings the Pathogen Segmentation rows into Essentials as well as into
+        All settings. See :meth:`_essentials_that_follow_their_object`.
         """
-        return [key for key in essential_keys(self.app_key)
+        keys = [key for key in essential_keys(self.app_key)
                 if key in self._widgets]
+        keys.extend(self._essentials_that_follow_their_object())
+        return list(dict.fromkeys(keys))
+
+    def _essentials_that_follow_their_object(self) -> List[str]:
+        """The segmentation settings of every object this run segments.
+
+        Read from ``_APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT``: for Mask the
+        four ``<Object> Segmentation`` categories. A key joins when its
+        object's channel names a plane, read from the widgets now rather
+        than at build, so a channel typed after the form opened counts. A key
+        the object rule cannot place, such as ``adjust_cells``, goes with the
+        rest of its category. Slots beyond ``number_of_organelles`` and rows
+        a morphology excludes stay hidden anyway, because the settings search
+        takes :meth:`keys_hidden_by_the_run` out before it applies Essentials.
+
+        :returns: keys in layout order; empty for a module with no such
+            categories.
+        """
+        groups = getattr(self, "_essential_object_groups", None)
+        if groups is None:
+            groups = []
+            tokens = _APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT.get(
+                str(self.app_key or ""), ())
+            if tokens:
+                cats = categories_for_app(self.app_key, get_categories())
+                for token in tokens:
+                    keys = [key for key in _expand_layout_tokens(cats, (token,))
+                            if key in self._widgets]
+                    if keys:
+                        groups.append(tuple(keys))
+            self._essential_object_groups = groups
+        if not groups:
+            return []
+        current = self._object_visibility_settings()
+        switches: Dict[str, Tuple[str, ...]] = {}
+        joined: List[str] = []
+        for keys in groups:
+            placed: List[str] = []
+            unplaced: List[str] = []
+            for key in keys:
+                role = object_of_setting(key)
+                if role is None:
+                    unplaced.append(key)
+                    continue
+                if role not in switches:
+                    switches[role] = tuple(
+                        k for k in object_switch_keys(role)
+                        if k in self._widgets)
+                named = switches[role]
+                if not named or any(_names_a_plane(current.get(k))
+                                    for k in named):
+                    placed.append(key)
+            if placed:
+                joined.extend(placed + unplaced)
+        return joined
 
     def _label_for(self, key: str) -> str:
         """Return the caption a setting is shown under on this screen.
@@ -8714,13 +8781,20 @@ class SettingsWidgets:
         Public because the screen has to be able to ask for it: it is the
         screen that lays the rows out, and the screen that hands row
         visibility back after a filter.
+
+        The pass ends by calling ``rows_are_filtered_by`` when the screen has
+        set it. This pass shows every row its objects allow, so the settings
+        search, which also decides rows, has to be applied after it; without
+        that, a channel committed in Essentials put non-essential rows back on
+        the form and left a newly relevant heading off it.
         """
         if getattr(self, "_applying_settings", False):
             return
         try:
             current = self._object_visibility_settings()
-            hidden = keys_hidden_by_their_object(self._widgets, current)
-            hidden = set(hidden) | set(
+            lacking = set(keys_hidden_by_their_object(self._widgets, current))
+            self._hidden_by_their_object = set(lacking)
+            hidden = lacking | set(
                 getattr(self, "_hidden_by_the_grid", ()) or ())
             self._hidden_by_the_run = set(hidden)
             lay_out = getattr(self, "rows_are_laid_out_by", None)
@@ -8737,6 +8811,14 @@ class SettingsWidgets:
         except Exception:                                    # noqa: BLE001
             LOGGER.debug("could not decide which objects are in the run",
                          exc_info=True)
+            return
+        refilter = getattr(self, "rows_are_filtered_by", None)
+        if refilter is not None:
+            try:
+                refilter()
+            except Exception:                                # noqa: BLE001
+                LOGGER.debug("could not re-apply the settings filter",
+                             exc_info=True)
 
     def keys_hidden_by_the_run(self) -> List[str]:
         """Return settings hidden by the latest object-visibility pass.
@@ -8819,6 +8901,11 @@ class SettingsWidgets:
 
         :param settings: the values the object rule just read, so the count
             is not walked out of the panel a second time on every keystroke.
+
+        A heading whose rows all belong to a nucleus or a pathogen whose
+        channel names no plane is hidden the same way. Without that, clearing
+        the pathogen channel left "Pathogen Segmentation" on the form as a
+        heading over no rows. Cell is never gated, so its headings stay.
         """
         from ..preferences import maturity_is_visible
         from ...organelle_types import active_organelle_roles
@@ -8828,11 +8915,24 @@ class SettingsWidgets:
             return
         active = set(active_organelle_roles(settings))
         emptied = self._headings_of_absent_slots
+        switched_off: Dict[str, bool] = {}
+
+        def absent(role) -> bool:
+            """Whether the run has no ``role`` at all."""
+            if role is None or role == "cell":
+                return False
+            if role not in CHANNELLED_OBJECTS:
+                return role not in active
+            if role not in switched_off:
+                switches = [key for key in object_switch_keys(role)
+                            if key in self._widgets]
+                switched_off[role] = bool(switches) and not any(
+                    _names_a_plane(settings.get(key)) for key in switches)
+            return switched_off[role]
+
         for ident, (section, keys) in headings.items():
             roles = {object_of_setting(key) for key in keys}
-            gone = bool(roles) and all(
-                role is not None and role not in CHANNELLED_OBJECTS
-                and role not in active for role in roles)
+            gone = bool(roles) and all(absent(role) for role in roles)
             try:
                 if gone:
                     if not section.isHidden():

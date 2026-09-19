@@ -4087,3 +4087,24 @@ if _nvidia_smi_available():
 ```
 
 GPUtil shells out to nvidia-smi.  Calling it when the executable does not exist is both pointless and, after hundreds of short-lived worker threads in a Qt process, has crashed in CPython's subprocess boundary (CI run 31869225004).  The cheap executable check keeps CPU-only hosts entirely outside that native boundary.  A real NVIDIA host still uses GPUtil's established parsing and reports the same values as before.
+
+## AppScreen._refilter_the_settings_search
+
+### added 2026-09-19 (431)
+
+```python
+self._settings_model.rows_are_filtered_by = \
+```
+
+The object rule and the settings search both decide rows, and the search has to have the last word: it is the narrower of the two. See the note on `SettingsWidgets.refresh_object_visibility`. Re-entry is refused because applying the search can lay out a waiting row, and laying one out runs the object rule, which would call this again.
+
+## AppScreen._watch_the_settings_that_decide_the_form
+
+### added 2026-09-19 (431)
+
+```python
+for key in object_switch_keys("cell"):
+```
+
+`cell_channel` is not a form-shaping key -- cell rows are never hidden -- so nothing watched it, and typing a cell channel under Essentials changed nothing on the form. It is watched now with the same in-place pass as the other object channels, and kept out of `_object_switches_on_this_form`, which `tests/qt/test_a_channel_number_reveals_rather_than_reloads.py` holds to be a subset of the shaping keys.
+

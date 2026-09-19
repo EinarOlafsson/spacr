@@ -2000,6 +2000,8 @@ class AppScreen(QWidget):
         self._captioned_late = set()
         self._settings_model.rows_are_laid_out_by = \
             self._lay_out_the_rows_that_are_back
+        self._settings_model.rows_are_filtered_by = \
+            self._refilter_the_settings_search
         try:
             sections = self._settings_model.build_sections()
         except Exception as e:
@@ -2513,12 +2515,22 @@ class AppScreen(QWidget):
         a combo, where every change is already a decision. A field that has
         both fires once, because `_rebuild_the_form` compares the shape it
         would build against the one on screen and returns when they agree.
+
+        The cell's channel is followed too, although it shapes nothing: cell
+        rows are never hidden, but a cell channel brings Cell Segmentation
+        into the Essentials view, so its commit runs the same in-place pass
+        as the other object channels.
         """
         model = getattr(self, "_settings_model", None)
         if model is None:
             return
         switches = set(self._object_switches_on_this_form())
-        for key in self._form_shaping_keys():
+        watched = dict.fromkeys(self._form_shaping_keys())
+        for key in object_switch_keys("cell"):
+            if key in (getattr(model, "_widgets", {}) or {}):
+                watched[key] = None
+                switches.add(key)
+        for key in watched:
             widget = getattr(model, "_widgets", {}).get(key)
             if widget is None:
                 continue
@@ -2749,6 +2761,39 @@ class AppScreen(QWidget):
                           exc_info=True)
         self._run_has_no_object_for = answer
         return answer
+
+    def _refilter_the_settings_search(self) -> None:
+        """Apply the settings search again after the object rule has run.
+
+        The object rule shows every row its objects allow, and the search
+        strip's Essentials level, query and Modified filter then narrow that.
+        Run in the other order, a channel committed under Essentials put
+        rows the level excludes back on the form and left the new object's
+        segmentation heading off it. Re-entry is refused: applying the
+        filter can lay out a waiting row, and laying one out runs the object
+        rule again.
+        """
+        bar = getattr(self, "_settings_search", None)
+        if bar is None or getattr(self, "_refiltering_settings", False):
+            return
+        self._refiltering_settings = True
+        try:
+            bar.apply()
+        except RuntimeError:
+            LOG.debug("the settings search is gone", exc_info=True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-apply the settings search", exc_info=True)
+        finally:
+            self._refiltering_settings = False
+
+    def _headings_the_run_lacks(self) -> set:
+        """``id()`` of each heading the object rule is holding off the form.
+
+        :returns: the headings whose every row belongs to an object or an
+            organelle slot the run does not have, as the model last decided.
+        """
+        model = getattr(self, "_settings_model", None)
+        return set(getattr(model, "_headings_of_absent_slots", None) or ())
 
     def _lay_out_the_rows_that_are_back(self, hidden) -> None:
         """Caption every waiting row the object rule no longer hides.
@@ -4250,7 +4295,9 @@ class AppScreen(QWidget):
         either -- and two functions each calling ``setVisible`` on the same
         card is how a card comes back the next time Preferences is saved.
         So the dimension switches are answered here as well, and the settings
-        search hands visibility back to this method for the same reason.
+        search hands visibility back to this method for the same reason. A
+        heading the object rule holds back, because the run has none of its
+        objects, stays hidden here too.
 
         The notice below still speaks only for maturity: a category the 3D
         switch is holding back is not "hidden by Preferences", and saying so
@@ -4259,7 +4306,8 @@ class AppScreen(QWidget):
         from ..preferences import maturity_is_visible
 
         hidden_stages = set()
-        gated = self._dimension_hidden_sections()
+        gated = (self._dimension_hidden_sections()
+                 | self._headings_the_run_lacks())
         for section in self.rendered_settings_sections():
             visible = maturity_is_visible(section.maturity())
             section.setVisible(visible and id(section) not in gated)

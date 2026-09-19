@@ -196,6 +196,7 @@ class SettingsSearchBar(QWidget):
             getattr(screen, "_settings_sections", []) or [])
         self._restore_expanded: Optional[Dict[int, bool]] = None
         self._level = disclosure_for(self._app_key)
+        self._grid_section_counted: Optional[QWidget] = None
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, 4)
@@ -316,7 +317,14 @@ class SettingsSearchBar(QWidget):
 
         Called on every change to the query, the Modified filter or the
         disclosure level — one path, so the three can never disagree about
-        what should be on screen.
+        what should be on screen. The screen also calls it after each pass of
+        the object rule, so a channel the user commits is judged by the same
+        filter as every other row.
+
+        The per-object table has no form rows of its own to count. Its
+        section is counted by the settings it answers for instead, so under
+        Essentials the table stays on screen while it holds the channels,
+        which the flat form no longer shows while the table is on.
         """
         model = self._model
         if model is None or not self._index:
@@ -324,37 +332,56 @@ class SettingsSearchBar(QWidget):
             return
 
         total = len(self._index)
-        wanted = set(self._index)
-
+        hidden: set = set()
         hidden_by_run = getattr(model, "keys_hidden_by_the_run", None)
         if callable(hidden_by_run):
             try:
-                wanted -= set(hidden_by_run())
+                hidden = set(hidden_by_run())
             except Exception:                                # noqa: BLE001
-                pass
+                hidden = set()
+        by_grid = set(getattr(model, "_hidden_by_the_grid", ()) or ())
+        lacking = getattr(model, "_hidden_by_their_object", None)
+        lacking = set(lacking) if lacking is not None else hidden - by_grid
+        grid_section, grid_keys = self._grid_section()
 
         query = self._input.text().strip()
+        matching: Optional[set] = None
         if query:
             try:
-                wanted &= set(model.keys_matching(query))
+                matching = set(model.keys_matching(query))
             except Exception:
                 LOG.debug("settings search failed for %r", query, exc_info=True)
 
+        modified: Optional[set] = None
         if self._modified.isChecked():
             try:
-                wanted &= set(model.modified_keys())
+                modified = set(model.modified_keys())
             except Exception:
                 LOG.debug("modified-only filter failed", exc_info=True)
 
         essentials: List[str] = []
+        essential_set: set = set()
         if self._level == ESSENTIALS:
             try:
-                essentials = [k for k in model.essential_keys()
-                              if k in self._index]
+                essential_set = set(model.essential_keys())
             except Exception:
                 LOG.debug("essential keys unavailable", exc_info=True)
+            essentials = [k for k in self._index if k in essential_set]
+
+        def narrowed(keys: set) -> set:
+            """``keys`` less whatever the query, Modified and level exclude."""
+            out = set(keys)
+            if matching is not None:
+                out &= matching
+            if modified is not None:
+                out &= modified
             if essentials:
-                wanted &= set(essentials)
+                out &= essential_set
+            return out
+
+        wanted = narrowed(set(self._index) - hidden)
+        in_the_grid = (narrowed(set(grid_keys) - lacking)
+                       if grid_section is not None else set())
 
         for key, (section, field) in self._index.items():
             _set_row_visible(section, field, key in wanted)
@@ -364,12 +391,49 @@ class SettingsSearchBar(QWidget):
             if key in wanted:
                 shown_per_section[id(section)] = (
                     shown_per_section.get(id(section), 0) + 1)
+        if grid_section is not None:
+            shown_per_section[id(grid_section)] = len(in_the_grid)
 
         narrowing = bool(query) or self._modified.isChecked() \
             or (self._level == ESSENTIALS and bool(essentials))
         self._apply_section_state(shown_per_section, narrowing)
         self._count.setText(
             self._compose_count(len(wanted), total, len(essentials)))
+
+    def _grid_section(self) -> Tuple[Optional[QWidget], frozenset]:
+        """The per-object table's section and the settings it answers for.
+
+        The table can be mounted or taken down by Preferences after this
+        strip was built, so the section is looked up on every call and the
+        list of sections this strip decides is kept in step with it: a
+        section that was taken down is dropped before it can be touched.
+
+        :returns: ``(section, keys)``, or ``(None, frozenset())`` when the
+            screen shows no table.
+        """
+        screen = self._screen
+        grid = getattr(screen, "_object_grid", None)
+        binding = getattr(screen, "_object_grid_binding", None)
+        section: Optional[QWidget] = None
+        keys: frozenset = frozenset()
+        if grid is not None and binding is not None:
+            try:
+                node = grid.parentWidget()
+                while node is not None and not hasattr(node, "add_prose_row"):
+                    node = node.parentWidget()
+                section = node
+                keys = (frozenset(binding.owned_keys()) if node is not None
+                        else frozenset())
+            except RuntimeError:
+                section, keys = None, frozenset()
+        previous = self._grid_section_counted
+        if previous is not section:
+            self._sections = [s for s in self._sections if s is not previous]
+            if section is not None and not any(
+                    s is section for s in self._sections):
+                self._sections.append(section)
+            self._grid_section_counted = section
+        return section, keys
 
     def _on_query_changed(self, _text: str) -> None:
         """Re-apply the filter after the search text changed.

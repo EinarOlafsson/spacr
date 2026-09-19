@@ -2936,3 +2936,35 @@ field.setProperty("apiTooltipDisplayRole", "metadata")
 AND THE FIELD HAS TO BE MARKED QUIET, or the move is undone the next time anything refreshes.
 
 This is what made every previous attempt at this look fixed and then not be: the language pass runs on arrival -- a queued call, so it lands AFTER the panel is built -- walks every widget with a `settingKey`, and re-applies the html to whatever it finds. A field with no display role defaults to "tooltip" and was tipped straight back. "metadata" is the existing word for "this widget keeps the metadata but says nothing on hover", and `refresh_api_tooltips` already honours it.
+
+## SettingsWidgets._essentials_that_follow_their_object
+
+### added 2026-09-19 (431)
+
+```python
+_APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT: Dict[str, Tuple[str, ...]] = {
+```
+
+GitHub issue #120 (jak18015, 1.5.0.8, macOS): "when defining a channel number for pathogen, no pathogen segmentation list appears in the settings." Measured on nightly 5b9207b21 and on v1.5.0.8 alike by typing a pathogen channel on a built Mask screen and pressing Enter: under "All settings" Pathogen Segmentation appeared; under "Essentials", which is the level every module opens at until its user changes it, it never did. Essentials for Mask was the inputs and the workflow switches, a fixed list, so no object's segmentation was in it at all.
+
+Now each of the four `<Object> Segmentation` categories joins Essentials for every object whose channel names a plane -- read from the widgets on each call, so a channel typed after the form opened counts. Cell included: its rows are never hidden by the object rule, but a cell channel is still the user saying "segment cells". The module-level `essential_keys()`, which the walkthrough counts as "the settings this module cannot run without", is unchanged; only the screen's model method adds these. Cost on Mask: 0.4 ms per call, against 7 ms for the static part it sits beside.
+
+## SettingsWidgets.refresh_object_visibility
+
+### added 2026-09-19 (431)
+
+```python
+refilter = getattr(self, "rows_are_filtered_by", None)
+```
+
+This pass shows every row its objects allow, and it ran AFTER the settings search had applied Essentials, so on Mask the first pass after a build put `resume` and `dry_run` back on the Essentials form and a committed channel could show rows the level excludes. The screen now hands in `AppScreen._refilter_the_settings_search`, called at the end of each successful pass. `_hidden_by_their_object` is kept apart from the per-object table's keys so the search strip can tell "this run has no pathogen" from "the table shows this".
+
+## SettingsWidgets._hide_the_headings_of_slots_the_run_lacks
+
+### added 2026-09-19 (431)
+
+```python
+def absent(role) -> bool:
+```
+
+Extended from organelle slots to nucleus and pathogen. Clearing a pathogen channel hid its rows and left "Pathogen Segmentation" on the form as a heading over nothing, at either level. The heading is hidden and recorded exactly as a slot heading is, and `AppScreen.refresh_maturity_visibility` now leaves a recorded heading hidden -- before, it re-showed any rendered heading whose maturity was visible, and the next object pass hid it again.
