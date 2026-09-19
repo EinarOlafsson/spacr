@@ -2,25 +2,19 @@
 THE XFAIL BACKLOG IS FIFTEEN UNFIXED BUGS THE LEDGER CANNOT SEE
 ================================================================================
 
-Status:    filed 2026-08-15. THE ORIGINAL FIFTEEN ARE ALL FIXED (RESULT
-           2026-08-16). THE HEADER THAT USED TO STAND HERE -- "eleven of
-           fifteen fixed ... four remain: B4, C2, C3, D2" -- WAS ALREADY WRONG
-           WHEN IT WAS WRITTEN, and so is the WHAT IS LEFT section it points
-           at: B4, C2 and D2 were fixed, and only C3 is correctly described
-           there. Read RESULT 2026-08-16 before either of them.
-
-           A SECOND backlog of nine grew afterwards; RE-AUDIT 2026-08-25
-           records it. 2026-09-14: FOUR OF THOSE NINE ARE NOW FIXED AND THEIR
-           MARKERS DELETED -- remote_execution, validate, hit_attribution and
-           qt/widgets/sweep_runs. The other FIVE of the nine were fixed
-           elsewhere between 2026-08-25 and today. See 2026-09-14 at the
-           end for what survives, and for the two markers the re-audit never
-           counted.
-
-           2026-09-15: ONE MARKER LEFT, NOT TWO. The cellpose marker at
-           tests/test_analysis_submodules_real_data.py:153 was STALE. It
-           recorded spaCR's own hard-coded bsize=224, which dc9b68e8a fixed,
-           and it has been retired. See 2026-09-15 at the end.
+Status:    DONE 2026-09-19. NO XFAIL MARKER IS LEFT UNDER tests/. The
+           original fifteen were fixed by 2026-08-16 (RESULT 2026-08-16). The
+           second backlog of nine (RE-AUDIT 2026-08-25) was closed by
+           2026-09-14. Of the two markers that re-audit never counted, the
+           cellpose one was stale and was retired on 2026-09-15. The last,
+           `_find_console` in spacr/qt/dnd.py, was fixed on 2026-09-19: it now
+           asks the most recently visited screen first, and its strict xfail
+           in tests/test_cov_w3_8_dnd.py is deleted. See 2026-09-19 at the
+           end. Left open on purpose, and not an xfail: the last-resort
+           branch in align.py's `_parse_name`. Removing it is unsafe (see
+           2026-09-19). The three bare `APP_ALIASES.get` call sites named in
+           the 2026-09-14 review have since been fixed elsewhere, through
+           `validate.canonical_app_key`.
 
            Found while running the CI fast leg locally to pre-verify
            instruction 82.
@@ -726,3 +720,56 @@ test_cov_submodules_cellpose_train_test.py asserts bsize == 256 against a CPU
 fake. Its module docstring still says one xfail is "still outstanding" in
 spacr.settings, but no such marker exists. test_cov_object_masks_sam.py only
 mentions xfails that were already retired.
+
+--------------------------------------------------------------------------------
+2026-09-19 — THE LAST MARKER IS GONE: `_find_console` NOW ASKS THE MOST
+             RECENTLY VISITED SCREEN FIRST. ZERO XFAILS UNDER tests/.
+--------------------------------------------------------------------------------
+
+THE DEFECT, AS A USER MEETS IT. Measured by driving the real `MainWindow`
+offscreen. The user opens Mask, then Measure, goes back to Mask, then opens
+Align. Align has no console of its own. `_visit_order` is then
+['measure', 'mask', 'align'] and `_screens` is registered as
+['mask', 'measure', 'align']. `_find_console(align)` at HEAD returned
+MEASURE'S console, because it walked
+`reversed(visit_order + list(screens))`, and the reversed registration
+order came first. With the fix, it returns MASK's. `_report_drop_problem` on
+the Align screen then puts its one "[drop rejected]" line into Mask's console
+and nowhere else. The probe asked both versions on the same window. Its
+HEAD half is HEAD's own `_find_console`, exec'd from `git show`.
+
+THE FIX (spacr/qt/dnd.py `_find_console`). The window's `_visit_order` is
+read newest first, then the screens never visited, newest registration
+first, which is the order the old code used for all of them. A key that
+appears in both lists is tried once. The screen's own console and the
+window's console still come first, and the `ConsolePanel` search is still
+the last resort. The docstring now states that order. docs/notes/spacr/qt/dnd.md
+already said "Prefer the most recently visited screen". The code now does
+what that note says.
+
+TESTS. The strict xfail on
+test_the_most_recently_visited_screen_lends_its_console is deleted, so the
+test now runs as an ordinary test. test_a_visited_screen_beats_one_the_user_never_opened
+is added beside it. It covers the case the first test cannot: a screen
+registered later with a console of its own, which the user never opened.
+Against HEAD's dnd.py both fail and the other 22 pass. With the fix, all 24
+pass. Also green: tests/qt/test_dnd_dropzone.py,
+tests/qt/test_dnd_uncovered_paths.py and tests/qt/test_layout_drops.py, with
+181 passed and 2 skipped (both "nothing to chain from this project").
+
+`grep -rnE "mark\.xfail|pytest\.xfail\(" tests/` now finds only prose: the
+hygiene test's `_SKIP_CALLS` and comments recording retired markers. One of
+those comments is stale in the way this file describes.
+tests/test_cellpose_api_contract.py:18 still says "The ``xfail(strict=True)``
+block at the bottom pins the call sites", but no such block is left. It was
+not edited here.
+
+NOT DONE, ON PURPOSE: the last-resort branch in align.py's `_parse_name`
+(spacr/align.py:957-966). The 2026-08-16 note says B1 and B2 no longer reach
+it, and that is still true. But removing it is not the safe change that step 3
+imagined. The branch is also how align reads generic stage-scan names, and
+tests/test_align_cov.py pins two of them: `some_image_ch2_12` and
+`scan.channel_3.0042`. Both parse only through that branch. Refusing
+"unparseable" names would refuse those folders. Narrowing it, for example by
+refusing a name that holds a well-shaped token no pattern consumed, is a
+design decision, and it belongs to whoever next changes align's naming.

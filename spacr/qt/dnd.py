@@ -662,7 +662,18 @@ def _unclassified(paths: Sequence[Path]) -> List[dict]:
 
 
 def _find_console(screen):
-    """Return the nearest spaCR console, including the host app's console."""
+    """Return the nearest spaCR console, including the host app's console.
+
+    The screen's own console comes first, then its window's. After that the
+    window's registered screens are tried, the most recently visited first
+    (the window's ``_visit_order``, newest last) and then the ones never
+    visited, newest registration first. A tool with no console of its own
+    therefore reports into the screen the user came from. The last resort is
+    any :class:`~spacr.qt.widgets.console_panel.ConsolePanel` in the window.
+
+    :param screen: the widget a drop landed on.
+    :returns: a console object, or ``None`` when the window has none.
+    """
     console = getattr(screen, "_console", None)
     if console is not None:
         return console
@@ -675,7 +686,9 @@ def _find_console(screen):
         return console
     screens = getattr(window, "_screens", {}) or {}
     visit_order = list(getattr(window, "_visit_order", []) or [])
-    for key in reversed(visit_order + list(screens)):
+    never_visited = [key for key in reversed(list(screens))
+                     if key not in visit_order]
+    for key in list(reversed(visit_order)) + never_visited:
         candidate = screens.get(key)
         console = getattr(candidate, "_console", None)
         if console is not None:

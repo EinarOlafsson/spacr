@@ -140,10 +140,6 @@ def test_a_registered_screens_console_is_borrowed_by_a_tool(qtbot):
     assert dnd._find_console(QWidget(window)) is has_console._console
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "_find_console searches reversed(visit_order + list(screens)), so the "
-    "reversed _screens keys come first and the most recently visited screen "
-    "is only consulted after every registered screen"))
 def test_the_most_recently_visited_screen_lends_its_console(qtbot):
     """Whose console a rejected drop lands in must follow where the user was.
 
@@ -161,6 +157,27 @@ def test_the_most_recently_visited_screen_lends_its_console(qtbot):
     assert dnd._find_console(tool) is second._console
     window._visit_order = ["second", "first"]
     assert dnd._find_console(tool) is first._console
+
+
+def test_a_visited_screen_beats_one_the_user_never_opened(qtbot):
+    """A screen registered later but never visited must not win.
+
+    This is the order the real window produces: Mask, then Measure, then
+    back to Mask, then a tool with no console. The report belongs in Mask,
+    not in whichever console was registered last.
+    """
+    window = QWidget()
+    qtbot.addWidget(window)
+    visited, unvisited = QWidget(window), QWidget(window)
+    visited._console, unvisited._console = _Console(), _Console()
+    tool = QWidget(window)
+    window._screens = {"visited": visited, "unvisited": unvisited,
+                       "tool": tool}
+    window._visit_order = ["visited", "tool"]
+    assert dnd._find_console(tool) is visited._console
+
+    window._visit_order = []
+    assert dnd._find_console(tool) is unvisited._console
 
 
 def test_a_console_panel_in_the_window_is_found_by_type(qtbot):
