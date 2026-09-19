@@ -438,7 +438,7 @@ Sonstige Mittel
 Sprache und Übersetzung
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Die Oberfläche unterstützt zehn Sprachen in der Navigation und den Einstellungen. AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe werden ebenfalls übersetzt. Ändern Sie die Sprache unter **spaCR → Einstellungen → Sprache**, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die `Richtlinie zur Kontexthilfe <docs/source/localization.rst#contextual-help>`_.
+Die Oberfläche unterstützt zehn Sprachen in der Navigation und den Einstellungen. AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe werden ebenfalls übersetzt. Ändern Sie die Sprache unter **spaCR → Einstellungen → Sprache**, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die `Richtlinie zur Kontexthilfe <../../source/localization.rst#contextual-help>`_.
 
 Die neun nicht-englischen Kataloge werden von einem Muttersprachler jeder Sprache maschinengefertigt und technisch überarbeitet, anstatt zu Ende zu lesen. Die `Überprüfungsspielraum <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ zeichnet auf, welche Sprachen einen menschlichen Pass hatten, wie viel von dem Corpus, der umfasst, und jeder Begriff, der auf Englisch durch Entscheidung übrig bleibt.
 
@@ -637,4 +637,4 @@ Olafsson EB, *et al.* Ein gepoolter Bild-basierter CRISPR Screening identifizier
 Danksagung
 ~~~~~~~~~~~~~~~
 
-spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt. Die für die mehrsprachige Dokumentation und die Oberflächenkataloge verwendeten Modelle sind in der `Attribution der Übersetzungsmodelle <docs/i18n/TRANSLATION_MODELS.md>`_ aufgeführt.
+spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt. Die für die mehrsprachige Dokumentation und die Oberflächenkataloge verwendeten Modelle sind in der `Attribution der Übersetzungsmodelle <../TRANSLATION_MODELS.md>`_ aufgeführt.

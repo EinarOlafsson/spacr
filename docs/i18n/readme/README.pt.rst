@@ -438,7 +438,7 @@ Outros recursos
 Idioma e tradução
 ~~~~~~~~~~~~~~~~~~~~~~
 
-A interface oferece dez idiomas na navegação e nas preferências. Os controles AI e LIVE, as descrições dos módulos e a ajuda contextual revisada também são traduzidos. Altere o idioma em **spaCR → Preferências → Idioma** sem reiniciar. Logs, caminhos, valores de banco de dados e medições nunca são traduzidos; a saída científica permanece em inglês canônico. Consulte a `política de ajuda contextual <docs/source/localization.rst#contextual-help>`_.
+A interface oferece dez idiomas na navegação e nas preferências. Os controles AI e LIVE, as descrições dos módulos e a ajuda contextual revisada também são traduzidos. Altere o idioma em **spaCR → Preferências → Idioma** sem reiniciar. Logs, caminhos, valores de banco de dados e medições nunca são traduzidos; a saída científica permanece em inglês canônico. Consulte a `política de ajuda contextual <../../source/localization.rst#contextual-help>`_.
 
 Os nove catálogos não ingleses são elaborados por máquina e tecnicamente revisados em vez de lidos de ponta a ponta por um falante nativo de cada idioma. Os registros `âmbito de revisão <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ que as línguas tiveram um passe humano, quanto do corpus que cobre e cada termo deixado em inglês por decisão.
 
@@ -637,4 +637,4 @@ Olafsson EB, *et al.* Um pooled image-based  CRISPR screen identifica o EAF1 com
 Agradecimentos
 ~~~~~~~~~~~~~~~
 
-O spaCR utiliza software científico aberto, incluindo NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch e Qt. Consulte a `atribuição dos modelos de tradução <docs/i18n/TRANSLATION_MODELS.md>`_ para ver os modelos usados na documentação multilíngue e nos catálogos da interface.
+O spaCR utiliza software científico aberto, incluindo NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch e Qt. Consulte a `atribuição dos modelos de tradução <../TRANSLATION_MODELS.md>`_ para ver os modelos usados na documentação multilíngue e nos catálogos da interface.

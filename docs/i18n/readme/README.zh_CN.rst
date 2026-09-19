@@ -438,7 +438,7 @@ Make Masks appears under **Tools** for manual correction of segmentation masks; 
 语言与翻译
 ~~~~~~~~~~~~~~~~~~~~~~
 
-界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <docs/source/localization.rst#contextual-help>`_。
+界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <../../source/localization.rst#contextual-help>`_。
 
 九个非英语目录是机器编写和技术审查的,而不是由每个语言的原住民发言人读到结尾。 `评论范围 <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ 记录哪种语言有人类的通道,覆盖的体积多少,并根据决定留在英语中的每一个术语。
 
@@ -637,4 +637,4 @@ Olafsson EB, *et al.* 一张以图像为基础的 CRISPR 筛选将 EAF1 定义�
 致谢
 ~~~~~~~~~~~~~~~
 
-spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <docs/i18n/TRANSLATION_MODELS.md>`_。
+spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <../TRANSLATION_MODELS.md>`_。

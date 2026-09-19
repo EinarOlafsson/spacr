@@ -438,7 +438,7 @@ Otros recursos
 Idioma y traducción
 ~~~~~~~~~~~~~~~~~~~~~~
 
-La interfaz admite diez idiomas en la navegación y las preferencias. Los controles AI y LIVE, las descripciones de los módulos y la ayuda contextual revisada también se traducen. Cambie el idioma en **spaCR → Preferencias → Idioma** sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la `política de ayuda contextual <docs/source/localization.rst#contextual-help>`_.
+La interfaz admite diez idiomas en la navegación y las preferencias. Los controles AI y LIVE, las descripciones de los módulos y la ayuda contextual revisada también se traducen. Cambie el idioma en **spaCR → Preferencias → Idioma** sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la `política de ayuda contextual <../../source/localization.rst#contextual-help>`_.
 
 Los nueve catálogos no ingleses son redactados por máquina y revisados técnicamente en lugar de leer de extremo a extremo por un hablante nativo de cada idioma. Los registros `ámbito de aplicación de la revisión <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ qué idiomas han tenido un pase humano, cuánto del corpus que cubre, y cada término dejado en inglés por decisión.
 
@@ -637,4 +637,4 @@ Olafsson EB, *et al.* Una cribado de imagen agrupada basada en CRISPR identifica
 Agradecimientos
 ~~~~~~~~~~~~~~~
 
-spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt. Consulte la `atribución de los modelos de traducción <docs/i18n/TRANSLATION_MODELS.md>`_ para conocer los modelos utilizados en la documentación multilingüe y los catálogos de la interfaz.
+spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt. Consulte la `atribución de los modelos de traducción <../TRANSLATION_MODELS.md>`_ para conocer los modelos utilizados en la documentación multilingüe y los catálogos de la interfaz.

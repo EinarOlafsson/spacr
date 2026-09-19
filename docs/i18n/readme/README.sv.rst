@@ -438,7 +438,7 @@ Se `funktionsguide <../../source/features.rst>`_ för varje verktyg.
 Språk och översättning
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Gränssnittet stöder tio språk i navigering och inställningar. AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp översätts också. Byt språk under **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se `policyn för kontexthjälp <docs/source/localization.rst#contextual-help>`_.
+Gränssnittet stöder tio språk i navigering och inställningar. AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp översätts också. Byt språk under **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se `policyn för kontexthjälp <../../source/localization.rst#contextual-help>`_.
 
 De nio icke-engelska katalogerna är maskinskrivna och tekniskt granskade i stället för att läsa ända till slutet av en infödd talare av varje språk. De `Översynens tillämpningsområde <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ poster vilka språk har haft ett mänskligt pass, hur mycket av de corpus som täcker, och varje term kvar på engelska genom beslut.
 
@@ -637,4 +637,4 @@ Olafsson EB, *et al.* En poolad bildbaserad CRISPR screening identifierar EAF1 s
 Tack
 ~~~~~~~~~~~~~~~
 
-spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt. Se `information om översättningsmodellerna <docs/i18n/TRANSLATION_MODELS.md>`_ för modellerna som användes till den flerspråkiga dokumentationen och gränssnittskatalogerna.
+spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt. Se `information om översättningsmodellerna <../TRANSLATION_MODELS.md>`_ för modellerna som användes till den flerspråkiga dokumentationen och gränssnittskatalogerna.
