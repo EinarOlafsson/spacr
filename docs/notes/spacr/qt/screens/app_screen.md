@@ -122,8 +122,9 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [AppScreen._force_stop](#appscreen_force_stop) (1 entry)
 - [AppScreen._on_import_settings](#appscreen_on_import_settings) (1 entry)
 - [AppScreen._load_settings_csv](#appscreen_load_settings_csv) (1 entry)
-- [AppScreen.apply_settings_dict](#appscreenapply_settings_dict) (2 entries)
+- [AppScreen.apply_settings_dict](#appscreenapply_settings_dict) (3 entries)
 - [AppScreen._refresh_after_bulk_apply](#appscreen_refresh_after_bulk_apply) (1 entry)
+- [AppScreen._bulk_apply_changes_form_shape](#appscreen_bulk_apply_changes_form_shape) (1 entry)
 - [AppScreen._sync_folded_switches](#appscreen_sync_folded_switches) (1 entry)
 - [AppScreen._migrate_control_wells](#appscreen_migrate_control_wells) (2 entries)
 - [AppScreen._apply_each_setting](#appscreen_apply_each_setting) (1 entry)
@@ -3994,6 +3995,14 @@ if model is not None:
 
 ONE WIDGET AT A TIME MEANS A HALF-APPLIED PANEL in between, and a rule that reads other settings must not act on it. See `_show_the_value_it_will_have`.
 
+### added 2026-09-19 (364)
+
+```python
+fresh._built_for_this_bulk_apply = True
+```
+
+ONE REBUILD PER IMPORT, whatever the shape check says. The replacement screen is built from the merged values (`rebuild_app_screen(self.app_key, target)`), so rebuilding it again for the same file would build the same screen. Before this guard the recursion ended only when the fresh screen agreed with the file, and for a switch the form does not carry it never could: an old recruitment CSV with `nucleus_mask_dim` or `pathogen_mask_dim`, a Mask file on Measure, or a Measure file on Mask rebuilt the screen without end. Measured through a real `MainWindow` with Import settings and the rebuild capped at six: all four cases hit the cap in 1.5-4.9 s and ended in "Import failed"; the review of this unit let one run uncapped and killed it at 400 s. The flag is cleared in `finally`, so a later import on the same screen can still rebuild it. See the note on `_bulk_apply_changes_form_shape` for the cause, and `tests/qt/test_an_import_rebuilds_the_screen_at_most_once.py`.
+
 ## AppScreen._refresh_after_bulk_apply
 
 ### lines 10656-10658
@@ -4129,3 +4138,13 @@ timer.timeout.connect(panel.regroup_the_folder)
 ```
 
 For GitHub issue #119: see the note on `LivePreviewPanel.regroup_the_folder`. Wired to `textChanged` behind a 400 ms single shot rather than to `editingFinished`, so a settings file applied programmatically regroups too, and a pattern typed a character at a time is read once.
+
+## AppScreen._bulk_apply_changes_form_shape
+
+### added 2026-09-19 (364)
+
+```python
+if key not in carried:
+```
+
+A switch the form neither shows nor holds cannot shape it. `_form_shaping_keys` already followed that rule for a typed edit ("A missing switch cannot shape this panel"); the bulk path looked at the file instead and took every `nucleus_*` / `pathogen_*` channel or mask-plane key in it as a switch. Instruction 364 took the three `*_mask_dim` keys off the Recruitment form on 2026-09-03 (79edbf12f), and every recruitment file saved before then carries `nucleus_mask_dim=5` and `pathogen_mask_dim=6`, so importing one compared 5 with a `current.get()` of None, asked for a rebuild, and asked again on the rebuilt screen. `cell_mask_dim` escaped only because the cell object is never a switch. The same held for any file from a module whose switches are spelt the other way: Measure has no `*_channel`, Mask has no `*_mask_dim`.

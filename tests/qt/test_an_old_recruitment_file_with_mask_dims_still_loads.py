@@ -12,9 +12,13 @@ global retirement would warn a Measure user off a setting that works.
 
 So an old recruitment file has no rename to follow. What it must do instead,
 tested one key at a time the way a user meets it (Import settings on the
-Recruitment screen):
+Recruitment screen, in a real window):
 
-* the file loads, and every value the form still carries is applied;
+* the file loads without rebuilding the screen, and every value the form
+  still carries is applied. Until 2026-09-19 `nucleus_mask_dim` and
+  `pathogen_mask_dim` rebuilt the screen without end: the import took
+  them for object switches, and a form that no longer carries them could
+  never agree with the file;
 * the old mask plane goes nowhere: no hidden form value and no key in what
   the run is handed, because nothing on this path would read it;
 * the pre-flight check says nothing about it -- the key is a live Measure
@@ -103,25 +107,79 @@ def test_the_doctor_says_nothing_about_it(tmp_path, key):
     assert about_it == [], [p.message for p in about_it]
 
 
-@pytest.mark.parametrize("key", MASK_DIMS)
-def test_importing_an_old_file_on_the_recruitment_screen(qtbot, tmp_path, key):
-    """Import settings, as the button does it, on the real screen."""
-    from spacr.qt.screens.app_screen import AppScreen
+#: How many screen rebuilds one import may cost before the test stops it.
+#: Before the fix an old file carrying `nucleus_mask_dim` or
+#: `pathogen_mask_dim` rebuilt the screen about once a second without end,
+#: so an uncapped run of this test would never return.
+REBUILD_CAP = 3
 
-    screen = AppScreen("recruitment")
-    qtbot.addWidget(screen)
-    model = screen._settings_model
+
+@pytest.fixture
+def recruitment_window(qtbot, qt_theme_applied, monkeypatch):
+    """A real window with Recruitment open, rebuilds counted and capped.
+
+    A screen built on its own has no window to ask for a rebuild, which is
+    how the first version of this test passed over a file that hung the
+    app: the import rebuilt the screen forever and only a MainWindow can.
+    """
+    from spacr.qt.app import MainWindow
+
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1400, 900)
+    window.show()
+    qtbot.waitExposed(window)
+    assert window.open_module("recruitment") == "recruitment"
+    qtbot.wait(20)
+
+    rebuilds = []
+    real = window.rebuild_app_screen
+
+    def counted(key, values=None):
+        rebuilds.append(key)
+        if len(rebuilds) > REBUILD_CAP:
+            raise RuntimeError(f"{len(rebuilds)} rebuilds for one import")
+        return real(key, values)
+
+    monkeypatch.setattr(window, "rebuild_app_screen", counted)
+    return window, rebuilds
+
+
+def _import_through_the_button(window, monkeypatch, path):
+    """Press Import settings on the open screen and choose ``path``.
+
+    :returns: the ``Import failed`` warnings the screen raised.
+    """
+    from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        staticmethod(lambda *a, **k: (str(path), "")))
+    warnings = []
+    monkeypatch.setattr(QMessageBox, "warning",
+                        staticmethod(lambda *a, **k: warnings.append(a[1:])))
+    window._screens["recruitment"]._on_import_settings()
+    return warnings
+
+
+@pytest.mark.parametrize("key", MASK_DIMS)
+def test_importing_an_old_file_on_the_recruitment_screen(
+        recruitment_window, tmp_path, monkeypatch, key):
+    """Import settings, as the button does it, in the real window."""
+    window, rebuilds = recruitment_window
+    model = window._screens["recruitment"]._settings_model
     assert key not in model._widgets, f"{key} is back on the form"
     before = dict(model.collect())
     assert before.get("cell_chann_dim") != 1, (
         "pick a probe unlike the default or this test proves nothing")
 
-    loaded = screen._load_settings_csv(str(_old_recruitment_file(
-        tmp_path, key)))
-    applied = screen.apply_settings_dict(loaded)
+    warnings = _import_through_the_button(
+        window, monkeypatch, _old_recruitment_file(tmp_path, key))
 
-    after = dict(model.collect())
-    assert applied >= 2, f"only {applied} settings applied"
+    assert warnings == [], f"the import failed: {warnings}"
+    assert rebuilds == [], (
+        f"a key the form does not carry rebuilt the screen {len(rebuilds)} "
+        "times; it cannot change the form's shape")
+    after = dict(window._screens["recruitment"]._settings_model.collect())
     assert after["cell_chann_dim"] == 1, "the file did not load"
     assert after["channel_of_interest"] == 1, "the file did not load"
     assert key not in after, (

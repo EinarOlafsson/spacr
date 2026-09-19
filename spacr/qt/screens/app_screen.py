@@ -8671,7 +8671,8 @@ class AppScreen(QWidget):
         target = dict(current)
         target.update(settings)
 
-        if self._bulk_apply_changes_form_shape(settings, current):
+        if (self._bulk_apply_changes_form_shape(settings, current)
+                and not getattr(self, "_built_for_this_bulk_apply", False)):
             window = self.window()
             rebuild = getattr(window, "rebuild_app_screen", None)
             if callable(rebuild):
@@ -8686,7 +8687,11 @@ class AppScreen(QWidget):
                     rebuild(self.app_key, target)
                     fresh = getattr(window, "_screens", {}).get(self.app_key)
                     if fresh is not None and fresh is not self:
-                        return fresh.apply_settings_dict(settings)
+                        fresh._built_for_this_bulk_apply = True
+                        try:
+                            return fresh.apply_settings_dict(settings)
+                        finally:
+                            fresh._built_for_this_bulk_apply = False
 
         applied = 0
         if model is not None:
@@ -8734,11 +8739,27 @@ class AppScreen(QWidget):
 
     def _bulk_apply_changes_form_shape(
             self, settings: dict, current: dict) -> bool:
-        """Whether supplied values require a differently shaped form."""
+        """Whether supplied values require a differently shaped form.
+
+        Only a switch this form carries can shape it, which is the rule
+        :meth:`_form_shaping_keys` already follows for a committed edit. A
+        switch the form neither shows nor holds is never in
+        ``model.collect()``, so it could never compare equal after a
+        rebuild either: an older recruitment file that still names
+        ``nucleus_mask_dim``, a Mask file imported on Measure, or a Measure
+        file imported on Mask would each ask for a rebuild on every screen
+        the rebuild produced.
+
+        :param settings: the mapping about to be applied.
+        :param current: what the form collects now.
+        :returns: True when the form must be rebuilt before the values go in.
+        """
         from ...organelle_types import (NUMBER_OF_ORGANELLES, organelle_count,
                                         organelle_number)
         from ..settings_diff import _values_equal
 
+        model = getattr(self, "_settings_model", None)
+        carried = set(current) | set(getattr(model, "_widgets", {}) or {})
         supports_organelles = NUMBER_OF_ORGANELLES in current
         target = dict(current)
         target.update(settings)
@@ -8753,6 +8774,8 @@ class AppScreen(QWidget):
             if role is None or role == "cell":
                 continue
             if key not in object_switch_keys(role):
+                continue
+            if key not in carried:
                 continue
             if role not in ("nucleus", "pathogen"):
                 if not supports_organelles:
