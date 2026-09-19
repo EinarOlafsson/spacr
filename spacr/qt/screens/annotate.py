@@ -1484,7 +1484,7 @@ class _SettingsDialog(QDialog):
         self._img_size = QSpinBox()
         self._img_size.setRange(48, 800)
         self._img_size.setValue(settings.image_size[0])
-        form.addRow("Image size (px)", self._img_size)
+        form.addRow("Crop size (px)", self._img_size)
 
         from ...crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
                               STREAM_IMAGES_LABEL)
@@ -1751,7 +1751,7 @@ class _SettingsDialog(QDialog):
         install_api_tooltips(self, "annotate", {
             self._src_edit: "src",
             self._ann_col: "annotation_column",
-            self._img_size: "image_size",
+            self._img_size: "crop_size",
             self._image_type: "image_type",
             self._channels: "channels",
             self._stored_channel_order: "stored_channel_order",
@@ -1904,7 +1904,7 @@ class _SettingsDialog(QDialog):
     #: up whichever ones happened to share a name.
     _EXAMPLE_SETTING_WIDGETS = {
         "annotation_column": "_ann_col",
-        "image_size": "_img_size",
+        "crop_size": "_img_size",
         "channels": "_channels",
         "image_type": "_image_type",
         "measurement": "_measurement",
@@ -1915,22 +1915,21 @@ class _SettingsDialog(QDialog):
 
     #: Other spellings the same question has been written under.
     #:
-    #: `img_size` IS NOT A LEGACY FILE FORMAT -- it is what
-    #: `set_annotate_default_settings` writes TODAY. The factory has always
-    #: called it `img_size` (an int) and this screen has always called it
-    #: `image_size` (a width/height pair), so a settings CSV produced from
-    #: spaCR's OWN defaults set every field in this dialog except the crop
-    #: size, silently, and the user saw a form that had mostly filled itself
-    #: in and had no reason to suspect the one row that had not.
+    #: `crop_size` IS THE NAME SINCE 2026-09-19, when 364 renamed the
+    #: factory's `img_size` at the maintainer's decision. Every settings CSV
+    #: written before that says `img_size`, including the example dataset's,
+    #: so the old spelling is still read here when the new one is absent.
     #:
-    #: Found by the Annotate audit. Accepting the other
-    #: spelling here rather than renaming either side: the factory's name is
-    #: in shipped settings files and in every notebook that writes one, and
-    #: this screen's name is in `AnnotateSettings.image_size`, which is a
-    #: tuple and genuinely a different type. `toxo` is accepted the same way
-    #: elsewhere in the package.
+    #: `image_size` IS NOT ACCEPTED, and that is the point of the rename.
+    #: It is the MODEL's input crop -- default 224, read by training and
+    #: inference -- while this field is how large each cell is drawn,
+    #: default 200. This screen used to read `image_size` as its own
+    #: spelling, and the example dataset's `annotate_settings.csv`, as
+    #: downloaded, carries both -- `img_size,200` and `image_size,224` -- so
+    #: the example drew its cells at the model's resolution. `AnnotateSettings.image_size` keeps its name: it is the
+    #: dataclass field this value lands in, not a settings key.
     _ALSO_SPELT = {
-        "image_size": ("img_size",),
+        "crop_size": ("img_size",),
     }
 
     def _apply_example_settings(self, path) -> int:

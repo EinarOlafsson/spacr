@@ -390,21 +390,25 @@ def test_mixed_is_first_and_the_groups_do_not_interleave():
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("given, expected", [
-    ({}, True),                       # the default
-    ({"toxo": False}, False),         # an old settings CSV
-    ({"toxo": True}, True),
-    ({"Toxoplasma": False}, False),   # the new name
-    ({"Toxoplasma": True, "toxo": False}, True),   # the new name wins
+    ({}, "toxoplasma"),                       # the default
+    ({"toxo": False}, ""),                    # an old settings CSV
+    ({"toxo": True}, "toxoplasma"),
+    ({"Toxoplasma": False}, ""),              # the later name
+    ({"Toxoplasma": True, "toxo": False}, "toxoplasma"),   # the later wins
 ])
 def test_an_old_settings_csv_still_turns_the_annotation_off(given, expected):
     """The value MIGRATES. Dropping it would turn the annotation off -- or
-    on -- without saying so, on every settings CSV written before today."""
+    on -- without saying so, on every settings CSV written before today.
+
+    Both switches are retired since 2026-09-19 (364), so the value lands
+    on `annotation_source`, where an empty name means no annotation."""
     from spacr.settings import get_perform_regression_default_settings
 
     resolved = get_perform_regression_default_settings(dict(given))
-    assert resolved["Toxoplasma"] is expected
-    # And only one key survives, so the panel offers one control.
+    assert resolved["annotation_source"] == expected
+    # And no switch survives, so the panel offers one control.
     assert "toxo" not in resolved
+    assert "Toxoplasma" not in resolved
 
 
 @pytest.mark.parametrize("settings, expected", [
@@ -433,17 +437,25 @@ def test_the_annotation_source_replaced_the_Toxoplasma_flag():
     superseded by `annotation_source`, which takes an organism name, a
     taxon id or an accession instead of one hard-coded parasite. Both were
     offered for a while, which is two controls that can disagree about the
-    same thing; the boolean is hidden now. It is still READ -- every
-    settings file in existence carries it, and it is what
-    `annotation_source` defaults from when a file predates the field --
-    which is the difference between migrating a setting and breaking one.
+    same thing. The boolean was hidden, and since 2026-09-19 (364) it is
+    retired: no factory writes it and no form carries it. It is still READ
+    from an old file -- every settings file saved before then carries it,
+    and `settings._fold_toxoplasma` turns it into the `annotation_source`
+    it meant -- which is the difference between migrating a setting and
+    breaking one.
     """
     from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+    from spacr.settings import (SEMANTIC_FOLDS, expected_types,
+                                get_perform_regression_default_settings)
 
     everywhere = {k for keys in _regression_sections().values() for k in keys}
     assert "annotation_source" in everywhere
     assert "toxo" not in everywhere
-    assert "Toxoplasma" in _APP_HIDDEN_KEYS["regression"]
+    assert "Toxoplasma" not in everywhere
+    assert "Toxoplasma" not in _APP_HIDDEN_KEYS["regression"]
+    assert "Toxoplasma" not in expected_types
+    assert "Toxoplasma" not in get_perform_regression_default_settings({})
+    assert {"Toxoplasma", "toxo"} <= SEMANTIC_FOLDS
 
 
 def test_the_superseded_flag_still_loads_from_an_old_settings_file():

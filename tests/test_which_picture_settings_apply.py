@@ -128,10 +128,11 @@ def test_the_cut_settings_are_translated_to_the_crop_layers_names():
     worse than no settings window."""
     from spacr.picture_settings import to_crop_settings
 
-    got = to_crop_settings({"crop_source": LOAD_IMAGES, "img_size": 256,
+    got = to_crop_settings({"crop_source": LOAD_IMAGES, "crop_size": 256,
                             "channels": [0, 1]})
 
-    # `img_size` IS ONE NUMBER AND `png_size` IS A PAIR. Handed the scalar,
+    # `crop_size` (`img_size` until 2026-09-19) IS ONE NUMBER AND `png_size`
+    # IS A PAIR. Handed the scalar,
     # `crop_spec_from_settings` reached size[0] and raised "'int' object is
     # not subscriptable" from inside the montage worker -- surfacing as "The
     # montage load failed" with no mention of a setting.
@@ -328,7 +329,7 @@ def test_a_pandas_index_has_no_truth_value():
 def test_a_setting_with_no_inventory_stays_free_text():
     from spacr.picture_settings import offered_values
 
-    assert offered_values("img_size") == ()
+    assert offered_values("crop_size") == ()
     assert offered_values("percentiles") == ()
 
 

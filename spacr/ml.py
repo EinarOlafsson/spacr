@@ -6195,41 +6195,42 @@ def _level_control_rows(frame, level, controls):
     return frame.loc[keep.to_numpy()]
 
 
-#: Current and legacy keys for enabling bundled *Toxoplasma* annotation.
-#:
-#: Both spellings remain accepted so existing settings files continue to
-#: enable annotation instead of silently ignoring the legacy key.
-TOXOPLASMA_KEYS = ('Toxoplasma', 'toxo')
-
-
 #: What `annotation_source` calls the bundled, offline Toxoplasma path.
 BUNDLED_ANNOTATION = "toxoplasma"
-
-
-def _toxoplasma_is_on(settings) -> bool:
-    """Whether the bundled *Toxoplasma* annotation was asked for.
-
-    The NEW key wins when both are present, because a user who set the new
-    one meant it; an old CSV that carries only `toxo` still works.
-    """
-    for key in TOXOPLASMA_KEYS:
-        if key in settings:
-            return bool(settings[key])
-    return False
 
 
 def _annotation_source(settings) -> str:
     """Which organism's annotation this run asked for, or "" for none.
 
-    `Toxoplasma=True` and `annotation_source='toxoplasma'` are the same
-    request and the field wins, because a user who typed a name meant it.
-    `Toxoplasma=False` with no field is the one case that means NO
-    annotation, and it has to keep meaning that.
+    `annotation_source` is the one setting that says it. A dict that still
+    carries the retired `Toxoplasma` or `toxo` switch is read through
+    :func:`spacr.settings._fold_toxoplasma` on a copy, so a caller that
+    hands this module a raw, unfolded dict gets the same answer the
+    regression defaults would give it: a name wins, and otherwise true
+    means the bundled tables and false means no annotation.
     """
-    named = str(settings.get('annotation_source', '') or '').strip()
-    if named:
-        return named
-    return BUNDLED_ANNOTATION if _toxoplasma_is_on(settings) else ""
+    from .settings import _fold_toxoplasma
+
+    folded = _fold_toxoplasma(dict(settings or {}), quiet=True)
+    return str(folded.get('annotation_source', '') or '').strip()
+
+
+def _toxoplasma_is_on(settings) -> bool:
+    """Whether this run's annotation is the bundled *Toxoplasma* one.
+
+    It gates the Toxoplasma-only figures -- the hyperLOPIT volcano and the
+    GT1/ME49 phenotype and expression reports -- which mean nothing on
+    another organism's screen. Before 2026-09-19 it read the `Toxoplasma`
+    switch, which defaulted on, so a run annotated with 'human' still drew
+    them. The name in `annotation_source` decides now, through the same
+    resolver the annotation itself uses.
+    """
+    source = _annotation_source(settings)
+    if not source:
+        return False
+    from .uniprot import resolve
+
+    return resolve(source).kind == "bundled"
 
 
 def _annotation_cache(settings):

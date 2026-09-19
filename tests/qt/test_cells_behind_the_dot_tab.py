@@ -638,8 +638,8 @@ def test_the_thumbnail_is_the_view_and_the_crop_underneath_is_untouched(
     view.set_coefficient(GENE_KEY)
     view.build()
     crop = view.images()[0][0]
-    # THE SIZE IS THE USER'S NOW, not the module constant. `img_size` -- the
-    # annotator's name for it -- reached the montage when the Cells tab got
+    # THE SIZE IS THE USER'S NOW, not the module constant. `crop_size` -- the
+    # annotator's name for it, `img_size` until 2026-09-19 -- reached the montage when the Cells tab got
     # its settings window ("in the settings there should also be a controll
     # for iamge size"), so THUMBNAIL_PX is the fallback and not the answer.
     # Asked of the view, so the test follows the setting rather than pinning

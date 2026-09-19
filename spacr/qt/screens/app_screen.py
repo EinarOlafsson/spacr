@@ -830,6 +830,12 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
     `ChannelMappingWidget.set_value` accepts the list form directly, so no
     value conversion is needed here -- only the name.
 
+    ONE SEMANTIC FOLD RUNS HERE TOO: the retired `Toxoplasma` / `toxo`
+    switch, through `spacr.settings._fold_toxoplasma`. The form has no
+    widget for the switch, so without it a file saying `Toxoplasma=False`
+    would load with the annotation field still on its default and the run
+    would annotate what the file had turned off.
+
     :param settings: a settings dict, not modified.
     :returns: a new dict with retired keys renamed.
     """
@@ -846,7 +852,9 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
         for name in ((replacement,) if isinstance(replacement, str)
                      else tuple(replacement)):
             out.setdefault(name, value)
-    return out
+    from spacr.settings import _fold_toxoplasma
+
+    return _fold_toxoplasma(out)
 
 
 def _surviving_name_of(key: str):

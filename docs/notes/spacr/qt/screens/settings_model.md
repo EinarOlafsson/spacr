@@ -219,6 +219,8 @@ Regression derives this aggregate from the positive, negative, and mixed control
 
 SUPERSEDED BY `annotation_source`, and hidden here rather than in a second "regression" entry further up this dict -- which is where it was, and which a later key of the same name silently replaced. A dict literal keeps the last value, so `Toxoplasma` was declared hidden and then offered anyway, ungrouped, in the bucket the layouts exist to keep empty.
 
+2026-09-19: GONE FROM THIS LIST, because the setting is gone. 364 retired `Toxoplasma` at the maintainer's decision; an old file's value is folded onto `annotation_source` by `spacr.settings._fold_toxoplasma`, which `app_screen._translate_legacy_setting_keys` runs on every imported dict. The same change took `barcodes` out of `PATH_LIST_KEYS`, `PATH_LIST_TITLES` and `PATH_LIST_SINGLE_KEYS`.
+
 ### lines 439-443
 
 ```python

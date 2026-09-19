@@ -330,11 +330,12 @@ KEYS_RETIRED = frozenset({
     # maps it to "" -- withdrawn, no replacement -- rather than pointing at a
     # key the user was probably already setting.
     #
-    # NOT `barcodes`, its sibling in the same dead factory and approved in the
-    # same breath. That one is HELD: a reviewed zh_CN translation is pinned to
-    # its tooltip in docs/i18n/reviewed/runtime/, so retiring it withdraws a
-    # reviewed record and is a translation decision, not a deletion.
-    "grna",
+    # `barcodes`, its sibling in the same dead factory and approved in the
+    # same breath, was HELD until 2026-09-19 because a reviewed zh_CN
+    # translation was pinned to its tooltip. The maintainer decided that day
+    # to withdraw the record and retire the key ("Retire both", with
+    # `Toxoplasma`, which was never in a category and so is not listed).
+    "grna", "barcodes",
 })
 
 

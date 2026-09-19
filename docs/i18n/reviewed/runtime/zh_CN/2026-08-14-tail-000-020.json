@@ -1,14 +1,10 @@
 {
   "schema": 1,
   "language": "zh_CN",
+  "review_notes": {
+    "barcodes": "WITHDRAWN 2026-09-19, instruction 364. The maintainer decided that day to retire the `barcodes` setting (\"Retire both\", with `Toxoplasma`): it was declared only by `get_map_barcodes_default_settings`, which no pipeline calls, so its value never reached a run. The English this record translated is no longer shown anywhere, so the record left `records` -- the runtime loader accepts no `retired` field and refuses a record whose source is gone. It is recorded here rather than deleted in silence. The withdrawn record, verbatim: table setting_tooltips, key barcodes, source_sha256 4c3125b0f047a36722c65324a73341a7ceadd869f97ffbd9d0fe80610e96b1b4, translation \"旧版条形码映射辅助函数所用的筛选实验/微孔板条形码 CSV 路径。当前代码没有读取此键：定义它的唯一位置 get_map_barcodes_default_settings 从未被任何流水线调用，因此设置它不会产生效果。generate_barecode_mapping 当前使用的对应设置是 row_csv、column_csv 和 grna_csv。\""
+  },
   "records": [
-    {
-      "table": "setting_tooltips",
-      "key": "barcodes",
-      "source_sha256": "4c3125b0f047a36722c65324a73341a7ceadd869f97ffbd9d0fe80610e96b1b4",
-      "source": "Path to a CSV of screen/plate barcodes for the legacy barcode-mapping helper. Nothing in the current code reads this key: get_map_barcodes_default_settings, the only place it is defined, is never called by any pipeline, so setting it has no effect. The live equivalents consumed by generate_barecode_mapping are row_csv, column_csv and grna_csv.",
-      "translation": "旧版条形码映射辅助函数所用的筛选实验/微孔板条形码 CSV 路径。当前代码没有读取此键：定义它的唯一位置 get_map_barcodes_default_settings 从未被任何流水线调用，因此设置它不会产生效果。generate_barecode_mapping 当前使用的对应设置是 row_csv、column_csv 和 grna_csv。"
-    },
     {
       "table": "setting_tooltips",
       "key": "batch_size",

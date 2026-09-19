@@ -1785,15 +1785,40 @@ RENAMED_SETTINGS = {
     "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
     "minimum_cell_count": "min_cells_per_well",
     "redunction_method": "reduction_method",
+    "img_size": "crop_size",
 }
 
-#: Retired names whose migration is SEMANTIC and must not be a plain move.
+#: What each SEMANTIC fold does with an old value, in the words the doctor
+#: uses when an old settings file names it.
 #:
 #: `gradient_accumulation` was a boolean beside `gradient_accumulation_steps`,
 #: and `steps = 1` already IS the off state -- so the value does not move, it
 #: COLLAPSES: a stored `false` means one step, whatever the step count says.
 #: `_fold_gradient_accumulation` does that. Copying the boolean onto the step
 #: count instead puts `False` where an `int()` is waiting.
+#:
+#: `Toxoplasma`, and `toxo` before it, were a boolean beside
+#: `annotation_source`, and a NAME already says everything the boolean did
+#: except one thing: false, which meant no annotation at all. So a stored
+#: false becomes an empty `annotation_source` and a stored true becomes
+#: `'toxoplasma'`, unless the file already names an organism -- the field won
+#: over the boolean before the retirement, and it still does.
+#: `_fold_toxoplasma` does that. A plain move would put `True` in a field
+#: that expects an organism name.
+SEMANTIC_FOLD_MEANINGS = {
+    "gradient_accumulation": (
+        "false means one batch per optimizer step, and true leaves "
+        "gradient_accumulation_steps as it is"),
+    "Toxoplasma": (
+        "true means annotation_source 'toxoplasma' and false means no "
+        "annotation, unless annotation_source already names an organism"),
+    "toxo": (
+        "true means annotation_source 'toxoplasma' and false means no "
+        "annotation, unless annotation_source already names an organism"),
+}
+
+#: Retired names whose migration is SEMANTIC and must not be a plain move.
+#: :data:`SEMANTIC_FOLD_MEANINGS` says what each one does instead.
 #:
 #: DECLARED HERE RATHER THAN MERELY ABSENT FROM `RENAMED_SETTINGS`, because
 #: absence is a fact with no guard and the agreement test would otherwise read
@@ -1802,7 +1827,13 @@ RENAMED_SETTINGS = {
 #: `_translate_legacy_setting_keys({'gradient_accumulation': False})` returns
 #: `{'gradient_accumulation_steps': False}` today -- the exact bug, already
 #: shipped in one consumer, and the reason the run's table stays separate.
-SEMANTIC_FOLDS = frozenset({"gradient_accumulation"})
+SEMANTIC_FOLDS = frozenset(SEMANTIC_FOLD_MEANINGS)
+
+#: The two spellings the retired Toxoplasma switch was saved under, the
+#: current one first. When a file carries both, the first one found wins,
+#: because `toxo` became `Toxoplasma` on 2026-08-17 and a file naming both
+#: was edited after that.
+_TOXOPLASMA_LEGACY_KEYS = ("Toxoplasma", "toxo")
 
 
 #: How many renames one key may pass through before the chain is called a
@@ -1952,9 +1983,67 @@ def _fold_renamed_settings(settings):
                 continue
             settings[name] = value
             LOG.info(
-                "%s=%r is now applied as %s. It was renamed, this file still "
-                "uses the old name, and until now the value was ignored and "
-                "the default used.", old, value, name)
+                "%s=%r is applied as %s. The setting was renamed and this "
+                "file still uses the old name.", old, value, name)
+    return settings
+
+
+def _legacy_switch_is_on(value) -> bool:
+    """Read a stored on/off value the way a settings CSV may have spelt it.
+
+    A value read back from a CSV without its type is a string, and
+    ``bool('False')`` is True. The words a CSV writes for off are read as
+    off.
+    """
+    if isinstance(value, str):
+        return value.strip().lower() not in (
+            "", "false", "0", "no", "off", "none")
+    return bool(value)
+
+
+def _fold_toxoplasma(settings, quiet=False):
+    """Let ``annotation_source`` alone say which annotation a run joins.
+
+    ONE QUESTION, ONE ANSWER. `Toxoplasma` was a boolean beside
+    `annotation_source`, and the name already says everything the boolean
+    did except one thing: false, which meant no annotation at all. Retired on
+    2026-09-19 under instruction 364, at the maintainer's decision.
+
+    THE MIGRATION IS THE POINT, not the removal. A name in
+    `annotation_source` wins, because it won before the retirement. A blank
+    or missing one takes the old switch: true becomes ``'toxoplasma'`` and
+    false becomes the empty string, which is no annotation. Dropping the
+    switch instead would turn annotation ON for a file that had turned it
+    off.
+
+    :param settings: the settings mapping, edited in place.
+    :param quiet: say nothing. For a caller that folds a throwaway copy on
+        every read, where one line per read would be noise.
+    :returns: the same mapping, for chaining.
+    """
+    if not isinstance(settings, dict):
+        return settings
+    present = [key for key in _TOXOPLASMA_LEGACY_KEYS if key in settings]
+    if not present:
+        return settings
+    old = present[0]
+    value = settings[old]
+    for key in present:
+        settings.pop(key)
+    named = str(settings.get('annotation_source', '') or '').strip()
+    if named:
+        if not quiet:
+            LOG.info(
+                "%s=%r was dropped: annotation_source=%r already says which "
+                "annotation this run joins.", old, value, named)
+        return settings
+    settings['annotation_source'] = (
+        'toxoplasma' if _legacy_switch_is_on(value) else '')
+    if not quiet:
+        LOG.info(
+            "%s=%r is applied as annotation_source=%r. %s was retired and "
+            "this file still uses it.", old, value,
+            settings['annotation_source'], old)
     return settings
 
 
@@ -2321,7 +2410,6 @@ def get_map_barcodes_default_settings(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('src', 'path')
-    settings.setdefault('barcodes', bundled_barcode_path('column'))
     settings.setdefault('test', False)
     settings.setdefault('verbose', True)
     return settings
@@ -2741,12 +2829,8 @@ def get_perform_regression_default_settings(settings):
                   f"{_forced!r} now. The regression plots scale to the data "
                   f"and are changed on the plot itself.")
     settings.pop('split_axis_lims', None)
-    if 'toxo' in settings:
-        settings.setdefault('Toxoplasma', settings.pop('toxo'))
-    settings.setdefault('Toxoplasma', True)
-    settings.setdefault(
-        'annotation_source',
-        'toxoplasma' if settings.get('Toxoplasma', True) else '')
+    _fold_toxoplasma(settings)
+    settings.setdefault('annotation_source', 'toxoplasma')
     settings.setdefault('verbose', False)
     settings.setdefault('tolerance', 0.02)
     settings.setdefault('invert_dependent_variable', False)
@@ -3182,6 +3266,7 @@ expected_types = {
     "schedule": str,
     "loss_type": str,
     "image_size": int,
+    "crop_size": int,
     "epochs": int,
     "val_split": float,
     "dropout_rate": float,
@@ -3206,7 +3291,6 @@ expected_types = {
     "plot_control": bool,
     "remove_background": bool,
     "target": str,
-    "barcodes": str,
     "dependent_variable": (str, list),
     "regression_panel_manifest": (dict, str, type(None)),
     "analysis_mode": str,
@@ -3381,7 +3465,6 @@ expected_types = {
     "paired_data":list,
     "min_observations_per_hit": int,
     "nontargeting_control_grnas":list,
-    "Toxoplasma":bool,
     "metadata_files":list,
     "filter_value":list,
     "x_lim":(list, type(None)),
@@ -3851,15 +3934,15 @@ tooltips = {
         "object_distances is off. Default True.",
     'annotation_source':
         "(str) - Which organism's annotation to join onto the regression "
-        "results. Empty or 'toxoplasma' uses the bundled Toxoplasma gondii "
-        "tables, which need no network and are the default. Any other "
+        "results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, "
+        "which need no network and are the default. Any other "
         "organism name or NCBI taxon id -- 'human', 'Plasmodium "
         "falciparum', 'Neospora caninum', '9606' -- pulls that organism's "
         "entries from UniProt, and a single accession such as P04637 retrieves "
         "that entry. The result is cached beside the outputs, so a "
         "rerun needs no network. A name spaCR does not recognise leaves the "
-        "results unannotated and says which names were close. Default "
-        "'toxoplasma'.",
+        "results unannotated and says which names were close. Leave it "
+        "empty for no annotation. Default 'toxoplasma'.",
     'cell_area_outlier_mads':
         "(float | None) - Optionally remove objects whose cell area exceeds "
         "this many scaled "
@@ -3918,12 +4001,12 @@ tooltips = {
         "Default ''.",
 
     "image_type": "(str) - Exported crop folder to read: 'cell_png', 'nucleus_png', 'pathogen_png', or 'cytoplasm_png'. This setting applies only to pre-generated image loading and is not used when crops are streamed from merged/. Default 'cell_png'.",
-    "img_size": "(int) - How many pixels across each cell is drawn. One number: the crop is square. Larger fills the tab with fewer cells per page; the pagination follows it. Default 200.",
+    "crop_size": "(int) - How many pixels across each cell is drawn. One number: the crop is square. Larger fills the tab with fewer cells per page; the pagination follows it. Default 200.",
     "normalize_channels": "(bool/list) - Percentile-stretch each channel before drawing, so a dim stain is visible beside a bright one. Uses 'percentiles'. This changes only the displayed image; the stored crop and all measurements remain unchanged. Default None (off).",
     "outline": "(bool/list) - Draw the object's own outline over the crop, as in the annotation app. The outline is computed before any channel is zeroed so it cannot trace a channel that is no longer displayed. Default None (off).",
     "outline_threshold_factor": "(float) - How aggressively the outline is cut from the object channel. Above 1 tightens the outline onto the brightest core; below 1 loosens it outward. Only read when 'outline' is on. Default 1.25.",
     "outline_sigma": "(float) - Gaussian blur applied before the outline is found, in pixels. Larger gives a smoother, less speckled boundary at the cost of fine detail. Only read when 'outline' is on. Default 4.",
-    "edge_thickness": "(float) - Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across img_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
+    "edge_thickness": "(float) - Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across crop_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
     "edge_transparency": "(float) - Outline opacity on a 0-100 scale: 0 hides the outline and 100 makes it fully opaque. Intermediate values blend the outline with the image. Default 100.",
     "edge_image": "(bool) - Draw the object outline over the source image. False draws the outline on a blank background so that boundary geometry can be evaluated independently of image intensity. Default False.",
     "object_size": "(int/list) - The smallest object, in pixels, that is outlined at all. Debris below it is skipped rather than traced. Default (0, 0) — no minimum.",
@@ -4065,7 +4148,6 @@ tooltips = {
     "augment": "(bool) - Expand the training split eightfold by adding four 90-degree rotations of each crop and their horizontal reflections; validation and test splits are not augmented. Enable this setting when few annotated objects are available and validation accuracy is below training accuracy. The expanded set is materialised in RAM, requiring approximately eight times the memory and epoch duration. Default False.",
     "background": "(float) - Per-channel background level in raw intensity units. Pixels below it are zeroed when remove_background is on, and it is multiplied by Signal_to_noise to set the upper anchor for normalization. Raise it if faint haze survives; set it too high and dim real objects vanish. Default 100 (200 for Cellpose training and plaque analysis).",
     "backgrounds": "(list of float) - Legacy compatibility field retained in settings snapshots. Current mask preprocessing ignores this list and reads cell_background, nucleus_background, pathogen_background and each organelle background setting instead, so changing it does not alter segmentation. Default [100, 100, 100, 100].",
-    "barcodes": "(str) - Path to a CSV of screen/plate barcodes for the legacy barcode-mapping helper. Nothing in the current code reads this key: get_map_barcodes_default_settings, the only place it is defined, is never called by any pipeline, so setting it has no effect. The live equivalents consumed by generate_barecode_mapping are row_csv, column_csv and grna_csv.",
     "black_background": "(bool) - Choose the standalone/CLI embedding fallback: black canvas with white axes when True, white canvas with black axes when False. In the Qt app, Image UMAP automatically matches its enclosing card in the active theme and uses that theme's readable foreground color instead. Default True.",
     "calculate_correlation": "(bool) - For every pair of measured channels and every object mask, compute a per-object Pearson correlation and the three Manders coefficients (manders_m1, manders_m2, manders_overlap_coefficient), stored as <object>_channel_i_channel_j_* columns. Needs at least two channels. Turn it off to cut measurement time and database size when colocalisation is not part of the phenotype. Default True.",
     "cell_background": "(int) - Background intensity of the cell channel in raw image units. Pixels below it are zeroed when remove_background_cell is True, and it is multiplied by cell_signal_to_noise to set the intensity the normalisation ceiling must reach. Set it from a genuinely empty region; too high and dim cells are erased. Default 100.",
@@ -4616,9 +4698,8 @@ tooltips = {
     'target_unique_count': "(int) - Desired mean number of distinct gRNAs per well. spaCR evaluates 1000 read-fraction thresholds, selects the threshold whose per-well mean unique-gRNA count has the smallest absolute difference from this value, and discards every gRNA call below that fraction. Decrease it for a stricter well assignment or increase it to retain more gRNAs per well. Default 5.",
     'threshold_method': "(str) - Select the spread estimator for the control-based effect-size cutoff: 'std', legacy 'var' (squared units), 'mad', 'iqr', 'percentile' (the 95th percentile of absolute coefficients), or 'range'. 'none' disables the effect-size cutoff. Historical aliases such as 'standard_deveation', 'variance', and 'quantile' are accepted. Used only when controls are set. Default 'std'.",
     'threshold_multiplier': "(float) - Set how many control-distribution spreads are required for a hit. The cutoff is abs(median(control coefficients)) + threshold_multiplier × spread, using threshold_method for the spread. Larger values demand a larger effect; threshold_method='none' disables the cutoff. Used only when controls are set. Default 3.",
-    'Toxoplasma': "(bool) - Join the bundled Toxoplasma annotation to every exported table and color the volcano plot by it. The annotation includes gene name and product, signal peptide and transmembrane-domain predictions from the project's DeepTMHMM analysis, hyperLOPIT/TAGM compartment, published CRISPR fitness scores, and tachyzoite, tissue-cyst, and EES1-5 expression. Tables are joined by gene number so TGGT1 and TGME49 identifiers match. Writes supplementary_topology.csv beside the results. Disable this setting for non-Toxoplasma screens. The deprecated alias 'toxo' remains accepted. Default True.",
     'use_checkpoint': "(bool) - Run the backbone's forward pass through torch.utils.checkpoint: intermediate activations are discarded and recomputed during the backward pass, trading extra compute for a large drop in activation memory. Enable when a bigger batch_size or image_size gives CUDA out-of-memory; disable for the fastest epochs when VRAM is not the constraint. Default True.",
-    'x_lim': "(list) - Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when toxo mode is on. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None."
+    'x_lim': "(list) - Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when annotation_source is the bundled Toxoplasma annotation. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None."
 }
 
 _clone_organelle_registry(tooltips, tooltip=True)
@@ -4693,7 +4774,7 @@ organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 
 
 categories = {
-    "Paths": ["src", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
+    "Paths": ["src", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
     "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
 
@@ -5649,13 +5730,18 @@ def check_settings(vars_dict, expected_types, q=None):
 def set_annotate_default_settings(settings):
     """Populate default settings for the image annotation UI.
 
+    ``crop_size`` was called ``img_size`` until 2026-09-19. A dict that
+    still says ``img_size`` has its value moved across before any default
+    lands, so an older settings file keeps the size it chose.
+
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    _fold_renamed_settings(settings)
     settings.setdefault('src', 'path')
     settings.setdefault('image_type', 'cell_png')
     settings.setdefault('channels', "r,g,b")
-    settings.setdefault('img_size', 200)
+    settings.setdefault('crop_size', 200)
     settings.setdefault('annotation_column', 'test')
     settings.setdefault('normalize_channels', None)
     settings.setdefault('outline', None)

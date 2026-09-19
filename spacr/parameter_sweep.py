@@ -822,7 +822,7 @@ def _trial_settings(base_settings, trial, destination, *, qc: bool = False):
     os.makedirs(folder, exist_ok=True)
     settings["src"] = folder
     settings.setdefault("verbose", False)
-    settings.setdefault("Toxoplasma", False)
+    settings.setdefault("annotation_source", "")
     settings["regression_qc"] = bool(qc)
     try:
         from .utils import save_settings
@@ -1443,7 +1443,7 @@ def settings_for_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
     folder = destination or row.get("folder")
     if folder and not (isinstance(folder, float) and pd.isna(folder)):
         settings["src"] = str(folder)
-    settings.setdefault("Toxoplasma", False)
+    settings.setdefault("annotation_source", "")
     return settings
 
 

@@ -1,6 +1,9 @@
 {
   "schema": 1,
   "language": "zh_CN",
+  "review_notes": {
+    "Toxoplasma": "WITHDRAWN 2026-09-19, instruction 364. The maintainer decided that day to retire the `Toxoplasma` setting (\"Retire both\", with `barcodes`): `annotation_source` says everything the switch did, and an old file's value is folded onto it by `spacr.settings._fold_toxoplasma`. The English this record translated is no longer shown anywhere, so the record left `records` -- the runtime loader accepts no `retired` field and refuses a record whose source is gone. It is recorded here rather than deleted in silence. The withdrawn record, verbatim: table setting_tooltips, key Toxoplasma, source_sha256 d840fb1b55ff4c0cf0636de6063915af94ebbd96b93994e2ca4bc43ae7a3229e, translation \"将内置的 Toxoplasma 注释关联到每个导出表，并据此为火山图着色。该注释包括基因名称和产物、信号肽及项目 DeepTMHMM 分析得到的跨膜结构域预测、hyperLOPIT/TAGM 区室、已发表的 CRISPR 适合度评分，以及速殖子、组织囊和 EES1-5 表达数据。各表按基因编号关联，因此 TGGT1 与 TGME49 标识符可以匹配。在结果旁写入 supplementary_topology.csv。对于非 Toxoplasma 筛选，请禁用此设置。已弃用的别名 'toxo' 仍可使用。默认值为 True。\""
+  },
   "records": [
     {
       "table": "setting_labels",
@@ -71,13 +74,6 @@
       "source_sha256": "f18c18bc38584647186a71e233ba8d0f6336e750dd810494b86c43e8da892bd3",
       "source": "Tsne max iter",
       "translation": "Tsne 最大迭代次数"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "Toxoplasma",
-      "source_sha256": "d840fb1b55ff4c0cf0636de6063915af94ebbd96b93994e2ca4bc43ae7a3229e",
-      "source": "Join the bundled Toxoplasma annotation to every exported table and color the volcano plot by it. The annotation includes gene name and product, signal peptide and transmembrane-domain predictions from the project's DeepTMHMM analysis, hyperLOPIT/TAGM compartment, published CRISPR fitness scores, and tachyzoite, tissue-cyst, and EES1-5 expression. Tables are joined by gene number so TGGT1 and TGME49 identifiers match. Writes supplementary_topology.csv beside the results. Disable this setting for non-Toxoplasma screens. The deprecated alias 'toxo' remains accepted. Default True.",
-      "translation": "将内置的 Toxoplasma 注释关联到每个导出表，并据此为火山图着色。该注释包括基因名称和产物、信号肽及项目 DeepTMHMM 分析得到的跨膜结构域预测、hyperLOPIT/TAGM 区室、已发表的 CRISPR 适合度评分，以及速殖子、组织囊和 EES1-5 表达数据。各表按基因编号关联，因此 TGGT1 与 TGME49 标识符可以匹配。在结果旁写入 supplementary_topology.csv。对于非 Toxoplasma 筛选，请禁用此设置。已弃用的别名 'toxo' 仍可使用。默认值为 True。"
     },
     {
       "table": "setting_tooltips",

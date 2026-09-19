@@ -101,7 +101,7 @@ def test_a_cut_setting_does_reload(view, loads):
     for it."""
     before = len(loads)
 
-    _set(view, img_size=120)
+    _set(view, crop_size=120)
 
     assert len(loads) > before, "a new cut was served from the cache"
 
@@ -127,7 +127,7 @@ def test_the_signature_ignores_the_display_settings(view):
 
 def test_the_signature_notices_a_cut_setting(view):
     first = view._load_signature()
-    _set(view, img_size=64)
+    _set(view, crop_size=64)
 
     assert view._load_signature() != first
 

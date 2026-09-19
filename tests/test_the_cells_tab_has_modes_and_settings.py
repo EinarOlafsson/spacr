@@ -46,7 +46,7 @@ def test_the_settings_are_the_annotators_own(view):
     offered = view.picture_settings()
     annotate = set_annotate_default_settings({})
 
-    for key in ("img_size", "normalize_channels", "percentiles", "outline",
+    for key in ("crop_size", "normalize_channels", "percentiles", "outline",
                 "edge_thickness", "image_type"):
         assert key in offered, f"{key} is not offered"
         assert key in annotate, f"{key} is not the annotator's name for it"

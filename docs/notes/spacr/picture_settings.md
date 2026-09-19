@@ -147,7 +147,7 @@ WHICH SOURCE PLANE IS DRAWN IN WHICH COLOUR, and which colours survive into the 
 ### line 229
 
 ```python
-("Picture", ("img_size", "object_size", "normalize_channels",
+("Picture", ("crop_size", "object_size", "normalize_channels",
 ```
 
 HOW THE OBTAINED CROP IS DRAWN: its size and its contrast.
@@ -260,7 +260,7 @@ So only an INDEX form crosses over. Letters stay a display setting and reach the
 value = [int(value), int(value)]
 ```
 
-`img_size` is ONE number -- a single spin box -- and `png_size` is a (width, height) pair. Handed the scalar, `crop_spec_from_settings` raised "'int' object is not subscriptable" from inside the montage worker.
+`crop_size` (called `img_size` until 2026-09-19) is ONE number -- a single spin box -- and `png_size` is a (width, height) pair. Handed the scalar, `crop_spec_from_settings` raised "'int' object is not subscriptable" from inside the montage worker.
 
 ### lines 534-535  _(unsure)_
 

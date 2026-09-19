@@ -26,6 +26,8 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [describe_resources](#describe_resources) (6 entries)
 - [run_preflight](#run_preflight) (1 entry)
 - [_listdir, 2026-09-19](#_listdir-2026-09-19) (1 entry)
+- [RETIRED_SETTINGS, 2026-09-19](#retired_settings-2026-09-19) (4 entries)
+- [_check_retired_keys, 2026-09-19](#_check_retired_keys-2026-09-19) (2 entries)
 
 ## Module level
 
@@ -716,3 +718,43 @@ return [name for name in os.listdir(path) if not name.startswith('.')]
 ```
 
 Every preflight listing goes through this one function: the raw images, `stack/`, `merged/`, the size estimate and the intensity plan. On a macOS external volume (GitHub #121 and #117) each of those files has an AppleDouble sidecar, `._<name>`, with the same ending. So every count the preflight printed was doubled. Worse, `_peek_planes` samples the first three `.npy` names in sorted order, and a dot sorts before every letter and digit. With three fields and their sidecars in `stack/`, the three it tried were the sidecars. Measured on the code before this line: no plane count and a file count of 6 for 3 fields, so the preflight fell back to guessing channels from the raw file names. `validate` is tested to import no torch, so it filters here rather than through `spacr.io._listdir_visible`. Reasons for the dot-file rule are in `docs/notes/spacr/io.md` under `_listdir_visible`.
+
+## RETIRED_SETTINGS, 2026-09-19
+
+```python
+"grna": "",
+```
+
+`grna` was declared only by `get_map_barcodes_default_settings`, which nothing under `spacr/` calls, and its own tooltip said so. The live equivalent is `grna_csv`, read by `generate_barecode_mapping`. Retired 2026-09-14 under 364, approved by the maintainer 2026-09-09. This reason sat as a `#` comment inside the dict until 2026-09-19, when the entries below joined it and the comment moved here.
+
+```python
+"barcodes": "",
+```
+
+`grna`'s sibling in the same dead factory, approved for retirement on the same day and HELD from 2026-09-14 to 2026-09-19, because a human-reviewed zh_CN translation was pinned to its tooltip. The maintainer decided on 2026-09-19: "Retire both" (with `Toxoplasma`). The reviewed record was withdrawn and recorded as withdrawn in its own file, `docs/i18n/reviewed/runtime/zh_CN/2026-08-14-tail-000-020.json`, under `review_notes`. No replacement is named, because `grna_csv`, `row_csv` and `column_csv` were always the keys that worked, and pointing at one would imply `barcodes` had been doing something.
+
+```python
+"Toxoplasma": "annotation_source",
+```
+
+FOLDED, NOT RENAMED, which is why `Toxoplasma` and `toxo` are in `spacr.settings.SEMANTIC_FOLDS` and not in `RENAMED_SETTINGS`. A plain move would put `True` in a field that expects an organism name. `settings._fold_toxoplasma` does the migration: a name already in `annotation_source` wins, and otherwise true means `'toxoplasma'` and false means no annotation. Retired 2026-09-19 at the maintainer's decision; its reviewed zh_CN tooltip record was withdrawn and recorded in `docs/i18n/reviewed/runtime/zh_CN/2026-08-26-post-fallback-residuals.json`. `toxo` points straight at `annotation_source` rather than at `Toxoplasma`, because a replacement that is itself retired sends the reader to a second dead end.
+
+```python
+"img_size": "crop_size",
+```
+
+RENAMED 2026-09-19 at the maintainer's decision ("crop_size"). NOT `image_size`, which was the name first proposed: `image_size` is already a live setting and means the MODEL's input crop, default 224, read by training and inference. `img_size` is how many pixels each cell is DRAWN at, default 200, on the Annotate screen and the Cells tab. Folding one into the other would have put the model's tooltip on a display control. `settings.RENAMED_SETTINGS` carries the same pair, so the run moves an old file's value across.
+
+## _check_retired_keys, 2026-09-19
+
+```python
+meaning = SEMANTIC_FOLD_MEANINGS.get(key)
+```
+
+A SEMANTIC FOLD GETS ITS OWN SENTENCE. It used to be reported as a rename, "as it stands the value is ignored and the default is used", which was false twice over: the old value is read, and it does not move under the new name unchanged. `gradient_accumulation` had carried that sentence since 2026-09-09. The message now names the replacement and says what the old value still means, from `settings.SEMANTIC_FOLD_MEANINGS`.
+
+```python
+f"Rename '{key}' to '{replacement}'. spaCR still moves the "
+```
+
+THE RENAME ADVICE USED TO SAY THE VALUE WAS IGNORED, which stopped being true with 15fa72737 (2026-09-12). Since then `tests/test_the_two_settings_tables_agree.py` has asserted that every rename the doctor reports is performed by `_fold_renamed_settings`, and every factory in `spacr/settings.py` that fills a renamed key calls it first -- seven of them, checked by an AST walk on 2026-09-19. Kept in step on 2026-09-19, when `img_size` became the first rename whose old value had always worked.

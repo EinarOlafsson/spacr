@@ -1020,20 +1020,12 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "highlight": "",
     "guide_permutation_plot": "",
     "corrected_manders": "",
-    # `grna` was declared only by `get_map_barcodes_default_settings`, which
-    # nothing under `spacr/` calls, and its own tooltip said so. The live
-    # equivalent is `grna_csv`, read by `generate_barecode_mapping`. Retired
-    # 2026-09-14 under 364, approved by the maintainer 2026-09-09.
     "grna": "",
+    "barcodes": "",
+    "Toxoplasma": "annotation_source",
+    "toxo": "annotation_source",
+    "img_size": "crop_size",
 }
-#: NOT HERE, YET: `barcodes`, `grna`'s sibling in the same dead factory and
-#: approved for the same retirement on the same day. It is HELD because a
-#: REVIEWED translation is pinned to its tooltip --
-#: `docs/i18n/reviewed/runtime/zh_CN/2026-08-14-tail-000-020.json`, record
-#: ("setting_tooltips", "barcodes") -- so withdrawing it retires a reviewed
-#: record rather than only a dead key. `grna` has no reviewed record in any
-#: of the nine locales, which is why it could go alone.
-#:
 #: NOT HERE: a setting withdrawn from ONE panel while `spacr.settings` still
 #: declares it. `log_x`, `log_y`, `x_lim`, `y_lims` and `png_type` left the
 #: regression panel and are read elsewhere, so naming one here would warn a
@@ -1071,6 +1063,17 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
                 continue
             replacement = (survivors[0] if len(survivors) == 1
                            else tuple(survivors))
+        from .settings import SEMANTIC_FOLD_MEANINGS
+
+        meaning = SEMANTIC_FOLD_MEANINGS.get(key)
+        if meaning and replacement:
+            problems.append(Problem(
+                WARNING, key,
+                f"'{key}' was folded into '{replacement}'.",
+                f"Set '{replacement}' instead. spaCR still reads the old "
+                f"value -- {meaning} -- so a file that has not been updated "
+                f"still behaves as it did."))
+            continue
         if isinstance(replacement, (tuple, list)):
             names = ", ".join(f"'{one}'" for one in replacement)
             problems.append(Problem(
@@ -1084,8 +1087,9 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
             problems.append(Problem(
                 WARNING, key,
                 f"'{key}' was renamed to '{replacement}'.",
-                f"Rename '{key}' to '{replacement}' — as it stands the "
-                f"value is ignored and the default is used."))
+                f"Rename '{key}' to '{replacement}'. spaCR still moves the "
+                f"value across when it reads this file, but the new name is "
+                f"the one to write."))
         else:
             problems.append(Problem(
                 WARNING, key,

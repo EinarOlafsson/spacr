@@ -13,21 +13,21 @@ _USER_HOME_PATH = re.compile(r"""(?:/home/|/Users/|[A-Za-z]:\\Users\\)[^/\\\s'"]
 
 
 def test_legacy_barcode_defaults_use_packaged_references():
-    """The one surviving legacy default still ships with the package.
+    """The legacy helper's keys are gone; the packaged references are not.
 
-    `grna` USED TO BE CHECKED HERE and is not any more. It was retired on
-    2026-09-14 under instruction 364 (approved by the maintainer 2026-09-09):
-    it was declared only by `get_map_barcodes_default_settings`, which nothing
-    under `spacr/` calls, so `settings['grna']` was read by no pipeline and its
-    own tooltip said so. `validate.RETIRED_SETTINGS` now maps it to "" and the
-    key is gone from `expected_types`, `categories` and all ten catalogs.
+    `grna` WAS CHECKED HERE until 2026-09-14 and `barcodes` until 2026-09-19.
+    Both were declared only by `get_map_barcodes_default_settings`, which
+    nothing under `spacr/` calls, so neither value was ever read by a
+    pipeline, and each tooltip said so. Instruction 364 retired both
+    (approved 2026-09-09; `barcodes` was held until the maintainer decided on
+    2026-09-19 to withdraw the reviewed zh_CN translation pinned to its
+    tooltip). `validate.RETIRED_SETTINGS` maps each to "".
 
-    The key going away does NOT retire the packaged gRNA reference table, and
+    The keys going away does NOT retire the packaged reference tables, and
     the two are checked separately below so a later cleanup cannot confuse
-    them: `bundled_barcode_path('grna')` is still the shipped default of the
-    LIVE `grna_csv` (spacr/settings.py, `set_default_generate_barecode_mapping`
-    -> `settings.setdefault('grna_csv', bundled_barcode_path('grna'))`), which
-    `generate_barecode_mapping` actually reads.
+    them: the LIVE `grna_csv`, `column_csv` and `row_csv`, which
+    `generate_barecode_mapping` actually reads, still default to the shipped
+    files (`set_default_generate_barecode_mapping`).
     """
     from spacr.settings import (
         bundled_barcode_path,
@@ -36,17 +36,16 @@ def test_legacy_barcode_defaults_use_packaged_references():
     )
 
     configured = get_map_barcodes_default_settings({})
-    assert "grna" not in configured, (
-        "`grna` was retired on 2026-09-14; the dead factory must not put it "
-        "back into a settings dict"
-    )
-    assert configured["barcodes"] == bundled_barcode_path("column")
-    assert Path(configured["barcodes"]).is_file()
+    for retired in ("grna", "barcodes"):
+        assert retired not in configured, (
+            f"`{retired}` was retired under 364; the dead factory must not "
+            "put it back into a settings dict")
 
-    # The live key that replaced it, and the packaged table it points at.
     live = set_default_generate_barecode_mapping({"src": "/tmp"})
-    assert live["grna_csv"] == bundled_barcode_path("grna")
-    assert Path(live["grna_csv"]).is_file()
+    for key, kind in (("grna_csv", "grna"), ("column_csv", "column"),
+                      ("row_csv", "row")):
+        assert live[key] == bundled_barcode_path(kind), key
+        assert Path(live[key]).is_file(), key
 
 
 def test_regression_metadata_has_no_workstation_default():

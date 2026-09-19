@@ -141,7 +141,7 @@ def test_the_montages_settings_come_back_and_the_crops_are_not_reloaded(qtbot):
     saved = CellMontageView(threaded=False)
     qtbot.addWidget(saved)
     saved.set_coefficient(GENE_KEY)
-    saved._picture_settings = {"normalize_channels": "r,g,b", "img_size": 128}
+    saved._picture_settings = {"normalize_channels": "r,g,b", "crop_size": 128}
     document = saved.workspace_state()
 
     fresh = CellMontageView(threaded=False)

@@ -502,7 +502,7 @@ a retry that worked
 if isinstance(size, (int, float)) and not isinstance(size, bool):
 ```
 
-A BARE NUMBER IS A SQUARE. The annotator's `img_size` is one integer it is a single spin box -- and mapping it straight onto `png_size` gave this function a scalar, where `size[0]` raises
+A BARE NUMBER IS A SQUARE. The annotator's `crop_size` (`img_size` until 2026-09-19) is one integer it is a single spin box -- and mapping it straight onto `png_size` gave this function a scalar, where `size[0]` raises
 
 TypeError: 'int' object is not subscriptable
 

@@ -54,6 +54,8 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [get_plot_data_from_csv_default_settings](#get_plot_data_from_csv_default_settings) (1 entry)
 - [get_automated_motility_assay_default_settings](#get_automated_motility_assay_default_settings) (9 entries)
 - [_set_organelle_defaults](#_set_organelle_defaults) (11 entries)
+- [_fold_toxoplasma, 2026-09-19](#_fold_toxoplasma-2026-09-19) (3 entries)
+- [RENAMED_SETTINGS, 2026-09-19](#renamed_settings-2026-09-19) (2 entries)
 
 ## canonical_feature_selection
 
@@ -3138,3 +3140,34 @@ for role in declared_organelle_roles(settings)[1:]:
 ```
 
 Each secondary slot gets the same defaults and its own independent type preset. Translate only at this boundary so the preset implementation has one vocabulary and one set of tests.
+
+## _fold_toxoplasma, 2026-09-19
+
+```python
+_fold_toxoplasma(settings)
+```
+
+`Toxoplasma` RETIRED on 2026-09-19, instruction 364, at the maintainer's decision ("Retire both", with `barcodes`). This replaces the two entries under `get_perform_regression_default_settings` anchored at `if 'toxo' in settings:` and at the `settings.setdefault(` that derived `annotation_source` from the switch. Their reasons still hold and moved into `_fold_toxoplasma`: an old file's switch is MIGRATED, never dropped, and false keeps meaning no annotation. What changed is that the switch no longer survives the migration, so the panel and the run have one control for one question.
+
+THE ONE BEHAVIOUR THAT CHANGES, found by reading the old code rather than the survey. Before the retirement a blank `annotation_source` with no switch in the file meant the bundled tables, because the factory defaulted the switch to true and `ml._annotation_source` fell back to it. Now a blank field is the only way to say no annotation, so that file annotates nothing. A file saved from the panel carries both keys and is unaffected: a true switch beside a blank field still gives `'toxoplasma'`. The upside is the reason for it: the switch was hidden on the panel, so a panel user had no way to turn annotation off at all.
+
+```python
+return value.strip().lower() not in (
+```
+
+A STRING 'False' IS OFF. A loader that does not type its values hands this the text, and `bool('False')` is True. The code this replaces used `bool()` on the raw value, both in the regression factory and in `ml._toxoplasma_is_on`, and `toxo` was never in `expected_types`, so no type table would have caught it on the way in. The CLI's own CSV reader does type `False`; the rule here does not depend on which reader ran.
+
+## RENAMED_SETTINGS, 2026-09-19
+
+```python
+"img_size": "crop_size",
+```
+
+RENAMED at the maintainer's decision, 2026-09-19. The proposal was `image_size`, and it could not be built as approved: `image_size` is already a live setting meaning the model's input crop (default 224), while `img_size` is how many pixels each cell is drawn at (default 200) on the Annotate screen and the Cells tab. `crop_size` is typed in `expected_types` so the fold has a live terminus, and `set_annotate_default_settings` folds before filling its defaults. The Cells tab's saved picture settings are moved by `picture_settings.drop_retired`, which asks `surviving_setting_name` rather than keeping a second table.
+
+```python
+"%s=%r is applied as %s. The setting was renamed and this "
+```
+
+THE LINE USED TO SAY "until now the value was ignored and the default used". That was true of the renames 15fa72737 repaired on 2026-09-12 and false of every rename made since, `img_size` first: its value always worked. The line now says only what is true of all of them.
+
