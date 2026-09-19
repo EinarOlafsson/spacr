@@ -162,9 +162,13 @@ def test_the_most_recently_visited_screen_lends_its_console(qtbot):
 def test_a_visited_screen_beats_one_the_user_never_opened(qtbot):
     """A screen registered later but never visited must not win.
 
-    This is the order the real window produces: Mask, then Measure, then
-    back to Mask, then a tool with no console. The report belongs in Mask,
-    not in whichever console was registered last.
+    The fixture registers a screen that no visit ever reached. The real
+    window registers and visits a screen in the same call, so this pins
+    the fallback order rather than a sequence a user can click: visited
+    screens first, most recent visit first, then screens never visited,
+    newest registration first.
+    The Mask, Measure, Mask sequence a user produces is pinned by
+    ``test_the_most_recently_visited_screen_lends_its_console``.
     """
     window = QWidget()
     qtbot.addWidget(window)
