@@ -3208,6 +3208,13 @@ class MakeMasksScreen(QWidget):
         #: Set with the folder by :meth:`_open_folder`, so no field of one
         #: set is ever read or saved against another set's masks.
         self._masks_dir: Optional[str] = None
+        #: What a terminal-built session had to say when it opened, still
+        #: waiting for its first field to land. A field large enough to load
+        #: off the GUI thread arrives after :meth:`open_queue` has returned,
+        #: and its status line would otherwise replace the notice before
+        #: anybody could read it. Emptied once shown, and by any other
+        #: folder being opened.
+        self._session_notice: str = ""
         self._current_index: int = 0
         self._history = engine.MaskHistory(capacity=25)
         #: The ledger for the field on screen, seeded from any sidecar
@@ -3286,9 +3293,13 @@ class MakeMasksScreen(QWidget):
         * ``seg`` opens the queue folder with the ``_seg.npy`` bundles as
           its fields, each saved back into itself.
 
-        What the session had to say about its ordering -- a ``prob`` or
-        ``easy`` order that fell back for want of scores -- is put on screen
-        with it, not only in the terminal that started it.
+        What the session had to say -- a ``prob`` or ``easy`` order that
+        fell back for want of scores, fields the scores do not name, a
+        resume record beside the folder rather than in it -- is put on
+        screen with it, not only in the terminal that started it. It stays
+        on the status line after the first field loads, including a field
+        large enough to load in the background, which lands after this
+        returns.
 
         :param queue: a :class:`spacr.curation_queue.CurationQueue`.
         :returns: whether the editor is now on that session.
@@ -3322,8 +3333,24 @@ class MakeMasksScreen(QWidget):
         self._src_label.setText(
             f"{queue.folder}  --  {len(files)} to curate this session, "
             f"{queue.order_phrase}")
-        self._status_label.setText("  ".join((queue.describe(),) + notices))
+        self._session_notice = "  ".join((queue.describe(),) + notices)
+        self._show_session_notice(keep=self._loading)
         return True
+
+    def _show_session_notice(self, *, keep: bool = False) -> None:
+        """Put the session's opening notice after what the status line says.
+
+        :param keep: hold the notice for the field still loading in the
+            background, so it is shown again when that field lands.
+        """
+        notice = self._session_notice
+        if not notice:
+            return
+        if not keep:
+            self._session_notice = ""
+        current = self._status_label.text()
+        self._status_label.setText(f"{current}  {notice}" if current
+                                   else notice)
 
     def _layout_kwargs(self) -> dict:
         """What every mask read and write passes for this folder's layout.
@@ -5706,6 +5733,7 @@ class MakeMasksScreen(QWidget):
             self._warn("No images", f"Found no image files in: {folder}")
             return False
         self._queue = None
+        self._session_notice = ""
         self._masks_dir = masks_dir
         self._folder = folder
         self._image_files = files
@@ -5866,6 +5894,7 @@ class MakeMasksScreen(QWidget):
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
         self.apply_object_filter(on_load=True)
+        self._show_session_notice()
         self._magnifier.refresh()
 
     def _open_ledger(self, filename: str) -> CurationLog:

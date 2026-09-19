@@ -296,7 +296,10 @@ class QueueLayout:
 
     @property
     def status_path(self) -> Path:
-        """:returns: the path of this queue's ``curate_status.csv``."""
+        """:returns: where this queue's resume record is read and written:
+            ``<folder>/curate_status.csv``, or the external curation tool's
+            ``<parent>/<name>_status.csv`` beside the folder when that is
+            the record the folder has. :func:`status_path` decides."""
         return status_path(self.folder)
 
     def mask_destination(self, stem: str) -> Path:
@@ -406,11 +409,14 @@ class CurationQueue:
         of probabilities.
     :ivar limit: the cap that was applied, or ``None``.
     :ivar summary: counts over the WHOLE folder, not over this session.
-    :ivar notices: what the ordering could not do as asked -- a ``prob`` or
-        ``easy`` order with no scores file, or with fields the scores file
-        does not name. Printed when the queue is built and shown by the
-        editor with it, because an ordering that quietly became another one
-        is the failure this module is most careful about.
+    :ivar notices: what the curator should know before the first field --
+        a ``prob`` or ``easy`` order with no scores file, or with fields the
+        scores file does not name, and a resume record that is the external
+        tool's file beside the folder, which every save then writes to.
+        Printed when the queue is built and shown by the editor with it,
+        because an ordering that quietly became another one, or a save that
+        quietly lands outside the folder that was opened, is the failure
+        this module is most careful about.
     """
 
     layout: QueueLayout
@@ -1299,8 +1305,10 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
     absence of scores is never silent: no scores file falls back to
     ``value`` and says so, naming both places it looked; a scores file that
     leaves some waiting fields unscored says how many; and where the scores
-    came from is printed. The two warnings are kept on the queue as
-    :attr:`CurationQueue.notices` for the editor to show.
+    came from is printed. Those warnings, and the one that says progress
+    is being written back to the external tool's record beside the folder,
+    are kept on the queue as :attr:`CurationQueue.notices` for the editor
+    to show.
 
     :param folder: the queue folder.
     :param order: one of :data:`ORDERS`; :data:`DEFAULT_ORDER` by default.
@@ -1329,15 +1337,18 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
     layout = detect_layout(folder)
     status = read_status(layout.folder)
     summary = summarize(layout.items, status)
+    notices: List[str] = []
     record = status_path(layout.folder)
     if record.parent != Path(layout.folder):
-        say(f"resuming from {record}, the record the external curation tool "
-            f"keeps beside the folder; progress is written back there")
+        notice = (f"resuming from {record}, the record the external curation "
+                  f"tool keeps beside the folder; progress is written back "
+                  f"there")
+        notices.append(notice)
+        say(notice)
 
     waiting = (list(layout.items) if include_reviewed
                else pending_items(layout.items, status))
 
-    notices: List[str] = []
     probabilities: Optional[Mapping[str, float]] = None
     source: Optional[Path] = None
     if order in ("prob", "easy"):
@@ -1360,9 +1371,14 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
                     if item.stem not in (probabilities or {})]
         if unscored:
             where = source if source is not None else "the scores given"
+            if effective == "easy":
+                rank = ("easy order still puts populated drafts before empty "
+                        "ones, and within each group ranks them below every "
+                        "scored field")
+            else:
+                rank = "prob order ranks them below every scored field"
             notice = (f"! {len(unscored)} of {len(waiting)} field(s) have no "
-                      f"probability in {where}; {effective} order ranks them "
-                      f"below every scored field")
+                      f"probability in {where}; {rank}")
             notices.append(notice)
             say(notice)
 

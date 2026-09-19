@@ -679,6 +679,10 @@ def test_a_folder_with_only_the_external_record_resumes_from_it(tmp_path,
     assert (queue.summary.done, queue.summary.skip) == (1, 1)
     assert queue.layout.status_path == beside
     assert str(beside) in capsys.readouterr().out, "the adoption was silent"
+    assert any(str(beside) in notice and "written back" in notice
+               for notice in queue.notices), (
+        "the editor is never told that its saves go to a file outside the "
+        "folder it opened")
 
     mark_state(folder, "ccc", "done", n_objects=1)
 
@@ -769,6 +773,41 @@ def test_fields_the_scores_file_does_not_name_are_counted_aloud(tmp_path,
     assert _stems(queue.items)[0] == "bbb"
     assert "2 of 3 field(s) have no probability" in printed
     assert len(queue.notices) == 1 and "2 of 3" in queue.notices[0]
+
+
+def test_the_easy_notice_describes_the_order_easy_actually_uses(tmp_path,
+                                                                capsys):
+    """An unscored draft still beats a scored empty one under ``easy``.
+
+    The notice used to say every order "ranks them below every scored
+    field", which is ``prob``'s rule. ``easy`` sorts populated drafts first
+    whatever their probability, so an unscored populated field is offered
+    BEFORE a scored empty one, and the sentence must not claim otherwise.
+    """
+    folder = _nested_layout(tmp_path, {"aaa": 1, "bbb": 0, "ccc": 1})
+    _scores(folder, {"bbb": 0.9, "ccc": 0.1})
+
+    queue = build_queue(folder, order="easy", cache_counts=False)
+
+    assert queue.effective_order == "easy"
+    assert _stems(queue.items) == ["ccc", "aaa", "bbb"]
+    notice, = queue.notices
+    assert "1 of 3 field(s) have no probability" in notice
+    assert "populated drafts before empty ones" in notice
+    assert "within each group" in notice
+    assert notice in capsys.readouterr().out
+
+
+def test_the_prob_notice_says_unscored_fields_come_last(tmp_path):
+    """Under ``prob`` the unscored ARE below every scored field."""
+    folder = _nested_layout(tmp_path, {"aaa": 1, "bbb": 0})
+    _scores(folder, {"bbb": 0.01})
+
+    queue = build_queue(folder, order="prob", cache_counts=False)
+
+    assert _stems(queue.items) == ["bbb", "aaa"]
+    notice, = queue.notices
+    assert notice.endswith("prob order ranks them below every scored field")
 
 
 def test_a_fully_scored_queue_carries_no_notice(tmp_path, capsys):

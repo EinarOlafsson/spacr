@@ -295,11 +295,15 @@ def _bundle_image(path: str, payload: Dict, shape) -> Tuple[np.ndarray, str]:
     In the order the external curation tool used:
 
     1. the original the bundle names in ``source_image``, looked for BY
-       NAME beside the bundle and used only when its shape matches the
-       labels. The stored path itself is never touched: it is absolute and
-       from whichever machine staged the set, and a stat on another
-       machine's mount can hang the thread that asked;
-    2. the ``img`` the bundle carries;
+       NAME where that tool looked for it -- ``new_originals/`` and then
+       ``training_data/`` beside the queue folder, then beside the bundle
+       itself -- and used only when its shape matches the labels. The
+       stored path itself is never touched, which is the one step of that
+       tool's search left out: it is absolute and from whichever machine
+       staged the set, and a stat on another machine's mount can hang the
+       thread that asked;
+    2. the ``img`` the bundle carries, often an 8-bit display copy of that
+       original;
     3. an image of the bundle's own stem beside it, the display copy the
        external tool writes next to each bundle.
 
@@ -312,13 +316,18 @@ def _bundle_image(path: str, payload: Dict, shape) -> Tuple[np.ndarray, str]:
     folder = os.path.dirname(path)
     source = payload.get("source_image")
     if source:
-        original = os.path.join(folder, os.path.basename(str(source)))
-        if os.path.isfile(original):
+        name = os.path.basename(str(source))
+        project = os.path.dirname(os.path.abspath(folder))
+        for original in (os.path.join(project, "new_originals", name),
+                         os.path.join(project, "training_data", name),
+                         os.path.join(folder, name)):
+            if not os.path.isfile(original):
+                continue
             try:
                 pixels = np.asarray(imageio.imread(original))
             except Exception:
-                pixels = None
-            if pixels is not None and pixels.shape[:2] == tuple(shape)[:2]:
+                continue
+            if pixels.shape[:2] == tuple(shape)[:2]:
                 return pixels, original
     embedded = payload.get("img")
     if embedded is not None:

@@ -2,19 +2,20 @@
 MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
 ================================================================================
 
-Status:    BUILT, 100%, 2026-09-19 (second note of that date, at the foot of
-           this file). The editor now opens and saves all three layouts IN
-           PLACE -- nested, sibling `images/`+`masks/`, and `*_seg.npy`
-           bundles -- and `spacr-make-masks` no longer refuses any of them
-           (`editor_refusal` is gone). `prob`/`easy` ordering says where it
-           looked when there are no scores, counts fields a scores file does
-           not name, reads the external tool's `<name>_scores.csv` beside the
-           folder, and the editor shows those notices too. A folder with no
-           record of its own resumes from the external tool's
-           `<name>_status.csv` beside it. Committed on branch
-           home/396-editor-layouts, not pushed. Not yet used by the maintainer
-           on a real set: the proof is widget-driving tests and read-only
-           probes of three real queues (below).
+Status:    BUILT, 100%, 2026-09-19, on nightly (the second and third notes
+           of that date, at the foot of this file). The editor opens and
+           saves all three layouts IN PLACE -- nested, sibling
+           `images/`+`masks/`, and `*_seg.npy` bundles -- and
+           `spacr-make-masks` no longer refuses any of them (`editor_refusal`
+           is gone). `prob`/`easy` ordering says where it looked when there
+           are no scores, counts fields a scores file does not name, reads the
+           external tool's `<name>_scores.csv` beside the folder, and the
+           editor keeps those notices on its status line after the first
+           field lands, however large it is. A folder with no record of its
+           own resumes from the external tool's `<name>_status.csv` beside it,
+           and the editor says so too. Not yet used by the maintainer on a
+           real set: the proof is widget-driving tests and read-only probes of
+           real queues (below).
 
            WAS, from 2026-09-19 until the note at the foot: PARTLY BUILT,
            ~85%. The queue, the status file, the orderings, the limit and
@@ -307,3 +308,92 @@ LEFT, honestly
     write into a synced data folder by a command that sounds read-only.
   * A bundle whose labels are 3-D, or whose image has a channel count other
     than 1, 3 or 4, is refused per field with the existing load message.
+
+--------------------------------------------------------------------------------
+2026-09-19 — AFTER REVIEW: THE NOTICES OUTLAST A REAL-SIZED FIELD
+--------------------------------------------------------------------------------
+
+Decided: no maintainer answer specific to 396 reached this pass either. It
+fixes what a review of the previous note found, under the same work order
+quoted above. The one open question stays open and is now visible where it
+matters: whether progress should go on being written back into the external
+tool's `<name>_status.csv` beside a folder. The editor now says that it
+does, and the maintainer can say otherwise.
+
+WHAT THE REVIEW FOUND (should-fix), AND IT WAS RIGHT
+  The note above said "the editor shows them in its status line when the
+  session opens". On the maintainer's sets it did not. A field of 8 MB or
+  more loads on a background thread and lands AFTER `open_queue` returns,
+  and `_apply_loaded_pair` then wrote `<file> (1/N)` over the notice.
+  Every real bundle is over that line (curate_single 14-17 MB, round3_queue
+  about 12 MB), so the "N of M field(s) have no probability" warning showed
+  for a fraction of a second. The tests used 256x256 fixtures, which load
+  on the GUI thread and never took that path. The load-time size filter
+  wrote over the line as well, whenever it dropped something.
+
+  Fixed in `spacr/qt/screens/make_masks.py`: `open_queue` keeps the notice in
+  `_session_notice` while the first field is still loading, and
+  `_apply_loaded_pair` adds it to the status line AFTER the load-time filter
+  has written there. It is shown once, with whichever field lands first.
+  Opening any other folder drops it.
+
+THE NITS, FIXED WHERE THEY WERE CHEAP
+  * The partial-scores notice said `easy` "ranks them below every scored
+    field". That is `prob`'s rule. Under `easy` an unscored populated draft
+    comes BEFORE a scored empty one. The easy sentence now says populated
+    drafts still come first, and that within each group the unscored come
+    last. A test pins both the order and the words.
+  * "resuming from <name>_status.csv ... progress is written back there" was
+    printed to the terminal only. It is now one of `CurationQueue.notices`,
+    so the editor tells the curator that saves update a file outside the
+    folder they opened.
+  * `QueueLayout.status_path` said it returned `curate_status.csv`. It now
+    says it may return the external record.
+  * The external tool looks for a bundle's original by name in
+    `<project>/new_originals/`, then `<project>/training_data/`, then beside
+    the bundle (`_load_original`, curate_masks_qt.py:1193, where `<project>`
+    is the queue folder's parent). spaCR looked only beside the bundle, so
+    for a set whose originals are in one of those folders it showed the
+    8-bit embedded `img` where the external tool showed the 16-bit original.
+    `_bundle_image` now searches all three, in the tool's order. It still
+    never stats the stored absolute path. On the two real sets neither
+    folder exists beside the queue (checked with `ls`, read-only), so what
+    they show does not change.
+
+TESTS
+  * tests/qt/test_the_editor_edits_every_queue_layout_in_place.py (+6):
+    - a 2100x2100 bundle (about 26 MB) with a four-pixel speck and a
+      minimum-area bound of 10, so the first field loads in the background
+      and the filter drops the speck. The test waits for the loader thread,
+      then checks the status line holds the filter's sentence AND the
+      notice;
+    - a small first field shows the notice, and Next does not show it again;
+    - a folder opened with Browse while the notice waits does not get it;
+    - an original in new_originals/ or training_data/ is found before one
+      beside the bundle, and new_originals/ is searched before
+      training_data/.
+  * tests/test_a_curation_session_resumes_where_it_stopped.py (+2 tests,
+    +1 assertion): the easy notice and the easy order agree, the prob
+    notice keeps its words, and the write-back notice is on the queue.
+  * Mutations, each caught: no notice after the background load; the notice
+    added before the filter; the notice kept after a synchronous load; the
+    notice never shown; Browse not clearing it; the original searched only
+    beside the bundle; training_data/ searched first; the write-back notice
+    not kept; the easy wording reverted.
+  * Results: 118 passed in the four queue and editor files; 507 passed, 1
+    skipped (Cellpose E2E, opt-in) in the twenty Make Masks screen and
+    engine files. In the docstring and comment checks, one red that was
+    already on nightly before this branch:
+    test_documented_assignment_prose on spacr/qt/preferences.py:3922.
+
+LEFT, honestly
+  * A bundle save still runs on the GUI thread. The review measured 60-225 ms
+    per Save on a copy of a 17 MB bundle on NVMe, and /mnt/wd4tb will be
+    slower. TIFF saves were already synchronous. Moving saves off the GUI
+    thread means dealing with Next being pressed while a save is still
+    running, and that is a change of its own.
+  * Everything the previous note left is still left: nobody has curated a
+    real set with this on a display; `easy` writes curate_drafts.csv inside
+    the folder even on --dry-run; 3-D labels and images that do not have
+    1, 3 or 4 channels are refused per field. The catalogs still owe
+    translations for the changed docstrings and sentences.

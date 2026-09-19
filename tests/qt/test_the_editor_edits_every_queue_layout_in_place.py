@@ -333,6 +333,121 @@ def test_a_bundle_is_not_handed_to_a_module_that_opens_mask_files(
 
 
 # ===========================================================================
+# What the session had to say stays on screen
+# ===========================================================================
+
+#: A side at which a bundle holding the image and its labels crosses the
+#: screen's 8 MB background-load threshold, as every real bundle does: the
+#: two curation sets measured on 2026-09-19 hold 12 to 17 MB bundles.
+BIG_N = 2100
+#: The notice a queue of two fields carries when the scores name only one.
+UNSCORED = "1 of 2 field(s) have no probability"
+
+
+def _big_bundle(folder: Path, name: str) -> Path:
+    """A bundle big enough to load off the GUI thread.
+
+    It holds one real object and one four-pixel speck, which a minimum-area
+    bound of ten drops when the field loads -- and that drop writes its own
+    sentence to the status line, the second thing a notice has to outlast.
+    """
+    image = np.zeros((BIG_N, BIG_N), dtype=np.uint16)
+    labels = np.zeros((BIG_N, BIG_N), dtype=np.uint16)
+    image[100:200, 100:200] = 30000
+    labels[100:200, 100:200] = 1
+    image[400:402, 400:402] = 30000
+    labels[400:402, 400:402] = 2
+    path = folder / f"{name}_seg.npy"
+    np.save(path, {"img": image, "masks": labels,
+                   "outlines": np.zeros_like(labels)}, allow_pickle=True)
+    return path
+
+
+def test_the_sessions_notices_are_on_the_status_line_when_it_opens(
+        qtbot, qt_theme_applied, no_handover, seg):
+    """A small first field: the field is named and so is the notice."""
+    queue = build_queue(seg, order="prob", probs={"b_0": 0.9},
+                        cache_counts=False)
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+
+    assert screen.open_queue(queue)
+
+    text = screen._status_label.text()
+    assert not screen._loading
+    assert "b_0_seg.npy" in text
+    assert UNSCORED in text
+
+    screen._btn_next.click()
+
+    text = screen._status_label.text()
+    assert "b_1_seg.npy" in text
+    assert UNSCORED not in text, "the opening notice is repeated on every field"
+
+
+def test_the_notices_outlast_a_first_field_that_loads_in_the_background(
+        qtbot, qt_theme_applied, no_handover, tmp_path):
+    """Review of 2026-09-19: a 35 MB bundle left only ``f0_seg.npy (1/2)``.
+
+    Every real bundle is over the 8 MB line, so the field arrives from the
+    loader thread AFTER :meth:`open_queue` has returned, and the status line
+    it wrote used to replace the notice within a fraction of a second. The
+    load-time size filter then writes over the field's own line as well.
+    """
+    folder = tmp_path / "big"
+    folder.mkdir()
+    big = _big_bundle(folder, "a_big")
+    assert big.stat().st_size >= 8 * 1024 * 1024, (
+        "the fixture no longer crosses the background-load threshold")
+    image, mask = three_object_field()
+    np.save(folder / "b_small_seg.npy", {"img": image, "masks": mask},
+            allow_pickle=True)
+    queue = build_queue(folder, order="prob", probs={"a_big": 0.9},
+                        cache_counts=False)
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    screen._filter_min_area.setValue(10)
+
+    assert screen.open_queue(queue)
+
+    assert screen._loading, (
+        "the first field loaded on the GUI thread; this test is about the "
+        "other path")
+    assert UNSCORED in screen._status_label.text()
+    qtbot.waitUntil(lambda: screen._load_worker is None, timeout=30000)
+
+    text = screen._status_label.text()
+    assert screen._canvas.mask is not None
+    assert screen._canvas.mask.shape == (BIG_N, BIG_N)
+    assert "filter removed 1 object" in text, text
+    assert UNSCORED in text, text
+
+
+def test_a_folder_opened_before_the_notice_lands_does_not_inherit_it(
+        qtbot, qt_theme_applied, no_handover, tmp_path, sibling):
+    """The notice belongs to the session; Browse ends the session."""
+    folder = tmp_path / "big"
+    folder.mkdir()
+    _big_bundle(folder, "a_big")
+    image, mask = three_object_field()
+    np.save(folder / "b_small_seg.npy", {"img": image, "masks": mask},
+            allow_pickle=True)
+    queue = build_queue(folder, order="prob", probs={"a_big": 0.9},
+                        cache_counts=False)
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    assert screen.open_queue(queue)
+    assert screen._loading
+
+    assert screen._open_folder(str(sibling / "images"),
+                               masks_dir=str(sibling / "masks"))
+    qtbot.waitUntil(lambda: screen._load_worker is None, timeout=30000)
+
+    assert screen._queue is None
+    assert UNSCORED not in screen._status_label.text()
+
+
+# ===========================================================================
 # The real launch path, for the layouts that used to be refused
 # ===========================================================================
 
@@ -399,6 +514,46 @@ def test_a_bundle_prefers_its_original_found_by_name_beside_it(
 
     assert np.all(image == 1234), "the embedded uint8 img was shown instead"
     assert not any(p.startswith("/elsewhere") for p in asked)
+
+
+@pytest.mark.parametrize("where", ["new_originals", "training_data"])
+def test_a_bundle_finds_its_original_where_the_external_tool_kept_them(
+        seg, where):
+    """``new_originals/`` and ``training_data/`` beside the queue come first.
+
+    The external tool looked for the original by name there, then beside the
+    bundle. Without the first two, a set whose originals travel in them was
+    shown as its 8-bit embedded copy, where that tool showed the original.
+    """
+    imageio.imwrite(seg / "raw_b_0.tif",
+                    np.full((IMG_N, IMG_N), 1234, dtype=np.uint16))
+    (seg.parent / where).mkdir()
+    imageio.imwrite(seg.parent / where / "raw_b_0.tif",
+                    np.full((IMG_N, IMG_N), 4321, dtype=np.uint16))
+    path = seg / "b_0_seg.npy"
+    payload = bundle(path)
+    payload["source_image"] = "/elsewhere/machine/raw_b_0.tif"
+    np.save(path, payload, allow_pickle=True)
+
+    image, _mask = engine.load_seg_bundle(str(path))
+
+    assert np.all(image == 4321), f"the original in {where}/ was passed over"
+
+
+def test_new_originals_is_searched_before_training_data(seg):
+    """The external tool's order, so both tools show the same pixels."""
+    for where, value in (("new_originals", 11), ("training_data", 22)):
+        (seg.parent / where).mkdir()
+        imageio.imwrite(seg.parent / where / "raw_b_0.tif",
+                        np.full((IMG_N, IMG_N), value, dtype=np.uint16))
+    path = seg / "b_0_seg.npy"
+    payload = bundle(path)
+    payload["source_image"] = "raw_b_0.tif"
+    np.save(path, payload, allow_pickle=True)
+
+    image, _mask = engine.load_seg_bundle(str(path))
+
+    assert np.all(image == 11)
 
 
 def test_a_bundle_with_no_img_uses_the_display_image_of_its_stem(seg):
