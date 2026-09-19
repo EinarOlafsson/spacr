@@ -19,6 +19,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [SettingsComparison](#settingscomparison) (1 entry)
 - [plan_resume](#plan_resume) (1 entry)
 - [plan_measure_resume](#plan_measure_resume) (7 entries)
+- [completed_fields_in_merged and plan_measure_resume, 2026-09-19](#completed_fields_in_merged-and-plan_measure_resume-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -289,3 +290,11 @@ if tables and state.pending:
 ```
 
 3a. A foreign import's convenience copy in a canonical table is superseded the moment spaCR measures the same fields into it. Released here — before the deletes and long before the first insert — because measure appends, and a table holding both populations makes every per-well count the sum of two.
+
+## completed_fields_in_merged and plan_measure_resume, 2026-09-19
+
+```python
+if f.endswith('.npy') and not f.startswith('.')
+```
+
+A name that starts with a dot is not a field. On a macOS external volume `merged/` holds a `._<field>.npy` AppleDouble sidecar beside every field (item 429). `plan_measure_resume` planned `._plate1_A01_1` as a field, `validate_merged_field` rejected it as unreadable, so every resume re-queued it, reported it rejected, and handed it to a worker that failed on it. The rule is written inline rather than through `spacr.io._listdir_visible` because this module is stdlib-only: it is consulted before any model loads and must not import `spacr.io`, which imports torch.

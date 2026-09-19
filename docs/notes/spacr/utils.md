@@ -185,6 +185,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [copy_images_to_consolidated](#copy_images_to_consolidated) (3 entries)
 - [remove_outliers_by_group](#remove_outliers_by_group) (2 entries)
 - [generate_image_path_map, 2026-09-19](#generate_image_path_map-2026-09-19) (1 entry)
+- [measure_test_mode, 2026-09-19](#measure_test_mode-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -5019,3 +5020,11 @@ if file.startswith('.'):
 ```
 
 `consolidate=True` flattens every sub-folder of `src` into `consolidated/`, naming each copy `<sub-folders>_<file>`. On a macOS external volume (GitHub #121 and #117: exFAT, FAT and many SMB shares) every image has an AppleDouble sidecar, `._<name>`, with the same `.tif` ending. The walk took `sub/._img1.tif` for an image and named its copy `sub_._img1.tif`. The prefix moves the dot off the front, so no listing downstream could tell the copy was a sidecar any more; whether it was then read as a tiff depended on the regex. Dot-files are skipped here, before the rename can hide them, and dot-folders are pruned from the walk too: a volume root carries `.Spotlight-V100`, `.Trashes` and `.fseventsd`, none of which holds a plate. Reasons for the dot-file rule as a whole are in `docs/notes/spacr/io.md` under `_listdir_visible`.
+
+## measure_test_mode, 2026-09-19
+
+```python
+if f.endswith('.npy') and not f.startswith('.')
+```
+
+Test mode sampled every file in `merged/`, so `.spacr_plane_layout.json` and, on a macOS external volume, the `._<field>.npy` sidecar of each field (item 429) could take a field's place in `test/merged`. Test mode then measured fewer fields than `test_nr` asked for, and a sampled sidecar failed its worker. Only visible `.npy` fields are sampled now, and the "fewer than test_nr" message counts fields.

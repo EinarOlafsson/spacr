@@ -3304,7 +3304,7 @@ def measure_crop(settings):
         from .validate import run_preflight
         return run_preflight(settings, 'measure')
 
-    from .io import _save_settings_to_db
+    from .io import _save_settings_to_db, _listdir_visible
     from .cancellation import (
         PipelineCancelled,
         checkpoint as cancellation_checkpoint,
@@ -3441,7 +3441,7 @@ def measure_crop(settings):
 
                 _save_settings_to_db(settings)
 
-                files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
+                files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
                 _full_rescale_plan = build_plate_plan(
                     settings['src'], files, settings)
                 settings[PLAN_SETTINGS_KEY] = {
@@ -3671,11 +3671,13 @@ def generate_cellpose_train_set(folders, dst, min_objects=5):
     os.makedirs(os.path.join(dst,'masks'), exist_ok=True)
     os.makedirs(os.path.join(dst,'imgs'), exist_ok=True)
 
+    from .io import _listdir_visible
+
     ledger = RunLedger('generate_cellpose_train_set')
     for folder in folders:
         mask_folder = os.path.join(folder, 'masks')
         experiment_id = os.path.basename(folder)
-        for filename in os.listdir(mask_folder):
+        for filename in _listdir_visible(mask_folder):
             path = os.path.join(mask_folder, filename)
             img_path = os.path.join(folder, filename)
             newname = experiment_id + '_' + filename

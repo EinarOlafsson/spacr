@@ -7976,7 +7976,8 @@ def measure_test_mode(settings):
     if settings['test_mode']:
         if not os.path.basename(settings['src']) == 'test':
             all_files = [f for f in os.listdir(settings['src'])
-                         if os.path.isfile(os.path.join(settings['src'], f))]
+                         if f.endswith('.npy') and not f.startswith('.')
+                         and os.path.isfile(os.path.join(settings['src'], f))]
             n_test = min(int(settings['test_nr']), len(all_files))
             if n_test < 1:
                 raise ValueError(

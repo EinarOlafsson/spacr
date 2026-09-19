@@ -145,7 +145,8 @@ Typical use, from ``measure_crop``::
 
     from .resume import plan_measure_resume
     plan = plan_measure_resume(settings)      # None when resume is off
-    files = [f for f in os.listdir(src) if f.endswith('.npy')]
+    files = [f for f in os.listdir(src)
+             if f.endswith('.npy') and not f.startswith('.')]
     if plan is not None:
         files = plan.filter_files(files)
 """
@@ -661,7 +662,8 @@ def completed_fields_in_merged(src: str,
         This is how the caller can report "3 fields rejected as
         truncated" rather than silently doing more work.
     :param fields: restrict the scan to these stems. Defaults to every
-        ``.npy`` in ``src``.
+        ``.npy`` in ``src`` whose name does not start with a dot: a macOS
+        ``._`` sidecar ends in ``.npy`` too and is not a field.
     :returns: set of field stems (basename without ``.npy``) that are
         safe to skip.
 
@@ -679,7 +681,8 @@ def completed_fields_in_merged(src: str,
         return set()
 
     if fields is None:
-        names = sorted(f for f in os.listdir(src) if f.endswith('.npy'))
+        names = sorted(f for f in os.listdir(src)
+                       if f.endswith('.npy') and not f.startswith('.'))
         stems = [os.path.splitext(n)[0] for n in names]
     else:
         stems = [os.path.splitext(os.path.basename(str(f)))[0] for f in fields]
@@ -1989,7 +1992,8 @@ def plan_measure_resume(settings: Any,
 
     all_files = []
     if os.path.isdir(src):
-        all_files = sorted(f for f in os.listdir(src) if f.endswith('.npy'))
+        all_files = sorted(f for f in os.listdir(src)
+                           if f.endswith('.npy') and not f.startswith('.'))
     all_fields = [os.path.splitext(f)[0] for f in all_files]
 
     recorded = read_recorded_settings(db_path)
