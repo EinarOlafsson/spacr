@@ -186,10 +186,10 @@ conda-forge 설치
    conda install conda-forge::spacr
    spacr
 
-출처에서 설치하기
+소스 코드에서 설치
 ~~~~~~~~~~~~~~~~~~~
 
-저장소를 클론하고 편집 가능한 모드에 설치하여 작업 복사본 *is* 설치된 패키지 및 편집이 다시 설치하지 않고 효력을 발휘합니다.::
+저장소를 클론한 뒤 편집 가능 모드로 설치하십시오. 그러면 작업 사본 *자체가* 설치된 패키지가 되어, 수정 사항이 재설치 없이 반영됩니다::
 
     git clone https://github.com/EinarOlafsson/spacr.git
     cd spacr
@@ -198,21 +198,21 @@ conda-forge 설치
     pip install -e .
     spacr
 
-기본 지점은 ``nightly``입니다.특정 릴리스를 위해::
+이 명령은 최신 릴리스가 담긴 기본 브랜치인 ``main`` 브랜치를 클론합니다. 개발은 ``nightly`` 브랜치에서 이루어지며, 대신 이 브랜치를 클론하려면 ``--branch nightly`` 옵션을 추가하십시오. 특정 릴리스를 클론하려면::
 
     git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
 
-나중에 변화를 끌어내기 위해, 클론 내부에서::
+이후 변경 사항을 가져오려면 클론한 디렉터리 안에서 다음을 실행하십시오::
 
     git pull
     pip install -e .
 
-두 번째 라인은 의존 또는 입력 포인트가 변경되면만 필요합니다; Python 코드는 그것없이 수집됩니다. ``spacr-doctor`` 명령이 끌고 나서 여전히 오래된 코드를 실행하는 경우, ``spacr``는 실제로 당신의 길에 있으며, 이는 일반적인 원인입니다.
+두 번째 줄은 의존성이나 진입점이 바뀐 경우에만 필요하며, Python 코드는 이 줄 없이도 반영됩니다. pull 후에도 명령이 이전 코드를 실행한다면, ``spacr-doctor`` 명령이 경로에서 실제로 사용되는 ``spacr`` 실행 파일이 어느 것인지 알려 줍니다. 대개 이것이 원인입니다.
 
-출처에서 설치 (빛)
+소스 코드에서 설치 (경량)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Contributors need the history; to only run spaCR, take one of these, measured 2026-09-15 by ``packaging/measure_clone_forms.sh``::
+기여자에게는 전체 이력이 필요합니다. spaCR를 실행만 하려면 다음 중 하나를 사용하십시오. 수치는 2026-09-15에 ``packaging/measure_clone_forms.sh`` 스크립트로 측정했습니다::
 
     # One commit instead of every version: 540 MB downloaded, 69 s.
     # No history, so no git log, no git blame and no git bisect.
@@ -228,7 +228,7 @@ Contributors need the history; to only run spaCR, take one of these, measured 20
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-전체 클론은 1186MB 체크를 위해 5.8GB를 다운로드합니다.이 클론에 ``--filter=blob:none``를 추가하면 아무것도 저장하지 않습니다.
+전체 클론은 1186 MB 크기의 체크아웃을 위해 5.8 GB를 내려받습니다. 이 클론에 ``--filter=blob:none`` 옵션을 추가해도 절약되는 것은 없습니다. 체크아웃 과정에서 어차피 blob을 모두 가져오기 때문입니다.
 
 
 명령줄 진입점

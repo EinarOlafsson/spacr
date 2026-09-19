@@ -186,10 +186,10 @@ Det officiella conda-forge-paketet installerar spaCR och dess skrivbordsberoende
    conda install conda-forge::spacr
    spacr
 
-Installera från källkod
-~~~~~~~~~~~~~~~~~~~~~~~
+Installation från källkod
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Klonera arkivet och installera det i redigerbart läge, så din arbetskopia *är* det installerade paketet och redigeringar träder i kraft utan att installera om::
+Klona kodförrådet och installera det i redigerbart läge, så att din arbetskopia *är* det installerade paketet och ändringar börjar gälla utan ominstallation::
 
     git clone https://github.com/EinarOlafsson/spacr.git
     cd spacr
@@ -198,21 +198,21 @@ Klonera arkivet och installera det i redigerbart läge, så din arbetskopia *är
     pip install -e .
     spacr
 
-Standardfilialen är ``nightly``. För en specifik utgåva::
+Detta klonar ``main``, standardgrenen, som innehåller den senaste utgåvan. Utvecklingen sker på ``nightly``; lägg till ``--branch nightly`` för att klona den i stället. För en specifik utgåva::
 
     git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
 
-För att dra senare ändringar, inifrån klonen::
+För att hämta senare ändringar kör du inifrån klonen::
 
     git pull
     pip install -e .
 
-Den andra raden behövs bara när beroenden eller ingångspunkter ändras; Python kod plockas upp utan den. Om ett kommando fortfarande kör gammal kod efter dragning, rapporterar ``spacr-doctor`` som ``spacr`` faktiskt är på din väg, vilket är den vanliga orsaken.
+Den andra raden behövs bara när beroenden eller ingångspunkter har ändrats; Python-kod tas med även utan den. Om ett kommando fortfarande kör gammal kod efter en pull visar ``spacr-doctor`` vilken ``spacr`` som faktiskt ligger på din sökväg, vilket är den vanliga orsaken.
 
-Installera från källa (ljus)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Installation från källkod (lättviktig)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bidragsgivarna behöver historiken; för att bara köra spaCR, ta en av dessa, mätt 2026-09-15 med ``packaging/measure_clone_forms.sh``::
+Den som bidrar behöver historiken; för att bara köra spaCR räcker ett av dessa alternativ, uppmätta 2026-09-15 med ``packaging/measure_clone_forms.sh``::
 
     # One commit instead of every version: 540 MB downloaded, 69 s.
     # No history, so no git log, no git blame and no git bisect.
@@ -228,7 +228,7 @@ Bidragsgivarna behöver historiken; för att bara köra spaCR, ta en av dessa, m
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Den fullständiga klonen laddar ner 5,8 GB för en checkout på 1186 MB. Att lägga till ``--filter=blob:none`` till den klonen sparar ingenting: kassan hämtar ändå klumparna.
+Den fullständiga klonen laddar ner 5,8 GB för en utcheckning på 1186 MB. Att lägga till ``--filter=blob:none`` i den klonen sparar ingenting: utcheckningen hämtar blobbarna ändå.
 
 
 Kommandoradskommandon

@@ -186,10 +186,10 @@ Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsfo
    conda install conda-forge::spacr
    spacr
 
-Uppsetur frá kjarninu
-~~~~~~~~~~~~~~~~~~~~~
+Uppsetning frá frumkóða
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Klónaðu upphafinn og setja upp það í breyttan hátt, þannig að vinnumópi þína *is* byggð pakka og breytingar munu virka án endursetningu::
+Klónaðu kóðasafnið og settu það upp í breytanlegum ham, svo að vinnueintakið þitt *sé* uppsetti pakkinn og breytingar taki gildi án enduruppsetningar::
 
     git clone https://github.com/EinarOlafsson/spacr.git
     cd spacr
@@ -198,21 +198,21 @@ Klónaðu upphafinn og setja upp það í breyttan hátt, þannig að vinnumópi
     pip install -e .
     spacr
 
-Skammslan er ``nightly``. Fyrir ákveðinn útgáfur::
+Þetta klónar ``main``, sjálfgefnu greinina, sem geymir nýjustu útgáfuna. Þróunin fer fram á ``nightly``; bættu ``--branch nightly`` við til að klóna hana í staðinn. Fyrir tiltekna útgáfu::
 
     git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
 
-Til að draga eftirfarandi breytingar, frá innri klóna::
+Til að sækja síðari breytingar skaltu keyra inni í klóninu::
 
     git pull
     pip install -e .
 
-2. línu er aðeins nauðsynlegt þegar afhengingar eða innfangspunktur breytist; Python kóða er taka upp án þess. ef lögun er enn að hlaupa gamla kóða eftir að taka, ``spacr-doctor`` segir að ``spacr`` er í raun á leiðinni, sem er venjulega ástæða.
+Seinni línan er aðeins nauðsynleg þegar pakkar sem spaCR er háð eða inngangspunktar hafa breyst; Python-kóði skilar sér án hennar. Ef skipun keyrir enn gamlan kóða eftir að breytingar hafa verið sóttar sýnir ``spacr-doctor`` hvaða ``spacr`` er í raun í leitarslóðinni þinni, en þar liggur orsökin oftast.
 
-Að setja upp úr ljósið (Light)
+Uppsetning frá frumkóða (létt)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Tilboðsmenn þurfa sögu; til að hlaupa aðeins spaCR, taka einn af þeim, mættur 2026-09-15 með ``packaging/measure_clone_forms.sh``::
+Þeir sem leggja til kóða þurfa alla söguna; til að keyra spaCR eingöngu dugar ein af þessum leiðum. Tölurnar voru mældar 2026-09-15 með ``packaging/measure_clone_forms.sh``::
 
     # One commit instead of every version: 540 MB downloaded, 69 s.
     # No history, so no git log, no git blame and no git bisect.
@@ -228,7 +228,7 @@ Tilboðsmenn þurfa sögu; til að hlaupa aðeins spaCR, taka einn af þeim, mæ
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Full klón hættir niður 5,8 GB fyrir 1186 MB checkout. Að bæta ``--filter=blob:none`` til þessarar klón sparar ekkert: checkaut fær blobs alls.
+Fullt klón sækir 5,8 GB fyrir 1186 MB vinnutré. Það sparar ekkert að bæta ``--filter=blob:none`` við það klón: blob-hlutirnir eru sóttir hvort sem er þegar vinnutréð er sett upp.
 
 
 Skipanalínuskipanir

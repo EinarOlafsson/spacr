@@ -239,7 +239,9 @@ Clone the repository and install it in editable mode, so your working copy
     pip install -e .
     spacr
 
-The default branch is ``nightly``. For a specific release::
+This clones ``main``, the default branch, which carries the latest release.
+Development happens on ``nightly``; add ``--branch nightly`` to clone it
+instead. For a specific release::
 
     git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
 

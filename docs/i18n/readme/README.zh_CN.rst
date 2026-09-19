@@ -186,10 +186,10 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
    conda install conda-forge::spacr
    spacr
 
-安装源
+从源代码安装
 ~~~~~~~~~~~~~~~~~~~
 
-克隆存储库并将其安装在可编辑模式下,以便您的工作副本 *is* 安装的包和编辑有效,而无需重新安装::
+克隆代码仓库并以可编辑模式安装。这样工作副本 *就是* 已安装的软件包，修改无需重新安装即可生效::
 
     git clone https://github.com/EinarOlafsson/spacr.git
     cd spacr
@@ -198,21 +198,21 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
     pip install -e .
     spacr
 
-默认分支为 ``nightly``. 对于特定发布::
+这会克隆默认分支 ``main``，即最新的发布版本。开发在 ``nightly`` 分支上进行；如需改为克隆该分支，请添加 ``--branch nightly``。如需克隆特定版本::
 
     git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
 
-以后来的变化,从克隆的内部::
+之后如需拉取更新，请在克隆目录中运行::
 
     git pull
     pip install -e .
 
-第二行只需要当依赖或输入点改变时; Python 代码在没有它的情况下获取。 如果命令在拖动后仍然运行旧代码,则 ``spacr-doctor`` 报告 ``spacr`` 实际上是您的路径,这是常见原因。
+只有在依赖项或入口点发生变化时才需要第二行；Python 代码无需它即可生效。如果拉取后某个命令仍在运行旧代码，``spacr-doctor`` 会报告路径中实际使用的是哪个 ``spacr``，这通常就是原因所在。
 
-从源头安装(光)
+从源代码安装（精简版）
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-捐助者需要历史;只需运行 spaCR,请采取其中一个,测量为 2026-09-15 以 ``packaging/measure_clone_forms.sh``。::
+贡献者需要完整的提交历史；如果只想运行 spaCR，请选用以下任一方式。数据于 2026-09-15 由 ``packaging/measure_clone_forms.sh`` 测得::
 
     # One commit instead of every version: 540 MB downloaded, 69 s.
     # No history, so no git log, no git blame and no git bisect.
@@ -228,7 +228,7 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-完整的克隆下载 5.8 GB 为 1186 MB 支票. 添加 ``--filter=blob:none`` 到该克隆节省了什么:支票随之抓住了泡沫。
+完整克隆需下载 5.8 GB，检出的工作区为 1186 MB。给该克隆加上 ``--filter=blob:none`` 并不能节省任何下载量：检出时仍会获取这些 blob。
 
 
 命令行入口

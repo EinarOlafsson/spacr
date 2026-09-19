@@ -530,3 +530,96 @@ def test_the_scripts_help_lists_every_flag_and_no_shell(script, must_have):
     assert not leaked, (
         f"{script.name} --help ran off the end of its comment header and "
         f"printed the script itself: {leaked}")
+
+
+INSTALLER = REPO / "packaging" / "install_from_source.sh"
+CONTRIBUTING = REPO / "CONTRIBUTING.md"
+LOCALIZED = REPO / "docs" / "i18n" / "readme"
+LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
+
+
+def test_the_readme_names_the_default_branch_the_installer_uses():
+    """A plain clone gets the default branch, so the README must name it.
+
+    Until 2026-09-19 the README said "The default branch is ``nightly``"
+    beside a plain ``git clone``. GitHub's default branch was ``main``
+    (``gh repo view --json defaultBranchRef``), ``install_from_source.sh``
+    defaulted to ``main``, and CONTRIBUTING.md called ``main`` "the release
+    branch and the default branch". A reader who followed the README got the
+    latest release while being told they had the development branch.
+
+    The GitHub setting cannot be read offline, so this holds the three
+    in-tree statements of it to one answer.
+    """
+    readme = re.sub(r"\s+", " ", README.read_text(encoding="utf-8"))
+    claim = re.search(r"This clones ``([\w.-]+)``, the default branch", readme)
+    assert claim, "the README no longer says which branch a plain clone gets"
+    installer = re.search(r'(?m)^BRANCH="([\w.-]+)"', INSTALLER.read_text(
+        encoding="utf-8"))
+    assert installer, "install_from_source.sh no longer sets a default BRANCH"
+    contributing = re.search(
+        r"(?m)^\| `([\w.-]+)` \|[^\n]*\bthe default branch\b",
+        CONTRIBUTING.read_text(encoding="utf-8"))
+    assert contributing, "CONTRIBUTING.md no longer names the default branch"
+    assert claim.group(1) == installer.group(1) == contributing.group(1), (
+        f"README says {claim.group(1)!r}, install_from_source.sh defaults "
+        f"to {installer.group(1)!r} and CONTRIBUTING.md names "
+        f"{contributing.group(1)!r} as the default branch")
+
+
+def test_both_source_install_sections_read_as_reviewed_prose_in_every_language():
+    """The nine READMEs carry these sections as reviewed text, not a draft.
+
+    Until 2026-09-19 they carried the translation model's first draft: the
+    German heading read "(Licht)" for "(light)" and called the checkout a
+    "Kasse" -- a till -- and the French a "caisse". 328's DONE MEANS asked
+    for reviewed prose here, so every paragraph and heading of the two
+    sections must have a source-bound record in every language, and that
+    record must be what the localized README actually shows.
+
+    A new English sentence in either section fails here until it has been
+    translated, rather than reaching the nine READMEs as model output on
+    the next rebuild.
+    """
+    import sys
+
+    tools = REPO / "tools"
+    if str(tools) not in sys.path:
+        sys.path.insert(0, str(tools))
+    from build_documentation_i18n import (
+        REVIEWED_README_BLOCKS,
+        translatable_blocks,
+    )
+
+    blocks, _layout = translatable_blocks(README.read_text(encoding="utf-8"))
+    first = blocks.index("Install from source")
+    last = blocks.index("Command-line entry points")
+    section = blocks[first:last]
+    assert "Install from source (light)" in section
+    assert len(section) >= 8, section
+    for source in section:
+        reviewed = REVIEWED_README_BLOCKS.get(source, {})
+        assert set(reviewed) == set(LANGUAGES), (
+            f"no reviewed translation in "
+            f"{sorted(set(LANGUAGES) - set(reviewed))} for {source[:60]!r}")
+        for language, target in reviewed.items():
+            localized = (LOCALIZED / f"README.{language}.rst").read_text(
+                encoding="utf-8").replace("<../../source/", "<docs/source/")
+            assert target in localized, (language, source[:60])
+
+    drafts = {
+        "de": ("(Licht)", "Kasse", "Standard-Zweig ist ``nightly``"),
+        "fr": ("(lumière)", "caisse"),
+        "es": ("(luz)", "compra de 1186"),
+        "pt": ("(luz)",),
+        "sv": ("(ljus)", "kassan"),
+        "hi": ("(प्रकाश)",),
+        "ko": ("(빛)",),
+        "zh_CN": ("(光)", "支票"),
+        "is": ("(Light)",),
+    }
+    for language, fragments in drafts.items():
+        localized = (LOCALIZED / f"README.{language}.rst").read_text(
+            encoding="utf-8")
+        left = [fragment for fragment in fragments if fragment in localized]
+        assert not left, f"{language} still carries the model draft: {left}"

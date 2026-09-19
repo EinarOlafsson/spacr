@@ -186,10 +186,10 @@ Das offizielle conda-forge-Paket installiert spaCR und seine Desktop-Abhängigke
    conda install conda-forge::spacr
    spacr
 
-Installieren aus der Quelle
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Installation aus dem Quellcode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Klonen Sie das Projektarchiv und installieren Sie es im editierbaren Modus, so dass Ihre Arbeitskopie *ist* das installierte Paket und Bearbeitungen ohne Neuinstallation wirksam werden::
+Klonen Sie das Repository und installieren Sie es im editierbaren Modus. Ihre Arbeitskopie *ist* dann das installierte Paket, und Änderungen werden ohne Neuinstallation wirksam::
 
     git clone https://github.com/EinarOlafsson/spacr.git
     cd spacr
@@ -198,21 +198,21 @@ Klonen Sie das Projektarchiv und installieren Sie es im editierbaren Modus, so d
     pip install -e .
     spacr
 
-Der Standard-Zweig ist ``nightly``. Für eine bestimmte Version::
+Dieser Befehl klont ``main``, den Standard-Branch mit der neuesten Version. Entwickelt wird auf ``nightly``; fügen Sie ``--branch nightly`` hinzu, um stattdessen diesen Branch zu klonen. Für eine bestimmte Version::
 
     git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
 
-Um spätere Änderungen zu ziehen, aus dem Inneren des Klons::
+Um spätere Änderungen zu übernehmen, führen Sie im Klon aus::
 
     git pull
     pip install -e .
 
-Die zweite Zeile wird nur benötigt, wenn Abhängigkeiten oder Eingabepunkte geändert werden; Python-Code wird ohne sie abgeholt. Wenn ein Befehl nach dem Ziehen noch alten Code ausführt, meldet ``spacr-doctor``, welches ``spacr`` sich tatsächlich auf Ihrem Pfad befindet, was die übliche Ursache ist.
+Die zweite Zeile ist nur nötig, wenn sich Abhängigkeiten oder Einstiegspunkte geändert haben; Python-Code wird auch ohne sie übernommen. Führt ein Befehl nach dem Pull noch alten Code aus, zeigt ``spacr-doctor``, welches ``spacr`` tatsächlich im Suchpfad liegt – das ist die übliche Ursache.
 
-Installieren aus der Quelle (Licht)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Installation aus dem Quellcode (schlank)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Beitragende benötigen die Geschichte; um nur spaCR laufen, nehmen Sie eine dieser, gemessen 2026-09-15 durch ``packaging/measure_clone_forms.sh``::
+Wer zu spaCR beiträgt, braucht den Verlauf; wer spaCR nur ausführen will, nimmt eine dieser Varianten, gemessen am 2026-09-15 mit ``packaging/measure_clone_forms.sh``::
 
     # One commit instead of every version: 540 MB downloaded, 69 s.
     # No history, so no git log, no git blame and no git bisect.
@@ -228,7 +228,7 @@ Beitragende benötigen die Geschichte; um nur spaCR laufen, nehmen Sie eine dies
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Der vollständige Klon lädt 5.8 GB für eine 1186 MB Kasse herunter. Das Hinzufügen von ``--filter=blob:none`` zu diesem Klon spart nichts: die Kasse holt sowieso die Blobs.
+Der vollständige Klon lädt 5,8 GB für ein Arbeitsverzeichnis von 1186 MB herunter. Ergänzt man diesen Klon um ``--filter=blob:none``, spart das nichts: Beim Auschecken werden die Blobs trotzdem geladen.
 
 
 Befehle für die Kommandozeile

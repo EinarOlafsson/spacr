@@ -186,10 +186,10 @@ O pacote oficial do conda-forge instala o spaCR e suas dependências de desktop 
    conda install conda-forge::spacr
    spacr
 
-Instalar a partir da fonte
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Instalação a partir do código-fonte
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Clonar o repositório e instalá-lo no modo editável, para que sua cópia de trabalho *é* o pacote instalado e as edições entrem em vigor sem reinstalar::
+Clone o repositório e instale-o no modo editável, para que sua cópia de trabalho *seja* o pacote instalado e as alterações passem a valer sem reinstalar::
 
     git clone https://github.com/EinarOlafsson/spacr.git
     cd spacr
@@ -198,21 +198,21 @@ Clonar o repositório e instalá-lo no modo editável, para que sua cópia de tr
     pip install -e .
     spacr
 
-A ramificação padrão é ``nightly``. Para uma versão específica::
+Isso clona ``main``, o branch padrão, que contém a versão mais recente. O desenvolvimento acontece em ``nightly``; adicione ``--branch nightly`` para clonar esse branch no lugar dele. Para uma versão específica::
 
     git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
 
-Para puxar alterações posteriores, de dentro do clone::
+Para obter alterações posteriores, execute de dentro do clone::
 
     git pull
     pip install -e .
 
-A segunda linha só é necessária quando as dependências ou os pontos de entrada são alterados; o código Python é captado sem ele. Se um comando ainda executa o código antigo depois de puxar,  ``spacr-doctor`` relata que ``spacr`` está realmente no seu caminho, que é a causa usual.
+A segunda linha só é necessária quando dependências ou pontos de entrada mudaram; o código Python é atualizado sem ela. Se um comando ainda executar código antigo depois do pull, o ``spacr-doctor`` informa qual ``spacr`` está de fato no seu caminho de busca, o que costuma ser a causa.
 
-Instalar a partir da fonte (luz)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Instalação a partir do código-fonte (leve)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Os colaboradores precisam do histórico; para executar apenas spaCR, pegue um destes, medido 2026-09-15 por  ``packaging/measure_clone_forms.sh``::
+Quem contribui precisa do histórico; para apenas executar o spaCR, use uma destas opções, medidas em 2026-09-15 com ``packaging/measure_clone_forms.sh``::
 
     # One commit instead of every version: 540 MB downloaded, 69 s.
     # No history, so no git log, no git blame and no git bisect.
@@ -228,7 +228,7 @@ Os colaboradores precisam do histórico; para executar apenas spaCR, pegue um de
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-O clone completo baixa 5,8 GB para um checkout de 1186 MB. Adicionar ``--filter=blob:none`` a esse clone não salva nada: o checkout busca os blobs de qualquer maneira.
+O clone completo baixa 5,8 GB para um checkout de 1186 MB. Adicionar ``--filter=blob:none`` a esse clone não economiza nada: o checkout busca os blobs de qualquer forma.
 
 
 Comandos de linha de comando

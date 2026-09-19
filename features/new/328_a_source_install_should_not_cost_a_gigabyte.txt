@@ -1,10 +1,12 @@
 328 — A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
 ==================================================
 
-Status:    PARTLY, verified 2026-09-15 against the code: README.rst:238 has
-           both light forms, measured, with their limits, and the launch test
-           passes; left: the nine translated READMEs carry that section as a
-           machine draft, not reviewed prose. See the dated sections below.
+Status:    DONE, 2026-09-19. README.rst has both light forms, measured,
+           with their limits, and the launch test passes (2026-09-15); the
+           nine translated READMEs now carry both source-install sections as
+           reviewed prose, and the README names the real default branch,
+           ``main``. See the dated sections below; the last says what the
+           translations are and are not.
 
 ASKED FOR (2026-08-31)
 ----------------------
@@ -251,3 +253,83 @@ or that block put on 316's list for one.
 
 Found, outside scope: README.rst:224 still says the default branch is
 ``nightly``, while packaging/install_from_source.sh:42 defaults to ``main``.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE NINE READMEs CARRY REVIEWED PROSE; THE DEFAULT BRANCH IS main
+--------------------------------------------------------------------------------
+
+Branch home/readme-translations.
+
+THE DEFAULT-BRANCH SENTENCE WAS FALSE, and is corrected. Checked three ways
+today: `gh repo view --json defaultBranchRef` -> {"name":"main"};
+packaging/install_from_source.sh:42 BRANCH="main"; CONTRIBUTING.md's branch
+table, "`main` | the release branch and the default branch". origin/main is
+the 1.5.0.8 release promoted on 2026-09-16; origin/nightly is 66 commits
+ahead of it. So the plain `git clone` two lines above the sentence has been
+giving readers the latest release while README.rst:242 told them they had
+``nightly``. It now reads: "This clones ``main``, the default branch, which
+carries the latest release. Development happens on ``nightly``; add
+``--branch nightly`` to clone it instead." The light installer's own
+`--branch nightly` line is untouched: it is explicit, and it is what
+measure_clone_forms.sh measured.
+
+THE TRANSLATIONS. All eight blocks of "Install from source" and "Install
+from source (light)" -- two headings, six paragraphs, the corrected branch
+sentence among them -- have a record in all nine languages:
+docs/i18n/reviewed/readme/<lang>/2026-09-19-install-from-source.json, the
+source-bound evidence format the builder already loads into
+REVIEWED_README_BLOCKS (`_load_reviewed_readme_evidence`). 72 records.
+Written directly rather than decoded by the translation model, with the Git
+vocabulary each language's own documentation uses, every ``literal`` kept
+verbatim and once, and locale number formats (5,8 GB in de/sv/es/pt/is, Go
+and Mo in fr). They are technically reviewed, NOT read by a native speaker,
+which is the same standing as every other reviewed README block.
+
+REGENERATED THROUGH THE BUILDER'S OWN README PATH, with no model: the
+`--rebuild-readme` branch of tools/build_documentation_i18n.py, its
+`_translate_blocks` replaced by the text the committed READMEs already
+carry (aligned block by block against README.rst at c7bf248e3, the English
+they were built from). Checked first that this reproduces the committed
+nine byte for byte from that English -- it does, except for the reviewed
+paragraphs whose links the committed files had left pointing at docs/source/
+and docs/i18n/ from inside docs/i18n/readme/ (two per locale, four in
+Korean; fixed in the following commit). Then run against today's
+README: the install hunks are exactly the reviewed records; the maintainer's
+2026-09-16 badge row was NOT carried over (see "left" below).
+
+MEASURED ON THE RENDERED PAGE, docutils over each of the nine: every new
+``literal`` and the *is* emphasis render in all nine; Korean went from 22
+docutils warnings to 19 -- the three it lost were this section's, each a
+literal glued to a Korean particle so that it never rendered. zh_CN and ko
+still carry 3 and 19 warnings, all in blocks this item does not own.
+
+GUARDED: tests/test_the_light_install_numbers_are_honest.py gains
+test_the_readme_names_the_default_branch_the_installer_uses (README ==
+installer == CONTRIBUTING) and test_both_source_install_sections_read_as_
+reviewed_prose_in_every_language (every block of both sections reviewed in
+all nine, the reviewed text present in each README, the model's "(Licht)",
+"Kasse", "caisse", "(luz)", "(ljus)", "支票" ... gone). Both go red against
+the pre-change README and German README respectively.
+
+A COST, STATED SO THE NEXT RE-MEASURE IS NOT A SURPRISE: two of the records
+contain the measured numbers and the date (2026-09-15, 5.8 GB, 1186 MB).
+When test_the_checkout_size_in_the_readme_matches_the_tree forces a new
+number, the English block changes, its nine records no longer bind, and
+test_github_summary_has_reviewed_domain_translations goes red. The repair
+is digits only: edit `source` and `translation` in the nine
+2026-09-19-install-from-source.json files, recompute `source_sha256`, and
+apply the same digits to the nine READMEs.
+
+LEFT, NOT THIS ITEM'S:
+  * The maintainer's 2026-09-16 badge edits to README.rst (six new badges,
+    |Tests| dropped from the row, |Qt| retargeted) are not in the nine
+    READMEs. Carrying them needs alt text for six badges in nine languages
+    (REVIEWED_README_BADGE_ALT_TEXT, tools/) and moves two tests that pin
+    the old row and 45 alt texts; test_localized_readmes_preserve_urls_
+    code_and_table_shape is red on nightly for exactly this reason.
+  * docs/i18n/COVERAGE.md's "README bytes" column moves with these files.
+    It was not regenerated: build_report() raises on nightly today on
+    stale reviewed RUNTIME records (ui/DINOCell, ui/SAMCell, ui/checksum),
+    another lane.
+  * 45 other README blocks are still the model's draft in all nine
+    languages, e.g. "Model zoo" as 动物园模型 ("zoo-animal model").
