@@ -493,3 +493,121 @@ LEFT
   * Translations: see i18n_owed in the unit's report. The terms text is not
     in the caption catalogs by design (spacr/qt/terms_i18n registers no
     locale), so the English 4.2 is what every language shows.
+
+--------------------------------------------------------------------------------
+2026-09-19 — review fixes on autofile-default: a path with a space, whose
+             'ask' it is, and a report button that had never filed anything
+--------------------------------------------------------------------------------
+
+Decided: unchanged, the maintainer's quote above. Nothing here reopens it.
+
+Review of the branch found one blocking defect and two worth fixing before
+a default-on public publisher goes anywhere. All three are fixed, with
+tests, and the two nits with them.
+
+1. BLOCKING. A PATH CAN CONTAIN A SPACE, and `strip_report_paths` stopped
+   one at the first whitespace, so the rest of it was published -- with no
+   preview and nobody between the crash and the public tracker, while
+   Section 5.5 of the terms added in this same change tells the user that
+   file and folder names are replaced. Measured on the branch, HOME in a
+   scratch folder:
+
+     src = 'C:\Users\anna\OneDrive - Karolinska Institutet\Screens\Patient 042'
+       -> src = '<PATH> - Karolinska Institutet\Screens\Patient 042'
+     src = '~/My Data/TB screen 2026/plate 1'
+       -> src = '<PATH> Data/TB screen 2026/plate 1'
+     Permission denied: '/mnt/lab share/Smith lab/raw'
+       -> '<PATH> share/Smith lab/raw'
+     \\LAB-NAS\screens\plate 1   -> untouched; nothing started at \\
+
+   These are the normal case, not the odd one: /Volumes/<name> on macOS,
+   'OneDrive - <institution>' and 'Program Files' on Windows, any share
+   named after a lab. A FileNotFoundError naming
+   '/Volumes/Lab Drive/Patient 042/plate A.tif' put 'Drive/Patient 042/
+   plate A.tif' in the title AND the traceback block.
+
+   Three rules now: the `File "..."` field; a quoted value that starts with
+   a path root, taken to its closing quote or the end of the line (which
+   covers every repr-ed settings value, the file name in an OSError, and a
+   title whose closing quote the 80-character cut removed); then unquoted
+   paths, where a component may contain spaces provided a separator follows
+   it. UNC roots (\\server\share) are paths now too.
+
+   What is deliberately left: the tail of the LAST component of an
+   UNQUOTED path (\\LAB-NAS\screens\plate 1 -> '<PATH> 1'). Only a
+   separator proves a space is inside the path rather than after it, and
+   taking the words anyway turns 'opening /mnt/data/x.tif failed' into
+   '<PATH>'. Measured both ways; the readable one is kept. Quoted paths
+   have no such limit. Section 5.7 says best efforts, and it is meant.
+
+2. SHOULD-FIX. The new default reached almost nobody. `SetupSlides.accept()`
+   and `reject()` BOTH apply their answers, and `issue_prompt` has been one
+   of them since 6c57da8d6 (1.5.0.5), so every profile that ever opened
+   first-run setup -- including one dismissed at the first slide -- has
+   'ask' written into it by the default of the day. Read back as "an
+   explicit earlier choice", the maintainer's "make this the default"
+   applied to brand-new profiles only, and jak18015 (#117, on 1.5.0.8)
+   would still have filed nothing after upgrading. Nothing in the branch
+   said so.
+
+   `set_issue_prompt_mode` now writes a marker beside the value
+   (`ai/issue_prompt_chosen`); a stored 'ask' without it reads as the
+   current default. 'never' and 'always' are kept as they stand, marked or
+   not: the superseded default was 'ask', so neither was ever written on a
+   user's behalf. All four writers (setup slides, Preferences, AI Console,
+   installer consent) go through the setter, so an 'ask' written from here
+   on sticks. Nothing is filed on this alone: the terms go 4.1 -> 4.2, so
+   the profile is asked again, nothing files until 4.2 is accepted, and the
+   slide carrying the setting is on the page they accept from -- showing
+   'always', with the control to change it, before any run can fail.
+
+3. SHOULD-FIX. Annotate's "File as issue" had never filed anything:
+   `file_issue(self, {"screen": "annotate"}, body)` passed the screen as
+   the traceback, a dict as the app id and the console text as the
+   settings, so the user got "Could not file the issue: 'AnnotateScreen'
+   object has no attribute 'replace'". Pre-existing, but hidden behind an
+   opt-in that shipped off -- and this change turns that opt-in on by
+   default. It now builds the report from the console text, shows the same
+   preview the module screens show (its own tooltip promises a review),
+   and posts from its own JobRunner rather than `_total_jobs`, which is
+   cancelled whenever a count restarts. A test presses the button.
+
+4. NIT. The in-flight record was a set that only the success path emptied.
+   JobRunner drops a result when the generation was cancelled or the worker
+   reports not-ok -- what closing a screen does to a report in flight -- so
+   the fingerprint stayed for the life of the process and every later
+   failure with that traceback, in any screen, said "being reported
+   already" and filed nothing. It is now timed: two minutes, against an
+   8 s token resolve and 20 s API calls.
+
+5. NIT. `redact_identity` took any login or host name of three characters
+   or more, so a machine called `gpu` rewrote `use_gpu = True` to
+   `use_<HOST> = True`, and an IP-shaped host contributed the label `192`.
+   Widening the word boundary would have left a real name in
+   `/data/<name>_backup`, so the word list grew instead (gpu, server,
+   desktop, nas, ... -- a machine called any of them identifies nobody,
+   which is why root and localhost were already there), all-digit labels
+   are dropped, and a name that is both login and host is listed once as
+   the login name rather than twice with the host entry winning.
+
+MEASURED (worktree wt-autofile-default, QT_QPA_PLATFORM=offscreen, every
+run under tools/run_capped.sh 4G, one at a time, no xdist)
+
+  * tests/qt/test_the_report_files_itself.py: 58 passed (40 before, 18
+    added: the spaced-path forms, the settings block, a full failing Run on
+    '/Volumes/Lab Drive/Patient 042' whose posted title and body carry none
+    of it, the upgraded profile, the marked 'ask', 'never'/'always' left
+    alone, the slide showing 'always' to an upgraded profile, the stale
+    in-flight entry, and the three identity cases).
+  * tests/qt/test_annotate_console_can_be_copied_and_reported.py: 9 passed
+    (2 added: the button files, and refuses under 'never').
+  * The report path, 8 files: 266 passed. App screen coverage plus the
+    comment rule, 3 files: 231 passed. Setup and terms, 8 files: 95 passed.
+    Preferences coverage, 5 files: 90 passed. Annotate, 4 files: 175
+    passed.
+
+LEFT, after this pass
+  * Everything under LEFT above still stands, except the annotate button,
+    which now works.
+  * The tail of the last component of an unquoted spaced path, as measured
+    in 1.
