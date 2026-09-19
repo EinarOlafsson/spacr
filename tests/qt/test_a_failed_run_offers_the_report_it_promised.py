@@ -551,10 +551,21 @@ class TestTheLineIsSaidOnlyWhenItIsTrue:
         assert not self._said(screen)
 
     def test_once_per_failure(self, screen, monkeypatch):
-        self._fail(screen, monkeypatch, reporting=True, mode="always")
+        self._fail(screen, monkeypatch, reporting=True, mode="ask")
         screen._on_finished(False)
         assert screen._console.as_text().count(
             "Nothing was sent to GitHub") == 1
+
+    def test_not_when_reporting_is_set_to_always(self, screen, monkeypatch):
+        """'always' files the report itself (2026-09-19), so saying nothing
+        was sent would be false. The filing is
+        test_the_report_files_itself.py's subject; here it is stubbed."""
+        filed = []
+        monkeypatch.setattr(type(screen), "_file_the_report_automatically",
+                            lambda self: filed.append(self._last_error_text))
+        self._fail(screen, monkeypatch, reporting=True, mode="always")
+        assert not self._said(screen)
+        assert filed == ["Traceback\nValueError: boom"]
 
     def test_not_when_the_run_was_stopped(self, screen, monkeypatch):
         monkeypatch.setattr("spacr.qt.ai.settings.get_auto_file_issues",
@@ -572,8 +583,13 @@ class TestTheLineIsSaidOnlyWhenItIsTrue:
             "a stopped run carried the line over to the next failure")
 
 
-def test_the_setting_says_nothing_is_sent_automatically(qtbot):
-    """Where the user switched the feature on is where it has to say so."""
+def test_the_setting_says_what_is_sent_automatically(qtbot):
+    """Where the user switched the feature on is where it has to say so.
+
+    Until 2026-09-19 that was "Nothing is sent automatically". Since then
+    'always' files a report by itself and is the default, so the caption
+    says which setting does what.
+    """
     from spacr.qt.widgets.ai_chat_panel import _ProvidersDialog
 
     dialog = _ProvidersDialog()
@@ -581,6 +597,9 @@ def test_the_setting_says_nothing_is_sent_automatically(qtbot):
     from PySide6.QtWidgets import QLabel
 
     captions = " ".join(label.text() for label in dialog.findChildren(QLabel))
-    assert "Nothing is sent automatically" in captions
+    assert "Nothing is sent automatically" not in captions
+    assert "files its report automatically" in captions
+    assert "always" in captions and "ask" in captions
     assert "File as issue" in captions
+    assert "Set spaCR up again" in captions
     assert "one-click" not in dialog._auto_issue_chk.text()

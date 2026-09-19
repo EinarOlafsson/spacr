@@ -3893,16 +3893,18 @@ tooltips = {
         "the same choice means the same thing across providers. "
         "Default 'balanced'.",
     'auto_file_issues':
-        "(bool) - Offer to open a GitHub issue when a run fails. spaCR drafts the "
-        "report from the traceback and the settings that produced it, then "
-        "displays the complete draft for review. Nothing is submitted until "
-        "you select Send because settings may contain local data paths. "
-        "Default False.",
+        "(bool) - Report a failed run as an issue on the public spaCR GitHub "
+        "repository. The report carries the traceback, the run's settings "
+        "and software versions, with paths, login and host names and "
+        "credentials redacted. With issue reporting set to 'always' (the "
+        "default) it is filed automatically, once per error, when GitHub is "
+        "signed in; with 'ask' it opens in a preview and is sent only when "
+        "you press Send report. Default True.",
     'route_errors_through_ai':
         "(bool) - Send a failing run's traceback to the AI Console automatically "
         "and request an explanation. The traceback and "
         "the settings leave your machine when this is on; leave it off if "
-        "your paths or filenames are themselves sensitive. Default False.",
+        "your paths or filenames are themselves sensitive. Default True.",
     'console_aware':
         "(bool) - Include new console output and complete tracebacks as "
         "context when a question is sent through the AI Console. This adds "

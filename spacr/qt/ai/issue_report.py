@@ -1,21 +1,21 @@
 """
-Opt-in error reporting → pre-filled GitHub issue.
+Error reports filed as issues on the public spaCR GitHub repository.
 
-When the user enables public issue reporting during installation or later in
-Preferences, the error flow gains a "File as GitHub issue" action. Clicking
-it:
+A failed run is reported in one of two ways, chosen by the "One-click issue
+filing" preference (:func:`spacr.qt.preferences.get_issue_prompt_mode`):
 
-1. Builds a sanitized report from the current traceback + active app
-   + settings + spacr / python / OS versions + tail of the log file.
-2. Shows the exact title and body in an editable preview, with filenames
-   stripped by default.
-3. Submits only after the report-specific Send click. An authenticated
-   official ``gh`` session can post through the API; otherwise spaCR opens a
-   pre-filled GitHub form in the browser for the user to submit there.
+* ``'always'``, the default: :func:`file_without_review` files the report as
+  soon as the run has failed. It sends :func:`public_report`, the same
+  redaction the preview applies by default, and it never opens a browser.
+  Filing needs a GitHub sign-in (the ``gh`` CLI or ``GITHUB_TOKEN``). Without
+  one, nothing is sent.
+* ``'ask'``: the report opens in an editable preview, and
+  :func:`submit_report` sends it only after the Send click. Without a
+  sign-in it opens a pre-filled GitHub form in the browser.
 
-spaCR never stores a durable GitHub token itself. Everything stays client-side
-until the explicit preview action, so the user sees exactly what leaves the
-machine before it does.
+Both paths build the report with :func:`build_report`, and both look for an
+open issue carrying the same traceback fingerprint before they open a new
+one. spaCR never stores a durable GitHub token itself.
 """
 from __future__ import annotations
 
@@ -93,21 +93,106 @@ def redact_secrets(s: str) -> str:
     return s
 
 
+#: Placeholder for this computer's login name.
+USER_PLACEHOLDER = "<USER>"
+
+#: Placeholder for this computer's network name.
+HOST_PLACEHOLDER = "<HOST>"
+
+#: Login and host names that identify nobody, and are left in place.
+_GENERIC_NAMES = frozenset({
+    "root", "user", "users", "admin", "administrator", "runner", "ubuntu",
+    "jovyan", "vagrant", "guest", "test", "spacr", "python", "home",
+    "localhost", "localdomain", "local", "default", "docker", "codespace",
+    "codespaces",
+})
+
+
+def _identity_words() -> List[tuple]:
+    """This computer's login and host names, each with its placeholder.
+
+    The login name comes from :func:`getpass.getuser` and from the name of
+    the home folder. The host name comes from :func:`socket.gethostname` and
+    :func:`platform.node`, both in full and as their first dotted label.
+    Both calls read local state and do not touch the network. Names shorter
+    than three characters, and the generic names in :data:`_GENERIC_NAMES`,
+    are left out.
+
+    :returns: ``[(name, placeholder)]``, longest name first, so a host name
+        that contains the login name is replaced whole.
+    """
+    users, hosts = set(), set()
+    try:
+        import getpass
+
+        users.add(getpass.getuser())
+    except Exception:                                        # noqa: BLE001
+        pass
+    try:
+        users.add(Path.home().name)
+    except Exception:                                        # noqa: BLE001
+        pass
+    try:
+        import socket
+
+        hosts.add(socket.gethostname())
+    except Exception:                                        # noqa: BLE001
+        pass
+    try:
+        hosts.add(platform.node())
+    except Exception:                                        # noqa: BLE001
+        pass
+    hosts |= {name.split(".", 1)[0] for name in list(hosts) if name}
+    words = []
+    for names, placeholder in ((hosts, HOST_PLACEHOLDER),
+                               (users, USER_PLACEHOLDER)):
+        for name in names:
+            name = str(name or "").strip()
+            if len(name) < 3 or name.lower() in _GENERIC_NAMES:
+                continue
+            words.append((name, placeholder))
+    words.sort(key=lambda pair: len(pair[0]), reverse=True)
+    return words
+
+
+def redact_identity(s: str) -> str:
+    """Replace this computer's login and host names with placeholders.
+
+    A home folder is already shortened to ``~`` by :func:`sanitize_path`. The
+    login name can still appear elsewhere: another folder named after the
+    user, a permission error, an ``owner`` setting. The host name can appear
+    in a network path or a connection error. Each is replaced wherever it
+    stands as a whole word, in any letter case.
+
+    :param s: arbitrary text.
+    :returns: the text with :data:`USER_PLACEHOLDER` and
+        :data:`HOST_PLACEHOLDER` in place of those names.
+    """
+    if not s:
+        return s
+    for name, placeholder in _identity_words():
+        s = re.sub(r"(?<![A-Za-z0-9])" + re.escape(name) + r"(?![A-Za-z0-9])",
+                   placeholder, s, flags=re.IGNORECASE)
+    return s
+
+
 def sanitize_path(s: str) -> str:
     """Replace absolute paths pointing inside ``$HOME`` with ``~/``.
 
     Also collapses any string that looks like an on-disk ``*.db`` path
     down to ``<DB>`` so lab / patient / experiment identifiers embedded
-    in a filename don't leak, and redacts credential-shaped substrings
+    in a filename don't leak, replaces this computer's login and host names
+    through :func:`redact_identity`, and redacts credential-shaped substrings
     via :func:`redact_secrets`.
 
     :param s: arbitrary text.
-    :returns: text with home-relative paths abbreviated and DB paths +
-        secrets redacted.
+    :returns: text with home-relative paths abbreviated and DB paths,
+        login and host names and secrets redacted.
     """
     home = str(Path.home())
     s = s.replace(home, "~")
     s = re.sub(r"[/\\][^\s'\"]+\.db\b", "<DB>", s)
+    s = redact_identity(s)
     return redact_secrets(s)
 
 
@@ -147,16 +232,65 @@ def strip_report_paths(text: str) -> str:
     still useful. Public reports default to the stricter form: traceback file
     fields and remaining absolute path-like tokens become ``<PATH>``. The
     preview lets the user restore the useful names before sending.
+
+    A slash straight after ``<`` starts a closing tag, not a path. The
+    report's collapsible sections end in ``</summary>`` and ``</details>``,
+    and issue #121 was filed with both turned into ``<<PATH>``, so every
+    section after the first one stayed open.
     """
     value = str(text or "")
     value = re.sub(r'(?m)(\bFile\s+)["\'][^"\']+["\']', r'\1"<PATH>"', value)
-    value = re.sub(r"(?<![\w~])(?:[A-Za-z]:[\\/]|/)[^\s'\"`]+", "<PATH>", value)
+    value = re.sub(r"(?<![\w~<])(?:[A-Za-z]:[\\/]|/)[^\s'\"`]+", "<PATH>",
+                   value)
     value = re.sub(r"(?<!\w)~[/\\][^\s'\"`]+", "<PATH>", value)
     return value
 
 
+def public_report(report: Dict[str, str]) -> Dict[str, str]:
+    """The report as it is sent when nobody reviews it first.
+
+    The preview opens with "Remove file and folder names" switched on, so
+    what a reviewer sends by default is the body after
+    :func:`strip_report_paths`. A report filed automatically gets that same
+    body. The title is stripped as well: it quotes the exception line, and
+    that line can carry a file name.
+
+    :param report: a report from :func:`build_report`.
+    :returns: ``title``, ``body`` and ``fingerprint``, ready to post.
+    """
+    return {
+        "title": strip_report_paths(str(report.get("title", ""))),
+        "body": strip_report_paths(str(report.get("body", ""))),
+        "fingerprint": str(report.get("fingerprint", "")),
+    }
+
+
 #: ``, line 123,`` inside a traceback frame — volatile, stripped before hashing.
 _LINENO_RE = re.compile(r",\s*line\s+\d+\s*,")
+
+#: A traceback frame line: the quoted file, then the rest of the line.
+_FRAME_RE = re.compile(r'^File\s+"(?P<path>[^"]*)"(?P<rest>.*)$')
+
+
+def _frame_key(frame: str) -> str:
+    """One frame line as the fingerprint sees it.
+
+    The file is cut to its last two path components, which is the module
+    and the package it sits in. Everything above them depends on the
+    machine: the home folder, the Python version, the name of the conda
+    environment, the operating system's separator. With the whole path in
+    the key, the same crash on two computers had two fingerprints, so the
+    open-issue search could never find the other computer's report.
+
+    :param frame: a stripped ``File "...", line N, in f`` line.
+    :returns: the line with the path shortened and the line number removed.
+    """
+    match = _FRAME_RE.match(frame)
+    if match is not None:
+        parts = [p for p in re.split(r"[\\/]+", match.group("path")) if p]
+        where = "/".join(parts[-2:]) if parts else match.group("path")
+        frame = f'File "{where}"{match.group("rest")}'
+    return _LINENO_RE.sub(",", frame)
 
 
 def _traceback_hash(tb: str) -> str:
@@ -164,10 +298,13 @@ def _traceback_hash(tb: str) -> str:
 
     The key is built from the call stack (file + function, with the
     volatile line NUMBERS removed) plus the exception TYPE. That gives
-    the two properties dedup needs:
+    the three properties dedup needs:
 
     * the same bug still fingerprints the same after an unrelated edit
-      shifts the line numbers above it, and
+      shifts the line numbers above it,
+    * the same bug fingerprints the same on another computer, because each
+      file is named by its last two path components (:func:`_frame_key`),
+      and
     * two genuinely different exceptions raised from the same frame get
       different fingerprints instead of being merged into one issue.
 
@@ -183,13 +320,24 @@ def _traceback_hash(tb: str) -> str:
         if not stripped:
             continue
         if stripped.startswith("File "):
-            lines.append(_LINENO_RE.sub(",", stripped))
+            lines.append(_frame_key(stripped))
         elif not ln.startswith((" ", "\t")):
             if stripped.startswith("Traceback"):
                 continue
             lines.append(stripped.split(":", 1)[0])
     key = "\n".join(lines) or tb
     return hashlib.sha256(key.encode()).hexdigest()[:6]
+
+
+def fingerprint_of(traceback_text: str) -> str:
+    """The fingerprint :func:`build_report` gives this traceback.
+
+    :param traceback_text: the raw traceback.
+    :returns: six hex characters, without building the report. The
+        automatic filer checks this against what it has filed before, so a
+        repeated crash costs no log copy and no network call.
+    """
+    return _traceback_hash(sanitize_traceback(traceback_text))
 
 
 
@@ -447,6 +595,45 @@ def open_issue_in_browser(url: str) -> bool:
         return False
 
 
+#: What :func:`file_without_review` reports back, one of these.
+FILED = "filed"
+SEEN_AGAIN = "seen_again"
+SIGNED_OUT = "signed_out"
+REFUSED = "refused"
+FAILED = "failed"
+
+
+def _post_report(report: Dict[str, str]) -> Dict[str, str]:
+    """Post a report through the GitHub API, onto an open duplicate if any.
+
+    Shared by both ways of filing. The open-issue search is by the
+    fingerprint, which :func:`build_report` writes into every body, so a
+    crash that already has an open issue gets a "Seen again" comment there
+    instead of a second issue. A search that could not run does not stop
+    the report.
+
+    :param report: ``title``, ``body`` and ``fingerprint``.
+    :returns: ``{"status": FILED or SEEN_AGAIN, "url": ...}``, or
+        ``{"status": FAILED, "detail": ...}``.
+    """
+    from . import github_auth
+
+    searched, existing = github_auth.find_issue_by_fingerprint(
+        REPO, report["fingerprint"])
+    if searched and existing:
+        ok, _ = github_auth.comment_on_issue(
+            REPO, existing.get("number"),
+            "Seen again.\n\n" + report["body"])
+        if ok:
+            return {"status": SEEN_AGAIN,
+                    "url": str(existing.get("html_url", "") or "")}
+    ok, result = github_auth.create_issue(
+        REPO, report["title"], report["body"], labels=[ISSUE_LABEL])
+    if ok and result:
+        return {"status": FILED, "url": str(result)}
+    return {"status": FAILED, "detail": str(result or "no issue came back")}
+
+
 def submit_report(report: Dict[str, str]) -> str:
     """Submit one payload the user has already approved in the preview."""
     try:
@@ -455,25 +642,44 @@ def submit_report(report: Dict[str, str]) -> str:
         if refusal:
             return refusal
         if github_auth.is_authenticated():
-            searched, existing = github_auth.find_issue_by_fingerprint(
-                REPO, report["fingerprint"])
-            if searched and existing:
-                number = existing.get("number")
-                url = existing.get("html_url", "")
-                ok, _ = github_auth.comment_on_issue(
-                    REPO, number,
-                    "Seen again.\n\n" + report["body"])
-                if ok:
-                    return url
-            ok, result = github_auth.create_issue(
-                REPO, report["title"], report["body"], labels=[ISSUE_LABEL])
-            if ok and result:
-                return result
+            posted = _post_report(report)
+            if posted.get("url"):
+                return posted["url"]
     except Exception:
         pass
     url = issue_url(report["title"], report["body"])
     open_issue_in_browser(url)
     return url
+
+
+def file_without_review(report: Dict[str, str]) -> Dict[str, str]:
+    """File a report automatically, for issue reporting set to 'always'.
+
+    Runs on a worker thread: resolving the sign-in can run ``gh auth
+    token``, and posting waits on api.github.com.
+
+    It never opens a browser. The browser form is a prompt the user
+    answers, and 'always' is the choice not to be prompted. So without a
+    GitHub sign-in it files nothing and says so.
+
+    :param report: the payload to post, already passed through
+        :func:`public_report`.
+    :returns: ``{"status": ..., "url": ..., "detail": ...}`` with a status
+        of :data:`FILED`, :data:`SEEN_AGAIN` (a comment on the open issue
+        with the same fingerprint), :data:`SIGNED_OUT`, :data:`REFUSED`
+        (inside a test run) or :data:`FAILED`. Never raises.
+    """
+    try:
+        from . import github_auth
+
+        refusal = github_auth._transport_refusal()
+        if refusal:
+            return {"status": REFUSED, "detail": refusal}
+        if not github_auth.is_authenticated():
+            return {"status": SIGNED_OUT}
+        return _post_report(report)
+    except Exception as exc:                                 # noqa: BLE001
+        return {"status": FAILED, "detail": f"{type(exc).__name__}: {exc}"}
 
 
 def file_issue(

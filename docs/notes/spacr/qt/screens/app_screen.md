@@ -4148,3 +4148,17 @@ if key not in carried:
 ```
 
 A switch the form neither shows nor holds cannot shape it. `_form_shaping_keys` already followed that rule for a typed edit ("A missing switch cannot shape this panel"); the bulk path looked at the file instead and took every `nucleus_*` / `pathogen_*` channel or mask-plane key in it as a switch. Instruction 364 took the three `*_mask_dim` keys off the Recruitment form on 2026-09-03 (79edbf12f), and every recruitment file saved before then carries `nucleus_mask_dim=5` and `pathogen_mask_dim=6`, so importing one compared 5 with a `current.get()` of None, asked for a rebuild, and asked again on the rebuilt screen. `cell_mask_dim` escaped only because the cell object is never a switch. The same held for any file from a module whose switches are spelt the other way: Measure has no `*_channel`, Mask has no `*_mask_dim`.
+
+## AppScreen._file_the_report_automatically
+
+### added 2026-09-19 (autofile-default, follow-up to 432)
+
+```python
+if fingerprint in _REPORTS_BEING_FILED:
+```
+
+Filing happens in `_on_finished`, through `_settle_the_report`, not in `_on_pipeline_error`. The console then reads "✗ Failed", then "[issue] Filing ...", then where it went, which is where 432 put the "Nothing was sent" line for 'ask'. The AI has usually not answered by then. Its analysis is attached only if it already has, and `ai_explanation_of` returns nothing for a provider that failed (432). Filing does not wait for the AI.
+
+`_REPORTS_BEING_FILED` is module-level because two screens can fail on one crash before the first report has come back from GitHub. The ledger in `ai.settings` is written only when GitHub answers.
+
+The report is built on the background runner, not on the GUI thread. `build_report` copies the log tail to a file, and `file_without_review` can run `gh auth token`. Only the form snapshot and the AI analysis are read on the GUI thread, because they are widget state.

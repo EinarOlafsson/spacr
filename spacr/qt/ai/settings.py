@@ -1,8 +1,9 @@
 """Persist AI Console preferences through Qt application settings.
 
 The module stores provider response speed, the optional system-prompt
-override, error-reporting preferences, and console-context sharing. Values
-persist across application sessions through :class:`PySide6.QtCore.QSettings`.
+override, error-reporting preferences, the reports filed automatically from
+this profile, and console-context sharing. Values persist across application
+sessions through :class:`PySide6.QtCore.QSettings`.
 """
 from __future__ import annotations
 
@@ -149,13 +150,24 @@ def is_system_prompt_overridden() -> bool:
 
 
 
-def get_auto_file_issues() -> bool:
-    """Return whether error explanations may offer GitHub issue filing.
+#: Whether a profile that never chose reports failed runs as GitHub issues.
+DEFAULT_AUTO_FILE_ISSUES = True
 
-    When enabled, the error-explanation interface can open a pre-filled issue
-    in the browser. The issue is not submitted automatically.
+
+def get_auto_file_issues() -> bool:
+    """Return whether a failed run is reported as a GitHub issue.
+
+    This is the switch for reporting as a whole. How a report is sent is
+    :func:`spacr.qt.preferences.get_issue_prompt_mode`: with 'always' it is
+    filed automatically, with 'ask' a "File as issue" button opens it in a
+    preview first, and with 'never' nothing is filed.
+
+    :returns: the stored choice, or :data:`DEFAULT_AUTO_FILE_ISSUES` for a
+        profile that never made one. The maintainer made reporting the
+        default on 2026-09-19. A stored False, from the installer's consent
+        page or from this switch, is kept.
     """
-    raw = _settings().value(_KEY_AUTO_ISSUE, False)
+    raw = _settings().value(_KEY_AUTO_ISSUE, DEFAULT_AUTO_FILE_ISSUES)
     if isinstance(raw, bool):
         return raw
     return str(raw).lower() in ("true", "1", "yes")
@@ -164,6 +176,62 @@ def get_auto_file_issues() -> bool:
 def set_auto_file_issues(enabled: bool) -> None:
     """Store the GitHub issue-filing preference."""
     _settings().setValue(_KEY_AUTO_ISSUE, bool(enabled))
+
+
+_KEY_AUTO_FILED = "ai/auto_filed_reports"
+
+#: How many automatically filed fingerprints are remembered.
+AUTO_FILED_LIMIT = 200
+
+
+def _auto_filed() -> Dict[str, str]:
+    """The fingerprints this profile has filed automatically, with their URLs.
+
+    :returns: ``{fingerprint: issue url}``. Empty when nothing is stored or
+        the stored value cannot be read.
+    """
+    import json
+
+    raw = _settings().value(_KEY_AUTO_FILED, "")
+    try:
+        found = json.loads(str(raw or "{}"))
+    except (TypeError, ValueError):
+        return {}
+    if not isinstance(found, dict):
+        return {}
+    return {str(k): str(v) for k, v in found.items()}
+
+
+def auto_filed_url(fingerprint: str) -> str:
+    """Where this profile already filed a report with this fingerprint.
+
+    :param fingerprint: a traceback fingerprint from
+        :func:`spacr.qt.ai.issue_report.fingerprint_of`.
+    :returns: the issue URL, or ``""`` when this profile has not filed it.
+    """
+    return _auto_filed().get(str(fingerprint or ""), "")
+
+
+def remember_auto_filed(fingerprint: str, url: str) -> None:
+    """Record that a report with this fingerprint was filed automatically.
+
+    The same crash is then never filed twice from this profile, however
+    many times the run is repeated. The oldest entries are dropped beyond
+    :data:`AUTO_FILED_LIMIT`.
+
+    :param fingerprint: the report's fingerprint.
+    :param url: the issue it was filed as, or commented on.
+    """
+    import json
+
+    if not fingerprint:
+        return
+    filed = _auto_filed()
+    filed.pop(str(fingerprint), None)
+    filed[str(fingerprint)] = str(url or "")
+    while len(filed) > AUTO_FILED_LIMIT:
+        filed.pop(next(iter(filed)))
+    _settings().setValue(_KEY_AUTO_FILED, json.dumps(filed))
 
 
 def get_route_errors_through_ai() -> bool:

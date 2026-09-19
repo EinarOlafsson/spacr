@@ -455,16 +455,16 @@ def test_dialog_auto_issue_checkbox_persists(ai_env, qtbot):
     from spacr.qt.widgets.ai_chat_panel import _ProvidersDialog
 
     ai_env["providers"] = []
-    assert ai_env["settings"].get_auto_file_issues() is False
+    assert ai_env["settings"].get_auto_file_issues() is True
     dlg = _ProvidersDialog()
     qtbot.addWidget(dlg)
-    assert dlg._auto_issue_chk.isChecked() is False
-    dlg._auto_issue_chk.setChecked(True)
-    assert ai_env["settings"].get_auto_file_issues() is True
+    assert dlg._auto_issue_chk.isChecked() is True
+    dlg._auto_issue_chk.setChecked(False)
+    assert ai_env["settings"].get_auto_file_issues() is False
 
     dlg2 = _ProvidersDialog()
     qtbot.addWidget(dlg2)
-    assert dlg2._auto_issue_chk.isChecked() is True      # reloaded
+    assert dlg2._auto_issue_chk.isChecked() is False     # reloaded
 
 
 def test_dialog_route_errors_checkbox_defaults_on_and_persists(ai_env, qtbot):

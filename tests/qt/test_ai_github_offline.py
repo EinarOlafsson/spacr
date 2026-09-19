@@ -530,13 +530,14 @@ def ai_store(monkeypatch, tmp_path):
     return store
 
 
-def test_auto_file_issues_defaults_off_and_roundtrips(ai_store):
+def test_auto_file_issues_defaults_on_and_roundtrips(ai_store):
+    """On by default since 2026-09-19, with 'always' as the default mode."""
     from spacr.qt.ai import settings as s
-    assert s.get_auto_file_issues() is False
-    s.set_auto_file_issues(True)
     assert s.get_auto_file_issues() is True
     s.set_auto_file_issues(False)
     assert s.get_auto_file_issues() is False
+    s.set_auto_file_issues(True)
+    assert s.get_auto_file_issues() is True
 
 
 def test_route_errors_defaults_on_and_roundtrips(ai_store):

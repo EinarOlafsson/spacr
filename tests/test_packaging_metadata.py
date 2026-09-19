@@ -363,15 +363,24 @@ def test_the_terms_version_is_bumped_whenever_the_agreement_changes():
     governs -- rather than a note about it, so it is in the document and 4.0
     profiles are asked again too.
 
+    4.2 is Section 5.6, AUTOMATIC ERROR REPORTS, added on 2026-09-19 when
+    issue reporting set to 'always' began filing reports without a preview
+    and 'always' became the default. 5.1 and 5.5 had said nothing was sent
+    automatically and that Diagnostic Data was not published, so 4.1
+    profiles are asked again.
+
     Pinned rather than asserted-nonempty so a bump is deliberate: whoever
     changes the agreement updates this line in the same commit and says which
     clause moved.
     """
     from spacr.qt import terms
 
-    assert terms.TERMS_VERSION == "4.1"
+    assert terms.TERMS_VERSION == "4.2"
     assert any(clause.startswith("11.4 LANGUAGE.") for clause in terms.TERMS), (
         "4.1 is defined by the governing-language clause; it is missing")
+    assert any(clause.startswith("5.6 AUTOMATIC ERROR REPORTS.")
+               for clause in terms.TERMS), (
+        "4.2 is defined by the automatic-report clause; it is missing")
 
 
 # ---------------------------------------------------------------------------

@@ -102,6 +102,12 @@ def _append_example_pack_report(console, report, applied: int) -> None:
 #: per-organelle model fields generated when a run has more than one.
 _ORGANELLE_MODEL_KEY = re.compile(r"^organelle[a-z]?_model_name$")
 
+#: Fingerprints whose automatic report is being filed right now.
+#:
+#: Shared by every screen, because two screens can fail on the same crash
+#: before the first report has come back from GitHub.
+_REPORTS_BEING_FILED: set = set()
+
 
 #: Object name the settings column carries, and what the block below keys
 #: off. It is the column itself, and — see `_settings_panel_qss` — the
@@ -6315,10 +6321,10 @@ class AppScreen(QWidget):
         """Capture the traceback and either show it raw or route it through AI.
 
         With the report action switched on, "File as issue" is revealed and
-        :meth:`_on_finished` says, under the failure line, that nothing was
-        sent. The report itself is never filed from here: a crash is not
-        consent to publish it, and every report stops at an editable preview
-        and a click on Send.
+        what happens to the report is decided here and carried out by
+        :meth:`_on_finished`, under the failure line. With issue reporting
+        set to 'always' the report is filed automatically; with 'ask' the
+        console says nothing was sent and how to send it.
         """
         self._last_error_text = tb
 
@@ -6342,8 +6348,26 @@ class AppScreen(QWidget):
             enabled = False
         self._btn_file_issue.setVisible(enabled)
         self._btn_file_issue.setEnabled(enabled)
-        self._report_waits_for_a_click = bool(
-            enabled) and self._reporting_is_not_set_to_never()
+        files_itself = bool(enabled) and self._reporting_is_set_to_always()
+        self._report_files_itself = files_itself
+        self._report_waits_for_a_click = (
+            bool(enabled) and not files_itself
+            and self._reporting_is_not_set_to_never())
+
+    @staticmethod
+    def _reporting_is_set_to_always() -> bool:
+        """Whether a failed run files its own report, without a preview.
+
+        :returns: ``True`` when issue reporting is 'always', which is the
+            default for a profile that never chose. ``False`` when the
+            preference cannot be read: an unreadable choice must not publish.
+        """
+        try:
+            from ..preferences import (ISSUE_PROMPT_ALWAYS,
+                                       get_issue_prompt_mode)
+            return get_issue_prompt_mode() == ISSUE_PROMPT_ALWAYS
+        except Exception:                                    # noqa: BLE001
+            return False
 
     @staticmethod
     def _reporting_is_not_set_to_never() -> bool:
@@ -6383,6 +6407,172 @@ class AppScreen(QWidget):
             "[issue] Nothing was sent to GitHub. Reports are public, so spaCR "
             "files one only when you press File as issue and then Send "
             "report.\n")
+
+    def _settle_the_report(self, failed: bool = True) -> None:
+        """Do what issue reporting is set to do, now that the run has ended.
+
+        With 'always' the report is filed automatically
+        (:meth:`_file_the_report_automatically`). With 'ask' the console says
+        that nothing was sent (:meth:`_say_the_report_was_not_sent`). Both
+        pending decisions are dropped either way, so a stopped run does not
+        carry one over to the next failure.
+
+        :param failed: whether the run that just ended failed.
+        """
+        files_itself = getattr(self, "_report_files_itself", False)
+        self._report_files_itself = False
+        if failed and files_itself:
+            self._report_waits_for_a_click = False
+            self._file_the_report_automatically()
+            return
+        self._say_the_report_was_not_sent(failed=failed)
+
+    def _settings_snapshot(self) -> dict:
+        """The settings form's current values, for a report.
+
+        Read from the widgets, so it runs on the GUI thread.
+
+        :returns: ``{key: value}``, or ``{}`` when the form cannot be read.
+        """
+        snapshot: dict = {}
+        try:
+            model = getattr(self, "_settings_model", None)
+            if model is not None:
+                for k, w in getattr(model, "_widgets", {}).items():
+                    from PySide6.QtWidgets import (
+                        QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit,
+                        QSpinBox,
+                    )
+                    if isinstance(w, QCheckBox):
+                        snapshot[k] = w.isChecked()
+                    elif isinstance(w, (QSpinBox, QDoubleSpinBox)):
+                        snapshot[k] = w.value()
+                    elif isinstance(w, QComboBox):
+                        snapshot[k] = w.currentText()
+                    elif hasattr(w, "get_value"):
+                        snapshot[k] = w.get_value()
+                    elif isinstance(w, QLineEdit):
+                        snapshot[k] = w.text()
+        except Exception:                                    # noqa: BLE001
+            snapshot = {}
+        return snapshot
+
+    def _file_the_report_automatically(self) -> None:
+        """File the failed run's report without a preview ('always').
+
+        The maintainer's decision of 2026-09-19: "Do real auto-filing, and
+        make this the default". Consent is Section 5.6 of the terms of use,
+        which a profile accepts before setup completes.
+
+        The report is the one "File as issue" would open, built by the same
+        :func:`~spacr.qt.ai.issue_report.build_report`, and it is sent with
+        the redaction the preview applies by default
+        (:func:`~spacr.qt.ai.issue_report.public_report`). spaCR AI's
+        analysis is attached only when the AI has already answered this
+        error. A provider that failed leaves no analysis
+        (``ai_explanation_of``).
+
+        One crash is filed once. A fingerprint this profile has filed before
+        is not filed again, nor is one still being filed. A fingerprint that
+        already has an open issue gets a comment on it instead of a new
+        issue (:func:`~spacr.qt.ai.issue_report.file_without_review`).
+
+        Building and posting run on the background runner. Resolving the
+        sign-in can run ``gh auth token``, and the log copy is file I/O.
+        """
+        tb = getattr(self, "_last_error_text", "") or ""
+        if not tb:
+            return
+        from ..ai import issue_report
+        from ..ai import settings as _ai_settings
+
+        fingerprint = issue_report.fingerprint_of(tb)
+        known = _ai_settings.auto_filed_url(fingerprint)
+        if known:
+            self._console.append_notice(
+                "[issue] This error was reported from this computer before, "
+                "so it was not filed again: {url}\n", url=known)
+            return
+        if fingerprint in _REPORTS_BEING_FILED:
+            self._console.append_notice(
+                "[issue] This error is being reported already.\n")
+            return
+        try:
+            analysis = self._console.ai_explanation_of(tb)
+        except Exception:                                    # noqa: BLE001
+            analysis = ""
+        try:
+            from ..preferences import get_share_diagnostic_logs
+            keep_log = bool(get_share_diagnostic_logs())
+        except Exception:                                    # noqa: BLE001
+            keep_log = False
+        settings_snapshot = self._settings_snapshot()
+        app_key = self.app_key
+        _REPORTS_BEING_FILED.add(fingerprint)
+
+        def _file():
+            """Build, redact and post the report. Off the GUI thread."""
+            try:
+                report = issue_report.public_report(issue_report.build_report(
+                    tb, active_app=app_key, settings=settings_snapshot,
+                    include_log_tail=keep_log, ai_response=analysis))
+                outcome = issue_report.file_without_review(report)
+            except Exception as exc:      # noqa: BLE001 - reported, not hidden
+                outcome = {"status": issue_report.FAILED,
+                           "detail": f"{type(exc).__name__}: {exc}"}
+            outcome["fingerprint"] = fingerprint
+            return outcome
+
+        self._console.append_notice(
+            "[issue] Filing a redacted report of this error on the public "
+            "spaCR GitHub repository, because issue reporting is set to "
+            "'always'…\n")
+        if not self._jobs.submit(_file, self._on_report_filed_automatically):
+            _REPORTS_BEING_FILED.discard(fingerprint)
+
+    def _on_report_filed_automatically(self, outcome: dict) -> None:
+        """Say where the automatic report went, or why it did not. GUI thread.
+
+        A report that was filed, or added to an open issue, is remembered by
+        its fingerprint, so the same crash is not filed again from here. One
+        that was not sent is not remembered, so the next failure tries again.
+
+        :param outcome: what
+            :func:`~spacr.qt.ai.issue_report.file_without_review` returned,
+            with the ``fingerprint`` added.
+        """
+        from ..ai import issue_report
+        from ..ai import settings as _ai_settings
+
+        outcome = dict(outcome or {})
+        fingerprint = str(outcome.get("fingerprint", "") or "")
+        _REPORTS_BEING_FILED.discard(fingerprint)
+        status = outcome.get("status")
+        url = str(outcome.get("url", "") or "")
+        if status in (issue_report.FILED, issue_report.SEEN_AGAIN):
+            try:
+                _ai_settings.remember_auto_filed(fingerprint, url)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not remember the filed report",
+                          exc_info=True)
+        if status == issue_report.FILED:
+            self._console.append_notice(
+                "[issue] Filed on GitHub: {url}\n", url=url)
+        elif status == issue_report.SEEN_AGAIN:
+            self._console.append_notice(
+                "[issue] This error already has an open issue on GitHub. "
+                "This occurrence was added to it: {url}\n", url=url)
+        elif status == issue_report.SIGNED_OUT:
+            self._console.append_notice(
+                "[issue] Not filed: spaCR is not signed in to GitHub. Run "
+                "`gh auth login` in a terminal once and later errors are "
+                "filed automatically. To send this one, press File as "
+                "issue.\n")
+        else:
+            self._console.append_notice(
+                "[issue] Not filed: {detail}. Press File as issue to try "
+                "again.\n",
+                detail=str(outcome.get("detail", "") or "unknown error"))
 
     def _on_lp_switch(self, on: bool) -> None:
         """Compatibility route for callers that still name Mask's LP switch."""
@@ -6627,27 +6817,7 @@ class AppScreen(QWidget):
                 "\nNot filing a report: issue reporting is set to 'never' in "
                 "Preferences.\n")
             return
-        settings_snapshot: dict = {}
-        try:
-            model = getattr(self, "_settings_model", None)
-            if model is not None:
-                for k, w in getattr(model, "_widgets", {}).items():
-                    from PySide6.QtWidgets import (
-                        QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit,
-                        QSpinBox,
-                    )
-                    if isinstance(w, QCheckBox):
-                        settings_snapshot[k] = w.isChecked()
-                    elif isinstance(w, (QSpinBox, QDoubleSpinBox)):
-                        settings_snapshot[k] = w.value()
-                    elif isinstance(w, QComboBox):
-                        settings_snapshot[k] = w.currentText()
-                    elif hasattr(w, "get_value"):
-                        settings_snapshot[k] = w.get_value()
-                    elif isinstance(w, QLineEdit):
-                        settings_snapshot[k] = w.text()
-        except Exception:
-            settings_snapshot = {}
+        settings_snapshot = self._settings_snapshot()
         from PySide6.QtWidgets import QDialog
         from ..ai.issue_preview import IssuePreviewDialog
         from ..ai.issue_report import build_report, submit_report
@@ -6953,7 +7123,7 @@ class AppScreen(QWidget):
             self._console.append_notice(
                 "✓ Finished\n" if ok else
                 "✗ Failed — see traceback above\n")
-        self._say_the_report_was_not_sent(failed=not ok and not cancelled)
+        self._settle_the_report(failed=not ok and not cancelled)
         if (ok and not cancelled and getattr(self, "_results_panel", None)
                 and not getattr(self, "_results_loaded_in_memory", False)):
             try:

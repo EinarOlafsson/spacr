@@ -59,8 +59,12 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "nothing is sent anywhere you have not already logged in to.",
      ("ai_provider", "ai_default")),
     ("When something breaks",
-     "What may leave this machine, and under whose name. Nothing is ever "
-     "sent without you seeing it first and pressing send yourself.",
+     "What may leave this machine, and under whose name. With issue filing "
+     "set to always, the default, a failed run files a redacted report on "
+     "the public spaCR GitHub repository automatically, once per error, "
+     "under the GitHub account signed in below. With ask, you see each "
+     "report first and it is sent only when you press Send. With never, "
+     "nothing is sent.",
      ("issue_prompt", "share_logs")),
     ("Terms of use",
      "Review the terms of use and scroll to the end to enable acceptance. "

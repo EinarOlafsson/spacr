@@ -212,18 +212,22 @@ class _ProvidersDialog(QDialog):
 
         auto_label = QLabel(
             "<b>Report errors as GitHub issues</b><br>"
-            "<span style='color:gray;'>When a run fails, a \"File as "
-            "issue\" button appears under the console. Nothing is sent "
-            "automatically: the report opens in a preview you can edit, "
-            "and goes to the public spaCR repository only when you press "
-            "Send report.</span>"
+            "<span style='color:gray;'>Reports go to the public spaCR "
+            "repository on GitHub, with paths, names and credentials "
+            "redacted. With issue reporting set to always, the default, a "
+            "failed run files its report automatically, once per error, "
+            "when GitHub is signed in below. With ask, a \"File as issue\" "
+            "button appears under the console and the report is sent only "
+            "when you press Send report in its preview. Change it under "
+            "Help → Set spaCR up again….</span>"
         )
         auto_label.setTextFormat(Qt.RichText)
+        auto_label.setWordWrap(True)
         col.addWidget(auto_label)
 
         from .toggle import Toggle
         self._auto_issue_chk = Toggle(
-            "Enable — show File as issue when a run fails"
+            "Enable — report a failed run as a GitHub issue"
         )
         self._auto_issue_chk.setChecked(ai_settings.get_auto_file_issues())
         self._auto_issue_chk.stateChanged.connect(self._on_auto_issue_changed)
@@ -320,7 +324,7 @@ class _ProvidersDialog(QDialog):
             ai_settings.set_response_speed(value)
 
     def _on_auto_issue_changed(self, _state: int) -> None:
-        """Store whether a failure may file an issue without asking."""
+        """Store whether a failed run is reported as a GitHub issue."""
         ai_settings.set_auto_file_issues(self._auto_issue_chk.isChecked())
 
     def _refresh_github_status(self) -> None:

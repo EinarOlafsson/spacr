@@ -3485,12 +3485,24 @@ def set_font_scale(scale: float) -> None:
 #: Three states, not two. "prompt me" and "never prompt me" leave out the
 #: user who wants a report filed and does not want to be asked, and the
 #: moment someone wants this off is the moment it has just interrupted them.
+#:
+#: 'always' files a redacted report to the public tracker as soon as a run
+#: fails, with no preview. 'ask' opens the report in a preview and sends it
+#: only on Send. 'never' files nothing.
 ISSUE_PROMPT_ASK = "ask"
 ISSUE_PROMPT_NEVER = "never"
 ISSUE_PROMPT_ALWAYS = "always"
 ISSUE_PROMPT_MODES = (ISSUE_PROMPT_ASK, ISSUE_PROMPT_NEVER,
                       ISSUE_PROMPT_ALWAYS)
 _KEY_ISSUE_PROMPT = "ai/issue_prompt"
+
+#: The mode of a profile that has never chosen one.
+#:
+#: The maintainer's decision of 2026-09-19: "Do real auto-filing, and make
+#: this the default, and add the user agreeing to this in the user
+#: agreement, if set to always." The agreement is Section 5.6 of
+#: :data:`spacr.qt.terms.TERMS`. A stored choice is kept.
+DEFAULT_ISSUE_PROMPT_MODE = ISSUE_PROMPT_ALWAYS
 
 
 #: Whether the AI assistant is on when spaCR opens (248).
@@ -3534,12 +3546,17 @@ def set_ai_on_by_default(enabled: bool) -> None:
 def get_issue_prompt_mode() -> str:
     """How to behave when a report could be filed.
 
-    :returns: one of :data:`ISSUE_PROMPT_MODES`; ``'ask'`` by default, and
-        for any stored value that is not recognised -- a preference file
-        written by a newer build must not silence the reporter on an older
-        one.
+    :returns: one of :data:`ISSUE_PROMPT_MODES`.
+        :data:`DEFAULT_ISSUE_PROMPT_MODE` (``'always'``) when nothing is
+        stored. A stored choice is returned as it is. A stored value that is
+        not recognised reads as ``'ask'``: it was somebody's choice, even if
+        this build cannot read it, so it must neither silence the reporter
+        nor start publishing without a preview.
     """
-    value = str(_settings().value(_KEY_ISSUE_PROMPT, ISSUE_PROMPT_ASK) or "")
+    store = _settings()
+    if not store.contains(_KEY_ISSUE_PROMPT):
+        return DEFAULT_ISSUE_PROMPT_MODE
+    value = str(store.value(_KEY_ISSUE_PROMPT, ISSUE_PROMPT_ASK) or "")
     return value if value in ISSUE_PROMPT_MODES else ISSUE_PROMPT_ASK
 
 
@@ -4016,10 +4033,11 @@ DEFAULT_SHARE_DIAGNOSTIC_LOGS = True
 
 
 def get_share_diagnostic_logs() -> bool:
-    """Whether report previews may include a redacted recent-log excerpt.
+    """Whether an error report saves a redacted copy of the recent log.
 
-    This never authorises background submission. Every report still stops at
-    the editable preview and needs its own Send click.
+    The copy is written to a file on this computer and the report names
+    that file. The log is never posted to GitHub. Whether a report is sent
+    at all is :func:`get_issue_prompt_mode`.
     """
     return _as_bool(_settings().value(_KEY_SHARE_DIAGNOSTICS,
                                       DEFAULT_SHARE_DIAGNOSTIC_LOGS),
@@ -5434,10 +5452,10 @@ class PreferencesDialog:
             tr("Include redacted log excerpts in issue previews")
         )
         share_diagnostics_check.setToolTip(
-            "Off by default. When enabled, the editable public-GitHub report "
-            "preview includes recent log lines after paths and credentials "
-            "are redacted. Nothing is submitted until you press Send on that "
-            "specific report."
+            "On by default. When on, an error report saves recent log lines, "
+            "with paths and credentials redacted, to a file on this computer "
+            "and names that file in the report. The log itself is never "
+            "posted to GitHub."
         )
         share_diagnostics_check.setChecked(get_share_diagnostic_logs())
         modules.addRow(tr("Report logs"), share_diagnostics_check)
