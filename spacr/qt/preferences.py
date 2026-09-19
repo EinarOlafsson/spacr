@@ -55,9 +55,10 @@ Values:
 * ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` |
   ``"system"`` (default ``"system"``). ``"system"`` follows the operating
   system color scheme. ``"cell"`` uses fluorescence imagery and ``"glass"``
-  uses neutral layered materials over a built-in light field. Legacy Space
-  accessors remain for old settings, but Space is not a selectable theme.
-* ``space_seed``: int; retained for deterministic legacy Space backgrounds.
+  uses neutral layered materials over a built-in light field. Space is not
+  a selectable theme. The retired ``space_variant`` and ``space_seed``
+  values are removed from an older store the first time the theme is read;
+  see :func:`get_theme`.
 * ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].
 * ``figure_save_mode``: ``"print"`` | ``"screen"`` | ``"transparent"``
   (default ``"print"``). Controls the page and figure-element colours used
@@ -507,11 +508,13 @@ VALID_THEMES = PALETTE_THEMES + ("system",)
 #: desktop app that ignores the system setting looks broken on a light desktop.
 DEFAULT_THEME = "system"
 
-#: RETIRED 2026-09-09. Kept as names only so a stored value can still be
-#: recognised and cleared; nothing reads them. See the note above
+#: RETIRED 2026-09-09. Kept as names only so `_forget_the_space_theme_keys`
+#: can remove a stored value; nothing reads them. See the note above
 #: `theme_background_path`.
 _KEY_SPACE_VARIANT = "prefs/space_variant"
 _KEY_SPACE_SEED    = "prefs/space_seed"
+#: Store files already cleared of the two keys above in this process.
+_SPACE_KEYS_CLEARED: set = set()
 _KEY_CELL_VARIANT  = "prefs/cell_variant"
 
 FONT_SCALE_MIN = 0.10
@@ -1392,9 +1395,54 @@ def set_figure_text_size(size: int) -> None:
 
 
 
+def _forget_the_space_theme_keys(store) -> None:
+    """Remove the retired Space theme's two keys from ``store``, once.
+
+    ``prefs/space_variant`` and ``prefs/space_seed`` chose between skies for
+    a theme :data:`VALID_THEMES` does not offer, and nothing has read either
+    since their accessors were retired on 2026-09-09. A store written before
+    then still holds them, so they are removed here and the file stops
+    carrying values that look live and are not.
+
+    Runs once per store file per process, and writes only when there was
+    something to remove. Skipped in safe mode, which reads nothing it was
+    given; the next ordinary start removes them. Never raises: a key that
+    cannot be removed is a stale line in the store and changes nothing.
+
+    :param store: the preference store :func:`get_theme` is reading.
+    :returns: None; ``store`` is edited in place.
+    """
+    if _SAFE_MODE or not isinstance(store, QSettings):
+        return
+    try:
+        name = str(store.fileName())
+        if name in _SPACE_KEYS_CLEARED:
+            return
+        gone = [key for key in (_KEY_SPACE_VARIANT, _KEY_SPACE_SEED)
+                if store.contains(key)]
+        for key in gone:
+            store.remove(key)
+        if gone:
+            store.sync()
+            LOG.info("removed %s from the preferences: they belonged to the "
+                     "retired Space theme and nothing reads them.",
+                     " and ".join(gone))
+        _SPACE_KEYS_CLEARED.add(name)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not remove the retired Space theme keys",
+                  exc_info=True)
+
+
 def get_theme() -> str:
-    """Return the saved application theme, or the default when invalid."""
-    raw = str(_settings().value(_KEY_THEME, DEFAULT_THEME))
+    """Return the saved application theme, or the default when invalid.
+
+    The first read of a store also removes the retired Space theme's
+    ``space_variant`` and ``space_seed`` values from it; see
+    :func:`_forget_the_space_theme_keys`.
+    """
+    store = _settings()
+    _forget_the_space_theme_keys(store)
+    raw = str(store.value(_KEY_THEME, DEFAULT_THEME))
     return raw if raw in VALID_THEMES else DEFAULT_THEME
 
 

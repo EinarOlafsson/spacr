@@ -394,6 +394,8 @@ if theme == "cell":
 
 NO `space` BRANCH. "space" is not in VALID_THEMES -- `set_theme` refuses it and `theme_choices` offers no `space:` token -- so a branch for it could not be reached by any route through this module, and coverage counted three items nothing could execute. The Space ARTWORK still exists and `spaceout` still draws it; what is gone is the theme by that name, which is why the variant accessors below stay.
 
+_Corrected 2026-09-19:_ the variant accessors did not stay. They were retired on 2026-09-09 (61c896555, instruction 364), because `spaceout`'s "space" pattern is `widgets/fractal_space.py` and reads neither key. What was left behind was the two stored values: the key names were kept "so a stored value can still be recognised and cleared", and nothing cleared them. `_forget_the_space_theme_keys`, called from `get_theme`, now removes `prefs/space_variant` and `prefs/space_seed` from a store the first time the theme is read. It writes only when a key was there and skips safe mode, which reads nothing it was given.
+
 ## set_theme_choice
 
 ### lines 1549-1550  _(unsure)_
