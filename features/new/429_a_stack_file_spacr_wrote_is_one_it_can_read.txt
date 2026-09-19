@@ -307,3 +307,32 @@ first field; both would cut crops from the wrong field
 (docs/notes/spacr/stream_dataset.md). external_masks._save_npy names its
 temporary "<field>.npy.tmp-<pid>.npy", which a killed import leaves in
 masks/ and merged/ with a field's ending.
+
+2026-09-19, after review -- two things the review caught, both fixed
+here. (1) The refusal above leaves the plate part-converted: the
+converter writes each region as it goes, so the plate*_*.tif files
+written before it stopped stay in the folder with no rename_log.csv.
+The refusal's second way on ("clear custom_regex") sends the user over
+that folder, and convert_to_yokogawa reads every image in it, so those
+leftovers would be converted a second time as wells of their own --
+the renumbering the refusal exists to prevent, reached by taking its
+advice. The message now says they must be moved out of the folder
+first, and docs/notes/spacr/core.md says why spaCR does not delete them
+itself (they are the user's images under a new name, and nothing tells
+this attempt's files from an earlier good run's). (2) Sampling only
+visible .npy files meant utils.measure_test_mode stopped copying
+.spacr_plane_layout.json at all, where before it travelled on the runs
+random.sample happened to pick it; without that manifest
+crops.read_merged_plane_layout reads test/merged as a legacy folder and
+answers with DEFAULT_MASK_DIMS, so anything pointed at test/merged
+other than measure_crop itself (generate_object_dataset,
+open_merged_field, align) could read the wrong plane. The manifest is
+now copied beside the sampled fields. Two tests added, both fail on the
+commits they follow.
+
+Left open, not a defect in this work: re-running metadata_type 'auto'
+without a regex over a folder that already holds converted plate*_
+files converts those again as new wells. That is the same hazard as (1)
+and predates this item; it wants a decision (skip files that already
+match the Yokogawa name, or refuse when rename_log.csv is missing but
+plate*_ files are present) rather than a quick patch.

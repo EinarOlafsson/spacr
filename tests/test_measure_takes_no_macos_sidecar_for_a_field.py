@@ -100,7 +100,12 @@ def test_completed_fields_in_merged_scans_no_sidecar(tmp_path):
 
 def test_measure_test_mode_samples_only_fields(tmp_path, capsys):
     """Test mode sampled every file in ``merged/``, sidecars and the plane
-    layout sidecar included, so a test set could hold fewer fields than asked."""
+    layout sidecar included, so a test set could hold fewer fields than asked.
+
+    Only fields are sampled now, and the plane layout manifest is copied
+    beside them rather than sampled: without it ``test/merged`` reads as a
+    legacy folder, against the default plane order.
+    """
     from spacr.utils import measure_test_mode
 
     merged = tmp_path / "merged"
@@ -113,7 +118,10 @@ def test_measure_test_mode_samples_only_fields(tmp_path, capsys):
                                   "test_nr": 3})
 
     copied = sorted(p.name for p in Path(settings["src"]).iterdir())
-    assert copied == [FIELD]
+    assert FIELD in copied
+    assert not [name for name in copied if name.startswith("._")]
+    assert ".spacr_plane_layout.json" in copied, (
+        "the manifest that says which plane is which must come across")
     assert "measuring all 1" in capsys.readouterr().out
 
 

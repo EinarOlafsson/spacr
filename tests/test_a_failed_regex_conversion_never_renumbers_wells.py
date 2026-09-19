@@ -188,3 +188,29 @@ def test_a_regex_conversion_that_succeeds_is_unchanged(tmp_path, capsys):
 
     assert _converted_wells(plate) == {"B03", "C07"}
     assert (plate / "rename_log.csv").is_file()
+
+
+def test_the_refusal_does_not_send_the_user_back_over_its_own_leftovers(
+        tmp_path, capsys, monkeypatch):
+    """Clearing the regex is only safe once the part-converted files are gone.
+
+    The converter writes each region as it goes, so the refusal leaves the
+    plate holding the ``plate*_*.tif`` files written before it stopped, with
+    no ``rename_log.csv``. ``convert_to_yokogawa`` reads every image in the
+    folder, so a user who follows "clear custom_regex" over that folder
+    converts those leftovers a second time, as wells of their own -- the
+    renumbering this refusal exists to prevent, reached by taking its advice.
+    """
+    from spacr.core import preprocess_generate_masks
+
+    monkeypatch.delenv("SPACR_STRICT_ERRORS", raising=False)
+    plate = _plate(tmp_path / "plate")
+
+    preprocess_generate_masks(_settings(plate))
+    out = capsys.readouterr().out
+
+    assert list(plate.glob("plate*_*.tif")), (
+        "premise: the refusal leaves the plate part-converted")
+    assert not (plate / "rename_log.csv").exists()
+    assert "moved out of" in out, out
+    assert "convert them a second time" in out, out

@@ -7964,6 +7964,12 @@ def measure_test_mode(settings):
     that case -- so the one folder you most want to smoke-test first was the
     one folder test_mode refused to run on.
 
+    Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never
+    measured in place of a field. The folder's ``.spacr_plane_layout.json`` is
+    copied across as well when it exists: it is what says which plane is which,
+    and a ``test/merged`` without it is read as a legacy folder, against the
+    default plane order.
+
     :param settings: settings dict; must contain ``src``, ``test_mode``, ``test_nr``.
     :returns: settings dict with ``src`` optionally redirected to the test folder.
     :raises ValueError: if there is nothing to sample -- an empty ``src``, or a
@@ -7996,6 +8002,11 @@ def measure_test_mode(settings):
 
             for file in random_files:
                 shutil.copy(os.path.join(settings['src'], file), os.path.join(src,file))
+
+            from .crops import MERGED_LAYOUT_SIDECAR
+            layout = os.path.join(settings['src'], MERGED_LAYOUT_SIDECAR)
+            if os.path.isfile(layout):
+                shutil.copy(layout, os.path.join(src, MERGED_LAYOUT_SIDECAR))
 
             settings['src'] = src
             print(f'Changed source folder to {src} for test mode')

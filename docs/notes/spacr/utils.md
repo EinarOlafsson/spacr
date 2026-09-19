@@ -5031,6 +5031,12 @@ if f.endswith('.npy') and not f.startswith('.')
 
 Test mode sampled every file in `merged/`, so `.spacr_plane_layout.json` and, on a macOS external volume, the `._<field>.npy` sidecar of each field (item 429) could take a field's place in `test/merged`. Test mode then measured fewer fields than `test_nr` asked for, and a sampled sidecar failed its worker. Only visible `.npy` fields are sampled now, and the "fewer than test_nr" message counts fields.
 
+```python
+if os.path.isfile(layout):
+```
+
+Sampling only `.npy` files meant the layout manifest was never copied, where before it went across on the runs where `random.sample` happened to pick it. `crops.read_merged_plane_layout` treats that manifest as the authority for the folder it sits in and returns `None` without it, which every reader takes as a legacy folder and answers with `DEFAULT_MASK_DIMS`. `measure_crop` itself is safe -- `reconcile_merged_mask_dims` runs against the real `merged/` before `measure_test_mode` -- but anything else pointed at `test/merged` (`measure.generate_object_dataset`, `crops.open_merged_field`, `align`) would read the wrong plane on a plate whose layout is not the default. The manifest is now copied beside the sampled fields whenever the source folder has one.
+
 ## process_mask_file_adjust_cell, 2026-09-19
 
 ```python

@@ -329,9 +329,13 @@ def preprocess_generate_masks(settings):
                                     f"that conversion gives each file the next free well in file "
                                     f"order and ignores the wells the file names carry, so it would "
                                     f"have relabelled the plate's wells. Correct the file or the "
-                                    f"regex and run again, or clear custom_regex to have spaCR "
+                                    f"regex and run again. Clearing custom_regex to have spaCR "
                                     f"number the wells itself (rename_log.csv then records which "
-                                    f"file became which well).")
+                                    f"file became which well) is only safe once the plate*_*.tif "
+                                    f"files this attempt already wrote are moved out of "
+                                    f"{source_folder}: that conversion reads every image in the "
+                                    f"folder, so it would convert them a second time, as further "
+                                    f"wells.")
                                 print(f'Error: {refusal}')
                                 ledger.record_failure(source_folder,
                                                       stage='convert_metadata', exc=e)
