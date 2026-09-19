@@ -13,7 +13,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [Module level](#module-level) (110 entries)
 - [_merge_declarations](#_merge_declarations) (2 entries)
 - [_takes_an_argument](#_takes_an_argument) (1 entry)
-- [set_default_settings_preprocess_generate_masks](#set_default_settings_preprocess_generate_masks) (20 entries)
+- [set_default_settings_preprocess_generate_masks](#set_default_settings_preprocess_generate_masks) (21 entries)
 - [set_default_plot_data_from_db](#set_default_plot_data_from_db) (1 entry)
 - [_read_cellpose_models](#_read_cellpose_models) (1 entry)
 - [cellpose_model_choices](#cellpose_model_choices) (1 entry)
@@ -1282,6 +1282,18 @@ from .illumination import illumination_settings
 ```
 
 Mask estimates the same optical field as Measure but applies it only to private Cellpose inputs; the persisted stack remains raw. Call the illumination module's factory so both screens expose one vocabulary and new controls cannot land in only one of them.
+
+### 2026-09-19, the flow thresholds (428, GitHub #123)
+
+```python
+settings.setdefault('cell_flow_threshold', 0.4)
+```
+
+`nucleus_`, `cell_` and `pathogen_flow_threshold` default to 0.4, and so does `FT` in `get_default_test_cellpose_model_settings` and `get_default_apply_cellpose_model_settings`. The maintainer chose it on 2026-09-19: it is Cellpose's own `CellposeModel.eval` default and the strictest of the options he was offered. It drops the most irregular objects (parasites included) and changes default segmentation results the most. History of this default: 100 (2024-07-18), 1.0 (4b9fef8b9, 2025-07-02), 100 again (df753075e, 2026-09-02; shipped in 1.5.0.5 to 1.5.0.8), 0.4 now. At 100 the flow check still ran but rejected practically nothing, and `spacr.validate` warned about that default on every run (GitHub #123).
+
+`setdefault` never overwrites a value the settings already hold. So a settings file that carries 100 keeps 100, in either spelling (`cell_flow_threshold` or the pre-2026-09-02 `cell_FT`, which `_fold_renamed_settings` moves first), and gets the corrected warning from `spacr.validate._flow_threshold_problems`. Nobody's saved choice is rewritten. The shipped example pack `spaCR_settings/1_generate_masks_settings.csv` is one such file, and it keeps its 100.
+
+`FT` was declared `int` in `expected_types`. With a 0.4 default that is a type error in `_check_types`, and `coerce_expected_types` would leave a CSV's `'0.4'` as text. It is `(int, float)` now, the same as the per-object keys.
 
 ## set_default_plot_data_from_db
 

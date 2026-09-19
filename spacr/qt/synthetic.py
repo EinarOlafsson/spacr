@@ -926,7 +926,7 @@ def demo_settings(app_key: str, src: str,
             "nucleus_signal_to_noise": 10,
             "pathogen_signal_to_noise": 10,
             "cell_cellprob_threshold": 0.0,
-            "cell_flow_threshold": 1.0,
+            "cell_flow_threshold": 0.4,
             "cell_model_name": "cpsam",
             "nucleus_model_name": "cpsam",
         }

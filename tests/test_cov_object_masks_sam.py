@@ -277,7 +277,7 @@ def test_basic_run_writes_masks_counts_and_uses_cpu_model(tmp_path, fake_model,
     assert kw["progress"] is True
     assert kw["min_size"] == 0          # cell_min_area default
     assert kw["resample"] is True       # _get_object_settings('cell')
-    assert kw["flow_threshold"] == 100  # cell_flow_threshold default
+    assert kw["flow_threshold"] == 0.4  # cell_flow_threshold default
     assert kw["cellprob_threshold"] == 0  # cell_cellprob_threshold default
 
     # two-channel stack -> both cellpose channels handed to the model

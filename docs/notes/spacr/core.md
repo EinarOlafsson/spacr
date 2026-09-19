@@ -105,6 +105,8 @@ One of them changes segmentation: `cell_flow_threshold` is declared 1.0 and the 
 
 Both helpers are setdefault-only and idempotent, so the later call on the v1 path is unaffected.
 
+2026-09-19: the declared default is 0.4 now (428, GitHub #123), so the `0.4` fallback in `settings.get('cell_flow_threshold', 0.4)` and the declared default agree again. The fallback is still never reached, because the defaults are filled first.
+
 ### lines 298-300
 
 ```python

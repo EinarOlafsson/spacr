@@ -16,7 +16,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [generate_classify_demo](#generate_classify_demo) (3 entries)
 - [generate_timelapse_demo](#generate_timelapse_demo) (1 entry)
 - [_channel_settings](#_channel_settings) (1 entry)
-- [demo_settings](#demo_settings) (20 entries)
+- [demo_settings](#demo_settings) (21 entries)
 - [_phred_run](#_phred_run) (1 entry)
 - [_fastq_header](#_fastq_header) (1 entry)
 
@@ -237,6 +237,22 @@ The demo draws cells at _RADIUS_CELL and nuclei at _RADIUS_NUCLEUS; Cellpose 4 r
 ```
 
 The camera offset the images are actually drawn on. All three object channels, not just the cell: `*_background` is multiplied by `*_signal_to_noise` to set the normalisation ceiling, and a demo that declares the right offset for one channel and the 100 default for the other two normalises them differently for no reason.
+
+### 2026-09-19, `cell_flow_threshold`
+
+```python
+"cell_flow_threshold": 0.4,
+```
+
+It was 1.0 from the first commit of this generator (4307d6299, 2026-07-21), and 1.0 was not a choice made for the synthetic data. It was the shipped default of that day. The same dict copied `cell_background` 100, signal-to-noise 10 and `cell_CP_prob` 0, which were all defaults then too. So the demo follows the shipped default, which is 0.4 since 428 (GitHub #123). Nucleus and pathogen are not set here and take the same default.
+
+WHAT THAT COSTS THE DEMO, measured 2026-09-19. The run was stock `cpsam` on the GPU, over the four fields `generate_mask_demo(fields=2)` draws. Diameters were the demo's own (40 / 16 / 10) with `cellprob_threshold` 0. Each entry is the number of masks kept at flow_threshold 0.4 / 1.0 / 100:
+
+    cells      (16 drawn per field)  16/16/16  16/16/16  16/16/16  12/16/16
+    nuclei     (16 drawn per field)  16/16/16  16/16/16  16/16/16  16/16/16
+    pathogens                        13/14/14   9/10/10  12/12/12   9/10/10
+
+So 0.4 drops 4 of 16 cells in one field, and one pathogen in three of the four fields. 1.0 and 100 keep the same objects on this data. The largest flow error of an unfiltered mask was 0.52 (cells) and 0.43 (pathogens), and the median in the field that lost cells was 0.39. Every object on this data was drawn as a round blob, so what 0.4 drops here is not misshapen. Its flow error sits just above 0.4. The demo now shows what the shipped default does. If the demo should instead show every drawn object, set 1.0 here and write down that it is on purpose.
 
 ### lines 981-983
 

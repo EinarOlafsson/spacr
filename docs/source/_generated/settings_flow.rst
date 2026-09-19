@@ -42,7 +42,7 @@ Read by :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :p
 FT
 --
 
-(int) - Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Default 100, which effectively accepts every candidate.
+(float) - Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.
 
 | :py:func:`~spacr.submodules.apply_cellpose_model` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings` **-- reads it**
@@ -1446,7 +1446,7 @@ Read by :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`.
 cell_flow_threshold
 -------------------
 
-(float) - Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3; the GUI accepts -1 to 100 so it can hold this default. Default 100, which accepts every candidate.
+(float) - Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
@@ -9436,7 +9436,7 @@ Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.q
 nucleus_flow_threshold
 ----------------------
 
-(float) - Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; spaCR default 100, which keeps everything Cellpose proposes.
+(float) - Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -11845,7 +11845,7 @@ Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.q
 pathogen_flow_threshold
 -----------------------
 
-(float) - Cellpose flow_threshold for pathogen masks: a candidate mask is discarded when its recomputed flows disagree with the network prediction by more than this. Raise it to keep more, sometimes misshapen, parasites; lower it toward 0.4 (Cellpose's own default) to keep only clean, well-formed objects. Typical range 0.0-3.0. Default 100.
+(float) - Cellpose flow_threshold for pathogen masks: a candidate mask is discarded when its recomputed flows disagree with the network prediction by more than this. Raise it to keep more, sometimes misshapen, parasites; lower it to keep only clean, well-formed objects. Typical range 0.0-3.0; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

@@ -1158,6 +1158,49 @@ def _numeric(value: Any) -> Optional[float]:
     return None
 
 
+_FLOW_THRESHOLD_DEFAULT = 0.4
+
+
+def _flow_threshold_problems(key: str, value: Any, number: float) -> List[Problem]:
+    """Warn when a Cellpose flow threshold leaves the filter doing nothing.
+
+    Cellpose discards a mask whose flow error -- the mean squared difference
+    between the flows recomputed from the mask and the flows the network
+    predicted, both of about unit length -- is above the threshold. Above 3
+    that rejects practically nothing, and at 0 or below Cellpose skips the
+    check, so either way every mask Cellpose proposes is kept. Only those
+    values are reported: the shipped default of 0.4 never is, and the 100
+    that spaCR 1.5.0.5 to 1.5.0.8 shipped still is.
+
+    :param key: the setting name.
+    :param value: the value as the settings hold it.
+    :param number: ``value`` as a float.
+    :returns: one warning when the value is outside 0 to 3, else nothing.
+    """
+    if number > 3:
+        return [Problem(
+            WARNING, key,
+            f"{key}={value} turns Cellpose's flow-error filter off: above 3 "
+            "it rejects practically nothing, so every mask Cellpose proposes "
+            "is kept, however misshapen.",
+            f"spaCR and Cellpose both default to {_FLOW_THRESHOLD_DEFAULT}. "
+            "spaCR 1.5.0.5 to 1.5.0.8, and some older releases, shipped 100, "
+            "so a settings file saved by one of them still carries it. Set "
+            f"{key} to {_FLOW_THRESHOLD_DEFAULT} to drop misshapen masks again "
+            "(0 to 3 is the useful range, and lower keeps fewer, cleaner "
+            "objects), or keep it above 3 only if you want every candidate.")]
+    if number < 0:
+        return [Problem(
+            WARNING, key,
+            f"{key}={value} is below 0, and Cellpose skips its flow-error "
+            "filter for any value of 0 or less, so every mask Cellpose "
+            "proposes is kept.",
+            f"spaCR and Cellpose both default to {_FLOW_THRESHOLD_DEFAULT}. "
+            f"Set {key} between 0 and 3 to filter misshapen masks; lower "
+            "keeps fewer, cleaner objects.")]
+    return []
+
+
 def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
     """Diameters, percentiles, thresholds and batch sizes are in usable ranges."""
     problems: List[Problem] = []
@@ -1201,10 +1244,7 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
                     "Lower it toward -6 to grow masks and keep faint objects; raise it toward 6 to shrink them."))
 
         if number is not None and (key.endswith("_flow_threshold") or key in ("FT", "flow_threshold")):
-            if not 0 <= number <= 3:
-                problems.append(Problem(
-                    WARNING, key, f"{key}={value} is outside the useful 0 to 3 flow-threshold range.",
-                    "Cellpose's own default is 0.4; spaCR ships 1.0. Values above 3 disable the filter entirely."))
+            problems.extend(_flow_threshold_problems(key, value, number))
 
         if number is not None and key in ("val_split", "test_split", "dropout_rate",
                                           "organelle_unet_threshold", "score_threshold"):

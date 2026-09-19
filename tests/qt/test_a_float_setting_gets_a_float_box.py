@@ -7,8 +7,10 @@ nothing said so -- typing 0.4 left 0 behind.
 
 The settings this hit are the ones where fractions are the whole point:
 
-* ``cell_flow_threshold`` ships 100 and is documented "usable range about
-  0-3", with Cellpose's own default at 0.4. The user could pick 0, 1, 2 or 3.
+* ``cell_flow_threshold`` shipped 100 until 2026-09-19 and is documented
+  "usable range about 0-3", with Cellpose's own default at 0.4. The user could
+  pick 0, 1, 2 or 3. It ships 0.4 now, which is a float and would get a float
+  box anyway; the ratchet is about the declared type, not this one default.
 * ``*_perimeter_fraction`` is declared a plain float and is a FRACTION. It
   could be set to 0 or 1.
 * ``*_signal_to_noise`` and ``*_background``, which are intensity ratios and
@@ -77,7 +79,7 @@ def test_the_flow_threshold_accepts_cellposes_own_default(qtbot):
 
 
 def test_the_shipped_default_is_not_clamped_by_its_new_box(qtbot):
-    """A float box has a domain, and 100 has to still fit in it.
+    """A float box has a domain, and the shipped default has to fit in it.
 
     The promotion is worthless if it silently rewrites the default on the way
     -- that would change what every untouched run does.

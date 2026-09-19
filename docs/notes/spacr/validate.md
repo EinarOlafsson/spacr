@@ -17,6 +17,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_check_types](#_check_types) (2 entries)
 - [_check_retired_keys](#_check_retired_keys) (3 entries)
 - [_check_unknown_keys](#_check_unknown_keys) (4 entries)
+- [_flow_threshold_problems](#_flow_threshold_problems) (1 entry)
 - [_check_numeric_sanity](#_check_numeric_sanity) (4 entries)
 - [_check_required_paths](#_check_required_paths) (5 entries)
 - [_check_app_specific](#_check_app_specific) (6 entries)
@@ -474,6 +475,22 @@ NEVER SUGGEST A NAME FROM A DIFFERENT OBJECT ROLE, because role is exactly the a
 
 IT IS WORSE THAN SILENCE WHEN IT IS WRONG. Before the organelle preprocessing settings were declared (364), a user who worked out `remove_background_organelle` was told "did you mean 'remove_background_cell'?" -- and following that changes a DIFFERENT CHANNEL's preprocessing, quietly, on a run that then looks fine. A wrong suggestion gets FOLLOWED; silence at least gets investigated. 391 suppressed one instance of this; this is the rule behind it.
 
+## _flow_threshold_problems
+
+### 2026-09-19, GitHub #123 and the flow-threshold half of #117
+
+```python
+_FLOW_THRESHOLD_DEFAULT = 0.4
+```
+
+WHAT WAS WRONG. spaCR 1.5.0.5 to 1.5.0.8 shipped 100 for `nucleus_flow_threshold`, `cell_flow_threshold` and `pathogen_flow_threshold` (and for `FT` in the apply/test-model submodules). This check then warned about spaCR's own default on every Mask run, and its fix line read "Cellpose's own default is 0.4; spaCR ships 1.0". spaCR had not shipped 1.0 since commit df753075e on 2026-09-02. The reporter of #123 took the 1.0 from that line and reported it as Cellpose's default.
+
+WHAT CHANGED. The maintainer chose 0.4, Cellpose's own default, on 2026-09-19. It is the strictest of the options he was offered: it drops the most irregular objects, parasites included, and changes default results the most. So the shipped default never reaches this check now. 100 still does, because a settings file saved by 1.5.0.5 to 1.5.0.8 carries it and filling in defaults never overwrites a value a file holds. That file is the reason the warning is worded as it is. It names both defaults, says where a 100 comes from, and gives the value to type. It still lets a user keep 100 on purpose.
+
+Measured through `spacr-run validate --module mask` on a settings file holding only `src` and `cell_channel`: before, three warnings (`nucleus_`, `cell_`, `pathogen_flow_threshold=100`); after, none. With the three set to 100 in the file, all three are kept at 100 and warned about with the new text.
+
+The message is split at 0 and at 3 rather than worded once for both ends. The two ends are different mistakes: 100 comes from an old file, and a negative number is typed by hand.
+
 ## _check_numeric_sanity
 
 ### lines 1338-1340
@@ -507,6 +524,8 @@ if number is not None and (key.endswith("_flow_threshold") or key in ("FT", "flo
 ```
 
 flow_threshold: 0 keeps only perfect masks, above ~3 keeps everything.
+
+2026-09-19: half of this was wrong, and the check now lives in `_flow_threshold_problems`. Above about 3 does keep everything. 0 does NOT keep only perfect masks: Cellpose 4 (4.2.1.1, `dynamics.compute_masks`) runs the flow check only when `flow_threshold > 0`, so 0 or below skips the check and keeps everything too. Its own log line says so: "turn off QC step with flow_threshold=0 if too slow".
 
 ## _check_required_paths
 

@@ -3699,9 +3699,10 @@ def _permits_float(key: str) -> bool:
 
     The widget for a number is otherwise chosen from the DEFAULT VALUE's
     Python type, and a float-valued setting that happens to ship a round
-    default ships an ``int``. `cell_flow_threshold` defaults to 100 and is
-    documented "usable range about 0-3" with Cellpose's own default at 0.4,
-    so an integer box let the user choose 0, 1, 2 or 3 and nothing between.
+    default ships an ``int``. `cell_flow_threshold` shipped 100 until
+    2026-09-19 and is documented "usable range about 0-3" with Cellpose's own
+    default at 0.4, so an integer box let the user choose 0, 1, 2 or 3 and
+    nothing between.
     `perimeter_fraction` is declared a plain float and a FRACTION, and could
     only be set to 0 or 1.
 

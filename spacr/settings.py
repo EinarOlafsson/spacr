@@ -1035,9 +1035,9 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_background', 100)
     settings.setdefault('nucleus_signal_to_noise', 10)
     settings.setdefault('nucleus_cellprob_threshold', 0)
-    settings.setdefault('nucleus_flow_threshold', 100)
-    settings.setdefault('cell_flow_threshold', 100)
-    settings.setdefault('pathogen_flow_threshold', 100)
+    settings.setdefault('nucleus_flow_threshold', 0.4)
+    settings.setdefault('cell_flow_threshold', 0.4)
+    settings.setdefault('pathogen_flow_threshold', 0.4)
     
     settings.setdefault('plot', False)
     settings.setdefault('figuresize', 10)
@@ -2268,7 +2268,7 @@ def get_default_test_cellpose_model_settings(settings):
     settings.setdefault('percentiles',(2,98))
     settings.setdefault('batch_size',50)
     settings.setdefault('CP_probability',0)
-    settings.setdefault('FT',100)
+    settings.setdefault('FT',0.4)
     settings.setdefault('target_size',1000)
     return settings
 
@@ -2285,7 +2285,7 @@ def get_default_apply_cellpose_model_settings(settings):
     settings.setdefault('percentiles',(2,98))
     settings.setdefault('batch_size',50)
     settings.setdefault('CP_probability',0)
-    settings.setdefault('FT',100)
+    settings.setdefault('FT',0.4)
     settings.setdefault('circularize',False)
     settings.setdefault('target_size',1000)
     return settings
@@ -3602,7 +3602,7 @@ expected_types = {
     'random_test': bool,
     'target_size': int,
     'CP_probability': int,
-    'FT': int,
+    'FT': (int, float),
     'circularize': bool,
     'nr': int,
     'save_dtype': str,
@@ -3947,8 +3947,8 @@ tooltips = {
     "seg_qc_plate_fail_fraction": "(float) - Fraction of failing fields at which the plate-level scorecard changes from warn to fail. The default 0.1 corresponds approximately to one column of a 96-well plate. This setting changes only the reported verdict and does not determine which fields are processed. Default 0.1.",
     "nucleus_cellprob_threshold": "(float) - Cellpose cell-probability threshold for the nucleus channel, passed straight to model.eval as cellprob_threshold. A pixel must exceed it to join a mask, so raising it shrinks masks and drops dim nuclei, while lowering it grows masks and recovers faint ones along with more debris. Useful range about -6 to 6; default 0.",
     "pathogen_cellprob_threshold": "(float) - Cellpose cellprob_threshold for the pathogen channel: a pixel is claimed by a mask only if its predicted object probability exceeds this. Lower it (toward -6) to recover dim or small parasites and grow mask boundaries; raise it (toward 6) to shrink masks and drop faint objects. Useful range about -6 to 6. Default -1.",
-    "nucleus_flow_threshold": "(float) - Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; spaCR default 100, which keeps everything Cellpose proposes.",
-    "pathogen_flow_threshold": "(float) - Cellpose flow_threshold for pathogen masks: a candidate mask is discarded when its recomputed flows disagree with the network prediction by more than this. Raise it to keep more, sometimes misshapen, parasites; lower it toward 0.4 (Cellpose's own default) to keep only clean, well-formed objects. Typical range 0.0-3.0. Default 100.",
+    "nucleus_flow_threshold": "(float) - Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+    "pathogen_flow_threshold": "(float) - Cellpose flow_threshold for pathogen masks: a candidate mask is discarded when its recomputed flows disagree with the network prediction by more than this. Raise it to keep more, sometimes misshapen, parasites; lower it to keep only clean, well-formed objects. Typical range 0.0-3.0; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
     "cell_channel": "(int or None) - Zero-indexed raw acquisition channel that Cellpose segments into cell masks; it also selects which channel the cell_background, cell_signal_to_noise and remove_background_cell settings are applied to during preprocessing. Set to None and no cell masks, cell table or cell crops are produced. At least one of cell/nucleus/pathogen/organelle_channel must be an integer or the run aborts. Default None.",
     "nucleus_channel": "(int or None) - Zero-indexed raw acquisition channel segmented into nucleus masks, and the channel that nucleus_background, nucleus_signal_to_noise and remove_background_nucleus apply to. None means no nucleus masks, hence no nucleus table, no cell-to-nucleus linking, and nothing subtracted from the cytoplasm mask. Set it whenever a DNA stain was acquired. Default None.",
     "pathogen_channel": "(int or None) - Zero-indexed raw acquisition channel segmented into pathogen masks (Toxoplasma etc.), and the channel pathogen_background, pathogen_signal_to_noise and remove_background_pathogen apply to. None disables pathogen segmentation, the pathogen table, the infected-only filter (uninfected) and the adjust_cells step, which needs cell, nucleus and pathogen masks together. Default None.",
@@ -3958,7 +3958,7 @@ tooltips = {
     "batch_fields": "(int) - Streaming pipeline only (pipeline_style='v2'): how many whole field stacks are loaded into RAM before one Cellpose batch is segmented. Larger values keep the GPU busier and cut the number of read passes over the plate, at a memory cost of roughly one full field stack each. Ignored entirely by the v1 pipeline. Default 8.",
     "keep_npz": "(bool) - Streaming pipeline only (pipeline_style='v2'): write each in-memory NPZ batch under merged/_scratch/ instead of discarding it, so intermediate data from a failed run can be inspected. This increases disk usage; enable it only for diagnosis. Default False.",
     "CP_probability": "(int) - Cellpose cellprob_threshold used by the standalone apply/test-model submodules, where it carries this name instead of the per-object <object>_cellprob_threshold used by the Mask module. Only pixels whose predicted cell probability exceeds it join a mask, so raising it shrinks outlines and drops faint objects while lowering it grows them and recovers dim ones. Default 0.",
-    "FT": "(int) - Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Default 100, which effectively accepts every candidate.",
+    "FT": "(float) - Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
     "circularize": "(bool) - Replace each detected mask with an equal-area circle centred on its centroid before measurement. This can reduce boundary variation for approximately circular objects with noisy segmentation outlines. Do not enable it when shape is an outcome, because circularization removes elongation and other morphological differences. Default False.",
     "class_column": "(str) - Column containing the per-object class label used by class-proportion analysis. Missing values are filled with 0 rather than dropping the corresponding rows; selecting an incorrect column can therefore assign class zero to every object without raising an error. The value is also appended to the condition when group_by_class is enabled. Default 'test'.",
     "class_metadata": "(list of lists) - One inner list per training class, holding the metadata values that select that class's objects, for example [['c1'],['c2']] for a two-class run keyed on column. Order fixes the class indices the model learns, so reordering the inner lists relabels the whole training set. Values that occur in no row make the generator select nothing and stop. Default [['c1'], ['c2']].",
@@ -3978,7 +3978,7 @@ tooltips = {
     "target_size": "(int) - Edge length in pixels to which training images and masks are resized before Cellpose fine-tuning, applied to both axes to produce square input. Larger values preserve finer boundary detail while increasing VRAM use and computation approximately quadratically; smaller values reduce computation but may blur segmentation boundaries. Default 1000.",
     "test_split": "(float) - Fraction of the generated crops held out as the test set, between 0 and 1. The split respects the grouping level chosen elsewhere, so crops from one well do not straddle it and the score is not inflated by the model recognising the well. Raising it buys a steadier estimate and costs training data. Default 0.1.",
     "um_per_px": "(float or None) - Physical size of one pixel, used to convert the endodyogeny area column into square microns before binning. Set it and max_area, min_area_bin and every reported area are in microns; leave it None and they stay in pixels, which makes numbers from objectives of different magnification incomparable. Default 0.1.",
-    "cell_flow_threshold": "(float) - Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3; the GUI accepts -1 to 100 so it can hold this default. Default 100, which accepts every candidate.",
+    "cell_flow_threshold": "(float) - Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
     "cell_cellprob_threshold": "(float) - Cellpose cellprob_threshold: only pixels whose predicted cell probability exceeds it are assigned to a mask. Raise it to shrink outlines and drop faint or spurious cells; lower it to grow outlines and recover dim ones. Valid range roughly -6 to 6, default 0. Lower it first when whole cells are missing.",
     "channels": "(list of int) - Zero-indexed image channels kept in merged/*.npy and measured by measure_crop; each entry produces its own <object>_channel_<n>_* intensity columns. The list length fixes where masks land, so cell/nucleus/pathogen_mask_dim must shift if you change it. Preprocessing silently resets it to range(n) when it does not match the number of channel folders found. Default [0,1,2,3]. External Masks starts with []; there an empty list means every detected intensity channel, not no channels.",
     "crop_mode": "(list) - Mask used to center each PNG crop: 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. One crop set is written per entry into <mode>_png/ folders, so ['cell','nucleus'] doubles the images written and the rows added to png_list. A single png_size such as [224,224] is broadcast to every mode, as are dialate_pngs and dialate_png_ratios; use lists only when modes require different values. A list shorter than crop_mode reuses its final entry for the remaining modes and records a warning. Default ['cell'].",
