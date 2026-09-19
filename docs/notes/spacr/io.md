@@ -89,6 +89,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [convert_to_yokogawa](#convert_to_yokogawa) (22 entries)
 - [prepare_cellpose_dataset](#prepare_cellpose_dataset) (3 entries)
 - [_listdir_visible](#_listdir_visible) (2 entries)
+- [_load_array_any, 2026-09-19](#_load_array_any-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -3200,3 +3201,11 @@ Also from review:
 
 - **Rebased onto item 429.** Every listing these helpers added goes through `_listdir_visible`, or a macOS `._` sidecar in `stack/` or `masks/` is checked, reported and renamed as a damaged file, and one in `masks/` beside an absent `stack/` raised the "nothing to rebuild from" error. `_sweep_partial_writes` alone keeps `os.listdir`, because the files it removes are dot-files.
 - **`open(temporary, 'xb')`, not `tempfile.mkstemp`.** `mkstemp` creates the file 0600, where `numpy.save` onto the final name gave the umask's mode (0664 here); on a shared cluster file system that keeps `stack/` and `masks/` from the rest of the group. An exclusive `open` gets the umask's mode. It also goes through `builtins.open`, which is what 429's emulated macOS volume hooks to make its sidecars; with `mkstemp` that test stopped exercising #117.
+
+## _load_array_any, 2026-09-19
+
+```python
+return np.load(path, allow_pickle=False)
+```
+
+`_load_array_any` reads every non-reference mask into `merged/`. It passed `allow_pickle=True` since October 2024, when every mask writer already saved `mask.astype(np.uint16)`, so the flag loaded nothing a plain load would not and let a pickled `.npy` in a mask folder run code when the merge read it. See `docs/notes/spacr/utils.md`, `process_mask_file_adjust_cell, 2026-09-19`.

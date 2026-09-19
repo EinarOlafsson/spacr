@@ -4297,11 +4297,16 @@ def _save_array_atomic(output_path, array):
 
 
 def _load_array_any(path):
-    """Load a ``.tif``/``.tiff`` (via tifffile) or ``.npy`` array."""
+    """Load a ``.tif``/``.tiff`` (via tifffile) or ``.npy`` array.
+
+    Never unpickles. Every mask spaCR writes is a plain ``uint16`` array, so
+    a ``.npy`` holding pickled objects is refused with numpy's
+    :class:`ValueError` rather than run.
+    """
     if path.endswith(('.tif', '.tiff')):
         import tifffile
         return tifffile.imread(path)
-    return np.load(path, allow_pickle=True)
+    return np.load(path, allow_pickle=False)
 
 
 def _load_and_concatenate_arrays(

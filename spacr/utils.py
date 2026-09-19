@@ -8882,7 +8882,9 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     :param overlap_threshold: fractional overlap threshold used by the merger.
     :param perimeter_threshold: shared-perimeter threshold used by the merger.
     :returns: elapsed seconds.
-    :raises ValueError: if the matching cell or nuclei mask file is missing.
+    :raises ValueError: if the matching cell or nuclei mask file is missing,
+        or a mask file holds pickled objects: masks are plain arrays, and
+        nothing is unpickled.
     """
     start = time.perf_counter()
 
@@ -8893,15 +8895,15 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
         raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
 
-    parasite_mask = np.load(parasite_path, allow_pickle=True)
-    cell_mask = np.load(cell_path, allow_pickle=True)
-    nuclei_mask = np.load(nuclei_path, allow_pickle=True)
+    parasite_mask = np.load(parasite_path, allow_pickle=False)
+    cell_mask = np.load(cell_path, allow_pickle=False)
+    nuclei_mask = np.load(nuclei_path, allow_pickle=False)
 
     organelle_mask = None
     if organelle_folder is not None:
         organelle_path = os.path.join(organelle_folder, file_name)
         if os.path.exists(organelle_path):
-            organelle_mask = np.load(organelle_path, allow_pickle=True)
+            organelle_mask = np.load(organelle_path, allow_pickle=False)
 
     merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold, perimeter_threshold)
 

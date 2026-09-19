@@ -186,6 +186,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [remove_outliers_by_group](#remove_outliers_by_group) (2 entries)
 - [generate_image_path_map, 2026-09-19](#generate_image_path_map-2026-09-19) (1 entry)
 - [measure_test_mode, 2026-09-19](#measure_test_mode-2026-09-19) (1 entry)
+- [process_mask_file_adjust_cell, 2026-09-19](#process_mask_file_adjust_cell-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -5028,3 +5029,11 @@ if f.endswith('.npy') and not f.startswith('.')
 ```
 
 Test mode sampled every file in `merged/`, so `.spacr_plane_layout.json` and, on a macOS external volume, the `._<field>.npy` sidecar of each field (item 429) could take a field's place in `test/merged`. Test mode then measured fewer fields than `test_nr` asked for, and a sampled sidecar failed its worker. Only visible `.npy` fields are sampled now, and the "fewer than test_nr" message counts fields.
+
+## process_mask_file_adjust_cell, 2026-09-19
+
+```python
+cell_mask = np.load(cell_path, allow_pickle=False)
+```
+
+The four loads (pathogen, cell, nucleus, organelle) passed `allow_pickle=True` since July 2025. Every writer of these files saves `mask.astype(np.uint16)` and did then, so the flag loaded nothing a plain load would not, and it made loading a mask run whatever a pickled `.npy` in the folder named: measured, an object array whose pickle calls `os.mkdir` created its directory when `adjust_cells` read it. Item 429 decided against `allow_pickle` for the normalised archives for the same reason. Pinned by `tests/test_spacr_masks_load_without_unpickling.py`.
