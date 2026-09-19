@@ -85,7 +85,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [training_dataset_from_annotation](#training_dataset_from_annotation) (7 entries)
 - [training_dataset_from_annotation_metadata](#training_dataset_from_annotation_metadata) (7 entries)
 - [generate_dataset_from_lists](#generate_dataset_from_lists) (9 entries)
-- [convert_separate_files_to_yokogawa](#convert_separate_files_to_yokogawa) (10 entries)
+- [convert_separate_files_to_yokogawa](#convert_separate_files_to_yokogawa) (11 entries)
 - [convert_to_yokogawa](#convert_to_yokogawa) (22 entries)
 - [prepare_cellpose_dataset](#prepare_cellpose_dataset) (3 entries)
 - [_listdir_visible](#_listdir_visible) (2 entries)
@@ -2892,6 +2892,18 @@ original_files = ";".join(f[0] for f in file_list)
 
 Log original filenames involved in MIP or single file rename
 
+### 2026-09-19, a failure names its file
+
+```python
+except Exception as exc:
+    raise ValueError(
+        f"{original_files} matched the regex but could not be "
+```
+
+The Mask run used to catch any failure here and convert the folder again without the regex, which numbers the wells in file order and so relabels them (see `docs/notes/spacr/core.md`, "the regex conversion no longer falls back"). It now stops, and the error has to be enough for the user to act on. A bare `tifffile` error does not say which file it read (`TiffFileError: not a TIFF file b'...'`), so the failure is raised again as a `ValueError` that names the source file or files of the region, the converted name it was writing, the original error, and how many converted files the folder already holds from this call. `rename_log.csv` is still written only when every region converted, so a folder that holds some converted files and no fresh log is one this error described.
+
+The `fieldID`, `timeID`, `chanID` and `sliceID` groups are checked as whole numbers while the folder is listed, before any file is written. A `fieldID` the regex read as `s1` used to fail at the `F{int(fieldID):03d}` of the first region that carried it, after the regions before it had been written.
+
 ## convert_to_yokogawa
 
 ### lines 8370-8377
@@ -3188,4 +3200,3 @@ Also from review:
 
 - **Rebased onto item 429.** Every listing these helpers added goes through `_listdir_visible`, or a macOS `._` sidecar in `stack/` or `masks/` is checked, reported and renamed as a damaged file, and one in `masks/` beside an absent `stack/` raised the "nothing to rebuild from" error. `_sweep_partial_writes` alone keeps `os.listdir`, because the files it removes are dot-files.
 - **`open(temporary, 'xb')`, not `tempfile.mkstemp`.** `mkstemp` creates the file 0600, where `numpy.save` onto the final name gave the umask's mode (0664 here); on a shared cluster file system that keeps `stack/` and `masks/` from the rest of the group. An exclusive `open` gets the umask's mode. It also goes through `builtins.open`, which is what 429's emulated macOS volume hooks to make its sidecars; with `mkstemp` that test stopped exercising #117.
-

@@ -9,7 +9,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 
 - [display](#display) (1 entry)
 - [Module level](#module-level) (4 entries)
-- [preprocess_generate_masks](#preprocess_generate_masks) (25 entries)
+- [preprocess_generate_masks](#preprocess_generate_masks) (26 entries)
 - [preprocess_generate_masks_timelapse](#preprocess_generate_masks_timelapse) (1 entry)
 - [generate_image_umap](#generate_image_umap) (31 entries)
 - [reducer_hyperparameter_search](#reducer_hyperparameter_search) (13 entries)
@@ -158,10 +158,21 @@ on_error, at the plate boundary. stop (default) lets the failure out and the run
 ### lines 377-380
 
 ```python
-print(f"Error: Tried to convert image files and image file name metadata with regex {settings['cu...
+print(f"Error: Tried to convert image files and image file name metadata without regex but failed.")
 ```
 
 Category B: no file was renamed, so every step below would operate on an empty/unrecognised folder. Historically this printed and returned None, which reads exactly like success.
+
+### line 322, 2026-09-19, the regex conversion no longer falls back
+
+```python
+except Exception as e:
+    refusal = (
+```
+
+A failure in `convert_separate_files_to_yokogawa` used to be caught with a bare `except Exception:` and answered by running `convert_to_yokogawa` on the same folder, without printing why. That conversion does not read the regex. It gives every file the next free well in file order, so the plate's own wells (B03, C07) came out as A01, A02 and so on, one channel file per well, with only `rename_log.csv` to say so. With the sidecar cause removed (item 429), any other failure still reached it: a matched `.nd2` or a damaged TIFF that `tifffile` cannot read, two slices of different shapes, a full disk. It could also run over converted files the regex conversion had already written before it stopped, and convert those again as wells of their own.
+
+There is no condition under which the fallback is provably safe. It never keeps the wells the file names carry, even when those names are not plate addresses, because the regex conversion groups a well's channels into one well and the fallback splits them. So the run now refuses: the ledger records the failure at stage `convert_metadata`, the error names the file (the converter now says which file and how many converted files it had written before it stopped), says that no fallback ran and why, and gives the two ways on: correct the file or the regex, or clear `custom_regex` so the wells are numbered deliberately. `SPACR_STRICT_ERRORS` turns the refusal into a `ConfigurationError`, as for the other conversion failure. Pinned by `tests/test_a_failed_regex_conversion_never_renumbers_wells.py`.
 
 ### line 399, 2026-09-19, GitHub #124
 

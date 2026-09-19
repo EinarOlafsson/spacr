@@ -8067,6 +8067,12 @@ def convert_separate_files_to_yokogawa(folder, regex):
         optional ``plateID``, ``fieldID``, ``timeID``, ``chanID``,
         ``sliceID``.
     :returns: None
+    :raises ValueError: when a file the regex matches carries a ``fieldID``,
+        ``timeID``, ``chanID`` or ``sliceID`` that is not a whole number
+        (before anything is written), or cannot be read and converted. The
+        message names the file, and in the second case says how many
+        converted files were written before the conversion stopped;
+        ``rename_log.csv`` is written only when every file converted.
     """
     pattern = re.compile(regex, re.I)
 
@@ -8091,10 +8097,17 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
         plateID = meta.get('plateID', '1') or '1'
         fieldID = meta.get('fieldID', '1') or '1'
-        timeID = int(meta.get('timeID', 1) or 1)
-        chanID = int(meta.get('chanID', 1) or 1)
-        sliceID = meta.get('sliceID')
-        sliceID = int(sliceID) if sliceID is not None else None
+        try:
+            int(fieldID)
+            timeID = int(meta.get('timeID', 1) or 1)
+            chanID = int(meta.get('chanID', 1) or 1)
+            sliceID = meta.get('sliceID')
+            sliceID = int(sliceID) if sliceID is not None else None
+        except ValueError as exc:
+            raise ValueError(
+                f"{file} matched the regex, but its fieldID, timeID, chanID "
+                f"or sliceID is not a whole number ({exc}). Nothing was "
+                f"converted.") from exc
 
         region_key = (plateID, wellID, fieldID, timeID, chanID)
 
@@ -8134,24 +8147,31 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
         slice_ids = [sid for _, sid in file_list if sid is not None]
         unique_slices = set(slice_ids)
-
-        images = []
-        for filename, _ in sorted(file_list, key=lambda x: x[1] or 1):
-            img = tifffile.imread(os.path.join(folder, filename))
-            images.append(img)
-
-        if len(unique_slices) > 1:
-            img_to_save = np.max(np.stack(images), axis=0)
-        else:
-            img_to_save = images[0]
-
-        dtype = img_to_save.dtype
-
-        new_filename = f"{assigned_well}_T{timeID:04d}F{int(fieldID):03d}L01C{chanID:02d}.tif"
-        new_filepath = os.path.join(folder, new_filename)
-        write_tiff(new_filepath, img_to_save.astype(dtype))
-
         original_files = ";".join(f[0] for f in file_list)
+        new_filename = f"{assigned_well}_T{timeID:04d}F{int(fieldID):03d}L01C{chanID:02d}.tif"
+
+        try:
+            images = []
+            for filename, _ in sorted(file_list, key=lambda x: x[1] or 1):
+                img = tifffile.imread(os.path.join(folder, filename))
+                images.append(img)
+
+            if len(unique_slices) > 1:
+                img_to_save = np.max(np.stack(images), axis=0)
+            else:
+                img_to_save = images[0]
+
+            dtype = img_to_save.dtype
+            new_filepath = os.path.join(folder, new_filename)
+            write_tiff(new_filepath, img_to_save.astype(dtype))
+        except Exception as exc:
+            raise ValueError(
+                f"{original_files} matched the regex but could not be "
+                f"converted into {new_filename}: {type(exc).__name__}: {exc}. "
+                f"{len(rename_log)} of {len(files_by_region)} converted "
+                f"file(s) had been written to {folder} before it stopped, "
+                f"and {os.path.basename(csv_path)} was not written.") from exc
+
         rename_log.append({"Original File(s)": original_files, "Renamed TIFF": new_filename})
 
     pd.DataFrame(rename_log).to_csv(csv_path, index=False)

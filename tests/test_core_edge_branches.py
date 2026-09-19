@@ -1,4 +1,4 @@
-"""Final edge branches of spacr.core: converter double-failure, the
+"""Final edge branches of spacr.core: a failed regex conversion, the
 no-clusters fallback, saved embedding grids and the reducer's color_by path.
 """
 from __future__ import annotations
@@ -36,23 +36,31 @@ def _base_settings(src, **over):
     return s
 
 
-def test_custom_regex_then_plain_converter_both_fail(tmp_path, monkeypatch, capsys):
-    """metadata_type='auto' + custom_regex: the regex converter fails, the
-    plain converter is tried, it fails too -> both-failed error and return."""
+def test_custom_regex_failure_stops_without_the_plain_converter(tmp_path, monkeypatch, capsys):
+    """metadata_type='auto' + custom_regex: the regex converter fails -> the
+    run stops with an error and return. The plain converter is not tried:
+    it numbers the wells in file order and would relabel them (2026-09-19;
+    tests/test_a_failed_regex_conversion_never_renumbers_wells.py)."""
     import spacr.core as core
     import spacr.io as sio
 
+    calls = []
+
     def _boom(*a, **k):
+        calls.append("regex")
         raise RuntimeError("converter unavailable")
 
     monkeypatch.setattr(sio, "convert_separate_files_to_yokogawa", _boom)
-    monkeypatch.setattr(sio, "convert_to_yokogawa", _boom)
+    monkeypatch.setattr(sio, "convert_to_yokogawa",
+                        lambda *a, **k: calls.append("plain"))
     src = tmp_path / "plate1"; src.mkdir()
     out = core.preprocess_generate_masks(_base_settings(
         src, metadata_type="auto", custom_regex=r"(?P<plateID>.*)"))
     assert out is None
+    assert calls == ["regex"]
     printed = capsys.readouterr().out
-    assert "then without regex but failed both" in printed
+    assert "RuntimeError: converter unavailable" in printed
+    assert "did not fall back" in printed
 
 
 def test_umap_no_clusters_falls_back_to_single_cluster(umap_src, monkeypatch):

@@ -321,21 +321,23 @@ def preprocess_generate_masks(settings):
                             try:
                                 print(f"using regex: {settings['custom_regex']}")
                                 convert_separate_files_to_yokogawa(folder=source_folder, regex=settings['custom_regex'])
-                            except Exception:
-                                try:
-                                    convert_to_yokogawa(folder=source_folder)
-                                except Exception as e:
-                                    print(f"Error: Tried to convert image files and image file name metadata with regex {settings['custom_regex']} then without regex but failed both.")
-                                    print(f'Error: {e}')
-                                    ledger.record_failure(source_folder,
-                                                          stage='convert_metadata', exc=e)
-                                    ledger.finalize()
-                                    raise_if_strict(
-                                        f"Could not apply Yokogawa naming to {source_folder} "
-                                        f"with regex {settings['custom_regex']!r} or without "
-                                        f"one; nothing downstream can run on this folder.",
-                                        exc=e, settings=settings)
-                                    return
+                            except Exception as e:
+                                refusal = (
+                                    f"Could not convert {source_folder} with custom_regex "
+                                    f"{settings['custom_regex']!r}: {type(e).__name__}: {str(e).rstrip('.')}. "
+                                    f"spaCR did not fall back to converting without the regex: "
+                                    f"that conversion gives each file the next free well in file "
+                                    f"order and ignores the wells the file names carry, so it would "
+                                    f"have relabelled the plate's wells. Correct the file or the "
+                                    f"regex and run again, or clear custom_regex to have spaCR "
+                                    f"number the wells itself (rename_log.csv then records which "
+                                    f"file became which well).")
+                                print(f'Error: {refusal}')
+                                ledger.record_failure(source_folder,
+                                                      stage='convert_metadata', exc=e)
+                                ledger.finalize()
+                                raise_if_strict(refusal, exc=e, settings=settings)
+                                return
                         else:
                             try:
                                 convert_to_yokogawa(folder=source_folder)
