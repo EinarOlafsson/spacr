@@ -2,17 +2,17 @@
 A FAILED RUN SAYS WHERE ITS REPORT AND ITS AI EXPLANATION WENT
 ================================================================================
 
-Status:    done 2026-09-19 on the branch home/error-reporter, reviewed, and
-           the review's should-fix applied the same day: the sign-in command
-           named for Claude is now `claude auth login`. It was
-           `claude setup-token`, which does not sign the CLI in. NOT landed
-           on nightly (see the last trailing note). Three defects fixed: an
-           AI provider that exits non-zero is reported as failed, the reply
-           keeps its "spaCR AI" heading, and the sign-in hint names a command
-           that signs in. Automatic GitHub filing is deliberately off, and
-           the console now says so under "✗ Failed". Open: landing, the
-           inert 'always' choice (see DELIBERATELY NOT DONE), and the
-           translations for the three new English captions.
+Status:    done 2026-09-19, landed on nightly (4e533737f, efa9dabb6): an AI
+           provider that exits non-zero is reported as failed, the reply
+           keeps its "spaCR AI" heading, the sign-in hint names
+           `claude auth login`, and with 'ask' the console says under
+           "✗ Failed" that nothing was sent. FOLLOW-UP THE SAME DAY, on the
+           branch home/autofile-default, committed and NOT landed: the
+           maintainer decided that 'always' files automatically and is the
+           default (last trailing note). 'always' now files a redacted report
+           with no preview, once per crash, and the terms of use (4.2,
+           Section 5.6) say so. Open: landing that branch, and the
+           translations the last note lists.
 Requested: GitHub #117, second half, opened 2026-09-17 by jak18015 (Apple
            M4, macOS 26.7, spaCR 1.5.0.8): "when running test mode, the mask
            generation failed and did not automatically submit a github issue
@@ -324,3 +324,162 @@ nightly and posting on GitHub #117 would go beyond that request, so both
 are left to the maintainer. The branch home/error-reporter is rebased
 onto origin/nightly and ready to push. The draft reply to #117 now names
 `claude auth login`, not `claude setup-token`.
+
+--------------------------------------------------------------------------------
+2026-09-19 — 'always' files automatically and is the default (autofile-default)
+--------------------------------------------------------------------------------
+
+Decided: the maintainer, 2026-09-19, answering the 'always' question this
+file left open under DELIBERATELY NOT DONE: "Do real auto-filing, and make
+this the default, and add the user agreeing to this in the user agreement,
+if set to always." (Relayed to this unit through the orchestrating session.
+It is not in a commit or on GitHub.)
+
+Branch home/autofile-default, off origin/nightly 411700dc6. Committed
+locally, NOT pushed.
+
+WHAT CHANGED
+
+1. 'always' files. When a run fails with reporting on and the mode
+   'always', `AppScreen._settle_the_report` (called from `_on_finished`)
+   runs `_file_the_report_automatically`. It builds the same report "File as
+   issue" builds (`build_report`), redacts it with `public_report`, and
+   posts it on the background runner through
+   `issue_report.file_without_review`. No preview opens and no browser
+   opens. The console says, directly under "✗ Failed": "[issue] Filing a
+   redacted report ...", then either "Filed on GitHub: <url>", "already has
+   an open issue ... added to it: <url>", "Not filed: spaCR is not signed
+   in to GitHub. Run `gh auth login` ...", or "Not filed: <why>. Press File
+   as issue to try again." "File as issue" stays under the console in every
+   case. 'ask' is unchanged.
+2. 'always' is the default. `preferences.get_issue_prompt_mode` returns
+   'always' when nothing is stored (DEFAULT_ISSUE_PROMPT_MODE), and
+   `ai.settings.get_auto_file_issues` defaults to True, because without it
+   the default mode would file nothing. A stored value is kept either way.
+   A stored value this build cannot read reads as 'ask', not 'always'.
+   The installer's consent page is unchanged: its answers are explicit
+   (off -> never, on -> ask), and they still override.
+3. The agreement. Terms 4.2 (`terms.TERMS_VERSION`), so every profile that
+   accepted 4.1 sees the terms again at its next launch. 5.1 no longer says
+   nothing is sent automatically. 5.5 says what a report publishes, where,
+   under whose account, what is redacted, and that the log is never
+   published. It used to say "Diagnostic Data is not published", which was
+   false: the traceback and settings are Diagnostic Data under 1.6. The
+   new 5.6, AUTOMATIC ERROR REPORTS, says that 'always' is the default,
+   files without showing the report first, files each error once, needs a
+   GitHub sign-in, and that accepting with 'always' set agrees to it. It
+   also says how to change it: Help > Set spaCR up again..., the page "When
+   something breaks", or "Report errors as GitHub issues" in the AI
+   Console's settings. A test checks that each of those names exists in
+   the code under that exact spelling. The first-run slide's blurb, the AI
+   Settings caption, the Preferences "Report logs" tooltip and the two
+   setting tooltips were changed to match. Each of them promised "nothing is
+   sent" or "Default False".
+4. One crash, one filing. Three layers:
+   * a local ledger (`ai.settings.remember_auto_filed` /
+     `auto_filed_url`): a fingerprint this profile filed is not filed
+     again. Only reports that reached GitHub are recorded, so a signed-out
+     or failed attempt is retried at the next failure;
+   * `_REPORTS_BEING_FILED`: two failures before GitHub answers file once;
+   * the existing open-issue search (`find_issue_by_fingerprint`, open
+     issues only): a match gets a "Seen again" comment, not a new issue.
+     Both paths now share `_post_report`.
+   THE FINGERPRINT WAS NOT CROSS-MACHINE. It hashed each frame's whole path,
+   so the same crash from two computers (different conda env, Python minor
+   version, prefix or separator) had two fingerprints, and the open-issue
+   search could only find duplicates from the same computer. It now keys
+   each frame on its last two path components (`_frame_key`). Every
+   fingerprint changes once. Open issues filed before this will not be
+   matched by a client after it.
+   #117 AND #121: #117 was written by hand ("Mask generation failure Apple
+   M4") and carries no fingerprint, so no fingerprint dedupe could have
+   matched it to #121. The ledger stops a profile filing the crash twice;
+   it cannot recognise an issue somebody wrote.
+5. The route_errors_through_ai tooltip said "Default False" while the getter
+   defaults to True. It says "Default True". A test compares the stated
+   default with the getter's for route_errors_through_ai, auto_file_issues
+   and console_aware.
+6. An AI error is never attached. The automatic path takes the analysis
+   from `ai_explanation_of`, like the manual one, so a provider that failed
+   leaves none (this file's fix). The report is filed at `_on_finished`,
+   usually before the AI has answered. It does not wait for it.
+
+REDACTION, CHECKED ON THIS PATH. Against what the manual path did:
+  * home folder -> `~` (build_report), then `<PATH>` (preview default);
+  * other absolute paths, Windows drive paths, traceback File fields ->
+    `<PATH>` (preview default);
+  * `.db` paths -> `<DB>`; credential shapes and secret-named settings ->
+    `<REDACTED>`;
+  * login name: only inside the home path. Host name: never.
+The automatic body is exactly the body the preview sends by default (a test
+compares them). The title is stripped too, which the preview does not do.
+NEW for both paths, in `sanitize_path`: `redact_identity` replaces this
+computer's login name (`getpass.getuser()`, the home folder's name) and
+host name (`socket.gethostname()`, `platform.node()`, and the first dotted
+label) with `<USER>` and `<HOST>` wherever they stand as whole words.
+Generic names (root, runner, localhost, ...) and names under three
+characters are left alone. `platform.platform()` carries no host name.
+FOUND ON THE WAY: #121's body has `<details><summary>...<<PATH>` because
+`strip_report_paths` read the `/` of `</summary>` and `</details>` as the
+start of a path, so every section after the first stayed open. Fixed: a `/`
+straight after `<` is never a path.
+
+WITHOUT A GITHUB SIGN-IN NOTHING IS SENT, and no browser opens. The browser
+form is a prompt, and 'always' is the choice not to be prompted. Before
+807ba9e0a, 'always' opened the browser. This is the one decision here the
+maintainer did not make explicitly. It is one branch in
+`file_without_review` if he wants the browser back.
+
+MEASURED
+  * tests/qt/test_the_report_files_itself.py, new: 38 passed. It drives a
+    Mask Run that fails, on a profile with both preferences REMOVED, with
+    the network faked at `github_auth._HTTP_OPEN`, the sign-in at
+    `resolve_token`, and HOME in a temporary folder.
+  * Mutation check, each change reverted on its own, all red: default mode
+    7, default switch 8, identity redaction 3, closing tags 1, fingerprint
+    1, ledger 1, in-flight 1, browser fallback 2, 'always' not filing 5,
+    raw report posted 1, open-issue search 2, tooltip 1, terms version 1,
+    unreadable->always 1. "Remember unsent reports" survived, as an
+    equivalent mutant: the URL stored is empty and reads as not filed. The
+    test now checks the behaviour instead: signed out, then signed in, the
+    next failure files.
+  * Existing files. Five tests pinned the old defaults or the old sentences
+    and were updated: test_issue_report_url, test_ai_github_offline,
+    test_ai_chat_panel_offline, two in this item's own file, and
+    test_the_terms_are_accepted_without_scrolling. Runs: the report path,
+    17 files, 366 passed and 3 red (the three default pins, green after
+    the update); the app screen files plus those three, 8 files, 418
+    passed; setup and terms, 33 files, 499 passed and 4 red (the slide
+    blurb's catalog row, owed; the terms sentence, updated and then green;
+    and the two unrelated packaging tests below); the terms file again,
+    with the text-fit and resize sweeps, 704 passed.
+  * Red and not from this change: test_packaging_metadata's torchcam and
+    CITATION DOI tests (setup.py and CITATION.cff, untouched here).
+  * i18n: 14 files run on this branch and on the same files at HEAD. HEAD:
+    61 failed. This branch: 63. The two new reds are catalog rows owed for
+    the new captions: test_compact_user_facing_caption_surface_has_exact_
+    rows_and_is_pinned and test_every_slide_title_and_blurb_is_in_the_
+    catalog. Expected until the consolidated translation pass.
+  * Offscreen probe outside pytest, HOME and XDG_* in a fresh scratch
+    folder, network faked: a fresh profile reads mode 'always', switch on,
+    terms 4.2 needed. The "When something breaks" slide shows 'always' and
+    the new blurb. The terms page shows 5.5 to 5.7. A Mask Run that fails
+    files one issue. The second identical failure says "reported from this
+    computer before" and sends nothing. The posted body leaks neither the
+    home path, the login name nor the plate folder.
+
+LEFT
+  * Landing home/autofile-default.
+  * The installer (packaging/online/*) and its in-app consent page still
+    describe the preview-and-Send flow. That is accurate for what they set
+    ('ask' or 'never'), and they start off, so an installer user files
+    automatically only after choosing 'always' later. Whether the installer
+    should default to 'always' too is the maintainer's call. It touches the
+    installer scripts and their tests.
+  * The annotate screen's console is still click-only. Its button now shows
+    by default, because the report switch defaults on.
+  * Filing does not wait for spaCR AI's answer, so an automatic report
+    rarely carries one.
+  * Translations: see i18n_owed in the unit's report. The terms text is not
+    in the caption catalogs by design (spacr/qt/terms_i18n registers no
+    locale), so the English 4.2 is what every language shows.
