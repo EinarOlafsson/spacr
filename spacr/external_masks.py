@@ -79,6 +79,10 @@ _ORGANELLE_PATTERN = re.compile(
     r"|organell|mitochondria|mitochondrion)"
     r"(?=$|[_\-. ])"
 )
+_ORGANELLE_TAIL = re.compile(
+    r"(?i)(?:^|[_\-. ])"
+    r"(?:organelle(?:[_\-. ]?\d+|[a-z]+)?|organell|mitochondria|mitochondrion)$"
+)
 _ORGANELLE_ROLE_SET = frozenset(ORGANELLE_ROLES)
 _ORGANELLE_PLURAL = "organelles"
 _OBJECT_PATTERNS = (
@@ -316,9 +320,15 @@ def _suggest_organelle_slot(stem: str) -> Optional[str]:
     English plural ``organelles`` propose nothing, because neither says which
     slot is meant; the object type stays editable in the import table.
 
+    A token that names a slot outranks a bare one wherever each sits in the
+    path, so ``organelle_masks/fov001_organelle_2.tif`` and
+    ``organelle_2/fov001_organelle_2_mask.tif`` are slot 2, not slot 1. A
+    bare token is slot 1 only when no token in the path names another.
+
     :param stem: filename stem, optionally with parent-folder tokens.
     :returns: an organelle role, or ``None`` when no token names a slot.
     """
+    bare = False
     for match in _ORGANELLE_PATTERN.finditer(stem):
         number = match.group("number")
         letters = match.group("letters")
@@ -332,8 +342,8 @@ def _suggest_organelle_slot(stem: str) -> Optional[str]:
             if role in _ORGANELLE_ROLE_SET and role != _ORGANELLE_PLURAL:
                 return role
             continue
-        return ORGANELLE_ROLES[0]
-    return None
+        bare = True
+    return ORGANELLE_ROLES[0] if bare else None
 
 
 def _label_likelihood(path: Path) -> Tuple[bool, float, str]:
@@ -449,6 +459,13 @@ def _pair_masks(image_plan: cv.ConversionPlan,
     matching. The return tuple contains mappings by object type, blocking
     errors, and non-blocking ambiguity warnings.
 
+    Normalizing drops a trailing mask word and the group's object-type name
+    from a mask field. For a group typed as any organelle slot it drops any
+    trailing organelle token -- ``organelle``, ``organelle_7``,
+    ``organelleb``, ``mitochondria`` -- not only the assigned slot's own
+    spelling, so a group re-typed in the import table still pairs, and
+    ``fov001_mitochondria_mask`` pairs with ``fov001``.
+
     :param image_plan: reviewed intensity-image conversion plan.
     :param groups: reviewed inputs, including zero or more mask groups.
     :param layout: filename-layout rule forwarded while scanning each group.
@@ -495,9 +512,7 @@ def _pair_masks(image_plan: cv.ConversionPlan,
                     rf"(?i)(?:^|[_\-. ]){re.escape(token)}$",
                     "", normalised).strip("_-. ")
             if object_type in _ORGANELLE_ROLE_SET:
-                slot = ORGANELLE_ROLES.index(object_type) + 1
-                normalised = re.sub(
-                    rf"(?i)(?:^|[_\-. ])organelle[_\-. ]?0*{slot}$",
+                normalised = _ORGANELLE_TAIL.sub(
                     "", normalised).strip("_-. ")
             candidates = [
                 ((source.plate, source.well, field), "exact"),
