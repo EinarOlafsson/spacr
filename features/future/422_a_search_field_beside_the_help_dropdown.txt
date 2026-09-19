@@ -2,6 +2,8 @@
 A SEARCH FIELD BESIDE THE HELP DROPDOWN
 ================================================================================
 
+Filed as 413 on 2026-09-18; renumbered 2026-09-19 because 413 also names features/new/413_the_font_zoom_floor_is_ten_percent.txt.
+
 Status:    NOT STARTED. Filed 2026-09-18 from a spoken specification, with the
            explicit instruction not to implement it. Nothing below has been
            built or prototyped.

@@ -2,6 +2,8 @@
 PLAQUE ASSAYS FROM PUBLISHED PAPERS: DOI OR PDF IN, MEASURED PLAQUES OUT
 ================================================================================
 
+Filed as 415 on 2026-09-18; renumbered 2026-09-19 because 415 also names features/new/415_the_startup_window_text_is_bright_in_dark_mode.txt.
+
 Status:    NOT STARTED. Filed 2026-09-18 with the instruction not to implement
            it. Nothing below has been built or prototyped.
 

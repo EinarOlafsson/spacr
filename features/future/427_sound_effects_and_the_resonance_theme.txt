@@ -2,6 +2,8 @@
 SOUND EFFECTS, BACKGROUND MUSIC, AND THE RESONANCE THEME
 ================================================================================
 
+Filed as 418 on 2026-09-18; renumbered 2026-09-19 because 418 also names features/new/418_mask_filters_objects_by_min_and_max_intensity.txt.
+
 Status:    NOT STARTED. Filed 2026-09-18 with the instruction to add it to the
            list, not to implement it.
 

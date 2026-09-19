@@ -2,6 +2,8 @@
 CAPTURE MEASUREMENTS FROM HAND-DRAWN MASKS IN MAKE MASKS
 ================================================================================
 
+Filed as 412 on 2026-09-18; renumbered 2026-09-19 because 412 also names features/new/412_a_ten_image_toxo_pv_test_dataset_that_opens_in_make_masks.txt.
+
 Status:    NOT STARTED. Filed 2026-09-18 from a spoken specification. Nothing
            below has been built, measured or prototyped. The scenarios and the
            open questions are the specification; the design sketch is a

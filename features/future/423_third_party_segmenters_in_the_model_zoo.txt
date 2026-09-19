@@ -2,6 +2,8 @@
 DINOCELL AND SAMCELL IN THE MODEL ZOO, INSTALLED ON CLICK
 ================================================================================
 
+Filed as 414 on 2026-09-18; renumbered 2026-09-19 because 414 also names features/new/414_claude_code_installs_with_curl_on_every_system.txt.
+
 Status:    PARTLY BUILT, ~60%, corrected 2026-09-19. The listing and the
            install-on-click landed the same day this was filed: c60d48e35
            (Make Masks' Mode box lists DINOCell and SAMCell greyed and offers

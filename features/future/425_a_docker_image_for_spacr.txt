@@ -2,6 +2,8 @@
 A DOCKER IMAGE FOR spaCR
 ================================================================================
 
+Filed as 416 on 2026-09-18; renumbered 2026-09-19 because 416 also names features/new/416_an_update_removes_every_older_spacr_first.txt.
+
 Status:    NOT STARTED. Filed 2026-09-18. The request was "add a docker for
            spaCR if it makes sense to do so", so the first section is the
            answer to that question rather than a plan.

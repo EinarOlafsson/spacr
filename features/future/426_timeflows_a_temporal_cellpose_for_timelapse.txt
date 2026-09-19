@@ -2,6 +2,8 @@
 TIMEFLOWS: A TEMPORAL CELLPOSE FOR THE TIMELAPSE SUBMODULE
 ================================================================================
 
+Filed as 417 on 2026-09-18; renumbered 2026-09-19 because 417 also names features/new/417_the_magnifier_round_two.txt.
+
 Status:    NOT STARTED, but DECIDED. Filed 2026-09-18, rewritten the same day
            once two things were confirmed: the training data exists, and its
            objects CARRY THE SAME LABEL ACROSS FRAMES. That is the link, and it
