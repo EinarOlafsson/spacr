@@ -7308,7 +7308,7 @@ def convert_separate_files_to_yokogawa(folder, regex):
     used_wells = set()
     region_to_well = {}
 
-    for file in sorted(os.listdir(folder)):
+    for file in sorted(_listdir_visible(folder)):
         match = pattern.match(file)
         if not match:
             print(f"Skipping {file}: does not match regex.")
@@ -7429,7 +7429,7 @@ def convert_to_yokogawa(folder):
     used_wells = set()
     ledger = RunLedger('convert_to_yokogawa')
 
-    for file in sorted(os.listdir(folder)):
+    for file in sorted(_listdir_visible(folder)):
         path = os.path.join(folder, file)
         ext = file.lower().split('.')[-1]
 

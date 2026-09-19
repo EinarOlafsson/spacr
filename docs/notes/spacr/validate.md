@@ -24,6 +24,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_array_footprint](#_array_footprint) (1 entry)
 - [describe_resources](#describe_resources) (6 entries)
 - [run_preflight](#run_preflight) (1 entry)
+- [_listdir, 2026-09-19](#_listdir-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -686,3 +687,11 @@ try:
 ```
 
 The resource card is best-effort: it stats the disk and asks torch about the GPU, and neither is worth failing a dry run over. A pre-flight that raises has denied the user the report it exists to give them.
+
+## _listdir, 2026-09-19
+
+```python
+return [name for name in os.listdir(path) if not name.startswith('.')]
+```
+
+Every preflight listing goes through this one function: the raw images, `stack/`, `merged/`, the size estimate and the intensity plan. On a macOS external volume (GitHub #121 and #117) each of those files has an AppleDouble sidecar, `._<name>`, with the same ending. So every count the preflight printed was doubled. Worse, `_peek_planes` samples the first three `.npy` names in sorted order, and a dot sorts before every letter and digit. With three fields and their sidecars in `stack/`, the three it tried were the sidecars. Measured on the code before this line: no plane count and a file count of 6 for 3 fields, so the preflight fell back to guessing channels from the raw file names. `validate` is tested to import no torch, so it filters here rather than through `spacr.io._listdir_visible`. Reasons for the dot-file rule are in `docs/notes/spacr/io.md` under `_listdir_visible`.

@@ -222,7 +222,7 @@ def v2_mask_source(merged_dir, object_type: str = "cell"):
 
     out = {}
     for name in sorted(os.listdir(merged)):
-        if not name.lower().endswith(".npy"):
+        if name.startswith(".") or not name.lower().endswith(".npy"):
             continue
         field = name[:-4]
         if field.startswith("stack_"):

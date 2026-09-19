@@ -22,6 +22,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_subhead](#_subhead) (1 entry)
 - [_headline](#_headline) (1 entry)
 - [read_digest](#read_digest) (1 entry)
+- [_iter_masks, 2026-09-19](#_iter_masks-2026-09-19) (1 entry)
 
 ## Module level
 

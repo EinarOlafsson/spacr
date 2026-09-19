@@ -2,10 +2,13 @@
 A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE
 ================================================================================
 
-Status:    DONE 2026-09-19 for the Mask path, committed locally on
-           home/npload-object-arrays and awaiting review (not pushed).
-           Measure's own listing of merged/ still reads the sidecar and
-           reports a false "RUN INCOMPLETE"; that is owed, see the end.
+Status:    DONE 2026-09-19 for the Mask path: v1, metadata_type 'auto'
+           (both Yokogawa conversions), consolidate, pipeline_style 'v2'
+           and the preflight. Landed on nightly after review, which found
+           those last four still reading sidecars (see the 2026-09-19
+           review note at the end). NOT DONE for Measure: measure.py and
+           resume.completed_fields_in_merged still list merged/ bare and
+           report a false "RUN INCOMPLETE"; that is owed, see the end.
 Requested: GitHub #121 (auto-filed from the spaCR AI Console) and #117, both
            opened 2026-09-17 by jak18015 (Jacob Kellermeier). spaCR 1.5.0.8,
            macOS 26.7 on an Apple M4, plate on /Volumes/jk-ummi:
@@ -19,9 +22,10 @@ Requested: GitHub #121 (auto-filed from the spaCR AI Console) and #117, both
            Taken on by the 2026-09-19 run as unit npload-object-arrays. The
            maintainer approved Codex-lane edits for the 2026-09-17 mask
            issues that morning (features/325..., the 2026-09-19 HOME notice).
-Owner:     Home (Claude). Files: spacr/io.py, spacr/object.py, spacr/core.py,
+Owner:     Home. Files: spacr/io.py, spacr/object.py, spacr/core.py,
            spacr/utils.py, spacr/plot.py, spacr/seg_qc.py,
-           spacr/illumination.py.
+           spacr/illumination.py, and after review spacr/pipeline_v2.py,
+           spacr/_v1_v2_bridge.py, spacr/validate.py.
 
 WHAT THE FILE WAS
 -----------------
@@ -179,3 +183,79 @@ STILL OWED:
     change, left for a separate decision.
   * #117 also reports that the auto-filed issue and the AI help did not
     trigger. That is the error-reporter unit (432), not this one.
+
+2026-09-19 — REVIEW FOUND THE MASK PATH WAS NOT FULLY COVERED; FIXED BEFORE
+LANDING. The first commit's "every listing on the Mask path" and its guard
+covered the 20 functions it had changed, not the whole path. Six more
+functions, on four paths the Mask settings can select, still read
+sidecars. Each was measured on the first commit's tree before it changed:
+
+  metadata_type 'auto'  io.convert_separate_files_to_yokogawa and
+             io.convert_to_yokogawa listed the raw folder bare. With a
+             custom regex '(?P<plateID>.*)_(?P<wellID>[A-P]\d{2})_s...',
+             the sidecar matched and tifffile raised on it. core then fell
+             back, silently, to the regex-less conversion, whose sidecars
+             took the first wells. With one channel per well, B03 and C07
+             came out as plate1_A03 and plate1_A04 after "RUN INCOMPLETE -
+             2 of 4". With four channels per well each file got a well of
+             its own, and the run stopped with "IndexError: index 3 is out
+             of bounds for axis 3 with size 1". Without a regex, one image
+             and its sidecar gave "RUN INCOMPLETE 1 of 2", the image became
+             plate1_A02, and rename_log.run_status.json said partial. Both
+             now list through io._listdir_visible.
+  consolidate=True      utils.generate_image_path_map walked with os.walk
+             and mapped sub/._img1.tif to consolidated/sub_._img1.tif. The
+             rename moved the dot off the front, so nothing downstream could
+             recognise the file as a sidecar. It now skips dot-files and
+             prunes dot-folders (.Spotlight-V100, .Trashes) from the walk.
+  pipeline_style 'v2'   pipeline_v2.FilenameMapper.discover took
+             ._plate1_A01_...tif for an image of plate "._plate1", and
+             stream_originals_to_stack stopped on it with "not a TIFF file".
+             This one was not in the review; I found it checking the v2
+             path. _v1_v2_bridge.v2_mask_source listed merged/ bare, so two
+             good fields and their sidecars scored "verdict: FAIL - 2 of 4
+             fields failed (50%)". Both now skip dot-files inline.
+  the preflight         validate._listdir fed every preflight count. The
+             counts were doubled, and with three fields _peek_planes
+             sampled only the sidecars, which sort first. It gave (None, 6)
+             for 3 four-plane fields. It now skips dot-files.
+
+PROOF: 10 more tests in tests/test_a_stack_file_spacr_wrote_is_one_it_can_read.py
+(38 in all). Two drive the Mask run as a user sets it on the emulated
+drive: metadata_type 'auto' with a regex (merged/ holds B03 and C07, no
+RUN INCOMPLETE) and pipeline_style 'v2' (two stacks, no FAIL, no "._" in
+the scorecard). The others hold each listing above directly. The guard now
+names the two converters as well, and its docstring says it pins the
+functions it names and does not find new ones. All 10 failed with the
+source changes reverted and the first 28 passed. Existing tests over the
+touched functions, run in four capped groups: 957 passed (the converters
+425, consolidate and v2 214, the preflight 318). Two source-text pins
+in test_cov_r8_io_remaining_edges.py and test_cov_r9_io_nine_more_guards.py
+quoted "for file in sorted(os.listdir(folder)):", and they now quote the
+helper. The reds that remain are baseline and name no file this touched:
+the six docstring reds with the same counts as above (8710/8698,
+10560/10539, 2296/2279), two in test_api_i18n_extractor.py (10560/10539
+again), and one in test_built_nested_helper_api.py (model_zoo and
+qt.widgets.model_share symbols missing from en.json).
+
+Notes: docs/notes/spacr/io.md (_listdir_visible, second entry, which also
+corrects the first entry's "every listing" sentence), utils.md,
+pipeline_v2.md, _v1_v2_bridge.md, validate.md. object.md and seg_qc.md
+gained the contents lines their 2026-09-19 sections lacked. No public
+docstring changed; validate._listdir is private.
+
+STILL OWED after this note, replacing the list above where they differ:
+  * Measure, unchanged from above: measure.py lists merged/ bare, and so
+    does resume.completed_fields_in_merged when it is called without
+    fields (plan_measure_resume, resume.py). Both need the maintainer's OK
+    for the Measure files.
+  * spacr/stream_dataset.py lists merged/ bare in three places. It serves
+    training data, not the Mask run. Not touched.
+  * A FINDING, not fixed here: core.preprocess_generate_masks catches any
+    exception from convert_separate_files_to_yokogawa and falls back to
+    convert_to_yokogawa without printing why. That conversion numbers the
+    wells itself. So any failure in the regex conversion, sidecar or not,
+    can relabel a plate's wells with nothing but rename_log.csv to say so.
+    This commit removes the sidecar cause. The fallback is a design
+    decision for the maintainer.
+  * The allow_pickle hardening above is still open.

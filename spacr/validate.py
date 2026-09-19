@@ -325,11 +325,22 @@ class _Inventory:
 
 
 def _listdir(path: Optional[str]) -> List[str]:
-    """``os.listdir`` that returns [] instead of raising on a bad path."""
+    """``os.listdir`` without dot-files, returning [] instead of raising on a bad path.
+
+    Names that start with a dot are left out: a macOS ``._<name>``
+    AppleDouble sidecar keeps the ``.npy`` or ``.tif`` ending of the file it
+    shadows and is not an image or an array, so counting it doubles every
+    count the preflight prints, and a sorted listing puts it before the real
+    fields :func:`_peek_planes` samples.
+
+    :param path: the folder to list, or a falsy value.
+    :returns: the visible entry names in :func:`os.listdir` order, or an
+        empty list when ``path`` is falsy or cannot be listed.
+    """
     if not path:
         return []
     try:
-        return os.listdir(path)
+        return [name for name in os.listdir(path) if not name.startswith('.')]
     except OSError:
         return []
 

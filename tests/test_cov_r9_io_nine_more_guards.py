@@ -264,14 +264,14 @@ class TestOneWellPerOriginalFile:
     def test_one_listdir_iteration_mints_exactly_one_well(self):
         """THE PIN for deleting the impossible dictionary-reuse arm.
 
-        ``os.listdir`` contributes each filename once, and all channels and
+        ``_listdir_visible`` contributes each filename once, and all channels and
         timepoints are expanded inside that iteration. A local well therefore
         carries the required reuse without a dictionary that cannot be hit.
         """
         from spacr import io as IO
 
         source = inspect.getsource(IO.convert_to_yokogawa)
-        loop = source.index("for file in sorted(os.listdir(folder)):")
+        loop = source.index("for file in sorted(_listdir_visible(folder)):")
         well = source.index("well = _get_next_well(used_wells)", loop)
         assert loop < well
         assert "file_to_well" not in source
@@ -282,7 +282,7 @@ class TestOneWellPerOriginalFile:
         from spacr import io as IO
 
         source = inspect.getsource(IO)
-        assert "for file in sorted(os.listdir(folder)):" in source
+        assert "for file in sorted(_listdir_visible(folder)):" in source
 
 
 class TestAugmentingASmallFolder:

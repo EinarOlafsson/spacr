@@ -26,6 +26,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_segment_spots](#_segment_spots) (1 entry)
 - [_network_hysteresis](#_network_hysteresis) (1 entry)
 - [_segment_ring](#_segment_ring) (5 entries)
+- [generate_cellpose_masks_sam, 2026-09-19](#generate_cellpose_masks_sam-2026-09-19) (1 entry)
 
 ## Module level
 

@@ -10040,8 +10040,11 @@ def generate_image_path_map(root_folder, valid_extensions=("tif", "tiff", "png",
     image_path_map = {}
 
     for dirpath, dirnames, filenames in os.walk(root_folder):
-        dirnames[:] = [name for name in dirnames if name != "consolidated"]
+        dirnames[:] = [name for name in dirnames
+                       if name != "consolidated" and not name.startswith('.')]
         for file in filenames:
+            if file.startswith('.'):
+                continue
             ext = file.lower().split('.')[-1]
             if ext in valid_extensions:
                 relative_path = os.path.relpath(dirpath, root_folder)

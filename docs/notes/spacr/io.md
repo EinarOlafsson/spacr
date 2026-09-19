@@ -88,7 +88,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [convert_separate_files_to_yokogawa](#convert_separate_files_to_yokogawa) (10 entries)
 - [convert_to_yokogawa](#convert_to_yokogawa) (22 entries)
 - [prepare_cellpose_dataset](#prepare_cellpose_dataset) (3 entries)
-- [_listdir_visible](#_listdir_visible) (1 entry)
+- [_listdir_visible](#_listdir_visible) (2 entries)
 
 ## Module level
 
@@ -3110,6 +3110,23 @@ A Mask run on an Apple M4, plate on `/Volumes/jk-ummi`, died in `generate_cellpo
 
 Not `allow_pickle=True`: measured, it turns the ValueError into `UnpicklingError: Failed to interpret file ... as a pickle`, and it would let a file dropped into the folder run code at load. Not convert-on-read either: the files spaCR wrote in 1.5.0.8 were never object arrays and load unchanged. The fix is at the listing.
 
-It surfaced there because the platform is the one that makes sidecars and the Mask path re-lists its own output folders four times (`stack/`, `masks/`, each `*_mask_stack/`, `merged/`). The raw-image listing in `_rename_and_organize_image_files` already skipped dot-files; nothing after it did. `concatenate_and_normalize` met the sidecar first, but its per-item ledger only logged it ("RUN INCOMPLETE - 1 of 2 items failed"). `generate_cellpose_masks_sam` has no ledger around its load, so it raised. The fix touched 37 listing sites in 20 functions: every listing the Mask run reaches in `io.py`, `object.py`, `core.py`, `utils.py` and `plot.py` goes through this helper, and `tests/test_a_stack_file_spacr_wrote_is_one_it_can_read.py` fails if one of them calls `os.listdir` directly again. `seg_qc._iter_masks` and `illumination._merged_files` (reached when segmentation illumination correction is on) filter inline, because `seg_qc` is tested to import no torch and this module imports it at load.
+It surfaced there because the platform is the one that makes sidecars and the Mask path re-lists its own output folders four times (`stack/`, `masks/`, each `*_mask_stack/`, `merged/`). The raw-image listing in `_rename_and_organize_image_files` already skipped dot-files; nothing after it did. `concatenate_and_normalize` met the sidecar first, but its per-item ledger only logged it ("RUN INCOMPLETE - 1 of 2 items failed"). `generate_cellpose_masks_sam` has no ledger around its load, so it raised. The first commit touched 37 listing sites in 20 functions in `io.py`, `object.py`, `core.py`, `utils.py` and `plot.py`, and `tests/test_a_stack_file_spacr_wrote_is_one_it_can_read.py` fails if one of those functions calls `os.listdir` directly again. It did not reach every listing on the Mask path; the entry below names the ones review found after it. `seg_qc._iter_masks` and `illumination._merged_files` (reached when segmentation illumination correction is on) filter inline, because `seg_qc` is tested to import no torch and this module imports it at load.
 
 Every dot-file is left out, not just `._`: the atomic writers here name their temporaries `.spacr_tmp_*.npy` and `.spacr_npz_*.npz`, and a run killed mid-write leaves one behind with a data ending. Order is `os.listdir` order, unchanged, so batching and the seeded shuffle see the same sequence they did before.
+
+### 2026-09-19, after review: the listings the first commit missed
+
+```python
+for file in sorted(_listdir_visible(folder)):
+```
+
+Review found three more Mask-path listings that still read sidecars, and a fourth turned up checking the v2 path. All are selectable from the Mask settings:
+
+- `metadata_type='auto'`: `preprocess_generate_masks` calls `convert_separate_files_to_yokogawa` when a custom regex is set, and `convert_to_yokogawa` when it is not or when the regex conversion raises. Both listed the raw folder with bare `os.listdir`. With a regex that starts `(?P<plateID>.*)_`, `._exp1_B03_s1_w1.tif` matched, `tifffile` raised on it, and `core` fell back to the regex-less conversion without saying why. That conversion gives each file the next free well, and in sorted order the sidecars come first. Measured with one channel per well: B03 and C07 came out as `plate1_A03` and `plate1_A04`, after "RUN INCOMPLETE - 2 of 4". With four channels per well each file got a well of its own, and the run stopped with `IndexError: index 3 is out of bounds for axis 3 with size 1`. Without a regex, one image and its sidecar gave "RUN INCOMPLETE 1 of 2", the image became `plate1_A02`, and `rename_log.run_status.json` was stamped partial. Both loops now use this helper.
+- `consolidate=True`: `spacr.utils.generate_image_path_map` walked with `os.walk`. See `docs/notes/spacr/utils.md`.
+- `pipeline_style='v2'`: `spacr.pipeline_v2.FilenameMapper.discover` and `spacr._v1_v2_bridge.v2_mask_source`. See those modules' notes.
+- The preflight: `spacr.validate._listdir`. See `docs/notes/spacr/validate.md`.
+
+The last three filter inline rather than through this helper, because `spacr.io` imports torch at module level: `validate` is tested to import no torch, and `_v1_v2_bridge` and `FilenameMapper.discover` run without it today.
+
+STILL BARE, and not on the Mask path: `measure.py` lists `merged/` for Measure, and so does `resume.completed_fields_in_merged` when it is called without `fields` (Measure's resume plan). On such a drive Measure reports a spurious "RUN INCOMPLETE ... 1 of 2 failed" for the sidecar. `stream_dataset` (training data) lists `merged/` bare too. They are recorded in `features/new/429_a_stack_file_spacr_wrote_is_one_it_can_read.txt`.

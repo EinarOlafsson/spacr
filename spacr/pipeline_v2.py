@@ -143,6 +143,7 @@ class FilenameMapper:
         files = sorted(
             p for p in src.iterdir()
             if p.is_file() and p.suffix.lower() in exts
+            and not p.name.startswith(".")
         )
         if not files:
             raise ValueError(f"no images found in {src}")

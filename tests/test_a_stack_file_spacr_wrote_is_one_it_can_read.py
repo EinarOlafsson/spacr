@@ -276,7 +276,8 @@ MASK_PATH_LISTINGS = {
         "_normalized_npz_field_ids", "_publish_v1_normalized_archives",
         "_concatenate_and_normalize_impl",
         "_create_movies_from_npy_per_channel", "preprocess_img_data",
-        "_load_and_concatenate_arrays",
+        "_load_and_concatenate_arrays", "convert_separate_files_to_yokogawa",
+        "convert_to_yokogawa",
     ),
     "spacr.object": (
         "generate_cellpose_masks_sam", "generate_cellpose_masks",
@@ -319,13 +320,19 @@ def test_no_mask_path_function_lists_a_folder_with_bare_listdir(
 
     The raw-image listing learnt to skip ``._`` files long ago (``io.py``,
     ``_rename_and_organize_image_files``) and none of the listings after it
-    did, which is how #121 got through; the fix touched 37 listing sites.
+    did, which is how #121 got through.
     Directory-name listings are included: they cost nothing to route through
     the helper, and a rule with exceptions is the rule the next site slips
-    past. ``seg_qc._iter_masks`` and ``illumination._merged_files`` filter
-    inline instead, and are covered by their own tests below: ``seg_qc`` is
-    tested to import no torch, ``illumination`` imports none at load today,
-    and ``spacr.io`` imports torch at module level.
+    past.
+
+    This pins the functions it names; it does not find new ones. The
+    listings that do not call ``os.listdir`` from ``spacr.io``'s reach are
+    held by behaviour tests below instead: ``seg_qc._iter_masks``,
+    ``illumination._merged_files``, ``_v1_v2_bridge.v2_mask_source``,
+    ``pipeline_v2.FilenameMapper.discover`` (``Path.iterdir``),
+    ``utils.generate_image_path_map`` (``os.walk``) and ``validate._listdir``.
+    ``seg_qc`` is tested to import no torch and ``spacr.io`` imports it at
+    module level, which is why those modules filter inline.
     """
     lines = _bare_listdir_lines(module_name, function_name)
     assert not lines, (
@@ -477,3 +484,289 @@ def test_a_test_mode_mask_run_on_a_macos_volume_completes(
                  (test_dir / "masks" / f"{role}_mask_stack").iterdir()
                  if not p.name.startswith(".")]
         assert masks == merged, role
+
+
+SEPARATE_FILES_REGEX = (
+    r"(?P<plateID>.*)_(?P<wellID>[A-P]\d{2})_s(?P<fieldID>\d+)"
+    r"_w(?P<chanID>\d)\.tif")
+
+
+def _separate_files_plate(root: Path, wells=("B03", "C07")) -> Path:
+    """Per-channel tiffs named ``exp1_<well>_s1_w<c>.tif``, each with a sidecar."""
+    import tifffile
+
+    root.mkdir(parents=True)
+    rng = np.random.default_rng(2)
+    for well in wells:
+        for channel in (1, 2, 3, 4):
+            image = rng.integers(100, 3000, size=(48, 48)).astype(np.uint16)
+            image[6:16, 6:16] += 5000
+            image[24:34, 24:34] += 5000
+            path = root / f"exp1_{well}_s1_w{channel}.tif"
+            tifffile.imwrite(path, image)
+            Path(_sidecar(path)).write_bytes(APPLEDOUBLE)
+    return root
+
+
+def _converted_wells(folder: Path):
+    """The well tokens of the Yokogawa-named files a conversion wrote."""
+    return sorted({p.name.split("_")[1] for p in folder.glob("plate*_*.tif")})
+
+
+def test_the_regex_conversion_keeps_its_wells_past_sidecars(tmp_path, capsys):
+    """``metadata_type='auto'`` with a custom regex, on a folder with sidecars.
+
+    The regex conversion used to read ``._exp1_B03_s1_w1.tif`` as a tiff and
+    raise, and the Mask run's silent fallback to the regex-less conversion
+    then numbered the wells itself: B03 and C07 came out as A03 and A04.
+    """
+    from spacr.io import convert_separate_files_to_yokogawa
+
+    plate = _separate_files_plate(tmp_path / "plate")
+    convert_separate_files_to_yokogawa(str(plate), SEPARATE_FILES_REGEX)
+
+    assert _converted_wells(plate) == ["B03", "C07"]
+    import pandas as pd
+    log = pd.read_csv(plate / "rename_log.csv")
+    assert not log["Original File(s)"].str.contains(r"\._").any()
+
+
+def test_the_plain_conversion_spends_no_well_on_a_sidecar(tmp_path, capsys):
+    """``metadata_type='auto'`` without a regex: one image, one sidecar.
+
+    It used to report "RUN INCOMPLETE - 1 of 2" for the sidecar, stamp the
+    converted folder incomplete, and hand the image the second well, A02.
+    """
+    import tifffile
+    from spacr.errors import run_is_complete
+    from spacr.io import convert_to_yokogawa
+
+    folder = tmp_path / "plate"
+    folder.mkdir()
+    tifffile.imwrite(folder / "img1.tif", np.ones((8, 8), np.uint16))
+    (folder / "._img1.tif").write_bytes(APPLEDOUBLE)
+
+    ledger = convert_to_yokogawa(str(folder))
+
+    assert ledger.n_failed == 0 and ledger.n_attempted == 1
+    assert sorted(p.name for p in folder.glob("plate*.tif")) == [
+        "plate1_A01_T0001F001L01C01.tif"]
+    assert "RUN INCOMPLETE" not in capsys.readouterr().out
+    assert run_is_complete(str(folder / "rename_log.csv"))
+
+
+def test_an_auto_metadata_mask_run_on_a_macos_volume_keeps_its_wells(
+        tmp_path, macos_volume, fake_cellpose, capsys):
+    """The Mask run with ``metadata_type='auto'`` and a regex, as a user sets it.
+
+    Before the fix the regex conversion raised on the first sidecar and the
+    run fell back, without saying why, to the regex-less conversion. That
+    gave every file a well of its own ("RUN INCOMPLETE - 8 of 16 items
+    failed" for the sidecars), so each well held one channel and the run
+    stopped with "IndexError: index 3 is out of bounds for axis 3 with size
+    1". With one channel per well the same fallback finishes instead, on
+    wells the plate never had: see the two tests above.
+    """
+    from spacr.core import preprocess_generate_masks
+
+    plate = _separate_files_plate(tmp_path / "plate")
+    macos_volume(tmp_path)
+
+    settings = {
+        "src": str(plate), "metadata_type": "auto",
+        "custom_regex": SEPARATE_FILES_REGEX,
+        "channels": [0, 1, 2, 3], "cell_channel": 3, "nucleus_channel": 0,
+        "pathogen_channel": 2, "cell_diameter": 30, "nucleus_diameter": 30,
+        "pathogen_diameter": 30, "magnification": 20, "test_mode": False,
+        "preprocess": True, "masks": True, "save": True, "plot": False,
+        "verbose": False, "n_jobs": 1, "batch_size": 50,
+        "adjust_cells": True, "seg_qc": "report", "randomize": False,
+        "keep_intermediate": True, "consolidate": False, "timelapse": False,
+        "pipeline_style": "v1",
+    }
+    preprocess_generate_masks(settings)
+
+    out = capsys.readouterr().out
+    assert "not a TIFF file" not in out
+    assert "RUN INCOMPLETE" not in out
+    assert PICKLE_MESSAGE not in out
+    merged = sorted(p.name for p in (plate / "merged").iterdir()
+                    if p.suffix == ".npy" and not p.name.startswith("."))
+    assert [name.split("_")[1] for name in merged] == ["B03", "C07"], merged
+    import pandas as pd
+    log = pd.read_csv(plate / "rename_log.csv")
+    assert not log["Original File(s)"].str.contains(r"\._").any()
+
+
+def test_consolidating_a_macos_volume_copies_no_sidecar(tmp_path):
+    """``consolidate=True`` flattens sub-folders into ``consolidated/``.
+
+    ``sub/._img1.tif`` used to be copied as ``sub_._img1.tif``: the
+    rename moved the dot off the front, so no listing downstream could tell
+    it was a sidecar any more. A volume's own hidden folders
+    (``.Spotlight-V100``, ``.Trashes``) were walked and copied too.
+    """
+    from spacr.utils import copy_images_to_consolidated, generate_image_path_map
+
+    (tmp_path / "sub").mkdir()
+    (tmp_path / ".Spotlight-V100").mkdir()
+    for name in ("sub/img1.tif", "top.tif", ".Spotlight-V100/store.tif"):
+        (tmp_path / name).write_bytes(b"image")
+    for name in ("sub/._img1.tif", "._top.tif"):
+        (tmp_path / name).write_bytes(APPLEDOUBLE)
+
+    image_map = generate_image_path_map(str(tmp_path))
+    assert sorted(os.path.basename(v) for v in image_map.values()) == [
+        "sub_img1.tif", "top.tif"]
+
+    copy_images_to_consolidated(image_map, str(tmp_path))
+    assert sorted(os.listdir(tmp_path / "consolidated")) == [
+        "sub_img1.tif", "top.tif"]
+
+
+def _v2_merged(root: Path, fields=("plate1_A01_1", "plate1_A01_2")) -> Path:
+    """A v2 ``merged/``: one image plane and one cell mask plane per field."""
+    import json
+
+    merged = root / "merged"
+    merged.mkdir(parents=True)
+    for field in fields:
+        stack = np.zeros((40, 40, 2), np.uint16)
+        stack[4:14, 4:14, 1] = 1
+        stack[20:30, 20:30, 1] = 2
+        path = merged / f"stack_{field}.npy"
+        np.save(path, stack)
+        Path(_sidecar(path)).write_bytes(APPLEDOUBLE)
+    (merged / "channel_order.json").write_text(json.dumps(
+        {"image_channels": ["cell"], "mask_channels": ["cell"]}))
+    return merged
+
+
+def test_the_v2_scorecard_does_not_score_a_sidecar(tmp_path, capsys):
+    """``pipeline_style='v2'`` scores ``merged/`` through ``v2_mask_source``.
+
+    It listed the folder bare, so each sidecar became a field of its own
+    and failed to load: "FAIL - 2 of 4 fields failed (50%): fix the
+    segmentation before running Measure" about a plate with nothing wrong.
+    """
+    from spacr._v1_v2_bridge import v2_mask_source
+    from spacr.core import _score_v2_masks
+
+    merged = _v2_merged(tmp_path)
+    assert sorted(v2_mask_source(merged, "cell")) == [
+        "plate1_A01_1", "plate1_A01_2"]
+
+    result = _score_v2_masks(tmp_path, {"seg_qc": "report", "verbose": True})
+    assert len(result["field_qcs"]) == 2
+    assert "FAIL" not in capsys.readouterr().out
+
+
+def _yokogawa_plate(root: Path, fields=(1, 2)) -> Path:
+    """Raw CellVoyager tiffs, channels 0 and 1 per field, each with a sidecar."""
+    import tifffile
+
+    root.mkdir(parents=True)
+    rng = np.random.default_rng(3)
+    for field in fields:
+        for channel in (0, 1):
+            image = rng.integers(100, 3000, size=(48, 48)).astype(np.uint16)
+            image[6:16, 6:16] += 5000
+            image[24:34, 24:34] += 5000
+            path = root / (f"plate1_A01_T0001F{field:03d}L01A01Z01"
+                           f"C{channel:02d}.tif")
+            tifffile.imwrite(path, image)
+            Path(_sidecar(path)).write_bytes(APPLEDOUBLE)
+    return root
+
+
+def test_the_v2_discovery_does_not_take_a_sidecar_for_an_image(tmp_path):
+    """v2 lists the raw folder itself, with ``Path.iterdir``.
+
+    The CellVoyager pattern starts ``(?P<plateID>.*)_``, so
+    ``._plate1_A01_...tif`` matched as plate ``._plate1`` and
+    ``stream_originals_to_stack`` then died reading it: "not a TIFF file".
+    """
+    from spacr.pipeline_v2 import FilenameMapper
+
+    plate = _yokogawa_plate(tmp_path / "plate")
+    mapper = FilenameMapper.discover(plate, metadata_type="auto")
+
+    assert len(mapper.records) == 4
+    assert {record.plate for record in mapper.records} == {"plate1"}
+
+
+class _TwoSquaresCellpose:
+    """A Cellpose double for the v2 path that draws two squares per image."""
+
+    def __init__(self, *args, **kwargs):
+        self.pretrained_model = None
+
+    def eval(self, images, batch_size=8, resample=True, channels=None,
+             channel_axis=None, z_axis=None, normalize=True, rescale=None,
+             diameter=None, flow_threshold=0.4, cellprob_threshold=0.0,
+             do_3D=False, anisotropy=None, flow3D_smooth=0,
+             stitch_threshold=0.0, min_size=15, max_size_fraction=0.4,
+             niter=None, augment=False, tile_overlap=0.1, bsize=None,
+             compute_masks=True, progress=None):
+        masks = []
+        for image in images:
+            mask = np.zeros(np.asarray(image).shape[:2], dtype=np.uint16)
+            mask[6:16, 6:16] = 1
+            mask[24:34, 24:34] = 2
+            masks.append(mask)
+        return masks, None, None
+
+
+def test_a_v2_mask_run_on_a_macos_volume_completes(
+        tmp_path, macos_volume, monkeypatch, capsys):
+    """The Mask run with ``pipeline_style='v2'`` on a volume that writes sidecars.
+
+    Before the fix it stopped at the first raw sidecar ("not a TIFF
+    file"); with discovery fixed alone, the scorecard still counted each
+    ``merged/._stack_*.npy`` as a failed field.
+    """
+    import spacr.accelerator as accelerator
+    from spacr.core import preprocess_generate_masks
+
+    monkeypatch.setattr("cellpose.models.CellposeModel", _TwoSquaresCellpose)
+    monkeypatch.setattr(accelerator, "is_gpu", lambda: False)
+    plate = _yokogawa_plate(tmp_path / "plate")
+    macos_volume(tmp_path)
+
+    preprocess_generate_masks({
+        "src": str(plate), "pipeline_style": "v2", "metadata_type": "auto",
+        "custom_regex": None, "channels": [0, 1], "cell_channel": 1,
+        "nucleus_channel": 0, "pathogen_channel": None,
+        "cell_diameter": 30, "nucleus_diameter": 30, "seg_qc": "report",
+        "verbose": True, "plot": False, "save": True,
+    })
+
+    out = capsys.readouterr().out
+    assert "not a TIFF file" not in out
+    assert "FAIL" not in out
+    stacks = sorted(p.name for p in (plate / "merged").glob("stack_*.npy"))
+    assert len(stacks) == 2, stacks
+    assert (plate / "merged" / f"._{stacks[0]}").exists(), (
+        "the emulated volume wrote no sidecar beside the v2 stack, so this "
+        "test is not exercising the scorecard's listing")
+    card = (plate / "qc" / "segmentation_qc_cell.csv").read_text()
+    assert "._" not in card
+
+
+def test_the_preflight_counts_no_sidecar(tmp_path):
+    """The Mask run's preflight lists ``stack/`` and ``merged/`` too.
+
+    Sorted, every ``._`` name comes before every field, so with three
+    fields the three sidecars were the three files ``_peek_planes`` tried:
+    no plane count, and a file count of six.
+    """
+    from spacr.validate import _peek_planes
+
+    stack = _stack_folder(tmp_path, fields=("plate1_A01_1", "plate1_A01_2",
+                                            "plate1_A01_3"))
+    for field in list(stack.glob("*.npy")):
+        Path(_sidecar(field)).write_bytes(APPLEDOUBLE)
+
+    planes, example, count = _peek_planes(str(stack))
+    assert (planes, count) == (4, 3)
+    assert not example.startswith(".")

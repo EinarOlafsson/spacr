@@ -8118,3 +8118,18 @@ per item. I DO NOT TOUCH THE SHARED WORKING TREE /mnt/firecuda2/Claude/repo/
 spacr -- two other Claude sessions on this box are committing in it
 (98403bc6d, model zoo). I stay out of model_zoo.py and model_zoo_picker.py.
 At most four agents at once; every test under tools/run_capped.sh.
+
+--------------------------------------------------------------------------------
+2026-09-19 — HOME: 429 (#117/#121) EDITS MORE CODEX-LANE FILES THAN THE NOTICE ABOVE NAMED
+--------------------------------------------------------------------------------
+
+The notice above named object.py and core.py (+ io.py) for #117/#121. The
+fix is at every folder listing on the Mask path, so 429 also edits
+spacr/utils.py, spacr/plot.py, spacr/seg_qc.py, spacr/illumination.py,
+spacr/pipeline_v2.py, spacr/_v1_v2_bridge.py and spacr/validate.py. Each edit
+makes a listing skip names that start with a dot (macOS ._ sidecars), and
+nothing is reformatted. Two source-text pins in tests/ quoted the old loop in
+io.convert_to_yokogawa and now quote the helper. The full list is in
+features/new/429_a_stack_file_spacr_wrote_is_one_it_can_read.txt.
+Not touched, and waiting on Einar: measure.py and resume.py, which list
+merged/ for Measure.
