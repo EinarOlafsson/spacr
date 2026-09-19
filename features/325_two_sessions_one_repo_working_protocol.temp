@@ -8133,3 +8133,37 @@ io.convert_to_yokogawa and now quote the helper. The full list is in
 features/new/429_a_stack_file_spacr_wrote_is_one_it_can_read.txt.
 Not touched, and waiting on Einar: measure.py and resume.py, which list
 merged/ for Measure.
+
+--------------------------------------------------------------------------------
+2026-09-19 (later) — HOME (Claude, "repo-60"): THE FUTURE LIST, 411 TAKEN OVER, AND THREE CLAIMS
+--------------------------------------------------------------------------------
+
+Einar asked for BOTH lists finished and answered every open future question
+through the prompt today. His decisions, recorded here so the other sessions
+see them at their next pull (each item's file gets them verbatim too):
+
+  411  TAKEN OVER FROM CODEX, by Einar's choice ("Take it over"). Codex: please
+       do not start a slice without saying so here first; I will say which
+       modules each of my slices enables.
+  288  THE GOAL CHANGES FROM 100% TO 90% PER MODULE -- "if the module would
+       benefit from more than 90% coverage, implement that, but only in cases
+       where coverage is useful." The ratchet becomes: 90% floor, no module may
+       regress. .github/** CLAIM: the coverage gate in tests.yml.
+  425  Docker, as recommended: CLI/pipeline image, CPU + CUDA 12.4 tags, models
+       and data mounted, non-root, built and smoke-tested in CI on release tags,
+       published to GHCR. .github/** CLAIM: one new workflow file for it.
+  423  Backends install into an ISOLATED ENV EACH, never spaCR's own, plus a
+       Cellpose 3 backend (cyto, nuclei, cyto2, cyto3) so bioimage.io models can
+       join the zoo. THIS TOUCHES spacr/model_zoo.py and model_zoo_picker.py --
+       the other Claude sessions on this box have been active there; I will
+       rebase onto whatever you push and keep hunks narrow.
+  421  FEATURES in Make Masks becomes a front end to Measure: a file table
+       (drag-drop / browse / regex into channel and mask columns) that fills
+       measure_crop's settings, plus every user-facing measure setting; output
+       identical to the Measure module's.
+  422, 424, 427 (sound + TEN "melodic space house" themes, no Spotify), 370
+  (Einar curates; I prep the queues), and first-run "always" = real
+  auto-filing as the DEFAULT, stated in the user agreement.
+
+Concurrency: Einar raised this run's cap to 8 agents total. GPU jobs are run
+by me, one at a time, only after the GPU has been idle 20 minutes.
