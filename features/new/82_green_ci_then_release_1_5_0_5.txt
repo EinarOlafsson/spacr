@@ -2,9 +2,16 @@
 GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
 ================================================================================
 
-Status:    DONE, 2026-08-15. The version bump remains canceled. The final
-           source-contract repairs are committed and the exact closeout tree
-           is the required pre- and post-rewrite CI gate.
+Status:    SUPERSEDED, 2026-09-19. READ 82_green_ci_then_release_1_5_0_7.txt
+           INSTEAD: it is the later copy of this same item, it records 1.5.0.5,
+           1.5.0.6 and 1.5.0.7 shipping, and it closes DONE 2026-09-12. This
+           copy stops at 2026-08-25, and "the version bump remains canceled"
+           below is false: v1.5.0.5 was tagged and released on 2026-09-10.
+           Kept for its history, not for its state: the 2026-08-15 to
+           2026-08-25 sections at its foot exist only here.
+           (Was: DONE, 2026-08-15. The version bump remains canceled. The
+           final source-contract repairs are committed and the exact closeout
+           tree is the required pre- and post-rewrite CI gate.)
 Requested: 2026-08-11 — "all to instructions make sure Github test are all
            passing, then update to 1.5.0.5 these should be the last 2 things
            you do"
@@ -338,3 +345,25 @@ NOT THIS ITEM'S SCOPE, but true today and worth someone's attention: `nightly`
 is currently red. Run 32907403895 (`tests`) and 32907403685 (`docs`) both
 failed on the head commit. This item's gate was one closeout tree, not the
 ongoing branch, so that failure is not a regression of it.
+
+--------------------------------------------------------------------------------
+2026-09-19 — MARKED SUPERSEDED, NOT MERGED OR DELETED
+--------------------------------------------------------------------------------
+
+Two files carry item 82. This one's Status said "DONE, 2026-08-15. The
+version bump remains canceled", which a reader takes as the state of the
+release. It is not: `git log -1 v1.5.0.5` is bb33059ae, 2026-09-10, and
+`gh release list` shows 1.5.0.5 through 1.5.0.8 published. The later copy,
+82_green_ci_then_release_1_5_0_7.txt, holds everything here up to 2026-08-25
+plus the release sections, and closes "DONE 2026-09-12 -- 1.5.0.7 IS OUT".
+
+WHY THIS COPY WAS NOT DELETED: IT HOLDS HISTORY THE LATER ONE DOES NOT.
+Compared line by line today, 140 non-blank lines here appear nowhere in the
+later copy. They are the four sections dated 2026-08-15 (the notebook drift
+guard, the red run worked through, the three parked stashes, the final
+green-gate repairs) and the 2026-08-25 re-audit. The later copy was forked
+before they were written. Deleting this file would lose them, and
+the two copies are also pinned in KNOWN_DUPLICATE_NUMBERS in
+tools/build_instruction_index.py, so retiring one is a ledger decision and not
+hygiene. The Status line now sends a reader to the copy that carries the
+current state.

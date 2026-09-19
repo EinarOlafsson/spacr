@@ -2,10 +2,24 @@
 DINOCELL AND SAMCELL IN THE MODEL ZOO, INSTALLED ON CLICK
 ================================================================================
 
-Status:    NOT STARTED. Filed 2026-09-18. The Cellpose half of the same request
-           IS done and is not part of this file: the zoo now lists every model
-           the installed Cellpose can fetch (cpsam, cpsam_v2, cpdino,
-           cpdino-vitb) beside the spaCR fine-tunes.
+Status:    PARTLY BUILT, ~60%, corrected 2026-09-19. The listing and the
+           install-on-click landed the same day this was filed: c60d48e35
+           (Make Masks' Mode box lists DINOCell and SAMCell greyed and offers
+           the install), 2d6d8ec10 (the Model Zoo and its button list both,
+           as a "backend" kind) and d1ee35065 (clicking an uninstalled row
+           offers the install, from one shared `install_backend_package`).
+           As built it installs with pip into the running environment, after
+           a warning that names the command and the risk; whether that stays
+           is still the maintainer's call. Left: the install BLOCKS THE GUI
+           (`subprocess.run` in `install_backend_package`,
+           spacr/qt/widgets/model_zoo_picker.py) with no progress and no
+           Cancel; rows have two states, not the three below; the scorecard
+           cells for these two; and the maintainer's calls on live env vs an
+           isolated one, canonical distributions, undo and licences.
+           (Was: NOT STARTED. Filed 2026-09-18. The Cellpose half of the same
+           request IS done and is not part of this file: the zoo now lists
+           every model the installed Cellpose can fetch (cpsam, cpsam_v2,
+           cpdino, cpdino-vitb) beside the spaCR fine-tunes.)
 
 Shape:     DINOcell and SAMcell appear in the Model Zoo and the Model Zoo
            button whether or not they are installed. Clicking one that is not
@@ -79,3 +93,31 @@ listing change and was done immediately. This part runs a package manager
 against the environment the application is running in, which is not something
 to add at the end of a session -- the failure mode is a spaCR that will not
 start, reported as "the model zoo broke my install".
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED: THE LISTING AND THE INSTALL ARE BUILT
+--------------------------------------------------------------------------------
+
+The Status line said NOT STARTED; three commits from the day of filing say
+otherwise. Checked today:
+
+    c60d48e35  Make Masks: DINOCell and SAMCell are always listed, and
+               install on click                               on nightly
+    2d6d8ec10  Model zoo: list SAMCell and DINOCell, and install them
+               from the zoo                                   on nightly
+    d1ee35065  Model zoo: clicking an uninstalled backend offers to
+               install it                                     on nightly
+
+Read in spacr/qt/widgets/model_zoo_picker.py, `install_backend_package`: a
+QMessageBox warning naming `pip install "<extra>"` and the torch risk, then
+`subprocess.run([sys.executable, "-m", "pip", "install", extra])` on the GUI
+thread under a wait cursor, then either the last eight lines of pip's output
+or "restart spaCR if it does not appear straight away". So of WHAT MAKES THIS
+DIFFERENT above, progress and Cancel are not met, and "usable without a
+restart, or say so" is met only by the message.
+
+~60%: both rows listed in all three places and installable, which is the
+Shape line; not the three-state rows, the off-thread install, the scorecard
+cells, or the maintainer's open questions. Nothing was run for this note.
+spacr/model_zoo.py and model_zoo_picker.py are another session's active work
+today and were only read.

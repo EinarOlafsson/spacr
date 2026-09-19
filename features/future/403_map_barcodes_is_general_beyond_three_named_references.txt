@@ -2,12 +2,24 @@
 MAP BARCODES IS GENERAL BEYOND THREE NAMED REFERENCES
 ================================================================================
 
-Status:    FUTURE, filed 2026-09-14. Not blocking. Asked for directly:
+Status:    DONE 2026-09-15, corrected 2026-09-19. Every part that was asked
+           for is built, on nightly and inside v1.5.0.8: requirements 1 and 2
+           were found already built (`BarcodeSet`,
+           tests/test_a_barcode_set_is_any_number_of_barcodes.py); 3 and 4 in
+           5ff35435c (`NUCLEOTIDE_ALPHABET`, `SearchThresholds`); the
+           maintainer's A, one row per reference, in 342cb0387; B in
+           65f064344; C in 149a7bef9
+           (tests/qt/test_the_barcode_search_follows_the_form.py). The
+           closing STATUS paragraph at the foot says the same. Not built, on
+           purpose: the five threshold knobs in the settings panel, which
+           were an agent's proposal and not a request.
+           (Was: FUTURE, filed 2026-09-14. Not blocking. Asked for directly:
            "is there an item to make map barcodes more generalizable?"
-           There was not -- this is it. WIDENED 2026-09-15 at the maintainer's
-           request to carry his Map Barcodes overhaul from 2026-09-12, whose
-           unbuilt remainder was never filed anywhere, and two new asks. See
-           THE MAINTAINER'S REQUESTS, VERBATIM directly below.
+           There was not -- this is it. WIDENED 2026-09-15 at the
+           maintainer's request to carry his Map Barcodes overhaul from
+           2026-09-12, whose unbuilt remainder was never filed anywhere, and
+           two new asks. See THE MAINTAINER'S REQUESTS, VERBATIM directly
+           below.)
 Requested: 2026-09-14, by the maintainer.
 Owner:     unassigned. `spacr/barcode_search.py` is the search,
            `spacr/sequencing.py:1078 generate_barecode_mapping` is the
@@ -439,3 +451,26 @@ STATUS: every part of this item that was asked for is built -- requirements 1
 and 2 (found already built), 3 and 4, and the maintainer's A, B and C. The
 five threshold knobs in the settings panel were an agent's proposal, not a
 request, and are deliberately not built.
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED: DONE, FOUR DAYS AGO
+--------------------------------------------------------------------------------
+
+The Status line still opened "FUTURE, filed 2026-09-14" above a file whose
+last paragraph says every requested part is built. Checked today, against
+git rather than the paragraph:
+
+    342cb0387  289 is done, and a one-file setting is one row again   (A)
+    5ff35435c  403: a reference that is not DNA is refused, and the
+               verdict thresholds are settable                        (3, 4)
+    65f064344  403-B: loading test data fills the barcode references  (B)
+    149a7bef9  403 C: the barcode search follows the form, and only
+               Apply writes it                                        (C)
+
+All four are ancestors of origin/nightly and of v1.5.0.8.
+`NUCLEOTIDE_ALPHABET` is at spacr/barcode_search.py:153 and
+`SearchThresholds` at :624. No test was run for this note.
+
+The file stays in features/future/ for this commit and moves to
+features/new/ in the next, because the list it belongs on is "what spaCR has
+gained".

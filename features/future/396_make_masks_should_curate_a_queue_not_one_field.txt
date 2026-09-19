@@ -2,9 +2,21 @@
 MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
 ================================================================================
 
-Status:    BUILT 2026-09-14. The queue, the resumable status file, the four
-           orderings, the limit and the terminal entry point all exist and are
-           tested; 244 tests green across four files.
+Status:    PARTLY BUILT, ~85%, corrected 2026-09-19. The queue, the status
+           file, the orderings, the limit and `spacr-make-masks` exist and are
+           tested (BUILT 2026-09-14, below). ONE CLAIM BELOW IS WRONG: "ALL
+           THREE LAYOUTS ARE ACCEPTED" is true of the QUEUE and not of the
+           EDITOR. For sibling `images/`+`masks/` and for `*_seg.npy` the
+           command builds and prints the queue, then refuses to open Make
+           Masks (spacr/cli_make_masks.py:322, `queue.layout.kind !=
+           LAYOUT_NESTED` -> `editor_refusal`, exit 2 -- measured today on a
+           sibling folder). Left: edit those two layouts in place, or convert
+           them to the nested one; and `prob` ordering, which works only
+           where a scores CSV exists.
+
+           WAS, until 2026-09-19: BUILT 2026-09-14. The queue, the resumable
+           status file, the four orderings, the limit and the terminal entry
+           point all exist and are tested; 244 tests green across four files.
              * `spacr/curation_queue.py` -- Qt-free and import-pure, enforced
                by a test that imports it in a subprocess and asserts no
                PySide6/numpy/skimage/torch lands in sys.modules. numpy enters
@@ -136,3 +148,32 @@ Two tools also means two answers to the same question. spaCR's Make Masks and
 the external tool disagree about defaults, about what a percentile means, and
 about whether a mask is saved as it is edited -- and a curator moving between
 them carries assumptions that are true in one and false in the other.
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED: THE QUEUE TAKES THREE LAYOUTS, THE EDITOR ONE
+--------------------------------------------------------------------------------
+
+The Status line opened "BUILT" and said all three layouts are accepted. The
+queue accepts them; the editor does not. Measured today, from this worktree
+(`spacr.__file__` printed inside it), on a two-field sibling folder -- images/
+and masks/ side by side, 16x16 uint16 TIFFs:
+
+    spacr.cli_make_masks.main(['--folder', <folder>])
+      stdout  sibling layout at <folder>: 2 bundles, 0 done, 0 skip,
+              2 remaining; 2 this session, sorted by value (asked for easy)
+      stderr  sibling layout at <folder>: spaCR can read this queue but cannot
+              yet edit it in place. [...] To edit this set now, give the
+              editor the nested layout: a folder of images with masks/
+              beneath it.
+      exit    2
+
+The refusal is deliberate and says why: opened on <folder>/images, Make Masks
+would read and write <folder>/images/masks, not the masks/ the set already
+has. The `*_seg.npy` branch of `editor_refusal` refuses the same way, because
+the editor does not open Cellpose bundles. Only the nested layout reaches
+`open_editor`.
+
+WHAT IS LEFT, about 15% of the item: let the editor take a sibling set's
+masks folder (or convert it on request), do the same for `*_seg.npy`, and --
+unchanged -- `prob` ordering where no scores CSV exists (the run above fell
+back to value order and said so).

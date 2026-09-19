@@ -2,7 +2,19 @@
 A LIVE MAGNIFIER IN MAKE MASKS THAT SEGMENTS WHAT IS UNDER THE MOUSE
 ================================================================================
 
-Status:    FUTURE, filed 2026-09-15. Not started. Not blocking.
+Status:    BUILT, ~90%, corrected 2026-09-19. On nightly and inside v1.5.0.8:
+           4811b649b (the magnifier, 2026-09-14) and 1078ca51f (the border
+           option and the whole-image mode, 2026-09-15). The two notes below
+           that say "not pushed, not merged" describe the branches before they
+           landed. `_MAGNIFIER_SEGMENTERS` (spacr/qt/screens/make_masks.py:1605)
+           offers classical, cellpose, dinocell and samcell. The maintainer's
+           second round is new/417_the_magnifier_round_two.txt, DONE. Left
+           here, per WHAT IS LEFT at the foot: catalogue the region mode's
+           remaining f-string status lines, run the 380 responsiveness
+           harness with Whole image on, and polish (an Overlap preview in the
+           box, a toggle shortcut, an ETA on the busy bar, a per-field cache of
+           the whole-image objects).
+           (Was: FUTURE, filed 2026-09-15. Not started. Not blocking.)
 Requested: 2026-09-15, by the maintainer, in these words: "if the user flips
            this on, then a box appears with the region around the mouse
            slightly magnified, and in this region the square enhanced region
@@ -352,3 +364,22 @@ WHAT IS LEFT
     field, so revisiting a field re-segments it.
   * Still open from the second pass above: previewing the Overlap rule inside
     the box, and a keyboard shortcut for the toggle.
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED: BUILT AND SHIPPED, NOT "NOT STARTED"
+--------------------------------------------------------------------------------
+
+The Status line said "Not started" over two dated build notes. Checked
+today:
+
+    git merge-base --is-ancestor 4811b649b origin/nightly    yes
+    git merge-base --is-ancestor 1078ca51f origin/nightly    yes
+    git merge-base --is-ancestor <each> v1.5.0.8             yes
+    grep _MAGNIFIER_SEGMENTERS spacr/qt/screens/make_masks.py
+        :1605  classical, cellpose, dinocell, samcell
+
+~90% is the share of what was asked that exists and runs; the rest is the
+WHAT IS LEFT list above, none of which new/417 (round two) claims to have
+done -- 417 itself records "Not measured ... under the 380 responsiveness
+harness". This item stays in features/future/ until that list is either done
+or declined. No test was run for this note.

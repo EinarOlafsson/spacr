@@ -2,12 +2,25 @@
 AN UPDATE REMOVES EVERY OLDER spaCR FIRST, ON EVERY SYSTEM
 ================================================================================
 
-Status:    SLICE 1 ON NIGHTLY (20199e598), 2026-09-15 -- NOT RELEASED. STILL
-           BLOCKING USERS: a 1.5.0.1 machine is unblocked only by an installer
-           built from this code (the next release), and nothing here has run
-           on a real Windows or Mac. Remaining: real runs on each OS, tick
-           boxes inside the installers, a live end-to-end run of the
-           post-exit helper, macOS removals that need admin rights.
+Status:    PARTLY DONE, corrected 2026-09-19. SLICE 1 IS RELEASED: its three
+           commits (c043bde6f, 324630f19, 56cdbc51d -- spacr/install_cleanup.py,
+           both installers, and the in-app update in spacr/qt/app.py) are
+           inside v1.5.0.8, published 2026-09-16 with Windows, macOS and Linux
+           online installers. So the installer the old Status said a 1.5.0.1
+           machine needs now exists; whether it unblocks that machine has not
+           been tried. BLOCKED for the rest on hosts this machine is not:
+           nothing here has run on a real Windows or Mac. Remaining: real runs
+           on each OS and on the maintainer's 1.5.0.1 machine, tick boxes
+           inside the installers, a checksum on the downloaded installer, a
+           live end-to-end run of the post-exit helper, macOS removals that
+           need admin rights and pkgutil receipts, and
+           docs/source/installer_guide.rst, which does not describe the step.
+           (Was: SLICE 1 ON NIGHTLY (20199e598), 2026-09-15 -- NOT RELEASED.
+           STILL BLOCKING USERS: a 1.5.0.1 machine is unblocked only by an
+           installer built from this code (the next release), and nothing
+           here has run on a real Windows or Mac. Remaining: real runs on each
+           OS, tick boxes inside the installers, a live end-to-end run of the
+           post-exit helper, macOS removals that need admin rights.)
 Requested: 2026-09-15, by the maintainer, in these words (item 3 of three):
            "when updating spacr, the updater must first remove the older
            version of spacr, from all locations, on all operating systems, so
@@ -332,3 +345,31 @@ WHAT REMAINS
   * Not found: an unzipped PyInstaller Windows build anywhere, a unix
     --install-root with no launcher, machine-wide conda on Windows.
   * docs/source/installer_guide.rst does not describe the new step.
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED: SLICE 1 SHIPPED IN 1.5.0.8
+--------------------------------------------------------------------------------
+
+The Status line said "NOT RELEASED" three days after 1.5.0.8 went out with the
+code in it. Checked today:
+
+    git merge-base --is-ancestor c043bde6f v1.5.0.8    yes   (finder, remover,
+                                                              both installers)
+    git merge-base --is-ancestor 56cdbc51d v1.5.0.8    yes   (the update dialog)
+    git grep install_cleanup v1.5.0.8 -- spacr/qt/app.py   :3830, :3889,
+                                                           :3900, :3917
+    gh release view v1.5.0.8   Windows .exe, macOS .pkg and Linux .run online
+                               installers, wheel, sdist, SHA256SUMS.txt
+
+The wip/416-find-delete-install commits are patch-equivalent to what is on
+nightly (`git cherry` marks six of seven "-"; the one "+" is the filing
+commit, byte-identical to 0445537e6).
+
+WHAT IS STILL TRUE, AND IS WHY THIS IS NOT DONE. Nothing has run on a real
+Windows or macOS host or on the maintainer's 1.5.0.1 machine, and those are
+the only places the item's own HOW TO KNOW can be met. Checked in the tree:
+spacr/install_cleanup.py has no checksum and no `pkgutil` handling, and
+docs/source/installer_guide.rst's "Updating" section (lines 72-79) still says
+"a failed update leaves the previous working environment in place" and does
+not mention that older copies are found and removed first.
+The WHAT REMAINS list above is otherwise unchanged.

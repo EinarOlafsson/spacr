@@ -2,9 +2,16 @@
 AN OBJECT'S EMBEDDING DEPENDS ON WHICH OTHER CROPS SHARE ITS BATCH
 ================================================================================
 
-Status:    DECIDED 2026-09-15: FIXED SCALE PER PLATE. Implementation in
+Status:    DONE 2026-09-15, corrected 2026-09-19. Fixed in ce92c75c5 ("410:
+           one fixed scale per channel per plate"), which is on nightly and
+           inside v1.5.0.8; `EmbeddingSpec.channel_scale` is in
+           spacr/embeddings.py and in all ten API catalogs, and
+           wip/410-plate-scale holds no commit that nightly lacks. Optional,
+           not owed: have tools/tutorials/embeddings_example.py record
+           `result.spec` (NOT DONE, at the foot, says why it was left).
+           (Was: DECIDED 2026-09-15: FIXED SCALE PER PLATE. Implementation in
            progress on a branch; lands with its nine-language docstring
-           translations. Filed 2026-09-15.
+           translations. Filed 2026-09-15.)
 Requested: not requested. Found while building the 395 retrieval harness.
 Numbered: filed as 409 and renumbered 410 the same night, because the work
            session's 409 (the theme sweep is one widget from red) was pushed
@@ -183,3 +190,22 @@ tools/tutorials/evidence/2026-09-12_embeddings_api_preflight.json and
 No plain `#` comments were added to spacr/ (2026-09-13 rule: comments leave
 the modules); the reasons are in the private helpers' docstrings, which no
 catalog pins.
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED: THE FIX LANDED AND SHIPPED
+--------------------------------------------------------------------------------
+
+The Status line still said the work was in progress on a branch. Checked
+today:
+
+    git merge-base --is-ancestor ce92c75c5 origin/nightly   yes
+    git merge-base --is-ancestor ce92c75c5 v1.5.0.8         yes
+    git log origin/nightly..wip/410-plate-scale             no commits
+    grep -c channel_scale spacr/embeddings.py               37
+    grep -c channel_scale docs/source/_static/i18n/api/*.json
+                                            3 in each of the ten catalogs
+
+So the translations the old Status waited for landed too. What is left is
+the optional change under NOT DONE above: tools/tutorials/embeddings_example.py
+still records `asdict(spec)` (line 129). Changing it reopens the pinned
+evidence files named there, which is why it was left.

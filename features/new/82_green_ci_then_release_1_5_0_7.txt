@@ -2,11 +2,19 @@
 GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
 ================================================================================
 
-Status:    STEP 2 IS DONE, TWICE. 1.5.0.5 was tagged 2026-09-10 (DOI
-           10.5281/zenodo.22692340) and 1.5.0.6 the same evening (DOI
-           10.5281/zenodo.22695045) because 1.5.0.5's wheel could not be
-           installed on macOS or Windows -- see the case-collision section
-           below. Both branches carry 1.5.0.6.
+Status:    DONE 2026-09-12, corrected 2026-09-19. The release is complete:
+           1.5.0.5 and 1.5.0.6 on 2026-09-10, 1.5.0.7 on 2026-09-12 (the
+           "DONE 2026-09-12 -- 1.5.0.7 IS OUT" section at the foot), and
+           1.5.0.8 since, on 2026-09-16. Step 1, "every GitHub test green",
+           was handed on and is not owed here: 43 and 288 carry it. This is
+           the live copy of item 82; 82_green_ci_then_release_1_5_0_5.txt is
+           the older one and says so.
+
+           WAS, until 2026-09-19: STEP 2 IS DONE, TWICE. 1.5.0.5 was tagged
+           2026-09-10 (DOI 10.5281/zenodo.22692340) and 1.5.0.6 the same
+           evening (DOI 10.5281/zenodo.22695045) because 1.5.0.5's wheel could
+           not be installed on macOS or Windows -- see the case-collision
+           section below. Both branches carry 1.5.0.6.
 
            STEP 1, "every GitHub test green", IS NOT DONE and is now 288's
            to close rather than this file's: a full local run on 2026-09-10
@@ -351,3 +359,17 @@ bundled notes are both post-release BOOKKEEPING that only exists once the
 release does -- Zenodo cannot mint a DOI for a release that has not been
 published, and the notes cannot bundle a release that is not there. Neither
 changes what shipped.
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED TO THE CLOSURE THIS FILE ALREADY RECORDS
+--------------------------------------------------------------------------------
+
+The section above is headed "DONE 2026-09-12 -- 1.5.0.7 IS OUT"; the Status
+line still described the 2026-09-10 state ("Both branches carry 1.5.0.6").
+Checked today: v1.5.0.7 is 63d803f30 (2026-09-12) and v1.5.0.8 is c861ec10a
+(2026-09-16, = origin/main), both published GitHub releases. Green CI is
+43's (the failing GitHub runs, new/) and 288's (future/), as this file said
+on 2026-09-10. Nothing is left in this file's scope.
+
+The older copy, 82_green_ci_then_release_1_5_0_5.txt, now opens SUPERSEDED
+and points here.

@@ -2,11 +2,18 @@
 THE VERSION BUMP AND GETTING ACTIONS GREEN
 ================================================================================
 
-Status:   OPEN — release action explicitly held by the maintainer; merged with
-          blockers 288 and 304. (Terminal item 253 was deleted from the
-          list on 2026-09-02 at the maintainer's instruction; the final
-          sweep it carried is not a separate item any more.)
-Current:  ``python packaging/release.py version`` reports 1.5.0.4.
+Status:   DONE, corrected 2026-09-19. The bump this file describes has run
+          four times, each a published GitHub release: v1.5.0.5 (bb33059ae)
+          and v1.5.0.6 (e6661ad1a) on 2026-09-10, v1.5.0.7 (63d803f30) on
+          2026-09-12 and v1.5.0.8 (c861ec10a, = origin/main) on 2026-09-16.
+          "Getting Actions green" is no longer this file's: it is 43's and
+          288's. See the 2026-09-19 note at the foot.
+          (Was: OPEN — release action explicitly held by the maintainer;
+          merged with blockers 288 and 304. Terminal item 253 was deleted
+          from the list on 2026-09-02 at the maintainer's instruction; the
+          final sweep it carried is not a separate item any more.)
+Current:  ``python packaging/release.py version`` reports 1.5.0.8, measured
+          2026-09-19. It reported 1.5.0.4 when this file was written.
 
 --------------------------------------------------------------------------------
 THE BUMP
@@ -120,3 +127,27 @@ work item either session can pick up.
 NOT A CLAIM THAT 1.5.0.5 IS RELEASED. It is a claim that nothing is waiting
 on an agent. If any of these is reopened, reopen it as work rather than
 inheriting this note.
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED: RELEASED FOUR TIMES, NOTHING LEFT HERE
+--------------------------------------------------------------------------------
+
+The Status line still said OPEN at 1.5.0.4, ten days after the first of four
+releases. Checked against git and GitHub today, not against this file:
+
+    git log -1 v1.5.0.5              bb33059ae  2026-09-10
+    git log -1 v1.5.0.6              e6661ad1a  2026-09-10
+    git log -1 v1.5.0.7              63d803f30  2026-09-12
+    git log -1 v1.5.0.8              c861ec10a  2026-09-16   = origin/main
+    gh release list                  spaCR 1.5.0.5 to 1.5.0.8, 1.5.0.8 Latest
+    packaging/release.py version     1.5.0.8
+
+The 2026-09-08 note above says "NOT A CLAIM THAT 1.5.0.5 IS RELEASED". It has
+been released since, so the item is done rather than parked. A green nightly
+SHA is not owed here: 43 (the failing GitHub runs) and 288 (zero issues, green
+CI, per-module coverage) carry it.
+
+STILL STALE, AND NOT IN THIS FILE: tools/build_instruction_index.py keeps a
+STAGE entry for 05 ("~40% -- mechanism verified at 1.5.0.4; needs one green
+SHA, then approval"). The index prints STAGE notes only for items in
+features/future/, so it does not reach 00_INDEX.txt, but it is wrong.

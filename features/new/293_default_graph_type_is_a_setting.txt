@@ -1,8 +1,19 @@
 293 — The default graph type is a setting, and it governs every graph
 
-Status: MOSTLY DONE — the mechanism is in place and the live Qt graphs consume
-        it; the Matplotlib pipeline figures do not yet. Verified against the
-        tree 2026-09-14.
+Status: DONE, corrected 2026-09-19: every holdout now reads the setting.
+        The regression QC figures through `ml._qc_graph_type` (ml.py:5148,
+        called at :7347); the three pipeline-figure defaults in settings.py
+        through `graph_types.mark_to_start_on` (settings.py:1173, 5771,
+        5954); the Graph Builder through `chosen_for` (graph_spec.py:526).
+        `spacr/plot.py`'s spacrGraph draws what it is handed, which is right
+        for a drawing primitive. No hard-coded `'graph_type': 'jitter_bar'`
+        is left in spacr/. The "WHAT STILL DOES NOT" list below is the
+        2026-09-14 state; the three 2026-09-15 notes at the foot close it.
+        Optional and not owed: fold `grouped_plot.MARKS` into
+        `graph_types.MARKS` (both still exist, asserted equal by a test).
+        (Was: MOSTLY DONE — the mechanism is in place and the live Qt graphs
+        consume it; the Matplotlib pipeline figures do not yet. Verified
+        against the tree 2026-09-14.)
 
         THE MECHANISM. `spacr.graph_types` is the chokepoint, and it is Qt-free
         so a headless render answers the same question the same way:
@@ -260,3 +271,23 @@ the preference never reaches them.
 Six tests, three mutations, each caught: ignoring the setting, dropping the
 can-this-builder-draw-it check, and swallowing the note.
 
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED: ALL FOUR HOLDOUTS ARE ANSWERED
+--------------------------------------------------------------------------------
+
+The Status line said MOSTLY DONE and listed the Matplotlib pipeline figures
+as not reading the setting, four days after the three notes above closed
+them. Checked against the tree today:
+
+    grep mark_to_start_on spacr/settings.py   lines 1173, 5771, 5954
+    grep _qc_graph_type spacr/ml.py           def at 5148, one call at 7347,
+                                              through mark_to_start_on
+    grep chosen_for spacr/qt/widgets/graph_spec.py    line 526
+    grep "'graph_type':'jitter_bar'" spacr/   nothing
+
+spacrGraph was never a caller to change (the 2026-09-15 note says why). The
+one thing left is the optional clean-up the header names: `grouped_plot.MARKS`
+(spacr/qt/widgets/grouped_plot.py:23) still duplicates `graph_types.MARKS`
+(spacr/graph_types.py:81). A test holds them equal, so they cannot drift
+silently. No test was run for this note; it corrects the header to the code.

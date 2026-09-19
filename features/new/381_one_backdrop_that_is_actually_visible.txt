@@ -2,9 +2,18 @@
 ONE BACKDROP, AND THE PANELS ABOVE IT LET IT THROUGH
 ================================================================================
 
-Status:    OPEN, filed 2026-09-07. AFTER THE RELEASE, at the maintainer's
-           instruction: "file the backdrop thing somwhere in instructions for
-           later and ill get to it after the next relese."
+Status:    DONE 2026-09-11, corrected 2026-09-19. The window block is
+           transparent under a running backdrop (0fd75ac74), the dedup is back
+           on (`_drop_a_redundant_screen_backdrop`, spacr/qt/app.py:4826,
+           5f63fb77a), and the exact-one and real-display pixel tests are in
+           tests/qt/test_one_backdrop_for_the_window.py. Both commits shipped
+           in 1.5.0.7. The file's own 2026-09-11 section ends "WHAT IS LEFT OF
+           THIS ITEM: nothing"; the fullscreen-choppiness question it names is
+           327's. The "Costs, until it is done" line below is the state before
+           2026-09-11.
+           (Was: OPEN, filed 2026-09-07. AFTER THE RELEASE, at the
+           maintainer's instruction: "file the backdrop thing somwhere in
+           instructions for later and ill get to it after the next relese.")
 Owner:     spacr/qt/app.py (`_drop_a_redundant_screen_backdrop`),
            spacr/qt/widgets/home.py, spacr/qt/screens/app_screen.py,
            spacr/qt/theme.py (the QSS that makes containers opaque).
@@ -685,3 +694,22 @@ rather than dressed up.
   is the second time in one night that a second measurement of the same thing
   is what caught the first one -- the other being the inverted `[full, empty]`
   counter, caught by a write-side probe disagreeing with a read-side one.
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED: DONE SINCE 2026-09-11
+--------------------------------------------------------------------------------
+
+The Status line still said OPEN eight days after this file wrote "WHAT IS LEFT
+OF THIS ITEM: nothing". Checked against the tree today, not against the notes:
+
+  * `_drop_a_redundant_screen_backdrop` is at spacr/qt/app.py:4826 and runs
+    again; its docstring records "IT WAS OFF FROM 2026-09-07 UNTIL
+    2026-09-11" and the before/after pixel table.
+  * `_window_block` (spacr/qt/theme.py:2550) is the transparent window
+    block the dedup waited for.
+  * tests/qt/test_one_backdrop_for_the_window.py carries the Home and module
+    backdrop tests and `test_the_home_screen_is_not_black_on_a_real_display`.
+  * 0fd75ac74 and 5f63fb77a (both 2026-09-11) are inside v1.5.0.7.
+
+Nothing new was built or run for this note; it corrects the header to what
+the file and the code already said.

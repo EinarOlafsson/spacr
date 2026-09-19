@@ -1,11 +1,18 @@
 331 — WHAT MUST BE TRUE BEFORE THE VERSION UPDATE
 =================================================
 
-Status:    OPEN, filed 2026-09-01. A CHECKLIST, not new work: every item
-           already has its own instruction. This exists because the
-           maintainer asked for the list to be split into before and
-           after, and a split kept only in a chat log is a split nobody
-           can act on next week.
+Status:    DONE, corrected 2026-09-19. The update this checklist gated has
+           shipped four times: 1.5.0.5 and 1.5.0.6 on 2026-09-10, 1.5.0.7 on
+           2026-09-12 and 1.5.0.8 on 2026-09-16. The maintainer took it off
+           the list on 2026-09-08 (the note at the foot). It was a view over
+           other items rather than work of its own, so nothing is owed here.
+           The steps below still describe what a release needs; read them
+           as procedure for the next one, not as open work.
+           (Was: OPEN, filed 2026-09-01. A CHECKLIST, not new work: every
+           item already has its own instruction. This exists because the
+           maintainer asked for the list to be split into before and after,
+           and a split kept only in a chat log is a split nobody can act on
+           next week.)
 
 BEFORE THE UPDATE
 -----------------
@@ -478,3 +485,18 @@ work item either session can pick up.
 NOT A CLAIM THAT 1.5.0.5 IS RELEASED. It is a claim that nothing is waiting
 on an agent. If any of these is reopened, reopen it as work rather than
 inheriting this note.
+
+--------------------------------------------------------------------------------
+2026-09-19 — STATUS CORRECTED: THE UPDATE IT GATED HAS SHIPPED FOUR TIMES
+--------------------------------------------------------------------------------
+
+The Status line said OPEN while this file sat in features/new/ -- the list of
+what spaCR has gained -- under its own "OFF THE LIST" note of 2026-09-08.
+Checked today against git and GitHub rather than against the file:
+`git log -1` on v1.5.0.5, v1.5.0.6, v1.5.0.7 and v1.5.0.8 gives bb33059ae
+and e6661ad1a (2026-09-10), 63d803f30 (2026-09-12) and c861ec10a
+(2026-09-16), and `gh release list` shows all four published. The version
+update this file was the "before" list for has happened, so the item is done.
+
+NOT CLAIMED: that every step above was followed for each of the four
+releases. This note checks the outcome, not the procedure.
