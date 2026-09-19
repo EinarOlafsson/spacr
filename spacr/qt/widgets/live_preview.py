@@ -4338,10 +4338,12 @@ class LiveSettingsDialog(QDialog):
 
         self._propagate_sources = [
             panel._model_box, panel._object_box, panel._cell_channel,
-            panel._nucleus_channel, panel._diameter, panel._flow,
+            panel._nucleus_channel, panel._pathogen_channel,
+            panel._organelle_channel, panel._diameter, panel._flow,
             panel._prob, panel._normalise_check, panel._lo_pct, panel._hi_pct,
         ] + panel._all_compartment_widgets()
 
+        self._show_every_control_on_a_row()
         self.refresh_visibility()
 
         try:
@@ -4376,10 +4378,39 @@ class LiveSettingsDialog(QDialog):
         """
         p = self._panel
         return [p._model_box, p._object_box, p._cell_channel,
-                p._nucleus_channel, p._diameter, p._flow, p._prob,
+                p._nucleus_channel, p._pathogen_channel,
+                p._organelle_channel, p._diameter, p._flow, p._prob,
                 p._normalise_check, p._lo_pct, p._hi_pct,
                 p._outline_colour, p._outline_thickness,
                 ] + p._all_compartment_widgets()
+
+    def _show_every_control_on_a_row(self) -> int:
+        """Show every widget this dialog has put on a form row.
+
+        :meth:`closeEvent` hides each borrowed control as it hands it back,
+        and a widget hidden that way stays hidden when a layout takes it
+        again. A control that is on a row but not named by
+        :meth:`_managed_widgets` therefore came back as a caption over an
+        empty field on every open after the first. The sweep is by form
+        row, so a control added to the dialog later is shown without a
+        second list to keep in step. Rows the dialog gates on purpose are
+        hidden with ``QFormLayout.setRowVisible`` in
+        :meth:`refresh_visibility`, which this does not touch.
+
+        :returns: how many widgets were shown.
+        """
+        shown = 0
+        for form in self.findChildren(QFormLayout):
+            for row in range(form.rowCount()):
+                for role in (QFormLayout.LabelRole, QFormLayout.FieldRole,
+                             QFormLayout.SpanningRole):
+                    item = form.itemAt(row, role)
+                    widget = item.widget() if item is not None else None
+                    if widget is None or not widget.isHidden():
+                        continue
+                    widget.show()
+                    shown += 1
+        return shown
 
     def _install_api_tooltips(self) -> None:
         """Attach linked Mask API help to every setting in this popup."""

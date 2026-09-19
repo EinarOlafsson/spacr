@@ -1585,3 +1585,18 @@ def overlay_mask(image: np.ndarray, mask: np.ndarray) -> np.ndarray:
 ```
 
 Back-compat shims for callers that predate the multi-object rewrite
+
+## LiveSettingsDialog._show_every_control_on_a_row
+
+### added 2026-09-19 (431)
+
+```python
+self._show_every_control_on_a_row()
+```
+
+Reported by the maintainer on 2026-09-19: "in mask generation live settings, with per object settings on and pathogen chosen i dont have the option to choose pathogen channel in the live settings, only in the per object settings." Measured on a built Mask screen: the first open of Live settings showed a spin box beside "Pathogen channel"; every later open showed the caption over an empty field, and the same for "Organelle channel". `closeEvent` hides each borrowed control as it hands it back, which sets `WA_WState_ExplicitShowHide`, and a widget hidden that way stays hidden when the next dialog's form takes it. `__init__` re-showed only what `_managed_widgets()` named, and that list did not name those two. The per-object table was incidental: the defect is in the dialog, and the table was simply the only other place the pathogen channel could be set.
+
+Two changes. `_managed_widgets()` now names both spin boxes, and so does `_propagate_sources`, so a pathogen channel changed here with Propagate on reaches the main form without waiting for some other control to move. And this sweep shows every widget on every form row, so a control added to the dialog later cannot come back hidden with no list to forget. Rows gated on purpose (the organelle morphology rows) are gated by `QFormLayout.setRowVisible` in `refresh_visibility`, which runs after this and is unaffected.
+
+The existing check, `tests/qt/test_live_preview_channels.py::test_the_dialog_shows_a_row_for_each_channel`, read the row's CAPTION, which was there both times; it passed throughout. `tests/qt/test_live_settings_keep_every_channel_on_reopen.py` asks the spin box.
+
