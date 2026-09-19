@@ -4,24 +4,26 @@ DINOCELL AND SAMCELL IN THE MODEL ZOO, INSTALLED ON CLICK
 
 Filed as 414 on 2026-09-18; renumbered 2026-09-19 because 414 also names features/new/414_claude_code_installs_with_curl_on_every_system.txt.
 
-Status:    PARTLY BUILT, ~60%, corrected 2026-09-19. The listing and the
-           install-on-click landed the same day this was filed: c60d48e35
-           (Make Masks' Mode box lists DINOCell and SAMCell greyed and offers
-           the install), 2d6d8ec10 (the Model Zoo and its button list both,
-           as a "backend" kind) and d1ee35065 (clicking an uninstalled row
-           offers the install, from one shared `install_backend_package`).
-           As built it installs with pip into the running environment, after
-           a warning that names the command and the risk; whether that stays
-           is still the maintainer's call. Left: the install BLOCKS THE GUI
-           (`subprocess.run` in `install_backend_package`,
-           spacr/qt/widgets/model_zoo_picker.py) with no progress and no
-           Cancel; rows have two states, not the three below; the scorecard
-           cells for these two; and the maintainer's calls on live env vs an
-           isolated one, canonical distributions, undo and licences.
-           (Was: NOT STARTED. Filed 2026-09-18. The Cellpose half of the same
-           request IS done and is not part of this file: the zoo now lists
-           every model the installed Cellpose can fetch (cpsam, cpsam_v2,
-           cpdino, cpdino-vitb) beside the spaCR fine-tunes.)
+Status:    BUILT TO THE MAINTAINER'S DECISION, ~90%, 2026-09-19 (the
+           trailing note of that date). Every optional backend -- Cellpose 3,
+           DINOCell, SAMCell -- installs into a venv of its own under
+           ~/.spacr/backends/<name>, off the GUI thread, with progress and
+           Cancel, and spaCR calls it out of process; spaCR's own environment
+           is never modified. Rows are installed / installable / installing /
+           not installable here, with the reason and the licence; Uninstall
+           removes the environment. Cellpose 3's cyto3, cyto2, cyto and
+           nuclei are in the zoo, in Mask generation
+           (segmentation_backend='cellpose3') and in Make Masks' magnifier,
+           and bioimage.io's Cellpose 3 checkpoints download into the zoo.
+           Proved for real on the CPU with Cellpose 3 in a sandboxed HOME.
+           Left: DINOCell and SAMCell were never installed for real (a faked
+           environment only); nothing ran on Windows or macOS or on a CUDA
+           build of PyTorch (queued: gpu_queue/423-isolated-backends-1.md);
+           the scorecard cells for the three backends; and
+           segmentation_backend is still a text box, not a dropdown, in
+           Mask generation.
+           (Was: PARTLY BUILT, ~60%, corrected 2026-09-19 -- listing and a
+           pip install into spaCR's own environment on the GUI thread.)
 
 Shape:     DINOcell and SAMcell appear in the Model Zoo and the Model Zoo
            button whether or not they are installed. Clicking one that is not
@@ -123,3 +125,104 @@ Shape line; not the three-state rows, the off-thread install, the scorecard
 cells, or the maintainer's open questions. Nothing was run for this note.
 spacr/model_zoo.py and model_zoo_picker.py are another session's active work
 today and were only read.
+
+--------------------------------------------------------------------------------
+2026-09-19 — BUILT: ONE ENVIRONMENT PER BACKEND, AND CELLPOSE 3 IN THE ZOO
+--------------------------------------------------------------------------------
+
+Decided: "Isolated env per backend! But with the addition of adding
+cellpose 3 and its cyto, nucleus, and cyto2 and cyto3 models. The cellpose
+3 backend will allow more models from the biomass.io to be added to the
+model zoo." -- the maintainer, 2026-09-19, answering the open questions
+above. ("biomass.io" is bioimage.io.)
+
+The open questions, as that decision and the build answered them:
+
+  - Canonical distribution: PyPI, pinned -- cellpose==3.1.1.3 (the last 3.x,
+    with `packaging`, see below), dinocell==0.74, samcell==1.2.0; torch
+    from the wheel index that matches spaCR's own torch build.
+  - Live environment or isolated: isolated, one venv per backend under
+    ~/.spacr/backends/<name> ($SPACR_BACKENDS_DIR). venv rather than conda
+    because it is in the standard library on all three systems and needs
+    no conda; its limit (a Python in the backend's range must already be on
+    the computer) is reported as "not installable here" with the range.
+  - No network, no write access: both are row states with the reason, and
+    a background probe of pip's index puts "no network" on the row before
+    the click.
+  - Undo: Uninstall deletes the environment and everything downloaded into
+    it. There is nothing in spaCR's own environment to undo.
+  - Licences: on every row, read from each release on 2026-09-19 --
+    Cellpose 3.1.1.3 BSD-3-Clause; DINOCell 0.74 MIT, its weights MIT;
+    SAMCell 1.2.0 MIT, fine-tuning facebook/sam-vit-base (Apache-2.0); a
+    bioimage.io row carries the licence its uploader chose (one of the five
+    Cellpose 3 models there is CC-BY-NC-4.0).
+
+What was built -- one commit, "423: each segmentation backend installs into
+an environment of its own, and Cellpose 3 joins the zoo with its four
+models and bioimage.io's":
+
+  - spacr/_segmentation_backends.py: the specs, the environment manager
+    (state, preflight, plan, install, uninstall, lock, log), the worker
+    (this same file, run with `<env python> -I ... --serve <name>`, JSON
+    lines over stdin/stdout, .npy files, errors verbatim, protocol 1) and
+    the client (_RemoteBackend, answering Cellpose's eval; one worker per
+    backend, shut down after ten idle minutes). A DINOCell or SAMCell an
+    older spaCR pip-installed into spaCR's own environment still runs in
+    process; a backend environment wins when both exist.
+  - spacr/model_zoo.py: backend rows carry their state as `source`, the
+    reason as their first note and a new `licence` field; four Cellpose 3
+    model rows (kind "cellpose3"); bioimage.io models whose weights are a
+    Cellpose 3 checkpoint (CellPoseWrapper, CPnetBioImageIO -- five on
+    2026-09-19) are cellpose3 rows that download the file, checked against
+    the manifest's SHA-256.
+  - One install/uninstall dialog (model_zoo_picker.BackendInstallDialog)
+    used by the Model Zoo button, the Model Zoo screen and Make Masks' Mode
+    box; the two GUI-thread `subprocess.run(pip ...)` copies are gone.
+  - segmentation_backend='cellpose3' reads each object's model name as
+    written (cyto3, cyto2, cyto, nuclei or a checkpoint path; other names
+    mean nuclei for nuclei and cyto3 otherwise); settings._get_object_settings
+    no longer maps those names to cpsam under Cellpose 3. The magnifier has
+    four Cellpose 3 modes.
+
+Measured, in a sandboxed HOME on the CPU, Cellpose 3 from PyPI (the numbers
+are in docs/notes/spacr/_segmentation_backends.md): cold install 258.7 s and
+1.6 GB; uninstall 0.7 s; reinstall pressed in the dialog 55.4 s, the GUI
+timer firing 55 times while pip ran. Driven the way a user does it: the
+Model Zoo button's rows read "installed" / "not installed -- click to
+install" / "needs the Cellpose 3 backend"; its Uninstall button removed the
+environment; clicking the row installed it again; cyto3's "Use this model"
+returned 'cyto3'; the Mode box listed the four Cellpose 3 modes and the
+magnifier segmented three blobs with cellpose3:cyto3, no fallback, and a
+click committed one. generate_cellpose_masks_sam with
+segmentation_backend='cellpose3' found all nine discs of a 256 x 256 field
+in 7.3 s; bioimage.io's "CellPose(cyto3)", fetched through the zoo, is
+byte-identical to Cellpose's own cyto3 and found seven of them as a
+checkpoint (training diameter, no size model).
+
+Found by the real run, fixed: fastremap 1.20 imports `packaging` without
+declaring it, so the first real segment failed with ModuleNotFoundError
+after a self-test that passed -- `packaging` is now installed and the
+self-test imports what the adapter imports. And Cellpose 3 handed a path
+that does not exist logs a warning and runs cyto3; that is now refused.
+
+Tests: tests/test_backends_live_in_their_own_environment.py (106, with a
+faked environment -- a real venv whose own site-packages hold stand-in torch
+and cellpose), tests/test_the_zoo_lists_every_backend_and_cellpose3_model.py
+(18), tests/qt/test_a_backend_installs_into_its_own_environment.py (24), and
+the existing backend and magnifier tests moved to the new design. The
+module is at 100% line and branch coverage under its three test files.
+
+Left, honestly:
+  - DINOCell and SAMCell have never been installed for real: their install
+    plans and adapters are exercised with stand-ins only. A DINOCell install
+    downloads torch 2.10 and about ninety exact pins.
+  - Windows and macOS are handled by construction (Scripts\python.exe, the
+    py launcher, CREATE_NEW_PROCESS_GROUP and taskkill) and never run.
+  - A CUDA build of PyTorch in a backend environment: queued as
+    gpu_queue/423-isolated-backends-1.md, not run.
+  - The scorecard cells for the three backends ("not recorded" until the
+    projects publish numbers, per the section above).
+  - segmentation_backend is a text box in Mask generation; the four values
+    are in its tooltip, not in a dropdown.
+  - i18n: the new captions and the changed tooltip are owed to the
+    consolidated catalog pass.
