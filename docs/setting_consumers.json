@@ -191,7 +191,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "Signal_to_noise",
-    "line": 1496,
+    "line": 1621,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -200,7 +200,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "Signal_to_noise",
-    "line": 1518,
+    "line": 1643,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -330,7 +330,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "adjust_cells",
-    "line": 474,
+    "line": 478,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -1073,7 +1073,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "analyze_clusters",
-    "line": 1100,
+    "line": 1104,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -1082,7 +1082,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "analyze_clusters",
-    "line": 1107,
+    "line": 1111,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -1412,7 +1412,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "annotation_column",
-    "line": 6779,
+    "line": 7547,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -1820,7 +1820,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "background",
-    "line": 1495,
+    "line": 1620,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -1934,7 +1934,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "balance_to_smallest",
-    "line": 6432,
+    "line": 7200,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -2045,7 +2045,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_combat_mean_only",
-    "line": 925,
+    "line": 929,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -2054,7 +2054,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_combat_mean_only",
-    "line": 957,
+    "line": 961,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -2063,7 +2063,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_combat_mean_only",
-    "line": 980,
+    "line": 984,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -2072,7 +2072,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_combat_mean_only",
-    "line": 1229,
+    "line": 1233,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -2332,31 +2332,22 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "batch_covariate_column",
-    "line": 919,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "generate_image_umap"
-   },
-   {
-    "form": "get",
-    "function_depth": 1,
-    "key": "batch_covariate_column",
     "line": 923,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
    },
    {
-    "form": "keyword",
+    "form": "get",
     "function_depth": 1,
     "key": "batch_covariate_column",
-    "line": 951,
+    "line": 927,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
    },
    {
-    "form": "get",
+    "form": "keyword",
     "function_depth": 1,
     "key": "batch_covariate_column",
     "line": 955,
@@ -2365,16 +2356,16 @@
     "qualname": "generate_image_umap"
    },
    {
-    "form": "keyword",
+    "form": "get",
     "function_depth": 1,
     "key": "batch_covariate_column",
-    "line": 973,
+    "line": 959,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
    },
    {
-    "form": "get",
+    "form": "keyword",
     "function_depth": 1,
     "key": "batch_covariate_column",
     "line": 977,
@@ -2383,10 +2374,19 @@
     "qualname": "generate_image_umap"
    },
    {
+    "form": "get",
+    "function_depth": 1,
+    "key": "batch_covariate_column",
+    "line": 981,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "generate_image_umap"
+   },
+   {
     "form": "keyword",
     "function_depth": 1,
     "key": "batch_covariate_column",
-    "line": 1224,
+    "line": 1228,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -2395,7 +2395,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_covariate_column",
-    "line": 1227,
+    "line": 1231,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -2469,7 +2469,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_fields",
-    "line": 270,
+    "line": 271,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -2745,16 +2745,25 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 1890,
+    "line": 2070,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
    },
    {
+    "form": "get",
+    "function_depth": 1,
+    "key": "batch_size",
+    "line": 2821,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_rebuild_stacks_from_raw"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 2444,
+    "line": 3236,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -2763,7 +2772,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 2449,
+    "line": 3245,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -3046,7 +3055,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "black_background",
-    "line": 822,
+    "line": 826,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -3055,7 +3064,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "black_background",
-    "line": 1019,
+    "line": 1023,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -3064,7 +3073,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "black_background",
-    "line": 1064,
+    "line": 1068,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -3073,7 +3082,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "black_background",
-    "line": 1072,
+    "line": 1076,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -3093,7 +3102,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -3102,7 +3111,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -3183,7 +3192,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -3514,7 +3523,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_background",
-    "line": 1505,
+    "line": 1630,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -3523,7 +3532,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_background",
-    "line": 1506,
+    "line": 1631,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -3532,7 +3541,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_background",
-    "line": 2007,
+    "line": 2184,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -3541,7 +3550,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_background",
-    "line": 2009,
+    "line": 2186,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -3561,7 +3570,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cellprob_threshold",
-    "line": 274,
+    "line": 275,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -3646,7 +3655,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -3655,7 +3664,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 387,
+    "line": 388,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -3664,7 +3673,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 413,
+    "line": 417,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -3673,7 +3682,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 476,
+    "line": 480,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -3682,7 +3691,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 500,
+    "line": 504,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -3691,7 +3700,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -3700,7 +3709,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 546,
+    "line": 550,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -3718,7 +3727,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 1504,
+    "line": 1629,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -3727,7 +3736,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 1504,
+    "line": 1629,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -3736,7 +3745,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 1999,
+    "line": 2176,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -3745,7 +3754,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 2006,
+    "line": 2183,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -3835,7 +3844,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -3945,7 +3954,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_diameter",
-    "line": 269,
+    "line": 270,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -4037,7 +4046,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_flow_threshold",
-    "line": 275,
+    "line": 276,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -4153,7 +4162,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -4575,7 +4584,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_min_area",
-    "line": 276,
+    "line": 277,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -4770,7 +4779,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_model_name",
-    "line": 262,
+    "line": 263,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -4779,7 +4788,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_model_name",
-    "line": 266,
+    "line": 267,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -5093,7 +5102,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_signal_to_noise",
-    "line": 1506,
+    "line": 1631,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -5102,7 +5111,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_signal_to_noise",
-    "line": 2008,
+    "line": 2185,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -5111,7 +5120,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_signal_to_noise",
-    "line": 2009,
+    "line": 2186,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -5396,7 +5405,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cellpose_all",
-    "line": 2526,
+    "line": 3306,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -5441,7 +5450,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_all",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -5461,7 +5470,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 2526,
+    "line": 3306,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -5524,7 +5533,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -5589,7 +5598,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cellpose_masks",
-    "line": 2526,
+    "line": 3306,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -5634,7 +5643,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_masks",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -5654,7 +5663,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cellpose_model",
-    "line": 2526,
+    "line": 3306,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -5699,7 +5708,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_model",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -5737,7 +5746,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cells",
-    "line": 1372,
+    "line": 1376,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_screen_graphs"
@@ -5746,7 +5755,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cells",
-    "line": 1372,
+    "line": 1376,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_screen_graphs"
@@ -6154,7 +6163,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 499,
+    "line": 503,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -6163,7 +6172,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 545,
+    "line": 549,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -6244,7 +6253,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 2460,
+    "line": 3256,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -6253,7 +6262,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 2461,
+    "line": 3257,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -6262,7 +6271,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 2463,
+    "line": 3259,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -6271,7 +6280,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 2464,
+    "line": 3260,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -6897,7 +6906,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "class_metadata",
-    "line": 6736,
+    "line": 7504,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -7025,7 +7034,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 6963,
+    "line": 7731,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_class_column"
@@ -7052,7 +7061,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 8821,
+    "line": 8844,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -7061,7 +7070,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 8832,
+    "line": 8855,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -7184,7 +7193,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "clustering",
-    "line": 949,
+    "line": 953,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7193,7 +7202,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "clustering",
-    "line": 964,
+    "line": 968,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7202,7 +7211,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "clustering",
-    "line": 987,
+    "line": 991,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7222,7 +7231,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cmap",
-    "line": 567,
+    "line": 571,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -7231,7 +7240,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 567,
+    "line": 571,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -7240,7 +7249,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 1851,
+    "line": 2028,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -7249,7 +7258,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 1926,
+    "line": 2103,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -7258,7 +7267,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 2471,
+    "line": 3267,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -7512,7 +7521,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "col_to_compare",
-    "line": 916,
+    "line": 920,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7521,7 +7530,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "col_to_compare",
-    "line": 926,
+    "line": 930,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7530,7 +7539,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "col_to_compare",
-    "line": 928,
+    "line": 932,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7539,25 +7548,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "col_to_compare",
-    "line": 937,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "generate_image_umap"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "col_to_compare",
-    "line": 939,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "generate_image_umap"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "col_to_compare",
-    "line": 940,
+    "line": 941,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7581,10 +7572,28 @@
     "qualname": "generate_image_umap"
    },
    {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "col_to_compare",
+    "line": 947,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "generate_image_umap"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "col_to_compare",
+    "line": 948,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "generate_image_umap"
+   },
+   {
     "form": "keyword",
     "function_depth": 1,
     "key": "col_to_compare",
-    "line": 958,
+    "line": 962,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7593,7 +7602,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "col_to_compare",
-    "line": 960,
+    "line": 964,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7602,7 +7611,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "col_to_compare",
-    "line": 981,
+    "line": 985,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7611,7 +7620,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "col_to_compare",
-    "line": 983,
+    "line": 987,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7620,7 +7629,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "col_to_compare",
-    "line": 1230,
+    "line": 1234,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -7629,7 +7638,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "col_to_compare",
-    "line": 1232,
+    "line": 1236,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -7696,7 +7705,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "color_by",
-    "line": 824,
+    "line": 828,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7705,7 +7714,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "color_by",
-    "line": 1015,
+    "line": 1019,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -7714,34 +7723,34 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "color_by",
-    "line": 1016,
+    "line": 1020,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "color_by",
-    "line": 1293,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "reducer_hyperparameter_search"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "color_by",
-    "line": 1294,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "reducer_hyperparameter_search"
    },
    {
     "form": "subscript",
     "function_depth": 1,
     "key": "color_by",
     "line": 1297,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "reducer_hyperparameter_search"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "color_by",
+    "line": 1298,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "reducer_hyperparameter_search"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "color_by",
+    "line": 1301,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -8032,7 +8041,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "consolidate",
-    "line": 286,
+    "line": 287,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -8231,7 +8240,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 9078,
+    "line": 9101,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -8475,7 +8484,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -8677,7 +8686,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_source",
-    "line": 4762,
+    "line": 5530,
     "module": "spacr.io",
     "nested": false,
     "qualname": "open_crop_source"
@@ -9044,7 +9053,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 262,
+    "line": 263,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -9053,7 +9062,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 272,
+    "line": 273,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -9062,7 +9071,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 319,
+    "line": 320,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -9071,7 +9080,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 321,
+    "line": 322,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -9080,7 +9089,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 322,
+    "line": 323,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -9089,7 +9098,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 322,
+    "line": 323,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -9098,7 +9107,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 327,
+    "line": 328,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -9107,16 +9116,25 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 334,
+    "line": 335,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
    },
    {
+    "form": "get",
+    "function_depth": 1,
+    "key": "custom_regex",
+    "line": 2817,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_rebuild_stacks_from_raw"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 2418,
+    "line": 3200,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -9363,7 +9381,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cv_group_by",
-    "line": 6835,
+    "line": 7603,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -9372,7 +9390,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cv_group_by",
-    "line": 6842,
+    "line": 7610,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -10083,7 +10101,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "delete_intermediate",
-    "line": 573,
+    "line": 577,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -10092,7 +10110,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "delete_intermediate",
-    "line": 574,
+    "line": 578,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -10339,7 +10357,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "dialate_png_ratios",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -10386,7 +10404,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "dialate_pngs",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -10583,7 +10601,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dot_size",
-    "line": 1046,
+    "line": 1050,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -10592,7 +10610,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dot_size",
-    "line": 1065,
+    "line": 1069,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -10601,7 +10619,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dot_size",
-    "line": 1150,
+    "line": 1154,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -10805,7 +10823,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst",
-    "line": 581,
+    "line": 596,
     "module": "spacr.external_masks",
     "nested": false,
     "qualname": "plan_external_masks"
@@ -11069,7 +11087,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "embedding_by_controls",
-    "line": 914,
+    "line": 918,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -11235,7 +11253,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "eps",
-    "line": 949,
+    "line": 953,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -11244,7 +11262,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "eps",
-    "line": 964,
+    "line": 968,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -11253,7 +11271,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "eps",
-    "line": 987,
+    "line": 991,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -11423,7 +11441,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "examples_to_plot",
-    "line": 516,
+    "line": 520,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -11432,7 +11450,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "examples_to_plot",
-    "line": 537,
+    "line": 541,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -11441,7 +11459,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "examples_to_plot",
-    "line": 562,
+    "line": 566,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -11450,7 +11468,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "examples_to_plot",
-    "line": 567,
+    "line": 571,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -11459,7 +11477,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "examples_to_plot",
-    "line": 567,
+    "line": 571,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -11488,7 +11506,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "exclude",
-    "line": 922,
+    "line": 926,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -11497,7 +11515,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "exclude",
-    "line": 954,
+    "line": 958,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -11506,7 +11524,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "exclude",
-    "line": 976,
+    "line": 980,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -11515,7 +11533,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "exclude",
-    "line": 1226,
+    "line": 1230,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -11562,43 +11580,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "exclude_conditions",
-    "line": 889,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "generate_image_umap"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "exclude_conditions",
-    "line": 890,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "generate_image_umap"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "exclude_conditions",
-    "line": 891,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "generate_image_umap"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "exclude_conditions",
-    "line": 891,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "generate_image_umap"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "exclude_conditions",
     "line": 893,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "generate_image_umap"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "exclude_conditions",
+    "line": 894,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -11616,37 +11607,28 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "exclude_conditions",
-    "line": 1208,
+    "line": 895,
     "module": "spacr.core",
     "nested": false,
-    "qualname": "reducer_hyperparameter_search"
+    "qualname": "generate_image_umap"
    },
    {
     "form": "subscript",
     "function_depth": 1,
     "key": "exclude_conditions",
-    "line": 1209,
+    "line": 897,
     "module": "spacr.core",
     "nested": false,
-    "qualname": "reducer_hyperparameter_search"
+    "qualname": "generate_image_umap"
    },
    {
     "form": "subscript",
     "function_depth": 1,
     "key": "exclude_conditions",
-    "line": 1210,
+    "line": 899,
     "module": "spacr.core",
     "nested": false,
-    "qualname": "reducer_hyperparameter_search"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "exclude_conditions",
-    "line": 1210,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "reducer_hyperparameter_search"
+    "qualname": "generate_image_umap"
    },
    {
     "form": "subscript",
@@ -11661,7 +11643,43 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "exclude_conditions",
+    "line": 1213,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "reducer_hyperparameter_search"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "exclude_conditions",
     "line": 1214,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "reducer_hyperparameter_search"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "exclude_conditions",
+    "line": 1214,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "reducer_hyperparameter_search"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "exclude_conditions",
+    "line": 1216,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "reducer_hyperparameter_search"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "exclude_conditions",
+    "line": 1218,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -11710,7 +11728,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "exclude_rows",
-    "line": 882,
+    "line": 886,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -11719,7 +11737,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "exclude_rows",
-    "line": 1201,
+    "line": 1205,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -11777,7 +11795,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "experiment",
-    "line": 5247,
+    "line": 6015,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -11786,7 +11804,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "experiment",
-    "line": 5251,
+    "line": 6019,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -12100,7 +12118,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fields",
-    "line": 2479,
+    "line": 3276,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -12111,7 +12129,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 567,
+    "line": 571,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -12120,7 +12138,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 567,
+    "line": 571,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -12129,7 +12147,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 1064,
+    "line": 1068,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -12138,7 +12156,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 1072,
+    "line": 1076,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -12147,7 +12165,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 1851,
+    "line": 2028,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -12156,7 +12174,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 1926,
+    "line": 2103,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -12165,7 +12183,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 2471,
+    "line": 3267,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -12275,7 +12293,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "file_metadata",
-    "line": 5197,
+    "line": 5965,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -12284,7 +12302,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "file_metadata",
-    "line": 5214,
+    "line": 5982,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -12293,7 +12311,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "file_metadata",
-    "line": 5214,
+    "line": 5982,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -12302,7 +12320,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "file_metadata",
-    "line": 5251,
+    "line": 6019,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -12311,7 +12329,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "file_metadata",
-    "line": 5338,
+    "line": 6106,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_dataset_crop_refs"
@@ -12539,7 +12557,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "filter_by",
-    "line": 920,
+    "line": 924,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -12548,7 +12566,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "filter_by",
-    "line": 952,
+    "line": 956,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -12557,7 +12575,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "filter_by",
-    "line": 974,
+    "line": 978,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -12566,7 +12584,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "filter_by",
-    "line": 1225,
+    "line": 1229,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -12969,7 +12987,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "fps",
-    "line": 2467,
+    "line": 3263,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -12978,7 +12996,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "fps",
-    "line": 2467,
+    "line": 3263,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -13228,7 +13246,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "gpu",
-    "line": 814,
+    "line": 818,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -13414,7 +13432,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -13423,7 +13441,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -13504,7 +13522,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -14938,7 +14956,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 398,
+    "line": 402,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -14983,7 +15001,16 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 2375,
+    "line": 2889,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_resume_normalized_archives"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "illumination_correction",
+    "line": 3171,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -14992,7 +15019,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 2502,
+    "line": 3282,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -15217,7 +15244,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "image_nr",
-    "line": 1060,
+    "line": 1064,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -15226,7 +15253,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "image_nr",
-    "line": 1072,
+    "line": 1076,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -15596,7 +15623,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "img_zoom",
-    "line": 1061,
+    "line": 1065,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -17125,7 +17152,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inputs",
-    "line": 579,
+    "line": 594,
     "module": "spacr.external_masks",
     "nested": false,
     "qualname": "plan_external_masks"
@@ -17409,7 +17436,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "isomap_n_neighbors",
-    "line": 804,
+    "line": 808,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -17429,7 +17456,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "isomap_path_method",
-    "line": 805,
+    "line": 809,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -17458,7 +17485,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "keep_intermediate",
-    "line": 573,
+    "line": 577,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -17487,7 +17514,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "keep_npz",
-    "line": 273,
+    "line": 274,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -17507,7 +17534,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "keep_original_images",
-    "line": 574,
+    "line": 578,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -17697,7 +17724,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "layout",
-    "line": 597,
+    "line": 612,
     "module": "spacr.external_masks",
     "nested": false,
     "qualname": "plan_external_masks"
@@ -18359,7 +18386,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "log_data",
-    "line": 921,
+    "line": 925,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -18368,7 +18395,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "log_data",
-    "line": 953,
+    "line": 957,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -18377,7 +18404,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "log_data",
-    "line": 975,
+    "line": 979,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -18386,7 +18413,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "log_data",
-    "line": 1226,
+    "line": 1230,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -18711,7 +18738,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "lower_percentile",
-    "line": 1530,
+    "line": 1655,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -18807,7 +18834,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "masks",
-    "line": 369,
+    "line": 370,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -18816,7 +18843,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "masks",
-    "line": 393,
+    "line": 394,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -18834,7 +18861,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "masks",
-    "line": 2376,
+    "line": 3172,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -18843,7 +18870,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "masks",
-    "line": 2503,
+    "line": 3283,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -19316,7 +19343,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 262,
+    "line": 263,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -19325,7 +19352,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 271,
+    "line": 272,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -19334,16 +19361,25 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 318,
+    "line": 319,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
    },
    {
+    "form": "get",
+    "function_depth": 1,
+    "key": "metadata_type",
+    "line": 2815,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_rebuild_stacks_from_raw"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 2418,
+    "line": 3200,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -19352,7 +19388,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 2444,
+    "line": 3236,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "preprocess_img_data"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "metadata_type",
+    "line": 3279,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -19471,7 +19516,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "metric",
-    "line": 949,
+    "line": 953,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -19480,7 +19525,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "metric",
-    "line": 964,
+    "line": 968,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -19489,7 +19534,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "metric",
-    "line": 987,
+    "line": 991,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -19498,7 +19543,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "metric",
-    "line": 1279,
+    "line": 1283,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -19507,7 +19552,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "metric",
-    "line": 1289,
+    "line": 1293,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -19713,7 +19758,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_dist",
-    "line": 949,
+    "line": 953,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -19722,7 +19767,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_dist",
-    "line": 964,
+    "line": 968,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -19731,7 +19776,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_dist",
-    "line": 987,
+    "line": 991,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -20017,7 +20062,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_samples",
-    "line": 949,
+    "line": 953,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -20026,7 +20071,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_samples",
-    "line": 964,
+    "line": 968,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -20035,7 +20080,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_samples",
-    "line": 987,
+    "line": 991,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -20093,7 +20138,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "mix",
-    "line": 887,
+    "line": 891,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -20102,7 +20147,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mix",
-    "line": 887,
+    "line": 891,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -20111,7 +20156,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "mix",
-    "line": 1206,
+    "line": 1210,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -20120,7 +20165,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mix",
-    "line": 1206,
+    "line": 1210,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -21259,7 +21304,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 489,
+    "line": 493,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -21268,7 +21313,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 489,
+    "line": 493,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -21277,7 +21322,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 949,
+    "line": 953,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -21286,7 +21331,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 949,
+    "line": 953,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -21295,7 +21340,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 964,
+    "line": 968,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -21304,7 +21349,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 964,
+    "line": 968,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -21313,7 +21358,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 987,
+    "line": 991,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -21322,7 +21367,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 987,
+    "line": 991,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -21331,7 +21376,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 1279,
+    "line": 1283,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -21340,7 +21385,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 1281,
+    "line": 1285,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -21349,7 +21394,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 1289,
+    "line": 1293,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -21358,7 +21403,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 1291,
+    "line": 1295,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -21864,7 +21909,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 949,
+    "line": 953,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -21873,7 +21918,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 964,
+    "line": 968,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -21882,7 +21927,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 987,
+    "line": 991,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -22034,7 +22079,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "neg",
-    "line": 887,
+    "line": 891,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -22043,7 +22088,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "neg",
-    "line": 887,
+    "line": 891,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -22052,7 +22097,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "neg",
-    "line": 926,
+    "line": 930,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -22061,7 +22106,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "neg",
-    "line": 929,
+    "line": 933,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -22070,7 +22115,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "neg",
-    "line": 940,
+    "line": 944,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -22079,7 +22124,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "neg",
-    "line": 958,
+    "line": 962,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -22088,7 +22133,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "neg",
-    "line": 961,
+    "line": 965,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -22097,7 +22142,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "neg",
-    "line": 981,
+    "line": 985,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -22106,7 +22151,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "neg",
-    "line": 984,
+    "line": 988,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -22115,7 +22160,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "neg",
-    "line": 1206,
+    "line": 1210,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -22124,7 +22169,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "neg",
-    "line": 1206,
+    "line": 1210,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -22133,7 +22178,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "neg",
-    "line": 1230,
+    "line": 1234,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -22142,7 +22187,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "neg",
-    "line": 1233,
+    "line": 1237,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -22563,7 +22608,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "normalize",
-    "line": 567,
+    "line": 571,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -22572,7 +22617,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 567,
+    "line": 571,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -22689,7 +22734,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "normalize",
-    "line": 2471,
+    "line": 3267,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -22698,7 +22743,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 2471,
+    "line": 3267,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -22707,7 +22752,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "normalize",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -23051,7 +23096,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "normalize_by",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -23174,7 +23219,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nr",
-    "line": 1851,
+    "line": 2028,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -23183,7 +23228,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nr",
-    "line": 1851,
+    "line": 2028,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -23192,7 +23237,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nr",
-    "line": 1926,
+    "line": 2103,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -23201,7 +23246,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nr",
-    "line": 1926,
+    "line": 2103,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -23210,7 +23255,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nr",
-    "line": 2470,
+    "line": 3266,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -23219,7 +23264,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nr",
-    "line": 2471,
+    "line": 3267,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -23228,7 +23273,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nr",
-    "line": 2471,
+    "line": 3267,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -23266,7 +23311,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 1370,
+    "line": 1374,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_screen_graphs"
@@ -23275,7 +23320,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 1370,
+    "line": 1374,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_screen_graphs"
@@ -23284,7 +23329,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 6439,
+    "line": 7207,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -23531,7 +23576,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_background",
-    "line": 1500,
+    "line": 1625,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -23540,7 +23585,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_background",
-    "line": 1501,
+    "line": 1626,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -23549,7 +23594,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_background",
-    "line": 2002,
+    "line": 2179,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -23558,7 +23603,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_background",
-    "line": 2004,
+    "line": 2181,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -23654,7 +23699,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -23663,7 +23708,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 388,
+    "line": 389,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -23672,7 +23717,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 427,
+    "line": 431,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -23681,7 +23726,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 476,
+    "line": 480,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -23690,7 +23735,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 501,
+    "line": 505,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -23699,7 +23744,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -23708,7 +23753,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 547,
+    "line": 551,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -23726,7 +23771,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 1499,
+    "line": 1624,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -23735,7 +23780,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 1499,
+    "line": 1624,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -23744,7 +23789,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 1999,
+    "line": 2176,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -23753,7 +23798,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 2001,
+    "line": 2178,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -23861,7 +23906,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -24141,7 +24186,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -24737,7 +24782,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_signal_to_noise",
-    "line": 1501,
+    "line": 1626,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -24746,7 +24791,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_signal_to_noise",
-    "line": 2003,
+    "line": 2180,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -24755,7 +24800,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_signal_to_noise",
-    "line": 2004,
+    "line": 2181,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -25338,7 +25383,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_adaptive_block_size",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25394,7 +25439,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_adaptive_offset",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25405,7 +25450,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_background",
-    "line": 1515,
+    "line": 1640,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -25414,7 +25459,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_background",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25470,7 +25515,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_cellprob_threshold",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25481,7 +25526,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_chann_dim",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25492,7 +25537,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -25501,22 +25546,13 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 483,
+    "line": 487,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
    },
    {
     "form": "get",
-    "function_depth": 1,
-    "key": "organelle_channel",
-    "line": 503,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "preprocess_generate_masks"
-   },
-   {
-    "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
     "line": 507,
@@ -25525,10 +25561,19 @@
     "qualname": "preprocess_generate_masks"
    },
    {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "organelle_channel",
+    "line": 511,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
     "form": "keyword",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 543,
+    "line": 547,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -25537,7 +25582,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 549,
+    "line": 553,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -25555,7 +25600,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 1514,
+    "line": 1639,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -25564,7 +25609,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 1514,
+    "line": 1639,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -25681,7 +25726,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25690,7 +25735,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25755,7 +25800,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_clahe",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25775,7 +25820,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_clahe_clip_limit",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25840,7 +25885,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25905,7 +25950,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_dog_sigma_high",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25943,7 +25988,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_dog_sigma_low",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -25981,7 +26026,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_fill_holes",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26037,7 +26082,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_flow_threshold",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26057,7 +26102,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_hysteresis_high",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26086,7 +26131,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_hysteresis_low",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26133,7 +26178,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_max_sigma",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26189,7 +26234,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_min_sigma",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26245,7 +26290,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_num_sigma",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26310,7 +26355,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_log_threshold",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26366,7 +26411,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -26420,7 +26465,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26476,7 +26521,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_within_cells",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26505,7 +26550,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_max_area",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26543,7 +26588,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_max_intensity",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26581,7 +26626,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_method",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26736,7 +26781,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_min_area",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26792,7 +26837,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_min_intensity",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26830,7 +26875,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_model_name",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26886,7 +26931,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_morph_radius",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26924,7 +26969,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_morphology",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26962,7 +27007,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_network_threshold",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -26982,7 +27027,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_perimeter_fraction",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27020,7 +27065,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_remove_border",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27067,7 +27112,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_remove_border_objects",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27132,7 +27177,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_resample",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27152,7 +27197,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ridge_filter",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27181,7 +27226,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ridge_sigmas",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27210,7 +27255,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_fill_method",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27239,7 +27284,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_min_prominence",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27259,7 +27304,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_sigma_inner",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27288,7 +27333,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_sigma_outer",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27317,7 +27362,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_rolling_ball",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27337,7 +27382,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_rolling_ball_radius",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27348,7 +27393,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_signal_to_noise",
-    "line": 1516,
+    "line": 1641,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -27357,7 +27402,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_signal_to_noise",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27404,7 +27449,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_skeletonize",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27424,7 +27469,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_tophat_radius",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27453,7 +27498,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_type",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27518,7 +27563,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_unet_model_path",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27538,7 +27583,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_unet_threshold",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27558,7 +27603,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_watershed_spots",
-    "line": 369,
+    "line": 371,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -27598,7 +27643,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -27607,7 +27652,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -27688,7 +27733,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -28165,7 +28210,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -28174,7 +28219,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -28255,7 +28300,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -28732,7 +28777,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -28741,7 +28786,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -28822,7 +28867,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -29330,7 +29375,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "outline_palette",
-    "line": 543,
+    "line": 547,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -29339,7 +29384,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outline_palette",
-    "line": 554,
+    "line": 558,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -29419,7 +29464,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outline_width",
-    "line": 1049,
+    "line": 1053,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -29428,7 +29473,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "outline_width",
-    "line": 1059,
+    "line": 1063,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -29437,7 +29482,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outline_width",
-    "line": 1069,
+    "line": 1073,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -29457,7 +29502,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -29466,7 +29511,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -29547,7 +29592,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -29836,7 +29881,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overwrite",
-    "line": 702,
+    "line": 717,
     "module": "spacr.external_masks",
     "nested": false,
     "qualname": "run_external_masks"
@@ -29959,7 +30004,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 9073,
+    "line": 9096,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -30147,7 +30192,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "path_string",
-    "line": 5197,
+    "line": 5965,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -30156,7 +30201,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "path_string",
-    "line": 6433,
+    "line": 7201,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -30167,7 +30212,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_background",
-    "line": 1510,
+    "line": 1635,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -30176,7 +30221,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_background",
-    "line": 1511,
+    "line": 1636,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -30185,7 +30230,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_background",
-    "line": 2012,
+    "line": 2189,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -30194,7 +30239,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_background",
-    "line": 2014,
+    "line": 2191,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -30290,7 +30335,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -30299,7 +30344,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 389,
+    "line": 390,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -30308,7 +30353,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 441,
+    "line": 445,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -30317,7 +30362,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 476,
+    "line": 480,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -30326,7 +30371,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 502,
+    "line": 506,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -30335,7 +30380,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -30344,7 +30389,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 548,
+    "line": 552,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -30362,7 +30407,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 1509,
+    "line": 1634,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -30371,7 +30416,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 1509,
+    "line": 1634,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -30380,7 +30425,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 1999,
+    "line": 2176,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -30389,7 +30434,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 2011,
+    "line": 2188,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -30479,7 +30524,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -30748,7 +30793,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 1370,
+    "line": 1374,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_screen_graphs"
@@ -30757,7 +30802,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 1370,
+    "line": 1374,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_screen_graphs"
@@ -30766,7 +30811,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 6441,
+    "line": 7209,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -31040,7 +31085,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -31946,7 +31991,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_signal_to_noise",
-    "line": 1511,
+    "line": 1636,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -31955,7 +32000,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_signal_to_noise",
-    "line": 2013,
+    "line": 2190,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -31964,7 +32009,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_signal_to_noise",
-    "line": 2014,
+    "line": 2191,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -32269,7 +32314,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pca_svd_solver",
-    "line": 801,
+    "line": 805,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -32289,7 +32334,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pca_whiten",
-    "line": 800,
+    "line": 804,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -32612,7 +32657,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pipeline_style",
-    "line": 245,
+    "line": 246,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -32822,7 +32867,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_naming",
-    "line": 615,
+    "line": 630,
     "module": "spacr.external_masks",
     "nested": false,
     "qualname": "plan_external_masks"
@@ -32842,7 +32887,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 512,
+    "line": 516,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -32914,7 +32959,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 1850,
+    "line": 2027,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -32923,7 +32968,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 1924,
+    "line": 2101,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -32932,7 +32977,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 2422,
+    "line": 3204,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -32941,7 +32986,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 2469,
+    "line": 3265,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -33420,7 +33465,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_by_cluster",
-    "line": 1061,
+    "line": 1065,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33440,7 +33485,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_cluster_grids",
-    "line": 1071,
+    "line": 1075,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33449,7 +33494,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_cluster_grids",
-    "line": 1081,
+    "line": 1085,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33489,7 +33534,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_images",
-    "line": 821,
+    "line": 825,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33498,7 +33543,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_images",
-    "line": 875,
+    "line": 879,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33507,7 +33552,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_images",
-    "line": 912,
+    "line": 916,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33516,7 +33561,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_images",
-    "line": 1063,
+    "line": 1067,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33525,7 +33570,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_images",
-    "line": 1071,
+    "line": 1075,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33534,7 +33579,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_images",
-    "line": 1081,
+    "line": 1085,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33574,7 +33619,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_outlines",
-    "line": 826,
+    "line": 830,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33583,7 +33628,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_outlines",
-    "line": 1062,
+    "line": 1066,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33603,7 +33648,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_points",
-    "line": 1062,
+    "line": 1066,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33634,7 +33679,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "png_dims",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -33643,7 +33688,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_dims",
-    "line": 5418,
+    "line": 6186,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_write_crop_tar"
@@ -33681,7 +33726,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "png_size",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -33728,7 +33773,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_type",
-    "line": 5198,
+    "line": 5966,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -33737,7 +33782,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_type",
-    "line": 6433,
+    "line": 7201,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -33775,7 +33820,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "point_alpha",
-    "line": 1048,
+    "line": 1052,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33784,7 +33829,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "point_alpha",
-    "line": 1059,
+    "line": 1063,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33793,7 +33838,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "point_alpha",
-    "line": 1068,
+    "line": 1072,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33813,7 +33858,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "point_color",
-    "line": 1047,
+    "line": 1051,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33822,7 +33867,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "point_color",
-    "line": 1059,
+    "line": 1063,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33831,7 +33876,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "point_color",
-    "line": 1067,
+    "line": 1071,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33851,7 +33896,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pos",
-    "line": 887,
+    "line": 891,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33860,7 +33905,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pos",
-    "line": 887,
+    "line": 891,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33869,7 +33914,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pos",
-    "line": 939,
+    "line": 943,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -33878,7 +33923,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pos",
-    "line": 1206,
+    "line": 1210,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -33887,7 +33932,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pos",
-    "line": 1206,
+    "line": 1210,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -34424,7 +34469,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "preprocess",
-    "line": 368,
+    "line": 369,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -34433,7 +34478,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "preprocess",
-    "line": 382,
+    "line": 383,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -34442,7 +34487,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "preprocess",
-    "line": 397,
+    "line": 398,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "preprocess",
+    "line": 401,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -34489,7 +34543,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "preview_only",
-    "line": 875,
+    "line": 890,
     "module": "spacr.external_masks",
     "nested": false,
     "qualname": "prepare_external_masks"
@@ -34799,7 +34853,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "random_seed",
-    "line": 815,
+    "line": 819,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -34862,7 +34916,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "random_seed",
-    "line": 6436,
+    "line": 7204,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -34871,7 +34925,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "random_seed",
-    "line": 6835,
+    "line": 7603,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -34880,7 +34934,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "random_seed",
-    "line": 6841,
+    "line": 7609,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -34954,7 +35008,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "random_test",
-    "line": 2432,
+    "line": 3214,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "preprocess_img_data"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "random_test",
+    "line": 3220,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -34974,7 +35037,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "randomize",
-    "line": 366,
+    "line": 367,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -34983,7 +35046,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "randomize",
-    "line": 1865,
+    "line": 2045,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -35021,7 +35084,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "recursive",
-    "line": 579,
+    "line": 594,
     "module": "spacr.external_masks",
     "nested": false,
     "qualname": "plan_external_masks"
@@ -35032,7 +35095,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -35041,7 +35104,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -35122,7 +35185,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -35196,7 +35259,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "reduction_method",
-    "line": 791,
+    "line": 795,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -35205,7 +35268,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "reduction_method",
-    "line": 949,
+    "line": 953,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -35214,7 +35277,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "reduction_method",
-    "line": 964,
+    "line": 968,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -35223,7 +35286,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "reduction_method",
-    "line": 987,
+    "line": 991,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -35232,37 +35295,10 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "reduction_method",
-    "line": 1077,
+    "line": 1081,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "reduction_method",
-    "line": 1181,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "reducer_hyperparameter_search"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "reduction_method",
-    "line": 1182,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "reducer_hyperparameter_search"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "reduction_method",
-    "line": 1184,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "reducer_hyperparameter_search"
    },
    {
     "form": "subscript",
@@ -35277,7 +35313,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "reduction_method",
-    "line": 1272,
+    "line": 1186,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -35286,7 +35322,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "reduction_method",
-    "line": 1281,
+    "line": 1188,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -35295,7 +35331,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "reduction_method",
-    "line": 1291,
+    "line": 1189,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -35304,7 +35340,34 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "reduction_method",
-    "line": 1305,
+    "line": 1276,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "reducer_hyperparameter_search"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "reduction_method",
+    "line": 1285,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "reducer_hyperparameter_search"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "reduction_method",
+    "line": 1295,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "reducer_hyperparameter_search"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "reduction_method",
+    "line": 1309,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -35977,7 +36040,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "remove_background",
-    "line": 1497,
+    "line": 1622,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -36078,7 +36141,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_background_cell",
-    "line": 1507,
+    "line": 1632,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -36087,7 +36150,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_background_cell",
-    "line": 2010,
+    "line": 2187,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -36107,7 +36170,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_background_nucleus",
-    "line": 1502,
+    "line": 1627,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -36116,7 +36179,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_background_nucleus",
-    "line": 2005,
+    "line": 2182,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -36136,7 +36199,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "remove_background_organelle",
-    "line": 1519,
+    "line": 1644,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -36156,7 +36219,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_background_pathogen",
-    "line": 1512,
+    "line": 1637,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_normalize_img_batch"
@@ -36165,7 +36228,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_background_pathogen",
-    "line": 2015,
+    "line": 2192,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_get_lists_for_normalization"
@@ -36185,7 +36248,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_cluster_noise",
-    "line": 825,
+    "line": 829,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36194,7 +36257,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_cluster_noise",
-    "line": 992,
+    "line": 996,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36214,7 +36277,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_highly_correlated",
-    "line": 921,
+    "line": 925,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36223,7 +36286,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_highly_correlated",
-    "line": 953,
+    "line": 957,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36232,7 +36295,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_highly_correlated",
-    "line": 975,
+    "line": 979,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36241,7 +36304,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_highly_correlated",
-    "line": 1225,
+    "line": 1229,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -36290,7 +36353,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_image_canvas",
-    "line": 1065,
+    "line": 1069,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36500,7 +36563,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "resnet_features",
-    "line": 967,
+    "line": 971,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36567,7 +36630,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resume",
-    "line": 416,
+    "line": 420,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -36576,7 +36639,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resume",
-    "line": 418,
+    "line": 422,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -36585,7 +36648,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resume",
-    "line": 430,
+    "line": 434,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -36594,7 +36657,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resume",
-    "line": 432,
+    "line": 436,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -36603,7 +36666,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resume",
-    "line": 444,
+    "line": 448,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -36612,7 +36675,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resume",
-    "line": 446,
+    "line": 450,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -36621,7 +36684,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resume",
-    "line": 458,
+    "line": 462,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -36630,7 +36693,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resume",
-    "line": 460,
+    "line": 464,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -36639,7 +36702,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resume",
-    "line": 497,
+    "line": 501,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -36648,7 +36711,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resume",
-    "line": 509,
+    "line": 513,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -36657,7 +36720,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "resume",
-    "line": 1945,
+    "line": 2122,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
@@ -36908,7 +36971,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "row_limit",
-    "line": 897,
+    "line": 901,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36917,7 +36980,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "row_limit",
-    "line": 898,
+    "line": 902,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36926,7 +36989,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "row_limit",
-    "line": 899,
+    "line": 903,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36935,7 +36998,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "row_limit",
-    "line": 900,
+    "line": 904,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -36944,7 +37007,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "row_limit",
-    "line": 1216,
+    "line": 1220,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -36953,7 +37016,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "row_limit",
-    "line": 1217,
+    "line": 1221,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -36962,7 +37025,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "row_limit",
-    "line": 1218,
+    "line": 1222,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -36971,7 +37034,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "row_limit",
-    "line": 1219,
+    "line": 1223,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -37067,7 +37130,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "sample",
-    "line": 5221,
+    "line": 5989,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -37076,7 +37139,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "sample",
-    "line": 5221,
+    "line": 5989,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -37085,7 +37148,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "sample",
-    "line": 5222,
+    "line": 5990,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -37094,7 +37157,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "sample",
-    "line": 5225,
+    "line": 5993,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -37103,7 +37166,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "sample",
-    "line": 5225,
+    "line": 5993,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -37112,7 +37175,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "sample",
-    "line": 5226,
+    "line": 5994,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -37161,15 +37224,6 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 372,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "preprocess_generate_masks"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "save",
     "line": 373,
     "module": "spacr.core",
     "nested": false,
@@ -37179,7 +37233,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 373,
+    "line": 374,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "save",
+    "line": 374,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -37806,7 +37869,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save_figure",
-    "line": 1074,
+    "line": 1078,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -37884,7 +37947,25 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save_original_images",
-    "line": 2443,
+    "line": 2820,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_rebuild_stacks_from_raw"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "save_original_images",
+    "line": 2823,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_rebuild_stacks_from_raw"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "save_original_images",
+    "line": 3235,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -37893,7 +37974,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save_original_images",
-    "line": 2446,
+    "line": 3238,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -38919,7 +39000,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "smooth_lines",
-    "line": 827,
+    "line": 831,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -38928,7 +39009,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "smooth_lines",
-    "line": 1063,
+    "line": 1067,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39073,7 +39154,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "spectral_affinity",
-    "line": 808,
+    "line": 812,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39093,7 +39174,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "spectral_n_neighbors",
-    "line": 809,
+    "line": 813,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39261,7 +39342,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 238,
+    "line": 239,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -39270,7 +39351,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 243,
+    "line": 244,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -39279,25 +39360,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 243,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "preprocess_generate_masks"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 252,
-    "module": "spacr.core",
-    "nested": false,
-    "qualname": "preprocess_generate_masks"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 252,
+    "line": 244,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -39315,7 +39378,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 287,
+    "line": 253,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -39324,7 +39387,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 287,
+    "line": 254,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -39342,7 +39405,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 294,
+    "line": 288,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -39351,7 +39414,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 296,
+    "line": 289,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 295,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -39369,7 +39441,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 297,
+    "line": 298,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -39378,7 +39450,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 299,
+    "line": 298,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -39387,7 +39459,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 312,
+    "line": 300,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -39396,7 +39468,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 818,
+    "line": 313,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 822,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39405,7 +39486,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 819,
+    "line": 823,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39414,7 +39495,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 819,
+    "line": 823,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39423,7 +39504,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 831,
+    "line": 835,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39432,7 +39513,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 838,
+    "line": 842,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39441,7 +39522,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 862,
+    "line": 866,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39450,7 +39531,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 871,
+    "line": 875,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39459,7 +39540,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 874,
+    "line": 878,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39468,7 +39549,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1075,
+    "line": 1079,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39477,7 +39558,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1094,
+    "line": 1098,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39486,7 +39567,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1102,
+    "line": 1106,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -39495,7 +39576,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1191,
+    "line": 1195,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -39504,7 +39585,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1310,
+    "line": 1314,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -39513,7 +39594,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1358,
+    "line": 1362,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_screen_graphs"
@@ -39522,7 +39603,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1359,
+    "line": 1363,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_screen_graphs"
@@ -39531,7 +39612,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1361,
+    "line": 1365,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_screen_graphs"
@@ -39783,7 +39864,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2347,
+    "line": 3117,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -39792,7 +39873,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2432,
+    "line": 3214,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -39801,7 +39882,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2433,
+    "line": 3215,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -39810,7 +39891,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3164,
+    "line": 3944,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_save_settings_to_db"
@@ -39819,7 +39900,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 4764,
+    "line": 5532,
     "module": "spacr.io",
     "nested": false,
     "qualname": "open_crop_source"
@@ -39828,7 +39909,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 5193,
+    "line": 5961,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -39837,7 +39918,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 5194,
+    "line": 5962,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -39846,7 +39927,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 5194,
+    "line": 5962,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -39855,7 +39936,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 5200,
+    "line": 5968,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -39864,7 +39945,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 5204,
+    "line": 5972,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -39873,7 +39954,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 5244,
+    "line": 6012,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_dataset"
@@ -39882,7 +39963,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6445,
+    "line": 7213,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -39891,7 +39972,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6446,
+    "line": 7214,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -39900,7 +39981,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6446,
+    "line": 7214,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -39909,7 +39990,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6683,
+    "line": 7451,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -39918,7 +39999,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6686,
+    "line": 7454,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -39927,7 +40008,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6690,
+    "line": 7458,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -42523,7 +42604,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 839,
+    "line": 843,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -42532,7 +42613,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 1193,
+    "line": 1197,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -42541,7 +42622,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 1370,
+    "line": 1374,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_screen_graphs"
@@ -42559,7 +42640,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "tables",
-    "line": 6434,
+    "line": 7202,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -43581,7 +43662,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_images",
-    "line": 2432,
+    "line": 3214,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "preprocess_img_data"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "test_images",
+    "line": 3219,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -43610,7 +43700,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_mode",
-    "line": 379,
+    "line": 380,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -43619,16 +43709,25 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_mode",
-    "line": 514,
+    "line": 518,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
    },
    {
+    "form": "get",
+    "function_depth": 1,
+    "key": "test_mode",
+    "line": 3165,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "preprocess_img_data"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "test_mode",
-    "line": 2420,
+    "line": 3202,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -43805,7 +43904,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "test_split",
-    "line": 6835,
+    "line": 7603,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -43814,7 +43913,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_split",
-    "line": 6839,
+    "line": 7607,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -44062,7 +44161,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 301,
+    "line": 302,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -44071,7 +44170,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 365,
+    "line": 366,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -44080,7 +44179,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 475,
+    "line": 479,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -44089,7 +44188,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 513,
+    "line": 517,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -44098,7 +44197,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 632,
+    "line": 636,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks_timelapse"
@@ -44116,16 +44215,52 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 1793,
+    "line": 1973,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_concatenate_and_normalize_impl"
    },
    {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "timelapse",
+    "line": 2820,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_rebuild_stacks_from_raw"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "timelapse",
+    "line": 2822,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_rebuild_stacks_from_raw"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "timelapse",
+    "line": 2890,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_resume_normalized_archives"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 2432,
+    "line": 3214,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "preprocess_img_data"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "timelapse",
+    "line": 3216,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -44134,7 +44269,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 2443,
+    "line": 3235,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -44143,7 +44278,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 2445,
+    "line": 3237,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -44152,7 +44287,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 2466,
+    "line": 3262,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -44863,7 +44998,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 353,
+    "line": 354,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -44872,7 +45007,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 507,
+    "line": 511,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -44953,7 +45088,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 370,
+    "line": 372,
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
@@ -45999,7 +46134,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tsne_early_exaggeration",
-    "line": 796,
+    "line": 800,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46019,7 +46154,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tsne_learning_rate",
-    "line": 795,
+    "line": 799,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46039,7 +46174,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tsne_max_iter",
-    "line": 797,
+    "line": 801,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46059,7 +46194,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tsne_perplexity",
-    "line": 794,
+    "line": 798,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46278,7 +46413,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "umap_canvas_width",
-    "line": 1050,
+    "line": 1054,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46298,7 +46433,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "umap_sidebar_width",
-    "line": 1051,
+    "line": 1055,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46401,7 +46536,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 4677,
+    "line": 5445,
     "module": "spacr.io",
     "nested": false,
     "qualname": "_crop_shape_overrides"
@@ -46766,7 +46901,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 375,
+    "line": 376,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -46775,7 +46910,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 402,
+    "line": 406,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -46784,7 +46919,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 410,
+    "line": 414,
     "module": "spacr.core",
     "nested": false,
     "qualname": "preprocess_generate_masks"
@@ -46793,7 +46928,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 864,
+    "line": 868,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46802,7 +46937,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 883,
+    "line": 887,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46811,7 +46946,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 894,
+    "line": 898,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46820,7 +46955,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 949,
+    "line": 953,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46829,7 +46964,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 964,
+    "line": 968,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46838,7 +46973,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 987,
+    "line": 991,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46847,7 +46982,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1066,
+    "line": 1070,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46856,7 +46991,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1072,
+    "line": 1076,
     "module": "spacr.core",
     "nested": false,
     "qualname": "generate_image_umap"
@@ -46865,7 +47000,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1188,
+    "line": 1192,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -46874,7 +47009,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1202,
+    "line": 1206,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -46883,7 +47018,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1213,
+    "line": 1217,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -46892,7 +47027,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1281,
+    "line": 1285,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -46901,7 +47036,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1291,
+    "line": 1295,
     "module": "spacr.core",
     "nested": false,
     "qualname": "reducer_hyperparameter_search"
@@ -47036,7 +47171,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 2381,
+    "line": 3177,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -47045,7 +47180,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 2388,
+    "line": 3184,
     "module": "spacr.io",
     "nested": false,
     "qualname": "preprocess_img_data"
@@ -48273,7 +48408,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "write_random_annotation_column",
-    "line": 6435,
+    "line": 7203,
     "module": "spacr.io",
     "nested": false,
     "qualname": "generate_training_dataset"
@@ -48371,7 +48506,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "z_handling",
-    "line": 614,
+    "line": 629,
     "module": "spacr.external_masks",
     "nested": false,
     "qualname": "plan_external_masks"
