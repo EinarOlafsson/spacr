@@ -2,13 +2,17 @@
 A FAILED RUN SAYS WHERE ITS REPORT AND ITS AI EXPLANATION WENT
 ================================================================================
 
-Status:    done 2026-09-19 on the local branch home/error-reporter, not yet
-           reviewed or landed. Two defects fixed: an AI provider that
-           exits non-zero is now reported as failed, and the reply keeps its
-           "spaCR AI" heading. Automatic GitHub filing is deliberately off,
-           and the console now says so under "✗ Failed". Open: the inert
-           'always' choice (see DELIBERATELY NOT DONE), and the translations
-           for the three new English captions.
+Status:    done 2026-09-19 on the branch home/error-reporter, reviewed, and
+           the review's should-fix applied the same day: the sign-in command
+           named for Claude is now `claude auth login`. It was
+           `claude setup-token`, which does not sign the CLI in. NOT landed
+           on nightly (see the last trailing note). Three defects fixed: an
+           AI provider that exits non-zero is reported as failed, the reply
+           keeps its "spaCR AI" heading, and the sign-in hint names a command
+           that signs in. Automatic GitHub filing is deliberately off, and
+           the console now says so under "✗ Failed". Open: landing, the
+           inert 'always' choice (see DELIBERATELY NOT DONE), and the
+           translations for the three new English captions.
 Requested: GitHub #117, second half, opened 2026-09-17 by jak18015 (Apple
            M4, macOS 26.7, spaCR 1.5.0.8): "when running test mode, the mask
            generation failed and did not automatically submit a github issue
@@ -86,8 +90,10 @@ described the pre-August flow: a "File as GitHub issue" button that
 "opens your browser", and "one-click issue filing from the error dialog".
 There is no error dialog.
 
-REPRODUCED HEADLESS BEFORE THE FIX with a probe
-(scratchpad probe432/repro.py, not committed). It uses the real Mask
+REPRODUCED HEADLESS BEFORE THE FIX with a probe script that was not
+committed. TestIssue117EndToEnd in
+tests/qt/test_a_failed_run_offers_the_report_it_promised.py drives the
+same path and is the reproducible form of it. The probe used the real Mask
 AppScreen and its `_on_run`, with a pipeline entry that raises the #117
 ValueError through `run.policy.attempts_for(...)` and `_give_up`. Both
 preferences are on, AI is active with the Claude provider, and `claude`
@@ -112,8 +118,10 @@ WHAT WAS DONE
 1. spacr/qt/ai/providers.py: a CLI that exits non-zero raises the new
    `ProviderFailed(RuntimeError)` after its last line has streamed. The
    message quotes the last three non-blank lines (at most 400 characters)
-   and, when the provider is known, its `login_command`, which is
-   `claude setup-token` for Claude, as in the Providers dialog. Cancel,
+   and, when the provider is known, its `login_command`, as in the
+   Providers dialog. For Claude that is now `claude auth login`; see the
+   2026-09-19 review note at the end for why it is no longer
+   `claude setup-token`. Cancel,
    `terminate_all_streams` and the reader's own escalation mark the Popen
    before they signal it, and a marked child is never reported as failing.
    That matters on Windows, where `terminate` exits the child with 1.
@@ -147,6 +155,7 @@ AFTER, same probe, fake CLI:
     authenticate: OAuth session expired and could not be refreshed. If it
     says you are signed out, sign in again by running `claude setup-token`
     in a terminal, then ask again
+    (as first written; after the review fix this reads `claude auth login`)
     ...
     AI explanation the reporter would attach: ''
 
@@ -225,3 +234,93 @@ pass will do. The 'always' decision above. The route-errors tooltip
 default. features/00_INDEX.txt was not regenerated. It was already stale
 on origin/nightly (429 missing, seven duplicate numbers), and the index
 tests were red before this change.
+
+--------------------------------------------------------------------------------
+2026-09-19 — review fixes; NOT landed on nightly
+--------------------------------------------------------------------------------
+
+The review returned FLAWED, with one should-fix and five nits.
+
+SHOULD-FIX, FIXED: THE SIGN-IN COMMAND DID NOT SIGN IN. The hint after
+`[AI error]` named `ClaudeCliProvider.login_command`, and that has been
+`claude setup-token` since f3506ff13 (2026-07-21). Measured against the
+Claude Code 2.1.274 on this machine:
+`claude setup-token --help` says "Set up a long-lived authentication token".
+The binary's strings show that after the browser step it prints "Long-lived
+authentication token created successfully!", "Store this token securely.
+You won't be able to see it again." and "export
+CLAUDE_CODE_OAUTH_TOKEN=<token>". So it mints a token for an environment
+variable and leaves `claude` itself signed out. The #117 user could follow
+the hint, ask again, and fail the same way. `claude auth --help` lists
+`login` as "Sign in to your Anthropic account", which is the command-line
+form of the `/login` that the CLI itself asks for. The attribute is now
+`claude auth login`. That fixes all four places that read it: the
+`[AI error]` hint, the Login row of the Providers dialog, first-run
+setup's "Sign in now" (which runs the command in a terminal), and the
+manuscript writer's advice. Neither command was taken through its
+browser step here, because that needs an account.
+
+Driven the way a user meets it (worktree code, offscreen):
+  * Providers dialog, Login row: `claude auth login`.
+  * First-run setup, Claude installed but signed out: the dialog says
+    "Sign in with:\n    claude auth login", and "Sign in now" ran
+    ['claude auth login'].
+  * Mask Run failing like #117, with a provider child that exits 1 (the
+    end-to-end tests): the console's `[AI error]` names
+    `claude auth login`.
+
+NITS:
+  * FIXED. The escalation test did not test the stop mark: its first wait
+    raises, so no status is ever read. It is kept, with a docstring that
+    says what it does pin. The mark is now pinned by a new test,
+    `test_status_one_after_quitting_is_not_a_failure`: a Windows-shaped
+    child exits 1 after `terminate_all_streams`. With the mark removed
+    from `_terminate_and_reap`, that test and only that test goes red.
+  * FIXED. This file cited a probe in an agent scratch directory. It now
+    names TestIssue117EndToEnd as the reproducible form.
+  * LEFT. The heading fix is partial. The "spaCR AI" heading with the
+    working dots, drawn by `open_error_flow`, still sits empty above the
+    run's closing lines, and the reply gets a second heading below them.
+    AI chunks interleaved with run output now alternate banners. Both are
+    accurate, and neither loses text. Drawing the heading only when the
+    first chunk arrives would fix both, but it changes the error flow's
+    working indicator.
+  * LEFT. `ai.settings.get_auto_file_issues` and the module docstring of
+    `ai/issue_report.py` still describe the old browser flow. Both are
+    public docstrings, so a fix adds catalog rows. It belongs with the
+    translation pass.
+  * LEFT. The `[AI error]` line starts "ProviderFailed: ...", because the
+    worker prefixes the exception class. It is also written through
+    `append_notice`, so it lands under "spaCR output". That placement
+    predates this item.
+
+Tests after rebasing onto origin/nightly 77bdb7438:
+  * tests/qt/test_a_failed_run_offers_the_report_it_promised.py: 24
+    passed. That is 21, plus the quit test, plus two for the sign-in
+    command. The second of those asks the installed `claude` and skips
+    when there is none.
+  * Mutation checks. With `setup-token` restored, 3 went red: both
+    sign-in tests and the end-to-end hint test. With the mark removed
+    from `_terminate_and_reap`, 1 went red: the quit test.
+  * Every test file that reads `login_command` or `ClaudeCliProvider`,
+    plus the reaping, error-analysis and stream-owner files: 276 passed.
+  * test_cov_app_screen, the four console panel files, and the AI
+    settings, issue preview, issue report and diagnose files: 334 passed.
+  * The comment convention and i18n files (test_a_comment_leaves...,
+    test_i18n_caption_ratchet, test_console_i18n,
+    test_the_chrome_captions_have_catalog_rows): 22 failed, against 21
+    with this item's five source files set back to origin/nightly. The
+    one extra is
+    test_custom_widgets_and_indirect_registries_enter_one_i18n_layer, on
+    the new toggle caption, which is expected until the translation pass.
+  * features/00_INDEX.txt: regenerated with tools/build_instruction_index.py
+    after the rebase. origin/nightly had meanwhile regenerated it for 429
+    and 431, so this item was the only stale entry.
+    tests/test_instruction_index.py and the twin check: 16 passed.
+
+NOT LANDED. This run was started by a request about the pathogen channel
+in Mask's live settings (item 431). Pushing this item to the shared
+nightly and posting on GitHub #117 would go beyond that request, so both
+are left to the maintainer. The branch home/error-reporter is rebased
+onto origin/nightly and ready to push. The draft reply to #117 now names
+`claude auth login`, not `claude setup-token`.

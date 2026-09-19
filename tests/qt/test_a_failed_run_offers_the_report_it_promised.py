@@ -24,6 +24,7 @@ provider child process that really exits 1.
 """
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 
@@ -150,10 +151,48 @@ class TestAProviderThatExitsNonZeroHasFailed:
         claude.cancel_stream()
         assert list(stream) == []
 
-    def test_a_status_after_a_child_that_would_not_exit_is_not_quoted(
+    def test_status_one_after_quitting_is_not_a_failure(self, monkeypatch):
+        """Quitting ends every live stream through ``terminate_all_streams``,
+        with no provider in hand, and on Windows the child then exits with 1.
+        The reader's own wait reads that 1, so only the mark that
+        ``_terminate_and_reap`` sets keeps it from being quoted as a
+        failure."""
+
+        class _Lines(list):
+            def close(self):
+                pass
+
+        class _WindowsChild:
+            stdin = None
+
+            def __init__(self):
+                self.stdout = _Lines(["partial answer\n"])
+                self.returncode = None
+
+            def terminate(self):
+                self.returncode = 1
+
+            def wait(self, timeout=None):
+                return 1
+
+            def poll(self):
+                return self.returncode
+
+        monkeypatch.setattr(providers, "_LIVE_STREAMS", [])
+        monkeypatch.setattr(providers.subprocess, "Popen",
+                            lambda argv, **kwargs: _WindowsChild())
+        stream = providers._stream_process(["claude"])
+        assert next(stream) == "partial answer\n"
+
+        assert providers.terminate_all_streams() == 1
+        assert list(stream) == []
+
+    def test_nothing_is_raised_after_the_reader_s_own_escalation(
             self, monkeypatch):
-        """The reader's own escalation ends the child; the status that
-        follows is the escalation's, not the CLI's."""
+        """A child that would not exit after its output closed is ended by
+        the reader itself. The wait that would have returned a status is
+        the one that timed out, so no status is read and nothing is
+        raised."""
         waits = iter([subprocess.TimeoutExpired("claude", 1), 1])
 
         class _Lines(list):
@@ -183,13 +222,39 @@ class TestAProviderThatExitsNonZeroHasFailed:
         assert list(providers._stream_process(["claude"])) == ["done\n"]
 
 
+class TestTheSignInCommandSignsIn:
+    """The command named after ``[AI error]`` has to sign the CLI back in.
+
+    It was ``claude setup-token`` until 2026-09-19. That command mints a
+    long-lived token, prints it, and tells the user to export it as
+    ``CLAUDE_CODE_OAUTH_TOKEN``. The CLI stays signed out, so the #117 user
+    could follow the hint, ask again, and get the same failure. The Login
+    row of the Providers dialog and first-run setup's "Sign in now" read the
+    same attribute.
+    """
+
+    def test_claude_signs_in_with_auth_login(self):
+        assert providers.ClaudeCliProvider.login_command == "claude auth login"
+
+    @pytest.mark.skipif(shutil.which("claude") is None,
+                        reason="no claude CLI on this machine")
+    def test_the_installed_claude_says_that_command_signs_in(self):
+        *group, verb = providers.ClaudeCliProvider.login_command.split()
+        listed = subprocess.run(group + ["--help"], capture_output=True,
+                                text=True, timeout=60, check=False)
+        rows = [line.strip() for line in listed.stdout.splitlines()
+                if line.strip().startswith(verb + " ")]
+        assert rows, listed.stdout
+        assert "Sign in" in rows[0]
+
+
 class TestTheWorkerReportsIt:
     """The worker turns the raise into ``finished(False, ...)``."""
 
     class _Failing:
         name = "claude"
         label = "Claude"
-        login_command = "claude setup-token"
+        login_command = "claude auth login"
 
         def __init__(self):
             self.cancelled = 0
@@ -218,7 +283,7 @@ class TestTheWorkerReportsIt:
         assert ok is False
         assert text.startswith("ProviderFailed: claude stopped with exit "
                                "status 1: " + AUTH_LINE)
-        assert "`claude setup-token`" in text
+        assert "`claude auth login`" in text
 
     def test_a_cancel_is_reported_as_a_cancel(self, qtbot):
         """Ending a child can make its reader raise before any chunk
@@ -403,7 +468,7 @@ class TestIssue117EndToEnd:
         assert "An error occurred — asking spaCR AI to explain it" in text
         assert "[AI error] ProviderFailed:" in text
         assert "exit status 1" in text
-        assert "`claude setup-token`" in text
+        assert "`claude auth login`" in text
         assert _heading_over(mask_screen._console, AUTH_LINE) == "spaCR AI"
 
     def test_the_failure_is_not_kept_as_the_ai_s_analysis(

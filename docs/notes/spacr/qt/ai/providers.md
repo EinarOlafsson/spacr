@@ -11,7 +11,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [ChatProvider.__init__](#chatprovider__init__) (1 entry)
 - [Module level](#module-level) (1 entry)
 - [_stream_process](#_stream_process) (2 entries)
-- [ClaudeCliProvider](#claudecliprovider) (1 entry)
+- [ClaudeCliProvider](#claudecliprovider) (2 entries)
 - [GeminiCliProvider.stream_chat](#geminicliproviderstream_chat) (1 entry)
 - [_stream_process and ProviderFailed, 2026-09-19](#_stream_process-and-providerfailed-2026-09-19) (1 entry)
 
@@ -107,6 +107,16 @@ ONE COMMAND, WHOLE, PER PLATFORM. It was a single line carrying both forms joine
 
 CURL ON EVERY SYSTEM, WINDOWS INCLUDED (item 414, 2026-09-15). Windows used to get `npm install -g @anthropic-ai/claude-code`, because install.sh refuses Windows outright ("Windows is not supported by this script"). That form fails with "'npm' is not recognized" on any machine without Node.js, which is what the maintainer met on Windows. Windows now gets Anthropic's own CMD installer from https://code.claude.com/docs/en/setup (retrieved 2026-09-15), `curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd`, run as `cmd /c "..."`. The wrapper is the point: pasted into PowerShell the bare command fails twice, because `curl` can be an alias for Invoke-WebRequest there and Windows PowerShell 5.1 rejects `&&`. Named as a `cmd /c` command, the one copied line runs whole from CMD or PowerShell. Windows 10 (1803+) and 11 ship curl.exe, and install.cmd ends with `exit /b`, so the trailing `del` still runs. macOS and Linux keep the documented `curl -fsSL https://claude.ai/install.sh | bash`. `tests/qt/test_claude_code_install_hint.py` pins both.
 
+### login_command, 2026-09-19
+
+```python
+login_command = "claude auth login"
+```
+
+IT WAS `claude setup-token` FROM f3506ff13 (2026-07-21) UNTIL 2026-09-19, AND THAT COMMAND DOES NOT SIGN THE CLI IN. `claude setup-token --help` in Claude Code 2.1.274 says "Set up a long-lived authentication token". After the browser step it prints the token with "Store this token securely. You won't be able to see it again" and "export CLAUDE_CODE_OAUTH_TOKEN=<token>". That token is meant for CI and scripts, and `claude` stays signed out until the variable is set in its environment. A spaCR started as a macOS app would not inherit a variable exported in a terminal anyway. `claude auth --help` lists `login` as "Sign in to your Anthropic account". It is the command-line form of the `/login` that a signed-out `claude` asks for ("Not logged in · Please run /login"). The strings above come from `--help` and from the 2.1.274 binary. Neither command was taken through its browser step here, because that needs an Anthropic account.
+
+Four places read this attribute, and all four were wrong in the same way: the `[AI error]` hint that `ProviderFailed` builds (GitHub #117), the Login row of the Providers dialog, first-run setup's "Sign in now" button (`setup_slides._prompt_to_set_up`, which runs the command in a terminal), and the manuscript writer's "run `...`" advice. `tests/qt/test_a_failed_run_offers_the_report_it_promised.py` pins the command. When a `claude` is installed, it also asks that binary whether `auth login` is the sign-in.
+
 ## GeminiCliProvider.stream_chat
 
 ### line 423  _(unsure)_
@@ -127,6 +137,6 @@ A provider CLI that exits non-zero has failed, and the line it printed is its er
 
 Measured 2026-09-19 with Claude Code 2.1.274 in an empty HOME: `claude -p "say hi"` prints `Not logged in · Please run /login` and exits 1. The expired-session message in #117 needs an expired session, which could not be produced here, so its exit status is not measured. The check depends only on the status, never on the wording.
 
-The lines are still streamed as they arrive, because a long answer has to show while it is written. The failure is raised after the last line, once the child has been reaped. The message quotes the last three non-blank lines, cut to 400 characters. When a provider is given, it also names that provider's `login_command`. The command is the one the Providers dialog already shows, so the two places agree.
+The lines are still streamed as they arrive, because a long answer has to show while it is written. The failure is raised after the last line, once the child has been reaped. The message quotes the last three non-blank lines, cut to 400 characters. When a provider is given, it also names that provider's `login_command`. The command is the one the Providers dialog already shows, so the two places agree. For Claude it is `claude auth login`. It was `claude setup-token` until review found that `setup-token` only mints a token for an environment variable (see `login_command` under ClaudeCliProvider).
 
-A child that spaCR itself ended does not count as failing. Cancel, quitting through `terminate_all_streams`, and this function's own escalation all mark the Popen before they signal it. The status such a child exits with is spaCR's doing. On POSIX it is a negative signal number. On Windows it is 1, because `Popen.terminate` is `TerminateProcess(handle, 1)`, so it looks exactly like a CLI reporting a failure. The mark is the only way to tell the two apart.
+A child that spaCR itself ended does not count as failing. Cancel and quitting through `terminate_all_streams` mark the Popen before they signal it. This function's own escalation marks it too, although on that path the reader never reads a status, because the wait that would return one is the wait that timed out. The status such a child exits with is spaCR's doing. On POSIX it is a negative signal number. On Windows it is 1, because `Popen.terminate` is `TerminateProcess(handle, 1)`, so it looks exactly like a CLI reporting a failure. The mark is the only way to tell the two apart.

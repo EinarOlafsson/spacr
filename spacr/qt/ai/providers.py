@@ -421,7 +421,7 @@ class ClaudeCliProvider(ChatProvider):
         if _sys.platform.startswith("win")
         else "curl -fsSL https://claude.ai/install.sh | bash"
     )
-    login_command = "claude setup-token"
+    login_command = "claude auth login"
 
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
