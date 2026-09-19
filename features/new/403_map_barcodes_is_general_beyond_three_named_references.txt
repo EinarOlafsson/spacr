@@ -2,8 +2,9 @@
 MAP BARCODES IS GENERAL BEYOND THREE NAMED REFERENCES
 ================================================================================
 
-Status:    DONE 2026-09-15, corrected 2026-09-19. Every part that was asked
-           for is built, on nightly and inside v1.5.0.8: requirements 1 and 2
+Status:    DONE 2026-09-15; corrected, and moved from features/future/ to
+           features/new/, on 2026-09-19. Every part that was asked for is
+           built, on nightly and inside v1.5.0.8: requirements 1 and 2
            were found already built (`BarcodeSet`,
            tests/test_a_barcode_set_is_any_number_of_barcodes.py); 3 and 4 in
            5ff35435c (`NUCLEOTIDE_ALPHABET`, `SearchThresholds`); the
@@ -471,6 +472,8 @@ All four are ancestors of origin/nightly and of v1.5.0.8.
 `NUCLEOTIDE_ALPHABET` is at spacr/barcode_search.py:153 and
 `SearchThresholds` at :624. No test was run for this note.
 
-The file stays in features/future/ for this commit and moves to
-features/new/ in the next, because the list it belongs on is "what spaCR has
-gained".
+MOVED, in the commit after this note was written: `git mv` from
+features/future/ to features/new/, because the list it belongs on is "what
+spaCR has gained". Name and number unchanged. `git grep` for "future/403"
+and for this file's name found no reference in features/, tests/, tools/ or
+docs/ to update.

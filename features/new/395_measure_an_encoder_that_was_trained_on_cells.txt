@@ -3,7 +3,16 @@ MEASURE AN ENCODER THAT WAS TRAINED ON CELLS, BECAUSE THE ONE THAT LOST WAS
 TRAINED ON PHOTOGRAPHS
 ================================================================================
 
-Status:    MEASURED 2026-09-15 -- see "RESULTS (run 2026-09-14 21:35 ->
+Status:    DONE 2026-09-15; moved from features/future/ to features/new/ on
+           2026-09-19. The question was what a cell-trained encoder scores,
+           and it was measured in a harness committed as
+           tools/measure_encoder_retrieval.py: gene balanced accuracy
+           OpenPhenom 0.673 (0.685 joint) against resnet18 0.634, a win on
+           5/5 folds; BiomedCLIP 0.752 beats both; the measured panel, 0.888,
+           beats every encoder. Optional and not owed: TVN/PCA batch
+           correction for OpenPhenom, and SubCell or Cell-DINO once public
+           weights exist.
+           WAS: MEASURED 2026-09-15 -- see "RESULTS (run 2026-09-14 21:35 ->
            2026-09-15 03:05)" below; what was not measured, and why, is under
            "NOT MEASURED". Was: OPEN AND UNBLOCKED, 2026-09-14. Ordinary work, no longer waiting
            on anybody. Filed 2026-09-12; corrected 2026-09-13 when the
@@ -370,3 +379,31 @@ ARTEFACTS (scratch, not committed):
   record. This benchmark already used one fixed scale per channel, so its
   numbers are unaffected. The harness is committed as
   tools/measure_encoder_retrieval.py.
+
+--------------------------------------------------------------------------------
+2026-09-19 — DONE, AND MOVED TO features/new/
+--------------------------------------------------------------------------------
+
+This file was in features/future/ -- "what spaCR might gain next" -- with a
+Status reading MEASURED over a finished measurement. The item asked for a
+number and got one, with controls, so it belongs with what spaCR has gained.
+Moved with `git mv` from features/future/ to features/new/; its name and
+number are unchanged.
+
+Checked before moving: tools/measure_encoder_retrieval.py is in the tree, and
+the RESULTS table and WHAT IT SAYS above are the run's record. The batch-
+dependent scaling this file reported is item 410, fixed in ce92c75c5 (on
+nightly, inside v1.5.0.8), and the ADDENDUM above says this benchmark already
+used a fixed scale per channel, so its numbers stand.
+
+REFERENCES TO THE OLD PATH. `git grep` over the tree for "future/395" and for
+this file's name found one: features/new/386's Status says the follow-up "is
+filed as 395 in features/future/". That line now says where the file is.
+Nothing in tests/, tools/ or docs/ names the path.
+
+ONE CRITERION ABOVE WAS NOT MET UNTIL TODAY. HOW TO KNOW IT WORKED asks that
+the result be "written into 386 as a NEW TABLE beside the 2026-09-12 figures".
+386 had no OpenPhenom or BiomedCLIP number in it. The gene and position
+columns of the RESULTS table above are now at the foot of 386, dated
+2026-09-19, as a separate table with the plate named and a warning not to
+read it as one column with 2026-09-12's.

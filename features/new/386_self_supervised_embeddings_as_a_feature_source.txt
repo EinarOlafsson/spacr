@@ -10,8 +10,10 @@ Status:    DONE 2026-09-12, verified against the tree 2026-09-13; this header
            the screen at spacr/qt/screens/embeddings.py registered in
            app.py:1517 all exist. The measurement ran and the answer is NO --
            kNN gene balanced accuracy 0.695 embeddings against 0.894 panel --
-           and the follow-up is filed as 395 in features/future/
-           (395_measure_an_encoder_that_was_trained_on_cells.txt).
+           and the follow-up was filed as 395 in features/future/, and moved,
+           done, to features/new/ on 2026-09-19
+           (395_measure_an_encoder_that_was_trained_on_cells.txt); its
+           2026-09-15 numbers are at the foot of this file.
            The hold is lifted: 1.5.0.5 is tagged, DOI 10.5281/zenodo.22692340.
 
            `spacr/embeddings.py` takes the crops spacr.crops already produces
@@ -444,3 +446,35 @@ something the panel does not. Retrieval of a KNOWN phenotype cannot answer it,
 since the positive control is the screen's top hit precisely because the panel
 already detects it. That needs a different design, and it is named in 395's
 closing section so it is not lost.
+
+--------------------------------------------------------------------------------
+2026-09-19 — 395'S FRESH RUN, AS A SEPARATE TABLE
+--------------------------------------------------------------------------------
+
+395's HOW TO KNOW IT WORKED asks that its result be "written into 386 as a
+NEW TABLE beside the 2026-09-12 figures rather than replacing them or merging
+with them". It had not been. Copied here from 395's RESULTS section: run
+2026-09-14 21:35 -> 2026-09-15 03:05, plate1 of the TSG101 screen
+(/mnt/firecuda2/methods_paper/plate1), harness tools/measure_encoder_retrieval.py,
+kNN k=15, five folds grouped by well. Balanced accuracy, mean +/- sd over
+folds; gene is c1 vs c2, the position control c5 vs c6.
+
+                      gene c1-c2      position c5-c6
+  panel (156)         0.888+/-.024    0.535+/-.037
+  panel3ch (116)      0.902+/-.019    0.506+/-.040
+  resnet18            0.634+/-.040    0.520+/-.016
+  resnet18_imnorm     0.663+/-.027    0.510+/-.027
+  openphenom          0.673+/-.030    0.516+/-.027
+  openphenom_joint    0.685+/-.034    0.512+/-.037
+  biomedclip          0.752+/-.030    0.534+/-.007
+
+THIS IS A DIFFERENT RUN FROM THE 2026-09-12 TABLE ABOVE, and the two are not
+one column: a different harness, and the 2026-09-12 plate is not known.
+resnet18 reads 0.634 here against 0.695 there, which 395 records as a
+difference of harness and data, not a finding about the encoder.
+
+What the run says, from 395: the cell-trained encoder (OpenPhenom) beats
+ImageNet resnet18 on 5/5 folds, roughly half of it preprocessing; BiomedCLIP,
+not trained on cells, beats OpenPhenom by 6.8 points; every encoder loses to
+the measured panel, the best by 13.6 points. So this item's answer stays NO
+for every encoder measured so far. Nothing was re-run for this note.
