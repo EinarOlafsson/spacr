@@ -2,7 +2,16 @@
 SEVENTY-SEVEN API ROWS NAME A SETTING THAT DOES NOT EXIST
 ================================================================================
 
-Status:    PINNED 2026-09-14, and the third WHAT-TO-DO bullet is what was
+Status:    DONE 2026-09-19. The SECOND bullet, the one still open, is
+           done: all twenty-one tooltip-without-type keys are read by
+           live code, so each was TYPED (none was a stale tooltip), and
+           the dead `umap.reduction_method` row is gone because the
+           generator no longer takes dotted tooltip identities for
+           settings. `barcode_qc` is left untyped ON PURPOSE and the pin
+           says why. 78 absent rows -> 56, every one explained; the
+           2026-09-19 note at the foot has the measurements. Earlier
+           status text follows unchanged, as the record.
+           PINNED 2026-09-14, and the third WHAT-TO-DO bullet is what was
            outstanding: the 77 are now a NAMED SET, not a number.
            `ABSENT_FROM_EXPECTED_TYPES` at line 103 of
            tools/build_setting_consumer_map.py lists every one grouped by
@@ -428,3 +437,84 @@ it changes no output it writes.
       became `from tests.child_env import child_env`, which is what the other
       four callers of that helper do and does not put the test directory on
       the import path.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE SECOND BULLET: THE TWENTY-ONE ARE TYPED, THE DUPLICATE ROW
+IS GONE, AND barcode_qc STAYS UNTYPED FOR A REASON
+--------------------------------------------------------------------------------
+
+Taken under the maintainer's "Fix them, post a notice" for the Codex-lane
+files (325, 2026-09-19). What was left: "decide per key whether the type is
+missing or the tooltip is stale", give `barcode_qc` a type, remove the dead
+`umap.reduction_method` row, re-pin.
+
+PER KEY, MEASURED BY READ SITE, NOT BY GREP OF THE NAME: all twenty-one are
+read by live code, so no tooltip was stale and every one was TYPED, with the
+type its own tooltip states (None admitted where it says "Default None"):
+
+    generate_score_heatmap   folders csv_name data_column csv cv_csv
+                             data_column_cv columnID control_sgrnas
+                             fraction_grna
+    interpret_vision_model   scores feature_importance
+                             permutation_importance shap shap_sample
+                             include_all
+    analyze_percent_positive filter_1 value_col threshold
+    the picture panel        red_channel green_channel blue_channel
+
+  `data_column` also takes a list (ml.py hands plot functions
+  ['cell_count']). `threshold` is the widest, (int, float, str, list,
+  None), because two apps share the name: percent-positive ships 2000 and
+  Annotate ships '' and takes 'q1'-'q9'. The picture channels are plain
+  `int` although the panel lets a channel be "not drawn": declaring None on
+  a key ending in `_channel` makes the Qt form a clearable plane box
+  (`_is_clearable_plane_setting`), a widget change nobody asked for, and
+  the picture panel already offers None through its own ChannelPicker.
+
+WHY A WRONG TYPE WOULD HAVE COST SOMETHING: `spacr.validate._check_types`
+reports a mismatch as an ERROR and the CLI refuses on one. Checked: no GUI
+app's shipped defaults carry any of the 21 (resolve_default_settings over
+all 32 app keys, whose type problems are identical before and after), and
+the four factories that do set them -- default_settings_analyze_percent_
+positive, set_interpret_vision_model_defaults, set_annotate_default_
+settings, picture_settings.OWN_DEFAULTS -- pass `_check_types` as shipped
+and after a settings-CSV round trip. That check is now a test.
+
+ONE LABEL MOVED WITH IT. `control_sgrnas` is now a typed key containing
+"grna", and tests/test_setting_labels_spell_the_terms.py holds every such
+label to the gRNA casing: it rendered "Control sgrnas". CASED_TERMS in
+spacr/object_roles.py gains sgrna/sgrnas; the label reads "Control
+sgRNAs". Owed to the translation pass.
+
+THE DUPLICATE ROW. Its cause is now known and is the generator's, as this
+file predicted: `umap.reduction_method` is an app-qualified TOOLTIP identity
+(`tools/build_i18n_catalogs.py` files an app's own help for a shared key as
+`<app>.<key>` and says these "are not setting keys"). `setting_keys()` took
+every SETTING_TOOLTIPS key, and the f-string `settings.get(f'{name}_method')`
+in validate._describe_objects matched its `_method` tail -- a row naming no
+symbol. `setting_keys()` now skips dotted keys; regenerating changed
+SETTING_API_TARGETS by exactly that one row (767 -> 766) and dropped
+`regression.src`, `umap.metric`, `umap.n_neighbors` from the JSON's unread
+list. docs/setting_consumers.json was regenerated too: the target_count guard
+needs it, and most of its diff is line numbers that had already drifted
+(1,409 lines changed by a regeneration with NO source change, measured
+before this edit).
+
+barcode_qc IS NOT TYPED, AND THE PIN'S OLD ADVICE WAS WRONG. It said typing
+it "is the safer of the two fixes". It is also the APP_KEY of
+spacr/sequencing_qc.py, whose blurb lands in `descriptions` under the same
+name once that module imports. A typed key must have a tooltip
+(tests/qt/test_tooltips.py), and the Qt `get_tooltips` lays `tooltips` over
+`descriptions`, so help written for the flag would replace the Barcode QC
+app's description wherever the catalog shows it. Typing it needs the flag
+renamed first -- a change to spacr/sequencing.py's contract, not done here.
+
+RE-PINNED: the absent set is 56 (late_registration 52, app_key 3,
+catalog_only 1: barcode_qc), `tooltip_without_type` is kept as an EMPTY
+cause so an arrival is named, and CATALOG_ONLY_UNREAD is empty.
+tests/test_the_rows_expected_types_cannot_see_are_pinned.py: the duplicate-
+row test now asserts no dotted row and no dotted vocabulary key; two new
+tests hold the 21 to their declared types and the shipped factories to
+them. 9 passed. Red before AND after this change, not caused by it:
+test_the_settings_panel_nests (Intensity Handling), the stranded
+DINOCell/SAMCell reviewed translations, and seven runtime-catalog/coverage
+tests.

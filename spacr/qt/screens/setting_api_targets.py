@@ -748,7 +748,6 @@ SETTING_API_TARGETS = {
     'ultrack_max_distance': ('spacr.object', 'generate_cellpose_masks_sam', True),
     'ultrack_n_workers': ('spacr.object', 'generate_cellpose_masks_sam', True),
     'um_per_px': ('spacr.foreign', 'import_project', True),
-    'umap.reduction_method': ('spacr.validate', '', False),
     'umap_canvas_width': ('spacr.core', 'generate_image_umap', True),
     'umap_sidebar_width': ('spacr.core', 'generate_image_umap', True),
     'uninfected': ('spacr.measure', 'measure_crop', True),

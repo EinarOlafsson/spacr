@@ -10,7 +10,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [canonical_feature_selection](#canonical_feature_selection) (1 entry)
 - [BarcodeSet.resolve_groups](#barcodesetresolve_groups) (1 entry)
 - [barcode_set_from_settings](#barcode_set_from_settings) (3 entries)
-- [Module level](#module-level) (110 entries)
+- [Module level](#module-level) (111 entries)
 - [_merge_declarations](#_merge_declarations) (2 entries)
 - [_takes_an_argument](#_takes_an_argument) (1 entry)
 - [set_default_settings_preprocess_generate_masks](#set_default_settings_preprocess_generate_masks) (21 entries)
@@ -470,6 +470,14 @@ Every type below is the type of the value that module already ships, and tests/t
 ```
 
 A LIST OF BARCODES INSTEAD OF THREE NAMED ONES. Absent, which is what every settings file written so far has, means the three above: `barcode_set_from_settings` returns None and the run decodes exactly what it decoded before sets existed. Declared rather than merely tolerated so a panel can collect one and `check_settings` keeps the value instead of dropping it.
+
+### lines 3610-3630
+
+```python
+'folders': (list, type(None)),
+```
+
+THE TWENTY-ONE THAT HAD PROSE AND NO TYPE (397, typed 2026-09-19). Each had a tooltip in `tooltips` and no entry here, so a user read what the setting takes and neither `check_settings`, `spacr.validate` nor the CLI could hold a value to it. Every one is read by live code -- `generate_score_heatmap`, `interpret_vision_model`, `analyze_percent_positive`, the picture panel's channel choice -- so none was a stale tooltip, and each takes the type its own tooltip states. `None` is admitted where the tooltip says "Default None". `threshold` is the widest because two apps share the name: percent-positive ships 2000, Annotate ships '' and takes quantile codes and lists. The picture channels are plain `int`, as their tooltip says: a declared `None` would turn any `*_channel` into a clearable plane box (`_is_clearable_plane_setting`), and the picture panel already offers "not drawn" through its own picker. `barcode_qc` is deliberately NOT here; `tools/build_setting_consumer_map.py` says why.
 
 ### lines 4769-4775
 

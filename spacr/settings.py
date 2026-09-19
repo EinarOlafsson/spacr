@@ -3606,6 +3606,28 @@ expected_types = {
     'circularize': bool,
     'nr': int,
     'save_dtype': str,
+
+    'folders': (list, type(None)),
+    'csv_name': (str, type(None)),
+    'data_column': (str, list, type(None)),
+    'csv': (str, type(None)),
+    'cv_csv': (str, type(None)),
+    'data_column_cv': (str, type(None)),
+    'columnID': (str, type(None)),
+    'control_sgrnas': (list, type(None)),
+    'fraction_grna': (str, type(None)),
+    'scores': (str, type(None)),
+    'feature_importance': bool,
+    'permutation_importance': bool,
+    'shap': bool,
+    'shap_sample': bool,
+    'include_all': bool,
+    'filter_1': (list, type(None)),
+    'value_col': (str, type(None)),
+    'threshold': (int, float, str, list, type(None)),
+    'red_channel': int,
+    'green_channel': int,
+    'blue_channel': int,
 }
 
 _clone_organelle_registry(expected_types)

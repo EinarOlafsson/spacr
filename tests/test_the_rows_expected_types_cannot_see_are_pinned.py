@@ -22,11 +22,12 @@ far came from an instrument rather than from the table:
     sees none of them, so the set is measured in a CHILD INTERPRETER: in a
     pytest process any earlier test that imported ``spacr.convert`` would make
     this one pass or fail on test ordering.
-  * WHICH TABLE. Twenty-one are in the module-scope ``tooltips`` and in no
+  * WHICH TABLE. Twenty-one were in the module-scope ``tooltips`` and in no
     type table. The note on 397 that dismissed this class -- "ALL 77 have a
     tooltip, so tooltip presence cannot discriminate" -- was reading the EN
     CATALOG's tooltips, which every row has by construction because the
-    catalog is unioned into the generator's vocabulary.
+    catalog is unioned into the generator's vocabulary. All twenty-one were
+    typed on 2026-09-19; the last tests below hold them to their tooltips.
   * WHAT COUNTS AS A SETTING. Three are app names from
     ``spacr.settings.descriptions``, carried in the catalog's
     ``SETTING_TOOLTIPS`` byte for byte beside the real per-setting prose.
@@ -206,23 +207,19 @@ def test_the_unexplained_rows_each_carry_a_reason(measured):
     assert not thin, f"a reason that explains nothing: {sorted(thin)}"
 
 
-def test_the_duplicate_row_is_still_degenerate_and_still_the_only_dotted_one(
-        measured):
-    """The anomaly 397 recorded rather than removed, pinned so a fix is seen.
+def test_no_row_is_keyed_by_an_app_qualified_tooltip_identity(measured):
+    """The duplicate 397 recorded is gone, and no dotted key can earn a row.
 
-    ``umap.reduction_method`` renders nothing -- empty symbol, so no anchor is
-    emitted -- while the bare ``reduction_method`` carries the working row.
-    Removing the dotted row is a change to a GENERATED table and belongs with
-    the generator's next pass; when that happens this test and the set above
-    both fail, which is the point.
+    ``umap.reduction_method`` rendered nothing -- empty symbol, so no anchor
+    was emitted -- while the bare ``reduction_method`` carried the working
+    row. A dotted catalog key is an app-qualified TOOLTIP identity
+    (``tools/build_i18n_catalogs.py`` files ``<app>.<key>`` help that way),
+    not a setting, so the generator no longer takes one into its vocabulary.
     """
     targets = measured["targets"]
     dotted = sorted(k for k in targets if "." in k)
-    assert dotted == ["umap.reduction_method"], (
-        f"the dotted rows are no longer just the one: {dotted}")
-    module, symbol, exact = targets["umap.reduction_method"]
-    assert (symbol, exact) == ("", False), (
-        f"the duplicate row now renders something: {(module, symbol, exact)}")
+    assert dotted == [], f"rows keyed by a dotted tooltip identity: {dotted}"
+    assert not any("." in key for key in generator.setting_keys())
     bare_module, bare_symbol, bare_exact = targets["reduction_method"]
     assert bare_exact and bare_symbol, (
         "the bare reduction_method row is the one that works; it has stopped: "
@@ -284,3 +281,72 @@ def test_the_catalog_only_rows_are_read_exactly_where_the_pin_says(measured):
 def test_the_parsed_table_is_the_one_the_gui_imports(measured):
     """The pin is parsed from the file; the panels import it. Same dict."""
     assert measured["runtime_table"] == "same", measured["runtime_table"]
+
+
+#: The twenty-one keys 397 found with a tooltip and no type, and the type
+#: each tooltip states. ``None`` is admitted where the tooltip says
+#: "Default None".
+_TYPED_ON_2026_09_19 = {
+    "folders": (list, type(None)),
+    "csv_name": (str, type(None)),
+    "data_column": (str, list, type(None)),
+    "csv": (str, type(None)),
+    "cv_csv": (str, type(None)),
+    "data_column_cv": (str, type(None)),
+    "columnID": (str, type(None)),
+    "control_sgrnas": (list, type(None)),
+    "fraction_grna": (str, type(None)),
+    "scores": (str, type(None)),
+    "feature_importance": bool,
+    "permutation_importance": bool,
+    "shap": bool,
+    "shap_sample": bool,
+    "include_all": bool,
+    "filter_1": (list, type(None)),
+    "value_col": (str, type(None)),
+    "threshold": (int, float, str, list, type(None)),
+    "red_channel": int,
+    "green_channel": int,
+    "blue_channel": int,
+}
+
+
+def test_the_twenty_one_carry_the_type_their_tooltip_states():
+    import spacr.settings as S
+
+    wrong = {key: S.expected_types.get(key)
+             for key, declared in _TYPED_ON_2026_09_19.items()
+             if S.expected_types.get(key) != declared}
+    assert not wrong, f"declared differently than 397 decided: {wrong}"
+    untipped = sorted(k for k in _TYPED_ON_2026_09_19 if k not in S.tooltips)
+    assert not untipped, f"typed with no tooltip to state the type: {untipped}"
+
+
+def test_the_factories_that_ship_them_pass_their_own_type_check():
+    """A declared type that refuses a shipped default is a new ERROR.
+
+    ``spacr.validate`` reports a type mismatch as an ERROR and the CLI then
+    refuses the run, so each declaration is checked against the defaults of
+    every factory that sets one of these keys, and against those defaults
+    after a settings-CSV round trip turns every value into a string.
+    """
+    import spacr.settings as S
+    from spacr.picture_settings import OWN_DEFAULTS
+    from spacr.validate import _check_types, coerce_expected_types
+
+    shipped = [
+        S.default_settings_analyze_percent_positive({}),
+        S.set_interpret_vision_model_defaults({}),
+        S.set_annotate_default_settings({}),
+        dict(OWN_DEFAULTS),
+    ]
+    keys = set(_TYPED_ON_2026_09_19)
+    problems = []
+    for defaults in shipped:
+        ours = {k: v for k, v in defaults.items() if k in keys}
+        assert ours, "a factory named here no longer sets any of the keys"
+        for settings in (ours, {k: str(v) for k, v in ours.items()
+                                if not isinstance(v, (list, tuple))}):
+            problems += [p.message for p in
+                         _check_types(coerce_expected_types(settings))]
+    assert not problems, problems
