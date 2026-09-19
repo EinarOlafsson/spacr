@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-409 in features/new, 16 in features/future. NEITHER LIST BLOCKS A RELEASE.
+410 in features/new, 16 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -503,3 +503,4 @@ NEW FEATURES
   419  MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
   420  THE SETUP SCREEN INSTALLS THE AI PROVIDER IT OFFERS, INSTEAD OF PRINTING A LINK
   429  A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE
+  431  MASK SETTINGS FOLLOW THE CHANNELS THE USER SETS -- FORM, LIVE SETTINGS, TABLE

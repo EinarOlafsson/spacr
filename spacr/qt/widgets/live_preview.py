@@ -83,6 +83,8 @@ LOG = logging.getLogger("spacr.qt.live_preview")
 
 SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
 
+_PLANE_ROLE = int(Qt.UserRole) + 1
+
 #: Images drawn at once before the selection is truncated. One keeps the
 #: panel behaving as it always did until the user asks for more.
 DEFAULT_MAX_IMAGES = 1
@@ -2168,6 +2170,54 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """The sentence stating this preview is a sample of N of M sets."""
         return getattr(self, "_sample_note", "")
 
+    def regroup_the_folder(self) -> bool:
+        """Group the loaded folder again, by the naming the form names now.
+
+        The table is grouped when a folder is loaded, with the
+        ``metadata_type`` and ``custom_regex`` the Mask form held at that
+        moment. Loading first and choosing the naming second left every file
+        under one column until something else reloaded the folder. The
+        screen calls this when either setting changes. The folder's file
+        names are read off the GUI thread, and nothing is decoded.
+
+        :returns: ``True`` when a regrouping was started, ``False`` when no
+            image is loaded.
+        """
+        path = self._image_path
+        if path is None:
+            return False
+        folder = Path(path).parent
+        meta, custom = self._regex_config()
+        self._regroup_token = getattr(self, "_regroup_token", 0) + 1
+        token = self._regroup_token
+        self._load_jobs.submit(
+            lambda: enumerate_image_sets(folder, SUPPORTED_SUFFIXES,
+                                         meta, custom),
+            lambda found, _t=token: self._adopt_the_regrouping(
+                _t, folder, meta, custom, found))
+        return True
+
+    def _adopt_the_regrouping(self, token: int, folder: Path, meta: str,
+                              custom, found) -> None:
+        """Show a regrouping, unless a newer one or another folder won.
+
+        :param token: which :meth:`regroup_the_folder` call produced it.
+        :param folder: the folder that was grouped.
+        :param meta: the naming dialect it was grouped by.
+        :param custom: the custom pattern, or ``None``.
+        :param found: ``(sets, channels)`` from
+            :func:`~spacr.qt.widgets.preview_controls.enumerate_image_sets`.
+        """
+        if token != getattr(self, "_regroup_token", 0):
+            return
+        if self._image_path is None or Path(self._image_path).parent != folder:
+            return
+        sets, channels = found
+        self._sampler.adopt(folder, sets, channels,
+                            metadata_type=meta, custom_regex=custom)
+        self._refresh_source_selectors()
+        self._announce_sample()
+
     def _regex_config(self) -> tuple:
         """The naming dialect the user configured, for grouping their files.
 
@@ -2204,7 +2254,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
         Built from the same sample the count field sizes, so the table is a
         readable form of what the dropdown listed rather than a second,
-        differently-populated view of the folder.
+        differently-populated view of the folder. See
+        :meth:`_set_table_columns` for which columns there are.
         """
         table = getattr(self, "_set_table", None)
         if table is None:
@@ -2221,32 +2272,80 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 chosen = None
             if chosen is not None and chosen not in sets:
                 sets = sorted(sets + [chosen], key=lambda s: s.key)
-        channels = sorted({c for s in sets for c in s.channels})
+        columns = self._set_table_columns(sets)
         table.blockSignals(True)
         try:
             table.clear()
             table.setRowCount(len(sets))
-            table.setColumnCount(len(channels) or 1)
+            table.setColumnCount(len(columns))
             table.setHorizontalHeaderLabels(
-                [f"ch {c}" for c in channels] or ["image"])
+                [caption for caption, _chan, _plane in columns])
             table.setVerticalHeaderLabels([s.label for s in sets])
             for row, image_set in enumerate(sets):
-                for col, chan in enumerate(channels or [None]):
+                for col, (_caption, chan, plane) in enumerate(columns):
                     name = (image_set.channels.get(chan) if chan is not None
                             else next(iter(image_set.channels.values()), ""))
                     if not name:
                         continue
-                    planes = len(image_set.planes.get(chan) or ()) or 1
+                    key = chan if chan is not None else next(
+                        iter(image_set.channels), None)
+                    planes = len(image_set.planes.get(key) or ()) or 1
                     text = name if planes <= 1 else f"{name}  ({planes}z)"
                     item = table_item(text)
-                    item.setToolTip(str(image_set.path(chan)))
-                    item.setData(Qt.UserRole, str(image_set.path(chan)))
+                    item.setToolTip(str(image_set.path(key)))
+                    item.setData(Qt.UserRole, str(image_set.path(key)))
+                    if plane is not None:
+                        item.setData(_PLANE_ROLE, int(plane))
                     table.setItem(row, col, item)
             table.resizeColumnsToContents()
             header = table.horizontalHeader()
             header.setSectionResizeMode(QHeaderView.Stretch)
         finally:
             table.blockSignals(False)
+
+    def _set_table_columns(self, sets) -> List[Tuple[str, Optional[str],
+                                                        Optional[int]]]:
+        """The table's columns, as ``(caption, channel ID, plane)``.
+
+        Three sources of channels, in this order:
+
+        * the channel IDs the naming dialect read out of the file names,
+          taken from the WHOLE folder rather than from the sample, so a
+          channel that only some fields have keeps its column whichever
+          fields the sample drew;
+        * files the dialect could not read share one column captioned
+          "image", not "ch" -- a channel with no number was how every file
+          of a folder in another naming came to sit under one column;
+        * when no file name carries a channel at all and the loaded image
+          holds several planes on its last axis, one column per plane, so a
+          folder of multi-channel files is laid out by channel too. A cell
+          there opens its file and shows that plane, the same plane the
+          channel spin boxes in Live settings number. More planes than those
+          spin boxes can name is taken for something other than channels.
+
+        :param sets: the sampled image sets the rows show.
+        :returns: the columns, never empty.
+        """
+        found = {chan for image_set in sets for chan in image_set.channels}
+        try:
+            named = set(self._sampler.channels or ())
+        except Exception:                                    # noqa: BLE001
+            named = set()
+        named = sorted((named | found) - {""})
+        unread = "" in found
+        columns: List[Tuple[str, Optional[str], Optional[int]]] = [
+            (f"ch {chan}", chan, None) for chan in named]
+        if named:
+            if unread:
+                columns.append(("image", "", None))
+            return columns
+        image = self._image
+        planes = (int(image.shape[2])
+                  if image is not None and getattr(image, "ndim", 0) == 3
+                  else 0)
+        if unread and 1 < planes <= int(self._cell_channel.maximum()) + 1:
+            return [(f"ch {plane}", "", plane) for plane in range(planes)]
+        return [("image", "" if unread else None, None)]
 
     def max_images(self) -> int:
         """How many images may be drawn at once."""
@@ -2303,9 +2402,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._table_row, self._table_col = active_row, active_col
         self._sync_table_selection()
         item = self._set_table.item(active_row, active_col)
-        path = item.data(Qt.UserRole) if item is not None else None
-        if path:
-            self.load_image(Path(path))
+        self._open_cell(item)
 
     def _sync_table_selection(self) -> None:
         """Show the selection in the table, active cell current."""
@@ -2374,7 +2471,30 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 self._fov_box.setCurrentIndex(index)
         finally:
             self._fov_box.blockSignals(False)
-        self.load_image(Path(path))
+        self._open_cell(item)
+
+    def _open_cell(self, item) -> None:
+        """Show the file a table cell names, at the plane it names if any.
+
+        A plane column (see :meth:`_set_table_columns`) names one plane of a
+        multi-channel file. The file is read only when it is not the one on
+        screen already, so moving along a row changes the plane shown and
+        reads nothing.
+
+        :param item: the table cell, or ``None``.
+        """
+        path = item.data(Qt.UserRole) if item is not None else None
+        if not path:
+            return
+        plane = item.data(_PLANE_ROLE)
+        if (plane is None or self._image is None
+                or str(self._image_path) != str(path)):
+            if not self.load_image(Path(path)):
+                return
+        if plane is None:
+            return
+        self._select_display_channel(int(plane))
+        self._on_display_channel_changed()
 
     def _refresh_mip_toggle(self) -> None:
         """Enable the MIP switch only where there is a stack to project.

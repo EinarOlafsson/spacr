@@ -1600,3 +1600,38 @@ Two changes. `_managed_widgets()` now names both spin boxes, and so does `_propa
 
 The existing check, `tests/qt/test_live_preview_channels.py::test_the_dialog_shows_a_row_for_each_channel`, read the row's CAPTION, which was there both times; it passed throughout. `tests/qt/test_live_settings_keep_every_channel_on_reopen.py` asks the spin box.
 
+## LivePreviewPanel._set_table_columns
+
+### added 2026-09-19 (431)
+
+```python
+columns = self._set_table_columns(sets)
+```
+
+GitHub issue #119 (jak18015, 1.5.0.8, macOS): "Columns for channels don't all show up reliably and images are all under a column called 'ch' and there are no individual channel columns". Three defects, each measured on a built Mask screen with the preview open and `src` set to a folder:
+
+* A file whose name the naming dialect cannot read is enumerated with channel ID `""`, and the header was `f"ch {c}"` -- a column captioned "ch ". A folder of three-channel TIFFs in any naming other than the form's therefore showed every file under that one column while the channel dropdown beside it offered Ch 0, Ch 1 and Ch 2. Such a column is now captioned "image", and when no file name carries a channel at all and the loaded image has several planes on its last axis, each plane gets its own "ch N" column.
+* The columns were the channel IDs of the SAMPLED sets. A channel that only some fields have appeared or not with the random draw -- "don't all show up reliably". They now come from `ImageSetSampler.channels`, which is the whole folder.
+* The plane-column cap is the channel spin boxes' maximum plus one (nine): the segmentation channels cannot name a plane beyond that, and a last axis longer than that is more likely a stack read the other way round than a channel axis.
+
+## LivePreviewPanel._open_cell
+
+### added 2026-09-19 (431)
+
+```python
+self._open_cell(item)
+```
+
+A plane column's cell carries the plane in `_PLANE_ROLE` beside the path in `Qt.UserRole`. The file is read only when it is not the one on screen, so moving along a row of a multi-channel file changes the plane shown and reads nothing; the plane is chosen through the same display-channel dropdown a user picks from, and `_on_display_channel_changed` redraws.
+
+## LivePreviewPanel.regroup_the_folder
+
+### added 2026-09-19 (431)
+
+```python
+lambda: enumerate_image_sets(folder, SUPPORTED_SUFFIXES,
+```
+
+The grouping is decided when a folder loads, with the `metadata_type` and `custom_regex` the Mask form held at that moment. Loading a cellvoyager folder while the form said `cq1` and then choosing `cellvoyager` left all 92 files under one column; nothing re-read the folder until another image load missed the sampler's cache. The screen now calls this 400 ms after either setting changes (`AppScreen._wire_live_preview_naming`). The enumeration reads file names only and runs through the panel's `JobRunner`, and `adopt` files it under the dialect's cache key, so `_refresh_source_selectors` finds it rather than scanning the plate again on the GUI thread.
+
+Seen and not changed: `load_source_payload` still enumerates on the worker with the DEFAULT dialect, so a folder opened under any other naming is scanned a second time on the GUI thread by `_refresh_source_selectors`. The result is right; only the cost is paid twice.

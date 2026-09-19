@@ -4702,6 +4702,42 @@ class AppScreen(QWidget):
         self._live_src_timer.timeout.connect(
             lambda w=src_widget: self._autoload_live_preview(w.text()))
         src_widget.textChanged.connect(lambda _t: self._live_src_timer.start())
+        self._wire_live_preview_naming()
+
+    def _wire_live_preview_naming(self) -> None:
+        """Regroup the preview's table when the file naming changes.
+
+        ``metadata_type`` and ``custom_regex`` decide how the preview groups
+        a folder's files into fields and channels. Changing either after
+        loading left the table grouped the old way, which for a folder the
+        old naming cannot read is every file under a single column. The same
+        400 ms wait as the ``src`` field, so a pattern typed a character at a
+        time is read once.
+        """
+        panel = getattr(self, "_live_preview", None)
+        widgets = getattr(self._settings_model, "_widgets", {}) or {}
+        if panel is None or not callable(
+                getattr(panel, "regroup_the_folder", None)):
+            return
+        timer = QTimer(self)
+        timer.setSingleShot(True)
+        timer.setInterval(400)
+        timer.timeout.connect(panel.regroup_the_folder)
+        self._live_naming_timer = timer
+        for key in ("metadata_type", "custom_regex"):
+            widget = widgets.get(key)
+            if widget is None:
+                continue
+            for name in ("currentIndexChanged", "textChanged",
+                         "value_changed"):
+                signal = getattr(widget, name, None)
+                if signal is None:
+                    continue
+                try:
+                    signal.connect(lambda *_args: timer.start())
+                except Exception:                            # noqa: BLE001
+                    continue
+                break
 
     def _maybe_hide_empty_state(self, text: str) -> None:
         """Hide the empty-state card once the source field names something real.

@@ -4108,3 +4108,12 @@ for key in object_switch_keys("cell"):
 
 `cell_channel` is not a form-shaping key -- cell rows are never hidden -- so nothing watched it, and typing a cell channel under Essentials changed nothing on the form. It is watched now with the same in-place pass as the other object channels, and kept out of `_object_switches_on_this_form`, which `tests/qt/test_a_channel_number_reveals_rather_than_reloads.py` holds to be a subset of the shaping keys.
 
+## AppScreen._wire_live_preview_naming
+
+### added 2026-09-19 (431)
+
+```python
+timer.timeout.connect(panel.regroup_the_folder)
+```
+
+For GitHub issue #119: see the note on `LivePreviewPanel.regroup_the_folder`. Wired to `textChanged` behind a 400 ms single shot rather than to `editingFinished`, so a settings file applied programmatically regroups too, and a pattern typed a character at a time is read once.

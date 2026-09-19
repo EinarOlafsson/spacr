@@ -1,0 +1,213 @@
+================================================================================
+MASK SETTINGS FOLLOW THE CHANNELS THE USER SETS -- FORM, LIVE SETTINGS, TABLE
+================================================================================
+
+Status:    DONE 2026-09-19 on branch home/mask-settings-ui, local commits, not
+           pushed. All three reports reproduced headless by driving the
+           widgets, fixed, and held by 17 tests that press the controls; each
+           test was run against the unfixed modules and failed there. OWED:
+           the consolidated i18n pass for the docstrings listed below, one
+           look on a real macOS machine, and the reporter's confirmation on
+           #119 and #120.
+Requested: 2026-09-19, by the maintainer, in these words:
+
+             "in mask generation live settings , with per object settings on
+             abd pathogen chosen i dont have the option to choose pathogen
+             channel in the love settings, only in the per object settings."
+
+           and GitHub issues filed by jak18015 (Jacob Kellermeier) against
+           1.5.0.8, pip, macOS 26.7, Apple M4:
+
+             #120 "when defining a channel number for pathogen, no pathogen
+             segmentation list appears in teh settings." Steps: open mask
+             generation, add a pathogen channel number, notice that the
+             pathogen segmentation settings section does not appear.
+
+             #119 "Columns for channels don't all show up reliably and images
+             are all under a column called "ch" and there are no individual
+             channel columns". Steps: open mask generation, open live
+             preview, load in test images from path.
+Owner:     home session, unit mask-settings-ui of the 2026-09-19 run.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS (measured on nightly 5b9207b21; v1.5.0.8 identical)
+--------------------------------------------------------------------------------
+
+The five modules involved are byte-identical between v1.5.0.8 and
+5b9207b21 (`git diff --stat v1.5.0.8 origin/nightly` over live_preview.py,
+preview_controls.py, app_screen.py, settings_model.py, settings_search.py
+is empty), and the #120 probe gives the same answer on an extracted
+v1.5.0.8 tree. Every probe below built MainWindow, opened Mask, and typed
+into the field with QTest (keyClicks, then Return), under a throwaway
+QSettings home.
+
+#120. Under "All settings" typing 2 into pathogen_channel DID bring up
+Pathogen Segmentation. Under "Essentials" -- the level every module opens
+at until its user switches, which is where a new user is -- it never did:
+Essentials for Mask was a fixed list (the inputs plus preprocess, masks,
+test_mode, test_images, plot, save), so no object's segmentation was in
+it. Three more faces of the same defect:
+  * The object rule's pass ran AFTER the search strip, so it put rows
+    Essentials excludes back on screen (resume and dry_run showed on a
+    fresh Essentials form), and a committed channel was never re-judged by
+    the strip unless rows happened to be waiting to be laid out.
+  * With the per-object table on, the flat channel rows are hidden (the
+    table answers for them) and the table's section has no form rows for
+    the strip to count, so Essentials hid the table too: NO object channel
+    could be set anywhere on the form.
+  * Clearing a channel left "Pathogen Segmentation" on the form as a
+    heading over no rows, at either level.
+
+Maintainer's report. The Live settings dialog borrows the panel's controls
+and hides each one explicitly when it closes. It re-showed only what
+`_managed_widgets()` named on the next open, and that list omitted
+`_pathogen_channel` and `_organelle_channel`. So the first open showed the
+pathogen channel spin box; every later open showed the caption "Pathogen
+channel" over an empty field, the same for Organelle channel. Neither was in
+`_propagate_sources` either, so with Propagate on a pathogen channel change
+reached the main form only when some other control moved. The per-object
+table was incidental: it was just the only other place to set the channel.
+The existing test read the row's caption, which was there both times.
+
+#119. Driven with synthetic folders (setting src on the form, preview
+open):
+  * three-channel TIFFs whose names the dialect cannot read: one column
+    captioned "ch " (the channel ID was the empty string), while the channel
+    dropdown beside it offered Ch 0, Ch 1, Ch 2;
+  * a cellvoyager folder loaded while the form said cq1: the same single
+    column, and choosing cellvoyager afterwards changed nothing until
+    another image load happened to miss the sampler's cache;
+  * the columns were the channels of the SAMPLED fields only, so a channel
+    some fields lack came and went with the random draw.
+The reporter's exact folder is unknown; each of these produces the words
+in the report, and all three are fixed.
+
+--------------------------------------------------------------------------------
+WHAT CHANGED
+--------------------------------------------------------------------------------
+
+spacr/qt/widgets/live_preview.py
+  * LiveSettingsDialog: `_managed_widgets()` and `_propagate_sources` name
+    the pathogen and organelle channel spin boxes;
+    `_show_every_control_on_a_row()` shows every widget on every form row
+    when the dialog opens, so a control added later cannot come back
+    hidden.
+  * `_set_table_columns()`: columns from the whole folder's channel IDs;
+    unreadable names captioned "image"; one "ch N" column per plane when no
+    file name carries a channel and the loaded image has 2-9 planes on its
+    last axis. `_open_cell()` opens a cell's file only if it is not on
+    screen already and selects the plane through the display-channel
+    dropdown.
+  * `regroup_the_folder()` (public, new): re-reads the loaded folder's file
+    names off the GUI thread under the form's current naming.
+spacr/qt/screens/app_screen.py
+  * `_refilter_the_settings_search()` runs the search strip after every
+    object pass (handed to the model as `rows_are_filtered_by`).
+  * `refresh_maturity_visibility()` leaves a heading the object rule holds
+    back hidden.
+  * `cell_channel` commits run the in-place object pass too.
+  * `_wire_live_preview_naming()`: metadata_type / custom_regex changes
+    regroup the preview table after 400 ms.
+spacr/qt/screens/settings_model.py
+  * `SettingsWidgets.essential_keys()` adds each `<Object> Segmentation`
+    category for every object whose channel names a plane (Mask only; the
+    module-level `essential_keys()` and the walkthrough's count are
+    unchanged).
+  * `refresh_object_visibility()` records `_hidden_by_their_object` and
+    calls `rows_are_filtered_by` at the end.
+  * `_hide_the_headings_of_slots_the_run_lacks()` covers nucleus and
+    pathogen as well as organelle slots.
+spacr/qt/settings_search.py
+  * `apply()` counts the per-object table's section by the keys it answers
+    for; `_grid_section()` follows the table being mounted or taken down by
+    Preferences after the strip was built.
+Reasons for each are in docs/notes/spacr/qt/... under the same paths.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+From the worktree root, under the memory cap, one file at a time:
+
+  QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python -m pytest -q \
+      -p no:randomly -p no:cacheprovider <file>
+
+  tests/qt/test_live_settings_keep_every_channel_on_reopen.py      4 passed
+  tests/qt/test_a_channel_brings_its_segmentation_settings.py      8 passed
+  tests/qt/test_the_preview_table_has_a_column_per_channel.py      5 passed
+
+Against the unfixed modules (git show HEAD:<path> over the four files) the
+same files give 4 failed, 8 failed and 5 failed.
+
+Neighbouring files re-run green with the change: test_settings_search (70
+passed, 26 skipped), test_a_setting_appears_when_its_object_is_in_the_run
+(30), test_a_channel_number_reveals_rather_than_reloads (5),
+test_typing_a_channel_does_not_hang (6), test_the_object_grid_can_be_
+switched_on (18), test_the_grid_and_the_form_agree (11),
+test_the_object_rows_stay_off_the_form (6), test_a_hidden_row_costs_no_
+caption (11), test_maturity_visibility_preferences (10),
+test_cov_w2_2_settings_search (35), test_settings_search_uncovered_paths
+(3), test_the_organelle_count_builds_the_panel (12), test_the_organelle_
+count_is_where_a_user_will_look (12), test_the_search_strip_does_not_kill_
+the_process (4), test_cov_s2_app_screen_form_gates (33), test_cov_r4_
+settings_model (53), test_a_mask_dim_can_be_emptied (13), test_walkthrough
+(19), test_settings_column_panel (30), test_a_module_screen_is_built_once_
+not_twice (46), test_cov_r4_app_screen (95), test_cov_r5_app_screen (30),
+test_the_window_survives_every_optional_part_of_itself (25),
+test_the_language_reaches_what_a_handler_writes (75), and every live-preview
+file: test_live_preview (49), test_live_preview_coverage (148),
+test_live_preview_channels (7), test_no_live_preview_control_can_land_on_
+the_path_label (6), test_cov_live_preview_set_table (64),
+test_cov_r4_live_preview (17), test_preview_set_sampling (31),
+test_preview_source_selectors (20), test_the_preview_survives_a_form_
+rebuild (7), test_cov_r6_qt_panels_tail (26).
+
+Timing on Mask, Essentials level: the added essentials lookup costs 0.4 ms
+a call beside the 7 ms static part; a channel commit (object pass plus the
+strip) is 23-33 ms. Keystrokes in a channel field still run nothing.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+  * The walkthrough's "N settings, not M" still counts the static
+    essentials. The segmentation rows that follow a channel are not
+    settings a module "cannot run without", which is what that sentence
+    claims.
+  * `load_source_payload` still enumerates on the worker with the default
+    dialect, so a folder opened under another naming is scanned a second
+    time on the GUI thread. The answer is right; the cost is paid twice.
+  * A (C, H, W) TIFF is still read as channels-last everywhere in the
+    preview; the plane-column cap of nine keeps a mis-read axis from
+    becoming a thousand columns, but the preview does not reorder it.
+  * Propagate writes every channel spin box's value, including the
+    panel's own defaults (nucleus 1, pathogen 2) for a user who never set
+    them. Not asked, and it changes what a run segments; worth its own item.
+  * macOS AppleDouble files ("._name.tif") match the cellvoyager pattern
+    with plate "._name" and would add rows that fail to load. Not seen in
+    the report and not measured on a Mac; recorded only.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- trailing note
+--------------------------------------------------------------------------------
+
+Done as described above. Found on the way and NOT fixed, because it is the
+search strip's own defect rather than the channels': a heading with no rows
+of its own and only sub-headings counts zero, so ANY narrowing hides it with
+everything under it. Measured on a built Mask screen under All settings:
+searching "remove border objects" reports one match, cell_remove_border_
+objects, whose row is visible on its form while "Object Filtration (all
+objects)" and the "Advanced settings" umbrella above it are hidden --
+nothing is on screen. A count rolled up from each sub-heading to the
+headings above it would fix it; it needs its own number.
+
+Pre-existing reds seen while checking, identical on the branch base: tests/
+test_the_settings_panel_nests.py::test_the_advanced_families_nest_under_one_
+umbrella (expects an "Intensity Handling (all objects)" family that 418
+removed), tests/qt/test_i18n_caption_ratchet.py (Model zoo captions from
+another session), and tests/test_documentation_i18n.py's inventory ratchet
+(10560 on the base against 10539; this change adds one public symbol,
+regroup_the_folder, making 10561). The docstrings this change adds or edits
+are owed to the consolidated i18n pass; they are listed in the unit's
+result. features/00_INDEX.txt is generated and was not regenerated here, so
+that parallel units do not collide on it.
