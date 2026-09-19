@@ -2,17 +2,27 @@
 MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
 ================================================================================
 
-Status:    PARTLY BUILT, ~85%, corrected 2026-09-19. The queue, the status
-           file, the orderings, the limit and `spacr-make-masks` exist and are
-           tested (BUILT 2026-09-14, below). ONE CLAIM BELOW IS WRONG: "ALL
-           THREE LAYOUTS ARE ACCEPTED" is true of the QUEUE and not of the
-           EDITOR. For sibling `images/`+`masks/` and for `*_seg.npy` the
-           command builds and prints the queue, then refuses to open Make
-           Masks (spacr/cli_make_masks.py:322, `queue.layout.kind !=
-           LAYOUT_NESTED` -> `editor_refusal`, exit 2 -- measured today on a
-           sibling folder). Left: edit those two layouts in place, or convert
-           them to the nested one; and `prob` ordering, which works only
-           where a scores CSV exists.
+Status:    BUILT, 100%, 2026-09-19 (second note of that date, at the foot of
+           this file). The editor now opens and saves all three layouts IN
+           PLACE -- nested, sibling `images/`+`masks/`, and `*_seg.npy`
+           bundles -- and `spacr-make-masks` no longer refuses any of them
+           (`editor_refusal` is gone). `prob`/`easy` ordering says where it
+           looked when there are no scores, counts fields a scores file does
+           not name, reads the external tool's `<name>_scores.csv` beside the
+           folder, and the editor shows those notices too. A folder with no
+           record of its own resumes from the external tool's
+           `<name>_status.csv` beside it. Committed on branch
+           home/396-editor-layouts, not pushed. Not yet used by the maintainer
+           on a real set: the proof is widget-driving tests and read-only
+           probes of three real queues (below).
+
+           WAS, from 2026-09-19 until the note at the foot: PARTLY BUILT,
+           ~85%. The queue, the status file, the orderings, the limit and
+           `spacr-make-masks` existed and were tested; for sibling and
+           `*_seg.npy` the command built and printed the queue, then refused
+           to open Make Masks (`editor_refusal`, exit 2). Left then: edit
+           those two layouts in place, or convert them; and `prob` ordering,
+           which worked only where a scores CSV existed.
 
            WAS, until 2026-09-19: BUILT 2026-09-14. The queue, the resumable
            status file, the four orderings, the limit and the terminal entry
@@ -177,3 +187,123 @@ WHAT IS LEFT, about 15% of the item: let the editor take a sibling set's
 masks folder (or convert it on request), do the same for `*_seg.npy`, and --
 unchanged -- `prob` ordering where no scores CSV exists (the run above fell
 back to value order and said so).
+
+--------------------------------------------------------------------------------
+2026-09-19 — THE EDITOR EDITS ALL THREE LAYOUTS IN PLACE; NO ORDERING IS SILENT
+--------------------------------------------------------------------------------
+
+Decided: no maintainer answer specific to 396 reached this work. It followed
+the day's work order, whose wording is not the maintainer's and is quoted as
+such: "Make the editor open and save those layouts in place (or, only if
+in-place is unsound, a lossless convert step — justify it in the file). Prob
+ordering works only where a scores CSV exists: make its absence explicit, not
+silent."
+
+IN PLACE, AND WHY IT IS SOUND (so there is no convert step)
+  * SIBLING differs from nested only in where the masks folder is. The editor
+    opens <root>/images and every mask read and write is given
+    masks_dir=<root>/masks (spacr/qt/mask_engine.py: load_image_and_mask,
+    mask_save_path, save_mask, write_recrop, recrop_child_name,
+    retire_recropped_original all take it; MakeMasksScreen._layout_kwargs
+    passes it only for a sibling session, so the nested calls are the same
+    calls as before). A recrop child's image joins images/, its mask joins
+    <root>/masks.
+  * SEG: the editor's file list names the bundles, and a name ending in
+    _seg.npy is read and written as a bundle. Save loads the dict, replaces
+    `masks` with canonical_labels (ids kept, as for TIFFs), redraws
+    `outlines` if the bundle had one, resizes `ismanual` to the new largest
+    id (old flags kept, new ids flagged manual), keeps every other key, and
+    writes through a dot-named temp file and a rename. That is what the
+    external tool did to the same files (np.save of the loaded dict with
+    masks replaced), less its stale outlines. The image shown is, in the
+    external tool's order: the original named by `source_image`, looked for
+    BY NAME beside the bundle (the stored absolute path is never touched --
+    it is another machine's mount); the embedded `img`; a <stem>.<ext>
+    display image beside it. A recrop of a bundle writes a bundle,
+    <base>__rNN_seg.npy, in the external tool's form, because a TIFF child
+    would make the folder two layouts at once and the queue refuses those.
+  * A convert step would have been a second copy of every field, and the
+    curator would have had to know which copy was the truth.
+
+GUARDS THAT CAME WITH IT
+  * "Mask the whole folder" is refused in a sibling or seg session: Apply
+    writes <src>/masks, which is images/masks there (checked: the Apply tab
+    says "writes one mask per image into <src>/masks").
+  * Curate/napari are not seeded with a bundle; they open image and mask
+    files.
+  * The status row for a bundle is keyed on the queue's stem (b_0), not the
+    b_0_seg that splitext gives -- found by a test before it shipped.
+
+THE EXTERNAL TOOL'S FILES BESIDE THE FOLDER -- A FINDING, NOT IN THE ORDER
+  The external tool keeps <parent>/<name>_status.csv and
+  <parent>/<name>_scores.csv BESIDE the queue folder. Opening its sets in
+  place without reading those would have offered finished fields again.
+  Measured today, read-only, base code (411700dc6) against this branch:
+
+    curate_single (plaque, seg, 316 bundles, --order prob)
+      base    0 done, 0 skip, 316 remaining; "no curation probabilities"
+              -> sorted by value (asked for prob)
+      branch  22 done, 6 skip, 1 recropped, 287 remaining, 1 elsewhere;
+              probabilities from curate_single_scores.csv (plaque_prob)
+              -> sorted by prob, no notice
+    round3_queue (PV, seg, 500 bundles, --order name)
+      base    0 done, 0 skip, 500 remaining
+      branch  373 done, 29 skip, 98 remaining
+
+  So status_path() now uses <folder>/curate_status.csv when it exists, and
+  otherwise the external record beside the folder if its header has stem and
+  state -- reading AND writing it, so the two tools keep one record. The
+  queue says so when it happens. scores_path() reads curate_scores.csv, else
+  <name>_scores.csv beside the folder if it has a stem and a probability
+  column. A snapshot of both folders and their parents before and after the
+  probe: no file changed. The editor would open the first field of each
+  (image 1200x1319 with 149 objects; 1994x1994 with 62).
+
+PROB ORDERING, NOW EXPLICIT IN EVERY CASE
+  * No scores: the notice names BOTH places it looked and the columns a
+    scores file needs.
+  * Scores that do not name every waiting field: "! N of M field(s) have no
+    probability in <file>; prob order ranks them below every scored field".
+    This used to happen silently.
+  * Where the scores came from is printed.
+  * The two warnings travel on CurationQueue.notices, and the editor shows
+    them in its status line when the session opens; the source label keeps
+    "sorted by value (asked for prob)" for the whole session.
+  * --help said prob was "least certain first"; the code is, and always was,
+    most likely first (the external tool's order). The help now says so and
+    names both scores files.
+
+TESTS (worktree, spacr.__file__ checked inside it)
+  * tests/qt/test_the_editor_edits_every_queue_layout_in_place.py, new, 20:
+    the sibling and seg layouts driven through the screen (tool button,
+    canvas click, Save, Next, recrop drag), the MainWindow launch path for
+    both, and the bundle engine. Eight mutations of the fix (sibling
+    masks_dir dropped, outlines not redrawn, status keyed by splitext, seg
+    recrop writing a TIFF, the stored source path statted, ismanual left
+    stale, the whole-folder guard removed, the sibling retire given no
+    masks_dir): all eight caught.
+  * The three refusal tests became tests that both layouts reach the editor,
+    that editor_refusal is gone, and that a layout the screen does not know
+    is still refused. Eight queue tests were added for the external record,
+    the external scores and the notices.
+  * 110 passed across the four queue/editor files; 493 passed, 1 skipped
+    across the twenty Make Masks screen and engine files.
+  * Red on this branch and red identically on the base: 4 in
+    test_docstring_correctness.py and 1 in test_module_coverage_ratchet.py
+    (pinned inventory counts that nightly had already moved; this branch
+    moves the callable count by +8, and the undocumented-parameter count
+    down from 2296 to 2290). Seven i18n and catalog test files: 40 failures
+    here, the same 40, by name, on 411700dc6 -- so none is this change's,
+    and none will show it either until the consolidated pass.
+
+LEFT, honestly
+  * Nobody has curated a real set with it yet. The proof is the widget
+    tests above and the read-only probe; nothing was opened on a display.
+  * The translated catalogs owe the changed public docstrings and the new
+    status-line sentences; the consolidated pass does that.
+  * `easy` still writes its draft-count cache as curate_drafts.csv inside
+    the folder, even on --dry-run, where the external tool kept
+    <name>_drafts.csv beside it. It is a cache and loses nothing, but it is a
+    write into a synced data folder by a command that sounds read-only.
+  * A bundle whose labels are 3-D, or whose image has a channel count other
+    than 1, 3 or 4, is refused per field with the existing load message.
