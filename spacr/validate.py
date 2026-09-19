@@ -1168,14 +1168,18 @@ def _flow_threshold_problems(key: str, value: Any, number: float) -> List[Proble
     between the flows recomputed from the mask and the flows the network
     predicted, both of about unit length -- is above the threshold. Above 3
     that rejects practically nothing, and at 0 or below Cellpose skips the
-    check, so either way every mask Cellpose proposes is kept. Only those
-    values are reported: the shipped default of 0.4 never is, and the 100
-    that spaCR 1.5.0.5 to 1.5.0.8 shipped still is.
+    check, so either way every mask Cellpose proposes is kept. Values above
+    3 and below 0 are reported. Exactly 0 is not: it is Cellpose's own
+    switch for turning the check off ("turn off QC step with
+    flow_threshold=0 if too slow"), so it is taken as meant. The shipped
+    default of 0.4 is never reported, and the 100 that spaCR 1.5.0.5 to
+    1.5.0.8 shipped still is.
 
     :param key: the setting name.
     :param value: the value as the settings hold it.
     :param number: ``value`` as a float.
-    :returns: one warning when the value is outside 0 to 3, else nothing.
+    :returns: one warning when the value is above 3 or below 0, else
+        nothing.
     """
     if number > 3:
         return [Problem(
@@ -1187,8 +1191,9 @@ def _flow_threshold_problems(key: str, value: Any, number: float) -> List[Proble
             "spaCR 1.5.0.5 to 1.5.0.8, and some older releases, shipped 100, "
             "so a settings file saved by one of them still carries it. Set "
             f"{key} to {_FLOW_THRESHOLD_DEFAULT} to drop misshapen masks again "
-            "(0 to 3 is the useful range, and lower keeps fewer, cleaner "
-            "objects), or keep it above 3 only if you want every candidate.")]
+            "(values above 0 and up to 3 filter, and lower keeps fewer, "
+            "cleaner objects), or keep it above 3 only if you want every "
+            "candidate.")]
     if number < 0:
         return [Problem(
             WARNING, key,
@@ -1196,8 +1201,8 @@ def _flow_threshold_problems(key: str, value: Any, number: float) -> List[Proble
             "filter for any value of 0 or less, so every mask Cellpose "
             "proposes is kept.",
             f"spaCR and Cellpose both default to {_FLOW_THRESHOLD_DEFAULT}. "
-            f"Set {key} between 0 and 3 to filter misshapen masks; lower "
-            "keeps fewer, cleaner objects.")]
+            f"Set {key} above 0 and at most 3 to filter misshapen masks; "
+            "lower keeps fewer, cleaner objects.")]
     return []
 
 

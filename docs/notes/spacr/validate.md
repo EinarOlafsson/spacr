@@ -491,6 +491,8 @@ Measured through `spacr-run validate --module mask` on a settings file holding o
 
 The message is split at 0 and at 3 rather than worded once for both ends. The two ends are different mistakes: 100 comes from an old file, and a negative number is typed by hand.
 
+EXACTLY 0 IS NOT REPORTED, on purpose (review of 428, 2026-09-19). Cellpose 4.2.1.1 treats 0 like a negative value -- `dynamics.compute_masks` runs the check only when `flow_threshold > 0` -- but 0 is also the value Cellpose's own log tells a user to type to switch the check off ("turn off QC step with flow_threshold=0 if too slow"), so a 0 is taken as meant. What had to change was the wording: the first version of both fix lines called 0 part of the filtering range ("0 to 3 is the useful range", "between 0 and 3"). Both now say values above 0 and up to 3 filter, which is what Cellpose does.
+
 ## _check_numeric_sanity
 
 ### lines 1338-1340

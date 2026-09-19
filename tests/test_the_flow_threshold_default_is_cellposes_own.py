@@ -147,6 +147,9 @@ def test_100_is_still_reported_and_the_report_is_true():
     assert "1.5.0.5 to 1.5.0.8" in problem.fix
     assert "Set cell_flow_threshold to 0.4" in problem.fix
     assert "ships 1.0" not in problem.fix
+    assert "values above 0 and up to 3 filter" in problem.fix, (
+        "0 switches Cellpose's check off, so the fix must not offer it as a "
+        "filtering value")
 
 
 def test_a_negative_value_says_cellpose_skips_the_filter():
@@ -156,6 +159,7 @@ def test_a_negative_value_says_cellpose_skips_the_filter():
     assert len(found) == 1
     assert "below 0" in found[0].message
     assert "spaCR and Cellpose both default to 0.4" in found[0].fix
+    assert "above 0 and at most 3" in found[0].fix
 
 
 def test_a_saved_100_is_kept_not_rewritten():

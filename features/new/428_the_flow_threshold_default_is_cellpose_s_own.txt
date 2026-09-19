@@ -2,8 +2,9 @@
 THE FLOW THRESHOLD DEFAULT IS CELLPOSE'S OWN, 0.4, AND THE WARNING TELLS THE TRUTH
 ================================================================================
 
-Status:    done 2026-09-19 on branch home/flow-default (local commit, not
-           pushed; a reviewer reads it first). See the trailing note.
+Status:    done 2026-09-19, reviewed and corrected the same day. See the
+           trailing notes. Not yet listed in 00_INDEX.txt (its check is red
+           on nightly for duplicate numbers 412-418; index 428 with them).
 Requested: 2026-09-17, GitHub #123, by jak18015 on spaCR 1.5.0.8, in these
            words:
 
@@ -68,8 +69,8 @@ WHAT TO DO
 3. A saved file carrying 100 keeps 100. setdefault never overwrites, and
    that is the behaviour we want, not a gap. The file gets the truthful
    warning instead.
-4. synthetic.py follows the default (0.4). This is measured below, and it
-   costs the demo some objects.
+4. synthetic.py follows the default (0.4). This is measured below; through
+   the Mask pipeline it costs the demo nothing.
 5. Regenerate settings_flow.rst and the index (tools/settings_flow.py
    --rst), and put the flow lines into the four notebooks that carry them.
 6. Record the reasons in docs/notes (settings.md, validate.md, core.md,
@@ -116,23 +117,20 @@ DELIBERATELY NOT DONE
 2026-09-19 -- DONE. WHAT WAS MEASURED, AND WHAT IS LEFT
 --------------------------------------------------------------------------------
 
-Done as described above, on home/flow-default, not pushed.
+Done as described above.
 
-THE DEFAULT CHANGES RESULTS, and it does so on round objects too. The run
-was stock cpsam on the GPU, over the four fields generate_mask_demo(fields=2)
-draws, at the demo's own diameters. Masks kept at flow 0.4 / 1.0 / 100:
+THE DEMO LOSES NOTHING AT 0.4 through spaCR's own Mask pipeline
+(generate_mask_demo, its settings CSV loaded as the Demos menu loads it,
+preprocess_generate_masks, GPU). Labels in the merged stacks per field,
+cell / nucleus / pathogen / organelle:
 
-    cells      (16 drawn)  16/16/16  16/16/16  16/16/16  12/16/16
-    nuclei     (16 drawn)  16/16/16  16/16/16  16/16/16  16/16/16
-    pathogens              13/14/14   9/10/10  12/12/12   9/10/10
+    0.4 / 0.4 / 0.4 (this item)    16/16/17/64  16/16/20/64  16/16/18/64  16/16/16/64
+    1.0 / 100 / 100 (before)       16/16/17/64  16/16/20/64  16/16/18/64  16/16/16/64
 
-0.4 lost 4 of 16 drawn cells in one field and one pathogen in three of the
-four fields. 1.0 and 100 kept the same objects. The largest flow error of an
-unfiltered mask was 0.52 for cells and 0.43 for pathogens. These are
-synthetic blobs, not real parasites, so this shows which way the change
-moves results, not how far it moves them on real data. The demo now shows
-what the shipped default does. Setting 1.0 in synthetic.py would bring back
-all 16, but that has to be decided on purpose and written down there.
+Identical field by field. The synthetic objects are round blobs, so this
+says nothing about how far 0.4 moves results on real, irregular parasites;
+the default change still changes segmentation there, which is why #123 is
+told so.
 
 Cellpose 4.2.1.1 runs the flow check only when flow_threshold > 0
 (dynamics.compute_masks), so 0 also keeps everything. An old note in
@@ -142,3 +140,39 @@ corrected there.
 LEFT: the translation pass for the four tooltips. A real-data comparison
 of 0.4 against 100 on a toxo plate was not run, because no such data was
 used in this session.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- REVIEWED; THREE CORRECTIONS
+--------------------------------------------------------------------------------
+
+The review of this item found one red test, one wrong measurement and one
+docstring that disagreed with its code. All three are fixed in this item's
+commit.
+
+* tests/test_v2_takes_declared_defaults.py still pinned the declared
+  cell_flow_threshold at 100 and went red (assert 0.4 == 100). It passed on
+  nightly, and it was missed because it was not in the list of tests run.
+  It now pins 0.4; its docstring and comment say the declared default and
+  the v2 inline fallback are both 0.4 now. 5 passed.
+* The demo figure above was first written from stock cpsam called directly
+  on the raw demo images, which skips spaCR's preprocessing: "0.4 loses 4 of
+  16 cells in one field". That is not what the demo runs. The reviewer ran
+  tests/test_demo_pipelines.py::test_mask_demo_segments_every_object_it_drew
+  at 0.4 (passed), and I repeated the pipeline run at 0.4 and at the old
+  1.0/100/100, which gave the table above. The paragraph, the note in
+  docs/notes/spacr/qt/synthetic.md, and the draft #123 comment (which had
+  repeated the wrong figure) are corrected. The advice to consider 1.0 for
+  the demo is withdrawn.
+* validate._flow_threshold_problems said in its docstring that 0 is
+  reported; the code reports only below 0, and both fix lines called 0 part
+  of the filtering range. Cellpose skips its check at 0 (and its own log
+  tells users to type 0 to switch it off), so 0 stays unreported, taken as
+  meant, and the fix lines now say "values above 0 and up to 3 filter" and
+  "above 0 and at most 3". The docstring says what the code does.
+
+STILL LEFT, unchanged: the translation pass for the four tooltips and the
+two warnings; indexing 428 in 00_INDEX.txt; the example pack
+spaCR_settings/1_generate_masks_settings.csv still carries nucleus_/cell_/
+pathogen_FT 100 and so draws the warning that such a value comes from an
+old saved file -- whether the pack moves to 0.4 is the maintainer's call; a
+real-data comparison of 0.4 against 100.

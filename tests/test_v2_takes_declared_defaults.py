@@ -6,13 +6,16 @@ inside the per-source loop that the v2 branch never reaches. So every
 ``settings.get(key, fallback)`` in that branch answered with the fallback
 written beside it rather than with the module's declared default.
 
-One of them changes segmentation. ``cell_flow_threshold`` is declared 1.0 and the inline
-fallback was 0.4, and it is forwarded verbatim to
-``model.eval(flow_threshold=...)``. Cellpose's ``remove_bad_flow_masks``
-discards a mask whose flow error exceeds the threshold, so on a field with
-per-object flow errors {0.00, 0.12, 0.30, 0.75} the v1 pipeline keeps four
-cells and the v2 branch kept three -- same plate, same settings dict, same
-weights, different answer depending only on ``pipeline_style``.
+One of them changes segmentation. ``cell_flow_threshold`` was declared 1.0
+when this was fixed and the inline fallback was 0.4, and it is forwarded
+verbatim to ``model.eval(flow_threshold=...)``. Cellpose's
+``remove_bad_flow_masks`` discards a mask whose flow error exceeds the
+threshold, so on a field with per-object flow errors {0.00, 0.12, 0.30, 0.75}
+the v1 pipeline kept four cells and the v2 branch kept three -- same plate,
+same settings dict, same weights, different answer depending only on
+``pipeline_style``. Since 2026-09-19 (#123, ledger 428) the declared default
+is 0.4, the same number as the fallback, so the two agree by value today; the
+ordering tests below are what keep them agreeing if either moves again.
 """
 
 import ast
@@ -52,14 +55,14 @@ def test_cell_ft_is_the_declared_value_not_the_inline_fallback():
     """The one fallback that changes segmentation output."""
     declared = S.set_default_settings_preprocess_generate_masks(
         {"src": "/tmp/does-not-matter"})["cell_flow_threshold"]
-    # 1.0 until 2026-09-02, when ab656821b shipped the maintainer's own
-    # published defaults and raised it to 100 with its tooltip -- "accepts
-    # every candidate", which is what a flow_threshold above the usable
-    # 0-3 range means. The point of this test is unchanged and is not the
-    # number: whatever is DECLARED is what the v2 branch has to read, and
-    # an inline fallback of 0.4 sitting under a declared 100 is a bigger
-    # gap than it was under a declared 1.0.
-    assert declared == 100, (
+    # 1.0 until 2026-09-02, when ab656821b raised it to 100 ("accepts every
+    # candidate"). 2026-09-19 (#123, ledger 428): 0.4, Cellpose's own
+    # default, by the maintainer's decision. The point of this test is not
+    # the number: whatever is DECLARED is what the v2 branch has to read.
+    # Declared and inline fallback are now both 0.4, so a v2 branch that
+    # read the fallback would no longer change the answer -- until one of
+    # the two moves, which is why the ordering test above stays.
+    assert declared == 0.4, (
         "the declared cell_flow_threshold moved; this test pins the value the v2 branch "
         "must now agree with")
 
