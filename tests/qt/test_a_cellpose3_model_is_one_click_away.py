@@ -38,6 +38,21 @@ from spacr.qt.widgets.object_settings_grid import (MODEL_QUESTION,
 CELLPOSE3_MODELS = ("cyto3", "cyto2", "cyto", "nuclei")
 
 
+@pytest.fixture(autouse=True)
+def _no_community_fetch(monkeypatch):
+    """Nothing here is about the community catalogue.
+
+    Opening a picker starts a JobRunner to warm it off the GUI thread. These
+    tests open several, and a runner still going when the dialog is dropped
+    is a thread the rest of the session carries -- so say the cache is fresh
+    and no runner is started.
+    """
+    from spacr import model_zoo
+
+    monkeypatch.setattr(model_zoo, "shared_catalogue_is_stale",
+                        lambda *a, **k: False)
+
+
 @pytest.fixture
 def installed_cellpose3(tmp_path):
     """A Cellpose 3 environment that looks installed, without installing one.
