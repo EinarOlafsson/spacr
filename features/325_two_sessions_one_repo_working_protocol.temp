@@ -8189,7 +8189,12 @@ reformatted:
                             renamed key instead of dropping it
   spacr/cli.py              `resolve_settings` folds the FILE before it meets
                             the defaults (an old file lost every renamed
-                            value to the default -- measured, see 364)
+                            value to the default -- measured, see 364), and
+                            hands the keys the fold consumed to the
+                            pre-flight so `validate` still names them
+  spacr/batch.py            `resolve_job_settings` calls the same
+                            `_under_todays_names`, so a queued job is
+                            layered the way `spacr-run` layers it
   tests/ (non-Qt)           the tests naming the three keys, and three new
                             old-file tests
 FOR CODEX'S TUTORIALS: two visible captions change. The Annotate settings

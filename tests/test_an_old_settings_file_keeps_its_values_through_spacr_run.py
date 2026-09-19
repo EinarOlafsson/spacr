@@ -24,6 +24,7 @@ import logging
 
 import pytest
 
+from spacr import cli
 from spacr.cli import MODULES, resolve_settings
 
 
@@ -140,3 +141,68 @@ def test_a_queued_job_is_layered_the_same_way(tmp_path):
         Job(module="regression",
             settings={"src": str(tmp_path), "min_cell_count": 50}),
     )["min_cells_per_well"] == 50
+
+
+def test_the_report_names_a_renamed_key_with_a_module_as_without_one(
+        tmp_path, capsys):
+    """The migration must not make `validate` quieter than it used to be.
+
+    Found in review of the fix above, 2026-09-19. Migrating the file before
+    it meets the defaults also moves the old keys out of reach of the
+    pre-flight, which runs afterwards: `validate --module regression` on a
+    file naming `min_cell_count` and `toxo` reported ONE warning, for the
+    withdrawn `barcodes` -- the only one of the three with no successor --
+    where the same file with no `--module` reported three. The two reports
+    say the same thing again.
+    """
+    rows = [("src", str(tmp_path)), ("min_cell_count", "50"),
+            ("toxo", "False"), ("barcodes", str(tmp_path / "b.csv"))]
+    path = _file(tmp_path, rows)
+
+    cli.main(["validate", "--settings", path, "--module", "regression"])
+    with_module = capsys.readouterr().out
+    cli.main(["validate", "--settings", path])
+    without_module = capsys.readouterr().out
+
+    for key in ("min_cell_count", "toxo", "barcodes"):
+        assert key in with_module, (key, with_module)
+        assert key in without_module, (key, without_module)
+    assert "WARNINGS (3)" in with_module, with_module
+
+
+def test_the_migration_notice_stays_inside_the_report(tmp_path, capsys):
+    """`validate` never calls `setup_logging`, so a log line escapes it.
+
+    An un-configured logger falls through to `logging.lastResort`, which
+    writes the bare message to stderr -- outside the report, unformatted,
+    and invisible to `spacr-run validate ... > report.txt`.
+    """
+    path = _file(tmp_path, [("src", str(tmp_path)), ("min_cell_count", "50")])
+    cli.main(["validate", "--settings", path, "--module", "regression"])
+    captured = capsys.readouterr()
+    assert "min_cells_per_well" in captured.out
+    assert "min_cell_count" not in captured.err, captured.err
+
+
+def test_a_dry_run_report_names_what_moved(tmp_path, capsys):
+    """The same loss was on `spacr-run <module> --settings f --dry-run`."""
+    path = _file(tmp_path, [("src", str(tmp_path)), ("min_cell_count", "50")])
+    rc = cli.main(["regression", "--settings", path, "--dry-run"])
+    out = capsys.readouterr().out
+    assert rc == cli.EXIT_OK, out
+    assert "'min_cell_count' was renamed to 'min_cells_per_well'" in out, out
+    assert "nothing was executed" in out
+
+
+def test_a_caller_that_collects_the_notices_is_not_also_logged_at(
+        tmp_path, caplog):
+    """Collecting and logging are alternatives, so nothing is said twice."""
+    collected = []
+    with caplog.at_level(logging.WARNING, logger="spacr.cli"):
+        resolve_settings(
+            MODULES["regression"],
+            _file(tmp_path, [("src", str(tmp_path)), ("min_cell_count", "50")]),
+            [],
+            collected)
+    assert [record.getMessage() for record in caplog.records] == []
+    assert [problem.setting for problem in collected] == ["min_cell_count"]

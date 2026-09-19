@@ -2810,6 +2810,20 @@ the pre-flight runs next and can only see the new name. `batch.resolve_job_
 settings`, which says it layers "exactly as spacr-run layers them", gets the
 same call.
 
+  THAT FIX MADE `validate` QUIETER, AND REVIEW CAUGHT IT. Migrating the file
+  first also moves the old keys out of reach of the pre-flight, so
+  `spacr-run validate --settings old.csv --module regression` on a file
+  naming `min_cell_count`, `toxo` and `barcodes` reported ONE warning -- the
+  withdrawn `barcodes`, the only one of the three with no successor -- where
+  the same file with no `--module` reported three. Writing it to the
+  `spacr.cli` logger was not enough: `cmd_validate` never calls
+  `setup_logging`, unlike `cmd_run`, so the line fell through to
+  `logging.lastResort` on stderr, unformatted and outside the report a user
+  redirects to a file. The notices are collected instead and handed to
+  `_preflight`, which prepends them, so the two reports say the same thing
+  again; a caller that collects them is not also logged at, and a run with
+  `--no-preflight`, which prints no report, still gets the log line.
+
 THE TWO REVIEWED zh_CN RECORDS ARE WITHDRAWN AND SAY SO. The runtime store
 has no `retired` field -- the loader validates the field set exactly, so a
 record carrying one is INVALID rather than retired, and the reporter says to
