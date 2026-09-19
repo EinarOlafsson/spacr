@@ -11,9 +11,15 @@ Status:    OPEN, corrected 2026-09-19 -- see the last section. All three
            (2026-09-12).
            RETIREMENTS approved 2026-09-09. DONE: `grna` (2026-09-14), the
            three recruitment `*_mask_dim` (79edbf12f, 2026-09-03 -- this
-           line called them unstarted until 2026-09-19), and the two
-           `prefs/space_*` (accessors 61c896555 on 2026-09-09; the stored
-           values have been cleared since 2026-09-19). HELD: `barcodes`
+           line called them unstarted until 2026-09-19; importing an OLD
+           recruitment file that names `nucleus_mask_dim` or
+           `pathogen_mask_dim` rebuilt the screen without end until the
+           fix that landed with this correction, see the last section),
+           and the two `prefs/space_*` (accessors 61c896555 on 2026-09-09;
+           an older store's values are removed on the first theme read
+           from the nightly build this correction landed in, 2026-09-19,
+           and a released build clears them only once it carries that
+           change). HELD: `barcodes`
            and `Toxoplasma`. Each has a human-reviewed zh_CN tooltip
            translation that retiring the setting would withdraw -- the
            2026-09-14 and 2026-09-19 sections. BLOCKED: `img_size` ->
@@ -2280,9 +2286,12 @@ suites 239 passed. Every changed assertion was mutated and watched fail first.
               OTHER TWO CANNOT GO AS APPROVED
 --------------------------------------------------------------------------------
 
-Taken as unit 364-retirements, branch `home/364-retirements`, committed
-locally (f5e2a73d7 for the store, c85b37e73 for the recruitment tests) and
-not pushed. Local hashes change if the branch is rebased on landing. The Status line said `Toxoplasma`, the three
+Taken as unit 364-retirements, branch `home/364-retirements`, landed on
+nightly as the commits titled "364: the retired Space theme keys were kept
+..." (the store) and "364: an old recruitment file carrying the three
+retired *_mask_dim keys ..." (the recruitment tests); `git log --grep`
+finds them, and the local hashes first quoted here were rebased away. The
+Status line said `Toxoplasma`, the three
 `*_mask_dim`, the two `prefs/space_*` and `img_size` were "still unstarted".
 Checked against the code on origin/nightly 7a93e51ff before building anything
 (HANDOFF 0a):
@@ -2295,6 +2304,10 @@ Checked against the code on origin/nightly 7a93e51ff before building anything
                                    This file's own 2026-09-03 section says
                                    the change WAITS. The commit that closed it
                                    the same night never came back to say so.
+                                   NOT CLEAN, found by the review of this
+                                   unit: an old file naming the nucleus or
+                                   pathogen key hung the import in the real
+                                   app. See the next section.
   prefs/space_variant, space_seed  ACCESSORS DONE 2026-09-09 in 61c896555.
                                    The stored VALUES were not handled: the key
                                    names were kept "so a stored value can
@@ -2333,9 +2346,13 @@ WHAT WAS BUILT
                             that hold either way (key names, clean store not
                             rewritten, safe mode).
   tests/qt/test_an_old_recruitment_file_with_mask_dims_still_loads.py
-                            11 tests, one set per key. An old recruitment
-                            CSV imported on the real Recruitment screen
-                            applies its other values. The old mask plane
+                            11 tests, one set per key. As first written it
+                            imported on a Recruitment screen built on its
+                            own, with no window, which cannot rebuild and
+                            so could not see the hang the next section
+                            records; it drives a real MainWindow now. An
+                            old recruitment CSV imported there applies its
+                            other values. The old mask plane
                             reaches neither a hidden form value nor
                             `collect()`. The doctor says nothing about it,
                             because it is a live Measure key. Today's factory
@@ -2450,3 +2467,88 @@ worktree's own `spacr/__init__.py` was confirmed as the imported copy.
 i18n OWED to the consolidated pass: the module docstring of
 `spacr.qt.preferences` (its `theme` / `space_seed` bullets) and the
 docstring of `get_theme`. No setting label, tooltip or UI caption changed.
+
+
+--------------------------------------------------------------------------------
+2026-09-19 -- REVIEW: AN OLD RECRUITMENT FILE HUNG THE IMPORT, AND SO DID A
+              MASK FILE ON MEASURE AND A MEASURE FILE ON MASK
+--------------------------------------------------------------------------------
+
+The section above recorded the three recruitment `*_mask_dim` as done, and
+said an old file "imported on the real Recruitment screen" applies its other
+values. The review of this unit ran that import in a real MainWindow and it
+did not return. The test had built `AppScreen("recruitment")` with no
+window, so `self.window()` had no `rebuild_app_screen` and the rebuild branch
+of `apply_settings_dict` could not run (HANDOFF 0b). Nothing in this unit
+caused it; it was on origin/nightly since 79edbf12f took the keys off the
+form.
+
+MEASURED through `MainWindow`, `open_module`, and `_on_import_settings` with the
+file dialog answered, and the rebuild capped at six. Before the fix:
+recruitment with `nucleus_mask_dim` 7 rebuilds, 1.5 s, "Import failed";
+with `pathogen_mask_dim` the same; with `cell_mask_dim` 0 rebuilds. A Mask
+file (`nucleus_channel`, `pathogen_channel`) on Measure: 7 rebuilds, "Import
+failed". A Measure file (`nucleus_mask_dim`, `pathogen_mask_dim`) on Mask: 7
+rebuilds, 4.9 s, "Import failed". The review ran one uncapped and killed it
+at 400 s. After the fix, all five cases: 0 rebuilds, no warning, and the
+file's other values applied.
+
+CAUSE. `_bulk_apply_changes_form_shape` took every `nucleus_*` / `pathogen_*`
+`*_channel` or `*_mask_dim` key in the FILE as an object switch and compared
+it with `current.get(key)`. A key the form does not carry is None there,
+never equal to the file's value, so the check asked for a rebuild, and the
+rebuilt screen asked again. The last two cases are the wider face: Measure
+has no `*_channel` and Mask has no `*_mask_dim`, and `apply_settings_dict`
+says the same dict can be applied across apps. `cell_*` escaped only because
+the cell object is never a switch.
+
+FIXED in spacr/qt/screens/app_screen.py, two parts:
+  * `_bulk_apply_changes_form_shape` skips a switch the form neither shows
+    nor holds (not in `collect()` and no widget). That is the rule
+    `_form_shaping_keys` already followed for a typed edit.
+  * `apply_settings_dict` rebuilds at most once per import. The fresh
+    screen is built from the merged values, so it is marked for the
+    duration of its own apply and does not rebuild again; the mark is
+    cleared in `finally`, so a later import can still rebuild.
+  Reasons in docs/notes/spacr/qt/screens/app_screen.md. Both docstrings
+  touched are on private names, which the API catalogs skip, so no
+  translation is owed for them.
+
+TESTS, 4G cap, spacr imported from the worktree:
+  * test_an_old_recruitment_file_with_mask_dims_still_loads.py: the import
+    test now drives a MainWindow and the Import settings button, and
+    asserts no rebuild and no "Import failed". 11 passed.
+  * NEW test_an_import_rebuilds_the_screen_at_most_once.py, 5 tests: Mask
+    file on Measure and Measure file on Mask (no rebuild), a switch Measure
+    does carry still lands, the organelle count still rebuilds exactly once
+    and spawns its slot, and the guard alone (shape check forced to answer
+    yes) rebuilds once and not again. 5 passed.
+  * Mutations, each file restored afterwards: with origin/nightly's
+    app_screen.py, 5 of the 16 fail with "Import failed" after 4 rebuilds;
+    without only the carried-key filter, 4 fail (one rebuild each where
+    none is due); without only the guard, 1 fails (the guard test).
+  * Existing bulk-apply and rebuild suites: test_a_mask_dim_can_be_emptied,
+    test_cov_r6_screens_forms_and_masks, test_a_setting_appears_when_its_
+    object_is_in_the_run, test_cov_r8_app_screen_tails,
+    test_cov_r5_app_screen, test_cov_r4_app_screen: 190 passed.
+    test_the_organelle_count_builds_the_panel, test_the_count_controls_the_
+    categories, test_the_preview_survives_a_form_rebuild,
+    test_a_channel_number_reveals_rather_than_reloads,
+    test_force_restart_comes_back_where_you_were, test_timelapse_always_on,
+    test_the_organelle_count_is_where_a_user_will_look,
+    test_the_per_object_settings_table: 96 passed, 1 failed.
+  * THAT ONE FAILURE IS NOT THIS UNIT'S, and nobody has filed it yet:
+    test_the_count_controls_the_categories.py::test_a_committed_channel_
+    brings_its_settings_back ("only 6 nucleus settings came back") fails
+    the same way with origin/nightly's app_screen.py swapped in. Nothing
+    else in this branch touches Mask or the settings model. Checked on
+    clean git-archive copies: it passes at 8d7426b59^ and fails at
+    8d7426b59 ("Mask's Essentials view never showed an object's
+    segmentation settings when its channel was set"). Whether the test's
+    "more than 10" is now wrong for the Essentials view or the commit
+    hid rows it should show is for whoever owns that change.
+
+LEFT for 364: unchanged from the section above. `barcodes` and `Toxoplasma`
+are held, `img_size` is blocked on the maintainer's choice, and the io.py
+organelle-slot question is open. The three recruitment `*_mask_dim` are
+done now, including an old file imported in the real app.
