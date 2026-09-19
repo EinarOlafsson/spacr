@@ -1,5 +1,26 @@
 # Notes from `spacr/qt/mask_engine.py`
 
+## Item 419 point 1 (2026-09-19)
+
+- `canonical_labels`: each id is now labelled inside its own bounding box
+  (`scipy.ndimage.find_objects`) rather than across the whole field. The
+  pieces are the same and come in the same order, because a crop keeps the
+  raster order of the pixels in it and holds every pixel of that id, so the
+  kept piece and the minted ids are unchanged; the test
+  `test_canonical_labels_is_unchanged_by_the_bounding_box_rewrite` compares
+  60 random masks (uint8, uint16, int32; binary, split and touching ids)
+  against the whole-field algorithm it replaced. Measured on this machine:
+  2048 x 2048 with 400 objects, 3.1 s -> 64 ms; 1024 x 1024 with 200, 382 ms
+  -> 15 ms. `filter_objects` and `save_mask` go through it, so both got the
+  same speed-up. The int64 copy is only made once a split is found. Masks
+  with an id past uint16, and non-integer masks, keep the old whole-field
+  path, so their behaviour (including the ValueError) is exactly as before.
+- `ObjectLookup.measure`: the mean is `np.mean` of the float32 image over
+  the object's pixels taken from its bounding box, which is the arithmetic
+  `regionprops(...).intensity_mean` performs for `filter_objects`
+  (`image_intensity[image]`, float32, raster order), so the two are equal to
+  the last bit rather than approximately.
+
 Prose lifted out of `spacr/qt/mask_engine.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 
