@@ -2,14 +2,23 @@
 THE REAL-WINDOW THEME SWEEP IS ONE WIDGET AWAY FROM GOING RED AGAIN
 ================================================================================
 
-Status:    OPEN, filed 2026-09-15. NOT A REGRESSION AND NOT URGENT -- it is
-           identical at 7efb9b1a1 and at HEAD. It is filed because the next
-           person to hit it will spend a day on it, as one was just spent.
+Status:    DONE 2026-09-19, WITH THE NAMED, GUARDED EXEMPTION, AND THE
+           STRIDE LEFT AS IT WAS. QWidget#CentralRow and the page stack are
+           exempt by identity, through `_unreached_by_design(window)` in the
+           test file. The test asserts three things. First, those two are
+           exactly the widgets outside every sheet root and every deferred
+           page, counted over the whole window rather than the sample.
+           Second, each is the widget its name says. Third, each is still
+           really unreached. The product is unchanged. Two mutations of
+           `stylesheet_roots` and one direct sheeting each turn a guard red.
+           See 2026-09-19 at the end. Filed 2026-09-15; it was never a
+           regression.
 Found by:  an adversarial review of the 2026-09-15 combo-probe fix, which
            quantified a margin the fix itself did not need.
 Owner:     unassigned. `tests/qt/test_every_widget_wears_the_current_theme.py`
            (`test_the_real_window_wears_one_theme_everywhere`) and
-           `spacr/qt/app.py:4309` `MainWindow.stylesheet_roots`.
+           `spacr/qt/app.py` `MainWindow.stylesheet_roots` (line 4999 on
+           2026-09-19; the 4309 recorded here at filing has drifted).
 
 --------------------------------------------------------------------------------
 THE MARGIN, WHICH IS ONE
@@ -76,3 +85,65 @@ diagnose. The sample size is not the defect; the uncovered pair is.
 DO NOT ASSUME A `['QStackedWidget', 'QWidget']` FAILURE IS A REGRESSION. Check
 it against the WHOLE population first -- that is the lesson the combo day
 bought, and this file exists so it is bought once.
+
+--------------------------------------------------------------------------------
+2026-09-19 — THE EXEMPTION, BY IDENTITY AND GUARDED THREE WAYS. THE STRIDE IS
+             UNCHANGED.
+--------------------------------------------------------------------------------
+
+WHICH OF THE TWO FIXES, AND WHY. This file leaned toward the test-side
+exemption, and reading the code agrees. Marking the central row and the stack
+with `_spacr_is_a_sheet_target` would make them sheeted on their own show,
+which changes the product to serve a test. `stylesheet_roots` leaves them out
+on purpose, because sheeting the central widget would repolish every screen
+in the stack, and avoiding that is the whole point of per-screen sheeting. So
+the product is untouched.
+
+MEASURED FIRST, AGAINST THE WHOLE POPULATION, as the WHAT NOT TO DO section
+asks. On a real MainWindow with Mask and Measure open (2,086 hosts, stride
+10), every host was probed, not just the sample. The widgets that are
+neither sheeted nor deferred are exactly
+[QWidget#CentralRow, QStackedWidget]. They are still at indices 6 and 9. The
+full probe took 0.7 s at this size.
+
+THE MARGIN, SHOWN RATHER THAN ARGUED. Moving the sample start through all ten
+offsets of the stride gives this for HEAD's filter:
+
+    offset 6   misses ['QWidget']          (the central row)
+    offset 9   misses ['QStackedWidget']   (the stack)
+    the other eight offsets miss nothing
+
+With the exemption, all ten offsets miss nothing. A new chrome widget ahead
+of these two in the traversal moves the offset, so this is the failure the
+file predicted, and it can no longer happen.
+
+WHAT THE TEST NOW HOLDS (tests/qt/test_every_widget_wears_the_current_theme.py):
+
+  * `_unreached_by_design(window)` names the two widgets by what the window
+    calls them: `window.centralWidget()` and `window._stack`. The sampled
+    check excludes exactly those two objects by identity. Another
+    QStackedWidget anywhere else is not covered.
+  * GUARD 1, THE WHOLE WINDOW. Every host is walked up to the window. The ones
+    under no widget that `stylesheet_roots()` returns and under no deferred
+    page must be exactly the two named widgets. This check uses no probes,
+    so it covers the whole window for the cost of the parent walks.
+  * GUARD 2, THE NAMES. The central widget must be a plain QWidget named
+    "CentralRow", and `_stack` must be a QStackedWidget.
+  * GUARD 3, STILL UNREACHED. Each exempt widget is probed directly, and each
+    must still NOT wear the sentinel. If the theme starts reaching one, the
+    exemption for it is stale and the test says to remove it.
+  * The closing "nothing was deferred" assertion now counts only deferred
+    widgets. Before, it was `len(stale) - len(missed)`, which would have
+    counted an exempt widget as deferred.
+
+EACH GUARD PROVEN TO FIRE. The product file was restored byte-identically
+after each mutation (sha256 f73052af…e405 before and after):
+
+    stylesheet_roots returns roots + [central]    -> GUARD 1 red: outside = []
+    stylesheet_roots drops its first root          -> GUARD 1 red: the menu bar,
+                                                      WindowChrome and its three
+                                                      buttons join the two
+    CentralRow.setStyleSheet(SENTINEL) (probe)     -> GUARD 3 sees both widgets
+                                                      reached
+
+The whole file passes: 14 passed in 12.8 s, slow tests included.
