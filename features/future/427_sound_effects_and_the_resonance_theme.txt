@@ -11,7 +11,10 @@ Status:    IN PROGRESS -- PART A OF THREE BUILT 2026-09-19, parts B and C
            sound set, "Orbit", melodic space house in A minor. Not built: the
            music beds from a local audio file and the Resonance visualiser
            (part B), and the ten themes (part C). Everything is off by
-           default. See the 2026-09-19 note at the end.
+           default. Part A was reviewed the same day and the five nits it
+           found are fixed. See the two 2026-09-19 notes at the end; the
+           second lists what is still open, including whether section 2's
+           sound for a run STARTING is wanted at all.
 
 Shape:     A Sound tab in Preferences, LAST tab, everything OFF BY DEFAULT.
            Interface feedback sounds, start/stop sounds for a run, optional
@@ -187,9 +190,15 @@ MEASURED, WITH THE SANDBOX RULES (offscreen, private HOME, volume 0)
     same 185-201 ms connection with the GUI thread's worst gap at 5.2-8.3
     ms. The first probe of this had reported 10.3 ms because it excluded the
     tick before the work started; the notes record how.
-  * Through the real dialog: first ever enable (scipy import + render on the
-    audio thread) worst GUI gap 34-52 ms, ready after 1.3-1.8 s; every later
-    start 5.3 ms (the tick itself), ready after 0.26 s.
+  * Switching sound on: first ever (scipy import + render on the audio
+    thread) worst GUI gap 34-52 ms, ready after 1.3-1.8 s. With the files
+    already rendered: about 30 ms once per process, ready after 0.22-0.32 s;
+    a second switch-on inside the same process is 5.4 ms, the tick itself,
+    ready in 3 ms. THE "5.3 ms, 0.26 s" ROW FIRST WRITTEN HERE WAS THE
+    SECOND CASE LABELLED AS THE FIRST, corrected after review; the 30 ms is
+    the audio thread's one-off connection to the sound server and lands
+    +192 to +282 ms in. See docs/notes/spacr/qt/sound.md, which also records
+    why the Preferences dialog is the wrong place to measure this.
   * With no sound server at all (PULSE_SERVER=unix:/nonexistent): every
     effect loads with Status.Error, no exception, no dialog, silence. Qt
     prints its own "playback of this format is not supported" line.
@@ -224,3 +233,77 @@ WHAT IS LEFT
     it sounds like Worakls or like a test tone is the maintainer's ear.
   * The frozen bundle will now pick up Qt Multimedia and its FFmpeg
     libraries through the import in _make_effect; its size was not measured.
+  * A SOUND WHEN A RUN STARTS, WHICH SECTION 2 ASKS FOR AND PART A DID NOT
+    BUILD, and nobody had written down which of those two was meant. The
+    recommendation the maintainer accepted names "click, hover and
+    run-finished"; part A's own list is click, hover, run finished, run
+    failed and the music bed. So a start sound was never in part A, and it
+    has not been dropped either -- it is an open question for the
+    maintainer, not a decision anybody has made. The argument against it:
+    the run sounds earn their place because the user is in another window
+    and the run is long, and the user who just pressed Run is looking at
+    the screen. The argument for: it confirms the press did something. If
+    it is wanted, it is one more entry in FEEDBACK_EVENTS, one figure in
+    sound_synth and one row on the tab.
+  * Windows and macOS audio backends are untested; only Linux/PipeWire
+    through Qt's FFmpeg backend has been run.
+
+--------------------------------------------------------------------------------
+2026-09-19 — PART A AFTER REVIEW: FIVE NITS, ALL FIXED
+--------------------------------------------------------------------------------
+
+The review found no correctness or safety problem and five nits. All five
+are fixed; four were real and the fifth turned out to be a measurement this
+file had got wrong.
+
+  1. "Nothing is imported while sound is off" was true at launch and not
+     afterwards. notify.announce_pipeline_finished imported spacr.qt.sound
+     unconditionally, so the first run that ENDED in any session paid 20.4
+     ms on the GUI thread for a user who had never asked for sound, and
+     SoundPage did the same on every Preferences close. Both now ask
+     sys.modules first, the way apply_preferences_to_app already did.
+     Nothing is lost: without an engine both calls return at once, and the
+     engine is only ever built by apply_sound_preferences.
+
+  2. THE "every later start: 5.3 ms, ready after 0.26 s" ROW WAS THE WRONG
+     CASE. Re-measured four times in fresh interpreters against a warm
+     cache: the first switch-on in a process costs about 30 ms (30.0, 30.2,
+     31.6 and 9.5 ms) and is ready after 0.22-0.32 s. 5.3 ms is what a
+     SECOND switch-on inside one process costs. The reviewer was right and
+     the original probe measured through the Preferences dialog, where
+     Save's own 390-460 ms of unrelated work runs with no event-loop tick
+     inside it and hides the audio thread's connection entirely. The row
+     and the notes now carry both cases and say which is which.
+
+  3. Pressing a Preview button played the click sound as well as the
+     previewed one -- on the Click row, the same pluck twice. The Preview
+     buttons now carry the Qt property sound.SILENT_PRESS_PROPERTY
+     ("spacrSilentPress"), which the input filter reads on a left press on
+     a pressable widget and nowhere else.
+
+  4. Two more things the music bed's Preview got wrong. Switching the
+     master off in the dialog only greyed the rows and left nine seconds of
+     bed playing underneath a switch that said sound was off. And a
+     Preview taken while the STORED bed was playing silenced it after the
+     fade until the dialog closed, because the fade's last step and the
+     bed's stop were the same stop. The last fade step now emits
+     bed_faded and the engine answers it by putting the stored settings
+     back on the bed.
+
+  5. tests/conftest.py sandboxes every other resolver that writes under the
+     real ~/.spacr -- the run journal, the plate queue -- but not
+     sound_synth.sound_cache_root, whose fallback is Path.home(). The three
+     sound test files each point the cache somewhere of their own, so
+     nothing had been written there; the first test that built a
+     SoundEngine without saying where would have. SPACR_SOUND_CACHE is now
+     set in pytest_configure, before collection, which also reaches the
+     subprocess tests.
+
+Tests: 5 new ones, all mutation-checked (each guard removed on its own
+turned its own test red). tests/qt/test_sound_is_silent_until_asked.py 44,
+tests/qt/test_the_sound_tab_is_last_and_off.py 14,
+tests/qt/test_the_sounds_are_melodic_space_house.py 38.
+
+Still open, and recorded above rather than decided here: nobody has
+listened to "Orbit"; the run-START sound of section 2; the frozen bundle's
+size with Qt Multimedia in it; Windows and macOS.
