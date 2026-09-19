@@ -521,11 +521,11 @@ def disable_debug() -> None:
 def function_trace_enabled() -> bool:
     """Return whether spaCR function-level DEBUG tracing is active.
 
-    The trace is controlled by :func:`enable_function_trace`,
-    :func:`disable_function_trace`, and the GUI's *Verbose logging*
-    preference.  It never records arguments or return values, which avoids
-    copying large arrays and keeps API keys or filesystem metadata out of the
-    diagnostic log.
+    The trace is controlled by :func:`enable_function_trace` and
+    :func:`disable_function_trace`.  The GUI's *Verbose logging* preference
+    does not install it.  It never records arguments or return values, which
+    avoids copying large arrays and keeps API keys or filesystem metadata out
+    of the diagnostic log.
     """
     return _TRACE_ENABLED
 
@@ -533,7 +533,7 @@ def function_trace_enabled() -> bool:
 #: Resolved source paths, keyed by the ``co_filename`` they came from.
 #:
 #: WHY THIS EXISTS. :func:`_trace_one_event` runs on EVERY Python call and
-#: return in the process while verbose logging is on, and it used to call
+#: return in the process while the function trace is on, and it used to call
 #: ``os.path.realpath`` on each one. That is not a string operation: it
 #: resolves every component of the path against the filesystem, and it
 #: measured 11,739 ns per call on this machine against 45 ns for a dict hit
@@ -541,8 +541,8 @@ def function_trace_enabled() -> bool:
 #:
 #: At a conservative ten thousand calls a second in a Qt application that is
 #: roughly a quarter of a core spent resolving the same few hundred paths
-#: over and over, which is what keeps verbose logging too expensive to leave
-#: switched on.
+#: over and over, which is what kept the function trace too expensive to
+#: leave switched on.
 #:
 #: UNBOUNDED ON PURPOSE, and safe: the key space is the set of Python source
 #: files the process actually executes, which is a few hundred, fixed after
@@ -623,9 +623,11 @@ def enable_function_trace() -> None:
     and—on Python 3.12+—threads that already exist.  Calls outside the spaCR
     package are ignored.  Repeated calls are idempotent.
 
-    This is intentionally verbose and has measurable overhead, so the GUI
-    enables it only while *Verbose logging* is switched on.  Normal operation
-    has no profile hook installed.
+    This is intentionally verbose and has measurable overhead.  With it
+    installed, the Home screen took 7.4 s to become usable, against 4.0-4.2 s
+    without it.  Nothing in the GUI installs it, and the *Verbose logging*
+    preference does not either.  Normal operation has no profile hook
+    installed.
     """
     global _TRACE_ENABLED, _PREVIOUS_SYS_PROFILE, _PREVIOUS_THREAD_PROFILE
     if _TRACE_ENABLED:

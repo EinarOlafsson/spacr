@@ -3848,9 +3848,9 @@ def get_log_file_levels() -> frozenset:
 
     VERBOSE LOGGING ADDS DEBUG, because otherwise the two settings
     contradict each other and the one the user did not touch wins.
-    With verbose on, the profile hook emits DEBUG records for calls and
-    returns. Omitting DEBUG from the file handler would incur all of that cost
-    while discarding the resulting trail.
+    With verbose on, spaCR's loggers emit DEBUG records. Omitting DEBUG from
+    the file handler would build every one of those records and then discard
+    it.
 
     Whatever verbose means, it cannot mean "do the work and write none of
     it". It is not stored into the level preference: the user's own choice
@@ -3918,8 +3918,8 @@ def set_log_levels(file_levels, console_levels) -> tuple:
 #: the honest default is off.
 DEFAULT_VERBOSE_LOGGING = False
 
-#: Process-tree accounting is cheap enough to leave on.  Unlike verbose
-#: logging it samples once a second and installs no Python profile hook.
+#: Process-tree accounting is cheap enough to leave on.  It samples once a
+#: second and installs no Python profile hook.
 PERFORMANCE_LOGGING_LEVELS = ("off", "summary", "detailed")
 DEFAULT_PERFORMANCE_LOGGING = "summary"
 
@@ -5328,18 +5328,21 @@ class PreferencesDialog:
 
         verbose_check = Toggle(tr("Enable verbose logging"))
         verbose_check.setToolTip(
-            "Records every spaCR function entered and left, plus "
-            "INFO-level chatter from cellpose, torch, PIL and matplotlib, "
-            "and echoes every record into the active app's Console. It is "
-            "what makes a bug report worth reading.\n\n"
-            "IT IS EXPENSIVE, measured rather than estimated: starting "
-            "spaCR took 3 seconds with this off and 65 seconds with it on, "
-            "because startup is where the most function calls happen. Each "
-            "traced call writes about 156 bytes.\n\n"
-            "So turn it on to reproduce a specific problem, and off again "
-            "afterwards. The animated background is never traced whatever "
-            "this says: it draws sixty frames a second and tracing it wrote "
-            "megabytes a minute."
+            "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. "
+            "It also lets cellpose report which model it loaded, and it "
+            "records which buttons you pressed. That trail is what makes a "
+            "bug report worth reading.\n\n"
+            "It costs no time you can see. This was measured on one "
+            "workstation by opening every module, once with this on and "
+            "once with it off. Home was ready in "
+            "about 4 seconds after a cold start both ways. "
+            "The slowest module opened in "
+            "about 7 seconds both ways.\n\n"
+            "The Console still shows only the levels you switch on for it "
+            "on the Logging tab. This switch "
+            "does not trace every function call. "
+            "That tracer is a separate tool for developers, and nothing "
+            "here turns it on."
         )
         verbose_check.setChecked(get_verbose_logging())
         modules.addRow(tr("Diagnostics"), verbose_check)

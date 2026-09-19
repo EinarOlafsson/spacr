@@ -269,12 +269,25 @@ def test_a_trace_line_is_not_mostly_prefix():
 
 
 def test_the_tooltip_says_what_verbose_costs():
-    """A default nobody can weigh is a default nobody can turn off knowingly."""
+    """A default nobody can weigh is a default nobody can turn off knowingly.
+
+    The figures are the whole-application benchmark of 2026-09-19: Home
+    ready in 4.00-4.18 s from cold and the slowest module in 7.02-7.54 s,
+    the same with verbose on and off. The tooltip used to quote 3 s against
+    65 s and "about 156 bytes" per traced call. Both described the function
+    tracer, which the preference stopped installing on 2026-08-30 -- see
+    `test_gui_verbose_never_installs_an_interpreter_profile_hook`. A tooltip
+    still quoting them would tell a user that a cheap switch is expensive.
+    """
     import inspect
 
     from spacr.qt import preferences
 
     source = inspect.getsource(preferences.PreferencesDialog)
-    assert "156 bytes" in source, "the per-call cost is not stated"
-    assert "65 seconds" in source, "the startup cost is not stated"
-    assert "never traced" in source, "the paint-path exclusion is not stated"
+    assert "about 4 seconds" in source, "the time to Home is not stated"
+    assert "about 7 seconds" in source, "the slowest module is not stated"
+    assert "does not trace every function call" in source, (
+        "the tooltip does not say the function tracer is left out")
+    for stale in ("65 seconds", "156 bytes", "entered and left"):
+        assert stale not in source, (
+            f"the tooltip still describes the function tracer: {stale!r}")

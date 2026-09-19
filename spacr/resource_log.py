@@ -18,10 +18,12 @@ This module sums the
 process and every descendant, and names each one, so "which trial was large"
 is a question the record can answer.
 
-WHY IT IS NOT VERBOSE LOGGING. Verbose logging installs a profile hook that
-fires on every call and every return, measured at twenty times the startup.
-An account taken through it would describe the traced program rather than the
-real one, which is exactly the program nobody wants measured. So this samples
+WHY IT IS NOT VERBOSE LOGGING. Verbose logging only decides which log records
+are kept, so it has no account of memory to give. The function tracer that it
+once installed fired on every call and every return, and it cost twenty times
+the startup. An account taken through a tracer would describe the traced
+program rather than the real one, which is exactly the program nobody wants
+measured. So this samples
 instead: one psutil read a second, on a daemon thread that is never the GUI
 thread, on an otherwise unperturbed run. Three states rather than a checkbox,
 because the useful default is not "off" -- the most valuable resource data
