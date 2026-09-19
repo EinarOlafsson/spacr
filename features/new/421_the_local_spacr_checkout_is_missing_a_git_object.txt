@@ -1,0 +1,156 @@
+================================================================================
+THE LOCAL SPACR CHECKOUT IS MISSING A GIT OBJECT, SO IT CAN NO LONGER FETCH
+================================================================================
+
+Status:    not started
+Requested: 2026-09-19 — "Your local spaCR repo is damaged. Add an item to new
+           features specifying the problem and then fixing it."
+Owner:     Einar (the fix needs either a newer git or a coordinated swap of a
+           checkout that other sessions are working in)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The work-box checkout at /home/carruthers/Documents/repo/spacr-claude (branch
+`spacr-claude`) is missing one object from its object store:
+
+    $ git cat-file -t 984b725b5a11346ebf011808812d562a43869fc7
+    fatal: git cat-file: could not get object info
+
+Every fetch now fails, because the server sends a pack whose deltas are based
+on that object:
+
+    $ git fetch origin nightly
+    error: Could not read 984b725b5a11346ebf011808812d562a43869fc7
+    fatal: pack has 460 unresolved deltas
+    fatal: fetch-pack: invalid index-pack output
+
+Found 2026-09-19 while adding a worktree to update the model-zoo README. A
+worktree shares the main repository's object store, so it inherits the damage;
+it is not specific to one branch.
+
+Measured on 2026-09-19:
+
+    git version                      2.34.1
+    shallow repository               false
+    local refs/remotes/origin/nightly  6686b80  (11 months old)
+    actual remote nightly            77bdb74
+    uncommitted files in checkout    60  (other sessions' in-flight work)
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The ledger is how the concurrent sessions coordinate, and it only works if
+every session can fetch nightly. From this checkout:
+
+  * `git pull` / `git fetch` fail outright, so no session working here sees
+    what the others have pushed.
+  * `origin/nightly` is frozen at a commit from last year, so anything that
+    compares against it (diffs, `--not --remotes`, promotion tooling) reasons
+    about a branch that no longer exists.
+  * A push from here is made without knowing the current tip, which invites
+    rejected pushes or, worse, work rebuilt on a stale base.
+
+It is also silent until someone fetches: status, diff and local commits all
+still look normal.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Do step 1 before anything else, whichever route follows. Sixty files of other
+sessions' work are uncommitted in this checkout, and neither route may lose
+them.
+
+1. Snapshot the working tree, independent of git (so a damaged object store
+   cannot block the backup):
+
+       R=/home/carruthers/Documents/repo/spacr-claude
+       B=/media/carruthers/mnt3/claude/spacr_backup_$(date +%Y%m%d_%H%M)
+       rsync -a --exclude .git "$R"/ "$B"/worktree/
+       cp -a "$R"/.git "$B"/dotgit
+       git -C "$R" status --porcelain > "$B"/status_before.txt
+
+2. ROUTE A — preferred, touches nothing but the object store.
+   `git fetch --refetch` re-downloads every object reachable from the remote,
+   which restores 984b725 without touching the working tree or the index.
+   It needs git >= 2.36, and the system git is 2.34.1. A newer git from
+   conda-forge avoids changing the system install:
+
+       conda create -y -n gitnew -c conda-forge git
+       G=/home/carruthers/anaconda3/envs/gitnew/bin/git
+       $G -C "$R" fetch --refetch origin
+       $G -C "$R" fsck --connectivity-only
+
+   If fsck is clean, stop here and go to HOW TO KNOW IT WORKED.
+
+3. ROUTE B — only if route A fails: re-clone and transplant.
+
+   a. Export commits that exist only locally (they are not on any remote and
+      would otherwise be lost):
+
+          git -C "$R" log --oneline spacr-claude --not --remotes
+          git -C "$R" format-patch --binary -o "$B"/local_commits \
+              $(git -C "$R" merge-base spacr-claude origin/main)..spacr-claude
+
+      If format-patch fails because a local-only commit needs the missing
+      object, record which commit and recover its content from "$B"/worktree.
+
+   b. Fresh clone, recreate the branch, replay the local commits:
+
+          git clone https://github.com/EinarOlafsson/spacr.git "$R".fresh
+          git -C "$R".fresh checkout -b spacr-claude origin/nightly
+          git -C "$R".fresh am "$B"/local_commits/*.patch
+
+   c. Restore the uncommitted state exactly, from the rsync snapshot:
+
+          rsync -a --exclude .git "$B"/worktree/ "$R".fresh/
+
+   d. Swap, keeping the damaged copy until verified:
+
+          mv "$R" "$R".damaged && mv "$R".fresh "$R"
+
+   Tell the other sessions before step d: their paths do not change, but a
+   session with a file open mid-swap will be writing into the old directory.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+All four must hold:
+
+    git -C "$R" cat-file -t 984b725b5a11346ebf011808812d562a43869fc7
+        -> commit, tree or blob (not "could not get object info")
+
+    git -C "$R" fetch origin nightly
+        -> exit status 0
+
+    git -C "$R" rev-parse origin/nightly  ==  git ls-remote origin nightly
+        -> same commit
+
+    git -C "$R" status --porcelain | diff - "$B"/status_before.txt
+        -> no output: the same 60 uncommitted files, nothing lost or added
+
+Only after all four: delete "$R".damaged (route B) and the backup.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not repaired by the session that found it. Other sessions have 60 uncommitted
+files in that checkout, and both routes rewrite either its object store or the
+directory itself. A mistake there loses someone else's work, so the fix needs
+the maintainer and a moment when the other sessions are told.
+
+Upgrading the system git to get `--refetch` was rejected: it is a change to a
+system package. The conda-forge git in route A gives the same command without
+touching the system.
+
+`git fsck --full` was not run as the diagnosis. On a repository this size it is
+slow, and the missing object is already identified exactly by `cat-file`.
+
+In the meantime the model-zoo README is updated from an independent shallow
+clone at /media/carruthers/mnt3/claude/spacr_nightly_clone, which has its own
+object store and so cannot inherit, or worsen, this damage.
