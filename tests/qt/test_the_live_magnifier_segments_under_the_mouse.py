@@ -1244,3 +1244,95 @@ def test_closing_the_screen_gives_the_label_images_back(qtbot, screen):
     screen._magnifier.close()
     assert not screen._magnifier._image_cache
     assert not screen._magnifier._image_cache_used
+
+
+# ---------------------------------------------------------------------------
+# The Overlap rule is counted once over the pixels, and says the same thing
+# ---------------------------------------------------------------------------
+#
+# The rule used to run a whole-region comparison per object, and under `clip`
+# a whole connected-component pass per object as well. Item 417 let the box be
+# as wide as the image, and a click then waited seconds on the GUI thread:
+# measured on a 2048 px region holding 500 objects, 6.1 s for clip and 0.82 s
+# for skip. These pin the answer against the rule as it was written, so the
+# faster one is only faster.
+
+
+def _rule_object_by_object(labels, occupied, *, overlap, min_area):
+    """The Overlap rule as `_paste_region_objects` ran it before, per object."""
+    from scipy import ndimage
+
+    incoming = np.asarray(labels)
+    kept = np.zeros(incoming.shape, dtype=np.int64)
+    for value in (int(v) for v in np.unique(incoming) if int(v) > 0):
+        body = incoming == value
+        if overlap == "skip" and bool((body & occupied).any()):
+            continue
+        if overlap == "clip":
+            body = body & ~occupied
+            pieces, count = ndimage.label(body, structure=np.ones((3, 3)))
+            if count > 1:
+                areas = np.bincount(pieces.ravel())
+                areas[0] = 0
+                body = pieces == int(np.argmax(areas))
+        if int(body.sum()) < max(1, int(min_area)):
+            continue
+        kept[body] = value
+    return kept
+
+
+@pytest.mark.parametrize("overlap", ["clip", "skip", "replace"])
+@pytest.mark.parametrize("min_area", [0, 1, 7])
+def test_the_overlap_rule_agrees_with_the_rule_it_replaced(overlap, min_area):
+    """Random regions, including objects an existing one cuts in two."""
+    rng = np.random.default_rng(11)
+    for _ in range(12):
+        labels = np.zeros((40, 40), np.int32)
+        for value in range(1, 7):
+            y, x = rng.integers(0, 33, 2)
+            h, w = rng.integers(3, 8, 2)
+            labels[y:y + h, x:x + w] = value
+        occupied = np.zeros((40, 40), bool)
+        for _ in range(4):
+            y, x = rng.integers(0, 36, 2)
+            occupied[y:y + rng.integers(1, 5), x:x + rng.integers(1, 5)] = True
+
+        mine = engine._surviving_region_objects(
+            labels, occupied, overlap=overlap, min_area=min_area)
+        theirs = _rule_object_by_object(
+            labels, occupied, overlap=overlap, min_area=min_area)
+        np.testing.assert_array_equal(mine, theirs)
+
+
+def test_an_object_an_existing_one_splits_keeps_its_largest_piece_only():
+    labels = np.zeros((9, 9), np.int32)
+    labels[2:7, 1:8] = 4
+    occupied = np.zeros((9, 9), bool)
+    occupied[:, 3] = True
+
+    kept = engine._surviving_region_objects(labels, occupied, overlap="clip")
+    assert set(np.unique(kept)) == {0, 4}
+    np.testing.assert_array_equal(kept[2:7, 4:8], 4)
+    assert not kept[:, :4].any(), "the two-pixel-wide piece was the smaller one"
+
+
+def test_two_pieces_of_the_same_size_keep_the_one_labelled_first():
+    """The tie-break is the rule's, not the new implementation's."""
+    labels = np.zeros((5, 7), np.int32)
+    labels[1:4, :] = 2
+    occupied = np.zeros((5, 7), bool)
+    occupied[:, 3] = True
+
+    kept = engine._surviving_region_objects(labels, occupied, overlap="clip")
+    np.testing.assert_array_equal(kept[1:4, :3], 2)
+    assert not kept[:, 4:].any()
+    np.testing.assert_array_equal(
+        kept, _rule_object_by_object(labels, occupied, overlap="clip",
+                                     min_area=0))
+
+
+def test_the_rule_refuses_a_name_it_does_not_know():
+    with pytest.raises(ValueError, match="overlap must be one of"):
+        engine._surviving_region_objects(
+            np.zeros((3, 3), np.int32), np.zeros((3, 3), bool),
+            overlap="whatever")

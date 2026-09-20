@@ -101,6 +101,38 @@
   -- and it is kept because outlining the space between the cells is a real
   thing to do.
 
+## Item 407, the Overlap rule is counted once over the pixels (2026-09-20)
+
+- `_surviving_region_objects` / `_largest_piece_of_each`: the rule
+  `_paste_region_objects` applied per object -- a whole-region comparison for
+  every object, and under `clip` a whole connected-component pass for every
+  object as well. That is fine for the ten objects in a 128 px box and is not
+  fine for the box item 417 allows, which is as wide as the image. Measured on
+  this machine, one region, one click, on the GUI thread:
+
+      region   objects   clip        skip        replace
+      128 px        10   0.4 ms      0.3 ms      0.3 ms      (was 0.3/0.3)
+      256 px        30   1.3 ms      1.1 ms      0.9 ms      (was 7.2/1.2)
+      512 px        60   5.2 ms      4.4 ms      3.6 ms      (was 44.8/6.1)
+     1024 px       200  29.3 ms     22.2 ms     17.4 ms      (was 595/60.5)
+     2048 px       500 117.9 ms     87.4 ms     72.1 ms      (was 6085/821)
+
+  Six seconds of frozen window on a click, at a box size the Size box offers.
+  The ids added are identical at every size, which is how the two were
+  compared; `test_the_overlap_rule_agrees_with_the_rule_it_replaced` pins it
+  against the old rule written out object by object, over random regions,
+  for all three rules and three Min areas.
+- `_largest_piece_of_each` uses `skimage.measure.label` and NOT
+  `scipy.ndimage.label`, and the difference is not a preference. ndimage
+  labels connected runs of TRUE, so two different objects that touch become
+  one piece and the largest piece of the pair is the largest piece of
+  neither. skimage labels connected runs of one VALUE, which is what a piece
+  of an object is. The first version used ndimage and the random comparison
+  above caught it on two pixels of one seed.
+- The rule lives here and not in the screen because the box has to draw what
+  a click would add and the click has to add exactly that. Two
+  implementations of one rule is a promise the box cannot keep.
+
 Prose lifted out of `spacr/qt/mask_engine.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 
