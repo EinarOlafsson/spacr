@@ -4,7 +4,10 @@ THE LOCAL SPACR CHECKOUT IS MISSING A GIT OBJECT, SO IT CAN NO LONGER FETCH
 Filed as 421 and moved to 432 on 2026-09-19; renumbered 434 the same day because
 432 is the error-reporter item (reserved with 428-433 in 325's 2026-09-19 notice).
 
-Status:    not started
+Status:    THE REPAIR IS BUILT AND PROVED, 2026-09-20; APPLYING IT NEEDS THE
+           WORK BOX. The missing object turned out to be present on the HOME
+           machine, so the fix is one command and no re-clone. See the
+           trailing note.
 Requested: 2026-09-19 — "Your local spaCR repo is damaged. Add an item to new
            features specifying the problem and then fixing it."
 Owner:     Einar (the fix needs either a newer git or a coordinated swap of a
@@ -156,3 +159,60 @@ slow, and the missing object is already identified exactly by `cat-file`.
 In the meantime the model-zoo README is updated from an independent shallow
 clone at /media/carruthers/mnt3/claude/spacr_nightly_clone, which has its own
 object store and so cannot inherit, or worsen, this damage.
+
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE OBJECT WAS HERE ALL ALONG, AND IT TRAVELS AS TEXT
+--------------------------------------------------------------------------------
+
+THE FIRST THING TO CHECK WAS NOT CHECKED WHEN THIS WAS FILED: whether the
+other machine has the object. It does.
+
+    $ git cat-file -t 984b725b5a11346ebf011808812d562a43869fc7
+    commit
+    $ git log -1 --format='%h %ad %s' --date=short 984b725b5
+    984b725b5 2026-07-21 test(qt): 46 pytest-qt tests covering theme, widgets...
+
+It is UNREACHABLE here -- on no branch, local or remote -- which is why
+nothing on this machine ever noticed. It is still what the server's packs
+delta against, which is why the work box cannot fetch.
+
+WHY IT TRAVELS AS TEXT RATHER THAN AS A PACKFILE. A single-object packfile
+was made first and works: 840 bytes, and `git index-pack --stdin` in an
+empty repository makes `git cat-file -t` answer `commit`. It is not what
+was committed, because the object is a COMMIT -- a few lines of text -- and
+git names an object by the SHA-1 of `"<type> <length>\0<content>"`. So the
+commit written back byte for byte gets the name it had:
+
+    $ git hash-object -t commit -w --stdin < 984b725b....commit
+    984b725b5a11346ebf011808812d562a43869fc7
+
+PROVED, not assumed: done in a fresh `git init` directory, and the name it
+printed is the name in the file. A text file is reviewable in a diff,
+verifiable by anyone, and -- the part that decides it -- downloadable
+through a web browser on a machine whose `git fetch` does not work. Which is
+precisely the machine that needs it.
+
+WHERE IT IS: `tools/repair/984b725b5a11346ebf011808812d562a43869fc7.commit`,
+1,708 bytes, with `tools/repair/README.md` beside it.
+
+WHAT TO DO ON THE WORK BOX, and the download must NOT be a git fetch --
+that is the broken thing:
+
+    cd /home/carruthers/Documents/repo/spacr-claude
+    git hash-object -t commit -w --stdin < 984b725b....commit
+    git cat-file -t 984b725b5a11346ebf011808812d562a43869fc7    # -> commit
+    git fetch origin nightly                                     # works again
+
+IF THE NAME IT PRINTS IS NOT THE NAME IN THE FILE, STOP. The file was
+altered in transit and writing it has put a DIFFERENT object into the
+store, which is a new problem rather than a fix.
+
+GUARDED: `tests/test_a_missing_object_can_be_put_back.py` recomputes the
+name from the bytes in the repository, so a file that rots fails in CI
+rather than on the machine that has no other way to get it. It also holds
+that the README still says fetch is the broken thing -- without that
+sentence the first thing a reader tries is the one thing that cannot work.
+
+STILL OWNED BY THE MAINTAINER: running those three lines on the work box.
+Nothing here can reach that machine.
