@@ -2,15 +2,33 @@
 DINOCELL AS A SEGMENTATION BACKEND
 ================================================================================
 
-Status:    BUILT 2026-09-15 in 14b459a18 -- DINOCell behind the
-           `segmentation_backend` setting (spacr/_segmentation_backends.py,
-           100% statements and branches under its own tests). Its published
-           release pins versions that conflict with spaCR's, so it needs an
-           environment of its own. Filed FUTURE 2026-09-14; APPROVED FOR BUILD by the maintainer the
+Status:    RUN FOR REAL, ~85%, 2026-09-19 (the trailing note of that date).
+           DINOCell installs into an environment of its own from PyPI
+           (dinocell 0.74, torch 2.10.0, its own numpy and Cellpose), spaCR
+           calls it out of process, and it segmented a field end to end
+           through the ordinary Mask path on the CPU -- 9 of 9 objects,
+           15.7 s once the worker is warm. Its Cellpose-style flows reach
+           `parse_cellpose4_output` unchanged, so merge/split/filter,
+           tracking, the object-count database and saving all ran as they do
+           for Cellpose.
+           Left: the scorecard. 404 reaches 100% only when DINOCell is scored
+           on the set item 370 authorised, with `toxoplasma_pv_v1` re-scored
+           on that same set in the same run, and that waits for the
+           maintainer's curation -- queued as
+           gpu_queue/404-dinocell-1.md, marked WAITS FOR CURATION. Also left:
+           the GPU (queued as gpu_queue/404-dinocell-2.md, a real plate
+           field), and Windows and macOS, which are handled by construction
+           and have never been run.
+           (Was: BUILT 2026-09-15 in 14b459a18 -- DINOCell behind the
+           `segmentation_backend` setting, 100% statements and branches under
+           its own tests, but never once installed or run for real. Its
+           published release pins versions that conflict with spaCR's, so it
+           needs an environment of its own; item 423 built that on
+           2026-09-19.)
+           Filed FUTURE 2026-09-14; APPROVED FOR BUILD by the maintainer the
            same day, verbatim -- "build DINOCell and here is SAMcell
            https://github.com/saahilsanganeriya/SAMCell implement both both
-           are available on pypi". Not blocking a release; it is now real work
-           rather than a note.
+           are available on pypi". Not blocking a release.
 Requested: 2026-09-14, verbatim -- "we should add to future features to add
            support for DINOCell  https://github.com/kadenstillwagon/DINOCell"
 Owner:     Claude home session (built in the 63/394 integration). `spacr/model_zoo.py` holds `ModelEntry` and its `kind`
@@ -101,3 +119,123 @@ new mask path at all; SAMCell emits masks through its own pipeline and is the
 one that decides whether a second path is needed. Settle THAT question once,
 across both, before writing either -- two backends added a month apart is how
 one mechanism becomes two.
+
+--------------------------------------------------------------------------------
+2026-09-19 — RUN FOR REAL: THE ENVIRONMENT, THE FIELD, AND WHERE THE 383 MB WENT
+--------------------------------------------------------------------------------
+
+Decided: "Isolated env per backend! But with the addition of adding cellpose
+3 and its cyto, nucleus, and cyto2 and cyto3 models. The cellpose 3 backend
+will allow more models from the biomass.io to be added to the model zoo."
+-- the maintainer, 2026-09-19, answering item 423's open questions.
+("biomass.io" is bioimage.io.) 423 built that machinery and said plainly in
+its own Left list that "DINOCell and SAMCell have never been installed for
+real: their install plans and adapters are exercised with stand-ins only".
+This note is DINOCell's half of that, done.
+
+WHAT WAS RUN, in a sandboxed HOME with SPACR_BACKENDS_DIR under the
+scratchpad, on the CPU, against the real packages on PyPI. Nothing of the
+maintainer's configuration, cache or data was written to; the one real plate
+field named below was read for its dimensions and nothing else.
+
+  1. spaCR's own installer, `_install_backend('dinocell')`, built the
+     environment: 541.2 s and 1,797,510,073 bytes. It picked spaCR's own
+     Python 3.12.13 (inside DINOCell's 3.11-to-3.14 range) and installed
+     dinocell 0.74, torch 2.10.0+cpu, torchvision 0.25.0, numpy 2.4.3 and
+     cellpose 4.0.9. The self-test loaded the package and the marker was
+     written; the row read "installed".
+
+     SPACR_BACKEND_TORCH_INDEX was set to the CPU wheel index to keep the
+     download small. Left alone on this machine it would have been PyPI's
+     CUDA build, which is the GPU job below.
+
+  2. `generate_cellpose_masks_sam` with segmentation_backend='dinocell' on a
+     256 x 256 field of nine discs: 9 of 9 objects, mask uint16 at the
+     field's own shape, `object_counts` row
+     ("plate1_A01_1.npy", "cell_before_filtration", 9). 180.7 s cold --
+     the 383 MB checkpoint download, the interpreter start and the ViT load
+     -- and 15.7 s for a second field in the same worker. THE 15.7 s IS THE
+     SEGMENTATION; the rest happens once per worker, which is why the worker
+     is kept alive between fields.
+
+     spaCR's own Cellpose 4 was never constructed: the run held a
+     `CellposeModel` that raises if anything builds it, and nothing did.
+
+  3. Uninstall: the environment and everything in it gone, the row back to
+     "installable".
+
+THE FLOWS DO REACH THE MASK PATH, which is this item's whole architectural
+claim ("it predicts CELLPOSE-STYLE FLOWS rather than binary masks... a
+backend that emits them plugs into what exists"). The adapter returns
+Cellpose's own `(masks, flows, styles)` triple, `parse_cellpose4_output` read
+it unchanged, and merge/split/filter, the object-count database and the save
+all ran as they do for Cellpose. Confirmed against dinocell 0.74's own
+source: `FlowsPredictionHead` returns [dx, dy, sigmoid(cell probability)] at
+the 512 crop, and spaCR stacks them (dy, dx) for `compute_masks` exactly as
+DINOCell's `cells_from_flows` does.
+
+TWO THINGS THE REAL RUN FOUND THAT THE STAND-INS COULD NOT
+
+  * THE 383 MB CHECKPOINT WAS LANDING IN THE PERSON'S OWN CACHE. DINOCell
+    fetches `KadenStillwagon/DINOCell` with `hf_hub_download`, which writes
+    to ~/.cache/huggingface unless HF_HOME says otherwise. Measured: a run
+    put 402,337,098 bytes there and nothing inside the environment. That
+    breaks two of 423's promises at once -- "Uninstall deletes the
+    environment and everything downloaded into it", and a preflight that
+    refuses an install when the BACKENDS FOLDER has less than the spec's
+    3 GB free while the weights go to a different filesystem.
+    `_worker_env` now sets HF_HOME inside the environment, the way Cellpose
+    3's CELLPOSE_LOCAL_MODELS_PATH already was. Measured after: the same
+    402,337,098 bytes inside the environment, 0 in the user cache, and
+    Uninstall took both. The environment with its checkpoint is
+    2,199,847,171 bytes, under the 3 GB the row claims.
+
+    SAMCell's torch.hub cache has the same shape and TORCH_HOME is the same
+    lever. NOT CHANGED HERE: it is item 405's, and 405 should measure it
+    rather than inherit an untested line.
+
+  * THE SELF-TEST DID NOT IMPORT WHAT THE ADAPTER IMPORTS. 423 learned this
+    with Cellpose 3 and `packaging` and fixed that one instance; DINOCell
+    had a second waiting. The adapter calls `cellpose.plot.dx_to_circ` to
+    build the flow image, and `cellpose.plot` was not in its probe, so an
+    environment missing it would have passed the install and failed on the
+    first field. Added, and the lesson is now a ratchet rather than a habit:
+    `test_every_module_an_adapter_imports_is_in_its_self_test` parses each
+    adapter's own source and fails when a module it imports is absent from
+    its probe. Run against the probe as it was, it names `cellpose.plot`
+    exactly; torch and numpy are exempt and the test says why.
+
+WHAT IS QUEUED, AND WHY NEITHER COULD BE RUN HERE
+
+  gpu_queue/404-dinocell-2.md -- a CUDA DINOCell environment (PyPI's default
+  index) and one REAL plate field: 1998 x 1998 uint16 from
+  toxoplasma_pv_model/data/toxoplasma_pv/images, 49 tiles of 512 instead of
+  the CPU run's one. Queued rather than run because the orchestrator runs GPU
+  jobs one at a time, on an idle GPU, and this unit's budget is two minutes.
+
+  gpu_queue/404-dinocell-1.md -- MARKED "WAITS FOR CURATION". The scorecard.
+  It refuses until there is a frozen set whose truth masks match their
+  published digests, and it needs `toxoplasma_pv_v1` re-scored on that same
+  set (370-curation-prep-1 stage 2) so the two columns come from one set.
+  `scorecard.scorecard_rows` refuses two arms whose set name and version
+  disagree, which is the mechanism behind this file's own sentence that two
+  numbers from two sets are not a comparison.
+
+  AND A HONEST WARNING WRITTEN INTO THAT JOB: both sets 370 has prepared are
+  Toxoplasma. 370's requirements say the set must be WIDER THAN TOXOPLASMA,
+  and say that requirement exists because of this item and 405. So a score
+  on the PV set will answer "how does DINOCell do on Toxoplasma PV fields",
+  which is worth having, and will NOT test the zero-shot generalisation
+  claim this item was filed for. Whoever runs it must record that beside the
+  number.
+
+WHY ~85% AND NOT MORE. Of this file's own three checks: the end-to-end run
+through the ordinary Mask path is done and measured; no import of `dinocell`
+in a process that does not use it is held by the seam's own guards, and
+dinocell is not in spaCR's environment at all; the scorecard is not done and
+cannot be until the maintainer has curated. Stays in features/future/.
+
+i18n: nothing user-facing changed. No new or changed caption, tooltip or
+public docstring -- `_segmentation_backends` is a private module and is in
+AUTOAPI_NON_RENDERED_MODULES -- so nothing is owed to the consolidated
+catalog pass from this item.
