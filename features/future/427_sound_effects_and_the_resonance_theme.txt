@@ -14,10 +14,14 @@ Status:    IN PROGRESS -- PARTS A AND B OF THREE BUILT 2026-09-19, part C
            spacr/qt/widgets/ambient.py). Not built: the ten themes (part C).
            Everything is off by default and the backdrop is one animation
            among seven. Part A was reviewed the same day and the five nits it
-           found are fixed. See the three 2026-09-19 notes at the end; the
-           last lists what is still open, including whether section 2's
-           sound for a run STARTING is wanted at all, and that nobody has
-           listened to any of it.
+           found are fixed. THE BED GAINED A MELODY AND A SIDE-CHAIN THAT
+           CAN BE HEARD on 2026-09-19 -- the sentence this item exists to
+           answer is "melodic space house", and until then the bed had the
+           space house and not the melodic. See the four 2026-09-19 notes
+           at the end; the last two list what is still open, including
+           whether section 2's sound for a run STARTING is wanted at all.
+           Renders for the maintainer's ear have now been sent; until he
+           says, NOBODY HAS STILL REALLY HEARD WHETHER IT IS ANY GOOD.
 
 Shape:     A Sound tab in Preferences, LAST tab, everything OFF BY DEFAULT.
            Interface feedback sounds, start/stop sounds for a run, optional
@@ -505,3 +509,127 @@ STILL OPEN: everything under WHAT IS LEFT above, unchanged -- part C, that
 nobody has listened to any of it, the frozen bundle, Windows and macOS, the
 load latency of a 12 MB WAV, and the analysis files nothing reaps -- plus a
 per-user drum level if the maintainer wants one when he hears it.
+
+--------------------------------------------------------------------------------
+2026-09-19 — THE BED GAINED A MELODY, AND A SIDE-CHAIN THAT CAN BE HEARD
+--------------------------------------------------------------------------------
+
+Decided: 2026-09-19, by the maintainer, through the question prompt
+
+  "The theme should sound like melodic space house"
+
+That sentence is quoted three times in this item already and parts A and B
+were both built against it. Rendering the bed they built and measuring it
+against the genre rather than against the parts list found two things
+missing, and both of them are the words in the sentence:
+
+  * NO MELODY. Every pitched note in the sixty-three seconds came from
+    the arpeggio -- sixteen a bar, no rests, no shape. That is a texture.
+    What Worakls, N'to, Rivière and BIRRD are remembered for is a phrase.
+  * NO AUDIBLE SIDE-CHAIN. The pads were ducked on the beat and the
+    reverb they fed was not, so a three-second tail filled the dip back
+    in: 1.2 dB on the mix where the pads themselves were down 3.1. A
+    house record's pump is not a subtlety, it is the pulse.
+
+WHAT WAS BUILT
+
+  sound_synth.LEAD_MOTIF     Twelve entries over four bars, in scale
+                             degrees and beats: E5 D5 C5 / D5 C5 A4 /
+                             E5 G5 A5 / G5 E5, and a rest. Over
+                             i-VI-III-VII every note is a chord tone or
+                             the ninth, so it sings across the
+                             progression instead of following it.
+  SoundTheme.lead_*          pattern, level, octave, attack and
+                             brightness -- five fields, because part C's
+                             ten themes each need their own tune, not
+                             this one transposed.
+  sound_synth._lead_voice    A sustaining voice: three saws seven cents
+                             apart, a 45 ms attack, a filter that opens
+                             on the note and closes across it. A pluck
+                             cannot carry a tune over eight plucks a bar.
+  BED_SECTIONS               A seventh column, the melody's level per
+                             section: away in drift, 0.60 in pulse, 1.00
+                             in lift, 0.28 in return. The tune ARRIVES.
+  the pump                   Applied to the whole music bus before the
+                             reverb rather than to the pads after it, and
+                             given a 40 ms fall (PUMP_ATTACK) so the gain
+                             curve is continuous where it wraps.
+  LEAD_AIR_HZ                An eighth-order wall at 3 kHz on the melody.
+
+MEASURED, with the theme key held fixed and one field changed at a time
+
+  * 72 lead notes in the loop against the arpeggio's 256; the melody adds
+    2.6 dB to the lift's 0.5-2.5 kHz band and is silent for bars 4-11.
+  * The mix dips 4.1 dB on the beat, against 1.2 dB before. With the
+    drums taken out it is 3.8 dB, and with pad_pump at 0 it is 1.7 dB --
+    that 1.7 is the arpeggio's own accent on the downbeat, which is music
+    and not side-chain. Anything that measures the pump through the kick
+    is measuring the kick.
+  * Loudness, peak and the seam all still land: -18.6 LUFS, -11.2 dBFS,
+    a join of 0.0032 against a p99.5 step of 0.027.
+  * The lead is +0.2 dB from its first quarter-second to its third; the
+    pluck is -8.3 dB. That difference is the whole reason a tune is
+    audible over an arpeggio.
+
+THREE MEASUREMENTS THAT WERE WRONG FIRST, all recorded in
+docs/notes/spacr/qt/sound_synth.md
+
+  1. The pump was folded on a whole number of 10 ms hops. The beat is
+     49.18 hops, so thirty-two bars drift half a beat and smear the dip
+     to nothing. It reported 1.2 dB for a bus that was down 3.1.
+  2. The lead's sustain was read over 50 ms windows. Three saws seven
+     cents apart beat with a period of a third of a second, so the
+     windows sampled the beating and the lead looked as short as a pluck.
+  3. THE THEME KEY SEEDS THE SHAKER'S OWN NOISE, so a variant rendered
+     under a different key is a different shaker. Four contradictory
+     attributions came out of that before it was noticed; every number
+     here holds the key fixed.
+
+ONE TEST OF PART B'S WENT RED AND IT WAS RIGHT TO
+test_the_drums_are_audible_when_they_are_asked_for measures the shaker as
+energy above 4 kHz. The first melody was bright enough to take that band:
+the shaker adds 5.36 dB with no melody and 3.23 dB with it. The melody was
+warmed to lead_brightness 0.18 (5.44 dB back) and LEAD_AIR_HZ added so no
+theme can ask for the brightness that takes it again. Part B's test is
+unchanged and passes.
+
+TESTS  tests/qt/test_the_bed_has_a_melody.py (12). Every one was
+mutation-checked: the melody off, the bus undicked, the scheduler back on
+seconds, the rest played as a note, the lead voice made a pluck, the
+melody left on through every section, and the air wall removed -- each on
+its own turns its own test red. The 90 tests in part A's and B's four
+sound files and the resonance file all still pass, and the shaker test
+above is among them.
+
+A FLOAT BUG THE COUNT CAUGHT. The scheduler first added each note's
+length in SECONDS. A note landing on a bar line arrived a float's breadth
+early, was priced at the PREVIOUS bar's level and was dropped where that
+bar was silent. It cost exactly one note of seventy-two and nothing but a
+pinned count would have found it. Positions are counted in beats now,
+which are exact halves.
+
+WHAT IS LEFT
+
+  * PART C, THE TEN THEMES, is still not started, and it is the rest of
+    the maintainer's answer ("make 10 themes ... worakls, NTO, rivière
+    monk, BIRRD"). The five lead_* fields and BED_SECTIONS' seventh
+    column exist so each theme can have its own tune rather than this one
+    transposed.
+  * ORBIT's `description` changed and is a user-facing string: the
+    consolidated i18n pass owes nine languages for it. Nothing else
+    visible changed.
+  * NOBODY HAS LISTENED TO IT STILL, which is the one thing no test can
+    answer. Three renders were sent for the maintainer's ear on
+    2026-09-19: the bed twice round so the join is heard, the lift before
+    and after the melody, and the interface sounds.
+  * The bed now lands 0.56 LU under its own target and 2.3 dB under its
+    peak ceiling, because `_to_loudness` gives up after two rounds and
+    the melody costs it a round. It is QUIETER than asked, not louder,
+    and part B's tolerance is 1.0 LU, so nothing is red. Left alone
+    deliberately: `_to_loudness` is part B's and was being written in
+    another tree while this was measured.
+  * The kick does not separate from the sub in the 40-110 Hz band (0.25
+    dB of on-beat over off-beat) because the kick's fundamental is at
+    33 Hz and the sub sits at 44-65 Hz on top of it. Part B's drum tests
+    measure the kick in isolation and pass; this is about the mix, and it
+    is the next thing worth listening for.
