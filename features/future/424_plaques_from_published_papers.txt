@@ -4,26 +4,37 @@ PLAQUE ASSAYS FROM PUBLISHED PAPERS: DOI OR PDF IN, MEASURED PLAQUES OUT
 
 Filed as 415 on 2026-09-18; renumbered 2026-09-19 because 415 also names features/new/415_the_startup_window_text_is_bright_in_dark_mode.txt.
 
-Status:    NOT STARTED AS A MODULE; ITS FIRST OPEN QUESTION IS STILL OPEN.
-           2026-09-19: the transfer spike the maintainer asked for was built
-           and run -- 28 open-access CC-BY papers, 182 figures, 369
-           plaque-image regions labelled by eye, both zoo detectors scored --
-           and then, in review, THE RUN WAS FOUND TO HAVE MEASURED THE
-           DETECTOR WITH RED AND BLUE SWAPPED. Ultralytics reads a numpy
-           array as BGR; the harness handed it the RGB array it had built for
-           the overlays. Every box in that run is a box the detector would not
-           have drawn. Its verdict of PARTIAL IS WITHDRAWN, not reversed: with
-           the channels the right way round the same detectors fire two to
-           five times as often, including on the cropped panels the verdict
-           said they could not see, and nobody has yet looked at where those
-           boxes land. The corpus, the 369 hand-counted regions, the harness
-           and the exclusion list all survive; the box verdicts do not.
-           Harness: tools/measure_plaque_detector_transfer.py (fixed).
-           Evidence: features/data/424_detector_transfer_2026-09-19.json,
-           which now declares the channel order it was taken with.
-           NEXT: rerun detect and relabel; nothing else below has been built.
-           The queued training round is NOT justified until then -- see 445
-           for the same swap in the shipped plate-splitting path.
+Status:    NOT STARTED AS A MODULE, BUT ITS FIRST OPEN QUESTION IS NOW
+           ANSWERED, AND THE ANSWER IS YES.
+           2026-09-19: the transfer spike was built and run -- 28 open-access
+           CC-BY papers, 182 figures, 369 plaque-image regions labelled by eye
+           -- and then found in review to have detected every figure with RED
+           AND BLUE SWAPPED, so its verdict of PARTIAL was withdrawn.
+           2026-09-20: THE RERUN THAT NOTE ASKED FOR IS DONE. The corpus was
+           refetched and all 182 figures are byte-identical to the committed
+           record; both detectors hash-identical; detect rerun through the
+           fixed harness, and the box totals reproduce exactly the BGR totals
+           the review predicted (371 for v1, 148 for v2). Every figure on
+           which the CURRENT zoo detector drew a box was then looked at.
+           THE CURRENT ZOO DETECTOR (v2, yolo_welldetect_v4.pt) TRANSFERS.
+           Cropped plaque panels, which the withdrawn verdict called invisible
+           at 6 of 110 and 0 of 61 in Toxoplasma, are found 63 of 110 and
+           57 of 61. Wells 61 of 259, or 61 of 67 once the one 96-well plate
+           photograph printed at ~30 px a well is set aside. NOT ONE of its
+           124 true boxes landed on a non-plaque object: zero false boxes on
+           region-bearing figures, 15 on the other 158, precision 0.838.
+           THE OLD DETECTOR (v1) IS THE ONE THAT DOES NOT TRANSFER to crops
+           (6 of 110), so the withdrawn note's "prefer v3 for a cross-organism
+           pipeline" is reversed as well; 437 still must not be changed on it.
+           WHAT IT MISSES IS ONE NAMEABLE FORM: phage dilution-spot lawn
+           strips, 43 of the 47 crops it missed.
+           Harness: tools/measure_plaque_detector_transfer.py.
+           Evidence: features/data/424_detector_transfer_rerun_2026-09-20.json
+           (the 2026-09-19 file is kept; its box data stays void).
+           NEXT: the module itself; nothing below it has been built. The
+           queued training round is STILL NOT JUSTIFIED -- it was written to
+           cure a blindness that turns out not to exist. See 445 for the same
+           swap in the shipped plate-splitting path, which is NOT fixed.
 
 Shape:     The plaque module takes a DOI, a PMID or a PDF. It finds the figures,
            finds the plaque images inside them with the trained YOLO detector,
@@ -518,3 +529,139 @@ WHAT IS LEFT, HONESTLY
     `detect_wells`, and `detect_wells` documents no channel order. Item 445.
     It needs measuring on real plate photographs, which this unit does not
     have, before anyone changes the behaviour users already have results from.
+
+--------------------------------------------------------------------------------
+2026-09-20 — THE RERUN: IT TRANSFERS, AND THE WITHDRAWN VERDICT WAS BACKWARDS
+--------------------------------------------------------------------------------
+
+Decided: "Go as recommended" -- the maintainer, 2026-09-19, accepting a
+recommendation whose first clause is to measure whether the detector transfers
+to figure crops and to build on it only if it does. This note answers that
+clause. It does not start the module.
+
+THE INSTRUMENT WAS CHECKED BEFORE IT WAS BELIEVED
+
+  The 2026-09-19 run was void because it showed the detector the wrong channel
+  order, so the first thing the rerun owes is evidence it is measuring the same
+  thing with that one fault removed.
+
+  * THE CORPUS IS THE SAME CORPUS. papers.json was rebuilt from the committed
+    evidence rather than resampled, so Europe PMC's index moving cannot change
+    which papers are in it. The figures stage refetched all 182, and all 182
+    are BYTE-IDENTICAL to the committed sha256 -- 129 of 129 in arm A, 53 of
+    53 in arm B. The .webp size-first rule and its .selection marker held.
+  * THE DETECTORS ARE THE SAME DETECTORS. sha256 b826058754fb… for v1 and
+    f2a1e1110f09… for v2, identical to the spike's record in both arms.
+  * THE BOX TOTALS LAND WHERE THE REVIEW SAID THEY WOULD. The review predicted
+    the BGR totals over the 182 figures from its own re-run of detect_wells:
+    371 for v1 and 148 for v2. This run, through the harness, gives 362 + 9 =
+    371 and 80 + 68 = 148. That is the check that ties the rerun to the record
+    and it is exact.
+
+WHAT WAS LOOKED AT, AND WHAT WAS NOT
+
+  Every figure on which v2 drew a box was opened and judged from its overlay:
+  all 11 region-bearing figures it boxed, plus the crop-bearing figures it did
+  not box, to name the failure. The REGION COUNTS ARE NOT NEW -- they are the
+  2026-09-19 reader's 369, reused unchanged, which is exactly what that note
+  said survived. So this is a rerun of the boxes, not a second measurement.
+
+  V1'S BOXES WERE NOT JUDGED ONE BY ONE and no precision is claimed for it
+  here. Its 271 boxes on the one 96-well plate figure are past what an eye pass
+  can honestly resolve; the original run used IoU there and this one did not
+  repeat it. Only v1's counts appear below.
+
+THE CURRENT ZOO DETECTOR, v2 = yolo_welldetect_v4.pt, conf 0.25, imgsz 640
+
+    regions          found   of      note
+    wells              61    259     23.6 % micro
+    wells, less one    61     67     91 %; the excluded figure is PMC13278376
+      96-well figure                 g008, 192 wells at about 30 px each
+    crops              63    110     57 %, against 6/110 in the withdrawn run
+    crops, arm B       57     61     93 %, against 0/61 in the withdrawn run
+    wells, arm B        8      8
+    macro, 24 figures  0.670
+
+    tp 124, duplicates 9, FALSE BOXES ON REGION-BEARING FIGURES 0,
+    false boxes on the 158 figures with no plaque image 15, precision 0.838.
+
+  THE ZERO IS THE NUMBER TO READ TWICE. Across every figure it boxed, v2 put
+  no box on a gel, a western blot, an immunofluorescence panel, a FACS scatter,
+  a bar chart, a survival curve, a protein structure or a sequence alignment --
+  on figures carrying all of those, often twenty panels deep. The withdrawn
+  run's precision worry was v1's 23 false boxes on pie charts, cartoon virions
+  and motility plates. That worry does not survive the channel fix for v2.
+
+  THE FIGURE THE WITHDRAWN VERDICT RESTED ON. PMC8809380 msphere.00793-21
+  f004 carries 38 cropped Toxoplasma plaque panels and was the single largest
+  block of "crops the detector cannot see": 0 found under RGB. Under BGR v2
+  finds 38 OF 38, each box on its panel, none on the paired scatter plots
+  beside them. PMC9744290 (6/6, 4/4, 4/4), PMC13170237 (4/4) and PMC11414933
+  (4/4) are the same story.
+
+WHAT IT STILL MISSES, NAMED RATHER THAN AVERAGED
+
+  * PHAGE DILUTION-SPOT LAWN STRIPS: 43 of the 47 crops missed. Three figures
+    of one Nature Communications phage paper (30, 8 and 5 regions) score 0.
+    The region there is a horizontal strip of decreasing spots on a grey lawn.
+    A fourth figure in the SAME paper, whose spots are large and round, scores
+    6 of 6 -- with 9 duplicates, because v2 boxed individual spots while the
+    reader counted the row as one region. So the form is what it misses, not
+    the paper, the organism or the compression.
+  * VERY SMALL WELLS: the 96-well plate figure at ~30 px a well, 0 of 192.
+    v1 boxes it heavily and v2 not at all, which is the one place the old
+    detector is still worth something.
+  * DENSE MONOLAYER FIELDS: PMC13309054 g003, five near-identical stained
+    fields, 1 found. The one box is correct.
+
+WHAT THIS CHANGES
+
+  * 424's first open question is answered YES for the detector the module was
+    told to ask the zoo for, and the maintainer's "build on it only if it
+    does" is now satisfied. The module can be built.
+  * THE "SURPRISE" IN THE WITHDRAWN NOTE IS REVERSED, as that note warned it
+    might be. v1 finds 6 of 110 crops and v2 finds 63; for a literature
+    pipeline the CURRENT detector is the right front half after all. 437 was
+    not changed on the RGB numbers and must not be changed on these either
+    without its own test set being rerun.
+  * THE QUEUED GPU JOB IS STILL NOT JUSTIFIED and is now less justified, not
+    more: scratchpad/gpu_queue/424a-detector-transfer-1.md exists to teach the
+    detector a class it can already find. Anyone who wants to spend the GPU on
+    this should spend it on the lawn-strip form instead, and should first try
+    imgsz, which is free and uncontrolled -- see the resolution section above.
+
+WHAT IS STILL OPEN
+
+  * ONE READER, ONE PASS, AGAIN, and the same anchoring risk: the boxes were
+    visible while the calls were made. The counts being reused means the
+    recall denominator at least was fixed before these boxes were drawn.
+  * PRECISION FOR v1 IS NOT MEASURED HERE, and the 15 false boxes for v2 on
+    no-region figures were counted, not inspected.
+  * IMGSZ AND RESOLUTION ARE STILL UNCONTROLLED. Everything above is 640 px.
+  * n IS STILL SMALL WHERE IT MATTERS: 10 crop-bearing figures, and 38 of the
+    110 crops are one figure. A sample drawn for crop-bearing figures on
+    purpose is still the right next measurement.
+  * Scale, the two condition strategies and their conflict flag, dedup by DOI
+    plus image hash, the database and the PDF text layer are all untouched.
+  * 445 IS UNTOUCHED: the shipped plate-splitting path still hands an RGB
+    array to the same detector. These numbers are the argument that it costs
+    real recall, but they were taken on figures and not on plate photographs.
+
+TWO THINGS THIS RUN GOT WRONG ABOUT ITS OWN TOOLING, RECORDED SO THEY COST
+NOBODY ELSE ANYTHING
+
+  * THE HARNESS IMPORTS SPACR FROM WHEREVER THE EDITABLE INSTALL POINTS, not
+    from the tree it is run in. Running `python tools/measure_...py` puts
+    tools/ on sys.path[0], not the working directory, so the first attempt
+    scored the SHARED checkout's spacr.plaque while sitting in a worktree.
+    Everything above was run with PYTHONPATH set to the worktree. A harness
+    whose whole job is measuring a function should say which copy it measured;
+    it does not, and that is worth fixing.
+  * IMPORTING ULTRALYTICS REWRITES ~/.config/Ultralytics/settings.json. It did
+    so here, on a file dating from July, announcing "settings reset to default
+    values"; there was no backup and whatever non-default entries it held are
+    gone. Every later run in this unit set YOLO_CONFIG_DIR, HOME, XDG_CONFIG_HOME
+    and XDG_DATA_HOME into the scratchpad. ultralytics is not in any spacr env;
+    it was installed into a throwaway venv with --system-site-packages, and
+    pinning an old version there silently shadowed numpy 2.5.2 with 1.26.4,
+    which is its own way to measure the wrong thing.
