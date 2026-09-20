@@ -3608,9 +3608,37 @@ def measure_crop(settings):
                         _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
 
                 if ledger.is_complete:
+                    _emit_infection_report(db_path)
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
+
+def _emit_infection_report(db_path):
+    """Write the infection report a finished run can support, if any.
+
+    Item 377: the maintainer chose that Measure emits the report rather
+    than a button producing it, so this runs at the end of every complete
+    run and says where it went.
+
+    A REPORT IS NOT WORTH A RUN. Everything here is inside a try: a plate
+    whose tables the metrics cannot read, a disk that refuses the file, or
+    a pandas that objects to something must not turn a measure run that
+    has already written its database into a failure.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    """
+    if not db_path or not os.path.isfile(db_path):
+        return
+    try:
+        from .infection import write_infection_report
+
+        written = write_infection_report(db_path)
+    except Exception as exc:                                 # noqa: BLE001
+        print(f"The infection report could not be written: {exc}")
+        return
+    if written:
+        print(f"Infection report: {written}")
+
 
 def process_measure_crop_results(partial_results, settings):
     """Save and display figures carried by completed Measure jobs.

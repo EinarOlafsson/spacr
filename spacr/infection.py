@@ -31,6 +31,7 @@ IT DOES NOT INVENT A FIFTH VOCABULARY. ``uninfected``, ``pathogen_count`` and
 """
 from __future__ import annotations
 
+import os
 import sqlite3
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -388,6 +389,49 @@ def infection_report(db_path: str, *,
         add("parasite_count", float(parasites), "parasites with a host cell",
             parasites)
     return pd.DataFrame(rows)
+
+
+#: What a Measure run writes its infection report as, beside the
+#: measurements database it was computed from.
+REPORT_NAME = "infection_report.csv"
+
+
+def write_infection_report(db_path: str, *, by_field: bool = False,
+                           destination: Optional[str] = None) -> Optional[str]:
+    """Write the infection report beside the database it came from.
+
+    ITEM 377's SURFACE, chosen by the maintainer on 2026-09-20: a Measure
+    run emits the report, so anyone who has measured a plate already has
+    it. There is no button and no screen, and nothing has to be asked for
+    -- which is the point, because the runs that most need these numbers
+    are the ones that would never have thought to ask.
+
+    NOTHING IS WRITTEN WHEN THERE IS NOTHING TO SAY. A plate with no cell
+    table, or none of the columns the metrics need, gives an empty report,
+    and an empty CSV beside a database is a file that invites somebody to
+    wonder what went wrong. The answer is None instead.
+
+    Written to a dot-name in the same folder and renamed over the target,
+    so a reader never sees half a file.
+
+    :param db_path: a ``measurements.db``.
+    :param by_field: group by field as well as well.
+    :param destination: where to write it; the default is
+        :data:`REPORT_NAME` beside ``db_path``.
+    :returns: the path written, or None when the report is empty.
+    """
+    report = infection_report(db_path, by_field=by_field)
+    if report.empty:
+        return None
+    target = destination or os.path.join(os.path.dirname(os.fspath(db_path)),
+                                         REPORT_NAME)
+    folder, name = os.path.split(target)
+    if folder:
+        os.makedirs(folder, exist_ok=True)
+    temporary = os.path.join(folder, f".{name}.tmp")
+    report.to_csv(temporary, index=False)
+    os.replace(temporary, target)
+    return target
 
 
 def multiplicity_distribution(db_path: str) -> pd.DataFrame:

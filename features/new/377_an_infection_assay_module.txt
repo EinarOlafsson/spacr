@@ -319,3 +319,47 @@ Report section, or something Measure emits" -- and 357's 377-A authorised THE
 REPORT, not a surface for it. Building one would be answering a question that
 was asked and has not been answered.
 
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE SURFACE, ANSWERED: MEASURE EMITS IT
+--------------------------------------------------------------------------------
+
+The note above says the surface was "a separate decision -- a button, a
+Report section, or something Measure emits", and that 357's 377-A
+authorised THE REPORT and not a surface for it. Put to the maintainer
+through the question prompt with all four readings, including leaving it
+headless, and answered: MEASURE EMITS IT.
+
+So there is no button and no screen. `infection.write_infection_report`
+writes the report beside the `measurements.db` it was computed from, as
+`infection_report.csv`, and `measure_crop` calls it through
+`_emit_infection_report` at the end of a run the ledger calls complete.
+The run prints where it went.
+
+WHY THAT IS THE RIGHT SHAPE, in the maintainer's own terms and worth
+recording: the runs that most need these numbers are the ones that would
+never have thought to ask for them. A button produces a report for the
+person who already suspects they want one.
+
+TWO RULES, both tested:
+
+  * NOTHING IS WRITTEN WHEN THERE IS NOTHING TO SAY. A database with no
+    cell table gives an empty report, and an empty CSV beside a database
+    invites somebody to wonder what went wrong. `write_infection_report`
+    returns None and writes no file.
+  * A REPORT IS NOT WORTH A RUN. By the time this runs the database is
+    already written. Everything about the report is inside a try, and a
+    failure prints what happened and lets the run finish -- a measure run
+    that produced its measurements must not be turned into a failure by a
+    summary of them.
+
+Written to a dot-name and renamed over the target, so a reader never sees
+half a file.
+
+MEASURED: 8 new tests, and 103 passed over the five infection suites,
+measure validation and the no-comments gate.
+
+NO NEW SETTING AND NO NEW CAPTION. The report is emitted when it can be,
+which means nothing to translate and nothing for a user to configure
+wrongly. If it should be optional, that is a smaller question than the one
+just answered and can be asked when somebody wants it off.
