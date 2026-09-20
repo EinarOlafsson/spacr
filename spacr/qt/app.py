@@ -5071,13 +5071,29 @@ class MainWindow(QMainWindow):
         this the kind of defect that ships: it is wrong for one page out of
         forty-five, and that page is Home.
 
+        AND THE SEARCH STRIP GOES ON HERE TOO, for the same reason in
+        reverse. `settings_search.install` reparents the whole settings
+        form into a new container; done at first show, after the page has
+        been sheeted, that move cost about 250 ms of the open (item 380).
+        Here the page is marked and not yet sheeted, so the same move is
+        free. `install` returns the strip it already made if the stack
+        watcher gets there first, so the two cannot fight.
+
         :param page: the widget that has just been added to the stack.
         """
         try:
             from .theme import mark_as_a_sheet_target
             mark_as_a_sheet_target(page)
+        except Exception:
+            LOG.debug("could not mark a page as a sheet target",
+                      exc_info=True)
+        try:
+            from .settings_search import install as _install_settings_search
+
+            _install_settings_search(page)
         except Exception:                                    # noqa: BLE001
-            LOG.exception("Could not mark a new page for the theme sheet")
+            LOG.debug("could not install the settings search strip early",
+                      exc_info=True)
 
     def stylesheet_roots(self):
         """The widgets that carry the application sheet, instead of me.

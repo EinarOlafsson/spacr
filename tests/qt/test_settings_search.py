@@ -608,6 +608,56 @@ def test_installing_twice_adds_one_strip(mask_screen):
     assert len(mask_screen.findChildren(SettingsSearchBar)) == 1
 
 
+def test_a_screen_that_has_never_been_shown_keeps_its_strip_and_its_layout(
+        mask_screen):
+    """Item 380: the strip is installed before the page is ever shown.
+
+    Reparenting the settings form is the same work whenever it happens;
+    doing it at first show, after the page has been sheeted, made it cost
+    about 250 ms of every module open. `spacr.qt.app` now installs from
+    `_a_page_joined_the_stack`, where the page is marked for the sheet but
+    has not received it.
+
+    AND THE SPLITTER IS NOT TOLD WHAT IT ALREADY KNOWS. A splitter that
+    has never been laid out answers `sizes()` with pre-layout defaults, so
+    the restore this function does for a visible screen would write those
+    defaults over the layout the first show is about to compute.
+    """
+    from PySide6.QtWidgets import QSplitter
+
+    assert not mask_screen.isVisible()
+    splitter = mask_screen._settings_scroll.parentWidget()
+    assert isinstance(splitter, QSplitter)
+    written = []
+    original = splitter.setSizes
+    splitter.setSizes = lambda sizes: written.append(list(sizes))
+    try:
+        bar = install(mask_screen)
+    finally:
+        splitter.setSizes = original
+    assert bar is not None
+    assert written == [], (
+        f"pre-layout splitter sizes were written back: {written}")
+
+
+def test_a_visible_screen_still_keeps_the_sizes_it_had(qtbot):
+    """The other half of the same rule: once there are real sizes, the
+    insert must not change them."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    screen.resize(900, 700)
+    screen.show()
+    qtbot.waitExposed(screen)
+    splitter = screen._settings_scroll.parentWidget()
+    before = list(splitter.sizes())
+    assert sum(before) > 0, "the fixture never laid the splitter out"
+    assert install(screen) is not None
+    assert list(splitter.sizes()) == before
+    screen.hide()
+
+
 def test_a_screen_without_a_settings_form_is_left_alone(qtbot):
     from PySide6.QtWidgets import QWidget
     assert install(QWidget()) is None

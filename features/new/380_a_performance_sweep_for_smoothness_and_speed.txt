@@ -1485,3 +1485,59 @@ receiver classes, and the spaCR frame that caused each event), a wrapper on
 a per-widget fingerprint of all 45 screens for the equivalence check in
 284. `SPACR_WATCH_GUI_STALLS=1` composes with all of it and names what the
 thread was doing.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- TWO OF THE THREE COSTS ABOVE ARE GONE
+--------------------------------------------------------------------------------
+
+(1) THE ~500 SHEETED POPUPS. Closed by item 284 earlier today, on the
+maintainer's decision: a menu is sheeted at its `aboutToShow` rather than at
+every `Polish`. The contract this list warned it would contradict moved with
+it, on purpose, and its test now drives the property the test's name
+promises. 284's note of this date has the arms and the numbers.
+
+(2) THE ~250 ms SETTINGS-FORM REPARENT. Closed here. `settings_search.
+install` was called when a screen became current -- at first show, after the
+page had been sheeted -- so reparenting the whole settings form into its new
+container repolished a sheeted subtree. `spacr/qt/app.py` now installs from
+`_a_page_joined_the_stack`, where the page is marked for the sheet and has
+NOT yet received it, so the same move is free. The stack watcher still runs
+and `install` returns the strip it already made, so the two cannot fight.
+
+THE TRAP THIS LIST NAMED WAS REAL AND IS HANDLED. A splitter that has never
+been laid out answers `sizes()` with pre-layout defaults, and the restore
+after the insert would have written those defaults over the layout the first
+show was about to compute -- the WATCH entry about reading geometry before
+the layout settles. `install` now captures and restores the sizes only when
+the form is visible, and two tests hold both halves: an unshown screen has
+`setSizes` called zero times, and a shown one keeps the sizes it had.
+
+MEASURED, `tools/spacr_startup_benchmark.py --offscreen --runs 1
+--record-only`, arms alternated, baseline origin/nightly c9023024c (which
+already carries 284's change). Worst event-loop stall per module, in ms:
+
+    module            base a  base b   mine a  mine b   conservative
+    regression          2684    2795     2358    2560          -124
+    mask                1721    1682     1443    1554          -129
+    classify_merged     1572    1678     1319    1414          -158
+    umap                1141    1251      905     978          -162
+    measure              894     938      729     773          -120
+    external_masks       716     821      496     549          -167
+    __preferences__      930     939      901    1018           +89
+    __home__             232     233      224     245           +13
+
+The "conservative" column is the changed arm's WORST against the baseline's
+BEST; mean against mean is 200-270 ms on every module with a settings form,
+which is the figure this list predicted and it applies to all of them rather
+than to Regression alone.
+
+PREFERENCES AND HOME DO NOT IMPROVE, and the +89 ms on Preferences is said
+rather than buried: it is inside that arm's own spread (901 and 1018 on the
+two runs) and Preferences is a dialog, not a stack page with a settings
+form, so there is nothing here for it to gain. Home has no settings form
+either.
+
+WHAT IS LEFT OF THE THREE: (3) the ~640 ms legitimate sheeting of the page
+itself, which needs a design decision -- a smaller per-screen sheet, or
+building screens already parented. Plus the macOS and Windows numbers,
+which need those machines.
