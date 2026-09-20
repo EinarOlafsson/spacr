@@ -2,7 +2,27 @@
 AN OPS BUTTON -- NOW ON MASK GENERATION -- OVER CODE ALREADY IN THE REPO
 ================================================================================
 
-Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
+Status:    SHIPPED AND RUNNING; THE CODE HALF OF WHAT WAS LEFT IS DONE,
+           2026-09-19. The button, `spacr-run ops`, validate.APP_FUNCTIONS
+           and the OPS API link all reach `spacr.ops_engine.run_ops`, and
+           `spacrops.py` is gone. Tonight closed four of the six items PART
+           14-M's "WHAT IS LEFT" listed, in code and on synthetic fixtures:
+           A4 is a phase of the engine, `ops_reads` is written, the 54
+           strict refusals are explained as far as the data on disk allows
+           and instrumented for the rest, and the five module constants plus
+           the phenotype folder and the guide library are settings. See
+           PART 14-N.
+
+           WHAT IS NOT DONE IS THE MEASURING. Wells B1-B3 and the rest of
+           the plate are still unrun, and every number below for A4, the
+           reads table and the refusal split comes from synthetic fixtures
+           rather than from the plate. The two runs are queued as
+           scratchpad/gpu_queue/372-code-half-1.md and -2.md with their
+           exact commands. Until they have run, "A4 works" means "A4 works
+           on a fixture that reproduces the geometry", which is a weaker
+           claim than the rest of this file makes.
+
+           BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
            weighed the old engine against the new plan and chose to scrap
            it: 26 of 333 tiles placed by ORB against 333 of 333 by layout
            plus phase correlation, on the same pixels. THREE PIECES OF THE
@@ -5331,14 +5351,381 @@ signatures), API surface 10,533 -> 10,540, shipped modules 567 -> 568.
     raster overlap, the footprint, a library path -- would need tooltips in
     that same lane; until then they are module constants measured on this
     plate, and `library` is a keyword of run_ops only.
+    [2026-09-19: DONE, PART 14-N section 4. Eight keys, the engine reads
+    fifteen, and the catalogs are owed rather than written.]
   * spacr/spacrops.py IS NOT DELETED. `ops_preprocess` is unreachable from
     every entry point and still importable for its tests; PART 13's list
     (the pair search, `max_site_gap`, the canvas-first output) is the removal
     still to do, with its test fallout.
+    [2026-09-19: the file is gone from the tree; this bullet predates the
+    deletion.]
   * A4 per-field phenotype placement is not in the engine;
     `phenotype_centres`/`phenotype_site_map` are ready for it.
+    [2026-09-19: DONE in code, PART 14-N section 1. Unmeasured on the
+    plate.]
   * ops_reads is not written (the contract has no read id; 14-L V15).
+    [2026-09-19: DONE, PART 14-N section 2. The id is raster order on the
+    read's well-frame position.]
   * 54 strict refusals (M12b) are not explained field by field: the
     observations are not stored.
+    [2026-09-19: PART 14-N section 3. Four things settled from the recorded
+    numbers; the field-by-field split needs a run and is now instrumented
+    for it.]
   * Wells B1-B3 and the rest of the plate are unrun.
+    [2026-09-19: still unrun; queued as gpu_queue/372-code-half-1.md and
+    -2.md.]
 
+
+================================================================================
+PART 14-N -- THE CODE HALF OF "WHAT IS LEFT". 2026-09-19.
+================================================================================
+
+The maintainer, through the question prompt this morning: "work every open
+item on features/new and features/future to completion"; and for this item,
+"Code now, GPU runs later". So everything below is code and synthetic
+fixtures. NO PLATE DATA WAS READ. /nas_mnt on this machine is a dead mount --
+`df` answers "No such device" and `ls` hangs -- so scratchpad/ops372m, the
+A1 and A2 databases and their ops_report.json files are not reachable from
+here. Where a number below is measured it is measured on a fixture, and the
+section says so.
+
+Four of PART 14-M's six open items are now code. The two that are not are
+the two that need the plate.
+
+--------------------------------------------------------------------------------
+1. A4 IS A PHASE OF THE ENGINE
+--------------------------------------------------------------------------------
+
+`run_ops(..., phases=("stitch", "phenotype", "objects", "decode"))`. The new
+phase reads `phenotype_source`, takes the well's phenotype tiles, and writes
+`ops_phenotype`: one row per phenotype field with its predicted centre in the
+sequencing well frame, the stitched tile that covers it, and -- for the
+fields that were aligned -- the inlier count and both residuals.
+
+HOW IT PICKS ITS ANCHORS, which is the part PART 14-M left open. The six
+anchors of the measured runs were chosen by hand from the reference's own
+`initial_sites`. Here `_anchor_candidates` takes the field nearest the
+layout's centre and five more nearest a circle at 0.65 of the well radius,
+which is a conditioned design for the origin-plus-two-steps fit whichever of
+them then refuse; it will go on to eighteen candidates to find six that
+align. Each candidate is seeded by fitting the SEQUENCING raster to the
+solved placements and mapping the phenotype grid position through the two
+layouts' radii, then searched in a window 1,600 px larger than the field on
+every side -- PART 14-B/C's window, kept because the seed is a grid
+prediction and a grid prediction lands within about a tile.
+
+Fewer than three anchors is a ValueError naming the count and the two things
+to check, not a well written with no rows.
+
+AND THE FIRST VERSION COULD NOT HAVE READ THE PLATE AT ALL. The orchestrator
+checked this file's predicted phenotype file name against the NAS at 21:45
+and it is wrong:
+
+    predicted   20X_c1_B1_DAPI-GFP-A594-AF750_Site-0.tif
+    actual      20X_DAPI-GFP-A594-AF750_B1_DAPI-GFP_Site-0.tif
+
+No cycle field; the well comes AFTER the acquisition's channel set; and the
+channels THIS file holds are a fifth field. `_TILE_PATTERN` requires
+`_c<digits>_`, so the phenotype acquisition indexed ZERO tiles and A4 would
+have refused six wells whose images are all present. `_index_tiles` now
+falls back to `_UNCYCLED_TILE_PATTERN` and files such an acquisition under
+one cycle. The cycled pattern is tried FIRST and that order is load-bearing:
+`10X_c2_B1_A594_Site-0.tif` satisfies both, and read as uncycled its `c2`
+becomes the channel set and all eleven cycles collapse into one -- which
+decodes at chance instead of failing.
+
+CHECKED AGAINST THE PLATE ITSELF, read-only, no stitch and no GPU
+(/nas_mnt came back at 21:45):
+
+    phenotype index          6 wells; B1 cycle 1, sites 0..1280 = 1,281
+    channels per site        DAPI-GFP (a two-plane stack), A594, AF750
+    DAPI                     plane 0 of the DAPI-GFP stack, resolved by
+                             `_plane_sources` with no special case
+    phenotype tile           2960 x 2960        sequencing tile 1480 x 1480
+    magnifications           20X and 10X
+    SCALE                    (1480 x 10) / (2960 x 20) = 0.25 exactly
+    round_well_layout(1281)  41 columns, radius 20.90, 1,281 sites
+    round_well_layout(333)   21 columns, radius 10.25, 333 sites
+    seed ratio R_sbs/R_ph    0.4904 against a true pitch ratio of 0.5
+
+That last line is the one that matters for the anchor search: the seed is
+off by 2 % of a grid offset, which at the well's edge -- twenty phenotype
+steps of 633.8 px from the centre -- is about 250 px, comfortably inside
+the 1,600 px window. So the seed will land, on this plate, without the
+window being widened.
+
+Thirteen `*.tif.lftp-pget-status` files sit in the phenotype folder, the
+remains of interrupted downloads; the pattern skips them, which is why the
+naive count of "3,846 tiles for B1" is 3 x 1,281 + 3.
+
+The plate's names are pinned as literals in the test file, so this is caught
+without the NAS the next time.
+
+THE SCALE IS NOT THE MAGNIFICATION RATIO, and this cost an hour and is the
+one thing in this section worth reading twice. The first version of both the
+phase and its fixture took the scale to be 10X/20X = 0.5. The fixture was
+built at 0.5, the engine computed 0.5, and six tests passed on a well no
+microscope could have taken. PART 5's own table says why: 20X against 10X is
+half the field linearly and 2,960 px against 1,480 is twice the pixels, so a
+phenotype tile covers a QUARTER of a sequencing tile at FOUR times the
+linear pixel density. The scale is the ratio of the two pixel densities,
+
+    (1480 x 10) / (2960 x 20) = 0.25
+
+and 0.25 is the number every constant in `ops_phenotype` is recorded
+against -- "at 0.25 scale the target spacing is about 21 px" appears three
+times in that module. The engine now computes it from the tile widths it
+actually reads and the magnifications in the names, not from the
+magnifications alone, and the fixture was rebuilt at the plate's geometry.
+The green tests before the fix are the whole of HANDOFF 0b in one sitting:
+the fixture and the code shared the error, so agreement between them proved
+nothing.
+
+MEASURED ON THE REBUILT FIXTURE
+(tests/test_the_engine_places_the_phenotype_fields.py): a five-tile 10X
+raster of 320 px tiles and a twenty-one-field 20X raster of 640 px tiles at
+HALF the pitch and a QUARTER of the area, both cut from one planted field of
+1,600 nuclei -- the arrangement the plate has, where 1,281 phenotype fields
+sit over 333 sequencing ones and the raster steps are 633.8 px against
+1,267.
+
+    anchors                 6 used of 14 tried
+    recovered scale         0.24936 to 0.25003 against a true 0.25
+    recovered rotation      within 0.05 degrees
+    inliers per anchor      54 to 64
+    centre error, all 21    median 0.59 px, p90 0.72, max 0.77
+    nearest tile correct    21 of 21, over all five tiles
+    raster residual         median 0.033 px, max 0.064
+    time                    6.7 s on the CPU
+
+The fixture is not the plate: 21 fields against 1,281, nuclei planted as
+discs rather than imaged, and a window that covers the whole little well
+where the plate's covers a tile's worth of error. What it does reproduce is
+the geometry that makes the placement hard -- half the phenotype fields sit
+on or near a sequencing tile boundary -- which is why PART 14-M measured the
+halving map at 0.45 to 0.61 and why the test asserts the tile by CONTAINMENT
+of a planted centre rather than by an index.
+
+--------------------------------------------------------------------------------
+2. ops_reads IS WRITTEN, AND THE CONTRACT HAS A READ ID NOW
+--------------------------------------------------------------------------------
+
+14-L V15 recorded why it was not: the contract names `object_id, cycle,
+per-channel intensity, base, quality`, and a nucleus has several reads --
+the validated well averaged about six -- so those columns name no row.
+
+The id is the well's reads in RASTER ORDER on their well-frame position,
+which is what `ops_objects.number` does to objects and for the same reason:
+the id is a join key, so two runs over the same pixels have to agree on it
+whatever order the fields came back in. `plate, well, read_id, object_id,
+site, y, x, cycle, base, quality, intensity_G/T/A/C`, one row per read per
+cycle.
+
+THE INTENSITIES ARE THE ONES THE CALL WAS MADE FROM, not the raw ones.
+`ops_sbs.call_reads` is now a wrapper over a new `called_bases`, which hands
+back the normalised (and optionally compensated) values, the barcode and the
+per-cycle margin together. A caller that got only the barcode and one number
+per read would have to redo the normalisation to write the table, and a
+redone normalisation is how a stored intensity comes to disagree with the
+call beside it.
+
+IT IS OFF BY DEFAULT (`ops_store_reads`) AND THE REASON IS SIZE. A1 decoded
+3,265,717 spots; at eleven cycles a full well is of the order of thirty
+million rows, and `_replace_well_rows` reads a table back whole to keep the
+parquet cache and sqlite in step, so storing reads for a whole plate at once
+is not what this is for. A well or two, to audit a suspect barcode.
+
+MEASURED ON THE FIXTURE (the five-field synthetic well, three reads per
+nucleus, four cycles): 120 owned reads -> 480 rows, read ids 1..120 with
+four rows each, the first read the topmost in the well frame, and for every
+row the stored `intensity_<base>` is the largest of the four -- which is the
+definition of the call, asserted rather than assumed.
+
+--------------------------------------------------------------------------------
+3. THE 54 STRICT REFUSALS -- WHAT THE DATA ON DISK ALREADY SETTLES
+--------------------------------------------------------------------------------
+
+PART 14-M: "54 GROUPS NO WINDOW SAW WHOLE REMAIN, against 10,182. The
+largest is 3 x 19 px ... the observations are not stored, so which of them
+are Cellpose fragments with no counterpart and which a clip the containment
+test still misses is not measured."
+
+FOUR THINGS ARE SETTLED BY THE NUMBERS ALREADY WRITTEN DOWN, and they are
+worth separating from the one that is not.
+
+  (a) THE ARITHMETIC CLOSES. 1,279,032 groups - 1,278,978 objects = 54.
+      Nothing else was dropped; every other group had a complete
+      observation and was numbered.
+
+  (b) NOT ONE OF THEM IS AN OBJECT WIDER THAN THE OVERLAP. The largest
+      spans 19 px in its longer direction against a 96 px window overlap,
+      a factor of five; A2's largest is 19 x 5 against the same overlap.
+      So "raise the overlap above the largest object" -- the remedy the
+      message gave unconditionally before 14-M -- cannot apply to any of
+      the 54 or any of A2's 62. The other branch of the message is the
+      live one for this plate.
+
+  (c) EACH IS A FRACTION OF A NUCLEUS, NOT ONE. The median numbered object
+      is 95 px of mask, an equivalent diameter of about 11 px. A 3 x 19
+      box holds at most 57 px and a 19 x 5 box at most 95, and a clipped
+      mask does not fill its box. So a refusal is a sliver: either a piece
+      of a nucleus another window saw whole, or a fragment of something
+      that is not a nucleus.
+
+  (d) THE COST IS BOUNDED AND IS BELOW THE NOISE. 54 of 1,279,032 groups is
+      4.2 per 100,000. Even if every one were a nucleus wholly lost, the
+      well's count moves by 0.004 % -- against the 1,024-object difference
+      the same pixels gave between 14-L's run and 14-M's, which is three
+      orders of magnitude larger and has a known cause (the near twins are
+      now sewn). The refusals cannot explain any difference anyone has
+      measured on this well, and that is worth saying because an
+      unexplained refusal invites being blamed for one.
+
+WHAT IS NOT SETTLED, AND WHY NO READING OF THE TABLES WILL SETTLE IT. The
+question is whether a given sliver sits under an object that WAS numbered --
+a clip the join missed -- or over empty well frame -- a fragment. That is a
+question about the refused observations, and `ops_objects` holds only what
+was numbered. The report kept one box and a count. There is no query over
+the shipped tables that answers it, which is the honest end of what "from
+the data already on disk" can reach.
+
+SO THE CODE NOW MEASURES IT DURING THE RUN, at the cost of one KD-tree query
+per refusal and no second segmentation. `ops_objects.unseen_records` writes
+one record per refused group -- box, centre, observation and window counts,
+the largest window side it spans, summed and largest area -- while the
+observations are still in memory, and `ops_engine._explain_refusals` asks of
+each whether a numbered object's box overlaps it. The objects report gains a
+`refusals` block: the counts above, plus `covered_by_a_numbered_object`,
+`orphaned` and one record each.
+
+A PREDICTION, WRITTEN BEFORE THE RUN so the run is a test and not a
+description. `_explain_refusals` uses a WEAKER test than the sew step's
+clip-join rule: box overlap, where the join asks for the clip's centroid
+inside a complete observation's equivalent disc or its box inside that box
+to 2 px. A refusal that is `covered` is therefore a case the geometry allows
+and the stricter rule refused, which puts the remaining work in the clip-join
+rule; a refusal that is `orphaned` puts it in Cellpose. From (b) and (c) the
+expectation is that most of A1's 54 come back `covered`. If they come back
+`orphaned` instead, the sliver is debris Cellpose found once and the right
+response is to leave them refused, not to loosen the join.
+
+Tested on hand-built observations
+(tests/test_a_refused_group_says_which_kind_it_is.py) and, end to end,
+through a run with the windows shrunk until nuclei straddle every seam
+(tests/test_the_ops_engine_runs_a_well_end_to_end.py): 11 groups refused, 11
+records, 11 wider than the 2 px overlap, 11 orphaned -- which is the right
+answer there, because at 2 px no window saw those nuclei whole.
+
+--------------------------------------------------------------------------------
+4. SEVEN SETTINGS, AND THE CONSTANTS THEY EXPOSE
+--------------------------------------------------------------------------------
+
+PART 14-M: "of which the engine reads seven ... New keys -- base channels,
+the read threshold, the raster overlap, the footprint, a library path --
+would need tooltips in that same lane; until then they are module
+constants". The tooltips are written here rather than in
+spacr/qt/i18n_catalogs, which is still another lane's file; the NINE-LANGUAGE
+catalogs are owed and are listed for the consolidated pass rather than
+regenerated here.
+
+    phenotype_source     A4's input folder
+    ops_library          the guide CSV; `library=` still overrides it
+    ops_base_channels    which channel carries which base
+    ops_read_threshold   _THRESHOLD_READS
+    ops_raster_overlap   _RASTER_OVERLAP
+    ops_window_overlap   _WINDOW_OVERLAP
+    ops_footprint        _FOOTPRINT
+    ops_store_reads      whether ops_reads is written
+
+THE CONSTANT REMAINS THE DEFAULT AND THE MEASUREMENT STAYS BESIDE IT. Each
+number is still written where its measurement is recorded, at the top of
+`ops_engine`; the setting falls back to it when the box is empty, so the
+shipped behaviour does not move and a settings dict written before these
+keys existed still runs. The two copies are held equal by a test rather than
+by an import, because importing the engine into `ops_settings` would pull
+numpy, scipy and the whole OPS stack into every settings registration,
+including the GUI's.
+
+`ops_window_overlap` was not on 14-M's list and is here because the refusal
+message tells the operator to raise the window overlap, and before tonight
+there was no control to raise it with.
+
+THE DECODE NUMBERS TRAVEL IN THE TASK, not on the module. Fields decode in
+spawned processes, which re-import `ops_engine` and get the shipped
+constants back however the parent was configured; a threshold set in the
+parent and read inside `_decode_field` would have applied on one worker and
+not on eight.
+
+--------------------------------------------------------------------------------
+5. WHAT THIS COST ELSEWHERE
+--------------------------------------------------------------------------------
+
+`ops_store.OPS_TABLES` is five names, not four. Phase D was written before
+A4 was built and assumed the placement would live in the phenotype run's own
+measurement tables; it cannot, because the placement is what those tables
+are keyed BY. `ops_phenotype` is small and read whole, so it is not cached.
+
+`WindowObject.bbox` and `PlateObject.bbox` said "bottom/right exclusive" and
+the code has always been inclusive -- `_label_extents` reduces with
+`np.maximum`, and a 3-row mask at rows 5..7 comes back as `(5, ..., 7, ...)`.
+Anyone measuring an extent from those docstrings was one pixel short in each
+direction. Corrected; nothing in the code changed, because the code was
+right.
+
+TWO NEW PUBLIC CALLABLES, `ops_sbs.called_bases` and
+`ops_objects.unseen_records`. The four public-API pins in
+tests/test_docstring_correctness.py and the two in
+tests/test_api_i18n_extractor.py were ALREADY RED on origin/nightly tonight
+(8,831 callables against a pin of 8,698; 10,699 API entries against 10,539);
+these two take them to 8,833 and 10,701. The pins are another lane's to
+move with the catalog rebuild and were deliberately not touched here.
+Baselined by stashing and re-running, both numbers above.
+
+--------------------------------------------------------------------------------
+6. WHAT IS LEFT AFTER TONIGHT
+--------------------------------------------------------------------------------
+
+  * THE PLATE. Wells B1-B3 and the rest of it are unrun, so A4, ops_reads
+    and the refusal split have no measurement on real data. What HAS been
+    read off it, read-only and without a stitch, is section 1's table: the
+    names parse, B1 has 1,281 phenotype fields and 333 sequencing ones, the
+    scale is 0.25 and both layouts come out at the measured radii. Queued as
+    scratchpad/gpu_queue/372-code-half-1.md (B1-B3) and -2.md (the plate),
+    each with its exact command, working directory, expected duration, peak
+    VRAM and RAM, outputs and success check.
+  * THE NINE-LANGUAGE CATALOGS. Eight setting labels and tooltips, one new
+    category heading ("OPS DECODING"), two edited category headings, the
+    OPS module blurb (which said "the phenotype images are not placed by
+    this step" and is now false), and the API blocks for the two new public
+    callables and for every docstring edited tonight. Listed for the
+    consolidated pass, not regenerated here.
+  * THE CONSUMER MAP CANNOT SEE THE NEW KEYS YET.
+    `tools/build_setting_consumer_map.py` reads `spacr/settings.py`'s
+    module-scope tables plus the EN catalog's SETTING_TOOLTIPS, and these
+    eight are registered from `ops_settings`'s own body -- HANDOFF trap 3c,
+    and 397 from the other side. They will appear once the catalogs are
+    rebuilt, and the map has to be regenerated after that or the new rows'
+    API links point nowhere. The map was regenerated tonight anyway,
+    because moving code in `ops_engine` moved sixteen recorded line numbers.
+  * THE RUNTIME CAPTIONS outside the settings tables still describe the old
+    engine -- the Mask fold's "per-well mosaics ... place the
+    high-magnification phenotype images onto them". Same lane as the
+    catalogs.
+  * spacr/spacrops.py IS ALREADY GONE, which 14-M's list predates.
+  * `ops_phenotype` IS A PLACEMENT AND NOT YET A MEASUREMENT. Phase C4 --
+    phenotype channels measured at the same object ids, emitting the schema
+    `measure` already emits -- reads this table and is not built.
+
+2026-09-19 -- A4, ops_reads, the refusal explanation and the settings, in
+code and on fixtures; nothing SEGMENTED or DECODED on the plate, though the
+plate's own file names, tile shapes, scale and both layouts were read off it
+read-only after /nas_mnt came back, and one of them found a defect that
+would have refused every phenotype well. The two plate runs are
+queued for the orchestrator rather than run here, per "Code now, GPU runs
+later". Four of PART 14-M's six open items are closed; the two that remain
+are the two that need the plate, and the fixtures that stand in for it are
+honest about being fixtures. Tests: 6 for A4, 6 for the refusal records, 2
+added to the end-to-end run (reads and refusals), 2 added to the settings
+ratchet. Four public-API pins and one packaging pin were red on
+origin/nightly before this branch and remain red; the diff adds two
+callables to two of them.
