@@ -7,10 +7,16 @@ Status:    2026-09-19: BOTH HOLD-OUT QUEUES ARE PREPARED AND WAITING FOR THE
            CURATOR, who is the maintainer -- "I'll curate; prep it" (today,
            the question tool). The two commands, how long they should take,
            what done looks like, how a field is skipped and what happens
-           afterwards are in the LAST SECTION OF THIS FILE, headed
-           "2026-09-19 -- READY FOR CURATION". Read that section before
-           anything below it; the rest of this Status is older and still
-           true. Nothing is curated and nothing is published.
+           afterwards are in the section headed "2026-09-19 -- READY FOR
+           CURATION", and FOUR CORRECTIONS TO IT are in the section after
+           that, "2026-09-19 -- AFTER REVIEW", which is the last in the file.
+           READ BOTH; the rest of this Status is older and still true.
+           Nothing is curated and nothing is published. The corrections
+           change no command and no gate: one retracts the claim that a
+           no-edit save always round-trips the seed (it does not on 12 of the
+           148 fields, and by how much is measured there), two replace disk
+           estimates that had never been measured, and one is about quoting
+           awkward file names.
 
            THE MEASUREMENT HALF IS BUILT -- `spacr/scorecard.py`, by the
            work session, some time after this file's 2026-09-02 audit. It
@@ -1094,10 +1100,27 @@ WHAT DONE LOOKS LIKE
 
     ~/anaconda3/envs/spacr/bin/spacr-make-masks --folder $Q --order name --dry-run
 
-  prints "43 bundles, 43 done, 0 skip, 0 remaining" (105 for the plaque set)
-  and then "nothing to open: every field ... already has a state in
-  <folder>/curate_status.csv". curate_status.csv holds one row per field, each
-  done or skip. That line is also the gate on both gpu_queue jobs below.
+  prints a line CONTAINING "43 bundles, 43 done, 0 skip, 0 remaining" (105 for
+  the plaque set) and then "nothing to open: every field ... already has a
+  state in <folder>/curate_status.csv". curate_status.csv holds one row per
+  field, each done or skip. That line is also the gate on both gpu_queue jobs
+  below.
+
+  THE QUOTED COUNTS ARE A SUBSTRING, NOT THE WHOLE LINE -- match them as one,
+  not with ==. `spacr/cli_make_masks.py` prints `CurationQueue.describe()`,
+  which wraps the counts in the layout, the folder and the session. Run
+  against the real PV queue today it gives ONE line, wrapped here only to fit
+  this file:
+
+    nested layout at /mnt/wd4tb/af3/projects/toxoplasma_pv_model/curation/
+      pv_literature_stock_queue_2026-09-15: 43 bundles, 0 done, 0 skip,
+      43 remaining; 43 this session, sorted by name
+
+  so at the gate the line still carries the `nested layout at <path>: ` prefix
+  and a `; 0 this session, sorted by name` suffix. A human reads it fine; a
+  script that compares the whole line to the quoted fragment fails every time,
+  which is why the fragment is quoted as a fragment everywhere it appears --
+  here, in both HOLDOUT_README.txt files and in both gpu_queue jobs.
 
 SKIP: THE EDITOR CANNOT RECORD IT, AND BOTH READMES ASKED FOR IT ANYWAY
 
@@ -1173,10 +1196,12 @@ WHAT WAS VERIFIED TODAY, AND HOW
       FORMATS  mask is written to masks/<stem>.tif, which is where the queue
                looks for it.
     A NO-EDIT  opening a field and saving it unchanged round-trips the seed
-      SAVE     EXACTLY: same shape, same dtype, same labels, array-equal on
-               four fields across both sets. The TIFF bytes differ (it is
-               re-encoded), the pixels do not. So "open it, look, save" is a
-               legitimate way to mark a seed correct.
+      SAVE     on MOST fields but NOT all -- see the correction below, which
+               replaces what this line said when it was written. Same shape,
+               same dtype, array-equal on four fields across both sets; on
+               twelve of the 148 fields the object count goes up by one to
+               five. "Open it, look, save" is still a legitimate way to mark a
+               seed correct; it is not always a byte-for-byte no-op.
 
   The real queues were hashed before and after all of this: 137 files (PV) and
   218 (plaque), 0 changed. Everything was driven on copies.
@@ -1251,3 +1276,141 @@ STILL OPEN AFTER THIS
 Decided: 2026-09-19, the maintainer, asked with the question tool whether he
 would curate these two hold-out sets or have them curated -- "I'll curate;
 prep it". He curates; this session prepared, and drew no truth.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- AFTER REVIEW: THREE NUMBERS IN THE SECTION ABOVE WERE NOT
+MEASURED, AND ONE OF THEM WAS WRONG
+--------------------------------------------------------------------------------
+
+The prep stands. Nothing below changes a command, a gate or a piece of data;
+all four are corrections to what the curator and the orchestrator were told.
+
+1. A NO-EDIT SAVE IS NOT ALWAYS A NO-OP -- 12 OF THE 148 FIELDS, RETRACTED
+   HERE AND CORRECTED ABOVE.
+
+   What was written: "opening a field and saving it unchanged round-trips the
+   seed EXACTLY". It was checked on four fields and all four happened to be
+   clean. It is false on twelve.
+
+   spacr/qt/mask_engine.py::save_mask puts every mask through
+   canonical_labels before writing, and canonical_labels relabels connected
+   components. A seed label lying in two disconnected pieces -- a blob plus a
+   stray pixel or two, which cellpose leaves now and then -- comes back as two
+   objects. The curator drew nothing.
+
+   MEASURED two ways. Driving the real editor (MakeMasksScreen over copies,
+   through build_queue -> hand_over, pressing the real Save mask button and
+   drawing nothing) on six plaque fields: 44 -> 46, 34 -> 36, 26 -> 27,
+   293 -> 295 objects, one to five pixels differing each, the other two
+   array-identical. Then every seed in both queues through canonical_labels:
+
+     PV        1 of 43 seeds changes; 1,212 objects -> 1,213.
+     PLAQUE   11 of 105 seeds change; 4,792 objects -> 4,810.
+
+   WHAT IT MEANS FOR THE SCORECARD, which is why it is written down rather
+   than shrugged at:
+
+     * The "105 fields, 4,792 objects" identity check above was run on seeds
+       COPIED in as truth, not saved through the editor. After a real
+       curation in which the curator changes nothing, the freeze will report
+       4,810. That difference is this relabelling, not a curation error and
+       not something to correct back.
+     * plaque_seed_vs_truth.csv measures how far the truth moved from the
+       vanilla seed and carries kept_seed_unchanged per row. For those eleven
+       figures it will say the truth moved when nobody moved it. It is a
+       floor of about 0.4% on the measured lean, not a real one, and it must
+       not be read as curator disagreement with the seed.
+     * It lands on truth and on the seed baseline alike, so it does not tilt
+       toxoplasma_plaque_v1 against cpsam or the reverse.
+     * The untouched seeds are kept -- provenance/vanilla_seed_masks/ (105)
+       and provenance/stock_seed_masks/ (43) -- so the size of this stays
+       measurable after curation. Compare against those, never against
+       masks/, once curation has started.
+
+   A SMALLER THING FALLS OUT OF IT. _on_save counts objects from the canvas
+   mask, BEFORE save_mask canonicalises it, so for those twelve fields
+   curate_status.csv records a count the file on disk does not have: the
+   driven run wrote rows of 44, 34, 26 and 293 beside masks holding 46, 36,
+   27 and 295. Nothing reads that count as a checksum -- the freeze counts the
+   mask itself -- but it is not the same number and must not be compared to
+   one.
+
+   Filed against 396, whose editor it is, in the fourth note of 2026-09-19 in
+   that file, with what a fix would take. Not fixed here: fixing it is an edit
+   to the editor, and a fix landing between two curation sessions would change
+   the meaning of the rows already written.
+
+2. THE CURATED MASKS ARE UNCOMPRESSED, SO BOTH DISK ESTIMATES WERE LOW.
+
+   save_mask calls spacr.tiff_io.write_tiff with no compression=, so a curated
+   mask is an uncompressed uint16 TIFF: exactly H*W*2 bytes plus a 256-byte
+   header. Measured on real seeds of this set through the real editor:
+   207x209 -> 86,782 B; 1087x1359 -> 2,954,722 B; 2736x3648 -> 19,962,112 B,
+   each exactly H*W*2+256.
+
+   The first estimate for gpu_queue job 2 said "about 400 MB under $OUT". It
+   was taken from the queue's masks/ folder as it stands today -- 1.6 MB for
+   all 105 seeds, which are compressed -- rather than from what the editor
+   writes. The corrected numbers:
+
+     PLAQUE   371.4 MP over 105 figures, so curated masks ~743 MB. masks/
+              grows from 1.6 MB to ~743 MB DURING curation, in the queue.
+              freeze_plaque_truth.py copies them with shutil.copy2, so the
+              frozen set is 109 MB of figures + ~743 MB of masks = ~850 MB;
+              predictions add little (written with compression="zlib").
+              Reserve 1 GB under $OUT.
+     PV       8.49 MP over 43 fields, so curated masks ~17 MB. masks/ grows
+              from 220 KB to ~17 MB; the frozen set is ~24 MB, not the 7.2 MB
+              the job file claimed -- 7.2 MB is the whole queue as it stands
+              today, before any mask is saved.
+
+   /mnt/wd4tb had 1.3 TB free on 2026-09-19, so neither is a problem. Both
+   gpu_queue job files now carry the corrected figure and say where it came
+   from. Recorded because a curator planning a session was being handed a
+   number nobody had measured.
+
+3. THE GATE IS A SUBSTRING OF THE PRINTED LINE, NOT THE LINE.
+
+   Corrected under "WHAT DONE LOOKS LIKE" above, with the full line as it
+   actually prints. It matters only to anybody scripting the gate.
+
+4. A QUARTER OF THE PLAQUE STEMS NEED QUOTING AND THE README DID NOT SAY SO.
+
+   26 of the 105 plaque stems carry spaces, parentheses or both, e.g.
+   PMC12003902__41467_2025_58876_MOESM15_ESM__rh dGRA PL 100(Silver Stain).
+   The documented usage was `$PY $Q/skip_field.py <stem or file name>` with no
+   quoting, and skip_field.py --list prints stems bare, so copy-and-paste is
+   what a curator would do; unquoted, bash splits the name or errors on the
+   `(`. It fails safe -- an unresolvable name is refused with "nothing
+   written" and exit 2, and the stem resolution itself is correct for every
+   awkward name in the set -- so this was a documentation gap, not a data
+   risk. Both READMEs now show the quoted form, and --list now prints each
+   stem shell-quoted so that what is copied is what runs. Proved by round
+   trip on a synthetic queue built from the real awkward-named fields: skip a
+   spaced-and-bracketed stem, copy the name --list printed verbatim, paste it
+   back into --clear, and it resolves; an unknown name is still refused with
+   "nothing written" and exit 2, and no __pycache__ is left in the queue.
+
+WHAT THIS REVIEW PASS CHANGED IN THE QUEUES, AND WHAT IT DID NOT
+
+  Changed, two files per queue, both text: skip_field.py (--list prints
+  shell-quoted stems; docstring shows the quoted form; behaviour otherwise
+  identical) and HOLDOUT_README.txt (quoting, the gate-is-a-substring
+  wording, the no-edit-save correction, the disk growth). The digests in
+  provenance/prep_2026-09-19.json are therefore stale for those two files;
+  rather than rewrite that record, each queue now also holds
+  provenance/prep_2026-09-19_review.json with the before and after sha256 of
+  each and a sentence on what changed.
+
+  NOT changed, and re-verified after every edit above: all 43 + 105 images and
+  all 43 + 105 masks are byte-identical to the seeds kept in
+  provenance/stock_seed_masks/ and provenance/vanilla_seed_masks/ -- 0 differ.
+  Neither queue has a curate_status.csv, so no field has been decided by
+  anyone. NO GROUND TRUTH WAS DRAWN, SEEDED OR ALTERED. Everything driven
+  through the editor in this pass was driven on copies under the scratchpad,
+  with HOME and all three XDG directories redirected there.
+
+Decided: 2026-09-19, the maintainer, through the question tool -- "I'll
+curate; prep it". He curates both hold-out sets; this session prepared them
+and drew no truth. These four corrections change nothing he has to do: the two
+commands, the gate and both queues are as they were.
