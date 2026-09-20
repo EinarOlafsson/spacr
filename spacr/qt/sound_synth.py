@@ -50,8 +50,11 @@ __all__ = [
     "EVENTS",
     "FEEDBACK_EVENTS",
     "HOVER_VARIANTS",
+    "LEAD_AIR_HZ",
+    "LEAD_MOTIF",
     "NATURAL_MINOR",
     "ORBIT",
+    "REST",
     "Rendered",
     "SAMPLE_RATE",
     "SOUND_THEMES",
@@ -83,7 +86,7 @@ SAMPLE_RATE = 48000
 #: Version 2 is the 32-bar arrangement with sections, a soft
 #: four-on-the-floor kick, a shaker and a loudness-normalised master;
 #: version 1 was an eight-bar phrase with no drums.
-SYNTH_VERSION = 2
+SYNTH_VERSION = 3
 
 #: Environment variable that moves the cache. Tests and probes point it at
 #: a scratch folder so they never write into a real ``~/.spacr``.
@@ -91,6 +94,45 @@ CACHE_ENV = "SPACR_SOUND_CACHE"
 
 #: The natural minor (Aeolian) scale, in semitones above the tonic.
 NATURAL_MINOR: Tuple[int, ...] = (0, 2, 3, 5, 7, 8, 10)
+
+#: Where the melody stops, in hertz. ABOVE THIS THE MIX BELONGS TO THE
+#: SHAKER, and the eighth-order wall is a guard on every theme rather than
+#: a tone control on this one.
+#:
+#: A sustained voice playing all the way up competes with the one part
+#: whose whole job is the top of the spectrum, and it wins, because it is
+#: sustained and the shaker is not. Measured with the theme key held fixed,
+#: because the shaker IS noise drawn from the key's own generator and a
+#: comparison across two keys compares two different shakers: the shaker
+#: adds 5.36 dB above 4 kHz with no melody at all, and the first melody
+#: built here left it 3.23 dB, which turned part B's
+#: ``test_the_drums_are_audible_when_they_are_asked_for`` red. Warming the
+#: melody to ``lead_brightness`` 0.18 gives the shaker 5.44 dB back, and
+#: this wall is what stops a theme from asking for the brightness that
+#: takes it away again.
+LEAD_AIR_HZ = 3000.0
+
+#: A rest in a lead pattern, in the place a scale degree would be. It is
+#: far outside any scale so a pattern that reaches it by arithmetic rather
+#: than on purpose cannot be mistaken for a note.
+REST = -1000
+
+#: The reference lead melody: twelve notes over four bars, in scale
+#: degrees of the theme's key and beats.
+#:
+#: THIS IS THE LINE SOMEBODY HUMS. Pads, an arpeggio, a kick and a shaker
+#: are a texture; what makes the genre MELODIC space house is a phrase with
+#: a shape, and one that leaves room -- long notes, and a whole bar of rest
+#: before it comes round again. The phrase falls E-D-C, falls again D-C-A,
+#: climbs E-G-A, and answers G-E; over i-VI-III-VII every one of those is a
+#: chord tone or the ninth, so it sings over the progression instead of
+#: being led by it, which is how the melody of this music is written.
+LEAD_MOTIF: Tuple[Tuple[int, float], ...] = (
+    (4, 1.5), (3, 0.5), (2, 2.0),
+    (3, 1.5), (2, 0.5), (0, 2.0),
+    (4, 1.0), (6, 1.0), (7, 2.0),
+    (6, 1.5), (4, 0.5), (REST, 2.0),
+)
 
 #: How many different in-key plucks a click, and a hover, rotates through.
 #: Successive clicks walk a short phrase rather than repeating one note.
@@ -124,12 +166,29 @@ class SoundTheme:
     :param pad_cutoff_hz: low-pass cutoff of the pad at rest; it breathes
         up to roughly twice this.
     :param pad_level: pad level in the mix.
-    :param pad_pump: depth of the dip on every beat, the side-chained pad
-        of house music without a kick drum to cause it (0 to 1).
+    :param pad_pump: depth of the dip on every beat of the music bus --
+        pads, arpeggio, lead and their reverb, everything but the kick and
+        half of the sub. The side-chain of house music, with or without a
+        kick drum to cause it (0 to 1).
     :param pluck_brightness: how slowly the pluck's harmonics fall away
         (0 to 1); higher is brighter.
     :param pluck_decay: time constant of the pluck's fundamental, seconds.
     :param pluck_level: arpeggio level in the mix.
+    :param lead_pattern: the melody, as ``(scale degree, beats)`` pairs
+        read in order and repeated for the length of the bed. A degree of
+        :data:`REST` is a silence of that many beats. An empty pattern, or
+        a ``lead_level`` at or below :data:`PART_FLOOR`, leaves the melody
+        out of the render entirely.
+    :param lead_level: melody level in the mix.
+    :param lead_octave: whole octaves above the tonic the melody is played
+        in.
+    :param lead_attack: seconds the melody's notes take to speak. Slow
+        enough that it sings rather than plucks.
+    :param lead_brightness: how far above each note's own pitch the
+        melody's filter opens; higher is brighter. Capped so that no theme
+        can turn the melody into a saw lead that takes the air away from
+        the shaker -- this genre's lead is warm, and the top of the mix
+        belongs to the percussion.
     :param arp_pattern: indexes into the five arpeggio tones of a chord
         (four chord tones and the root an octave up), one per step.
     :param arp_division: arpeggio steps per beat (2 is eighth notes).
@@ -168,10 +227,15 @@ class SoundTheme:
     pad_detune_cents: float = 16.0
     pad_cutoff_hz: float = 1100.0
     pad_level: float = 0.5
-    pad_pump: float = 0.3
+    pad_pump: float = 0.6
     pluck_brightness: float = 0.62
     pluck_decay: float = 0.32
     pluck_level: float = 0.5
+    lead_pattern: Tuple[Tuple[int, float], ...] = LEAD_MOTIF
+    lead_level: float = 0.68
+    lead_octave: int = 1
+    lead_attack: float = 0.045
+    lead_brightness: float = 0.18
     arp_pattern: Tuple[int, ...] = (0, 2, 1, 3, 2, 4, 3, 1)
     arp_division: int = 2
     delay_beats: float = 0.75
@@ -200,15 +264,15 @@ class SoundTheme:
 ORBIT = SoundTheme(
     key="orbit",
     label="Orbit",
-    description=("Melodic space house in A minor: warm detuned pads, "
-                 "plucked arpeggios with a dotted-eighth echo, a soft sub, "
-                 "and a quiet four-on-the-floor kick and shaker that come "
-                 "and go with the arrangement."),
+    description=("Melodic space house in A minor: a singing lead over warm "
+                 "detuned pads, plucked arpeggios with a dotted-eighth "
+                 "echo, a soft sub, and a quiet four-on-the-floor kick and "
+                 "shaker that come and go with the arrangement."),
 )
 
 
 #: One section of the music bed's arrangement, as fractions of the parts
-#: available: ``(name, bars, arp, kick, shaker, sub)``.
+#: available: ``(name, bars, arp, kick, shaker, sub, lead)``.
 #:
 #: THE ARRANGEMENT IS WHAT MAKES A LOOP BEARABLE. Eight bars of the same
 #: four chords with everything playing is a phrase; thirty-two bars with a
@@ -221,11 +285,18 @@ ORBIT = SoundTheme(
 #: carried over it by :func:`_fold` and the level is set by a memoryless
 #: curve, so nothing puts a step back in. See
 #: ``test_the_bed_is_exactly_its_bars_long_and_loops_without_a_seam``.
-BED_SECTIONS: Tuple[Tuple[str, int, float, float, float, float], ...] = (
-    ("drift", 8, 0.45, 0.0, 0.0, 0.85),
-    ("pulse", 8, 0.85, 0.85, 0.80, 1.00),
-    ("lift", 8, 1.00, 1.00, 1.00, 1.00),
-    ("return", 8, 0.62, 0.15, 0.20, 0.90),
+#: AND THE MELODY IS THE SHAPE, not another part that is simply on. It
+#: fades out across the opening section, is away for four bars, comes back
+#: under the drums and is full only in the lift -- so the loop has a tune
+#: that arrives rather than a tune that never stops. A melody playing for
+#: sixty-three seconds out of every sixty-three is the one thing that would
+#: make this unbearable to work over.
+BED_SECTIONS: Tuple[
+    Tuple[str, int, float, float, float, float, float], ...] = (
+    ("drift", 8, 0.45, 0.0, 0.0, 0.85, 0.0),
+    ("pulse", 8, 0.85, 0.85, 0.80, 1.00, 0.60),
+    ("lift", 8, 1.00, 1.00, 1.00, 1.00, 1.00),
+    ("return", 8, 0.62, 0.15, 0.20, 0.90, 0.28),
 )
 
 #: Every sound set spaCR can play, by key.
@@ -435,6 +506,34 @@ def _supersaw(freq: float, n: int, voices: int, detune_cents: float,
         wave_ = _saw(detuned, n, float(rng.random()), sr)
         out += _pan(wave_, spread * width)
     return out / math.sqrt(voices)
+
+
+def _lead_voice(theme: SoundTheme, freq: float, seconds: float,
+                rng: np.random.Generator, sr: int = SAMPLE_RATE) -> np.ndarray:
+    """One note of the melody: a small supersaw under a closing filter.
+
+    A pluck cannot carry a tune under an arpeggio of plucks -- it is the
+    same attack and the same decay, so it joins the texture instead of
+    rising out of it. This voice is told apart by SUSTAIN: three gently
+    detuned saws, an attack slow enough to be a breath rather than a hit,
+    and a filter that opens on the note and closes across it, so the note
+    is still there when the next one arrives.
+
+    :param theme: supplies the attack, the brightness and the width.
+    :param freq: the note, in hertz.
+    :param seconds: how long the note sounds, tail included.
+    :param rng: seeds the saw phases, so a theme always renders the same.
+    :returns: stereo samples, shape ``(2, n)``.
+    """
+    n = max(1, int(seconds * sr))
+    tone = _supersaw(freq, n, 3, theme.pad_detune_cents * 0.45,
+                     theme.width * 0.55, rng, sr)
+    cutoff = float(np.clip(freq * theme.lead_brightness * 9.0, 400.0, 2600.0))
+    closing = np.exp(-np.arange(n, dtype=np.float64) / max(1.0, 0.30 * sr))
+    tone = _lowpass(_swelling_filter(tone, cutoff, closing, sr),
+                    LEAD_AIR_HZ, order=8, sr=sr)
+    release = float(min(0.4, max(0.08, seconds * 0.45)))
+    return tone * _envelope(n, theme.lead_attack, release, sr=sr)
 
 
 def _sub(freq: float, n: int, sr: int = SAMPLE_RATE) -> np.ndarray:
@@ -766,6 +865,7 @@ class BedBar(NamedTuple):
     :param kick: kick level, 0 to 1, before the theme's ``kick_level``.
     :param shaker: shaker level, 0 to 1, before ``shaker_level``.
     :param sub: sub level, 0 to 1.
+    :param lead: melody level, 0 to 1, before the theme's ``lead_level``.
     :param lift: semitones the arpeggio rises by in this bar's second half.
     """
 
@@ -774,6 +874,7 @@ class BedBar(NamedTuple):
     kick: float
     shaker: float
     sub: float
+    lead: float
     lift: int
 
 
@@ -801,7 +902,8 @@ def bed_plan(bars: int) -> List[BedBar]:
         lengths[lengths.index(min(lengths))] += 1
 
     plan: List[BedBar] = []
-    for index, (name, _weight, arp, kick, shaker, sub) in enumerate(BED_SECTIONS):
+    for index, (name, _weight, arp, kick, shaker, sub,
+                lead) in enumerate(BED_SECTIONS):
         before = BED_SECTIONS[index - 1]
         span = lengths[index]
         for b in range(span):
@@ -814,6 +916,7 @@ def bed_plan(bars: int) -> List[BedBar]:
                 kick=before[3] + (kick - before[3]) * ease,
                 shaker=before[4] + (shaker - before[4]) * ease,
                 sub=before[5] + (sub - before[5]) * ease,
+                lead=before[6] + (lead - before[6]) * ease,
                 lift=12 if bar % 4 == 3 else 0,
             ))
     return plan
@@ -943,12 +1046,35 @@ def _to_loudness(audio: np.ndarray, target_lufs: float, peak_db: float,
     return out
 
 
+#: How long the side-chain takes to duck, as a fraction of the beat. About
+#: forty milliseconds at 122 BPM, which is a compressor's attack.
+PUMP_ATTACK = 0.08
+
+
 def _pump(n: int, beat: float, depth: float, sr: int = SAMPLE_RATE) -> np.ndarray:
-    """The side-chain dip: down on every beat, back up over half a beat."""
+    """The side-chain dip: down INTO every beat, back up over half of it.
+
+    AND IT GOES DOWN IN A FINITE TIME, which is not a detail. Recovering
+    over half a beat and then snapping back to the bottom at the beat
+    leaves a step in the gain -- eight decibels at the reference depth,
+    a hundred and twenty-eight times over the loop -- and a step in a gain
+    is a click. On the pads alone it was quiet enough to miss. Applied to
+    the whole music bus it was loud enough to measure: it raised the mix
+    above 4 kHz by more than the shaker puts there, which is how it was
+    found. :data:`PUMP_ATTACK` is the fall, so the curve is continuous
+    where it wraps and the dip is still fast enough to be felt.
+
+    :param n: length in samples.
+    :param beat: seconds per beat.
+    :param depth: how far the gain falls, 0 to 1.
+    :param sr: sample rate.
+    :returns: a gain curve, one value per sample.
+    """
     t = np.arange(n, dtype=np.float64) / sr
     phase = np.mod(t / beat, 1.0)
-    recovery = np.clip(phase / 0.5, 0.0, 1.0)
-    shape = 0.5 - 0.5 * np.cos(math.pi * recovery)
+    shape = 0.5 - 0.5 * np.cos(math.pi * np.clip(phase / 0.5, 0.0, 1.0))
+    into = np.clip((phase - (1.0 - PUMP_ATTACK)) / PUMP_ATTACK, 0.0, 1.0)
+    shape = shape * (0.5 + 0.5 * np.cos(math.pi * into))
     return 1.0 - float(np.clip(depth, 0.0, 1.0)) * (1.0 - shape)
 
 
@@ -979,9 +1105,20 @@ def _bed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
     pads pumping on every beat and breathing open and shut over the whole
     loop; ``theme.arp_pattern`` an octave above them through a dotted-eighth
     ping-pong delay, lifted an octave in the second half of every fourth
-    bar; a sine sub on each chord's root two octaves down; and, from
-    :func:`bed_plan`, a soft four-on-the-floor kick and an eighth-note
-    shaker that come in and go out with the sections.
+    bar; ``theme.lead_pattern`` sung over the top of both on its own
+    sustaining voice, in and out with the arrangement; a sine sub on each
+    chord's root two octaves down; and, from :func:`bed_plan`, a soft
+    four-on-the-floor kick and an eighth-note shaker that come in and go
+    out with the sections.
+
+    THE WHOLE MUSIC BUS DUCKS ON THE BEAT, not the pads alone. The pump is
+    applied to the summed pads, arpeggio, lead, shaker and echoes, so the
+    REVERB is ducked with what feeds it, which is what a side-chain in this
+    genre actually does and what the pads alone could not do: the tail of a
+    three-second room filled the dip straight back in, and the pump
+    measured a little over a decibel where the pads themselves were down
+    three. The kick and half of the sub stay out of it, because they are
+    what the rest is ducking for.
 
     WHAT MAKES IT A LOOP AND NOT A PHRASE. :data:`BED_SECTIONS` gives the
     thirty-two bars a shape that closes where it opened: the quiet section
@@ -1022,6 +1159,7 @@ def _bed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
     tail = int((theme.reverb_seconds + 2.0) * sr)
     pads = _pad(length, tail)
     plucks = _pad(length, tail)
+    leads = _pad(length, tail)
     subs = _pad(length, tail)
     drums = _pad(length, tail)
     shakers = _pad(length, tail)
@@ -1085,6 +1223,22 @@ def _bed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
                 _add(shakers, shaker * row.shaker * accent, int(at * sr))
                 notes.append((at, 42, "shaker"))
 
+    if theme.lead_level > PART_FLOOR and theme.lead_pattern:
+        lead_rng = _rng(theme, "lead")
+        position = 0.0
+        index = 0
+        while position < 4.0 * bars:
+            degree, beats = theme.lead_pattern[index % len(theme.lead_pattern)]
+            index += 1
+            row = plan[min(bars - 1, int(position // 4.0))]
+            if int(degree) != REST and row.lead > PART_FLOOR:
+                note = scale_note(theme, int(degree), octave=theme.lead_octave)
+                voice = _lead_voice(theme, midi_to_hz(note),
+                                    float(beats) * beat + 0.3, lead_rng, sr)
+                _add(leads, voice * row.lead, int(position * beat * sr))
+                notes.append((position * beat, note, "lead"))
+            position += float(beats)
+
     total = pads.shape[1]
     t = np.arange(total, dtype=np.float64) / sr
     loop_seconds = bars * bar
@@ -1092,16 +1246,19 @@ def _bed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
     quick = 0.5 - 0.5 * np.cos(8.0 * math.pi * t / loop_seconds)
     pads = _swelling_filter(pads, theme.pad_cutoff_hz,
                             0.62 * slow + 0.22 * quick, sr)
-    pump = _pump(total, beat, theme.pad_pump, sr)
-    pads *= pump
-    subs *= 0.5 + 0.5 * pump
+    subs *= 0.5 + 0.5 * _pump(total, beat, theme.pad_pump, sr)
 
     echoes = _ping_pong(plucks, theme.delay_beats * beat, theme.delay_feedback, sr)
-    bus = _pad(echoes.shape[1])
+    lead_echoes = _ping_pong(leads, theme.delay_beats * beat,
+                             theme.delay_feedback * 0.6, sr)
+    bus = _pad(max(echoes.shape[1], lead_echoes.shape[1]))
     _add(bus, pads * theme.pad_level, 0)
     _add(bus, plucks * theme.pluck_level * 0.55, 0)
+    _add(bus, leads * theme.lead_level, 0)
     _add(bus, shakers * theme.shaker_level * 0.75, 0)
-    bus += echoes * theme.pluck_level * 0.55 * theme.delay_mix * 1.6
+    _add(bus, echoes * theme.pluck_level * 0.55 * theme.delay_mix * 1.6, 0)
+    _add(bus, lead_echoes * theme.lead_level * theme.delay_mix, 0)
+    bus *= _pump(bus.shape[1], beat, theme.pad_pump, sr)
     wet = _with_space(bus, theme, theme.space, theme.reverb_seconds, "bed-space",
                       sr)
     _add(wet, subs * theme.sub_level * 0.5, 0)

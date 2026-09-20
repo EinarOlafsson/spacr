@@ -204,3 +204,77 @@ bars, 8 a bar — and the part-B test is named
 `test_the_shaker_is_on_the_eighths_and_the_offbeat_is_the_loud_one`. Part C
 is meant to be written from the `:param:` docs of `SoundTheme`, so a wrong
 note value there is a wrong note value in ten sound sets.
+## The melody and the pump, 2026-09-19
+
+The sentence the whole item answers is "The theme should sound like
+melodic space house", and after parts A and B the bed had the space house
+and not the melodic. Two things were missing, both measured on the
+samples rather than argued.
+
+**There was no melody.** Every pitched note came from the arpeggio:
+sixteen a bar, no rests, no shape. An arpeggio is a texture, and the
+artists the maintainer named — Worakls, N'to, Rivière, BIRRD — are
+remembered for a phrase. `LEAD_MOTIF` is that phrase: twelve entries over
+four bars, in scale degrees and beats, E5 D5 C5 / D5 C5 A4 / E5 G5 A5 /
+G5 E5 and a rest. Over i-VI-III-VII every note is a chord tone or the
+ninth, so the line sings across the progression instead of following it.
+It is a part of the arrangement and not simply on: away through the quiet
+section, in under the drums, full only in the lift. It plays 72 notes in
+the loop against the arpeggio's 256 and adds 2.6 dB to the lift's
+0.5-2.5 kHz band.
+
+**`_lead_voice` is a sustaining voice and that is the point.** A pluck
+cannot carry a tune over eight plucks a bar — same attack, same decay, so
+it joins the texture. Measured over quarter-second windows, the lead is
++0.2 dB from its first quarter-second to its third and the pluck is
+-8.3 dB.
+
+**Measuring that took three tries.** Two fifty-millisecond windows read
+the lead as decaying nearly as fast as the pluck, because three saws
+seven cents apart beat against each other with a period of about a third
+of a second and the windows were sampling the beating, not the note.
+
+**The side-chain was not audible.** The pads were ducked on the beat but
+the reverb they fed was not, so a three-second tail filled the dip
+straight back in. The pump now multiplies the whole music bus — pads,
+arpeggio, lead, shaker and both delays — before the reverb, which is what
+a side-chain in this genre actually does. The kick and half of the sub
+stay out of it, because they are what the rest is ducking for.
+
+| | pads ducked (part B) | bus ducked |
+|---|---|---|
+| dip on the beat, reference mix | 1.2 dB | 4.1 dB |
+| dip with the drums taken out | — | 3.8 dB |
+| the same, with `pad_pump` at 0 | — | 1.7 dB |
+
+**The first measurement of the pump was wrong and looked like a finding.**
+The beat is 0.4918 s and a 10 ms hop is 49.18 hops, so folding the
+envelope on 49 hops drifts half a beat across thirty-two bars and smears
+the dip away; it reported 1.2 dB for a bus that was down 3.1. Every phase
+is now computed from the sample index and binned. The 1.2 dB above is the
+*re-measured* part B figure, not that first one.
+
+**And the pump had a step in it.** Recovering over half a beat and then
+snapping back to the bottom at the beat is a discontinuity in a gain —
+8 dB at the reference depth, 128 times a loop — and a step in a gain is a
+click. On the pads alone it was quiet enough to miss; on the whole bus it
+was not. `PUMP_ATTACK` gives it a 40 ms fall, so the curve is continuous
+where it wraps.
+
+**`LEAD_AIR_HZ` is a guard and it was earned.** The first melody took the
+shaker's air: with the theme key held fixed, the shaker adds 5.36 dB above
+4 kHz with no melody and 3.23 dB with the bright one, which turned part
+B's `test_the_drums_are_audible_when_they_are_asked_for` red. Warming the
+lead to `lead_brightness` 0.18 gives 5.44 dB back and the wall stops any
+of part C's ten themes from asking for the brightness that takes it away.
+
+**THE THEME KEY SEEDS THE SHAKER'S OWN NOISE.** Comparing a variant under
+a different `key` compares two different shakers, and that produced four
+mutually contradictory attributions before it was noticed. Every number
+above holds the key fixed and changes one field. The check that the rest
+of the change is inert: with the melody off and `pad_pump` at 0, this
+module renders the shaker figure at 5.37 dB against part B's 5.36.
+
+**Still nobody has listened to it.** The numbers say what was asked for.
+Renders for the maintainer's ear are `orbit_bed_two_loops`,
+`orbit_lift_before_then_after` and `orbit_interface_sounds`.
