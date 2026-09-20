@@ -2,7 +2,7 @@
 THE MEASUREMENTS TAB'S SUB-HEADINGS READ WHEN THEY ARE NOT HIGHLIGHTED
 ================================================================================
 
-Status:    filed 2026-08-21, DONE 2026-08-21.
+Status:    DONE 2026-08-21, filed the same day.
 Requested: 2026-08-21 -- "the text in the measurements tab for the sub
            categories should be white when they are not highlighted (in dark
            mode oposite in bright mode)."

@@ -2,7 +2,7 @@
 FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
 ================================================================================
 
-Status:    filed 2026-08-16, CLOSED 2026-08-17. All of A-M done;
+Status:    CLOSED 2026-08-17, filed 2026-08-16. All of A-M done;
            520 tests pass over the regression surface.
 Requested: 2026-08-16, after the first pass landed --
 

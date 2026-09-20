@@ -2,7 +2,7 @@
 THE CELL TABLE'S BARS CARRY THE ERROR THE USER PICKS
 ================================================================================
 
-Status:    filed 2026-08-21, DONE 2026-08-21.
+Status:    DONE 2026-08-21, filed the same day.
 Requested: 2026-08-21 -- "for the cell table graphs if bar is chosen the user
            should be able to choose SD, Var, or SEM error bars."
 Owner:     Qt GUI (cell table graphs)

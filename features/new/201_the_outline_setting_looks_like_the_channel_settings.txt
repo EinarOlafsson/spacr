@@ -2,7 +2,7 @@
 THE OUTLINE SETTING LOOKS LIKE THE CHANNEL SETTINGS
 ================================================================================
 
-Status:    filed 2026-08-21, DONE 2026-08-21.
+Status:    DONE 2026-08-21, filed the same day.
 Requested: 2026-08-21 -- "in the cell tab in the settings the outline setting
            should look like the channel and normalize channel".
 Owner:     Qt GUI (Cell tab, settings rows)

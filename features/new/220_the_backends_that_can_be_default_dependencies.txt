@@ -2,7 +2,7 @@
 WHICH REGRESSION BACKENDS CAN BE DEFAULT DEPENDENCIES
 ================================================================================
 
-Status:    filed 2026-08-21, DONE 2026-08-21.
+Status:    DONE 2026-08-21, filed the same day.
 Requested: 2026-08-21 -- "i get that cuML is disruptive and should be opt in
            because it limits to 3.11 and 3.12. but cant the other dependencies
            be included by default, check again if they would cause problems if

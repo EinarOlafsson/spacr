@@ -2,7 +2,7 @@
 EVERY FIGURE IN THE PANEL OPENS WHEN IT IS CLICKED
 ================================================================================
 
-Status:    filed 2026-08-21, DONE 2026-08-21.
+Status:    DONE 2026-08-21, filed the same day.
 Requested: 2026-08-21 -- "in the figure pannel. i am able to click on the
            colcano plot to open it but not the other pyqtgraphs. for the
            matplot lib graphs, i can not see #2 when i click on it this run."

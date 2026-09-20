@@ -1,0 +1,105 @@
+================================================================================
+A MEMORY WATCHDOG, SO ONE RUNAWAY PROCESS CANNOT TAKE THE DESKTOP DOWN
+================================================================================
+
+Status:    BUILT 2026-09-20, the day it was asked for. The watchdog, its
+           selection rules and 15 tests are on nightly. What is NOT done is
+           making it run by itself -- see WHAT IS LEFT.
+
+Requested: 2026-09-20 -- "there needs to be a memory watchdog that checks if
+           ram is getting filled . if more than 100 GB or ram are being used,
+           then we need to trigger mechanisms to reduce or cap the ram so vs
+           code dosnt crash."
+
+WHAT HAPPENED, FROM THE KERNEL LOG RATHER THAN FROM MEMORY
+--------------------------------------------------------------------------------
+
+    Sep 20 15:46:13 kernel: Out of memory: Killed process 2325461 (python)
+        total-vm:165687320kB, anon-rss:118664308kB
+
+113 GiB of anonymous RSS on a 125 GB machine, and VS Code went down with it.
+The maintainer confirmed it was the OTHER session's process. The kill line
+also names the cgroup:
+
+    task_memcg=/user.slice/.../app.slice/app-code-3704.scope
+
+`app-code-<pid>.scope` is VS Code's own scope, which means the process was
+outside every memory cgroup -- it had not been started through
+`tools/run_capped.sh`. That one field answers "was the guard used" in a
+line, and HANDOFF 3.001 now says so.
+
+TWO THINGS THE MACHINE TOLD US WHILE BUILDING THIS, both worth keeping:
+
+  * VS CODE'S OWN PROCESSES RUN AT `oom_score_adj=100`. The default is 0 and
+    the range is -1000 to 1000, so the editor is biased TOWARDS being killed
+    -- which is part of why it dies rather than survives. Lowering another
+    process's score needs privilege; RAISING one does not. So the watchdog
+    raises the offender's score to 1000 rather than trying to protect the
+    editor, which is the half that works without root.
+  * `user@1000.service` has `MemoryHigh=infinity` and `MemoryMax=infinity`.
+    There is no back-pressure anywhere above the individual scopes.
+
+WHY THIS IS NOT THE MAIN GUARD, AND MUST NOT BE SOLD AS ONE
+--------------------------------------------------------------------------------
+
+`tools/run_capped.sh`'s own header records that A POLLER WAS TRIED HERE AND
+LOST: a daemon reading /proc/meminfo every three seconds fired five times
+and still lost the machine, because a process going from nothing to ninety
+gigabytes outruns a three-second poll. A cgroup is checked by the kernel on
+every allocation; a poller is checked when it happens to look.
+
+    run_capped.sh is the guard. This is the net under it, for the
+    processes somebody forgot to put through it.
+
+Said plainly because the failure mode of a safety net nobody distrusts is
+that people stop using the harness.
+
+WHAT IT DOES DIFFERENTLY FROM THE POLLER THAT LOST
+--------------------------------------------------------------------------------
+
+  1. IT FREEZES BEFORE IT KILLS. SIGSTOP stops a process allocating in the
+     time it takes to deliver a signal, and leaves its memory there to look
+     at. The old poller killed, then waited ten seconds before considering
+     the next one. Nothing is killed at the first threshold, and the message
+     says `kill -CONT <pid>` so a frozen process is not mistaken for a hung
+     one.
+  2. IT MAKES THE KERNEL PICK THE RIGHT VICTIM. `oom_score_adj=1000` on the
+     offender means that if the kernel's own killer gets there first, it
+     takes the runaway and not the editor.
+  3. IT ACTS WITH HEADROOM. 100 GB of 125 leaves 25 GB, which is a great
+     deal of allocating to do inside one second.
+
+WHAT IT WILL NOT TOUCH, and each is a test:
+
+  * The editor, the compositor and the browser (`PROTECTED`). Killing the
+    compositor to save memory is not saving the session.
+  * Anything already under a memory cgroup with a limit -- it will die in
+    its own scope without the machine noticing, and freezing it would only
+    confuse whoever is waiting on it.
+  * Anything below the floor (16 GB), itself, or pid 1.
+
+USING IT
+
+    tools/memory_watchdog.py --report      what it would act on, now
+    tools/memory_watchdog.py               watch, act at 100 GB, kill at 112
+    tools/memory_watchdog.py --act-gb 90 --floor-gb 8
+
+HOW TO KNOW IT WORKED
+
+  * `--report` on a quiet machine says nothing uncapped is above the floor.
+  * The next time a session is lost, the kernel log's `task_memcg` says
+    whether the process was capped, and the watchdog's own log says whether
+    it saw it.
+
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+  * IT DOES NOT RUN BY ITSELF YET. A systemd --user unit would start it with
+    the session, which is the obvious next step and is a decision about the
+    maintainer's machine rather than about this repository.
+  * `MemoryHigh` on `user@1000.service` would give the kernel back-pressure
+    above every scope, which is a better answer than any poller and needs
+    the maintainer to choose a number.
+  * It has never fired in anger. Everything above is tested on made-up
+    process lists, which is the right way to test the selection rules and
+    proves nothing about the day it matters.

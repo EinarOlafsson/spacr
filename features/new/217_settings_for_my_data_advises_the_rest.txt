@@ -2,7 +2,7 @@
 "SETTINGS FOR MY DATA" ADVISES THE REST OF THE RUN
 ================================================================================
 
-Status:    filed 2026-08-21, DONE 2026-08-21.
+Status:    DONE 2026-08-21, filed the same day.
 Requested: 2026-08-21 -- "settings for your data should also tell the user
            what transformation they should do, recomend a fraction and cell
            count threshold and a min n threshold, batch correction method,

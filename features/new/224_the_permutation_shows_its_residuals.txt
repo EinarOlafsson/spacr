@@ -2,7 +2,7 @@
 THE PERMUTATION TEST SHOWS THE RESIDUALS IT PERMUTES
 ================================================================================
 
-Status:    filed 2026-08-21, DONE 2026-08-21.
+Status:    DONE 2026-08-21, filed the same day.
 Requested: 2026-08-21 -- "phenotype are first residualised against the block
            but no residual graph."
 Owner:     Regression QC, guide_permutation

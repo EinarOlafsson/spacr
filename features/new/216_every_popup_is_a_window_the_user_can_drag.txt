@@ -2,7 +2,7 @@
 EVERY POPUP IS A WINDOW THE USER CAN DRAG
 ================================================================================
 
-Status:    filed 2026-08-21, DONE 2026-08-21.
+Status:    DONE 2026-08-21, filed the same day.
 Requested: 2026-08-21 -- "the settings for your data settings window should be
            movable without moving the main window. this should be tru of all
            settings windows or any popup window from spacr."

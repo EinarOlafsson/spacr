@@ -2,7 +2,7 @@
 A PANEL CANNOT WRITE AN IMPOSSIBLE NUMBER
 ================================================================================
 
-Status:    filed AND closed 2026-08-19, from a run that failed on the
+Status:    CLOSED 2026-08-19, filed the same day, from a run that failed on the
            maintainer's own screen. Re-verified 2026-09-13:
            settings_model._float_domain (3678) hands the float branch its
            range and step at settings_model.py:7857-7861, and

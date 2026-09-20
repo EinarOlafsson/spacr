@@ -2,7 +2,7 @@
 EVERY PLOT IN PYQTGRAPH, A TAB EACH, AND GENE/gRNA AS A RIGHT-CLICK FILTER
 ================================================================================
 
-Status:    filed 2026-08-17; A, B and C DONE 2026-08-20 -- this line used to
+Status:    DONE 2026-08-20 (A, B and C), filed 2026-08-17 -- this line used to
            say "in progress". Re-verified 2026-09-13: EffectRankPlot and
            EffectDistribution at spacr/qt/widgets/fast_plots.py:6585 and :7113
            are mounted as tabs by spacr/qt/widgets/regression_results.py, the
