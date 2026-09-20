@@ -1,0 +1,92 @@
+================================================================================
+THE WELL DETECTOR v4 IS UNLISTED, AND THE v3 ROW QUOTES A SCORE FROM AN EASIER
+SPLIT
+================================================================================
+
+Status:    not started
+Requested: 2026-09-19 — "if the new toxo and yolo models are trained i want you
+           to uploade everything to hugging face in the format i discribed with
+           the training data also uploaded than add a new features items to wire
+           those new models into spacr."
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Well detector v4 trained and published 2026-09-19 13:10-13:21:
+
+  model    einarolafsson/toxoplasma-plaque-well-detector-yolo26    18 files
+  dataset  einarolafsson/toxoplasma-plaque-well-detector-dataset 2910 files
+                            (1,453 images + labels: 1070 train / 254 val / 129 test)
+
+It is yolo26n trained on the v3 data PLUS 2,051 hand-corrected boxes over 361
+PMC figures and 614 figures confirmed to contain no well, from the box review
+finished 2026-09-16. Splits are by PMC ARTICLE, and v3's own split is preserved
+inside v4's, so the two are comparable.
+
+spacr/model_zoo.py line ~379 lists only toxoplasma_well_detector_v1
+(yolo_welldetect_v3.pt, the yolo11n model). There is no v4 row.
+
+**The v3 row also misleads.** It quotes mAP50 0.993, P/R 0.987 -- v3's score on
+v3's OWN validation split, which contains no hard negatives. Scored on v4's
+held-out test set, both models measured in the same process:
+
+  model          mAP50    mAP50-95   precision   recall
+  v3 yolo11n     0.8838   0.7630     0.8613      0.9085
+  v4 yolo26n     0.9457   0.8341     0.8912      0.9440
+  delta         +0.0619  +0.0711    +0.0299     +0.0355
+
+Published per-image evidence: qc/v3_yolo11n_test_perimage.csv and
+qc/v4_yolo26n_test_perimage.csv in the v4 repo.
+
+  sha256 weights/best.pt
+    f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Left as is, the zoo shows the OLD detector at 0.993 and the new one at 0.946,
+so a user comparing rows picks the worse model. The two numbers come from
+different test sets; only one of them was ever measured against hard negatives.
+The detector is also the front half of the plaque pipeline -- it supplies the
+well crops and the well diameter that makes areas comparable across
+microscopes -- so its false positives propagate into every downstream count.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. spacr/model_zoo.py: add "key": "toxoplasma_well_detector_v2", name
+   "yolo_welldetect_v4.pt", kind "detector", repo_id
+   "einarolafsson/toxoplasma-plaque-well-detector-yolo26", the sha256 above.
+   The weight is at weights/best.pt in the repo.
+2. Correct the v1 row in the SAME commit: keep its 0.993, but say in the row
+   that it is v3's own split, and add v3's score on the shared test set
+   (mAP50 0.8838). A version row that cannot be compared with its successor is
+   worse than no row.
+3. Quote v4's numbers from the common test set only, and say that 129 test
+   images include confirmed no-well figures.
+4. Link the dataset repo above as the training data.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    python -m pytest tests/test_model_zoo.py -q
+
+stays green, and
+
+    python -c "from spacr.model_zoo import BUNDLED_REMOTE_MODELS as M; \
+      print([(e['key'], e['metrics']['f1']) for e in M if e['kind']=='detector'])"
+
+shows both detector rows with scores a reader can compare -- same test set, or
+each labelled with the split it came from.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not removing the v3 row: it is the model the published plaque corpus was
+measured with, so results in the paper trace back to it.

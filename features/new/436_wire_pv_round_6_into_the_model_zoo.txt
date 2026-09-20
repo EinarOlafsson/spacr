@@ -1,0 +1,92 @@
+================================================================================
+THE MODEL ZOO STOPS AT PV ROUND 5; ROUND 6 IS PUBLISHED AND UNLISTED
+================================================================================
+
+Status:    not started
+Requested: 2026-09-19 — "if the new toxo and yolo models are trained i want you
+           to uploade everything to hugging face in the format i discribed with
+           the training data also uploaded than add a new features items to wire
+           those new models into spacr."
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+PV round 6 finished training 2026-09-19 12:56 and was published the same
+afternoon, weights and all:
+
+  model    einarolafsson/toxoplasma-pv-segmentation-cpsam-r6     47 files
+  dataset  einarolafsson/toxoplasma-pv-segmentation-dataset    1117 files
+                                                    (556 image/mask pairs)
+
+The model repo carries weights/cpsam_v2_toxo_r6 (1.22 GB), training/ (per-epoch
+history, split, report, curves), qc/ (per-image metrics for r6 AND stock
+cpsam_v2, plus comparison_vs_stock.csv) and cv/ (all five folds).
+
+BUNDLED_REMOTE_MODELS in spacr/model_zoo.py ends at toxoplasma_pv_v2
+(cpsam_v2_toxo_r5, line ~440). There is no row for round 6, so the zoo cannot
+offer it and no spaCR user can install it.
+
+Measured, from the published qc/summary.json and cv/aggregate.json:
+
+  test, 11 fixed anchor wells   r6 F1 0.8602  P 0.8468  R 0.8741  AJI 0.8026
+                             stock F1 0.7648  P 0.7539  R 0.7760  AJI 0.5050
+  validation, 96 fields         r6 F1 0.8237  vs stock 0.6255
+  5-fold CV, grouped by source  F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424
+  training                      556 images, 100 epochs, base cpsam_v2
+
+  sha256 weights/cpsam_v2_toxo_r6
+    146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Round 6 is the first PV model trained with a held-out validation set AND a
+separate test set, so it is the first whose numbers were not produced by the
+data it fitted. Until the row exists, spaCR users get round 5, whose published
+figure comes from cross-validation over the same pool it trained on.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. spacr/model_zoo.py, after the toxoplasma_pv_v2 entry: add
+
+       "key": "toxoplasma_pv_v3", "name": "cpsam_v2_toxo_r6",
+       "kind": "cellpose", "repo_type": "model",
+       "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r6",
+
+   with the sha256 above -- every row carries a real hash, and fetch() refuses
+   an entry without one, so a row with a placeholder is a row nobody installs.
+   The weight file sits at weights/cpsam_v2_toxo_r6 inside the repo, not at the
+   root as in the older PV repos; check fetch() resolves a nested path before
+   assuming it does.
+2. Fill "metrics" from the numbers above. Quote the ANCHOR test scores as the
+   headline, not the CV figure: the anchor wells are the only fields no PV
+   model has ever trained on.
+3. In "notes", state plainly that round 6 does NOT beat round 2 on the anchor
+   (0.8602 against 0.8648) and that the PV project therefore still promotes
+   round 5. A zoo row that implies "newest is best" would contradict the
+   project's own PROMOTED.txt.
+4. Link the training data: einarolafsson/toxoplasma-pv-segmentation-dataset.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    python -c "from spacr.model_zoo import BUNDLED_REMOTE_MODELS as M; \
+      e=[x for x in M if x['key']=='toxoplasma_pv_v3'][0]; print(e['sha256'])"
+
+prints the sha256 above, and the Download button in the Model Zoo tab fetches
+1.22 GB whose sha256 matches. Then the existing model-zoo tests stay green:
+
+    python -m pytest tests/test_model_zoo.py -q
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not retiring toxoplasma_pv_v1 or v2. Round 2 still holds the best anchor score,
+and users with a pipeline calibrated on it should not have it vanish.

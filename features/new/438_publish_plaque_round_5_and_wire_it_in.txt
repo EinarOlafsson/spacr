@@ -1,0 +1,91 @@
+================================================================================
+PLAQUE ROUND 5 COVERS FOUR DOMAINS; NOTHING IN spaCR OR ON HUGGINGFACE KNOWS IT
+YET
+================================================================================
+
+Status:    in progress — training started 2026-09-19 ~21:20, ~2 h
+Requested: 2026-09-19 — "if the new toxo and yolo models are trained i want you
+           to uploade everything to hugging face in the format i discribed with
+           the training data also uploaded than add a new features items to wire
+           those new models into spacr."
+Owner:     unassigned (plaque project: /media/carruthers/mnt3/claude/
+           toxoplasma_projects/plaque_assay_model)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The plaque project finished curation on 2026-09-19 and assembled
+data/curated_v5: 488 image+mask pairs, 27,582 plaques, deduplicated by pixel
+content (893 bundles collapsed to 569 unique images; 81 excluded as skipped).
+It is the first plaque dataset covering all four domains:
+
+  literature 298 fields   malnio 96   patrick 67   bigbean 27
+
+Round 5 trains on a grouped split -- by figure for literature, by plate for the
+microscope sources, with malnio's own held-out 20 forced into test:
+
+  train 332 fields / 18,532 objects    valid 75 / 4,756    test 81 / 4,294
+
+tools/run_train_r5.py scores F1, precision and recall PER DOMAIN on the test
+split, and scores r3 and r4 on the same fields.
+
+spaCR lists toxoplasma_plaque_v1 (cpsam_plaque_r3, repo
+einarolafsson/toxoplasma-plaque-segmentation-cpsam) at model_zoo.py line ~350.
+Its row quotes "0.8560 in-domain / 0.8060 literature" from 3-fold CV over the
+89-well curated set of August -- a fifth of the data that now exists, and no
+malnio at all.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+spaCR's plaque users get a model that has never seen a phone-camera well, and a
+row whose numbers come from a set that no longer represents the data. Per-domain
+scores also let a user predict whether the model suits THEIR images, which a
+single blended F1 cannot.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Wait for round 5: results/r5_production.log ends with R5_OK, weights at
+   models/cpsam_seg_r5/, per-domain table at round5/training_metrics/
+   test_by_domain.csv.
+2. Publish in the same shape as the PV r6 and detector v4 repos -- model repo
+   with weights/, training/ (per-epoch history, split.csv, report.json,
+   curves), qc/ (per-image metrics for r5 AND the incumbents r3/r4), and a
+   dataset repo carrying data/curated_v5 images/, masks/, manifest.csv,
+   splits.csv, excluded.csv. Model the script on the PV project's
+   code/publish_r6.py and the plaque project's tools/train_publish_v4.py.
+   Suggested: einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 and
+   einarolafsson/toxoplasma-plaque-dataset.
+3. Only then add "key": "toxoplasma_plaque_v2" to BUNDLED_REMOTE_MODELS, with
+   the real sha256 of the published weight, per-domain metrics, and the
+   training-data repo linked.
+4. State in the row whether round 5 was PROMOTED. The plaque project's rule,
+   fixed before the result: a literature-F1 gain of at least max(0.02, fold sd)
+   over r3 and no NAS regression beyond noise. Round 4 missed it (+0.008) and
+   r3 stayed production; if round 5 misses too, the row says so rather than
+   implying the newest model is the best one.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The HuggingFace model repo lists weights/, training/, qc/; the dataset repo
+lists 488 images and 488 masks plus the three CSVs; and
+
+    python -c "from spacr.model_zoo import BUNDLED_REMOTE_MODELS as M; \
+      e=[x for x in M if x['key']=='toxoplasma_plaque_v2'][0]; print(e['metrics'])"
+
+prints per-domain scores that match round5/training_metrics/test_by_domain.csv.
+tests/test_model_zoo.py stays green.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No row is added before the weight is published and hashed: an entry whose
+sha256 is a placeholder cannot be installed, which is how the retired
+toxo_plaque_cyto row became a dead Download button.
