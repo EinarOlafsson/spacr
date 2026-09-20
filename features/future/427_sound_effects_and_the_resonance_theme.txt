@@ -335,7 +335,7 @@ WHAT EXISTS NOW
                                 first half, the FIRST section ramping from
                                 the LAST one -- so the plan is a circle and
                                 bar one continues bar thirty-two. A soft
-                                kick (_kick) and a sixteenth shaker
+                                kick (_kick) and an eighth-note shaker
                                 (_shaker) come and go with the sections and
                                 leave the render entirely below PART_FLOOR.
                                 loudness_lufs is the gated integrated
@@ -438,3 +438,70 @@ WHAT IS LEFT
     be checked without one.
   * No reaper for the analysis of a music file the user has stopped using;
     they are ~90 kB each and stay in the cache.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- part B reviewed before landing; six findings, all six fixed
+
+Decided: "The theme should sound like melodic space house" -- the maintainer,
+2026-09-19, answering what the sound sets and the bed should be.
+
+The review found no defect in the code that makes sound or pictures. Five of
+the six were documentation or user-facing copy that part B had left behind
+its own change, and the sixth was a preference that did not reach half of the
+new engine.
+
+  * THE MODULE SAID SIX THEMES. spacr/qt/widgets/ambient.py's docstring --
+    including the doc-comment on the line the change edited -- still said six
+    animations, a seventh engine called fractal and five buffered themes,
+    while docs/notes said seven. Corrected, and the docstring's theme list
+    now has a resonance entry like the other six.
+  * THE COPY DID NOT MENTION THE DRUMS. ORBIT.description and the Music bed
+    row's tooltip both still described the version-1 bed -- pads, arpeggio,
+    sub -- under a bed that now has a kick at 0.5 and a shaker at 0.34. Both
+    say so now. There is still no per-user drum level: kick_level and
+    shaker_level are theme fields, which is what makes part C a table of
+    numbers, and a user's controls are the bed's volume and the bed's
+    switch.
+  * THREE DOCSTRINGS SAID SIXTEENTHS. The shaker plays eighths -- range(8)
+    over a four-beat bar, 208 hits over 26 sounding bars -- and part C is
+    meant to be written from those :param: docs.
+  * THE COST TABLE HAD NO RESONANCE ROW. It has one now for the idle column,
+    which reproduces the existing rows exactly (blobs 0.246 against the
+    table's 0.240, cells 0.521 against 0.538); resonance is 1.005 to 1.072 ms
+    at 1080p. The contended column is a stated range rather than a number:
+    four nine-round repeats gave medians of 10, 174, 286 and 407 ms, because
+    this is the one theme whose shading is dozens of small numpy calls each
+    giving the interpreter lock back and queueing for it again. The cost is
+    paid on the producer thread, so it is a repeated frame and not a slow
+    interface, and a running module holds gil_priority.BUSY_INTERVAL where
+    the same measurement is 6 to 24 ms. Nobody has watched it under a real
+    Python worker.
+  * RESONANCE WAS IN ONE ANIMATION MENU AND NOT THE OTHER. preferences.
+    POPUP_BACKDROPS, the backdrop behind a settings window, was never
+    extended. Decided that this setting is curated by being its own setting
+    and not by offering fewer animations: it is now 'off' plus every name in
+    AMBIENT_THEMES alphabetically, with a test asserting that equality.
+  * THE SPEED PREFERENCE DID NOT REACH THE MUSIC. advance() scales the clock
+    by speed, which is the whole of the preference for every theme whose
+    motion is a function of the clock. Half of this one is a function of the
+    music: at speed 0.1 the breath, the mode walk and the wander crawled at a
+    tenth while a 122 BPM kick still threw the sand 6 % of the plate twice a
+    second, for somebody who had moved the slider to its minimum to stop
+    exactly that. ResonanceEngine.answering() now scales the moment by
+    min(1, speed) before it is stored; above 1.0 it is not scaled up, because
+    every field of a Moment is already 0 to 1 against the loop's own loudest.
+
+TESTS ADDED: test_the_speed_setting_reaches_the_music_and_not_only_the_clock
+(tests/qt/test_the_resonance_plate_answers_the_music.py, 31 now) and
+test_every_animation_is_offered_here_too
+(tests/qt/test_the_rim_has_modes_and_the_windows_are_bare.py). Run green after
+the fixes: the resonance suite (31), the four ambient suites and
+test_preferences.py (432), the five sound and Preferences suites (177), the
+four popup and rim suites (149), and seven adjacent suites (183). The four
+docstring suites are 8 failed / 133 passed on the branch and at the merge
+base alike, on sources this work never touched.
+
+STILL OPEN: everything under WHAT IS LEFT above, unchanged -- part C, that
+nobody has listened to any of it, the frozen bundle, Windows and macOS, the
+load latency of a 12 MB WAV, and the analysis files nothing reaps -- plus a
+per-user drum level if the maintainer wants one when he hears it.
