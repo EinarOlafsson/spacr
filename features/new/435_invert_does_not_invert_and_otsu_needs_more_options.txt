@@ -2,11 +2,19 @@
 INVERT DOES NOT INVERT, AND OTSU NEEDS MORE OPTIONS
 ================================================================================
 
-Status:    OPEN, filed 2026-09-19. Not started. It belongs beside item 419,
-           whose points 5 (Otsu settings and renames) and 9 (Invert plus
-           Toggle sliders) are being built the same day; this file is the
-           maintainer's verdict on what shipped before that work, so it is
-           kept separate rather than folded into 419's list.
+Status:    done 2026-09-20, on nightly, branch home/435-invert-otsu-build
+           cut from nightly 82d9b5f6f. Both halves are in: Invert is an
+           intensity inversion of the displayed image, and the Otsu category
+           holds multi-level Otsu, a local window and a histogram preview on
+           top of what item 419 part B put there. See the 2026-09-20 note at
+           the foot of this file for what was built, what 419 part B had
+           already done, and why the RECIPROCAL was not built. One thing is
+           deliberately left: the nine-language catalogs, which are a batch
+           pass and not this item's to run; the new captions are listed
+           below. It was filed beside item 419, whose points 5 (Otsu
+           settings and renames) and 9 (Invert for object detection, plus
+           the Toggle sliders) overlap it; 419 point 9 is a SECOND, separate
+           invert and is still open on part C.
 Requested: 2026-09-19, by the maintainer, in these words:
 
              "add to new features, the invert in make masks doesnt actually
@@ -80,3 +88,249 @@ HOW TO KNOW IT WORKED
     and the preview's marked level matches the threshold actually used.
   * Tests drive every control, and the round trip is checked by comparing
     arrays, not by counting objects.
+
+--------------------------------------------------------------------------------
+2026-09-20 — BOTH HALVES BUILT, BRANCH home/435-invert-otsu-build
+--------------------------------------------------------------------------------
+
+Cut from nightly 82d9b5f6f and rebased onto d60894e1a (item 445, the well
+detector's BGR channel order) with no hand resolution; the whole selection
+below was re-run after the rebase. Item 419 part C (the Filter category,
+Ctrl-click split and remove, and point 9's Invert-for-detection plus the
+Toggle sliders) was still unlanded at both commits, checked with
+`git log --grep=419` before the work and again before the push, so nothing
+here was built over it. The two new booleans are already the package's
+`Toggle` slider rather than a QCheckBox, so 419 point 9a's sweep does not
+have to come back for them.
+
+THE QUESTION THIS FILE SAID TO SETTLE FIRST WAS SETTLED BY THE MAINTAINER,
+2026-09-19, through the question prompt, in these words:
+
+    "invert so that low intensity becomes high intensity and vice versa.
+     1/intensity i think and then fitted to dtype i guess"
+
+That is option (b) of the four this file listed: invert the DISPLAYED image
+and leave the mask alone.
+
+WHAT WAS BUILT IS THE COMPLEMENT, NOT THE RECIPROCAL, AND HERE IS WHY
+--------------------------------------------------------------------
+
+`mask_engine.invert_intensity` returns `dtype_max - value` (and, for float
+data, `min + max - value` over the array's own range, which is stated in the
+docstring because a float image has no dtype maximum worth speaking of).
+
+The reciprocal was CONSIDERED AND NOT BUILT. It is written down here so that
+nobody derives it again from the same sentence:
+
+  * `dtype_max - value` is what an image viewer means by Invert, so the
+    picture that comes back is the one he is picturing when he asks for it.
+  * It is EXACTLY REVERSIBLE on every integer and boolean dtype -- pressing
+    Invert twice returns the identical array. That is what makes it safe to
+    leave switched on while curating, and it is asserted by comparing
+    arrays, not by eye:
+    tests/qt/test_make_masks_inverts_the_picture_and_otsu_grew_options.py
+    ::test_inverting_twice_returns_the_identical_array, over uint8, uint16,
+    int16 and bool, and ::test_invert_image_changes_the_picture_and_puts_it
+    _back, which compares the CANVAS PIXMAP's bytes before and after two
+    presses. A float field rounds twice and comes back within one unit in
+    the last place of `min + max` -- measured at 0.002 in float32 and 4e-12
+    in float64 over 0..65535, against an interval of one count -- which the
+    docstring says rather than claiming an exactness the arithmetic does not
+    have. Every field this editor opens is an integer dtype.
+  * `1/value` divides by zero on every background pixel, and plenty of
+    fields have a true zero background. It also squashes the bright end
+    non-linearly, so two objects a thousand counts apart come back
+    indistinguishable while the background explodes.
+
+HE CAN STILL HAVE THE RECIPROCAL AS A SECOND MODE if he wants a log-like
+lift of the dim end; it is a reasonable thing to want and it is not this one.
+It would go in as a choice beside the switch, not in place of it.
+
+WHAT INVERT DOES NOW
+--------------------
+
+  * "Invert image" is a Toggle in the DISPLAY category, beside the two
+    contrast percentiles, because that is what it is. On, the canvas paints
+    the photographic complement of the field: what was dark is bright.
+  * IT IS A VIEW AND ONLY A VIEW. The complement is computed in
+    `_MaskCanvas.displayed_source` and nowhere else, so `canvas.image` still
+    holds the pixels that were read off disk. Five paths are DRIVEN with
+    Invert on and asserted to have seen the original numbers, because a view
+    inversion that leaked into what is measured would be worse than the
+    defect it fixes -- a curator would be filtering on numbers that are not
+    the data:
+      - Otsu detect: the same mask either way, and a spy on
+        `engine._otsu_instances` catches the array it was handed;
+      - the corner readout: the same intensity and the same object mean;
+      - the object filter: the same objects dropped;
+      - the live magnifier: `build_request().crop` equals the slice of
+        `canvas.image`;
+      - and `canvas.image` itself is unchanged, asserted array-wise.
+  * The status line says so on the way in: "Showing the image inverted --
+    dark is bright. Detection, filtering and saving still use the original
+    pixels."
+  * The complement is cached against the identity of the image, because
+    `refresh` runs on every point of a brush stroke.
+
+THE MASK FLIP STAYS, UNDER THE NAME THAT DESCRIBES IT. This file asked for a
+deliberate decision and the decision is KEEP: outlining the space between the
+cells and wanting the cells is a real thing to do. "Invert mask" is now
+"Swap object and background", its tooltip says what it gives you on an
+ordinary field AND where the picture invert is, and it reports its own result
+-- because the thing that made it look broken is that its result is
+invisible: one field-sized object with holes reads as one flat wash. Nothing
+on the panel called "Invert" flips the mask any more. `engine.invert_mask`
+keeps its name and its behaviour; only its docstring grew.
+
+WHAT ITEM 419 PART B HAD ALREADY DONE, AND IS NOT REPEATED HERE
+---------------------------------------------------------------
+
+Read on nightly at 67c6d6b7d and 69c7602f0 before anything was added. Part B
+renamed "Classical" to Otsu and "Cellpose-SAM" to Object detection, moved the
+threshold correction out of the Cellpose category into an Otsu category of
+its own, moved Bright off the detect row into it, and added four settings:
+Smoothing (sigma), Fill holes, Split objects that touch, and Drop objects the
+image border cuts. Its own commit message says "Item 435 [...] is not closed
+by this", and that was accurate. NONE OF THOSE SIX IS DUPLICATED.
+
+THE MINIMUM OBJECT AREA AFTER THE THRESHOLD WAS ALREADY THERE TOO, and is
+NOT duplicated. Item 419's `Min area` box in Object operations is read by
+`_detect_min_area` and passed to `_otsu_instances`, which hands it to
+`connected_instances` after the threshold, after the hole-filling and after
+the split. 419 made that deliberately ONE box -- "one judgement about debris
+is made in one box" is in its tooltip -- and a second box in the Otsu
+category could only disagree with it. The Otsu card carries a line saying
+where it is instead, and the behaviour is driven by a test that raises the
+box and watches the detection come back with fewer objects.
+
+WHAT 435 ADDED TO OTSU
+----------------------
+
+Four controls, each with a tooltip that says what it does TO THE PICTURE, and
+each driven by a test that shows the mask change:
+
+  1. CLASSES (2-6). Multi-level Otsu
+     (`skimage.filters.threshold_multiotsu`), so a field holding background,
+     a dim halo and bright nuclei is cut at the boundary that matters
+     instead of at the one compromise level between all three.
+  2. FOREGROUND CLASS (0 = dimmest). Which band becomes the objects.
+     EXACTLY that band is taken, so choosing a middle one gives the halo
+     without the nuclei inside it, which is the point of asking for more
+     than two classes -- the three bands of a 3-class split are asserted to
+     share no pixel. With more than two classes "Objects are brighter than
+     background" is not read: the class number already says which side is
+     meant, and the box is greyed out to say so.
+  3. LOCAL THRESHOLD, with its LOCAL WINDOW in pixels. Otsu's level found
+     separately in a square around every pixel
+     (`skimage.filters.rank.otsu`), so a corner the lamp has fallen away
+     from is judged against its own corner. The test builds a field with an
+     illumination ramp and asserts the dim disc is LOST by one global level
+     and FOUND by the local one, and that the window size changes the result.
+     An even window is rounded up so the square has a centre.
+  4. SHOW HISTOGRAM AND LEVEL. A modeless window with the field's intensity
+     histogram and a line at every level the settings cut it at. THE MARKER
+     IS THE BUTTON'S OWN LEVEL, not a second opinion: the preview and
+     `_otsu_instances` both read `mask_engine._otsu_levels`, and a test
+     reproduces the detection's binary image from the marked number on four
+     bright/dark/correction combinations. The dark-side level marked is the
+     MIRRORED one the detector actually compares against, which is a
+     different number from Otsu's own. With the local threshold on the
+     caption says the level varies window by window and that the line is the
+     whole-field level for reference.
+
+The three whole-field ones are THE DETECT BUTTON'S ONLY, on the precedent
+419 part B set with "Drop objects the image border cuts". A 64 px magnifier
+box rarely holds three populations, and a window the size of the box is the
+box's own threshold, so offering either there would be offering a control
+that does nothing -- which is the defect this item exists for.
+`_classical_region_labels`, the magnifier's own routine, is untouched, and
+`_MODEL_SETTING_FIELDS` did not move, so no cached request key changed
+meaning.
+
+NOBODY'S DEFAULTS MOVED. The two-class non-local path was rewritten to read
+its level from the shared `_otsu_levels`, and that rewrite is byte-identical
+to what it replaced over 3,840 parameter combinations -- 40 synthetic fields
+x 3 corrections x 2 smoothings x fill holes x split x exclude border x both
+sides -- checked against a copy of the previous implementation.
+
+EVIDENCE
+--------
+
+  * 42 new tests in
+    tests/qt/test_make_masks_inverts_the_picture_and_otsu_grew_options.py,
+    all green.
+  * The 33 Make Masks / magnifier / mask_engine test files, one process
+    each, offscreen: every one green except
+    tests/qt/test_make_masks_settings_explain_themselves.py's
+    exact-catalog-row test, which is RED ON CLEAN origin/nightly TOO, for
+    419 part B's ten captions. Measured on a clean worktree of the same
+    commit rather than assumed. This branch takes that list from 10 rows to
+    15 and adds no other failure.
+  * tests/test_docstring_correctness.py has four ratchet failures. All four
+    are red on clean origin/nightly with the same shape (8993 vs 8698,
+    10888 vs 10539, 52 vs 44, 2292 vs 2279); this branch does not move them
+    past what nightly already carries.
+  * Green: the help index, the public API facade, the docstring field
+    lists and inline markup, the API documentation contract, the prose /
+    catalog check and the ledger self-consistency check.
+  * NOT DONE: a look at the real app on a real display. The histogram
+    dialog's size was chosen for 256 bars and has only been seen offscreen.
+
+THE NEW CAPTIONS, OWED TO THE NINE-LANGUAGE CATALOGS
+----------------------------------------------------
+
+Not regenerated here: a rebuild is tens of minutes per language and belongs
+to one batch pass at the end, which is what the handoff says and what 419
+part B also left. The strings are:
+
+  Controls and buttons
+    "Invert image"
+    "Local threshold (uneven illumination)"
+    "Classes"
+    "Foreground class"
+    "Local window"
+    "Swap object and background"          (was "Invert mask")
+    "Show histogram and level"
+    "Otsu histogram"                      (the preview's window title)
+    "Objects under the Min area in Object operations are dropped after the
+     threshold."
+
+  Tooltips (the five that the panel's own catalog check names)
+    the Invert image switch, Classes, Foreground class, Local window and
+    the Local threshold switch
+
+  Tooltips on the three Object-operations buttons, which are new because
+  those buttons had none: Fill holes, Relabel, Swap object and background
+
+  Status lines
+    "Showing the image inverted — dark is bright. Detection, filtering and
+     saving still use the original pixels."
+    "Showing the image as it was loaded."
+    "Swapped object and background — {n} object(s) now, and what was an
+     object is background. Ctrl+Z to undo."
+    "Open a field first — a histogram needs an image."
+    the Otsu detect line, which now names the cut: "local {n} px, bright",
+    "{n} classes, class {k}", or "bright" / "dark" as before
+
+  The preview's caption, both forms, and the "Otsu histogram failed" warning
+  title.
+
+Three new public symbols owe the API manifest a row in the same pass:
+`mask_engine.invert_intensity` and `make_masks.OTSU_LOCAL_WINDOW` /
+`OTSU_HISTOGRAM_BINS`. `_otsu_levels`, `_otsu_values`, `_otsu_histogram`,
+`_local_otsu_binary`, `_odd_window` and `_square_footprint` are private and
+cost the manifest nothing.
+
+WHAT IS LEFT
+------------
+
+  * The catalog and manifest pass above.
+  * Item 419 point 9's invert -- a SECOND switch, in the Object detection
+    category, which makes the magnifier and the detectors work on inverted
+    pixels ON PURPOSE and shows a warning saying so -- is part C's and is
+    still open. It should build on `mask_engine.invert_intensity` rather
+    than write its own complement, and it must stay clearly distinct from
+    this one on the panel: this one is in Display and changes nothing that
+    is measured; that one is in Object detection and changes everything
+    that is.
+  * A reciprocal mode, if he wants one, as a choice beside the switch.

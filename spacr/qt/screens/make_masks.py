@@ -51,10 +51,19 @@ map, and flow field. The intermediate outputs support evaluation of
 Editor modes are assembled from :func:`tool_row_entries` and
 :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts
 non-mode actions into the same toolbar. The settings panel carries the
-operations that are not gestures -- object filling and relabeling, inversion,
-size filtering and Otsu detection, with undo and redo over all of them --
-alongside the brush, wand and display controls, and can be hidden to return
-its width to the canvas.
+operations that are not gestures -- object filling and relabeling, swapping
+object and background, size filtering and Otsu detection, with undo and redo
+over all of them -- alongside the brush, wand and display controls, and can
+be hidden to return its width to the canvas.
+
+TWO THINGS ARE CALLED INVERT AND THEY ARE NOT THE SAME (item 435). **Invert
+image**, in the Display category, draws the field as its own negative and
+changes nothing underneath: the corner readout, the object filter, both
+detect buttons, the live magnifier and the saved mask all go on reading the
+pixels that were loaded. **Swap object and background**, in Object
+operations, is the old "Invert mask" under the name that describes it -- it
+flips the LABEL image, which on an ordinary field leaves one object covering
+the frame.
 
 Additional segmentation tools are opened from the masthead in
 :data:`FOLD_ORDER` through
@@ -105,6 +114,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
     QComboBox,
+    QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
     QFileDialog,
@@ -138,6 +148,7 @@ from ..theme import SPACING, active_palette, mark_surface
 from ..widgets import Card, Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
+from ..widgets.toggle import Toggle
 from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.make_masks")
@@ -378,6 +389,18 @@ _RENAMED_CATEGORIES = {"Cellpose-SAM": "Object detection"}
 #: can start on it without importing a private name.
 OTSU_SMOOTHING = 1.0
 
+#: Where item 435's local-threshold window starts, in pixels. Comfortably
+#: larger than a cell at the magnifications this screen is used at and far
+#: smaller than the scale illumination falls off over, which is the band a
+#: local threshold has to sit in to be worth switching on. It is odd because
+#: the window is centred on the pixel it judges.
+OTSU_LOCAL_WINDOW = 51
+
+#: How many bars item 435's histogram preview draws. 256 is what a reader can
+#: tell apart at the width the dialog opens at, and enough that a 16-bit
+#: field's two populations are two humps rather than one.
+OTSU_HISTOGRAM_BINS = 256
+
 #: The shortcut list item 419 puts beside the Mask / Cell probability / Flows
 #: views, as ``(keys, what it does)``. ONE TERSE LINE EACH, as the request
 #: asked: the panel is read at a glance between strokes, and a paragraph
@@ -496,6 +519,14 @@ class _MaskCanvas(QLabel):
         self.brush_radius: int = 10
         self.norm_lo: float = 1.0
         self.norm_hi: float = 99.9
+        #: Draw the photographic complement of the image (item 435). A VIEW
+        #: setting beside the two percentiles, not an edit: :attr:`image`
+        #: keeps the pixels that were read off disk, so the readout, the
+        #: filter, every detector and the save all see the original numbers
+        #: whether this is on or off.
+        self.invert_display: bool = False
+        self._inverted: Optional[np.ndarray] = None
+        self._inverted_of: Optional[np.ndarray] = None
         self.wand_tolerance: float = 1000.0
         self.wand_relative: bool = True
         self.wand_tol_pct: float = 5.0
@@ -569,6 +600,7 @@ class _MaskCanvas(QLabel):
         self.mask = mask
         self._gesture_points = []
         self.recrop_boxes = []
+        self._inverted = self._inverted_of = None
         self._lookup = self._lookup_mask = self._lookup_image = None
         self.readout = None
         if self.magnifier is not None:
@@ -602,6 +634,32 @@ class _MaskCanvas(QLabel):
             self.zoom_changed.emit(False)
         self.refresh()
 
+    def displayed_source(self) -> Optional[np.ndarray]:
+        """The intensities this canvas DRAWS, before the contrast stretch.
+
+        :attr:`image` unless :attr:`invert_display` is on, in which case the
+        photographic complement of it (:func:`spacr.qt.mask_engine.
+        invert_intensity`). ITEM 435: the complement is computed here and
+        nowhere else, so everything that measures, detects, filters or saves
+        goes on reading :attr:`image` and cannot silently be handed inverted
+        pixels. A curator can leave Invert on all day and the numbers on
+        disk are the numbers the microscope wrote.
+
+        The complement is kept until the image itself changes, because a
+        refresh runs on every stroke point and re-subtracting a megapixel
+        field per point would be felt on the brush.
+
+        :returns: the array to stretch and draw, or None with no image.
+        """
+        if self.image is None:
+            return None
+        if not self.invert_display:
+            return self.image
+        if self._inverted is None or self._inverted_of is not self.image:
+            self._inverted = engine.invert_intensity(self.image)
+            self._inverted_of = self.image
+        return self._inverted
+
     def refresh(self) -> None:
         """Recompose image + mask overlay and repaint the canvas pixmap.
 
@@ -612,7 +670,8 @@ class _MaskCanvas(QLabel):
         self._schedule_readout()
         if self.image is None or self.mask is None:
             return
-        img = engine.normalize_uint16(self.image, self.norm_lo, self.norm_hi)
+        img = engine.normalize_uint16(self.displayed_source(),
+                                      self.norm_lo, self.norm_hi)
         x0, y0, x1, y1 = self._viewport_bounds()
         sub_img = img[y0:y1, x0:x1]
         sub_mask = self.mask[y0:y1, x0:x1]
@@ -3203,6 +3262,122 @@ class _FlowPane(QLabel):
         self._rescale()
 
 
+class _OtsuHistogramPlot(QWidget):
+    """The field's intensity histogram with the chosen level drawn on it.
+
+    ITEM 435 asks for "a preview showing the histogram with the chosen level
+    marked". It is painted rather than plotted: the whole figure is a few
+    hundred bars and two or three vertical lines, and a chart library on this
+    screen would mean importing one on the path that opens Make Masks.
+
+    THE MARKER IS NOT COMPUTED HERE. It is handed in, already read from
+    :func:`spacr.qt.mask_engine._otsu_levels` -- the same function the detect
+    button's cut comes from -- because a preview that found its own level
+    would be a second opinion and could be right while the button was wrong.
+
+    :param counts: bar heights, as :func:`numpy.histogram` returns them.
+    :param edges: bin edges, one longer than ``counts``.
+    :param levels: the intensities the field is cut at.
+    :param parent: parent widget; ownership only.
+    """
+
+    def __init__(self, counts, edges, levels, parent=None):
+        """Keep the figure and set a size a reader can tell two humps apart in."""
+        super().__init__(parent)
+        self.counts = np.asarray(counts, dtype=np.float64)
+        self.edges = np.asarray(edges, dtype=np.float64)
+        self.levels = [float(level) for level in levels]
+        self.setMinimumSize(420, 220)
+
+    def level_x(self, level: float) -> float:
+        """Where ``level`` falls across the plot, in widget pixels.
+
+        The same mapping the bars are drawn with, so a test can ask the
+        picture where it put the marker instead of trusting that it did.
+
+        :param level: an intensity.
+        :returns: the x coordinate, clamped to the plot's own width.
+        """
+        low = float(self.edges[0])
+        high = float(self.edges[-1])
+        width = max(1, self.width())
+        if high <= low:
+            return 0.0
+        fraction = (float(level) - low) / (high - low)
+        return max(0.0, min(1.0, fraction)) * width
+
+    def paintEvent(self, event):
+        """Draw the bars, then a line at every level, then the axis ends."""
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, False)
+        palette = active_palette()
+        painter.fillRect(self.rect(), QColor(palette["bg"]))
+        height = max(1, self.height())
+        width = max(1, self.width())
+        tallest = float(self.counts.max()) if self.counts.size else 0.0
+        if tallest > 0.0:
+            bar_colour = QColor(palette.get("fg", "#c8c8c8"))
+            bar_colour.setAlpha(160)
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QBrush(bar_colour))
+            step = width / float(self.counts.size)
+            for index, value in enumerate(self.counts):
+                tall = int(round(height * float(value) / tallest))
+                if tall <= 0:
+                    continue
+                painter.drawRect(QRect(int(index * step), height - tall,
+                                       max(1, int(step)), tall))
+        pen = QPen(QColor(palette["accent"]))
+        pen.setWidth(2)
+        painter.setPen(pen)
+        for level in self.levels:
+            x = int(round(self.level_x(level)))
+            painter.drawLine(x, 0, x, height)
+        painter.end()
+
+
+class _OtsuHistogramDialog(QDialog):
+    """A window holding :class:`_OtsuHistogramPlot` and what it is showing.
+
+    Modeless on purpose: the point of the preview is to change a setting and
+    look again, and a modal window would make that a close, a change and a
+    reopen each time. It is also what keeps it testable -- a static modal
+    runs its event loop in C++ and hangs a headless run.
+
+    :param counts: histogram bar heights.
+    :param edges: histogram bin edges.
+    :param levels: the intensities the field is cut at.
+    :param description: how the cut was taken, for the caption.
+    :param local: whether the local threshold is on, which means the levels
+        drawn are the whole-field ones and the real cut varies per window.
+    :param parent: parent widget.
+    """
+
+    def __init__(self, counts, edges, levels, description: str,
+                 local: bool = False, parent=None):
+        """Build the plot, the caption above it and the Close button."""
+        super().__init__(parent)
+        self.setWindowTitle("Otsu histogram")
+        layout = QVBoxLayout(self)
+        layout.setSpacing(SPACING["sm"])
+        marked = ", ".join(f"{level:.4g}" for level in levels) or "none"
+        self.caption = QLabel(
+            f"Level: {marked}  ({description}). "
+            + ("The local threshold is on, so this is the whole-field level "
+               "for reference and the cut actually varies window by window."
+               if local else
+               "This is the level the detect button cuts at.")
+        )
+        self.caption.setWordWrap(True)
+        layout.addWidget(self.caption)
+        self.plot = _OtsuHistogramPlot(counts, edges, levels, self)
+        layout.addWidget(self.plot, 1)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons.rejected.connect(self.close)
+        layout.addWidget(buttons)
+        self.resize(520, 340)
+
+
 def fold_description(key: str) -> tuple:
     """``(name, description, stage)`` for a folded module.
 
@@ -3830,6 +4005,10 @@ class MakeMasksScreen(QWidget):
         self._magnifier.drag_ready.connect(self._apply_magnifier_drag)
         #: The mask a magnifier drag pastes onto, and the last one it showed.
         self._drag_base = self._drag_shown = None
+        #: Item 435's histogram preview while it is open, kept so pressing
+        #: the button twice reuses one window rather than stacking them and
+        #: so the screen can take it down with itself.
+        self._otsu_histogram_dialog: Optional[QDialog] = None
         self._magnifier.status.connect(
             lambda text: self._status_label.setText(text))
         self._view_tabs = self._build_view_tabs()
@@ -4225,6 +4404,9 @@ class MakeMasksScreen(QWidget):
             screen.close()
         for panel in list(self._fold_dialogs.values()):
             panel.close()
+        if self._otsu_histogram_dialog is not None:
+            self._otsu_histogram_dialog.close()
+            self._otsu_histogram_dialog = None
 
     def _build_tool_row(self) -> QWidget:
         """The one row that holds every tool, along the top of the screen.
@@ -4691,6 +4873,20 @@ class MakeMasksScreen(QWidget):
         self._zoom_speed.valueChanged.connect(self._on_zoom_speed_changed)
         norm_form.addRow("Zoom per notch", self._zoom_speed)
         norm_card.body_layout.addLayout(norm_form)
+
+        self._invert_display = Toggle("Invert image")
+        self._invert_display.setToolTip(
+            "Show the picture as a negative: what was dark is bright and "
+            "what was bright is dark, so a dark object on a pale "
+            "brightfield reads the way a fluorescent one does and is far "
+            "easier to trace by hand. DISPLAY ONLY — the readout under the "
+            "mouse, the object filter, both detect buttons and the mask you "
+            "save all keep reading the original pixels, so nothing you "
+            "measure changes because of this switch. Press it twice and the "
+            "picture is exactly what it was."
+        )
+        self._invert_display.toggled.connect(self._on_invert_display)
+        norm_card.body_layout.addWidget(self._invert_display)
         col.addWidget(norm_card)
 
         filter_card = self._settings_category(
@@ -4735,12 +4931,24 @@ class MakeMasksScreen(QWidget):
         obj_card = self._settings_category("Object operations")
         ops_col = QVBoxLayout()
         ops_col.setSpacing(SPACING["xs"])
-        for label, cb in (
-            ("Fill holes", self._on_fill_holes),
-            ("Relabel", self._on_relabel),
-            ("Invert mask", self._on_invert),
+        for label, cb, hint in (
+            ("Fill holes", self._on_fill_holes,
+             "Close every enclosed hole inside an object, so a nucleus "
+             "outlined as a ring becomes a filled disc."),
+            ("Relabel", self._on_relabel,
+             "Renumber the objects 1, 2, 3… with no gaps. The picture does "
+             "not change; the ids underneath it do."),
+            ("Swap object and background", self._on_invert,
+             "Turn every labelled pixel into background and every "
+             "background pixel into an object. On an ordinary field that "
+             "gives ONE object covering the whole frame with holes where "
+             "your objects were — useful only when you have outlined the "
+             "space between the cells and wanted the cells. This is not the "
+             "picture invert: that is 'Invert image', in the Display "
+             "category, and it leaves the mask alone."),
         ):
             btn = QPushButton(label)
+            btn.setToolTip(hint)
             btn.clicked.connect(cb)
             ops_col.addWidget(btn)
         remove_row = QHBoxLayout()
@@ -4941,6 +5149,33 @@ class MakeMasksScreen(QWidget):
         self._canvas.norm_lo = float(self._norm_lo.value())
         self._canvas.norm_hi = float(self._norm_hi.value())
         self._canvas.refresh()
+
+    def _on_invert_display(self, on: bool) -> None:
+        """Draw the image as its own negative, or stop.
+
+        ITEM 435. The maintainer pressed "Invert mask" and saw nothing
+        happen, because that button flips the MASK and a flipped mask on an
+        ordinary field is one object covering the frame. This is the invert
+        an image viewer means, and it is a VIEW: the complement is computed
+        where the canvas paints (:meth:`_MaskCanvas.displayed_source`) and
+        nowhere else, so a detect, a filter, a measure or a save that runs
+        while it is on reads the pixels that were loaded.
+
+        The status line says so on the way in, because a negative field is
+        exactly the thing a user might later mistake for the data.
+
+        :param on: the switch's new state.
+        """
+        self._canvas.invert_display = bool(on)
+        self._canvas.refresh()
+        if self._canvas.image is None:
+            return
+        self._status_label.setText(
+            "Showing the image inverted — dark is bright. Detection, "
+            "filtering and saving still use the original pixels."
+            if on else
+            "Showing the image as it was loaded."
+        )
 
     def _on_wand_tolerance_changed(self, v: float):
         """Set how far the wand will grow in intensity.
@@ -5247,13 +5482,69 @@ class MakeMasksScreen(QWidget):
                       otsu_smoothing=otsu["smoothing"],
                       otsu_fill_holes=otsu["fill_holes"],
                       otsu_split=otsu["split_touching"],
-                      otsu_exclude_border=otsu["exclude_border"])
+                      otsu_exclude_border=otsu["exclude_border"],
+                      otsu_classes=otsu["classes"],
+                      otsu_foreground_class=otsu["foreground_class"],
+                      otsu_local=otsu["local"],
+                      otsu_window=otsu["window"])
         self._history.push(out)
         self._refresh_history_buttons()
-        side = "bright" if self._otsu_bright.isChecked() else "dark"
         self._status_label.setText(
-            f"Otsu ({side}) found {found} object(s) — {mode}d into the mask"
+            f"Otsu ({self._otsu_description()}) found {found} object(s) — "
+            f"{mode}d into the mask"
         )
+
+    def _otsu_description(self) -> str:
+        """How the threshold was taken, for a status line and the preview.
+
+        Item 435 added two ways of cutting that are not "bright" or "dark",
+        and a line that went on saying one of those two would be describing
+        a run that had not happened.
+        """
+        if self._otsu_local.isChecked():
+            side = "bright" if self._otsu_bright.isChecked() else "dark"
+            return f"local {int(self._otsu_window.value())} px, {side}"
+        classes = int(self._otsu_classes.value())
+        if classes > 2:
+            return (f"{classes} classes, class "
+                    f"{int(self._otsu_foreground.value())}")
+        return "bright" if self._otsu_bright.isChecked() else "dark"
+
+    def _on_show_otsu_histogram(self) -> None:
+        """Open this field's histogram with the level it is cut at marked.
+
+        ITEM 435: "the preview's marked level matches the threshold actually
+        used" is only true if the two come from one place, so the marker is
+        :func:`spacr.qt.mask_engine._otsu_levels` -- the same call the detect
+        button's threshold is made from, with the same correction, the same
+        smoothing and the same class count.
+        """
+        image = self._canvas.image
+        if image is None:
+            self._status_label.setText(
+                "Open a field first — a histogram needs an image.")
+            return
+        otsu = self._otsu_settings()
+        try:
+            counts, edges = engine._otsu_histogram(
+                image, smoothing=otsu["smoothing"],
+                bins=OTSU_HISTOGRAM_BINS)
+            levels = engine._otsu_levels(
+                image, bright=bool(self._otsu_bright.isChecked()),
+                correction=otsu["correction"], smoothing=otsu["smoothing"],
+                classes=otsu["classes"])
+        except Exception as exc:
+            self._warn("Otsu histogram failed", str(exc))
+            return
+        previous = self._otsu_histogram_dialog
+        if previous is not None:
+            previous.close()
+            previous.deleteLater()
+        dialog = _OtsuHistogramDialog(
+            counts, edges, levels, self._otsu_description(),
+            local=otsu["local"], parent=self)
+        self._otsu_histogram_dialog = dialog
+        dialog.show()
 
 
     def _build_view_tabs(self) -> QTabWidget:
@@ -5621,20 +5912,128 @@ class MakeMasksScreen(QWidget):
             "measured is better without them. Otsu detect only: the Live "
             "magnifier has its own box-border switch.")
         card.body_layout.addWidget(self._otsu_exclude_border)
+
+        more = QFormLayout()
+        self._otsu_classes = QSpinBox()
+        self._otsu_classes.setRange(2, 6)
+        self._otsu_classes.setValue(2)
+        self._otsu_classes.setToolTip(
+            "How many brightness bands to cut the field into. 2 is Otsu's "
+            "own split, one level between background and objects. Raise it "
+            "where a field holds more than two populations — background, a "
+            "dim halo and bright nuclei — and the cut moves off the one "
+            "compromise level between all three onto the boundary you "
+            "actually want, chosen below. Otsu detect only.")
+        more.addRow("Classes", self._otsu_classes)
+
+        self._otsu_foreground = QSpinBox()
+        self._otsu_foreground.setRange(0, 5)
+        self._otsu_foreground.setValue(1)
+        self._otsu_foreground.setToolTip(
+            "Which band becomes the objects, counting 0 for the dimmest. "
+            "With 3 classes, 2 takes the bright nuclei and 1 takes the dim "
+            "halo AROUND them without the nuclei inside it — exactly that "
+            "band, which is what more than two classes is for. With more "
+            "than two classes this replaces 'Objects are brighter than "
+            "background': the number says which side you mean.")
+        more.addRow("Foreground class", self._otsu_foreground)
+
+        self._otsu_window = QSpinBox()
+        self._otsu_window.setRange(3, 999)
+        self._otsu_window.setSingleStep(2)
+        self._otsu_window.setValue(OTSU_LOCAL_WINDOW)
+        self._otsu_window.setSuffix(" px")
+        self._otsu_window.setToolTip(
+            "The square the local level is measured in, centred on each "
+            "pixel. Make it comfortably bigger than one object and smaller "
+            "than the illumination's own scale: too small and the inside of "
+            "a large object becomes its own background, so it comes back "
+            "hollow; too large and it is the whole-field threshold again. "
+            "Even numbers are rounded up, so the square has a centre.")
+        more.addRow("Local window", self._otsu_window)
+        card.body_layout.addLayout(more)
+
+        self._otsu_local = Toggle("Local threshold (uneven illumination)")
+        self._otsu_local.setChecked(False)
+        self._otsu_local.setToolTip(
+            "Find Otsu's level separately in a window around every pixel "
+            "instead of once for the whole field. A corner that the lamp "
+            "falls away from is then judged against its own corner, so the "
+            "objects in it stop being lost while the bright middle stays "
+            "clean. It costs more objects on a noisy background, which the "
+            "minimum area is there to take back. Two classes only, and Otsu "
+            "detect only.")
+        self._otsu_local.toggled.connect(self._sync_otsu_controls)
+        self._otsu_classes.valueChanged.connect(self._sync_otsu_controls)
+        card.body_layout.addWidget(self._otsu_local)
+
+        min_area_note = QLabel(
+            "Objects under the Min area in Object operations are dropped "
+            "after the threshold."
+        )
+        min_area_note.setWordWrap(True)
+        card.body_layout.addWidget(min_area_note)
+
+        self._btn_otsu_hist = QPushButton("Show histogram and level")
+        self._btn_otsu_hist.setCursor(Qt.PointingHandCursor)
+        self._btn_otsu_hist.setToolTip(
+            "Draw this field's intensity histogram with the level the "
+            "settings above cut it at marked on it. It is the same level "
+            "the button uses, read from the same function, so a valley the "
+            "marker is sitting to one side of is the correction to change.")
+        self._btn_otsu_hist.clicked.connect(self._on_show_otsu_histogram)
+        card.body_layout.addWidget(self._btn_otsu_hist)
+        self._sync_otsu_controls()
         return card
+
+    def _sync_otsu_controls(self, *_args) -> None:
+        """Leave enabled only the Otsu boxes that are answering anything.
+
+        A control that is being read and a control that is being ignored
+        look identical, which is the defect item 435 was filed about. So:
+        the foreground class is a choice only once there is more than one
+        band to choose from, the local window only matters while the local
+        threshold is on, and the two cannot both be on -- a level per window
+        and a split into several bands have no joint meaning, and the engine
+        refuses the pair rather than quietly dropping one.
+        """
+        classes = int(self._otsu_classes.value())
+        local = bool(self._otsu_local.isChecked())
+        self._otsu_classes.setEnabled(not local)
+        self._otsu_foreground.setEnabled(not local and classes > 2)
+        self._otsu_foreground.setRange(0, max(1, classes - 1))
+        if classes > 2 and self._otsu_foreground.value() > classes - 1:
+            self._otsu_foreground.setValue(classes - 1)
+        self._otsu_window.setEnabled(local)
+        self._otsu_bright.setEnabled(local or classes == 2)
 
     def _otsu_settings(self) -> dict:
         """What the Otsu category says, as :func:`_otsu_instances` keywords.
 
         One reader for the button and the magnifier, so a setting added to
         the category reaches both by being read here once.
+
+        ITEM 435's THREE ARE THE BUTTON'S ONLY, and the tooltips say so, on
+        the precedent "Drop objects the image border cuts" already set.
+        Multi-level Otsu and a local window are judgements about a WHOLE
+        FIELD: the histogram of a 64 px box rarely holds three populations,
+        and a window the size of the box is the box's own threshold, so
+        offering either to the magnifier would be offering a control that
+        does nothing there -- the defect this item exists for.
+        :func:`spacr.qt.mask_engine._classical_region_labels`, which is the
+        magnifier's own routine, is untouched by them.
         """
+        local = bool(self._otsu_local.isChecked())
         return {
             "correction": float(self._otsu_correction.value()),
             "smoothing": float(self._otsu_smoothing.value()),
             "fill_holes": bool(self._otsu_fill_holes.isChecked()),
             "split_touching": bool(self._otsu_split.isChecked()),
             "exclude_border": bool(self._otsu_exclude_border.isChecked()),
+            "classes": 2 if local else int(self._otsu_classes.value()),
+            "foreground_class": int(self._otsu_foreground.value()),
+            "local": local,
+            "window": int(self._otsu_window.value()),
         }
 
     def _detect_min_area(self) -> int:
@@ -6919,8 +7318,24 @@ class MakeMasksScreen(QWidget):
         self._apply_op(engine.relabel_objects, "relabel")
 
     def _on_invert(self):
-        """Swap object and background."""
+        """Swap object and background in the MASK, and say what that gave.
+
+        Not the picture invert -- that is :meth:`_on_invert_display`, item
+        435's reading of "the invert in make masks doesnt actually invert".
+        This one is kept under the name that describes it, and it now
+        reports its own result, because the thing that made it look broken
+        is that its result is invisible: a field whose background is one
+        connected region comes back as a single object covering the frame,
+        which the overlay draws as one flat wash.
+        """
+        if self._canvas.mask is None:
+            return
         self._apply_op(engine.invert_mask, "invert")
+        found = self._objects_now()
+        self._status_label.setText(
+            f"Swapped object and background — {found} object(s) now, and "
+            f"what was an object is background. Ctrl+Z to undo."
+        )
 
     def _on_remove_small(self):
         """Delete objects below the minimum area."""

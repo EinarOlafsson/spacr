@@ -160,6 +160,52 @@
   gone" -- an arithmetic puzzle over a field where all ten were eroded --
   and made emptying the field read "Shrank 0 object(s)".
 
+## Item 435 (2026-09-20)
+
+- `_MaskCanvas.displayed_source` / `invert_display`: the complement is
+  computed at the one place the canvas paints and nowhere else, so the
+  corner readout, the object filter, both detect buttons, the live
+  magnifier's crop and the saved mask all go on reading `canvas.image`. A
+  view inversion that leaked into what is measured would be worse than the
+  defect it fixes, because a curator would be filtering on numbers that are
+  not the data; the tests drive each of those five paths with Invert on.
+- The complement is cached against the identity of `image` because
+  `refresh` runs on every point of a brush stroke, and re-subtracting a
+  megapixel field per point would be felt on the brush.
+- "Invert image" is in the DISPLAY category, beside the two contrast
+  percentiles, because that is what it is. Item 419 point 9 is a SECOND,
+  separate invert, in Object detection, which makes the detectors work on
+  inverted pixels on purpose and carries a warning saying so; the two must
+  not be confused, and putting this one where the contrast lives is what
+  keeps them apart on the panel.
+- "Invert mask" in Object operations is now "Swap object and background",
+  and it reports its own result. The thing that made it look broken is that
+  its result is invisible: one field-sized object reads as one flat wash.
+  Nothing on the panel called "Invert" flips the mask any more.
+- The Otsu category's three new controls -- `Classes`, `Foreground class`
+  and the local threshold with its `Local window` -- are the detect
+  BUTTON's only, on the precedent item 419 set with "Drop objects the image
+  border cuts". They are judgements about a whole field: a 64 px magnifier
+  box rarely holds three populations, and a window the size of the box is
+  the box's own threshold, so offering either there would be offering a
+  control that does nothing, which is the defect this item exists for.
+  `_classical_region_labels`, the magnifier's own routine, is untouched.
+- `_sync_otsu_controls` greys out what is not being read: the foreground
+  class before there is more than one band to choose from, the window while
+  the local threshold is off, and the class count while it is on. A local
+  level and a split into several bands have no joint meaning and the engine
+  refuses the pair rather than dropping one of the two quietly.
+- The minimum object area after the threshold was ALREADY THERE -- item
+  419's `Min area` in Object operations, read by `_detect_min_area` and
+  passed through to `connected_instances` -- and a second box in the Otsu
+  category could only disagree with it. The card points at it in a line
+  instead.
+- `_OtsuHistogramDialog` is modeless, because the point of a preview is to
+  change a setting and look again, and because a static modal runs its
+  event loop in C++ and hangs a headless run. It is painted rather than
+  plotted: a few hundred bars and two or three lines do not justify
+  importing a chart library onto the path that opens Make Masks.
+
 Prose lifted out of `spacr/qt/screens/make_masks.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 

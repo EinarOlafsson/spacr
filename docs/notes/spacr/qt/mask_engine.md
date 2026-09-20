@@ -53,6 +53,54 @@
   against `origin/nightly` (`b56c77d46`). The panel, not the engine, is
   where the defaults moved.
 
+## Item 435 (2026-09-20)
+
+- `invert_intensity`: the maintainer asked for "invert so that low intensity
+  becomes high intensity and vice versa. 1/intensity i think and then fitted
+  to dtype i guess". WHAT IS BUILT IS THE COMPLEMENT, `dtype_max - value`,
+  and the reciprocal was considered and NOT built, so that nobody re-derives
+  it: `1/value` divides by zero on every background pixel, it squashes the
+  bright end so two objects a thousand counts apart come back
+  indistinguishable, and it is not reversible, while the complement is what
+  every image viewer means by Invert and returns the identical array when it
+  is applied twice. He can still have the reciprocal as a SECOND mode if he
+  wants a log-like lift of the dim end; it is not this one.
+- The range complemented is the dtype's for integers (so `uint16` is
+  `65535 - value`, which is "fitted to dtype") and the ARRAY's own for
+  floats, which have no dtype maximum worth speaking of. The integer round
+  trip is exact; the float one rounds twice and is out by up to one unit in
+  the last place of `min + max` -- measured at 0.002 in float32 and 4e-12 in
+  float64 over 0..65535, against an interval of one count. Every field this
+  editor opens is an integer dtype.
+- `_otsu_levels` / `_otsu_values` / `_otsu_histogram`: one reader for the
+  numbers the histogram preview marks and the numbers `_otsu_instances`
+  cuts at, because a preview that found its own level would be a second
+  opinion and could be right while the button was wrong. The dark-side
+  two-class level returned is the MIRRORED one, `top - (top - level) *
+  correction`, which is the value the detector actually compares against --
+  so the marker sits on the cut the user gets rather than on Otsu's own
+  number, which is a different place.
+- `_otsu_instances` grew `classes`, `foreground_class`, `local` and
+  `window`, and the two-class non-local path was rewritten to read its level
+  from `_otsu_levels`. That rewrite is byte-identical to what it replaced
+  over 3,840 parameter combinations (40 fields x correction x smoothing x
+  fill holes x split x exclude border x both sides), which is the check that
+  says the shared reader did not move anybody's threshold.
+- `_local_otsu_binary` measures its levels on a 256-step rescaling of the
+  smoothed field. `skimage.filters.rank.otsu` accepts uint16, but a 16-bit
+  rank filter builds a 65,536-bin histogram per pixel, which is not
+  pressable on a megapixel field. The cut is made on the same rescaling, so
+  nothing is compared across the two.
+- `_square_footprint` tries `footprint_rectangle` and falls back to
+  `square`: the first arrived in scikit-image 0.25 and the second is
+  deprecated there and gone in 0.27, and pinning the package over a helper
+  that returns an array of ones would be the wrong trade.
+- `invert_mask` keeps its name and its behaviour and gained the docstring
+  that says what it is NOT. It is the operation item 435 was filed about --
+  flipping the mask on an ordinary field gives one object covering the frame
+  -- and it is kept because outlining the space between the cells is a real
+  thing to do.
+
 Prose lifted out of `spacr/qt/mask_engine.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 

@@ -1,9 +1,17 @@
 """Pure-Python mask editing and persistence for the Qt Make Masks screen.
 
 This module provides image and mask I/O plus non-brush label operations,
-including fill, relabel, inversion, size and intensity filtering, Otsu
-detection, and magic-wand selection. It has no Qt dependency, so the editing
-operations can be tested without a display.
+including fill, relabel, size and intensity filtering, Otsu detection, and
+magic-wand selection. It has no Qt dependency, so the editing operations can
+be tested without a display.
+
+TWO INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS (item 435).
+:func:`invert_intensity` is the photographic complement of an IMAGE --
+``dtype_max - value``, what a viewer's Invert does, exactly reversible on
+every integer dtype -- and it is what the Make Masks screen's "Invert image"
+draws with. :func:`invert_mask` flips a LABEL image's foreground and
+background; on an ordinary field that gives one object covering the frame,
+which is why it was reported as doing nothing.
 
 :func:`save_mask` passes labels through :func:`canonical_labels`, which
 preserves existing nonzero object identifiers rather than renumbering
@@ -606,6 +614,74 @@ def normalize_uint16(image: np.ndarray,
     return (out * max_val).astype(image.dtype)
 
 
+def invert_intensity(image: np.ndarray) -> np.ndarray:
+    """Return the photographic complement of ``image``: dark becomes bright.
+
+    ITEM 435. The maintainer asked for "invert so that low intensity becomes
+    high intensity and vice versa. 1/intensity i think and then fitted to
+    dtype i guess". WHAT IS BUILT IS THE COMPLEMENT, ``dtype_max - value``,
+    NOT THE RECIPROCAL, for three reasons that are worth having written
+    down because the reciprocal is the obvious first thought:
+
+    * it is what every image viewer means by Invert, so the picture that
+      comes back is the one the user is picturing when asking for it;
+    * it is EXACTLY reversible on an integer field -- inverting twice
+      returns the identical array, which is what makes it safe to leave
+      switched on while curating, and is asserted by comparing arrays;
+    * ``1/value`` divides by zero on every background pixel, and it squashes
+      the bright end non-linearly, so two objects a thousand counts apart
+      come back indistinguishable while the background explodes.
+
+    The reciprocal remains a reasonable SECOND mode for anyone who wants a
+    log-like lift of the dim end; it is not this one.
+
+    WHICH RANGE IS COMPLEMENTED depends on the dtype, because "fitted to
+    dtype" only has a meaning where the dtype has ends:
+
+    ``unsigned integers``
+        the dtype's own range, so a ``uint16`` field is ``65535 - value``.
+        A 12-bit camera writing into ``uint16`` therefore comes back in the
+        top sixteenth of the range; a display that stretches by percentiles
+        puts that back where a reader can see it, and the array is still
+        exactly invertible, which a data-range complement would not be
+        across two fields of different brightness.
+    ``signed integers``
+        ``iinfo.min + iinfo.max - value``, the same complement on the range
+        the dtype actually spans.
+    ``bool``
+        logical not.
+    ``floating point``
+        the ARRAY'S OWN range, ``min + max - value``, because a float image
+        has no dtype maximum worth speaking of. The complement of a range
+        maps its ends onto each other, so a second call computes the same
+        two ends and comes back to the original -- but NOT bit for bit:
+        ``s - (s - x)`` rounds twice, and the round trip is out by up to one
+        unit in the last place of ``s``. Measured on a 200x200 field over
+        0..65535: 0.002 in ``float32`` and 4e-12 in ``float64``, against an
+        interval of one count. The round trip is EXACT for every integer and
+        boolean dtype, which is every dtype a field is read in.
+
+    :param image: any numeric or boolean array. It is not modified.
+    :returns: a new array of the same shape and dtype.
+    """
+    values = np.asarray(image)
+    if not values.size:
+        return values.copy()
+    kind = values.dtype.kind
+    if kind == "b":
+        return np.logical_not(values)
+    if kind in "ui":
+        info = np.iinfo(values.dtype)
+        span = int(info.min) + int(info.max)
+        return (span - values.astype(np.int64)).astype(values.dtype)
+    if kind in "fc":
+        span = values.min() + values.max()
+        return (span - values).astype(values.dtype, copy=False)
+    raise TypeError(
+        f"invert_intensity needs a numeric or boolean image; got dtype "
+        f"{values.dtype!r}.")
+
+
 def overlay_mask(image: np.ndarray, mask: np.ndarray, alpha: float = 0.5) -> np.ndarray:
     """Blend a colorized label mask onto a grayscale image, uint8 RGB."""
     if image.ndim == 2:
@@ -846,7 +922,21 @@ def clear_mask(mask: np.ndarray) -> np.ndarray:
 
 
 def invert_mask(mask: np.ndarray) -> np.ndarray:
-    """Return the mask with foreground/background flipped and relabeled."""
+    """Swap object and background in a LABEL image, and relabel.
+
+    NOT AN INTENSITY INVERSION -- that is :func:`invert_intensity`, and the
+    Make Masks screen's "Invert image" is wired to that one. This flips the
+    MASK: every labelled pixel becomes background and every background pixel
+    becomes foreground, and what comes out is then labelled afresh. On an
+    ordinary field the background is one connected region, so what comes back
+    is a SINGLE field-sized object with holes where the objects were -- which
+    is why item 435 reports it as "doesn't actually invert": one flat overlay
+    over the whole frame reads as nothing having happened.
+
+    It is kept because it is a real thing to want -- a curator who has
+    outlined the space BETWEEN the cells has drawn the complement of what is
+    wanted -- but under the name that says what it does.
+    """
     out = np.where(mask > 0, 0, 1).astype(mask.dtype)
     labeled, _ = _ndimage().label(out)
     return labeled.astype(mask.dtype)
@@ -1182,13 +1272,189 @@ def otsu_instances(image: np.ndarray, *, bright: bool = True,
     return connected_instances(binary, min_area=min_area)
 
 
+def _otsu_values(image: np.ndarray, smoothing: float = 0.0) -> np.ndarray:
+    """The float32 array every Otsu level in this module is measured on.
+
+    One reader, so the level the histogram preview marks is measured on the
+    same pixels the threshold is taken on rather than on the raw field: a
+    preview drawn before the smoothing would mark a level that is not where
+    the cut lands.
+
+    :param image: the field, or a crop of it.
+    :param smoothing: Gaussian sigma; 0 returns the values unsmoothed.
+    :raises ValueError: on an empty image, which has no threshold to find.
+    """
+    values = np.asarray(image, dtype=np.float32)
+    if not values.size:
+        raise ValueError("Otsu needs an image; this one is empty.")
+    sigma = max(0.0, float(smoothing))
+    if sigma > 0.0:
+        values = _ndimage().gaussian_filter(values, sigma)
+    return values
+
+
+def _otsu_levels(image: np.ndarray, *, bright: bool = True,
+                 correction: float = 1.0, smoothing: float = 0.0,
+                 classes: int = 2) -> List[float]:
+    """The intensity or intensities the field is actually cut at.
+
+    ITEM 435's histogram preview asks for "the chosen level" and the only
+    way a preview can be trusted to show it is for the detector to read the
+    level from here too -- so :func:`_otsu_instances` calls this rather than
+    finding its own, and a preview cannot drift from the button.
+
+    The numbers are on the SMOOTHED image and already carry ``correction``,
+    because that is where the cut is made.
+
+    :param image: the field, or a crop of it.
+    :param bright: objects are brighter than background. With two classes
+        and a dark-object cut the level returned is the mirrored one --
+        ``top - (top - level) * correction`` -- which is the value the
+        detector compares against, so the preview marks the cut the user
+        gets rather than Otsu's own number. Not read for three classes or
+        more, where the class number says which side is meant.
+    :param correction: Otsu's level is multiplied by this.
+    :param smoothing: Gaussian sigma, applied before the level is found.
+    :param classes: 2 for Otsu's own two-class split, 3 or more for
+        multi-level Otsu (:func:`skimage.filters.threshold_multiotsu`),
+        which returns ``classes - 1`` rising levels.
+    :raises ValueError: on an empty image, a correction that is not greater
+        than 0, or fewer than two classes.
+    """
+    from skimage.filters import threshold_multiotsu, threshold_otsu
+
+    factor = _otsu_correction_factor(correction)
+    count = int(classes)
+    if count < 2:
+        raise ValueError(
+            f"Otsu needs at least two classes; got {classes!r}.")
+    values = _otsu_values(image, smoothing)
+    if count == 2:
+        level = float(threshold_otsu(values))
+        if bright:
+            return [level * factor]
+        top = float(values.max())
+        return [top - (top - level) * factor]
+    return [float(level) * factor
+            for level in threshold_multiotsu(values, classes=count)]
+
+
+def _otsu_histogram(image: np.ndarray, *, smoothing: float = 0.0,
+                    bins: int = 256) -> Tuple[np.ndarray, np.ndarray]:
+    """Counts and bin edges of the values the threshold is measured on.
+
+    The picture behind item 435's preview. Measured on :func:`_otsu_values`
+    for the same reason the levels are: a histogram of the raw field under a
+    level found on the smoothed one would put the marker in the wrong valley.
+
+    :param image: the field, or a crop of it.
+    :param smoothing: Gaussian sigma, matching the detection's.
+    :param bins: how many bars.
+    :returns: ``(counts, edges)`` as :func:`numpy.histogram` returns them,
+        so ``edges`` is one longer than ``counts``.
+    :raises ValueError: on an empty image.
+    """
+    values = _otsu_values(image, smoothing)
+    counts, edges = np.histogram(values, bins=max(2, int(bins)))
+    return counts, edges
+
+
+def _otsu_correction_factor(correction: float) -> float:
+    """Validate and return the threshold correction multiplier."""
+    factor = float(correction)
+    if not factor > 0.0:
+        raise ValueError(
+            f"The Otsu threshold correction must be greater than 0; got "
+            f"{correction!r}.")
+    return factor
+
+
+def _odd_window(window: int) -> int:
+    """The local-threshold window as an odd number of pixels, validated.
+
+    An even window has no centre pixel, so the level a pixel is judged
+    against would be measured off-centre from it.
+
+    :raises ValueError: for a window under 3.
+    """
+    size = int(window)
+    if size < 3:
+        raise ValueError(
+            f"The local threshold window must be at least 3 px; got "
+            f"{window!r}.")
+    return size if size % 2 else size + 1
+
+
+def _square_footprint(size: int) -> np.ndarray:
+    """A square footprint of ``size`` px, whatever scikit-image calls it.
+
+    ``footprint_rectangle`` arrived in scikit-image 0.25 and ``square`` is
+    deprecated there and gone in 0.27, so both names are tried rather than
+    pinning the package on a helper that returns an array of ones.
+    """
+    try:
+        from skimage.morphology import footprint_rectangle
+
+        return footprint_rectangle((size, size))
+    except ImportError:
+        from skimage.morphology import square
+
+        return square(size)
+
+
+def _local_otsu_binary(values: np.ndarray, *, window: int, bright: bool,
+                       correction: float) -> np.ndarray:
+    """Threshold every pixel against Otsu's level in the window around it.
+
+    ITEM 435, "more options for otsu": one level for the whole field loses
+    an object wherever the illumination falls away, because the corner of a
+    field can be dimmer than the background at its centre. Here each pixel is
+    compared with the level found inside a ``window`` x ``window`` square
+    centred on it (:func:`skimage.filters.rank.otsu`), so a dim corner is
+    judged against its own corner.
+
+    THE LEVELS ARE FOUND ON A 256-STEP RESCALING of ``values``, which is what
+    the rank filters take and what keeps a megapixel field pressable: a
+    16-bit rank filter builds a 65,536-bin histogram per pixel. The cut is
+    then made on the same rescaling, so nothing is compared across the two.
+
+    :param values: the smoothed float image.
+    :param window: odd window size in pixels.
+    :param bright: objects are brighter than background.
+    :param correction: multiplies the local level, exactly as it multiplies
+        the global one.
+    :returns: a boolean foreground image.
+    """
+    from skimage.filters.rank import otsu as rank_otsu
+
+    size = _odd_window(window)
+    low = float(values.min())
+    high = float(values.max())
+    if high <= low:
+        return np.zeros(values.shape, dtype=bool)
+    scaled = np.clip(
+        np.rint((values - low) * (255.0 / (high - low))), 0.0, 255.0
+    ).astype(np.uint8)
+    levels = np.asarray(rank_otsu(scaled, _square_footprint(size)),
+                        dtype=np.float32)
+    here = scaled.astype(np.float32)
+    factor = float(correction)
+    if bright:
+        return here > levels * factor
+    return here < 255.0 - (255.0 - levels) * factor
+
+
 def _otsu_instances(image: np.ndarray, *, bright: bool = True,
                     min_area: int = 0,
                     correction: float = 1.0,
                     smoothing: float = 0.0,
                     fill_holes: bool = False,
                     split_touching: bool = False,
-                    exclude_border: bool = False) -> np.ndarray:
+                    exclude_border: bool = False,
+                    classes: int = 2,
+                    foreground_class: Optional[int] = None,
+                    local: bool = False,
+                    window: int = 51) -> np.ndarray:
     """:func:`otsu_instances` with Otsu's level multiplied by ``correction``.
 
     Item 417's "threshold correction", which is CellProfiler's threshold
@@ -1220,32 +1486,64 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
         (:func:`_split_touching_objects`) instead of labelling it whole.
     :param exclude_border: drop the objects the field's own edge cuts
         through (:func:`_drop_border_objects`).
-    :raises ValueError: on an empty image, or a correction that is not
-        greater than 0.
+    :param classes: ITEM 435's multi-level Otsu. 2 is Otsu's own two-class
+        split and is what this did before. 3 or more splits the histogram
+        into that many brightness bands
+        (:func:`skimage.filters.threshold_multiotsu`), which is how a field
+        holding background, a dim halo and bright nuclei is cut at the
+        boundary that matters instead of at the one compromise level between
+        all three.
+    :param foreground_class: with three classes or more, WHICH band becomes
+        the objects, counting 0 for the dimmest. None takes the brightest,
+        ``classes - 1``. Exactly that band is taken, so choosing a middle one
+        gives the halo without the nuclei inside it -- which is the point of
+        asking for more than two classes. ``bright`` is NOT read here: the
+        class number already says which side is meant.
+    :param local: ITEM 435's adaptive threshold. Each pixel is judged
+        against Otsu's level in the ``window`` around it rather than against
+        one level for the whole field (:func:`_local_otsu_binary`), which is
+        what recovers objects in a corner the illumination has fallen away
+        from. Two classes only.
+    :param window: the local window, in pixels; rounded up to an odd number
+        so it has a centre pixel. Read only when ``local`` is on.
+    :raises ValueError: on an empty image, a correction that is not greater
+        than 0, fewer than two classes, a foreground class outside them, a
+        window under 3 px, or ``local`` asked for together with more than
+        two classes -- which have no single meaning together and would
+        otherwise silently drop one of the two.
     """
-    factor = float(correction)
-    if not factor > 0.0:
-        raise ValueError(
-            f"The Otsu threshold correction must be greater than 0; got "
-            f"{correction!r}.")
+    factor = _otsu_correction_factor(correction)
     sigma = max(0.0, float(smoothing))
+    count = int(classes)
+    if count < 2:
+        raise ValueError(f"Otsu needs at least two classes; got {classes!r}.")
+    chosen = count - 1 if foreground_class is None else int(foreground_class)
+    if not 0 <= chosen < count:
+        raise ValueError(
+            f"The foreground class must be one of 0..{count - 1} for "
+            f"{count} classes; got {foreground_class!r}.")
+    if local and count > 2:
+        raise ValueError(
+            "A local threshold finds one level per window, so it cannot "
+            "also split the field into more than two classes. Turn one of "
+            "the two off.")
     plain = (factor == 1.0 and sigma == 0.0 and not fill_holes
-             and not split_touching and not exclude_border)
+             and not split_touching and not exclude_border
+             and count == 2 and not local)
     if plain:
         return otsu_instances(image, bright=bright, min_area=min_area)
-    from skimage.filters import threshold_otsu
-
-    values = np.asarray(image, dtype=np.float32)
-    if not values.size:
-        raise ValueError("Otsu needs an image; this one is empty.")
-    if sigma > 0.0:
-        values = _ndimage().gaussian_filter(values, sigma)
-    level = float(threshold_otsu(values))
-    if bright:
-        binary = values > level * factor
+    values = _otsu_values(image, sigma)
+    if local:
+        binary = _local_otsu_binary(values, window=window, bright=bright,
+                                    correction=factor)
+    elif count == 2:
+        level = _otsu_levels(values, bright=bright, correction=factor,
+                             smoothing=0.0, classes=2)[0]
+        binary = values > level if bright else values < level
     else:
-        top = float(values.max())
-        binary = (top - values) > (top - level) * factor
+        levels = _otsu_levels(values, bright=bright, correction=factor,
+                              smoothing=0.0, classes=count)
+        binary = np.digitize(values, levels) == chosen
     if fill_holes:
         binary = _ndimage().binary_fill_holes(binary)
     if split_touching:
