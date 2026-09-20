@@ -158,3 +158,21 @@ THE CONDA ROW NAMES SPACR'S OWN ENVIRONMENT (review, 2026-09-19). `conda install
 STATUS COMMANDS, MEASURED 2026-09-19. `claude auth status` exits 1 in an empty HOME ("Not logged in. Run claude auth login to authenticate.") and 0 signed in. `gh auth status` exits 1 with an empty `GH_CONFIG_DIR` and 0 signed in. `gh auth token` is what `github_auth` already uses and is what `GitHubCli.status_command` runs, with its output discarded because the output is the token. Beware when probing it: with a fake HOME and `GH_CONFIG_DIR`, `gh auth token` still answered 0 from the system keyring, so an empty config directory is not a signed-out `gh` for that subcommand. `codex login status` is taken from Codex's documentation and was not run here (no `codex` on this machine). Gemini has no status command, so its sign-in ends with the user pressing Done.
 
 `ChatProvider.is_logged_in` is still "installed", not a status command. It is called on the GUI thread by the setup screen's marks and by `configured_providers`, and a process per call there would stall the screen. The status commands are asked only off the GUI thread, by the install panel.
+
+## install_hint_for
+
+### added 2026-09-19 (63)
+
+```python
+    drift apart. On macOS and Linux the alternatives are joined by three
+```
+
+THE SENTENCE USED TO SAY "joined with ``   # or ``" AND THE PAGE SHOWED IT. An inline literal may not open on whitespace, so docutils never opens that one: the backticks render as text, and the sentence then runs on into the literal the NEXT pair opens. On the published API page it came out as
+
+    joined with ``   # or <code class="docutils literal">, which a POSIX
+    shell reads as a comment; on Windows only the first row is shown,
+    because ``cmd</code> has no such comment and would hand
+
+-- an unrendered marker plus two clauses of prose set as code. Found by a rendered-text scan of a fresh `sphinx -E` build (63), and `tests/test_docstring_inline_markup_renders.py` had it as two `bad-literal-edge` faults against a `REMAINING_FAULTS` of 0, so the source detector was red on nightly for it too.
+
+Only the markup and the word order changed: the separator the code joins with is still `"   # or "`, three spaces and all. Checked through docutils' own `publish_parts` on the two lines, and on the rebuilt page the marker is gone and `# or` is a literal.

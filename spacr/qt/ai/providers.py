@@ -183,10 +183,11 @@ def install_hint_for(name: str, platform: str) -> str:
     """The one-line install hint for tool ``name`` on ``platform``.
 
     Built from the same rows the Install button runs, so the two cannot
-    drift apart. On macOS and Linux the alternatives are joined with
-    ``   # or ``, which a POSIX shell reads as a comment; on Windows only the
-    first row is shown, because ``cmd`` has no such comment and would hand
-    the words after ``#`` to the installer as arguments.
+    drift apart. On macOS and Linux the alternatives are joined by three
+    spaces and then ``# or``, which a POSIX shell reads as a comment; on
+    Windows only the first row is shown, because ``cmd`` has no such
+    comment and would hand the words after ``#`` to the installer as
+    arguments.
 
     :param name: a key of :data:`INSTALL_METHODS`.
     :param platform: a ``sys.platform`` value.

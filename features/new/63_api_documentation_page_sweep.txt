@@ -2,8 +2,17 @@
 MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
 ================================================================================
 
-Status:    DONE IN THE SOURCE 2026-09-19; THE RENDERED BUILD WAS NOT RE-RUN
-           THAT DAY. Every criterion below held at the 2026-08-26 re-audit
+Status:    DONE 2026-09-19, AND SHOWN ON THE PUBLISHED PAGES. The build was
+           run twice that day and the last trailing note has both: the first
+           one found one leak the source detector could see and the earlier
+           scan could not, in a docstring 420 had landed hours before; the
+           second, after the repair, is 0 errors, 0 warnings, 1,124 HTML
+           pages, 557 module pages and 0 unrendered-markup leaks on any of
+           them. Every criterion below now holds where this file says it
+           should be measured. The paragraph that follows is what the
+           status said before that build and is kept because the detector
+           work it describes is still the guard.
+           Every criterion below held at the 2026-08-26 re-audit
            except "no unrendered markup", and that one is now at zero where
            it is measured: the docutils detector in
            `tests/test_docstring_inline_markup_renders.py` reads every
@@ -15,9 +24,12 @@ Status:    DONE IN THE SOURCE 2026-09-19; THE RENDERED BUILD WAS NOT RE-RUN
            own layout, and its tile and registry assertions pass, and the two
            orphaned reviewed records (`explain_cv`, `anndata_nan_policy`)
            quote the English the catalog holds today. That second point was
-           checked by reading the records, not by running the audit. Still
-           owed: one fresh sphinx build with the rendered-text scan, to show
-           that the published pages agree with the detector.
+           checked by reading the records, not by running the audit. It
+           ended "Still owed: one fresh sphinx build with the rendered-text
+           scan, to show that the published pages agree with the detector."
+           That build has been run; see the last trailing note. It did not
+           simply agree with the detector, which is why this is worth
+           reading rather than deleting.
 Requested: 2026-08-08 — "do a sweep of the API page and make sure everything looks as professions and clean and informative and usefull as you can make it"
 
 --------------------------------------------------------------------------------
@@ -1093,3 +1105,119 @@ NOT DONE: a fresh `sphinx -E` build with the rendered-text scan from
 2026-08-26. The detector parses each docstring with docutils, just as the
 build does, but the check that this file's criterion names is the one run on
 the published page.
+
+--------------------------------------------------------------------------------
+2026-09-19 — THE FRESH BUILD, AND WHAT IT FOUND THAT THE SOURCE DETECTOR
+             ALREADY KNEW
+--------------------------------------------------------------------------------
+
+Run on the maintainer's 2026-09-19 standing instruction to work every open
+item to completion. This closes the one thing the status above still owed.
+
+HOW IT WAS BUILT, since nothing in this repository says so and the next
+person will need it. `sphinx` is NOT in the `spacr` conda environment --
+`python -m sphinx --version` there is "No module named sphinx". The base
+anaconda environment has sphinx 9.1.0 and none of spaCR's dependencies. So
+the build ran from a throwaway venv created over the spacr environment,
+which leaves the maintainer's environment untouched:
+
+    python -m venv --system-site-packages <scratch>/docsvenv
+    <scratch>/docsvenv/bin/pip install sphinx furo sphinx-design sphinx-autoapi
+    cd <worktree> && PYTHONPATH=<worktree> HOME=<scratch>/sfhome \
+      XDG_CONFIG_HOME=... XDG_DATA_HOME=... QT_QPA_PLATFORM=offscreen \
+      nice -n 10 tools/run_capped.sh 8G <scratch>/docsvenv/bin/python \
+      -m sphinx -E -b html --keep-going docs/source <scratch>/docsbuild
+
+The four packages are the ones `.github/workflows/docs.yml` installs.
+PYTHONPATH matters: without it `conf.py` resolves `spacr` through the
+editable install, which points at the shared checkout -- HANDOFF §3f, and it
+bit this unit once already on a probe.
+
+BUILD 1, on the branch before the repair below:
+
+    build succeeded, 0 errors, 0 warnings
+    1,124 HTML pages, 557 generated module pages
+
+That is up from the 912 and 448 the 2026-08-26 re-audit recorded. "No
+broken cross-references" holds by the same argument as then: a dead
+`:class:` or a missing toctree entry is what sphinx warns about, and there
+are none.
+
+THE SCAN, REWRITTEN, BECAUSE THE FIRST ONE AGREED WITH THE BUILD AND WAS
+WRONG. The 2026-08-26 detector was kept in an agent scratch directory that
+no longer exists, so it was written again: strip every `<pre>`, `<code>`,
+`<tt>`, `<samp>`, `<kbd>`, `<script>` and `<style>` out of each page, then
+look in what is left for reST markers. Run against build 1 it reported ZERO
+leaks on 1,124 pages -- and `tests/test_docstring_inline_markup_renders.py`,
+run the same minute, reported TWO faults in one symbol. Two measurements
+that disagree, which HANDOFF says is worth more than one that looks right.
+
+The detector was right. The scan's ``literal`` pattern required a CLOSING
+pair on the same run of text, and the fault on the page is an UNCLOSED one:
+
+    spacr/qt/ai/providers.py, install_hint_for
+    "the alternatives are joined with ``   # or ``, which a POSIX shell..."
+
+An inline literal may not open on whitespace, so docutils does not open it;
+the backticks render as text and the REST OF THE SENTENCE is swallowed into
+the literal that the later pair does open. On the published page:
+
+    joined with ``   # or <code class="docutils literal">, which a POSIX
+    shell reads as a comment; on Windows only the first row is shown,
+    because ``cmd</code> has no such comment and would hand
+
+which is both an unrendered marker and two clauses of prose set as code.
+The scan now matches a double-backtick RUN and a role marker's opening,
+closed or not, and it was checked against a control page carrying all three
+2026-08-26 shapes (nested-in-bold, bad-literal-edge, stray-field) plus a
+`<pre>` block and a real `<code>` literal that must NOT count: 7 leaks
+found, the code sample and the rendered literals ignored.
+
+REPAIRED, and it is one sentence. The docstring now reads "joined by three
+spaces and then ``# or``". Only the markup and the word order changed; the
+separator the code joins with is still `"   # or "`. Measured through
+docutils' own `publish_parts` on the two lines:
+
+    before  ...joined with ``   # or <span class="problematic">``</span>,
+    after   ...joined by three spaces and then <tt class="docutils
+            literal"># or</tt>, which a POSIX shell...
+
+The docstring came from 420 (6065b26ea, then 3f925f684), landed hours
+earlier the same day; it is not new debt, and
+`tests/test_docstring_inline_markup_renders.py` was RED on origin/nightly
+for it (`test_no_fault_outside_the_named_files` and
+`test_the_remaining_count_does_not_rise`, 2 faults against a
+`REMAINING_FAULTS` of 0). Both are green now.
+
+BUILD 2, on the rebased branch with the repair (origin/nightly 845c97cd7):
+
+    build succeeded, 0 errors, 0 warnings
+    1,124 HTML pages, 557 generated module pages
+    rendered-text scan:  0 leaks on 0 pages
+    the providers page:  1 occurrence of the leaked marker before, 0 after
+
+Two builds, not the one this unit was told to run, and the reason is that
+the first found something. The second was needed anyway: nightly moved from
+b56c77d46 to 845c97cd7 between them, over eighteen files under `spacr/`,
+so a statement about "the published pages" made from build 1 would have
+been about a tree that no longer existed.
+
+ALSO RUN AGAINST THE BUILD, which is the check that normally skips:
+
+    SPACR_DOCS_BUILT=1 pytest tests/test_tooltip_api_links_resolve.py
+      tests/test_docstring_inline_markup_renders.py
+      tests/test_docstring_field_lists_are_parsed.py
+
+with `docs/_build/html` symlinked to the build. Every tooltip link lands on
+a page that exists; nothing leaves the documentation site.
+
+OWED to the consolidated i18n pass: `install_hint_for` is public and its
+docstring moved, so its source hash moved with it (HANDOFF §3a). No new
+public symbol, so the inventory count does not move.
+
+NOT DONE, and it is not this item's: the scan lives in an agent scratch
+directory again. It belongs in `tests/` beside the source detector, as a
+test that skips without `SPACR_DOCS_BUILT`, so that the next person does
+not write it a third time. The two detectors answer different questions --
+one reads docstrings, one reads the pages the reader gets -- and today only
+one of them is in the repository.
