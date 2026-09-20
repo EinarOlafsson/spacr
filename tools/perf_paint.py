@@ -45,6 +45,7 @@ the duplicated layer is not measuring paint, whatever number it prints.
 See `tests/qt/test_the_paint_harness_can_see_a_second_layer.py`.
 
     python tools/perf_paint.py --seconds 3 --out docs/perf_baseline.json
+    python tools/perf_paint.py --only backdrop --animation resonance
 
 A LOADED MACHINE MAKES EVERY NUMBER HERE SMALLER, so the JSON records the
 load average and the platform beside the measurements. A baseline taken
@@ -101,11 +102,20 @@ def _environment() -> dict:
 
 
 def measure_backdrop(seconds: float = 3.0,
-                     themes: Optional[List[str]] = None) -> List[dict]:
+                     themes: Optional[List[str]] = None,
+                     animation: Optional[str] = None) -> List[dict]:
     """Paints per second for the ambient backdrop, per theme and size.
 
     :param seconds: how long to run the event loop for each combination.
     :param themes: theme names; None measures every theme spaCR offers.
+    :param animation: which ambient ANIMATION to paint -- a name from
+        ``spacr.qt.widgets.ambient.AMBIENT_THEMES``. None paints the
+        shipped default, which is what every row before 2026-09-19 is.
+        THE TWO WORDS "THEME" MEAN DIFFERENT THINGS IN THIS FUNCTION and
+        always have: ``themes`` is the COLOUR theme (dark, light, cell,
+        glass) and this is the animation behind it. The row carries both,
+        so a baseline taken with one animation can never be read as a
+        measurement of another.
     :returns: one row per (theme, size).
     """
     from PySide6.QtCore import QEventLoop, QTimer
@@ -135,7 +145,8 @@ def measure_backdrop(seconds: float = 3.0,
         except Exception:                                    # noqa: BLE001
             pass
         for label, (width, height) in SIZES.items():
-            widget = ambient.AmbientWidget()
+            widget = (ambient.AmbientWidget() if animation is None
+                      else ambient.AmbientWidget(theme=animation))
             widget.resize(width, height)
             widget.show()
             app.processEvents()
@@ -150,6 +161,7 @@ def measure_backdrop(seconds: float = 3.0,
             rows.append({
                 "measurement": "backdrop",
                 "theme": name,
+                "animation": animation or ambient.DEFAULT_THEME,
                 "size": label,
                 "pixels": width * height,
                 "seconds": round(elapsed, 3),
@@ -390,13 +402,16 @@ def main(argv: Optional[List[str]] = None) -> int:
                         help="which module screen to measure on")
     parser.add_argument("--only", choices=("backdrop", "theme", "interaction"),
                         help="run one measurement instead of all three")
+    parser.add_argument("--animation",
+                        help="which ambient animation the backdrop paints; "
+                             "the shipped default when not given")
     parser.add_argument("--out", type=Path,
                         help="write the record here as JSON")
     args = parser.parse_args(argv)
 
     rows: List[dict] = []
     if args.only in (None, "backdrop"):
-        rows.extend(measure_backdrop(args.seconds))
+        rows.extend(measure_backdrop(args.seconds, animation=args.animation))
     if args.only in (None, "theme"):
         rows.extend(measure_theme_change(args.screen))
     if args.only in (None, "interaction"):
