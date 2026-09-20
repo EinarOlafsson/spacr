@@ -693,8 +693,8 @@ def main(argv=None):
 
     stacks = {}
     for path in arguments.paths:
-        stacks[os.path.basename(str(path).rstrip(os.sep)) or str(path)] = \
-            load_label_stack(path)
+        base = os.path.basename(str(path).rstrip(os.sep)) or str(path)
+        stacks[os.path.splitext(base)[0] or base] = load_label_stack(path)
     intervals = ({name: arguments.frame_interval for name in stacks}
                  if arguments.frame_interval is not None else None)
     table = audit_datasets(stacks, frame_intervals=intervals,

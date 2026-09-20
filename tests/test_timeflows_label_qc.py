@@ -407,7 +407,9 @@ def test_the_command_line_passes_clean_data_and_fails_recycled_data(
     np.save(clean, clean_stack())
     np.save(recycled, reuse_stack())
     assert qc.main([str(clean), '--frame-interval', '30']) == 0
-    assert 'clean.npy' in capsys.readouterr().out
+    printed = capsys.readouterr().out
+    assert 'clean' in printed
+    assert 'clean.npy' not in printed
     assert qc.main([str(recycled)]) == 1
     assert 'fail' in capsys.readouterr().out
 
@@ -422,9 +424,9 @@ def test_the_command_line_writes_the_table_and_the_detail(tmp_path, capsys):
     capsys.readouterr()
     assert csv.exists()
     written = sorted(item.name for item in detail.iterdir())
-    assert written == ['recycled.npy_displacement.csv',
-                       'recycled.npy_divisions.csv',
-                       'recycled.npy_gaps.csv']
+    assert written == ['recycled_displacement.csv',
+                       'recycled_divisions.csv',
+                       'recycled_gaps.csv']
 
 
 def test_a_stack_is_read_from_a_tif_file(tmp_path):
