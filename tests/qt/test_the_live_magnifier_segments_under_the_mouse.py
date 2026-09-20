@@ -998,7 +998,7 @@ def test_the_worker_can_drop_what_is_waiting():
 # ---------------------------------------------------------------------------
 #
 # Item 407's WHAT IS LEFT: "the region mode's other f-string status lines
-# (could not segment this region, the classical fallback note) are still not
+# (could not segment this region, the Otsu fallback note) are still not
 # catalogued". An f-string is built before anything can translate it, so a
 # reader in one of the other eight languages met the magnifier's failures in
 # English. These pin both halves: the sentence goes through `tr` at the point
@@ -1055,7 +1055,7 @@ def test_a_region_the_model_could_not_segment_says_so_through_tr(
         error="the model fell over")
 
 
-def test_the_classical_fallback_note_goes_through_tr_and_names_the_caption(
+def test_the_otsu_fallback_note_goes_through_tr_and_names_the_caption(
         qtbot, screen, marked):
     """"cellpose3:cyto3 could not run" sends a reader looking for a row that
     does not exist; the Mode box calls it "Cellpose 3 · cyto3"."""
@@ -1071,8 +1071,8 @@ def test_the_classical_fallback_note_goes_through_tr_and_names_the_caption(
 
     shown = screen._status_label.text()
     assert shown == _marked(
-        "Magnifier: {mode} could not run ({reason}); the classical mode "
-        "is segmenting instead.",
+        "Magnifier: {mode} could not run ({reason}); the Otsu mode is "
+        "segmenting instead.",
         mode=_marked("Cellpose"), reason="ImportError: no cellpose here")
     assert "cellpose could not run" not in shown, (
         "the mode was named by its key rather than by its caption")
@@ -1084,7 +1084,9 @@ def test_the_mode_caption_is_the_one_the_mode_box_shows(screen):
     for index in range(box.count()):
         mode = box.itemData(index)
         assert mm._magnifier_mode_label(mode) == box.itemText(index), mode
-    assert mm._magnifier_mode_label("classical") == "Classical"
+    assert mm._magnifier_mode_label("otsu") == "Otsu"
+    assert mm._magnifier_mode_label("classical") == "Otsu", (
+        "item 419 renamed the mode; a saved session still says classical")
     assert mm._magnifier_mode_label("cellpose3:cyto3") == "Cellpose 3 · cyto3"
     assert mm._magnifier_mode_label("no such mode") == "no such mode", (
         "a mode with no caption is hidden rather than shown as itself")
@@ -1114,11 +1116,11 @@ def test_a_paste_that_the_engine_refuses_says_so_through_tr(screen, marked):
     """The refusal carries the engine's reason as a value, not as prose."""
     stub_request = mm._MagnifierRequest(
         key=(0, (0, 0, 4, 4)), crop=np.zeros((4, 4), np.uint16),
-        box=(0, 0, 4, 4), shape=(IMG_N, IMG_N), mode="classical",
+        box=(0, 0, 4, 4), shape=(IMG_N, IMG_N), mode="otsu",
         sensitivity=0.0, bright=True, min_area=0, model_name="cpsam",
         diameter=0, colour=(1, 2, 3))
     result = mm._MagnifierResult(
-        stub_request, np.zeros((4, 4), np.int32), "classical", "", None, 0)
+        stub_request, np.zeros((4, 4), np.int32), "otsu", "", None, 0)
     screen._mag_overlap.addItem("Nonsense", "nonsense")
     screen._mag_overlap.setCurrentIndex(screen._mag_overlap.findData("nonsense"))
 
