@@ -1355,8 +1355,18 @@ def _alpha(picture: QImage, img_x: int, img_y: int, box) -> int:
 
 
 def preview_of(screen):
+    """The picture the box draws, when the rule ghosted anything in it.
+
+    The ghost is built on the WORKER, beside the outlines, and the result
+    carries it; the box draws it and nothing else. None here means the rule
+    took nothing away and the box is drawing the model's own outlines --
+    which is what `_shown_image` then holds.
+    """
     magnifier = screen._magnifier
-    return magnifier._overlap_preview(magnifier._shown)
+    shown = magnifier._shown
+    if shown is None or shown.ghost is None:
+        return None
+    return magnifier._shown_image
 
 
 def test_what_the_overlap_rule_takes_away_is_ghosted_in_the_box(
@@ -1434,7 +1444,7 @@ def test_changing_the_rule_redraws_the_box_and_asks_no_model(qtbot, screen):
     assert preview_of(screen) is not None
 
     screen._mag_overlap.setCurrentIndex(screen._mag_overlap.findData("replace"))
-    qtbot.wait(50)
+    wait_for_result(qtbot, screen)
     assert preview_of(screen) is None
     assert len(stub.calls) == calls, "the rule asked the model again"
 
@@ -1450,7 +1460,145 @@ def test_the_preview_is_built_once_until_something_moves(qtbot, screen):
     first = preview_of(screen)
     assert first is preview_of(screen), "a repaint that moves nothing rebuilt it"
     screen._mag_overlap.setCurrentIndex(screen._mag_overlap.findData("skip"))
+    wait_for_result(qtbot, screen)
     assert preview_of(screen) is not first
+
+
+def _faded(result) -> int:
+    """How many pixels the ghost fades out of what the model found."""
+    return int(np.count_nonzero(result.ghost[..., 3] < result.overlay[..., 3]))
+
+
+def test_the_box_is_drawn_from_a_picture_the_worker_built(qtbot, screen):
+    """The rule is counted over the box's pixels, and not on this thread.
+
+    Item 380's budget is a MOVE's budget, and the box can be as wide as the
+    field: the first version of this ghosted inside paintEvent, where the
+    same rule cost 125.5 ms per delivered result on the largest box item
+    417 allows. What paint is allowed to do now is draw.
+    """
+    from PySide6.QtGui import QPainter, QPixmap
+
+    existing = rect_mask((IMG_N, IMG_N), {1: (20, 20, 24, 26)})
+    screen._canvas.mask = existing
+    screen._history.push(existing)
+    switch_on(screen, CodedStub({4: (20, 20, 28, 26)}))
+    hover(screen, 24, 22)
+    wait_for_result(qtbot, screen)
+
+    magnifier = screen._magnifier
+    assert magnifier._shown.ghost is not None, "the worker built no ghost"
+    assert magnifier._shown.request.occupied is not None, (
+        "the mask under the box never reached the worker")
+
+    before = magnifier._shown_image
+    surface = QPixmap(CANVAS_W, CANVAS_H)
+    painter = QPainter(surface)
+    magnifier.paint(painter)
+    painter.end()
+    assert magnifier._shown_image is before, (
+        "painting the box built a picture instead of drawing the one it had")
+
+
+def test_a_drag_frame_carries_no_mask_and_no_rule(qtbot, screen):
+    """Its objects are never drawn as a box, so no ghost is built for them."""
+    existing = rect_mask((IMG_N, IMG_N), {1: (20, 20, 24, 26)})
+    screen._canvas.mask = existing
+    screen._history.push(existing)
+    switch_on(screen, CodedStub({4: (20, 20, 28, 26)}))
+    hover(screen, 24, 22)
+    wait_for_result(qtbot, screen)
+
+    magnifier = screen._magnifier
+    assert magnifier.build_request().occupied is not None
+    frame = magnifier.build_request(ghost=False)
+    assert frame.occupied is None and frame.overlap == "replace", (
+        "a drag frame copied the mask for a picture nobody draws")
+    assert frame.key == magnifier.build_request().key, (
+        "a frame and the box under the mouse stopped being the same request")
+
+
+def test_an_edit_under_the_box_asks_again_instead_of_promising_the_old_mask(
+        qtbot, screen):
+    """The mask the ghost was drawn against is gone, so the promise is.
+
+    Every edit rebinds the canvas's mask, and no one place on the screen
+    owns all of them, so the box notices when it is drawn: it goes dashed
+    and asks the worker for the region again rather than counting the rule
+    over the box on the GUI thread.
+    """
+    from PySide6.QtGui import QPainter, QPixmap
+
+    existing = rect_mask((IMG_N, IMG_N), {1: (20, 20, 24, 26)})
+    screen._canvas.mask = existing
+    screen._history.push(existing)
+    switch_on(screen, CodedStub({4: (20, 20, 28, 26)}))
+    hover(screen, 24, 22)
+    wait_for_result(qtbot, screen)
+    magnifier = screen._magnifier
+    faded = _faded(magnifier._shown)
+    assert not magnifier.updating()
+
+    screen._canvas.mask = rect_mask((IMG_N, IMG_N), {1: (20, 20, 27, 26)})
+    surface = QPixmap(CANVAS_W, CANVAS_H)
+    painter = QPainter(surface)
+    magnifier.paint(painter)
+    painter.end()
+    assert magnifier.updating(), (
+        "the box went on promising against a mask that is gone")
+
+    qtbot.waitUntil(lambda: not magnifier.updating(), timeout=10_000)
+    assert _faded(magnifier._shown) > faded, (
+        "the ghost was not built again against the mask that is there now")
+
+
+def test_the_box_pays_for_the_part_of_it_that_is_on_the_canvas(qtbot, screen):
+    """A box wider than the window does not stretch what nobody can see.
+
+    Item 417 let the Size box go as high as the field is wide, and the lens
+    draws the box `zoom` times larger again, so most of it can lie off the
+    widget. Item 380's own harness measured a median move of 183.9 ms at
+    2,048 px against 53.4 ms once only the visible part is built.
+    """
+    from PySide6.QtCore import QRectF
+
+    magnifier = screen._magnifier
+    switch_on(screen, CodedStub({4: (20, 20, 28, 26)}))
+    screen._mag_size.setValue(IMG_N)
+    screen._mag_zoom.setValue(8.0)
+    hover(screen, 32, 32)
+    wait_for_result(qtbot, screen)
+
+    box, lens, scale = magnifier.lens_geometry()
+    part, area = magnifier._visible_part(box, lens, scale)
+    assert part is not None
+    inside = (part[2] - part[0]) * (part[3] - part[1])
+    whole = (box[2] - box[0]) * (box[3] - box[1])
+    assert inside < whole, (
+        "the whole box is on the canvas, so this proves nothing: "
+        f"{part} of {box}")
+    covered = lens.intersected(QRectF(screen._canvas.rect()))
+    assert area.contains(covered), (
+        "a part of the box that is on the canvas would not be drawn")
+    assert (area.width() <= covered.width() + 2 * scale + 1
+            and area.height() <= covered.height() + 2 * scale + 1), (
+        "more than the edge pixel either side was built off the canvas")
+
+
+def test_a_box_that_fits_is_stretched_exactly_as_it_always_was(screen):
+    """The levels still come from the whole region the box magnifies.
+
+    Splitting "read the levels" from "rescale these pixels" is only worth
+    anything if the first half does not change: at a box the window holds,
+    every pixel is sampled and every pixel is returned, and the answer must
+    be the one `normalize_uint16` gives to the byte.
+    """
+    image = screen._canvas.image
+    box = (10, 12, 42, 44)
+    mine = mm._stretch_for_box(image, box, box, 1.0, 99.9)
+    theirs = engine.normalize_uint16(
+        np.ascontiguousarray(image[12:44, 10:42]), 1.0, 99.9)
+    np.testing.assert_array_equal(mine, theirs)
 
 
 def test_the_rule_the_box_draws_is_the_rule_the_click_applies(screen):

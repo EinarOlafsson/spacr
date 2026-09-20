@@ -80,6 +80,7 @@ tables rather than generating masks.
 from __future__ import annotations
 
 import logging
+import math
 import os
 import threading
 import time
@@ -1830,6 +1831,16 @@ class _MagnifierRequest(NamedTuple):
     otsu_fill_holes: bool = True
     #: Whether the Otsu mode cuts a blob with two centres into two objects.
     otsu_split: bool = True
+    #: The Overlap rule the box is to draw its promise in, and the mask it
+    #: is to be read against: the pixels the mask already owns inside
+    #: ``box``, and a number that changes whenever the canvas is handed a
+    #: different mask. NOT PART OF ``key``, because neither changes what the
+    #: model is asked -- a rule and a mask edit change what the ANSWER
+    #: means, which is why the worker is given both and
+    #: :meth:`_LiveMagnifier.refresh` compares them beside the key.
+    overlap: str = "replace"
+    occupied: Optional[np.ndarray] = None
+    mask_token: int = 0
 
 
 #: Everything a model reads, in the order :meth:`_LiveMagnifier._model_settings`
@@ -1855,6 +1866,13 @@ class _MagnifierResult(NamedTuple):
     not the one asked for; ``overlay`` is the RGBA picture of the outlines,
     or None for a whole-image result, whose box draws its own slice of it;
     ``count`` is how many objects ``labels`` holds.
+
+    ``ghost`` is ``overlay`` again with the pixels the request's Overlap
+    rule would NOT add faded to a quarter of their alpha -- what the box
+    draws, when the rule takes something away. It is built beside the
+    outlines on the worker thread and is None when there is nothing to fade:
+    under Replace, over an empty mask, or when the rule keeps everything.
+    See :func:`_ghosted_overlay`.
     """
 
     request: _MagnifierRequest
@@ -1863,6 +1881,7 @@ class _MagnifierResult(NamedTuple):
     note: str
     overlay: Optional[np.ndarray]
     count: int = 0
+    ghost: Optional[np.ndarray] = None
 
 
 def _otsu_segmenter(request: _MagnifierRequest, load_model=None):
@@ -2127,6 +2146,105 @@ def _candidate_overlay(labels: np.ndarray, colour) -> np.ndarray:
         rgba[inside] = (red, green, blue, 60)
         rgba[find_boundaries(lab, mode="inner") & inside] = (
             red, green, blue, 255)
+    return rgba
+
+
+#: How many pixels of a box the contrast stretch may look at. The stretch
+#: is two percentiles, and a percentile over four megapixels is most of what
+#: a move at the largest box used to cost; over a grid of at most this many
+#: of them the two levels are the same to a fraction of a step, and the box
+#: goes on being stretched over the WHOLE region it covers rather than over
+#: whichever corner of it is on screen.
+_STRETCH_SAMPLES = 262144
+
+
+def _stretch_for_box(image: np.ndarray, box, part,
+                     lower_pct: float, upper_pct: float) -> np.ndarray:
+    """``part`` of ``box``, contrast-stretched over all of ``box``'s levels.
+
+    :func:`spacr.qt.mask_engine.normalize_uint16` reads the levels from the
+    pixels it is handed and rescales the same pixels; the box needs the two
+    halves of that separated, because what it must stretch over is the
+    region it magnifies and what it must PAY FOR is the part of that region
+    a user can see. At the default box the two are one thing and this
+    returns exactly what that function would (``part`` is the whole box and
+    the sample is every pixel of it); at the largest box item 417 allows,
+    with most of the lens off the canvas, it is the difference between a
+    move a user feels and one nobody can.
+
+    :param image: the field.
+    :param box: ``(x0, y0, x1, y1)`` the box magnifies, in image pixels.
+    :param part: ``(x0, y0, x1, y1)`` of it to return, inside ``box``.
+    :param lower_pct: the percentile that becomes black.
+    :param upper_pct: the percentile that becomes white.
+    """
+    x0, y0, x1, y1 = (int(v) for v in box)
+    whole = image[y0:y1, x0:x1]
+    if not whole.size:
+        return np.ascontiguousarray(whole)
+    step = max(1, int(math.sqrt(whole.size / _STRETCH_SAMPLES)))
+    sample = whole[::step, ::step]
+    low, high = np.percentile(sample, [lower_pct, upper_pct])
+    if high <= low:
+        high = low + 1
+    vx0, vy0, vx1, vy1 = (int(v) for v in part)
+    crop = np.ascontiguousarray(image[vy0:vy1, vx0:vx1])
+    out = (np.clip(crop, low, high).astype(np.float64) - low) / (high - low)
+    return (out * float(np.iinfo(crop.dtype).max)).astype(crop.dtype)
+
+
+def _canonical_overlap_rule(rule) -> str:
+    """The Overlap rule ``rule`` names, or ``replace`` when it names none.
+
+    A rule reaches the worker inside a request, and a request outlives the
+    box it was built for: a name the engine does not know must leave the
+    box drawing the model's own outlines rather than raise on a thread
+    whose exception the user would meet as an empty box.
+    """
+    name = str(rule or "")
+    return name if name in engine._MAGNIFIER_OVERLAP_RULES else "replace"
+
+
+def _ghosted_overlay(labels: np.ndarray, overlay: np.ndarray,
+                     request: _MagnifierRequest) -> Optional[np.ndarray]:
+    """``overlay`` with what the Overlap rule would NOT add ghosted.
+
+    The box used to outline what the MODEL found, which is not what a click
+    adds: the Overlap rule and Min area stand between the two, and a click
+    that added half an object, or nothing, had said nothing first. The
+    pixels the rule takes away keep a quarter of their alpha, so they read
+    as "found, not yours" beside the solid objects a click would commit.
+
+    RUN HERE, ON THE WORKER, AND NOT WHERE THE BOX IS DRAWN. The first
+    version of this was a paintEvent's work, and the rule is counted over
+    the box's pixels: on the largest box item 417 allows -- the field's own
+    longer side -- that measured 125.5 ms per delivered result on the GUI
+    thread, nine frames of item 380's budget, for a picture the worker
+    could have brought with it. What it needs from the GUI thread is the
+    mask, and the mask is copied into the request beside the crop
+    (:meth:`_LiveMagnifier.build_request`), which is how everything else a
+    model reads gets here.
+
+    :param labels: the objects found, in crop coordinates.
+    :param overlay: their outlines as RGBA, from :func:`_candidate_overlay`.
+    :param request: the request, for its rule, its mask crop and Min area.
+    :returns: the picture, or None when the rule takes nothing away --
+        under Replace, over an empty mask, or when everything survives.
+    """
+    occupied = request.occupied
+    rule = _canonical_overlap_rule(request.overlap)
+    if occupied is None or overlay is None or rule == "replace":
+        return None
+    occupied = np.asarray(occupied) > 0
+    if occupied.shape != np.asarray(labels).shape or not occupied.any():
+        return None
+    kept = engine._surviving_region_objects(
+        labels, occupied, overlap=rule, min_area=int(request.min_area))
+    lost = (np.asarray(labels) > 0) & (kept == 0)
+    if not lost.any():
+        return None
+    rgba = np.array(overlay, copy=True)
+    rgba[lost, 3] = rgba[lost, 3] // 4
     return rgba
 
 
@@ -2412,17 +2530,27 @@ class _LiveMagnifier(QObject):
         #: ``(result, (box, object under the mouse), picture)`` last drawn.
         self._image_view: Optional[tuple] = None
         #: What a click would add where the mask already has objects; the
-        #: Overlap rule the screen's box is on. See :meth:`_overlap_preview`.
+        #: Overlap rule the screen's box is on. See :func:`_ghosted_overlay`.
         self.overlap = _MAGNIFIER_OVERLAP_DEFAULT
-        #: ``(result, mask, rule, picture)`` for the preview last built.
-        self._preview_view: Optional[tuple] = None
+        #: The mask the canvas was last seen holding, and how many different
+        #: ones it has held. See :meth:`mask_generation`.
+        self._mask_seen = None
+        self._mask_token = 0
+        #: Whether a request for a ghost gone stale is already on its way,
+        #: so a stream of repaints asks once rather than once each.
+        self._asking = False
+        #: :meth:`_stamp` of the request the box is waiting on, or None.
+        self._requested_stamp: Optional[tuple] = None
         #: When the whole-image run on its way was handed to its worker, and
         #: how long it is expected to take -- None when nothing says.
         self._image_started: Optional[float] = None
         self._image_estimate: Optional[float] = None
-        #: ``(mode, model) -> seconds per megapixel`` from the LAST run that
-        #: finished under it. See :meth:`remaining_seconds`.
+        #: ``(mode, model) -> seconds per megapixel`` from the last run
+        #: that finished under it and was worth believing. See
+        #: :meth:`_note_pace`, which says which runs those are, and
+        #: ``_image_paced`` beside it, which is every pair measured at all.
         self._image_pace: dict = {}
+        self._image_paced: set = set()
         #: Which field is on screen, as the screen names it -- the path of
         #: the image file. It identifies a field across a trip to another
         #: one and back, which the generation counter above cannot: that
@@ -2495,8 +2623,11 @@ class _LiveMagnifier(QObject):
 
         The MODEL IS NOT ASKED AGAIN, and the whole-image objects are not
         discarded: the rule is applied to what was found, not by the thing
-        that finds it. Only the box's preview of what a click would add is
-        built afresh.
+        that finds it. Only the box's promise of what a click would add is
+        built afresh -- and it is built where the objects are, on the
+        worker, which is why this asks for the region again rather than
+        clearing a picture. The rule is not part of a request key, so the
+        worker answers from the model's last answer for that box.
 
         :param rule: one of
             :data:`spacr.qt.mask_engine._MAGNIFIER_OVERLAP_RULES`; anything
@@ -2507,7 +2638,7 @@ class _LiveMagnifier(QObject):
         if name not in engine._MAGNIFIER_OVERLAP_RULES:
             return
         self.overlap = name
-        self._preview_view = None
+        self.refresh()
         self.canvas.update()
 
     def set_exclude_border(self, on: bool) -> None:
@@ -2593,9 +2724,9 @@ class _LiveMagnifier(QObject):
         self._field += 1
         self._shown = None
         self._shown_image = None
-        self._preview_view = None
         self._waiting.clear()
         self._requested_key = None
+        self._requested_stamp = None
         self._stop_image()
         self._image_result = None
         self._image_view = None
@@ -2616,7 +2747,13 @@ class _LiveMagnifier(QObject):
 
 
     def updating(self) -> bool:
-        """Whether the objects on screen are not yet for the region asked for.
+        """Whether what the box draws is not yet what it was last asked for.
+
+        The region asked for, and also the promise made about it: a rule
+        change and an edit to the mask under the box both leave the ghost
+        drawn against something that is no longer true, and the frame says
+        so in the way it already says it -- dashed, with "Updating…" --
+        until the worker answers again.
 
         In whole-image scope: whether the objects for the field and the
         settings now are not found yet.
@@ -2626,7 +2763,8 @@ class _LiveMagnifier(QObject):
             return (result is None
                     or result.request.key != self._image_key_now())
         return (self._shown is None
-                or self._shown.request.key != self._requested_key)
+                or self._stamp(self._shown.request) != self._requested_stamp
+                or self._ghost_is_stale())
 
     def hover(self, pos) -> None:
         """Follow the mouse to widget point ``pos``; None puts the box away."""
@@ -2655,7 +2793,9 @@ class _LiveMagnifier(QObject):
         if request is None:
             return
         self._requested_key = request.key
-        if self._shown is not None and self._shown.request.key == request.key:
+        self._requested_stamp = self._stamp(request)
+        if (self._shown is not None
+                and self._stamp(self._shown.request) == self._requested_stamp):
             return
         self._worker.submit(request)
 
@@ -2697,8 +2837,31 @@ class _LiveMagnifier(QObject):
         accent = QColor(active_palette()["accent"])
         return (accent.red(), accent.green(), accent.blue())
 
-    def build_request(self) -> Optional[_MagnifierRequest]:
-        """The request for the region under the mouse now, or None."""
+    def mask_generation(self) -> int:
+        """How many different masks the canvas has been handed, counted here.
+
+        The canvas REBINDS its mask for every edit rather than writing into
+        the one it has, so identity is what "the mask changed" means, and a
+        counter over it is what a request can carry to the worker and a
+        result can be compared against when it comes back. Reading it is
+        the only place the change is noticed, which is why the box's own
+        paint asks (:meth:`paint`).
+        """
+        mask = self.canvas.mask
+        if mask is not self._mask_seen:
+            self._mask_seen = mask
+            self._mask_token += 1
+        return self._mask_token
+
+    def build_request(self, *, ghost: bool = True
+                      ) -> Optional[_MagnifierRequest]:
+        """The request for the region under the mouse now, or None.
+
+        :param ghost: whether the worker is to draw what the Overlap rule
+            would leave as well as what the model found. False for a drag's
+            frames, which are never drawn as a box: the mask crop would be
+            copied and the rule counted over it for a picture nobody sees.
+        """
         canvas = self.canvas
         image = canvas.image
         if (not self.enabled or self._cursor is None or image is None
@@ -2709,6 +2872,12 @@ class _LiveMagnifier(QObject):
                                     self._cursor[1], self.size)
         x0, y0, x1, y1 = box
         exclude = bool(self.exclude_border)
+        rule = _canonical_overlap_rule(self.overlap)
+        occupied = None
+        token = 0
+        if ghost and rule != "replace":
+            token = self.mask_generation()
+            occupied = np.asarray(canvas.mask)[y0:y1, x0:x1] > 0
         return _MagnifierRequest(
             key=(self._field, box) + settings + (exclude,),
             crop=np.array(image[y0:y1, x0:x1], copy=True),
@@ -2716,14 +2885,36 @@ class _LiveMagnifier(QObject):
             shape=tuple(int(v) for v in image.shape[:2]),
             colour=self._accent(),
             exclude_border=exclude,
+            overlap=rule if ghost else "replace",
+            occupied=occupied,
+            mask_token=token,
             **dict(zip(_MODEL_SETTING_FIELDS, settings)),
         )
+
+    @staticmethod
+    def _stamp(request: _MagnifierRequest) -> tuple:
+        """What makes a result the one the box wants NOW.
+
+        The request key says which region the model was asked about; the
+        rule and the mask say what its answer means. A click while the mask
+        under the box has changed must not be answered from a picture drawn
+        against the mask before it.
+        """
+        return (request.key, request.overlap, request.mask_token)
 
     def click(self) -> bool:
         """Commit the objects for the region under the mouse.
 
         In whole-image scope, commit only the object under the mouse; see
         :meth:`_pick`.
+
+        THE RESULT ON SCREEN IS MATCHED BY ITS KEY AND NOT BY :meth:`_stamp`.
+        What a click commits is the model's objects; the Overlap rule is
+        applied to them as they go in, by the screen, from the Overlap box as
+        it reads at that moment. A box whose ghost is one mask edit behind is
+        still drawn from the right objects, and making the click wait for a
+        picture would delay the edit itself for the sake of a promise about
+        it.
 
         :returns: False when there is no region to commit -- the magnifier is
             off, the mouse is off the image, or no field is open.
@@ -2736,6 +2927,7 @@ class _LiveMagnifier(QObject):
         if request is None:
             return False
         self._requested_key = request.key
+        self._requested_stamp = self._stamp(request)
         if self._shown is not None and self._shown.request.key == request.key:
             self.commit_ready.emit(self._shown)
             return True
@@ -2944,10 +3136,10 @@ class _LiveMagnifier(QObject):
         """How long the whole-image run on its way still has, or None.
 
         A GUESS FROM A MEASUREMENT, and only ever from one: the seconds per
-        megapixel the LAST run under this mode and model took, times this
-        field's megapixels. The first run of a session says None and the bar
-        stays indeterminate, which is the honest answer -- nothing has been
-        measured yet, and on a cold model most of the first run is the load.
+        megapixel the last run under this mode and model took, times this
+        field's megapixels -- see :meth:`_note_pace` for which run that is
+        allowed to be. Before there is such a measurement the answer is
+        None and the bar stays indeterminate, which is the honest answer.
 
         None once the estimate is spent, too, so a bar that has run out goes
         back to saying only that something is happening.
@@ -2960,11 +3152,44 @@ class _LiveMagnifier(QObject):
         left = self._image_estimate - (time.monotonic() - self._image_started)
         return left if left > 0 else None
 
+    def estimated_seconds(self) -> Optional[float]:
+        """The whole run's estimate, or None when nothing was estimated.
+
+        What :meth:`remaining_seconds` is counting down FROM, which a bar
+        needs as well as the remainder to show a fraction. Public for the
+        same reason the remainder is: the screen draws the bar, and a
+        screen reaching into this object for the other half of one answer
+        was reaching past the answer it had just been given.
+        """
+        return self._image_estimate
+
     def _note_pace(self, key: tuple, pixels: int, seconds: float) -> None:
-        """Remember what this mode and model cost per megapixel, last time."""
+        """Remember what this mode and model cost per megapixel, last time.
+
+        A RUN THAT LOADED ITS MODEL IS NOT WHAT THE NEXT RUN COSTS. Item
+        407 measured the same field at 10.3 s cold and 3.9 s warm on the
+        same Cellpose model: most of a first run is the load, and a bar
+        that counted down from it would promise two and a half times the
+        time the run it is drawn over actually takes, then finish while it
+        still said seven seconds left. A mode that loads a model therefore
+        spends its first measurement of a session learning that the model
+        is now in memory -- the bar stays indeterminate through the second
+        run, and counts down from the third. The Otsu mode loads nothing,
+        so its first run is its pace and its second run counts down.
+
+        :param key: the whole-image request key the run answered.
+        :param pixels: how many pixels were segmented.
+        :param seconds: how long it took, from handing it over to its
+            result arriving.
+        """
         if pixels <= 0 or seconds <= 0:
             return
-        self._image_pace[self._pace_key(key)] = seconds / (pixels / 1e6)
+        pace_key = self._pace_key(key)
+        first = pace_key not in self._image_paced
+        self._image_paced.add(pace_key)
+        if first and canonical_magnifier_mode(pace_key[0]) != "otsu":
+            return
+        self._image_pace[pace_key] = seconds / (pixels / 1e6)
 
     def _stop_image(self) -> None:
         """Forget the whole-image run on its way, dropping it if not started."""
@@ -3151,7 +3376,7 @@ class _LiveMagnifier(QObject):
         pinned on the region worker, so later moves cannot supersede it.
         """
         cursor, self._cursor = self._cursor, centre
-        request = self.build_request()
+        request = self.build_request(ghost=False)
         self._cursor = cursor
         self._stroke.expect(request.key)
         shown = self._shown
@@ -3220,9 +3445,10 @@ class _LiveMagnifier(QObject):
         if request.exclude_border:
             labels = engine._drop_cut_objects(labels, request.box,
                                               request.shape)
-        return _MagnifierResult(request, labels, used, note,
-                                _candidate_overlay(labels, request.colour),
-                                _object_count(labels))
+        overlay = _candidate_overlay(labels, request.colour)
+        return _MagnifierResult(request, labels, used, note, overlay,
+                                _object_count(labels),
+                                _ghosted_overlay(labels, overlay, request))
 
     def _segment_now(self, request: _MagnifierRequest) -> tuple:
         """Ask the model: ``(int32 labels shaped like the crop, mode, note)``."""
@@ -3243,7 +3469,13 @@ class _LiveMagnifier(QObject):
         self._emit_safely(self._delivered, (request, result, error))
 
     def _on_delivered(self, payload) -> None:
-        """Show a finished result, and commit it if a click was waiting."""
+        """Show a finished result, and commit it if a click was waiting.
+
+        The picture the box draws is the result's ghost when it has one,
+        which is the whole picture and not a layer over the outlines: it IS
+        the outlines, with what the Overlap rule would not add faded. One
+        QImage is built per result either way.
+        """
         from ..i18n import tr
 
         request, result, error = payload
@@ -3262,7 +3494,8 @@ class _LiveMagnifier(QObject):
             return
         self._note_fallback(request, result)
         self._shown = result
-        self._shown_image = _rgba_qimage(result.overlay)
+        self._shown_image = _rgba_qimage(
+            result.overlay if result.ghost is None else result.ghost)
         if request.key in self._waiting:
             self._waiting.discard(request.key)
             self.commit_ready.emit(result)
@@ -3371,6 +3604,13 @@ class _LiveMagnifier(QObject):
         In whole-image scope the box draws its slice of the whole-image
         objects instead, with the object a click would add filled more
         strongly, and the frame is dashed while a run is on its way.
+
+        NOTHING IS COMPUTED FROM PIXELS HERE beyond the magnified region
+        itself: the picture the box draws over it was built on the worker,
+        ghosted and all (:func:`_ghosted_overlay`). What this does notice
+        is a mask it has not been drawn against -- the canvas rebinds its
+        mask for every edit -- and it asks for the region again rather than
+        redrawing a promise made about a mask that is gone.
         """
         geometry = self.lens_geometry()
         if geometry is None:
@@ -3378,11 +3618,14 @@ class _LiveMagnifier(QObject):
         box, lens, scale = geometry
         x0, y0, x1, y1 = box
         canvas = self.canvas
-        stretched = engine.normalize_uint16(
-            np.ascontiguousarray(canvas.image[y0:y1, x0:x1]),
-            canvas.norm_lo, canvas.norm_hi)
+        part, area = self._visible_part(box, lens, scale)
+        if part is None:
+            return
+        vx0, vy0, vx1, vy1 = part
+        stretched = _stretch_for_box(canvas.image, box, part,
+                                     canvas.norm_lo, canvas.norm_hi)
         rgb = np.ascontiguousarray(engine.overlay_mask(
-            stretched, canvas.mask[y0:y1, x0:x1], alpha=0.5))
+            stretched, canvas.mask[vy0:vy1, vx0:vx1], alpha=0.5))
         height, width = rgb.shape[:2]
         picture = QImage(rgb.data, width, height, 3 * width,
                          QImage.Format_RGB888)
@@ -3390,22 +3633,25 @@ class _LiveMagnifier(QObject):
         painter.save()
         painter.setRenderHint(QPainter.SmoothPixmapTransform, False)
         painter.setClipRect(lens)
-        painter.drawImage(lens, picture)
+        painter.drawImage(area, picture)
         if self.scope == "image":
-            view = self._image_slice(box)
+            view = self._image_slice(part)
             if view is not None:
-                painter.drawImage(lens, view)
+                painter.drawImage(area, view)
             updating = self._image_key is not None
         else:
+            self.mask_generation()
+            if self._ghost_is_stale() and not self._asking:
+                self._asking = True
+                QTimer.singleShot(0, self, self._ask_again)
             shown = self._shown
             if shown is not None and self._shown_image is not None:
                 sx0, sy0, sx1, sy1 = shown.request.box
-                preview = self._overlap_preview(shown)
                 painter.drawImage(
                     QRectF(lens.left() + (sx0 - x0) * scale,
                            lens.top() + (sy0 - y0) * scale,
                            (sx1 - sx0) * scale, (sy1 - sy0) * scale),
-                    self._shown_image if preview is None else preview)
+                    self._shown_image)
             updating = self.updating()
         painter.setClipping(False)
         pen = QPen(QColor(palette["accent"]))
@@ -3430,54 +3676,66 @@ class _LiveMagnifier(QObject):
             painter.drawText(badge, Qt.AlignCenter, caption)
         painter.restore()
 
-    def _overlap_preview(self, result) -> Optional[QImage]:
-        """The box's objects with what a click would NOT add ghosted.
+    def _visible_part(self, box, lens, scale):
+        """The part of ``box`` that is on the canvas, and where it is drawn.
 
-        The box used to outline what the MODEL found, which is not what a
-        click adds: the Overlap rule and Min area stand between the two, and
-        a click that added half an object, or nothing, had said nothing
-        first. The pixels the rule takes away keep a quarter of their alpha,
-        so they read as "found, not yours" beside the solid objects a click
-        would commit.
+        THE BOX IS NOT BOUNDED BY THE WINDOW. Its side is the Size box's
+        value in image pixels and item 417 raised that to the field's own
+        longer side, and the lens then draws it ``zoom`` times larger
+        again: on a 2,048 px field most of the lens is off the widget, and
+        every pixel of it was being stretched, coloured and handed to Qt on
+        the GUI thread for every move. Measured by item 380's own harness
+        at 2,048 px: a median move of 183.9 ms, 23 frames dropped.
 
-        Nothing is ghosted under Replace, and nothing is ghosted where the
-        mask is empty; both answer None and the box draws the model's own
-        outlines, which the worker already built.
-
-        The answer is kept until the result, the mask or the rule changes,
-        so a repaint that moves nothing recomputes nothing. It is computed
-        here and not on the worker because the MASK is what it depends on,
-        and the mask is the GUI thread's.
-
-        :param result: the region result the box is drawing.
-        :returns: the picture, or None when the rule takes nothing away.
+        :param box: ``(x0, y0, x1, y1)`` in image pixels.
+        :param lens: where the whole box would be drawn.
+        :param scale: widget pixels per image pixel inside the lens.
+        :returns: ``(part, rect)``, or ``(None, None)`` when none of the
+            box is on the canvas.
         """
-        mask = self.canvas.mask
-        if mask is None or result.overlay is None:
-            return None
-        rule = str(self.overlap)
-        cached = self._preview_view
-        if (cached is not None and cached[0] is result
-                and cached[1] is mask and cached[2] == rule):
-            return cached[3]
-        picture = None
-        if rule != "replace":
-            x0, y0, x1, y1 = (int(v) for v in result.request.box)
-            occupied = np.asarray(mask)[y0:y1, x0:x1] > 0
-            if occupied.any():
-                kept = engine._surviving_region_objects(
-                    result.labels, occupied, overlap=rule,
-                    min_area=int(result.request.min_area))
-                lost = (np.asarray(result.labels) > 0) & (kept == 0)
-                if lost.any():
-                    rgba = np.array(result.overlay, copy=True)
-                    rgba[lost, 3] = rgba[lost, 3] // 4
-                    picture = _rgba_qimage(rgba)
-        self._preview_view = (result, mask, rule, picture)
-        return picture
+        x0, y0, x1, y1 = (int(v) for v in box)
+        area = lens.intersected(QRectF(self.canvas.rect()))
+        if area.isEmpty() or scale <= 0:
+            return None, None
+        left = max(x0, x0 + int(math.floor((area.left() - lens.left()) / scale)))
+        top = max(y0, y0 + int(math.floor((area.top() - lens.top()) / scale)))
+        right = min(x1, x0 + int(math.ceil((area.right() - lens.left()) / scale)))
+        bottom = min(y1, y0 + int(math.ceil((area.bottom() - lens.top()) / scale)))
+        if right <= left or bottom <= top:
+            return None, None
+        rect = QRectF(lens.left() + (left - x0) * scale,
+                      lens.top() + (top - y0) * scale,
+                      (right - left) * scale, (bottom - top) * scale)
+        return (left, top, right, bottom), rect
+
+    def _ghost_is_stale(self) -> bool:
+        """Whether the box promises against a mask the canvas no longer has.
+
+        Asks nothing of the canvas: it compares what the shown result was
+        built against with the number :meth:`mask_generation` has reached,
+        and it is :meth:`paint` that brings that number up to date -- which
+        is where a mask edit is first seen, every edit rebinding the mask
+        and repainting, and no single place on the screen owning all of
+        them. Under Replace nothing is ghosted, so nothing goes stale.
+        """
+        shown = self._shown
+        return (shown is not None and shown.request.overlap != "replace"
+                and shown.request.mask_token != self._mask_token)
+
+    def _ask_again(self) -> None:
+        """Ask for the region under the mouse and redraw when it lands."""
+        self._asking = False
+        if self.enabled:
+            self.refresh()
+            self.canvas.update()
 
     def _image_slice(self, box) -> Optional[QImage]:
         """The whole-image objects inside ``box``, outlined, as a picture.
+
+        ``box`` is the part of the lens that is on the canvas
+        (:meth:`_visible_part`) and not necessarily the whole region the box
+        magnifies, for the reason given there: what is off the widget costs
+        the same to build and shows nobody anything.
 
         The object under the mouse is filled more strongly than the rest. The
         picture is kept until the box, that object or the objects themselves
@@ -7061,7 +7319,7 @@ class MakeMasksScreen(QWidget):
         from ..i18n import tr
 
         left = self._magnifier.remaining_seconds()
-        estimate = self._magnifier._image_estimate
+        estimate = self._magnifier.estimated_seconds()
         if left is None or not estimate:
             self._show_indeterminate_magnifier_bar()
             return
