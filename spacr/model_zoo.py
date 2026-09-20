@@ -393,24 +393,69 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
-        "metrics": {'n_train': '562 images', 'train_objects': 'not recorded', 'n_test': 'held-out split', 'test_objects': 'not recorded', 'cv': 'no', 'f1': 'mAP50 0.9930', 'aji': 'mAP50-95 0.8860', 'dice': 'P/R 0.9870', 'stock_f1': 'not recorded', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '150 / 150'},
+        "metrics": {'n_train': '562 images', 'train_objects': 'not recorded', 'n_test': 'held-out split', 'test_objects': 'not recorded', 'cv': 'no', 'f1': 'mAP50 0.9930 on v3\'s own split; 0.8838 on the shared test set', 'aji': 'mAP50-95 0.8860 own split; 0.7630 shared', 'dice': 'P/R 0.9870 own split; P 0.8613 / R 0.9085 shared', 'stock_f1': 'not recorded', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '150 / 150'},
         "display_name": "Toxoplasma Plaque Well Detector v1",
         "architecture": "YOLO11n",
         "dataset": "whole-plate and multi-well crystal violet images; 562 "
                    "images from 1 dataset, 190 of them with no well in them",
-        "versus_stock": "mAP50 0.993, mAP50-95 0.886, precision and recall "
-                        "both 0.987",
+        "versus_stock": "mAP50 0.993 on its own held-out split; on the test "
+                        "set shared with v2 it scores mAP50 0.8838, against "
+                        "v2's 0.9457",
         "trained_on": (
             "whole-plate and multi-well Toxoplasma plaque-assay images; "
             "yolo11n base, 150 epochs, batch 16, imgsz 640"
         ),
         "trained_by": "einarolafsson",
         "notes": (
-            "mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987",
+            "the 0.993 is measured on v3's OWN split, which is easier than "
+            "the set v2 is measured on; on that shared set this model scores "
+            "mAP50 0.8838 against v2's 0.9457, so v2 is the better detector",
+            "kept because the published plaque corpus was measured with these "
+            "weights, so results in the paper trace back to this row",
             "locates WELLS, not plaques; it is the front half of a two-stage "
             "pipeline with toxoplasma_plaque_v1, and the well it finds also "
             "gives the diameter that makes areas comparable across "
             "microscopes",
+        ),
+    },
+    {
+        "key": "toxoplasma_well_detector_v2",
+        "name": "yolo_welldetect_v4.pt",
+        "kind": "detector",
+        "repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo26",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "toxoplasma-plaque-well-detector-yolo26/resolve/main/"
+               "weights/best.pt",
+        "remote_name": "best.pt",
+        "sha256":
+            "f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7",
+        "metrics": {'n_train': '1,070 images', 'train_objects': '2,455 boxes', 'n_test': '129 images, 84 of them with no well', 'test_objects': '297 boxes', 'cv': 'no', 'f1': 'mAP50 0.9457 (shared test set)', 'aji': 'mAP50-95 0.8341', 'dice': 'P 0.8912 / R 0.9440', 'stock_f1': 'v3 scores 0.8838 on this set', 'stock_aji': 'v3 scores 0.7630', 'stock_dice': 'v3 P 0.8613 / R 0.9085', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '28'},
+        "display_name": "Toxoplasma Plaque Well Detector v2",
+        "architecture": "YOLO26n (ultralytics 8.4.155)",
+        "dataset": "plate images and literature figures; 1,070 train / 254 "
+                   "val / 129 test, split by PMC article so no paper is in two "
+                   "sets; training data at einarolafsson/"
+                   "toxoplasma-plaque-well-detector-dataset",
+        "versus_stock": "mAP50 0.9457 and mAP50-95 0.8341 against v3's 0.8838 "
+                        "and 0.7630 on the SAME test set; stock YOLO has no "
+                        "plaque-well class, so v3 is the baseline",
+        "trained_on": (
+            "whole-plate and multi-well Toxoplasma plaque-assay images plus 939 "
+            "newly reviewed PMC figures, accepted boxes and confirmed negatives "
+            "alike; yolo26n base, best validation mAP50-95 at epoch 28"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "on the shared test set it beats v1 (the v3 weights) on every "
+            "measure, and cuts false boxes on no-well figures from 152 to 49",
+            "84 of the 129 test images contain no well at all, which is what "
+            "the false-box count is measured on",
+            "locates WELLS, not plaques; the front half of a two-stage pipeline "
+            "with the plaque segmentation model",
+            "the repository publishes this weight as weights/best.pt; spaCR "
+            "saves it under the name above so two detectors cannot both land "
+            "as best.pt",
         ),
     },
     {
@@ -480,6 +525,44 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         ),
     },
     {
+        "key": "toxoplasma_pv_v3",
+        "name": "cpsam_v2_toxo_r6",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r6",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "toxoplasma-pv-segmentation-cpsam-r6/resolve/main/"
+               "weights/cpsam_v2_toxo_r6",
+        "sha256":
+            "146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e",
+        "metrics": {'n_train': '437 fields', 'train_objects': '15,550', 'n_test': '11 anchor wells', 'test_objects': '683', 'cv': '5-fold, grouped by source', 'f1': '0.8602', 'aji': '0.8026', 'dice': '0.9059', 'stock_f1': '0.7648', 'stock_aji': '0.5050', 'stock_dice': '0.6431', 'train_loss': 'not recorded', 'val_loss': '0.0864', 'best_epoch': '20 / 100'},
+        "display_name": "Toxoplasma PV v3 (round 6)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "the 556 curated PV fields of round 5, split 437 train / "
+                   "108 validation / 11 test; training data at "
+                   "einarolafsson/toxoplasma-pv-segmentation-dataset",
+        "versus_stock": "F1 0.860 against stock cpsam_v2's 0.765 on the 11 "
+                        "anchor wells at IoU 0.5; AJI 0.803 against 0.505",
+        "trained_on": (
+            "Toxoplasma tachyzoite parasitophorous vacuoles stained with goat "
+            "anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV "
+            "lumen (RH and ME49). Round 6 retrains round 5's data with cellpose "
+            "4.2.1.1, 100 epochs, base cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the "
+            "anchor wells -- 0.8602 against 0.8648 -- and the PV project still "
+            "promotes round 5",
+            "it is the first PV round whose checkpoint was chosen on a held-out "
+            "validation set (108 fields) instead of on the test wells",
+            "5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, "
+            "AJI 0.7516, Dice 0.8424",
+            "the 11 anchor wells have been held out since round 1, so they are "
+            "the only fields no PV round has ever trained on",
+        ),
+    },
+    {
         "key": "nuclei_from_cellmask_v1",
         "name": "nuclei_from_cellmask_best",
         "kind": "cellpose",
@@ -511,6 +594,41 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "data rather than an independent test set",
             "predicts nuclei from cell morphology -- expect degraded accuracy "
             "on unusual or highly confluent morphologies",
+        ),
+    },
+    {
+        "key": "cell_from_hoechst_v1",
+        "name": "cell_from_hoechst_best",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/cross-channel-cell-from-hoechst-cpsam",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "cross-channel-cell-from-hoechst-cpsam/resolve/main/"
+               "weights/cell_from_hoechst_best",
+        "sha256":
+            "d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb",
+        "size_bytes": 1218647799,
+        "metrics": {'n_train': '2,578 fields', 'train_objects': '237,957', 'n_test': '451 fields', 'test_objects': '45,098', 'cv': 'no, split by well', 'f1': '0.8697', 'aji': '0.7991', 'dice': '0.8948', 'stock_f1': '0.3012', 'stock_aji': '0.3506', 'stock_dice': '0.5235', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '70 / 100'},
+        "display_name": "Cross-channel cell-from-hoechst",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "the HOST CELL outline predicted from the Hoechst (nuclear) "
+                   "channel alone; 2,578 training fields and 451 held-out test "
+                   "fields, split by well so no well is on both sides",
+        "versus_stock": "F1 0.870 against stock cpsam_v2's 0.301 on 451 "
+                        "held-out fields at IoU 0.5 -- a delta of 0.569",
+        "trained_on": (
+            "Hoechst-stained nuclei paired with curated host-cell masks; "
+            "fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "the counterpart of nuclei_from_cellmask_v1: that one predicts "
+            "nuclei from the cell mask, this one predicts the cell from the "
+            "nucleus",
+            "precision 0.944 against recall 0.806 -- it misses cells rather "
+            "than inventing them, which is the safer direction for counting",
+            "quote the DELTA over stock (0.569), not the ratio: stock's mAP of "
+            "0.0575 is a near-zero denominator that makes any ratio look huge",
         ),
     },
     {

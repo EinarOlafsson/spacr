@@ -619,7 +619,9 @@ def test_every_bundled_catalogue_entry_is_provenanced_and_verifiable():
         assert entry.uri.startswith(
             f"https://huggingface.co/{mapping['repo_id']}/resolve/main/"
         )
-        assert entry.name in entry.uri
+        remote = str(mapping.get("remote_name") or entry.name)
+        served = entry.uri.split("?", 1)[0].split("#", 1)[0]
+        assert served.rsplit("/", 1)[-1] == remote
         assert entry.trained_on != zoo.UNKNOWN
         assert entry.trained_by != zoo.UNKNOWN
         assert entry.checksum_state == "published"
