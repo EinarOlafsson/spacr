@@ -308,7 +308,7 @@ def _attach(screen: QWidget, app_key: str,
     except Exception:
         LOG.debug("preview builder failed for %r", app_key, exc_info=True)
         return None
-    if not _insert_above_actions(screen, card):
+    if not _insert_above_console(screen, card):
         card.setParent(None)
         card.deleteLater()
         return None
@@ -336,6 +336,48 @@ def _attach(screen: QWidget, app_key: str,
         toggle.setParent(screen)
         _insert_above_actions(screen, toggle)
     return host
+
+
+def _insert_above_console(screen: QWidget, widget: QWidget) -> bool:
+    """Put a preview card in the runtime splitter, directly ABOVE the console.
+
+    Reported 2026-09-20: "the plaque modular live [preview] being under the console".
+
+    WHY IT WAS UNDER IT. Every preview card went through
+    :func:`_insert_above_actions`, which puts a widget in the runtime panel just above
+    the Run row -- and the figures/console splitter is added to that same panel BEFORE
+    the actions row. So "above the Run button" is below the console, and the preview
+    landed under the log it was supposed to be read beside.
+
+    Mask never showed the bug and that is why it went unnoticed: its screen builds the
+    live preview into the splitter itself, between the figures and the console, and
+    never calls this path. The modules that get their preview from the registry --
+    Plaque Assay and Cellpose Masks -- got the Run-row placement instead, so the same
+    card sat in two different places depending on which screen mounted it.
+
+    The splitter is the right home rather than a different index in the panel: a card
+    above the console INSIDE it can be resized against the console, which is the whole
+    reason Mask's is there.
+
+    :param screen: the module screen.
+    :param widget: the card to insert.
+    :returns: whether it went into the splitter. False means the caller should fall
+        back, and :func:`_insert_above_actions` is still that fallback -- a screen with
+        no splitter, or one whose console is not in it, is better off with the preview
+        above the Run row than with no preview at all.
+    """
+    splitter = getattr(screen, "_runtime_splitter", None)
+    console = getattr(screen, "_console_wrap", None)
+    if splitter is None or console is None:
+        return _insert_above_actions(screen, widget)
+    try:
+        index = splitter.indexOf(console)
+    except (AttributeError, RuntimeError):
+        return _insert_above_actions(screen, widget)
+    if index < 0:
+        return _insert_above_actions(screen, widget)
+    splitter.insertWidget(index, widget)
+    return True
 
 
 def _insert_above_actions(screen: QWidget, widget: QWidget) -> bool:

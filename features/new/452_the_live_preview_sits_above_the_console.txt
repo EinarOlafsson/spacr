@@ -1,0 +1,83 @@
+================================================================================
+THE LIVE PREVIEW SITS ABOVE THE CONSOLE, NOT UNDER IT
+================================================================================
+
+Status:    FIXED 2026-09-20, the day it was reported.
+
+Requested: 2026-09-20 -- "put the live preview above the console not below",
+           then, when asked which screen: "I'm talking about the plaque
+           modular live being under the console".
+
+Owner:     Claude (spacr/qt/preview_registry.py).
+
+--------------------------------------------------------------------------------
+WHY IT TOOK A SECOND QUESTION TO FIND
+--------------------------------------------------------------------------------
+
+Reading app_screen.py's layout code says the opposite of the report. Every
+branch there builds figures, then preview, then console, top to bottom -- Mask,
+Timelapse, Motility, Measure alike -- and `analyze_plaques` falls to the `else`
+branch, which builds no preview card at all. On that evidence there is no
+screen with a preview under a console, which is what was said back.
+
+THE PLAQUE PREVIEW IS NOT BUILT THERE. It is mounted by
+`spacr.qt.preview_registry`, which `_build_live_preview_card`'s own docstring
+names: the same builder serves Mask, Cellpose Masks and Plaque Assay. Mask
+embeds it into the splitter by hand; the other two get it from the registry.
+
+--------------------------------------------------------------------------------
+THE CAUSE: ONE HELPER DOING TWO JOBS
+--------------------------------------------------------------------------------
+
+`_attach` placed the card with `_insert_above_actions`, which puts a widget in
+the runtime panel just above the Run row. The figures/console splitter is added
+to that SAME panel before the actions row. So "above the Run button" is below
+the console, and the preview landed under the log it is meant to be read
+beside.
+
+That helper is right for the TOGGLE, which belongs near Run. It was wrong for
+the card. Mask never showed the bug because Mask never takes this path -- so
+one card had two homes depending on which screen mounted it, and only one of
+them was the one anybody had looked at.
+
+--------------------------------------------------------------------------------
+THE FIX
+--------------------------------------------------------------------------------
+
+`_insert_above_console` puts the card INTO the runtime splitter at the
+console's index. The splitter rather than a different index in the panel,
+because a card above the console inside it can be RESIZED against the console,
+which is the reason Mask's is there.
+
+It falls back to `_insert_above_actions` for a screen with no splitter, or one
+whose console is not in it. No preview at all is worse than one above the Run
+row, and two tests hold that fallback.
+
+Verified on a real screen: analyze_plaques now reads
+[figures, preview, console], preview at 1 and console at 2.
+
+--------------------------------------------------------------------------------
+A TEST THAT WAS PASSING FOR THE WRONG REASON
+--------------------------------------------------------------------------------
+
+`test_the_card_sits_above_the_run_row` asserted
+`layout.indexOf(card) < layout.indexOf(actions)` in the PANEL's layout. Once
+the card is not a direct child of the panel, `indexOf` returns -1 -- and -1 is
+less than any real index, so that assertion would have gone on passing with the
+card at the bottom of the screen. It now asserts the splitter's index and the
+console's, and is renamed for what it actually holds.
+`test_a_declared_module_gains_a_preview_card` asserted the old parent and was
+the one failure this change caused; it now asserts the splitter.
+
+--------------------------------------------------------------------------------
+MEASURED
+--------------------------------------------------------------------------------
+
+Four new tests in `test_the_live_preview_sits_above_the_console.py`, two
+rewritten in `test_preview_registry.py`. Across the 48 preview files: 1,007
+passed. FIVE FAILURES ARE PRE-EXISTING AND NOT THIS CHANGE'S -- checked by
+running the same four files in a clean worktree at origin/nightly, which fails
+the identical five (`_MetadataTypeField` has no `setCurrentIndex`, and the
+Measure crop-geometry seeding). With the fix reverted the plaque test fails and
+the Mask test passes either way, which is the pair that says the fix is aimed
+at the right screen.
