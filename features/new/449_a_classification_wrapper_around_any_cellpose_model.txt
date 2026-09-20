@@ -385,3 +385,63 @@ about 5 per field, where the index's own counts average 14.5 per field for
 this plate. It may be these three fields, or it may be a filter in the
 measure settings. Worth a look before the whole plate is cut, and recorded
 here rather than discovered later.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE DEFAULT SIZE FLOORS THREW AWAY 91% OF THE VACUOLES
+--------------------------------------------------------------------------------
+
+The note above recorded, unexplained, that three fields yielded 15 vacuoles
+where the index averages 14.5 per field. Measured rather than left:
+
+    PV objects in the three masks   162
+    rows measured                    15
+
+91% of them never reached the table. THE CAUSE IS `get_measure_crop_settings`
+DOING EXACTLY WHAT IT IS FOR, on a job it was not written for:
+
+    pathogen_min_size = 500 px   keeps 27 of 62 in one field
+    cell_min_size    = 8000 px   keeps 89 of 292 in the same field
+
+Those floors are right for the screening pipeline they were tuned on, where
+a pathogen below 500 px is debris and a cell below 8,000 px is a fragment.
+THEY ARE WRONG FOR THIS JOB, because the thing being cut out IS the small
+object: the median vacuole in that field is 407 px and the median cell is
+5,685 px, so both floors sit above the middle of their own distributions.
+A vacuole holding ONE parasite -- class "1", the most common class there is
+-- is the smallest thing on the field and the first thing a floor removes.
+
+WITH THE FLOORS AT ZERO, same three fields, same everything else:
+
+    rows measured   15 -> 153     (153 of the 162 in the masks, 94%)
+    png_list        15 -> 153
+    per field    ~19 s -> ~100 s at n_jobs=2
+
+The nine that still do not appear are worth someone's attention eventually;
+they are not worth holding the annotation set for.
+
+WHAT THIS CHANGES ABOUT THE PLAN. At ~153 vacuoles per field, a WHOLE PLATE
+IS NOT NEEDED and was never needed:
+
+    20 fields  ~3,000 vacuoles      60 fields  ~9,200 vacuoles
+    40 fields  ~6,100 vacuoles     395 fields ~60,000 vacuoles
+
+Six classes do not need sixty thousand examples, and nobody annotates them.
+Sixty fields of CSAscreen-plate1 are being cut now, at n_jobs=8 on this
+32-core box, into
+
+    /mnt/wd4tb/spacr_pv_crops/CSAscreen-plate1/
+
+with the stacks symlinked rather than copied, so the crops cost their own
+size and nothing more. The rest of the five-plate build still finishes --
+it is the raw material for the OTHER head and for whatever second pass the
+counting heads need -- but the annotation set does not wait for it.
+
+THE SETTINGS THE CROP RUN USES, recorded because the next person will
+otherwise inherit the defaults and the 91%:
+
+    channels           [0, 1]
+    cell_mask_dim      2      nucleus_mask_dim 3      pathogen_mask_dim 4
+    crop_mode          ['pathogen']
+    png_size           [224, 224]
+    pathogen_min_size  0      cell_min_size    0
+    nucleus_min_size   0      cytoplasm_min_size 0
