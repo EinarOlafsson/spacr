@@ -434,3 +434,21 @@ def test_a_stack_is_read_from_a_tif_file(tmp_path):
     read = qc.load_label_stack(str(path))
     assert read.shape == (3, 48, 48)
     assert set(np.unique(read)) == {0, 1, 2, 3}
+
+
+def test_the_script_runs_as_a_module(tmp_path):
+    """`python -m spacr.timeflows_qc` is the form the plan's "script" means.
+
+    Driven as a user drives it, in a subprocess, because the exit code is the
+    part a caller reads and an in-process call cannot prove the entry point
+    exists.
+    """
+    import subprocess
+    import sys
+    path = tmp_path / 'recycled.npy'
+    np.save(path, reuse_stack())
+    finished = subprocess.run(
+        [sys.executable, '-m', 'spacr.timeflows_qc', str(path)],
+        capture_output=True, text=True, timeout=300)
+    assert finished.returncode == 1
+    assert 'label_reuse' in finished.stdout

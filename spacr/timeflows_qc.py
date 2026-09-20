@@ -718,3 +718,7 @@ def main(argv=None):
                 index=False)
         print(f'detail tables written to {arguments.detail}')
     return 1 if (table['verdict'] == 'fail').any() else 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
