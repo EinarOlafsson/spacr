@@ -2,16 +2,20 @@
 EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
 ================================================================================
 
-Status:    PARTLY DONE, 2026-09-19. Gutters, API landing pages and the
-           README's module prose are done; the nine translated READMEs now
-           follow the maintainer's 2026-09-16 removal of the Make Masks
-           section and carry a reviewed grid caption. LEFT: the Embeddings
-           landing page, blocked because nothing calls
-           EmbeddingsScreen.set_crops (no in-GUI crop loader exists), and
-           the maintainer's confirmation that removing the section was
-           meant, since it reverses his 2026-09-15 "Keep it". See the last
-           dated section. Originally filed 2026-09-02. Follows 362, which
-           made the grid one size and six a row.
+Status:    ~95%, 2026-09-19. Every part of the REQUEST is now built and
+           measured: equal gutters, Make Masks the only module section the
+           README ever had, and all 22 tiles landing on prose that answers
+           what the module is for, needs, produces and what to do next.
+           The last one -- Embeddings -- was unblocked today by building
+           the crop loader it was waiting on (spacr/crop_loader.py), so
+           its "what it needs" paragraph describes a path that exists.
+           LEFT, and neither is prose: the maintainer's confirmation that
+           the 2026-09-16 removal of the Make Masks section was meant,
+           since it reverses his 2026-09-15 "Keep it"; and the i18n pass
+           for today's page and the 22 new UI captions, which belongs to
+           the consolidated rebuild and not here. See the last two dated
+           sections. Originally filed 2026-09-02. Follows 362, which made
+           the grid one size and six a row.
 Requested: 2026-09-02 -- "in the readme make the modual tiles the same size
            and on a grid where the distance to the mogule above, below left
            and right is the same. also in the readme make masks gets its own
@@ -574,3 +578,144 @@ FOUND, NOT FIXED (tools/ or other lanes):
   * 45 README blocks remain the model's draft in all nine languages; the
     "Other resources" list under the grid is one (Icelandic calls the
     feature guide "Leikstjóri", a film director).
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE BLOCKER WAS A MISSING FEATURE, SO THE FEATURE WAS BUILT
+--------------------------------------------------------------------------------
+
+Branch home/embeddings-crop-loader.
+
+WHAT THIS ITEM HAD SAID TWICE, AND WHY IT COULD NOT JUST BE WRITTEN. Both the
+2026-09-15 and the 2026-09-19 notes above leave the Embeddings landing page
+open for the same reason: nothing in spacr/ called EmbeddingsScreen.set_crops,
+so a "what it needs" paragraph would have described a crop loader that did not
+exist. Re-checked before starting and still true -- the only hit was the
+definition at spacr/qt/screens/embeddings.py:195. The maintainer's decision
+today was "Build the loader", so the page is no longer the work; the loader is,
+and the page follows it.
+
+NEW: spacr/crop_loader.py, Qt-free, 11 public symbols. PLANNING IS NOT
+LOADING, and that split is the whole design:
+
+  * plan_crops() asks which objects match and reads NO PIXELS -- a COUNT and a
+    SELECT of identifiers, or one scandir. That is what lets a screen answer on
+    a click and say what it found before committing to read any of it. The
+    claim is asserted rather than asserted-in-prose: the test patches
+    read_crop_png, extract_crop and extract_crops to raise, and plans anyway.
+    The trap was checked to be live -- loading under the same patch hits it.
+  * load_crops() then reads in pages, calling progress(done, total) after each
+    and checking cancelled() before each, so a stop costs at most one page and
+    keeps what it read.
+
+Three ways to choose from a measurements database -- object class, plate, and
+an SQL condition over png_list -- or every PNG in a folder. The pixels are NOT
+read by new code: resolve_crop_source() picks between the crops under data/ and
+cutting from merged/*.npy exactly as every other consumer does, and
+CropSource.get_many() is what opens each .npy once per page.
+
+MEASURED, WITH A BASELINE, because a tick count with nothing beside it is not a
+measurement. 4,000 crops, the same read twice, one 5 ms timer:
+
+    on the GUI thread     0.52 s      0 timer ticks      <- the event loop
+                                                            never ran at all
+    through the screen    0.48 s     93 timer ticks, longest gap 13 ms,
+                                     32 progress pages
+
+The same comparison is a test (test_the_load_runs_off_the_gui_thread), at 300
+crops so it costs a second rather than a minute.
+
+FOUR THINGS THE TESTS FOUND THAT READING HAD NOT:
+
+1. ASKING FOR NUCLEI OUT OF A CELL png_list RETURNED EVERY CELL IN IT. The
+   class term was skipped when the id column was absent, so the filter
+   silently became no filter: the right count, a right-looking stack, and the
+   wrong objects under the right name, which nothing downstream can catch. A
+   class whose column is missing from a table that HAS class columns now
+   matches nothing and the empty state names the classes there are. A table
+   with no class columns at all is the separate case and still loads.
+2. THE PNG ROUTE WAS LOSING ROWS TO A JOIN IT DOES NOT NEED.
+   crop_rows_from_png_list drops every row it cannot recover a merged path and
+   an integer label for -- right for a streamed crop, wrong for a
+   pre-generated one, which needs only the png_path the row already carries. A
+   database whose object tables were never written loaded nothing; it now
+   loads all of them, and the join runs only for the merged route.
+3. AN EMPTY ANSWER LEFT THE SCREEN SAYING TWO THINGS AT ONCE. A query that
+   matches nothing unloads nothing, but _set_loading disabled Embed and never
+   put it back, so the panel said "No crops" over a stack that was still there
+   and still encodable with no way to reach it. Embed is now restored to what
+   the loaded crops warrant, and the panel says the old ones are untouched.
+4. A BULK LOAD WOULD HAVE FLOODED THE CONSOLE. spacr.crops announces every
+   crop path once per path, which is right for one crop that failed to open
+   and is 60,000 appends to a console widget ON THE GUI THREAD for a plate.
+   Silenced for the duration of a load and put back exactly as it was,
+   including when a page raises.
+
+AN EMPTY RESULT IS A SENTENCE, NEVER AN EMPTY ARRAY, and there are five of
+them because they send a reader to five different places: an empty crop table
+(with what to run), a plate that is not in the screen (naming the plates that
+are), a class the table does not carry (naming the classes it does), a filter
+nothing satisfies, and -- for a folder -- no PNGs but some .tif, which is the
+commonest miss and says so. The screen shows the loader's own sentence
+unedited; wrapping it in "load failed" would bury the plate names that are the
+whole answer.
+
+A CAP IS PART OF THE ANSWER, NOT A FAILURE TO LOAD EVERYTHING. 60,000 crops of
+96x96x3 is 1.6 GB before a backbone has seen one, so the panel's "At most"
+defaults to 2,000 and the screen says "the first 5 of 12 that matched -- raise
+'At most' to take more". A subset that reads as the whole plate is the failure
+being avoided.
+
+CROPS OF TWO SIZES ARE PADDED, NOT RESCALED, and the count is recorded.
+Rescaling changes the apparent size of the object, which is a phenotype;
+zero-padding changes the background, which is not, and it is what
+crop_source.crop_at already does to a box that runs off the edge of a field.
+Two crops with different CHANNEL counts are refused instead -- padding a
+missing channel would invent a stain.
+
+THE PAGE 366 ASKED FOR: spacr/qt/screens/embeddings.py, 307 words -> 691, the
+four questions INSERTED as their own paragraphs so every existing paragraph
+keeps its translation, in the same bold lead-in form as the five pages repaired
+on 2026-09-15. It is pinned by
+test_each_repaired_module_answers_the_four_questions, which now parametrizes
+eleven modules. "What it produces" says plainly that THE MATRIX LIVES IN THE
+SCREEN AND IS NOT WRITTEN ANYWHERE -- there is no export button, and reaching
+the whole matrix still means embed_array() from Python. That is the next thing
+this screen owes and it is recorded rather than built here.
+
+TESTS: tests/test_choosing_crops_is_not_reading_them.py (29, Qt-free) and
+tests/qt/test_the_embedding_screen_loads_its_own_crops.py (17). The one that
+clears this item's blocker spies on the screen's own set_crops and presses
+Load: the crops arrive because a user pressed a button, which is the sentence
+that could not be written before today.
+
+REGRESSIONS: NONE, and it was measured rather than asserted. The same eight
+files run with the work and with it stashed (git stash -u): 6 failed both
+times, and `comm` on the two sorted failure lists is empty in both directions
+-- test_api_i18n_extractor (2) and test_docstring_correctness (4), all red on
+origin/nightly at the branch point, and `crop_loader` appears nowhere in either
+run's output. 336 passed after against 335 before, the one extra being the new
+Embeddings entry in the four-question parametrize. A second baseline on the
+caption ratchets: the same 5 failures before and after.
+
+I18N OWED, NOT RUN, as the batch rule says. Measured off the ratchet's own
+inventory rather than counted by hand: UI was 3,677 against a pinned 3,547
+BEFORE this work -- 130 already owed by other lanes -- and is 3,699 after, so
+this work owes exactly 22 new UI captions, plus spacr.crop_loader's 11 public
+symbols and their module page, plus the six changed paragraphs of the
+Embeddings page. test_i18n_caption_ratchet and
+test_a_folded_module_stays_in_the_localization_inventory were already red at
+the branch point for the other 130 and are red for the same reason after.
+
+NO docs/notes/spacr/crop_loader.md, and that is a decision rather than an
+omission: those files are generated by tools/extract_source_notes.py out of
+comments that were stripped, and their header says so. The module was written
+with no '#' comments at all -- its reasons are in the docstrings -- so there is
+nothing to lift, and a hand-written file claiming to be generated would be
+false. Twenty-eight modules under spacr/ have no note for the same reason.
+
+STILL OPEN UNDER 366, and both are short:
+  * The maintainer's confirmation of the 2026-09-16 removal of the Make Masks
+    section, unchanged from the note above. It reverses his 2026-09-15 "Keep
+    it" and only he can settle which he meant.
+  * The consolidated i18n pass, above. Nothing in this branch touched
+    docs/i18n/** or the nine catalogs.
