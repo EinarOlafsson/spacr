@@ -458,6 +458,23 @@ def test_the_otsu_defaults_are_the_magnifiers_own(screen):
         "the magnifier answers the border with its own box-border switch")
 
 
+def test_the_panels_smoothing_default_is_still_the_engines():
+    """``OTSU_SMOOTHING`` is a COPY, so something has to hold the two equal.
+
+    ``mm.OTSU_SMOOTHING`` is written out in the screen rather than imported,
+    because the value it copies -- ``mask_engine._CLASSICAL_SMOOTHING`` --
+    is private and a screen importing a private name from the engine is
+    worse than a duplicated float. But an unpinned copy is exactly the
+    silent disagreement between the preview and the button that point 5
+    exists to close, moved one level up: change the engine's sigma and the
+    Smoothing box, the request default and the magnifier's own cut part
+    company with nothing going red. This is the something.
+    """
+    assert mm.OTSU_SMOOTHING == pytest.approx(engine._CLASSICAL_SMOOTHING)
+    assert (mm._MagnifierRequest._field_defaults["otsu_smoothing"]
+            == pytest.approx(engine._CLASSICAL_SMOOTHING))
+
+
 # ---------------------------------------------------------------------------
 # 6. Clear, Dilate and Shrink
 # ---------------------------------------------------------------------------
@@ -492,8 +509,27 @@ def test_a_shrink_that_erases_an_object_says_so(screen):
     screen._btn_shrink.click()
     assert ids_of(screen._canvas.mask) == []
     text = screen._status_label.text()
-    assert "3 object(s) were thinner than 12 px" in text, text
+    assert "3 of them were thinner than 12 px" in text, text
     assert "Undo" in text
+
+
+def test_the_shrink_count_is_what_was_shrunk_and_not_what_survived(screen):
+    """Both numbers are counted BEFORE the edit, and they mean two things.
+
+    Object 6 is 8 px across and objects 4 and 9 are 10, so a step of 4 keeps
+    two and erases one. The sentence has to say that three objects were
+    eroded and one of the three did not survive it; reporting the survivors
+    as the number shrunk would read "Shrank 2 object(s) ... 1 of them are
+    gone" over a field where all three were eroded, and emptying the field
+    entirely would read "Shrank 0 object(s)".
+    """
+    assert ids_of(screen._canvas.mask) == [4, 6, 9]
+    screen._grow_step.setValue(4)
+    screen._btn_shrink.click()
+    assert ids_of(screen._canvas.mask) == [4, 9], "geometry assumption broke"
+    text = screen._status_label.text()
+    assert text.startswith("Shrank 3 object(s) by 4 px"), text
+    assert "1 of them were thinner than 8 px" in text, text
 
 
 def test_dilate_and_shrink_are_one_undo_step_each(screen):

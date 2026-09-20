@@ -5,11 +5,13 @@ MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
 Status:    OPEN, filed 2026-09-16. Points 1-3 BUILT AND ON NIGHTLY
            2026-09-19, reviewed, with 208 tests green; point 3 installs into
            an environment of its own since item 423 (note below). Points 4-6
-           (part B) BUILT 2026-09-19 on branch home/419-part-b, 37 new tests
-           green, not pushed -- a reviewer reads the commits and a lander
-           pushes. Points 7-9 (part C) not started, and item 435 has since
+           (part B) BUILT, REVIEWED AND ON NIGHTLY 2026-09-19, 39 new tests
+           green; its new and changed user-facing strings are English only
+           and the nine-language rows for them are owed to the consolidated
+           translation pass, along with one stale Help-search summary (notes
+           below). Points 7-9 (part C) not started, and item 435 has since
            been filed against point 9's Invert and asks for more Otsu
-           options again. See the three 2026-09-19 notes at the end.
+           options again. See the four 2026-09-19 notes at the end.
 Requested: 2026-09-16, by the maintainer, in these words, numbered as he wrote
            them:
 
@@ -494,8 +496,15 @@ POINT 5 -- THE OTSU SETTINGS AND THE TWO RENAMES
     The magnifier's Otsu mode has always smoothed by 1 px, filled holes and
     split a blob with two centres; Otsu detect did none of the three. The two
     disagreed about the same field and nothing said so. The boxes start where
-    the preview has always been, so the button now gives what the box showed;
-    three clicks put the plain threshold back. `_otsu_instances`'s own
+    the preview has always been, so the box is a PREVIEW of the button rather
+    than a second opinion -- not the same routine: `_classical_region_labels`
+    still opens the binary image, still offsets the level by the magnifier's
+    Sensitivity and still falls back to a noise-floor cut where a region
+    holds no two clear populations. Driven from these defaults over twelve
+    synthetic fields the two agreed on the object COUNT twelve times out of
+    twelve and were pixel-identical in two, the other ten differing by 3 to
+    16 boundary pixels in 9,216. Three clicks put the plain threshold back.
+    `_otsu_instances`'s own
     defaults are unchanged, so nothing calling the engine directly moved --
     40 random fields x 6 sensitivities x 2 corrections x both sides hash
     identically against clean origin/nightly.
@@ -526,7 +535,11 @@ POINT 6 -- CLEAR, DILATE, SHRINK
   * Both are one undo step and one ledger entry carrying the step. Shrink
     says how many objects it erased, because an object thinner than twice the
     step disappears and a curator who has just lost eleven of them needs to
-    be told while Undo is still the obvious thing to do.
+    be told while Undo is still the obvious thing to do. Both numbers in that
+    sentence are counted BEFORE the edit: "Shrank 10 object(s) by 3 px -- 7
+    of them were thinner than 6 px and are gone". Reporting the SURVIVORS as
+    the number shrunk, which is what the first draft did, made an emptied
+    field read "Shrank 0 object(s)".
   * Clear already existed and already confirmed; it is now captioned "Clear"
     and its question names the count about to go. The dialog is still titled
     "Clear mask".
@@ -566,15 +579,23 @@ A SEGFAULT THIS BRANCH CAUSED, AND WHAT IT ACTUALLY WAS
     6 asks for, 5 in 6.
   * So the screen was never the defect. The fixture was: it ended at
     close_folded() and left the magnifier's worker thread, its timers and the
-    screen itself alive, and it was the only Make Masks fixture in the suite
-    that did not close the magnifier. Closing the magnifier, closing and
-    deleting the screen and draining the DeferredDelete queue is 0 crashes in
-    16 runs WITH the new controls in place. The measurement is in the
-    fixture's docstring, because the next person to add a timer-owning widget
-    to that panel needs it.
+    screen itself alive. Closing the magnifier, closing and deleting the
+    screen and draining the DeferredDelete queue is 0 crashes in 24 runs WITH
+    the new controls in place (16 before the rebase, 8 after). The
+    measurement is in the fixture's docstring, because the next person to add
+    a timer-owning widget to that panel needs it.
+  * THIS FIXES ONE FILE AND NOT THE SUITE, and the first draft of this note
+    said otherwise: it called this "the only Make Masks fixture in the suite
+    that did not close the magnifier", which review disproved by counting.
+    TWENTY other test files build MakeMasksScreen and never call
+    `_magnifier.close()` -- test_make_masks_canvas.py (14 builds),
+    test_make_masks_toolbar.py (14), test_make_masks.py (6),
+    test_make_masks_v2.py (6), test_the_make_masks_recrop.py (5) and fifteen
+    more. None of them has been seen to crash and none was investigated. Do
+    not read this teardown as evidence that the leak is ruled out elsewhere.
   * Not chased further: why the panel's existing spin boxes were not already
-    enough. The debt was there to be collected and any new control would have
-    collected it.
+    enough, and why those twenty files have not collected the same debt. It
+    was there to be collected and any new control on THIS panel collected it.
 
   * Seven existing test files were updated -- six for the renames and the
     layout, and the workbench fixture above. One test changed for a reason
@@ -595,6 +616,24 @@ WHAT IS LEFT
     `mask_engine.dilate_objects`, `mask_engine.shrink_objects`, and in
     make_masks `SHORTCUT_HINTS`, `SHORTCUTS_WIDTH`, `OTSU_SMOOTHING` and
     `canonical_magnifier_mode`.
+  * THE HELP SEARCH STILL SAYS CELLPOSE-SAM, and nothing goes red about it.
+    `spacr/qt/help_api_index.py` is generated by
+    tools/build_help_search_index.py from the API manifest
+    docs/source/_static/i18n/api/en.json, so a docstring this branch reworded
+    keeps its old summary in the search field: the row for
+    MakeMasksScreen.run_cellpose reads "Segment the open field with
+    Cellpose-SAM; return objects found." against a docstring that now says
+    "with the chosen model". No test compares a summary to its docstring, so
+    this was found by reading and not by a run. MEASURED rather than
+    guessed, 2026-09-19: of the 84 manifest symbols under make_masks and
+    mask_engine, 17 already disagree with their live docstring on clean
+    nightly 58bcc5c61 and 18 do here -- this branch adds exactly one, and
+    that one, and the manifest has no row at all for the new public symbols
+    above. Regenerating it means rebuilding the manifest, which is the same
+    rebuild the catalogs owe, so it belongs to that one pass and is
+    deliberately not done here -- but it is a user-visible string in a
+    surface that is BELIEVED, so it is named here rather than left implicit
+    in "the catalogs".
   * Not done: a look at the real app on a real display. The shortcut panel's
     width was chosen for twelve short lines and has only been measured
     offscreen at 1500 px.
@@ -602,3 +641,52 @@ WHAT IS LEFT
     Ctrl+click split and remove, and the Invert work, including 9a's swap of
     every QCheckBox in this module for the package's Toggle slider -- which
     will reach the four new Otsu tick-boxes and the two new buttons' row.
+
+
+2026-09-19 (later still) — PART B REVIEWED AND LANDED; FIVE CLAIMS PULLED BACK
+--------------------------------------------------------------------------------
+
+The review returned SOUND with no blocking and no should-fix defect. Every
+one of its five findings was about a CLAIM reaching past what the code or the
+audit supported, not about behaviour, and four of the five are corrected
+above and in the source rather than left for a reader to trip over. This note
+is the fifth: what was said, and what is true.
+
+  * "THE ONLY MAKE MASKS FIXTURE IN THE SUITE THAT DID NOT CLOSE THE
+    MAGNIFIER" WAS FALSE. Counted: twenty other test files build
+    MakeMasksScreen and never call `_magnifier.close()`, led by
+    test_make_masks_canvas.py and test_make_masks_toolbar.py at fourteen
+    builds each. None has been seen to crash and none was investigated. The
+    teardown fix is adequate for the file it is in and is NOT an audit of
+    the suite; the fixture docstring and the segfault note now say so. This
+    is the shape section 0a of the handoff is about -- an audit sentence
+    written from the file in front of you and not from a count.
+  * "THE BUTTON NOW AGREES WITH THE PREVIEW" was too strong. The three named
+    disagreements really are closed, and the two are still different
+    routines: `_classical_region_labels` opens the binary image, offsets the
+    level by Sensitivity and falls back to a noise-floor cut, and
+    `_otsu_instances` does none of that. Twelve synthetic fields from the
+    panel defaults: object count identical twelve times out of twelve,
+    pixel-identical twice, the other ten differing by 3 to 16 boundary
+    pixels in 9,216. "Preview", not "the same array", in the docstring, the
+    notes and the point 5 bullet above.
+  * SHRINK'S STATUS LINE REPORTED THE SURVIVORS as the number shrunk. Ten
+    objects with seven erased read "Shrank 3 object(s) by 3 px - 7 object(s)
+    were thinner than 6 px and are gone", and emptying a field read "Shrank
+    0 object(s)". It now reports the count the button was pressed on --
+    "Shrank 10 object(s) by 3 px - 7 of them were thinner than 6 px and are
+    gone" -- with a test on the mixed case, which the first draft had no
+    test for because both of its cases happened to have equal counts.
+  * `OTSU_SMOOTHING` IS A COPY OF A PRIVATE ENGINE CONSTANT and nothing held
+    the two equal. Pinned now, with `_MagnifierRequest.otsu_smoothing`'s
+    default, in test_make_masks_shortcuts_otsu_and_object_edits.py. An
+    unpinned copy is the same silent preview/button disagreement this point
+    exists to close, moved one level up.
+  * THE STALE HELP-SEARCH SUMMARY is the one finding not fixed, deliberately:
+    it lives in a generated file whose generator wants the API manifest
+    rebuilt, which is the pass the catalogs are waiting on. It is named in
+    WHAT IS LEFT above, with the count that says this branch added exactly
+    one of the eighteen stale rows in these two modules.
+
+Tests after the fixes: the new file is 39 tests, all green, and the six other
+touched Make Masks files were re-run on the rebased branch.

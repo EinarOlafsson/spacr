@@ -65,8 +65,7 @@ def screen(qtbot, qt_theme_applied):
 
     Three things were missing, and all three are needed:
 
-    * ``_magnifier.close()`` -- it owns a worker thread and timers, and this
-      was the ONLY Make Masks fixture in the suite that did not close it;
+    * ``_magnifier.close()`` -- it owns a worker thread and timers;
     * ``close()`` and ``deleteLater()`` on the screen itself;
     * a drained ``DeferredDelete`` queue, so the screen is actually gone
       before the next test builds another.
@@ -75,9 +74,25 @@ def screen(qtbot, qt_theme_applied):
     measured is a coincidence. On 2026-09-19, building item 419 part B:
     nightly as it stood, 0 crashes in 16 runs; nightly plus ONE spin box on
     the settings panel, 1 in 5; plus the three controls point 6 asks for,
-    5 in 6; with this teardown and those controls, 0 in 16. The screen was
-    never the problem. The fixture was, and any change that put one more
-    timer-owning widget on that panel was going to collect the debt.
+    5 in 6; with this teardown and those controls, 0 in 24 (16 before the
+    rebase onto nightly and 8 after). The screen was never the problem. The
+    fixture was, and any change that put one more timer-owning widget on
+    that panel was going to collect the debt.
+
+    WHAT IS FIXED HERE IS THIS FILE, AND NOT THE SUITE. An earlier draft of
+    this docstring said this was "the ONLY Make Masks fixture in the suite"
+    that left the magnifier open. That was wrong and is corrected here:
+    TWENTY other test files build ``MakeMasksScreen`` without ever calling
+    ``_magnifier.close()`` -- ``test_make_masks_canvas.py`` (14 builds),
+    ``test_make_masks_toolbar.py`` (14), ``test_make_masks.py`` (6),
+    ``test_make_masks_v2.py`` (6) and ``test_the_make_masks_recrop.py`` (5)
+    among them. None of them has been seen to crash, and none of them was
+    investigated; why this file collected the debt and those twenty have not
+    is NOT established. So do not read this teardown as evidence that the
+    leak has been ruled out elsewhere. If another Make Masks file starts
+    dying in ``QTimerInfoList::activateTimers``, the first thing to try is
+    these four lines, and the second is to stop writing them out twenty-one
+    times.
     """
     made = MakeMasksScreen()
     qtbot.addWidget(made)

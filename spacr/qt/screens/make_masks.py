@@ -5519,11 +5519,11 @@ class MakeMasksScreen(QWidget):
 
         ALL SIX DRIVE BOTH PLACES OTSU RUNS -- the Otsu detect button on the
         whole field, and the Live magnifier's Otsu mode on the box under the
-        mouse -- so the box under the mouse is a preview of what the button
-        will do rather than a second opinion. The one exception is Exclude
-        at the image border, which the magnifier answers with its own
-        "Exclude objects touching the box border"; applying both to a box
-        would drop everything the box cut twice over.
+        mouse -- so the box under the mouse is a close preview of what the
+        button will do rather than a second opinion. The one exception is
+        Exclude at the image border, which the magnifier answers with its
+        own "Exclude objects touching the box border"; applying both to a
+        box would drop everything the box cut twice over.
 
         THE DEFAULTS ARE THE MAGNIFIER'S, AND THAT MOVES THE BUTTON. Before
         this category the two disagreed in three ways and nothing on the
@@ -5531,10 +5531,24 @@ class MakeMasksScreen(QWidget):
         and cut a blob with two centres in two, and Otsu detect thresholded
         and labelled and did none of it. A user who set the correction by
         watching the box and then pressed the button got a different mask.
-        The three boxes start where the preview has always been, so the
-        button now agrees with it; three clicks put the plain threshold
-        back, which is what :func:`spacr.qt.mask_engine._otsu_instances`
-        still does when it is asked for nothing.
+        The three boxes start where the preview has always been; three
+        clicks put the plain threshold back, which is what
+        :func:`spacr.qt.mask_engine._otsu_instances` still does when it is
+        asked for nothing.
+
+        "PREVIEW", NOT "THE SAME FUNCTION", AND THE DIFFERENCE IS MEASURED.
+        Closing those three gaps does not make the two one routine.
+        :func:`spacr.qt.mask_engine._classical_region_labels` still opens the
+        binary image, still offsets Otsu's level by the magnifier's own
+        Sensitivity, and still falls back to a noise-floor cut where a region
+        holds no two clear populations;
+        :func:`spacr.qt.mask_engine._otsu_instances` does none of the three.
+        Driven from these defaults over twelve synthetic 96x96 fields of
+        three to six bright discs on noise (2026-09-19) the two agreed on
+        the object COUNT in twelve of twelve and were pixel-identical in two
+        of twelve, the other ten differing by 3 to 16 boundary pixels out of
+        9,216. So the box tells a curator what the button is about to do; it
+        does not promise the same array.
         """
         card = self._settings_category(
             "Otsu",
@@ -6947,6 +6961,15 @@ class MakeMasksScreen(QWidget):
         thinner than twice the step, and a curator who has just lost eleven
         objects to a step of 3 needs to be told so while the undo is still
         the obvious thing to do.
+
+        BOTH NUMBERS ARE COUNTED BEFORE THE EDIT, and the first of them is
+        deliberately the count the button was PRESSED on rather than the
+        count that survived. Reporting the survivors read as an arithmetic
+        puzzle -- ten objects, seven erased, "Shrank 3 object(s) ... 7
+        object(s) are gone" -- and erasing every object reported "Shrank 0
+        object(s)" over a field that had just been emptied. Every object
+        was eroded; some of them did not survive it, which is the second
+        clause.
         """
         if self._canvas.mask is None:
             return
@@ -6954,12 +6977,11 @@ class MakeMasksScreen(QWidget):
         before = self._objects_now()
         self._apply_op(lambda m: engine.shrink_objects(m, step),
                        "shrink", step=step)
-        after = self._objects_now()
-        gone = max(0, before - after)
-        lost = (f" — {gone} object(s) were thinner than {2 * step} px and "
+        gone = max(0, before - self._objects_now())
+        lost = (f" — {gone} of them were thinner than {2 * step} px and "
                 f"are gone; Undo brings them back" if gone else "")
         self._status_label.setText(
-            f"Shrank {after} object(s) by {step} px{lost}.")
+            f"Shrank {before} object(s) by {step} px{lost}.")
 
     def _on_clear_mask(self):
         """Throw the whole mask away, after confirming.

@@ -121,10 +121,27 @@
   Otsu mode smoothed by 1 px, filled holes and split a blob with two centres,
   and Otsu detect did none of the three: the box under the mouse and the
   button disagreed about the same field and nothing said so. The boxes start
-  where the preview has always been, so pressing the button now gives what
-  the box showed; three clicks put the plain threshold back.
+  where the preview has always been, so the box is a PREVIEW of the button;
+  three clicks put the plain threshold back.
   `mask_engine._otsu_instances`'s own defaults are unchanged, so nothing that
   calls it directly moved.
+- "PREVIEW" AND NOT "THE SAME FUNCTION", and the difference is measured,
+  because an earlier draft of this note claimed the button "now gives what
+  the box showed". Closing those three gaps does not make the two one
+  routine: `_classical_region_labels` still opens the binary image, still
+  offsets Otsu's level by the magnifier's own Sensitivity, and still falls
+  back to a noise-floor cut where a region holds no two clear populations,
+  and `_otsu_instances` does none of the three. Driven from the panel
+  defaults over twelve synthetic 96x96 fields of three to six bright discs
+  on noise (2026-09-19) the two agreed on the object COUNT twelve times out
+  of twelve and were pixel-identical in two, the other ten differing by 3 to
+  16 boundary pixels in 9,216. The box tells a curator what the button is
+  about to do; it does not promise the same array.
+- `OTSU_SMOOTHING` is a hand-written copy of the private
+  `mask_engine._CLASSICAL_SMOOTHING`, because a screen importing a private
+  name from the engine is worse than a duplicated float -- but an unpinned
+  copy is the same silent disagreement one level up, so a test holds the two
+  equal, along with `_MagnifierRequest.otsu_smoothing`'s default.
 - `_MODEL_SETTING_FIELDS`: the three new Otsu settings are APPENDED. A
   magnifier request key is this tuple positionally after `(field, box)`, and
   an insertion in the middle would make every cached key mean something else.
@@ -136,6 +153,12 @@
   lost eleven objects needs to be told while Undo is still the obvious thing
   to do. Both go through `_apply_op`, so each is one undo step and one
   ledger entry carrying its step.
+- BOTH NUMBERS IN SHRINK'S SENTENCE ARE THE COUNT BEFORE THE EDIT, and the
+  first is deliberately the count the button was pressed on and not the
+  count that survived. The first draft reported the survivors, which made
+  ten objects with seven erased read "Shrank 3 object(s) ... 7 object(s) are
+  gone" -- an arithmetic puzzle over a field where all ten were eroded --
+  and made emptying the field read "Shrank 0 object(s)".
 
 Prose lifted out of `spacr/qt/screens/make_masks.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
