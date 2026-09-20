@@ -1,0 +1,56 @@
+# What `docker build` must NOT send to the daemon.
+#
+# The checkout is 1.2 GB and the wheel needs about a tenth of it. Without this
+# file every build -- local and CI -- copies docs (651 MB, published from
+# docs/source by the docs workflow and never part of a wheel), tools (383 MB,
+# mostly tutorial capture media), tests and the feature ledger into the build
+# context before the first instruction runs.
+#
+# DENY-LIST, NOT AN ALLOW-LIST, on purpose. `pip install .` reads more of the
+# root than is obvious -- setup.py opens README.rst, pyproject.toml carries the
+# metadata, and setup.py's `data_files` installs packaging/linux's .desktop
+# file and its eight icon sizes on Linux. An allow-list that forgets one of
+# those fails at build time with a message about the wrong thing.
+#
+# Everything named here is excluded from the WHEEL as well, either because it
+# sits outside the `spacr` package or because MANIFEST.in prunes it; so
+# nothing below can change what the image contains.
+
+.git
+.gitignore
+.github
+
+docs/
+tools/
+tests/
+features/
+Notebooks/
+proposals/
+measurements/
+spaCR_settings/
+spacr_drivers/
+data/
+conda-forge/
+settings/
+rtd_trigger.txt
+
+# 90 home-screen renders the maintainer chooses from, 13 MB, pruned from the
+# distribution by MANIFEST.in.
+spacr/resources/home/
+spacr/resources/icons/backup_icons/
+
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+*.egg-info/
+build/
+dist/
+.coverage
+.coverage.*
+htmlcov/
+
+# The images themselves: a stale build output must never become build input.
+**/*.whl
+**/*.tar.gz

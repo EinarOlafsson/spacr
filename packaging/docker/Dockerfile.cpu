@@ -1,0 +1,171 @@
+# spaCR, CPU-only. The image a reviewer, a laptop or a CI job can run.
+#
+#   docker build -f packaging/docker/Dockerfile.cpu -t spacr:cpu .
+#
+# BUILD FROM THE REPOSITORY ROOT. The context is the checkout, and the wheel
+# is built from it rather than downloaded from PyPI, so the image always holds
+# the exact source it was built from -- which is the whole point of tagging an
+# image with a spaCR version. `.dockerignore` keeps the context to ~10% of the
+# checkout.
+#
+# TWO STAGES. The build stage carries a C toolchain -- a few dependencies have
+# no wheel for every interpreter and build from an sdist -- and the runtime
+# stage carries none of it. Copying one self-contained virtual environment
+# across is what keeps the difference out of the published image.
+#
+# NO BuildKit FEATURES ARE USED, and that is a decision. `RUN --mount=type=
+# cache` would make a local rebuild skip the pip downloads, but it needs a
+# BuildKit frontend, and the legacy `docker build` that ships without the
+# buildx component -- which is what this was proved on -- fails on the
+# directive rather than ignoring it. Two tags that only build on some
+# installations of Docker is not a Docker image. `--no-cache-dir` keeps pip's
+# cache out of the layer instead.
+#
+# WHAT IS NOT HERE, and why:
+#
+#   * MODELS. A cpsam checkpoint is ~1.2 GB and goes stale between releases.
+#     Mount a folder on /models; the entrypoint makes it the folder the Model
+#     Zoo downloads into and the folder Cellpose loads from.
+#   * DATA. Mount it. Nothing is ever copied in.
+#   * SAMCell and DINOCell. They pin torch versions that conflict with each
+#     other and with spaCR's, which is an argument for separate images rather
+#     than one image that cannot resolve. Install either inside a running
+#     container, or use the Model Zoo, which installs each backend into an
+#     isolated environment of its own.
+#   * CUDA. See Dockerfile.cuda.
+
+ARG PYTHON_VERSION=3.12
+
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
+FROM python:${PYTHON_VERSION}-slim-bookworm AS build
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore \
+    PYTHONDONTWRITEBYTECODE=1
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# A virtual environment rather than the system interpreter: it is one
+# directory, it is self-contained, and it is the only thing the runtime stage
+# has to copy.
+ENV VIRTUAL_ENV=/opt/spacr/venv
+RUN python -m venv "$VIRTUAL_ENV"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# torch FIRST, and from PyTorch's CPU index. A plain `pip install torch` on
+# Linux resolves to the CUDA build and drags in ~2.5 GB of nvidia-*-cu12
+# wheels that this image has no driver to use. Installing it here means the
+# spaCR install below finds the requirement already satisfied and never
+# reaches the default index for it.
+ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cpu
+ARG TORCH_SPEC="torch>=2.0,<3.0"
+ARG TORCHVISION_SPEC="torchvision>=0.15,<1.0"
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel \
+ && python -m pip install --no-cache-dir --index-url "${TORCH_INDEX_URL}" \
+        "${TORCH_SPEC}" "${TORCHVISION_SPEC}"
+
+WORKDIR /src
+COPY . /src
+RUN python -m pip install --no-cache-dir .
+
+# THE BYTECODE STAYS, and deleting it was the first thing tried here. pip
+# compiles on install, and those .pyc files are the only ones this image will
+# ever have: /opt/spacr/venv is root-owned and the process runs as `spacr`, so
+# a container that starts without them recompiles what it imports on EVERY
+# run and can never cache the result. spacr/cli.py promises that `spacr-run
+# --list` answers instantly on a login node; stripping a few hundred MB would
+# have bought image size with exactly that promise.
+
+# ---------------------------------------------------------------------------
+# Runtime
+# ---------------------------------------------------------------------------
+FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
+
+ARG SPACR_UID=1000
+ARG SPACR_GID=1000
+ARG SPACR_VERSION=unknown
+ARG SPACR_REVISION=unknown
+
+LABEL org.opencontainers.image.title="spaCR" \
+      org.opencontainers.image.description="Spatial phenotype analysis of CRISPR screens — CLI and pipelines, CPU only" \
+      org.opencontainers.image.source="https://github.com/EinarOlafsson/spacr" \
+      org.opencontainers.image.documentation="https://einarolafsson.github.io/spacr/installer_guide.html" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.version="${SPACR_VERSION}" \
+      org.opencontainers.image.revision="${SPACR_REVISION}"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1
+
+# libgomp1 is not optional: numba, xgboost, scikit-learn and OpenCV all link
+# OpenMP. The rest is the X11/EGL set PySide6 loads, and it is here so that
+# the documented Linux-only GUI extra works without a user having to rebuild
+# the image as root. It costs ~60 MB on an image measured in gigabytes.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+        libgomp1 \
+        libglib2.0-0 \
+        tini \
+        libgl1 \
+        libegl1 \
+        libdbus-1-3 \
+        libfontconfig1 \
+        libfreetype6 \
+        libice6 \
+        libsm6 \
+        libx11-xcb1 \
+        libxcb1 \
+        libxcb-cursor0 \
+        libxcb-icccm4 \
+        libxcb-image0 \
+        libxcb-keysyms1 \
+        libxcb-randr0 \
+        libxcb-render-util0 \
+        libxcb-shape0 \
+        libxcb-shm0 \
+        libxcb-sync1 \
+        libxcb-xfixes0 \
+        libxcb-xinerama0 \
+        libxkbcommon0 \
+        libxkbcommon-x11-0 \
+ && rm -rf /var/lib/apt/lists/*
+
+# A non-root user with a settable UID. Every output file a container writes to
+# a mounted folder is owned by the UID inside it, so an image that runs as
+# root hands the user a results folder they cannot delete. Build with
+# `--build-arg SPACR_UID=$(id -u) --build-arg SPACR_GID=$(id -g)` to bake
+# their own, or run with `--user "$(id -u):$(id -g)"` and let the entrypoint
+# relocate HOME.
+RUN groupadd --gid "${SPACR_GID}" spacr \
+ && useradd --uid "${SPACR_UID}" --gid "${SPACR_GID}" \
+            --create-home --shell /bin/bash spacr \
+ && mkdir -p /data /models /work \
+ && chown -R spacr:spacr /data /models /work /home/spacr \
+ && chmod 1777 /data /models /work
+
+# Root-owned on purpose: the process running as `spacr` needs to read and
+# execute the environment, never to modify it.
+COPY --from=build /opt/spacr/venv /opt/spacr/venv
+COPY packaging/docker/entrypoint.sh /opt/spacr/entrypoint.sh
+COPY packaging/docker/smoke_pipeline.py /opt/spacr/smoke_pipeline.py
+RUN chmod 0755 /opt/spacr/entrypoint.sh
+
+ENV VIRTUAL_ENV=/opt/spacr/venv \
+    PATH="/opt/spacr/venv/bin:${PATH}" \
+    MPLBACKEND=Agg \
+    SPACR_CONTAINER=cpu
+
+USER spacr
+WORKDIR /work
+
+# tini reaps the workers spaCR's process pools leave behind and forwards
+# SIGINT, so Ctrl-C stops a pipeline instead of orphaning it.
+ENTRYPOINT ["/usr/bin/tini", "--", "/opt/spacr/entrypoint.sh"]
+CMD ["spacr-run", "--list"]
