@@ -745,3 +745,64 @@ popup container is a QFrame with no such signal, and a parented popup
 inheriting its page's sheet instead of carrying its own would let the
 page's registered blocks reach inside menus, which is a different picture.
 Whoever takes it should decide between those two and say which.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE LEVER IS PULLED: A MENU IS SHEETED WHEN IT IS ABOUT TO OPEN
+--------------------------------------------------------------------------------
+
+THE DECISION. Put to the maintainer through the question prompt with both
+routes and what each costs, and answered: sheet menus at `aboutToShow`. The
+other route -- letting a parented popup inherit its page's sheet -- would
+also have covered a QComboBox's popup, which is a QFrame with no such
+signal, but it would have let a page's registered blocks reach inside its
+menus, and that is a change to the picture rather than to the speed.
+
+WHAT CHANGED, all in spacr/qt/theme.py:
+  `_sheets_itself_before_it_shows` is new. At a menu's `Polish` the filter
+  connects its `aboutToShow` once, through a weak reference, and leaves the
+  polish alone. Qt emits `aboutToShow` from `popup()` and `exec()` BEFORE it
+  measures the menu, so a menu sheeted there has the geometry it would have
+  had sheeted at its polish, and a menu nobody opens is never sheeted.
+  `Show` REMAINS THE BELT TO THAT BRACE: a menu opened with `show()` emits
+  no `aboutToShow` and is sheeted at its `Show` like any other window.
+
+THE CONTRACT THAT MOVED, and it moved on purpose. `test_a_menu_is_still_
+sheeted_before_it_can_be_shown` asserted `ensurePolished()` then sheeted.
+What the test's NAME promises is unchanged -- the menu wears the sheet
+before it can be shown -- so the test now drives the real property: not
+sheeted at the polish, sheeted when `aboutToShow` fires, and not visible at
+that moment. Three tests join it: a menu shown with `show()` is sheeted
+anyway, five polishes connect once, and a menu nobody else holds is still
+collectable, which is what the weak reference is for.
+
+MEASURED, `tools/spacr_startup_benchmark.py --offscreen --runs 1
+--record-only`, arms alternated on one machine, against origin/nightly
+ff8a70135. Worst event-loop stall per module, in ms:
+
+    module            base a  base b   mine a  mine b
+    regression          4929    3722     2740    2775
+    mask                2339    1779     1648    1702
+    classify_merged     1643    1689     1578    1593
+    umap                1201    1204     1129    1130
+    measure              943     939      884     902
+    external_masks       717     723      697     712
+    __preferences__     1050    1039      906     924
+    __home__             298     332      226     227
+
+READ THIS CONSERVATIVELY. Comparing the WORST of the changed arm with the
+BEST of the baseline, Regression is 947 ms better; against the baseline mean
+it is about 1,565 ms. Either figure is at or above the ~825 ms this lever
+was predicted to be worth, and the prediction was of sheeting cost alone.
+
+THE SPREAD IS ITSELF EVIDENCE. The baseline's two Regression runs differ by
+1,207 ms and the changed tree's differ by 35 ms. A cost that varies by a
+second between runs of the same tree is work whose amount depends on what
+Qt happened to polish; removing it removes the variance with it. No other
+module's delta is clearly outside its own noise, which is what one would
+expect from a change that only concerns pages carrying hundreds of popups.
+
+WHAT IS LEFT ON 284: the two smaller costs named in the previous note --
+the one legitimate sheeting of the page itself (~640 ms) and reparenting the
+settings form when the search strip is installed at first show (~250 ms).
+A QComboBox's popup is still sheeted at its polish, by the maintainer's
+choice above.

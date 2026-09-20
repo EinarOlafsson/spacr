@@ -33,7 +33,7 @@ import math
 import warnings
 import weakref
 from contextlib import contextmanager
-from functools import lru_cache
+from functools import lru_cache, partial
 from types import MappingProxyType
 from typing import Dict, List, Optional, Tuple
 
@@ -3239,6 +3239,63 @@ def _a_window_for_want_of_a_parent(widget) -> bool:
     )
 
 
+#: Marks a menu whose sheet has been moved from its ``Polish`` to its
+#: ``aboutToShow``, so the connection is made once however many times Qt
+#: polishes it.
+_SHEETS_AT_ABOUT_TO_SHOW = "_spacr_sheets_at_about_to_show"
+
+
+def _sheet_the_menu_behind(reference) -> None:
+    """Sheet the menu ``reference`` still points at, if it is still there."""
+    widget = reference()
+    if widget is None:
+        return
+    try:
+        for root in _roots_for(widget):
+            _sheet_one_window(root)
+    except (AttributeError, RuntimeError):
+        pass
+
+
+def _sheets_itself_before_it_shows(widget) -> bool:
+    """Move a menu's sheet from its ``Polish`` to its ``aboutToShow``.
+
+    WHY A MENU IS NOT LIKE A DIALOG. One Regression open polishes about
+    five hundred popups -- the page's plots alone bring 351 parentless
+    QMenus, pyqtgraph's ViewBoxMenu and its submenus among them -- and
+    sheeting them all at ``Polish`` cost about 825 ms of the open. Almost
+    none of them is ever shown.
+
+    ``aboutToShow`` is emitted by ``QMenu.popup`` and ``QMenu.exec``
+    BEFORE Qt measures the menu, so a menu sheeted there has the same
+    geometry it would have had sheeted at its polish, and a menu nobody
+    opens is never sheeted at all. The maintainer chose this over letting
+    a parented popup inherit its page's sheet, which would also have
+    covered a QComboBox's popup -- a QFrame with no such signal -- but
+    would have let a page's registered blocks reach inside its menus.
+
+    ``Show`` REMAINS THE BELT TO THIS BRACE. A menu shown by ``show()``
+    rather than ``popup()`` emits no ``aboutToShow``, and is sheeted at
+    its ``Show`` like any other window, so nothing goes unsheeted.
+
+    :param widget: the window being polished.
+    :returns: True when the sheet is now that menu's own business and the
+        polish should leave it alone.
+    """
+    signal = getattr(widget, "aboutToShow", None)
+    if signal is None or not hasattr(signal, "connect"):
+        return False
+    try:
+        if widget.property(_SHEETS_AT_ABOUT_TO_SHOW):
+            return True
+        widget.setProperty(_SHEETS_AT_ABOUT_TO_SHOW, True)
+        signal.connect(
+            partial(_sheet_the_menu_behind, weakref.ref(widget)))
+    except (AttributeError, RuntimeError):
+        return False
+    return True
+
+
 class _SheetsEveryWindowThatAppears(QObject):
     """Gives a window born after a theme change the theme, not the last one.
 
@@ -3286,9 +3343,11 @@ class _SheetsEveryWindowThatAppears(QObject):
         if kind in _SHEETING_MOMENTS:
             try:
                 if watched.isWindow():
-                    if (kind == QEvent.Polish
-                            and _a_window_for_want_of_a_parent(watched)):
-                        return False
+                    if kind == QEvent.Polish:
+                        if _a_window_for_want_of_a_parent(watched):
+                            return False
+                        if _sheets_itself_before_it_shows(watched):
+                            return False
                     for root in _roots_for(watched):
                         _sheet_one_window(root)
                 elif watched.property(_SHEET_TARGET):

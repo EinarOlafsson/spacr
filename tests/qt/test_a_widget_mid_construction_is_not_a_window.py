@@ -126,18 +126,84 @@ def test_a_screen_sized_orphan_is_not_sheeted_once_per_child_it_grows(
 # -- what is still caught ----------------------------------------------------
 
 def test_a_menu_is_still_sheeted_before_it_can_be_shown(sheeted_app, qtbot):
-    """MENUS STAY COVERED.
+    """MENUS STAY COVERED, and the moment moved on 2026-09-20.
 
     380 recorded menus and tooltips as the part "a test cannot open a
-    native menu"; they are covered because a QMenu is an ordinary
-    top-level widget that gets a `Polish`.  Its window type is `Qt.Popup`,
-    not `Qt.Window`, so it is not mistaken for a widget mid-construction.
+    native menu", and until today they were covered at their `Polish`
+    because a QMenu is an ordinary top-level widget that gets one. This
+    test asserted exactly that -- `ensurePolished()` then sheeted.
+
+    One Regression open polishes about five hundred popups, almost none of
+    which is ever opened, and sheeting them all cost ~825 ms of the open
+    (item 284). The maintainer chose to sheet a menu at `aboutToShow`
+    instead, which Qt emits before it measures the menu, so the geometry
+    is unchanged. WHAT THE NAME OF THIS TEST PROMISES IS UNCHANGED: the
+    menu wears the sheet before it can be shown. Only the moment moved,
+    from "whenever Qt polishes it" to "when it is about to open".
     """
     menu = QMenu()
     qtbot.addWidget(menu)
     assert menu.windowType() != Qt.Window
     menu.ensurePolished()
+    assert not _wears_the_sheet(menu), (
+        "a polished menu nobody opens is the 825 ms this stopped paying")
+    menu.aboutToShow.emit()
     assert _wears_the_sheet(menu)
+    assert not menu.isVisible(), "sheeted before it is shown, not after"
+
+
+def test_a_menu_that_is_shown_without_about_to_show_is_sheeted_anyway(
+        sheeted_app, qtbot):
+    """The belt to that brace.
+
+    `aboutToShow` is emitted by `popup()` and `exec()`. A menu shown with
+    plain `show()` emits nothing, and must still be covered -- which is
+    what the filter's `Show` moment is for.
+    """
+    menu = QMenu()
+    qtbot.addWidget(menu)
+    menu.ensurePolished()
+    assert not _wears_the_sheet(menu)
+    menu.show()
+    qtbot.waitExposed(menu)
+    assert _wears_the_sheet(menu)
+    menu.hide()
+
+
+def test_a_menu_polished_many_times_connects_once(sheeted_app, qtbot):
+    """A screen polishes its menus repeatedly as it fills; one connection.
+
+    Reconnecting on every polish would sheet an opened menu once per
+    polish it had received, which is the cost this change removes wearing
+    a different hat.
+    """
+    menu = QMenu()
+    qtbot.addWidget(menu)
+    for _ in range(5):
+        menu.ensurePolished()
+    calls = []
+    original = theme._sheet_one_window
+    theme._sheet_one_window = lambda window: calls.append(window)
+    try:
+        menu.aboutToShow.emit()
+    finally:
+        theme._sheet_one_window = original
+    assert len(calls) == 1, calls
+
+
+def test_the_deferred_menu_is_not_kept_alive_by_its_own_connection(
+        sheeted_app, qtbot):
+    """The connection holds a weak reference, so a menu nobody else holds
+    is still collectable -- the shape item 43 spent a night on."""
+    import gc
+    import weakref
+
+    menu = QMenu()
+    menu.ensurePolished()
+    reference = weakref.ref(menu)
+    del menu
+    gc.collect()
+    assert reference() is None
 
 
 def test_a_parentless_widget_that_is_shown_is_sheeted_after_all(sheeted_app,
