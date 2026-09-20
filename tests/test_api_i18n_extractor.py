@@ -32,7 +32,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # without that one dunder returns 8b07b969..., the previous pin, byte for
 # byte. The 16 constant attributes did not move.
 _NEW_VISIBLE_DIGEST = (
-    "4e86990016ff3da1965fac60fddaa0b69bfba73b3e880283194093b3fc70dbbf"
+    "e331992ac20a5a225cd7ea0eca04b3650b1a6d84cd89d2e1f781d9ef0fae0223"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -203,7 +203,17 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # PRESENT. A `__post_init__` that raises is a contract and belongs on the
     # page, so this is an admission. Set-differenced against
     # origin/nightly df1216b3f: +1 / -0.
-    assert len(dunders) == 211
+    # 2026-09-20: 211 -> 212, ONE entry,
+    # `spacr.crop_loader.CropPlan.__post_init__` -- item 366's crop loader.
+    # Unlike the five before it this one does not raise: it defaults
+    # `selected` to the number of rows for a plan built without a join, which
+    # is why a plan can report a `selected` the caller never passed. A reader
+    # who does not know that reads the field wrong, so it is a contract by
+    # 368's rule and belongs on the page. Set-differenced against
+    # origin/nightly df1216b3f, the baseline the 211 line above used: +2 / -0,
+    # and the other of the two is `SearchThresholds.__post_init__`, already
+    # named above.
+    assert len(dunders) == 212
     assert len(assignments) == 16
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
@@ -1120,7 +1130,30 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # catalogs were repaired with reviewed records for every one of their
     # blocks BEFORE this number was touched
     # (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
-    expected = 10_539
+    # 10,539 -> 10,931 on 2026-09-20, +392 / -0 against the reviewed value
+    # above, measured as a set difference and bucketed by module rather than
+    # named one by one, because 392 names would be a list nobody reads:
+    #
+    #     76  spacr.qt.widgets          20  spacr.qt.resonance (427)
+    #     38  spacr.qt.ai               20  spacr.crop_loader (366)
+    #     27  spacr.qt.sound            18  spacr.qt.mask_engine (419, 435)
+    #     24  spacr.qt.help_search      18  spacr.qt.sound_synth (427)
+    #     23  spacr.qt.model_install    14  spacr.measure (421)
+    #     23  spacr.qt.screens          14  spacr.timeflows_baseline (426)
+    #                                   14  spacr.qt.help_index
+    #                                   14  spacr.qt.preferences
+    #
+    # Against origin/nightly df1216b3f the whole surface is +412 / -2; the
+    # two that left are one entry each in spacr.cli_make_masks and
+    # spacr.qt.ai.
+    #
+    # THE NINE CATALOGS HAVE NOT BEEN REGENERATED FOR ANY OF THESE, and that
+    # is a recorded debt rather than an oversight -- the same shape as the
+    # 10,521 -> 10,523 entry above. The maintainer put translations at low
+    # priority on 2026-09-20 and the rebuild needs the GPU, which was busy.
+    # Until it runs the localized API pages omit these blocks, which is what
+    # this comment exists to say out loud.
+    expected = 10_931
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1159,7 +1192,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,541 -> 10,521 with `expected` above, for the same twenty.
     # 10,521 -> 10,523 with `expected` above, for the same two.
     # 10,523 -> 10,539 with `expected` above, for 412's and 416's sixteen.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_539
+    # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
+    # are still zero, so the two stay equal.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_931
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1480,7 +1515,24 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # and post=10,539. The new boundary entry is exactly _magnifier_drag.
     # A real Sphinx fixture checks the absence of its page and inventory key,
     # alongside a visible positive control, in test_the_magnifier_drag_module_is_private.
-    assert 10_763 - len(docs) == 224
+    # RE-MEASURED 2026-09-20, both halves in one run with
+    # `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,763 -> 11,155
+    #     post-filter  10,539 -> 10,931
+    #     boundary        224 -> 224
+    #
+    # BOTH HALVES MOVED BY EXACTLY 392, which is what says the boundary did
+    # not move and no bucket changed sides: every arrival is rendered.
+    # Against origin/nightly df1216b3f the surface is +412 / -2, the five
+    # days of work between them -- 76 entries under spacr.qt.widgets, 38
+    # under spacr.qt.ai, 27 spacr.qt.sound, 24 help_search, 23 model_install,
+    # 23 screens, 20 resonance (427's ten night themes), 20 crop_loader
+    # (366), 18 mask_engine and 18 sound_synth (419, 435, 427), 14 each in
+    # measure (421), timeflows_baseline (426), help_index and preferences.
+    # The two that left are one entry each in spacr.cli_make_masks and
+    # spacr.qt.ai.
+    assert 11_155 - len(docs) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
