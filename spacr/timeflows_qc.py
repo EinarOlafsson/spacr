@@ -130,14 +130,16 @@ def label_frames(masks):
     rows = []
     grid_y = None
     grid_x = None
+    grid_shape = None
     for index, frame in enumerate(frames):
         flat = np.asarray(frame).ravel()
         if flat.size == 0:
             continue
-        if grid_y is None or grid_y.size != flat.size:
+        if grid_shape != frame.shape:
             height, width = frame.shape
             grid_y = np.repeat(np.arange(height, dtype=float), width)
             grid_x = np.tile(np.arange(width, dtype=float), height)
+            grid_shape = frame.shape
         positive = flat > 0
         if not positive.any():
             continue

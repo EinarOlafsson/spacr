@@ -452,3 +452,21 @@ def test_the_script_runs_as_a_module(tmp_path):
         capture_output=True, text=True, timeout=300)
     assert finished.returncode == 1
     assert 'label_reuse' in finished.stdout
+
+
+def test_frames_of_different_shapes_are_each_measured_on_their_own_grid():
+    """A cached coordinate grid keyed on pixel COUNT would be wrong here.
+
+    48x24 and 24x48 hold the same number of pixels and put the same object in
+    different places. The centroid of the second frame is computed from the
+    grid of the second frame or it is fiction.
+    """
+    first = np.zeros((48, 24), dtype=np.int32)
+    second = np.zeros((24, 48), dtype=np.int32)
+    _square(first, 1, 40, 2, size=4)
+    _square(second, 1, 2, 40, size=4)
+    table = qc.label_frames([first, second])
+    assert float(table.iloc[0]['y']) == pytest.approx(41.5)
+    assert float(table.iloc[0]['x']) == pytest.approx(3.5)
+    assert float(table.iloc[1]['y']) == pytest.approx(3.5)
+    assert float(table.iloc[1]['x']) == pytest.approx(41.5)
